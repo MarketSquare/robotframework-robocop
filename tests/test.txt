@@ -1,0 +1,3 @@
+*** Keywords ***
+Missing Keyword Documentation
+    Log  1

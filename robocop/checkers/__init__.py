@@ -4,6 +4,7 @@ import os
 from pathlib import Path
 from robot.parsing.model.statements import Documentation, Comment
 from astroid import modutils
+from robocop.messages import Message
 
 
 """
@@ -19,6 +20,8 @@ class BaseChecker(ast.NodeVisitor):
     def __init__(self, linter):
         self.linter = linter
         self.source = None
+        self.messages = {}
+        self.register_messages(self.msgs)  # TODO: Add pylint ignore rule
 
     def visit_File(self, node):
         self.generic_visit(node)
@@ -36,17 +39,19 @@ class BaseChecker(ast.NodeVisitor):
                     return False
                 if match.group('disable') == f"disable={rule}":
                     return True
-        
-    def report(self, msgs, msg, node, *args, lineno=None, col=None):
+
+    def register_messages(self, msgs):
         for key, value in msgs.items():
-            if value[0] == msg:
-                break
-        else:
-            raise ValueError(f'Missing definiton for message with name {msg}')
-        msg = value[1]
-        if args:
-            msg %= args
-        self.linter.report(key, msg, node, self.source, lineno, col)
+            msg = Message(key, value)
+            if msg.name in self.messages:
+                raise ValueError("Duplicate message name in checker")  # TODO: add better handling for duplicate messages
+            self.messages[msg.name] = msg
+        
+    def report(self, msg, *args, node=None, lineno=None, col=None):
+        if msg not in self.messages:
+            raise ValueError(f"Missing definition for message with name {msg}")
+        message = self.messages[msg].prepare_message(*args, source=self.source, node=node, lineno=lineno, col=col)
+        self.linter.report(message)
         
 def init(linter):
     seen = set()

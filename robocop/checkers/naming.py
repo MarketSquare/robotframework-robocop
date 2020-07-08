@@ -1,11 +1,13 @@
 from robot.parsing.model.statements import Documentation, Comment
 from robocop.checkers import BaseChecker
+from robocop.messages import MessageSeverity
 
 
 MSGS = {
-    "W0301": (
+    "0301": (
         "invalid-char-in-name",
-        "Invalid character %s in %s name"
+        "Invalid character %s in %s name",
+        MessageSeverity.WARNING
     )
 }
 
@@ -15,6 +17,8 @@ def register(linter):
 
 
 class InvalidCharactersInNameChecker(BaseChecker):
+    msgs = MSGS
+
     def __init__(self, *args):
         self.invalid_chars = ('.', '?')
         self.node_names_map = {
@@ -28,9 +32,8 @@ class InvalidCharactersInNameChecker(BaseChecker):
         #     return
         for index, char in enumerate(node.name):
             if char in self.invalid_chars:
-                print(node.col_offset)
-                print(node.end_col_offset)
-                self.report(MSGS, "invalid-char-in-name", node, char, self.node_names_map[name_of_node],
+                self.report("invalid-char-in-name", char, self.node_names_map[name_of_node],
+                            node=node,
                             col=node.col_offset + index + 1)
 
     def visit_TestCaseName(self, node):

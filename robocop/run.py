@@ -21,13 +21,8 @@ class Robocop:
                 checker.source = str(file)
                 checker.visit(model)
 
-    def report(self, key, msg, node, source, lineno=None, col=None):
-        if lineno is None:
-            lineno = node.lineno
-        if col is None:
-            col = 0
-        severity = key[0]
-        print(f"{source}:{lineno}:{col} [{severity}] {key} {msg}")
+    def report(self, msg):
+        print(f"{msg.source}:{msg.line}:{msg.col} [{msg.severity.value}] {msg.msg_id} {msg.desc}")
 
     def load_checkers(self):
         checkers.init(self)
@@ -39,11 +34,14 @@ class Robocop:
         if isinstance(files_or_dirs, list):
             for path in files_or_dirs:
                 yield from self.get_files(path)
-        if Path(files_or_dirs).is_file():
-            yield Path(files_or_dirs).absolute()
+        path = Path(files_or_dirs)
+        if path.is_file() and Robocop.should_parse(path):
+            yield path.absolute()
         for root, dirs, files in os.walk(files_or_dirs):
             for name in files:
-                yield Path(root, name).absolute()
+                path = Path(root, name)
+                if Robocop.should_parse(path):
+                    yield path.absolute()
 
     @staticmethod
     def should_parse(file):

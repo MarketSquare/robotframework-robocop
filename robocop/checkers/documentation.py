@@ -1,11 +1,13 @@
 from robot.parsing.model.statements import Documentation, Comment
 from robocop.checkers import BaseChecker
+from robocop.messages import MessageSeverity
 
 
 MSGS = {
-    "W0201": (
+    "0201": (
         "missing-doc-keyword",
-        "Missing documentation in keyword"
+        "Missing documentation in keyword",
+        MessageSeverity.WARNING
     )
 }
 
@@ -15,6 +17,8 @@ def register(linter):
 
 
 class KeywordDocumentationChecker(BaseChecker):
+    msgs = MSGS
+
     def visit_Keyword(self, node):
         self.check_if_docs_are_present(node)
                        
@@ -26,4 +30,4 @@ class KeywordDocumentationChecker(BaseChecker):
             if isinstance(statement, Documentation):
                 break
         else:
-            self.report(MSGS, "missing-doc-keyword", node)
+            self.report("missing-doc-keyword", node=node)

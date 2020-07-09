@@ -2,7 +2,6 @@ from enum import Enum
 from copy import deepcopy
 
 
-
 class MessageSeverity(Enum):
     INFO = "I"
     WARNING = "W"

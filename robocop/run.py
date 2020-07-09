@@ -17,7 +17,6 @@ class Robocop:
         self.load_checkers()
 
     def run(self):
-        print(len(self.checkers))
         files = self.config.paths
         for file in self.get_files(files):
             print(f'Parsing {file}')

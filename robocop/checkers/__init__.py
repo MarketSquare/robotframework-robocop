@@ -12,6 +12,7 @@ Message ids:
 01: base
 02: documentation
 03: naming
+04: errors
 
 """
 

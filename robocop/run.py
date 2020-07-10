@@ -20,6 +20,10 @@ class Robocop:
         self.load_reports()
 
     def run(self):
+        self.run_checks()
+        self.make_reports()
+
+    def run_checks(self):
         files = self.config.paths
         for file in self.get_files(files):
             print(f'Parsing {file}')
@@ -27,7 +31,6 @@ class Robocop:
             for checker in self.checkers:
                 checker.source = str(file)
                 checker.visit(model)
-        self.make_reports()
 
     def report(self, msg):
         if not self.config.is_rule_enabled(msg):

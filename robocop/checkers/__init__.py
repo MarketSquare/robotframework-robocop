@@ -13,6 +13,8 @@ Message ids:
 02: documentation
 03: naming
 04: errors
+05: lengths
+09: misc
 
 """
 

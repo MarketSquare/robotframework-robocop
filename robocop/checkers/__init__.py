@@ -14,6 +14,7 @@ Message ids:
 03: naming
 04: errors
 05: lengths
+06: tags
 09: misc
 
 """

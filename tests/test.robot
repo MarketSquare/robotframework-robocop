@@ -2,6 +2,8 @@
 Resource   resource.robot
 Variables  vars.robot
 Library    robot_lib.py
+Force Tags    forcedtag
+Default Tags  defaulttag  default with space
 
 *** Test Cases ***
 Test
@@ -30,3 +32,6 @@ Missing Doc But Disabled Rule  # roblint: disable=missing-doc-keyword
 	
 Keyword With Invalid Char?
     Log  1
+
+Keyword With Reserved Tags
+    [Tags]  tagORtag  tagorand  andsmth  with space or reserved

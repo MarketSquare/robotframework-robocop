@@ -9,8 +9,8 @@ MSGS = {
         MessageSeverity.WARNING
     ),
     "0502": (
-        "too-little-calls-in-keyword",
-        "Keyword have too little keywords inside (%d/%d)",
+        "too-few-calls-in-keyword",
+        "Keyword have too few keywords inside (%d/%d)",
         MessageSeverity.WARNING
     ),
     "0503": (
@@ -28,6 +28,11 @@ MSGS = {
         "Test case have too many keywords inside (%d/%d)",
         MessageSeverity.WARNING
     ),
+    "0506": (
+        "too-long-file",
+        "File has too many lines (%d/%d)",
+        MessageSeverity.WARNING
+    )
 }
 
 
@@ -44,7 +49,17 @@ class LengthChecker(BaseChecker):
         self.keyword_max_calls = 8
         self.keyword_min_calls = 2
         self.testcase_max_calls = 8
+        self.file_max_lines = 400
         super().__init__(*args)
+
+    def visit_File(self, node):
+        if node.end_lineno > self.file_max_lines:
+            self.report("file-too-long",
+                        node.end_lineno,
+                        self.file_max_lines,
+                        node=node,
+                        lineno=node.end_lineno)
+        super().visit_File(node)
 
     def visit_Keyword(self, node):
         length = LengthChecker.check_node_length(node)
@@ -57,18 +72,16 @@ class LengthChecker(BaseChecker):
             return
         key_calls = LengthChecker.count_keyword_calls(node)
         if key_calls < self.keyword_min_calls:
-            self.report("too-little-calls-in-keyword",
+            self.report("too-few-calls-in-keyword",
                         key_calls,
                         self.keyword_min_calls,
-                        node=node,
-                        lineno=node.end_lineno)
+                        node=node)
             return
         if key_calls > self.keyword_max_calls:
             self.report("too-many-calls-in-keyword",
                         key_calls,
                         self.keyword_max_calls,
-                        node=node,
-                        lineno=node.end_lineno)
+                        node=node)
             return
 
     def visit_TestCase(self, node):
@@ -77,15 +90,13 @@ class LengthChecker(BaseChecker):
             self.report("too-long-test-case",
                         length,
                         self.testcase_max_len,
-                        node=node,
-                        lineno=node.end_lineno)
+                        node=node)
         key_calls = LengthChecker.count_keyword_calls(node)
         if key_calls > self.testcase_max_calls:
             self.report("too-many-calls-in-test-case",
                         key_calls,
                         self.testcase_max_calls,
-                        node=node,
-                        lineno=node.end_lineno)
+                        node=node)
             return
 
     @staticmethod

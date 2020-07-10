@@ -74,7 +74,11 @@ class LengthChecker(BaseChecker):
     def visit_TestCase(self, node):
         length = LengthChecker.check_node_length(node)
         if length > self.testcase_max_len:
-            self.report("too-long-test-case", node=node, lineno=node.end_lineno)
+            self.report("too-long-test-case",
+                        length,
+                        self.testcase_max_len,
+                        node=node,
+                        lineno=node.end_lineno)
         key_calls = LengthChecker.count_keyword_calls(node)
         if key_calls > self.testcase_max_calls:
             self.report("too-many-calls-in-test-case",

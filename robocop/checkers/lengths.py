@@ -30,7 +30,7 @@ MSGS = {
     ),
     "0506": (
         "too-long-file",
-        "File has too many files (%d/%d)",
+        "File has too many lines (%d/%d)",
         MessageSeverity.WARNING
     )
 }

@@ -21,6 +21,9 @@ class Message:
         self.severity = MessageSeverity.INFO
         self.parse_body()
 
+    def get_fullname(self):
+        return f"{self.severity.value}{self.msg_id} ({self.name})"
+
     def parse_body(self):
         try:
             self.name, self.desc, self.severity = self.body

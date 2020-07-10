@@ -4,6 +4,7 @@ import os
 from pathlib import Path
 from robocop import checkers
 from robocop.config import Config
+from robocop import reports
 
 
 SUPPORTED_FORMATS = ('.robot')
@@ -12,9 +13,11 @@ SUPPORTED_FORMATS = ('.robot')
 class Robocop:
     def __init__(self):
         self.checkers = []
+        self.reports = []
         self.config = Config()
         self.config.parse_opts()
         self.load_checkers()
+        self.load_reports()
 
     def run(self):
         files = self.config.paths
@@ -24,18 +27,32 @@ class Robocop:
             for checker in self.checkers:
                 checker.source = str(file)
                 checker.visit(model)
+        self.make_reports()
 
     def report(self, msg):
         if not self.config.is_rule_enabled(msg):
             return
+        for report in self.reports:
+            report.add_message(msg)
         print(f"{msg.source}:{msg.line}:{msg.col} [{msg.severity.value}] {msg.msg_id} {msg.desc}")
 
     def load_checkers(self):
         checkers.init(self)
 
+    def load_reports(self):
+        reports.init(self)
+
     def register_checker(self, checker):
         if self.any_rule_enabled(checker):
             self.checkers.append(checker)
+
+    def register_report(self, report):
+        if report.name in self.config.reports:
+            self.reports.append(report)
+
+    def make_reports(self):
+        for report in self.reports:
+            print(report.get_report())
 
     def get_files(self, files_or_dirs):
         if isinstance(files_or_dirs, list):

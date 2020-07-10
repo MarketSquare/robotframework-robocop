@@ -13,6 +13,7 @@ class Config:
     def __init__(self):
         self.include = set()
         self.exclude = set()
+        self.reports = set()
         self.paths = []
         self.include_patterns = None
         self.exclude_patterns = None
@@ -33,6 +34,8 @@ class Config:
                             help='Run Robocop only with specified rules. You can define rule by its name or id')
         parser.add_argument('-e', '--exclude', action=ParseDelimetedArgAction, default=set(),
                             help='Ignore specified rules. You can define rule by its name or id')
+        parser.add_argument('-r', '--reports', action=ParseDelimetedArgAction, default=set(),
+                            help='Run reports')
         args = parser.parse_args()
         self.__dict__.update(**vars(args))
         self.translate_patterns()

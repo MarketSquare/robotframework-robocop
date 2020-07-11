@@ -112,3 +112,9 @@ All matched rules will be disabled until enable command::
     # robocop: enable
 
 Ignore blocks can partly overlap. Rule name and rule id can be used interchangeably.
+
+Format output message
+---------------------
+Output message can be defined with -f / --format argument. Default value::
+
+    {source}:{line}:{col} [{severity}] {msg_id} {desc}

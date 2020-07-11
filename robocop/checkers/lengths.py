@@ -64,7 +64,7 @@ class LengthChecker(BaseChecker):
         # TODO: exceptions for wrong type (configure max length with "abc" etc
         for kwarg, value in kwargs.items():
             if kwarg not in self.configurable:
-                raise NotImplementedError(f"{kwarg} parameter is not configurable")
+                raise ValueError(f"{kwarg} parameter is not configurable")
             self.__dict__[kwarg] = int(value)
 
     def visit_File(self, node):

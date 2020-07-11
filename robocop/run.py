@@ -19,6 +19,7 @@ class Robocop:
         self.config = Config()
         self.config.parse_opts()
         self.load_checkers()
+        self.configure_checkers()
         self.load_reports()
 
     def run(self):
@@ -95,6 +96,25 @@ class Robocop:
                 return True
         else:
             return False
+
+    def configure_checkers(self):
+        for config in self.config.configure:
+            # TODO: handle wrong format, not existing checker
+            rule, param, value = config.split(':')
+            checker = self.find_checker(rule)
+            if checker is None:
+                return
+            checker.configure(**{param: value})
+
+    def find_checker(self, msg_id_or_name):
+        for checker in self.checkers:
+            if msg_id_or_name in checker.messages:
+                return checker
+            for msg_name, msg in checker.messages.items():
+                if msg_id_or_name == msg.msg_id:
+                    return checker
+        else:
+            return None
 
 
 def run_robocop():

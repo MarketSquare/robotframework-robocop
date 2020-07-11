@@ -22,10 +22,11 @@ Message ids:
 
 
 class BaseChecker(ast.NodeVisitor):
-    def __init__(self, linter):
+    def __init__(self, linter, configurable=None):
         self.linter = linter
         self.source = None
         self.messages = {}
+        self.configurable = set() if configurable is None else configurable
         self.register_messages(self.msgs)  # TODO: Add pylint ignore rule
 
     def visit_File(self, node):
@@ -57,6 +58,10 @@ class BaseChecker(ast.NodeVisitor):
             raise ValueError(f"Missing definition for message with name {msg}")
         message = self.messages[msg].prepare_message(*args, source=self.source, node=node, lineno=lineno, col=col)
         self.linter.report(message)
+
+    def configure(self, **kwargs):
+        """ Called when trying to configure method """
+        raise NotImplementedError("This method is not configurable")  # TODO: raise our own exception instead
         
 def init(linter):
     seen = set()

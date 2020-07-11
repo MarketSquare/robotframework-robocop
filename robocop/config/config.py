@@ -9,11 +9,18 @@ class ParseDelimetedArgAction(argparse.Action):
         container.update(values.split(','))
 
 
+class ParseCheckerConfig(argparse.Action):
+    def __call__(self, parser, namespace, values, option_string=None):
+        container = getattr(namespace, self.dest)
+        container.append(values)
+
+
 class Config:
     def __init__(self):
         self.include = set()
         self.exclude = set()
         self.reports = set()
+        self.configure = list()
         self.format = "{source}:{line}:{col} [{severity}] {msg_id} {desc}"
         self.paths = []
         self.include_patterns = None
@@ -29,15 +36,17 @@ class Config:
 
     def parse_opts(self):
         parser = argparse.ArgumentParser()
-        parser.add_argument('paths', metavar='paths', type=str, nargs='+',
-                            help='List of paths (files and directories) to be parsed by Robocop')
-        parser.add_argument('-i', '--include', action=ParseDelimetedArgAction, default=set(),
+        parser.add_argument('-i', '--include', action=ParseDelimetedArgAction, default=self.include,
                             help='Run Robocop only with specified rules. You can define rule by its name or id')
-        parser.add_argument('-e', '--exclude', action=ParseDelimetedArgAction, default=set(),
+        parser.add_argument('-e', '--exclude', action=ParseDelimetedArgAction, default=self.exclude,
                             help='Ignore specified rules. You can define rule by its name or id')
-        parser.add_argument('-r', '--reports', action=ParseDelimetedArgAction, default=set(),
+        parser.add_argument('-r', '--reports', action=ParseDelimetedArgAction, default=self.reports,
                             help='Run reports')
         parser.add_argument('-f', '--format', type=str, help='Format of output message', default=self.format)
+        parser.add_argument('-c', '--configure', action=ParseCheckerConfig, default=self.configure,
+                            help="Configure checker with parameter value")
+        parser.add_argument('paths', metavar='paths', type=str, nargs='+',
+                            help='List of paths (files and directories) to be parsed by Robocop')
         args = parser.parse_args()
         self.__dict__.update(**vars(args))
         self.translate_patterns()

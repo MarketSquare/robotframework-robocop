@@ -29,7 +29,7 @@ MSGS = {
         MessageSeverity.WARNING
     ),
     "0506": (
-        "too-long-file",
+        "file-too-long",
         "File has too many lines (%d/%d)",
         MessageSeverity.WARNING
     )
@@ -50,7 +50,22 @@ class LengthChecker(BaseChecker):
         self.keyword_min_calls = 2
         self.testcase_max_calls = 8
         self.file_max_lines = 400
-        super().__init__(*args)
+        configurable = {
+            'keyword_max_len',
+            'testcase_max_len',
+            'keyword_max_calls',
+            'keyword_min_calls',
+            'testscase_max_calls',
+            'file_max_lines'
+        }
+        super().__init__(*args, configurable=configurable)
+
+    def configure(self, **kwargs):
+        # TODO: exceptions for wrong type (configure max length with "abc" etc
+        for kwarg, value in kwargs.items():
+            if kwarg not in self.configurable:
+                raise NotImplementedError(f"{kwarg} parameter is not configurable")
+            self.__dict__[kwarg] = int(value)
 
     def visit_File(self, node):
         if node.end_lineno > self.file_max_lines:

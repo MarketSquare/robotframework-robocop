@@ -20,8 +20,11 @@ class RulesByIdReport:
         message_counter_ordered = sorted([(message, count)
                                           for message, count in self.message_counter.items()],
                                          key=itemgetter(1), reverse=True)
-        longest_name = len(max(message_counter_ordered, key=itemgetter(0))[0])
         s = '\nIssues by ids:\n'
+        if not message_counter_ordered:
+            s += "No issues found\n"
+            return s
+        longest_name = len(max(message_counter_ordered, key=itemgetter(0))[0])
         s += '\n'.join(f"{message:{longest_name}} : {count}" for message, count in message_counter_ordered)
         return s
 

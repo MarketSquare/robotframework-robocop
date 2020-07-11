@@ -47,7 +47,11 @@ class Robocop:
             return
         for report in self.reports:
             report.add_message(msg)
-        print(f"{msg.source}:{msg.line}:{msg.col} [{msg.severity.value}] {msg.msg_id} {msg.desc}")
+        self.log_message(source=msg.source, line=msg.line, col=msg.col, severity=msg.severity.value,
+                         msg_id=msg.msg_id, desc=msg.desc)
+
+    def log_message(self, **kwargs):
+        print(self.config.format.format(**kwargs))
 
     def load_checkers(self):
         checkers.init(self)

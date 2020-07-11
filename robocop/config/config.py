@@ -14,6 +14,7 @@ class Config:
         self.include = set()
         self.exclude = set()
         self.reports = set()
+        self.format = "{source}:{line}:{col} [{severity}] {msg_id} {desc}"
         self.paths = []
         self.include_patterns = None
         self.exclude_patterns = None
@@ -36,6 +37,7 @@ class Config:
                             help='Ignore specified rules. You can define rule by its name or id')
         parser.add_argument('-r', '--reports', action=ParseDelimetedArgAction, default=set(),
                             help='Run reports')
+        parser.add_argument('-f', '--format', type=str, help='Format of output message', default=self.format)
         args = parser.parse_args()
         self.__dict__.update(**vars(args))
         self.translate_patterns()

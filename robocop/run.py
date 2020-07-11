@@ -5,6 +5,7 @@ from pathlib import Path
 from robocop import checkers
 from robocop.config import Config
 from robocop import reports
+from robocop.utils import DisablersFinder
 
 
 SUPPORTED_FORMATS = ('.robot')
@@ -14,6 +15,7 @@ class Robocop:
     def __init__(self):
         self.checkers = []
         self.reports = []
+        self.disabler = None
         self.config = Config()
         self.config.parse_opts()
         self.load_checkers()
@@ -27,13 +29,21 @@ class Robocop:
         files = self.config.paths
         for file in self.get_files(files):
             print(f'Parsing {file}')
+            self.register_disablers(file)
+            if self.disabler.file_disabled:
+                continue
             model = get_model(str(file))
             for checker in self.checkers:
                 checker.source = str(file)
                 checker.visit(model)
 
+    def register_disablers(self, file):
+        self.disabler = DisablersFinder(file, self)
+
     def report(self, msg):
         if not self.config.is_rule_enabled(msg):
+            return
+        if self.disabler.is_msg_disabled(msg):
             return
         for report in self.reports:
             report.add_message(msg)

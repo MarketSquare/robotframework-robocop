@@ -87,3 +87,28 @@ Example::
 
 To enable report use -r or --report argument and name of the report.
 You can use separate arguments (-r report1 -r report2) or comma separated list (-r report1,report2)
+
+Disabling rules in file
+-----------------------
+It is possible to disable rule for particular line or lines::
+
+    Some Keyword  # robocop: disable:rule1,rule2
+
+In this example no messages will be printed for this line for rules named rule1,rule2.
+You can disable all rules with::
+
+    Some Keyword  # robocop: disable
+
+When used in new line without any indent it will start ignore block::
+
+    # robocop: disable=rule1
+
+All matched rules will be disabled until enable command::
+
+    # robocop: enable=rule1
+
+    or:
+
+    # robocop: enable
+
+Ignore blocks can partly overlap. Rule name and rule id can be used interchangeably.

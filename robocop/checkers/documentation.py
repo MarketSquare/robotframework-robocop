@@ -3,21 +3,18 @@ from robocop.checkers import BaseChecker
 from robocop.messages import MessageSeverity
 
 
-MSGS = {
-    "0201": (
-        "missing-doc-keyword",
-        "Missing documentation in keyword",
-        MessageSeverity.WARNING
-    )
-}
-
-
 def register(linter):
     linter.register_checker(KeywordDocumentationChecker(linter))
 
 
 class KeywordDocumentationChecker(BaseChecker):
-    msgs = MSGS
+    msgs = {
+        "0201": (
+            "missing-doc-keyword",
+            "Missing documentation in keyword",
+            MessageSeverity.WARNING
+        )
+    }
 
     def visit_Keyword(self, node):
         self.check_if_docs_are_present(node)

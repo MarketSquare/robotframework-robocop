@@ -2,21 +2,19 @@ from robot.parsing.model.statements import Return, KeywordCall
 from robocop.checkers import BaseChecker
 from robocop.messages import MessageSeverity
 
-MSGS = {
-    "0901": (
-        "keyword-after-return",
-        "Keyword call after [Return] statement",
-        MessageSeverity.ERROR
-    )
-}
-
 
 def register(linter):
     linter.register_checker(MiscChecker(linter))
 
 
 class MiscChecker(BaseChecker):
-    msgs = MSGS
+    msgs = {
+        "0901": (
+            "keyword-after-return",
+            "Keyword call after [Return] statement",
+            MessageSeverity.ERROR
+        )
+    }
 
     def visit_Keyword(self, node):
         returned = False

@@ -3,21 +3,18 @@ from robocop.checkers import BaseChecker
 from robocop.messages import MessageSeverity
 
 
-MSGS = {
-    "0301": (
-        "invalid-char-in-name",
-        "Invalid character %s in %s name",
-        MessageSeverity.WARNING
-    )
-}
-
-
 def register(linter):
     linter.register_checker(InvalidCharactersInNameChecker(linter))
 
 
 class InvalidCharactersInNameChecker(BaseChecker):
-    msgs = MSGS
+    msgs = {
+        "0301": (
+            "invalid-char-in-name",
+            "Invalid character %s in %s name",
+            MessageSeverity.WARNING
+        )
+    }
 
     def __init__(self, *args):
         self.invalid_chars = ('.', '?')

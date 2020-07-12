@@ -2,46 +2,44 @@ from robot.parsing.model.statements import Documentation, Comment, KeywordCall
 from robocop.checkers import BaseChecker
 from robocop.messages import MessageSeverity
 
-MSGS = {
-    "0501": (
-        "too-long-keyword",
-        "Keyword is too long (%d/%d)",
-        MessageSeverity.WARNING
-    ),
-    "0502": (
-        "too-few-calls-in-keyword",
-        "Keyword have too few keywords inside (%d/%d)",
-        MessageSeverity.WARNING
-    ),
-    "0503": (
-        "too-many-calls-in-keyword",
-        "Keyword have too many keywords inside (%d/%d)",
-        MessageSeverity.WARNING
-    ),
-    "0504": (
-        "too-long-test-case",
-        "Test case is too long (%d/%d)",
-        MessageSeverity.WARNING
-    ),
-    "0505": (
-        "too-many-calls-in-test-case",
-        "Test case have too many keywords inside (%d/%d)",
-        MessageSeverity.WARNING
-    ),
-    "0506": (
-        "file-too-long",
-        "File has too many lines (%d/%d)",
-        MessageSeverity.WARNING
-    )
-}
-
 
 def register(linter):
     linter.register_checker(LengthChecker(linter))
 
 
 class LengthChecker(BaseChecker):
-    msgs = MSGS
+    msgs = {
+        "0501": (
+            "too-long-keyword",
+            "Keyword is too long (%d/%d)",
+            MessageSeverity.WARNING
+        ),
+        "0502": (
+            "too-few-calls-in-keyword",
+            "Keyword have too few keywords inside (%d/%d)",
+            MessageSeverity.WARNING
+        ),
+        "0503": (
+            "too-many-calls-in-keyword",
+            "Keyword have too many keywords inside (%d/%d)",
+            MessageSeverity.WARNING
+        ),
+        "0504": (
+            "too-long-test-case",
+            "Test case is too long (%d/%d)",
+            MessageSeverity.WARNING
+        ),
+        "0505": (
+            "too-many-calls-in-test-case",
+            "Test case have too many keywords inside (%d/%d)",
+            MessageSeverity.WARNING
+        ),
+        "0506": (
+            "file-too-long",
+            "File has too many lines (%d/%d)",
+            MessageSeverity.WARNING
+        )
+    }
 
     def __init__(self, *args):
         self.keyword_max_len = 40

@@ -3,7 +3,7 @@ from setuptools import find_packages, setup
 
 
 HERE = pathlib.Path(__file__).parent
-README = (HERE / "README.md").read_text()
+README = (HERE / "README.rst").read_text()
 VERSION = "0.0.1"
 CLASSIFIERS = """
 License :: OSI Approved :: Apache Software License
@@ -20,8 +20,8 @@ setup(
     long_description =              README,
     long_description_content_type = "text/markdown",
     url =                           "https://github.com/bhirsz/robotframework-robocop",
-    author =                        "Bartlomiej Hirsz",
-    author_email =                  "bartek.hirsz@gmail.com",
+    author =                        "Bartlomiej Hirsz, Mateusz Nojek",
+    author_email =                  "bartek.hirsz@gmail.com, matnojek@gmail.com",
     license =                       "Apache License 2.0",
     platforms =                     "any",
     classifiers =                   CLASSIFIERS,

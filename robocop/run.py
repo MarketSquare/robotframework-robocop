@@ -14,6 +14,7 @@ SUPPORTED_FORMATS = ('.robot')
 class Robocop:
     def __init__(self):
         self.checkers = []
+        self.messages = dict()
         self.reports = []
         self.disabler = None
         self.config = Config()
@@ -62,6 +63,9 @@ class Robocop:
 
     def register_checker(self, checker):
         if self.any_rule_enabled(checker):
+            for msg_name, msg in checker.messages.items():
+                self.messages[msg_name] = (msg, checker)
+                self.messages[msg.msg_id] = (msg, checker)
             self.checkers.append(checker)
 
     def register_report(self, report):
@@ -101,10 +105,13 @@ class Robocop:
         for config in self.config.configure:
             # TODO: handle wrong format, not existing checker
             rule, param, value = config.split(':')
-            checker = self.find_checker(rule)
-            if checker is None:
-                return
-            checker.configure(**{param: value})
+            msg, checker = self.messages.get(rule, None)
+            if msg is None:
+                continue
+            configurable = msg.get_configurable(param)
+            if configurable is None:
+                continue
+            checker.configure(configurable[1], configurable[2](value))
 
     def find_checker(self, msg_id_or_name):
         for checker in self.checkers:

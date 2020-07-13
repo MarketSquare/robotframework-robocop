@@ -12,24 +12,18 @@ class InvalidCharactersInNameChecker(BaseChecker):
         "0301": (
             "invalid-char-in-name",
             "Invalid character %s in %s name",
-            MessageSeverity.WARNING
+            MessageSeverity.WARNING,
+            ('invalid_chars', 'invalid_chars', set)
         )
     }
 
     def __init__(self, *args):
         self.invalid_chars = ('.', '?')
-        configurable = {'invalid_chars'}
         self.node_names_map = {
             'KEYWORD_NAME': 'keyword',
             'TESTCASE_NAME': 'test case'
         }
-        super().__init__(*args, configurable=configurable)
-
-    def configure(self, **kwargs):
-        for kwarg, value in kwargs.items():
-            if kwarg not in self.configurable:
-                raise ValueError(f"{kwarg} parameter is not configurable")
-            self.__dict__[kwarg] = set(value)
+        super().__init__(*args)
     
     def check_if_char_in_name(self, node, name_of_node):
         # if self.is_disabled(node, "invalid-char-in-name"):

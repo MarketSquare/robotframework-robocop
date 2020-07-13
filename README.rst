@@ -118,3 +118,18 @@ Format output message
 Output message can be defined with -f / --format argument. Default value::
 
     {source}:{line}:{col} [{severity}] {msg_id} {desc}
+
+Configure message severity
+--------------------------
+
+Configure message severity with -c/--configure argumen and message id or name::
+
+    --configure 0502:severity:error  --configure some_rule:severity:i
+
+Available severity levels, case insensitive::
+
+    Error: error, e
+    Warning: warning, w
+    Info: info, i
+    Fatal: fatal, f
+

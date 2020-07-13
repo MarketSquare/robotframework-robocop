@@ -37,5 +37,5 @@ class TagChecker(BaseChecker):
     def check_tag(self, tag, node):
         if ' ' in tag.value:
             self.report("tag-with-space", node=node, lineno=tag.lineno, col=tag.col_offset + 1)
-        if 'or' in tag.value.lower() or 'and' in tag.value.lower():
+        if 'OR' in tag.value or 'AND' in tag.value:
             self.report("tag-with-reserved", node=node, lineno=tag.lineno, col=tag.col_offset + 1)

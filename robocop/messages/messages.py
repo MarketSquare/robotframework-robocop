@@ -22,6 +22,21 @@ class Message:
         self.configurable = []
         self.parse_body()
 
+    def change_severity(self, value):
+        severity = {
+            'error': 'E',
+            'e': 'E',
+            'warning': 'W',
+            'w': 'W',
+            'info': 'I',
+            'i': 'I',
+            'fatal': 'F',
+            'f': 'F'
+        }.get(value.lower(), None)
+        if severity is None:
+            raise ValueError("Wrong severity")  # TODO: raise custom Fatal error here
+        self.severity = MessageSeverity(severity)
+
     def get_fullname(self):
         return f"{self.severity.value}{self.msg_id} ({self.name})"
 

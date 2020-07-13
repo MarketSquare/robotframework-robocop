@@ -138,10 +138,13 @@ class Robocop:
             if rule not in self.messages:
                 continue
             msg, checker = self.messages[rule]
-            configurable = msg.get_configurable(param)
-            if configurable is None:
-                continue
-            checker.configure(configurable[1], configurable[2](value))
+            if param == 'severity':
+                self.messages[rule] = (msg.change_severity(value), checker)
+            else:
+                configurable = msg.get_configurable(param)
+                if configurable is None:
+                    continue
+                checker.configure(configurable[1], configurable[2](value))
 
     def find_checker(self, msg_id_or_name):
         for checker in self.checkers:

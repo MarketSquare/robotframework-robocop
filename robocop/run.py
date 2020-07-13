@@ -105,9 +105,9 @@ class Robocop:
         for config in self.config.configure:
             # TODO: handle wrong format, not existing checker
             rule, param, value = config.split(':')
-            msg, checker = self.messages.get(rule, None)
-            if msg is None:
+            if rule not in self.messages:
                 continue
+            msg, checker = self.messages[rule]
             configurable = msg.get_configurable(param)
             if configurable is None:
                 continue

@@ -56,7 +56,7 @@ class Config:
             if msg.msg_id not in self.include and msg.name not in self.include:
                 return False
         if self.exclude:
-            if msg.msg_id in self.include or msg.name in self.include:
+            if msg.msg_id in self.exclude or msg.name in self.exclude:
                 return False
         if self.include_patterns:
             for pattern in self.include_patterns:

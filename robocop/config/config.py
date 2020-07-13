@@ -15,6 +15,14 @@ class ParseCheckerConfig(argparse.Action):
         container.append(values)
 
 
+class ParseFileTypes(argparse.Action):
+    def __call__(self, parser, namespace, values, option_string=None):
+        container = getattr(namespace, self.dest)
+        for filetype in values.split(','):
+            filetype = filetype if filetype.startswith('.') else '.' + filetype
+            container.add(filetype)
+
+
 class OpenOutputFile(argparse.Action):
     def __call__(self, parser, namespace, values, option_string=None):
         file = open(values, 'w')  # TODO: raise custom exception if fail (ie dont have permissions)
@@ -31,6 +39,7 @@ class Config:
         self.paths = []
         self.include_patterns = list()
         self.exclude_patterns = list()
+        self.filetypes = {'.robot', '.resource'}
         self.output = None
 
     @staticmethod
@@ -54,8 +63,10 @@ class Config:
                             help="Configure checker with parameter value")
         parser.add_argument('-o', '--output', action=OpenOutputFile, default=self.output,
                             help='Path to output file')
+        parser.add_argument('--filetypes', action=ParseFileTypes, default=self.filetypes,
+                            help='Comma seperated list of file extensions to be scanned by Robocop')
         parser.add_argument('paths', metavar='paths', type=str, nargs='+',
-                            help='List of paths (files and directories) to be parsed by Robocop')
+                            help='List of paths (files and directories) to be scanned by Robocop')
         args = parser.parse_args()
         self.__dict__.update(**vars(args))
         self.translate_patterns()

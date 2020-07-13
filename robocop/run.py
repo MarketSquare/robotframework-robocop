@@ -8,9 +8,6 @@ from robocop import reports
 from robocop.utils import DisablersFinder, FileType, FileTypeChecker
 
 
-SUPPORTED_FORMATS = ('.robot')
-
-
 class Robocop:
     def __init__(self):
         self.files = dict()
@@ -106,7 +103,7 @@ class Robocop:
         if not path.exists():
             raise StopIteration
         if path.is_file():
-            if Robocop.should_parse(path):
+            if self.should_parse(path):
                 yield path.absolute()
         elif path.is_dir():
             for file in path.iterdir():
@@ -114,9 +111,8 @@ class Robocop:
                     continue
                 yield from self.get_absolute_path(file, recursive)
 
-    @staticmethod
-    def should_parse(file):
-        return file.suffix in SUPPORTED_FORMATS
+    def should_parse(self, file):
+        return file.suffix and file.suffix in self.config.filetypes
 
     def any_rule_enabled(self, checker):
         for msg_name, msg in checker.messages.items():

@@ -5,7 +5,7 @@ from pathlib import Path
 from robocop import checkers
 from robocop.config import Config
 from robocop import reports
-from robocop.utils import DisablersFinder
+from robocop.utils import DisablersFinder, FileType, FileTypeChecker
 
 
 SUPPORTED_FORMATS = ('.robot')
@@ -13,6 +13,7 @@ SUPPORTED_FORMATS = ('.robot')
 
 class Robocop:
     def __init__(self):
+        self.files = dict()
         self.checkers = []
         self.messages = dict()
         self.reports = []
@@ -24,17 +25,30 @@ class Robocop:
         self.load_reports()
 
     def run(self):
+        self.recognize_file_types()
         self.run_checks()
         self.make_reports()
 
-    def run_checks(self):
+    def recognize_file_types(self):
         files = self.config.paths
-        for file in self.get_files(files):
-            print(f'Parsing {file}')
+        for file in self.get_files(files, True):
+            if file.name == '__init__.robot':
+                self.files[file] = FileType.INIT
+            else:
+                self.files[file] = FileType.GENERAL
+        file_type_checker = FileTypeChecker(self.files)
+        for file in self.files:
+            file_type_checker.source = file
+            model = get_model(file)
+            file_type_checker.visit(model)
+
+    def run_checks(self):
+        for file in self.files:
+            print(f"Parsing {file}")
             self.register_disablers(file)
             if self.disabler.file_disabled:
                 continue
-            model = get_model(str(file))
+            model = self.files[file].get_parser()(str(file))
             for checker in self.checkers:
                 checker.source = str(file)
                 checker.visit(model)
@@ -76,7 +90,23 @@ class Robocop:
         for report in self.reports:
             print(report.get_report())
 
-    def get_files(self, files_or_dirs):
+    def get_files(self, files_or_dirs, recursive=False):
+        for file in files_or_dirs:
+            yield from self.get_absolute_path(Path(file), recursive)
+
+    def get_absolute_path(self, path, recursive):
+        if not path.exists():
+            raise StopIteration
+        if path.is_file():
+            if Robocop.should_parse(path):
+                yield path.absolute()
+        elif path.is_dir():
+            for file in path.iterdir():
+                if file.is_dir() and not recursive:
+                    continue
+                yield from self.get_absolute_path(file, recursive)
+
+    def get_files1(self, files_or_dirs):
         if isinstance(files_or_dirs, list):
             for path in files_or_dirs:
                 yield from self.get_files(path)

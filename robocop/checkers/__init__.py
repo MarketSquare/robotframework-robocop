@@ -59,9 +59,8 @@ class BaseChecker(ast.NodeVisitor):
         message = self.messages[msg].prepare_message(*args, source=self.source, node=node, lineno=lineno, col=col)
         self.linter.report(message)
 
-    def configure(self, **kwargs):
-        """ Called when trying to configure method """
-        raise NotImplementedError("This method is not configurable")  # TODO: raise our own exception instead
+    def configure(self, param, value):
+        self.__dict__[param] = value
         
 def init(linter):
     seen = set()

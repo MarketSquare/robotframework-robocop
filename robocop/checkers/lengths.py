@@ -2,46 +2,50 @@ from robot.parsing.model.statements import Documentation, Comment, KeywordCall
 from robocop.checkers import BaseChecker
 from robocop.messages import MessageSeverity
 
-MSGS = {
-    "0501": (
-        "too-long-keyword",
-        "Keyword is too long (%d/%d)",
-        MessageSeverity.WARNING
-    ),
-    "0502": (
-        "too-few-calls-in-keyword",
-        "Keyword have too few keywords inside (%d/%d)",
-        MessageSeverity.WARNING
-    ),
-    "0503": (
-        "too-many-calls-in-keyword",
-        "Keyword have too many keywords inside (%d/%d)",
-        MessageSeverity.WARNING
-    ),
-    "0504": (
-        "too-long-test-case",
-        "Test case is too long (%d/%d)",
-        MessageSeverity.WARNING
-    ),
-    "0505": (
-        "too-many-calls-in-test-case",
-        "Test case have too many keywords inside (%d/%d)",
-        MessageSeverity.WARNING
-    ),
-    "0506": (
-        "file-too-long",
-        "File has too many lines (%d/%d)",
-        MessageSeverity.WARNING
-    )
-}
-
 
 def register(linter):
     linter.register_checker(LengthChecker(linter))
 
 
 class LengthChecker(BaseChecker):
-    msgs = MSGS
+    msgs = {
+        "0501": (
+            "too-long-keyword",
+            "Keyword is too long (%d/%d)",
+            MessageSeverity.WARNING,
+            ('max_len', 'keyword_max_len', int)
+        ),
+        "0502": (
+            "too-few-calls-in-keyword",
+            "Keyword have too few keywords inside (%d/%d)",
+            MessageSeverity.WARNING,
+            ('min_calls', 'keyword_min_calls', int)
+        ),
+        "0503": (
+            "too-many-calls-in-keyword",
+            "Keyword have too many keywords inside (%d/%d)",
+            MessageSeverity.WARNING,
+            ('max_calls', 'keyword_max_calls', int)
+        ),
+        "0504": (
+            "too-long-test-case",
+            "Test case is too long (%d/%d)",
+            MessageSeverity.WARNING,
+            ('max_len', 'testcase_max_len', int)
+        ),
+        "0505": (
+            "too-many-calls-in-test-case",
+            "Test case have too many keywords inside (%d/%d)",
+            MessageSeverity.WARNING,
+            ('max_calls', 'testscase_max_calls', int)
+        ),
+        "0506": (
+            "file-too-long",
+            "File has too many lines (%d/%d)",
+            MessageSeverity.WARNING,
+            ('max_lines', 'file_max_lines', int)
+        )
+    }
 
     def __init__(self, *args):
         self.keyword_max_len = 40
@@ -50,22 +54,7 @@ class LengthChecker(BaseChecker):
         self.keyword_min_calls = 2
         self.testcase_max_calls = 8
         self.file_max_lines = 400
-        configurable = {
-            'keyword_max_len',
-            'testcase_max_len',
-            'keyword_max_calls',
-            'keyword_min_calls',
-            'testscase_max_calls',
-            'file_max_lines'
-        }
-        super().__init__(*args, configurable=configurable)
-
-    def configure(self, **kwargs):
-        # TODO: exceptions for wrong type (configure max length with "abc" etc
-        for kwarg, value in kwargs.items():
-            if kwarg not in self.configurable:
-                raise ValueError(f"{kwarg} parameter is not configurable")
-            self.__dict__[kwarg] = int(value)
+        super().__init__(*args)
 
     def visit_File(self, node):
         if node.end_lineno > self.file_max_lines:

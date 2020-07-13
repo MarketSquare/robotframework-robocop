@@ -2,14 +2,6 @@ from robot.parsing.model.statements import Comment
 from robocop.checkers import BaseChecker
 from robocop.messages import MessageSeverity
 
-MSGS = {
-    "0701": (
-        "todo-in-comment",
-        "%s: ",
-        MessageSeverity.WARNING
-    )
-}
-
 
 def register(linter):
     linter.register_checker(CommentChecker(linter))
@@ -44,7 +36,13 @@ class CommentBaseChecker(BaseChecker):
 
 
 class CommentChecker(CommentBaseChecker):
-    msgs = MSGS
+    msgs = {
+        "0701": (
+            "todo-in-comment",
+            "%s: ",
+            MessageSeverity.WARNING
+        )
+    }
 
     def comment_handler(self, comment_token):
         if 'todo' in comment_token.value.lower():

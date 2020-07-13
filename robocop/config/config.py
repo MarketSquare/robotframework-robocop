@@ -23,8 +23,8 @@ class Config:
         self.configure = list()
         self.format = "{source}:{line}:{col} [{severity}] {msg_id} {desc}"
         self.paths = []
-        self.include_patterns = None
-        self.exclude_patterns = None
+        self.include_patterns = list()
+        self.exclude_patterns = list()
 
     @staticmethod
     def _translate_pattern(pattern_list):
@@ -55,15 +55,12 @@ class Config:
         if self.include and not self.include_patterns:
             if msg.msg_id not in self.include and msg.name not in self.include:
                 return False
-        if self.exclude:
-            if msg.msg_id in self.exclude or msg.name in self.exclude:
+        if msg.msg_id in self.exclude or msg.name in self.exclude:
+            return False
+        for pattern in self.include_patterns:
+            if not pattern.match(msg.msg_id) and not pattern.match(msg.name):
                 return False
-        if self.include_patterns:
-            for pattern in self.include_patterns:
-                if not pattern.match(msg.msg_id) and not pattern.match(msg.name):
-                    return False
-        if self.exclude_patterns:
-            for pattern in self.exclude_patterns:
-                if pattern.match(msg.msg_id) or pattern.match(msg.name):
-                    return False
+        for pattern in self.exclude_patterns:
+            if pattern.match(msg.msg_id) or pattern.match(msg.name):
+                return False
         return True

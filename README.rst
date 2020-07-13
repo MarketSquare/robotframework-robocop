@@ -12,7 +12,11 @@ It uses official Robot Framework parsing api to parse files and run number of ch
 looking for potential errors or violations to code quality standards.
  
  Hosted on github: https://github.com/bhirsz/robotframework-robocop
- 
+
+Requirements
+------------
+Python 3.6+ and Robot Framework 3.2.1+.
+
 Install
 -------
 
@@ -124,7 +128,7 @@ Configure message severity
 
 Configure message severity with -c/--configure argumen and message id or name::
 
-    --configure 0502:severity:error  --configure some_rule:severity:i
+    robocop --configure 0502:severity:error  --configure some_rule:severity:i
 
 Available severity levels, case insensitive::
 
@@ -132,4 +136,11 @@ Available severity levels, case insensitive::
     Warning: warning, w
     Info: info, i
     Fatal: fatal, f
+
+Save output to file
+------------------
+
+You can redirect output of robocop to file by using pipes (> in unix) or by -o/--output argument::
+
+  robocop --output robocop.log
 

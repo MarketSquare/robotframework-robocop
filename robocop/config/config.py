@@ -15,6 +15,12 @@ class ParseCheckerConfig(argparse.Action):
         container.append(values)
 
 
+class OpenOutputFile(argparse.Action):
+    def __call__(self, parser, namespace, values, option_string=None):
+        file = open(values, 'w')  # TODO: raise custom exception if fail (ie dont have permissions)
+        setattr(namespace, self.dest, file)
+
+
 class Config:
     def __init__(self):
         self.include = set()
@@ -25,6 +31,7 @@ class Config:
         self.paths = []
         self.include_patterns = list()
         self.exclude_patterns = list()
+        self.output = None
 
     @staticmethod
     def _translate_pattern(pattern_list):
@@ -45,6 +52,8 @@ class Config:
         parser.add_argument('-f', '--format', type=str, help='Format of output message', default=self.format)
         parser.add_argument('-c', '--configure', action=ParseCheckerConfig, default=self.configure,
                             help="Configure checker with parameter value")
+        parser.add_argument('-o', '--output', action=OpenOutputFile, default=self.output,
+                            help='Path to output file')
         parser.add_argument('paths', metavar='paths', type=str, nargs='+',
                             help='List of paths (files and directories) to be parsed by Robocop')
         args = parser.parse_args()

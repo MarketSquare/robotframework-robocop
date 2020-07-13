@@ -15,14 +15,22 @@ class Robocop:
     def __init__(self):
         self.files = dict()
         self.checkers = []
+        self.out = sys.stdout
         self.messages = dict()
         self.reports = []
         self.disabler = None
         self.config = Config()
         self.config.parse_opts()
+        self.set_output()
         self.load_checkers()
         self.configure_checkers()
         self.load_reports()
+
+    def set_output(self):
+        self.out = self.config.output or sys.stdout
+
+    def write_line(self, line):
+        print(line, file=self.out)
 
     def run(self):
         self.recognize_file_types()
@@ -44,7 +52,7 @@ class Robocop:
 
     def run_checks(self):
         for file in self.files:
-            print(f"Parsing {file}")
+            self.write_line(f"Parsing {file}")
             self.register_disablers(file)
             if self.disabler.file_disabled:
                 continue
@@ -67,7 +75,7 @@ class Robocop:
                          msg_id=msg.msg_id, desc=msg.desc)
 
     def log_message(self, **kwargs):
-        print(self.config.format.format(**kwargs))
+        self.write_line(self.config.format.format(**kwargs))
 
     def load_checkers(self):
         checkers.init(self)
@@ -88,7 +96,7 @@ class Robocop:
 
     def make_reports(self):
         for report in self.reports:
-            print(report.get_report())
+            self.write_line(report.get_report())
 
     def get_files(self, files_or_dirs, recursive=False):
         for file in files_or_dirs:
@@ -105,20 +113,6 @@ class Robocop:
                 if file.is_dir() and not recursive:
                     continue
                 yield from self.get_absolute_path(file, recursive)
-
-    def get_files1(self, files_or_dirs):
-        if isinstance(files_or_dirs, list):
-            for path in files_or_dirs:
-                yield from self.get_files(path)
-        else:
-            path = Path(files_or_dirs)
-            if path.is_file() and Robocop.should_parse(path):
-                yield path.absolute()
-            for root, dirs, files in os.walk(files_or_dirs):
-                for name in files:
-                    path = Path(root, name)
-                    if Robocop.should_parse(path):
-                        yield path.absolute()
 
     @staticmethod
     def should_parse(file):

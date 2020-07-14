@@ -2,7 +2,7 @@ import ast
 import re
 from pathlib import Path
 from robot.parsing.model.statements import Comment
-from astroid import modutils
+from importlib import import_module
 from robocop.messages import Message
 
 
@@ -88,7 +88,7 @@ def init(linter):
         try:
             if file.is_dir() or (file.suffix in ('.py') and file.stem != '__init__'):
                 linter.write_line(f"Importing rule file {file}")
-                module = modutils.load_module_from_file(str(file))
+                module = import_module('.'+file.stem, __name__)
                 module.register(linter)
                 seen.add(file.stem)
         except Exception as e:

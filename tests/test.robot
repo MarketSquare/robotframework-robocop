@@ -20,6 +20,9 @@ Test
 Test With Invalid Char.
     Log  1
 
+This Is Quite Long Line Which Is Veeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeery Long
+    Log                                                                                                                         Late argument
+
 *** Keywords ***
 My Internal Keyword
     [Documentation]  This is doc

@@ -6,7 +6,7 @@ class DisablersInFile:
     def __init__(self):
         self.lastblock = -1
         self.lines = set()
-        self.blocks = list()
+        self.blocks = []
 
 
 class DisablersFinder:

@@ -1,13 +1,14 @@
 from robot.parsing.model.statements import Documentation, Comment, KeywordCall
-from robocop.checkers import BaseChecker
+from robocop.checkers import VisitorChecker, RawFileChecker
 from robocop.messages import MessageSeverity
 
 
 def register(linter):
     linter.register_checker(LengthChecker(linter))
+    linter.register_checker(LineLengthChecker(linter))
 
 
-class LengthChecker(BaseChecker):
+class LengthChecker(VisitorChecker):
     msgs = {
         "0501": (
             "too-long-keyword",
@@ -110,3 +111,22 @@ class LengthChecker(BaseChecker):
     @staticmethod
     def count_keyword_calls(node):
         return sum(1 for child in node.body if isinstance(child, KeywordCall))
+
+
+class LineLengthChecker(RawFileChecker):
+    msgs = {
+        "0507": (
+            "line-too-long",
+            "Line is too long (%d/%d)",
+            MessageSeverity.WARNING,
+            ("line_length", "max_line_length", int)
+        )
+    }
+
+    def __init__(self, *args):
+        self.max_line_length = 120
+        super().__init__(*args)
+
+    def visit_line(self, line, lineno):
+        if len(line) > self.max_line_length:
+            self.report("line-too-long", len(line), self.max_line_length, lineno=lineno)

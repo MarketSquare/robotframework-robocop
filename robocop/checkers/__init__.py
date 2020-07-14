@@ -21,17 +21,16 @@ Message ids:
 """
 
 
-class BaseChecker(ast.NodeVisitor):
+class BaseChecker:
+    msgs = None
+
     def __init__(self, linter, configurable=None):
         self.linter = linter
         self.source = None
         self.messages = {}
         self.configurable = set() if configurable is None else configurable
-        self.register_messages(self.msgs)  # TODO: Add pylint ignore rule
+        self.register_messages(self.msgs)
 
-    def visit_File(self, node):
-        self.generic_visit(node)
-        
     def is_disabled(self, node, rule):
         for statement in node.body:
             if not isinstance(statement, Comment):
@@ -52,7 +51,7 @@ class BaseChecker(ast.NodeVisitor):
             if msg.name in self.messages:
                 raise ValueError("Duplicate message name in checker")  # TODO: add better handling for duplicate messages
             self.messages[msg.name] = msg
-        
+
     def report(self, msg, *args, node=None, lineno=None, col=None):
         if msg not in self.messages:
             raise ValueError(f"Missing definition for message with name {msg}")
@@ -61,6 +60,26 @@ class BaseChecker(ast.NodeVisitor):
 
     def configure(self, param, value):
         self.__dict__[param] = value
+
+
+class VisitorChecker(BaseChecker, ast.NodeVisitor):
+    type = 'visitor_checker'
+
+    def visit_File(self, node):
+        self.generic_visit(node)
+
+
+class RawFileChecker(BaseChecker):
+    type = 'rawfile_checker'
+
+    def visit_file(self):
+        with open(self.source) as f:
+            for lineno, line in enumerate(f):
+                self.visit_line(line, lineno)
+
+    def visit_line(self, line, lineno):
+        raise NotImplementedError('This should be override by child checker')
+
         
 def init(linter):
     seen = set()

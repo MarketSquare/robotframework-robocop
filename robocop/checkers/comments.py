@@ -1,5 +1,5 @@
 from robot.parsing.model.statements import Comment
-from robocop.checkers import BaseChecker
+from robocop.checkers import VisitorChecker
 from robocop.messages import MessageSeverity
 
 
@@ -7,7 +7,7 @@ def register(linter):
     linter.register_checker(CommentChecker(linter))
 
 
-class CommentBaseChecker(BaseChecker):
+class CommentBaseChecker(VisitorChecker):
     """
     This is base class for comment checkers. Not supposed to be used directly.
     """

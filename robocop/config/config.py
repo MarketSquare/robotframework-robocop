@@ -23,22 +23,16 @@ class ParseFileTypes(argparse.Action):
             container.add(filetype)
 
 
-class OpenOutputFile(argparse.Action):
-    def __call__(self, parser, namespace, values, option_string=None):
-        file = open(values, 'w')  # TODO: raise custom exception if fail (ie dont have permissions)
-        setattr(namespace, self.dest, file)
-
-
 class Config:
     def __init__(self):
         self.include = set()
         self.exclude = set()
         self.reports = set()
-        self.configure = list()
+        self.configure = []
         self.format = "{source}:{line}:{col} [{severity}] {msg_id} {desc}"
         self.paths = []
-        self.include_patterns = list()
-        self.exclude_patterns = list()
+        self.include_patterns = []
+        self.exclude_patterns = []
         self.filetypes = {'.robot', '.resource'}
         self.output = None
 
@@ -61,10 +55,10 @@ class Config:
         parser.add_argument('-f', '--format', type=str, help='Format of output message', default=self.format)
         parser.add_argument('-c', '--configure', action=ParseCheckerConfig, default=self.configure,
                             help="Configure checker with parameter value")
-        parser.add_argument('-o', '--output', action=OpenOutputFile, default=self.output,
+        parser.add_argument('-o', '--output', type=argparse.FileType('w'), default=self.output,
                             help='Path to output file')
         parser.add_argument('--filetypes', action=ParseFileTypes, default=self.filetypes,
-                            help='Comma seperated list of file extensions to be scanned by Robocop')
+                            help='Comma separated list of file extensions to be scanned by Robocop')
         parser.add_argument('paths', metavar='paths', type=str, nargs='+',
                             help='List of paths (files and directories) to be scanned by Robocop')
         args = parser.parse_args()

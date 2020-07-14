@@ -10,10 +10,10 @@ from robocop.utils import DisablersFinder, FileType, FileTypeChecker
 
 class Robocop:
     def __init__(self):
-        self.files = dict()
+        self.files = {}
         self.checkers = []
         self.out = sys.stdout
-        self.messages = dict()
+        self.messages = {}
         self.reports = []
         self.disabler = None
         self.config = Config()
@@ -56,7 +56,10 @@ class Robocop:
             model = self.files[file].get_parser()(str(file))
             for checker in self.checkers:
                 checker.source = str(file)
-                checker.visit(model)
+                if checker.type == 'visitor_checker':
+                    checker.visit(model)
+                elif checker.type == 'rawfile_checker':
+                    checker.visit_file()
 
     def register_disablers(self, file):
         self.disabler = DisablersFinder(file, self)

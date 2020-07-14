@@ -1,5 +1,5 @@
 from robot.parsing.model.statements import Documentation, Comment
-from robocop.checkers import BaseChecker
+from robocop.checkers import VisitorChecker
 from robocop.messages import MessageSeverity
 
 
@@ -7,7 +7,7 @@ def register(linter):
     linter.register_checker(InvalidCharactersInNameChecker(linter))
 
 
-class InvalidCharactersInNameChecker(BaseChecker):
+class InvalidCharactersInNameChecker(VisitorChecker):
     msgs = {
         "0301": (
             "invalid-char-in-name",

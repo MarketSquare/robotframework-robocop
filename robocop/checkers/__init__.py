@@ -78,7 +78,7 @@ class RawFileChecker(BaseChecker):
                 self.visit_line(line, lineno + 1)
 
     def visit_line(self, line, lineno):
-        raise NotImplementedError('This should be override by child checker')
+        raise NotImplementedError
 
         
 def init(linter):

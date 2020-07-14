@@ -1,3 +1,4 @@
+""" Auto detect robot file type (it can be resource, general or init) """
 import ast
 import os
 from enum import Enum
@@ -13,6 +14,7 @@ class FileType(Enum):
     INIT = 'init'
 
     def get_parser(self):
+        """ return parser (method) for given model type """
         return {
             'resource': get_resource_model,
             'general': get_model,
@@ -25,7 +27,11 @@ class FileTypeChecker(ast.NodeVisitor):
         self.files = files
         self.source = None
 
-    def visit_ResourceImport(self, node):
+    def visit_ResourceImport(self, node):  # pylint: disable=invalid-name
+        """
+        Check all imports in scanned file. If one of our scanned file is imported somewhere else
+        it means this file is resource type
+         """
         path_normalized = node.name.replace('${/}', os.path.sep)
         try:
             path_normalized = find_file(path_normalized, self.source.parent, file_type='Resource')
@@ -35,4 +41,3 @@ class FileTypeChecker(ast.NodeVisitor):
             path = Path(path_normalized)
             if path in self.files:
                 self.files[path] = FileType.RESOURCE
-

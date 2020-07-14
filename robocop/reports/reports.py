@@ -19,13 +19,13 @@ class RulesByIdReport:
         message_counter_ordered = sorted([(message, count)
                                           for message, count in self.message_counter.items()],
                                          key=itemgetter(1), reverse=True)
-        s = '\nIssues by ids:\n'
+        report = '\nIssues by ids:\n'
         if not message_counter_ordered:
-            s += "No issues found\n"
-            return s
+            report += "No issues found\n"
+            return report
         longest_name = len(max(message_counter_ordered, key=itemgetter(0))[0])
-        s += '\n'.join(f"{message:{longest_name}} : {count}" for message, count in message_counter_ordered)
-        return s
+        report += '\n'.join(f"{message:{longest_name}} : {count}" for message, count in message_counter_ordered)
+        return report
 
 
 class RulesBySeverityReport:
@@ -33,14 +33,14 @@ class RulesBySeverityReport:
         self.name = 'rules_by_error_type'
         self.severity_counter = defaultdict(int)
 
-    def add_message(self, message, **kwargs):  # pylint: disable=disable=unused-argument
+    def add_message(self, message, **kwargs):  # pylint: disable=unused-argument
         self.severity_counter[message.severity] += 1
 
     def get_report(self):
         issues_count = sum(self.severity_counter.values())
         if not issues_count:
             return 'Found 0 issues'
-        s = f'\nFound {issues_count} issues: '
-        s += ', '.join(f"{count} {severity.name}(s)" for severity, count in self.severity_counter.items())
-        s += '.'
-        return s
+        report = f'\nFound {issues_count} issues: '
+        report += ', '.join(f"{count} {severity.name}(s)" for severity, count in self.severity_counter.items())
+        report += '.'
+        return report

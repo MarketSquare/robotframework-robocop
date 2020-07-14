@@ -5,7 +5,7 @@ import fnmatch
 from robocop.version import __version__
 
 
-class ParseDelimetedArgAction(argparse.Action):
+class ParseDelimitedArgAction(argparse.Action):
     def __call__(self, parser, namespace, values, option_string=None):
         container = getattr(namespace, self.dest)
         container.update(values.split(','))
@@ -61,7 +61,7 @@ class Config:
         self.include_patterns = self._translate_pattern(self.include)
         self.exclude_patterns = self._translate_pattern(self.exclude)
 
-    def parse_opts(self):
+    def parse_opts(self, args=None):
         parser = argparse.ArgumentParser(prog='robocop',
                                          description='Static code analysis tool for Robot Framework',
                                          epilog='For full documentation visit: '
@@ -72,11 +72,11 @@ class Config:
 
         required.add_argument('paths', metavar='paths', type=str, nargs='+', help=self.HELP_MSGS['help_paths'])
 
-        optional.add_argument('-i', '--include', action=ParseDelimetedArgAction, default=self.include,
+        optional.add_argument('-i', '--include', action=ParseDelimitedArgAction, default=self.include,
                               help=self.HELP_MSGS['help_include'])
-        optional.add_argument('-e', '--exclude', action=ParseDelimetedArgAction, default=self.exclude,
+        optional.add_argument('-e', '--exclude', action=ParseDelimitedArgAction, default=self.exclude,
                               help=self.HELP_MSGS['help_exclude'])
-        optional.add_argument('-r', '--reports', action=ParseDelimetedArgAction, default=self.reports,
+        optional.add_argument('-r', '--reports', action=ParseDelimitedArgAction, default=self.reports,
                               help=self.HELP_MSGS['help_reports'])
         optional.add_argument('-f', '--format', type=str, default=self.format, help=self.HELP_MSGS['help_format'])
         optional.add_argument('-c', '--configure', action=ParseCheckerConfig, default=self.configure,
@@ -89,9 +89,11 @@ class Config:
         optional.add_argument('-v', '--version', action='version', version=__version__,
                               help=self.HELP_MSGS['help_version'])
 
-        args = parser.parse_args()
-        self.__dict__.update(**vars(args))
+        parsed_args = parser.parse_args(args)
+        self.__dict__.update(**vars(parsed_args))
         self.translate_patterns()
+
+        return parsed_args
 
     def is_rule_enabled(self, msg):
         if self.include and not self.include_patterns:

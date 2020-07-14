@@ -78,7 +78,7 @@ Robocop supports glob patterns::
 
 All rules will be ignored except those with doc in its name (like ``missing-doc-keyword``, ``too-long-doc`` etc).
 
-You can provide list of rules in comma separated format or repeat the argument::
+You can provide list of rules in comma separated format or repeat argument::
 
     robocop --include rule1,rule2,rule3 --exclude rule2  --exclude rule1 test.robot
 

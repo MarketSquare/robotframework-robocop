@@ -126,7 +126,7 @@ Output message can be defined with -f / --format argument. Default value::
 Configure message severity
 --------------------------
 
-Configure message severity with -c/--configure argumen and message id or name::
+Configure message severity with `-c/--configure` argument by providing message id or name::
 
     robocop --configure 0502:severity:error  --configure some_rule:severity:i
 

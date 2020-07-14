@@ -59,7 +59,7 @@ class Robocop:
                 if checker.type == 'visitor_checker':
                     checker.visit(model)
                 elif checker.type == 'rawfile_checker':
-                    checker.visit_file()
+                    checker.parse_file()
 
     def register_disablers(self, file):
         self.disabler = DisablersFinder(file, self)

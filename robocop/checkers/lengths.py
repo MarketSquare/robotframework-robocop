@@ -127,6 +127,6 @@ class LineLengthChecker(RawFileChecker):
         self.max_line_length = 120
         super().__init__(*args)
 
-    def visit_line(self, line, lineno):
+    def check_line(self, line, lineno):
         if len(line) > self.max_line_length:
             self.report("line-too-long", len(line), self.max_line_length, lineno=lineno)

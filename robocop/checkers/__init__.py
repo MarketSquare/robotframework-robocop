@@ -72,12 +72,12 @@ class VisitorChecker(BaseChecker, ast.NodeVisitor):
 class RawFileChecker(BaseChecker):
     type = 'rawfile_checker'
 
-    def visit_file(self):
+    def parse_file(self):
         with open(self.source) as f:
             for lineno, line in enumerate(f):
-                self.visit_line(line, lineno + 1)
+                self.check_line(line, lineno + 1)
 
-    def visit_line(self, line, lineno):
+    def check_line(self, line, lineno):
         raise NotImplementedError
 
         

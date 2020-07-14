@@ -75,7 +75,7 @@ class RawFileChecker(BaseChecker):
     def visit_file(self):
         with open(self.source) as f:
             for lineno, line in enumerate(f):
-                self.visit_line(line, lineno)
+                self.visit_line(line, lineno + 1)
 
     def visit_line(self, line, lineno):
         raise NotImplementedError('This should be override by child checker')

@@ -1,6 +1,5 @@
 from collections import defaultdict
 from operator import itemgetter
-from robocop.messages import MessageSeverity
 
 
 def register(linter):

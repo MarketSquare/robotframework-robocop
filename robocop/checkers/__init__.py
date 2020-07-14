@@ -1,8 +1,7 @@
 import ast
 import re
-import os
 from pathlib import Path
-from robot.parsing.model.statements import Documentation, Comment
+from robot.parsing.model.statements import Comment
 from astroid import modutils
 from robocop.messages import Message
 

@@ -1,6 +1,5 @@
 import sys
 from robot.api import get_model
-import os
 from pathlib import Path
 from robocop import checkers
 from robocop.config import Config

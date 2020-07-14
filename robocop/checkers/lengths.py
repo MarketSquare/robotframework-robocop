@@ -1,4 +1,4 @@
-from robot.parsing.model.statements import Documentation, Comment, KeywordCall
+from robot.parsing.model.statements import KeywordCall
 from robocop.checkers import VisitorChecker, RawFileChecker
 from robocop.messages import MessageSeverity
 

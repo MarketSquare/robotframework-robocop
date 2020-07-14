@@ -1,4 +1,3 @@
-from robot.parsing.model.statements import Documentation
 from robocop.checkers import VisitorChecker
 from robocop.messages import MessageSeverity
 

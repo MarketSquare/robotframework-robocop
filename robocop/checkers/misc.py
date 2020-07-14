@@ -1,5 +1,5 @@
 from robot.parsing.model.statements import Return, KeywordCall
-from robocop.checkers import BaseChecker
+from robocop.checkers import VisitorChecker
 from robocop.messages import MessageSeverity
 
 
@@ -7,7 +7,7 @@ def register(linter):
     linter.register_checker(MiscChecker(linter))
 
 
-class MiscChecker(BaseChecker):
+class MiscChecker(VisitorChecker):
     msgs = {
         "0901": (
             "keyword-after-return",

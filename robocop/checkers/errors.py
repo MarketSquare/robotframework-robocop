@@ -1,5 +1,5 @@
 from robot.parsing.model.statements import Documentation, Comment
-from robocop.checkers import BaseChecker
+from robocop.checkers import VisitorChecker
 from robocop.messages import MessageSeverity
 
 
@@ -7,7 +7,7 @@ def register(linter):
     linter.register_checker(ParsingErrorChecker(linter))
 
 
-class ParsingErrorChecker(BaseChecker):
+class ParsingErrorChecker(VisitorChecker):
     msgs = {
         "0401": (
             "parsing-error",

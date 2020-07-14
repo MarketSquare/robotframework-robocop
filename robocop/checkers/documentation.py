@@ -1,5 +1,5 @@
 from robot.parsing.model.statements import Documentation, Comment
-from robocop.checkers import BaseChecker
+from robocop.checkers import VisitorChecker
 from robocop.messages import MessageSeverity
 
 
@@ -7,7 +7,7 @@ def register(linter):
     linter.register_checker(KeywordDocumentationChecker(linter))
 
 
-class KeywordDocumentationChecker(BaseChecker):
+class KeywordDocumentationChecker(VisitorChecker):
     msgs = {
         "0201": (
             "missing-doc-keyword",

@@ -1,5 +1,4 @@
-from robot.parsing.model.statements import Documentation
-from robocop.checkers import BaseChecker
+from robocop.checkers import VisitorChecker
 from robocop.messages import MessageSeverity
 
 
@@ -7,7 +6,7 @@ def register(linter):
     linter.register_checker(TagChecker(linter))
 
 
-class TagChecker(BaseChecker):
+class TagChecker(VisitorChecker):
     msgs = {
         "0601": (
             "tag-with-space",

@@ -1,4 +1,8 @@
+"""
+Collection of classes for detecting checker disablers (like # robocop: disable) in robot files
+"""
 import re
+from copy import copy
 from collections import defaultdict
 
 
@@ -6,19 +10,28 @@ class DisablersInFile:
     def __init__(self):
         self.lastblock = -1
         self.lines = set()
-        self.blocks = list()
+        self.blocks = []
+
+    def copy(self):
+        """ Used by defaultdict to create new instance for every new key in disablers container """
+        return copy(self)
 
 
 class DisablersFinder:
+    """ Parse all scanned file and find and disablers (in line or blocks) """
     def __init__(self, source, linter):
         self.linter = linter
         self.file_disabled = False
         self.any_disabler = False
         self.disabler_pattern = re.compile(r'robocop: (?P<disabler>disable|enable)=?(?P<rules>[\w\-,]*)')
-        self.rules = defaultdict(lambda: DisablersInFile())  # TODO: implement copy for better perfomance (test it)
+        self.rules = defaultdict(DisablersInFile().copy)
         self._parse_file(source)
 
     def is_msg_disabled(self, msg):
+        """
+        Check if given `msg` is disabled. All takes precedence, then line disablers, then block disablers.
+        We're checking for both message id and name.
+        """
         if not self.any_disabler:
             return False
         if 'all' in self.rules:
@@ -36,15 +49,16 @@ class DisablersFinder:
         return False
 
     def is_line_disabled(self, line, rule):
+        """ Helper method for is_msg_disabled that check if given line is in range of any disabled block"""
         if line in self.rules[rule].lines:
             return True
         return any(block[0] <= line <= block[1] for block in self.rules[rule].blocks)
 
     def _parse_file(self, source):
         try:
-            with open(source, 'r') as f:
+            with open(source, 'r') as file:
                 lineno = -1
-                for lineno, line in enumerate(f):
+                for lineno, line in enumerate(file, start=1):
                     if '#' in line:
                         self._parse_line(line, lineno)
                 self._end_block('all', lineno)
@@ -75,6 +89,10 @@ class DisablersFinder:
                 self._end_block(rule, lineno)
 
     def _is_file_disabled(self, last_line):
+        """
+        If we have open block disabler at the end of file and it starts from 0.
+        It means the whole file is disabled and we can skip it in our scan.
+        """
         if 'all' not in self.rules:
             return False
         if len(self.rules['all'].blocks) != 1:

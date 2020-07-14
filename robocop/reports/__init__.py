@@ -1,5 +1,5 @@
-from astroid import modutils
 from pathlib import Path
+from astroid import modutils
 
 
 def init(linter):
@@ -12,5 +12,5 @@ def init(linter):
                 module = modutils.load_module_from_file(str(file))
                 module.register(linter)
                 seen.add(file.stem)
-        except Exception as e:
-            print(e)
+        except IOError as error:
+            print(error)

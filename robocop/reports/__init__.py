@@ -1,5 +1,5 @@
 from pathlib import Path
-from astroid import modutils
+from importlib import import_module
 
 
 def init(linter):
@@ -9,7 +9,7 @@ def init(linter):
             continue
         try:
             if file.is_dir() or (file.suffix in ('.py') and file.stem != '__init__'):
-                module = modutils.load_module_from_file(str(file))
+                module = import_module('.' + file.stem, __name__)
                 module.register(linter)
                 seen.add(file.stem)
         except IOError as error:

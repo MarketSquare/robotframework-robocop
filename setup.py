@@ -27,7 +27,7 @@ setup(
     classifiers =                   CLASSIFIERS,
     packages =                      ['robocop'],
     include_package_data =          True,
-    install_requires =              ['robotframework>=3.2.1', 'astroid'],
+    install_requires =              ['robotframework>=3.2.1'],
     entry_points =                  {'console_scripts':
                                          ['robocop=robocop:run_robocop']
                                     },

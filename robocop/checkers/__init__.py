@@ -88,7 +88,7 @@ def init(linter):
         try:
             if file.is_dir() or (file.suffix in ('.py') and file.stem != '__init__'):
                 linter.write_line(f"Importing rule file {file}")
-                module = import_module('.'+file.stem, __name__)
+                module = import_module('.' + file.stem, __name__)
                 module.register(linter)
                 seen.add(file.stem)
         except Exception as e:

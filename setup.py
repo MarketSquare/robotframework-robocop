@@ -1,10 +1,10 @@
 import pathlib
 from setuptools import find_packages, setup
+from robocop.version import __version__
 
 
 HERE = pathlib.Path(__file__).parent
 README = (HERE / "README.rst").read_text()
-VERSION = "0.0.1"
 CLASSIFIERS = """
 License :: OSI Approved :: Apache Software License
 Operating System :: OS Independent
@@ -15,7 +15,7 @@ Programming Language :: Python :: 3.8
 
 setup(
     name =                          'robotframework-robocop',
-    version =                       VERSION,
+    version =                       __version__,
     description =                   'Linter for Robot Framework',
     long_description =              README,
     long_description_content_type = "text/markdown",

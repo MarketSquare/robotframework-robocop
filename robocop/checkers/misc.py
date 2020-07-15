@@ -8,6 +8,7 @@ def register(linter):
 
 
 class MiscChecker(VisitorChecker):
+    """ Checker for keyword calls after [Return] statement. """
     msgs = {
         "0901": (
             "keyword-after-return",

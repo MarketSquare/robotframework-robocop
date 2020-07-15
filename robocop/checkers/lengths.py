@@ -9,6 +9,35 @@ def register(linter):
 
 
 class LengthChecker(VisitorChecker):
+    """ Checker for max and min length of keyword or test case. It analyses number of lines and also number of
+        keyword calls (as you can have just few keywords but very long ones or vice versa).
+
+        Reports:
+        W0501: missing-doc-keyword: Keyword is too long (keyword_length/max_len)
+        Configurable:
+        severity: MessageSeverity
+        max_len: int
+        W0502: too-few-calls-in-keyword: Keyword have too few keywords inside (keyword_count/min_calls)
+        Configurable:
+        severity: MessageSeverity
+        min_calls: int
+        W0503: too-many-calls-in-keyword: Keyword have too many keywords inside (keyword_count/max_calls)
+        Configurable:
+        severity: MessageSeverity
+        max_calls: int
+        W0504: too-long-test-case: Test case is too long (test_case_length/max_len)
+        Configurable:
+        severity: MessageSeverity
+        max_len: int
+        W0505: too-many-calls-in-test-case: Test case have too many keywords inside (keyword_count/max_calls)
+        Configurable:
+        severity: MessageSeverity
+        max_calls: int
+        W0506: file-too-long: File has too many lines (file_length/max_lines)
+        Configurable:
+        severity: MessageSeverity
+        max_lines: int
+    """
     msgs = {
         "0501": (
             "too-long-keyword",
@@ -114,6 +143,7 @@ class LengthChecker(VisitorChecker):
 
 
 class LineLengthChecker(RawFileChecker):
+    """ Checker for max length of line. """
     msgs = {
         "0507": (
             "line-too-long",

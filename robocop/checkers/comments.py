@@ -35,6 +35,12 @@ class CommentBaseChecker(VisitorChecker):
 
 
 class CommentChecker(CommentBaseChecker):
+    """ Checker for content of comments. It detects if you have leftover todo or fixme in code.
+        Reports:
+        W0701: todo-in-comment: todo/fixme
+        Configurable:
+        severity: MessageSeverity
+    """
     msgs = {
         "0701": (
             "todo-in-comment",

@@ -8,6 +8,13 @@ def register(linter):
 
 
 class ParsingErrorChecker(VisitorChecker):
+    """ Checker that returns Robot Framework DataErrors as lint errors.
+
+        Reports:
+        E0401: parsing-error: Robot Framework syntax error: %s
+        Configurable:
+        severity: MessageSeverity
+    """
     msgs = {
         "0401": (
             "parsing-error",

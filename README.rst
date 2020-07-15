@@ -138,7 +138,7 @@ Available severity levels, case insensitive::
     Fatal: fatal, f
 
 Save output to file
-------------------
+-------------------
 
 You can redirect output of robocop to file by using pipes (> in unix) or by -o/--output argument::
 

@@ -1,8 +1,16 @@
+"""
+Robocop lint rules are called checkers internally. Each checker can scan for multiple related issues
+(like LengthChecker checks both for min and max length of keyword). You can refer to specific messages
+reported by checkers by its name or id (for example `0501` or `too-long-keyword`).
+
+Each message have configurable severity and optionally other parameters.
+"""
 import ast
 import re
 from pathlib import Path
 from robot.parsing.model.statements import Comment
 from importlib import import_module
+import inspect
 from robocop.messages import Message
 
 
@@ -29,20 +37,6 @@ class BaseChecker:
         self.messages = {}
         self.configurable = set() if configurable is None else configurable
         self.register_messages(self.msgs)
-
-    def is_disabled(self, node, rule):
-        for statement in node.body:
-            if not isinstance(statement, Comment):
-                continue
-            if statement.lineno == node.lineno:
-                comment = statement.get_token('COMMENT')
-                if comment is None:
-                    continue
-                match = re.search(r'(.*robocop: )(?P<disable>disable=[^\s]*)', comment.value)
-                if not match:
-                    return False
-                if match.group('disable') == f"disable={rule}":
-                    return True
 
     def register_messages(self, msgs):
         for key, value in msgs.items():
@@ -93,3 +87,21 @@ def init(linter):
                 seen.add(file.stem)
         except Exception as e:
             linter.write_line(e)
+
+
+def get_docs():
+    seen = set()
+    for file in Path(__file__).parent.iterdir():
+        if file.stem in seen or '__pycache__' in str(file):
+            continue
+        try:
+            if file.is_dir() or (file.suffix in ('.py') and file.stem != '__init__'):
+                module = import_module('.' + file.stem, __name__)
+                classess = inspect.getmembers(module, inspect.isclass)
+                for checker in classess:
+                    if hasattr(checker[1], 'msgs') and checker[1].msgs:
+                        yield checker[1]
+                seen.add(file.stem)
+        except Exception as e:
+            print(e)
+            pass

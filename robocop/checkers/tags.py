@@ -7,6 +7,7 @@ def register(linter):
 
 
 class TagChecker(VisitorChecker):
+    """ Checker for tags. It scans for tags with spaces or Robot Framework reserved words. """
     msgs = {
         "0601": (
             "tag-with-space",

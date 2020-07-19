@@ -19,10 +19,10 @@ class ParseCheckerConfig(argparse.Action):
 
 class ParseFileTypes(argparse.Action):
     def __call__(self, parser, namespace, values, option_string=None):
-        container = getattr(namespace, self.dest)
+        filetypes = set()
         for filetype in values.split(','):
-            filetype = filetype if filetype.startswith('.') else '.' + filetype
-            container.add(filetype)
+            filetypes.add(filetype if filetype.startswith('.') else '.' + filetype)
+        setattr(namespace, self.dest, filetypes)
 
 
 class Config:

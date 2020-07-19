@@ -37,6 +37,7 @@ class Config:
         self.exclude_patterns = []
         self.filetypes = {'.robot', '.resource'}
         self.output = None
+        self.parser = self._create_parser()
 
     HELP_MSGS = {
         'help_paths':       'List of paths (files or directories) to be parsed by Robocop',
@@ -61,7 +62,7 @@ class Config:
         self.include_patterns = self._translate_pattern(self.include)
         self.exclude_patterns = self._translate_pattern(self.exclude)
 
-    def parse_opts(self, args=None):
+    def _create_parser(self):
         parser = argparse.ArgumentParser(prog='robocop',
                                          description='Static code analysis tool for Robot Framework',
                                          epilog='For full documentation visit: '
@@ -88,8 +89,10 @@ class Config:
         optional.add_argument('-h', '--help', action='help', help=self.HELP_MSGS['help_info'])
         optional.add_argument('-v', '--version', action='version', version=__version__,
                               help=self.HELP_MSGS['help_version'])
+        return parser
 
-        parsed_args = parser.parse_args(args)
+    def parse_opts(self, args=None):
+        parsed_args = self.parser.parse_args(args)
         self.__dict__.update(**vars(parsed_args))
         self.translate_patterns()
 

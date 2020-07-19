@@ -1,11 +1,31 @@
-import os
+import io
 import unittest
+import pathlib
+from io import StringIO
+from unittest.mock import patch
 from robocop.config import Config
+from robocop.version import __version__
 
 
 class TestArgumentValidation(unittest.TestCase):
     def setUp(self):
         self.config = Config()
+
+    def test_prog_name(self):
+        self.assertEqual(self.config.parser.prog, 'robocop')
+
+    def test_parser_default_help_disabled(self):
+        self.assertFalse(self.config.parser.add_help)
+
+    def test_default_args(self):
+        self.assertSetEqual(self.config.filetypes, {'.resource', '.robot'})
+        self.assertSetEqual(self.config.include, set())
+        self.assertSetEqual(self.config.exclude, set())
+        self.assertSetEqual(self.config.reports, set())
+        self.assertListEqual(self.config.configure, [])
+        self.assertEqual(self.config.format, "{source}:{line}:{col} [{severity}] {msg_id} {desc}")
+        self.assertListEqual(self.config.paths, [])
+        self.assertIsNone(self.config.output)
 
     def test_default_args_after_parse(self):
         args = self.config.parse_opts([''])
@@ -18,19 +38,9 @@ class TestArgumentValidation(unittest.TestCase):
         self.assertListEqual(args.paths, [''])
         self.assertIsNone(args.output)
 
-    def test_default_args(self):
-        self.assertSetEqual(self.config.filetypes, {'.resource', '.robot'})
-        self.assertSetEqual(self.config.include, set())
-        self.assertSetEqual(self.config.exclude, set())
-        self.assertSetEqual(self.config.reports, set())
-        self.assertListEqual(self.config.configure, [])
-        self.assertEqual(self.config.format, "{source}:{line}:{col} [{severity}] {msg_id} {desc}")
-        self.assertListEqual(self.config.paths, [])
-        self.assertIsNone(self.config.output)
-
-    def test_add_filetype(self):
+    def test_overwrite_default_filetypes(self):
         args = self.config.parse_opts(['--filetypes', 'txt', ''])
-        self.assertSetEqual(args.filetypes, {'.resource', '.robot', '.txt'})
+        self.assertSetEqual(args.filetypes, {'.txt'})
 
     def test_duplicate_default_filetypes(self):
         args = self.config.parse_opts(['--filetypes', 'robot,resource', ''])
@@ -38,10 +48,6 @@ class TestArgumentValidation(unittest.TestCase):
 
     def test_duplicate_dot_prefixed_default_filetypes(self):
         args = self.config.parse_opts(['--filetypes', '.robot,.resource', ''])
-        self.assertSetEqual(args.filetypes, {'.resource', '.robot'})
-
-    def test_default_filetypes(self):
-        args = self.config.parse_opts([''])
         self.assertSetEqual(args.filetypes, {'.resource', '.robot'})
 
     def test_include_one_rule(self):
@@ -114,6 +120,46 @@ class TestArgumentValidation(unittest.TestCase):
         new_format = '{source}: {msg_id} {desc}'
         args = self.config.parse_opts(['--format', new_format, ''])
         self.assertEqual(args.format, new_format)
+
+    def test_output(self):
+        args = self.config.parse_opts(['--output', 'results', ''])
+        self.assertIsNotNone(args.output)
+        self.assertIsInstance(args.output, io.TextIOWrapper)
+        self.assertEqual(args.output.name, 'results')
+        self.assertEqual(args.output.mode, 'w')
+        self.assertTrue(pathlib.Path('results').exists())
+        # pathlib.Path('results').unlink()
+        # TODO remove 'results' file in cleanup and handle ResourceWarning
+
+    @patch('sys.stdout', new_callable=StringIO)
+    def test_help_message(self, mock_stdout):
+        with self.assertRaises(SystemExit):
+            self.config.parse_opts(['-h'])
+        self.assertRegex(mock_stdout.getvalue(), r'usage:')
+
+    @patch('sys.stdout', new_callable=StringIO)
+    def test_long_help_message(self, mock_stdout):
+        with self.assertRaises(SystemExit):
+            self.config.parse_opts(['--help'])
+        self.assertRegex(mock_stdout.getvalue(), r'usage:')
+
+    @patch('sys.stdout', new_callable=StringIO)
+    def test_version_number(self, mock_stdout):
+        with self.assertRaises(SystemExit):
+            self.config.parse_opts(['-v'])
+        self.assertRegex(mock_stdout.getvalue(), __version__)
+
+    @patch('sys.stdout', new_callable=StringIO)
+    def test_long_version_number(self, mock_stdout):
+        with self.assertRaises(SystemExit):
+            self.config.parse_opts(['--version'])
+        self.assertRegex(mock_stdout.getvalue(), __version__)
+
+    @patch('sys.stderr', new_callable=StringIO)
+    def test_empty_path(self, mock_stderr):
+        with self.assertRaises(SystemExit):
+            self.config.parse_opts([])
+        self.assertRegex(mock_stderr.getvalue(), r'error: the following arguments are required: paths')
 
 
 if __name__ == '__main__':

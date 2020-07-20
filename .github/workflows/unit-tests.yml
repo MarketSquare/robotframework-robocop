@@ -31,6 +31,7 @@ jobs:
         pip install coverage
     - name: Code quality with pylama
       run: pylama -o pylama.ini
+      if: always()
     - name: Run unit tests with coverage
-      run: |
-        python -m coverage run -m unittest discover
+      run: python -m coverage run -m unittest discover
+      if: always()

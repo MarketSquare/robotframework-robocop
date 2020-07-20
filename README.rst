@@ -63,6 +63,15 @@ Robocop will execute all checks on provided list of paths::
 
 .. include-this-block-in-docs-end
 
+Main features
+-------------
+
+    * including/excluding rules from command line or source code
+    * customized format of output message
+    * generating customized reports
+    * configurable lint rules
+    * output can be redirected to file
+
 Documentation
 -------------
 

@@ -35,3 +35,8 @@ jobs:
     - name: Run unit tests with coverage
       run: python -m coverage run -m unittest discover
       if: always()
+    - name: Codecov
+      uses: codecov/codecov-action@v1.0.11
+      with:
+        name: ${{ matrix.python-version }}-${{ matrix.os }}
+      if: always()

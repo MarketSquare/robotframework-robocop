@@ -70,8 +70,13 @@ class Robocop:
             return
         for report in self.reports:
             report.add_message(msg)
-        self.log_message(source=msg.source, line=msg.line, col=msg.col, severity=msg.severity.value,
-                         msg_id=msg.msg_id, desc=msg.desc, msg_name=msg.name)
+        self.log_message(source=msg.source,
+                         line=msg.line,
+                         col=msg.col,
+                         severity=msg.severity.value,
+                         msg_id=msg.msg_id,
+                         desc=msg.desc,
+                         msg_name=msg.name)
 
     def log_message(self, **kwargs):
         self.write_line(self.config.format.format(**kwargs))

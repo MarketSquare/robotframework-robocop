@@ -72,7 +72,7 @@ class RulesBySeverityReport:
         issues_count = sum(self.severity_counter.values())
         if not issues_count:
             return 'Found 0 issues'
-        report = f'\nFound {issues_count} issues: '
+        report = f'\nFound {issues_count} issue(s): '
         report += ', '.join(f"{count} {severity.name}(s)" for severity, count in self.severity_counter.items())
         report += '.'
         return report

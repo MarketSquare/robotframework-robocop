@@ -61,7 +61,6 @@ Robocop will execute all checks on provided list of paths::
 
     robocop tests test.robot other_dir/subdir
 
-
 .. include-this-block-in-docs-end
 
 Documentation

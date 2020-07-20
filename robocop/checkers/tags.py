@@ -1,3 +1,7 @@
+"""
+Tags checkerss
+"""
+
 from robocop.checkers import VisitorChecker
 from robocop.messages import MessageSeverity
 

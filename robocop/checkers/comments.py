@@ -1,3 +1,6 @@
+"""
+Comments checkers
+"""
 from robocop.checkers import VisitorChecker
 from robocop.messages import MessageSeverity
 
@@ -35,16 +38,11 @@ class CommentBaseChecker(VisitorChecker):
 
 
 class CommentChecker(CommentBaseChecker):
-    """ Checker for content of comments. It detects if you have leftover todo or fixme in code.
-        Reports:
-        W0701: todo-in-comment: todo/fixme
-        Configurable:
-        severity: MessageSeverity
-    """
+    """ Checker for content of comments. It detects if you have leftover todo or fixme in code. """
     msgs = {
         "0701": (
             "todo-in-comment",
-            "%s: ",
+            "Found %s in comment",
             MessageSeverity.WARNING
         )
     }

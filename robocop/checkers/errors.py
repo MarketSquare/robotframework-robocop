@@ -1,4 +1,6 @@
-from robot.parsing.model.statements import Documentation, Comment
+"""
+Errors checkers
+"""
 from robocop.checkers import VisitorChecker
 from robocop.messages import MessageSeverity
 
@@ -8,13 +10,7 @@ def register(linter):
 
 
 class ParsingErrorChecker(VisitorChecker):
-    """ Checker that returns Robot Framework DataErrors as lint errors.
-
-        Reports:
-        E0401: parsing-error: Robot Framework syntax error: %s
-        Configurable:
-        severity: MessageSeverity
-    """
+    """ Checker that returns Robot Framework DataErrors as lint errors. """
     msgs = {
         "0401": (
             "parsing-error",

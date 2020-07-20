@@ -1,3 +1,6 @@
+"""
+Naming checkers
+"""
 from robocop.checkers import VisitorChecker
 from robocop.messages import MessageSeverity
 
@@ -7,7 +10,7 @@ def register(linter):
 
 
 class InvalidCharactersInNameChecker(VisitorChecker):
-    """ Checker for invalid characters in test case of keyword name. """
+    """ Checker for invalid characters in test case or keyword name. """
     msgs = {
         "0301": (
             "invalid-char-in-name",

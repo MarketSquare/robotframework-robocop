@@ -1,16 +1,17 @@
 from robocop import checkers
-from pathlib import Path
-from importlib import import_module
 
 
 if __name__ == "__main__":
+    severity = "    Severity: (:class:`.MessageSeverity`)"
+    checker_docs = {}
     for checker in checkers.get_docs():
-        print(checker.__name__)
-        print(checker.__doc__)
-        print('    Available messages: ')
+        checker_doc = 'Reports: \n'
         for msg, msg_def in checker.msgs.items():
-            print(f"    [{msg_def[2].value}{msg}] {msg_def[0]}: {msg_def[1]}")
-            print('       Configurable parameters: ')
-            print('         severity (MessageSeverityEnum)')
+            checker_doc += f" * [{msg_def[2].value}{msg}] {msg_def[0]}: {msg_def[1]}\n\n"
+            checker_doc += "    Configurable parameters:\n"
+            checker_doc += severity
             if len(msg_def) > 3:
-                print(f"         {msg_def[3][0]} ({msg_def[3][2]})")
+                checker_doc += f"    {msg_def[3][0]} ({msg_def[3][2]})"
+            checker_docs[checker.__name__] = checker_doc
+            print(checker.__module__)
+            print(checker.__bases__)

@@ -1,13 +1,16 @@
+"""
+Miscallenous checkers
+"""
 from robot.parsing.model.statements import Return, KeywordCall
 from robocop.checkers import VisitorChecker
 from robocop.messages import MessageSeverity
 
 
 def register(linter):
-    linter.register_checker(MiscChecker(linter))
+    linter.register_checker(EarlyReturnChecker(linter))
 
 
-class MiscChecker(VisitorChecker):
+class EarlyReturnChecker(VisitorChecker):
     """ Checker for keyword calls after [Return] statement. """
     msgs = {
         "0901": (

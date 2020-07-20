@@ -1,28 +1,17 @@
+"""
+Documentation checkers
+"""
 from robot.parsing.model.statements import Documentation, Comment
 from robocop.checkers import VisitorChecker
 from robocop.messages import MessageSeverity
 
 
 def register(linter):
-    linter.register_checker(KeywordDocumentationChecker(linter))
+    linter.register_checker(MissingDocumentationChecker(linter))
 
 
-class KeywordDocumentationChecker(VisitorChecker):
-    """ Checker for missing documentation.
-
-        Reports:
-        W0201: missing-doc-keyword: Missing documentation in keyword
-        Configurable:
-        severity: MessageSeverity
-
-        W0202: missing-doc-testcase: Missing documentation in test case
-        Configurable:
-        severity: MessageSeverity
-
-        W0303: missing-doc-suite: Missing documentation in suite
-        Configurable:
-        severity: MessageSeverity
-     """
+class MissingDocumentationChecker(VisitorChecker):
+    """ Checker for missing documentation. """
     msgs = {
         "0201": (
             "missing-doc-keyword",

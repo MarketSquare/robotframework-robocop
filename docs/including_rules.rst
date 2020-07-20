@@ -35,7 +35,35 @@ Ignore rule from source code
 ----------------------------
 
 Rules can be also disabled directly from Robot Framework code. It is similar to how # noqa comment works for
-most linters. Examples::
+most linters.
+It is possible to disable rule for particular line or lines::
+
+    Some Keyword  # robocop: disable:rule1,rule2
+
+In this example no messages will be printed for this line for rules named ``rule1``, ``rule2``.
+
+You can disable all rules with::
+
+    Some Keyword  # robocop: disable
+
+When used in new line without any indent it will start ignore block::
+
+    # robocop: disable=rule1
+
+All matched rules will be disabled until enable command::
+
+    # robocop: enable=rule1
+
+    or:
+
+    # robocop: enable
+
+Ignore blocks can partly overlap. Rule name and rule id can be used interchangeably.
+
+It is possible to ignore whole file if you start file with ``# robocop: disable`` and won't provide
+``# robocop: enable`` before end of file.
+
+Examples::
 
     *** Test Cases ***
     Some Test  # robocop: disable=missing-doc-testcase
@@ -54,5 +82,5 @@ most linters. Examples::
     # robocop: enable
 
 In this example we are disabling missing-doc-testcase rule in 2nd line of file. Also we are disabling all rules in
-keywords section. It is possible to ignore whole file if you start file with ``# robocop: disable`` and won't provide
-``# robocop: enable`` before end of file.
+keywords section.
+

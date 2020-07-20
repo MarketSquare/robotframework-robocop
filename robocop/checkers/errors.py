@@ -19,5 +19,5 @@ class ParsingErrorChecker(VisitorChecker):
         )
     }
 
-    def visit_Error(self, node):
+    def visit_Error(self, node):  # noqa
         self.report("parsing-error", node.error, node=node)

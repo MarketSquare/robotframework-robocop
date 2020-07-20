@@ -1,6 +1,6 @@
 import sys
-from robot.api import get_model
 from pathlib import Path
+from robot.api import get_model
 from robocop import checkers
 from robocop.config import Config
 from robocop import reports

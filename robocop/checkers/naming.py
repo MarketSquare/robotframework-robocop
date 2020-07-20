@@ -27,7 +27,7 @@ class InvalidCharactersInNameChecker(VisitorChecker):
             'TESTCASE_NAME': 'test case'
         }
         super().__init__(*args)
-    
+
     def check_if_char_in_name(self, node, name_of_node):
         for index, char in enumerate(node.name):
             if char in self.invalid_chars:
@@ -35,8 +35,8 @@ class InvalidCharactersInNameChecker(VisitorChecker):
                             node=node,
                             col=node.col_offset + index + 1)
 
-    def visit_TestCaseName(self, node):
+    def visit_TestCaseName(self, node):  # noqa
         self.check_if_char_in_name(node, 'TESTCASE_NAME')
-        
-    def visit_KeywordName(self, node):
+
+    def visit_KeywordName(self, node):  # noqa
         self.check_if_char_in_name(node, 'KEYWORD_NAME')

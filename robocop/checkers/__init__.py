@@ -26,9 +26,9 @@ to refer to rule (in include/exclude statements, configurations etc).
 You can configure rule severity and optionally other parameters.
 """
 import ast
+import inspect
 from pathlib import Path
 from importlib import import_module
-import inspect
 from robocop.messages import Message
 
 
@@ -46,7 +46,8 @@ class BaseChecker:
         for key, value in msgs.items():
             msg = Message(key, value)
             if msg.name in self.messages:
-                raise ValueError("Duplicate message name in checker")  # TODO: add better handling for duplicate messages
+                raise ValueError("Duplicate message name in checker")
+                # TODO: add better handling for duplicate messages
             self.messages[msg.name] = msg
 
     def report(self, msg, *args, node=None, lineno=None, col=None):
@@ -59,27 +60,27 @@ class BaseChecker:
         self.__dict__[param] = value
 
 
-class VisitorChecker(BaseChecker, ast.NodeVisitor):
+class VisitorChecker(BaseChecker, ast.NodeVisitor):  # noqa
     type = 'visitor_checker'
 
-    def visit_File(self, node):
+    def visit_File(self, node):  # noqa
         """ Perform generic ast visit on file node. """
         self.generic_visit(node)
 
 
-class RawFileChecker(BaseChecker):
+class RawFileChecker(BaseChecker):  # noqa
     type = 'rawfile_checker'
 
     def parse_file(self):
         """ Read file line by line and for each call check_line method. """
-        with open(self.source) as f:
-            for lineno, line in enumerate(f):
+        with open(self.source) as file:
+            for lineno, line in enumerate(file):
                 self.check_line(line, lineno + 1)
 
     def check_line(self, line, lineno):
         raise NotImplementedError
 
-        
+
 def init(linter):
     seen = set()
     for file in Path(__file__).parent.iterdir():
@@ -91,8 +92,8 @@ def init(linter):
                 module = import_module('.' + file.stem, __name__)
                 module.register(linter)
                 seen.add(file.stem)
-        except Exception as e:
-            linter.write_line(e)
+        except Exception as err:
+            linter.write_line(err)
 
 
 def get_docs():

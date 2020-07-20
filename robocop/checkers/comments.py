@@ -15,16 +15,16 @@ class CommentBaseChecker(VisitorChecker):
     """
     msgs = {}
 
-    def visit_Comment(self, node):
+    def visit_Comment(self, node):  # noqa
         self.find_comments(node)
 
-    def visit_TestCase(self, node):
+    def visit_TestCase(self, node):  # noqa
         self.generic_visit(node)
 
-    def visit_Keyword(self, node):
+    def visit_Keyword(self, node):  # noqa
         self.generic_visit(node)
 
-    def visit_KeywordCall(self, node):
+    def visit_KeywordCall(self, node):  # noqa
         self.find_comments(node)
         self.generic_visit(node)
 

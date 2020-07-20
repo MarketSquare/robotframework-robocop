@@ -13,7 +13,7 @@ jobs:
     strategy:
       matrix:
         os: ['ubuntu-latest', 'windows-latest']
-        python-version: [3.8]
+        python-version: [ 3.6, 3.7, 3.8]
     runs-on: ${{ matrix.os }}
 
     steps:
@@ -27,7 +27,7 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install robotframework>=3.2.1
-        pip install pylama
+        pip install pylama pylama_pylint
         pip install coverage
     - name: Code quality with pylama
       run: pylama -o pylama.ini

@@ -38,15 +38,15 @@ class TestArgumentValidation(unittest.TestCase):
         self.assertListEqual(args.paths, [''])
         self.assertIsNone(args.output)
 
-    def test_overwrite_default_filetypes(self):
+    def test_filetypes_overwrite_defaults(self):
         args = self.config.parse_opts(['--filetypes', 'txt', ''])
         self.assertSetEqual(args.filetypes, {'.txt'})
 
-    def test_duplicate_default_filetypes(self):
+    def test_filetypes_duplicate_defaults(self):
         args = self.config.parse_opts(['--filetypes', 'robot,resource', ''])
         self.assertSetEqual(args.filetypes, {'.resource', '.robot'})
 
-    def test_duplicate_dot_prefixed_default_filetypes(self):
+    def test_filetypes_duplicate_dot_prefixed_defaults(self):
         args = self.config.parse_opts(['--filetypes', '.robot,.resource', ''])
         self.assertSetEqual(args.filetypes, {'.resource', '.robot'})
 
@@ -106,22 +106,22 @@ class TestArgumentValidation(unittest.TestCase):
         args = self.config.parse_opts(['--exclude', rule_name1, '--exclude', rule_name2, ''])
         self.assertSetEqual(args.exclude, {rule_name1, rule_name2})
 
-    def test_overwrite_default_format(self):
+    def test_format_overwrite_default(self):
         default_format = '{source}:{line}:{col} [{severity}] {msg_id} {desc}'
         args = self.config.parse_opts(['--format', default_format, ''])
         self.assertEqual(args.format, default_format)
 
-    def test_empty_format(self):
+    def test_format_empty(self):
         empty_format = ''
         args = self.config.parse_opts(['--format', empty_format, ''])
         self.assertEqual(args.format, '')
 
-    def test_new_format(self):
+    def test_format_new_value(self):
         new_format = '{source}: {msg_id} {desc}'
         args = self.config.parse_opts(['--format', new_format, ''])
         self.assertEqual(args.format, new_format)
 
-    def test_output(self):
+    def test_output_new_value(self):
         args = self.config.parse_opts(['--output', 'results', ''])
         self.assertIsNotNone(args.output)
         self.assertIsInstance(args.output, io.TextIOWrapper)
@@ -138,7 +138,7 @@ class TestArgumentValidation(unittest.TestCase):
         self.assertRegex(mock_stdout.getvalue(), r'usage:')
 
     @patch('sys.stdout', new_callable=StringIO)
-    def test_long_help_message(self, mock_stdout):
+    def test_help_message_long(self, mock_stdout):
         with self.assertRaises(SystemExit):
             self.config.parse_opts(['--help'])
         self.assertRegex(mock_stdout.getvalue(), r'usage:')
@@ -150,16 +150,24 @@ class TestArgumentValidation(unittest.TestCase):
         self.assertRegex(mock_stdout.getvalue(), __version__)
 
     @patch('sys.stdout', new_callable=StringIO)
-    def test_long_version_number(self, mock_stdout):
+    def test_version_number_long(self, mock_stdout):
         with self.assertRaises(SystemExit):
             self.config.parse_opts(['--version'])
         self.assertRegex(mock_stdout.getvalue(), __version__)
 
     @patch('sys.stderr', new_callable=StringIO)
-    def test_empty_path(self, mock_stderr):
+    def test_paths_empty(self, mock_stderr):
         with self.assertRaises(SystemExit):
             self.config.parse_opts([])
         self.assertRegex(mock_stderr.getvalue(), r'error: the following arguments are required: paths')
+
+    def test_paths_new_value(self):
+        args = self.config.parse_opts(['tests.robot'])
+        self.assertListEqual(args.paths, ['tests.robot'])
+
+    def test_paths_two_values(self):
+        args = self.config.parse_opts(['tests.robot', 'test2.robot'])
+        self.assertListEqual(args.paths, ['tests.robot', 'test2.robot'])
 
 
 if __name__ == '__main__':

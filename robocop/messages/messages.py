@@ -49,6 +49,9 @@ class Message:
         self.configurable = []
         self.parse_body(body)
 
+    def __str__(self):
+        return f'Message - {self.msg_id} [{self.severity.value}]: {self.name}: {self.desc}'
+
     def change_severity(self, value):
         severity = {
             'error': 'E',

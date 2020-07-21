@@ -27,8 +27,9 @@ author = 'Bartlomiej Hirsz, Mateusz Nojek'
 
 # The full version, including alpha/beta/rc tags
 # release = robocop.version
-relese = "0.0.1"
+release = "0.0.1"
 
+master_doc = 'index'
 
 # -- General configuration ---------------------------------------------------
 
@@ -60,6 +61,7 @@ html_theme = 'sphinx_rtd_theme'
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ['_static']
 
+
 def rstjinja(app, docname, source):
     """
     Render our pages as a jinja template for fancy templating goodness.
@@ -85,6 +87,7 @@ def setup(app):
    :header: "name", "firstname", "age"
    :widths: 20, 20, 10
 """
+
 
 def get_checker_docs():
     checker_docs = defaultdict(list)

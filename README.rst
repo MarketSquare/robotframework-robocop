@@ -1,3 +1,5 @@
+|Unit tests|
+
 Robocop
 ===============
 
@@ -70,4 +72,7 @@ Main features
 Documentation
 -------------
 
-Full documentation available `here <https://robocop.readthedocs.io>`_ .
+Full documentation available `here <https://robocop.readthedocs.io>`_.
+
+.. |Unit tests| image:: https://github.com/bhirsz/robotframework-robocop/workflows/Unit%20tests/badge.svg?branch=master
+   :target: https://github.com/bhirsz/robotframework-robocop/actions?query=workflow%3A%22Unit+tests%22

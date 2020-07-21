@@ -38,6 +38,8 @@ class Robocop:
         self.recognize_file_types()
         self.run_checks()
         self.make_reports()
+        if not self.out.closed:
+            self.out.close()
 
     def recognize_file_types(self):
         """

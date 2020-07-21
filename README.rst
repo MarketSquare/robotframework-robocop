@@ -1,9 +1,3 @@
-.. image:: docs/images/robocop_logo.png
-   :height: 200 px
-   :width: 150 px
-   :alt: Robocop logo
-   :align: center
-
 Robocop
 ===============
 

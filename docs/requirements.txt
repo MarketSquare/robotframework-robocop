@@ -1,1 +1,2 @@
 sphinx-rtd-theme
+robotframework>=3.2.1

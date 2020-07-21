@@ -1,5 +1,5 @@
 .. image:: docs/images/robocop_logo.png
-   :scale: 50 %
+   :scale: 25 %
    :alt: Robocop logo
    :align: center
 

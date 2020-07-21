@@ -20,7 +20,7 @@ class EarlyReturnChecker(VisitorChecker):
         )
     }
 
-    def visit_Keyword(self, node):
+    def visit_Keyword(self, node):  # noqa
         returned = False
         for child in node.body:
             if isinstance(child, Return):

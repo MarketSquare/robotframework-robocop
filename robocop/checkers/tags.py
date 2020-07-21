@@ -25,13 +25,13 @@ class TagChecker(VisitorChecker):
         )
     }
 
-    def visit_ForceTags(self, node):
+    def visit_ForceTags(self, node):  # noqa
         self.check_tags(node)
 
-    def visit_DefaultTags(self, node):
+    def visit_DefaultTags(self, node):  # noqa
         self.check_tags(node)
 
-    def visit_Tags(self, node):
+    def visit_Tags(self, node):  # noqa
         self.check_tags(node)
 
     def check_tags(self, node):

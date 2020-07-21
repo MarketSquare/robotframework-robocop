@@ -1,7 +1,7 @@
 """
 Documentation checkers
 """
-from robot.parsing.model.statements import Documentation, Comment
+from robot.parsing.model.statements import Documentation
 from robocop.checkers import VisitorChecker
 from robocop.messages import MessageSeverity
 
@@ -30,13 +30,13 @@ class MissingDocumentationChecker(VisitorChecker):
         )
     }
 
-    def visit_Keyword(self, node):
+    def visit_Keyword(self, node):  # noqa
         self.check_if_docs_are_present(node, "missing-doc-keyword")
 
-    def visit_TestCase(self, node):
+    def visit_TestCase(self, node):  # noqa
         self.check_if_docs_are_present(node, "missing-doc-testcase")
 
-    def visit_SettingSection(self, node):
+    def visit_SettingSection(self, node):  # noqa
         # TODO: if settingsection is missing, it should also throw missing-doc-suite
         self.check_if_docs_are_present(node, "missing-doc-suite")
 

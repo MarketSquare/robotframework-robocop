@@ -35,7 +35,7 @@ class RulesByIdReport:
         self.name = 'rules_by_id'
         self.message_counter = defaultdict(int)
 
-    def add_message(self, message, **kwargs):  # pylint: disable=disable=unused-argument
+    def add_message(self, message, **kwargs):  # noqa
         self.message_counter[message.get_fullname()] += 1
 
     def get_report(self):

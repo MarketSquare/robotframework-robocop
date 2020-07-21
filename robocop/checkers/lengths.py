@@ -72,7 +72,7 @@ class LengthChecker(VisitorChecker):
                         lineno=node.end_lineno)
         super().visit_File(node)
 
-    def visit_Keyword(self, node):
+    def visit_Keyword(self, node):  # noqa
         length = LengthChecker.check_node_length(node)
         if length > self.keyword_max_len:
             self.report("too-long-keyword",
@@ -95,7 +95,7 @@ class LengthChecker(VisitorChecker):
                         node=node)
             return
 
-    def visit_TestCase(self, node):
+    def visit_TestCase(self, node):  # noqa
         length = LengthChecker.check_node_length(node)
         if length > self.testcase_max_len:
             self.report("too-long-test-case",

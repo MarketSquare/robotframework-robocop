@@ -75,4 +75,4 @@ Main features
 Documentation
 -------------
 
-Full documentation available .. _here: https://robocop.readthedocs.io/
+Full documentation available `here <https://robocop.readthedocs.io>`_ .

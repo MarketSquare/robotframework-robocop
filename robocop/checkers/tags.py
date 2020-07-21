@@ -1,3 +1,7 @@
+"""
+Tags checkerss
+"""
+
 from robocop.checkers import VisitorChecker
 from robocop.messages import MessageSeverity
 
@@ -7,6 +11,7 @@ def register(linter):
 
 
 class TagChecker(VisitorChecker):
+    """ Checker for tags. It scans for tags with spaces or Robot Framework reserved words. """
     msgs = {
         "0601": (
             "tag-with-space",

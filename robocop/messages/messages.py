@@ -1,8 +1,38 @@
+"""
+Every issue is reported as ``robocop.messages.Message`` object. It can be later printed or used by
+post-run reports.
+
+Format output message
+---------------------
+
+Output message can be defined with ``-f`` / ``--format`` argument. Default value::
+
+    {source}:{line}:{col} [{severity}] {msg_id} {desc}
+
+Available formats:
+  * source: path to file where is the issue
+  * line: line number
+  * col: column number
+  * severity: severity of the message. Value of enum ``robocop.messages.MessageSeverity``
+  * msg_id: id of message (ie. 0501)
+  * msg_name: name of message (ie. line-too-long)
+  * desc: description of message
+"""
 from enum import Enum
 from copy import deepcopy
 
 
 class MessageSeverity(Enum):
+    """
+    Rule message severity.
+    It can be configured with ``-c/--configure id_or_msg_name:severity:value``
+    Where value can be first letter of severity value or whole name, case insensitive.
+    For example ::
+
+        -c line-too-long:severity:e
+
+    Will change line-too-long message severity to error.
+    """
     INFO = "I"
     WARNING = "W"
     ERROR = "E"

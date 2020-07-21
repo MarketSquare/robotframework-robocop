@@ -1,3 +1,6 @@
+"""
+Lengths checkers
+"""
 from robot.parsing.model.statements import KeywordCall
 from robocop.checkers import VisitorChecker, RawFileChecker
 from robocop.messages import MessageSeverity
@@ -9,6 +12,9 @@ def register(linter):
 
 
 class LengthChecker(VisitorChecker):
+    """ Checker for max and min length of keyword or test case. It analyses number of lines and also number of
+        keyword calls (as you can have just few keywords but very long ones or vice versa).
+    """
     msgs = {
         "0501": (
             "too-long-keyword",
@@ -114,6 +120,7 @@ class LengthChecker(VisitorChecker):
 
 
 class LineLengthChecker(RawFileChecker):
+    """ Checker for max length of line. """
     msgs = {
         "0507": (
             "line-too-long",

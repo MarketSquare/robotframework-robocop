@@ -1,3 +1,6 @@
+"""
+Naming checkers
+"""
 from robocop.checkers import VisitorChecker
 from robocop.messages import MessageSeverity
 
@@ -7,6 +10,7 @@ def register(linter):
 
 
 class InvalidCharactersInNameChecker(VisitorChecker):
+    """ Checker for invalid characters in test case or keyword name. """
     msgs = {
         "0301": (
             "invalid-char-in-name",
@@ -25,8 +29,6 @@ class InvalidCharactersInNameChecker(VisitorChecker):
         super().__init__(*args)
     
     def check_if_char_in_name(self, node, name_of_node):
-        # if self.is_disabled(node, "invalid-char-in-name"):
-        #     return
         for index, char in enumerate(node.name):
             if char in self.invalid_chars:
                 self.report("invalid-char-in-name", char, self.node_names_map[name_of_node],

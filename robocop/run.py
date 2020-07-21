@@ -45,6 +45,9 @@ class Robocop:
         If the file is imported somewhere then file type is `RESOURCE`. Otherwise file type is `GENERAL`.
         These types are important since they are used to define parsing class for robot API.
         """
+        if not self.config.paths:
+            print('No path has been provided')
+            sys.exit()
         files = self.config.paths
         for file in self.get_files(files, True):
             if file.name == '__init__.robot':
@@ -92,6 +95,11 @@ class Robocop:
 
     def load_checkers(self):
         checkers.init(self)
+        if self.config.list:
+            for checker in self.checkers:
+                for msg in checker.messages:
+                    print(checker.messages[msg])
+            sys.exit()
 
     def load_reports(self):
         reports.init(self)

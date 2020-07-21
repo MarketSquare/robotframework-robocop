@@ -38,6 +38,7 @@ class Config:
         self.include_patterns = []
         self.exclude_patterns = []
         self.filetypes = {'.robot', '.resource'}
+        self.list = False
         self.output = None
         self.parser = self._create_parser()
 
@@ -50,6 +51,7 @@ class Config:
                             'You can use placeholders to change the way an issue is reported. '
                             'Default: {source}:{line}:{col} [{severity}] {msg_id} {desc}',
         'help_configure':   'Configure checker with parameter value',
+        'help_list':        'List all available rules',
         'help_output':      'Path to output file',
         'help_filetypes':   'Comma separated list of file extensions to be scanned by Robocop',
         'help_info':        'Print this help message and exit',
@@ -73,7 +75,7 @@ class Config:
         required = parser.add_argument_group(title='Required parameters')
         optional = parser.add_argument_group(title='Optional parameters')
 
-        required.add_argument('paths', metavar='paths', type=str, nargs='+', help=self.HELP_MSGS['help_paths'])
+        required.add_argument('paths', metavar='paths', type=str, nargs='*', help=self.HELP_MSGS['help_paths'])
 
         optional.add_argument('-i', '--include', action=ParseDelimitedArgAction, default=self.include,
                               help=self.HELP_MSGS['help_include'])
@@ -84,6 +86,8 @@ class Config:
         optional.add_argument('-f', '--format', type=str, default=self.format, help=self.HELP_MSGS['help_format'])
         optional.add_argument('-c', '--configure', action=ParseCheckerConfig, default=self.configure,
                               help=self.HELP_MSGS['help_configure'])
+        optional.add_argument('-l', '--list', action='store_true', default=self.list,
+                              help=self.HELP_MSGS['help_list'])
         optional.add_argument('-o', '--output', type=argparse.FileType('w'), default=self.output,
                               help=self.HELP_MSGS['help_output'])
         optional.add_argument('--filetypes', action=ParseFileTypes, default=self.filetypes,

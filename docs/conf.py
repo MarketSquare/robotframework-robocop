@@ -10,8 +10,12 @@
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
+import sys
+import os
+from pathlib import Path
 import sphinx_rtd_theme
 from collections import defaultdict
+sys.path.append(str(Path(__file__).parent.parent))
 import robocop
 
 

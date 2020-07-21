@@ -70,7 +70,7 @@ Main features
     * customized format of output message
     * generating customized reports
     * configurable lint rules
-    * output can be redirected to file
+    * output redirection to file
 
 Documentation
 -------------

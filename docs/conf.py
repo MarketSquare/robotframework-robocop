@@ -11,10 +11,9 @@
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
 import sys
-import os
 from pathlib import Path
-import sphinx_rtd_theme
 from collections import defaultdict
+import sphinx_rtd_theme
 sys.path.append(str(Path(__file__).parent.parent))
 import robocop
 
@@ -67,29 +66,24 @@ def rstjinja(app, docname, source):
     Render our pages as a jinja template for fancy templating goodness.
     """
     # Make sure we're outputting HTML
-    try:
-        if app.builder.format != 'html':
-            return
-        src = source[0]
-        rendered = app.builder.templates.render_string(
-            src, app.config.html_context
-        )
-        source[0] = rendered
-    except Exception as e:
-        print(e)
+    if app.builder.format != 'html':
+        return
+    src = source[0]
+    rendered = app.builder.templates.render_string(
+        src, app.config.html_context
+    )
+    source[0] = rendered
 
 
 def setup(app):
     app.connect("source-read", rstjinja)
 
-"""
-.. csv-table:: a title
-   :header: "name", "firstname", "age"
-   :widths: 20, 20, 10
-"""
-
 
 def get_checker_docs():
+    """
+    Load checkers and messages attributes for dynamic docs generation
+    :return: dict with checker groups as keys, checkers in group list as values
+    """
     checker_docs = defaultdict(list)
     for checker in robocop.checkers.get_docs():
         checker_doc = []

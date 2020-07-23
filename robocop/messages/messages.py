@@ -74,8 +74,7 @@ class Message:
         for configurable in self.configurable:
             if configurable[0] == param:
                 return configurable
-        else:
-            return None
+        return None
 
     def parse_body(self):
         try:

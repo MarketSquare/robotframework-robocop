@@ -40,7 +40,7 @@ class Robocop:
                 self.files[file] = FileType.INIT
             else:
                 self.files[file] = FileType.GENERAL
-        file_type_checker = FileTypeChecker(self.files)
+        file_type_checker = FileTypeChecker(self.files, self.config.exec_dir)
         for file in self.files:
             file_type_checker.source = file
             model = get_model(file)

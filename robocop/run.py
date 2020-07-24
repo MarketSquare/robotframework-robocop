@@ -55,10 +55,7 @@ class Robocop:
             model = self.files[file].get_parser()(str(file))
             for checker in self.checkers:
                 checker.source = str(file)
-                if checker.type == 'visitor_checker':
-                    checker.visit(model)
-                elif checker.type == 'rawfile_checker':
-                    checker.parse_file()
+                checker.scan_file(model)
 
     def register_disablers(self, file):
         self.disabler = DisablersFinder(file, self)

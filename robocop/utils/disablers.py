@@ -6,7 +6,8 @@ from copy import copy
 from collections import defaultdict
 
 
-class DisablersInFile:
+class DisablersInFile:  # pylint: disable=too-few-public-methods
+    """ Container for file disablers """
     def __init__(self):
         self.lastblock = -1
         self.lines = set()

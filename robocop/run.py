@@ -26,7 +26,7 @@ class Robocop:
         self.load_reports()
 
     def set_output(self):
-        """ Set output for printing as file if configured. Else use standard output """
+        """ Set output for printing to file if configured. Else use standard output """
         self.out = self.config.output or sys.stdout
 
     def write_line(self, line):
@@ -34,7 +34,7 @@ class Robocop:
         print(line, file=self.out)
 
     def run(self):
-        """ Entry point for running scan """
+        """ Entry point for running scans """
         self.recognize_file_types()
         self.run_checks()
         self.make_reports()
@@ -58,10 +58,6 @@ class Robocop:
             file_type_checker.visit(model)
 
     def run_checks(self):
-        """
-        For each file check if anything is disabled (skip if whole file is disabled) and
-        scan file for every checker in list.
-        """
         for file in self.files:
             self.write_line(f"Parsing {file}")
             self.register_disablers(file)
@@ -80,11 +76,6 @@ class Robocop:
         self.disabler = DisablersFinder(file, self)
 
     def report(self, msg):
-        """
-        If checker find issue it will use this method to report it.
-        We are checking if the rule was not disabled. If not our message is added to every enabled reported
-        and logged.
-        """
         if not self.config.is_rule_enabled(msg):  # disabled from cli
             return
         if self.disabler.is_msg_disabled(msg):  # disabled from source code
@@ -100,19 +91,15 @@ class Robocop:
                          msg_name=msg.name)
 
     def log_message(self, **kwargs):
-        """ Log message according to defined format """
         self.write_line(self.config.format.format(**kwargs))
 
     def load_checkers(self):
-        """ Calls init method in checkers module which scans checkers directory for all rules and init them """
         checkers.init(self)
 
     def load_reports(self):
-        """ Calls init method in reports module which scans reports directory for all rules and init them """
         reports.init(self)
 
     def register_checker(self, checker):
-        """ Called by checker on linter. Add to checker list if any message in checker is enabled """
         if self.any_rule_enabled(checker):
             for msg_name, msg in checker.messages.items():
                 self.messages[msg_name] = (msg, checker)
@@ -120,22 +107,18 @@ class Robocop:
             self.checkers.append(checker)
 
     def register_report(self, report):
-        """ Add to report list if report class discovered in reports module is added from cli """
         if report.name in self.config.reports:
             self.reports.append(report)
 
     def make_reports(self):
-        """ Called at the end of scan to generate report summaries """
         for report in self.reports:
             self.write_line(report.get_report())
 
     def get_files(self, files_or_dirs, recursive=False):
-        """ iterate list of files or paths from cli """
         for file in files_or_dirs:
             yield from self.get_absolute_path(Path(file), recursive)
 
     def get_absolute_path(self, path, recursive):
-        """ generator that yields absolute path to file if file should be parsed """
         if not path.exists():
             return
         if path.is_file():
@@ -148,7 +131,7 @@ class Robocop:
                 yield from self.get_absolute_path(file, recursive)
 
     def should_parse(self, file):
-        """ check if file extension is in list of supported file types (can be configured from cli) """
+        """ Check if file extension is in list of supported file types (can be configured from cli) """
         return file.suffix and file.suffix in self.config.filetypes
 
     def any_rule_enabled(self, checker):

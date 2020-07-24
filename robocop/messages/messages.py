@@ -42,15 +42,12 @@ class MessageSeverity(Enum):
 class Message:
     def __init__(self, msg_id, body):
         self.msg_id = msg_id
-        self.body = body
         self.name = ''
         self.desc = ''
         self.source = None
-        self.line = -1
-        self.col = -1
         self.severity = MessageSeverity.INFO
         self.configurable = []
-        self.parse_body()
+        self.parse_body(body)
 
     def change_severity(self, value):
         severity = {
@@ -76,9 +73,9 @@ class Message:
                 return configurable
         return None
 
-    def parse_body(self):
+    def parse_body(self, body):
         try:
-            self.name, self.desc, self.severity, *self.configurable = self.body
+            self.name, self.desc, self.severity, *self.configurable = body
         except ValueError:
             pass
 

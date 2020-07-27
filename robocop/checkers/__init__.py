@@ -25,10 +25,9 @@ You can configure rule severity and optionally other parameters.
 """
 import ast
 import inspect
-from pathlib import Path
-from importlib import import_module
 from robocop.messages import Message
 from robocop.exceptions import DuplicatedMessageError
+from robocop.utils import modules_in_current_dir
 
 
 class BaseChecker:
@@ -57,9 +56,15 @@ class BaseChecker:
     def configure(self, param, value):
         self.__dict__[param] = value
 
+    def scan_file(self, *args):
+        raise NotImplementedError
+
 
 class VisitorChecker(BaseChecker, ast.NodeVisitor):  # noqa
     type = 'visitor_checker'
+
+    def scan_file(self, *args):
+        self.visit_File(*args)
 
     def visit_File(self, node):  # noqa
         """ Perform generic ast visit on file node. """
@@ -68,6 +73,9 @@ class VisitorChecker(BaseChecker, ast.NodeVisitor):  # noqa
 
 class RawFileChecker(BaseChecker):  # noqa
     type = 'rawfile_checker'
+
+    def scan_file(self, *args):
+        self.parse_file()
 
     def parse_file(self):
         """ Read file line by line and for each call check_line method. """
@@ -80,29 +88,16 @@ class RawFileChecker(BaseChecker):  # noqa
 
 
 def init(linter):
-    seen = set()
-    for file in Path(__file__).parent.iterdir():
-        if file.stem in seen or '__pycache__' in str(file):
-            continue
+    for module in modules_in_current_dir(__file__, __name__):
         try:
-            if file.is_dir() or (file.suffix in ('.py') and file.stem != '__init__'):
-                linter.write_line(f"Importing rule file {file}")
-                module = import_module('.' + file.stem, __name__)
-                module.register(linter)
-                seen.add(file.stem)
-        except Exception as err:
+            module.register(linter)
+        except AttributeError as err:
             linter.write_line(err)
 
 
 def get_docs():
-    seen = set()
-    for file in Path(__file__).parent.iterdir():
-        if file.stem in seen or '__pycache__' in str(file):
-            continue
-        if file.is_dir() or (file.suffix in ('.py') and file.stem != '__init__'):
-            module = import_module('.' + file.stem, __name__)
-            classess = inspect.getmembers(module, inspect.isclass)
-            for checker in classess:
-                if hasattr(checker[1], 'msgs') and checker[1].msgs:
-                    yield checker[1]
-            seen.add(file.stem)
+    for module in modules_in_current_dir(__file__, __name__):
+        classes = inspect.getmembers(module, inspect.isclass)
+        for checker in classes:
+            if hasattr(checker[1], 'msgs') and checker[1].msgs:
+                yield checker[1]

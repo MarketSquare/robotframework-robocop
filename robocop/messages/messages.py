@@ -43,15 +43,12 @@ class MessageSeverity(Enum):
 class Message:
     def __init__(self, msg_id, body):
         self.msg_id = msg_id
-        self.body = body
         self.name = ''
         self.desc = ''
         self.source = None
-        self.line = -1
-        self.col = -1
         self.severity = MessageSeverity.INFO
         self.configurable = []
-        self.parse_body()
+        self.parse_body(body)
 
     def change_severity(self, value):
         severity = {
@@ -75,17 +72,16 @@ class Message:
         for configurable in self.configurable:
             if configurable[0] == param:
                 return configurable
-        else:
-            return None
+        return None
 
-    def parse_body(self):
-        if isinstance(self.body, tuple) and len(self.body) >= 3:
-            self.name, self.desc, self.severity, *self.configurable = self.body
+    def parse_body(self, body):
+        if isinstance(body, tuple) and len(body) >= 3:
+            self.name, self.desc, self.severity, *self.configurable = body
         else:
-            raise InvalidMessageBodyError(self.msg_id, self.body)
+            raise InvalidMessageBodyError(self.msg_id, body)
         for configurable in self.configurable:
             if not isinstance(configurable, tuple) or len(configurable) != 3:
-                raise InvalidMessageConfigurableError(self.msg_id, self.body)
+                raise InvalidMessageConfigurableError(self.msg_id, body)
 
     def prepare_message(self, *args, source, node, lineno, col):
         message = deepcopy(self)

@@ -9,6 +9,9 @@ from robot.errors import DataError
 
 
 class FileType(Enum):
+    """
+    Enum holding type of Robot file.
+    """
     RESOURCE = 'resource'
     GENERAL = 'general'
     INIT = 'init'
@@ -23,8 +26,13 @@ class FileType(Enum):
 
 
 class FileTypeChecker(ast.NodeVisitor):
-    def __init__(self, files):
+    """
+    Check if file contains import statements. If the import is in list of files to be scanned, update its type
+    from GENERAL to RESOURCE.
+    """
+    def __init__(self, files, exec_dir):
         self.files = files
+        self.exec_dir = exec_dir
         self.source = None
 
     def visit_ResourceImport(self, node):  # pylint: disable=invalid-name
@@ -32,7 +40,7 @@ class FileTypeChecker(ast.NodeVisitor):
         Check all imports in scanned file. If one of our scanned file is imported somewhere else
         it means this file is resource type
          """
-        path_normalized = node.name.replace('${/}', os.path.sep)
+        path_normalized = normalize_robot_path(node.name, Path(self.source).parent, self.exec_dir)
         try:
             path_normalized = find_file(path_normalized, self.source.parent, file_type='Resource')
         except DataError:
@@ -41,3 +49,11 @@ class FileTypeChecker(ast.NodeVisitor):
             path = Path(path_normalized)
             if path in self.files:
                 self.files[path] = FileType.RESOURCE
+
+
+def normalize_robot_path(robot_path, curr_path, exec_path):
+    normalized_path = str(robot_path).replace('${/}', os.path.sep)
+    normalized_path = normalized_path.replace('${CURDIR}', str(curr_path))
+    normalized_path = normalized_path.replace('${EXECDIR}', str(exec_path))
+    return normalized_path
+

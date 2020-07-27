@@ -1,3 +1,4 @@
+import os
 import argparse
 import re
 import fnmatch
@@ -5,19 +6,19 @@ import fnmatch
 from robocop.version import __version__
 
 
-class ParseDelimitedArgAction(argparse.Action):
+class ParseDelimitedArgAction(argparse.Action):  # pylint: disable=too-few-public-methods
     def __call__(self, parser, namespace, values, option_string=None):
         container = getattr(namespace, self.dest)
         container.update(values.split(','))
 
 
-class ParseCheckerConfig(argparse.Action):
+class ParseCheckerConfig(argparse.Action):  # pylint: disable=too-few-public-methods
     def __call__(self, parser, namespace, values, option_string=None):
         container = getattr(namespace, self.dest)
         container.append(values)
 
 
-class ParseFileTypes(argparse.Action):
+class ParseFileTypes(argparse.Action):  # pylint: disable=too-few-public-methods
     def __call__(self, parser, namespace, values, option_string=None):
         filetypes = set()
         for filetype in values.split(','):
@@ -27,6 +28,7 @@ class ParseFileTypes(argparse.Action):
 
 class Config:
     def __init__(self):
+        self.exec_dir = os.path.abspath('.')
         self.include = set()
         self.exclude = set()
         self.reports = set()

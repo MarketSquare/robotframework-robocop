@@ -1,3 +1,4 @@
+import os
 import argparse
 import re
 import fnmatch
@@ -27,6 +28,7 @@ class ParseFileTypes(argparse.Action):
 
 class Config:
     def __init__(self):
+        self.exec_dir = os.path.abspath('.')
         self.include = set()
         self.exclude = set()
         self.reports = set()

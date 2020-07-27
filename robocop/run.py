@@ -40,7 +40,7 @@ class Robocop:
                 self.files[file] = FileType.INIT
             else:
                 self.files[file] = FileType.GENERAL
-        file_type_checker = FileTypeChecker(self.files)
+        file_type_checker = FileTypeChecker(self.files, self.config.exec_dir)
         for file in self.files:
             file_type_checker.source = file
             model = get_model(file)
@@ -55,10 +55,7 @@ class Robocop:
             model = self.files[file].get_parser()(str(file))
             for checker in self.checkers:
                 checker.source = str(file)
-                if checker.type == 'visitor_checker':
-                    checker.visit(model)
-                elif checker.type == 'rawfile_checker':
-                    checker.parse_file()
+                checker.scan_file(model)
 
     def register_disablers(self, file):
         self.disabler = DisablersFinder(file, self)

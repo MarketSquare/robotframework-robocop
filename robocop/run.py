@@ -41,9 +41,9 @@ class Robocop:
 
     def recognize_file_types(self):
         """
-        Preparse files to recognize types. If the filename is "__init__.robot" file type is INIT.
-        If the file is imported somewhere then file type is RESOURCE. Otherwise file type is GENERAL.
-        Those types are important since are used to define parsing class for robot API.
+        Pre-parse files to recognize their types. If the filename is `__init__.robot`, the type is `INIT`.
+        If the file is imported somewhere then file type is `RESOURCE`. Otherwise file type is `GENERAL`.
+        These types are important since they are used to define parsing class for robot API.
         """
         files = self.config.paths
         for file in self.get_files(files, True):

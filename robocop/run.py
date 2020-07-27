@@ -5,10 +5,11 @@ from robocop import checkers
 from robocop.config import Config
 from robocop import reports
 from robocop.utils import DisablersFinder, FileType, FileTypeChecker
+from robocop.exceptions import DuplicatedMessageError
 
 
 class Robocop:
-    def __init__(self):
+    def __init__(self, from_cli=False):
         self.files = {}
         self.checkers = []
         self.out = sys.stdout
@@ -16,7 +17,8 @@ class Robocop:
         self.reports = []
         self.disabler = None
         self.config = Config()
-        self.config.parse_opts()
+        if from_cli:
+            self.config.parse_opts()
         self.set_output()
         self.load_checkers()
         self.configure_checkers()
@@ -90,6 +92,12 @@ class Robocop:
     def register_checker(self, checker):
         if self.any_rule_enabled(checker):
             for msg_name, msg in checker.messages.items():
+                if msg_name in self.messages:
+                    (msg_prev, checker_prev) = self.messages[msg_name]
+                    raise DuplicatedMessageError('name', msg_name, checker, checker_prev)
+                if msg.msg_id in self.messages:
+                    (msg_prev, checker_prev) = self.messages[msg.msg_id]
+                    raise DuplicatedMessageError('id', msg.msg_id, checker, checker_prev)
                 self.messages[msg_name] = (msg, checker)
                 self.messages[msg.msg_id] = (msg, checker)
             self.checkers.append(checker)
@@ -143,17 +151,7 @@ class Robocop:
                     continue
                 checker.configure(configurable[1], configurable[2](value))
 
-    def find_checker(self, msg_id_or_name):
-        for checker in self.checkers:
-            if msg_id_or_name in checker.messages:
-                return checker
-            for msg_name, msg in checker.messages.items():
-                if msg_id_or_name == msg.msg_id:
-                    return checker
-        else:
-            return None
-
 
 def run_robocop():
-    robocop = Robocop()
+    robocop = Robocop(from_cli=True)
     robocop.run()

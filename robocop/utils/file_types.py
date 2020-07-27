@@ -9,6 +9,9 @@ from robot.errors import DataError
 
 
 class FileType(Enum):
+    """
+    Enum holding type of Robot file.
+    """
     RESOURCE = 'resource'
     GENERAL = 'general'
     INIT = 'init'
@@ -23,6 +26,10 @@ class FileType(Enum):
 
 
 class FileTypeChecker(ast.NodeVisitor):
+    """
+    Check if file contains import statements. If the import is in list of files to be scanned, update its type
+    from GENERAL to RESOURCE.
+    """
     def __init__(self, files, exec_dir):
         self.files = files
         self.exec_dir = exec_dir

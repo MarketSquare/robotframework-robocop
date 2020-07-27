@@ -1,3 +1,6 @@
+"""
+Main class of Robocop module. Gather files for scan, checkers and parse cli arguments and scan files.
+"""
 import sys
 from pathlib import Path
 from robot.api import get_model
@@ -23,17 +26,25 @@ class Robocop:
         self.load_reports()
 
     def set_output(self):
+        """ Set output for printing to file if configured. Else use standard output """
         self.out = self.config.output or sys.stdout
 
     def write_line(self, line):
+        """ Print line using file=self.out parameter (set in `set_output` method) """
         print(line, file=self.out)
 
     def run(self):
+        """ Entry point for running scans """
         self.recognize_file_types()
         self.run_checks()
         self.make_reports()
 
     def recognize_file_types(self):
+        """
+        Pre-parse files to recognize their types. If the filename is `__init__.robot`, the type is `INIT`.
+        If the file is imported somewhere then file type is `RESOURCE`. Otherwise file type is `GENERAL`.
+        These types are important since they are used to define parsing class for robot API.
+        """
         files = self.config.paths
         for file in self.get_files(files, True):
             if file.name == '__init__.robot':
@@ -58,12 +69,13 @@ class Robocop:
                 checker.scan_file(model)
 
     def register_disablers(self, file):
+        """ Parse content of file to find any disabler statements like # robocop: disable=rulename """
         self.disabler = DisablersFinder(file, self)
 
     def report(self, msg):
-        if not self.config.is_rule_enabled(msg):
+        if not self.config.is_rule_enabled(msg):  # disabled from cli
             return
-        if self.disabler.is_msg_disabled(msg):
+        if self.disabler.is_msg_disabled(msg):  # disabled from source code
             return
         for report in self.reports:
             report.add_message(msg)
@@ -105,7 +117,7 @@ class Robocop:
 
     def get_absolute_path(self, path, recursive):
         if not path.exists():
-            raise StopIteration
+            return
         if path.is_file():
             if self.should_parse(path):
                 yield path.absolute()
@@ -116,14 +128,11 @@ class Robocop:
                 yield from self.get_absolute_path(file, recursive)
 
     def should_parse(self, file):
+        """ Check if file extension is in list of supported file types (can be configured from cli) """
         return file.suffix and file.suffix in self.config.filetypes
 
     def any_rule_enabled(self, checker):
-        for msg_name, msg in checker.messages.items():
-            if self.config.is_rule_enabled(msg):
-                return True
-        else:
-            return False
+        return any(self.config.is_rule_enabled(msg) for msg in checker.messages.values())
 
     def configure_checkers(self):
         for config in self.config.configure:
@@ -144,11 +153,10 @@ class Robocop:
         for checker in self.checkers:
             if msg_id_or_name in checker.messages:
                 return checker
-            for msg_name, msg in checker.messages.items():
+            for msg in checker.messages.values():
                 if msg_id_or_name == msg.msg_id:
                     return checker
-        else:
-            return None
+        return None
 
 
 def run_robocop():

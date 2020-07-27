@@ -1,5 +1,6 @@
 *** Settings ***
-Resource   resource.robot
+Resource   ${CURDIR}${/}resource.robot
+Resource   ${EXECDIR}${/}tests${/}resource.robot
 Variables  vars.robot
 Library    robot_lib.py
 Force Tags    forcedtag

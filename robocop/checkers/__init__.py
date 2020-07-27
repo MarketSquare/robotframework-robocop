@@ -58,9 +58,15 @@ class BaseChecker:
     def configure(self, param, value):
         self.__dict__[param] = value
 
+    def scan_file(self, *args):
+        raise NotImplementedError
+
 
 class VisitorChecker(BaseChecker, ast.NodeVisitor):  # noqa
     type = 'visitor_checker'
+
+    def scan_file(self, *args):
+        self.visit_File(*args)
 
     def visit_File(self, node):  # noqa
         """ Perform generic ast visit on file node. """
@@ -69,6 +75,9 @@ class VisitorChecker(BaseChecker, ast.NodeVisitor):  # noqa
 
 class RawFileChecker(BaseChecker):  # noqa
     type = 'rawfile_checker'
+
+    def scan_file(self, *args):
+        self.parse_file()
 
     def parse_file(self):
         """ Read file line by line and for each call check_line method. """

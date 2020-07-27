@@ -27,7 +27,7 @@ class FileType(Enum):
 
 class FileTypeChecker(ast.NodeVisitor):
     """
-    Check if file contain import statements. If the import is in list of files to be scanned, update its type
+    Check if file contains import statements. If the import is in list of files to be scanned, update its type
     from GENERAL to RESOURCE.
     """
     def __init__(self, files, exec_dir):

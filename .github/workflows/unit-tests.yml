@@ -31,10 +31,10 @@ jobs:
         pip install pytest
         pip install coverage
     - name: Code quality with pylama
-      run: pylama -o pylama.ini
+      run: python robocop/utils/pylama_parse.py
       if: always()
     - name: Run unit tests with coverage
-      run: 
+      run:
         coverage run -m pytest
       if: always()
     - name: Codecov

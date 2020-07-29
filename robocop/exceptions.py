@@ -5,6 +5,11 @@ class RobocopFatalError(ValueError):
     pass
 
 
+class ConfigGeneralError(RobocopFatalError):
+    def __init__(self, msg):
+        super().__init__(msg)
+
+
 class DuplicatedMessageError(RobocopFatalError):
     def __init__(self, msg_type, msg, checker, checker_prev):
         msg = f"Fatal error: Message {msg_type} '{msg}' defined in {checker.__class__.__name__} " \

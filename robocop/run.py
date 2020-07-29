@@ -147,20 +147,19 @@ class Robocop:
     def configure_checkers(self):
         for config in self.config.configure:
             if config.count(':') != 2:
-                print(f'Provided invalid config: \'{config}\' (pattern: <rule>:<param>:<value>)')
-                continue
+                raise robocop.exceptions.ConfigGeneralError(
+                    f'Provided invalid config: \'{config}\' (pattern: <rule>:<param>:<value>)')
             rule, param, value = config.split(':')
             if rule not in self.messages:
-                print(f'Provided rule \'{rule}\' does not exists')
-                continue
+                raise robocop.exceptions.ConfigGeneralError(f'Provided rule \'{rule}\' does not exists')
             msg, checker = self.messages[rule]
             if param == 'severity':
                 self.messages[rule] = (msg.change_severity(value), checker)
             else:
                 configurable = msg.get_configurable(param)
                 if configurable is None:
-                    print(f'Provided param \'{param}\' for rule \'{rule}\' does not exists')
-                    continue
+                    raise robocop.exceptions.ConfigGeneralError(
+                        f'Provided param \'{param}\' for rule \'{rule}\' does not exists')
                 checker.configure(configurable[1], configurable[2](value))
 
 

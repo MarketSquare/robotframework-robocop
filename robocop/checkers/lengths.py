@@ -44,7 +44,7 @@ class LengthChecker(VisitorChecker):
             "too-many-calls-in-test-case",
             "Test case have too many keywords inside (%d/%d)",
             MessageSeverity.WARNING,
-            ('max_calls', 'testscase_max_calls', int)
+            ('max_calls', 'testcase_max_calls', int)
         ),
         "0506": (
             "file-too-long",

@@ -38,6 +38,8 @@ class Robocop:
         self.recognize_file_types()
         self.run_checks()
         self.make_reports()
+        if not self.out.closed:
+            self.out.close()
 
     def recognize_file_types(self):
         """
@@ -136,9 +138,12 @@ class Robocop:
 
     def configure_checkers(self):
         for config in self.config.configure:
-            # TODO: handle wrong format, not existing checker
+            if config.count(':') != 2:
+                print(f'Provided invalid config: \'{config}\' (pattern: <rule>:<param>:<value>)')
+                continue
             rule, param, value = config.split(':')
             if rule not in self.messages:
+                print(f'Provided rule \'{rule}\' does not exists')
                 continue
             msg, checker = self.messages[rule]
             if param == 'severity':
@@ -146,6 +151,7 @@ class Robocop:
             else:
                 configurable = msg.get_configurable(param)
                 if configurable is None:
+                    print(f'Provided param \'{param}\' for rule \'{rule}\' does not exists')
                     continue
                 checker.configure(configurable[1], configurable[2](value))
 

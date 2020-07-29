@@ -122,14 +122,18 @@ class TestArgumentValidation(unittest.TestCase):
         self.assertEqual(args.format, new_format)
 
     def test_output_new_value(self):
-        args = self.config.parse_opts(['--output', 'results', ''])
+        output_file = 'results'
+        args = self.config.parse_opts(['--output', output_file, ''])
         self.assertIsNotNone(args.output)
         self.assertIsInstance(args.output, io.TextIOWrapper)
-        self.assertEqual(args.output.name, 'results')
+        self.assertEqual(args.output.name, output_file)
         self.assertEqual(args.output.mode, 'w')
-        self.assertTrue(pathlib.Path('results').exists())
-        # pathlib.Path('results').unlink()
-        # TODO remove 'results' file in cleanup and handle ResourceWarning
+        self.assertTrue(pathlib.Path(output_file).exists())
+        # parser will not close the file itself
+        if not self.config.output.closed:
+            self.config.output.close()
+        # remove created file
+        pathlib.Path(output_file).unlink()
 
     @patch('sys.stdout', new_callable=StringIO)
     def test_help_message(self, mock_stdout):

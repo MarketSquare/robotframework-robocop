@@ -20,7 +20,7 @@ class TagChecker(VisitorChecker):
         ),
         "0602": (
             "tag-with-reserved",
-            "Tag with reserved word OR/AND. Make sure to include this tag using lowercase name to avoid issues",
+            "Tag with reserved word OR/AND. Hint: make sure to include this tag using lowercase name to avoid issues",
             MessageSeverity.INFO
         )
     }

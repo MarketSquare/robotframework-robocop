@@ -1,5 +1,5 @@
 """
-Robocop lint rules are interally grouped into similar groups called checkers.
+Robocop lint rules are internally grouped into similar groups called checkers.
 Each checker can scan for multiple related issues (like LengthChecker checks both for min and max length of keyword).
 You can refer to specific messages reported by checkers by its name or id (for example `0501` or `too-long-keyword`).
 
@@ -16,7 +16,7 @@ Checkers are categorized into following groups:
 Group id is prefix of message id.
 
 Checker have two basic types ``VisitorChecker`` uses Robot Framework parsing api and
-use Python ast modoule for traversing Robot code as nodes. ``RawFileChecker`` simply reads Robot file as normal file
+use Python ast module for traversing Robot code as nodes. ``RawFileChecker`` simply reads Robot file as normal file
 and scan every line.
 
 Rules are defines as messages. Every rule have unique id (group id + message id) and rule name and both can be use

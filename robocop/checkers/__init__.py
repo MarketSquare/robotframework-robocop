@@ -3,8 +3,6 @@ Robocop lint rules are internally grouped into similar groups called checkers.
 Each checker can scan for multiple related issues (like LengthChecker checks both for min and max length of keyword).
 You can refer to specific messages reported by checkers by its name or id (for example `0501` or `too-long-keyword`).
 
-Each message have configurable severity and optionally other parameters.
-
 Checkers are categorized into following groups:
  * 01: base
  * 02: documentation
@@ -28,6 +26,7 @@ You can configure rule severity and optionally other parameters.
 import ast
 import inspect
 from robocop.messages import Message
+from robocop.exceptions import DuplicatedMessageError
 from robocop.utils import modules_in_current_dir
 
 
@@ -45,8 +44,7 @@ class BaseChecker:
         for key, value in msgs.items():
             msg = Message(key, value)
             if msg.name in self.messages:
-                raise ValueError("Duplicate message name in checker")
-                # TODO: add better handling for duplicate messages
+                raise DuplicatedMessageError('name', msg.name, self, self)
             self.messages[msg.name] = msg
 
     def report(self, msg, *args, node=None, lineno=None, col=None):

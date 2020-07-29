@@ -4,6 +4,7 @@ Collection of classes for detecting checker disablers (like # robocop: disable) 
 import re
 from copy import copy
 from collections import defaultdict
+import robocop.exceptions
 
 
 class DisablersInFile:  # pylint: disable=too-few-public-methods
@@ -66,8 +67,7 @@ class DisablersFinder:
                 self.file_disabled = self._is_file_disabled(lineno)
                 self.any_disabler = len(self.rules) != 0
         except OSError:
-            # TODO:
-            pass
+            raise robocop.exceptions.FileError(source)
 
     def _parse_line(self, line, lineno):
         statement, comment = line.split('#', maxsplit=1)

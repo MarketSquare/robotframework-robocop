@@ -8,7 +8,7 @@ from robocop import checkers
 from robocop.config import Config
 from robocop import reports
 from robocop.utils import DisablersFinder, FileType, FileTypeChecker
-from robocop.exceptions import DuplicatedMessageError
+import robocop.exceptions
 
 
 class Robocop:
@@ -102,11 +102,11 @@ class Robocop:
         if self.any_rule_enabled(checker):
             for msg_name, msg in checker.messages.items():
                 if msg_name in self.messages:
-                    (msg_prev, checker_prev) = self.messages[msg_name]
-                    raise DuplicatedMessageError('name', msg_name, checker, checker_prev)
+                    (_, checker_prev) = self.messages[msg_name]
+                    raise robocop.exceptions.DuplicatedMessageError('name', msg_name, checker, checker_prev)
                 if msg.msg_id in self.messages:
-                    (msg_prev, checker_prev) = self.messages[msg.msg_id]
-                    raise DuplicatedMessageError('id', msg.msg_id, checker, checker_prev)
+                    (_, checker_prev) = self.messages[msg.msg_id]
+                    raise robocop.exceptions.DuplicatedMessageError('id', msg.msg_id, checker, checker_prev)
                 self.messages[msg_name] = (msg, checker)
                 self.messages[msg.msg_id] = (msg, checker)
             self.checkers.append(checker)
@@ -125,7 +125,7 @@ class Robocop:
 
     def get_absolute_path(self, path, recursive):
         if not path.exists():
-            return
+            raise robocop.exceptions.FileError(path)
         if path.is_file():
             if self.should_parse(path):
                 yield path.absolute()
@@ -159,5 +159,5 @@ class Robocop:
 
 
 def run_robocop():
-    robocop = Robocop(from_cli=True)
-    robocop.run()
+    linter = Robocop(from_cli=True)
+    linter.run()

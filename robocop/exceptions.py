@@ -1,38 +1,42 @@
 import sys
 
 
-class RobocopFatalError(Exception):
-    def __init__(self):
-        sys.exit(1)
+class RobocopFatalError(ValueError):
+    pass
 
 
 class DuplicatedMessageError(RobocopFatalError):
     def __init__(self, msg_type, msg, checker, checker_prev):
-        print(f"Fatal error: Message {msg_type} '{msg}' defined in {checker.__class__.__name__} "
-              f"was already defined in {checker_prev.__class__.__name__}", file=sys.stderr)
-        super().__init__()
+        msg = f"Fatal error: Message {msg_type} '{msg}' defined in {checker.__class__.__name__} " \
+              f"was already defined in {checker_prev.__class__.__name__}"
+        super().__init__(msg)
 
 
 class InvalidMessageSeverityError(RobocopFatalError):
     def __init__(self, msg, severity_val):
-        print(f"Fatal error: Tried to configure message {msg} with invalid severity: {severity_val}", file=sys.stderr)
-        super().__init__()
+        msg = f"Fatal error: Tried to configure message {msg} with invalid severity: {severity_val}"
+        super().__init__(msg)
 
 
 class InvalidMessageBodyError(RobocopFatalError):
     def __init__(self, msg_id, msg_body):
-        print(f"Fatal error: Message '{msg_id}' has invalid body:\n{msg_body}", file=sys.stderr)
-        super().__init__()
+        msg = f"Fatal error: Message '{msg_id}' has invalid body:\n{msg_body}"
+        super().__init__(msg)
 
 
 class InvalidMessageConfigurableError(RobocopFatalError):
     def __init__(self, msg_id, msg_body):
-        print(f"Fatal error: Message '{msg_id}' has invalid configurable:\n{msg_body}", file=sys.stderr)
-        super().__init__()
+        msg = f"Fatal error: Message '{msg_id}' has invalid configurable:\n{msg_body}"
+        super().__init__(msg)
 
 
 class InvalidMessageUsageError(RobocopFatalError):
     def __init__(self, msg_id, type_error):
-        print(f"Fatal error: Message '{msg_id}' failed to prepare message description with error:{type_error}",
-              file=sys.stderr)
-        super().__init__()
+        msg = f"Fatal error: Message '{msg_id}' failed to prepare message description with error:{type_error}"
+        super().__init__(msg)
+
+
+class FileError:
+    def __init__(self, source):
+        print(f"File {source} does not exist", file=sys.stderr)
+        sys.exit(1)

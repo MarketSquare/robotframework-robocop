@@ -2,6 +2,7 @@ import pytest
 from robocop.run import Robocop
 from robocop.checkers import VisitorChecker
 from robocop.messages import MessageSeverity
+import robocop.exceptions
 
 
 @pytest.fixture
@@ -55,25 +56,22 @@ class CheckerDuplicatedWithOtherCheckerMessageId(VisitorChecker):
 
 
 class TestCheckerInvalidConf:
-    def test_duplicated_message_name_inside_checker(self, capsys, fixture_robocop_instance):
-        with pytest.raises(SystemExit):
-            robocop_instance.register_checker(CheckerDuplicatedMessageName(fixture_robocop_instance))
-        _, err = capsys.readouterr()
-        assert str(err) == "Fatal error: Message name 'some-message' defined in CheckerDuplicatedMessageName " \
-                           "was already defined in CheckerDuplicatedMessageName\n"
+    def test_duplicated_message_name_inside_checker(self, robocop_instance):  # noqa
+        with pytest.raises(robocop.exceptions.DuplicatedMessageError) as err:
+            robocop_instance.register_checker(CheckerDuplicatedMessageName(robocop_instance))
+            assert str(err) == "Fatal error: Message name 'some-message' defined in CheckerDuplicatedMessageName " \
+                               "was already defined in CheckerDuplicatedMessageName\n"
 
-    def test_duplicated_message_name_outside_checker(self, capsys, fixture_robocop_instance):
+    def test_duplicated_message_name_outside_checker(self, robocop_instance):  # noqa
         robocop_instance.register_checker(ValidChecker(robocop_instance))
-        with pytest.raises(SystemExit):
-            robocop_instance.register_checker(CheckerDuplicatedWithOtherCheckerMessageName(fixture_robocop_instance))
-        _, err = capsys.readouterr()
-        assert str(err) == f"Fatal error: Message name 'some-message' defined in " \
-                           f"CheckerDuplicatedWithOtherCheckerMessageName was already defined in ValidChecker\n"
+        with pytest.raises(robocop.exceptions.DuplicatedMessageError) as err:
+            robocop_instance.register_checker(CheckerDuplicatedWithOtherCheckerMessageName(robocop_instance))
+            assert str(err) == "Fatal error: Message name 'some-message' defined in " \
+                               "CheckerDuplicatedWithOtherCheckerMessageName was already defined in ValidChecker\n"
 
-    def test_duplicated_message_id_outside_checker(self, capsys, fixture_robocop_instance):
+    def test_duplicated_message_id_outside_checker(self, robocop_instance):  # noqa
         robocop_instance.register_checker(ValidChecker(robocop_instance))
-        with pytest.raises(SystemExit):
-            robocop_instance.register_checker(CheckerDuplicatedWithOtherCheckerMessageId(fixture_robocop_instance))
-        _, err = capsys.readouterr()
-        assert str(err) == f"Fatal error: Message id '0101' defined in " \
-                           f"CheckerDuplicatedWithOtherCheckerMessageId was already defined in ValidChecker\n"
+        with pytest.raises(robocop.exceptions.DuplicatedMessageError) as err:
+            robocop_instance.register_checker(CheckerDuplicatedWithOtherCheckerMessageId(robocop_instance))
+            assert str(err) == "Fatal error: Message id '0101' defined in " \
+                               "CheckerDuplicatedWithOtherCheckerMessageId was already defined in ValidChecker\n"

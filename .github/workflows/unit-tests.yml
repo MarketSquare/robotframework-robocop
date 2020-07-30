@@ -35,7 +35,7 @@ jobs:
       if: always()
     - name: Run unit tests with coverage
       run: 
-        coverage --source=. run -m pytest
+        coverage run -m pytest
       if: always()
     - name: Codecov
       uses: codecov/codecov-action@v1.0.11

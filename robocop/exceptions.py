@@ -6,8 +6,7 @@ class RobocopFatalError(ValueError):
 
 
 class ConfigGeneralError(RobocopFatalError):
-    def __init__(self, msg):
-        super().__init__(msg)
+    pass
 
 
 class DuplicatedMessageError(RobocopFatalError):
@@ -53,7 +52,7 @@ class MissingRegisterMethodCheckerError(RobocopFatalError):
         super().__init__(msg)
 
 
-class FileError:
+class FileError(RobocopFatalError):
     def __init__(self, source):
-        print(f"File {source} does not exist", file=sys.stderr)
-        sys.exit(1)
+        msg = f"File {source} does not exist"
+        super().__init__(msg)

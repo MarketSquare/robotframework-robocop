@@ -91,7 +91,7 @@ class TestMessage:
     def test_parse_invalid_body(self, msg):
         with pytest.raises(robocop.exceptions.InvalidMessageBodyError) as err:
             Message('0101', msg)
-        rf"Fatal error: Message '0101' has invalid body:\n{msg}" in str(err)
+        assert rf"Fatal error: Message '0101' has invalid body:\n{msg}" in str(err)
 
     @pytest.mark.parametrize('configurable', [
         [None],
@@ -109,7 +109,7 @@ class TestMessage:
         body = msg + tuple(configurable)
         with pytest.raises(robocop.exceptions.InvalidMessageConfigurableError) as err:
             Message('0101', body)
-        rf"Fatal error: Message '0101' has invalid configurable:\n{body}" in str(err)
+        assert rf"Fatal error: Message '0101' has invalid configurable:\n{body}" in str(err)
 
     @pytest.mark.parametrize('configurable', [
         [('some', 'some', int)],

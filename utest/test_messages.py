@@ -70,8 +70,7 @@ class TestMessage:
     def test_change_message_severity_invalid(self, valid_msg, severity):  # noqa
         with pytest.raises(robocop.exceptions.InvalidMessageSeverityError) as err:
             valid_msg.change_severity(severity)
-            assert str(err) == f"Fatal error: Tried to configure message some-message with " \
-                               f"invalid severity: {severity}\n"
+        assert rf"Fatal error: Tried to configure message some-message with invalid severity: {severity}" in str(err)
 
     def test_get_configurable_existing(self, valid_msg_with_conf):  # noqa
         assert valid_msg_with_conf.get_configurable('param_name') == ('param_name', 'param_priv_name', int)
@@ -92,7 +91,7 @@ class TestMessage:
     def test_parse_invalid_body(self, msg):
         with pytest.raises(robocop.exceptions.InvalidMessageBodyError) as err:
             Message('0101', msg)
-            assert str(err) == f"Fatal error: Message '0101' has invalid body:\n{msg}\n"
+        rf"Fatal error: Message '0101' has invalid body:\n{msg}" in str(err)
 
     @pytest.mark.parametrize('configurable', [
         [None],
@@ -110,7 +109,7 @@ class TestMessage:
         body = msg + tuple(configurable)
         with pytest.raises(robocop.exceptions.InvalidMessageConfigurableError) as err:
             Message('0101', body)
-            assert str(err) == f"Fatal error: Message '0101' has invalid configurable:\n{body}\n"
+        rf"Fatal error: Message '0101' has invalid configurable:\n{body}" in str(err)
 
     @pytest.mark.parametrize('configurable', [
         [('some', 'some', int)],
@@ -154,5 +153,4 @@ class TestMessage:
         valid_msg.desc = desc
         with pytest.raises(robocop.exceptions.InvalidMessageUsageError) as err:
             valid_msg.prepare_message(*args, source='file1.robot', node=node, lineno=None, col=None)
-            assert str(err) == f"Fatal error: Message '0101' failed to prepare message description with " \
-                               f"error:{exp_error}\n"
+        assert rf"Fatal error: Message '0101' failed to prepare message description with error:{exp_error}" in str(err)

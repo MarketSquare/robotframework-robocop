@@ -35,6 +35,7 @@ class Config:
         self.configure = []
         self.format = "{source}:{line}:{col} [{severity}] {msg_id} {desc}"
         self.paths = []
+        self.ext_rules = set()
         self.include_patterns = []
         self.exclude_patterns = []
         self.filetypes = {'.robot', '.resource'}
@@ -79,6 +80,7 @@ class Config:
                               help=self.HELP_MSGS['help_include'])
         optional.add_argument('-e', '--exclude', action=ParseDelimitedArgAction, default=self.exclude,
                               help=self.HELP_MSGS['help_exclude'])
+        optional.add_argument('-rules', '--external_rules', action=ParseDelimitedArgAction, default=self.ext_rules)
         optional.add_argument('-r', '--reports', action=ParseDelimitedArgAction, default=self.reports,
                               help=self.HELP_MSGS['help_reports'])
         optional.add_argument('-f', '--format', type=str, default=self.format, help=self.HELP_MSGS['help_format'])

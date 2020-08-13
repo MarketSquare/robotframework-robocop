@@ -26,8 +26,8 @@ You can configure rule severity and optionally other parameters.
 import ast
 import inspect
 from robocop.messages import Message
-from robocop.exceptions import DuplicatedMessageError
-from robocop.utils import modules_in_current_dir
+from robocop.exceptions import DuplicatedMessageError, MissingRegisterMethodCheckerError
+from robocop.utils import modules_in_current_dir, modules_from_paths
 
 
 class BaseChecker:
@@ -87,12 +87,17 @@ class RawFileChecker(BaseChecker):  # noqa
         raise NotImplementedError
 
 
+def get_modules(linter):
+    yield from modules_in_current_dir(__file__, __name__)
+    yield from modules_from_paths(linter.config.ext_rules)
+
+
 def init(linter):
-    for module in modules_in_current_dir(__file__, __name__):
+    for module in get_modules(linter):
         try:
             module.register(linter)
-        except AttributeError as err:
-            linter.write_line(err)
+        except AttributeError:
+            raise MissingRegisterMethodCheckerError(module)
 
 
 def get_docs():

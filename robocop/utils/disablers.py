@@ -2,7 +2,7 @@
 Collection of classes for detecting checker disablers (like # robocop: disable) in robot files
 """
 import re
-from copy import copy
+from copy import deepcopy
 from collections import defaultdict
 import robocop.exceptions
 
@@ -16,7 +16,7 @@ class DisablersInFile:  # pylint: disable=too-few-public-methods
 
     def copy(self):
         """ Used by defaultdict to create new instance for every new key in disablers container """
-        return copy(self)
+        return deepcopy(self)
 
 
 class DisablersFinder:
@@ -98,7 +98,7 @@ class DisablersFinder:
             return False
         if len(self.rules['all'].blocks) != 1:
             return False
-        return self.rules['all'].blocks[0] == (0, last_line)
+        return self.rules['all'].blocks[0] == (1, last_line)
 
     def _add_inline_disabler(self, rule, lineno):
         self.rules[rule].lines.add(lineno)

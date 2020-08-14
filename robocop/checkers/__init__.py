@@ -1,9 +1,7 @@
 """
-Robocop lint rules are interally grouped into similar groups called checkers.
+Robocop lint rules are internally grouped into similar groups called checkers.
 Each checker can scan for multiple related issues (like LengthChecker checks both for min and max length of keyword).
 You can refer to specific messages reported by checkers by its name or id (for example `0501` or `too-long-keyword`).
-
-Each message have configurable severity and optionally other parameters.
 
 Checkers are categorized into following groups:
  * 01: base
@@ -18,7 +16,7 @@ Checkers are categorized into following groups:
 Group id is prefix of message id.
 
 Checker have two basic types ``VisitorChecker`` uses Robot Framework parsing api and
-use Python ast modoule for traversing Robot code as nodes. ``RawFileChecker`` simply reads Robot file as normal file
+use Python ast module for traversing Robot code as nodes. ``RawFileChecker`` simply reads Robot file as normal file
 and scan every line.
 
 Rules are defines as messages. Every rule have unique id (group id + message id) and rule name and both can be use
@@ -28,7 +26,8 @@ You can configure rule severity and optionally other parameters.
 import ast
 import inspect
 from robocop.messages import Message
-from robocop.utils import modules_in_current_dir
+from robocop.exceptions import DuplicatedMessageError, MissingRegisterMethodCheckerError
+from robocop.utils import modules_in_current_dir, modules_from_paths
 
 
 class BaseChecker:
@@ -36,6 +35,7 @@ class BaseChecker:
 
     def __init__(self, linter, configurable=None):
         self.linter = linter
+        self.disabled = False
         self.source = None
         self.messages = {}
         self.configurable = set() if configurable is None else configurable
@@ -45,8 +45,7 @@ class BaseChecker:
         for key, value in msgs.items():
             msg = Message(key, value)
             if msg.name in self.messages:
-                raise ValueError("Duplicate message name in checker")
-                # TODO: add better handling for duplicate messages
+                raise DuplicatedMessageError('name', msg.name, self, self)
             self.messages[msg.name] = msg
 
     def report(self, msg, *args, node=None, lineno=None, col=None):
@@ -89,12 +88,17 @@ class RawFileChecker(BaseChecker):  # noqa
         raise NotImplementedError
 
 
+def get_modules(linter):
+    yield from modules_in_current_dir(__file__, __name__)
+    yield from modules_from_paths(linter.config.ext_rules)
+
+
 def init(linter):
-    for module in modules_in_current_dir(__file__, __name__):
+    for module in get_modules(linter):
         try:
             module.register(linter)
-        except AttributeError as err:
-            linter.write_line(err)
+        except AttributeError:
+            raise MissingRegisterMethodCheckerError(module)
 
 
 def get_docs():

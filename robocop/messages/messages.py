@@ -20,6 +20,7 @@ Available formats:
 """
 from enum import Enum
 from copy import deepcopy
+import robocop.exceptions
 
 
 class MessageSeverity(Enum):
@@ -49,6 +50,9 @@ class Message:
         self.configurable = []
         self.parse_body(body)
 
+    def __str__(self):
+        return f'Message - {self.msg_id} [{self.severity.value}]: {self.name}: {self.desc}'
+
     def change_severity(self, value):
         severity = {
             'error': 'E',
@@ -59,9 +63,9 @@ class Message:
             'i': 'I',
             'fatal': 'F',
             'f': 'F'
-        }.get(value.lower(), None)
+        }.get(str(value).lower(), None)
         if severity is None:
-            raise ValueError("Wrong severity")  # TODO: raise custom Fatal error here
+            raise robocop.exceptions.InvalidMessageSeverityError(self.name, value)
         self.severity = MessageSeverity(severity)
 
     def get_fullname(self):
@@ -74,14 +78,20 @@ class Message:
         return None
 
     def parse_body(self, body):
-        try:
+        if isinstance(body, tuple) and len(body) >= 3:
             self.name, self.desc, self.severity, *self.configurable = body
-        except ValueError:
-            pass
+        else:
+            raise robocop.exceptions.InvalidMessageBodyError(self.msg_id, body)
+        for configurable in self.configurable:
+            if not isinstance(configurable, tuple) or len(configurable) != 3:
+                raise robocop.exceptions.InvalidMessageConfigurableError(self.msg_id, body)
 
     def prepare_message(self, *args, source, node, lineno, col):
         message = deepcopy(self)
-        message.desc %= args
+        try:
+            message.desc %= args
+        except TypeError as err:
+            raise robocop.exceptions.InvalidMessageUsageError(self.msg_id, err)
         message.source = source
         if lineno is None and node is not None:
             lineno = node.lineno

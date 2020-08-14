@@ -35,6 +35,7 @@ class Config:
         self.configure = []
         self.format = "{source}:{line}:{col} [{severity}] {msg_id} {desc}"
         self.paths = []
+        self.ext_rules = set()
         self.include_patterns = []
         self.exclude_patterns = []
         self.filetypes = {'.robot', '.resource'}
@@ -46,6 +47,7 @@ class Config:
         'help_paths':       'List of paths (files or directories) to be parsed by Robocop',
         'help_include':     'Run Robocop only with specified rules. You can define rule by its name or id',
         'help_exclude':     'Ignore specified rules. You can define rule by its name or id',
+        'help_ext_rules':   'List of paths with custom rules',
         'help_reports':     'Run reports',
         'help_format':      'Format of output message. '
                             'You can use placeholders to change the way an issue is reported. '
@@ -81,6 +83,8 @@ class Config:
                               help=self.HELP_MSGS['help_include'])
         optional.add_argument('-e', '--exclude', action=ParseDelimitedArgAction, default=self.exclude,
                               help=self.HELP_MSGS['help_exclude'])
+        optional.add_argument('-rules', '--ext_rules', action=ParseDelimitedArgAction, default=self.ext_rules,
+                              help=self.HELP_MSGS['help_ext_rules'])
         optional.add_argument('-r', '--reports', action=ParseDelimitedArgAction, default=self.reports,
                               help=self.HELP_MSGS['help_reports'])
         optional.add_argument('-f', '--format', type=str, default=self.format, help=self.HELP_MSGS['help_format'])

@@ -8,10 +8,11 @@ from robocop import checkers
 from robocop.config import Config
 from robocop import reports
 from robocop.utils import DisablersFinder, FileType, FileTypeChecker
+import robocop.exceptions
 
 
 class Robocop:
-    def __init__(self):
+    def __init__(self, from_cli=False):
         self.files = {}
         self.checkers = []
         self.out = sys.stdout
@@ -19,7 +20,8 @@ class Robocop:
         self.reports = []
         self.disabler = None
         self.config = Config()
-        self.config.parse_opts()
+        if from_cli:
+            self.config.parse_opts()
         self.set_output()
         self.load_checkers()
         self.configure_checkers()
@@ -38,6 +40,8 @@ class Robocop:
         self.recognize_file_types()
         self.run_checks()
         self.make_reports()
+        if not self.out.closed:
+            self.out.close()
 
     def recognize_file_types(self):
         """
@@ -68,6 +72,8 @@ class Robocop:
                 continue
             model = self.files[file].get_parser()(str(file))
             for checker in self.checkers:
+                if checker.disabled:
+                    continue
                 checker.source = str(file)
                 checker.scan_file(model)
 
@@ -105,11 +111,18 @@ class Robocop:
         reports.init(self)
 
     def register_checker(self, checker):
-        if self.any_rule_enabled(checker):
-            for msg_name, msg in checker.messages.items():
-                self.messages[msg_name] = (msg, checker)
-                self.messages[msg.msg_id] = (msg, checker)
-            self.checkers.append(checker)
+        if not self.any_rule_enabled(checker):
+            checker.disabled = True
+        for msg_name, msg in checker.messages.items():
+            if msg_name in self.messages:
+                (_, checker_prev) = self.messages[msg_name]
+                raise robocop.exceptions.DuplicatedMessageError('name', msg_name, checker, checker_prev)
+            if msg.msg_id in self.messages:
+                (_, checker_prev) = self.messages[msg.msg_id]
+                raise robocop.exceptions.DuplicatedMessageError('id', msg.msg_id, checker, checker_prev)
+            self.messages[msg_name] = (msg, checker)
+            self.messages[msg.msg_id] = (msg, checker)
+        self.checkers.append(checker)
 
     def register_report(self, report):
         if report.name in self.config.reports:
@@ -125,7 +138,7 @@ class Robocop:
 
     def get_absolute_path(self, path, recursive):
         if not path.exists():
-            return
+            raise robocop.exceptions.FileError(path)
         if path.is_file():
             if self.should_parse(path):
                 yield path.absolute()
@@ -144,29 +157,23 @@ class Robocop:
 
     def configure_checkers(self):
         for config in self.config.configure:
-            # TODO: handle wrong format, not existing checker
+            if config.count(':') != 2:
+                raise robocop.exceptions.ConfigGeneralError(
+                    f'Provided invalid config: \'{config}\' (pattern: <rule>:<param>:<value>)')
             rule, param, value = config.split(':')
             if rule not in self.messages:
-                continue
+                raise robocop.exceptions.ConfigGeneralError(f'Provided rule \'{rule}\' does not exists')
             msg, checker = self.messages[rule]
             if param == 'severity':
                 self.messages[rule] = (msg.change_severity(value), checker)
             else:
                 configurable = msg.get_configurable(param)
                 if configurable is None:
-                    continue
+                    raise robocop.exceptions.ConfigGeneralError(
+                        f'Provided param \'{param}\' for rule \'{rule}\' does not exists')
                 checker.configure(configurable[1], configurable[2](value))
-
-    def find_checker(self, msg_id_or_name):
-        for checker in self.checkers:
-            if msg_id_or_name in checker.messages:
-                return checker
-            for msg in checker.messages.values():
-                if msg_id_or_name == msg.msg_id:
-                    return checker
-        return None
 
 
 def run_robocop():
-    robocop = Robocop()
-    robocop.run()
+    linter = Robocop(from_cli=True)
+    linter.run()

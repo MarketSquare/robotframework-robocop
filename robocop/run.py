@@ -72,6 +72,8 @@ class Robocop:
                 continue
             model = self.files[file].get_parser()(str(file))
             for checker in self.checkers:
+                if checker.disabled:
+                    continue
                 checker.source = str(file)
                 checker.scan_file(model)
 
@@ -109,17 +111,18 @@ class Robocop:
         reports.init(self)
 
     def register_checker(self, checker):
-        if self.any_rule_enabled(checker):
-            for msg_name, msg in checker.messages.items():
-                if msg_name in self.messages:
-                    (_, checker_prev) = self.messages[msg_name]
-                    raise robocop.exceptions.DuplicatedMessageError('name', msg_name, checker, checker_prev)
-                if msg.msg_id in self.messages:
-                    (_, checker_prev) = self.messages[msg.msg_id]
-                    raise robocop.exceptions.DuplicatedMessageError('id', msg.msg_id, checker, checker_prev)
-                self.messages[msg_name] = (msg, checker)
-                self.messages[msg.msg_id] = (msg, checker)
-            self.checkers.append(checker)
+        if not self.any_rule_enabled(checker):
+            checker.disabled = True
+        for msg_name, msg in checker.messages.items():
+            if msg_name in self.messages:
+                (_, checker_prev) = self.messages[msg_name]
+                raise robocop.exceptions.DuplicatedMessageError('name', msg_name, checker, checker_prev)
+            if msg.msg_id in self.messages:
+                (_, checker_prev) = self.messages[msg.msg_id]
+                raise robocop.exceptions.DuplicatedMessageError('id', msg.msg_id, checker, checker_prev)
+            self.messages[msg_name] = (msg, checker)
+            self.messages[msg.msg_id] = (msg, checker)
+        self.checkers.append(checker)
 
     def register_report(self, report):
         if report.name in self.config.reports:

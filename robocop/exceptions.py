@@ -6,8 +6,7 @@ class RobocopFatalError(ValueError):
 
 
 class ConfigGeneralError(RobocopFatalError):
-    def __init__(self, msg):
-        super().__init__(msg)
+    pass
 
 
 class DuplicatedMessageError(RobocopFatalError):
@@ -41,7 +40,19 @@ class InvalidMessageUsageError(RobocopFatalError):
         super().__init__(msg)
 
 
-class FileError:
+class InvalidExternalCheckerError(RobocopFatalError):
+    def __init__(self, path):
+        msg = f"Fatal error: Failed to load external rules from file {path}. Verify if the file exists"
+        super().__init__(msg)
+
+
+class MissingRegisterMethodCheckerError(RobocopFatalError):
+    def __init__(self, module):
+        msg = f"Fatal error: Tried to load rule file {module} but register method was missing"
+        super().__init__(msg)
+
+
+class FileError(RobocopFatalError):
     def __init__(self, source):
-        print(f"File {source} does not exist", file=sys.stderr)
-        sys.exit(1)
+        msg = f"File {source} does not exist"
+        super().__init__(msg)

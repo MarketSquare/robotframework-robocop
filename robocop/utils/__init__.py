@@ -3,7 +3,7 @@ Parsing utils
 """
 from robocop.utils.disablers import DisablersFinder
 from robocop.utils.file_types import FileType, FileTypeChecker
-from robocop.utils.utils import modules_from_path, modules_in_current_dir
+from robocop.utils.utils import modules_from_path, modules_from_paths, modules_in_current_dir
 
 
 __all__ = [
@@ -11,5 +11,6 @@ __all__ = [
     'FileType',
     'FileTypeChecker',
     'modules_from_path',
-    'modules_in_current_dir'
+    'modules_in_current_dir',
+    'modules_from_paths'
 ]

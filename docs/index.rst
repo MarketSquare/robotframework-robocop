@@ -1,8 +1,3 @@
-.. Robocop documentation master file, created by
-   sphinx-quickstart on Wed Jul 15 12:39:37 2020.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
-
 Robocop documentation
 =====================
 
@@ -18,6 +13,7 @@ Robocop documentation
    :maxdepth: 1
 
    user_guide
+   external_rules
    checkers
    messages
    including_rules

@@ -21,7 +21,7 @@ Refer to :ref:`checkers` for more details.
       linter.register_checker(YourChecker2(linter))
 3. It shouldn't reuse messages ids or names from official rules.
 
-This is example of file with custom checker that assert that no test have "Dummy" in the name::
+This is an example of a file with custom checker that asserts that no test have "Dummy" in the name::
 
     from robocop.checkers import VisitorChecker
     from robocop.messages import MessageSeverity

@@ -24,6 +24,7 @@ class Robocop:
             self.config.parse_opts()
         self.set_output()
         self.load_checkers()
+        self.list_checkers()
         self.configure_checkers()
         self.load_reports()
 
@@ -101,6 +102,8 @@ class Robocop:
 
     def load_checkers(self):
         checkers.init(self)
+
+    def list_checkers(self):
         if self.config.list:
             for checker in self.checkers:
                 for msg in checker.messages:

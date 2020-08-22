@@ -23,8 +23,8 @@ def robocop_instance():
 
 
 def get_message_with_id(msg_id):
-    for c in ('I', 'W', 'E'):
-        msg_id = msg_id.replace(c, '')
+    for c in MessageSeverity:
+        msg_id = msg_id.replace(c.value, '')
     msg = (
         f"some-message-{msg_id}",
         "Some description",

@@ -6,7 +6,7 @@ from robocop.config import Config
 
 
 class RobocopWithoutLoadClasses(Robocop):
-    def __init__(self):  # TODO: move to common file, rewrite init to be reusable in API and
+    def __init__(self):  # TODO: move to common file, rewrite init to be reusable in API and unit tests
         self.files = {}
         self.checkers = []
         self.out = sys.stdout

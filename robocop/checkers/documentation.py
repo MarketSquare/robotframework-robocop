@@ -40,7 +40,7 @@ class MissingDocumentationChecker(VisitorChecker):
     def visit_SettingSection(self, node):  # noqa
         self.check_if_docs_are_present(node, "missing-doc-suite")
 
-    def visit_File(self, node):
+    def visit_File(self, node):  # noqa
         for section in node.sections:
             if isinstance(section, SettingSection):
                 break

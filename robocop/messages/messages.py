@@ -72,7 +72,8 @@ class Message:
         self.parse_body(body)
 
     def __str__(self):
-        return f'Message - {self.msg_id} [{self.severity.value}]: {self.name}: {self.desc}'
+        return f'Message - {self.msg_id} [{self.severity.value}]: {self.name}: {self.desc} ' \
+               f'({"enabled" if self.enabled else "disabled"})'
 
     def change_severity(self, value):
         severity = {

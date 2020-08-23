@@ -53,6 +53,7 @@ class Config:
         self.filetypes = {'.robot', '.resource'}
         self.list = False
         self.output = None
+        self.recursive = True
         self.parser = self._create_parser()
 
     HELP_MSGS = {
@@ -73,8 +74,9 @@ class Config:
         'help_list':        'List all available rules',
         'help_output':      'Path to output file',
         'help_filetypes':   'Comma separated list of file extensions to be scanned by Robocop',
-        'help_threshold':     f'Disable rules below given threshold. Available message levels: '
+        'help_threshold':    f'Disable rules below given threshold. Available message levels: '
                              f'{" < ".join(sev.value for sev in MessageSeverity)}',
+        'help_recursive':   'Use this flag to stop scanning directories recursively',
         'help_info':        'Print this help message and exit',
         'help_version':     'Display Robocop version'
     }
@@ -116,6 +118,8 @@ class Config:
                               help=self.HELP_MSGS['help_exclude'])
         optional.add_argument('-rules', '--ext_rules', action=ParseDelimitedArgAction, default=self.ext_rules,
                               help=self.HELP_MSGS['help_ext_rules'])
+        optional.add_argument('--no-recursive', dest='recursive', action='store_false',
+                              help=self.HELP_MSGS['help_recursive'])
         optional.add_argument('-r', '--reports', action=ParseDelimitedArgAction, default=self.reports,
                               help=self.HELP_MSGS['help_reports'])
         optional.add_argument('-f', '--format', type=str, default=self.format, help=self.HELP_MSGS['help_format'])

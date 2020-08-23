@@ -1,7 +1,7 @@
 """
 Lengths checkers
 """
-from robot.parsing.model.statements import KeywordCall
+from robot.parsing.model.statements import KeywordCall, Comment, EmptyLine
 from robocop.checkers import VisitorChecker, RawFileChecker
 from robocop.messages import MessageSeverity
 
@@ -9,6 +9,7 @@ from robocop.messages import MessageSeverity
 def register(linter):
     linter.register_checker(LengthChecker(linter))
     linter.register_checker(LineLengthChecker(linter))
+    linter.register_checker(EmptySectionChecker(linter))
 
 
 class LengthChecker(VisitorChecker):
@@ -137,3 +138,36 @@ class LineLengthChecker(RawFileChecker):
     def check_line(self, line, lineno):
         if len(line) > self.max_line_length:
             self.report("line-too-long", len(line), self.max_line_length, lineno=lineno)
+
+
+class EmptySectionChecker(VisitorChecker):
+    """ Checker for empty section. """
+    msgs = {
+        "0508": (
+            "empty-section",
+            "Section is empty",
+            MessageSeverity.WARNING
+        )
+    }
+
+    def check_if_empty(self, node):
+        for child in node.body:
+            if not isinstance(child, Comment) and not isinstance(child, EmptyLine):
+                break
+        else:
+            self.report("empty-section", node=node)
+
+    def visit_SettingSection(self, node):  # noqa
+        self.check_if_empty(node)
+
+    def visit_VariableSection(self, node):  # noqa
+        self.check_if_empty(node)
+
+    def visit_TestCaseSection(self, node):  # noqa
+        self.check_if_empty(node)
+
+    def visit_KeywordSection(self, node):  # noqa
+        self.check_if_empty(node)
+
+    def visit_CommentSection(self, node):  # noqa
+        self.check_if_empty(node)

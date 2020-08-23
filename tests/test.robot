@@ -36,7 +36,7 @@ Missing Doc But Disabled Rule  # roblint: disable=missing-doc-keyword
     Log  2
 	
 Keyword With Invalid Char?
-    Log  1
+    Log  19
 
 Keyword With Reserved Tags
     [Tags]  tagORtag  tagorand  andsmth  with space or reserved

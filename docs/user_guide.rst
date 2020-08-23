@@ -57,7 +57,7 @@ by -c/--configure and `return_status:quality_gate` param::
 
   robocop --configure return_status:quality_gate:E=100:F=10:I=9
 
-Above example configuration result in following levels::
+Above example configuration results in following levels::
 
   quality_gate = {
             'F': 10,

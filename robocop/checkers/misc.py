@@ -1,5 +1,5 @@
 """
-Miscallenous checkers
+Miscellaneous checkers
 """
 from robot.parsing.model.statements import Return, KeywordCall
 from robocop.checkers import VisitorChecker

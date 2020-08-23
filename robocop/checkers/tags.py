@@ -1,5 +1,5 @@
 """
-Tags checkerss
+Tags checkers
 """
 
 from robocop.checkers import VisitorChecker

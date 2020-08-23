@@ -35,6 +35,7 @@ class BaseChecker:
 
     def __init__(self, linter, configurable=None):
         self.linter = linter
+        self.disabled = False
         self.source = None
         self.messages = {}
         self.configurable = set() if configurable is None else configurable

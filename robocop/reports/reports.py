@@ -10,18 +10,26 @@ You can use separate arguments (``-r report1 -r report2``) or comma separated li
 """
 from collections import defaultdict
 from operator import itemgetter
+import robocop.exceptions
 
 
 def register(linter):
     linter.register_report(RulesByIdReport())
     linter.register_report(RulesBySeverityReport())
+    linter.register_report(ReturnStatusReport())
 
 
-class RulesByIdReport:
+class Report:
+    def configure(self, name, value, *values):
+        raise robocop.exceptions.ConfigGeneralError(
+            f'Provided param \'{name}\' for report \'{self.name}\' does not exists')
+
+
+class RulesByIdReport(Report):
     """
     Report name: ``rules_by_id``
 
-    Report that group linter messages by message id and print it ordered by most common message.
+    Report that groups linter messages by message id and print it ordered by most common message.
     Example::
 
         Issues by ids:
@@ -51,7 +59,7 @@ class RulesByIdReport:
         return report
 
 
-class RulesBySeverityReport:
+class RulesBySeverityReport(Report):
     """
     Report name: ``rules_by_error_type``
 
@@ -76,3 +84,46 @@ class RulesBySeverityReport:
         report += ', '.join(f"{count} {severity.name}(s)" for severity, count in self.severity_counter.items())
         report += '.'
         return report
+
+
+class ReturnStatusReport(Report):
+    """
+    Report name: ``return_status``
+
+    Report that checks if number of returned messages for given severity value does not exceed preset threshold.
+    That information is later used as return status from Robocop.
+    """
+    def __init__(self):
+        self.name = 'return_status'
+        self.return_status = 0
+        self.counter = RulesBySeverityReport()
+        self.quality_gate = {
+            'F': 1,
+            'E': 1,
+            'W': 100,
+            'I': 0
+        }
+
+    def configure(self, name, value, *values):
+        if name != 'quality_gate':
+            super().configure(name, value, *values)
+        values = [value] + list(values)
+        for value in values:
+            try:
+                name, count = value.split('=', maxsplit=1)
+                if name in self.quality_gate:
+                    self.quality_gate[name] = int(count)
+            except ValueError:
+                continue
+
+    def add_message(self, message, **kwargs):  # pylint: disable=unused-argument
+        self.counter.add_message(message, **kwargs)
+
+    def get_report(self):
+        for severity, count in self.counter.severity_counter.items():
+            threshold = self.quality_gate.get(severity.value, 0)
+            if not threshold:
+                continue
+            if count >= threshold:
+                self.return_status = 1
+                break

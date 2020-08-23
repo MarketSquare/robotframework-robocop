@@ -40,3 +40,31 @@ Generating reports
 ------------------
 
 You can generate reports after run. Available reports are described in :ref:`reports`.
+
+Return status
+-------------
+
+Return status of Robocop depends on number of issues reported per given severity level. Default levels are following::
+
+  quality_gate = {
+            'F': 1,
+            'E': 1,
+            'W': 100,
+            'I': 0
+        }
+Number 0 means that return status is not affected by number of issues for given message. Default values can be configured
+by -c/--configure and `return_status:quality_gate` param::
+
+  robocop --configure return_status:quality_gate:E=100:F=10:I=9
+
+Above example configuration result in following levels::
+
+  quality_gate = {
+            'F': 10,
+            'E': 100,
+            'W': 100,
+            'I': 9
+        }
+
+Any number of Fatal issues above or equal 9, Error above or equal 100, Warning above or equal 100 and Info above or equal 9 will lead to Robocop
+returning status code (1).

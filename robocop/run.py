@@ -24,6 +24,7 @@ class Robocop:
             self.config.parse_opts()
         self.set_output()
         self.load_checkers()
+        self.list_checkers()
         self.configure_checkers()
         self.load_reports()
 
@@ -49,6 +50,9 @@ class Robocop:
         If the file is imported somewhere then file type is `RESOURCE`. Otherwise file type is `GENERAL`.
         These types are important since they are used to define parsing class for robot API.
         """
+        if not self.config.paths:
+            print('No path has been provided')
+            sys.exit()
         files = self.config.paths
         for file in self.get_files(files, True):
             if file.name == '__init__.robot':
@@ -69,6 +73,8 @@ class Robocop:
                 continue
             model = self.files[file].get_parser()(str(file))
             for checker in self.checkers:
+                if checker.disabled:
+                    continue
                 checker.source = str(file)
                 checker.scan_file(model)
 
@@ -97,21 +103,29 @@ class Robocop:
     def load_checkers(self):
         checkers.init(self)
 
+    def list_checkers(self):
+        if self.config.list:
+            for checker in self.checkers:
+                for msg in checker.messages:
+                    print(checker.messages[msg])
+            sys.exit()
+
     def load_reports(self):
         reports.init(self)
 
     def register_checker(self, checker):
-        if self.any_rule_enabled(checker):
-            for msg_name, msg in checker.messages.items():
-                if msg_name in self.messages:
-                    (_, checker_prev) = self.messages[msg_name]
-                    raise robocop.exceptions.DuplicatedMessageError('name', msg_name, checker, checker_prev)
-                if msg.msg_id in self.messages:
-                    (_, checker_prev) = self.messages[msg.msg_id]
-                    raise robocop.exceptions.DuplicatedMessageError('id', msg.msg_id, checker, checker_prev)
-                self.messages[msg_name] = (msg, checker)
-                self.messages[msg.msg_id] = (msg, checker)
-            self.checkers.append(checker)
+        if not self.any_rule_enabled(checker):
+            checker.disabled = True
+        for msg_name, msg in checker.messages.items():
+            if msg_name in self.messages:
+                (_, checker_prev) = self.messages[msg_name]
+                raise robocop.exceptions.DuplicatedMessageError('name', msg_name, checker, checker_prev)
+            if msg.msg_id in self.messages:
+                (_, checker_prev) = self.messages[msg.msg_id]
+                raise robocop.exceptions.DuplicatedMessageError('id', msg.msg_id, checker, checker_prev)
+            self.messages[msg_name] = (msg, checker)
+            self.messages[msg.msg_id] = (msg, checker)
+        self.checkers.append(checker)
 
     def register_report(self, report):
         if report.name in self.config.reports:

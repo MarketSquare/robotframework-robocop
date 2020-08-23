@@ -51,6 +51,7 @@ class Config:
         self.include_patterns = []
         self.exclude_patterns = []
         self.filetypes = {'.robot', '.resource'}
+        self.list = False
         self.output = None
         self.parser = self._create_parser()
 
@@ -69,6 +70,7 @@ class Config:
                             '-c message_name_or_id:param_name:param_value\nExample:\n'
                             '-c line-too-long:line_length:150\n'
                             '--configure 0101:severity:E',
+        'help_list':        'List all available rules',
         'help_output':      'Path to output file',
         'help_filetypes':   'Comma separated list of file extensions to be scanned by Robocop',
         'help_threshold':     f'Disable rules below given threshold. Available message levels: '
@@ -80,6 +82,16 @@ class Config:
     @staticmethod
     def _translate_pattern(pattern_list):
         return [re.compile(fnmatch.translate(p)) for p in pattern_list if '*' in p]
+
+    def remove_severity(self):
+        self.include = {self.replace_severity_values(msg) for msg in self.include}
+        self.exclude = {self.replace_severity_values(msg) for msg in self.exclude}
+        for index, conf in enumerate(self.configure):
+            if conf.count(':') != 2:
+                continue
+            message, param, value = conf.split(':')
+            message = self.replace_severity_values(message)
+            self.configure[index] = f"{message}:{param}:{value}"
 
     def translate_patterns(self):
         self.include_patterns = self._translate_pattern(self.include)
@@ -96,7 +108,7 @@ class Config:
         required = parser.add_argument_group(title='Required parameters')
         optional = parser.add_argument_group(title='Optional parameters')
 
-        required.add_argument('paths', metavar='paths', type=str, nargs='+', help=self.HELP_MSGS['help_paths'])
+        required.add_argument('paths', metavar='paths', type=str, nargs='*', help=self.HELP_MSGS['help_paths'])
 
         optional.add_argument('-i', '--include', action=ParseDelimitedArgAction, default=self.include,
                               help=self.HELP_MSGS['help_include'])
@@ -109,6 +121,8 @@ class Config:
         optional.add_argument('-f', '--format', type=str, default=self.format, help=self.HELP_MSGS['help_format'])
         optional.add_argument('-c', '--configure', action=ParseCheckerConfig, default=self.configure,
                               help=self.HELP_MSGS['help_configure'])
+        optional.add_argument('-l', '--list', action='store_true', default=self.list,
+                              help=self.HELP_MSGS['help_list'])
         optional.add_argument('-o', '--output', type=argparse.FileType('w'), default=self.output,
                               help=self.HELP_MSGS['help_output'])
         optional.add_argument('--filetypes', action=ParseFileTypes, default=self.filetypes,
@@ -123,22 +137,38 @@ class Config:
     def parse_opts(self, args=None):
         parsed_args = self.parser.parse_args(args)
         self.__dict__.update(**vars(parsed_args))
+        self.remove_severity()
         self.translate_patterns()
 
         return parsed_args
 
     def is_rule_enabled(self, msg):
+        if self.is_rule_disabled(msg):
+            return False
+        if self.include or self.include_patterns:  # if any include pattern, it must match with something
+            if msg.msg_id in self.include or msg.name in self.include:
+                return True
+            for pattern in self.include_patterns:
+                if pattern.match(msg.msg_id) or pattern.match(msg.name):
+                    return True
+            return False
+        return True
+
+    def is_rule_disabled(self, msg):
         if msg.severity < self.threshold:
-            return False
-        if self.include and not self.include_patterns:
-            if msg.msg_id not in self.include and msg.name not in self.include:
-                return False
+            return True
         if msg.msg_id in self.exclude or msg.name in self.exclude:
-            return False
-        for pattern in self.include_patterns:
-            if not pattern.match(msg.msg_id) and not pattern.match(msg.name):
-                return False
+            return True
         for pattern in self.exclude_patterns:
             if pattern.match(msg.msg_id) or pattern.match(msg.name):
-                return False
-        return True
+                return True
+        return False
+
+
+    @staticmethod
+    def replace_severity_values(message):
+        sev = ''.join(c.value for c in MessageSeverity)
+        if re.match(f"[{sev}]?[0-9]{{4,}}", message):
+            for c in sev:
+                message = message.replace(c, '')
+        return message

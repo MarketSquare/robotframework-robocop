@@ -27,12 +27,23 @@ class ParseFileTypes(argparse.Action):  # pylint: disable=too-few-public-methods
         setattr(namespace, self.dest, filetypes)
 
 
+class SetMessageThreshold(argparse.Action):
+    def __call__(self, parser, namespace, values, option_string=None):
+        for sev in MessageSeverity:
+            if sev.value == values:
+                break
+        else:
+            sev = MessageSeverity.INFO
+        setattr(namespace, self.dest, sev)
+
+
 class Config:
     def __init__(self):
         self.exec_dir = os.path.abspath('.')
         self.include = set()
         self.exclude = set()
         self.reports = set()
+        self.threshold = MessageSeverity.INFO
         self.configure = []
         self.format = "{source}:{line}:{col} [{severity}] {msg_id} {desc}"
         self.paths = []
@@ -46,17 +57,24 @@ class Config:
 
     HELP_MSGS = {
         'help_paths':       'List of paths (files or directories) to be parsed by Robocop',
-        'help_include':     'Run Robocop only with specified rules. You can define rule by its name or id',
-        'help_exclude':     'Ignore specified rules. You can define rule by its name or id',
+        'help_include':     'Run Robocop only with specified rules. You can define rule by its name or id.\n'
+                            'Glob patterns are supported',
+        'help_exclude':     'Ignore specified rules. You can define rule by its name or id.\n'
+                            'Glob patterns are supported',
         'help_ext_rules':   'List of paths with custom rules',
         'help_reports':     'Run reports',
         'help_format':      'Format of output message. '
-                            'You can use placeholders to change the way an issue is reported. '
+                            'You can use placeholders to change the way an issue is reported.\n'
                             'Default: {source}:{line}:{col} [{severity}] {msg_id} {desc}',
-        'help_configure':   'Configure checker with parameter value',
+        'help_configure':   'Configure checker with parameter value. Usage:\n'
+                            '-c message_name_or_id:param_name:param_value\nExample:\n'
+                            '-c line-too-long:line_length:150\n'
+                            '--configure 0101:severity:E',
         'help_list':        'List all available rules',
         'help_output':      'Path to output file',
         'help_filetypes':   'Comma separated list of file extensions to be scanned by Robocop',
+        'help_threshold':     f'Disable rules below given threshold. Available message levels: '
+                             f'{" < ".join(sev.value for sev in MessageSeverity)}',
         'help_info':        'Print this help message and exit',
         'help_version':     'Display Robocop version'
     }
@@ -80,7 +98,9 @@ class Config:
         self.exclude_patterns = self._translate_pattern(self.exclude)
 
     def _create_parser(self):
+        # below will throw error in Pycharm, it's bug https://youtrack.jetbrains.com/issue/PY-41806
         parser = argparse.ArgumentParser(prog='robocop',
+                                         formatter_class=argparse.RawTextHelpFormatter,
                                          description='Static code analysis tool for Robot Framework',
                                          epilog='For full documentation visit: '
                                                 'https://github.com/bhirsz/robotframework-robocop',
@@ -107,6 +127,8 @@ class Config:
                               help=self.HELP_MSGS['help_output'])
         optional.add_argument('--filetypes', action=ParseFileTypes, default=self.filetypes,
                               help=self.HELP_MSGS['help_filetypes'])
+        optional.add_argument('-t', '--threshold', action=SetMessageThreshold, default=self.threshold,
+                              help=self.HELP_MSGS['help_threshold'])
         optional.add_argument('-h', '--help', action='help', help=self.HELP_MSGS['help_info'])
         optional.add_argument('-v', '--version', action='version', version=__version__,
                               help=self.HELP_MSGS['help_version'])
@@ -133,6 +155,8 @@ class Config:
         return True
 
     def is_rule_disabled(self, msg):
+        if msg.severity < self.threshold:
+            return True
         if msg.msg_id in self.exclude or msg.name in self.exclude:
             return True
         for pattern in self.exclude_patterns:

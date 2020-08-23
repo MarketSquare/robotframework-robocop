@@ -83,7 +83,7 @@ class Robocop:
         self.disabler = DisablersFinder(file, self)
 
     def report(self, msg):
-        if not self.config.is_rule_enabled(msg):  # disabled from cli
+        if not msg.enabled:  # disabled from cli
             return
         if self.disabler.is_msg_disabled(msg):  # disabled from source code
             return
@@ -156,7 +156,10 @@ class Robocop:
         return file.suffix and file.suffix in self.config.filetypes
 
     def any_rule_enabled(self, checker):
-        return any(self.config.is_rule_enabled(msg) for msg in checker.messages.values())
+        for name, msg in checker.messages.items():
+            msg.enabled = self.config.is_rule_enabled(msg)
+            checker.messages[name] = msg
+        return any(msg.enabled for msg in checker.messages.values())
 
     def configure_checkers(self):
         for config in self.config.configure:

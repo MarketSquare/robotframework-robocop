@@ -20,9 +20,11 @@ Available formats:
 """
 from enum import Enum
 from copy import deepcopy
+from functools import total_ordering
 import robocop.exceptions
 
 
+@total_ordering
 class MessageSeverity(Enum):
     """
     Rule message severity.
@@ -33,11 +35,29 @@ class MessageSeverity(Enum):
         -c line-too-long:severity:e
 
     Will change line-too-long message severity to error.
+
+    You can filter out all messages below given severity value by using following option::
+
+        -t/--threshold <severity value>
+
+    Example::
+
+        --threshold E
+
+    Will only report messages with severity E and above.
     """
     INFO = "I"
     WARNING = "W"
     ERROR = "E"
     FATAL = "F"
+
+    def __lt__(self, other):
+        look_up = [sev.value for sev in MessageSeverity]
+        if self.__class__ is other.__class__:
+            return look_up.index(self.value) < look_up.index(other.value)
+        if isinstance(other, str):
+            return look_up.index(self.value) < look_up.index(other)
+        return NotImplemented
 
 
 class Message:
@@ -46,6 +66,7 @@ class Message:
         self.name = ''
         self.desc = ''
         self.source = None
+        self.enabled = True
         self.severity = MessageSeverity.INFO
         self.configurable = []
         self.parse_body(body)

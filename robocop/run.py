@@ -54,7 +54,7 @@ class Robocop:
             print('No path has been provided')
             sys.exit()
         files = self.config.paths
-        for file in self.get_files(files, True):
+        for file in self.get_files(files, self.config.recursive):
             if file.name == '__init__.robot':
                 self.files[file] = FileType.INIT
             else:
@@ -136,7 +136,7 @@ class Robocop:
         for report in self.reports:
             self.write_line(report.get_report())
 
-    def get_files(self, files_or_dirs, recursive=False):
+    def get_files(self, files_or_dirs, recursive):
         for file in files_or_dirs:
             yield from self.get_absolute_path(Path(file), recursive)
 

@@ -22,7 +22,7 @@ def register(linter):
 class Report:
     def configure(self, name, value, *values):
         raise robocop.exceptions.ConfigGeneralError(
-            f'Provided param \'{name}\' for report \'{self.name}\' does not exists')
+            f'Provided param \'{name}\' for report \'{self.name}\' does not exists')  # noqa
 
 
 class RulesByIdReport(Report):

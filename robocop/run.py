@@ -105,9 +105,10 @@ class Robocop:
 
     def list_checkers(self):
         if self.config.list:
-            for checker in self.checkers:
-                for msg in checker.messages:
-                    print(checker.messages[msg])
+            msg_by_id = {msg.msg_id: msg for checker in self.checkers for msg in checker.messages.values()}
+            msg_ids = sorted([key for key in msg_by_id])
+            for msg_id in msg_ids:
+                print(msg_by_id[msg_id])
             sys.exit()
 
     def load_reports(self):

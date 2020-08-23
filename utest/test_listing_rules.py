@@ -73,24 +73,24 @@ class TestListingRules:
         with pytest.raises(SystemExit):
             robocop_instance.list_checkers()
         out, _ = capsys.readouterr()
-        assert out == 'Message - 0101 [W]: some-message: Some description\n'
+        assert out == 'Message - 0101 [W]: some-message: Some description (enabled)\n'
 
     def test_list_disabled_rule(self, robocop_instance, msg_0101, capsys):
         init_empty_checker(robocop_instance, msg_0101, exclude=True)
         with pytest.raises(SystemExit):
             robocop_instance.list_checkers()
         out, _ = capsys.readouterr()
-        assert out == 'Message - 0101 [W]: some-message: Some description\n'
+        assert out == 'Message - 0101 [W]: some-message: Some description (disabled)\n'
 
     def test_multiple_checkers(self, robocop_instance, msg_0101, msg_0102_0204, capsys):
+        init_empty_checker(robocop_instance, msg_0102_0204, exclude=True)
         init_empty_checker(robocop_instance, msg_0101)
-        init_empty_checker(robocop_instance, msg_0102_0204)
         with pytest.raises(SystemExit):
             robocop_instance.list_checkers()
         out, _ = capsys.readouterr()
         exp_msg = (
-            'Message - 0101 [W]: some-message: Some description\n',
-            'Message - 0102 [E]: other-message: this is description\n',
-            'Message - 0204 [I]: another message: Message with meaning 4\n'
+            'Message - 0101 [W]: some-message: Some description (enabled)\n',
+            'Message - 0102 [E]: other-message: this is description (disabled)\n',
+            'Message - 0204 [I]: another message: Message with meaning 4 (disabled)\n'
         )
         assert all(msg in out for msg in exp_msg)

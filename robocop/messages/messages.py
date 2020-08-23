@@ -35,6 +35,16 @@ class MessageSeverity(Enum):
         -c line-too-long:severity:e
 
     Will change line-too-long message severity to error.
+
+    You can filter out all messages below given severity value by using following option::
+
+        -t/--threshold <severity value>
+
+    Example::
+
+        --threshold E
+
+    Will only report messages with severity E and above.
     """
     INFO = "I"
     WARNING = "W"

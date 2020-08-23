@@ -20,9 +20,11 @@ Available formats:
 """
 from enum import Enum
 from copy import deepcopy
+from functools import total_ordering
 import robocop.exceptions
 
 
+@total_ordering
 class MessageSeverity(Enum):
     """
     Rule message severity.
@@ -39,6 +41,14 @@ class MessageSeverity(Enum):
     ERROR = "E"
     FATAL = "F"
 
+    def __lt__(self, other):
+        look_up = [sev.value for sev in MessageSeverity]
+        if self.__class__ is other.__class__:
+            return look_up.index(self.value) < look_up.index(other.value)
+        if isinstance(other, str):
+            return look_up.index(self.value) < look_up.index(other)
+        return NotImplemented
+
 
 class Message:
     def __init__(self, msg_id, body):
@@ -46,6 +56,7 @@ class Message:
         self.name = ''
         self.desc = ''
         self.source = None
+        self.enabled = True
         self.severity = MessageSeverity.INFO
         self.configurable = []
         self.parse_body(body)

@@ -25,8 +25,8 @@ class Robocop:
         self.set_output()
         self.load_checkers()
         self.list_checkers()
-        self.configure_checkers()
         self.load_reports()
+        self.configure_checkers_or_reports()
 
     def set_output(self):
         """ Set output for printing to file if configured. Else use standard output """
@@ -43,6 +43,9 @@ class Robocop:
         self.make_reports()
         if not self.out.closed:
             self.out.close()
+        for report in self.reports:
+            if report.name == 'return_status':
+                sys.exit(report.return_status)
 
     def recognize_file_types(self):
         """
@@ -134,7 +137,9 @@ class Robocop:
 
     def make_reports(self):
         for report in self.reports:
-            self.write_line(report.get_report())
+            output = report.get_report()
+            if output is not None:
+                self.write_line(output)
 
     def get_files(self, files_or_dirs, recursive):
         for file in files_or_dirs:
@@ -162,23 +167,29 @@ class Robocop:
             checker.messages[name] = msg
         return any(msg.enabled for msg in checker.messages.values())
 
-    def configure_checkers(self):
+    def configure_checkers_or_reports(self):
         for config in self.config.configure:
-            if config.count(':') != 2:
+            if config.count(':') < 2:
                 raise robocop.exceptions.ConfigGeneralError(
-                    f'Provided invalid config: \'{config}\' (pattern: <rule>:<param>:<value>)')
-            rule, param, value = config.split(':')
-            if rule not in self.messages:
-                raise robocop.exceptions.ConfigGeneralError(f'Provided rule \'{rule}\' does not exists')
-            msg, checker = self.messages[rule]
-            if param == 'severity':
-                self.messages[rule] = (msg.change_severity(value), checker)
+                    f'Provided invalid config: \'{config}\' (general pattern: <rule>:<param>:<value>)')
+            rule_or_report, param, value, *values = config.split(':')
+            if rule_or_report in self.messages:
+                msg, checker = self.messages[rule_or_report]
+                if param == 'severity':
+                    self.messages[rule_or_report] = (msg.change_severity(value), checker)
+                else:
+                    configurable = msg.get_configurable(param)
+                    if configurable is None:
+                        raise robocop.exceptions.ConfigGeneralError(
+                            f'Provided param \'{param}\' for rule \'{rule_or_report}\' does not exists')
+                    checker.configure(configurable[1], configurable[2](value))
+            elif any(rule_or_report == report.name for report in self.reports):
+                for report in self.reports:
+                    if report.name == rule_or_report:
+                        report.configure(param, value, *values)
             else:
-                configurable = msg.get_configurable(param)
-                if configurable is None:
-                    raise robocop.exceptions.ConfigGeneralError(
-                        f'Provided param \'{param}\' for rule \'{rule}\' does not exists')
-                checker.configure(configurable[1], configurable[2](value))
+                raise robocop.exceptions.ConfigGeneralError(
+                    f'Provided rule or report \'{rule_or_report}\' does not exists')
 
 
 def run_robocop():

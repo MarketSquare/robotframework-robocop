@@ -42,7 +42,7 @@ class Config:
         self.exec_dir = os.path.abspath('.')
         self.include = set()
         self.exclude = set()
-        self.reports = set()
+        self.reports = {'return_status'}
         self.threshold = MessageSeverity.INFO
         self.configure = []
         self.format = "{source}:{line}:{col} [{severity}] {msg_id} {desc}"

@@ -39,4 +39,4 @@ Keyword With Invalid Char?
     Log  19
 
 Keyword With Reserved Tags
-    [Tags]  tagORtag  tagorand  andsmth  with space or reserved
+    [Tags]  tagORtag  tagorand  andsmth  with space or reserved  robot:no-dry-run  robot:my_tag

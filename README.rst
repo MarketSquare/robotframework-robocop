@@ -1,5 +1,7 @@
 |Unit tests|
 
+.. image:: docs/images/robocop_logo_small.png
+
 Robocop
 ===============
 

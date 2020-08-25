@@ -159,11 +159,14 @@ class TestArgumentValidation(unittest.TestCase):
             self.config.parse_opts(['--version'])
         self.assertRegex(mock_stdout.getvalue(), __version__)
 
-    @patch('sys.stderr', new_callable=StringIO)
-    def test_paths_empty(self, mock_stderr):
-        with self.assertRaises(SystemExit):
-            self.config.parse_opts([])
-        self.assertRegex(mock_stderr.getvalue(), r'error: the following arguments are required: paths')
+    # test commented out due to PR #73 that changed 'paths' to optional parameter
+    # but it is not required during parsing args anymore
+    # subject to change in the future
+    # @patch('sys.stderr', new_callable=StringIO)
+    # def test_paths_empty(self, mock_stderr):
+    #     with self.assertRaises(SystemExit):
+    #         self.config.parse_opts([])
+    #     self.assertRegex(mock_stderr.getvalue(), r'error: the following arguments are required: paths')
 
     def test_paths_new_value(self):
         args = self.config.parse_opts(['tests.robot'])

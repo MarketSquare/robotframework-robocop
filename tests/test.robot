@@ -13,6 +13,7 @@ Test
     #  in line comment
     My External Keyword  ${arg1}  ${arg2}=3
     # in line comment
+    #comment without space
 
 
 Test

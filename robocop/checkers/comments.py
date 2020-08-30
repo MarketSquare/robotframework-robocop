@@ -44,6 +44,11 @@ class CommentChecker(CommentBaseChecker):
             "todo-in-comment",
             "Found %s in comment",
             RuleSeverity.WARNING
+        ),
+        "0702": (
+            "missing-space-after-comment",
+            "Missing blank space after comment character",
+            RuleSeverity.WARNING
         )
     }
 
@@ -52,3 +57,6 @@ class CommentChecker(CommentBaseChecker):
             self.report("todo-in-comment", "TODO", lineno=comment_token.lineno, col=comment_token.col_offset)
         if "fixme" in comment_token.value.lower():
             self.report("todo-in-comment", "FIXME", lineno=comment_token.lineno, col=comment_token.col_offset)
+        if comment_token.value.startswith('#') and comment_token.value != '#':
+            if not comment_token.value.startswith('# '):
+                self.report("missing-space-after-comment", lineno=comment_token.lineno, col=comment_token.col_offset)

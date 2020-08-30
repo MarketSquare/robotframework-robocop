@@ -7,6 +7,7 @@ from robocop.rules import RuleSeverity
 
 def register(linter):
     linter.register_checker(InvalidCharactersInNameChecker(linter))
+    linter.register_checker(CapitalizedNamesChecker(linter))
 
 
 class InvalidCharactersInNameChecker(VisitorChecker):
@@ -40,3 +41,48 @@ class InvalidCharactersInNameChecker(VisitorChecker):
 
     def visit_KeywordName(self, node):  # noqa
         self.check_if_char_in_name(node, 'KEYWORD_NAME')
+
+
+class CapitalizedNamesChecker(VisitorChecker):
+    """ Checker for capitalized keywords violation. """
+    rules = {
+        "0302": (
+            "not-capitalized-keyword-name",
+            "Keyword name should be capitalized",
+            RuleSeverity.WARNING
+        )
+    }
+
+    def visit_SuiteSetup(self, node):
+        self.check_if_keyword_is_capitalized(node.name, node)
+
+    def visit_TestSetup(self, node):
+        self.check_if_keyword_is_capitalized(node.name, node)
+
+    def visit_Setup(self, node):
+        self.check_if_keyword_is_capitalized(node.name, node)
+
+    def visit_SuiteTeardown(self, node):
+        self.check_if_keyword_is_capitalized(node.name, node)
+
+    def visit_TestTeardown(self, node):
+        self.check_if_keyword_is_capitalized(node.name, node)
+
+    def visit_Teardown(self, node):
+        self.check_if_keyword_is_capitalized(node.name, node)
+
+    def visit_TestCase(self, node):  # noqa
+        self.check_if_keyword_is_capitalized(node.name, node)
+        self.generic_visit(node)
+
+    def visit_Keyword(self, node):  # noqa
+        self.check_if_keyword_is_capitalized(node.name, node)
+        self.generic_visit(node)
+
+    def visit_KeywordCall(self, node):  # noqa
+        self.check_if_keyword_is_capitalized(node.keyword, node)
+
+    def check_if_keyword_is_capitalized(self, keyword_name, node):  # noqa
+        words = keyword_name.replace('_', ' ').split(' ')
+        if any(not word.istitle() for word in words):
+            self.report("not-capitalized-keyword-name", node=node)

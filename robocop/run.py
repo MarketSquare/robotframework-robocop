@@ -114,7 +114,7 @@ class Robocop:
             sys.exit()
 
     def load_reports(self):
-        reports.init(self)
+        reports.register(self)
 
     def register_checker(self, checker):
         if not self.any_rule_enabled(checker):

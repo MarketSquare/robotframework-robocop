@@ -19,7 +19,7 @@ source code. More in :ref:`including-rules`.
 Format output message
 ---------------------
 
-Format of output messages can be redefined. More in messages documentation: :ref:`messages`.
+Format of rules output messages can be redefined. More in messages documentation: :ref:`rules`.
 
 Configuring rules
 -----------------

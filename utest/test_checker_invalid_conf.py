@@ -1,7 +1,7 @@
 import pytest
 from robocop.run import Robocop
 from robocop.checkers import VisitorChecker
-from robocop.messages import MessageSeverity
+from robocop.rules import RuleSeverity
 import robocop.exceptions
 
 
@@ -11,67 +11,67 @@ def robocop_instance():
 
 
 class ValidChecker(VisitorChecker):
-    msgs = {
+    rules = {
         "0101": (
             "some-message",
             "Some description",
-            MessageSeverity.WARNING
+            RuleSeverity.WARNING
         )
     }
 
 
 class CheckerDuplicatedMessageName(VisitorChecker):
-    msgs = {
+    rules = {
         "0101": (
             "some-message",
             "Some description",
-            MessageSeverity.WARNING
+            RuleSeverity.WARNING
         ),
         "0102": (
             "some-message",
             "Some description2",
-            MessageSeverity.INFO
+            RuleSeverity.INFO
         )
     }
 
 
 class CheckerDuplicatedWithOtherCheckerMessageName(VisitorChecker):
-    msgs = {
+    rules = {
         "0102": (
             "some-message",
             "Some description",
-            MessageSeverity.WARNING
+            RuleSeverity.WARNING
         )
     }
 
 
 class CheckerDuplicatedWithOtherCheckerMessageId(VisitorChecker):
-    msgs = {
+    rules = {
         "0101": (
             "some-message2",
             "Some description",
-            MessageSeverity.WARNING
+            RuleSeverity.WARNING
         )
     }
 
 
 class TestCheckerInvalidConf:
     def test_duplicated_message_name_inside_checker(self, robocop_instance):  # noqa
-        with pytest.raises(robocop.exceptions.DuplicatedMessageError) as err:
+        with pytest.raises(robocop.exceptions.DuplicatedRuleError) as err:
             robocop_instance.register_checker(CheckerDuplicatedMessageName(robocop_instance))
         assert "Fatal error: Message name 'some-message' defined in CheckerDuplicatedMessageName " \
                "was already defined in CheckerDuplicatedMessageName" in str(err)
 
     def test_duplicated_message_name_outside_checker(self, robocop_instance):  # noqa
         robocop_instance.register_checker(ValidChecker(robocop_instance))
-        with pytest.raises(robocop.exceptions.DuplicatedMessageError) as err:
+        with pytest.raises(robocop.exceptions.DuplicatedRuleError) as err:
             robocop_instance.register_checker(CheckerDuplicatedWithOtherCheckerMessageName(robocop_instance))
         assert "Fatal error: Message name 'some-message' defined in " \
                "CheckerDuplicatedWithOtherCheckerMessageName was already defined in ValidChecker" in str(err)
 
     def test_duplicated_message_id_outside_checker(self, robocop_instance):  # noqa
         robocop_instance.register_checker(ValidChecker(robocop_instance))
-        with pytest.raises(robocop.exceptions.DuplicatedMessageError) as err:
+        with pytest.raises(robocop.exceptions.DuplicatedRuleError) as err:
             robocop_instance.register_checker(CheckerDuplicatedWithOtherCheckerMessageId(robocop_instance))
         assert "Fatal error: Message id '0101' defined in " \
                "CheckerDuplicatedWithOtherCheckerMessageId was already defined in ValidChecker" in str(err)

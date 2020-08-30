@@ -23,7 +23,7 @@ class TestArgumentValidation(unittest.TestCase):
         self.assertSetEqual(self.config.exclude, set())
         self.assertSetEqual(self.config.reports, {'return_status'})
         self.assertListEqual(self.config.configure, [])
-        self.assertEqual(self.config.format, "{source}:{line}:{col} [{severity}] {msg_id} {desc}")
+        self.assertEqual(self.config.format, "{source}:{line}:{col} [{severity}] {rule_id} {desc}")
         self.assertListEqual(self.config.paths, [])
         self.assertIsNone(self.config.output)
 
@@ -34,7 +34,7 @@ class TestArgumentValidation(unittest.TestCase):
         self.assertSetEqual(args.exclude, set())
         self.assertSetEqual(args.reports, {'return_status'})
         self.assertListEqual(args.configure, [])
-        self.assertEqual(args.format, "{source}:{line}:{col} [{severity}] {msg_id} {desc}")
+        self.assertEqual(args.format, "{source}:{line}:{col} [{severity}] {rule_id} {desc}")
         self.assertListEqual(args.paths, [''])
         self.assertIsNone(args.output)
 
@@ -107,7 +107,7 @@ class TestArgumentValidation(unittest.TestCase):
         self.assertSetEqual(args.exclude, {rule_name1, rule_name2})
 
     def test_format_overwrite_default(self):
-        default_format = '{source}:{line}:{col} [{severity}] {msg_id} {desc}'
+        default_format = '{source}:{line}:{col} [{severity}] {rule_id} {desc}'
         args = self.config.parse_opts(['--format', default_format, ''])
         self.assertEqual(args.format, default_format)
 
@@ -117,7 +117,7 @@ class TestArgumentValidation(unittest.TestCase):
         self.assertEqual(args.format, '')
 
     def test_format_new_value(self):
-        new_format = '{source}: {msg_id} {desc}'
+        new_format = '{source}: {rule_id} {desc}'
         args = self.config.parse_opts(['--format', new_format, ''])
         self.assertEqual(args.format, new_format)
 

@@ -3,7 +3,7 @@ Tags checkers
 """
 
 from robocop.checkers import VisitorChecker
-from robocop.messages import MessageSeverity
+from robocop.rules import RuleSeverity
 
 
 def register(linter):
@@ -13,21 +13,21 @@ def register(linter):
 
 class TagNameChecker(VisitorChecker):
     """ Checker for tags names. It scans for tags with spaces or Robot Framework reserved words. """
-    msgs = {
+    rules = {
         "0601": (
             "tag-with-space",
             "Tags should not contain spaces",
-            MessageSeverity.WARNING
+            RuleSeverity.WARNING
         ),
         "0602": (
             "tag-with-or-and",
             "Tag with reserved word OR/AND. Hint: make sure to include this tag using lowercase name to avoid issues",
-            MessageSeverity.INFO
+            RuleSeverity.INFO
         ),
         "0603": (
             "tag-with-reserved",
             "Tag prefixed with reserved word `robot:`. Only allowed tag with this prefix is robot:no-dry-run",
-            MessageSeverity.WARNING
+            RuleSeverity.WARNING
         )
     }
 
@@ -55,21 +55,21 @@ class TagNameChecker(VisitorChecker):
 
 class TagScopeChecker(VisitorChecker):  # TODO: load tags also from __init__.robot
     """ Checker for tag scopes. If the all tests in suite have the same tags it will suggest using Force Tags """
-    msgs = {
+    rules = {
         "0605": (
             "could-be-forced-tags",
             'All tests in suite share those tags: "%s". You can define them in Force Tags in suite settings instead',
-            MessageSeverity.INFO
+            RuleSeverity.INFO
         ),
         "0606": (
             "tag-already-set-in-force-tags",
             "This tag is already set by Force Tags in suite settings",
-            MessageSeverity.INFO
+            RuleSeverity.INFO
         ),
         "0607": (
             "unnecessary-default-tags",
             "Tags defined in Default Tags are always overwritten",
-            MessageSeverity.INFO
+            RuleSeverity.INFO
         )
     }
 

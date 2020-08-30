@@ -19,7 +19,7 @@ Refer to :ref:`checkers` for more details.
     def register(linter):
       linter.register_checker(YourChecker(linter))
       linter.register_checker(YourChecker2(linter))
-3. It shouldn't reuse messages ids or names from official rules.
+3. It shouldn't reuse rules ids or names from official rules.
 
 This is an example of a file with custom checker that asserts that no test have "Dummy" in the name::
 
@@ -32,7 +32,7 @@ This is an example of a file with custom checker that asserts that no test have 
 
 
     class NoDummiesChecker(VisitorChecker):
-         msgs = {
+         rules = {
             "999": (
                 "dummy-in-name",
                 "There is dummy in test case name",

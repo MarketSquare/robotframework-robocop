@@ -2,7 +2,7 @@
 Comments checkers
 """
 from robocop.checkers import VisitorChecker
-from robocop.messages import MessageSeverity
+from robocop.rules import RuleSeverity
 
 
 def register(linter):
@@ -13,7 +13,7 @@ class CommentBaseChecker(VisitorChecker):
     """
     This is base class for comment checkers. Not supposed to be used directly.
     """
-    msgs = {}
+    rules = {}
 
     def visit_Comment(self, node):  # noqa
         self.find_comments(node)
@@ -39,11 +39,16 @@ class CommentBaseChecker(VisitorChecker):
 
 class CommentChecker(CommentBaseChecker):
     """ Checker for content of comments. It detects if you have leftover todo or fixme in code. """
-    msgs = {
+    rules = {
         "0701": (
             "todo-in-comment",
             "Found %s in comment",
-            MessageSeverity.WARNING
+            RuleSeverity.WARNING
+        ),
+        "0702": (
+            "missing-space-after-comment",
+            "Missing blank space after comment character",
+            RuleSeverity.WARNING
         )
     }
 
@@ -52,3 +57,6 @@ class CommentChecker(CommentBaseChecker):
             self.report("todo-in-comment", "TODO", lineno=comment_token.lineno, col=comment_token.col_offset)
         if "fixme" in comment_token.value.lower():
             self.report("todo-in-comment", "FIXME", lineno=comment_token.lineno, col=comment_token.col_offset)
+        if comment_token.value.startswith('#') and comment_token.value != '#':
+            if not comment_token.value.startswith('# '):
+                self.report("missing-space-after-comment", lineno=comment_token.lineno, col=comment_token.col_offset)

@@ -29,29 +29,29 @@ class DisablersFinder:
         self.rules = defaultdict(DisablersInFile().copy)
         self._parse_file(source)
 
-    def is_msg_disabled(self, msg):
+    def is_rule_disabled(self, rule_msg):
         """
-        Check if given `msg` is disabled. All takes precedence, then line disablers, then block disablers.
+        Check if given `rule_msg` is disabled. All takes precedence, then line disablers, then block disablers.
         We're checking for both message id and name.
         """
         if not self.any_disabler:
             return False
         if 'all' in self.rules:
-            disabled = self.is_line_disabled(msg.line, 'all')
+            disabled = self.is_line_disabled(rule_msg.line, 'all')
             if disabled:
                 return True
-        if msg.msg_id in self.rules:
-            disabled = self.is_line_disabled(msg.line, msg.msg_id)
+        if rule_msg.rule_id in self.rules:
+            disabled = self.is_line_disabled(rule_msg.line, rule_msg.rule_id)
             if disabled:
                 return True
-        if msg.name in self.rules:
-            disabled = self.is_line_disabled(msg.line, msg.name)
+        if rule_msg.name in self.rules:
+            disabled = self.is_line_disabled(rule_msg.line, rule_msg.name)
             if disabled:
                 return True
         return False
 
     def is_line_disabled(self, line, rule):
-        """ Helper method for is_msg_disabled that check if given line is in range of any disabled block"""
+        """ Helper method for is_rule_disabled that check if given line is in range of any disabled block"""
         if line in self.rules[rule].lines:
             return True
         return any(block[0] <= line <= block[1] for block in self.rules[rule].blocks)

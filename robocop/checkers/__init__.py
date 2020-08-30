@@ -1,7 +1,7 @@
 """
 Robocop lint rules are internally grouped into similar groups called checkers.
 Each checker can scan for multiple related issues (like LengthChecker checks both for min and max length of keyword).
-You can refer to specific messages reported by checkers by its name or id (for example `0501` or `too-long-keyword`).
+You can refer to specific rules reported by checkers by its name or id (for example `0501` or `too-long-keyword`).
 
 Checkers are categorized into following groups:
  * 01: base
@@ -13,45 +13,43 @@ Checkers are categorized into following groups:
  * 07: comments
  * 09: misc
 
-Group id is prefix of message id.
-
 Checker have two basic types ``VisitorChecker`` uses Robot Framework parsing api and
 use Python ast module for traversing Robot code as nodes. ``RawFileChecker`` simply reads Robot file as normal file
 and scan every line.
 
-Rules are defines as messages. Every rule have unique id (group id + message id) and rule name and both can be use
+Every rule have unique id (group id + rule id) and rule name and both can be use
 to refer to rule (in include/exclude statements, configurations etc).
 You can configure rule severity and optionally other parameters.
 """
 import ast
 import inspect
-from robocop.messages import Message
-from robocop.exceptions import DuplicatedMessageError, MissingRegisterMethodCheckerError
+from robocop.rules import Rule
+from robocop.exceptions import DuplicatedRuleError, MissingRegisterMethodCheckerError
 from robocop.utils import modules_in_current_dir, modules_from_paths
 
 
 class BaseChecker:
-    msgs = None
+    rules = None
 
     def __init__(self, linter, configurable=None):
         self.linter = linter
         self.disabled = False
         self.source = None
-        self.messages = {}
+        self.rules_map = {}
         self.configurable = set() if configurable is None else configurable
-        self.register_messages(self.msgs)
+        self.register_rules(self.rules)
 
-    def register_messages(self, msgs):
-        for key, value in msgs.items():
-            msg = Message(key, value)
-            if msg.name in self.messages:
-                raise DuplicatedMessageError('name', msg.name, self, self)
-            self.messages[msg.name] = msg
+    def register_rules(self, rules):
+        for key, value in rules.items():
+            rule = Rule(key, value)
+            if rule.name in self.rules_map:
+                raise DuplicatedRuleError('name', rule.name, self, self)
+            self.rules_map[rule.name] = rule
 
-    def report(self, msg, *args, node=None, lineno=None, col=None):
-        if msg not in self.messages:
-            raise ValueError(f"Missing definition for message with name {msg}")
-        message = self.messages[msg].prepare_message(*args, source=self.source, node=node, lineno=lineno, col=col)
+    def report(self, rule, *args, node=None, lineno=None, col=None):
+        if rule not in self.rules_map:
+            raise ValueError(f"Missing definition for message with name {rule}")
+        message = self.rules_map[rule].prepare_message(*args, source=self.source, node=node, lineno=lineno, col=col)
         self.linter.report(message)
 
     def configure(self, param, value):
@@ -105,5 +103,5 @@ def get_docs():
     for module in modules_in_current_dir(__file__, __name__):
         classes = inspect.getmembers(module, inspect.isclass)
         for checker in classes:
-            if hasattr(checker[1], 'msgs') and checker[1].msgs:
+            if hasattr(checker[1], 'rules') and checker[1].rules:
                 yield checker[1]

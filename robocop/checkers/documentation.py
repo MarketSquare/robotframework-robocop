@@ -4,7 +4,7 @@ Documentation checkers
 from robot.parsing.model.blocks import SettingSection
 from robot.parsing.model.statements import Documentation
 from robocop.checkers import VisitorChecker
-from robocop.messages import MessageSeverity
+from robocop.rules import RuleSeverity
 
 
 def register(linter):
@@ -13,21 +13,21 @@ def register(linter):
 
 class MissingDocumentationChecker(VisitorChecker):
     """ Checker for missing documentation. """
-    msgs = {
+    rules = {
         "0201": (
             "missing-doc-keyword",
             "Missing documentation in keyword",
-            MessageSeverity.WARNING
+            RuleSeverity.WARNING
         ),
         "0202": (
             "missing-doc-testcase",
             "Missing documentation in test case",
-            MessageSeverity.WARNING
+            RuleSeverity.WARNING
         ),
         "0203": (
             "missing-doc-suite",
             "Missing documentation in suite",
-            MessageSeverity.WARNING
+            RuleSeverity.WARNING
         )
     }
 

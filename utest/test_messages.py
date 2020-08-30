@@ -1,6 +1,6 @@
 import ast
 import pytest
-from robocop.messages import Message, MessageSeverity
+from robocop.rules import Rule, RuleSeverity
 import robocop.exceptions
 
 
@@ -9,9 +9,9 @@ def valid_msg():
     msg = (
         "some-message",
         "Some description",
-        MessageSeverity.WARNING
+        RuleSeverity.WARNING
     )
-    return Message('0101', msg)
+    return Rule('0101', msg)
 
 
 @pytest.fixture
@@ -19,10 +19,10 @@ def valid_msg_with_conf():
     msg = (
         "some-message",
         "Some description",
-        MessageSeverity.WARNING,
+        RuleSeverity.WARNING,
         ('param_name', 'param_priv_name', int)
     )
-    return Message('0101', msg)
+    return Rule('0101', msg)
 
 
 INVALID_MSG_MISSING_SEVERITY = (
@@ -68,7 +68,7 @@ class TestMessage:
         dict()
     ])
     def test_change_message_severity_invalid(self, valid_msg, severity):  # noqa
-        with pytest.raises(robocop.exceptions.InvalidMessageSeverityError) as err:
+        with pytest.raises(robocop.exceptions.InvalidRuleSeverityError) as err:
             valid_msg.change_severity(severity)
         assert rf"Fatal error: Tried to configure message some-message with invalid severity: {severity}" in str(err)
 
@@ -89,9 +89,9 @@ class TestMessage:
         1
     ])
     def test_parse_invalid_body(self, msg):
-        with pytest.raises(robocop.exceptions.InvalidMessageBodyError) as err:
-            Message('0101', msg)
-        assert rf"Fatal error: Message '0101' has invalid body:\n{msg}" in str(err)
+        with pytest.raises(robocop.exceptions.InvalidRuleBodyError) as err:
+            Rule('0101', msg)
+        assert rf"Fatal error: Rule '0101' has invalid body:\n{msg}" in str(err)
 
     @pytest.mark.parametrize('configurable', [
         [None],
@@ -104,12 +104,12 @@ class TestMessage:
         msg = (
             "some-message",
             "Some description",
-            MessageSeverity.WARNING
+            RuleSeverity.WARNING
         )
         body = msg + tuple(configurable)
-        with pytest.raises(robocop.exceptions.InvalidMessageConfigurableError) as err:
-            Message('0101', body)
-        assert rf"Fatal error: Message '0101' has invalid configurable:\n{body}" in str(err)
+        with pytest.raises(robocop.exceptions.InvalidRuleConfigurableError) as err:
+            Rule('0101', body)
+        assert rf"Fatal error: Rule '0101' has invalid configurable:\n{body}" in str(err)
 
     @pytest.mark.parametrize('configurable', [
         [('some', 'some', int)],
@@ -120,11 +120,11 @@ class TestMessage:
         msg = (
             "some-message",
             "Some description",
-            MessageSeverity.WARNING
+            RuleSeverity.WARNING
         )
         body = msg + tuple(configurable)
-        message = Message('0101', body)
-        assert message.configurable == configurable
+        rule = Rule('0101', body)
+        assert rule.configurable == configurable
 
     @pytest.mark.parametrize('source, lineno, col, lineno_exp, col_exp', [
         ('path/to/file1.robot', None, None, 10, 0),
@@ -151,6 +151,6 @@ class TestMessage:
         node = ast.AST()
         node.lineno = 10
         valid_msg.desc = desc
-        with pytest.raises(robocop.exceptions.InvalidMessageUsageError) as err:
+        with pytest.raises(robocop.exceptions.InvalidRuleUsageError) as err:
             valid_msg.prepare_message(*args, source='file1.robot', node=node, lineno=None, col=None)
-        assert rf"Fatal error: Message '0101' failed to prepare message description with error:{exp_error}" in str(err)
+        assert rf"Fatal error: Rule '0101' failed to prepare message description with error:{exp_error}" in str(err)

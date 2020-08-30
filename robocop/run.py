@@ -85,20 +85,20 @@ class Robocop:
         """ Parse content of file to find any disabler statements like # robocop: disable=rulename """
         self.disabler = DisablersFinder(file, self)
 
-    def report(self, msg):
-        if not msg.enabled:  # disabled from cli
+    def report(self, rule_msg):
+        if not rule_msg.enabled:  # disabled from cli
             return
-        if self.disabler.is_msg_disabled(msg):  # disabled from source code
+        if self.disabler.is_rule_disabled(rule_msg):  # disabled from source code
             return
         for report in self.reports:
-            report.add_message(msg)
-        self.log_message(source=msg.source,
-                         line=msg.line,
-                         col=msg.col,
-                         severity=msg.severity.value,
-                         rule_id=msg.rule_id,
-                         desc=msg.desc,
-                         msg_name=msg.name)
+            report.add_message(rule_msg)
+        self.log_message(source=rule_msg.source,
+                         line=rule_msg.line,
+                         col=rule_msg.col,
+                         severity=rule_msg.severity.value,
+                         rule_id=rule_msg.rule_id,
+                         desc=rule_msg.desc,
+                         msg_name=rule_msg.name)
 
     def log_message(self, **kwargs):
         self.write_line(self.config.format.format(**kwargs))

@@ -46,10 +46,10 @@ class BaseChecker:
                 raise DuplicatedMessageError('name', rule.name, self, self)
             self.rules_map[rule.name] = rule
 
-    def report(self, msg, *args, node=None, lineno=None, col=None):
-        if msg not in self.rules_map:
-            raise ValueError(f"Missing definition for message with name {msg}")
-        message = self.rules_map[msg].prepare_message(*args, source=self.source, node=node, lineno=lineno, col=col)
+    def report(self, rule, *args, node=None, lineno=None, col=None):
+        if rule not in self.rules_map:
+            raise ValueError(f"Missing definition for message with name {rule}")
+        message = self.rules_map[rule].prepare_message(*args, source=self.source, node=node, lineno=lineno, col=col)
         self.linter.report(message)
 
     def configure(self, param, value):

@@ -39,10 +39,10 @@ class TestDisablers:
         (11, True),
         (12, False)
     ])
-    def test_is_msg_disabled(self, lineno, xor, message):
+    def test_is_rule_disabled(self, lineno, xor, message):
         disabler = DisablersFinder(Path(Path(__file__).parent, 'testdata', 'disabled', 'disabled.robot'), None)
         message.line = lineno
-        assert disabler.is_msg_disabled(message) == xor
+        assert disabler.is_rule_disabled(message) == xor
 
     def test_enabled_file(self):
         disabler = DisablersFinder(Path(Path(__file__).parent, 'testdata', 'disabled', 'enabled.robot'), None)

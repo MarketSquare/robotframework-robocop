@@ -70,7 +70,6 @@ class Robocop:
 
     def run_checks(self):
         for file in self.files:
-            self.write_line(f"Parsing {file}")
             self.register_disablers(file)
             if self.disabler.file_disabled:
                 continue

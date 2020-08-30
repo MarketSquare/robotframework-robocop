@@ -89,9 +89,9 @@ class TestMessage:
         1
     ])
     def test_parse_invalid_body(self, msg):
-        with pytest.raises(robocop.exceptions.InvalidMessageBodyError) as err:
+        with pytest.raises(robocop.exceptions.InvalidRuleBodyError) as err:
             Rule('0101', msg)
-        assert rf"Fatal error: Message '0101' has invalid body:\n{msg}" in str(err)
+        assert rf"Fatal error: Rule '0101' has invalid body:\n{msg}" in str(err)
 
     @pytest.mark.parametrize('configurable', [
         [None],
@@ -107,9 +107,9 @@ class TestMessage:
             RuleSeverity.WARNING
         )
         body = msg + tuple(configurable)
-        with pytest.raises(robocop.exceptions.InvalidMessageConfigurableError) as err:
+        with pytest.raises(robocop.exceptions.InvalidRuleConfigurableError) as err:
             Rule('0101', body)
-        assert rf"Fatal error: Message '0101' has invalid configurable:\n{body}" in str(err)
+        assert rf"Fatal error: Rule '0101' has invalid configurable:\n{body}" in str(err)
 
     @pytest.mark.parametrize('configurable', [
         [('some', 'some', int)],
@@ -123,8 +123,8 @@ class TestMessage:
             RuleSeverity.WARNING
         )
         body = msg + tuple(configurable)
-        message = Rule('0101', body)
-        assert message.configurable == configurable
+        rule = Rule('0101', body)
+        assert rule.configurable == configurable
 
     @pytest.mark.parametrize('source, lineno, col, lineno_exp, col_exp', [
         ('path/to/file1.robot', None, None, 10, 0),
@@ -151,6 +151,6 @@ class TestMessage:
         node = ast.AST()
         node.lineno = 10
         valid_msg.desc = desc
-        with pytest.raises(robocop.exceptions.InvalidMessageUsageError) as err:
+        with pytest.raises(robocop.exceptions.InvalidRuleUsageError) as err:
             valid_msg.prepare_message(*args, source='file1.robot', node=node, lineno=None, col=None)
-        assert rf"Fatal error: Message '0101' failed to prepare message description with error:{exp_error}" in str(err)
+        assert rf"Fatal error: Rule '0101' failed to prepare message description with error:{exp_error}" in str(err)

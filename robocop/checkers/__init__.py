@@ -24,7 +24,7 @@ You can configure rule severity and optionally other parameters.
 import ast
 import inspect
 from robocop.rules import Rule
-from robocop.exceptions import DuplicatedMessageError, MissingRegisterMethodCheckerError
+from robocop.exceptions import DuplicatedRuleError, MissingRegisterMethodCheckerError
 from robocop.utils import modules_in_current_dir, modules_from_paths
 
 
@@ -43,7 +43,7 @@ class BaseChecker:
         for key, value in rules.items():
             rule = Rule(key, value)
             if rule.name in self.rules_map:
-                raise DuplicatedMessageError('name', rule.name, self, self)
+                raise DuplicatedRuleError('name', rule.name, self, self)
             self.rules_map[rule.name] = rule
 
     def report(self, rule, *args, node=None, lineno=None, col=None):

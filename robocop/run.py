@@ -123,10 +123,10 @@ class Robocop:
         for rule_name, rule in checker.rules_map.items():
             if rule_name in self.rules:
                 (_, checker_prev) = self.rules[rule_name]
-                raise robocop.exceptions.DuplicatedMessageError('name', rule_name, checker, checker_prev)
+                raise robocop.exceptions.DuplicatedRuleError('name', rule_name, checker, checker_prev)
             if rule.rule_id in self.rules:
                 (_, checker_prev) = self.rules[rule.rule_id]
-                raise robocop.exceptions.DuplicatedMessageError('id', rule.rule_id, checker, checker_prev)
+                raise robocop.exceptions.DuplicatedRuleError('id', rule.rule_id, checker, checker_prev)
             self.rules[rule_name] = (rule, checker)
             self.rules[rule.rule_id] = (rule, checker)
         self.checkers.append(checker)

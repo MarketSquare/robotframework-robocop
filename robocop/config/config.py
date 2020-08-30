@@ -86,8 +86,8 @@ class Config:
         return [re.compile(fnmatch.translate(p)) for p in pattern_list if '*' in p]
 
     def remove_severity(self):
-        self.include = {self.replace_severity_values(msg) for msg in self.include}
-        self.exclude = {self.replace_severity_values(msg) for msg in self.exclude}
+        self.include = {self.replace_severity_values(rule) for rule in self.include}
+        self.exclude = {self.replace_severity_values(rule) for rule in self.exclude}
         for index, conf in enumerate(self.configure):
             if conf.count(':') != 2:
                 continue
@@ -146,25 +146,25 @@ class Config:
 
         return parsed_args
 
-    def is_rule_enabled(self, msg):
-        if self.is_rule_disabled(msg):
+    def is_rule_enabled(self, rule):
+        if self.is_rule_disabled(rule):
             return False
         if self.include or self.include_patterns:  # if any include pattern, it must match with something
-            if msg.rule_id in self.include or msg.name in self.include:
+            if rule.rule_id in self.include or rule.name in self.include:
                 return True
             for pattern in self.include_patterns:
-                if pattern.match(msg.rule_id) or pattern.match(msg.name):
+                if pattern.match(rule.rule_id) or pattern.match(rule.name):
                     return True
             return False
         return True
 
-    def is_rule_disabled(self, msg):
-        if msg.severity < self.threshold:
+    def is_rule_disabled(self, rule):
+        if rule.severity < self.threshold:
             return True
-        if msg.rule_id in self.exclude or msg.name in self.exclude:
+        if rule.rule_id in self.exclude or rule.name in self.exclude:
             return True
         for pattern in self.exclude_patterns:
-            if pattern.match(msg.rule_id) or pattern.match(msg.name):
+            if pattern.match(rule.rule_id) or pattern.match(rule.name):
                 return True
         return False
 

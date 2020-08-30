@@ -87,11 +87,11 @@ def get_checker_docs():
     checker_docs = defaultdict(list)
     for checker in robocop.checkers.get_docs():
         checker_doc = []
-        for msg, msg_def in checker.rules.items():
-            rule_name = f"[{msg_def[2].value}{msg}] {msg_def[0]}: {msg_def[1]}"
+        for rule, rule_def in checker.rules.items():
+            rule_name = f"[{rule_def[2].value}{rule}] {rule_def[0]}: {rule_def[1]}"
             rule_params = [("severity", ":class:`robocop.rules.RuleSeverity`")]
-            if len(msg_def) > 3:
-                rule_params.append((msg_def[3][0], str(msg_def[3][2])))
+            if len(rule_def) > 3:
+                rule_params.append((rule_def[3][0], str(rule_def[3][2])))
             checker_doc.append((rule_name, rule_params))
         module_name = checker.__module__.split('.')[-1].title()
         checker_docs[module_name].append((checker.__module__ + '.' + checker.__name__, checker_doc))

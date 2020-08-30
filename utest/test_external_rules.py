@@ -56,6 +56,6 @@ class TestExternalRules:
             f'{Path(__file__).parent}/testdata/rule/external_rule.py',
             f'{Path(__file__).parent}/testdata/rule_duplicate/external_rule_dup.py'
         }
-        with pytest.raises(robocop.exceptions.DuplicatedMessageError) as err:
+        with pytest.raises(robocop.exceptions.DuplicatedRuleError) as err:
             robocop_instance.load_checkers()
         assert "Fatal error: Message name 'smth' defined in SmthChecker was already defined in SmthChecker" in str(err)

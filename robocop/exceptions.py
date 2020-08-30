@@ -9,34 +9,34 @@ class ConfigGeneralError(RobocopFatalError):
     pass
 
 
-class DuplicatedMessageError(RobocopFatalError):
-    def __init__(self, msg_type, msg, checker, checker_prev):
-        msg = f"Fatal error: Message {msg_type} '{msg}' defined in {checker.__class__.__name__} " \
+class DuplicatedRuleError(RobocopFatalError):
+    def __init__(self, rule_type, rule, checker, checker_prev):
+        msg = f"Fatal error: Message {rule_type} '{rule}' defined in {checker.__class__.__name__} " \
               f"was already defined in {checker_prev.__class__.__name__}"
         super().__init__(msg)
 
 
 class InvalidRuleSeverityError(RobocopFatalError):
-    def __init__(self, msg, severity_val):
-        msg = f"Fatal error: Tried to configure message {msg} with invalid severity: {severity_val}"
+    def __init__(self, rule, severity_val):
+        msg = f"Fatal error: Tried to configure message {rule} with invalid severity: {severity_val}"
         super().__init__(msg)
 
 
-class InvalidMessageBodyError(RobocopFatalError):
-    def __init__(self, rule_id, msg_body):
-        msg = f"Fatal error: Message '{rule_id}' has invalid body:\n{msg_body}"
+class InvalidRuleBodyError(RobocopFatalError):
+    def __init__(self, rule_id, rule_body):
+        msg = f"Fatal error: Rule '{rule_id}' has invalid body:\n{rule_body}"
         super().__init__(msg)
 
 
-class InvalidMessageConfigurableError(RobocopFatalError):
-    def __init__(self, rule_id, msg_body):
-        msg = f"Fatal error: Message '{rule_id}' has invalid configurable:\n{msg_body}"
+class InvalidRuleConfigurableError(RobocopFatalError):
+    def __init__(self, rule_id, rule_body):
+        msg = f"Fatal error: Rule '{rule_id}' has invalid configurable:\n{rule_body}"
         super().__init__(msg)
 
 
-class InvalidMessageUsageError(RobocopFatalError):
+class InvalidRuleUsageError(RobocopFatalError):
     def __init__(self, rule_id, type_error):
-        msg = f"Fatal error: Message '{rule_id}' failed to prepare message description with error:{type_error}"
+        msg = f"Fatal error: Rule '{rule_id}' failed to prepare message description with error:{type_error}"
         super().__init__(msg)
 
 

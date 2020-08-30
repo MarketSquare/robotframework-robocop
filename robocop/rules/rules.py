@@ -103,17 +103,17 @@ class Rule:
         if isinstance(body, tuple) and len(body) >= 3:
             self.name, self.desc, self.severity, *self.configurable = body
         else:
-            raise robocop.exceptions.InvalidMessageBodyError(self.rule_id, body)
+            raise robocop.exceptions.InvalidRuleBodyError(self.rule_id, body)
         for configurable in self.configurable:
             if not isinstance(configurable, tuple) or len(configurable) != 3:
-                raise robocop.exceptions.InvalidMessageConfigurableError(self.rule_id, body)
+                raise robocop.exceptions.InvalidRuleConfigurableError(self.rule_id, body)
 
     def prepare_message(self, *args, source, node, lineno, col):
         message = deepcopy(self)
         try:
             message.desc %= args
         except TypeError as err:
-            raise robocop.exceptions.InvalidMessageUsageError(self.rule_id, err)
+            raise robocop.exceptions.InvalidRuleUsageError(self.rule_id, err)
         message.source = source
         if lineno is None and node is not None:
             lineno = node.lineno

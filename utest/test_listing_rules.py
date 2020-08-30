@@ -4,7 +4,7 @@ import pytest
 from robocop.run import Robocop
 from robocop.config import Config
 from robocop.checkers import VisitorChecker
-from robocop.messages import MessageSeverity
+from robocop.rules import RuleSeverity
 
 
 class RobocopWithoutLoadClasses(Robocop):
@@ -12,7 +12,7 @@ class RobocopWithoutLoadClasses(Robocop):
         self.files = {}
         self.checkers = []
         self.out = sys.stdout
-        self.messages = {}
+        self.rules = {}
         self.reports = []
         self.disabler = None
         self.config = Config()
@@ -20,7 +20,7 @@ class RobocopWithoutLoadClasses(Robocop):
         
         
 class EmptyChecker(VisitorChecker):
-    msgs = {}
+    rules = {}
     pass
 
 
@@ -35,7 +35,7 @@ def msg_0101():
         '0101': (
             "some-message",
             "Some description",
-            MessageSeverity.WARNING
+            RuleSeverity.WARNING
         )
     }
 
@@ -46,22 +46,22 @@ def msg_0102_0204():
         '0102': (
             'other-message',
             '''this is description''',
-            MessageSeverity.ERROR
+            RuleSeverity.ERROR
         ),
         '0204': (
             "another message",
             f"Message with meaning {4}",
-            MessageSeverity.INFO
+            RuleSeverity.INFO
         )
     }
 
 
-def init_empty_checker(robocop_instance, msg, exclude=False):
+def init_empty_checker(robocop_instance, rule, exclude=False):
     checker = EmptyChecker(robocop_instance)
-    checker.msgs = msg
-    checker.register_messages(checker.msgs)
+    checker.rules = rule
+    checker.register_rules(checker.rules)
     if exclude:
-        robocop_instance.config.exclude.update(set(msg.keys()))
+        robocop_instance.config.exclude.update(set(rule.keys()))
         robocop_instance.config.translate_patterns()
     robocop_instance.register_checker(checker)
     return checker
@@ -73,14 +73,14 @@ class TestListingRules:
         with pytest.raises(SystemExit):
             robocop_instance.list_checkers()
         out, _ = capsys.readouterr()
-        assert out == 'Message - 0101 [W]: some-message: Some description (enabled)\n'
+        assert out == 'Rule - 0101 [W]: some-message: Some description (enabled)\n'
 
     def test_list_disabled_rule(self, robocop_instance, msg_0101, capsys):
         init_empty_checker(robocop_instance, msg_0101, exclude=True)
         with pytest.raises(SystemExit):
             robocop_instance.list_checkers()
         out, _ = capsys.readouterr()
-        assert out == 'Message - 0101 [W]: some-message: Some description (disabled)\n'
+        assert out == 'Rule - 0101 [W]: some-message: Some description (disabled)\n'
 
     def test_multiple_checkers(self, robocop_instance, msg_0101, msg_0102_0204, capsys):
         init_empty_checker(robocop_instance, msg_0102_0204, exclude=True)
@@ -89,8 +89,8 @@ class TestListingRules:
             robocop_instance.list_checkers()
         out, _ = capsys.readouterr()
         exp_msg = (
-            'Message - 0101 [W]: some-message: Some description (enabled)\n',
-            'Message - 0102 [E]: other-message: this is description (disabled)\n',
-            'Message - 0204 [I]: another message: Message with meaning 4 (disabled)\n'
+            'Rule - 0101 [W]: some-message: Some description (enabled)\n',
+            'Rule - 0102 [E]: other-message: this is description (disabled)\n',
+            'Rule - 0204 [I]: another message: Message with meaning 4 (disabled)\n'
         )
         assert all(msg in out for msg in exp_msg)

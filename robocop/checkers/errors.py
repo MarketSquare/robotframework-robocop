@@ -2,7 +2,7 @@
 Errors checkers
 """
 from robocop.checkers import VisitorChecker
-from robocop.messages import MessageSeverity
+from robocop.rules import RuleSeverity
 
 
 def register(linter):
@@ -11,11 +11,11 @@ def register(linter):
 
 class ParsingErrorChecker(VisitorChecker):
     """ Checker that returns Robot Framework DataErrors as lint errors. """
-    msgs = {
+    rules = {
         "0401": (
             "parsing-error",
             "Robot Framework syntax error: %s",
-            MessageSeverity.ERROR
+            RuleSeverity.ERROR
         )
     }
 

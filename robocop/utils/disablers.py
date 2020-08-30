@@ -40,8 +40,8 @@ class DisablersFinder:
             disabled = self.is_line_disabled(msg.line, 'all')
             if disabled:
                 return True
-        if msg.msg_id in self.rules:
-            disabled = self.is_line_disabled(msg.line, msg.msg_id)
+        if msg.rule_id in self.rules:
+            disabled = self.is_line_disabled(msg.line, msg.rule_id)
             if disabled:
                 return True
         if msg.name in self.rules:

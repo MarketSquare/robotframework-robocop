@@ -1,7 +1,7 @@
 import pytest
 import sys
 from robocop.run import Robocop
-from robocop.messages import MessageSeverity, Message
+from robocop.rules import RuleSeverity, Rule
 from robocop.config import Config
 
 
@@ -10,7 +10,7 @@ class RobocopWithoutLoadClasses(Robocop):
         self.files = {}
         self.checkers = []
         self.out = sys.stdout
-        self.messages = {}
+        self.rules = {}
         self.reports = []
         self.disabler = None
         self.config = Config()
@@ -23,24 +23,24 @@ def robocop_instance():
 
 
 def get_severity_enum(value):
-    for sev in MessageSeverity:
+    for sev in RuleSeverity:
         if sev.value == value:
             break
     else:
-        sev = MessageSeverity.INFO
+        sev = RuleSeverity.INFO
     return sev
 
 
-def get_message_with_id_sev(msg_id, sev):
-    for c in MessageSeverity:
-        msg_id = msg_id.replace(c.value, '')
+def get_message_with_id_sev(rule_id, sev):
+    for c in RuleSeverity:
+        rule_id = rule_id.replace(c.value, '')
     sev = get_severity_enum(sev)
     msg = (
-        f"some-message-{msg_id}",
+        f"some-message-{rule_id}",
         "Some description",
         sev
     )
-    return Message(msg_id, msg)
+    return Rule(rule_id, msg)
 
 
 class TestThresholds:
@@ -50,7 +50,7 @@ class TestThresholds:
         ('W', ['F', 'E', 'W'], ['I']),
         ('I', ['F', 'E', 'W', 'I'], []),
     ])
-    def test_disable_messages_below_threshold(self, threshold, included, excluded, robocop_instance):
+    def test_disable_rules_below_threshold(self, threshold, included, excluded, robocop_instance):
         robocop_instance.config.threshold = get_severity_enum(threshold)
         for severity in included:
             msg = get_message_with_id_sev('0101', severity)

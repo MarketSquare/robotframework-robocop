@@ -3,7 +3,7 @@ Miscellaneous checkers
 """
 from robot.parsing.model.statements import Return, KeywordCall
 from robocop.checkers import VisitorChecker
-from robocop.messages import MessageSeverity
+from robocop.rules import RuleSeverity
 
 
 def register(linter):
@@ -12,11 +12,11 @@ def register(linter):
 
 class EarlyReturnChecker(VisitorChecker):
     """ Checker for keyword calls after [Return] statement. """
-    msgs = {
+    rules = {
         "0901": (
             "keyword-after-return",
             "Keyword call after [Return] statement",
-            MessageSeverity.ERROR
+            RuleSeverity.ERROR
         )
     }
 

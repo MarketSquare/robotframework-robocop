@@ -3,7 +3,7 @@ import pytest
 from pathlib import Path
 
 from robocop.utils import DisablersFinder
-from robocop.messages import MessageSeverity, Message
+from robocop.rules import RuleSeverity, Rule
 
 
 @pytest.fixture
@@ -11,9 +11,9 @@ def message():
     msg = (
         "somerule",
         "Some description",
-        MessageSeverity.WARNING
+        RuleSeverity.WARNING
     )
-    return Message('1010', msg)
+    return Rule('1010', msg)
 
 
 class TestDisablers:

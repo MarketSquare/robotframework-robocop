@@ -2,7 +2,7 @@
 Comments checkers
 """
 from robocop.checkers import VisitorChecker
-from robocop.messages import MessageSeverity
+from robocop.rules import RuleSeverity
 
 
 def register(linter):
@@ -13,7 +13,7 @@ class CommentBaseChecker(VisitorChecker):
     """
     This is base class for comment checkers. Not supposed to be used directly.
     """
-    msgs = {}
+    rules = {}
 
     def visit_Comment(self, node):  # noqa
         self.find_comments(node)
@@ -39,11 +39,11 @@ class CommentBaseChecker(VisitorChecker):
 
 class CommentChecker(CommentBaseChecker):
     """ Checker for content of comments. It detects if you have leftover todo or fixme in code. """
-    msgs = {
+    rules = {
         "0701": (
             "todo-in-comment",
             "Found %s in comment",
-            MessageSeverity.WARNING
+            RuleSeverity.WARNING
         )
     }
 

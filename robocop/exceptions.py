@@ -16,27 +16,27 @@ class DuplicatedMessageError(RobocopFatalError):
         super().__init__(msg)
 
 
-class InvalidMessageSeverityError(RobocopFatalError):
+class InvalidRuleSeverityError(RobocopFatalError):
     def __init__(self, msg, severity_val):
         msg = f"Fatal error: Tried to configure message {msg} with invalid severity: {severity_val}"
         super().__init__(msg)
 
 
 class InvalidMessageBodyError(RobocopFatalError):
-    def __init__(self, msg_id, msg_body):
-        msg = f"Fatal error: Message '{msg_id}' has invalid body:\n{msg_body}"
+    def __init__(self, rule_id, msg_body):
+        msg = f"Fatal error: Message '{rule_id}' has invalid body:\n{msg_body}"
         super().__init__(msg)
 
 
 class InvalidMessageConfigurableError(RobocopFatalError):
-    def __init__(self, msg_id, msg_body):
-        msg = f"Fatal error: Message '{msg_id}' has invalid configurable:\n{msg_body}"
+    def __init__(self, rule_id, msg_body):
+        msg = f"Fatal error: Message '{rule_id}' has invalid configurable:\n{msg_body}"
         super().__init__(msg)
 
 
 class InvalidMessageUsageError(RobocopFatalError):
-    def __init__(self, msg_id, type_error):
-        msg = f"Fatal error: Message '{msg_id}' failed to prepare message description with error:{type_error}"
+    def __init__(self, rule_id, type_error):
+        msg = f"Fatal error: Message '{rule_id}' failed to prepare message description with error:{type_error}"
         super().__init__(msg)
 
 

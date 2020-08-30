@@ -2,9 +2,11 @@ import os
 import argparse
 import re
 import fnmatch
+import sys
 
 from robocop.version import __version__
 from robocop.rules import RuleSeverity
+from robocop.exceptions import ArgumentFileNotFoundError, NestedArgumentFileError
 
 
 class ParseDelimitedArgAction(argparse.Action):  # pylint: disable=too-few-public-methods
@@ -77,6 +79,7 @@ class Config:
         'help_threshold':    f'Disable rules below given threshold. Available message levels: '
                              f'{" < ".join(sev.value for sev in RuleSeverity)}',
         'help_recursive':   'Use this flag to stop scanning directories recursively',
+        'help_argfile':     'Path to file with arguments',
         'help_info':        'Print this help message and exit',
         'help_version':     'Display Robocop version'
     }
@@ -98,6 +101,31 @@ class Config:
     def translate_patterns(self):
         self.include_patterns = self._translate_pattern(self.include)
         self.exclude_patterns = self._translate_pattern(self.exclude)
+
+    def preparse(self, args):
+        args = sys.argv[1:] if args is None else args
+        parsed_args = []
+        args = (arg for arg in args)
+        for arg in args:
+            if arg in ('-A', '--argumentfile'):
+                try:
+                    argfile = next(args)
+                except StopIteration:
+                    raise ArgumentFileNotFoundError('')
+                parsed_args += self.load_args_from_file(argfile)
+            else:
+                parsed_args.append(arg)
+        return parsed_args
+
+    def load_args_from_file(self, argfile):
+        try:
+            with open(argfile) as f:
+                args = [arg for line in f for arg in line.split()]
+                if '-A' in args or '--argumentfile' in args:
+                    raise NestedArgumentFileError(argfile)
+                return args
+        except FileNotFoundError:
+            raise ArgumentFileNotFoundError(argfile)
 
     def _create_parser(self):
         # below will throw error in Pycharm, it's bug https://youtrack.jetbrains.com/issue/PY-41806
@@ -133,12 +161,14 @@ class Config:
                               help=self.HELP_MSGS['help_filetypes'])
         optional.add_argument('-t', '--threshold', action=SetMessageThreshold, default=self.threshold,
                               help=self.HELP_MSGS['help_threshold'])
+        optional.add_argument('-A', '--argumentfile', help=self.HELP_MSGS['help_argfile'])
         optional.add_argument('-h', '--help', action='help', help=self.HELP_MSGS['help_info'])
         optional.add_argument('-v', '--version', action='version', version=__version__,
                               help=self.HELP_MSGS['help_version'])
         return parser
 
     def parse_opts(self, args=None):
+        args = self.preparse(args)
         parsed_args = self.parser.parse_args(args)
         self.__dict__.update(**vars(parsed_args))
         self.remove_severity()

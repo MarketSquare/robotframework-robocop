@@ -1,7 +1,7 @@
 import pytest
 import sys
 from robocop.run import Robocop
-from robocop.messages import MessageSeverity, Message
+from robocop.rules import RuleSeverity, Rule
 from robocop.config import Config
 
 
@@ -10,7 +10,7 @@ class RobocopWithoutLoadClasses(Robocop):
         self.files = {}
         self.checkers = []
         self.out = sys.stdout
-        self.messages = {}
+        self.rules = {}
         self.reports = []
         self.disabler = None
         self.config = Config()
@@ -22,15 +22,15 @@ def robocop_instance():
     return RobocopWithoutLoadClasses()
 
 
-def get_message_with_id(msg_id):
-    for c in MessageSeverity:
-        msg_id = msg_id.replace(c.value, '')
+def get_message_with_id(rule_id):
+    for c in RuleSeverity:
+        rule_id = rule_id.replace(c.value, '')
     msg = (
-        f"some-message-{msg_id}",
+        f"some-message-{rule_id}",
         "Some description",
-        MessageSeverity.WARNING
+        RuleSeverity.WARNING
     )
-    return Message(msg_id, msg)
+    return Rule(rule_id, msg)
 
 
 class TestIncludingExcluding:

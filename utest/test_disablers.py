@@ -3,7 +3,7 @@ import pytest
 from pathlib import Path
 
 from robocop.utils import DisablersFinder
-from robocop.messages import MessageSeverity, Message
+from robocop.rules import RuleSeverity, Rule
 
 
 @pytest.fixture
@@ -11,9 +11,9 @@ def message():
     msg = (
         "somerule",
         "Some description",
-        MessageSeverity.WARNING
+        RuleSeverity.WARNING
     )
-    return Message('1010', msg)
+    return Rule('1010', msg)
 
 
 class TestDisablers:
@@ -39,10 +39,10 @@ class TestDisablers:
         (11, True),
         (12, False)
     ])
-    def test_is_msg_disabled(self, lineno, xor, message):
+    def test_is_rule_disabled(self, lineno, xor, message):
         disabler = DisablersFinder(Path(Path(__file__).parent, 'testdata', 'disabled', 'disabled.robot'), None)
         message.line = lineno
-        assert disabler.is_msg_disabled(message) == xor
+        assert disabler.is_rule_disabled(message) == xor
 
     def test_enabled_file(self):
         disabler = DisablersFinder(Path(Path(__file__).parent, 'testdata', 'disabled', 'enabled.robot'), None)

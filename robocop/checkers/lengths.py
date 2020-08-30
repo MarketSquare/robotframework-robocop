@@ -3,7 +3,7 @@ Lengths checkers
 """
 from robot.parsing.model.statements import KeywordCall, Comment, EmptyLine
 from robocop.checkers import VisitorChecker, RawFileChecker
-from robocop.messages import MessageSeverity
+from robocop.rules import RuleSeverity
 
 
 def register(linter):
@@ -16,41 +16,41 @@ class LengthChecker(VisitorChecker):
     """ Checker for max and min length of keyword or test case. It analyses number of lines and also number of
         keyword calls (as you can have just few keywords but very long ones or vice versa).
     """
-    msgs = {
+    rules = {
         "0501": (
             "too-long-keyword",
             "Keyword is too long (%d/%d)",
-            MessageSeverity.WARNING,
+            RuleSeverity.WARNING,
             ('max_len', 'keyword_max_len', int)
         ),
         "0502": (
             "too-few-calls-in-keyword",
             "Keyword have too few keywords inside (%d/%d)",
-            MessageSeverity.WARNING,
+            RuleSeverity.WARNING,
             ('min_calls', 'keyword_min_calls', int)
         ),
         "0503": (
             "too-many-calls-in-keyword",
             "Keyword have too many keywords inside (%d/%d)",
-            MessageSeverity.WARNING,
+            RuleSeverity.WARNING,
             ('max_calls', 'keyword_max_calls', int)
         ),
         "0504": (
             "too-long-test-case",
             "Test case is too long (%d/%d)",
-            MessageSeverity.WARNING,
+            RuleSeverity.WARNING,
             ('max_len', 'testcase_max_len', int)
         ),
         "0505": (
             "too-many-calls-in-test-case",
             "Test case have too many keywords inside (%d/%d)",
-            MessageSeverity.WARNING,
+            RuleSeverity.WARNING,
             ('max_calls', 'testcase_max_calls', int)
         ),
         "0506": (
             "file-too-long",
             "File has too many lines (%d/%d)",
-            MessageSeverity.WARNING,
+            RuleSeverity.WARNING,
             ('max_lines', 'file_max_lines', int)
         )
     }
@@ -122,11 +122,11 @@ class LengthChecker(VisitorChecker):
 
 class LineLengthChecker(RawFileChecker):
     """ Checker for max length of line. """
-    msgs = {
+    rules = {
         "0507": (
             "line-too-long",
             "Line is too long (%d/%d)",
-            MessageSeverity.WARNING,
+            RuleSeverity.WARNING,
             ("line_length", "max_line_length", int)
         )
     }
@@ -142,11 +142,11 @@ class LineLengthChecker(RawFileChecker):
 
 class EmptySectionChecker(VisitorChecker):
     """ Checker for empty section. """
-    msgs = {
+    rules = {
         "0508": (
             "empty-section",
             "Section is empty",
-            MessageSeverity.WARNING
+            RuleSeverity.WARNING
         )
     }
 

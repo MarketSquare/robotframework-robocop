@@ -4,7 +4,7 @@ import re
 import fnmatch
 
 from robocop.version import __version__
-from robocop.messages import MessageSeverity
+from robocop.rules import RuleSeverity
 
 
 class ParseDelimitedArgAction(argparse.Action):  # pylint: disable=too-few-public-methods
@@ -29,11 +29,11 @@ class ParseFileTypes(argparse.Action):  # pylint: disable=too-few-public-methods
 
 class SetMessageThreshold(argparse.Action):
     def __call__(self, parser, namespace, values, option_string=None):
-        for sev in MessageSeverity:
+        for sev in RuleSeverity:
             if sev.value == values:
                 break
         else:
-            sev = MessageSeverity.INFO
+            sev = RuleSeverity.INFO
         setattr(namespace, self.dest, sev)
 
 
@@ -43,9 +43,9 @@ class Config:
         self.include = set()
         self.exclude = set()
         self.reports = {'return_status'}
-        self.threshold = MessageSeverity.INFO
+        self.threshold = RuleSeverity.INFO
         self.configure = []
-        self.format = "{source}:{line}:{col} [{severity}] {msg_id} {desc}"
+        self.format = "{source}:{line}:{col} [{severity}] {rule_id} {desc}"
         self.paths = []
         self.ext_rules = set()
         self.include_patterns = []
@@ -66,7 +66,7 @@ class Config:
         'help_reports':     'Run reports',
         'help_format':      'Format of output message. '
                             'You can use placeholders to change the way an issue is reported.\n'
-                            'Default: {source}:{line}:{col} [{severity}] {msg_id} {desc}',
+                            'Default: {source}:{line}:{col} [{severity}] {rule_id} {desc}',
         'help_configure':   'Configure checker with parameter value. Usage:\n'
                             '-c message_name_or_id:param_name:param_value\nExample:\n'
                             '-c line-too-long:line_length:150\n'
@@ -75,7 +75,7 @@ class Config:
         'help_output':      'Path to output file',
         'help_filetypes':   'Comma separated list of file extensions to be scanned by Robocop',
         'help_threshold':    f'Disable rules below given threshold. Available message levels: '
-                             f'{" < ".join(sev.value for sev in MessageSeverity)}',
+                             f'{" < ".join(sev.value for sev in RuleSeverity)}',
         'help_recursive':   'Use this flag to stop scanning directories recursively',
         'help_info':        'Print this help message and exit',
         'help_version':     'Display Robocop version'
@@ -86,8 +86,8 @@ class Config:
         return [re.compile(fnmatch.translate(p)) for p in pattern_list if '*' in p]
 
     def remove_severity(self):
-        self.include = {self.replace_severity_values(msg) for msg in self.include}
-        self.exclude = {self.replace_severity_values(msg) for msg in self.exclude}
+        self.include = {self.replace_severity_values(rule) for rule in self.include}
+        self.exclude = {self.replace_severity_values(rule) for rule in self.exclude}
         for index, conf in enumerate(self.configure):
             if conf.count(':') != 2:
                 continue
@@ -146,32 +146,32 @@ class Config:
 
         return parsed_args
 
-    def is_rule_enabled(self, msg):
-        if self.is_rule_disabled(msg):
+    def is_rule_enabled(self, rule):
+        if self.is_rule_disabled(rule):
             return False
         if self.include or self.include_patterns:  # if any include pattern, it must match with something
-            if msg.msg_id in self.include or msg.name in self.include:
+            if rule.rule_id in self.include or rule.name in self.include:
                 return True
             for pattern in self.include_patterns:
-                if pattern.match(msg.msg_id) or pattern.match(msg.name):
+                if pattern.match(rule.rule_id) or pattern.match(rule.name):
                     return True
             return False
         return True
 
-    def is_rule_disabled(self, msg):
-        if msg.severity < self.threshold:
+    def is_rule_disabled(self, rule):
+        if rule.severity < self.threshold:
             return True
-        if msg.msg_id in self.exclude or msg.name in self.exclude:
+        if rule.rule_id in self.exclude or rule.name in self.exclude:
             return True
         for pattern in self.exclude_patterns:
-            if pattern.match(msg.msg_id) or pattern.match(msg.name):
+            if pattern.match(rule.rule_id) or pattern.match(rule.name):
                 return True
         return False
 
 
     @staticmethod
     def replace_severity_values(message):
-        sev = ''.join(c.value for c in MessageSeverity)
+        sev = ''.join(c.value for c in RuleSeverity)
         if re.match(f"[{sev}]?[0-9]{{4,}}", message):
             for c in sev:
                 message = message.replace(c, '')

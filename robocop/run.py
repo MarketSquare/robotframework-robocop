@@ -16,7 +16,7 @@ class Robocop:
         self.files = {}
         self.checkers = []
         self.out = sys.stdout
-        self.messages = {}
+        self.rules = {}
         self.reports = []
         self.disabler = None
         self.config = Config()
@@ -84,20 +84,20 @@ class Robocop:
         """ Parse content of file to find any disabler statements like # robocop: disable=rulename """
         self.disabler = DisablersFinder(file, self)
 
-    def report(self, msg):
-        if not msg.enabled:  # disabled from cli
+    def report(self, rule_msg):
+        if not rule_msg.enabled:  # disabled from cli
             return
-        if self.disabler.is_msg_disabled(msg):  # disabled from source code
+        if self.disabler.is_rule_disabled(rule_msg):  # disabled from source code
             return
         for report in self.reports:
-            report.add_message(msg)
-        self.log_message(source=msg.source,
-                         line=msg.line,
-                         col=msg.col,
-                         severity=msg.severity.value,
-                         msg_id=msg.msg_id,
-                         desc=msg.desc,
-                         msg_name=msg.name)
+            report.add_message(rule_msg)
+        self.log_message(source=rule_msg.source,
+                         line=rule_msg.line,
+                         col=rule_msg.col,
+                         severity=rule_msg.severity.value,
+                         rule_id=rule_msg.rule_id,
+                         desc=rule_msg.desc,
+                         msg_name=rule_msg.name)
 
     def log_message(self, **kwargs):
         self.write_line(self.config.format.format(**kwargs))
@@ -107,10 +107,10 @@ class Robocop:
 
     def list_checkers(self):
         if self.config.list:
-            msg_by_id = {msg.msg_id: msg for checker in self.checkers for msg in checker.messages.values()}
-            msg_ids = sorted([key for key in msg_by_id])
-            for msg_id in msg_ids:
-                print(msg_by_id[msg_id])
+            rule_by_id = {msg.rule_id: msg for checker in self.checkers for msg in checker.rules_map.values()}
+            rule_ids = sorted([key for key in rule_by_id])
+            for rule_id in rule_ids:
+                print(rule_by_id[rule_id])
             sys.exit()
 
     def load_reports(self):
@@ -119,15 +119,15 @@ class Robocop:
     def register_checker(self, checker):
         if not self.any_rule_enabled(checker):
             checker.disabled = True
-        for msg_name, msg in checker.messages.items():
-            if msg_name in self.messages:
-                (_, checker_prev) = self.messages[msg_name]
-                raise robocop.exceptions.DuplicatedMessageError('name', msg_name, checker, checker_prev)
-            if msg.msg_id in self.messages:
-                (_, checker_prev) = self.messages[msg.msg_id]
-                raise robocop.exceptions.DuplicatedMessageError('id', msg.msg_id, checker, checker_prev)
-            self.messages[msg_name] = (msg, checker)
-            self.messages[msg.msg_id] = (msg, checker)
+        for rule_name, rule in checker.rules_map.items():
+            if rule_name in self.rules:
+                (_, checker_prev) = self.rules[rule_name]
+                raise robocop.exceptions.DuplicatedRuleError('name', rule_name, checker, checker_prev)
+            if rule.rule_id in self.rules:
+                (_, checker_prev) = self.rules[rule.rule_id]
+                raise robocop.exceptions.DuplicatedRuleError('id', rule.rule_id, checker, checker_prev)
+            self.rules[rule_name] = (rule, checker)
+            self.rules[rule.rule_id] = (rule, checker)
         self.checkers.append(checker)
 
     def register_report(self, report):
@@ -161,10 +161,10 @@ class Robocop:
         return file.suffix and file.suffix in self.config.filetypes
 
     def any_rule_enabled(self, checker):
-        for name, msg in checker.messages.items():
-            msg.enabled = self.config.is_rule_enabled(msg)
-            checker.messages[name] = msg
-        return any(msg.enabled for msg in checker.messages.values())
+        for name, rule in checker.rules_map.items():
+            rule.enabled = self.config.is_rule_enabled(rule)
+            checker.rules_map[name] = rule
+        return any(msg.enabled for msg in checker.rules_map.values())
 
     def configure_checkers_or_reports(self):
         for config in self.config.configure:
@@ -172,10 +172,10 @@ class Robocop:
                 raise robocop.exceptions.ConfigGeneralError(
                     f'Provided invalid config: \'{config}\' (general pattern: <rule>:<param>:<value>)')
             rule_or_report, param, value, *values = config.split(':')
-            if rule_or_report in self.messages:
-                msg, checker = self.messages[rule_or_report]
+            if rule_or_report in self.rules:
+                msg, checker = self.rules[rule_or_report]
                 if param == 'severity':
-                    self.messages[rule_or_report] = (msg.change_severity(value), checker)
+                    self.rules[rule_or_report] = (msg.change_severity(value), checker)
                 else:
                     configurable = msg.get_configurable(param)
                     if configurable is None:

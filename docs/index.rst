@@ -15,7 +15,7 @@ Robocop documentation
    user_guide
    external_rules
    checkers
-   messages
+   rules
    including_rules
    reports
 

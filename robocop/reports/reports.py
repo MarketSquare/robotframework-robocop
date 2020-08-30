@@ -1,5 +1,5 @@
 """
-Each report class collect messages from linter and parse it. At the end of scan it will print
+Each report class collect rules messages from linter and parse it. At the end of scan it will print
 report.
 
 To enable report use ``-r`` / ``--report`` argument and the name of the report.
@@ -29,7 +29,7 @@ class RulesByIdReport(Report):
     """
     Report name: ``rules_by_id``
 
-    Report that groups linter messages by message id and print it ordered by most common message.
+    Report that groups linter rules messages by rule id and print it ordered by most common message.
     Example::
 
         Issues by ids:
@@ -63,7 +63,7 @@ class RulesBySeverityReport(Report):
     """
     Report name: ``rules_by_error_type``
 
-    Report that group linter messages by severity and print total of issues per every severity level.
+    Report that group linter rules messages by severity and print total of issues per every severity level.
 
     Example::
 
@@ -90,7 +90,7 @@ class ReturnStatusReport(Report):
     """
     Report name: ``return_status``
 
-    Report that checks if number of returned messages for given severity value does not exceed preset threshold.
+    Report that checks if number of returned rules messages for given severity value does not exceed preset threshold.
     That information is later used as return status from Robocop.
     """
     def __init__(self):

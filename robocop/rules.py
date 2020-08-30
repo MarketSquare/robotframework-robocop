@@ -49,7 +49,6 @@ class RuleSeverity(Enum):
     INFO = "I"
     WARNING = "W"
     ERROR = "E"
-    FATAL = "F"
 
     def __lt__(self, other):
         look_up = [sev.value for sev in RuleSeverity]
@@ -82,9 +81,7 @@ class Rule:
             'warning': 'W',
             'w': 'W',
             'info': 'I',
-            'i': 'I',
-            'fatal': 'F',
-            'f': 'F'
+            'i': 'I'
         }.get(str(value).lower(), None)
         if severity is None:
             raise robocop.exceptions.InvalidRuleSeverityError(self.name, value)

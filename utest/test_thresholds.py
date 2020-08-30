@@ -45,10 +45,9 @@ def get_message_with_id_sev(rule_id, sev):
 
 class TestThresholds:
     @pytest.mark.parametrize('threshold, included, excluded', [
-        ('F', ['F'], ['I', 'W', 'E']),
-        ('E', ['F', 'E'], ['I', 'W']),
-        ('W', ['F', 'E', 'W'], ['I']),
-        ('I', ['F', 'E', 'W', 'I'], []),
+        ('E', ['E'], ['I', 'W']),
+        ('W', ['E', 'W'], ['I']),
+        ('I', ['E', 'W', 'I'], []),
     ])
     def test_disable_rules_below_threshold(self, threshold, included, excluded, robocop_instance):
         robocop_instance.config.threshold = get_severity_enum(threshold)

@@ -52,8 +52,6 @@ class TestMessage:
         ('info', 'I'),
         ('w', 'W'),
         ('warning', 'W'),
-        ('f', 'F'),
-        ('fatal', 'F'),
         ('eRROr', 'E'),
         ('Warning', 'W')
     ])

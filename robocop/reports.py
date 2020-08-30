@@ -1,4 +1,7 @@
 """
+Reports are configurable summaries after lint scan. For example it could be total number of issues discovered.
+They are dynamically loaded during setup according to command line configuration.
+
 Each report class collect rules messages from linter and parse it. At the end of scan it will print
 report.
 
@@ -98,10 +101,9 @@ class ReturnStatusReport(Report):
         self.return_status = 0
         self.counter = RulesBySeverityReport()
         self.quality_gate = {
-            'F': 1,
-            'E': 1,
+            'E': 0,
             'W': 100,
-            'I': 0
+            'I': -1
         }
 
     def configure(self, name, value, *values):
@@ -122,8 +124,6 @@ class ReturnStatusReport(Report):
     def get_report(self):
         for severity, count in self.counter.severity_counter.items():
             threshold = self.quality_gate.get(severity.value, 0)
-            if not threshold:
-                continue
-            if count >= threshold:
+            if -1 < threshold < count:
                 self.return_status = 1
                 break

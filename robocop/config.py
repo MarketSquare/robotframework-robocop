@@ -52,7 +52,7 @@ class Config:
         self.ext_rules = set()
         self.include_patterns = []
         self.exclude_patterns = []
-        self.filetypes = {'.robot', '.resource'}
+        self.filetypes = {'.robot', '.resource', '.tsv'}
         self.list = False
         self.output = None
         self.recursive = True

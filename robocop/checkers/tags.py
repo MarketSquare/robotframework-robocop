@@ -91,11 +91,13 @@ class TagScopeChecker(VisitorChecker):  # TODO: load tags also from __init__.rob
         super().visit_File(node)
         if not self.tags:
             return
-        if self.test_cases_count < 2 or len(self.tags) != self.test_cases_count:
+        if len(self.tags) != self.test_cases_count:
             return
         if self.default_tags:
             self.report("unnecessary-default-tags",
                         node=node if self.default_tags_node is None else self.default_tags_node)
+        if self.test_cases_count < 2:
+            return
         common_tags = set.intersection(*[set(tags) for tags in self.tags])
         common_tags = common_tags - set(self.force_tags)
         if common_tags:

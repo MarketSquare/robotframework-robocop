@@ -23,7 +23,7 @@ class ParseCheckerConfig(argparse.Action):  # pylint: disable=too-few-public-met
 
 class ParseFileTypes(argparse.Action):  # pylint: disable=too-few-public-methods
     def __call__(self, parser, namespace, values, option_string=None):
-        filetypes = set()
+        filetypes = getattr(namespace, self.dest)
         for filetype in values.split(','):
             filetypes.add(filetype if filetype.startswith('.') else '.' + filetype)
         setattr(namespace, self.dest, filetypes)
@@ -52,7 +52,7 @@ class Config:
         self.ext_rules = set()
         self.include_patterns = []
         self.exclude_patterns = []
-        self.filetypes = {'.robot', '.resource'}
+        self.filetypes = {'.robot', '.resource', '.tsv'}
         self.list = False
         self.output = None
         self.recursive = True

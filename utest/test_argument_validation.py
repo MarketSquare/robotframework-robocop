@@ -18,7 +18,7 @@ class TestArgumentValidation(unittest.TestCase):
         self.assertFalse(self.config.parser.add_help)
 
     def test_default_args(self):
-        self.assertSetEqual(self.config.filetypes, {'.resource', '.robot'})
+        self.assertSetEqual(self.config.filetypes, {'.resource', '.robot', '.tsv'})
         self.assertSetEqual(self.config.include, set())
         self.assertSetEqual(self.config.exclude, set())
         self.assertSetEqual(self.config.reports, {'return_status'})
@@ -29,7 +29,7 @@ class TestArgumentValidation(unittest.TestCase):
 
     def test_default_args_after_parse(self):
         args = self.config.parse_opts([''])
-        self.assertSetEqual(args.filetypes, {'.resource', '.robot'})
+        self.assertSetEqual(args.filetypes, {'.resource', '.robot', '.tsv'})
         self.assertSetEqual(args.include, set())
         self.assertSetEqual(args.exclude, set())
         self.assertSetEqual(args.reports, {'return_status'})
@@ -38,17 +38,13 @@ class TestArgumentValidation(unittest.TestCase):
         self.assertListEqual(args.paths, [''])
         self.assertIsNone(args.output)
 
-    def test_filetypes_overwrite_defaults(self):
-        args = self.config.parse_opts(['--filetypes', 'txt', ''])
-        self.assertSetEqual(args.filetypes, {'.txt'})
-
     def test_filetypes_duplicate_defaults(self):
         args = self.config.parse_opts(['--filetypes', 'robot,resource', ''])
-        self.assertSetEqual(args.filetypes, {'.resource', '.robot'})
+        self.assertSetEqual(args.filetypes, {'.resource', '.robot', '.tsv'})
 
     def test_filetypes_duplicate_dot_prefixed_defaults(self):
         args = self.config.parse_opts(['--filetypes', '.robot,.resource', ''])
-        self.assertSetEqual(args.filetypes, {'.resource', '.robot'})
+        self.assertSetEqual(args.filetypes, {'.resource', '.robot', '.tsv'})
 
     def test_include_one_rule(self):
         rule_name = 'missing-keyword-doc'

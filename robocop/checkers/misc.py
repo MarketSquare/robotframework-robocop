@@ -4,6 +4,7 @@ Miscellaneous checkers
 from robot.parsing.model.statements import Return, KeywordCall
 from robocop.checkers import VisitorChecker
 from robocop.rules import RuleSeverity
+from robocop.utils import normalize_robot_name
 
 
 def register(linter):
@@ -15,15 +16,19 @@ class EarlyReturnChecker(VisitorChecker):
     rules = {
         "0901": (
             "keyword-after-return",
-            "Keyword call after [Return] statement",
+            "Keyword call after %s statement",
             RuleSeverity.ERROR
         )
     }
 
     def visit_Keyword(self, node):  # noqa
-        returned = False
+        returned = ''
         for child in node.body:
             if isinstance(child, Return):
-                returned = True
-            elif isinstance(child, KeywordCall) and returned:
-                self.report("keyword-after-return", node=child)
+                returned = '[Return]'
+            elif isinstance(child, KeywordCall):
+                if returned:
+                    self.report("keyword-after-return", returned, node=child)
+                if normalize_robot_name(child.keyword) == 'returnfromkeyword':
+                    returned = 'Return From Keyword'
+

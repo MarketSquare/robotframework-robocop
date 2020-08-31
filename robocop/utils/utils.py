@@ -34,3 +34,7 @@ def modules_from_path(path, module_name=None, relative='.'):
                 continue
             if file.suffix == '.py' and file.stem != '__init__':
                 yield from modules_from_path(file, module_name, relative)
+
+
+def normalize_robot_name(name):
+    return name.replace(' ', '').replace('_', '').lower()

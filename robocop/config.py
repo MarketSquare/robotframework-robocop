@@ -23,7 +23,7 @@ class ParseCheckerConfig(argparse.Action):  # pylint: disable=too-few-public-met
 
 class ParseFileTypes(argparse.Action):  # pylint: disable=too-few-public-methods
     def __call__(self, parser, namespace, values, option_string=None):
-        filetypes = set()
+        filetypes = getattr(namespace, self.dest)
         for filetype in values.split(','):
             filetypes.add(filetype if filetype.startswith('.') else '.' + filetype)
         setattr(namespace, self.dest, filetypes)

@@ -113,7 +113,7 @@ class Rule:
             raise robocop.exceptions.InvalidRuleUsageError(self.rule_id, err)
         message.source = source
         if lineno is None and node is not None:
-            lineno = node.lineno
+            lineno = node.lineno if node.lineno > -1 else 0
         message.line = lineno
         if col is None:
             col = 0

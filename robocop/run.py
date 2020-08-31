@@ -158,7 +158,7 @@ class Robocop:
 
     def should_parse(self, file):
         """ Check if file extension is in list of supported file types (can be configured from cli) """
-        return file.suffix and file.suffix in self.config.filetypes
+        return file.suffix and file.suffix.lower() in self.config.filetypes
 
     def any_rule_enabled(self, checker):
         for name, rule in checker.rules_map.items():

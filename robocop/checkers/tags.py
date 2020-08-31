@@ -85,12 +85,13 @@ class TagScopeChecker(VisitorChecker):  # TODO: load tags also from __init__.rob
     def visit_File(self, node):  # noqa
         self.tags = []
         self.force_tags = []
+        self.default_tags = []
         self.test_cases_count = 0
         self.force_tags_node = None
         super().visit_File(node)
         if not self.tags:
             return
-        if len(self.tags) != self.test_cases_count:
+        if self.test_cases_count < 2 or len(self.tags) != self.test_cases_count:
             return
         if self.default_tags:
             self.report("unnecessary-default-tags",

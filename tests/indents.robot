@@ -12,6 +12,14 @@ This is test
      Keyword2
 	 Keyword
 
+Templated Test
+    [Documentation]  doc
+    [Template]  Some Template
+                Over Indent
+                ...  Same Here
+    What Goes
+     [Teardown]  Over Indented
+
 *** Keywords ***
 This Is Keyword
     [Documentation]  Keyword doc
@@ -27,6 +35,8 @@ This Is Keyword
    # under-indented comment
 
 
+### Some header comment ###
+## other comment
 Other Keyword
   [Documentation]  doc
   Should Be KeywordCall

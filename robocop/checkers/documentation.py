@@ -32,6 +32,8 @@ class MissingDocumentationChecker(VisitorChecker):
     }
 
     def visit_Keyword(self, node):  # noqa
+        if node.name.lstrip().startswith('#'):
+            return
         self.check_if_docs_are_present(node, "missing-doc-keyword")
 
     def visit_TestCase(self, node):  # noqa

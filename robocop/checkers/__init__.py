@@ -12,6 +12,7 @@ Checkers are categorized into following groups:
  * 06: tags
  * 07: comments
  * 09: misc
+ * 10: spacing
 
 Checker have two basic types ``VisitorChecker`` uses Robot Framework parsing api and
 use Python ast module for traversing Robot code as nodes. ``RawFileChecker`` simply reads Robot file as normal file

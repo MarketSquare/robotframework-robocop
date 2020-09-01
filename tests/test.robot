@@ -4,6 +4,8 @@ Resource   ${EXECDIR}${/}tests${/}resource.robot
 Variables  vars.robot
 Library    robot_lib.py
 Force Tags    forcedtag
+Force Tags    lol
+Library   robot_lib.py  AS  smth
 Default Tags  defaulttag  default with space
 
 *** Test Cases ***
@@ -12,6 +14,7 @@ Test
     My Internal Keyword
     #  in line comment
     My External Keyword  ${arg1}  ${arg2}=3
+   Log  1
     # in line comment
     #comment without space
 

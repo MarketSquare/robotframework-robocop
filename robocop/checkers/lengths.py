@@ -1,15 +1,17 @@
 """
 Lengths checkers
 """
-from robot.parsing.model.statements import KeywordCall, Comment, EmptyLine
+from robot.parsing.model.statements import KeywordCall, Comment, EmptyLine, Return
 from robocop.checkers import VisitorChecker, RawFileChecker
 from robocop.rules import RuleSeverity
+from robocop.utils import normalize_robot_name
 
 
 def register(linter):
     linter.register_checker(LengthChecker(linter))
     linter.register_checker(LineLengthChecker(linter))
     linter.register_checker(EmptySectionChecker(linter))
+    linter.register_checker(NumberOfReturnedArgsChecker(linter))
 
 
 class LengthChecker(VisitorChecker):
@@ -117,7 +119,11 @@ class LengthChecker(VisitorChecker):
 
     @staticmethod
     def count_keyword_calls(node):
-        return sum(1 for child in node.body if isinstance(child, KeywordCall))
+        if isinstance(node, KeywordCall):
+            return 1
+        if not hasattr(node, 'body'):
+            return 0
+        return sum(LengthChecker.count_keyword_calls(child) for child in node.body)
 
 
 class LineLengthChecker(RawFileChecker):
@@ -152,7 +158,10 @@ class EmptySectionChecker(VisitorChecker):
 
     def check_if_empty(self, node):
         for child in node.body:
-            if not isinstance(child, Comment) and not isinstance(child, EmptyLine):
+            if isinstance(child, Comment):
+                if 'robocop:' in child.tokens[0].value and len(node.body) == 1:
+                    break
+            elif not isinstance(child, EmptyLine):
                 break
         else:
             self.report("empty-section", node=node)
@@ -171,3 +180,39 @@ class EmptySectionChecker(VisitorChecker):
 
     def visit_CommentSection(self, node):  # noqa
         self.check_if_empty(node)
+
+
+class NumberOfReturnedArgsChecker(VisitorChecker):
+    """ Checker for number of returned values from keyword. """
+    rules = {
+        "0509": (
+            "number-of-returned-values",
+            "Too many return values (%d/%d)",
+            RuleSeverity.WARNING,
+            ("max_returns", "max_returns", int)
+        )
+    }
+
+    def __init__(self, *args):
+        self.max_returns = 4
+        super().__init__(*args)
+
+    def visit_Keyword(self, node):  # noqa
+        self.generic_visit(node)
+
+    def visit_ForLoop(self, node):  # noqa
+        self.generic_visit(node)
+
+    def visit_Return(self, node):
+        self.check_node_returns(len(node.values), node)
+
+    def visit_KeywordCall(self, node):  # noqa
+        normalized_name = normalize_robot_name(node.keyword)
+        if normalized_name == 'returnfromkeyword':
+            self.check_node_returns(len(node.args), node)
+        elif normalized_name == 'returnfromkeywordif':
+            self.check_node_returns(len(node.args) - 1, node)
+
+    def check_node_returns(self, return_count, node):
+        if return_count > self.max_returns:
+            self.report("number-of-returned-values", return_count, self.max_returns, node=node)

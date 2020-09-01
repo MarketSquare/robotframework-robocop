@@ -108,14 +108,14 @@ class DisablersFinder:
             self.rules[rule].lastblock = lineno
 
     def _end_block(self, rule, lineno):
+        if rule == 'all':
+            self._end_all_blocks(lineno)
         if rule not in self.rules:
             return
         if self.rules[rule].lastblock != -1:
             block = (self.rules[rule].lastblock, lineno)
             self.rules[rule].lastblock = -1
             self.rules[rule].blocks.append(block)
-        if rule == 'all':
-            self._end_all_blocks(lineno)
 
     def _end_all_blocks(self, lineno):
         for rule in self.rules:

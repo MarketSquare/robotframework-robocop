@@ -64,21 +64,22 @@ class InevenIndentChecker(VisitorChecker):
         self.generic_visit(node)
 
     def visit_ForLoop(self, node):  # noqa
-        self.check_indents(node, node.header.tokens[1].col_offset + 1)
+        column_index = 2 if node.end is None else 0
+        self.check_indents(node, node.header.tokens[1].col_offset + 1, column_index)
 
     @staticmethod
-    def get_indent(node):
+    def get_indent(node, column_index):
         if isinstance(node, ForLoop):
-            separator = node.header.tokens[0]
+            separator = node.header.tokens[column_index]
         else:
-            separator = node.tokens[0]
+            separator = node.tokens[column_index]
         if separator.type == 'SEPARATOR':
             return len(separator.value.expandtabs(4))
-        if separator.type == 'COMMENT':
+        if separator.type in ('COMMENT', 'EOL'):
             return None
         return 0
 
-    def check_indents(self, node, req_indent=0):
+    def check_indents(self, node, req_indent=0, column_index=0):
         indents = []
         header_indents = []
         for child in node.body:
@@ -90,7 +91,7 @@ class InevenIndentChecker(VisitorChecker):
         for child in node.body:
             if isinstance(child, EmptyLine):
                 continue
-            indent_len = self.get_indent(child)
+            indent_len = self.get_indent(child, column_index)
             if indent_len is None:
                 continue
             if hasattr(child, 'type') and child.type.strip().lower() in self.headers:
@@ -100,7 +101,7 @@ class InevenIndentChecker(VisitorChecker):
                     indents.append((indent_len, child))
             else:
                 indents.append((indent_len, child))
-                if indent_len < req_indent:
+                if not column_index and (indent_len < req_indent):
                     self.report("bad-indent", node=child)
         self.validate_indent_lists(indents)
         if templated:

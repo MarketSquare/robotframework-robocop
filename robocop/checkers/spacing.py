@@ -1,7 +1,7 @@
 """
 Spacing checkers
 """
-from robot.parsing.model.blocks import TestCase
+from robot.parsing.model.blocks import TestCase, Keyword
 from robot.parsing.model.statements import EmptyLine, Comment
 from robocop.checkers import RawFileChecker, VisitorChecker
 from robocop.rules import RuleSeverity
@@ -48,12 +48,19 @@ class MissingTrailingBlankLineChecker(VisitorChecker):
             "Invalid number of spaces between test cases (%d/%d)",
             RuleSeverity.WARNING,
             ("empty_lines_between_test_cases", "empty_lines_between_test_cases", int)
+        ),
+        "1005": (
+            "empty-lines-between-keywords",
+            "Invalid number of spaces between keywords (%d/%d)",
+            RuleSeverity.WARNING,
+            ("empty_lines_between_keywords", "empty_lines_between_keywords", int)
         )
     }
 
     def __init__(self, *args):  # noqa
         self.empty_lines_between_sections = 2
         self.empty_lines_between_test_cases = 1
+        self.empty_lines_between_keywords = 1
         super().__init__(*args)
 
     def visit_TestCaseSection(self, node):  # noqa
@@ -70,6 +77,23 @@ class MissingTrailingBlankLineChecker(VisitorChecker):
                     break
             if empty_lines != self.empty_lines_between_test_cases:
                 self.report("empty-lines-between-test-cases", empty_lines, self.empty_lines_between_test_cases,
+                            lineno=child.end_lineno, col=0)
+        self.generic_visit(node)
+
+    def visit_KeywordSection(self, node):  # noqa
+        for child in node.body[:-1]:
+            empty_lines = 0
+            if not isinstance(child, Keyword):
+                continue
+            for token in reversed(child.body):
+                if isinstance(token, EmptyLine):
+                    empty_lines += 1
+                elif isinstance(token, Comment):
+                    continue
+                else:
+                    break
+            if empty_lines != self.empty_lines_between_keywords:
+                self.report("empty-lines-between-keywords", empty_lines, self.empty_lines_between_keywords,
                             lineno=child.end_lineno, col=0)
         self.generic_visit(node)
 

@@ -22,3 +22,9 @@ Last Test Case With 2 Spaces
 *** Keywords *** 
 Some Keyword
     Log             I'm just a keyword
+Another Keyword
+    Log             Keyword without enough space
+
+
+Yet Another Keyword
+    Log             Keyword with too much space

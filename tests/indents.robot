@@ -63,7 +63,7 @@ This Is Keyword
 ## other comment
 Other Keyword
   [Documentation]  doc
-  Should Be KeywordCall
+  Should Be Keyword Call
   Testing
   FOR
   END
@@ -72,3 +72,11 @@ Another Keyword
     FOR  ${elem}  IN  ${list}
    Log  stuff
     END
+
+Old For Loop Style
+    FOR  ${elem}  IN  ${list}
+    /  Keyword
+    /   OtherKeyword
+    /  Keyword
+    /
+    /  Previous Is Empty

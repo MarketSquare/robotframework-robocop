@@ -87,7 +87,6 @@ class CapitalizedNamesChecker(VisitorChecker):
         self.check_if_keyword_is_capitalized(node.name, node)
 
     def visit_TestCase(self, node):  # noqa
-        self.check_if_keyword_is_capitalized(node.name, node)
         self.generic_visit(node)
 
     def visit_Keyword(self, node):  # noqa
@@ -99,6 +98,8 @@ class CapitalizedNamesChecker(VisitorChecker):
         self.check_if_keyword_is_capitalized(node.keyword, node)
 
     def check_if_keyword_is_capitalized(self, keyword_name, node):  # noqa
+        if keyword_name == r'/':  # old for loop, / are interpreted as keywords
+            return
         words = keyword_name.replace('_', ' ').split(' ')
         if any(not word.istitle() for word in words):
             self.report("not-capitalized-keyword-name", node=node)

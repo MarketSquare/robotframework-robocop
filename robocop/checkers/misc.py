@@ -2,8 +2,8 @@
 Miscellaneous checkers
 """
 from collections import Counter
-from robot.parsing.model.statements import Return, KeywordCall, EmptyLine, Documentation, Timeout, Arguments, Setup, Teardown, Template, Tags
-from robot.parsing.model.blocks import ForLoop, LastStatementFinder
+from robot.parsing.model.statements import Return, KeywordCall, EmptyLine
+from robot.parsing.model.blocks import ForLoop
 from robocop.checkers import VisitorChecker
 from robocop.rules import RuleSeverity
 from robocop.utils import normalize_robot_name

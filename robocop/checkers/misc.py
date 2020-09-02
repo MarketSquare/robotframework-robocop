@@ -2,7 +2,7 @@
 Miscellaneous checkers
 """
 from collections import Counter
-from robot.parsing.model.statements import Return, KeywordCall, EmptyLine, Documentation, Timeout, Arguments, Setup, Teardown, Template
+from robot.parsing.model.statements import Return, KeywordCall, EmptyLine, Documentation, Timeout, Arguments, Setup, Teardown, Template, Tags
 from robot.parsing.model.blocks import ForLoop, LastStatementFinder
 from robocop.checkers import VisitorChecker
 from robocop.rules import RuleSeverity
@@ -51,6 +51,10 @@ class InevenIndentChecker(VisitorChecker):
         )
     }
 
+    def __init__(self, *args):
+        self.headers = {'arguments', 'documentation', 'setup', 'timeout', 'teardown', 'template', 'tags'}
+        super().__init__(*args)
+
     def visit_TestCase(self, node):  # noqa
         self.check_indents(node)
 
@@ -62,43 +66,45 @@ class InevenIndentChecker(VisitorChecker):
     def visit_ForLoop(self, node):  # noqa
         self.check_indents(node, node.header.tokens[1].col_offset + 1)
 
+    @staticmethod
+    def get_indent(node):
+        if isinstance(node, ForLoop):
+            separator = node.header.tokens[0]
+        else:
+            separator = node.tokens[0]
+        if separator.type == 'SEPARATOR':
+            return len(separator.value.expandtabs(4))
+        if separator.type == 'COMMENT':
+            return None
+        return 0
+
     def check_indents(self, node, req_indent=0):
         indents = []
-        statement_indents = []
-        tab_type = None
+        header_indents = []
+        for child in node.body:
+            if hasattr(child, 'type') and child.type == 'TEMPLATE':
+                templated = True
+                break
+        else:
+            templated = False
         for child in node.body:
             if isinstance(child, EmptyLine):
                 continue
-            if isinstance(child, ForLoop):
-                if child.header.tokens[0].type == 'SEPARATOR':
-                    indent_len = len(child.header.tokens[0].value.replace('\t', 4*' '))
-                elif child.header.tokens[0].type == 'COMMENT':
-                    continue
+            indent_len = self.get_indent(child)
+            if indent_len is None:
+                continue
+            if hasattr(child, 'type') and child.type.strip().lower() in self.headers:
+                if templated:
+                    header_indents.append((indent_len, child))
                 else:
-                    indent_len = 0
-                if indent_len < req_indent:
-                    self.report("bad-indent", node=child)
-                indents.append((indent_len, child))
-            elif isinstance(child, (Arguments, Documentation, Setup, Timeout, Teardown, Template)):
-                if child.tokens[0].type == 'SEPARATOR':
-                    indent_len = len(child.tokens[0].value.replace('\t', 4*' '))
-                elif child.tokens[0].type == 'COMMENT':
-                    continue
-                else:
-                    indent_len = 0
-                statement_indents.append((indent_len, child))
+                    indents.append((indent_len, child))
             else:
-                if child.tokens[0].type == 'SEPARATOR':
-                    indent_len = len(child.tokens[0].value.replace('\t', 4*' '))
-                elif child.tokens[0].type == 'COMMENT':
-                    continue
-                else:
-                    indent_len = 0
+                indents.append((indent_len, child))
                 if indent_len < req_indent:
                     self.report("bad-indent", node=child)
-                indents.append((indent_len, child))
         self.validate_indent_lists(indents)
-        self.validate_indent_lists(statement_indents)
+        if templated:
+            self.validate_indent_lists(header_indents)
 
     def validate_indent_lists(self, indents):
         if len(indents) < 2:
@@ -109,4 +115,6 @@ class InevenIndentChecker(VisitorChecker):
         common_indent = counter.most_common(1)[0][0]
         for indent in indents:
             if indent[0] != common_indent:
-                self.report("ineven-indent", 'over' if indent[0] > common_indent else 'under', node=indent[1])
+                self.report("ineven-indent", 'over' if indent[0] > common_indent else 'under',
+                            node=indent[1],
+                            col=indent[0] + 1)

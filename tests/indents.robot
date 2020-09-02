@@ -1,5 +1,18 @@
 *** Settings ***
 Documentation  This is suite doc
+  Library  StatusLibrary
+
+
+*** Variables ***
+ ${var}  1
+${var2}  2
+ @{var3}  a
+ ...      b
+ ...      c
+...      d
+@{var4}  a
+...      1
+ ...     2
 
 *** Test Cases ***
 This is test
@@ -20,9 +33,20 @@ Templated Test
     What Goes
      [Teardown]  Over Indented
 
+Short Test
+    [Setup]  Setup
+     Keyword
+
+Mixed Whitespace But Visually Good
+     [Documentation]  doc
+    Keyword
+ 	Keyword
+    Keyword
+
 *** Keywords ***
 This Is Keyword
     [Documentation]  Keyword doc
+    [Tags]  tag
     FOR  ${elem}  IN  elem1  elem2  elem3
      ...  elem4
         Log  ${elem}  # this is valid comment

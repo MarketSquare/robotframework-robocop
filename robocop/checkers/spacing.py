@@ -39,19 +39,19 @@ class MissingTrailingBlankLineChecker(VisitorChecker):
         ),
         "1003": (
             "empty-lines-between-sections",
-            "Invalid number of spaces between sections (%d/%d)",
+            "Invalid number of empty lines between sections (%d/%d)",
             RuleSeverity.WARNING,
             ("empty_lines_between_sections", "empty_lines_between_sections", int)
         ),
         "1004": (
             "empty-lines-between-test-cases",
-            "Invalid number of spaces between test cases (%d/%d)",
+            "Invalid number of empty lines between test cases (%d/%d)",
             RuleSeverity.WARNING,
             ("empty_lines_between_test_cases", "empty_lines_between_test_cases", int)
         ),
         "1005": (
             "empty-lines-between-keywords",
-            "Invalid number of spaces between keywords (%d/%d)",
+            "Invalid number of empty lines between keywords (%d/%d)",
             RuleSeverity.WARNING,
             ("empty_lines_between_keywords", "empty_lines_between_keywords", int)
         )

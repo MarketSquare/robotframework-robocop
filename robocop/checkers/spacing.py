@@ -56,6 +56,12 @@ class MissingTrailingBlankLineChecker(VisitorChecker):
         self.empty_lines_between_test_cases = 1
         super().__init__(*args)
 
+    def visit_TestCaseSection(self, node):  # noqa
+        self.generic_visit(node)
+
+    def visit_TestCase(self, node):  # noqa
+        print(node)
+
     def visit_File(self, node):  # noqa
         for section in node.sections[:-1]:
             if not section.header:  # for comment section

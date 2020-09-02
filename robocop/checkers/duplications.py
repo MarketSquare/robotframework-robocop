@@ -53,6 +53,8 @@ class DuplicationsChecker(VisitorChecker):
         self.test_cases = defaultdict(list)
         self.keywords = defaultdict(list)
         self.variables = defaultdict(list)
+        self.resources = defaultdict(list)
+        self.libraries = defaultdict(list)
         super().visit_File(node)
         self.check_duplicates(self.test_cases, "duplicated-test-case")
         self.check_duplicates(self.keywords, "duplicated-keyword")

@@ -76,6 +76,8 @@ class LengthChecker(VisitorChecker):
         super().visit_File(node)
 
     def visit_Keyword(self, node):  # noqa
+        if node.name.lstrip().startswith('#'):
+            return
         length = LengthChecker.check_node_length(node)
         if length > self.keyword_max_len:
             self.report("too-long-keyword",

@@ -1,3 +1,19 @@
+*** Settings ***
+Metadata  1
+Metadata  2
+
+*** Test Cases ***
+Test
+    [Tags]  one
+    Missing Keyword Documentation
+
 *** Keywords ***
 Missing Keyword Documentation
+    [Tags]  two
     Log  1
+
+*** Tasks ***
+Process Invoice
+    [Tags]  one
+    Read Information From PDF
+    Validate Information

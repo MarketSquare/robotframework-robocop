@@ -1,7 +1,9 @@
 """
 Miscellaneous checkers
 """
-from robot.parsing.model.statements import Return, KeywordCall
+from collections import Counter
+from robot.parsing.model.statements import Return, KeywordCall, EmptyLine
+from robot.parsing.model.blocks import ForLoop
 from robocop.checkers import VisitorChecker
 from robocop.rules import RuleSeverity
 from robocop.utils import normalize_robot_name
@@ -9,6 +11,7 @@ from robocop.utils import normalize_robot_name
 
 def register(linter):
     linter.register_checker(EarlyReturnChecker(linter))
+    linter.register_checker(InevenIndentChecker(linter))
 
 
 class EarlyReturnChecker(VisitorChecker):
@@ -32,3 +35,86 @@ class EarlyReturnChecker(VisitorChecker):
                 if normalize_robot_name(child.keyword) == 'returnfromkeyword':
                     returned = 'Return From Keyword'
 
+
+class InevenIndentChecker(VisitorChecker):
+    """ Checker for ineven indendation. """
+    rules = {
+        "0902": (
+            "ineven-indent",
+            "Line is %s-indented",
+            RuleSeverity.WARNING
+        ),
+        "0903": (
+            "bad-indent",
+            "Indent expected",
+            RuleSeverity.ERROR
+        )
+    }
+
+    def __init__(self, *args):
+        self.headers = {'arguments', 'documentation', 'setup', 'timeout', 'teardown', 'template', 'tags'}
+        super().__init__(*args)
+
+    def visit_TestCase(self, node):  # noqa
+        self.check_indents(node)
+
+    def visit_Keyword(self, node):  # noqa
+        if not node.name.lstrip().startswith('#'):
+            self.check_indents(node)
+        self.generic_visit(node)
+
+    def visit_ForLoop(self, node):  # noqa
+        self.check_indents(node, node.header.tokens[1].col_offset + 1)
+
+    @staticmethod
+    def get_indent(node):
+        if isinstance(node, ForLoop):
+            separator = node.header.tokens[0]
+        else:
+            separator = node.tokens[0]
+        if separator.type == 'SEPARATOR':
+            return len(separator.value.expandtabs(4))
+        if separator.type == 'COMMENT':
+            return None
+        return 0
+
+    def check_indents(self, node, req_indent=0):
+        indents = []
+        header_indents = []
+        for child in node.body:
+            if hasattr(child, 'type') and child.type == 'TEMPLATE':
+                templated = True
+                break
+        else:
+            templated = False
+        for child in node.body:
+            if isinstance(child, EmptyLine):
+                continue
+            indent_len = self.get_indent(child)
+            if indent_len is None:
+                continue
+            if hasattr(child, 'type') and child.type.strip().lower() in self.headers:
+                if templated:
+                    header_indents.append((indent_len, child))
+                else:
+                    indents.append((indent_len, child))
+            else:
+                indents.append((indent_len, child))
+                if indent_len < req_indent:
+                    self.report("bad-indent", node=child)
+        self.validate_indent_lists(indents)
+        if templated:
+            self.validate_indent_lists(header_indents)
+
+    def validate_indent_lists(self, indents):
+        if len(indents) < 2:
+            return
+        counter = Counter(indent[0] for indent in indents)
+        if len(counter) == 1:  # everything have the same indent
+            return
+        common_indent = counter.most_common(1)[0][0]
+        for indent in indents:
+            if indent[0] != common_indent:
+                self.report("ineven-indent", 'over' if indent[0] > common_indent else 'under',
+                            node=indent[1],
+                            col=indent[0] + 1)

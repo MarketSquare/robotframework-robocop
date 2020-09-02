@@ -91,7 +91,8 @@ class CapitalizedNamesChecker(VisitorChecker):
         self.generic_visit(node)
 
     def visit_Keyword(self, node):  # noqa
-        self.check_if_keyword_is_capitalized(node.name, node)
+        if not node.name.lstrip().startswith('#'):
+            self.check_if_keyword_is_capitalized(node.name, node)
         self.generic_visit(node)
 
     def visit_KeywordCall(self, node):  # noqa

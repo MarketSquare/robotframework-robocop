@@ -7,6 +7,7 @@ ${RANDOM_VARIABLE}      True
 First Test Case With 1 Space
     Pass Execution      Wow!
 
+### some comment ###
 Second Test Case With 2 Spaces
     Pass Execution      Wow!
 

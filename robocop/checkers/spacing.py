@@ -2,7 +2,7 @@
 Spacing checkers
 """
 from robot.parsing.model.blocks import TestCase
-from robot.parsing.model.statements import EmptyLine
+from robot.parsing.model.statements import EmptyLine, Comment
 from robocop.checkers import RawFileChecker, VisitorChecker
 from robocop.rules import RuleSeverity
 
@@ -57,10 +57,21 @@ class MissingTrailingBlankLineChecker(VisitorChecker):
         super().__init__(*args)
 
     def visit_TestCaseSection(self, node):  # noqa
+        for child in node.body[:-1]:
+            empty_lines = 0
+            if not isinstance(child, TestCase):
+                continue
+            for token in reversed(child.body):
+                if isinstance(token, EmptyLine):
+                    empty_lines += 1
+                elif isinstance(token, Comment):
+                    continue
+                else:
+                    break
+            if empty_lines != self.empty_lines_between_test_cases:
+                self.report("empty-lines-between-test-cases", empty_lines, self.empty_lines_between_test_cases,
+                            lineno=child.end_lineno, col=0)
         self.generic_visit(node)
-
-    def visit_TestCase(self, node):  # noqa
-        print(node)
 
     def visit_File(self, node):  # noqa
         for section in node.sections[:-1]:
@@ -81,3 +92,4 @@ class MissingTrailingBlankLineChecker(VisitorChecker):
             if empty_lines != self.empty_lines_between_sections:
                 self.report("empty-lines-between-sections", empty_lines, self.empty_lines_between_sections,
                             lineno=section.end_lineno, col=0)
+        super().visit_File(node)

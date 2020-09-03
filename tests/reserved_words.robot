@@ -16,6 +16,20 @@ Keyword With Invalid For Loop
         Log  ${i}
     END
 
+Keyword With Reserved Words
+    While
+    Continue
+    WHILE
+    Run Keyword If  ${condition}  Keyword
+    ...  Else if  ${condition}  Keyword
+    ...  else  Keyword
+    Run Keyword If  ${condition}  Keyword
+    ...  ELSE IF  ${condition}  Keyword
+    ...  ELSE  Keyword
+    Run Keyword If  ${condition}  Keyword
+    ... ELSE IF  ${condition}  Keyword
+    ... ELSE  Keyword
+
 Keyword With Valid For Loop
     FOR  ${i}  ${index}
         Log  ${i}

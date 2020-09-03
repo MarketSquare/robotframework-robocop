@@ -4,6 +4,7 @@ Naming checkers
 from pathlib import Path
 from robocop.checkers import VisitorChecker
 from robocop.rules import RuleSeverity
+from robocop.utils import normalize_robot_name
 
 
 def register(linter):
@@ -70,6 +71,11 @@ class KeywordNamesChecker(VisitorChecker):
             "reserved-word-keyword-name",
             "'%s' is a reserved keyword%s",
             RuleSeverity.ERROR
+        ),
+        "0304": (
+            "not-enough-whitespace-after-newline-marker",
+            "Provide at least two spaces after '...' marker",
+            RuleSeverity.ERROR
         )
     }
     reserved_words = {
@@ -120,10 +126,26 @@ class KeywordNamesChecker(VisitorChecker):
             self.report("not-capitalized-keyword-name", node=node)
 
     def check_if_keyword_is_reserved(self, keyword_name, node):
+        if keyword_name.startswith('...'):
+            self.report("not-enough-whitespace-after-newline-marker", node=node)
+            return True
+        if normalize_robot_name(keyword_name) == 'runkeywordif':
+            for token in node.data_tokens:
+                if (token.value.lower() in self.reserved_words) and not token.value.isupper():
+                    self.report(
+                        "reserved-word-keyword-name",
+                        token.value,
+                        self.prepare_reserved_word_rule_message(token.value, 'Run Keyword If'),
+                        node=node
+                    )
         if keyword_name.lower() not in self.reserved_words:  # if there is typo in syntax, it is interpreted as keyword
             return False
         reserved_type = self.reserved_words[keyword_name.lower()]
-        suffix = f". It must be in uppercase ({keyword_name.upper()}) when used as a marker with '{reserved_type}'." \
-            if reserved_type else ''
+        suffix = self.prepare_reserved_word_rule_message(keyword_name, reserved_type)
         self.report("reserved-word-keyword-name", keyword_name, suffix, node=node)
         return True
+
+    @staticmethod
+    def prepare_reserved_word_rule_message(name, reserved_type):
+        return f". It must be in uppercase ({name.upper()}) when used as a marker with '{reserved_type}'. " \
+               f"Each marker should have minimum of 2 spaces as seperator." if reserved_type else ''

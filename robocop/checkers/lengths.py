@@ -12,6 +12,7 @@ def register(linter):
     linter.register_checker(LineLengthChecker(linter))
     linter.register_checker(EmptySectionChecker(linter))
     linter.register_checker(NumberOfReturnedArgsChecker(linter))
+    linter.register_checker(EmptySettingsChecker(linter))
 
 
 class LengthChecker(VisitorChecker):
@@ -218,3 +219,73 @@ class NumberOfReturnedArgsChecker(VisitorChecker):
     def check_node_returns(self, return_count, node):
         if return_count > self.max_returns:
             self.report("number-of-returned-values", return_count, self.max_returns, node=node)
+
+
+class EmptySettingsChecker(VisitorChecker):
+    """ Checker for empty settings. """
+    rules = {
+        "0510": (
+            "empty-metadata",
+            "Metadata settings does not have any value set",
+            RuleSeverity.WARNING
+        ),
+        "0511": (
+            "empty-documentation",
+            "Documentation is empty",
+            RuleSeverity.WARNING
+        ),
+        "0512": (
+            "empty-force-tags",
+            "Force Tags are empty",
+            RuleSeverity.WARNING
+        ),
+        "0513": (
+            "empty-default-tags",
+            "Default Tags are empty",
+            RuleSeverity.WARNING
+        ),
+        "0514": (
+            "empty-variables-import",
+            "Import variables path is empty",
+            RuleSeverity.ERROR
+        ),
+        "0515": (
+            "empty-resource-import",
+            "Import resource path is empty",
+            RuleSeverity.ERROR
+        ),
+        "0516": (
+            "empty-library-import",
+            "Import library path is empty",
+            RuleSeverity.ERROR
+        )
+    }
+
+    def visit_Metadata(self, node):  # noqa
+        if node.name is None:
+            self.report("empty-metadata", node=node)
+
+    def visit_Documentation(self, node):  # noqa
+        if not node.value:
+            self.report("empty-documentation", node=node)
+
+    def visit_ForceTags(self, node):  # noqa
+        if not node.values:
+            self.report("empty-force-tags", node=node)
+
+    def visit_DefaultTags(self, node):  # noqa
+        if not node.values:
+            self.report("empty-default-tags", node=node)
+
+    def visit_VariablesImport(self, node):  # noqa
+        if not node.name:
+            self.report("empty-variables-import", node=node)
+
+    def visit_ResourceImport(self, node):  # noqa
+        if not node.name:
+            self.report("empty-resource-import", node=node)
+
+    def visit_LibraryImport(self, node):  # noqa
+        if not node.name:
+            self.report("empty-library-import", node=node)
+

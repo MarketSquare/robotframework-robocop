@@ -21,6 +21,10 @@ First test case
     [Documentation]  First
     Log  First
     Log  First
+    For    ${i}    IN RANGE    10
+        log    ${i}
+    end
+    For    item    in    list
 
 Second test case
     [Documentation]  Second
@@ -34,7 +38,7 @@ First test case
 
 
 *** Keywords ***
-First Keyword
+First_Keyword
     [Documentation]  First
     Pass
     Fail
@@ -44,7 +48,7 @@ Second Keyword
     Pass
     Fail
 
-First Keyword
+First keyword
     [Documentation]  Third
     Pass
     Fail

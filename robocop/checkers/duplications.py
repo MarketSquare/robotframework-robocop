@@ -4,6 +4,7 @@ Duplications checkers
 from collections import defaultdict
 from robocop.checkers import VisitorChecker
 from robocop.rules import RuleSeverity
+from robocop.utils import normalize_robot_name
 
 
 def register(linter):
@@ -73,7 +74,8 @@ class DuplicationsChecker(VisitorChecker):
         self.test_cases[node.name].append(node)
 
     def visit_Keyword(self, node):  # noqa
-        self.keywords[node.name].append(node)
+        keyword_name = normalize_robot_name(node.name)
+        self.keywords[keyword_name].append(node)
 
     def visit_VariableSection(self, node):  # noqa
         self.generic_visit(node)
@@ -81,7 +83,7 @@ class DuplicationsChecker(VisitorChecker):
     def visit_Variable(self, node):  # noqa
         if node.error is not None:
             return
-        var_name = self.replace_chars(node.name, '${}@&').lower()
+        var_name = normalize_robot_name(self.replace_chars(node.name, '${}@&'))
         self.variables[var_name].append(node)
 
     @staticmethod

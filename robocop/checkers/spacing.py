@@ -19,10 +19,27 @@ class InvalidSpacingChecker(RawFileChecker):
             "trailing-whitespace",
             "Trailing whitespace at the end of line",
             RuleSeverity.WARNING
+        ),
+        "1002": (
+            "missing-trailing-blank-line",
+            "Missing trailing blank line at the end of file",
+            RuleSeverity.WARNING
         )
     }
 
+    def __init__(self, *args):
+        self.lines = []
+        super().__init__(*args)
+
+    def parse_file(self):
+        self.lines = []
+        super().parse_file()
+        if self.lines and not self.lines[-1].endswith('\n'):
+            self.report("missing-trailing-blank-line", lineno=len(self.lines), col=0)
+
     def check_line(self, line, lineno):
+        self.lines.append(line)
+
         stripped_line = line.rstrip('\n')
         if stripped_line:
             if stripped_line[-1] == ' ':

@@ -125,7 +125,7 @@ class InevenIndentChecker(VisitorChecker):
 class EqualSignChecker(VisitorChecker):
     """ Checker for redundant equal signs when assigning return values. """
     rules = {
-        "0902": (
+        "0904": (
             "redundant-equal-sign",
             "Redundant equal sign in return value assignment",
             RuleSeverity.WARNING

@@ -1,6 +1,6 @@
-.. _messages:
+.. _rules:
 
-Messages
+Rules
 ========
 
-.. automodule:: robocop.messages.messages
+.. automodule:: robocop.rules

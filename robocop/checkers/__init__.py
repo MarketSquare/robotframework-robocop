@@ -11,6 +11,7 @@ Checkers are categorized into following groups:
  * 05: lengths
  * 06: tags
  * 07: comments
+ * 08: duplications
  * 09: misc
 
 Checker have two basic types ``VisitorChecker`` uses Robot Framework parsing api and

@@ -5,8 +5,6 @@ Reports
 
 .. automodule:: robocop.reports
 
-.. automodule:: robocop.reports.reports
+.. autoclass:: robocop.reports.RulesByIdReport
 
-.. autoclass:: robocop.reports.reports.RulesByIdReport
-
-.. autoclass:: robocop.reports.reports.RulesBySeverityReport
+.. autoclass:: robocop.reports.RulesBySeverityReport

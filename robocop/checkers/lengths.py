@@ -258,34 +258,114 @@ class EmptySettingsChecker(VisitorChecker):
             "empty-library-import",
             "Import library path is empty",
             RuleSeverity.ERROR
+        ),
+        "0517": (
+            "empty-setup",
+            "Setup does not have any keywords",
+            RuleSeverity.ERROR
+        ),
+        "0518": (
+            "empty-suite-setup",
+            "Suite Setup does not have any keywords",
+            RuleSeverity.ERROR
+        ),
+        "0519": (
+            "empty-test-setup",
+            "Test Setup does not have any keywords",
+            RuleSeverity.ERROR
+        ),
+        "0520": (
+            "empty-teardown",
+            "Teardown does not have any keywords",
+            RuleSeverity.ERROR
+        ),
+        "0521": (
+            "empty-suite-teardown",
+            "Suite Teardown does not have any keywords",
+            RuleSeverity.ERROR
+        ),
+        "0522": (
+            "empty-test-teardown",
+            "Test Teardown does not have any keywords",
+            RuleSeverity.ERROR
+        ),
+        "0523": (
+            "empty-timeout",
+            "Timeout is empty",
+            RuleSeverity.WARNING
+        ),
+        "0524": (
+            "empty-test-timeout",
+            "Test Timeout is empty",
+            RuleSeverity.WARNING
+        ),
+        "0525": (
+            "empty-arguments",
+            "Arguments are empty",
+            RuleSeverity.ERROR
         )
     }
 
     def visit_Metadata(self, node):  # noqa
         if node.name is None:
-            self.report("empty-metadata", node=node)
+            self.report("empty-metadata", node=node, col=node.end_col_offset)
 
     def visit_Documentation(self, node):  # noqa
         if not node.value:
-            self.report("empty-documentation", node=node)
+            self.report("empty-documentation", node=node, col=node.end_col_offset)
 
     def visit_ForceTags(self, node):  # noqa
         if not node.values:
-            self.report("empty-force-tags", node=node)
+            self.report("empty-force-tags", node=node, col=node.end_col_offset)
 
     def visit_DefaultTags(self, node):  # noqa
         if not node.values:
-            self.report("empty-default-tags", node=node)
+            self.report("empty-default-tags", node=node, col=node.end_col_offset)
 
     def visit_VariablesImport(self, node):  # noqa
         if not node.name:
-            self.report("empty-variables-import", node=node)
+            self.report("empty-variables-import", node=node, col=node.end_col_offset)
 
     def visit_ResourceImport(self, node):  # noqa
         if not node.name:
-            self.report("empty-resource-import", node=node)
+            self.report("empty-resource-import", node=node, col=node.end_col_offset)
 
     def visit_LibraryImport(self, node):  # noqa
         if not node.name:
-            self.report("empty-library-import", node=node)
+            self.report("empty-library-import", node=node, col=node.end_col_offset)
 
+    def visit_Setup(self, node):  # noqa
+        if not node.name:
+            self.report("empty-setup", node=node, col=node.end_col_offset + 1)
+
+    def visit_SuiteSetup(self, node):  # noqa
+        if not node.name:
+            self.report("empty-suite-setup", node=node, col=node.end_col_offset)
+
+    def visit_TestSetup(self, node):  # noqa
+        if not node.name:
+            self.report("empty-test-setup", node=node, col=node.end_col_offset)
+
+    def visit_Teardown(self, node):  # noqa
+        if not node.name:
+            self.report("empty-teardown", node=node, col=node.end_col_offset + 1)
+
+    def visit_SuiteTeardown(self, node):  # noqa
+        if not node.name:
+            self.report("empty-suite-teardown", node=node, col=node.end_col_offset)
+
+    def visit_TestTeardown(self, node):  # noqa
+        if not node.name:
+            self.report("empty-test-teardown", node=node, col=node.end_col_offset)
+
+    def visit_Timeout(self, node):  # noqa
+        if not node.value:
+            self.report("empty-timeout", node=node, col=node.end_col_offset + 1)
+
+    def visit_TestTimeout(self, node):  # noqa
+        if not node.value:
+            self.report("empty-test-timeout", node=node, col=node.end_col_offset)
+
+    def visit_Arguments(self, node):  # noqa
+        if not node.values:
+            self.report("empty-arguments", node=node, col=node.end_col_offset + 1)

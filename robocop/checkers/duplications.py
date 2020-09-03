@@ -39,6 +39,11 @@ class DuplicationsChecker(VisitorChecker):
             "duplicated-library",
             'Multiple library imports with name "%s" and identical arguments in suite',
             RuleSeverity.WARNING
+        ),
+        "0806": (
+            "duplicated-metadata",
+            'Duplicated metadata "%s" in suite',
+            RuleSeverity.WARNING
         )
     }
 
@@ -48,6 +53,7 @@ class DuplicationsChecker(VisitorChecker):
         self.variables = defaultdict(list)
         self.resources = defaultdict(list)
         self.libraries = defaultdict(list)
+        self.metadata = defaultdict(list)
         super().__init__(*args)
 
     def visit_File(self, node):
@@ -56,12 +62,14 @@ class DuplicationsChecker(VisitorChecker):
         self.variables = defaultdict(list)
         self.resources = defaultdict(list)
         self.libraries = defaultdict(list)
+        self.metadata = defaultdict(list)
         super().visit_File(node)
         self.check_duplicates(self.test_cases, "duplicated-test-case")
         self.check_duplicates(self.keywords, "duplicated-keyword")
         self.check_duplicates(self.variables, "duplicated-variable")
         self.check_duplicates(self.resources, "duplicated-resource")
         self.check_duplicates(self.libraries, "duplicated-library")
+        self.check_duplicates(self.metadata, "duplicated-metadata")
 
     def check_duplicates(self, container, rule):
         for name, nodes in container.items():
@@ -96,3 +104,6 @@ class DuplicationsChecker(VisitorChecker):
     def visit_LibraryImport(self, node):  # noqa
         name_with_args = node.name + ''.join(token.value for token in node.data_tokens[2:])
         self.libraries[name_with_args].append(node)
+
+    def visit_Metadata(self, node):  # noqa
+        self.metadata[node.name + node.value].append(node)

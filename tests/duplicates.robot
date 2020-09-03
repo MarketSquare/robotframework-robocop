@@ -7,6 +7,12 @@ Library   PythonLibrary  2
 Library   PythonLibrary
 Resource  resource2.robot
 Resource  resource.robot
+Metadata  This is some metadata
+Metadata  This is some metadata
+...       over more than one line
+Metadata  This is some metadata
+Metadata  ${var}
+Metadata  ${var}
 
 *** Variables ***
 ${var}  smth

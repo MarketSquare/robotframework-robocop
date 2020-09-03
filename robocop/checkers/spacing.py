@@ -41,8 +41,7 @@ class InvalidSpacingChecker(RawFileChecker):
         self.lines.append(line)
 
         stripped_line = line.rstrip('\n')
-        if stripped_line:
-            if stripped_line[-1] == ' ':
+        if stripped_line and stripped_line[-1] == ' ':
                 self.report("trailing-whitespace", lineno=lineno, col=len(stripped_line))
 
 

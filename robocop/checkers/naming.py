@@ -1,6 +1,7 @@
 """
 Naming checkers
 """
+import re
 from pathlib import Path
 from robocop.checkers import VisitorChecker
 from robocop.rules import RuleSeverity
@@ -9,7 +10,8 @@ from robocop.utils import normalize_robot_name
 
 def register(linter):
     linter.register_checker(InvalidCharactersInNameChecker(linter))
-    linter.register_checker(KeywordNamesChecker(linter))
+    linter.register_checker(KeywordNamingChecker(linter))
+    linter.register_checker(SettingsNamingChecker(linter))
 
 
 class InvalidCharactersInNameChecker(VisitorChecker):
@@ -59,8 +61,8 @@ class InvalidCharactersInNameChecker(VisitorChecker):
         self.check_if_char_in_node_name(node, 'KEYWORD_NAME')
 
 
-class KeywordNamesChecker(VisitorChecker):
-    """ Checker for naming keyword violation. """
+class KeywordNamingChecker(VisitorChecker):
+    """ Checker for keyword naming violations. """
     rules = {
         "0302": (
             "not-capitalized-keyword-name",
@@ -68,7 +70,7 @@ class KeywordNamesChecker(VisitorChecker):
             RuleSeverity.WARNING
         ),
         "0303": (
-            "reserved-word-keyword-name",
+            "keyword-name-is-reserved-word",
             "'%s' is a reserved keyword%s",
             RuleSeverity.ERROR
         ),
@@ -76,76 +78,177 @@ class KeywordNamesChecker(VisitorChecker):
             "not-enough-whitespace-after-newline-marker",
             "Provide at least two spaces after '...' marker",
             RuleSeverity.ERROR
+        ),
+        "0305": (
+            "invalid-comment",
+            "Invalid comment. '#' needs to be first character in the cell. "
+            "For block comments you can use *** Comments *** section",
+            RuleSeverity.ERROR
         )
     }
     reserved_words = {
-                         'for': 'for loop',
-                         'end': 'for loop',
-                         'else if': 'Run Keyword If',
-                         'else': 'Run Keyword If',
-                         'while': '',
-                         'continue': ''
+        'for': 'for loop',
+        'end': 'for loop',
+        'while': '',
+        'continue': ''
+    }
+    else_if = {
+        'else',
+        'else if'
+    }
+    variable_identifier = {
+        '$',
+        '@',
+        '&',
+        '%'
     }
 
     def visit_SuiteSetup(self, node):  # noqa
-        self.check_if_keyword_is_capitalized(node.name, node)
+        self.check_keyword_naming(node.name, node)
 
     def visit_TestSetup(self, node):  # noqa
-        self.check_if_keyword_is_capitalized(node.name, node)
+        self.check_keyword_naming(node.name, node)
 
     def visit_Setup(self, node):  # noqa
-        self.check_if_keyword_is_capitalized(node.name, node)
+        self.check_keyword_naming(node.name, node)
 
     def visit_SuiteTeardown(self, node):  # noqa
-        self.check_if_keyword_is_capitalized(node.name, node)
+        self.check_keyword_naming(node.name, node)
 
     def visit_TestTeardown(self, node):  # noqa
-        self.check_if_keyword_is_capitalized(node.name, node)
+        self.check_keyword_naming(node.name, node)
 
     def visit_Teardown(self, node):  # noqa
-        self.check_if_keyword_is_capitalized(node.name, node)
+        self.check_keyword_naming(node.name, node)
 
     def visit_TestCase(self, node):  # noqa
-        self.generic_visit(node)
+        if self.is_comment(node.name, node):
+            return
+        else:
+            self.generic_visit(node)
 
     def visit_Keyword(self, node):  # noqa
-        if not node.name.lstrip().startswith('#'):
-            self.check_if_keyword_is_capitalized(node.name, node)
+        self.check_keyword_naming(node.name, node)
         self.generic_visit(node)
 
     def visit_KeywordCall(self, node):  # noqa
-        self.check_if_keyword_is_capitalized(node.keyword, node)
+        self.check_keyword_naming(node.keyword, node)
 
-    def check_if_keyword_is_capitalized(self, keyword_name, node):  # noqa
+    def is_comment(self, name, node):
+        if name.lstrip().startswith('#'):
+            self.report("invalid-comment", node=node)
+            return True
+        return False
+
+    def check_keyword_naming(self, keyword_name, node):  # noqa
+        if self.is_comment(keyword_name, node):
+            return
         if keyword_name == r'/':  # old for loop, / are interpreted as keywords
             return
-        if self.check_if_keyword_is_reserved(keyword_name, node):
-            return
-        words = keyword_name.replace('_', ' ').split(' ')
-        if any(not word.istitle() for word in words):
-            self.report("not-capitalized-keyword-name", node=node)
-
-    def check_if_keyword_is_reserved(self, keyword_name, node):
         if keyword_name.startswith('...'):
             self.report("not-enough-whitespace-after-newline-marker", node=node)
-            return True
+            return
         if normalize_robot_name(keyword_name) == 'runkeywordif':
             for token in node.data_tokens:
-                if (token.value.lower() in self.reserved_words) and not token.value.isupper():
+                if (token.value.lower() in self.else_if) and not token.value.isupper():
                     self.report(
-                        "reserved-word-keyword-name",
+                        "keyword-name-is-reserved-word",
                         token.value,
                         self.prepare_reserved_word_rule_message(token.value, 'Run Keyword If'),
                         node=node
                     )
+        elif self.check_if_keyword_is_reserved(keyword_name, node):
+            return
+        words = keyword_name.replace('_', ' ').split(' ')
+        if any(not (word.istitle() or word.isupper()) for word in words if not self.is_variable(word)):
+            self.report("not-capitalized-keyword-name", node=node)
+
+    def is_variable(self, name):
+        if len(name) < 3:
+            return
+        return name[0] in self.variable_identifier and name[1] == '{' and name[-1] == '}'
+
+    def check_if_keyword_is_reserved(self, keyword_name, node):
         if keyword_name.lower() not in self.reserved_words:  # if there is typo in syntax, it is interpreted as keyword
             return False
         reserved_type = self.reserved_words[keyword_name.lower()]
         suffix = self.prepare_reserved_word_rule_message(keyword_name, reserved_type)
-        self.report("reserved-word-keyword-name", keyword_name, suffix, node=node)
+        self.report("keyword-name-is-reserved-word", keyword_name, suffix, node=node)
         return True
 
     @staticmethod
     def prepare_reserved_word_rule_message(name, reserved_type):
         return f". It must be in uppercase ({name.upper()}) when used as a marker with '{reserved_type}'. " \
                f"Each marker should have minimum of 2 spaces as seperator." if reserved_type else ''
+
+
+class SettingsNamingChecker(VisitorChecker):
+    rules = {
+        "0306": (
+            "setting-name-not-capitalized",
+            "Setting name should be capitalized or upper case",
+            RuleSeverity.WARNING
+        ),
+        "0307": (
+            "section-name-invalid",
+            "Section name should should be in format *** Capitalized *** or *** UPPERCASE ***",
+            RuleSeverity.WARNING
+        )
+    }
+
+    def __init__(self, *args):
+        self.section_name_pattern = re.compile(r'\*\*\*\s\w+\s\*\*\*')
+        super().__init__(*args)
+
+    def visit_SettingSectionHeader(self, node):  # noqa
+        self.check_section_name(node.data_tokens[0].value, node)
+
+    def visit_VariableSectionHeader(self, node):  # noqa
+        self.check_section_name(node.data_tokens[0].value, node)
+
+    def visit_TestCaseSectionHeader(self, node):  # noqa
+        self.check_section_name(node.data_tokens[0].value, node)
+
+    def visit_KeywordSectionHeader(self, node):  # noqa
+        self.check_section_name(node.data_tokens[0].value, node)
+
+    def visit_CommentSectionHeader(self, node):  # noqa
+        self.check_section_name(node.data_tokens[0].value, node)
+
+    def visit_SuiteSetup(self, node):  # noqa
+        self.check_setting_name(node.data_tokens[0].value, node)
+
+    def visit_TestSetup(self, node):  # noqa
+        self.check_setting_name(node.data_tokens[0].value, node)
+
+    def visit_Setup(self, node):  # noqa
+        self.check_setting_name(node.data_tokens[0].value, node)
+
+    def visit_SuiteTeardown(self, node):  # noqa
+        self.check_setting_name(node.data_tokens[0].value, node)
+
+    def visit_TestTeardown(self, node):  # noqa
+        self.check_setting_name(node.data_tokens[0].value, node)
+
+    def visit_ForceTags(self, node):  # noqa
+        self.check_setting_name(node.data_tokens[0].value, node)
+
+    def visit_DefaultTags(self, node):  # noqa
+        self.check_setting_name(node.data_tokens[0].value, node)
+
+    def visit_LibraryImport(self, node):  # noqa
+        self.check_setting_name(node.data_tokens[0].value, node)
+
+    def visit_ResourceImport(self, node):  # noqa
+        self.check_setting_name(node.data_tokens[0].value, node)
+
+    def visit_VariablesImport(self, node):  # noqa
+        self.check_setting_name(node.data_tokens[0].value, node)
+
+    def check_setting_name(self, name, node):
+        if not (name.istitle() or name.isupper()):
+            self.report("setting-name-not-capitalized", node=node)
+
+    def check_section_name(self, name, node):  # noqa
+        if not self.section_name_pattern.match(name) or not (name.istitle() or name.isupper()):
+            self.report("section-name-invalid", node=node)

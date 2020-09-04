@@ -10,6 +10,12 @@ Test
         Log  ${i}
     END
 
+# This Is comment
+ # Also comment
+  # This passes since it's start of another cell
+
+ # Another one
+
 *** Keywords ***
 Keyword With Invalid For Loop
     for  ${i}  IN  ${index}
@@ -39,3 +45,6 @@ Keyword With Missing Whitespace After For
     FOR ${i}  IN  ${index}
         Log  ${i}
     END
+
+# This Is comment
+ # Also comment

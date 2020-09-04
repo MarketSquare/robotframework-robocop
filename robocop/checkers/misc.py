@@ -12,6 +12,7 @@ from robocop.utils import normalize_robot_name
 def register(linter):
     linter.register_checker(EarlyReturnChecker(linter))
     linter.register_checker(InevenIndentChecker(linter))
+    linter.register_checker(NestedForLoopsChecker(linter))
 
 
 class EarlyReturnChecker(VisitorChecker):
@@ -119,3 +120,20 @@ class InevenIndentChecker(VisitorChecker):
                 self.report("ineven-indent", 'over' if indent[0] > common_indent else 'under',
                             node=indent[1],
                             col=indent[0] + 1)
+
+
+class NestedForLoopsChecker(VisitorChecker):
+    """ Checker for nested for loops which are not supported. """
+    rules = {
+        "0904": (
+            "nested-for-loop",
+            "Nested for loops are not supported. You can use keyword with for loop instead",
+            RuleSeverity.ERROR
+        )
+    }
+
+    def visit_ForLoop(self, node):  # noqa
+        for child in node.body:
+            if child.type == 'FOR':
+                self.report("nested-for-loop", node=child)
+

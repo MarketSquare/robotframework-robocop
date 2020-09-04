@@ -65,11 +65,40 @@ Robocop will execute all checks on provided list of paths::
 Main features
 -------------
 
-    * including/excluding rules from command line or source code
-    * customized format of output message
-    * generating customized reports
-    * configurable lint rules
-    * output redirection to file
+* including/excluding rules from command line with the support for glob patterns::
+
+    --exclude rule,rule2 -e *doc*
+
+ * filtering out all rules below given severity level::
+
+     --threshold E
+
+* customized format of output message::
+
+    --format {source}:{line}:{col} [{severity}] {rule_id} {desc}
+
+* configurable return status for every severity level::
+
+    --configure return_status:quality_gate:E=2:W=39
+
+* generating customized reports::
+
+    --reports rules_by_id,rules_by_error_type
+
+    Issues by ids:
+    W0902 (ineven-indent)    : 4
+    E0904 (nested-for-loop)  : 4
+    W0302 (not-capitalized-keyword-name) : 4
+
+    Found 12 issue(s): 8 WARNING(s), 4 ERROR(s).
+
+* configurable lint rules
+
+    --configure 0507:line_length:100 -c ineven-indent:severity:W
+
+* output redirection to file
+* loading arguments from file
+* configurable scanned filetypes
 
 Documentation
 -------------

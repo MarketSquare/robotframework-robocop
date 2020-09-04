@@ -245,6 +245,9 @@ class SettingsNamingChecker(VisitorChecker):
     def visit_VariablesImport(self, node):  # noqa
         self.check_setting_name(node.data_tokens[0].value, node)
 
+    def visit_Documentation(self, node):  # noqa
+        self.check_setting_name(node.data_tokens[0].value, node)
+
     def check_setting_name(self, name, node):
         if not (name.istitle() or name.isupper()):
             self.report("setting-name-not-capitalized", node=node)

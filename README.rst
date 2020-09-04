@@ -65,11 +65,12 @@ Robocop will execute all checks on provided list of paths::
 Main features
 -------------
 
-* including/excluding rules from command line with the support for glob patterns::
+- including/excluding rules from command line with the support for glob patterns::
 
     --include *missing* -i W0507 --exclude rule,rule2 -e *doc*
 
-* disabling rules directly from source code
+- disabling rules directly from source code
+
     Ignoring rules in one line::
 
         This is Keyword  # robocop: disable=not-capitalized-keyword-name
@@ -82,26 +83,26 @@ Main features
 
     Ignoring whole blocks or even files::
 
-    # robocop: disable=unnecessary-default-tags,0102
-    *** Settings ***
-    Library  RobotLibrary.py
+        # robocop: disable=unnecessary-default-tags,0102
+        *** Settings ***
+        Library  RobotLibrary.py
 
-    # robocop: enable=0102
+        # robocop: enable=0102
 
 
-* filtering out all rules below given severity level::
+- filtering out all rules below given severity level::
 
      --threshold E
 
-* customized format of output message::
+- customized format of output message::
 
     --format {source}:{line}:{col} [{severity}] {rule_id} {desc}
 
-* configurable return status for every severity level::
+- configurable return status for every severity level::
 
     --configure return_status:quality_gate:E=2:W=39
 
-* generating customized reports::
+- generating customized reports::
 
     --reports rules_by_id,rules_by_error_type
 
@@ -112,13 +113,17 @@ Main features
 
     Found 12 issue(s): 9 WARNING(s), 4 ERROR(s).
 
-* configurable lint rules
+- configurable lint rules
 
     --configure 0507:line_length:100 -c ineven-indent:severity:W
 
-* output redirection to file
-* loading arguments from file
-* configurable scanned filetypes
+- external rules support::
+
+    --ext_rules path/to/your/rules.py -rules supports_many_paths.py
+
+- output redirection to file
+- loading arguments from file
+- configurable scanned filetypes
 
 Documentation
 -------------

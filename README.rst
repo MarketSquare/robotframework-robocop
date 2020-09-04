@@ -86,11 +86,11 @@ Main features
     --reports rules_by_id,rules_by_error_type
 
     Issues by ids:
-    W0902 (ineven-indent)    : 4
-    E0904 (nested-for-loop)  : 4
+    W0902 (ineven-indent)                : 5
+    E0904 (nested-for-loop)              : 4
     W0302 (not-capitalized-keyword-name) : 4
 
-    Found 12 issue(s): 8 WARNING(s), 4 ERROR(s).
+    Found 12 issue(s): 9 WARNING(s), 4 ERROR(s).
 
 * configurable lint rules
 

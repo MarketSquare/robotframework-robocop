@@ -165,7 +165,7 @@ class KeywordNamingChecker(VisitorChecker):
 
     def is_variable(self, name):
         if len(name) < 3:
-            return
+            return False
         return name[0] in self.variable_identifier and name[1] == '{' and name[-1] == '}'
 
     def check_if_keyword_is_reserved(self, keyword_name, node):

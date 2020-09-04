@@ -4,7 +4,7 @@ Resource   ${EXECDIR}${/}tests${/}resource.robot
 Variables  vars.robot
 Library    robot_lib.py
 Force Tags    forcedtag
-force Tags    lol
+Force Tags    lol
 Library   robot_lib.py  AS  smth
 Default Tags  defaulttag  default with space
 

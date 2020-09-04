@@ -67,9 +67,29 @@ Main features
 
 * including/excluding rules from command line with the support for glob patterns::
 
-    --exclude rule,rule2 -e *doc*
+    --include *missing* -i W0507 --exclude rule,rule2 -e *doc*
 
- * filtering out all rules below given severity level::
+* disabling rules directly from source code
+    Ignoring rules in one line::
+
+        This is Keyword  # robocop: disable=not-capitalized-keyword-name
+
+    Ignoring all rules or selected ones::
+
+        Log  ${var}
+        Log  ${var}  # robocop: disable
+        log  ${var}  # robocop: disable=0301,0302
+
+    Ignoring whole blocks or even files::
+
+    # robocop: disable=unnecessary-default-tags,0102
+    *** Settings ***
+    Library  RobotLibrary.py
+
+    # robocop: enable=0102
+
+
+* filtering out all rules below given severity level::
 
      --threshold E
 

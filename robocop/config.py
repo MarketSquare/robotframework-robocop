@@ -18,7 +18,8 @@ class ParseDelimitedArgAction(argparse.Action):  # pylint: disable=too-few-publi
 class ParseCheckerConfig(argparse.Action):  # pylint: disable=too-few-public-methods
     def __call__(self, parser, namespace, values, option_string=None):
         container = getattr(namespace, self.dest)
-        container.append(values.strip())
+        for value in values.split(','):
+            container.append(value.strip())
 
 
 class ParseFileTypes(argparse.Action):  # pylint: disable=too-few-public-methods
@@ -29,7 +30,7 @@ class ParseFileTypes(argparse.Action):  # pylint: disable=too-few-public-methods
         setattr(namespace, self.dest, filetypes)
 
 
-class SetMessageThreshold(argparse.Action):
+class SetRuleThreshold(argparse.Action):
     def __call__(self, parser, namespace, values, option_string=None):
         for sev in RuleSeverity:
             if sev.value == values:
@@ -159,7 +160,7 @@ class Config:
                               help=self.HELP_MSGS['help_output'])
         optional.add_argument('--filetypes', action=ParseFileTypes, default=self.filetypes,
                               help=self.HELP_MSGS['help_filetypes'])
-        optional.add_argument('-t', '--threshold', action=SetMessageThreshold, default=self.threshold,
+        optional.add_argument('-t', '--threshold', action=SetRuleThreshold, default=self.threshold,
                               help=self.HELP_MSGS['help_threshold'])
         optional.add_argument('-A', '--argumentfile', help=self.HELP_MSGS['help_argfile'])
         optional.add_argument('-h', '--help', action='help', help=self.HELP_MSGS['help_info'])
@@ -202,7 +203,7 @@ class Config:
     @staticmethod
     def replace_severity_values(message):
         sev = ''.join(c.value for c in RuleSeverity)
-        if re.match(f"[{sev}]?[0-9]{{4,}}", message):
+        if re.match(f"[{sev}][0-9]{{4,}}", message):
             for c in sev:
                 message = message.replace(c, '')
         return message

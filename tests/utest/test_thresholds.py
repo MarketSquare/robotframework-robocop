@@ -5,10 +5,7 @@ from robocop.rules import RuleSeverity, Rule
 def get_severity_enum(value):
     for sev in RuleSeverity:
         if sev.value == value:
-            break
-    else:
-        sev = RuleSeverity.INFO
-    return sev
+            return sev
 
 
 def get_message_with_id_sev(rule_id, sev):

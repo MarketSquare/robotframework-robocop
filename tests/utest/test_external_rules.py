@@ -40,3 +40,12 @@ class TestExternalRules:
         with pytest.raises(robocop.exceptions.DuplicatedRuleError) as err:
             robocop_pre_load.load_checkers()
         assert "Fatal error: Message name 'smth' defined in SmthChecker was already defined in SmthChecker" in str(err)
+
+    def test_load_external_rule_no_register_method(self, robocop_pre_load):  # noqa
+        robocop_pre_load.config.ext_rules = {
+            f'{Path(__file__).parent.parent}/test_data/ext_rule_missing_register/external_rule_missing_register.py'
+        }
+        with pytest.raises(robocop.exceptions.MissingRegisterMethodCheckerError) as err:
+            robocop_pre_load.load_checkers()
+        assert "Fatal error: Tried to load rule file" in str(err)
+        assert "but register method was missing" in str(err)

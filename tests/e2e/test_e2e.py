@@ -1,7 +1,7 @@
 """ General E2E tests to catch any general issue in robocop """
 from pathlib import Path
 import pytest
-import robocop
+from robocop.exceptions import FileError, ArgumentFileNotFoundError
 from robocop.run import Robocop
 from robocop.config import Config
 
@@ -42,3 +42,34 @@ class TestE2E:
         for report in robocop.reports:
             if report.name == 'return_status':
                 assert report.return_status == 1
+
+    def test_configure_rule_severity(self, robocop):
+        config = Config()
+        config.parse_opts(['-c', '0201:severity:E,E0202:severity:I',
+                           str(Path(Path(__file__).parent.parent, 'test_data'))])
+        robocop.config = config
+        with pytest.raises(SystemExit):
+            robocop.run()
+
+    def test_use_argument_file(self, robocop):
+        config = Config()
+        config.parse_opts(['-A', str(Path(Path(__file__).parent.parent, 'test_data/argument_file/args.txt')),
+                           str(Path(Path(__file__).parent.parent, 'test_data'))])
+        robocop.config = config
+        with pytest.raises(SystemExit):
+            robocop.run()
+
+    def test_use_not_existing_argument_file(self, robocop):
+        config = Config()
+        with pytest.raises(ArgumentFileNotFoundError) as err:
+            config.parse_opts(['--argumentfile', 'some_file',
+                               str(Path(Path(__file__).parent.parent, 'test_data'))])
+        assert 'Argument file "some_file" does not exist' in str(err)
+
+    def test_run_non_existing_file(self, robocop):
+        config = Config()
+        config.parse_opts(['some_path'])
+        robocop.config = config
+        with pytest.raises(FileError) as err:
+            robocop.run()
+        assert 'File some_path does not exist' in str(err)

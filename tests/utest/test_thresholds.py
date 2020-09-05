@@ -1,25 +1,5 @@
 import pytest
-import sys
-from robocop.run import Robocop
 from robocop.rules import RuleSeverity, Rule
-from robocop.config import Config
-
-
-class RobocopWithoutLoadClasses(Robocop):
-    def __init__(self):  # TODO: move to common file, rewrite init to be reusable in API and unit tests
-        self.files = {}
-        self.checkers = []
-        self.out = sys.stdout
-        self.rules = {}
-        self.reports = []
-        self.disabler = None
-        self.config = Config()
-        self.config.list = True
-
-
-@pytest.fixture
-def robocop_instance():
-    return RobocopWithoutLoadClasses()
 
 
 def get_severity_enum(value):
@@ -49,11 +29,11 @@ class TestThresholds:
         ('W', ['E', 'W'], ['I']),
         ('I', ['E', 'W', 'I'], []),
     ])
-    def test_disable_rules_below_threshold(self, threshold, included, excluded, robocop_instance):
-        robocop_instance.config.threshold = get_severity_enum(threshold)
+    def test_disable_rules_below_threshold(self, threshold, included, excluded, robocop_pre_load):
+        robocop_pre_load.config.threshold = get_severity_enum(threshold)
         for severity in included:
             msg = get_message_with_id_sev('0101', severity)
-            assert robocop_instance.config.is_rule_enabled(msg)
+            assert robocop_pre_load.config.is_rule_enabled(msg)
         for severity in excluded:
             msg = get_message_with_id_sev('0101', severity)
-            assert not robocop_instance.config.is_rule_enabled(msg)
+            assert not robocop_pre_load.config.is_rule_enabled(msg)

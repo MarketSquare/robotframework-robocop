@@ -18,7 +18,7 @@ class ParseDelimitedArgAction(argparse.Action):  # pylint: disable=too-few-publi
 class ParseCheckerConfig(argparse.Action):  # pylint: disable=too-few-public-methods
     def __call__(self, parser, namespace, values, option_string=None):
         container = getattr(namespace, self.dest)
-        container.append(values)
+        container.append(values.strip())
 
 
 class ParseFileTypes(argparse.Action):  # pylint: disable=too-few-public-methods

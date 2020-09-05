@@ -16,7 +16,7 @@ class TestE2E:
         config = Config()
         config.parse_opts([str(Path(Path(__file__).parent.parent, 'test_data'))])
         robocop.config = config
-        with pytest.raises(SystemExit) as err:
+        with pytest.raises(SystemExit):
             robocop.run()
 
     def test_run_with_return_status_0(self, robocop):
@@ -25,7 +25,7 @@ class TestE2E:
                            str(Path(Path(__file__).parent.parent, 'test_data'))])
         robocop.config = config
         robocop.configure_checkers_or_reports()
-        with pytest.raises(SystemExit) as err:
+        with pytest.raises(SystemExit):
             robocop.run()
         for report in robocop.reports:
             if report.name == 'return_status':
@@ -37,7 +37,7 @@ class TestE2E:
                            str(Path(Path(__file__).parent.parent, 'test_data'))])
         robocop.config = config
         robocop.configure_checkers_or_reports()
-        with pytest.raises(SystemExit) as err:
+        with pytest.raises(SystemExit):
             robocop.run()
         for report in robocop.reports:
             if report.name == 'return_status':

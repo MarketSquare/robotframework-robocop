@@ -11,6 +11,7 @@ This is test
 This Is Keyword
     [Documentation]  Keyword doc
     [Return]
+    No Operation
 
 This Is Keyword2
     [Documentation]  Keyword doc
@@ -32,15 +33,15 @@ This Is Keyword6
     [Documentation]  Keyword doc
     Return From Keyword  ${arg}  ${arg}  ${arg}  ${arg}  ${arg}
 
-This Is Keyword4
+This Is Keyword7
     [Documentation]  Keyword doc
     Return From Keyword If  ${True}
 
-This Is Keyword5
+This Is Keyword8
     [Documentation]  Keyword doc
     Return From Keyword If  ${True}  ${arg}  ${arg}
 
-This Is Keyword6
+This Is Keyword9
     [Documentation]  Keyword doc
     FOR  ${elem}  IN  smth  smth
         Return From Keyword If  ${True}  ${arg}  ${arg}  ${arg}  ${arg}  ${arg}

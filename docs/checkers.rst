@@ -6,7 +6,7 @@ Checkers
 
 .. automodule:: robocop.checkers
 
-.. autoclass:: robocop.messages.MessageSeverity
+.. autoclass:: robocop.rules.RuleSeverity
    :members:
    :undoc-members:
 

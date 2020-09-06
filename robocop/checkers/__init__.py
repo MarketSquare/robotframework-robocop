@@ -94,10 +94,10 @@ def get_modules(linter):
 
 def init(linter):
     for module in get_modules(linter):
-        try:
-            module.register(linter)
-        except AttributeError:
-            raise MissingRegisterMethodCheckerError(module)
+        classes = inspect.getmembers(module, inspect.isclass)
+        for checker in classes:
+            if issubclass(checker[1], BaseChecker) and hasattr(checker[1], 'rules') and checker[1].rules:
+                linter.register_checker(checker[1](linter))
 
 
 def get_docs():

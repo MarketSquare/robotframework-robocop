@@ -9,11 +9,6 @@ from robocop.rules import RuleSeverity
 from robocop.utils import normalize_robot_name
 
 
-def register(linter):
-    linter.register_checker(EarlyReturnChecker(linter))
-    linter.register_checker(InevenIndentChecker(linter))
-
-
 class EarlyReturnChecker(VisitorChecker):
     """ Checker for keyword calls after [Return] statement. """
     rules = {

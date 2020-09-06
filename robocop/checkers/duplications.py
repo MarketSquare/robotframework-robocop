@@ -7,11 +7,6 @@ from robocop.rules import RuleSeverity
 from robocop.utils import normalize_robot_name
 
 
-def register(linter):
-    linter.register_checker(DuplicationsChecker(linter))
-    pass
-
-
 class DuplicationsChecker(VisitorChecker):
     """ Checker for duplicated names. """
     rules = {

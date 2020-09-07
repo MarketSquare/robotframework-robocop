@@ -142,7 +142,7 @@ class InevenIndentChecker(VisitorChecker):
 class EqualSignChecker(VisitorChecker):
     """ Checker for redundant equal signs when assigning return values. """
     rules = {
-        "0904": (
+        "0906": (
             "redundant-equal-sign",
             "Redundant equal sign in return value assignment",
             RuleSeverity.WARNING
@@ -159,7 +159,7 @@ class EqualSignChecker(VisitorChecker):
 class NestedForLoopsChecker(VisitorChecker):
     """ Checker for not supported nested FOR loops. """
     rules = {
-        "0905": (
+        "0907": (
             "nested-for-loop",
             "Nested for loops are not supported. You can use keyword with for loop instead",
             RuleSeverity.ERROR

@@ -150,6 +150,8 @@ class Robocop:
     def get_absolute_path(self, path, recursive):
         if not path.exists():
             raise robocop.exceptions.FileError(path)
+        if self.config.is_path_ignored(path):
+            return
         if path.is_file():
             if self.should_parse(path):
                 yield path.absolute()

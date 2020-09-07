@@ -2,6 +2,7 @@ import os
 import argparse
 import re
 import fnmatch
+from pathlib import Path
 import sys
 
 from robocop.version import __version__
@@ -44,6 +45,7 @@ class Config:
         self.exec_dir = os.path.abspath('.')
         self.include = set()
         self.exclude = set()
+        self.ignore = set()
         self.reports = {'return_status'}
         self.threshold = RuleSeverity.INFO
         self.configure = []
@@ -80,6 +82,7 @@ class Config:
                              f'{" < ".join(sev.value for sev in RuleSeverity)}',
         'help_recursive':   'Use this flag to stop scanning directories recursively',
         'help_argfile':     'Path to file with arguments',
+        'help_ignore':      'Ignore file(s) and path(s) provided. Glob patterns are supported',
         'help_info':        'Print this help message and exit',
         'help_version':     'Display Robocop version'
     }
@@ -162,6 +165,8 @@ class Config:
         optional.add_argument('-t', '--threshold', action=SetMessageThreshold, default=self.threshold,
                               help=self.HELP_MSGS['help_threshold'])
         optional.add_argument('-A', '--argumentfile', help=self.HELP_MSGS['help_argfile'])
+        optional.add_argument('--ignore', action=ParseDelimitedArgAction, default=self.ignore,
+                              help=self.HELP_MSGS['help_ignore'])
         optional.add_argument('-h', '--help', action='help', help=self.HELP_MSGS['help_info'])
         optional.add_argument('-v', '--version', action='version', version=__version__,
                               help=self.HELP_MSGS['help_version'])
@@ -198,6 +203,11 @@ class Config:
                 return True
         return False
 
+    def is_path_ignored(self, path):
+        for pattern in self.ignore:
+            if path.match(pattern):
+                return True
+        return False
 
     @staticmethod
     def replace_severity_values(message):

@@ -1,13 +1,7 @@
 import pytest
-from robocop.run import Robocop
 from robocop.checkers import VisitorChecker
 from robocop.rules import RuleSeverity
 import robocop.exceptions
-
-
-@pytest.fixture
-def robocop_instance():
-    return Robocop()
 
 
 class ValidChecker(VisitorChecker):

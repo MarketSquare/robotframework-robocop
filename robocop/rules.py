@@ -54,9 +54,6 @@ class RuleSeverity(Enum):
         look_up = [sev.value for sev in RuleSeverity]
         if self.__class__ is other.__class__:
             return look_up.index(self.value) < look_up.index(other.value)
-        if isinstance(other, str):
-            return look_up.index(self.value) < look_up.index(other)
-        return NotImplemented
 
 
 class Rule:

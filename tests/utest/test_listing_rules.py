@@ -1,32 +1,12 @@
-import sys
-
 import pytest
-from robocop.run import Robocop
-from robocop.config import Config
+
 from robocop.checkers import VisitorChecker
 from robocop.rules import RuleSeverity
 
-
-class RobocopWithoutLoadClasses(Robocop):
-    def __init__(self):
-        self.files = {}
-        self.checkers = []
-        self.out = sys.stdout
-        self.rules = {}
-        self.reports = []
-        self.disabler = None
-        self.config = Config()
-        self.config.list = True
-        
         
 class EmptyChecker(VisitorChecker):
     rules = {}
     pass
-
-
-@pytest.fixture
-def robocop_instance():
-    return RobocopWithoutLoadClasses()
 
 
 @pytest.fixture
@@ -56,37 +36,40 @@ def msg_0102_0204():
     }
 
 
-def init_empty_checker(robocop_instance, rule, exclude=False):
-    checker = EmptyChecker(robocop_instance)
+def init_empty_checker(robocop_instance_pre_load, rule, exclude=False):
+    checker = EmptyChecker(robocop_instance_pre_load)
     checker.rules = rule
     checker.register_rules(checker.rules)
     if exclude:
-        robocop_instance.config.exclude.update(set(rule.keys()))
-        robocop_instance.config.translate_patterns()
-    robocop_instance.register_checker(checker)
+        robocop_instance_pre_load.config.exclude.update(set(rule.keys()))
+        robocop_instance_pre_load.config.translate_patterns()
+    robocop_instance_pre_load.register_checker(checker)
     return checker
 
 
 class TestListingRules:
-    def test_list_rule(self, robocop_instance, msg_0101, capsys):
-        init_empty_checker(robocop_instance, msg_0101)
+    def test_list_rule(self, robocop_pre_load, msg_0101, capsys):
+        robocop_pre_load.config.list = True
+        init_empty_checker(robocop_pre_load, msg_0101)
         with pytest.raises(SystemExit):
-            robocop_instance.list_checkers()
+            robocop_pre_load.list_checkers()
         out, _ = capsys.readouterr()
         assert out == 'Rule - 0101 [W]: some-message: Some description (enabled)\n'
 
-    def test_list_disabled_rule(self, robocop_instance, msg_0101, capsys):
-        init_empty_checker(robocop_instance, msg_0101, exclude=True)
+    def test_list_disabled_rule(self, robocop_pre_load, msg_0101, capsys):
+        robocop_pre_load.config.list = True
+        init_empty_checker(robocop_pre_load, msg_0101, exclude=True)
         with pytest.raises(SystemExit):
-            robocop_instance.list_checkers()
+            robocop_pre_load.list_checkers()
         out, _ = capsys.readouterr()
         assert out == 'Rule - 0101 [W]: some-message: Some description (disabled)\n'
 
-    def test_multiple_checkers(self, robocop_instance, msg_0101, msg_0102_0204, capsys):
-        init_empty_checker(robocop_instance, msg_0102_0204, exclude=True)
-        init_empty_checker(robocop_instance, msg_0101)
+    def test_multiple_checkers(self, robocop_pre_load, msg_0101, msg_0102_0204, capsys):
+        robocop_pre_load.config.list = True
+        init_empty_checker(robocop_pre_load, msg_0102_0204, exclude=True)
+        init_empty_checker(robocop_pre_load, msg_0101)
         with pytest.raises(SystemExit):
-            robocop_instance.list_checkers()
+            robocop_pre_load.list_checkers()
         out, _ = capsys.readouterr()
         exp_msg = (
             'Rule - 0101 [W]: some-message: Some description (enabled)\n',

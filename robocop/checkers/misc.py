@@ -131,3 +131,19 @@ class EqualSignChecker(VisitorChecker):
             if node.assign[-1][-1] == '=':  # last character of last assigned variable
                 equal_position = [x for x in node.data_tokens if x.type == 'ASSIGN'][-1].end_col_offset
                 self.report("redundant-equal-sign", lineno=node.lineno, col=equal_position)
+
+
+class NestedForLoopsChecker(VisitorChecker):
+    """ Checker for not supported nested FOR loops. """
+    rules = {
+        "0905": (
+            "nested-for-loop",
+            "Nested for loops are not supported. You can use keyword with for loop instead",
+            RuleSeverity.ERROR
+        )
+    }
+
+    def visit_ForLoop(self, node):  # noqa
+        for child in node.body:
+            if child.type == 'FOR':
+                self.report("nested-for-loop", node=child)

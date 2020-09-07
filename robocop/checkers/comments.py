@@ -5,10 +5,6 @@ from robocop.checkers import VisitorChecker
 from robocop.rules import RuleSeverity
 
 
-def register(linter):
-    linter.register_checker(CommentChecker(linter))
-
-
 class CommentBaseChecker(VisitorChecker):
     """
     This is base class for comment checkers. Not supposed to be used directly.

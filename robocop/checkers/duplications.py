@@ -7,11 +7,6 @@ from robocop.rules import RuleSeverity
 from robocop.utils import normalize_robot_name
 
 
-def register(linter):
-    linter.register_checker(DuplicationsChecker(linter))
-    pass
-
-
 class DuplicationsChecker(VisitorChecker):
     """ Checker for duplicated names. """
     rules = {
@@ -32,7 +27,7 @@ class DuplicationsChecker(VisitorChecker):
         ),
         "0804": (
             "duplicated-resource",
-            'Multiple resource imports with name "%s" in suite',
+            'Multiple resource imports with path "%s" in suite',
             RuleSeverity.WARNING
         ),
         "0805": (
@@ -44,6 +39,11 @@ class DuplicationsChecker(VisitorChecker):
             "duplicated-metadata",
             'Duplicated metadata "%s" in suite',
             RuleSeverity.WARNING
+        ),
+        "0807": (
+            "duplicated-variables-import",
+            'Duplicated variables import with path "%s" in suite',
+            RuleSeverity.WARNING
         )
     }
 
@@ -54,6 +54,7 @@ class DuplicationsChecker(VisitorChecker):
         self.resources = defaultdict(list)
         self.libraries = defaultdict(list)
         self.metadata = defaultdict(list)
+        self.variable_imports = defaultdict(list)
         super().__init__(*args)
 
     def visit_File(self, node):
@@ -63,6 +64,7 @@ class DuplicationsChecker(VisitorChecker):
         self.resources = defaultdict(list)
         self.libraries = defaultdict(list)
         self.metadata = defaultdict(list)
+        self.variable_imports = defaultdict(list)
         super().visit_File(node)
         self.check_duplicates(self.test_cases, "duplicated-test-case")
         self.check_duplicates(self.keywords, "duplicated-keyword")
@@ -70,6 +72,7 @@ class DuplicationsChecker(VisitorChecker):
         self.check_duplicates(self.resources, "duplicated-resource")
         self.check_duplicates(self.libraries, "duplicated-library")
         self.check_duplicates(self.metadata, "duplicated-metadata")
+        self.check_duplicates(self.variable_imports, "duplicated-variables-import")
 
     def check_duplicates(self, container, rule):
         for name, nodes in container.items():
@@ -89,8 +92,6 @@ class DuplicationsChecker(VisitorChecker):
         self.generic_visit(node)
 
     def visit_Variable(self, node):  # noqa
-        if node.error is not None:
-            return
         var_name = normalize_robot_name(self.replace_chars(node.name, '${}@&'))
         self.variables[var_name].append(node)
 
@@ -99,11 +100,19 @@ class DuplicationsChecker(VisitorChecker):
         return ''.join(c for c in name if c not in chars)
 
     def visit_ResourceImport(self, node):  # noqa
-        self.resources[node.name].append(node)
+        if node.name:
+            self.resources[node.name].append(node)
 
     def visit_LibraryImport(self, node):  # noqa
+        if not node.name:
+            return
         name_with_args = node.name + ''.join(token.value for token in node.data_tokens[2:])
         self.libraries[name_with_args].append(node)
 
     def visit_Metadata(self, node):  # noqa
-        self.metadata[node.name + node.value].append(node)
+        if node.name is not None:
+            self.metadata[node.name + node.value].append(node)
+
+    def visit_VariableImport(self, node): # noqa
+        if node.name:
+            self.variable_imports[node.name].append(node)

@@ -9,11 +9,6 @@ from robocop.rules import RuleSeverity
 from robocop.utils import normalize_robot_name
 
 
-def register(linter):
-    linter.register_checker(ReturnChecker(linter))
-    linter.register_checker(InevenIndentChecker(linter))
-
-
 class ReturnChecker(VisitorChecker):
     """ Checker for [Return] and Return From Keyword violations. """
     rules = {
@@ -142,3 +137,36 @@ class InevenIndentChecker(VisitorChecker):
                 self.report("ineven-indent", 'over' if indent[0] > common_indent else 'under',
                             node=indent[1],
                             col=indent[0] + 1)
+
+
+class EqualSignChecker(VisitorChecker):
+    """ Checker for redundant equal signs when assigning return values. """
+    rules = {
+        "0904": (
+            "redundant-equal-sign",
+            "Redundant equal sign in return value assignment",
+            RuleSeverity.WARNING
+        )
+    }
+
+    def visit_KeywordCall(self, node):  # noqa
+        if node.assign:  # if keyword returns any value
+            if node.assign[-1][-1] == '=':  # last character of last assigned variable
+                equal_position = [x for x in node.data_tokens if x.type == 'ASSIGN'][-1].end_col_offset
+                self.report("redundant-equal-sign", lineno=node.lineno, col=equal_position)
+
+
+class NestedForLoopsChecker(VisitorChecker):
+    """ Checker for not supported nested FOR loops. """
+    rules = {
+        "0905": (
+            "nested-for-loop",
+            "Nested for loops are not supported. You can use keyword with for loop instead",
+            RuleSeverity.ERROR
+        )
+    }
+
+    def visit_ForLoop(self, node):  # noqa
+        for child in node.body:
+            if child.type == 'FOR':
+                self.report("nested-for-loop", node=child)

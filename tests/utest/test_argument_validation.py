@@ -171,7 +171,3 @@ class TestArgumentValidation(unittest.TestCase):
     def test_paths_two_values(self):
         args = self.config.parse_opts(['tests.robot', 'test2.robot'])
         self.assertListEqual(args.paths, ['tests.robot', 'test2.robot'])
-
-
-if __name__ == '__main__':
-    unittest.main()

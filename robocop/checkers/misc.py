@@ -123,7 +123,7 @@ class InevenIndentChecker(VisitorChecker):
 
 
 class NestedForLoopsChecker(VisitorChecker):
-    """ Checker for nested for loops which are not supported. """
+    """ Checker for not supported nested FOR loops. """
     rules = {
         "0904": (
             "nested-for-loop",
@@ -136,4 +136,3 @@ class NestedForLoopsChecker(VisitorChecker):
         for child in node.body:
             if child.type == 'FOR':
                 self.report("nested-for-loop", node=child)
-

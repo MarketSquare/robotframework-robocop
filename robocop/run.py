@@ -41,7 +41,7 @@ class Robocop:
         self.recognize_file_types()
         self.run_checks()
         self.make_reports()
-        if not self.out.closed:
+        if self.config.output and not self.out.closed:
             self.out.close()
         for report in self.reports:
             if report.name == 'return_status':

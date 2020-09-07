@@ -160,7 +160,7 @@ class KeywordNamingChecker(VisitorChecker):
             self.report("not-capitalized-keyword-name", node=node)
 
     def is_variable(self, name):
-        if len(name) < 3:
+        if len(name) < 4:
             return False
         return name[0] in self.variable_identifier and name[1] == '{' and name[-1] == '}'
 

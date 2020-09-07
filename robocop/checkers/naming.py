@@ -8,12 +8,6 @@ from robocop.rules import RuleSeverity
 from robocop.utils import normalize_robot_name
 
 
-def register(linter):
-    linter.register_checker(InvalidCharactersInNameChecker(linter))
-    linter.register_checker(KeywordNamingChecker(linter))
-    linter.register_checker(SettingsNamingChecker(linter))
-
-
 class InvalidCharactersInNameChecker(VisitorChecker):
     """ Checker for invalid characters in suite, test case or keyword name. """
     rules = {
@@ -141,6 +135,8 @@ class KeywordNamingChecker(VisitorChecker):
         return False
 
     def check_keyword_naming(self, keyword_name, node):  # noqa
+        if not keyword_name:
+            return
         if self.is_comment(keyword_name, node):
             return
         if keyword_name == r'/':  # old for loop, / are interpreted as keywords

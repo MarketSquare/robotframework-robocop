@@ -7,13 +7,6 @@ from robocop.rules import RuleSeverity
 from robocop.utils import normalize_robot_name
 
 
-def register(linter):
-    linter.register_checker(LengthChecker(linter))
-    linter.register_checker(LineLengthChecker(linter))
-    linter.register_checker(EmptySectionChecker(linter))
-    linter.register_checker(NumberOfReturnedArgsChecker(linter))
-
-
 class LengthChecker(VisitorChecker):
     """ Checker for max and min length of keyword or test case. It analyses number of lines and also number of
         keyword calls (as you can have just few keywords but very long ones or vice versa).
@@ -218,3 +211,153 @@ class NumberOfReturnedArgsChecker(VisitorChecker):
     def check_node_returns(self, return_count, node):
         if return_count > self.max_returns:
             self.report("number-of-returned-values", return_count, self.max_returns, node=node)
+
+
+class EmptySettingsChecker(VisitorChecker):
+    """ Checker for empty settings. """
+    rules = {
+        "0510": (
+            "empty-metadata",
+            "Metadata settings does not have any value set",
+            RuleSeverity.WARNING
+        ),
+        "0511": (
+            "empty-documentation",
+            "Documentation is empty",
+            RuleSeverity.WARNING
+        ),
+        "0512": (
+            "empty-force-tags",
+            "Force Tags are empty",
+            RuleSeverity.WARNING
+        ),
+        "0513": (
+            "empty-default-tags",
+            "Default Tags are empty",
+            RuleSeverity.WARNING
+        ),
+        "0514": (
+            "empty-variables-import",
+            "Import variables path is empty",
+            RuleSeverity.ERROR
+        ),
+        "0515": (
+            "empty-resource-import",
+            "Import resource path is empty",
+            RuleSeverity.ERROR
+        ),
+        "0516": (
+            "empty-library-import",
+            "Import library path is empty",
+            RuleSeverity.ERROR
+        ),
+        "0517": (
+            "empty-setup",
+            "Setup does not have any keywords",
+            RuleSeverity.ERROR
+        ),
+        "0518": (
+            "empty-suite-setup",
+            "Suite Setup does not have any keywords",
+            RuleSeverity.ERROR
+        ),
+        "0519": (
+            "empty-test-setup",
+            "Test Setup does not have any keywords",
+            RuleSeverity.ERROR
+        ),
+        "0520": (
+            "empty-teardown",
+            "Teardown does not have any keywords",
+            RuleSeverity.ERROR
+        ),
+        "0521": (
+            "empty-suite-teardown",
+            "Suite Teardown does not have any keywords",
+            RuleSeverity.ERROR
+        ),
+        "0522": (
+            "empty-test-teardown",
+            "Test Teardown does not have any keywords",
+            RuleSeverity.ERROR
+        ),
+        "0523": (
+            "empty-timeout",
+            "Timeout is empty",
+            RuleSeverity.WARNING
+        ),
+        "0524": (
+            "empty-test-timeout",
+            "Test Timeout is empty",
+            RuleSeverity.WARNING
+        ),
+        "0525": (
+            "empty-arguments",
+            "Arguments are empty",
+            RuleSeverity.ERROR
+        )
+    }
+
+    def visit_Metadata(self, node):  # noqa
+        if node.name is None:
+            self.report("empty-metadata", node=node, col=node.end_col_offset)
+
+    def visit_Documentation(self, node):  # noqa
+        if not node.value:
+            self.report("empty-documentation", node=node, col=node.end_col_offset)
+
+    def visit_ForceTags(self, node):  # noqa
+        if not node.values:
+            self.report("empty-force-tags", node=node, col=node.end_col_offset)
+
+    def visit_DefaultTags(self, node):  # noqa
+        if not node.values:
+            self.report("empty-default-tags", node=node, col=node.end_col_offset)
+
+    def visit_VariablesImport(self, node):  # noqa
+        if not node.name:
+            self.report("empty-variables-import", node=node, col=node.end_col_offset)
+
+    def visit_ResourceImport(self, node):  # noqa
+        if not node.name:
+            self.report("empty-resource-import", node=node, col=node.end_col_offset)
+
+    def visit_LibraryImport(self, node):  # noqa
+        if not node.name:
+            self.report("empty-library-import", node=node, col=node.end_col_offset)
+
+    def visit_Setup(self, node):  # noqa
+        if not node.name:
+            self.report("empty-setup", node=node, col=node.end_col_offset + 1)
+
+    def visit_SuiteSetup(self, node):  # noqa
+        if not node.name:
+            self.report("empty-suite-setup", node=node, col=node.end_col_offset)
+
+    def visit_TestSetup(self, node):  # noqa
+        if not node.name:
+            self.report("empty-test-setup", node=node, col=node.end_col_offset)
+
+    def visit_Teardown(self, node):  # noqa
+        if not node.name:
+            self.report("empty-teardown", node=node, col=node.end_col_offset + 1)
+
+    def visit_SuiteTeardown(self, node):  # noqa
+        if not node.name:
+            self.report("empty-suite-teardown", node=node, col=node.end_col_offset)
+
+    def visit_TestTeardown(self, node):  # noqa
+        if not node.name:
+            self.report("empty-test-teardown", node=node, col=node.end_col_offset)
+
+    def visit_Timeout(self, node):  # noqa
+        if not node.value:
+            self.report("empty-timeout", node=node, col=node.end_col_offset + 1)
+
+    def visit_TestTimeout(self, node):  # noqa
+        if not node.value:
+            self.report("empty-test-timeout", node=node, col=node.end_col_offset)
+
+    def visit_Arguments(self, node):  # noqa
+        if not node.values:
+            self.report("empty-arguments", node=node, col=node.end_col_offset + 1)

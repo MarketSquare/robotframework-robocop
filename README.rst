@@ -121,9 +121,17 @@ Main features
 
     --ext_rules path/to/your/rules.py -rules supports_many_paths.py
 
-- output redirection to file
-- loading arguments from file
-- configurable scanned filetypes
+- output redirection to file::
+
+    --output robocop.log
+
+- loading arguments from file::
+
+    --argumentfile jenkins_args.txt
+
+- configurable scanned filetypes::
+
+    --filetypes .txt,.rst
 
 Documentation
 -------------

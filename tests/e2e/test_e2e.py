@@ -67,6 +67,22 @@ class TestE2E:
         with pytest.raises(SystemExit):
             robocop_instance.run()
 
+    def test_ignore_file_with_pattern(self, robocop_instance):
+        config = Config()
+        config.parse_opts([
+            '--ignore',
+            '*.robot',
+            '--include',
+            '0502',
+            str(Path(Path(__file__).parent.parent, 'test_data'))
+        ])
+        robocop_instance.config = config
+        robocop_instance.checkers = []
+        robocop_instance.rules = {}
+        robocop_instance.load_checkers()
+        with pytest.raises(SystemExit):
+            robocop_instance.run()
+
     def test_include_one_rule(self, robocop_instance):
         config = Config()
         config.parse_opts([

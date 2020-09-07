@@ -26,7 +26,7 @@ You can configure rule severity and optionally other parameters.
 import ast
 import inspect
 from robocop.rules import Rule
-from robocop.exceptions import DuplicatedRuleError, MissingRegisterMethodCheckerError
+from robocop.exceptions import DuplicatedRuleError
 from robocop.utils import modules_in_current_dir, modules_from_paths
 
 

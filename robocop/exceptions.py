@@ -46,12 +46,6 @@ class InvalidExternalCheckerError(RobocopFatalError):
         super().__init__(msg)
 
 
-class MissingRegisterMethodCheckerError(RobocopFatalError):
-    def __init__(self, module):
-        msg = f"Fatal error: Tried to load rule file {module} but register method was missing"
-        super().__init__(msg)
-
-
 class FileError(RobocopFatalError):
     def __init__(self, source):
         msg = f"File {source} does not exist"

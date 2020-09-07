@@ -197,7 +197,7 @@ class SettingsNamingChecker(VisitorChecker):
     }
 
     def __init__(self, *args):
-        self.section_name_pattern = re.compile(r'\*\*\*\s\w+\s\*\*\*')
+        self.section_name_pattern = re.compile(r'\*\*\*\s.+\s\*\*\*')
         super().__init__(*args)
 
     def visit_SettingSectionHeader(self, node):  # noqa

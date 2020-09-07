@@ -25,3 +25,30 @@ variAbles  variables.py
 
 
 *** keyWord ***
+
+
+*** Test Cases ***
+Test
+    Keyword
+    Keyword
+
+
+*** Keywords ***
+Keyword
+    No Operation
+    No Operation
+
+
+*** Test Cases ***
+Test
+    Keyword
+    Keyword
+
+
+*** Settings ***
+Suite Setup  Keyword
+
+*** Keywords ***
+Keyword
+    No Operation
+    No Operation

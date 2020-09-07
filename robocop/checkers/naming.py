@@ -82,7 +82,7 @@ class KeywordNamingChecker(VisitorChecker):
         "0305": (
             "invalid-comment",
             "Invalid comment. '#' needs to be first character in the cell. "
-            "For block comments you can use *** Comments *** section",
+            "For block comments you can use '*** Comments ***' section",
             RuleSeverity.ERROR
         )
     }

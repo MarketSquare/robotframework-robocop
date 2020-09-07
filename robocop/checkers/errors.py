@@ -6,11 +6,6 @@ from robocop.checkers import VisitorChecker
 from robocop.rules import RuleSeverity
 
 
-def register(linter):
-    linter.register_checker(ParsingErrorChecker(linter))
-    linter.register_checker(TwoSpacesAfterSettingsChecker(linter))
-
-
 class ParsingErrorChecker(VisitorChecker):
     """ Checker that returns Robot Framework DataErrors as lint errors. """
     rules = {

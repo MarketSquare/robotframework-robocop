@@ -2,15 +2,11 @@ from robocop.checkers import VisitorChecker
 from robocop.rules import RuleSeverity
 
 
-def register(linter):
-    linter.register_checker(SmthChecker(linter))
-
-
 class SmthChecker(VisitorChecker):
     """ Checker for keyword calls after [Return] statement. """
     rules = {
-        "1102": (
-            "smth2",
+        "1101": (
+            "smth",
             "Keyword call after [Return] statement",
             RuleSeverity.ERROR
         )

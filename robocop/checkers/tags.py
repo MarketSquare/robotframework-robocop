@@ -6,11 +6,6 @@ from robocop.checkers import VisitorChecker
 from robocop.rules import RuleSeverity
 
 
-def register(linter):
-    linter.register_checker(TagNameChecker(linter))
-    linter.register_checker(TagScopeChecker(linter))
-
-
 class TagNameChecker(VisitorChecker):
     """ Checker for tags names. It scans for tags with spaces or Robot Framework reserved words. """
     rules = {

@@ -6,11 +6,6 @@ from robocop.checkers import VisitorChecker
 from robocop.rules import RuleSeverity
 
 
-def register(linter):
-    linter.register_checker(InvalidCharactersInNameChecker(linter))
-    linter.register_checker(CapitalizedNamesChecker(linter))
-
-
 class InvalidCharactersInNameChecker(VisitorChecker):
     """ Checker for invalid characters in suite, test case or keyword name. """
     rules = {
@@ -98,7 +93,7 @@ class CapitalizedNamesChecker(VisitorChecker):
         self.check_if_keyword_is_capitalized(node.keyword, node)
 
     def check_if_keyword_is_capitalized(self, keyword_name, node):  # noqa
-        if keyword_name == r'/':  # old for loop, / are interpreted as keywords
+        if not keyword_name or keyword_name == r'/':  # old for loop, / are interpreted as keywords
             return
         words = keyword_name.replace('_', ' ').split(' ')
         if any(not word.istitle() for word in words):

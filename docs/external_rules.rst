@@ -14,21 +14,14 @@ Every custom checker (with definied rules) need to complete following requiremen
 1. It needs to inherit from official checker classes (VisitorChecker or RawFileChecker) and implements required methods.
 Refer to :ref:`checkers` for more details.
 
-2. File with checker should define `register` method where linter is called with instance of your checker::
+2. It should contain non-empty 'rules' class attribute of type dict.
 
-    def register(linter):
-      linter.register_checker(YourChecker(linter))
-      linter.register_checker(YourChecker2(linter))
 3. It shouldn't reuse rules ids or names from official rules.
 
 This is an example of a file with custom checker that asserts that no test have "Dummy" in the name::
 
     from robocop.checkers import VisitorChecker
     from robocop.messages import MessageSeverity
-
-
-    def register(linter):
-        linter.register_checker(NoDummiesChecker(linter))
 
 
     class NoDummiesChecker(VisitorChecker):
@@ -43,3 +36,32 @@ This is an example of a file with custom checker that asserts that no test have 
     def visit_TestCaseName(self, node):
         if 'Dummy' in node.name:
             self.report("dummy-in-name", node=node, col=node.name.find('Dummy'))
+
+Rules can have configurable values. You need to specify them in rule body after rule severity::
+
+    from robocop.checkers import VisitorChecker
+    from robocop.messages import MessageSeverity
+
+
+    class NoDummiesChecker(VisitorChecker):
+         rules = {
+            "999": (
+                "dummy-in-name",
+                "There is dummy in test case name",
+                MessageSeverity.WARNING,
+                ("public_name", "private_name", int)
+            )
+        }
+
+    def __init__(self, *args):
+        self.private_name = 100
+        super().__init__(*args)
+
+    def visit_TestCaseName(self, node):
+        if 'Dummy' in node.name and node.value > self.private_name:
+            self.report("dummy-in-name", node=node, col=node.name.find('Dummy'))
+
+
+Configurable param can be referred by its "public_name" in command line options::
+
+    robocop --configure dummy-in-name:public_name:50

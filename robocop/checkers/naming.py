@@ -179,7 +179,7 @@ class KeywordNamingChecker(VisitorChecker):
     @staticmethod
     def prepare_reserved_word_rule_message(name, reserved_type):
         return f". It must be in uppercase ({name.upper()}) when used as a marker with '{reserved_type}'. " \
-               f"Each marker should have minimum of 2 spaces as seperator." if reserved_type else ''
+               f"Each marker should have minimum of 2 spaces as separator." if reserved_type else ''
 
 
 class SettingsNamingChecker(VisitorChecker):

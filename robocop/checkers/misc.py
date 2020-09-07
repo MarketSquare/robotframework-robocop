@@ -20,7 +20,7 @@ class ReturnChecker(VisitorChecker):
         ),
         "0902": (
             "keyword-after-return-from",
-            "Keyword call after Return From Keyword keyword",
+            "Keyword call after 'Return From Keyword' keyword",
             RuleSeverity.ERROR
         ),
         "0903": (

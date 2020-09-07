@@ -28,6 +28,10 @@ Test With Invalid Char.
 This Is Quite Long Line Which Is Veeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeery Long
     Log                                                                                                                         Late argument
 
+ # test comment
+  # test comment
+
+
 *** Keywords ***
 My Internal Keyword
     [Documentation]  This is doc
@@ -45,3 +49,6 @@ Keyword With Invalid Char?
 
 Keyword With Reserved Tags
     [Tags]  tagORtag  tagorand  andsmth  with space or reserved  robot:no-dry-run  robot:my_tag
+
+ # test comment
+  # test comment

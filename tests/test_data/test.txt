@@ -13,7 +13,7 @@ Missing Keyword Documentation
     Log  1
 
 *** Tasks ***
-Process Invoice
+Process Invoice.
     [Tags]  one
     Read Information From PDF
     Validate Information

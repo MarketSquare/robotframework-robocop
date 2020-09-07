@@ -12,6 +12,9 @@ Metadata  This is some metadata
 ...       over more than one line
 Metadata  This is some metadata
 Metadata  ${var}
+Variables  file.robot
+Variables  file2.robot
+Variables  file.robot
 Metadata  ${var}
 
 *** Variables ***
@@ -20,6 +23,7 @@ ${var}  smth2
 
 ${var1}  1
 @{var}  a  b
+^{var}  3
 
 
 *** Test Cases ***

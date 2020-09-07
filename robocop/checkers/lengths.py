@@ -7,14 +7,6 @@ from robocop.rules import RuleSeverity
 from robocop.utils import normalize_robot_name
 
 
-def register(linter):
-    linter.register_checker(LengthChecker(linter))
-    linter.register_checker(LineLengthChecker(linter))
-    linter.register_checker(EmptySectionChecker(linter))
-    linter.register_checker(NumberOfReturnedArgsChecker(linter))
-    linter.register_checker(EmptySettingsChecker(linter))
-
-
 class LengthChecker(VisitorChecker):
     """ Checker for max and min length of keyword or test case. It analyses number of lines and also number of
         keyword calls (as you can have just few keywords but very long ones or vice versa).

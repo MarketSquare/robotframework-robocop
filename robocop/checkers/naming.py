@@ -6,11 +6,6 @@ from robocop.checkers import VisitorChecker
 from robocop.rules import RuleSeverity
 
 
-def register(linter):
-    linter.register_checker(InvalidCharactersInNameChecker(linter))
-    linter.register_checker(CapitalizedNamesChecker(linter))
-
-
 class InvalidCharactersInNameChecker(VisitorChecker):
     """ Checker for invalid characters in suite, test case or keyword name. """
     rules = {

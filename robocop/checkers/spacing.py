@@ -7,11 +7,6 @@ from robocop.checkers import RawFileChecker, VisitorChecker
 from robocop.rules import RuleSeverity
 
 
-def register(linter):
-    linter.register_checker(InvalidSpacingChecker(linter))
-    linter.register_checker(MissingTrailingBlankLineChecker(linter))
-
-
 class InvalidSpacingChecker(RawFileChecker):
     """ Checker for invalid spacing. """
     rules = {

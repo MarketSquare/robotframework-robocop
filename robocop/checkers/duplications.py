@@ -75,7 +75,7 @@ class DuplicationsChecker(VisitorChecker):
         self.check_duplicates(self.variable_imports, "duplicated-variables-import")
 
     def check_duplicates(self, container, rule):
-        for name, nodes in container.items():
+        for nodes in container.values():
             if len(nodes) == 1:
                 continue
             for duplicate in nodes:

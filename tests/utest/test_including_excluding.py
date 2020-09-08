@@ -4,8 +4,8 @@ from robocop.rules import RuleSeverity, Rule
 
 
 def get_message_with_id(rule_id):
-    for c in RuleSeverity:
-        rule_id = rule_id.replace(c.value, '')
+    for char in RuleSeverity:
+        rule_id = rule_id.replace(char.value, '')
     msg = (
         f"some-message-{rule_id}",
         "Some description",

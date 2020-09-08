@@ -118,8 +118,7 @@ class KeywordNamingChecker(VisitorChecker):
     def visit_TestCase(self, node):  # noqa
         if self.is_comment(node.name, node):
             return
-        else:
-            self.generic_visit(node)
+        self.generic_visit(node)
 
     def visit_Keyword(self, node):  # noqa
         self.check_keyword_naming(node.name, node)

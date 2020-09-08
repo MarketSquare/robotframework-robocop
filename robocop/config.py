@@ -120,10 +120,11 @@ class Config:
                 parsed_args.append(arg)
         return parsed_args
 
-    def load_args_from_file(self, argfile):
+    @staticmethod
+    def load_args_from_file(argfile):
         try:
-            with open(argfile) as f:
-                args = [arg for line in f for arg in line.split()]
+            with open(argfile) as arg_f:
+                args = [arg for line in arg_f for arg in line.split()]
                 if '-A' in args or '--argumentfile' in args:
                     raise NestedArgumentFileError(argfile)
                 return args
@@ -213,6 +214,6 @@ class Config:
     def replace_severity_values(message):
         sev = ''.join(c.value for c in RuleSeverity)
         if re.match(f"[{sev}][0-9]{{4,}}", message):
-            for c in sev:
-                message = message.replace(c, '')
+            for char in sev:
+                message = message.replace(char, '')
         return message

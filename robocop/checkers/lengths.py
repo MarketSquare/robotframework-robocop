@@ -1,7 +1,7 @@
 """
 Lengths checkers
 """
-from robot.parsing.model.statements import KeywordCall, Comment, EmptyLine
+from robot.parsing.model.statements import KeywordCall, Comment, EmptyLine, Arguments
 from robocop.checkers import VisitorChecker, RawFileChecker
 from robocop.rules import RuleSeverity
 from robocop.utils import normalize_robot_name
@@ -47,6 +47,12 @@ class LengthChecker(VisitorChecker):
             "File has too many lines (%d/%d)",
             RuleSeverity.WARNING,
             ('max_lines', 'file_max_lines', int)
+        ),
+        "0526": (
+            "too-many-arguments",
+            "Keyword has too many arguments (%d/%d). Reduce number of arguments or split them into separate lines",
+            RuleSeverity.WARNING,
+            ('max_args', 'keyword_max_args', int)
         )
     }
 
@@ -57,6 +63,7 @@ class LengthChecker(VisitorChecker):
         self.keyword_min_calls = 2
         self.testcase_max_calls = 8
         self.file_max_lines = 400
+        self.keyword_max_args = 5
         super().__init__(*args)
 
     def visit_File(self, node):
@@ -71,6 +78,15 @@ class LengthChecker(VisitorChecker):
     def visit_Keyword(self, node):  # noqa
         if node.name.lstrip().startswith('#'):
             return
+        for child in node.body:
+            if isinstance(child, Arguments):
+                args_number = len(child.values)
+                if args_number > self.keyword_max_args:
+                    self.report("too-many-arguments",
+                                args_number,
+                                self.keyword_max_args,
+                                node=node)
+                break
         length = LengthChecker.check_node_length(node)
         if length > self.keyword_max_len:
             self.report("too-long-keyword",

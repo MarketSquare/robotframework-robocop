@@ -71,6 +71,9 @@ class Rule:
         return f'Rule - {self.rule_id} [{self.severity.value}]: {self.name}: {self.desc} ' \
                f'({"enabled" if self.enabled else "disabled"})'
 
+    def __lt__(self, other):
+        return (self.line, self.col, self.rule_id) < (other.line, other.col, other.rule_id)
+
     def change_severity(self, value):
         severity = {
             'error': 'E',

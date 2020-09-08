@@ -78,6 +78,11 @@ class KeywordNamingChecker(VisitorChecker):
             "Invalid comment. '#' needs to be first character in the cell. "
             "For block comments you can use '*** Comments ***' section",
             RuleSeverity.ERROR
+        ),
+        "0306": (
+            "underscore-in-keyword-name",
+            "Underscores in keyword name can be replaced with spaces",
+            RuleSeverity.WARNING
         )
     }
     reserved_words = {
@@ -143,6 +148,8 @@ class KeywordNamingChecker(VisitorChecker):
         if keyword_name.startswith('...'):
             self.report("not-enough-whitespace-after-newline-marker", node=node)
             return
+        if '_' in keyword_name:
+            self.report("underscore-in-keyword-name", node=node)
         if normalize_robot_name(keyword_name) == 'runkeywordif':
             for token in node.data_tokens:
                 if (token.value.lower() in self.else_if) and not token.value.isupper():
@@ -179,12 +186,12 @@ class KeywordNamingChecker(VisitorChecker):
 
 class SettingsNamingChecker(VisitorChecker):
     rules = {
-        "0306": (
+        "0307": (
             "setting-name-not-capitalized",
             "Setting name should be capitalized or upper case",
             RuleSeverity.WARNING
         ),
-        "0307": (
+        "0308": (
             "section-name-invalid",
             "Section name should should be in format '*** Capitalized ***' or '*** UPPERCASE ***'",
             RuleSeverity.WARNING

@@ -191,7 +191,7 @@ class Robocop:
                     configurable = msg.get_configurable(param)
                     if configurable is None:
                         raise robocop.exceptions.ConfigGeneralError(
-                            f"Provided param '{param}' for rule '{rule_or_report}' does not exists")
+                            f"Provided param '{param}' for rule '{rule_or_report}' does not exist")
                     checker.configure(configurable[1], configurable[2](value))
             elif any(rule_or_report == report.name for report in self.reports):
                 for report in self.reports:
@@ -199,7 +199,7 @@ class Robocop:
                         report.configure(param, value, *values)
             else:
                 raise robocop.exceptions.ConfigGeneralError(
-                    f"Provided rule or report '{rule_or_report}' does not exists")
+                    f"Provided rule or report '{rule_or_report}' does not exist")
 
 
 def run_robocop():

@@ -35,13 +35,13 @@ from robocop.utils import modules_in_current_dir, modules_from_paths
 class BaseChecker:
     rules = None
 
-    def __init__(self, linter, configurable=None):
-        self.linter = linter
+    def __init__(self, configurable=None):
         self.disabled = False
         self.source = None
         self.rules_map = {}
         self.configurable = set() if configurable is None else configurable
         self.register_rules(self.rules)
+        self.issues = []
 
     def register_rules(self, rules):
         for key, value in rules.items():
@@ -54,7 +54,7 @@ class BaseChecker:
         if rule not in self.rules_map:
             raise ValueError(f"Missing definition for message with name {rule}")
         message = self.rules_map[rule].prepare_message(*args, source=self.source, node=node, lineno=lineno, col=col)
-        self.linter.report(message)
+        self.issues.append(message)
 
     def configure(self, param, value):
         self.__dict__[param] = value

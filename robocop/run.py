@@ -73,6 +73,7 @@ class Robocop:
 
     def run_checks(self):
         for file in self.files:
+            found_issues = []
             self.register_disablers(file)
             if self.disabler.file_disabled:
                 continue
@@ -82,6 +83,11 @@ class Robocop:
                     continue
                 checker.source = str(file)
                 checker.scan_file(model)
+                found_issues += checker.issues
+                checker.issues.clear()
+            found_issues.sort(key=lambda x: (x.line, x.col, x.rule_id))
+            for issue in found_issues:
+                self.report(issue)
 
     def register_disablers(self, file):
         """ Parse content of file to find any disabler statements like # robocop: disable=rulename """

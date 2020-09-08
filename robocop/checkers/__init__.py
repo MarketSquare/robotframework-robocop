@@ -14,14 +14,16 @@ Checkers are categorized into following groups:
  * 08: duplications
  * 09: misc
  * 10: spacing
+ * 11-50: not yet used: reserved for future internal checkers
+ * 51-99: reserved for external checkers
 
-Checker have two basic types ``VisitorChecker`` uses Robot Framework parsing api and
-use Python ast module for traversing Robot code as nodes. ``RawFileChecker`` simply reads Robot file as normal file
-and scan every line.
+Checker has two basic types:
+- ``VisitorChecker`` uses Robot Framework parsing api and Python `ast` module for traversing Robot code as nodes
+- ``RawFileChecker`` simply reads Robot file as normal file and scans every line
 
-Every rule have unique id (group id + rule id) and rule name and both can be use
-to refer to rule (in include/exclude statements, configurations etc).
-You can configure rule severity and optionally other parameters.
+Every rule has a `unique id` made of 4 digits where first 2 are `checker id` while 2 latter are `rule id`.
+`Unique id` as well as `rule name` can be used to refer to the rule (e.g. in include/exclude statements,
+configurations etc.) You can optionally configure rule severity or other parameters.
 """
 import ast
 import inspect

@@ -4,7 +4,7 @@ Including  and excluding rules
 ==============================
 
 You can include or exclude particular rules using rule name or id.
-Rules are matched in similar way how Robot Framework include/exclude arguments.
+Rules are matched in similar way how Robot Framework :code:`include/exclude` arguments.
 
 Described examples::
 
@@ -21,9 +21,9 @@ Robocop supports glob patterns::
 
     robocop --include *doc* test.robot
 
-All rules will be ignored except those with doc in its name (like ``missing-doc-keyword``, ``too-long-doc`` etc).
+All rules will be ignored except those with 'doc' in its name (like ``missing-doc-keyword``, ``too-long-doc`` etc).
 
-You can provide list of rules in comma separated format or repeat the argument::
+You can provide list of rules in comma-separated format or repeat the argument::
 
     robocop --include rule1,rule2,rule3 --exclude rule2  --exclude rule1 test.robot
 
@@ -34,7 +34,7 @@ You can also use short names of options::
 Ignore rule from source code
 ----------------------------
 
-Rules can be also disabled directly from Robot Framework code. It is similar to how # noqa comment works for
+Rules can be also disabled directly from Robot Framework code. It is similar to how :code:`# noqa` comment works for
 most linters.
 It is possible to disable rule for particular line or lines::
 
@@ -46,7 +46,7 @@ You can disable all rules with::
 
     Some Keyword  # robocop: disable
 
-When used in new line without any indent it will start ignore block::
+When used in new line without any indent it will start ignoring whole block::
 
     # robocop: disable=rule1
 

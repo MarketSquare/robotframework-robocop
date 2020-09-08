@@ -21,7 +21,7 @@ Checker has two basic types:
 - ``VisitorChecker`` uses Robot Framework parsing api and Python `ast` module for traversing Robot code as nodes
 - ``RawFileChecker`` simply reads Robot file as normal file and scans every line
 
-Every rule has a `unique id` made of 4 digits where first 2 are `checker id` while 2 latter are `rule id`.
+Every rule has a `unique id` made of 4 digits where first 2 are `group id` while 2 latter are `rule id`.
 `Unique id` as well as `rule name` can be used to refer to the rule (e.g. in include/exclude statements,
 configurations etc.) You can optionally configure rule severity or other parameters.
 """

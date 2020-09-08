@@ -49,6 +49,6 @@ Test
 Suite Setup  Keyword
 
 *** Keywords ***
-Keyword
+keyword
     No Operation
     No Operation

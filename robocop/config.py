@@ -1,13 +1,12 @@
-import os
 import argparse
-import re
 import fnmatch
-from pathlib import Path
+import os
+import re
 import sys
 
-from robocop.version import __version__
-from robocop.rules import RuleSeverity
 from robocop.exceptions import ArgumentFileNotFoundError, NestedArgumentFileError
+from robocop.rules import RuleSeverity
+from robocop.version import __version__
 
 
 class ParseDelimitedArgAction(argparse.Action):  # pylint: disable=too-few-public-methods

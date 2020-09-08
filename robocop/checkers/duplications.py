@@ -128,7 +128,7 @@ class DuplicatedOrOutOfOrderSectionChecker(VisitorChecker):
         ),
         "0809": (
             "section-out-of-order",
-            "'%s' section header is defined in wrong order: Settings > Variable(s) > Test Case(s) / Task(s) > Keywords(s)",
+            "'%s' section header is defined in wrong order: Setting(s) > Variable(s) > Test Case(s) / Task(s) > Keyword(s)",
             RuleSeverity.WARNING
         ),
         "0810": (

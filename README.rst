@@ -133,6 +133,10 @@ Main features
 
     --filetypes .txt,.rst
 
+- paths matching pattern can be ignored::
+
+    --ignore *.robot,resources/* --ignore special_file.txt
+
 Documentation
 -------------
 

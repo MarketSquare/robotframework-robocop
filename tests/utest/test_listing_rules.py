@@ -3,7 +3,7 @@ import pytest
 from robocop.checkers import VisitorChecker
 from robocop.rules import RuleSeverity
 
-        
+
 class EmptyChecker(VisitorChecker):
     rules = {}
     pass

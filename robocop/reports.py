@@ -110,9 +110,9 @@ class ReturnStatusReport(Report):
         if name != 'quality_gate':
             super().configure(name, value, *values)
         values = [value] + list(values)
-        for value in values:
+        for val in values:
             try:
-                name, count = value.split('=', maxsplit=1)
+                name, count = val.split('=', maxsplit=1)
                 if name in self.quality_gate:
                     self.quality_gate[name] = int(count)
             except ValueError:

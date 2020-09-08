@@ -1,7 +1,7 @@
 """
 Lengths checkers
 """
-from robot.parsing.model.statements import KeywordCall, Comment, EmptyLine, Return
+from robot.parsing.model.statements import KeywordCall, Comment, EmptyLine
 from robocop.checkers import VisitorChecker, RawFileChecker
 from robocop.rules import RuleSeverity
 from robocop.utils import normalize_robot_name
@@ -198,7 +198,7 @@ class NumberOfReturnedArgsChecker(VisitorChecker):
     def visit_ForLoop(self, node):  # noqa
         self.generic_visit(node)
 
-    def visit_Return(self, node):
+    def visit_Return(self, node):  # noqa
         self.check_node_returns(len(node.values), node)
 
     def visit_KeywordCall(self, node):  # noqa

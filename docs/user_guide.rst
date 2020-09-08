@@ -16,6 +16,12 @@ Including or excluding rules
 Rules can be included or excluded from command line. It is also possible to disable rule(s) from Robot Framework
 source code. More in :ref:`including-rules`.
 
+Ignoring file
+-------------
+Path matching glob pattern can be ignored (or 'skipped' during scan). You can pass list of patterns::
+
+    robocop --ignore *.robot,resources/* --ignore special_file.txt
+
 Format output message
 ---------------------
 
@@ -33,7 +39,6 @@ Save output to file
 You can redirect output of Robocop to a file by using pipes (``>`` in unix) or by ``-o`` / ``--output`` argument::
 
   robocop --output robocop.log
-
 
 
 Generating reports

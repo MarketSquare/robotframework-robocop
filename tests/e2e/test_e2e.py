@@ -1,8 +1,6 @@
 """ General E2E tests to catch any general issue in robocop """
-import os
 from pathlib import Path
 import pytest
-import robocop.checkers
 from robocop.exceptions import FileError, ArgumentFileNotFoundError, NestedArgumentFileError, ConfigGeneralError
 from robocop.run import Robocop
 from robocop.config import Config
@@ -58,6 +56,22 @@ class TestE2E:
         config.parse_opts([
             '--exclude',
             '*',
+            str(Path(Path(__file__).parent.parent, 'test_data'))
+        ])
+        robocop_instance.config = config
+        robocop_instance.checkers = []
+        robocop_instance.rules = {}
+        robocop_instance.load_checkers()
+        with pytest.raises(SystemExit):
+            robocop_instance.run()
+
+    def test_ignore_file_with_pattern(self, robocop_instance):
+        config = Config()
+        config.parse_opts([
+            '--ignore',
+            '*.robot',
+            '--include',
+            '0502',
             str(Path(Path(__file__).parent.parent, 'test_data'))
         ])
         robocop_instance.config = config
@@ -180,7 +194,7 @@ class TestE2E:
         robocop_instance.config = config
         with pytest.raises(ConfigGeneralError) as err:
             robocop_instance.configure_checkers_or_reports()
-        assert "Provided param 'smth' for report 'return_status' does not exists"
+        assert "Provided param 'smth' for report 'return_status' does not exists" in str(err)
 
     def test_use_argument_file(self, robocop_instance):
         config = Config()
@@ -209,7 +223,7 @@ class TestE2E:
         with pytest.raises(NestedArgumentFileError) as err:
             config.parse_opts(['-A', nested_args_path,
                                str(Path(Path(__file__).parent.parent, 'test_data'))])
-        assert f'Nested argument file in ' in str(err)
+        assert 'Nested argument file in ' in str(err)
 
     def test_set_rule_threshold(self, robocop_instance):
         config = Config()

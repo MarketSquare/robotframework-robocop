@@ -6,11 +6,12 @@ def get_severity_enum(value):
     for sev in RuleSeverity:
         if sev.value == value:
             return sev
+    return RuleSeverity.INFO
 
 
 def get_message_with_id_sev(rule_id, sev):
-    for c in RuleSeverity:
-        rule_id = rule_id.replace(c.value, '')
+    for char in RuleSeverity:
+        rule_id = rule_id.replace(char.value, '')
     sev = get_severity_enum(sev)
     msg = (
         f"some-message-{rule_id}",

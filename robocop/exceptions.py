@@ -1,6 +1,3 @@
-import sys
-
-
 class RobocopFatalError(ValueError):
     pass
 

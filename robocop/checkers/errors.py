@@ -40,4 +40,9 @@ class TwoSpacesAfterSettingsChecker(VisitorChecker):
         if not match:
             return
         if match.group(1).lower() in self.headers:
-            self.report("missing-whitespace-after-setting", match.group(0), node=node)
+            self.report(
+                "missing-whitespace-after-setting",
+                match.group(0),
+                node=node,
+                col=node.data_tokens[0].col_offset + 1
+            )

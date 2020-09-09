@@ -74,12 +74,6 @@ class KeywordNamingChecker(VisitorChecker):
             RuleSeverity.ERROR
         ),
         "0305": (
-            "invalid-comment",
-            "Invalid comment. '#' needs to be first character in the cell. "
-            "For block comments you can use '*** Comments ***' section",
-            RuleSeverity.ERROR
-        ),
-        "0306": (
             "underscore-in-keyword-name",
             "Underscores in keyword name can be replaced with spaces",
             RuleSeverity.WARNING
@@ -121,8 +115,6 @@ class KeywordNamingChecker(VisitorChecker):
         self.check_keyword_naming(node.name, node)
 
     def visit_TestCase(self, node):  # noqa
-        if self.is_comment(node.name, node):
-            return
         self.generic_visit(node)
 
     def visit_Keyword(self, node):  # noqa
@@ -132,16 +124,8 @@ class KeywordNamingChecker(VisitorChecker):
     def visit_KeywordCall(self, node):  # noqa
         self.check_keyword_naming(node.keyword, node)
 
-    def is_comment(self, name, node):
-        if name.lstrip().startswith('#'):
-            self.report("invalid-comment", node=node)
-            return True
-        return False
-
     def check_keyword_naming(self, keyword_name, node):  # noqa
-        if not keyword_name:
-            return
-        if self.is_comment(keyword_name, node):
+        if not keyword_name or keyword_name.lstrip().startswith('#'):
             return
         if keyword_name == r'/':  # old for loop, / are interpreted as keywords
             return
@@ -186,12 +170,12 @@ class KeywordNamingChecker(VisitorChecker):
 
 class SettingsNamingChecker(VisitorChecker):
     rules = {
-        "0307": (
+        "0306": (
             "setting-name-not-capitalized",
             "Setting name should be capitalized or upper case",
             RuleSeverity.WARNING
         ),
-        "0308": (
+        "0307": (
             "section-name-invalid",
             "Section name should should be in format '*** Capitalized ***' or '*** UPPERCASE ***'",
             RuleSeverity.WARNING

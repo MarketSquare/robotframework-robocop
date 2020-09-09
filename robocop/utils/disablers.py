@@ -68,6 +68,9 @@ class DisablersFinder:
                 self.any_disabler = len(self.rules) != 0
         except OSError:
             raise robocop.exceptions.FileError(source)
+        except UnicodeDecodeError:
+            print(f"Failed to decode {file}. Default supported encoding by Robot Framework is UTF-8. Skipping file")
+            self.file_disabled = True
 
     def _parse_line(self, line, lineno):
         statement, comment = line.split('#', maxsplit=1)

@@ -19,7 +19,6 @@ Available formats:
   * desc: description of rule
 """
 from enum import Enum
-from copy import deepcopy
 from functools import total_ordering
 import robocop.exceptions
 
@@ -71,9 +70,6 @@ class Rule:
         return f'Rule - {self.rule_id} [{self.severity.value}]: {self.name}: {self.desc} ' \
                f'({"enabled" if self.enabled else "disabled"})'
 
-    def __lt__(self, other):
-        return (self.line, self.col, self.rule_id) < (other.line, other.col, other.rule_id)
-
     def change_severity(self, value):
         severity = {
             'error': 'E',
@@ -86,9 +82,6 @@ class Rule:
         if severity is None:
             raise robocop.exceptions.InvalidRuleSeverityError(self.name, value)
         self.severity = RuleSeverity(severity)
-
-    def get_fullname(self):
-        return f"{self.severity.value}{self.rule_id} ({self.name})"
 
     def get_configurable(self, param):
         for configurable in self.configurable:
@@ -106,16 +99,30 @@ class Rule:
                 raise robocop.exceptions.InvalidRuleConfigurableError(self.rule_id, body)
 
     def prepare_message(self, *args, source, node, lineno, col):
-        message = deepcopy(self)
+        return Message(*args, rule=self, source=source, node=node, lineno=lineno, col=col)
+
+
+class Message:
+    def __init__(self, *args, rule, source, node, lineno, col):
+        self.enabled = rule.enabled
+        self.rule_id = rule.rule_id
+        self.name = rule.name
+        self.severity = rule.severity
+        self.desc = rule.desc
         try:
-            message.desc %= args
+            self.desc %= args
         except TypeError as err:
-            raise robocop.exceptions.InvalidRuleUsageError(self.rule_id, err)
-        message.source = source
+            raise robocop.exceptions.InvalidRuleUsageError(rule.rule_id, err)
+        self.source = source
         if lineno is None and node is not None:
             lineno = node.lineno if node.lineno > -1 else 0
-        message.line = lineno
+        self.line = lineno
         if col is None:
             col = 0
-        message.col = col
-        return message
+        self.col = col
+
+    def __lt__(self, other):
+        return (self.line, self.col, self.rule_id) < (other.line, other.col, other.rule_id)
+
+    def get_fullname(self):
+        return f"{self.severity.value}{self.rule_id} ({self.name})"

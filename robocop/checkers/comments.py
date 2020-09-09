@@ -6,7 +6,7 @@ from robocop.rules import RuleSeverity
 
 
 class CommentChecker(VisitorChecker):
-    """ Checker for content of comments. It detects invalid comments or if you have leftover todo or fixme in code. """
+    """ Checker for content of comments. It detects invalid comments or leftover todo or fixme in code. """
     rules = {
         "0701": (
             "todo-in-comment",

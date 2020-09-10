@@ -84,7 +84,8 @@ class Config:
         'help_argfile':     'Path to file with arguments',
         'help_ignore':      'Ignore file(s) and path(s) provided. Glob patterns are supported',
         'help_info':        'Print this help message and exit',
-        'help_version':     'Display Robocop version'
+        'help_version':     'Display Robocop version',
+        'directives':       '1. Serve the public trust\n2. Protect the innocent\n3. Uphold the law'
     }
 
     @staticmethod
@@ -171,6 +172,8 @@ class Config:
         optional.add_argument('-h', '--help', action='help', help=self.HELP_MSGS['help_info'])
         optional.add_argument('-v', '--version', action='version', version=__version__,
                               help=self.HELP_MSGS['help_version'])
+        optional.add_argument('--directives', action='version', version=self.HELP_MSGS['directives'])
+
         return parser
 
     def parse_opts(self, args=None):

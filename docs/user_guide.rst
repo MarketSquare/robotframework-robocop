@@ -48,6 +48,10 @@ You can generate reports after run. Available reports are described in :ref:`rep
 Return status
 -------------
 
+::
+
+    Come quietly or there will be... trouble. — Robocop
+
 Return status of Robocop depends on number of issues reported per given severity level. Default levels are following::
 
   quality_gate = {

@@ -147,5 +147,9 @@ Documentation
 
 Full documentation available `here <https://robocop.readthedocs.io>`_.
 
+::
+
+    Excuse me, I have to go. Somewhere there is a crime happening. – Robocop
+
 .. |Unit tests| image:: https://github.com/bhirsz/robotframework-robocop/workflows/Unit%20tests/badge.svg?branch=master
    :target: https://github.com/bhirsz/robotframework-robocop/actions?query=workflow%3A%22Unit+tests%22

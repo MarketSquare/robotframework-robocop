@@ -14,14 +14,16 @@ Checkers are categorized into following groups:
  * 08: duplications
  * 09: misc
  * 10: spacing
+ * 11-50: not yet used: reserved for future internal checkers
+ * 51-99: reserved for external checkers
 
-Checker have two basic types ``VisitorChecker`` uses Robot Framework parsing api and
-use Python ast module for traversing Robot code as nodes. ``RawFileChecker`` simply reads Robot file as normal file
-and scan every line.
+Checker has two basic types:
+- ``VisitorChecker`` uses Robot Framework parsing api and Python `ast` module for traversing Robot code as nodes
+- ``RawFileChecker`` simply reads Robot file as normal file and scans every line
 
-Every rule have unique id (group id + rule id) and rule name and both can be use
-to refer to rule (in include/exclude statements, configurations etc).
-You can configure rule severity and optionally other parameters.
+Every rule has a `unique id` made of 4 digits where first 2 are `group id` while 2 latter are `rule id`.
+`Unique id` as well as `rule name` can be used to refer to the rule (e.g. in include/exclude statements,
+configurations etc.) You can optionally configure rule severity or other parameters.
 """
 import ast
 import inspect
@@ -33,13 +35,13 @@ from robocop.utils import modules_in_current_dir, modules_from_paths
 class BaseChecker:
     rules = None
 
-    def __init__(self, linter, configurable=None):
-        self.linter = linter
+    def __init__(self, configurable=None):
         self.disabled = False
         self.source = None
         self.rules_map = {}
         self.configurable = set() if configurable is None else configurable
         self.register_rules(self.rules)
+        self.issues = []
 
     def register_rules(self, rules):
         for key, value in rules.items():
@@ -52,7 +54,7 @@ class BaseChecker:
         if rule not in self.rules_map:
             raise ValueError(f"Missing definition for message with name {rule}")
         message = self.rules_map[rule].prepare_message(*args, source=self.source, node=node, lineno=lineno, col=col)
-        self.linter.report(message)
+        self.issues.append(message)
 
     def configure(self, param, value):
         self.__dict__[param] = value
@@ -98,7 +100,7 @@ def init(linter):
         classes = inspect.getmembers(module, inspect.isclass)
         for checker in classes:
             if issubclass(checker[1], BaseChecker) and hasattr(checker[1], 'rules') and checker[1].rules:
-                linter.register_checker(checker[1](linter))
+                linter.register_checker(checker[1]())
 
 
 def get_docs():

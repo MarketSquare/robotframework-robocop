@@ -61,6 +61,6 @@ Rules can have configurable values. You need to specify them in rule body after 
                 self.report("dummy-in-name", node=node, col=node.name.find('Dummy'))
 
 
-Configurable parameter can be referred by its "public_name" in command line options::
+Configurable parameter can be referred by its :code:`public_name` in command line options::
 
     robocop --configure dummy-in-name:public_name:50

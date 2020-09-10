@@ -4,7 +4,7 @@ Including  and excluding rules
 ==============================
 
 You can include or exclude particular rules using rule name or id.
-Rules are matched in similar way how Robot Framework include/exclude arguments.
+Rules are matched in similar way how Robot Framework :code:`include/exclude` arguments.
 
 Described examples::
 
@@ -33,8 +33,9 @@ You can also use short names of options::
 Ignore rule from source code
 ----------------------------
 
-Rules can be also disabled directly from Robot Framework code. It is similar to how ``# noqa`` comment
-works for most linters.
+Rules can be also disabled directly from Robot Framework code. It is similar to how :code:`# noqa` comment works for
+most linters.
+
 It is possible to disable rule for particular line or lines::
 
     Some Keyword  # robocop: disable:rule1,rule2
@@ -45,7 +46,7 @@ You can disable all rules with::
 
     Some Keyword  # robocop: disable
 
-When used in new line without any indent it will start ignore block::
+When used in new line without any indent it will start ignoring whole block::
 
     # robocop: disable=rule1
 

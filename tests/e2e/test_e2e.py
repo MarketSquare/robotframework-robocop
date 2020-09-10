@@ -107,7 +107,7 @@ class TestE2E:
         robocop_instance.config = config
         with pytest.raises(FileError) as err:
             robocop_instance.run()
-        assert 'File some_path does not exist' in str(err)
+        assert 'File "some_path" does not exist' in str(err)
 
     def test_run_with_return_status_0(self, robocop_instance):
         config = Config()
@@ -158,7 +158,7 @@ class TestE2E:
         robocop_instance.config = config
         with pytest.raises(ConfigGeneralError) as err:
             robocop_instance.configure_checkers_or_reports()
-        assert "Provided rule or report 'idontexist' does not exists" in str(err)
+        assert "Provided rule or report 'idontexist' does not exist" in str(err)
 
     def test_configure_invalid_param(self, robocop_instance):
         config = Config()
@@ -167,7 +167,7 @@ class TestE2E:
         robocop_instance.config = config
         with pytest.raises(ConfigGeneralError) as err:
             robocop_instance.configure_checkers_or_reports()
-        assert "Provided param 'idontexist' for rule '0202' does not exists" in str(err)
+        assert "Provided param 'idontexist' for rule '0202' does not exist" in str(err)
 
     def test_configure_invalid_config(self, robocop_instance):
         config = Config()
@@ -194,7 +194,7 @@ class TestE2E:
         robocop_instance.config = config
         with pytest.raises(ConfigGeneralError) as err:
             robocop_instance.configure_checkers_or_reports()
-        assert "Provided param 'smth' for report 'return_status' does not exists" in str(err)
+        assert "Provided param 'smth' for report 'return_status' does not exist" in str(err)
 
     def test_use_argument_file(self, robocop_instance):
         config = Config()

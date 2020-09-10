@@ -2,11 +2,10 @@
 Reports are configurable summaries after lint scan. For example it could be total number of issues discovered.
 They are dynamically loaded during setup according to command line configuration.
 
-Each report class collect rules messages from linter and parse it. At the end of scan it will print
-report.
+Each report class collects rules messages from linter and parses it. At the end of the scan it will print the report.
 
 To enable report use ``-r`` / ``--report`` argument and the name of the report.
-You can use separate arguments (``-r report1 -r report2``) or comma separated list (``-r report1,report2``). Example::
+You can use separate arguments (``-r report1 -r report2``) or comma-separated list (``-r report1,report2``). Example::
 
     robocop --report rules_by_id,some_other_report path/to/file.robot
 
@@ -19,14 +18,14 @@ import robocop.exceptions
 class Report:
     def configure(self, name, value, *values):
         raise robocop.exceptions.ConfigGeneralError(
-            f'Provided param \'{name}\' for report \'{self.name}\' does not exists')  # noqa
+            f"Provided param '{name}' for report '{self.name}' does not exist")  # noqa
 
 
 class RulesByIdReport(Report):
     """
     Report name: ``rules_by_id``
 
-    Report that groups linter rules messages by rule id and print it ordered by most common message.
+    Report that groups linter rules messages by rule id and prints it ordered by most common message.
     Example::
 
         Issues by ids:
@@ -47,7 +46,7 @@ class RulesByIdReport(Report):
         message_counter_ordered = sorted([(message, count)
                                           for message, count in self.message_counter.items()],
                                          key=itemgetter(1), reverse=True)
-        report = '\nIssues by ids:\n'
+        report = '\nIssues by IDs:\n'
         if not message_counter_ordered:
             report += "No issues found\n"
             return report

@@ -53,7 +53,7 @@ class Robocop:
     def recognize_file_types(self):
         """
         Pre-parse files to recognize their types. If the filename is `__init__.*`, the type is `INIT`.
-        Files with .resource extension are 'RESOURCE' type.
+        Files with .resource extension are `RESOURCE` type.
         If the file is imported somewhere then file type is `RESOURCE`. Otherwise file type is `GENERAL`.
         These types are important since they are used to define parsing class for robot API.
         """
@@ -76,6 +76,7 @@ class Robocop:
 
     def run_checks(self):
         for file in self.files:
+            found_issues = []
             self.register_disablers(file)
             if self.disabler.file_disabled:
                 continue
@@ -85,6 +86,11 @@ class Robocop:
                     continue
                 checker.source = str(file)
                 checker.scan_file(model)
+                found_issues += checker.issues
+                checker.issues.clear()
+            found_issues.sort()
+            for issue in found_issues:
+                self.report(issue)
 
     def register_disablers(self, file):
         """ Parse content of file to find any disabler statements like # robocop: disable=rulename """
@@ -182,7 +188,7 @@ class Robocop:
         for config in self.config.configure:
             if config.count(':') < 2:
                 raise robocop.exceptions.ConfigGeneralError(
-                    f'Provided invalid config: \'{config}\' (general pattern: <rule>:<param>:<value>)')
+                    f"Provided invalid config: '{config}' (general pattern: <rule>:<param>:<value>)")
             rule_or_report, param, value, *values = config.split(':')
             if rule_or_report in self.rules:
                 msg, checker = self.rules[rule_or_report]
@@ -192,7 +198,7 @@ class Robocop:
                     configurable = msg.get_configurable(param)
                     if configurable is None:
                         raise robocop.exceptions.ConfigGeneralError(
-                            f'Provided param \'{param}\' for rule \'{rule_or_report}\' does not exists')
+                            f"Provided param '{param}' for rule '{rule_or_report}' does not exist")
                     checker.configure(configurable[1], configurable[2](value))
             elif any(rule_or_report == report.name for report in self.reports):
                 for report in self.reports:
@@ -200,7 +206,7 @@ class Robocop:
                         report.configure(param, value, *values)
             else:
                 raise robocop.exceptions.ConfigGeneralError(
-                    f'Provided rule or report \'{rule_or_report}\' does not exists')
+                    f"Provided rule or report '{rule_or_report}' does not exist")
 
 
 def run_robocop():

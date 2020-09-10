@@ -56,9 +56,14 @@ You can install Robocop simply by running::
 Usage
 -----
 
-Robocop will execute all checks on provided list of paths::
+Robocop runs by default from the current directory and it discovers supported files recursively.
+You can simply run::
 
-    robocop tests test.robot other_dir/subdir
+    robocop
+    
+All command line options can be displayed in help message by executing::
+
+    robocop -h
 
 .. include-this-block-in-docs-end
 

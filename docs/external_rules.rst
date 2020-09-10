@@ -8,7 +8,7 @@ It accepts comma separated list of paths to files or directories. Example::
 
     robocop -rules my/own/rule.py -rules rules.py,external_rules.py
 
-Every custom checker (with defined rules) needs to complete following requirements:
+Every custom checker needs to complete following requirements:
 
 1. It needs to inherit from official checker classes (``VisitorChecker`` or ``RawFileChecker``) and implements required methods.
 Refer to :ref:`checkers` for more details.

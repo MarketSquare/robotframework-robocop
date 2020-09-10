@@ -100,7 +100,7 @@ def init(linter):
         classes = inspect.getmembers(module, inspect.isclass)
         for checker in classes:
             if issubclass(checker[1], BaseChecker) and hasattr(checker[1], 'rules') and checker[1].rules:
-                linter.register_checker(checker[1](linter))
+                linter.register_checker(checker[1]())
 
 
 def get_docs():

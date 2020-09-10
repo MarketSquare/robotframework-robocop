@@ -1,14 +1,17 @@
 """
 Main class of Robocop module. Gather files for scan, checkers and parse cli arguments and scan files.
 """
+import inspect
 import sys
 from pathlib import Path
+
 from robot.api import get_model
-from robocop import checkers
-from robocop.config import Config
-from robocop import reports
-from robocop.utils import DisablersFinder, FileType, FileTypeChecker
+
 import robocop.exceptions
+from robocop import checkers
+from robocop import reports
+from robocop.config import Config
+from robocop.utils import DisablersFinder, FileType, FileTypeChecker
 
 
 class Robocop:
@@ -123,7 +126,15 @@ class Robocop:
             sys.exit()
 
     def load_reports(self):
-        reports.register(self)
+        classes = inspect.getmembers(reports, inspect.isclass)
+        for report_class in classes:
+            if not issubclass(report_class[1], reports.Report):
+                continue
+            report = report_class[1]()
+            if not hasattr(report, 'name'):
+                continue
+            if report.name in self.config.reports:
+                self.reports.append(report)
 
     def register_checker(self, checker):
         if not self.any_rule_enabled(checker):
@@ -138,10 +149,6 @@ class Robocop:
             self.rules[rule_name] = (rule, checker)
             self.rules[rule.rule_id] = (rule, checker)
         self.checkers.append(checker)
-
-    def register_report(self, report):
-        if report.name in self.config.reports:
-            self.reports.append(report)
 
     def make_reports(self):
         for report in self.reports:

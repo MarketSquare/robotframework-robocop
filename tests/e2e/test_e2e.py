@@ -107,7 +107,7 @@ class TestE2E:
         robocop_instance.config = config
         with pytest.raises(FileError) as err:
             robocop_instance.run()
-        assert 'File some_path does not exist' in str(err)
+        assert 'File "some_path" does not exist' in str(err)
 
     def test_run_with_return_status_0(self, robocop_instance):
         config = Config()

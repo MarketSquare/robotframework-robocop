@@ -38,12 +38,13 @@ INVALID_MSG_MISSING_DESC_SEV = (
 
 class TestMessage:
     def test_get_fullname(self, valid_msg):  # noqa
-        assert valid_msg.get_fullname() == 'W0101 (some-message)'
+        msg = valid_msg.prepare_message(source=None, node=None, lineno=None, col=None)
+        assert msg.get_fullname() == 'W0101 (some-message)'
 
     @staticmethod
-    def change_severity_and_get_fullname(msg, severity):
+    def change_severity(msg, severity):
         msg.change_severity(severity)
-        return msg.get_fullname()
+        return msg
 
     @pytest.mark.parametrize('severity, exp_sev', [
         ('e', 'E'),
@@ -56,7 +57,7 @@ class TestMessage:
         ('Warning', 'W')
     ])
     def test_change_message_severity(self, valid_msg, severity, exp_sev):  # noqa
-        assert TestMessage.change_severity_and_get_fullname(valid_msg, severity) == f"{exp_sev}0101 (some-message)"
+        assert TestMessage.change_severity(valid_msg, severity).severity.value == exp_sev
 
     @pytest.mark.parametrize('severity', [
         'invalid',
@@ -151,4 +152,4 @@ class TestMessage:
         valid_msg.desc = desc
         with pytest.raises(robocop.exceptions.InvalidRuleUsageError) as err:
             valid_msg.prepare_message(*args, source='file1.robot', node=node, lineno=None, col=None)
-        assert rf"Fatal error: Rule '0101' failed to prepare message description with error:{exp_error}" in str(err)
+        assert rf"Fatal error: Rule '0101' failed to prepare message description with error: {exp_error}" in str(err)

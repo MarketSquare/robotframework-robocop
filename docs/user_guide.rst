@@ -1,12 +1,12 @@
 User guide
 ==========
-This is short overview on how to use Robocop together with links to more extensive documentation.
+This is short overview of how to use Robocop together with links to more extensive documentation.
 
 You can run lint scan on Robot Framework code by simply running::
 
     robocop path/to/file/files
 
-Robocop accept files or directories as path. You can also specify multiple paths::
+Robocop accepts files or directories as path. You can also specify multiple paths::
 
     robocop file.robot resources/etc test.robot
 
@@ -18,7 +18,7 @@ source code. More in :ref:`including-rules`.
 
 Ignoring file
 -------------
-Path matching glob pattern can be ignored (or 'skipped' during scan). You can pass list of patterns::
+Path matching glob pattern can be ignored (or *skipped* during scan). You can pass list of patterns::
 
     robocop --ignore *.robot,resources/* --ignore special_file.txt
 
@@ -40,7 +40,6 @@ You can redirect output of Robocop to a file by using pipes (``>`` in unix) or b
 
   robocop --output robocop.log
 
-
 Generating reports
 ------------------
 
@@ -52,24 +51,23 @@ Return status
 Return status of Robocop depends on number of issues reported per given severity level. Default levels are following::
 
   quality_gate = {
-            'F': 1,
             'E': 1,
             'W': 100,
-            'I': 0
+            'I': -1
         }
-Number 0 means that return status is not affected by number of issues for given message. Default values can be configured
-by -c/--configure and `return_status:quality_gate` param::
+
+Number -1 means that return status is not affected by number of issues for given message. Default values can be configured
+by ``-c/--configure`` and ``return_status:quality_gate`` param::
 
   robocop --configure return_status:quality_gate:E=100:F=10:I=9
 
-Above example configuration results in following levels::
+Preceding example configuration results in following levels::
 
   quality_gate = {
-            'F': 10,
             'E': 100,
             'W': 100,
             'I': 9
         }
 
-Any number of Fatal issues above or equal 9, Error above or equal 100, Warning above or equal 100 and Info above or equal 9 will lead to Robocop
-returning status code (1).
+Any number of *Error* issues above or equal 100, *Warning* above or equal 100 and *Info* above or equal 9
+will lead to Robocop returning status code (1).

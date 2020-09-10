@@ -15,12 +15,6 @@ from operator import itemgetter
 import robocop.exceptions
 
 
-def register(linter):
-    linter.register_report(RulesByIdReport())
-    linter.register_report(RulesBySeverityReport())
-    linter.register_report(ReturnStatusReport())
-
-
 class Report:
     def configure(self, name, value, *values):
         raise robocop.exceptions.ConfigGeneralError(

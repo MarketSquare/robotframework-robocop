@@ -116,3 +116,80 @@ class DuplicationsChecker(VisitorChecker):
     def visit_VariableImport(self, node): # noqa
         if node.name:
             self.variable_imports[node.name].append(node)
+
+
+class DuplicatedOrOutOfOrderSectionChecker(VisitorChecker):
+    """ Checker for duplicated or out of order section headers. """
+    rules = {
+        "0808": (
+            "section-already-defined",
+            "'%s' section header already defined in file",
+            RuleSeverity.WARNING
+        ),
+        "0809": (
+            "section-out-of-order",
+            "'%s' section header is defined in wrong order: Setting(s) > Variable(s) > Test Case(s) / Task(s) > Keyword(s)",
+            RuleSeverity.WARNING
+        ),
+        "0810": (
+            "both-tests-and-tasks",
+            "Both Task(s) and Test Case(s) section headers defined in file",
+            RuleSeverity.ERROR
+        )
+    }
+
+    def __init__(self, *args):
+        self.settings_defined = False
+        self.variables_defined = False
+        self.test_cases_defined = False
+        self.tasks_defined = False
+        self.keywords_defined = False
+        super().__init__(*args)
+
+    def visit_File(self, node):
+        self.settings_defined = False
+        self.variables_defined = False
+        self.test_cases_defined = False
+        self.tasks_defined = False
+        self.keywords_defined = False
+        super().visit_File(node)
+
+    def visit_SettingSectionHeader(self, node):  # noqa
+        if self.settings_defined:
+            self.report("section-already-defined", node.data_tokens[0].value, node=node)
+        else:
+            self.settings_defined = True
+        if self.variables_defined or self.test_cases_defined or self.tasks_defined or self.keywords_defined:
+            self.report("section-out-of-order", node.data_tokens[0].value, node=node)
+
+    def visit_VariableSectionHeader(self, node):  # noqa
+        if self.variables_defined:
+            self.report("section-already-defined", node.data_tokens[0].value, node=node)
+        else:
+            self.variables_defined = True
+        if self.test_cases_defined or self.tasks_defined or self.keywords_defined:
+            self.report("section-out-of-order", node.data_tokens[0].value, node=node)
+
+    def visit_TestCaseSectionHeader(self, node):  # noqa
+        if 'task' in node.name.lower():
+            if self.test_cases_defined:
+                self.report("both-tests-and-tasks", node=node)
+            if self.tasks_defined:
+                self.report("section-already-defined", node.data_tokens[0].value, node=node)
+            else:
+                self.tasks_defined = True
+        else:
+            if self.tasks_defined:
+                self.report("both-tests-and-tasks", node=node)
+            if self.test_cases_defined:
+                self.report("section-already-defined", node.data_tokens[0].value, node=node)
+            else:
+                self.test_cases_defined = True
+        if self.keywords_defined:
+            self.report("section-out-of-order", node.data_tokens[0].value, node=node)
+
+    def visit_KeywordSectionHeader(self, node):  # noqa
+        if self.keywords_defined:
+            self.report("section-already-defined", node.data_tokens[0].value, node=node)
+        else:
+            self.keywords_defined = True

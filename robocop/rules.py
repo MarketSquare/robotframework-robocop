@@ -27,13 +27,13 @@ import robocop.exceptions
 class RuleSeverity(Enum):
     """
     Rule severity.
-    It can be configured with ``-c/--configure id_or_msg_name:severity:value``
+    It can be configured with ``-c / --configure id_or_msg_name:severity:value``
     Where value can be first letter of severity value or whole name, case insensitive.
     For example ::
 
         -c line-too-long:severity:e
 
-    Will change line-too-long message severity to error.
+    Will change `line-too-long` message severity to error.
 
     You can filter out all rules below given severity value by using following option::
 

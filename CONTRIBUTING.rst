@@ -32,6 +32,10 @@ to the existing issue instead of creating a new one.
 Reporting bugs
 ~~~~~~~~~~~~~~
 
+::
+
+    They'll fix you. They fix everything. — Robocop
+
 The preferred way to report a bug is to create an issue using
 **Bug report** template and fill in the blanks:
 
@@ -85,6 +89,10 @@ work on multiple pull requests at the same time.
 
 Coding conventions
 ~~~~~~~~~~~~~~~~~~
+
+::
+
+    Stay out of trouble. – Robocop
 
 General guidelines
 ''''''''''''''''''
@@ -186,3 +194,6 @@ Tests coverage cannot drop under 90%. If your changes affect the coverage
 significantly, please write new tests to satisfy the expected threshold,
 otherwise continuous integration will not permit to merge the changes.
 
+::
+
+    Thank you for your cooperation. Good night. — Robocop

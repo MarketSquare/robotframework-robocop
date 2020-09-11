@@ -172,7 +172,7 @@ class Config:
         optional.add_argument('-h', '--help', action='help', help=self.HELP_MSGS['help_info'])
         optional.add_argument('-v', '--version', action='version', version=__version__,
                               help=self.HELP_MSGS['help_version'])
-        optional.add_argument('--directives', action='version', version=self.HELP_MSGS['directives'])
+        optional.add_argument('--directives', action='version', version=self.HELP_MSGS['directives'], help=argparse.SUPPRESS)
 
         return parser
 

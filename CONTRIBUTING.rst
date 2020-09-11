@@ -144,10 +144,6 @@ The whole documentation is available `here <https://robocop.readthedocs.io/>`_.
 Tests
 ~~~~~
 
-::
-
-    My program will not allow me to act against an officer of this company. – Robocop
-
 When submitting a pull request with a new feature or a fix, you should
 always include tests for your changes. These tests prove that your changes
 work, help prevent bugs in the future, and help document what your changes

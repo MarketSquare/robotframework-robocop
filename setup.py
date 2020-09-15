@@ -17,7 +17,7 @@ setup(
     version=__version__,
     description='Linter for Robot Framework',
     long_description=README,
-    long_description_content_type="text/markdown",
+    long_description_content_type="text/x-rst",
     url="https://github.com/bhirsz/robotframework-robocop",
     author="Bartlomiej Hirsz, Mateusz Nojek",
     author_email="bartek.hirsz@gmail.com, matnojek@gmail.com",

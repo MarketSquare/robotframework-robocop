@@ -1,6 +1,7 @@
 |Unit tests|
 
-.. image:: docs/images/robocop_logo_small.png
+.. image:: https://raw.githubusercontent.com/MarketSquare/robotframework-robocop/master/docs/images/robocop_logo_small.png
+   :alt: robocop-logo
 
 Robocop
 ===============

@@ -34,7 +34,7 @@ Reporting bugs
 
 ::
 
-    They'll fix you. They fix everything. — Robocop
+    They'll fix you. They fix everything. - Robocop
 
 The preferred way to report a bug is to create an issue using
 **Bug report** template and fill in the blanks:
@@ -92,7 +92,7 @@ Coding conventions
 
 ::
 
-    Stay out of trouble. – Robocop
+    Stay out of trouble. - Robocop
 
 General guidelines
 ''''''''''''''''''
@@ -196,4 +196,4 @@ otherwise continuous integration will not permit to merge the changes.
 
 ::
 
-    Thank you for your cooperation. Good night. — Robocop
+    Thank you for your cooperation. Good night. - Robocop

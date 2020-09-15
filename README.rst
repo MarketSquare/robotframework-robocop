@@ -1,6 +1,7 @@
 |Unit tests|
 
-.. image:: docs/images/robocop_logo_small.png
+.. image:: https://raw.githubusercontent.com/MarketSquare/robotframework-robocop/master/docs/images/robocop_logo_small.png
+   :alt: robocop-logo
 
 Robocop
 ===============
@@ -118,7 +119,7 @@ Main features
 
     Found 12 issue(s): 9 WARNING(s), 4 ERROR(s).
 
-- configurable lint rules
+- configurable lint rules::
 
     --configure 0507:line_length:100 -c ineven-indent:severity:W
 
@@ -149,7 +150,7 @@ Full documentation available `here <https://robocop.readthedocs.io>`_.
 
 ::
 
-    Excuse me, I have to go. Somewhere there is a crime happening. – Robocop
+    Excuse me, I have to go. Somewhere there is a crime happening. - Robocop
 
 .. |Unit tests| image:: https://github.com/bhirsz/robotframework-robocop/workflows/Unit%20tests/badge.svg?branch=master
    :target: https://github.com/bhirsz/robotframework-robocop/actions?query=workflow%3A%22Unit+tests%22

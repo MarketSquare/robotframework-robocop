@@ -138,7 +138,7 @@ class Config:
                                          formatter_class=argparse.RawTextHelpFormatter,
                                          description='Static code analysis tool for Robot Framework',
                                          epilog='For full documentation visit: '
-                                                'https://github.com/bhirsz/robotframework-robocop',
+                                                'https://github.com/MarketSquare/robotframework-robocop',
                                          add_help=False)
         required = parser.add_argument_group(title='Required parameters')
         optional = parser.add_argument_group(title='Optional parameters')

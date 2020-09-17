@@ -3,7 +3,7 @@ Contribution guidelines
 
 These guidelines instruct how to submit issues and contribute code or
 documentation to the `Robocop project
-<https://github.com/bhirsz/robotframework-robocop>`_.
+<https://github.com/MarketSquare/robotframework-robocop>`_.
 Another way to contribute includes participating in discussion and answering
 questions on our `Slack workspace <https://rf-robocop.slack.com>`_. We have
 some dedicated channels for all different types of topics. One of the best
@@ -23,7 +23,7 @@ Submitting issues
 -----------------
 
 Bugs and enhancements are tracked in the `issue tracker
-<https://github.com/bhirsz/robotframework-robocop/issues>`_.
+<https://github.com/MarketSquare/robotframework-robocop/issues>`_.
 
 Before submitting a new issue, it is always a good idea to check if the
 same bug or enhancement is already reported. If it is, please add your comments
@@ -137,7 +137,7 @@ User manual
 ''''''''''
 
 Robocop's main features are explained in the `README
-<https://github.com/bhirsz/robotframework-robocop/blob/master/README.rst>`_.
+<https://github.com/MarketSquare/robotframework-robocop/blob/master/README.rst>`_.
 The whole documentation is available `here <https://robocop.readthedocs.io/>`_.
 
 

@@ -20,7 +20,7 @@ It uses official Robot Framework parsing API to parse files and run number of ch
 looking for potential errors or violations to code quality standards.
 
     Hosted on `GitHub
-    <https://github.com/bhirsz/robotframework-robocop>`_
+    <https://github.com/MarketSquare/robotframework-robocop>`_
 
 Values
 -------
@@ -152,5 +152,5 @@ Full documentation available `here <https://robocop.readthedocs.io>`_.
 
     Excuse me, I have to go. Somewhere there is a crime happening. - Robocop
 
-.. |Unit tests| image:: https://github.com/bhirsz/robotframework-robocop/workflows/Unit%20tests/badge.svg?branch=master
-   :target: https://github.com/bhirsz/robotframework-robocop/actions?query=workflow%3A%22Unit+tests%22
+.. |Unit tests| image:: https://github.com/MarketSquare/robotframework-robocop/workflows/Unit%20tests/badge.svg?branch=master
+   :target: https://github.com/MarketSquare/robotframework-robocop/actions?query=workflow%3A%22Unit+tests%22

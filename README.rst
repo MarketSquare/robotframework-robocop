@@ -1,7 +1,8 @@
+.. Badges
+
 |Unit tests| |Codecov| |PyPI| |Python versions|
 
 .. image:: https://raw.githubusercontent.com/MarketSquare/robotframework-robocop/master/docs/images/robocop_logo_small.png
-   :align: right
    :alt: Robocop logo
 
 Robocop
@@ -149,16 +150,28 @@ Main features
 
     --ignore *.robot,resources/* --ignore special_file.txt
 
+----
+
 ::
 
     Excuse me, I have to go. Somewhere there is a crime happening. - Robocop
 
-.. |Unit tests| image:: https://img.shields.io/github/workflow/status/MarketSquare/robotframework-robocop/Unit%20tests/master   :alt: GitHub Workflow Status (branch)
+.. Badges links
+
+.. |Unit tests|
+   image:: https://img.shields.io/github/workflow/status/MarketSquare/robotframework-robocop/Unit%20tests/master
+   :alt: GitHub Workflow Unit Tests Status
    :target: https://github.com/MarketSquare/robotframework-robocop/actions?query=workflow%3A%22Unit+tests%22
 
-.. |Codecov| image:: https://img.shields.io/codecov/c/github/MarketSquare/robotframework-robocop/master   :alt: Codecov branch
+.. |Codecov|
+   image:: https://img.shields.io/codecov/c/github/MarketSquare/robotframework-robocop/master
+   :alt: Code coverage on master branch
 
-.. |PyPI| image:: https://img.shields.io/pypi/v/robotframework-robocop?label=version   :alt: PyPI package version
+.. |PyPI|
+   image:: https://img.shields.io/pypi/v/robotframework-robocop?label=version
+   :alt: PyPI package version
 
-.. |Python versions| image:: https://img.shields.io/pypi/pyversions/robotframework-robocop   :alt: PyPI - Python Version
+.. |Python versions|
+   image:: https://img.shields.io/pypi/pyversions/robotframework-robocop
+   :alt: Supported Python versions
 

@@ -1,7 +1,8 @@
 |Unit tests| |Codecov| |PyPI| |Python versions|
 
 .. image:: https://raw.githubusercontent.com/MarketSquare/robotframework-robocop/master/docs/images/robocop_logo_small.png
-   :alt: robocop-logo
+   :align: right
+   :alt: Robocop logo
 
 Robocop
 ===============

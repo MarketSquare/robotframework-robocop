@@ -1,6 +1,6 @@
 .. Badges
 
-|Unit tests| |Codecov| |PyPI| |Python versions|
+|Unit tests| |Codecov| |PyPI| |Python versions| |License|
 
 .. image:: https://raw.githubusercontent.com/MarketSquare/robotframework-robocop/master/docs/images/robocop_logo_small.png
    :alt: Robocop logo
@@ -176,4 +176,8 @@ Main features
 .. |Python versions|
    image:: https://img.shields.io/pypi/pyversions/robotframework-robocop
    :alt: Supported Python versions
+
+.. |License|
+   image:: https://img.shields.io/pypi/l/robotframework-robocop
+   :alt: PyPI - License
 

@@ -1,4 +1,4 @@
-|Unit tests|
+|Unit tests| |Codecov| |PyPI| |Python versions|
 
 .. image:: https://raw.githubusercontent.com/MarketSquare/robotframework-robocop/master/docs/images/robocop_logo_small.png
    :alt: robocop-logo
@@ -21,6 +21,11 @@ looking for potential errors or violations to code quality standards.
 
     Hosted on `GitHub
     <https://github.com/MarketSquare/robotframework-robocop>`_
+
+Documentation
+-------------
+
+Full documentation available `here <https://robocop.readthedocs.io>`_.
 
 Values
 -------
@@ -143,14 +148,16 @@ Main features
 
     --ignore *.robot,resources/* --ignore special_file.txt
 
-Documentation
--------------
-
-Full documentation available `here <https://robocop.readthedocs.io>`_.
-
 ::
 
     Excuse me, I have to go. Somewhere there is a crime happening. - Robocop
 
-.. |Unit tests| image:: https://github.com/MarketSquare/robotframework-robocop/workflows/Unit%20tests/badge.svg?branch=master
+.. |Unit tests| image:: https://img.shields.io/github/workflow/status/MarketSquare/robotframework-robocop/Unit%20tests/master   :alt: GitHub Workflow Status (branch)
    :target: https://github.com/MarketSquare/robotframework-robocop/actions?query=workflow%3A%22Unit+tests%22
+
+.. |Codecov| image:: https://img.shields.io/codecov/c/github/MarketSquare/robotframework-robocop/master   :alt: Codecov branch
+
+.. |PyPI| image:: https://img.shields.io/pypi/v/robotframework-robocop?label=version   :alt: PyPI package version
+
+.. |Python versions| image:: https://img.shields.io/pypi/pyversions/robotframework-robocop   :alt: PyPI - Python Version
+

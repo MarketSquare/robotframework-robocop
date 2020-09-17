@@ -16,9 +16,11 @@ Robocop
 Introduction
 ------------
 
-Robocop is a tool that performs static code analysis of Robot Framework code.
+Robocop is a tool that performs static code analysis of `Robot Framework
+<https://github.com/robotframework/robotframework>`_ code.
 
-It uses official Robot Framework parsing API to parse files and run number of checks,
+It uses official `Robot Framework parsing API
+<https://robot-framework.readthedocs.io/en/latest/>`_ to parse files and run number of checks,
 looking for potential errors or violations to code quality standards.
 
     Hosted on `GitHub
@@ -32,7 +34,7 @@ Full documentation available `here <https://robocop.readthedocs.io>`_.
 Values
 -------
 Original *RoboCop* - a fictional cybernetic police officer - was following 3 prime directives
-which also drive the progress of Robocop:
+which also drive the progress of Robocop linter:
 
     First Directive: **Serve the public trust**
 

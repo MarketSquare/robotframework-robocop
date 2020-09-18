@@ -77,6 +77,23 @@ All command line options can be displayed in help message by executing::
 
 .. include-this-block-in-docs-end
 
+Example Output
+--------------
+
+Executing command::
+
+    robocop --report rules_by_error_type tests\test.robot
+
+Will result in following output::
+
+    C:\OCP_project\tests\test.robot:7:0 [W] 0509 Section is empty
+    C:\OCP_project\tests\test.robot:22:0 [E] 0801 Multiple test cases with name "Simple Test" in suite
+    C:\OCP_project\tests\test.robot:42:0 [E] 0810 Both Task(s) and Test Case(s) section headers defined in file
+    C:\OCP_project\tests\test.robot:48:0 [W] 0302 Keyword name should be capitalized
+    C:\OCP_project\tests\test.robot:51:13 [I] 0606 This tag is already set by Force Tags in suite settings
+
+    Found 5 issue(s): 2 WARNING(s), 2 ERROR(s), 1 INFO(s).
+
 Main features
 -------------
 

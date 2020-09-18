@@ -85,7 +85,7 @@ class Config:
         'help_ignore':      'Ignore file(s) and path(s) provided. Glob patterns are supported',
         'help_info':        'Print this help message and exit',
         'help_version':     'Display Robocop version',
-        'directives':       '1. Serve the public trust\n2. Protect the innocent\n3. Uphold the law'
+        'directives':       '1. Serve the public trust\n2. Protect the innocent\n3. Uphold the law\n4. [ACCESS DENIED]'
     }
 
     @staticmethod

@@ -7,7 +7,7 @@ Format output message
 
 Output rule message can be defined with ``-f`` / ``--format`` argument. Default value::
 
-    {source}:{line}:{col} [{severity}] {rule_id} {desc}
+    "{source}:{line}:{col} [{severity}] {rule_id} {desc}"
 
 Available formats:
   * source: path to file where is the issue

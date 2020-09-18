@@ -138,7 +138,7 @@ class Config:
                                          formatter_class=argparse.RawTextHelpFormatter,
                                          description='Static code analysis tool for Robot Framework',
                                          epilog='For full documentation visit: '
-                                                'https://github.com/bhirsz/robotframework-robocop',
+                                                'https://github.com/MarketSquare/robotframework-robocop',
                                          add_help=False)
         required = parser.add_argument_group(title='Required parameters')
         optional = parser.add_argument_group(title='Optional parameters')
@@ -146,9 +146,9 @@ class Config:
         required.add_argument('paths', metavar='paths', type=str, nargs='*', default=['.'], help=self.HELP_MSGS['help_paths'])
 
         optional.add_argument('-i', '--include', action=ParseDelimitedArgAction, default=self.include,
-                              help=self.HELP_MSGS['help_include'])
+                              metavar='RULES', help=self.HELP_MSGS['help_include'])
         optional.add_argument('-e', '--exclude', action=ParseDelimitedArgAction, default=self.exclude,
-                              help=self.HELP_MSGS['help_exclude'])
+                              metavar='RULES', help=self.HELP_MSGS['help_exclude'])
         optional.add_argument('-rules', '--ext_rules', action=ParseDelimitedArgAction, default=self.ext_rules,
                               help=self.HELP_MSGS['help_ext_rules'])
         optional.add_argument('--no-recursive', dest='recursive', action='store_false',
@@ -157,22 +157,23 @@ class Config:
                               help=self.HELP_MSGS['help_reports'])
         optional.add_argument('-f', '--format', type=str, default=self.format, help=self.HELP_MSGS['help_format'])
         optional.add_argument('-c', '--configure', action=ParseCheckerConfig, default=self.configure,
-                              help=self.HELP_MSGS['help_configure'])
+                              metavar='CONFIGURABLE', help=self.HELP_MSGS['help_configure'])
         optional.add_argument('-l', '--list', action='store_true', default=self.list,
                               help=self.HELP_MSGS['help_list'])
         optional.add_argument('-o', '--output', type=argparse.FileType('w'), default=self.output,
-                              help=self.HELP_MSGS['help_output'])
+                              metavar='PATH', help=self.HELP_MSGS['help_output'])
         optional.add_argument('--filetypes', action=ParseFileTypes, default=self.filetypes,
                               help=self.HELP_MSGS['help_filetypes'])
         optional.add_argument('-t', '--threshold', action=SetRuleThreshold, default=self.threshold,
                               help=self.HELP_MSGS['help_threshold'])
-        optional.add_argument('-A', '--argumentfile', help=self.HELP_MSGS['help_argfile'])
+        optional.add_argument('-A', '--argumentfile', metavar='PATH', help=self.HELP_MSGS['help_argfile'])
         optional.add_argument('--ignore', action=ParseDelimitedArgAction, default=self.ignore,
-                              help=self.HELP_MSGS['help_ignore'])
+                              metavar='PATH', help=self.HELP_MSGS['help_ignore'])
         optional.add_argument('-h', '--help', action='help', help=self.HELP_MSGS['help_info'])
         optional.add_argument('-v', '--version', action='version', version=__version__,
                               help=self.HELP_MSGS['help_version'])
-        optional.add_argument('--directives', action='version', version=self.HELP_MSGS['directives'], help=argparse.SUPPRESS)
+        optional.add_argument('--directives', action='version', version=self.HELP_MSGS['directives'],
+                              help=argparse.SUPPRESS)
 
         return parser
 

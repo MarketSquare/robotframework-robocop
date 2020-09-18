@@ -1,7 +1,9 @@
-|Unit tests|
+.. Badges
+
+|Unit tests| |Codecov| |PyPI| |Python versions| |License|
 
 .. image:: https://raw.githubusercontent.com/MarketSquare/robotframework-robocop/master/docs/images/robocop_logo_small.png
-   :alt: robocop-logo
+   :alt: Robocop logo
 
 Robocop
 ===============
@@ -14,18 +16,25 @@ Robocop
 Introduction
 ------------
 
-Robocop is a tool that performs static code analysis of Robot Framework code.
+Robocop is a tool that performs static code analysis of `Robot Framework
+<https://github.com/robotframework/robotframework>`_ code.
 
-It uses official Robot Framework parsing API to parse files and run number of checks,
+It uses official `Robot Framework parsing API
+<https://robot-framework.readthedocs.io/en/latest/>`_ to parse files and run number of checks,
 looking for potential errors or violations to code quality standards.
 
     Hosted on `GitHub
-    <https://github.com/bhirsz/robotframework-robocop>`_
+    <https://github.com/MarketSquare/robotframework-robocop>`_
+
+Documentation
+-------------
+
+Full documentation available `here <https://robocop.readthedocs.io>`_.
 
 Values
 -------
 Original *RoboCop* - a fictional cybernetic police officer - was following 3 prime directives
-which also drive the progress of Robocop:
+which also drive the progress of Robocop linter:
 
     First Directive: **Serve the public trust**
 
@@ -143,14 +152,32 @@ Main features
 
     --ignore *.robot,resources/* --ignore special_file.txt
 
-Documentation
--------------
-
-Full documentation available `here <https://robocop.readthedocs.io>`_.
+----
 
 ::
 
     Excuse me, I have to go. Somewhere there is a crime happening. - Robocop
 
-.. |Unit tests| image:: https://github.com/bhirsz/robotframework-robocop/workflows/Unit%20tests/badge.svg?branch=master
-   :target: https://github.com/bhirsz/robotframework-robocop/actions?query=workflow%3A%22Unit+tests%22
+.. Badges links
+
+.. |Unit tests|
+   image:: https://img.shields.io/github/workflow/status/MarketSquare/robotframework-robocop/Unit%20tests/master
+   :alt: GitHub Workflow Unit Tests Status
+   :target: https://github.com/MarketSquare/robotframework-robocop/actions?query=workflow%3A%22Unit+tests%22
+
+.. |Codecov|
+   image:: https://img.shields.io/codecov/c/github/MarketSquare/robotframework-robocop/master
+   :alt: Code coverage on master branch
+
+.. |PyPI|
+   image:: https://img.shields.io/pypi/v/robotframework-robocop?label=version
+   :alt: PyPI package version
+
+.. |Python versions|
+   image:: https://img.shields.io/pypi/pyversions/robotframework-robocop
+   :alt: Supported Python versions
+
+.. |License|
+   image:: https://img.shields.io/pypi/l/robotframework-robocop
+   :alt: PyPI - License
+

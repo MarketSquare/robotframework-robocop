@@ -128,7 +128,7 @@ Main features
 
 - customized format of output message::
 
-    --format {source}:{line}:{col} [{severity}] {rule_id} {desc}
+    --format "{source}:{line}:{col} [{severity}] {rule_id} {desc}"
 
 - configurable return status for every severity level::
 

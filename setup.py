@@ -10,12 +10,15 @@ Operating System :: OS Independent
 Programming Language :: Python :: 3.6
 Programming Language :: Python :: 3.7
 Programming Language :: Python :: 3.8
+Framework :: Robot Framework :: Tool
+Topic :: Software Development :: Quality Assurance
+Topic :: Utilities
 """.strip().splitlines()
 
 setup(
     name='robotframework-robocop',
     version=__version__,
-    description='Linter for Robot Framework',
+    description='Static code analysis tool (linter) for Robot Framework',
     long_description=README,
     long_description_content_type="text/x-rst",
     url="https://github.com/MarketSquare/robotframework-robocop",

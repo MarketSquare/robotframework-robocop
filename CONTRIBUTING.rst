@@ -5,10 +5,12 @@ These guidelines instruct how to submit issues and contribute code or
 documentation to the `Robocop project
 <https://github.com/MarketSquare/robotframework-robocop>`_.
 Another way to contribute includes participating in discussion and answering
-questions on our `Slack workspace <https://rf-robocop.slack.com>`_. We have
-some dedicated channels for all different types of topics. One of the best
-ways to support is to help us **grow** so don't hesitate and spread the word
-about Robocop!
+questions on our Slack channel `#robocop-linter
+<https://robotframework.slack.com/archives/C01AWSNKC2H>`_ located in
+`Robot Framework workspace <https://robotframework.slack.com/>`_. We have some
+dedicated channels for all different types of topics. One of the best ways to
+support is to help us **grow** so don't hesitate and spread the word about
+Robocop!
 
 These guidelines expect readers to have a basic knowledge about open source
 as well as why and how to contribute to open source projects. If you are

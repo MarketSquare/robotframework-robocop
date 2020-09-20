@@ -124,6 +124,17 @@ class Robocop:
             for rule_id in rule_ids:
                 print(rule_by_id[rule_id])
             sys.exit()
+        if self.config.list_configurables:
+            rule_by_id = {msg.rule_id: msg for checker in self.checkers for msg in checker.rules_map.values()}
+            rule_ids = []
+            for rule_id in rule_by_id:
+                if self.config.list_configurables.match(rule_id) or \
+                        self.config.list_configurables.match(rule_by_id[rule_id].name):
+                    rule_ids.append(rule_id)
+            rule_ids = sorted(rule_ids)
+            for rule_id in rule_ids:
+                print(f"{rule_by_id[rule_id]}. {rule_by_id[rule_id].available_configurables()}")
+            sys.exit()
 
     def load_reports(self):
         classes = inspect.getmembers(reports, inspect.isclass)

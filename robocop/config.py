@@ -56,6 +56,7 @@ class Config:
         self.exclude_patterns = []
         self.filetypes = {'.robot', '.resource', '.tsv'}
         self.list = False
+        self.list_configurables = ''
         self.output = None
         self.recursive = True
         self.parser = self._create_parser()
@@ -76,6 +77,7 @@ class Config:
                             '-c line-too-long:line_length:150\n'
                             '--configure 0101:severity:E',
         'help_list':        'List all available rules',
+        'help_list_confs':  'List all configurable parameters for rules matching given glob pattern',
         'help_output':      'Path to output file',
         'help_filetypes':   'Comma separated list of file extensions to be scanned by Robocop',
         'help_threshold':    f'Disable rules below given threshold. Available message levels: '
@@ -88,9 +90,12 @@ class Config:
         'directives':       '1. Serve the public trust\n2. Protect the innocent\n3. Uphold the law\n4. [ACCESS DENIED]'
     }
 
+    def _translate_patterns(self, pattern_list):
+        return [self._translate_pattern(p) for p in pattern_list if '*' in p]
+
     @staticmethod
-    def _translate_pattern(pattern_list):
-        return [re.compile(fnmatch.translate(p)) for p in pattern_list if '*' in p]
+    def _translate_pattern(pattern):
+        return re.compile(fnmatch.translate(pattern))
 
     def remove_severity(self):
         self.include = {self.replace_severity_values(rule) for rule in self.include}
@@ -103,8 +108,9 @@ class Config:
             self.configure[index] = f"{message}:{param}:{value}"
 
     def translate_patterns(self):
-        self.include_patterns = self._translate_pattern(self.include)
-        self.exclude_patterns = self._translate_pattern(self.exclude)
+        self.include_patterns = self._translate_patterns(self.include)
+        self.exclude_patterns = self._translate_patterns(self.exclude)
+        self.list_configurables = self._translate_pattern(self.list_configurables)
 
     def preparse(self, args):
         args = sys.argv[1:] if args is None else args
@@ -160,6 +166,8 @@ class Config:
                               metavar='CONFIGURABLE', help=self.HELP_MSGS['help_configure'])
         optional.add_argument('-l', '--list', action='store_true', default=self.list,
                               help=self.HELP_MSGS['help_list'])
+        optional.add_argument('--list-configurables', type=str, default=self.list_configurables,
+                              help=self.HELP_MSGS['help_list_confs'])
         optional.add_argument('-o', '--output', type=argparse.FileType('w'), default=self.output,
                               metavar='PATH', help=self.HELP_MSGS['help_output'])
         optional.add_argument('--filetypes', action=ParseFileTypes, default=self.filetypes,

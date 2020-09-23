@@ -110,7 +110,7 @@ class Config:
     def translate_patterns(self):
         self.include_patterns = self._translate_patterns(self.include)
         self.exclude_patterns = self._translate_patterns(self.exclude)
-        self.list_configurables = self._translate_pattern(self.list_configurables)
+        self.list_configurables = self._translate_pattern(self.list_configurables) if self.list_configurables else None
 
     def preparse(self, args):
         args = sys.argv[1:] if args is None else args

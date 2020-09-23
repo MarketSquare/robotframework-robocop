@@ -1,6 +1,7 @@
 """
 Spacing checkers
 """
+from robot.api import get_tokens
 from robot.parsing.model.blocks import TestCase, Keyword
 from robot.parsing.model.statements import EmptyLine, Comment
 from robocop.checkers import RawFileChecker, VisitorChecker
@@ -123,3 +124,28 @@ class MissingTrailingBlankLineChecker(VisitorChecker):
                 self.report("empty-lines-between-sections", empty_lines, self.empty_lines_between_sections,
                             lineno=section.end_lineno, col=0)
         super().visit_File(node)
+
+
+class InconsistentUseOfTabsAndSpacesChecker(VisitorChecker):
+    """ Checker for in inconsistent use of tabs and spaces. """
+
+    rules = {
+        "1006": (
+            "inconsistent-use-of-tabs-and-spaces",
+            "Inconsistent use of tabs and spaces in file",
+            RuleSeverity.WARNING
+        )
+    }
+
+    def visit_File(self, node):
+        tabs = False
+        spaces = False
+
+        for token in get_tokens(node.source):
+            if token.type != 'SEPARATOR':
+                continue
+            tabs = True if '\t' in token.value else tabs
+            spaces = True if ' ' in token.value else spaces
+
+        if tabs and spaces:
+            self.report("inconsistent-use-of-tabs-and-spaces", node=node)

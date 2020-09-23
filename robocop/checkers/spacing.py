@@ -131,21 +131,22 @@ class InconsistentUseOfTabsAndSpacesChecker(VisitorChecker):
 
     rules = {
         "1006": (
-            "inconsistent-use-of-tabs-and-spaces",
+            "mixed-tabs-and-spaces",
             "Inconsistent use of tabs and spaces in file",
             RuleSeverity.WARNING
         )
     }
 
     def visit_File(self, node):  # noqa
-        tabs = False
-        spaces = False
+        tabs, spaces = False, False
 
         for token in get_tokens(node.source):
             if token.type != 'SEPARATOR':
                 continue
+
             tabs = True if '\t' in token.value else tabs
             spaces = True if ' ' in token.value else spaces
 
-        if tabs and spaces:
-            self.report("inconsistent-use-of-tabs-and-spaces", node=node)
+            if tabs and spaces:
+                self.report("mixed-tabs-and-spaces", node=node)
+                break

@@ -1,6 +1,6 @@
 *** Settings ***
-Library    OperatingSystem
 Documentation	Suite documentation.
+Force Tags    logging
 
 
 *** Variables ***
@@ -10,7 +10,7 @@ Documentation	Suite documentation.
 *** Test Cases ***
 Test Which Includes Tabs And Spaces
     [Documentation]    Test documentation.
-    Log Two Elements To Console    ${RANDOM_LIST}[0]    ${RANDOM_LIST}[1]
+    Log Two Elements To Console    @{RANDOM_LIST}
 
 
 *** Keywords ***
@@ -19,3 +19,4 @@ Log Two Elements To Console
     [Arguments]    ${first_element}    ${second_element}
     Log To Console    ${first_element}	${second_element}
     Log To Console	    ${second_element}    	${first_element}
+

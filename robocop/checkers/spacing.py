@@ -127,7 +127,7 @@ class MissingTrailingBlankLineChecker(VisitorChecker):
 
 
 class InconsistentUseOfTabsAndSpacesChecker(VisitorChecker):
-    """ Checker for in inconsistent use of tabs and spaces. """
+    """ Checker for inconsistent use of tabs and spaces. """
 
     rules = {
         "1006": (
@@ -137,7 +137,7 @@ class InconsistentUseOfTabsAndSpacesChecker(VisitorChecker):
         )
     }
 
-    def visit_File(self, node):
+    def visit_File(self, node):  # noqa
         tabs = False
         spaces = False
 

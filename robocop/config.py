@@ -237,10 +237,3 @@ class Config:
             for char in sev:
                 message = message.replace(char, '')
         return message
-
-"""
-no --list-configurables: set to '' and skip it later
---list-configurables, no patterns - set to '*'
---list-configurables pattern - set to pattern
---list-configurables pattern pattern - error
-"""

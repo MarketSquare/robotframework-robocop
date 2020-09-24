@@ -106,6 +106,12 @@ class Rule:
     def prepare_message(self, *args, source, node, lineno, col):
         return Message(*args, rule=self, source=source, node=node, lineno=lineno, col=col)
 
+    def matches_pattern(self, pattern):
+        """ check if this rule matches given pattern """
+        if isinstance(pattern, str):
+            return pattern in (self.name, self.rule_id)
+        return pattern.match(self.name) or pattern.match(self.rule_id)
+
 
 class Message:
     def __init__(self, *args, rule, source, node, lineno, col):

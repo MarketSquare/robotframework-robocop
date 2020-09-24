@@ -9,6 +9,10 @@ from robocop.rules import RuleSeverity
 from robocop.version import __version__
 
 
+def translate_pattern(pattern):
+    return re.compile(fnmatch.translate(pattern))
+
+
 class ParseDelimitedArgAction(argparse.Action):  # pylint: disable=too-few-public-methods
     def __call__(self, parser, namespace, values, option_string=None):
         container = getattr(namespace, self.dest)
@@ -40,6 +44,14 @@ class SetRuleThreshold(argparse.Action):
         setattr(namespace, self.dest, sev)
 
 
+class SetListOption(argparse.Action):
+    def __call__(self, parser, namespace, values, option_string=None):
+        pattern = values if values else '*'
+        if '*' in pattern:
+            pattern = translate_pattern(pattern)
+        setattr(namespace, self.dest, pattern)
+
+
 class Config:
     def __init__(self):
         self.exec_dir = os.path.abspath('.')
@@ -55,7 +67,7 @@ class Config:
         self.include_patterns = []
         self.exclude_patterns = []
         self.filetypes = {'.robot', '.resource', '.tsv'}
-        self.list = False
+        self.list = ''
         self.list_configurables = ''
         self.output = None
         self.recursive = True
@@ -91,11 +103,7 @@ class Config:
     }
 
     def _translate_patterns(self, pattern_list):
-        return [self._translate_pattern(p) for p in pattern_list if '*' in p]
-
-    @staticmethod
-    def _translate_pattern(pattern):
-        return re.compile(fnmatch.translate(pattern))
+        return [translate_pattern(p) for p in pattern_list if '*' in p]
 
     def remove_severity(self):
         self.include = {self.replace_severity_values(rule) for rule in self.include}
@@ -110,7 +118,6 @@ class Config:
     def translate_patterns(self):
         self.include_patterns = self._translate_patterns(self.include)
         self.exclude_patterns = self._translate_patterns(self.exclude)
-        self.list_configurables = self._translate_pattern(self.list_configurables) if self.list_configurables else None
 
     def preparse(self, args):
         args = sys.argv[1:] if args is None else args
@@ -164,9 +171,9 @@ class Config:
         optional.add_argument('-f', '--format', type=str, default=self.format, help=self.HELP_MSGS['help_format'])
         optional.add_argument('-c', '--configure', action=ParseCheckerConfig, default=self.configure,
                               metavar='CONFIGURABLE', help=self.HELP_MSGS['help_configure'])
-        optional.add_argument('-l', '--list', action='store_true', default=self.list,
+        optional.add_argument('-l', '--list', action=SetListOption, nargs='?', const='', default=self.list,
                               help=self.HELP_MSGS['help_list'])
-        optional.add_argument('--list-configurables', type=str, default=self.list_configurables,
+        optional.add_argument('--list-configurables', action=SetListOption, nargs='?', const='', default=self.list_configurables,
                               help=self.HELP_MSGS['help_list_confs'])
         optional.add_argument('-o', '--output', type=argparse.FileType('w'), default=self.output,
                               metavar='PATH', help=self.HELP_MSGS['help_output'])
@@ -229,3 +236,10 @@ class Config:
             for char in sev:
                 message = message.replace(char, '')
         return message
+
+"""
+no --list-configurables: set to '' and skip it later
+--list-configurables, no patterns - set to '*'
+--list-configurables pattern - set to pattern
+--list-configurables pattern pattern - error
+"""

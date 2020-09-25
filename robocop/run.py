@@ -118,12 +118,20 @@ class Robocop:
         checkers.init(self)
 
     def list_checkers(self):
-        if self.config.list:
-            rule_by_id = {msg.rule_id: msg for checker in self.checkers for msg in checker.rules_map.values()}
-            rule_ids = sorted([key for key in rule_by_id])
-            for rule_id in rule_ids:
+        if not (self.config.list or self.config.list_configurables):
+            return
+        rule_by_id = {msg.rule_id: msg for checker in self.checkers for msg in checker.rules_map.values()}
+        rule_ids = sorted([key for key in rule_by_id])
+        for rule_id in rule_ids:
+            if self.config.list:
+                if not rule_by_id[rule_id].matches_pattern(self.config.list):
+                    continue
                 print(rule_by_id[rule_id])
-            sys.exit()
+            else:
+                if not rule_by_id[rule_id].matches_pattern(self.config.list_configurables):
+                    continue
+                print(f"{rule_by_id[rule_id]}\n    {rule_by_id[rule_id].available_configurables()}")
+        sys.exit()
 
     def load_reports(self):
         classes = inspect.getmembers(reports, inspect.isclass)

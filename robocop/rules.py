@@ -91,8 +91,8 @@ class Rule:
 
     def available_configurables(self):
         configurables = ['severity'] + [conf[0] for conf in self.configurable]
-        names = '\n'.join(configurables)
-        return f"Available configurable(s) for this rule:\n{names}"
+        names = '\n        '.join(configurables)
+        return f"Available configurable(s) for this rule:\n        {names}"
 
     def parse_body(self, body):
         if isinstance(body, tuple) and len(body) >= 3:
@@ -105,6 +105,12 @@ class Rule:
 
     def prepare_message(self, *args, source, node, lineno, col):
         return Message(*args, rule=self, source=source, node=node, lineno=lineno, col=col)
+
+    def matches_pattern(self, pattern):
+        """ check if this rule matches given pattern """
+        if isinstance(pattern, str):
+            return pattern in (self.name, self.rule_id)
+        return pattern.match(self.name) or pattern.match(self.rule_id)
 
 
 class Message:

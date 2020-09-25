@@ -168,7 +168,7 @@ class TestE2E:
         with pytest.raises(ConfigGeneralError) as err:
             robocop_instance.configure_checkers_or_reports()
         assert r"Provided param 'idontexist' for rule '0202' does not exist. " \
-               r"Available configurable(s) for this rule:\nseverity" in str(err)
+               r"Available configurable(s) for this rule:\n        severity" in str(err)
 
     def test_configure_invalid_config(self, robocop_instance):
         config = Config()

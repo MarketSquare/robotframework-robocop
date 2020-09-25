@@ -9,6 +9,10 @@ from robocop.rules import RuleSeverity
 from robocop.version import __version__
 
 
+def translate_pattern(pattern):
+    return re.compile(fnmatch.translate(pattern))
+
+
 class ParseDelimitedArgAction(argparse.Action):  # pylint: disable=too-few-public-methods
     def __call__(self, parser, namespace, values, option_string=None):
         container = getattr(namespace, self.dest)
@@ -40,6 +44,14 @@ class SetRuleThreshold(argparse.Action):
         setattr(namespace, self.dest, sev)
 
 
+class SetListOption(argparse.Action):
+    def __call__(self, parser, namespace, values, option_string=None):
+        pattern = values if values else '*'
+        if '*' in pattern:
+            pattern = translate_pattern(pattern)
+        setattr(namespace, self.dest, pattern)
+
+
 class Config:
     def __init__(self):
         self.exec_dir = os.path.abspath('.')
@@ -55,7 +67,8 @@ class Config:
         self.include_patterns = []
         self.exclude_patterns = []
         self.filetypes = {'.robot', '.resource', '.tsv'}
-        self.list = False
+        self.list = ''
+        self.list_configurables = ''
         self.output = None
         self.recursive = True
         self.parser = self._create_parser()
@@ -75,7 +88,9 @@ class Config:
                             '-c message_name_or_id:param_name:param_value\nExample:\n'
                             '-c line-too-long:line_length:150\n'
                             '--configure 0101:severity:E',
-        'help_list':        'List all available rules',
+        'help_list':        'List all available rules. You can use optional pattern argument',
+        'help_list_confs':  'List all available rules with configurable parameters. '
+                            'You can use optional pattern argument',
         'help_output':      'Path to output file',
         'help_filetypes':   'Comma separated list of file extensions to be scanned by Robocop',
         'help_threshold':    f'Disable rules below given threshold. Available message levels: '
@@ -88,9 +103,8 @@ class Config:
         'directives':       '1. Serve the public trust\n2. Protect the innocent\n3. Uphold the law\n4. [ACCESS DENIED]'
     }
 
-    @staticmethod
-    def _translate_pattern(pattern_list):
-        return [re.compile(fnmatch.translate(p)) for p in pattern_list if '*' in p]
+    def _translate_patterns(self, pattern_list):
+        return [translate_pattern(p) for p in pattern_list if '*' in p]
 
     def remove_severity(self):
         self.include = {self.replace_severity_values(rule) for rule in self.include}
@@ -103,8 +117,8 @@ class Config:
             self.configure[index] = f"{message}:{param}:{value}"
 
     def translate_patterns(self):
-        self.include_patterns = self._translate_pattern(self.include)
-        self.exclude_patterns = self._translate_pattern(self.exclude)
+        self.include_patterns = self._translate_patterns(self.include)
+        self.exclude_patterns = self._translate_patterns(self.exclude)
 
     def preparse(self, args):
         args = sys.argv[1:] if args is None else args
@@ -158,8 +172,10 @@ class Config:
         optional.add_argument('-f', '--format', type=str, default=self.format, help=self.HELP_MSGS['help_format'])
         optional.add_argument('-c', '--configure', action=ParseCheckerConfig, default=self.configure,
                               metavar='CONFIGURABLE', help=self.HELP_MSGS['help_configure'])
-        optional.add_argument('-l', '--list', action='store_true', default=self.list,
-                              help=self.HELP_MSGS['help_list'])
+        optional.add_argument('-l', '--list', action=SetListOption, nargs='?', const='', default=self.list,
+                              metavar='PATTERN', help=self.HELP_MSGS['help_list'])
+        optional.add_argument('--list-configurables', action=SetListOption, nargs='?', const='', default=self.list_configurables,
+                              metavar='PATTERN', help=self.HELP_MSGS['help_list_confs'])
         optional.add_argument('-o', '--output', type=argparse.FileType('w'), default=self.output,
                               metavar='PATH', help=self.HELP_MSGS['help_output'])
         optional.add_argument('--filetypes', action=ParseFileTypes, default=self.filetypes,

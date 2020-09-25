@@ -18,7 +18,7 @@ source code. More in :ref:`including-rules`.
 
 Listing available rules
 -----------------------
-To get list of available rules (with enabled/disabled status) use --list option::
+To get list of available rules (with enabled/disabled status) use ``--list`` option::
 
     robocop --list
     Rule - 0201 [W]: missing-doc-keyword: Missing documentation in keyword (enabled)
@@ -42,7 +42,7 @@ Rules list can be filtered out by glob pattern::
     Rule - 0603 [W]: tag-with-reserved: Tag prefixed with reserved word `robot:`. Only allowed tag with this prefix is robot:no-dry-run (enabled)
     Rule - 0606 [I]: tag-already-set-in-force-tags: This tag is already set by Force Tags in suite settings (enabled)
 
- Use --list-configurables argument to list rules together with available configurable parameters. Optional pattern argument is also supported::
+Use ``--list-configurables`` argument to list rules together with available configurable parameters. Optional pattern argument is also supported::
 
     robocop --list-configurables empty-lines-between-section
     Rule - 1003 [W]: empty-lines-between-sections: Invalid number of empty lines between sections (%d/%d) (enabled). Available configurable(s) for this rule:

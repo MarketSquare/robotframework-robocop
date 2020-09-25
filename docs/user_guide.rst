@@ -16,6 +16,39 @@ Including or excluding rules
 Rules can be included or excluded from command line. It is also possible to disable rule(s) from Robot Framework
 source code. More in :ref:`including-rules`.
 
+Listing available rules
+-----------------------
+To get list of available rules (with enabled/disabled status) use --list option::
+
+    robocop --list
+    Rule - 0201 [W]: missing-doc-keyword: Missing documentation in keyword (enabled)
+    Rule - 0202 [W]: missing-doc-testcase: Missing documentation in test case (enabled)
+    Rule - 0203 [W]: missing-doc-suite: Missing documentation in suite (enabled)
+    (...)
+
+If some of the rules are disabled from CLI it will be reflected in output::
+
+    robocop --exclude 02* --list
+    Rule - 0201 [W]: missing-doc-keyword: Missing documentation in keyword (disabled)
+    Rule - 0202 [W]: missing-doc-testcase: Missing documentation in test case (disabled)
+    Rule - 0203 [W]: missing-doc-suite: Missing documentation in suite (enabled)
+    (...)
+
+Rules list can be filtered out by glob pattern::
+
+    robocop --list setting-name*
+    Rule - 0601 [W]: tag-with-space: Tags should not contain spaces (enabled)
+    Rule - 0602 [I]: tag-with-or-and: Tag with reserved word OR/AND. Hint: make sure to include this tag using lowercase name to avoid issues (enabled)
+    Rule - 0603 [W]: tag-with-reserved: Tag prefixed with reserved word `robot:`. Only allowed tag with this prefix is robot:no-dry-run (enabled)
+    Rule - 0606 [I]: tag-already-set-in-force-tags: This tag is already set by Force Tags in suite settings (enabled)
+
+ Use --list-configurables argument to list rules together with available configurable parameters. Optional pattern argument is also supported::
+
+    robocop --list-configurables empty-lines-between-section
+    Rule - 1003 [W]: empty-lines-between-sections: Invalid number of empty lines between sections (%d/%d) (enabled). Available configurable(s) for this rule:
+    severity
+    empty_lines
+
 Ignoring file
 -------------
 Path matching glob pattern can be ignored (or *skipped* during scan). You can pass list of patterns::

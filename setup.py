@@ -5,14 +5,19 @@ from robocop.version import __version__
 HERE = pathlib.Path(__file__).parent
 README = (HERE / "README.rst").read_text()
 CLASSIFIERS = """
+Development Status :: 5 - Production/Stable
 License :: OSI Approved :: Apache Software License
 Operating System :: OS Independent
+Programming Language :: Python
 Programming Language :: Python :: 3.6
 Programming Language :: Python :: 3.7
 Programming Language :: Python :: 3.8
+Framework :: Robot Framework
 Framework :: Robot Framework :: Tool
+Topic :: Software Development :: Testing
 Topic :: Software Development :: Quality Assurance
 Topic :: Utilities
+Intended Audience :: Developers
 """.strip().splitlines()
 
 setup(
@@ -27,6 +32,7 @@ setup(
     license="Apache License 2.0",
     platforms="any",
     classifiers=CLASSIFIERS,
+    keywords='robotframework',
     packages=['robocop'],
     include_package_data=True,
     install_requires=['robotframework>=3.2.1'],

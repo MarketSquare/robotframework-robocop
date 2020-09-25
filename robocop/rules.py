@@ -91,8 +91,8 @@ class Rule:
 
     def available_configurables(self):
         configurables = ['severity'] + [conf[0] for conf in self.configurable]
-        names = '\n'.join(configurables)
-        return f"Available configurable(s) for this rule:\n{names}"
+        names = '\n        '.join(configurables)
+        return f"Available configurable(s) for this rule:\n        {names}"
 
     def parse_body(self, body):
         if isinstance(body, tuple) and len(body) >= 3:

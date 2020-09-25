@@ -130,7 +130,7 @@ class Robocop:
             else:
                 if not rule_by_id[rule_id].matches_pattern(self.config.list_configurables):
                     continue
-                print(f"{rule_by_id[rule_id]}. {rule_by_id[rule_id].available_configurables()}")
+                print(f"{rule_by_id[rule_id]}\n    {rule_by_id[rule_id].available_configurables()}")
         sys.exit()
 
     def load_reports(self):

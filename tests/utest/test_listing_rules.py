@@ -100,8 +100,8 @@ class TestListingRules:
         with pytest.raises(SystemExit):
             robocop_pre_load.list_checkers()
         out, _ = capsys.readouterr()
-        assert out == 'Rule - 0101 [W]: some-message: Some description (enabled). ' \
-                      'Available configurable(s) for this rule:\nseverity\n'
+        assert out == 'Rule - 0101 [W]: some-message: Some description (enabled)\n' \
+                      '    Available configurable(s) for this rule:\n        severity\n'
 
     def test_list_configurables_filtered(self, robocop_pre_load, msg_0101, msg_0102_0204, capsys):
         robocop_pre_load.config.list_configurables = 'another-message'
@@ -111,12 +111,12 @@ class TestListingRules:
             robocop_pre_load.list_checkers()
         out, _ = capsys.readouterr()
         not_exp_msg = (
-            'Rule - 0101 [W]: some-message: Some description (enabled). '
-            'Available configurable(s) for this rule:\nseverity\n',
-            'Rule - 0102 [E]: other-message: this is description (disabled). '
-            'Available configurable(s) for this rule:\nseverity\n'
+            'Rule - 0101 [W]: some-message: Some description (enabled)\n'
+            '    Available configurable(s) for this rule:\n        severity\n',
+            'Rule - 0102 [E]: other-message: this is description (disabled)\n'
+            '    Available configurable(s) for this rule:\n        severity\n'
         )
-        exp_msg = 'Rule - 0204 [I]: another-message: Message with meaning 4 (disabled). ' \
-                      'Available configurable(s) for this rule:\nseverity\n'
+        exp_msg = 'Rule - 0204 [I]: another-message: Message with meaning 4 (disabled)\n' \
+                  '    Available configurable(s) for this rule:\n        severity\n'
         assert all(msg not in out for msg in not_exp_msg)
         assert exp_msg in out

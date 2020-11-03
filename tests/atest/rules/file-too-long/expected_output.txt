@@ -1,0 +1,1 @@
+rules\file-too-long\test.robot:434:0 [W] 0506 File has too many lines (434/400)

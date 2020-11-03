@@ -1,0 +1,1 @@
+rules\missing-doc-testcase\test.robot:6:0 [W] 0202 Missing documentation in test case

@@ -1,0 +1,7 @@
+rules\uneven-indent\test.robot:17:8 [W] 1007 Line is over-indented
+rules\uneven-indent\test.robot:25:4 [W] 1007 Line is under-indented
+rules\uneven-indent\test.robot:31:6 [W] 1007 Line is over-indented
+rules\uneven-indent\test.robot:32:8 [W] 1007 Line is over-indented
+rules\uneven-indent\test.robot:40:17 [W] 1007 Line is over-indented
+rules\uneven-indent\test.robot:43:6 [W] 1007 Line is over-indented
+rules\uneven-indent\test.robot:51:8 [W] 1007 Line is under-indented

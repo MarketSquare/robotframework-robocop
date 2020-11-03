@@ -1,0 +1,1 @@
+rules\missing-doc-suite\test.robot:0:0 [W] 0203 Missing documentation in suite

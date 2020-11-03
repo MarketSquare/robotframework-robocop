@@ -111,3 +111,13 @@ def get_docs():
         for checker in classes:
             if hasattr(checker[1], 'rules') and checker[1].rules:
                 yield checker[1]
+
+
+def get_rules_for_atest():
+    for module in modules_in_current_dir(__file__, __name__):
+        classes = inspect.getmembers(module, inspect.isclass)
+        for checker in classes:
+            if not (hasattr(checker[1], 'rules') and checker[1].rules):
+                continue
+            for rule_id, rule_body in checker[1].rules.items():
+                yield rule_body[0]

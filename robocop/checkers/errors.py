@@ -36,6 +36,7 @@ class TwoSpacesAfterSettingsChecker(VisitorChecker):
         super().__init__(*args)
 
     def visit_KeywordCall(self, node):  # noqa
+        """ Invalid settings like '[Arguments] ${var}' will be parsed as keyword call """
         match = self.setting_pattern.match(node.keyword)
         if not match:
             return

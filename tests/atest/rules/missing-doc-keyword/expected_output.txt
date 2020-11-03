@@ -1,0 +1,1 @@
+rules\missing-doc-keyword\test.robot:15:0 [W] 0201 Missing documentation in keyword

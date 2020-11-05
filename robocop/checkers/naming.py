@@ -210,6 +210,9 @@ class SettingsNamingChecker(VisitorChecker):
     def visit_Setup(self, node):  # noqa
         self.check_setting_name(node.data_tokens[0].value, node)
 
+    def visit_Teardown(self, node):  # noqa
+        self.check_setting_name(node.data_tokens[0].value, node)
+
     def visit_SuiteTeardown(self, node):  # noqa
         self.check_setting_name(node.data_tokens[0].value, node)
 

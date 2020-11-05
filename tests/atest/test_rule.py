@@ -29,8 +29,7 @@ def test_rule(rule, robocop_instance, capsys):
     assert test_data.exists(), f"Missing test data for rule '{rule}'"
     assert expected_output.exists(), f"Missing expected_output.txt file for rule '{rule}'"
     with open(expected_output) as f:
-        expected = f.readlines()
-    expected = [line.strip('\n') for line in expected]
+        expected = [line.rstrip('\n') for line in f]
     robocop_instance = configure_robocop_with_rule(robocop_instance, rule, test_data)
     with pytest.raises(SystemExit) as system_exit:
         robocop_instance.run()

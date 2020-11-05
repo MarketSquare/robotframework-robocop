@@ -1,1 +1,1 @@
-rules\underscore-in-keyword-name\test.robot:11:0 [W] 0305 Underscores in keyword name can be replaced with spaces
+${rules_dir}${\}test.robot:11:0 [W] 0305 Underscores in keyword name can be replaced with spaces

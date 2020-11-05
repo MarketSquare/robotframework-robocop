@@ -1,1 +1,1 @@
-rules\empty-default-tags\test.robot:3:13 [W] 0514 Default Tags are empty
+${rules_dir}${\}test.robot:3:13 [W] 0514 Default Tags are empty

@@ -1,1 +1,1 @@
-rules\empty-lines-between-keywords\test.robot:25:0 [W] 1005 Invalid number of empty lines between keywords (2/1)
+${rules_dir}${\}test.robot:25:0 [W] 1005 Invalid number of empty lines between keywords (2/1)

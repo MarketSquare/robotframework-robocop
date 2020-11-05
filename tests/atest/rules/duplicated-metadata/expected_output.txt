@@ -1,2 +1,2 @@
-rules\duplicated-metadata\__init__.robot:2:0 [W] 0806 Duplicated metadata "some text" in suite
-rules\duplicated-metadata\__init__.robot:4:0 [W] 0806 Duplicated metadata "some text" in suite
+${rules_dir}${\}__init__.robot:2:0 [W] 0806 Duplicated metadata "some text" in suite
+${rules_dir}${\}__init__.robot:4:0 [W] 0806 Duplicated metadata "some text" in suite

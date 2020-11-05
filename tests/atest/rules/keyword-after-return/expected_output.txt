@@ -1,1 +1,1 @@
-rules\keyword-after-return\test.robot:20:23 [W] 0901 [Return] is not defined at the end of keyword. Note that [Return] does not return from keyword but only set returned variables
+${rules_dir}${\}test.robot:20:23 [W] 0901 [Return] is not defined at the end of keyword. Note that [Return] does not return from keyword but only set returned variables

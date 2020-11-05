@@ -1,3 +1,3 @@
-rules\tag-with-space\test.robot:3:15 [W] 0601 Tags should not contain spaces
-rules\tag-with-space\test.robot:4:15 [W] 0601 Tags should not contain spaces
-rules\tag-with-space\test.robot:10:13 [W] 0601 Tags should not contain spaces
+${rules_dir}${\}test.robot:3:15 [W] 0601 Tags should not contain spaces
+${rules_dir}${\}test.robot:4:15 [W] 0601 Tags should not contain spaces
+${rules_dir}${\}test.robot:10:13 [W] 0601 Tags should not contain spaces

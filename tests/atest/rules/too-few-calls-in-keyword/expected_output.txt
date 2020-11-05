@@ -1,1 +1,1 @@
-rules\too-few-calls-in-keyword\test.robot:22:0 [W] 0502 Keyword have too few keywords inside (1/2)
+${rules_dir}${\}test.robot:22:0 [W] 0502 Keyword have too few keywords inside (1/2)

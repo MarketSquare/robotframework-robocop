@@ -1,2 +1,2 @@
-rules\redundant-equal-sign\test.robot:10:11 [W] 0906 Redundant equal sign in return value assignment
-rules\redundant-equal-sign\test.robot:19:13 [W] 0906 Redundant equal sign in return value assignment
+${rules_dir}${\}test.robot:10:11 [W] 0906 Redundant equal sign in return value assignment
+${rules_dir}${\}test.robot:19:13 [W] 0906 Redundant equal sign in return value assignment

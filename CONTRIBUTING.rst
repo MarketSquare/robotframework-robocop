@@ -182,6 +182,10 @@ it will expect ``rule-name`` directory inside with ``expected_output.txt`` file.
 You can put any *.robot file inside - it will be autoscanned with --include "rule-name" option.
 Robocop output will be compared with content of ``expected_output.txt`` file.
 
+When updating ``expected_output.txt`` file you can use two macro variables: ${rules_dir} and ${/}.
+The first is path to rules directory (so the correct path in robocop output will be printed) and the
+second is path separator - \ under Windows and / under Linux.
+
 E2E tests
 '''''''''
 

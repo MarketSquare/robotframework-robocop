@@ -104,9 +104,9 @@ class Robocop:
             return
         for report in self.reports:
             report.add_message(rule_msg)
-        rel_source = Path(rule_msg.source).relative_to(self.root)
+        source_rel = Path(rule_msg.source).relative_to(self.root)
         self.log_message(source=rule_msg.source,
-                         rel_source=rel_source,
+                         source_rel=source_rel,
                          line=rule_msg.line,
                          col=rule_msg.col,
                          severity=rule_msg.severity.value,

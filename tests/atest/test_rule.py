@@ -9,7 +9,7 @@ def configure_robocop_with_rule(runner, rule, path):
         '--include',
         rule,
         '--format',
-        '{rel_source}:{line}:{col} [{severity}] {rule_id} {desc}',
+        '{source_rel}:{line}:{col} [{severity}] {rule_id} {desc}',
         '--configure',
         'return_status:quality_gate:E=0:W=0:I=0',
         str(path)

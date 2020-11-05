@@ -11,7 +11,7 @@ Output rule message can be defined with ``-f`` / ``--format`` argument. Default 
 
 Available formats:
   * source: path to file where is the issue
-  * rel_source: path to file where is the issue, relative to execution directory
+  * source_rel: path to file where is the issue, relative to execution directory
   * line: line number
   * col: column number
   * severity: severity of the message. Value of enum ``robocop.rules.RuleSeverity``

@@ -42,4 +42,4 @@ def test_rule(rule, robocop_instance, capsys):
     assert system_exit.value.code > 0
     out, _ = capsys.readouterr()
     actual = out.splitlines()
-    assert actual == expected
+    assert sorted(actual) == sorted(expected)

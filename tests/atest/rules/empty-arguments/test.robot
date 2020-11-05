@@ -12,9 +12,14 @@ Test
 
 
 *** Keywords ***
-Keyword
+Keyword Without Arguments
     [Documentation]  this is doc
+    [Arguments]
     No Operation
     Pass
     No Operation
     Fail
+
+Keyword With Arguments
+    [Arguments]  ${var}
+    No Operation

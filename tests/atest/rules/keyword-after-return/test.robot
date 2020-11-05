@@ -17,4 +17,5 @@ Keyword
     No Operation
     Pass
     No Operation
+    [Return]    ${var}
     Fail

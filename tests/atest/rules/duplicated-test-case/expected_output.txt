@@ -1,0 +1,2 @@
+rules\duplicated-test-case\test.robot:6:0 [E] 0801 Multiple test cases with name "Test" in suite
+rules\duplicated-test-case\test.robot:13:0 [E] 0801 Multiple test cases with name "Test" in suite

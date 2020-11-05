@@ -11,6 +11,11 @@ Test
     One More
 
 
+*** Tasks ***
+Task
+    No Operation
+
+
 *** Keywords ***
 Keyword
     [Documentation]  this is doc

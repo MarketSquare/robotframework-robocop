@@ -1,0 +1,1 @@
+rules\could-be-forced-tags\test.robot:1:0 [I] 0605 All tests in suite share those tags: "sometag". You can define them in Force Tags in suite settings instead

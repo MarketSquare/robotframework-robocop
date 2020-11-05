@@ -7,14 +7,14 @@ Test
     [Documentation]  doc
     [Tags]  sometag
     Pass
-    Keyword
+    Keyword # valid comment
     One More
 
 
 *** Keywords ***
 Keyword
     [Documentation]  this is doc
-    No Operation
+    No Operation  #invalid comment
     Pass
     No Operation
     Fail

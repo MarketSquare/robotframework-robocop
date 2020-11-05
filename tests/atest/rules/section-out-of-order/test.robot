@@ -1,7 +1,3 @@
-*** Settings ***
-Documentation  doc
-
-
 *** Test Cases ***
 Test
     [Documentation]  doc
@@ -18,3 +14,6 @@ Keyword
     Pass
     No Operation
     Fail
+
+*** Settings ***
+Documentation  doc

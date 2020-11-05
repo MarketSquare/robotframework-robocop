@@ -1,6 +1,4 @@
 *** Settings ***
-Documentation  doc
-Force Tags
 
 
 *** Test Cases ***
@@ -13,9 +11,3 @@ Test
 
 
 *** Keywords ***
-Keyword
-    [Documentation]  this is doc
-    No Operation
-    Pass
-    No Operation
-    Fail

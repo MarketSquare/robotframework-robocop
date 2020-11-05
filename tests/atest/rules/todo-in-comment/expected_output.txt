@@ -1,0 +1,2 @@
+rules\todo-in-comment\test.robot:13:0 [W] 0701 Found FIXME in comment
+rules\todo-in-comment\test.robot:17:18 [W] 0701 Found TODO in comment

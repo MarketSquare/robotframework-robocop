@@ -1,0 +1,2 @@
+rules\empty-section\with_empty_sections.robot:1:0 [W] 0509 Section is empty
+rules\empty-section\with_empty_sections.robot:13:0 [W] 0509 Section is empty

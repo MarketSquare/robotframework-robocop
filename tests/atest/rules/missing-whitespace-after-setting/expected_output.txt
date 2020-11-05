@@ -1,0 +1,2 @@
+rules\missing-whitespace-after-setting\test.robot:7:5 [E] 0402 There should be at least two spaces after the [Documentation] setting
+rules\missing-whitespace-after-setting\test.robot:17:5 [E] 0402 There should be at least two spaces after the [Arguments] setting

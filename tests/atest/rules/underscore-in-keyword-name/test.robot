@@ -8,7 +8,7 @@ Test
     [Tags]  sometag
     Pass
     Keyword
-    One More
+    One_More
 
 
 *** Keywords ***

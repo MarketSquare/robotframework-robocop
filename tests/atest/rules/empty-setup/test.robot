@@ -6,6 +6,7 @@ Documentation  doc
 Test
     [Documentation]  doc
     [Tags]  sometag
+    [Setup]
     Pass
     Keyword
     One More

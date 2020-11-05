@@ -10,6 +10,9 @@ Test
     Keyword
     One More
 
+Test
+    No Operation
+
 
 *** Keywords ***
 Keyword

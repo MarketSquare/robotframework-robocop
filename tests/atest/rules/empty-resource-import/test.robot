@@ -1,5 +1,6 @@
 *** Settings ***
 Documentation  doc
+Resource
 
 
 *** Test Cases ***

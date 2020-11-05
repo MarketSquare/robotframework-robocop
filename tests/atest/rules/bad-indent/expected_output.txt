@@ -1,0 +1,1 @@
+rules\bad-indent\test.robot:57:0 [E] 1008 Indent expected

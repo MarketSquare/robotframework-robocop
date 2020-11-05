@@ -17,4 +17,6 @@ Keyword
     No Operation
     Pass
     No Operation
+    For
+    End
     Fail

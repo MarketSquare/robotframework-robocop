@@ -18,3 +18,10 @@ Keyword
     Pass
     No Operation
     Fail
+    [Return]    ${var}  2  4  4  5
+
+Keyword 2
+    Return From Keyword  ${var}  2  4  4  5
+
+Keyword 3
+    Return From Keyword If    ${condition}==${True}    ${var}  2  4  4  5

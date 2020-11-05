@@ -1,10 +1,10 @@
 *** Settings ***
-Documentation  doc
+Documentation
 
 
 *** Test Cases ***
 Test
-    [Documentation]  doc
+    [Documentation]
     [Tags]  sometag
     Pass
     Keyword
@@ -13,7 +13,7 @@ Test
 
 *** Keywords ***
 Keyword
-    [Documentation]  this is doc
+    [Documentation]
     No Operation
     Pass
     No Operation

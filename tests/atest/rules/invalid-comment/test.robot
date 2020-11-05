@@ -1,7 +1,7 @@
 *** Settings ***
 Documentation  doc
 
-
+ # here comment is fine
 *** Test Cases ***
 Test
     [Documentation]  doc
@@ -9,7 +9,7 @@ Test
     Pass
     Keyword
     One More
-
+ # this is invalid comment - should start from first cell
 
 *** Keywords ***
 Keyword

@@ -7,7 +7,7 @@ Test
     [Documentation]  doc
     [Tags]  sometag
     Pass
-    Keyword
+    ${var}=  Keyword
     One More
 
 
@@ -16,5 +16,5 @@ Keyword
     [Documentation]  this is doc
     No Operation
     Pass
-    No Operation
+    ${smth} =  No Operation
     Fail

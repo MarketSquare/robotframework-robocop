@@ -1,0 +1,1 @@
+rules\too-long-keyword\test.robot:62:0 [W] 0501 Keyword is too long (47/40)

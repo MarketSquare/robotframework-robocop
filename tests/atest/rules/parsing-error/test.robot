@@ -14,6 +14,7 @@ Test
 *** Keywords ***
 Keyword
     [Documentation]  this is doc
+    [Argument]
     No Operation
     Pass
     No Operation

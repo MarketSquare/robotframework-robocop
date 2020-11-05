@@ -8,12 +8,14 @@ Test
     [Tags]  sometag
     Pass
     Keyword
-    One More
+    One More  ${var}
+    ... ${var2}
 
 
 *** Keywords ***
 Keyword
     [Documentation]  this is doc
+    ... and new line
     No Operation
     Pass
     No Operation

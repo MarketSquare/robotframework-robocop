@@ -1,0 +1,1 @@
+rules\empty-teardown\test.robot:21:16 [E] 0521 Teardown does not have any keywords

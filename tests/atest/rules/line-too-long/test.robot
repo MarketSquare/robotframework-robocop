@@ -8,13 +8,13 @@ Test
     [Tags]  sometag
     Pass
     Keyword
-    One More
+    Keyword With Looooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooong Name And  ${args}
 
 
 *** Keywords ***
 Keyword
-    [Documentation]  this is doc
+    [Documentation]  this is looooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooong doc
     No Operation
     Pass
-    No Operation
+    Keyword With Looooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooong Name And  ${args}
     Fail

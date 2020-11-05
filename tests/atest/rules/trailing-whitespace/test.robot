@@ -2,7 +2,7 @@
 Documentation  doc
 
 
-*** Test Cases ***
+*** Test Cases *** 
 Test
     [Documentation]  doc
     [Tags]  sometag

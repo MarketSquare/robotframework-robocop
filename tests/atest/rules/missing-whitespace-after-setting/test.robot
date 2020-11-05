@@ -4,7 +4,7 @@ Documentation  doc
 
 *** Test Cases ***
 Test
-    [Documentation]  doc
+    [Documentation] doc
     [Tags]  sometag
     Pass
     Keyword
@@ -14,6 +14,7 @@ Test
 *** Keywords ***
 Keyword
     [Documentation]  this is doc
+    [Arguments] ${var}
     No Operation
     Pass
     No Operation

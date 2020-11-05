@@ -1,5 +1,6 @@
 *** Settings ***
 Documentation  doc
+Test Timeout
 
 
 *** Test Cases ***

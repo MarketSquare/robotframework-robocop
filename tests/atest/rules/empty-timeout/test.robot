@@ -1,11 +1,11 @@
 *** Settings ***
 Documentation  doc
 
-
 *** Test Cases ***
 Test
     [Documentation]  doc
     [Tags]  sometag
+    [Timeout]
     Pass
     Keyword
     One More

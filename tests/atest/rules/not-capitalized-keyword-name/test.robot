@@ -6,13 +6,13 @@ Documentation  doc
 Test
     [Documentation]  doc
     [Tags]  sometag
-    Pass
+    pass
     Keyword
     One More
 
 
 *** Keywords ***
-Keyword
+keyword
     [Documentation]  this is doc
     No Operation
     Pass

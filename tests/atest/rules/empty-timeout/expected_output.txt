@@ -1,0 +1,1 @@
+rules\empty-timeout\test.robot:8:15 [W] 0524 Timeout is empty

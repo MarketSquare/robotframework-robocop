@@ -10,11 +10,11 @@ Test
     Keyword
     One More
 
-
+# fixme: this whole section
 *** Keywords ***
 Keyword
     [Documentation]  this is doc
-    No Operation
+    No Operation  # todo: do something
     Pass
     No Operation
     Fail

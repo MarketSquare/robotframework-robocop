@@ -1,0 +1,2 @@
+rules\keyword-name-is-reserved-word\test.robot:20:0 [E] 0303 'For' is a reserved keyword. It must be in uppercase (FOR) when used as a marker with 'for loop'. Each marker should have minimum of 2 spaces as separator.
+rules\keyword-name-is-reserved-word\test.robot:21:0 [E] 0303 'End' is a reserved keyword. It must be in uppercase (END) when used as a marker with 'for loop'. Each marker should have minimum of 2 spaces as separator.

@@ -1,5 +1,8 @@
 *** Settings ***
 Documentation  doc
+Resource  resource.robot
+Resource  other_file.robot
+Resource  resource.robot
 
 
 *** Test Cases ***

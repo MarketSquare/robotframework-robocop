@@ -1,5 +1,8 @@
 *** Settings ***
 Documentation  doc
+Variables  variables.py
+Variables  other.robot
+Variables  variables.py
 
 
 *** Test Cases ***

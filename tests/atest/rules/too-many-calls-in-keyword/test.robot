@@ -18,3 +18,11 @@ Keyword
     Pass
     No Operation
     Fail
+    No Operation
+    No Operation
+    No Operation
+    No Operation
+    For  ${var}  IN RANGE  10
+        No Operation
+        No Operation
+    END

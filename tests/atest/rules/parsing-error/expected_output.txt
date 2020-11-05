@@ -1,0 +1,2 @@
+rules\parsing-error\test.robot:17:0 [E] 0401 Robot Framework syntax error: Non-existing setting 'Argument'. Did you mean:
+    Arguments

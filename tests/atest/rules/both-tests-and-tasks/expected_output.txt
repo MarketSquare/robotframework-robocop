@@ -1,0 +1,1 @@
+rules\both-tests-and-tasks\test.robot:14:0 [E] 0810 Both Task(s) and Test Case(s) section headers defined in file

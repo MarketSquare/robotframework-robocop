@@ -1,0 +1,3 @@
+rules\number-of-returned-values\test.robot:21:0 [W] 0510 Too many return values (5/4)
+rules\number-of-returned-values\test.robot:24:0 [W] 0510 Too many return values (5/4)
+rules\number-of-returned-values\test.robot:27:0 [W] 0510 Too many return values (5/4)

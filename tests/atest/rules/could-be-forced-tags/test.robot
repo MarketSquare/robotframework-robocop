@@ -10,6 +10,12 @@ Test
     Keyword
     One More
 
+Test
+    [Documentation]  doc
+    [Tags]  othertag  sometag
+    Pass
+    Keyword
+    One More
 
 *** Keywords ***
 Keyword

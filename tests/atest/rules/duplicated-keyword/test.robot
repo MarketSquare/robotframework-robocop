@@ -12,9 +12,16 @@ Test
 
 
 *** Keywords ***
-Keyword
+Duplicated Keyword
     [Documentation]  this is doc
     No Operation
     Pass
     No Operation
     Fail
+
+Just Keyword
+    No Operation
+
+Duplicated Keyword
+    No Operation
+

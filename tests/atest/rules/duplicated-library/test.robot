@@ -1,5 +1,9 @@
 *** Settings ***
 Documentation  doc
+Library    MyLib
+Library    OtherLib
+Resource  some_resource.robot
+Library    MyLib
 
 
 *** Test Cases ***

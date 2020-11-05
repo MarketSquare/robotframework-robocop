@@ -3,16 +3,16 @@ Documentation  doc
 
 
 *** Test Cases ***
-Test
+Test.
     [Documentation]  doc
     [Tags]  sometag
     Pass
-    Keyword
+    Keywo.rd
     One More
 
 
 *** Keywords ***
-Keyword
+Keyword?
     [Documentation]  this is doc
     No Operation
     Pass

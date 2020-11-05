@@ -2,6 +2,12 @@
 Documentation  doc
 
 
+*** Variables ***
+${v_ar}       10
+${other_var}  20
+${V AR}       a
+
+
 *** Test Cases ***
 Test
     [Documentation]  doc

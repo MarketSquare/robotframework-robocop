@@ -1,8 +1,12 @@
-*** Settings ***
+*** SETTINGS ***
 Documentation  doc
 
 
-*** Test Cases ***
+*** Variables ***
+${var}  1
+
+
+*** Test Case ***
 Test
     [Documentation]  doc
     [Tags]  sometag
@@ -11,10 +15,12 @@ Test
     One More
 
 
-*** Keywords ***
+*** keywords ***
 Keyword
     [Documentation]  this is doc
     No Operation
     Pass
     No Operation
     Fail
+
+*** Comment ***

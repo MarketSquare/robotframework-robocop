@@ -8,6 +8,22 @@ Test
     [Tags]  sometag
     Pass
     Keyword
+    ...  ${var}
+    ...  ${var}
+    ...  ${var}
+    ...  ${var}
+    ...  ${var}
+    ...  ${var}
+    ...  ${var}
+    ...  ${var}
+    ...  ${var}
+    ...  ${var}
+    ...  ${var}
+    ...  ${var}
+    ...  ${var}
+    ...  ${var}
+    ...  ${var}
+    ...  ${var}
     One More
 
 

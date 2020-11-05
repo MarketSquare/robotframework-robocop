@@ -16,5 +16,10 @@ Keyword
     [Documentation]  this is doc
     No Operation
     Pass
+    FOR  ${var}  IN RANGE  10
+        FOR  ${var2}  IN  a  b  c
+            Log  ${var2}
+        END
+    END
     No Operation
     Fail

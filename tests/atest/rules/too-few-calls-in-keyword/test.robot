@@ -18,3 +18,6 @@ Keyword
     Pass
     No Operation
     Fail
+
+Short Keyword
+    Keyword

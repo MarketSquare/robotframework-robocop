@@ -2,6 +2,9 @@
 Documentation  doc
 
 
+*** Keyword ***
+
+
 *** Test Cases ***
 Test
     [Documentation]  doc
@@ -11,6 +14,8 @@ Test
     One More
 
 
+*** Test Case ***
+
 *** Keywords ***
 Keyword
     [Documentation]  this is doc
@@ -18,3 +23,5 @@ Keyword
     Pass
     No Operation
     Fail
+
+*** Settings ***

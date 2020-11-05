@@ -1,5 +1,6 @@
 *** Settings ***
 Documentation  doc
+Suite Teardown
 
 
 *** Test Cases ***

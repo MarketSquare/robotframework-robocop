@@ -1,0 +1,3 @@
+rules\line-too-long\test.robot:11:0 [W] 0508 Line is too long (140/120)
+rules\line-too-long\test.robot:16:0 [W] 0508 Line is too long (160/120)
+rules\line-too-long\test.robot:19:0 [W] 0508 Line is too long (140/120)

@@ -15,9 +15,11 @@ default tags    defaulttag
 Test
     [Documentation]  doc
     [Tags]  sometag
+    [setup]  Keyword
     Pass
     Keyword
     One More
+    [teardown]  Keyword
 
 
 *** Keywords ***

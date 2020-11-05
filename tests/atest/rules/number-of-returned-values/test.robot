@@ -24,4 +24,6 @@ Keyword 2
     Return From Keyword  ${var}  2  4  4  5
 
 Keyword 3
-    Return From Keyword If    ${condition}==${True}    ${var}  2  4  4  5
+    FOR  ${var}  IN RANGE  10
+        Return From Keyword If    ${condition}==${True}    ${var}  2  4  4  5
+    END

@@ -1,11 +1,13 @@
 *** Settings ***
 Documentation  doc
+Force Tags  tagORtag2  tagor
+Default Tags  tagORtag2  tagor
 
 
 *** Test Cases ***
 Test
     [Documentation]  doc
-    [Tags]  sometag
+    [Tags]  tagORtag2  tagor
     Pass
     Keyword
     One More

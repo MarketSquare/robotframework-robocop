@@ -17,3 +17,5 @@ Keyword
 
 *** Settings ***
 Documentation  doc
+
+*** Variables ***

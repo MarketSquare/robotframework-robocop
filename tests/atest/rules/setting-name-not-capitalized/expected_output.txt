@@ -7,3 +7,5 @@ rules\setting-name-not-capitalized\test.robot:8:0 [W] 0306 Setting name should b
 rules\setting-name-not-capitalized\test.robot:9:0 [W] 0306 Setting name should be capitalized or upper case
 rules\setting-name-not-capitalized\test.robot:10:0 [W] 0306 Setting name should be capitalized or upper case
 rules\setting-name-not-capitalized\test.robot:11:0 [W] 0306 Setting name should be capitalized or upper case
+rules\setting-name-not-capitalized\test.robot:18:0 [W] 0306 Setting name should be capitalized or upper case
+rules\setting-name-not-capitalized\test.robot:22:0 [W] 0306 Setting name should be capitalized or upper case

@@ -1,0 +1,1 @@
+rules\tag-with-reserved\test.robot:23:84 [W] 0603 Tag prefixed with reserved word `robot:`. Only allowed tag with this prefix is robot:no-dry-run

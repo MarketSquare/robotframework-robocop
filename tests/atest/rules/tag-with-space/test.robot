@@ -1,11 +1,13 @@
 *** Settings ***
 Documentation  doc
+Force Tags    with space
+Default Tags  with space
 
 
 *** Test Cases ***
 Test
     [Documentation]  doc
-    [Tags]  sometag
+    [Tags]  some tag
     Pass
     Keyword
     One More

@@ -11,3 +11,9 @@ Test
 
 
 *** Keywords ***
+
+
+*** Variables ***
+
+*** Comments ***
+robocop: disable=all

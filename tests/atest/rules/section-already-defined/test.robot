@@ -4,6 +4,9 @@ Documentation  doc
 
 *** Keyword ***
 
+*** Variables ***
+*** Variables ***
+
 
 *** Test Cases ***
 Test
@@ -25,3 +28,5 @@ Keyword
     Fail
 
 *** Settings ***
+*** Tasks ***
+*** Tasks ***

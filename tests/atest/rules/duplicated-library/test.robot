@@ -2,6 +2,7 @@
 Documentation  doc
 Library    MyLib
 Library    OtherLib
+Library
 Resource  some_resource.robot
 Library    MyLib
 

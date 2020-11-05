@@ -1,2 +1,8 @@
-rules\not-capitalized-keyword-name\test.robot:9:0 [W] 0302 Keyword name should be capitalized
+rules\not-capitalized-keyword-name\test.robot:3:0 [W] 0302 Keyword name should be capitalized
+rules\not-capitalized-keyword-name\test.robot:4:0 [W] 0302 Keyword name should be capitalized
+rules\not-capitalized-keyword-name\test.robot:5:0 [W] 0302 Keyword name should be capitalized
+rules\not-capitalized-keyword-name\test.robot:6:0 [W] 0302 Keyword name should be capitalized
+rules\not-capitalized-keyword-name\test.robot:14:0 [W] 0302 Keyword name should be capitalized
 rules\not-capitalized-keyword-name\test.robot:15:0 [W] 0302 Keyword name should be capitalized
+rules\not-capitalized-keyword-name\test.robot:18:0 [W] 0302 Keyword name should be capitalized
+rules\not-capitalized-keyword-name\test.robot:22:0 [W] 0302 Keyword name should be capitalized

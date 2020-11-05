@@ -1,0 +1,1 @@
+rules\tag-already-set-in-force-tags\test.robot:9:13 [I] 0606 This tag is already set by Force Tags in suite settings

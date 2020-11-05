@@ -1,11 +1,12 @@
 *** Settings ***
 Documentation  doc
+Force Tags  sometag  othertag
 
 
 *** Test Cases ***
 Test
     [Documentation]  doc
-    [Tags]  sometag
+    [Tags]  sometag  anothertag
     Pass
     Keyword
     One More

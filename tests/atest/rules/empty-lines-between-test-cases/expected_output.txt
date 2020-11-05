@@ -1,0 +1,2 @@
+rules\empty-lines-between-test-cases\test.robot:11:0 [W] 1004 Invalid number of empty lines between test cases (0/1)
+rules\empty-lines-between-test-cases\test.robot:15:0 [W] 1004 Invalid number of empty lines between test cases (2/1)

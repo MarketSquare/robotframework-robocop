@@ -9,6 +9,12 @@ Test
     Pass
     Keyword
     One More
+Test2
+    Keyword
+
+
+Test3
+    Keyword
 
 
 *** Keywords ***

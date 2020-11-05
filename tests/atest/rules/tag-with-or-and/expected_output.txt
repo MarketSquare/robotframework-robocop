@@ -1,0 +1,3 @@
+rules\tag-with-or-and\test.robot:3:13 [I] 0602 Tag with reserved word OR/AND. Hint: make sure to include this tag using lowercase name to avoid issues
+rules\tag-with-or-and\test.robot:4:15 [I] 0602 Tag with reserved word OR/AND. Hint: make sure to include this tag using lowercase name to avoid issues
+rules\tag-with-or-and\test.robot:10:13 [I] 0602 Tag with reserved word OR/AND. Hint: make sure to include this tag using lowercase name to avoid issues

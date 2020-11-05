@@ -1,2 +1,2 @@
 rules\duplicated-library\test.robot:3:0 [W] 0805 Multiple library imports with name "MyLib" and identical arguments in suite
-rules\duplicated-library\test.robot:6:0 [W] 0805 Multiple library imports with name "MyLib" and identical arguments in suite
+rules\duplicated-library\test.robot:7:0 [W] 0805 Multiple library imports with name "MyLib" and identical arguments in suite

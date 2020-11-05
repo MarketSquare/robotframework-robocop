@@ -20,3 +20,5 @@ Keyword
     For
     End
     Fail
+    Run Keyword If  ${True}  Keyword
+    ...  else  Keyword2

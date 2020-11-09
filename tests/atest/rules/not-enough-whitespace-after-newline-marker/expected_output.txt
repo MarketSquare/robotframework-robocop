@@ -1,0 +1,2 @@
+${rules_dir}${\}test.robot:12:0 [E] 0304 Provide at least two spaces after '...' marker
+${rules_dir}${\}test.robot:18:0 [E] 0304 Provide at least two spaces after '...' marker

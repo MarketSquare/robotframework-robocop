@@ -1,0 +1,1 @@
+${rules_dir}${\}test.robot:5:19 [W] 1001 Trailing whitespace at the end of line

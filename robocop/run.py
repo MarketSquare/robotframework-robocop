@@ -3,6 +3,7 @@ Main class of Robocop module. Gather files for scan, checkers and parse cli argu
 """
 import inspect
 import sys
+import os
 from pathlib import Path
 
 from robot.api import get_model
@@ -18,14 +19,14 @@ class Robocop:
     def __init__(self, from_cli=False):
         self.files = {}
         self.checkers = []
-        self.out = sys.stdout
         self.rules = {}
         self.reports = []
         self.disabler = None
+        self.root = os.getcwd()
         self.config = Config()
         if from_cli:
             self.config.parse_opts()
-        self.set_output()
+        self.out = self.set_output()
         self.load_checkers()
         self.list_checkers()
         self.load_reports()
@@ -33,7 +34,7 @@ class Robocop:
 
     def set_output(self):
         """ Set output for printing to file if configured. Else use standard output """
-        self.out = self.config.output or sys.stdout
+        return self.config.output or None
 
     def write_line(self, line):
         """ Print line using file=self.out parameter (set in `set_output` method) """
@@ -103,7 +104,9 @@ class Robocop:
             return
         for report in self.reports:
             report.add_message(rule_msg)
+        source_rel = Path(rule_msg.source).relative_to(self.root)
         self.log_message(source=rule_msg.source,
+                         source_rel=source_rel,
                          line=rule_msg.line,
                          col=rule_msg.col,
                          severity=rule_msg.severity.value,

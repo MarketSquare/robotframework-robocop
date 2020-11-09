@@ -136,7 +136,7 @@ written using `reStructuredText format
 <https://www.writethedocs.org/guide/writing/reStructuredText/>`_ (.rst). 
 
 User manual
-''''''''''
+'''''''''''
 
 Robocop's main features are explained in the `README
 <https://github.com/MarketSquare/robotframework-robocop/blob/master/README.rst>`_.
@@ -156,30 +156,35 @@ Make sure to run all of the tests before submitting a pull request to be sure
 that your changes do not break anything. Pull requests are also automatically
 tested on continuous integration.
 
-Executing changed code
-''''''''''''''''''''''
+Most of our tests use pytest. To use it install robocop with dev profile::
 
-If you need to check if your code is working fine, feel free to add Robot
-Framework files to ``tests/test_data`` directory and run robocop against this
-file to test your changes. These files will be used for acceptance tests
-that will be created soon.
+    pip install robocop[dev]
 
-
-Unit tests
-''''''''''
-
-Unit tests are great for testing internal logic and should be added when
-appropriate. They are located in ```tests/utest`` directory. To run them
-you need to have installed `pytest <https://docs.pytest.org/en/stable/>`_.
-Run the tests by executing command:
-
-::
+To run pytest tests navigate to directory with test files and run::
 
     pytest .
 
 Pytest will automatically discover all the tests, run them and display
 results. Make sure that tests do not fail.
 
+Unit tests
+''''''''''
+
+Unit tests are great for testing internal logic and should be added when
+appropriate. They are located in ``tests/utest`` directory.
+
+Acceptance tests
+''''''''''''''''
+
+Acceptance tests are dynamically generated for every rule in Robocop. Test data
+should be located in ``tests\atest\rules`` directory. If your rule has name "rule-name"
+it will expect ``rule-name`` directory with ``expected_output.txt`` file inside.
+You can put any *.robot file inside - it will be autoscanned with ``--include "rule-name"`` option.
+Robocop output will be compared with content of ``expected_output.txt`` file.
+
+When updating ``expected_output.txt`` file you can use two macro variables: ``${rules_dir}`` and ``${/}``.
+The first is path to rules directory (so the correct path in robocop output will be printed) and the
+second is path separator - \ under Windows and / under Linux.
 
 E2E tests
 '''''''''
@@ -195,6 +200,16 @@ Coverage
 Tests coverage cannot drop under 90%. If your changes affect the coverage
 significantly, please write new tests to satisfy the expected threshold,
 otherwise continuous integration will not permit to merge the changes.
+
+To calculate coverage locally run::
+
+    coverage run -m pytest
+
+and then::
+
+    coverage html
+
+HTML files will be generated - navigate to ``htmlcov`` directory and open ``index.html`` file.
 
 ::
 

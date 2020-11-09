@@ -1,0 +1,2 @@
+${rules_dir}${\}test.robot:6:0 [W] 1003 Invalid number of empty lines between sections (4/2)
+${rules_dir}${\}test.robot:14:0 [W] 1003 Invalid number of empty lines between sections (1/2)

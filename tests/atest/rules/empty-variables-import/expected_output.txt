@@ -1,0 +1,1 @@
+${rules_dir}${\}test.robot:3:10 [E] 0515 Import variables path is empty

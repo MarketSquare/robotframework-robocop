@@ -1,0 +1,3 @@
+${rules_dir}${\}test.robot:20:0 [E] 0303 'For' is a reserved keyword. It must be in uppercase (FOR) when used as a marker with 'for loop'. Each marker should have minimum of 2 spaces as separator.
+${rules_dir}${\}test.robot:21:0 [E] 0303 'End' is a reserved keyword. It must be in uppercase (END) when used as a marker with 'for loop'. Each marker should have minimum of 2 spaces as separator.
+${rules_dir}${\}test.robot:23:0 [E] 0303 'else' is a reserved keyword. It must be in uppercase (ELSE) when used as a marker with 'Run Keyword If'. Each marker should have minimum of 2 spaces as separator.

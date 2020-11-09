@@ -113,7 +113,7 @@ class DuplicationsChecker(VisitorChecker):
         if node.name is not None:
             self.metadata[node.name + node.value].append(node)
 
-    def visit_VariableImport(self, node): # noqa
+    def visit_VariablesImport(self, node): # noqa
         if node.name:
             self.variable_imports[node.name].append(node)
 

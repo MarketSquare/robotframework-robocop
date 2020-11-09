@@ -1,0 +1,1 @@
+${rules_dir}${\}test.robot:3:9 [E] 0516 Import resource path is empty

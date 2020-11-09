@@ -1,0 +1,1 @@
+${rules_dir}${\}test.robot:3:12 [E] 0519 Suite Setup does not have any keywords

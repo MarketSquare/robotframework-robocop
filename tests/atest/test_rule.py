@@ -25,7 +25,7 @@ def configure_robocop_with_rule(runner, rule, path):
 
 
 def replace_paths(line, rules_dir):
-    return line.replace('${rules_dir}', rules_dir).replace('${\}', os.path.sep).rstrip('\n')
+    return line.replace('${rules_dir}', rules_dir).replace(r'${\}', os.path.sep).rstrip('\n')
 
 
 def test_rule(rule, robocop_instance, capsys):

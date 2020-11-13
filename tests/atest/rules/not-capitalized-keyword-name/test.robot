@@ -29,3 +29,9 @@ keyword
     Fail
 
  # special case
+
+Keyword With ${var} Variable
+    Should Pass
+
+Keyword-With_Special $ Chars 10
+    Should Pass

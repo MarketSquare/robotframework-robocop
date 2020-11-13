@@ -21,9 +21,9 @@ Checkers
    :show-inheritance:
 
 {% for checker_group in checker_groups %}
-{{ checker_group }}
+{{ checker_group[0] }}
 -------------
-{% for rule_doc in checker_groups[checker_group] %}
+{% for rule_doc in checker_group[1] %}
 * {{ rule_doc[1] }}
 
   Defined in ``robocop.checkers.{{ rule_doc[3] }}``

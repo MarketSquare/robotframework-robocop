@@ -113,9 +113,13 @@ def get_checker_docs():
         for rule, rule_def in checker.rules.items():
             rule_doc = RuleDoc(rule, rule_def, checker.__module__ + '.' + checker.__name__)
             checker_docs[module_name].append((rule_doc.rule_id, rule_doc.name, rule_doc.params, rule_doc.group))
+    groups_sorted_by_id = []
     for module_name in checker_docs:
-        checker_docs[module_name] = sorted(checker_docs[module_name], key=lambda x: x[0][-2:])
-    return checker_docs
+        sorted_rules = sorted(checker_docs[module_name], key=lambda x: x[0][-2:])
+        group_id = sorted_rules[0][0][1:3]
+        groups_sorted_by_id.append((module_name, sorted_rules, group_id))
+    groups_sorted_by_id = sorted(groups_sorted_by_id, key=lambda x: x[2])
+    return groups_sorted_by_id
 
 
 html_context = {

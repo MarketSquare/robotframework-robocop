@@ -80,7 +80,11 @@ class Config:
         'help_exclude':     'Ignore specified rules. You can define rule by its name or id.\n'
                             'Glob patterns are supported',
         'help_ext_rules':   'List of paths with custom rules',
-        'help_reports':     'Run reports',
+        'help_reports':     'Generate reports after scan. You can enable reports by listing them in comma\n'
+                            'separated list:\n'
+                            '--reports rules_by_id,other_report\n'
+                            'To enable all reports use all:\n'
+                            '--report all',
         'help_format':      'Format of output message. '
                             'You can use placeholders to change the way an issue is reported.\n'
                             'Default: {source}:{line}:{col} [{severity}] {rule_id} {desc}',

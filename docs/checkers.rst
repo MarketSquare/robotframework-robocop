@@ -23,21 +23,20 @@ Checkers
 {% for checker_group in checker_groups %}
 {{ checker_group }}
 -------------
-{% for checker_class in checker_groups[checker_group] %}
-.. autoclass:: {{ checker_class[0] }}
-   :show-inheritance:
+{% for rule_doc in checker_groups[checker_group] %}
+* {{ rule_doc[1] }}
 
-Reports:
-{% for rule in checker_class[1] %}
-* {{ rule[0] }}
+  Defined in ``robocop.checkers.{{ rule_doc[3] }}``
 
   .. csv-table:: Configurable parameters
      :header: "name", "type"
      :widths: 20, 20
-{% for rule_param in rule[1] %}
+{% for rule_param in rule_doc[2] %}
      "{{ rule_param[0] }}", "{{ rule_param[1] }}"
 {% endfor %}
 
+
 {% endfor %}
-{% endfor %}
+
+
 {% endfor %}

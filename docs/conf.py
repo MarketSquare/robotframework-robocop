@@ -116,7 +116,7 @@ def get_checker_docs():
     groups_sorted_by_id = []
     for module_name in checker_docs:
         sorted_rules = sorted(checker_docs[module_name], key=lambda x: x[0][-2:])
-        group_id = int(sorted_rules[0][0][1:3])
+        group_id = int(sorted_rules[0][0][:2])
         groups_sorted_by_id.append((module_name, sorted_rules, group_id))
     groups_sorted_by_id = sorted(groups_sorted_by_id, key=lambda x: x[2])
     return groups_sorted_by_id

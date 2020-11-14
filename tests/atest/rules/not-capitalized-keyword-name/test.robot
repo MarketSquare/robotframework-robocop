@@ -35,3 +35,7 @@ Keyword With ${var} Variable
 
 Keyword-With_Special $ Chars 10
     Should Pass
+
+Keyword With Library Import
+    SeleniumLibrary.Input Text    ${txt_welcome}    Hello
+    Input Text    ${txt_welcome}    Hello

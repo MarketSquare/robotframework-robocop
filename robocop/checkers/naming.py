@@ -144,8 +144,9 @@ class KeywordNamingChecker(VisitorChecker):
                     )
         elif self.check_if_keyword_is_reserved(keyword_name, node):
             return
-        keyword_name_no_vars = self.var_pattern.sub('', keyword_name)
-        words = self.letter_pattern.sub(' ', keyword_name_no_vars).split(' ')
+        keyword_name = keyword_name.split('.')[-1]  # remove any imports ie ExternalLib.SubLib.Log -> Log
+        keyword_name = self.var_pattern.sub('', keyword_name)  # remove any embedded variables from name
+        words = self.letter_pattern.sub(' ', keyword_name).split(' ')
         if any(not (word.istitle() or word.isupper()) for word in words if word):
             self.report("not-capitalized-keyword-name", node=node)
 

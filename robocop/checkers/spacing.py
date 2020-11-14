@@ -42,7 +42,7 @@ class InvalidSpacingChecker(RawFileChecker):
             self.report("trailing-whitespace", lineno=lineno, col=len(stripped_line))
 
 
-class MissingTrailingBlankLineChecker(VisitorChecker):
+class EmptyLinesChecker(VisitorChecker):
     """ Checker for invalid spacing. """
     rules = {
         "1003": (
@@ -62,6 +62,12 @@ class MissingTrailingBlankLineChecker(VisitorChecker):
             "Invalid number of empty lines between keywords (%d/%d)",
             RuleSeverity.WARNING,
             ("empty_lines", "empty_lines_between_keywords", int)
+        ),
+        "1009": (
+            "empty-line-after-section",
+            "Too many empty lines after section header (%d/%d)",
+            RuleSeverity.WARNING,
+            ("empty_lines", "empty_lines_after_section_header", int)
         )
     }
 
@@ -69,6 +75,7 @@ class MissingTrailingBlankLineChecker(VisitorChecker):
         self.empty_lines_between_sections = 2
         self.empty_lines_between_test_cases = 1
         self.empty_lines_between_keywords = 1
+        self.empty_lines_after_section_header = 0
         super().__init__(*args)
 
     def visit_TestCaseSection(self, node):  # noqa
@@ -106,6 +113,7 @@ class MissingTrailingBlankLineChecker(VisitorChecker):
         self.generic_visit(node)
 
     def visit_File(self, node):  # noqa
+        self.check_empty_lines_after_sections(node)
         for section in node.sections[:-1]:
             if not section.header:  # for comment section
                 continue
@@ -125,6 +133,26 @@ class MissingTrailingBlankLineChecker(VisitorChecker):
                 self.report("empty-lines-between-sections", empty_lines, self.empty_lines_between_sections,
                             lineno=section.end_lineno, col=0)
         super().visit_File(node)
+
+    def check_empty_lines_after_sections(self, node):
+        for section in node.sections:
+            self.check_empty_lines_after_section(section)
+
+    def check_empty_lines_after_section(self, section):
+        empty_lines = []
+        for child in section.body:
+            if not isinstance(child, EmptyLine):
+                break
+            empty_lines.append(child)
+        else:
+            return
+        if len(empty_lines) > self.empty_lines_after_section_header:
+            self.report(
+                "empty-line-after-section",
+                len(empty_lines),
+                self.empty_lines_after_section_header,
+                node=empty_lines[-1]
+            )
 
 
 class InconsistentUseOfTabsAndSpacesChecker(VisitorChecker):

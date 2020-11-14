@@ -1,0 +1,3 @@
+${rules_dir}${\}test.robot:11:0 [W] 1009 Too many empty lines after section header (1/0)
+${rules_dir}${\}test.robot:21:0 [W] 1009 Too many empty lines after section header (1/0)
+${rules_dir}${\}test.robot:2:0 [W] 1009 Too many empty lines after section header (1/0)

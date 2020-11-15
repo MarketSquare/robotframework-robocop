@@ -1,1 +1,2 @@
-${rules_dir}${\}test.robot:15:0 [W] 0507 Keyword has too many arguments (6/5). Reduce number of arguments or split them into separate lines
+${rules_dir}${\}test.robot:15:0 [W] 0507 Keyword has too many arguments (6/5)
+${rules_dir}${\}test.robot:23:0 [W] 0507 Keyword has too many arguments (6/5)

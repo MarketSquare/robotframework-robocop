@@ -9,6 +9,7 @@ You can use separate arguments (``-r report1 -r report2``) or comma-separated li
 
     robocop --report rules_by_id,some_other_report path/to/file.robot
 
+To enable all reports use ``--report all``.
 """
 from collections import defaultdict
 from operator import itemgetter

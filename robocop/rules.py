@@ -1,5 +1,5 @@
 """
-Every issue is reported as ``robocop.rules.Rule`` object. It can be later printed or used by
+Every issue is reported as ``robocop.rules.Message`` object. It can be later printed or used by
 post-run reports.
 
 Format output message

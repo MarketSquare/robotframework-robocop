@@ -144,7 +144,7 @@ class Robocop:
             report = report_class[1]()
             if not hasattr(report, 'name'):
                 continue
-            if report.name in self.config.reports:
+            if 'all' in self.config.reports or report.name in self.config.reports:
                 self.reports.append(report)
 
     def register_checker(self, checker):

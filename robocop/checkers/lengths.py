@@ -50,7 +50,7 @@ class LengthChecker(VisitorChecker):
         ),
         "0507": (
             "too-many-arguments",
-            "Keyword has too many arguments (%d/%d). Reduce number of arguments or split them into separate lines",
+            "Keyword has too many arguments (%d/%d)",
             RuleSeverity.WARNING,
             ('max_args', 'keyword_max_args', int)
         )

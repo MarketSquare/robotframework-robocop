@@ -1,6 +1,7 @@
 """
 Lengths checkers
 """
+from robot.parsing.model.blocks import CommentSection
 from robot.parsing.model.statements import KeywordCall, Comment, EmptyLine, Arguments
 from robocop.checkers import VisitorChecker, RawFileChecker
 from robocop.rules import RuleSeverity
@@ -168,13 +169,8 @@ class EmptySectionChecker(VisitorChecker):
     }
 
     def check_if_empty(self, node):
-        for child in node.body:
-            if isinstance(child, Comment):
-                if 'robocop:' in child.tokens[0].value and len(node.body) == 1:
-                    break
-            elif not isinstance(child, EmptyLine):
-                break
-        else:
+        anything_but = EmptyLine if isinstance(node, CommentSection) else (Comment, EmptyLine)
+        if all(isinstance(child, anything_but) for child in node.body):
             self.report("empty-section", node=node)
 
     def visit_SettingSection(self, node):  # noqa

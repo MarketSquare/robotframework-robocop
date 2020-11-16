@@ -89,12 +89,11 @@ class KeywordNamingChecker(VisitorChecker):
         'else',
         'else if'
     }
-    variable_identifier = {
-        '$',
-        '@',
-        '&',
-        '%'
-    }
+
+    def __init__(self,*args):
+        self.letter_pattern = re.compile('[^a-zA-Z]')
+        self.var_pattern = re.compile(r'[$@%&]{.+}')
+        super().__init__(*args)
 
     def visit_SuiteSetup(self, node):  # noqa
         self.check_keyword_naming(node.name, node)
@@ -145,14 +144,11 @@ class KeywordNamingChecker(VisitorChecker):
                     )
         elif self.check_if_keyword_is_reserved(keyword_name, node):
             return
-        words = keyword_name.replace('_', ' ').split(' ')
-        if any(not (word.istitle() or word.isupper()) for word in words if not self.is_variable(word)):
+        keyword_name = keyword_name.split('.')[-1]  # remove any imports ie ExternalLib.SubLib.Log -> Log
+        keyword_name = self.var_pattern.sub('', keyword_name)  # remove any embedded variables from name
+        words = self.letter_pattern.sub(' ', keyword_name).split(' ')
+        if any(not (word.istitle() or word.isupper()) for word in words if word):
             self.report("not-capitalized-keyword-name", node=node)
-
-    def is_variable(self, name):
-        if len(name) < 4:
-            return False
-        return name[0] in self.variable_identifier and name[1] == '{' and name[-1] == '}'
 
     def check_if_keyword_is_reserved(self, keyword_name, node):
         if keyword_name.lower() not in self.reserved_words:  # if there is typo in syntax, it is interpreted as keyword

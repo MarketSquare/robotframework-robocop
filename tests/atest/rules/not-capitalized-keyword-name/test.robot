@@ -29,3 +29,13 @@ keyword
     Fail
 
  # special case
+
+Keyword With ${var} Variable
+    Should Pass
+
+Keyword-With_Special $ Chars 10
+    Should Pass
+
+Keyword With Library Import
+    SeleniumLibrary.Input Text    ${txt_welcome}    Hello
+    Input Text    ${txt_welcome}    Hello

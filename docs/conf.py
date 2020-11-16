@@ -13,6 +13,7 @@
 import sys
 from pathlib import Path
 from collections import defaultdict
+from functools import total_ordering
 import sphinx_rtd_theme
 sys.path.append(str(Path(__file__).parent.parent))
 import robocop
@@ -25,8 +26,8 @@ copyright = '2020, Bartlomiej Hirsz, Mateusz Nojek'
 author = 'Bartlomiej Hirsz, Mateusz Nojek'
 
 # The full version, including alpha/beta/rc tags
-# release = robocop.version
-release = "0.0.1"
+release = robocop.__version__
+version = robocop.__version__
 
 master_doc = 'index'
 
@@ -79,6 +80,28 @@ def setup(app):
     app.connect("source-read", rstjinja)
 
 
+@total_ordering
+class RuleDoc:
+    def __init__(self, rule_id, rule_def, group):
+        self.name = f"[{rule_def[2].value}{rule_id}] {rule_def[0]}: {rule_def[1]}"
+        self.params = self.get_params(rule_def)
+        self.rule_id = rule_id
+        self.group = group
+
+    def __str__(self):
+        return f"Group: {self.group}\nName: {self.name}\n  Params: {self.params}"
+
+    @staticmethod
+    def get_params(rule_def):
+        params = [("severity", ":class:`robocop.rules.RuleSeverity`")]
+        for param in rule_def[3:]:
+            params.append((param[0], str(param[2])))
+        return params
+
+    def __lt__(self, other):
+        return self.rule_id < other.rule_id
+
+
 def get_checker_docs():
     """
     Load checkers and rules attributes for dynamic docs generation
@@ -86,16 +109,17 @@ def get_checker_docs():
     """
     checker_docs = defaultdict(list)
     for checker in robocop.checkers.get_docs():
-        checker_doc = []
-        for rule, rule_def in checker.rules.items():
-            rule_name = f"[{rule_def[2].value}{rule}] {rule_def[0]}: {rule_def[1]}"
-            rule_params = [("severity", ":class:`robocop.rules.RuleSeverity`")]
-            if len(rule_def) > 3:
-                rule_params.append((rule_def[3][0], str(rule_def[3][2])))
-            checker_doc.append((rule_name, rule_params))
         module_name = checker.__module__.split('.')[-1].title()
-        checker_docs[module_name].append((checker.__module__ + '.' + checker.__name__, checker_doc))
-    return checker_docs
+        for rule, rule_def in checker.rules.items():
+            rule_doc = RuleDoc(rule, rule_def, checker.__module__ + '.' + checker.__name__)
+            checker_docs[module_name].append((rule_doc.rule_id, rule_doc.name, rule_doc.params, rule_doc.group))
+    groups_sorted_by_id = []
+    for module_name in checker_docs:
+        sorted_rules = sorted(checker_docs[module_name], key=lambda x: x[0][-2:])
+        group_id = int(sorted_rules[0][0][:2])
+        groups_sorted_by_id.append((module_name, sorted_rules, group_id))
+    groups_sorted_by_id = sorted(groups_sorted_by_id, key=lambda x: x[2])
+    return groups_sorted_by_id
 
 
 html_context = {

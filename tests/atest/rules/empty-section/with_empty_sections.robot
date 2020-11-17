@@ -11,6 +11,7 @@ Test
 
 
 *** Keywords ***
+# This section considered as empty.
 
 
 *** Variables ***

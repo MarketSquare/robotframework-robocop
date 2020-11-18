@@ -1,0 +1,9 @@
+*** Test Cases ***
+{% for index in range(100000) %}
+Test {{ index }}
+    Log  ${index}
+    No Operation
+    small issue  # robocop: disable=some-rule
+    Pass
+
+{% endfor %}

@@ -89,7 +89,6 @@ class Robocop:
                 checker.scan_file(model)
                 found_issues += checker.issues
                 checker.issues.clear()
-                checker.issues.clear()
             found_issues.sort()
             for issue in found_issues:
                 self.report(issue)

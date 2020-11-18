@@ -71,6 +71,7 @@ class Config:
         self.list_configurables = ''
         self.output = None
         self.recursive = True
+        self.verbose = False
         self.parser = self._create_parser()
 
     HELP_MSGS = {
@@ -161,8 +162,8 @@ class Config:
         required = parser.add_argument_group(title='Required parameters')
         optional = parser.add_argument_group(title='Optional parameters')
 
-        required.add_argument('paths', metavar='paths', type=str, nargs='*', default=['.'], help=self.HELP_MSGS['help_paths'])
-
+        required.add_argument('paths', metavar='paths', type=str, nargs='*', default=['.'],
+                              help=self.HELP_MSGS['help_paths'])
         optional.add_argument('-i', '--include', action=ParseDelimitedArgAction, default=self.include,
                               metavar='RULES', help=self.HELP_MSGS['help_include'])
         optional.add_argument('-e', '--exclude', action=ParseDelimitedArgAction, default=self.exclude,
@@ -189,6 +190,7 @@ class Config:
         optional.add_argument('-A', '--argumentfile', metavar='PATH', help=self.HELP_MSGS['help_argfile'])
         optional.add_argument('--ignore', action=ParseDelimitedArgAction, default=self.ignore,
                               metavar='PATH', help=self.HELP_MSGS['help_ignore'])
+        optional.add_argument('--verbose', dest='verbose', action='store_true')
         optional.add_argument('-h', '--help', action='help', help=self.HELP_MSGS['help_info'])
         optional.add_argument('-v', '--version', action='version', version=__version__,
                               help=self.HELP_MSGS['help_version'])

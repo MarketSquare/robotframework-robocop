@@ -38,18 +38,25 @@ class Robocop:
         """ Set output for printing to file if configured. Else use standard output """
         return self.config.output or None
 
-    def write_line(self, line):
+    def write_line(self, line, debug=False):
         """ Print line using file=self.out parameter (set in `set_output` method) """
+        if debug and not self.config.verbose:
+            return
         print(line, file=self.out)
+
+    def print_with_time(self, line, ref_time=None):
+        if ref_time is None:
+            ref_time = timer()
+        self.write_line(f'{line}: {ref_time - self.start_time:.2f}s', debug=True)
 
     def run(self):
         """ Entry point for running scans """
         self.recognize_file_types()
-        print(f'Recognized file types after: {timer() - self.start_time:.2f}s')
+        self.print_with_time('Recognized file types after')
         self.run_checks()
-        print(f'All checks after: {timer() - self.start_time:.2f}s')
+        self.print_with_time('All checks after')
         self.make_reports()
-        print(f'Reports after: {timer() - self.start_time:.2f}s')
+        self.print_with_time('Reports after')
         if self.config.output and not self.out.closed:
             self.out.close()
         for report in self.reports:
@@ -82,28 +89,30 @@ class Robocop:
 
     def run_checks(self):
         for file in self.files:
+            self.print_with_time(f'Scanning file {file}')
             found_issues = []
             self.register_disablers(file)
-            print(f'Registered file disablers after: {timer() - self.start_time:.2f}s')
+            self.print_with_time(f'Registered file disablers after')
             if self.disabler.file_disabled:
                 continue
             model = self.files[file].get_parser()(str(file))
             for checker in self.checkers:
-                print(f'Checker {checker.__class__.__name__} started')
-                checker_start = timer()
                 if checker.disabled:
+                    self.print_with_time(f'Checker {checker.__class__.__name__} is disabled')
                     continue
+                self.print_with_time(f'Checker {checker.__class__.__name__} started')
+                checker_start = timer()
                 checker.source = str(file)
                 checker.scan_file(model)
                 found_issues += checker.issues
                 checker.issues.clear()
-                print(f'Checker took: {timer() - checker_start:.2f}s')
-            print(f'Start sort: {timer() - self.start_time:.2f}s')
+                self.print_with_time('Checker took', ref_time=checker_start)
+            self.print_with_time('Start sorting issues')
             found_issues.sort()
-            print(f'End sort: {timer() - self.start_time:.2f}s')
+            self.print_with_time('End sorting issues')
             for issue in found_issues:
                 self.report(issue)
-            print(f'End reporting: {timer() - self.start_time:.2f}s')
+            self.print_with_time('End reporting issues')
 
     def register_disablers(self, file):
         """ Parse content of file to find any disabler statements like # robocop: disable=rulename """

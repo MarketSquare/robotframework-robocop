@@ -152,7 +152,7 @@ class EmptyLinesChecker(VisitorChecker):
                 "empty-line-after-section",
                 len(empty_lines),
                 self.empty_lines_after_section_header,
-                node = empty_lines[-1]
+                node=empty_lines[-1]
             )
 
 

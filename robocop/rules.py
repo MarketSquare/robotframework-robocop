@@ -52,8 +52,7 @@ class RuleSeverity(Enum):
 
     def __lt__(self, other):
         look_up = [sev.value for sev in RuleSeverity]
-        if self.__class__ is other.__class__:
-            return look_up.index(self.value) < look_up.index(other.value)
+        return look_up.index(self.value) < look_up.index(other.value)
 
 
 class Rule:

@@ -90,7 +90,7 @@ class KeywordNamingChecker(VisitorChecker):
         'else if'
     }
 
-    def __init__(self,*args):
+    def __init__(self, *args):
         self.letter_pattern = re.compile('[^a-zA-Z]')
         self.var_pattern = re.compile(r'[$@%&]{.+}')
         super().__init__(*args)

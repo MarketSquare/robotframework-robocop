@@ -18,11 +18,6 @@ import robocop.exceptions
 
 
 class Report:
-    """
-    Base class for report. REPORT_TYPE can be either of MSGS (accumulating issues messages) or OTHER
-    """
-    REPORT_TYPE = 'MSGS'
-
     def configure(self, name, value, *values):
         raise robocop.exceptions.ConfigGeneralError(
             f"Provided param '{name}' for report '{self.name}' does not exist")  # noqa

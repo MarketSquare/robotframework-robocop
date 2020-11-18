@@ -131,8 +131,6 @@ class KeywordNamingChecker(VisitorChecker):
         if keyword_name.startswith('...'):
             self.report("not-enough-whitespace-after-newline-marker", node=node)
             return
-        if '_' in keyword_name:
-            self.report("underscore-in-keyword-name", node=node)
         if normalize_robot_name(keyword_name) == 'runkeywordif':
             for token in node.data_tokens:
                 if (token.value.lower() in self.else_if) and not token.value.isupper():
@@ -146,6 +144,8 @@ class KeywordNamingChecker(VisitorChecker):
             return
         keyword_name = keyword_name.split('.')[-1]  # remove any imports ie ExternalLib.SubLib.Log -> Log
         keyword_name = self.var_pattern.sub('', keyword_name)  # remove any embedded variables from name
+        if '_' in keyword_name:
+            self.report("underscore-in-keyword-name", node=node)
         words = self.letter_pattern.sub(' ', keyword_name).split(' ')
         if any(not (word.istitle() or word.isupper()) for word in words if word):
             self.report("not-capitalized-keyword-name", node=node)

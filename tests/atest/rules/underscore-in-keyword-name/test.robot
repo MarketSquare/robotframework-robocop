@@ -10,6 +10,8 @@ Test
     Keyword
     One_More
 
+Test Underscore
+    Embedded Keyword With ${variable_with_underscore}
 
 *** Keywords ***
 Keyword
@@ -18,3 +20,6 @@ Keyword
     Pass
     No Operation
     Fail
+
+Embedded Keyword With ${variable_with_underscore}
+    Log    ${variable_with_underscore}

@@ -82,7 +82,7 @@ class Config:
         'help_ext_rules':   'List of paths with custom rules',
         'help_reports':     'Generate reports after scan. You can enable reports by listing them in comma\n'
                             'separated list:\n'
-                            '--reports rules_by_id,rules_by_error_type\n'
+                            '--reports rules_by_id,rules_by_error_type,scan_timer\n'
                             'To enable all reports use all:\n'
                             '--report all',
         'help_format':      'Format of output message. '

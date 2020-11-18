@@ -12,11 +12,17 @@ You can use separate arguments (``-r report1 -r report2``) or comma-separated li
 To enable all reports use ``--report all``.
 """
 from collections import defaultdict
+from timeit import default_timer as timer
 from operator import itemgetter
 import robocop.exceptions
 
 
 class Report:
+    """
+    Base class for report. REPORT_TYPE can be either of MSGS (accumulating issues messages) or OTHER
+    """
+    REPORT_TYPE = 'MSGS'
+
     def configure(self, name, value, *values):
         raise robocop.exceptions.ConfigGeneralError(
             f"Provided param '{name}' for report '{self.name}' does not exist")  # noqa
@@ -121,3 +127,20 @@ class ReturnStatusReport(Report):
             if -1 < threshold < count:
                 self.return_status = 1
                 break
+
+
+class TimeTakenReport(Report):
+    """
+    Report name: ``scan_timer``
+
+    Report that returns Robocop execution time
+    """
+    def __init__(self):
+        self.name = 'scan_timer'
+        self.start_time = timer()
+
+    def add_message(self, *args, **kwargs):
+        pass
+
+    def get_report(self):
+        return f'\nScan took {timer() - self.start_time:.3f}s'

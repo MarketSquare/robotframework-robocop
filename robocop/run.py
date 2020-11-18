@@ -36,10 +36,8 @@ class Robocop:
         """ Set output for printing to file if configured. Else use standard output """
         return self.config.output or None
 
-    def write_line(self, line, debug=False):
+    def write_line(self, line):
         """ Print line using file=self.out parameter (set in `set_output` method) """
-        if debug and not self.config.verbose:
-            return
         print(line, file=self.out)
 
     def run(self):

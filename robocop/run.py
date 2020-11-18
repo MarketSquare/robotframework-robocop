@@ -5,6 +5,7 @@ import inspect
 import sys
 import os
 from pathlib import Path
+from timeit import default_timer as timer
 
 from robot.api import get_model
 
@@ -17,6 +18,7 @@ from robocop.utils import DisablersFinder, FileType, FileTypeChecker
 
 class Robocop:
     def __init__(self, from_cli=False):
+        self.start_time = timer()
         self.files = {}
         self.checkers = []
         self.rules = {}
@@ -43,8 +45,11 @@ class Robocop:
     def run(self):
         """ Entry point for running scans """
         self.recognize_file_types()
+        print(f'Recognized file types after: {timer() - self.start_time:.2f}s')
         self.run_checks()
+        print(f'All checks after: {timer() - self.start_time:.2f}s')
         self.make_reports()
+        print(f'Reports after: {timer() - self.start_time:.2f}s')
         if self.config.output and not self.out.closed:
             self.out.close()
         for report in self.reports:
@@ -79,19 +84,26 @@ class Robocop:
         for file in self.files:
             found_issues = []
             self.register_disablers(file)
+            print(f'Registered file disablers after: {timer() - self.start_time:.2f}s')
             if self.disabler.file_disabled:
                 continue
             model = self.files[file].get_parser()(str(file))
             for checker in self.checkers:
+                print(f'Checker {checker.__class__.__name__} started')
+                checker_start = timer()
                 if checker.disabled:
                     continue
                 checker.source = str(file)
                 checker.scan_file(model)
                 found_issues += checker.issues
                 checker.issues.clear()
+                print(f'Checker took: {timer() - checker_start:.2f}s')
+            print(f'Start sort: {timer() - self.start_time:.2f}s')
             found_issues.sort()
+            print(f'End sort: {timer() - self.start_time:.2f}s')
             for issue in found_issues:
                 self.report(issue)
+            print(f'End reporting: {timer() - self.start_time:.2f}s')
 
     def register_disablers(self, file):
         """ Parse content of file to find any disabler statements like # robocop: disable=rulename """

@@ -31,7 +31,7 @@ class TestE2E:
         config = Config()
         config.parse_opts([
             '-r',
-            'rules_by_id,rules_by_error_type',
+            'rules_by_id,rules_by_error_type,scan_timer',
             str(Path(Path(__file__).parent.parent, 'test_data'))
         ])
         robocop_instance.config = config

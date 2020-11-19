@@ -119,5 +119,5 @@ def get_rules_for_atest():
         for checker in classes:
             if not (hasattr(checker[1], 'rules') and checker[1].rules):
                 continue
-            for rule_id, rule_body in checker[1].rules.items():
+            for rule_body in checker[1].rules.values():
                 yield rule_body[0]

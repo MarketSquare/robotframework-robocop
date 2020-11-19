@@ -1,3 +1,4 @@
+${var}    10    # This should throw a warning.
 *** Settings ***
 Documentation    Doc
 

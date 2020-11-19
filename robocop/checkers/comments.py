@@ -70,22 +70,15 @@ class IgnoredDataChecker(RawFileChecker):
         )
     }
 
-    def __init__(self, *args):
-        self.section_header = False
-        self.ignored_data = False
-        super().__init__(*args)
-
     def parse_file(self):
         with open(self.source) as file:
             for lineno, line in enumerate(file, 1):
-                self.check_line(line, lineno)
-                if self.section_header or self.ignored_data:
+                if self.check_line(line, lineno):
                     break
 
     def check_line(self, line, lineno):
         if line.startswith('***'):
-            self.section_header = True
-            return
+            return True
         if not line.startswith('***') and not line.startswith('# robocop:'):
             self.report("ignored-data", lineno=lineno, col=0)
-            self.ignored_data = True
+            return True

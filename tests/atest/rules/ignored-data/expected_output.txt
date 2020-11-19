@@ -1,0 +1,2 @@
+${rules_dir}${\}with_ignored_data.robot:1:0 [W] 0704 Ignored data found in file
+${rules_dir}${\}with_ignored_rule_and_data.robot:2:0 [W] 0704 Ignored data found in file

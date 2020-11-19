@@ -1,7 +1,7 @@
 """
 Comments checkers
 """
-from robocop.checkers import VisitorChecker
+from robocop.checkers import RawFileChecker, VisitorChecker
 from robocop.rules import RuleSeverity
 
 
@@ -58,3 +58,34 @@ class CommentChecker(VisitorChecker):
         if comment_token.value.startswith('#') and comment_token.value != '#':
             if not comment_token.value.startswith('# '):
                 self.report("missing-space-after-comment", lineno=comment_token.lineno, col=comment_token.col_offset)
+
+
+class IgnoredDataChecker(RawFileChecker):
+    """ Checker for ignored data. """
+    rules = {
+        "0704": (
+            "ignored-data",
+            "Ignored data found in file",
+            RuleSeverity.WARNING
+        )
+    }
+
+    def __init__(self, *args):
+        self.section_header = False
+        self.ignored_data = False
+        super().__init__(*args)
+
+    def parse_file(self):
+        with open(self.source) as file:
+            for lineno, line in enumerate(file, 1):
+                self.check_line(line, lineno)
+                if self.section_header or self.ignored_data:
+                    break
+
+    def check_line(self, line, lineno):
+        if line.startswith('***'):
+            self.section_header = True
+            return
+        if not line.startswith('***') and not line.startswith('# robocop:'):
+            self.report("ignored-data", lineno=lineno, col=0)
+            self.ignored_data = True

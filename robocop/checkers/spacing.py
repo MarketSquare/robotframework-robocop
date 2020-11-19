@@ -2,7 +2,8 @@
 Spacing checkers
 """
 from collections import Counter
-from robot.api import get_tokens
+from robot.api import Token
+from robot.parsing.model.visitor import ModelVisitor
 from robot.parsing.model.blocks import TestCase, Keyword, ForLoop
 from robot.parsing.model.statements import EmptyLine, Comment
 from robocop.checkers import RawFileChecker, VisitorChecker
@@ -151,11 +152,11 @@ class EmptyLinesChecker(VisitorChecker):
                 "empty-line-after-section",
                 len(empty_lines),
                 self.empty_lines_after_section_header,
-                node = empty_lines[-1]
+                node=empty_lines[-1]
             )
 
 
-class InconsistentUseOfTabsAndSpacesChecker(VisitorChecker):
+class InconsistentUseOfTabsAndSpacesChecker(VisitorChecker, ModelVisitor):
     """ Checker for inconsistent use of tabs and spaces. """
 
     rules = {
@@ -166,18 +167,22 @@ class InconsistentUseOfTabsAndSpacesChecker(VisitorChecker):
         )
     }
 
-    def visit_File(self, node):  # noqa
-        tabs, spaces = False, False
+    def __init__(self, *args):
+        self.found = False
+        self.tabs = False
+        self.spaces = False
+        super().__init__(*args)
 
-        for token in get_tokens(node.source):
-            if token.type != 'SEPARATOR':
-                continue
+    def visit_Statement(self, node): # noqa
+        if self.found:
+            return
+        for token in node.get_tokens(Token.SEPARATOR):
+            self.tabs = True if '\t' in token.value else self.tabs
+            self.spaces = True if ' ' in token.value else self.spaces
 
-            tabs = True if '\t' in token.value else tabs
-            spaces = True if ' ' in token.value else spaces
-
-            if tabs and spaces:
-                self.report("mixed-tabs-and-spaces", node=node)
+            if self.tabs and self.spaces:
+                self.report("mixed-tabs-and-spaces", node=node, lineno=1, col=0)
+                self.found = True
                 break
 
 

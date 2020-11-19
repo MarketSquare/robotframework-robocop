@@ -161,8 +161,8 @@ class Config:
         required = parser.add_argument_group(title='Required parameters')
         optional = parser.add_argument_group(title='Optional parameters')
 
-        required.add_argument('paths', metavar='paths', type=str, nargs='*', default=['.'], help=self.HELP_MSGS['help_paths'])
-
+        required.add_argument('paths', metavar='paths', type=str, nargs='*', default=['.'],
+                              help=self.HELP_MSGS['help_paths'])
         optional.add_argument('-i', '--include', action=ParseDelimitedArgAction, default=self.include,
                               metavar='RULES', help=self.HELP_MSGS['help_include'])
         optional.add_argument('-e', '--exclude', action=ParseDelimitedArgAction, default=self.exclude,

@@ -9,5 +9,4 @@ def robocop_instance():
 
 
 def pytest_generate_tests(metafunc):
-    rules = [rule for rule in get_rules_for_atest()]
-    metafunc.parametrize('rule', rules)
+    metafunc.parametrize('rule', get_rules_for_atest())

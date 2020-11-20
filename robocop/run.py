@@ -178,7 +178,7 @@ class Robocop:
             return
         if path.is_file():
             if self.should_parse(path):
-                yield path.absolute()
+                yield path.resolve()
         elif path.is_dir():
             for file in path.iterdir():
                 if file.is_dir() and not recursive:

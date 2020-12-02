@@ -96,7 +96,7 @@ Return status of Robocop depends on number of issues reported per given severity
 Number -1 means that return status is not affected by number of issues for given message. Default values can be configured
 by ``-c/--configure`` and ``return_status:quality_gate`` param::
 
-  robocop --configure return_status:quality_gate:E=100:F=10:I=9
+  robocop --configure return_status:quality_gate:E=100:W=100:I=9
 
 Preceding example configuration results in following levels::
 

@@ -104,7 +104,10 @@ class Robocop:
             return
         for report in self.reports:
             report.add_message(rule_msg)
-        source_rel = Path(rule_msg.source).relative_to(self.root)
+        try:
+            source_rel = os.path.relpath(os.path.expanduser(rule_msg.source), self.root)
+        except ValueError:
+            source_rel = rule_msg.source
         self.log_message(source=rule_msg.source,
                          source_rel=source_rel,
                          line=rule_msg.line,

@@ -144,6 +144,7 @@ class KeywordNamingChecker(VisitorChecker):
             return
         keyword_name = keyword_name.split('.')[-1]  # remove any imports ie ExternalLib.SubLib.Log -> Log
         keyword_name = self.var_pattern.sub('', keyword_name)  # remove any embedded variables from name
+        keyword_name = keyword_name.replace("'", '')  # replace ' apostrophes
         if '_' in keyword_name:
             self.report("underscore-in-keyword-name", node=node)
         words = self.letter_pattern.sub(' ', keyword_name).split(' ')

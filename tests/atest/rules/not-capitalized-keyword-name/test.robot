@@ -35,6 +35,9 @@ Keyword With ${var} Variable
 
 Keyword-With_Special $ Chars 10
     Should Pass
+    Edit Group's Report Logo
+    Take2 Is Capitalized
+    Quoted "Strings" Are Fine Too
 
 Keyword With Library Import
     SeleniumLibrary.Input Text    ${txt_welcome}    Hello

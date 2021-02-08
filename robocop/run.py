@@ -33,24 +33,9 @@ class Robocop:
         self.load_reports()
         self.configure_checkers_or_reports()
 
-    def export_results(self, *issues):
+    def get_json_results(self, *issues):
         """ Gather results from issues and reports, merge them in a list and return the data"""
-        payload = []
-        for report in self.reports:
-            output = report.get_report()
-            if output is not None:
-                payload.append(output)
-        for issue in self.issues:
-            issue = {
-                "source": issue.source,
-                "line": issue.line,
-                "col": issue.col,
-                "severity": issue.severity.value,
-                "rule_id": issue.rule_id,
-                "desc": issue.desc,
-                "msg_name": issue.name
-            }
-            payload.append(issue)
+        payload = [issue.to_json() for issue in self.issues]
         return(payload)
 
     def set_output(self):
@@ -66,7 +51,7 @@ class Robocop:
         self.recognize_file_types()
         self.run_checks()
         self.make_reports()
-        results = self.export_results()
+        self.get_json_results()
         if self.config.output and not self.out.closed:
             self.out.close()
         for report in self.reports:

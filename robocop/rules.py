@@ -137,3 +137,14 @@ class Message:
 
     def get_fullname(self):
         return f"{self.severity.value}{self.rule_id} ({self.name})"
+
+    def to_json(self):
+        return {
+                "source": self.source,
+                "line": self.line,
+                "col": self.col,
+                "severity": self.severity.value,
+                "rule_id": self.rule_id,
+                "desc": self.desc,
+                "msg_name": self.name
+            }

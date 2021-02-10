@@ -35,8 +35,7 @@ class Robocop:
 
     def get_json_results(self, *issues):
         """ Gather results from issues and reports, merge them in a list and return the data"""
-        payload = [issue.to_json() for issue in self.issues]
-        return(payload)
+        return [issue.to_json() for issue in self.issues]
 
     def set_output(self):
         """ Set output for printing to file if configured. Else use standard output """

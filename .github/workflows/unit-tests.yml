@@ -12,9 +12,22 @@ jobs:
   build:
     strategy:
       matrix:
-        os: ['ubuntu-latest', 'windows-latest']
-        python-version: [ 3.6, 3.7, 3.8]
-        rf-version: ['3.2.*', '4.0b3']
+        include:
+          - os: 'ubuntu-latest'
+            python-version: 3.6
+            rf-version: '3.2.*'
+          - os: 'windows-latest'
+            python-version: 3.9
+            rf-version: '4.0b3'
+          - os: 'ubuntu-latest'
+            python-version: 3.7
+            rf-version: '4.0b3'
+          - os: 'ubuntu-latest'
+            python-version: 3.8
+            rf-version: '4.0b3'
+          - os: 'ubuntu-latest'
+            python-version: 3.9
+            rf-version: '4.0b3'
     runs-on: ${{ matrix.os }}
 
     steps:
@@ -28,18 +41,12 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install robotframework==${{ matrix.rf-version }}
-        pip install pylama pylama_pylint
         pip install pytest
         pip install coverage
-    - name: Code quality with pylama
-      run: python robocop/utils/pylama_parse.py
-      if: always()
     - name: Run unit tests with coverage
       run:
         coverage run -m pytest
-      if: always()
     - name: Codecov
       uses: codecov/codecov-action@v1.0.11
       with:
         name: ${{ matrix.python-version }}-${{ matrix.os }}-${{ matrix.rf-version }}
-      if: always()

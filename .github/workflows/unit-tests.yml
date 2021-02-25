@@ -28,7 +28,6 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install robotframework==${{ matrix.rf-version }}
-        pip install pylama pylama_pylint
         pip install pytest
         pip install coverage
     - name: Run unit tests with coverage

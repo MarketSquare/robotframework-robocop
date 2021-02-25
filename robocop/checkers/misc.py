@@ -70,7 +70,10 @@ class EqualSignChecker(VisitorChecker):
 
 
 class NestedForLoopsChecker(VisitorChecker):
-    """ Checker for not supported nested FOR loops. """
+    """ Checker for not supported nested FOR loops.
+
+    Deprecated in RF 4.0
+    """
     rules = {
         "0907": (
             "nested-for-loop",

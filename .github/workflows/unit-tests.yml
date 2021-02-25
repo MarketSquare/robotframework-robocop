@@ -12,9 +12,22 @@ jobs:
   build:
     strategy:
       matrix:
-        os: ['ubuntu-latest', 'windows-latest']
-        python-version: [ 3.6, 3.7, 3.8, 3.9]
-        rf-version: ['3.2.*', '4.0b3']
+        include:
+          - os: 'ubuntu-latest'
+            python-version: 3.6
+            rf-version: '3.2.*'
+          - os: 'windows-latest'
+            python-version: 3.9
+            rf-version: '4.0b3'
+          - os: 'ubuntu-latest'
+            python-version: 3.7
+            rf-version: '4.0b3'
+          - os: 'ubuntu-latest'
+            python-version: 3.8
+            rf-version: '4.0b3'
+          - os: 'ubuntu-latest'
+            python-version: 3.9
+            rf-version: '4.0b3'
     runs-on: ${{ matrix.os }}
 
     steps:

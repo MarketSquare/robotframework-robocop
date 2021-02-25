@@ -1,3 +1,4 @@
+*** Tasks ***
 *** Test Cases ***
 Test
     [Documentation]  doc

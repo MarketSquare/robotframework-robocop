@@ -143,7 +143,7 @@ class DuplicatedOrOutOfOrderSectionChecker(VisitorChecker):
             'SETTING HEADER': 0,
             'VARIABLE HEADER': 1,
             'TESTCASE HEADER': 2,
-            'TASK HEADER': 3,
+            'TASK HEADER': 2,
             'KEYWORD HEADER': 4
         }
         self.sections_by_order = []

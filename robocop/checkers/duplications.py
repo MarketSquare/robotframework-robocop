@@ -158,7 +158,7 @@ class DuplicatedOrOutOfOrderSectionChecker(VisitorChecker):
         super().visit_File(node)
 
     def visit_SectionHeader(self, node):  # noqa
-        section_name = node.type.replace('_', ' ')  # In RF 4.0 '_' -> ' '
+        section_name = node.type
         if section_name not in self.sections_order:
             return
         if section_name == Token.TESTCASE_HEADER:

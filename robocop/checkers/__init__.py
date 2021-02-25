@@ -32,6 +32,10 @@ import inspect
 from robocop.rules import Rule
 from robocop.exceptions import DuplicatedRuleError
 from robocop.utils import modules_in_current_dir, modules_from_paths
+try:
+    from robot.api.parsing import ModelVisitor
+except ImportError:
+    from robot.parsing.model.visitor import ModelVisitor
 
 
 class BaseChecker:
@@ -65,7 +69,7 @@ class BaseChecker:
         raise NotImplementedError
 
 
-class VisitorChecker(BaseChecker, ast.NodeVisitor):  # noqa
+class VisitorChecker(BaseChecker, ModelVisitor):  # noqa
     type = 'visitor_checker'
 
     def scan_file(self, *args):

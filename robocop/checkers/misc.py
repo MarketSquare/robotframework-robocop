@@ -80,6 +80,7 @@ class NestedForLoopsChecker(VisitorChecker):
     }
 
     def visit_ForLoop(self, node):  # noqa
+        # For RF 4.0 node is "For" but we purposely don't visit it because nested for loop is allowed in 4.0
         for child in node.body:
             if child.type == 'FOR':
                 self.report("nested-for-loop", node=child)

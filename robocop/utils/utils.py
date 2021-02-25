@@ -1,7 +1,15 @@
 from pathlib import Path
 from importlib import import_module
 import importlib.util
+from packaging import version
+
 from robocop.exceptions import InvalidExternalCheckerError
+
+from robot.version import VERSION
+
+
+IS_RF4 = VERSION.startswith('4')
+DISABLED_IN_4 = frozenset(('nested-for-loop', 'invalid-comment'))
 
 
 def modules_in_current_dir(path, module_name):

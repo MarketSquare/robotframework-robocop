@@ -14,7 +14,7 @@ jobs:
       matrix:
         os: ['ubuntu-latest', 'windows-latest']
         python-version: [ 3.6, 3.7, 3.8]
-        rf-version: ['<4.0.0', '==4.0b3']
+        rf-version: ['3.2.*', '4.0b3']
     runs-on: ${{ matrix.os }}
 
     steps:
@@ -27,7 +27,7 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install robotframework${{ matrix.rf-version }}
+        pip install robotframework$=={{ matrix.rf-version }}
         pip install pylama pylama_pylint
         pip install pytest
         pip install coverage

@@ -27,7 +27,6 @@ Every rule has a `unique id` made of 4 digits where first 2 are `group id` while
 `Unique id` as well as `rule name` can be used to refer to the rule (e.g. in include/exclude statements,
 configurations etc.) You can optionally configure rule severity or other parameters.
 """
-import ast
 import inspect
 from robocop.rules import Rule
 from robocop.exceptions import DuplicatedRuleError

@@ -2,8 +2,12 @@
 Errors checkers
 """
 import re
+
+from robot.version import VERSION as ROBOT_VERSION
+
 from robocop.checkers import VisitorChecker
 from robocop.rules import RuleSeverity
+from robocop.utils import IS_RF4
 
 
 class ParsingErrorChecker(VisitorChecker):
@@ -17,7 +21,11 @@ class ParsingErrorChecker(VisitorChecker):
     }
 
     def visit_Error(self, node):  # noqa
-        self.report("parsing-error", node.error, node=node)
+        if IS_RF4:
+            for error in node.errors:
+                self.report("parsing-error", error, node=node)
+        else:
+            self.report("parsing-error", node.error, node=node)
 
 
 class TwoSpacesAfterSettingsChecker(VisitorChecker):

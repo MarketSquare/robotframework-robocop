@@ -6,6 +6,8 @@ from robocop.checkers import VisitorChecker
 from robocop.rules import RuleSeverity
 from robocop.utils import normalize_robot_name
 
+from robot.api import Token
+
 
 class DuplicationsChecker(VisitorChecker):
     """ Checker for duplicated names. """
@@ -139,57 +141,38 @@ class DuplicatedOrOutOfOrderSectionChecker(VisitorChecker):
     }
 
     def __init__(self, *args):
-        self.settings_defined = False
-        self.variables_defined = False
-        self.test_cases_defined = False
-        self.tasks_defined = False
-        self.keywords_defined = False
+        self.sections_order = {
+            Token.SETTING_HEADER: 0,
+            Token.VARIABLE_HEADER: 1,
+            Token.TESTCASE_HEADER: 2,
+            'TASK HEADER': 2,
+            Token.KEYWORD_HEADER: 4
+        }
+        self.sections_by_order = []
+        self.sections_by_existence = set()
         super().__init__(*args)
 
     def visit_File(self, node):
-        self.settings_defined = False
-        self.variables_defined = False
-        self.test_cases_defined = False
-        self.tasks_defined = False
-        self.keywords_defined = False
+        self.sections_by_order = []
+        self.sections_by_existence = set()
         super().visit_File(node)
 
-    def visit_SettingSectionHeader(self, node):  # noqa
-        if self.settings_defined:
-            self.report("section-already-defined", node.data_tokens[0].value, node=node)
-        else:
-            self.settings_defined = True
-        if self.variables_defined or self.test_cases_defined or self.tasks_defined or self.keywords_defined:
-            self.report("section-out-of-order", node.data_tokens[0].value, node=node)
-
-    def visit_VariableSectionHeader(self, node):  # noqa
-        if self.variables_defined:
-            self.report("section-already-defined", node.data_tokens[0].value, node=node)
-        else:
-            self.variables_defined = True
-        if self.test_cases_defined or self.tasks_defined or self.keywords_defined:
-            self.report("section-out-of-order", node.data_tokens[0].value, node=node)
-
-    def visit_TestCaseSectionHeader(self, node):  # noqa
-        if 'task' in node.name.lower():
-            if self.test_cases_defined:
-                self.report("both-tests-and-tasks", node=node)
-            if self.tasks_defined:
-                self.report("section-already-defined", node.data_tokens[0].value, node=node)
+    def visit_SectionHeader(self, node):  # noqa
+        section_name = node.type
+        if section_name not in self.sections_order:
+            return
+        if section_name == Token.TESTCASE_HEADER:
+            if 'task' in node.name.lower():
+                section_name = 'TASK HEADER'
+                if Token.TESTCASE_HEADER in self.sections_by_existence:
+                    self.report("both-tests-and-tasks", node=node)
             else:
-                self.tasks_defined = True
-        else:
-            if self.tasks_defined:
-                self.report("both-tests-and-tasks", node=node)
-            if self.test_cases_defined:
-                self.report("section-already-defined", node.data_tokens[0].value, node=node)
-            else:
-                self.test_cases_defined = True
-        if self.keywords_defined:
-            self.report("section-out-of-order", node.data_tokens[0].value, node=node)
-
-    def visit_KeywordSectionHeader(self, node):  # noqa
-        if self.keywords_defined:
+                if 'TASK HEADER' in self.sections_by_existence:
+                    self.report("both-tests-and-tasks", node=node)
+        order_id = self.sections_order[section_name]
+        if section_name in self.sections_by_existence:
             self.report("section-already-defined", node.data_tokens[0].value, node=node)
-        else:
-            self.keywords_defined = True
+        if any(previous_id > order_id for previous_id in self.sections_by_order):
+            self.report("section-out-of-order", node.data_tokens[0].value, node=node)
+        self.sections_by_order.append(order_id)
+        self.sections_by_existence.add(section_name)

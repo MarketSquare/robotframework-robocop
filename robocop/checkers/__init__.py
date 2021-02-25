@@ -27,11 +27,14 @@ Every rule has a `unique id` made of 4 digits where first 2 are `group id` while
 `Unique id` as well as `rule name` can be used to refer to the rule (e.g. in include/exclude statements,
 configurations etc.) You can optionally configure rule severity or other parameters.
 """
-import ast
 import inspect
 from robocop.rules import Rule
 from robocop.exceptions import DuplicatedRuleError
 from robocop.utils import modules_in_current_dir, modules_from_paths
+try:
+    from robot.api.parsing import ModelVisitor
+except ImportError:
+    from robot.parsing.model.visitor import ModelVisitor
 
 
 class BaseChecker:
@@ -65,7 +68,7 @@ class BaseChecker:
         raise NotImplementedError
 
 
-class VisitorChecker(BaseChecker, ast.NodeVisitor):  # noqa
+class VisitorChecker(BaseChecker, ModelVisitor):  # noqa
     type = 'visitor_checker'
 
     def scan_file(self, *args):

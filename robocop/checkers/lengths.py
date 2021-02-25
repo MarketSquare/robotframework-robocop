@@ -210,6 +210,9 @@ class NumberOfReturnedArgsChecker(VisitorChecker):
     def visit_ForLoop(self, node):  # noqa
         self.generic_visit(node)
 
+    def visit_For(self, node):  # noqa
+        self.generic_visit(node)
+
     def visit_Return(self, node):  # noqa
         self.check_node_returns(len(node.values), node)
 

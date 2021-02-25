@@ -183,20 +183,10 @@ class SettingsNamingChecker(VisitorChecker):
         self.section_name_pattern = re.compile(r'\*\*\*\s.+\s\*\*\*')
         super().__init__(*args)
 
-    def visit_SettingSectionHeader(self, node):  # noqa
-        self.check_section_name(node.data_tokens[0].value, node)
-
-    def visit_VariableSectionHeader(self, node):  # noqa
-        self.check_section_name(node.data_tokens[0].value, node)
-
-    def visit_TestCaseSectionHeader(self, node):  # noqa
-        self.check_section_name(node.data_tokens[0].value, node)
-
-    def visit_KeywordSectionHeader(self, node):  # noqa
-        self.check_section_name(node.data_tokens[0].value, node)
-
-    def visit_CommentSectionHeader(self, node):  # noqa
-        self.check_section_name(node.data_tokens[0].value, node)
+    def visit_SectionHeader(self, node):  # noqa
+        name = node.data_tokens[0].value
+        if not self.section_name_pattern.match(name) or not (name.istitle() or name.isupper()):
+            self.report("section-name-invalid", node=node)
 
     def visit_SuiteSetup(self, node):  # noqa
         self.check_setting_name(node.data_tokens[0].value, node)
@@ -237,7 +227,3 @@ class SettingsNamingChecker(VisitorChecker):
     def check_setting_name(self, name, node):
         if not (name.istitle() or name.isupper()):
             self.report("setting-name-not-capitalized", node=node)
-
-    def check_section_name(self, name, node):  # noqa
-        if not self.section_name_pattern.match(name) or not (name.istitle() or name.isupper()):
-            self.report("section-name-invalid", node=node)

@@ -6,6 +6,8 @@ from robocop.checkers import VisitorChecker
 from robocop.rules import RuleSeverity
 from robocop.utils import normalize_robot_name
 
+from robot.api import Token
+
 
 class DuplicationsChecker(VisitorChecker):
     """ Checker for duplicated names. """
@@ -140,11 +142,11 @@ class DuplicatedOrOutOfOrderSectionChecker(VisitorChecker):
 
     def __init__(self, *args):
         self.sections_order = {
-            'SETTING HEADER': 0,
-            'VARIABLE HEADER': 1,
-            'TESTCASE HEADER': 2,
+            Token.SETTING_HEADER: 0,
+            Token.VARIABLE_HEADER: 1,
+            Token.TESTCASE_HEADER: 2,
             'TASK HEADER': 2,
-            'KEYWORD HEADER': 4
+            Token.KEYWORD_HEADER: 4
         }
         self.sections_by_order = []
         self.sections_by_existence = set()
@@ -159,10 +161,10 @@ class DuplicatedOrOutOfOrderSectionChecker(VisitorChecker):
         section_name = node.type.replace('_', ' ')  # In RF 4.0 '_' -> ' '
         if section_name not in self.sections_order:
             return
-        if section_name == 'TESTCASE HEADER':
+        if section_name == Token.TESTCASE_HEADER:
             if 'task' in node.name.lower():
                 section_name = 'TASK HEADER'
-                if 'TESTCASE HEADER' in self.sections_by_existence:
+                if Token.TESTCASE_HEADER in self.sections_by_existence:
                     self.report("both-tests-and-tasks", node=node)
             else:
                 if 'TASK HEADER' in self.sections_by_existence:
@@ -174,4 +176,3 @@ class DuplicatedOrOutOfOrderSectionChecker(VisitorChecker):
             self.report("section-out-of-order", node.data_tokens[0].value, node=node)
         self.sections_by_order.append(order_id)
         self.sections_by_existence.add(section_name)
-

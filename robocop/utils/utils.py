@@ -1,7 +1,6 @@
 from pathlib import Path
 from importlib import import_module
 import importlib.util
-from packaging import version
 
 from robocop.exceptions import InvalidExternalCheckerError
 

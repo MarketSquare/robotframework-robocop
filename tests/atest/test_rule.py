@@ -35,8 +35,6 @@ def test_rule(rule, robocop_instance, capsys):
         pytest -k test_rule[rule_name] tests/atest
 
     """
-    if IS_RF4 and rule in DISABLED_IN_4:
-        return
     current_dir = Path(__file__).parent
     test_data = Path(current_dir, 'rules', rule)
     expected_output = Path(test_data, 'expected_output.txt')
@@ -47,7 +45,10 @@ def test_rule(rule, robocop_instance, capsys):
     robocop_instance = configure_robocop_with_rule(robocop_instance, rule, test_data)
     with pytest.raises(SystemExit) as system_exit:
         robocop_instance.run()
-    assert system_exit.value.code > 0  # if any error issue found there should be > 0 exit code
-    out, _ = capsys.readouterr()
-    actual = out.splitlines()
-    assert sorted(actual) == sorted(expected)
+    if IS_RF4 and rule in DISABLED_IN_4:
+        assert system_exit.value.code == 0
+    else:
+        assert system_exit.value.code > 0  # if any error issue found there should be > 0 exit code
+        out, _ = capsys.readouterr()
+        actual = out.splitlines()
+        assert sorted(actual) == sorted(expected)

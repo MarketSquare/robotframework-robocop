@@ -84,6 +84,11 @@ class NestedForLoopsChecker(VisitorChecker):
         )
     }
 
+    def __init__(self, *args):
+        super().__init__(*args)
+        if IS_RF4:
+            self.disabled = True
+
     def visit_ForLoop(self, node):  # noqa
         # For RF 4.0 node is "For" but we purposely don't visit it because nested for loop is allowed in 4.0
         for child in node.body:

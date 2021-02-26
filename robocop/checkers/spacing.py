@@ -28,6 +28,11 @@ class InvalidSpacingChecker(RawFileChecker):
             "missing-trailing-blank-line",
             "Missing trailing blank line at the end of file",
             RuleSeverity.WARNING
+        ),
+        "1010": (
+            "too-many-trailing-blank-lines",
+            "Too many blank lines at the end of file",
+            RuleSeverity.WARNING
         )
     }
 
@@ -38,8 +43,12 @@ class InvalidSpacingChecker(RawFileChecker):
     def parse_file(self):
         self.lines = []
         super().parse_file()
-        if self.lines and not self.lines[-1].endswith('\n'):
-            self.report("missing-trailing-blank-line", lineno=len(self.lines), col=0)
+        if self.lines:
+            last_line = self.lines[-1]
+            if not last_line.endswith('\n'):
+                self.report("missing-trailing-blank-line", lineno=len(self.lines), col=0)
+            if last_line == '\n':
+                self.report("too-many-trailing-blank-lines", lineno=len(self.lines) + 1, col=0)
 
     def check_line(self, line, lineno):
         self.lines.append(line)

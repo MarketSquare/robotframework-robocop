@@ -13,7 +13,7 @@ Test
 
 *** Keywords ***
 Keyword
-    [Documentation]  this is doc
+    [Documentation]  this is doc  
     No Operation
     Pass
     No Operation

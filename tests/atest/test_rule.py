@@ -2,7 +2,7 @@ import pytest
 from pathlib import Path
 import os
 from robocop.config import Config
-from robocop.utils import IS_RF4, DISABLED_IN_4
+from robocop.utils import IS_RF4, DISABLED_IN_4, ENABLED_IN_4
 
 
 def configure_robocop_with_rule(runner, rule, path):
@@ -45,7 +45,7 @@ def test_rule(rule, robocop_instance, capsys):
     robocop_instance = configure_robocop_with_rule(robocop_instance, rule, test_data)
     with pytest.raises(SystemExit) as system_exit:
         robocop_instance.run()
-    if IS_RF4 and rule in DISABLED_IN_4:
+    if (IS_RF4 and rule in DISABLED_IN_4) or (not IS_RF4 and rule in ENABLED_IN_4):
         assert system_exit.value.code == 0
     else:
         assert system_exit.value.code > 0  # if any error issue found there should be > 0 exit code

@@ -4,7 +4,7 @@ Miscellaneous checkers
 from robot.parsing.model.statements import Return, KeywordCall
 from robocop.checkers import VisitorChecker
 from robocop.rules import RuleSeverity
-from robocop.utils import normalize_robot_name
+from robocop.utils import normalize_robot_name, IS_RF4
 
 from robot.api import Token
 
@@ -107,6 +107,8 @@ class IfBlockCanBeUsed(VisitorChecker):
     def __init__(self, *args):
         self.run_keyword_variants = {'runkeywordif', 'runkeywordunless'}
         super().__init__(*args)
+        if not IS_RF4:
+            self.disabled = True
 
     def visit_KeywordCall(self, node):  # noqa
         if not node.keyword:

@@ -24,7 +24,7 @@ class TestReports:
             'col': 10,
             'line': 50,
             'rule_id': '0101',
-            'name': 'some-message',
+            'rule_name': 'some-message',
             'severity': 'W',
             'desc': 'Some description'
         }

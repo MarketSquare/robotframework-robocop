@@ -23,7 +23,7 @@ You can load arguments for Robocop from file with::
     --argumentfile jenkins_args.txt
 
 If no arguments are provided to Robocop it will try to find ``.robocop`` file and load it from there.
-It will start looking from current directory and go up until it found it or '.git' file is found.
+It will start looking from current directory and go up until it founds it or '.git' file is found.
 
 Listing available rules
 -----------------------

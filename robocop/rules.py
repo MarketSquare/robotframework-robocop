@@ -146,5 +146,5 @@ class Message:
                 "severity": self.severity.value,
                 "rule_id": self.rule_id,
                 "desc": self.desc,
-                "msg_name": self.name
+                "name": self.name
             }

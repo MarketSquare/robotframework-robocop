@@ -16,26 +16,40 @@ from robocop.utils import DisablersFinder, FileType, FileTypeChecker
 
 
 class Robocop:
-    def __init__(self, from_cli=False):
+    """
+    Main class for running the checks.
+
+    If you want to run checks with non default configuration create your own ``Config`` and pass it to ``Robocop``.
+    Use ``Robocop.run()`` method to start analysis. If ``from_cli`` is set to False it will return
+    list of found issues in json format.
+
+    Example::
+
+        import robocop
+        from robocop.config import Config
+
+        config = Config()
+        config.include = {'1003'}
+        config.paths = ['tests\\atest\\rules\\section-out-of-order']
+
+        robocop_runner = robocop.Robocop(config=config)
+        issues = robocop_runner.run()
+
+    """
+    def __init__(self, from_cli=False, config=None):
         self.files = {}
         self.checkers = []
         self.rules = {}
-        self.reports = []
-        self.issues = []
+        self.reports = dict()
         self.disabler = None
         self.root = os.getcwd()
-        self.config = Config()
+        self.config = Config() if config is None else config
+        self.from_cli = from_cli
         if from_cli:
             self.config.parse_opts()
+        else:
+            self.config.reports.add('json_report')
         self.out = self.set_output()
-        self.load_checkers()
-        self.list_checkers()
-        self.load_reports()
-        self.configure_checkers_or_reports()
-
-    def get_json_results(self, *issues):
-        """ Gather results from issues and reports, merge them in a list and return the data"""
-        return [issue.to_json() for issue in self.issues]
 
     def set_output(self):
         """ Set output for printing to file if configured. Else use standard output """
@@ -45,17 +59,26 @@ class Robocop:
         """ Print line using file=self.out parameter (set in `set_output` method) """
         print(line, file=self.out)
 
+    def reload_config(self):
+        """ Reload checkers and reports based on current config """
+        self.load_checkers()
+        self.list_checkers()
+        self.load_reports()
+        self.configure_checkers_or_reports()
+
     def run(self):
         """ Entry point for running scans """
+        self.reload_config()
+
         self.recognize_file_types()
         self.run_checks()
         self.make_reports()
-        self.get_json_results()
         if self.config.output and not self.out.closed:
             self.out.close()
-        for report in self.reports:
-            if report.name == 'return_status':
-                sys.exit(report.return_status)
+        if self.from_cli:
+            sys.exit(self.reports['return_status'].return_status)
+        else:
+            return self.reports['json_report'].issues
 
     def recognize_file_types(self):
         """
@@ -64,9 +87,6 @@ class Robocop:
         If the file is imported somewhere then file type is `RESOURCE`. Otherwise file type is `GENERAL`.
         These types are important since they are used to define parsing class for robot API.
         """
-        if not self.config.paths:
-            print('No path has been provided')
-            sys.exit()
         files = self.config.paths
         for file in self.get_files(files, self.config.recursive):
             if '__init__' in file.name:
@@ -97,7 +117,6 @@ class Robocop:
                 checker.issues.clear()
             found_issues.sort()
             for issue in found_issues:
-                self.issues.append(issue)
                 self.report(issue)
 
     def register_disablers(self, file):
@@ -109,7 +128,7 @@ class Robocop:
             return
         if self.disabler.is_rule_disabled(rule_msg):  # disabled from source code
             return
-        for report in self.reports:
+        for report in self.reports.values():
             report.add_message(rule_msg)
         try:
             source_rel = os.path.relpath(os.path.expanduser(rule_msg.source), self.root)
@@ -128,6 +147,8 @@ class Robocop:
         self.write_line(self.config.format.format(**kwargs))
 
     def load_checkers(self):
+        self.checkers = []
+        self.rules = {}
         checkers.init(self)
 
     def list_checkers(self):
@@ -147,6 +168,7 @@ class Robocop:
         sys.exit()
 
     def load_reports(self):
+        self.reports = dict()
         classes = inspect.getmembers(reports, inspect.isclass)
         for report_class in classes:
             if not issubclass(report_class[1], reports.Report):
@@ -155,7 +177,7 @@ class Robocop:
             if not hasattr(report, 'name'):
                 continue
             if 'all' in self.config.reports or report.name in self.config.reports:
-                self.reports.append(report)
+                self.reports[report.name] = report
 
     def register_checker(self, checker):
         if not self.any_rule_enabled(checker):
@@ -172,7 +194,7 @@ class Robocop:
         self.checkers.append(checker)
 
     def make_reports(self):
-        for report in self.reports:
+        for report in self.reports.values():
             output = report.get_report()
             if output is not None:
                 self.write_line(output)
@@ -222,10 +244,8 @@ class Robocop:
                         raise robocop.exceptions.ConfigGeneralError(
                             f"Provided param '{param}' for rule '{rule_or_report}' does not exist. {available_conf}")
                     checker.configure(configurable[1], configurable[2](value))
-            elif any(rule_or_report == report.name for report in self.reports):
-                for report in self.reports:
-                    if report.name == rule_or_report:
-                        report.configure(param, value, *values)
+            elif rule_or_report in self.reports:
+                self.reports[rule_or_report].configure(param, value, *values)
             else:
                 raise robocop.exceptions.ConfigGeneralError(
                     f"Provided rule or report '{rule_or_report}' does not exist")

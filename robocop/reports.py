@@ -41,7 +41,7 @@ class RulesByIdReport(Report):
         self.name = 'rules_by_id'
         self.message_counter = defaultdict(int)
 
-    def add_message(self, message, **kwargs):  # noqa
+    def add_message(self, message):  # noqa
         self.message_counter[message.get_fullname()] += 1
 
     def get_report(self):
@@ -71,7 +71,7 @@ class RulesBySeverityReport(Report):
         self.name = 'rules_by_error_type'
         self.severity_counter = defaultdict(int)
 
-    def add_message(self, message, **kwargs):  # pylint: disable=unused-argument
+    def add_message(self, message):
         self.severity_counter[message.severity] += 1
 
     def get_report(self):
@@ -113,8 +113,8 @@ class ReturnStatusReport(Report):
             except ValueError:
                 continue
 
-    def add_message(self, message, **kwargs):  # pylint: disable=unused-argument
-        self.counter.add_message(message, **kwargs)
+    def add_message(self, message):
+        self.counter.add_message(message)
 
     def get_report(self):
         for severity, count in self.counter.severity_counter.items():
@@ -134,8 +134,25 @@ class TimeTakenReport(Report):
         self.name = 'scan_timer'
         self.start_time = timer()
 
-    def add_message(self, *args, **kwargs):
+    def add_message(self, *args):
         pass
 
     def get_report(self):
         return f'\nScan took {timer() - self.start_time:.3f}s'
+
+
+class JsonReport(Report):
+    """
+    Report name: ``json_report``
+
+    Report that return lists of issues in json format.
+    """
+    def __init__(self):
+        self.name = 'json_report'
+        self.issues = []
+
+    def add_message(self, message):
+        self.issues.append(message.to_json())
+
+    def get_report(self):
+        return None

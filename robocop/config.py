@@ -1,5 +1,6 @@
 import argparse
 import fnmatch
+from pathlib import Path
 import os
 import re
 import sys
@@ -199,12 +200,32 @@ class Config:
 
     def parse_opts(self, args=None):
         args = self.preparse(args)
+        if not args:
+            args = self.load_default_config_file()
         parsed_args = self.parser.parse_args(args)
         self.__dict__.update(**vars(parsed_args))
         self.remove_severity()
         self.translate_patterns()
 
         return parsed_args
+
+    def load_default_config_file(self):
+        project_root = self.find_project_root()
+        config_path = project_root / '.robocop'
+        if not config_path.is_file():
+            return None
+        print(f"Loaded default configuration file from '{config_path}'")
+        return self.load_args_from_file(config_path)
+
+    @staticmethod
+    def find_project_root():
+        root = Path.cwd()
+        for parent in (root, *root.parents):
+            if (parent / '.git').exists():
+                return parent
+            if (parent / '.robocop').is_file():
+                return parent
+        return parent
 
     def is_rule_enabled(self, rule):
         if self.is_rule_disabled(rule):

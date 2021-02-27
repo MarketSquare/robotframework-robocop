@@ -16,6 +16,14 @@ Including or excluding rules
 Rules can be included or excluded from command line. It is also possible to disable rule(s) from Robot Framework
 source code. More in :ref:`including-rules`.
 
+Loading configuration from file
+-------------------------------
+You can load arguments for Robocop from file with::
+
+    --argumentfile jenkins_args.txt
+
+If no arguments are provided to Robocop it will try to find ``.robocop`` file and load it from there.
+
 Listing available rules
 -----------------------
 To get list of available rules (with enabled/disabled status) use ``--list`` option::

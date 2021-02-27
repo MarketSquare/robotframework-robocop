@@ -59,5 +59,3 @@ Keyword
     ...   ${var}
     ...   ${var}
 
-
- # Special case

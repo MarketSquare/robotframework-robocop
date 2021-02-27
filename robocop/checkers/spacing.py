@@ -2,10 +2,16 @@
 Spacing checkers
 """
 from collections import Counter
+
 from robot.api import Token
 from robot.parsing.model.visitor import ModelVisitor
-from robot.parsing.model.blocks import TestCase, Keyword, ForLoop
+from robot.parsing.model.blocks import TestCase, Keyword
+try:
+    from robot.parsing.model.blocks import ForLoop
+except ImportError:
+    from robot.parsing.model.blocks import For as ForLoop
 from robot.parsing.model.statements import EmptyLine, Comment
+
 from robocop.checkers import RawFileChecker, VisitorChecker
 from robocop.rules import RuleSeverity
 
@@ -214,6 +220,10 @@ class UnevenIndentChecker(VisitorChecker):
         self.generic_visit(node)
 
     def visit_ForLoop(self, node):  # noqa
+        column_index = 2 if node.end is None else 0
+        self.check_indents(node, node.header.tokens[1].col_offset + 1, column_index)
+
+    def visit_For(self, node): # noqa
         column_index = 2 if node.end is None else 0
         self.check_indents(node, node.header.tokens[1].col_offset + 1, column_index)
 

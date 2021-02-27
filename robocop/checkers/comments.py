@@ -3,6 +3,7 @@ Comments checkers
 """
 from robocop.checkers import RawFileChecker, VisitorChecker
 from robocop.rules import RuleSeverity
+from robocop.utils import IS_RF4
 
 
 class CommentChecker(VisitorChecker):
@@ -18,7 +19,7 @@ class CommentChecker(VisitorChecker):
             "Missing blank space after comment character",
             RuleSeverity.WARNING
         ),
-        "0703": (
+        "0703": (  # Deprecated in RF 4.0
             "invalid-comment",
             "Invalid comment. '#' needs to be first character in the cell. "
             "For block comments you can use '*** Comments ***' section",
@@ -47,6 +48,8 @@ class CommentChecker(VisitorChecker):
                 self.check_comment_content(token)
 
     def check_invalid_comments(self, name, node):
+        if IS_RF4:
+            return
         if name and name.lstrip().startswith('#'):
             self.report("invalid-comment", node=node, col=node.col_offset)
 

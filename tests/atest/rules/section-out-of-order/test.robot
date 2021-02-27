@@ -1,3 +1,4 @@
+*** Tasks ***
 *** Test Cases ***
 Test
     [Documentation]  doc
@@ -6,7 +7,7 @@ Test
     Keyword
     One More
 
-
+*** Comments ***
 *** Keywords ***
 Keyword
     [Documentation]  this is doc

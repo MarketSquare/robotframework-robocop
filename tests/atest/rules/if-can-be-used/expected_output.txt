@@ -1,0 +1,3 @@
+${rules_dir}${\}test.robot:8:5 [I] 0908 'Run Keyword If' can be replaced with IF block since Robot Framework 4.0
+${rules_dir}${\}test.robot:19:15 [I] 0908 'Run Keyword If' can be replaced with IF block since Robot Framework 4.0
+${rules_dir}${\}test.robot:20:5 [I] 0908 'Run Keyword Unless' can be replaced with IF block since Robot Framework 4.0

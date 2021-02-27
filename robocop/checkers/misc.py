@@ -4,7 +4,9 @@ Miscellaneous checkers
 from robot.parsing.model.statements import Return, KeywordCall
 from robocop.checkers import VisitorChecker
 from robocop.rules import RuleSeverity
-from robocop.utils import normalize_robot_name
+from robocop.utils import normalize_robot_name, IS_RF4
+
+from robot.api import Token
 
 
 class ReturnChecker(VisitorChecker):
@@ -82,8 +84,44 @@ class NestedForLoopsChecker(VisitorChecker):
         )
     }
 
+    def __init__(self, *args):
+        super().__init__(*args)
+        if IS_RF4:
+            self.disabled = True
+
     def visit_ForLoop(self, node):  # noqa
         # For RF 4.0 node is "For" but we purposely don't visit it because nested for loop is allowed in 4.0
         for child in node.body:
             if child.type == 'FOR':
                 self.report("nested-for-loop", node=child)
+
+
+class IfBlockCanBeUsed(VisitorChecker):
+    """ Checker for potential IF block usage in Robot Framework 4.0
+
+    Run Keyword variants (Run Keyword If, Run Keyword Unless) can be replaced with IF in RF 4.0
+    """
+    rules = {
+        "0908": (
+            "if-can-be-used",
+            "'%s' can be replaced with IF block since Robot Framework 4.0",
+            RuleSeverity.INFO
+        )
+    }
+
+    def __init__(self, *args):
+        self.run_keyword_variants = {'runkeywordif', 'runkeywordunless'}
+        super().__init__(*args)
+        if not IS_RF4:
+            self.disabled = True
+
+    def visit_KeywordCall(self, node):  # noqa
+        if not node.keyword:
+            return
+        if normalize_robot_name(node.keyword) in self.run_keyword_variants:
+            col = 0
+            for token in node.data_tokens:
+                if token.type == Token.KEYWORD:
+                    col = token.col_offset + 1
+                    break
+            self.report("if-can-be-used", node.keyword, node=node, col=col)

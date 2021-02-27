@@ -9,7 +9,8 @@ from robocop.utils.utils import (
     modules_in_current_dir,
     normalize_robot_name,
     IS_RF4,
-    DISABLED_IN_4
+    DISABLED_IN_4,
+    ENABLED_IN_4
 )
 
 
@@ -22,5 +23,6 @@ __all__ = [
     'modules_from_paths',
     'normalize_robot_name',
     'IS_RF4',
-    'DISABLED_IN_4'
+    'DISABLED_IN_4',
+    'ENABLED_IN_4'
 ]

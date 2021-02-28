@@ -55,11 +55,11 @@ class ReturnChecker(VisitorChecker):
 
 
 class EqualSignChecker(VisitorChecker):
-    """ Checker for redundant equal signs when assigning return values. """
+    """ Checker for redundant equal signs when assigning values to variables. """
     rules = {
         "0906": (
             "redundant-equal-sign",
-            "Redundant equal sign in return value assignment",
+            "Redundant equal sign in variable assignment",
             RuleSeverity.WARNING
         )
     }
@@ -69,6 +69,13 @@ class EqualSignChecker(VisitorChecker):
             if node.assign[-1][-1] == '=':  # last character of last assigned variable
                 equal_position = [x for x in node.data_tokens if x.type == 'ASSIGN'][-1].end_col_offset
                 self.report("redundant-equal-sign", lineno=node.lineno, col=equal_position)
+
+    def visit_VariableSection(self, node):  # noqa
+        for child in node.body:
+            for token in child.data_tokens:
+                if token.type == Token.VARIABLE and token.value[-1] == '=':
+                    self.report("redundant-equal-sign", lineno=token.lineno,
+                                col=token.end_col_offset + token.col_offset)
 
 
 class NestedForLoopsChecker(VisitorChecker):

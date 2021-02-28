@@ -224,6 +224,21 @@ class SettingsNamingChecker(VisitorChecker):
     def visit_Documentation(self, node):  # noqa
         self.check_setting_name(node.data_tokens[0].value, node)
 
+    def visit_Tags(self, node):  # noqa
+        self.check_setting_name(node.data_tokens[0].value, node)
+
+    def visit_Timeout(self, node):  # noqa
+        self.check_setting_name(node.data_tokens[0].value, node)
+
+    def visit_Template(self, node):  # noqa
+        self.check_setting_name(node.data_tokens[0].value, node)
+
+    def visit_Arguments(self, node):  # noqa
+        self.check_setting_name(node.data_tokens[0].value, node)
+
+    def visit_Return(self, node):  # noqa
+        self.check_setting_name(node.data_tokens[0].value, node)
+
     def check_setting_name(self, name, node):
         if not (name.istitle() or name.isupper()):
             self.report("setting-name-not-capitalized", node=node)

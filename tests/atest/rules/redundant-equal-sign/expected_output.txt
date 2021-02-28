@@ -1,2 +1,4 @@
-${rules_dir}${\}test.robot:10:11 [W] 0906 Redundant equal sign in return value assignment
-${rules_dir}${\}test.robot:19:13 [W] 0906 Redundant equal sign in return value assignment
+${rules_dir}${\}test.robot:6:18 [W] 0906 Redundant equal sign in variable assignment
+${rules_dir}${\}test.robot:7:21 [W] 0906 Redundant equal sign in variable assignment
+${rules_dir}${\}test.robot:16:11 [W] 0906 Redundant equal sign in variable assignment
+${rules_dir}${\}test.robot:25:13 [W] 0906 Redundant equal sign in variable assignment

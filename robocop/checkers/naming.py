@@ -7,6 +7,8 @@ from robocop.checkers import VisitorChecker
 from robocop.rules import RuleSeverity
 from robocop.utils import normalize_robot_name
 
+from robot.api import Token
+
 
 class InvalidCharactersInNameChecker(VisitorChecker):
     """ Checker for invalid characters in suite, test case or keyword name. """
@@ -257,3 +259,22 @@ class TestCaseNamingChecker(VisitorChecker):
     def visit_TestCase(self, node):  # noqa
         if not node.name[0].isupper():
             self.report("not-capitalized-test-case-title", node=node)
+
+
+class VariableNamingChecker(VisitorChecker):
+    rules = {
+        "0309": (
+            "suite-variable-not-uppercase",
+            "Suite variable name should be uppercase",
+            RuleSeverity.WARNING
+        )
+    }
+
+    def visit_VariableSection(self, node):  # noqa
+        for child in node.body:
+            if not child.data_tokens:
+                continue
+            token = child.data_tokens[0]
+            if token.type == Token.VARIABLE and not token.value.isupper():
+                self.report("suite-variable-not-uppercase", lineno=token.lineno,
+                            col=token.col_offset)

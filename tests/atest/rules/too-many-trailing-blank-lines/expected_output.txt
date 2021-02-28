@@ -1,0 +1,2 @@
+${rules_dir}${\}test.robot:23:0 [W] 1010 Too many blank lines at the end of file
+${rules_dir}${\}test2.robot:22:0 [W] 1010 Too many blank lines at the end of file

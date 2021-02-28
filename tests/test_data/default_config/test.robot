@@ -2,7 +2,7 @@
 Documentation  doc
 
 
-*** Test Cases *** 
+*** Test Cases ***
 Test
     [Documentation]  doc
     [Tags]  sometag
@@ -11,9 +11,14 @@ Test
     One More
 
 
+*** Tasks ***
+Task
+    No Operation
+
+
 *** Keywords ***
 Keyword
-    [Documentation]  this is doc  
+    [Documentation]  this is doc
     No Operation
     Pass
     No Operation

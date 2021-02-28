@@ -7,6 +7,8 @@ from robocop.checkers import VisitorChecker
 from robocop.rules import RuleSeverity
 from robocop.utils import normalize_robot_name
 
+from robot.api import Token
+
 
 class InvalidCharactersInNameChecker(VisitorChecker):
     """ Checker for invalid characters in suite, test case or keyword name. """
@@ -91,7 +93,7 @@ class KeywordNamingChecker(VisitorChecker):
     }
 
     def __init__(self, *args):
-        self.letter_pattern = re.compile('[^a-zA-Z]')
+        self.letter_pattern = re.compile('[^a-zA-Z0-9]')
         self.var_pattern = re.compile(r'[$@%&]{.+}')
         super().__init__(*args)
 
@@ -148,7 +150,7 @@ class KeywordNamingChecker(VisitorChecker):
         if '_' in keyword_name:
             self.report("underscore-in-keyword-name", node=node)
         words = self.letter_pattern.sub(' ', keyword_name).split(' ')
-        if any(not (word.istitle() or word.isupper()) for word in words if word):
+        if any(word[0].islower() for word in words if word):
             self.report("not-capitalized-keyword-name", node=node)
 
     def check_if_keyword_is_reserved(self, keyword_name, node):
@@ -224,6 +226,77 @@ class SettingsNamingChecker(VisitorChecker):
     def visit_Documentation(self, node):  # noqa
         self.check_setting_name(node.data_tokens[0].value, node)
 
+    def visit_Tags(self, node):  # noqa
+        self.check_setting_name(node.data_tokens[0].value, node)
+
+    def visit_Timeout(self, node):  # noqa
+        self.check_setting_name(node.data_tokens[0].value, node)
+
+    def visit_Template(self, node):  # noqa
+        self.check_setting_name(node.data_tokens[0].value, node)
+
+    def visit_Arguments(self, node):  # noqa
+        self.check_setting_name(node.data_tokens[0].value, node)
+
+    def visit_Return(self, node):  # noqa
+        self.check_setting_name(node.data_tokens[0].value, node)
+
     def check_setting_name(self, name, node):
         if not (name.istitle() or name.isupper()):
             self.report("setting-name-not-capitalized", node=node)
+
+
+class TestCaseNamingChecker(VisitorChecker):
+    """ Checker for test case naming violations. """
+    rules = {
+        "0308": (
+            "not-capitalized-test-case-title",
+            "Test case title should start with capital letter",
+            RuleSeverity.WARNING
+        )
+    }
+
+    def visit_TestCase(self, node):  # noqa
+        if not node.name[0].isupper():
+            self.report("not-capitalized-test-case-title", node=node)
+
+
+class VariableNamingChecker(VisitorChecker):
+    rules = {
+        "0309": (
+            "section-variable-not-uppercase",
+            "Section variable name should be uppercase",
+            RuleSeverity.WARNING
+        ),
+        "0310": (
+            "non-local-variables-should-be-uppercase",
+            "Test, suite and global variables should be uppercased",
+            RuleSeverity.WARNING
+        )
+    }
+
+    def __init__(self, *args):
+        self.set_variable_variants = {'settaskvariable',
+                                      'settestvariable',
+                                      'setsuitevariable',
+                                      'setglobalvariable'}
+        super().__init__(*args)
+
+    def visit_VariableSection(self, node):  # noqa
+        for child in node.body:
+            if not child.data_tokens:
+                continue
+            token = child.data_tokens[0]
+            if token.type == Token.VARIABLE and not token.value.isupper():
+                self.report("section-variable-not-uppercase", lineno=token.lineno,
+                            col=token.col_offset)
+
+    def visit_KeywordCall(self, node):  # noqa
+        if not node.keyword:
+            return
+        if normalize_robot_name(node.keyword) in self.set_variable_variants:
+            if len(node.data_tokens) < 2:
+                return
+            token = node.data_tokens[1]
+            if token.type == Token.ARGUMENT and not token.value.isupper():
+                self.report("non-local-variables-should-be-uppercase", node=node, col=token.col_offset + 1)

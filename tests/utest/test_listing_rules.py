@@ -65,6 +65,15 @@ class TestListingRules:
         out, _ = capsys.readouterr()
         assert out == 'Rule - 0101 [W]: some-message: Some description (disabled)\n'
 
+    def test_list_reports(self, robocop_pre_load, msg_0101, capsys):
+        robocop_pre_load.config.list_reports = True
+        init_empty_checker(robocop_pre_load, msg_0101)
+        with pytest.raises(SystemExit):
+            robocop_pre_load.load_reports()
+        out, _ = capsys.readouterr()
+        first_line = out.split('\n')[0]
+        assert first_line == 'Available reports:'
+
     def test_multiple_checkers(self, robocop_pre_load, msg_0101, msg_0102_0204, capsys):
         robocop_pre_load.config.list = robocop.config.translate_pattern('*')
         init_empty_checker(robocop_pre_load, msg_0102_0204, exclude=True)

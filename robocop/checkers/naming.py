@@ -242,3 +242,18 @@ class SettingsNamingChecker(VisitorChecker):
     def check_setting_name(self, name, node):
         if not (name.istitle() or name.isupper()):
             self.report("setting-name-not-capitalized", node=node)
+
+
+class TestCaseNamingChecker(VisitorChecker):
+    """ Checker for test case naming violations. """
+    rules = {
+        "0308": (
+            "not-capitalized-test-case-title",
+            "Test case title should start with capital letter",
+            RuleSeverity.WARNING
+        )
+    }
+
+    def visit_TestCase(self, node):  # noqa
+        if not node.name[0].isupper():
+            self.report("not-capitalized-test-case-title", node=node)

@@ -141,6 +141,7 @@ class Robocop:
 
     def load_reports(self):
         classes = inspect.getmembers(reports, inspect.isclass)
+        available_reports = 'Available reports:\n'
         for report_class in classes:
             if not issubclass(report_class[1], reports.Report):
                 continue
@@ -149,6 +150,11 @@ class Robocop:
                 continue
             if 'all' in self.config.reports or report.name in self.config.reports:
                 self.reports.append(report)
+            available_reports += f'{report.name} - {report.description}\n'
+        if self.config.list_reports:
+            available_reports += 'all - Turns on all available reports'
+            print(available_reports)
+            sys.exit()
 
     def register_checker(self, checker):
         if not self.any_rule_enabled(checker):

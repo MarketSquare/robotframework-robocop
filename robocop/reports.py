@@ -39,6 +39,7 @@ class RulesByIdReport(Report):
     """
     def __init__(self):
         self.name = 'rules_by_id'
+        self.description = 'Groups detected issues by rule id and prints it ordered by most common'
         self.message_counter = defaultdict(int)
 
     def add_message(self, message, **kwargs):  # noqa
@@ -61,7 +62,7 @@ class RulesBySeverityReport(Report):
     """
     Report name: ``rules_by_error_type``
 
-    Report that group linter rules messages by severity and print total of issues per every severity level.
+    Report that groups linter rules messages by severity and prints total of issues per every severity level.
 
     Example::
 
@@ -69,6 +70,7 @@ class RulesBySeverityReport(Report):
     """
     def __init__(self):
         self.name = 'rules_by_error_type'
+        self.description = 'Prints total number of issues grouped by severity'
         self.severity_counter = defaultdict(int)
 
     def add_message(self, message, **kwargs):  # pylint: disable=unused-argument
@@ -93,6 +95,7 @@ class ReturnStatusReport(Report):
     """
     def __init__(self):
         self.name = 'return_status'
+        self.description = 'Checks if number of specific issues exceed quality gate limits'
         self.return_status = 0
         self.counter = RulesBySeverityReport()
         self.quality_gate = {
@@ -132,6 +135,7 @@ class TimeTakenReport(Report):
     """
     def __init__(self):
         self.name = 'scan_timer'
+        self.description = 'Returns Robocop execution time'
         self.start_time = timer()
 
     def add_message(self, *args, **kwargs):

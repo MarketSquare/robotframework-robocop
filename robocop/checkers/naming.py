@@ -91,7 +91,7 @@ class KeywordNamingChecker(VisitorChecker):
     }
 
     def __init__(self, *args):
-        self.letter_pattern = re.compile('[^a-zA-Z]')
+        self.letter_pattern = re.compile('[^a-zA-Z0-9]')
         self.var_pattern = re.compile(r'[$@%&]{.+}')
         super().__init__(*args)
 
@@ -148,7 +148,7 @@ class KeywordNamingChecker(VisitorChecker):
         if '_' in keyword_name:
             self.report("underscore-in-keyword-name", node=node)
         words = self.letter_pattern.sub(' ', keyword_name).split(' ')
-        if any(not (word.istitle() or word.isupper()) for word in words if word):
+        if any(word[0].islower() for word in words if word):
             self.report("not-capitalized-keyword-name", node=node)
 
     def check_if_keyword_is_reserved(self, keyword_name, node):
@@ -222,6 +222,21 @@ class SettingsNamingChecker(VisitorChecker):
         self.check_setting_name(node.data_tokens[0].value, node)
 
     def visit_Documentation(self, node):  # noqa
+        self.check_setting_name(node.data_tokens[0].value, node)
+
+    def visit_Tags(self, node):  # noqa
+        self.check_setting_name(node.data_tokens[0].value, node)
+
+    def visit_Timeout(self, node):  # noqa
+        self.check_setting_name(node.data_tokens[0].value, node)
+
+    def visit_Template(self, node):  # noqa
+        self.check_setting_name(node.data_tokens[0].value, node)
+
+    def visit_Arguments(self, node):  # noqa
+        self.check_setting_name(node.data_tokens[0].value, node)
+
+    def visit_Return(self, node):  # noqa
         self.check_setting_name(node.data_tokens[0].value, node)
 
     def check_setting_name(self, name, node):

@@ -26,6 +26,7 @@ class TestArgumentValidation(unittest.TestCase):
         self.assertEqual(self.config.format, "{source}:{line}:{col} [{severity}] {rule_id} {desc}")
         self.assertListEqual(self.config.paths, [])
         self.assertIsNone(self.config.output)
+        self.assertFalse(self.config.list_reports)
 
     def test_default_args_after_parse(self):
         args = self.config.parse_opts([''])
@@ -171,3 +172,7 @@ class TestArgumentValidation(unittest.TestCase):
     def test_paths_two_values(self):
         args = self.config.parse_opts(['tests.robot', 'test2.robot'])
         self.assertListEqual(args.paths, ['tests.robot', 'test2.robot'])
+
+    def test_list_reports(self):
+        args = self.config.parse_opts(['--list-reports'])
+        self.assertTrue(args.list_reports)

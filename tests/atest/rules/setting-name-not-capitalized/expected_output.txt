@@ -7,5 +7,15 @@ ${rules_dir}${\}test.robot:8:0 [W] 0306 Setting name should be capitalized or up
 ${rules_dir}${\}test.robot:9:0 [W] 0306 Setting name should be capitalized or upper case
 ${rules_dir}${\}test.robot:10:0 [W] 0306 Setting name should be capitalized or upper case
 ${rules_dir}${\}test.robot:11:0 [W] 0306 Setting name should be capitalized or upper case
+${rules_dir}${\}test.robot:16:0 [W] 0306 Setting name should be capitalized or upper case
+${rules_dir}${\}test.robot:17:0 [W] 0306 Setting name should be capitalized or upper case
 ${rules_dir}${\}test.robot:18:0 [W] 0306 Setting name should be capitalized or upper case
-${rules_dir}${\}test.robot:22:0 [W] 0306 Setting name should be capitalized or upper case
+${rules_dir}${\}test.robot:19:0 [W] 0306 Setting name should be capitalized or upper case
+${rules_dir}${\}test.robot:20:0 [W] 0306 Setting name should be capitalized or upper case
+${rules_dir}${\}test.robot:24:0 [W] 0306 Setting name should be capitalized or upper case
+${rules_dir}${\}test.robot:51:0 [W] 0306 Setting name should be capitalized or upper case
+${rules_dir}${\}test.robot:52:0 [W] 0306 Setting name should be capitalized or upper case
+${rules_dir}${\}test.robot:53:0 [W] 0306 Setting name should be capitalized or upper case
+${rules_dir}${\}test.robot:54:0 [W] 0306 Setting name should be capitalized or upper case
+${rules_dir}${\}test.robot:59:0 [W] 0306 Setting name should be capitalized or upper case
+${rules_dir}${\}test.robot:60:0 [W] 0306 Setting name should be capitalized or upper case

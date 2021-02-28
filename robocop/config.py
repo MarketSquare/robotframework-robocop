@@ -70,42 +70,44 @@ class Config:
         self.filetypes = {'.robot', '.resource', '.tsv'}
         self.list = ''
         self.list_configurables = ''
+        self.list_reports = False
         self.output = None
         self.recursive = True
         self.parser = self._create_parser()
 
     HELP_MSGS = {
-        'help_paths':       'List of paths (files or directories) to be parsed by Robocop',
-        'help_include':     'Run Robocop only with specified rules. You can define rule by its name or id.\n'
-                            'Glob patterns are supported',
-        'help_exclude':     'Ignore specified rules. You can define rule by its name or id.\n'
-                            'Glob patterns are supported',
-        'help_ext_rules':   'List of paths with custom rules',
-        'help_reports':     'Generate reports after scan. You can enable reports by listing them in comma\n'
-                            'separated list:\n'
-                            '--reports rules_by_id,rules_by_error_type,scan_timer\n'
-                            'To enable all reports use all:\n'
-                            '--report all',
-        'help_format':      'Format of output message. '
-                            'You can use placeholders to change the way an issue is reported.\n'
-                            'Default: {source}:{line}:{col} [{severity}] {rule_id} {desc}',
-        'help_configure':   'Configure checker with parameter value. Usage:\n'
-                            '-c message_name_or_id:param_name:param_value\nExample:\n'
-                            '-c line-too-long:line_length:150\n'
-                            '--configure 0101:severity:E',
-        'help_list':        'List all available rules. You can use optional pattern argument',
-        'help_list_confs':  'List all available rules with configurable parameters. '
-                            'You can use optional pattern argument',
-        'help_output':      'Path to output file',
-        'help_filetypes':   'Comma separated list of file extensions to be scanned by Robocop',
-        'help_threshold':    f'Disable rules below given threshold. Available message levels: '
-                             f'{" < ".join(sev.value for sev in RuleSeverity)}',
-        'help_recursive':   'Use this flag to stop scanning directories recursively',
-        'help_argfile':     'Path to file with arguments',
-        'help_ignore':      'Ignore file(s) and path(s) provided. Glob patterns are supported',
-        'help_info':        'Print this help message and exit',
-        'help_version':     'Display Robocop version',
-        'directives':       '1. Serve the public trust\n2. Protect the innocent\n3. Uphold the law\n4. [ACCESS DENIED]'
+        'help_paths':        'List of paths (files or directories) to be parsed by Robocop',
+        'help_include':      'Run Robocop only with specified rules. You can define rule by its name or id.\n'
+                             'Glob patterns are supported',
+        'help_exclude':      'Ignore specified rules. You can define rule by its name or id.\n'
+                             'Glob patterns are supported',
+        'help_ext_rules':    'List of paths with custom rules',
+        'help_reports':      'Generate reports after scan. You can enable reports by listing them in comma\n'
+                             'separated list:\n'
+                             '--reports rules_by_id,rules_by_error_type,scan_timer\n'
+                             'To enable all reports use all:\n'
+                             '--report all',
+        'help_format':       'Format of output message. '
+                             'You can use placeholders to change the way an issue is reported.\n'
+                             'Default: {source}:{line}:{col} [{severity}] {rule_id} {desc}',
+        'help_configure':    'Configure checker with parameter value. Usage:\n'
+                             '-c message_name_or_id:param_name:param_value\nExample:\n'
+                             '-c line-too-long:line_length:150\n'
+                             '--configure 0101:severity:E',
+        'help_list':         'List all available rules. You can use optional pattern argument',
+        'help_list_confs':   'List all available rules with configurable parameters. '
+                             'You can use optional pattern argument',
+        'help_list_reports': 'List all available reports',
+        'help_output':       'Path to output file',
+        'help_filetypes':    'Comma separated list of file extensions to be scanned by Robocop',
+        'help_threshold':     f'Disable rules below given threshold. Available message levels: '
+                              f'{" < ".join(sev.value for sev in RuleSeverity)}',
+        'help_recursive':    'Use this flag to stop scanning directories recursively',
+        'help_argfile':      'Path to file with arguments',
+        'help_ignore':       'Ignore file(s) and path(s) provided. Glob patterns are supported',
+        'help_info':         'Print this help message and exit',
+        'help_version':      'Display Robocop version',
+        'directives':        '1. Serve the public trust\n2. Protect the innocent\n3. Uphold the law\n4. [ACCESS DENIED]'
     }
 
     def _translate_patterns(self, pattern_list):
@@ -179,8 +181,11 @@ class Config:
                               metavar='CONFIGURABLE', help=self.HELP_MSGS['help_configure'])
         optional.add_argument('-l', '--list', action=SetListOption, nargs='?', const='', default=self.list,
                               metavar='PATTERN', help=self.HELP_MSGS['help_list'])
-        optional.add_argument('--list-configurables', action=SetListOption, nargs='?', const='', default=self.list_configurables,
-                              metavar='PATTERN', help=self.HELP_MSGS['help_list_confs'])
+        optional.add_argument('--list-configurables', action=SetListOption, nargs='?', const='',
+                              default=self.list_configurables, metavar='PATTERN',
+                              help=self.HELP_MSGS['help_list_confs'])
+        optional.add_argument('--list-reports', action='store_true', default=self.list_reports,
+                              help=self.HELP_MSGS['help_list_reports'])
         optional.add_argument('-o', '--output', type=argparse.FileType('w'), default=self.output,
                               metavar='PATH', help=self.HELP_MSGS['help_output'])
         optional.add_argument('--filetypes', action=ParseFileTypes, default=self.filetypes,

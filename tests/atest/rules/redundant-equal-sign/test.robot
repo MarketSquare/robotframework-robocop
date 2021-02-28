@@ -2,6 +2,12 @@
 Documentation  doc
 
 
+*** Variables ***
+${SUITE_VARIABLE}=  Value
+${ANOTHER_VARIABLE} =  Value
+${VAR_WITHOUT_EQUAL_SIGN}  Value
+
+
 *** Test Cases ***
 Test
     [Documentation]  doc

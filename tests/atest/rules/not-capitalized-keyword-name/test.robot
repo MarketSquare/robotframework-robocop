@@ -30,7 +30,13 @@ keyword
 
  # special case
 
-Keyword With ${var} Variable
+Keyword With Embedded ${var} Variable
+    Should Pass
+
+Keyword With Embedded @{list} Variable
+    Should Pass
+
+Keyword With Embedded &{dict} Variable
     Should Pass
 
 Keyword-With_Special $ Chars 10
@@ -42,3 +48,7 @@ Keyword-With_Special $ Chars 10
 Keyword With Library Import
     SeleniumLibrary.Input Text    ${txt_welcome}    Hello
     Input Text    ${txt_welcome}    Hello
+
+Keyword With API Abbreviation Should Pass
+    Keyword With Number Ins1de 0r In Fr0nt
+    I Will Love U 4 Ever

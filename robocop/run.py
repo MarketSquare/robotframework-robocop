@@ -20,7 +20,7 @@ class Robocop:
     Main class for running the checks.
 
     If you want to run checks with non default configuration create your own ``Config`` and pass it to ``Robocop``.
-    Use ``Robocop.run()`` method to start analysis. If ``from_cli`` is set to False it will return
+    Use ``Robocop.run()`` method to start analysis. If ``from_cli`` is set to ``False`` it will return
     list of found issues in JSON format.
 
     Example::

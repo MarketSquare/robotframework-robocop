@@ -7,6 +7,8 @@ from robocop.checkers import VisitorChecker
 from robocop.rules import RuleSeverity
 from robocop.utils import normalize_robot_name
 
+from robot.api import Token
+
 
 class InvalidCharactersInNameChecker(VisitorChecker):
     """ Checker for invalid characters in suite, test case or keyword name. """
@@ -257,3 +259,44 @@ class TestCaseNamingChecker(VisitorChecker):
     def visit_TestCase(self, node):  # noqa
         if not node.name[0].isupper():
             self.report("not-capitalized-test-case-title", node=node)
+
+
+class VariableNamingChecker(VisitorChecker):
+    rules = {
+        "0309": (
+            "section-variable-not-uppercase",
+            "Section variable name should be uppercase",
+            RuleSeverity.WARNING
+        ),
+        "0310": (
+            "non-local-variables-should-be-uppercase",
+            "Test, suite and global variables should be uppercased",
+            RuleSeverity.WARNING
+        )
+    }
+
+    def __init__(self, *args):
+        self.set_variable_variants = {'settaskvariable',
+                                      'settestvariable',
+                                      'setsuitevariable',
+                                      'setglobalvariable'}
+        super().__init__(*args)
+
+    def visit_VariableSection(self, node):  # noqa
+        for child in node.body:
+            if not child.data_tokens:
+                continue
+            token = child.data_tokens[0]
+            if token.type == Token.VARIABLE and not token.value.isupper():
+                self.report("section-variable-not-uppercase", lineno=token.lineno,
+                            col=token.col_offset)
+
+    def visit_KeywordCall(self, node):  # noqa
+        if not node.keyword:
+            return
+        if normalize_robot_name(node.keyword) in self.set_variable_variants:
+            if len(node.data_tokens) < 2:
+                return
+            token = node.data_tokens[1]
+            if token.type == Token.ARGUMENT and not token.value.isupper():
+                self.report("non-local-variables-should-be-uppercase", node=node, col=token.col_offset + 1)

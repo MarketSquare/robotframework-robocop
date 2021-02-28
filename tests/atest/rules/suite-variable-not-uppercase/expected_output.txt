@@ -1,7 +1,0 @@
-${rules_dir}${\}test.robot:5:0 [W] 0309 Suite variable name should be uppercase
-${rules_dir}${\}test.robot:6:0 [W] 0309 Suite variable name should be uppercase
-${rules_dir}${\}test.robot:7:0 [W] 0309 Suite variable name should be uppercase
-${rules_dir}${\}test.robot:8:0 [W] 0309 Suite variable name should be uppercase
-${rules_dir}${\}test.robot:9:0 [W] 0309 Suite variable name should be uppercase
-${rules_dir}${\}test.robot:10:0 [W] 0309 Suite variable name should be uppercase
-${rules_dir}${\}test.robot:11:0 [W] 0309 Suite variable name should be uppercase

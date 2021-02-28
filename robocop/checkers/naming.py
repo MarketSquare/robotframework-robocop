@@ -264,11 +264,23 @@ class TestCaseNamingChecker(VisitorChecker):
 class VariableNamingChecker(VisitorChecker):
     rules = {
         "0309": (
-            "suite-variable-not-uppercase",
-            "Suite variable name should be uppercase",
+            "section-variable-not-uppercase",
+            "Section variable name should be uppercase",
+            RuleSeverity.WARNING
+        ),
+        "0310": (
+            "non-local-variables-should-be-uppercase",
+            "Test, suite and global variables should be uppercased",
             RuleSeverity.WARNING
         )
     }
+
+    def __init__(self, *args):
+        self.set_variable_variants = {'settaskvariable',
+                                      'settestvariable',
+                                      'setsuitevariable',
+                                      'setglobalvariable'}
+        super().__init__(*args)
 
     def visit_VariableSection(self, node):  # noqa
         for child in node.body:
@@ -276,5 +288,15 @@ class VariableNamingChecker(VisitorChecker):
                 continue
             token = child.data_tokens[0]
             if token.type == Token.VARIABLE and not token.value.isupper():
-                self.report("suite-variable-not-uppercase", lineno=token.lineno,
+                self.report("section-variable-not-uppercase", lineno=token.lineno,
                             col=token.col_offset)
+
+    def visit_KeywordCall(self, node):  # noqa
+        if not node.keyword:
+            return
+        if normalize_robot_name(node.keyword) in self.set_variable_variants:
+            if len(node.data_tokens) < 2:
+                return
+            token = node.data_tokens[1]
+            if token.type == Token.ARGUMENT and not token.value.isupper():
+                self.report("non-local-variables-should-be-uppercase", node=node, col=token.col_offset + 1)

@@ -17,11 +17,6 @@ def configure_robocop_with_rule(runner, rule, path):
         str(path)
      ])
     runner.config = config
-    runner.checkers = []
-    runner.rules = {}
-    runner.load_checkers()
-    runner.load_reports()
-    runner.configure_checkers_or_reports()
     return runner
 
 

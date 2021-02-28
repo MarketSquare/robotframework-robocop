@@ -5,7 +5,7 @@ from robocop.run import Robocop
 
 @pytest.fixture
 def robocop_instance():
-    return Robocop()
+    return Robocop(from_cli=True)
 
 
 def pytest_generate_tests(metafunc):

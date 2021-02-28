@@ -142,9 +142,9 @@ class Message:
         return {
                 "source": self.source,
                 "line": self.line,
-                "col": self.col,
+                "column": self.col,
                 "severity": self.severity.value,
                 "rule_id": self.rule_id,
-                "desc": self.desc,
+                "description": self.desc,
                 "rule_name": self.name
             }

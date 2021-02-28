@@ -21,10 +21,10 @@ class TestReports:
         report.add_message(issue)
         assert report.issues[0] == {
             'source': 'some/path/file.robot',
-            'col': 10,
+            'column': 10,
             'line': 50,
             'rule_id': '0101',
             'rule_name': 'some-message',
             'severity': 'W',
-            'desc': 'Some description'
+            'description': 'Some description'
         }

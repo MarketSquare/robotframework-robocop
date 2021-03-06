@@ -102,6 +102,7 @@ class Robocop:
             file_type_checker.visit(model)
 
     def run_checks(self):
+        files_with_issues = 0
         for file in self.files:
             found_issues = []
             self.register_disablers(file)
@@ -115,9 +116,14 @@ class Robocop:
                 checker.scan_file(model)
                 found_issues += checker.issues
                 checker.issues.clear()
+            if found_issues:
+                files_with_issues += 1
             found_issues.sort()
             for issue in found_issues:
                 self.report(issue)
+        if 'file_stats' in self.reports:
+            self.reports['file_stats'].files_count = len(self.files)
+            self.reports['file_stats'].files_with_issues = files_with_issues
 
     def register_disablers(self, file):
         """ Parse content of file to find any disabler statements like # robocop: disable=rulename """

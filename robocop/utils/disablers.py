@@ -36,22 +36,12 @@ class DisablersFinder:
         """
         if not self.any_disabler:
             return False
-        if 'all' in self.rules:
-            disabled = self.is_line_disabled(rule_msg.line, 'all')
-            if disabled:
-                return True
-        if rule_msg.rule_id in self.rules:
-            disabled = self.is_line_disabled(rule_msg.line, rule_msg.rule_id)
-            if disabled:
-                return True
-        if rule_msg.name in self.rules:
-            disabled = self.is_line_disabled(rule_msg.line, rule_msg.name)
-            if disabled:
-                return True
-        return False
+        return any(self.is_line_disabled(rule_msg.line, rule) for rule in ('all', rule_msg.rule_id, rule_msg.name))
 
     def is_line_disabled(self, line, rule):
         """ Helper method for is_rule_disabled that check if given line is in range of any disabled block"""
+        if rule not in self.rules:
+            return False
         if line in self.rules[rule].lines:
             return True
         return any(block[0] <= line <= block[1] for block in self.rules[rule].blocks)
@@ -63,6 +53,8 @@ class DisablersFinder:
                 for lineno, line in enumerate(file, start=1):
                     if '#' in line:
                         self._parse_line(line, lineno)
+                if lineno == -1:
+                    return
                 self._end_block('all', lineno)
                 self.file_disabled = self._is_file_disabled(lineno)
                 self.any_disabler = len(self.rules) != 0
@@ -74,6 +66,8 @@ class DisablersFinder:
 
     def _parse_line(self, line, lineno):
         statement, comment = line.split('#', maxsplit=1)
+        if '# noqa' in line:
+            self._add_inline_disabler('all', lineno)
         disabler = self.disabler_pattern.search(comment)
         if not disabler:
             return
@@ -81,7 +75,7 @@ class DisablersFinder:
             rules = ['all']
         else:
             rules = disabler.group('rules').split(',')
-        block = not statement
+        block = not statement  # if disabler is on beginning of the line, it's block disabler
         if disabler.group('disabler') == 'disable':
             for rule in rules:
                 if block:
@@ -94,14 +88,18 @@ class DisablersFinder:
 
     def _is_file_disabled(self, last_line):
         """
-        If we have open block disabler at the end of file and it starts from 0.
-        It means the whole file is disabled and we can skip it in our scan.
+        The file is disabled if all rules are disabled in every lines - we need to iterate every block to see
+        if they are linked from first to last line without breaks.
         """
         if 'all' not in self.rules:
             return False
-        if len(self.rules['all'].blocks) != 1:
-            return False
-        return self.rules['all'].blocks[0] == (1, last_line)
+        prev_end = 1
+        for block in self.rules['all'].blocks:
+            if prev_end != block[0]:
+                return False
+            prev_end = block[1]
+        else:
+            return prev_end == last_line
 
     def _add_inline_disabler(self, rule, lineno):
         self.rules[rule].lines.add(lineno)

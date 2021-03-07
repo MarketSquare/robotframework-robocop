@@ -112,6 +112,7 @@ Main features
         Log  ${var}
         Log  ${var}  # robocop: disable
         log  ${var}  # robocop: disable=0301,0302
+        Log  ${var}  # noqa
 
     Ignoring whole blocks or even files::
 

@@ -167,7 +167,7 @@ class FileStatsReport(Report):
     """
     Report name: ``file_stats``
 
-    Report that display overall statistics about number of processed files.
+    Report that displays overall statistics about number of processed files.
     """
     def __init__(self):
         self.name = 'file_stats'

@@ -6,7 +6,7 @@ import sys
 import os
 from pathlib import Path
 
-from robot.api import get_model
+from robot.api import get_resource_model
 
 import robocop.exceptions
 from robocop import checkers
@@ -88,18 +88,24 @@ class Robocop:
         These types are important since they are used to define parsing class for robot API.
         """
         files = self.config.paths
+        file_type_checker = FileTypeChecker(self.config.exec_dir)
         for file in self.get_files(files, self.config.recursive):
             if '__init__' in file.name:
-                self.files[file] = FileType.INIT
+                file_type = FileType.INIT
             elif file.suffix.lower() == '.resource':
-                self.files[file] = FileType.RESOURCE
+                file_type = FileType.RESOURCE
             else:
-                self.files[file] = FileType.GENERAL
-        file_type_checker = FileTypeChecker(self.files, self.config.exec_dir)
-        for file in self.files:
+                file_type = FileType.GENERAL
             file_type_checker.source = file
-            model = get_model(file)
+            model = file_type.get_parser()(str(file))
             file_type_checker.visit(model)
+            self.files[file] = (file_type, model)
+
+        for resource in file_type_checker.resource_files:
+            if resource not in self.files:
+                continue
+            if self.files[resource][0].value != FileType.RESOURCE:
+                self.files[resource] = (FileType.RESOURCE, get_resource_model(str(resource)))
 
     def run_checks(self):
         files_with_issues = 0
@@ -108,7 +114,7 @@ class Robocop:
             self.register_disablers(file)
             if self.disabler.file_disabled:
                 continue
-            model = self.files[file].get_parser()(str(file))
+            model = self.files[file][1]
             for checker in self.checkers:
                 if checker.disabled:
                     continue

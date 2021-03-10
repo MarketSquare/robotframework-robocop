@@ -35,8 +35,9 @@ class TestDisablers:
             None
         )
         assert disabler.any_disabler
-        assert disabler.is_line_disabled(1, 'all')
+        assert disabler.is_line_disabled(1, 'all')  # from robocop: disable
         assert disabler.is_line_disabled(11, 'somerule')
+        assert disabler.is_line_disabled(13, 'all')  # from noqa
         assert not disabler.is_line_disabled(11, 'otherule')
         disabler = DisablersFinder(
             Path(Path(__file__).parent.parent, 'test_data', 'disabled', 'disabled_whole.robot'),
@@ -45,19 +46,16 @@ class TestDisablers:
         for i in range(1, 11):
             assert disabler.is_line_disabled(i, 'all')
 
-    @pytest.mark.parametrize('lineno, xor', [
-        (2, True),
-        (7, True),
-        (11, True),
-        (12, False)
-    ])
-    def test_is_rule_disabled(self, lineno, xor, message):
+    def test_is_rule_disabled(self, message):
+        # check if rule 1010 is disabled in selected lines
+        disabled_lines = {1, 2, 3, 4, 7, 11, 13}
         disabler = DisablersFinder(
             Path(Path(__file__).parent.parent, 'test_data', 'disabled', 'disabled.robot'),
             None
         )
-        message.line = lineno
-        assert disabler.is_rule_disabled(message) == xor
+        for i in range(1, 14):
+            message.line = i
+            assert disabler.is_rule_disabled(message) == (i in disabled_lines)
 
     def test_enabled_file(self):
         disabler = DisablersFinder(

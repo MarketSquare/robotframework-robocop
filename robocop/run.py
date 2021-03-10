@@ -102,9 +102,7 @@ class Robocop:
             self.files[file] = (file_type, model)
 
         for resource in file_type_checker.resource_files:
-            if resource not in self.files:
-                continue
-            if self.files[resource][0].value != FileType.RESOURCE:
+            if resource in self.files and self.files[resource][0].value != FileType.RESOURCE:
                 self.files[resource] = (FileType.RESOURCE, get_resource_model(str(resource)))
 
     def run_checks(self):

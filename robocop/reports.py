@@ -161,3 +161,28 @@ class JsonReport(Report):
 
     def get_report(self):
         return None
+
+
+class FileStatsReport(Report):
+    """
+    Report name: ``file_stats``
+
+    Report that displays overall statistics about number of processed files.
+    """
+    def __init__(self):
+        self.name = 'file_stats'
+        self.description = 'Prints overall statistics about number of processed files'
+        self.files_count = 0
+        self.files_with_issues = 0
+
+    def add_message(self, *args):
+        pass
+
+    def get_report(self):
+        if not self.files_count:
+            return 'No files were processed'
+        else:
+            if not self.files_with_issues:
+                return f'Processed {self.files_count} file(s) but no issues were found'
+
+            return f'Processed {self.files_count} file(s) from which {self.files_with_issues} file(s) contained issues'

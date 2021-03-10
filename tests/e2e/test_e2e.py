@@ -42,7 +42,7 @@ class TestE2E:
         config = Config()
         config.parse_opts([
             '-r',
-            'rules_by_id,rules_by_error_type,scan_timer',
+            'all',
             str(Path(Path(__file__).parent.parent, 'test_data'))
         ])
         robocop_instance.config = config
@@ -53,7 +53,7 @@ class TestE2E:
         config = Config()
         config.parse_opts([
             '-r',
-            'rules_by_id,rules_by_error_type',
+            'all',
             str(Path(Path(__file__).parent.parent, 'test_data/all_passing.robot'))
         ])
         robocop_instance.config = config

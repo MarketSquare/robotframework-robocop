@@ -12,6 +12,7 @@ Programming Language :: Python
 Programming Language :: Python :: 3.6
 Programming Language :: Python :: 3.7
 Programming Language :: Python :: 3.8
+Programming Language :: Python :: 3.9
 Framework :: Robot Framework
 Framework :: Robot Framework :: Tool
 Topic :: Software Development :: Testing
@@ -35,7 +36,7 @@ setup(
     keywords='robotframework',
     packages=['robocop'],
     include_package_data=True,
-    install_requires=['robotframework>=3.2.1'],
+    install_requires=['robotframework>=3.2.2'],
     extras_requires={
         'dev': ['pytest'],
         'doc': ['sphinx', 'sphinx_rtd_theme']

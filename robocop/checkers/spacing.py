@@ -6,10 +6,6 @@ from collections import Counter
 from robot.api import Token
 from robot.parsing.model.visitor import ModelVisitor
 from robot.parsing.model.blocks import TestCase, Keyword
-try:
-    from robot.parsing.model.blocks import ForLoop
-except ImportError:
-    from robot.parsing.model.blocks import For as ForLoop
 from robot.parsing.model.statements import EmptyLine, Comment
 
 from robocop.checkers import RawFileChecker, VisitorChecker
@@ -193,17 +189,19 @@ class InconsistentUseOfTabsAndSpacesChecker(VisitorChecker, ModelVisitor):
     }
 
     def __init__(self, *args):
-        self.found = False
-        self.tabs = False
-        self.spaces = False
+        self.found, self.tabs, self.spaces = False, False, False
         super().__init__(*args)
+
+    def visit_File(self, node):  # noqa
+        self.found, self.tabs, self.spaces = False, False, False
+        super().visit_File(node)
 
     def visit_Statement(self, node): # noqa
         if self.found:
             return
         for token in node.get_tokens(Token.SEPARATOR):
-            self.tabs = True if '\t' in token.value else self.tabs
-            self.spaces = True if ' ' in token.value else self.spaces
+            self.tabs = '\t' in token.value or self.tabs
+            self.spaces = ' ' in token.value or self.spaces
 
             if self.tabs and self.spaces:
                 self.report("mixed-tabs-and-spaces", node=node, lineno=1, col=0)
@@ -248,10 +246,12 @@ class UnevenIndentChecker(VisitorChecker):
 
     @staticmethod
     def get_indent(node, column_index):
-        if isinstance(node, ForLoop):
+        if hasattr(node, 'tokens'):
+            separator = node.tokens[column_index]
+        elif hasattr(node, 'header'):  # ForLoop, If blocks
             separator = node.header.tokens[column_index]
         else:
-            separator = node.tokens[column_index]
+            return 0
         if separator.type == 'SEPARATOR':
             return len(separator.value.expandtabs(4))
         if separator.type in ('COMMENT', 'EOL'):

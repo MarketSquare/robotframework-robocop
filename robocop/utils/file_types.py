@@ -30,8 +30,8 @@ class FileTypeChecker(ast.NodeVisitor):
     Check if file contains import statements. If the import is in list of files to be scanned, update its type
     from GENERAL to RESOURCE.
     """
-    def __init__(self, files, exec_dir):
-        self.files = files
+    def __init__(self, exec_dir):
+        self.resource_files = set()
         self.exec_dir = exec_dir
         self.source = None
 
@@ -47,8 +47,7 @@ class FileTypeChecker(ast.NodeVisitor):
             pass
         else:
             path = Path(path_normalized)
-            if path in self.files:
-                self.files[path] = FileType.RESOURCE
+            self.resource_files.add(path)
 
 
 def normalize_robot_path(robot_path, curr_path, exec_path):

@@ -19,3 +19,10 @@ Keyword
     Pass
     No Operation
     Fail
+    IF    ${condition}
+        Keyword
+    End
+    IF    ${condition}
+        Keyword
+    ELSE IF  ${condition}    Empty Body
+    END

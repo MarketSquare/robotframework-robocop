@@ -5,7 +5,7 @@ import re
 from pathlib import Path
 from robocop.checkers import VisitorChecker
 from robocop.rules import RuleSeverity
-from robocop.utils import normalize_robot_name
+from robocop.utils import normalize_robot_name, IS_RF4
 
 from robot.api import Token
 
@@ -85,8 +85,10 @@ class KeywordNamingChecker(VisitorChecker):
         'for': 'for loop',
         'end': 'for loop',
         'while': '',
-        'continue': ''
+        'continue': '',
+        'if': ''
     }
+    reserved_words_rf4 = {'if'}
     else_if = {
         'else',
         'else if'
@@ -125,6 +127,9 @@ class KeywordNamingChecker(VisitorChecker):
     def visit_KeywordCall(self, node):  # noqa
         self.check_keyword_naming(node.keyword, node)
 
+    def visit_If(self, node):  # noqa
+        pass
+
     def check_keyword_naming(self, keyword_name, node):  # noqa
         if not keyword_name or keyword_name.lstrip().startswith('#'):
             return
@@ -155,6 +160,8 @@ class KeywordNamingChecker(VisitorChecker):
 
     def check_if_keyword_is_reserved(self, keyword_name, node):
         if keyword_name.lower() not in self.reserved_words:  # if there is typo in syntax, it is interpreted as keyword
+            return False
+        if not IS_RF4 and keyword_name.lower() in self.reserved_words_rf4:
             return False
         reserved_type = self.reserved_words[keyword_name.lower()]
         suffix = self.prepare_reserved_word_rule_message(keyword_name, reserved_type)

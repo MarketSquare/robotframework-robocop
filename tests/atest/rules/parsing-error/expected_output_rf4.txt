@@ -1,0 +1,4 @@
+${rules_dir}${\}test.robot:17:0 [E] 0401 Robot Framework syntax error: Non-existing setting 'Argument'. Did you mean:
+    Arguments
+${rules_dir}${\}test.robot:22:0 [E] 0401 Robot Framework syntax error: IF has no closing END.
+${rules_dir}${\}test.robot:27:0 [E] 0401 Robot Framework syntax error: ELSE IF has empty body.

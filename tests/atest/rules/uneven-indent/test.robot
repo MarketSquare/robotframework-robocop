@@ -54,9 +54,12 @@ Keyword With Multiline For Loop
 
 Keyword With If Block
     IF    ${condition}
-    ...    Keyword
-    ...    ELSE IF    ${condition}   Keyword 2
-    ...    ELSE    Keyword3
+        Keyword
+    ELSE IF    ${condition}
+        Keyword 2
+    ELSE
+        Keyword3
+    END
 
 Keyword With Under Indented For Loop Body
     FOR  ${elem}  IN  ${list}

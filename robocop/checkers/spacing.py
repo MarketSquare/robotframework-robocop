@@ -246,11 +246,14 @@ class UnevenIndentChecker(VisitorChecker):
 
     @staticmethod
     def get_indent(node, column_index):
-        if hasattr(node, 'tokens'):
-            separator = node.tokens[column_index]
-        elif hasattr(node, 'header'):  # ForLoop, If blocks
-            separator = node.header.tokens[column_index]
-        else:
+        try:
+            if hasattr(node, 'tokens'):
+                separator = node.tokens[column_index]
+            elif hasattr(node, 'header'):  # ForLoop, If blocks
+                separator = node.header.tokens[column_index]
+            else:
+                return 0
+        except IndexError:
             return 0
         if separator.type == 'SEPARATOR':
             return len(separator.value.expandtabs(4))

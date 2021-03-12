@@ -32,7 +32,12 @@ def test_rule(rule, robocop_instance, capsys):
     """
     current_dir = Path(__file__).parent
     test_data = Path(current_dir, 'rules', rule)
-    expected_output = Path(test_data, 'expected_output.txt')
+    if IS_RF4:
+        expected_output = Path(test_data, 'expected_output_rf4.txt')
+        if not expected_output.exists():
+            expected_output = Path(test_data, 'expected_output.txt')
+    else:
+        expected_output = Path(test_data, 'expected_output.txt')
     assert test_data.exists(), f"Missing test data for rule '{rule}'"
     assert expected_output.exists(), f"Missing expected_output.txt file for rule '{rule}'"
     with open(expected_output) as f:

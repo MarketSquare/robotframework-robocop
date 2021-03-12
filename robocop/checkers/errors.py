@@ -19,8 +19,22 @@ class ParsingErrorChecker(VisitorChecker):
             RuleSeverity.ERROR
         )
     }
+    def visit_If(self, node):  # noqa
+        self.handle_errors(node)
+        self.generic_visit(node)
+
+    def visit_For(self, node):  # noqa
+        self.handle_errors(node)
+        self.generic_visit(node)
+
+    def visit_ForLoop(self, node):  # noqa
+        self.handle_errors(node)
+        self.generic_visit(node)
 
     def visit_Error(self, node):  # noqa
+        self.handle_errors(node)
+
+    def handle_errors(self, node):  # noqa
         if IS_RF4:
             for error in node.errors:
                 self.report("parsing-error", error, node=node)

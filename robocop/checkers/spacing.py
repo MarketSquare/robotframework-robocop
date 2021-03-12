@@ -193,17 +193,19 @@ class InconsistentUseOfTabsAndSpacesChecker(VisitorChecker, ModelVisitor):
     }
 
     def __init__(self, *args):
-        self.found = False
-        self.tabs = False
-        self.spaces = False
+        self.found, self.tabs, self.spaces = False, False, False
         super().__init__(*args)
+
+    def visit_File(self, node):  # noqa
+        self.found, self.tabs, self.spaces = False, False, False
+        super().visit_File(node)
 
     def visit_Statement(self, node): # noqa
         if self.found:
             return
         for token in node.get_tokens(Token.SEPARATOR):
-            self.tabs = True if '\t' in token.value else self.tabs
-            self.spaces = True if ' ' in token.value else self.spaces
+            self.tabs = '\t' in token.value or self.tabs
+            self.spaces = ' ' in token.value or self.spaces
 
             if self.tabs and self.spaces:
                 self.report("mixed-tabs-and-spaces", node=node, lineno=1, col=0)

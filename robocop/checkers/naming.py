@@ -3,9 +3,15 @@ Naming checkers
 """
 import re
 from pathlib import Path
+
+try:
+    from robot.api.parsing import KeywordCall
+except ImportError:
+    pass
+
 from robocop.checkers import VisitorChecker
 from robocop.rules import RuleSeverity
-from robocop.utils import normalize_robot_name, IS_RF4
+from robocop.utils import normalize_robot_name, IS_RF4, keyword_col
 
 from robot.api import Token
 
@@ -79,16 +85,26 @@ class KeywordNamingChecker(VisitorChecker):
             "underscore-in-keyword-name",
             "Underscores in keyword name can be replaced with spaces",
             RuleSeverity.WARNING
+        ),
+        "0311": (
+            "else-not-upper-case",
+            "ELSE and ELSE IF should be upper case",
+            RuleSeverity.ERROR
         )
     }
     reserved_words = {
         'for': 'for loop',
         'end': 'for loop',
         'while': '',
-        'continue': '',
-        'if': ''
+        'continue': ''
     }
-    reserved_words_rf4 = {'if'}
+    reserved_words_rf4 = {
+        'if': '',
+        'for': 'for loop',
+        'end': 'for loop or if',
+        'while': '',
+        'continue': ''
+    }
     else_if = {
         'else',
         'else if'
@@ -128,7 +144,11 @@ class KeywordNamingChecker(VisitorChecker):
         self.check_keyword_naming(node.keyword, node)
 
     def visit_If(self, node):  # noqa
-        pass
+        for keyword in node.body:
+            if isinstance(keyword, KeywordCall):
+                if keyword.keyword.lower() in self.else_if:
+                    self.report("else-not-upper-case", node=keyword, col=keyword_col(keyword))
+        self.generic_visit(node)
 
     def check_keyword_naming(self, keyword_name, node):  # noqa
         if not keyword_name or keyword_name.lstrip().startswith('#'):
@@ -159,11 +179,11 @@ class KeywordNamingChecker(VisitorChecker):
             self.report("not-capitalized-keyword-name", node=node)
 
     def check_if_keyword_is_reserved(self, keyword_name, node):
-        if keyword_name.lower() not in self.reserved_words:  # if there is typo in syntax, it is interpreted as keyword
+        # if there is typo in syntax, it is interpreted as keyword
+        reserved = self.reserved_words_rf4 if IS_RF4 else self.reserved_words
+        if keyword_name.lower() not in reserved:
             return False
-        if not IS_RF4 and keyword_name.lower() in self.reserved_words_rf4:
-            return False
-        reserved_type = self.reserved_words[keyword_name.lower()]
+        reserved_type = reserved[keyword_name.lower()]
         suffix = self.prepare_reserved_word_rule_message(keyword_name, reserved_type)
         self.report("keyword-name-is-reserved-word", keyword_name, suffix, node=node)
         return True

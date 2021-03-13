@@ -26,3 +26,15 @@ Keyword
         Keyword
     ELSE IF  ${condition}    Empty Body
     END
+    IF    ${condition}
+        Keyword
+    ELse IF   ${condition}
+        Keyword
+    END
+    IF    ${condition}
+        Keyword
+    ELSE IF   ${condition}
+        Keyword
+    ElSE
+        Keyword
+    END

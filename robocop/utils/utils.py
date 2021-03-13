@@ -4,12 +4,13 @@ import importlib.util
 
 from robocop.exceptions import InvalidExternalCheckerError
 
+from robot.api import Token
 from robot.version import VERSION
 
 
 IS_RF4 = VERSION.startswith('4')
 DISABLED_IN_4 = frozenset(('nested-for-loop', 'invalid-comment'))
-ENABLED_IN_4 = frozenset(('if-can-be-used',))
+ENABLED_IN_4 = frozenset(('if-can-be-used', 'else-not-upper-case'))
 
 
 def modules_in_current_dir(path, module_name):
@@ -46,3 +47,10 @@ def modules_from_path(path, module_name=None, relative='.'):
 
 def normalize_robot_name(name):
     return name.replace(' ', '').replace('_', '').lower()
+
+
+def keyword_col(node):
+    keyword_token = node.get_token(Token.KEYWORD)
+    if keyword_token is None:
+        return 0
+    return keyword_token.col_offset

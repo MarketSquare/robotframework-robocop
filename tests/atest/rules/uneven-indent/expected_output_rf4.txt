@@ -6,6 +6,3 @@ ${rules_dir}${\}test.robot:40:17 [W] 1007 Line is over-indented
 ${rules_dir}${\}test.robot:43:6 [W] 1007 Line is over-indented
 ${rules_dir}${\}test.robot:51:8 [W] 1007 Line is under-indented
 ${rules_dir}${\}test.robot:66:4 [W] 1007 Line is under-indented
-${rules_dir}${\}test.robot:57:9 [W] 1007 Line is over-indented
-${rules_dir}${\}test.robot:59:9 [W] 1007 Line is over-indented
-${rules_dir}${\}test.robot:61:9 [W] 1007 Line is over-indented

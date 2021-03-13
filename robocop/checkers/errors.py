@@ -27,10 +27,6 @@ class ParsingErrorChecker(VisitorChecker):
         self.handle_errors(node)
         self.generic_visit(node)
 
-    def visit_ForLoop(self, node):  # noqa
-        self.handle_errors(node)
-        self.generic_visit(node)
-
     def visit_Error(self, node):  # noqa
         self.handle_errors(node)
 

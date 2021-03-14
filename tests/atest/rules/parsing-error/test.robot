@@ -38,3 +38,25 @@ Keyword
     ElSE
         Keyword
     END
+    IF    ${condition}    ${condition}
+        Keyword
+    END
+    IF    ${condition} ==
+    \   ${flag}
+        Keyword
+    END
+
+For Loop
+    FOR  IN RANGE  10
+        Keyword
+    END
+    FOR  ${var}  IN  @{list}
+    END
+    FOR  ${var}  IN RANGE
+        Keyword
+    END
+    FOR  ${var}  IN RANGE  10
+        Keyword
+    FOR  ${var}  @{list}
+        Keyword
+    END

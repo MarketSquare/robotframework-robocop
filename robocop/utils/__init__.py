@@ -10,7 +10,8 @@ from robocop.utils.utils import (
     normalize_robot_name,
     IS_RF4,
     DISABLED_IN_4,
-    ENABLED_IN_4
+    ENABLED_IN_4,
+    keyword_col
 )
 
 
@@ -24,5 +25,6 @@ __all__ = [
     'normalize_robot_name',
     'IS_RF4',
     'DISABLED_IN_4',
-    'ENABLED_IN_4'
+    'ENABLED_IN_4',
+    'keyword_col'
 ]

@@ -1,0 +1,11 @@
+${rules_dir}${\}test.robot:17:0 [E] 0401 Robot Framework syntax error: Non-existing setting 'Argument'. Did you mean:
+    Arguments
+${rules_dir}${\}test.robot:22:0 [E] 0401 Robot Framework syntax error: IF has no closing END.
+${rules_dir}${\}test.robot:27:0 [E] 0401 Robot Framework syntax error: ELSE IF has empty body.
+${rules_dir}${\}test.robot:27:0 [E] 0401 Robot Framework syntax error: ELSE IF has more than one condition.
+${rules_dir}${\}test.robot:41:0 [E] 0401 Robot Framework syntax error: IF has more than one condition.
+${rules_dir}${\}test.robot:50:0 [E] 0401 Robot Framework syntax error: FOR loop has no loop variables.
+${rules_dir}${\}test.robot:53:0 [E] 0401 Robot Framework syntax error: FOR loop has empty body.
+${rules_dir}${\}test.robot:55:0 [E] 0401 Robot Framework syntax error: FOR loop has no loop values.
+${rules_dir}${\}test.robot:58:0 [E] 0401 Robot Framework syntax error: FOR loop has no closing END.
+${rules_dir}${\}test.robot:60:0 [E] 0401 Robot Framework syntax error: FOR loop has no 'IN' or other valid separator.

@@ -52,7 +52,18 @@ Keyword With Multiline For Loop
 
     END
 
+Keyword With If Block
+    IF    ${condition}
+        Keyword
+    ELSE IF    ${condition}
+        Keyword 2
+    ELSE
+        Keyword3
+    END
+
 Keyword With Under Indented For Loop Body
     FOR  ${elem}  IN  ${list}
    Log  stuff
+       Keyword
+       Keyword
     END

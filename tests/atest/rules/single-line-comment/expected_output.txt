@@ -1,0 +1,1 @@
+${rules_dir}${\}test.robot:17:4 [W] 0705 Commenting out the whole line

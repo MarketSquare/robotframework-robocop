@@ -24,6 +24,11 @@ class CommentChecker(VisitorChecker):
             "Invalid comment. '#' needs to be first character in the cell. "
             "For block comments you can use '*** Comments ***' section",
             RuleSeverity.ERROR
+        ),
+        "0705": (
+            "single-line-comment",
+            "Commenting out the whole line",
+            RuleSeverity.WARNING
         )
     }
 
@@ -61,6 +66,8 @@ class CommentChecker(VisitorChecker):
         if comment_token.value.startswith('#') and comment_token.value != '#':
             if not comment_token.value.startswith('# '):
                 self.report("missing-space-after-comment", lineno=comment_token.lineno, col=comment_token.col_offset)
+            else:
+                self.report("single-line-comment", lineno=comment_token.lineno, col=comment_token.col_offset)
 
 
 class IgnoredDataChecker(RawFileChecker):

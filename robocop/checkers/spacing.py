@@ -210,7 +210,7 @@ class InconsistentUseOfTabsAndSpacesChecker(VisitorChecker, ModelVisitor):
 
 
 class UnevenIndentChecker(VisitorChecker):
-    """ Checker for uneven indendation. """
+    """ Checker for uneven indentation. """
     rules = {
         "1007": (
             "uneven-indent",
@@ -245,21 +245,11 @@ class UnevenIndentChecker(VisitorChecker):
         self.check_indents(node, node.header.tokens[1].col_offset + 1, column_index)
 
     @staticmethod
-    def get_indent(node, column_index):
-        try:
-            if hasattr(node, 'tokens'):
-                separator = node.tokens[column_index]
-            elif hasattr(node, 'header'):  # ForLoop, If blocks
-                separator = node.header.tokens[column_index]
-            else:
-                return 0
-        except IndexError:
+    def get_indent(node):
+        tokens = node.data_tokens if hasattr(node, 'data_tokens') else node.header.data_tokens
+        if not tokens:
             return 0
-        if separator.type == 'SEPARATOR':
-            return len(separator.value.expandtabs(4))
-        if separator.type in ('COMMENT', 'EOL'):
-            return None
-        return 0
+        return tokens[0].col_offset
 
     def check_indents(self, node, req_indent=0, column_index=0):
         indents = []
@@ -273,7 +263,7 @@ class UnevenIndentChecker(VisitorChecker):
         for child in node.body:
             if isinstance(child, EmptyLine):
                 continue
-            indent_len = self.get_indent(child, column_index)
+            indent_len = self.get_indent(child)
             if indent_len is None:
                 continue
             if hasattr(child, 'type') and child.type.strip().lower() in self.headers:
@@ -301,3 +291,25 @@ class UnevenIndentChecker(VisitorChecker):
                 self.report("uneven-indent", 'over' if indent[0] > common_indent else 'under',
                             node=indent[1],
                             col=indent[0] + 1)
+
+
+class MisalignedContinuation(VisitorChecker, ModelVisitor):
+    """ Checker for misaligned continuation line markers. """
+    rules = {
+        "1011": (
+            "misaligned-continuation",
+            "Continuation marker should be aligned with starting row",
+            RuleSeverity.WARNING
+        )
+    }
+
+    def visit_Statement(self, node):  # noqa
+        if not node.data_tokens:
+            return
+        new_lines = node.get_tokens(Token.CONTINUATION)
+        if new_lines is None:
+            return
+        starting_row = node.data_tokens[0].col_offset
+        for contination in new_lines:
+            if contination.col_offset != starting_row:
+                self.report("misaligned-continuation", lineno=contination.lineno, col=contination.col_offset+1)

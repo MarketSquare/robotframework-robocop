@@ -30,7 +30,7 @@ Example
     ...    second argument passed to this keyword is long too
     
 *** Keywords ***
-Mialigned headers
+Misaligned headers
     FOR  ${value}  IN  ${1}
       ...  ${2}
         Keyword

@@ -12,7 +12,7 @@ import robocop.exceptions
 from robocop import checkers
 from robocop import reports
 from robocop.config import Config
-from robocop.utils import DisablersFinder, FileType, FileTypeChecker
+from robocop.utils import DisablersFinder, FileType, FileTypeChecker, issues_to_lsp_diagnostic
 
 
 class Robocop:
@@ -110,6 +110,7 @@ class Robocop:
         for file in self.files:
             model = self.files[file][1]
             found_issues = self.run_check(model, str(file))
+            issues_to_lsp_diagnostic(found_issues)
             if found_issues:
                 files_with_issues += 1
             found_issues.sort()
@@ -119,9 +120,9 @@ class Robocop:
             self.reports['file_stats'].files_count = len(self.files)
             self.reports['file_stats'].files_with_issues = files_with_issues
 
-    def run_check(self, ast_model, filename):
+    def run_check(self, ast_model, filename, source=None):
         found_issues = []
-        self.register_disablers(filename)
+        self.register_disablers(filename, source)
         if self.disabler.file_disabled:
             return []
         for checker in self.checkers:
@@ -133,9 +134,9 @@ class Robocop:
             checker.issues.clear()
         return found_issues
 
-    def register_disablers(self, filename=None, source=None):
+    def register_disablers(self, filename, source):
         """ Parse content of file to find any disabler statements like # robocop: disable=rulename """
-        self.disabler = DisablersFinder(self, filename=filename, source=source)
+        self.disabler = DisablersFinder(filename=filename, source=source)
 
     def report(self, rule_msg):
         if not rule_msg.enabled:  # disabled from cli

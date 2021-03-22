@@ -2,6 +2,7 @@ from pathlib import Path
 from importlib import import_module
 import importlib.util
 
+from robocop.rules import RuleSeverity
 from robocop.exceptions import InvalidExternalCheckerError
 
 from robot.api import Token
@@ -54,3 +55,30 @@ def keyword_col(node):
     if keyword_token is None:
         return 0
     return keyword_token.col_offset
+
+
+def rule_severity_to_diag_sev(severity):
+    return {
+        RuleSeverity.ERROR: 1,
+        RuleSeverity.WARNING: 2,
+        RuleSeverity.INFO: 3
+    }.get(severity, 4)
+
+
+def issues_to_lsp_diagnostic(issues):
+    return [{
+        'range': {
+            'start': {
+                'line': issue.line,
+                'character': issue.col
+                },
+            'end': {
+                'line': issue.line,
+                'character': issue.col
+            }
+        },
+        'severity': rule_severity_to_diag_sev(issue.severity),
+        'code': issue.rule_id,
+        'source': 'robocop',
+        'message': issue.desc
+    } for issue in issues]

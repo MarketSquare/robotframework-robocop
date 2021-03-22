@@ -54,8 +54,9 @@ class SetListOption(argparse.Action):
 
 
 class Config:
-    def __init__(self):
+    def __init__(self, root=None):
         self.exec_dir = os.path.abspath('.')
+        self.root = root
         self.include = set()
         self.exclude = set()
         self.ignore = set()
@@ -219,12 +220,11 @@ class Config:
         config_path = project_root / '.robocop'
         if not config_path.is_file():
             return None
-        print(f"Loaded default configuration file from '{config_path}'")
+        # print(f"Loaded default configuration file from '{config_path}'") TODO: Enable in verbose mode
         return self.load_args_from_file(config_path)
 
-    @staticmethod
-    def find_project_root():
-        root = Path.cwd()
+    def find_project_root(self):
+        root = self.root or Path.cwd()
         for parent in (root, *root.parents):
             if (parent / '.git').exists():
                 return parent

@@ -108,18 +108,8 @@ class Robocop:
     def run_checks(self):
         files_with_issues = 0
         for file in self.files:
-            found_issues = []
-            self.register_disablers(file)
-            if self.disabler.file_disabled:
-                continue
             model = self.files[file][1]
-            for checker in self.checkers:
-                if checker.disabled:
-                    continue
-                checker.source = str(file)
-                checker.scan_file(model)
-                found_issues += checker.issues
-                checker.issues.clear()
+            found_issues = self.run_check(model, str(file))
             if found_issues:
                 files_with_issues += 1
             found_issues.sort()
@@ -129,9 +119,23 @@ class Robocop:
             self.reports['file_stats'].files_count = len(self.files)
             self.reports['file_stats'].files_with_issues = files_with_issues
 
-    def register_disablers(self, file):
+    def run_check(self, ast_model, filename):
+        found_issues = []
+        self.register_disablers(filename)
+        if self.disabler.file_disabled:
+            return []
+        for checker in self.checkers:
+            if checker.disabled:
+                continue
+            checker.source = filename
+            checker.scan_file(ast_model)
+            found_issues += checker.issues
+            checker.issues.clear()
+        return found_issues
+
+    def register_disablers(self, filename=None, source=None):
         """ Parse content of file to find any disabler statements like # robocop: disable=rulename """
-        self.disabler = DisablersFinder(file, self)
+        self.disabler = DisablersFinder(self, filename=filename, source=source)
 
     def report(self, rule_msg):
         if not rule_msg.enabled:  # disabled from cli

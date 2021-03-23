@@ -69,12 +69,12 @@ def issues_to_lsp_diagnostic(issues):
     return [{
         'range': {
             'start': {
-                'line': issue.line,
-                'character': issue.col - 1
+                'line': issue.line - 1,
+                'character': issue.col
                 },
             'end': {
-                'line': issue.line,
-                'character': issue.col - 1
+                'line': issue.line - 1,
+                'character': issue.col
             }
         },
         'severity': rule_severity_to_diag_sev(issue.severity),

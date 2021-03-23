@@ -21,13 +21,15 @@ class DisablersInFile:  # pylint: disable=too-few-public-methods
 
 class DisablersFinder:
     """ Parse all scanned file and find and disablers (in line or blocks) """
-    def __init__(self, source, linter):
-        self.linter = linter
+    def __init__(self, filename, source=None):
         self.file_disabled = False
         self.any_disabler = False
         self.disabler_pattern = re.compile(r'robocop: (?P<disabler>disable|enable)=?(?P<rules>[\w\-,]*)')
         self.rules = defaultdict(DisablersInFile().copy)
-        self._parse_file(source)
+        if source is not None:
+            self._parse_source(source)
+        else:
+            self._parse_file(filename)
 
     def is_rule_disabled(self, rule_msg):
         """
@@ -46,23 +48,30 @@ class DisablersFinder:
             return True
         return any(block[0] <= line <= block[1] for block in self.rules[rule].blocks)
 
-    def _parse_file(self, source):
+    def _parse_lines(self, lines):
+        lineno = -1
+        for lineno, line in enumerate(lines, start=1):
+            if '#' in line:
+                if '#' in line:
+                    self._parse_line(line, lineno)
+        if lineno == -1:
+            return
+        self._end_block('all', lineno)
+        self.file_disabled = self._is_file_disabled(lineno)
+        self.any_disabler = len(self.rules) != 0
+
+    def _parse_file(self, filename):
         try:
-            with open(source, 'r') as file:
-                lineno = -1
-                for lineno, line in enumerate(file, start=1):
-                    if '#' in line:
-                        self._parse_line(line, lineno)
-                if lineno == -1:
-                    return
-                self._end_block('all', lineno)
-                self.file_disabled = self._is_file_disabled(lineno)
-                self.any_disabler = len(self.rules) != 0
+            with open(filename, 'r') as file:
+                self._parse_lines(file.readlines())
         except OSError:
-            raise robocop.exceptions.FileError(source)
+            raise robocop.exceptions.FileError(filename)
         except UnicodeDecodeError:
             print(f"Failed to decode {file}. Default supported encoding by Robot Framework is UTF-8. Skipping file")
             self.file_disabled = True
+
+    def _parse_source(self, source):
+        self._parse_lines(source.splitlines())
 
     def _parse_line(self, line, lineno):
         statement, comment = line.split('#', maxsplit=1)

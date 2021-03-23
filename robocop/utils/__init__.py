@@ -11,7 +11,8 @@ from robocop.utils.utils import (
     IS_RF4,
     DISABLED_IN_4,
     ENABLED_IN_4,
-    keyword_col
+    keyword_col,
+    issues_to_lsp_diagnostic
 )
 
 
@@ -26,5 +27,6 @@ __all__ = [
     'IS_RF4',
     'DISABLED_IN_4',
     'ENABLED_IN_4',
-    'keyword_col'
+    'keyword_col',
+    'issues_to_lsp_diagnostic'
 ]

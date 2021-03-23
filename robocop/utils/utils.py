@@ -69,11 +69,11 @@ def issues_to_lsp_diagnostic(issues):
     return [{
         'range': {
             'start': {
-                'line': issue.line - 1,
+                'line': max(0, issue.line - 1),
                 'character': issue.col
                 },
             'end': {
-                'line': issue.line - 1,
+                'line': max(0, issue.line - 1),
                 'character': issue.col
             }
         },

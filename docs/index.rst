@@ -18,6 +18,7 @@ Robocop documentation
    rules
    including_rules
    reports
+   api
 
 Indices and tables
 ==================

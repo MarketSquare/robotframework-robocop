@@ -28,7 +28,7 @@ Keyword With Under Indented Line
 
 Keyword With Over Indented Setting
     [Documentation]  this is doc
-     [Setup]  Keyword
+     [Arguments]  ${arg}
        No Operation
     Pass
     No Operation
@@ -67,3 +67,10 @@ Keyword With Under Indented For Loop Body
        Keyword
        Keyword
     END
+
+Keyword With Uneven NewLines
+    [Arguments]    ${arg}
+   ...    ${arg2}
+    Keyword 1
+    Keyword
+      ...  ${2}

@@ -70,11 +70,11 @@ def issues_to_lsp_diagnostic(issues):
         'range': {
             'start': {
                 'line': issue.line,
-                'character': issue.col
+                'character': issue.col - 1
                 },
             'end': {
                 'line': issue.line,
-                'character': issue.col
+                'character': issue.col - 1
             }
         },
         'severity': rule_severity_to_diag_sev(issue.severity),

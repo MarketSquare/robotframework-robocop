@@ -128,10 +128,7 @@ class Robocop:
         for checker in self.checkers:
             if checker.disabled:
                 continue
-            checker.source = filename
-            checker.scan_file(ast_model)
-            found_issues += checker.issues
-            checker.issues.clear()
+            found_issues += checker.scan_file(ast_model, filename, source)
         return found_issues
 
     def register_disablers(self, filename, source):

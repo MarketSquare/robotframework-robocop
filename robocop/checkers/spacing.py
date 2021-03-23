@@ -33,31 +33,31 @@ class InvalidSpacingChecker(RawFileChecker):
     }
 
     def __init__(self, *args):
-        self.lines = []
+        self.raw_lines = []
         super().__init__(*args)
 
     def parse_file(self):
-        self.lines = []
+        self.raw_lines = []
         super().parse_file()
-        if self.lines:
-            last_line = self.lines[-1]
+        if self.raw_lines:
+            last_line = self.raw_lines[-1]
             if last_line == '\n':
-                self.report("too-many-trailing-blank-lines", lineno=len(self.lines) + 1, col=0)
+                self.report("too-many-trailing-blank-lines", lineno=len(self.raw_lines) + 1, col=0)
                 return
             empty_lines = 0
-            for line in self.lines[::-1]:
+            for line in self.raw_lines[::-1]:
                 if not line.strip():
                     empty_lines += 1
                 else:
                     break
                 if empty_lines > 1:
-                    self.report("too-many-trailing-blank-lines", lineno=len(self.lines), col=0)
+                    self.report("too-many-trailing-blank-lines", lineno=len(self.raw_lines), col=0)
                     return
             if not empty_lines and not last_line.endswith('\n'):
-                self.report("missing-trailing-blank-line", lineno=len(self.lines), col=0)
+                self.report("missing-trailing-blank-line", lineno=len(self.raw_lines), col=0)
 
     def check_line(self, line, lineno):
-        self.lines.append(line)
+        self.raw_lines.append(line)
 
         stripped_line = line.rstrip('\n')
         if stripped_line and stripped_line[-1] == ' ':

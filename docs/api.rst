@@ -34,11 +34,11 @@ To scan all files provided in ``Config`` invoke::
 
     robocop_runner.run()
 
-``run()`` method by default return issues in JSON format.
+``run()`` method by default returns issues in JSON format.
 
 Scan existing robot ast model
 -----------------------------
-If you have ast model loaded before you can use ``robocop`` to scan it::
+If you have ast model loaded before, you can use ``robocop`` to scan it::
 
         # source is in-memory content of the file - if it is None,
         # Robocop will load content using filename path instead

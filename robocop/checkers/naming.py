@@ -37,10 +37,12 @@ class InvalidCharactersInNameChecker(VisitorChecker):
         super().__init__(*args)
 
     def visit_File(self, node):
-        suite_name = Path(node.source).stem
-        if '__init__' in suite_name:
-            suite_name = Path(node.source).parent.name
-        self.check_if_char_in_name(node, suite_name, 'SUITE')
+        source = node.source if node.source else self.source
+        if source:
+            suite_name = Path(source).stem
+            if '__init__' in suite_name:
+                suite_name = Path(source).parent.name
+            self.check_if_char_in_name(node, suite_name, 'SUITE')
         super().visit_File(node)
 
     def check_if_char_in_node_name(self, node, name_of_node):

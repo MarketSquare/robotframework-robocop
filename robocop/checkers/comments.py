@@ -74,10 +74,16 @@ class IgnoredDataChecker(RawFileChecker):
     }
 
     def parse_file(self):
-        with open(self.source) as file:
-            for lineno, line in enumerate(file, 1):
-                if self.check_line(line, lineno):
-                    break
+        if self.lines is not None:
+            self._parse_lines(self.lines)
+        else:
+            with open(self.source) as file:
+                self._parse_lines(file)
+
+    def _parse_lines(self, lines):
+        for lineno, line in enumerate(lines, 1):
+            if self.check_line(line, lineno):
+                break
 
     def check_line(self, line, lineno):
         if line.startswith('***'):

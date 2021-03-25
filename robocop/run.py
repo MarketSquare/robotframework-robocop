@@ -111,11 +111,12 @@ class Robocop:
             model = self.files[file][1]
             found_issues = self.run_check(model, str(file))
             issues_to_lsp_diagnostic(found_issues)
-            if found_issues:
-                files_with_issues += 1
             found_issues.sort()
+            found = False
             for issue in found_issues:
-                self.report(issue)
+                found = self.report(issue) or found
+            if found:
+                files_with_issues += 1
         if 'file_stats' in self.reports:
             self.reports['file_stats'].files_count = len(self.files)
             self.reports['file_stats'].files_with_issues = files_with_issues
@@ -137,9 +138,9 @@ class Robocop:
 
     def report(self, rule_msg):
         if not rule_msg.enabled:  # disabled from cli
-            return
+            return False
         if self.disabler.is_rule_disabled(rule_msg):  # disabled from source code
-            return
+            return False
         for report in self.reports.values():
             report.add_message(rule_msg)
         try:
@@ -154,6 +155,7 @@ class Robocop:
                          rule_id=rule_msg.rule_id,
                          desc=rule_msg.desc,
                          msg_name=rule_msg.name)
+        return True
 
     def log_message(self, **kwargs):
         self.write_line(self.config.format.format(**kwargs))

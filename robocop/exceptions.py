@@ -59,3 +59,8 @@ class NestedArgumentFileError(RobocopFatalError):
     def __init__(self, source):
         msg = f'Nested argument file in "{source}"'
         super().__init__(msg)
+
+
+class InvalidArgumentError(RobocopFatalError):
+    def __init__(self, msg):
+        super().__init__(f'Invalid configuration for Robocop:\n{msg}')

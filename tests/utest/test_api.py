@@ -6,6 +6,7 @@ from robot.api import get_model
 import robocop
 from robocop.rules import Message, RuleSeverity, Rule
 from robocop.utils import issues_to_lsp_diagnostic
+from robocop.exceptions import InvalidArgumentError
 
 
 @pytest.fixture
@@ -46,6 +47,14 @@ class TestAPI:
         issues_by_desc = [issue.desc for issue in issues]
         assert 'Missing documentation in suite' in issues_by_desc
         assert 'Section is empty' not in issues_by_desc
+
+    def test_invalid_config(self):
+        config_path = Path(Path(__file__).parent.parent, 'test_data', 'api_invalid_config')
+        config = robocop.Config(root=config_path)
+
+        with pytest.raises(InvalidArgumentError) as exception:
+            robocop.Robocop(config=config)
+        assert r'Invalid configuration for Robocop:\nunrecognized arguments: --some' in str(exception)
 
     def test_lsp_diagnostic(self, rule):
         issues = [

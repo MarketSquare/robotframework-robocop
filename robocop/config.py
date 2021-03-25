@@ -5,7 +5,7 @@ import os
 import re
 import sys
 
-from robocop.exceptions import ArgumentFileNotFoundError, NestedArgumentFileError
+from robocop.exceptions import ArgumentFileNotFoundError, NestedArgumentFileError, InvalidArgumentError
 from robocop.rules import RuleSeverity
 from robocop.version import __version__
 
@@ -53,8 +53,21 @@ class SetListOption(argparse.Action):
         setattr(namespace, self.dest, pattern)
 
 
+class CustomArgParser(argparse.ArgumentParser):
+    def __init__(self, *args, from_cli=False, **kwargs):
+        self.from_cli = from_cli
+        super().__init__(*args, **kwargs)
+
+    def error(self, message):
+        if self.from_cli:
+            super().error(message)
+        else:
+            raise InvalidArgumentError(message)
+
+
 class Config:
-    def __init__(self, root=None):
+    def __init__(self, root=None, from_cli=False):
+        self.from_cli = from_cli
         self.exec_dir = os.path.abspath('.')
         self.root = Path(root) if root is not None else root
         self.include = set()
@@ -156,12 +169,13 @@ class Config:
 
     def _create_parser(self):
         # below will throw error in Pycharm, it's bug https://youtrack.jetbrains.com/issue/PY-41806
-        parser = argparse.ArgumentParser(prog='robocop',
-                                         formatter_class=argparse.RawTextHelpFormatter,
-                                         description='Static code analysis tool for Robot Framework',
-                                         epilog='For full documentation visit: '
-                                                'https://github.com/MarketSquare/robotframework-robocop',
-                                         add_help=False)
+        parser = CustomArgParser(prog='robocop',
+                                 formatter_class=argparse.RawTextHelpFormatter,
+                                 description='Static code analysis tool for Robot Framework',
+                                 epilog='For full documentation visit: '
+                                        'https://github.com/MarketSquare/robotframework-robocop',
+                                 add_help=False,
+                                 from_cli=self.from_cli)
         required = parser.add_argument_group(title='Required parameters')
         optional = parser.add_argument_group(title='Optional parameters')
 

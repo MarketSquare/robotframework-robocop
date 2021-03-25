@@ -45,7 +45,7 @@ class Robocop:
         self.root = os.getcwd()
         self.config = Config() if config is None else config
         self.from_cli = from_cli
-        self.config.parse_opts()
+        self.config.parse_opts(from_cli=from_cli)
         if not from_cli:
             self.config.reports.add('json_report')
         self.out = self.set_output()

@@ -204,8 +204,8 @@ class Config:
 
         return parser
 
-    def parse_opts(self, args=None):
-        args = self.preparse(args)
+    def parse_opts(self, args=None, from_cli=False):
+        args = self.preparse(args) if from_cli else None
         if not args:
             args = self.load_default_config_file()
         parsed_args = self.parser.parse_args(args)

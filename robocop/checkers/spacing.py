@@ -244,12 +244,19 @@ class UnevenIndentChecker(VisitorChecker):
         column_index = 2 if node.end is None else 0
         self.check_indents(node, node.header.tokens[1].col_offset + 1, column_index)
 
+    def visit_If(self, node):  # noqa
+        column_index = 2 if node.end is None else 0
+        self.check_indents(node, node.header.tokens[1].col_offset + 1, column_index)
+
     @staticmethod
     def get_indent(node):
-        tokens = node.data_tokens if hasattr(node, 'data_tokens') else node.header.data_tokens
-        return tokens[0].col_offset if tokens else 0
+        tokens = node.tokens if hasattr(node, 'tokens') else node.header.tokens
+        for token in tokens:
+            if token.type != Token.SEPARATOR:
+                return token.col_offset
+        return 0
 
-    def check_indents(self, node, req_indent=0, column_index=0):
+    def check_indents(self, node, req_indent=0, column_index=0, previous_indent=None):
         indents = []
         header_indents = []
         for child in node.body:
@@ -270,25 +277,29 @@ class UnevenIndentChecker(VisitorChecker):
                 else:
                     indents.append((indent_len, child))
             else:
-                indents.append((indent_len, child))
                 if not column_index and (indent_len < req_indent):
                     self.report("bad-indent", node=child)
-        self.validate_indent_lists(indents)
+                else:
+                    indents.append((indent_len, child))
+        previous_indent = self.validate_indent_lists(indents, previous_indent)
         if templated:
             self.validate_indent_lists(header_indents)
+        if getattr(node, 'orelse', None):
+            self.check_indents(node.orelse, req_indent, column_index, previous_indent)
 
-    def validate_indent_lists(self, indents):
-        if len(indents) < 2:
-            return
+    def validate_indent_lists(self, indents, previous_indent=None):
         counter = Counter(indent[0] for indent in indents)
-        if len(counter) == 1:  # everything have the same indent
-            return
+        if previous_indent:  # in case of continuing blocks, ie if else blocks, remember the indent
+            counter += previous_indent
+        if len(indents) < 2 or len(counter) == 1:  # everything have the same indent
+            return counter
         common_indent = counter.most_common(1)[0][0]
         for indent in indents:
             if indent[0] != common_indent:
                 self.report("uneven-indent", 'over' if indent[0] > common_indent else 'under',
                             node=indent[1],
                             col=indent[0] + 1)
+        return counter
 
 
 class MisalignedContinuation(VisitorChecker, ModelVisitor):

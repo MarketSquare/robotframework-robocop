@@ -10,11 +10,39 @@ Test
     Keyword
     One More
 
+Gold test
+    [Documentation]  This is golden test
+    ${some_value}    Perform Action    ${argument}
+    ...                                ${another_argument}
+
+    ${another_value}    Perform Another Action
+    IF    ${some_value}
+        Do Stuff
+    ELSE IF    ${another_value}
+        ${some_value}    Do Stuff
+    END
+
 
 *** Keywords ***
+Gold Keyword
+    [Documentation]  This is golden test
+    [Arguments]    ${arg}
+    Keyword
+    #  This is comment
+    ${some_value}    Perform Action    ${argument}
+    ...                                ${another_argument}
+
+    ${another_value}    Perform Another Action
+    IF    ${some_value}
+        Do Stuff
+    ELSE IF    ${another_value}
+        ${some_value}    Do Stuff
+    END
+
 Keyword With Over Indented Line
     [Documentation]  this is doc
        No Operation
+    #  It is also valid indent
     Pass
     No Operation
     Fail
@@ -60,6 +88,7 @@ Keyword With If Block
     ELSE
         Keyword3
     END
+    Keyword
 
 Keyword With Under Indented For Loop Body
     FOR  ${elem}  IN  ${list}
@@ -74,3 +103,22 @@ Keyword With Uneven NewLines
     Keyword 1
     Keyword
       ...  ${2}
+
+Keyword With Assignments
+    ${arg}    ${arg}    Keyword
+    ...  multiline
+    IF    ${condition}
+        ${value}    Correct Indent
+          ${arg}  Incorrent Indent
+    ELSE IF  ${flag}
+         Incorrect Indent
+        Correct Indent
+    ELSE
+        Correct Indent
+    END
+
+Keyword With Under Indented For Loop Body
+    FOR  ${elem}  IN  ${list}
+   Log  stuff
+    END
+

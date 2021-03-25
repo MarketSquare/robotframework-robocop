@@ -73,3 +73,17 @@ class TestAPI:
         ]
         diagnostic = issues_to_lsp_diagnostic(issues)
         assert diagnostic == expected_diagnostic
+
+    def test_ignore_sys_argv(self, monkeypatch):
+        monkeypatch.setattr("sys.argv", ["robocorp", "--some", "args.robot"])
+        config = robocop.Config()
+        robocop_runner = robocop.Robocop(config=config)
+        robocop_runner.reload_config()
+        in_memory = "*** Settings ***\n\n"
+        ast_model = get_model(in_memory)
+        issues = robocop_runner.run_check(ast_model, r'C:\directory\file.robot', in_memory)
+        expected_issues = {
+            'Missing documentation in suite',
+            'Section is empty'
+        }
+        assert all(issue.desc in expected_issues for issue in issues)

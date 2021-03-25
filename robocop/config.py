@@ -204,10 +204,12 @@ class Config:
 
         return parser
 
-    def parse_opts(self, args=None, from_cli=False):
+    def parse_opts(self, args=None, from_cli=True):
         args = self.preparse(args) if from_cli else None
         if not args:
             args = self.load_default_config_file()
+        if not args and not from_cli:
+            return args
         parsed_args = self.parser.parse_args(args)
         self.__dict__.update(**vars(parsed_args))
         self.remove_severity()

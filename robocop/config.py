@@ -56,7 +56,7 @@ class SetListOption(argparse.Action):
 class Config:
     def __init__(self, root=None):
         self.exec_dir = os.path.abspath('.')
-        self.root = root
+        self.root = Path(root) if root is not None else root
         self.include = set()
         self.exclude = set()
         self.ignore = set()

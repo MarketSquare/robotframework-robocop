@@ -43,11 +43,10 @@ class Robocop:
         self.reports = dict()
         self.disabler = None
         self.root = os.getcwd()
-        self.config = Config() if config is None else config
+        self.config = Config(from_cli=from_cli) if config is None else config
         self.from_cli = from_cli
-        if from_cli:
-            self.config.parse_opts()
-        else:
+        self.config.parse_opts(from_cli=from_cli)
+        if not from_cli:
             self.config.reports.add('json_report')
         self.out = self.set_output()
 
@@ -124,7 +123,8 @@ class Robocop:
         for checker in self.checkers:
             if checker.disabled:
                 continue
-            found_issues += checker.scan_file(ast_model, filename, source)
+            found_issues += [issue for issue in checker.scan_file(ast_model, filename, source)
+                             if not self.disabler.is_rule_disabled(issue)]
         return found_issues
 
     def register_disablers(self, filename, source):
@@ -132,10 +132,6 @@ class Robocop:
         self.disabler = DisablersFinder(filename=filename, source=source)
 
     def report(self, rule_msg):
-        if not rule_msg.enabled:  # disabled from cli
-            return
-        if self.disabler.is_rule_disabled(rule_msg):  # disabled from source code
-            return
         for report in self.reports.values():
             report.add_message(rule_msg)
         try:

@@ -60,7 +60,8 @@ class BaseChecker:
         if rule not in self.rules_map:
             raise ValueError(f"Missing definition for message with name {rule}")
         message = self.rules_map[rule].prepare_message(*args, source=self.source, node=node, lineno=lineno, col=col)
-        self.issues.append(message)
+        if message.enabled:
+            self.issues.append(message)
 
     def configure(self, param, value):
         self.__dict__[param] = value

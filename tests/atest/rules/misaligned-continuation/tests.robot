@@ -35,3 +35,8 @@ Misaligned headers
       ...  ${2}
         Keyword
     END
+
+Misaligned Arguments
+    [Arguments]    ${arg}
+   ...  ${arg}
+    Keyword

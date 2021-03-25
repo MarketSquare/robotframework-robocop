@@ -106,19 +106,15 @@ class Robocop:
                 self.files[resource] = (FileType.RESOURCE, get_resource_model(str(resource)))
 
     def run_checks(self):
-        files_with_issues = 0
         for file in self.files:
             model = self.files[file][1]
             found_issues = self.run_check(model, str(file))
             issues_to_lsp_diagnostic(found_issues)
-            if found_issues:
-                files_with_issues += 1
             found_issues.sort()
             for issue in found_issues:
                 self.report(issue)
         if 'file_stats' in self.reports:
             self.reports['file_stats'].files_count = len(self.files)
-            self.reports['file_stats'].files_with_issues = files_with_issues
 
     def run_check(self, ast_model, filename, source=None):
         found_issues = []

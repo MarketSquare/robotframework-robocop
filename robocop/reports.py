@@ -173,10 +173,10 @@ class FileStatsReport(Report):
         self.name = 'file_stats'
         self.description = 'Prints overall statistics about number of processed files'
         self.files_count = 0
-        self.files_with_issues = 0
+        self.files_with_issues = set()
 
-    def add_message(self, *args):
-        pass
+    def add_message(self, message):
+        self.files_with_issues.add(message.source)
 
     def get_report(self):
         if not self.files_count:
@@ -185,4 +185,5 @@ class FileStatsReport(Report):
             if not self.files_with_issues:
                 return f'Processed {self.files_count} file(s) but no issues were found'
 
-            return f'Processed {self.files_count} file(s) from which {self.files_with_issues} file(s) contained issues'
+            return f'Processed {self.files_count} file(s) from which {len(self.files_with_issues)} ' \
+                   f'file(s) contained issues'

@@ -89,8 +89,11 @@ class Rule:
                 return configurable
         return None
 
-    def available_configurables(self):
-        configurables = ['severity'] + [conf[0] for conf in self.configurable]
+    def available_configurables(self, include_severity=True):
+        configurables = ['severity'] if include_severity else []
+        configurables += [f'{conf[0]} ({conf[2].__name__})' for conf in self.configurable]
+        if not configurables:
+            return ''
         names = '\n        '.join(configurables)
         return f"Available configurable(s) for this rule:\n        {names}"
 

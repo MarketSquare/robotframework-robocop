@@ -159,7 +159,7 @@ class Robocop:
         if not (self.config.list or self.config.list_configurables):
             return
         if self.config.list_configurables:
-            print("All following rules have configurable parameter severity. Allowed values are:"
+            print("All following rules have configurable parameter 'severity'. Allowed values are:"
                   "\n    E / error\n    W / warning\n    I / info")
         rule_by_id = {msg.rule_id: msg for checker in self.checkers for msg in checker.rules_map.values()}
         rule_ids = sorted([key for key in rule_by_id])

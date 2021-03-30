@@ -88,3 +88,10 @@ class TestDefaultConfig:
         with pytest.raises(InvalidArgumentError) as e, patch.object(sys, 'argv', ['prog']):
             config.parse_opts()
         assert "Invalid configuration for Robocop:\\nFailed to decode " in str(e)
+
+    def test_toml_not_installed_pyproject(self, path_to_test_data, config):
+        src = path_to_test_data / 'only_pyproject'
+        os.chdir(str(src))
+        with patch.dict('sys.modules', {'toml': None}), patch.object(sys, 'argv', ['prog']):
+            config.parse_opts()
+        assert config.include == set()

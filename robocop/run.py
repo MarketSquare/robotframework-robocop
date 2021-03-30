@@ -158,6 +158,9 @@ class Robocop:
     def list_checkers(self):
         if not (self.config.list or self.config.list_configurables):
             return
+        if self.config.list_configurables:
+            print("All following rules have configurable parameter 'severity'. Allowed values are:"
+                  "\n    E / error\n    W / warning\n    I / info")
         rule_by_id = {msg.rule_id: msg for checker in self.checkers for msg in checker.rules_map.values()}
         rule_ids = sorted([key for key in rule_by_id])
         for rule_id in rule_ids:
@@ -168,7 +171,9 @@ class Robocop:
             else:
                 if not rule_by_id[rule_id].matches_pattern(self.config.list_configurables):
                     continue
-                print(f"{rule_by_id[rule_id]}\n    {rule_by_id[rule_id].available_configurables()}")
+                configurables = rule_by_id[rule_id].available_configurables(include_severity=False)
+                configurables = f'\n    {configurables}' if configurables else ''
+                print(f"{rule_by_id[rule_id]}{configurables}")
         sys.exit()
 
     def load_reports(self):

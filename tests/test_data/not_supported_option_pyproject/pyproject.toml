@@ -1,0 +1,22 @@
+[tool.robocop]
+paths = [
+    "tests\\atest\\rules\\bad-indent",
+    "tests\\atest\\rules\\duplicated-library"
+]
+include = ['W0504', '*doc*']
+exclude = ["0203"]
+reports = [
+    "rules_by_id",
+    "scan_timer"
+]
+ignore = ["ignore_me.robot"]
+ext_rules = ["path_to_external\\dir"]
+filetypes = [".txt", ".csv"]
+threshold = "E"
+format = "{source}:{line}:{col} [{severity}] {rule_id} {desc} (name)"
+output = "robocop.log"
+configure = [
+    "line-too-long:line_length:150",
+    "0201:severity:E"
+]
+list="*01"

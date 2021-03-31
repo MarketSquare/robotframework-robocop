@@ -77,7 +77,7 @@ class VisitorChecker(BaseChecker, ModelVisitor):  # noqa
         self.issues = []
         self.source = filename
         if in_memory_content is not None:
-            self.lines = in_memory_content.splitlines()
+            self.lines = in_memory_content.splitlines(keepends=True)
         else:
             self.lines = None
         self.visit_File(ast_model)
@@ -95,7 +95,7 @@ class RawFileChecker(BaseChecker):  # noqa
         self.issues = []
         self.source = filename
         if in_memory_content is not None:
-            self.lines = in_memory_content.splitlines()
+            self.lines = in_memory_content.splitlines(keepends=True)
         else:
             self.lines = None
         self.parse_file()

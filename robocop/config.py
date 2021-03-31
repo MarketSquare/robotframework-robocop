@@ -5,6 +5,12 @@ import os
 import re
 import sys
 
+try:
+    import toml
+    TOML_SUPPORT = True
+except ImportError:
+    TOML_SUPPORT = False
+
 from robocop.exceptions import ArgumentFileNotFoundError, NestedArgumentFileError, InvalidArgumentError
 from robocop.rules import RuleSeverity
 from robocop.version import __version__
@@ -12,6 +18,37 @@ from robocop.version import __version__
 
 def translate_pattern(pattern):
     return re.compile(fnmatch.translate(pattern))
+
+
+def parse_toml_to_config(toml_data, config):
+    if not toml_data:
+        return
+    assign_type = {'paths', 'format', 'configure'}
+    set_type = {'include', 'exclude', 'reports', 'ignore', 'ext_rules'}
+    toml_data = {key.replace('-', '_'): value for key, value in toml_data.items()}
+    for key, value in toml_data.items():
+        if key in assign_type:
+            config.__dict__[key] = value
+        elif key in set_type:
+            config.__dict__[key].update(set(value))
+        elif key == 'filetypes':
+            for filetype in toml_data['filetypes']:
+                config.filetypes.add(filetype if filetype.startswith('.') else '.' + filetype)
+        elif key == 'threshold':
+            config.threshold = find_severity_value(value)
+        elif key == 'output':
+            config.output = open(value, 'w')
+        elif key == 'no_recursive':
+            config.recursive = not value
+        else:
+            raise InvalidArgumentError(f"Option '{key}' is not supported in pyproject.toml configuration file.")
+
+
+def find_severity_value(severity):
+    for sev in RuleSeverity:
+        if sev.value == severity:
+            return sev
+    return RuleSeverity.INFO
 
 
 class ParseDelimitedArgAction(argparse.Action):  # pylint: disable=too-few-public-methods
@@ -37,12 +74,7 @@ class ParseFileTypes(argparse.Action):  # pylint: disable=too-few-public-methods
 
 class SetRuleThreshold(argparse.Action):
     def __call__(self, parser, namespace, values, option_string=None):
-        for sev in RuleSeverity:
-            if sev.value == values:
-                break
-        else:
-            sev = RuleSeverity.INFO
-        setattr(namespace, self.dest, sev)
+        setattr(namespace, self.dest, find_severity_value(values))
 
 
 class SetListOption(argparse.Action):
@@ -222,31 +254,43 @@ class Config:
         args = self.preparse(args) if from_cli else None
         if not args:
             args = self.load_default_config_file()
-        if not args and not from_cli:
-            return args
-        parsed_args = self.parser.parse_args(args)
-        self.__dict__.update(**vars(parsed_args))
+        if not args:
+            self.load_pyproject_file()
+        else:
+            args = self.parser.parse_args(args)
+            for key, value in dict(**vars(args)).items():
+                if key in self.__dict__:
+                    self.__dict__[key] = value
         self.remove_severity()
         self.translate_patterns()
 
-        return parsed_args
+        return args
 
     def load_default_config_file(self):
-        project_root = self.find_project_root()
-        config_path = project_root / '.robocop'
-        if not config_path.is_file():
-            return None
+        robocop_path = self.find_file_in_project_root('.robocop')
+        if robocop_path.is_file():
+            return self.load_args_from_file(robocop_path)
         # print(f"Loaded default configuration file from '{config_path}'") TODO: Enable in verbose mode
-        return self.load_args_from_file(config_path)
 
-    def find_project_root(self):
+    def find_file_in_project_root(self, config_name):
         root = self.root or Path.cwd()
         for parent in (root, *root.parents):
-            if (parent / '.git').exists():
-                return parent
-            if (parent / '.robocop').is_file():
-                return parent
-        return parent
+            if (parent / '.git').exists() or (parent / config_name).is_file():
+                return parent / config_name
+        return parent / config_name
+
+    def load_pyproject_file(self):
+        if not TOML_SUPPORT:
+            return
+        pyproject_path = self.find_file_in_project_root('pyproject.toml')
+        if not pyproject_path.is_file():
+            return
+        try:
+            config = toml.load(str(pyproject_path))
+        except toml.TomlDecodeError as e:
+            raise InvalidArgumentError(f'Failed to decode {str(pyproject_path)}: {e}')
+        config = config.get("tool", {}).get("robocop", {})
+        parse_toml_to_config(config, self)
 
     def is_rule_enabled(self, rule):
         if self.is_rule_disabled(rule):

@@ -1,17 +1,18 @@
 import os
 import sys
+import importlib
 from pathlib import Path
 from unittest.mock import patch
 
 import pytest
 
-from robocop.config import Config
+import robocop.config
 from robocop.exceptions import InvalidArgumentError
 
 
 @pytest.fixture
 def config():
-    return Config()
+    return robocop.config.Config()
 
 
 @pytest.fixture
@@ -60,7 +61,7 @@ class TestDefaultConfig:
         config.exec_dir = str(src)
         with patch.object(sys, 'argv', ['prog']):
             config.parse_opts()
-        expected_config = Config(from_cli=True)
+        expected_config = robocop.config.Config(from_cli=True)
         with patch.object(sys, 'argv', [
             'robocop', '--include', 'W0504', '-i', '*doc*', '--exclude', '0203', '--reports',
             'rules_by_id,scan_timer', '--ignore', 'ignore_me.robot', '--ext_rules', 'path_to_external\\dir',
@@ -89,9 +90,12 @@ class TestDefaultConfig:
             config.parse_opts()
         assert "Invalid configuration for Robocop:\\nFailed to decode " in str(e)
 
-    def test_toml_not_installed_pyproject(self, path_to_test_data, config):
+    def test_toml_not_installed_pyproject(self, path_to_test_data):
         src = path_to_test_data / 'only_pyproject'
         os.chdir(str(src))
-        with patch.dict('sys.modules', {'toml': None}), patch.object(sys, 'argv', ['prog']):
-            config.parse_opts()
-        assert config.include == set()
+        with patch.dict('sys.modules', {'toml': None}):
+            importlib.reload(robocop.config)
+            config = robocop.config.Config()
+            with patch.object(sys, 'argv', ['prog']):
+                config.parse_opts()
+            assert config.include == set()

@@ -111,3 +111,16 @@ class TestAPI:
             'Section is empty'
         }
         assert all(issue.desc in expected_issues for issue in issues)
+
+    def test_robocop_api_no_trailing_blank_line_message(self):
+        """ Bug from #307 """
+        source = "*** Test Cases ***\nTest\n    Fail\n    \nTest\n    Fail\n"
+        ast = get_model(source)
+
+        config = robocop.Config()
+        robocop_runner = robocop.Robocop(config=config)
+        robocop_runner.reload_config()
+
+        issues = robocop_runner.run_check(ast, 'target.robot', source)
+        diag_issues = issues_to_lsp_diagnostic(issues)
+        assert all(d["message"] != "Missing trailing blank line at the end of file" for d in diag_issues)

@@ -31,7 +31,8 @@ class TestAPI:
         issues = robocop_runner.run_check(ast_model, r'C:\directory\file.robot', in_memory)
         expected_issues = {
             'Missing documentation in suite',
-            'Section is empty'
+            'Section is empty',
+            'Too many blank lines at the end of file'
         }
         assert all(issue.desc in expected_issues for issue in issues)
 
@@ -108,7 +109,8 @@ class TestAPI:
         issues = robocop_runner.run_check(ast_model, r'C:\directory\file.robot', in_memory)
         expected_issues = {
             'Missing documentation in suite',
-            'Section is empty'
+            'Section is empty',
+            'Too many blank lines at the end of file'
         }
         assert all(issue.desc in expected_issues for issue in issues)
 

@@ -73,6 +73,9 @@ class TestDefaultConfig:
             expected_config.parse_opts()
         config.parser, expected_config.parser = None, None
         config.output, expected_config.output = None, None
+        for exp_pattern, pattern in zip(expected_config.include_patterns, config.include_patterns):
+            assert exp_pattern.pattern == pattern.pattern
+        config.include_patterns, expected_config.include_patterns = None, None
         assert config.__dict__ == expected_config.__dict__
 
     def test_not_supported_option_pyproject(self, path_to_test_data, config):

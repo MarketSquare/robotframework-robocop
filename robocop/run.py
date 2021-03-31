@@ -145,7 +145,7 @@ class Robocop:
                          severity=rule_msg.severity.value,
                          rule_id=rule_msg.rule_id,
                          desc=rule_msg.desc,
-                         msg_name=rule_msg.name)
+                         name=rule_msg.name)
 
     def log_message(self, **kwargs):
         self.write_line(self.config.format.format(**kwargs))

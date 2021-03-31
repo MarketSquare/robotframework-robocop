@@ -65,8 +65,7 @@ class EqualSignChecker(VisitorChecker):
     }
 
     def visit_KeywordCall(self, node):  # noqa
-        if node.assign:  # if keyword returns any value
-            if node.assign[-1][-1] == '=':  # last character of last assigned variable
+        if node.assign and node.assign[-1][-1:] == '=':
                 equal_position = [x for x in node.data_tokens if x.type == 'ASSIGN'][-1].end_col_offset
                 self.report("redundant-equal-sign", lineno=node.lineno, col=equal_position)
 

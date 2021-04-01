@@ -23,8 +23,8 @@ class TestArgumentValidation(unittest.TestCase):
         self.assertSetEqual(self.config.exclude, set())
         self.assertSetEqual(self.config.reports, {'return_status'})
         self.assertListEqual(self.config.configure, [])
-        self.assertEqual(self.config.format, "{source}:{line}:{col} [{severity}] {rule_id} {desc}")
-        self.assertListEqual(self.config.paths, [])
+        self.assertEqual(self.config.format, "{source}:{line}:{col} [{severity}] {rule_id} {desc} ({name})")
+        self.assertListEqual(self.config.paths, ['.'])
         self.assertIsNone(self.config.output)
         self.assertFalse(self.config.list_reports)
 
@@ -35,7 +35,7 @@ class TestArgumentValidation(unittest.TestCase):
         self.assertSetEqual(args.exclude, set())
         self.assertSetEqual(args.reports, {'return_status'})
         self.assertListEqual(args.configure, [])
-        self.assertEqual(args.format, "{source}:{line}:{col} [{severity}] {rule_id} {desc}")
+        self.assertEqual(args.format, "{source}:{line}:{col} [{severity}] {rule_id} {desc} ({name})")
         self.assertListEqual(args.paths, [''])
         self.assertIsNone(args.output)
 

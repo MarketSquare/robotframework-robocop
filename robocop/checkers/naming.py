@@ -27,14 +27,14 @@ class InvalidCharactersInNameChecker(VisitorChecker):
         )
     }
 
-    def __init__(self, *args):
+    def __init__(self):
         self.invalid_chars = ('.', '?')
         self.node_names_map = {
             'KEYWORD_NAME': 'keyword',
             'TESTCASE_NAME': 'test case',
             'SUITE': 'suite'
         }
-        super().__init__(*args)
+        super().__init__()
 
     def visit_File(self, node):
         source = node.source if node.source else self.source
@@ -112,10 +112,10 @@ class KeywordNamingChecker(VisitorChecker):
         'else if'
     }
 
-    def __init__(self, *args):
+    def __init__(self):
         self.letter_pattern = re.compile('[^a-zA-Z0-9]')
         self.var_pattern = re.compile(r'[$@%&]{.+}')
-        super().__init__(*args)
+        super().__init__()
 
     def visit_SuiteSetup(self, node):  # noqa
         self.check_keyword_naming(node.name, node)
@@ -210,9 +210,9 @@ class SettingsNamingChecker(VisitorChecker):
         )
     }
 
-    def __init__(self, *args):
+    def __init__(self):
         self.section_name_pattern = re.compile(r'\*\*\*\s.+\s\*\*\*')
-        super().__init__(*args)
+        super().__init__()
 
     def visit_SectionHeader(self, node):  # noqa
         name = node.data_tokens[0].value
@@ -304,12 +304,12 @@ class VariableNamingChecker(VisitorChecker):
         )
     }
 
-    def __init__(self, *args):
+    def __init__(self):
         self.set_variable_variants = {'settaskvariable',
                                       'settestvariable',
                                       'setsuitevariable',
                                       'setglobalvariable'}
-        super().__init__(*args)
+        super().__init__()
 
     def visit_VariableSection(self, node):  # noqa
         for child in node.body:

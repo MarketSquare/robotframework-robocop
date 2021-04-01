@@ -57,7 +57,7 @@ class LengthChecker(VisitorChecker):
         )
     }
 
-    def __init__(self, *args):
+    def __init__(self):
         self.keyword_max_len = 40
         self.testcase_max_len = 20
         self.keyword_max_calls = 8
@@ -65,7 +65,7 @@ class LengthChecker(VisitorChecker):
         self.testcase_max_calls = 8
         self.file_max_lines = 400
         self.keyword_max_args = 5
-        super().__init__(*args)
+        super().__init__()
 
     def visit_File(self, node):
         if node.end_lineno > self.file_max_lines:
@@ -149,9 +149,9 @@ class LineLengthChecker(RawFileChecker):
         )
     }
 
-    def __init__(self, *args):
+    def __init__(self):
         self.max_line_length = 120
-        super().__init__(*args)
+        super().__init__()
 
     def check_line(self, line, lineno):
         if len(line) > self.max_line_length:
@@ -200,9 +200,9 @@ class NumberOfReturnedArgsChecker(VisitorChecker):
         )
     }
 
-    def __init__(self, *args):
+    def __init__(self):
         self.max_returns = 4
-        super().__init__(*args)
+        super().__init__()
 
     def visit_Keyword(self, node):  # noqa
         self.generic_visit(node)

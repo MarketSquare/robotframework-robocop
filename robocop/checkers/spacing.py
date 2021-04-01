@@ -32,9 +32,9 @@ class InvalidSpacingChecker(RawFileChecker):
         )
     }
 
-    def __init__(self, *args):
+    def __init__(self):
         self.raw_lines = []
-        super().__init__(*args)
+        super().__init__()
 
     def parse_file(self):
         self.raw_lines = []
@@ -93,12 +93,12 @@ class EmptyLinesChecker(VisitorChecker):
         )
     }
 
-    def __init__(self, *args):  # noqa
+    def __init__(self):  # noqa
         self.empty_lines_between_sections = 2
         self.empty_lines_between_test_cases = 1
         self.empty_lines_between_keywords = 1
         self.empty_lines_after_section_header = 0
-        super().__init__(*args)
+        super().__init__()
 
     def visit_TestCaseSection(self, node):  # noqa
         for child in node.body[:-1]:
@@ -188,9 +188,9 @@ class InconsistentUseOfTabsAndSpacesChecker(VisitorChecker, ModelVisitor):
         )
     }
 
-    def __init__(self, *args):
+    def __init__(self):
         self.found, self.tabs, self.spaces = False, False, False
-        super().__init__(*args)
+        super().__init__()
 
     def visit_File(self, node):  # noqa
         self.found, self.tabs, self.spaces = False, False, False
@@ -224,9 +224,9 @@ class UnevenIndentChecker(VisitorChecker):
         )
     }
 
-    def __init__(self, *args):
+    def __init__(self):
         self.headers = {'arguments', 'documentation', 'setup', 'timeout', 'teardown', 'template', 'tags'}
-        super().__init__(*args)
+        super().__init__()
 
     def visit_TestCase(self, node):  # noqa
         self.check_indents(node)

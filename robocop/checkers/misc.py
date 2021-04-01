@@ -93,8 +93,8 @@ class NestedForLoopsChecker(VisitorChecker):
         )
     }
 
-    def __init__(self, *args):
-        super().__init__(*args)
+    def __init__(self):
+        super().__init__()
         if IS_RF4:
             self.disabled = True
 
@@ -118,9 +118,9 @@ class IfBlockCanBeUsed(VisitorChecker):
         )
     }
 
-    def __init__(self, *args):
+    def __init__(self):
         self.run_keyword_variants = {'runkeywordif', 'runkeywordunless'}
-        super().__init__(*args)
+        super().__init__()
         if not IS_RF4:
             self.disabled = True
 

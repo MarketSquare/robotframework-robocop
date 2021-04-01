@@ -52,10 +52,10 @@ class TwoSpacesAfterSettingsChecker(VisitorChecker):
         )
     }
 
-    def __init__(self, *args):
+    def __init__(self):
         self.headers = {'arguments', 'documentation', 'setup', 'timeout', 'teardown', 'template', 'tags'}
         self.setting_pattern = re.compile(r'\[\s?(\w+)\s?\]')
-        super().__init__(*args)
+        super().__init__()
 
     def visit_KeywordCall(self, node):  # noqa
         """ Invalid settings like '[Arguments] ${var}' will be parsed as keyword call """

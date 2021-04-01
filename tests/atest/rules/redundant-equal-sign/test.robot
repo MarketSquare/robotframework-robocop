@@ -6,6 +6,8 @@ Documentation  doc
 ${SUITE_VARIABLE}=  Value
 ${ANOTHER_VARIABLE} =  Value
 ${VAR_WITHOUT_EQUAL_SIGN}  Value
+ ${MISALIGNED1}  a
+  ${MISALIGNED2}  b
 
 
 *** Test Cases ***

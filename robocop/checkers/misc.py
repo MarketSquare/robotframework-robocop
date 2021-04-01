@@ -75,7 +75,7 @@ class EqualSignChecker(VisitorChecker):
             if not child.data_tokens:
                 continue
             token = child.data_tokens[0]
-            if token.type == Token.VARIABLE and token.value[-1] == '=':
+            if token.type == Token.VARIABLE and token.value[-1:] == '=':
                 self.report("redundant-equal-sign", lineno=token.lineno,
                             col=token.end_col_offset + token.col_offset)
 

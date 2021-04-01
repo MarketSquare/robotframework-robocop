@@ -38,7 +38,7 @@ def msg_0102_0204():
 
 
 def init_empty_checker(robocop_instance_pre_load, rule, exclude=False):
-    checker = EmptyChecker(robocop_instance_pre_load)
+    checker = EmptyChecker()
     checker.rules = rule
     checker.register_rules(checker.rules)
     if exclude:

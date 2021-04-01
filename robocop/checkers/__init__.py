@@ -40,12 +40,11 @@ except ImportError:
 class BaseChecker:
     rules = None
 
-    def __init__(self, configurable=None):
+    def __init__(self):
         self.disabled = False
         self.source = None
         self.lines = None
         self.rules_map = {}
-        self.configurable = set() if configurable is None else configurable
         self.register_rules(self.rules)
         self.issues = []
 

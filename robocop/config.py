@@ -108,8 +108,8 @@ class Config:
         self.reports = {'return_status'}
         self.threshold = RuleSeverity.INFO
         self.configure = []
-        self.format = "{source}:{line}:{col} [{severity}] {rule_id} {desc}"
-        self.paths = []
+        self.format = "{source}:{line}:{col} [{severity}] {rule_id} {desc} ({name})"
+        self.paths = ['.']
         self.ext_rules = set()
         self.include_patterns = []
         self.exclude_patterns = []
@@ -135,7 +135,7 @@ class Config:
                              '--report all',
         'help_format':       'Format of output message. '
                              'You can use placeholders to change the way an issue is reported.\n'
-                             'Default: {source}:{line}:{col} [{severity}] {rule_id} {desc}',
+                             'Default: {source}:{line}:{col} [{severity}] {rule_id} {desc} ({name})',
         'help_configure':    'Configure checker with parameter value. Usage:\n'
                              '-c message_name_or_id:param_name:param_value\nExample:\n'
                              '-c line-too-long:line_length:150\n'
@@ -211,7 +211,7 @@ class Config:
         required = parser.add_argument_group(title='Required parameters')
         optional = parser.add_argument_group(title='Optional parameters')
 
-        required.add_argument('paths', metavar='paths', type=str, nargs='*', default=['.'],
+        required.add_argument('paths', metavar='paths', type=str, nargs='*', default=self.paths,
                               help=self.HELP_MSGS['help_paths'])
         optional.add_argument('-i', '--include', action=ParseDelimitedArgAction, default=self.include,
                               metavar='RULES', help=self.HELP_MSGS['help_include'])

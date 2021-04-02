@@ -1,0 +1,2 @@
+${rules_dir}${\}test.robot:13:0 [W] 0701 Found FIXME in comment
+${rules_dir}${\}test.robot:17:18 [W] 0701 Found TODO in comment

@@ -139,9 +139,10 @@ def get_docs():
 
 def get_rules_for_atest():
     for module in modules_in_current_dir(__file__, __name__):
+        module_name = module.__name__.split('.')[-1]
         classes = inspect.getmembers(module, inspect.isclass)
         for checker in classes:
             if not (hasattr(checker[1], 'rules') and checker[1].rules):
                 continue
             for rule_body in checker[1].rules.values():
-                yield rule_body[0]
+                yield module_name, rule_body[0]

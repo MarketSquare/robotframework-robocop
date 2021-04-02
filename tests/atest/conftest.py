@@ -25,4 +25,25 @@ def pytest_generate_tests(metafunc):
     if "rule" not in metafunc.fixturenames:
         return
     auto_discovered_rules = [(rule, None, f"{category}/{rule}") for category, rule in get_rules_for_atest()]
+    # TODO: load other tests from file (like yaml)
+    auto_discovered_rules.append((
+        'inconsistent-assignment',
+        ['-c', 'inconsistent-assignment:assignment_sign_type:space_and_equal_sign'],
+        'misc/inconsistent-assignment-const'
+    ))
+    auto_discovered_rules.append((
+        'inconsistent-assignment-in-variables',
+        ['-c', 'inconsistent-assignment-in-variables:assignment_sign_type:space_and_equal_sign'],
+        'misc/inconsistent-assignment-in-variables-const'
+    ))
+    auto_discovered_rules.append((
+        'inconsistent-assignment',
+        ['-c', 'inconsistent-assignment:assignment_sign_type:autodetect'],
+        'misc/inconsistent-assignment-autodetect'
+    ))
+    auto_discovered_rules.append((
+        'inconsistent-assignment-in-variables',
+        ['-c', 'inconsistent-assignment-in-variables:assignment_sign_type:autodetect'],
+        'misc/inconsistent-assignment-in-variables-autodetect'
+    ))
     metafunc.parametrize('rule, args, test_data', auto_discovered_rules)

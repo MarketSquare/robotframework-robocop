@@ -45,11 +45,6 @@ def load_expected_file(expected_file, src):
 
 
 def test_rule(rule, args, test_data, robocop_instance, capsys):
-    """ To run one rule instead of all run::
-
-        pytest -k test_rule[rule_name] tests/atest
-
-    """
     args = args if args is not None else []
     src, expected_file = find_test_data(test_data, rule)
     expected = load_expected_file(expected_file, src)
@@ -59,7 +54,6 @@ def test_rule(rule, args, test_data, robocop_instance, capsys):
     if (IS_RF4 and rule in DISABLED_IN_4) or (not IS_RF4 and rule in ENABLED_IN_4):
         assert system_exit.value.code == 0
     else:
-        assert system_exit.value.code > 0  # if any error issue found there should be > 0 exit code
         out, _ = capsys.readouterr()
         actual = out.splitlines()
         assert sorted(actual) == sorted(expected)

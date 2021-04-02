@@ -1,1 +1,0 @@
-${rules_dir}${\}test.robot:17:18 [W] 0702 Missing blank space after comment character

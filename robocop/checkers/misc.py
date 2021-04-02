@@ -68,20 +68,9 @@ class EqualSignChecker(VisitorChecker):
         )
     }
 
-    def visit_KeywordCall(self, node):  # noqa
-        if node.assign:  # if keyword returns any value
-            if node.assign[-1][-1] == '=':  # last character of last assigned variable
-                equal_position = [x for x in node.data_tokens if x.type == 'ASSIGN'][-1].end_col_offset
-                self.report("redundant-equal-sign", lineno=node.lineno, col=equal_position)
-
-    def visit_VariableSection(self, node):  # noqa
-        for child in node.body:
-            if not child.data_tokens:
-                continue
-            token = child.data_tokens[0]
-            if token.type == Token.VARIABLE and token.value[-1:] == '=':
-                self.report("redundant-equal-sign", lineno=token.lineno,
-                            col=token.end_col_offset + token.col_offset)
+    def __init__(self):
+        super().__init__()
+        self.disabled = True  # TODO: Remove the checker after deprecation period
 
 
 class NestedForLoopsChecker(VisitorChecker):

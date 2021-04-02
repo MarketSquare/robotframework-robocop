@@ -11,7 +11,7 @@ from robot.api import Token
 try:
     from robot.api.parsing import Variable
 except ImportError:
-    from robot.parsing.model import Variable
+    from robot.parsing.model.statements import Variable
 from robot.version import VERSION
 
 

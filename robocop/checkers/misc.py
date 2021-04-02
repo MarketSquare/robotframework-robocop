@@ -10,7 +10,7 @@ from robot.api import Token
 try:
     from robot.api.parsing import Variable
 except ImportError:
-    from robot.parsing.model import Variable
+    from robot.parsing.model.statements import Variable
 
 
 class ReturnChecker(VisitorChecker):
@@ -190,7 +190,7 @@ class ConsistentAssignmentSignChecker(VisitorChecker):
         if self.variables_expected_sign_type is None:
             return
         for child in node.body:
-            if not isinstance(child, Variable) or child.errors:
+            if not isinstance(child, Variable) or getattr(child, 'errors', None) or getattr(child, 'error', None):
                 continue
             var_token = child.get_token(Token.VARIABLE)
             self.check_assign_type(

@@ -59,7 +59,6 @@ def test_rule(rule, args, test_data, robocop_instance, capsys):
     if (IS_RF4 and rule in DISABLED_IN_4) or (not IS_RF4 and rule in ENABLED_IN_4):
         assert system_exit.value.code == 0
     else:
-        assert system_exit.value.code > 0  # if any error issue found there should be > 0 exit code
         out, _ = capsys.readouterr()
         actual = out.splitlines()
         assert sorted(actual) == sorted(expected)

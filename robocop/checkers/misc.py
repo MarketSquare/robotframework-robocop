@@ -4,9 +4,13 @@ Miscellaneous checkers
 from robot.parsing.model.statements import Return, KeywordCall
 from robocop.checkers import VisitorChecker
 from robocop.rules import RuleSeverity
-from robocop.utils import normalize_robot_name, IS_RF4
+from robocop.utils import normalize_robot_name, IS_RF4, AssignmentTypeDetector, parse_equal_sign_type
 
 from robot.api import Token
+try:
+    from robot.api.parsing import Variable
+except ImportError:
+    from robot.parsing.model import Variable
 
 
 class ReturnChecker(VisitorChecker):
@@ -134,3 +138,64 @@ class IfBlockCanBeUsed(VisitorChecker):
                     col = token.col_offset + 1
                     break
             self.report("if-can-be-used", node.keyword, node=node, col=col)
+
+
+class ConsistentEqualSignChecker(VisitorChecker):
+    rules = {
+        "0909": (
+            "inconsistent-equal-sign",
+            "The equal sign is not consistent thorough the file. Expected: '%s' but got '%s'",
+            RuleSeverity.WARNING,
+            ('equal_sign_type', 'keyword_equal_sign_type', parse_equal_sign_type)
+        ),
+        "0910": (
+            "inconsistent-equal-sign-variables",
+            "The equal sign is not consistent inside the variables section. Expected: '%s' but got '%s'",
+            RuleSeverity.WARNING,
+            ('equal_sign_type', 'variables_equal_sign_type', parse_equal_sign_type)
+        )
+    }
+
+    def __init__(self):
+        self.keyword_equal_sign_type = None  # None means autodetect
+        self.variables_equal_sign_type = None  # None means autodetect
+        self.keyword_expected_sign_type = None
+        self.variables_expected_sign_type = None
+        super().__init__()
+
+    def visit_File(self, node):
+        self.keyword_expected_sign_type = self.keyword_equal_sign_type
+        self.variables_expected_sign_type = self.variables_equal_sign_type
+        if self.keyword_equal_sign_type is None or self.variables_equal_sign_type is None:
+            auto_detector = self.auto_detect_equal_sign(node)
+            if self.keyword_equal_sign_type is None:
+                self.keyword_expected_sign_type = auto_detector.keyword_most_common
+            if self.variables_equal_sign_type is None:
+                self.variables_expected_sign_type = auto_detector.variables_most_common
+        self.generic_visit(node)
+
+    def visit_KeywordCall(self, node):  # noqa
+        if node.assign:  # if keyword returns any value
+            assign_tokens = node.get_tokens(Token.ASSIGN)
+            self.check_assign_type(assign_tokens[-1], self.keyword_expected_sign_type, "inconsistent-equal-sign")
+        return node
+
+    def visit_VariableSection(self, node):  # noqa
+        for child in node.body:
+            if not isinstance(child, Variable):
+                continue
+            var_token = child.get_token(Token.VARIABLE)
+            self.check_assign_type(var_token, self.variables_expected_sign_type, "inconsistent-equal-sign-variables")
+        return node
+
+    def check_assign_type(self, token, expected, issue_name):
+        sign = AssignmentTypeDetector.get_assignment_sign(token.value)
+        if sign != expected:
+            self.report(issue_name, expected, sign, lineno=token.lineno, col=token.end_col_offset)
+
+    @staticmethod
+    def auto_detect_equal_sign(node):
+        auto_detector = AssignmentTypeDetector()
+        auto_detector.visit(node)
+        return auto_detector
+

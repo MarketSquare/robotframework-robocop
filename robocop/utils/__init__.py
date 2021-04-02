@@ -12,7 +12,9 @@ from robocop.utils.utils import (
     DISABLED_IN_4,
     ENABLED_IN_4,
     keyword_col,
-    issues_to_lsp_diagnostic
+    issues_to_lsp_diagnostic,
+    AssignmentTypeDetector,
+    parse_equal_sign_type
 )
 
 
@@ -28,5 +30,7 @@ __all__ = [
     'DISABLED_IN_4',
     'ENABLED_IN_4',
     'keyword_col',
-    'issues_to_lsp_diagnostic'
+    'issues_to_lsp_diagnostic',
+    'AssignmentTypeDetector',
+    'parse_equal_sign_type'
 ]

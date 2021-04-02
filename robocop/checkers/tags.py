@@ -68,14 +68,14 @@ class TagScopeChecker(VisitorChecker):  # TODO: load tags also from __init__.rob
         )
     }
 
-    def __init__(self, *args):
+    def __init__(self):
         self.tags = []
         self.force_tags = []
         self.default_tags = []
         self.force_tags_node = None
         self.default_tags_node = None
         self.test_cases_count = 0
-        super().__init__(*args)
+        super().__init__()
 
     def visit_File(self, node):  # noqa
         self.tags = []

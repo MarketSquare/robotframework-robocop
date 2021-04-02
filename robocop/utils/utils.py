@@ -124,17 +124,14 @@ class AssignmentTypeDetector(ast.NodeVisitor):
         return token_value[token_value.find('}')+1:]
 
 
-def parse_equal_sign_type(value):
+def parse_assignment_sign_type(value):
     types = {
-        'remove': '',
+        'none': '',
         'equal_sign': '=',
         'space_and_equal_sign': ' =',
         'autodetect': None
     }
-    # if value not in types: TODO
-    #     raise click.BadOptionUsage(
-    #         option_name='transform',
-    #         message=f"Invalid configurable value: {value} for equal_sign_type for AssignmentNormalizer transformer."
-    #                 f" Possible values:\n    remove\n    equal_sign\n    space_and_equal_sign"
-    #     )
+    if value not in types:
+        raise ValueError(
+            f"Expected one of ('none', 'equal_sign', 'space_and_equal_sign', 'autodetect') but got '{value}' instead")
     return types[value]

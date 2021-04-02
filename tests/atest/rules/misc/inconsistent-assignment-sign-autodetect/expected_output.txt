@@ -1,0 +1,1 @@
+${rules_dir}${\}test.robot:30:23 [W] 0909 The assignment sign is not consistent thorough the file. Expected '' but got '=' instead

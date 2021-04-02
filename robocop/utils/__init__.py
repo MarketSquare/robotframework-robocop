@@ -14,7 +14,7 @@ from robocop.utils.utils import (
     keyword_col,
     issues_to_lsp_diagnostic,
     AssignmentTypeDetector,
-    parse_equal_sign_type
+    parse_assignment_sign_type
 )
 
 
@@ -32,5 +32,5 @@ __all__ = [
     'keyword_col',
     'issues_to_lsp_diagnostic',
     'AssignmentTypeDetector',
-    'parse_equal_sign_type'
+    'parse_assignment_sign_type'
 ]

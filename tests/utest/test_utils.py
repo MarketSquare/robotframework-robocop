@@ -1,6 +1,8 @@
-from robocop.utils import AssignmentTypeDetector
+import pytest
 
 from robot.api import get_model
+
+from robocop.utils import AssignmentTypeDetector, parse_assignment_sign_type
 
 
 def detect_from_file(file):
@@ -8,6 +10,22 @@ def detect_from_file(file):
     detector = AssignmentTypeDetector()
     detector.visit(model)
     return detector.keyword_most_common, detector.variables_most_common
+
+
+class TestParseAssignmentSignType:
+    @pytest.mark.parametrize('value, expected', [
+        ('none', ''),
+        ('equal_sign', '='),
+        ('space_and_equal_sign', ' =')
+    ])
+    def test_happy_paths(self, value, expected):
+        assert parse_assignment_sign_type(value) == expected
+
+    def test_invalid_value(self):
+        with pytest.raises(ValueError) as error:
+            parse_assignment_sign_type('=')
+        assert "Expected one of ('none', 'equal_sign', 'space_and_equal_sign', 'autodetect') " \
+               "but got '=' instead" in str(error)
 
 
 class TestAssignmentTypeDetector:

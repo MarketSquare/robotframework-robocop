@@ -45,11 +45,6 @@ def load_expected_file(expected_file, src):
 
 
 def test_rule(rule, args, test_data, robocop_instance, capsys):
-    """ To run one rule instead of all run::
-
-        pytest -k test_rule[rule_name] tests/atest
-
-    """
     args = args if args is not None else []
     src, expected_file = find_test_data(test_data, rule)
     expected = load_expected_file(expected_file, src)

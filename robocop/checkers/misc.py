@@ -138,8 +138,8 @@ class ConsistentAssignmentSignChecker(VisitorChecker):
     To force one type of sign type (to emulate now deprecated ``0906 (redundant-equal-sign)`` rule) you can configure
     two rules::
 
-        --configure inconsistent-assignment-sign:assignment_sign_type:{sign_type}
-        --configure inconsistent-assignment-sign-variables:assignment_sign_type:{sign_type}
+        --configure inconsistent-assignment:assignment_sign_type:{sign_type}
+        --configure inconsistent-assignment-in-variables:assignment_sign_type:{sign_type}
 
     ``${sign_type}` can be one of: ``autodetect`` (default), ``equal_sign`` ('='), ``none`` (''),
     ``space_and_equal_sign`` (' =').
@@ -147,13 +147,13 @@ class ConsistentAssignmentSignChecker(VisitorChecker):
     """
     rules = {
         "0909": (
-            "inconsistent-assignment-sign",
+            "inconsistent-assignment",
             "The assignment sign is not consistent thorough the file. Expected '%s' but got '%s' instead",
             RuleSeverity.WARNING,
             ('assignment_sign_type', 'keyword_assignment_sign_type', parse_assignment_sign_type)
         ),
         "0910": (
-            "inconsistent-assignment-sign-variables",
+            "inconsistent-assignment-in-variables",
             "The assignment sign is not consistent inside the variables section. Expected '%s' but got '%s' instead",
             RuleSeverity.WARNING,
             ('assignment_sign_type', 'variables_assignment_sign_type', parse_assignment_sign_type)
@@ -183,7 +183,7 @@ class ConsistentAssignmentSignChecker(VisitorChecker):
             return
         if node.assign:  # if keyword returns any value
             assign_tokens = node.get_tokens(Token.ASSIGN)
-            self.check_assign_type(assign_tokens[-1], self.keyword_expected_sign_type, "inconsistent-assignment-sign")
+            self.check_assign_type(assign_tokens[-1], self.keyword_expected_sign_type, "inconsistent-assignment")
         return node
 
     def visit_VariableSection(self, node):  # noqa
@@ -196,7 +196,7 @@ class ConsistentAssignmentSignChecker(VisitorChecker):
             self.check_assign_type(
                 var_token,
                 self.variables_expected_sign_type,
-                "inconsistent-assignment-sign-variables"
+                "inconsistent-assignment-in-variables"
             )
         return node
 

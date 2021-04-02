@@ -1,11 +1,17 @@
 from pathlib import Path
+from collections import Counter
 from importlib import import_module
 import importlib.util
+import ast
 
 from robocop.rules import RuleSeverity
 from robocop.exceptions import InvalidExternalCheckerError
 
 from robot.api import Token
+try:
+    from robot.api.parsing import Variable
+except ImportError:
+    from robot.parsing.model.statements import Variable
 from robot.version import VERSION
 
 
@@ -82,3 +88,50 @@ def issues_to_lsp_diagnostic(issues):
         'source': 'robocop',
         'message': issue.desc
     } for issue in issues]
+
+
+class AssignmentTypeDetector(ast.NodeVisitor):
+    """ Visitor for counting number and type of assignments """
+    def __init__(self):
+        self.keyword_sign_counter = Counter()
+        self.keyword_most_common = None
+        self.variables_sign_counter = Counter()
+        self.variables_most_common = None
+
+    def visit_File(self, node):  # noqa
+        self.generic_visit(node)
+        if len(self.keyword_sign_counter) >= 2:
+            self.keyword_most_common = self.keyword_sign_counter.most_common(1)[0][0]
+        if len(self.variables_sign_counter) >= 2:
+            self.variables_most_common = self.variables_sign_counter.most_common(1)[0][0]
+
+    def visit_KeywordCall(self, node):  # noqa
+        if node.assign:  # if keyword returns any value
+            sign = self.get_assignment_sign(node.assign[-1])
+            self.keyword_sign_counter[sign] += 1
+
+    def visit_VariableSection(self, node):  # noqa
+        for child in node.body:
+            if not isinstance(child, Variable):
+                continue
+            var_token = child.get_token(Token.VARIABLE)
+            sign = self.get_assignment_sign(var_token.value)
+            self.variables_sign_counter[sign] += 1
+        return node
+
+    @staticmethod
+    def get_assignment_sign(token_value):
+        return token_value[token_value.find('}')+1:]
+
+
+def parse_assignment_sign_type(value):
+    types = {
+        'none': '',
+        'equal_sign': '=',
+        'space_and_equal_sign': ' =',
+        'autodetect': None
+    }
+    if value not in types:
+        raise ValueError(
+            f"Expected one of ('none', 'equal_sign', 'space_and_equal_sign', 'autodetect') but got '{value}' instead")
+    return types[value]

@@ -1,0 +1,3 @@
+${rules_dir}${\}test.robot:16:11 [W] 0909 The assignment sign is not consistent through the file. Expected ' =' but got '' instead
+${rules_dir}${\}test.robot:28:22 [W] 0909 The assignment sign is not consistent through the file. Expected ' =' but got '' instead
+${rules_dir}${\}test.robot:31:22 [W] 0909 The assignment sign is not consistent through the file. Expected ' =' but got '=' instead

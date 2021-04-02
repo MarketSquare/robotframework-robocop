@@ -10,6 +10,9 @@ Test
     Keyword
     One More
 
+Test without keyword
+    ${a}    ${b}    # no Keyword here!!!
+
 
 *** Keywords ***
 Keyword

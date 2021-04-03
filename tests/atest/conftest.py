@@ -36,8 +36,7 @@ def pytest_generate_tests(metafunc):
             if rule == selected_rule:
                 break
         else:
-            print(f"Rule: '{selected_rule}' was not found")
-            return
+            pytest.exit(f"Rule: '{selected_rule}' was not found", 1)
         metafunc.parametrize('rule, args, test_data', [(selected_rule, args, test_data)])
         return
     # TODO: load other tests from file (like yaml)

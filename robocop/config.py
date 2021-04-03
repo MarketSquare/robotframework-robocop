@@ -40,6 +40,8 @@ def parse_toml_to_config(toml_data, config):
             config.output = open(value, 'w')
         elif key == 'no_recursive':
             config.recursive = not value
+        elif key == 'verbose':
+            config.verbose = value
         else:
             raise InvalidArgumentError(f"Option '{key}' is not supported in pyproject.toml configuration file.")
 
@@ -119,15 +121,17 @@ class Config:
         self.list_reports = False
         self.output = None
         self.recursive = True
+        self.verbose = False
+        self.config_from = ''
         self.parser = self._create_parser()
 
     HELP_MSGS = {
-        'help_paths':        'List of paths (files or directories) to be parsed by Robocop',
+        'help_paths':        'List of paths (files or directories) to be parsed by Robocop.',
         'help_include':      'Run Robocop only with specified rules. You can define rule by its name or id.\n'
-                             'Glob patterns are supported',
+                             'Glob patterns are supported.',
         'help_exclude':      'Ignore specified rules. You can define rule by its name or id.\n'
-                             'Glob patterns are supported',
-        'help_ext_rules':    'List of paths with custom rules',
+                             'Glob patterns are supported.',
+        'help_ext_rules':    'List of paths with custom rules.',
         'help_reports':      'Generate reports after scan. You can enable reports by listing them in comma\n'
                              'separated list:\n'
                              '--reports rules_by_id,rules_by_error_type,scan_timer\n'
@@ -140,19 +144,20 @@ class Config:
                              '-c message_name_or_id:param_name:param_value\nExample:\n'
                              '-c line-too-long:line_length:150\n'
                              '--configure 0101:severity:E',
-        'help_list':         'List all available rules. You can use optional pattern argument',
+        'help_list':         'List all available rules. You can use optional pattern argument.',
         'help_list_confs':   'List all available rules with configurable parameters. '
-                             'You can use optional pattern argument',
-        'help_list_reports': 'List all available reports',
-        'help_output':       'Path to output file',
+                             'You can use optional pattern argument.',
+        'help_list_reports': 'List all available reports.',
+        'help_output':       'Path to output file.',
         'help_filetypes':    'Comma separated list of file extensions to be scanned by Robocop',
         'help_threshold':     f'Disable rules below given threshold. Available message levels: '
                               f'{" < ".join(sev.value for sev in RuleSeverity)}',
-        'help_recursive':    'Use this flag to stop scanning directories recursively',
-        'help_argfile':      'Path to file with arguments',
-        'help_ignore':       'Ignore file(s) and path(s) provided. Glob patterns are supported',
-        'help_info':         'Print this help message and exit',
-        'help_version':      'Display Robocop version',
+        'help_recursive':    'Use this flag to stop scanning directories recursively.',
+        'help_argfile':      'Path to file with arguments.',
+        'help_ignore':       'Ignore file(s) and path(s) provided. Glob patterns are supported.',
+        'help_info':         'Print this help message and exit.',
+        'help_version':      'Display Robocop version.',
+        'verbose':           'Display extra information.',
         'directives':        '1. Serve the public trust\n2. Protect the innocent\n3. Uphold the law\n4. [ACCESS DENIED]'
     }
 
@@ -188,13 +193,13 @@ class Config:
                 parsed_args.append(arg)
         return parsed_args
 
-    @staticmethod
-    def load_args_from_file(argfile):
+    def load_args_from_file(self, argfile):
         try:
             with open(argfile) as arg_f:
                 args = [arg for line in arg_f for arg in line.split()]
                 if '-A' in args or '--argumentfile' in args:
                     raise NestedArgumentFileError(argfile)
+                self.config_from = argfile
                 return args
         except FileNotFoundError:
             raise ArgumentFileNotFoundError(argfile)
@@ -245,6 +250,7 @@ class Config:
         optional.add_argument('-h', '--help', action='help', help=self.HELP_MSGS['help_info'])
         optional.add_argument('-v', '--version', action='version', version=__version__,
                               help=self.HELP_MSGS['help_version'])
+        optional.add_argument('--verbose', action='store_true', help=self.HELP_MSGS['verbose'])
         optional.add_argument('--directives', action='version', version=self.HELP_MSGS['directives'],
                               help=argparse.SUPPRESS)
 
@@ -252,17 +258,25 @@ class Config:
 
     def parse_opts(self, args=None, from_cli=True):
         args = self.preparse(args) if from_cli else None
-        if not args:
-            args = self.load_default_config_file()
-        if not args:
+        if not args or args == ['--verbose']:
+            loaded_args = self.load_default_config_file()
+            if loaded_args is not None:
+                # thanks for this we can have config file together with some cli options like --verbose
+                args = [*args, *loaded_args] if args is not None else loaded_args
+        if not args or args == ['--verbose']:
             self.load_pyproject_file()
-        else:
+        if args:
             args = self.parser.parse_args(args)
             for key, value in dict(**vars(args)).items():
                 if key in self.__dict__:
                     self.__dict__[key] = value
         self.remove_severity()
         self.translate_patterns()
+        if self.verbose:
+            if self.config_from:
+                print(f"Loaded configuration from {self.config_from}")
+            else:
+                print("No config file found. Using default configuration")
 
         return args
 
@@ -270,7 +284,6 @@ class Config:
         robocop_path = self.find_file_in_project_root('.robocop')
         if robocop_path.is_file():
             return self.load_args_from_file(robocop_path)
-        # print(f"Loaded default configuration file from '{config_path}'") TODO: Enable in verbose mode
 
     def find_file_in_project_root(self, config_name):
         root = self.root or Path.cwd()
@@ -291,6 +304,7 @@ class Config:
             raise InvalidArgumentError(f'Failed to decode {str(pyproject_path)}: {e}')
         config = config.get("tool", {}).get("robocop", {})
         parse_toml_to_config(config, self)
+        self.config_from = pyproject_path
 
     def is_rule_enabled(self, rule):
         if self.is_rule_disabled(rule):

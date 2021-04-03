@@ -6,6 +6,7 @@ from robocop.utils import IS_RF4, DISABLED_IN_4, ENABLED_IN_4
 
 
 def configure_robocop_with_rule(args, runner, rule, path):
+    runner.from_cli = True
     config = Config()
     config.parse_opts([
         '--include',

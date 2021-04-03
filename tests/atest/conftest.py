@@ -7,7 +7,11 @@ from robocop.run import Robocop
 
 @pytest.fixture
 def robocop_instance():
-    return Robocop(from_cli=True)
+    return Robocop(from_cli=False)
+
+
+def pytest_addoption(parser):
+    parser.addoption("--rule", action="store")
 
 
 def pytest_generate_tests(metafunc):
@@ -25,6 +29,17 @@ def pytest_generate_tests(metafunc):
     if "rule" not in metafunc.fixturenames:
         return
     auto_discovered_rules = [(rule, None, f"{category}/{rule}") for category, rule in get_rules_for_atest()]
+    selected_rule = metafunc.config.getoption('--rule', None)
+    if selected_rule is not None:
+        # Find and use only selected rule
+        for rule, args, test_data in auto_discovered_rules:
+            if rule == selected_rule:
+                break
+        else:
+            print(f"Rule: '{selected_rule}' was not found")
+            return
+        metafunc.parametrize('rule, args, test_data', [(selected_rule, args, test_data)])
+        return
     # TODO: load other tests from file (like yaml)
     auto_discovered_rules.append((
         'inconsistent-assignment',

@@ -1,5 +1,6 @@
 [run]
-omit = *test_data*
+omit = *tests*
+source = robocop
 [report]
 exclude_lines =
         pragma: no cover

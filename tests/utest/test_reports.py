@@ -30,9 +30,9 @@ class TestReports:
         }
 
     @pytest.mark.parametrize('files, files_with_issues, output', [
-        (0, set(), 'No files were processed'),
-        (10, set(), 'Processed 10 file(s) but no issues were found'),
-        (10, {'a.robot', 'b.robot'}, 'Processed 10 file(s) from which 3 file(s) contained issues')
+        (0, set(), '\nNo files were processed'),
+        (10, set(), '\nProcessed 10 file(s) but no issues were found'),
+        (10, {'a.robot', 'b.robot'}, '\nProcessed 10 file(s) from which 3 file(s) contained issues')
     ])
     def test_file_stats_report(self, files, files_with_issues, output, message):
         report = FileStatsReport()

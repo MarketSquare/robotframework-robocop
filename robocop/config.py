@@ -157,7 +157,7 @@ class Config:
         'help_ignore':       'Ignore file(s) and path(s) provided. Glob patterns are supported.',
         'help_info':         'Print this help message and exit.',
         'help_version':      'Display Robocop version.',
-        'verbose':           'Display extra information.',
+        'help_verbose':           'Display extra information.',
         'directives':        '1. Serve the public trust\n2. Protect the innocent\n3. Uphold the law\n4. [ACCESS DENIED]'
     }
 
@@ -250,7 +250,7 @@ class Config:
         optional.add_argument('-h', '--help', action='help', help=self.HELP_MSGS['help_info'])
         optional.add_argument('-v', '--version', action='version', version=__version__,
                               help=self.HELP_MSGS['help_version'])
-        optional.add_argument('--verbose', action='store_true', help=self.HELP_MSGS['verbose'])
+        optional.add_argument('--verbose', action='store_true', help=self.HELP_MSGS['help_verbose'])
         optional.add_argument('--directives', action='version', version=self.HELP_MSGS['directives'],
                               help=argparse.SUPPRESS)
 

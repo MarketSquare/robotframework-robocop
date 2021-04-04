@@ -30,7 +30,7 @@ supports the same syntax as given from cli::
     --reports all
 
 
-If there is no ``.robocop`` file present it will try to load ``pyproject.toml`` file (if there is toml module installed).
+If there is no ``.robocop`` file, it will try to load ``pyproject.toml`` file (if there is toml module installed).
 Robocop use [tool.robocop] section. Options have the same names as CLI arguments but hyphens '-' are replaced by underscores '_'.
 Example configuration file::
 
@@ -49,7 +49,7 @@ Example configuration file::
     ext_rules = ["path_to_external\\dir"]
     filetypes = [".txt", ".csv"]
     threshold = "E"
-    format = "{source}:{line}:{col} [{severity}] {rule_id} {desc} (name)1"
+    format = "{source}:{line}:{col} [{severity}] {rule_id} {desc} (name)"
     output = "robocop.log"
     configure = [
         "line-too-long:line_length:150",

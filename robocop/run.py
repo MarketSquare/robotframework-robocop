@@ -54,7 +54,7 @@ class Robocop:
             print("### DEPRECATION WARNING: The rule '0906' (redundant-equal-sign) is "
                   "deprecated starting from Robocop 1.7.0 and is replaced by 0909 (inconsistent-assignment) and "
                   "0910 (inconsistent-assignment-in-variables). "
-                  "Rule '0906' will be removed in the next release - update your configuration. ###")
+                  "Rule '0906' will be removed in the next release - update your configuration. ###\n")
 
     def set_output(self):
         """ Set output for printing to file if configured. Else use standard output """

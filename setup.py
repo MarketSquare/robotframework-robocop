@@ -3,7 +3,7 @@ from setuptools import setup
 from robocop.version import __version__
 
 HERE = pathlib.Path(__file__).parent
-README = (HERE / "README.rst").read_text()
+README = (HERE / "README.md").read_text()
 CLASSIFIERS = """
 Development Status :: 5 - Production/Stable
 License :: OSI Approved :: Apache Software License
@@ -28,7 +28,7 @@ setup(
     version      = __version__,
     description  = DESCRIPTION,
     long_description = README,
-    long_description_content_type = 'text/x-rst',
+    long_description_content_type = 'text/markdown',
     url          = 'https://github.com/MarketSquare/robotframework-robocop',
     download_url = 'https://pypi.org/project/robotframework-robocop',
     author       = 'Bartlomiej Hirsz, Mateusz Nojek',
@@ -44,5 +44,5 @@ setup(
         'dev': ['pytest'],
         'doc': ['sphinx', 'sphinx_rtd_theme']
     },
-    entry_points = {'console_scripts': ['robocop=robocop:run_robocop']},
+    entry_points = {'console_scripts': ['robocop=robocop:run_robocop']}
 )

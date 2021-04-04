@@ -157,8 +157,10 @@ class Config:
         'help_ignore':       'Ignore file(s) and path(s) provided. Glob patterns are supported.',
         'help_info':         'Print this help message and exit.',
         'help_version':      'Display Robocop version.',
-        'help_verbose':           'Display extra information.',
-        'directives':        '1. Serve the public trust\n2. Protect the innocent\n3. Uphold the law\n4. [ACCESS DENIED]'
+        'help_verbose':      'Display extra information.',
+        'directives':        '1. Serve the public trust\n2. Protect the innocent\n3. Uphold the law\n4. [ACCESS '
+                             'DENIED]',
+        'epilog':            'For full documentation visit: https://github.com/MarketSquare/robotframework-robocop'
     }
 
     def _translate_patterns(self, pattern_list):
@@ -205,12 +207,10 @@ class Config:
             raise ArgumentFileNotFoundError(argfile)
 
     def _create_parser(self):
-        # below will throw error in Pycharm, it's bug https://youtrack.jetbrains.com/issue/PY-41806
         parser = CustomArgParser(prog='robocop',
                                  formatter_class=argparse.RawTextHelpFormatter,
                                  description='Static code analysis tool for Robot Framework',
-                                 epilog='For full documentation visit: '
-                                        'https://github.com/MarketSquare/robotframework-robocop',
+                                 epilog=self.HELP_MSGS['epilog'],
                                  add_help=False,
                                  from_cli=self.from_cli)
         required = parser.add_argument_group(title='Required parameters')
@@ -258,7 +258,7 @@ class Config:
 
     def parse_opts(self, args=None, from_cli=True):
         args = self.preparse(args) if from_cli else None
-        if not args or args == ['--verbose']:
+        if not args or args in ['-vv', '--verbose']:
             loaded_args = self.load_default_config_file()
             if loaded_args is None:
                 self.load_pyproject_file()

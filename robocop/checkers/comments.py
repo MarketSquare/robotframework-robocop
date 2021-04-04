@@ -1,6 +1,14 @@
 """
 Comments checkers
 """
+from codecs import (
+    BOM_UTF32_BE,
+    BOM_UTF32_LE,
+    BOM_UTF8,
+    BOM_UTF16_LE,
+    BOM_UTF16_BE
+)
+
 from robocop.checkers import RawFileChecker, VisitorChecker
 from robocop.rules import RuleSeverity
 from robocop.utils import IS_RF4
@@ -70,13 +78,32 @@ class IgnoredDataChecker(RawFileChecker):
             "ignored-data",
             "Ignored data found in file",
             RuleSeverity.WARNING
+        ),
+        "0705": (
+            "bom-encoding-in-file",
+            "This file contains BOM (Byte Order Mark) encoding not supported by Robot Framework",
+            RuleSeverity.WARNING
         )
     }
+    BOM = [
+        BOM_UTF32_BE,
+        BOM_UTF32_LE,
+        BOM_UTF8,
+        BOM_UTF16_LE,
+        BOM_UTF16_BE
+    ]
+
+    def __init__(self):
+        self.is_bom = False
+        self.bom_len = 0
+        super().__init__()
 
     def parse_file(self):
+        self.is_bom = False
         if self.lines is not None:
             self._parse_lines(self.lines)
         else:
+            self.detect_bom(self.source)
             with open(self.source) as file:
                 self._parse_lines(file)
 
@@ -86,8 +113,19 @@ class IgnoredDataChecker(RawFileChecker):
                 break
 
     def check_line(self, line, lineno):
+        if lineno == 1 and self.is_bom:
+            line = line[self.bom_len:]
         if line.startswith('***'):
             return True
-        if not line.startswith('***') and not line.startswith('# robocop:'):
+        elif not line.startswith('# robocop:'):
             self.report("ignored-data", lineno=lineno, col=0)
             return True
+
+    def detect_bom(self, source):
+        with open(source, 'rb') as raw_file:
+            first_four = raw_file.read(4)
+            for bom_marker in IgnoredDataChecker.BOM:
+                if first_four.startswith(bom_marker):
+                    self.report("bom-encoding-in-file", lineno=1, col=0)
+                    self.bom_len = len(bom_marker)
+                    self.is_bom = True

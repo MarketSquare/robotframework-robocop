@@ -11,6 +11,7 @@ try:
     from robot.api.parsing import Variable
 except ImportError:
     from robot.parsing.model.statements import Variable
+from robot.libraries import STDLIBS
 
 
 class ReturnChecker(VisitorChecker):
@@ -210,3 +211,34 @@ class ConsistentAssignmentSignChecker(VisitorChecker):
         auto_detector = AssignmentTypeDetector()
         auto_detector.visit(node)
         return auto_detector
+
+
+class ImportOrder(VisitorChecker):
+    rules = {
+        "0911": (
+            "wrong-import-order",
+            "BuiltIn library import '%s' should be placed before '%s'",
+            RuleSeverity.WARNING
+        )
+    }
+
+    def __init__(self):
+        self.libraries = []
+        super().__init__()
+
+    def visit_File(self, node):  # noqa
+        self.libraries = []
+        self.generic_visit(node)
+        first_non_builtin = None
+        for library in self.libraries:
+            if first_non_builtin is None:
+                if library.name not in STDLIBS:
+                    first_non_builtin = library.name
+            else:
+                if library.name in STDLIBS:
+                    self.report("wrong-import-order", library.name, first_non_builtin, node=library)
+
+    def visit_LibraryImport(self, node):  # noqa
+        if not node.name:
+            return
+        self.libraries.append(node)

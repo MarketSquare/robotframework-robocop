@@ -113,7 +113,7 @@ class KeywordNamingChecker(VisitorChecker):
     }
 
     def __init__(self):
-        self.letter_pattern = re.compile('[^a-zA-Z0-9]')
+        self.letter_pattern = re.compile(r'\W|_', re.UNICODE)
         self.var_pattern = re.compile(r'[$@%&]{.+}')
         super().__init__()
 

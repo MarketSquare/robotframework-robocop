@@ -59,8 +59,16 @@ class TestAPI:
 
     def test_lsp_diagnostic(self, rule):
         issues = [
-            Message(rule=rule, source=r'C:\directory\file.robot', node=None, lineno=10, col=10),
-            Message(rule=rule, source=r'C:\directory\file.robot', node=None, lineno=1, col=1)
+            Message(
+                rule=rule,
+                source=r'C:\directory\file.robot',
+                node=None, lineno=10, col=10, end_lineno=11, end_col=50
+            ),
+            Message(
+                rule=rule,
+                source=r'C:\directory\file.robot',
+                node=None, lineno=1, col=1, end_lineno=None, end_col=None
+            )
         ]
         expected_diagnostic = [
             {
@@ -70,8 +78,8 @@ class TestAPI:
                         'character': 10
                     },
                     'end': {
-                        'line': 9,
-                        'character': 10
+                        'line': 10,
+                        'character': 50
                     }
                 },
                 'severity': 2,

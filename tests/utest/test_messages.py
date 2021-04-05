@@ -38,7 +38,7 @@ INVALID_MSG_MISSING_DESC_SEV = (
 
 class TestMessage:
     def test_get_fullname(self, valid_msg):  # noqa
-        msg = valid_msg.prepare_message(source=None, node=None, lineno=None, col=None)
+        msg = valid_msg.prepare_message(source=None, node=None, lineno=None, col=None, end_lineno=None, end_col=None)
         assert msg.get_fullname() == 'W0101 (some-message)'
 
     @staticmethod
@@ -125,18 +125,29 @@ class TestMessage:
         rule = Rule('0101', body)
         assert rule.configurable == configurable
 
-    @pytest.mark.parametrize('source, lineno, col, lineno_exp, col_exp', [
-        ('path/to/file1.robot', None, None, 10, 0),
-        ('path/to/file1.robot', 15, None, 15, 0),
-        ('path/to/file1.robot', None, 20, 10, 20),
-        ('path/to/file2.robot', 15, 200, 15, 200)
+    @pytest.mark.parametrize('source, range, range_exp', [
+        ('path/to/file1.robot', (None, None, None, None), (10, 0, 10, 0)),
+        ('path/to/file1.robot', (15, None, None, 7), (15, 0, 15, 7)),
+        ('path/to/file1.robot', (None, 20, 20, None), (10, 20, 20, 20)),
+        ('path/to/file2.robot', (15, 200, None, None), (15, 200, 15, 200))
     ])
-    def test_prepare_message(self, valid_msg, source, lineno, col, lineno_exp, col_exp):  # noqa
+    def test_prepare_message(self, valid_msg, source, range, range_exp):  # noqa
         node = ast.AST()
         node.lineno = 10
-        msg = valid_msg.prepare_message(source=source, node=node, lineno=lineno, col=col)
+        lineno, col, end_lineno, end_col = range
+        lineno_exp, col_exp, end_lineno_exp, end_col_exp = range_exp
+        msg = valid_msg.prepare_message(
+            source=source,
+            node=node,
+            lineno=lineno,
+            col=col,
+            end_lineno=end_lineno,
+            end_col=end_col
+        )
         assert msg.line == lineno_exp
         assert msg.col == col_exp
+        assert msg.end_line == end_lineno_exp
+        assert msg.end_col == end_col_exp
         assert msg.source == source
 
     @pytest.mark.parametrize('args, desc, exp_error', [
@@ -151,5 +162,13 @@ class TestMessage:
         node.lineno = 10
         valid_msg.desc = desc
         with pytest.raises(robocop.exceptions.InvalidRuleUsageError) as err:
-            valid_msg.prepare_message(*args, source='file1.robot', node=node, lineno=None, col=None)
+            valid_msg.prepare_message(
+                *args,
+                source='file1.robot',
+                node=node,
+                lineno=None,
+                col=None,
+                end_lineno=None,
+                end_col=None
+            )
         assert rf"Fatal error: Rule '0101' failed to prepare message description with error: {exp_error}" in str(err)

@@ -13,7 +13,9 @@ Available formats:
   * source: path to file where is the issue
   * source_rel: path to file where is the issue, relative to execution directory
   * line: line number
+  * end_line: end line number
   * col: column number
+  * end_col: end column number
   * severity: severity of the message. Value of enum ``robocop.rules.RuleSeverity``
   * rule_id: rule id (ie. 0501)
   * rule_name: rule name (ie. line-too-long)
@@ -106,8 +108,17 @@ class Rule:
             if not isinstance(configurable, tuple) or len(configurable) != 3:
                 raise robocop.exceptions.InvalidRuleConfigurableError(self.rule_id, body)
 
-    def prepare_message(self, *args, source, node, lineno, col):
-        return Message(*args, rule=self, source=source, node=node, lineno=lineno, col=col)
+    def prepare_message(self, *args, source, node, lineno, col, end_lineno, end_col):
+        return Message(
+            *args,
+            rule=self,
+            source=source,
+            node=node,
+            lineno=lineno,
+            col=col,
+            end_col=end_col,
+            end_lineno=end_lineno
+        )
 
     def matches_pattern(self, pattern):
         """ check if this rule matches given pattern """
@@ -117,7 +128,7 @@ class Rule:
 
 
 class Message:
-    def __init__(self, *args, rule, source, node, lineno, col):
+    def __init__(self, *args, rule, source, node, lineno, col, end_lineno, end_col):
         self.enabled = rule.enabled
         self.rule_id = rule.rule_id
         self.name = rule.name
@@ -128,12 +139,14 @@ class Message:
         except TypeError as err:
             raise robocop.exceptions.InvalidRuleUsageError(rule.rule_id, err)
         self.source = source
-        if lineno is None and node is not None:
-            lineno = node.lineno if node.lineno > -1 else 0
-        self.line = lineno
-        if col is None:
-            col = 0
-        self.col = col
+        self.line = 0
+        if node is not None and node.lineno > -1:
+            self.line = node.lineno
+        if lineno is not None:
+            self.line = lineno
+        self.col = 0 if col is None else col
+        self.end_line = self.line if end_lineno is None else end_lineno
+        self.end_col = self.col if end_col is None else end_col
 
     def __lt__(self, other):
         return (self.line, self.col, self.rule_id) < (other.line, other.col, other.rule_id)

@@ -149,6 +149,8 @@ class Robocop:
                          source_rel=source_rel,
                          line=rule_msg.line,
                          col=rule_msg.col,
+                         end_line=rule_msg.end_line,
+                         end_col=rule_msg.end_col,
                          severity=rule_msg.severity.value,
                          rule_id=rule_msg.rule_id,
                          desc=rule_msg.desc,

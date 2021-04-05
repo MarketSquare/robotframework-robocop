@@ -111,6 +111,8 @@ class Robocop:
 
     def run_checks(self):
         for file in self.files:
+            if self.config.verbose:
+                print(f"Scanning file: {file}")
             model = self.files[file][1]
             found_issues = self.run_check(model, str(file))
             issues_to_lsp_diagnostic(found_issues)

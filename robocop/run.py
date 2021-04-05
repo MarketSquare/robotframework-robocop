@@ -7,6 +7,7 @@ import os
 from pathlib import Path
 
 from robot.api import get_resource_model
+from robot.errors import DataError
 
 import robocop.exceptions
 from robocop import checkers
@@ -101,9 +102,12 @@ class Robocop:
             else:
                 file_type = FileType.GENERAL
             file_type_checker.source = file
-            model = file_type.get_parser()(str(file))
-            file_type_checker.visit(model)
-            self.files[file] = (file_type, model)
+            try:
+                model = file_type.get_parser()(str(file))
+                file_type_checker.visit(model)
+                self.files[file] = (file_type, model)
+            except DataError:
+                print(f"Failed to decode {file}. Default supported encoding by Robot Framework is UTF-8. Skipping file")
 
         for resource in file_type_checker.resource_files:
             if resource in self.files and self.files[resource][0].value != FileType.RESOURCE:

@@ -116,7 +116,7 @@ class IgnoredDataChecker(RawFileChecker):
             return True
         elif not line.startswith('# robocop:'):
             if lineno == 1 and self.is_bom:
-                # if it's bom encoded file, first line can be ignored
+                # if it's BOM encoded file, first line can be ignored
                 return '***' in line
             self.report("ignored-data", lineno=lineno, col=0)
             return True

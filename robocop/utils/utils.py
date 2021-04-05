@@ -79,8 +79,8 @@ def issues_to_lsp_diagnostic(issues):
                 'character': issue.col
                 },
             'end': {
-                'line': max(0, issue.line - 1),
-                'character': issue.col
+                'line': max(0, issue.end_line - 1),
+                'character': issue.end_col
             }
         },
         'severity': rule_severity_to_diag_sev(issue.severity),

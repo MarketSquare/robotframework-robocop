@@ -17,7 +17,15 @@ def message():
 class TestReports:
     def test_json_report(self, message):
         report = JsonReport()
-        issue = Message(rule=message, source='some/path/file.robot', node=None, lineno=50, col=10)
+        issue = Message(
+            rule=message,
+            source='some/path/file.robot',
+            node=None,
+            lineno=50,
+            col=10,
+            end_lineno=None,
+            end_col=None
+        )
         report.add_message(issue)
         assert report.issues[0] == {
             'source': 'some/path/file.robot',
@@ -39,6 +47,10 @@ class TestReports:
         report.files_count = files
         report.files_with_issues = files_with_issues
         if files_with_issues:
-            issue = Message(rule=message, source='some/path/file.robot', node=None, lineno=50, col=10)
+            issue = Message(
+                rule=message,
+                source='some/path/file.robot',
+                node=None, lineno=50, col=10, end_lineno=None, end_col=None
+            )
             report.add_message(issue)
         assert report.get_report() == output

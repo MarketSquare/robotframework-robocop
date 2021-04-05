@@ -189,6 +189,10 @@ second is path separator - \ under Windows and / under Linux.
 If you wish to use additional configuration or use different that default test data directory follow
 instructions from ``pytest_generate_tests`` method.
 
+In case you want to run only single test (not all dynamically generated ones) you can run::
+
+    pytest --rule rule-name tests\atest
+
 E2E tests
 '''''''''
 

@@ -260,11 +260,11 @@ class Config:
         args = self.preparse(args) if from_cli else None
         if not args or args == ['--verbose']:
             loaded_args = self.load_default_config_file()
-            if loaded_args is not None:
+            if loaded_args is None:
+                self.load_pyproject_file()
+            else:
                 # thanks for this we can have config file together with some cli options like --verbose
                 args = [*args, *loaded_args] if args is not None else loaded_args
-        if not args or args == ['--verbose']:
-            self.load_pyproject_file()
         if args:
             args = self.parser.parse_args(args)
             for key, value in dict(**vars(args)).items():

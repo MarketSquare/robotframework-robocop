@@ -95,7 +95,6 @@ class IgnoredDataChecker(RawFileChecker):
 
     def __init__(self):
         self.is_bom = False
-        self.bom_len = 0
         super().__init__()
 
     def parse_file(self):
@@ -113,19 +112,18 @@ class IgnoredDataChecker(RawFileChecker):
                 break
 
     def check_line(self, line, lineno):
-        if lineno == 1 and self.is_bom:
-            line = line[self.bom_len:]
         if line.startswith('***'):
             return True
         elif not line.startswith('# robocop:'):
+            if lineno == 1 and self.is_bom:
+                # if it's bom encoded file, first line can be ignored
+                return '***' in line
             self.report("ignored-data", lineno=lineno, col=0)
             return True
 
     def detect_bom(self, source):
         with open(source, 'rb') as raw_file:
             first_four = raw_file.read(4)
-            for bom_marker in IgnoredDataChecker.BOM:
-                if first_four.startswith(bom_marker):
-                    self.report("bom-encoding-in-file", lineno=1, col=0)
-                    self.bom_len = len(bom_marker)
-                    self.is_bom = True
+            self.is_bom = any(first_four.startswith(bom_marker) for bom_marker in IgnoredDataChecker.BOM)
+            if self.is_bom:
+                self.report("bom-encoding-in-file", lineno=1, col=0)

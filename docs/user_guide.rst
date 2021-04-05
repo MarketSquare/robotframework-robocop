@@ -31,8 +31,7 @@ supports the same syntax as given from cli::
 
 
 If there is no ``.robocop`` file present it will try to load ``pyproject.toml`` file (if there is toml module installed).
-Robocop use [tool.robocop] section. Options have the same names as CLI arguments but hyphens '-' are replaced by underscores '_'.
-Example configuration file::
+Robocop use [tool.robocop] section. Options have the same names as CLI arguments. Example configuration file::
 
     [tool.robocop]
     paths = [

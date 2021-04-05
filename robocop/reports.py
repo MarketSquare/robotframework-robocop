@@ -79,7 +79,7 @@ class RulesBySeverityReport(Report):
     def get_report(self):
         issues_count = sum(self.severity_counter.values())
         if not issues_count:
-            return 'Found 0 issues'
+            return '\nFound 0 issues'
         report = f'\nFound {issues_count} issue(s): '
         report += ', '.join(f"{count} {severity.name}(s)" for severity, count in self.severity_counter.items())
         report += '.'
@@ -180,10 +180,10 @@ class FileStatsReport(Report):
 
     def get_report(self):
         if not self.files_count:
-            return 'No files were processed'
+            return '\nNo files were processed'
         else:
             if not self.files_with_issues:
-                return f'Processed {self.files_count} file(s) but no issues were found'
+                return f'\nProcessed {self.files_count} file(s) but no issues were found'
 
-            return f'Processed {self.files_count} file(s) from which {len(self.files_with_issues)} ' \
+            return f'\nProcessed {self.files_count} file(s) from which {len(self.files_with_issues)} ' \
                    f'file(s) contained issues'

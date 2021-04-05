@@ -23,7 +23,37 @@ You can load arguments for Robocop from file with::
     --argumentfile jenkins_args.txt
 
 If no arguments are provided to Robocop it will try to find ``.robocop`` file and load it from there.
-It will start looking from current directory and go up until it founds it or '.git' file is found.
+It will start looking from current directory and go up until it founds it or '.git' file is found. ``.robocop`` file
+supports the same syntax as given from cli::
+
+    --include rulename
+    --reports all
+
+If there is no ``.robocop`` file present it will try to load ``pyproject.toml`` file (if there is toml module installed).
+Robocop use [tool.robocop] section. Options have the same names as CLI arguments. Example configuration file::
+
+    [tool.robocop]
+    paths = [
+        "tests\\atest\\rules\\bad-indent",
+        "tests\\atest\\rules\\duplicated-library"
+    ]
+    include = ['W0504', '*doc*']
+    exclude = ["0203"]
+    reports = [
+        "rules_by_id",
+        "scan_timer"
+    ]
+    ignore = ["ignore_me.robot"]
+    ext_rules = ["path_to_external\\dir"]
+    filetypes = [".txt", ".csv"]
+    threshold = "E"
+    format = "{source}:{line}:{col} [{severity}] {rule_id} {desc} (name)"
+    output = "robocop.log"
+    configure = [
+        "line-too-long:line_length:150",
+        "0201:severity:E"
+    ]
+    no_recursive = true
 
 Listing available rules
 -----------------------

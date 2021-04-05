@@ -44,6 +44,7 @@ Keyword-With_Special $ Chars 10
     Edit Group's Report Logo
     Take2 Is Capitalized
     Quoted "Strings" Are Fine Too
+    Keyword_With_underscores
 
 Keyword With Library Import
     SeleniumLibrary.Input Text    ${txt_welcome}    Hello
@@ -52,3 +53,8 @@ Keyword With Library Import
 Keyword With API Abbreviation Should Pass
     Keyword With Number Ins1de 0r In Fr0nt
     I Will Love U 4 Ever
+
+Keyword With Unicode And Non Latin
+    Eäi Saa Peittää
+    日本語
+    _

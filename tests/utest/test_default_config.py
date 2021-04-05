@@ -40,6 +40,16 @@ class TestDefaultConfig:
             config.parse_opts()
         assert {'0810'} == config.include
 
+    def test_load_config_from_default_file_verbose(self, path_to_test_data, config, capsys):
+        src = path_to_test_data / 'default_config'
+        os.chdir(str(src))
+        config.from_cli = True
+        config.exec_dir = str(src)
+        with patch.object(sys, 'argv', ['prog', '--verbose']):
+            config.parse_opts()
+        out, _ = capsys.readouterr()
+        assert out == f'Loaded configuration from {config.config_from}\n'
+
     def test_ignore_config_from_default_file(self, path_to_test_data, config):
         src = path_to_test_data / 'default_config'
         os.chdir(str(src))
@@ -71,11 +81,22 @@ class TestDefaultConfig:
             'tests\\atest\\rules\\duplicated-library'
         ]):
             expected_config.parse_opts()
+        config.config_from = ''
         config.parser, expected_config.parser = None, None
         config.output, expected_config.output = None, None
         assert len(config.include_patterns) == len(expected_config.include_patterns)
         config.include_patterns, expected_config.include_patterns = None, None
         assert config.__dict__ == expected_config.__dict__
+
+    def test_pyproject_verbose(self, path_to_test_data, config, capsys):
+        src = path_to_test_data / 'only_pyproject'
+        os.chdir(str(src))
+        config.from_cli = True
+        config.exec_dir = str(src)
+        with patch.object(sys, 'argv', ['prog', '--verbose']):
+            config.parse_opts()
+        out, _ = capsys.readouterr()
+        assert out == f'Loaded configuration from {config.config_from}\n'
 
     def test_not_supported_option_pyproject(self, path_to_test_data, config):
         src = path_to_test_data / 'not_supported_option_pyproject'

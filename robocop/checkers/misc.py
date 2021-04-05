@@ -216,7 +216,7 @@ class ConsistentAssignmentSignChecker(VisitorChecker):
 class SettingsOrderChecker(VisitorChecker):
     """ Checker for settings order.
 
-    BuiltIn library imports should be always placed first before other library imports.
+    BuiltIn libraries imports should always be placed first before other libraries imports.
     """
     rules = {
         "0911": (

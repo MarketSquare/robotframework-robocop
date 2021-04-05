@@ -213,7 +213,11 @@ class ConsistentAssignmentSignChecker(VisitorChecker):
         return auto_detector
 
 
-class ImportOrder(VisitorChecker):
+class SettingsOrderChecker(VisitorChecker):
+    """ Checker for settings order.
+
+    BuiltIn library imports should be always placed first before other library imports.
+    """
     rules = {
         "0911": (
             "wrong-import-order",

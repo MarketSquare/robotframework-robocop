@@ -55,10 +55,18 @@ class BaseChecker:
                 raise DuplicatedRuleError('name', rule.name, self, self)
             self.rules_map[rule.name] = rule
 
-    def report(self, rule, *args, node=None, lineno=None, col=None):
+    def report(self, rule, *args, node=None, lineno=None, col=None, end_lineno=None, end_col=None):
         if rule not in self.rules_map:
             raise ValueError(f"Missing definition for message with name {rule}")
-        message = self.rules_map[rule].prepare_message(*args, source=self.source, node=node, lineno=lineno, col=col)
+        message = self.rules_map[rule].prepare_message(
+            *args,
+            source=self.source,
+            node=node,
+            lineno=lineno,
+            col=col,
+            end_lineno=end_lineno,
+            end_col=end_col
+        )
         if message.enabled:
             self.issues.append(message)
 

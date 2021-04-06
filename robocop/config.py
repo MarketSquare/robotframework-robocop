@@ -48,7 +48,7 @@ def parse_toml_to_config(toml_data, config):
 
 def find_severity_value(severity):
     for sev in RuleSeverity:
-        if sev.value == severity:
+        if sev.value == severity.upper():
             return sev
     return RuleSeverity.INFO
 

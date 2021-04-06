@@ -100,19 +100,19 @@ class ReturnStatusReport(Report):
         self.counter = RulesBySeverityReport()
         self.quality_gate = {
             'E': 0,
-            'W': 100,
+            'W': 0,
             'I': -1
         }
 
     def configure(self, name, value, *values):
-        if name != 'quality_gate':
+        if name not in ['quality_gate', 'quality_gates']:
             super().configure(name, value, *values)
         values = [value] + list(values)
         for val in values:
             try:
                 name, count = val.split('=', maxsplit=1)
-                if name in self.quality_gate:
-                    self.quality_gate[name] = int(count)
+                if name.upper() in self.quality_gate:
+                    self.quality_gate[name.upper()] = int(count)
             except ValueError:
                 continue
 
@@ -123,8 +123,9 @@ class ReturnStatusReport(Report):
         for severity, count in self.counter.severity_counter.items():
             threshold = self.quality_gate.get(severity.value, 0)
             if -1 < threshold < count:
-                self.return_status = 1
-                break
+                self.return_status += count - threshold
+        if self.return_status > 255:
+            self.return_status = 255
 
 
 class TimeTakenReport(Report):

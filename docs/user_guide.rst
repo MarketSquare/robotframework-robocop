@@ -124,11 +124,14 @@ Return status
 
     Come quietly or there will be... trouble. - Robocop
 
-Return status of Robocop depends on number of issues reported per given severity level. Default levels are following::
+Return status of Robocop depends on number of issues reported per given severity level and the quality gates.
+Quality gates are the number specified for each severity (error, warning, info) that cannot be
+exceeded. Every violation of quality gates increases the return code by 1 up to maximum of 255.
+Default levels are following::
 
   quality_gate = {
-            'E': 1,
-            'W': 100,
+            'E': 0,
+            'W': 0,
             'I': -1
         }
 
@@ -145,5 +148,3 @@ Preceding example configuration results in following levels::
             'I': 9
         }
 
-Any number of *Error* issues above or equal 100, *Warning* above or equal 100 and *Info* above or equal 9
-will lead to Robocop returning status code (1).

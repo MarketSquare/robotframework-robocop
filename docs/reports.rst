@@ -9,6 +9,10 @@ Reports
 
 .. autoclass:: robocop.reports.RulesBySeverityReport
 
+.. autoclass:: robocop.reports.ReturnStatusReport
+
 .. autoclass:: robocop.reports.TimeTakenReport
+
+.. autoclass:: robocop.reports.JsonReport
 
 .. autoclass:: robocop.reports.FileStatsReport

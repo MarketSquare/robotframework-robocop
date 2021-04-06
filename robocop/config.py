@@ -224,7 +224,7 @@ class Config:
                               metavar='RULES', help=self.HELP_MSGS['help_exclude'])
         optional.add_argument('-rules', '--ext_rules', action=ParseDelimitedArgAction, default=self.ext_rules,
                               help=self.HELP_MSGS['help_ext_rules'])
-        optional.add_argument('--no-recursive', dest='recursive', action='store_false',
+        optional.add_argument('-nr', '--no-recursive', dest='recursive', action='store_false',
                               help=self.HELP_MSGS['help_recursive'])
         optional.add_argument('-r', '--reports', action=ParseDelimitedArgAction, default=self.reports,
                               help=self.HELP_MSGS['help_reports'])
@@ -233,24 +233,24 @@ class Config:
                               metavar='CONFIGURABLE', help=self.HELP_MSGS['help_configure'])
         optional.add_argument('-l', '--list', action=SetListOption, nargs='?', const='', default=self.list,
                               metavar='PATTERN', help=self.HELP_MSGS['help_list'])
-        optional.add_argument('--list-configurables', action=SetListOption, nargs='?', const='',
+        optional.add_argument('-lc', '--list-configurables', action=SetListOption, nargs='?', const='',
                               default=self.list_configurables, metavar='PATTERN',
                               help=self.HELP_MSGS['help_list_confs'])
-        optional.add_argument('--list-reports', action='store_true', default=self.list_reports,
+        optional.add_argument('-lr', '--list-reports', action='store_true', default=self.list_reports,
                               help=self.HELP_MSGS['help_list_reports'])
         optional.add_argument('-o', '--output', type=argparse.FileType('w'), default=self.output,
                               metavar='PATH', help=self.HELP_MSGS['help_output'])
-        optional.add_argument('--filetypes', action=ParseFileTypes, default=self.filetypes,
+        optional.add_argument('-ft', '--filetypes', action=ParseFileTypes, default=self.filetypes,
                               help=self.HELP_MSGS['help_filetypes'])
         optional.add_argument('-t', '--threshold', action=SetRuleThreshold, default=self.threshold,
                               help=self.HELP_MSGS['help_threshold'])
         optional.add_argument('-A', '--argumentfile', metavar='PATH', help=self.HELP_MSGS['help_argfile'])
-        optional.add_argument('--ignore', action=ParseDelimitedArgAction, default=self.ignore,
+        optional.add_argument('-g', '--ignore', action=ParseDelimitedArgAction, default=self.ignore,
                               metavar='PATH', help=self.HELP_MSGS['help_ignore'])
         optional.add_argument('-h', '--help', action='help', help=self.HELP_MSGS['help_info'])
         optional.add_argument('-v', '--version', action='version', version=__version__,
                               help=self.HELP_MSGS['help_version'])
-        optional.add_argument('--verbose', action='store_true', help=self.HELP_MSGS['help_verbose'])
+        optional.add_argument('-vv', '--verbose', action='store_true', help=self.HELP_MSGS['help_verbose'])
         optional.add_argument('--directives', action='version', version=self.HELP_MSGS['directives'],
                               help=argparse.SUPPRESS)
 

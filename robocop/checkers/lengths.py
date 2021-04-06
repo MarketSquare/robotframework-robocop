@@ -216,7 +216,7 @@ class NumberOfReturnedArgsChecker(VisitorChecker):
     def visit_Return(self, node):  # noqa
         self.check_node_returns(len(node.values), node)
 
-    def visit_KeywordCall(self, node):  # noqa       
+    def visit_KeywordCall(self, node):  # noqa
         if not node.keyword:
             return
 

@@ -150,6 +150,7 @@ FAQ <a name="faq"></a>
   **Yes**, there are multiple ways to configure Robocop:
 
   ### Argument file
+
   You can add command line options to an argument file, preferably one option with value for a line.
   Such file can be used as an input for Robocop with `--argumentfile / -A` option, e.g.
   ```robocop -A robocop.cfg```. You can mix arguments from file with ones provided in run command.
@@ -164,13 +165,19 @@ FAQ <a name="faq"></a>
   --reports all
   --output robocop.log
   ```
+
   ---
+
   ### `.robocop` file
+
   It is a default file that is loaded only when no command line options are provided for Robocop.
   When running plain `robocop` command, it looks for `.robocop` file from place where it was run
   until it finds `.git` file. Options can be provided like in the example above.
+
   ---
+
   ### `pyproject.toml` file
+
   If there is no `.robocop` file and `toml` module is installed,
   Robocop will try to load configuration from `pyproject.toml` file (if it exists).
   Options have the same names as command line arguments

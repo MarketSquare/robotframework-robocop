@@ -20,13 +20,12 @@ Robocop
 - [Example](#example)
 - [FAQ](#faq)
 
-<a href="http://www.youtube.com/watch?feature=player_embedded&v=VIDEO_ID"
-target="_blank"><img src="http://img.youtube.com/vi/VIDEO_ID/0.jpg" 
-alt="How to avoid jail for nasty code?" width="240" height="180" border="10" /></a>
-
-Watch our talk from RoboCon 2021 about Robocop and
+[Watch our talk](https://robocon.io/#how-to-avoid-jail-for-nasty-code)
+from RoboCon 2021 about Robocop and
 [Robotidy](https://github.com/MarketSquare/robotframework-tidy)
 and learn more about these cool tools! 🤖
+
+[![Robocop & Robotidy presentation at RoboCon 2021](http://img.youtube.com/vi/vZoyi2ObM8E/0.jpg)](https://youtu.be/vZoyi2ObM8E "Robocop & Robotidy presentation at RoboCon 2021")
 
 ---
 
@@ -153,7 +152,7 @@ FAQ <a name="faq"></a>
 
   You can add command line options to an argument file, preferably one option with value for a line.
   Such file can be used as an input for Robocop with `--argumentfile / -A` option, e.g.
-  ```robocop -A robocop.cfg```. You can mix arguments from file with ones provided in run command.
+  ```robocop -A robocop.cfg```. You can mix arguments from a file with ones provided in run command.
 
   Example argument file:
   ```commandline
@@ -237,7 +236,7 @@ FAQ <a name="faq"></a>
   -c too-long-test-case:severity:e
   ```
   ---
-  If there are special cases in your code that violate the rules
+  If there are special cases in your code that violate the rules,
   you can also exclude them in the source code. 
 
   Example:
@@ -335,13 +334,11 @@ FAQ <a name="faq"></a>
   - is easy to extend it with new rules
   - is cool 😎
 
-  Still not convinced? Watch our talk about Robocop &
+  Still not convinced?
+  [Watch our talk](https://robocon.io/#how-to-avoid-jail-for-nasty-code)
+  about Robocop &
   [Robotidy](https://github.com/MarketSquare/robotframework-tidy)
   and see for yourself! 😎
-
-  <a href="http://www.youtube.com/watch?feature=player_embedded&v=VIDEO_ID"
-  target="_blank"><img src="http://img.youtube.com/vi/VIDEO_ID/0.jpg"
-  alt="How to avoid jail for nasty code?" width="240" height="180" border="10" /></a>
 
 </details>
 

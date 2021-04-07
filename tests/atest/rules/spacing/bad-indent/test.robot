@@ -56,3 +56,10 @@ Keyword With Under Indented For Loop Body
     FOR  ${elem}  IN  ${list}
    Log  stuff
     END
+
+Keyword With Under Indented For Loop Body And Comment
+    Keyword
+    FOR    ${var}  IN   1  2
+        Keyword
+# invalid comment
+    END

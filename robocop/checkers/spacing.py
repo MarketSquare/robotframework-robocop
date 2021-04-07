@@ -10,6 +10,7 @@ from robot.parsing.model.statements import EmptyLine, Comment
 
 from robocop.checkers import RawFileChecker, VisitorChecker
 from robocop.rules import RuleSeverity
+from robocop.utils import token_col
 
 
 class InvalidSpacingChecker(RawFileChecker):
@@ -223,13 +224,26 @@ class UnevenIndentChecker(VisitorChecker):
             RuleSeverity.ERROR
         )
     }
+    HEADERS = {
+        Token.ARGUMENT, Token.DOCUMENTATION, Token.SETUP, Token.TIMEOUT, Token.TEARDOWN, Token.TEMPLATE, Token.TAGS
+    }
 
-    def __init__(self):
-        self.headers = {'arguments', 'documentation', 'setup', 'timeout', 'teardown', 'template', 'tags'}
-        super().__init__()
+    def visit_TestCaseSection(self, node):  # noqa
+        self.check_standalone_comments_indent(node)
+
+    def visit_KeywordSection(self, node):  # noqa
+        self.check_standalone_comments_indent(node)
+
+    def check_standalone_comments_indent(self, node):
+        for child in node.body:
+            if getattr(child, 'type', '') == Token.COMMENT and \
+                    getattr(child, 'tokens', None) and child.tokens[0].type == Token.SEPARATOR:
+                self.report("uneven-indent", 'over', node=child, col=token_col(child, Token.COMMENT))
+        self.generic_visit(node)
 
     def visit_TestCase(self, node):  # noqa
         self.check_indents(node)
+        self.generic_visit(node)
 
     def visit_Keyword(self, node):  # noqa
         if not node.name.lstrip().startswith('#'):
@@ -237,15 +251,15 @@ class UnevenIndentChecker(VisitorChecker):
         self.generic_visit(node)
 
     def visit_ForLoop(self, node):  # noqa
-        column_index = 2 if node.end is None else 0
+        column_index = 2 if node.end is not None else 0
         self.check_indents(node, node.header.tokens[1].col_offset + 1, column_index)
 
     def visit_For(self, node): # noqa
-        column_index = 2 if node.end is None else 0
+        column_index = 2 if node.end is not None else 0
         self.check_indents(node, node.header.tokens[1].col_offset + 1, column_index)
 
     def visit_If(self, node):  # noqa
-        column_index = 2 if node.end is None else 0
+        column_index = 2 if node.end is not None else 0
         self.check_indents(node, node.header.tokens[1].col_offset + 1, column_index)
 
     @staticmethod
@@ -259,28 +273,28 @@ class UnevenIndentChecker(VisitorChecker):
     def check_indents(self, node, req_indent=0, column_index=0, previous_indent=None):
         indents = []
         header_indents = []
-        for child in node.body:
-            if hasattr(child, 'type') and child.type == 'TEMPLATE':
-                templated = True
+        templated = self.is_templated(node)
+        end_of_block = self.find_block_end(node) if not column_index else len(node.body)
+        for index, child in enumerate(node.body):
+            if index == end_of_block:
                 break
-        else:
-            templated = False
-        for child in node.body:
             if isinstance(child, EmptyLine):
                 continue
             indent_len = self.get_indent(child)
             if indent_len is None:
                 continue
-            if hasattr(child, 'type') and child.type.strip().lower() in self.headers:
+            if hasattr(child, 'type') and child.type in UnevenIndentChecker.HEADERS:
                 if templated:
                     header_indents.append((indent_len, child))
                 else:
                     indents.append((indent_len, child))
             else:
-                if not column_index and (indent_len < req_indent):
+                if indent_len < req_indent:
                     self.report("bad-indent", node=child)
                 else:
                     indents.append((indent_len, child))
+        if not column_index:
+            self.validate_standalone_comments(node.body[end_of_block:])
         previous_indent = self.validate_indent_lists(indents, previous_indent)
         if templated:
             self.validate_indent_lists(header_indents)
@@ -290,8 +304,10 @@ class UnevenIndentChecker(VisitorChecker):
     def validate_indent_lists(self, indents, previous_indent=None):
         counter = Counter(indent[0] for indent in indents)
         if previous_indent:  # in case of continuing blocks, ie if else blocks, remember the indent
-            counter += previous_indent
-        if len(indents) < 2 or len(counter) == 1:  # everything have the same indent
+            counter = previous_indent + counter
+        elif len(indents) < 2:
+            return counter
+        if len(counter) == 1:  # everything have the same indent
             return counter
         common_indent = counter.most_common(1)[0][0]
         for indent in indents:
@@ -300,6 +316,56 @@ class UnevenIndentChecker(VisitorChecker):
                             node=indent[1],
                             col=indent[0] + 1)
         return counter
+
+    def validate_standalone_comments(self, comments_and_eols):
+        """
+        Report any comment that does not start from col 1.
+
+        :param comments_and_eols: list of comments and empty lines (outside keyword and test case definitions)
+        """
+        for child in comments_and_eols:
+            if getattr(child, 'type', 'invalid') != Token.COMMENT:
+                continue
+            col = token_col(child, Token.COMMENT)
+            if col != 1:
+                self.report('uneven-indent', 'over', node=child, col=col)
+
+    @staticmethod
+    def find_block_end(node):
+        """
+            Find where the keyword/test case/block ends. If there are only comments and new lines left, the
+            first comment that starts from col 1 is considered outside your block::
+
+                Keyword
+                    Line
+                    # comment
+                    Other Line
+                   # comment belonging to Keyword
+
+                # This should not belong to Keyword
+                  # Since there was comment starting from col 1, this comment is also outside block
+        """
+        for index, child in reversed(list(enumerate(node.body))):
+            node_type = getattr(child, 'type', '')
+            if not node_type:
+                return len(node.body) - 1
+            if node_type not in (Token.COMMENT, Token.EOL):
+                break
+        else:
+            return len(node.body) - 1
+        for block_index, child in enumerate(node.body[index + 1:]):
+            if getattr(child, 'type', 'invalid') == Token.COMMENT and token_col(child, Token.COMMENT) == 1:
+                return block_index + index + 1
+        return len(node.body) - 1
+
+    @staticmethod
+    def is_templated(node):
+        if not isinstance(node, TestCase):
+            return False
+        for child in node.body:
+            if hasattr(child, 'type') and child.type == 'TEMPLATE':
+                return True
+        return False
 
 
 class MisalignedContinuation(VisitorChecker, ModelVisitor):

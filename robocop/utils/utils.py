@@ -57,10 +57,14 @@ def normalize_robot_name(name):
 
 
 def keyword_col(node):
-    keyword_token = node.get_token(Token.KEYWORD)
-    if keyword_token is None:
-        return 0
-    return keyword_token.col_offset
+    return token_col(node, Token.KEYWORD)
+
+
+def token_col(node, token_type):
+    token = node.get_token(token_type)
+    if token is None:
+        return 1
+    return token.col_offset + 1
 
 
 def rule_severity_to_diag_sev(severity):

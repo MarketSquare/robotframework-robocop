@@ -112,7 +112,7 @@ class TestE2E:
             robocop_instance.run()
         assert robocop_instance.reports['return_status'].return_status == 0
 
-    def test_run_with_return_status_1(self, robocop_instance):
+    def test_run_with_return_status_bigger_than_zero(self, robocop_instance):
         config = Config()
         config.parse_opts(['--configure', 'return_status:quality_gate:E=0:W=0',
                            str(Path(Path(__file__).parent.parent, 'test_data'))])

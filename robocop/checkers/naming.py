@@ -286,7 +286,7 @@ class TestCaseNamingChecker(VisitorChecker):
     }
 
     def visit_TestCase(self, node):  # noqa
-        if not node.name[0].isupper():
+        if node.name and not node.name[0].isupper():
             self.report("not-capitalized-test-case-title", node=node)
 
 

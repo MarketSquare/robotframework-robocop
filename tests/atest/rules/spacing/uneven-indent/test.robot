@@ -31,7 +31,7 @@ Gold test
     ${some_value}    Perform Action    ${argument}
     ...                                ${another_argument}
 
-    ${another_value}    Perform Another Action
+    ${another_value}    Perform Another Action  # line comment
     IF    ${some_value}
         Do Stuff
     ELSE IF    ${another_value}

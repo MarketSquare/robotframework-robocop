@@ -10,6 +10,22 @@ Test
     Keyword
     One More
 
+Test with for loop
+    FOR  ${elem}  IN  elem1  elem2  elem3
+     ...  elem4
+        Log  ${elem}  # this is valid comment
+       Keyword
+    END
+
+Test with IF
+    IF    ${condition}
+        Keyword
+    ELSE IF    ${condition}
+          Keyword 2
+    ELSE
+        Keyword3
+    END
+
 Gold test
     [Documentation]  This is golden test
     ${some_value}    Perform Action    ${argument}

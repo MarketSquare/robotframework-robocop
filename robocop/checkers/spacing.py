@@ -318,6 +318,11 @@ class UnevenIndentChecker(VisitorChecker):
         return counter
 
     def validate_standalone_comments(self, comments_and_eols):
+        """
+        Report any comment that does not start from col 1.
+
+        :param comments_and_eols: list of comments and empty lines (outside keyword and test case definitions)
+        """
         for child in comments_and_eols:
             if getattr(child, 'type', 'invalid') != Token.COMMENT:
                 continue
@@ -327,6 +332,19 @@ class UnevenIndentChecker(VisitorChecker):
 
     @staticmethod
     def find_block_end(node):
+        """
+            Find where the keyword/test case/block ends. If there are only comments and new lines left, the
+            first comment that starts from col 1 is considered outside your block::
+
+                Keyword
+                    Line
+                    # comment
+                    Other Line
+                   # comment belonging to Keyword
+
+                # This should not belong to Keyword
+                  # Since there was comment starting from col 1, this comment is also outside block
+        """
         for index, child in reversed(list(enumerate(node.body))):
             node_type = getattr(child, 'type', '')
             if not node_type:

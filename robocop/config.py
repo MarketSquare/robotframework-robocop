@@ -222,7 +222,7 @@ class Config:
                               metavar='RULES', help=self.HELP_MSGS['help_include'])
         optional.add_argument('-e', '--exclude', action=ParseDelimitedArgAction, default=self.exclude,
                               metavar='RULES', help=self.HELP_MSGS['help_exclude'])
-        optional.add_argument('-rules', '--ext_rules', action=ParseDelimitedArgAction, default=self.ext_rules,
+        optional.add_argument('-rules', '--ext-rules', action=ParseDelimitedArgAction, default=self.ext_rules,
                               help=self.HELP_MSGS['help_ext_rules'])
         optional.add_argument('-nr', '--no-recursive', dest='recursive', action='store_false',
                               help=self.HELP_MSGS['help_recursive'])
@@ -258,7 +258,7 @@ class Config:
 
     def parse_opts(self, args=None, from_cli=True):
         args = self.preparse(args) if from_cli else None
-        if not args or args in ['-vv', '--verbose']:
+        if not args or args == ['--verbose'] or args == ['-vv']:
             loaded_args = self.load_default_config_file()
             if loaded_args is None:
                 self.load_pyproject_file()

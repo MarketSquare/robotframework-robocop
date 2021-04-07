@@ -119,7 +119,7 @@ class TestE2E:
         robocop_instance.config = config
         with pytest.raises(SystemExit):
             robocop_instance.run()
-        assert robocop_instance.reports['return_status'].return_status == 1
+        assert robocop_instance.reports['return_status'].return_status > 0
 
     def test_configure_rule_severity(self, robocop_instance):
         config = Config()

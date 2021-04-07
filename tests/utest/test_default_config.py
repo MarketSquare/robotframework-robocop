@@ -74,7 +74,7 @@ class TestDefaultConfig:
         expected_config = robocop.config.Config(from_cli=True)
         with patch.object(sys, 'argv', [
             'robocop', '--include', 'W0504', '-i', '*doc*', '--exclude', '0203', '--reports',
-            'rules_by_id,scan_timer', '--ignore', 'ignore_me.robot', '--ext_rules', 'path_to_external\\dir',
+            'rules_by_id,scan_timer', '--ignore', 'ignore_me.robot', '--ext-rules', 'path_to_external\\dir',
             '--filetypes', '.txt,csv', '--threshold',  'E', '--no-recursive', '--format',
             '{source}:{line}:{col} [{severity}] {rule_id} {desc} (name)1', '--output', 'robocop.log', '--configure',
             'line-too-long:line_length:150', '-c', '0201:severity:E', 'tests\\atest\\rules\\bad-indent',

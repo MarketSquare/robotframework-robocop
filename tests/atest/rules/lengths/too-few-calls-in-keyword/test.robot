@@ -21,3 +21,5 @@ Keyword
 
 Short Keyword
     Keyword
+
+Empty Keyword

@@ -197,7 +197,7 @@ FAQ <a name="faq"></a>
       "scan_timer"
   ]
   ignore = ["ignore_me.robot"]
-  ext_rules = ["path_to_external\\dir"]
+  ext-rules = ["path_to_external\\dir"]
   filetypes = [".txt", ".csv"]
   threshold = "E"
   format = "{source}:{line}:{col} [{severity}] {rule_id} {desc} (name)"
@@ -253,11 +253,13 @@ FAQ <a name="faq"></a>
 <details>
   <summary>Can I define custom rules?</summary>
 
-  **Yes**, you can define and include custom rules using `-rules / --ext_rules` command line option
+  **Yes**, you can define and include custom rules using `-rules / --ext-rules` command line option
   by providing a path to a file containing your rule(s). The option accepts comma-separated list
-  of paths to files or directories, e.g. 
-  ```robocop -rules my/own/rule.py --ext_rules rules.py,external_rules.py```.
-  
+  of paths to files or directories, e.g.
+  ```
+  robocop -rules my/own/rule.py --ext-rules rules.py,external_rules.py
+  ```
+
   If you feel that your rule is very helpful and should be included in Robocop permanently,
   you can always share your solution by
   [submitting a pull request](https://github.com/MarketSquare/robotframework-robocop/pulls).

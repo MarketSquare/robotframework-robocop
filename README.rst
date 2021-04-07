@@ -70,7 +70,7 @@ Robocop runs by default from the current directory and it discovers supported fi
 You can simply run::
 
     robocop
-    
+
 All command line options can be displayed in help message by executing::
 
     robocop -h
@@ -152,7 +152,7 @@ Main features
 
 - external rules support::
 
-    --ext_rules path/to/your/rules.py -rules supports_many_paths.py
+    --ext-rules path/to/your/rules.py -rules supports_many_paths.py
 
 - output redirection to file::
 

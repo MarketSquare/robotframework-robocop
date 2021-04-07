@@ -44,7 +44,7 @@ Robocop use [tool.robocop] section. Options have the same names as CLI arguments
         "scan_timer"
     ]
     ignore = ["ignore_me.robot"]
-    ext_rules = ["path_to_external\\dir"]
+    ext-rules = ["path_to_external\\dir"]
     filetypes = [".txt", ".csv"]
     threshold = "E"
     format = "{source}:{line}:{col} [{severity}] {rule_id} {desc} (name)"

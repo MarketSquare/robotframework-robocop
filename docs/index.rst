@@ -5,6 +5,8 @@ Robocop documentation
    :maxdepth: 2
    :caption: Contents:
 
+.. include:: overview.rst
+
 .. toctree::
    :maxdepth: 1
 

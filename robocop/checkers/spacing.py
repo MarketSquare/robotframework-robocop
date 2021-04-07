@@ -294,10 +294,7 @@ class UnevenIndentChecker(VisitorChecker):
                 else:
                     indents.append((indent_len, child))
         if not column_index:
-            standalone_comments = node.body[end_of_block:]
-            for child in standalone_comments:
-                if getattr(child, 'type', 'invalid') == Token.COMMENT and token_col(child, Token.COMMENT) != 1:
-                    self.report('uneven-indent', 'over', node=child, col=token_col(child, Token.COMMENT))
+            self.validate_standalone_comments(node.body[end_of_block:])
         previous_indent = self.validate_indent_lists(indents, previous_indent)
         if templated:
             self.validate_indent_lists(header_indents)
@@ -319,6 +316,14 @@ class UnevenIndentChecker(VisitorChecker):
                             node=indent[1],
                             col=indent[0] + 1)
         return counter
+
+    def validate_standalone_comments(self, comments_and_eols):
+        for child in comments_and_eols:
+            if getattr(child, 'type', 'invalid') != Token.COMMENT:
+                continue
+            col = token_col(child, Token.COMMENT)
+            if col != 1:
+                self.report('uneven-indent', 'over', node=child, col=col)
 
     @staticmethod
     def find_block_end(node):

@@ -138,3 +138,19 @@ Keyword With Under Indented For Loop Body
    Log  stuff
     END
 
+Keyword With Multiline Keywords
+    [Argument]  ${arg}
+    ${return_value}    Keyword
+    Keyword
+    Keyword2
+    Keyword
+    ...    ${arg}
+    ...    ${arg}
+    ...    3
+
+Keyword With Tabulators
+    Keyword Without Tab
+	Keyword  1
+	Keyword  2
+	Keyword  3  3
+	Keyword  4

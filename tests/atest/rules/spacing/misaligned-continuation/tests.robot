@@ -40,3 +40,8 @@ Misaligned Arguments
     [Arguments]    ${arg}
    ...  ${arg}
     Keyword
+
+Keyword With Tabulators
+    Keyword
+    ...  2
+	...  ${arg}

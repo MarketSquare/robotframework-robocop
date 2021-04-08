@@ -1,1 +1,1 @@
-${rules_dir}${\}test.robot:6:0 [W] 0505 Test case have too many keywords inside (13/8)
+${rules_dir}${\}test.robot:6:0 [W] 0505 Test case have too many keywords inside (13/10)

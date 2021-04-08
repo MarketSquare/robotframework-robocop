@@ -60,9 +60,9 @@ class LengthChecker(VisitorChecker):
     def __init__(self):
         self.keyword_max_len = 40
         self.testcase_max_len = 20
-        self.keyword_max_calls = 8
-        self.keyword_min_calls = 2
-        self.testcase_max_calls = 8
+        self.keyword_max_calls = 10
+        self.keyword_min_calls = 1
+        self.testcase_max_calls = 10
         self.file_max_lines = 400
         self.keyword_max_args = 5
         super().__init__()
@@ -216,7 +216,7 @@ class NumberOfReturnedArgsChecker(VisitorChecker):
     def visit_Return(self, node):  # noqa
         self.check_node_returns(len(node.values), node)
 
-    def visit_KeywordCall(self, node):  # noqa       
+    def visit_KeywordCall(self, node):  # noqa
         if not node.keyword:
             return
 

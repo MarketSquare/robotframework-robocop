@@ -3,10 +3,10 @@
 Including external rules
 ========================
 
-You can include your own custom rules with ``-rules`` or ``--ext_rules`` arguments.
+You can include your own custom rules with ``-rules`` or ``--ext-rules`` arguments.
 It accepts comma separated list of paths to files or directories. Example::
 
-    robocop -rules my/own/rule.py --ext_rules rules.py,external_rules.py
+    robocop -rules my/own/rule.py --ext-rules rules.py,external_rules.py
 
 Every custom checker needs to complete following requirements:
 
@@ -65,4 +65,4 @@ Rules can have configurable values. You need to specify them in rule body after 
 
 Configurable parameter can be referred by its :code:`public_name` in command line options::
 
-    robocop --ext_rules my/own/rule.py --configure dummy-in-name:public_name:AnotherDummy
+    robocop --ext-rules my/own/rule.py --configure dummy-in-name:public_name:AnotherDummy

@@ -48,7 +48,7 @@ def parse_toml_to_config(toml_data, config):
 
 def find_severity_value(severity):
     for sev in RuleSeverity:
-        if sev.value == severity:
+        if sev.value == severity.upper():
             return sev
     return RuleSeverity.INFO
 
@@ -157,8 +157,10 @@ class Config:
         'help_ignore':       'Ignore file(s) and path(s) provided. Glob patterns are supported.',
         'help_info':         'Print this help message and exit.',
         'help_version':      'Display Robocop version.',
-        'help_verbose':           'Display extra information.',
-        'directives':        '1. Serve the public trust\n2. Protect the innocent\n3. Uphold the law\n4. [ACCESS DENIED]'
+        'help_verbose':      'Display extra information.',
+        'directives':        '1. Serve the public trust\n2. Protect the innocent\n3. Uphold the law\n4. [ACCESS '
+                             'DENIED]',
+        'epilog':            'For full documentation visit: https://github.com/MarketSquare/robotframework-robocop'
     }
 
     def _translate_patterns(self, pattern_list):
@@ -205,12 +207,10 @@ class Config:
             raise ArgumentFileNotFoundError(argfile)
 
     def _create_parser(self):
-        # below will throw error in Pycharm, it's bug https://youtrack.jetbrains.com/issue/PY-41806
         parser = CustomArgParser(prog='robocop',
                                  formatter_class=argparse.RawTextHelpFormatter,
                                  description='Static code analysis tool for Robot Framework',
-                                 epilog='For full documentation visit: '
-                                        'https://github.com/MarketSquare/robotframework-robocop',
+                                 epilog=self.HELP_MSGS['epilog'],
                                  add_help=False,
                                  from_cli=self.from_cli)
         required = parser.add_argument_group(title='Required parameters')
@@ -222,9 +222,9 @@ class Config:
                               metavar='RULES', help=self.HELP_MSGS['help_include'])
         optional.add_argument('-e', '--exclude', action=ParseDelimitedArgAction, default=self.exclude,
                               metavar='RULES', help=self.HELP_MSGS['help_exclude'])
-        optional.add_argument('-rules', '--ext_rules', action=ParseDelimitedArgAction, default=self.ext_rules,
+        optional.add_argument('-rules', '--ext-rules', action=ParseDelimitedArgAction, default=self.ext_rules,
                               help=self.HELP_MSGS['help_ext_rules'])
-        optional.add_argument('--no-recursive', dest='recursive', action='store_false',
+        optional.add_argument('-nr', '--no-recursive', dest='recursive', action='store_false',
                               help=self.HELP_MSGS['help_recursive'])
         optional.add_argument('-r', '--reports', action=ParseDelimitedArgAction, default=self.reports,
                               help=self.HELP_MSGS['help_reports'])
@@ -233,24 +233,24 @@ class Config:
                               metavar='CONFIGURABLE', help=self.HELP_MSGS['help_configure'])
         optional.add_argument('-l', '--list', action=SetListOption, nargs='?', const='', default=self.list,
                               metavar='PATTERN', help=self.HELP_MSGS['help_list'])
-        optional.add_argument('--list-configurables', action=SetListOption, nargs='?', const='',
+        optional.add_argument('-lc', '--list-configurables', action=SetListOption, nargs='?', const='',
                               default=self.list_configurables, metavar='PATTERN',
                               help=self.HELP_MSGS['help_list_confs'])
-        optional.add_argument('--list-reports', action='store_true', default=self.list_reports,
+        optional.add_argument('-lr', '--list-reports', action='store_true', default=self.list_reports,
                               help=self.HELP_MSGS['help_list_reports'])
         optional.add_argument('-o', '--output', type=argparse.FileType('w'), default=self.output,
                               metavar='PATH', help=self.HELP_MSGS['help_output'])
-        optional.add_argument('--filetypes', action=ParseFileTypes, default=self.filetypes,
+        optional.add_argument('-ft', '--filetypes', action=ParseFileTypes, default=self.filetypes,
                               help=self.HELP_MSGS['help_filetypes'])
         optional.add_argument('-t', '--threshold', action=SetRuleThreshold, default=self.threshold,
                               help=self.HELP_MSGS['help_threshold'])
         optional.add_argument('-A', '--argumentfile', metavar='PATH', help=self.HELP_MSGS['help_argfile'])
-        optional.add_argument('--ignore', action=ParseDelimitedArgAction, default=self.ignore,
+        optional.add_argument('-g', '--ignore', action=ParseDelimitedArgAction, default=self.ignore,
                               metavar='PATH', help=self.HELP_MSGS['help_ignore'])
         optional.add_argument('-h', '--help', action='help', help=self.HELP_MSGS['help_info'])
         optional.add_argument('-v', '--version', action='version', version=__version__,
                               help=self.HELP_MSGS['help_version'])
-        optional.add_argument('--verbose', action='store_true', help=self.HELP_MSGS['help_verbose'])
+        optional.add_argument('-vv', '--verbose', action='store_true', help=self.HELP_MSGS['help_verbose'])
         optional.add_argument('--directives', action='version', version=self.HELP_MSGS['directives'],
                               help=argparse.SUPPRESS)
 
@@ -258,7 +258,7 @@ class Config:
 
     def parse_opts(self, args=None, from_cli=True):
         args = self.preparse(args) if from_cli else None
-        if not args or args == ['--verbose']:
+        if not args or args == ['--verbose'] or args == ['-vv']:
             loaded_args = self.load_default_config_file()
             if loaded_args is None:
                 self.load_pyproject_file()

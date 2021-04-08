@@ -5,9 +5,7 @@ Robocop documentation
    :maxdepth: 2
    :caption: Contents:
 
-.. include:: ../README.rst
-   :start-after: include-this-block-in-docs-start
-   :end-before: include-this-block-in-docs-end
+.. include:: overview.rst
 
 .. toctree::
    :maxdepth: 1

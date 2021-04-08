@@ -57,7 +57,7 @@ any confidential information there.
 Enhancement requests
 ~~~~~~~~~~~~~~~~~~~~
 
-To suggest an idea for the project please create an issue using 
+To suggest an idea for the project please create an issue using
 **Feature request** template. Try to write clear and concise description of
 why this should be useful and what needs to be done to accomplish the goal.
 
@@ -132,14 +132,14 @@ Documentation
 With new features adequate documentation is as important as the actual
 functionality. Different documentation is needed depending on the issue
 but most of it is located inside ``docs`` directory. The files are usually
-written using `reStructuredText format 
-<https://www.writethedocs.org/guide/writing/reStructuredText/>`_ (.rst). 
+written using `reStructuredText format
+<https://www.writethedocs.org/guide/writing/reStructuredText/>`_ (.rst).
 
 User manual
 '''''''''''
 
 Robocop's main features are explained in the `README
-<https://github.com/MarketSquare/robotframework-robocop/blob/master/README.rst>`_.
+<https://github.com/MarketSquare/robotframework-robocop/blob/master/README.md>`_.
 The whole documentation is available `here <https://robocop.readthedocs.io/>`_.
 
 

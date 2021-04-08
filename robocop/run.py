@@ -54,7 +54,7 @@ class Robocop:
             print("### DEPRECATION WARNING: The rule '0906' (redundant-equal-sign) is "
                   "deprecated starting from Robocop 1.7.0 and is replaced by 0909 (inconsistent-assignment) and "
                   "0910 (inconsistent-assignment-in-variables). "
-                  "Rule '0906' will be removed in the next release - update your configuration. ###")
+                  "Rule '0906' will be removed in the next release - update your configuration. ###\n")
 
     def set_output(self):
         """ Set output for printing to file if configured. Else use standard output """
@@ -172,7 +172,7 @@ class Robocop:
         if not (self.config.list or self.config.list_configurables):
             return
         if self.config.list_configurables:
-            print("All following rules have configurable parameter 'severity'. Allowed values are:"
+            print("All rules have configurable parameter 'severity'. Allowed values are:"
                   "\n    E / error\n    W / warning\n    I / info")
         rule_by_id = {msg.rule_id: msg for checker in self.checkers for msg in checker.rules_map.values()}
         rule_ids = sorted([key for key in rule_by_id])
@@ -186,7 +186,8 @@ class Robocop:
                     continue
                 configurables = rule_by_id[rule_id].available_configurables(include_severity=False)
                 configurables = f'\n    {configurables}' if configurables else ''
-                print(f"{rule_by_id[rule_id]}{configurables}")
+                if configurables:
+                    print(f"{rule_by_id[rule_id]}{configurables}")
         sys.exit()
 
     def load_reports(self):
@@ -201,9 +202,9 @@ class Robocop:
                 continue
             if 'all' in self.config.reports or report.name in self.config.reports:
                 self.reports[report.name] = report
-            available_reports += f'{report.name} - {report.description}\n'
+            available_reports += f'{report.name:20} - {report.description}\n'
         if self.config.list_reports:
-            available_reports += 'all - Turns on all available reports'
+            available_reports += 'all' + ' ' * 18 + '- Turns on all available reports'
             print(available_reports)
             sys.exit()
 

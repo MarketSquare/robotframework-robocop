@@ -394,6 +394,7 @@ class MisalignedContinuation(VisitorChecker, ModelVisitor):
         for token in node.tokens:
             if getattr(token, 'type', '') == Token.CONTINUATION:
                 yield indent, token
+                indent = 0  # in case of trailing whitespace at the end of file
             if getattr(token, 'type', '') == Token.SEPARATOR:
                 indent += len(token.value.expandtabs(4))
             else:

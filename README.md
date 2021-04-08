@@ -23,7 +23,7 @@ Robocop
 [Watch our talk](https://robocon.io/#how-to-avoid-jail-for-nasty-code)
 from RoboCon 2021 about Robocop and
 [Robotidy](https://github.com/MarketSquare/robotframework-tidy)
-and learn more about these cool tools! 🤖
+and learn more about these cool tools! :robot:
 
 [![Robocop & Robotidy presentation at RoboCon 2021](http://img.youtube.com/vi/vZoyi2ObM8E/0.jpg)](https://youtu.be/vZoyi2ObM8E "Robocop & Robotidy presentation at RoboCon 2021")
 
@@ -37,30 +37,30 @@ Robocop is a tool that performs static code analysis of [Robot Framework](https:
 It uses official [Robot Framework parsing API](https://robot-framework.readthedocs.io/en/latest/) to parse files and run number of checks,
 looking for potential errors or violations to code quality standards.
 
-> Hosted on [GitHub](https://github.com/MarketSquare/robotframework-robocop). 🎖
+> Hosted on [GitHub](https://github.com/MarketSquare/robotframework-robocop). :medal_military:
 
 Documentation <a name="documentation"></a>
 -------------
 
-Full documentation available [here](https://robocop.readthedocs.io). 📖
+Full documentation available [here](https://robocop.readthedocs.io). :open_book:
 
 Most common questions with answers can be found at the bottom ⬇ of this README file.
 
 Values <a name="values"></a>
 -------
-Original *RoboCop* - a fictional cybernetic police officer 👮‍♂ - was following 3 prime directives
+Original *RoboCop* - a fictional cybernetic police officer :policeman: - was following 3 prime directives
 which also drive the progress of Robocop linter:
 
-> First Directive: **Serve the public trust** 👨‍👩‍👧‍👦
+> First Directive: **Serve the public trust** :family_man_woman_girl_boy:
 
 Which lies behind the creation of the project - to **serve** developers and testers as a tool to build applications they can **trust**.
 
-> Second Directive: **Protect the innocent** 👶
+> Second Directive: **Protect the innocent** :baby:
 
 **The innocent** testers and developers have no intention to produce ugly code but sometimes, you know, it just happens,
 so Robocop is there to **protect** them.
 
-> Third Directive: **Uphold the law** 🏛
+> Third Directive: **Uphold the law** :classical_building:
 
 Following the coding guidelines established in the project are something very important to keep the code clean,
 readable and understandable by others and Robocop can help to **uphold the law**.
@@ -68,7 +68,7 @@ readable and understandable by others and Robocop can help to **uphold the law**
 Requirements <a name="requirements"></a>
 ------------
 
-Python 3.6+ 🐍 and Robot Framework 3.2.2+ 🤖.
+Python 3.6+ :snake: and Robot Framework 3.2.2+ :robot:.
 
 Installation <a name="installation"></a>
 ------------
@@ -332,13 +332,13 @@ FAQ <a name="faq"></a>
   - can redirect output to a file
   - displays nice reports
   - is easy to extend it with new rules
-  - is cool 😎
+  - is cool :nerd_face:
 
   Still not convinced?
   [Watch our talk](https://robocon.io/#how-to-avoid-jail-for-nasty-code)
   about Robocop &
   [Robotidy](https://github.com/MarketSquare/robotframework-tidy)
-  and see for yourself! 😎
+  and see for yourself! :monocle_face:
 
 </details>
 

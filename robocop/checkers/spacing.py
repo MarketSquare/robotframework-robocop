@@ -391,10 +391,13 @@ class MisalignedContinuation(VisitorChecker, ModelVisitor):
     @staticmethod
     def get_continuation(node):
         indent = 0
+        lineno = -1
         for token in node.tokens:
+            if token.lineno != lineno:
+                indent = 0  # in case of trailing whitespace at the end of file
+                lineno = token.lineno
             if getattr(token, 'type', '') == Token.CONTINUATION:
                 yield indent, token
-                indent = 0  # in case of trailing whitespace at the end of file
             if getattr(token, 'type', '') == Token.SEPARATOR:
                 indent += len(token.value.expandtabs(4))
             else:

@@ -265,10 +265,12 @@ class UnevenIndentChecker(VisitorChecker):
     @staticmethod
     def get_indent(node):
         tokens = node.tokens if hasattr(node, 'tokens') else node.header.tokens
+        indent_len = 0
         for token in tokens:
             if token.type != Token.SEPARATOR:
-                return token.col_offset
-        return 0
+                break
+            indent_len += len(token.value.expandtabs(4))
+        return indent_len
 
     def check_indents(self, node, req_indent=0, column_index=0, previous_indent=None):
         indents = []

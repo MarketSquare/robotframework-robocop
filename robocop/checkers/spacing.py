@@ -265,10 +265,12 @@ class UnevenIndentChecker(VisitorChecker):
     @staticmethod
     def get_indent(node):
         tokens = node.tokens if hasattr(node, 'tokens') else node.header.tokens
+        indent_len = 0
         for token in tokens:
             if token.type != Token.SEPARATOR:
-                return token.col_offset
-        return 0
+                break
+            indent_len += len(token.value.expandtabs(4))
+        return indent_len
 
     def check_indents(self, node, req_indent=0, column_index=0, previous_indent=None):
         indents = []
@@ -381,10 +383,31 @@ class MisalignedContinuation(VisitorChecker, ModelVisitor):
     def visit_Statement(self, node):  # noqa
         if not node.data_tokens:
             return
-        new_lines = node.get_tokens(Token.CONTINUATION)
-        if new_lines is None:
-            return
-        starting_row = node.data_tokens[0].col_offset
-        for contination in new_lines:
-            if contination.col_offset != starting_row:
-                self.report("misaligned-continuation", lineno=contination.lineno, col=contination.col_offset+1)
+        starting_row = self.get_indent(node)
+        for indent, continuation in self.get_continuation(node):
+            if indent != starting_row:
+                self.report("misaligned-continuation", lineno=continuation.lineno, col=continuation.col_offset+1)
+
+    @staticmethod
+    def get_continuation(node):
+        indent = 0
+        lineno = -1
+        for token in node.tokens:
+            if token.lineno != lineno:
+                indent = 0  # in case of trailing whitespace at the end of file
+                lineno = token.lineno
+            if getattr(token, 'type', '') == Token.CONTINUATION:
+                yield indent, token
+            if getattr(token, 'type', '') == Token.SEPARATOR:
+                indent += len(token.value.expandtabs(4))
+            else:
+                indent = 0
+
+    @staticmethod
+    def get_indent(node):
+        indent_len = 0
+        for token in node.tokens:
+            if token.type != Token.SEPARATOR:
+                break
+            indent_len += len(token.value.expandtabs(4))
+        return indent_len

@@ -186,7 +186,8 @@ class Robocop:
                     continue
                 configurables = rule_def.available_configurables(include_severity=False, checker=checker)
                 if configurables:
-                    print(f"{rule_def}\n    {configurables}")
+                    print(f"{rule_def}\n"
+                          f"    {configurables}")
         sys.exit()
 
     def load_reports(self):
@@ -271,7 +272,9 @@ class Robocop:
                         available_conf = msg.available_configurables()
                         raise robocop.exceptions.ConfigGeneralError(
                             f"Provided param '{param}' for rule '{rule_or_report}' does not exist. "
-                            f"Available configurable(s) for this rule:\n    {available_conf}")
+                            f"Available configurable(s) for this rule:\n"
+                            f"    {available_conf}"
+                            )
                     checker.configure(configurable[1], configurable[2](value))
             elif rule_or_report in self.reports:
                 self.reports[rule_or_report].configure(param, value, *values)

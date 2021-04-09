@@ -51,8 +51,7 @@ class TestAPI:
             'Trailing whitespace at the end of line',
             'Too many blank lines at the end of file'
         }
-        actual_issues = {issue.desc for issue in issues}
-        assert expected_issues == actual_issues
+        assert all(issue.desc in expected_issues for issue in issues)
 
     def test_run_check_in_memory_with_mac_line_endings(self):
         config = robocop.Config(root='.')

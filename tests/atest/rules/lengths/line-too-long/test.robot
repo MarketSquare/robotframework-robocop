@@ -13,7 +13,7 @@ Test
 
 Test with disabler
     Keyword That Is Quite Long But Under The Limit     ${arg}    ${arg}    ${arg}    ${arg}    ${arg}    ${arg}  # robocop: disable=0101
-    Keyword That Is Quite Long But Under The Limit     ${arg}    ${arg}    ${arg}    ${arg}    ${arg}    ${arg}              # robocop: enable
+    Keyword That Is Quite Long But Under The Limit     ${arg}    ${arg}    ${arg}    ${arg}    ${arg}    ${arg}              # robocop:enable
     Keyword That Is Quite Long But Under The Limit     ${arg}    ${arg}    ${arg}    ${arg}    ${arg}    ${arg}              # noqa
 
 

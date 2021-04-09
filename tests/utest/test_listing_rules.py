@@ -67,10 +67,11 @@ def msg_0102_0204():
     }
 
 
-def init_empty_checker(robocop_instance_pre_load, rule, exclude=False):
+def init_empty_checker(robocop_instance_pre_load, rule, exclude=False, **kwargs):
     checker = EmptyChecker()
     checker.rules = rule
     checker.register_rules(checker.rules)
+    checker.__dict__.update(**kwargs)
     if exclude:
         robocop_instance_pre_load.config.exclude.update(set(rule.keys()))
         robocop_instance_pre_load.config.translate_patterns()
@@ -135,7 +136,7 @@ class TestListingRules:
 
     def test_list_configurables(self, robocop_pre_load, msg_0101_config, capsys):
         robocop_pre_load.config.list_configurables = robocop.config.translate_pattern('*')
-        init_empty_checker(robocop_pre_load, msg_0101_config)
+        init_empty_checker(robocop_pre_load, msg_0101_config, conf_param=1001)
         with pytest.raises(SystemExit):
             robocop_pre_load.list_checkers()
         out, _ = capsys.readouterr()
@@ -143,7 +144,7 @@ class TestListingRules:
                       "Allowed values are:\n    E / error\n    W / warning\n    I / info\n" \
                       "Rule - 0101 [W]: some-message: Some description (enabled)\n" \
                       "    Available configurable(s) for this rule:\n" \
-                      "        conf_param (int)\n"
+                      "        conf_param = 1001 (int)\n"
 
     def test_list_configurables_filtered(self, robocop_pre_load, msg_0101_config, msg_0102_0204_config, capsys):
         robocop_pre_load.config.list_configurables = 'another-message'

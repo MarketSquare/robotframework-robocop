@@ -270,7 +270,8 @@ class Robocop:
                     if configurable is None:
                         available_conf = msg.available_configurables()
                         raise robocop.exceptions.ConfigGeneralError(
-                            f"Provided param '{param}' for rule '{rule_or_report}' does not exist. {available_conf}")
+                            f"Provided param '{param}' for rule '{rule_or_report}' does not exist. "
+                            f"Available configurable(s) for this rule:\n    {available_conf}")
                     checker.configure(configurable[1], configurable[2](value))
             elif rule_or_report in self.reports:
                 self.reports[rule_or_report].configure(param, value, *values)

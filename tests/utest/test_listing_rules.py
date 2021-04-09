@@ -143,8 +143,7 @@ class TestListingRules:
         assert out == "All rules have configurable parameter 'severity'. " \
                       "Allowed values are:\n    E / error\n    W / warning\n    I / info\n" \
                       "Rule - 0101 [W]: some-message: Some description (enabled)\n" \
-                      "    Available configurable(s) for this rule:\n" \
-                      "        conf_param = 1001 (int)\n"
+                      "    conf_param = 1001 (int)\n"
 
     def test_list_configurables_filtered(self, robocop_pre_load, msg_0101_config, msg_0102_0204_config, capsys):
         robocop_pre_load.config.list_configurables = 'another-message'

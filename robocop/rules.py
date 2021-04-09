@@ -100,8 +100,7 @@ class Rule:
                 configurables.append(f'{conf[0]} = {checker.__dict__.get(conf[1], None)} ({conf[2].__name__})')
         if not configurables:
             return ''
-        names = '\n        '.join(configurables)
-        return f"Available configurable(s) for this rule:\n        {names}"
+        return '\n    '.join(configurables)
 
     def parse_body(self, body):
         if isinstance(body, tuple) and len(body) >= 3:

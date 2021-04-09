@@ -18,3 +18,11 @@ Keyword
     Pass
     No Operation
     Fail
+
+
+Keyword1  # with tab
+    [Documentation]  this is doc 	
+    No Operation
+    Pass
+    No Operation
+    Fail

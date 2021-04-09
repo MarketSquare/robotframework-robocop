@@ -31,7 +31,39 @@ class TestAPI:
         issues = robocop_runner.run_check(ast_model, r'C:\directory\file.robot', in_memory)
         expected_issues = {
             'Missing documentation in suite',
+            'Section is empty',            
+            'Too many blank lines at the end of file'
+        }
+        assert all(issue.desc in expected_issues for issue in issues)
+
+    def test_run_check_in_memory_with_windows_line_endings(self):
+        config = robocop.Config(root='.')
+
+        robocop_runner = robocop.Robocop(config=config)
+        robocop_runner.reload_config()
+        in_memory = "*** Settings *** \r\n\r\n"
+        ast_model = get_model(in_memory)
+        issues = robocop_runner.run_check(ast_model, r'C:\directory\file.robot', in_memory)
+        expected_issues = {
+            'Missing documentation in suite',
             'Section is empty',
+            'Trailing whitespace at the end of line',
+            'Too many blank lines at the end of file'
+        }
+        assert all(issue.desc in expected_issues for issue in issues)
+
+    def test_run_check_in_memory_with_mac_line_endings(self):
+        config = robocop.Config(root='.')
+
+        robocop_runner = robocop.Robocop(config=config)
+        robocop_runner.reload_config()
+        in_memory = "*** Settings *** \r\r"
+        ast_model = get_model(in_memory)
+        issues = robocop_runner.run_check(ast_model, r'C:\directory\file.robot', in_memory)
+        expected_issues = {
+            'Missing documentation in suite',
+            'Section is empty',
+            'Trailing whitespace at the end of line',
             'Too many blank lines at the end of file'
         }
         assert all(issue.desc in expected_issues for issue in issues)

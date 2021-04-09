@@ -14,6 +14,8 @@ import sys
 from pathlib import Path
 from collections import defaultdict
 from functools import total_ordering
+import datetime
+
 import sphinx_rtd_theme
 sys.path.append(str(Path(__file__).parent.parent))
 import robocop
@@ -22,7 +24,7 @@ import robocop
 # -- Project information -----------------------------------------------------
 
 project = 'Robocop'
-copyright = '2020, Bartlomiej Hirsz, Mateusz Nojek'
+copyright = f'{datetime.datetime.now().year}, Bartlomiej Hirsz, Mateusz Nojek'
 author = 'Bartlomiej Hirsz, Mateusz Nojek'
 
 # The full version, including alpha/beta/rc tags

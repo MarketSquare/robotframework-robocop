@@ -42,7 +42,7 @@ class InvalidSpacingChecker(RawFileChecker):
         super().parse_file()
         if self.raw_lines:
             last_line = self.raw_lines[-1]
-            if last_line == '\n':
+            if last_line in ['\n', '\r', '\r\n']:
                 self.report("too-many-trailing-blank-lines", lineno=len(self.raw_lines) + 1, col=0)
                 return
             empty_lines = 0
@@ -54,14 +54,14 @@ class InvalidSpacingChecker(RawFileChecker):
                 if empty_lines > 1:
                     self.report("too-many-trailing-blank-lines", lineno=len(self.raw_lines), col=0)
                     return
-            if not empty_lines and not last_line.endswith('\n'):
+            if not empty_lines and not last_line.endswith(('\n','\r')):
                 self.report("missing-trailing-blank-line", lineno=len(self.raw_lines), col=0)
 
     def check_line(self, line, lineno):
         self.raw_lines.append(line)
 
-        stripped_line = line.rstrip('\n')
-        if stripped_line and stripped_line[-1] == ' ':
+        stripped_line = line.rstrip('\n\r')
+        if stripped_line and stripped_line[-1] in [' ', '\t']:
             self.report("trailing-whitespace", lineno=lineno, col=len(stripped_line))
 
 

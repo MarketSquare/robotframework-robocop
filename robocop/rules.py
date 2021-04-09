@@ -91,9 +91,13 @@ class Rule:
                 return configurable
         return None
 
-    def available_configurables(self, include_severity=True):
+    def available_configurables(self, include_severity=True, checker=None):
         configurables = ['severity'] if include_severity else []
-        configurables += [f'{conf[0]} ({conf[2].__name__})' for conf in self.configurable]
+        for conf in self.configurable:
+            if checker is None:
+                configurables.append(f'{conf[0]} ({conf[2].__name__})')
+            else:
+                configurables.append(f'{conf[0]} = {checker.__dict__.get(conf[1], None)} ({conf[2].__name__})')
         if not configurables:
             return ''
         names = '\n        '.join(configurables)

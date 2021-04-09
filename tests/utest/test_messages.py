@@ -96,7 +96,7 @@ class TestMessage:
         [None],
         [1],
         [()],
-        [('some', 'some', int, 5)],
+        [('some', 'some', int, 5, 5)],
         [('some', 'some', str), None]
     ])
     def test_parse_invalid_configurable(self, configurable):

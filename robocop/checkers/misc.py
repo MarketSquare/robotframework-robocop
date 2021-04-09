@@ -151,13 +151,25 @@ class ConsistentAssignmentSignChecker(VisitorChecker):
             "inconsistent-assignment",
             "The assignment sign is not consistent through the file. Expected '%s' but got '%s' instead",
             RuleSeverity.WARNING,
-            ('assignment_sign_type', 'keyword_assignment_sign_type', parse_assignment_sign_type)
+            (
+                'assignment_sign_type',
+                'keyword_assignment_sign_type',
+                parse_assignment_sign_type,
+                "value can be one of: 'autodetect' (default), 'equal_sign' ('='), 'none' ('') "
+                "or space_and_equal_sign (' =') "
+             )
         ),
         "0910": (
             "inconsistent-assignment-in-variables",
             "The assignment sign is not consistent inside the variables section. Expected '%s' but got '%s' instead",
             RuleSeverity.WARNING,
-            ('assignment_sign_type', 'variables_assignment_sign_type', parse_assignment_sign_type)
+            (
+                'assignment_sign_type',
+                'variables_assignment_sign_type',
+                parse_assignment_sign_type,
+                "value can be one of: 'autodetect' (default), 'equal_sign' ('='), 'none' ('') "
+                "or space_and_equal_sign (' =') "
+            )
         )
     }
 

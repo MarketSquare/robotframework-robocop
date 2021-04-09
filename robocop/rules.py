@@ -91,13 +91,20 @@ class Rule:
                 return configurable
         return None
 
+    @staticmethod
+    def get_configurable_desc(conf, default=None):
+        s = f'{conf[0]} = {default}\n' \
+            f'        type: {conf[2].__name__}'
+        if len(conf) == 4:
+            s += '\n' \
+                 f'        info: {conf[3]}'
+        return s
+
     def available_configurables(self, include_severity=True, checker=None):
         configurables = ['severity'] if include_severity else []
         for conf in self.configurable:
-            if checker is None:
-                configurables.append(f'{conf[0]} ({conf[2].__name__})')
-            else:
-                configurables.append(f'{conf[0]} = {checker.__dict__.get(conf[1], None)} ({conf[2].__name__})')
+            default = None if checker is None else checker.__dict__.get(conf[1], None)
+            configurables.append(self.get_configurable_desc(conf, default))
         if not configurables:
             return ''
         return '\n    '.join(configurables)
@@ -108,7 +115,7 @@ class Rule:
         else:
             raise robocop.exceptions.InvalidRuleBodyError(self.rule_id, body)
         for configurable in self.configurable:
-            if not isinstance(configurable, tuple) or len(configurable) != 3:
+            if not isinstance(configurable, tuple) or len(configurable) not in (3, 4):
                 raise robocop.exceptions.InvalidRuleConfigurableError(self.rule_id, body)
 
     def prepare_message(self, *args, source, node, lineno, col, end_lineno, end_col):

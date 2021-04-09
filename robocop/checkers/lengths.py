@@ -196,7 +196,7 @@ class NumberOfReturnedArgsChecker(VisitorChecker):
             "number-of-returned-values",
             "Too many return values (%d/%d)",
             RuleSeverity.WARNING,
-            ("max_returns", "max_returns", int)
+            ("max_returns", "max_returns", int, 'allowed number of returned values from keyword')
         )
     }
 

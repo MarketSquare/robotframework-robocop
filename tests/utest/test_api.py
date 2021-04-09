@@ -68,7 +68,8 @@ class TestAPI:
             'Trailing whitespace at the end of line',
             'Too many blank lines at the end of file'
         }
-        assert all(issue.desc in expected_issues for issue in issues)
+        actual_issues = {issue.desc for issue in issues}
+        assert expected_issues == actual_issues
 
     def test_run_check_in_memory_with_config(self):
         config_path = Path(Path(__file__).parent.parent, 'test_data', 'api_config')

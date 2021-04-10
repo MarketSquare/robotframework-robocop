@@ -15,7 +15,7 @@ from robocop.utils import IS_RF4
 
 
 class CommentChecker(VisitorChecker):
-    """ Checker for content of comments. It detects invalid comments or leftover `todo` or `fixme` in code. """
+    """ Checker for comments content. It detects invalid comments or leftovers like `todo` or `fixme` in the code. """
     rules = {
         "0701": (
             "todo-in-comment",

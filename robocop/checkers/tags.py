@@ -7,7 +7,7 @@ from robocop.rules import RuleSeverity
 
 
 class TagNameChecker(VisitorChecker):
-    """ Checker for tags names. It scans for tags with spaces or Robot Framework reserved words. """
+    """ Checker for tag names. It scans for tags with spaces or Robot Framework reserved words. """
     rules = {
         "0601": (
             "tag-with-space",
@@ -49,7 +49,7 @@ class TagNameChecker(VisitorChecker):
 
 
 class TagScopeChecker(VisitorChecker):  # TODO: load tags also from __init__.robot
-    """ Checker for tag scopes. If the all tests in suite have the same tags it will suggest using Force Tags """
+    """ Checker for tag scopes. If all tests in suite have the same tags, it will suggest using `Force Tags` """
     rules = {
         "0605": (
             "could-be-forced-tags",

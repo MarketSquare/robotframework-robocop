@@ -142,7 +142,7 @@ class LengthChecker(VisitorChecker):
 
 
 class LineLengthChecker(RawFileChecker):
-    """ Checker for max length of line. """
+    """ Checker for maximum length of a line. """
     rules = {
         "0508": (
             "line-too-long",
@@ -166,7 +166,7 @@ class LineLengthChecker(RawFileChecker):
 
 
 class EmptySectionChecker(VisitorChecker):
-    """ Checker for empty section. """
+    """ Checker for detecting empty sections. """
     rules = {
         "0509": (
             "empty-section",
@@ -197,7 +197,7 @@ class EmptySectionChecker(VisitorChecker):
 
 
 class NumberOfReturnedArgsChecker(VisitorChecker):
-    """ Checker for number of returned values from keyword. """
+    """ Checker for number of returned values from a keyword. """
     rules = {
         "0510": (
             "number-of-returned-values",
@@ -239,7 +239,7 @@ class NumberOfReturnedArgsChecker(VisitorChecker):
 
 
 class EmptySettingsChecker(VisitorChecker):
-    """ Checker for empty settings. """
+    """ Checker for detecting empty settings. """
     rules = {
         "0511": (
             "empty-metadata",

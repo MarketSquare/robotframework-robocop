@@ -17,43 +17,43 @@ class LengthChecker(VisitorChecker):
             "too-long-keyword",
             "Keyword is too long (%d/%d)",
             RuleSeverity.WARNING,
-            ('max_len', 'keyword_max_len', int)
+            ('max_len', 'keyword_max_len', int, 'maximum allowed number of lines')
         ),
         "0502": (
             "too-few-calls-in-keyword",
             "Keyword have too few keywords inside (%d/%d)",
             RuleSeverity.WARNING,
-            ('min_calls', 'keyword_min_calls', int)
+            ('min_calls', 'keyword_min_calls', int, 'minimum required number of keywords inside')
         ),
         "0503": (
             "too-many-calls-in-keyword",
             "Keyword have too many keywords inside (%d/%d)",
             RuleSeverity.WARNING,
-            ('max_calls', 'keyword_max_calls', int)
+            ('max_calls', 'keyword_max_calls', int, 'maximum allowed number of keywords inside')
         ),
         "0504": (
             "too-long-test-case",
             "Test case is too long (%d/%d)",
             RuleSeverity.WARNING,
-            ('max_len', 'testcase_max_len', int)
+            ('max_len', 'testcase_max_len', int, 'maximum allowed number of lines')
         ),
         "0505": (
             "too-many-calls-in-test-case",
             "Test case have too many keywords inside (%d/%d)",
             RuleSeverity.WARNING,
-            ('max_calls', 'testcase_max_calls', int)
+            ('max_calls', 'testcase_max_calls', int, 'maximum allowed number of keywords inside')
         ),
         "0506": (
             "file-too-long",
             "File has too many lines (%d/%d)",
             RuleSeverity.WARNING,
-            ('max_lines', 'file_max_lines', int)
+            ('max_lines', 'file_max_lines', int, 'maximum allowed number of lines')
         ),
         "0507": (
             "too-many-arguments",
             "Keyword has too many arguments (%d/%d)",
             RuleSeverity.WARNING,
-            ('max_args', 'keyword_max_args', int)
+            ('max_args', 'keyword_max_args', int, 'maximum allowed number of arguments')
         )
     }
 
@@ -145,7 +145,7 @@ class LineLengthChecker(RawFileChecker):
             "line-too-long",
             "Line is too long (%d/%d)",
             RuleSeverity.WARNING,
-            ("line_length", "max_line_length", int)
+            ("line_length", "max_line_length", int, 'maximum allowed number of chars in one line')
         )
     }
 

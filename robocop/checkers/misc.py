@@ -155,8 +155,8 @@ class ConsistentAssignmentSignChecker(VisitorChecker):
                 'assignment_sign_type',
                 'keyword_assignment_sign_type',
                 parse_assignment_sign_type,
-                "value can be one of: 'autodetect' (default), 'equal_sign' ('='), 'none' ('') "
-                "or space_and_equal_sign (' =') "
+                "possible values: 'autodetect' (default), 'equal_sign' ('='), 'none' ('') "
+                "or space_and_equal_sign (' =')"
              )
         ),
         "0910": (
@@ -167,15 +167,15 @@ class ConsistentAssignmentSignChecker(VisitorChecker):
                 'assignment_sign_type',
                 'variables_assignment_sign_type',
                 parse_assignment_sign_type,
-                "value can be one of: 'autodetect' (default), 'equal_sign' ('='), 'none' ('') "
-                "or space_and_equal_sign (' =') "
+                "possible values: 'autodetect' (default), 'equal_sign' ('='), 'none' ('') "
+                "or space_and_equal_sign (' =')"
             )
         )
     }
 
     def __init__(self):
-        self.keyword_assignment_sign_type = None  # None means autodetect
-        self.variables_assignment_sign_type = None  # None means autodetect
+        self.keyword_assignment_sign_type = 'autodetect'
+        self.variables_assignment_sign_type = 'autodetect'
         self.keyword_expected_sign_type = None
         self.variables_expected_sign_type = None
         super().__init__()
@@ -183,11 +183,11 @@ class ConsistentAssignmentSignChecker(VisitorChecker):
     def visit_File(self, node):  # noqa
         self.keyword_expected_sign_type = self.keyword_assignment_sign_type
         self.variables_expected_sign_type = self.variables_assignment_sign_type
-        if self.keyword_assignment_sign_type is None or self.variables_assignment_sign_type is None:
+        if self.keyword_assignment_sign_type == 'autodetect' or self.variables_assignment_sign_type == 'autodetect':
             auto_detector = self.auto_detect_assignment_sign(node)
-            if self.keyword_assignment_sign_type is None:
+            if self.keyword_assignment_sign_type == 'autodetect':
                 self.keyword_expected_sign_type = auto_detector.keyword_most_common
-            if self.variables_assignment_sign_type is None:
+            if self.variables_assignment_sign_type == 'autodetect':
                 self.variables_expected_sign_type = auto_detector.variables_most_common
         self.generic_visit(node)
 

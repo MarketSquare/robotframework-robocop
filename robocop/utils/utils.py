@@ -133,7 +133,7 @@ def parse_assignment_sign_type(value):
         'none': '',
         'equal_sign': '=',
         'space_and_equal_sign': ' =',
-        'autodetect': None
+        'autodetect': 'autodetect'
     }
     if value not in types:
         raise ValueError(

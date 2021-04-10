@@ -43,7 +43,7 @@ class ParsingErrorChecker(VisitorChecker):
 
 
 class TwoSpacesAfterSettingsChecker(VisitorChecker):
-    """ Checker for not enough whitespace after [Setting] header. """
+    """ Checker for not enough whitespaces after [Setting] header. """
     rules = {
         "0402": (
             "missing-whitespace-after-setting",

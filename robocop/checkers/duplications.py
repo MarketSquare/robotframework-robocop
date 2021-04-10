@@ -120,7 +120,7 @@ class DuplicationsChecker(VisitorChecker):
             self.variable_imports[node.name].append(node)
 
 
-class DuplicatedOrOutOfOrderSectionChecker(VisitorChecker):
+class SectionHeadersChecker(VisitorChecker):
     """ Checker for duplicated or out of order section headers. """
     rules = {
         "0808": (

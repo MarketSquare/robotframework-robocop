@@ -24,7 +24,7 @@ class DisablersFinder:
     def __init__(self, filename, source=None):
         self.file_disabled = False
         self.any_disabler = False
-        self.disabler_pattern = re.compile(r'robocop: (?P<disabler>disable|enable)=?(?P<rules>[\w\-,]*)')
+        self.disabler_pattern = re.compile(r'robocop: ?(?P<disabler>disable|enable)=?(?P<rules>[\w\-,]*)')
         self.rules = defaultdict(DisablersInFile().copy)
         if source is not None:
             self._parse_source(source)

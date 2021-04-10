@@ -11,11 +11,10 @@ Robocop documentation
    :maxdepth: 1
 
    user_guide
-   external_rules
-   checkers
    rules
    including_rules
    reports
+   external_rules
    api
 
 Indices and tables

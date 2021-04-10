@@ -84,20 +84,21 @@ def setup(app):
 
 @total_ordering
 class RuleDoc:
-    def __init__(self, rule_id, rule_def, group):
-        self.name = f"[{rule_def[2].value}{rule_id}] {rule_def[0]}: {rule_def[1]}"
-        self.params = self.get_params(rule_def)
-        self.rule_id = rule_id
+    def __init__(self, rule, group, checker):
+        self.name = f"[{rule.severity.value}{rule.rule_id}] {rule.name}: {rule.desc}"
+        self.params = self.get_params(rule, checker)
+        self.rule_id = rule.rule_id
         self.group = group
 
     def __str__(self):
         return f"Group: {self.group}\nName: {self.name}\n  Params: {self.params}"
 
     @staticmethod
-    def get_params(rule_def):
-        params = [("severity", ":class:`robocop.rules.RuleSeverity`")]
-        for param in rule_def[3:]:
-            params.append((param[0], str(param[2])))
+    def get_params(rule, checker):
+        params = [("severity", ":class:`robocop.rules.RuleSeverity`", str(rule.severity), '')]
+        for param in rule.configurable:
+            default = '' if len(param) != 4 else param[3]
+            params.append((param[0], param[2].__name__, rule.get_default_value(param[1], checker), default))
         return params
 
     def __lt__(self, other):
@@ -112,8 +113,9 @@ def get_checker_docs():
     checker_docs = defaultdict(list)
     for checker in robocop.checkers.get_docs():
         module_name = checker.__module__.split('.')[-1].title()
-        for rule, rule_def in checker.rules.items():
-            rule_doc = RuleDoc(rule, rule_def, checker.__module__ + '.' + checker.__name__)
+        checker_instance = checker()
+        for rule in checker_instance.rules_map.values():
+            rule_doc = RuleDoc(rule, checker.__module__ + '.' + checker.__name__, checker_instance)
             checker_docs[module_name].append((rule_doc.rule_id, rule_doc.name, rule_doc.params, rule_doc.group))
     groups_sorted_by_id = []
     for module_name in checker_docs:

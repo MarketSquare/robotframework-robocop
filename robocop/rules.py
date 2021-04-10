@@ -100,10 +100,14 @@ class Rule:
                  f'        info: {conf[3]}'
         return s
 
+    @staticmethod
+    def get_default_value(param, checker):
+        return None if checker is None else checker.__dict__.get(param, None)
+
     def available_configurables(self, include_severity=True, checker=None):
         configurables = ['severity'] if include_severity else []
         for conf in self.configurable:
-            default = None if checker is None else checker.__dict__.get(conf[1], None)
+            default = self.get_default_value(conf[1], checker)
             configurables.append(self.get_configurable_desc(conf, default))
         if not configurables:
             return ''

@@ -1,8 +1,11 @@
 """
 Lengths checkers
 """
+import re
+
 from robot.parsing.model.blocks import CommentSection
 from robot.parsing.model.statements import KeywordCall, Comment, EmptyLine, Arguments
+
 from robocop.checkers import VisitorChecker, RawFileChecker
 from robocop.rules import RuleSeverity
 from robocop.utils import normalize_robot_name
@@ -151,9 +154,13 @@ class LineLengthChecker(RawFileChecker):
 
     def __init__(self):
         self.max_line_length = 120
+        # replace # noqa or # robocop, # robocop: enable, # robocop: disable=optional,rule,names
+        self.disabler_pattern = re.compile(r'(# )+(noqa|robocop: ?(?P<disabler>disable|enable)=?(?P<rules>[\w\-,]*))')
         super().__init__()
 
     def check_line(self, line, lineno):
+        line = self.disabler_pattern.sub('', line)
+        line = line.rstrip().expandtabs(4)
         if len(line) > self.max_line_length:
             self.report("line-too-long", len(line), self.max_line_length, lineno=lineno)
 

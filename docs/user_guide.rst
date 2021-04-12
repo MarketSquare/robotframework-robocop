@@ -103,7 +103,7 @@ Configuring rules
 -----------------
 
 Rules are configurable. Severity of every rule message can be changed and also some of the rules have
-optional parameters. More on this in :ref:`checkers`.
+optional parameters. More on this in :ref:`rules`.
 
 Save output to file
 -------------------

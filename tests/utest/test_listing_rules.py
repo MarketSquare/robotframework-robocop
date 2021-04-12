@@ -23,6 +23,19 @@ def msg_0101_config():
 
 
 @pytest.fixture
+def msg_0101_config_meta():
+    return {
+        '0101': (
+            "some-message",
+            "Some description",
+            RuleSeverity.WARNING,
+            ("conf_param", "conf_param", int),
+            ("conf_param2", "conf_param2", msg_0101_config_meta, 'meta information')
+        )
+    }
+
+
+@pytest.fixture
 def msg_0102_0204_config():
     return {
         '0102': (
@@ -67,10 +80,11 @@ def msg_0102_0204():
     }
 
 
-def init_empty_checker(robocop_instance_pre_load, rule, exclude=False):
+def init_empty_checker(robocop_instance_pre_load, rule, exclude=False, **kwargs):
     checker = EmptyChecker()
     checker.rules = rule
     checker.register_rules(checker.rules)
+    checker.__dict__.update(**kwargs)
     if exclude:
         robocop_instance_pre_load.config.exclude.update(set(rule.keys()))
         robocop_instance_pre_load.config.translate_patterns()
@@ -133,17 +147,20 @@ class TestListingRules:
         assert all(msg in out for msg in exp_msg)
         assert not_exp_msg not in out
 
-    def test_list_configurables(self, robocop_pre_load, msg_0101_config, capsys):
+    def test_list_configurables(self, robocop_pre_load, msg_0101_config_meta, capsys):
         robocop_pre_load.config.list_configurables = robocop.config.translate_pattern('*')
-        init_empty_checker(robocop_pre_load, msg_0101_config)
+        init_empty_checker(robocop_pre_load, msg_0101_config_meta, conf_param=1001)
         with pytest.raises(SystemExit):
             robocop_pre_load.list_checkers()
         out, _ = capsys.readouterr()
         assert out == "All rules have configurable parameter 'severity'. " \
                       "Allowed values are:\n    E / error\n    W / warning\n    I / info\n" \
                       "Rule - 0101 [W]: some-message: Some description (enabled)\n" \
-                      "    Available configurable(s) for this rule:\n" \
-                      "        conf_param (int)\n"
+                      "    conf_param = 1001\n" \
+                      "        type: int\n" \
+                      "    conf_param2 = None\n" \
+                      "        type: msg_0101_config_meta\n" \
+                      "        info: meta information\n"
 
     def test_list_configurables_filtered(self, robocop_pre_load, msg_0101_config, msg_0102_0204_config, capsys):
         robocop_pre_load.config.list_configurables = 'another-message'

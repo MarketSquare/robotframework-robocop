@@ -91,13 +91,27 @@ class Rule:
                 return configurable
         return None
 
-    def available_configurables(self, include_severity=True):
+    @staticmethod
+    def get_configurable_desc(conf, default=None):
+        s = f'{conf[0]} = {default}\n' \
+            f'        type: {conf[2].__name__}'
+        if len(conf) == 4:
+            s += '\n' \
+                 f'        info: {conf[3]}'
+        return s
+
+    @staticmethod
+    def get_default_value(param, checker):
+        return None if checker is None else checker.__dict__.get(param, None)
+
+    def available_configurables(self, include_severity=True, checker=None):
         configurables = ['severity'] if include_severity else []
-        configurables += [f'{conf[0]} ({conf[2].__name__})' for conf in self.configurable]
+        for conf in self.configurable:
+            default = self.get_default_value(conf[1], checker)
+            configurables.append(self.get_configurable_desc(conf, default))
         if not configurables:
             return ''
-        names = '\n        '.join(configurables)
-        return f"Available configurable(s) for this rule:\n        {names}"
+        return '\n    '.join(configurables)
 
     def parse_body(self, body):
         if isinstance(body, tuple) and len(body) >= 3:
@@ -105,7 +119,7 @@ class Rule:
         else:
             raise robocop.exceptions.InvalidRuleBodyError(self.rule_id, body)
         for configurable in self.configurable:
-            if not isinstance(configurable, tuple) or len(configurable) != 3:
+            if not isinstance(configurable, tuple) or len(configurable) not in (3, 4):
                 raise robocop.exceptions.InvalidRuleConfigurableError(self.rule_id, body)
 
     def prepare_message(self, *args, source, node, lineno, col, end_lineno, end_col):

@@ -1,6 +1,6 @@
 .. _external-rules:
 
-Including external rules
+External rules
 ========================
 
 You can include your own custom rules with ``-rules`` or ``--ext-rules`` arguments.
@@ -10,7 +10,7 @@ It accepts comma separated list of paths to files or directories. Example::
 
 Every custom checker needs to complete following requirements:
 
-1. It needs to inherit from official checker classes (``VisitorChecker`` or ``RawFileChecker``) and implements required methods. Refer to :ref:`checkers` for more details.
+1. It needs to inherit from official checker classes (``VisitorChecker`` or ``RawFileChecker``) and implements required methods. Refer to :ref:`rules` for more details.
 
 2. It should contain non-empty *rules* class attribute of type ``dict``.
 

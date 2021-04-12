@@ -72,25 +72,45 @@ class EmptyLinesChecker(VisitorChecker):
             "empty-lines-between-sections",
             "Invalid number of empty lines between sections (%d/%d)",
             RuleSeverity.WARNING,
-            ("empty_lines", "empty_lines_between_sections", int)
+            (
+                "empty_lines",
+                "empty_lines_between_sections",
+                int,
+                "number of empty lines required between sections"
+            )
         ),
         "1004": (
             "empty-lines-between-test-cases",
             "Invalid number of empty lines between test cases (%d/%d)",
             RuleSeverity.WARNING,
-            ("empty_lines", "empty_lines_between_test_cases", int)
+            (
+                "empty_lines",
+                "empty_lines_between_test_cases",
+                int,
+                "number of empty lines required between test cases"
+            )
         ),
         "1005": (
             "empty-lines-between-keywords",
             "Invalid number of empty lines between keywords (%d/%d)",
             RuleSeverity.WARNING,
-            ("empty_lines", "empty_lines_between_keywords", int)
+            (
+                "empty_lines",
+                "empty_lines_between_keywords",
+                int,
+                "number of empty lines required between keywords"
+            )
         ),
         "1009": (
             "empty-line-after-section",
             "Too many empty lines after section header (%d/%d)",
             RuleSeverity.WARNING,
-            ("empty_lines", "empty_lines_after_section_header", int)
+            (
+                "empty_lines",
+                "empty_lines_after_section_header",
+                int,
+                "number of empty lines allowed after section header"
+            )
         )
     }
 

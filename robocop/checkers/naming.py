@@ -23,7 +23,12 @@ class InvalidCharactersInNameChecker(VisitorChecker):
             "invalid-char-in-name",
             "Invalid character %s in %s name",
             RuleSeverity.WARNING,
-            ('invalid_chars', 'invalid_chars', set)
+            (
+                'invalid_chars',
+                'invalid_chars',
+                set,
+                'set of characters not allowed in a name'
+            )
         )
     }
 
@@ -206,7 +211,7 @@ class SettingsNamingChecker(VisitorChecker):
         ),
         "0307": (
             "section-name-invalid",
-            "Section name should should be in format '*** Capitalized ***' or '*** UPPERCASE ***'",
+            "Section name should should be in format `*** Capitalized ***` or `*** UPPERCASE ***`",
             RuleSeverity.WARNING
         )
     }

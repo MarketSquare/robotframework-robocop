@@ -155,7 +155,7 @@ class ConsistentAssignmentSignChecker(VisitorChecker):
                 'assignment_sign_type',
                 'keyword_assignment_sign_type',
                 parse_assignment_sign_type,
-                "possible values: 'autodetect' (default), 'equal_sign' ('='), 'none' ('') "
+                "possible values: 'autodetect' (default), 'none' (''), 'equal_sign' ('=') "
                 "or space_and_equal_sign (' =')"
              )
         ),
@@ -167,7 +167,7 @@ class ConsistentAssignmentSignChecker(VisitorChecker):
                 'assignment_sign_type',
                 'variables_assignment_sign_type',
                 parse_assignment_sign_type,
-                "possible values: 'autodetect' (default), 'equal_sign' ('='), 'none' ('') "
+                "possible values: 'autodetect' (default), 'none' (''), 'equal_sign' ('=') "
                 "or space_and_equal_sign (' =')"
             )
         )
@@ -183,7 +183,7 @@ class ConsistentAssignmentSignChecker(VisitorChecker):
     def visit_File(self, node):  # noqa
         self.keyword_expected_sign_type = self.keyword_assignment_sign_type
         self.variables_expected_sign_type = self.variables_assignment_sign_type
-        if self.keyword_assignment_sign_type == 'autodetect' or self.variables_assignment_sign_type == 'autodetect':
+        if 'autodetect' in [self.keyword_assignment_sign_type, self.variables_assignment_sign_type]:
             auto_detector = self.auto_detect_assignment_sign(node)
             if self.keyword_assignment_sign_type == 'autodetect':
                 self.keyword_expected_sign_type = auto_detector.keyword_most_common

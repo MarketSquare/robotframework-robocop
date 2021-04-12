@@ -20,13 +20,18 @@ class LengthChecker(VisitorChecker):
             "too-long-keyword",
             "Keyword is too long (%d/%d)",
             RuleSeverity.WARNING,
-            ('max_len', 'keyword_max_len', int, 'number of lines allowed in a keyword')
+            (
+                'max_len',
+                'keyword_max_len',
+                int,
+                'number of lines allowed in a keyword'
+            )
         ),
         "0502": (
             "too-few-calls-in-keyword",
             "Keyword has too few keywords inside (%d/%d)",
             RuleSeverity.WARNING,
-            ('min_calls', 'keyword_min_calls', int, 'minimum number of keyword calls required in a keyword')
+            ('min_calls', 'keyword_min_calls', int, 'number of keyword calls required in a keyword')
         ),
         "0503": (
             "too-many-calls-in-keyword",

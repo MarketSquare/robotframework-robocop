@@ -24,13 +24,13 @@ class LengthChecker(VisitorChecker):
         ),
         "0502": (
             "too-few-calls-in-keyword",
-            "Keyword have too few keywords inside (%d/%d)",
+            "Keyword has too few keywords inside (%d/%d)",
             RuleSeverity.WARNING,
             ('min_calls', 'keyword_min_calls', int, 'minimum number of keyword calls required in a keyword')
         ),
         "0503": (
             "too-many-calls-in-keyword",
-            "Keyword have too many keywords inside (%d/%d)",
+            "Keyword has too many keywords inside (%d/%d)",
             RuleSeverity.WARNING,
             ('max_calls', 'keyword_max_calls', int, 'number of keyword calls allowed in a keyword')
         ),
@@ -42,7 +42,7 @@ class LengthChecker(VisitorChecker):
         ),
         "0505": (
             "too-many-calls-in-test-case",
-            "Test case have too many keywords inside (%d/%d)",
+            "Test case has too many keywords inside (%d/%d)",
             RuleSeverity.WARNING,
             ('max_calls', 'testcase_max_calls', int, 'number of keyword calls allowed in a test case')
         ),

@@ -197,6 +197,7 @@ class KeywordNamingChecker(VisitorChecker):
 
 
 class SettingsNamingChecker(VisitorChecker):
+    """ Checker for section naming violations. """
     rules = {
         "0306": (
             "setting-name-not-capitalized",
@@ -291,6 +292,7 @@ class TestCaseNamingChecker(VisitorChecker):
 
 
 class VariableNamingChecker(VisitorChecker):
+    """ Checker for variable naming violations. """
     rules = {
         "0309": (
             "section-variable-not-uppercase",

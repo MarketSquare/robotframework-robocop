@@ -1,7 +1,7 @@
 """
-Robocop lint rules are internally grouped into similar groups called checkers. Each checker can scan for multiple
-related issues (like ``LengthChecker`` checks both for min and max length of keyword). You can refer to specific
-rules reported by checkers by its name or id (for example `0501` or `too-long-keyword`).
+Robocop rules are internally grouped into checkers. Each checker can scan for multiple related issues
+(like ``LengthChecker`` checks both for minimum and maximum length of a keyword). You can refer to
+specific rule reported by checkers by its name or id (for example `too-long-keyword` or `0501`).
 
 Checkers are categorized into following groups:
  * 01: base
@@ -19,13 +19,13 @@ Checkers are categorized into following groups:
 
 Checker has two basic types:
 
-- ``VisitorChecker`` uses Robot Framework parsing api and Python `ast` module for traversing Robot code as nodes
+- ``VisitorChecker`` uses Robot Framework parsing API and Python `ast` module for traversing Robot code as nodes,
 
-- ``RawFileChecker`` simply reads Robot file as normal file and scans every line
+- ``RawFileChecker`` simply reads Robot file as normal file and scans every line.
 
-Every rule has a `unique id` made of 4 digits where first 2 are `group id` while 2 latter are `rule id`.
+Every rule has a `unique id` made of 4 digits where first 2 are `checker id` while 2 latter are `rule id`.
 `Unique id` as well as `rule name` can be used to refer to the rule (e.g. in include/exclude statements,
-configurations etc.) You can optionally configure rule severity or other parameters.
+configurations etc.). You can optionally configure rule severity or other parameters.
 """
 import inspect
 from robocop.rules import Rule

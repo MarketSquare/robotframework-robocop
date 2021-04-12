@@ -1,6 +1,6 @@
 """
-Reports are configurable summaries after lint scan. For example it could be total number of issues discovered.
-They are dynamically loaded during setup according to command line configuration.
+Reports are configurable summaries after Robocop scan. For example, it can be a total number of issues discovered.
+They are dynamically loaded during setup according to a command line configuration.
 
 Each report class collects rules messages from linter and parses it. At the end of the scan it will print the report.
 
@@ -91,7 +91,7 @@ class ReturnStatusReport(Report):
     Report name: ``return_status``
 
     Report that checks if number of returned rules messages for given severity value does not exceed preset threshold.
-    That information is later used as return status from Robocop.
+    That information is later used as a return status from Robocop.
     """
     def __init__(self):
         self.name = 'return_status'
@@ -150,7 +150,7 @@ class JsonReport(Report):
     """
     Report name: ``json_report``
 
-    Report that return lists of issues in json format.
+    Report that returns list of found issues in JSON format.
     """
     def __init__(self):
         self.name = 'json_report'

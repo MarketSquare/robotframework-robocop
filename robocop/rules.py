@@ -2,24 +2,24 @@
 Every issue is reported as ``robocop.rules.Message`` object. It can be later printed or used by
 post-run reports.
 
-Format output message
+Output message format
 ---------------------
 
-Output rule message can be defined with ``-f`` / ``--format`` argument. Default value::
+Output message of rules can be defined with ``-f`` / ``--format`` argument. Default value::
 
     "{source}:{line}:{col} [{severity}] {rule_id} {desc}"
 
 Available formats:
-  * source: path to file where is the issue
-  * source_rel: path to file where is the issue, relative to execution directory
-  * line: line number
-  * end_line: end line number
-  * col: column number
-  * end_col: end column number
-  * severity: severity of the message. Value of enum ``robocop.rules.RuleSeverity``
-  * rule_id: rule id (ie. 0501)
-  * rule_name: rule name (ie. line-too-long)
-  * desc: description of rule
+  * ``source``:     path to the file where the issue occurred
+  * ``source_rel``: path to the file where the issue occurred, relative to execution directory
+  * ``line``:       line number where the issue starts
+  * ``end_line``:   line number where the issue ends
+  * ``col``:        column number where the issue starts
+  * ``end_col``:    column number where the issue ends
+  * ``severity``:   severity of the issue, value of ``robocop.rules.RuleSeverity`` enum
+  * ``rule_id``:    rule id (e.g. 0501)
+  * ``rule_name``:  rule name (e.g. ``line-too-long`)
+  * ``desc``:       description of the rule
 """
 from enum import Enum
 from functools import total_ordering
@@ -30,13 +30,13 @@ import robocop.exceptions
 class RuleSeverity(Enum):
     """
     Rule severity.
-    It can be configured with ``-c / --configure id_or_msg_name:severity:value``
-    Where value can be first letter of severity value or whole name, case insensitive.
+    It can be configured with ``--configure id_or_msg_name:severity:value``
+    where value can be first letter of severity value or whole name, case insensitive.
     For example ::
 
         -c line-too-long:severity:e
 
-    Will change `line-too-long` message severity to error.
+    will change `line-too-long` rule severity to error.
 
     You can filter out all rules below given severity value by using following option::
 
@@ -46,7 +46,7 @@ class RuleSeverity(Enum):
 
         --threshold E
 
-    Will only report rules with severity E and above.
+    will only report rules with severity E and above.
     """
     INFO = "I"
     WARNING = "W"

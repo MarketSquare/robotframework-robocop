@@ -14,7 +14,7 @@ from robocop.utils import token_col
 
 
 class InvalidSpacingChecker(RawFileChecker):
-    """ Checker for invalid spacing. """
+    """ Checker for trailing spaces and lines. """
     rules = {
         "1001": (
             "trailing-whitespace",
@@ -231,7 +231,7 @@ class InconsistentUseOfTabsAndSpacesChecker(VisitorChecker, ModelVisitor):
 
 
 class UnevenIndentChecker(VisitorChecker):
-    """ Checker for uneven indentation. """
+    """ Checker for indentation violations. """
     rules = {
         "1007": (
             "uneven-indent",

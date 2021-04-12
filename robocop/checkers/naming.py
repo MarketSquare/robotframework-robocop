@@ -23,7 +23,12 @@ class InvalidCharactersInNameChecker(VisitorChecker):
             "invalid-char-in-name",
             "Invalid character %s in %s name",
             RuleSeverity.WARNING,
-            ('invalid_chars', 'invalid_chars', set, 'set of characters not allowed in a name')
+            (
+                'invalid_chars',
+                'invalid_chars',
+                set,
+                'set of characters not allowed in a name'
+            )
         )
     }
 

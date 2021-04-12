@@ -31,37 +31,67 @@ class LengthChecker(VisitorChecker):
             "too-few-calls-in-keyword",
             "Keyword has too few keywords inside (%d/%d)",
             RuleSeverity.WARNING,
-            ('min_calls', 'keyword_min_calls', int, 'number of keyword calls required in a keyword')
+            (
+                'min_calls',
+                'keyword_min_calls',
+                int,
+                'number of keyword calls required in a keyword'
+            )
         ),
         "0503": (
             "too-many-calls-in-keyword",
             "Keyword has too many keywords inside (%d/%d)",
             RuleSeverity.WARNING,
-            ('max_calls', 'keyword_max_calls', int, 'number of keyword calls allowed in a keyword')
+            (
+                'max_calls',
+                'keyword_max_calls',
+                int,
+                'number of keyword calls allowed in a keyword'
+            )
         ),
         "0504": (
             "too-long-test-case",
             "Test case is too long (%d/%d)",
             RuleSeverity.WARNING,
-            ('max_len', 'testcase_max_len', int, 'number of lines allowed in a test case')
+            (
+                'max_len',
+                'testcase_max_len',
+                int,
+                'number of lines allowed in a test case'
+            )
         ),
         "0505": (
             "too-many-calls-in-test-case",
             "Test case has too many keywords inside (%d/%d)",
             RuleSeverity.WARNING,
-            ('max_calls', 'testcase_max_calls', int, 'number of keyword calls allowed in a test case')
+            (
+                'max_calls',
+                'testcase_max_calls',
+                int,
+                'number of keyword calls allowed in a test case'
+            )
         ),
         "0506": (
             "file-too-long",
             "File has too many lines (%d/%d)",
             RuleSeverity.WARNING,
-            ('max_lines', 'file_max_lines', int, 'number of lines allowed in a file')
+            (
+                'max_lines',
+                'file_max_lines',
+                int,
+                'number of lines allowed in a file'
+            )
         ),
         "0507": (
             "too-many-arguments",
             "Keyword has too many arguments (%d/%d)",
             RuleSeverity.WARNING,
-            ('max_args', 'keyword_max_args', int, 'number of arguments a keyword can take')
+            (
+                'max_args',
+                'keyword_max_args',
+                int,
+                'number of arguments a keyword can take'
+            )
         )
     }
 
@@ -153,7 +183,12 @@ class LineLengthChecker(RawFileChecker):
             "line-too-long",
             "Line is too long (%d/%d)",
             RuleSeverity.WARNING,
-            ("line_length", "max_line_length", int, 'number of characters allowed in one line')
+            (
+                "line_length",
+                "max_line_length",
+                int,
+                'number of characters allowed in one line'
+            )
         )
     }
 
@@ -208,7 +243,12 @@ class NumberOfReturnedArgsChecker(VisitorChecker):
             "number-of-returned-values",
             "Too many return values (%d/%d)",
             RuleSeverity.WARNING,
-            ("max_returns", "max_returns", int, 'allowed number of returned values from a keyword')
+            (
+                'max_returns',
+                'max_returns',
+                int,
+                'allowed number of returned values from a keyword'
+            )
         )
     }
 

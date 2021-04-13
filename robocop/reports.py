@@ -51,7 +51,7 @@ class RulesByIdReport(Report):
                                          key=itemgetter(1), reverse=True)
         report = '\nIssues by IDs:\n'
         if not message_counter_ordered:
-            report += "No issues found\n"
+            report += "No issues found"
             return report
         longest_name = max(len(msg[0]) for msg in message_counter_ordered)
         report += '\n'.join(f"{message:{longest_name}} : {count}" for message, count in message_counter_ordered)

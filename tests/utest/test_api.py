@@ -20,15 +20,19 @@ def rule():
     return Rule('0101', msg)
 
 
+def run_check_on_string(in_memory, root='.'):
+    config = robocop.Config(root=root)
+    robocop_runner = robocop.Robocop(config=config)
+    robocop_runner.reload_config()
+
+    ast_model = get_model(in_memory)
+    return robocop_runner.run_check(ast_model, r'C:\directory\file.robot', in_memory)
+
+
 class TestAPI:
     def test_run_check_in_memory(self):
-        config = robocop.Config(root='.')
-
-        robocop_runner = robocop.Robocop(config=config)
-        robocop_runner.reload_config()
         in_memory = "*** Settings ***\n\n"
-        ast_model = get_model(in_memory)
-        issues = robocop_runner.run_check(ast_model, r'C:\directory\file.robot', in_memory)
+        issues = run_check_on_string(in_memory)
         expected_issues = {
             'Missing documentation in suite',
             'Section is empty',            
@@ -38,13 +42,8 @@ class TestAPI:
         assert expected_issues == actual_issues
 
     def test_run_check_in_memory_with_windows_line_endings(self):
-        config = robocop.Config(root='.')
-
-        robocop_runner = robocop.Robocop(config=config)
-        robocop_runner.reload_config()
         in_memory = "*** Settings *** \r\n\r\n"
-        ast_model = get_model(in_memory)
-        issues = robocop_runner.run_check(ast_model, r'C:\directory\file.robot', in_memory)
+        issues = run_check_on_string(in_memory)
         expected_issues = {
             'Missing documentation in suite',
             'Section is empty',
@@ -55,13 +54,8 @@ class TestAPI:
         assert expected_issues == actual_issues
 
     def test_run_check_in_memory_with_mac_line_endings(self):
-        config = robocop.Config(root='.')
-
-        robocop_runner = robocop.Robocop(config=config)
-        robocop_runner.reload_config()
         in_memory = "*** Settings *** \r\r"
-        ast_model = get_model(in_memory)
-        issues = robocop_runner.run_check(ast_model, r'C:\directory\file.robot', in_memory)
+        issues = run_check_on_string(in_memory)
         expected_issues = {
             'Missing documentation in suite',
             'Section is empty',
@@ -73,13 +67,8 @@ class TestAPI:
 
     def test_run_check_in_memory_with_config(self):
         config_path = Path(Path(__file__).parent.parent, 'test_data', 'api_config')
-        config = robocop.Config(root=config_path)
-
-        robocop_runner = robocop.Robocop(config=config)
-        robocop_runner.reload_config()
         in_memory = "*** Settings ***\n\n"
-        ast_model = get_model(in_memory)
-        issues = robocop_runner.run_check(ast_model, r'C:\directory\file.robot', in_memory)
+        issues = run_check_on_string(in_memory, root=config_path)
         issues_by_desc = [issue.desc for issue in issues]
         assert 'Missing documentation in suite' in issues_by_desc
         assert 'Section is empty' not in issues_by_desc
@@ -144,12 +133,8 @@ class TestAPI:
 
     def test_ignore_sys_argv(self, monkeypatch):
         monkeypatch.setattr("sys.argv", ["robocorp", "--some", "args.robot"])
-        config = robocop.Config()
-        robocop_runner = robocop.Robocop(config=config)
-        robocop_runner.reload_config()
         in_memory = "*** Settings ***\n\n"
-        ast_model = get_model(in_memory)
-        issues = robocop_runner.run_check(ast_model, r'C:\directory\file.robot', in_memory)
+        issues = run_check_on_string(in_memory)
         expected_issues = {
             'Missing documentation in suite',
             'Section is empty',
@@ -159,26 +144,14 @@ class TestAPI:
 
     def test_robocop_api_no_trailing_blank_line_message(self):
         """ Bug from #307 """
-        source = "*** Test Cases ***\nTest\n    Fail\n    \nTest\n    Fail\n"
-        ast = get_model(source)
-
-        config = robocop.Config()
-        robocop_runner = robocop.Robocop(config=config)
-        robocop_runner.reload_config()
-
-        issues = robocop_runner.run_check(ast, 'target.robot', source)
+        in_memory = "*** Test Cases ***\nTest\n    Fail\n    \nTest\n    Fail\n"
+        issues = run_check_on_string(in_memory)
         diag_issues = issues_to_lsp_diagnostic(issues)
         assert all(d["message"] != "Missing trailing blank line at the end of file" for d in diag_issues)
 
     def test_unicode_strings(self):
-        source = '*** Variables ***\n${MY_VARIABLE}    Liian pitkä rivi, jossa on ääkkösiä. ' \
+        in_memory = '*** Variables ***\n${MY_VARIABLE}    Liian pitkä rivi, jossa on ääkkösiä. ' \
                  'Pituuden tarkistuksen pitäisi laskea merkkejä, eikä tavuja.\n'
-        ast = get_model(source)
-
-        config = robocop.Config()
-        robocop_runner = robocop.Robocop(config=config)
-        robocop_runner.reload_config()
-
-        issues = robocop_runner.run_check(ast, 'target.robot', source)
+        issues = run_check_on_string(in_memory)
         diag_issues = issues_to_lsp_diagnostic(issues)
         assert all(d["message"] != "Line is too long" for d in diag_issues)

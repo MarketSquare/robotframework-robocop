@@ -113,7 +113,7 @@ class RawFileChecker(BaseChecker):  # noqa
         if self.lines is not None:
             self._parse_lines(self.lines)
         else:
-            with open(self.source) as file:
+            with open(self.source, encoding='utf-8') as file:
                 self._parse_lines(file)
 
     def _parse_lines(self, lines):

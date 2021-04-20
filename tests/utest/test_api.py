@@ -169,3 +169,16 @@ class TestAPI:
         issues = robocop_runner.run_check(ast, 'target.robot', source)
         diag_issues = issues_to_lsp_diagnostic(issues)
         assert all(d["message"] != "Missing trailing blank line at the end of file" for d in diag_issues)
+
+    def test_unicode_strings(self):
+        source = '*** Variables ***\n${MY_VARIABLE}    Liian pitkä rivi, jossa on ääkkösiä. ' \
+                 'Pituuden tarkistuksen pitäisi laskea merkkejä, eikä tavuja.\n'
+        ast = get_model(source)
+
+        config = robocop.Config()
+        robocop_runner = robocop.Robocop(config=config)
+        robocop_runner.reload_config()
+
+        issues = robocop_runner.run_check(ast, 'target.robot', source)
+        diag_issues = issues_to_lsp_diagnostic(issues)
+        assert all(d["message"] != "Line is too long" for d in diag_issues)

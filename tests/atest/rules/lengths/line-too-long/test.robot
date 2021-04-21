@@ -3,6 +3,10 @@ Documentation  doc
 Library    Collections                                                                                                                                     
 
 
+*** Variables ***
+${MY_VARIABLE}    Liian pitkä rivi, jossa on ääkkösiä. Pituuden tarkistuksen pitäisi laskea merkkejä, eikä tavuja.
+
+
 *** Test Cases ***
 Test
     [Documentation]  doc
@@ -24,3 +28,7 @@ Keyword
     Pass
     Keyword With Looooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooong Name And  ${args}
     Fail
+
+Keyword With Unicode
+    This Is ąęłżź ąęłżź ąęłżź ąęłżź ąęłżź ąęłżź ąęłżź ąęłżź ąęłżź ąęłżź ąęłżź ąęłżź ąęłżź
+    日本語 日本語 日本語 日本語 日本語 日本語 日本語 日本語 日本語 日本語 日本語 日本語 日本語 日本語

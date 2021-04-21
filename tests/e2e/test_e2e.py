@@ -137,15 +137,36 @@ class TestE2E:
         with pytest.raises(SystemExit):
             robocop_instance.run()
 
-    def test_configure_invalid_rule(self, robocop_instance):
+    @pytest.mark.parametrize('rule, expected', [
+        ('idontexist', "Provided rule or report 'idontexist' does not exist."),
+        ('not-enough-whitespace-after-newline-mark',
+         r"Provided rule or report 'not-enough-whitespace-after-newline-mark' does not exist. "
+         r"Did you mean:\n    not-enough-whitespace-after-newline-marker"
+         )
+    ])
+    def test_configure_invalid_rule(self, robocop_instance, rule, expected):
         config = Config()
-        config.parse_opts(['--configure', 'idontexist:severity:E',
+        config.parse_opts(['--configure', f'{rule}:severity:E',
                            str(Path(Path(__file__).parent.parent, 'test_data'))])
         robocop_instance.config = config
         robocop_instance.load_checkers()
         with pytest.raises(ConfigGeneralError) as err:
             robocop_instance.configure_checkers_or_reports()
-        assert "Provided rule or report 'idontexist' does not exist" in str(err)
+        assert expected in str(err)
+
+    @pytest.mark.parametrize('rules, expected', [
+        ('invalid', f"Provided rule 'invalid' does not exist."),
+        ('parsing-error,invalid', "Provided rule 'invalid' does not exist."),
+        ('line-toolong', r"Provided rule 'line-toolong' does not exist. Did you mean:\n    line-too-long")
+    ])
+    def test_include_exclude_invalid_rule(self, robocop_instance, rules, expected):
+        for method in ('--include', '--exclude'):
+            config = Config()
+            config.parse_opts([method, rules, '.'])
+            robocop_instance.config = config
+            with pytest.raises(ConfigGeneralError) as err:
+                robocop_instance.reload_config()
+            assert expected in str(err)
 
     def test_configure_invalid_param(self, robocop_instance):
         config = Config()

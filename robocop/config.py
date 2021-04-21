@@ -1,6 +1,7 @@
 import argparse
 import fnmatch
 from pathlib import Path
+from itertools import chain
 import os
 import re
 import sys
@@ -11,9 +12,15 @@ try:
 except ImportError:
     TOML_SUPPORT = False
 
-from robocop.exceptions import ArgumentFileNotFoundError, NestedArgumentFileError, InvalidArgumentError
+from robocop.exceptions import (
+    ArgumentFileNotFoundError,
+    NestedArgumentFileError,
+    InvalidArgumentError,
+    ConfigGeneralError
+)
 from robocop.rules import RuleSeverity
 from robocop.version import __version__
+from robocop.utils import RecommendationFinder
 
 
 def translate_pattern(pattern):
@@ -163,9 +170,6 @@ class Config:
         'epilog':            'For full documentation visit: https://github.com/MarketSquare/robotframework-robocop'
     }
 
-    def _translate_patterns(self, pattern_list):
-        return [translate_pattern(p) for p in pattern_list if '*' in p]
-
     def remove_severity(self):
         self.include = {self.replace_severity_values(rule) for rule in self.include}
         self.exclude = {self.replace_severity_values(rule) for rule in self.exclude}
@@ -176,9 +180,19 @@ class Config:
             message = self.replace_severity_values(message)
             self.configure[index] = f"{message}:{param}:{value}"
 
+    @staticmethod
+    def filter_patterns_from_names(only_names, only_patterns):
+        filtered = set()
+        for rule in only_names:
+            if '*' in rule:
+                only_patterns.append(translate_pattern(rule))
+            else:
+                filtered.add(rule)
+        return filtered
+
     def translate_patterns(self):
-        self.include_patterns = self._translate_patterns(self.include)
-        self.exclude_patterns = self._translate_patterns(self.exclude)
+        self.include = self.filter_patterns_from_names(self.include, self.include_patterns)
+        self.exclude = self.filter_patterns_from_names(self.exclude, self.exclude_patterns)
 
     def preparse(self, args):
         args = sys.argv[1:] if args is None else args
@@ -305,6 +319,12 @@ class Config:
         config = config.get("tool", {}).get("robocop", {})
         parse_toml_to_config(config, self)
         self.config_from = pyproject_path
+
+    def validate_rule_names(self, rules):
+        for rule in chain(self.include, self.exclude):
+            if rule not in rules:
+                similiar = RecommendationFinder().find_similar(rule, rules)
+                raise ConfigGeneralError(f"Provided rule '{rule}' does not exist.{similiar}")
 
     def is_rule_enabled(self, rule):
         if self.is_rule_disabled(rule):

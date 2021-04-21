@@ -184,7 +184,7 @@ class RecommendationFinder:
     @staticmethod
     def get_original_candidates(candidates, norm_candidates):
         """ Map found normalized candidates to unique original candidates. """
-        return list(set(c for cand in candidates for c in norm_candidates[cand]))
+        return sorted(list(set(c for cand in candidates for c in norm_candidates[cand])))
 
     def get_normalized_candidates(self, candidates):
         """

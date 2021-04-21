@@ -88,10 +88,10 @@ class TestAssignmentTypeDetector:
 
 class TestRecommendationFinder:
     @pytest.mark.parametrize('name, normalized', [
-        ('justname', 'justname'),
-        ('just_name', 'just name'),
-        ('just-name', 'just name'),
-        ('name-just', 'just name')
+        ('justname', ('justname', 'justname')),
+        ('just_name', ('just name', 'justname')),
+        ('just-name', ('just name', 'justname')),
+        ('name-just', ('just name', 'namejust'))
     ])
     def test_normalize(self, name, normalized):
         rec = RecommendationFinder()

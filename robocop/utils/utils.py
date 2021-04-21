@@ -174,11 +174,16 @@ class RecommendationFinder:
 
     @staticmethod
     def normalize(name):
+        """
+        Return tuple where first element is string created from sorted words in name,
+        and second element is name without `-` and `_`.
+        """
         norm = re.split('[-_ ]+', name)
         return ' '.join(sorted(norm)), name.replace('-', '').replace('_', '')
 
     @staticmethod
     def get_original_candidates(candidates, norm_candidates):
+        """ Map found normalized candidates to unique original candidates. """
         return list(set(c for cand in candidates for c in norm_candidates[cand]))
 
     def get_normalized_candidates(self, candidates):

@@ -75,8 +75,9 @@ class KeywordNamingChecker(VisitorChecker):
     rules = {
         "0302": (
             "not-capitalized-keyword-name",
-            "Keyword name should be capitalized",
-            RuleSeverity.WARNING
+            "Keyword name should use title case",
+            RuleSeverity.WARNING,
+            ('check_only_first_word', 'check_only_first_word', bool)
         ),
         "0303": (
             "keyword-name-is-reserved-word",
@@ -120,6 +121,7 @@ class KeywordNamingChecker(VisitorChecker):
     def __init__(self):
         self.letter_pattern = re.compile(r'\W|_', re.UNICODE)
         self.var_pattern = re.compile(r'[$@%&]{.+}')
+        self.check_only_first_word = False
         super().__init__()
 
     def visit_SuiteSetup(self, node):  # noqa
@@ -182,6 +184,8 @@ class KeywordNamingChecker(VisitorChecker):
         if '_' in keyword_name:
             self.report("underscore-in-keyword-name", node=node)
         words = self.letter_pattern.sub(' ', keyword_name).split(' ')
+        if self.check_only_first_word:
+            words = words[:1]
         if any(word[0].islower() for word in words if word):
             self.report("not-capitalized-keyword-name", node=node)
 

@@ -15,7 +15,8 @@ from robocop.utils.utils import (
     issues_to_lsp_diagnostic,
     AssignmentTypeDetector,
     parse_assignment_sign_type,
-    token_col
+    token_col,
+    RecommendationFinder
 )
 
 
@@ -34,5 +35,6 @@ __all__ = [
     'issues_to_lsp_diagnostic',
     'AssignmentTypeDetector',
     'parse_assignment_sign_type',
-    'token_col'
+    'token_col',
+    'RecommendationFinder'
 ]

@@ -13,7 +13,13 @@ import robocop.exceptions
 from robocop import checkers
 from robocop import reports
 from robocop.config import Config
-from robocop.utils import DisablersFinder, FileType, FileTypeChecker, issues_to_lsp_diagnostic
+from robocop.utils import (
+    DisablersFinder,
+    FileType,
+    FileTypeChecker,
+    issues_to_lsp_diagnostic,
+    RecommendationFinder
+)
 
 
 class Robocop:
@@ -67,6 +73,7 @@ class Robocop:
     def reload_config(self):
         """ Reload checkers and reports based on current config """
         self.load_checkers()
+        self.config.validate_rule_names(self.rules)
         self.list_checkers()
         self.load_reports()
         self.configure_checkers_or_reports()
@@ -279,8 +286,9 @@ class Robocop:
             elif rule_or_report in self.reports:
                 self.reports[rule_or_report].configure(param, value, *values)
             else:
+                similiar = RecommendationFinder().find_similar(rule_or_report, self.rules)
                 raise robocop.exceptions.ConfigGeneralError(
-                    f"Provided rule or report '{rule_or_report}' does not exist")
+                    f"Provided rule or report '{rule_or_report}' does not exist.{similiar}")
 
 
 def run_robocop():

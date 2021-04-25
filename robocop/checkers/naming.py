@@ -74,7 +74,7 @@ class KeywordNamingChecker(VisitorChecker):
     """ Checker for keyword naming violations. """
     rules = {
         "0302": (
-            "not-capitalized-keyword-name",
+            "not-title-case-keyword-name",
             "Keyword name should use title case",
             RuleSeverity.WARNING,
             ('check_only_first_word', 'check_only_first_word', bool)
@@ -187,7 +187,7 @@ class KeywordNamingChecker(VisitorChecker):
         if self.check_only_first_word:
             words = words[:1]
         if any(word[0].islower() for word in words if word):
-            self.report("not-capitalized-keyword-name", node=node)
+            self.report("not-title-case-keyword-name", node=node)
 
     def check_if_keyword_is_reserved(self, keyword_name, node):
         # if there is typo in syntax, it is interpreted as keyword
@@ -209,8 +209,8 @@ class SettingsNamingChecker(VisitorChecker):
     """ Checker for section naming violations. """
     rules = {
         "0306": (
-            "setting-name-not-capitalized",
-            "Setting name should be capitalized or upper case",
+            "setting-name-not-title-case",
+            "Setting name should be title or upper case",
             RuleSeverity.WARNING
         ),
         "0307": (
@@ -282,7 +282,7 @@ class SettingsNamingChecker(VisitorChecker):
 
     def check_setting_name(self, name, node):
         if not (name.istitle() or name.isupper()):
-            self.report("setting-name-not-capitalized", node=node)
+            self.report("setting-name-not-title-case", node=node)
 
 
 class TestCaseNamingChecker(VisitorChecker):

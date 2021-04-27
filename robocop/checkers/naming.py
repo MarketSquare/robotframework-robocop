@@ -74,7 +74,7 @@ class KeywordNamingChecker(VisitorChecker):
     """ Checker for keyword naming violations. """
     rules = {
         "0302": (
-            "not-title-case-keyword-name",
+            "wrong-case-in-keyword-name",
             "Keyword name should use title case",
             RuleSeverity.WARNING,
             (
@@ -191,7 +191,7 @@ class KeywordNamingChecker(VisitorChecker):
         if self.convention == 'first_word_capitalized':
             words = words[:1]
         if any(word[0].islower() for word in words if word):
-            self.report("not-title-case-keyword-name", node=node)
+            self.report("wrong-case-in-keyword-name", node=node)
 
     def check_if_keyword_is_reserved(self, keyword_name, node):
         # if there is typo in syntax, it is interpreted as keyword

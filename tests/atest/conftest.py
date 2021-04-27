@@ -61,8 +61,8 @@ def pytest_generate_tests(metafunc):
         'misc/inconsistent-assignment-in-variables-autodetect'
     ))
     auto_discovered_rules.append((
-        'not-title-case-keyword-name',
-        ['-c', 'not-title-case-keyword-name:convention:first_word_capitalized'],
-        'naming/not-title-case-keyword-name-first-word'
+        'wrong-case-in-keyword-name',
+        ['-c', 'wrong-case-in-keyword-name:convention:first_word_capitalized'],
+        'naming/wrong-case-in-keyword-name-first-word'
     ))
     metafunc.parametrize('rule, args, test_data', auto_discovered_rules)

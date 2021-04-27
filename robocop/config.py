@@ -330,14 +330,15 @@ class Config:
     def validate_rule_names(self, rules):
         deprecated = {
             'setting-name-not-capitalized': 'setting-name-not-title-case',
-            'not-capitalized-keyword-name': 'wrong-case-in-keyword-name'
+            'not-capitalized-keyword-name': 'wrong-case-in-keyword-name',
+            'missing-doc-testcase': 'missing-doc-test-case'
         }
         for rule in chain(self.include, self.exclude):
             # TODO: Remove in 1.9.0
             if rule in deprecated:
                 print(f"### DEPRECATION WARNING: The name of the rule '{rule}' is "
-                      f"renamed to '{deprecated[rule]}' starting from Robocop 1.8.0 to better match rule "
-                      "behaviour. Update your configuration if you're using old name. ###\n")
+                      f"renamed to '{deprecated[rule]}' starting from Robocop 1.8.0. "
+                      f"Update your configuration if you're using old name. ###\n")
                 self.replace_in_set(self.include, rule, deprecated[rule])
                 self.replace_in_set(self.exclude, rule, deprecated[rule])
             elif rule not in rules:

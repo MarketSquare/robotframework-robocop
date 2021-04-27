@@ -16,7 +16,7 @@ class MissingDocumentationChecker(VisitorChecker):
             RuleSeverity.WARNING
         ),
         "0202": (
-            "missing-doc-testcase",
+            "missing-doc-test-case",
             "Missing documentation in test case",
             RuleSeverity.WARNING
         ),

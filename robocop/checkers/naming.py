@@ -97,6 +97,11 @@ class KeywordNamingChecker(VisitorChecker):
             "else-not-upper-case",
             "ELSE and ELSE IF should be upper case",
             RuleSeverity.ERROR
+        ),
+        "0312": (
+            "keyword-name-is-empty",
+            "Keyword name should not be empty",
+            RuleSeverity.ERROR
         )
     }
     reserved_words = {
@@ -144,7 +149,10 @@ class KeywordNamingChecker(VisitorChecker):
         self.generic_visit(node)
 
     def visit_Keyword(self, node):  # noqa
-        self.check_keyword_naming(node.name, node)
+        if not node.name:
+            self.report("keyword-name-is-empty", node=node)
+        else:
+            self.check_keyword_naming(node.name, node)
         self.generic_visit(node)
 
     def visit_KeywordCall(self, node):  # noqa
@@ -288,11 +296,18 @@ class TestCaseNamingChecker(VisitorChecker):
             "not-capitalized-test-case-title",
             "Test case title should start with capital letter",
             RuleSeverity.WARNING
+        ),
+        "0313": (
+            "test-case-name-is-empty",
+            "Test case name should not be empty",
+            RuleSeverity.ERROR
         )
     }
 
     def visit_TestCase(self, node):  # noqa
-        if node.name and not node.name[0].isupper():
+        if not node.name:
+            self.report("test-case-name-is-empty", node=node)
+        elif not node.name[0].isupper():
             self.report("not-capitalized-test-case-title", node=node)
 
 

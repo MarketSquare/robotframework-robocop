@@ -1,2 +1,4 @@
 ${rules_dir}${\}test.robot:4:0 [W] 1013 Multi line statement with empty lines
 ${rules_dir}${\}test.robot:11:0 [W] 1013 Multi line statement with empty lines
+${rules_dir}${\}test.robot:20:0 [W] 1013 Multi line statement with empty lines
+${rules_dir}${\}test.robot:29:0 [W] 1013 Multi line statement with empty lines

@@ -2,11 +2,12 @@
 Duplications checkers
 """
 from collections import defaultdict
+
+from robot.api import Token
+
 from robocop.checkers import VisitorChecker
 from robocop.rules import RuleSeverity
 from robocop.utils import normalize_robot_name
-
-from robot.api import Token
 
 
 class DuplicationsChecker(VisitorChecker):

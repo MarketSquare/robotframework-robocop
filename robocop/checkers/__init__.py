@@ -73,10 +73,6 @@ class BaseChecker:
     def configure(self, param, value):
         self.__dict__[param] = value
 
-    def scan_file(self, *args):
-        raise NotImplementedError
-
-
 class VisitorChecker(BaseChecker, ModelVisitor):  # noqa
     type = 'visitor_checker'
 

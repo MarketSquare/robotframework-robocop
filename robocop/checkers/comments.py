@@ -114,12 +114,13 @@ class IgnoredDataChecker(RawFileChecker):
     def check_line(self, line, lineno):
         if line.startswith('***'):
             return True
-        elif not line.startswith('# robocop:'):
+        if not line.startswith('# robocop:'):
             if lineno == 1 and self.is_bom:
                 # if it's BOM encoded file, first line can be ignored
                 return '***' in line
             self.report("ignored-data", lineno=lineno, col=0)
             return True
+        return False
 
     def detect_bom(self, source):
         with open(source, 'rb') as raw_file:

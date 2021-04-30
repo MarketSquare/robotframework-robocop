@@ -167,7 +167,7 @@ class EmptyLinesChecker(VisitorChecker):
         for token in node.tokens:
             if token.type == Token.EOL:
                 if prev_token:
-                    self.report("empty-lines-in-multiline", node=token)
+                    self.report("empty-lines-in-statement", node=token)
                 prev_token = token
             else:
                 prev_token = None

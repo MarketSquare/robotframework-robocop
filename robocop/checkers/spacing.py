@@ -124,8 +124,8 @@ class EmptyLinesChecker(VisitorChecker):
             )
         ),
         "1013": (
-            "empty-lines-in-multiline",
-            "Multi line statement with empty lines",
+            "empty-lines-in-statement",
+            "Multi-line statement with empty lines",
             RuleSeverity.WARNING
         )
     }

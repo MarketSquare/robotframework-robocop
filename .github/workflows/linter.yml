@@ -24,4 +24,4 @@ jobs:
         python -m pip install --upgrade pip
         pip install pylama pylama_pylint pytest robotframework
     - name: Code quality with pylama
-      run: python robocop/utils/pylama_parse.py
+      run: python tests/pylama_parse.py

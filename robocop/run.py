@@ -182,7 +182,7 @@ class Robocop:
             print("All rules have configurable parameter 'severity'. Allowed values are:"
                   "\n    E / error\n    W / warning\n    I / info")
         rule_by_id = {msg.rule_id: (msg, checker) for checker in self.checkers for msg in checker.rules_map.values()}
-        rule_ids = sorted([key for key in rule_by_id])
+        rule_ids = sorted(rule_by_id.keys())
         for rule_id in rule_ids:
             rule_def, checker = rule_by_id[rule_id]
             if self.config.list:

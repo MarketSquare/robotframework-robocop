@@ -93,12 +93,12 @@ class Rule:
 
     @staticmethod
     def get_configurable_desc(conf, default=None):
-        s = f'{conf[0]} = {default}\n' \
+        desc = f'{conf[0]} = {default}\n' \
             f'        type: {conf[2].__name__}'
         if len(conf) == 4:
-            s += '\n' \
+            desc += '\n' \
                  f'        info: {conf[3]}'
-        return s
+        return desc
 
     @staticmethod
     def get_default_value(param, checker):

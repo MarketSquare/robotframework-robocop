@@ -6,15 +6,15 @@ import ast
 import difflib
 import re
 
-from robocop.rules import RuleSeverity
-from robocop.exceptions import InvalidExternalCheckerError
-
 from robot.api import Token
 try:
     from robot.api.parsing import Variable
 except ImportError:
     from robot.parsing.model.statements import Variable
 from robot.version import VERSION
+
+from robocop.rules import RuleSeverity
+from robocop.exceptions import InvalidExternalCheckerError
 
 
 IS_RF4 = VERSION.startswith('4')
@@ -153,9 +153,9 @@ class RecommendationFinder:
         if not matches:
             return ''
         matches = self.get_original_candidates(matches, norm_cand)
-        s = ' Did you mean:\n'
-        s += '\n'.join(f'    {match}' for match in matches)
-        return s
+        suggestion = ' Did you mean:\n'
+        suggestion += '\n'.join(f'    {match}' for match in matches)
+        return suggestion
 
     def find(self, name, candidates, max_matches=5):
         """ Return a list of close matches to `name` from `candidates`. """
@@ -166,7 +166,8 @@ class RecommendationFinder:
             name, candidates, n=max_matches, cutoff=cutoff
         )
 
-    def _calculate_cutoff(self, string, min_cutoff=.5, max_cutoff=.85,
+    @staticmethod
+    def _calculate_cutoff(string, min_cutoff=.5, max_cutoff=.85,
                           step=.03):
         """ The longer the string the bigger required cutoff. """
         cutoff = min_cutoff + len(string) * step

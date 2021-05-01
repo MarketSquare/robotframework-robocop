@@ -203,7 +203,7 @@ class Config:
                 try:
                     argfile = next(args)
                 except StopIteration:
-                    raise ArgumentFileNotFoundError('')
+                    raise ArgumentFileNotFoundError('') from None
                 parsed_args += self.load_args_from_file(argfile)
             else:
                 parsed_args.append(arg)
@@ -218,7 +218,7 @@ class Config:
                 self.config_from = argfile
                 return args
         except FileNotFoundError:
-            raise ArgumentFileNotFoundError(argfile)
+            raise ArgumentFileNotFoundError(argfile) from None
 
     def _create_parser(self):
         parser = CustomArgParser(prog='robocop',
@@ -298,6 +298,7 @@ class Config:
         robocop_path = self.find_file_in_project_root('.robocop')
         if robocop_path.is_file():
             return self.load_args_from_file(robocop_path)
+        return None
 
     def find_file_in_project_root(self, config_name):
         root = self.root or Path.cwd()
@@ -314,8 +315,8 @@ class Config:
             return
         try:
             config = toml.load(str(pyproject_path))
-        except toml.TomlDecodeError as e:
-            raise InvalidArgumentError(f'Failed to decode {str(pyproject_path)}: {e}')
+        except toml.TomlDecodeError as err:
+            raise InvalidArgumentError(f'Failed to decode {str(pyproject_path)}: {err}') from None
         config = config.get("tool", {}).get("robocop", {})
         parse_toml_to_config(config, self)
         self.config_from = pyproject_path

@@ -65,7 +65,7 @@ class DisablersFinder:
             with open(filename, 'r') as file:
                 self._parse_lines(file.readlines())
         except OSError:
-            raise robocop.exceptions.FileError(filename)
+            raise robocop.exceptions.FileError(filename) from None
         except UnicodeDecodeError:
             print(f"Failed to decode {file}. Default supported encoding by Robot Framework is UTF-8. Skipping file")
             self.file_disabled = True
@@ -107,8 +107,7 @@ class DisablersFinder:
             if prev_end != block[0]:
                 return False
             prev_end = block[1]
-        else:
-            return prev_end == last_line
+        return prev_end == last_line
 
     def _add_inline_disabler(self, rule, lineno):
         self.rules[rule].lines.add(lineno)

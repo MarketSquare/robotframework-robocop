@@ -54,7 +54,7 @@ class InvalidSpacingChecker(RawFileChecker):
                 if empty_lines > 1:
                     self.report("too-many-trailing-blank-lines", lineno=len(self.raw_lines), col=0)
                     return
-            if not empty_lines and not last_line.endswith(('\n','\r')):
+            if not empty_lines and not last_line.endswith(('\n', '\r')):
                 self.report("missing-trailing-blank-line", lineno=len(self.raw_lines), col=0)
 
     def check_line(self, line, lineno):

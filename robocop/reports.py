@@ -46,9 +46,7 @@ class RulesByIdReport(Report):
         self.message_counter[message.get_fullname()] += 1
 
     def get_report(self):
-        message_counter_ordered = sorted([(message, count)
-                                          for message, count in self.message_counter.items()],
-                                         key=itemgetter(1), reverse=True)
+        message_counter_ordered = sorted(self.message_counter.items(), key=itemgetter(1), reverse=True)
         report = '\nIssues by IDs:\n'
         if not message_counter_ordered:
             report += "No issues found"
@@ -124,8 +122,7 @@ class ReturnStatusReport(Report):
             threshold = self.quality_gate.get(severity.value, 0)
             if -1 < threshold < count:
                 self.return_status += count - threshold
-        if self.return_status > 255:
-            self.return_status = 255
+        self.return_status = min(self.return_status, 255)
 
 
 class TimeTakenReport(Report):
@@ -182,9 +179,8 @@ class FileStatsReport(Report):
     def get_report(self):
         if not self.files_count:
             return '\nNo files were processed'
-        else:
-            if not self.files_with_issues:
-                return f'\nProcessed {self.files_count} file(s) but no issues were found'
+        if not self.files_with_issues:
+            return f'\nProcessed {self.files_count} file(s) but no issues were found'
 
-            return f'\nProcessed {self.files_count} file(s) from which {len(self.files_with_issues)} ' \
-                   f'file(s) contained issues'
+        return f'\nProcessed {self.files_count} file(s) from which {len(self.files_with_issues)} ' \
+               f'file(s) contained issues'

@@ -1,17 +1,17 @@
 """
 Miscellaneous checkers
 """
-from robot.parsing.model.statements import Return, KeywordCall
-from robocop.checkers import VisitorChecker
-from robocop.rules import RuleSeverity
-from robocop.utils import normalize_robot_name, IS_RF4, AssignmentTypeDetector, parse_assignment_sign_type
-
 from robot.api import Token
+from robot.parsing.model.statements import Return, KeywordCall
 try:
     from robot.api.parsing import Variable
 except ImportError:
     from robot.parsing.model.statements import Variable
 from robot.libraries import STDLIBS
+
+from robocop.checkers import VisitorChecker
+from robocop.rules import RuleSeverity
+from robocop.utils import normalize_robot_name, IS_RF4, AssignmentTypeDetector, parse_assignment_sign_type
 
 
 class ReturnChecker(VisitorChecker):

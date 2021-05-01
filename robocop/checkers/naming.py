@@ -4,6 +4,7 @@ Naming checkers
 import re
 from pathlib import Path
 
+from robot.api import Token
 try:
     from robot.api.parsing import KeywordCall
 except ImportError:
@@ -12,8 +13,6 @@ except ImportError:
 from robocop.checkers import VisitorChecker
 from robocop.rules import RuleSeverity
 from robocop.utils import normalize_robot_name, IS_RF4, keyword_col
-
-from robot.api import Token
 
 
 class InvalidCharactersInNameChecker(VisitorChecker):

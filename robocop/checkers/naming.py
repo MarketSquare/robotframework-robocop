@@ -293,7 +293,7 @@ class SettingsNamingChecker(VisitorChecker):
 
     def check_setting_name(self, name, node):
         if not (name.istitle() or name.isupper()):
-            self.report("setting-name-not-title-case", node=node)
+            self.report("setting-name-not-in-title-case", node=node)
 
 
 class TestCaseNamingChecker(VisitorChecker):

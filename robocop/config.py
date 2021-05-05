@@ -330,7 +330,7 @@ class Config:
 
     def validate_rule_names(self, rules):
         deprecated = {
-            'setting-name-not-capitalized': 'setting-name-not-title-case',
+            'setting-name-not-capitalized': 'setting-name-not-in-title-case',
             'not-capitalized-keyword-name': 'wrong-case-in-keyword-name',
             'missing-doc-testcase': 'missing-doc-test-case'
         }

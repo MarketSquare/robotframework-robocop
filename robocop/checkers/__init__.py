@@ -47,6 +47,7 @@ class BaseChecker:
         self.rules_map = {}
         self.register_rules(self.rules)
         self.issues = []
+        self.templated_suite = False
 
     def register_rules(self, rules):
         for key, value in rules.items():
@@ -76,9 +77,10 @@ class BaseChecker:
 class VisitorChecker(BaseChecker, ModelVisitor):  # noqa
     type = 'visitor_checker'
 
-    def scan_file(self, ast_model, filename, in_memory_content):
+    def scan_file(self, ast_model, filename, in_memory_content, templated=False):
         self.issues = []
         self.source = filename
+        self.templated_suite = templated
         if in_memory_content is not None:
             self.lines = in_memory_content.splitlines(keepends=True)
         else:
@@ -94,9 +96,10 @@ class VisitorChecker(BaseChecker, ModelVisitor):  # noqa
 class RawFileChecker(BaseChecker):  # noqa
     type = 'rawfile_checker'
 
-    def scan_file(self, ast_model, filename, in_memory_content):
+    def scan_file(self, ast_model, filename, in_memory_content, templated=False):
         self.issues = []
         self.source = filename
+        self.templated_suite = templated
         if in_memory_content is not None:
             self.lines = in_memory_content.splitlines(keepends=True)
         else:

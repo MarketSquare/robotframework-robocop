@@ -20,7 +20,7 @@ from robocop.exceptions import (
 )
 from robocop.rules import RuleSeverity
 from robocop.version import __version__
-from robocop.utils import RecommendationFinder
+from robocop.utils.misc import RecommendationFinder
 
 
 def translate_pattern(pattern):

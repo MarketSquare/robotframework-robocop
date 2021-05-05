@@ -2,7 +2,7 @@ import pytest
 
 from robot.api import get_model
 
-from robocop.utils.misc import (
+from robocop.utils import (
     AssignmentTypeDetector,
     parse_assignment_sign_type,
     RecommendationFinder

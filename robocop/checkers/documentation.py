@@ -16,7 +16,7 @@ class MissingDocumentationChecker(VisitorChecker):
             RuleSeverity.WARNING
         ),
         "0202": (
-            "missing-doc-testcase",
+            "missing-doc-test-case",
             "Missing documentation in test case",
             RuleSeverity.WARNING
         ),
@@ -33,7 +33,7 @@ class MissingDocumentationChecker(VisitorChecker):
         self.check_if_docs_are_present(node, "missing-doc-keyword")
 
     def visit_TestCase(self, node):  # noqa
-        self.check_if_docs_are_present(node, "missing-doc-testcase")
+        self.check_if_docs_are_present(node, "missing-doc-test-case")
 
     def visit_SettingSection(self, node):  # noqa
         self.check_if_docs_are_present(node, "missing-doc-suite")

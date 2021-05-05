@@ -220,7 +220,7 @@ class SettingsNamingChecker(VisitorChecker):
     """ Checker for section naming violations. """
     rules = {
         "0306": (
-            "setting-name-not-title-case",
+            "setting-name-not-in-title-case",
             "Setting name should be title or upper case",
             RuleSeverity.WARNING
         ),

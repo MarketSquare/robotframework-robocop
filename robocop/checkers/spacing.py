@@ -54,7 +54,7 @@ class InvalidSpacingChecker(RawFileChecker):
                 if empty_lines > 1:
                     self.report("too-many-trailing-blank-lines", lineno=len(self.raw_lines), col=0)
                     return
-            if not empty_lines and not last_line.endswith(('\n','\r')):
+            if not empty_lines and not last_line.endswith(('\n', '\r')):
                 self.report("missing-trailing-blank-line", lineno=len(self.raw_lines), col=0)
 
     def check_line(self, line, lineno):
@@ -111,6 +111,22 @@ class EmptyLinesChecker(VisitorChecker):
                 int,
                 "number of empty lines allowed after section header"
             )
+        ),
+        "1012": (
+            "consecutive-empty-lines",
+            "Too many empty lines (%s/%s)",
+            RuleSeverity.WARNING,
+            (
+                "empty_lines",
+                "consecutive_empty_lines",
+                int,
+                "number of allowed consecutive empty lines"
+            )
+        ),
+        "1013": (
+            "empty-lines-in-statement",
+            "Multi-line statement with empty lines",
+            RuleSeverity.WARNING
         )
     }
 
@@ -119,44 +135,73 @@ class EmptyLinesChecker(VisitorChecker):
         self.empty_lines_between_test_cases = 1
         self.empty_lines_between_keywords = 1
         self.empty_lines_after_section_header = 0
+        self.consecutive_empty_lines = 1
         super().__init__()
 
-    def visit_TestCaseSection(self, node):  # noqa
-        for child in node.body[:-1]:
-            empty_lines = 0
-            if not isinstance(child, TestCase):
-                continue
-            for token in reversed(child.body):
-                if isinstance(token, EmptyLine):
-                    empty_lines += 1
-                elif isinstance(token, Comment):
+    def verify_empty_lines(self, node, check_leading=True):
+        """ Verify number of consecutive empty lines inside node. Return number of trailing empty lines. """
+        empty_lines = 0
+        prev_node = None
+        non_empty = check_leading  # if check_leading is set to False, we ignore leading empty lines
+        for child in node.body:
+            if isinstance(child, EmptyLine):
+                if not non_empty:
                     continue
-                else:
-                    break
-            if empty_lines != self.empty_lines_between_test_cases:
-                self.report("empty-lines-between-test-cases", empty_lines, self.empty_lines_between_test_cases,
+                empty_lines += 1
+                prev_node = child
+            else:
+                non_empty = True
+                if empty_lines > self.consecutive_empty_lines:
+                    self.report(
+                        "consecutive-empty-lines",
+                        empty_lines,
+                        self.consecutive_empty_lines,
+                        node=prev_node,
+                        col=0
+                    )
+                empty_lines = 0
+        return empty_lines
+
+    def visit_Statement(self, node):  # noqa
+        prev_token = None
+        for token in node.tokens:
+            if token.type == Token.EOL:
+                if prev_token:
+                    self.report("empty-lines-in-statement", node=token)
+                prev_token = token
+            else:
+                prev_token = None
+
+    def visit_VariableSection(self, node):  # noqa
+        self.verify_empty_lines(node, check_leading=False)
+        self.generic_visit(node)
+
+    def visit_SettingSection(self, node):  # noqa
+        self.verify_empty_lines(node, check_leading=False)
+        self.generic_visit(node)
+
+    def verify_empty_lines_between_nodes(self, node, node_type, issue_name, allowed_empty_lines):
+        last_index = len(node.body) - 1
+        for index, child in enumerate(node.body):
+            if not isinstance(child, node_type):
+                continue
+            empty_lines = self.verify_empty_lines(child)
+            if index < last_index and empty_lines != allowed_empty_lines:
+                self.report(issue_name, empty_lines, allowed_empty_lines,
                             lineno=child.end_lineno, col=0)
         self.generic_visit(node)
+
+    def visit_TestCaseSection(self, node):  # noqa
+        self.verify_empty_lines_between_nodes(node, TestCase, "empty-lines-between-test-cases",
+                                              self.empty_lines_between_test_cases)
 
     def visit_KeywordSection(self, node):  # noqa
-        for child in node.body[:-1]:
-            empty_lines = 0
-            if not isinstance(child, Keyword):
-                continue
-            for token in reversed(child.body):
-                if isinstance(token, EmptyLine):
-                    empty_lines += 1
-                elif isinstance(token, Comment):
-                    continue
-                else:
-                    break
-            if empty_lines != self.empty_lines_between_keywords:
-                self.report("empty-lines-between-keywords", empty_lines, self.empty_lines_between_keywords,
-                            lineno=child.end_lineno, col=0)
-        self.generic_visit(node)
+        self.verify_empty_lines_between_nodes(node, Keyword, "empty-lines-between-keywords",
+                                              self.empty_lines_between_keywords)
 
     def visit_File(self, node):  # noqa
-        self.check_empty_lines_after_sections(node)
+        for section in node.sections:
+            self.check_empty_lines_after_section(section)
         for section in node.sections[:-1]:
             if not section.header:  # for comment section
                 continue
@@ -176,10 +221,6 @@ class EmptyLinesChecker(VisitorChecker):
                 self.report("empty-lines-between-sections", empty_lines, self.empty_lines_between_sections,
                             lineno=section.end_lineno, col=0)
         super().visit_File(node)
-
-    def check_empty_lines_after_sections(self, node):
-        for section in node.sections:
-            self.check_empty_lines_after_section(section)
 
     def check_empty_lines_after_section(self, section):
         empty_lines = []

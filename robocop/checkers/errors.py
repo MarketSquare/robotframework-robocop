@@ -3,8 +3,6 @@ Errors checkers
 """
 import re
 
-from robot.version import VERSION as ROBOT_VERSION
-
 from robocop.checkers import VisitorChecker
 from robocop.rules import RuleSeverity
 from robocop.utils import IS_RF4

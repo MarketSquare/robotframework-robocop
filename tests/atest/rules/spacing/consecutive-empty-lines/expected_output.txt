@@ -1,0 +1,4 @@
+${rules_dir}${\}test.robot:6:0 [W] 1012 Too many empty lines (2/1)
+${rules_dir}${\}test.robot:16:0 [W] 1012 Too many empty lines (2/1)
+${rules_dir}${\}test.robot:30:0 [W] 1012 Too many empty lines (2/1)
+${rules_dir}${\}test.robot:48:0 [W] 1012 Too many empty lines (3/1)

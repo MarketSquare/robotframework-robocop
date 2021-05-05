@@ -7,7 +7,7 @@ Output message format
 
 Output message of rules can be defined with ``-f`` / ``--format`` argument. Default value::
 
-    "{source}:{line}:{col} [{severity}] {rule_id} {desc}"
+    "{source}:{line}:{col} [{severity}] {rule_id} {desc} ({name})"
 
 Available formats:
   * ``source``:     path to the file where the issue occurred
@@ -18,7 +18,7 @@ Available formats:
   * ``end_col``:    column number where the issue ends
   * ``severity``:   severity of the issue, value of ``robocop.rules.RuleSeverity`` enum
   * ``rule_id``:    rule id (e.g. 0501)
-  * ``rule_name``:  rule name (e.g. ``line-too-long`)
+  * ``name``:       rule name (e.g. ``line-too-long`)
   * ``desc``:       description of the rule
 """
 from enum import Enum
@@ -93,12 +93,12 @@ class Rule:
 
     @staticmethod
     def get_configurable_desc(conf, default=None):
-        s = f'{conf[0]} = {default}\n' \
+        desc = f'{conf[0]} = {default}\n' \
             f'        type: {conf[2].__name__}'
         if len(conf) == 4:
-            s += '\n' \
+            desc += '\n' \
                  f'        info: {conf[3]}'
-        return s
+        return desc
 
     @staticmethod
     def get_default_value(param, checker):

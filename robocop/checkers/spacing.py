@@ -186,7 +186,7 @@ class EmptyLinesChecker(VisitorChecker):
             if not isinstance(child, node_type):
                 continue
             empty_lines = self.verify_empty_lines(child)
-            if empty_lines != allowed_empty_lines and allowed_empty_lines != -1 and index < last_index:
+            if allowed_empty_lines not in (empty_lines, -1) and index < last_index:
                 self.report(issue_name, empty_lines, allowed_empty_lines,
                             lineno=child.end_lineno, col=0)
         self.generic_visit(node)

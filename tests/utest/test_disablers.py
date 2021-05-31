@@ -3,7 +3,7 @@ from pathlib import Path
 import pytest
 
 from robocop.rules import RuleSeverity, Rule
-from robocop.utils import DisablersFinder
+from robocop.utils.disablers import DisablersFinder
 
 
 @pytest.fixture

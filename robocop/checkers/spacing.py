@@ -186,14 +186,14 @@ class EmptyLinesChecker(VisitorChecker):
             if not isinstance(child, node_type):
                 continue
             empty_lines = self.verify_empty_lines(child)
-            if index < last_index and empty_lines != allowed_empty_lines:
+            if allowed_empty_lines not in (empty_lines, -1) and index < last_index:
                 self.report(issue_name, empty_lines, allowed_empty_lines,
                             lineno=child.end_lineno, col=0)
         self.generic_visit(node)
 
     def visit_TestCaseSection(self, node):  # noqa
-        self.verify_empty_lines_between_nodes(node, TestCase, "empty-lines-between-test-cases",
-                                              self.empty_lines_between_test_cases)
+        allowed_lines = -1 if self.templated_suite else self.empty_lines_between_test_cases
+        self.verify_empty_lines_between_nodes(node, TestCase, "empty-lines-between-test-cases", allowed_lines)
 
     def visit_KeywordSection(self, node):  # noqa
         self.verify_empty_lines_between_nodes(node, Keyword, "empty-lines-between-keywords",

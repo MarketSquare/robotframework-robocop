@@ -18,7 +18,8 @@ from robocop.utils import (
     FileType,
     FileTypeChecker,
     issues_to_lsp_diagnostic,
-    RecommendationFinder
+    RecommendationFinder,
+    is_suite_templated
 )
 
 
@@ -138,10 +139,11 @@ class Robocop:
         self.register_disablers(filename, source)
         if self.disabler.file_disabled:
             return []
+        templated = is_suite_templated(ast_model)
         for checker in self.checkers:
             if checker.disabled:
                 continue
-            found_issues += [issue for issue in checker.scan_file(ast_model, filename, source)
+            found_issues += [issue for issue in checker.scan_file(ast_model, filename, source, templated)
                              if not self.disabler.is_rule_disabled(issue)]
         return found_issues
 

@@ -200,3 +200,17 @@ class RecommendationFinder:
             for norm_cand in self.normalize(cand):
                 norm[norm_cand].append(cand)
         return norm
+
+
+class TestTemplateFinder(ast.NodeVisitor):
+    def __init__(self):
+        self.templated = False
+
+    def visit_TestTemplate(self, node):
+        self.templated = bool(node.value)
+
+
+def is_suite_templated(model):
+    finder = TestTemplateFinder()
+    finder.visit(model)
+    return finder.templated

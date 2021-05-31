@@ -85,7 +85,8 @@ class DuplicationsChecker(VisitorChecker):
                 self.report(rule, duplicate.name, node=duplicate)
 
     def visit_TestCase(self, node):  # noqa
-        self.test_cases[node.name].append(node)
+        testcase_name = normalize_robot_name(node.name)
+        self.test_cases[testcase_name].append(node)
 
     def visit_Keyword(self, node):  # noqa
         keyword_name = normalize_robot_name(node.name)

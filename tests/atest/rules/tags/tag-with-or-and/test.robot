@@ -16,6 +16,7 @@ Test
 *** Keywords ***
 Keyword
     [Documentation]  this is doc
+    ...              Tags:  tagORtag2,  tagor
     No Operation
     Pass
     No Operation

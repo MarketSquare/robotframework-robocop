@@ -1,0 +1,1 @@
+${rules_dir}${\}test.robot:15:5 [I] 0602 Tag with reserved word OR/AND. Hint: make sure to include this tag using lowercase name to avoid issues

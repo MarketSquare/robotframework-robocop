@@ -16,6 +16,7 @@ Test
 *** Keywords ***
 Keyword
     [Documentation]  this is doc
+    ...              Tags:  space tag
     No Operation
     Pass
     No Operation

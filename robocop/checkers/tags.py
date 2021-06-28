@@ -2,6 +2,8 @@
 Tags checkers
 """
 
+from robot.api import Token
+
 from robocop.checkers import VisitorChecker
 from robocop.rules import RuleSeverity
 
@@ -25,6 +27,7 @@ class TagNameChecker(VisitorChecker):
             RuleSeverity.WARNING
         )
     }
+    is_keyword = False
 
     def visit_ForceTags(self, node):  # noqa
         self.check_tags(node)
@@ -34,6 +37,22 @@ class TagNameChecker(VisitorChecker):
 
     def visit_Tags(self, node):  # noqa
         self.check_tags(node)
+
+    def visit_Documentation(self, node):  # noqa
+        if self.is_keyword:
+            *_, last_line = node.lines
+            filtered_line = filter(lambda tag: tag.type not in Token.NON_DATA_TOKENS and tag.type != Token.DOCUMENTATION, last_line)
+            for index, token in enumerate(filtered_line):
+                if index == 0 and token.value.lower() != "tags:":
+                    break
+                else:
+                    token.value = token.value.rstrip(",")
+                    self.check_tag(token, node)
+
+    def visit_Keyword(self, node):  # noqa
+        self.is_keyword = True
+        super().generic_visit(node)
+        self.is_keyword = False
 
     def check_tags(self, node):
         for tag in node.data_tokens[1:]:

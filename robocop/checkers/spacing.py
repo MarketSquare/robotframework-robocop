@@ -207,7 +207,7 @@ class EmptyLinesChecker(VisitorChecker):
                 continue
             empty_lines = 0
             for child in reversed(section.body):
-                if isinstance(child, TestCase):
+                if isinstance(child, (Keyword, TestCase)):
                     for statement in reversed(child.body):
                         if isinstance(statement, EmptyLine):
                             empty_lines += 1

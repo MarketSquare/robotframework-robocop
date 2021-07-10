@@ -283,4 +283,3 @@ class ResourceFileChecker(VisitorChecker):
                             Path(source).name,
                             Path(source).stem,
                             node=node)
-        super().visit_File(node)

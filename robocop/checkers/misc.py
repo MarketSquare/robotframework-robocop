@@ -281,7 +281,7 @@ class ResourceFileChecker(VisitorChecker):
             extension = Path(source).suffix
             file_name = Path(source).stem
             if (
-                    '.robot' in extension and
+                    '.resource' not in extension and
                     '__init__' not in file_name and
                     node.sections and
                     not any([isinstance(section, TestCaseSection) for section in node.sections])

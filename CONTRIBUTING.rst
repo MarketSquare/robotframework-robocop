@@ -179,7 +179,7 @@ Acceptance tests
 Acceptance tests are dynamically generated for every rule in Robocop. Test data
 should be located in ``tests\atest\rules\{rules_category}`` directory. If your rule has name "rule-name"
 it will expect ``rule-name`` directory with ``expected_output.txt`` file inside.
-You can put one or more *.robot files inside - it will be autoscanned with ``--include "rule-name"`` option.
+You can put one or more \*.robot files inside - it will be autoscanned with ``--include "rule-name"`` option.
 Robocop output will be compared with content of ``expected_output.txt`` file.
 
 When updating ``expected_output.txt`` file you can use two macro variables: ``${rules_dir}`` and ``${/}``.

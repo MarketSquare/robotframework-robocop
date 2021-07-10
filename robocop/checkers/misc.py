@@ -1,8 +1,10 @@
 """
 Miscellaneous checkers
 """
+from pathlib import Path
 from robot.api import Token
 from robot.parsing.model.statements import Return, KeywordCall
+from robot.parsing.model.blocks import TestCaseSection
 try:
     from robot.api.parsing import Variable
 except ImportError:
@@ -260,3 +262,25 @@ class EmptyVariableChecker(VisitorChecker):
         for token in node.get_tokens(Token.ARGUMENT):
             if not token.value or token.value == '\\':
                 self.report("empty-variable", node=token, lineno=token.lineno, col=token.col_offset)
+
+
+class ResourceFileChecker(VisitorChecker):
+    """ Checker for resource files. """
+    rules = {
+        "0912": (
+            "can-be-resource-file",
+            "No tests in '%s' file, consider renaming to '%s.resource'",
+            RuleSeverity.INFO
+        )
+    }
+
+    def visit_File(self, node):  # noqa
+        source = node.source if node.source else self.source
+        if source:
+            extension = Path(source).suffix
+            if '.robot' in extension and not any([isinstance(section, TestCaseSection) for section in node.sections]):
+                self.report("can-be-resource-file",
+                            Path(source).name,
+                            Path(source).stem,
+                            node=node)
+        super().visit_File(node)

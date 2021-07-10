@@ -1,0 +1,3 @@
+*** Keywords ***
+Keyword
+    Some Keyword

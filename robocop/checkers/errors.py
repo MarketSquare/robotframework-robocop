@@ -70,3 +70,23 @@ class TwoSpacesAfterSettingsChecker(VisitorChecker):
                 node=node,
                 col=node.data_tokens[0].col_offset + 1
             )
+
+
+class MissingKeywordName(VisitorChecker):
+    """ Checker for missing keyword name. """
+    rules = {
+        "0403": (
+            "missing-keyword-name",
+            "Missing keyword name when calling some values",
+            RuleSeverity.ERROR
+        )
+    }
+
+    def visit_KeywordCall(self, node):  # noqa
+        if node.keyword is None:
+            self.report(
+                "missing-keyword-name",
+                node=node,
+                lineno=node.lineno,
+                col=node.data_tokens[0].col_offset + 1
+            )

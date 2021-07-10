@@ -55,7 +55,7 @@ def modules_from_path(path, module_name=None, relative='.'):
 
 
 def normalize_robot_name(name):
-    return name.replace(' ', '').replace('_', '').lower()
+    return name.replace(' ', '').replace('_', '').lower() if name else ''
 
 
 def keyword_col(node):

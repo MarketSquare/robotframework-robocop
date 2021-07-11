@@ -472,3 +472,23 @@ class MisalignedContinuation(VisitorChecker, ModelVisitor):
                 break
             indent_len += len(token.value.expandtabs(4))
         return indent_len
+
+
+class LeftAlignedChecker(VisitorChecker):
+    """ Checker for left align. """
+    rules = {
+        "1014": (
+            "variable-should-left-aligned",
+            "Variable in variable section should be left aligned.",
+            RuleSeverity.ERROR
+        )
+    }
+
+    def visit_VariableSection(self, node):  # noqa
+        for child in node.body:
+            if not child.data_tokens:
+                continue
+            tokens = child.data_tokens
+            if tokens[0].type == Token.VARIABLE and tokens[0].value == '':
+                self.report("variable-should-left-aligned", lineno=tokens[0].lineno,
+                            col=tokens[0].col_offset)

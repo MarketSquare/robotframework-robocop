@@ -288,7 +288,7 @@ class UnusedVariableChecker(VisitorChecker):
 
     def visit_TestCase(self, node):  # noqa
         self.variable_list.clear()
-        node = self.generic_visit(node)
+        self.generic_visit(node)
         self.check_unused()
 
     def use_variable(self, node):

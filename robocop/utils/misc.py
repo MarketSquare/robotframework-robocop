@@ -19,7 +19,7 @@ from robocop.exceptions import InvalidExternalCheckerError
 
 IS_RF4 = VERSION.startswith('4')
 DISABLED_IN_4 = frozenset(('nested-for-loop', 'invalid-comment'))
-ENABLED_IN_4 = frozenset(('if-can-be-used', 'else-not-upper-case'))
+ENABLED_IN_4 = frozenset(('if-can-be-used', 'else-not-upper-case', 'variable-should-left-aligned'))
 
 
 def modules_in_current_dir(path, module_name):

@@ -2,6 +2,7 @@
 Spacing checkers
 """
 from collections import Counter
+from robocop.utils.misc import IS_RF4
 
 from robot.api import Token
 from robot.parsing.model.visitor import ModelVisitor
@@ -484,11 +485,17 @@ class LeftAlignedChecker(VisitorChecker):
         )
     }
 
+    def __init__(self):
+        super().__init__()
+        self.disabled = not IS_RF4
+
     def visit_VariableSection(self, node):  # noqa
         for child in node.body:
+            # print(child.data_tokens)
+            # print(child.tokens)
             if not child.data_tokens:
                 continue
-            tokens = child.data_tokens
-            if tokens[0].type == Token.VARIABLE and tokens[0].value == '':
-                self.report("variable-should-left-aligned", lineno=tokens[0].lineno,
-                            col=tokens[0].col_offset)
+            token = child.data_tokens[0]
+            if token.type == Token.VARIABLE and (token.value == "" or token.value.startswith(" ")):
+                self.report("variable-should-left-aligned", lineno=token.lineno,
+                            col=token.col_offset)

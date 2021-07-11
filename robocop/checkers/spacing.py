@@ -491,8 +491,6 @@ class LeftAlignedChecker(VisitorChecker):
 
     def visit_VariableSection(self, node):  # noqa
         for child in node.body:
-            # print(child.data_tokens)
-            # print(child.tokens)
             if not child.data_tokens:
                 continue
             token = child.data_tokens[0]

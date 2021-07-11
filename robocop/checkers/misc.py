@@ -258,3 +258,47 @@ class SettingsOrderChecker(VisitorChecker):
         if not node.name:
             return
         self.libraries.append(node)
+
+
+class UnusedVariableChecker(VisitorChecker):
+    """ Checker for unused variable. """
+    rules = {
+        "0912": (
+            "variable-not-used",
+            "The variable is assigned but not used in this scope",
+            RuleSeverity.WARNING
+        )
+    }
+
+    def __init__(self):
+        self.variable_list = []
+        super().__init__()
+
+    def visit_KeywordCall(self, node):  # noqa
+        for child in node.data_tokens:
+            if child.type == Token.ASSIGN:
+                self.variable_list.append([child, False])
+            elif child.type == Token.ARGUMENT:
+                self.use_variable(child)
+
+    def visit_Keyword(self, node):  # noqa
+        self.variable_list.clear()
+        self.generic_visit(node)
+        self.check_unused()
+
+    def visit_TestCase(self, node):  # noqa
+        self.variable_list.clear()
+        node = self.generic_visit(node)
+        self.check_unused()
+
+    def use_variable(self, node):
+        for i, token in enumerate(self.variable_list):
+            var, _ = token
+            if var.value == node.value:
+                self.variable_list[i][1] = True
+
+    def check_unused(self):
+        for node, is_used in self.variable_list:
+            if not is_used:
+                self.report("variable-not-used", node=node, lineno=node.lineno,
+                            col=node.col_offset)

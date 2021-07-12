@@ -23,3 +23,8 @@ Keyword With Different Format Variable
     [Documentation]  Gold test
     @{var test}    Keyword
     Log     ${VAR_Test}
+
+Keyword For Testing Normalize
+    [Documentation]  test
+    ${var123}    Keyword
+    Log     ${var_123}

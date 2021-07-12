@@ -292,9 +292,11 @@ class UnusedVariableChecker(VisitorChecker):
         self.check_unused()
 
     def use_variable(self, node):
+        node_nomalized = normalize_robot_name(self.replace_chars(node.value, "$@&{}"))
         for i, token in enumerate(self.variable_list):
             var, _ = token
-            if var.value == node.value:
+            var_normalized = normalize_robot_name(self.replace_chars(var.value, "$@&{}"))
+            if var_normalized == node_nomalized:
                 self.variable_list[i][1] = True
 
     def check_unused(self):
@@ -302,3 +304,7 @@ class UnusedVariableChecker(VisitorChecker):
             if not is_used:
                 self.report("variable-not-used", node=node, lineno=node.lineno,
                             col=node.col_offset)
+
+    @staticmethod
+    def replace_chars(name, chars):
+        return ''.join(c for c in name if c not in chars)

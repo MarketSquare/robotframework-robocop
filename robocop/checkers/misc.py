@@ -59,21 +59,6 @@ class ReturnChecker(VisitorChecker):
             )
 
 
-class EqualSignChecker(VisitorChecker):
-    """ Checker for redundant equal signs when assigning values to variables. """
-    rules = {
-        "0906": (
-            "redundant-equal-sign",
-            "Redundant equal sign in variable assignment",
-            RuleSeverity.WARNING
-        )
-    }
-
-    def __init__(self):
-        super().__init__()
-        self.disabled = True  # TODO: Remove the checker after deprecation period
-
-
 class NestedForLoopsChecker(VisitorChecker):
     """ Checker for not supported nested FOR loops.
 

@@ -1,0 +1,5 @@
+${rules_dir}${\}test.robot:7:0 [E] 1014 Variable in variable section should be left aligned.
+${rules_dir}${\}test.robot:8:0 [E] 1014 Variable in variable section should be left aligned.
+${rules_dir}${\}test.robot:9:0 [E] 1014 Variable in variable section should be left aligned.
+${rules_dir}${\}test.robot:10:0 [E] 1014 Variable in variable section should be left aligned.
+${rules_dir}${\}test.robot:12:0 [E] 1014 Variable in variable section should be left aligned.

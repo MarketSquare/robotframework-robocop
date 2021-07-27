@@ -2,6 +2,7 @@
 Spacing checkers
 """
 from collections import Counter
+from robocop.utils.misc import IS_RF4
 
 from robot.api import Token
 from robot.parsing.model.visitor import ModelVisitor
@@ -472,3 +473,27 @@ class MisalignedContinuation(VisitorChecker, ModelVisitor):
                 break
             indent_len += len(token.value.expandtabs(4))
         return indent_len
+
+
+class LeftAlignedChecker(VisitorChecker):
+    """ Checker for left align. """
+    rules = {
+        "1014": (
+            "variable-should-left-aligned",
+            "Variable in variable section should be left aligned.",
+            RuleSeverity.ERROR
+        )
+    }
+
+    def __init__(self):
+        super().__init__()
+        self.disabled = not IS_RF4
+
+    def visit_VariableSection(self, node):  # noqa
+        for child in node.body:
+            if not child.data_tokens:
+                continue
+            token = child.data_tokens[0]
+            if token.type == Token.VARIABLE and (token.value == "" or token.value.startswith(" ")):
+                self.report("variable-should-left-aligned", lineno=token.lineno,
+                            col=token.col_offset)

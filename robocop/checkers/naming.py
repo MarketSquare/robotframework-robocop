@@ -345,7 +345,7 @@ class VariableNamingChecker(VisitorChecker):
             if not child.data_tokens:
                 continue
             token = child.data_tokens[0]
-            if token.type == Token.VARIABLE and not token.value.isupper():
+            if token.type == Token.VARIABLE and token.value and not token.value.isupper():
                 self.report("section-variable-not-uppercase", lineno=token.lineno,
                             col=token.col_offset)
 

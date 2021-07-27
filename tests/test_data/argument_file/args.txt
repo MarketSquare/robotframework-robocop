@@ -1,1 +1,5 @@
 -e *doc*
+--format "{source}: [{line}]"
+--exclude section-out-of-order,inconsistent-assignment
+--include rule_name1*
+--reports all

@@ -365,6 +365,11 @@ class VariableNamingChecker(VisitorChecker):
             "non-local-variables-should-be-uppercase",
             "Test, suite and global variables should be uppercased",
             RuleSeverity.WARNING
+        ),
+        "0314": (
+            "hyphen-in-variable-name",
+            "Use underscore in variable names instead of hyphens to avoid treating them like minus sign",
+            RuleSeverity.INFO
         )
     }
 

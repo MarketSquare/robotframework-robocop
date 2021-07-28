@@ -350,6 +350,11 @@ class VariableNamingChecker(VisitorChecker):
             "non-local-variables-should-be-uppercase",
             "Test, suite and global variables should be uppercased",
             RuleSeverity.WARNING
+        ),
+        "0314": (
+            "possible-variable-overwriting",
+            "Variable '%s' may be overwritten by '%s'",
+            RuleSeverity.INFO
         )
     }
 

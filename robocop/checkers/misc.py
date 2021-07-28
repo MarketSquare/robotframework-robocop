@@ -243,3 +243,20 @@ class SettingsOrderChecker(VisitorChecker):
         if not node.name:
             return
         self.libraries.append(node)
+
+
+class EmptyVariableChecker(VisitorChecker):
+    """ Checker for variables without value. """
+    rules = {
+        "0912": (
+            "empty-variable",
+            "Use built-in variable ${EMPTY} instead of leaving variable without value",
+            RuleSeverity.INFO
+        )
+    }
+
+    def visit_Variable(self, node):  # noqa
+        if not node.name:
+            return
+        if not node.value:
+            self.report("empty-variable", node=node)

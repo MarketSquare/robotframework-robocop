@@ -256,37 +256,34 @@ class UnusedVariableChecker(VisitorChecker):
     }
 
     def __init__(self):
-        self.variable_list = []
+        self.variable_dict = dict()
         super().__init__()
 
     def visit_KeywordCall(self, node):  # noqa
         for child in node.data_tokens:
             if child.type == Token.ASSIGN:
-                self.variable_list.append([child, False])
+                if self.normalize(child.value) in self.variable_dict and self.variable_dict[self.normalize(child.value)] is not None:
+                    unused_var = self.variable_dict[self.normalize(child.value)]
+                    self.report("variable-not-used", node=unused_var, lineno=unused_var.lineno,
+                                col=unused_var.col_offset)
+                self.variable_dict[self.normalize(child.value)] = child
             elif child.type == Token.ARGUMENT:
-                self.use_variable(child)
+                if self.normalize(child.value) in self.variable_dict:
+                    self.variable_dict[self.normalize(child.value)] = None
 
     def visit_Keyword(self, node):  # noqa
-        self.variable_list.clear()
+        self.variable_dict.clear()
         self.generic_visit(node)
         self.check_unused()
 
     def visit_TestCase(self, node):  # noqa
-        self.variable_list.clear()
+        self.variable_dict.clear()
         self.generic_visit(node)
         self.check_unused()
 
-    def use_variable(self, node):
-        node_nomalized = self.normalize(node.value)
-        for i, token in enumerate(self.variable_list):
-            var, _ = token
-            var_normalized = self.normalize(var.value)
-            if var_normalized == node_nomalized:
-                self.variable_list[i][1] = True
-
     def check_unused(self):
-        for node, is_used in self.variable_list:
-            if not is_used:
+        for _, node in self.variable_dict.items():
+            if node is not None:
                 self.report("variable-not-used", node=node, lineno=node.lineno,
                             col=node.col_offset)
 

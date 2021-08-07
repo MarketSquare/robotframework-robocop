@@ -1,8 +1,12 @@
 """
 Miscellaneous checkers
 """
+import re
+
 from robot.api import Token
+from robot.running.arguments.embedded import EmbeddedArguments
 from robot.parsing.model.statements import Return, KeywordCall
+from robot.utils import StringIO
 try:
     from robot.api.parsing import Variable
 except ImportError:
@@ -245,35 +249,53 @@ class SettingsOrderChecker(VisitorChecker):
         self.libraries.append(node)
 
 
-class UnusedVariableChecker(VisitorChecker):
+class VariableChecker(VisitorChecker):
     """ Checker for unused variable. """
     rules = {
         "0912": (
             "variable-not-used",
             "The variable is assigned but not used in this scope",
             RuleSeverity.WARNING
-        )
+        ),
+        "0913": (
+            "argument-defined-but-not-used",
+            "The argument is defined but not used in the keyword",
+            RuleSeverity.WARNING
+        ),
     }
 
     def __init__(self):
         self.variable_dict = dict()
+        self.reuten_params = list()
+        self.argument_params = list()
         super().__init__()
 
     def visit_KeywordCall(self, node):  # noqa
-        for child in node.data_tokens:
-            if child.type == Token.ASSIGN:
-                if self.normalize(child.value) in self.variable_dict and self.variable_dict[self.normalize(child.value)] is not None:
-                    unused_var = self.variable_dict[self.normalize(child.value)]
-                    self.report("variable-not-used", node=unused_var, lineno=unused_var.lineno,
-                                col=unused_var.col_offset)
-                self.variable_dict[self.normalize(child.value)] = child
-            elif child.type == Token.ARGUMENT:
-                if self.normalize(child.value) in self.variable_dict:
-                    self.variable_dict[self.normalize(child.value)] = None
+        for child in node.get_tokens(Token.ARGUMENT):
+            for arg_name in EmbeddedArguments(child.value).args:
+                self.variable_dict[self.normalize(arg_name)] = None
+        for var_name in EmbeddedArguments(node.keyword).args:
+            self.variable_dict[self.normalize(var_name)] = None
+        for child in node.get_tokens(Token.ASSIGN):
+            if self.normalize(child.value) in self.variable_dict and self.variable_dict[self.normalize(child.value)] is not None:
+                unused_var = self.variable_dict[self.normalize(child.value)]
+                self.report("variable-not-used", node=unused_var, lineno=unused_var.lineno,
+                            col=unused_var.col_offset)
+            self.variable_dict[self.normalize(child.value)] = child
+
+    def visit_Return(self, node):  # noqa
+        for child in node.get_tokens(Token.ARGUMENT):
+            self.reuten_params.append(self.normalize(child.value))
+
+    def visit_Arguments(self, node):  # noqa
+        self.argument_params.extend(node.get_tokens(Token.ARGUMENT))
 
     def visit_Keyword(self, node):  # noqa
         self.variable_dict.clear()
+        self.reuten_params.clear()
+        self.argument_params.clear()
         self.generic_visit(node)
+        self.mark_return()
         self.check_unused()
 
     def visit_TestCase(self, node):  # noqa
@@ -282,10 +304,29 @@ class UnusedVariableChecker(VisitorChecker):
         self.check_unused()
 
     def check_unused(self):
+        for node in self.argument_params:
+            var = node.value.split("=")[0]
+            if self.normalize(var) not in self.variable_dict:
+                self.report("argument-defined-but-not-used", node=node, lineno=node.lineno,
+                            col=node.col_offset)
         for _, node in self.variable_dict.items():
             if node is not None:
                 self.report("variable-not-used", node=node, lineno=node.lineno,
                             col=node.col_offset)
 
+    def mark_return(self):
+        for arg_value in self.reuten_params:
+            if arg_value in self.variable_dict:
+                self.variable_dict[arg_value] = None
+
     def normalize(self, name):
-        return ''.join(c for c in name if c not in "$@&{}").replace('_', ' ').lower()
+        var_name = ''.join(c for c in name if c not in "$@&{}").replace('_', ' ').lower()
+        _match_extended = re.compile(r'''
+            (.+?)          # base name (group 1)
+            ([^\s\w].+)    # extended part (group 2)
+        ''', re.UNICODE|re.VERBOSE).match
+        result = _match_extended(var_name)
+        if result:
+            return result.groups()[0].strip()
+        else:
+            return var_name.strip()

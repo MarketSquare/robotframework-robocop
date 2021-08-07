@@ -1,0 +1,3 @@
+${rules_dir}${\}test.robot:21:19 [W] 0913 The argument is defined but not used in the keyword
+${rules_dir}${\}test.robot:21:33 [W] 0913 The argument is defined but not used in the keyword
+${rules_dir}${\}test.robot:21:44 [W] 0913 The argument is defined but not used in the keyword

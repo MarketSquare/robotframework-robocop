@@ -1,5 +1,12 @@
 ${rules_dir}${\}test.robot:8:4 [W] 0912 The variable is assigned but not used in this scope
-${rules_dir}${\}test.robot:14:4 [W] 0912 The variable is assigned but not used in this scope
-${rules_dir}${\}test.robot:15:4 [W] 0912 The variable is assigned but not used in this scope
-${rules_dir}${\}test.robot:15:15 [W] 0912 The variable is assigned but not used in this scope
-${rules_dir}${\}test.robot:29:4 [W] 0912 The variable is assigned but not used in this scope
+${rules_dir}${\}test.robot:9:4 [W] 0912 The variable is assigned but not used in this scope
+${rules_dir}${\}test.robot:9:15 [W] 0912 The variable is assigned but not used in this scope
+${rules_dir}${\}test.robot:23:4 [W] 0912 The variable is assigned but not used in this scope
+${rules_dir}${\}test.robot:28:4 [W] 0912 The variable is assigned but not used in this scope
+${rules_dir}${\}test.robot:34:4 [W] 0912 The variable is assigned but not used in this scope
+${rules_dir}${\}test.robot:57:4 [W] 0912 The variable is assigned but not used in this scope
+${rules_dir}${\}test.robot:58:4 [W] 0912 The variable is assigned but not used in this scope
+${rules_dir}${\}test.robot:58:15 [W] 0912 The variable is assigned but not used in this scope
+${rules_dir}${\}test.robot:72:4 [W] 0912 The variable is assigned but not used in this scope
+${rules_dir}${\}test.robot:77:4 [W] 0912 The variable is assigned but not used in this scope
+${rules_dir}${\}test.robot:83:4 [W] 0912 The variable is assigned but not used in this scope

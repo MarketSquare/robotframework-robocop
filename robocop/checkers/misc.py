@@ -277,11 +277,12 @@ class VariableChecker(VisitorChecker):
         for var_name in EmbeddedArguments(node.keyword).args:
             self.variable_dict[self.normalize(var_name)] = None
         for child in node.get_tokens(Token.ASSIGN):
-            if self.normalize(child.value) in self.variable_dict and self.variable_dict[self.normalize(child.value)] is not None:
-                unused_var = self.variable_dict[self.normalize(child.value)]
+            normalize_value = self.normalize(child.value)
+            if normalize_value in self.variable_dict and self.variable_dict[normalize_value] is not None:
+                unused_var = self.variable_dict[normalize_value]
                 self.report("variable-not-used", node=unused_var, lineno=unused_var.lineno,
                             col=unused_var.col_offset)
-            self.variable_dict[self.normalize(child.value)] = child
+            self.variable_dict[normalize_value] = child
 
     def visit_Return(self, node):  # noqa
         for child in node.get_tokens(Token.ARGUMENT):

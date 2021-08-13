@@ -29,17 +29,28 @@ def modules_in_current_dir(path, module_name):
 
 def modules_from_paths(paths):
     for path in paths:
-        path = Path(path)
-        if not path.exists():
-            raise InvalidExternalCheckerError(path)
-        if path.is_dir():
-            yield from modules_from_paths([file for file in path.iterdir() if '__pycache__' not in str(file)])
-        else:
-            spec = importlib.util.spec_from_file_location(path.stem, path)
-            mod = importlib.util.module_from_spec(spec)
+        path_object = Path(path)
+        if path_object.exists():
+            if path_object.is_dir():
+                yield from modules_from_paths(
+                    [file for file in path_object.iterdir() if '__pycache__' not in str(file)])
+            else:
+                spec = importlib.util.spec_from_file_location(path_object.stem, path_object)
+                mod = importlib.util.module_from_spec(spec)
 
-            spec.loader.exec_module(mod)
-            yield mod
+                spec.loader.exec_module(mod)
+                yield mod
+        else:
+            try:
+                parent_name, *lib_name = path.rsplit('.', 1)
+                if lib_name:
+                    parent = __import__(parent_name, fromlist=lib_name)
+                    mod = getattr(parent, ''.join(lib_name))
+                else:
+                    mod = __import__(parent_name, None)
+                yield mod
+            except ImportError:
+                raise InvalidExternalCheckerError(path) from None
 
 
 def modules_from_path(path, module_name=None, relative='.'):

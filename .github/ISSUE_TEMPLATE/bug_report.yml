@@ -23,6 +23,6 @@ body:
     validations:
       required: true
   - type: markdown
-  attributes:
+    attributes:
     value: |
       Thanks for your report!

@@ -18,8 +18,8 @@ body:
       label: Version
       description: Do you use latest version of Robocop?
       options:
-        - Yes
-        - No
+        - label: Yes
+        - label: No
     validations:
       required: true
   - type: markdown

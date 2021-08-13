@@ -69,7 +69,7 @@ Configurable parameter can be referred by its :code:`public_name` in command lin
 
 Import from external module
 ----------------------------
-Robocop rules can be written in seperate, distributed module. For example using ``RobocopRules`` module name and following
+Robocop rules can be written in separate, distributed module. For example using ``RobocopRules`` module name and following
 directory structure::
 
     RobocopRules/

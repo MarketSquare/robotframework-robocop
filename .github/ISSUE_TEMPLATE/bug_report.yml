@@ -12,10 +12,22 @@ body:
     validations:
       required: true
   - type: checkboxes
+    id: platform
+    attributes:
+      label: Platform
+      description: On what platform it does happen?
+      options:
+        - label: "Windows"
+        - label: "Linux"
+        - label: "MacOS"
+    validations:
+      required: false
+  - type: dropdown
     id: version
     attributes:
       label: Version
       description: Do you use latest version of Robocop?
+      multiple: false
       options:
         - label: "Yes"
         - label: "No"

@@ -269,7 +269,8 @@ class Robocop:
             if rule_or_report in self.rules:
                 msg, checker = self.rules[rule_or_report]
                 if param == 'severity':
-                    self.rules[rule_or_report] = (msg.change_severity(value), checker)
+                    msg.change_severity(value)
+                    self.rules[rule_or_report] = (msg, checker)
                 else:
                     configurable = msg.get_configurable(param)
                     if configurable is None:

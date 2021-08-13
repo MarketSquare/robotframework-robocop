@@ -29,8 +29,8 @@ body:
       description: Do you use latest version of Robocop?
       multiple: false
       options:
-        - label: "Yes"
-        - label: "No"
+        - "Yes"
+        - "No"
     validations:
       required: true
   - type: markdown

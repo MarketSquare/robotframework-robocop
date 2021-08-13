@@ -27,6 +27,7 @@ It will start looking from current directory and go up until it founds it or '.g
 supports the same syntax as given from cli::
 
     --include rulename
+    # inline comment
     --reports all
 
 If there is no ``.robocop`` file present it will try to load ``pyproject.toml`` file (if there is toml module installed).

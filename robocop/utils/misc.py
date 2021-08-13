@@ -41,6 +41,7 @@ def modules_from_paths(paths):
                 spec.loader.exec_module(mod)
                 yield mod
         else:
+            # if it's not physical path, try to import from installed modules
             try:
                 parent_name, *lib_name = path.rsplit('.', 1)
                 if lib_name:

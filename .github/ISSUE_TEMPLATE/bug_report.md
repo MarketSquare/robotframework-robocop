@@ -1,27 +1,30 @@
 ---
 name: Bug report
-about: Create a report to help us improve
-title: ''
-labels: ''
+about: File a bug report
+title: '[Bug] '
+labels: 'bug'
 assignees: ''
-
+body:
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: Also tell us, what did you expect to happen?
+      value: ""
+    validations:
+      required: true
+  - type: checkboxes
+    id: version
+    attributes:
+      label: Version
+      description: Do you use latest version of Robocop?
+      options:
+        - label: Yes
+        - label: No
+    validations:
+      required: true
+  - type: markdown
+  attributes:
+    value: |
+      Thanks for your report!
 ---
-
-**Describe the bug**
-A clear and concise description of what the bug is.
-
-**To Reproduce**
-Steps to reproduce the behavior:
-1. Go to '...'
-2. Click on '....'
-3. Scroll down to '....'
-4. See error
-
-**Expected behavior**
-A clear and concise description of what you expected to happen.
-
-**Screenshots**
-If applicable, add screenshots to help explain your problem.
-
-**Additional context**
-Add any other context about the problem here.

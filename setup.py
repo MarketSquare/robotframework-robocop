@@ -39,7 +39,7 @@ setup(
     keywords     = KEYWORDS,
     packages     = ['robocop'],
     include_package_data = True,
-    install_requires = ['robotframework>=3.2.2'],
+    install_requires = ['robotframework>=3.2.2', 'toml>=0.10.2'],
     extras_requires = {
         'dev': ['pytest'],
         'doc': ['sphinx', 'sphinx_rtd_theme']

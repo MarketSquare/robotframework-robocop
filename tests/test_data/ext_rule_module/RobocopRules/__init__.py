@@ -1,3 +1,3 @@
-from .some_rules import MissingKeywordName
+from .some_rules import CustomRuleChecker
 
-all = ['MissingKeywordName']
+all = ['CustomRuleChecker']

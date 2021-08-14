@@ -2,7 +2,7 @@ from robocop.checkers import VisitorChecker
 from robocop.rules import RuleSeverity
 
 
-class MissingKeywordName2(VisitorChecker):
+class CustomRuleChecker2(VisitorChecker):
     """ Checker for missing keyword name. """
     rules = {
         "9904": (

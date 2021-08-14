@@ -89,7 +89,7 @@ inside ``some_rules.py``::
     from robocop.rules import RuleSeverity
 
 
-    class MissingKeywordName(VisitorChecker):
+    class CustomRule(VisitorChecker):
         """ Checker for missing keyword name. """
         rules = {
             "9903": (

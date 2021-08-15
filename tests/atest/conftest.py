@@ -75,4 +75,9 @@ def pytest_generate_tests(metafunc):
         ['-c', 'section-out-of-order:sections_order:settings,variables,testcases,keywords'],
         'duplications/section-out-of-order_default_order'
     ))
+    auto_discovered_rules.append((
+        'section-out-of-order',
+        ['-c', 'section-out-of-order:sections_order:settings,variables,testcases,tasks,keywords'],
+        'duplications/section-out-of-order_default_order'
+    ))
     metafunc.parametrize('rule, args, test_data', auto_discovered_rules)

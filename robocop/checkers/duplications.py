@@ -196,10 +196,11 @@ class SectionHeadersChecker(VisitorChecker):
         seen = set()
         order = []
         for name in value.split(','):
-            if name.lower() in seen:
+            mapped_name = name_map[name.lower()]
+            if mapped_name in seen:
                 continue
-            order.append(name_map[name.lower()])
-            seen.add(name.lower())
+            order.append(mapped_name)
+            seen.add(mapped_name)
         return ' > '.join(order)
 
     def visit_File(self, node):

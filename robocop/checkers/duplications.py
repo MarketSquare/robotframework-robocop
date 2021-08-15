@@ -61,7 +61,7 @@ class DuplicationsChecker(VisitorChecker):
         self.variable_imports = defaultdict(list)
         super().__init__()
 
-    def visit_File(self, node):
+    def visit_File(self, node):  # noqa
         self.test_cases = defaultdict(list)
         self.keywords = defaultdict(list)
         self.variables = defaultdict(list)
@@ -153,7 +153,7 @@ class SectionHeadersChecker(VisitorChecker):
     }
 
     def __init__(self):
-        self.sections_order = None
+        self.sections_order = {}
         self.section_order_str = None
         self.configure('sections_order', 'settings,variables,testcases,keywords')
         self.sections_by_order = []
@@ -203,7 +203,7 @@ class SectionHeadersChecker(VisitorChecker):
             seen.add(mapped_name)
         return ' > '.join(order)
 
-    def visit_File(self, node):
+    def visit_File(self, node):  # noqa
         self.sections_by_order = []
         self.sections_by_existence = set()
         super().visit_File(node)

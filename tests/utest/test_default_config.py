@@ -47,6 +47,12 @@ class TestDefaultConfig:
             config.parse_opts()
         assert '"{source}:{line}:{col} [{severity}] {rule_id} {desc} ({name})"' == config.format.strip()
 
+    def test_load_config_with_comments(self, path_to_test_data, config):
+        src = path_to_test_data / 'config_with_comments'
+        os.chdir(str(src))
+        with patch.object(sys, 'argv', ['prog']):
+            config.parse_opts()
+
     def test_load_config_from_default_file_verbose(self, path_to_test_data, config, capsys):
         src = path_to_test_data / 'default_config'
         os.chdir(str(src))

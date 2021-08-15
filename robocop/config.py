@@ -212,7 +212,15 @@ class Config:
     def load_args_from_file(self, argfile):
         try:
             with open(argfile) as arg_f:
-                args = [arg.strip() for line in arg_f for arg in line.split(' ', 1)]
+                args = []
+                for line in arg_f:
+                    if line.strip().startswith('#'):
+                        continue
+                    for arg in line.split(' ', 1):
+                        arg = arg.strip()
+                        if not arg:
+                            continue
+                        args.append(arg)
                 if '-A' in args or '--argumentfile' in args:
                     raise NestedArgumentFileError(argfile)
                 self.config_from = argfile

@@ -52,7 +52,6 @@ class TestDefaultConfig:
         os.chdir(str(src))
         with patch.object(sys, 'argv', ['prog']):
             config.parse_opts()
-        print('s')
 
     def test_load_config_from_default_file_verbose(self, path_to_test_data, config, capsys):
         src = path_to_test_data / 'default_config'

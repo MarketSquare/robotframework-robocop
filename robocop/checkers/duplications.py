@@ -193,14 +193,11 @@ class SectionHeadersChecker(VisitorChecker):
             'keyword': 'Keywords',
             'keywords': 'Keywords'
         }
-        seen = set()
         order = []
         for name in value.split(','):
             mapped_name = name_map[name.lower()]
-            if mapped_name in seen:
-                continue
-            order.append(mapped_name)
-            seen.add(mapped_name)
+            if mapped_name not in order:
+                order.append(mapped_name)
         return ' > '.join(order)
 
     def visit_File(self, node):  # noqa

@@ -34,10 +34,10 @@ def pytest_generate_tests(metafunc):
         # Find and use only selected rule
         for rule, args, test_data in auto_discovered_rules:
             if rule == selected_rule:
+                metafunc.parametrize('rule, args, test_data', [(selected_rule, args, test_data)])
                 break
         else:
             pytest.exit(f"Rule: '{selected_rule}' was not found", 1)
-        metafunc.parametrize('rule, args, test_data', [(selected_rule, args, test_data)])
         return
     # TODO: load other tests from file (like yaml)
     auto_discovered_rules.append((
@@ -64,5 +64,15 @@ def pytest_generate_tests(metafunc):
         'wrong-case-in-keyword-name',
         ['-c', 'wrong-case-in-keyword-name:convention:first_word_capitalized'],
         'naming/wrong-case-in-keyword-name-first-word'
+    ))
+    auto_discovered_rules.append((
+        'section-out-of-order',
+        ['-c', 'section-out-of-order:sections_order:settings,keywords,testcases,variables'],
+        'duplications/section-out-of-order_custom_order'
+    ))
+    auto_discovered_rules.append((
+        'section-out-of-order',
+        ['-c', 'section-out-of-order:sections_order:settings,variables,testcases,keywords'],
+        'duplications/section-out-of-order_default_order'
     ))
     metafunc.parametrize('rule, args, test_data', auto_discovered_rules)

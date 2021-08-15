@@ -69,8 +69,7 @@ class ParseDelimitedArgAction(argparse.Action):  # pylint: disable=too-few-publi
 class ParseCheckerConfig(argparse.Action):  # pylint: disable=too-few-public-methods
     def __call__(self, parser, namespace, values, option_string=None):
         container = getattr(namespace, self.dest)
-        for value in values.split(','):
-            container.append(value.strip())
+        container.append(values.strip())
 
 
 class ParseFileTypes(argparse.Action):  # pylint: disable=too-few-public-methods
@@ -147,7 +146,7 @@ class Config:
         'help_format':       'Format of output message. '
                              'You can use placeholders to change the way an issue is reported.\n'
                              'Default: {source}:{line}:{col} [{severity}] {rule_id} {desc} ({name})',
-        'help_configure':    'Configure checker with parameter value. Usage:\n'
+        'help_configure':    'Configure checker or report with parameter value. Usage:\n'
                              '-c message_name_or_id:param_name:param_value\nExample:\n'
                              '-c line-too-long:line_length:150\n'
                              '--configure 0101:severity:E',

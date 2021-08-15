@@ -8,6 +8,7 @@ from robot.api import Token
 from robocop.checkers import VisitorChecker
 from robocop.rules import RuleSeverity
 from robocop.utils import normalize_robot_name
+from robocop.exceptions import InvalidRuleConfigurableError
 
 
 class DuplicationsChecker(VisitorChecker):
@@ -60,7 +61,7 @@ class DuplicationsChecker(VisitorChecker):
         self.variable_imports = defaultdict(list)
         super().__init__()
 
-    def visit_File(self, node):
+    def visit_File(self, node):  # noqa
         self.test_cases = defaultdict(list)
         self.keywords = defaultdict(list)
         self.variables = defaultdict(list)
@@ -135,8 +136,14 @@ class SectionHeadersChecker(VisitorChecker):
         "0809": (
             "section-out-of-order",
             "'%s' section header is defined in wrong order: "
-            "Setting(s) > Variable(s) > Test Case(s) / Task(s) > Keyword(s)",
-            RuleSeverity.WARNING
+            "%s",
+            RuleSeverity.WARNING,
+            (
+                'sections_order',
+                'sections_order',
+                str,
+                'order of sections in comma separated list. For example: settings,variables,testcases,keywords'
+            )
         ),
         "0810": (
             "both-tests-and-tasks",
@@ -146,18 +153,54 @@ class SectionHeadersChecker(VisitorChecker):
     }
 
     def __init__(self):
-        self.sections_order = {
-            Token.SETTING_HEADER: 0,
-            Token.VARIABLE_HEADER: 1,
-            Token.TESTCASE_HEADER: 2,
-            'TASK HEADER': 2,
-            Token.KEYWORD_HEADER: 4
-        }
+        self.sections_order = {}
+        self.section_order_str = None
+        self.configure('sections_order', 'settings,variables,testcases,keywords')
         self.sections_by_order = []
         self.sections_by_existence = set()
         super().__init__()
 
-    def visit_File(self, node):
+    def configure(self, param, value):
+        section_map = {
+            'settings': Token.SETTING_HEADER,
+            'variables': Token.VARIABLE_HEADER,
+            'testcase': Token.TESTCASE_HEADER,
+            'testcases': Token.TESTCASE_HEADER,
+            'task': 'TASK HEADER',
+            'tasks': 'TASK HEADER',
+            'keyword': Token.KEYWORD_HEADER,
+            'keywords': Token.KEYWORD_HEADER
+        }
+        sections_order = {}
+        for index, name in enumerate(value.split(',')):
+            if name.lower() not in section_map or section_map[name.lower()] in sections_order:
+                raise InvalidRuleConfigurableError('0809', value)
+            sections_order[section_map[name.lower()]] = index
+        if Token.TESTCASE_HEADER in sections_order:
+            sections_order['TASK HEADER'] = sections_order[Token.TESTCASE_HEADER]
+        super().configure(param, sections_order)
+        self.section_order_str = self.section_order_to_str(value)
+
+    @staticmethod
+    def section_order_to_str(value):
+        name_map = {
+            'settings': 'Settings',
+            'variables': 'Variables',
+            'testcase': 'Test Cases / Tasks',
+            'testcases': 'Test Cases / Tasks',
+            'tasks': 'Test Cases / Tasks',
+            'task': 'Test Cases / Tasks',
+            'keyword': 'Keywords',
+            'keywords': 'Keywords'
+        }
+        order = []
+        for name in value.split(','):
+            mapped_name = name_map[name.lower()]
+            if mapped_name not in order:
+                order.append(mapped_name)
+        return ' > '.join(order)
+
+    def visit_File(self, node):  # noqa
         self.sections_by_order = []
         self.sections_by_existence = set()
         super().visit_File(node)
@@ -178,6 +221,6 @@ class SectionHeadersChecker(VisitorChecker):
         if section_name in self.sections_by_existence:
             self.report("section-already-defined", node.data_tokens[0].value, node=node)
         if any(previous_id > order_id for previous_id in self.sections_by_order):
-            self.report("section-out-of-order", node.data_tokens[0].value, node=node)
+            self.report("section-out-of-order", node.data_tokens[0].value, self.section_order_str, node=node)
         self.sections_by_order.append(order_id)
         self.sections_by_existence.add(section_name)

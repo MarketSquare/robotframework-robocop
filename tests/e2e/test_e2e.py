@@ -123,7 +123,7 @@ class TestE2E:
 
     def test_configure_rule_severity(self, robocop_instance):
         config = Config()
-        config.parse_opts(['-c', '0201:severity:E,E0202:severity:I',
+        config.parse_opts(['-c', '0201:severity:E', '-c', 'E0202:severity:I',
                            str(Path(Path(__file__).parent.parent, 'test_data'))])
         robocop_instance.config = config
         with pytest.raises(SystemExit):

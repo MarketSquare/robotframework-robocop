@@ -1,4 +1,5 @@
 from pathlib import Path
+import sys
 
 import pytest
 
@@ -10,6 +11,19 @@ class TestExternalRules:
         robocop_pre_load.config.ext_rules = {f'{Path(__file__).parent.parent}/test_data/ext_rule/external_rule.py'}
         robocop_pre_load.load_checkers()
         assert "1101" in robocop_pre_load.rules
+
+    def test_loading_external_rule_from_module(self, robocop_pre_load):  # noqa
+        sys.path.append(str(Path(__file__).parent.parent / 'test_data' / 'ext_rule_module'))
+        robocop_pre_load.config.ext_rules = {'RobocopRules'}
+        robocop_pre_load.load_checkers()
+        assert "9903" in robocop_pre_load.rules
+
+    def test_loading_external_rule_from_dotted_module(self, robocop_pre_load):  # noqa
+        sys.path.append(str(Path(__file__).parent.parent / 'test_data' / 'ext_rule_module'))
+        robocop_pre_load.config.ext_rules = {'RobocopRules.submodule'}
+        robocop_pre_load.load_checkers()
+        assert "9904" in robocop_pre_load.rules
+        assert "9903" not in robocop_pre_load.rules
 
     def test_loading_multiple_external_rules(self, robocop_pre_load):  # noqa
         robocop_pre_load.config.ext_rules = {

@@ -257,3 +257,17 @@ class TestE2E:
         robocop_instance.config = config
         with pytest.raises(SystemExit):
             robocop_instance.run()
+
+    def test_configure_severity(self, robocop_instance):
+        # issue 402
+        config = Config()
+        config.parse_opts([
+            '-c',
+            'wrong-case-in-keyword-name:severity:E',
+            '-c',
+            'wrong-case-in-keyword-name:convention:first_word_capitalized',
+            str(Path(Path(__file__).parent.parent, 'test_data'))
+        ])
+        robocop_instance.config = config
+        with pytest.raises(SystemExit):
+            robocop_instance.run()

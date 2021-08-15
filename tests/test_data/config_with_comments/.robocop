@@ -1,0 +1,5 @@
+# comment
+--include rule1
+# other comment
+
+--configure too-many-arguments:max_args:10

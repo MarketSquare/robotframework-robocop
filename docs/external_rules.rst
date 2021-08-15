@@ -66,3 +66,47 @@ Rules can have configurable values. You need to specify them in rule body after 
 Configurable parameter can be referred by its :code:`public_name` in command line options::
 
     robocop --ext-rules my/own/rule.py --configure dummy-in-name:public_name:AnotherDummy
+
+Import from external module
+----------------------------
+Robocop rules can be written in separate, distributed module. For example using ``RobocopRules`` module name and following
+directory structure::
+
+    RobocopRules/
+    RobocopRules/__init__.py
+    RobocopRules/some_rules.py
+    setup.py
+
+inside ``__init__.py``::
+
+    from .some_rules import CustomRule
+
+    all = ['CustomRule']
+
+inside ``some_rules.py``::
+
+    from robocop.checkers import VisitorChecker
+    from robocop.rules import RuleSeverity
+
+
+    class CustomRule(VisitorChecker):
+        """ Checker for missing keyword name. """
+        rules = {
+            "9903": (
+                "external-rule",
+                "This is external rule",
+                RuleSeverity.INFO
+            )
+        }
+
+        def visit_KeywordCall(self, node):  # noqa
+            if node.keyword and 'Dummy' not in node.keyword:
+                self.report("external-rule", node=node)
+
+You can import is using module name::
+
+    robocop --ext-rules RobocopRules .
+
+Dotted syntax is also supported::
+
+    robocop --ext-rules RobocopRules.submodule .

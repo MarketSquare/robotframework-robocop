@@ -1,0 +1,39 @@
+name: Bug report
+description: File a bug report
+title: '[Bug] '
+labels: 'bug'
+body:
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: Also tell us, what did you expect to happen?
+      value: "Bug details"
+    validations:
+      required: true
+  - type: checkboxes
+    id: platform
+    attributes:
+      label: Platform
+      description: On what platform it does happen?
+      options:
+        - label: "Windows"
+        - label: "Linux"
+        - label: "MacOS"
+    validations:
+      required: false
+  - type: dropdown
+    id: version
+    attributes:
+      label: Version
+      description: Do you use latest version of Robocop?
+      multiple: false
+      options:
+        - "Yes"
+        - "No"
+    validations:
+      required: true
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for your report!

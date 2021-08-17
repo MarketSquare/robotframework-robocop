@@ -1,1 +1,2 @@
 ${rules_dir}${\}test.robot:2:0 [I] 0912 Use built-in variable ${EMPTY} instead of leaving variable without value
+${rules_dir}${\}test.robot:12:0 [I] 0912 Use built-in variable ${EMPTY} instead of leaving variable without value

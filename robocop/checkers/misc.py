@@ -258,5 +258,5 @@ class EmptyVariableChecker(VisitorChecker):
     def visit_Variable(self, node):  # noqa
         if not node.name:
             return
-        if not node.value:
+        if not node.value or all(not val for val in node.value):
             self.report("empty-variable", node=node)

@@ -108,6 +108,6 @@ class TestRecommendationFinder:
         ('this-is-longernamewithout', ['this-is-longer-name-without', 'a', 'some'],
          ' Did you mean:\n    this-is-longer-name-without')
     ])
-    def test_find_similiar(self, name, candidates, similar):
+    def test_find_similar(self, name, candidates, similar):
         rec = RecommendationFinder().find_similar(name, candidates)
         assert similar == rec

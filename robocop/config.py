@@ -325,8 +325,8 @@ class Config:
     def validate_rule_names(self, rules):
         for rule in chain(self.include, self.exclude):
             if rule not in rules:
-                similiar = RecommendationFinder().find_similar(rule, rules)
-                raise ConfigGeneralError(f"Provided rule '{rule}' does not exist.{similiar}")
+                similar = RecommendationFinder().find_similar(rule, rules)
+                raise ConfigGeneralError(f"Provided rule '{rule}' does not exist.{similar}")
 
     def is_rule_enabled(self, rule):
         if self.is_rule_disabled(rule):

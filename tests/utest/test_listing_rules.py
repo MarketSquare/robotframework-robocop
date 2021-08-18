@@ -99,7 +99,8 @@ class TestListingRules:
         with pytest.raises(SystemExit):
             robocop_pre_load.list_checkers()
         out, _ = capsys.readouterr()
-        assert out == 'Rule - 0101 [W]: some-message: Some description (enabled)\n'
+        assert out == 'Rule - 0101 [W]: some-message: Some description (enabled)\n' \
+                      'Altogether 1 rule(s): 0 error(s), 1 warning(s) and 0 info.\n'
 
     def test_list_disabled_rule(self, robocop_pre_load, msg_0101, capsys):
         robocop_pre_load.config.list = robocop.config.translate_pattern('*')
@@ -107,7 +108,8 @@ class TestListingRules:
         with pytest.raises(SystemExit):
             robocop_pre_load.list_checkers()
         out, _ = capsys.readouterr()
-        assert out == 'Rule - 0101 [W]: some-message: Some description (disabled)\n'
+        assert out == 'Rule - 0101 [W]: some-message: Some description (disabled)\n' \
+                      'Altogether 1 rule(s): 0 error(s), 1 warning(s) and 0 info.\n'
 
     def test_list_reports(self, robocop_pre_load, msg_0101, capsys):
         robocop_pre_load.config.list_reports = True
@@ -160,7 +162,8 @@ class TestListingRules:
                       "        type: int\n" \
                       "    conf_param2 = None\n" \
                       "        type: msg_0101_config_meta\n" \
-                      "        info: meta information\n"
+                      "        info: meta information\n" \
+                      "Altogether 1 rule(s): 0 error(s), 1 warning(s) and 0 info with configurable parameters.\n"
 
     def test_list_configurables_filtered(self, robocop_pre_load, msg_0101_config, msg_0102_0204_config, capsys):
         robocop_pre_load.config.list_configurables = 'another-message'

@@ -1,16 +1,12 @@
 import argparse
 import fnmatch
-from pathlib import Path
-from itertools import chain
 import os
 import re
 import sys
+from itertools import chain
+from pathlib import Path
 
-try:
-    import toml
-    TOML_SUPPORT = True
-except ImportError:
-    TOML_SUPPORT = False
+import toml
 
 from robocop.exceptions import (
     ArgumentFileNotFoundError,
@@ -19,8 +15,8 @@ from robocop.exceptions import (
     ConfigGeneralError
 )
 from robocop.rules import RuleSeverity
-from robocop.version import __version__
 from robocop.utils import RecommendationFinder
+from robocop.version import __version__
 
 
 def translate_pattern(pattern):
@@ -315,8 +311,6 @@ class Config:
         return parent / config_name
 
     def load_pyproject_file(self):
-        if not TOML_SUPPORT:
-            return
         pyproject_path = self.find_file_in_project_root('pyproject.toml')
         if not pyproject_path.is_file():
             return

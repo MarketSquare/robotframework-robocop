@@ -217,7 +217,7 @@ class KeywordNamingChecker(VisitorChecker):
 
 
 class SettingsNamingChecker(VisitorChecker):
-    """ Checker for settings and section naming violations. """
+    """ Checker for settings and sections naming violations. """
     rules = {
         "0306": (
             "setting-name-not-in-title-case",

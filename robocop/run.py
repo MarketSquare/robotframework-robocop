@@ -283,9 +283,9 @@ class Robocop:
             elif rule_or_report in self.reports:
                 self.reports[rule_or_report].configure(param, value, *values)
             else:
-                similiar = RecommendationFinder().find_similar(rule_or_report, self.rules)
+                similar = RecommendationFinder().find_similar(rule_or_report, self.rules)
                 raise robocop.exceptions.ConfigGeneralError(
-                    f"Provided rule or report '{rule_or_report}' does not exist.{similiar}")
+                    f"Provided rule or report '{rule_or_report}' does not exist.{similar}")
 
 
 def run_robocop():

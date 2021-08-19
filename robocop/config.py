@@ -1,16 +1,12 @@
 import argparse
 import fnmatch
-from pathlib import Path
-from itertools import chain
 import os
 import re
 import sys
+from itertools import chain
+from pathlib import Path
 
-try:
-    import toml
-    TOML_SUPPORT = True
-except ImportError:
-    TOML_SUPPORT = False
+import toml
 
 from robocop.exceptions import (
     ArgumentFileNotFoundError,
@@ -19,8 +15,8 @@ from robocop.exceptions import (
     ConfigGeneralError
 )
 from robocop.rules import RuleSeverity
-from robocop.version import __version__
 from robocop.utils import RecommendationFinder
+from robocop.version import __version__
 
 
 def translate_pattern(pattern):
@@ -315,8 +311,6 @@ class Config:
         return parent / config_name
 
     def load_pyproject_file(self):
-        if not TOML_SUPPORT:
-            return
         pyproject_path = self.find_file_in_project_root('pyproject.toml')
         if not pyproject_path.is_file():
             return
@@ -336,22 +330,17 @@ class Config:
         container.add(new_key)
 
     def validate_rule_names(self, rules):
-        deprecated = {
-            'setting-name-not-capitalized': 'setting-name-not-in-title-case',
-            'not-capitalized-keyword-name': 'wrong-case-in-keyword-name',
-            'missing-doc-testcase': 'missing-doc-test-case'
-        }
+        deprecated = {}  # add rule name in form of old_name: new_name
         for rule in chain(self.include, self.exclude):
-            # TODO: Remove in 1.9.0
             if rule in deprecated:
                 print(f"### DEPRECATION WARNING: The name of the rule '{rule}' is "
-                      f"renamed to '{deprecated[rule]}' starting from Robocop 1.8.0. "
+                      f"renamed to '{deprecated[rule]}'. "
                       f"Update your configuration if you're using old name. ###\n")
                 self.replace_in_set(self.include, rule, deprecated[rule])
                 self.replace_in_set(self.exclude, rule, deprecated[rule])
             elif rule not in rules:
-                similiar = RecommendationFinder().find_similar(rule, rules)
-                raise ConfigGeneralError(f"Provided rule '{rule}' does not exist.{similiar}")
+                similar = RecommendationFinder().find_similar(rule, rules)
+                raise ConfigGeneralError(f"Provided rule '{rule}' does not exist.{similar}")
 
     def is_rule_enabled(self, rule):
         if self.is_rule_disabled(rule):

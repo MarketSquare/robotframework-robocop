@@ -322,9 +322,23 @@ class Config:
         parse_toml_to_config(config, self)
         self.config_from = pyproject_path
 
+    @staticmethod
+    def replace_in_set(container, old_key, new_key):
+        if old_key not in container:
+            return
+        container.remove(old_key)
+        container.add(new_key)
+
     def validate_rule_names(self, rules):
+        deprecated = {}  # add rule name in form of old_name: new_name
         for rule in chain(self.include, self.exclude):
-            if rule not in rules:
+            if rule in deprecated:
+                print(f"### DEPRECATION WARNING: The name of the rule '{rule}' is "
+                      f"renamed to '{deprecated[rule]}'. "
+                      f"Update your configuration if you're using old name. ###\n")
+                self.replace_in_set(self.include, rule, deprecated[rule])
+                self.replace_in_set(self.exclude, rule, deprecated[rule])
+            elif rule not in rules:
                 similar = RecommendationFinder().find_similar(rule, rules)
                 raise ConfigGeneralError(f"Provided rule '{rule}' does not exist.{similar}")
 

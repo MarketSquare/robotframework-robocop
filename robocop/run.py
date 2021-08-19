@@ -194,10 +194,10 @@ class Robocop:
                     print(f"{rule_def}\n"
                           f"    {configurables}")
                     severity_counter[rule_def.severity.value] += 1
-        suffix = '.' if self.config.list else ' with configurable parameters.'
-        print(f"Altogether {sum(severity_counter.values())} rule(s): "
-              f"{severity_counter['E']} error(s), {severity_counter['W']} warning(s) and {severity_counter['I']} info"
-              f"{suffix}")
+        print(f"Altogether {sum(severity_counter.values())} rule(s) with following severity:\n"
+              f"    {severity_counter['E']} error rule(s),\n"
+              f"    {severity_counter['W']} warning rule(s),\n"
+              f"    {severity_counter['I']} info rule(s).")
         sys.exit()
 
     def load_reports(self):

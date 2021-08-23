@@ -194,7 +194,7 @@ class Robocop:
                     print(f"{rule_def}\n"
                           f"    {configurables}")
                     severity_counter[rule_def.severity.value] += 1
-        print(f"Altogether {sum(severity_counter.values())} rule(s) with following severity:\n"
+        print(f"\nAltogether {sum(severity_counter.values())} rule(s) with following severity:\n"
               f"    {severity_counter['E']} error rule(s),\n"
               f"    {severity_counter['W']} warning rule(s),\n"
               f"    {severity_counter['I']} info rule(s).")

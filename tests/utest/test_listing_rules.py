@@ -99,7 +99,7 @@ class TestListingRules:
         with pytest.raises(SystemExit):
             robocop_pre_load.list_checkers()
         out, _ = capsys.readouterr()
-        assert out == 'Rule - 0101 [W]: some-message: Some description (enabled)\n' \
+        assert out == 'Rule - 0101 [W]: some-message: Some description (enabled)\n\n' \
                       'Altogether 1 rule(s) with following severity:\n' \
                       '    0 error rule(s),\n' \
                       '    1 warning rule(s),\n' \
@@ -111,7 +111,7 @@ class TestListingRules:
         with pytest.raises(SystemExit):
             robocop_pre_load.list_checkers()
         out, _ = capsys.readouterr()
-        assert out == 'Rule - 0101 [W]: some-message: Some description (disabled)\n' \
+        assert out == 'Rule - 0101 [W]: some-message: Some description (disabled)\n\n' \
                       'Altogether 1 rule(s) with following severity:\n' \
                       '    0 error rule(s),\n' \
                       '    1 warning rule(s),\n' \
@@ -168,7 +168,7 @@ class TestListingRules:
                       "        type: int\n" \
                       "    conf_param2 = None\n" \
                       "        type: msg_0101_config_meta\n" \
-                      "        info: meta information\n" \
+                      "        info: meta information\n\n" \
                       "Altogether 1 rule(s) with following severity:\n" \
                       "    0 error rule(s),\n" \
                       "    1 warning rule(s),\n" \

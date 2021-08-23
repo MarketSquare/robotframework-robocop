@@ -217,7 +217,7 @@ class KeywordNamingChecker(VisitorChecker):
 
 
 class SettingsNamingChecker(VisitorChecker):
-    """ Checker for section naming violations. """
+    """ Checker for settings and sections naming violations. """
     rules = {
         "0306": (
             "setting-name-not-in-title-case",
@@ -227,6 +227,16 @@ class SettingsNamingChecker(VisitorChecker):
         "0307": (
             "section-name-invalid",
             "Section name should should be in format `*** Capitalized ***` or `*** UPPERCASE ***`",
+            RuleSeverity.WARNING
+        ),
+        "0314": (
+            "empty-library-alias",
+            "Library alias should not be empty",
+            RuleSeverity.ERROR
+        ),
+        "0315": (
+            "duplicated-library-alias",
+            "Library alias should not be the same as original name",
             RuleSeverity.WARNING
         )
     }
@@ -266,6 +276,15 @@ class SettingsNamingChecker(VisitorChecker):
 
     def visit_LibraryImport(self, node):  # noqa
         self.check_setting_name(node.data_tokens[0].value, node)
+        with_name = node.get_token(Token.WITH_NAME)
+        if with_name is None:
+            for arg in node.get_tokens(Token.ARGUMENT):
+                if arg.value and arg.value == 'WITH NAME':
+                    self.report("empty-library-alias", node=arg, col=arg.col_offset + 1)
+        else:
+            if node.alias.replace(' ', '') == node.name.replace(' ', ''):  # New Name == NewName
+                name_token = node.get_tokens(Token.NAME)[-1]
+                self.report("duplicated-library-alias", node=name_token, col=name_token.col_offset + 1)
 
     def visit_ResourceImport(self, node):  # noqa
         self.check_setting_name(node.data_tokens[0].value, node)

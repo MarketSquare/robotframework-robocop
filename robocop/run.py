@@ -5,6 +5,7 @@ import inspect
 import sys
 import os
 from pathlib import Path
+from collections import Counter
 
 from robot.api import get_resource_model
 from robot.errors import DataError
@@ -178,20 +179,25 @@ class Robocop:
         if self.config.list_configurables:
             print("All rules have configurable parameter 'severity'. Allowed values are:"
                   "\n    E / error\n    W / warning\n    I / info")
-        rule_by_id = {msg.rule_id: (msg, checker) for checker in self.checkers for msg in checker.rules_map.values()}
-        rule_ids = sorted(rule_by_id.keys())
-        for rule_id in rule_ids:
-            rule_def, checker = rule_by_id[rule_id]
+        pattern = self.config.list if self.config.list else self.config.list_configurables
+        rule_by_id = [(msg.rule_id, msg, checker) for checker in self.checkers for msg in checker.rules_map.values()
+                      if msg.matches_pattern(pattern)]
+        rule_by_id = sorted(rule_by_id, key=lambda x: x[0])
+        severity_counter = Counter({'E': 0, 'W': 0, 'I': 0})
+        for _, rule_def, checker in rule_by_id:
             if self.config.list:
-                if rule_def.matches_pattern(self.config.list):
-                    print(rule_def)
+                print(rule_def)
+                severity_counter[rule_def.severity.value] += 1
             else:
-                if not rule_def.matches_pattern(self.config.list_configurables):
-                    continue
                 configurables = rule_def.available_configurables(include_severity=False, checker=checker)
                 if configurables:
                     print(f"{rule_def}\n"
                           f"    {configurables}")
+                    severity_counter[rule_def.severity.value] += 1
+        print(f"\nAltogether {sum(severity_counter.values())} rule(s) with following severity:\n"
+              f"    {severity_counter['E']} error rule(s),\n"
+              f"    {severity_counter['W']} warning rule(s),\n"
+              f"    {severity_counter['I']} info rule(s).")
         sys.exit()
 
     def load_reports(self):
@@ -283,9 +289,9 @@ class Robocop:
             elif rule_or_report in self.reports:
                 self.reports[rule_or_report].configure(param, value, *values)
             else:
-                similiar = RecommendationFinder().find_similar(rule_or_report, self.rules)
+                similar = RecommendationFinder().find_similar(rule_or_report, self.rules)
                 raise robocop.exceptions.ConfigGeneralError(
-                    f"Provided rule or report '{rule_or_report}' does not exist.{similiar}")
+                    f"Provided rule or report '{rule_or_report}' does not exist.{similar}")
 
 
 def run_robocop():

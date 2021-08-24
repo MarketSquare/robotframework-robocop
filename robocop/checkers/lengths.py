@@ -3,7 +3,7 @@ Lengths checkers
 """
 import re
 
-from robot.parsing.model.blocks import CommentSection
+from robot.parsing.model.blocks import CommentSection, TestCase
 from robot.parsing.model.statements import KeywordCall, Comment, EmptyLine, Arguments
 
 from robocop.checkers import VisitorChecker, RawFileChecker
@@ -431,3 +431,37 @@ class EmptySettingsChecker(VisitorChecker):
     def visit_Arguments(self, node):  # noqa
         if not node.values:
             self.report("empty-arguments", node=node, col=node.end_col_offset + 1)
+
+
+class TestCaseNumberChecker(VisitorChecker):
+    """ Checker for counting number of test cases depending on suite type """
+    rules = {
+        "0527": (
+            "too-many-test-cases",
+            "Too many test cases (%d/%d)",
+            RuleSeverity.WARNING,
+            (
+                'max_testcases',
+                'testcases_max_amount',
+                int,
+                'number of test cases allowed in a suite'
+            ),
+            (
+                'max_templated_testcases',
+                'templated_testcases_max_amount',
+                int,
+                'number of test cases allowed in a templated suite'
+            )
+        )
+    }
+
+    def __init__(self):
+        self.testcases_max_amount = 50
+        self.templated_testcases_max_amount = 100
+        super().__init__()
+
+    def visit_TestCaseSection(self, node):  # noqa
+        max_testcases = self.templated_testcases_max_amount if self.templated_suite else self.testcases_max_amount
+        discovered_testcases = len(node.body)
+        if discovered_testcases > max_testcases:
+            self.report("too-many-test-cases", discovered_testcases, max_testcases, node=node)

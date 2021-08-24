@@ -80,7 +80,8 @@ class KeywordNamingChecker(VisitorChecker):
                 'convention',
                 'convention',
                 str,
-                "possible values: 'each_word_capitalized' (default) or 'first_word_capitalized'")
+                "possible values: 'each_word_capitalized' (default) or 'first_word_capitalized'"
+            )
         ),
         "0303": (
             "keyword-name-is-reserved-word",

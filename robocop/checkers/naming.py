@@ -5,6 +5,7 @@ import re
 from pathlib import Path
 
 from robot.api import Token
+
 try:
     from robot.api.parsing import KeywordCall
 except ImportError:
@@ -350,11 +351,6 @@ class VariableNamingChecker(VisitorChecker):
             "non-local-variables-should-be-uppercase",
             "Test, suite and global variables should be uppercased",
             RuleSeverity.WARNING
-        ),
-        "0314": (
-            "possible-variable-overwriting",
-            "Variable '%s' may be overwritten by '%s'",
-            RuleSeverity.INFO
         )
     }
 
@@ -383,3 +379,30 @@ class VariableNamingChecker(VisitorChecker):
             token = node.data_tokens[1]
             if token.type == Token.ARGUMENT and not token.value.isupper():
                 self.report("non-local-variables-should-be-uppercase", node=node, col=token.col_offset + 1)
+
+
+class SimilarVariableChecker(VisitorChecker):
+    """ Checker for finding same variables with similar names. """
+    rules = {
+        "0316": (
+            "possible-variable-overwriting",
+            "Variable '%s' may overwrite another variable inside '%s' %s",
+            RuleSeverity.INFO
+        )
+    }
+
+    def visit_Keyword(self, node):  # noqa
+        self.check_similar_variables(node)
+
+    def visit_TestCase(self, node):  # noqa
+        self.check_similar_variables(node)
+
+    def check_similar_variables(self, node):
+        variables = []
+        for child in node.body:
+            if hasattr(child, 'keyword') and normalize_robot_name(child.keyword) == 'setvariable':
+                for token in child.get_tokens(Token.ASSIGN):
+                    if normalize_robot_name(token.value) in variables:
+                        self.report("possible-variable-overwriting", token.value,  node.name, type(node).__name__,
+                                    node=node, lineno=token.lineno, col=token.col_offset)
+                    variables.append(normalize_robot_name(token.value))

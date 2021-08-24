@@ -1,0 +1,5 @@
+${rules_dir}${\}test.robot:4:4 [I] 0316 Variable '${MY VAR}' may overwrite another variable inside 'Test With Overwritten Variables' TestCase
+${rules_dir}${\}test.robot:5:4 [I] 0316 Variable '${myVar}' may overwrite another variable inside 'Test With Overwritten Variables' TestCase
+${rules_dir}${\}test.robot:7:4 [I] 0316 Variable '${MYVAR}' may overwrite another variable inside 'Test With Overwritten Variables' TestCase
+${rules_dir}${\}test.robot:8:4 [I] 0316 Variable '${M Y V A R}' may overwrite another variable inside 'Test With Overwritten Variables' TestCase
+${rules_dir}${\}test.robot:14:4 [I] 0316 Variable '${SOME_VAR}' may overwrite another variable inside 'Keyword With Overwritten Variables' Keyword

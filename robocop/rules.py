@@ -31,7 +31,7 @@ class RuleSeverity(Enum):
     """
     Rule severity.
     It can be configured with ``--configure id_or_msg_name:severity:value``
-    where value can be first letter of severity value or whole name, case insensitive.
+    where value can be first letter of severity value or whole name, case-insensitive.
     For example ::
 
         -c line-too-long:severity:e

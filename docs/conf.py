@@ -17,9 +17,9 @@ from functools import total_ordering
 import datetime
 
 import sphinx_rtd_theme
+
 sys.path.append(str(Path(__file__).parent.parent))
 import robocop
-
 
 # -- Project information -----------------------------------------------------
 
@@ -50,7 +50,6 @@ templates_path = ['_templates']
 # directories to ignore when looking for source files.
 # This pattern also affects html_static_path and html_extra_path.
 exclude_patterns = []
-
 
 # -- Options for HTML output -------------------------------------------------
 

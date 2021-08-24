@@ -250,13 +250,14 @@ class EmptyVariableChecker(VisitorChecker):
     rules = {
         "0912": (
             "empty-variable",
-            "Use built-in variable ${EMPTY} instead of leaving variable without value",
+            "Use built-in variable ${EMPTY} instead of leaving variable without value or using backslash",
             RuleSeverity.INFO
         )
     }
 
     def visit_Variable(self, node):  # noqa
-        if not node.name:
-            return
-        if not node.value or all(not val for val in node.value):
+        if not node.value:  # catch variable declaration without any value
             self.report("empty-variable", node=node)
+        for token in node.get_tokens(Token.ARGUMENT):
+            if not token.value or token.value == '\\':
+                self.report("empty-variable", node=token, lineno=token.lineno, col=token.col_offset)

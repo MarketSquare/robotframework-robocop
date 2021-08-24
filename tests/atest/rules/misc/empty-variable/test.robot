@@ -11,6 +11,24 @@ ${MULTILINE_WITH_EMPTY}
 ...    ${EMPTY}
 ${MULTILINE_NO_VALUE}
 ...
-${MULTILINE_WITH_EMPTY_LINES}   Value
+@{MULTILINE_EMPTY_WITH_COMMENT}   value
 ...    # I think it should be just empty line, without value - but I'm not sure
 ...    ${EMPTY}
+@{MULTILINE_FIRST_EMPTY}
+...
+...  value
+@{MULTILINE_WITH_MULTIPLE_EMPTIES}
+...  1
+...  2
+...
+...  a
+...  b
+...
+...  3
+${EMPTY_WITH_BACKSLASH}  \
+@{MULTILINE_EMPTY_WITH_BACKSLASH}  \
+...  \
+@{MIXED_EMPTY}  \
+...
+...  ${EMPTY}
+...  @{EMPTY}

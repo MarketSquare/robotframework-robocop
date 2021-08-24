@@ -1,2 +1,11 @@
-${rules_dir}${\}test.robot:2:0 [I] 0912 Use built-in variable ${EMPTY} instead of leaving variable without value
-${rules_dir}${\}test.robot:12:0 [I] 0912 Use built-in variable ${EMPTY} instead of leaving variable without value
+${rules_dir}${\}test.robot:2:0 [I] 0912 Use built-in variable ${EMPTY} instead of leaving variable without value or using backslash
+${rules_dir}${\}test.robot:13:3 [I] 0912 Use built-in variable ${EMPTY} instead of leaving variable without value or using backslash
+${rules_dir}${\}test.robot:15:3 [I] 0912 Use built-in variable ${EMPTY} instead of leaving variable without value or using backslash
+${rules_dir}${\}test.robot:18:3 [I] 0912 Use built-in variable ${EMPTY} instead of leaving variable without value or using backslash
+${rules_dir}${\}test.robot:23:3 [I] 0912 Use built-in variable ${EMPTY} instead of leaving variable without value or using backslash
+${rules_dir}${\}test.robot:26:3 [I] 0912 Use built-in variable ${EMPTY} instead of leaving variable without value or using backslash
+${rules_dir}${\}test.robot:28:25 [I] 0912 Use built-in variable ${EMPTY} instead of leaving variable without value or using backslash
+${rules_dir}${\}test.robot:29:35 [I] 0912 Use built-in variable ${EMPTY} instead of leaving variable without value or using backslash
+${rules_dir}${\}test.robot:30:5 [I] 0912 Use built-in variable ${EMPTY} instead of leaving variable without value or using backslash
+${rules_dir}${\}test.robot:31:16 [I] 0912 Use built-in variable ${EMPTY} instead of leaving variable without value or using backslash
+${rules_dir}${\}test.robot:32:3 [I] 0912 Use built-in variable ${EMPTY} instead of leaving variable without value or using backslash

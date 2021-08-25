@@ -1,4 +1,4 @@
-# robocop: disable=0912
+# robocop: disable=0913
 *** Keywords ***
 Keyword
     Some Keyword

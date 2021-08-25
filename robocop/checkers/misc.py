@@ -268,7 +268,7 @@ class EmptyVariableChecker(VisitorChecker):
 class ResourceFileChecker(VisitorChecker):
     """ Checker for resource files. """
     rules = {
-        "0912": (
+        "0913": (
             "can-be-resource-file",
             "No tests in '%s' file, consider renaming to '%s.resource'",
             RuleSeverity.INFO

@@ -227,7 +227,7 @@ class SettingsNamingChecker(VisitorChecker):
         ),
         "0307": (
             "section-name-invalid",
-            "Section name should should be in format `*** Capitalized ***` or `*** UPPERCASE ***`",
+            "Section name should be in format `*** Capitalized ***` or `*** UPPERCASE ***`",
             RuleSeverity.WARNING
         ),
         "0314": (

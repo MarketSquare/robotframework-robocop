@@ -121,8 +121,7 @@ class ConsistentAssignmentSignChecker(VisitorChecker):
     By default this checker will try to autodetect most common assignment sign (separately for *** Variables *** section
     and (*** Test Cases ***, *** Keywords ***) sections and report any not consistent type of sign in particular file.
 
-    To force one type of sign type (to emulate now deprecated ``0906 (redundant-equal-sign)`` rule) you can configure
-    two rules::
+    To force one type of sign type you, can configure two rules::
 
         --configure inconsistent-assignment:assignment_sign_type:{sign_type}
         --configure inconsistent-assignment-in-variables:assignment_sign_type:{sign_type}

@@ -62,7 +62,7 @@ To get list of available rules (with enabled/disabled status) use ``-l / --list`
 
     robocop --list
     Rule - 0201 [W]: missing-doc-keyword: Missing documentation in keyword (enabled)
-    Rule - 0202 [W]: missing-doc-testcase: Missing documentation in test case (enabled)
+    Rule - 0202 [W]: missing-doc-test-case: Missing documentation in test case (enabled)
     Rule - 0203 [W]: missing-doc-suite: Missing documentation in suite (enabled)
     (...)
 
@@ -70,7 +70,7 @@ If some of the rules are disabled from CLI it will be reflected in output::
 
     robocop --exclude 02* --list
     Rule - 0201 [W]: missing-doc-keyword: Missing documentation in keyword (disabled)
-    Rule - 0202 [W]: missing-doc-testcase: Missing documentation in test case (disabled)
+    Rule - 0202 [W]: missing-doc-test-case: Missing documentation in test case (disabled)
     Rule - 0203 [W]: missing-doc-suite: Missing documentation in suite (enabled)
     (...)
 

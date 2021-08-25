@@ -1,5 +1,3 @@
-from pathlib import Path
-
 import pytest
 from robocop.checkers import get_rules_for_atest
 from robocop.run import Robocop

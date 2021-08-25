@@ -125,7 +125,7 @@ Keyword With Assignments
     ...  multiline
     IF    ${condition}
         ${value}    Correct Indent
-          ${arg}  Incorrent Indent
+          ${arg}  Incorrect Indent
     ELSE IF  ${flag}
          Incorrect Indent
         Correct Indent

@@ -1,1 +1,1 @@
-${rules_dir}${\}test.robot:18:0 [W] 0307 Section name should should be in format `*** Capitalized ***` or `*** UPPERCASE ***`
+${rules_dir}${\}test.robot:18:0 [W] 0307 Section name should be in format `*** Capitalized ***` or `*** UPPERCASE ***`

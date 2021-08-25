@@ -26,7 +26,7 @@ class DuplicationsChecker(VisitorChecker):
         ),
         "0803": (
             "duplicated-variable",
-            'Multiple variables with name "%s" in Variables section. Note that Robot Framework is case insensitive',
+            'Multiple variables with name "%s" in Variables section. Note that Robot Framework is case-insensitive',
             RuleSeverity.ERROR
         ),
         "0804": (

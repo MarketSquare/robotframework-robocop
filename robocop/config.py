@@ -332,7 +332,7 @@ class Config:
     def validate_rule_names(self, rules):
         deprecated = {}  # add rule name in form of old_name: new_name
         for rule in chain(self.include, self.exclude):
-            if rule in deprecated:
+            if rule in deprecated:  # update warning description to specific case
                 print(f"### DEPRECATION WARNING: The name of the rule '{rule}' is "
                       f"renamed to '{deprecated[rule]}'. "
                       f"Update your configuration if you're using old name. ###\n")

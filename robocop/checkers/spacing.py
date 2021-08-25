@@ -2,16 +2,16 @@
 Spacing checkers
 """
 from collections import Counter
-from robocop.utils.misc import IS_RF4
 
 from robot.api import Token
 from robot.parsing.model.visitor import ModelVisitor
 from robot.parsing.model.blocks import TestCase, Keyword
-from robot.parsing.model.statements import EmptyLine, Comment
+from robot.parsing.model.statements import EmptyLine
 
 from robocop.checkers import RawFileChecker, VisitorChecker
 from robocop.rules import RuleSeverity
 from robocop.utils import token_col
+from robocop.utils.misc import IS_RF4
 
 
 class InvalidSpacingChecker(RawFileChecker):

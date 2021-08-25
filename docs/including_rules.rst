@@ -66,7 +66,7 @@ It is possible to ignore whole file if you start file with ``# robocop: disable`
 Examples::
 
     *** Test Cases ***
-    Some Test  # robocop: disable=missing-doc-testcase
+    Some Test  # robocop: disable=missing-doc-test-case
         Keyword 1
         Keyword 2
         Keyword 3
@@ -81,6 +81,6 @@ Examples::
 
     # robocop: enable
 
-In this example we are disabling ``missing-doc-testcase`` rule in 2nd line of the file.
+In this example we are disabling ``missing-doc-test-case`` rule in 2nd line of the file.
 Also we are disabling all rules for ``*** Keywords ***`` section.
 

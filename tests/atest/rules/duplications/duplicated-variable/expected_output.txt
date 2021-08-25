@@ -1,2 +1,2 @@
-${rules_dir}${\}test.robot:6:0 [E] 0803 Multiple variables with name "${v_ar}" in Variables section. Note that Robot Framework is case insensitive
-${rules_dir}${\}test.robot:8:0 [E] 0803 Multiple variables with name "${V AR}" in Variables section. Note that Robot Framework is case insensitive
+${rules_dir}${\}test.robot:6:0 [E] 0803 Multiple variables with name "${v_ar}" in Variables section. Note that Robot Framework is case-insensitive
+${rules_dir}${\}test.robot:8:0 [E] 0803 Multiple variables with name "${V AR}" in Variables section. Note that Robot Framework is case-insensitive

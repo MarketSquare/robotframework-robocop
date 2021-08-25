@@ -41,13 +41,13 @@ class TagNameChecker(VisitorChecker):
     def visit_Documentation(self, node):  # noqa
         if self.is_keyword:
             *_, last_line = node.lines
-            filtered_line = filter(lambda tag: tag.type not in Token.NON_DATA_TOKENS and tag.type != Token.DOCUMENTATION, last_line)
+            filtered_line = filter(lambda tag: tag.type not in Token.NON_DATA_TOKENS and
+                                               tag.type != Token.DOCUMENTATION, last_line)
             for index, token in enumerate(filtered_line):
                 if index == 0 and token.value.lower() != "tags:":
                     break
-                else:
-                    token.value = token.value.rstrip(",")
-                    self.check_tag(token, node)
+                token.value = token.value.rstrip(",")
+                self.check_tag(token, node)
 
     def visit_Keyword(self, node):  # noqa
         self.is_keyword = True

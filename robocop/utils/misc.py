@@ -218,7 +218,7 @@ class TestTemplateFinder(ast.NodeVisitor):
     def __init__(self):
         self.templated = False
 
-    def visit_TestTemplate(self, node):
+    def visit_TestTemplate(self, node):  # noqa
         self.templated = bool(node.value)
 
 

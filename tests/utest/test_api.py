@@ -26,7 +26,8 @@ def run_check_on_string(in_memory, root='.'):
     robocop_runner.reload_config()
 
     ast_model = get_model(in_memory)
-    return robocop_runner.run_check(ast_model, r'C:\directory\file.robot', in_memory)
+    file_path = Path(r'C:\directory\file.robot')
+    return robocop_runner.run_check(ast_model, file_path, in_memory)
 
 
 class TestAPI:

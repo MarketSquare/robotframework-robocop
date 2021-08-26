@@ -3,6 +3,7 @@ Test Template    Keyword
 
 
 *** Test Cases ***
+# Some comment
 TestCase1      ${arg}    ${arg}
 TestCase2      ${arg}    ${arg}
 TestCase3      ${arg}    ${arg}
@@ -53,6 +54,7 @@ TestCase47     ${arg}    ${arg}
 TestCase48     ${arg}    ${arg}
 TestCase49     ${arg}    ${arg}
 TestCase50     ${arg}    ${arg}
+# Half way through!
 TestCase51     ${arg}    ${arg}
 TestCase52     ${arg}    ${arg}
 TestCase53     ${arg}    ${arg}
@@ -104,3 +106,4 @@ TestCase98     ${arg}    ${arg}
 TestCase99     ${arg}    ${arg}
 TestCase100    ${arg}    ${arg}
 TestCase101    ${arg}    ${arg}
+# Last comment

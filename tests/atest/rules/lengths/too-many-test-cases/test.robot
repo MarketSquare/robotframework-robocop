@@ -1,4 +1,10 @@
 *** Test Cases ***
+# Some comment
+
+
+# Another comment
+
+
 Test Case 1
     No Operation
 
@@ -37,6 +43,8 @@ Test Case 12
 
 Test Case 13
     No Operation
+
+# And again a comment
 
 Test Case 14
     No Operation
@@ -151,3 +159,5 @@ Test Case 50
 
 Test Case 51
     No Operation
+
+# This is the last comment, I promise

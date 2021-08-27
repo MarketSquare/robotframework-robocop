@@ -197,7 +197,7 @@ FAQ <a name="faq"></a>
   ]
   ignore = ["ignore_me.robot"]
   ext-rules = ["path_to_external\\dir"]
-  filetypes = [".txt", ".csv"]
+  filetypes = [".txt", ".tsv"]
   threshold = "E"
   format = "{source}:{line}:{col} [{severity}] {rule_id} {desc} (name)"
   output = "robocop.log"

@@ -83,7 +83,7 @@ class DisablersFinder:
             rules = ['all']
         else:
             rules = disabler.group('rules').split(',')
-        block = not statement.lstrip()  # if there is only whitespace before disabler, it's block disabler
+        block = not statement.lstrip()  # block disabler ignores preceding whitespaces
         if disabler.group('disabler') == 'disable':
             for rule in rules:
                 if block:

@@ -46,7 +46,7 @@ You can disable all rules with::
 
     Some Keyword  # robocop: disable
 
-Ignore whole blocks by defining disabler in new line::
+Ignore whole blocks of code by defining a disabler in the new line::
 
     # robocop: disable=rule1
 

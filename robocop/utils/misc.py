@@ -7,6 +7,7 @@ import difflib
 import re
 
 from robot.api import Token
+from robot.parsing.model.statements import EmptyLine
 try:
     from robot.api.parsing import Variable
 except ImportError:
@@ -226,3 +227,10 @@ def is_suite_templated(model):
     finder = TestTemplateFinder()
     finder.visit(model)
     return finder.templated
+
+
+def last_non_empty_line(node):
+    for child in node.body[::-1]:
+        if not isinstance(child, EmptyLine):
+            return child.lineno
+    return node.lineno

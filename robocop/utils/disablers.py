@@ -38,7 +38,8 @@ class DisablersFinder:
         """
         if not self.any_disabler:
             return False
-        return any(self.is_line_disabled(rule_msg.line, rule) for rule in ('all', rule_msg.rule_id, rule_msg.name))
+        return any(self.is_line_disabled(line, rule) for line in (rule_msg.line, *rule_msg.ext_disablers)
+                   for rule in ('all', rule_msg.rule_id, rule_msg.name))
 
     def is_line_disabled(self, line, rule):
         """ Helper method for is_rule_disabled that check if given line is in range of any disabled block"""

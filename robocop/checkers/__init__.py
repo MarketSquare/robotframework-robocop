@@ -67,7 +67,7 @@ class BaseChecker:
             col=col,
             end_lineno=end_lineno,
             end_col=end_col,
-            ext_disablers =ext_disablers
+            ext_disablers=ext_disablers
         )
         if message.enabled:
             self.issues.append(message)

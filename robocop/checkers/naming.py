@@ -32,7 +32,7 @@ class InvalidCharactersInNameChecker(VisitorChecker):
     }
 
     def __init__(self):
-        self.invalid_chars = ('.', '?')
+        self.invalid_chars = {'.', '?'}
         self.node_names_map = {
             'KEYWORD_NAME': 'keyword',
             'TESTCASE_NAME': 'test case',

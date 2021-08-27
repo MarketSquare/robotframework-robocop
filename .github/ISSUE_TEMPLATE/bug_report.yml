@@ -15,7 +15,7 @@ body:
     id: platform
     attributes:
       label: Operating System
-      description: On what OS it does happen?
+      description: On what OS does it happen?
       placeholder: Windows
     validations:
       required: false

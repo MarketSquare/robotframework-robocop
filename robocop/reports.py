@@ -18,7 +18,7 @@ import robocop.exceptions
 
 
 class Report:
-    def configure(self, name, value, *values):
+    def configure(self, name, value):
         raise robocop.exceptions.ConfigGeneralError(
             f"Provided param '{name}' for report '{self.name}' does not exist")  # noqa
 
@@ -102,11 +102,10 @@ class ReturnStatusReport(Report):
             'I': -1
         }
 
-    def configure(self, name, value, *values):
+    def configure(self, name, value):
         if name not in ['quality_gate', 'quality_gates']:
-            super().configure(name, value, *values)
-        values = [value] + list(values)
-        for val in values:
+            super().configure(name, value)
+        for val in value.split(':'):
             try:
                 name, count = val.split('=', maxsplit=1)
                 if name.upper() in self.quality_gate:

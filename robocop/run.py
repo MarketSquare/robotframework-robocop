@@ -271,7 +271,7 @@ class Robocop:
             if config.count(':') < 2:
                 raise robocop.exceptions.ConfigGeneralError(
                     f"Provided invalid config: '{config}' (general pattern: <rule>:<param>:<value>)")
-            rule_or_report, param, value, *values = config.split(':')
+            rule_or_report, param, value = config.split(':', maxsplit=2)
             if rule_or_report in self.rules:
                 msg, checker = self.rules[rule_or_report]
                 if param == 'severity':
@@ -287,7 +287,7 @@ class Robocop:
                             )
                     checker.configure(configurable[1], configurable[2](value))
             elif rule_or_report in self.reports:
-                self.reports[rule_or_report].configure(param, value, *values)
+                self.reports[rule_or_report].configure(param, value)
             else:
                 similar = RecommendationFinder().find_similar(rule_or_report, self.rules)
                 raise robocop.exceptions.ConfigGeneralError(

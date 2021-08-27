@@ -11,7 +11,7 @@ body:
       value: "Bug details"
     validations:
       required: true
- - type: input
+  - type: input
     id: platform
     attributes:
       label: Operating System

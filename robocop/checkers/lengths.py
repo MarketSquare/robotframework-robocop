@@ -8,7 +8,7 @@ from robot.parsing.model.statements import KeywordCall, Comment, EmptyLine, Argu
 
 from robocop.checkers import VisitorChecker, RawFileChecker
 from robocop.rules import RuleSeverity
-from robocop.utils import normalize_robot_name
+from robocop.utils import normalize_robot_name, last_non_empty_line
 
 
 class LengthChecker(VisitorChecker):
@@ -132,7 +132,8 @@ class LengthChecker(VisitorChecker):
                         length,
                         self.keyword_max_len,
                         node=node,
-                        lineno=node.end_lineno)
+                        lineno=node.end_lineno,
+                        ext_disablers=(node.lineno, last_non_empty_line(node)))
             return
         key_calls = LengthChecker.count_keyword_calls(node)
         if key_calls < self.keyword_min_calls:

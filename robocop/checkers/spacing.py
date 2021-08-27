@@ -287,7 +287,7 @@ class UnevenIndentChecker(VisitorChecker):
         )
     }
     HEADERS = {
-        Token.ARGUMENT, Token.DOCUMENTATION, Token.SETUP, Token.TIMEOUT, Token.TEARDOWN, Token.TEMPLATE, Token.TAGS
+        Token.ARGUMENTS, Token.DOCUMENTATION, Token.SETUP, Token.TIMEOUT, Token.TEARDOWN, Token.TEMPLATE, Token.TAGS
     }
 
     def visit_TestCaseSection(self, node):  # noqa
@@ -297,6 +297,7 @@ class UnevenIndentChecker(VisitorChecker):
         self.check_standalone_comments_indent(node)
 
     def check_standalone_comments_indent(self, node):
+        # comments before first test case / keyword
         for child in node.body:
             if getattr(child, 'type', '') == Token.COMMENT and \
                     getattr(child, 'tokens', None) and child.tokens[0].type == Token.SEPARATOR:
@@ -342,7 +343,7 @@ class UnevenIndentChecker(VisitorChecker):
         for index, child in enumerate(node.body):
             if index == end_of_block:
                 break
-            if isinstance(child, EmptyLine):
+            if child.lineno == node.lineno or isinstance(child, EmptyLine):
                 continue
             indent_len = self.get_indent(child)
             if indent_len is None:

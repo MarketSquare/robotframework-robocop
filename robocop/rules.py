@@ -122,7 +122,7 @@ class Rule:
             if not isinstance(configurable, tuple) or len(configurable) not in (3, 4):
                 raise robocop.exceptions.InvalidRuleConfigurableError(self.rule_id, body)
 
-    def prepare_message(self, *args, source, node, lineno, col, end_lineno, end_col):
+    def prepare_message(self, *args, source, node, lineno, col, end_lineno, end_col, ext_disablers):
         return Message(
             *args,
             rule=self,
@@ -131,7 +131,8 @@ class Rule:
             lineno=lineno,
             col=col,
             end_col=end_col,
-            end_lineno=end_lineno
+            end_lineno=end_lineno,
+            ext_disablers=ext_disablers
         )
 
     def matches_pattern(self, pattern):
@@ -142,7 +143,7 @@ class Rule:
 
 
 class Message:
-    def __init__(self, *args, rule, source, node, lineno, col, end_lineno, end_col):
+    def __init__(self, *args, rule, source, node, lineno, col, end_lineno, end_col, ext_disablers=None):
         self.enabled = rule.enabled
         self.rule_id = rule.rule_id
         self.name = rule.name
@@ -161,6 +162,7 @@ class Message:
         self.col = 0 if col is None else col
         self.end_line = self.line if end_lineno is None else end_lineno
         self.end_col = self.col if end_col is None else end_col
+        self.ext_disablers = ext_disablers if ext_disablers else []
 
     def __lt__(self, other):
         return (self.line, self.col, self.rule_id) < (other.line, other.col, other.rule_id)

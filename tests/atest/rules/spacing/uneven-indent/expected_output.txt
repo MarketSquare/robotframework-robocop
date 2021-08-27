@@ -1,3 +1,5 @@
+${rules_dir}${\}bug375.robot:23:7 [W] 1007 Line is over-indented
+${rules_dir}${\}bug375.robot:33:4 [W] 1007 Line is under-indented
 ${rules_dir}${\}comments.robot:19:3 [W] 1007 Line is over-indented
 ${rules_dir}${\}comments.robot:23:3 [W] 1007 Line is under-indented
 ${rules_dir}${\}comments.robot:26:5 [W] 1007 Line is over-indented

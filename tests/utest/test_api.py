@@ -26,7 +26,8 @@ def run_check_on_string(in_memory, root='.'):
     robocop_runner.reload_config()
 
     ast_model = get_model(in_memory)
-    return robocop_runner.run_check(ast_model, r'C:\directory\file.robot', in_memory)
+    file_path = str(Path(Path.home(), 'directory', 'file.robot'))
+    return robocop_runner.run_check(ast_model, file_path, in_memory)
 
 
 class TestAPI:
@@ -35,8 +36,9 @@ class TestAPI:
         issues = run_check_on_string(in_memory)
         expected_issues = {
             'Missing documentation in suite',
-            'Section is empty',            
-            'Too many blank lines at the end of file'
+            'Section is empty',
+            'Too many blank lines at the end of file',
+            "No tests in 'file.robot' file, consider renaming to 'file.resource'"
         }
         actual_issues = {issue.desc for issue in issues}
         assert expected_issues == actual_issues
@@ -48,7 +50,8 @@ class TestAPI:
             'Missing documentation in suite',
             'Section is empty',
             'Trailing whitespace at the end of line',
-            'Too many blank lines at the end of file'
+            'Too many blank lines at the end of file',
+            "No tests in 'file.robot' file, consider renaming to 'file.resource'"
         }
         actual_issues = {issue.desc for issue in issues}
         assert expected_issues == actual_issues
@@ -60,7 +63,8 @@ class TestAPI:
             'Missing documentation in suite',
             'Section is empty',
             'Trailing whitespace at the end of line',
-            'Too many blank lines at the end of file'
+            'Too many blank lines at the end of file',
+            "No tests in 'file.robot' file, consider renaming to 'file.resource'"
         }
         actual_issues = {issue.desc for issue in issues}
         assert expected_issues == actual_issues
@@ -138,7 +142,8 @@ class TestAPI:
         expected_issues = {
             'Missing documentation in suite',
             'Section is empty',
-            'Too many blank lines at the end of file'
+            'Too many blank lines at the end of file',
+            "No tests in 'file.robot' file, consider renaming to 'file.resource'"
         }
         assert all(issue.desc in expected_issues for issue in issues)
 

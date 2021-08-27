@@ -1,8 +1,11 @@
 """
 Miscellaneous checkers
 """
+from pathlib import Path
 from robot.api import Token
 from robot.parsing.model.statements import Return, KeywordCall
+from robot.parsing.model.blocks import TestCaseSection
+
 try:
     from robot.api.parsing import Variable
 except ImportError:
@@ -141,7 +144,7 @@ class ConsistentAssignmentSignChecker(VisitorChecker):
                 parse_assignment_sign_type,
                 "possible values: 'autodetect' (default), 'none' (''), 'equal_sign' ('=') "
                 "or space_and_equal_sign (' =')"
-             )
+            )
         ),
         "0910": (
             "inconsistent-assignment-in-variables",
@@ -260,3 +263,30 @@ class EmptyVariableChecker(VisitorChecker):
         for token in node.get_tokens(Token.ARGUMENT):
             if not token.value or token.value == '\\':
                 self.report("empty-variable", node=token, lineno=token.lineno, col=token.col_offset)
+
+
+class ResourceFileChecker(VisitorChecker):
+    """ Checker for resource files. """
+    rules = {
+        "0913": (
+            "can-be-resource-file",
+            "No tests in '%s' file, consider renaming to '%s.resource'",
+            RuleSeverity.INFO
+        )
+    }
+
+    def visit_File(self, node):  # noqa
+        source = node.source if node.source else self.source
+        if source:
+            extension = Path(source).suffix
+            file_name = Path(source).stem
+            if (
+                    '.resource' not in extension and
+                    '__init__' not in file_name and
+                    node.sections and
+                    not any([isinstance(section, TestCaseSection) for section in node.sections])
+            ):
+                self.report("can-be-resource-file",
+                            Path(source).name,
+                            file_name,
+                            node=node)

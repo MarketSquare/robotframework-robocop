@@ -53,8 +53,7 @@ class DisablersFinder:
         lineno = -1
         for lineno, line in enumerate(lines, start=1):
             if '#' in line:
-                if '#' in line:
-                    self._parse_line(line, lineno)
+                self._parse_line(line, lineno)
         if lineno == -1:
             return
         self._end_block('all', lineno)
@@ -85,7 +84,7 @@ class DisablersFinder:
             rules = ['all']
         else:
             rules = disabler.group('rules').split(',')
-        block = not statement  # if disabler is on beginning of the line, it's block disabler
+        block = not statement.lstrip()  # block disabler ignores preceding whitespaces
         if disabler.group('disabler') == 'disable':
             for rule in rules:
                 if block:

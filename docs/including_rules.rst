@@ -46,7 +46,7 @@ You can disable all rules with::
 
     Some Keyword  # robocop: disable
 
-When used in new line without any indent it will start ignoring whole block::
+Ignore whole blocks of code by defining a disabler in the new line::
 
     # robocop: disable=rule1
 

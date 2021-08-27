@@ -3,7 +3,7 @@ from pathlib import Path
 import pytest
 from robot.api import get_model
 
-from robocop.rules import RuleSeverity, Rule
+from robocop.rules import RuleSeverity, Rule, Message
 from robocop.utils.disablers import DisablersFinder
 from robocop import Config, Robocop
 
@@ -15,7 +15,8 @@ def message():
         "Some description",
         RuleSeverity.WARNING
     )
-    return Rule('1010', msg)
+    rule = Rule('1010', msg)
+    return Message(rule=rule, source=None, node=None, lineno=None, col=None, end_lineno=None, end_col=None)
 
 
 @pytest.fixture
@@ -28,7 +29,7 @@ def run_check_on_string(in_memory, include=None, configure=None):
         include = set()
     if configure is None:
         configure = []
-    config = Config()
+    config = Config(root=str(Path(__file__).parent))
     config.include = include
     config.configure = configure
     robocop_runner = Robocop(config=config)
@@ -56,13 +57,10 @@ class TestDisablers:
         for i in range(1, 11):
             assert disabler.is_line_disabled(i, 'all')
 
-    def test_is_rule_disabled(self, message):
+    def test_is_rule_disabled(self, message, test_data_dir):
         # check if rule 1010 is disabled in selected lines
         disabled_lines = {1, 2, 3, 4, 7, 11, 13}
-        disabler = DisablersFinder(
-            test_data_dir / 'disabled.robot',
-            None
-        )
+        disabler = DisablersFinder(test_data_dir / 'disabled.robot', None)
         for i in range(1, 14):
             message.line = i
             assert disabler.is_rule_disabled(message) == (i in disabled_lines)
@@ -71,11 +69,10 @@ class TestDisablers:
         disabler = DisablersFinder(test_data_dir / 'enabled.robot', None)
         assert not disabler.any_disabler
 
-    @pytest.mark.parametrize('file', [1, 2, 3, 4, 5])
+    @pytest.mark.parametrize('file', [1, 2, 3, 4])
     def test_extended_disabling(self, file, test_data_dir):
         source = test_data_dir / f'extended_lines{file}.robot'
         with open(source) as f:
             data = f.read()
         issues = run_check_on_string(data, include={'too-long-keyword'}, configure=['too-long-keyword:max_len:1'])
         assert not issues
-

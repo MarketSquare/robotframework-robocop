@@ -38,7 +38,8 @@ INVALID_MSG_MISSING_DESC_SEV = (
 
 class TestMessage:
     def test_get_fullname(self, valid_msg):  # noqa
-        msg = valid_msg.prepare_message(source=None, node=None, lineno=None, col=None, end_lineno=None, end_col=None)
+        msg = valid_msg.prepare_message(source=None, node=None, lineno=None, col=None, end_lineno=None, end_col=None,
+                                        ext_disablers=None)
         assert msg.get_fullname() == 'W0101 (some-message)'
 
     @staticmethod
@@ -142,7 +143,8 @@ class TestMessage:
             lineno=lineno,
             col=col,
             end_lineno=end_lineno,
-            end_col=end_col
+            end_col=end_col,
+            ext_disablers=None
         )
         assert msg.line == lineno_exp
         assert msg.col == col_exp
@@ -169,6 +171,7 @@ class TestMessage:
                 lineno=None,
                 col=None,
                 end_lineno=None,
-                end_col=None
+                end_col=None,
+                ext_disablers=None
             )
         assert rf"Fatal error: Rule '0101' failed to prepare message description with error: {exp_error}" in str(err)

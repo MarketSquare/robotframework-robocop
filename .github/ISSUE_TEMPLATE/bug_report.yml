@@ -19,15 +19,11 @@ body:
       placeholder: Windows
     validations:
       required: false
-  - type: dropdown
+  - type: input
     id: version
     attributes:
-      label: Latest Robocop version
-      description: Do you use latest version of Robocop?
-      multiple: false
-      options:
-        - "Yes"
-        - "No"
+      label: Robocop version
+      description: What version of Robocop are you using? You can check it by running `robocop -v`
     validations:
       required: true
   - type: markdown

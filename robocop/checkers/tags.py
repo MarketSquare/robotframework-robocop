@@ -67,7 +67,7 @@ class TagNameChecker(VisitorChecker):
             self.report("tag-with-reserved", node=node, lineno=tag.lineno, col=tag.col_offset + 1)
 
 
-class TagScopeChecker(VisitorChecker):  # TODO: load tags also from __init__.robot
+class TagScopeChecker(VisitorChecker):
     """ Checker for tag scopes. If all tests in suite have the same tags, it will suggest using `Force Tags` """
     rules = {
         "0605": (

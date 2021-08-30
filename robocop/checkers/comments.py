@@ -50,6 +50,90 @@ class CommentChecker(VisitorChecker):
         self.find_comments(node)
         self.generic_visit(node)
 
+    def visit_Return(self, node):  # noqa
+        self.find_comments(node)
+        self.generic_visit(node)
+
+    def visit_Documentation(self, node):  # noqa
+        self.find_comments(node)
+        self.generic_visit(node)
+
+    def visit_SectionHeader(self, node):  # noqa
+        self.find_comments(node)
+        self.generic_visit(node)
+
+    def visit_Tags(self, node):  # noqa
+        self.find_comments(node)
+        self.generic_visit(node)
+
+    def visit_Setup(self, node):  # noqa
+        self.find_comments(node)
+        self.generic_visit(node)
+
+    def visit_Timeout(self, node):  # noqa
+        self.find_comments(node)
+        self.generic_visit(node)
+
+    def visit_Template(self, node):  # noqa
+        self.find_comments(node)
+        self.generic_visit(node)
+
+    def visit_Arguments(self, node):  # noqa
+        self.find_comments(node)
+        self.generic_visit(node)
+
+    def visit_Variable(self, node):  # noqa
+        self.find_comments(node)
+        self.generic_visit(node)
+
+    def visit_Metadata(self, node):  # noqa
+        self.find_comments(node)
+        self.generic_visit(node)
+
+    def visit_ForceTags(self, node):  # noqa
+        self.find_comments(node)
+        self.generic_visit(node)
+
+    def visit_DefaultTags(self, node):  # noqa
+        self.find_comments(node)
+        self.generic_visit(node)
+
+    def visit_IfHeader(self, node):  # noqa
+        self.find_comments(node)
+        self.generic_visit(node)
+
+    def visit_ElseHeader(self, node):  # noqa
+        self.find_comments(node)
+        self.generic_visit(node)
+
+    def visit_ForHeader(self, node):  # noqa
+        self.find_comments(node)
+        self.generic_visit(node)
+
+    def visit_TestSetup(self, node):  # noqa
+        self.find_comments(node)
+        self.generic_visit(node)
+
+    def visit_TestTeardown(self, node):  # noqa
+        self.find_comments(node)
+        self.generic_visit(node)
+
+    def visit_SuiteSetup(self, node):  # noqa
+        self.find_comments(node)
+        self.generic_visit(node)
+
+    def visit_SuiteTeardown(self, node):  # noqa
+        self.find_comments(node)
+        self.generic_visit(node)
+
+    def visit_TestTemplate(self, node):  # noqa
+        self.find_comments(node)
+        self.generic_visit(node)
+
+    def visit_TestTimeout(self, node):  # noqa
+        self.find_comments(node)
+        self.generic_visit(node)
+
     def find_comments(self, node):
         for token in node.tokens:
             if token.type == 'COMMENT':

@@ -6,11 +6,7 @@ from collections import defaultdict
 from pathlib import Path
 
 from robot.api import Token
-
-try:
-    from robot.api.parsing import KeywordCall, Arguments
-except ImportError:
-    pass
+from robot.parsing.model.statements import KeywordCall, Arguments
 
 from robocop.checkers import VisitorChecker
 from robocop.rules import RuleSeverity

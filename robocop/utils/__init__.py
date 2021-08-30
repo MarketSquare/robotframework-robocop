@@ -8,6 +8,7 @@ from robocop.utils.misc import (
     modules_from_paths,
     modules_in_current_dir,
     normalize_robot_name,
+    normalize_robot_var_name,
     IS_RF4,
     DISABLED_IN_4,
     ENABLED_IN_4,

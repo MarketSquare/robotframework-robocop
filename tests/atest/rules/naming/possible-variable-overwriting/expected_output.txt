@@ -1,5 +1,12 @@
-${rules_dir}${\}test.robot:4:4 [I] 0316 Variable '${MY VAR}' may overwrite another variable inside 'Test With Overwritten Variables' TestCase
-${rules_dir}${\}test.robot:5:4 [I] 0316 Variable '${myVar}' may overwrite another variable inside 'Test With Overwritten Variables' TestCase
-${rules_dir}${\}test.robot:7:4 [I] 0316 Variable '${MYVAR}' may overwrite another variable inside 'Test With Overwritten Variables' TestCase
-${rules_dir}${\}test.robot:8:4 [I] 0316 Variable '${M Y V A R}' may overwrite another variable inside 'Test With Overwritten Variables' TestCase
-${rules_dir}${\}test.robot:14:4 [I] 0316 Variable '${SOME_VAR}' may overwrite another variable inside 'Keyword With Overwritten Variables' Keyword
+${rules_dir}${\}test.robot:5:4 [I] 0316 Variable '${MY VAR}' may overwrite similar variable inside 'Test With Overwritten Variables' TestCase
+${rules_dir}${\}test.robot:6:4 [I] 0316 Variable '${myVar}' may overwrite similar variable inside 'Test With Overwritten Variables' TestCase
+${rules_dir}${\}test.robot:8:4 [I] 0316 Variable '${MYVAR}' may overwrite similar variable inside 'Test With Overwritten Variables' TestCase
+${rules_dir}${\}test.robot:9:4 [I] 0316 Variable '${M Y V A R}' may overwrite similar variable inside 'Test With Overwritten Variables' TestCase
+${rules_dir}${\}test.robot:10:4 [I] 0316 Variable '${mYvAr}' may overwrite similar variable inside 'Test With Overwritten Variables' TestCase
+${rules_dir}${\}test.robot:17:4 [I] 0316 Variable '${SOME_VAR}' may overwrite similar variable inside 'Keyword With Overwritten Variables' Keyword
+${rules_dir}${\}test.robot:18:4 [I] 0316 Variable '${myvar}' may overwrite similar variable inside 'Keyword With Overwritten Variables' Keyword
+${rules_dir}${\}test.robot:20:4 [I] 0316 Variable '${somevar}' may overwrite similar variable inside 'Keyword With Overwritten Variables' Keyword
+${rules_dir}${\}test.robot:20:20 [I] 0316 Variable '${some var}' may overwrite similar variable inside 'Keyword With Overwritten Variables' Keyword
+${rules_dir}${\}test.robot:25:4 [I] 0316 Variable '${simpleVar}' may overwrite similar variable inside 'Keyword With Different Types Of Variables' Keyword
+${rules_dir}${\}test.robot:26:4 [I] 0316 Variable '@{SIMPLE_VAR}' may overwrite similar variable inside 'Keyword With Different Types Of Variables' Keyword
+${rules_dir}${\}test.robot:27:4 [I] 0316 Variable '&{SIMPLE_VAR}' may overwrite similar variable inside 'Keyword With Different Types Of Variables' Keyword

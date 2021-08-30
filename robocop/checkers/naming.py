@@ -2,18 +2,19 @@
 Naming checkers
 """
 import re
+from collections import defaultdict
 from pathlib import Path
 
 from robot.api import Token
 
 try:
-    from robot.api.parsing import KeywordCall
+    from robot.api.parsing import KeywordCall, Arguments
 except ImportError:
     pass
 
 from robocop.checkers import VisitorChecker
 from robocop.rules import RuleSeverity
-from robocop.utils import normalize_robot_name, IS_RF4, keyword_col
+from robocop.utils import normalize_robot_name, normalize_robot_var_name, IS_RF4, keyword_col
 
 
 class InvalidCharactersInNameChecker(VisitorChecker):
@@ -386,7 +387,7 @@ class SimilarVariableChecker(VisitorChecker):
     rules = {
         "0316": (
             "possible-variable-overwriting",
-            "Variable '%s' may overwrite another variable inside '%s' %s",
+            "Variable '%s' may overwrite similar variable inside '%s' %s",
             RuleSeverity.INFO
         )
     }
@@ -398,11 +399,20 @@ class SimilarVariableChecker(VisitorChecker):
         self.check_similar_variables(node)
 
     def check_similar_variables(self, node):
-        variables = []
+        """
+        Creates a dictionary `variables` with normalized variable name as a key
+        and ads a list of all detected variations of this variable in the node as a value,
+        then it checks if similar variable was found.
+        """
+        variables = defaultdict(list)
         for child in node.body:
-            if hasattr(child, 'keyword') and normalize_robot_name(child.keyword) == 'setvariable':
+            if isinstance(child, Arguments):
+                for token in child.get_tokens(Token.ARGUMENT):
+                    variables[normalize_robot_var_name(token.value)].append(token.value)
+            elif hasattr(child, 'keyword'):
                 for token in child.get_tokens(Token.ASSIGN):
-                    if normalize_robot_name(token.value) in variables:
+                    normalized_token = normalize_robot_var_name(token.value)
+                    if normalized_token in variables and token.value not in variables[normalized_token]:
                         self.report("possible-variable-overwriting", token.value,  node.name, type(node).__name__,
                                     node=node, lineno=token.lineno, col=token.col_offset)
-                    variables.append(normalize_robot_name(token.value))
+                    variables[normalized_token].append(token.value)

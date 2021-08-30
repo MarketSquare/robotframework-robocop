@@ -99,16 +99,19 @@ class CommentChecker(VisitorChecker):
         self.generic_visit(node)
 
     def visit_IfHeader(self, node):  # noqa
-        self.find_comments(node)
-        self.generic_visit(node)
+        if IS_RF4:
+            self.find_comments(node)
+            self.generic_visit(node)
 
     def visit_ElseHeader(self, node):  # noqa
-        self.find_comments(node)
-        self.generic_visit(node)
+        if IS_RF4:
+            self.find_comments(node)
+            self.generic_visit(node)
 
     def visit_ForHeader(self, node):  # noqa
-        self.find_comments(node)
-        self.generic_visit(node)
+        if IS_RF4:
+            self.find_comments(node)
+            self.generic_visit(node)
 
     def visit_TestSetup(self, node):  # noqa
         self.find_comments(node)

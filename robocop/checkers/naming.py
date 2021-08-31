@@ -6,7 +6,10 @@ from collections import defaultdict
 from pathlib import Path
 
 from robot.api import Token
-from robot.parsing.model.blocks import For, If
+try:
+    from robot.parsing.model.blocks import For, If
+except ImportError:
+    from robot.api.parsing import For, If
 from robot.parsing.model.statements import KeywordCall, Arguments
 
 from robocop.checkers import VisitorChecker

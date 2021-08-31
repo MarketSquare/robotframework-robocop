@@ -1,0 +1,4 @@
+${rules_dir}${\}test.robot:9:26 [W] 0301 Invalid character '$' in keyword name
+${rules_dir}${\}test.robot:9:36 [W] 0301 Invalid character '{' in keyword name
+${rules_dir}${\}test.robot:9:37 [W] 0301 Invalid character '}' in keyword name
+${rules_dir}${\}test.robot:12:14 [W] 0301 Invalid character ':' in keyword name

@@ -1,4 +1,7 @@
-${rules_dir}${\}test.robot:9:26 [W] 0301 Invalid character '$' in keyword name
-${rules_dir}${\}test.robot:9:36 [W] 0301 Invalid character '{' in keyword name
-${rules_dir}${\}test.robot:9:37 [W] 0301 Invalid character '}' in keyword name
-${rules_dir}${\}test.robot:12:14 [W] 0301 Invalid character ':' in keyword name
+${rules_dir}${\}test.robot:2:32 [W] 0301 Invalid character '$' in test case name
+${rules_dir}${\}test.robot:2:33 [W] 0301 Invalid character '{' in test case name
+${rules_dir}${\}test.robot:2:37 [W] 0301 Invalid character '}' in test case name
+${rules_dir}${\}test.robot:13:26 [W] 0301 Invalid character '$' in keyword name
+${rules_dir}${\}test.robot:13:36 [W] 0301 Invalid character '{' in keyword name
+${rules_dir}${\}test.robot:13:37 [W] 0301 Invalid character '}' in keyword name
+${rules_dir}${\}test.robot:16:14 [W] 0301 Invalid character ':' in keyword name

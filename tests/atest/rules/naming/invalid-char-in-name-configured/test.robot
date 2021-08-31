@@ -1,3 +1,7 @@
+*** Test Cases ***
+Test with not allowed variable ${var}
+    Steps
+
 *** Keywords ***
 Keyword?
     [Documentation]  this is doc

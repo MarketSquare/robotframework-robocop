@@ -23,11 +23,13 @@ class TagNameChecker(VisitorChecker):
         ),
         "0603": (
             "tag-with-reserved",
-            "Tag prefixed with reserved word `robot:`. Only allowed tag with this prefix is robot:no-dry-run",
+            "Tag prefixed with reserved word `robot:`. Only allowed tags with this prefix are robot:no-dry-run, "
+            "robot:continue-on-failure and robot:recursive-continue-on-failure",
             RuleSeverity.WARNING
         )
     }
     is_keyword = False
+    reserved_tags = {'robot:no-dry-run', 'robot:continue-on-failure', 'robot:recursive-continue-on-failure'}
 
     def visit_ForceTags(self, node):  # noqa
         self.check_tags(node)
@@ -63,7 +65,7 @@ class TagNameChecker(VisitorChecker):
             self.report("tag-with-space", node=node, lineno=tag.lineno, col=tag.col_offset + 1)
         if 'OR' in tag.value or 'AND' in tag.value:
             self.report("tag-with-or-and", node=node, lineno=tag.lineno, col=tag.col_offset + 1)
-        if tag.value.startswith('robot:') and tag.value != 'robot:no-dry-run':
+        if tag.value.startswith('robot:') and tag.value not in self.reserved_tags:
             self.report("tag-with-reserved", node=node, lineno=tag.lineno, col=tag.col_offset + 1)
 
 

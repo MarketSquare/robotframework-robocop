@@ -78,4 +78,9 @@ def pytest_generate_tests(metafunc):
         ['-c', 'section-out-of-order:sections_order:settings,variables,testcases,tasks,keywords'],
         'duplications/section-out-of-order_default_order'
     ))
+    auto_discovered_rules.append((
+        'tag-with-reserved',
+        [],
+        'tags/tag-with-reserved-in-keyword-doc'
+    ))
     metafunc.parametrize('rule, args, test_data', auto_discovered_rules)

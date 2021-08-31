@@ -383,7 +383,8 @@ class SimilarVariableChecker(VisitorChecker):
     rules = {
         "0316": (
             "possible-variable-overwriting",
-            "Variable '%s' may overwrite similar variable inside '%s' %s",
+            "Variable '%s' may overwrite similar variable inside '%s' %s. "
+            "Note that variables are case-insensitive, and also spaces and underscores are ignored.",
             RuleSeverity.INFO
         )
     }
@@ -400,15 +401,15 @@ class SimilarVariableChecker(VisitorChecker):
         and ads a list of all detected variations of this variable in the node as a value,
         then it checks if similar variable was found.
         """
-        variables = defaultdict(list)
+        variables = defaultdict(set)
         for child in node.body:
             if isinstance(child, Arguments):
                 for token in child.get_tokens(Token.ARGUMENT):
-                    variables[normalize_robot_var_name(token.value)].append(token.value)
+                    variables[normalize_robot_var_name(token.value)].add(token.value)
             elif hasattr(child, 'keyword'):
                 for token in child.get_tokens(Token.ASSIGN):
                     normalized_token = normalize_robot_var_name(token.value)
                     if normalized_token in variables and token.value not in variables[normalized_token]:
                         self.report("possible-variable-overwriting", token.value,  node.name, type(node).__name__,
                                     node=node, lineno=token.lineno, col=token.col_offset)
-                    variables[normalized_token].append(token.value)
+                    variables[normalized_token].add(token.value)

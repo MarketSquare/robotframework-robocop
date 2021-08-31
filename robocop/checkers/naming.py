@@ -6,6 +6,7 @@ from collections import defaultdict
 from pathlib import Path
 
 from robot.api import Token
+from robot.parsing.model.blocks import For, If
 from robot.parsing.model.statements import KeywordCall, Arguments
 
 from robocop.checkers import VisitorChecker
@@ -391,9 +392,11 @@ class SimilarVariableChecker(VisitorChecker):
 
     def visit_Keyword(self, node):  # noqa
         self.check_similar_variables(node)
+        self.generic_visit(node)
 
     def visit_TestCase(self, node):  # noqa
         self.check_similar_variables(node)
+        self.generic_visit(node)
 
     def check_similar_variables(self, node):
         """
@@ -407,9 +410,27 @@ class SimilarVariableChecker(VisitorChecker):
                 for token in child.get_tokens(Token.ARGUMENT):
                     variables[normalize_robot_var_name(token.value)].add(token.value)
             elif hasattr(child, 'keyword'):
-                for token in child.get_tokens(Token.ASSIGN):
-                    normalized_token = normalize_robot_var_name(token.value)
-                    if normalized_token in variables and token.value not in variables[normalized_token]:
-                        self.report("possible-variable-overwriting", token.value,  node.name, type(node).__name__,
-                                    node=node, lineno=token.lineno, col=token.col_offset)
-                    variables[normalized_token].add(token.value)
+                tokens = child.get_tokens(Token.ASSIGN)
+                self.find_similar_variables(tokens, variables, node)
+            elif isinstance(child, For):
+                while child.body and isinstance(child.body[0], For):
+                    for var in child.variables:
+                        variables[normalize_robot_var_name(var)].add(var)
+                    child = child.body[0]
+                for token in child.body:
+                    tokens = token.get_tokens(Token.ASSIGN)
+                    self.find_similar_variables(tokens, variables, node)
+            elif isinstance(child, If):
+                while child.body and isinstance(child.body[0], If):
+                    child = child.body[0]
+                for token in child.body:
+                    tokens = token.get_tokens(Token.ASSIGN)
+                    self.find_similar_variables(tokens, variables, node)
+
+    def find_similar_variables(self, tokens, variables, node):
+        for token in tokens:
+            normalized_token = normalize_robot_var_name(token.value)
+            if normalized_token in variables and token.value not in variables[normalized_token]:
+                self.report("possible-variable-overwriting", token.value, node.name, type(node).__name__,
+                            node=node, lineno=token.lineno, col=token.col_offset)
+            variables[normalized_token].add(token.value)

@@ -9,8 +9,40 @@ Test With Overwritten Variables
     ${M Y V A R}    Set Variable    6
     ${mYvAr}        Some Keyword    123
 
+Test With Template
+    [Template]  Templated Keyword
+    10     arg2
+    20     arg3
+    -30    arg4
+
 
 *** Keywords ***
+Keyword With For Loops
+    FOR  ${val}  IN  @{some_list}
+        ${VAL}    Some Variable    1
+    END
+    FOR  ${my_var}  IN  @{my_list}
+        FOR  ${this_var}  IN  @{this_list}
+            My Keyword    ${myVar}
+            ${this var}     This Keyword   ${MY_VAR}
+        END
+    END
+
+Keyword With If Conditions
+    ${v a l}    Some Keyword
+    IF  ${val}
+        ${VAL}    Set Variable    1
+    END
+    IF  ${my_val} == ${True}
+        ${my val}    Change To False
+    END
+    ${MY_VAL}    Change To True
+    IF  ${some_val}
+        IF  ${another_val}
+            ${some val}  ${another val}  ${val}  Return Three Values
+        END
+    END
+
 Keyword With Overwritten Variables
     [Arguments]     ${my_var}
     ${someVar}      Set Variable    1

@@ -248,6 +248,7 @@ def remove_robot_vars(name):
     replaced = ''
     index = 0
     while index < len(name):
+        # it looks for $ (or other var starter) and then check if next char is { and previous is not escape \
         if not started and name[index] in var_start and index + 1 < len(name) and name[index+1] == '{' and not \
                 (index and name[index-1] == '\\'):
             started = True

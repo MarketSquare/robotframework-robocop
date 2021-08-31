@@ -7,9 +7,9 @@ from pathlib import Path
 
 from robot.api import Token
 try:
-    from robot.parsing.model.blocks import For, If
-except ImportError:
     from robot.api.parsing import For, If
+except ImportError:
+    from robot.parsing.model.blocks import ForLoop as For
 from robot.parsing.model.statements import KeywordCall, Arguments
 
 from robocop.checkers import VisitorChecker

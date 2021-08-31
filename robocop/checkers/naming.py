@@ -394,28 +394,35 @@ class SimilarVariableChecker(VisitorChecker):
     }
 
     def visit_Keyword(self, node):  # noqa
-        self.check_similar_variables(node)
+        self.visit_vars_and_find_similar(node)
         self.generic_visit(node)
 
     def visit_TestCase(self, node):  # noqa
-        self.check_similar_variables(node)
+        self.visit_vars_and_find_similar(node)
         self.generic_visit(node)
 
-    def check_similar_variables(self, node):
+    def visit_vars_and_find_similar(self, node):
         """
         Creates a dictionary `variables` with normalized variable name as a key
         and ads a list of all detected variations of this variable in the node as a value,
         then it checks if similar variable was found.
         """
         variables = defaultdict(set)
+
         for child in node.body:
+            # read arguments from Test Case or Keyword
             if isinstance(child, Arguments):
                 for token in child.get_tokens(Token.ARGUMENT):
                     variables[normalize_robot_var_name(token.value)].add(token.value)
+
+            # check KEYWORD CALLS
             elif hasattr(child, 'keyword'):
                 tokens = child.get_tokens(Token.ASSIGN)
                 self.find_similar_variables(tokens, variables, node)
+
+            # check FOR LOOPS
             elif isinstance(child, For):
+                # look for nested for loops
                 while child.body and isinstance(child.body[0], For):
                     for var in child.variables:
                         variables[normalize_robot_var_name(var)].add(var)
@@ -423,7 +430,10 @@ class SimilarVariableChecker(VisitorChecker):
                 for token in child.body:
                     tokens = token.get_tokens(Token.ASSIGN)
                     self.find_similar_variables(tokens, variables, node)
+
+            # check IF CONDITIONS
             elif isinstance(child, If):
+                # look for nested ifs
                 while child.body and isinstance(child.body[0], If):
                     child = child.body[0]
                 for token in child.body:

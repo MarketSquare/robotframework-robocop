@@ -58,3 +58,9 @@ Keyword With Unicode And Non Latin
     Eäi Saa Peittää
     日本語
     _
+
+More Embedded Variables
+    Keyword With Embedded ${var} Variable
+    Keyword With Embedded ${var.attr} Variable
+    Keyword With Embedded ${var}['key'] Variable
+    Keyword With Embedded ${var}['${var}'] Variable

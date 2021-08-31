@@ -238,3 +238,40 @@ def last_non_empty_line(node):
         if not isinstance(child, EmptyLine):
             return child.lineno
     return node.lineno
+
+
+def remove_robot_vars(name):
+    var_start = set('$@%&')
+    started, after_var = False, False
+    brackets = 0
+    open_bracket, close_bracket = '', ''
+    replaced = ''
+    index = 0
+    while index < len(name):
+        if not started and name[index] in var_start and index + 1 < len(name) and name[index+1] == '{':
+            started = True
+            open_bracket = '{'
+            close_bracket = '}'
+            brackets += 1
+            index += 2
+            continue
+        if started:
+            if name[index] == open_bracket:
+                brackets += 1
+            elif name[index] == close_bracket:
+                brackets -= 1
+            if not brackets:
+                started = False
+                after_var = True
+        elif after_var:
+            if name[index] == '[':
+                brackets += 1
+                started = True
+                open_bracket, close_bracket = '[', ']'
+            else:
+                replaced += name[index]
+            after_var = False
+        else:
+            replaced += name[index]
+        index += 1
+    return replaced

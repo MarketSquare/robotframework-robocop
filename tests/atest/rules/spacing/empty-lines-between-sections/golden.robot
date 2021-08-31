@@ -1,3 +1,8 @@
+*** Variables ***
+${MY_VAR}    1
+
+
+# some comment
 *** Keywords ***
 Keyword
     [Documentation]  this is doc
@@ -14,3 +19,7 @@ Test
     Pass
     Keyword
     One More
+
+
+
+# some comment

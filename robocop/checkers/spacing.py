@@ -6,7 +6,7 @@ from collections import Counter
 from robot.api import Token
 from robot.parsing.model.visitor import ModelVisitor
 from robot.parsing.model.blocks import TestCase, Keyword
-from robot.parsing.model.statements import EmptyLine
+from robot.parsing.model.statements import EmptyLine, Comment
 
 from robocop.checkers import RawFileChecker, VisitorChecker
 from robocop.rules import RuleSeverity
@@ -216,6 +216,8 @@ class EmptyLinesChecker(VisitorChecker):
                             break
                 if isinstance(child, EmptyLine):
                     empty_lines += 1
+                elif isinstance(child, Comment):
+                    continue
                 else:
                     break
             if empty_lines != self.empty_lines_between_sections:

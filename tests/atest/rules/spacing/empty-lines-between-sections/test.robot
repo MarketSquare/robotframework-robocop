@@ -3,7 +3,10 @@ Documentation  doc
 
 
 
+*** Variables ***
+${MY_VAR}    1
 
+# some comment
 *** Test Cases ***
 Test
     [Documentation]  doc
@@ -19,3 +22,5 @@ Keyword
     Pass
     No Operation
     Fail
+*** Comments ***
+Blah Blah Blah

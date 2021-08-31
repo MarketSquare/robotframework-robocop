@@ -248,7 +248,8 @@ def remove_robot_vars(name):
     replaced = ''
     index = 0
     while index < len(name):
-        if not started and name[index] in var_start and index + 1 < len(name) and name[index+1] == '{':
+        if not started and name[index] in var_start and index + 1 < len(name) and name[index+1] == '{' and not \
+                (index and name[index-1] == '\\'):
             started = True
             open_bracket = '{'
             close_bracket = '}'

@@ -124,7 +124,8 @@ class TestRecommendationFinder:
         ('a@{variable}b', 'ab'),
         ('${variable${nested}suffix}', ''),
         ('&{dict["key"]}', ''),
-        ('this is ${variable not closed properly', 'this is ')
+        ('this is ${variable not closed properly', 'this is '),
+        (r'this is \${ escaped', r'this is \${ escaped'),
     ])
     def test_remove_robot_vars(self, string, replaced):
         actual = remove_robot_vars(string)

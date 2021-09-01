@@ -5,7 +5,8 @@ from robot.api import get_model
 from robocop.utils import (
     AssignmentTypeDetector,
     parse_assignment_sign_type,
-    RecommendationFinder
+    RecommendationFinder,
+    remove_robot_vars
 )
 
 
@@ -111,3 +112,21 @@ class TestRecommendationFinder:
     def test_find_similar(self, name, candidates, similar):
         rec = RecommendationFinder().find_similar(name, candidates)
         assert similar == rec
+
+    @pytest.mark.parametrize('string, replaced', [
+        ('Keyword With Embedded ${var} Variable', 'Keyword With Embedded  Variable'),
+        ('Keyword With Embedded ${var.attr} Variable', 'Keyword With Embedded  Variable'),
+        ("Keyword With Embedded ${var}['key'] Variable", 'Keyword With Embedded  Variable'),
+        ('Keyword With Embedded ${var}[${var}] Variable', 'Keyword With Embedded  Variable'),
+        ('${variable}', ''),
+        ('a${variable}', 'a'),
+        ('%{variable}b', 'b'),
+        ('a@{variable}b', 'ab'),
+        ('${variable${nested}suffix}', ''),
+        ('&{dict["key"]}', ''),
+        ('this is ${variable not closed properly', 'this is '),
+        (r'this is \${ escaped', r'this is \${ escaped'),
+    ])
+    def test_remove_robot_vars(self, string, replaced):
+        actual = remove_robot_vars(string)
+        assert actual == replaced

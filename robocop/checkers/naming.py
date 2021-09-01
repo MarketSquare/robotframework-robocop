@@ -10,7 +10,7 @@ from robot.parsing.model.statements import KeywordCall, Arguments
 
 from robocop.checkers import VisitorChecker
 from robocop.rules import RuleSeverity
-from robocop.utils import normalize_robot_name, normalize_robot_var_name, IS_RF4, keyword_col
+from robocop.utils import normalize_robot_name, normalize_robot_var_name, IS_RF4, keyword_col, remove_robot_vars
 
 
 class InvalidCharactersInNameChecker(VisitorChecker):
@@ -144,7 +144,6 @@ class KeywordNamingChecker(VisitorChecker):
 
     def __init__(self):
         self.letter_pattern = re.compile(r'\W|_', re.UNICODE)
-        self.var_pattern = re.compile(r'[$@%&]{.+}')
         self.convention = 'each_word_capitalized'
         super().__init__()
 
@@ -205,8 +204,8 @@ class KeywordNamingChecker(VisitorChecker):
                     )
         elif self.check_if_keyword_is_reserved(keyword_name, node):
             return
+        keyword_name = remove_robot_vars(keyword_name)
         keyword_name = keyword_name.split('.')[-1]  # remove any imports ie ExternalLib.SubLib.Log -> Log
-        keyword_name = self.var_pattern.sub('', keyword_name)  # remove any embedded variables from name
         keyword_name = keyword_name.replace("'", '')  # replace ' apostrophes
         if '_' in keyword_name:
             self.report("underscore-in-keyword-name", node=node)

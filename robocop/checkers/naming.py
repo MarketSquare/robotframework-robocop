@@ -364,6 +364,11 @@ class VariableNamingChecker(VisitorChecker):
             "non-local-variables-should-be-uppercase",
             "Test, suite and global variables should be uppercased",
             RuleSeverity.WARNING
+        ),
+        "0317": (
+            "hyphen-in-variable-name",
+            "Use underscore in variable names instead of hyphens to avoid treating them like minus sign",
+            RuleSeverity.INFO
         )
     }
 
@@ -384,6 +389,10 @@ class VariableNamingChecker(VisitorChecker):
                             col=token.col_offset)
 
     def visit_KeywordCall(self, node):  # noqa
+        for token in node.get_tokens(Token.ASSIGN):
+            if '-' in token.value:
+                self.report("hyphen-in-variable-name", lineno=token.lineno, col=token.col_offset)
+
         if not node.keyword:
             return
         if normalize_robot_name(node.keyword) in self.set_variable_variants:

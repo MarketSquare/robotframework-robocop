@@ -1,4 +1,6 @@
 import pytest
+import yaml
+from pathlib import Path
 from robocop.checkers import get_rules_for_atest
 from robocop.run import Robocop
 
@@ -37,50 +39,9 @@ def pytest_generate_tests(metafunc):
         else:
             pytest.exit(f"Rule: '{selected_rule}' was not found", 1)
         return
-    # TODO: load other tests from file (like yaml)
-    auto_discovered_rules.append((
-        'inconsistent-assignment',
-        ['-c', 'inconsistent-assignment:assignment_sign_type:space_and_equal_sign'],
-        'misc/inconsistent-assignment-const'
-    ))
-    auto_discovered_rules.append((
-        'inconsistent-assignment-in-variables',
-        ['-c', 'inconsistent-assignment-in-variables:assignment_sign_type:space_and_equal_sign'],
-        'misc/inconsistent-assignment-in-variables-const'
-    ))
-    auto_discovered_rules.append((
-        'inconsistent-assignment',
-        ['-c', 'inconsistent-assignment:assignment_sign_type:autodetect'],
-        'misc/inconsistent-assignment-autodetect'
-    ))
-    auto_discovered_rules.append((
-        'inconsistent-assignment-in-variables',
-        ['-c', 'inconsistent-assignment-in-variables:assignment_sign_type:autodetect'],
-        'misc/inconsistent-assignment-in-variables-autodetect'
-    ))
-    auto_discovered_rules.append((
-        'wrong-case-in-keyword-name',
-        ['-c', 'wrong-case-in-keyword-name:convention:first_word_capitalized'],
-        'naming/wrong-case-in-keyword-name-first-word'
-    ))
-    auto_discovered_rules.append((
-        'section-out-of-order',
-        ['-c', 'section-out-of-order:sections_order:settings,keywords,testcases,variables'],
-        'duplications/section-out-of-order_custom_order'
-    ))
-    auto_discovered_rules.append((
-        'section-out-of-order',
-        ['-c', 'section-out-of-order:sections_order:settings,variables,testcases,keywords'],
-        'duplications/section-out-of-order_default_order'
-    ))
-    auto_discovered_rules.append((
-        'section-out-of-order',
-        ['-c', 'section-out-of-order:sections_order:settings,variables,testcases,tasks,keywords'],
-        'duplications/section-out-of-order_default_order'
-    ))
-    auto_discovered_rules.append((
-        'tag-with-reserved',
-        [],
-        'tags/tag-with-reserved-in-keyword-doc'
-    ))
+    with open(Path(__file__).parent / 'custom_tests.yaml') as f:
+        tests = yaml.safe_load(f)
+    for rule, configs in tests['tests'].items():
+        for config in configs:
+            auto_discovered_rules.append((rule, ['-c', config['config']], config['src_dir']))
     metafunc.parametrize('rule, args, test_data', auto_discovered_rules)

@@ -23,7 +23,7 @@ class TagNameChecker(VisitorChecker):
         ),
         "0603": (
             "tag-with-reserved",
-            "Tag prefixed with reserved word `robot:`. Only allowed tags with this prefix are robot:no-dry-run, "
+            "Tag prefixed with reserved word `robot:`. The only allowed tags with this prefix are robot:no-dry-run, "
             "robot:continue-on-failure and robot:recursive-continue-on-failure",
             RuleSeverity.WARNING
         )

@@ -19,5 +19,6 @@ from robocop.utils.misc import (
     token_col,
     RecommendationFinder,
     is_suite_templated,
-    last_non_empty_line
+    last_non_empty_line,
+    remove_robot_vars
 )

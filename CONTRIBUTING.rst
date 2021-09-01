@@ -156,7 +156,7 @@ Make sure to run all of the tests before submitting a pull request to be sure
 that your changes do not break anything. Pull requests are also automatically
 tested on continuous integration.
 
-Most of our tests use pytest. To use it install robocop with dev profile::
+Most of our tests use pytest. To use it install Robocop with ``dev`` profile::
 
     pip install robocop[dev]
 
@@ -166,6 +166,20 @@ To run pytest tests navigate to directory with test files and run::
 
 Pytest will automatically discover all the tests, run them and display
 results. Make sure that tests do not fail.
+
+Together with Robocop installed with ``dev`` dependencies, you will be able to use
+`tox <https://github.com/tox-dev/tox>`_ tool (a CI task automation tool) which can run all tests on different environments.
+Currently two environments are available - one with Robot Framework v3.* and one with
+Robot Framework v4.*. You can simply run::
+
+    tox
+
+and it will run all tests separately in these two environments and display the results.
+
+If you want to run tests for only one specific environment, you can choose between
+``rf3`` and ``rf4`` and run them with option ``-e``, e.g.::
+
+    tox -e rf3
 
 Unit tests
 ''''''''''
@@ -183,7 +197,7 @@ You can put one or more \*.robot files inside - it will be autoscanned with ``--
 Robocop output will be compared with content of ``expected_output.txt`` file.
 
 When updating ``expected_output.txt`` file you can use two macro variables: ``${rules_dir}`` and ``${/}``.
-The first is path to rules directory (so the correct path in robocop output will be printed) and the
+The first is path to rules directory (so the correct path in Robocop output will be printed) and the
 second is path separator - \ under Windows and / under Linux.
 
 If you wish to use additional configuration or use different that default test data directory follow

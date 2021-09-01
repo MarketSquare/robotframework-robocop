@@ -2,7 +2,9 @@ ${rules_dir}${\}test.robot:4:4 [I] 0317 Use underscore in variable names instead
 ${rules_dir}${\}test.robot:5:4 [I] 0317 Use underscore in variable names instead of hyphens to avoid treating them like minus sign
 ${rules_dir}${\}test.robot:6:4 [I] 0317 Use underscore in variable names instead of hyphens to avoid treating them like minus sign
 ${rules_dir}${\}test.robot:7:4 [I] 0317 Use underscore in variable names instead of hyphens to avoid treating them like minus sign
-${rules_dir}${\}test.robot:13:4 [I] 0317 Use underscore in variable names instead of hyphens to avoid treating them like minus sign
-${rules_dir}${\}test.robot:14:4 [I] 0317 Use underscore in variable names instead of hyphens to avoid treating them like minus sign
+${rules_dir}${\}test.robot:8:4 [I] 0317 Use underscore in variable names instead of hyphens to avoid treating them like minus sign
 ${rules_dir}${\}test.robot:15:4 [I] 0317 Use underscore in variable names instead of hyphens to avoid treating them like minus sign
 ${rules_dir}${\}test.robot:16:4 [I] 0317 Use underscore in variable names instead of hyphens to avoid treating them like minus sign
+${rules_dir}${\}test.robot:17:4 [I] 0317 Use underscore in variable names instead of hyphens to avoid treating them like minus sign
+${rules_dir}${\}test.robot:18:4 [I] 0317 Use underscore in variable names instead of hyphens to avoid treating them like minus sign
+${rules_dir}${\}test.robot:19:4 [I] 0317 Use underscore in variable names instead of hyphens to avoid treating them like minus sign

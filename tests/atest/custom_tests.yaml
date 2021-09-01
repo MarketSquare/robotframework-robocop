@@ -1,0 +1,24 @@
+tests:
+  inconsistent-assignment:
+    - config: inconsistent-assignment:assignment_sign_type:space_and_equal_sign
+      src_dir: misc/inconsistent-assignment-const
+    - config: inconsistent-assignment:assignment_sign_type:autodetect
+      src_dir: misc/inconsistent-assignment-autodetect
+  inconsistent-assignment-in-variables:
+    - config: inconsistent-assignment-in-variables:assignment_sign_type:space_and_equal_sign
+      src_dir: misc/inconsistent-assignment-in-variables-const
+    - config: inconsistent-assignment-in-variables:assignment_sign_type:autodetect
+      src_dir: misc/inconsistent-assignment-in-variables-autodetect
+  wrong-case-in-keyword-name:
+    - config: wrong-case-in-keyword-name:convention:first_word_capitalized
+      src_dir: naming/wrong-case-in-keyword-name-first-word
+  section-out-of-order:
+    - config: section-out-of-order:sections_order:settings,keywords,testcases,variables
+      src_dir: duplications/section-out-of-order_custom_order
+    - config: section-out-of-order:sections_order:settings,variables,testcases,keywords
+      src_dir: duplications/section-out-of-order_default_order
+    - config: section-out-of-order:sections_order:settings,variables,testcases,tasks,keywords
+      src_dir: duplications/section-out-of-order_default_order
+  invalid-char-in-name:
+    - config: invalid-char-in-name:invalid_chars:$:{}
+      src_dir: naming/invalid-char-in-name-configured

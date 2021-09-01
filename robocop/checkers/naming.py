@@ -18,7 +18,7 @@ class InvalidCharactersInNameChecker(VisitorChecker):
     rules = {
         "0301": (
             "invalid-char-in-name",
-            "Invalid character %s in %s name",
+            "Invalid character '%s' in %s name",
             RuleSeverity.WARNING,
             (
                 'invalid_chars',
@@ -28,6 +28,7 @@ class InvalidCharactersInNameChecker(VisitorChecker):
             )
         )
     }
+    var_pattern = re.compile(r'[$@%&]{[^}]+}')
 
     def __init__(self):
         self.invalid_chars = {'.', '?'}
@@ -47,12 +48,28 @@ class InvalidCharactersInNameChecker(VisitorChecker):
             self.check_if_char_in_name(node, suite_name, 'SUITE')
         super().visit_File(node)
 
-    def check_if_char_in_node_name(self, node, name_of_node):
-        for index, char in enumerate(node.name):
-            if char in self.invalid_chars:
-                self.report("invalid-char-in-name", char, self.node_names_map[name_of_node],
+    def check_if_char_in_node_name(self, node, name_of_node, is_keyword=False):
+        if is_keyword:
+            matches = [(m.span()) for m in self.var_pattern.finditer(node.name)]
+        else:
+            matches = []
+        index = 0
+        while index <= len(node.name):
+            index += self._skip_captured_group(index, matches)  # allows to skip ${vars} without breaking indexes
+            if index >= len(node.name):
+                return
+            if node.name[index] in self.invalid_chars:
+                self.report("invalid-char-in-name", node.name[index], self.node_names_map[name_of_node],
                             node=node,
                             col=node.col_offset + index + 1)
+            index += 1
+
+    @staticmethod
+    def _skip_captured_group(index, matches):
+        for start, stop in matches:
+            if not start < index >= stop:
+                return stop - start
+        return 0
 
     def check_if_char_in_name(self, node, name, node_type):
         for char in self.invalid_chars:
@@ -64,7 +81,7 @@ class InvalidCharactersInNameChecker(VisitorChecker):
         self.check_if_char_in_node_name(node, 'TESTCASE_NAME')
 
     def visit_KeywordName(self, node):  # noqa
-        self.check_if_char_in_node_name(node, 'KEYWORD_NAME')
+        self.check_if_char_in_node_name(node, 'KEYWORD_NAME', is_keyword=True)
 
 
 class KeywordNamingChecker(VisitorChecker):

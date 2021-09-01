@@ -18,3 +18,6 @@ Keyword?
     Pass
     No Operation
     Fail
+
+Keyword With ${em.bedded} Argument
+    No Operation

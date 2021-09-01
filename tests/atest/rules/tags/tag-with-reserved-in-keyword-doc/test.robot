@@ -20,4 +20,4 @@ Keyword
     Fail
 
 Keyword With Reserved Tags
-    [Documentation]  Tags:  tagORtag,  tagorand,  andsmth,  with space or reserved,  robot:no-dry-run,  robot:my_tag
+    [Documentation]  Tags:  tagORtag,  tagorand,  andsmth,  with space or reserved,  robot:no-dry-run,  robot:my_tag    robot:continue-on-failure    robot:recursive-continue-on-failure

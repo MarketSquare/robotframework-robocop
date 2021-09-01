@@ -8,6 +8,7 @@ import re
 
 from robot.api import Token
 from robot.parsing.model.statements import EmptyLine
+
 try:
     from robot.api.parsing import Variable
 except ImportError:
@@ -16,7 +17,6 @@ from robot.version import VERSION
 
 from robocop.rules import RuleSeverity
 from robocop.exceptions import InvalidExternalCheckerError
-
 
 IS_RF4 = VERSION.startswith('4')
 DISABLED_IN_4 = frozenset(('nested-for-loop', 'invalid-comment'))
@@ -100,7 +100,7 @@ def issues_to_lsp_diagnostic(issues):
             'start': {
                 'line': max(0, issue.line - 1),
                 'character': issue.col
-                },
+            },
             'end': {
                 'line': max(0, issue.end_line - 1),
                 'character': issue.end_col
@@ -115,6 +115,7 @@ def issues_to_lsp_diagnostic(issues):
 
 class AssignmentTypeDetector(ast.NodeVisitor):
     """ Visitor for counting number and type of assignments """
+
     def __init__(self):
         self.keyword_sign_counter = Counter()
         self.keyword_most_common = None
@@ -144,7 +145,7 @@ class AssignmentTypeDetector(ast.NodeVisitor):
 
     @staticmethod
     def get_assignment_sign(token_value):
-        return token_value[token_value.find('}')+1:]
+        return token_value[token_value.find('}') + 1:]
 
 
 def parse_assignment_sign_type(value):
@@ -238,3 +239,42 @@ def last_non_empty_line(node):
         if not isinstance(child, EmptyLine):
             return child.lineno
     return node.lineno
+
+
+def next_char_is(string, i, char):
+    if not i < len(string) - 1:
+        return False
+    return string[i + 1] == char
+
+
+def remove_robot_vars(name):
+    var_start = set('$@%&')
+    brackets = 0
+    open_bracket, close_bracket = '', ''
+    replaced = ''
+    index = 0
+    while index < len(name):
+        if brackets:
+            if name[index] == open_bracket:
+                brackets += 1
+            elif name[index] == close_bracket:
+                brackets -= 1
+            # check if next chars are not ['key']
+            if not brackets and next_char_is(name, index, '['):
+                brackets += 1
+                index += 1
+                open_bracket, close_bracket = '[', ']'
+        # it looks for $ (or other var starter) and then check if next char is { and previous is not escape \
+        elif (
+                name[index] in var_start and
+                next_char_is(name, index, '{') and
+                not (index and name[index - 1] == '\\')
+        ):
+            open_bracket = '{'
+            close_bracket = '}'
+            brackets += 1
+            index += 1
+        else:
+            replaced += name[index]
+        index += 1
+    return replaced

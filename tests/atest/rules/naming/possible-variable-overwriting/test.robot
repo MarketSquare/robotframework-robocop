@@ -22,6 +22,13 @@ Keyword With For Loops
         ${VAL}    Some Variable    1
     END
     FOR  ${my_var}  IN  @{my_list}
+        Keyword With Multiline
+        ...  ${myVar}
+        FOR  ${this_var}  IN  @{this_list}
+            My Keyword    ${myVar}
+            ${this var}     This Keyword   ${MY_VAR}
+        END
+        ${unique}  ${myVar}    Keyword
         FOR  ${this_var}  IN  @{this_list}
             My Keyword    ${myVar}
             ${this var}     This Keyword   ${MY_VAR}
@@ -38,6 +45,7 @@ Keyword With If Conditions
     END
     ${MY_VAL}    Change To True
     IF  ${some_val}
+        ${some val}  ${another val}  ${val}  Return Three Values
         IF  ${another_val}
             ${some val}  ${another val}  ${val}  Return Three Values
         END

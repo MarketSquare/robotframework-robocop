@@ -411,7 +411,7 @@ class SimilarVariableChecker(VisitorChecker):
 
     def visit_KeywordCall(self, node):  # noqa
         tokens = node.get_tokens(Token.ASSIGN)
-        self.find_similar_variables(tokens, self.variables, node)
+        self.find_similar_variables(tokens, node)
 
     def visit_For(self, node):  # noqa
         for var in node.variables:
@@ -435,10 +435,10 @@ class SimilarVariableChecker(VisitorChecker):
                 for token in child.get_tokens(Token.ARGUMENT):
                     self.variables[normalize_robot_var_name(token.value)].add(token.value)
 
-    def find_similar_variables(self, tokens, variables, node):
+    def find_similar_variables(self, tokens, node):
         for token in tokens:
             normalized_token = normalize_robot_var_name(token.value)
-            if normalized_token in variables and token.value not in variables[normalized_token]:
+            if normalized_token in self.variables and token.value not in self.variables[normalized_token]:
                 self.report("possible-variable-overwriting", token.value, self.parent_name, self.parent_type,
                             node=node, lineno=token.lineno, col=token.col_offset)
-            variables[normalized_token].add(token.value)
+            self.variables[normalized_token].add(token.value)

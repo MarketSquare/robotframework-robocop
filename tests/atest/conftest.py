@@ -43,5 +43,6 @@ def pytest_generate_tests(metafunc):
         tests = yaml.safe_load(f)
     for rule, configs in tests['tests'].items():
         for config in configs:
-            auto_discovered_rules.append((rule, ['-c', config['config']], config['src_dir']))
+            configuration = ['-c', config['config']] if config['config'] else []
+            auto_discovered_rules.append((rule, configuration, config['src_dir']))
     metafunc.parametrize('rule, args, test_data', auto_discovered_rules)

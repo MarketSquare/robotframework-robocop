@@ -6,10 +6,6 @@ from collections import defaultdict
 from pathlib import Path
 
 from robot.api import Token
-try:
-    from robot.api.parsing import For, If
-except ImportError:
-    from robot.parsing.model.blocks import ForLoop as For
 from robot.parsing.model.statements import KeywordCall, Arguments
 
 from robocop.checkers import VisitorChecker
@@ -393,12 +389,38 @@ class SimilarVariableChecker(VisitorChecker):
         )
     }
 
+    def __init__(self):
+        self.variables = defaultdict(set)
+        self.parent_name = ''
+        self.parent_type = ''
+        super().__init__()
+
     def visit_Keyword(self, node):  # noqa
+        self.variables = defaultdict(set)
+        self.parent_name = node.name
+        self.parent_type = type(node).__name__
         self.visit_vars_and_find_similar(node)
         self.generic_visit(node)
 
     def visit_TestCase(self, node):  # noqa
+        self.variables = defaultdict(set)
+        self.parent_name = node.name
+        self.parent_type = type(node).__name__
         self.visit_vars_and_find_similar(node)
+        self.generic_visit(node)
+
+    def visit_KeywordCall(self, node):  # noqa
+        tokens = node.get_tokens(Token.ASSIGN)
+        self.find_similar_variables(tokens, self.variables, node)
+
+    def visit_For(self, node):  # noqa
+        for var in node.variables:
+            self.variables[normalize_robot_var_name(var)].add(var)
+        self.generic_visit(node)
+
+    def visit_ForLoop(self, node):  # noqa
+        for var in node.variables:
+            self.variables[normalize_robot_var_name(var)].add(var)
         self.generic_visit(node)
 
     def visit_vars_and_find_similar(self, node):
@@ -407,43 +429,16 @@ class SimilarVariableChecker(VisitorChecker):
         and ads a list of all detected variations of this variable in the node as a value,
         then it checks if similar variable was found.
         """
-        variables = defaultdict(set)
-
         for child in node.body:
             # read arguments from Test Case or Keyword
             if isinstance(child, Arguments):
                 for token in child.get_tokens(Token.ARGUMENT):
-                    variables[normalize_robot_var_name(token.value)].add(token.value)
-
-            # check KEYWORD CALLS
-            elif hasattr(child, 'keyword'):
-                tokens = child.get_tokens(Token.ASSIGN)
-                self.find_similar_variables(tokens, variables, node)
-
-            # check FOR LOOPS
-            elif isinstance(child, For):
-                # look for nested for loops
-                while child.body and isinstance(child.body[0], For):
-                    for var in child.variables:
-                        variables[normalize_robot_var_name(var)].add(var)
-                    child = child.body[0]
-                for token in child.body:
-                    tokens = token.get_tokens(Token.ASSIGN)
-                    self.find_similar_variables(tokens, variables, node)
-
-            # check IF CONDITIONS
-            elif isinstance(child, If):
-                # look for nested ifs
-                while child.body and isinstance(child.body[0], If):
-                    child = child.body[0]
-                for token in child.body:
-                    tokens = token.get_tokens(Token.ASSIGN)
-                    self.find_similar_variables(tokens, variables, node)
+                    self.variables[normalize_robot_var_name(token.value)].add(token.value)
 
     def find_similar_variables(self, tokens, variables, node):
         for token in tokens:
             normalized_token = normalize_robot_var_name(token.value)
             if normalized_token in variables and token.value not in variables[normalized_token]:
-                self.report("possible-variable-overwriting", token.value, node.name, type(node).__name__,
+                self.report("possible-variable-overwriting", token.value, self.parent_name, self.parent_type,
                             node=node, lineno=token.lineno, col=token.col_offset)
             variables[normalized_token].add(token.value)

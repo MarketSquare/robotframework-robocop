@@ -71,6 +71,10 @@ def normalize_robot_name(name):
     return name.replace(' ', '').replace('_', '').lower() if name else ''
 
 
+def normalize_robot_var_name(name):
+    return name.replace(' ', '').replace('_', '').lower()[2:-1] if name else ''
+
+
 def keyword_col(node):
     return token_col(node, Token.KEYWORD)
 

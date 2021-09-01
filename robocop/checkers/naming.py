@@ -2,17 +2,15 @@
 Naming checkers
 """
 import re
+from collections import defaultdict
 from pathlib import Path
 
 from robot.api import Token
-try:
-    from robot.api.parsing import KeywordCall
-except ImportError:
-    pass
+from robot.parsing.model.statements import KeywordCall, Arguments
 
 from robocop.checkers import VisitorChecker
 from robocop.rules import RuleSeverity
-from robocop.utils import normalize_robot_name, IS_RF4, keyword_col
+from robocop.utils import normalize_robot_name, normalize_robot_var_name, IS_RF4, keyword_col
 
 
 class InvalidCharactersInNameChecker(VisitorChecker):
@@ -395,3 +393,69 @@ class VariableNamingChecker(VisitorChecker):
             token = node.data_tokens[1]
             if token.type == Token.ARGUMENT and not token.value.isupper():
                 self.report("non-local-variables-should-be-uppercase", node=node, col=token.col_offset + 1)
+
+
+class SimilarVariableChecker(VisitorChecker):
+    """ Checker for finding same variables with similar names. """
+    rules = {
+        "0316": (
+            "possible-variable-overwriting",
+            "Variable '%s' may overwrite similar variable inside '%s' %s. "
+            "Note that variables are case-insensitive, and also spaces and underscores are ignored.",
+            RuleSeverity.INFO
+        )
+    }
+
+    def __init__(self):
+        self.variables = defaultdict(set)
+        self.parent_name = ''
+        self.parent_type = ''
+        super().__init__()
+
+    def visit_Keyword(self, node):  # noqa
+        self.variables = defaultdict(set)
+        self.parent_name = node.name
+        self.parent_type = type(node).__name__
+        self.visit_vars_and_find_similar(node)
+        self.generic_visit(node)
+
+    def visit_TestCase(self, node):  # noqa
+        self.variables = defaultdict(set)
+        self.parent_name = node.name
+        self.parent_type = type(node).__name__
+        self.visit_vars_and_find_similar(node)
+        self.generic_visit(node)
+
+    def visit_KeywordCall(self, node):  # noqa
+        tokens = node.get_tokens(Token.ASSIGN)
+        self.find_similar_variables(tokens, node)
+
+    def visit_For(self, node):  # noqa
+        for var in node.variables:
+            self.variables[normalize_robot_var_name(var)].add(var)
+        self.generic_visit(node)
+
+    def visit_ForLoop(self, node):  # noqa
+        for var in node.variables:
+            self.variables[normalize_robot_var_name(var)].add(var)
+        self.generic_visit(node)
+
+    def visit_vars_and_find_similar(self, node):
+        """
+        Creates a dictionary `variables` with normalized variable name as a key
+        and ads a list of all detected variations of this variable in the node as a value,
+        then it checks if similar variable was found.
+        """
+        for child in node.body:
+            # read arguments from Test Case or Keyword
+            if isinstance(child, Arguments):
+                for token in child.get_tokens(Token.ARGUMENT):
+                    self.variables[normalize_robot_var_name(token.value)].add(token.value)
+
+    def find_similar_variables(self, tokens, node):
+        for token in tokens:
+            normalized_token = normalize_robot_var_name(token.value)
+            if normalized_token in self.variables and token.value not in self.variables[normalized_token]:
+                self.report("possible-variable-overwriting", token.value, self.parent_name, self.parent_type,
+                            node=node, lineno=token.lineno, col=token.col_offset)
+            self.variables[normalized_token].add(token.value)

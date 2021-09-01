@@ -240,39 +240,36 @@ def last_non_empty_line(node):
     return node.lineno
 
 
+def next_char_is(string, i, char):
+    if not i < len(string) - 1:
+        return False
+    return string[i + 1] == char
+
+
 def remove_robot_vars(name):
     var_start = set('$@%&')
-    started, after_var = False, False
     brackets = 0
     open_bracket, close_bracket = '', ''
     replaced = ''
     index = 0
     while index < len(name):
-        # it looks for $ (or other var starter) and then check if next char is { and previous is not escape \
-        if not started and name[index] in var_start and index + 1 < len(name) and name[index+1] == '{' and not \
-                (index and name[index-1] == '\\'):
-            started = True
-            open_bracket = '{'
-            close_bracket = '}'
-            brackets += 1
-            index += 2
-            continue
-        if started:
+        if brackets:
             if name[index] == open_bracket:
                 brackets += 1
             elif name[index] == close_bracket:
                 brackets -= 1
             if not brackets:
-                started = False
-                after_var = True
-        elif after_var:
-            if name[index] == '[':
-                brackets += 1
-                started = True
-                open_bracket, close_bracket = '[', ']'
-            else:
-                replaced += name[index]
-            after_var = False
+                # check if next chars are not ['key']
+                if next_char_is(name, index, '['):
+                    brackets += 1
+                    index += 1
+                    open_bracket, close_bracket = '[', ']'
+        # it looks for $ (or other var starter) and then check if next char is { and previous is not escape \
+        elif name[index] in var_start and next_char_is(name, index, '{') and not (index and name[index - 1] == '\\'):
+            open_bracket = '{'
+            close_bracket = '}'
+            brackets += 1
+            index += 1
         else:
             replaced += name[index]
         index += 1

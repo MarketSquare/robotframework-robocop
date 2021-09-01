@@ -1,5 +1,5 @@
 *** Settings ***
-Documentation  doc
+Documentation  doc  # todo so many things
 
 
 *** Test Cases ***
@@ -11,8 +11,8 @@ Test
     One More
 
 # fixme: this whole section
-*** Keywords ***
-Keyword
+*** Keywords ***  # TODO do this
+Keyword  # FIXME now!
     [Documentation]  this is doc
     No Operation  # todo: do something
     Pass

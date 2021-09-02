@@ -278,3 +278,31 @@ def remove_robot_vars(name):
             replaced += name[index]
         index += 1
     return replaced
+
+
+def find_robot_vars(name):
+    """ return list of tuples with (start, end) pos of vars in name """
+    var_start = set('$@%&')
+    brackets = 0
+    index = 0
+    start = -1
+    variables = []
+    while index < len(name):
+        if brackets:
+            if name[index] == '{':
+                brackets += 1
+            elif name[index] == '}':
+                brackets -= 1
+                if not brackets:
+                    variables.append((start, index+1))
+        # it looks for $ (or other var starter) and then check if next char is { and previous is not escape \
+        elif (
+                name[index] in var_start and
+                next_char_is(name, index, '{') and
+                not (index and name[index - 1] == '\\')
+        ):
+            brackets += 1
+            start = index
+            index += 1
+        index += 1
+    return variables

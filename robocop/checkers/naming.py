@@ -56,14 +56,9 @@ class InvalidCharactersInNameChecker(VisitorChecker):
         index = 0
         while index < len(node.name):
             # skip variables
-            i = 0
-            while variables and i < len(variables):
-                start, stop = variables[i]
-                if start <= index < stop:
-                    index += stop - start
-                    variables.pop(i)
-                    break
-                i += 1
+            if variables and variables[0][0] == index:
+                start, stop = variables.pop(0)
+                index += stop - start
             else:
                 if node.name[index] in self.invalid_chars:
                     self.report("invalid-char-in-name", node.name[index], name_of_node, node=node,

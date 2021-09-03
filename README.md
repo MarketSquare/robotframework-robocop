@@ -120,7 +120,7 @@ Found 5 issue(s): 2 WARNING(s), 2 ERROR(s), 1 INFO(s).
 
 Fixing issues <a name="robotidy"></a>
 --------------
-Several issues can be fixed using auto-formatting tool Robotidy. Check out the Robotidy [documentation](https://robotidy.readthedocs.io/en/latest/).
+Many issues in your code reported by Robocop can be fixed using auto-formatting tool, Robotidy. Check out the Robotidy [documentation](https://robotidy.readthedocs.io/en/latest/).
 
 FAQ <a name="faq"></a>
 ---

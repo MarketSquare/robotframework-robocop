@@ -149,3 +149,6 @@ Preceding example configuration results in following levels::
             'I': 9
         }
 
+Fixing issues
+-------------
+Several issues can be fixed using auto-formatting tool Robotidy. Check out the Robotidy [documentation](https://robotidy.readthedocs.io/en/latest/).

@@ -28,13 +28,16 @@ Every rule has a `unique id` made of 4 digits where first 2 are `checker id` whi
 configurations etc.). You can optionally configure rule severity or other parameters.
 """
 import inspect
-from robocop.rules import Rule
+
 from robocop.exceptions import DuplicatedRuleError
+from robocop.rules import Rule
 from robocop.utils import modules_in_current_dir, modules_from_paths
+
 try:
     from robot.api.parsing import ModelVisitor
 except ImportError:
     from robot.parsing.model.visitor import ModelVisitor
+from robot.utils import FileReader
 
 
 class BaseChecker:
@@ -111,10 +114,12 @@ class RawFileChecker(BaseChecker):  # noqa
     def parse_file(self):
         """ Read file line by line and for each call check_line method. """
         if self.lines is not None:
-            self._parse_lines(self.lines)
+            for lineno, line in enumerate(self.lines):
+                self.check_line(line, lineno + 1)
         else:
-            with open(self.source, encoding='utf-8') as file:
-                self._parse_lines(file)
+            with FileReader(self.source) as file_reader:
+                for lineno, line in enumerate(file_reader.readlines()):
+                    self.check_line(line, lineno + 1)
 
     def _parse_lines(self, lines):
         for lineno, line in enumerate(lines):

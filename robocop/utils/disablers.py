@@ -2,8 +2,11 @@
 Collection of classes for detecting checker disablers (like # robocop: disable) in robot files
 """
 import re
-from copy import deepcopy
 from collections import defaultdict
+from copy import deepcopy
+
+from robot.utils import FileReader
+
 import robocop.exceptions
 
 
@@ -62,12 +65,13 @@ class DisablersFinder:
 
     def _parse_file(self, filename):
         try:
-            with open(filename, 'r') as file:
-                self._parse_lines(file.readlines())
+            with FileReader(filename) as file_reader:
+                lines = [line for line in file_reader.readlines()]
+                self._parse_lines(lines)
         except OSError:
             raise robocop.exceptions.FileError(filename) from None
         except UnicodeDecodeError:
-            print(f"Failed to decode {file}. Default supported encoding by Robot Framework is UTF-8. Skipping file")
+            print(f"Failed to decode {filename}. Default supported encoding by Robot Framework is UTF-8. Skipping file")
             self.file_disabled = True
 
     def _parse_source(self, source):

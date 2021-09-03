@@ -12,6 +12,7 @@ from codecs import (
 from robocop.checkers import RawFileChecker, VisitorChecker
 from robocop.rules import RuleSeverity
 from robocop.utils import IS_RF4
+from robot.utils import FileReader
 
 
 class CommentChecker(VisitorChecker):
@@ -188,11 +189,15 @@ class IgnoredDataChecker(RawFileChecker):
     def parse_file(self):
         self.is_bom = False
         if self.lines is not None:
-            self._parse_lines(self.lines)
+            for lineno, line in enumerate(self.lines, start=1):
+                if self.check_line(line, lineno):
+                    break
         else:
             self.detect_bom(self.source)
-            with open(self.source) as file:
-                self._parse_lines(file)
+            with FileReader(self.source) as file_reader:
+                for lineno, line in enumerate(file_reader.readlines(), start=1):
+                    if self.check_line(line, lineno):
+                        break
 
     def _parse_lines(self, lines):
         for lineno, line in enumerate(lines, 1):

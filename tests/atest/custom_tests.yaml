@@ -22,6 +22,8 @@ tests:
   invalid-char-in-name:
     - config: invalid-char-in-name:invalid_chars:$:{}
       src_dir: naming/invalid-char-in-name-configured
+    - config: invalid-char-in-name:invalid_chars:!.?/;+'"()[]{}#$%^&=<>|\
+      src_dir: naming/invalid-char-in-name-configured2
   tag-with-reserved:
     - config: 
       src_dir: tags/tag-with-reserved-in-keyword-doc

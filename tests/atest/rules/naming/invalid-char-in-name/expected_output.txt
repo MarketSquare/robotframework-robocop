@@ -1,3 +1,4 @@
 ${rules_dir}${\}suite.withdot${\}__init__.robot:0:0 [W] 0301 Invalid character '.' in suite name
 ${rules_dir}${\}test.robot:6:5 [W] 0301 Invalid character '.' in test case name
-${rules_dir}${\}test.robot:15:8 [W] 0301 Invalid character '?' in keyword name
+${rules_dir}${\}test.robot:15:10 [W] 0301 Invalid character '?' in keyword name
+${rules_dir}${\}test.robot:28:20 [W] 0301 Invalid character '?' in keyword name

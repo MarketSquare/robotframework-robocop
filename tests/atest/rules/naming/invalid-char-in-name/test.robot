@@ -12,7 +12,7 @@ Test.
 
 
 *** Keywords ***
-Keyword?
+Keyword${?
     [Documentation]  this is doc
     No Operation
     Pass
@@ -20,4 +20,10 @@ Keyword?
     Fail
 
 Keyword With ${em.bedded} Argument
+    No Operation
+
+Keyword ${?} Should Not Warn
+    No Operation
+
+Keyword Escaped \${?} Should Warn
     No Operation

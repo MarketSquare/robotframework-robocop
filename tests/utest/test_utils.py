@@ -6,7 +6,8 @@ from robocop.utils import (
     AssignmentTypeDetector,
     parse_assignment_sign_type,
     RecommendationFinder,
-    remove_robot_vars
+    remove_robot_vars,
+    find_robot_vars
 )
 
 
@@ -130,3 +131,12 @@ class TestRecommendationFinder:
     def test_remove_robot_vars(self, string, replaced):
         actual = remove_robot_vars(string)
         assert actual == replaced
+
+    @pytest.mark.parametrize('string, exp_vars', [
+        ('${var}', [(0, 6)]),
+        ('${var}}', [(0, 6)]),
+        (r'\$${var}}', [(2, 8)]),
+        ('This is some ${var} and another ${var} but also ${${nested}}', [(13, 19), (32, 38), (48, 60)])
+    ])
+    def test_find_robot_vars(self, string, exp_vars):
+        assert find_robot_vars(string) == exp_vars

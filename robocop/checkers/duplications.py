@@ -7,7 +7,7 @@ from robot.api import Token
 
 from robocop.checkers import VisitorChecker
 from robocop.rules import RuleSeverity
-from robocop.utils import normalize_robot_name
+from robocop.utils import normalize_robot_name, normalize_robot_var_name
 from robocop.exceptions import InvalidRuleConfigurableError
 
 
@@ -48,6 +48,11 @@ class DuplicationsChecker(VisitorChecker):
             "duplicated-variables-import",
             'Duplicated variables import with path "%s" in suite',
             RuleSeverity.WARNING
+        ),
+        "0811": (
+            "duplicated-argument-name",
+            "Argument name '%s' was already used",
+            RuleSeverity.ERROR
         )
     }
 
@@ -92,6 +97,7 @@ class DuplicationsChecker(VisitorChecker):
     def visit_Keyword(self, node):  # noqa
         keyword_name = normalize_robot_name(node.name)
         self.keywords[keyword_name].append(node)
+        self.generic_visit(node)
 
     def visit_VariableSection(self, node):  # noqa
         self.generic_visit(node)
@@ -123,6 +129,18 @@ class DuplicationsChecker(VisitorChecker):
     def visit_VariablesImport(self, node): # noqa
         if node.name:
             self.variable_imports[node.name].append(node)
+
+    def visit_Arguments(self, node):  # noqa
+        if node.errors:
+            return
+        args = set()
+        for arg in node.get_tokens(Token.ARGUMENT):
+            orig, *_ = arg.value.split('=', maxsplit=1)
+            name = normalize_robot_var_name(orig)
+            if name in args:
+                self.report("duplicated-argument-name", orig, node=node, lineno=arg.lineno, col=arg.col_offset + 1)
+            else:
+                args.add(name)
 
 
 class SectionHeadersChecker(VisitorChecker):

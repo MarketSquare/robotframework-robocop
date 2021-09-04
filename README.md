@@ -18,6 +18,7 @@ Robocop
 - [Installation](#installation)
 - [Usage](#usage)
 - [Example](#example)
+- [Robotidy](#robotidy)
 - [FAQ](#faq)
 
 [Watch our talk](https://robocon.io/#how-to-avoid-jail-for-nasty-code)
@@ -116,6 +117,10 @@ C:\OCP_project\tests\test.robot:51:13 [I] 0606 This tag is already set by Force 
 
 Found 5 issue(s): 2 WARNING(s), 2 ERROR(s), 1 INFO(s).
 ```
+
+Fixing issues <a name="robotidy"></a>
+--------------
+Many issues in your code reported by Robocop can be fixed using auto-formatting tool, Robotidy. Check out the Robotidy [documentation](https://robotidy.readthedocs.io/en/latest/).
 
 FAQ <a name="faq"></a>
 ---

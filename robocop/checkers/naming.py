@@ -16,7 +16,8 @@ from robocop.utils import (
     IS_RF4,
     keyword_col,
     remove_robot_vars,
-    find_robot_vars
+    find_robot_vars,
+    token_col
 )
 
 
@@ -110,6 +111,11 @@ class KeywordNamingChecker(VisitorChecker):
             "keyword-name-is-empty",
             "Keyword name should not be empty",
             RuleSeverity.ERROR
+        ),
+        "0318": (
+            "bdd-without-keyword-call",
+            "BDD reserved keyword '%s' used without keyword%s",
+            RuleSeverity.WARNING
         )
     }
     reserved_words = {
@@ -128,6 +134,12 @@ class KeywordNamingChecker(VisitorChecker):
     else_if = {
         'else',
         'else if'
+    }
+    bdd = {
+        'given',
+        'when',
+        'and',
+        'then'
     }
 
     def __init__(self):
@@ -192,6 +204,7 @@ class KeywordNamingChecker(VisitorChecker):
                     )
         elif self.check_if_keyword_is_reserved(keyword_name, node):
             return
+        self.check_bdd_keywords(keyword_name, node)
         keyword_name = remove_robot_vars(keyword_name)
         keyword_name = keyword_name.split('.')[-1]  # remove any imports ie ExternalLib.SubLib.Log -> Log
         keyword_name = keyword_name.replace("'", '')  # replace ' apostrophes
@@ -202,6 +215,14 @@ class KeywordNamingChecker(VisitorChecker):
             words = words[:1]
         if any(word[0].islower() for word in words if word):
             self.report("wrong-case-in-keyword-name", node=node)
+
+    def check_bdd_keywords(self, keyword_name, node):
+        if keyword_name.lower() not in self.bdd:
+            return
+        arg = node.get_token(Token.ARGUMENT)
+        suffix = f". Concatenate it with keyword: '{keyword_name.title()} {arg.value}'" if arg else ""
+        col = token_col(node, Token.NAME, Token.KEYWORD)
+        self.report("bdd-without-keyword-call", keyword_name, suffix, node=node, col=col)
 
     def check_if_keyword_is_reserved(self, keyword_name, node):
         # if there is typo in syntax, it is interpreted as keyword

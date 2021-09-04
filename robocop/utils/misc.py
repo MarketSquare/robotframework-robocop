@@ -79,8 +79,8 @@ def keyword_col(node):
     return token_col(node, Token.KEYWORD)
 
 
-def token_col(node, token_type):
-    token = node.get_token(token_type)
+def token_col(node, *token_type):
+    token = node.get_token(*token_type)
     if token is None:
         return 1
     return token.col_offset + 1

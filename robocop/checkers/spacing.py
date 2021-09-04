@@ -44,7 +44,7 @@ class InvalidSpacingChecker(RawFileChecker):
         if self.raw_lines:
             last_line = self.raw_lines[-1]
             if last_line in ['\n', '\r', '\r\n']:
-                self.report("too-many-trailing-blank-lines", lineno=len(self.raw_lines) + 1, col=0)
+                self.report("too-many-trailing-blank-lines", lineno=len(self.raw_lines) + 1)
                 return
             empty_lines = 0
             for line in self.raw_lines[::-1]:
@@ -53,10 +53,10 @@ class InvalidSpacingChecker(RawFileChecker):
                 else:
                     break
                 if empty_lines > 1:
-                    self.report("too-many-trailing-blank-lines", lineno=len(self.raw_lines), col=0)
+                    self.report("too-many-trailing-blank-lines", lineno=len(self.raw_lines))
                     return
             if not empty_lines and not last_line.endswith(('\n', '\r')):
-                self.report("missing-trailing-blank-line", lineno=len(self.raw_lines), col=0)
+                self.report("missing-trailing-blank-line", lineno=len(self.raw_lines))
 
     def check_line(self, line, lineno):
         self.raw_lines.append(line)
@@ -157,8 +157,7 @@ class EmptyLinesChecker(VisitorChecker):
                         "consecutive-empty-lines",
                         empty_lines,
                         self.consecutive_empty_lines,
-                        node=prev_node,
-                        col=0
+                        node=prev_node
                     )
                 empty_lines = 0
         return empty_lines
@@ -189,7 +188,7 @@ class EmptyLinesChecker(VisitorChecker):
             empty_lines = self.verify_empty_lines(child)
             if allowed_empty_lines not in (empty_lines, -1) and index < last_index:
                 self.report(issue_name, empty_lines, allowed_empty_lines,
-                            lineno=child.end_lineno, col=0)
+                            lineno=child.end_lineno)
         self.generic_visit(node)
 
     def visit_TestCaseSection(self, node):  # noqa
@@ -222,7 +221,7 @@ class EmptyLinesChecker(VisitorChecker):
                     break
             if empty_lines != self.empty_lines_between_sections:
                 self.report("empty-lines-between-sections", empty_lines, self.empty_lines_between_sections,
-                            lineno=section.end_lineno, col=0)
+                            lineno=section.end_lineno)
         super().visit_File(node)
 
     def check_empty_lines_after_section(self, section):
@@ -269,7 +268,7 @@ class InconsistentUseOfTabsAndSpacesChecker(VisitorChecker, ModelVisitor):
             self.spaces = ' ' in token.value or self.spaces
 
             if self.tabs and self.spaces:
-                self.report("mixed-tabs-and-spaces", node=node, lineno=1, col=0)
+                self.report("mixed-tabs-and-spaces", node=node, lineno=1)
                 self.found = True
                 break
 
@@ -498,5 +497,9 @@ class LeftAlignedChecker(VisitorChecker):
                 continue
             token = child.data_tokens[0]
             if token.type == Token.VARIABLE and (token.value == "" or token.value.startswith(" ")):
+                if token.value or not child.get_token(Token.ARGUMENT):
+                    pos = len(token.value) - len(token.value.lstrip()) + 1
+                else:
+                    pos = child.get_token(Token.ARGUMENT).col_offset + 1
                 self.report("variable-should-left-aligned", lineno=token.lineno,
-                            col=token.col_offset)
+                            col=pos)

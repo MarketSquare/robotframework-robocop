@@ -1,2 +1,2 @@
-${rules_dir}${\}test.robot:3:0 [W] 0804 Multiple resource imports with path "resource.robot" in suite
-${rules_dir}${\}test.robot:5:0 [W] 0804 Multiple resource imports with path "resource.robot" in suite
+${rules_dir}${\}test.robot:3:1 [W] 0804 Multiple resource imports with path "resource.robot" in suite
+${rules_dir}${\}test.robot:5:1 [W] 0804 Multiple resource imports with path "resource.robot" in suite

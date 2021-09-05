@@ -51,7 +51,7 @@ class DuplicationsChecker(VisitorChecker):
         ),
         "0811": (
             "duplicated-argument-name",
-            "Argument name '%s' was already used",
+            "Argument name '%s' is already used",
             RuleSeverity.ERROR
         )
     }

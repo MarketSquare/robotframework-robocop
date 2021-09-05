@@ -194,7 +194,7 @@ class LineLengthChecker(RawFileChecker):
                 "ignore_pattern",
                 "ignore_pattern",
                 pattern_type,
-                "Ignore lines that contains configured pattern"
+                "Ignore lines that contain configured pattern"
             )
         )
     }

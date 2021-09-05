@@ -109,10 +109,10 @@ robocop --report rules_by_error_type tests\test.robot
 
 Will result in following output::
 ```shell
-C:\OCP_project\tests\test.robot:7:0 [W] 0509 Section is empty (empty-section)
-C:\OCP_project\tests\test.robot:22:0 [E] 0801 Multiple test cases with name "Simple Test" in suite (duplicated-test-case)
-C:\OCP_project\tests\test.robot:42:0 [E] 0810 Both Task(s) and Test Case(s) section headers defined in file (both-tests-and-tasks)
-C:\OCP_project\tests\test.robot:48:0 [W] 0302 Keyword name should use title case (wrong-case-in-keyword-name)
+C:\OCP_project\tests\test.robot:7:1 [W] 0509 Section is empty (empty-section)
+C:\OCP_project\tests\test.robot:22:1 [E] 0801 Multiple test cases with name "Simple Test" in suite (duplicated-test-case)
+C:\OCP_project\tests\test.robot:42:1 [E] 0810 Both Task(s) and Test Case(s) section headers defined in file (both-tests-and-tasks)
+C:\OCP_project\tests\test.robot:48:1 [W] 0302 Keyword name should use title case (wrong-case-in-keyword-name)
 C:\OCP_project\tests\test.robot:51:13 [I] 0606 This tag is already set by Force Tags in suite settings (tag-already-set-in-force-tags)
 
 Found 5 issue(s): 2 WARNING(s), 2 ERROR(s), 1 INFO(s).

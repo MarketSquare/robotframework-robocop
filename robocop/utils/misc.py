@@ -107,11 +107,11 @@ def issues_to_lsp_diagnostic(issues):
         'range': {
             'start': {
                 'line': max(0, issue.line - 1),
-                'character': issue.col
+                'character': max(0, issue.col - 1)
             },
             'end': {
                 'line': max(0, issue.end_line - 1),
-                'character': issue.end_col
+                'character': max(0, issue.end_col - 1)
             }
         },
         'severity': rule_severity_to_diag_sev(issue.severity),

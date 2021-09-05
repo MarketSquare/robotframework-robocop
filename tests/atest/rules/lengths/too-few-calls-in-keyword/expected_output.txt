@@ -1,1 +1,1 @@
-${rules_dir}${\}test.robot:25:0 [W] 0502 Keyword has too few keywords inside (0/1)
+${rules_dir}${\}test.robot:25:1 [W] 0502 Keyword has too few keywords inside (0/1)

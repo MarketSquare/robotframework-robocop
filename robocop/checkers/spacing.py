@@ -441,6 +441,11 @@ class MisalignedContinuation(VisitorChecker, ModelVisitor):
             "misaligned-continuation",
             "Continuation marker should be aligned with starting row",
             RuleSeverity.WARNING
+        ),
+        "1015": (
+            "misaligned-continuation-row",  # FIXME better name
+            "First value in continuation row is not aligned with value from first row",
+            RuleSeverity.WARNING
         )
     }
 
@@ -448,24 +453,36 @@ class MisalignedContinuation(VisitorChecker, ModelVisitor):
         if not node.data_tokens:
             return
         starting_row = self.get_indent(node)
-        for indent, continuation in self.get_continuation(node):
-            if indent != starting_row:
-                self.report("misaligned-continuation", lineno=continuation.lineno, col=continuation.col_offset+1)
+        first_column, indent, skip_values = 0, 0, False
+        for index, line in enumerate(node.lines):
+            if index == 0:
+                starting_row = self.get_token_indent(line)
+                continue
+            indent = 0
+            for token in line:
+                if token.type == Token.SEPARATOR:  # count possible indent before or after ...
+                    indent += len(token.value.expandtabs(4))
+                elif token.type == Token.CONTINUATION:
+                    if indent != starting_row:
+                        self.report("misaligned-continuation", lineno=token.lineno, col=token.col_offset + 1)
+                        break
+                    indent = 0
+                elif token.type != Token.EOL and token.value.strip():  # ignore trailing whitespace
+                    if first_column:
+                        if indent != first_column:
+                            self.report("misaligned-continuation-row", node=token, col=token.col_offset + 1)
+                    else:
+                        first_column = indent
+                    break  # check only first value
 
     @staticmethod
-    def get_continuation(node):
+    def get_token_indent(tokens):
         indent = 0
-        lineno = -1
-        for token in node.tokens:
-            if token.lineno != lineno:
-                indent = 0  # in case of trailing whitespace at the end of file
-                lineno = token.lineno
-            if getattr(token, 'type', '') == Token.CONTINUATION:
-                yield indent, token
-            if getattr(token, 'type', '') == Token.SEPARATOR:
-                indent += len(token.value.expandtabs(4))
-            else:
-                indent = 0
+        for token in tokens:
+            if token.type != Token.SEPARATOR:
+                break
+            indent += len(token.value.expandtabs(4))
+        return indent
 
     @staticmethod
     def get_indent(node):

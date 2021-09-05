@@ -1,2 +1,2 @@
-${rules_dir}${\}test.robot:15:0 [E] 0802 Multiple keywords with name "Duplicated Keyword" in file
-${rules_dir}${\}test.robot:25:0 [E] 0802 Multiple keywords with name "Duplicated Keyword" in file
+${rules_dir}${\}test.robot:15:1 [E] 0802 Multiple keywords with name "Duplicated Keyword" in file
+${rules_dir}${\}test.robot:25:1 [E] 0802 Multiple keywords with name "Duplicated Keyword" in file

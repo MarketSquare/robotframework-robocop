@@ -51,14 +51,16 @@ class ReturnChecker(VisitorChecker):
                 if return_setting_node is not None:
                     keyword_after_return = True
                 if return_from:
-                    self.report("keyword-after-return-from", node=child)
+                    token = child.data_tokens[0]
+                    self.report("keyword-after-return-from", node=token, col=token.col_offset + 1)
                 if normalize_robot_name(child.keyword) == 'returnfromkeyword':
                     return_from = True
         if keyword_after_return:
+            token = return_setting_node.data_tokens[0]
             self.report(
                 "keyword-after-return",
-                node=return_setting_node,
-                col=return_setting_node.end_col_offset
+                node=token,
+                col=token.col_offset + 1
             )
 
 

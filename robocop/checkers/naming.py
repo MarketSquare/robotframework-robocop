@@ -374,12 +374,12 @@ class VariableNamingChecker(VisitorChecker):
             token = child.data_tokens[0]
             if token.type == Token.VARIABLE and token.value and not token.value.isupper():
                 self.report("section-variable-not-uppercase", lineno=token.lineno,
-                            col=token.col_offset)
+                            col=token.col_offset + 1)
 
     def visit_KeywordCall(self, node):  # noqa
         for token in node.get_tokens(Token.ASSIGN):
             if '-' in token.value:
-                self.report("hyphen-in-variable-name", lineno=token.lineno, col=token.col_offset)
+                self.report("hyphen-in-variable-name", lineno=token.lineno, col=token.col_offset + 1)
 
         if not node.keyword:
             return

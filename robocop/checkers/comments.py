@@ -148,16 +148,19 @@ class CommentChecker(VisitorChecker):
         if IS_RF4:
             return
         if name and name.lstrip().startswith('#'):
-            self.report("invalid-comment", node=node, col=node.col_offset)
+            hash_pos = name.find('#')
+            self.report("invalid-comment", node=node, col=node.col_offset + hash_pos + 1)
 
-    def check_comment_content(self, comment_token):
-        if 'todo' in comment_token.value.lower():
-            self.report("todo-in-comment", "TODO", lineno=comment_token.lineno, col=comment_token.col_offset)
-        if "fixme" in comment_token.value.lower():
-            self.report("todo-in-comment", "FIXME", lineno=comment_token.lineno, col=comment_token.col_offset)
-        if comment_token.value.startswith('#') and comment_token.value != '#':
-            if not comment_token.value.startswith('# '):
-                self.report("missing-space-after-comment", lineno=comment_token.lineno, col=comment_token.col_offset)
+    def check_comment_content(self, token):
+        if 'todo' in token.value.lower():
+            self.report("todo-in-comment", "TODO", lineno=token.lineno,
+                        col=token.col_offset + 1 + token.value.lower().find('todo'))
+        if "fixme" in token.value.lower():
+            self.report("todo-in-comment", "FIXME", lineno=token.lineno,
+                        col=token.col_offset + 1 + token.value.lower().find('fixme'))
+        if token.value.startswith('#') and token.value != '#':
+            if not token.value.startswith('# '):
+                self.report("missing-space-after-comment", lineno=token.lineno, col=token.col_offset + 1)
 
 
 class IgnoredDataChecker(RawFileChecker):
@@ -199,11 +202,6 @@ class IgnoredDataChecker(RawFileChecker):
                     if self.check_line(line, lineno):
                         break
 
-    def _parse_lines(self, lines):
-        for lineno, line in enumerate(lines, 1):
-            if self.check_line(line, lineno):
-                break
-
     def check_line(self, line, lineno):
         if line.startswith('***'):
             return True
@@ -211,7 +209,7 @@ class IgnoredDataChecker(RawFileChecker):
             if lineno == 1 and self.is_bom:
                 # if it's BOM encoded file, first line can be ignored
                 return '***' in line
-            self.report("ignored-data", lineno=lineno, col=0)
+            self.report("ignored-data", lineno=lineno, col=1)
             return True
         return False
 
@@ -220,4 +218,4 @@ class IgnoredDataChecker(RawFileChecker):
             first_four = raw_file.read(4)
             self.is_bom = any(first_four.startswith(bom_marker) for bom_marker in IgnoredDataChecker.BOM)
             if self.is_bom:
-                self.report("bom-encoding-in-file", lineno=1, col=0)
+                self.report("bom-encoding-in-file", lineno=1, col=1)

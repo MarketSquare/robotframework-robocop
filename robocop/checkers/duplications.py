@@ -123,7 +123,7 @@ class DuplicationsChecker(VisitorChecker):
     def visit_VariablesImport(self, node): # noqa
         if not node.name:
             return
-        # only python files can have arguments - covered in # TODO: add rule id
+        # only python files can have arguments - covered in E0404 variables-import-with-args
         if not node.name.endswith('.py') and node.get_token(Token.ARGUMENT):
             return
         name_with_args = node.name + ''.join(token.value for token in node.data_tokens[2:])

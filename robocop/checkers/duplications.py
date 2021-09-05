@@ -131,8 +131,6 @@ class DuplicationsChecker(VisitorChecker):
             self.variable_imports[node.name].append(node)
 
     def visit_Arguments(self, node):  # noqa
-        if IS_RF4 and node.errors:
-            return
         args = set()
         for arg in node.get_tokens(Token.ARGUMENT):
             orig, *_ = arg.value.split('=', maxsplit=1)

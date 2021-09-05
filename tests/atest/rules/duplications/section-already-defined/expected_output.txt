@@ -1,5 +1,5 @@
-${rules_dir}${\}test.robot:8:0 [W] 0808 '*** Variables ***' section header already defined in file
-${rules_dir}${\}test.robot:20:0 [W] 0808 '*** Test Case ***' section header already defined in file
-${rules_dir}${\}test.robot:22:0 [W] 0808 '*** Keywords ***' section header already defined in file
-${rules_dir}${\}test.robot:30:0 [W] 0808 '*** Settings ***' section header already defined in file
-${rules_dir}${\}test.robot:32:0 [W] 0808 '*** Tasks ***' section header already defined in file
+${rules_dir}${\}test.robot:8:1 [W] 0808 '*** Variables ***' section header already defined in file
+${rules_dir}${\}test.robot:20:1 [W] 0808 '*** Test Case ***' section header already defined in file
+${rules_dir}${\}test.robot:22:1 [W] 0808 '*** Keywords ***' section header already defined in file
+${rules_dir}${\}test.robot:30:1 [W] 0808 '*** Settings ***' section header already defined in file
+${rules_dir}${\}test.robot:32:1 [W] 0808 '*** Tasks ***' section header already defined in file

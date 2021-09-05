@@ -103,11 +103,11 @@ class TestAPI:
                 'range': {
                     'start': {
                         'line': 9,
-                        'character': 10
+                        'character': 9
                     },
                     'end': {
                         'line': 10,
-                        'character': 50
+                        'character': 49
                     }
                 },
                 'severity': 2,
@@ -119,11 +119,11 @@ class TestAPI:
                 'range': {
                     'start': {
                         'line': 0,
-                        'character': 1
+                        'character': 0
                     },
                     'end': {
                         'line': 0,
-                        'character': 1
+                        'character': 0
                     }
                 },
                 'severity': 2,

@@ -25,7 +25,7 @@ from enum import Enum
 from functools import total_ordering
 import robocop.exceptions
 
-
+#test
 @total_ordering
 class RuleSeverity(Enum):
     """
@@ -154,12 +154,12 @@ class Message:
         except TypeError as err:
             raise robocop.exceptions.InvalidRuleUsageError(rule.rule_id, err)
         self.source = source
-        self.line = 0
+        self.line = 1
         if node is not None and node.lineno > -1:
             self.line = node.lineno
         if lineno is not None:
             self.line = lineno
-        self.col = 0 if col is None else col
+        self.col = 1 if col is None else col
         self.end_line = self.line if end_lineno is None else end_lineno
         self.end_col = self.col if end_col is None else end_col
         self.ext_disablers = ext_disablers if ext_disablers else []

@@ -7,7 +7,7 @@ from robot.api import Token
 
 from robocop.checkers import VisitorChecker
 from robocop.rules import RuleSeverity
-from robocop.utils import normalize_robot_name, normalize_robot_var_name
+from robocop.utils import normalize_robot_name, normalize_robot_var_name, IS_RF4
 from robocop.exceptions import InvalidRuleConfigurableError
 
 
@@ -131,7 +131,7 @@ class DuplicationsChecker(VisitorChecker):
             self.variable_imports[node.name].append(node)
 
     def visit_Arguments(self, node):  # noqa
-        if node.errors:
+        if IS_RF4 and node.errors:
             return
         args = set()
         for arg in node.get_tokens(Token.ARGUMENT):

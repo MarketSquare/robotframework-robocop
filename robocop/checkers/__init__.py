@@ -121,10 +121,6 @@ class RawFileChecker(BaseChecker):  # noqa
                 for lineno, line in enumerate(file_reader.readlines()):
                     self.check_line(line, lineno + 1)
 
-    def _parse_lines(self, lines):
-        for lineno, line in enumerate(lines):
-            self.check_line(line, lineno + 1)
-
     def check_line(self, line, lineno):
         raise NotImplementedError
 

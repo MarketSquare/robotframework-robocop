@@ -53,6 +53,11 @@ class DuplicationsChecker(VisitorChecker):
             "duplicated-argument-name",
             "Argument name '%s' is already used",
             RuleSeverity.ERROR
+        ),
+        "0812": (
+            "duplicated-assign-name",
+            "Assign variable name '%s' is already used",
+            RuleSeverity.INFO
         )
     }
 
@@ -93,11 +98,24 @@ class DuplicationsChecker(VisitorChecker):
     def visit_TestCase(self, node):  # noqa
         testcase_name = normalize_robot_name(node.name)
         self.test_cases[testcase_name].append(node)
+        self.generic_visit(node)
 
     def visit_Keyword(self, node):  # noqa
         keyword_name = normalize_robot_name(node.name)
         self.keywords[keyword_name].append(node)
         self.generic_visit(node)
+
+    def visit_KeywordCall(self, node):  # noqa
+        assign = node.get_tokens(Token.ASSIGN)
+        if not assign:
+            return
+        seen = set()
+        for var in assign:
+            name = normalize_robot_var_name(var.value)
+            if name in seen:
+                self.report("duplicated-assign-name", var.value, node=node, lineno=var.lineno, col=var.col_offset + 1)
+            else:
+                seen.add(name)
 
     def visit_VariableSection(self, node):  # noqa
         self.generic_visit(node)

@@ -121,8 +121,13 @@ class DuplicationsChecker(VisitorChecker):
             self.metadata[node.name + node.value].append(node)
 
     def visit_VariablesImport(self, node): # noqa
-        if node.name:
-            self.variable_imports[node.name].append(node)
+        if not node.name:
+            return
+        # only python files can have arguments - covered in # TODO: add rule id
+        if not node.name.endswith('.py') and node.get_token(Token.ARGUMENT):
+            return
+        name_with_args = node.name + ''.join(token.value for token in node.data_tokens[2:])
+        self.variable_imports[name_with_args].append(node)
 
 
 class SectionHeadersChecker(VisitorChecker):

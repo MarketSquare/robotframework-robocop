@@ -3,41 +3,77 @@ Errors checkers
 """
 import re
 
+from robot.api import Token
+
 from robocop.checkers import VisitorChecker
 from robocop.rules import RuleSeverity
 from robocop.utils import IS_RF4
 
 
 class ParsingErrorChecker(VisitorChecker):
-    """ Checker that returns Robot Framework DataErrors as lint errors. """
+    """ Checker that parse Robot Framework DataErrors. """
     rules = {
         "0401": (
             "parsing-error",
             "Robot Framework syntax error: %s",
             RuleSeverity.ERROR
+        ),
+        "0405": (
+            "invalid-continuation-mark",
+            "Invalid continuation mark. It should be: '...'",
+            RuleSeverity.ERROR
+        ),
+        "0406": (
+            # there is not-enough-whitespace-after-newline-marker for keyword calls already
+            "not-enough-whitespace-after-newline-marker-error",
+            "Provide at least two spaces after '...' marker",
+            RuleSeverity.ERROR
         )
     }
     def visit_If(self, node):  # noqa
-        self.handle_errors(node)
-        self.handle_errors(node.header)
+        self.parse_errors(node)
         self.generic_visit(node)
 
     def visit_For(self, node):  # noqa
-        self.handle_errors(node)
-        self.handle_errors(node.header)
+        self.parse_errors(node)
         self.generic_visit(node)
 
-    def visit_Error(self, node):  # noqa
-        self.handle_errors(node)
+    def visit_ForLoop(self, node):  # noqa
+        self.parse_errors(node)
+        self.generic_visit(node)
 
-    def handle_errors(self, node):  # noqa
+    def visit_Statement(self, node):  # noqa
+        self.parse_errors(node)
+
+    def parse_errors(self, node):  # noqa
         if node is None:
             return
         if IS_RF4:
             for error in node.errors:
-                self.report("parsing-error", error, node=node)
+                self.handle_error(node, error)
         else:
-            self.report("parsing-error", node.error, node=node)
+            self.handle_error(node, node.error)
+
+    def handle_error(self, node, error):  # noqa
+        if re.search(r"Non-existing setting '\s*\.\.", error):
+            self.handle_invalid_continuation_mark(node, node.data_tokens[0].value)
+            return
+        if re.search(r"Invalid variable name '\s*\.\.", error):
+            self.handle_invalid_continuation_mark(node, node.name)
+            return
+        error = error.replace('\n   ', '')
+        self.report("parsing-error", error, node=node)
+
+    def handle_invalid_continuation_mark(self, node, name):
+        stripped = name.lstrip()
+        if stripped.startswith('..'):
+            if len(name) == 2 or not stripped[2].strip():
+                self.report("invalid-continuation-mark", node=node, col=name.find('.') + 1)
+            elif len(stripped) >= 4:
+                if stripped[:4] == '....':
+                    self.report("invalid-continuation-mark", node=node, col=name.find('.') + 1)
+                else:  # '... ' or '...value' or '...\t'
+                    self.report("not-enough-whitespace-after-newline-marker-error", node=node, col=name.find('.') + 1)
 
 
 class TwoSpacesAfterSettingsChecker(VisitorChecker):

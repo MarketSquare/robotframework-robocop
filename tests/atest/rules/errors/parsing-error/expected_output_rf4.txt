@@ -1,5 +1,4 @@
-${rules_dir}${\}test.robot:17:1 [E] 0401 Robot Framework syntax error: Non-existing setting 'Argument'. Did you mean:
-    Arguments
+${rules_dir}${\}test.robot:17:1 [E] 0401 Robot Framework syntax error: Non-existing setting 'Argument'. Did you mean: Arguments
 ${rules_dir}${\}test.robot:22:1 [E] 0401 Robot Framework syntax error: IF has no closing END.
 ${rules_dir}${\}test.robot:27:1 [E] 0401 Robot Framework syntax error: ELSE IF has empty body.
 ${rules_dir}${\}test.robot:27:1 [E] 0401 Robot Framework syntax error: ELSE IF has more than one condition.
@@ -9,3 +8,6 @@ ${rules_dir}${\}test.robot:53:1 [E] 0401 Robot Framework syntax error: FOR loop 
 ${rules_dir}${\}test.robot:55:1 [E] 0401 Robot Framework syntax error: FOR loop has no loop values.
 ${rules_dir}${\}test.robot:58:1 [E] 0401 Robot Framework syntax error: FOR loop has no closing END.
 ${rules_dir}${\}test.robot:60:1 [E] 0401 Robot Framework syntax error: FOR loop has no 'IN' or other valid separator.
+${rules_dir}${\}variable_errors.robot:16:1 [E] 0401 Robot Framework syntax error: Invalid argument syntax '1'.
+${rules_dir}${\}variable_errors.robot:5:1 [E] 0401 Robot Framework syntax error: Invalid variable name 'value'.
+${rules_dir}${\}variable_errors.robot:7:1 [E] 0401 Robot Framework syntax error: Invalid dictionary variable item '1'. Items must use 'name=value' syntax or be dictionary variables themselves.

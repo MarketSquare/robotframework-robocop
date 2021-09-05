@@ -1,2 +1,1 @@
-${rules_dir}${\}test.robot:17:1 [E] 0401 Robot Framework syntax error: Non-existing setting 'Argument'. Did you mean:
-    Arguments
+${rules_dir}${\}test.robot:17:1 [E] 0401 Robot Framework syntax error: Non-existing setting 'Argument'. Did you mean: Arguments

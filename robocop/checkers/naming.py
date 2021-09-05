@@ -114,7 +114,7 @@ class KeywordNamingChecker(VisitorChecker):
         ),
         "0318": (
             "bdd-without-keyword-call",
-            "BDD reserved keyword '%s' used without keyword%s",
+            "BDD reserved keyword '%s' not followed by any keyword%s",
             RuleSeverity.WARNING
         )
     }
@@ -220,7 +220,7 @@ class KeywordNamingChecker(VisitorChecker):
         if keyword_name.lower() not in self.bdd:
             return
         arg = node.get_token(Token.ARGUMENT)
-        suffix = f". Concatenate it with keyword: '{keyword_name.title()} {arg.value}'" if arg else ""
+        suffix = f". Use one space between: '{keyword_name.title()} {arg.value}'" if arg else ""
         col = token_col(node, Token.NAME, Token.KEYWORD)
         self.report("bdd-without-keyword-call", keyword_name, suffix, node=node, col=col)
 

@@ -127,8 +127,8 @@ class TestMessage:
         assert rule.configurable == configurable
 
     @pytest.mark.parametrize('source, range, range_exp', [
-        ('path/to/file1.robot', (None, None, None, None), (10, 0, 10, 0)),
-        ('path/to/file1.robot', (15, None, None, 7), (15, 0, 15, 7)),
+        ('path/to/file1.robot', (None, None, None, None), (10, 1, 10, 1)),
+        ('path/to/file1.robot', (15, None, None, 7), (15, 1, 15, 7)),
         ('path/to/file1.robot', (None, 20, 20, None), (10, 20, 20, 20)),
         ('path/to/file2.robot', (15, 200, None, None), (15, 200, 15, 200))
     ])

@@ -1,2 +1,2 @@
-${rules_dir}${\}test.robot:15:0 [W] 0809 '*** Keywords ***' section header is defined in wrong order: Settings > Keywords > Test Cases / Tasks > Variables
-${rules_dir}${\}test.robot:6:0 [W] 0809 '*** Test Cases ***' section header is defined in wrong order: Settings > Keywords > Test Cases / Tasks > Variables
+${rules_dir}${\}test.robot:15:1 [W] 0809 '*** Keywords ***' section header is defined in wrong order: Settings > Keywords > Test Cases / Tasks > Variables
+${rules_dir}${\}test.robot:6:1 [W] 0809 '*** Test Cases ***' section header is defined in wrong order: Settings > Keywords > Test Cases / Tasks > Variables

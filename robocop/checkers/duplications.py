@@ -16,37 +16,38 @@ class DuplicationsChecker(VisitorChecker):
     rules = {
         "0801": (
             "duplicated-test-case",
-            'Multiple test cases with name "%s" in suite',
+            'Multiple test cases with name "%s" (first occurrence in line %d)',
             RuleSeverity.ERROR
         ),
         "0802": (
             "duplicated-keyword",
-            'Multiple keywords with name "%s" in file',
+            'Multiple keywords with name "%s" (first occurrence in line %d)',
             RuleSeverity.ERROR
         ),
         "0803": (
             "duplicated-variable",
-            'Multiple variables with name "%s" in Variables section. Note that Robot Framework is case-insensitive',
+            'Multiple variables with name "%s" in Variables section (first occurrence in line %d). '
+            'Note that Robot Framework is case-insensitive',
             RuleSeverity.ERROR
         ),
         "0804": (
             "duplicated-resource",
-            'Multiple resource imports with path "%s" in suite',
+            'Multiple resource imports with path "%s" (first occurrence in line %d)',
             RuleSeverity.WARNING
         ),
         "0805": (
             "duplicated-library",
-            'Multiple library imports with name "%s" and identical arguments in suite',
+            'Multiple library imports with name "%s" and identical arguments (first occurrence in line %d)',
             RuleSeverity.WARNING
         ),
         "0806": (
             "duplicated-metadata",
-            'Duplicated metadata "%s" in suite',
+            'Duplicated metadata "%s" (first occurrence in line %d)',
             RuleSeverity.WARNING
         ),
         "0807": (
             "duplicated-variables-import",
-            'Duplicated variables import with path "%s" in suite',
+            'Duplicated variables import with path "%s" (first occurrence in line %d)',
             RuleSeverity.WARNING
         ),
         "0811": (
@@ -90,10 +91,8 @@ class DuplicationsChecker(VisitorChecker):
 
     def check_duplicates(self, container, rule):
         for nodes in container.values():
-            if len(nodes) == 1:
-                continue
-            for duplicate in nodes:
-                self.report(rule, duplicate.name, node=duplicate)
+            for duplicate in nodes[1:]:
+                self.report(rule, duplicate.name, nodes[0].lineno, node=duplicate)
 
     def visit_TestCase(self, node):  # noqa
         testcase_name = normalize_robot_name(node.name)

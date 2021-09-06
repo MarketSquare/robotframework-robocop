@@ -139,6 +139,7 @@ class KeywordNamingChecker(VisitorChecker):
         'given',
         'when',
         'and',
+        'but',
         'then'
     }
 

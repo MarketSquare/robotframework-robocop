@@ -1,21 +1,25 @@
 ${rules_dir}${\}test.robot:3:19 [W] 0318 BDD reserved keyword 'Given' not followed by any keyword
 ${rules_dir}${\}test.robot:5:15 [W] 0318 BDD reserved keyword 'Given' not followed by any keyword
 ${rules_dir}${\}test.robot:6:18 [W] 0318 BDD reserved keyword 'Then' not followed by any keyword. Use one space between: 'Then Keyword With'
-${rules_dir}${\}test.robot:16:14 [W] 0318 BDD reserved keyword 'Given' not followed by any keyword
-${rules_dir}${\}test.robot:17:5 [W] 0318 BDD reserved keyword 'Given' not followed by any keyword
-${rules_dir}${\}test.robot:18:5 [W] 0318 BDD reserved keyword 'When' not followed by any keyword
-${rules_dir}${\}test.robot:20:9 [W] 0318 BDD reserved keyword 'and' not followed by any keyword
-${rules_dir}${\}test.robot:23:9 [W] 0318 BDD reserved keyword 'Then' not followed by any keyword
-${rules_dir}${\}test.robot:25:17 [W] 0318 BDD reserved keyword 'Then' not followed by any keyword
-${rules_dir}${\}test.robot:28:5 [W] 0318 BDD reserved keyword 'Given' not followed by any keyword. Use one space between: 'Given login page is open'
-${rules_dir}${\}test.robot:29:5 [W] 0318 BDD reserved keyword 'When' not followed by any keyword. Use one space between: 'When valid username and password are inserted'
-${rules_dir}${\}test.robot:30:5 [W] 0318 BDD reserved keyword 'and' not followed by any keyword. Use one space between: 'And credentials are submitted'
-${rules_dir}${\}test.robot:31:5 [W] 0318 BDD reserved keyword 'Then' not followed by any keyword. Use one space between: 'Then welcome page should be open'
-${rules_dir}${\}test.robot:41:5 [W] 0318 BDD reserved keyword 'Given' not followed by any keyword
-${rules_dir}${\}test.robot:42:5 [W] 0318 BDD reserved keyword 'When' not followed by any keyword
-${rules_dir}${\}test.robot:43:5 [W] 0318 BDD reserved keyword 'and' not followed by any keyword
-${rules_dir}${\}test.robot:44:5 [W] 0318 BDD reserved keyword 'Then' not followed by any keyword
-${rules_dir}${\}test.robot:47:5 [W] 0318 BDD reserved keyword 'Given' not followed by any keyword. Use one space between: 'Given ${variable}'
-${rules_dir}${\}test.robot:48:5 [W] 0318 BDD reserved keyword 'When' not followed by any keyword. Use one space between: 'When %valid username and password are inserted'
-${rules_dir}${\}test.robot:49:5 [W] 0318 BDD reserved keyword 'and' not followed by any keyword. Use one space between: 'And credentials are submitted'
-${rules_dir}${\}test.robot:50:5 [W] 0318 BDD reserved keyword 'Then' not followed by any keyword. Use one space between: 'Then welcome page should be open'
+${rules_dir}${\}test.robot:17:14 [W] 0318 BDD reserved keyword 'Given' not followed by any keyword
+${rules_dir}${\}test.robot:18:5 [W] 0318 BDD reserved keyword 'Given' not followed by any keyword
+${rules_dir}${\}test.robot:19:5 [W] 0318 BDD reserved keyword 'When' not followed by any keyword
+${rules_dir}${\}test.robot:20:5 [W] 0318 BDD reserved keyword 'But' not followed by any keyword
+${rules_dir}${\}test.robot:22:9 [W] 0318 BDD reserved keyword 'and' not followed by any keyword
+${rules_dir}${\}test.robot:25:9 [W] 0318 BDD reserved keyword 'Then' not followed by any keyword
+${rules_dir}${\}test.robot:27:17 [W] 0318 BDD reserved keyword 'Then' not followed by any keyword
+${rules_dir}${\}test.robot:30:5 [W] 0318 BDD reserved keyword 'Given' not followed by any keyword. Use one space between: 'Given login page is open'
+${rules_dir}${\}test.robot:31:5 [W] 0318 BDD reserved keyword 'When' not followed by any keyword. Use one space between: 'When valid username and password are inserted'
+${rules_dir}${\}test.robot:32:5 [W] 0318 BDD reserved keyword 'and' not followed by any keyword. Use one space between: 'And credentials are submitted'
+${rules_dir}${\}test.robot:33:5 [W] 0318 BDD reserved keyword 'But' not followed by any keyword. Use one space between: 'But still Authorized'
+${rules_dir}${\}test.robot:34:5 [W] 0318 BDD reserved keyword 'Then' not followed by any keyword. Use one space between: 'Then welcome page should be open'
+${rules_dir}${\}test.robot:45:5 [W] 0318 BDD reserved keyword 'Given' not followed by any keyword
+${rules_dir}${\}test.robot:46:5 [W] 0318 BDD reserved keyword 'When' not followed by any keyword
+${rules_dir}${\}test.robot:47:5 [W] 0318 BDD reserved keyword 'and' not followed by any keyword
+${rules_dir}${\}test.robot:48:5 [W] 0318 BDD reserved keyword 'BuT' not followed by any keyword
+${rules_dir}${\}test.robot:49:5 [W] 0318 BDD reserved keyword 'Then' not followed by any keyword
+${rules_dir}${\}test.robot:52:5 [W] 0318 BDD reserved keyword 'Given' not followed by any keyword. Use one space between: 'Given ${variable}'
+${rules_dir}${\}test.robot:53:5 [W] 0318 BDD reserved keyword 'When' not followed by any keyword. Use one space between: 'When %valid username and password are inserted'
+${rules_dir}${\}test.robot:54:5 [W] 0318 BDD reserved keyword 'and' not followed by any keyword. Use one space between: 'And credentials are submitted'
+${rules_dir}${\}test.robot:55:5 [W] 0318 BDD reserved keyword 'But' not followed by any keyword. Use one space between: 'But still authorized'
+${rules_dir}${\}test.robot:56:5 [W] 0318 BDD reserved keyword 'Then' not followed by any keyword. Use one space between: 'Then welcome page should be open'

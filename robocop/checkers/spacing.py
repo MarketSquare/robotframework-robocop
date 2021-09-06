@@ -444,7 +444,7 @@ class MisalignedContinuation(VisitorChecker, ModelVisitor):
         ),
         "1015": (
             "misaligned-continuation-row",  # FIXME better name
-            "First value in continuation row is not aligned with value from first row",
+            "Each next continuation line should be aligned with the previous one",
             RuleSeverity.WARNING
         )
     }

@@ -7,7 +7,8 @@ from robocop.utils import (
     parse_assignment_sign_type,
     RecommendationFinder,
     remove_robot_vars,
-    find_robot_vars
+    find_robot_vars,
+    pattern_type
 )
 
 
@@ -114,6 +115,8 @@ class TestRecommendationFinder:
         rec = RecommendationFinder().find_similar(name, candidates)
         assert similar == rec
 
+
+class TestMisc:
     @pytest.mark.parametrize('string, replaced', [
         ('Keyword With Embedded ${var} Variable', 'Keyword With Embedded  Variable'),
         ('Keyword With Embedded ${var.attr} Variable', 'Keyword With Embedded  Variable'),
@@ -140,3 +143,8 @@ class TestRecommendationFinder:
     ])
     def test_find_robot_vars(self, string, exp_vars):
         assert find_robot_vars(string) == exp_vars
+
+    def test_invalid_pattern_type(self):
+        with pytest.raises(ValueError) as error:
+            pattern_type(r'[\911]')
+        assert r'Invalid regex pattern: bad escape \\9 at position 1' in str(error)

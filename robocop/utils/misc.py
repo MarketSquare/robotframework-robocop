@@ -314,3 +314,11 @@ def find_robot_vars(name):
             index += 1
         index += 1
     return variables
+
+
+def pattern_type(value):
+    try:
+        pattern = re.compile(value)
+    except re.error as err:
+        raise ValueError(f"Invalid regex pattern: {err}")
+    return pattern

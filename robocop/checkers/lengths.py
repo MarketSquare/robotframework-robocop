@@ -8,7 +8,7 @@ from robot.parsing.model.statements import KeywordCall, Comment, EmptyLine, Argu
 
 from robocop.checkers import VisitorChecker, RawFileChecker
 from robocop.rules import RuleSeverity
-from robocop.utils import normalize_robot_name, last_non_empty_line
+from robocop.utils import normalize_robot_name, last_non_empty_line, pattern_type
 
 
 class LengthChecker(VisitorChecker):
@@ -189,6 +189,12 @@ class LineLengthChecker(RawFileChecker):
                 "max_line_length",
                 int,
                 'number of characters allowed in one line'
+            ),
+            (
+                "ignore_pattern",
+                "ignore_pattern",
+                pattern_type,
+                "Ignore lines that contain configured pattern"
             )
         )
     }
@@ -197,9 +203,12 @@ class LineLengthChecker(RawFileChecker):
         self.max_line_length = 120
         # replace # noqa or # robocop, # robocop: enable, # robocop: disable=optional,rule,names
         self.disabler_pattern = re.compile(r'(# )+(noqa|robocop: ?(?P<disabler>disable|enable)=?(?P<rules>[\w\-,]*))')
+        self.ignore_pattern = re.compile(r'https?://\S+')
         super().__init__()
 
     def check_line(self, line, lineno):
+        if self.ignore_pattern and self.ignore_pattern.search(line):
+            return
         line = self.disabler_pattern.sub('', line)
         line = line.rstrip().expandtabs(4)
         if len(line) > self.max_line_length:

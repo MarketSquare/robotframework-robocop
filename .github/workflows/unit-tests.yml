@@ -16,19 +16,19 @@ jobs:
         include:
           - os: 'ubuntu-latest'
             python-version: 3.6
-            rf-version: '3.2.*'
+            rf-version: '==3.2.*'
           - os: 'windows-latest'
             python-version: 3.9
-            rf-version: '4.0'
+            rf-version: '>=4.0'
           - os: 'ubuntu-latest'
             python-version: 3.7
-            rf-version: '4.0'
+            rf-version: '>=4.0'
           - os: 'ubuntu-latest'
             python-version: 3.8
-            rf-version: '4.0'
+            rf-version: '>=4.0'
           - os: 'ubuntu-latest'
             python-version: 3.9
-            rf-version: '4.0'
+            rf-version: '>=4.0'
     runs-on: ${{ matrix.os }}
 
     steps:
@@ -43,7 +43,7 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install robotframework==${{ matrix.rf-version }}
+        pip install robotframework${{ matrix.rf-version }}
         pip install toml pytest coverage pyyaml
     - name: Run unit tests with coverage
       run:

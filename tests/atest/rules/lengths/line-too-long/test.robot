@@ -1,6 +1,7 @@
 *** Settings ***
 Documentation  doc
 Library    Collections                                                                                                                                     
+Metadata    ENV_URL    http://example.com/blob/5f96098d658fd9c1b59c5f1675033485e1b3bad05f96098d658fd9c1b59c5f1675033485e1b3bad0/args?param=101205f96098d658fd9c1b59c5f1675033485e1b3bad0
 
 
 *** Variables ***

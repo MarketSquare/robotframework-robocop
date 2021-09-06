@@ -18,7 +18,7 @@ from robot.version import VERSION
 from robocop.rules import RuleSeverity
 from robocop.exceptions import InvalidExternalCheckerError
 
-IS_RF4 = VERSION.startswith('4')
+IS_RF4 = VERSION.startswith('4')  # FIXME: We need better version matching - for 5.0.0
 DISABLED_IN_4 = frozenset(('nested-for-loop', 'invalid-comment'))
 ENABLED_IN_4 = frozenset(('if-can-be-used', 'else-not-upper-case', 'variable-should-left-aligned'))
 
@@ -79,8 +79,16 @@ def keyword_col(node):
     return token_col(node, Token.KEYWORD)
 
 
-def token_col(node, token_type):
-    token = node.get_token(token_type)
+def token_col(node, *token_type):
+    if IS_RF4:
+        token = node.get_token(*token_type)
+    else:
+        for tok_type in token_type:
+            token = node.get_token(tok_type)
+            if token is not None:
+                break
+        else:
+            return 1
     if token is None:
         return 1
     return token.col_offset + 1
@@ -306,3 +314,11 @@ def find_robot_vars(name):
             index += 1
         index += 1
     return variables
+
+
+def pattern_type(value):
+    try:
+        pattern = re.compile(value)
+    except re.error as err:
+        raise ValueError(f"Invalid regex pattern: {err}")
+    return pattern

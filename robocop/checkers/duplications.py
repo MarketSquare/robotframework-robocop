@@ -107,13 +107,11 @@ class DuplicationsChecker(VisitorChecker):
 
     def visit_KeywordCall(self, node):  # noqa
         assign = node.get_tokens(Token.ASSIGN)
-        if not assign:
-            return
         seen = set()
         for var in assign:
             name = normalize_robot_var_name(var.value)
             if name in seen:
-                self.report("duplicated-assign-name", var.value, node=node, lineno=var.lineno, col=var.col_offset + 1)
+                self.report("duplicated-assigned-var-name", var.value, node=node, lineno=var.lineno, col=var.col_offset + 1)
             else:
                 seen.add(name)
 

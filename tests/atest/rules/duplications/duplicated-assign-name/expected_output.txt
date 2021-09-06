@@ -1,7 +1,0 @@
-${rules_dir}${\}test.robot:3:15 [I] 0812 Assign variable name '${var}' is already used
-${rules_dir}${\}test.robot:5:19 [I] 0812 Assign variable name '${var}' is already used
-${rules_dir}${\}test.robot:9:23 [I] 0812 Assign variable name '${var}' is already used
-${rules_dir}${\}test.robot:11:23 [I] 0812 Assign variable name '${var}' is already used
-${rules_dir}${\}test.robot:21:26 [I] 0812 Assign variable name '${var}' is already used
-${rules_dir}${\}test.robot:22:15 [I] 0812 Assign variable name '${Va r}' is already used
-${rules_dir}${\}test.robot:24:12 [I] 0812 Assign variable name '${var}' is already used

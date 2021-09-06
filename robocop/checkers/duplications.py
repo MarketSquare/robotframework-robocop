@@ -55,8 +55,8 @@ class DuplicationsChecker(VisitorChecker):
             RuleSeverity.ERROR
         ),
         "0812": (
-            "duplicated-assign-name",
-            "Assign variable name '%s' is already used",
+            "duplicated-assigned-var-name",
+            "Assigned variable name '%s' is already used",
             RuleSeverity.INFO
         )
     }

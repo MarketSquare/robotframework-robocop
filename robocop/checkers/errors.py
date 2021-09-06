@@ -38,10 +38,6 @@ class ParsingErrorChecker(VisitorChecker):
         self.parse_errors(node)
         self.generic_visit(node)
 
-    def visit_ForLoop(self, node):  # noqa
-        self.parse_errors(node)
-        self.generic_visit(node)
-
     def visit_Statement(self, node):  # noqa
         self.parse_errors(node)
 
@@ -55,11 +51,14 @@ class ParsingErrorChecker(VisitorChecker):
             self.handle_error(node, node.error)
 
     def handle_error(self, node, error):  # noqa
+        if not error:
+            return
         if re.search(r"Non-existing setting '\s*\.\.", error):
             self.handle_invalid_continuation_mark(node, node.data_tokens[0].value)
             return
         if re.search(r"Invalid variable name '\s*\.\.", error):
-            self.handle_invalid_continuation_mark(node, node.name)
+            name = node.name if hasattr(node, 'name') else error.replace("Invalid variable name '", "")
+            self.handle_invalid_continuation_mark(node, name)
             return
         error = error.replace('\n   ', '')
         self.report("parsing-error", error, node=node)

@@ -441,40 +441,77 @@ class MisalignedContinuation(VisitorChecker, ModelVisitor):
             "misaligned-continuation",
             "Continuation marker should be aligned with starting row",
             RuleSeverity.WARNING
+        ),
+        "1015": (
+            "misaligned-continuation-row",
+            "Each next continuation line should be aligned with the previous one",
+            RuleSeverity.WARNING
         )
     }
 
     def visit_Statement(self, node):  # noqa
         if not node.data_tokens:
             return
-        starting_row = self.get_indent(node)
-        for indent, continuation in self.get_continuation(node):
-            if indent != starting_row:
-                self.report("misaligned-continuation", lineno=continuation.lineno, col=continuation.col_offset+1)
+        starting_row = self.get_indent(node.tokens)
+        first_column, indent, skip_values = 0, 0, False
+        for index, line in enumerate(node.lines):
+            if index == 0:
+                starting_row = self.get_indent(line)
+                if node.type == Token.TAGS:
+                    first_column = self.first_line_indent(line, node.type, Token.ARGUMENT)
+                continue
+            indent = 0
+            for token in line:
+                if token.type == Token.SEPARATOR:  # count possible indent before or after ...
+                    indent += len(token.value.expandtabs(4))
+                elif token.type == Token.CONTINUATION:
+                    if indent != starting_row:
+                        self.report("misaligned-continuation", lineno=token.lineno, col=token.col_offset + 1)
+                        break
+                    indent = 0
+                elif token.type != Token.EOL and token.value.strip():  # ignore trailing whitespace
+                    if first_column:
+                        if indent != first_column:
+                            self.report("misaligned-continuation-row", node=token, col=token.col_offset + 1)
+                    else:
+                        first_column = indent
+                    break  # check only first value
 
     @staticmethod
-    def get_continuation(node):
-        indent = 0
-        lineno = -1
-        for token in node.tokens:
-            if token.lineno != lineno:
-                indent = 0  # in case of trailing whitespace at the end of file
-                lineno = token.lineno
-            if getattr(token, 'type', '') == Token.CONTINUATION:
-                yield indent, token
-            if getattr(token, 'type', '') == Token.SEPARATOR:
-                indent += len(token.value.expandtabs(4))
-            else:
-                indent = 0
-
-    @staticmethod
-    def get_indent(node):
+    def get_indent(tokens):
         indent_len = 0
-        for token in node.tokens:
+        for token in tokens:
             if token.type != Token.SEPARATOR:
                 break
             indent_len += len(token.value.expandtabs(4))
         return indent_len
+
+    @staticmethod
+    def first_line_indent(tokens, from_tok, search_for):
+        """
+        Find indent required for other lines to match indentation of first line.
+
+        [from_token]     <search_for>
+        ...<-   pos   ->
+
+        :param tokens: statement first line tokens
+        :param from_tok: start counting separator after finding from_tok token
+        :param search_for: stop counting after finding search_for token
+        :return: pos: length of indent
+        """
+        pos = 0
+        found = False
+        for token in tokens:
+            if not found:
+                if token.type == from_tok:
+                    found = True
+                    # subtract 3 to adjust for ... length in 2nd line
+                    pos += len(token.value) - 3
+            elif token.type == Token.SEPARATOR:
+                pos += len(token.value.expandtabs(4))
+            elif token.type == search_for:
+                return pos
+        return 0  # 0 will ignore first line indent and compare to 2nd line only
 
 
 class LeftAlignedChecker(VisitorChecker):

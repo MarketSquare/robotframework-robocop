@@ -3,6 +3,8 @@ Errors checkers
 """
 import re
 
+from robot.api import Token
+
 from robocop.checkers import VisitorChecker
 from robocop.rules import RuleSeverity
 from robocop.utils import IS_RF4
@@ -90,3 +92,18 @@ class MissingKeywordName(VisitorChecker):
                 lineno=node.lineno,
                 col=node.data_tokens[0].col_offset + 1
             )
+
+
+class VariablesImportErrorChecker(VisitorChecker):
+    """ Checker for syntax error in variables import. """
+    rules = {
+        "0404": (
+            "variables-import-with-args",
+            "Robot and YAML variable files do not take arguments",
+            RuleSeverity.ERROR
+        )
+    }
+
+    def visit_VariablesImport(self, node): # noqa
+        if node.name and not node.name.endswith('.py') and node.get_token(Token.ARGUMENT):
+            self.report("variables-import-with-args", node=node)

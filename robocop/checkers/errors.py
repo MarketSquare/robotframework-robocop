@@ -28,8 +28,28 @@ class ParsingErrorChecker(VisitorChecker):
             "not-enough-whitespace-after-newline-marker-error",
             "Provide at least two spaces after '...' marker",
             RuleSeverity.ERROR
+        ),
+        "0407": (
+            "invalid-argument",
+            "%s",
+            RuleSeverity.ERROR
+        ),
+        "0408": (
+            "non-existing-setting",
+            "%s",
+            RuleSeverity.ERROR
+        ),
+        "0409": (
+            "setting-not-supported",
+            "Setting '[%s]' is not supported in %s. Allowed are: %s",
+            RuleSeverity.ERROR
         )
     }
+    keyword_only_settings = {'Arguments', 'Return'}
+    keyword_settings = ['[Documentation]', '[Tags]', '[Arguments]', '[Return]', '[Teardown]', '[Timeout]']
+    test_case_only_settings = {'Setup', 'Template'}
+    test_case_settings = ['[Documentation]', '[Tags]', '[Setup]', '[Teardown]', '[Template]', '[Timeout]']
+
     def visit_If(self, node):  # noqa
         self.parse_errors(node)
         self.generic_visit(node)
@@ -53,15 +73,51 @@ class ParsingErrorChecker(VisitorChecker):
     def handle_error(self, node, error):  # noqa
         if not error:
             return
-        if re.search(r"Non-existing setting '\s*\.\.", error):
+        if 'Invalid argument syntax' in error:
+            # robot doesn't report on exact token, so we need to find it
+            match = re.search("'(.+)'", error)
+            if match:
+                for arg in node.get_tokens(Token.ARGUMENT):
+                    value, *_ = arg.value.split('=', maxsplit=1)
+                    if value == match.group(1):
+                        self.report("invalid-argument", error[:-1], node=arg, col=arg.col_offset + 1)
+                        return
+        elif 'Non-existing setting' in error:
+            self.handle_invalid_setting(node, error)
+        elif 'Invalid variable name' in error:
+            self.handle_invalid_variable(node, error)
+        else:
+            error = error.replace('\n   ', '')
+            self.report("parsing-error", error, node=node)
+
+    def handle_invalid_setting(self, node, error):
+        setting_error = re.search("Non-existing setting '(.*)'.", error)
+        if not setting_error:
+            return
+        setting_error = setting_error.group(1)
+        if not setting_error:  # TODO should be left aligned
+            return
+        if setting_error.lstrip().startswith('..'):
             self.handle_invalid_continuation_mark(node, node.data_tokens[0].value)
+        elif setting_error in self.keyword_only_settings:
+            self.report("setting-not-supported", setting_error, 'Test Case', ', '.join(self.test_case_settings),
+                        node=node)
+        elif setting_error in self.test_case_only_settings:
+            self.report("setting-not-supported", setting_error, 'Keyword', ', '.join(self.keyword_settings), node=node)
+        else:
+            self.report("non-existing-setting", error.replace('Robot Framework syntax error: ', ''), node=node)
+
+    def handle_invalid_variable(self, node, error):
+        var_error = re.search("Invalid variable name '(.*)'.", error)
+        if not var_error:
             return
-        if re.search(r"Invalid variable name '\s*\.\.", error):
-            name = node.name if hasattr(node, 'name') else error.replace("Invalid variable name '", "")
-            self.handle_invalid_continuation_mark(node, name)
+        if not var_error.group(1):  # empty variable name due to invalid parsing
             return
-        error = error.replace('\n   ', '')
-        self.report("parsing-error", error, node=node)
+        if var_error.group(1).lstrip().startswith('..'):
+            self.handle_invalid_continuation_mark(node, var_error.group(1))
+        else:
+            error = error.replace('\n   ', '')
+            self.report("parsing-error", error, node=node)
 
     def handle_invalid_continuation_mark(self, node, name):
         stripped = name.lstrip()

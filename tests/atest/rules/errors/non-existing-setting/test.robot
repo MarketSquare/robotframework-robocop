@@ -13,6 +13,7 @@ Force Tags  tag
     [Return]    ${value}
 
 *** Keywords ***
+    [Argument]   ${value}
     [Invalid]    arg
     [Setup]    ${arg}
     [Template]    Keyword

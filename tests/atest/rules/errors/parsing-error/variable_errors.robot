@@ -12,6 +12,8 @@ value
 ...
 ...d
 
+   ${var5}  2
+
 *** Keywords ***
     [Arguments]     1
     value    My Keyword

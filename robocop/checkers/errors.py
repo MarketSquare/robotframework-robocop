@@ -7,7 +7,7 @@ from robot.api import Token
 
 from robocop.checkers import VisitorChecker
 from robocop.rules import RuleSeverity
-from robocop.utils import IS_RF4
+from robocop.utils import IS_RF4, find_robot_vars
 
 
 class ParsingErrorChecker(VisitorChecker):
@@ -42,6 +42,11 @@ class ParsingErrorChecker(VisitorChecker):
         "0409": (
             "setting-not-supported",
             "Setting '[%s]' is not supported in %s. Allowed are: %s",
+            RuleSeverity.ERROR
+        ),
+        "0410": (
+            "not-enough-whitespace-after-variable",
+            "Provide at least two spaces after variable",
             RuleSeverity.ERROR
         )
     }
@@ -105,19 +110,28 @@ class ParsingErrorChecker(VisitorChecker):
         elif setting_error in self.test_case_only_settings:
             self.report("setting-not-supported", setting_error, 'Keyword', ', '.join(self.keyword_settings), node=node)
         else:
-            self.report("non-existing-setting", error.replace('Robot Framework syntax error: ', ''), node=node)
+            error = error.replace('\n   ', '').replace('Robot Framework syntax error: ', '')
+            if error.endswith('.'):
+                error = error[:-1]
+            self.report("non-existing-setting", error, node=node)
 
     def handle_invalid_variable(self, node, error):
         var_error = re.search("Invalid variable name '(.*)'.", error)
-        if not var_error:
+        if not var_error or not var_error.group(1):  # empty variable name due to invalid parsing
             return
-        if not var_error.group(1):  # empty variable name due to invalid parsing
-            return
-        if var_error.group(1).lstrip().startswith('..'):
+        elif var_error.group(1).lstrip().startswith('..'):
             self.handle_invalid_continuation_mark(node, var_error.group(1))
+        elif not var_error.group(1)[0].strip():  # not left aligned variable
+            return
         else:
-            error = error.replace('\n   ', '')
-            self.report("parsing-error", error, node=node)
+            variable_token = node.get_token(Token.VARIABLE)
+            variables = find_robot_vars(variable_token.value) if variable_token else None
+            if variables and variables[0][0] == 0:
+                self.report("not-enough-whitespace-after-variable", node=variable_token,
+                            col=variable_token.col_offset + 1)
+            else:
+                error = error.replace('\n   ', '')
+                self.report("parsing-error", error, node=node)
 
     def handle_invalid_continuation_mark(self, node, name):
         stripped = name.lstrip()

@@ -443,7 +443,7 @@ class MisalignedContinuation(VisitorChecker, ModelVisitor):
             RuleSeverity.WARNING
         ),
         "1015": (
-            "misaligned-continuation-row",  # FIXME better name
+            "misaligned-continuation-row",
             "Each next continuation line should be aligned with the previous one",
             RuleSeverity.WARNING
         )
@@ -457,6 +457,8 @@ class MisalignedContinuation(VisitorChecker, ModelVisitor):
         for index, line in enumerate(node.lines):
             if index == 0:
                 starting_row = self.get_token_indent(line)
+                if node.type == Token.TAGS:
+                    first_column = self.token_pos(line, node.type, Token.ARGUMENT)
                 continue
             indent = 0
             for token in line:
@@ -492,6 +494,21 @@ class MisalignedContinuation(VisitorChecker, ModelVisitor):
                 break
             indent_len += len(token.value.expandtabs(4))
         return indent_len
+
+    @staticmethod
+    def token_pos(tokens, from_tok, search_for):
+        pos = 0
+        found = False
+        for token in tokens:
+            if not found:
+                found = token.type == from_tok
+                if found:
+                    pos += len(token.value) - 3
+            elif token.type == Token.SEPARATOR:
+                pos += len(token.value.expandtabs(4))
+            elif token.type == search_for:
+                return pos
+        return 0
 
 
 class LeftAlignedChecker(VisitorChecker):

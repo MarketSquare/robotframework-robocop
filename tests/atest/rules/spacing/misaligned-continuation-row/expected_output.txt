@@ -1,6 +1,7 @@
-${rules_dir}${\}test.robot:5:19 [W] 1015 First value in continuation row is not aligned with value from first row
-${rules_dir}${\}test.robot:10:8 [W] 1015 First value in continuation row is not aligned with value from first row
-${rules_dir}${\}test.robot:19:19 [W] 1015 First value in continuation row is not aligned with value from first row
-${rules_dir}${\}test.robot:41:10 [W] 1015 First value in continuation row is not aligned with value from first row
-${rules_dir}${\}test.robot:44:13 [W] 1015 First value in continuation row is not aligned with value from first row
-${rules_dir}${\}test.robot:58:14 [W] 1015 First value in continuation row is not aligned with value from first row
+${rules_dir}${\}test.robot:5:19 [W] 1015 Each next continuation line should be aligned with the previous one
+${rules_dir}${\}test.robot:10:8 [W] 1015 Each next continuation line should be aligned with the previous one
+${rules_dir}${\}test.robot:19:19 [W] 1015 Each next continuation line should be aligned with the previous one
+${rules_dir}${\}test.robot:38:14 [W] 1015 Each next continuation line should be aligned with the previous one
+${rules_dir}${\}test.robot:41:10 [W] 1015 Each next continuation line should be aligned with the previous one
+${rules_dir}${\}test.robot:44:13 [W] 1015 Each next continuation line should be aligned with the previous one
+${rules_dir}${\}test.robot:58:14 [W] 1015 Each next continuation line should be aligned with the previous one

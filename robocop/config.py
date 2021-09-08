@@ -23,32 +23,6 @@ def translate_pattern(pattern):
     return re.compile(fnmatch.translate(pattern))
 
 
-def parse_toml_to_config(toml_data, config):
-    if not toml_data:
-        return
-    assign_type = {'paths', 'format', 'configure'}
-    set_type = {'include', 'exclude', 'reports', 'ignore', 'ext_rules'}
-    toml_data = {key.replace('-', '_'): value for key, value in toml_data.items()}
-    for key, value in toml_data.items():
-        if key in assign_type:
-            config.__dict__[key] = value
-        elif key in set_type:
-            config.__dict__[key].update(set(value))
-        elif key == 'filetypes':
-            for filetype in toml_data['filetypes']:
-                config.filetypes.add(filetype if filetype.startswith('.') else '.' + filetype)
-        elif key == 'threshold':
-            config.threshold = find_severity_value(value)
-        elif key == 'output':
-            config.output = open(value, 'w')
-        elif key == 'no_recursive':
-            config.recursive = not value
-        elif key == 'verbose':
-            config.verbose = value
-        else:
-            raise InvalidArgumentError(f"Option '{key}' is not supported in pyproject.toml configuration file.")
-
-
 def find_severity_value(severity):
     for sev in RuleSeverity:
         if sev.value == severity.upper():
@@ -218,7 +192,8 @@ class Config:
                         args.append(arg)
                 if '-A' in args or '--argumentfile' in args:
                     raise NestedArgumentFileError(argfile)
-                self.config_from = argfile
+                if args:
+                    self.config_from = argfile
                 return args
         except FileNotFoundError:
             raise ArgumentFileNotFoundError(argfile) from None
@@ -293,7 +268,7 @@ class Config:
             if self.config_from:
                 print(f"Loaded configuration from {self.config_from}")
             else:
-                print("No config file found. Using default configuration")
+                print("No config file found or configuration is empty. Using default configuration")
 
         return args
 
@@ -319,8 +294,8 @@ class Config:
         except toml.TomlDecodeError as err:
             raise InvalidArgumentError(f'Failed to decode {str(pyproject_path)}: {err}') from None
         config = config.get("tool", {}).get("robocop", {})
-        parse_toml_to_config(config, self)
-        self.config_from = pyproject_path
+        if self.parse_toml_to_config(config):
+            self.config_from = pyproject_path
 
     @staticmethod
     def replace_in_set(container, old_key, new_key):
@@ -377,3 +352,29 @@ class Config:
             for char in sev:
                 message = message.replace(char, '')
         return message
+
+    def parse_toml_to_config(self, toml_data):
+        if not toml_data:
+            return False
+        assign_type = {'paths', 'format', 'configure'}
+        set_type = {'include', 'exclude', 'reports', 'ignore', 'ext_rules'}
+        toml_data = {key.replace('-', '_'): value for key, value in toml_data.items()}
+        for key, value in toml_data.items():
+            if key in assign_type:
+                self.__dict__[key] = value
+            elif key in set_type:
+                self.__dict__[key].update(set(value))
+            elif key == 'filetypes':
+                for filetype in toml_data['filetypes']:
+                    self.filetypes.add(filetype if filetype.startswith('.') else '.' + filetype)
+            elif key == 'threshold':
+                self.threshold = find_severity_value(value)
+            elif key == 'output':
+                self.output = open(value, 'w')
+            elif key == 'no_recursive':
+                self.recursive = not value
+            elif key == 'verbose':
+                self.verbose = value
+            else:
+                raise InvalidArgumentError(f"Option '{key}' is not supported in pyproject.toml configuration file.")
+        return True

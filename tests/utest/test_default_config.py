@@ -124,3 +124,14 @@ class TestDefaultConfig:
         with pytest.raises(InvalidArgumentError) as e, patch.object(sys, 'argv', ['prog']):
             config.parse_opts()
         assert "Invalid configuration for Robocop:\\nFailed to decode " in str(e)
+
+    @pytest.mark.parametrize('config_dir', ['empty_config', 'empty_config2'])
+    def test_load_empty_config(self, path_to_test_data, config, capsys, config_dir):
+        src = path_to_test_data / config_dir
+        os.chdir(str(src))
+        config.from_cli = True
+        config.exec_dir = str(src)
+        with patch.object(sys, 'argv', ['prog', '--verbose']):
+            config.parse_opts()
+        out, _ = capsys.readouterr()
+        assert out == "No config file found or configuration is empty. Using default configuration\n"

@@ -120,27 +120,19 @@ class ParsingErrorChecker(VisitorChecker):
         elif 'Invalid variable name' in error:
             self.handle_invalid_variable(node, error)
         elif 'IF has' in error:
-            self.handle_invalid_if(node, error)
+            self.handle_invalid_block(node, error, "invalid-if")
         elif 'FOR loop has' in error:
-            self.handle_invalid_for_loop(node, error)
+            self.handle_invalid_block(node, error, "invalid-for-loop")
         else:
             error = error.replace('\n   ', '')
             self.report("parsing-error", error, node=node)
 
-    def handle_invalid_for_loop(self, node, error):
+    def handle_invalid_block(self, node, error, block_name):
         if hasattr(node, 'header'):
             token = node.header.get_token(node.header.type)
         else:
             token = node.get_token(node.type)
-        self.report("invalid-for-loop", error.replace('Robot Framework syntax error: ', '')[:-1], node=token,
-                    col=token.col_offset + 1)
-
-    def handle_invalid_if(self, node, error):
-        if hasattr(node, 'header'):
-            token = node.header.get_token(node.header.type)
-        else:
-            token = node.get_token(node.type)
-        self.report("invalid-if", error.replace('Robot Framework syntax error: ', '')[:-1], node=token,
+        self.report(block_name, error.replace('Robot Framework syntax error: ', '')[:-1], node=token,
                     col=token.col_offset + 1)
 
     def handle_invalid_syntax(self, node, error):

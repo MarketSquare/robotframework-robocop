@@ -16,6 +16,9 @@ ${variable}  1
 .. a
  ... a
  ... a
+${variable2}
+ ...  b
+ ...  b
 
 *** Test Cases ***
 Test

@@ -20,7 +20,7 @@ class ParsingErrorChecker(VisitorChecker):
         ),
         "0405": (
             "invalid-continuation-mark",
-            "Invalid continuation mark. It should be: '...'",
+            "Invalid continuation mark. It should be '...'",
             RuleSeverity.ERROR
         ),
         "0406": (
@@ -79,14 +79,7 @@ class ParsingErrorChecker(VisitorChecker):
         if not error:
             return
         if 'Invalid argument syntax' in error:
-            # robot doesn't report on exact token, so we need to find it
-            match = re.search("'(.+)'", error)
-            if match:
-                for arg in node.get_tokens(Token.ARGUMENT):
-                    value, *_ = arg.value.split('=', maxsplit=1)
-                    if value == match.group(1):
-                        self.report("invalid-argument", error[:-1], node=arg, col=arg.col_offset + 1)
-                        return
+            self.handle_invalid_syntax(node, error)
         elif 'Non-existing setting' in error:
             self.handle_invalid_setting(node, error)
         elif 'Invalid variable name' in error:
@@ -94,6 +87,18 @@ class ParsingErrorChecker(VisitorChecker):
         else:
             error = error.replace('\n   ', '')
             self.report("parsing-error", error, node=node)
+
+    def handle_invalid_syntax(self, node, error):
+        # robot doesn't report on exact token, so we need to find it
+        match = re.search("'(.+)'", error)
+        if not match:
+            return
+        for arg in node.get_tokens(Token.ARGUMENT):
+            value, *_ = arg.value.split('=', maxsplit=1)
+            if value == match.group(1):
+                self.report("invalid-argument", error[:-1], node=arg, col=arg.col_offset + 1)
+                return
+        self.report("parsing-error", error, node=node)
 
     def handle_invalid_setting(self, node, error):
         setting_error = re.search("Non-existing setting '(.*)'.", error)
@@ -135,14 +140,13 @@ class ParsingErrorChecker(VisitorChecker):
 
     def handle_invalid_continuation_mark(self, node, name):
         stripped = name.lstrip()
-        if stripped.startswith('..'):
-            if len(name) == 2 or not stripped[2].strip():
+        if len(stripped) == 2 or not stripped[2].strip():
+            self.report("invalid-continuation-mark", node=node, col=name.find('.') + 1)
+        elif len(stripped) >= 4:
+            if stripped[:4] == '....':
                 self.report("invalid-continuation-mark", node=node, col=name.find('.') + 1)
-            elif len(stripped) >= 4:
-                if stripped[:4] == '....':
-                    self.report("invalid-continuation-mark", node=node, col=name.find('.') + 1)
-                else:  # '... ' or '...value' or '...\t'
-                    self.report("not-enough-whitespace-after-newline-marker-error", node=node, col=name.find('.') + 1)
+            else:  # '... ' or '...value' or '...\t'
+                self.report("not-enough-whitespace-after-newline-marker-error", node=node, col=name.find('.') + 1)
 
 
 class TwoSpacesAfterSettingsChecker(VisitorChecker):

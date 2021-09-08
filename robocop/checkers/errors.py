@@ -48,12 +48,42 @@ class ParsingErrorChecker(VisitorChecker):
             "not-enough-whitespace-after-variable",
             "Provide at least two spaces after variable",
             RuleSeverity.ERROR
+        ),
+        "0411": (
+            "not-enough-whitespace-after-suite-setting",
+            "Provide at least two spaces after '%s' setting",
+            RuleSeverity.ERROR
+        ),
+        "0412": (
+            "invalid-for-loop",
+            "Invalid for loop syntax: %s",
+            RuleSeverity.ERROR
+        ),
+        "0413": (
+            "invalid-if",
+            "Invalid IF syntax: %s",
+            RuleSeverity.ERROR
         )
     }
     keyword_only_settings = {'Arguments', 'Return'}
     keyword_settings = ['[Documentation]', '[Tags]', '[Arguments]', '[Return]', '[Teardown]', '[Timeout]']
     test_case_only_settings = {'Setup', 'Template'}
     test_case_settings = ['[Documentation]', '[Tags]', '[Setup]', '[Teardown]', '[Template]', '[Timeout]']
+    suite_settings = {
+        'documentation': 'Documentation',
+        'suitesetup': 'Suite Setup',
+        'suiteteardown': 'Suite Teardown',
+        'metadata': 'Metadata',
+        'testsetup': 'Test Setup',
+        'testteardown': 'Test Teardown',
+        'testtemplate': 'Test Template',
+        'testtimeout': 'Test Timeout',
+        'forcetags': 'Force Tags',
+        'defaulttags': 'Default Tags',
+        'library': 'Library',
+        'resource': 'Resource',
+        'variables': 'Variables'
+    }
 
     def visit_If(self, node):  # noqa
         self.parse_errors(node)
@@ -84,9 +114,29 @@ class ParsingErrorChecker(VisitorChecker):
             self.handle_invalid_setting(node, error)
         elif 'Invalid variable name' in error:
             self.handle_invalid_variable(node, error)
+        elif 'IF has' in error:
+            self.handle_invalid_if(node, error)
+        elif 'FOR loop has' in error:
+            self.handle_invalid_for_loop(node, error)
         else:
             error = error.replace('\n   ', '')
             self.report("parsing-error", error, node=node)
+
+    def handle_invalid_for_loop(self, node, error):
+        if hasattr(node, 'header'):
+            token = node.header.get_token(node.header.type)
+        else:
+            token = node.get_token(node.type)
+        self.report("invalid-for-loop", error.replace('Robot Framework syntax error: ', '')[:-1], node=token,
+                    col=token.col_offset + 1)
+
+    def handle_invalid_if(self, node, error):
+        if hasattr(node, 'header'):
+            token = node.header.get_token(node.header.type)
+        else:
+            token = node.get_token(node.type)
+        self.report("invalid-if", error.replace('Robot Framework syntax error: ', '')[:-1], node=token,
+                    col=token.col_offset + 1)
 
     def handle_invalid_syntax(self, node, error):
         # robot doesn't report on exact token, so we need to find it
@@ -105,7 +155,7 @@ class ParsingErrorChecker(VisitorChecker):
         if not setting_error:
             return
         setting_error = setting_error.group(1)
-        if not setting_error:  # TODO should be left aligned
+        if not setting_error:
             return
         if setting_error.lstrip().startswith('..'):
             self.handle_invalid_continuation_mark(node, node.data_tokens[0].value)
@@ -115,6 +165,12 @@ class ParsingErrorChecker(VisitorChecker):
         elif setting_error in self.test_case_only_settings:
             self.report("setting-not-supported", setting_error, 'Keyword', ', '.join(self.keyword_settings), node=node)
         else:
+            suite_sett_cand = setting_error.replace(' ', '').lower()
+            for setting in self.suite_settings:
+                if suite_sett_cand.startswith(setting):
+                    if setting_error[0].strip():  # filter out "suite-setting-should-be-left-aligned"
+                        self.report("not-enough-whitespace-after-suite-setting", self.suite_settings[setting], node=node)
+                    return
             error = error.replace('\n   ', '').replace('Robot Framework syntax error: ', '')
             if error.endswith('.'):
                 error = error[:-1]
@@ -153,8 +209,8 @@ class TwoSpacesAfterSettingsChecker(VisitorChecker):
     """ Checker for not enough whitespaces after [Setting] header. """
     rules = {
         "0402": (
-            "missing-whitespace-after-setting",
-            "There should be at least two spaces after the %s setting",
+            "not-enough-whitespace-after-setting",
+            "Provide at least two spaces after '%s' setting",
             RuleSeverity.ERROR
         )
     }
@@ -174,7 +230,7 @@ class TwoSpacesAfterSettingsChecker(VisitorChecker):
             return
         if match.group(1).lower() in self.headers:
             self.report(
-                "missing-whitespace-after-setting",
+                "not-enough-whitespace-after-setting",
                 match.group(0),
                 node=node,
                 col=node.data_tokens[0].col_offset + 1

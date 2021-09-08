@@ -330,12 +330,17 @@ class Config:
         container.add(new_key)
 
     def validate_rule_names(self, rules):
-        deprecated = {}  # add rule name in form of old_name: new_name
+        # add rule name in form of old_name: new_name
+        deprecated = {
+            "missing-whitespace-after-setting": "not-enough-whitespace-after-setting",
+            "variable-should-left-aligned": "variable-should-be-left-aligned"
+        }
         for rule in chain(self.include, self.exclude):
             if rule in deprecated:  # update warning description to specific case
-                print(f"### DEPRECATION WARNING: The name of the rule '{rule}' is "
+                print(f"### DEPRECATION WARNING ###\nThe name of the rule '{rule}' is "
                       f"renamed to '{deprecated[rule]}'. "
-                      f"Update your configuration if you're using old name. ###\n")
+                      f"Update your configuration if you're using old name. "
+                      f"This information will disappear in the next version (1.12.0)\n\n")
                 self.replace_in_set(self.include, rule, deprecated[rule])
                 self.replace_in_set(self.exclude, rule, deprecated[rule])
             elif rule not in rules:

@@ -7,7 +7,7 @@ from robot.api import Token
 
 from robocop.checkers import VisitorChecker
 from robocop.rules import RuleSeverity
-from robocop.utils import normalize_robot_name
+from robocop.utils import normalize_robot_name, normalize_robot_var_name, IS_RF4
 from robocop.exceptions import InvalidRuleConfigurableError
 
 
@@ -16,38 +16,49 @@ class DuplicationsChecker(VisitorChecker):
     rules = {
         "0801": (
             "duplicated-test-case",
-            'Multiple test cases with name "%s" in suite',
+            'Multiple test cases with name "%s" (first occurrence in line %d)',
             RuleSeverity.ERROR
         ),
         "0802": (
             "duplicated-keyword",
-            'Multiple keywords with name "%s" in file',
+            'Multiple keywords with name "%s" (first occurrence in line %d)',
             RuleSeverity.ERROR
         ),
         "0803": (
             "duplicated-variable",
-            'Multiple variables with name "%s" in Variables section. Note that Robot Framework is case-insensitive',
+            'Multiple variables with name "%s" in Variables section (first occurrence in line %d). '
+            'Note that Robot Framework is case-insensitive',
             RuleSeverity.ERROR
         ),
         "0804": (
             "duplicated-resource",
-            'Multiple resource imports with path "%s" in suite',
+            'Multiple resource imports with path "%s" (first occurrence in line %d)',
             RuleSeverity.WARNING
         ),
         "0805": (
             "duplicated-library",
-            'Multiple library imports with name "%s" and identical arguments in suite',
+            'Multiple library imports with name "%s" and identical arguments (first occurrence in line %d)',
             RuleSeverity.WARNING
         ),
         "0806": (
             "duplicated-metadata",
-            'Duplicated metadata "%s" in suite',
+            'Duplicated metadata "%s" (first occurrence in line %d)',
             RuleSeverity.WARNING
         ),
         "0807": (
             "duplicated-variables-import",
-            'Duplicated variables import with path "%s" in suite',
+            'Duplicated variables import with path "%s" (first occurrence in line %d)',
             RuleSeverity.WARNING
+        ),
+        "0811": (
+            "duplicated-argument-name",
+            "Argument name '%s' is already used",
+            RuleSeverity.ERROR
+        ),
+        "0812": (
+            "duplicated-assigned-var-name",
+            "Assigned variable name '%s' is already used",
+            RuleSeverity.INFO
         )
     }
 
@@ -80,18 +91,28 @@ class DuplicationsChecker(VisitorChecker):
 
     def check_duplicates(self, container, rule):
         for nodes in container.values():
-            if len(nodes) == 1:
-                continue
-            for duplicate in nodes:
-                self.report(rule, duplicate.name, node=duplicate)
+            for duplicate in nodes[1:]:
+                self.report(rule, duplicate.name, nodes[0].lineno, node=duplicate)
 
     def visit_TestCase(self, node):  # noqa
         testcase_name = normalize_robot_name(node.name)
         self.test_cases[testcase_name].append(node)
+        self.generic_visit(node)
 
     def visit_Keyword(self, node):  # noqa
         keyword_name = normalize_robot_name(node.name)
         self.keywords[keyword_name].append(node)
+        self.generic_visit(node)
+
+    def visit_KeywordCall(self, node):  # noqa
+        assign = node.get_tokens(Token.ASSIGN)
+        seen = set()
+        for var in assign:
+            name = normalize_robot_var_name(var.value)
+            if name in seen:
+                self.report("duplicated-assigned-var-name", var.value, node=node, lineno=var.lineno, col=var.col_offset + 1)
+            else:
+                seen.add(name)
 
     def visit_VariableSection(self, node):  # noqa
         self.generic_visit(node)
@@ -121,8 +142,23 @@ class DuplicationsChecker(VisitorChecker):
             self.metadata[node.name + node.value].append(node)
 
     def visit_VariablesImport(self, node): # noqa
-        if node.name:
-            self.variable_imports[node.name].append(node)
+        if not node.name:
+            return
+        # only python files can have arguments - covered in E0404 variables-import-with-args
+        if not node.name.endswith('.py') and node.get_token(Token.ARGUMENT):
+            return
+        name_with_args = node.name + ''.join(token.value for token in node.data_tokens[2:])
+        self.variable_imports[name_with_args].append(node)
+
+    def visit_Arguments(self, node):  # noqa
+        args = set()
+        for arg in node.get_tokens(Token.ARGUMENT):
+            orig, *_ = arg.value.split('=', maxsplit=1)
+            name = normalize_robot_var_name(orig)
+            if name in args:
+                self.report("duplicated-argument-name", orig, node=node, lineno=arg.lineno, col=arg.col_offset + 1)
+            else:
+                args.add(name)
 
 
 class SectionHeadersChecker(VisitorChecker):

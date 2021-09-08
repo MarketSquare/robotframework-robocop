@@ -21,5 +21,6 @@ from robocop.utils.misc import (
     is_suite_templated,
     last_non_empty_line,
     remove_robot_vars,
-    find_robot_vars
+    find_robot_vars,
+    pattern_type
 )

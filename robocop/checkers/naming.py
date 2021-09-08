@@ -92,11 +92,6 @@ class KeywordNamingChecker(VisitorChecker):
             "'%s' is a reserved keyword%s",
             RuleSeverity.ERROR
         ),
-        "0304": (
-            "not-enough-whitespace-after-newline-marker",
-            "Provide at least two spaces after '...' marker",
-            RuleSeverity.ERROR
-        ),
         "0305": (
             "underscore-in-keyword-name",
             "Underscores in keyword name can be replaced with spaces",
@@ -190,9 +185,6 @@ class KeywordNamingChecker(VisitorChecker):
         if not keyword_name or keyword_name.lstrip().startswith('#'):
             return
         if keyword_name == r'/':  # old for loop, / are interpreted as keywords
-            return
-        if keyword_name.startswith('...'):
-            self.report("not-enough-whitespace-after-newline-marker", node=node)
             return
         if normalize_robot_name(keyword_name) == 'runkeywordif':
             for token in node.data_tokens:

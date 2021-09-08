@@ -25,7 +25,7 @@ class ParsingErrorChecker(VisitorChecker):
         ),
         "0406": (
             # there is not-enough-whitespace-after-newline-marker for keyword calls already
-            "not-enough-whitespace-after-newline-marker-error",
+            "not-enough-whitespace-after-newline-marker",
             "Provide at least two spaces after '...' marker",
             RuleSeverity.ERROR
         ),
@@ -91,6 +91,11 @@ class ParsingErrorChecker(VisitorChecker):
 
     def visit_For(self, node):  # noqa
         self.parse_errors(node)
+        self.generic_visit(node)
+
+    def visit_KeywordCall(self, node):  # noqa
+        if node.keyword and node.keyword.startswith('...'):
+            self.report("not-enough-whitespace-after-newline-marker", node=node)
         self.generic_visit(node)
 
     def visit_Statement(self, node):  # noqa
@@ -202,7 +207,7 @@ class ParsingErrorChecker(VisitorChecker):
             if stripped[:4] == '....':
                 self.report("invalid-continuation-mark", node=node, col=name.find('.') + 1)
             else:  # '... ' or '...value' or '...\t'
-                self.report("not-enough-whitespace-after-newline-marker-error", node=node, col=name.find('.') + 1)
+                self.report("not-enough-whitespace-after-newline-marker", node=node, col=name.find('.') + 1)
 
 
 class TwoSpacesAfterSettingsChecker(VisitorChecker):

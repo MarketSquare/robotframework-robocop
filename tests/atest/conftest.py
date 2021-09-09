@@ -15,7 +15,7 @@ def pytest_addoption(parser):
 
 
 def pytest_generate_tests(metafunc):
-    """ This method generate tests based on template ``test_rule``.
+    """This method generate tests based on template ``test_rule``.
 
     Rules are autodiscovered. You can add your own tests by adding tuple with test data to ``auto_discovered_rules``
     list. This tuple should contain:
@@ -29,20 +29,20 @@ def pytest_generate_tests(metafunc):
     if "rule" not in metafunc.fixturenames:
         return
     auto_discovered_rules = [(rule, None, f"{category}/{rule}") for category, rule in get_rules_for_atest()]
-    selected_rule = metafunc.config.getoption('--rule', None)
+    selected_rule = metafunc.config.getoption("--rule", None)
     if selected_rule is not None:
         # Find and use only selected rule
         for rule, args, test_data in auto_discovered_rules:
             if rule == selected_rule:
-                metafunc.parametrize('rule, args, test_data', [(selected_rule, args, test_data)])
+                metafunc.parametrize("rule, args, test_data", [(selected_rule, args, test_data)])
                 break
         else:
             pytest.exit(f"Rule: '{selected_rule}' was not found", 1)
         return
-    with open(Path(__file__).parent / 'custom_tests.yaml') as f:
+    with open(Path(__file__).parent / "custom_tests.yaml") as f:
         tests = yaml.safe_load(f)
-    for rule, configs in tests['tests'].items():
+    for rule, configs in tests["tests"].items():
         for config in configs:
-            configuration = ['-c', config['config']] if config['config'] else []
-            auto_discovered_rules.append((rule, configuration, config['src_dir']))
-    metafunc.parametrize('rule, args, test_data', auto_discovered_rules)
+            configuration = ["-c", config["config"]] if config["config"] else []
+            auto_discovered_rules.append((rule, configuration, config["src_dir"]))
+    metafunc.parametrize("rule, args, test_data", auto_discovered_rules)

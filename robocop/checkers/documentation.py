@@ -8,27 +8,28 @@ from robocop.rules import RuleSeverity
 
 
 class MissingDocumentationChecker(VisitorChecker):
-    """ Checker for missing documentation. """
+    """Checker for missing documentation."""
+
     rules = {
         "0201": (
             "missing-doc-keyword",
             "Missing documentation in keyword",
-            RuleSeverity.WARNING
+            RuleSeverity.WARNING,
         ),
         "0202": (
             "missing-doc-test-case",
             "Missing documentation in test case",
-            RuleSeverity.WARNING
+            RuleSeverity.WARNING,
         ),
         "0203": (
             "missing-doc-suite",
             "Missing documentation in suite",
-            RuleSeverity.WARNING
-        )
+            RuleSeverity.WARNING,
+        ),
     }
 
     def visit_Keyword(self, node):  # noqa
-        if node.name.lstrip().startswith('#'):
+        if node.name.lstrip().startswith("#"):
             return
         self.check_if_docs_are_present(node, "missing-doc-keyword")
 

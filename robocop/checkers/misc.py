@@ -14,28 +14,30 @@ from robot.libraries import STDLIBS
 
 from robocop.checkers import VisitorChecker
 from robocop.rules import RuleSeverity
-from robocop.utils import normalize_robot_name, IS_RF4, AssignmentTypeDetector, parse_assignment_sign_type
+from robocop.utils import (
+    normalize_robot_name,
+    IS_RF4,
+    AssignmentTypeDetector,
+    parse_assignment_sign_type,
+)
 
 
 class ReturnChecker(VisitorChecker):
-    """ Checker for [Return] and Return From Keyword violations. """
+    """Checker for [Return] and Return From Keyword violations."""
+
     rules = {
         "0901": (
             "keyword-after-return",
             "[Return] is not defined at the end of keyword. "
             "Note that [Return] does not return from keyword but only set returned variables",
-            RuleSeverity.WARNING
+            RuleSeverity.WARNING,
         ),
         "0902": (
             "keyword-after-return-from",
             "Keyword call after 'Return From Keyword' keyword",
-            RuleSeverity.ERROR
+            RuleSeverity.ERROR,
         ),
-        "0903": (
-            "empty-return",
-            "[Return] is empty",
-            RuleSeverity.WARNING
-        )
+        "0903": ("empty-return", "[Return] is empty", RuleSeverity.WARNING),
     }
 
     def visit_Keyword(self, node):  # noqa
@@ -52,28 +54,29 @@ class ReturnChecker(VisitorChecker):
                     keyword_after_return = True
                 if return_from:
                     token = child.data_tokens[0]
-                    self.report("keyword-after-return-from", node=token, col=token.col_offset + 1)
-                if normalize_robot_name(child.keyword) == 'returnfromkeyword':
+                    self.report(
+                        "keyword-after-return-from",
+                        node=token,
+                        col=token.col_offset + 1,
+                    )
+                if normalize_robot_name(child.keyword) == "returnfromkeyword":
                     return_from = True
         if keyword_after_return:
             token = return_setting_node.data_tokens[0]
-            self.report(
-                "keyword-after-return",
-                node=token,
-                col=token.col_offset + 1
-            )
+            self.report("keyword-after-return", node=token, col=token.col_offset + 1)
 
 
 class NestedForLoopsChecker(VisitorChecker):
-    """ Checker for not supported nested FOR loops.
+    """Checker for not supported nested FOR loops.
 
     Deprecated in RF 4.0
     """
+
     rules = {
         "0907": (
             "nested-for-loop",
             "Nested for loops are not supported. You can use keyword with for loop instead",
-            RuleSeverity.ERROR
+            RuleSeverity.ERROR,
         )
     }
 
@@ -85,25 +88,26 @@ class NestedForLoopsChecker(VisitorChecker):
     def visit_ForLoop(self, node):  # noqa
         # For RF 4.0 node is "For" but we purposely don't visit it because nested for loop is allowed in 4.0
         for child in node.body:
-            if child.type == 'FOR':
+            if child.type == "FOR":
                 self.report("nested-for-loop", node=child)
 
 
 class IfBlockCanBeUsed(VisitorChecker):
-    """ Checker for potential IF block usage in Robot Framework 4.0
+    """Checker for potential IF block usage in Robot Framework 4.0
 
     Run Keyword variants (Run Keyword If, Run Keyword Unless) can be replaced with IF in RF 4.0
     """
+
     rules = {
         "0908": (
             "if-can-be-used",
             "'%s' can be replaced with IF block since Robot Framework 4.0",
-            RuleSeverity.INFO
+            RuleSeverity.INFO,
         )
     }
 
     def __init__(self):
-        self.run_keyword_variants = {'runkeywordif', 'runkeywordunless'}
+        self.run_keyword_variants = {"runkeywordif", "runkeywordunless"}
         super().__init__()
         if not IS_RF4:
             self.disabled = True
@@ -121,7 +125,7 @@ class IfBlockCanBeUsed(VisitorChecker):
 
 
 class ConsistentAssignmentSignChecker(VisitorChecker):
-    """ Checker for inconsistent assignment signs.
+    """Checker for inconsistent assignment signs.
 
     By default this checker will try to autodetect most common assignment sign (separately for *** Variables *** section
     and (*** Test Cases ***, *** Keywords ***) sections and report any not consistent type of sign in particular file.
@@ -135,36 +139,37 @@ class ConsistentAssignmentSignChecker(VisitorChecker):
     ``space_and_equal_sign`` (' =').
 
     """
+
     rules = {
         "0909": (
             "inconsistent-assignment",
             "The assignment sign is not consistent through the file. Expected '%s' but got '%s' instead",
             RuleSeverity.WARNING,
             (
-                'assignment_sign_type',
-                'keyword_assignment_sign_type',
+                "assignment_sign_type",
+                "keyword_assignment_sign_type",
                 parse_assignment_sign_type,
                 "possible values: 'autodetect' (default), 'none' (''), 'equal_sign' ('=') "
-                "or space_and_equal_sign (' =')"
-            )
+                "or space_and_equal_sign (' =')",
+            ),
         ),
         "0910": (
             "inconsistent-assignment-in-variables",
             "The assignment sign is not consistent inside the variables section. Expected '%s' but got '%s' instead",
             RuleSeverity.WARNING,
             (
-                'assignment_sign_type',
-                'variables_assignment_sign_type',
+                "assignment_sign_type",
+                "variables_assignment_sign_type",
                 parse_assignment_sign_type,
                 "possible values: 'autodetect' (default), 'none' (''), 'equal_sign' ('=') "
-                "or space_and_equal_sign (' =')"
-            )
-        )
+                "or space_and_equal_sign (' =')",
+            ),
+        ),
     }
 
     def __init__(self):
-        self.keyword_assignment_sign_type = 'autodetect'
-        self.variables_assignment_sign_type = 'autodetect'
+        self.keyword_assignment_sign_type = "autodetect"
+        self.variables_assignment_sign_type = "autodetect"
         self.keyword_expected_sign_type = None
         self.variables_expected_sign_type = None
         super().__init__()
@@ -172,11 +177,14 @@ class ConsistentAssignmentSignChecker(VisitorChecker):
     def visit_File(self, node):  # noqa
         self.keyword_expected_sign_type = self.keyword_assignment_sign_type
         self.variables_expected_sign_type = self.variables_assignment_sign_type
-        if 'autodetect' in [self.keyword_assignment_sign_type, self.variables_assignment_sign_type]:
+        if "autodetect" in [
+            self.keyword_assignment_sign_type,
+            self.variables_assignment_sign_type,
+        ]:
             auto_detector = self.auto_detect_assignment_sign(node)
-            if self.keyword_assignment_sign_type == 'autodetect':
+            if self.keyword_assignment_sign_type == "autodetect":
                 self.keyword_expected_sign_type = auto_detector.keyword_most_common
-            if self.variables_assignment_sign_type == 'autodetect':
+            if self.variables_assignment_sign_type == "autodetect":
                 self.variables_expected_sign_type = auto_detector.variables_most_common
         self.generic_visit(node)
 
@@ -185,27 +193,37 @@ class ConsistentAssignmentSignChecker(VisitorChecker):
             return
         if node.assign:  # if keyword returns any value
             assign_tokens = node.get_tokens(Token.ASSIGN)
-            self.check_assign_type(assign_tokens[-1], self.keyword_expected_sign_type, "inconsistent-assignment")
+            self.check_assign_type(
+                assign_tokens[-1],
+                self.keyword_expected_sign_type,
+                "inconsistent-assignment",
+            )
         return node
 
     def visit_VariableSection(self, node):  # noqa
         if self.variables_expected_sign_type is None:
             return
         for child in node.body:
-            if not isinstance(child, Variable) or getattr(child, 'errors', None) or getattr(child, 'error', None):
+            if not isinstance(child, Variable) or getattr(child, "errors", None) or getattr(child, "error", None):
                 continue
             var_token = child.get_token(Token.VARIABLE)
             self.check_assign_type(
                 var_token,
                 self.variables_expected_sign_type,
-                "inconsistent-assignment-in-variables"
+                "inconsistent-assignment-in-variables",
             )
         return node
 
     def check_assign_type(self, token, expected, issue_name):
         sign = AssignmentTypeDetector.get_assignment_sign(token.value)
         if sign != expected:
-            self.report(issue_name, expected, sign, lineno=token.lineno, col=token.end_col_offset + 1)
+            self.report(
+                issue_name,
+                expected,
+                sign,
+                lineno=token.lineno,
+                col=token.end_col_offset + 1,
+            )
 
     @staticmethod
     def auto_detect_assignment_sign(node):
@@ -215,15 +233,16 @@ class ConsistentAssignmentSignChecker(VisitorChecker):
 
 
 class SettingsOrderChecker(VisitorChecker):
-    """ Checker for settings order.
+    """Checker for settings order.
 
     BuiltIn libraries imports should always be placed before other libraries imports.
     """
+
     rules = {
         "0911": (
             "wrong-import-order",
             "BuiltIn library import '%s' should be placed before '%s'",
-            RuleSeverity.WARNING
+            RuleSeverity.WARNING,
         )
     }
 
@@ -241,7 +260,12 @@ class SettingsOrderChecker(VisitorChecker):
                     first_non_builtin = library.name
             else:
                 if library.name in STDLIBS:
-                    self.report("wrong-import-order", library.name, first_non_builtin, node=library)
+                    self.report(
+                        "wrong-import-order",
+                        library.name,
+                        first_non_builtin,
+                        node=library,
+                    )
 
     def visit_LibraryImport(self, node):  # noqa
         if not node.name:
@@ -250,12 +274,13 @@ class SettingsOrderChecker(VisitorChecker):
 
 
 class EmptyVariableChecker(VisitorChecker):
-    """ Checker for variables without value. """
+    """Checker for variables without value."""
+
     rules = {
         "0912": (
             "empty-variable",
             "Use built-in variable ${EMPTY} instead of leaving variable without value or using backslash",
-            RuleSeverity.INFO
+            RuleSeverity.INFO,
         )
     }
 
@@ -268,17 +293,23 @@ class EmptyVariableChecker(VisitorChecker):
         if not node.value:  # catch variable declaration without any value
             self.report("empty-variable", node=node)
         for token in node.get_tokens(Token.ARGUMENT):
-            if not token.value or token.value == '\\':
-                self.report("empty-variable", node=token, lineno=token.lineno, col=token.col_offset)
+            if not token.value or token.value == "\\":
+                self.report(
+                    "empty-variable",
+                    node=token,
+                    lineno=token.lineno,
+                    col=token.col_offset,
+                )
 
 
 class ResourceFileChecker(VisitorChecker):
-    """ Checker for resource files. """
+    """Checker for resource files."""
+
     rules = {
         "0913": (
             "can-be-resource-file",
             "No tests in '%s' file, consider renaming to '%s.resource'",
-            RuleSeverity.INFO
+            RuleSeverity.INFO,
         )
     }
 
@@ -288,12 +319,9 @@ class ResourceFileChecker(VisitorChecker):
             extension = Path(source).suffix
             file_name = Path(source).stem
             if (
-                    '.resource' not in extension and
-                    '__init__' not in file_name and
-                    node.sections and
-                    not any([isinstance(section, TestCaseSection) for section in node.sections])
+                ".resource" not in extension
+                and "__init__" not in file_name
+                and node.sections
+                and not any([isinstance(section, TestCaseSection) for section in node.sections])
             ):
-                self.report("can-be-resource-file",
-                            Path(source).name,
-                            file_name,
-                            node=node)
+                self.report("can-be-resource-file", Path(source).name, file_name, node=node)

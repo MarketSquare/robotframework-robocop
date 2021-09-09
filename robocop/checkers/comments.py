@@ -1,13 +1,7 @@
 """
 Comments checkers
 """
-from codecs import (
-    BOM_UTF32_BE,
-    BOM_UTF32_LE,
-    BOM_UTF8,
-    BOM_UTF16_LE,
-    BOM_UTF16_BE
-)
+from codecs import BOM_UTF32_BE, BOM_UTF32_LE, BOM_UTF8, BOM_UTF16_LE, BOM_UTF16_BE
 
 from robocop.checkers import RawFileChecker, VisitorChecker
 from robocop.rules import RuleSeverity
@@ -16,24 +10,21 @@ from robot.utils import FileReader
 
 
 class CommentChecker(VisitorChecker):
-    """ Checker for comments content. It detects invalid comments or leftovers like `todo` or `fixme` in the code. """
+    """Checker for comments content. It detects invalid comments or leftovers like `todo` or `fixme` in the code."""
+
     rules = {
-        "0701": (
-            "todo-in-comment",
-            "Found %s in comment",
-            RuleSeverity.WARNING
-        ),
+        "0701": ("todo-in-comment", "Found %s in comment", RuleSeverity.WARNING),
         "0702": (
             "missing-space-after-comment",
             "Missing blank space after comment character",
-            RuleSeverity.WARNING
+            RuleSeverity.WARNING,
         ),
         "0703": (  # Deprecated in RF 4.0
             "invalid-comment",
             "Invalid comment. '#' needs to be first character in the cell. "
             "For block comments you can use '*** Comments ***' section",
-            RuleSeverity.ERROR
-        )
+            RuleSeverity.ERROR,
+        ),
     }
 
     def visit_Comment(self, node):  # noqa
@@ -141,49 +132,52 @@ class CommentChecker(VisitorChecker):
 
     def find_comments(self, node):
         for token in node.tokens:
-            if token.type == 'COMMENT':
+            if token.type == "COMMENT":
                 self.check_comment_content(token)
 
     def check_invalid_comments(self, name, node):
         if IS_RF4:
             return
-        if name and name.lstrip().startswith('#'):
-            hash_pos = name.find('#')
+        if name and name.lstrip().startswith("#"):
+            hash_pos = name.find("#")
             self.report("invalid-comment", node=node, col=node.col_offset + hash_pos + 1)
 
     def check_comment_content(self, token):
-        if 'todo' in token.value.lower():
-            self.report("todo-in-comment", "TODO", lineno=token.lineno,
-                        col=token.col_offset + 1 + token.value.lower().find('todo'))
+        if "todo" in token.value.lower():
+            self.report(
+                "todo-in-comment",
+                "TODO",
+                lineno=token.lineno,
+                col=token.col_offset + 1 + token.value.lower().find("todo"),
+            )
         if "fixme" in token.value.lower():
-            self.report("todo-in-comment", "FIXME", lineno=token.lineno,
-                        col=token.col_offset + 1 + token.value.lower().find('fixme'))
-        if token.value.startswith('#') and token.value != '#':
-            if not token.value.startswith('# '):
-                self.report("missing-space-after-comment", lineno=token.lineno, col=token.col_offset + 1)
+            self.report(
+                "todo-in-comment",
+                "FIXME",
+                lineno=token.lineno,
+                col=token.col_offset + 1 + token.value.lower().find("fixme"),
+            )
+        if token.value.startswith("#") and token.value != "#":
+            if not token.value.startswith("# "):
+                self.report(
+                    "missing-space-after-comment",
+                    lineno=token.lineno,
+                    col=token.col_offset + 1,
+                )
 
 
 class IgnoredDataChecker(RawFileChecker):
-    """ Checker for ignored data. """
+    """Checker for ignored data."""
+
     rules = {
-        "0704": (
-            "ignored-data",
-            "Ignored data found in file",
-            RuleSeverity.WARNING
-        ),
+        "0704": ("ignored-data", "Ignored data found in file", RuleSeverity.WARNING),
         "0705": (
             "bom-encoding-in-file",
             "This file contains BOM (Byte Order Mark) encoding not supported by Robot Framework",
-            RuleSeverity.WARNING
-        )
+            RuleSeverity.WARNING,
+        ),
     }
-    BOM = [
-        BOM_UTF32_BE,
-        BOM_UTF32_LE,
-        BOM_UTF8,
-        BOM_UTF16_LE,
-        BOM_UTF16_BE
-    ]
+    BOM = [BOM_UTF32_BE, BOM_UTF32_LE, BOM_UTF8, BOM_UTF16_LE, BOM_UTF16_BE]
 
     def __init__(self):
         self.is_bom = False
@@ -203,18 +197,18 @@ class IgnoredDataChecker(RawFileChecker):
                         break
 
     def check_line(self, line, lineno):
-        if line.startswith('***'):
+        if line.startswith("***"):
             return True
-        if not line.startswith('# robocop:'):
+        if not line.startswith("# robocop:"):
             if lineno == 1 and self.is_bom:
                 # if it's BOM encoded file, first line can be ignored
-                return '***' in line
+                return "***" in line
             self.report("ignored-data", lineno=lineno, col=1)
             return True
         return False
 
     def detect_bom(self, source):
-        with open(source, 'rb') as raw_file:
+        with open(source, "rb") as raw_file:
             first_four = raw_file.read(4)
             self.is_bom = any(first_four.startswith(bom_marker) for bom_marker in IgnoredDataChecker.BOM)
             if self.is_bom:

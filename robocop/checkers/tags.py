@@ -9,27 +9,32 @@ from robocop.rules import RuleSeverity
 
 
 class TagNameChecker(VisitorChecker):
-    """ Checker for tag names. It scans for tags with spaces or Robot Framework reserved words. """
+    """Checker for tag names. It scans for tags with spaces or Robot Framework reserved words."""
+
     rules = {
         "0601": (
             "tag-with-space",
             "Tags should not contain spaces",
-            RuleSeverity.WARNING
+            RuleSeverity.WARNING,
         ),
         "0602": (
             "tag-with-or-and",
             "Tag with reserved word OR/AND. Hint: make sure to include this tag using lowercase name to avoid issues",
-            RuleSeverity.INFO
+            RuleSeverity.INFO,
         ),
         "0603": (
             "tag-with-reserved",
             "Tag prefixed with reserved word `robot:`. The only allowed tags with this prefix are robot:no-dry-run, "
             "robot:continue-on-failure and robot:recursive-continue-on-failure",
-            RuleSeverity.WARNING
-        )
+            RuleSeverity.WARNING,
+        ),
     }
     is_keyword = False
-    reserved_tags = {'robot:no-dry-run', 'robot:continue-on-failure', 'robot:recursive-continue-on-failure'}
+    reserved_tags = {
+        "robot:no-dry-run",
+        "robot:continue-on-failure",
+        "robot:recursive-continue-on-failure",
+    }
 
     def visit_ForceTags(self, node):  # noqa
         self.check_tags(node)
@@ -43,8 +48,10 @@ class TagNameChecker(VisitorChecker):
     def visit_Documentation(self, node):  # noqa
         if self.is_keyword:
             *_, last_line = node.lines
-            filtered_line = filter(lambda tag: tag.type not in Token.NON_DATA_TOKENS and
-                                               tag.type != Token.DOCUMENTATION, last_line)
+            filtered_line = filter(
+                lambda tag: tag.type not in Token.NON_DATA_TOKENS and tag.type != Token.DOCUMENTATION,
+                last_line,
+            )
             for index, token in enumerate(filtered_line):
                 if index == 0 and token.value.lower() != "tags:":
                     break
@@ -61,32 +68,38 @@ class TagNameChecker(VisitorChecker):
             self.check_tag(tag, node)
 
     def check_tag(self, tag, node):
-        if ' ' in tag.value:
+        if " " in tag.value:
             self.report("tag-with-space", node=node, lineno=tag.lineno, col=tag.col_offset + 1)
-        if 'OR' in tag.value or 'AND' in tag.value:
+        if "OR" in tag.value or "AND" in tag.value:
             self.report("tag-with-or-and", node=node, lineno=tag.lineno, col=tag.col_offset + 1)
-        if tag.value.startswith('robot:') and tag.value not in self.reserved_tags:
-            self.report("tag-with-reserved", node=node, lineno=tag.lineno, col=tag.col_offset + 1)
+        if tag.value.startswith("robot:") and tag.value not in self.reserved_tags:
+            self.report(
+                "tag-with-reserved",
+                node=node,
+                lineno=tag.lineno,
+                col=tag.col_offset + 1,
+            )
 
 
 class TagScopeChecker(VisitorChecker):
-    """ Checker for tag scopes. If all tests in suite have the same tags, it will suggest using `Force Tags` """
+    """Checker for tag scopes. If all tests in suite have the same tags, it will suggest using `Force Tags`"""
+
     rules = {
         "0605": (
             "could-be-forced-tags",
             'All tests in suite share those tags: "%s". You can define them in Force Tags in suite settings instead',
-            RuleSeverity.INFO
+            RuleSeverity.INFO,
         ),
         "0606": (
             "tag-already-set-in-force-tags",
             "This tag is already set by Force Tags in suite settings",
-            RuleSeverity.INFO
+            RuleSeverity.INFO,
         ),
         "0607": (
             "unnecessary-default-tags",
             "Tags defined in Default Tags are always overwritten",
-            RuleSeverity.INFO
-        )
+            RuleSeverity.INFO,
+        ),
     }
 
     def __init__(self):
@@ -110,15 +123,20 @@ class TagScopeChecker(VisitorChecker):
         if len(self.tags) != self.test_cases_count:
             return
         if self.default_tags:
-            self.report("unnecessary-default-tags",
-                        node=node if self.default_tags_node is None else self.default_tags_node)
+            self.report(
+                "unnecessary-default-tags",
+                node=node if self.default_tags_node is None else self.default_tags_node,
+            )
         if self.test_cases_count < 2:
             return
         common_tags = set.intersection(*[set(tags) for tags in self.tags])
         common_tags = common_tags - set(self.force_tags)
         if common_tags:
-            self.report("could-be-forced-tags", ', '.join(common_tags),
-                        node=node if self.force_tags_node is None else self.force_tags_node)
+            self.report(
+                "could-be-forced-tags",
+                ", ".join(common_tags),
+                node=node if self.force_tags_node is None else self.force_tags_node,
+            )
 
     def visit_TestCase(self, node):  # noqa
         self.test_cases_count += 1
@@ -136,4 +154,9 @@ class TagScopeChecker(VisitorChecker):
         self.tags.append([tag.value for tag in node.data_tokens[1:]])
         for tag in node.data_tokens[1:]:
             if tag.value in self.force_tags:
-                self.report("tag-already-set-in-force-tags", node=node, lineno=tag.lineno, col=tag.col_offset + 1)
+                self.report(
+                    "tag-already-set-in-force-tags",
+                    node=node,
+                    lineno=tag.lineno,
+                    col=tag.col_offset + 1,
+                )

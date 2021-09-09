@@ -23,28 +23,25 @@ import robocop
 
 # -- Project information -----------------------------------------------------
 
-project = 'Robocop'
-copyright = f'{datetime.datetime.now().year}, Bartlomiej Hirsz, Mateusz Nojek'
-author = 'Bartlomiej Hirsz, Mateusz Nojek'
+project = "Robocop"
+copyright = f"{datetime.datetime.now().year}, Bartlomiej Hirsz, Mateusz Nojek"
+author = "Bartlomiej Hirsz, Mateusz Nojek"
 
 # The full version, including alpha/beta/rc tags
 release = robocop.__version__
 version = robocop.__version__
 
-master_doc = 'index'
+master_doc = "index"
 
 # -- General configuration ---------------------------------------------------
 
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
-extensions = [
-    "sphinx_rtd_theme",
-    "sphinx.ext.autodoc"
-]
+extensions = ["sphinx_rtd_theme", "sphinx.ext.autodoc"]
 
 # Add any paths that contain templates here, relative to this directory.
-templates_path = ['_templates']
+templates_path = ["_templates"]
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
@@ -56,11 +53,11 @@ exclude_patterns = []
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-html_theme = 'sphinx_rtd_theme'
+html_theme = "sphinx_rtd_theme"
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-html_static_path = ['images']
+html_static_path = ["images"]
 html_favicon = "images/robocop.ico"
 
 
@@ -69,12 +66,10 @@ def rstjinja(app, docname, source):
     Render our pages as a jinja template for fancy templating goodness.
     """
     # Make sure we're outputting HTML
-    if app.builder.format != 'html':
+    if app.builder.format != "html":
         return
     src = source[0]
-    rendered = app.builder.templates.render_string(
-        src, app.config.html_context
-    )
+    rendered = app.builder.templates.render_string(src, app.config.html_context)
     source[0] = rendered
 
 
@@ -95,10 +90,17 @@ class RuleDoc:
 
     @staticmethod
     def get_params(rule, checker):
-        params = [("severity", ":class:`robocop.rules.RuleSeverity`", str(rule.severity), '')]
+        params = [("severity", ":class:`robocop.rules.RuleSeverity`", str(rule.severity), "")]
         for param in rule.configurable:
-            default = '' if len(param) != 4 else param[3]
-            params.append((param[0], param[2].__name__, rule.get_default_value(param[1], checker), default))
+            default = "" if len(param) != 4 else param[3]
+            params.append(
+                (
+                    param[0],
+                    param[2].__name__,
+                    rule.get_default_value(param[1], checker),
+                    default,
+                )
+            )
         return params
 
     def __lt__(self, other):
@@ -112,10 +114,10 @@ def get_checker_docs():
     """
     checker_docs = defaultdict(list)
     for checker in robocop.checkers.get_docs():
-        module_name = checker.__module__.split('.')[-1].title()
+        module_name = checker.__module__.split(".")[-1].title()
         checker_instance = checker()
         for rule in checker_instance.rules_map.values():
-            rule_doc = RuleDoc(rule, checker.__module__ + '.' + checker.__name__, checker_instance)
+            rule_doc = RuleDoc(rule, checker.__module__ + "." + checker.__name__, checker_instance)
             checker_docs[module_name].append((rule_doc.rule_id, rule_doc.name, rule_doc.params, rule_doc.group))
     groups_sorted_by_id = []
     for module_name in checker_docs:
@@ -126,6 +128,4 @@ def get_checker_docs():
     return groups_sorted_by_id
 
 
-html_context = {
-    'checker_groups': get_checker_docs()
-}
+html_context = {"checker_groups": get_checker_docs()}

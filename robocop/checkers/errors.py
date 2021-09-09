@@ -11,7 +11,7 @@ from robocop.utils import IS_RF4, find_robot_vars
 
 
 class ParsingErrorChecker(VisitorChecker):
-    """ Checker that parse Robot Framework DataErrors. """
+    """ Checker that parses Robot Framework DataErrors. """
     rules = {
         "0401": (
             "parsing-error",

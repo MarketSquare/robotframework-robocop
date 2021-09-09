@@ -479,7 +479,7 @@ class MisalignedContinuation(VisitorChecker, ModelVisitor):
         if not node.data_tokens:
             return
         starting_row = self.get_indent(node.tokens)
-        first_column, indent, skip_values = 0, 0, False
+        first_column, indent = 0, 0
         for index, line in enumerate(node.lines):
             if index == 0:
                 starting_row = self.get_indent(line)

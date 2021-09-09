@@ -185,7 +185,7 @@ class SectionHeadersChecker(VisitorChecker):
         ),
         "0809": (
             "section-out-of-order",
-            "'%s' section header is defined in wrong order: " "%s",
+            "'%s' section header is defined in wrong order: %s",
             RuleSeverity.WARNING,
             (
                 "sections_order",

@@ -50,7 +50,7 @@ class Robocop:
         self.files = {}
         self.checkers = []
         self.rules = {}
-        self.reports = dict()
+        self.reports = {}
         self.disabler = None
         self.root = os.getcwd()
         self.config = Config(from_cli=from_cli) if config is None else config
@@ -217,7 +217,7 @@ class Robocop:
         sys.exit()
 
     def load_reports(self):
-        self.reports = dict()
+        self.reports = {}
         classes = inspect.getmembers(reports, inspect.isclass)
         available_reports = "Available reports:\n"
         for report_class in classes:

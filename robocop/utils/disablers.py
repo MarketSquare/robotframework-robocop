@@ -71,7 +71,7 @@ class DisablersFinder:
     def _parse_file(self, filename):
         try:
             with FileReader(filename) as file_reader:
-                lines = [line for line in file_reader.readlines()]
+                lines = list(file_reader.readlines())
                 self._parse_lines(lines)
         except OSError:
             raise robocop.exceptions.FileError(filename) from None

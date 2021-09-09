@@ -438,6 +438,6 @@ class TestCaseNumberChecker(VisitorChecker):
 
     def visit_TestCaseSection(self, node):  # noqa
         max_testcases = self.templated_testcases_max_amount if self.templated_suite else self.testcases_max_amount
-        discovered_testcases = sum([True if isinstance(child, TestCase) else False for child in node.body])
+        discovered_testcases = sum([isinstance(child, TestCase) for child in node.body])
         if discovered_testcases > max_testcases:
             self.report("too-many-test-cases", discovered_testcases, max_testcases, node=node)

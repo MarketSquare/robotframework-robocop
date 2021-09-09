@@ -25,7 +25,7 @@ from enum import Enum
 from functools import total_ordering
 import robocop.exceptions
 
-# test
+
 @total_ordering
 class RuleSeverity(Enum):
     """

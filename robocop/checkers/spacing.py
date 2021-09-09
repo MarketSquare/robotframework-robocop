@@ -1,6 +1,7 @@
 """
 Spacing checkers
 """
+import re
 from collections import Counter
 
 from robot.api import Token
@@ -518,10 +519,30 @@ class LeftAlignedChecker(VisitorChecker):
     """ Checker for left align. """
     rules = {
         "1014": (
-            "variable-should-left-aligned",
-            "Variable in variable section should be left aligned.",
+            "variable-should-be-left-aligned",
+            "Variable in Variable section should be left aligned",
+            RuleSeverity.ERROR
+        ),
+        "1016": (
+            "suite-setting-should-be-left-aligned",
+            "Setting in Settings section should be left aligned",
             RuleSeverity.ERROR
         )
+    }
+    suite_settings = {
+        'documentation': 'Documentation',
+        'suitesetup': 'Suite Setup',
+        'suiteteardown': 'Suite Teardown',
+        'metadata': 'Metadata',
+        'testsetup': 'Test Setup',
+        'testteardown': 'Test Teardown',
+        'testtemplate': 'Test Template',
+        'testtimeout': 'Test Timeout',
+        'forcetags': 'Force Tags',
+        'defaulttags': 'Default Tags',
+        'library': 'Library',
+        'resource': 'Resource',
+        'variables': 'Variables'
     }
 
     def __init__(self):
@@ -538,5 +559,36 @@ class LeftAlignedChecker(VisitorChecker):
                     pos = len(token.value) - len(token.value.lstrip()) + 1
                 else:
                     pos = child.get_token(Token.ARGUMENT).col_offset + 1
-                self.report("variable-should-left-aligned", lineno=token.lineno,
+                self.report("variable-should-be-left-aligned", lineno=token.lineno,
                             col=pos)
+
+    def visit_SettingSection(self, node):  # noqa
+        for child in node.body:
+            # suite_sett_cand = setting_error.replace(' ', '').lower()
+            # for setting in self.suite_settings:
+            #     if suite_sett_cand.startswith(setting):
+            #         if setting_error[0].strip():  # filter out "suite-setting-should-be-left-aligned"
+            if IS_RF4:
+                for error in child.errors:
+                    if "Non-existing setting" in error:
+                        self.parse_error(child, error)
+            else:
+                if "Non-existing setting" in child.error:
+                    self.parse_error(child, child.error)
+
+    def parse_error(self, node, error):
+        setting_error = re.search("Non-existing setting '(.*)'.", error)
+        if not setting_error:
+            return
+        setting_error = setting_error.group(1)
+        if not setting_error:
+            setting_cand = node.get_token(Token.COMMENT)
+            if setting_cand and setting_cand.value.replace(' ', '').lower() in self.suite_settings:
+                self.report("suite-setting-should-be-left-aligned", node=setting_cand, col=setting_cand.col_offset + 1)
+        elif not setting_error[0].strip():  # starts with space/tab
+            suite_sett_cand = setting_error.replace(' ', '').lower()
+            for setting in self.suite_settings:
+                if suite_sett_cand.startswith(setting):
+                    indent = len(setting_error) - len(setting_error.lstrip())
+                    self.report("suite-setting-should-be-left-aligned", node=node, col=indent + 1)
+                    break

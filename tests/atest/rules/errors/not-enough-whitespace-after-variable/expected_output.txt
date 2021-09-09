@@ -1,0 +1,2 @@
+${rules_dir}${\}test.robot:2:1 [E] 0410 Provide at least two spaces after variable
+${rules_dir}${\}test.robot:7:1 [E] 0410 Provide at least two spaces after variable

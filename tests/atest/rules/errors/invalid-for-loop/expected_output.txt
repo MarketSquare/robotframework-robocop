@@ -1,0 +1,9 @@
+${rules_dir}${\}test.robot:37:5 [E] 0412 Invalid for loop syntax: FOR loop has no loop variables
+${rules_dir}${\}test.robot:40:5 [E] 0412 Invalid for loop syntax: FOR loop has empty body
+${rules_dir}${\}test.robot:42:5 [E] 0412 Invalid for loop syntax: FOR loop has no loop values
+${rules_dir}${\}test.robot:45:5 [E] 0412 Invalid for loop syntax: FOR loop has no closing END
+${rules_dir}${\}test.robot:47:5 [E] 0412 Invalid for loop syntax: FOR loop has no 'IN' or other valid separator
+${rules_dir}${\}test.robot:50:5 [E] 0412 Invalid for loop syntax: FOR loop has no closing END
+${rules_dir}${\}test.robot:51:9 [E] 0412 Invalid for loop syntax: FOR loop has empty body
+${rules_dir}${\}test.robot:51:9 [E] 0412 Invalid for loop syntax: FOR loop has no 'IN' or other valid separator
+${rules_dir}${\}test.robot:51:9 [E] 0412 Invalid for loop syntax: FOR loop has no loop variables

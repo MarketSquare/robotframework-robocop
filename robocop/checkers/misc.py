@@ -260,6 +260,11 @@ class EmptyVariableChecker(VisitorChecker):
     }
 
     def visit_Variable(self, node):  # noqa
+        if IS_RF4:
+            if node.errors:
+                return
+        elif node.error:
+            return
         if not node.value:  # catch variable declaration without any value
             self.report("empty-variable", node=node)
         for token in node.get_tokens(Token.ARGUMENT):

@@ -118,7 +118,7 @@ class DuplicationsChecker(VisitorChecker):
         self.generic_visit(node)
 
     def visit_Variable(self, node):  # noqa
-        if not node.name:
+        if not node.name or (IS_RF4 and node.errors or not IS_RF4 and node.error):
             return
         var_name = normalize_robot_name(self.replace_chars(node.name, '${}@&'))
         self.variables[var_name].append(node)

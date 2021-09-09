@@ -32,3 +32,7 @@ ${EMPTY_WITH_BACKSLASH}  \
 ...
 ...  ${EMPTY}
 ...  @{EMPTY}
+
+... invalid
+{also_invalid}  2
+...

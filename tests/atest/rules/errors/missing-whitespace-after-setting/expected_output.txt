@@ -1,2 +1,0 @@
-${rules_dir}${\}test.robot:7:5 [E] 0402 There should be at least two spaces after the [Documentation] setting
-${rules_dir}${\}test.robot:20:5 [E] 0402 There should be at least two spaces after the [Arguments] setting

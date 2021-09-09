@@ -1,0 +1,4 @@
+${rules_dir}${\}test.robot:12:1 [E] 0409 Setting '[Arguments]' is not supported in Test Case. Allowed are: [Documentation], [Tags], [Setup], [Teardown], [Template], [Timeout]
+${rules_dir}${\}test.robot:13:1 [E] 0409 Setting '[Return]' is not supported in Test Case. Allowed are: [Documentation], [Tags], [Setup], [Teardown], [Template], [Timeout]
+${rules_dir}${\}test.robot:17:1 [E] 0409 Setting '[Setup]' is not supported in Keyword. Allowed are: [Documentation], [Tags], [Arguments], [Return], [Teardown], [Timeout]
+${rules_dir}${\}test.robot:18:1 [E] 0409 Setting '[Template]' is not supported in Keyword. Allowed are: [Documentation], [Tags], [Arguments], [Return], [Teardown], [Timeout]

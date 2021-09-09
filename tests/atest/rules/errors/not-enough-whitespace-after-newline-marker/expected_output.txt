@@ -1,0 +1,5 @@
+${rules_dir}${\}test.robot:12:1 [E] 0406 Provide at least two spaces after '...' marker
+${rules_dir}${\}test.robot:18:1 [E] 0406 Provide at least two spaces after '...' marker
+${rules_dir}${\}settings_errors.robot:3:1 [E] 0406 Provide at least two spaces after '...' marker
+${rules_dir}${\}variable_errors.robot:3:1 [E] 0406 Provide at least two spaces after '...' marker
+${rules_dir}${\}variable_errors.robot:13:1 [E] 0406 Provide at least two spaces after '...' marker

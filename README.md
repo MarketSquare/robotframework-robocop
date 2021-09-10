@@ -3,6 +3,7 @@
 ![PyPI](https://img.shields.io/pypi/v/robotframework-robocop?label=version "PyPI package version")
 ![Python versions](https://img.shields.io/pypi/pyversions/robotframework-robocop "Supported Python versions")
 ![Licence](https://img.shields.io/pypi/l/robotframework-robocop "PyPI - License")
+[![Downloads](https://static.pepy.tech/personalized-badge/robotframework-robocop?period=total&units=international_system&left_color=grey&right_color=orange&left_text=downloads)](https://pepy.tech/project/robotframework-robocop)
 
 ---
 
@@ -74,10 +75,10 @@ Python 3.6+ :snake: and Robot Framework 3.2.2+ :robot:.
 Installation <a name="installation"></a>
 ------------
 
-You can install Robocop simply by running::
+You can install latest version of Robocop simply by running::
 
 ```
-pip install robotframework-robocop
+pip install -U robotframework-robocop
 ```
 
 

@@ -20,7 +20,8 @@ import robocop.exceptions
 class Report:
     def configure(self, name, value):
         raise robocop.exceptions.ConfigGeneralError(
-            f"Provided param '{name}' for report '{self.name}' does not exist")  # noqa
+            f"Provided param '{name}' for report '{getattr(self, 'name')}' does not exist"
+        )  # noqa
 
 
 class RulesByIdReport(Report):
@@ -37,9 +38,10 @@ class RulesByIdReport(Report):
         W0301 (invalid-char-in-name)        : 2
         E0901 (keyword-after-return)        : 1
     """
+
     def __init__(self):
-        self.name = 'rules_by_id'
-        self.description = 'Groups detected issues by rule id and prints it ordered by most common'
+        self.name = "rules_by_id"
+        self.description = "Groups detected issues by rule id and prints it ordered by most common"
         self.message_counter = defaultdict(int)
 
     def add_message(self, message):  # noqa
@@ -47,12 +49,12 @@ class RulesByIdReport(Report):
 
     def get_report(self):
         message_counter_ordered = sorted(self.message_counter.items(), key=itemgetter(1), reverse=True)
-        report = '\nIssues by IDs:\n'
+        report = "\nIssues by IDs:\n"
         if not message_counter_ordered:
             report += "No issues found"
             return report
         longest_name = max(len(msg[0]) for msg in message_counter_ordered)
-        report += '\n'.join(f"{message:{longest_name}} : {count}" for message, count in message_counter_ordered)
+        report += "\n".join(f"{message:{longest_name}} : {count}" for message, count in message_counter_ordered)
         return report
 
 
@@ -66,9 +68,10 @@ class RulesBySeverityReport(Report):
 
         Found 15 issues: 11 WARNING(s), 4 ERROR(s).
     """
+
     def __init__(self):
-        self.name = 'rules_by_error_type'
-        self.description = 'Prints total number of issues grouped by severity'
+        self.name = "rules_by_error_type"
+        self.description = "Prints total number of issues grouped by severity"
         self.severity_counter = defaultdict(int)
 
     def add_message(self, message):
@@ -77,10 +80,10 @@ class RulesBySeverityReport(Report):
     def get_report(self):
         issues_count = sum(self.severity_counter.values())
         if not issues_count:
-            return '\nFound 0 issues'
-        report = f'\nFound {issues_count} issue(s): '
-        report += ', '.join(f"{count} {severity.name}(s)" for severity, count in self.severity_counter.items())
-        report += '.'
+            return "\nFound 0 issues"
+        report = f"\nFound {issues_count} issue(s): "
+        report += ", ".join(f"{count} {severity.name}(s)" for severity, count in self.severity_counter.items())
+        report += "."
         return report
 
 
@@ -91,23 +94,20 @@ class ReturnStatusReport(Report):
     Report that checks if number of returned rules messages for given severity value does not exceed preset threshold.
     That information is later used as a return status from Robocop.
     """
+
     def __init__(self):
-        self.name = 'return_status'
-        self.description = 'Checks if number of specific issues exceed quality gate limits'
+        self.name = "return_status"
+        self.description = "Checks if number of specific issues exceed quality gate limits"
         self.return_status = 0
         self.counter = RulesBySeverityReport()
-        self.quality_gate = {
-            'E': 0,
-            'W': 0,
-            'I': -1
-        }
+        self.quality_gate = {"E": 0, "W": 0, "I": -1}
 
     def configure(self, name, value):
-        if name not in ['quality_gate', 'quality_gates']:
+        if name not in ["quality_gate", "quality_gates"]:
             super().configure(name, value)
-        for val in value.split(':'):
+        for val in value.split(":"):
             try:
-                name, count = val.split('=', maxsplit=1)
+                name, count = val.split("=", maxsplit=1)
                 if name.upper() in self.quality_gate:
                     self.quality_gate[name.upper()] = int(count)
             except ValueError:
@@ -130,16 +130,17 @@ class TimeTakenReport(Report):
 
     Report that returns Robocop execution time
     """
+
     def __init__(self):
-        self.name = 'scan_timer'
-        self.description = 'Returns Robocop execution time'
+        self.name = "scan_timer"
+        self.description = "Returns Robocop execution time"
         self.start_time = timer()
 
     def add_message(self, *args):
         pass
 
     def get_report(self):
-        return f'\nScan took {timer() - self.start_time:.3f}s'
+        return f"\nScan took {timer() - self.start_time:.3f}s"
 
 
 class JsonReport(Report):
@@ -148,8 +149,9 @@ class JsonReport(Report):
 
     Report that returns list of found issues in JSON format.
     """
+
     def __init__(self):
-        self.name = 'json_report'
+        self.name = "json_report"
         self.description = "Accumulates found issues in JSON format"
         self.issues = []
 
@@ -166,9 +168,10 @@ class FileStatsReport(Report):
 
     Report that displays overall statistics about number of processed files.
     """
+
     def __init__(self):
-        self.name = 'file_stats'
-        self.description = 'Prints overall statistics about number of processed files'
+        self.name = "file_stats"
+        self.description = "Prints overall statistics about number of processed files"
         self.files_count = 0
         self.files_with_issues = set()
 
@@ -177,9 +180,11 @@ class FileStatsReport(Report):
 
     def get_report(self):
         if not self.files_count:
-            return '\nNo files were processed'
+            return "\nNo files were processed"
         if not self.files_with_issues:
-            return f'\nProcessed {self.files_count} file(s) but no issues were found'
+            return f"\nProcessed {self.files_count} file(s) but no issues were found"
 
-        return f'\nProcessed {self.files_count} file(s) from which {len(self.files_with_issues)} ' \
-               f'file(s) contained issues'
+        return (
+            f"\nProcessed {self.files_count} file(s) from which {len(self.files_with_issues)} "
+            f"file(s) contained issues"
+        )

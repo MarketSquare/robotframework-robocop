@@ -22,5 +22,5 @@ from robocop.utils.misc import (
     last_non_empty_line,
     remove_robot_vars,
     find_robot_vars,
-    pattern_type
+    pattern_type,
 )

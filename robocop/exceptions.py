@@ -8,8 +8,10 @@ class ConfigGeneralError(RobocopFatalError):
 
 class DuplicatedRuleError(RobocopFatalError):
     def __init__(self, rule_type, rule, checker, checker_prev):
-        msg = f"Fatal error: Message {rule_type} '{rule}' defined in {checker.__class__.__name__} " \
-              f"was already defined in {checker_prev.__class__.__name__}"
+        msg = (
+            f"Fatal error: Message {rule_type} '{rule}' defined in {checker.__class__.__name__} "
+            f"was already defined in {checker_prev.__class__.__name__}"
+        )
         super().__init__(msg)
 
 
@@ -63,4 +65,4 @@ class NestedArgumentFileError(RobocopFatalError):
 
 class InvalidArgumentError(RobocopFatalError):
     def __init__(self, msg):
-        super().__init__(f'Invalid configuration for Robocop:\n{msg}')
+        super().__init__(f"Invalid configuration for Robocop:\n{msg}")

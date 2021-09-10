@@ -4,4 +4,4 @@ from robocop.config import Config
 from robocop.version import __version__
 
 
-__all__ = ['__version__', 'run_robocop', 'checkers', 'Robocop', 'Config']
+__all__ = ["__version__", "run_robocop", "checkers", "Robocop", "Config"]

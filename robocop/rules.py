@@ -25,7 +25,7 @@ from enum import Enum
 from functools import total_ordering
 import robocop.exceptions
 
-#test
+
 @total_ordering
 class RuleSeverity(Enum):
     """
@@ -48,6 +48,7 @@ class RuleSeverity(Enum):
 
     will only report rules with severity E and above.
     """
+
     INFO = "I"
     WARNING = "W"
     ERROR = "E"
@@ -60,8 +61,8 @@ class RuleSeverity(Enum):
 class Rule:
     def __init__(self, rule_id, body):
         self.rule_id = rule_id
-        self.name = ''
-        self.desc = ''
+        self.name = ""
+        self.desc = ""
         self.source = None
         self.enabled = True
         self.severity = RuleSeverity.INFO
@@ -69,17 +70,19 @@ class Rule:
         self.parse_body(body)
 
     def __str__(self):
-        return f'Rule - {self.rule_id} [{self.severity.value}]: {self.name}: {self.desc} ' \
-               f'({"enabled" if self.enabled else "disabled"})'
+        return (
+            f"Rule - {self.rule_id} [{self.severity.value}]: {self.name}: {self.desc} "
+            f'({"enabled" if self.enabled else "disabled"})'
+        )
 
     def change_severity(self, value):
         severity = {
-            'error': 'E',
-            'e': 'E',
-            'warning': 'W',
-            'w': 'W',
-            'info': 'I',
-            'i': 'I'
+            "error": "E",
+            "e": "E",
+            "warning": "W",
+            "w": "W",
+            "info": "I",
+            "i": "I",
         }.get(str(value).lower(), None)
         if severity is None:
             raise robocop.exceptions.InvalidRuleSeverityError(self.name, value)
@@ -93,11 +96,9 @@ class Rule:
 
     @staticmethod
     def get_configurable_desc(conf, default=None):
-        desc = f'{conf[0]} = {default}\n' \
-            f'        type: {conf[2].__name__}'
+        desc = f"{conf[0]} = {default}\n" f"        type: {conf[2].__name__}"
         if len(conf) == 4:
-            desc += '\n' \
-                 f'        info: {conf[3]}'
+            desc += "\n" f"        info: {conf[3]}"
         return desc
 
     @staticmethod
@@ -105,13 +106,13 @@ class Rule:
         return None if checker is None else checker.__dict__.get(param, None)
 
     def available_configurables(self, include_severity=True, checker=None):
-        configurables = ['severity'] if include_severity else []
+        configurables = ["severity"] if include_severity else []
         for conf in self.configurable:
             default = self.get_default_value(conf[1], checker)
             configurables.append(self.get_configurable_desc(conf, default))
         if not configurables:
-            return ''
-        return '\n    '.join(configurables)
+            return ""
+        return "\n    ".join(configurables)
 
     def parse_body(self, body):
         if isinstance(body, tuple) and len(body) >= 3:
@@ -132,18 +133,29 @@ class Rule:
             col=col,
             end_col=end_col,
             end_lineno=end_lineno,
-            ext_disablers=ext_disablers
+            ext_disablers=ext_disablers,
         )
 
     def matches_pattern(self, pattern):
-        """ check if this rule matches given pattern """
+        """check if this rule matches given pattern"""
         if isinstance(pattern, str):
             return pattern in (self.name, self.rule_id)
         return pattern.match(self.name) or pattern.match(self.rule_id)
 
 
 class Message:
-    def __init__(self, *args, rule, source, node, lineno, col, end_lineno, end_col, ext_disablers=None):
+    def __init__(
+        self,
+        *args,
+        rule,
+        source,
+        node,
+        lineno,
+        col,
+        end_lineno,
+        end_col,
+        ext_disablers=None,
+    ):
         self.enabled = rule.enabled
         self.rule_id = rule.rule_id
         self.name = rule.name
@@ -165,18 +177,22 @@ class Message:
         self.ext_disablers = ext_disablers if ext_disablers else []
 
     def __lt__(self, other):
-        return (self.line, self.col, self.rule_id) < (other.line, other.col, other.rule_id)
+        return (self.line, self.col, self.rule_id) < (
+            other.line,
+            other.col,
+            other.rule_id,
+        )
 
     def get_fullname(self):
         return f"{self.severity.value}{self.rule_id} ({self.name})"
 
     def to_json(self):
         return {
-                "source": self.source,
-                "line": self.line,
-                "column": self.col,
-                "severity": self.severity.value,
-                "rule_id": self.rule_id,
-                "description": self.desc,
-                "rule_name": self.name
-            }
+            "source": self.source,
+            "line": self.line,
+            "column": self.col,
+            "severity": self.severity.value,
+            "rule_id": self.rule_id,
+            "description": self.desc,
+            "rule_name": self.name,
+        }

@@ -8,33 +8,35 @@ from robocop.utils import IS_RF4, DISABLED_IN_4, ENABLED_IN_4
 def configure_robocop_with_rule(args, runner, rule, path):
     runner.from_cli = True
     config = Config()
-    config.parse_opts([
-        '--include',
-        rule,
-        '--format',
-        '{source}:{line}:{col} [{severity}] {rule_id} {desc}',
-        '--configure',
-        'return_status:quality_gate:E=0:W=0:I=0',
-        *args,
-        str(path)
-     ])
+    config.parse_opts(
+        [
+            "--include",
+            rule,
+            "--format",
+            "{source}:{line}:{col} [{severity}] {rule_id} {desc}",
+            "--configure",
+            "return_status:quality_gate:E=0:W=0:I=0",
+            *args,
+            str(path),
+        ]
+    )
     runner.config = config
     return runner
 
 
 def replace_paths(line, rules_dir):
-    return line.replace('${rules_dir}', rules_dir).replace(r'${\}', os.path.sep).rstrip('\n')
+    return line.replace("${rules_dir}", rules_dir).replace(r"${\}", os.path.sep).rstrip("\n")
 
 
 def find_test_data(test_data_path, rule):
     current_dir = Path(__file__).parent
-    test_data = Path(current_dir, 'rules', test_data_path)
+    test_data = Path(current_dir, "rules", test_data_path)
     if IS_RF4:
-        expected_output = Path(test_data, 'expected_output_rf4.txt')
+        expected_output = Path(test_data, "expected_output_rf4.txt")
         if not expected_output.exists():
-            expected_output = Path(test_data, 'expected_output.txt')
+            expected_output = Path(test_data, "expected_output.txt")
     else:
-        expected_output = Path(test_data, 'expected_output.txt')
+        expected_output = Path(test_data, "expected_output.txt")
     assert test_data.exists(), f"Missing test data for rule '{rule}'"
     assert expected_output.exists(), f"Missing expected_output.txt file for rule '{rule}'"
     return test_data, expected_output

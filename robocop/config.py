@@ -407,6 +407,7 @@ class Config:
             "missing-whitespace-after-setting": "not-enough-whitespace-after-setting",
             "variable-should-left-aligned": "variable-should-be-left-aligned",
             "0304": "0406",
+            "invalid-char-in-name": "not-allowed-char-in-name",
         }
         for rule in chain(self.include, self.exclude):
             if rule in deprecated:  # update warning description to specific case

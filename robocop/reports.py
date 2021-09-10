@@ -35,7 +35,7 @@ class RulesByIdReport(Report):
         W0502 (too-little-calls-in-keyword) : 5
         W0201 (missing-doc-keyword)         : 4
         E0401 (parsing-error)               : 3
-        W0301 (invalid-char-in-name)        : 2
+        W0301 (not-allowed-char-in-name)    : 2
         E0901 (keyword-after-return)        : 1
     """
 

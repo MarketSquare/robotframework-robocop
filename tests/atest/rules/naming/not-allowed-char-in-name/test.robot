@@ -1,4 +1,4 @@
-*** Settings ***
+\*** Settings ***
 Documentation  doc
 
 

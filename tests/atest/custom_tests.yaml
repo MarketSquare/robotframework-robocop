@@ -19,11 +19,13 @@ tests:
       src_dir: duplications/section-out-of-order_default_order
     - config: section-out-of-order:sections_order:settings,variables,testcases,tasks,keywords
       src_dir: duplications/section-out-of-order_default_order
-  invalid-char-in-name:
-    - config: invalid-char-in-name:invalid_chars:$:{}
-      src_dir: naming/invalid-char-in-name-configured
-    - config: invalid-char-in-name:invalid_chars:!.?/;+'"()[]{}#$%^&=<>|\
-      src_dir: naming/invalid-char-in-name-configured2
+  not-allowed-char-in-name:
+    - config: not-allowed-char-in-name:pattern:[$:{}]
+      src_dir: naming/not-allowed-char-in-name-configured
+    - config: not-allowed-char-in-name:pattern:[!.?/;+'"()[]{}#$%^&=<>|\]
+      src_dir: naming/not-allowed-char-in-name-configured2
+    - config: not-allowed-char-in-name:pattern:[^a-zA-Z\s]
+      src_dir: naming/not-allowed-char-in-name-configured3
   tag-with-reserved:
-    - config: 
+    - config:
       src_dir: tags/tag-with-reserved-in-keyword-doc

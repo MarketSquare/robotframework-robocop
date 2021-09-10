@@ -4,7 +4,7 @@ from setuptools import setup
 HERE = pathlib.Path(__file__).parent
 README = (HERE / "README.md").read_text()
 with open(HERE / "robocop" / "version.py") as f:
-    __version__ = f.read().split('=')[1].strip().strip('"')
+    __version__ = f.read().split("=")[1].strip().strip('"')
 CLASSIFIERS = """
 Development Status :: 5 - Production/Stable
 License :: OSI Approved :: Apache Software License

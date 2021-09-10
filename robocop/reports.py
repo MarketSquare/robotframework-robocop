@@ -20,7 +20,7 @@ import robocop.exceptions
 class Report:
     def configure(self, name, value):
         raise robocop.exceptions.ConfigGeneralError(
-            f"Provided param '{name}' for report '{self.name}' does not exist"
+            f"Provided param '{name}' for report '{getattr(self, 'name')}' does not exist"
         )  # noqa
 
 

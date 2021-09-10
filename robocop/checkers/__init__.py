@@ -29,15 +29,15 @@ configurations etc.). You can optionally configure rule severity or other parame
 """
 import inspect
 
-from robocop.exceptions import DuplicatedRuleError
-from robocop.rules import Rule
-from robocop.utils import modules_in_current_dir, modules_from_paths
-
 try:
     from robot.api.parsing import ModelVisitor
 except ImportError:
     from robot.parsing.model.visitor import ModelVisitor
 from robot.utils import FileReader
+
+from robocop.exceptions import DuplicatedRuleError
+from robocop.rules import Rule
+from robocop.utils import modules_in_current_dir, modules_from_paths
 
 
 class BaseChecker:

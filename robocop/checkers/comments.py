@@ -3,10 +3,11 @@ Comments checkers
 """
 from codecs import BOM_UTF32_BE, BOM_UTF32_LE, BOM_UTF8, BOM_UTF16_LE, BOM_UTF16_BE
 
+from robot.utils import FileReader
+
 from robocop.checkers import RawFileChecker, VisitorChecker
 from robocop.rules import RuleSeverity
 from robocop.utils import IS_RF4
-from robot.utils import FileReader
 
 
 class CommentChecker(VisitorChecker):

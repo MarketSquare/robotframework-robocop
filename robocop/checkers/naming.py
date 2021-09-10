@@ -18,6 +18,7 @@ from robocop.utils import (
     remove_robot_vars,
     find_robot_vars,
     token_col,
+    pattern_type,
 )
 
 
@@ -26,20 +27,20 @@ class InvalidCharactersInNameChecker(VisitorChecker):
 
     rules = {
         "0301": (
-            "invalid-char-in-name",
-            "Invalid character '%s' in %s name",
+            "not-allowed-char-in-name",
+            "Not allowed character '%s' found in %s name",
             RuleSeverity.WARNING,
             (
-                "invalid_chars",
-                "invalid_chars",
-                set,
-                "set of characters not allowed in a name",
+                "pattern",
+                "pattern",
+                pattern_type,
+                "pattern defining characters (not) allowed in a name",
             ),
         )
     }
 
     def __init__(self):
-        self.invalid_chars = {".", "?"}
+        self.pattern = re.compile(r"[\.\?]")
         super().__init__()
 
     def visit_File(self, node):
@@ -49,8 +50,8 @@ class InvalidCharactersInNameChecker(VisitorChecker):
             if "__init__" in suite_name:
                 suite_name = Path(source).parent.name
             for char in suite_name:
-                if char in self.invalid_chars:
-                    self.report("invalid-char-in-name", char, "suite", node=node)
+                if self.pattern.search(char):
+                    self.report("not-allowed-char-in-name", char, "suite", node=node)
         super().visit_File(node)
 
     def check_if_char_in_node_name(self, node, name_of_node, is_keyword=False):
@@ -62,9 +63,9 @@ class InvalidCharactersInNameChecker(VisitorChecker):
                 start, stop = variables.pop(0)
                 index += stop - start
             else:
-                if node.name[index] in self.invalid_chars:
+                if self.pattern.search(node.name[index]):
                     self.report(
-                        "invalid-char-in-name",
+                        "not-allowed-char-in-name",
                         node.name[index],
                         name_of_node,
                         node=node,

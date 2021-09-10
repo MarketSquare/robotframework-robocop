@@ -186,12 +186,7 @@ class LineLengthChecker(RawFileChecker):
                 int,
                 "number of characters allowed in one line",
             ),
-            (
-                "ignore_pattern",
-                "ignore_pattern",
-                pattern_type,
-                "Ignore lines that contain configured pattern",
-            ),
+            ("ignore_pattern", "ignore_pattern", pattern_type, "ignore lines that contain configured pattern"),
         )
     }
 

@@ -143,7 +143,7 @@ class ConsistentAssignmentSignChecker(VisitorChecker):
     rules = {
         "0909": (
             "inconsistent-assignment",
-            "The assignment sign is not consistent through the file. Expected '%s' but got '%s' instead",
+            "The assignment sign is not consistent within the file. Expected '%s' but got '%s' instead",
             RuleSeverity.WARNING,
             (
                 "assignment_sign_type",

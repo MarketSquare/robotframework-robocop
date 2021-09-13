@@ -171,7 +171,7 @@ class KeywordNamingChecker(VisitorChecker):
     def visit_If(self, node):  # noqa
         for keyword in node.body:
             if isinstance(keyword, KeywordCall):
-                if keyword.keyword.lower() in self.else_if:
+                if keyword.keyword and keyword.keyword.lower() in self.else_if:
                     self.report("else-not-upper-case", node=keyword, col=keyword_col(keyword))
         self.generic_visit(node)
 

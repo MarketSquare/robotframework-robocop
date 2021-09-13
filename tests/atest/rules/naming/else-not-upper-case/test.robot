@@ -23,3 +23,8 @@ Test
             Keyword
         End
     END
+
+No Keyword Name
+    IF  Keyword
+        ${argument}
+    END

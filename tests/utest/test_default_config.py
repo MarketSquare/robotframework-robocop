@@ -167,6 +167,11 @@ class TestDefaultConfig:
     @pytest.mark.parametrize('config_no', [1, 2])
     def test_load_config_with_utf8_encoding(self, path_to_test_data, config, config_no):
         src = path_to_test_data / f"config_with_encoding{config_no}"
+        expected = [
+            'line-too-long:line_length:150',
+            'not-allowed-char-in-name:pattern:[Á]'
+        ]
         os.chdir(str(src))
         with patch.object(sys, "argv", ["prog"]):
             config.parse_opts()
+        assert sorted(config.configure) == expected

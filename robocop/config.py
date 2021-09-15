@@ -7,6 +7,7 @@ from itertools import chain
 from pathlib import Path
 
 import toml
+from robot.utils import FileReader
 
 from robocop.exceptions import (
     ArgumentFileNotFoundError,
@@ -179,9 +180,9 @@ class Config:
 
     def load_args_from_file(self, argfile):
         try:
-            with open(argfile) as arg_f:
+            with FileReader(argfile) as arg_f:
                 args = []
-                for line in arg_f:
+                for line in arg_f.readlines():
                     if line.strip().startswith("#"):
                         continue
                     for arg in line.split(" ", 1):

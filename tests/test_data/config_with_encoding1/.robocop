@@ -1,0 +1,2 @@
+--configure line-too-long:line_length:150
+-c not-allowed-char-in-name:pattern:[Á]

@@ -88,3 +88,5 @@ venv.bak/
 
 PyCharm project files
 .idea/
+
+.benchmarks/

@@ -1,0 +1,4926 @@
+{
+    "machine_info": {
+        "node": "DESKTOP-S9NC16D",
+        "processor": "AMD64",
+        "machine": "AMD64",
+        "python_compiler": "MSC v.1928 64 bit (AMD64)",
+        "python_implementation": "CPython",
+        "python_implementation_version": "3.9.2",
+        "python_version": "3.9.2",
+        "python_build": [
+            "tags/v3.9.2:1a79785",
+            "Feb 19 2021 13:44:55"
+        ],
+        "release": "10",
+        "system": "Windows",
+        "cpu": {
+            "python_version": "3.9.2.final.0 (64 bit)",
+            "cpuinfo_version": [
+                8,
+                0,
+                0
+            ],
+            "cpuinfo_version_string": "8.0.0",
+            "arch": "X86_64",
+            "bits": 64,
+            "count": 8,
+            "arch_string_raw": "AMD64",
+            "vendor_id_raw": "GenuineIntel",
+            "brand_raw": "Intel(R) Core(TM) i5-9300H CPU @ 2.40GHz",
+            "hz_advertised_friendly": "2.4000 GHz",
+            "hz_actual_friendly": "2.4000 GHz",
+            "hz_advertised": [
+                2400000000,
+                0
+            ],
+            "hz_actual": [
+                2400000000,
+                0
+            ],
+            "l2_cache_size": 1048576,
+            "stepping": 10,
+            "model": 158,
+            "family": 6,
+            "l3_cache_size": 8388608,
+            "flags": [
+                "3dnow",
+                "3dnowprefetch",
+                "abm",
+                "acpi",
+                "adx",
+                "aes",
+                "apic",
+                "avx",
+                "avx2",
+                "bmi1",
+                "bmi2",
+                "clflush",
+                "clflushopt",
+                "cmov",
+                "cx16",
+                "cx8",
+                "de",
+                "dtes64",
+                "dts",
+                "erms",
+                "est",
+                "f16c",
+                "fma",
+                "fpu",
+                "fxsr",
+                "ht",
+                "hypervisor",
+                "ia64",
+                "invpcid",
+                "lahf_lm",
+                "mca",
+                "mce",
+                "mmx",
+                "movbe",
+                "mpx",
+                "msr",
+                "mtrr",
+                "osxsave",
+                "pae",
+                "pat",
+                "pbe",
+                "pcid",
+                "pclmulqdq",
+                "pdcm",
+                "pge",
+                "pni",
+                "popcnt",
+                "pse",
+                "pse36",
+                "rdrnd",
+                "rdseed",
+                "sep",
+                "serial",
+                "smap",
+                "smep",
+                "ss",
+                "sse",
+                "sse2",
+                "sse4_1",
+                "sse4_2",
+                "ssse3",
+                "tm",
+                "tm2",
+                "tsc",
+                "vme",
+                "xsave",
+                "xtpr"
+            ],
+            "l2_cache_line_size": 256,
+            "l2_cache_associativity": 6
+        }
+    },
+    "commit_info": {
+        "id": "d3316f2138d6264a227ab6fa6bd1db0b5ead8cab",
+        "time": "2021-09-15T11:22:10+02:00",
+        "author_time": "2021-09-15T11:22:10+02:00",
+        "dirty": true,
+        "project": "robotframework-robocop",
+        "branch": "fix/encoding_in_config"
+    },
+    "benchmarks": [
+        {
+            "group": "rules",
+            "name": "test_rule[todo-in-comment]",
+            "fullname": "tests/benchmarks/test_rules_benchmarks.py::test_rule[todo-in-comment]",
+            "params": {
+                "rule": "todo-in-comment"
+            },
+            "param": "todo-in-comment",
+            "extra_info": {},
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": false
+            },
+            "stats": {
+                "min": 1.4482980999999988,
+                "max": 1.4598461999999994,
+                "mean": 1.4538761999999994,
+                "stddev": 0.004525175323123114,
+                "rounds": 5,
+                "median": 1.4552286999999993,
+                "iqr": 0.006530825000000684,
+                "q1": 1.450005624999999,
+                "q3": 1.4565364499999998,
+                "iqr_outliers": 0,
+                "stddev_outliers": 2,
+                "outliers": "2;0",
+                "ld15iqr": 1.4482980999999988,
+                "hd15iqr": 1.4598461999999994,
+                "ops": 0.6878164729569137,
+                "total": 7.2693809999999965,
+                "data": [
+                    1.4552286999999993,
+                    1.4598461999999994,
+                    1.4505747999999992,
+                    1.4482980999999988,
+                    1.4554331999999999
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "rules",
+            "name": "test_rule[missing-space-after-comment]",
+            "fullname": "tests/benchmarks/test_rules_benchmarks.py::test_rule[missing-space-after-comment]",
+            "params": {
+                "rule": "missing-space-after-comment"
+            },
+            "param": "missing-space-after-comment",
+            "extra_info": {},
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": false
+            },
+            "stats": {
+                "min": 1.452471499999998,
+                "max": 1.4690323000000003,
+                "mean": 1.459636099999999,
+                "stddev": 0.00609753667598721,
+                "rounds": 5,
+                "median": 1.459252799999998,
+                "iqr": 0.006995075000000295,
+                "q1": 1.4557243999999994,
+                "q3": 1.4627194749999997,
+                "iqr_outliers": 0,
+                "stddev_outliers": 2,
+                "outliers": "2;0",
+                "ld15iqr": 1.452471499999998,
+                "hd15iqr": 1.4690323000000003,
+                "ops": 0.6851022662429359,
+                "total": 7.2981804999999955,
+                "data": [
+                    1.4690323000000003,
+                    1.4606151999999994,
+                    1.4568086999999998,
+                    1.459252799999998,
+                    1.452471499999998
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "rules",
+            "name": "test_rule[invalid-comment]",
+            "fullname": "tests/benchmarks/test_rules_benchmarks.py::test_rule[invalid-comment]",
+            "params": {
+                "rule": "invalid-comment"
+            },
+            "param": "invalid-comment",
+            "extra_info": {},
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": false
+            },
+            "stats": {
+                "min": 1.4496895999999992,
+                "max": 1.4752474000000007,
+                "mean": 1.4579133400000004,
+                "stddev": 0.010347715727541576,
+                "rounds": 5,
+                "median": 1.4564762000000009,
+                "iqr": 0.012071375000002327,
+                "q1": 1.4501389999999992,
+                "q3": 1.4622103750000015,
+                "iqr_outliers": 0,
+                "stddev_outliers": 1,
+                "outliers": "1;0",
+                "ld15iqr": 1.4496895999999992,
+                "hd15iqr": 1.4752474000000007,
+                "ops": 0.6859118251843417,
+                "total": 7.289566700000002,
+                "data": [
+                    1.4564762000000009,
+                    1.4752474000000007,
+                    1.4502887999999992,
+                    1.4496895999999992,
+                    1.4578647000000018
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "rules",
+            "name": "test_rule[ignored-data]",
+            "fullname": "tests/benchmarks/test_rules_benchmarks.py::test_rule[ignored-data]",
+            "params": {
+                "rule": "ignored-data"
+            },
+            "param": "ignored-data",
+            "extra_info": {},
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": false
+            },
+            "stats": {
+                "min": 1.4631140000000045,
+                "max": 1.4805331000000024,
+                "mean": 1.4689676600000012,
+                "stddev": 0.0069289126259460656,
+                "rounds": 5,
+                "median": 1.4662033999999977,
+                "iqr": 0.008033524999994768,
+                "q1": 1.4645595500000042,
+                "q3": 1.472593074999999,
+                "iqr_outliers": 0,
+                "stddev_outliers": 1,
+                "outliers": "1;0",
+                "ld15iqr": 1.4631140000000045,
+                "hd15iqr": 1.4805331000000024,
+                "ops": 0.6807501807085387,
+                "total": 7.344838300000006,
+                "data": [
+                    1.465041400000004,
+                    1.4631140000000045,
+                    1.4805331000000024,
+                    1.4662033999999977,
+                    1.4699463999999978
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "rules",
+            "name": "test_rule[bom-encoding-in-file]",
+            "fullname": "tests/benchmarks/test_rules_benchmarks.py::test_rule[bom-encoding-in-file]",
+            "params": {
+                "rule": "bom-encoding-in-file"
+            },
+            "param": "bom-encoding-in-file",
+            "extra_info": {},
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": false
+            },
+            "stats": {
+                "min": 1.4584804000000062,
+                "max": 1.474195199999997,
+                "mean": 1.4665680800000005,
+                "stddev": 0.0060330240863900675,
+                "rounds": 5,
+                "median": 1.4651014999999958,
+                "iqr": 0.008428474999995217,
+                "q1": 1.463018950000004,
+                "q3": 1.4714474249999991,
+                "iqr_outliers": 0,
+                "stddev_outliers": 2,
+                "outliers": "2;0",
+                "ld15iqr": 1.4584804000000062,
+                "hd15iqr": 1.474195199999997,
+                "ops": 0.6818640154775493,
+                "total": 7.332840400000002,
+                "data": [
+                    1.4705314999999999,
+                    1.4645318000000032,
+                    1.4651014999999958,
+                    1.474195199999997,
+                    1.4584804000000062
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "rules",
+            "name": "test_rule[missing-doc-keyword]",
+            "fullname": "tests/benchmarks/test_rules_benchmarks.py::test_rule[missing-doc-keyword]",
+            "params": {
+                "rule": "missing-doc-keyword"
+            },
+            "param": "missing-doc-keyword",
+            "extra_info": {},
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": false
+            },
+            "stats": {
+                "min": 1.4623761000000002,
+                "max": 1.490645800000003,
+                "mean": 1.4738517399999993,
+                "stddev": 0.012459026285910675,
+                "rounds": 5,
+                "median": 1.4691230999999974,
+                "iqr": 0.021480099999998004,
+                "q1": 1.4635553249999997,
+                "q3": 1.4850354249999977,
+                "iqr_outliers": 0,
+                "stddev_outliers": 1,
+                "outliers": "1;0",
+                "ld15iqr": 1.4623761000000002,
+                "hd15iqr": 1.490645800000003,
+                "ops": 0.6784942968551236,
+                "total": 7.369258699999996,
+                "data": [
+                    1.4639483999999996,
+                    1.4623761000000002,
+                    1.4691230999999974,
+                    1.490645800000003,
+                    1.483165299999996
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "rules",
+            "name": "test_rule[missing-doc-test-case]",
+            "fullname": "tests/benchmarks/test_rules_benchmarks.py::test_rule[missing-doc-test-case]",
+            "params": {
+                "rule": "missing-doc-test-case"
+            },
+            "param": "missing-doc-test-case",
+            "extra_info": {},
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": false
+            },
+            "stats": {
+                "min": 1.4608486999999997,
+                "max": 1.4854887999999988,
+                "mean": 1.4722895999999992,
+                "stddev": 0.01196958024222046,
+                "rounds": 5,
+                "median": 1.4676474000000042,
+                "iqr": 0.022668949999996357,
+                "q1": 1.462256374999999,
+                "q3": 1.4849253249999954,
+                "iqr_outliers": 0,
+                "stddev_outliers": 2,
+                "outliers": "2;0",
+                "ld15iqr": 1.4608486999999997,
+                "hd15iqr": 1.4854887999999988,
+                "ops": 0.6792141980762484,
+                "total": 7.361447999999996,
+                "data": [
+                    1.4627255999999988,
+                    1.4608486999999997,
+                    1.4676474000000042,
+                    1.4847374999999943,
+                    1.4854887999999988
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "rules",
+            "name": "test_rule[missing-doc-suite]",
+            "fullname": "tests/benchmarks/test_rules_benchmarks.py::test_rule[missing-doc-suite]",
+            "params": {
+                "rule": "missing-doc-suite"
+            },
+            "param": "missing-doc-suite",
+            "extra_info": {},
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": false
+            },
+            "stats": {
+                "min": 1.4607676000000112,
+                "max": 1.469449499999996,
+                "mean": 1.4650439800000015,
+                "stddev": 0.0034095364174576643,
+                "rounds": 5,
+                "median": 1.4640222000000023,
+                "iqr": 0.005048224999999462,
+                "q1": 1.4628707500000004,
+                "q3": 1.467918975,
+                "iqr_outliers": 0,
+                "stddev_outliers": 2,
+                "outliers": "2;0",
+                "ld15iqr": 1.4607676000000112,
+                "hd15iqr": 1.469449499999996,
+                "ops": 0.6825733654767135,
+                "total": 7.3252199000000076,
+                "data": [
+                    1.4607676000000112,
+                    1.4674088000000012,
+                    1.4640222000000023,
+                    1.4635717999999969,
+                    1.469449499999996
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "rules",
+            "name": "test_rule[duplicated-test-case]",
+            "fullname": "tests/benchmarks/test_rules_benchmarks.py::test_rule[duplicated-test-case]",
+            "params": {
+                "rule": "duplicated-test-case"
+            },
+            "param": "duplicated-test-case",
+            "extra_info": {},
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": false
+            },
+            "stats": {
+                "min": 1.4470151000000016,
+                "max": 1.4596212000000008,
+                "mean": 1.4545882600000026,
+                "stddev": 0.005071762833868819,
+                "rounds": 5,
+                "median": 1.4538749000000024,
+                "iqr": 0.007177300000005715,
+                "q1": 1.4519021750000007,
+                "q3": 1.4590794750000065,
+                "iqr_outliers": 0,
+                "stddev_outliers": 1,
+                "outliers": "1;0",
+                "ld15iqr": 1.4470151000000016,
+                "hd15iqr": 1.4596212000000008,
+                "ops": 0.6874797683297664,
+                "total": 7.272941300000014,
+                "data": [
+                    1.4588989000000083,
+                    1.4470151000000016,
+                    1.4596212000000008,
+                    1.4538749000000024,
+                    1.4535312000000005
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "rules",
+            "name": "test_rule[duplicated-keyword]",
+            "fullname": "tests/benchmarks/test_rules_benchmarks.py::test_rule[duplicated-keyword]",
+            "params": {
+                "rule": "duplicated-keyword"
+            },
+            "param": "duplicated-keyword",
+            "extra_info": {},
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": false
+            },
+            "stats": {
+                "min": 1.454729400000005,
+                "max": 1.481229600000006,
+                "mean": 1.462373580000002,
+                "stddev": 0.010880412033191535,
+                "rounds": 5,
+                "median": 1.4580445999999938,
+                "iqr": 0.01101412499998844,
+                "q1": 1.455686925000009,
+                "q3": 1.4667010499999975,
+                "iqr_outliers": 0,
+                "stddev_outliers": 1,
+                "outliers": "1;0",
+                "ld15iqr": 1.454729400000005,
+                "hd15iqr": 1.481229600000006,
+                "ops": 0.6838197938450165,
+                "total": 7.31186790000001,
+                "data": [
+                    1.4618581999999947,
+                    1.4580445999999938,
+                    1.4560061000000104,
+                    1.481229600000006,
+                    1.454729400000005
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "rules",
+            "name": "test_rule[duplicated-variable]",
+            "fullname": "tests/benchmarks/test_rules_benchmarks.py::test_rule[duplicated-variable]",
+            "params": {
+                "rule": "duplicated-variable"
+            },
+            "param": "duplicated-variable",
+            "extra_info": {},
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": false
+            },
+            "stats": {
+                "min": 1.4549754000000092,
+                "max": 1.5014118000000138,
+                "mean": 1.4689471800000036,
+                "stddev": 0.01849041110311425,
+                "rounds": 5,
+                "median": 1.4621391999999958,
+                "iqr": 0.01367737499999322,
+                "q1": 1.4600382750000058,
+                "q3": 1.473715649999999,
+                "iqr_outliers": 1,
+                "stddev_outliers": 1,
+                "outliers": "1;1",
+                "ld15iqr": 1.4549754000000092,
+                "hd15iqr": 1.5014118000000138,
+                "ops": 0.6807596716990175,
+                "total": 7.344735900000018,
+                "data": [
+                    1.5014118000000138,
+                    1.4549754000000092,
+                    1.4644835999999941,
+                    1.4621391999999958,
+                    1.4617259000000047
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "rules",
+            "name": "test_rule[duplicated-resource]",
+            "fullname": "tests/benchmarks/test_rules_benchmarks.py::test_rule[duplicated-resource]",
+            "params": {
+                "rule": "duplicated-resource"
+            },
+            "param": "duplicated-resource",
+            "extra_info": {},
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": false
+            },
+            "stats": {
+                "min": 1.4587472000000048,
+                "max": 1.5026348000000098,
+                "mean": 1.4727408000000026,
+                "stddev": 0.019951230799126713,
+                "rounds": 5,
+                "median": 1.459389999999999,
+                "iqr": 0.029982299999989692,
+                "q1": 1.4587811000000066,
+                "q3": 1.4887633999999963,
+                "iqr_outliers": 0,
+                "stddev_outliers": 1,
+                "outliers": "1;0",
+                "ld15iqr": 1.4587472000000048,
+                "hd15iqr": 1.5026348000000098,
+                "ops": 0.6790061088821592,
+                "total": 7.363704000000013,
+                "data": [
+                    1.4587924000000072,
+                    1.4841395999999918,
+                    1.5026348000000098,
+                    1.459389999999999,
+                    1.4587472000000048
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "rules",
+            "name": "test_rule[duplicated-library]",
+            "fullname": "tests/benchmarks/test_rules_benchmarks.py::test_rule[duplicated-library]",
+            "params": {
+                "rule": "duplicated-library"
+            },
+            "param": "duplicated-library",
+            "extra_info": {},
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": false
+            },
+            "stats": {
+                "min": 1.4552590000000123,
+                "max": 1.4700028999999972,
+                "mean": 1.4606673999999997,
+                "stddev": 0.006334002449083302,
+                "rounds": 5,
+                "median": 1.4568921999999986,
+                "iqr": 0.009477250000010429,
+                "q1": 1.4563626999999926,
+                "q3": 1.465839950000003,
+                "iqr_outliers": 0,
+                "stddev_outliers": 1,
+                "outliers": "1;0",
+                "ld15iqr": 1.4552590000000123,
+                "hd15iqr": 1.4700028999999972,
+                "ops": 0.6846185517661311,
+                "total": 7.303336999999999,
+                "data": [
+                    1.456730599999986,
+                    1.4700028999999972,
+                    1.4552590000000123,
+                    1.4568921999999986,
+                    1.464452300000005
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "rules",
+            "name": "test_rule[duplicated-metadata]",
+            "fullname": "tests/benchmarks/test_rules_benchmarks.py::test_rule[duplicated-metadata]",
+            "params": {
+                "rule": "duplicated-metadata"
+            },
+            "param": "duplicated-metadata",
+            "extra_info": {},
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": false
+            },
+            "stats": {
+                "min": 1.4516808999999853,
+                "max": 1.466046399999982,
+                "mean": 1.4572732399999893,
+                "stddev": 0.0056745356993316886,
+                "rounds": 5,
+                "median": 1.4571259999999882,
+                "iqr": 0.00782550000000981,
+                "q1": 1.4526204999999877,
+                "q3": 1.4604459999999975,
+                "iqr_outliers": 0,
+                "stddev_outliers": 1,
+                "outliers": "1;0",
+                "ld15iqr": 1.4516808999999853,
+                "hd15iqr": 1.466046399999982,
+                "ops": 0.686213108531388,
+                "total": 7.2863661999999465,
+                "data": [
+                    1.4571259999999882,
+                    1.4529336999999884,
+                    1.466046399999982,
+                    1.4516808999999853,
+                    1.4585792000000026
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "rules",
+            "name": "test_rule[duplicated-variables-import]",
+            "fullname": "tests/benchmarks/test_rules_benchmarks.py::test_rule[duplicated-variables-import]",
+            "params": {
+                "rule": "duplicated-variables-import"
+            },
+            "param": "duplicated-variables-import",
+            "extra_info": {},
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": false
+            },
+            "stats": {
+                "min": 1.4498142999999857,
+                "max": 1.4754313999999908,
+                "mean": 1.4608831599999916,
+                "stddev": 0.010150715528627568,
+                "rounds": 5,
+                "median": 1.461258999999984,
+                "iqr": 0.01530400000002885,
+                "q1": 1.4522203749999818,
+                "q3": 1.4675243750000107,
+                "iqr_outliers": 0,
+                "stddev_outliers": 2,
+                "outliers": "2;0",
+                "ld15iqr": 1.4498142999999857,
+                "hd15iqr": 1.4754313999999908,
+                "ops": 0.6845174394371181,
+                "total": 7.304415799999958,
+                "data": [
+                    1.4498142999999857,
+                    1.4648887000000173,
+                    1.4530223999999805,
+                    1.4754313999999908,
+                    1.461258999999984
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "rules",
+            "name": "test_rule[duplicated-argument-name]",
+            "fullname": "tests/benchmarks/test_rules_benchmarks.py::test_rule[duplicated-argument-name]",
+            "params": {
+                "rule": "duplicated-argument-name"
+            },
+            "param": "duplicated-argument-name",
+            "extra_info": {},
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": false
+            },
+            "stats": {
+                "min": 1.4549658999999906,
+                "max": 1.481219699999997,
+                "mean": 1.4661657999999989,
+                "stddev": 0.010553705730452983,
+                "rounds": 5,
+                "median": 1.4631631999999968,
+                "iqr": 0.016289599999993243,
+                "q1": 1.4581834750000056,
+                "q3": 1.4744730749999988,
+                "iqr_outliers": 0,
+                "stddev_outliers": 2,
+                "outliers": "2;0",
+                "ld15iqr": 1.4549658999999906,
+                "hd15iqr": 1.481219699999997,
+                "ops": 0.6820511022696074,
+                "total": 7.330828999999994,
+                "data": [
+                    1.4592560000000105,
+                    1.4549658999999906,
+                    1.4631631999999968,
+                    1.4722241999999994,
+                    1.481219699999997
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "rules",
+            "name": "test_rule[duplicated-assigned-var-name]",
+            "fullname": "tests/benchmarks/test_rules_benchmarks.py::test_rule[duplicated-assigned-var-name]",
+            "params": {
+                "rule": "duplicated-assigned-var-name"
+            },
+            "param": "duplicated-assigned-var-name",
+            "extra_info": {},
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": false
+            },
+            "stats": {
+                "min": 1.45749330000001,
+                "max": 1.4794689999999946,
+                "mean": 1.4637263800000029,
+                "stddev": 0.008999507345788436,
+                "rounds": 5,
+                "median": 1.4609959000000003,
+                "iqr": 0.008269899999987729,
+                "q1": 1.45823797500001,
+                "q3": 1.4665078749999978,
+                "iqr_outliers": 1,
+                "stddev_outliers": 1,
+                "outliers": "1;1",
+                "ld15iqr": 1.45749330000001,
+                "hd15iqr": 1.4794689999999946,
+                "ops": 0.6831877963420991,
+                "total": 7.318631900000014,
+                "data": [
+                    1.45749330000001,
+                    1.45848620000001,
+                    1.4794689999999946,
+                    1.4609959000000003,
+                    1.4621874999999989
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "rules",
+            "name": "test_rule[section-already-defined]",
+            "fullname": "tests/benchmarks/test_rules_benchmarks.py::test_rule[section-already-defined]",
+            "params": {
+                "rule": "section-already-defined"
+            },
+            "param": "section-already-defined",
+            "extra_info": {},
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": false
+            },
+            "stats": {
+                "min": 1.4560393999999803,
+                "max": 1.4663630999999953,
+                "mean": 1.4609434999999962,
+                "stddev": 0.004289741301639913,
+                "rounds": 5,
+                "median": 1.4603319,
+                "iqr": 0.007301349999984552,
+                "q1": 1.4573933000000068,
+                "q3": 1.4646946499999913,
+                "iqr_outliers": 0,
+                "stddev_outliers": 2,
+                "outliers": "2;0",
+                "ld15iqr": 1.4560393999999803,
+                "hd15iqr": 1.4663630999999953,
+                "ops": 0.6844891674455601,
+                "total": 7.304717499999981,
+                "data": [
+                    1.46413849999999,
+                    1.4663630999999953,
+                    1.4578446000000156,
+                    1.4603319,
+                    1.4560393999999803
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "rules",
+            "name": "test_rule[section-out-of-order]",
+            "fullname": "tests/benchmarks/test_rules_benchmarks.py::test_rule[section-out-of-order]",
+            "params": {
+                "rule": "section-out-of-order"
+            },
+            "param": "section-out-of-order",
+            "extra_info": {},
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": false
+            },
+            "stats": {
+                "min": 1.4530957000000058,
+                "max": 1.4586023999999895,
+                "mean": 1.4550680199999988,
+                "stddev": 0.0022745032604914238,
+                "rounds": 5,
+                "median": 1.4544998000000078,
+                "iqr": 0.0033595250000075794,
+                "q1": 1.4532108249999922,
+                "q3": 1.4565703499999998,
+                "iqr_outliers": 0,
+                "stddev_outliers": 1,
+                "outliers": "1;0",
+                "ld15iqr": 1.4530957000000058,
+                "hd15iqr": 1.4586023999999895,
+                "ops": 0.6872530948759363,
+                "total": 7.275340099999994,
+                "data": [
+                    1.4530957000000058,
+                    1.4532491999999877,
+                    1.4558930000000032,
+                    1.4586023999999895,
+                    1.4544998000000078
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "rules",
+            "name": "test_rule[both-tests-and-tasks]",
+            "fullname": "tests/benchmarks/test_rules_benchmarks.py::test_rule[both-tests-and-tasks]",
+            "params": {
+                "rule": "both-tests-and-tasks"
+            },
+            "param": "both-tests-and-tasks",
+            "extra_info": {},
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": false
+            },
+            "stats": {
+                "min": 1.452578299999999,
+                "max": 1.4614385999999797,
+                "mean": 1.4569982999999922,
+                "stddev": 0.0037525407412751935,
+                "rounds": 5,
+                "median": 1.4581289999999854,
+                "iqr": 0.006341124999984515,
+                "q1": 1.453398650000004,
+                "q3": 1.4597397749999885,
+                "iqr_outliers": 0,
+                "stddev_outliers": 2,
+                "outliers": "2;0",
+                "ld15iqr": 1.452578299999999,
+                "hd15iqr": 1.4614385999999797,
+                "ops": 0.6863425990270581,
+                "total": 7.284991499999961,
+                "data": [
+                    1.4536721000000057,
+                    1.4581289999999854,
+                    1.4614385999999797,
+                    1.452578299999999,
+                    1.4591734999999915
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "rules",
+            "name": "test_rule[missing-keyword-name]",
+            "fullname": "tests/benchmarks/test_rules_benchmarks.py::test_rule[missing-keyword-name]",
+            "params": {
+                "rule": "missing-keyword-name"
+            },
+            "param": "missing-keyword-name",
+            "extra_info": {},
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": false
+            },
+            "stats": {
+                "min": 1.4465799000000175,
+                "max": 1.4656286000000023,
+                "mean": 1.45502654,
+                "stddev": 0.007862174069740645,
+                "rounds": 5,
+                "median": 1.4521934999999928,
+                "iqr": 0.012646099999983562,
+                "q1": 1.449227025000006,
+                "q3": 1.4618731249999897,
+                "iqr_outliers": 0,
+                "stddev_outliers": 2,
+                "outliers": "2;0",
+                "ld15iqr": 1.4465799000000175,
+                "hd15iqr": 1.4656286000000023,
+                "ops": 0.6872726871360023,
+                "total": 7.2751327,
+                "data": [
+                    1.4656286000000023,
+                    1.4606212999999855,
+                    1.4501094000000023,
+                    1.4521934999999928,
+                    1.4465799000000175
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "rules",
+            "name": "test_rule[parsing-error]",
+            "fullname": "tests/benchmarks/test_rules_benchmarks.py::test_rule[parsing-error]",
+            "params": {
+                "rule": "parsing-error"
+            },
+            "param": "parsing-error",
+            "extra_info": {},
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": false
+            },
+            "stats": {
+                "min": 1.4464102999999966,
+                "max": 1.4751974000000132,
+                "mean": 1.4579129200000012,
+                "stddev": 0.010572072136394463,
+                "rounds": 5,
+                "median": 1.4555719999999894,
+                "iqr": 0.009474449999991919,
+                "q1": 1.4526080750000077,
+                "q3": 1.4620825249999996,
+                "iqr_outliers": 0,
+                "stddev_outliers": 2,
+                "outliers": "2;0",
+                "ld15iqr": 1.4464102999999966,
+                "hd15iqr": 1.4751974000000132,
+                "ops": 0.6859120227839117,
+                "total": 7.289564600000006,
+                "data": [
+                    1.4464102999999966,
+                    1.4751974000000132,
+                    1.4546740000000113,
+                    1.457710899999995,
+                    1.4555719999999894
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "rules",
+            "name": "test_rule[invalid-continuation-mark]",
+            "fullname": "tests/benchmarks/test_rules_benchmarks.py::test_rule[invalid-continuation-mark]",
+            "params": {
+                "rule": "invalid-continuation-mark"
+            },
+            "param": "invalid-continuation-mark",
+            "extra_info": {},
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": false
+            },
+            "stats": {
+                "min": 1.4947408999999823,
+                "max": 2.0328861999999788,
+                "mean": 1.648655159999987,
+                "stddev": 0.22679572882277094,
+                "rounds": 5,
+                "median": 1.5312874999999906,
+                "iqr": 0.2612317250000089,
+                "q1": 1.5044729749999846,
+                "q3": 1.7657046999999935,
+                "iqr_outliers": 0,
+                "stddev_outliers": 1,
+                "outliers": "1;0",
+                "ld15iqr": 1.4947408999999823,
+                "hd15iqr": 2.0328861999999788,
+                "ops": 0.6065549814553141,
+                "total": 8.243275799999935,
+                "data": [
+                    2.0328861999999788,
+                    1.6766441999999984,
+                    1.5077169999999853,
+                    1.4947408999999823,
+                    1.5312874999999906
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "rules",
+            "name": "test_rule[not-enough-whitespace-after-newline-marker]",
+            "fullname": "tests/benchmarks/test_rules_benchmarks.py::test_rule[not-enough-whitespace-after-newline-marker]",
+            "params": {
+                "rule": "not-enough-whitespace-after-newline-marker"
+            },
+            "param": "not-enough-whitespace-after-newline-marker",
+            "extra_info": {},
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": false
+            },
+            "stats": {
+                "min": 1.500353600000011,
+                "max": 1.5395593000000076,
+                "mean": 1.5131757600000015,
+                "stddev": 0.016160212895040677,
+                "rounds": 5,
+                "median": 1.505602400000015,
+                "iqr": 0.020866250000004527,
+                "q1": 1.5021922999999902,
+                "q3": 1.5230585499999947,
+                "iqr_outliers": 0,
+                "stddev_outliers": 1,
+                "outliers": "1;0",
+                "ld15iqr": 1.500353600000011,
+                "hd15iqr": 1.5395593000000076,
+                "ops": 0.6608617626811568,
+                "total": 7.565878800000007,
+                "data": [
+                    1.5395593000000076,
+                    1.505602400000015,
+                    1.5028051999999832,
+                    1.500353600000011,
+                    1.5175582999999904
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "rules",
+            "name": "test_rule[invalid-argument]",
+            "fullname": "tests/benchmarks/test_rules_benchmarks.py::test_rule[invalid-argument]",
+            "params": {
+                "rule": "invalid-argument"
+            },
+            "param": "invalid-argument",
+            "extra_info": {},
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": false
+            },
+            "stats": {
+                "min": 1.4527679999999918,
+                "max": 1.4672484000000168,
+                "mean": 1.4582206600000063,
+                "stddev": 0.005669419119103729,
+                "rounds": 5,
+                "median": 1.4567015000000083,
+                "iqr": 0.007432049999991364,
+                "q1": 1.454180550000011,
+                "q3": 1.4616126000000023,
+                "iqr_outliers": 0,
+                "stddev_outliers": 1,
+                "outliers": "1;0",
+                "ld15iqr": 1.4527679999999918,
+                "hd15iqr": 1.4672484000000168,
+                "ops": 0.6857672692691075,
+                "total": 7.291103300000032,
+                "data": [
+                    1.4546514000000172,
+                    1.4597339999999974,
+                    1.4527679999999918,
+                    1.4567015000000083,
+                    1.4672484000000168
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "rules",
+            "name": "test_rule[non-existing-setting]",
+            "fullname": "tests/benchmarks/test_rules_benchmarks.py::test_rule[non-existing-setting]",
+            "params": {
+                "rule": "non-existing-setting"
+            },
+            "param": "non-existing-setting",
+            "extra_info": {},
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": false
+            },
+            "stats": {
+                "min": 1.45069129999996,
+                "max": 1.4754603000000088,
+                "mean": 1.4601404799999955,
+                "stddev": 0.009643100345962972,
+                "rounds": 5,
+                "median": 1.4605947000000015,
+                "iqr": 0.011781175000038502,
+                "q1": 1.4526118999999795,
+                "q3": 1.464393075000018,
+                "iqr_outliers": 0,
+                "stddev_outliers": 1,
+                "outliers": "1;0",
+                "ld15iqr": 1.45069129999996,
+                "hd15iqr": 1.4754603000000088,
+                "ops": 0.6848656096432606,
+                "total": 7.300702399999977,
+                "data": [
+                    1.453252099999986,
+                    1.4605947000000015,
+                    1.45069129999996,
+                    1.460704000000021,
+                    1.4754603000000088
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "rules",
+            "name": "test_rule[setting-not-supported]",
+            "fullname": "tests/benchmarks/test_rules_benchmarks.py::test_rule[setting-not-supported]",
+            "params": {
+                "rule": "setting-not-supported"
+            },
+            "param": "setting-not-supported",
+            "extra_info": {},
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": false
+            },
+            "stats": {
+                "min": 1.452160699999979,
+                "max": 1.4605687000000103,
+                "mean": 1.4566022999999972,
+                "stddev": 0.0038564079134739615,
+                "rounds": 5,
+                "median": 1.4567405000000235,
+                "iqr": 0.0072929000000243605,
+                "q1": 1.4530228249999766,
+                "q3": 1.460315725000001,
+                "iqr_outliers": 0,
+                "stddev_outliers": 2,
+                "outliers": "2;0",
+                "ld15iqr": 1.452160699999979,
+                "hd15iqr": 1.4605687000000103,
+                "ops": 0.6865291919420983,
+                "total": 7.283011499999986,
+                "data": [
+                    1.4567405000000235,
+                    1.4602313999999978,
+                    1.4533101999999758,
+                    1.452160699999979,
+                    1.4605687000000103
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "rules",
+            "name": "test_rule[not-enough-whitespace-after-variable]",
+            "fullname": "tests/benchmarks/test_rules_benchmarks.py::test_rule[not-enough-whitespace-after-variable]",
+            "params": {
+                "rule": "not-enough-whitespace-after-variable"
+            },
+            "param": "not-enough-whitespace-after-variable",
+            "extra_info": {},
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": false
+            },
+            "stats": {
+                "min": 1.4514475999999945,
+                "max": 1.4620517000000177,
+                "mean": 1.4565955400000008,
+                "stddev": 0.00396546277476666,
+                "rounds": 5,
+                "median": 1.4556602000000112,
+                "iqr": 0.005151375000011171,
+                "q1": 1.4542935499999885,
+                "q3": 1.4594449249999997,
+                "iqr_outliers": 0,
+                "stddev_outliers": 2,
+                "outliers": "2;0",
+                "ld15iqr": 1.4514475999999945,
+                "hd15iqr": 1.4620517000000177,
+                "ops": 0.6865323780958437,
+                "total": 7.2829777000000036,
+                "data": [
+                    1.4556602000000112,
+                    1.4514475999999945,
+                    1.4585759999999937,
+                    1.4620517000000177,
+                    1.4552421999999865
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "rules",
+            "name": "test_rule[not-enough-whitespace-after-suite-setting]",
+            "fullname": "tests/benchmarks/test_rules_benchmarks.py::test_rule[not-enough-whitespace-after-suite-setting]",
+            "params": {
+                "rule": "not-enough-whitespace-after-suite-setting"
+            },
+            "param": "not-enough-whitespace-after-suite-setting",
+            "extra_info": {},
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": false
+            },
+            "stats": {
+                "min": 1.4507824000000369,
+                "max": 1.4586746999999605,
+                "mean": 1.4544478400000003,
+                "stddev": 0.003540567191535911,
+                "rounds": 5,
+                "median": 1.452816299999995,
+                "iqr": 0.006163174999940679,
+                "q1": 1.4518377250000327,
+                "q3": 1.4580008999999734,
+                "iqr_outliers": 0,
+                "stddev_outliers": 2,
+                "outliers": "2;0",
+                "ld15iqr": 1.4507824000000369,
+                "hd15iqr": 1.4586746999999605,
+                "ops": 0.6875461412215372,
+                "total": 7.272239200000001,
+                "data": [
+                    1.452816299999995,
+                    1.4586746999999605,
+                    1.4577762999999777,
+                    1.4507824000000369,
+                    1.4521895000000313
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "rules",
+            "name": "test_rule[invalid-for-loop]",
+            "fullname": "tests/benchmarks/test_rules_benchmarks.py::test_rule[invalid-for-loop]",
+            "params": {
+                "rule": "invalid-for-loop"
+            },
+            "param": "invalid-for-loop",
+            "extra_info": {},
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": false
+            },
+            "stats": {
+                "min": 1.4564334000000372,
+                "max": 1.4782136000000037,
+                "mean": 1.4656425400000217,
+                "stddev": 0.00889415502044899,
+                "rounds": 5,
+                "median": 1.4644448000000239,
+                "iqr": 0.014306974999982458,
+                "q1": 1.4580977250000302,
+                "q3": 1.4724047000000127,
+                "iqr_outliers": 0,
+                "stddev_outliers": 2,
+                "outliers": "2;0",
+                "ld15iqr": 1.4564334000000372,
+                "hd15iqr": 1.4782136000000037,
+                "ops": 0.6822946064324698,
+                "total": 7.328212700000108,
+                "data": [
+                    1.4782136000000037,
+                    1.4586525000000279,
+                    1.4704684000000157,
+                    1.4644448000000239,
+                    1.4564334000000372
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "rules",
+            "name": "test_rule[invalid-if]",
+            "fullname": "tests/benchmarks/test_rules_benchmarks.py::test_rule[invalid-if]",
+            "params": {
+                "rule": "invalid-if"
+            },
+            "param": "invalid-if",
+            "extra_info": {},
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": false
+            },
+            "stats": {
+                "min": 1.455982600000027,
+                "max": 1.4737797999999884,
+                "mean": 1.462275139999997,
+                "stddev": 0.00704977503030163,
+                "rounds": 5,
+                "median": 1.4614209000000074,
+                "iqr": 0.008773199999978942,
+                "q1": 1.4569058499999983,
+                "q3": 1.4656790499999772,
+                "iqr_outliers": 0,
+                "stddev_outliers": 1,
+                "outliers": "1;0",
+                "ld15iqr": 1.455982600000027,
+                "hd15iqr": 1.4737797999999884,
+                "ops": 0.6838658284240557,
+                "total": 7.311375699999985,
+                "data": [
+                    1.4614209000000074,
+                    1.4737797999999884,
+                    1.455982600000027,
+                    1.4572135999999887,
+                    1.4629787999999735
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "rules",
+            "name": "test_rule[not-enough-whitespace-after-setting]",
+            "fullname": "tests/benchmarks/test_rules_benchmarks.py::test_rule[not-enough-whitespace-after-setting]",
+            "params": {
+                "rule": "not-enough-whitespace-after-setting"
+            },
+            "param": "not-enough-whitespace-after-setting",
+            "extra_info": {},
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": false
+            },
+            "stats": {
+                "min": 1.4489049000000023,
+                "max": 1.468033900000023,
+                "mean": 1.4567000199999938,
+                "stddev": 0.007020150286651273,
+                "rounds": 5,
+                "median": 1.4556413999999904,
+                "iqr": 0.006826075000020637,
+                "q1": 1.4527992749999754,
+                "q3": 1.459625349999996,
+                "iqr_outliers": 0,
+                "stddev_outliers": 2,
+                "outliers": "2;0",
+                "ld15iqr": 1.4489049000000023,
+                "hd15iqr": 1.468033900000023,
+                "ops": 0.6864831374135659,
+                "total": 7.283500099999969,
+                "data": [
+                    1.456822499999987,
+                    1.4489049000000023,
+                    1.468033900000023,
+                    1.4556413999999904,
+                    1.4540973999999665
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "rules",
+            "name": "test_rule[variables-import-with-args]",
+            "fullname": "tests/benchmarks/test_rules_benchmarks.py::test_rule[variables-import-with-args]",
+            "params": {
+                "rule": "variables-import-with-args"
+            },
+            "param": "variables-import-with-args",
+            "extra_info": {},
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": false
+            },
+            "stats": {
+                "min": 1.4444847000000323,
+                "max": 1.4629706999999712,
+                "mean": 1.4504503599999907,
+                "stddev": 0.007369766029380052,
+                "rounds": 5,
+                "median": 1.4484663999999725,
+                "iqr": 0.008062350000002994,
+                "q1": 1.4455244999999906,
+                "q3": 1.4535868499999935,
+                "iqr_outliers": 0,
+                "stddev_outliers": 1,
+                "outliers": "1;0",
+                "ld15iqr": 1.4444847000000323,
+                "hd15iqr": 1.4629706999999712,
+                "ops": 0.6894410367825387,
+                "total": 7.252251799999954,
+                "data": [
+                    1.4484663999999725,
+                    1.450458900000001,
+                    1.4458710999999766,
+                    1.4629706999999712,
+                    1.4444847000000323
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "rules",
+            "name": "test_rule[empty-section]",
+            "fullname": "tests/benchmarks/test_rules_benchmarks.py::test_rule[empty-section]",
+            "params": {
+                "rule": "empty-section"
+            },
+            "param": "empty-section",
+            "extra_info": {},
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": false
+            },
+            "stats": {
+                "min": 1.436153499999989,
+                "max": 1.4667488000000048,
+                "mean": 1.447555,
+                "stddev": 0.01179345402840366,
+                "rounds": 5,
+                "median": 1.4452403000000231,
+                "iqr": 0.014151474999991365,
+                "q1": 1.4393991999999969,
+                "q3": 1.4535506749999882,
+                "iqr_outliers": 0,
+                "stddev_outliers": 1,
+                "outliers": "1;0",
+                "ld15iqr": 1.436153499999989,
+                "hd15iqr": 1.4667488000000048,
+                "ops": 0.6908200379260202,
+                "total": 7.237774999999999,
+                "data": [
+                    1.436153499999989,
+                    1.4452403000000231,
+                    1.4404810999999995,
+                    1.4491512999999827,
+                    1.4667488000000048
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "rules",
+            "name": "test_rule[empty-metadata]",
+            "fullname": "tests/benchmarks/test_rules_benchmarks.py::test_rule[empty-metadata]",
+            "params": {
+                "rule": "empty-metadata"
+            },
+            "param": "empty-metadata",
+            "extra_info": {},
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": false
+            },
+            "stats": {
+                "min": 1.4511388999999895,
+                "max": 1.4699152000000026,
+                "mean": 1.457732399999975,
+                "stddev": 0.008250760237103541,
+                "rounds": 5,
+                "median": 1.453194099999962,
+                "iqr": 0.012858875000006265,
+                "q1": 1.451607499999966,
+                "q3": 1.4644663749999722,
+                "iqr_outliers": 0,
+                "stddev_outliers": 1,
+                "outliers": "1;0",
+                "ld15iqr": 1.4511388999999895,
+                "hd15iqr": 1.4699152000000026,
+                "ops": 0.6859969635030526,
+                "total": 7.288661999999874,
+                "data": [
+                    1.4517636999999581,
+                    1.462650099999962,
+                    1.4511388999999895,
+                    1.453194099999962,
+                    1.4699152000000026
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "rules",
+            "name": "test_rule[empty-documentation]",
+            "fullname": "tests/benchmarks/test_rules_benchmarks.py::test_rule[empty-documentation]",
+            "params": {
+                "rule": "empty-documentation"
+            },
+            "param": "empty-documentation",
+            "extra_info": {},
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": false
+            },
+            "stats": {
+                "min": 1.4529344999999694,
+                "max": 1.4636658999999668,
+                "mean": 1.4576601399999958,
+                "stddev": 0.004554180506191624,
+                "rounds": 5,
+                "median": 1.4569266999999968,
+                "iqr": 0.00786535000000299,
+                "q1": 1.453682475000008,
+                "q3": 1.461547825000011,
+                "iqr_outliers": 0,
+                "stddev_outliers": 2,
+                "outliers": "2;0",
+                "ld15iqr": 1.4529344999999694,
+                "hd15iqr": 1.4636658999999668,
+                "ops": 0.6860309701546774,
+                "total": 7.288300699999979,
+                "data": [
+                    1.4539318000000208,
+                    1.4636658999999668,
+                    1.4608418000000256,
+                    1.4529344999999694,
+                    1.4569266999999968
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "rules",
+            "name": "test_rule[empty-force-tags]",
+            "fullname": "tests/benchmarks/test_rules_benchmarks.py::test_rule[empty-force-tags]",
+            "params": {
+                "rule": "empty-force-tags"
+            },
+            "param": "empty-force-tags",
+            "extra_info": {},
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": false
+            },
+            "stats": {
+                "min": 1.4508073000000081,
+                "max": 1.4658496000000127,
+                "mean": 1.4566003399999885,
+                "stddev": 0.006285663090173965,
+                "rounds": 5,
+                "median": 1.4552408999999784,
+                "iqr": 0.010025100000035536,
+                "q1": 1.4512335249999637,
+                "q3": 1.4612586249999993,
+                "iqr_outliers": 0,
+                "stddev_outliers": 1,
+                "outliers": "1;0",
+                "ld15iqr": 1.4508073000000081,
+                "hd15iqr": 1.4658496000000127,
+                "ops": 0.686530115735115,
+                "total": 7.283001699999943,
+                "data": [
+                    1.4552408999999784,
+                    1.4508073000000081,
+                    1.451375599999949,
+                    1.4597282999999948,
+                    1.4658496000000127
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "rules",
+            "name": "test_rule[empty-default-tags]",
+            "fullname": "tests/benchmarks/test_rules_benchmarks.py::test_rule[empty-default-tags]",
+            "params": {
+                "rule": "empty-default-tags"
+            },
+            "param": "empty-default-tags",
+            "extra_info": {},
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": false
+            },
+            "stats": {
+                "min": 1.4533756000000153,
+                "max": 1.4637208999999984,
+                "mean": 1.4601093200000037,
+                "stddev": 0.00473204866172646,
+                "rounds": 5,
+                "median": 1.4632968000000233,
+                "iqr": 0.007449249999979202,
+                "q1": 1.455969925000005,
+                "q3": 1.4634191749999843,
+                "iqr_outliers": 0,
+                "stddev_outliers": 1,
+                "outliers": "1;0",
+                "ld15iqr": 1.4533756000000153,
+                "hd15iqr": 1.4637208999999984,
+                "ops": 0.6848802252697062,
+                "total": 7.300546600000018,
+                "data": [
+                    1.4632968000000233,
+                    1.4633185999999796,
+                    1.4637208999999984,
+                    1.4568347000000017,
+                    1.4533756000000153
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "rules",
+            "name": "test_rule[empty-variables-import]",
+            "fullname": "tests/benchmarks/test_rules_benchmarks.py::test_rule[empty-variables-import]",
+            "params": {
+                "rule": "empty-variables-import"
+            },
+            "param": "empty-variables-import",
+            "extra_info": {},
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": false
+            },
+            "stats": {
+                "min": 1.4536995000000275,
+                "max": 1.4736651000000052,
+                "mean": 1.4616531600000144,
+                "stddev": 0.008271097246915554,
+                "rounds": 5,
+                "median": 1.46256470000003,
+                "iqr": 0.01270702499999743,
+                "q1": 1.453943250000009,
+                "q3": 1.4666502750000063,
+                "iqr_outliers": 0,
+                "stddev_outliers": 1,
+                "outliers": "1;0",
+                "ld15iqr": 1.4536995000000275,
+                "hd15iqr": 1.4736651000000052,
+                "ops": 0.6841568351276921,
+                "total": 7.308265800000072,
+                "data": [
+                    1.4736651000000052,
+                    1.4540245000000027,
+                    1.4536995000000275,
+                    1.46256470000003,
+                    1.4643120000000067
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "rules",
+            "name": "test_rule[empty-resource-import]",
+            "fullname": "tests/benchmarks/test_rules_benchmarks.py::test_rule[empty-resource-import]",
+            "params": {
+                "rule": "empty-resource-import"
+            },
+            "param": "empty-resource-import",
+            "extra_info": {},
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": false
+            },
+            "stats": {
+                "min": 1.4516282999999817,
+                "max": 1.4741609000000153,
+                "mean": 1.4590488400000026,
+                "stddev": 0.00872805464741034,
+                "rounds": 5,
+                "median": 1.4563413000000196,
+                "iqr": 0.006943475000042554,
+                "q1": 1.454669549999977,
+                "q3": 1.4616130250000197,
+                "iqr_outliers": 1,
+                "stddev_outliers": 1,
+                "outliers": "1;1",
+                "ld15iqr": 1.4516282999999817,
+                "hd15iqr": 1.4741609000000153,
+                "ops": 0.6853780165439823,
+                "total": 7.295244200000013,
+                "data": [
+                    1.4516282999999817,
+                    1.4741609000000153,
+                    1.457430400000021,
+                    1.4563413000000196,
+                    1.4556832999999756
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "rules",
+            "name": "test_rule[empty-library-import]",
+            "fullname": "tests/benchmarks/test_rules_benchmarks.py::test_rule[empty-library-import]",
+            "params": {
+                "rule": "empty-library-import"
+            },
+            "param": "empty-library-import",
+            "extra_info": {},
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": false
+            },
+            "stats": {
+                "min": 1.456011999999987,
+                "max": 1.4856472999999824,
+                "mean": 1.468858079999984,
+                "stddev": 0.01222852103473751,
+                "rounds": 5,
+                "median": 1.4629542999999785,
+                "iqr": 0.018756925000005253,
+                "q1": 1.4607077499999832,
+                "q3": 1.4794646749999885,
+                "iqr_outliers": 0,
+                "stddev_outliers": 2,
+                "outliers": "2;0",
+                "ld15iqr": 1.456011999999987,
+                "hd15iqr": 1.4856472999999824,
+                "ops": 0.6808009661491673,
+                "total": 7.34429039999992,
+                "data": [
+                    1.456011999999987,
+                    1.4629542999999785,
+                    1.4774037999999905,
+                    1.462272999999982,
+                    1.4856472999999824
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "rules",
+            "name": "test_rule[empty-setup]",
+            "fullname": "tests/benchmarks/test_rules_benchmarks.py::test_rule[empty-setup]",
+            "params": {
+                "rule": "empty-setup"
+            },
+            "param": "empty-setup",
+            "extra_info": {},
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": false
+            },
+            "stats": {
+                "min": 1.455896800000005,
+                "max": 1.4800615000000334,
+                "mean": 1.4659770399999956,
+                "stddev": 0.009754494437620541,
+                "rounds": 5,
+                "median": 1.4615735999999515,
+                "iqr": 0.014335200000076043,
+                "q1": 1.4594596749999624,
+                "q3": 1.4737948750000385,
+                "iqr_outliers": 0,
+                "stddev_outliers": 2,
+                "outliers": "2;0",
+                "ld15iqr": 1.455896800000005,
+                "hd15iqr": 1.4800615000000334,
+                "ops": 0.6821389235400324,
+                "total": 7.329885199999978,
+                "data": [
+                    1.455896800000005,
+                    1.4615735999999515,
+                    1.4800615000000334,
+                    1.4606472999999482,
+                    1.4717060000000401
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "rules",
+            "name": "test_rule[empty-suite-setup]",
+            "fullname": "tests/benchmarks/test_rules_benchmarks.py::test_rule[empty-suite-setup]",
+            "params": {
+                "rule": "empty-suite-setup"
+            },
+            "param": "empty-suite-setup",
+            "extra_info": {},
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": false
+            },
+            "stats": {
+                "min": 1.4597479999999905,
+                "max": 1.4925724999999943,
+                "mean": 1.471340199999986,
+                "stddev": 0.013911195711904686,
+                "rounds": 5,
+                "median": 1.466908099999955,
+                "iqr": 0.02144062499996835,
+                "q1": 1.4598719000000102,
+                "q3": 1.4813125249999786,
+                "iqr_outliers": 0,
+                "stddev_outliers": 1,
+                "outliers": "1;0",
+                "ld15iqr": 1.4597479999999905,
+                "hd15iqr": 1.4925724999999943,
+                "ops": 0.6796524692250029,
+                "total": 7.35670099999993,
+                "data": [
+                    1.4599132000000168,
+                    1.466908099999955,
+                    1.4925724999999943,
+                    1.4775591999999733,
+                    1.4597479999999905
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "rules",
+            "name": "test_rule[empty-test-setup]",
+            "fullname": "tests/benchmarks/test_rules_benchmarks.py::test_rule[empty-test-setup]",
+            "params": {
+                "rule": "empty-test-setup"
+            },
+            "param": "empty-test-setup",
+            "extra_info": {},
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": false
+            },
+            "stats": {
+                "min": 1.4485386000000062,
+                "max": 1.4694370000000276,
+                "mean": 1.4568814600000224,
+                "stddev": 0.00765500287381315,
+                "rounds": 5,
+                "median": 1.4555678000000398,
+                "iqr": 0.006397824999993418,
+                "q1": 1.4531220000000218,
+                "q3": 1.4595198250000152,
+                "iqr_outliers": 1,
+                "stddev_outliers": 2,
+                "outliers": "2;1",
+                "ld15iqr": 1.4485386000000062,
+                "hd15iqr": 1.4694370000000276,
+                "ops": 0.6863976428116428,
+                "total": 7.284407300000112,
+                "data": [
+                    1.4555678000000398,
+                    1.4485386000000062,
+                    1.456214100000011,
+                    1.454649800000027,
+                    1.4694370000000276
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "rules",
+            "name": "test_rule[empty-teardown]",
+            "fullname": "tests/benchmarks/test_rules_benchmarks.py::test_rule[empty-teardown]",
+            "params": {
+                "rule": "empty-teardown"
+            },
+            "param": "empty-teardown",
+            "extra_info": {},
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": false
+            },
+            "stats": {
+                "min": 1.4423118000000272,
+                "max": 1.4570841000000314,
+                "mean": 1.4510206600000175,
+                "stddev": 0.006060912687282347,
+                "rounds": 5,
+                "median": 1.453735399999971,
+                "iqr": 0.009200024999969969,
+                "q1": 1.446063975000044,
+                "q3": 1.4552640000000139,
+                "iqr_outliers": 0,
+                "stddev_outliers": 2,
+                "outliers": "2;0",
+                "ld15iqr": 1.4423118000000272,
+                "hd15iqr": 1.4570841000000314,
+                "ops": 0.6891700632298289,
+                "total": 7.255103300000087,
+                "data": [
+                    1.4423118000000272,
+                    1.454657300000008,
+                    1.4570841000000314,
+                    1.453735399999971,
+                    1.4473147000000495
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "rules",
+            "name": "test_rule[empty-suite-teardown]",
+            "fullname": "tests/benchmarks/test_rules_benchmarks.py::test_rule[empty-suite-teardown]",
+            "params": {
+                "rule": "empty-suite-teardown"
+            },
+            "param": "empty-suite-teardown",
+            "extra_info": {},
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": false
+            },
+            "stats": {
+                "min": 1.4464313999999945,
+                "max": 1.4589750000000095,
+                "mean": 1.4545451000000071,
+                "stddev": 0.0056330492985572295,
+                "rounds": 5,
+                "median": 1.4579817000000048,
+                "iqr": 0.008909249999973667,
+                "q1": 1.4497227000000237,
+                "q3": 1.4586319499999973,
+                "iqr_outliers": 0,
+                "stddev_outliers": 1,
+                "outliers": "1;0",
+                "ld15iqr": 1.4464313999999945,
+                "hd15iqr": 1.4589750000000095,
+                "ops": 0.6875001675781625,
+                "total": 7.2727255000000355,
+                "data": [
+                    1.4589750000000095,
+                    1.4508198000000334,
+                    1.4585175999999933,
+                    1.4464313999999945,
+                    1.4579817000000048
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "rules",
+            "name": "test_rule[empty-test-teardown]",
+            "fullname": "tests/benchmarks/test_rules_benchmarks.py::test_rule[empty-test-teardown]",
+            "params": {
+                "rule": "empty-test-teardown"
+            },
+            "param": "empty-test-teardown",
+            "extra_info": {},
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": false
+            },
+            "stats": {
+                "min": 1.4456096000000116,
+                "max": 1.457008300000041,
+                "mean": 1.4521714000000088,
+                "stddev": 0.005001825741165012,
+                "rounds": 5,
+                "median": 1.4528664000000049,
+                "iqr": 0.008906299999978273,
+                "q1": 1.4478888500000124,
+                "q3": 1.4567951499999907,
+                "iqr_outliers": 0,
+                "stddev_outliers": 1,
+                "outliers": "1;0",
+                "ld15iqr": 1.4456096000000116,
+                "hd15iqr": 1.457008300000041,
+                "ops": 0.6886239461815554,
+                "total": 7.260857000000044,
+                "data": [
+                    1.4486486000000127,
+                    1.456724099999974,
+                    1.457008300000041,
+                    1.4456096000000116,
+                    1.4528664000000049
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "rules",
+            "name": "test_rule[empty-timeout]",
+            "fullname": "tests/benchmarks/test_rules_benchmarks.py::test_rule[empty-timeout]",
+            "params": {
+                "rule": "empty-timeout"
+            },
+            "param": "empty-timeout",
+            "extra_info": {},
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": false
+            },
+            "stats": {
+                "min": 1.4484054000000128,
+                "max": 1.4757078000000092,
+                "mean": 1.4584665400000063,
+                "stddev": 0.010860779385851449,
+                "rounds": 5,
+                "median": 1.453549799999962,
+                "iqr": 0.014066325000015922,
+                "q1": 1.4514821250000125,
+                "q3": 1.4655484500000284,
+                "iqr_outliers": 0,
+                "stddev_outliers": 1,
+                "outliers": "1;0",
+                "ld15iqr": 1.4484054000000128,
+                "hd15iqr": 1.4757078000000092,
+                "ops": 0.6856516571165189,
+                "total": 7.292332700000031,
+                "data": [
+                    1.4757078000000092,
+                    1.453549799999962,
+                    1.4621620000000348,
+                    1.4525077000000124,
+                    1.4484054000000128
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "rules",
+            "name": "test_rule[empty-test-timeout]",
+            "fullname": "tests/benchmarks/test_rules_benchmarks.py::test_rule[empty-test-timeout]",
+            "params": {
+                "rule": "empty-test-timeout"
+            },
+            "param": "empty-test-timeout",
+            "extra_info": {},
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": false
+            },
+            "stats": {
+                "min": 1.4502434999999991,
+                "max": 1.4763566999999966,
+                "mean": 1.4585420400000202,
+                "stddev": 0.010411445029521222,
+                "rounds": 5,
+                "median": 1.4549732000000404,
+                "iqr": 0.010894199999967213,
+                "q1": 1.4520542250000403,
+                "q3": 1.4629484250000075,
+                "iqr_outliers": 0,
+                "stddev_outliers": 1,
+                "outliers": "1;0",
+                "ld15iqr": 1.4502434999999991,
+                "hd15iqr": 1.4763566999999966,
+                "ops": 0.685616165030105,
+                "total": 7.292710200000101,
+                "data": [
+                    1.4763566999999966,
+                    1.4502434999999991,
+                    1.452657800000054,
+                    1.4549732000000404,
+                    1.4584790000000112
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "rules",
+            "name": "test_rule[empty-arguments]",
+            "fullname": "tests/benchmarks/test_rules_benchmarks.py::test_rule[empty-arguments]",
+            "params": {
+                "rule": "empty-arguments"
+            },
+            "param": "empty-arguments",
+            "extra_info": {},
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": false
+            },
+            "stats": {
+                "min": 1.456185400000038,
+                "max": 1.4753277000000367,
+                "mean": 1.4608485600000223,
+                "stddev": 0.00820500111414449,
+                "rounds": 5,
+                "median": 1.4566628000000037,
+                "iqr": 0.007042399999988902,
+                "q1": 1.456443025000027,
+                "q3": 1.463485425000016,
+                "iqr_outliers": 1,
+                "stddev_outliers": 1,
+                "outliers": "1;1",
+                "ld15iqr": 1.456185400000038,
+                "hd15iqr": 1.4753277000000367,
+                "ops": 0.6845336521398117,
+                "total": 7.304242800000111,
+                "data": [
+                    1.4565289000000234,
+                    1.4753277000000367,
+                    1.459538000000009,
+                    1.456185400000038,
+                    1.4566628000000037
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "rules",
+            "name": "test_rule[too-long-keyword]",
+            "fullname": "tests/benchmarks/test_rules_benchmarks.py::test_rule[too-long-keyword]",
+            "params": {
+                "rule": "too-long-keyword"
+            },
+            "param": "too-long-keyword",
+            "extra_info": {},
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": false
+            },
+            "stats": {
+                "min": 1.4752670999999964,
+                "max": 1.4827314000000342,
+                "mean": 1.4778187399999752,
+                "stddev": 0.003021419068604186,
+                "rounds": 5,
+                "median": 1.4774651999999833,
+                "iqr": 0.00391477499996995,
+                "q1": 1.475403674999967,
+                "q3": 1.479318449999937,
+                "iqr_outliers": 0,
+                "stddev_outliers": 1,
+                "outliers": "1;0",
+                "ld15iqr": 1.4752670999999964,
+                "hd15iqr": 1.4827314000000342,
+                "ops": 0.6766729727625573,
+                "total": 7.389093699999876,
+                "data": [
+                    1.4752670999999964,
+                    1.4754491999999573,
+                    1.4827314000000342,
+                    1.4781807999999046,
+                    1.4774651999999833
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "rules",
+            "name": "test_rule[too-few-calls-in-keyword]",
+            "fullname": "tests/benchmarks/test_rules_benchmarks.py::test_rule[too-few-calls-in-keyword]",
+            "params": {
+                "rule": "too-few-calls-in-keyword"
+            },
+            "param": "too-few-calls-in-keyword",
+            "extra_info": {},
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": false
+            },
+            "stats": {
+                "min": 1.4675406000000066,
+                "max": 1.4863110000000006,
+                "mean": 1.4731310800000301,
+                "stddev": 0.007754238762567971,
+                "rounds": 5,
+                "median": 1.4691168000000516,
+                "iqr": 0.008523300000064182,
+                "q1": 1.4684774250000032,
+                "q3": 1.4770007250000674,
+                "iqr_outliers": 0,
+                "stddev_outliers": 1,
+                "outliers": "1;0",
+                "ld15iqr": 1.4675406000000066,
+                "hd15iqr": 1.4863110000000006,
+                "ops": 0.678826218234415,
+                "total": 7.365655400000151,
+                "data": [
+                    1.4691168000000516,
+                    1.468789700000002,
+                    1.4675406000000066,
+                    1.4863110000000006,
+                    1.4738973000000897
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "rules",
+            "name": "test_rule[too-many-calls-in-keyword]",
+            "fullname": "tests/benchmarks/test_rules_benchmarks.py::test_rule[too-many-calls-in-keyword]",
+            "params": {
+                "rule": "too-many-calls-in-keyword"
+            },
+            "param": "too-many-calls-in-keyword",
+            "extra_info": {},
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": false
+            },
+            "stats": {
+                "min": 1.4665308999999525,
+                "max": 1.5035840000000462,
+                "mean": 1.4820072799999706,
+                "stddev": 0.01580289334198494,
+                "rounds": 5,
+                "median": 1.4742345999999316,
+                "iqr": 0.025420150000030617,
+                "q1": 1.4706868749999558,
+                "q3": 1.4961070249999864,
+                "iqr_outliers": 0,
+                "stddev_outliers": 1,
+                "outliers": "1;0",
+                "ld15iqr": 1.4665308999999525,
+                "hd15iqr": 1.5035840000000462,
+                "ops": 0.6747605180455117,
+                "total": 7.4100363999998535,
+                "data": [
+                    1.4665308999999525,
+                    1.5035840000000462,
+                    1.4720721999999569,
+                    1.4742345999999316,
+                    1.4936146999999664
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "rules",
+            "name": "test_rule[too-long-test-case]",
+            "fullname": "tests/benchmarks/test_rules_benchmarks.py::test_rule[too-long-test-case]",
+            "params": {
+                "rule": "too-long-test-case"
+            },
+            "param": "too-long-test-case",
+            "extra_info": {},
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": false
+            },
+            "stats": {
+                "min": 1.4705551999999216,
+                "max": 1.4964787000000115,
+                "mean": 1.4804160400000002,
+                "stddev": 0.009889559226945548,
+                "rounds": 5,
+                "median": 1.477407200000016,
+                "iqr": 0.01143514999995432,
+                "q1": 1.4742763250000337,
+                "q3": 1.485711474999988,
+                "iqr_outliers": 0,
+                "stddev_outliers": 1,
+                "outliers": "1;0",
+                "ld15iqr": 1.4705551999999216,
+                "hd15iqr": 1.4964787000000115,
+                "ops": 0.6754857911428735,
+                "total": 7.4020802,
+                "data": [
+                    1.475516700000071,
+                    1.4705551999999216,
+                    1.477407200000016,
+                    1.4964787000000115,
+                    1.4821223999999802
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "rules",
+            "name": "test_rule[too-many-calls-in-test-case]",
+            "fullname": "tests/benchmarks/test_rules_benchmarks.py::test_rule[too-many-calls-in-test-case]",
+            "params": {
+                "rule": "too-many-calls-in-test-case"
+            },
+            "param": "too-many-calls-in-test-case",
+            "extra_info": {},
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": false
+            },
+            "stats": {
+                "min": 1.4658075000000963,
+                "max": 1.479722899999956,
+                "mean": 1.46954810000002,
+                "stddev": 0.005908288057003008,
+                "rounds": 5,
+                "median": 1.4662610000000313,
+                "iqr": 0.006152824999958284,
+                "q1": 1.4660958000000335,
+                "q3": 1.4722486249999918,
+                "iqr_outliers": 0,
+                "stddev_outliers": 1,
+                "outliers": "1;0",
+                "ld15iqr": 1.4658075000000963,
+                "hd15iqr": 1.479722899999956,
+                "ops": 0.6804812989789082,
+                "total": 7.3477405000001,
+                "data": [
+                    1.4661919000000125,
+                    1.4697572000000036,
+                    1.4662610000000313,
+                    1.4658075000000963,
+                    1.479722899999956
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "rules",
+            "name": "test_rule[file-too-long]",
+            "fullname": "tests/benchmarks/test_rules_benchmarks.py::test_rule[file-too-long]",
+            "params": {
+                "rule": "file-too-long"
+            },
+            "param": "file-too-long",
+            "extra_info": {},
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": false
+            },
+            "stats": {
+                "min": 1.471341700000039,
+                "max": 1.5111484999999902,
+                "mean": 1.4807846200000085,
+                "stddev": 0.017055583698944173,
+                "rounds": 5,
+                "median": 1.473786099999984,
+                "iqr": 0.012664450000045235,
+                "q1": 1.4718465999999921,
+                "q3": 1.4845110500000374,
+                "iqr_outliers": 1,
+                "stddev_outliers": 1,
+                "outliers": "1;1",
+                "ld15iqr": 1.471341700000039,
+                "hd15iqr": 1.5111484999999902,
+                "ops": 0.6753176569324405,
+                "total": 7.403923100000043,
+                "data": [
+                    1.471341700000039,
+                    1.475631900000053,
+                    1.4720148999999765,
+                    1.473786099999984,
+                    1.5111484999999902
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "rules",
+            "name": "test_rule[too-many-arguments]",
+            "fullname": "tests/benchmarks/test_rules_benchmarks.py::test_rule[too-many-arguments]",
+            "params": {
+                "rule": "too-many-arguments"
+            },
+            "param": "too-many-arguments",
+            "extra_info": {},
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": false
+            },
+            "stats": {
+                "min": 1.4661922000000231,
+                "max": 1.4749083000000383,
+                "mean": 1.4705650600000126,
+                "stddev": 0.0034466924279724994,
+                "rounds": 5,
+                "median": 1.4698748999999225,
+                "iqr": 0.005325049999981957,
+                "q1": 1.4681687500000464,
+                "q3": 1.4734938000000284,
+                "iqr_outliers": 0,
+                "stddev_outliers": 2,
+                "outliers": "2;0",
+                "ld15iqr": 1.4661922000000231,
+                "hd15iqr": 1.4749083000000383,
+                "ops": 0.6800107164248764,
+                "total": 7.352825300000063,
+                "data": [
+                    1.4698748999999225,
+                    1.4688276000000542,
+                    1.4749083000000383,
+                    1.4661922000000231,
+                    1.473022300000025
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "rules",
+            "name": "test_rule[line-too-long]",
+            "fullname": "tests/benchmarks/test_rules_benchmarks.py::test_rule[line-too-long]",
+            "params": {
+                "rule": "line-too-long"
+            },
+            "param": "line-too-long",
+            "extra_info": {},
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": false
+            },
+            "stats": {
+                "min": 1.4626706999999897,
+                "max": 1.5009876000000304,
+                "mean": 1.4779080999999905,
+                "stddev": 0.015578795970812664,
+                "rounds": 5,
+                "median": 1.472111400000017,
+                "iqr": 0.023419124999975338,
+                "q1": 1.4664117749999832,
+                "q3": 1.4898308999999585,
+                "iqr_outliers": 0,
+                "stddev_outliers": 1,
+                "outliers": "1;0",
+                "ld15iqr": 1.4626706999999897,
+                "hd15iqr": 1.5009876000000304,
+                "ops": 0.6766320585156861,
+                "total": 7.389540499999953,
+                "data": [
+                    1.4861119999999346,
+                    1.4626706999999897,
+                    1.5009876000000304,
+                    1.472111400000017,
+                    1.467658799999981
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "rules",
+            "name": "test_rule[number-of-returned-values]",
+            "fullname": "tests/benchmarks/test_rules_benchmarks.py::test_rule[number-of-returned-values]",
+            "params": {
+                "rule": "number-of-returned-values"
+            },
+            "param": "number-of-returned-values",
+            "extra_info": {},
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": false
+            },
+            "stats": {
+                "min": 1.4512198999999555,
+                "max": 1.4689190999999937,
+                "mean": 1.4607737400000134,
+                "stddev": 0.007108231300961728,
+                "rounds": 5,
+                "median": 1.4612299000000348,
+                "iqr": 0.011446299999931853,
+                "q1": 1.4552316500000586,
+                "q3": 1.4666779499999905,
+                "iqr_outliers": 0,
+                "stddev_outliers": 2,
+                "outliers": "2;0",
+                "ld15iqr": 1.4512198999999555,
+                "hd15iqr": 1.4689190999999937,
+                "ops": 0.6845687135640807,
+                "total": 7.303868700000066,
+                "data": [
+                    1.456568900000093,
+                    1.4689190999999937,
+                    1.4612299000000348,
+                    1.4512198999999555,
+                    1.4659308999999894
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "rules",
+            "name": "test_rule[too-many-test-cases]",
+            "fullname": "tests/benchmarks/test_rules_benchmarks.py::test_rule[too-many-test-cases]",
+            "params": {
+                "rule": "too-many-test-cases"
+            },
+            "param": "too-many-test-cases",
+            "extra_info": {},
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": false
+            },
+            "stats": {
+                "min": 1.4430449999999837,
+                "max": 1.4648425000000316,
+                "mean": 1.45099823999999,
+                "stddev": 0.008287731175860666,
+                "rounds": 5,
+                "median": 1.4483385999999427,
+                "iqr": 0.00836064999998598,
+                "q1": 1.4463425250000057,
+                "q3": 1.4547031749999917,
+                "iqr_outliers": 0,
+                "stddev_outliers": 1,
+                "outliers": "1;0",
+                "ld15iqr": 1.4430449999999837,
+                "hd15iqr": 1.4648425000000316,
+                "ops": 0.6891807118939076,
+                "total": 7.2549911999999495,
+                "data": [
+                    1.447441700000013,
+                    1.4483385999999427,
+                    1.4648425000000316,
+                    1.4430449999999837,
+                    1.4513233999999784
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "rules",
+            "name": "test_rule[inconsistent-assignment]",
+            "fullname": "tests/benchmarks/test_rules_benchmarks.py::test_rule[inconsistent-assignment]",
+            "params": {
+                "rule": "inconsistent-assignment"
+            },
+            "param": "inconsistent-assignment",
+            "extra_info": {},
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": false
+            },
+            "stats": {
+                "min": 1.4507410999999593,
+                "max": 1.4726828000000296,
+                "mean": 1.4602110999999922,
+                "stddev": 0.008334291132151322,
+                "rounds": 5,
+                "median": 1.4611287000000175,
+                "iqr": 0.010691850000029035,
+                "q1": 1.4537706499999672,
+                "q3": 1.4644624999999962,
+                "iqr_outliers": 0,
+                "stddev_outliers": 2,
+                "outliers": "2;0",
+                "ld15iqr": 1.4507410999999593,
+                "hd15iqr": 1.4726828000000296,
+                "ops": 0.6848324875766287,
+                "total": 7.301055499999961,
+                "data": [
+                    1.4611287000000175,
+                    1.4547804999999698,
+                    1.4726828000000296,
+                    1.4507410999999593,
+                    1.461722399999985
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "rules",
+            "name": "test_rule[inconsistent-assignment-in-variables]",
+            "fullname": "tests/benchmarks/test_rules_benchmarks.py::test_rule[inconsistent-assignment-in-variables]",
+            "params": {
+                "rule": "inconsistent-assignment-in-variables"
+            },
+            "param": "inconsistent-assignment-in-variables",
+            "extra_info": {},
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": false
+            },
+            "stats": {
+                "min": 1.4512142999999469,
+                "max": 1.481937900000048,
+                "mean": 1.4612894999999981,
+                "stddev": 0.012368294585995334,
+                "rounds": 5,
+                "median": 1.4562738999999283,
+                "iqr": 0.014671050000060859,
+                "q1": 1.453191524999994,
+                "q3": 1.467862575000055,
+                "iqr_outliers": 0,
+                "stddev_outliers": 1,
+                "outliers": "1;0",
+                "ld15iqr": 1.4512142999999469,
+                "hd15iqr": 1.481937900000048,
+                "ops": 0.6843270960340174,
+                "total": 7.30644749999999,
+                "data": [
+                    1.4631708000000572,
+                    1.4538506000000098,
+                    1.4562738999999283,
+                    1.481937900000048,
+                    1.4512142999999469
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "rules",
+            "name": "test_rule[empty-variable]",
+            "fullname": "tests/benchmarks/test_rules_benchmarks.py::test_rule[empty-variable]",
+            "params": {
+                "rule": "empty-variable"
+            },
+            "param": "empty-variable",
+            "extra_info": {},
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": false
+            },
+            "stats": {
+                "min": 1.451016500000037,
+                "max": 1.4736882999999352,
+                "mean": 1.4589647400000103,
+                "stddev": 0.00874930134937885,
+                "rounds": 5,
+                "median": 1.456892000000039,
+                "iqr": 0.009168124999945348,
+                "q1": 1.453464125000039,
+                "q3": 1.4626322499999844,
+                "iqr_outliers": 0,
+                "stddev_outliers": 1,
+                "outliers": "1;0",
+                "ld15iqr": 1.451016500000037,
+                "hd15iqr": 1.4736882999999352,
+                "ops": 0.6854175242096617,
+                "total": 7.294823700000052,
+                "data": [
+                    1.451016500000037,
+                    1.4589469000000008,
+                    1.4542800000000398,
+                    1.456892000000039,
+                    1.4736882999999352
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "rules",
+            "name": "test_rule[if-can-be-used]",
+            "fullname": "tests/benchmarks/test_rules_benchmarks.py::test_rule[if-can-be-used]",
+            "params": {
+                "rule": "if-can-be-used"
+            },
+            "param": "if-can-be-used",
+            "extra_info": {},
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": false
+            },
+            "stats": {
+                "min": 1.450687099999982,
+                "max": 1.4633422000000564,
+                "mean": 1.457220899999993,
+                "stddev": 0.004495383555964497,
+                "rounds": 5,
+                "median": 1.4571588999999676,
+                "iqr": 0.0039551000000415115,
+                "q1": 1.4553697249999686,
+                "q3": 1.4593248250000102,
+                "iqr_outliers": 0,
+                "stddev_outliers": 2,
+                "outliers": "2;0",
+                "ld15iqr": 1.450687099999982,
+                "hd15iqr": 1.4633422000000564,
+                "ops": 0.6862377557170672,
+                "total": 7.286104499999965,
+                "data": [
+                    1.450687099999982,
+                    1.4579856999999947,
+                    1.4571588999999676,
+                    1.4569305999999642,
+                    1.4633422000000564
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "rules",
+            "name": "test_rule[nested-for-loop]",
+            "fullname": "tests/benchmarks/test_rules_benchmarks.py::test_rule[nested-for-loop]",
+            "params": {
+                "rule": "nested-for-loop"
+            },
+            "param": "nested-for-loop",
+            "extra_info": {},
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": false
+            },
+            "stats": {
+                "min": 1.4331415000000334,
+                "max": 1.4847229000000652,
+                "mean": 1.4524530800000321,
+                "stddev": 0.022359342850749676,
+                "rounds": 5,
+                "median": 1.4389746000000514,
+                "iqr": 0.03420585000000642,
+                "q1": 1.437165025000013,
+                "q3": 1.4713708750000194,
+                "iqr_outliers": 0,
+                "stddev_outliers": 1,
+                "outliers": "1;0",
+                "ld15iqr": 1.4331415000000334,
+                "hd15iqr": 1.4847229000000652,
+                "ops": 0.6884903986020519,
+                "total": 7.26226540000016,
+                "data": [
+                    1.4389746000000514,
+                    1.4669202000000041,
+                    1.4331415000000334,
+                    1.4847229000000652,
+                    1.4385062000000062
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "rules",
+            "name": "test_rule[can-be-resource-file]",
+            "fullname": "tests/benchmarks/test_rules_benchmarks.py::test_rule[can-be-resource-file]",
+            "params": {
+                "rule": "can-be-resource-file"
+            },
+            "param": "can-be-resource-file",
+            "extra_info": {},
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": false
+            },
+            "stats": {
+                "min": 1.4470375999999305,
+                "max": 1.4574854999999616,
+                "mean": 1.4528131799999984,
+                "stddev": 0.0041091626552464955,
+                "rounds": 5,
+                "median": 1.4519182999999884,
+                "iqr": 0.005890750000077105,
+                "q1": 1.4504791999999895,
+                "q3": 1.4563699500000666,
+                "iqr_outliers": 0,
+                "stddev_outliers": 2,
+                "outliers": "2;0",
+                "ld15iqr": 1.4470375999999305,
+                "hd15iqr": 1.4574854999999616,
+                "ops": 0.6883197466586868,
+                "total": 7.264065899999991,
+                "data": [
+                    1.4519182999999884,
+                    1.4470375999999305,
+                    1.4574854999999616,
+                    1.4559981000001017,
+                    1.4516264000000092
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "rules",
+            "name": "test_rule[keyword-after-return]",
+            "fullname": "tests/benchmarks/test_rules_benchmarks.py::test_rule[keyword-after-return]",
+            "params": {
+                "rule": "keyword-after-return"
+            },
+            "param": "keyword-after-return",
+            "extra_info": {},
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": false
+            },
+            "stats": {
+                "min": 1.4452191000000312,
+                "max": 1.4634131999999909,
+                "mean": 1.451389039999981,
+                "stddev": 0.007853088998810695,
+                "rounds": 5,
+                "median": 1.4470395999999255,
+                "iqr": 0.011583000000058519,
+                "q1": 1.4457650249999574,
+                "q3": 1.457348025000016,
+                "iqr_outliers": 0,
+                "stddev_outliers": 1,
+                "outliers": "1;0",
+                "ld15iqr": 1.4452191000000312,
+                "hd15iqr": 1.4634131999999909,
+                "ops": 0.6889951435763999,
+                "total": 7.256945199999905,
+                "data": [
+                    1.4634131999999909,
+                    1.4459469999999328,
+                    1.4470395999999255,
+                    1.4452191000000312,
+                    1.4553263000000243
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "rules",
+            "name": "test_rule[keyword-after-return-from]",
+            "fullname": "tests/benchmarks/test_rules_benchmarks.py::test_rule[keyword-after-return-from]",
+            "params": {
+                "rule": "keyword-after-return-from"
+            },
+            "param": "keyword-after-return-from",
+            "extra_info": {},
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": false
+            },
+            "stats": {
+                "min": 1.449427700000001,
+                "max": 1.46258499999999,
+                "mean": 1.4543871400000399,
+                "stddev": 0.0058056320097752585,
+                "rounds": 5,
+                "median": 1.4518052000000807,
+                "iqr": 0.009665525000031039,
+                "q1": 1.4497130000000311,
+                "q3": 1.4593785250000622,
+                "iqr_outliers": 0,
+                "stddev_outliers": 1,
+                "outliers": "1;0",
+                "ld15iqr": 1.449427700000001,
+                "hd15iqr": 1.46258499999999,
+                "ops": 0.6875748365046549,
+                "total": 7.271935700000199,
+                "data": [
+                    1.449427700000001,
+                    1.46258499999999,
+                    1.4498081000000411,
+                    1.4583097000000862,
+                    1.4518052000000807
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "rules",
+            "name": "test_rule[empty-return]",
+            "fullname": "tests/benchmarks/test_rules_benchmarks.py::test_rule[empty-return]",
+            "params": {
+                "rule": "empty-return"
+            },
+            "param": "empty-return",
+            "extra_info": {},
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": false
+            },
+            "stats": {
+                "min": 1.4507383000000118,
+                "max": 1.4624163000000863,
+                "mean": 1.4542689800000062,
+                "stddev": 0.004659056745454821,
+                "rounds": 5,
+                "median": 1.4526002000000062,
+                "iqr": 0.0038990749999925356,
+                "q1": 1.4517910749999885,
+                "q3": 1.455690149999981,
+                "iqr_outliers": 1,
+                "stddev_outliers": 1,
+                "outliers": "1;1",
+                "ld15iqr": 1.4507383000000118,
+                "hd15iqr": 1.4624163000000863,
+                "ops": 0.6876307022652686,
+                "total": 7.271344900000031,
+                "data": [
+                    1.453448099999946,
+                    1.4624163000000863,
+                    1.4521419999999807,
+                    1.4526002000000062,
+                    1.4507383000000118
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "rules",
+            "name": "test_rule[wrong-import-order]",
+            "fullname": "tests/benchmarks/test_rules_benchmarks.py::test_rule[wrong-import-order]",
+            "params": {
+                "rule": "wrong-import-order"
+            },
+            "param": "wrong-import-order",
+            "extra_info": {},
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": false
+            },
+            "stats": {
+                "min": 1.4483023999999887,
+                "max": 1.466876999999954,
+                "mean": 1.4551487999999835,
+                "stddev": 0.00707147363884949,
+                "rounds": 5,
+                "median": 1.4541643000000022,
+                "iqr": 0.007456975000110333,
+                "q1": 1.4505690499999275,
+                "q3": 1.4580260250000379,
+                "iqr_outliers": 0,
+                "stddev_outliers": 1,
+                "outliers": "1;0",
+                "ld15iqr": 1.4483023999999887,
+                "hd15iqr": 1.466876999999954,
+                "ops": 0.6872149432415512,
+                "total": 7.275743999999918,
+                "data": [
+                    1.4541643000000022,
+                    1.4483023999999887,
+                    1.466876999999954,
+                    1.4513245999999072,
+                    1.4550757000000658
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "rules",
+            "name": "test_rule[not-allowed-char-in-name]",
+            "fullname": "tests/benchmarks/test_rules_benchmarks.py::test_rule[not-allowed-char-in-name]",
+            "params": {
+                "rule": "not-allowed-char-in-name"
+            },
+            "param": "not-allowed-char-in-name",
+            "extra_info": {},
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": false
+            },
+            "stats": {
+                "min": 1.4677529000000504,
+                "max": 1.4936310999999023,
+                "mean": 1.4750772799999823,
+                "stddev": 0.010512902509585361,
+                "rounds": 5,
+                "median": 1.4709441999999626,
+                "iqr": 0.007943900000043413,
+                "q1": 1.4698478749999708,
+                "q3": 1.4777917750000142,
+                "iqr_outliers": 1,
+                "stddev_outliers": 1,
+                "outliers": "1;1",
+                "ld15iqr": 1.4677529000000504,
+                "hd15iqr": 1.4936310999999023,
+                "ops": 0.677930582728528,
+                "total": 7.375386399999911,
+                "data": [
+                    1.4725120000000516,
+                    1.4705461999999443,
+                    1.4709441999999626,
+                    1.4936310999999023,
+                    1.4677529000000504
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "rules",
+            "name": "test_rule[wrong-case-in-keyword-name]",
+            "fullname": "tests/benchmarks/test_rules_benchmarks.py::test_rule[wrong-case-in-keyword-name]",
+            "params": {
+                "rule": "wrong-case-in-keyword-name"
+            },
+            "param": "wrong-case-in-keyword-name",
+            "extra_info": {},
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": false
+            },
+            "stats": {
+                "min": 1.463971000000015,
+                "max": 1.4892704000000094,
+                "mean": 1.4759661399999913,
+                "stddev": 0.009195195865944094,
+                "rounds": 5,
+                "median": 1.4767078999999512,
+                "iqr": 0.010386850000060122,
+                "q1": 1.470167274999966,
+                "q3": 1.480554125000026,
+                "iqr_outliers": 0,
+                "stddev_outliers": 2,
+                "outliers": "2;0",
+                "ld15iqr": 1.463971000000015,
+                "hd15iqr": 1.4892704000000094,
+                "ops": 0.677522317686777,
+                "total": 7.379830699999957,
+                "data": [
+                    1.463971000000015,
+                    1.4722326999999495,
+                    1.4776487000000316,
+                    1.4767078999999512,
+                    1.4892704000000094
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "rules",
+            "name": "test_rule[keyword-name-is-reserved-word]",
+            "fullname": "tests/benchmarks/test_rules_benchmarks.py::test_rule[keyword-name-is-reserved-word]",
+            "params": {
+                "rule": "keyword-name-is-reserved-word"
+            },
+            "param": "keyword-name-is-reserved-word",
+            "extra_info": {},
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": false
+            },
+            "stats": {
+                "min": 1.4712623000000349,
+                "max": 1.485311900000056,
+                "mean": 1.4747624800000267,
+                "stddev": 0.005952574270612814,
+                "rounds": 5,
+                "median": 1.4726468000000068,
+                "iqr": 0.00483074999996802,
+                "q1": 1.4713781750000408,
+                "q3": 1.4762089250000088,
+                "iqr_outliers": 1,
+                "stddev_outliers": 1,
+                "outliers": "1;1",
+                "ld15iqr": 1.4712623000000349,
+                "hd15iqr": 1.485311900000056,
+                "ops": 0.678075292504039,
+                "total": 7.3738124000001335,
+                "data": [
+                    1.4714168000000427,
+                    1.4712623000000349,
+                    1.485311900000056,
+                    1.473174599999993,
+                    1.4726468000000068
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "rules",
+            "name": "test_rule[underscore-in-keyword-name]",
+            "fullname": "tests/benchmarks/test_rules_benchmarks.py::test_rule[underscore-in-keyword-name]",
+            "params": {
+                "rule": "underscore-in-keyword-name"
+            },
+            "param": "underscore-in-keyword-name",
+            "extra_info": {},
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": false
+            },
+            "stats": {
+                "min": 1.4664642999999842,
+                "max": 1.48109850000003,
+                "mean": 1.474647180000011,
+                "stddev": 0.006847156508508882,
+                "rounds": 5,
+                "median": 1.4759103000000096,
+                "iqr": 0.012980899999973872,
+                "q1": 1.4681159500000263,
+                "q3": 1.4810968500000001,
+                "iqr_outliers": 0,
+                "stddev_outliers": 1,
+                "outliers": "1;0",
+                "ld15iqr": 1.4664642999999842,
+                "hd15iqr": 1.48109850000003,
+                "ops": 0.6781283099866591,
+                "total": 7.373235900000054,
+                "data": [
+                    1.4759103000000096,
+                    1.4810962999999902,
+                    1.48109850000003,
+                    1.4664642999999842,
+                    1.4686665000000403
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "rules",
+            "name": "test_rule[else-not-upper-case]",
+            "fullname": "tests/benchmarks/test_rules_benchmarks.py::test_rule[else-not-upper-case]",
+            "params": {
+                "rule": "else-not-upper-case"
+            },
+            "param": "else-not-upper-case",
+            "extra_info": {},
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": false
+            },
+            "stats": {
+                "min": 1.471531700000014,
+                "max": 1.487417300000061,
+                "mean": 1.4768431800000144,
+                "stddev": 0.00638522317051938,
+                "rounds": 5,
+                "median": 1.476322200000027,
+                "iqr": 0.007575675000026649,
+                "q1": 1.4719350499999848,
+                "q3": 1.4795107250000115,
+                "iqr_outliers": 0,
+                "stddev_outliers": 1,
+                "outliers": "1;0",
+                "ld15iqr": 1.471531700000014,
+                "hd15iqr": 1.487417300000061,
+                "ops": 0.6771199634073471,
+                "total": 7.384215900000072,
+                "data": [
+                    1.472069499999975,
+                    1.476322200000027,
+                    1.471531700000014,
+                    1.487417300000061,
+                    1.476875199999995
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "rules",
+            "name": "test_rule[keyword-name-is-empty]",
+            "fullname": "tests/benchmarks/test_rules_benchmarks.py::test_rule[keyword-name-is-empty]",
+            "params": {
+                "rule": "keyword-name-is-empty"
+            },
+            "param": "keyword-name-is-empty",
+            "extra_info": {},
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": false
+            },
+            "stats": {
+                "min": 1.4616644999999835,
+                "max": 1.4711551999999983,
+                "mean": 1.4656143599999951,
+                "stddev": 0.003448224118736235,
+                "rounds": 5,
+                "median": 1.4653306999999813,
+                "iqr": 0.0029761250000319706,
+                "q1": 1.4638349249999862,
+                "q3": 1.4668110500000182,
+                "iqr_outliers": 0,
+                "stddev_outliers": 2,
+                "outliers": "2;0",
+                "ld15iqr": 1.4616644999999835,
+                "hd15iqr": 1.4711551999999983,
+                "ops": 0.682307725205424,
+                "total": 7.328071799999975,
+                "data": [
+                    1.4645583999999872,
+                    1.4711551999999983,
+                    1.4616644999999835,
+                    1.4653630000000248,
+                    1.4653306999999813
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "rules",
+            "name": "test_rule[bdd-without-keyword-call]",
+            "fullname": "tests/benchmarks/test_rules_benchmarks.py::test_rule[bdd-without-keyword-call]",
+            "params": {
+                "rule": "bdd-without-keyword-call"
+            },
+            "param": "bdd-without-keyword-call",
+            "extra_info": {},
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": false
+            },
+            "stats": {
+                "min": 1.4684684999999718,
+                "max": 1.5017758999999842,
+                "mean": 1.4833926999999676,
+                "stddev": 0.012355160034579142,
+                "rounds": 5,
+                "median": 1.4799024999999801,
+                "iqr": 0.014843149999990146,
+                "q1": 1.4764151999999626,
+                "q3": 1.4912583499999528,
+                "iqr_outliers": 0,
+                "stddev_outliers": 2,
+                "outliers": "2;0",
+                "ld15iqr": 1.4684684999999718,
+                "hd15iqr": 1.5017758999999842,
+                "ops": 0.6741303230088849,
+                "total": 7.416963499999838,
+                "data": [
+                    1.4877524999999423,
+                    1.5017758999999842,
+                    1.4790640999999596,
+                    1.4684684999999718,
+                    1.4799024999999801
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "rules",
+            "name": "test_rule[setting-name-not-in-title-case]",
+            "fullname": "tests/benchmarks/test_rules_benchmarks.py::test_rule[setting-name-not-in-title-case]",
+            "params": {
+                "rule": "setting-name-not-in-title-case"
+            },
+            "param": "setting-name-not-in-title-case",
+            "extra_info": {},
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": false
+            },
+            "stats": {
+                "min": 1.4554915999999594,
+                "max": 1.4721415999999863,
+                "mean": 1.4616877599999725,
+                "stddev": 0.0069366943592235955,
+                "rounds": 5,
+                "median": 1.4592804000000115,
+                "iqr": 0.01063935000007632,
+                "q1": 1.4562064249999196,
+                "q3": 1.466845774999996,
+                "iqr_outliers": 0,
+                "stddev_outliers": 1,
+                "outliers": "1;0",
+                "ld15iqr": 1.4554915999999594,
+                "hd15iqr": 1.4721415999999863,
+                "ops": 0.6841406402691768,
+                "total": 7.308438799999863,
+                "data": [
+                    1.4564446999999063,
+                    1.4721415999999863,
+                    1.4592804000000115,
+                    1.4554915999999594,
+                    1.4650804999999991
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "rules",
+            "name": "test_rule[section-name-invalid]",
+            "fullname": "tests/benchmarks/test_rules_benchmarks.py::test_rule[section-name-invalid]",
+            "params": {
+                "rule": "section-name-invalid"
+            },
+            "param": "section-name-invalid",
+            "extra_info": {},
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": false
+            },
+            "stats": {
+                "min": 1.4480895000000373,
+                "max": 1.4747549999999592,
+                "mean": 1.4595142599999917,
+                "stddev": 0.01017562143469497,
+                "rounds": 5,
+                "median": 1.4555526999999984,
+                "iqr": 0.01300049999989028,
+                "q1": 1.4535456000000408,
+                "q3": 1.4665460999999311,
+                "iqr_outliers": 0,
+                "stddev_outliers": 2,
+                "outliers": "2;0",
+                "ld15iqr": 1.4480895000000373,
+                "hd15iqr": 1.4747549999999592,
+                "ops": 0.6851594584625749,
+                "total": 7.297571299999959,
+                "data": [
+                    1.4638097999999218,
+                    1.455364300000042,
+                    1.4747549999999592,
+                    1.4480895000000373,
+                    1.4555526999999984
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "rules",
+            "name": "test_rule[empty-library-alias]",
+            "fullname": "tests/benchmarks/test_rules_benchmarks.py::test_rule[empty-library-alias]",
+            "params": {
+                "rule": "empty-library-alias"
+            },
+            "param": "empty-library-alias",
+            "extra_info": {},
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": false
+            },
+            "stats": {
+                "min": 1.4518845000000056,
+                "max": 1.4675426999999672,
+                "mean": 1.459988139999973,
+                "stddev": 0.0069574797152102226,
+                "rounds": 5,
+                "median": 1.4601378999999497,
+                "iqr": 0.012838199999919198,
+                "q1": 1.4536501500000156,
+                "q3": 1.4664883499999348,
+                "iqr_outliers": 0,
+                "stddev_outliers": 2,
+                "outliers": "2;0",
+                "ld15iqr": 1.4518845000000056,
+                "hd15iqr": 1.4675426999999672,
+                "ops": 0.6849370707901904,
+                "total": 7.2999406999998655,
+                "data": [
+                    1.4601378999999497,
+                    1.454238700000019,
+                    1.466136899999924,
+                    1.4675426999999672,
+                    1.4518845000000056
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "rules",
+            "name": "test_rule[duplicated-library-alias]",
+            "fullname": "tests/benchmarks/test_rules_benchmarks.py::test_rule[duplicated-library-alias]",
+            "params": {
+                "rule": "duplicated-library-alias"
+            },
+            "param": "duplicated-library-alias",
+            "extra_info": {},
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": false
+            },
+            "stats": {
+                "min": 1.4473486000000548,
+                "max": 1.4751230000000533,
+                "mean": 1.4636707600000363,
+                "stddev": 0.011572865971015252,
+                "rounds": 5,
+                "median": 1.4663552000000664,
+                "iqr": 0.018970000000024356,
+                "q1": 1.454396575000004,
+                "q3": 1.4733665750000284,
+                "iqr_outliers": 0,
+                "stddev_outliers": 1,
+                "outliers": "1;0",
+                "ld15iqr": 1.4473486000000548,
+                "hd15iqr": 1.4751230000000533,
+                "ops": 0.6832137577169166,
+                "total": 7.318353800000182,
+                "data": [
+                    1.4663552000000664,
+                    1.4727811000000202,
+                    1.4567458999999872,
+                    1.4751230000000533,
+                    1.4473486000000548
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "rules",
+            "name": "test_rule[possible-variable-overwriting]",
+            "fullname": "tests/benchmarks/test_rules_benchmarks.py::test_rule[possible-variable-overwriting]",
+            "params": {
+                "rule": "possible-variable-overwriting"
+            },
+            "param": "possible-variable-overwriting",
+            "extra_info": {},
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": false
+            },
+            "stats": {
+                "min": 1.4521022999999786,
+                "max": 1.4745578000000705,
+                "mean": 1.4623461000000362,
+                "stddev": 0.009558282328978608,
+                "rounds": 5,
+                "median": 1.45924320000006,
+                "iqr": 0.016279175000022406,
+                "q1": 1.4548781250000218,
+                "q3": 1.4711573000000442,
+                "iqr_outliers": 0,
+                "stddev_outliers": 2,
+                "outliers": "2;0",
+                "ld15iqr": 1.4521022999999786,
+                "hd15iqr": 1.4745578000000705,
+                "ops": 0.6838326439958197,
+                "total": 7.311730500000181,
+                "data": [
+                    1.45924320000006,
+                    1.4558034000000362,
+                    1.4521022999999786,
+                    1.4700238000000354,
+                    1.4745578000000705
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "rules",
+            "name": "test_rule[not-capitalized-test-case-title]",
+            "fullname": "tests/benchmarks/test_rules_benchmarks.py::test_rule[not-capitalized-test-case-title]",
+            "params": {
+                "rule": "not-capitalized-test-case-title"
+            },
+            "param": "not-capitalized-test-case-title",
+            "extra_info": {},
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": false
+            },
+            "stats": {
+                "min": 1.4544333000000051,
+                "max": 1.4612114999999903,
+                "mean": 1.4576672200000076,
+                "stddev": 0.002794686388839558,
+                "rounds": 5,
+                "median": 1.4579755000000887,
+                "iqr": 0.004682249999973465,
+                "q1": 1.4551328999999953,
+                "q3": 1.4598151499999688,
+                "iqr_outliers": 0,
+                "stddev_outliers": 2,
+                "outliers": "2;0",
+                "ld15iqr": 1.4544333000000051,
+                "hd15iqr": 1.4612114999999903,
+                "ops": 0.6860276380503328,
+                "total": 7.288336100000038,
+                "data": [
+                    1.4612114999999903,
+                    1.4593496999999616,
+                    1.4544333000000051,
+                    1.4579755000000887,
+                    1.455366099999992
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "rules",
+            "name": "test_rule[test-case-name-is-empty]",
+            "fullname": "tests/benchmarks/test_rules_benchmarks.py::test_rule[test-case-name-is-empty]",
+            "params": {
+                "rule": "test-case-name-is-empty"
+            },
+            "param": "test-case-name-is-empty",
+            "extra_info": {},
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": false
+            },
+            "stats": {
+                "min": 1.4498884000000771,
+                "max": 1.4600414999999884,
+                "mean": 1.454904280000028,
+                "stddev": 0.0037085057545738396,
+                "rounds": 5,
+                "median": 1.455289099999959,
+                "iqr": 0.004431424999921774,
+                "q1": 1.4525139250000905,
+                "q3": 1.4569453500000122,
+                "iqr_outliers": 0,
+                "stddev_outliers": 2,
+                "outliers": "2;0",
+                "ld15iqr": 1.4498884000000771,
+                "hd15iqr": 1.4600414999999884,
+                "ops": 0.6873304407352357,
+                "total": 7.27452140000014,
+                "data": [
+                    1.4498884000000771,
+                    1.4559133000000202,
+                    1.4600414999999884,
+                    1.455289099999959,
+                    1.453389100000095
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "rules",
+            "name": "test_rule[section-variable-not-uppercase]",
+            "fullname": "tests/benchmarks/test_rules_benchmarks.py::test_rule[section-variable-not-uppercase]",
+            "params": {
+                "rule": "section-variable-not-uppercase"
+            },
+            "param": "section-variable-not-uppercase",
+            "extra_info": {},
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": false
+            },
+            "stats": {
+                "min": 1.4606964999999263,
+                "max": 1.4717990000000327,
+                "mean": 1.4647532800000136,
+                "stddev": 0.004348945301698388,
+                "rounds": 5,
+                "median": 1.4629144000000451,
+                "iqr": 0.005265549999990071,
+                "q1": 1.4620628500000237,
+                "q3": 1.4673284000000137,
+                "iqr_outliers": 0,
+                "stddev_outliers": 1,
+                "outliers": "1;0",
+                "ld15iqr": 1.4606964999999263,
+                "hd15iqr": 1.4717990000000327,
+                "ops": 0.6827088313466625,
+                "total": 7.323766400000068,
+                "data": [
+                    1.4606964999999263,
+                    1.4629144000000451,
+                    1.4625183000000561,
+                    1.4658382000000074,
+                    1.4717990000000327
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "rules",
+            "name": "test_rule[non-local-variables-should-be-uppercase]",
+            "fullname": "tests/benchmarks/test_rules_benchmarks.py::test_rule[non-local-variables-should-be-uppercase]",
+            "params": {
+                "rule": "non-local-variables-should-be-uppercase"
+            },
+            "param": "non-local-variables-should-be-uppercase",
+            "extra_info": {},
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": false
+            },
+            "stats": {
+                "min": 1.4583655999999792,
+                "max": 1.4782113999999638,
+                "mean": 1.4663088000000015,
+                "stddev": 0.007479038826268605,
+                "rounds": 5,
+                "median": 1.4651717000000417,
+                "iqr": 0.008887624999999844,
+                "q1": 1.4613015500000017,
+                "q3": 1.4701891750000016,
+                "iqr_outliers": 0,
+                "stddev_outliers": 2,
+                "outliers": "2;0",
+                "ld15iqr": 1.4583655999999792,
+                "hd15iqr": 1.4782113999999638,
+                "ops": 0.681984586057179,
+                "total": 7.331544000000008,
+                "data": [
+                    1.4782113999999638,
+                    1.4583655999999792,
+                    1.4675151000000142,
+                    1.4651717000000417,
+                    1.4622802000000092
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "rules",
+            "name": "test_rule[hyphen-in-variable-name]",
+            "fullname": "tests/benchmarks/test_rules_benchmarks.py::test_rule[hyphen-in-variable-name]",
+            "params": {
+                "rule": "hyphen-in-variable-name"
+            },
+            "param": "hyphen-in-variable-name",
+            "extra_info": {},
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": false
+            },
+            "stats": {
+                "min": 1.455035900000098,
+                "max": 1.4689299000000346,
+                "mean": 1.4594882200000483,
+                "stddev": 0.005716541118251024,
+                "rounds": 5,
+                "median": 1.4580970000000661,
+                "iqr": 0.007347174999864592,
+                "q1": 1.4550890000001004,
+                "q3": 1.462436174999965,
+                "iqr_outliers": 0,
+                "stddev_outliers": 1,
+                "outliers": "1;0",
+                "ld15iqr": 1.455035900000098,
+                "hd15iqr": 1.4689299000000346,
+                "ops": 0.6851716829889637,
+                "total": 7.297441100000242,
+                "data": [
+                    1.4689299000000346,
+                    1.455035900000098,
+                    1.4602715999999418,
+                    1.4580970000000661,
+                    1.4551067000001012
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "rules",
+            "name": "test_rule[empty-lines-between-sections]",
+            "fullname": "tests/benchmarks/test_rules_benchmarks.py::test_rule[empty-lines-between-sections]",
+            "params": {
+                "rule": "empty-lines-between-sections"
+            },
+            "param": "empty-lines-between-sections",
+            "extra_info": {},
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": false
+            },
+            "stats": {
+                "min": 1.45087860000001,
+                "max": 1.4744969000000765,
+                "mean": 1.4639632400000209,
+                "stddev": 0.008510065271977408,
+                "rounds": 5,
+                "median": 1.4656497999999374,
+                "iqr": 0.008104250000030788,
+                "q1": 1.4599164000000258,
+                "q3": 1.4680206500000565,
+                "iqr_outliers": 0,
+                "stddev_outliers": 2,
+                "outliers": "2;0",
+                "ld15iqr": 1.45087860000001,
+                "hd15iqr": 1.4744969000000765,
+                "ops": 0.6830772608743821,
+                "total": 7.319816200000105,
+                "data": [
+                    1.46586190000005,
+                    1.4744969000000765,
+                    1.462929000000031,
+                    1.4656497999999374,
+                    1.45087860000001
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "rules",
+            "name": "test_rule[empty-lines-between-test-cases]",
+            "fullname": "tests/benchmarks/test_rules_benchmarks.py::test_rule[empty-lines-between-test-cases]",
+            "params": {
+                "rule": "empty-lines-between-test-cases"
+            },
+            "param": "empty-lines-between-test-cases",
+            "extra_info": {},
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": false
+            },
+            "stats": {
+                "min": 1.4501980000000003,
+                "max": 1.4658640999999761,
+                "mean": 1.4572003799999949,
+                "stddev": 0.00595556462744481,
+                "rounds": 5,
+                "median": 1.456470999999965,
+                "iqr": 0.008265924999875551,
+                "q1": 1.4529256000000714,
+                "q3": 1.461191524999947,
+                "iqr_outliers": 0,
+                "stddev_outliers": 2,
+                "outliers": "2;0",
+                "ld15iqr": 1.4501980000000003,
+                "hd15iqr": 1.4658640999999761,
+                "ops": 0.6862474191778646,
+                "total": 7.286001899999974,
+                "data": [
+                    1.4538348000000951,
+                    1.456470999999965,
+                    1.4658640999999761,
+                    1.4596339999999373,
+                    1.4501980000000003
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "rules",
+            "name": "test_rule[empty-lines-between-keywords]",
+            "fullname": "tests/benchmarks/test_rules_benchmarks.py::test_rule[empty-lines-between-keywords]",
+            "params": {
+                "rule": "empty-lines-between-keywords"
+            },
+            "param": "empty-lines-between-keywords",
+            "extra_info": {},
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": false
+            },
+            "stats": {
+                "min": 1.454550499999982,
+                "max": 1.4716337000000976,
+                "mean": 1.4613421200000176,
+                "stddev": 0.00692132738586069,
+                "rounds": 5,
+                "median": 1.460711100000026,
+                "iqr": 0.010551374999920426,
+                "q1": 1.455428075000043,
+                "q3": 1.4659794499999634,
+                "iqr_outliers": 0,
+                "stddev_outliers": 1,
+                "outliers": "1;0",
+                "ld15iqr": 1.454550499999982,
+                "hd15iqr": 1.4716337000000976,
+                "ops": 0.6843024547872391,
+                "total": 7.306710600000088,
+                "data": [
+                    1.460711100000026,
+                    1.4557206000000633,
+                    1.454550499999982,
+                    1.4716337000000976,
+                    1.4640946999999187
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "rules",
+            "name": "test_rule[empty-line-after-section]",
+            "fullname": "tests/benchmarks/test_rules_benchmarks.py::test_rule[empty-line-after-section]",
+            "params": {
+                "rule": "empty-line-after-section"
+            },
+            "param": "empty-line-after-section",
+            "extra_info": {},
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": false
+            },
+            "stats": {
+                "min": 1.4535793999999669,
+                "max": 1.4747659999999314,
+                "mean": 1.4597810399999844,
+                "stddev": 0.00908402572802725,
+                "rounds": 5,
+                "median": 1.4548534000000473,
+                "iqr": 0.01160324999997897,
+                "q1": 1.453631449999989,
+                "q3": 1.465234699999968,
+                "iqr_outliers": 0,
+                "stddev_outliers": 1,
+                "outliers": "1;0",
+                "ld15iqr": 1.4535793999999669,
+                "hd15iqr": 1.4747659999999314,
+                "ops": 0.6850342432177436,
+                "total": 7.298905199999922,
+                "data": [
+                    1.46205759999998,
+                    1.4536487999999963,
+                    1.4535793999999669,
+                    1.4548534000000473,
+                    1.4747659999999314
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "rules",
+            "name": "test_rule[consecutive-empty-lines]",
+            "fullname": "tests/benchmarks/test_rules_benchmarks.py::test_rule[consecutive-empty-lines]",
+            "params": {
+                "rule": "consecutive-empty-lines"
+            },
+            "param": "consecutive-empty-lines",
+            "extra_info": {},
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": false
+            },
+            "stats": {
+                "min": 1.4466827999999623,
+                "max": 1.4687968999999157,
+                "mean": 1.4564488599999776,
+                "stddev": 0.007944847871902593,
+                "rounds": 5,
+                "median": 1.455336999999986,
+                "iqr": 0.007142525000006117,
+                "q1": 1.452649049999991,
+                "q3": 1.459791574999997,
+                "iqr_outliers": 0,
+                "stddev_outliers": 2,
+                "outliers": "2;0",
+                "ld15iqr": 1.4466827999999623,
+                "hd15iqr": 1.4687968999999157,
+                "ops": 0.6866015192596706,
+                "total": 7.282244299999888,
+                "data": [
+                    1.4546378000000004,
+                    1.455336999999986,
+                    1.4567898000000241,
+                    1.4466827999999623,
+                    1.4687968999999157
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "rules",
+            "name": "test_rule[empty-lines-in-statement]",
+            "fullname": "tests/benchmarks/test_rules_benchmarks.py::test_rule[empty-lines-in-statement]",
+            "params": {
+                "rule": "empty-lines-in-statement"
+            },
+            "param": "empty-lines-in-statement",
+            "extra_info": {},
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": false
+            },
+            "stats": {
+                "min": 1.453807299999994,
+                "max": 1.4605993999999782,
+                "mean": 1.455886919999989,
+                "stddev": 0.002822642746959001,
+                "rounds": 5,
+                "median": 1.454867400000012,
+                "iqr": 0.003533949999990682,
+                "q1": 1.4538440499999865,
+                "q3": 1.4573779999999772,
+                "iqr_outliers": 0,
+                "stddev_outliers": 1,
+                "outliers": "1;0",
+                "ld15iqr": 1.453807299999994,
+                "hd15iqr": 1.4605993999999782,
+                "ops": 0.6868665321891947,
+                "total": 7.279434599999945,
+                "data": [
+                    1.453856299999984,
+                    1.4605993999999782,
+                    1.4563041999999768,
+                    1.453807299999994,
+                    1.454867400000012
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "rules",
+            "name": "test_rule[mixed-tabs-and-spaces]",
+            "fullname": "tests/benchmarks/test_rules_benchmarks.py::test_rule[mixed-tabs-and-spaces]",
+            "params": {
+                "rule": "mixed-tabs-and-spaces"
+            },
+            "param": "mixed-tabs-and-spaces",
+            "extra_info": {},
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": false
+            },
+            "stats": {
+                "min": 1.4487940000000208,
+                "max": 1.5043385000000171,
+                "mean": 1.467356840000002,
+                "stddev": 0.02145538652328116,
+                "rounds": 5,
+                "median": 1.4621783999999707,
+                "iqr": 0.017944750000111753,
+                "q1": 1.4557216749999498,
+                "q3": 1.4736664250000615,
+                "iqr_outliers": 1,
+                "stddev_outliers": 1,
+                "outliers": "1;1",
+                "ld15iqr": 1.4487940000000208,
+                "hd15iqr": 1.5043385000000171,
+                "ops": 0.6814974876867705,
+                "total": 7.336784200000011,
+                "data": [
+                    1.458030899999926,
+                    1.4487940000000208,
+                    1.4634424000000763,
+                    1.5043385000000171,
+                    1.4621783999999707
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "rules",
+            "name": "test_rule[trailing-whitespace]",
+            "fullname": "tests/benchmarks/test_rules_benchmarks.py::test_rule[trailing-whitespace]",
+            "params": {
+                "rule": "trailing-whitespace"
+            },
+            "param": "trailing-whitespace",
+            "extra_info": {},
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": false
+            },
+            "stats": {
+                "min": 1.4608918999999787,
+                "max": 1.4879856999999674,
+                "mean": 1.467578320000007,
+                "stddev": 0.011452724558442437,
+                "rounds": 5,
+                "median": 1.4632954000001064,
+                "iqr": 0.007600849999988668,
+                "q1": 1.4619537499999922,
+                "q3": 1.4695545999999808,
+                "iqr_outliers": 1,
+                "stddev_outliers": 1,
+                "outliers": "1;1",
+                "ld15iqr": 1.4608918999999787,
+                "hd15iqr": 1.4879856999999674,
+                "ops": 0.6813946392993836,
+                "total": 7.3378916000000345,
+                "data": [
+                    1.4879856999999674,
+                    1.4623076999999967,
+                    1.4608918999999787,
+                    1.4632954000001064,
+                    1.4634108999999853
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "rules",
+            "name": "test_rule[missing-trailing-blank-line]",
+            "fullname": "tests/benchmarks/test_rules_benchmarks.py::test_rule[missing-trailing-blank-line]",
+            "params": {
+                "rule": "missing-trailing-blank-line"
+            },
+            "param": "missing-trailing-blank-line",
+            "extra_info": {},
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": false
+            },
+            "stats": {
+                "min": 1.457835399999908,
+                "max": 1.483033999999975,
+                "mean": 1.468527879999988,
+                "stddev": 0.01175641915327297,
+                "rounds": 5,
+                "median": 1.4632894000000078,
+                "iqr": 0.021286150000037196,
+                "q1": 1.4588958249999848,
+                "q3": 1.480181975000022,
+                "iqr_outliers": 0,
+                "stddev_outliers": 1,
+                "outliers": "1;0",
+                "ld15iqr": 1.457835399999908,
+                "hd15iqr": 1.483033999999975,
+                "ops": 0.6809540449446614,
+                "total": 7.342639399999939,
+                "data": [
+                    1.483033999999975,
+                    1.4792313000000377,
+                    1.4592493000000104,
+                    1.4632894000000078,
+                    1.457835399999908
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "rules",
+            "name": "test_rule[too-many-trailing-blank-lines]",
+            "fullname": "tests/benchmarks/test_rules_benchmarks.py::test_rule[too-many-trailing-blank-lines]",
+            "params": {
+                "rule": "too-many-trailing-blank-lines"
+            },
+            "param": "too-many-trailing-blank-lines",
+            "extra_info": {},
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": false
+            },
+            "stats": {
+                "min": 1.4583002999999053,
+                "max": 1.4902127999999948,
+                "mean": 1.4687349199999744,
+                "stddev": 0.012374695594333749,
+                "rounds": 5,
+                "median": 1.4654471000000058,
+                "iqr": 0.00926347499989788,
+                "q1": 1.462575300000026,
+                "q3": 1.4718387749999238,
+                "iqr_outliers": 1,
+                "stddev_outliers": 1,
+                "outliers": "1;1",
+                "ld15iqr": 1.4583002999999053,
+                "hd15iqr": 1.4902127999999948,
+                "ops": 0.680858054358793,
+                "total": 7.343674599999872,
+                "data": [
+                    1.4583002999999053,
+                    1.4902127999999948,
+                    1.4657140999999,
+                    1.4654471000000058,
+                    1.464000300000066
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "rules",
+            "name": "test_rule[variable-should-be-left-aligned]",
+            "fullname": "tests/benchmarks/test_rules_benchmarks.py::test_rule[variable-should-be-left-aligned]",
+            "params": {
+                "rule": "variable-should-be-left-aligned"
+            },
+            "param": "variable-should-be-left-aligned",
+            "extra_info": {},
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": false
+            },
+            "stats": {
+                "min": 1.4505218999998988,
+                "max": 1.4741954999999507,
+                "mean": 1.4606146199999785,
+                "stddev": 0.009097326686016934,
+                "rounds": 5,
+                "median": 1.4582155000000512,
+                "iqr": 0.012490500000012617,
+                "q1": 1.4543969999999717,
+                "q3": 1.4668874999999844,
+                "iqr_outliers": 0,
+                "stddev_outliers": 2,
+                "outliers": "2;0",
+                "ld15iqr": 1.4505218999998988,
+                "hd15iqr": 1.4741954999999507,
+                "ops": 0.6846432907812567,
+                "total": 7.303073099999892,
+                "data": [
+                    1.4505218999998988,
+                    1.455688699999996,
+                    1.4741954999999507,
+                    1.4582155000000512,
+                    1.4644514999999956
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "rules",
+            "name": "test_rule[suite-setting-should-be-left-aligned]",
+            "fullname": "tests/benchmarks/test_rules_benchmarks.py::test_rule[suite-setting-should-be-left-aligned]",
+            "params": {
+                "rule": "suite-setting-should-be-left-aligned"
+            },
+            "param": "suite-setting-should-be-left-aligned",
+            "extra_info": {},
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": false
+            },
+            "stats": {
+                "min": 1.4597549000000072,
+                "max": 1.4797190999998975,
+                "mean": 1.466797279999969,
+                "stddev": 0.007579176353758638,
+                "rounds": 5,
+                "median": 1.465077699999938,
+                "iqr": 0.0063318249999895215,
+                "q1": 1.462806349999994,
+                "q3": 1.4691381749999834,
+                "iqr_outliers": 1,
+                "stddev_outliers": 1,
+                "outliers": "1;1",
+                "ld15iqr": 1.4597549000000072,
+                "hd15iqr": 1.4797190999998975,
+                "ops": 0.681757468216754,
+                "total": 7.333986399999844,
+                "data": [
+                    1.465611200000012,
+                    1.465077699999938,
+                    1.4797190999998975,
+                    1.4638234999999895,
+                    1.4597549000000072
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "rules",
+            "name": "test_rule[misaligned-continuation]",
+            "fullname": "tests/benchmarks/test_rules_benchmarks.py::test_rule[misaligned-continuation]",
+            "params": {
+                "rule": "misaligned-continuation"
+            },
+            "param": "misaligned-continuation",
+            "extra_info": {},
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": false
+            },
+            "stats": {
+                "min": 1.4657627999999931,
+                "max": 1.482469100000003,
+                "mean": 1.4734909399999652,
+                "stddev": 0.007991523832016949,
+                "rounds": 5,
+                "median": 1.4689915999999812,
+                "iqr": 0.01421667499994328,
+                "q1": 1.467757349999971,
+                "q3": 1.4819740249999143,
+                "iqr_outliers": 0,
+                "stddev_outliers": 2,
+                "outliers": "2;0",
+                "ld15iqr": 1.4657627999999931,
+                "hd15iqr": 1.482469100000003,
+                "ops": 0.678660433433017,
+                "total": 7.367454699999826,
+                "data": [
+                    1.4684221999999636,
+                    1.4689915999999812,
+                    1.482469100000003,
+                    1.4818089999998847,
+                    1.4657627999999931
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "rules",
+            "name": "test_rule[misaligned-continuation-row]",
+            "fullname": "tests/benchmarks/test_rules_benchmarks.py::test_rule[misaligned-continuation-row]",
+            "params": {
+                "rule": "misaligned-continuation-row"
+            },
+            "param": "misaligned-continuation-row",
+            "extra_info": {},
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": false
+            },
+            "stats": {
+                "min": 1.4569910999998683,
+                "max": 1.4833306999998968,
+                "mean": 1.4685209999999642,
+                "stddev": 0.010057959840361359,
+                "rounds": 5,
+                "median": 1.464954300000045,
+                "iqr": 0.013261325000144097,
+                "q1": 1.4624078999999028,
+                "q3": 1.475669225000047,
+                "iqr_outliers": 0,
+                "stddev_outliers": 2,
+                "outliers": "2;0",
+                "ld15iqr": 1.4569910999998683,
+                "hd15iqr": 1.4833306999998968,
+                "ops": 0.6809572352046885,
+                "total": 7.342604999999821,
+                "data": [
+                    1.473115400000097,
+                    1.4569910999998683,
+                    1.464954300000045,
+                    1.4642134999999143,
+                    1.4833306999998968
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "rules",
+            "name": "test_rule[uneven-indent]",
+            "fullname": "tests/benchmarks/test_rules_benchmarks.py::test_rule[uneven-indent]",
+            "params": {
+                "rule": "uneven-indent"
+            },
+            "param": "uneven-indent",
+            "extra_info": {},
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": false
+            },
+            "stats": {
+                "min": 1.6146744000000126,
+                "max": 1.6411287000000812,
+                "mean": 1.6275071399999888,
+                "stddev": 0.010895098922424191,
+                "rounds": 5,
+                "median": 1.62528999999995,
+                "iqr": 0.018167025000195736,
+                "q1": 1.6190578499998765,
+                "q3": 1.6372248750000722,
+                "iqr_outliers": 0,
+                "stddev_outliers": 2,
+                "outliers": "2;0",
+                "ld15iqr": 1.6146744000000126,
+                "hd15iqr": 1.6411287000000812,
+                "ops": 0.6144366285237968,
+                "total": 8.137535699999944,
+                "data": [
+                    1.62528999999995,
+                    1.620518999999831,
+                    1.6411287000000812,
+                    1.6359236000000692,
+                    1.6146744000000126
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "rules",
+            "name": "test_rule[bad-indent]",
+            "fullname": "tests/benchmarks/test_rules_benchmarks.py::test_rule[bad-indent]",
+            "params": {
+                "rule": "bad-indent"
+            },
+            "param": "bad-indent",
+            "extra_info": {},
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": false
+            },
+            "stats": {
+                "min": 1.6051270000000386,
+                "max": 1.6262480999998843,
+                "mean": 1.6156804200000352,
+                "stddev": 0.008163363802801592,
+                "rounds": 5,
+                "median": 1.6161733000001277,
+                "iqr": 0.012246800000184521,
+                "q1": 1.609368624999945,
+                "q3": 1.6216154250001296,
+                "iqr_outliers": 0,
+                "stddev_outliers": 2,
+                "outliers": "2;0",
+                "ld15iqr": 1.6051270000000386,
+                "hd15iqr": 1.6262480999998843,
+                "ops": 0.6189342815703481,
+                "total": 8.078402100000176,
+                "data": [
+                    1.6107824999999139,
+                    1.6200712000002113,
+                    1.6161733000001277,
+                    1.6262480999998843,
+                    1.6051270000000386
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "rules",
+            "name": "test_rule[tag-with-space]",
+            "fullname": "tests/benchmarks/test_rules_benchmarks.py::test_rule[tag-with-space]",
+            "params": {
+                "rule": "tag-with-space"
+            },
+            "param": "tag-with-space",
+            "extra_info": {},
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": false
+            },
+            "stats": {
+                "min": 1.4482766999999512,
+                "max": 1.464178499999889,
+                "mean": 1.4589926199999355,
+                "stddev": 0.006600537370325301,
+                "rounds": 5,
+                "median": 1.4610852000000705,
+                "iqr": 0.008979375000080836,
+                "q1": 1.455100724999852,
+                "q3": 1.4640800999999328,
+                "iqr_outliers": 0,
+                "stddev_outliers": 1,
+                "outliers": "1;0",
+                "ld15iqr": 1.4482766999999512,
+                "hd15iqr": 1.464178499999889,
+                "ops": 0.6854044265145387,
+                "total": 7.294963099999677,
+                "data": [
+                    1.4482766999999512,
+                    1.457375399999819,
+                    1.4610852000000705,
+                    1.464178499999889,
+                    1.4640472999999474
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "rules",
+            "name": "test_rule[tag-with-or-and]",
+            "fullname": "tests/benchmarks/test_rules_benchmarks.py::test_rule[tag-with-or-and]",
+            "params": {
+                "rule": "tag-with-or-and"
+            },
+            "param": "tag-with-or-and",
+            "extra_info": {},
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": false
+            },
+            "stats": {
+                "min": 1.4532967000000099,
+                "max": 1.4728288000001157,
+                "mean": 1.4616257000000588,
+                "stddev": 0.007580374702854947,
+                "rounds": 5,
+                "median": 1.4595923000001676,
+                "iqr": 0.010738650000121197,
+                "q1": 1.4563003749999552,
+                "q3": 1.4670390250000764,
+                "iqr_outliers": 0,
+                "stddev_outliers": 2,
+                "outliers": "2;0",
+                "ld15iqr": 1.4532967000000099,
+                "hd15iqr": 1.4728288000001157,
+                "ops": 0.6841696885871396,
+                "total": 7.308128500000294,
+                "data": [
+                    1.4728288000001157,
+                    1.4532967000000099,
+                    1.4595923000001676,
+                    1.457301599999937,
+                    1.4651091000000633
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "rules",
+            "name": "test_rule[tag-with-reserved]",
+            "fullname": "tests/benchmarks/test_rules_benchmarks.py::test_rule[tag-with-reserved]",
+            "params": {
+                "rule": "tag-with-reserved"
+            },
+            "param": "tag-with-reserved",
+            "extra_info": {},
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": false
+            },
+            "stats": {
+                "min": 1.4511417000001074,
+                "max": 1.4909244999998919,
+                "mean": 1.4674714599999787,
+                "stddev": 0.016070586148982546,
+                "rounds": 5,
+                "median": 1.4691436000000522,
+                "iqr": 0.023971825000046465,
+                "q1": 1.4530776749999177,
+                "q3": 1.4770494999999642,
+                "iqr_outliers": 0,
+                "stddev_outliers": 2,
+                "outliers": "2;0",
+                "ld15iqr": 1.4511417000001074,
+                "hd15iqr": 1.4909244999998919,
+                "ops": 0.6814442578665308,
+                "total": 7.337357299999894,
+                "data": [
+                    1.4691436000000522,
+                    1.4511417000001074,
+                    1.4724244999999883,
+                    1.4537229999998544,
+                    1.4909244999998919
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "rules",
+            "name": "test_rule[could-be-forced-tags]",
+            "fullname": "tests/benchmarks/test_rules_benchmarks.py::test_rule[could-be-forced-tags]",
+            "params": {
+                "rule": "could-be-forced-tags"
+            },
+            "param": "could-be-forced-tags",
+            "extra_info": {},
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": false
+            },
+            "stats": {
+                "min": 1.4511449000001448,
+                "max": 1.4743154000000231,
+                "mean": 1.460911940000051,
+                "stddev": 0.010668715461478722,
+                "rounds": 5,
+                "median": 1.4578698000000259,
+                "iqr": 0.019654725000066264,
+                "q1": 1.4513162750000106,
+                "q3": 1.4709710000000769,
+                "iqr_outliers": 0,
+                "stddev_outliers": 1,
+                "outliers": "1;0",
+                "ld15iqr": 1.4511449000001448,
+                "hd15iqr": 1.4743154000000231,
+                "ops": 0.6845039544272361,
+                "total": 7.3045597000002545,
+                "data": [
+                    1.4513733999999658,
+                    1.4743154000000231,
+                    1.4578698000000259,
+                    1.4698562000000948,
+                    1.4511449000001448
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "rules",
+            "name": "test_rule[tag-already-set-in-force-tags]",
+            "fullname": "tests/benchmarks/test_rules_benchmarks.py::test_rule[tag-already-set-in-force-tags]",
+            "params": {
+                "rule": "tag-already-set-in-force-tags"
+            },
+            "param": "tag-already-set-in-force-tags",
+            "extra_info": {},
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": false
+            },
+            "stats": {
+                "min": 1.4546429999998054,
+                "max": 1.473849699999846,
+                "mean": 1.4607466199999635,
+                "stddev": 0.007813617235740464,
+                "rounds": 5,
+                "median": 1.457462100000157,
+                "iqr": 0.009248500000182958,
+                "q1": 1.4556041999998683,
+                "q3": 1.4648527000000513,
+                "iqr_outliers": 0,
+                "stddev_outliers": 1,
+                "outliers": "1;0",
+                "ld15iqr": 1.4546429999998054,
+                "hd15iqr": 1.473849699999846,
+                "ops": 0.6845814231629199,
+                "total": 7.303733099999818,
+                "data": [
+                    1.4618537000001197,
+                    1.4559245999998893,
+                    1.473849699999846,
+                    1.4546429999998054,
+                    1.457462100000157
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "rules",
+            "name": "test_rule[unnecessary-default-tags]",
+            "fullname": "tests/benchmarks/test_rules_benchmarks.py::test_rule[unnecessary-default-tags]",
+            "params": {
+                "rule": "unnecessary-default-tags"
+            },
+            "param": "unnecessary-default-tags",
+            "extra_info": {},
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": false
+            },
+            "stats": {
+                "min": 1.4491202000001522,
+                "max": 1.4732819999999265,
+                "mean": 1.4566455200000292,
+                "stddev": 0.009776076815139458,
+                "rounds": 5,
+                "median": 1.4522005999999692,
+                "iqr": 0.01057029999981296,
+                "q1": 1.45074942500014,
+                "q3": 1.461319724999953,
+                "iqr_outliers": 0,
+                "stddev_outliers": 1,
+                "outliers": "1;0",
+                "ld15iqr": 1.4491202000001522,
+                "hd15iqr": 1.4732819999999265,
+                "ops": 0.6865088219953335,
+                "total": 7.283227600000146,
+                "data": [
+                    1.4522005999999692,
+                    1.4573322999999618,
+                    1.451292500000136,
+                    1.4732819999999265,
+                    1.4491202000001522
+                ],
+                "iterations": 1
+            }
+        }
+    ],
+    "datetime": "2021-09-16T12:06:29.404643",
+    "version": "3.4.1"
+}

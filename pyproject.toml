@@ -1,2 +1,12 @@
 [tool.black]
 line-length = 120
+[tool.coverage.run]
+omit = ["*tests*"]
+source = ["robocop"]
+[tool.coverage.report]
+exclude_lines = [
+        "pragma: no cover",
+        "if __name__ == .__main__.:",
+        "raise NotImplementedError"
+]
+fail_under = 90

@@ -222,8 +222,8 @@ To execute performance tests on every rule run::
 
     pytest --benchmark-enable tests
 
-Add `--benchmark-save=benchmark_results` option to save your test results in json file. It can be later used to compare
-results between different runs. See [url](https://pytest-benchmark.readthedocs.io/en/latest/comparing.html) for more details.
+Add `--benchmark-save=benchmark_results` option to save your test results in a JSON file. It can be later used to compare
+results between the different runs. See [here](https://pytest-benchmark.readthedocs.io/en/latest/comparing.html) for more details.
 
 Coverage
 ''''''''

@@ -100,6 +100,11 @@ class TagScopeChecker(VisitorChecker):
             "Tags defined in Default Tags are always overwritten",
             RuleSeverity.INFO,
         ),
+        "0608": (
+            "empty-tags",
+            "Empty [Tags]. If you are overwriting Default Tags setting use more explicit NONE",
+            RuleSeverity.WARNING
+        )
     }
 
     def __init__(self):
@@ -151,6 +156,8 @@ class TagScopeChecker(VisitorChecker):
         self.default_tags_node = node
 
     def visit_Tags(self, node):  # noqa
+        if not node.values:
+            self.report("empty-tags", node=node, col=node.end_col_offset)
         self.tags.append([tag.value for tag in node.data_tokens[1:]])
         for tag in node.data_tokens[1:]:
             if tag.value in self.force_tags:

@@ -10,6 +10,10 @@ Test
     Keyword
     One More
 
+Test With Tags
+    [Tags]    dummy
+    Log    2
+
 
 *** Keywords ***
 Keyword

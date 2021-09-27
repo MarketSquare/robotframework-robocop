@@ -22,3 +22,11 @@ Keyword
     Pass
     No Operation
     Fail
+
+Keyword With Tags
+    [Tags]    tag
+    No Operation
+
+Keyword With Empty Tags
+    [Tags]
+    No Operation

@@ -100,6 +100,11 @@ class TagScopeChecker(VisitorChecker):
             "Tags defined in Default Tags are always overwritten",
             RuleSeverity.INFO,
         ),
+        "0608": (
+            "empty-tags",
+            "[Tags] setting without values%s",
+            RuleSeverity.WARNING
+        ),
     }
 
     def __init__(self):
@@ -109,6 +114,7 @@ class TagScopeChecker(VisitorChecker):
         self.force_tags_node = None
         self.default_tags_node = None
         self.test_cases_count = 0
+        self.in_keywords = False
         super().__init__()
 
     def visit_File(self, node):  # noqa
@@ -138,6 +144,11 @@ class TagScopeChecker(VisitorChecker):
                 node=node if self.force_tags_node is None else self.force_tags_node,
             )
 
+    def visit_KeywordSection(self, node):  # noqa
+        self.in_keywords = True
+        self.generic_visit(node)
+        self.in_keywords = False
+
     def visit_TestCase(self, node):  # noqa
         self.test_cases_count += 1
         self.generic_visit(node)
@@ -151,6 +162,9 @@ class TagScopeChecker(VisitorChecker):
         self.default_tags_node = node
 
     def visit_Tags(self, node):  # noqa
+        if not node.values:
+            suffix = "" if self.in_keywords else ". Consider using NONE if you want to overwrite the Default Tags"
+            self.report("empty-tags", suffix, node=node, col=node.end_col_offset)
         self.tags.append([tag.value for tag in node.data_tokens[1:]])
         for tag in node.data_tokens[1:]:
             if tag.value in self.force_tags:

@@ -347,21 +347,20 @@ class Config:
         return parser
 
     def parse_opts(self, args=None, from_cli=True):
+        default_args = self.load_default_config_file()
+        if default_args is None:
+            self.load_pyproject_file()
+        else:
+            default_args = self.preparse(default_args)
+            self.parse_args_to_config(default_args)
+
         args = self.preparse(args) if from_cli else None
-        if not args or args == ["--verbose"] or args == ["-vv"]:
-            loaded_args = self.load_default_config_file()
-            if loaded_args is None:
-                self.load_pyproject_file()
-            else:
-                # thanks for this we can have config file together with some cli options like --verbose
-                args = [*args, *loaded_args] if args is not None else loaded_args
         if args:
-            args = self.parser.parse_args(args)
-            for key, value in dict(**vars(args)).items():
-                if key in self.__dict__:
-                    self.__dict__[key] = value
+            args = self.parse_args_to_config(args)
+
         self.remove_severity()
         self.translate_patterns()
+
         if self.verbose:
             if self.config_from:
                 print(f"Loaded configuration from {self.config_from}")
@@ -463,14 +462,17 @@ class Config:
     def parse_toml_to_config(self, toml_data):
         if not toml_data:
             return False
-        assign_type = {"paths", "format", "configure"}
+        assign_type = {"paths", "format"}
         set_type = {"include", "exclude", "reports", "ignore", "ext_rules"}
+        append_type = {"configure"}
         toml_data = {key.replace("-", "_"): value for key, value in toml_data.items()}
         for key, value in toml_data.items():
             if key in assign_type:
                 self.__dict__[key] = value
             elif key in set_type:
                 self.__dict__[key].update(set(value))
+            elif key in append_type:
+                self.__dict__[key] += value
             elif key == "filetypes":
                 for filetype in toml_data["filetypes"]:
                     self.filetypes.add(filetype if filetype.startswith(".") else "." + filetype)
@@ -485,3 +487,14 @@ class Config:
             else:
                 raise InvalidArgumentError(f"Option '{key}' is not supported in pyproject.toml configuration file.")
         return True
+
+    def parse_args_to_config(self, args):
+        if args is None:
+            return None
+
+        args = self.parser.parse_args(args)
+        for key, value in dict(**vars(args)).items():
+            if key in self.__dict__:
+                self.__dict__[key] = value
+
+        return args

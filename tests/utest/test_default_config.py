@@ -62,12 +62,14 @@ class TestDefaultConfig:
         out, _ = capsys.readouterr()
         assert out == f"Loaded configuration from {config.config_from}\n"
 
-    def test_ignore_config_from_default_file(self, path_to_test_data, config):
+    def test_append_config_from_default_file(self, path_to_test_data, config):
         src = path_to_test_data / "default_config"
         os.chdir(str(src))
         with patch.object(sys, "argv", ["prog", "--include", "0202"]):
             config.parse_opts()
-        assert {"0202"} == config.include
+
+        assert ["line-too-long:line_length:150"] == config.configure
+        assert {"0202", "0810"} == config.include
 
     def test_load_default_config_before_pyproject(self, path_to_test_data, config):
         src = path_to_test_data / "default_config_and_pyproject"
@@ -83,6 +85,10 @@ class TestDefaultConfig:
         config.exec_dir = str(src)
         with patch.object(sys, "argv", ["prog"]):
             config.parse_opts()
+
+        src = path_to_test_data
+        os.chdir(str(src))
+
         expected_config = robocop.config.Config(from_cli=True)
         with patch.object(
             sys,
@@ -119,12 +125,27 @@ class TestDefaultConfig:
             ],
         ):
             expected_config.parse_opts()
+
+        expected_config.exec_dir = ""
+        config.exec_dir = ""
         config.config_from = ""
         config.parser, expected_config.parser = None, None
         config.output, expected_config.output = None, None
         assert len(config.include_patterns) == len(expected_config.include_patterns)
         config.include_patterns, expected_config.include_patterns = None, None
         assert config.__dict__ == expected_config.__dict__
+
+    def test_append_config_pyproject_file(self, path_to_test_data, config):
+        src = path_to_test_data / "only_pyproject"
+        os.chdir(str(src))
+        config.from_cli = True
+        config.exec_dir = str(src)
+        with patch.object(sys, "argv", ["prog", "--configure", "too-many-calls-in-keyword:max_calls:20",
+                                        "--exclude", "0810"]):
+            config.parse_opts()
+
+        assert {"0203", "0810"} == config.exclude
+        assert ["line-too-long:line_length:150", "0201:severity:E", "too-many-calls-in-keyword:max_calls:20"] == config.configure
 
     def test_pyproject_verbose(self, path_to_test_data, config, capsys):
         src = path_to_test_data / "only_pyproject"

@@ -1,24 +1,25 @@
 import ast
+
 import pytest
-from robocop.rules import Rule, RuleSeverity
+
 import robocop.exceptions
+from robocop.rules import Rule, RuleParam
 
 
 @pytest.fixture
 def valid_msg():
-    msg = ("some-message", "Some description", RuleSeverity.WARNING)
-    return Rule("0101", msg)
+    return Rule(rule_id="0101", name="some-message", msg="Some description", severity="W")
 
 
 @pytest.fixture
 def valid_msg_with_conf():
-    msg = (
-        "some-message",
-        "Some description",
-        RuleSeverity.WARNING,
-        ("param_name", "param_priv_name", int),
+    return Rule(
+        RuleParam(name="param_name", converter=int, default=1, desc=""),
+        rule_id="0101",
+        name="some-message",
+        msg="Some description",
+        severity="W",
     )
-    return Rule("0101", msg)
 
 
 INVALID_MSG_MISSING_SEVERITY = (
@@ -45,7 +46,7 @@ class TestMessage:
 
     @staticmethod
     def change_severity(msg, severity):
-        msg.change_severity(severity)
+        msg.configure("severity", severity)
         return msg
 
     @pytest.mark.parametrize(
@@ -62,63 +63,48 @@ class TestMessage:
         ],
     )
     def test_change_message_severity(self, valid_msg, severity, exp_sev):  # noqa
-        assert TestMessage.change_severity(valid_msg, severity).severity.value == exp_sev
+        assert str(TestMessage.change_severity(valid_msg, severity).severity) == exp_sev
 
     @pytest.mark.parametrize("severity", ["invalid", 1, "errorE", None, dict()])
     def test_change_message_severity_invalid(self, valid_msg, severity):  # noqa
         with pytest.raises(robocop.exceptions.InvalidRuleSeverityError) as err:
-            valid_msg.change_severity(severity)
-        assert rf"Fatal error: Tried to configure message some-message with invalid severity: {severity}" in str(err)
+            valid_msg.configure("severity", severity)
+        assert rf"Fatal error: Tried to configure rule with invalid severity: {severity}" in str(err)
 
     def test_get_configurable_existing(self, valid_msg_with_conf):  # noqa
-        assert valid_msg_with_conf.get_configurable("param_name") == (
-            "param_name",
-            "param_priv_name",
-            int,
+        assert str(valid_msg_with_conf.config["param_name"]) == str(
+            RuleParam(name="param_name", converter=int, default=1, desc="")
         )
 
-    def test_get_configurable_empty_configurables(self, valid_msg):  # noqa
-        assert valid_msg.get_configurable("param_name") is None
+    # @pytest.mark.parametrize(
+    #     "configurable",
+    #     [
+    #         [None],
+    #         [1],
+    #         [()],
+    #         [("some", "some", int, 5, 5)],
+    #         [("some", "some", str), None],
+    #     ],
+    # )
+    # def test_parse_invalid_configurable(self, configurable):
+    #     msg = ("some-message", "Some description", RuleSeverity.WARNING)
+    #     body = msg + tuple(configurable)
+    #     with pytest.raises(robocop.exceptions.InvalidRuleConfigurableError) as err:
+    #         Rule("0101", body)
+    #     assert rf"Fatal error: Rule '0101' has invalid configurable:\n{body}" in str(err)
 
-    def test_get_configurable_non_existing(self, valid_msg_with_conf):  # noqa
-        assert valid_msg_with_conf.get_configurable("invalid_param") is None
-
-    @pytest.mark.parametrize("msg", [INVALID_MSG_MISSING_SEVERITY, INVALID_MSG_MISSING_DESC_SEV, (), None, 1])
-    def test_parse_invalid_body(self, msg):
-        with pytest.raises(robocop.exceptions.InvalidRuleBodyError) as err:
-            Rule("0101", msg)
-        assert rf"Fatal error: Rule '0101' has invalid body:\n{msg}" in str(err)
-
-    @pytest.mark.parametrize(
-        "configurable",
-        [
-            [None],
-            [1],
-            [()],
-            [("some", "some", int, 5, 5)],
-            [("some", "some", str), None],
-        ],
-    )
-    def test_parse_invalid_configurable(self, configurable):
-        msg = ("some-message", "Some description", RuleSeverity.WARNING)
-        body = msg + tuple(configurable)
-        with pytest.raises(robocop.exceptions.InvalidRuleConfigurableError) as err:
-            Rule("0101", body)
-        assert rf"Fatal error: Rule '0101' has invalid configurable:\n{body}" in str(err)
-
-    @pytest.mark.parametrize(
-        "configurable",
-        [
-            [("some", "some", int)],
-            [(1, 2, 3)],
-            [("some", "some", int), ("some2", "some2", str)],
-        ],
-    )
-    def test_parse_valid_configurable(self, configurable):
-        msg = ("some-message", "Some description", RuleSeverity.WARNING)
-        body = msg + tuple(configurable)
-        rule = Rule("0101", body)
-        assert rule.configurable == configurable
+    # FIXME
+    # @pytest.mark.parametrize(
+    #     "configurable",
+    #     [
+    #         [("some", "some", int)],
+    #         [(1, 2, 3)],
+    #         [("some", "some", int), ("some2", "some2", str)],
+    #     ],
+    # )
+    # def test_parse_valid_configurable(self, configurable):
+    #     rule = Rule(RuleParam(name=configurable[0], converter=configurable[2], desc="", default=0), rule_id="0101", name="some-message", msg="Some description", severity="W")
+    #     assert rule.configurable == configurable
 
     @pytest.mark.parametrize(
         "source, range, range_exp",

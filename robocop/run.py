@@ -2,25 +2,24 @@
 Main class of Robocop module. Gathers files to be scanned, checkers, parses CLI arguments and scans files.
 """
 import inspect
-import sys
 import os
-from pathlib import Path
+import sys
 from collections import Counter
+from pathlib import Path
 
 from robot.api import get_resource_model
 from robot.errors import DataError
 
 import robocop.exceptions
-from robocop import checkers
-from robocop import reports
+from robocop import checkers, reports
 from robocop.config import Config
 from robocop.utils import (
     DisablersFinder,
     FileType,
     FileTypeChecker,
-    issues_to_lsp_diagnostic,
     RecommendationFinder,
     is_suite_templated,
+    issues_to_lsp_diagnostic,
 )
 
 
@@ -194,7 +193,7 @@ class Robocop:
         rule_by_id = [
             (msg.rule_id, msg, checker)
             for checker in self.checkers
-            for msg in checker.rules_map.values()
+            for msg in checker.rules.values()
             if msg.matches_pattern(pattern)
         ]
         rule_by_id = sorted(rule_by_id, key=lambda x: x[0])
@@ -237,7 +236,7 @@ class Robocop:
     def register_checker(self, checker):
         if not self.any_rule_enabled(checker):
             checker.disabled = True
-        for rule_name, rule in checker.rules_map.items():
+        for rule_name, rule in checker.rules.items():
             if rule_name in self.rules:
                 (_, checker_prev) = self.rules[rule_name]
                 raise robocop.exceptions.DuplicatedRuleError("name", rule_name, checker, checker_prev)
@@ -277,10 +276,10 @@ class Robocop:
         return file.suffix and file.suffix.lower() in self.config.filetypes
 
     def any_rule_enabled(self, checker):
-        for name, rule in checker.rules_map.items():
+        for name, rule in checker.rules.items():
             rule.enabled = self.config.is_rule_enabled(rule)
-            checker.rules_map[name] = rule
-        return any(msg.enabled for msg in checker.rules_map.values())
+            checker.rules[name] = rule
+        return any(msg.enabled for msg in checker.rules.values())
 
     def configure_checkers_or_reports(self):
         for config in self.config.configure:
@@ -291,18 +290,7 @@ class Robocop:
             rule_or_report, param, value = config.split(":", maxsplit=2)
             if rule_or_report in self.rules:
                 msg, checker = self.rules[rule_or_report]
-                if param == "severity":
-                    msg.change_severity(value)
-                else:
-                    configurable = msg.get_configurable(param)
-                    if configurable is None:
-                        available_conf = msg.available_configurables(checker=checker)
-                        raise robocop.exceptions.ConfigGeneralError(
-                            f"Provided param '{param}' for rule '{rule_or_report}' does not exist. "
-                            f"Available configurable(s) for this rule:\n"
-                            f"    {available_conf}"
-                        )
-                    checker.configure(configurable[1], configurable[2](value))
+                msg.configure(param, value)
             elif rule_or_report in self.reports:
                 self.reports[rule_or_report].configure(param, value)
             else:

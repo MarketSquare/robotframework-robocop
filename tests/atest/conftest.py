@@ -1,6 +1,8 @@
+from pathlib import Path
+
 import pytest
 import yaml
-from pathlib import Path
+
 from robocop.checkers import get_rules_for_atest
 from robocop.run import Robocop
 

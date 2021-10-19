@@ -6,15 +6,16 @@
 
 # -- Path setup --------------------------------------------------------------
 
+import datetime
+
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
 import sys
-from pathlib import Path
 from collections import defaultdict
 from functools import total_ordering
-import datetime
+from pathlib import Path
 
 import sphinx_rtd_theme
 
@@ -116,7 +117,7 @@ def get_checker_docs():
     for checker in robocop.checkers.get_docs():
         module_name = checker.__module__.split(".")[-1].title()
         checker_instance = checker()
-        for rule in checker_instance.rules_map.values():
+        for rule in checker_instance.rules.values():
             rule_doc = RuleDoc(rule, checker.__module__ + "." + checker.__name__, checker_instance)
             checker_docs[module_name].append((rule_doc.rule_id, rule_doc.name, rule_doc.params, rule_doc.group))
     groups_sorted_by_id = []

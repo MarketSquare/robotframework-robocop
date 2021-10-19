@@ -6,50 +6,80 @@ import re
 from robot.api import Token
 
 from robocop.checkers import VisitorChecker
-from robocop.rules import RuleSeverity
-from robocop.utils import IS_RF4, find_robot_vars
+from robocop.rules import Rule
+from robocop.utils import ROBOT_VERSION, find_robot_vars
+
+rules = {
+    "0401": Rule(rule_id="0401", name="parsing-error", msg="Robot Framework syntax error: %s", severity="E"),
+    "0405": Rule(
+        rule_id="0405",
+        name="invalid-continuation-mark",
+        msg="Invalid continuation mark. It should be '...'",
+        severity="E",
+    ),
+    # there is not-enough-whitespace-after-newline-marker for keyword calls already
+    "0406": Rule(
+        rule_id="0406",
+        name="not-enough-whitespace-after-newline-marker",
+        msg="Provide at least two spaces after '...' marker",
+        severity="E",
+    ),
+    "0407": Rule(rule_id="0407", name="invalid-argument", msg="%s", severity="E"),
+    "0408": Rule(rule_id="0408", name="non-existing-setting", msg="%s", severity="E"),
+    "0409": Rule(
+        rule_id="0409",
+        name="setting-not-supported",
+        msg="Setting '[%s]' is not supported in %s. Allowed are: %s",
+        severity="E",
+    ),
+    "0410": Rule(
+        rule_id="0410",
+        name="not-enough-whitespace-after-variable",
+        msg="Provide at least two spaces after variable",
+        severity="E",
+    ),
+    "0411": Rule(
+        rule_id="0411",
+        name="not-enough-whitespace-after-suite-setting",
+        msg="Provide at least two spaces after '%s' setting",
+        severity="E",
+    ),
+    "0412": Rule(rule_id="0412", name="invalid-for-loop", msg="Invalid for loop syntax: %s", severity="E"),
+    "0413": Rule(rule_id="0413", name="invalid-if", msg="Invalid IF syntax: %s", severity="E"),
+    "0402": Rule(
+        rule_id="0402",
+        name="not-enough-whitespace-after-setting",
+        msg="Provide at least two spaces after '%s' setting",
+        severity="E",
+    ),
+    "0403": Rule(
+        rule_id="0403", name="missing-keyword-name", msg="Missing keyword name when calling some values", severity="E"
+    ),
+    "0404": Rule(
+        rule_id="0404",
+        name="variables-import-with-args",
+        msg="Robot and YAML variable files do not take arguments",
+        severity="E",
+    ),
+}
 
 
 class ParsingErrorChecker(VisitorChecker):
     """Checker that parses Robot Framework DataErrors."""
 
-    rules = {
-        "0401": (
-            "parsing-error",
-            "Robot Framework syntax error: %s",
-            RuleSeverity.ERROR,
-        ),
-        "0405": (
-            "invalid-continuation-mark",
-            "Invalid continuation mark. It should be '...'",
-            RuleSeverity.ERROR,
-        ),
-        "0406": (
-            # there is not-enough-whitespace-after-newline-marker for keyword calls already
-            "not-enough-whitespace-after-newline-marker",
-            "Provide at least two spaces after '...' marker",
-            RuleSeverity.ERROR,
-        ),
-        "0407": ("invalid-argument", "%s", RuleSeverity.ERROR),
-        "0408": ("non-existing-setting", "%s", RuleSeverity.ERROR),
-        "0409": (
-            "setting-not-supported",
-            "Setting '[%s]' is not supported in %s. Allowed are: %s",
-            RuleSeverity.ERROR,
-        ),
-        "0410": (
-            "not-enough-whitespace-after-variable",
-            "Provide at least two spaces after variable",
-            RuleSeverity.ERROR,
-        ),
-        "0411": (
-            "not-enough-whitespace-after-suite-setting",
-            "Provide at least two spaces after '%s' setting",
-            RuleSeverity.ERROR,
-        ),
-        "0412": ("invalid-for-loop", "Invalid for loop syntax: %s", RuleSeverity.ERROR),
-        "0413": ("invalid-if", "Invalid IF syntax: %s", RuleSeverity.ERROR),
-    }
+    reports = (
+        "parsing-error",
+        "invalid-continuation-mark",
+        "not-enough-whitespace-after-newline-marker",
+        "invalid-argument",
+        "non-existing-setting",
+        "setting-not-supported",
+        "not-enough-whitespace-after-variable",
+        "not-enough-whitespace-after-suite-setting",
+        "invalid-for-loop",
+        "invalid-if",
+    )
+
     keyword_only_settings = {"Arguments", "Return"}
     keyword_settings = [
         "[Documentation]",
@@ -103,7 +133,7 @@ class ParsingErrorChecker(VisitorChecker):
     def parse_errors(self, node):  # noqa
         if node is None:
             return
-        if IS_RF4:
+        if ROBOT_VERSION.major != 3:
             for error in node.errors:
                 self.handle_error(node, error)
         else:
@@ -230,13 +260,7 @@ class ParsingErrorChecker(VisitorChecker):
 class TwoSpacesAfterSettingsChecker(VisitorChecker):
     """Checker for not enough whitespaces after [Setting] header."""
 
-    rules = {
-        "0402": (
-            "not-enough-whitespace-after-setting",
-            "Provide at least two spaces after '%s' setting",
-            RuleSeverity.ERROR,
-        )
-    }
+    reports = ("not-enough-whitespace-after-setting",)
 
     def __init__(self):
         self.headers = {
@@ -271,13 +295,7 @@ class TwoSpacesAfterSettingsChecker(VisitorChecker):
 class MissingKeywordName(VisitorChecker):
     """Checker for missing keyword name."""
 
-    rules = {
-        "0403": (
-            "missing-keyword-name",
-            "Missing keyword name when calling some values",
-            RuleSeverity.ERROR,
-        )
-    }
+    reports = ("missing-keyword-name",)
 
     def visit_KeywordCall(self, node):  # noqa
         if node.keyword is None:
@@ -292,13 +310,7 @@ class MissingKeywordName(VisitorChecker):
 class VariablesImportErrorChecker(VisitorChecker):
     """Checker for syntax error in variables import."""
 
-    rules = {
-        "0404": (
-            "variables-import-with-args",
-            "Robot and YAML variable files do not take arguments",
-            RuleSeverity.ERROR,
-        )
-    }
+    reports = ("variables-import-with-args",)
 
     def visit_VariablesImport(self, node):  # noqa
         if node.name and not node.name.endswith(".py") and node.get_token(Token.ARGUMENT):

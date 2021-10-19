@@ -1,5 +1,5 @@
-from pathlib import Path
 import sys
+from pathlib import Path
 
 import pytest
 
@@ -53,4 +53,4 @@ class TestExternalRules:
         }
         with pytest.raises(robocop.exceptions.DuplicatedRuleError) as err:
             robocop_pre_load.load_checkers()
-        assert "Fatal error: Message name 'smth' defined in SmthChecker was already defined in SmthChecker" in str(err)
+        assert "Fatal error: Rule name 'smth' defined in SmthChecker was already defined in SmthChecker" in str(err)

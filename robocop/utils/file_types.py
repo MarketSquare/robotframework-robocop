@@ -3,9 +3,10 @@ import ast
 import os
 from enum import Enum
 from pathlib import Path
-from robot.api import get_model, get_resource_model, get_init_model
-from robot.utils.robotpath import find_file
+
+from robot.api import get_init_model, get_model, get_resource_model
 from robot.errors import DataError
+from robot.utils.robotpath import find_file
 
 
 class FileType(Enum):

@@ -1,10 +1,10 @@
-from pathlib import Path
-from collections import Counter, defaultdict
-from importlib import import_module
-import importlib.util
 import ast
 import difflib
+import importlib.util
 import re
+from collections import Counter, defaultdict
+from importlib import import_module
+from pathlib import Path
 
 from robot.api import Token
 from robot.parsing.model.statements import EmptyLine
@@ -13,25 +13,13 @@ try:
     from robot.api.parsing import Variable
 except ImportError:
     from robot.parsing.model.statements import Variable
-from robot.version import VERSION
 
-from robocop.rules import RuleSeverity
+from packaging import version
+from robot.version import VERSION as RF_VERSION
+
 from robocop.exceptions import InvalidExternalCheckerError
 
-IS_RF4 = VERSION.startswith("4")  # FIXME: We need better version matching - for 5.0.0
-DISABLED_IN_4 = frozenset(("nested-for-loop", "invalid-comment"))
-ENABLED_IN_4 = frozenset(
-    (
-        "if-can-be-used",
-        "else-not-upper-case",
-        "variable-should-be-left-aligned",
-        "invalid-argument",
-        "invalid-if",
-        "invalid-for-loop",
-        "not-enough-whitespace-after-variable",
-        "suite-setting-should-be-left-aligned",
-    )
-)
+ROBOT_VERSION = version.parse(RF_VERSION)
 
 
 def modules_in_current_dir(path, module_name):
@@ -92,22 +80,19 @@ def keyword_col(node):
 
 
 def token_col(node, *token_type):
-    if IS_RF4:
-        token = node.get_token(*token_type)
-    else:
+    if ROBOT_VERSION.major == 3:
         for tok_type in token_type:
             token = node.get_token(tok_type)
             if token is not None:
                 break
         else:
             return 1
+    else:
+        token = node.get_token(*token_type)
+
     if token is None:
         return 1
     return token.col_offset + 1
-
-
-def rule_severity_to_diag_sev(severity):
-    return {RuleSeverity.ERROR: 1, RuleSeverity.WARNING: 2, RuleSeverity.INFO: 3}.get(severity, 4)
 
 
 def issues_to_lsp_diagnostic(issues):
@@ -123,7 +108,7 @@ def issues_to_lsp_diagnostic(issues):
                     "character": max(0, issue.end_col - 1),
                 },
             },
-            "severity": rule_severity_to_diag_sev(issue.severity),
+            "severity": issue.severity.diag_severity(),
             "code": issue.rule_id,
             "source": "robocop",
             "message": issue.desc,

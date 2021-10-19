@@ -33,11 +33,12 @@ try:
     from robot.api.parsing import ModelVisitor
 except ImportError:
     from robot.parsing.model.visitor import ModelVisitor
+
 from robot.utils import FileReader
 
 from robocop.exceptions import DuplicatedRuleError
 from robocop.rules import Rule
-from robocop.utils import modules_in_current_dir, modules_from_paths
+from robocop.utils import modules_from_paths, modules_in_current_dir
 
 
 class BaseChecker:
@@ -47,17 +48,16 @@ class BaseChecker:
         self.disabled = False
         self.source = None
         self.lines = None
-        self.rules_map = {}
-        self.register_rules(self.rules)
+        # self.register_rules()
         self.issues = []
         self.templated_suite = False
 
-    def register_rules(self, rules):
-        for key, value in rules.items():
-            rule = Rule(key, value)
-            if rule.name in self.rules_map:
-                raise DuplicatedRuleError("name", rule.name, self, self)
-            self.rules_map[rule.name] = rule
+    def param(self, rule, param_name):
+        if rule not in self.rules:
+            pass  # TODO:
+        if param_name not in self.rules[rule].config:
+            pass  # TODO, or KeyError
+        return self.rules[rule].config[param_name].value
 
     def report(
         self,
@@ -70,9 +70,9 @@ class BaseChecker:
         end_col=None,
         ext_disablers=None,
     ):
-        if rule not in self.rules_map:
+        if rule not in self.rules:
             raise ValueError(f"Missing definition for message with name {rule}")
-        message = self.rules_map[rule].prepare_message(
+        message = self.rules[rule].prepare_message(
             *args,
             source=self.source,
             node=node,
@@ -145,8 +145,14 @@ def init(linter):
     for module in get_modules(linter):
         classes = inspect.getmembers(module, inspect.isclass)
         for checker in classes:
-            if issubclass(checker[1], BaseChecker) and hasattr(checker[1], "rules") and checker[1].rules:
-                linter.register_checker(checker[1]())
+            if issubclass(checker[1], BaseChecker) and getattr(checker[1], "reports", False):
+                checker_instance = checker[1]()
+                checker_instance.rules = {
+                    rule.name: rule
+                    for rule in getattr(module, "rules", {}).values()
+                    if rule.name in checker_instance.reports
+                }
+                linter.register_checker(checker_instance)
 
 
 def get_docs():
@@ -160,9 +166,5 @@ def get_docs():
 def get_rules_for_atest():
     for module in modules_in_current_dir(__file__, __name__):
         module_name = module.__name__.split(".")[-1]
-        classes = inspect.getmembers(module, inspect.isclass)
-        for checker in classes:
-            if not (hasattr(checker[1], "rules") and checker[1].rules):
-                continue
-            for rule_body in checker[1].rules.values():
-                yield module_name, rule_body[0]
+        for rule in getattr(module, "rules", {}).values():
+            yield module_name, rule.name

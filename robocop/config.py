@@ -11,9 +11,9 @@ from robot.utils import FileReader
 
 from robocop.exceptions import (
     ArgumentFileNotFoundError,
-    NestedArgumentFileError,
-    InvalidArgumentError,
     ConfigGeneralError,
+    InvalidArgumentError,
+    NestedArgumentFileError,
 )
 from robocop.rules import RuleSeverity
 from robocop.utils import RecommendationFinder
@@ -22,13 +22,6 @@ from robocop.version import __version__
 
 def translate_pattern(pattern):
     return re.compile(fnmatch.translate(pattern))
-
-
-def find_severity_value(severity):
-    for sev in RuleSeverity:
-        if sev.value == severity.upper():
-            return sev
-    return RuleSeverity.INFO
 
 
 class ParseDelimitedArgAction(argparse.Action):  # pylint: disable=too-few-public-methods
@@ -53,7 +46,7 @@ class ParseFileTypes(argparse.Action):  # pylint: disable=too-few-public-methods
 
 class SetRuleThreshold(argparse.Action):
     def __call__(self, parser, namespace, values, option_string=None):
-        setattr(namespace, self.dest, find_severity_value(values))
+        setattr(namespace, self.dest, RuleSeverity(values) if values in RuleSeverity.look_up else RuleSeverity("I"))
 
 
 class SetListOption(argparse.Action):
@@ -85,7 +78,7 @@ class Config:
         self.exclude = set()
         self.ignore = set()
         self.reports = {"return_status"}
-        self.threshold = RuleSeverity.INFO
+        self.threshold = RuleSeverity("I")
         self.configure = []
         self.format = "{source}:{line}:{col} [{severity}] {rule_id} {desc} ({name})"
         self.paths = ["."]
@@ -128,7 +121,7 @@ class Config:
         "help_output": "Path to output file.",
         "help_filetypes": "Comma separated list of file extensions to be scanned by Robocop",
         "help_threshold": f"Disable rules below given threshold. Available message levels: "
-        f'{" < ".join(sev.value for sev in RuleSeverity)}',
+        f'{" < ".join(RuleSeverity.look_up)}',
         "help_recursive": "Use this flag to stop scanning directories recursively.",
         "help_argfile": "Path to file with arguments.",
         "help_ignore": "Ignore file(s) and path(s) provided. Glob patterns are supported.",
@@ -436,6 +429,8 @@ class Config:
         return True
 
     def is_rule_disabled(self, rule):
+        if not rule.enabled_in_version:
+            return True
         if rule.severity < self.threshold:
             return True
         if rule.rule_id in self.exclude or rule.name in self.exclude:
@@ -453,7 +448,7 @@ class Config:
 
     @staticmethod
     def replace_severity_values(message):
-        sev = "".join(c.value for c in RuleSeverity)
+        sev = "".join(RuleSeverity.look_up)
         if re.match(f"[{sev}][0-9]{{4,}}", message):
             for char in sev:
                 message = message.replace(char, "")
@@ -477,7 +472,7 @@ class Config:
                 for filetype in toml_data["filetypes"]:
                     self.filetypes.add(filetype if filetype.startswith(".") else "." + filetype)
             elif key == "threshold":
-                self.threshold = find_severity_value(value)
+                self.threshold = RuleSeverity(value)
             elif key == "output":
                 self.output = open(value, "w")
             elif key == "no_recursive":

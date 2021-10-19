@@ -1,14 +1,13 @@
 import pytest
-
 from robot.api import get_model
 
 from robocop.utils import (
     AssignmentTypeDetector,
-    parse_assignment_sign_type,
     RecommendationFinder,
-    remove_robot_vars,
     find_robot_vars,
+    parse_assignment_sign_type,
     pattern_type,
+    remove_robot_vars,
 )
 
 

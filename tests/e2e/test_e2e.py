@@ -1,14 +1,11 @@
 """ General E2E tests to catch any general issue in robocop """
 from pathlib import Path
+
 import pytest
-from robocop.exceptions import (
-    FileError,
-    ArgumentFileNotFoundError,
-    NestedArgumentFileError,
-    ConfigGeneralError,
-)
-from robocop.run import Robocop
+
 from robocop.config import Config
+from robocop.exceptions import ArgumentFileNotFoundError, ConfigGeneralError, FileError, NestedArgumentFileError
+from robocop.run import Robocop
 
 
 @pytest.fixture
@@ -53,9 +50,6 @@ class TestE2E:
 
     def test_no_issues_all_reports(self, robocop_instance, test_data_dir):
         should_run_with_config(robocop_instance, f'-r all {test_data_dir / "all_passing.robot"}')
-
-    def test_disable_all_pattern(self, robocop_instance, test_data_dir):
-        should_run_with_config(robocop_instance, f"--exclude * {test_data_dir}")
 
     def test_ignore_file_with_pattern(self, robocop_instance, test_data_dir):
         should_run_with_config(robocop_instance, f"--ignore *.robot --include 0502 {test_data_dir}")
@@ -135,10 +129,7 @@ class TestE2E:
         robocop_instance.load_checkers()
         with pytest.raises(ConfigGeneralError) as err:
             robocop_instance.configure_checkers_or_reports()
-        assert (
-            r"Provided param 'idontexist' for rule '0202' does not exist. "
-            r"Available configurable(s) for this rule:\n    severity" in str(err)
-        )
+        assert "Provided param 'idontexist' for rule 'missing-doc-test-case' does not exist. " in err.value.args[0]
 
     def test_configure_invalid_config(self, robocop_instance, test_data_dir):
         config = Config()

@@ -12,8 +12,9 @@ You can use separate arguments (``-r report1 -r report2``) or comma-separated li
 To enable all reports use ``--report all``.
 """
 from collections import defaultdict
-from timeit import default_timer as timer
 from operator import itemgetter
+from timeit import default_timer as timer
+
 import robocop.exceptions
 
 
@@ -82,7 +83,7 @@ class RulesBySeverityReport(Report):
         if not issues_count:
             return "\nFound 0 issues"
         report = f"\nFound {issues_count} issue(s): "
-        report += ", ".join(f"{count} {severity.name}(s)" for severity, count in self.severity_counter.items())
+        report += ", ".join(f"{count} {severity.full_name}(s)" for severity, count in self.severity_counter.items())
         report += "."
         return report
 

@@ -9,15 +9,15 @@ class ConfigGeneralError(RobocopFatalError):
 class DuplicatedRuleError(RobocopFatalError):
     def __init__(self, rule_type, rule, checker, checker_prev):
         msg = (
-            f"Fatal error: Message {rule_type} '{rule}' defined in {checker.__class__.__name__} "
+            f"Fatal error: Rule {rule_type} '{rule}' defined in {checker.__class__.__name__} "
             f"was already defined in {checker_prev.__class__.__name__}"
         )
         super().__init__(msg)
 
 
 class InvalidRuleSeverityError(RobocopFatalError):
-    def __init__(self, rule, severity_val):
-        msg = f"Fatal error: Tried to configure message {rule} with invalid severity: {severity_val}"
+    def __init__(self, severity_val):
+        msg = f"Fatal error: Tried to configure rule with invalid severity: {severity_val}"
         super().__init__(msg)
 
 

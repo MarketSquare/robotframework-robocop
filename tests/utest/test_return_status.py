@@ -1,39 +1,40 @@
 import pytest
+
 from robocop.reports import ReturnStatusReport
-from robocop.rules import Rule, RuleSeverity
+from robocop.rules import Rule, RuleParam
 
 
 @pytest.fixture
 def error_msg():
-    msg = (
-        "error-message",
-        "Some description",
-        RuleSeverity.ERROR,
-        ("param_name", "param_priv_name", int),
+    return Rule(
+        RuleParam(name="param_name", converter=int, default=1, desc=""),
+        rule_id="0101",
+        name="error-message",
+        msg="Some description",
+        severity="E",
     )
-    return Rule("0101", msg)
 
 
 @pytest.fixture
 def warning_msg():
-    msg = (
-        "warning-message",
-        "Some description",
-        RuleSeverity.WARNING,
-        ("param_name", "param_priv_name", int),
+    return Rule(
+        RuleParam(name="param_name", converter=int, default=1, desc=""),
+        rule_id="0102",
+        name="warning-message",
+        msg="Some description",
+        severity="W",
     )
-    return Rule("0102", msg)
 
 
 @pytest.fixture
 def info_msg():
-    msg = (
-        "info-message",
-        "Some description",
-        RuleSeverity.INFO,
-        ("param_name", "param_priv_name", int),
+    return Rule(
+        RuleParam(name="param_name", converter=int, default=1, desc=""),
+        rule_id="0103",
+        name="info-message",
+        msg="Some description",
+        severity="I",
     )
-    return Rule("0103", msg)
 
 
 class TestReturnStatus:

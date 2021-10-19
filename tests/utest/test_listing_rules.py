@@ -2,7 +2,7 @@ import pytest
 
 import robocop.config
 from robocop.checkers import VisitorChecker
-from robocop.rules import RuleSeverity
+from robocop.rules import Rule, RuleParam
 
 
 class EmptyChecker(VisitorChecker):
@@ -13,24 +13,30 @@ class EmptyChecker(VisitorChecker):
 @pytest.fixture
 def msg_0101_config():
     return {
-        "0101": (
-            "some-message",
-            "Some description",
-            RuleSeverity.WARNING,
-            ("conf_param", "conf_param", int),
+        "0101": Rule(
+            RuleParam(name="conf_param", converter=int, default=0, desc=""),
+            rule_id="0101",
+            name="some-message",
+            msg="Some description",
+            severity="W",
         )
     }
+
+
+def dummy_parser(value):
+    return value
 
 
 @pytest.fixture
 def msg_0101_config_meta():
     return {
-        "0101": (
-            "some-message",
-            "Some description",
-            RuleSeverity.WARNING,
-            ("conf_param", "conf_param", int),
-            ("conf_param2", "conf_param2", msg_0101_config_meta, "meta information"),
+        "0101": Rule(
+            RuleParam(name="conf_param", converter=int, default=0, desc=""),
+            RuleParam(name="conf_param2", converter=dummy_parser, default=0, desc="meta information"),
+            rule_id="0101",
+            name="some-message",
+            msg="Some description",
+            severity="W",
         )
     }
 
@@ -38,38 +44,39 @@ def msg_0101_config_meta():
 @pytest.fixture
 def msg_0102_0204_config():
     return {
-        "0102": (
-            "other-message",
-            """this is description""",
-            RuleSeverity.ERROR,
-            ("conf_param1", "conf_param1", int),
+        "0102": Rule(
+            RuleParam(name="conf_param1", converter=int, default=0, desc=""),
+            rule_id="0102",
+            name="other-message",
+            msg="""this is description""",
+            severity="E",
         ),
-        "0204": (
-            "another-message",
-            f"Message with meaning {4}",
-            RuleSeverity.INFO,
-            ("conf_param2", "conf_param2", int),
+        "0204": Rule(
+            RuleParam(name="conf_param2", converter=int, default=0, desc=""),
+            rule_id="0204",
+            name="another-message",
+            msg=f"Message with meaning {4}",
+            severity="I",
         ),
     }
 
 
 @pytest.fixture
 def msg_0101():
-    return {"0101": ("some-message", "Some description", RuleSeverity.WARNING)}
+    return {"0101": Rule(rule_id="0101", name="some-message", msg="Some description", severity="W")}
 
 
 @pytest.fixture
 def msg_0102_0204():
     return {
-        "0102": ("other-message", """this is description""", RuleSeverity.ERROR),
-        "0204": ("another-message", f"Message with meaning {4}", RuleSeverity.INFO),
+        "0102": Rule(rule_id="0102", name="other-message", msg="""this is description""", severity="E"),
+        "0204": Rule(rule_id="0204", name="another-message", msg=f"Message with meaning {4}", severity="I"),
     }
 
 
 def init_empty_checker(robocop_instance_pre_load, rule, exclude=False, **kwargs):
     checker = EmptyChecker()
     checker.rules = rule
-    checker.register_rules(checker.rules)
     checker.__dict__.update(**kwargs)
     if exclude:
         robocop_instance_pre_load.config.exclude.update(set(rule.keys()))
@@ -155,10 +162,10 @@ class TestListingRules:
             out == "All rules have configurable parameter 'severity'. "
             "Allowed values are:\n    E / error\n    W / warning\n    I / info\n"
             "Rule - 0101 [W]: some-message: Some description (enabled)\n"
-            "    conf_param = 1001\n"
+            "    conf_param = 0\n"
             "        type: int\n"
-            "    conf_param2 = None\n"
-            "        type: msg_0101_config_meta\n"
+            "    conf_param2 = 0\n"
+            "        type: dummy_parser\n"
             "        info: meta information\n\n"
             "Altogether 1 rule(s) with following severity:\n"
             "    0 error rule(s),\n"

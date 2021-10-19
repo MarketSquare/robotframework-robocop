@@ -21,13 +21,16 @@ Available formats:
   * ``name``:       rule name (e.g. ``line-too-long`)
   * ``desc``:       description of the rule
 """
-from enum import Enum
 from functools import total_ordering
+
+from packaging.specifiers import SpecifierSet
+
 import robocop.exceptions
+from robocop.utils import ROBOT_VERSION
 
 
 @total_ordering
-class RuleSeverity(Enum):
+class RuleSeverity:
     """
     Rule severity.
     It can be configured with ``--configure id_or_msg_name:severity:value``
@@ -49,33 +52,13 @@ class RuleSeverity(Enum):
     will only report rules with severity E and above.
     """
 
-    INFO = "I"
-    WARNING = "W"
-    ERROR = "E"
+    look_up = (
+        "I",
+        "W",
+        "E",
+    )
 
-    def __lt__(self, other):
-        look_up = [sev.value for sev in RuleSeverity]
-        return look_up.index(self.value) < look_up.index(other.value)
-
-
-class Rule:
-    def __init__(self, rule_id, body):
-        self.rule_id = rule_id
-        self.name = ""
-        self.desc = ""
-        self.source = None
-        self.enabled = True
-        self.severity = RuleSeverity.INFO
-        self.configurable = []
-        self.parse_body(body)
-
-    def __str__(self):
-        return (
-            f"Rule - {self.rule_id} [{self.severity.value}]: {self.name}: {self.desc} "
-            f'({"enabled" if self.enabled else "disabled"})'
-        )
-
-    def change_severity(self, value):
+    def __init__(self, value):
         severity = {
             "error": "E",
             "e": "E",
@@ -85,43 +68,89 @@ class Rule:
             "i": "I",
         }.get(str(value).lower(), None)
         if severity is None:
-            raise robocop.exceptions.InvalidRuleSeverityError(self.name, value)
-        self.severity = RuleSeverity(severity)
+            raise robocop.exceptions.InvalidRuleSeverityError(value)
+        self.value = severity
 
-    def get_configurable(self, param):
-        for configurable in self.configurable:
-            if configurable[0] == param:
-                return configurable
-        return None
+    def __str__(self):
+        return self.value
+
+    def __lt__(self, other):
+        return self.look_up.index(self.value) < self.look_up.index(other.value)
+
+    def diag_severity(self):
+        return {"I": 3, "W": 2, "E": 1}.get(self.value, 4)
+
+    def full_name(self):
+        return {"E": "ERROR", "W": "WARNINGS", "I": "INFO"}[self.value]
+
+
+class RuleParam:
+    def __init__(self, name, default, converter, desc):
+        self.name = name
+        self.converter = converter
+        self.desc = desc
+        self._value = converter(default)
+
+    def __str__(self):
+        s = f"{self.name} = {self.value}\n" f"        type: {self.converter.__name__}"
+        if self.desc:
+            s += "\n" f"        info: {self.desc}"
+        return s
+
+    @property
+    def value(self):
+        return self._value
+
+    @value.setter
+    def value(self, value):
+        self._value = self.converter(value)
+
+
+class Rule:
+    def __init__(self, *params, rule_id, name, msg, severity, version=None):
+        self.rule_id = rule_id
+        self.name = name
+        self.desc = msg  # TODO: replace with msg
+        self.config = {
+            "severity": RuleParam(
+                "severity", severity, RuleSeverity, "Rule severity (E = Error, W = Warning, I = Info)"
+            )
+        }
+        for param in params:
+            self.config[param.name] = param
+        self.enabled = True
+        self.enabled_in_version = self.check_robot_version(version)
+
+    @property
+    def severity(self):
+        return self.config["severity"].value
 
     @staticmethod
-    def get_configurable_desc(conf, default=None):
-        desc = f"{conf[0]} = {default}\n" f"        type: {conf[2].__name__}"
-        if len(conf) == 4:
-            desc += "\n" f"        info: {conf[3]}"
-        return desc
+    def check_robot_version(supported_version):
+        if not supported_version:
+            return True
+        return ROBOT_VERSION in SpecifierSet(supported_version)
 
-    @staticmethod
-    def get_default_value(param, checker):
-        return None if checker is None else checker.__dict__.get(param, None)
+    def __str__(self):
+        return (
+            f"Rule - {self.rule_id} [{self.config['severity'].value}]: {self.name}: {self.desc} "
+            f'({"enabled" if self.enabled else "disabled"})'
+        )
+
+    def configure(self, param, value):
+        if param not in self.config:
+            raise robocop.exceptions.ConfigGeneralError(
+                f"Provided param '{param}' for rule '{self.name}' does not exist. "
+                f"Available configurable(s) for this rule:\n"
+                f"    {self.available_configurables()}"
+            )
+        self.config[param].value = value
 
     def available_configurables(self, include_severity=True, checker=None):
-        configurables = ["severity"] if include_severity else []
-        for conf in self.configurable:
-            default = self.get_default_value(conf[1], checker)
-            configurables.append(self.get_configurable_desc(conf, default))
-        if not configurables:
+        params = [str(param) for param in self.config.values() if param.name != "severity" or include_severity]
+        if not params:
             return ""
-        return "\n    ".join(configurables)
-
-    def parse_body(self, body):
-        if isinstance(body, tuple) and len(body) >= 3:
-            self.name, self.desc, self.severity, *self.configurable = body
-        else:
-            raise robocop.exceptions.InvalidRuleBodyError(self.rule_id, body)
-        for configurable in self.configurable:
-            if not isinstance(configurable, tuple) or len(configurable) not in (3, 4):
-                raise robocop.exceptions.InvalidRuleConfigurableError(self.rule_id, body)
+        return "\n    ".join(params)
 
     def prepare_message(self, *args, source, node, lineno, col, end_lineno, end_col, ext_disablers):
         return Message(

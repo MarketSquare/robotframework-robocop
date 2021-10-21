@@ -6,15 +6,6 @@ class ConfigGeneralError(RobocopFatalError):
     pass
 
 
-class DuplicatedRuleError(RobocopFatalError):
-    def __init__(self, rule_type, rule, checker, checker_prev):
-        msg = (
-            f"Fatal error: Rule {rule_type} '{rule}' defined in {checker.__class__.__name__} "
-            f"was already defined in {checker_prev.__class__.__name__}"
-        )
-        super().__init__(msg)
-
-
 class InvalidRuleConfigurableError(RobocopFatalError):
     def __init__(self, rule_id, rule_body):
         msg = f"Fatal error: Rule '{rule_id}' has invalid configurable:\n{rule_body}"

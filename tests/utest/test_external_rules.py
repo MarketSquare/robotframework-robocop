@@ -51,6 +51,5 @@ class TestExternalRules:
             f"{Path(__file__).parent.parent}/test_data/ext_rule/external_rule.py",
             f"{Path(__file__).parent.parent}/test_data/ext_rule_duplicate/external_rule_dup.py",
         }
-        with pytest.raises(robocop.exceptions.DuplicatedRuleError) as err:
-            robocop_pre_load.load_checkers()
-        assert "Fatal error: Rule name 'smth' defined in SmthChecker was already defined in SmthChecker" in str(err)
+        # duplicated rule should be overwritten - it's expected behaviour that allows you to overwrite default rules
+        robocop_pre_load.load_checkers()

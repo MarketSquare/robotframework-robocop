@@ -237,14 +237,8 @@ class Robocop:
         if not self.any_rule_enabled(checker):
             checker.disabled = True
         for rule_name, rule in checker.rules.items():
-            if rule_name in self.rules:
-                (_, checker_prev) = self.rules[rule_name]
-                raise robocop.exceptions.DuplicatedRuleError("name", rule_name, checker, checker_prev)
-            if rule.rule_id in self.rules:
-                (_, checker_prev) = self.rules[rule.rule_id]
-                raise robocop.exceptions.DuplicatedRuleError("id", rule.rule_id, checker, checker_prev)
-            self.rules[rule_name] = (rule, checker)
-            self.rules[rule.rule_id] = (rule, checker)
+            self.rules[rule_name] = rule
+            self.rules[rule.rule_id] = rule
         self.checkers.append(checker)
 
     def make_reports(self):
@@ -289,8 +283,8 @@ class Robocop:
                 )
             rule_or_report, param, value = config.split(":", maxsplit=2)
             if rule_or_report in self.rules:
-                msg, checker = self.rules[rule_or_report]
-                msg.configure(param, value)
+                rule = self.rules[rule_or_report]
+                rule.configure(param, value)
             elif rule_or_report in self.reports:
                 self.reports[rule_or_report].configure(param, value)
             else:

@@ -22,6 +22,8 @@ class TestConfigureRule:
         config.include = ["not-allowed-char-in-name"]
         robocop_runner = Robocop(config=config)
         robocop_runner.reload_config()
-        assert (
-            robocop_runner.rules["not-allowed-char-in-name"][1].param("not-allowed-char-in-name", "pattern") == expected
-        )
+        invalid_char_checkers = None
+        for checker in robocop_runner.checkers:
+            if checker.__class__.__name__ == "InvalidCharactersInNameChecker":
+                invalid_char_checkers = checker
+        assert invalid_char_checkers.param("not-allowed-char-in-name", "pattern") == expected

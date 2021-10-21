@@ -67,44 +67,42 @@ class TestMessage:
 
     @pytest.mark.parametrize("severity", ["invalid", 1, "errorE", None, dict()])
     def test_change_message_severity_invalid(self, valid_msg, severity):  # noqa
-        with pytest.raises(robocop.exceptions.InvalidRuleSeverityError) as err:
+        with pytest.raises(robocop.exceptions.RuleParamFailedInitError) as err:
             valid_msg.configure("severity", severity)
-        assert rf"Fatal error: Tried to configure rule with invalid severity: {severity}" in str(err)
+        assert (
+            f"Failed to configure param `severity` with value `{severity}`. Received error `Chose one of: I, W, E`"
+            in err.value.args[0]
+        )
 
     def test_get_configurable_existing(self, valid_msg_with_conf):  # noqa
         assert str(valid_msg_with_conf.config["param_name"]) == str(
             RuleParam(name="param_name", converter=int, default=1, desc="")
         )
 
-    # @pytest.mark.parametrize(
-    #     "configurable",
-    #     [
-    #         [None],
-    #         [1],
-    #         [()],
-    #         [("some", "some", int, 5, 5)],
-    #         [("some", "some", str), None],
-    #     ],
-    # )
-    # def test_parse_invalid_configurable(self, configurable):
-    #     msg = ("some-message", "Some description", RuleSeverity.WARNING)
-    #     body = msg + tuple(configurable)
-    #     with pytest.raises(robocop.exceptions.InvalidRuleConfigurableError) as err:
-    #         Rule("0101", body)
-    #     assert rf"Fatal error: Rule '0101' has invalid configurable:\n{body}" in str(err)
+    def test_parse_invalid_configurable(self):
+        with pytest.raises(robocop.exceptions.RuleParamFailedInitError) as err:
+            Rule(
+                RuleParam(name="Some", default="s", converter=int, desc=""),
+                rule_id="0101",
+                name="some-message",
+                msg="Some description",
+                severity="W",
+            )
+        assert (
+            rf"Failed to configure param `Some` with value `s`. "
+            rf"Received error `invalid literal for int() with base 10: 's'`.\n    Parameter type: <class 'int'>\n"
+            in str(err)
+        )
 
-    # FIXME
-    # @pytest.mark.parametrize(
-    #     "configurable",
-    #     [
-    #         [("some", "some", int)],
-    #         [(1, 2, 3)],
-    #         [("some", "some", int), ("some2", "some2", str)],
-    #     ],
-    # )
-    # def test_parse_valid_configurable(self, configurable):
-    #     rule = Rule(RuleParam(name=configurable[0], converter=configurable[2], desc="", default=0), rule_id="0101", name="some-message", msg="Some description", severity="W")
-    #     assert rule.configurable == configurable
+    def test_parse_valid_configurable(self):
+        rule = Rule(
+            RuleParam(name="Some", default="5", converter=int, desc=""),
+            rule_id="0101",
+            name="some-message",
+            msg="Some description",
+            severity="W",
+        )
+        assert rule.config["Some"].value == 5
 
     @pytest.mark.parametrize(
         "source, range, range_exp",

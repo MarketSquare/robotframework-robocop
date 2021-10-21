@@ -36,9 +36,8 @@ except ImportError:
 
 from robot.utils import FileReader
 
-from robocop.exceptions import DuplicatedRuleError
-from robocop.rules import Rule
 from robocop.utils import modules_from_paths, modules_in_current_dir
+from robocop.exceptions import RuleNotFoundError, RuleParamNotFoundError
 
 
 class BaseChecker:
@@ -48,16 +47,17 @@ class BaseChecker:
         self.disabled = False
         self.source = None
         self.lines = None
-        # self.register_rules()
         self.issues = []
         self.templated_suite = False
 
     def param(self, rule, param_name):
-        if rule not in self.rules:
-            pass  # TODO:
-        if param_name not in self.rules[rule].config:
-            pass  # TODO, or KeyError
-        return self.rules[rule].config[param_name].value
+        try:
+            return self.rules[rule].config[param_name].value
+        except KeyError:
+            if rule not in self.rules:
+                raise RuleNotFoundError(rule, self) from None
+            if param_name not in self.rules[rule].config:
+                raise RuleParamNotFoundError(self.rules[rule], param_name, self) from None
 
     def report(
         self,
@@ -84,9 +84,6 @@ class BaseChecker:
         )
         if message.enabled:
             self.issues.append(message)
-
-    def configure(self, param, value):
-        self.__dict__[param] = value
 
 
 class VisitorChecker(BaseChecker, ModelVisitor):  # noqa

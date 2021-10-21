@@ -197,12 +197,13 @@ class Robocop:
         ]
         rule_by_id = sorted(rule_by_id, key=lambda x: x[0])
         severity_counter = Counter({"E": 0, "W": 0, "I": 0})
+        # TODO
         for _, rule_def, checker in rule_by_id:
             if self.config.list:
                 print(rule_def)
                 severity_counter[rule_def.severity.value] += 1
             else:
-                configurables = rule_def.available_configurables(include_severity=False, checker=checker)
+                configurables = rule_def.available_configurables(include_severity=False)
                 if configurables:
                     print(f"{rule_def}\n" f"    {configurables}")
                     severity_counter[rule_def.severity.value] += 1

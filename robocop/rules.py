@@ -68,7 +68,7 @@ class RuleSeverity:
             "i": "I",
         }.get(str(value).lower(), None)
         if severity is None:
-            raise robocop.exceptions.InvalidRuleSeverityError(value)
+            raise ValueError(f"Chose one of: {', '.join(self.look_up)}") from None
         self.value = severity
 
     def __str__(self):
@@ -89,7 +89,8 @@ class RuleParam:
         self.name = name
         self.converter = converter
         self.desc = desc
-        self._value = converter(default)
+        self._value = None
+        self.value = default
 
     def __str__(self):
         s = f"{self.name} = {self.value}\n" f"        type: {self.converter.__name__}"
@@ -103,7 +104,10 @@ class RuleParam:
 
     @value.setter
     def value(self, value):
-        self._value = self.converter(value)
+        try:
+            self._value = self.converter(value)
+        except ValueError as err:
+            raise robocop.exceptions.RuleParamFailedInitError(self, value, str(err)) from None
 
 
 class Rule:
@@ -146,7 +150,7 @@ class Rule:
             )
         self.config[param].value = value
 
-    def available_configurables(self, include_severity=True, checker=None):
+    def available_configurables(self, include_severity=True):
         params = [str(param) for param in self.config.values() if param.name != "severity" or include_severity]
         if not params:
             return ""

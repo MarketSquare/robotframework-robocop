@@ -126,7 +126,6 @@ class Robocop:
                 print(f"Scanning file: {file}")
             model = self.files[file][1]
             found_issues = self.run_check(model, str(file))
-            issues_to_lsp_diagnostic(found_issues)
             found_issues.sort()
             for issue in found_issues:
                 self.report(issue)

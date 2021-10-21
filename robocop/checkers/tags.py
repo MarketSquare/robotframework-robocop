@@ -100,11 +100,7 @@ class TagScopeChecker(VisitorChecker):
             "Tags defined in Default Tags are always overwritten",
             RuleSeverity.INFO,
         ),
-        "0608": (
-            "empty-tags",
-            "[Tags] setting without values%s",
-            RuleSeverity.WARNING
-        ),
+        "0608": ("empty-tags", "[Tags] setting without values%s", RuleSeverity.WARNING),
     }
 
     def __init__(self):

@@ -37,7 +37,7 @@ except ImportError:
 from robot.utils import FileReader
 
 from robocop.utils import modules_from_paths, modules_in_current_dir
-from robocop.exceptions import RuleNotFoundError, RuleParamNotFoundError
+from robocop.exceptions import RuleNotFoundError, RuleParamNotFoundError, RuleReportsNotFoundError
 
 
 class BaseChecker:
@@ -48,6 +48,7 @@ class BaseChecker:
         self.source = None
         self.lines = None
         self.issues = []
+        self.rules = {}
         self.templated_suite = False
 
     def param(self, rule, param_name):
@@ -139,16 +140,18 @@ def get_modules(linter):
 
 
 def init(linter):
+    """For each module get `rules` dictionary and visitors. Instantiate each visitor and map it to the
+    rule class instance using `reports` visitor attribute. """
     for module in get_modules(linter):
         classes = inspect.getmembers(module, inspect.isclass)
+        module_rules = {rule.name: rule for rule in getattr(module, "rules", {}).values()}
         for checker in classes:
             if issubclass(checker[1], BaseChecker) and getattr(checker[1], "reports", False):
                 checker_instance = checker[1]()
-                checker_instance.rules = {
-                    rule.name: rule
-                    for rule in getattr(module, "rules", {}).values()
-                    if rule.name in checker_instance.reports
-                }
+                for reported_rule in checker_instance.reports:
+                    if reported_rule not in module_rules:
+                        raise RuleReportsNotFoundError(reported_rule, checker_instance) from None
+                    checker_instance.rules[reported_rule] = module_rules[reported_rule]
                 linter.register_checker(checker_instance)
 
 

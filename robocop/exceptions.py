@@ -64,3 +64,10 @@ class RuleParamFailedInitError(RobocopFatalError):
             f"Failed to configure param `{param.name}` with value `{value}`. Received error `{err}`.\n"
             f"    Parameter type: {param.converter}\n" + desc
         )
+
+
+class RuleReportsNotFoundError(RobocopFatalError):
+    def __init__(self, rule, checker):
+        super().__init__(
+            f"{checker.__class__.__name__} checker `reports` attribute contains unknown rule `{rule}`"
+        )

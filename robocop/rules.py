@@ -110,7 +110,7 @@ class Rule:
     def __init__(self, *params, rule_id, name, msg, severity, version=None):
         self.rule_id = rule_id
         self.name = name
-        self.desc = msg  # TODO: replace with msg
+        self.desc = msg
         self.config = {
             "severity": RuleParam(
                 "severity", severity, RuleSeverity, "Rule severity (E = Error, W = Warning, I = Info)"

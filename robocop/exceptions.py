@@ -21,12 +21,6 @@ class InvalidRuleSeverityError(RobocopFatalError):
         super().__init__(msg)
 
 
-class InvalidRuleBodyError(RobocopFatalError):
-    def __init__(self, rule_id, rule_body):
-        msg = f"Fatal error: Rule '{rule_id}' has invalid body:\n{rule_body}"
-        super().__init__(msg)
-
-
 class InvalidRuleConfigurableError(RobocopFatalError):
     def __init__(self, rule_id, rule_body):
         msg = f"Fatal error: Rule '{rule_id}' has invalid configurable:\n{rule_body}"

@@ -189,24 +189,19 @@ class Robocop:
                 "\n    E / error\n    W / warning\n    I / info"
             )
         pattern = self.config.list if self.config.list else self.config.list_configurables
-        rule_by_id = [
-            (msg.rule_id, msg, checker)
-            for checker in self.checkers
-            for msg in checker.rules.values()
-            if msg.matches_pattern(pattern)
-        ]
-        rule_by_id = sorted(rule_by_id, key=lambda x: x[0])
+        rule_by_id = {rule.rule_id: rule for rule in self.rules.values() if rule.matches_pattern(pattern)}
+        rule_by_id = sorted(rule_by_id.values(), key=lambda x: x.rule_id)
         severity_counter = Counter({"E": 0, "W": 0, "I": 0})
         # TODO
-        for _, rule_def, checker in rule_by_id:
+        for rule in rule_by_id:
             if self.config.list:
-                print(rule_def)
-                severity_counter[rule_def.severity.value] += 1
+                print(rule)
+                severity_counter[rule.severity.value] += 1
             else:
-                configurables = rule_def.available_configurables(include_severity=False)
-                if configurables:
-                    print(f"{rule_def}\n" f"    {configurables}")
-                    severity_counter[rule_def.severity.value] += 1
+                params = rule.available_configurables(include_severity=False)
+                if params:
+                    print(f"{rule}\n" f"    {params}")
+                    severity_counter[rule.severity.value] += 1
         print(
             f"\nAltogether {sum(severity_counter.values())} rule(s) with following severity:\n"
             f"    {severity_counter['E']} error rule(s),\n"

@@ -6,12 +6,6 @@ class ConfigGeneralError(RobocopFatalError):
     pass
 
 
-class InvalidRuleConfigurableError(RobocopFatalError):
-    def __init__(self, rule_id, rule_body):
-        msg = f"Fatal error: Rule '{rule_id}' has invalid configurable:\n{rule_body}"
-        super().__init__(msg)
-
-
 class InvalidRuleUsageError(RobocopFatalError):
     def __init__(self, rule_id, type_error):
         msg = f"Fatal error: Rule '{rule_id}' failed to prepare message description with error: {type_error}"

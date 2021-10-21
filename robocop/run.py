@@ -192,7 +192,6 @@ class Robocop:
         rule_by_id = {rule.rule_id: rule for rule in self.rules.values() if rule.matches_pattern(pattern)}
         rule_by_id = sorted(rule_by_id.values(), key=lambda x: x.rule_id)
         severity_counter = Counter({"E": 0, "W": 0, "I": 0})
-        # TODO
         for rule in rule_by_id:
             if self.config.list:
                 print(rule)

@@ -16,6 +16,7 @@ from operator import itemgetter
 from timeit import default_timer as timer
 
 import robocop.exceptions
+from robocop.rules import RuleSeverity
 
 
 class Report:
@@ -76,14 +77,14 @@ class RulesBySeverityReport(Report):
         self.severity_counter = defaultdict(int)
 
     def add_message(self, message):
-        self.severity_counter[message.severity] += 1
+        self.severity_counter[str(message.severity)] += 1
 
     def get_report(self):
         issues_count = sum(self.severity_counter.values())
         if not issues_count:
             return "\nFound 0 issues"
         report = f"\nFound {issues_count} issue(s): "
-        report += ", ".join(f"{count} {severity.full_name}(s)" for severity, count in self.severity_counter.items())
+        report += ", ".join(f"{count} {RuleSeverity(severity).full_name()}(s)" for severity, count in self.severity_counter.items())
         report += "."
         return report
 
@@ -119,7 +120,7 @@ class ReturnStatusReport(Report):
 
     def get_report(self):
         for severity, count in self.counter.severity_counter.items():
-            threshold = self.quality_gate.get(severity.value, 0)
+            threshold = self.quality_gate.get(severity, 0)
             if -1 < threshold < count:
                 self.return_status += count - threshold
         self.return_status = min(self.return_status, 255)

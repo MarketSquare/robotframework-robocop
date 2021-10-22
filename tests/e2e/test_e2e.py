@@ -32,6 +32,15 @@ def should_run_with_config(robocop_instance, cfg):
     return robocop_instance
 
 
+def configure_robocop(robocop_instance, args):
+    config = Config()
+    config.parse_opts(args.split())
+    robocop_instance.config = config
+    robocop_instance.load_checkers()
+    robocop_instance.load_reports()
+    robocop_instance.configure_checkers_or_reports()
+
+
 class TestE2E:
     def test_run_all_checkers(self, robocop_instance, test_data_dir):
         should_run_with_config(robocop_instance, str(test_data_dir))
@@ -77,10 +86,10 @@ class TestE2E:
         assert runner.reports["return_status"].return_status > 0
 
     def test_configure_rule_severity(self, robocop_instance, test_data_dir):
-        should_run_with_config(robocop_instance, f"-c 0201:severity:E -c E0202:severity:I {test_data_dir}")
+        configure_robocop(robocop_instance, args=f"-c 0201:severity:E -c E0202:severity:I {test_data_dir}")
 
     def test_configure_rule_option(self, robocop_instance, test_data_dir):
-        should_run_with_config(robocop_instance, f"-c line-too-long:line_length:1000 {test_data_dir}")
+        configure_robocop(robocop_instance, args=f"-c line-too-long:line_length:1000 {test_data_dir}")
 
     @pytest.mark.parametrize(
         "rule, expected",
@@ -94,12 +103,8 @@ class TestE2E:
         ],
     )
     def test_configure_invalid_rule(self, robocop_instance, rule, expected, test_data_dir):
-        config = Config()
-        config.parse_opts(["--configure", f"{rule}:severity:E", str(test_data_dir)])
-        robocop_instance.config = config
-        robocop_instance.load_checkers()
         with pytest.raises(ConfigGeneralError) as err:
-            robocop_instance.configure_checkers_or_reports()
+            configure_robocop(robocop_instance, args=f"--configure {rule}:severity:E {test_data_dir}")
         assert expected in str(err)
 
     @pytest.mark.parametrize(
@@ -123,21 +128,13 @@ class TestE2E:
             assert expected in str(err)
 
     def test_configure_invalid_param(self, robocop_instance, test_data_dir):
-        config = Config()
-        config.parse_opts(["--configure", "0202:idontexist:E", str(test_data_dir)])
-        robocop_instance.config = config
-        robocop_instance.load_checkers()
         with pytest.raises(ConfigGeneralError) as err:
-            robocop_instance.configure_checkers_or_reports()
+            configure_robocop(robocop_instance, args=f"--configure 0202:idontexist:E {test_data_dir}")
         assert "Provided param 'idontexist' for rule 'missing-doc-test-case' does not exist. " in err.value.args[0]
 
     def test_configure_invalid_config(self, robocop_instance, test_data_dir):
-        config = Config()
-        config.parse_opts(["--configure", "0202:", str(test_data_dir)])
-        robocop_instance.config = config
-        robocop_instance.load_checkers()
         with pytest.raises(ConfigGeneralError) as err:
-            robocop_instance.configure_checkers_or_reports()
+            configure_robocop(robocop_instance, args=f"--configure 0202: {test_data_dir}")
         assert "Provided invalid config: '0202:' (general pattern: <rule>:<param>:<value>)" in str(err)
 
     def test_configure_return_status_invalid_value(self, robocop_instance, test_data_dir):
@@ -147,16 +144,13 @@ class TestE2E:
         )
 
     def test_configure_return_status_with_non_exist(self, robocop_instance):
-        config = Config()
-        config.parse_opts(["--configure", "return_status:smth:E=0:W=0", str(test_data_dir)])
-        robocop_instance.config = config
-        robocop_instance.load_reports()
         with pytest.raises(ConfigGeneralError) as err:
-            robocop_instance.configure_checkers_or_reports()
+            configure_robocop(robocop_instance, args=f"--configure return_status:smth:E=0:W=0 {test_data_dir}")
         assert "Provided param 'smth' for report 'return_status' does not exist" in str(err)
 
     def test_use_argument_file(self, robocop_instance, test_data_dir):
-        should_run_with_config(robocop_instance, f'-A {test_data_dir / "argument_file" / "args.txt"}')
+        config = Config()
+        config.parse_opts(["-A", str(test_data_dir / "argument_file" / "args.txt")])
 
     def test_use_not_existing_argument_file(self, test_data_dir):
         config = Config()
@@ -185,9 +179,10 @@ class TestE2E:
 
     def test_configure_severity(self, robocop_instance, test_data_dir):
         # issue 402
-        should_run_with_config(
+        configure_robocop(
             robocop_instance,
-            f"-c wrong-case-in-keyword-name:severity:E -c wrong-case-in-keyword-name:convention:first_word_capitalized"
+            args=f"--configure wrong-case-in-keyword-name:severity:E "
+            f"-c wrong-case-in-keyword-name:convention:first_word_capitalized "
             f"{test_data_dir}",
         )
 

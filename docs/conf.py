@@ -73,12 +73,7 @@ class RuleDoc:
     def get_params(rule):
         params = []
         for param in rule.config.values():
-            params.append((
-                param.name,
-                param.converter.__name__,
-                param.value,
-                param.desc
-            ))
+            params.append((param.name, param.converter.__name__, param.value, param.desc))
         return params
 
     def __lt__(self, other):

@@ -141,7 +141,7 @@ def get_modules(linter):
 
 def init(linter):
     """For each module get `rules` dictionary and visitors. Instantiate each visitor and map it to the
-    rule class instance using `reports` visitor attribute. """
+    rule class instance using `reports` visitor attribute."""
     for module in get_modules(linter):
         classes = inspect.getmembers(module, inspect.isclass)
         module_rules = {rule.name: rule for rule in getattr(module, "rules", {}).values()}

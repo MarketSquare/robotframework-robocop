@@ -19,7 +19,6 @@ from robocop.utils import (
     FileTypeChecker,
     RecommendationFinder,
     is_suite_templated,
-    issues_to_lsp_diagnostic,
 )
 
 
@@ -78,7 +77,6 @@ class Robocop:
     def run(self):
         """Entry point for running scans"""
         self.reload_config()
-
         self.recognize_file_types()
         self.run_checks()
         self.make_reports()

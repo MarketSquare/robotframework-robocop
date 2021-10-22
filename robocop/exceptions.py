@@ -68,6 +68,4 @@ class RuleParamFailedInitError(RobocopFatalError):
 
 class RuleReportsNotFoundError(RobocopFatalError):
     def __init__(self, rule, checker):
-        super().__init__(
-            f"{checker.__class__.__name__} checker `reports` attribute contains unknown rule `{rule}`"
-        )
+        super().__init__(f"{checker.__class__.__name__} checker `reports` attribute contains unknown rule `{rule}`")

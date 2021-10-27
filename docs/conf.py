@@ -85,8 +85,8 @@ def get_checker_docs():
     Load rules for dynamic docs generation
     """
     checker_docs = defaultdict(list)
-    for module_name, rule in robocop.checkers.get_docs():
-        module_name = module_name.split(".")[-1].title()
+    for module_name, rule in robocop.checkers.get_rules():
+        module_name = module_name.title()
         rule_doc = RuleDoc(rule)
         checker_docs[module_name].append((rule_doc.rule_id, rule_doc.name, rule_doc.params))
     groups_sorted_by_id = []

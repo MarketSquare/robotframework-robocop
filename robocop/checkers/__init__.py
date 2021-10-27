@@ -134,15 +134,10 @@ class RawFileChecker(BaseChecker):  # noqa
         raise NotImplementedError
 
 
-def get_modules(linter):
-    yield from modules_in_current_dir(__file__, __name__)
-    yield from modules_from_paths(linter.config.ext_rules)
-
-
 def init(linter):
     """For each module get `rules` dictionary and visitors. Instantiate each visitor and map it to the
     rule class instance using `reports` visitor attribute."""
-    for module in get_modules(linter):
+    for module in get_modules(linter.config.ext_rules):
         classes = inspect.getmembers(module, inspect.isclass)
         module_rules = {rule.name: rule for rule in getattr(module, "rules", {}).values()}
         for checker in classes:
@@ -155,14 +150,13 @@ def init(linter):
                 linter.register_checker(checker_instance)
 
 
-def get_docs():
-    for module in modules_in_current_dir(__file__, __name__):
-        for rule in getattr(module, "rules", {}).values():
-            yield module.__name__, rule
+def get_modules(ext_rules):
+    yield from modules_in_current_dir(__file__, __name__)
+    yield from modules_from_paths(ext_rules)
 
 
-def get_rules_for_atest():
+def get_rules():
     for module in modules_in_current_dir(__file__, __name__):
         module_name = module.__name__.split(".")[-1]
         for rule in getattr(module, "rules", {}).values():
-            yield module_name, rule.name
+            yield module_name, rule

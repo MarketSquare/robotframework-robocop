@@ -21,10 +21,10 @@ Every custom checker needs to complete following requirements:
 This is an example of the file with custom checker that asserts that no test have "Dummy" in the name::
 
     from robocop.checkers import VisitorChecker
-    from robocop.rules import Rule
+    from robocop.rules import Rule, RuleSeverity
 
     rules = {
-        "9999": Rule(rule_id="9999", name="dummy-in-name", msg="There is 'Dummy' in test case name", severity="W")
+        "9999": Rule(rule_id="9999", name="dummy-in-name", msg="There is 'Dummy' in test case name", severity=RuleSeverity.WARNING)
     }
 
 

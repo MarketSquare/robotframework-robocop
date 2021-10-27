@@ -2,8 +2,8 @@ import sys
 
 import pytest
 
-from robocop.run import Robocop
 from robocop.config import Config
+from robocop.run import Robocop
 
 
 @pytest.fixture

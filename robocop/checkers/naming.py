@@ -6,42 +6,141 @@ from collections import defaultdict
 from pathlib import Path
 
 from robot.api import Token
-from robot.parsing.model.statements import KeywordCall, Arguments
+from robot.parsing.model.statements import Arguments, KeywordCall
 
 from robocop.checkers import VisitorChecker
-from robocop.rules import RuleSeverity
+from robocop.rules import Rule, RuleParam, RuleSeverity
 from robocop.utils import (
+    ROBOT_VERSION,
+    find_robot_vars,
+    keyword_col,
     normalize_robot_name,
     normalize_robot_var_name,
-    IS_RF4,
-    keyword_col,
-    remove_robot_vars,
-    find_robot_vars,
-    token_col,
     pattern_type,
+    remove_robot_vars,
+    token_col,
 )
+
+rules = {
+    "0301": Rule(
+        RuleParam(
+            name="pattern",
+            default=re.compile(r"[\.\?]"),
+            converter=pattern_type,
+            desc="pattern defining characters (not) allowed in a name",
+        ),
+        rule_id="0301",
+        name="not-allowed-char-in-name",
+        msg="Not allowed character '%s' found in %s name",
+        severity=RuleSeverity.WARNING,
+    ),
+    "0302": Rule(
+        RuleParam(
+            name="convention",
+            default="each_word_capitalized",
+            converter=str,
+            desc="possible values: 'each_word_capitalized' (default) or 'first_word_capitalized'",
+        ),
+        rule_id="0302",
+        name="wrong-case-in-keyword-name",
+        msg="Keyword name should use title case",
+        severity=RuleSeverity.WARNING,
+    ),
+    "0303": Rule(
+        rule_id="0303",
+        name="keyword-name-is-reserved-word",
+        msg="'%s' is a reserved keyword%s",
+        severity=RuleSeverity.ERROR,
+    ),
+    "0305": Rule(
+        rule_id="0305",
+        name="underscore-in-keyword-name",
+        msg="Underscores in keyword name can be replaced with spaces",
+        severity=RuleSeverity.WARNING,
+    ),
+    "0306": Rule(
+        rule_id="0306",
+        name="setting-name-not-in-title-case",
+        msg="Setting name should be title or upper case",
+        severity=RuleSeverity.WARNING,
+    ),
+    "0307": Rule(
+        rule_id="0307",
+        name="section-name-invalid",
+        msg="Section name should be in format `*** Capitalized ***` or `*** UPPERCASE ***`",
+        severity=RuleSeverity.WARNING,
+    ),
+    "0308": Rule(
+        rule_id="0308",
+        name="not-capitalized-test-case-title",
+        msg="Test case title should start with capital letter",
+        severity=RuleSeverity.WARNING,
+    ),
+    "0309": Rule(
+        rule_id="0309",
+        name="section-variable-not-uppercase",
+        msg="Section variable name should be uppercase",
+        severity=RuleSeverity.WARNING,
+    ),
+    "0310": Rule(
+        rule_id="0310",
+        name="non-local-variables-should-be-uppercase",
+        msg="Test, suite and global variables should be uppercased",
+        severity=RuleSeverity.WARNING,
+    ),
+    "0311": Rule(
+        rule_id="0311",
+        name="else-not-upper-case",
+        msg="ELSE and ELSE IF should be upper case",
+        severity=RuleSeverity.ERROR,
+    ),
+    "0312": Rule(
+        rule_id="0312",
+        name="keyword-name-is-empty",
+        msg="Keyword name should not be empty",
+        severity=RuleSeverity.ERROR,
+    ),
+    "0313": Rule(
+        rule_id="0313",
+        name="test-case-name-is-empty",
+        msg="Test case name should not be empty",
+        severity=RuleSeverity.ERROR,
+    ),
+    "0314": Rule(
+        rule_id="0314", name="empty-library-alias", msg="Library alias should not be empty", severity=RuleSeverity.ERROR
+    ),
+    "0315": Rule(
+        rule_id="0315",
+        name="duplicated-library-alias",
+        msg="Library alias should not be the same as original name",
+        severity=RuleSeverity.WARNING,
+    ),
+    "0316": Rule(
+        rule_id="0316",
+        name="possible-variable-overwriting",
+        msg="Variable '%s' may overwrite similar variable inside '%s' %s. "
+        "Note that variables are case-insensitive, and also spaces and underscores are ignored.",
+        severity=RuleSeverity.INFO,
+    ),
+    "0317": Rule(
+        rule_id="0317",
+        name="hyphen-in-variable-name",
+        msg="Use underscore in variable names instead of hyphens to avoid treating them like minus sign",
+        severity=RuleSeverity.INFO,
+    ),
+    "0318": Rule(
+        rule_id="0318",
+        name="bdd-without-keyword-call",
+        msg="BDD reserved keyword '%s' not followed by any keyword%s",
+        severity=RuleSeverity.WARNING,
+    ),
+}
 
 
 class InvalidCharactersInNameChecker(VisitorChecker):
     """Checker for invalid characters in suite, test case or keyword name."""
 
-    rules = {
-        "0301": (
-            "not-allowed-char-in-name",
-            "Not allowed character '%s' found in %s name",
-            RuleSeverity.WARNING,
-            (
-                "pattern",
-                "pattern",
-                pattern_type,
-                "pattern defining characters (not) allowed in a name",
-            ),
-        )
-    }
-
-    def __init__(self):
-        self.pattern = re.compile(r"[\.\?]")
-        super().__init__()
+    reports = ("not-allowed-char-in-name",)
 
     def visit_File(self, node):
         source = node.source if node.source else self.source
@@ -50,7 +149,7 @@ class InvalidCharactersInNameChecker(VisitorChecker):
             if "__init__" in suite_name:
                 suite_name = Path(source).parent.name
             for char in suite_name:
-                if self.pattern.search(char):
+                if self.param("not-allowed-char-in-name", "pattern").search(char):
                     self.report("not-allowed-char-in-name", char, "suite", node=node)
         super().visit_File(node)
 
@@ -63,7 +162,7 @@ class InvalidCharactersInNameChecker(VisitorChecker):
                 start, stop = variables.pop(0)
                 index += stop - start
             else:
-                if self.pattern.search(node.name[index]):
+                if self.param("not-allowed-char-in-name", "pattern").search(node.name[index]):
                     self.report(
                         "not-allowed-char-in-name",
                         node.name[index],
@@ -83,46 +182,17 @@ class InvalidCharactersInNameChecker(VisitorChecker):
 class KeywordNamingChecker(VisitorChecker):
     """Checker for keyword naming violations."""
 
-    rules = {
-        "0302": (
-            "wrong-case-in-keyword-name",
-            "Keyword name should use title case",
-            RuleSeverity.WARNING,
-            (
-                "convention",
-                "convention",
-                str,
-                "possible values: 'each_word_capitalized' (default) or 'first_word_capitalized'",
-            ),
-        ),
-        "0303": (
-            "keyword-name-is-reserved-word",
-            "'%s' is a reserved keyword%s",
-            RuleSeverity.ERROR,
-        ),
-        "0305": (
-            "underscore-in-keyword-name",
-            "Underscores in keyword name can be replaced with spaces",
-            RuleSeverity.WARNING,
-        ),
-        "0311": (
-            "else-not-upper-case",
-            "ELSE and ELSE IF should be upper case",
-            RuleSeverity.ERROR,
-        ),
-        "0312": (
-            "keyword-name-is-empty",
-            "Keyword name should not be empty",
-            RuleSeverity.ERROR,
-        ),
-        "0318": (
-            "bdd-without-keyword-call",
-            "BDD reserved keyword '%s' not followed by any keyword%s",
-            RuleSeverity.WARNING,
-        ),
-    }
-    reserved_words = {"for": "for loop", "end": "for loop", "while": "", "continue": ""}
-    reserved_words_rf4 = {
+    reports = (
+        "wrong-case-in-keyword-name",
+        "keyword-name-is-reserved-word",
+        "underscore-in-keyword-name",
+        "else-not-upper-case",
+        "keyword-name-is-empty",
+        "bdd-without-keyword-call",
+    )
+
+    reserved_words_rf3 = {"for": "for loop", "end": "for loop", "while": "", "continue": ""}
+    reserved_words = {
         "if": "",
         "for": "for loop",
         "end": "for loop or if",
@@ -134,7 +204,6 @@ class KeywordNamingChecker(VisitorChecker):
 
     def __init__(self):
         self.letter_pattern = re.compile(r"\W|_", re.UNICODE)
-        self.convention = "each_word_capitalized"
         super().__init__()
 
     def visit_SuiteSetup(self, node):  # noqa
@@ -198,7 +267,7 @@ class KeywordNamingChecker(VisitorChecker):
         if "_" in keyword_name:
             self.report("underscore-in-keyword-name", node=node)
         words = self.letter_pattern.sub(" ", keyword_name).split(" ")
-        if self.convention == "first_word_capitalized":
+        if self.param("wrong-case-in-keyword-name", "convention") == "first_word_capitalized":
             words = words[:1]
         if any(word[0].islower() for word in words if word):
             self.report("wrong-case-in-keyword-name", node=node)
@@ -213,7 +282,7 @@ class KeywordNamingChecker(VisitorChecker):
 
     def check_if_keyword_is_reserved(self, keyword_name, node):
         # if there is typo in syntax, it is interpreted as keyword
-        reserved = self.reserved_words_rf4 if IS_RF4 else self.reserved_words
+        reserved = self.reserved_words_rf3 if ROBOT_VERSION.major == 3 else self.reserved_words
         if keyword_name.lower() not in reserved:
             return False
         reserved_type = reserved[keyword_name.lower()]
@@ -234,28 +303,12 @@ class KeywordNamingChecker(VisitorChecker):
 class SettingsNamingChecker(VisitorChecker):
     """Checker for settings and sections naming violations."""
 
-    rules = {
-        "0306": (
-            "setting-name-not-in-title-case",
-            "Setting name should be title or upper case",
-            RuleSeverity.WARNING,
-        ),
-        "0307": (
-            "section-name-invalid",
-            "Section name should be in format `*** Capitalized ***` or `*** UPPERCASE ***`",
-            RuleSeverity.WARNING,
-        ),
-        "0314": (
-            "empty-library-alias",
-            "Library alias should not be empty",
-            RuleSeverity.ERROR,
-        ),
-        "0315": (
-            "duplicated-library-alias",
-            "Library alias should not be the same as original name",
-            RuleSeverity.WARNING,
-        ),
-    }
+    reports = (
+        "setting-name-not-in-title-case",
+        "section-name-invalid",
+        "empty-library-alias",
+        "duplicated-library-alias",
+    )
 
     def __init__(self):
         self.section_name_pattern = re.compile(r"\*\*\*\s.+\s\*\*\*")
@@ -338,18 +391,10 @@ class SettingsNamingChecker(VisitorChecker):
 class TestCaseNamingChecker(VisitorChecker):
     """Checker for test case naming violations."""
 
-    rules = {
-        "0308": (
-            "not-capitalized-test-case-title",
-            "Test case title should start with capital letter",
-            RuleSeverity.WARNING,
-        ),
-        "0313": (
-            "test-case-name-is-empty",
-            "Test case name should not be empty",
-            RuleSeverity.ERROR,
-        ),
-    }
+    reports = (
+        "not-capitalized-test-case-title",
+        "test-case-name-is-empty",
+    )
 
     def visit_TestCase(self, node):  # noqa
         if not node.name:
@@ -361,23 +406,11 @@ class TestCaseNamingChecker(VisitorChecker):
 class VariableNamingChecker(VisitorChecker):
     """Checker for variable naming violations."""
 
-    rules = {
-        "0309": (
-            "section-variable-not-uppercase",
-            "Section variable name should be uppercase",
-            RuleSeverity.WARNING,
-        ),
-        "0310": (
-            "non-local-variables-should-be-uppercase",
-            "Test, suite and global variables should be uppercased",
-            RuleSeverity.WARNING,
-        ),
-        "0317": (
-            "hyphen-in-variable-name",
-            "Use underscore in variable names instead of hyphens to avoid treating them like minus sign",
-            RuleSeverity.INFO,
-        ),
-    }
+    reports = (
+        "section-variable-not-uppercase",
+        "non-local-variables-should-be-uppercase",
+        "hyphen-in-variable-name",
+    )
 
     def __init__(self):
         self.set_variable_variants = {
@@ -426,14 +459,7 @@ class VariableNamingChecker(VisitorChecker):
 class SimilarVariableChecker(VisitorChecker):
     """Checker for finding same variables with similar names."""
 
-    rules = {
-        "0316": (
-            "possible-variable-overwriting",
-            "Variable '%s' may overwrite similar variable inside '%s' %s. "
-            "Note that variables are case-insensitive, and also spaces and underscores are ignored.",
-            RuleSeverity.INFO,
-        )
-    }
+    reports = ("possible-variable-overwriting",)
 
     def __init__(self):
         self.variables = defaultdict(set)

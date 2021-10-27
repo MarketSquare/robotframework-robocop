@@ -23,7 +23,12 @@ Available formats:
 """
 from enum import Enum
 from functools import total_ordering
+from typing import Any, Callable, Union, Pattern, Dict
+
+from packaging.specifiers import SpecifierSet
+
 import robocop.exceptions
+from robocop.utils import ROBOT_VERSION
 
 
 @total_ordering
@@ -53,75 +58,135 @@ class RuleSeverity(Enum):
     WARNING = "W"
     ERROR = "E"
 
+    @classmethod
+    def parser(cls, value: Union[str, "RuleSeverity"]) -> "RuleSeverity":
+        # parser can be invoked from Rule() with severity=RuleSeverity.WARNING (enum directly) or
+        # from configuration with severity:W (string representation)
+        severity = {
+            "error": cls.ERROR,
+            "e": cls.ERROR,
+            "warning": cls.WARNING,
+            "w": cls.WARNING,
+            "info": cls.INFO,
+            "i": cls.INFO,
+        }.get(str(value).lower(), None)
+        if severity is None:
+            raise ValueError(f"Chose one of: {', '.join(sev.value for sev in cls)}") from None
+        return severity
+
+    def __str__(self):
+        return self.value
+
     def __lt__(self, other):
         look_up = [sev.value for sev in RuleSeverity]
         return look_up.index(self.value) < look_up.index(other.value)
 
+    def diag_severity(self) -> int:
+        return {"I": 3, "W": 2, "E": 1}.get(self.value, 4)
+
+
+class RuleParam:
+    """
+    Parameter of the Rule.
+    Each rule can have number of parameters (default one is severity).
+    """
+
+    def __init__(self, name: str, default: Any, converter: Callable, desc: str):
+        """
+        :param name: Name of the parameter used when configuring rule (also displayed in the docs)
+        :param default: Default value of the parameter
+        :param converter: Method used for converting from string. It can be separate method or classmethod from
+        particular class (see `:RuleSeverity:` for example of class that is used as rule parameter value).
+        It must return value
+        :param desc: Description of rule parameter
+        """
+        self.name = name
+        self.converter = converter
+        self.desc = desc
+        self._value = None
+        self.value = default
+
+    def __str__(self):
+        s = f"{self.name} = {self.value}\n" f"        type: {self.converter.__name__}"
+        if self.desc:
+            s += "\n" f"        info: {self.desc}"
+        return s
+
+    @property
+    def value(self):
+        return self._value
+
+    @value.setter
+    def value(self, value):
+        try:
+            self._value = self.converter(value)
+        except ValueError as err:
+            raise robocop.exceptions.RuleParamFailedInitError(self, value, str(err)) from None
+
 
 class Rule:
-    def __init__(self, rule_id, body):
+    """
+    Robocop linter rule.
+    It can be used for reporting issues that are breaking particular rule.
+    You can store configuration of the rule inside RuleParam parameters.
+
+    Every rule contains one default RuleParam - severity.
+    """
+
+    def __init__(
+        self, *params: RuleParam, rule_id: str, name: str, msg: str, severity: RuleSeverity, version: str = None
+    ):
+        """
+        :param params: RuleParam() instances
+        :param rule_id: id of the rule
+        :param name: name of the rule
+        :param msg: message printed when rule breach is detected
+        :param severity: severity of the rule (ie: RuleSeverity.INFO)
+        :param version: supported Robot Framework version (ie: >=4.0)
+        """
         self.rule_id = rule_id
-        self.name = ""
-        self.desc = ""
-        self.source = None
+        self.name = name
+        self.desc = msg
+        self.config = {
+            "severity": RuleParam(
+                "severity", severity, RuleSeverity.parser, "Rule severity (E = Error, W = Warning, I = Info)"
+            )
+        }
+        for param in params:
+            self.config[param.name] = param
         self.enabled = True
-        self.severity = RuleSeverity.INFO
-        self.configurable = []
-        self.parse_body(body)
+        self.enabled_in_version = self.supported_in_rf_version(version)
+
+    @property
+    def severity(self):
+        return self.config["severity"].value
+
+    @staticmethod
+    def supported_in_rf_version(version: str) -> bool:
+        if not version:
+            return True
+        return ROBOT_VERSION in SpecifierSet(version)
 
     def __str__(self):
         return (
-            f"Rule - {self.rule_id} [{self.severity.value}]: {self.name}: {self.desc} "
+            f"Rule - {self.rule_id} [{self.config['severity'].value}]: {self.name}: {self.desc} "
             f'({"enabled" if self.enabled else "disabled"})'
         )
 
-    def change_severity(self, value):
-        severity = {
-            "error": "E",
-            "e": "E",
-            "warning": "W",
-            "w": "W",
-            "info": "I",
-            "i": "I",
-        }.get(str(value).lower(), None)
-        if severity is None:
-            raise robocop.exceptions.InvalidRuleSeverityError(self.name, value)
-        self.severity = RuleSeverity(severity)
+    def configure(self, param, value):
+        if param not in self.config:
+            raise robocop.exceptions.ConfigGeneralError(
+                f"Provided param '{param}' for rule '{self.name}' does not exist. "
+                f"Available configurable(s) for this rule:\n"
+                f"    {self.available_configurables()}"
+            )
+        self.config[param].value = value
 
-    def get_configurable(self, param):
-        for configurable in self.configurable:
-            if configurable[0] == param:
-                return configurable
-        return None
-
-    @staticmethod
-    def get_configurable_desc(conf, default=None):
-        desc = f"{conf[0]} = {default}\n" f"        type: {conf[2].__name__}"
-        if len(conf) == 4:
-            desc += "\n" f"        info: {conf[3]}"
-        return desc
-
-    @staticmethod
-    def get_default_value(param, checker):
-        return None if checker is None else checker.__dict__.get(param, None)
-
-    def available_configurables(self, include_severity=True, checker=None):
-        configurables = ["severity"] if include_severity else []
-        for conf in self.configurable:
-            default = self.get_default_value(conf[1], checker)
-            configurables.append(self.get_configurable_desc(conf, default))
-        if not configurables:
+    def available_configurables(self, include_severity: bool = True):
+        params = [str(param) for param in self.config.values() if param.name != "severity" or include_severity]
+        if not params:
             return ""
-        return "\n    ".join(configurables)
-
-    def parse_body(self, body):
-        if isinstance(body, tuple) and len(body) >= 3:
-            self.name, self.desc, self.severity, *self.configurable = body
-        else:
-            raise robocop.exceptions.InvalidRuleBodyError(self.rule_id, body)
-        for configurable in self.configurable:
-            if not isinstance(configurable, tuple) or len(configurable) not in (3, 4):
-                raise robocop.exceptions.InvalidRuleConfigurableError(self.rule_id, body)
+        return "\n    ".join(params)
 
     def prepare_message(self, *args, source, node, lineno, col, end_lineno, end_col, ext_disablers):
         return Message(
@@ -136,7 +201,7 @@ class Rule:
             ext_disablers=ext_disablers,
         )
 
-    def matches_pattern(self, pattern):
+    def matches_pattern(self, pattern: Union[str, Pattern]):
         """check if this rule matches given pattern"""
         if isinstance(pattern, str):
             return pattern in (self.name, self.rule_id)
@@ -147,7 +212,7 @@ class Message:
     def __init__(
         self,
         *args,
-        rule,
+        rule: Rule,
         source,
         node,
         lineno,
@@ -183,10 +248,10 @@ class Message:
             other.rule_id,
         )
 
-    def get_fullname(self):
+    def get_fullname(self) -> str:
         return f"{self.severity.value}{self.rule_id} ({self.name})"
 
-    def to_json(self):
+    def to_json(self) -> Dict:
         return {
             "source": self.source,
             "line": self.line,

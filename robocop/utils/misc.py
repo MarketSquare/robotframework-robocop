@@ -1,10 +1,11 @@
-from pathlib import Path
+import ast
+from typing import Pattern, List, Tuple, Dict
+import difflib
+import importlib.util
+import re
 from collections import Counter, defaultdict
 from importlib import import_module
-import importlib.util
-import ast
-import difflib
-import re
+from pathlib import Path
 
 from robot.api import Token
 from robot.parsing.model.statements import EmptyLine
@@ -13,25 +14,13 @@ try:
     from robot.api.parsing import Variable
 except ImportError:
     from robot.parsing.model.statements import Variable
-from robot.version import VERSION
 
-from robocop.rules import RuleSeverity
+from packaging import version
+from robot.version import VERSION as RF_VERSION
+
 from robocop.exceptions import InvalidExternalCheckerError
 
-IS_RF4 = VERSION.startswith("4")  # FIXME: We need better version matching - for 5.0.0
-DISABLED_IN_4 = frozenset(("nested-for-loop", "invalid-comment"))
-ENABLED_IN_4 = frozenset(
-    (
-        "if-can-be-used",
-        "else-not-upper-case",
-        "variable-should-be-left-aligned",
-        "invalid-argument",
-        "invalid-if",
-        "invalid-for-loop",
-        "not-enough-whitespace-after-variable",
-        "suite-setting-should-be-left-aligned",
-    )
-)
+ROBOT_VERSION = version.parse(RF_VERSION)
 
 
 def modules_in_current_dir(path, module_name):
@@ -79,38 +68,35 @@ def modules_from_path(path, module_name=None, relative="."):
                 yield from modules_from_path(file, module_name, relative)
 
 
-def normalize_robot_name(name):
+def normalize_robot_name(name: str) -> str:
     return name.replace(" ", "").replace("_", "").lower() if name else ""
 
 
-def normalize_robot_var_name(name):
-    return name.replace(" ", "").replace("_", "").lower()[2:-1] if name else ""
+def normalize_robot_var_name(name: str) -> str:
+    return normalize_robot_name(name)[2:-1] if name else ""
 
 
-def keyword_col(node):
+def keyword_col(node) -> int:
     return token_col(node, Token.KEYWORD)
 
 
-def token_col(node, *token_type):
-    if IS_RF4:
-        token = node.get_token(*token_type)
-    else:
+def token_col(node, *token_type) -> int:
+    if ROBOT_VERSION.major == 3:
         for tok_type in token_type:
             token = node.get_token(tok_type)
             if token is not None:
                 break
         else:
             return 1
+    else:
+        token = node.get_token(*token_type)
+
     if token is None:
         return 1
     return token.col_offset + 1
 
 
-def rule_severity_to_diag_sev(severity):
-    return {RuleSeverity.ERROR: 1, RuleSeverity.WARNING: 2, RuleSeverity.INFO: 3}.get(severity, 4)
-
-
-def issues_to_lsp_diagnostic(issues):
+def issues_to_lsp_diagnostic(issues) -> List[Dict]:
     return [
         {
             "range": {
@@ -123,7 +109,7 @@ def issues_to_lsp_diagnostic(issues):
                     "character": max(0, issue.end_col - 1),
                 },
             },
-            "severity": rule_severity_to_diag_sev(issue.severity),
+            "severity": issue.severity.diag_severity(),
             "code": issue.rule_id,
             "source": "robocop",
             "message": issue.desc,
@@ -167,7 +153,7 @@ class AssignmentTypeDetector(ast.NodeVisitor):
         return token_value[token_value.find("}") + 1 :]
 
 
-def parse_assignment_sign_type(value):
+def parse_assignment_sign_type(value: str) -> str:
     types = {
         "none": "",
         "equal_sign": "=",
@@ -258,13 +244,13 @@ def last_non_empty_line(node):
     return node.lineno
 
 
-def next_char_is(string, i, char):
+def next_char_is(string: str, i: int, char: str) -> bool:
     if not i < len(string) - 1:
         return False
     return string[i + 1] == char
 
 
-def remove_robot_vars(name):
+def remove_robot_vars(name: str) -> str:
     var_start = set("$@%&")
     brackets = 0
     open_bracket, close_bracket = "", ""
@@ -293,7 +279,7 @@ def remove_robot_vars(name):
     return replaced
 
 
-def find_robot_vars(name):
+def find_robot_vars(name: str) -> List[Tuple[int, int]]:
     """return list of tuples with (start, end) pos of vars in name"""
     var_start = set("$@%&")
     brackets = 0
@@ -317,7 +303,7 @@ def find_robot_vars(name):
     return variables
 
 
-def pattern_type(value):
+def pattern_type(value: str) -> Pattern:
     try:
         pattern = re.compile(value)
     except re.error as err:

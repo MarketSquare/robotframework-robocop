@@ -1,51 +1,44 @@
+"""
+Those exceptions usually happens when trying to add new rules for Robocop and using wrong configuration (already
+existing rule name or id, get value of non-existing parameter inside checker etc).
+"""
 import pytest
-from robocop.checkers import VisitorChecker
-from robocop.rules import RuleSeverity
+
 import robocop.exceptions
+from robocop.checkers import VisitorChecker
+from robocop.rules import Rule, RuleParam, RuleSeverity
 
 
 class ValidChecker(VisitorChecker):
-    rules = {"0101": ("some-message", "Some description", RuleSeverity.WARNING)}
-
-
-class CheckerDuplicatedMessageName(VisitorChecker):
-    rules = {
-        "0101": ("some-message", "Some description", RuleSeverity.WARNING),
-        "0102": ("some-message", "Some description2", RuleSeverity.INFO),
-    }
-
-
-class CheckerDuplicatedWithOtherCheckerMessageName(VisitorChecker):
-    rules = {"0102": ("some-message", "Some description", RuleSeverity.WARNING)}
-
-
-class CheckerDuplicatedWithOtherCheckerMessageId(VisitorChecker):
-    rules = {"0101": ("some-message2", "Some description", RuleSeverity.WARNING)}
+    reports = ("some-message",)
 
 
 class TestCheckerInvalidConf:
-    def test_duplicated_message_name_inside_checker(self, robocop_instance):  # noqa
-        with pytest.raises(robocop.exceptions.DuplicatedRuleError) as err:
-            robocop_instance.register_checker(CheckerDuplicatedMessageName())
-        assert (
-            "Fatal error: Message name 'some-message' defined in CheckerDuplicatedMessageName "
-            "was already defined in CheckerDuplicatedMessageName" in str(err)
-        )
+    def test_get_param_with_non_existing_rule(self, robocop_instance):
+        checker = ValidChecker()
+        checker.rules = {
+            "some-message": Rule(
+                RuleParam(name="param", converter=int, default=5, desc="This is desc"),
+                rule_id="0101",
+                name="some-message",
+                msg="Some description",
+                severity=RuleSeverity.WARNING,
+            )
+        }
+        with pytest.raises(robocop.exceptions.RuleNotFoundError) as err:
+            checker.param("idontexist", "param")
+        assert "ValidChecker checker does not contain rule `idontexist`. Available rules: some-message" in str(err)
 
-    def test_duplicated_message_name_outside_checker(self, robocop_instance):  # noqa
-        robocop_instance.register_checker(ValidChecker())
-        with pytest.raises(robocop.exceptions.DuplicatedRuleError) as err:
-            robocop_instance.register_checker(CheckerDuplicatedWithOtherCheckerMessageName())
-        assert (
-            "Fatal error: Message name 'some-message' defined in "
-            "CheckerDuplicatedWithOtherCheckerMessageName was already defined in ValidChecker" in str(err)
-        )
-
-    def test_duplicated_message_id_outside_checker(self, robocop_instance):  # noqa
-        robocop_instance.register_checker(ValidChecker())
-        with pytest.raises(robocop.exceptions.DuplicatedRuleError) as err:
-            robocop_instance.register_checker(CheckerDuplicatedWithOtherCheckerMessageId())
-        assert (
-            "Fatal error: Message id '0101' defined in "
-            "CheckerDuplicatedWithOtherCheckerMessageId was already defined in ValidChecker" in str(err)
-        )
+    def test_get_non_existing_param(self):
+        checker = ValidChecker()
+        checker.rules = {
+            "some-message": Rule(
+                RuleParam(name="param", converter=int, default=5, desc="This is desc"),
+                rule_id="0101",
+                name="some-message",
+                msg="Some description",
+                severity=RuleSeverity.WARNING,
+            )
+        }
+        with pytest.raises(robocop.exceptions.RuleParamNotFoundError):
+            checker.param("some-message", "param2")

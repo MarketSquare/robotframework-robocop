@@ -5,36 +5,145 @@ import re
 from collections import Counter
 
 from robot.api import Token
+from robot.parsing.model.blocks import Keyword, TestCase
+from robot.parsing.model.statements import Comment, EmptyLine
 from robot.parsing.model.visitor import ModelVisitor
-from robot.parsing.model.blocks import TestCase, Keyword
-from robot.parsing.model.statements import EmptyLine, Comment
 
 from robocop.checkers import RawFileChecker, VisitorChecker
-from robocop.rules import RuleSeverity
+from robocop.rules import Rule, RuleParam, RuleSeverity
 from robocop.utils import token_col
-from robocop.utils.misc import IS_RF4
+from robocop.utils.misc import ROBOT_VERSION
+
+rules = {
+    "1001": Rule(
+        rule_id="1001",
+        name="trailing-whitespace",
+        msg="Trailing whitespace at the end of line",
+        severity=RuleSeverity.WARNING,
+    ),
+    "1002": Rule(
+        rule_id="1002",
+        name="missing-trailing-blank-line",
+        msg="Missing trailing blank line at the end of file",
+        severity=RuleSeverity.WARNING,
+    ),
+    "1003": Rule(
+        RuleParam(
+            name="empty_lines",
+            default=2,
+            converter=int,
+            desc="number of empty lines required between sections",
+        ),
+        rule_id="1003",
+        name="empty-lines-between-sections",
+        msg="Invalid number of empty lines between sections (%d/%d)",
+        severity=RuleSeverity.WARNING,
+    ),
+    "1004": Rule(
+        RuleParam(
+            name="empty_lines",
+            default=1,
+            converter=int,
+            desc="number of empty lines required between test cases",
+        ),
+        rule_id="1004",
+        name="empty-lines-between-test-cases",
+        msg="Invalid number of empty lines between test cases (%d/%d)",
+        severity=RuleSeverity.WARNING,
+    ),
+    "1005": Rule(
+        RuleParam(
+            name="empty_lines",
+            default=1,
+            converter=int,
+            desc="number of empty lines required between keywords",
+        ),
+        rule_id="1005",
+        name="empty-lines-between-keywords",
+        msg="Invalid number of empty lines between keywords (%d/%d)",
+        severity=RuleSeverity.WARNING,
+    ),
+    "1006": Rule(
+        rule_id="1006",
+        name="mixed-tabs-and-spaces",
+        msg="Inconsistent use of tabs and spaces in file",
+        severity=RuleSeverity.WARNING,
+    ),
+    "1007": Rule(rule_id="1007", name="uneven-indent", msg="Line is %s-indented", severity=RuleSeverity.WARNING),
+    "1008": Rule(rule_id="1008", name="bad-indent", msg="Indent expected", severity=RuleSeverity.ERROR),
+    "1009": Rule(
+        RuleParam(
+            name="empty_lines",
+            default=0,
+            converter=int,
+            desc="number of empty lines allowed after section header",
+        ),
+        rule_id="1009",
+        name="empty-line-after-section",
+        msg="Too many empty lines after section header (%d/%d)",
+        severity=RuleSeverity.WARNING,
+    ),
+    "1010": Rule(
+        rule_id="1010",
+        name="too-many-trailing-blank-lines",
+        msg="Too many blank lines at the end of file",
+        severity=RuleSeverity.WARNING,
+    ),
+    "1011": Rule(
+        rule_id="1011",
+        name="misaligned-continuation",
+        msg="Continuation marker should be aligned with starting row",
+        severity=RuleSeverity.WARNING,
+    ),
+    "1012": Rule(
+        RuleParam(
+            name="empty_lines",
+            default=1,
+            converter=int,
+            desc="number of allowed consecutive empty lines",
+        ),
+        rule_id="1012",
+        name="consecutive-empty-lines",
+        msg="Too many empty lines (%s/%s)",
+        severity=RuleSeverity.WARNING,
+    ),
+    "1013": Rule(
+        rule_id="1013",
+        name="empty-lines-in-statement",
+        msg="Multi-line statement with empty lines",
+        severity=RuleSeverity.WARNING,
+    ),
+    "1014": Rule(
+        rule_id="1014",
+        name="variable-should-be-left-aligned",
+        msg="Variable in Variable section should be left aligned",
+        severity=RuleSeverity.ERROR,
+        version=">=4.0",
+    ),
+    "1015": Rule(
+        rule_id="1015",
+        name="misaligned-continuation-row",
+        msg="Each next continuation line should be aligned with the previous one",
+        severity=RuleSeverity.WARNING,
+    ),
+    "1016": Rule(
+        rule_id="1016",
+        name="suite-setting-should-be-left-aligned",
+        msg="Setting in Settings section should be left aligned",
+        severity=RuleSeverity.ERROR,
+        version=">=4.0",
+    ),
+}
 
 
 class InvalidSpacingChecker(RawFileChecker):
     """Checker for trailing spaces and lines."""
 
-    rules = {
-        "1001": (
-            "trailing-whitespace",
-            "Trailing whitespace at the end of line",
-            RuleSeverity.WARNING,
-        ),
-        "1002": (
-            "missing-trailing-blank-line",
-            "Missing trailing blank line at the end of file",
-            RuleSeverity.WARNING,
-        ),
-        "1010": (
-            "too-many-trailing-blank-lines",
-            "Too many blank lines at the end of file",
-            RuleSeverity.WARNING,
-        ),
-    }
+    reports = (
+        "trailing-whitespace",
+        "missing-trailing-blank-line",
+        "too-many-trailing-blank-lines",
+    )
 
     def __init__(self):
         self.raw_lines = []
@@ -71,76 +180,14 @@ class InvalidSpacingChecker(RawFileChecker):
 class EmptyLinesChecker(VisitorChecker):
     """Checker for invalid spacing."""
 
-    rules = {
-        "1003": (
-            "empty-lines-between-sections",
-            "Invalid number of empty lines between sections (%d/%d)",
-            RuleSeverity.WARNING,
-            (
-                "empty_lines",
-                "empty_lines_between_sections",
-                int,
-                "number of empty lines required between sections",
-            ),
-        ),
-        "1004": (
-            "empty-lines-between-test-cases",
-            "Invalid number of empty lines between test cases (%d/%d)",
-            RuleSeverity.WARNING,
-            (
-                "empty_lines",
-                "empty_lines_between_test_cases",
-                int,
-                "number of empty lines required between test cases",
-            ),
-        ),
-        "1005": (
-            "empty-lines-between-keywords",
-            "Invalid number of empty lines between keywords (%d/%d)",
-            RuleSeverity.WARNING,
-            (
-                "empty_lines",
-                "empty_lines_between_keywords",
-                int,
-                "number of empty lines required between keywords",
-            ),
-        ),
-        "1009": (
-            "empty-line-after-section",
-            "Too many empty lines after section header (%d/%d)",
-            RuleSeverity.WARNING,
-            (
-                "empty_lines",
-                "empty_lines_after_section_header",
-                int,
-                "number of empty lines allowed after section header",
-            ),
-        ),
-        "1012": (
-            "consecutive-empty-lines",
-            "Too many empty lines (%s/%s)",
-            RuleSeverity.WARNING,
-            (
-                "empty_lines",
-                "consecutive_empty_lines",
-                int,
-                "number of allowed consecutive empty lines",
-            ),
-        ),
-        "1013": (
-            "empty-lines-in-statement",
-            "Multi-line statement with empty lines",
-            RuleSeverity.WARNING,
-        ),
-    }
-
-    def __init__(self):  # noqa
-        self.empty_lines_between_sections = 2
-        self.empty_lines_between_test_cases = 1
-        self.empty_lines_between_keywords = 1
-        self.empty_lines_after_section_header = 0
-        self.consecutive_empty_lines = 1
-        super().__init__()
+    reports = (
+        "empty-lines-between-sections",
+        "empty-lines-between-test-cases",
+        "empty-lines-between-keywords",
+        "empty-line-after-section",
+        "consecutive-empty-lines",
+        "empty-lines-in-statement",
+    )
 
     def verify_empty_lines(self, node, check_leading=True):
         """Verify number of consecutive empty lines inside node. Return number of trailing empty lines."""
@@ -155,11 +202,11 @@ class EmptyLinesChecker(VisitorChecker):
                 prev_node = child
             else:
                 non_empty = True
-                if empty_lines > self.consecutive_empty_lines:
+                if empty_lines > self.param("consecutive-empty-lines", "empty_lines"):
                     self.report(
                         "consecutive-empty-lines",
                         empty_lines,
-                        self.consecutive_empty_lines,
+                        self.param("consecutive-empty-lines", "empty_lines"),
                         node=prev_node,
                     )
                 empty_lines = 0
@@ -199,7 +246,7 @@ class EmptyLinesChecker(VisitorChecker):
         self.generic_visit(node)
 
     def visit_TestCaseSection(self, node):  # noqa
-        allowed_lines = -1 if self.templated_suite else self.empty_lines_between_test_cases
+        allowed_lines = -1 if self.templated_suite else self.param("empty-lines-between-test-cases", "empty_lines")
         self.verify_empty_lines_between_nodes(node, TestCase, "empty-lines-between-test-cases", allowed_lines)
 
     def visit_KeywordSection(self, node):  # noqa
@@ -207,7 +254,7 @@ class EmptyLinesChecker(VisitorChecker):
             node,
             Keyword,
             "empty-lines-between-keywords",
-            self.empty_lines_between_keywords,
+            self.param("empty-lines-between-keywords", "empty_lines"),
         )
 
     def visit_File(self, node):  # noqa
@@ -230,11 +277,11 @@ class EmptyLinesChecker(VisitorChecker):
                     continue
                 else:
                     break
-            if empty_lines != self.empty_lines_between_sections:
+            if empty_lines != self.param("empty-lines-between-sections", "empty_lines"):
                 self.report(
                     "empty-lines-between-sections",
                     empty_lines,
-                    self.empty_lines_between_sections,
+                    self.param("empty-lines-between-sections", "empty_lines"),
                     lineno=section.end_lineno,
                 )
         super().visit_File(node)
@@ -247,11 +294,11 @@ class EmptyLinesChecker(VisitorChecker):
             empty_lines.append(child)
         else:
             return
-        if len(empty_lines) > self.empty_lines_after_section_header:
+        if len(empty_lines) > self.param("empty-line-after-section", "empty_lines"):
             self.report(
                 "empty-line-after-section",
                 len(empty_lines),
-                self.empty_lines_after_section_header,
+                self.param("empty-line-after-section", "empty_lines"),
                 node=empty_lines[-1],
             )
 
@@ -259,13 +306,7 @@ class EmptyLinesChecker(VisitorChecker):
 class InconsistentUseOfTabsAndSpacesChecker(VisitorChecker, ModelVisitor):
     """Checker for inconsistent use of tabs and spaces."""
 
-    rules = {
-        "1006": (
-            "mixed-tabs-and-spaces",
-            "Inconsistent use of tabs and spaces in file",
-            RuleSeverity.WARNING,
-        )
-    }
+    reports = ("mixed-tabs-and-spaces",)
 
     def __init__(self):
         self.found, self.tabs, self.spaces = False, False, False
@@ -291,10 +332,11 @@ class InconsistentUseOfTabsAndSpacesChecker(VisitorChecker, ModelVisitor):
 class UnevenIndentChecker(VisitorChecker):
     """Checker for indentation violations."""
 
-    rules = {
-        "1007": ("uneven-indent", "Line is %s-indented", RuleSeverity.WARNING),
-        "1008": ("bad-indent", "Indent expected", RuleSeverity.ERROR),
-    }
+    reports = (
+        "uneven-indent",
+        "bad-indent",
+    )
+
     HEADERS = {
         Token.ARGUMENTS,
         Token.DOCUMENTATION,
@@ -462,18 +504,10 @@ class UnevenIndentChecker(VisitorChecker):
 class MisalignedContinuation(VisitorChecker, ModelVisitor):
     """Checker for misaligned continuation line markers."""
 
-    rules = {
-        "1011": (
-            "misaligned-continuation",
-            "Continuation marker should be aligned with starting row",
-            RuleSeverity.WARNING,
-        ),
-        "1015": (
-            "misaligned-continuation-row",
-            "Each next continuation line should be aligned with the previous one",
-            RuleSeverity.WARNING,
-        ),
-    }
+    reports = (
+        "misaligned-continuation",
+        "misaligned-continuation-row",
+    )
 
     def visit_Statement(self, node):  # noqa
         if not node.data_tokens:
@@ -551,18 +585,11 @@ class MisalignedContinuation(VisitorChecker, ModelVisitor):
 class LeftAlignedChecker(VisitorChecker):
     """Checker for left align."""
 
-    rules = {
-        "1014": (
-            "variable-should-be-left-aligned",
-            "Variable in Variable section should be left aligned",
-            RuleSeverity.ERROR,
-        ),
-        "1016": (
-            "suite-setting-should-be-left-aligned",
-            "Setting in Settings section should be left aligned",
-            RuleSeverity.ERROR,
-        ),
-    }
+    reports = (
+        "variable-should-be-left-aligned",
+        "suite-setting-should-be-left-aligned",
+    )
+
     suite_settings = {
         "documentation": "Documentation",
         "suitesetup": "Suite Setup",
@@ -578,10 +605,6 @@ class LeftAlignedChecker(VisitorChecker):
         "resource": "Resource",
         "variables": "Variables",
     }
-
-    def __init__(self):
-        super().__init__()
-        self.disabled = not IS_RF4
 
     def visit_VariableSection(self, node):  # noqa
         for child in node.body:
@@ -601,13 +624,13 @@ class LeftAlignedChecker(VisitorChecker):
             # for setting in self.suite_settings:
             #     if suite_sett_cand.startswith(setting):
             #         if setting_error[0].strip():  # filter out "suite-setting-should-be-left-aligned"
-            if IS_RF4:
+            if ROBOT_VERSION.major == 3:
+                if child.error and "Non-existing setting" in child.error:
+                    self.parse_error(child, child.error)
+            else:
                 for error in child.errors:
                     if "Non-existing setting" in error:
                         self.parse_error(child, error)
-            else:
-                if "Non-existing setting" in child.error:
-                    self.parse_error(child, child.error)
 
     def parse_error(self, node, error):
         setting_error = re.search("Non-existing setting '(.*)'.", error)

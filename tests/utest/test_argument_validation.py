@@ -1,8 +1,9 @@
 import io
-import unittest
 import pathlib
+import unittest
 from io import StringIO
 from unittest.mock import patch
+
 from robocop.config import Config
 from robocop.version import __version__
 

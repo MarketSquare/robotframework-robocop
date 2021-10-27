@@ -66,7 +66,7 @@ To get list of available rules (with enabled/disabled status) use ``-l / --list`
     Rule - 0203 [W]: missing-doc-suite: Missing documentation in suite (enabled)
     (...)
 
-If some of the rules are disabled from CLI it will be reflected in output::
+If some of the rules are disabled from CLI it will be reflected in the output::
 
     robocop --exclude 02* --list
     Rule - 0201 [W]: missing-doc-keyword: Missing documentation in keyword (disabled)

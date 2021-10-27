@@ -1,13 +1,12 @@
 import pytest
 
-from robocop.rules import RuleSeverity, Rule
+from robocop.config import Config
+from robocop.rules import Rule, RuleSeverity
 
 
 def get_message_with_id(rule_id):
-    for char in RuleSeverity:
-        rule_id = rule_id.replace(char.value, "")
-    msg = (f"some-message-{rule_id}", "Some description", RuleSeverity.WARNING)
-    return Rule(rule_id, msg)
+    rule_id = Config.replace_severity_values(rule_id)
+    return Rule(rule_id=rule_id, name=f"some-message-{rule_id}", msg="Some description", severity=RuleSeverity.WARNING)
 
 
 class TestIncludingExcluding:
@@ -32,6 +31,7 @@ class TestIncludingExcluding:
             (["01*"], [], ["0202", "0501", "0403"]),
             (["01*", "*5"], ["0101", "0105", "0405"], ["0204", "0402"]),
             (["some-message-04*"], ["0401"], ["0101", "0502"]),
+            (["*"], ["0101", "0105", "0204", "0405", "0405"], []),
         ],
     )
     def test_only_included_patterns(self, patterns, included, excluded, robocop_pre_load):
@@ -51,6 +51,24 @@ class TestIncludingExcluding:
     )
     def test_only_excluded(self, included, excluded, robocop_pre_load):
         robocop_pre_load.config.exclude.update(set(excluded))
+        robocop_pre_load.config.remove_severity()
+        robocop_pre_load.config.translate_patterns()
+        assert all(robocop_pre_load.config.is_rule_enabled(get_message_with_id(msg)) for msg in included)
+        assert all(not robocop_pre_load.config.is_rule_enabled(get_message_with_id(msg)) for msg in excluded)
+
+    @pytest.mark.parametrize(
+        "patterns, included, excluded",
+        [
+            (["01*"], ["0204", "0405", "0405"], ["0101", "0105"]),
+            (["01*", "*5"], ["0204"], ["0101", "0105", "0405", "0405"]),
+            (["some-message-04*"], ["0101", "0105", "0204"], ["0405", "0405"]),
+            (["*"], [], ["0101", "0105", "0204", "0405", "0405"]),
+        ],
+    )
+    def test_only_excluded_patterns(self, patterns, included, excluded, robocop_pre_load):
+        """Test data contains rules with rule id's "0101", "0105", "0204", "0405", "0405"
+        and rule names created using `some-message-{rule_id}` pattern"""
+        robocop_pre_load.config.exclude.update(set(patterns))
         robocop_pre_load.config.remove_severity()
         robocop_pre_load.config.translate_patterns()
         assert all(robocop_pre_load.config.is_rule_enabled(get_message_with_id(msg)) for msg in included)

@@ -1,6 +1,6 @@
 """Run Pylama and parse output to find errors and exit process with proper return code"""
-import sys
 import subprocess
+import sys
 
 output = subprocess.run(
     "python -m pylama -o pylama.ini",

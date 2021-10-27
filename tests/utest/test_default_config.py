@@ -133,6 +133,8 @@ class TestDefaultConfig:
         config.output, expected_config.output = None, None
         assert len(config.include_patterns) == len(expected_config.include_patterns)
         config.include_patterns, expected_config.include_patterns = None, None
+        assert config.threshold.value == expected_config.threshold.value
+        config.threshold, expected_config.threshold = None, None
         assert config.__dict__ == expected_config.__dict__
 
     def test_append_config_pyproject_file(self, path_to_test_data, config):
@@ -140,12 +142,17 @@ class TestDefaultConfig:
         os.chdir(str(src))
         config.from_cli = True
         config.exec_dir = str(src)
-        with patch.object(sys, "argv", ["prog", "--configure", "too-many-calls-in-keyword:max_calls:20",
-                                        "--exclude", "0810"]):
+        with patch.object(
+            sys, "argv", ["prog", "--configure", "too-many-calls-in-keyword:max_calls:20", "--exclude", "0810"]
+        ):
             config.parse_opts()
 
         assert {"0203", "0810"} == config.exclude
-        assert ["line-too-long:line_length:150", "0201:severity:E", "too-many-calls-in-keyword:max_calls:20"] == config.configure
+        assert [
+            "line-too-long:line_length:150",
+            "0201:severity:E",
+            "too-many-calls-in-keyword:max_calls:20",
+        ] == config.configure
 
     def test_pyproject_verbose(self, path_to_test_data, config, capsys):
         src = path_to_test_data / "only_pyproject"
@@ -185,13 +192,10 @@ class TestDefaultConfig:
         out, _ = capsys.readouterr()
         assert out == "No config file found or configuration is empty. Using default configuration\n"
 
-    @pytest.mark.parametrize('config_no', [1, 2])
+    @pytest.mark.parametrize("config_no", [1, 2])
     def test_load_config_with_utf8_encoding(self, path_to_test_data, config, config_no):
         src = path_to_test_data / f"config_with_encoding{config_no}"
-        expected = [
-            'line-too-long:line_length:150',
-            'not-allowed-char-in-name:pattern:[Á]'
-        ]
+        expected = ["line-too-long:line_length:150", "not-allowed-char-in-name:pattern:[Á]"]
         os.chdir(str(src))
         with patch.object(sys, "argv", ["prog"]):
             config.parse_opts()

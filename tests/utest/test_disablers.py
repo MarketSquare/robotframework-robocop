@@ -3,15 +3,20 @@ from pathlib import Path
 import pytest
 from robot.api import get_model
 
-from robocop.rules import RuleSeverity, Rule, Message
-from robocop.utils.disablers import DisablersFinder
 from robocop import Config, Robocop
+from robocop.rules import Message, Rule, RuleParam, RuleSeverity
+from robocop.utils.disablers import DisablersFinder
 
 
 @pytest.fixture
 def message():
-    msg = ("somerule", "Some description", RuleSeverity.WARNING)
-    rule = Rule("1010", msg)
+    rule = Rule(
+        RuleParam(name="param_name", converter=int, default=1, desc=""),
+        rule_id="1010",
+        name="somerule",
+        msg="Some description",
+        severity=RuleSeverity.WARNING,
+    )
     return Message(
         rule=rule,
         source=None,

@@ -29,8 +29,6 @@ Rules
 {% for rule_doc in checker_group[1] %}
 * {{ rule_doc[1] }}
 
-  Defined in ``{{ rule_doc[3] }}``
-
   .. list-table:: Configurable parameters
      :widths: 25 25 25 25
      :header-rows: 1

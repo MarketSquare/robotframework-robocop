@@ -9,7 +9,7 @@ rules = {
 class SmthChecker(VisitorChecker):
     """Checker for keyword calls after [Return] statement."""
 
-    reports = ("smth",)
+    reports = ("idontexist",)
 
     def visit_Keyword(self, node):  # noqa
         self.report("smth", node=node)

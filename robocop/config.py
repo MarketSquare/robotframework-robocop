@@ -1,4 +1,5 @@
 import argparse
+from typing import Pattern, Set, Dict
 import fnmatch
 import os
 import re
@@ -11,24 +12,17 @@ from robot.utils import FileReader
 
 from robocop.exceptions import (
     ArgumentFileNotFoundError,
-    NestedArgumentFileError,
-    InvalidArgumentError,
     ConfigGeneralError,
+    InvalidArgumentError,
+    NestedArgumentFileError,
 )
 from robocop.rules import RuleSeverity
 from robocop.utils import RecommendationFinder
 from robocop.version import __version__
 
 
-def translate_pattern(pattern):
+def translate_pattern(pattern: str) -> Pattern:
     return re.compile(fnmatch.translate(pattern))
-
-
-def find_severity_value(severity):
-    for sev in RuleSeverity:
-        if sev.value == severity.upper():
-            return sev
-    return RuleSeverity.INFO
 
 
 class ParseDelimitedArgAction(argparse.Action):  # pylint: disable=too-few-public-methods
@@ -53,7 +47,9 @@ class ParseFileTypes(argparse.Action):  # pylint: disable=too-few-public-methods
 
 class SetRuleThreshold(argparse.Action):
     def __call__(self, parser, namespace, values, option_string=None):
-        setattr(namespace, self.dest, find_severity_value(values))
+        setattr(
+            namespace, self.dest, RuleSeverity.parser(values) if values in ("I", "W", "E") else RuleSeverity.INFO
+        )  # TODO
 
 
 class SetListOption(argparse.Action):
@@ -77,7 +73,7 @@ class CustomArgParser(argparse.ArgumentParser):
 
 
 class Config:
-    def __init__(self, root=None, from_cli=False):
+    def __init__(self, root=None, from_cli: bool = False):
         self.from_cli = from_cli
         self.exec_dir = os.path.abspath(".")
         self.root = Path(root) if root is not None else root
@@ -85,7 +81,7 @@ class Config:
         self.exclude = set()
         self.ignore = set()
         self.reports = {"return_status"}
-        self.threshold = RuleSeverity.INFO
+        self.threshold = RuleSeverity("I")
         self.configure = []
         self.format = "{source}:{line}:{col} [{severity}] {rule_id} {desc} ({name})"
         self.paths = ["."]
@@ -346,7 +342,7 @@ class Config:
 
         return parser
 
-    def parse_opts(self, args=None, from_cli=True):
+    def parse_opts(self, args=None, from_cli: bool = True):
         default_args = self.load_default_config_file()
         if default_args is None:
             self.load_pyproject_file()
@@ -375,7 +371,7 @@ class Config:
             return self.load_args_from_file(robocop_path)
         return None
 
-    def find_file_in_project_root(self, config_name):
+    def find_file_in_project_root(self, config_name: str) -> Path:
         root = self.root or Path.cwd()
         for parent in (root, *root.parents):
             if (parent / ".git").exists() or (parent / config_name).is_file():
@@ -395,7 +391,7 @@ class Config:
             self.config_from = pyproject_path
 
     @staticmethod
-    def replace_in_set(container, old_key, new_key):
+    def replace_in_set(container: Set, old_key: str, new_key: str):
         if old_key not in container:
             return
         container.remove(old_key)
@@ -436,6 +432,8 @@ class Config:
         return True
 
     def is_rule_disabled(self, rule):
+        if not rule.enabled_in_version:
+            return True
         if rule.severity < self.threshold:
             return True
         if rule.rule_id in self.exclude or rule.name in self.exclude:
@@ -452,14 +450,14 @@ class Config:
         return False
 
     @staticmethod
-    def replace_severity_values(message):
-        sev = "".join(c.value for c in RuleSeverity)
-        if re.match(f"[{sev}][0-9]{{4,}}", message):
+    def replace_severity_values(rule_name: str):
+        sev = "".join(sev.value for sev in RuleSeverity)
+        if re.match(f"[{sev}][0-9]{{4,}}", rule_name):
             for char in sev:
-                message = message.replace(char, "")
-        return message
+                rule_name = rule_name.replace(char, "")
+        return rule_name
 
-    def parse_toml_to_config(self, toml_data):
+    def parse_toml_to_config(self, toml_data: Dict):
         if not toml_data:
             return False
         assign_type = {"paths", "format"}
@@ -477,7 +475,7 @@ class Config:
                 for filetype in toml_data["filetypes"]:
                     self.filetypes.add(filetype if filetype.startswith(".") else "." + filetype)
             elif key == "threshold":
-                self.threshold = find_severity_value(value)
+                self.threshold = RuleSeverity(value)
             elif key == "output":
                 self.output = open(value, "w")
             elif key == "no_recursive":

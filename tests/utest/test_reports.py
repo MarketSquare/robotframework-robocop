@@ -1,17 +1,18 @@
 import pytest
-from robocop.reports import JsonReport, FileStatsReport
-from robocop.rules import Message, Rule, RuleSeverity
+
+from robocop.reports import FileStatsReport, JsonReport
+from robocop.rules import Message, Rule, RuleParam, RuleSeverity
 
 
 @pytest.fixture
 def message():
-    msg = (
-        "some-message",
-        "Some description",
-        RuleSeverity.WARNING,
-        ("param_name", "param_priv_name", int),
+    return Rule(
+        RuleParam(name="param_name", converter=int, default=1, desc=""),
+        rule_id="0101",
+        name="some-message",
+        msg="Some description",
+        severity=RuleSeverity.WARNING,
     )
-    return Rule("0101", msg)
 
 
 class TestReports:

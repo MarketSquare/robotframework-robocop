@@ -4,20 +4,20 @@ import pytest
 from robot.api import get_model
 
 import robocop
-from robocop.rules import Message, RuleSeverity, Rule
-from robocop.utils import issues_to_lsp_diagnostic
 from robocop.exceptions import InvalidArgumentError
+from robocop.rules import Message, Rule, RuleParam, RuleSeverity
+from robocop.utils import issues_to_lsp_diagnostic
 
 
 @pytest.fixture
 def rule():
-    msg = (
-        "some-message",
-        "Some description",
-        RuleSeverity.WARNING,
-        ("param_name", "param_priv_name", int),
+    return Rule(
+        RuleParam(name="param_name", converter=int, default=1, desc=""),
+        rule_id="0101",
+        name="some-message",
+        msg="Some description",
+        severity=RuleSeverity.WARNING,
     )
-    return Rule("0101", msg)
 
 
 def run_check_on_string(in_memory, root="."):

@@ -1,32 +1,48 @@
 """
 Comments checkers
 """
-from codecs import BOM_UTF32_BE, BOM_UTF32_LE, BOM_UTF8, BOM_UTF16_LE, BOM_UTF16_BE
+from codecs import BOM_UTF8, BOM_UTF16_BE, BOM_UTF16_LE, BOM_UTF32_BE, BOM_UTF32_LE
 
 from robot.utils import FileReader
 
 from robocop.checkers import RawFileChecker, VisitorChecker
-from robocop.rules import RuleSeverity
-from robocop.utils import IS_RF4
+from robocop.rules import Rule, RuleSeverity
+from robocop.utils import ROBOT_VERSION
+
+rules = {
+    "0701": Rule(rule_id="0701", name="todo-in-comment", msg="Found %s in comment", severity=RuleSeverity.WARNING),
+    "0702": Rule(
+        rule_id="0702",
+        name="missing-space-after-comment",
+        msg="Missing blank space after comment character",
+        severity=RuleSeverity.WARNING,
+    ),
+    "0703": Rule(
+        rule_id="0703",
+        name="invalid-comment",
+        msg="Invalid comment. '#' needs to be first character in the cell. "
+        "For block comments you can use '*** Comments ***' section",
+        severity=RuleSeverity.ERROR,
+        version="<4.0",
+    ),
+    "0704": Rule(rule_id="0704", name="ignored-data", msg="Ignored data found in file", severity=RuleSeverity.WARNING),
+    "0705": Rule(
+        rule_id="0705",
+        name="bom-encoding-in-file",
+        msg="This file contains BOM (Byte Order Mark) encoding not supported by Robot Framework",
+        severity=RuleSeverity.WARNING,
+    ),
+}
 
 
 class CommentChecker(VisitorChecker):
     """Checker for comments content. It detects invalid comments or leftovers like `todo` or `fixme` in the code."""
 
-    rules = {
-        "0701": ("todo-in-comment", "Found %s in comment", RuleSeverity.WARNING),
-        "0702": (
-            "missing-space-after-comment",
-            "Missing blank space after comment character",
-            RuleSeverity.WARNING,
-        ),
-        "0703": (  # Deprecated in RF 4.0
-            "invalid-comment",
-            "Invalid comment. '#' needs to be first character in the cell. "
-            "For block comments you can use '*** Comments ***' section",
-            RuleSeverity.ERROR,
-        ),
-    }
+    reports = (
+        "todo-in-comment",
+        "missing-space-after-comment",
+        "invalid-comment",
+    )
 
     def visit_Comment(self, node):  # noqa
         self.find_comments(node)
@@ -137,7 +153,7 @@ class CommentChecker(VisitorChecker):
                 self.check_comment_content(token)
 
     def check_invalid_comments(self, name, node):
-        if IS_RF4:
+        if ROBOT_VERSION.major != 3:
             return
         if name and name.lstrip().startswith("#"):
             hash_pos = name.find("#")
@@ -170,14 +186,10 @@ class CommentChecker(VisitorChecker):
 class IgnoredDataChecker(RawFileChecker):
     """Checker for ignored data."""
 
-    rules = {
-        "0704": ("ignored-data", "Ignored data found in file", RuleSeverity.WARNING),
-        "0705": (
-            "bom-encoding-in-file",
-            "This file contains BOM (Byte Order Mark) encoding not supported by Robot Framework",
-            RuleSeverity.WARNING,
-        ),
-    }
+    reports = (
+        "ignored-data",
+        "bom-encoding-in-file",
+    )
     BOM = [BOM_UTF32_BE, BOM_UTF32_LE, BOM_UTF8, BOM_UTF16_LE, BOM_UTF16_BE]
 
     def __init__(self):

@@ -1,7 +1,9 @@
+from pathlib import Path
+
 import pytest
 import yaml
-from pathlib import Path
-from robocop.checkers import get_rules_for_atest
+
+from robocop.checkers import get_rules
 from robocop.run import Robocop
 
 
@@ -28,7 +30,7 @@ def pytest_generate_tests(metafunc):
     """
     if "rule" not in metafunc.fixturenames:
         return
-    auto_discovered_rules = [(rule, None, f"{category}/{rule}") for category, rule in get_rules_for_atest()]
+    auto_discovered_rules = [(rule.name, None, f"{category}/{rule.name}") for category, rule in get_rules()]
     selected_rule = metafunc.config.getoption("--rule", None)
     if selected_rule is not None:
         # Find and use only selected rule

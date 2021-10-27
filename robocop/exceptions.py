@@ -6,33 +6,6 @@ class ConfigGeneralError(RobocopFatalError):
     pass
 
 
-class DuplicatedRuleError(RobocopFatalError):
-    def __init__(self, rule_type, rule, checker, checker_prev):
-        msg = (
-            f"Fatal error: Message {rule_type} '{rule}' defined in {checker.__class__.__name__} "
-            f"was already defined in {checker_prev.__class__.__name__}"
-        )
-        super().__init__(msg)
-
-
-class InvalidRuleSeverityError(RobocopFatalError):
-    def __init__(self, rule, severity_val):
-        msg = f"Fatal error: Tried to configure message {rule} with invalid severity: {severity_val}"
-        super().__init__(msg)
-
-
-class InvalidRuleBodyError(RobocopFatalError):
-    def __init__(self, rule_id, rule_body):
-        msg = f"Fatal error: Rule '{rule_id}' has invalid body:\n{rule_body}"
-        super().__init__(msg)
-
-
-class InvalidRuleConfigurableError(RobocopFatalError):
-    def __init__(self, rule_id, rule_body):
-        msg = f"Fatal error: Rule '{rule_id}' has invalid configurable:\n{rule_body}"
-        super().__init__(msg)
-
-
 class InvalidRuleUsageError(RobocopFatalError):
     def __init__(self, rule_id, type_error):
         msg = f"Fatal error: Rule '{rule_id}' failed to prepare message description with error: {type_error}"
@@ -66,3 +39,33 @@ class NestedArgumentFileError(RobocopFatalError):
 class InvalidArgumentError(RobocopFatalError):
     def __init__(self, msg):
         super().__init__(f"Invalid configuration for Robocop:\n{msg}")
+
+
+class RuleNotFoundError(RobocopFatalError):
+    def __init__(self, rule, checker):
+        super().__init__(
+            f"{checker.__class__.__name__} checker does not contain rule `{rule}`. "
+            f"Available rules: {', '.join(checker.rules.keys())}"
+        )
+
+
+class RuleParamNotFoundError(RobocopFatalError):
+    def __init__(self, rule, param, checker):
+        super().__init__(
+            f"Rule `{rule.name}` in `{checker.__class__.__name__}` checker does not contain `{param}` param. "
+            f"Available params:\n    {rule.available_configurables()}"
+        )
+
+
+class RuleParamFailedInitError(RobocopFatalError):
+    def __init__(self, param, value, err):
+        desc = f"    Parameter info: {param.desc}" if param.desc else ""
+        super().__init__(
+            f"Failed to configure param `{param.name}` with value `{value}`. Received error `{err}`.\n"
+            f"    Parameter type: {param.converter}\n" + desc
+        )
+
+
+class RuleReportsNotFoundError(RobocopFatalError):
+    def __init__(self, rule, checker):
+        super().__init__(f"{checker.__class__.__name__} checker `reports` attribute contains unknown rule `{rule}`")

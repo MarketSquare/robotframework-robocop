@@ -5,30 +5,58 @@ Tags checkers
 from robot.api import Token
 
 from robocop.checkers import VisitorChecker
-from robocop.rules import RuleSeverity
+from robocop.rules import Rule, RuleSeverity
+
+rules = {
+    "0601": Rule(
+        rule_id="0601", name="tag-with-space", msg="Tags should not contain spaces", severity=RuleSeverity.WARNING
+    ),
+    "0602": Rule(
+        rule_id="0602",
+        name="tag-with-or-and",
+        msg="Tag with reserved word OR/AND. Hint: make sure to include this tag using lowercase name to avoid issues",
+        severity=RuleSeverity.INFO,
+    ),
+    "0603": Rule(
+        rule_id="0603",
+        name="tag-with-reserved",
+        msg="Tag prefixed with reserved word `robot:`. The only allowed tags with this prefix are robot:no-dry-run, "
+        "robot:continue-on-failure and robot:recursive-continue-on-failure",
+        severity=RuleSeverity.WARNING,
+    ),
+    "0605": Rule(
+        rule_id="0605",
+        name="could-be-forced-tags",
+        msg='All tests in suite share those tags: "%s". You can define them in Force Tags in suite settings instead',
+        severity=RuleSeverity.INFO,
+    ),
+    "0606": Rule(
+        rule_id="0606",
+        name="tag-already-set-in-force-tags",
+        msg="This tag is already set by Force Tags in suite settings",
+        severity=RuleSeverity.INFO,
+    ),
+    "0607": Rule(
+        rule_id="0607",
+        name="unnecessary-default-tags",
+        msg="Tags defined in Default Tags are always overwritten",
+        severity=RuleSeverity.INFO,
+    ),
+    "0608": Rule(
+        rule_id="0608", name="empty-tags", msg="[Tags] setting without values%s", severity=RuleSeverity.WARNING
+    ),
+}
 
 
 class TagNameChecker(VisitorChecker):
     """Checker for tag names. It scans for tags with spaces or Robot Framework reserved words."""
 
-    rules = {
-        "0601": (
-            "tag-with-space",
-            "Tags should not contain spaces",
-            RuleSeverity.WARNING,
-        ),
-        "0602": (
-            "tag-with-or-and",
-            "Tag with reserved word OR/AND. Hint: make sure to include this tag using lowercase name to avoid issues",
-            RuleSeverity.INFO,
-        ),
-        "0603": (
-            "tag-with-reserved",
-            "Tag prefixed with reserved word `robot:`. The only allowed tags with this prefix are robot:no-dry-run, "
-            "robot:continue-on-failure and robot:recursive-continue-on-failure",
-            RuleSeverity.WARNING,
-        ),
-    }
+    reports = (
+        "tag-with-space",
+        "tag-with-or-and",
+        "tag-with-reserved",
+    )
+
     is_keyword = False
     reserved_tags = {
         "robot:no-dry-run",
@@ -84,24 +112,12 @@ class TagNameChecker(VisitorChecker):
 class TagScopeChecker(VisitorChecker):
     """Checker for tag scopes. If all tests in suite have the same tags, it will suggest using `Force Tags`"""
 
-    rules = {
-        "0605": (
-            "could-be-forced-tags",
-            'All tests in suite share those tags: "%s". You can define them in Force Tags in suite settings instead',
-            RuleSeverity.INFO,
-        ),
-        "0606": (
-            "tag-already-set-in-force-tags",
-            "This tag is already set by Force Tags in suite settings",
-            RuleSeverity.INFO,
-        ),
-        "0607": (
-            "unnecessary-default-tags",
-            "Tags defined in Default Tags are always overwritten",
-            RuleSeverity.INFO,
-        ),
-        "0608": ("empty-tags", "[Tags] setting without values%s", RuleSeverity.WARNING),
-    }
+    reports = (
+        "could-be-forced-tags",
+        "tag-already-set-in-force-tags",
+        "unnecessary-default-tags",
+        "empty-tags",
+    )
 
     def __init__(self):
         self.tags = []

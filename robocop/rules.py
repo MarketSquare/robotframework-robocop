@@ -21,9 +21,9 @@ Available formats:
   * ``name``:       rule name (e.g. ``line-too-long`)
   * ``desc``:       description of the rule
 """
-from typing import Any, Callable, Union
-from functools import total_ordering
 from enum import Enum
+from functools import total_ordering
+from typing import Any, Callable, Union, Pattern, Dict
 
 from packaging.specifiers import SpecifierSet
 
@@ -59,7 +59,7 @@ class RuleSeverity(Enum):
     ERROR = "E"
 
     @classmethod
-    def parser(cls, value: Union[str, "RuleSeverity"]):
+    def parser(cls, value: Union[str, "RuleSeverity"]) -> "RuleSeverity":
         # parser can be invoked from Rule() with severity=RuleSeverity.WARNING (enum directly) or
         # from configuration with severity:W (string representation)
         severity = {
@@ -81,7 +81,7 @@ class RuleSeverity(Enum):
         look_up = [sev.value for sev in RuleSeverity]
         return look_up.index(self.value) < look_up.index(other.value)
 
-    def diag_severity(self):
+    def diag_severity(self) -> int:
         return {"I": 3, "W": 2, "E": 1}.get(self.value, 4)
 
 
@@ -162,7 +162,7 @@ class Rule:
         return self.config["severity"].value
 
     @staticmethod
-    def supported_in_rf_version(version):
+    def supported_in_rf_version(version: str) -> bool:
         if not version:
             return True
         return ROBOT_VERSION in SpecifierSet(version)
@@ -182,7 +182,7 @@ class Rule:
             )
         self.config[param].value = value
 
-    def available_configurables(self, include_severity=True):
+    def available_configurables(self, include_severity: bool = True):
         params = [str(param) for param in self.config.values() if param.name != "severity" or include_severity]
         if not params:
             return ""
@@ -201,7 +201,7 @@ class Rule:
             ext_disablers=ext_disablers,
         )
 
-    def matches_pattern(self, pattern):
+    def matches_pattern(self, pattern: Union[str, Pattern]):
         """check if this rule matches given pattern"""
         if isinstance(pattern, str):
             return pattern in (self.name, self.rule_id)
@@ -248,10 +248,10 @@ class Message:
             other.rule_id,
         )
 
-    def get_fullname(self):
+    def get_fullname(self) -> str:
         return f"{self.severity.value}{self.rule_id} ({self.name})"
 
-    def to_json(self):
+    def to_json(self) -> Dict:
         return {
             "source": self.source,
             "line": self.line,

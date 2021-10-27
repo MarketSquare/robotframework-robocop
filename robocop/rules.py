@@ -129,6 +129,8 @@ class Rule:
     Robocop linter rule.
     It can be used for reporting issues that are breaking particular rule.
     You can store configuration of the rule inside RuleParam parameters.
+
+    Every rule contains one default RuleParam - severity.
     """
 
     def __init__(

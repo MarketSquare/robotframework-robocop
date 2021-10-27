@@ -2,7 +2,7 @@ import pytest
 
 import robocop.config
 from robocop.checkers import VisitorChecker
-from robocop.rules import Rule, RuleParam
+from robocop.rules import Rule, RuleParam, RuleSeverity
 
 
 class EmptyChecker(VisitorChecker):
@@ -18,7 +18,7 @@ def msg_0101_config():
             rule_id="0101",
             name="some-message",
             msg="Some description",
-            severity="W",
+            severity=RuleSeverity.WARNING,
         )
     }
 
@@ -36,7 +36,7 @@ def msg_0101_config_meta():
             rule_id="0101",
             name="some-message",
             msg="Some description",
-            severity="W",
+            severity=RuleSeverity.WARNING,
         )
     }
 
@@ -49,28 +49,30 @@ def msg_0102_0204_config():
             rule_id="0102",
             name="other-message",
             msg="""this is description""",
-            severity="E",
+            severity=RuleSeverity.ERROR,
         ),
         "0204": Rule(
             RuleParam(name="conf_param2", converter=int, default=0, desc=""),
             rule_id="0204",
             name="another-message",
             msg=f"Message with meaning {4}",
-            severity="I",
+            severity=RuleSeverity.INFO,
         ),
     }
 
 
 @pytest.fixture
 def msg_0101():
-    return {"0101": Rule(rule_id="0101", name="some-message", msg="Some description", severity="W")}
+    return {"0101": Rule(rule_id="0101", name="some-message", msg="Some description", severity=RuleSeverity.WARNING)}
 
 
 @pytest.fixture
 def msg_0102_0204():
     return {
-        "0102": Rule(rule_id="0102", name="other-message", msg="""this is description""", severity="E"),
-        "0204": Rule(rule_id="0204", name="another-message", msg=f"Message with meaning {4}", severity="I"),
+        "0102": Rule(rule_id="0102", name="other-message", msg="""this is description""", severity=RuleSeverity.ERROR),
+        "0204": Rule(
+            rule_id="0204", name="another-message", msg=f"Message with meaning {4}", severity=RuleSeverity.INFO
+        ),
     }
 
 

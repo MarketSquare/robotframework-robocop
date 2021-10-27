@@ -1,7 +1,7 @@
 import pytest
 
 from robocop.reports import FileStatsReport, JsonReport
-from robocop.rules import Message, Rule, RuleParam
+from robocop.rules import Message, Rule, RuleParam, RuleSeverity
 
 
 @pytest.fixture
@@ -11,7 +11,7 @@ def message():
         rule_id="0101",
         name="some-message",
         msg="Some description",
-        severity="W",
+        severity=RuleSeverity.WARNING,
     )
 
 

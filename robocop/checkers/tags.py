@@ -5,42 +5,46 @@ Tags checkers
 from robot.api import Token
 
 from robocop.checkers import VisitorChecker
-from robocop.rules import Rule
+from robocop.rules import Rule, RuleSeverity
 
 rules = {
-    "0601": Rule(rule_id="0601", name="tag-with-space", msg="Tags should not contain spaces", severity="W"),
+    "0601": Rule(
+        rule_id="0601", name="tag-with-space", msg="Tags should not contain spaces", severity=RuleSeverity.WARNING
+    ),
     "0602": Rule(
         rule_id="0602",
         name="tag-with-or-and",
         msg="Tag with reserved word OR/AND. Hint: make sure to include this tag using lowercase name to avoid issues",
-        severity="I",
+        severity=RuleSeverity.INFO,
     ),
     "0603": Rule(
         rule_id="0603",
         name="tag-with-reserved",
         msg="Tag prefixed with reserved word `robot:`. The only allowed tags with this prefix are robot:no-dry-run, "
         "robot:continue-on-failure and robot:recursive-continue-on-failure",
-        severity="W",
+        severity=RuleSeverity.WARNING,
     ),
     "0605": Rule(
         rule_id="0605",
         name="could-be-forced-tags",
         msg='All tests in suite share those tags: "%s". You can define them in Force Tags in suite settings instead',
-        severity="I",
+        severity=RuleSeverity.INFO,
     ),
     "0606": Rule(
         rule_id="0606",
         name="tag-already-set-in-force-tags",
         msg="This tag is already set by Force Tags in suite settings",
-        severity="I",
+        severity=RuleSeverity.INFO,
     ),
     "0607": Rule(
         rule_id="0607",
         name="unnecessary-default-tags",
         msg="Tags defined in Default Tags are always overwritten",
-        severity="I",
+        severity=RuleSeverity.INFO,
     ),
-    "0608": Rule(rule_id="0608", name="empty-tags", msg="[Tags] setting without values%s", severity="W"),
+    "0608": Rule(
+        rule_id="0608", name="empty-tags", msg="[Tags] setting without values%s", severity=RuleSeverity.WARNING
+    ),
 }
 
 

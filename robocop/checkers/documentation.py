@@ -5,12 +5,24 @@ from robot.parsing.model.blocks import SettingSection
 from robot.parsing.model.statements import Documentation
 
 from robocop.checkers import VisitorChecker
-from robocop.rules import Rule
+from robocop.rules import Rule, RuleSeverity
 
 rules = {
-    "0201": Rule(rule_id="0201", name="missing-doc-keyword", msg="Missing documentation in keyword", severity="W"),
-    "0202": Rule(rule_id="0202", name="missing-doc-test-case", msg="Missing documentation in test case", severity="W"),
-    "0203": Rule(rule_id="0203", name="missing-doc-suite", msg="Missing documentation in suite", severity="W"),
+    "0201": Rule(
+        rule_id="0201",
+        name="missing-doc-keyword",
+        msg="Missing documentation in keyword",
+        severity=RuleSeverity.WARNING,
+    ),
+    "0202": Rule(
+        rule_id="0202",
+        name="missing-doc-test-case",
+        msg="Missing documentation in test case",
+        severity=RuleSeverity.WARNING,
+    ),
+    "0203": Rule(
+        rule_id="0203", name="missing-doc-suite", msg="Missing documentation in suite", severity=RuleSeverity.WARNING
+    ),
 }
 
 

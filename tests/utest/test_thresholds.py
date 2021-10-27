@@ -4,8 +4,8 @@ from robocop.rules import Rule, RuleParam, RuleSeverity
 
 
 def get_message_with_id_sev(rule_id, sev):
-    for char in RuleSeverity.look_up:
-        rule_id = rule_id.replace(char, "")
+    for severity in RuleSeverity:
+        rule_id = rule_id.replace(severity.value, "")
     return Rule(
         RuleParam(name="param_name", converter=int, default=1, desc=""),
         rule_id="0101",

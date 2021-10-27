@@ -1,12 +1,12 @@
 import pytest
 
 from robocop.config import Config
-from robocop.rules import Rule
+from robocop.rules import Rule, RuleSeverity
 
 
 def get_message_with_id(rule_id):
     rule_id = Config.replace_severity_values(rule_id)
-    return Rule(rule_id=rule_id, name=f"some-message-{rule_id}", msg="Some description", severity="W")
+    return Rule(rule_id=rule_id, name=f"some-message-{rule_id}", msg="Some description", severity=RuleSeverity.WARNING)
 
 
 class TestIncludingExcluding:

@@ -15,7 +15,7 @@ except ImportError:
 from robot.libraries import STDLIBS
 
 from robocop.checkers import VisitorChecker
-from robocop.rules import Rule, RuleParam
+from robocop.rules import Rule, RuleParam, RuleSeverity
 from robocop.utils import ROBOT_VERSION, AssignmentTypeDetector, normalize_robot_name, parse_assignment_sign_type
 
 rules = {
@@ -24,27 +24,27 @@ rules = {
         name="keyword-after-return",
         msg="[Return] is not defined at the end of keyword. "
         "Note that [Return] does not return from keyword but only set returned variables",
-        severity="W",
+        severity=RuleSeverity.WARNING,
     ),
     "0902": Rule(
         rule_id="0902",
         name="keyword-after-return-from",
         msg="Keyword call after 'Return From Keyword' keyword",
-        severity="E",
+        severity=RuleSeverity.ERROR,
     ),
-    "0903": Rule(rule_id="0903", name="empty-return", msg="[Return] is empty", severity="W"),
+    "0903": Rule(rule_id="0903", name="empty-return", msg="[Return] is empty", severity=RuleSeverity.WARNING),
     "0907": Rule(
         rule_id="0907",
         name="nested-for-loop",
         msg="Nested for loops are not supported. You can use keyword with for loop instead",
-        severity="E",
+        severity=RuleSeverity.ERROR,
         version="<4.0",
     ),
     "0908": Rule(
         rule_id="0908",
         name="if-can-be-used",
         msg="'%s' can be replaced with IF block since Robot Framework 4.0",
-        severity="I",
+        severity=RuleSeverity.INFO,
         version=">=4.0",
     ),
     "0909": Rule(
@@ -58,7 +58,7 @@ rules = {
         rule_id="0909",
         name="inconsistent-assignment",
         msg="The assignment sign is not consistent within the file. Expected '%s' but got '%s' instead",
-        severity="W",
+        severity=RuleSeverity.WARNING,
     ),
     "0910": Rule(
         RuleParam(
@@ -71,25 +71,25 @@ rules = {
         rule_id="0910",
         name="inconsistent-assignment-in-variables",
         msg="The assignment sign is not consistent inside the variables section. Expected '%s' but got '%s' instead",
-        severity="W",
+        severity=RuleSeverity.WARNING,
     ),
     "0911": Rule(
         rule_id="0911",
         name="wrong-import-order",
         msg="BuiltIn library import '%s' should be placed before '%s'",
-        severity="W",
+        severity=RuleSeverity.WARNING,
     ),
     "0912": Rule(
         rule_id="0912",
         name="empty-variable",
         msg="Use built-in variable ${EMPTY} instead of leaving variable without value or using backslash",
-        severity="I",
+        severity=RuleSeverity.INFO,
     ),
     "0913": Rule(
         rule_id="0913",
         name="can-be-resource-file",
         msg="No tests in '%s' file, consider renaming to '%s.resource'",
-        severity="I",
+        severity=RuleSeverity.INFO,
     ),
 }
 

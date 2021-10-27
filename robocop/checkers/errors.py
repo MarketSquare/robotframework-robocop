@@ -6,60 +6,67 @@ import re
 from robot.api import Token
 
 from robocop.checkers import VisitorChecker
-from robocop.rules import Rule
+from robocop.rules import Rule, RuleSeverity
 from robocop.utils import ROBOT_VERSION, find_robot_vars
 
 rules = {
-    "0401": Rule(rule_id="0401", name="parsing-error", msg="Robot Framework syntax error: %s", severity="E"),
+    "0401": Rule(
+        rule_id="0401", name="parsing-error", msg="Robot Framework syntax error: %s", severity=RuleSeverity.ERROR
+    ),
     "0405": Rule(
         rule_id="0405",
         name="invalid-continuation-mark",
         msg="Invalid continuation mark. It should be '...'",
-        severity="E",
+        severity=RuleSeverity.ERROR,
     ),
     # there is not-enough-whitespace-after-newline-marker for keyword calls already
     "0406": Rule(
         rule_id="0406",
         name="not-enough-whitespace-after-newline-marker",
         msg="Provide at least two spaces after '...' marker",
-        severity="E",
+        severity=RuleSeverity.ERROR,
     ),
-    "0407": Rule(rule_id="0407", name="invalid-argument", msg="%s", severity="E"),
-    "0408": Rule(rule_id="0408", name="non-existing-setting", msg="%s", severity="E"),
+    "0407": Rule(rule_id="0407", name="invalid-argument", msg="%s", severity=RuleSeverity.ERROR),
+    "0408": Rule(rule_id="0408", name="non-existing-setting", msg="%s", severity=RuleSeverity.ERROR),
     "0409": Rule(
         rule_id="0409",
         name="setting-not-supported",
         msg="Setting '[%s]' is not supported in %s. Allowed are: %s",
-        severity="E",
+        severity=RuleSeverity.ERROR,
     ),
     "0410": Rule(
         rule_id="0410",
         name="not-enough-whitespace-after-variable",
         msg="Provide at least two spaces after variable",
-        severity="E",
+        severity=RuleSeverity.ERROR,
     ),
     "0411": Rule(
         rule_id="0411",
         name="not-enough-whitespace-after-suite-setting",
         msg="Provide at least two spaces after '%s' setting",
-        severity="E",
+        severity=RuleSeverity.ERROR,
     ),
-    "0412": Rule(rule_id="0412", name="invalid-for-loop", msg="Invalid for loop syntax: %s", severity="E"),
-    "0413": Rule(rule_id="0413", name="invalid-if", msg="Invalid IF syntax: %s", severity="E"),
+    "0412": Rule(
+        rule_id="0412", name="invalid-for-loop", msg="Invalid for loop syntax: %s", severity=RuleSeverity.ERROR
+    ),
+    "0413": Rule(rule_id="0413", name="invalid-if", msg="Invalid IF syntax: %s", severity=RuleSeverity.ERROR),
     "0402": Rule(
         rule_id="0402",
         name="not-enough-whitespace-after-setting",
         msg="Provide at least two spaces after '%s' setting",
-        severity="E",
+        severity=RuleSeverity.ERROR,
     ),
     "0403": Rule(
-        rule_id="0403", name="missing-keyword-name", msg="Missing keyword name when calling some values", severity="E"
+        rule_id="0403",
+        name="missing-keyword-name",
+        msg="Missing keyword name when calling some values",
+        severity=RuleSeverity.ERROR,
     ),
     "0404": Rule(
         rule_id="0404",
         name="variables-import-with-args",
         msg="Robot and YAML variable files do not take arguments",
-        severity="E",
+        severity=RuleSeverity.ERROR,
     ),
 }
 

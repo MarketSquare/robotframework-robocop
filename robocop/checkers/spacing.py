@@ -10,19 +10,22 @@ from robot.parsing.model.statements import Comment, EmptyLine
 from robot.parsing.model.visitor import ModelVisitor
 
 from robocop.checkers import RawFileChecker, VisitorChecker
-from robocop.rules import Rule, RuleParam
+from robocop.rules import Rule, RuleParam, RuleSeverity
 from robocop.utils import token_col
 from robocop.utils.misc import ROBOT_VERSION
 
 rules = {
     "1001": Rule(
-        rule_id="1001", name="trailing-whitespace", msg="Trailing whitespace at the end of line", severity="W"
+        rule_id="1001",
+        name="trailing-whitespace",
+        msg="Trailing whitespace at the end of line",
+        severity=RuleSeverity.WARNING,
     ),
     "1002": Rule(
         rule_id="1002",
         name="missing-trailing-blank-line",
         msg="Missing trailing blank line at the end of file",
-        severity="W",
+        severity=RuleSeverity.WARNING,
     ),
     "1003": Rule(
         RuleParam(
@@ -34,7 +37,7 @@ rules = {
         rule_id="1003",
         name="empty-lines-between-sections",
         msg="Invalid number of empty lines between sections (%d/%d)",
-        severity="W",
+        severity=RuleSeverity.WARNING,
     ),
     "1004": Rule(
         RuleParam(
@@ -46,7 +49,7 @@ rules = {
         rule_id="1004",
         name="empty-lines-between-test-cases",
         msg="Invalid number of empty lines between test cases (%d/%d)",
-        severity="W",
+        severity=RuleSeverity.WARNING,
     ),
     "1005": Rule(
         RuleParam(
@@ -58,13 +61,16 @@ rules = {
         rule_id="1005",
         name="empty-lines-between-keywords",
         msg="Invalid number of empty lines between keywords (%d/%d)",
-        severity="W",
+        severity=RuleSeverity.WARNING,
     ),
     "1006": Rule(
-        rule_id="1006", name="mixed-tabs-and-spaces", msg="Inconsistent use of tabs and spaces in file", severity="W"
+        rule_id="1006",
+        name="mixed-tabs-and-spaces",
+        msg="Inconsistent use of tabs and spaces in file",
+        severity=RuleSeverity.WARNING,
     ),
-    "1007": Rule(rule_id="1007", name="uneven-indent", msg="Line is %s-indented", severity="W"),
-    "1008": Rule(rule_id="1008", name="bad-indent", msg="Indent expected", severity="E"),
+    "1007": Rule(rule_id="1007", name="uneven-indent", msg="Line is %s-indented", severity=RuleSeverity.WARNING),
+    "1008": Rule(rule_id="1008", name="bad-indent", msg="Indent expected", severity=RuleSeverity.ERROR),
     "1009": Rule(
         RuleParam(
             name="empty_lines",
@@ -75,19 +81,19 @@ rules = {
         rule_id="1009",
         name="empty-line-after-section",
         msg="Too many empty lines after section header (%d/%d)",
-        severity="W",
+        severity=RuleSeverity.WARNING,
     ),
     "1010": Rule(
         rule_id="1010",
         name="too-many-trailing-blank-lines",
         msg="Too many blank lines at the end of file",
-        severity="W",
+        severity=RuleSeverity.WARNING,
     ),
     "1011": Rule(
         rule_id="1011",
         name="misaligned-continuation",
         msg="Continuation marker should be aligned with starting row",
-        severity="W",
+        severity=RuleSeverity.WARNING,
     ),
     "1012": Rule(
         RuleParam(
@@ -99,29 +105,32 @@ rules = {
         rule_id="1012",
         name="consecutive-empty-lines",
         msg="Too many empty lines (%s/%s)",
-        severity="W",
+        severity=RuleSeverity.WARNING,
     ),
     "1013": Rule(
-        rule_id="1013", name="empty-lines-in-statement", msg="Multi-line statement with empty lines", severity="W"
+        rule_id="1013",
+        name="empty-lines-in-statement",
+        msg="Multi-line statement with empty lines",
+        severity=RuleSeverity.WARNING,
     ),
     "1014": Rule(
         rule_id="1014",
         name="variable-should-be-left-aligned",
         msg="Variable in Variable section should be left aligned",
-        severity="E",
+        severity=RuleSeverity.ERROR,
         version=">=4.0",
     ),
     "1015": Rule(
         rule_id="1015",
         name="misaligned-continuation-row",
         msg="Each next continuation line should be aligned with the previous one",
-        severity="W",
+        severity=RuleSeverity.WARNING,
     ),
     "1016": Rule(
         rule_id="1016",
         name="suite-setting-should-be-left-aligned",
         msg="Setting in Settings section should be left aligned",
-        severity="E",
+        severity=RuleSeverity.ERROR,
         version=">=4.0",
     ),
 }

@@ -3,12 +3,12 @@ import ast
 import pytest
 
 import robocop.exceptions
-from robocop.rules import Rule, RuleParam
+from robocop.rules import Rule, RuleParam, RuleSeverity
 
 
 @pytest.fixture
 def valid_msg():
-    return Rule(rule_id="0101", name="some-message", msg="Some description", severity="W")
+    return Rule(rule_id="0101", name="some-message", msg="Some description", severity=RuleSeverity.WARNING)
 
 
 @pytest.fixture
@@ -18,7 +18,7 @@ def valid_msg_with_conf():
         rule_id="0101",
         name="some-message",
         msg="Some description",
-        severity="W",
+        severity=RuleSeverity.WARNING,
     )
 
 
@@ -86,7 +86,7 @@ class TestMessage:
                 rule_id="0101",
                 name="some-message",
                 msg="Some description",
-                severity="W",
+                severity=RuleSeverity.WARNING,
             )
         assert (
             rf"Failed to configure param `Some` with value `s`. "
@@ -100,7 +100,7 @@ class TestMessage:
             rule_id="0101",
             name="some-message",
             msg="Some description",
-            severity="W",
+            severity=RuleSeverity.WARNING,
         )
         assert rule.config["Some"].value == 5
 

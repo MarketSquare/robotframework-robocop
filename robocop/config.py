@@ -46,7 +46,9 @@ class ParseFileTypes(argparse.Action):  # pylint: disable=too-few-public-methods
 
 class SetRuleThreshold(argparse.Action):
     def __call__(self, parser, namespace, values, option_string=None):
-        setattr(namespace, self.dest, RuleSeverity(values) if values in RuleSeverity.look_up else RuleSeverity("I"))
+        setattr(
+            namespace, self.dest, RuleSeverity.parser(values) if values in ("I", "W", "E") else RuleSeverity.INFO
+        )  # TODO
 
 
 class SetListOption(argparse.Action):
@@ -121,7 +123,7 @@ class Config:
         "help_output": "Path to output file.",
         "help_filetypes": "Comma separated list of file extensions to be scanned by Robocop",
         "help_threshold": f"Disable rules below given threshold. Available message levels: "
-        f'{" < ".join(RuleSeverity.look_up)}',
+        f'{" < ".join(sev.value for sev in RuleSeverity)}',
         "help_recursive": "Use this flag to stop scanning directories recursively.",
         "help_argfile": "Path to file with arguments.",
         "help_ignore": "Ignore file(s) and path(s) provided. Glob patterns are supported.",
@@ -448,7 +450,7 @@ class Config:
 
     @staticmethod
     def replace_severity_values(message):
-        sev = "".join(RuleSeverity.look_up)
+        sev = "".join(sev.value for sev in RuleSeverity)
         if re.match(f"[{sev}][0-9]{{4,}}", message):
             for char in sev:
                 message = message.replace(char, "")

@@ -22,6 +22,7 @@ Available formats:
   * ``desc``:       description of the rule
 """
 from functools import total_ordering
+from enum import Enum
 
 from packaging.specifiers import SpecifierSet
 
@@ -30,7 +31,7 @@ from robocop.utils import ROBOT_VERSION
 
 
 @total_ordering
-class RuleSeverity:
+class RuleSeverity(Enum):
     """
     Rule severity.
     It can be configured with ``--configure id_or_msg_name:severity:value``
@@ -52,36 +53,35 @@ class RuleSeverity:
     will only report rules with severity E and above.
     """
 
-    look_up = (
-        "I",
-        "W",
-        "E",
-    )
+    INFO = "I"
+    WARNING = "W"
+    ERROR = "E"
 
-    def __init__(self, value):
+    @classmethod
+    def parser(cls, value):
+        # parser can be invoked from Rule() with severity=RuleSeverity.WARNING (enum directly) or
+        # from configuration with severity:W (string representation)
         severity = {
-            "error": "E",
-            "e": "E",
-            "warning": "W",
-            "w": "W",
-            "info": "I",
-            "i": "I",
+            "error": cls.ERROR,
+            "e": cls.ERROR,
+            "warning": cls.WARNING,
+            "w": cls.WARNING,
+            "info": cls.INFO,
+            "i": cls.INFO,
         }.get(str(value).lower(), None)
         if severity is None:
-            raise ValueError(f"Chose one of: {', '.join(self.look_up)}") from None
-        self.value = severity
+            raise ValueError(f"Chose one of: {', '.join(sev.value for sev in cls)}") from None
+        return severity
 
     def __str__(self):
         return self.value
 
     def __lt__(self, other):
-        return self.look_up.index(self.value) < self.look_up.index(other.value)
+        look_up = [sev.value for sev in RuleSeverity]
+        return look_up.index(self.value) < look_up.index(other.value)
 
     def diag_severity(self):
         return {"I": 3, "W": 2, "E": 1}.get(self.value, 4)
-
-    def full_name(self):
-        return {"E": "ERROR", "W": "WARNING", "I": "INFO"}[self.value]
 
 
 class RuleParam:
@@ -117,7 +117,7 @@ class Rule:
         self.desc = msg
         self.config = {
             "severity": RuleParam(
-                "severity", severity, RuleSeverity, "Rule severity (E = Error, W = Warning, I = Info)"
+                "severity", severity, RuleSeverity.parser, "Rule severity (E = Error, W = Warning, I = Info)"
             )
         }
         for param in params:

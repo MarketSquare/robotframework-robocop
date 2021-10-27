@@ -5,7 +5,7 @@ from robot.api import get_model
 
 import robocop
 from robocop.exceptions import InvalidArgumentError
-from robocop.rules import Message, Rule, RuleParam
+from robocop.rules import Message, Rule, RuleParam, RuleSeverity
 from robocop.utils import issues_to_lsp_diagnostic
 
 
@@ -16,7 +16,7 @@ def rule():
         rule_id="0101",
         name="some-message",
         msg="Some description",
-        severity="W",
+        severity=RuleSeverity.WARNING,
     )
 
 

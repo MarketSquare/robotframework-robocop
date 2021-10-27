@@ -9,7 +9,7 @@ from robot.api import Token
 from robot.parsing.model.statements import Arguments, KeywordCall
 
 from robocop.checkers import VisitorChecker
-from robocop.rules import Rule, RuleParam
+from robocop.rules import Rule, RuleParam, RuleSeverity
 from robocop.utils import (
     ROBOT_VERSION,
     find_robot_vars,
@@ -32,7 +32,7 @@ rules = {
         rule_id="0301",
         name="not-allowed-char-in-name",
         msg="Not allowed character '%s' found in %s name",
-        severity="W",
+        severity=RuleSeverity.WARNING,
     ),
     "0302": Rule(
         RuleParam(
@@ -44,77 +44,95 @@ rules = {
         rule_id="0302",
         name="wrong-case-in-keyword-name",
         msg="Keyword name should use title case",
-        severity="W",
+        severity=RuleSeverity.WARNING,
     ),
     "0303": Rule(
-        rule_id="0303", name="keyword-name-is-reserved-word", msg="'%s' is a reserved keyword%s", severity="E"
+        rule_id="0303",
+        name="keyword-name-is-reserved-word",
+        msg="'%s' is a reserved keyword%s",
+        severity=RuleSeverity.ERROR,
     ),
     "0305": Rule(
         rule_id="0305",
         name="underscore-in-keyword-name",
         msg="Underscores in keyword name can be replaced with spaces",
-        severity="W",
+        severity=RuleSeverity.WARNING,
     ),
     "0306": Rule(
         rule_id="0306",
         name="setting-name-not-in-title-case",
         msg="Setting name should be title or upper case",
-        severity="W",
+        severity=RuleSeverity.WARNING,
     ),
     "0307": Rule(
         rule_id="0307",
         name="section-name-invalid",
         msg="Section name should be in format `*** Capitalized ***` or `*** UPPERCASE ***`",
-        severity="W",
+        severity=RuleSeverity.WARNING,
     ),
     "0308": Rule(
         rule_id="0308",
         name="not-capitalized-test-case-title",
         msg="Test case title should start with capital letter",
-        severity="W",
+        severity=RuleSeverity.WARNING,
     ),
     "0309": Rule(
         rule_id="0309",
         name="section-variable-not-uppercase",
         msg="Section variable name should be uppercase",
-        severity="W",
+        severity=RuleSeverity.WARNING,
     ),
     "0310": Rule(
         rule_id="0310",
         name="non-local-variables-should-be-uppercase",
         msg="Test, suite and global variables should be uppercased",
-        severity="W",
+        severity=RuleSeverity.WARNING,
     ),
-    "0311": Rule(rule_id="0311", name="else-not-upper-case", msg="ELSE and ELSE IF should be upper case", severity="E"),
-    "0312": Rule(rule_id="0312", name="keyword-name-is-empty", msg="Keyword name should not be empty", severity="E"),
+    "0311": Rule(
+        rule_id="0311",
+        name="else-not-upper-case",
+        msg="ELSE and ELSE IF should be upper case",
+        severity=RuleSeverity.ERROR,
+    ),
+    "0312": Rule(
+        rule_id="0312",
+        name="keyword-name-is-empty",
+        msg="Keyword name should not be empty",
+        severity=RuleSeverity.ERROR,
+    ),
     "0313": Rule(
-        rule_id="0313", name="test-case-name-is-empty", msg="Test case name should not be empty", severity="E"
+        rule_id="0313",
+        name="test-case-name-is-empty",
+        msg="Test case name should not be empty",
+        severity=RuleSeverity.ERROR,
     ),
-    "0314": Rule(rule_id="0314", name="empty-library-alias", msg="Library alias should not be empty", severity="E"),
+    "0314": Rule(
+        rule_id="0314", name="empty-library-alias", msg="Library alias should not be empty", severity=RuleSeverity.ERROR
+    ),
     "0315": Rule(
         rule_id="0315",
         name="duplicated-library-alias",
         msg="Library alias should not be the same as original name",
-        severity="W",
+        severity=RuleSeverity.WARNING,
     ),
     "0316": Rule(
         rule_id="0316",
         name="possible-variable-overwriting",
         msg="Variable '%s' may overwrite similar variable inside '%s' %s. "
         "Note that variables are case-insensitive, and also spaces and underscores are ignored.",
-        severity="I",
+        severity=RuleSeverity.INFO,
     ),
     "0317": Rule(
         rule_id="0317",
         name="hyphen-in-variable-name",
         msg="Use underscore in variable names instead of hyphens to avoid treating them like minus sign",
-        severity="I",
+        severity=RuleSeverity.INFO,
     ),
     "0318": Rule(
         rule_id="0318",
         name="bdd-without-keyword-call",
         msg="BDD reserved keyword '%s' not followed by any keyword%s",
-        severity="W",
+        severity=RuleSeverity.WARNING,
     ),
 }
 

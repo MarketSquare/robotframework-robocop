@@ -4,7 +4,7 @@ import pytest
 from robot.api import get_model
 
 from robocop import Config, Robocop
-from robocop.rules import Message, Rule, RuleParam
+from robocop.rules import Message, Rule, RuleParam, RuleSeverity
 from robocop.utils.disablers import DisablersFinder
 
 
@@ -15,7 +15,7 @@ def message():
         rule_id="1010",
         name="somerule",
         msg="Some description",
-        severity="W",
+        severity=RuleSeverity.WARNING,
     )
     return Message(
         rule=rule,

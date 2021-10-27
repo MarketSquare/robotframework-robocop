@@ -6,7 +6,7 @@ import pytest
 
 import robocop.exceptions
 from robocop.checkers import VisitorChecker
-from robocop.rules import Rule, RuleParam
+from robocop.rules import Rule, RuleParam, RuleSeverity
 
 
 class ValidChecker(VisitorChecker):
@@ -22,7 +22,7 @@ class TestCheckerInvalidConf:
                 rule_id="0101",
                 name="some-message",
                 msg="Some description",
-                severity="W",
+                severity=RuleSeverity.WARNING,
             )
         }
         with pytest.raises(robocop.exceptions.RuleNotFoundError) as err:
@@ -37,7 +37,7 @@ class TestCheckerInvalidConf:
                 rule_id="0101",
                 name="some-message",
                 msg="Some description",
-                severity="W",
+                severity=RuleSeverity.WARNING,
             )
         }
         with pytest.raises(robocop.exceptions.RuleParamNotFoundError):

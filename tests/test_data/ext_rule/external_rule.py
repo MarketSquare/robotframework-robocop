@@ -1,7 +1,9 @@
 from robocop.checkers import VisitorChecker
-from robocop.rules import Rule
+from robocop.rules import Rule, RuleSeverity
 
-rules = {"1101": Rule(rule_id="1101", name="smth", msg="Keyword call after [Return] statement", severity="E")}
+rules = {
+    "1101": Rule(rule_id="1101", name="smth", msg="Keyword call after [Return] statement", severity=RuleSeverity.ERROR)
+}
 
 
 class SmthChecker(VisitorChecker):

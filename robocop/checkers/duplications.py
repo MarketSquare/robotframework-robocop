@@ -6,7 +6,7 @@ from collections import defaultdict
 from robot.api import Token
 
 from robocop.checkers import VisitorChecker
-from robocop.rules import Rule, RuleParam
+from robocop.rules import Rule, RuleParam, RuleSeverity
 from robocop.utils import ROBOT_VERSION, normalize_robot_name, normalize_robot_var_name
 
 
@@ -36,59 +36,62 @@ rules = {
         rule_id="0801",
         name="duplicated-test-case",
         msg='Multiple test cases with name "%s" (first occurrence in line %d)',
-        severity="E",
+        severity=RuleSeverity.ERROR,
     ),
     "0802": Rule(
         rule_id="0802",
         name="duplicated-keyword",
         msg='Multiple keywords with name "%s" (first occurrence in line %d)',
-        severity="E",
+        severity=RuleSeverity.ERROR,
     ),
     "0803": Rule(
         rule_id="0803",
         name="duplicated-variable",
         msg='Multiple variables with name "%s" in Variables section (first occurrence in line %d). '
         "Note that Robot Framework is case-insensitive",
-        severity="E",
+        severity=RuleSeverity.ERROR,
     ),
     "0804": Rule(
         rule_id="0804",
         name="duplicated-resource",
         msg='Multiple resource imports with path "%s" (first occurrence in line %d)',
-        severity="W",
+        severity=RuleSeverity.WARNING,
     ),
     "0805": Rule(
         rule_id="0805",
         name="duplicated-library",
         msg='Multiple library imports with name "%s" and identical arguments (first occurrence in line %d)',
-        severity="W",
+        severity=RuleSeverity.WARNING,
     ),
     "0806": Rule(
         rule_id="0806",
         name="duplicated-metadata",
         msg='Duplicated metadata "%s" (first occurrence in line %d)',
-        severity="W",
+        severity=RuleSeverity.WARNING,
     ),
     "0807": Rule(
         rule_id="0807",
         name="duplicated-variables-import",
         msg='Duplicated variables import with path "%s" (first occurrence in line %d)',
-        severity="W",
+        severity=RuleSeverity.WARNING,
     ),
     "0811": Rule(
-        rule_id="0811", name="duplicated-argument-name", msg="Argument name '%s' is already used", severity="E"
+        rule_id="0811",
+        name="duplicated-argument-name",
+        msg="Argument name '%s' is already used",
+        severity=RuleSeverity.ERROR,
     ),
     "0812": Rule(
         rule_id="0812",
         name="duplicated-assigned-var-name",
         msg="Assigned variable name '%s' is already used",
-        severity="I",
+        severity=RuleSeverity.INFO,
     ),
     "0808": Rule(
         rule_id="0808",
         name="section-already-defined",
         msg="'%s' section header already defined in file",
-        severity="W",
+        severity=RuleSeverity.WARNING,
     ),
     "0809": Rule(
         RuleParam(
@@ -100,13 +103,13 @@ rules = {
         rule_id="0809",
         name="section-out-of-order",
         msg="'%s' section header is defined in wrong order: %s",
-        severity="W",
+        severity=RuleSeverity.WARNING,
     ),
     "0810": Rule(
         rule_id="0810",
         name="both-tests-and-tasks",
         msg="Both Task(s) and Test Case(s) section headers defined in file",
-        severity="E",
+        severity=RuleSeverity.ERROR,
     ),
 }
 

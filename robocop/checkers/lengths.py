@@ -7,7 +7,7 @@ from robot.parsing.model.blocks import CommentSection, TestCase
 from robot.parsing.model.statements import Arguments, Comment, EmptyLine, KeywordCall
 
 from robocop.checkers import RawFileChecker, VisitorChecker
-from robocop.rules import Rule, RuleParam
+from robocop.rules import Rule, RuleParam, RuleSeverity
 from robocop.utils import last_non_empty_line, normalize_robot_name, pattern_type
 
 rules = {
@@ -16,49 +16,49 @@ rules = {
         rule_id="0501",
         name="too-long-keyword",
         msg="Keyword is too long (%d/%d)",
-        severity="W",
+        severity=RuleSeverity.WARNING,
     ),
     "0502": Rule(
         RuleParam(name="min_calls", default=1, converter=int, desc="number of keyword calls required in a keyword"),
         rule_id="0502",
         name="too-few-calls-in-keyword",
         msg="Keyword has too few keywords inside (%d/%d)",
-        severity="W",
+        severity=RuleSeverity.WARNING,
     ),
     "0503": Rule(
         RuleParam(name="max_calls", default=10, converter=int, desc="number of keyword calls allowed in a keyword"),
         rule_id="0503",
         name="too-many-calls-in-keyword",
         msg="Keyword has too many keywords inside (%d/%d)",
-        severity="W",
+        severity=RuleSeverity.WARNING,
     ),
     "0504": Rule(
         RuleParam(name="max_len", default=20, converter=int, desc="number of lines allowed in a test case"),
         rule_id="0504",
         name="too-long-test-case",
         msg="Test case is too long (%d/%d)",
-        severity="W",
+        severity=RuleSeverity.WARNING,
     ),
     "0505": Rule(
         RuleParam(name="max_calls", default=10, converter=int, desc="number of keyword calls allowed in a test case"),
         rule_id="0505",
         name="too-many-calls-in-test-case",
         msg="Test case has too many keywords inside (%d/%d)",
-        severity="W",
+        severity=RuleSeverity.WARNING,
     ),
     "0506": Rule(
         RuleParam(name="max_lines", default=400, converter=int, desc="number of lines allowed in a file"),
         rule_id="0506",
         name="file-too-long",
         msg="File has too many lines (%d/%d)",
-        severity="W",
+        severity=RuleSeverity.WARNING,
     ),
     "0507": Rule(
         RuleParam(name="max_args", default=5, converter=int, desc="number of lines allowed in a file"),
         rule_id="0507",
         name="too-many-arguments",
         msg="Keyword has too many arguments (%d/%d)",
-        severity="W",
+        severity=RuleSeverity.WARNING,
     ),
     "0508": Rule(
         RuleParam(name="line_length", default=120, converter=int, desc="number of lines allowed in a file"),
@@ -71,9 +71,9 @@ rules = {
         rule_id="0508",
         name="line-too-long",
         msg="Line is too long (%d/%d)",
-        severity="W",
+        severity=RuleSeverity.WARNING,
     ),
-    "0509": Rule(rule_id="0509", name="empty-section", msg="Section is empty", severity="W"),
+    "0509": Rule(rule_id="0509", name="empty-section", msg="Section is empty", severity=RuleSeverity.WARNING),
     "0510": Rule(
         RuleParam(
             name="max_returns", default=4, converter=int, desc="allowed number of returned values from a keyword"
@@ -81,30 +81,63 @@ rules = {
         rule_id="0510",
         name="number-of-returned-values",
         msg="Too many return values (%d/%d)",
-        severity="W",
+        severity=RuleSeverity.WARNING,
     ),
     "0511": Rule(
-        rule_id="0511", name="empty-metadata", msg="Metadata settings does not have any value set", severity="W"
+        rule_id="0511",
+        name="empty-metadata",
+        msg="Metadata settings does not have any value set",
+        severity=RuleSeverity.WARNING,
     ),
-    "0512": Rule(rule_id="0512", name="empty-documentation", msg="Documentation is empty", severity="W"),
-    "0513": Rule(rule_id="0513", name="empty-force-tags", msg="Force Tags are empty", severity="W"),
-    "0514": Rule(rule_id="0514", name="empty-default-tags", msg="Default Tags are empty", severity="W"),
-    "0515": Rule(rule_id="0515", name="empty-variables-import", msg="Import variables path is empty", severity="E"),
-    "0516": Rule(rule_id="0516", name="empty-resource-import", msg="Import resource path is empty", severity="E"),
-    "0517": Rule(rule_id="0517", name="empty-library-import", msg="Import library path is empty", severity="E"),
-    "0518": Rule(rule_id="0518", name="empty-setup", msg="Setup does not have any keywords", severity="E"),
-    "0519": Rule(rule_id="0519", name="empty-suite-setup", msg="Suite Setup does not have any keywords", severity="E"),
-    "0520": Rule(rule_id="0520", name="empty-test-setup", msg="Test Setup does not have any keywords", severity="E"),
-    "0521": Rule(rule_id="0521", name="empty-teardown", msg="Teardown does not have any keywords", severity="E"),
+    "0512": Rule(
+        rule_id="0512", name="empty-documentation", msg="Documentation is empty", severity=RuleSeverity.WARNING
+    ),
+    "0513": Rule(rule_id="0513", name="empty-force-tags", msg="Force Tags are empty", severity=RuleSeverity.WARNING),
+    "0514": Rule(
+        rule_id="0514", name="empty-default-tags", msg="Default Tags are empty", severity=RuleSeverity.WARNING
+    ),
+    "0515": Rule(
+        rule_id="0515", name="empty-variables-import", msg="Import variables path is empty", severity=RuleSeverity.ERROR
+    ),
+    "0516": Rule(
+        rule_id="0516", name="empty-resource-import", msg="Import resource path is empty", severity=RuleSeverity.ERROR
+    ),
+    "0517": Rule(
+        rule_id="0517", name="empty-library-import", msg="Import library path is empty", severity=RuleSeverity.ERROR
+    ),
+    "0518": Rule(
+        rule_id="0518", name="empty-setup", msg="Setup does not have any keywords", severity=RuleSeverity.ERROR
+    ),
+    "0519": Rule(
+        rule_id="0519",
+        name="empty-suite-setup",
+        msg="Suite Setup does not have any keywords",
+        severity=RuleSeverity.ERROR,
+    ),
+    "0520": Rule(
+        rule_id="0520",
+        name="empty-test-setup",
+        msg="Test Setup does not have any keywords",
+        severity=RuleSeverity.ERROR,
+    ),
+    "0521": Rule(
+        rule_id="0521", name="empty-teardown", msg="Teardown does not have any keywords", severity=RuleSeverity.ERROR
+    ),
     "0522": Rule(
-        rule_id="0522", name="empty-suite-teardown", msg="Suite Teardown does not have any keywords", severity="E"
+        rule_id="0522",
+        name="empty-suite-teardown",
+        msg="Suite Teardown does not have any keywords",
+        severity=RuleSeverity.ERROR,
     ),
     "0523": Rule(
-        rule_id="0523", name="empty-test-teardown", msg="Test Teardown does not have any keywords", severity="E"
+        rule_id="0523",
+        name="empty-test-teardown",
+        msg="Test Teardown does not have any keywords",
+        severity=RuleSeverity.ERROR,
     ),
-    "0524": Rule(rule_id="0524", name="empty-timeout", msg="Timeout is empty", severity="W"),
-    "0525": Rule(rule_id="0525", name="empty-test-timeout", msg="Test Timeout is empty", severity="W"),
-    "0526": Rule(rule_id="0526", name="empty-arguments", msg="Arguments are empty", severity="E"),
+    "0524": Rule(rule_id="0524", name="empty-timeout", msg="Timeout is empty", severity=RuleSeverity.WARNING),
+    "0525": Rule(rule_id="0525", name="empty-test-timeout", msg="Test Timeout is empty", severity=RuleSeverity.WARNING),
+    "0526": Rule(rule_id="0526", name="empty-arguments", msg="Arguments are empty", severity=RuleSeverity.ERROR),
     "0527": Rule(
         RuleParam(name="max_testcases", default=50, converter=int, desc="number of test cases allowed in a suite"),
         RuleParam(
@@ -116,7 +149,7 @@ rules = {
         rule_id="0527",
         name="too-many-test-cases",
         msg="Too many test cases (%d/%d)",
-        severity="W",
+        severity=RuleSeverity.WARNING,
     ),
 }
 

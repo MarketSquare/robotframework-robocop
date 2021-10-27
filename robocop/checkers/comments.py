@@ -6,31 +6,31 @@ from codecs import BOM_UTF8, BOM_UTF16_BE, BOM_UTF16_LE, BOM_UTF32_BE, BOM_UTF32
 from robot.utils import FileReader
 
 from robocop.checkers import RawFileChecker, VisitorChecker
-from robocop.rules import Rule
+from robocop.rules import Rule, RuleSeverity
 from robocop.utils import ROBOT_VERSION
 
 rules = {
-    "0701": Rule(rule_id="0701", name="todo-in-comment", msg="Found %s in comment", severity="W"),
+    "0701": Rule(rule_id="0701", name="todo-in-comment", msg="Found %s in comment", severity=RuleSeverity.WARNING),
     "0702": Rule(
         rule_id="0702",
         name="missing-space-after-comment",
         msg="Missing blank space after comment character",
-        severity="W",
+        severity=RuleSeverity.WARNING,
     ),
     "0703": Rule(
         rule_id="0703",
         name="invalid-comment",
         msg="Invalid comment. '#' needs to be first character in the cell. "
         "For block comments you can use '*** Comments ***' section",
-        severity="E",
+        severity=RuleSeverity.ERROR,
         version="<4.0",
     ),
-    "0704": Rule(rule_id="0704", name="ignored-data", msg="Ignored data found in file", severity="W"),
+    "0704": Rule(rule_id="0704", name="ignored-data", msg="Ignored data found in file", severity=RuleSeverity.WARNING),
     "0705": Rule(
         rule_id="0705",
         name="bom-encoding-in-file",
         msg="This file contains BOM (Byte Order Mark) encoding not supported by Robot Framework",
-        severity="W",
+        severity=RuleSeverity.WARNING,
     ),
 }
 

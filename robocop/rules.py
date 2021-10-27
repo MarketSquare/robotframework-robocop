@@ -21,6 +21,7 @@ Available formats:
   * ``name``:       rule name (e.g. ``line-too-long`)
   * ``desc``:       description of the rule
 """
+from typing import Any, Callable
 from functools import total_ordering
 from enum import Enum
 
@@ -85,7 +86,20 @@ class RuleSeverity(Enum):
 
 
 class RuleParam:
-    def __init__(self, name, default, converter, desc):
+    """
+    Parameter of the Rule.
+    Each rule can have number of parameters (default one is severity).
+    """
+
+    def __init__(self, name: str, default: Any, converter: Callable, desc: str):
+        """
+        :param name: Name of the parameter used when configuring it / displayed in the docs
+        :param default: Default value of the parameter
+        :param converter: Method used for converting from string. It can be separate method or classmethod from
+        particular class (see `:RuleSeverity:` for example of class that is used as rule parameter value).
+        It must return value
+        :param desc: Description of rule parameter
+        """
         self.name = name
         self.converter = converter
         self.desc = desc
@@ -111,7 +125,23 @@ class RuleParam:
 
 
 class Rule:
-    def __init__(self, *params, rule_id, name, msg, severity, version=None):
+    """
+    Robocop linter rule.
+    It can be used for reporting issues that are breaking particular rule.
+    You can store configuration of the rule inside RuleParam parameters.
+    """
+
+    def __init__(
+        self, *params: RuleParam, rule_id: str, name: str, msg: str, severity: RuleSeverity, version: str = None
+    ):
+        """
+        :param params: RuleParam() instances
+        :param rule_id: id of the rule
+        :param name: name of the rule
+        :param msg: message printed when rule is broken
+        :param severity: severity of the rule (ie: RuleSeverity.INFO)
+        :param version: supported Robot Framework version (ie: >=4.0)
+        """
         self.rule_id = rule_id
         self.name = name
         self.desc = msg
@@ -123,14 +153,14 @@ class Rule:
         for param in params:
             self.config[param.name] = param
         self.enabled = True
-        self.enabled_in_version = self.check_robot_version(version)
+        self.enabled_in_version = self.supported_in_rf_version(version)
 
     @property
     def severity(self):
         return self.config["severity"].value
 
     @staticmethod
-    def check_robot_version(supported_version):
+    def supported_in_rf_version(supported_version):
         if not supported_version:
             return True
         return ROBOT_VERSION in SpecifierSet(supported_version)
@@ -180,7 +210,7 @@ class Message:
     def __init__(
         self,
         *args,
-        rule,
+        rule: Rule,
         source,
         node,
         lineno,

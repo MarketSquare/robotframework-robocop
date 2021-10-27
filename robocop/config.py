@@ -1,4 +1,5 @@
 import argparse
+from typing import Pattern, Set, Dict
 import fnmatch
 import os
 import re
@@ -20,7 +21,7 @@ from robocop.utils import RecommendationFinder
 from robocop.version import __version__
 
 
-def translate_pattern(pattern):
+def translate_pattern(pattern: str) -> Pattern:
     return re.compile(fnmatch.translate(pattern))
 
 
@@ -72,7 +73,7 @@ class CustomArgParser(argparse.ArgumentParser):
 
 
 class Config:
-    def __init__(self, root=None, from_cli=False):
+    def __init__(self, root=None, from_cli: bool = False):
         self.from_cli = from_cli
         self.exec_dir = os.path.abspath(".")
         self.root = Path(root) if root is not None else root
@@ -341,7 +342,7 @@ class Config:
 
         return parser
 
-    def parse_opts(self, args=None, from_cli=True):
+    def parse_opts(self, args=None, from_cli: bool = True):
         default_args = self.load_default_config_file()
         if default_args is None:
             self.load_pyproject_file()
@@ -370,7 +371,7 @@ class Config:
             return self.load_args_from_file(robocop_path)
         return None
 
-    def find_file_in_project_root(self, config_name):
+    def find_file_in_project_root(self, config_name: str) -> Path:
         root = self.root or Path.cwd()
         for parent in (root, *root.parents):
             if (parent / ".git").exists() or (parent / config_name).is_file():
@@ -390,7 +391,7 @@ class Config:
             self.config_from = pyproject_path
 
     @staticmethod
-    def replace_in_set(container, old_key, new_key):
+    def replace_in_set(container: Set, old_key: str, new_key: str):
         if old_key not in container:
             return
         container.remove(old_key)
@@ -449,14 +450,14 @@ class Config:
         return False
 
     @staticmethod
-    def replace_severity_values(message):
+    def replace_severity_values(rule_name: str):
         sev = "".join(sev.value for sev in RuleSeverity)
-        if re.match(f"[{sev}][0-9]{{4,}}", message):
+        if re.match(f"[{sev}][0-9]{{4,}}", rule_name):
             for char in sev:
-                message = message.replace(char, "")
-        return message
+                rule_name = rule_name.replace(char, "")
+        return rule_name
 
-    def parse_toml_to_config(self, toml_data):
+    def parse_toml_to_config(self, toml_data: Dict):
         if not toml_data:
             return False
         assign_type = {"paths", "format"}

@@ -16,7 +16,7 @@ from operator import itemgetter
 from timeit import default_timer as timer
 
 import robocop.exceptions
-from robocop.rules import RuleSeverity
+from robocop.rules import Message
 
 
 class Report:
@@ -46,10 +46,10 @@ class RulesByIdReport(Report):
         self.description = "Groups detected issues by rule id and prints it ordered by most common"
         self.message_counter = defaultdict(int)
 
-    def add_message(self, message):  # noqa
+    def add_message(self, message: Message):  # noqa
         self.message_counter[message.get_fullname()] += 1
 
-    def get_report(self):
+    def get_report(self) -> str:
         message_counter_ordered = sorted(self.message_counter.items(), key=itemgetter(1), reverse=True)
         report = "\nIssues by IDs:\n"
         if not message_counter_ordered:
@@ -76,10 +76,10 @@ class RulesBySeverityReport(Report):
         self.description = "Prints total number of issues grouped by severity"
         self.severity_counter = defaultdict(int)
 
-    def add_message(self, message):
+    def add_message(self, message: Message):
         self.severity_counter[message.severity] += 1
 
-    def get_report(self):
+    def get_report(self) -> str:
         issues_count = sum(self.severity_counter.values())
         if not issues_count:
             return "\nFound 0 issues"
@@ -115,10 +115,10 @@ class ReturnStatusReport(Report):
             except ValueError:
                 continue
 
-    def add_message(self, message):
+    def add_message(self, message: Message):
         self.counter.add_message(message)
 
-    def get_report(self):
+    def get_report(self) -> str:
         for severity, count in self.counter.severity_counter.items():
             threshold = self.quality_gate.get(severity.value, 0)
             if -1 < threshold < count:
@@ -141,7 +141,7 @@ class TimeTakenReport(Report):
     def add_message(self, *args):
         pass
 
-    def get_report(self):
+    def get_report(self) -> str:
         return f"\nScan took {timer() - self.start_time:.3f}s"
 
 
@@ -157,7 +157,7 @@ class JsonReport(Report):
         self.description = "Accumulates found issues in JSON format"
         self.issues = []
 
-    def add_message(self, message):
+    def add_message(self, message: Message):
         self.issues.append(message.to_json())
 
     def get_report(self):
@@ -177,10 +177,10 @@ class FileStatsReport(Report):
         self.files_count = 0
         self.files_with_issues = set()
 
-    def add_message(self, message):
+    def add_message(self, message: Message):
         self.files_with_issues.add(message.source)
 
-    def get_report(self):
+    def get_report(self) -> str:
         if not self.files_count:
             return "\nNo files were processed"
         if not self.files_with_issues:

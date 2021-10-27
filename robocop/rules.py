@@ -21,7 +21,7 @@ Available formats:
   * ``name``:       rule name (e.g. ``line-too-long`)
   * ``desc``:       description of the rule
 """
-from typing import Any, Callable
+from typing import Any, Callable, Union
 from functools import total_ordering
 from enum import Enum
 
@@ -59,7 +59,7 @@ class RuleSeverity(Enum):
     ERROR = "E"
 
     @classmethod
-    def parser(cls, value):
+    def parser(cls, value: Union[str, "RuleSeverity"]):
         # parser can be invoked from Rule() with severity=RuleSeverity.WARNING (enum directly) or
         # from configuration with severity:W (string representation)
         severity = {

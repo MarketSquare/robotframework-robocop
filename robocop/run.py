@@ -12,6 +12,7 @@ from robot.errors import DataError
 
 import robocop.exceptions
 from robocop import checkers, reports
+from robocop.rules import Message
 from robocop.config import Config
 from robocop.utils import (
     DisablersFinder,
@@ -44,7 +45,7 @@ class Robocop:
 
     """
 
-    def __init__(self, from_cli=False, config=None):
+    def __init__(self, from_cli: bool = False, config: Config = None):
         self.files = {}
         self.checkers = []
         self.rules = {}
@@ -150,7 +151,7 @@ class Robocop:
         """Parse content of file to find any disabler statements like # robocop: disable=rulename"""
         self.disabler = DisablersFinder(filename=filename, source=source)
 
-    def report(self, rule_msg):
+    def report(self, rule_msg: Message):
         for report in self.reports.values():
             report.add_message(rule_msg)
         try:
@@ -261,7 +262,7 @@ class Robocop:
         """Check if file extension is in list of supported file types (can be configured from cli)"""
         return file.suffix and file.suffix.lower() in self.config.filetypes
 
-    def any_rule_enabled(self, checker):
+    def any_rule_enabled(self, checker) -> bool:
         for name, rule in checker.rules.items():
             rule.enabled = self.config.is_rule_enabled(rule)
             checker.rules[name] = rule

@@ -1,4 +1,5 @@
 import ast
+from typing import Pattern, List, Tuple, Dict
 import difflib
 import importlib.util
 import re
@@ -67,19 +68,19 @@ def modules_from_path(path, module_name=None, relative="."):
                 yield from modules_from_path(file, module_name, relative)
 
 
-def normalize_robot_name(name):
+def normalize_robot_name(name: str) -> str:
     return name.replace(" ", "").replace("_", "").lower() if name else ""
 
 
-def normalize_robot_var_name(name):
-    return name.replace(" ", "").replace("_", "").lower()[2:-1] if name else ""
+def normalize_robot_var_name(name: str) -> str:
+    return normalize_robot_name(name)[2:-1] if name else ""
 
 
-def keyword_col(node):
+def keyword_col(node) -> int:
     return token_col(node, Token.KEYWORD)
 
 
-def token_col(node, *token_type):
+def token_col(node, *token_type) -> int:
     if ROBOT_VERSION.major == 3:
         for tok_type in token_type:
             token = node.get_token(tok_type)
@@ -95,7 +96,7 @@ def token_col(node, *token_type):
     return token.col_offset + 1
 
 
-def issues_to_lsp_diagnostic(issues):
+def issues_to_lsp_diagnostic(issues) -> List[Dict]:
     return [
         {
             "range": {
@@ -149,10 +150,10 @@ class AssignmentTypeDetector(ast.NodeVisitor):
 
     @staticmethod
     def get_assignment_sign(token_value):
-        return token_value[token_value.find("}") + 1 :]
+        return token_value[token_value.find("}") + 1:]
 
 
-def parse_assignment_sign_type(value):
+def parse_assignment_sign_type(value: str) -> str:
     types = {
         "none": "",
         "equal_sign": "=",
@@ -243,13 +244,13 @@ def last_non_empty_line(node):
     return node.lineno
 
 
-def next_char_is(string, i, char):
+def next_char_is(string: str, i: int, char: str) -> bool:
     if not i < len(string) - 1:
         return False
     return string[i + 1] == char
 
 
-def remove_robot_vars(name):
+def remove_robot_vars(name: str) -> str:
     var_start = set("$@%&")
     brackets = 0
     open_bracket, close_bracket = "", ""
@@ -278,7 +279,7 @@ def remove_robot_vars(name):
     return replaced
 
 
-def find_robot_vars(name):
+def find_robot_vars(name: str) -> List[Tuple[int, int]]:
     """return list of tuples with (start, end) pos of vars in name"""
     var_start = set("$@%&")
     brackets = 0
@@ -302,7 +303,7 @@ def find_robot_vars(name):
     return variables
 
 
-def pattern_type(value):
+def pattern_type(value: str) -> Pattern:
     try:
         pattern = re.compile(value)
     except re.error as err:

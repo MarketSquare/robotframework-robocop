@@ -160,10 +160,10 @@ class Rule:
         return self.config["severity"].value
 
     @staticmethod
-    def supported_in_rf_version(supported_version):
-        if not supported_version:
+    def supported_in_rf_version(version):
+        if not version:
             return True
-        return ROBOT_VERSION in SpecifierSet(supported_version)
+        return ROBOT_VERSION in SpecifierSet(version)
 
     def __str__(self):
         return (

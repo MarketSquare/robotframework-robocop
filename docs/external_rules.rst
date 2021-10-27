@@ -12,11 +12,11 @@ Every custom checker needs to complete following requirements:
 
 1. It needs to inherit from official checker classes (``VisitorChecker`` or ``RawFileChecker``) and implement required methods. Refer to :ref:`rules` for more details.
 
-2. There should be non-empty *rules* dictionary containing rules definition in the file with your checkers.
+2. There should be a non-empty *rules* dictionary containing rules definition with your checkers.
 
-3. Each checker should contain *reports* tuple class attribute containing names of the rules used by the checker.
+3. Each checker should contain a tuple *reports* as a class attribute containing names of the rules used by the checker.
 
-3. It can reuse rule ids or names from official rules but it will overwrite them.
+4. Using names and rule IDs different than already existing rules is recommended but in case of using the same ones, they rules will be overwritten.
 
 This is an example of the file with custom checker that asserts that no test have "Dummy" in the name::
 
@@ -63,7 +63,7 @@ Rules can have configurable values. You need to specify them using RuleParam cla
                     node=node,
                     col=node.name.find(self.param("dummy-in-name", "param_name")))
 
-Configurable parameter can be referred by its :code:`param_name` in command line options::
+Configurable parameter can be referred by its :code:`name` in command line options::
 
     robocop --ext-rules my/own/rule.py --configure dummy-in-name:param_name:AnotherDummy
 
@@ -92,7 +92,7 @@ inside ``some_rules.py``::
 
 
     rules = {
-        "9903": Rule(rule_id="9903", name="external-rule", msg="This is external rule", severity="I")
+        "9903": Rule(rule_id="9903", name="external-rule", msg="This is an external rule", severity="I")
     }
 
 

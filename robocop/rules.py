@@ -81,7 +81,7 @@ class RuleSeverity:
         return {"I": 3, "W": 2, "E": 1}.get(self.value, 4)
 
     def full_name(self):
-        return {"E": "ERROR", "W": "WARNINGS", "I": "INFO"}[self.value]
+        return {"E": "ERROR", "W": "WARNING", "I": "INFO"}[self.value]
 
 
 class RuleParam:

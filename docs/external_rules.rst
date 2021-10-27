@@ -132,3 +132,4 @@ It is also possible to adjust behaviour of your checker depending on the Robot F
         # do stuff for RF 3.x version
     else:
         # execute this code for RF != 3.x
+

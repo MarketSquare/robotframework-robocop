@@ -93,7 +93,7 @@ class RuleParam:
 
     def __init__(self, name: str, default: Any, converter: Callable, desc: str):
         """
-        :param name: Name of the parameter used when configuring it / displayed in the docs
+        :param name: Name of the parameter used when configuring rule (also displayed in the docs)
         :param default: Default value of the parameter
         :param converter: Method used for converting from string. It can be separate method or classmethod from
         particular class (see `:RuleSeverity:` for example of class that is used as rule parameter value).
@@ -140,7 +140,7 @@ class Rule:
         :param params: RuleParam() instances
         :param rule_id: id of the rule
         :param name: name of the rule
-        :param msg: message printed when rule is broken
+        :param msg: message printed when rule breach is detected
         :param severity: severity of the rule (ie: RuleSeverity.INFO)
         :param version: supported Robot Framework version (ie: >=4.0)
         """

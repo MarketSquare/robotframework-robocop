@@ -16,7 +16,7 @@ Every custom checker needs to complete following requirements:
 
 3. Each checker should contain a tuple *reports* as a class attribute containing names of the rules used by the checker.
 
-4. Using names and rule IDs different than already existing rules is recommended but in case of using the same ones, they rules will be overwritten.
+4. Using names and rule IDs different than already existing rules is recommended but in case of using the same ones, they will be overwritten.
 
 This is an example of the file with custom checker that asserts that no test have "Dummy" in the name::
 

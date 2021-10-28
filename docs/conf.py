@@ -73,8 +73,8 @@ def get_checker_docs():
                 "id": rule.rule_id,
                 "severity": rule.severity.value,
                 "desc": rule.desc,
-                "ext_docs": rule.ext_docs,
-                "version": rule.version,
+                "ext_docs": rule.docs,
+                "version": rule.supported_version,
                 "params": [
                     {"name": param.name, "default": param.value, "type": param.converter.__name__, "desc": param.desc}
                     for param in rule.config.values()

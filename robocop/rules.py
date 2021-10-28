@@ -164,6 +164,7 @@ class Rule:
         for param in params:
             self.config[param.name] = param
         self.enabled = True
+        self.supported_version = version if version else "All"
         self.enabled_in_version = self.supported_in_rf_version(version)
 
     @property

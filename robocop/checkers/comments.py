@@ -16,12 +16,13 @@ rules = {
         msg="Found %s in comment",
         severity=RuleSeverity.WARNING,
         docs="""
-        TODO or FIXME statement found in the comment. Example::
+        Example::
         
             # TODO: Refactor this code
             # fixme 
         
         """,
+        docs_args=("TODO or FIXME statement found",),
     ),
     "0702": Rule(
         rule_id="0702",

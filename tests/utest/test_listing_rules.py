@@ -114,7 +114,7 @@ class TestListingRules:
             "Altogether 1 rule(s) with following severity:\n"
             "    0 error rule(s),\n"
             "    1 warning rule(s),\n"
-            "    0 info rule(s).\n"
+            "    0 info rule(s).\n\n"
             "Visit https://robocop.readthedocs.io/en/stable/rules.html page for detailed documentation.\n"
         )
 

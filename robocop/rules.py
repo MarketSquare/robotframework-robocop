@@ -47,11 +47,10 @@ class RuleSeverity(Enum):
 
         -t/--threshold <severity value>
 
-    Example::
+    To only report rules with severity W and above::
 
-        --threshold E
+        --threshold W
 
-    will only report rules with severity E and above.
     """
 
     INFO = "I"

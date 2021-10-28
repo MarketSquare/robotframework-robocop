@@ -22,7 +22,7 @@ rules = {
             # fixme 
         
         """,
-        docs_args=("TODO or FIXME statement found",),
+        docs_args=("TODO or FIXME statement",),
     ),
     "0702": Rule(
         rule_id="0702",

@@ -99,7 +99,8 @@ class TestListingRules:
             "Altogether 1 rule(s) with following severity:\n"
             "    0 error rule(s),\n"
             "    1 warning rule(s),\n"
-            "    0 info rule(s).\n"
+            "    0 info rule(s).\n\n"
+            "Visit https://robocop.readthedocs.io/en/stable/rules.html page for detailed documentation.\n"
         )
 
     def test_list_disabled_rule(self, robocop_pre_load, msg_0101, capsys):
@@ -114,6 +115,7 @@ class TestListingRules:
             "    0 error rule(s),\n"
             "    1 warning rule(s),\n"
             "    0 info rule(s).\n"
+            "Visit https://robocop.readthedocs.io/en/stable/rules.html page for detailed documentation.\n"
         )
 
     def test_list_reports(self, robocop_pre_load, msg_0101, capsys):
@@ -172,7 +174,8 @@ class TestListingRules:
             "Altogether 1 rule(s) with following severity:\n"
             "    0 error rule(s),\n"
             "    1 warning rule(s),\n"
-            "    0 info rule(s).\n"
+            "    0 info rule(s).\n\n"
+            "Visit https://robocop.readthedocs.io/en/stable/rules.html page for detailed documentation.\n"
         )
 
     def test_list_configurables_filtered(self, robocop_pre_load, msg_0101_config, msg_0102_0204_config, capsys):

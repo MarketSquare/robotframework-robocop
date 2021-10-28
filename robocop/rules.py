@@ -22,6 +22,7 @@ Available formats:
   * ``desc``:       description of the rule
 """
 from enum import Enum
+from textwrap import dedent
 from functools import total_ordering
 from typing import Any, Callable, Union, Pattern, Dict
 
@@ -134,7 +135,14 @@ class Rule:
     """
 
     def __init__(
-        self, *params: RuleParam, rule_id: str, name: str, msg: str, severity: RuleSeverity, version: str = None
+        self,
+        *params: RuleParam,
+        rule_id: str,
+        name: str,
+        msg: str,
+        severity: RuleSeverity,
+        version: str = None,
+        docs: str = "",
     ):
         """
         :param params: RuleParam() instances
@@ -147,6 +155,7 @@ class Rule:
         self.rule_id = rule_id
         self.name = name
         self.desc = msg
+        self.docs = dedent(docs)
         self.config = {
             "severity": RuleParam(
                 "severity", severity, RuleSeverity.parser, "Rule severity (E = Error, W = Warning, I = Info)"

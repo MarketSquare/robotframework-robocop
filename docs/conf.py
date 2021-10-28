@@ -39,7 +39,7 @@ html_theme = "sphinx_rtd_theme"
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-html_static_path = ["images"]
+html_static_path = ["images", "static"]
 html_favicon = "images/robocop.ico"
 
 
@@ -57,27 +57,7 @@ def rstjinja(app, docname, source):
 
 def setup(app):
     app.connect("source-read", rstjinja)
-
-
-@total_ordering
-class RuleDoc:
-    def __init__(self, rule):
-        self.name = f"[{rule.severity.value}{rule.rule_id}] {rule.name}: {rule.desc}"
-        self.params = self.get_params(rule)
-        self.rule_id = rule.rule_id
-
-    def __str__(self):
-        return f"Group: {self.group}\nName: {self.name}\n  Params: {self.params}"
-
-    @staticmethod
-    def get_params(rule):
-        params = []
-        for param in rule.config.values():
-            params.append((param.name, param.converter.__name__, param.value, param.desc))
-        return params
-
-    def __lt__(self, other):
-        return self.rule_id < other.rule_id
+    app.add_css_file("theme.css")
 
 
 def get_checker_docs():
@@ -87,12 +67,24 @@ def get_checker_docs():
     checker_docs = defaultdict(list)
     for module_name, rule in robocop.checkers.get_rules():
         module_name = module_name.title()
-        rule_doc = RuleDoc(rule)
-        checker_docs[module_name].append((rule_doc.rule_id, rule_doc.name, rule_doc.params))
+        checker_docs[module_name].append(
+            {
+                "name": rule.name,
+                "id": rule.rule_id,
+                "severity": rule.severity.value,
+                "desc": rule.desc,
+                "ext_docs": rule.ext_docs,
+                "version": rule.version,
+                "params": [
+                    {"name": param.name, "default": param.value, "type": param.converter.__name__, "desc": param.desc}
+                    for param in rule.config.values()
+                ],
+            }
+        )
     groups_sorted_by_id = []
     for module_name in checker_docs:
-        sorted_rules = sorted(checker_docs[module_name], key=lambda x: x[0][-2:])
-        group_id = int(sorted_rules[0][0][:2])
+        sorted_rules = sorted(checker_docs[module_name], key=lambda x: x["id"])
+        group_id = int(sorted_rules[0]["id"][:2])
         groups_sorted_by_id.append((module_name, sorted_rules, group_id))
     groups_sorted_by_id = sorted(groups_sorted_by_id, key=lambda x: x[2])
     return groups_sorted_by_id

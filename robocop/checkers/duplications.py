@@ -37,6 +37,18 @@ rules = {
         name="duplicated-test-case",
         msg='Multiple test cases with name "%s" (first occurrence in line %d)',
         severity=RuleSeverity.ERROR,
+        docs="""
+        It is not allowed to reuse the same name of the test case within the same suite in the Robot Framework. 
+        Name matching is case insensitive and ignores spaces and `_` characters.
+        Duplicated test cases example::
+        
+            *** Test Cases ***
+            Test with name
+                No Operation
+            
+            test_with Name  # it is duplicate of 'Test with name'
+                No Operation
+        """,
     ),
     "0802": Rule(
         rule_id="0802",
@@ -75,23 +87,30 @@ rules = {
         msg='Duplicated variables import with path "%s" (first occurrence in line %d)',
         severity=RuleSeverity.WARNING,
     ),
-    "0811": Rule(
-        rule_id="0811",
-        name="duplicated-argument-name",
-        msg="Argument name '%s' is already used",
-        severity=RuleSeverity.ERROR,
-    ),
-    "0812": Rule(
-        rule_id="0812",
-        name="duplicated-assigned-var-name",
-        msg="Assigned variable name '%s' is already used",
-        severity=RuleSeverity.INFO,
-    ),
     "0808": Rule(
         rule_id="0808",
         name="section-already-defined",
         msg="'%s' section header already defined in file",
         severity=RuleSeverity.WARNING,
+        docs="""
+        Duplicated section in the file. Robot Framework will parse multiple duplicated sections but it is better
+        practice to not duplicate sections.
+        
+        Example::
+        
+            *** Test Cases ***
+            My Test
+                Keyword
+            
+            *** Keywords ***
+            Keyword
+                No Operation
+            
+            *** Test Cases ***  # duplicate
+            Other Test
+                Keyword
+
+        """,
     ),
     "0809": Rule(
         RuleParam(
@@ -104,12 +123,52 @@ rules = {
         name="section-out-of-order",
         msg="'%s' section header is defined in wrong order: %s",
         severity=RuleSeverity.WARNING,
+        docs="""
+        Sections should be defined in order set by `sections_order` 
+        parameter (default: `settings,variables,testcases,keywords`).
+        
+        To change the default order use following option::
+        
+            robocop --configure section-out-of-order:sections_order:comma,separated,list,of,sections
+        
+        Where sections should be case insensitive name from the list: comments,settings,variables,testcases,keywords. 
+        Order of not configured sections is ignored.
+        
+        Example::
+        
+            *** Settings ***
+            
+            *** Keywords ***
+            
+            *** Test Cases ***  # it will report issue because Test Cases should be defined before Keywords
+
+        """,
     ),
     "0810": Rule(
         rule_id="0810",
         name="both-tests-and-tasks",
         msg="Both Task(s) and Test Case(s) section headers defined in file",
         severity=RuleSeverity.ERROR,
+        docs="""
+        The file contains both Test Case and Task sections. Use only one of them. ::
+        
+            *** Test Cases ***
+            
+            *** Tasks ***
+
+        """,
+    ),
+    "0811": Rule(
+        rule_id="0811",
+        name="duplicated-argument-name",
+        msg="Argument name '%s' is already used",
+        severity=RuleSeverity.ERROR,
+    ),
+    "0812": Rule(
+        rule_id="0812",
+        name="duplicated-assigned-var-name",
+        msg="Assigned variable name '%s' is already used",
+        severity=RuleSeverity.INFO,
     ),
 }
 

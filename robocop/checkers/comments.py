@@ -10,12 +10,30 @@ from robocop.rules import Rule, RuleSeverity
 from robocop.utils import ROBOT_VERSION
 
 rules = {
-    "0701": Rule(rule_id="0701", name="todo-in-comment", msg="Found %s in comment", severity=RuleSeverity.WARNING),
+    "0701": Rule(
+        rule_id="0701",
+        name="todo-in-comment",
+        msg="Found %s in comment",
+        severity=RuleSeverity.WARNING,
+        docs="""
+        TODO or FIXME statement found in the comment. Example::
+        
+            # TODO: Refactor this code
+            # fixme 
+        
+        """,
+    ),
     "0702": Rule(
         rule_id="0702",
         name="missing-space-after-comment",
         msg="Missing blank space after comment character",
         severity=RuleSeverity.WARNING,
+        docs="""
+        Example::
+        
+            #bad
+            # good
+        """,
     ),
     "0703": Rule(
         rule_id="0703",
@@ -24,6 +42,18 @@ rules = {
         "For block comments you can use '*** Comments ***' section",
         severity=RuleSeverity.ERROR,
         version="<4.0",
+        docs="""
+        In Robot Framework 3.2.2 comments that started from second character in the cell were not recognized as 
+        comments.
+        
+        Example::
+        
+        
+            # good
+             # bad
+              # third cell so it's good
+        
+        """,
     ),
     "0704": Rule(rule_id="0704", name="ignored-data", msg="Ignored data found in file", severity=RuleSeverity.WARNING),
     "0705": Rule(

@@ -114,9 +114,7 @@ def issues_to_lsp_diagnostic(issues) -> List[Dict]:
             "code": issue.rule_id,
             "source": "robocop",
             "message": issue.desc,
-            "codeDescription": {
-                "href": f"https://robocop.readthedocs.io/en/{__version__}/rules.html#{issue.name}"
-            }
+            "codeDescription": {"href": f"https://robocop.readthedocs.io/en/{__version__}/rules.html#{issue.name}"},
         }
         for issue in issues
     ]
@@ -154,7 +152,7 @@ class AssignmentTypeDetector(ast.NodeVisitor):
 
     @staticmethod
     def get_assignment_sign(token_value):
-        return token_value[token_value.find("}") + 1:]
+        return token_value[token_value.find("}") + 1 :]
 
 
 def parse_assignment_sign_type(value: str) -> str:

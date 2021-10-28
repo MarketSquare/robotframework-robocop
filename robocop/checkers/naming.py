@@ -57,6 +57,16 @@ rules = {
         name="underscore-in-keyword-name",
         msg="Underscores in keyword name can be replaced with spaces",
         severity=RuleSeverity.WARNING,
+        docs="""
+        Example::
+        
+            # bad
+            keyword_with_underscores
+            
+            # good
+            Keyword With Underscores
+
+        """,
     ),
     "0306": Rule(
         rule_id="0306",

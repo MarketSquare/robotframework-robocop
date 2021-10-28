@@ -25,6 +25,26 @@ rules = {
         msg="[Return] is not defined at the end of keyword. "
         "Note that [Return] does not return from keyword but only set returned variables",
         severity=RuleSeverity.WARNING,
+        docs="""
+        To improve readability use `[Return]` setting at the end of the keyword. If you want to return immediately from 
+        the keyword use `Return From Keyword` keyword instead (`[Return]` does not return until all steps in the 
+        keyword are complected).
+        
+        Bad::
+        
+            Keyword
+                Step
+                [Return]    ${variable}
+                ${variable}    Other Step
+        
+        Good::
+        
+            Keyword
+                Step
+                ${variable}    Other Step
+                [Return]    ${variable}
+
+        """,
     ),
     "0902": Rule(
         rule_id="0902",
@@ -39,6 +59,16 @@ rules = {
         msg="Nested for loops are not supported. You can use keyword with for loop instead",
         severity=RuleSeverity.ERROR,
         version="<4.0",
+        docs="""
+        Older versions of Robot Framework did not support nested for loops::
+        
+            FOR    ${var}    IN RANGE    10
+                FOR   ${other_var}   IN    a  b
+                    # Nesting not supported in Robot Framework <4.0
+                END
+            END
+
+        """,
     ),
     "0908": Rule(
         rule_id="0908",

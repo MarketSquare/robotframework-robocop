@@ -17,6 +17,7 @@ from robocop.exceptions import (
     NestedArgumentFileError,
 )
 from robocop.rules import RuleSeverity
+from robocop.files import find_file_in_project_root, find_project_root
 from robocop.utils import RecommendationFinder
 from robocop.version import __version__
 
@@ -343,6 +344,8 @@ class Config:
         return parser
 
     def parse_opts(self, args=None, from_cli: bool = True):
+        if self.root is None:
+            self.root = find_project_root(self.paths)
         default_args = self.load_default_config_file()
         if default_args is None:
             self.load_pyproject_file()
@@ -366,20 +369,13 @@ class Config:
         return args
 
     def load_default_config_file(self):
-        robocop_path = self.find_file_in_project_root(".robocop")
+        robocop_path = find_file_in_project_root(".robocop", self.root)
         if robocop_path.is_file():
             return self.load_args_from_file(robocop_path)
         return None
 
-    def find_file_in_project_root(self, config_name: str) -> Path:
-        root = self.root or Path.cwd()
-        for parent in (root, *root.parents):
-            if (parent / ".git").exists() or (parent / config_name).is_file():
-                return parent / config_name
-        return parent / config_name
-
     def load_pyproject_file(self):
-        pyproject_path = self.find_file_in_project_root("pyproject.toml")
+        pyproject_path = find_file_in_project_root("pyproject.toml", self.root)
         if not pyproject_path.is_file():
             return
         try:

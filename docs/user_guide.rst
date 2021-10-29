@@ -10,6 +10,8 @@ Robocop accepts files or directories as path. You can also specify multiple path
 
     robocop file.robot resources/etc test.robot
 
+Robocop will find and skip paths from `.gitignore` files.
+
 Including or excluding rules
 ----------------------------
 

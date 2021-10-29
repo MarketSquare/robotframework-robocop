@@ -98,6 +98,7 @@ class Config:
         self.verbose = False
         self.config_from = ""
         self.parser = self._create_parser()
+        self.parse_opts(from_cli=from_cli)
 
     HELP_MSGS = {
         "help_paths": "List of paths (files or directories) to be parsed by Robocop.",

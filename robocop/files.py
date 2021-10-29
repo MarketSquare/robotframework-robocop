@@ -77,7 +77,7 @@ def get_absolute_path(path, config, gitignore):
                 continue
             yield from get_absolute_path(
                 file,
-                config.recursive,
+                config,
                 gitignore + get_gitignore(path) if gitignore is not None else None,
             )
 

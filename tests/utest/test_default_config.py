@@ -6,14 +6,9 @@ from unittest.mock import patch
 
 import pytest
 
-import robocop.config
+from robocop.config import Config
 from robocop.files import find_file_in_project_root
 from robocop.exceptions import InvalidArgumentError
-
-
-@pytest.fixture
-def config():
-    return robocop.config.Config()
 
 
 @pytest.fixture
@@ -45,57 +40,50 @@ class TestDefaultConfig:
             root = find_file_in_project_root(".robocop", src)
         assert root == Path(__file__).parent.parent.parent / ".robocop"
 
-    def test_load_config_from_default_file(self, path_to_test_data, config):
+    def test_load_config_from_default_file(self, path_to_test_data):
         src = path_to_test_data / "default_config"
         with working_directory(src), patch.object(sys, "argv", ["prog"]):
-            config.parse_opts()
+            config = Config(from_cli=True)
         assert {"0810"} == config.include
 
-    def test_load_config_with_format_option(self, path_to_test_data, config):
+    def test_load_config_with_format_option(self, path_to_test_data):
         src = path_to_test_data / "config_with_format"
         with working_directory(src), patch.object(sys, "argv", ["prog"]):
-            config.parse_opts()
+            config = Config()
         assert '"{source}:{line}:{col} [{severity}] {rule_id} {desc} ({name})"' == config.format.strip()
 
-    def test_load_config_with_comments(self, path_to_test_data, config):
+    def test_load_config_with_comments(self, path_to_test_data):
         src = path_to_test_data / "config_with_comments"
         with working_directory(src), patch.object(sys, "argv", ["prog"]):
-            config.parse_opts()
+            Config()
 
-    def test_load_config_from_default_file_verbose(self, path_to_test_data, config, capsys):
+    def test_load_config_from_default_file_verbose(self, path_to_test_data, capsys):
         src = path_to_test_data / "default_config"
-        config.from_cli = True
-        config.exec_dir = str(src)
         with working_directory(src), patch.object(sys, "argv", ["prog", "--verbose"]):
-            config.parse_opts()
+            config = Config(from_cli=True)
         out, _ = capsys.readouterr()
         assert out == f"Loaded configuration from {config.config_from}\n"
 
-    def test_append_config_from_default_file(self, path_to_test_data, config):
+    def test_append_config_from_default_file(self, path_to_test_data):
         src = path_to_test_data / "default_config"
         with working_directory(src), patch.object(sys, "argv", ["prog", "--include", "0202"]):
-            config.parse_opts()
+            config = Config(from_cli=True)
 
         assert ["line-too-long:line_length:150"] == config.configure
         assert {"0202", "0810"} == config.include
 
-    def test_load_default_config_before_pyproject(self, path_to_test_data, config):
+    def test_load_default_config_before_pyproject(self, path_to_test_data):
         src = path_to_test_data / "default_config_and_pyproject"
         with working_directory(src), patch.object(sys, "argv", ["prog"]):
-            config.parse_opts()
+            config = Config()
         assert {"0810"} == config.include
 
-    def test_pyproject(self, path_to_test_data, config):
+    def test_pyproject(self, path_to_test_data):
         src = path_to_test_data / "only_pyproject"
-        config.from_cli = True
-        config.exec_dir = str(src)
         with working_directory(src), patch.object(sys, "argv", ["prog"]):
-            config.parse_opts()
+            config = Config(from_cli=True)
 
         src = path_to_test_data
-        os.chdir(str(src))
-
-        expected_config = robocop.config.Config(from_cli=True)
         argv = [
             "robocop",
             "--include",
@@ -131,7 +119,7 @@ class TestDefaultConfig:
             "argv",
             argv,
         ):
-            expected_config.parse_opts()
+            expected_config = Config(from_cli=True)
 
         expected_config.exec_dir = ""
         expected_config.root = src / "only_pyproject"
@@ -145,14 +133,12 @@ class TestDefaultConfig:
         config.threshold, expected_config.threshold = None, None
         assert config.__dict__ == expected_config.__dict__
 
-    def test_append_config_pyproject_file(self, path_to_test_data, config):
+    def test_append_config_pyproject_file(self, path_to_test_data):
         src = path_to_test_data / "only_pyproject"
-        config.from_cli = True
-        config.exec_dir = str(src)
         with working_directory(src), patch.object(
             sys, "argv", ["prog", "--configure", "too-many-calls-in-keyword:max_calls:20", "--exclude", "0810"]
         ):
-            config.parse_opts()
+            config = Config(from_cli=True)
 
         assert {"0203", "0810"} == config.exclude
         assert [
@@ -161,44 +147,40 @@ class TestDefaultConfig:
             "too-many-calls-in-keyword:max_calls:20",
         ] == config.configure
 
-    def test_pyproject_verbose(self, path_to_test_data, config, capsys):
+    def test_pyproject_verbose(self, path_to_test_data, capsys):
         src = path_to_test_data / "only_pyproject"
-        config.from_cli = True
-        config.exec_dir = str(src)
         with working_directory(src), patch.object(sys, "argv", ["prog", "--verbose"]):
-            config.parse_opts()
+            config = Config(from_cli=True)
         out, _ = capsys.readouterr()
         assert out == f"Loaded configuration from {config.config_from}\n"
 
-    def test_not_supported_option_pyproject(self, path_to_test_data, config):
+    def test_not_supported_option_pyproject(self, path_to_test_data):
         src = path_to_test_data / "not_supported_option_pyproject"
         with working_directory(src), pytest.raises(InvalidArgumentError) as e, patch.object(sys, "argv", ["prog"]):
-            config.parse_opts()
+            Config(from_cli=True)
         assert (
             "Invalid configuration for Robocop:\\n"
             "Option 'list' is not supported in pyproject.toml configuration file." in str(e)
         )
 
-    def test_invalid_toml_pyproject(self, path_to_test_data, config):
+    def test_invalid_toml_pyproject(self, path_to_test_data):
         src = path_to_test_data / "invalid_pyproject"
         with working_directory(src), pytest.raises(InvalidArgumentError) as e, patch.object(sys, "argv", ["prog"]):
-            config.parse_opts()
+            Config(from_cli=True)
         assert "Invalid configuration for Robocop:\\nFailed to decode " in str(e)
 
     @pytest.mark.parametrize("config_dir", ["empty_config", "empty_config2"])
-    def test_load_empty_config(self, path_to_test_data, config, capsys, config_dir):
+    def test_load_empty_config(self, path_to_test_data, capsys, config_dir):
         src = path_to_test_data / config_dir
-        config.from_cli = True
-        config.exec_dir = str(src)
         with working_directory(src), patch.object(sys, "argv", ["prog", "--verbose"]):
-            config.parse_opts()
+            Config(from_cli=True)
         out, _ = capsys.readouterr()
         assert out == "No config file found or configuration is empty. Using default configuration\n"
 
     @pytest.mark.parametrize("config_no", [1, 2])
-    def test_load_config_with_utf8_encoding(self, path_to_test_data, config, config_no):
+    def test_load_config_with_utf8_encoding(self, path_to_test_data, config_no):
         src = path_to_test_data / f"config_with_encoding{config_no}"
         expected = ["line-too-long:line_length:150", "not-allowed-char-in-name:pattern:[Á]"]
         with working_directory(src), patch.object(sys, "argv", ["prog"]):
-            config.parse_opts()
+            config = Config(from_cli=True)
         assert sorted(config.configure) == expected

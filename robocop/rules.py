@@ -22,9 +22,9 @@ Available formats:
   * ``desc``:       description of the rule
 """
 from enum import Enum
+from textwrap import dedent
 from functools import total_ordering
-from typing import Any, Callable, Union, Pattern, Dict
-
+from typing import Any, Callable, Union, Pattern, Dict, Tuple, Optional
 from packaging.specifiers import SpecifierSet
 
 import robocop.exceptions
@@ -47,11 +47,10 @@ class RuleSeverity(Enum):
 
         -t/--threshold <severity value>
 
-    Example::
+    To only report rules with severity W and above::
 
-        --threshold E
+        --threshold W
 
-    will only report rules with severity E and above.
     """
 
     INFO = "I"
@@ -134,7 +133,15 @@ class Rule:
     """
 
     def __init__(
-        self, *params: RuleParam, rule_id: str, name: str, msg: str, severity: RuleSeverity, version: str = None
+        self,
+        *params: RuleParam,
+        rule_id: str,
+        name: str,
+        msg: str,
+        severity: RuleSeverity,
+        version: str = None,
+        docs: str = "",
+        docs_args: Optional[Tuple[str, ...]] = None,
     ):
         """
         :param params: RuleParam() instances
@@ -143,10 +150,15 @@ class Rule:
         :param msg: message printed when rule breach is detected
         :param severity: severity of the rule (ie: RuleSeverity.INFO)
         :param version: supported Robot Framework version (ie: >=4.0)
+        :param docs: Full documentation of the rule (rst supported)
+        :param docs_args: Arguments used to replace %d,%s placeholders in rule message. Useful to have human readable
+        description of the rule
         """
         self.rule_id = rule_id
         self.name = name
         self.desc = msg
+        self.docs = dedent(docs)
+        self.docs_args = docs_args
         self.config = {
             "severity": RuleParam(
                 "severity", severity, RuleSeverity.parser, "Rule severity (E = Error, W = Warning, I = Info)"
@@ -155,11 +167,19 @@ class Rule:
         for param in params:
             self.config[param.name] = param
         self.enabled = True
+        self.supported_version = version if version else "All"
         self.enabled_in_version = self.supported_in_rf_version(version)
 
     @property
     def severity(self):
         return self.config["severity"].value
+
+    @property
+    def message_for_docs(self):
+        if self.docs_args:
+            msg = self.desc.replace("%d", "%s")
+            return msg % self.docs_args
+        return self.desc
 
     @staticmethod
     def supported_in_rf_version(version: str) -> bool:
@@ -169,7 +189,7 @@ class Rule:
 
     def __str__(self):
         return (
-            f"Rule - {self.rule_id} [{self.config['severity'].value}]: {self.name}: {self.desc} "
+            f"Rule - {self.rule_id} [{self.config['severity'].value}]: {self.name}: {self.message_for_docs} "
             f'({"enabled" if self.enabled else "disabled"})'
         )
 

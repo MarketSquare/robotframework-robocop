@@ -7,6 +7,7 @@ import robocop
 from robocop.exceptions import InvalidArgumentError
 from robocop.rules import Message, Rule, RuleParam, RuleSeverity
 from robocop.utils import issues_to_lsp_diagnostic
+from robocop.version import __version__
 
 
 @pytest.fixture
@@ -116,6 +117,9 @@ class TestAPI:
                 "code": "0101",
                 "source": "robocop",
                 "message": "Some description",
+                "codeDescription": {
+                    "href": f"https://robocop.readthedocs.io/en/{__version__}/rules.html#some-message",
+                },
             },
             {
                 "range": {
@@ -126,6 +130,9 @@ class TestAPI:
                 "code": "0101",
                 "source": "robocop",
                 "message": "Some description",
+                "codeDescription": {
+                    "href": f"https://robocop.readthedocs.io/en/{__version__}/rules.html#some-message",
+                },
             },
         ]
         diagnostic = issues_to_lsp_diagnostic(issues)

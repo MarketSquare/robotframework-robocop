@@ -1,0 +1,12 @@
+.rst-content table.docutils caption, .rst-content table.field-list caption, .wy-table caption {
+    font: 85%/1 arial,sans-serif;
+    font-weight: bold;
+    text-align: left;
+}
+.tight-table td {
+    white-space: normal !important;
+}
+h3 {
+    padding: .4rem 1rem .1rem;
+    border-bottom: 1px solid #dbd7d7;
+} 

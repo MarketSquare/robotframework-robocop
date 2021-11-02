@@ -315,6 +315,9 @@ def pattern_type(value: str) -> Pattern:
 
 def get_section_name(node):
     for token in node.header.data_tokens:
-        if token.type in node.header.handles_types:
+        if ROBOT_VERSION.major > 3:
+            if token.type in node.header.handles_types:
+                return token.value
+        elif "HEADER" in token.type:
             return token.value
     return ""

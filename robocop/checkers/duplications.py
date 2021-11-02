@@ -38,15 +38,15 @@ rules = {
         msg='Multiple test cases with name "%s" (first occurrence in line %d)',
         severity=RuleSeverity.ERROR,
         docs="""
-        It is not allowed to reuse the same name of the test case within the same suite in the Robot Framework. 
-        Name matching is case insensitive and ignores spaces and `_` characters.
+        It is not allowed to reuse the same name of the test case within the same suite in Robot Framework. 
+        Name matching is case-insensitive and ignores spaces and underscore characters.
         Duplicated test cases example::
         
             *** Test Cases ***
             Test with name
                 No Operation
             
-            test_with Name  # it is duplicate of 'Test with name'
+            test_with Name  # it is a duplicate of 'Test with name'
                 No Operation
         """,
     ),
@@ -93,8 +93,7 @@ rules = {
         msg="'%s' section header already defined in file",
         severity=RuleSeverity.WARNING,
         docs="""
-        Duplicated section in the file. Robot Framework will parse multiple duplicated sections but it is better
-        practice to not duplicate sections.
+        Duplicated section in the file. Robot Framework will handle repeated sections but it is recommended to not duplicate them.
         
         Example::
         
@@ -131,7 +130,7 @@ rules = {
         
             robocop --configure section-out-of-order:sections_order:comma,separated,list,of,sections
         
-        Where sections should be case insensitive name from the list: comments,settings,variables,testcases,keywords. 
+        where section should be case-insensitive name from the list: comments, settings, variables, testcases, keywords. 
         Order of not configured sections is ignored.
         
         Example::

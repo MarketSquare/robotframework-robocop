@@ -28,7 +28,7 @@ rules = {
         docs="""
         To improve readability use `[Return]` setting at the end of the keyword. If you want to return immediately from 
         the keyword use `Return From Keyword` keyword instead (`[Return]` does not return until all steps in the 
-        keyword are complected).
+        keyword are completed).
         
         Bad::
         
@@ -64,7 +64,7 @@ rules = {
         
             FOR    ${var}    IN RANGE    10
                 FOR   ${other_var}   IN    a  b
-                    # Nesting not supported in Robot Framework <4.0
+                    # Nesting supported from Robot Framework 4.0+
                 END
             END
 

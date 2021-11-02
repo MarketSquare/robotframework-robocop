@@ -30,6 +30,8 @@ rules = {
         msg="Missing blank space after comment character",
         severity=RuleSeverity.WARNING,
         docs="""
+        Make sure to have one blank space after '#' comment character
+
         Example::
         
             #bad

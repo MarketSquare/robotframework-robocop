@@ -64,7 +64,7 @@ rules = {
             keyword_with_underscores
             
             # good
-            Keyword With Underscores
+            Keyword Without Underscores
 
         """,
     ),

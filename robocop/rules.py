@@ -190,8 +190,14 @@ class Rule:
     def __str__(self):
         return (
             f"Rule - {self.rule_id} [{self.config['severity'].value}]: {self.name}: {self.message_for_docs} "
-            f'({"enabled" if self.enabled else "disabled"})'
+            f'({self.get_enabled_status_desc()})'
         )
+
+    def get_enabled_status_desc(self):
+        s = "enabled" if self.enabled else "disabled"
+        if not self.enabled and self.supported_version != "All":
+            s += f" - enabled for RF version {self.supported_version}"
+        return s
 
     def configure(self, param, value):
         if param not in self.config:

@@ -311,3 +311,10 @@ def pattern_type(value: str) -> Pattern:
     except re.error as err:
         raise ValueError(f"Invalid regex pattern: {err}")
     return pattern
+
+
+def get_section_name(node):
+    for token in node.header.data_tokens:
+        if token.type in node.header.handles_types:
+            return token.value
+    return ""

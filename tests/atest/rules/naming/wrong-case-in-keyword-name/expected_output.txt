@@ -1,9 +1,9 @@
-${rules_dir}${\}test.robot:3:1 [W] 0302 Keyword name should use title case
-${rules_dir}${\}test.robot:4:1 [W] 0302 Keyword name should use title case
-${rules_dir}${\}test.robot:5:1 [W] 0302 Keyword name should use title case
-${rules_dir}${\}test.robot:6:1 [W] 0302 Keyword name should use title case
-${rules_dir}${\}test.robot:14:1 [W] 0302 Keyword name should use title case
-${rules_dir}${\}test.robot:15:1 [W] 0302 Keyword name should use title case
-${rules_dir}${\}test.robot:18:1 [W] 0302 Keyword name should use title case
-${rules_dir}${\}test.robot:22:1 [W] 0302 Keyword name should use title case
-${rules_dir}${\}test.robot:47:1 [W] 0302 Keyword name should use title case
+${rules_dir}${\}test.robot:3:1 [W] 0302 Keyword name 'keyword' should use title case
+${rules_dir}${\}test.robot:4:1 [W] 0302 Keyword name 'keyword' should use title case
+${rules_dir}${\}test.robot:5:1 [W] 0302 Keyword name 'keyword' should use title case
+${rules_dir}${\}test.robot:6:1 [W] 0302 Keyword name 'keyword' should use title case
+${rules_dir}${\}test.robot:14:1 [W] 0302 Keyword name 'keyword' should use title case
+${rules_dir}${\}test.robot:15:1 [W] 0302 Keyword name 'pass' should use title case
+${rules_dir}${\}test.robot:18:1 [W] 0302 Keyword name 'keyword' should use title case
+${rules_dir}${\}test.robot:22:1 [W] 0302 Keyword name 'keyword' should use title case
+${rules_dir}${\}test.robot:47:1 [W] 0302 Keyword name 'Keyword_With_underscores' should use title case

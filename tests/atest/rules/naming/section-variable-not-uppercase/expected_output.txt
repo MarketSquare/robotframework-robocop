@@ -1,7 +1,7 @@
-${rules_dir}${\}test.robot:5:1 [W] 0309 Section variable name should be uppercase
-${rules_dir}${\}test.robot:6:1 [W] 0309 Section variable name should be uppercase
-${rules_dir}${\}test.robot:7:1 [W] 0309 Section variable name should be uppercase
-${rules_dir}${\}test.robot:8:1 [W] 0309 Section variable name should be uppercase
-${rules_dir}${\}test.robot:9:1 [W] 0309 Section variable name should be uppercase
-${rules_dir}${\}test.robot:10:1 [W] 0309 Section variable name should be uppercase
-${rules_dir}${\}test.robot:11:1 [W] 0309 Section variable name should be uppercase
+${rules_dir}${\}test.robot:5:1 [W] 0309 Section variable '${my_var}' name should be uppercase
+${rules_dir}${\}test.robot:6:1 [W] 0309 Section variable '${My Var}' name should be uppercase
+${rules_dir}${\}test.robot:7:1 [W] 0309 Section variable '${my var}' name should be uppercase
+${rules_dir}${\}test.robot:8:1 [W] 0309 Section variable '${MyVar}' name should be uppercase
+${rules_dir}${\}test.robot:9:1 [W] 0309 Section variable '${My_Var}' name should be uppercase
+${rules_dir}${\}test.robot:10:1 [W] 0309 Section variable '${myVar}' name should be uppercase
+${rules_dir}${\}test.robot:11:1 [W] 0309 Section variable '${MY_var}' name should be uppercase

@@ -1,4 +1,4 @@
-${rules_dir}${\}test.robot:3:13 [I] 0602 Tag with reserved word OR/AND. Hint: make sure to include this tag using lowercase name to avoid issues
-${rules_dir}${\}test.robot:4:15 [I] 0602 Tag with reserved word OR/AND. Hint: make sure to include this tag using lowercase name to avoid issues
-${rules_dir}${\}test.robot:10:13 [I] 0602 Tag with reserved word OR/AND. Hint: make sure to include this tag using lowercase name to avoid issues
-${rules_dir}${\}test.robot:19:29 [I] 0602 Tag with reserved word OR/AND. Hint: make sure to include this tag using lowercase name to avoid issues
+${rules_dir}${\}test.robot:3:13 [I] 0602 Tag 'tagORtag2' with reserved word OR/AND. Hint: make sure to include this tag using lowercase name to avoid issues
+${rules_dir}${\}test.robot:4:15 [I] 0602 Tag 'tagORtag2' with reserved word OR/AND. Hint: make sure to include this tag using lowercase name to avoid issues
+${rules_dir}${\}test.robot:10:13 [I] 0602 Tag 'tagORtag2' with reserved word OR/AND. Hint: make sure to include this tag using lowercase name to avoid issues
+${rules_dir}${\}test.robot:19:29 [I] 0602 Tag 'tagORtag2' with reserved word OR/AND. Hint: make sure to include this tag using lowercase name to avoid issues

@@ -11,13 +11,13 @@ rules = {
     "0201": Rule(
         rule_id="0201",
         name="missing-doc-keyword",
-        msg="Missing documentation in keyword",
+        msg="Missing documentation in '%s' keyword",
         severity=RuleSeverity.WARNING,
     ),
     "0202": Rule(
         rule_id="0202",
         name="missing-doc-test-case",
-        msg="Missing documentation in test case",
+        msg="Missing documentation in '%s' test case",
         severity=RuleSeverity.WARNING,
     ),
     "0203": Rule(
@@ -59,4 +59,7 @@ class MissingDocumentationChecker(VisitorChecker):
             if isinstance(statement, Documentation):
                 break
         else:
-            self.report(msg, node=node)
+            if hasattr(node, "name"):
+                self.report(msg, node.name, node=node)
+            else:
+                self.report(msg, node=node)

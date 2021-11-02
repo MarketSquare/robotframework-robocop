@@ -1,11 +1,11 @@
 import ast
-from typing import Pattern, List, Tuple, Dict
 import difflib
 import importlib.util
 import re
 from collections import Counter, defaultdict
 from importlib import import_module
 from pathlib import Path
+from typing import Pattern, List, Tuple, Dict
 
 from robot.api import Token
 from robot.parsing.model.statements import EmptyLine
@@ -15,9 +15,10 @@ try:
 except ImportError:
     from robot.parsing.model.statements import Variable
 
-from packaging import version
 from robot.version import VERSION as RF_VERSION
+from packaging import version
 
+from robocop.version import __version__
 from robocop.exceptions import InvalidExternalCheckerError
 
 ROBOT_VERSION = version.parse(RF_VERSION)
@@ -113,6 +114,7 @@ def issues_to_lsp_diagnostic(issues) -> List[Dict]:
             "code": issue.rule_id,
             "source": "robocop",
             "message": issue.desc,
+            "codeDescription": {"href": f"https://robocop.readthedocs.io/en/{__version__}/rules.html#{issue.name}"},
         }
         for issue in issues
     ]

@@ -41,9 +41,9 @@ setup(
     keywords=KEYWORDS,
     packages=["robocop"],
     include_package_data=True,
-    install_requires=["robotframework>=3.2.2", "toml>=0.10.2"],
+    install_requires=["robotframework>=3.2.2", "toml>=0.10.2", "packaging==21.*", "pathspec==0.9.*"],
     extras_requires={
-        "dev": ["pytest", "pytest-benchmark", "pyyaml", "tox", "black", "packaging==21.*"],
+        "dev": ["pytest", "pytest-benchmark", "pyyaml", "tox", "black"],
         "doc": ["sphinx", "sphinx_rtd_theme"],
     },
     entry_points={"console_scripts": ["robocop=robocop:run_robocop"]},

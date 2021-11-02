@@ -4,9 +4,11 @@ import pytest
 from robot.api import get_model
 
 import robocop
+from robocop.config import Config
 from robocop.exceptions import InvalidArgumentError
 from robocop.rules import Message, Rule, RuleParam, RuleSeverity
 from robocop.utils import issues_to_lsp_diagnostic
+from robocop.version import __version__
 
 
 @pytest.fixture
@@ -72,17 +74,16 @@ class TestAPI:
     def test_run_check_in_memory_with_config(self):
         config_path = Path(Path(__file__).parent.parent, "test_data", "api_config")
         in_memory = "*** Settings ***\n\n"
-        issues = run_check_on_string(in_memory, root=config_path)
+        issues = run_check_on_string(in_memory, root=str(config_path))
         issues_by_desc = [issue.desc for issue in issues]
         assert "Missing documentation in suite" in issues_by_desc
         assert "Section is empty" not in issues_by_desc
 
     def test_invalid_config(self):
         config_path = Path(Path(__file__).parent.parent, "test_data", "api_invalid_config")
-        config = robocop.Config(root=config_path)
 
         with pytest.raises(InvalidArgumentError) as exception:
-            robocop.Robocop(config=config)
+            Config(root=config_path)
         assert r"Invalid configuration for Robocop:\nunrecognized arguments: --some" in str(exception)
 
     def test_lsp_diagnostic(self, rule):
@@ -116,6 +117,9 @@ class TestAPI:
                 "code": "0101",
                 "source": "robocop",
                 "message": "Some description",
+                "codeDescription": {
+                    "href": f"https://robocop.readthedocs.io/en/{__version__}/rules.html#some-message",
+                },
             },
             {
                 "range": {
@@ -126,6 +130,9 @@ class TestAPI:
                 "code": "0101",
                 "source": "robocop",
                 "message": "Some description",
+                "codeDescription": {
+                    "href": f"https://robocop.readthedocs.io/en/{__version__}/rules.html#some-message",
+                },
             },
         ]
         diagnostic = issues_to_lsp_diagnostic(issues)

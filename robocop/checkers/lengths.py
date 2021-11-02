@@ -17,6 +17,10 @@ rules = {
         name="too-long-keyword",
         msg="Keyword is too long (%d/%d)",
         severity=RuleSeverity.WARNING,
+        docs_args=(
+            "keyword length",
+            "allowed length",
+        ),
     ),
     "0502": Rule(
         RuleParam(name="min_calls", default=1, converter=int, desc="number of keyword calls required in a keyword"),

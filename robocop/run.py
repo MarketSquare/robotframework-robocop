@@ -5,7 +5,6 @@ import inspect
 import os
 import sys
 from collections import Counter
-from pathlib import Path
 
 from robot.api import get_resource_model
 from robot.errors import DataError
@@ -13,6 +12,7 @@ from robot.errors import DataError
 import robocop.exceptions
 from robocop import checkers, reports
 from robocop.rules import Message
+from robocop.files import get_files
 from robocop.config import Config
 from robocop.utils import (
     DisablersFinder,
@@ -54,7 +54,6 @@ class Robocop:
         self.root = os.getcwd()
         self.config = Config(from_cli=from_cli) if config is None else config
         self.from_cli = from_cli
-        self.config.parse_opts(from_cli=from_cli)
         if not from_cli:
             self.config.reports.add("json_report")
         self.out = self.set_output()
@@ -95,9 +94,8 @@ class Robocop:
         If the file is imported somewhere then file type is `RESOURCE`. Otherwise file type is `GENERAL`.
         These types are important since they are used to define parsing class for robot API.
         """
-        files = self.config.paths
         file_type_checker = FileTypeChecker(self.config.exec_dir)
-        for file in self.get_files(files, self.config.recursive):
+        for file in get_files(self.config):
             if "__init__" in file.name:
                 file_type = FileType.INIT
             elif file.suffix.lower() == ".resource":
@@ -204,8 +202,9 @@ class Robocop:
             f"\nAltogether {sum(severity_counter.values())} rule(s) with following severity:\n"
             f"    {severity_counter['E']} error rule(s),\n"
             f"    {severity_counter['W']} warning rule(s),\n"
-            f"    {severity_counter['I']} info rule(s)."
+            f"    {severity_counter['I']} info rule(s).\n"
         )
+        print("Visit https://robocop.readthedocs.io/en/stable/rules.html page for detailed documentation.")
         sys.exit()
 
     def load_reports(self):
@@ -239,28 +238,6 @@ class Robocop:
             output = report.get_report()
             if output is not None:
                 self.write_line(output)
-
-    def get_files(self, files_or_dirs, recursive):
-        for file in files_or_dirs:
-            yield from self.get_absolute_path(Path(file), recursive)
-
-    def get_absolute_path(self, path, recursive):
-        if not path.exists():
-            raise robocop.exceptions.FileError(path)
-        if self.config.is_path_ignored(path):
-            return
-        if path.is_file():
-            if self.should_parse(path):
-                yield path.absolute()
-        elif path.is_dir():
-            for file in path.iterdir():
-                if file.is_dir() and not recursive:
-                    continue
-                yield from self.get_absolute_path(file, recursive)
-
-    def should_parse(self, file):
-        """Check if file extension is in list of supported file types (can be configured from cli)"""
-        return file.suffix and file.suffix.lower() in self.config.filetypes
 
     def any_rule_enabled(self, checker) -> bool:
         for name, rule in checker.rules.items():

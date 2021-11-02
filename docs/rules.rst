@@ -27,21 +27,41 @@ Rules
 {{ checker_group[0] }}
 -------------
 {% for rule_doc in checker_group[1] %}
-* {{ rule_doc[1] }}
+{{ rule_doc.name }}
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-  .. list-table:: Configurable parameters
-     :widths: 25 25 25 25
-     :header-rows: 1
+.. list-table::
+  :width: 100%
+  :widths: 33 33 33
+  :header-rows: 1
 
-     * - name
-       - type
-       - default
-       - info
-{% for rule_param in rule_doc[2] %}
-     * - {{ rule_param[0] }}
-       - {{ rule_param[1] }}
-       - {{ rule_param[2] }}
-       - {{ rule_param[3] }}
+  * - Severity
+    - Rule id
+    - Robot Framework version
+  * - {{ rule_doc.severity }}
+    - {{ rule_doc.id }}
+    - {{ rule_doc.version }}
+
+{{ rule_doc.desc }}.
+
+{%- if rule_doc.ext_docs %}
+{{ rule_doc.ext_docs }}
+{% endif %}
+
+.. list-table:: Configurable parameters
+  :width: 100%
+  :widths: 25 25 25 25
+  :header-rows: 1
+
+  * - Name
+    - Default value
+    - Type
+    - Description
+{% for rule_param in rule_doc.params %}
+  * - {{ rule_param.name }}
+    - {{ rule_param.default }}
+    - {{ rule_param.type }}
+    - {{ rule_param.desc }}
 {% endfor %}
 
 

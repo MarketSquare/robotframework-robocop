@@ -202,8 +202,9 @@ class Robocop:
             f"\nAltogether {sum(severity_counter.values())} rule(s) with following severity:\n"
             f"    {severity_counter['E']} error rule(s),\n"
             f"    {severity_counter['W']} warning rule(s),\n"
-            f"    {severity_counter['I']} info rule(s)."
+            f"    {severity_counter['I']} info rule(s).\n"
         )
+        print("Visit https://robocop.readthedocs.io/en/stable/rules.html page for detailed documentation.")
         sys.exit()
 
     def load_reports(self):

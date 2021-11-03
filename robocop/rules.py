@@ -196,7 +196,7 @@ class Rule:
     def get_enabled_status_desc(self):
         s = "enabled" if self.enabled else "disabled"
         if not self.enabled and self.supported_version != "All":
-            s += f" - enabled for RF version {self.supported_version}"
+            s += f" - supported only for RF version {self.supported_version}"
         return s
 
     def configure(self, param, value):

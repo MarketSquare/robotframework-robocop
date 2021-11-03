@@ -116,7 +116,7 @@ class TestListingRules:
         init_empty_checker(robocop_pre_load, msg_0101, exclude=True)
         init_empty_checker(robocop_pre_load, msg_disabled_for_4)
         if ROBOT_VERSION.major >= 4:
-            enabled_for = "disabled - enabled for RF version <4.0"
+            enabled_for = "disabled - supported only for RF version <4.0"
         else:
             enabled_for = "enabled"
         with pytest.raises(SystemExit):

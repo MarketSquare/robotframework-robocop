@@ -272,9 +272,9 @@ def run_robocop():
         print(f"Error: {err}")
         sys.exit(1)
     except Exception as err:
-        warning = (
-            "\nFatal exception occurred. You can create issue at "
+        message = (
+            "\nFatal exception occurred. You can create an issue at "
             "https://github.com/MarketSquare/robotframework-robocop/issues . Thanks!"
         )
-        err.args = (err.args[0] + warning,) + err.args[1:]
+        err.args = (err.args[0] + message,) + err.args[1:]
         raise err

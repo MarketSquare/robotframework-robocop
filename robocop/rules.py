@@ -182,7 +182,7 @@ class Rule:
 
     @staticmethod
     def get_template(msg: str) -> Optional[Template]:
-        if "{{" in msg:
+        if "{" in msg:
             return Template(msg)
         return None
 

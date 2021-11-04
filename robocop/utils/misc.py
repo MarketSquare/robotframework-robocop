@@ -5,7 +5,7 @@ import re
 from collections import Counter, defaultdict
 from importlib import import_module
 from pathlib import Path
-from typing import Pattern, List, Tuple, Dict
+from typing import Pattern, List, Tuple, Dict, Optional
 
 from robot.api import Token
 from robot.parsing.model.statements import EmptyLine
@@ -69,9 +69,11 @@ def modules_from_path(path, module_name=None, relative="."):
                 yield from modules_from_path(file, module_name, relative)
 
 
-def normalize_robot_name(name: str) -> str:
-    return name.replace(" ", "").replace("_", "").lower() if name else ""
-
+def normalize_robot_name(name: str, remove_prefix: Optional[str] = None) -> str:
+    name = name.replace(" ", "").replace("_", "").lower() if name else ""
+    if remove_prefix:
+        return name[name.startswith(remove_prefix) and len(remove_prefix):]
+    return name
 
 def normalize_robot_var_name(name: str) -> str:
     return normalize_robot_name(name)[2:-1] if name else ""

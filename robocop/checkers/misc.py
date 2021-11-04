@@ -16,7 +16,7 @@ from robot.libraries import STDLIBS
 
 from robocop.checkers import VisitorChecker
 from robocop.rules import Rule, RuleParam, RuleSeverity
-from robocop.utils import ROBOT_VERSION, AssignmentTypeDetector, normalize_robot_name, parse_assignment_sign_type
+from robocop.utils import ROBOT_VERSION, AssignmentTypeDetector, normalize_robot_name, parse_assignment_sign_type, keyword_col
 
 rules = {
     "0901": Rule(
@@ -186,12 +186,8 @@ class IfBlockCanBeUsed(VisitorChecker):
     def visit_KeywordCall(self, node):  # noqa
         if not node.keyword:
             return
-        if normalize_robot_name(node.keyword) in self.run_keyword_variants:
-            col = 0
-            for token in node.data_tokens:
-                if token.type == Token.KEYWORD:
-                    col = token.col_offset + 1
-                    break
+        if normalize_robot_name(node.keyword, remove_prefix='builtin.') in self.run_keyword_variants:
+            col = keyword_col(node)
             self.report("if-can-be-used", node.keyword, node=node, col=col)
 
 

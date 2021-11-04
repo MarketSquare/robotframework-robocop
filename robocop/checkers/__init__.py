@@ -63,18 +63,17 @@ class BaseChecker:
     def report(
         self,
         rule,
-        *args,
         node=None,
         lineno=None,
         col=None,
         end_lineno=None,
         end_col=None,
         ext_disablers=None,
+        **kwargs,
     ):
         if rule not in self.rules:
             raise ValueError(f"Missing definition for message with name {rule}")
         message = self.rules[rule].prepare_message(
-            *args,
             source=self.source,
             node=node,
             lineno=lineno,
@@ -82,6 +81,7 @@ class BaseChecker:
             end_lineno=end_lineno,
             end_col=end_col,
             ext_disablers=ext_disablers,
+            **kwargs,
         )
         if message.enabled:
             self.issues.append(message)

@@ -72,7 +72,7 @@ def get_checker_docs():
                 "name": rule.name,
                 "id": rule.rule_id,
                 "severity": rule.severity.value,
-                "desc": rule.message_for_docs,
+                "desc": rule.msg,
                 "ext_docs": rule.docs,
                 "version": rule.supported_version,
                 "params": [

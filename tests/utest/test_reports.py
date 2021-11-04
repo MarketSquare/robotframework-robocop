@@ -20,6 +20,7 @@ class TestReports:
         report = JsonReport()
         issue = Message(
             rule=message,
+            msg=message.get_message(),
             source="some/path/file.robot",
             node=None,
             lineno=50,
@@ -57,6 +58,7 @@ class TestReports:
         if files_with_issues:
             issue = Message(
                 rule=message,
+                msg=message.get_message(),
                 source="some/path/file.robot",
                 node=None,
                 lineno=50,

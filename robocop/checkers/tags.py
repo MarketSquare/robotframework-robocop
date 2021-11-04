@@ -27,8 +27,8 @@ rules = {
     "0605": Rule(
         rule_id="0605",
         name="could-be-forced-tags",
-        msg='All tests in suite share those tags: "{{ tags }}". '
-        "You can define them in Force Tags in suite settings instead",
+        msg='All tests in suite share these tags: "{{ tags }}". '
+        "You can define them in 'Force Tags' in suite settings instead",
         severity=RuleSeverity.INFO,
     ),
     "0606": Rule(

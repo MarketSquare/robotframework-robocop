@@ -87,9 +87,9 @@ When defining rule messages you can use `jinja` templates. The most basic usage 
         )
     }
 
-Variables needs to be passed as kwargs to report() method::
+Variables need to be passed by name to report() method::
 
-    self.report("my-rule", variable="some string", "number"=10, node=node)
+    self.report("my-rule", variable="some string", number=10, node=node)
 
 
 Import from external module

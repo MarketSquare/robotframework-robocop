@@ -18,3 +18,4 @@ Keyword
     # comment with runkeywordif
     ${var}    Run Keyword If    ${condition}    Keyword
     Run Keyword Unless    ${condition}    Keyword2
+    BuiltIn.Run Keyword If  ${stuff}  Keyword

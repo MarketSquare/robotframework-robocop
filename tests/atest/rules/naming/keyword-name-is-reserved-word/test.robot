@@ -22,3 +22,7 @@ Keyword
     Fail
     Run Keyword If  ${True}  Keyword
     ...  else  Keyword2
+
+Run Keyword If
+    [Arguments]    ${name}    ${condition}    @{args}
+    BuiltIn.Run Keyword If    ${name}    ${condition}    @{args}  else if  Keyword

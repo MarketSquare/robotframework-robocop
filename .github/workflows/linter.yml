@@ -22,6 +22,6 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install pylama pylama_pylint pytest robotframework packaging==21.* pathspec==0.9.*
+        pip install pylama pylama_pylint pytest robotframework packaging==21.* pathspec==0.9.* jinja2~=3.0
     - name: Code quality with pylama
       run: python tests/pylama_parse.py

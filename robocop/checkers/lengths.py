@@ -61,7 +61,7 @@ rules = {
         severity=RuleSeverity.WARNING,
     ),
     "0508": Rule(
-        RuleParam(name="line_length", default=120, converter=int, desc="number of lines allowed in a file"),  # FIXME
+        RuleParam(name="line_length", default=120, converter=int, desc="number of characters allowed in line"),
         RuleParam(
             name="ignore_pattern",
             default=re.compile(r"https?://\S+"),

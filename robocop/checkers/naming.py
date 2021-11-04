@@ -43,7 +43,7 @@ rules = {
         ),
         rule_id="0302",
         name="wrong-case-in-keyword-name",
-        msg="Keyword name '%s' should use title case",
+        msg="Keyword name '{{ keyword_name }}' should use title case",
         severity=RuleSeverity.WARNING,
     ),
     "0303": Rule(
@@ -55,7 +55,7 @@ rules = {
     "0305": Rule(
         rule_id="0305",
         name="underscore-in-keyword-name",
-        msg="Underscores in keyword name '%s' can be replaced with spaces",
+        msg="Underscores in keyword name '{{ keyword_name }}' can be replaced with spaces",
         severity=RuleSeverity.WARNING,
         docs="""
         Example::
@@ -71,29 +71,25 @@ rules = {
     "0306": Rule(
         rule_id="0306",
         name="setting-name-not-in-title-case",
-        msg="Setting name '%s' should use title or upper case",
+        msg="Setting name '{{ setting_name }}' should use title or upper case",
         severity=RuleSeverity.WARNING,
     ),
     "0307": Rule(
         rule_id="0307",
         name="section-name-invalid",
-        msg="Section name should be in format '%s' or '%s'",
+        msg="Section name should be in format '{{ section_title_case }}' or '{{ section_upper_case }}'",
         severity=RuleSeverity.WARNING,
-        docs_args=(
-            "*** Capitalized ***",
-            "*** UPPERCASE ***",
-        ),
     ),
     "0308": Rule(
         rule_id="0308",
         name="not-capitalized-test-case-title",
-        msg="Test case '%s' title should start with capital letter",
+        msg="Test case '{{ test_name }}' title should start with capital letter",
         severity=RuleSeverity.WARNING,
     ),
     "0309": Rule(
         rule_id="0309",
         name="section-variable-not-uppercase",
-        msg="Section variable '%s' name should be uppercase",
+        msg="Section variable '{{ variable_name }}' name should be uppercase",
         severity=RuleSeverity.WARNING,
     ),
     "0310": Rule(
@@ -139,7 +135,8 @@ rules = {
     "0317": Rule(
         rule_id="0317",
         name="hyphen-in-variable-name",
-        msg="Use underscore in variable name '%s' instead of hyphens to avoid treating them like minus sign",
+        msg="Use underscore in variable name '{{ variable_name }}' instead of hyphens to "
+            "avoid treating them like minus sign",
         severity=RuleSeverity.INFO,
     ),
     "0318": Rule(
@@ -180,7 +177,7 @@ class InvalidCharactersInNameChecker(VisitorChecker):
                     self.report(
                         "not-allowed-char-in-name",
                         character=node.name[index],
-                        block_name=name_of_node,
+                        block_name=f"'{node.name}' {name_of_node}",
                         node=node,
                         col=node.col_offset + index + 1,
                     )
@@ -280,12 +277,12 @@ class KeywordNamingChecker(VisitorChecker):
         normalized = normalized.split(".")[-1]  # remove any imports ie ExternalLib.SubLib.Log -> Log
         normalized = normalized.replace("'", "")  # replace ' apostrophes
         if "_" in normalized:
-            self.report("underscore-in-keyword-name", keyword_name, node=node)
+            self.report("underscore-in-keyword-name", keyword_name=keyword_name, node=node)
         words = self.letter_pattern.sub(" ", normalized).split(" ")
         if self.param("wrong-case-in-keyword-name", "convention") == "first_word_capitalized":
             words = words[:1]
         if any(word[0].islower() for word in words if word):
-            self.report("wrong-case-in-keyword-name", keyword_name, node=node)
+            self.report("wrong-case-in-keyword-name", keyword_name=keyword_name, node=node)
 
     def check_bdd_keywords(self, keyword_name, node):
         if keyword_name.lower() not in self.bdd:
@@ -333,7 +330,7 @@ class SettingsNamingChecker(VisitorChecker):
         name = node.data_tokens[0].value
         if not self.section_name_pattern.match(name) or not (name.istitle() or name.isupper()):
             valid_name = f"*** {node.name.title()} ***"
-            self.report("section-name-invalid", valid_name, valid_name.upper(), node=node)
+            self.report("section-name-invalid", section_title_case=valid_name, section_upper_case=valid_name.upper(), node=node)
 
     def visit_SuiteSetup(self, node):  # noqa
         self.check_setting_name(node.data_tokens[0].value, node)
@@ -401,7 +398,7 @@ class SettingsNamingChecker(VisitorChecker):
 
     def check_setting_name(self, name, node):
         if not (name.istitle() or name.isupper()):
-            self.report("setting-name-not-in-title-case", name, node=node)
+            self.report("setting-name-not-in-title-case", setting_name=name, node=node)
 
 
 class TestCaseNamingChecker(VisitorChecker):
@@ -416,7 +413,7 @@ class TestCaseNamingChecker(VisitorChecker):
         if not node.name:
             self.report("test-case-name-is-empty", node=node)
         elif not node.name[0].isupper():
-            self.report("not-capitalized-test-case-title", node.name, node=node)
+            self.report("not-capitalized-test-case-title", test_name=node.name, node=node)
 
 
 class VariableNamingChecker(VisitorChecker):
@@ -445,7 +442,7 @@ class VariableNamingChecker(VisitorChecker):
             if token.type == Token.VARIABLE and token.value and not token.value.isupper():
                 self.report(
                     "section-variable-not-uppercase",
-                    token.value,
+                    variable_name=token.value,
                     lineno=token.lineno,
                     col=token.col_offset + 1,
                 )
@@ -455,7 +452,7 @@ class VariableNamingChecker(VisitorChecker):
             if "-" in token.value:
                 self.report(
                     "hyphen-in-variable-name",
-                    token.value,
+                    variable_name=token.value,
                     lineno=token.lineno,
                     col=token.col_offset + 1,
                 )

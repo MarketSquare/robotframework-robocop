@@ -43,7 +43,7 @@ rules = {
         RuleParam(name="max_calls", default=10, converter=int, desc="number of keyword calls allowed in a test case"),
         rule_id="0505",
         name="too-many-calls-in-test-case",
-        msg="Test case {{ test_name }} has too many keywords inside ({{ keyword_count }}/{{ max_allowed_count }})",
+        msg="Test case '{{ test_name }}' has too many keywords inside ({{ keyword_count }}/{{ max_allowed_count }})",
         severity=RuleSeverity.WARNING,
     ),
     "0506": Rule(
@@ -73,7 +73,7 @@ rules = {
         msg="Line is too long ({{ line_length }}/{{ allowed_length }})",
         severity=RuleSeverity.WARNING,
     ),
-    "0509": Rule(rule_id="0509", name="empty-section", msg="Section '%s' is empty", severity=RuleSeverity.WARNING),
+    "0509": Rule(rule_id="0509", name="empty-section", msg="Section '{{ section_name }}' is empty", severity=RuleSeverity.WARNING),
     "0510": Rule(
         RuleParam(
             name="max_returns", default=4, converter=int, desc="allowed number of returned values from a keyword"
@@ -90,7 +90,7 @@ rules = {
         severity=RuleSeverity.WARNING,
     ),
     "0512": Rule(
-        rule_id="0512", name="empty-documentation", msg="Documentation of %s is empty", severity=RuleSeverity.WARNING
+        rule_id="0512", name="empty-documentation", msg="Documentation of {{ block_name }} is empty", severity=RuleSeverity.WARNING
     ),
     "0513": Rule(rule_id="0513", name="empty-force-tags", msg="Force Tags are empty", severity=RuleSeverity.WARNING),
     "0514": Rule(
@@ -106,7 +106,7 @@ rules = {
         rule_id="0517", name="empty-library-import", msg="Import library path is empty", severity=RuleSeverity.ERROR
     ),
     "0518": Rule(
-        rule_id="0518", name="empty-setup", msg="Setup of %s does not have any keywords", severity=RuleSeverity.ERROR
+        rule_id="0518", name="empty-setup", msg="Setup of {{ block_name }} does not have any keywords", severity=RuleSeverity.ERROR
     ),
     "0519": Rule(
         rule_id="0519",
@@ -123,7 +123,7 @@ rules = {
     "0521": Rule(
         rule_id="0521",
         name="empty-teardown",
-        msg="Teardown of %s does not have any keywords",
+        msg="Teardown of {{ block_name }} does not have any keywords",
         severity=RuleSeverity.ERROR,
     ),
     "0522": Rule(
@@ -138,9 +138,9 @@ rules = {
         msg="Test Teardown does not have any keywords",
         severity=RuleSeverity.ERROR,
     ),
-    "0524": Rule(rule_id="0524", name="empty-timeout", msg="Timeout of %s is empty", severity=RuleSeverity.WARNING),
+    "0524": Rule(rule_id="0524", name="empty-timeout", msg="Timeout of {{ block_name }} is empty", severity=RuleSeverity.WARNING),
     "0525": Rule(rule_id="0525", name="empty-test-timeout", msg="Test Timeout is empty", severity=RuleSeverity.WARNING),
-    "0526": Rule(rule_id="0526", name="empty-arguments", msg="Arguments of %s are empty", severity=RuleSeverity.ERROR),
+    "0526": Rule(rule_id="0526", name="empty-arguments", msg="Arguments of {{ block_name }} are empty", severity=RuleSeverity.ERROR),
     "0527": Rule(
         RuleParam(name="max_testcases", default=50, converter=int, desc="number of test cases allowed in a suite"),
         RuleParam(
@@ -293,7 +293,7 @@ class EmptySectionChecker(VisitorChecker):
     def check_if_empty(self, node):
         anything_but = EmptyLine if isinstance(node, CommentSection) else (Comment, EmptyLine)
         if all(isinstance(child, anything_but) for child in node.body):
-            self.report("empty-section", get_section_name(node), node=node)
+            self.report("empty-section", section_name=get_section_name(node), node=node)
 
     def visit_SettingSection(self, node):  # noqa
         self.check_if_empty(node)
@@ -398,7 +398,7 @@ class EmptySettingsChecker(VisitorChecker):
 
     def visit_Documentation(self, node):  # noqa
         if not node.value:
-            self.report("empty-documentation", self.parent_node_name, node=node, col=node.end_col_offset)
+            self.report("empty-documentation", block_name=self.parent_node_name, node=node, col=node.end_col_offset)
 
     def visit_ForceTags(self, node):  # noqa
         if not node.values:
@@ -422,7 +422,7 @@ class EmptySettingsChecker(VisitorChecker):
 
     def visit_Setup(self, node):  # noqa
         if not node.name:
-            self.report("empty-setup", self.parent_node_name, node=node, col=node.end_col_offset + 1)
+            self.report("empty-setup", block_name=self.parent_node_name, node=node, col=node.end_col_offset + 1)
 
     def visit_SuiteSetup(self, node):  # noqa
         if not node.name:
@@ -434,7 +434,7 @@ class EmptySettingsChecker(VisitorChecker):
 
     def visit_Teardown(self, node):  # noqa
         if not node.name:
-            self.report("empty-teardown", self.parent_node_name, node=node, col=node.end_col_offset + 1)
+            self.report("empty-teardown", block_name=self.parent_node_name, node=node, col=node.end_col_offset + 1)
 
     def visit_SuiteTeardown(self, node):  # noqa
         if not node.name:
@@ -446,7 +446,7 @@ class EmptySettingsChecker(VisitorChecker):
 
     def visit_Timeout(self, node):  # noqa
         if not node.value:
-            self.report("empty-timeout", self.parent_node_name, node=node, col=node.end_col_offset + 1)
+            self.report("empty-timeout", block_name=self.parent_node_name, node=node, col=node.end_col_offset + 1)
 
     def visit_TestTimeout(self, node):  # noqa
         if not node.value:
@@ -454,7 +454,7 @@ class EmptySettingsChecker(VisitorChecker):
 
     def visit_Arguments(self, node):  # noqa
         if not node.values:
-            self.report("empty-arguments", self.parent_node_name, node=node, col=node.end_col_offset + 1)
+            self.report("empty-arguments", block_name=self.parent_node_name, node=node, col=node.end_col_offset + 1)
 
 
 class TestCaseNumberChecker(VisitorChecker):

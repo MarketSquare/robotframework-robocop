@@ -9,19 +9,19 @@ from robocop.rules import Rule, RuleSeverity
 
 rules = {
     "0601": Rule(
-        rule_id="0601", name="tag-with-space", msg="Tag '%s' should not contain spaces", severity=RuleSeverity.WARNING
+        rule_id="0601", name="tag-with-space", msg="Tag '{{ tag }}' should not contain spaces", severity=RuleSeverity.WARNING
     ),
     "0602": Rule(
         rule_id="0602",
         name="tag-with-or-and",
-        msg="Tag '%s' with reserved word OR/AND."
+        msg="Tag '{{ tag }}' with reserved word OR/AND."
         " Hint: make sure to include this tag using lowercase name to avoid issues",
         severity=RuleSeverity.INFO,
     ),
     "0603": Rule(
         rule_id="0603",
         name="tag-with-reserved",
-        msg="Tag '%s' prefixed with reserved word `robot:`. "
+        msg="Tag '{{ tag }}' prefixed with reserved word `robot:`. "
         "The only allowed tags with this prefix are robot:no-dry-run, "
         "robot:continue-on-failure and robot:recursive-continue-on-failure",
         severity=RuleSeverity.WARNING,
@@ -36,7 +36,7 @@ rules = {
     "0606": Rule(
         rule_id="0606",
         name="tag-already-set-in-force-tags",
-        msg="Tag '%s' is already set by Force Tags in suite settings",
+        msg="Tag '{{ tag }}' is already set by Force Tags in suite settings",
         severity=RuleSeverity.INFO,
     ),
     "0607": Rule(
@@ -103,13 +103,13 @@ class TagNameChecker(VisitorChecker):
 
     def check_tag(self, tag, node):
         if " " in tag.value:
-            self.report("tag-with-space", tag.value, node=node, lineno=tag.lineno, col=tag.col_offset + 1)
+            self.report("tag-with-space", tag=tag.value, node=node, lineno=tag.lineno, col=tag.col_offset + 1)
         if "OR" in tag.value or "AND" in tag.value:
-            self.report("tag-with-or-and", tag.value, node=node, lineno=tag.lineno, col=tag.col_offset + 1)
+            self.report("tag-with-or-and", tag=tag.value, node=node, lineno=tag.lineno, col=tag.col_offset + 1)
         if tag.value.startswith("robot:") and tag.value not in self.reserved_tags:
             self.report(
                 "tag-with-reserved",
-                tag.value,
+                tag=tag.value,
                 node=node,
                 lineno=tag.lineno,
                 col=tag.col_offset + 1,
@@ -189,7 +189,7 @@ class TagScopeChecker(VisitorChecker):
             if tag.value in self.force_tags:
                 self.report(
                     "tag-already-set-in-force-tags",
-                    tag.value,
+                    tag=tag.value,
                     node=node,
                     lineno=tag.lineno,
                     col=tag.col_offset + 1,

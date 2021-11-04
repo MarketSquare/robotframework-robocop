@@ -298,7 +298,7 @@ class KeywordNamingChecker(VisitorChecker):
             return False
         reserved_type = reserved[keyword_name.lower()]
         suffix = self.prepare_reserved_word_rule_message(keyword_name, reserved_type)
-        self.report("keyword-name-is-reserved-word", keyword_name=keyword_name, error_msg=ssuffix, node=node, col=keyword_col(node))
+        self.report("keyword-name-is-reserved-word", keyword_name=keyword_name, error_msg=suffix, node=node, col=keyword_col(node))
         return True
 
     @staticmethod

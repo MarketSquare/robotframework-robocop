@@ -143,7 +143,6 @@ class Rule:
         severity: RuleSeverity,
         version: str = None,
         docs: str = "",
-        docs_args: Optional[Tuple[str, ...]] = None,
     ):
         """
         :param params: RuleParam() instances
@@ -153,7 +152,6 @@ class Rule:
         :param severity: severity of the rule (ie: RuleSeverity.INFO)
         :param version: supported Robot Framework version (ie: >=4.0)
         :param docs: Full documentation of the rule (rst supported)
-        :param docs_args: Arguments used to replace %d,%s placeholders in rule message. Useful to have human readable
         description of the rule
         """
         self.rule_id = rule_id
@@ -161,7 +159,6 @@ class Rule:
         self.msg = msg
         self.msg_template = self.get_template(msg)
         self.docs = dedent(docs)
-        self.docs_args = docs_args
         self.config = {
             "severity": RuleParam(
                 "severity", severity, RuleSeverity.parser, "Rule severity (E = Error, W = Warning, I = Info)"
@@ -177,13 +174,6 @@ class Rule:
     def severity(self):
         return self.config["severity"].value
 
-    @property
-    def message_for_docs(self):
-        if self.docs_args:
-            msg = self.msg.replace("%d", "%s")
-            return msg % self.docs_args
-        return self.msg
-
     @staticmethod
     def supported_in_rf_version(version: str) -> bool:
         if not version:
@@ -197,17 +187,13 @@ class Rule:
         return None
 
     def get_message(self, **kwargs):
-        # try:  # TODO
-        #     self.desc %= args
-        # except TypeError as err:
-        #     raise robocop.exceptions.InvalidRuleUsageError(rule.rule_id, err)
         if self.msg_template:
             return self.msg_template.render(**kwargs)
         return self.msg
 
     def __str__(self):
         return (
-            f"Rule - {self.rule_id} [{self.config['severity'].value}]: {self.name}: {self.message_for_docs} "
+            f"Rule - {self.rule_id} [{self.config['severity'].value}]: {self.name}: {self.msg} "
             f"({self.get_enabled_status_desc()})"
         )
 

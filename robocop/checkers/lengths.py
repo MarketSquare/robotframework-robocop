@@ -15,7 +15,7 @@ rules = {
         RuleParam(name="max_len", default=40, converter=int, desc="number of lines allowed in a keyword"),
         rule_id="0501",
         name="too-long-keyword",
-        msg="Keyword is too long (%d/%d)",
+        msg="Keyword is too long ({{ keyword_length }}/{{ allowed_length}})",
         severity=RuleSeverity.WARNING,
         docs_args=(
             "keyword length",
@@ -26,46 +26,46 @@ rules = {
         RuleParam(name="min_calls", default=1, converter=int, desc="number of keyword calls required in a keyword"),
         rule_id="0502",
         name="too-few-calls-in-keyword",
-        msg="Keyword has too few keywords inside (%d/%d)",
+        msg="Keyword has too few keywords inside ({{ keyword_count }}/{{ min_allowed_count }})",
         severity=RuleSeverity.WARNING,
     ),
     "0503": Rule(
         RuleParam(name="max_calls", default=10, converter=int, desc="number of keyword calls allowed in a keyword"),
         rule_id="0503",
         name="too-many-calls-in-keyword",
-        msg="Keyword has too many keywords inside (%d/%d)",
+        msg="Keyword has too many keywords inside ({{ keyword_count }}/{{ max_allowed_count }})",
         severity=RuleSeverity.WARNING,
     ),
     "0504": Rule(
         RuleParam(name="max_len", default=20, converter=int, desc="number of lines allowed in a test case"),
         rule_id="0504",
         name="too-long-test-case",
-        msg="Test case is too long (%d/%d)",
+        msg="Test case is too long ({{ test_length }}/{{ allowed_length }})",
         severity=RuleSeverity.WARNING,
     ),
     "0505": Rule(
         RuleParam(name="max_calls", default=10, converter=int, desc="number of keyword calls allowed in a test case"),
         rule_id="0505",
         name="too-many-calls-in-test-case",
-        msg="Test case has too many keywords inside (%d/%d)",
+        msg="Test case has too many keywords inside ({{ keyword_count }}/{{ max_allowed_count }})",
         severity=RuleSeverity.WARNING,
     ),
     "0506": Rule(
         RuleParam(name="max_lines", default=400, converter=int, desc="number of lines allowed in a file"),
         rule_id="0506",
         name="file-too-long",
-        msg="File has too many lines (%d/%d)",
+        msg="File has too many lines ({{ lines_count }}/{{max_allowed_count }})",
         severity=RuleSeverity.WARNING,
     ),
     "0507": Rule(
         RuleParam(name="max_args", default=5, converter=int, desc="number of lines allowed in a file"),
         rule_id="0507",
         name="too-many-arguments",
-        msg="Keyword has too many arguments (%d/%d)",
+        msg="Keyword has too many arguments ({{ arguments_count }}/{{ max_allowed_count }})",
         severity=RuleSeverity.WARNING,
     ),
     "0508": Rule(
-        RuleParam(name="line_length", default=120, converter=int, desc="number of lines allowed in a file"),
+        RuleParam(name="line_length", default=120, converter=int, desc="number of lines allowed in a file"),  # FIXME
         RuleParam(
             name="ignore_pattern",
             default=re.compile(r"https?://\S+"),
@@ -74,7 +74,7 @@ rules = {
         ),
         rule_id="0508",
         name="line-too-long",
-        msg="Line is too long (%d/%d)",
+        msg="Line is too long ({{ line_length }}/{{ allowed_length }})",
         severity=RuleSeverity.WARNING,
     ),
     "0509": Rule(rule_id="0509", name="empty-section", msg="Section is empty", severity=RuleSeverity.WARNING),
@@ -84,7 +84,7 @@ rules = {
         ),
         rule_id="0510",
         name="number-of-returned-values",
-        msg="Too many return values (%d/%d)",
+        msg="Too many return values ({{ return_count }}/{{ max_allowed_count }})",
         severity=RuleSeverity.WARNING,
     ),
     "0511": Rule(
@@ -152,7 +152,7 @@ rules = {
         ),
         rule_id="0527",
         name="too-many-test-cases",
-        msg="Too many test cases (%d/%d)",
+        msg="Too many test cases ({{ test_count }}/{{ max_allowed_count }})",
         severity=RuleSeverity.WARNING,
     ),
 }
@@ -177,8 +177,8 @@ class LengthChecker(VisitorChecker):
         if node.end_lineno > self.param("file-too-long", "max_lines"):
             self.report(
                 "file-too-long",
-                node.end_lineno,
-                self.param("file-too-long", "max_lines"),
+                lines_count=node.end_lineno,
+                max_allowed_count=self.param("file-too-long", "max_lines"),
                 node=node,
                 lineno=node.end_lineno,
             )
@@ -193,8 +193,8 @@ class LengthChecker(VisitorChecker):
                 if args_number > self.param("too-many-arguments", "max_args"):
                     self.report(
                         "too-many-arguments",
-                        args_number,
-                        self.param("too-many-arguments", "max_args"),
+                        arguments_count=args_number,
+                        max_allowed_count=self.param("too-many-arguments", "max_args"),
                         node=node,
                     )
                 break
@@ -202,8 +202,8 @@ class LengthChecker(VisitorChecker):
         if length > self.param("too-long-keyword", "max_len"):
             self.report(
                 "too-long-keyword",
-                length,
-                self.param("too-long-keyword", "max_len"),
+                keyword_length=length,
+                allowed_length=self.param("too-long-keyword", "max_len"),
                 node=node,
                 lineno=node.end_lineno,
                 ext_disablers=(node.lineno, last_non_empty_line(node)),
@@ -212,14 +212,17 @@ class LengthChecker(VisitorChecker):
         key_calls = LengthChecker.count_keyword_calls(node)
         if key_calls < self.param("too-few-calls-in-keyword", "min_calls"):
             self.report(
-                "too-few-calls-in-keyword", key_calls, self.param("too-few-calls-in-keyword", "min_calls"), node=node
+                "too-few-calls-in-keyword",
+                keyword_count=key_calls,
+                min_allowed_count=self.param("too-few-calls-in-keyword", "min_calls"),
+                node=node,
             )
             return
         if key_calls > self.param("too-many-calls-in-keyword", "max_calls"):
             self.report(
                 "too-many-calls-in-keyword",
-                key_calls,
-                self.param("too-many-calls-in-keyword", "max_calls"),
+                keyword_count=key_calls,
+                max_allowed_count=self.param("too-many-calls-in-keyword", "max_calls"),
                 node=node,
             )
             return
@@ -227,13 +230,18 @@ class LengthChecker(VisitorChecker):
     def visit_TestCase(self, node):  # noqa
         length = LengthChecker.check_node_length(node)
         if length > self.param("too-long-test-case", "max_len"):
-            self.report("too-long-test-case", length, self.param("too-long-test-case", "max_len"), node=node)
+            self.report(
+                "too-long-test-case",
+                test_length=length,
+                allowed_length=self.param("too-long-test-case", "max_len"),
+                node=node,
+            )
         key_calls = LengthChecker.count_keyword_calls(node)
         if key_calls > self.param("too-many-calls-in-test-case", "max_calls"):
             self.report(
                 "too-many-calls-in-test-case",
-                key_calls,
-                self.param("too-many-calls-in-test-case", "max_calls"),
+                keyword_count=key_calls,
+                max_allowed_count=self.param("too-many-calls-in-test-case", "max_calls"),
                 node=node,
             )
             return
@@ -264,7 +272,12 @@ class LineLengthChecker(RawFileChecker):
         line = self.disabler_pattern.sub("", line)
         line = line.rstrip().expandtabs(4)
         if len(line) > self.param("line-too-long", "line_length"):
-            self.report("line-too-long", len(line), self.param("line-too-long", "line_length"), lineno=lineno)
+            self.report(
+                "line-too-long",
+                line_length=len(line),
+                allowed_length=self.param("line-too-long", "line_length"),
+                lineno=lineno,
+            )
 
 
 class EmptySectionChecker(VisitorChecker):
@@ -324,8 +337,8 @@ class NumberOfReturnedArgsChecker(VisitorChecker):
         if return_count > self.param("number-of-returned-values", "max_returns"):
             self.report(
                 "number-of-returned-values",
-                return_count,
-                self.param("number-of-returned-values", "max_returns"),
+                return_count=return_count,
+                max_allowed_count=self.param("number-of-returned-values", "max_returns"),
                 node=node,
             )
 
@@ -430,4 +443,6 @@ class TestCaseNumberChecker(VisitorChecker):
         )
         discovered_testcases = sum([isinstance(child, TestCase) for child in node.body])
         if discovered_testcases > max_testcases:
-            self.report("too-many-test-cases", discovered_testcases, max_testcases, node=node)
+            self.report(
+                "too-many-test-cases", test_count=discovered_testcases, max_allowed_count=max_testcases, node=node
+            )

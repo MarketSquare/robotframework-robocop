@@ -27,6 +27,8 @@ from functools import total_ordering
 from typing import Any, Callable, Union, Pattern, Dict, Tuple, Optional
 from packaging.specifiers import SpecifierSet
 
+from jinja2 import Template
+
 import robocop.exceptions
 from robocop.utils import ROBOT_VERSION
 
@@ -156,7 +158,8 @@ class Rule:
         """
         self.rule_id = rule_id
         self.name = name
-        self.desc = msg
+        self.msg = msg
+        self.msg_template = self.get_template(msg)
         self.docs = dedent(docs)
         self.docs_args = docs_args
         self.config = {
@@ -177,9 +180,9 @@ class Rule:
     @property
     def message_for_docs(self):
         if self.docs_args:
-            msg = self.desc.replace("%d", "%s")
+            msg = self.msg.replace("%d", "%s")
             return msg % self.docs_args
-        return self.desc
+        return self.msg
 
     @staticmethod
     def supported_in_rf_version(version: str) -> bool:
@@ -187,10 +190,25 @@ class Rule:
             return True
         return ROBOT_VERSION in SpecifierSet(version)
 
+    @staticmethod
+    def get_template(msg: str) -> Optional[Template]:
+        if "{{" in msg:
+            return Template(msg)
+        return None
+
+    def get_message(self, **kwargs):
+        # try:  # TODO
+        #     self.desc %= args
+        # except TypeError as err:
+        #     raise robocop.exceptions.InvalidRuleUsageError(rule.rule_id, err)
+        if self.msg_template:
+            return self.msg_template.render(**kwargs)
+        return self.msg
+
     def __str__(self):
         return (
             f"Rule - {self.rule_id} [{self.config['severity'].value}]: {self.name}: {self.message_for_docs} "
-            f'({self.get_enabled_status_desc()})'
+            f"({self.get_enabled_status_desc()})"
         )
 
     def get_enabled_status_desc(self):
@@ -214,10 +232,11 @@ class Rule:
             return ""
         return "\n    ".join(params)
 
-    def prepare_message(self, *args, source, node, lineno, col, end_lineno, end_col, ext_disablers):
+    def prepare_message(self, source, node, lineno, col, end_lineno, end_col, ext_disablers, **kwargs):
+        msg = self.get_message(**kwargs)
         return Message(
-            *args,
             rule=self,
+            msg=msg,
             source=source,
             node=node,
             lineno=lineno,
@@ -237,8 +256,8 @@ class Rule:
 class Message:
     def __init__(
         self,
-        *args,
         rule: Rule,
+        msg,
         source,
         node,
         lineno,
@@ -251,11 +270,7 @@ class Message:
         self.rule_id = rule.rule_id
         self.name = rule.name
         self.severity = rule.severity
-        self.desc = rule.desc
-        try:
-            self.desc %= args
-        except TypeError as err:
-            raise robocop.exceptions.InvalidRuleUsageError(rule.rule_id, err)
+        self.desc = msg
         self.source = source
         self.line = 1
         if node is not None and node.lineno > -1:

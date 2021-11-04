@@ -19,6 +19,7 @@ def message():
     )
     return Message(
         rule=rule,
+        msg=rule.get_message(),
         source=None,
         node=None,
         lineno=None,

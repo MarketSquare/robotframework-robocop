@@ -80,7 +80,9 @@ def msg_0102_0204():
 @pytest.fixture
 def msg_disabled_for_4():
     return {
-        "9999": Rule(rule_id="9999", name="disabled-in-four", msg="This is desc", severity=RuleSeverity.WARNING, version="<4.0")
+        "9999": Rule(
+            rule_id="9999", name="disabled-in-four", msg="This is desc", severity=RuleSeverity.WARNING, version="<4.0"
+        )
     }
 
 
@@ -124,7 +126,7 @@ class TestListingRules:
         out, _ = capsys.readouterr()
         assert (
             out == "Rule - 0101 [W]: some-message: Some description (disabled)\n"
-                   f"Rule - 9999 [W]: disabled-in-four: This is desc ({enabled_for})\n\n"
+            f"Rule - 9999 [W]: disabled-in-four: This is desc ({enabled_for})\n\n"
             "Altogether 2 rule(s) with following severity:\n"
             "    0 error rule(s),\n"
             "    2 warning rule(s),\n"

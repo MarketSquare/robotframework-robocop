@@ -134,48 +134,59 @@ class TestMessage:
         assert msg.source == source
 
     @pytest.mark.parametrize(
-        "args, desc, exp_error",
+        "kwargs, msg, exp",
         [
             (
-                [],
-                "Some description %s and %d",
-                "not enough arguments for format string",
+                {},
+                "Some description {{ string }} and {{ number }}",
+                "Some description  and ",
             ),
             (
-                [1, "smth"],
-                "Some description %s and %d",
-                "%d format: a number is required, not str",
+                {"string": 1, "number": "smth"},
+                "Some description {{ string }} and {{ number }}",
+                "Some description 1 and smth",
             ),
             (
-                ["smth"],
-                "Some description %s and %d",
-                "not enough arguments for format string",
+                {"string": "smth"},
+                "Some description {{ string }} and {{ number }}",
+                "Some description smth and ",
             ),
             (
-                ["smth", 1, 10],
-                "Some description %s and %d",
-                "not all arguments converted during string formatting",
+                {"number": "smth", "string": 1, "other": 10},
+                "Some description {{ string }} and {{ number }}",
+                "Some description 1 and smth",
             ),
             (
-                [10],
-                "Some description",
-                "not all arguments converted during string formatting",
+                {"number": 10},
+                "Some description {{ string -}} and {{ number }}",  # -}} means to remove trailing whitespace
+                "Some description and 10",
+            ),
+            (
+                {"number": 10, "variable": "smth"},
+                "You can supply variables like {{ variable }} or {{ number }}. "
+                "Basic {% if number==10 %}jinja {% endif %}syntax supported",
+                "You can supply variables like smth or 10. Basic jinja syntax supported",
+            ),
+            (
+                {"number": 11, "variable": "smth"},
+                "You can supply variables like {{ variable }} or {{ number }}. "
+                "Basic {% if number==10 %}jinja {% endif %}syntax supported",
+                "You can supply variables like smth or 11. Basic syntax supported",
             ),
         ],
     )
-    def test_prepare_invalid_message_invalid_arg(self, valid_msg, args, desc, exp_error):  # noqa
+    def test_prepare_message_with_jinja(self, kwargs, msg, exp):  # noqa
         node = ast.AST()
         node.lineno = 10
-        valid_msg.desc = desc
-        with pytest.raises(robocop.exceptions.InvalidRuleUsageError) as err:
-            valid_msg.prepare_message(
-                *args,
-                source="file1.robot",
-                node=node,
-                lineno=None,
-                col=None,
-                end_lineno=None,
-                end_col=None,
-                ext_disablers=None,
-            )
-        assert rf"Fatal error: Rule '0101' failed to prepare message description with error: {exp_error}" in str(err)
+        rule = Rule(rule_id="0101", name="some-message", msg=msg, severity=RuleSeverity.WARNING)
+        msg = rule.prepare_message(
+            source="file1.robot",
+            node=node,
+            lineno=None,
+            col=None,
+            end_lineno=None,
+            end_col=None,
+            ext_disablers=None,
+            **kwargs,
+        )
+        assert msg.desc == exp

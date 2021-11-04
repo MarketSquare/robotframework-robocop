@@ -13,7 +13,7 @@ rules = {
     "0701": Rule(
         rule_id="0701",
         name="todo-in-comment",
-        msg="Found %s in comment",
+        msg="Found {{ todo_or_fixme }} in comment",
         severity=RuleSeverity.WARNING,
         docs="""
         Example::
@@ -22,7 +22,6 @@ rules = {
             # fixme 
         
         """,
-        docs_args=("TODO or FIXME statement",),
     ),
     "0702": Rule(
         rule_id="0702",
@@ -196,14 +195,14 @@ class CommentChecker(VisitorChecker):
         if "todo" in token.value.lower():
             self.report(
                 "todo-in-comment",
-                "TODO",
+                todo_or_fixme="TODO",
                 lineno=token.lineno,
                 col=token.col_offset + 1 + token.value.lower().find("todo"),
             )
         if "fixme" in token.value.lower():
             self.report(
                 "todo-in-comment",
-                "FIXME",
+                todo_or_fixme="FIXME",
                 lineno=token.lineno,
                 col=token.col_offset + 1 + token.value.lower().find("fixme"),
             )

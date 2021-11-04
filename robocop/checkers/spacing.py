@@ -36,7 +36,7 @@ rules = {
         ),
         rule_id="1003",
         name="empty-lines-between-sections",
-        msg="Invalid number of empty lines between sections (%d/%d)",
+        msg="Invalid number of empty lines between sections ({{ empty_lines }}/{{ allowed_empty_lines }})",
         severity=RuleSeverity.WARNING,
     ),
     "1004": Rule(
@@ -48,7 +48,7 @@ rules = {
         ),
         rule_id="1004",
         name="empty-lines-between-test-cases",
-        msg="Invalid number of empty lines between test cases (%d/%d)",
+        msg="Invalid number of empty lines between test cases ({{ empty_lines }}/{{ allowed_empty_lines }})",
         severity=RuleSeverity.WARNING,
     ),
     "1005": Rule(
@@ -60,7 +60,7 @@ rules = {
         ),
         rule_id="1005",
         name="empty-lines-between-keywords",
-        msg="Invalid number of empty lines between keywords (%d/%d)",
+        msg="Invalid number of empty lines between keywords ({{ empty_lines }}/{{ allowed_empty_lines }})",
         severity=RuleSeverity.WARNING,
     ),
     "1006": Rule(
@@ -69,7 +69,9 @@ rules = {
         msg="Inconsistent use of tabs and spaces in file",
         severity=RuleSeverity.WARNING,
     ),
-    "1007": Rule(rule_id="1007", name="uneven-indent", msg="Line is %s-indented", severity=RuleSeverity.WARNING),
+    "1007": Rule(
+        rule_id="1007", name="uneven-indent", msg="Line is {{ over_or_under }}-indented", severity=RuleSeverity.WARNING
+    ),
     "1008": Rule(rule_id="1008", name="bad-indent", msg="Indent expected", severity=RuleSeverity.ERROR),
     "1009": Rule(
         RuleParam(
@@ -80,7 +82,7 @@ rules = {
         ),
         rule_id="1009",
         name="empty-line-after-section",
-        msg="Too many empty lines after section header (%d/%d)",
+        msg="Too many empty lines after section header ({{ empty_lines }}/{{ allowed_empty_lines }})",
         severity=RuleSeverity.WARNING,
     ),
     "1010": Rule(
@@ -104,7 +106,7 @@ rules = {
         ),
         rule_id="1012",
         name="consecutive-empty-lines",
-        msg="Too many empty lines (%s/%s)",
+        msg="Too many empty lines ({{ empty_lines }}/{{ allowed_empty_lines }})",
         severity=RuleSeverity.WARNING,
     ),
     "1013": Rule(
@@ -205,8 +207,8 @@ class EmptyLinesChecker(VisitorChecker):
                 if empty_lines > self.param("consecutive-empty-lines", "empty_lines"):
                     self.report(
                         "consecutive-empty-lines",
-                        empty_lines,
-                        self.param("consecutive-empty-lines", "empty_lines"),
+                        empty_lines=empty_lines,
+                        allowed_empty_lines=self.param("consecutive-empty-lines", "empty_lines"),
                         node=prev_node,
                     )
                 empty_lines = 0
@@ -239,8 +241,8 @@ class EmptyLinesChecker(VisitorChecker):
             if allowed_empty_lines not in (empty_lines, -1) and index < last_index:
                 self.report(
                     issue_name,
-                    empty_lines,
-                    allowed_empty_lines,
+                    empty_lines=empty_lines,
+                    allowed_empty_lines=allowed_empty_lines,
                     lineno=child.end_lineno,
                 )
         self.generic_visit(node)
@@ -280,8 +282,8 @@ class EmptyLinesChecker(VisitorChecker):
             if empty_lines != self.param("empty-lines-between-sections", "empty_lines"):
                 self.report(
                     "empty-lines-between-sections",
-                    empty_lines,
-                    self.param("empty-lines-between-sections", "empty_lines"),
+                    empty_lines=empty_lines,
+                    allowed_empty_lines=self.param("empty-lines-between-sections", "empty_lines"),
                     lineno=section.end_lineno,
                 )
         super().visit_File(node)
@@ -297,8 +299,8 @@ class EmptyLinesChecker(VisitorChecker):
         if len(empty_lines) > self.param("empty-line-after-section", "empty_lines"):
             self.report(
                 "empty-line-after-section",
-                len(empty_lines),
-                self.param("empty-line-after-section", "empty_lines"),
+                empty_lines=len(empty_lines),
+                allowed_empty_lines=self.param("empty-line-after-section", "empty_lines"),
                 node=empty_lines[-1],
             )
 
@@ -363,7 +365,7 @@ class UnevenIndentChecker(VisitorChecker):
             ):
                 self.report(
                     "uneven-indent",
-                    "over",
+                    over_or_under="over",
                     node=child,
                     col=token_col(child, Token.COMMENT),
                 )
@@ -444,7 +446,7 @@ class UnevenIndentChecker(VisitorChecker):
             if indent[0] != common_indent:
                 self.report(
                     "uneven-indent",
-                    "over" if indent[0] > common_indent else "under",
+                    over_or_under="over" if indent[0] > common_indent else "under",
                     node=indent[1],
                     col=indent[0] + 1,
                 )
@@ -461,7 +463,7 @@ class UnevenIndentChecker(VisitorChecker):
                 continue
             col = token_col(child, Token.COMMENT)
             if col != 1:
-                self.report("uneven-indent", "over", node=child, col=col)
+                self.report("uneven-indent", over_or_under="over", node=child, col=col)
 
     @staticmethod
     def find_block_end(node):

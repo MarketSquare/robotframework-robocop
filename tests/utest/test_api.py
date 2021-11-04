@@ -90,6 +90,7 @@ class TestAPI:
         issues = [
             Message(
                 rule=rule,
+                msg=rule.get_message(),
                 source=r"C:\directory\file.robot",
                 node=None,
                 lineno=10,
@@ -99,6 +100,7 @@ class TestAPI:
             ),
             Message(
                 rule=rule,
+                msg=rule.get_message(),
                 source=r"C:\directory\file.robot",
                 node=None,
                 lineno=1,

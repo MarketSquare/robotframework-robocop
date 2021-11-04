@@ -35,10 +35,12 @@ This is an example of the file with custom checker that asserts that no test hav
             if 'Dummy' in node.name:
                 self.report("dummy-in-name", node=node, col=node.name.find('Dummy'))
 
+Rule parameters
+---------------
 Rules can have configurable values. You need to specify them using RuleParam class and pass it as not named arg to Rule::
 
     from robocop.checkers import VisitorChecker
-    from robocop.rules import Rule, RuleParam
+    from robocop.rules import Rule, RuleParam, RuleSeverity
 
 
     rules = {
@@ -46,8 +48,8 @@ Rules can have configurable values. You need to specify them using RuleParam cla
             RuleParam(name="param_name", converter=str, default="Dummy", desc="Optional desc"),
             rule_id="9999",
             name="dummy-in-name",
-            msg="There is '%s' in test case name",
-            severity="W"
+            msg="There is '{{ variable }}' in test case name",
+            severity=RuleSeverity.WARNING,
         )
     }
 
@@ -59,7 +61,7 @@ Rules can have configurable values. You need to specify them using RuleParam cla
             if self.private_name in node.name:
                 self.report(
                     "dummy-in-name",
-                    self.param("dummy-in-name", "param_name"),
+                    variable=self.param("dummy-in-name", "param_name"),
                     node=node,
                     col=node.name.find(self.param("dummy-in-name", "param_name")))
 
@@ -70,6 +72,25 @@ Configurable parameter can be referred by its :code:`name` in command line optio
 Value of the configurable parameter can be retrieved using :code:`param` method::
 
     self.param("name-of-the-rule", "name-of-param")
+
+Templated rule messages
+------------------------
+When defining rule messages you can use `jinja` templates. The most basic usage is supplying variables to rule message::
+
+    rules = {
+        "9001": Rule(
+            rule_id="9001",
+            name="my-rule",
+            msg="You can supply variables like {{ variable }} or {{ number }}. "
+                "Basic {% if number==10 %}jinja {% endif %}syntax supported",
+            severity=RuleSeverity.ERROR
+        )
+    }
+
+Variables need to be passed to report() method by their name::
+
+    self.report("my-rule", variable="some string", number=10, node=node)
+
 
 Import from external module
 ----------------------------
@@ -88,11 +109,11 @@ inside ``__init__.py``::
 inside ``some_rules.py``::
 
     from robocop.checkers import VisitorChecker
-    from robocop.rules import Rule
+    from robocop.rules import Rule, RuleSeverity
 
 
     rules = {
-        "9903": Rule(rule_id="9903", name="external-rule", msg="This is an external rule", severity="I")
+        "9903": Rule(rule_id="9903", name="external-rule", msg="This is an external rule", severity=RuleSeverity.INFO)
     }
 
 
@@ -118,7 +139,7 @@ external rules using modules and `__init__.py` it should be also imported (or de
 You can enable (or disable) your rule for particular Robot Framework version. Add `version` parameter to Rule definition::
 
     rules = {
-        "9903": Rule(rule_id="9903", name="external-rule", msg="This is external rule", severity="I", version=">=5.0")
+        "9903": Rule(rule_id="9903", name="external-rule", msg="This is external rule", severity=RuleSeverity.INFO, version=">=5.0")
     }
 
 In this case rule "external-rule" will be disabled for all Robot Framework versions except 5.0 and newer.

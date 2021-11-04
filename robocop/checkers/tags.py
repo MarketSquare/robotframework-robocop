@@ -29,7 +29,8 @@ rules = {
     "0605": Rule(
         rule_id="0605",
         name="could-be-forced-tags",
-        msg="All tests in suite share those tags: '%s'. You can define them in Force Tags in suite settings instead",
+        msg="All tests in suite share these tags: '{{ tags }}'. "
+        "You can define them in 'Force Tags' in suite settings instead",
         severity=RuleSeverity.INFO,
     ),
     "0606": Rule(
@@ -45,7 +46,10 @@ rules = {
         severity=RuleSeverity.INFO,
     ),
     "0608": Rule(
-        rule_id="0608", name="empty-tags", msg="[Tags] setting without values%s", severity=RuleSeverity.WARNING
+        rule_id="0608",
+        name="empty-tags",
+        msg="[Tags] setting without values{{ optional_warning }}",
+        severity=RuleSeverity.WARNING,
     ),
 }
 
@@ -155,7 +159,7 @@ class TagScopeChecker(VisitorChecker):
         if common_tags:
             self.report(
                 "could-be-forced-tags",
-                ", ".join(common_tags),
+                tags=", ".join(common_tags),
                 node=node if self.force_tags_node is None else self.force_tags_node,
             )
 
@@ -179,7 +183,7 @@ class TagScopeChecker(VisitorChecker):
     def visit_Tags(self, node):  # noqa
         if not node.values:
             suffix = "" if self.in_keywords else ". Consider using NONE if you want to overwrite the Default Tags"
-            self.report("empty-tags", suffix, node=node, col=node.end_col_offset)
+            self.report("empty-tags", optional_warning=suffix, node=node, col=node.end_col_offset)
         self.tags.append([tag.value for tag in node.data_tokens[1:]])
         for tag in node.data_tokens[1:]:
             if tag.value in self.force_tags:

@@ -16,7 +16,7 @@ from robot.libraries import STDLIBS
 
 from robocop.checkers import VisitorChecker
 from robocop.rules import Rule, RuleParam, RuleSeverity
-from robocop.utils import ROBOT_VERSION, AssignmentTypeDetector, normalize_robot_name, parse_assignment_sign_type
+from robocop.utils import ROBOT_VERSION, AssignmentTypeDetector, normalize_robot_name, parse_assignment_sign_type, keyword_col
 
 rules = {
     "0901": Rule(
@@ -73,7 +73,7 @@ rules = {
     "0908": Rule(
         rule_id="0908",
         name="if-can-be-used",
-        msg="'%s' can be replaced with IF block since Robot Framework 4.0",
+        msg="'{{ run_keyword }}' can be replaced with IF block since Robot Framework 4.0",
         severity=RuleSeverity.INFO,
         version=">=4.0",
     ),
@@ -87,7 +87,8 @@ rules = {
         ),
         rule_id="0909",
         name="inconsistent-assignment",
-        msg="The assignment sign is not consistent within the file. Expected '%s' but got '%s' instead",
+        msg="The assignment sign is not consistent within the file. Expected '{{ expected_sign }}' "
+        "but got '{{ actual_sign }}' instead",
         severity=RuleSeverity.WARNING,
     ),
     "0910": Rule(
@@ -100,13 +101,14 @@ rules = {
         ),
         rule_id="0910",
         name="inconsistent-assignment-in-variables",
-        msg="The assignment sign is not consistent inside the variables section. Expected '%s' but got '%s' instead",
+        msg="The assignment sign is not consistent inside the variables section. Expected '{{ expected_sign }}' "
+        "but got '{{ actual_sign }}' instead",
         severity=RuleSeverity.WARNING,
     ),
     "0911": Rule(
         rule_id="0911",
         name="wrong-import-order",
-        msg="BuiltIn library import '%s' should be placed before '%s'",
+        msg="BuiltIn library import '{{ builtin_import }}' should be placed before '{{ custom_import }}'",
         severity=RuleSeverity.WARNING,
     ),
     "0912": Rule(
@@ -118,7 +120,7 @@ rules = {
     "0913": Rule(
         rule_id="0913",
         name="can-be-resource-file",
-        msg="No tests in '%s' file, consider renaming to '%s.resource'",
+        msg="No tests in '{{ file_name }}' file, consider renaming to '{{ file_name_stem }}.resource'",
         severity=RuleSeverity.INFO,
     ),
 }
@@ -186,13 +188,9 @@ class IfBlockCanBeUsed(VisitorChecker):
     def visit_KeywordCall(self, node):  # noqa
         if not node.keyword:
             return
-        if normalize_robot_name(node.keyword) in self.run_keyword_variants:
-            col = 0
-            for token in node.data_tokens:
-                if token.type == Token.KEYWORD:
-                    col = token.col_offset + 1
-                    break
-            self.report("if-can-be-used", node.keyword, node=node, col=col)
+        if normalize_robot_name(node.keyword, remove_prefix='builtin.') in self.run_keyword_variants:
+            col = keyword_col(node)
+            self.report("if-can-be-used", run_keyword=node.keyword, node=node, col=col)
 
 
 class ConsistentAssignmentSignChecker(VisitorChecker):
@@ -266,8 +264,8 @@ class ConsistentAssignmentSignChecker(VisitorChecker):
         if sign != expected:
             self.report(
                 issue_name,
-                expected,
-                sign,
+                expected_sign=expected,
+                actual_sign=sign,
                 lineno=token.lineno,
                 col=token.end_col_offset + 1,
             )
@@ -303,8 +301,8 @@ class SettingsOrderChecker(VisitorChecker):
                 if library.name in STDLIBS:
                     self.report(
                         "wrong-import-order",
-                        library.name,
-                        first_non_builtin,
+                        builtin_import=library.name,
+                        custom_import=first_non_builtin,
                         node=library,
                     )
 
@@ -354,4 +352,4 @@ class ResourceFileChecker(VisitorChecker):
                 and node.sections
                 and not any([isinstance(section, TestCaseSection) for section in node.sections])
             ):
-                self.report("can-be-resource-file", Path(source).name, file_name, node=node)
+                self.report("can-be-resource-file", file_name=Path(source).name, file_name_stem=file_name, node=node)

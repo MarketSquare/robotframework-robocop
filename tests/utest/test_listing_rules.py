@@ -1,6 +1,7 @@
 import pytest
 
 import robocop.config
+from robocop.utils import ROBOT_VERSION
 from robocop.checkers import VisitorChecker
 from robocop.rules import Rule, RuleParam, RuleSeverity
 
@@ -76,6 +77,15 @@ def msg_0102_0204():
     }
 
 
+@pytest.fixture
+def msg_disabled_for_4():
+    return {
+        "9999": Rule(
+            rule_id="9999", name="disabled-in-four", msg="This is desc", severity=RuleSeverity.WARNING, version="<4.0"
+        )
+    }
+
+
 def init_empty_checker(robocop_instance_pre_load, rule, exclude=False, **kwargs):
     checker = EmptyChecker()
     checker.rules = rule
@@ -103,17 +113,23 @@ class TestListingRules:
             "Visit https://robocop.readthedocs.io/en/stable/rules.html page for detailed documentation.\n"
         )
 
-    def test_list_disabled_rule(self, robocop_pre_load, msg_0101, capsys):
+    def test_list_disabled_rule(self, robocop_pre_load, msg_0101, msg_disabled_for_4, capsys):
         robocop_pre_load.config.list = robocop.config.translate_pattern("*")
         init_empty_checker(robocop_pre_load, msg_0101, exclude=True)
+        init_empty_checker(robocop_pre_load, msg_disabled_for_4)
+        if ROBOT_VERSION.major >= 4:
+            enabled_for = "disabled - supported only for RF version <4.0"
+        else:
+            enabled_for = "enabled"
         with pytest.raises(SystemExit):
             robocop_pre_load.list_checkers()
         out, _ = capsys.readouterr()
         assert (
-            out == "Rule - 0101 [W]: some-message: Some description (disabled)\n\n"
-            "Altogether 1 rule(s) with following severity:\n"
+            out == "Rule - 0101 [W]: some-message: Some description (disabled)\n"
+            f"Rule - 9999 [W]: disabled-in-four: This is desc ({enabled_for})\n\n"
+            "Altogether 2 rule(s) with following severity:\n"
             "    0 error rule(s),\n"
-            "    1 warning rule(s),\n"
+            "    2 warning rule(s),\n"
             "    0 info rule(s).\n\n"
             "Visit https://robocop.readthedocs.io/en/stable/rules.html page for detailed documentation.\n"
         )

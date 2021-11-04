@@ -31,7 +31,7 @@ rules = {
         ),
         rule_id="0301",
         name="not-allowed-char-in-name",
-        msg="Not allowed character '%s' found in %s name",
+        msg="Not allowed character '{{ character }}' found in {{ block_name }} name",
         severity=RuleSeverity.WARNING,
     ),
     "0302": Rule(
@@ -49,7 +49,7 @@ rules = {
     "0303": Rule(
         rule_id="0303",
         name="keyword-name-is-reserved-word",
-        msg="'%s' is a reserved keyword%s",
+        msg="'{{ keyword_name }}' is a reserved keyword{{ error_msg }}",
         severity=RuleSeverity.ERROR,
     ),
     "0305": Rule(
@@ -132,7 +132,7 @@ rules = {
     "0316": Rule(
         rule_id="0316",
         name="possible-variable-overwriting",
-        msg="Variable '%s' may overwrite similar variable inside '%s' %s. "
+        msg="Variable '{{ variable_name }}' may overwrite similar variable inside '{{ block_name }}' {{ block_type }}. "
         "Note that variables are case-insensitive, and also spaces and underscores are ignored.",
         severity=RuleSeverity.INFO,
     ),
@@ -145,7 +145,7 @@ rules = {
     "0318": Rule(
         rule_id="0318",
         name="bdd-without-keyword-call",
-        msg="BDD reserved keyword '%s' not followed by any keyword%s",
+        msg="BDD reserved keyword '{{ keyword_name }}' not followed by any keyword{{ error_msg }}",
         severity=RuleSeverity.WARNING,
     ),
 }
@@ -164,7 +164,7 @@ class InvalidCharactersInNameChecker(VisitorChecker):
                 suite_name = Path(source).parent.name
             for char in suite_name:
                 if self.param("not-allowed-char-in-name", "pattern").search(char):
-                    self.report("not-allowed-char-in-name", char, "suite", node=node)
+                    self.report("not-allowed-char-in-name", character=char, block_name="suite", node=node)
         super().visit_File(node)
 
     def check_if_char_in_node_name(self, node, name_of_node, is_keyword=False):
@@ -179,8 +179,8 @@ class InvalidCharactersInNameChecker(VisitorChecker):
                 if self.param("not-allowed-char-in-name", "pattern").search(node.name[index]):
                     self.report(
                         "not-allowed-char-in-name",
-                        node.name[index],
-                        f"'{node.name}' {name_of_node}",
+                        character=node.name[index],
+                        block_name=name_of_node,
                         node=node,
                         col=node.col_offset + index + 1,
                     )
@@ -263,14 +263,15 @@ class KeywordNamingChecker(VisitorChecker):
             return
         if keyword_name == r"/":  # old for loop, / are interpreted as keywords
             return
-        if normalize_robot_name(keyword_name) == "runkeywordif":
+        if isinstance(node, KeywordCall) and normalize_robot_name(keyword_name, remove_prefix="builtin.") == "runkeywordif":
             for token in node.data_tokens:
                 if (token.value.lower() in self.else_if) and not token.value.isupper():
                     self.report(
                         "keyword-name-is-reserved-word",
-                        token.value,
-                        self.prepare_reserved_word_rule_message(token.value, "Run Keyword If"),
+                        keyword_name=token.value,
+                        error_msg=self.prepare_reserved_word_rule_message(token.value, "Run Keyword If"),
                         node=node,
+                        col=token.col_offset+1,
                     )
         elif self.check_if_keyword_is_reserved(keyword_name, node):
             return
@@ -292,7 +293,7 @@ class KeywordNamingChecker(VisitorChecker):
         arg = node.get_token(Token.ARGUMENT)
         suffix = f". Use one space between: '{keyword_name.title()} {arg.value}'" if arg else ""
         col = token_col(node, Token.NAME, Token.KEYWORD)
-        self.report("bdd-without-keyword-call", keyword_name, suffix, node=node, col=col)
+        self.report("bdd-without-keyword-call", keyword_name=keyword_name, error_msg=suffix, node=node, col=col)
 
     def check_if_keyword_is_reserved(self, keyword_name, node):
         # if there is typo in syntax, it is interpreted as keyword
@@ -301,7 +302,7 @@ class KeywordNamingChecker(VisitorChecker):
             return False
         reserved_type = reserved[keyword_name.lower()]
         suffix = self.prepare_reserved_word_rule_message(keyword_name, reserved_type)
-        self.report("keyword-name-is-reserved-word", keyword_name, suffix, node=node)
+        self.report("keyword-name-is-reserved-word", keyword_name=keyword_name, error_msg=suffix, node=node, col=keyword_col(node))
         return True
 
     @staticmethod
@@ -461,7 +462,7 @@ class VariableNamingChecker(VisitorChecker):
 
         if not node.keyword:
             return
-        if normalize_robot_name(node.keyword) in self.set_variable_variants:
+        if normalize_robot_name(node.keyword, remove_prefix='builtin.') in self.set_variable_variants:
             if len(node.data_tokens) < 2:
                 return
             token = node.data_tokens[1]
@@ -530,9 +531,9 @@ class SimilarVariableChecker(VisitorChecker):
             if normalized_token in self.variables and token.value not in self.variables[normalized_token]:
                 self.report(
                     "possible-variable-overwriting",
-                    token.value,
-                    self.parent_name,
-                    self.parent_type,
+                    variable_name=token.value,
+                    block_name=self.parent_name,
+                    block_type=self.parent_type,
                     node=node,
                     lineno=token.lineno,
                     col=token.col_offset,

@@ -1,6 +1,7 @@
 """
 Tags checkers
 """
+from collections import defaultdict
 
 from robot.api import Token
 
@@ -51,6 +52,21 @@ rules = {
         msg="[Tags] setting without values{{ optional_warning }}",
         severity=RuleSeverity.WARNING,
     ),
+    "0609": Rule(
+        rule_id="0609",
+        name="duplicated-tags",
+        msg="Multiple tags with name '{{ name }}' (first occurrence at position {{ first_occurrence_pos }})",
+        severity=RuleSeverity.WARNING,
+        docs="""
+        Tags are free text, but they are normalized so that they are converted to lowercase and all spaces are removed.
+        Only first tag is used, other occurrences are ignored.
+        
+        Example of duplicated tags::
+            Test
+                [Tags]    Tag    TAG    tag    t a g
+
+        """
+    )
 }
 
 
@@ -61,6 +77,7 @@ class TagNameChecker(VisitorChecker):
         "tag-with-space",
         "tag-with-or-and",
         "tag-with-reserved",
+        "duplicated-tags",
     )
 
     is_keyword = False
@@ -86,11 +103,15 @@ class TagNameChecker(VisitorChecker):
                 lambda tag: tag.type not in Token.NON_DATA_TOKENS and tag.type != Token.DOCUMENTATION,
                 last_line,
             )
+            tags = defaultdict(list)
             for index, token in enumerate(filtered_line):
                 if index == 0 and token.value.lower() != "tags:":
                     break
                 token.value = token.value.rstrip(",")
+                normalized_tag = token.value.lower().replace(' ', '')
+                tags[normalized_tag].append(token)
                 self.check_tag(token, node)
+            self.check_duplicates(tags)
 
     def visit_Keyword(self, node):  # noqa
         self.is_keyword = True
@@ -98,8 +119,23 @@ class TagNameChecker(VisitorChecker):
         self.is_keyword = False
 
     def check_tags(self, node):
+        tags = defaultdict(list)
         for tag in node.data_tokens[1:]:
+            normalized_tag = tag.value.lower().replace(' ', '')
+            tags[normalized_tag].append(tag)
             self.check_tag(tag, node)
+        self.check_duplicates(tags)
+
+    def check_duplicates(self, tags):
+        for nodes in tags.values():
+            for duplicate in nodes[1:]:
+                self.report(
+                    "duplicated-tags",
+                    name=duplicate.value,
+                    first_occurrence_pos=f"{nodes[0].lineno}:{nodes[0].col_offset + 1}",
+                    node=duplicate,
+                    col=duplicate.col_offset + 1
+                )
 
     def check_tag(self, tag, node):
         if " " in tag.value:

@@ -1,4 +1,4 @@
-${rules_dir}${\}test.robot:3:15 [W] 0601 Tags should not contain spaces
-${rules_dir}${\}test.robot:4:15 [W] 0601 Tags should not contain spaces
-${rules_dir}${\}test.robot:10:13 [W] 0601 Tags should not contain spaces
-${rules_dir}${\}test.robot:19:29 [W] 0601 Tags should not contain spaces
+${rules_dir}${\}test.robot:3:15 [W] 0601 Tag 'with space' should not contain spaces
+${rules_dir}${\}test.robot:4:15 [W] 0601 Tag 'with space' should not contain spaces
+${rules_dir}${\}test.robot:10:13 [W] 0601 Tag 'some tag' should not contain spaces
+${rules_dir}${\}test.robot:19:29 [W] 0601 Tag 'space tag' should not contain spaces

@@ -1,1 +1,1 @@
-${rules_dir}${\}test.robot:11:1 [W] 0305 Underscores in keyword name can be replaced with spaces
+${rules_dir}${\}test.robot:11:1 [W] 0305 Underscores in keyword name 'One_More' can be replaced with spaces

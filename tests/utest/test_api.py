@@ -38,7 +38,7 @@ class TestAPI:
         issues = run_check_on_string(in_memory)
         expected_issues = {
             "Missing documentation in suite",
-            "Section is empty",
+            "Section '*** Settings ***' is empty",
             "Too many blank lines at the end of file",
             "No tests in 'file.robot' file, consider renaming to 'file.resource'",
         }
@@ -50,7 +50,7 @@ class TestAPI:
         issues = run_check_on_string(in_memory)
         expected_issues = {
             "Missing documentation in suite",
-            "Section is empty",
+            "Section '*** Settings ***' is empty",
             "Trailing whitespace at the end of line",
             "Too many blank lines at the end of file",
             "No tests in 'file.robot' file, consider renaming to 'file.resource'",
@@ -63,7 +63,7 @@ class TestAPI:
         issues = run_check_on_string(in_memory)
         expected_issues = {
             "Missing documentation in suite",
-            "Section is empty",
+            "Section '*** Settings ***' is empty",
             "Trailing whitespace at the end of line",
             "Too many blank lines at the end of file",
             "No tests in 'file.robot' file, consider renaming to 'file.resource'",
@@ -146,7 +146,7 @@ class TestAPI:
         issues = run_check_on_string(in_memory)
         expected_issues = {
             "Missing documentation in suite",
-            "Section is empty",
+            "Section '*** Settings ***' is empty",
             "Too many blank lines at the end of file",
             "No tests in 'file.robot' file, consider renaming to 'file.resource'",
         }

@@ -19,7 +19,7 @@ rules = {
     "0405": Rule(
         rule_id="0405",
         name="invalid-continuation-mark",
-        msg="Invalid continuation mark. It should be '...'",
+        msg="Invalid continuation mark '{{ mark }}'. It should be '...'",
         severity=RuleSeverity.ERROR,
     ),
     # there is not-enough-whitespace-after-newline-marker for keyword calls already
@@ -41,7 +41,7 @@ rules = {
     "0410": Rule(
         rule_id="0410",
         name="not-enough-whitespace-after-variable",
-        msg="Provide at least two spaces after variable",
+        msg="Provide at least two spaces after '{{ variable_name }}' variable name",
         severity=RuleSeverity.ERROR,
     ),
     "0411": Rule(
@@ -251,6 +251,7 @@ class ParsingErrorChecker(VisitorChecker):
             if variables and variables[0][0] == 0:
                 self.report(
                     "not-enough-whitespace-after-variable",
+                    variable_name=variable_token.value,
                     node=variable_token,
                     col=variable_token.col_offset + 1,
                 )
@@ -261,10 +262,10 @@ class ParsingErrorChecker(VisitorChecker):
     def handle_invalid_continuation_mark(self, node, name):
         stripped = name.lstrip()
         if len(stripped) == 2 or not stripped[2].strip():
-            self.report("invalid-continuation-mark", node=node, col=name.find(".") + 1)
+            self.report("invalid-continuation-mark", mark=stripped, node=node, col=name.find(".") + 1)
         elif len(stripped) >= 4:
             if stripped[:4] == "....":
-                self.report("invalid-continuation-mark", node=node, col=name.find(".") + 1)
+                self.report("invalid-continuation-mark", mark=stripped, node=node, col=name.find(".") + 1)
             else:  # '... ' or '...value' or '...\t'
                 self.report(
                     "not-enough-whitespace-after-newline-marker",

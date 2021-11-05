@@ -73,7 +73,9 @@ rules = {
         msg="Line is too long ({{ line_length }}/{{ allowed_length }})",
         severity=RuleSeverity.WARNING,
     ),
-    "0509": Rule(rule_id="0509", name="empty-section", msg="Section '{{ section_name }}' is empty", severity=RuleSeverity.WARNING),
+    "0509": Rule(
+        rule_id="0509", name="empty-section", msg="Section '{{ section_name }}' is empty", severity=RuleSeverity.WARNING
+    ),
     "0510": Rule(
         RuleParam(
             name="max_returns", default=4, converter=int, desc="allowed number of returned values from a keyword"
@@ -90,7 +92,10 @@ rules = {
         severity=RuleSeverity.WARNING,
     ),
     "0512": Rule(
-        rule_id="0512", name="empty-documentation", msg="Documentation of {{ block_name }} is empty", severity=RuleSeverity.WARNING
+        rule_id="0512",
+        name="empty-documentation",
+        msg="Documentation of {{ block_name }} is empty",
+        severity=RuleSeverity.WARNING,
     ),
     "0513": Rule(rule_id="0513", name="empty-force-tags", msg="Force Tags are empty", severity=RuleSeverity.WARNING),
     "0514": Rule(
@@ -106,7 +111,10 @@ rules = {
         rule_id="0517", name="empty-library-import", msg="Import library path is empty", severity=RuleSeverity.ERROR
     ),
     "0518": Rule(
-        rule_id="0518", name="empty-setup", msg="Setup of {{ block_name }} does not have any keywords", severity=RuleSeverity.ERROR
+        rule_id="0518",
+        name="empty-setup",
+        msg="Setup of {{ block_name }} does not have any keywords",
+        severity=RuleSeverity.ERROR,
     ),
     "0519": Rule(
         rule_id="0519",
@@ -138,9 +146,16 @@ rules = {
         msg="Test Teardown does not have any keywords",
         severity=RuleSeverity.ERROR,
     ),
-    "0524": Rule(rule_id="0524", name="empty-timeout", msg="Timeout of {{ block_name }} is empty", severity=RuleSeverity.WARNING),
+    "0524": Rule(
+        rule_id="0524", name="empty-timeout", msg="Timeout of {{ block_name }} is empty", severity=RuleSeverity.WARNING
+    ),
     "0525": Rule(rule_id="0525", name="empty-test-timeout", msg="Test Timeout is empty", severity=RuleSeverity.WARNING),
-    "0526": Rule(rule_id="0526", name="empty-arguments", msg="Arguments of {{ block_name }} are empty", severity=RuleSeverity.ERROR),
+    "0526": Rule(
+        rule_id="0526",
+        name="empty-arguments",
+        msg="Arguments of {{ block_name }} are empty",
+        severity=RuleSeverity.ERROR,
+    ),
     "0527": Rule(
         RuleParam(name="max_testcases", default=50, converter=int, desc="number of test cases allowed in a suite"),
         RuleParam(
@@ -202,7 +217,7 @@ class LengthChecker(VisitorChecker):
         if length > self.param("too-long-keyword", "max_len"):
             self.report(
                 "too-long-keyword",
-                keyword_name = node.name,
+                keyword_name=node.name,
                 keyword_length=length,
                 allowed_length=self.param("too-long-keyword", "max_len"),
                 node=node,
@@ -214,7 +229,7 @@ class LengthChecker(VisitorChecker):
         if key_calls < self.param("too-few-calls-in-keyword", "min_calls"):
             self.report(
                 "too-few-calls-in-keyword",
-                keyword_name = node.name,
+                keyword_name=node.name,
                 keyword_count=key_calls,
                 min_allowed_count=self.param("too-few-calls-in-keyword", "min_calls"),
                 node=node,
@@ -223,7 +238,7 @@ class LengthChecker(VisitorChecker):
         if key_calls > self.param("too-many-calls-in-keyword", "max_calls"):
             self.report(
                 "too-many-calls-in-keyword",
-                keyword_name = node.name,
+                keyword_name=node.name,
                 keyword_count=key_calls,
                 max_allowed_count=self.param("too-many-calls-in-keyword", "max_calls"),
                 node=node,

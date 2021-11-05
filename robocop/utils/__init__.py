@@ -21,4 +21,5 @@ from robocop.utils.misc import (
     pattern_type,
     remove_robot_vars,
     token_col,
+    get_section_name,
 )

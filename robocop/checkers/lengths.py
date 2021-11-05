@@ -8,42 +8,42 @@ from robot.parsing.model.statements import Arguments, Comment, EmptyLine, Keywor
 
 from robocop.checkers import RawFileChecker, VisitorChecker
 from robocop.rules import Rule, RuleParam, RuleSeverity
-from robocop.utils import last_non_empty_line, normalize_robot_name, pattern_type
+from robocop.utils import last_non_empty_line, normalize_robot_name, pattern_type, get_section_name
 
 rules = {
     "0501": Rule(
         RuleParam(name="max_len", default=40, converter=int, desc="number of lines allowed in a keyword"),
         rule_id="0501",
         name="too-long-keyword",
-        msg="Keyword is too long ({{ keyword_length }}/{{ allowed_length}})",
+        msg="Keyword '{{ keyword_name }}' is too long ({{ keyword_length }}/{{ allowed_length}})",
         severity=RuleSeverity.WARNING,
     ),
     "0502": Rule(
         RuleParam(name="min_calls", default=1, converter=int, desc="number of keyword calls required in a keyword"),
         rule_id="0502",
         name="too-few-calls-in-keyword",
-        msg="Keyword has too few keywords inside ({{ keyword_count }}/{{ min_allowed_count }})",
+        msg="Keyword '{{ keyword_name }}' has too few keywords inside ({{ keyword_count }}/{{ min_allowed_count }})",
         severity=RuleSeverity.WARNING,
     ),
     "0503": Rule(
         RuleParam(name="max_calls", default=10, converter=int, desc="number of keyword calls allowed in a keyword"),
         rule_id="0503",
         name="too-many-calls-in-keyword",
-        msg="Keyword has too many keywords inside ({{ keyword_count }}/{{ max_allowed_count }})",
+        msg="Keyword '{{ keyword_name }}' has too many keywords inside ({{ keyword_count }}/{{ max_allowed_count }})",
         severity=RuleSeverity.WARNING,
     ),
     "0504": Rule(
         RuleParam(name="max_len", default=20, converter=int, desc="number of lines allowed in a test case"),
         rule_id="0504",
         name="too-long-test-case",
-        msg="Test case is too long ({{ test_length }}/{{ allowed_length }})",
+        msg="Test case '{{ test_name }}' is too long ({{ test_length }}/{{ allowed_length }})",
         severity=RuleSeverity.WARNING,
     ),
     "0505": Rule(
         RuleParam(name="max_calls", default=10, converter=int, desc="number of keyword calls allowed in a test case"),
         rule_id="0505",
         name="too-many-calls-in-test-case",
-        msg="Test case has too many keywords inside ({{ keyword_count }}/{{ max_allowed_count }})",
+        msg="Test case '{{ test_name }}' has too many keywords inside ({{ keyword_count }}/{{ max_allowed_count }})",
         severity=RuleSeverity.WARNING,
     ),
     "0506": Rule(
@@ -57,7 +57,7 @@ rules = {
         RuleParam(name="max_args", default=5, converter=int, desc="number of lines allowed in a file"),
         rule_id="0507",
         name="too-many-arguments",
-        msg="Keyword has too many arguments ({{ arguments_count }}/{{ max_allowed_count }})",
+        msg="Keyword '{{ keyword_name }}' has too many arguments ({{ arguments_count }}/{{ max_allowed_count }})",
         severity=RuleSeverity.WARNING,
     ),
     "0508": Rule(
@@ -73,7 +73,9 @@ rules = {
         msg="Line is too long ({{ line_length }}/{{ allowed_length }})",
         severity=RuleSeverity.WARNING,
     ),
-    "0509": Rule(rule_id="0509", name="empty-section", msg="Section is empty", severity=RuleSeverity.WARNING),
+    "0509": Rule(
+        rule_id="0509", name="empty-section", msg="Section '{{ section_name }}' is empty", severity=RuleSeverity.WARNING
+    ),
     "0510": Rule(
         RuleParam(
             name="max_returns", default=4, converter=int, desc="allowed number of returned values from a keyword"
@@ -90,7 +92,10 @@ rules = {
         severity=RuleSeverity.WARNING,
     ),
     "0512": Rule(
-        rule_id="0512", name="empty-documentation", msg="Documentation is empty", severity=RuleSeverity.WARNING
+        rule_id="0512",
+        name="empty-documentation",
+        msg="Documentation of {{ block_name }} is empty",
+        severity=RuleSeverity.WARNING,
     ),
     "0513": Rule(rule_id="0513", name="empty-force-tags", msg="Force Tags are empty", severity=RuleSeverity.WARNING),
     "0514": Rule(
@@ -106,7 +111,10 @@ rules = {
         rule_id="0517", name="empty-library-import", msg="Import library path is empty", severity=RuleSeverity.ERROR
     ),
     "0518": Rule(
-        rule_id="0518", name="empty-setup", msg="Setup does not have any keywords", severity=RuleSeverity.ERROR
+        rule_id="0518",
+        name="empty-setup",
+        msg="Setup of {{ block_name }} does not have any keywords",
+        severity=RuleSeverity.ERROR,
     ),
     "0519": Rule(
         rule_id="0519",
@@ -121,7 +129,10 @@ rules = {
         severity=RuleSeverity.ERROR,
     ),
     "0521": Rule(
-        rule_id="0521", name="empty-teardown", msg="Teardown does not have any keywords", severity=RuleSeverity.ERROR
+        rule_id="0521",
+        name="empty-teardown",
+        msg="Teardown of {{ block_name }} does not have any keywords",
+        severity=RuleSeverity.ERROR,
     ),
     "0522": Rule(
         rule_id="0522",
@@ -135,9 +146,16 @@ rules = {
         msg="Test Teardown does not have any keywords",
         severity=RuleSeverity.ERROR,
     ),
-    "0524": Rule(rule_id="0524", name="empty-timeout", msg="Timeout is empty", severity=RuleSeverity.WARNING),
+    "0524": Rule(
+        rule_id="0524", name="empty-timeout", msg="Timeout of {{ block_name }} is empty", severity=RuleSeverity.WARNING
+    ),
     "0525": Rule(rule_id="0525", name="empty-test-timeout", msg="Test Timeout is empty", severity=RuleSeverity.WARNING),
-    "0526": Rule(rule_id="0526", name="empty-arguments", msg="Arguments are empty", severity=RuleSeverity.ERROR),
+    "0526": Rule(
+        rule_id="0526",
+        name="empty-arguments",
+        msg="Arguments of {{ block_name }} are empty",
+        severity=RuleSeverity.ERROR,
+    ),
     "0527": Rule(
         RuleParam(name="max_testcases", default=50, converter=int, desc="number of test cases allowed in a suite"),
         RuleParam(
@@ -189,6 +207,7 @@ class LengthChecker(VisitorChecker):
                 if args_number > self.param("too-many-arguments", "max_args"):
                     self.report(
                         "too-many-arguments",
+                        keyword_name=node.name,
                         arguments_count=args_number,
                         max_allowed_count=self.param("too-many-arguments", "max_args"),
                         node=node,
@@ -198,6 +217,7 @@ class LengthChecker(VisitorChecker):
         if length > self.param("too-long-keyword", "max_len"):
             self.report(
                 "too-long-keyword",
+                keyword_name=node.name,
                 keyword_length=length,
                 allowed_length=self.param("too-long-keyword", "max_len"),
                 node=node,
@@ -209,6 +229,7 @@ class LengthChecker(VisitorChecker):
         if key_calls < self.param("too-few-calls-in-keyword", "min_calls"):
             self.report(
                 "too-few-calls-in-keyword",
+                keyword_name=node.name,
                 keyword_count=key_calls,
                 min_allowed_count=self.param("too-few-calls-in-keyword", "min_calls"),
                 node=node,
@@ -217,6 +238,7 @@ class LengthChecker(VisitorChecker):
         if key_calls > self.param("too-many-calls-in-keyword", "max_calls"):
             self.report(
                 "too-many-calls-in-keyword",
+                keyword_name=node.name,
                 keyword_count=key_calls,
                 max_allowed_count=self.param("too-many-calls-in-keyword", "max_calls"),
                 node=node,
@@ -228,6 +250,7 @@ class LengthChecker(VisitorChecker):
         if length > self.param("too-long-test-case", "max_len"):
             self.report(
                 "too-long-test-case",
+                test_name=node.name,
                 test_length=length,
                 allowed_length=self.param("too-long-test-case", "max_len"),
                 node=node,
@@ -236,6 +259,7 @@ class LengthChecker(VisitorChecker):
         if key_calls > self.param("too-many-calls-in-test-case", "max_calls"):
             self.report(
                 "too-many-calls-in-test-case",
+                test_name=node.name,
                 keyword_count=key_calls,
                 max_allowed_count=self.param("too-many-calls-in-test-case", "max_calls"),
                 node=node,
@@ -284,7 +308,7 @@ class EmptySectionChecker(VisitorChecker):
     def check_if_empty(self, node):
         anything_but = EmptyLine if isinstance(node, CommentSection) else (Comment, EmptyLine)
         if all(isinstance(child, anything_but) for child in node.body):
-            self.report("empty-section", node=node)
+            self.report("empty-section", section_name=get_section_name(node), node=node)
 
     def visit_SettingSection(self, node):  # noqa
         self.check_if_empty(node)
@@ -361,13 +385,35 @@ class EmptySettingsChecker(VisitorChecker):
         "empty-arguments",
     )
 
+    def __init__(self):
+        self.parent_node_name = ""
+        super().__init__()
+
+    def visit_SettingSection(self, node):  # noqa
+        self.parent_node_name = "Test Suite"
+        self.generic_visit(node)
+
+    def visit_TestCaseName(self, node):  # noqa
+        if node.name:
+            self.parent_node_name = f"'{node.name}' Test Case"
+        else:
+            self.parent_node_name = ""
+        self.generic_visit(node)
+
+    def visit_Keyword(self, node):  # noqa
+        if node.name:
+            self.parent_node_name = f"'{node.name}' Keyword"
+        else:
+            self.parent_node_name = ""
+        self.generic_visit(node)
+
     def visit_Metadata(self, node):  # noqa
         if node.name is None:
             self.report("empty-metadata", node=node, col=node.end_col_offset)
 
     def visit_Documentation(self, node):  # noqa
         if not node.value:
-            self.report("empty-documentation", node=node, col=node.end_col_offset)
+            self.report("empty-documentation", block_name=self.parent_node_name, node=node, col=node.end_col_offset)
 
     def visit_ForceTags(self, node):  # noqa
         if not node.values:
@@ -391,7 +437,7 @@ class EmptySettingsChecker(VisitorChecker):
 
     def visit_Setup(self, node):  # noqa
         if not node.name:
-            self.report("empty-setup", node=node, col=node.end_col_offset + 1)
+            self.report("empty-setup", block_name=self.parent_node_name, node=node, col=node.end_col_offset + 1)
 
     def visit_SuiteSetup(self, node):  # noqa
         if not node.name:
@@ -403,7 +449,7 @@ class EmptySettingsChecker(VisitorChecker):
 
     def visit_Teardown(self, node):  # noqa
         if not node.name:
-            self.report("empty-teardown", node=node, col=node.end_col_offset + 1)
+            self.report("empty-teardown", block_name=self.parent_node_name, node=node, col=node.end_col_offset + 1)
 
     def visit_SuiteTeardown(self, node):  # noqa
         if not node.name:
@@ -415,7 +461,7 @@ class EmptySettingsChecker(VisitorChecker):
 
     def visit_Timeout(self, node):  # noqa
         if not node.value:
-            self.report("empty-timeout", node=node, col=node.end_col_offset + 1)
+            self.report("empty-timeout", block_name=self.parent_node_name, node=node, col=node.end_col_offset + 1)
 
     def visit_TestTimeout(self, node):  # noqa
         if not node.value:
@@ -423,7 +469,7 @@ class EmptySettingsChecker(VisitorChecker):
 
     def visit_Arguments(self, node):  # noqa
         if not node.values:
-            self.report("empty-arguments", node=node, col=node.end_col_offset + 1)
+            self.report("empty-arguments", block_name=self.parent_node_name, node=node, col=node.end_col_offset + 1)
 
 
 class TestCaseNumberChecker(VisitorChecker):

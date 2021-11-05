@@ -72,8 +72,9 @@ def modules_from_path(path, module_name=None, relative="."):
 def normalize_robot_name(name: str, remove_prefix: Optional[str] = None) -> str:
     name = name.replace(" ", "").replace("_", "").lower() if name else ""
     if remove_prefix:
-        return name[name.startswith(remove_prefix) and len(remove_prefix):]
+        return name[name.startswith(remove_prefix) and len(remove_prefix) :]
     return name
+
 
 def normalize_robot_var_name(name: str) -> str:
     return normalize_robot_name(name)[2:-1] if name else ""
@@ -313,3 +314,13 @@ def pattern_type(value: str) -> Pattern:
     except re.error as err:
         raise ValueError(f"Invalid regex pattern: {err}")
     return pattern
+
+
+def get_section_name(node):
+    for token in node.header.data_tokens:
+        if ROBOT_VERSION.major > 3:
+            if token.type in node.header.handles_types:
+                return token.value
+        elif "HEADER" in token.type:
+            return token.value
+    return ""

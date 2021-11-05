@@ -1,1 +1,1 @@
-${rules_dir}${\}test.robot:23:105 [W] 0603 Tag prefixed with reserved word `robot:`. The only allowed tags with this prefix are robot:no-dry-run, robot:continue-on-failure and robot:recursive-continue-on-failure
+${rules_dir}${\}test.robot:23:105 [W] 0603 Tag 'robot:my_tag' prefixed with reserved word `robot:`. The only allowed tags with this prefix are robot:no-dry-run, robot:continue-on-failure and robot:recursive-continue-on-failure

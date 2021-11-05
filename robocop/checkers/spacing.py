@@ -11,7 +11,7 @@ from robot.parsing.model.visitor import ModelVisitor
 
 from robocop.checkers import RawFileChecker, VisitorChecker
 from robocop.rules import Rule, RuleParam, RuleSeverity
-from robocop.utils import token_col
+from robocop.utils import token_col, get_section_name
 from robocop.utils.misc import ROBOT_VERSION
 
 rules = {
@@ -82,7 +82,8 @@ rules = {
         ),
         rule_id="1009",
         name="empty-line-after-section",
-        msg="Too many empty lines after section header ({{ empty_lines }}/{{ allowed_empty_lines }})",
+        msg="Too many empty lines after '{{ section_name }}' section header "
+        "({{ empty_lines }}/{{ allowed_empty_lines }})",
         severity=RuleSeverity.WARNING,
     ),
     "1010": Rule(
@@ -299,6 +300,7 @@ class EmptyLinesChecker(VisitorChecker):
         if len(empty_lines) > self.param("empty-line-after-section", "empty_lines"):
             self.report(
                 "empty-line-after-section",
+                section_name=get_section_name(section),
                 empty_lines=len(empty_lines),
                 allowed_empty_lines=self.param("empty-line-after-section", "empty_lines"),
                 node=empty_lines[-1],

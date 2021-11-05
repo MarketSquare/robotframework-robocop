@@ -35,7 +35,7 @@ rules = {
     "0801": Rule(
         rule_id="0801",
         name="duplicated-test-case",
-        msg='Multiple test cases with name "{{ name }}" (first occurrence in line {{ first_occurrence_line }})',
+        msg="Multiple test cases with name '{{ name }}' (first occurrence in line {{ first_occurrence_line }})",
         severity=RuleSeverity.ERROR,
         docs="""
         It is not allowed to reuse the same name of the test case within the same suite in Robot Framework. 
@@ -53,13 +53,13 @@ rules = {
     "0802": Rule(
         rule_id="0802",
         name="duplicated-keyword",
-        msg='Multiple keywords with name "{{ name }}" (first occurrence in line {{ first_occurrence_line }})',
+        msg="Multiple keywords with name '{{ name }}' (first occurrence in line {{ first_occurrence_line }})",
         severity=RuleSeverity.ERROR,
     ),
     "0803": Rule(
         rule_id="0803",
         name="duplicated-variable",
-        msg='Multiple variables with name "{{ name }}" in Variables section (first occurrence in line '
+        msg="Multiple variables with name '{{ name }}' in Variables section (first occurrence in line "
         "{{ first_occurrence_line }}). "
         "Note that Robot Framework is case-insensitive",
         severity=RuleSeverity.ERROR,
@@ -67,32 +67,33 @@ rules = {
     "0804": Rule(
         rule_id="0804",
         name="duplicated-resource",
-        msg='Multiple resource imports with path "{{ name }}" (first occurrence in line {{ first_occurrence_line }})',
+        msg="Multiple resource imports with path '{{ name }}' (first occurrence in line {{ first_occurrence_line }})",
         severity=RuleSeverity.WARNING,
     ),
     "0805": Rule(
         rule_id="0805",
         name="duplicated-library",
-        msg='Multiple library imports with name "{{ name }}" and identical arguments (first occurrence in line '
+        msg="Multiple library imports with name '{{ name }}' and identical arguments (first occurrence in line "
         "{{ first_occurrence_line }})",
         severity=RuleSeverity.WARNING,
     ),
     "0806": Rule(
         rule_id="0806",
         name="duplicated-metadata",
-        msg='Duplicated metadata "{{ name }}" (first occurrence in line {{ first_occurrence_line }})',
+        msg="Duplicated metadata '{{ name }}' (first occurrence in line {{ first_occurrence_line }})",
         severity=RuleSeverity.WARNING,
     ),
     "0807": Rule(
         rule_id="0807",
         name="duplicated-variables-import",
-        msg='Duplicated variables import with path "{{ name }}" (first occurrence in line {{ first_occurrence_line }})',
+        msg="Duplicated variables import with path '{{ name }}' (first occurrence in line {{ first_occurrence_line }})",
         severity=RuleSeverity.WARNING,
     ),
     "0808": Rule(
         rule_id="0808",
         name="section-already-defined",
-        msg="'{{ section_name }}' section header already defined in file",
+        msg="'{{ section_name }}' section header already defined in file (first occurrence in line "
+        "{{ first_occurrence_line }})",
         severity=RuleSeverity.WARNING,
         docs="""
         Duplicated section in the file. Robot Framework will handle repeated sections but it is recommended to not 
@@ -314,7 +315,7 @@ class SectionHeadersChecker(VisitorChecker):
 
     def __init__(self):
         self.sections_by_order = []
-        self.sections_by_existence = set()
+        self.sections_by_existence = dict()
         super().__init__()
 
     @staticmethod
@@ -336,7 +337,7 @@ class SectionHeadersChecker(VisitorChecker):
 
     def visit_File(self, node):  # noqa
         self.sections_by_order = []
-        self.sections_by_existence = set()
+        self.sections_by_existence = dict()
         super().visit_File(node)
 
     def visit_SectionHeader(self, node):  # noqa
@@ -353,7 +354,14 @@ class SectionHeadersChecker(VisitorChecker):
                     self.report("both-tests-and-tasks", node=node)
         order_id = self.param("section-out-of-order", "sections_order")[section_name]
         if section_name in self.sections_by_existence:
-            self.report("section-already-defined", section_name=node.data_tokens[0].value, node=node)
+            self.report(
+                "section-already-defined",
+                section_name=node.data_tokens[0].value,
+                first_occurrence_line=self.sections_by_existence[section_name],
+                node=node,
+            )
+        else:
+            self.sections_by_existence[section_name] = node.lineno
         if any(previous_id > order_id for previous_id in self.sections_by_order):
             self.report(
                 "section-out-of-order",
@@ -362,4 +370,3 @@ class SectionHeadersChecker(VisitorChecker):
                 node=node,
             )
         self.sections_by_order.append(order_id)
-        self.sections_by_existence.add(section_name)

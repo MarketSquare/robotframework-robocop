@@ -1,1 +1,1 @@
-${rules_dir}${\}test.robot:7:1 [W] 0805 Multiple library imports with name "MyLib" and identical arguments (first occurrence in line 3)
+${rules_dir}${\}test.robot:7:1 [W] 0805 Multiple library imports with name 'MyLib' and identical arguments (first occurrence in line 3)

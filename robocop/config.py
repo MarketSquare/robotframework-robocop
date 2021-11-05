@@ -17,7 +17,7 @@ from robocop.exceptions import (
     NestedArgumentFileError,
 )
 from robocop.rules import RuleSeverity
-from robocop.files import find_file_in_project_root, find_project_root
+from robocop.files import DEFAULT_EXCLUDES, find_file_in_project_root, find_project_root
 from robocop.utils import RecommendationFinder
 from robocop.version import __version__
 
@@ -73,6 +73,13 @@ class CustomArgParser(argparse.ArgumentParser):
             raise InvalidArgumentError(message)
 
 
+def validate_regex(pattern: str) -> Pattern:
+    try:
+        return re.compile(pattern) if pattern is not None else None
+    except re.error:
+        print("ups!")  # TODO
+
+
 class Config:
     def __init__(self, root=None, from_cli: bool = False):
         self.from_cli = from_cli
@@ -81,6 +88,7 @@ class Config:
         self.include = set()
         self.exclude = set()
         self.ignore = set()
+        self.ignore_default = re.compile(DEFAULT_EXCLUDES)
         self.reports = {"return_status"}
         self.threshold = RuleSeverity("I")
         self.configure = []
@@ -130,6 +138,9 @@ class Config:
         "help_recursive": "Use this flag to stop scanning directories recursively.",
         "help_argfile": "Path to file with arguments.",
         "help_ignore": "Ignore file(s) and path(s) provided. Glob patterns are supported.",
+        "help_ignore_default": f"Paths ignored by default. "
+        f"A regular expression to exclude directories on file search.\n"
+        f"An empty value means no path is excluded. Default: {DEFAULT_EXCLUDES}",
         "help_info": "Print this help message and exit.",
         "help_version": "Display Robocop version.",
         "help_verbose": "Display extra information.",
@@ -326,6 +337,14 @@ class Config:
             metavar="PATH",
             help=self.HELP_MSGS["help_ignore"],
         )
+        optional.add_argument(
+            "-gd",
+            "--ignore-default",
+            type=validate_regex,
+            default=self.ignore_default,
+            metavar="PATTERN",
+            help=self.HELP_MSGS["help_ignore_default"],
+        )
         optional.add_argument("-h", "--help", action="help", help=self.HELP_MSGS["help_info"])
         optional.add_argument(
             "-v",
@@ -444,6 +463,9 @@ class Config:
         for pattern in self.ignore:
             if path.match(pattern):
                 return True
+        if self.ignore_default:
+            match = self.ignore_default.search(str(path))
+            return bool(match and match.group(0))
         return False
 
     @staticmethod

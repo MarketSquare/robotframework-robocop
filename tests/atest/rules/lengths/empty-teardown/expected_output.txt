@@ -1,1 +1,1 @@
-${rules_dir}${\}test.robot:21:16 [E] 0521 Teardown does not have any keywords
+${rules_dir}${\}test.robot:21:16 [E] 0521 Teardown of 'Keyword' Keyword does not have any keywords

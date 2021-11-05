@@ -4,3 +4,5 @@ ${rules_dir}${\}positional_args.robot:3:32 [E] 0401 Robot Framework syntax error
 ${rules_dir}${\}positional_args.robot:3:43 [E] 0401 Robot Framework syntax error: Positional argument '${arg3}' follows named argument
 ${rules_dir}${\}positional_args.robot:8:32 [E] 0401 Robot Framework syntax error: Positional argument '${arg2}' follows named argument
 ${rules_dir}${\}positional_args.robot:8:57 [E] 0401 Robot Framework syntax error: Positional argument '${arg1}' follows named argument
+${rules_dir}${\}positional_args.robot:12:29 [E] 0401 Robot Framework syntax error: Positional argument '@{args}' follows named argument
+${rules_dir}${\}positional_args.robot:12:38 [E] 0401 Robot Framework syntax error: Positional argument '${arg}' follows named argument

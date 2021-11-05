@@ -168,7 +168,7 @@ class ParsingErrorChecker(VisitorChecker):
             self.handle_invalid_block(node, error, "invalid-if")
         elif "FOR loop has" in error:
             self.handle_invalid_block(node, error, "invalid-for-loop")
-        elif "Non-default argument after default arguments" in error:
+        elif "Non-default argument after default arguments" in error or "Only last argument can be kwargs" in error:
             self.handle_positional_after_named(node, error_index)
         else:
             error = error.replace("\n   ", "")
@@ -275,6 +275,14 @@ class ParsingErrorChecker(VisitorChecker):
                     col=name.find(".") + 1,
                 )
 
+    @staticmethod
+    def is_var_positional(value):
+        if not value:
+            return False
+        if value.startswith("&") or "=" in value:
+            return True
+        return False
+
     def handle_positional_after_named(self, node, error_index):
         """
         Robot Framework reports all errors on parent node. That's why we need to find which token is invalid - and in
@@ -284,11 +292,11 @@ class ParsingErrorChecker(VisitorChecker):
         token = node
         skip = error_index
         for token in node.get_tokens(Token.ARGUMENT):
-            if named_found and "=" not in token.value:
+            if named_found and not self.is_var_positional(token.value):
                 if not skip:
                     break
                 skip -= 1
-            named_found = "=" in token.value
+            named_found = self.is_var_positional(token.value)
         self.report(
             "parsing-error",
             error_msg=f"Positional argument '{token.value}' follows named argument",

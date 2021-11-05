@@ -139,8 +139,8 @@ class Config:
         "help_argfile": "Path to file with arguments.",
         "help_ignore": "Ignore file(s) and path(s) provided. Glob patterns are supported.",
         "help_ignore_default": f"Paths ignored by default. "
-        f"A regular expression to exclude directories on file searches.\n"
-        f"An empty value means no paths are excluded. Default: {DEFAULT_EXCLUDES}",
+        f"A regular expression to exclude directories on file search.\n"
+        f"An empty value means no path is excluded. Default: {DEFAULT_EXCLUDES}",
         "help_info": "Print this help message and exit.",
         "help_version": "Display Robocop version.",
         "help_verbose": "Display extra information.",

@@ -68,8 +68,8 @@ rules = {
             Test
                 [Tags]    Tag    TAG    tag    t a g
 
-        """
-    )
+        """,
+    ),
 }
 
 
@@ -111,7 +111,7 @@ class TagNameChecker(VisitorChecker):
                 if index == 0 and token.value.lower() != "tags:":
                     break
                 token.value = token.value.rstrip(",")
-                normalized_tag = token.value.lower().replace(' ', '')
+                normalized_tag = token.value.lower().replace(" ", "")
                 tags[normalized_tag].append(token)
                 self.check_tag(token, node)
             self.check_duplicates(tags)
@@ -124,7 +124,7 @@ class TagNameChecker(VisitorChecker):
     def check_tags(self, node):
         tags = defaultdict(list)
         for tag in node.data_tokens[1:]:
-            normalized_tag = tag.value.lower().replace(' ', '')
+            normalized_tag = tag.value.lower().replace(" ", "")
             tags[normalized_tag].append(tag)
             self.check_tag(tag, node)
         self.check_duplicates(tags)
@@ -137,7 +137,7 @@ class TagNameChecker(VisitorChecker):
                     name=duplicate.value,
                     first_occurrence_pos=f"{nodes[0].lineno}:{nodes[0].col_offset + 1}",
                     node=duplicate,
-                    col=duplicate.col_offset + 1
+                    col=duplicate.col_offset + 1,
                 )
 
     def check_tag(self, tag, node):

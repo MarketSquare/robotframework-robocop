@@ -72,8 +72,9 @@ def modules_from_path(path, module_name=None, relative="."):
 def normalize_robot_name(name: str, remove_prefix: Optional[str] = None) -> str:
     name = name.replace(" ", "").replace("_", "").lower() if name else ""
     if remove_prefix:
-        return name[name.startswith(remove_prefix) and len(remove_prefix):]
+        return name[name.startswith(remove_prefix) and len(remove_prefix) :]
     return name
+
 
 def normalize_robot_var_name(name: str) -> str:
     return normalize_robot_name(name)[2:-1] if name else ""

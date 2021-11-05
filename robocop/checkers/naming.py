@@ -259,7 +259,10 @@ class KeywordNamingChecker(VisitorChecker):
             return
         if keyword_name == r"/":  # old for loop, / are interpreted as keywords
             return
-        if isinstance(node, KeywordCall) and normalize_robot_name(keyword_name, remove_prefix="builtin.") == "runkeywordif":
+        if (
+            isinstance(node, KeywordCall)
+            and normalize_robot_name(keyword_name, remove_prefix="builtin.") == "runkeywordif"
+        ):
             for token in node.data_tokens:
                 if (token.value.lower() in self.else_if) and not token.value.isupper():
                     self.report(
@@ -267,7 +270,7 @@ class KeywordNamingChecker(VisitorChecker):
                         keyword_name=token.value,
                         error_msg=self.prepare_reserved_word_rule_message(token.value, "Run Keyword If"),
                         node=node,
-                        col=token.col_offset+1,
+                        col=token.col_offset + 1,
                     )
         elif self.check_if_keyword_is_reserved(keyword_name, node):
             return
@@ -298,7 +301,13 @@ class KeywordNamingChecker(VisitorChecker):
             return False
         reserved_type = reserved[keyword_name.lower()]
         suffix = self.prepare_reserved_word_rule_message(keyword_name, reserved_type)
-        self.report("keyword-name-is-reserved-word", keyword_name=keyword_name, error_msg=suffix, node=node, col=keyword_col(node))
+        self.report(
+            "keyword-name-is-reserved-word",
+            keyword_name=keyword_name,
+            error_msg=suffix,
+            node=node,
+            col=keyword_col(node),
+        )
         return True
 
     @staticmethod
@@ -455,7 +464,7 @@ class VariableNamingChecker(VisitorChecker):
 
         if not node.keyword:
             return
-        if normalize_robot_name(node.keyword, remove_prefix='builtin.') in self.set_variable_variants:
+        if normalize_robot_name(node.keyword, remove_prefix="builtin.") in self.set_variable_variants:
             if len(node.data_tokens) < 2:
                 return
             token = node.data_tokens[1]

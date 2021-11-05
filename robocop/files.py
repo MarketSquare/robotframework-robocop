@@ -6,6 +6,9 @@ from pathspec import PathSpec
 from robocop.exceptions import FileError
 
 
+DEFAULT_EXCLUDES = r"(\.direnv|\.eggs|\.git|\.hg|\.nox|\.tox|\.venv|venv|\.svn)"
+
+
 def find_project_root(srcs):
     """Return a directory containing .git, .robocop or pyproject.toml.
     That directory will be a common parent of all files and directories

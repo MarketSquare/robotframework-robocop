@@ -93,7 +93,7 @@ rules = {
         rule_id="0808",
         name="section-already-defined",
         msg="'{{ section_name }}' section header already defined in file (first occurrence in line "
-            "{{ first_occurrence_line }})",
+        "{{ first_occurrence_line }})",
         severity=RuleSeverity.WARNING,
         docs="""
         Duplicated section in the file. Robot Framework will handle repeated sections but it is recommended to not 
@@ -354,7 +354,12 @@ class SectionHeadersChecker(VisitorChecker):
                     self.report("both-tests-and-tasks", node=node)
         order_id = self.param("section-out-of-order", "sections_order")[section_name]
         if section_name in self.sections_by_existence:
-            self.report("section-already-defined", section_name=node.data_tokens[0].value, first_occurrence_line=self.sections_by_existence[section_name], node=node)
+            self.report(
+                "section-already-defined",
+                section_name=node.data_tokens[0].value,
+                first_occurrence_line=self.sections_by_existence[section_name],
+                node=node,
+            )
         else:
             self.sections_by_existence[section_name] = node.lineno
         if any(previous_id > order_id for previous_id in self.sections_by_order):

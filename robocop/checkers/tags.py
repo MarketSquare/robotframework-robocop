@@ -10,7 +10,10 @@ from robocop.rules import Rule, RuleSeverity
 
 rules = {
     "0601": Rule(
-        rule_id="0601", name="tag-with-space", msg="Tag '{{ tag }}' should not contain spaces", severity=RuleSeverity.WARNING
+        rule_id="0601",
+        name="tag-with-space",
+        msg="Tag '{{ tag }}' should not contain spaces",
+        severity=RuleSeverity.WARNING,
     ),
     "0602": Rule(
         rule_id="0602",

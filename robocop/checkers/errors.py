@@ -16,6 +16,24 @@ rules = {
         msg="Robot Framework syntax error: {{ error_msg }}",
         severity=RuleSeverity.ERROR,
     ),
+    "0402": Rule(
+        rule_id="0402",
+        name="not-enough-whitespace-after-setting",
+        msg="Provide at least two spaces after '{{ setting_name }}' setting",
+        severity=RuleSeverity.ERROR,
+    ),
+    "0403": Rule(
+        rule_id="0403",
+        name="missing-keyword-name",
+        msg="Missing keyword name when calling some values",
+        severity=RuleSeverity.ERROR,
+    ),
+    "0404": Rule(
+        rule_id="0404",
+        name="variables-import-with-args",
+        msg="Robot and YAML variable files do not take arguments",
+        severity=RuleSeverity.ERROR,
+    ),
     "0405": Rule(
         rule_id="0405",
         name="invalid-continuation-mark",
@@ -58,24 +76,6 @@ rules = {
     ),
     "0413": Rule(
         rule_id="0413", name="invalid-if", msg="Invalid IF syntax: {{ error_msg }}", severity=RuleSeverity.ERROR
-    ),
-    "0402": Rule(
-        rule_id="0402",
-        name="not-enough-whitespace-after-setting",
-        msg="Provide at least two spaces after '{{ setting_name }}' setting",
-        severity=RuleSeverity.ERROR,
-    ),
-    "0403": Rule(
-        rule_id="0403",
-        name="missing-keyword-name",
-        msg="Missing keyword name when calling some values",
-        severity=RuleSeverity.ERROR,
-    ),
-    "0404": Rule(
-        rule_id="0404",
-        name="variables-import-with-args",
-        msg="Robot and YAML variable files do not take arguments",
-        severity=RuleSeverity.ERROR,
     ),
 }
 
@@ -150,12 +150,12 @@ class ParsingErrorChecker(VisitorChecker):
         if node is None:
             return
         if ROBOT_VERSION.major != 3:
-            for error in node.errors:
-                self.handle_error(node, error)
+            for index, error in enumerate(node.errors):
+                self.handle_error(node, error, error_index=index)
         else:
             self.handle_error(node, node.error)
 
-    def handle_error(self, node, error):  # noqa
+    def handle_error(self, node, error, error_index=0):  # noqa
         if not error:
             return
         if "Invalid argument syntax" in error:
@@ -168,6 +168,8 @@ class ParsingErrorChecker(VisitorChecker):
             self.handle_invalid_block(node, error, "invalid-if")
         elif "FOR loop has" in error:
             self.handle_invalid_block(node, error, "invalid-for-loop")
+        elif "Non-default argument after default arguments" in error or "Only last argument can be kwargs" in error:
+            self.handle_positional_after_named(node, error_index)
         else:
             error = error.replace("\n   ", "")
             self.report("parsing-error", error_msg=error, node=node)
@@ -272,6 +274,35 @@ class ParsingErrorChecker(VisitorChecker):
                     node=node,
                     col=name.find(".") + 1,
                 )
+
+    @staticmethod
+    def is_var_positional(value):
+        if not value:
+            return False
+        if value.startswith("&") or "=" in value:
+            return True
+        return False
+
+    def handle_positional_after_named(self, node, error_index):
+        """
+        Robot Framework reports all errors on parent node. That's why we need to find which token is invalid - and in
+        case there are several invalid tokens we need to skip tokens that were already reported for particular node.
+        """
+        named_found = False
+        token = node
+        skip = error_index
+        for token in node.get_tokens(Token.ARGUMENT):
+            if named_found and not self.is_var_positional(token.value):
+                if not skip:
+                    break
+                skip -= 1
+            named_found = self.is_var_positional(token.value)
+        self.report(
+            "parsing-error",
+            error_msg=f"Positional argument '{token.value}' follows named argument",
+            node=token,
+            col=token.col_offset + 1,
+        )
 
 
 class TwoSpacesAfterSettingsChecker(VisitorChecker):

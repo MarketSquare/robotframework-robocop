@@ -136,7 +136,7 @@ rules = {
         rule_id="0317",
         name="hyphen-in-variable-name",
         msg="Use underscore in variable name '{{ variable_name }}' instead of hyphens to "
-            "avoid treating them like minus sign",
+        "avoid treating them like minus sign",
         severity=RuleSeverity.INFO,
     ),
     "0318": Rule(
@@ -339,7 +339,9 @@ class SettingsNamingChecker(VisitorChecker):
         name = node.data_tokens[0].value
         if not self.section_name_pattern.match(name) or not (name.istitle() or name.isupper()):
             valid_name = f"*** {node.name.title()} ***"
-            self.report("section-name-invalid", section_title_case=valid_name, section_upper_case=valid_name.upper(), node=node)
+            self.report(
+                "section-name-invalid", section_title_case=valid_name, section_upper_case=valid_name.upper(), node=node
+            )
 
     def visit_SuiteSetup(self, node):  # noqa
         self.check_setting_name(node.data_tokens[0].value, node)

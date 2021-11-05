@@ -83,7 +83,7 @@ rules = {
         rule_id="1009",
         name="empty-line-after-section",
         msg="Too many empty lines after '{{ section_name }}' section header "
-            "({{ empty_lines }}/{{ allowed_empty_lines }})",
+        "({{ empty_lines }}/{{ allowed_empty_lines }})",
         severity=RuleSeverity.WARNING,
     ),
     "1010": Rule(

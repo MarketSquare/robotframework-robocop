@@ -58,7 +58,7 @@ rules = {
     "0609": Rule(
         rule_id="0609",
         name="duplicated-tags",
-        msg="Multiple tags with name '{{ name }}' (first occurrence at position {{ first_occurrence_pos }})",
+        msg="Multiple tags with name '{{ name }}' (first occurrence at line {{ line }} column {{ column }})",
         severity=RuleSeverity.WARNING,
         docs="""
         Tags are free text, but they are normalized so that they are converted to lowercase and all spaces are removed.
@@ -135,7 +135,8 @@ class TagNameChecker(VisitorChecker):
                 self.report(
                     "duplicated-tags",
                     name=duplicate.value,
-                    first_occurrence_pos=f"{nodes[0].lineno}:{nodes[0].col_offset + 1}",
+                    line=nodes[0].lineno,
+                    column=nodes[0].col_offset + 1,
                     node=duplicate,
                     col=duplicate.col_offset + 1,
                 )

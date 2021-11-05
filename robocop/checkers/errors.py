@@ -285,10 +285,9 @@ class ParsingErrorChecker(VisitorChecker):
         skip = error_index
         for token in node.get_tokens(Token.ARGUMENT):
             if named_found and "=" not in token.value:
-                if skip:
-                    skip -= 1
-                else:
+                if not skip:
                     break
+                skip -= 1
             named_found = "=" in token.value
         self.report(
             "parsing-error",

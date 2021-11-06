@@ -8,9 +8,9 @@ from robot.parsing.model.blocks import TestCaseSection
 from robot.parsing.model.statements import KeywordCall, Return
 
 try:
-    from robot.api.parsing import Variable
+    from robot.api.parsing import Variable, Comment, EmptyLine, If
 except ImportError:
-    from robot.parsing.model.statements import Variable
+    from robot.parsing.model.statements import Variable, Comment, EmptyLine
 
 from robot.libraries import STDLIBS
 
@@ -128,6 +128,40 @@ rules = {
         name="can-be-resource-file",
         msg="No tests in '{{ file_name }}' file, consider renaming to '{{ file_name_stem }}.resource'",
         severity=RuleSeverity.INFO,
+    ),
+    "0914": Rule(
+        rule_id="0914",
+        name="if-can-be-merged",
+        msg="IF statement can be merged with previous IF (defined in line {{ line }})",
+        severity=RuleSeverity.INFO,
+        version=">=4.0",
+        docs="""
+        IF statement follows another IF with identical conditions. It can be possibly merged into one.
+        
+        Example of rule violation::
+        
+            IF  ${var} == 4
+                Keyword
+            END
+            # comments are ignored
+            IF  ${var}  == 4
+                Keyword 2
+            END
+        
+        IF statement is considered identical only if all branches have identical conditions. 
+        
+        Similar but not identical IF::
+        
+            IF  ${variable}
+                Keyword
+            ELSE
+                Other Keyword
+            END
+            IF  ${variable}
+                Keyword
+            END
+
+        """,
     ),
 }
 
@@ -359,3 +393,46 @@ class ResourceFileChecker(VisitorChecker):
                 and not any([isinstance(section, TestCaseSection) for section in node.sections])
             ):
                 self.report("can-be-resource-file", file_name=Path(source).name, file_name_stem=file_name, node=node)
+
+
+class IfChecker(VisitorChecker):
+    """Checker for IF blocks"""
+
+    reports = ("if-can-be-merged",)
+
+    def visit_TestCase(self, node):  # noqa
+        self.check_adjacent_ifs(node)
+
+    def visit_Keyword(self, node):  # noqa
+        self.check_adjacent_ifs(node)
+
+    def visit_For(self, node):  # noqa
+        self.check_adjacent_ifs(node)
+
+    def visit_If(self, node):  # noqa
+        self.check_adjacent_ifs(node)
+
+    def check_adjacent_ifs(self, node):
+        previous_if = None
+        for child in node.body:
+            if isinstance(child, If):
+                if child.header.errors:
+                    continue
+                if previous_if and child.header and self.compare_conditions(child, previous_if):
+                    token = child.header.get_token(child.header.type)
+                    self.report("if-can-be-merged", line=previous_if.lineno, node=token, col=token.col_offset + 1)
+                previous_if = child
+            elif not isinstance(child, (Comment, EmptyLine)):
+                previous_if = None
+        self.generic_visit(node)
+
+    @staticmethod
+    def compare_conditions(if_node, other_if_node):
+        while if_node is not None and other_if_node is not None:
+            if if_node.condition != other_if_node.condition:
+                return False
+            if_node = if_node.orelse
+            other_if_node = other_if_node.orelse
+        if if_node is None and other_if_node is None:
+            return True
+        return False

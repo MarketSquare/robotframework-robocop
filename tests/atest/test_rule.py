@@ -19,6 +19,7 @@ support_matrix = {
     "invalid-for-loop": SpecifierSet(">=4.0"),
     "not-enough-whitespace-after-variable": SpecifierSet(">=4.0"),
     "suite-setting-should-be-left-aligned": SpecifierSet(">=4.0"),
+    "if-can-be-merged": SpecifierSet(">=4.0")
 }
 
 

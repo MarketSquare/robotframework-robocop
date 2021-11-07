@@ -35,9 +35,10 @@ def pytest_generate_tests(metafunc):
     if selected_rule is not None:
         # Find and use only selected rule
         if selected_rule in rules:
+            rule, category = rules[selected_rule]
             metafunc.parametrize(
                 "rule, args, test_data, enabled",
-                [(selected_rule, None, rules[selected_rule][0], rules[selected_rule][1].enabled_in_version)],
+                [(selected_rule, None, f"{category}/{rule.name}", rule.enabled_in_version)],
             )
             return
         else:

@@ -111,16 +111,6 @@ ElSE IF not adjacent
         Step 2
     END
 
-ElSE IF not adjacent
-    IF  ${condition} == 'True'
-        Step 1
-    ELSE IF  ${stuff}
-        Step 2
-    END
-    IF  ${condition} == 'True'
-        Step 2
-    END
-
 ELSE IF not adjacent similar branches
     IF  ${condition} == 'True'
         Step 1
@@ -161,4 +151,21 @@ ELSE IF adjacent
         Step 2
     ELSE
        Step 4
+    END
+
+Three identical if
+    IF  ${condition} == 'True'
+        Step 1
+    ELSE IF  ${stuff}
+        Step 2
+    END
+    IF  ${condition} == 'True'
+        Step 1
+    ELSE IF  ${stuff}
+        Step 2
+    END
+    IF  ${condition} == 'True'
+        Step 1
+    ELSE IF  ${stuff}
+        Step 2
     END

@@ -30,21 +30,29 @@ def pytest_generate_tests(metafunc):
     """
     if "rule" not in metafunc.fixturenames:
         return
-    auto_discovered_rules = [(rule.name, None, f"{category}/{rule.name}") for category, rule in get_rules()]
+    rules = {rule.name: (category, rule) for category, rule in get_rules()}
     selected_rule = metafunc.config.getoption("--rule", None)
     if selected_rule is not None:
         # Find and use only selected rule
-        for rule, args, test_data in auto_discovered_rules:
-            if rule == selected_rule:
-                metafunc.parametrize("rule, args, test_data", [(selected_rule, args, test_data)])
-                break
+        if selected_rule in rules:
+            rule, category = rules[selected_rule]
+            metafunc.parametrize(
+                "rule, args, test_data, enabled",
+                [(selected_rule, None, f"{category}/{rule.name}", rule.enabled_in_version)],
+            )
+            return
         else:
             pytest.exit(f"Rule: '{selected_rule}' was not found", 1)
-        return
+    configured_tests = [
+        (rule.name, None, f"{category}/{rule.name}", rule.enabled_in_version) for (category, rule) in rules.values()
+    ]
     with open(Path(__file__).parent / "custom_tests.yaml") as f:
         tests = yaml.safe_load(f)
     for rule, configs in tests["tests"].items():
         for config in configs:
             configuration = ["-c", config["config"]] if config["config"] else []
-            auto_discovered_rules.append((rule, configuration, config["src_dir"]))
-    metafunc.parametrize("rule, args, test_data", auto_discovered_rules)
+            if rule in rules:
+                configured_tests.append((rule, configuration, config["src_dir"], rules[rule][1].enabled_in_version))
+            else:
+                pytest.exit(f"Rule: '{rule}' was not found", 1)
+    metafunc.parametrize("rule, args, test_data, enabled", configured_tests)

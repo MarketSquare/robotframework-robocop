@@ -51,7 +51,7 @@ Nested Adjacent If
         Step 2
     END
 
-Singe nested If
+Single nested If
     IF  ${condition} == 'True'
         Step 1
         IF  ${condition} == 'True'

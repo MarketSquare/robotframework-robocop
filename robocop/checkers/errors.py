@@ -47,7 +47,9 @@ rules = {
         msg="Provide at least two spaces after '...' marker",
         severity=RuleSeverity.ERROR,
     ),
-    "0407": Rule(rule_id="0407", name="invalid-argument", msg="{{ error_msg }}", severity=RuleSeverity.ERROR),
+    "0407": Rule(
+        rule_id="0407", name="invalid-argument", msg="{{ error_msg }}", severity=RuleSeverity.ERROR, version=">=4.0"
+    ),
     "0408": Rule(rule_id="0408", name="non-existing-setting", msg="{{ error_msg }}", severity=RuleSeverity.ERROR),
     "0409": Rule(
         rule_id="0409",
@@ -61,6 +63,7 @@ rules = {
         name="not-enough-whitespace-after-variable",
         msg="Provide at least two spaces after '{{ variable_name }}' variable name",
         severity=RuleSeverity.ERROR,
+        version=">=4.0",
     ),
     "0411": Rule(
         rule_id="0411",
@@ -73,9 +76,14 @@ rules = {
         name="invalid-for-loop",
         msg="Invalid for loop syntax: {{ error_msg }}",
         severity=RuleSeverity.ERROR,
+        version=">=4.0",
     ),
     "0413": Rule(
-        rule_id="0413", name="invalid-if", msg="Invalid IF syntax: {{ error_msg }}", severity=RuleSeverity.ERROR
+        rule_id="0413",
+        name="invalid-if",
+        msg="Invalid IF syntax: {{ error_msg }}",
+        severity=RuleSeverity.ERROR,
+        version=">=4.0",
     ),
 }
 

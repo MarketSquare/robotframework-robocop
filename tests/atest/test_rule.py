@@ -7,21 +7,6 @@ from packaging.specifiers import SpecifierSet
 from robocop.config import Config
 from robocop.utils import ROBOT_VERSION
 
-# if rule was enabled/disabled for particular RF version, add it there
-support_matrix = {
-    "nested-for-loop": SpecifierSet("~=3.0"),
-    "invalid-comment": SpecifierSet("~=3.0"),
-    "if-can-be-used": SpecifierSet(">=4.0"),
-    "else-not-upper-case": SpecifierSet(">=4.0"),
-    "variable-should-be-left-aligned": SpecifierSet(">=4.0"),
-    "invalid-argument": SpecifierSet(">=4.0"),
-    "invalid-if": SpecifierSet(">=4.0"),
-    "invalid-for-loop": SpecifierSet(">=4.0"),
-    "not-enough-whitespace-after-variable": SpecifierSet(">=4.0"),
-    "suite-setting-should-be-left-aligned": SpecifierSet(">=4.0"),
-    "if-can-be-merged": SpecifierSet(">=4.0")
-}
-
 
 def configure_robocop_with_rule(args, runner, rule, path):
     runner.from_cli = True
@@ -62,14 +47,14 @@ def load_expected_file(expected_file, src):
         return [replace_paths(line, str(src)) for line in f]
 
 
-def test_rule(rule, args, test_data, robocop_instance, capsys):
+def test_rule(rule, args, test_data, enabled, robocop_instance, capsys):
     args = args if args is not None else []
     src, expected_file = find_test_data(test_data, rule)
     expected = load_expected_file(expected_file, src)
     robocop_instance = configure_robocop_with_rule(args, robocop_instance, rule, src)
     with pytest.raises(SystemExit) as system_exit:
         robocop_instance.run()
-    if rule in support_matrix and ROBOT_VERSION not in support_matrix[rule]:
+    if not enabled:
         assert system_exit.value.code == 0
     else:
         out, _ = capsys.readouterr()

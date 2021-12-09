@@ -306,6 +306,8 @@ class EmptySectionChecker(VisitorChecker):
     reports = ("empty-section",)
 
     def check_if_empty(self, node):
+        if not node.header:
+            return
         anything_but = EmptyLine if isinstance(node, CommentSection) else (Comment, EmptyLine)
         if all(isinstance(child, anything_but) for child in node.body):
             self.report("empty-section", section_name=get_section_name(node), node=node)

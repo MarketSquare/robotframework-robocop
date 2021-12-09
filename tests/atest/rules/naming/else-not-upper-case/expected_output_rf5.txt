@@ -1,0 +1,2 @@
+${rules_dir}${\}test.robot:11:5 [E] 0311 ELSE and ELSE IF should be upper case
+${rules_dir}${\}test.robot:18:5 [E] 0311 ELSE and ELSE IF should be upper case

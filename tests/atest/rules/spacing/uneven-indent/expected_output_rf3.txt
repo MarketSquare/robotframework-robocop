@@ -5,7 +5,13 @@ ${rules_dir}${\}comments.robot:23:3 [W] 1007 Line is under-indented
 ${rules_dir}${\}comments.robot:26:5 [W] 1007 Line is over-indented
 ${rules_dir}${\}comments.robot:39:3 [W] 1007 Line is under-indented
 ${rules_dir}${\}test.robot:17:8 [W] 1007 Line is under-indented
+${rules_dir}${\}test.robot:22:9 [W] 1007 Line is over-indented
 ${rules_dir}${\}test.robot:24:11 [W] 1007 Line is over-indented
+${rules_dir}${\}test.robot:26:9 [W] 1007 Line is over-indented
+${rules_dir}${\}test.robot:36:9 [W] 1007 Line is over-indented
+${rules_dir}${\}test.robot:38:9 [W] 1007 Line is over-indented
+${rules_dir}${\}test.robot:53:9 [W] 1007 Line is over-indented
+${rules_dir}${\}test.robot:55:9 [W] 1007 Line is over-indented
 ${rules_dir}${\}test.robot:60:8 [W] 1007 Line is over-indented
 ${rules_dir}${\}test.robot:69:4 [W] 1007 Line is under-indented
 ${rules_dir}${\}test.robot:75:6 [W] 1007 Line is over-indented
@@ -13,5 +19,11 @@ ${rules_dir}${\}test.robot:76:8 [W] 1007 Line is over-indented
 ${rules_dir}${\}test.robot:84:17 [W] 1007 Line is over-indented
 ${rules_dir}${\}test.robot:87:6 [W] 1007 Line is over-indented
 ${rules_dir}${\}test.robot:95:8 [W] 1007 Line is under-indented
+${rules_dir}${\}test.robot:101:9 [W] 1007 Line is over-indented
+${rules_dir}${\}test.robot:103:9 [W] 1007 Line is over-indented
+${rules_dir}${\}test.robot:105:9 [W] 1007 Line is over-indented
+${rules_dir}${\}test.robot:127:9 [W] 1007 Line is over-indented
 ${rules_dir}${\}test.robot:128:11 [W] 1007 Line is over-indented
 ${rules_dir}${\}test.robot:130:10 [W] 1007 Line is over-indented
+${rules_dir}${\}test.robot:131:9 [W] 1007 Line is over-indented
+${rules_dir}${\}test.robot:133:9 [W] 1007 Line is over-indented

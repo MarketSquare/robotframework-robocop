@@ -81,10 +81,14 @@ class CommentChecker(VisitorChecker):
 
     def visit_TestCase(self, node):  # noqa
         self.check_invalid_comments(node.name, node)
+        if ROBOT_VERSION.major >= 5:
+            self.find_comments(node.header)
         self.generic_visit(node)
 
     def visit_Keyword(self, node):  # noqa
         self.check_invalid_comments(node.name, node)
+        if ROBOT_VERSION.major >= 5:
+            self.find_comments(node.header)
         self.generic_visit(node)
 
     def visit_KeywordCall(self, node):  # noqa

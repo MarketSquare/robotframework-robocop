@@ -212,7 +212,7 @@ class KeywordNamingChecker(VisitorChecker):
         "while": "",
         "continue": "",
     }
-    else_if = {"else", "else if"}
+    else_statements = {"else", "else if"}
     bdd = {"given", "when", "and", "but", "then"}
 
     def __init__(self):
@@ -249,7 +249,7 @@ class KeywordNamingChecker(VisitorChecker):
         self.generic_visit(node)
 
     def visit_KeywordCall(self, node):  # noqa
-        if self.inside_if_block and node.keyword and node.keyword.lower() in self.else_if:
+        if self.inside_if_block and node.keyword and node.keyword.lower() in self.else_statements:
             self.report("else-not-upper-case", node=node, col=keyword_col(node))
         self.check_keyword_naming(node.keyword, node)
 
@@ -268,7 +268,7 @@ class KeywordNamingChecker(VisitorChecker):
             and normalize_robot_name(keyword_name, remove_prefix="builtin.") == "runkeywordif"
         ):
             for token in node.data_tokens:
-                if (token.value.lower() in self.else_if) and not token.value.isupper():
+                if (token.value.lower() in self.else_statements) and not token.value.isupper():
                     self.report(
                         "keyword-name-is-reserved-word",
                         keyword_name=token.value,
@@ -303,7 +303,7 @@ class KeywordNamingChecker(VisitorChecker):
         reserved = self.reserved_words_rf3 if ROBOT_VERSION.major == 3 else self.reserved_words
         if keyword_name.lower() not in reserved:
             return False
-        if keyword_name.lower() in self.else_if and self.inside_if_block:
+        if keyword_name.lower() in self.else_statements and self.inside_if_block:
             return False  # handled by else-not-upper-case
         reserved_type = reserved[keyword_name.lower()]
         suffix = self.prepare_reserved_word_rule_message(keyword_name, reserved_type)

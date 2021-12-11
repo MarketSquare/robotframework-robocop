@@ -24,7 +24,7 @@ def configure_sections_order(value):
     sections_order = {}
     for index, name in enumerate(value.split(",")):
         if name.lower() not in section_map or section_map[name.lower()] in sections_order:
-            raise ValueError(f"Invalid section name: `name`")
+            raise ValueError(f"Invalid section name: `{name}`")
         sections_order[section_map[name.lower()]] = index
     if Token.TESTCASE_HEADER in sections_order:
         sections_order["TASK HEADER"] = sections_order[Token.TESTCASE_HEADER]

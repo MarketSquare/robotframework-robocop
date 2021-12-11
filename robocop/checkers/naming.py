@@ -7,6 +7,7 @@ from pathlib import Path
 
 from robot.api import Token
 from robot.parsing.model.statements import Arguments, KeywordCall
+from robot.parsing.model.blocks import Keyword
 
 from robocop.checkers import VisitorChecker
 from robocop.rules import Rule, RuleParam, RuleSeverity
@@ -291,7 +292,7 @@ class KeywordNamingChecker(VisitorChecker):
             self.report("wrong-case-in-keyword-name", keyword_name=keyword_name, node=node)
 
     def check_bdd_keywords(self, keyword_name, node):
-        if keyword_name.lower() not in self.bdd:
+        if keyword_name.lower() not in self.bdd or isinstance(node, Keyword):
             return
         arg = node.get_token(Token.ARGUMENT)
         suffix = f". Use one space between: '{keyword_name.title()} {arg.value}'" if arg else ""

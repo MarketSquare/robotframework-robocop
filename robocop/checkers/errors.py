@@ -4,6 +4,7 @@ Errors checkers
 import re
 
 from robot.api import Token
+from robot.parsing.model.statements import EmptyLine
 
 from robocop.checkers import VisitorChecker
 from robocop.rules import Rule, RuleSeverity
@@ -172,7 +173,7 @@ class ParsingErrorChecker(VisitorChecker):
             self.handle_invalid_setting(node, error)
         elif "Invalid variable name" in error:
             self.handle_invalid_variable(node, error)
-        elif "IF has" in error:
+        elif "IF has" in error or "ELSE IF branch" in error:
             self.handle_invalid_block(node, error, "invalid-if")
         elif "FOR loop has" in error:
             self.handle_invalid_block(node, error, "invalid-for-loop")
@@ -352,6 +353,18 @@ class MissingKeywordName(VisitorChecker):
     """Checker for missing keyword name."""
 
     reports = ("missing-keyword-name",)
+
+    def visit_EmptyLine(self, node):  # noqa
+        if ROBOT_VERSION.major < 5:
+            return
+        assign_token = node.get_token(Token.ASSIGN)
+        if assign_token:
+            self.report(
+                "missing-keyword-name",
+                node=node,
+                lineno=node.lineno,
+                col=assign_token.col_offset + 1,
+            )
 
     def visit_KeywordCall(self, node):  # noqa
         if node.keyword is None:

@@ -63,12 +63,12 @@ rules = {
         severity=RuleSeverity.WARNING,
         docs="""
         All lines before first test data section 
-        (`reference <https://robotframework.org/robotframework/latest/RobotFrameworkUserGuide.html#test-data-sections>`_) 
+        (`ref <https://robotframework.org/robotframework/latest/RobotFrameworkUserGuide.html#test-data-sections>`_) 
         are ignored. It's recommended to add `*** Comments ***` section header for lines that should be ignored.
         
         Missing section header::
     
-            Resource   file.resource  # it looks like *** Settings *** but section header is missing - the data is ignored
+            Resource   file.resource  # it looks like *** Settings *** but section header is missing - line is ignored
             
             *** Keywords ***
             Keyword Name

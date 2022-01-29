@@ -64,8 +64,8 @@ rules = {
         msg="[Return] is empty",
         severity=RuleSeverity.WARNING,
         docs="""
-        `[Return]` statement is used to define variables returned from keyword. If you don't return anything from keyword, 
-        don't use `[Return]`.
+        `[Return]` statement is used to define variables returned from keyword. If you don't return anything from 
+        keyword,  don't use `[Return]`.
         """,
     ),
     "0907": Rule(

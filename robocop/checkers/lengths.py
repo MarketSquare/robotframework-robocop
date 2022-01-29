@@ -72,6 +72,14 @@ rules = {
         name="line-too-long",
         msg="Line is too long ({{ line_length }}/{{ allowed_length }})",
         severity=RuleSeverity.WARNING,
+        docs="""
+        It is possible to ignore lines that match regex pattern. Configure it using following option::
+        
+            robocop --configure line-too-long:ignore_pattern:pattern
+        
+        Default pattern is `https?://\S+` that ignores are lines that looks like url.
+
+        """,
     ),
     "0509": Rule(
         rule_id="0509", name="empty-section", msg="Section '{{ section_name }}' is empty", severity=RuleSeverity.WARNING

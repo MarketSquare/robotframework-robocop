@@ -13,15 +13,43 @@ rules = {
         name="missing-doc-keyword",
         msg="Missing documentation in '{{ name }}' keyword",
         severity=RuleSeverity.WARNING,
+        docs="""
+        You can add documentation using following syntax::
+        
+            Keyword
+                [Documentation]  Keyword documentation
+                Keyword Step
+                Other Step
+
+        """,
     ),
     "0202": Rule(
         rule_id="0202",
         name="missing-doc-test-case",
         msg="Missing documentation in '{{ name }}' test case",
         severity=RuleSeverity.WARNING,
+        docs="""
+        You can add documentation using following syntax::
+        
+            Test
+                [Documentation]  Test documentation
+                Keyword Step
+                Other Step
+        
+        """,
     ),
     "0203": Rule(
-        rule_id="0203", name="missing-doc-suite", msg="Missing documentation in suite", severity=RuleSeverity.WARNING
+        rule_id="0203",
+        name="missing-doc-suite",
+        msg="Missing documentation in suite",
+        severity=RuleSeverity.WARNING,
+        docs="""
+        You can add documentation using following syntax::
+        
+            *** Settings ***
+            Documentation    Suite documentation
+
+        """,
     ),
 }
 

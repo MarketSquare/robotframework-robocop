@@ -29,18 +29,18 @@ rules = {
         " Hint: make sure to include this tag using lowercase name to avoid issues",
         severity=RuleSeverity.INFO,
         docs="""
-        OR and AND words are used to combine tags when selecting test to run in Robot Framework. Using following 
+        OR and AND words are used to combine tags when selecting tests to be run in Robot Framework. Using following 
         configuration::
         
             robot --include tagANDtag2
         
-        Robot Framework will only execute test that contains tag and tag2. That's why it's best to avoid AND and OR 
+        Robot Framework will only execute tests that contain `tag` and `tag2`. That's why it's best to avoid AND and OR 
         in tag names. See 
         `docs <https://robotframework.org/robotframework/latest/RobotFrameworkUserGuide.html#tag-patterns>`_ 
         for more information.
         
-        Tag matching is case insensitive. If your tag contains OR or AND you can use lowercase to match it.
-        For example if your tag is `PORT` you can match it with `port`.
+        Tag matching is case-insensitive. If your tag contains OR or AND you can use lowercase to match it.
+        For example, if your tag is `PORT` you can match it with `port`.
         """,
     ),
     "0603": Rule(
@@ -78,7 +78,8 @@ rules = {
         msg="Tag '{{ tag }}' is already set by Force Tags in suite settings",
         severity=RuleSeverity.INFO,
         docs="""
-        Used tag is already set in `Force Tags`. Example of rule violation::
+        Avoid repeating same tags in tests when the tag is already declared in `Force Tags1.
+        Example of rule violation::
         
             *** Setting ***
             Force Tags  common-tag

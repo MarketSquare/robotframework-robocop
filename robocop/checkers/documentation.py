@@ -14,7 +14,7 @@ rules = {
         msg="Missing documentation in '{{ name }}' keyword",
         severity=RuleSeverity.WARNING,
         docs="""
-        You can add documentation using following syntax::
+        You can add documentation to keyword using following syntax::
         
             Keyword
                 [Documentation]  Keyword documentation
@@ -29,7 +29,7 @@ rules = {
         msg="Missing documentation in '{{ name }}' test case",
         severity=RuleSeverity.WARNING,
         docs="""
-        You can add documentation using following syntax::
+        You can add documentation to test case using following syntax::
         
             Test
                 [Documentation]  Test documentation
@@ -44,7 +44,7 @@ rules = {
         msg="Missing documentation in suite",
         severity=RuleSeverity.WARNING,
         docs="""
-        You can add documentation using following syntax::
+        You can add documentation to suite using following syntax::
         
             *** Settings ***
             Documentation    Suite documentation

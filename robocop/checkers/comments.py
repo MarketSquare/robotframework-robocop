@@ -76,7 +76,7 @@ rules = {
         
         Comment lines that should be inside `*** Comments ***`::
             
-            This suite test energy consumption measurement feasures
+            This suite tests energy consumption measurement features
             
             *** Test Cases ***
     
@@ -122,7 +122,7 @@ class CommentChecker(VisitorChecker):
         self.find_comments(node)
         self.generic_visit(node)
 
-    # this allow to define methods with different name and same body as visit_KeywordCall
+    # this allows to define methods with different name and same body as visit_KeywordCall
     visit_Return = (
         visit_Documentation
     ) = (

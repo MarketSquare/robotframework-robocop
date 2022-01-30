@@ -80,8 +80,8 @@ rules = {
         
         Keyword With Over Indented Setting
             [Documentation]  this is doc
-             [Arguments]  ${arg}  # over-intended
-               No Operation  # over-intended
+             [Arguments]  ${arg}  # over-indented
+               No Operation  # over-indented
             Pass
             No Operation
             Fail
@@ -97,7 +97,7 @@ rules = {
         Expecting indent. Example of rule violation::
         
              FOR  ${elem}  IN  ${list}
-            Log  stuff  # content of FOR blocks should use bigger intend than FOR header
+            Log  stuff  # content of FOR blocks should use bigger indentation than FOR header
              END
         
         """,
@@ -115,7 +115,7 @@ rules = {
         "({{ empty_lines }}/{{ allowed_empty_lines }})",
         severity=RuleSeverity.WARNING,
         docs="""
-        Empty lines after section by default are not allowed. Example of rule violation::
+        Empty lines after the section header are not allowed by default. Example of rule violation::
         
              *** Test Cases ***
              
@@ -129,7 +129,7 @@ rules = {
         name="too-many-trailing-blank-lines",
         msg="Too many blank lines at the end of file",
         severity=RuleSeverity.WARNING,
-        docs="""There should be one blank line at the end of file""",
+        docs="""There should be exactly one blank line at the end of the file""",
     ),
     "1011": Rule(
         rule_id="1011",
@@ -213,7 +213,7 @@ rules = {
             Documentation      Here we have documentation for this suite.
             ...                Documentation is often quite long.
             ...
-            ...               It can also contain multiple paragraphs.  # misaligned
+            ...            It can also contain multiple paragraphs.  # misaligned
             
             *** Test Cases ***
             Test

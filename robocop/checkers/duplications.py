@@ -80,7 +80,7 @@ rules = {
         "Note that Robot Framework is case-insensitive",
         severity=RuleSeverity.ERROR,
         docs="""
-        Variable names in Robot Framework are case insensitive and ignores spaces or underscores. Following variables 
+        Variable names in Robot Framework are case-insensitive and ignore spaces and underscores. Following variables 
         are duplicates::
         
             *** Variables ***
@@ -171,7 +171,7 @@ rules = {
             robocop --configure section-out-of-order:sections_order:comma,separated,list,of,sections
         
         where section should be case-insensitive name from the list: comments, settings, variables, testcases, keywords. 
-        Order of not configured sections are ignored.
+        Order of not configured sections is ignored.
         
         Example::
         
@@ -203,7 +203,7 @@ rules = {
         msg="Argument name '{{ argument_name }}' is already used",
         severity=RuleSeverity.ERROR,
         docs="""
-        Variable names in Robot Framework are case insensitive and ignores spaces or underscores. Following arguments 
+        Variable names in Robot Framework are case-insensitive and ignores spaces and underscores. Following arguments 
         are duplicates::
         
             *** Keywords ***
@@ -219,7 +219,7 @@ rules = {
         msg="Assigned variable name '{{ variable_name }}' is already used",
         severity=RuleSeverity.INFO,
         docs="""
-        Variable names in Robot Framework are case insensitive and ignores spaces or underscores. Following variables 
+        Variable names in Robot Framework are case-insensitive and ignores spaces and underscores. Following variables 
         are duplicates::
         
             *** Test Cases ***

@@ -109,7 +109,7 @@ rules = {
         "but got '{{ actual_sign }}' instead",
         severity=RuleSeverity.WARNING,
         docs="""
-        Use one type of assignment signs in file. 
+        Use only one type of assignment sign in a file. 
         
         Example of rule violation::
         
@@ -120,9 +120,9 @@ rules = {
             
             Keyword 2
                 No Operation
-                ${var}  ${var2}  Some Keyword  # both ` =` and missing assignment signs are used within the file
+                ${var}  ${var2}  Some Keyword  # this assignment doesn't use equal sign while the previous one uses ` =`
         
-        By default Robocop look for most popular assignment sign in the file. It is possible to define expected 
+        By default Robocop looks for most popular assignment sign in the file. It is possible to define expected 
         assignment sign by running::
         
             robocop --configure inconsistent-assignment:assignment_sign_type:equal_sign
@@ -146,7 +146,7 @@ rules = {
         "but got '{{ actual_sign }}' instead",
         severity=RuleSeverity.WARNING,
         docs="""
-        Use one type of assignment signs in Variables section. 
+        Use one type of assignment sign in Variables section. 
         
         Example of rule violation::
         
@@ -157,7 +157,7 @@ rules = {
             ${var4}     a
             ${var5}     b
         
-        By default Robocop look for most popular assignment sign in the file. It is possible to define expected 
+        By default Robocop looks for most popular assignment sign in the file. It is possible to define expected 
         assignment sign by running::
         
             robocop --configure inconsistent-assignment-in-variables:assignment_sign_type:equal_sign
@@ -206,7 +206,7 @@ rules = {
         msg="No tests in '{{ file_name }}' file, consider renaming to '{{ file_name_stem }}.resource'",
         severity=RuleSeverity.INFO,
         docs="""
-        If the Robot file contains only keywords or variables it's good practise to use `.resource` extension.
+        If the Robot file contains only keywords or variables it's a good practice to use `.resource` extension.
         """,
     ),
     "0914": Rule(

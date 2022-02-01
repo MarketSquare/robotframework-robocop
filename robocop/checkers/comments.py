@@ -76,7 +76,9 @@ rules = {
         
         Comment lines that should be inside `*** Comments ***`::
             
-            This suite test energy consumption measurement feasures
+            Deprecated Test
+                Keyword
+                Keyword 2
             
             *** Test Cases ***
     

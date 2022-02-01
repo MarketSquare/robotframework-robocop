@@ -125,7 +125,7 @@ rules = {
         msg="{{ error_msg }}",
         severity=RuleSeverity.ERROR,
         docs="""
-        Used setting doesn't exist in Robot Framework.
+        Non-existing setting can't be used in the code.
         
         Rule violation example::
         

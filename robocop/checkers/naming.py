@@ -35,12 +35,12 @@ rules = {
         msg="Not allowed character '{{ character }}' found in {{ block_name }} name",
         severity=RuleSeverity.WARNING,
         docs="""
-        Reports not allowed character found in Suite, Test Case or Keyword names. By default it's `.`. You can 
-        configure what characters are reported by configuring::
+        Reports not allowed character found in Suite, Test Case or Keyword names. By default it's dot (`.`). You can 
+        configure what characters are reported by calling::
         
-             robocop not-allowed-char-in-name:pattern:regex_pattern
+             robocop --configure not-allowed-char-in-name:pattern:regex_pattern
              
-        `regex_pattern` should define regex pattern for characters not allowed in name. For example `[@\[]` pattern 
+        `regex_pattern` should define regex pattern for characters not allowed in names. For example `[@\[]` pattern 
         reports any occurence of `@[` characters.
         """,
     ),
@@ -105,7 +105,7 @@ rules = {
              
              *** Test Cases ***
              Test
-                 [DOCUMENTATION]  doc
+                 [DOCUMENTATION]  Some documentation
                  Step
         
         Bad::
@@ -115,7 +115,7 @@ rules = {
              
              *** Test Cases ***
              Test
-                 [dOCUMENTATION]  doc
+                 [documentation]  Some documentation
                  Step
             
         """,
@@ -179,7 +179,7 @@ rules = {
         msg="Library alias should not be empty",
         severity=RuleSeverity.ERROR,
         docs="""
-        When using library import with alias use non-empty name. 
+        Use non-empty name when using library import with alias.
         
         Good::
            
@@ -202,8 +202,8 @@ rules = {
         Example of rule violation::
         
              *** Settings ***
-             Library  CustomLibrary  AS  CustomLibrary
-             Library  CustomLibrary  AS  Custom Library  # spaces are ignored in name
+             Library  CustomLibrary  AS  CustomLibrary  # same as library name
+             Library  CustomLibrary  AS  Custom Library  # same as library name (spaces are ignored)
         
         """,
     ),
@@ -221,11 +221,14 @@ rules = {
         "avoid treating them like minus sign",
         severity=RuleSeverity.INFO,
         docs="""
-        Robot Framework support evaluation of Python code inside ${ } brackets. For example::
+        Robot Framework supports evaluation of Python code inside ${ } brackets. For example::
         
-             ${var2}  Set Variable  ${ ${var} - ${var2}}
+             ${var2}  Set Variable  ${${var}-${var2}}
         
-        That's why there is possibility that hyphen in name is not recognized as part of name but as minus sign. 
+        That's why there is possibility that hyphen in name is not recognized as part of name but as minus sign.
+        Better to use underscore (if it's intended)::
+        
+        ${var2}  Set Variable  ${ ${var}_${var2}}
         """,
     ),
     "0318": Rule(
@@ -235,7 +238,7 @@ rules = {
         severity=RuleSeverity.WARNING,
         docs="""
         When using BDD reserved keywords (such as `GIVEN`, `WHEN`, `AND`, `BUT` or `THEN`) use them together with 
-        name of keyword to run. 
+        name of the keyword to run. 
         
         Good::
         
@@ -249,7 +252,7 @@ rules = {
             When User Log In
             Then User Should See Welcome Page
         
-        Since those words are used for BDD style it's also recommended not to name keyword using those names.
+        Since those words are used for BDD style it's also recommended not to use them within the keyword name.
         """,
     ),
 }

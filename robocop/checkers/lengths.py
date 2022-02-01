@@ -77,7 +77,7 @@ rules = {
         
             robocop --configure line-too-long:ignore_pattern:pattern
         
-        Default pattern is `https?://\S+` that ignores are lines that looks like url.
+        The default pattern is `https?://\S+` that ignores the lines that look like an URL.
 
         """,
     ),

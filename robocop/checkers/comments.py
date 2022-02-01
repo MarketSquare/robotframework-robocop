@@ -124,7 +124,7 @@ class CommentChecker(VisitorChecker):
         self.find_comments(node)
         self.generic_visit(node)
 
-    # this allow to define methods with different name and same body as visit_KeywordCall
+    # this allows to define methods with different name and same body as visit_KeywordCall
     visit_Return = (
         visit_Documentation
     ) = (

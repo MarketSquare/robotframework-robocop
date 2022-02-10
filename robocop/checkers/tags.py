@@ -14,6 +14,13 @@ rules = {
         name="tag-with-space",
         msg="Tag '{{ tag }}' should not contain spaces",
         severity=RuleSeverity.WARNING,
+        docs="""
+        Example of rule violation::
+        
+            Test
+                [Tags]  ${tag with space}
+        
+        """,
     ),
     "0602": Rule(
         rule_id="0602",
@@ -21,6 +28,20 @@ rules = {
         msg="Tag '{{ tag }}' with reserved word OR/AND."
         " Hint: make sure to include this tag using lowercase name to avoid issues",
         severity=RuleSeverity.INFO,
+        docs="""
+        OR and AND words are used to combine tags when selecting tests to be run in Robot Framework. Using following 
+        configuration::
+        
+            robot --include tagANDtag2
+        
+        Robot Framework will only execute tests that contain `tag` and `tag2`. That's why it's best to avoid AND and OR 
+        in tag names. See 
+        `docs <https://robotframework.org/robotframework/latest/RobotFrameworkUserGuide.html#tag-patterns>`_ 
+        for more information.
+        
+        Tag matching is case-insensitive. If your tag contains OR or AND you can use lowercase to match it.
+        For example, if your tag is `PORT` you can match it with `port`.
+        """,
     ),
     "0603": Rule(
         rule_id="0603",
@@ -36,24 +57,71 @@ rules = {
         msg="All tests in suite share these tags: '{{ tags }}'. "
         "You can define them in 'Force Tags' in suite settings instead",
         severity=RuleSeverity.INFO,
+        docs="""
+        Example::
+        
+            *** Test Cases ***
+            Test
+                [Tag]  featureX  smoke
+                Step
+            
+            Test 2
+                [Tag]  featureX
+                Step
+        
+        In this example all tests share one common tag `featureX`. It can be declared just once using `Force Tags`.
+        """,
     ),
     "0606": Rule(
         rule_id="0606",
         name="tag-already-set-in-force-tags",
         msg="Tag '{{ tag }}' is already set by Force Tags in suite settings",
         severity=RuleSeverity.INFO,
+        docs="""
+        Avoid repeating same tags in tests when the tag is already declared in `Force Tags1.
+        Example of rule violation::
+        
+            *** Setting ***
+            Force Tags  common-tag
+            
+            *** Test Cases ***
+            Test
+                [Tag]  sanity  common-tag
+        
+        """,
     ),
     "0607": Rule(
         rule_id="0607",
         name="unnecessary-default-tags",
         msg="Tags defined in Default Tags are always overwritten",
         severity=RuleSeverity.INFO,
+        docs="""
+        Example of rule violation::
+        
+            *** Settings ***
+            Default Tags  tag1  tag2
+            
+            *** Test Cases ***
+            Test
+                [Tags]  tag3
+                Step
+            
+            Test 2
+                [Tags]  tag4
+                Step
+        
+        Since `Test` and `Test 2` have `[Tags]` section, `Default Tags` setting is never used.
+        """,
     ),
     "0608": Rule(
         rule_id="0608",
         name="empty-tags",
         msg="[Tags] setting without values{{ optional_warning }}",
         severity=RuleSeverity.WARNING,
+        docs="""
+        If you want to use empty `[Tags]` (for example to overwrite `Default Tags`) then use `NONE` value 
+        to be explicit.
+        """,
     ),
     "0609": Rule(
         rule_id="0609",

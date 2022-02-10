@@ -33,7 +33,7 @@ rules = {
         severity=RuleSeverity.WARNING,
         docs="""
         To improve readability use `[Return]` setting at the end of the keyword. If you want to return immediately from 
-        the keyword use `Return From Keyword` keyword instead (`[Return]` does not return until all steps in the 
+        the keyword use `RETURN` statement instead (`[Return]` does not return until all steps in the 
         keyword are completed).
         
         Bad::
@@ -58,7 +58,16 @@ rules = {
         msg="Keyword call after 'Return From Keyword' keyword",
         severity=RuleSeverity.ERROR,
     ),
-    "0903": Rule(rule_id="0903", name="empty-return", msg="[Return] is empty", severity=RuleSeverity.WARNING),
+    "0903": Rule(
+        rule_id="0903",
+        name="empty-return",
+        msg="[Return] is empty",
+        severity=RuleSeverity.WARNING,
+        docs="""
+        `[Return]` statement is used to define variables returned from keyword. If you don't return anything from 
+        keyword,  don't use `[Return]`.
+        """,
+    ),
     "0907": Rule(
         rule_id="0907",
         name="nested-for-loop",
@@ -82,6 +91,9 @@ rules = {
         msg="'{{ run_keyword }}' can be replaced with IF block since Robot Framework 4.0",
         severity=RuleSeverity.INFO,
         version=">=4.0",
+        docs="""
+        Starting from Robot Framework 4.0 `Run Keyword If` and `Run Keyword Unless` can be replaced by IF block.
+        """,
     ),
     "0909": Rule(
         RuleParam(
@@ -96,6 +108,29 @@ rules = {
         msg="The assignment sign is not consistent within the file. Expected '{{ expected_sign }}' "
         "but got '{{ actual_sign }}' instead",
         severity=RuleSeverity.WARNING,
+        docs="""
+        Use only one type of assignment sign in a file. 
+        
+        Example of rule violation::
+        
+            *** Keywords ***
+            Keyword
+                ${var} =  Other Keyword
+                No Operation
+            
+            Keyword 2
+                No Operation
+                ${var}  ${var2}  Some Keyword  # this assignment doesn't use equal sign while the previous one uses ` =`
+        
+        By default Robocop looks for most popular assignment sign in the file. It is possible to define expected 
+        assignment sign by running::
+        
+            robocop --configure inconsistent-assignment:assignment_sign_type:equal_sign
+        
+        You can choose between following signs: 'autodetect' (default), 'none' (''), 'equal_sign' ('=') or 
+        space_and_equal_sign (' =').
+    
+        """,
     ),
     "0910": Rule(
         RuleParam(
@@ -110,24 +145,69 @@ rules = {
         msg="The assignment sign is not consistent inside the variables section. Expected '{{ expected_sign }}' "
         "but got '{{ actual_sign }}' instead",
         severity=RuleSeverity.WARNING,
+        docs="""
+        Use one type of assignment sign in Variables section. 
+        
+        Example of rule violation::
+        
+            *** Variables ***
+            ${var} =    1
+            ${var2}=    2
+            ${var3} =   3
+            ${var4}     a
+            ${var5}     b
+        
+        By default Robocop looks for most popular assignment sign in the file. It is possible to define expected 
+        assignment sign by running::
+        
+            robocop --configure inconsistent-assignment-in-variables:assignment_sign_type:equal_sign
+        
+        You can choose between following signs: 'autodetect' (default), 'none' (''), 'equal_sign' ('=') or 
+        space_and_equal_sign (' =').
+        
+        """,
     ),
     "0911": Rule(
         rule_id="0911",
         name="wrong-import-order",
         msg="BuiltIn library import '{{ builtin_import }}' should be placed before '{{ custom_import }}'",
         severity=RuleSeverity.WARNING,
+        docs="""
+        Example of rule violation::
+        
+            *** Settings ***
+            Library    Collections
+            Library    CustomLibrary
+            Library    OperatingSystem  # BuiltIn library defined after custom CustomLibrary
+
+        """,
     ),
     "0912": Rule(
         rule_id="0912",
         name="empty-variable",
         msg="Use built-in variable ${EMPTY} instead of leaving variable without value or using backslash",
         severity=RuleSeverity.INFO,
+        docs="""
+        Example of rule violation::
+        
+            *** Variables ***
+            ${VAR_NO_VALUE}                   # missing value
+            ${VAR_WITH_EMPTY}       ${EMPTY}
+            @{MULTILINE_FIRST_EMPTY}
+            ...                               # missing value
+            ...  value
+            ${EMPTY_WITH_BACKSLASH}  \        # used backslash
+
+        """,
     ),
     "0913": Rule(
         rule_id="0913",
         name="can-be-resource-file",
         msg="No tests in '{{ file_name }}' file, consider renaming to '{{ file_name_stem }}.resource'",
         severity=RuleSeverity.INFO,
+        docs="""
+        If the Robot file contains only keywords or variables it's a good practice to use `.resource` extension.
+        """,
     ),
     "0914": Rule(
         rule_id="0914",

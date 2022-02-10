@@ -22,24 +22,65 @@ rules = {
         name="not-enough-whitespace-after-setting",
         msg="Provide at least two spaces after '{{ setting_name }}' setting",
         severity=RuleSeverity.ERROR,
+        docs="""
+        Example of rule violation::
+
+            *** Test Cases ***
+            Test
+                [Documentation] doc  # only one space after [Documentation]
+                Keyword
+                
+            *** Keywords ***
+            Keyword
+                [Documentation]  This is doc
+                [Arguments] ${var}  # only one space after [Arguments]
+                Should Be True  ${var}
+            
+        """,
     ),
     "0403": Rule(
         rule_id="0403",
         name="missing-keyword-name",
         msg="Missing keyword name when calling some values",
         severity=RuleSeverity.ERROR,
+        docs="""
+        Example of rule violation::
+        
+            *** Keywords ***
+            Keyword
+                ${var}
+                ${one}      ${two}
+
+        """,
     ),
     "0404": Rule(
         rule_id="0404",
         name="variables-import-with-args",
         msg="Robot and YAML variable files do not take arguments",
         severity=RuleSeverity.ERROR,
+        docs="""
+        Example of rule violation::
+        
+            *** Settings ***
+            Variables    vars.yaml    arg1
+            Variables    variables.robot    arg
+        
+        """,
     ),
     "0405": Rule(
         rule_id="0405",
         name="invalid-continuation-mark",
         msg="Invalid continuation mark '{{ mark }}'. It should be '...'",
         severity=RuleSeverity.ERROR,
+        docs="""
+        Example of rule violation::
+        
+            Keyword
+            ..  ${var}  # .. instead of ...
+            ...  1
+            ....  2  # .... instead of ...
+
+        """,
     ),
     # there is not-enough-whitespace-after-newline-marker for keyword calls already
     "0406": Rule(
@@ -47,17 +88,79 @@ rules = {
         name="not-enough-whitespace-after-newline-marker",
         msg="Provide at least two spaces after '...' marker",
         severity=RuleSeverity.ERROR,
+        docs="""
+        Example of rule violation::
+        
+            @{LIST}  1
+            ... 2  # not enough whitespace
+            ...  3
+
+        """,
     ),
     "0407": Rule(
-        rule_id="0407", name="invalid-argument", msg="{{ error_msg }}", severity=RuleSeverity.ERROR, version=">=4.0"
+        rule_id="0407",
+        name="invalid-argument",
+        msg="{{ error_msg }}",
+        severity=RuleSeverity.ERROR,
+        version=">=4.0",
+        docs="""
+        Argument names should follow variable naming syntax: start with identifier (`$`, `@` or `&`) and enclosed in 
+        curly brackets (`{}`).
+        
+        Valid names::
+        
+            Keyword
+                [Arguments]    ${var}    @{args}    &{config}    ${var}=default
+        
+        Invalid names::
+        
+            Keyword
+                [Arguments]    {var}    @args}    var=default
+        
+        """,
     ),
-    "0408": Rule(rule_id="0408", name="non-existing-setting", msg="{{ error_msg }}", severity=RuleSeverity.ERROR),
+    "0408": Rule(
+        rule_id="0408",
+        name="non-existing-setting",
+        msg="{{ error_msg }}",
+        severity=RuleSeverity.ERROR,
+        docs="""
+        Non-existing setting can't be used in the code.
+        
+        Rule violation example::
+        
+           *** Test Case ***
+               [Not Existing]  arg
+               [Arguments]  ${arg}
+    
+        """,
+    ),
     "0409": Rule(
         rule_id="0409",
         name="setting-not-supported",
         msg="Setting '[{{ setting_name }}]' is not supported in {{ test_or_keyword }}. "
         "Allowed are: {{ allowed_settings }}",
         severity=RuleSeverity.ERROR,
+        docs="""
+        Following settings are supported in Test Case::
+        
+            [Documentation]	 Used for specifying a test case documentation.
+            [Tags]	         Used for tagging test cases.
+            [Setup]	         Used for specifying a test setup.
+            [Teardown]	     Used for specifying a test teardown.
+            [Template]	     Used for specifying a template keyword.
+            [Timeout]	     Used for specifying a test case timeout.
+        
+        Following settings are supported in Keyword::
+        
+            [Documentation]	 Used for specifying a user keyword documentation.
+            [Tags]	         Used for specifying user keyword tags.
+            [Arguments]	     Used for specifying user keyword arguments.
+            [Return]	     Used for specifying user keyword return values.
+            [Teardown]	     Used for specifying user keyword teardown.
+            [Timeout]	     Used for specifying a user keyword timeout.
+        
+        """,
     ),
     "0410": Rule(
         rule_id="0410",
@@ -65,12 +168,29 @@ rules = {
         msg="Provide at least two spaces after '{{ variable_name }}' variable name",
         severity=RuleSeverity.ERROR,
         version=">=4.0",
+        docs="""
+        Example of rule violation::
+        
+            ${variable} 1  # not enough whitespace
+            ${other_var}  2
+        
+        """,
     ),
     "0411": Rule(
         rule_id="0411",
         name="not-enough-whitespace-after-suite-setting",
         msg="Provide at least two spaces after '{{ setting_name }}' setting",
         severity=RuleSeverity.ERROR,
+        docs="""
+        Example of rule violation::
+        
+            *** Settings ***
+            Library Collections  # not enough whitespace
+            Force Tags  tag
+            ...  tag2
+            Suite Setup Keyword  # not enough whitespace
+        
+        """,
     ),
     "0412": Rule(
         rule_id="0412",

@@ -55,6 +55,22 @@ rules = {
         name="duplicated-keyword",
         msg="Multiple keywords with name '{{ name }}' (first occurrence in line {{ first_occurrence_line }})",
         severity=RuleSeverity.ERROR,
+        docs="""
+        Do not define keywords with the same name inside the same file. Name matching is case-insensitive and 
+        ignores spaces and underscore characters.
+        Duplicated keyword names example::
+        
+            *** Keywords ***
+            Keyword
+                No Operaton
+            
+            keyword
+                No Operation
+            
+            K_eywor d
+                No Operation
+            
+        """,
     ),
     "0803": Rule(
         rule_id="0803",
@@ -63,6 +79,18 @@ rules = {
         "{{ first_occurrence_line }}). "
         "Note that Robot Framework is case-insensitive",
         severity=RuleSeverity.ERROR,
+        docs="""
+        Variable names in Robot Framework are case-insensitive and ignore spaces and underscores. Following variables 
+        are duplicates::
+        
+            *** Variables ***
+            ${variable}    1
+            ${VARIAble}    a
+            @{variable}    a  b
+            ${v ariabl e}  c
+            ${v_ariable}   d
+
+        """,
     ),
     "0804": Rule(
         rule_id="0804",
@@ -76,6 +104,14 @@ rules = {
         msg="Multiple library imports with name '{{ name }}' and identical arguments (first occurrence in line "
         "{{ first_occurrence_line }})",
         severity=RuleSeverity.WARNING,
+        docs="""
+        If you need to reimport library use alias::
+        
+            *** Settings ***
+            Library  RobotLibrary
+            Library  RobotLibrary  AS  OtherRobotLibrary
+
+        """,
     ),
     "0806": Rule(
         rule_id="0806",
@@ -166,12 +202,31 @@ rules = {
         name="duplicated-argument-name",
         msg="Argument name '{{ argument_name }}' is already used",
         severity=RuleSeverity.ERROR,
+        docs="""
+        Variable names in Robot Framework are case-insensitive and ignores spaces and underscores. Following arguments 
+        are duplicates::
+        
+            *** Keywords ***
+            Keyword
+                [Arguments]    ${var}  ${VAR}  ${v_ar}  ${v ar}
+                Other Keyword
+
+        """,
     ),
     "0812": Rule(
         rule_id="0812",
         name="duplicated-assigned-var-name",
         msg="Assigned variable name '{{ variable_name }}' is already used",
         severity=RuleSeverity.INFO,
+        docs="""
+        Variable names in Robot Framework are case-insensitive and ignores spaces and underscores. Following variables 
+        are duplicates::
+        
+            *** Test Cases ***
+            Test
+                ${var}  ${VAR}  ${v_ar}  ${v ar}  Keyword
+        
+        """,
     ),
 }
 

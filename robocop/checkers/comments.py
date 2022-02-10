@@ -50,19 +50,48 @@ rules = {
         
         Example::
         
-        
             # good
              # bad
               # third cell so it's good
         
         """,
     ),
-    "0704": Rule(rule_id="0704", name="ignored-data", msg="Ignored data found in file", severity=RuleSeverity.WARNING),
+    "0704": Rule(
+        rule_id="0704",
+        name="ignored-data",
+        msg="Ignored data found in file",
+        severity=RuleSeverity.WARNING,
+        docs="""
+        All lines before first test data section 
+        (`ref <https://robotframework.org/robotframework/latest/RobotFrameworkUserGuide.html#test-data-sections>`_) 
+        are ignored. It's recommended to add `*** Comments ***` section header for lines that should be ignored.
+        
+        Missing section header::
+    
+            Resource   file.resource  # it looks like *** Settings *** but section header is missing - line is ignored
+            
+            *** Keywords ***
+            Keyword Name
+               No Operation
+        
+        Comment lines that should be inside `*** Comments ***`::
+            
+            Deprecated Test
+                Keyword
+                Keyword 2
+            
+            *** Test Cases ***
+    
+        """,
+    ),
     "0705": Rule(
         rule_id="0705",
         name="bom-encoding-in-file",
         msg="This file contains BOM (Byte Order Mark) encoding not supported by Robot Framework",
         severity=RuleSeverity.WARNING,
+        docs="""
+        Some code editors can save Robot file using BOM encoding. Ensure that file is saved in UTF-8 encoding.
+        """,
     ),
 }
 
@@ -95,93 +124,42 @@ class CommentChecker(VisitorChecker):
         self.find_comments(node)
         self.generic_visit(node)
 
-    def visit_Return(self, node):  # noqa
-        self.find_comments(node)
-        self.generic_visit(node)
-
-    def visit_Documentation(self, node):  # noqa
-        self.find_comments(node)
-        self.generic_visit(node)
-
-    def visit_SectionHeader(self, node):  # noqa
-        self.find_comments(node)
-        self.generic_visit(node)
-
-    def visit_Tags(self, node):  # noqa
-        self.find_comments(node)
-        self.generic_visit(node)
-
-    def visit_Setup(self, node):  # noqa
-        self.find_comments(node)
-        self.generic_visit(node)
-
-    def visit_Timeout(self, node):  # noqa
-        self.find_comments(node)
-        self.generic_visit(node)
-
-    def visit_Template(self, node):  # noqa
-        self.find_comments(node)
-        self.generic_visit(node)
-
-    def visit_Arguments(self, node):  # noqa
-        self.find_comments(node)
-        self.generic_visit(node)
-
-    def visit_Variable(self, node):  # noqa
-        self.find_comments(node)
-        self.generic_visit(node)
-
-    def visit_Metadata(self, node):  # noqa
-        self.find_comments(node)
-        self.generic_visit(node)
-
-    def visit_ForceTags(self, node):  # noqa
-        self.find_comments(node)
-        self.generic_visit(node)
-
-    def visit_DefaultTags(self, node):  # noqa
-        self.find_comments(node)
-        self.generic_visit(node)
-
-    def visit_IfHeader(self, node):  # noqa
-        self.find_comments(node)
-        self.generic_visit(node)
-
-    def visit_ElseHeader(self, node):  # noqa
-        self.find_comments(node)
-        self.generic_visit(node)
-
-    def visit_ForHeader(self, node):  # noqa
-        self.find_comments(node)
-        self.generic_visit(node)
-
-    def visit_ForLoopHeader(self, node):  # noqa
-        self.find_comments(node)
-        self.generic_visit(node)
-
-    def visit_TestSetup(self, node):  # noqa
-        self.find_comments(node)
-        self.generic_visit(node)
-
-    def visit_TestTeardown(self, node):  # noqa
-        self.find_comments(node)
-        self.generic_visit(node)
-
-    def visit_SuiteSetup(self, node):  # noqa
-        self.find_comments(node)
-        self.generic_visit(node)
-
-    def visit_SuiteTeardown(self, node):  # noqa
-        self.find_comments(node)
-        self.generic_visit(node)
-
-    def visit_TestTemplate(self, node):  # noqa
-        self.find_comments(node)
-        self.generic_visit(node)
-
-    def visit_TestTimeout(self, node):  # noqa
-        self.find_comments(node)
-        self.generic_visit(node)
+    # this allows to define methods with different name and same body as visit_KeywordCall
+    visit_Return = (
+        visit_Documentation
+    ) = (
+        visit_SectionHeader
+    ) = (
+        visit_Tags
+    ) = (
+        visit_Setup
+    ) = (
+        visit_Timeout
+    ) = (
+        visit_Template
+    ) = (
+        visit_Arguments
+    ) = (
+        visit_Variable
+    ) = (
+        visit_Metadata
+    ) = (
+        visit_ForceTags
+    ) = (
+        visit_DefaultTags
+    ) = (
+        visit_IfHeader
+    ) = (
+        visit_ElseHeader
+    ) = (
+        visit_ForHeader
+    ) = (
+        visit_ForLoopHeader
+    ) = (
+        visit_TestSetup
+    ) = (
+        visit_TestTeardown
+    ) = visit_SuiteSetup = visit_SuiteTeardown = visit_TestTemplate = visit_TestTimeout = visit_KeywordCall
 
     def find_comments(self, node):
         for token in node.tokens:

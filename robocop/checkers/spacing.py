@@ -70,9 +70,38 @@ rules = {
         severity=RuleSeverity.WARNING,
     ),
     "1007": Rule(
-        rule_id="1007", name="uneven-indent", msg="Line is {{ over_or_under }}-indented", severity=RuleSeverity.WARNING
+        rule_id="1007",
+        name="uneven-indent",
+        msg="Line is {{ over_or_under }}-indented",
+        severity=RuleSeverity.WARNING,
+        docs="""
+        Reported when line does not follow indent from the current block. 
+        Example of rule violation::
+        
+        Keyword With Over Indented Setting
+            [Documentation]  this is doc
+             [Arguments]  ${arg}  # over-indented
+               No Operation  # over-indented
+            Pass
+            No Operation
+            Fail
+        
+        """,
     ),
-    "1008": Rule(rule_id="1008", name="bad-indent", msg="Indent expected", severity=RuleSeverity.ERROR),
+    "1008": Rule(
+        rule_id="1008",
+        name="bad-indent",
+        msg="Indent expected",
+        severity=RuleSeverity.ERROR,
+        docs="""
+        Expecting indent. Example of rule violation::
+        
+             FOR  ${elem}  IN  ${list}
+            Log  stuff  # content of FOR blocks should use bigger indentation than FOR header
+             END
+        
+        """,
+    ),
     "1009": Rule(
         RuleParam(
             name="empty_lines",
@@ -85,18 +114,40 @@ rules = {
         msg="Too many empty lines after '{{ section_name }}' section header "
         "({{ empty_lines }}/{{ allowed_empty_lines }})",
         severity=RuleSeverity.WARNING,
+        docs="""
+        Empty lines after the section header are not allowed by default. Example of rule violation::
+        
+             *** Test Cases ***
+             
+             Resource  file.resource
+        
+        It can be configured using `empty_lines` parameter.
+        """,
     ),
     "1010": Rule(
         rule_id="1010",
         name="too-many-trailing-blank-lines",
         msg="Too many blank lines at the end of file",
         severity=RuleSeverity.WARNING,
+        docs="""There should be exactly one blank line at the end of the file""",
     ),
     "1011": Rule(
         rule_id="1011",
         name="misaligned-continuation",
         msg="Continuation marker should be aligned with starting row",
         severity=RuleSeverity.WARNING,
+        docs="""
+        Example of rule violation::
+        
+                Default Tags       default tag 1    default tag 2    default tag 3
+            ...                default tag 4    default tag 5
+            
+                *** Test Cases ***
+                Example
+                    Do X    first argument    second argument    third argument
+                  ...    fourth argument    fifth argument    sixth argument
+        
+        """,
     ),
     "1012": Rule(
         RuleParam(
@@ -107,14 +158,33 @@ rules = {
         ),
         rule_id="1012",
         name="consecutive-empty-lines",
-        msg="Too many empty lines ({{ empty_lines }}/{{ allowed_empty_lines }})",
+        msg="Too many consecutive empty lines ({{ empty_lines }}/{{ allowed_empty_lines }})",
         severity=RuleSeverity.WARNING,
+        docs="""
+        Example of rule violation::
+        
+            Keyword
+                Step 1
+                
+                
+                Step 2
+
+        """,
     ),
     "1013": Rule(
         rule_id="1013",
         name="empty-lines-in-statement",
         msg="Multi-line statement with empty lines",
         severity=RuleSeverity.WARNING,
+        docs="""
+        Example of rule violation::
+        
+             Keyword
+             ...  1
+             # empty line in-between multiline statement
+             ...  2
+        
+        """,
     ),
     "1014": Rule(
         rule_id="1014",
@@ -122,12 +192,35 @@ rules = {
         msg="Variable in Variable section should be left aligned",
         severity=RuleSeverity.ERROR,
         version=">=4.0",
+        docs="""
+        Example of rule violation::
+        
+            *** Variables ***
+             ${VAR}  1
+              ${VAR2}  2
+        
+        """,
     ),
     "1015": Rule(
         rule_id="1015",
         name="misaligned-continuation-row",
         msg="Each next continuation line should be aligned with the previous one",
         severity=RuleSeverity.WARNING,
+        docs="""
+        Example of rule violation::
+        
+            *** Settings ***
+            Documentation      Here we have documentation for this suite.
+            ...                Documentation is often quite long.
+            ...
+            ...            It can also contain multiple paragraphs.  # misaligned
+            
+            *** Test Cases ***
+            Test
+            [Tags]    you    probably    do    not    have    this    many
+            ...      tags    in    real    life  # misaligned
+        
+        """,
     ),
     "1016": Rule(
         rule_id="1016",
@@ -135,6 +228,15 @@ rules = {
         msg="Setting in Settings section should be left aligned",
         severity=RuleSeverity.ERROR,
         version=">=4.0",
+        docs="""
+        Example of rule violation::
+        
+            *** Settings ***
+                Library  Collections
+                Resource  data.resource
+                Variables  vars.robot
+        
+        """,
     ),
 }
 

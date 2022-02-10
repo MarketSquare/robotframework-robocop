@@ -34,6 +34,15 @@ rules = {
         name="not-allowed-char-in-name",
         msg="Not allowed character '{{ character }}' found in {{ block_name }} name",
         severity=RuleSeverity.WARNING,
+        docs="""
+        Reports not allowed character found in Suite, Test Case or Keyword names. By default it's dot (`.`). You can 
+        configure what characters are reported by calling::
+        
+             robocop --configure not-allowed-char-in-name:pattern:regex_pattern
+             
+        `regex_pattern` should define regex pattern for characters not allowed in names. For example `[@\[]` pattern 
+        reports any occurence of `@[` characters.
+        """,
     ),
     "0302": Rule(
         RuleParam(
@@ -52,6 +61,20 @@ rules = {
         name="keyword-name-is-reserved-word",
         msg="'{{ keyword_name }}' is a reserved keyword{{ error_msg }}",
         severity=RuleSeverity.ERROR,
+        docs="""
+        Do not use reserved names for keyword names. Following names are reserved:
+          - IF
+          - ELSE IF
+          - ELSE
+          - FOR
+          - END
+          - WHILE
+          - CONTINUE
+          - RETURN
+          - TRY
+          - EXCEPT
+
+        """,
     ),
     "0305": Rule(
         rule_id="0305",
@@ -74,12 +97,45 @@ rules = {
         name="setting-name-not-in-title-case",
         msg="Setting name '{{ setting_name }}' should use title or upper case",
         severity=RuleSeverity.WARNING,
+        docs="""
+        Good::
+        
+             *** Settings ***
+             Resource    file.resource
+             
+             *** Test Cases ***
+             Test
+                 [DOCUMENTATION]  Some documentation
+                 Step
+        
+        Bad::
+        
+             *** Settings ***
+             resource    file.resource
+             
+             *** Test Cases ***
+             Test
+                 [documentation]  Some documentation
+                 Step
+            
+        """,
     ),
     "0307": Rule(
         rule_id="0307",
         name="section-name-invalid",
         msg="Section name should be in format '{{ section_title_case }}' or '{{ section_upper_case }}'",
         severity=RuleSeverity.WARNING,
+        docs="""
+        Good::
+        
+            *** SETTINGS ***
+            *** Keywords ***
+        
+        Bad::
+        
+            *** keywords ***
+
+        """,
     ),
     "0308": Rule(
         rule_id="0308",
@@ -118,13 +174,38 @@ rules = {
         severity=RuleSeverity.ERROR,
     ),
     "0314": Rule(
-        rule_id="0314", name="empty-library-alias", msg="Library alias should not be empty", severity=RuleSeverity.ERROR
+        rule_id="0314",
+        name="empty-library-alias",
+        msg="Library alias should not be empty",
+        severity=RuleSeverity.ERROR,
+        docs="""
+        Use non-empty name when using library import with alias.
+        
+        Good::
+           
+            *** Settings ***
+            Library  CustomLibrary  AS  AnotherName
+        
+        Bad::
+        
+             *** Settings ***
+             Library  CustomLibrary  AS
+        
+        """,
     ),
     "0315": Rule(
         rule_id="0315",
         name="duplicated-library-alias",
         msg="Library alias should not be the same as original name",
         severity=RuleSeverity.WARNING,
+        docs="""
+        Example of rule violation::
+        
+             *** Settings ***
+             Library  CustomLibrary  AS  CustomLibrary  # same as library name
+             Library  CustomLibrary  AS  Custom Library  # same as library name (spaces are ignored)
+        
+        """,
     ),
     "0316": Rule(
         rule_id="0316",
@@ -139,12 +220,40 @@ rules = {
         msg="Use underscore in variable name '{{ variable_name }}' instead of hyphens to "
         "avoid treating them like minus sign",
         severity=RuleSeverity.INFO,
+        docs="""
+        Robot Framework supports evaluation of Python code inside ${ } brackets. For example::
+        
+             ${var2}  Set Variable  ${${var}-${var2}}
+        
+        That's why there is possibility that hyphen in name is not recognized as part of name but as minus sign.
+        Better to use underscore (if it's intended)::
+        
+        ${var2}  Set Variable  ${ ${var}_${var2}}
+        """,
     ),
     "0318": Rule(
         rule_id="0318",
         name="bdd-without-keyword-call",
         msg="BDD reserved keyword '{{ keyword_name }}' not followed by any keyword{{ error_msg }}",
         severity=RuleSeverity.WARNING,
+        docs="""
+        When using BDD reserved keywords (such as `GIVEN`, `WHEN`, `AND`, `BUT` or `THEN`) use them together with 
+        name of the keyword to run. 
+        
+        Good::
+        
+            Given Setup Is Complete
+            When User Log In
+            Then User Should See Welcome Page
+        
+        Bad::
+        
+            Given
+            When User Log In
+            Then User Should See Welcome Page
+        
+        Since those words are used for BDD style it's also recommended not to use them within the keyword name.
+        """,
     ),
 }
 

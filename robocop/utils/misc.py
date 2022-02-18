@@ -324,3 +324,9 @@ def get_section_name(node):
         elif "HEADER" in token.type:
             return token.value
     return ""
+
+
+def get_errors(node):
+    if ROBOT_VERSION.major == 3:
+        return [node.error] if node.error else []
+    return node.errors

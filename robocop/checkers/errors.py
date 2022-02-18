@@ -4,7 +4,6 @@ Errors checkers
 import re
 
 from robot.api import Token
-from robot.parsing.model.statements import EmptyLine
 
 from robocop.checkers import VisitorChecker
 from robocop.rules import Rule, RuleSeverity
@@ -258,6 +257,7 @@ class ParsingErrorChecker(VisitorChecker):
         "resource": "Resource",
         "variables": "Variables",
     }
+    ignore_errors = ("can only be used inside a loop",)
 
     def visit_If(self, node):  # noqa
         self.parse_errors(node)
@@ -286,6 +286,8 @@ class ParsingErrorChecker(VisitorChecker):
 
     def handle_error(self, node, error, error_index=0):  # noqa
         if not error:
+            return
+        if any(should_ignore in error for should_ignore in self.ignore_errors):
             return
         if "Invalid argument syntax" in error:
             self.handle_invalid_syntax(node, error)

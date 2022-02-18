@@ -561,10 +561,10 @@ class LoopStatementsChecker(VisitorChecker):
             )
 
     def visit_Continue(self, node):  # noqa
-        self.check_statement_in_loop(node, Token.CONTINUE)
+        self.check_statement_in_loop(node, "CONTINUE")
 
     def visit_Break(self, node):  # noqa
-        self.check_statement_in_loop(node, Token.BREAK)
+        self.check_statement_in_loop(node, "BREAK")
 
     def check_statement_in_loop(self, node, token_type):
         if self.loops or node.errors and f"{token_type} can only be used inside a loop." not in node.errors:

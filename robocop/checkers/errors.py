@@ -295,7 +295,7 @@ class ParsingErrorChecker(VisitorChecker):
             self.handle_invalid_setting(node, error)
         elif "Invalid variable name" in error:
             self.handle_invalid_variable(node, error)
-        elif "IF has" in error or "ELSE IF branch" in error:
+        elif "IF" in error or "ELSE IF" in error:
             self.handle_invalid_block(node, error, "invalid-if")
         elif "FOR loop has" in error:
             self.handle_invalid_block(node, error, "invalid-for-loop")

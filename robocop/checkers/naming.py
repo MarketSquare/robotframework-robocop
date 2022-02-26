@@ -255,6 +255,13 @@ rules = {
         Since those words are used for BDD style it's also recommended not to use them within the keyword name.
         """,
     ),
+    "0319": Rule(
+        rule_id="0319",
+        name="deprecated-statement",
+        msg="This keyword '{{ keyword_name }}' is deprecated,"
+            " since version '{{ version }}.*', use {{ alternative }} instead",
+        severity=RuleSeverity.WARNING,
+    ),
 }
 
 
@@ -662,3 +669,59 @@ class SimilarVariableChecker(VisitorChecker):
                     col=token.col_offset,
                 )
             self.variables[normalized_token].add(token.value)
+
+
+class DeprecatedStatementChecker(VisitorChecker):
+    """Checker for finding deprecated statments."""
+
+    reports = (
+        "deprecated-statement",
+    )
+    # deprecated:alternative
+    deprecated_statements_rf3 = {}
+    deprecated_statements_rf4 = {"run keyword unless": "IF/ELSE",
+                                 "run keyword if":     "IF/ELSE"
+                                 }
+    deprecated_statements_rf5 = {"run keyword unless": "IF/ELSE"}
+
+    def visit_SuiteSetup(self, node):  # noqa
+        self.check_if_keyword_is_deprecated(node.name, node)
+
+    def visit_TestSetup(self, node):  # noqa
+        self.check_if_keyword_is_deprecated(node.name, node)
+
+    def visit_Setup(self, node):  # noqa
+        self.check_if_keyword_is_deprecated(node.name, node)
+
+    def visit_SuiteTeardown(self, node):  # noqa
+        self.check_if_keyword_is_deprecated(node.name, node)
+
+    def visit_TestTeardown(self, node):  # noqa
+        self.check_if_keyword_is_deprecated(node.name, node)
+
+    def visit_Teardown(self, node):  # noqa
+        self.check_if_keyword_is_deprecated(node.name, node)
+
+    def visit_TestCase(self, node):  # noqa
+        self.generic_visit(node)
+
+    def visit_KeywordCall(self, node):  # noqa
+        self.check_if_keyword_is_deprecated(node.keyword, node)
+
+    def check_if_keyword_is_deprecated(self, keyword_name, node):
+        deprecated_statements = self.deprecated_statements_rf3
+        if ROBOT_VERSION.major == 4:
+            deprecated_statements = self.deprecated_statements_rf4
+        elif ROBOT_VERSION.major == 5:
+            deprecated_statements = self.deprecated_statements_rf5
+        if deprecated_statements.get(keyword_name.lower(), None):
+            alternative = f"'{deprecated_statements.get(keyword_name.lower())}'"
+            col = token_col(node, Token.NAME, Token.KEYWORD)
+            self.report("deprecated-statement",
+                        keyword_name=keyword_name,
+                        alternative=alternative,
+                        node=node,
+                        col=col,
+                        version=ROBOT_VERSION.major
+                        )
+

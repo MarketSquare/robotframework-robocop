@@ -1,0 +1,2 @@
+${rules_dir}${\}test.robot:3:5 [W] 0319 This keyword 'Run Keyword Unless' is deprecated, since version '4.*', use 'IF/ELSE' instead
+${rules_dir}${\}test.robot:4:5 [W] 0319 This keyword 'Run Keyword If' is deprecated, since version '4.*', use 'IF/ELSE' instead

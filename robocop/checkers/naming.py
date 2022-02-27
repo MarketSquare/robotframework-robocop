@@ -681,7 +681,7 @@ class DeprecatedStatementChecker(VisitorChecker):
     deprecated_statements_rf3 = {}
     deprecated_statements_rf4 = {"runkeywordunless": "IF/ELSE",
                                  "runkeywordif":     "IF/ELSE"
-                                }
+                                 }
     deprecated_statements_rf5 = {"runkeywordunless": "IF/ELSE"}
 
     def visit_SuiteSetup(self, node):  # noqa
@@ -723,6 +723,6 @@ class DeprecatedStatementChecker(VisitorChecker):
                         alternative=alternative,
                         node=node,
                         col=col,
-                        version= f"{ROBOT_VERSION.major}.0"
+                        version=f"{ROBOT_VERSION.major}.0"
                         )
 

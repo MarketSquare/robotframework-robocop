@@ -1,2 +1,5 @@
-${rules_dir}${\}test.robot:3:5 [W] 0319 This keyword 'Run Keyword Unless' is deprecated, since version '4.*', use 'IF/ELSE' instead
-${rules_dir}${\}test.robot:4:5 [W] 0319 This keyword 'Run Keyword If' is deprecated, since version '4.*', use 'IF/ELSE' instead
+${rules_dir}${\}test.robot:3:5 [W] 0319 This keyword 'Run Keyword Unless' is deprecated, since version '4.0', use 'IF/ELSE' instead
+${rules_dir}${\}test.robot:4:5 [W] 0319 This keyword 'Run Keyword If' is deprecated, since version '4.0', use 'IF/ELSE' instead
+${rules_dir}${\}test.robot:5:5 [W] 0319 This keyword 'run_keyword_unless' is deprecated, since version '4.0', use 'IF/ELSE' instead
+${rules_dir}${\}test.robot:6:5 [W] 0319 This keyword 'builtin.run_KeywoRD_UNLESS' is deprecated, since version '4.0', use 'IF/ELSE' instead
+${rules_dir}${\}test.robot:7:5 [W] 0319 This keyword 'BuiltIn.Run Keyword Unless' is deprecated, since version '4.0', use 'IF/ELSE' instead

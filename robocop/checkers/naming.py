@@ -259,7 +259,7 @@ rules = {
         rule_id="0319",
         name="deprecated-statement",
         msg="This keyword '{{ keyword_name }}' is deprecated,"
-            " since version '{{ version }}.*', use {{ alternative }} instead",
+            " since version '{{ version }}', use {{ alternative }} instead",
         severity=RuleSeverity.WARNING,
     ),
 }
@@ -679,10 +679,10 @@ class DeprecatedStatementChecker(VisitorChecker):
     )
     # deprecated:alternative
     deprecated_statements_rf3 = {}
-    deprecated_statements_rf4 = {"run keyword unless": "IF/ELSE",
-                                 "run keyword if":     "IF/ELSE"
-                                 }
-    deprecated_statements_rf5 = {"run keyword unless": "IF/ELSE"}
+    deprecated_statements_rf4 = {"runkeywordunless": "IF/ELSE",
+                                 "runkeywordif":     "IF/ELSE"
+                                }
+    deprecated_statements_rf5 = {"runkeywordunless": "IF/ELSE"}
 
     def visit_SuiteSetup(self, node):  # noqa
         self.check_if_keyword_is_deprecated(node.name, node)
@@ -709,19 +709,20 @@ class DeprecatedStatementChecker(VisitorChecker):
         self.check_if_keyword_is_deprecated(node.keyword, node)
 
     def check_if_keyword_is_deprecated(self, keyword_name, node):
+        normalized_keyword_name = normalize_robot_name(keyword_name, remove_prefix="builtin.")
         deprecated_statements = self.deprecated_statements_rf3
         if ROBOT_VERSION.major == 4:
             deprecated_statements = self.deprecated_statements_rf4
         elif ROBOT_VERSION.major == 5:
             deprecated_statements = self.deprecated_statements_rf5
-        if deprecated_statements.get(keyword_name.lower(), None):
-            alternative = f"'{deprecated_statements.get(keyword_name.lower())}'"
+        if deprecated_statements.get(normalized_keyword_name, None):
+            alternative = f"'{deprecated_statements.get(normalized_keyword_name)}'"
             col = token_col(node, Token.NAME, Token.KEYWORD)
             self.report("deprecated-statement",
                         keyword_name=keyword_name,
                         alternative=alternative,
                         node=node,
                         col=col,
-                        version=ROBOT_VERSION.major
+                        version= f"{ROBOT_VERSION.major}.0"
                         )
 

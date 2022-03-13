@@ -23,19 +23,32 @@ master_doc = "index"
 
 # -- General configuration ---------------------------------------------------
 
-extensions = ["sphinx_rtd_theme", "sphinx.ext.autodoc"]
+extensions = ["sphinx.ext.autodoc"]
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ["_templates"]
 
 exclude_patterns = []
 
-# -- Options for HTML output -------------------------------------------------
+html_theme = "alabaster"
 
-# The theme to use for HTML and HTML Help pages.  See the documentation for
-# a list of builtin themes.
-#
-html_theme = "sphinx_rtd_theme"
+html_theme_options = {
+    "description": "Tool for static code analysis (linting) of Robot Framework language",
+    "logo": "robocop_logo_small.png",
+    "logo_name": True,
+    "logo_text_align": "center",
+    "show_powered_by": False,
+    "github_user": "MarketSquare",
+    "github_repo": "robotframework-robocop",
+    "github_banner": False,
+    "github_button": True,
+    "show_related": False,
+    "note_bg": "#FFF59C",
+    "github_type": "star",
+    "fixed_sidebar": True,
+}
+
+
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
@@ -76,7 +89,7 @@ def get_checker_docs():
                 "ext_docs": rule.docs,
                 "version": rule.supported_version,
                 "params": [
-                    {"name": param.name, "default": param.value, "type": param.converter.__name__, "desc": param.desc}
+                    {"name": param.name, "default": param.default, "type": param.converter.__name__, "desc": param.desc}
                     for param in rule.config.values()
                 ],
             }

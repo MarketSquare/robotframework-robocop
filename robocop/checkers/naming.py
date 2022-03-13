@@ -63,6 +63,7 @@ rules = {
         severity=RuleSeverity.ERROR,
         docs="""
         Do not use reserved names for keyword names. Following names are reserved:
+        
           - IF
           - ELSE IF
           - ELSE

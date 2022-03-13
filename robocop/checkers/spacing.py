@@ -78,13 +78,13 @@ rules = {
         Reported when line does not follow indent from the current block. 
         Example of rule violation::
         
-        Keyword With Over Indented Setting
-            [Documentation]  this is doc
-             [Arguments]  ${arg}  # over-indented
-               No Operation  # over-indented
-            Pass
-            No Operation
-            Fail
+            Keyword With Over Indented Setting
+                [Documentation]  this is doc
+                 [Arguments]  ${arg}  # over-indented
+                   No Operation  # over-indented
+                Pass
+                No Operation
+                Fail
         
         """,
     ),

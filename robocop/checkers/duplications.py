@@ -156,7 +156,7 @@ rules = {
             name="sections_order",
             default="settings,variables,testcases,keywords",
             converter=configure_sections_order,
-            desc="order of sections in comma separated list. For example: settings,variables,testcases,keywords",
+            desc="order of sections in comma separated list",
         ),
         rule_id="0809",
         name="section-out-of-order",

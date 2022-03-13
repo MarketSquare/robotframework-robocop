@@ -252,7 +252,7 @@ rules = {
         severity=RuleSeverity.ERROR,
         version=">=5.0",
         docs="""
-        Following loop keywords and statements should only be used inside loop (``WHILE`` or ``FOR``):
+        Following keywords and statements should only be used inside loop (``WHILE`` or ``FOR``):
             - ``Exit For Loop``,
             - ``Exit For Loop If``,
             - ``Continue For Loop``,

@@ -106,12 +106,12 @@ class RuleParam:
         self.name = name
         self.converter = converter
         self.desc = desc
-        self.default = default
+        self.raw_value = None
         self._value = None
         self.value = default
 
     def __str__(self):
-        s = f"{self.name} = {self.value}\n" f"        type: {self.converter.__name__}"
+        s = f"{self.name} = {self.raw_value}\n" f"        type: {self.converter.__name__}"
         if self.desc:
             s += "\n" f"        info: {self.desc}"
         return s
@@ -122,6 +122,7 @@ class RuleParam:
 
     @value.setter
     def value(self, value):
+        self.raw_value = value  # useful for docs/printing
         try:
             self._value = self.converter(value)
         except ValueError as err:

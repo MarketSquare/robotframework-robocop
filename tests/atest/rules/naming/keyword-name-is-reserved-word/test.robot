@@ -9,6 +9,7 @@ Test
     Pass
     Keyword
     One More
+    RETURN
 
 
 *** Keywords ***
@@ -22,6 +23,18 @@ Keyword
     Fail
     Run Keyword If  ${True}  Keyword
     ...  else  Keyword2
+    IF    $condition
+        Return
+    END
+    RETURN
+
+While
+    While
+    Continue
+    Try
+    Except
+    finally
+
 
 Run Keyword If
     [Arguments]    ${name}    ${condition}    @{args}

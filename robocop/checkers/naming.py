@@ -300,6 +300,17 @@ class InvalidCharactersInNameChecker(VisitorChecker):
         self.check_if_char_in_node_name(node, "keyword", is_keyword=True)
 
 
+def reserved_error_msg(name, reserved_type):
+    return (
+        f". It must be in uppercase ({name.upper()}) when used as a marker with {reserved_type}. "
+        f"Each marker should have minimum of 2 spaces as separator."
+    )
+
+
+def uppercase_error_msg(name):
+    return f". It must be in uppercase ({name.upper()}) when used as a statement"
+
+
 class KeywordNamingChecker(VisitorChecker):
     """Checker for keyword naming violations."""
 
@@ -311,16 +322,31 @@ class KeywordNamingChecker(VisitorChecker):
         "keyword-name-is-empty",
         "bdd-without-keyword-call",
     )
-
-    reserved_words_rf3 = {"for": "for loop", "end": "for loop", "while": "", "continue": ""}
     reserved_words = {
-        "if": "",
-        "else if": "",
-        "else": "",
-        "for": "for loop",
-        "end": "for loop or if",
-        "while": "",
-        "continue": "",
+        3: {
+            "for": reserved_error_msg("for", "'FOR' loop"),
+            "end": reserved_error_msg("end", "'FOR' loop"),
+        },
+        4: {
+            "if": uppercase_error_msg("if"),
+            "else if": uppercase_error_msg("else if"),
+            "else": uppercase_error_msg("else"),
+            "for": reserved_error_msg("for", "'FOR' loop"),
+            "end": reserved_error_msg("end", "'FOR' or 'IF'"),
+        },
+        5: {
+            "if": uppercase_error_msg("if"),
+            "else if": uppercase_error_msg("else if"),
+            "else": uppercase_error_msg("else"),
+            "for": reserved_error_msg("for", "'FOR' loop"),
+            "end": reserved_error_msg("end", "'FOR', 'IF' or 'TRY EXCEPT'"),
+            "while": uppercase_error_msg("while"),
+            "continue": uppercase_error_msg("continue"),
+            "return": uppercase_error_msg("return"),
+            "try": reserved_error_msg("try", "'TRY EXCEPT'"),
+            "except": reserved_error_msg("except", "'TRY EXCEPT'"),
+            "finally": reserved_error_msg("finally", "'TRY EXCEPT'"),
+        },
     }
     else_statements = {"else", "else if"}
     bdd = {"given", "when", "and", "but", "then"}
@@ -333,23 +359,7 @@ class KeywordNamingChecker(VisitorChecker):
     def visit_SuiteSetup(self, node):  # noqa
         self.check_keyword_naming(node.name, node)
 
-    def visit_TestSetup(self, node):  # noqa
-        self.check_keyword_naming(node.name, node)
-
-    def visit_Setup(self, node):  # noqa
-        self.check_keyword_naming(node.name, node)
-
-    def visit_SuiteTeardown(self, node):  # noqa
-        self.check_keyword_naming(node.name, node)
-
-    def visit_TestTeardown(self, node):  # noqa
-        self.check_keyword_naming(node.name, node)
-
-    def visit_Teardown(self, node):  # noqa
-        self.check_keyword_naming(node.name, node)
-
-    def visit_TestCase(self, node):  # noqa
-        self.generic_visit(node)
+    visit_TestSetup = visit_Setup = visit_SuiteTeardown = visit_TestTeardown = visit_Teardown = visit_SuiteSetup
 
     def visit_Keyword(self, node):  # noqa
         if not node.name:
@@ -382,7 +392,7 @@ class KeywordNamingChecker(VisitorChecker):
                     self.report(
                         "keyword-name-is-reserved-word",
                         keyword_name=token.value,
-                        error_msg=self.prepare_reserved_word_rule_message(token.value, "Run Keyword If"),
+                        error_msg=reserved_error_msg(token.value, "'Run Keyword If'"),
                         node=node,
                         col=token.col_offset + 1,
                     )
@@ -410,30 +420,21 @@ class KeywordNamingChecker(VisitorChecker):
 
     def check_if_keyword_is_reserved(self, keyword_name, node):
         # if there is typo in syntax, it is interpreted as keyword
-        reserved = self.reserved_words_rf3 if ROBOT_VERSION.major == 3 else self.reserved_words
+        reserved = self.reserved_words[ROBOT_VERSION.major]
         if keyword_name.lower() not in reserved:
             return False
         if keyword_name.lower() in self.else_statements and self.inside_if_block:
             return False  # handled by else-not-upper-case
-        reserved_type = reserved[keyword_name.lower()]
-        suffix = self.prepare_reserved_word_rule_message(keyword_name, reserved_type)
+        error_msg = reserved[keyword_name.lower()]
+        col = keyword_col(node) if isinstance(node, KeywordCall) else keyword_col(node.header)
         self.report(
             "keyword-name-is-reserved-word",
             keyword_name=keyword_name,
-            error_msg=suffix,
+            error_msg=error_msg,
             node=node,
-            col=keyword_col(node),
+            col=col,
         )
         return True
-
-    @staticmethod
-    def prepare_reserved_word_rule_message(name, reserved_type):
-        return (
-            f". It must be in uppercase ({name.upper()}) when used as a marker with '{reserved_type}'. "
-            f"Each marker should have minimum of 2 spaces as separator."
-            if reserved_type
-            else ""
-        )
 
 
 class SettingsNamingChecker(VisitorChecker):

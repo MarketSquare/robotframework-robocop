@@ -24,7 +24,7 @@ Available formats:
 from enum import Enum
 from textwrap import dedent
 from functools import total_ordering
-from typing import Any, Callable, Union, Pattern, Dict, Tuple, Optional
+from typing import Any, Callable, Union, Pattern, Dict, Optional
 from packaging.specifiers import SpecifierSet
 
 from jinja2 import Template
@@ -178,7 +178,7 @@ class Rule:
     def supported_in_rf_version(version: str) -> bool:
         if not version:
             return True
-        return ROBOT_VERSION in SpecifierSet(version)
+        return ROBOT_VERSION in SpecifierSet(version, prereleases=True)
 
     @staticmethod
     def get_template(msg: str) -> Optional[Template]:

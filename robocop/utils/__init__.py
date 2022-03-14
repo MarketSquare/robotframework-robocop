@@ -22,4 +22,5 @@ from robocop.utils.misc import (
     remove_robot_vars,
     token_col,
     get_section_name,
+    get_errors,
 )

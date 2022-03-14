@@ -1,0 +1,2 @@
+${rules_dir}${\}test.robot:14:5 [E] 0413 Invalid IF syntax: ELSE IF branch cannot be empty
+${rules_dir}${\}test.robot:14:5 [E] 0413 Invalid IF syntax: ELSE IF cannot have more than one condition

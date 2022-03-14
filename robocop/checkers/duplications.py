@@ -7,7 +7,7 @@ from robot.api import Token
 
 from robocop.checkers import VisitorChecker
 from robocop.rules import Rule, RuleParam, RuleSeverity
-from robocop.utils import ROBOT_VERSION, normalize_robot_name, normalize_robot_var_name
+from robocop.utils import ROBOT_VERSION, normalize_robot_name, normalize_robot_var_name, get_errors
 
 
 def configure_sections_order(value):
@@ -308,9 +308,7 @@ class DuplicationsChecker(VisitorChecker):
         self.generic_visit(node)
 
     def visit_Variable(self, node):  # noqa
-        if not node.name or (
-            ROBOT_VERSION.major != 3 and node.errors or ROBOT_VERSION.major == 3 and node.error
-        ):  # TODO refactor
+        if not node.name or get_errors(node):
             return
         var_name = normalize_robot_name(self.replace_chars(node.name, "${}@&"))
         self.variables[var_name].append(node)

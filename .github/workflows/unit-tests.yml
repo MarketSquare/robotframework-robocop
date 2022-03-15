@@ -19,10 +19,10 @@ jobs:
             rf-version: 'stable3'
           - os: 'windows-latest'
             python-version: 3.9
-            rf-version: 'recent'
+            rf-version: 'stable'
           - os: 'ubuntu-latest'
             python-version: 3.7
-            rf-version: 'recent'
+            rf-version: 'stable4'
           - os: 'ubuntu-latest'
             python-version: 3.8
             rf-version: 'recent'

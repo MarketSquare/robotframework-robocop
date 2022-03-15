@@ -9,18 +9,18 @@ Output message of rules can be defined with ``-f`` / ``--format`` argument. Defa
 
     "{source}:{line}:{col} [{severity}] {rule_id} {desc} ({name})"
 
-Available formats:
+.. dropdown:: Available formats:
 
-  * ``source``:     path to the file where the issue occurred
-  * ``source_rel``: path to the file where the issue occurred, relative to execution directory
-  * ``line``:       line number where the issue starts
-  * ``end_line``:   line number where the issue ends
-  * ``col``:        column number where the issue starts
-  * ``end_col``:    column number where the issue ends
-  * ``severity``:   severity of the issue, value of ``robocop.rules.RuleSeverity`` enum
-  * ``rule_id``:    rule id (e.g. ``0501``)
-  * ``name``:       rule name (e.g. ``line-too-long``)
-  * ``desc``:       description of the rule
+    * ``source``:     path to the file where the issue occurred
+    * ``source_rel``: path to the file where the issue occurred, relative to execution directory
+    * ``line``:       line number where the issue starts
+    * ``end_line``:   line number where the issue ends
+    * ``col``:        column number where the issue starts
+    * ``end_col``:    column number where the issue ends
+    * ``severity``:   severity of the issue, value of ``robocop.rules.RuleSeverity`` enum
+    * ``rule_id``:    rule id (e.g. ``0501``)
+    * ``name``:       rule name (e.g. ``line-too-long``)
+    * ``desc``:       description of the rule
 
 """
 from enum import Enum

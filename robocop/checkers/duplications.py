@@ -228,6 +228,21 @@ rules = {
         
         """,
     ),
+    "0813": Rule(
+        rule_id="0813",
+        name="duplicated-setting",
+        msg="{{ error_msg }}",
+        severity=RuleSeverity.WARNING,
+        docs="""
+        Some settings can be used only once in a file. Only the first value is used.
+        Example::
+        
+            *** Settings ***
+            Force Tags        F1
+            Force Tags        F2  # this setting will be ignored
+        
+        """,
+    ),
 }
 
 
@@ -244,6 +259,7 @@ class DuplicationsChecker(VisitorChecker):
         "duplicated-variables-import",
         "duplicated-argument-name",
         "duplicated-assigned-var-name",
+        "duplicated-setting",
     )
 
     def __init__(self):
@@ -355,6 +371,10 @@ class DuplicationsChecker(VisitorChecker):
                 )
             else:
                 args.add(name)
+
+    def visit_Error(self, node):  # noqa
+        for error in get_errors(node):
+            self.report("duplicated-setting", error_msg=error, node=node)
 
 
 class SectionHeadersChecker(VisitorChecker):

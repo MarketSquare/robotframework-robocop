@@ -205,21 +205,6 @@ rules = {
         severity=RuleSeverity.ERROR,
         version=">=4.0",
     ),
-    "0414": Rule(
-        rule_id="0414",
-        name="duplicated-setting",
-        msg="{{ error_msg }}",
-        severity=RuleSeverity.ERROR,
-        docs="""
-        Some settings can be used only once in a file. Only the first value is used.
-        Example::
-    
-            *** Settings ***
-            Force Tags        F1
-            Force Tags        F2  # this setting will be ignored
-    
-        """,
-    ),
 }
 
 
@@ -237,7 +222,6 @@ class ParsingErrorChecker(VisitorChecker):
         "not-enough-whitespace-after-suite-setting",
         "invalid-for-loop",
         "invalid-if",
-        "duplicated-setting",
     )
 
     keyword_only_settings = {"Arguments", "Return"}
@@ -318,7 +302,7 @@ class ParsingErrorChecker(VisitorChecker):
         elif "Non-default argument after default arguments" in error or "Only last argument can be kwargs" in error:
             self.handle_positional_after_named(node, error_index)
         elif "is allowed only once. Only the first value is used" in error:
-            self.handle_duplicated_setting(node, error)
+            return
         else:
             error = error.replace("\n   ", "")
             self.report("parsing-error", error_msg=error, node=node)
@@ -452,9 +436,6 @@ class ParsingErrorChecker(VisitorChecker):
             node=token,
             col=token.col_offset + 1,
         )
-
-    def handle_duplicated_setting(self, node, error):
-        self.report("duplicated-setting", error_msg=error, node=node)
 
 
 class TwoSpacesAfterSettingsChecker(VisitorChecker):

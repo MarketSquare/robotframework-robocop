@@ -211,7 +211,7 @@ rules = {
         msg="{{ error_msg }}",
         severity=RuleSeverity.ERROR,
         docs="""
-        Some settings can be only used once in file. Only the first value is used.
+        Some settings can be used only once in a file. Only the first value is used.
         Example::
     
             *** Settings ***

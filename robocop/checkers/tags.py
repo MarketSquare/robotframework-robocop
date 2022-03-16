@@ -46,10 +46,22 @@ rules = {
     "0603": Rule(
         rule_id="0603",
         name="tag-with-reserved",
-        msg="Tag '{{ tag }}' prefixed with reserved word `robot:`. "
-        "The only allowed tags with this prefix are robot:no-dry-run, "
-        "robot:continue-on-failure and robot:recursive-continue-on-failure",
+        msg="Tag '{{ tag }}' prefixed with reserved word `robot:`",
         severity=RuleSeverity.WARNING,
+        docs="""
+        This prefix is used by Robot Framework special tags. More details 
+        `here <https://robotframework.org/robotframework/latest/RobotFrameworkUserGuide.html#reserved-tags>`_.
+        Special tags currently in use:
+        
+            - robot:exit
+            - robot:no-dry-run
+            - robot:continue-on-failure 
+            - robot:recursive-continue-on-failure
+            - robot:skip
+            - robot:skip-on-failure
+            - robot:exclude
+
+        """
     ),
     "0605": Rule(
         rule_id="0605",
@@ -153,9 +165,13 @@ class TagNameChecker(VisitorChecker):
 
     is_keyword = False
     reserved_tags = {
+        "robot:exit",
         "robot:no-dry-run",
         "robot:continue-on-failure",
         "robot:recursive-continue-on-failure",
+        "robot:skip",
+        "robot:skip-on-failure",
+        "robot:exclude"
     }
 
     def visit_ForceTags(self, node):  # noqa

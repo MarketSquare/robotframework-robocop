@@ -1,4 +1,5 @@
-sphinx-rtd-theme
+furo
+sphinx_design
 robotframework>=4.0
 toml>=0.10.2
 packaging==21.*

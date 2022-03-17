@@ -8,7 +8,7 @@ Robocop documentation
 .. include:: overview.rst
 
 .. toctree::
-   :maxdepth: 1
+   :maxdepth: 2
 
    user_guide
    rules

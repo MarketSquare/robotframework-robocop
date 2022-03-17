@@ -343,7 +343,7 @@ class ConsistentAssignmentSignChecker(VisitorChecker):
         --configure inconsistent-assignment:assignment_sign_type:{sign_type}
         --configure inconsistent-assignment-in-variables:assignment_sign_type:{sign_type}
 
-    ``${sign_type}` can be one of: ``autodetect`` (default), ``none`` (''), ``equal_sign`` ('='),
+    ``${sign_type}`` can be one of: ``autodetect`` (default), ``none`` (''), ``equal_sign`` ('='),
     ``space_and_equal_sign`` (' =').
 
     """

@@ -46,3 +46,18 @@ Keyword  #invalid comment
         My Keyword
     END
     [Return]  ${val}  #invalid comment
+
+RF 5 syntax
+    WHILE    $condition  #invalid comment
+        TRY  #invalid comment
+            Keyword
+        EXCEPT  #invalid comment
+            Keyword
+        FINALLY  #invalid comment
+            Keyword
+        ELSE  #invalid comment
+            Keyword
+        END  #invalid comment
+        CONTINUE  #invalid comment
+        BREAK  #invalid comment
+    END

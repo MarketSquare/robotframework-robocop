@@ -11,17 +11,6 @@ Rules
 
 .. autoclass:: robocop.rules.RuleSeverity
    :members:
-   :undoc-members:
-
-.. autoclass:: robocop.checkers.VisitorChecker
-   :members:
-   :no-undoc-members:
-   :show-inheritance:
-
-.. autoclass:: robocop.checkers.RawFileChecker
-   :members:
-   :no-undoc-members:
-   :show-inheritance:
 
 {% for checker_group in checker_groups %}
 {{ checker_group[0] }}
@@ -32,7 +21,7 @@ Rules
 
 .. list-table::
   :width: 100%
-  :widths: 33 33 33
+  :widths: auto
   :header-rows: 1
 
   * - Severity
@@ -50,7 +39,7 @@ Rules
 
 .. list-table:: Configurable parameters
   :width: 100%
-  :widths: 25 25 25 25
+  :widths: auto
   :header-rows: 1
 
   * - Name

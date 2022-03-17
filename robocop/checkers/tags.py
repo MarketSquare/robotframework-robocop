@@ -90,7 +90,7 @@ rules = {
         msg="Tag '{{ tag }}' is already set by Force Tags in suite settings",
         severity=RuleSeverity.INFO,
         docs="""
-        Avoid repeating same tags in tests when the tag is already declared in `Force Tags1.
+        Avoid repeating same tags in tests when the tag is already declared in `Force Tags`.
         Example of rule violation::
         
             *** Setting ***
@@ -145,6 +145,7 @@ rules = {
         Only first tag is used, other occurrences are ignored.
         
         Example of duplicated tags::
+        
             Test
                 [Tags]    Tag    TAG    tag    t a g
 

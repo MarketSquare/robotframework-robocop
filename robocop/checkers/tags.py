@@ -45,7 +45,7 @@ rules = {
     ),
     "0603": Rule(
         rule_id="0603",
-        name="tag-with-reserved",
+        name="tag-with-reserved-word",
         msg="Tag '{{ tag }}' prefixed with reserved word `robot:`",
         severity=RuleSeverity.WARNING,
         docs="""
@@ -160,7 +160,7 @@ class TagNameChecker(VisitorChecker):
     reports = (
         "tag-with-space",
         "tag-with-or-and",
-        "tag-with-reserved",
+        "tag-with-reserved-word",
         "duplicated-tags",
     )
 
@@ -233,7 +233,7 @@ class TagNameChecker(VisitorChecker):
             self.report("tag-with-or-and", tag=tag.value, node=node, lineno=tag.lineno, col=tag.col_offset + 1)
         if tag.value.startswith("robot:") and tag.value not in self.reserved_tags:
             self.report(
-                "tag-with-reserved",
+                "tag-with-reserved-word",
                 tag=tag.value,
                 node=node,
                 lineno=tag.lineno,

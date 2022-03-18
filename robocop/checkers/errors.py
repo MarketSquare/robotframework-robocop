@@ -295,12 +295,14 @@ class ParsingErrorChecker(VisitorChecker):
             self.handle_invalid_setting(node, error)
         elif "Invalid variable name" in error:
             self.handle_invalid_variable(node, error)
-        elif "IF" in error or "ELSE IF" in error:
+        elif "IF" in error or "ELSE" in error:
             self.handle_invalid_block(node, error, "invalid-if")
-        elif "FOR loop has" in error:
+        elif "FOR loop" in error:
             self.handle_invalid_block(node, error, "invalid-for-loop")
         elif "Non-default argument after default arguments" in error or "Only last argument can be kwargs" in error:
             self.handle_positional_after_named(node, error_index)
+        elif "is allowed only once. Only the first value is used" in error:
+            return
         else:
             error = error.replace("\n   ", "")
             self.report("parsing-error", error_msg=error, node=node)

@@ -28,4 +28,4 @@ tests:
       src_dir: naming/not-allowed-char-in-name-configured3
   tag-with-reserved-word:
     - config:
-      src_dir: tags/tag-with-reserved-in-keyword-doc
+      src_dir: tags/tag-with-reserved-word-in-keyword-doc

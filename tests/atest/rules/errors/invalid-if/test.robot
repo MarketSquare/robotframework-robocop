@@ -47,3 +47,22 @@ For Loop
     FOR  ${var}  @{list}
         Keyword
     END
+
+RF 5 syntax
+    TRY
+        IF
+            Keyword
+        END
+    EXCEPT
+        WHILE    $condition
+            IF
+                Keyword
+            END
+        END
+    ELSE
+        IF
+            Keyword
+        END
+    FINALLY
+        Keyword
+    END

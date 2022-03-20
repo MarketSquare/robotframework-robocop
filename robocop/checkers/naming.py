@@ -259,7 +259,7 @@ rules = {
         rule_id="0319",
         name="deprecated-statement",
         msg="'{{ keyword_name }}' is deprecated since Robot Framework version "
-            "'{{ version }}', use '{{ alternative }}' instead",
+            "{{ version }}, use '{{ alternative }}' instead",
         severity=RuleSeverity.WARNING,
     ),
 }
@@ -679,12 +679,10 @@ class DeprecatedStatementChecker(VisitorChecker):
     )
     # deprecated:alternative
     deprecated_statements_rf3 = {}
-    # FixMe(Malik): Before releasing, swap contents of rf4 to rf5, rf3 = rf4 = {}
-    # and adapt tests cases too
-    deprecated_statements_rf4 = {"runkeywordunless": "IF",
+    deprecated_statements_rf4 = {"runkeywordunless": "IF"}
+    deprecated_statements_rf5 = {"runkeywordunless": "IF",
                                  "runkeywordif":     "IF"
                                  }
-    deprecated_statements_rf5 = {"runkeywordunless": "IF"}
 
     def visit_SuiteSetup(self, node):  # noqa
         self.check_if_keyword_is_deprecated(node.name, node)
@@ -725,6 +723,6 @@ class DeprecatedStatementChecker(VisitorChecker):
                         alternative=alternative,
                         node=node,
                         col=col,
-                        version=f"{ROBOT_VERSION.major}.0"
+                        version=f"{ROBOT_VERSION.major}.*"
                         )
 

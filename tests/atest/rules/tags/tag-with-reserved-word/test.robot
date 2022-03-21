@@ -22,3 +22,7 @@ Keyword
 Keyword With Reserved Tags
     [Tags]  tagORtag  tagorand  andsmth  with space or reserved  robot:no-dry-run  robot:my_tag
     ...     robot:continue-on-failure    robot:recursive-continue-on-failure
+    Keyword
+
+Another Keyword
+    [Tags]  robot:skip  robot:skip-on-failure  robot:exclude  robot:exit

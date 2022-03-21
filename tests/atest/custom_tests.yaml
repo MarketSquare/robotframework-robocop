@@ -26,6 +26,6 @@ tests:
       src_dir: naming/not-allowed-char-in-name-configured2
     - config: not-allowed-char-in-name:pattern:[^a-zA-Z\s]
       src_dir: naming/not-allowed-char-in-name-configured3
-  tag-with-reserved:
+  tag-with-reserved-word:
     - config:
-      src_dir: tags/tag-with-reserved-in-keyword-doc
+      src_dir: tags/tag-with-reserved-word-in-keyword-doc

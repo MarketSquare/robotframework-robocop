@@ -11,7 +11,7 @@ from robot.parsing.model.visitor import ModelVisitor
 
 from robocop.checkers import RawFileChecker, VisitorChecker
 from robocop.rules import Rule, RuleParam, RuleSeverity
-from robocop.utils import token_col, get_section_name
+from robocop.utils import token_col, get_section_name, get_errors
 from robocop.utils.misc import ROBOT_VERSION
 
 rules = {
@@ -78,13 +78,13 @@ rules = {
         Reported when line does not follow indent from the current block. 
         Example of rule violation::
         
-        Keyword With Over Indented Setting
-            [Documentation]  this is doc
-             [Arguments]  ${arg}  # over-indented
-               No Operation  # over-indented
-            Pass
-            No Operation
-            Fail
+            Keyword With Over Indented Setting
+                [Documentation]  this is doc
+                 [Arguments]  ${arg}  # over-indented
+                   No Operation  # over-indented
+                Pass
+                No Operation
+                Fail
         
         """,
     ),
@@ -726,17 +726,9 @@ class LeftAlignedChecker(VisitorChecker):
 
     def visit_SettingSection(self, node):  # noqa
         for child in node.body:
-            # suite_sett_cand = setting_error.replace(' ', '').lower()
-            # for setting in self.suite_settings:
-            #     if suite_sett_cand.startswith(setting):
-            #         if setting_error[0].strip():  # filter out "suite-setting-should-be-left-aligned"
-            if ROBOT_VERSION.major == 3:
-                if child.error and "Non-existing setting" in child.error:
-                    self.parse_error(child, child.error)
-            else:
-                for error in child.errors:
-                    if "Non-existing setting" in error:
-                        self.parse_error(child, error)
+            for error in get_errors(child):
+                if "Non-existing setting" in error:
+                    self.parse_error(child, error)
 
     def parse_error(self, node, error):
         setting_error = re.search("Non-existing setting '(.*)'.", error)

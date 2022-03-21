@@ -2,7 +2,6 @@ import os
 from pathlib import Path
 
 import pytest
-from packaging.specifiers import SpecifierSet
 
 from robocop.config import Config
 from robocop.utils import ROBOT_VERSION

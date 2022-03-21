@@ -3,19 +3,21 @@ Robocop rules are internally grouped into checkers. Each checker can scan for mu
 (like ``LengthChecker`` checks both for minimum and maximum length of a keyword). You can refer to
 specific rule reported by checkers by its name or id (for example `too-long-keyword` or `0501`).
 
-Checkers are categorized into following groups:
- * 01: base
- * 02: documentation
- * 03: naming
- * 04: errors
- * 05: lengths
- * 06: tags
- * 07: comments
- * 08: duplications
- * 09: misc
- * 10: spacing
- * 11-50: not yet used: reserved for future internal checkers
- * 51-99: reserved for external checkers
+.. dropdown:: Checker groups IDs:
+
+    Checkers are categorized into following groups:
+     * 01: base
+     * 02: documentation
+     * 03: naming
+     * 04: errors
+     * 05: lengths
+     * 06: tags
+     * 07: comments
+     * 08: duplications
+     * 09: misc
+     * 10: spacing
+     * 11-50: not yet used: reserved for future internal checkers
+     * 51-99: reserved for external checkers
 
 Checker has two basic types:
 

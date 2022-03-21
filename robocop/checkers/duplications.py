@@ -7,7 +7,7 @@ from robot.api import Token
 
 from robocop.checkers import VisitorChecker
 from robocop.rules import Rule, RuleParam, RuleSeverity
-from robocop.utils import ROBOT_VERSION, normalize_robot_name, normalize_robot_var_name
+from robocop.utils import ROBOT_VERSION, normalize_robot_name, normalize_robot_var_name, get_errors
 
 
 def configure_sections_order(value):
@@ -156,7 +156,7 @@ rules = {
             name="sections_order",
             default="settings,variables,testcases,keywords",
             converter=configure_sections_order,
-            desc="order of sections in comma separated list. For example: settings,variables,testcases,keywords",
+            desc="order of sections in comma separated list",
         ),
         rule_id="0809",
         name="section-out-of-order",
@@ -228,6 +228,21 @@ rules = {
         
         """,
     ),
+    "0813": Rule(
+        rule_id="0813",
+        name="duplicated-setting",
+        msg="{{ error_msg }}",
+        severity=RuleSeverity.WARNING,
+        docs="""
+        Some settings can be used only once in a file. Only the first value is used.
+        Example::
+        
+            *** Settings ***
+            Force Tags        F1
+            Force Tags        F2  # this setting will be ignored
+        
+        """,
+    ),
 }
 
 
@@ -244,6 +259,7 @@ class DuplicationsChecker(VisitorChecker):
         "duplicated-variables-import",
         "duplicated-argument-name",
         "duplicated-assigned-var-name",
+        "duplicated-setting",
     )
 
     def __init__(self):
@@ -308,9 +324,7 @@ class DuplicationsChecker(VisitorChecker):
         self.generic_visit(node)
 
     def visit_Variable(self, node):  # noqa
-        if not node.name or (
-            ROBOT_VERSION.major != 3 and node.errors or ROBOT_VERSION.major == 3 and node.error
-        ):  # TODO refactor
+        if not node.name or get_errors(node):
             return
         var_name = normalize_robot_name(self.replace_chars(node.name, "${}@&"))
         self.variables[var_name].append(node)
@@ -357,6 +371,10 @@ class DuplicationsChecker(VisitorChecker):
                 )
             else:
                 args.add(name)
+
+    def visit_Error(self, node):  # noqa
+        for error in get_errors(node):
+            self.report("duplicated-setting", error_msg=error, node=node)
 
 
 class SectionHeadersChecker(VisitorChecker):

@@ -9,22 +9,24 @@ Output message of rules can be defined with ``-f`` / ``--format`` argument. Defa
 
     "{source}:{line}:{col} [{severity}] {rule_id} {desc} ({name})"
 
-Available formats:
-  * ``source``:     path to the file where the issue occurred
-  * ``source_rel``: path to the file where the issue occurred, relative to execution directory
-  * ``line``:       line number where the issue starts
-  * ``end_line``:   line number where the issue ends
-  * ``col``:        column number where the issue starts
-  * ``end_col``:    column number where the issue ends
-  * ``severity``:   severity of the issue, value of ``robocop.rules.RuleSeverity`` enum
-  * ``rule_id``:    rule id (e.g. 0501)
-  * ``name``:       rule name (e.g. ``line-too-long`)
-  * ``desc``:       description of the rule
+.. dropdown:: Available formats:
+
+    * ``source``:     path to the file where the issue occurred
+    * ``source_rel``: path to the file where the issue occurred, relative to execution directory
+    * ``line``:       line number where the issue starts
+    * ``end_line``:   line number where the issue ends
+    * ``col``:        column number where the issue starts
+    * ``end_col``:    column number where the issue ends
+    * ``severity``:   severity of the issue, value of ``robocop.rules.RuleSeverity`` enum
+    * ``rule_id``:    rule id (e.g. ``0501``)
+    * ``name``:       rule name (e.g. ``line-too-long``)
+    * ``desc``:       description of the rule
+
 """
 from enum import Enum
 from textwrap import dedent
 from functools import total_ordering
-from typing import Any, Callable, Union, Pattern, Dict, Tuple, Optional
+from typing import Any, Callable, Union, Pattern, Dict, Optional
 from packaging.specifiers import SpecifierSet
 
 from jinja2 import Template
@@ -104,11 +106,12 @@ class RuleParam:
         self.name = name
         self.converter = converter
         self.desc = desc
+        self.raw_value = None
         self._value = None
         self.value = default
 
     def __str__(self):
-        s = f"{self.name} = {self.value}\n" f"        type: {self.converter.__name__}"
+        s = f"{self.name} = {self.raw_value}\n" f"        type: {self.converter.__name__}"
         if self.desc:
             s += "\n" f"        info: {self.desc}"
         return s
@@ -119,6 +122,7 @@ class RuleParam:
 
     @value.setter
     def value(self, value):
+        self.raw_value = value  # useful for docs/printing
         try:
             self._value = self.converter(value)
         except ValueError as err:
@@ -178,7 +182,7 @@ class Rule:
     def supported_in_rf_version(version: str) -> bool:
         if not version:
             return True
-        return ROBOT_VERSION in SpecifierSet(version)
+        return ROBOT_VERSION in SpecifierSet(version, prereleases=True)
 
     @staticmethod
     def get_template(msg: str) -> Optional[Template]:

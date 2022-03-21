@@ -22,6 +22,8 @@ from robocop.utils import (
     normalize_robot_name,
     parse_assignment_sign_type,
     keyword_col,
+    token_col,
+    get_errors,
 )
 
 rules = {
@@ -243,6 +245,23 @@ rules = {
 
         """,
     ),
+    "0915": Rule(
+        rule_id="0915",
+        name="statement-outside-loop",
+        msg="{{ name }} {{ statement_type }} used outside a loop",
+        severity=RuleSeverity.ERROR,
+        version=">=5.0",
+        docs="""
+        Following keywords and statements should only be used inside loop (``WHILE`` or ``FOR``):
+            - ``Exit For Loop``,
+            - ``Exit For Loop If``,
+            - ``Continue For Loop``,
+            - ``Continue For Loop If ``
+            - ``CONTINUE``,
+            - ``BREAK``
+        
+        """,
+    ),
 }
 
 
@@ -324,7 +343,7 @@ class ConsistentAssignmentSignChecker(VisitorChecker):
         --configure inconsistent-assignment:assignment_sign_type:{sign_type}
         --configure inconsistent-assignment-in-variables:assignment_sign_type:{sign_type}
 
-    ``${sign_type}` can be one of: ``autodetect`` (default), ``none`` (''), ``equal_sign`` ('='),
+    ``${sign_type}`` can be one of: ``autodetect`` (default), ``none`` (''), ``equal_sign`` ('='),
     ``space_and_equal_sign`` (' =').
 
     """
@@ -369,7 +388,7 @@ class ConsistentAssignmentSignChecker(VisitorChecker):
         if self.variables_expected_sign_type is None:
             return
         for child in node.body:
-            if not isinstance(child, Variable) or getattr(child, "errors", None) or getattr(child, "error", None):
+            if not isinstance(child, Variable) or get_errors(child):
                 continue
             var_token = child.get_token(Token.VARIABLE)
             self.check_assign_type(
@@ -438,12 +457,8 @@ class EmptyVariableChecker(VisitorChecker):
     reports = ("empty-variable",)
 
     def visit_Variable(self, node):  # noqa
-        if ROBOT_VERSION.major == 3:  # TODO refactor
-            if node.error:
-                return
-        else:
-            if node.errors:
-                return
+        if get_errors(node):
+            return
         if not node.value:  # catch variable declaration without any value
             self.report("empty-variable", node=node)
         for token in node.get_tokens(Token.ARGUMENT):
@@ -486,11 +501,7 @@ class IfChecker(VisitorChecker):
     def visit_Keyword(self, node):  # noqa
         self.check_adjacent_ifs(node)
 
-    def visit_For(self, node):  # noqa
-        self.check_adjacent_ifs(node)
-
-    def visit_If(self, node):  # noqa
-        self.check_adjacent_ifs(node)
+    visit_For = visit_If = visit_Keyword  # TODO  While, Try Except?
 
     def check_adjacent_ifs(self, node):
         previous_if = None
@@ -513,6 +524,55 @@ class IfChecker(VisitorChecker):
                 return False
             if_node = if_node.orelse
             other_if_node = other_if_node.orelse
-        if if_node is None and other_if_node is None:
-            return True
-        return False
+        return if_node is None and other_if_node is None
+
+
+class LoopStatementsChecker(VisitorChecker):
+    """Checker for loop keywords and statements such as CONTINUE or Exit For Loop"""
+
+    reports = ("statement-outside-loop",)
+    for_keyword = {"continueforloop", "continueforloopif", "exitforloop", "exitforloopif"}
+
+    def __init__(self):
+        self.loops = 0
+        super().__init__()
+
+    def visit_File(self, node):  # noqa
+        self.loops = 0
+        self.generic_visit(node)
+
+    def visit_For(self, node):  # noqa
+        self.loops += 1
+        self.generic_visit(node)
+        self.loops -= 1
+
+    visit_While = visit_For
+
+    def visit_KeywordCall(self, node):  # noqa
+        if node.errors or self.loops:
+            return
+        if normalize_robot_name(node.keyword, remove_prefix="builtin.") in self.for_keyword:
+            self.report(
+                "statement-outside-loop",
+                name=f"'{node.keyword}'",
+                statement_type="keyword",
+                node=node,
+                col=keyword_col(node),
+            )
+
+    def visit_Continue(self, node):  # noqa
+        self.check_statement_in_loop(node, "CONTINUE")
+
+    def visit_Break(self, node):  # noqa
+        self.check_statement_in_loop(node, "BREAK")
+
+    def check_statement_in_loop(self, node, token_type):
+        if self.loops or node.errors and f"{token_type} can only be used inside a loop." not in node.errors:
+            return
+        self.report(
+            "statement-outside-loop",
+            name=token_type,
+            statement_type="statement",
+            node=node,
+            col=token_col(node, token_type),
+        )

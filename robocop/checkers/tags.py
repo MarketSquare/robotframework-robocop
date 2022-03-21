@@ -61,7 +61,7 @@ rules = {
             - robot:skip-on-failure
             - robot:exclude
 
-        """
+        """,
     ),
     "0605": Rule(
         rule_id="0605",
@@ -172,7 +172,7 @@ class TagNameChecker(VisitorChecker):
         "robot:recursive-continue-on-failure",
         "robot:skip",
         "robot:skip-on-failure",
-        "robot:exclude"
+        "robot:exclude",
     }
 
     def visit_ForceTags(self, node):  # noqa

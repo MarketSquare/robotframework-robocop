@@ -91,3 +91,10 @@ RF5 syntax
     FINALLY
   Keyword
     END
+
+Golden IF
+    IF    ${condition}
+        Keyword
+    ELSE IF   ${condition}
+        Keyword
+    ElSE

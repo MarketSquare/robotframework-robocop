@@ -1,7 +1,7 @@
 *** Keywords ***
 Keyword
     [Documentation]  this is doc
-    [Argument]
+    [Arguments]
     No Operation
     Pass
     No Operation

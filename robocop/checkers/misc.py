@@ -92,7 +92,7 @@ rules = {
         name="if-can-be-used",
         msg="'{{ run_keyword }}' can be replaced with IF block since Robot Framework 4.0",
         severity=RuleSeverity.INFO,
-        version=">=4.0",
+        version="==4.*",
         docs="""
         Starting from Robot Framework 4.0 `Run Keyword If` and `Run Keyword Unless` can be replaced by IF block.
         """,

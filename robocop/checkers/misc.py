@@ -281,7 +281,7 @@ class ReturnChecker(VisitorChecker):
             if isinstance(child, Return):
                 return_setting_node = child
                 error = (
-                    f"[Return] is not defined at the end of keyword. "
+                    "[Return] is not defined at the end of keyword. "
                     "Note that [Return] does not return from keyword but only set returned variables"
                 )
                 if not child.values:

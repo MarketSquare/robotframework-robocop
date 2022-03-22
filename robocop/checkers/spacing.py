@@ -488,13 +488,14 @@ class UnevenIndentChecker(VisitorChecker):
         column_index = 2 if node.end is not None else 0
         self.check_indents(node, node.header.tokens[1].col_offset + 1, column_index)
 
-    def visit_For(self, node):  # noqa
-        column_index = 2 if node.end is not None else 0
-        self.check_indents(node, node.header.tokens[1].col_offset + 1, column_index)
+    visit_For = visit_If = visit_While = visit_ForLoop
 
-    def visit_If(self, node):  # noqa
+    def visit_Try(self, node):  # noqa
         column_index = 2 if node.end is not None else 0
         self.check_indents(node, node.header.tokens[1].col_offset + 1, column_index)
+        while node.next:
+            node = node.next
+            self.check_indents(node, node.header.tokens[1].col_offset + 1, column_index)
 
     @staticmethod
     def get_indent(node):

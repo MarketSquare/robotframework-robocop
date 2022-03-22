@@ -1,7 +1,7 @@
 *** Keywords ***
 Keyword
     [Documentation]  this is doc
-    [Argument]
+    [Arguments]
     No Operation
     Pass
     No Operation
@@ -45,5 +45,24 @@ For Loop
     FOR  ${var}  IN RANGE  10
         Keyword
     FOR  ${var}  @{list}
+        Keyword
+    END
+
+RF 5 syntax
+    TRY
+        IF
+            Keyword
+        END
+    EXCEPT
+        WHILE    $condition
+            IF
+                Keyword
+            END
+        END
+    ELSE
+        IF
+            Keyword
+        END
+    FINALLY
         Keyword
     END

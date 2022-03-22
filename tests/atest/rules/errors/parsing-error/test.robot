@@ -60,3 +60,8 @@ For Loop
     FOR  ${var}  @{list}
         Keyword
     END
+
+Double condition IF
+    IF    ${condition}    ${condition}
+        Keyword
+    END

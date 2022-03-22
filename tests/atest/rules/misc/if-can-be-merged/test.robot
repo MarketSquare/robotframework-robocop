@@ -169,3 +169,18 @@ Three identical if
     ELSE IF  ${stuff}
         Step 2
     END
+
+Adjacent but in different RF5 TRY EXCEPT blocks
+    TRY
+        IF  ${condition} == 'True'
+            Step 1
+        ELSE IF  ${stuff}
+            Step 2
+        END
+    EXCEPT
+        IF  ${condition} == 'True'
+            Step 1
+        ELSE IF  ${stuff}
+            Step 2
+        END
+    END

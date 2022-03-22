@@ -5,7 +5,7 @@ Robocop is a tool that performs static code analysis of `Robot Framework
 <https://github.com/robotframework/robotframework>`_ code.
 
 It uses official `Robot Framework parsing API
-<https://robot-framework.readthedocs.io/en/latest/>`_ to parse files and run number of checks,
+<https://robot-framework.readthedocs.io/en/stable/>`_ to parse files and run number of checks,
 looking for potential errors or violations to code quality standards.
 
     Hosted on `GitHub

@@ -22,8 +22,8 @@ Robocop
 - [Robotidy](#robotidy)
 - [FAQ](#faq)
 
-[Watch our talk](https://robocon.io/#how-to-avoid-jail-for-nasty-code)
-from RoboCon 2021 about Robocop and
+[Watch our talk](https://www.youtube.com/watch?v=vZoyi2ObM8E)
+from RoboCon 2021 about Robocop &
 [Robotidy](https://github.com/MarketSquare/robotframework-tidy)
 and learn more about these cool tools! :robot:
 
@@ -36,7 +36,7 @@ Introduction <a name="introduction"></a>
 
 Robocop is a tool that performs static code analysis of [Robot Framework](https://github.com/robotframework/robotframework) code.
 
-It uses official [Robot Framework parsing API](https://robot-framework.readthedocs.io/en/latest/) to parse files and run number of checks,
+It uses official [Robot Framework parsing API](https://robot-framework.readthedocs.io/en/stable/) to parse files and run number of checks,
 looking for potential errors or violations to code quality standards.
 
 > Hosted on [GitHub](https://github.com/MarketSquare/robotframework-robocop). :medal_military:
@@ -121,7 +121,8 @@ Found 5 issue(s): 2 WARNING(s), 2 ERROR(s), 1 INFO(s).
 
 Fixing issues <a name="robotidy"></a>
 --------------
-Many issues in your code reported by Robocop can be fixed using auto-formatting tool, Robotidy. Check out the Robotidy [documentation](https://robotidy.readthedocs.io/en/latest/).
+Many issues in your code reported by Robocop can be fixed using auto-formatting tool, Robotidy.
+Check out the Robotidy [documentation](https://robotidy.readthedocs.io/en/stable/).
 
 FAQ <a name="faq"></a>
 ---
@@ -251,7 +252,7 @@ FAQ <a name="faq"></a>
   ```
 
   More about it in
-  [our documentation](https://robocop.readthedocs.io/en/latest/including_rules.html#ignore-rule-from-source-code).
+  [our documentation](https://robocop.readthedocs.io/en/stable/including_rules.html#ignore-rule-from-source-code).
 
 </details>
 
@@ -269,10 +270,10 @@ FAQ <a name="faq"></a>
   you can always share your solution by
   [submitting a pull request](https://github.com/MarketSquare/robotframework-robocop/pulls).
   You can also share your idea by
-  [creating an issue](https://github.com/MarketSquare/robotframework-robocop/issues).
+  [creating an issue](https://github.com/MarketSquare/robotframework-robocop/issues/new/choose).
 
   More about external rules with code examples in 
-  [our documentation](https://robocop.readthedocs.io/en/latest/external_rules.html).
+  [our documentation](https://robocop.readthedocs.io/en/stable/external_rules.html).
 </details>
 
 <details>
@@ -290,7 +291,7 @@ FAQ <a name="faq"></a>
 
   One of the important topics related to CI is return code which can also be configured in Robocop.
   More on that can be found in the next question or in
-  [our documentation](https://robocop.readthedocs.io/en/latest/user_guide.html#return-status).
+  [our documentation](https://robocop.readthedocs.io/en/stable/user_guide.html#return-status).
 
 </details>
 
@@ -332,7 +333,7 @@ FAQ <a name="faq"></a>
   - is highly configurable
   - has very good defaults that work out of the box
   - can be configured in source code
-  - uses latest [Robot Framework Parsing API](https://robot-framework.readthedocs.io/en/latest/)
+  - uses latest [Robot Framework Parsing API](https://robot-framework.readthedocs.io/en/stable/)
   - is actively developed & fixed
   - is easy to integrate with external tools
   - can redirect output to a file
@@ -341,7 +342,7 @@ FAQ <a name="faq"></a>
   - is cool :nerd_face:
 
   Still not convinced?
-  [Watch our talk](https://robocon.io/#how-to-avoid-jail-for-nasty-code)
+  [Watch our talk](https://www.youtube.com/watch?v=vZoyi2ObM8E)
   about Robocop &
   [Robotidy](https://github.com/MarketSquare/robotframework-tidy)
   and see for yourself! :monocle_face:

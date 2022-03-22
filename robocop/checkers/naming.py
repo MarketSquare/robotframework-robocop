@@ -678,8 +678,7 @@ class DeprecatedStatementChecker(VisitorChecker):
     """Checker for deprecated statements."""
 
     reports = ("deprecated-statement",)
-    depreccated_st = {5: {"[Return]"}}
-    deprecated_kws = {
+    deprecated_keywords = {
         4: {"runkeywordunless": "IF"},
         5: {
             "runkeywordunless": "IF",
@@ -714,7 +713,7 @@ class DeprecatedStatementChecker(VisitorChecker):
 
     def check_if_keyword_is_deprecated(self, keyword_name, node):
         normalized_keyword_name = normalize_robot_name(keyword_name, remove_prefix="builtin.")
-        deprecated_statements = self.deprecated_kws.get(ROBOT_VERSION.major, {})
+        deprecated_statements = self.deprecated_keywords.get(ROBOT_VERSION.major, {})
         if normalized_keyword_name in deprecated_statements:
             alternative = deprecated_statements[normalized_keyword_name]
             col = token_col(node, Token.NAME, Token.KEYWORD)

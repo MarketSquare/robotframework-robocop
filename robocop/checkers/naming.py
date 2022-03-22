@@ -41,7 +41,7 @@ rules = {
              robocop --configure not-allowed-char-in-name:pattern:regex_pattern
              
         `regex_pattern` should define regex pattern for characters not allowed in names. For example `[@\[]` pattern 
-        reports any occurence of `@[` characters.
+        reports any occurrence of `@[` characters.
         """,
     ),
     "0302": Rule(
@@ -260,7 +260,7 @@ rules = {
         rule_id="0319",
         name="deprecated-statement",
         msg="'{{ keyword_name }}' is deprecated since Robot Framework version "
-            "{{ version }}, use '{{ alternative }}' instead",
+        "{{ version }}, use '{{ alternative }}' instead",
         severity=RuleSeverity.WARNING,
     ),
 }
@@ -667,11 +667,11 @@ class DeprecatedStatementChecker(VisitorChecker):
         if normalized_keyword_name in deprecated_statements:
             alternative = deprecated_statements[normalized_keyword_name]
             col = token_col(node, Token.NAME, Token.KEYWORD)
-            self.report("deprecated-statement",
-                        keyword_name=keyword_name,
-                        alternative=alternative,
-                        node=node,
-                        col=col,
-                        version=f"{ROBOT_VERSION.major}.*"
-                        )
-
+            self.report(
+                "deprecated-statement",
+                keyword_name=keyword_name,
+                alternative=alternative,
+                node=node,
+                col=col,
+                version=f"{ROBOT_VERSION.major}.*",
+            )

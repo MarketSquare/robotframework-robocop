@@ -63,3 +63,38 @@ Keyword With Under Indented For Loop Body And Comment
         Keyword
 # invalid comment
     END
+
+IF ELSE
+    IF    $condition
+   Keyword
+    END
+    IF    $condition
+        Keyword
+    ELSE IF    $condition
+   Keyword
+    ELSE
+  Keyword
+    END
+
+RF5 syntax
+    IF    $condition    Keyword
+
+    WHILE    $condition
+  Keyword
+    END
+    TRY
+  Keyword
+    EXCEPT
+  Keyword
+    ELSE
+        Keyword
+    FINALLY
+  Keyword
+    END
+
+Golden IF
+    IF    ${condition}
+        Keyword
+    ELSE IF   ${condition}
+        Keyword
+    ElSE

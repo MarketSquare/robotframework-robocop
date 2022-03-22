@@ -50,3 +50,23 @@ For Loop
     FOR  ${var}  IN  1  2  3
         FOR
     END
+
+RF 5.0 syntax
+    TRY
+        FOR  IN RANGE  10
+            Keyword
+        END
+    EXCEPT
+        Keyword
+    ELSE
+        Keyword
+    FINALLY
+        FOR  IN RANGE  10
+            Keyword
+        END
+    END
+    WHILE    ${condition}
+        FOR  IN RANGE  10
+            Keyword
+        END
+    END

@@ -81,7 +81,7 @@ Rules list can be filtered out by glob pattern::
     robocop --list tag*
     Rule - 0601 [W]: tag-with-space: Tags should not contain spaces (enabled)
     Rule - 0602 [I]: tag-with-or-and: Tag with reserved word OR/AND. Hint: make sure to include this tag using lowercase name to avoid issues (enabled)
-    Rule - 0603 [W]: tag-with-reserved: Tag prefixed with reserved word `robot:`. Only allowed tag with this prefix is robot:no-dry-run (enabled)
+    Rule - 0603 [W]: tag-with-reserved-word: Tag prefixed with reserved word `robot:`. Only allowed tag with this prefix is robot:no-dry-run (enabled)
     Rule - 0606 [I]: tag-already-set-in-force-tags: This tag is already set by Force Tags in suite settings (enabled)
 
 Use ``-lc \ --list-configurables`` argument to list rules together with available configurable parameters. Optional pattern argument is also supported::

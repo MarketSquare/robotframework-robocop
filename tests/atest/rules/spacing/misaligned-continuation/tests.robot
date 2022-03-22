@@ -45,3 +45,11 @@ Keyword With Tabulators
     Keyword
     ...  2
 	...  ${arg}
+
+Misaligned headers in EXCEPT
+    TRY
+        Keyword
+    EXCEPT  Error
+      ...  Error2
+        Keyword
+    END

@@ -110,56 +110,14 @@ class CommentChecker(VisitorChecker):
 
     def visit_TestCase(self, node):  # noqa
         self.check_invalid_comments(node.name, node)
-        if ROBOT_VERSION.major >= 5:
-            self.find_comments(node.header)
         self.generic_visit(node)
 
     def visit_Keyword(self, node):  # noqa
         self.check_invalid_comments(node.name, node)
-        if ROBOT_VERSION.major >= 5:
-            self.find_comments(node.header)
         self.generic_visit(node)
 
-    def visit_KeywordCall(self, node):  # noqa
+    def visit_Statement(self, node):  # noqa
         self.find_comments(node)
-        self.generic_visit(node)
-
-    # this allows to define methods with different name and same body as visit_KeywordCall
-    visit_Return = (
-        visit_Documentation
-    ) = (
-        visit_SectionHeader
-    ) = (
-        visit_Tags
-    ) = (
-        visit_Setup
-    ) = (
-        visit_Timeout
-    ) = (
-        visit_Template
-    ) = (
-        visit_Arguments
-    ) = (
-        visit_Variable
-    ) = (
-        visit_Metadata
-    ) = (
-        visit_ForceTags
-    ) = (
-        visit_DefaultTags
-    ) = (
-        visit_IfHeader
-    ) = (
-        visit_ElseHeader
-    ) = (
-        visit_ForHeader
-    ) = (
-        visit_ForLoopHeader
-    ) = (
-        visit_TestSetup
-    ) = (
-        visit_TestTeardown
-    ) = visit_SuiteSetup = visit_SuiteTeardown = visit_TestTemplate = visit_TestTimeout = visit_KeywordCall
 
     def find_comments(self, node):
         for token in node.tokens:

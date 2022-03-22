@@ -678,8 +678,8 @@ class DeprecatedStatementChecker(VisitorChecker):
     """Checker for deprecated statements."""
 
     reports = ("deprecated-statement",)
-    depreccated_st = {5: {"[Return]"}}
-    deprecated_kws = {
+    deprecated_statements = {5: {"[Return]"}}
+    deprecated_keywords = {
         5: {
             "runkeywordunless": "IF",
             "runkeywordif": "IF",

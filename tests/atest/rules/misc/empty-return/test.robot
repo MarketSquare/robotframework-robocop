@@ -19,3 +19,6 @@ Keyword
     No Operation
     Fail
     [Return]
+
+RETURN
+    RETURN

@@ -1,0 +1,10 @@
+${rules_dir}${\}test.robot:20:5 [W] 0901 [Return] is not defined at the end of keyword. Note that [Return] does not return from keyword but only set returned variables
+${rules_dir}${\}keyword_after_return_from.robot:21:5 [W] 0901 Keyword call after 'Return From Keyword' keyword
+${rules_dir}${\}test.robot:57:9 [W] 0901 RETURN is not defined at the end of keyword
+${rules_dir}${\}test.robot:61:9 [W] 0901 RETURN is not defined at the end of keyword
+${rules_dir}${\}test.robot:65:9 [W] 0901 RETURN is not defined at the end of keyword
+${rules_dir}${\}test.robot:69:9 [W] 0901 RETURN is not defined at the end of keyword
+${rules_dir}${\}test.robot:72:9 [W] 0901 RETURN is not defined at the end of keyword
+${rules_dir}${\}test.robot:75:9 [W] 0901 RETURN is not defined at the end of keyword
+${rules_dir}${\}test.robot:78:5 [W] 0901 RETURN is not defined at the end of keyword
+${rules_dir}${\}test.robot:83:9 [W] 0901 RETURN is not defined at the end of keyword

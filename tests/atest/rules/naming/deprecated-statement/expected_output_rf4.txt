@@ -1,0 +1,2 @@
+${rules_dir}${\}test.robot:14:5 [W] 0319 'run_keyword_unless' is deprecated since Robot Framework version 5.*, use 'IF' instead
+${rules_dir}${\}test.robot:33:5 [W] 0319 '[Return]' is deprecated since Robot Framework version 5.*, use 'RETURN' instead

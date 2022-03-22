@@ -680,6 +680,7 @@ class DeprecatedStatementChecker(VisitorChecker):
     reports = ("deprecated-statement",)
     depreccated_st = {5: {"[Return]"}}
     deprecated_kws = {
+        4: {"runkeywordunless": "IF"},
         5: {
             "runkeywordunless": "IF",
             "runkeywordif": "IF",
@@ -689,13 +690,13 @@ class DeprecatedStatementChecker(VisitorChecker):
             "continueforloopif": "IF and CONTINUE",
             "returnfromkeyword": "RETURN",
             "returnfromkeywordif": "IF and RETURN",
-        }
+        },
     }
 
     def visit_KeywordCall(self, node):  # noqa
         self.check_if_keyword_is_deprecated(node.keyword, node)
 
-    def visit_SuiteSetup(self, node):
+    def visit_SuiteSetup(self, node):  # noqa
         self.check_if_keyword_is_deprecated(node.name, node)
 
     visit_TestSetup = visit_Setup = visit_SuiteTeardown = visit_TestTeardown = visit_Teardown = visit_SuiteSetup

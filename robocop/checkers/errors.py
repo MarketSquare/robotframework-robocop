@@ -210,7 +210,7 @@ rules = {
         name="return-in-test-case",
         msg="RETURN can only be used inside a user keyword",
         severity=RuleSeverity.ERROR,
-        version=">=4.0",  # TODO bump to 5 before release
+        version=">=4.0",  # TODO bump to 5 before release and remove tests for 4
     ),
 }
 
@@ -304,7 +304,7 @@ class ParsingErrorChecker(VisitorChecker):
         elif "Invalid variable name" in error:
             self.handle_invalid_variable(node, error)
         elif "RETURN can only be used inside" in error:
-            self.report("return-in-test-case", node=node, col=token_col(node, Token.RETURN_STATEMENT))
+            self.report("return-in-test-case", node=node, col=token_col(node, "RETURN STATEMENT"))
         elif "IF" in error or "ELSE" in error:
             self.handle_invalid_block(node, error, "invalid-if")
         elif "FOR loop" in error:

@@ -26,12 +26,17 @@ from robocop.utils import (
     get_errors,
 )
 
+try:
+    from robot.api.parsing import ReturnStatement
+except ImportError:
+    ReturnStatement = None
+
+
 rules = {
     "0901": Rule(
         rule_id="0901",
         name="keyword-after-return",
-        msg="[Return] is not defined at the end of keyword. "
-        "Note that [Return] does not return from keyword but only set returned variables",
+        msg="{{ error_msg }}",
         severity=RuleSeverity.WARNING,
         docs="""
         To improve readability use `[Return]` setting at the end of the keyword. If you want to return immediately from 
@@ -53,12 +58,6 @@ rules = {
                 [Return]    ${variable}
 
         """,
-    ),
-    "0902": Rule(
-        rule_id="0902",
-        name="keyword-after-return-from",
-        msg="Keyword call after 'Return From Keyword' keyword",
-        severity=RuleSeverity.ERROR,
     ),
     "0903": Rule(
         rule_id="0903",
@@ -270,7 +269,6 @@ class ReturnChecker(VisitorChecker):
 
     reports = (
         "keyword-after-return",
-        "keyword-after-return-from",
         "empty-return",
     )
 
@@ -278,18 +276,31 @@ class ReturnChecker(VisitorChecker):
         return_setting_node = None
         keyword_after_return = False
         return_from = False
+        error = ""
         for child in node.body:
             if isinstance(child, Return):
                 return_setting_node = child
+                error = (
+                    f"[Return] is not defined at the end of keyword. "
+                    "Note that [Return] does not return from keyword but only set returned variables"
+                )
                 if not child.values:
                     self.report("empty-return", node=child, col=child.end_col_offset)
-            elif isinstance(child, KeywordCall):
+            elif ReturnStatement and isinstance(child, ReturnStatement):
+                return_setting_node = child
+                error = "RETURN is not defined at the end of keyword"
+            elif not isinstance(child, (EmptyLine, Comment)):
+                if return_setting_node is not None:
+                    keyword_after_return = True
+
+            if isinstance(child, KeywordCall):
                 if return_setting_node is not None:
                     keyword_after_return = True
                 if return_from:
                     token = child.data_tokens[0]
                     self.report(
-                        "keyword-after-return-from",
+                        "keyword-after-return",
+                        error_msg="Keyword call after 'Return From Keyword' keyword",
                         node=token,
                         col=token.col_offset + 1,
                     )
@@ -297,7 +308,10 @@ class ReturnChecker(VisitorChecker):
                     return_from = True
         if keyword_after_return:
             token = return_setting_node.data_tokens[0]
-            self.report("keyword-after-return", node=token, col=token.col_offset + 1)
+            self.report("keyword-after-return", error_msg=error, node=token, col=token.col_offset + 1)
+        self.generic_visit(node)
+
+    visit_If = visit_For = visit_While = visit_Try = visit_Keyword
 
 
 class NestedForLoopsChecker(VisitorChecker):

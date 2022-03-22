@@ -1,1 +1,2 @@
 ${rules_dir}${\}test.robot:20:5 [W] 0901 [Return] is not defined at the end of keyword. Note that [Return] does not return from keyword but only set returned variables
+${rules_dir}${\}keyword_after_return_from.robot:21:5 [W] 0901 Keyword call after 'Return From Keyword' keyword

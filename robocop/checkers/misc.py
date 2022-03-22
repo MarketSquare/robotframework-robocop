@@ -498,10 +498,7 @@ class IfChecker(VisitorChecker):
     def visit_TestCase(self, node):  # noqa
         self.check_adjacent_ifs(node)
 
-    def visit_Keyword(self, node):  # noqa
-        self.check_adjacent_ifs(node)
-
-    visit_For = visit_If = visit_Keyword  # TODO  While, Try Except?
+    visit_For = visit_If = visit_Keyword = visit_TestCase  # TODO  While, Try Except?
 
     def check_adjacent_ifs(self, node):
         previous_if = None

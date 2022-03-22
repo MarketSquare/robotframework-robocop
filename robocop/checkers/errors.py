@@ -263,9 +263,7 @@ class ParsingErrorChecker(VisitorChecker):
         self.parse_errors(node)
         self.generic_visit(node)
 
-    def visit_For(self, node):  # noqa
-        self.parse_errors(node)
-        self.generic_visit(node)
+    visit_For = visit_If
 
     def visit_KeywordCall(self, node):  # noqa
         if node.keyword and node.keyword.startswith("..."):

@@ -323,17 +323,7 @@ class EmptySectionChecker(VisitorChecker):
     def visit_SettingSection(self, node):  # noqa
         self.check_if_empty(node)
 
-    def visit_VariableSection(self, node):  # noqa
-        self.check_if_empty(node)
-
-    def visit_TestCaseSection(self, node):  # noqa
-        self.check_if_empty(node)
-
-    def visit_KeywordSection(self, node):  # noqa
-        self.check_if_empty(node)
-
-    def visit_CommentSection(self, node):  # noqa
-        self.check_if_empty(node)
+    visit_VariableSection = visit_TestCaseSection = visit_KeywordSection = visit_CommentSection = visit_SettingSection
 
 
 class NumberOfReturnedArgsChecker(VisitorChecker):
@@ -344,11 +334,7 @@ class NumberOfReturnedArgsChecker(VisitorChecker):
     def visit_Keyword(self, node):  # noqa
         self.generic_visit(node)
 
-    def visit_ForLoop(self, node):  # noqa
-        self.generic_visit(node)
-
-    def visit_For(self, node):  # noqa
-        self.generic_visit(node)
+    visit_For = visit_ForLoop = visit_Keyword
 
     def visit_Return(self, node):  # noqa
         self.check_node_returns(len(node.values), node)

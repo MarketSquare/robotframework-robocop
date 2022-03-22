@@ -178,11 +178,7 @@ class TagNameChecker(VisitorChecker):
     def visit_ForceTags(self, node):  # noqa
         self.check_tags(node)
 
-    def visit_DefaultTags(self, node):  # noqa
-        self.check_tags(node)
-
-    def visit_Tags(self, node):  # noqa
-        self.check_tags(node)
+    visit_DefaultTags = visit_Tags = visit_ForceTags
 
     def visit_Documentation(self, node):  # noqa
         if self.is_keyword:

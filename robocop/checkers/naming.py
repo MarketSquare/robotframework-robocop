@@ -364,10 +364,10 @@ class KeywordNamingChecker(VisitorChecker):
         self.inside_if_block = False
         super().__init__()
 
-    def visit_SuiteSetup(self, node):  # noqa
+    def visit_Setup(self, node):  # noqa
         self.check_keyword_naming(node.name, node)
 
-    visit_TestSetup = visit_Setup = visit_SuiteTeardown = visit_TestTeardown = visit_Teardown = visit_SuiteSetup
+    visit_TestTeardown = visit_SuiteTeardown = visit_Teardown = visit_TestSetup = visit_SuiteSetup = visit_Setup
 
     def visit_Keyword(self, node):  # noqa
         if not node.name:
@@ -467,29 +467,26 @@ class SettingsNamingChecker(VisitorChecker):
                 "section-name-invalid", section_title_case=valid_name, section_upper_case=valid_name.upper(), node=node
             )
 
-    def visit_SuiteSetup(self, node):  # noqa
-        self.check_setting_name(node.data_tokens[0].value, node)
-
-    def visit_TestSetup(self, node):  # noqa
-        self.check_setting_name(node.data_tokens[0].value, node)
-
     def visit_Setup(self, node):  # noqa
         self.check_setting_name(node.data_tokens[0].value, node)
 
-    def visit_Teardown(self, node):  # noqa
-        self.check_setting_name(node.data_tokens[0].value, node)
-
-    def visit_SuiteTeardown(self, node):  # noqa
-        self.check_setting_name(node.data_tokens[0].value, node)
-
-    def visit_TestTeardown(self, node):  # noqa
-        self.check_setting_name(node.data_tokens[0].value, node)
-
-    def visit_ForceTags(self, node):  # noqa
-        self.check_setting_name(node.data_tokens[0].value, node)
-
-    def visit_DefaultTags(self, node):  # noqa
-        self.check_setting_name(node.data_tokens[0].value, node)
+    visit_SuiteSetup = (
+        visit_TestSetup
+    ) = (
+        visit_Teardown
+    ) = (
+        visit_SuiteTeardown
+    ) = (
+        visit_TestTeardown
+    ) = (
+        visit_ForceTags
+    ) = (
+        visit_DefaultTags
+    ) = (
+        visit_ResourceImport
+    ) = (
+        visit_VariablesImport
+    ) = visit_Documentation = visit_Tags = visit_Timeout = visit_Template = visit_Arguments = visit_Return = visit_Setup
 
     def visit_LibraryImport(self, node):  # noqa
         self.check_setting_name(node.data_tokens[0].value, node)
@@ -506,30 +503,6 @@ class SettingsNamingChecker(VisitorChecker):
                     node=name_token,
                     col=name_token.col_offset + 1,
                 )
-
-    def visit_ResourceImport(self, node):  # noqa
-        self.check_setting_name(node.data_tokens[0].value, node)
-
-    def visit_VariablesImport(self, node):  # noqa
-        self.check_setting_name(node.data_tokens[0].value, node)
-
-    def visit_Documentation(self, node):  # noqa
-        self.check_setting_name(node.data_tokens[0].value, node)
-
-    def visit_Tags(self, node):  # noqa
-        self.check_setting_name(node.data_tokens[0].value, node)
-
-    def visit_Timeout(self, node):  # noqa
-        self.check_setting_name(node.data_tokens[0].value, node)
-
-    def visit_Template(self, node):  # noqa
-        self.check_setting_name(node.data_tokens[0].value, node)
-
-    def visit_Arguments(self, node):  # noqa
-        self.check_setting_name(node.data_tokens[0].value, node)
-
-    def visit_Return(self, node):  # noqa
-        self.check_setting_name(node.data_tokens[0].value, node)
 
     def check_setting_name(self, name, node):
         if not (name.istitle() or name.isupper()):
@@ -624,12 +597,7 @@ class SimilarVariableChecker(VisitorChecker):
         self.visit_vars_and_find_similar(node)
         self.generic_visit(node)
 
-    def visit_TestCase(self, node):  # noqa
-        self.variables = defaultdict(set)
-        self.parent_name = node.name
-        self.parent_type = type(node).__name__
-        self.visit_vars_and_find_similar(node)
-        self.generic_visit(node)
+    visit_TestCase = visit_Keyword
 
     def visit_KeywordCall(self, node):  # noqa
         tokens = node.get_tokens(Token.ASSIGN)
@@ -640,10 +608,7 @@ class SimilarVariableChecker(VisitorChecker):
             self.variables[normalize_robot_var_name(var)].add(var)
         self.generic_visit(node)
 
-    def visit_ForLoop(self, node):  # noqa
-        for var in node.variables:
-            self.variables[normalize_robot_var_name(var)].add(var)
-        self.generic_visit(node)
+    visit_ForLoop = visit_For
 
     def visit_vars_and_find_similar(self, node):
         """
@@ -676,39 +641,21 @@ class SimilarVariableChecker(VisitorChecker):
 class DeprecatedStatementChecker(VisitorChecker):
     """Checker for deprecated statements."""
 
-    reports = (
-        "deprecated-statement",
-    )
+    reports = ("deprecated-statement",)
     # deprecated:alternative
     deprecated_statements_rf3 = {}
     deprecated_statements_rf4 = {"runkeywordunless": "IF"}
-    deprecated_statements_rf5 = {"runkeywordunless": "IF",
-                                 "runkeywordif":     "IF"
-                                 }
-
-    def visit_SuiteSetup(self, node):  # noqa
-        self.check_if_keyword_is_deprecated(node.name, node)
-
-    def visit_TestSetup(self, node):  # noqa
-        self.check_if_keyword_is_deprecated(node.name, node)
+    deprecated_statements_rf5 = {"runkeywordunless": "IF", "runkeywordif": "IF"}
 
     def visit_Setup(self, node):  # noqa
         self.check_if_keyword_is_deprecated(node.name, node)
 
-    def visit_SuiteTeardown(self, node):  # noqa
-        self.check_if_keyword_is_deprecated(node.name, node)
-
-    def visit_TestTeardown(self, node):  # noqa
-        self.check_if_keyword_is_deprecated(node.name, node)
-
-    def visit_Teardown(self, node):  # noqa
-        self.check_if_keyword_is_deprecated(node.name, node)
+    visit_KeywordCall = (
+        visit_TestTeardown
+    ) = visit_SuiteTeardown = visit_Teardown = visit_TestSetup = visit_SuiteSetup = visit_Setup
 
     def visit_TestCase(self, node):  # noqa
         self.generic_visit(node)
-
-    def visit_KeywordCall(self, node):  # noqa
-        self.check_if_keyword_is_deprecated(node.keyword, node)
 
     def check_if_keyword_is_deprecated(self, keyword_name, node):
         normalized_keyword_name = normalize_robot_name(keyword_name, remove_prefix="builtin.")

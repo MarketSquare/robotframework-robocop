@@ -3,7 +3,7 @@ name: Repo visualizer
 on:
   push:
     branches:
-      - master
+      - visualize
 
 jobs:
   get_data:

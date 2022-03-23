@@ -605,6 +605,7 @@ class IfChecker(VisitorChecker):
         token = node.header.get_token(node.header.type)
         self.report("inline-if-can-be-used", node=node, col=token.col_offset + 1)
 
+
 class LoopStatementsChecker(VisitorChecker):
     """Checker for loop keywords and statements such as CONTINUE or Exit For Loop"""
 

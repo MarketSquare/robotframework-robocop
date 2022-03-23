@@ -282,7 +282,7 @@ class ReturnChecker(VisitorChecker):
                 return_setting_node = child
                 error = (
                     "[Return] is not defined at the end of keyword. "
-                    "Note that [Return] does not return from keyword but only set returned variables"
+                    "Note that [Return] does not quit from keyword but only set variables to be returned"
                 )
                 if not child.values:
                     self.report("empty-return", node=child, col=child.end_col_offset)
@@ -300,7 +300,7 @@ class ReturnChecker(VisitorChecker):
                     token = child.data_tokens[0]
                     self.report(
                         "keyword-after-return",
-                        error_msg="Keyword call after 'Return From Keyword' keyword",
+                        error_msg="Keyword call after 'Return From Keyword'",
                         node=token,
                         col=token.col_offset + 1,
                     )

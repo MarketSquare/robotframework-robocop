@@ -10,6 +10,9 @@ Test
     Keyword
     One More
 
+RETURN
+    RETURN
+
 
 *** Keywords ***
 Keyword

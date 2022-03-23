@@ -7,7 +7,7 @@ from robot.api import Token
 
 from robocop.checkers import VisitorChecker
 from robocop.rules import Rule, RuleSeverity
-from robocop.utils import ROBOT_VERSION, find_robot_vars
+from robocop.utils import ROBOT_VERSION, find_robot_vars, token_col
 
 rules = {
     "0401": Rule(
@@ -205,6 +205,13 @@ rules = {
         severity=RuleSeverity.ERROR,
         version=">=4.0",
     ),
+    "0414": Rule(
+        rule_id="0414",
+        name="return-in-test-case",
+        msg="RETURN can only be used inside a user keyword",
+        severity=RuleSeverity.ERROR,
+        version=">=4.0",  # TODO bump to 5 before release and remove tests for 4
+    ),
 }
 
 
@@ -222,6 +229,7 @@ class ParsingErrorChecker(VisitorChecker):
         "not-enough-whitespace-after-suite-setting",
         "invalid-for-loop",
         "invalid-if",
+        "return-in-test-case",
     )
 
     keyword_only_settings = {"Arguments", "Return"}
@@ -295,6 +303,8 @@ class ParsingErrorChecker(VisitorChecker):
             self.handle_invalid_setting(node, error)
         elif "Invalid variable name" in error:
             self.handle_invalid_variable(node, error)
+        elif "RETURN can only be used inside" in error:
+            self.report("return-in-test-case", node=node, col=token_col(node, "RETURN STATEMENT"))
         elif "IF" in error or "ELSE" in error:
             self.handle_invalid_block(node, error, "invalid-if")
         elif "FOR loop" in error:

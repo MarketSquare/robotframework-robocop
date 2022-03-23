@@ -259,9 +259,10 @@ rules = {
     "0319": Rule(
         rule_id="0319",
         name="deprecated-statement",
-        msg="'{{ keyword_name }}' is deprecated since Robot Framework version "
-            "{{ version }}, use '{{ alternative }}' instead",
+        msg="'{{ statement_name }}' is deprecated since Robot Framework version "
+        "{{ version }}, use '{{ alternative }}' instead",
         severity=RuleSeverity.WARNING,
+        version=">=4.0",  # TODO change to 5.0 (and tests too)
     ),
 }
 
@@ -676,55 +677,51 @@ class SimilarVariableChecker(VisitorChecker):
 class DeprecatedStatementChecker(VisitorChecker):
     """Checker for deprecated statements."""
 
-    reports = (
-        "deprecated-statement",
-    )
-    # deprecated:alternative
-    deprecated_statements_rf3 = {}
-    deprecated_statements_rf4 = {"runkeywordunless": "IF"}
-    deprecated_statements_rf5 = {"runkeywordunless": "IF",
-                                 "runkeywordif":     "IF"
-                                 }
-
-    def visit_SuiteSetup(self, node):  # noqa
-        self.check_if_keyword_is_deprecated(node.name, node)
-
-    def visit_TestSetup(self, node):  # noqa
-        self.check_if_keyword_is_deprecated(node.name, node)
-
-    def visit_Setup(self, node):  # noqa
-        self.check_if_keyword_is_deprecated(node.name, node)
-
-    def visit_SuiteTeardown(self, node):  # noqa
-        self.check_if_keyword_is_deprecated(node.name, node)
-
-    def visit_TestTeardown(self, node):  # noqa
-        self.check_if_keyword_is_deprecated(node.name, node)
-
-    def visit_Teardown(self, node):  # noqa
-        self.check_if_keyword_is_deprecated(node.name, node)
-
-    def visit_TestCase(self, node):  # noqa
-        self.generic_visit(node)
+    reports = ("deprecated-statement",)
+    deprecated_keywords = {
+        4: {"runkeywordunless": "IF"},
+        5: {
+            "runkeywordunless": "IF",
+            "runkeywordif": "IF",
+            "exitforloop": "BREAK",
+            "exitforloopif": "IF and BREAK",
+            "continueforloop": "CONTINUE",
+            "continueforloopif": "IF and CONTINUE",
+            "returnfromkeyword": "RETURN",
+            "returnfromkeywordif": "IF and RETURN",
+        },
+    }
 
     def visit_KeywordCall(self, node):  # noqa
         self.check_if_keyword_is_deprecated(node.keyword, node)
 
+    def visit_SuiteSetup(self, node):  # noqa
+        self.check_if_keyword_is_deprecated(node.name, node)
+
+    visit_TestSetup = visit_Setup = visit_SuiteTeardown = visit_TestTeardown = visit_Teardown = visit_SuiteSetup
+
+    def visit_Return(self, node):  # noqa
+        """For RETURN use visit_ReturnStatement - visit_Return will most likely visit RETURN in the future"""
+        self.report(
+            "deprecated-statement",
+            statement_name="[Return]",
+            alternative="RETURN",
+            node=node,
+            col=token_col(node, Token.RETURN),
+            version="5.*",
+        )
+
     def check_if_keyword_is_deprecated(self, keyword_name, node):
         normalized_keyword_name = normalize_robot_name(keyword_name, remove_prefix="builtin.")
-        deprecated_statements = self.deprecated_statements_rf3
-        if ROBOT_VERSION.major == 4:
-            deprecated_statements = self.deprecated_statements_rf4
-        elif ROBOT_VERSION.major == 5:
-            deprecated_statements = self.deprecated_statements_rf5
+        deprecated_statements = self.deprecated_keywords.get(ROBOT_VERSION.major, {})
         if normalized_keyword_name in deprecated_statements:
             alternative = deprecated_statements[normalized_keyword_name]
             col = token_col(node, Token.NAME, Token.KEYWORD)
-            self.report("deprecated-statement",
-                        keyword_name=keyword_name,
-                        alternative=alternative,
-                        node=node,
-                        col=col,
-                        version=f"{ROBOT_VERSION.major}.*"
-                        )
-
+            self.report(
+                "deprecated-statement",
+                statement_name=keyword_name,
+                alternative=alternative,
+                node=node,
+                col=col,
+                version=f"{ROBOT_VERSION.major}.*",
+            )

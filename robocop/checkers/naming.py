@@ -609,7 +609,7 @@ class SimilarVariableChecker(VisitorChecker):
             self.variables[normalize_robot_var_name(var)].add(var)
         self.generic_visit(node)
 
-    visit_ForLoop = visit_For
+    visit_ForLoop = visit_While = visit_Try = visit_For
 
     def visit_vars_and_find_similar(self, node):
         """

@@ -320,10 +320,8 @@ class EmptySectionChecker(VisitorChecker):
         if all(isinstance(child, anything_but) for child in node.body):
             self.report("empty-section", section_name=get_section_name(node), node=node)
 
-    def visit_SettingSection(self, node):  # noqa
+    def visit_Section(self, node):  # noqa
         self.check_if_empty(node)
-
-    visit_VariableSection = visit_TestCaseSection = visit_KeywordSection = visit_CommentSection = visit_SettingSection
 
 
 class NumberOfReturnedArgsChecker(VisitorChecker):

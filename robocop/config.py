@@ -77,7 +77,7 @@ def validate_regex(pattern: str) -> Pattern:
     try:
         return re.compile(pattern) if pattern is not None else None
     except re.error:
-        print(f"Provided regex pattern {pattern} failed to be compiled")
+        raise ConfigGeneralError(f"Provided regex pattern {pattern} failed to be compiled")
 
 
 class Config:

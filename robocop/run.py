@@ -274,7 +274,7 @@ def run_robocop():
     except Exception as err:
         message = (
             "\nFatal exception occurred. You can create an issue at "
-            "https://github.com/MarketSquare/robotframework-robocop/issues . Thanks!"
+            "https://github.com/MarketSquare/robotframework-robocop/issues/new/choose . Thanks!"
         )
         err.args = (err.args[0] + message,) + err.args[1:]
         raise err

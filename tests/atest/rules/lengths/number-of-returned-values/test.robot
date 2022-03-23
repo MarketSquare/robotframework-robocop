@@ -28,5 +28,19 @@ Keyword 2
 
 Keyword 3
     FOR  ${var}  IN RANGE  10
-        Return From Keyword If    ${condition}==${True}    ${var}  2  4  4  5
+        BuiltIn.Return From Keyword If    ${condition}==${True}    ${var}  2  4  4  5
+    END
+
+Try Except While
+    WHILE    $condition
+        TRY
+            RETURN    ${var}  2  4  4  5
+        EXCEPT
+            RETURN    ${var}  2  4  4  5
+        FINALLY
+            RETURN    ${var}  2  4  4  5
+        ELSE
+            RETURN    ${var}  2  4  4  5
+        END
+        RETURN    ${var}
     END

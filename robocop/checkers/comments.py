@@ -112,9 +112,7 @@ class CommentChecker(VisitorChecker):
         self.check_invalid_comments(node.name, node)
         self.generic_visit(node)
 
-    def visit_Keyword(self, node):  # noqa
-        self.check_invalid_comments(node.name, node)
-        self.generic_visit(node)
+    visit_Keyword = visit_TestCase
 
     def visit_Statement(self, node):  # noqa
         self.find_comments(node)

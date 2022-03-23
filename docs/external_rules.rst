@@ -4,7 +4,7 @@ External rules
 ========================
 
 You can include your own custom rules with ``-rules`` or ``--ext-rules`` arguments.
-It accepts comma separated list of paths to files or directories. Example::
+It accepts comma-separated list of paths to files or directories. Example::
 
     robocop -rules my/own/rule.py --ext-rules rules.py,external_rules.py
 

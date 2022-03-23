@@ -294,17 +294,11 @@ class ReturnChecker(VisitorChecker):
                     keyword_after_return = True
 
             if isinstance(child, KeywordCall):
-                if return_setting_node is not None:
-                    keyword_after_return = True
                 if return_from:
-                    token = child.data_tokens[0]
-                    self.report(
-                        "keyword-after-return",
-                        error_msg="Keyword call after 'Return From Keyword'",
-                        node=token,
-                        col=token.col_offset + 1,
-                    )
-                if normalize_robot_name(child.keyword) == "returnfromkeyword":
+                    keyword_after_return = True
+                    return_setting_node = child
+                    error = "Keyword call after 'Return From Keyword'"
+                elif normalize_robot_name(child.keyword, remove_prefix="builtin.") == "returnfromkeyword":
                     return_from = True
         if keyword_after_return:
             token = return_setting_node.data_tokens[0]

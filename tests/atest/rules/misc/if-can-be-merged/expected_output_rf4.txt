@@ -7,5 +7,3 @@ ${rules_dir}${\}test.robot:99:9 [I] 0914 IF statement can be merged with previou
 ${rules_dir}${\}test.robot:148:5 [I] 0914 IF statement can be merged with previous IF (defined in line 141)
 ${rules_dir}${\}test.robot:162:5 [I] 0914 IF statement can be merged with previous IF (defined in line 157)
 ${rules_dir}${\}test.robot:167:5 [I] 0914 IF statement can be merged with previous IF (defined in line 162)
-${rules_dir}${\}inline_if.robot:21:15 [I] 0914 IF statement can be merged with previous IF (defined in line 20)
-${rules_dir}${\}inline_if.robot:26:5 [I] 0914 IF statement can be merged with previous IF (defined in line 25)

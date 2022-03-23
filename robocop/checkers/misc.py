@@ -525,8 +525,9 @@ class IfChecker(VisitorChecker):
                 previous_if = None
         self.generic_visit(node)
 
-    @staticmethod
-    def compare_conditions(if_node, other_if_node):
+    def compare_conditions(self, if_node, other_if_node):
+        if not self.compare_assign(if_node, other_if_node):
+            return False
         while if_node is not None and other_if_node is not None:
             if if_node.condition != other_if_node.condition:
                 return False
@@ -534,6 +535,21 @@ class IfChecker(VisitorChecker):
             other_if_node = other_if_node.orelse
         return if_node is None and other_if_node is None
 
+    @staticmethod
+    def normalize_var_name(name):
+        return name.lower().replace("_", "").replace(" ", "").replace("=", "")
+
+    def compare_assign(self, if_node, other_if_node):
+        assign_1 = getattr(if_node, "assign", None)
+        assign_2 = getattr(other_if_node, "assign", None)
+        if assign_1 is None or assign_2 is None:
+            return all(assign is None for assign in (assign_1, assign_2))
+        if len(assign_1) != len(assign_2):
+            return False
+        for var1, var2 in zip(assign_1, assign_2):
+            if self.normalize_var_name(var1) != self.normalize_var_name(var2):
+                return False
+        return True
 
 class LoopStatementsChecker(VisitorChecker):
     """Checker for loop keywords and statements such as CONTINUE or Exit For Loop"""

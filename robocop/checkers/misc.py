@@ -27,9 +27,9 @@ from robocop.utils import (
 )
 
 try:
-    from robot.api.parsing import ReturnStatement
+    from robot.api.parsing import ReturnStatement, InlineIfHeader, Break, Continue
 except ImportError:
-    ReturnStatement = None
+    ReturnStatement, InlineIfHeader, Break, Continue = None, None, None, None
 
 
 rules = {
@@ -261,6 +261,33 @@ rules = {
         
         """,
     ),
+    "0916": Rule(
+        RuleParam(
+            name="max_width",
+            default=80,
+            converter=int,
+            desc="Maximum width of IF below which it will be recommended to use inline IF",
+        ),
+        rule_id="0916",
+        name="inline-if-can-be-used",
+        msg="IF can be replaced with inline IF",
+        severity=RuleSeverity.INFO,
+        version=">=5.0",
+        docs="""
+        Short and simple IFs can be replaced with inline IF.
+        
+        Following IF::
+        
+            IF    $condition
+                BREAK
+            END
+        
+        can be replaced with::
+        
+            IF    $condition    BREAK
+
+        """
+    )
 }
 
 
@@ -501,15 +528,26 @@ class ResourceFileChecker(VisitorChecker):
 class IfChecker(VisitorChecker):
     """Checker for IF blocks"""
 
-    reports = ("if-can-be-merged",)
+    reports = (
+        "if-can-be-merged",
+        "inline-if-can-be-used",
+    )
 
     def visit_TestCase(self, node):  # noqa
+        if get_errors(node):
+            return
         self.check_adjacent_ifs(node)
 
     def visit_Keyword(self, node):  # noqa
+        if get_errors(node):
+            return
         self.check_adjacent_ifs(node)
 
     visit_For = visit_If = visit_Keyword  # TODO  While, Try Except?
+
+    @staticmethod
+    def is_inline(node):
+        return InlineIfHeader and isinstance(node.header, InlineIfHeader)
 
     def check_adjacent_ifs(self, node):
         previous_if = None
@@ -517,6 +555,7 @@ class IfChecker(VisitorChecker):
             if isinstance(child, If):
                 if child.header.errors:
                     continue
+                self.check_if_should_be_inline(child)
                 if previous_if and child.header and self.compare_conditions(child, previous_if):
                     token = child.header.get_token(child.header.type)
                     self.report("if-can-be-merged", line=previous_if.lineno, node=token, col=token.col_offset + 1)
@@ -550,6 +589,21 @@ class IfChecker(VisitorChecker):
             if self.normalize_var_name(var1) != self.normalize_var_name(var2):
                 return False
         return True
+
+    @staticmethod
+    def tokens_length(tokens):
+        return sum(len(token.value) for token in tokens)
+
+    def check_if_should_be_inline(self, node):
+        if self.is_inline(node):
+            return
+        if len(node.body) != 1 or node.orelse or not isinstance(node.body[0], (KeywordCall, ReturnStatement, Break, Continue)):
+            return
+        min_possible = self.tokens_length(node.header.tokens) + self.tokens_length(node.body[0].tokens[1:]) + 2
+        if min_possible > self.param("inline-if-can-be-used", "max_width"):
+            return
+        token = node.header.get_token(node.header.type)
+        self.report("inline-if-can-be-used", node=node, col=token.col_offset + 1)
 
 class LoopStatementsChecker(VisitorChecker):
     """Checker for loop keywords and statements such as CONTINUE or Exit For Loop"""

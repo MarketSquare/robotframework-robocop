@@ -331,19 +331,16 @@ class NumberOfReturnedArgsChecker(VisitorChecker):
 
     reports = ("number-of-returned-values",)
 
-    def visit_Keyword(self, node):  # noqa
-        self.generic_visit(node)
-
-    visit_For = visit_ForLoop = visit_Keyword
-
     def visit_Return(self, node):  # noqa
         self.check_node_returns(len(node.values), node)
+
+    visit_ReturnStatement = visit_Return
 
     def visit_KeywordCall(self, node):  # noqa
         if not node.keyword:
             return
 
-        normalized_name = normalize_robot_name(node.keyword)
+        normalized_name = normalize_robot_name(node.keyword, remove_prefix="builtin.")
         if normalized_name == "returnfromkeyword":
             self.check_node_returns(len(node.args), node)
         elif normalized_name == "returnfromkeywordif":

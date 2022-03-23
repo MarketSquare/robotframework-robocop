@@ -4,6 +4,10 @@ Errors checkers
 import re
 
 from robot.api import Token
+try:
+    from robot.api.parsing import If
+except ImportError:
+    If = None
 
 from robocop.checkers import VisitorChecker
 from robocop.rules import Rule, RuleSeverity
@@ -267,11 +271,19 @@ class ParsingErrorChecker(VisitorChecker):
     }
     ignore_errors = ("can only be used inside a loop",)
 
+    def __init__(self):
+        super().__init__()
+        self.in_block = None
+
+    def visit_File(self, node):
+        self.generic_visit(node)
+
     def visit_If(self, node):  # noqa
+        self.in_block = node  # to ensure we're in IF for `invalid-if` rule
         self.parse_errors(node)
         self.generic_visit(node)
 
-    visit_For = visit_If
+    visit_For = visit_While = visit_Try = visit_If
 
     def visit_KeywordCall(self, node):  # noqa
         if node.keyword and node.keyword.startswith("..."):
@@ -303,7 +315,7 @@ class ParsingErrorChecker(VisitorChecker):
             self.handle_invalid_variable(node, error)
         elif "RETURN can only be used inside" in error:
             self.report("return-in-test-case", node=node, col=token_col(node, "RETURN STATEMENT"))
-        elif "IF" in error or "ELSE" in error:
+        elif "IF" in error or ("ELSE" in error and If and isinstance(self.in_block, If)):
             self.handle_invalid_block(node, error, "invalid-if")
         elif "FOR loop" in error:
             self.handle_invalid_block(node, error, "invalid-for-loop")

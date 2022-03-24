@@ -318,6 +318,7 @@ def pattern_type(value: str) -> Pattern:
 
 def get_section_name(node):
     if not node.header:
+        #  Lines before first section are considered to be in `*** Comments ***` section even if header name is missing
         return "*** Comments ***"
     for token in node.header.data_tokens:
         if ROBOT_VERSION.major > 3:

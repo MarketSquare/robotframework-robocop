@@ -117,18 +117,18 @@ class TestRecommendationFinder:
         [
             ("", ["some"], ""),
             ("some", [], ""),
-            ("is-this", ["this-is", "some"], " Did you mean:\n    this-is"),
-            ("is-this1", ["this-is", "some"], " Did you mean:\n    this-is"),
+            ("is-this", ["this-is", "some"], "Did you mean:\n    this-is"),
+            ("is-this1", ["this-is", "some"], "Did you mean:\n    this-is"),
             (
                 "is-this",
                 ["this-is", "some", "is-this"],
-                " Did you mean:\n    is-this\n    this-is",
+                "Did you mean:\n    is-this\n    this-is",
             ),
-            ("is this", ["is-this", "some"], " Did you mean:\n    is-this"),
+            ("is this", ["is-this", "some"], "Did you mean:\n    is-this"),
             (
                 "this-is-longernamewithout",
                 ["this-is-longer-name-without", "a", "some"],
-                " Did you mean:\n    this-is-longer-name-without",
+                "Did you mean:\n    this-is-longer-name-without",
             ),
         ],
     )

@@ -182,7 +182,7 @@ class RecommendationFinder:
         if not matches:
             return ""
         matches = self.get_original_candidates(matches, norm_cand)
-        suggestion = " Did you mean:\n"
+        suggestion = "Did you mean:\n"
         suggestion += "\n".join(f"    {match}" for match in matches)
         return suggestion
 

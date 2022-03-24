@@ -215,7 +215,7 @@ rules = {
         name="return-in-test-case",
         msg="RETURN can only be used inside a user keyword",
         severity=RuleSeverity.ERROR,
-        version=">=4.0",  # TODO bump to 5 before release and remove tests for 4
+        version=">=5.0",
     ),
 }
 

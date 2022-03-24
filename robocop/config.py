@@ -50,7 +50,7 @@ class SetRuleThreshold(argparse.Action):
     def __call__(self, parser, namespace, values, option_string=None):
         setattr(
             namespace, self.dest, RuleSeverity.parser(values) if values in ("I", "W", "E") else RuleSeverity.INFO
-        )  # TODO
+        )  # TODO Change severity to enum
 
 
 class SetListOption(argparse.Action):
@@ -391,25 +391,20 @@ class Config:
 
     def validate_rule_names(self, rules):
         # add rule name in form of old_name: new_name
-        deprecated = {
-            "missing-whitespace-after-setting": "not-enough-whitespace-after-setting",
-            "variable-should-left-aligned": "variable-should-be-left-aligned",
-            "0304": "0406",
-            "invalid-char-in-name": "not-allowed-char-in-name",
-        }
+        deprecated = {}
         for rule in chain(self.include, self.exclude):
             if rule in deprecated:  # update warning description to specific case
                 print(
                     f"### DEPRECATION WARNING ###\nThe name (or ID) of the rule '{rule}' is "
                     f"renamed to '{deprecated[rule]}'. "
                     f"Update your configuration if you're using old name. "
-                    f"This information will disappear in the next version (1.12.0)\n\n"
+                    f"This information will disappear in the next version (X.Y.Z)\n\n"
                 )
                 self.replace_in_set(self.include, rule, deprecated[rule])
                 self.replace_in_set(self.exclude, rule, deprecated[rule])
             elif rule not in rules:
                 similar = RecommendationFinder().find_similar(rule, rules)
-                raise ConfigGeneralError(f"Provided rule '{rule}' does not exist.{similar}")
+                raise ConfigGeneralError(f"Provided rule '{rule}' does not exist. {similar}")
 
     def is_rule_enabled(self, rule):
         if self.is_rule_disabled(rule):

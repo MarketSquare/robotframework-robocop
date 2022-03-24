@@ -262,7 +262,7 @@ rules = {
         msg="'{{ statement_name }}' is deprecated since Robot Framework version "
         "{{ version }}, use '{{ alternative }}' instead",
         severity=RuleSeverity.WARNING,
-        version=">=5.0",
+        version=">=4.0",
     ),
 }
 

@@ -58,8 +58,9 @@ setup(
             "tox", 
         ],
         "doc": [
+            "furo",
             "sphinx", 
-            "sphinx_rtd_theme",
+            "sphinx_design",
         ],
     },
     entry_points={"console_scripts": ["robocop=robocop:run_robocop"]},

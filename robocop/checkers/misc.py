@@ -11,7 +11,10 @@ try:
     from robot.api.parsing import Variable, Comment, EmptyLine, If
 except ImportError:
     from robot.parsing.model.statements import Variable, Comment, EmptyLine
-
+try:
+    from robot.api.parsing import ReturnStatement, InlineIfHeader, Break, Continue
+except ImportError:
+    ReturnStatement, InlineIfHeader, Break, Continue = None, None, None, None
 from robot.libraries import STDLIBS
 
 from robocop.checkers import VisitorChecker
@@ -25,11 +28,6 @@ from robocop.utils import (
     token_col,
     get_errors,
 )
-
-try:
-    from robot.api.parsing import ReturnStatement, InlineIfHeader, Break, Continue
-except ImportError:
-    ReturnStatement, InlineIfHeader, Break, Continue = None, None, None, None
 
 
 rules = {
@@ -313,7 +311,7 @@ class ReturnChecker(VisitorChecker):
                 )
                 if not child.values:
                     self.report("empty-return", node=child, col=child.end_col_offset)
-            elif ReturnStatement and isinstance(child, ReturnStatement):
+            elif ReturnStatement and isinstance(child, ReturnStatement):  # type: ignore[arg-type]
                 return_setting_node = child
                 error = "RETURN is not defined at the end of keyword"
             elif not isinstance(child, (EmptyLine, Comment)):
@@ -542,7 +540,7 @@ class IfChecker(VisitorChecker):
 
     @staticmethod
     def is_if_inline(node):
-        return InlineIfHeader and isinstance(node.header, InlineIfHeader)
+        return isinstance(node.header, InlineIfHeader)
 
     def check_adjacent_ifs(self, node):
         previous_if = None
@@ -590,12 +588,14 @@ class IfChecker(VisitorChecker):
         return sum(len(token.value) for token in tokens)
 
     def check_whether_if_should_be_inline(self, node):
+        if ROBOT_VERSION.major < 5:
+            return
         if self.is_if_inline(node):
             return
         if (
             len(node.body) != 1
             or node.orelse
-            or not isinstance(node.body[0], (KeywordCall, ReturnStatement, Break, Continue))
+            or not isinstance(node.body[0], (KeywordCall, ReturnStatement, Break, Continue))  # type: ignore[arg-type]
         ):
             return
         min_possible = self.tokens_length(node.header.tokens) + self.tokens_length(node.body[0].tokens[1:]) + 2
@@ -639,10 +639,10 @@ class LoopStatementsChecker(VisitorChecker):
             )
 
     def visit_Continue(self, node):  # noqa
-        self.check_statement_in_loop(node, "CONTINUE")
+        self.check_statement_in_loop(node, "CONTINUE")  # type: ignore[arg-type]
 
     def visit_Break(self, node):  # noqa
-        self.check_statement_in_loop(node, "BREAK")
+        self.check_statement_in_loop(node, "BREAK")  # type: ignore[arg-type]
 
     def check_statement_in_loop(self, node, token_type):
         if self.loops or node.errors and f"{token_type} can only be used inside a loop." not in node.errors:

@@ -555,7 +555,7 @@ class IfChecker(VisitorChecker):
             if isinstance(child, If):
                 if child.header.errors:
                     continue
-                self.check_if_should_be_inline(child)
+                self.check_whether_if_should_be_inline(child)
                 if previous_if and child.header and self.compare_conditions(child, previous_if):
                     token = child.header.get_token(child.header.type)
                     self.report("if-can-be-merged", line=previous_if.lineno, node=token, col=token.col_offset + 1)

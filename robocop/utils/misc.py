@@ -317,6 +317,8 @@ def pattern_type(value: str) -> Pattern:
 
 
 def get_section_name(node):
+    if not node.header:
+        return "*** Comments ***"
     for token in node.header.data_tokens:
         if ROBOT_VERSION.major > 3:
             if token.type in node.header.handles_types:

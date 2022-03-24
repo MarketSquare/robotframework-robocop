@@ -538,12 +538,7 @@ class IfChecker(VisitorChecker):
             return
         self.check_adjacent_ifs(node)
 
-    def visit_Keyword(self, node):  # noqa
-        if get_errors(node):
-            return
-        self.check_adjacent_ifs(node)
-
-    visit_For = visit_If = visit_Keyword  # TODO  While, Try Except?
+    visit_For = visit_If = visit_Keyword = visit_TestCase  # TODO  While, Try Except?
 
     @staticmethod
     def is_if_inline(node):

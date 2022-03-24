@@ -291,7 +291,7 @@ class LineLengthChecker(RawFileChecker):
     """Checker for maximum length of a line."""
 
     reports = ("line-too-long",)
-    # replace # noqa or # robocop, # robocop: enable, # robocop: disable=optional,rule,names
+    # replace `# noqa` or `# robocop`, `# robocop: enable`, `# robocop: disable=optional,rule,names`
     disabler_pattern = re.compile(r"(# )+(noqa|robocop: ?(?P<disabler>disable|enable)=?(?P<rules>[\w\-,]*))")
 
     def check_line(self, line, lineno):
@@ -320,19 +320,7 @@ class EmptySectionChecker(VisitorChecker):
         if all(isinstance(child, anything_but) for child in node.body):
             self.report("empty-section", section_name=get_section_name(node), node=node)
 
-    def visit_SettingSection(self, node):  # noqa
-        self.check_if_empty(node)
-
-    def visit_VariableSection(self, node):  # noqa
-        self.check_if_empty(node)
-
-    def visit_TestCaseSection(self, node):  # noqa
-        self.check_if_empty(node)
-
-    def visit_KeywordSection(self, node):  # noqa
-        self.check_if_empty(node)
-
-    def visit_CommentSection(self, node):  # noqa
+    def visit_Section(self, node):  # noqa
         self.check_if_empty(node)
 
 
@@ -341,23 +329,16 @@ class NumberOfReturnedArgsChecker(VisitorChecker):
 
     reports = ("number-of-returned-values",)
 
-    def visit_Keyword(self, node):  # noqa
-        self.generic_visit(node)
-
-    def visit_ForLoop(self, node):  # noqa
-        self.generic_visit(node)
-
-    def visit_For(self, node):  # noqa
-        self.generic_visit(node)
-
     def visit_Return(self, node):  # noqa
         self.check_node_returns(len(node.values), node)
+
+    visit_ReturnStatement = visit_Return
 
     def visit_KeywordCall(self, node):  # noqa
         if not node.keyword:
             return
 
-        normalized_name = normalize_robot_name(node.keyword)
+        normalized_name = normalize_robot_name(node.keyword, remove_prefix="builtin.")
         if normalized_name == "returnfromkeyword":
             self.check_node_returns(len(node.args), node)
         elif normalized_name == "returnfromkeywordif":
@@ -370,6 +351,7 @@ class NumberOfReturnedArgsChecker(VisitorChecker):
                 return_count=return_count,
                 max_allowed_count=self.param("number-of-returned-values", "max_returns"),
                 node=node,
+                col=node.data_tokens[0].col_offset + 1
             )
 
 

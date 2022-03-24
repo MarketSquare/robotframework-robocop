@@ -13,7 +13,7 @@ IF with ELSE and ELSE IF
     IF    $condition
         Keyword
     ELSE IF    $other
-        Keyword
+        BREAK
     END
 
 Long IF

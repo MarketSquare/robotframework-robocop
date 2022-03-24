@@ -351,7 +351,7 @@ class NumberOfReturnedArgsChecker(VisitorChecker):
                 return_count=return_count,
                 max_allowed_count=self.param("number-of-returned-values", "max_returns"),
                 node=node,
-                col=node.data_tokens[0].col_offset + 1
+                col=node.data_tokens[0].col_offset + 1,
             )
 
 

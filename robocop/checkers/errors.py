@@ -4,6 +4,7 @@ Errors checkers
 import re
 
 from robot.api import Token
+
 try:
     from robot.api.parsing import If
 except ImportError:

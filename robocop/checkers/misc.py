@@ -286,8 +286,8 @@ rules = {
         
             IF    $condition    BREAK
 
-        """
-    )
+        """,
+    ),
 }
 
 
@@ -592,7 +592,11 @@ class IfChecker(VisitorChecker):
     def check_whether_if_should_be_inline(self, node):
         if self.is_if_inline(node):
             return
-        if len(node.body) != 1 or node.orelse or not isinstance(node.body[0], (KeywordCall, ReturnStatement, Break, Continue)):
+        if (
+            len(node.body) != 1
+            or node.orelse
+            or not isinstance(node.body[0], (KeywordCall, ReturnStatement, Break, Continue))
+        ):
             return
         min_possible = self.tokens_length(node.header.tokens) + self.tokens_length(node.body[0].tokens[1:]) + 2
         if min_possible > self.param("inline-if-can-be-used", "max_width"):

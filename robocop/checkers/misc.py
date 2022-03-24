@@ -266,7 +266,7 @@ rules = {
             name="max_width",
             default=80,
             converter=int,
-            desc="Maximum width of IF (in character) below which it will be recommended to use inline IF",
+            desc="Maximum width of IF (in characters) below which it will be recommended to use inline IF",
         ),
         rule_id="0916",
         name="inline-if-can-be-used",

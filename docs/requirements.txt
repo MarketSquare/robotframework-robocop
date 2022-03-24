@@ -1,7 +1,7 @@
 furo
-sphinx_design
+jinja2>=3.0,<4.0
+packaging>=21.0,<22.0
+pathspec>=0.9,<0.10
 robotframework>=4.0
+sphinx_design
 toml>=0.10.2
-packaging==21.*
-pathspec==0.9.*
-jinja2~=3.0

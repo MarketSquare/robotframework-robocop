@@ -266,7 +266,7 @@ rules = {
             name="max_width",
             default=80,
             converter=int,
-            desc="Maximum width of IF below which it will be recommended to use inline IF",
+            desc="Maximum width of IF (in character) below which it will be recommended to use inline IF",
         ),
         rule_id="0916",
         name="inline-if-can-be-used",
@@ -546,7 +546,7 @@ class IfChecker(VisitorChecker):
     visit_For = visit_If = visit_Keyword  # TODO  While, Try Except?
 
     @staticmethod
-    def is_inline(node):
+    def is_if_inline(node):
         return InlineIfHeader and isinstance(node.header, InlineIfHeader)
 
     def check_adjacent_ifs(self, node):
@@ -565,7 +565,7 @@ class IfChecker(VisitorChecker):
         self.generic_visit(node)
 
     def compare_conditions(self, if_node, other_if_node):
-        if not self.compare_assign(if_node, other_if_node):
+        if not self.compare_assign_tokens(if_node, other_if_node):
             return False
         while if_node is not None and other_if_node is not None:
             if if_node.condition != other_if_node.condition:
@@ -578,7 +578,7 @@ class IfChecker(VisitorChecker):
     def normalize_var_name(name):
         return name.lower().replace("_", "").replace(" ", "").replace("=", "")
 
-    def compare_assign(self, if_node, other_if_node):
+    def compare_assign_tokens(self, if_node, other_if_node):
         assign_1 = getattr(if_node, "assign", None)
         assign_2 = getattr(other_if_node, "assign", None)
         if assign_1 is None or assign_2 is None:
@@ -594,8 +594,8 @@ class IfChecker(VisitorChecker):
     def tokens_length(tokens):
         return sum(len(token.value) for token in tokens)
 
-    def check_if_should_be_inline(self, node):
-        if self.is_inline(node):
+    def check_whether_if_should_be_inline(self, node):
+        if self.is_if_inline(node):
             return
         if len(node.body) != 1 or node.orelse or not isinstance(node.body[0], (KeywordCall, ReturnStatement, Break, Continue)):
             return

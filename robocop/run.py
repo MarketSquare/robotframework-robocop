@@ -260,7 +260,7 @@ class Robocop:
             else:
                 similar = RecommendationFinder().find_similar(rule_or_report, self.rules)
                 raise robocop.exceptions.ConfigGeneralError(
-                    f"Provided rule or report '{rule_or_report}' does not exist.{similar}"
+                    f"Provided rule or report '{rule_or_report}' does not exist. {similar}"
                 )
 
 

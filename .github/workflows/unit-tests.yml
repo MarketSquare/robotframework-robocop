@@ -25,13 +25,13 @@ jobs:
             rf-version: 'stable4'
           - os: 'ubuntu-latest'
             python-version: '3.8'
-            rf-version: 'recent'
+            rf-version: 'stable5'
           - os: 'ubuntu-latest'
             python-version: '3.9'
-            rf-version: 'recent'
+            rf-version: 'stable5'
           - os: 'ubuntu-latest'
             python-version: '3.10'
-            rf-version: 'recent'
+            rf-version: 'stable5'
     runs-on: ${{ matrix.os }}
 
     steps:

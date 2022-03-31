@@ -82,3 +82,15 @@ RETURN invalid
         Keyword
         RETURN
     END
+
+Last teardown - [Return]
+    [Setup]   Setup
+    ${arg}    Step
+    [Return]  ${arg}
+    [Teardown]    Teardown
+
+Last teardown - RETURN
+    [Setup]   Setup
+    ${arg}    Step
+    RETURN  ${arg}
+    [Teardown]    Teardown

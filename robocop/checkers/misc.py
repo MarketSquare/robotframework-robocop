@@ -5,7 +5,7 @@ from pathlib import Path
 
 from robot.api import Token
 from robot.parsing.model.blocks import TestCaseSection
-from robot.parsing.model.statements import KeywordCall, Return
+from robot.parsing.model.statements import KeywordCall, Return, Teardown
 
 try:
     from robot.api.parsing import Variable, Comment, EmptyLine, If
@@ -314,7 +314,7 @@ class ReturnChecker(VisitorChecker):
             elif ReturnStatement and isinstance(child, ReturnStatement):  # type: ignore[arg-type]
                 return_setting_node = child
                 error = "RETURN is not defined at the end of keyword"
-            elif not isinstance(child, (EmptyLine, Comment)):
+            elif not isinstance(child, (EmptyLine, Comment, Teardown)):
                 if return_setting_node is not None:
                     keyword_after_return = True
 

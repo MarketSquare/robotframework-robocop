@@ -667,6 +667,8 @@ class DeprecatedStatementChecker(VisitorChecker):
 
     def visit_Return(self, node):  # noqa
         """For RETURN use visit_ReturnStatement - visit_Return will most likely visit RETURN in the future"""
+        if ROBOT_VERSION.major < 5:
+            return
         self.report(
             "deprecated-statement",
             statement_name="[Return]",

@@ -17,6 +17,20 @@ Test
     One More
     [Teardown]  keyword
 
+My Test(s) Are Nice
+    Execute Command(s)
+    Test Flash(es)
+    Recognize Figure(s) (Math) From Picture
+    Test Sulfur (S) Concentration
+
+Weird Test
+    Test Agile Story(-ies)
+    Feed Wolf(-ves)
+    Life(-ves) Count Should Be
+
+Questionable Test
+    Test Time Input (s)
+    Recognize Figure(s) (art) From Picture
 
 *** Keywords ***
 keyword
@@ -58,3 +72,28 @@ Keyword With Unicode And Non Latin
     Eäi saa peittää
     日本語
     _
+
+Execute Command(s)
+    No Operation
+    Log  ${TEST_NAME}
+
+Test Agile Story(-ies)
+    No Operation
+
+Test Flash(es)
+    No Operation
+
+Feed Wolf(-ves)
+    No Operation
+
+Life(-ves) Count Should Be
+    No Operation
+
+Test Time Input (s)
+    No Operation
+
+Recognize Figure(s) (art) From Picture
+    No Operation
+
+Recognize Figure(s) (Math) From Picture
+    No Operation

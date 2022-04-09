@@ -361,7 +361,7 @@ class KeywordNamingChecker(VisitorChecker):
     bdd = {"given", "when", "and", "but", "then"}
 
     def __init__(self):
-        self.letter_pattern = re.compile(r"\W|_", re.UNICODE)
+        self.letter_pattern = re.compile(r"[^\w()-]|_", re.UNICODE)
         self.inside_if_block = False
         super().__init__()
 

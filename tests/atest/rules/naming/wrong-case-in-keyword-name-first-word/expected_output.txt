@@ -5,4 +5,4 @@ ${rules_dir}${\}test.robot:6:1 [W] 0302 Keyword name 'keyword' should use title 
 ${rules_dir}${\}test.robot:14:1 [W] 0302 Keyword name 'keyword' should use title case
 ${rules_dir}${\}test.robot:15:1 [W] 0302 Keyword name 'pass' should use title case
 ${rules_dir}${\}test.robot:18:1 [W] 0302 Keyword name 'keyword' should use title case
-${rules_dir}${\}test.robot:22:1 [W] 0302 Keyword name 'keyword' should use title case
+${rules_dir}${\}test.robot:36:1 [W] 0302 Keyword name 'keyword' should use title case

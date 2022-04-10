@@ -314,7 +314,8 @@ class EmptyLinesChecker(VisitorChecker):
                         allowed_empty_lines=self.param("consecutive-empty-lines", "empty_lines"),
                         node=prev_node,
                     )
-                empty_lines = 0
+                if not isinstance(child, Comment):
+                    empty_lines = 0
         return empty_lines
 
     def visit_Statement(self, node):  # noqa

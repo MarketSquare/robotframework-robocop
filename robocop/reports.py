@@ -33,7 +33,7 @@ class RulesByIdReport(Report):
     Report that groups linter rules messages by rule id and prints it ordered by most common message.
     Example::
 
-        Issues by ids:
+        Issues by ID:
         W0502 (too-little-calls-in-keyword) : 5
         W0201 (missing-doc-keyword)         : 4
         E0401 (parsing-error)               : 3
@@ -51,7 +51,7 @@ class RulesByIdReport(Report):
 
     def get_report(self) -> str:
         message_counter_ordered = sorted(self.message_counter.items(), key=itemgetter(1), reverse=True)
-        report = "\nIssues by IDs:\n"
+        report = "\nIssues by ID:\n"
         if not message_counter_ordered:
             report += "No issues found"
             return report
@@ -83,8 +83,10 @@ class RulesBySeverityReport(Report):
         issues_count = sum(self.severity_counter.values())
         if not issues_count:
             return "\nFound 0 issues"
-        report = f"\nFound {issues_count} issue(s): "
-        report += ", ".join(f"{count} {severity.name}(s)" for severity, count in self.severity_counter.items())
+        report = f"\nFound 1 issue: " if issues_count == 1 else f"\nFound {issues_count} issues: "
+        for severity, count in self.severity_counter.items():
+            plural = "s" if count > 1 else ""
+            report += f"{count} {severity.name}{plural}"
         report += "."
         return report
 
@@ -142,7 +144,7 @@ class TimeTakenReport(Report):
         pass
 
     def get_report(self) -> str:
-        return f"\nScan took {timer() - self.start_time:.3f}s"
+        return f"\nScan finished in {timer() - self.start_time:.3f}s"
 
 
 class JsonReport(Report):
@@ -183,10 +185,12 @@ class FileStatsReport(Report):
     def get_report(self) -> str:
         if not self.files_count:
             return "\nNo files were processed"
+        plural_files = "(s)" if self.files_count > 1 else ""
         if not self.files_with_issues:
-            return f"\nProcessed {self.files_count} file(s) but no issues were found"
+            return f"\nProcessed {self.files_count} file{plural_files} but no issues were found"
 
+        plural_files_with_issues = "(s)" if len(self.files_with_issues) > 1 else ""
         return (
-            f"\nProcessed {self.files_count} file(s) from which {len(self.files_with_issues)} "
-            f"file(s) contained issues"
+            f"\nProcessed {self.files_count} file{plural_files} from which {len(self.files_with_issues)} "
+            f"file{plural_files_with_issues} contained issues"
         )

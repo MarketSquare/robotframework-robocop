@@ -1,5 +1,12 @@
 *** Variables ***
+{VAR_WITH_NO_TYPE}
 ${VAR_NO_VALUE}
+@{LIST_NO_VALUE}
+&{DICT_NO_VALUE}
+@{LIST_NO_VALUE}
+...
+&{DICT_NO_VALUE}
+...
 ${VAR_WITH_EMPTY}       ${EMPTY}
 @{VAR_WITH_EMPTY}       @{EMPTY}
 &{VAR_WITH_EMPTY}       &{EMPTY}
@@ -36,5 +43,3 @@ ${EMPTY_WITH_BACKSLASH}  \
 ... invalid
 {also_invalid}  2
 ...
-@{LIST_NO_VALUE}
-&{DICT_NO_VALUE}

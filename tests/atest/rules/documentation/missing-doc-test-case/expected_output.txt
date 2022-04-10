@@ -1,1 +1,5 @@
 ${rules_dir}${\}test.robot:6:1 [W] 0202 Missing documentation in 'Test' test case
+${rules_dir}${\}templated_suite.robot:10:1 [W] 0202 Missing documentation in 'Templated Test Without Documentation' test case
+${rules_dir}${\}templated_suite.robot:14:1 [W] 0202 Missing documentation in 'Overriding Default Template In Test Without Documentation' test case
+${rules_dir}${\}templated_suite.robot:25:1 [W] 0202 Missing documentation in 'Template With FOR Loop Containing Variables' test case
+${rules_dir}${\}templated_suite.robot:32:1 [W] 0202 Missing documentation in 'Strange Test Without Docs In One Line' test case

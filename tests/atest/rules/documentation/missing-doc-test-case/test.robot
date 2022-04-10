@@ -9,6 +9,9 @@ Test
     Keyword
     One More
 
+Test With Doc
+    [Documentation]  Some documentation
+    My Keyword
 
 *** Keywords ***
 Keyword

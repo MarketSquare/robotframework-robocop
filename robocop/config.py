@@ -268,7 +268,7 @@ class Config:
             const="",
             default=self.list_configurables,
             metavar="PATTERN",
-            help="List all available rules with configurable parameters. " "You can use optional PATTERN argument.",
+            help="List all available rules with configurable parameters. You can use optional PATTERN argument.",
         )
         optional.add_argument(
             "-lr",

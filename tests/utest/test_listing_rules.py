@@ -106,10 +106,10 @@ class TestListingRules:
         out, _ = capsys.readouterr()
         assert (
             out == "Rule - 0101 [W]: some-message: Some description (enabled)\n\n"
-            "Altogether 1 rule(s) with following severity:\n"
-            "    0 error rule(s),\n"
-            "    1 warning rule(s),\n"
-            "    0 info rule(s).\n\n"
+            "Altogether 1 rule with following severity:\n"
+            "    0 error rules,\n"
+            "    1 warning rule,\n"
+            "    0 info rules.\n\n"
             "Visit https://robocop.readthedocs.io/en/stable/rules.html page for detailed documentation.\n"
         )
 
@@ -127,10 +127,10 @@ class TestListingRules:
         assert (
             out == "Rule - 0101 [W]: some-message: Some description (disabled)\n"
             f"Rule - 9999 [W]: disabled-in-four: This is desc ({enabled_for})\n\n"
-            "Altogether 2 rule(s) with following severity:\n"
-            "    0 error rule(s),\n"
-            "    2 warning rule(s),\n"
-            "    0 info rule(s).\n\n"
+            "Altogether 2 rules with following severity:\n"
+            "    0 error rules,\n"
+            "    2 warning rules,\n"
+            "    0 info rules.\n\n"
             "Visit https://robocop.readthedocs.io/en/stable/rules.html page for detailed documentation.\n"
         )
 
@@ -180,17 +180,17 @@ class TestListingRules:
         out, _ = capsys.readouterr()
         assert (
             out == "All rules have configurable parameter 'severity'. "
-            "Allowed values are:\n    E / error\n    W / warning\n    I / info\n"
+            "Allowed values are:\n    E / error\n    W / warning\n    I / info\n\n"
             "Rule - 0101 [W]: some-message: Some description (enabled)\n"
             "    conf_param = 0\n"
             "        type: int\n"
             "    conf_param2 = 0\n"
             "        type: dummy_parser\n"
             "        info: meta information\n\n"
-            "Altogether 1 rule(s) with following severity:\n"
-            "    0 error rule(s),\n"
-            "    1 warning rule(s),\n"
-            "    0 info rule(s).\n\n"
+            "Altogether 1 rule with following severity:\n"
+            "    0 error rules,\n"
+            "    1 warning rule,\n"
+            "    0 info rules.\n\n"
             "Visit https://robocop.readthedocs.io/en/stable/rules.html page for detailed documentation.\n"
         )
 

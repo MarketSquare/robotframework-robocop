@@ -89,7 +89,7 @@ Use ``-lc \ --list-configurables`` argument to list rules together with availabl
 
     robocop --list-configurables empty-lines-between-sections
     Rule - 1003 [W]: empty-lines-between-sections: Invalid number of empty lines between sections ({{ empty_lines }}/{{ allowed_empty_lines }}) (enabled)
-        Available configurable(s) for this rule:
+        Available configurables for this rule:
             empty_lines = 2
                 type: int
                 info: number of empty lines required between sections

@@ -183,7 +183,7 @@ class Robocop:
         if self.config.list_configurables:
             print(
                 "All rules have configurable parameter 'severity'. Allowed values are:"
-                "\n    E / error\n    W / warning\n    I / info"
+                "\n    E / error\n    W / warning\n    I / info\n"
             )
         pattern = self.config.list if self.config.list else self.config.list_configurables
         rule_by_id = {rule.rule_id: rule for rule in self.rules.values() if rule.matches_pattern(pattern)}
@@ -194,15 +194,17 @@ class Robocop:
                 print(rule)
                 severity_counter[rule.severity.value] += 1
             else:
-                params = rule.available_configurables(include_severity=False)
+                _, params = rule.available_configurables(include_severity=False)
                 if params:
                     print(f"{rule}\n" f"    {params}")
                     severity_counter[rule.severity.value] += 1
+        configurable_rules_sum = sum(severity_counter.values())
+        plural = "" if configurable_rules_sum == 1 else "s"
         print(
-            f"\nAltogether {sum(severity_counter.values())} rule(s) with following severity:\n"
-            f"    {severity_counter['E']} error rule(s),\n"
-            f"    {severity_counter['W']} warning rule(s),\n"
-            f"    {severity_counter['I']} info rule(s).\n"
+            f"\nAltogether {configurable_rules_sum} rule{plural} with following severity:\n"
+            f"    {severity_counter['E']} error rule{'' if severity_counter['E'] == 1 else 's'},\n"
+            f"    {severity_counter['W']} warning rule{'' if severity_counter['W'] == 1 else 's'},\n"
+            f"    {severity_counter['I']} info rule{'' if severity_counter['I'] == 1 else 's'}.\n"
         )
         print("Visit https://robocop.readthedocs.io/en/stable/rules.html page for detailed documentation.")
         sys.exit()

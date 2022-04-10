@@ -29,3 +29,6 @@ tests:
   tag-with-reserved-word:
     - config:
       src_dir: tags/tag-with-reserved-word-in-keyword-doc
+  missing-doc-test-case:
+    - config: missing-doc-test-case:ignore_templated:False
+      src_dir: documentation/missing-doc-test-case-templated

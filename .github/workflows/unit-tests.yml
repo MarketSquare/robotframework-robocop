@@ -16,22 +16,22 @@ jobs:
         include:
           - os: 'ubuntu-latest'
             python-version: '3.6'
-            rf-version: 'stable3'
+            rf-version: 'rf-stable3'
           - os: 'windows-latest'
             python-version: '3.9'
-            rf-version: 'stable4'
+            rf-version: 'rf-stable4'
           - os: 'ubuntu-latest'
             python-version: '3.7'
-            rf-version: 'stable4'
+            rf-version: 'rf-stable4'
           - os: 'ubuntu-latest'
             python-version: '3.8'
-            rf-version: 'stable5'
+            rf-version: 'rf-stable5'
           - os: 'ubuntu-latest'
             python-version: '3.9'
-            rf-version: 'stable5'
+            rf-version: 'rf-stable5'
           - os: 'ubuntu-latest'
             python-version: '3.10'
-            rf-version: 'stable5'
+            rf-version: 'rf-stable5'
     runs-on: ${{ matrix.os }}
 
     steps:

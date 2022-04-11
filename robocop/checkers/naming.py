@@ -53,7 +53,7 @@ rules = {
         ),
         rule_id="0302",
         name="wrong-case-in-keyword-name",
-        msg="Keyword name '{{ keyword_name }}' should use title case",
+        msg="Keyword name '{{ keyword_name }}' does not follow case convention",
         severity=RuleSeverity.WARNING,
     ),
     "0303": Rule(
@@ -262,7 +262,6 @@ rules = {
         msg="'{{ statement_name }}' is deprecated since Robot Framework version "
         "{{ version }}, use '{{ alternative }}' instead",
         severity=RuleSeverity.WARNING,
-        version=">=4.0",
     ),
 }
 
@@ -644,7 +643,6 @@ class DeprecatedStatementChecker(VisitorChecker):
 
     reports = ("deprecated-statement",)
     deprecated_keywords = {
-        4: {"runkeywordunless": "IF"},
         5: {
             "runkeywordunless": "IF",
             "runkeywordif": "IF",

@@ -209,18 +209,21 @@ class Rule:
 
     def configure(self, param, value):
         if param not in self.config:
+            count, configurables_text = self.available_configurables()
             raise robocop.exceptions.ConfigGeneralError(
                 f"Provided param '{param}' for rule '{self.name}' does not exist. "
-                f"Available configurable(s) for this rule:\n"
-                f"    {self.available_configurables()}"
+                f"Available configurable{'' if count == 1 else 's'} for this rule:\n"
+                f"    {configurables_text}"
             )
         self.config[param].value = value
 
     def available_configurables(self, include_severity: bool = True):
         params = [str(param) for param in self.config.values() if param.name != "severity" or include_severity]
         if not params:
-            return ""
-        return "\n    ".join(params)
+            return 0, ""
+        count = len(params)
+        text = "\n    ".join(params)
+        return count, text
 
     def prepare_message(self, source, node, lineno, col, end_lineno, end_col, ext_disablers, **kwargs):
         msg = self.get_message(**kwargs)

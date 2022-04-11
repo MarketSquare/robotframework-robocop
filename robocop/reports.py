@@ -33,7 +33,7 @@ class RulesByIdReport(Report):
     Report that groups linter rules messages by rule id and prints it ordered by most common message.
     Example::
 
-        Issues by ids:
+        Issues by ID:
         W0502 (too-little-calls-in-keyword) : 5
         W0201 (missing-doc-keyword)         : 4
         E0401 (parsing-error)               : 3
@@ -51,9 +51,9 @@ class RulesByIdReport(Report):
 
     def get_report(self) -> str:
         message_counter_ordered = sorted(self.message_counter.items(), key=itemgetter(1), reverse=True)
-        report = "\nIssues by IDs:\n"
+        report = "\nIssues by ID:\n"
         if not message_counter_ordered:
-            report += "No issues found"
+            report += "No issues found."
             return report
         longest_name = max(len(msg[0]) for msg in message_counter_ordered)
         report += "\n".join(f"{message:{longest_name}} : {count}" for message, count in message_counter_ordered)
@@ -68,7 +68,7 @@ class RulesBySeverityReport(Report):
 
     Example::
 
-        Found 15 issues: 11 WARNING(s), 4 ERROR(s).
+        Found 15 issues: 11 WARNINGs, 4 ERRORs.
     """
 
     def __init__(self):
@@ -82,9 +82,14 @@ class RulesBySeverityReport(Report):
     def get_report(self) -> str:
         issues_count = sum(self.severity_counter.values())
         if not issues_count:
-            return "\nFound 0 issues"
-        report = f"\nFound {issues_count} issue(s): "
-        report += ", ".join(f"{count} {severity.name}(s)" for severity, count in self.severity_counter.items())
+            return "\nFound 0 issues."
+
+        report = "\nFound 1 issue: " if issues_count == 1 else f"\nFound {issues_count} issues: "
+        warning_types = []
+        for severity, count in self.severity_counter.items():
+            plural = "" if count == 1 else "s"
+            warning_types.append(f"{count} {severity.name}{plural}")
+        report += ", ".join(warning_types)
         report += "."
         return report
 
@@ -131,6 +136,10 @@ class TimeTakenReport(Report):
     Report name: ``scan_timer``
 
     Report that returns Robocop execution time
+
+    Example::
+
+        Scan finished in 0.054s.
     """
 
     def __init__(self):
@@ -142,7 +151,7 @@ class TimeTakenReport(Report):
         pass
 
     def get_report(self) -> str:
-        return f"\nScan took {timer() - self.start_time:.3f}s"
+        return f"\nScan finished in {timer() - self.start_time:.3f}s."
 
 
 class JsonReport(Report):
@@ -169,6 +178,10 @@ class FileStatsReport(Report):
     Report name: ``file_stats``
 
     Report that displays overall statistics about number of processed files.
+
+    Example::
+
+        Processed 7 files from which 5 files contained issues.
     """
 
     def __init__(self):
@@ -182,11 +195,13 @@ class FileStatsReport(Report):
 
     def get_report(self) -> str:
         if not self.files_count:
-            return "\nNo files were processed"
+            return "\nNo files were processed."
+        plural_files = "s" if self.files_count > 1 else ""
         if not self.files_with_issues:
-            return f"\nProcessed {self.files_count} file(s) but no issues were found"
+            return f"\nProcessed {self.files_count} file{plural_files} but no issues were found."
 
+        plural_files_with_issues = "" if len(self.files_with_issues) == 1 else "s"
         return (
-            f"\nProcessed {self.files_count} file(s) from which {len(self.files_with_issues)} "
-            f"file(s) contained issues"
+            f"\nProcessed {self.files_count} file{plural_files} from which {len(self.files_with_issues)} "
+            f"file{plural_files_with_issues} contained issues."
         )

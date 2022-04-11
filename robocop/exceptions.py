@@ -47,7 +47,7 @@ class RuleParamNotFoundError(RobocopFatalError):
     def __init__(self, rule, param, checker):
         super().__init__(
             f"Rule `{rule.name}` in `{checker.__class__.__name__}` checker does not contain `{param}` param. "
-            f"Available params:\n    {rule.available_configurables()}"
+            f"Available params:\n    {rule.available_configurables()[1]}"
         )
 
 

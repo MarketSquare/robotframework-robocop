@@ -63,33 +63,36 @@ Listing available rules
 To get list of available rules (with enabled/disabled status) use ``-l / --list`` option::
 
     robocop --list
-    Rule - 0201 [W]: missing-doc-keyword: Missing documentation in keyword (enabled)
-    Rule - 0202 [W]: missing-doc-test-case: Missing documentation in test case (enabled)
+    Rule - 0201 [W]: missing-doc-keyword: Missing documentation in '{{ name }}' keyword (enabled)
+    Rule - 0202 [W]: missing-doc-test-case: Missing documentation in '{{ name }}' test case (enabled)
     Rule - 0203 [W]: missing-doc-suite: Missing documentation in suite (enabled)
     (...)
 
 If some of the rules are disabled from CLI it will be reflected in the output::
 
     robocop --exclude 02* --list
-    Rule - 0201 [W]: missing-doc-keyword: Missing documentation in keyword (disabled)
-    Rule - 0202 [W]: missing-doc-test-case: Missing documentation in test case (disabled)
-    Rule - 0203 [W]: missing-doc-suite: Missing documentation in suite (enabled)
+    Rule - 0201 [W]: missing-doc-keyword: Missing documentation in '{{ name }}' keyword (disabled)
+    Rule - 0202 [W]: missing-doc-test-case: Missing documentation in '{{ name }}' test case (disabled)
+    Rule - 0203 [W]: missing-doc-suite: Missing documentation in suite (disabled)
+    Rule - 0301 [W]: not-allowed-char-in-name: Not allowed character '{{ character }}' found in {{ block_name }} name (enabled)
     (...)
 
 Rules list can be filtered out by glob pattern::
 
     robocop --list tag*
-    Rule - 0601 [W]: tag-with-space: Tags should not contain spaces (enabled)
-    Rule - 0602 [I]: tag-with-or-and: Tag with reserved word OR/AND. Hint: make sure to include this tag using lowercase name to avoid issues (enabled)
-    Rule - 0603 [W]: tag-with-reserved-word: Tag prefixed with reserved word `robot:`. Only allowed tag with this prefix is robot:no-dry-run (enabled)
-    Rule - 0606 [I]: tag-already-set-in-force-tags: This tag is already set by Force Tags in suite settings (enabled)
+    Rule - 0601 [W]: tag-with-space: Tag '{{ tag }}' should not contain spaces (enabled)
+    Rule - 0602 [I]: tag-with-or-and: Tag '{{ tag }}' with reserved word OR/AND. Hint: make sure to include this tag using lowercase name to avoid issues (enabled)
+    Rule - 0603 [W]: tag-with-reserved-word: Tag '{{ tag }}' prefixed with reserved word `robot:` (enabled)
+    Rule - 0606 [I]: tag-already-set-in-force-tags: Tag 'mytag' is already set by Force Tags in suite settings (enabled)
 
 Use ``-lc \ --list-configurables`` argument to list rules together with available configurable parameters. Optional pattern argument is also supported::
 
-    robocop --list-configurables empty-lines-between-section
-    Rule - 1003 [W]: empty-lines-between-sections: Invalid number of empty lines between sections (%d/%d) (enabled).
-        Available configurable(s) for this rule:
-            empty_lines
+    robocop --list-configurables empty-lines-between-sections
+    Rule - 1003 [W]: empty-lines-between-sections: Invalid number of empty lines between sections ({{ empty_lines }}/{{ allowed_empty_lines }}) (enabled)
+        Available configurables for this rule:
+            empty_lines = 2
+                type: int
+                info: number of empty lines required between sections
 
 Ignoring file
 -------------

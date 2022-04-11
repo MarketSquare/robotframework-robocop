@@ -42,12 +42,12 @@ class TestReports:
     @pytest.mark.parametrize(
         "files, files_with_issues, output",
         [
-            (0, set(), "\nNo files were processed"),
-            (10, set(), "\nProcessed 10 file(s) but no issues were found"),
+            (0, set(), "\nNo files were processed."),
+            (10, set(), "\nProcessed 10 files but no issues were found."),
             (
                 10,
                 {"a.robot", "b.robot"},
-                "\nProcessed 10 file(s) from which 3 file(s) contained issues",
+                "\nProcessed 10 files from which 3 files contained issues.",
             ),
         ],
     )

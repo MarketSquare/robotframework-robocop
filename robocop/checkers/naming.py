@@ -53,7 +53,7 @@ rules = {
         ),
         rule_id="0302",
         name="wrong-case-in-keyword-name",
-        msg="Keyword name '{{ keyword_name }}' should use title case",
+        msg="Keyword name '{{ keyword_name }}' does not follow case convention",
         severity=RuleSeverity.WARNING,
     ),
     "0303": Rule(

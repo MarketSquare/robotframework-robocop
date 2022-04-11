@@ -5,7 +5,8 @@ from robot.parsing.model.blocks import SettingSection
 from robot.parsing.model.statements import Documentation
 
 from robocop.checkers import VisitorChecker
-from robocop.rules import Rule, RuleSeverity
+from robocop.rules import Rule, RuleSeverity, RuleParam
+from robocop.utils.misc import str2bool
 
 rules = {
     "0201": Rule(
@@ -24,6 +25,12 @@ rules = {
         """,
     ),
     "0202": Rule(
+        RuleParam(
+            name="ignore_templated",
+            default="True",
+            converter=str2bool,
+            desc="whether templated tests should be documented or not",
+        ),
         rule_id="0202",
         name="missing-doc-test-case",
         msg="Missing documentation in '{{ name }}' test case",
@@ -36,6 +43,11 @@ rules = {
                 Keyword Step
                 Other Step
         
+        The rule by default ignores templated test cases but it can be configured with::
+        
+            robocop --configure missing-doc-test-case:ignore_templated:False
+        
+        Possible values are: Yes / 1 / True (default) or No / False / 0.
         """,
     ),
     "0203": Rule(
@@ -69,6 +81,8 @@ class MissingDocumentationChecker(VisitorChecker):
         self.check_if_docs_are_present(node, "missing-doc-keyword")
 
     def visit_TestCase(self, node):  # noqa
+        if self.param("missing-doc-test-case", "ignore_templated") and self.templated_suite:
+            return
         self.check_if_docs_are_present(node, "missing-doc-test-case")
 
     def visit_SettingSection(self, node):  # noqa

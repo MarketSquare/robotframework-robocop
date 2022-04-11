@@ -123,6 +123,10 @@ def issues_to_lsp_diagnostic(issues) -> List[Dict]:
     ]
 
 
+def str2bool(v):
+    return v.lower() in ("yes", "true", "1")
+
+
 class AssignmentTypeDetector(ast.NodeVisitor):
     """Visitor for counting number and type of assignments"""
 

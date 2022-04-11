@@ -494,13 +494,11 @@ class EmptyVariableChecker(VisitorChecker):
             return
         if not node.value:  # catch variable declaration without any value
             self.report("empty-variable", var_type=node.name[0], node=node)
-        args_amount = len(node.get_tokens(Token.ARGUMENT))
         for token in node.get_tokens(Token.ARGUMENT):
             if not token.value or token.value == "\\":
-                var_type = "$" if args_amount > 1 else node.name[0]
                 self.report(
                     "empty-variable",
-                    var_type=var_type,
+                    var_type="$",
                     node=token,
                     lineno=token.lineno,
                     col=token.col_offset,

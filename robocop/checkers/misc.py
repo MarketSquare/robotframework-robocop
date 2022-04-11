@@ -184,7 +184,7 @@ rules = {
     "0912": Rule(
         rule_id="0912",
         name="empty-variable",
-        msg="Use built-in variable ${EMPTY} instead of leaving variable without value or using backslash",
+        msg="Use built-in variable {{ var_type }}{EMPTY} instead of leaving variable without value or using backslash",
         severity=RuleSeverity.INFO,
         docs="""
         Example of rule violation::
@@ -493,11 +493,12 @@ class EmptyVariableChecker(VisitorChecker):
         if get_errors(node):
             return
         if not node.value:  # catch variable declaration without any value
-            self.report("empty-variable", node=node)
+            self.report("empty-variable", var_type=node.name[0], node=node)
         for token in node.get_tokens(Token.ARGUMENT):
             if not token.value or token.value == "\\":
                 self.report(
                     "empty-variable",
+                    var_type="$",
                     node=token,
                     lineno=token.lineno,
                     col=token.col_offset,

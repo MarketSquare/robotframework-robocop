@@ -6,6 +6,7 @@ from robot.parsing.model.statements import Documentation
 
 from robocop.checkers import VisitorChecker
 from robocop.rules import Rule, RuleSeverity, RuleParam
+from robocop.utils.misc import str2bool
 
 rules = {
     "0201": Rule(
@@ -26,8 +27,8 @@ rules = {
     "0202": Rule(
         RuleParam(
             name="ignore_templated",
-            default=True,
-            converter=bool,
+            default="True",
+            converter=str2bool,
             desc="whether templated tests should be documented or not",
         ),
         rule_id="0202",
@@ -42,6 +43,11 @@ rules = {
                 Keyword Step
                 Other Step
         
+        The rule by default ignores templated test cases but it can be configured with::
+        
+            robocop --configure missing-doc-test-case:ignore_templated:False
+        
+        Possible values are: Yes / 1 / True (default) or No / False / 0.
         """,
     ),
     "0203": Rule(

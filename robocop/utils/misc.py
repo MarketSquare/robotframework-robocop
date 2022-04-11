@@ -5,7 +5,7 @@ import re
 from collections import Counter, defaultdict
 from importlib import import_module
 from pathlib import Path
-from typing import Pattern, List, Tuple, Dict, Optional
+from typing import Dict, List, Optional, Pattern, Tuple
 
 from robot.api import Token
 from robot.parsing.model.statements import EmptyLine
@@ -15,11 +15,11 @@ try:
 except ImportError:
     from robot.parsing.model.statements import Variable
 
-from robot.version import VERSION as RF_VERSION
 from packaging import version
+from robot.version import VERSION as RF_VERSION
 
-from robocop.version import __version__
 from robocop.exceptions import InvalidExternalCheckerError
+from robocop.version import __version__
 
 ROBOT_VERSION = version.parse(RF_VERSION)
 

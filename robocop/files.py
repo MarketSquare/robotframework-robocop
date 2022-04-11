@@ -5,7 +5,6 @@ from pathspec import PathSpec
 
 from robocop.exceptions import FileError
 
-
 DEFAULT_EXCLUDES = r"(\.direnv|\.eggs|\.git|\.hg|\.nox|\.tox|\.venv|venv|\.svn)"
 
 

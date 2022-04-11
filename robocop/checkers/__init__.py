@@ -38,8 +38,8 @@ except ImportError:
 
 from robot.utils import FileReader
 
-from robocop.utils import modules_from_paths, modules_in_current_dir
 from robocop.exceptions import RuleNotFoundError, RuleParamNotFoundError, RuleReportsNotFoundError
+from robocop.utils import modules_from_paths, modules_in_current_dir
 
 
 class BaseChecker:

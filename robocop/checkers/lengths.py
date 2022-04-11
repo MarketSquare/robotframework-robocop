@@ -8,7 +8,7 @@ from robot.parsing.model.statements import Arguments, Comment, EmptyLine, Keywor
 
 from robocop.checkers import RawFileChecker, VisitorChecker
 from robocop.rules import Rule, RuleParam, RuleSeverity
-from robocop.utils import last_non_empty_line, normalize_robot_name, pattern_type, get_section_name
+from robocop.utils import get_section_name, last_non_empty_line, normalize_robot_name, pattern_type
 
 rules = {
     "0501": Rule(

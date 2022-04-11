@@ -11,7 +11,7 @@ from robot.parsing.model.visitor import ModelVisitor
 
 from robocop.checkers import RawFileChecker, VisitorChecker
 from robocop.rules import Rule, RuleParam, RuleSeverity
-from robocop.utils import token_col, get_section_name, get_errors
+from robocop.utils import get_errors, get_section_name, token_col
 
 rules = {
     "1001": Rule(

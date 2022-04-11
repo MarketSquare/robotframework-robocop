@@ -6,8 +6,8 @@ from collections import defaultdict
 from pathlib import Path
 
 from robot.api import Token
-from robot.parsing.model.statements import Arguments, KeywordCall
 from robot.parsing.model.blocks import Keyword
+from robot.parsing.model.statements import Arguments, KeywordCall
 
 from robocop.checkers import VisitorChecker
 from robocop.rules import Rule, RuleParam, RuleSeverity

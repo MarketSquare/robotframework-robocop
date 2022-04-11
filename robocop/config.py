@@ -1,11 +1,11 @@
 import argparse
-from typing import Pattern, Set, Dict
 import fnmatch
 import os
 import re
 import sys
 from itertools import chain
 from pathlib import Path
+from typing import Dict, Pattern, Set
 
 import toml
 from robot.utils import FileReader
@@ -16,8 +16,8 @@ from robocop.exceptions import (
     InvalidArgumentError,
     NestedArgumentFileError,
 )
-from robocop.rules import RuleSeverity
 from robocop.files import DEFAULT_EXCLUDES, find_file_in_project_root, find_project_root
+from robocop.rules import RuleSeverity
 from robocop.utils import RecommendationFinder
 from robocop.version import __version__
 
@@ -48,9 +48,7 @@ class ParseFileTypes(argparse.Action):  # pylint: disable=too-few-public-methods
 
 class SetRuleThreshold(argparse.Action):
     def __call__(self, parser, namespace, values, option_string=None):
-        setattr(
-            namespace, self.dest, RuleSeverity.parser(values) if values in ("I", "W", "E") else RuleSeverity.INFO
-        )
+        setattr(namespace, self.dest, RuleSeverity.parser(values) if values in ("I", "W", "E") else RuleSeverity.INFO)
 
 
 class SetListOption(argparse.Action):

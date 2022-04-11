@@ -5,7 +5,7 @@ from robot.parsing.model.blocks import SettingSection
 from robot.parsing.model.statements import Documentation
 
 from robocop.checkers import VisitorChecker
-from robocop.rules import Rule, RuleSeverity, RuleParam
+from robocop.rules import Rule, RuleParam, RuleSeverity
 from robocop.utils.misc import str2bool
 
 rules = {

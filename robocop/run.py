@@ -11,16 +11,10 @@ from robot.errors import DataError
 
 import robocop.exceptions
 from robocop import checkers, reports
-from robocop.rules import Message
-from robocop.files import get_files
 from robocop.config import Config
-from robocop.utils import (
-    DisablersFinder,
-    FileType,
-    FileTypeChecker,
-    RecommendationFinder,
-    is_suite_templated,
-)
+from robocop.files import get_files
+from robocop.rules import Message
+from robocop.utils import DisablersFinder, FileType, FileTypeChecker, RecommendationFinder, is_suite_templated
 
 
 class Robocop:

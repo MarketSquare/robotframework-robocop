@@ -7,7 +7,7 @@ from robot.api import Token
 
 from robocop.checkers import VisitorChecker
 from robocop.rules import Rule, RuleParam, RuleSeverity
-from robocop.utils import normalize_robot_name, normalize_robot_var_name, get_errors
+from robocop.utils import get_errors, normalize_robot_name, normalize_robot_var_name
 
 
 def configure_sections_order(value):

@@ -91,7 +91,7 @@ class Robocop:
         """
         Pre-parse files to recognize their types. If the filename is `__init__.*`, the type is `INIT`.
         Files with .resource extension are `RESOURCE` type.
-        If the file is imported somewhere then file type is `RESOURCE`. Otherwise file type is `GENERAL`.
+        If the file is imported somewhere then file type is `RESOURCE`. Otherwise, file type is `GENERAL`.
         These types are important since they are used to define parsing class for robot API.
         """
         file_type_checker = FileTypeChecker(self.config.exec_dir)

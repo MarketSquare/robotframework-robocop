@@ -59,3 +59,4 @@ You can simply run::
 All command line options can be displayed in help message by executing::
 
     robocop -h
+

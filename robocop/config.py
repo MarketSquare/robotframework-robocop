@@ -50,7 +50,7 @@ class SetRuleThreshold(argparse.Action):
     def __call__(self, parser, namespace, values, option_string=None):
         setattr(
             namespace, self.dest, RuleSeverity.parser(values) if values in ("I", "W", "E") else RuleSeverity.INFO
-        )  # TODO Change severity to enum
+        )
 
 
 class SetListOption(argparse.Action):

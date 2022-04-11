@@ -123,7 +123,7 @@ class ReturnStatusReport(Report):
     def add_message(self, message: Message):
         self.counter.add_message(message)
 
-    def get_report(self) -> str:
+    def get_report(self):
         for severity, count in self.counter.severity_counter.items():
             threshold = self.quality_gate.get(severity.value, 0)
             if -1 < threshold < count:

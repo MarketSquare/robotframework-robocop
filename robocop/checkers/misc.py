@@ -368,8 +368,9 @@ class IfBlockCanBeUsed(VisitorChecker):
 class ConsistentAssignmentSignChecker(VisitorChecker):
     """Checker for inconsistent assignment signs.
 
-    By default this checker will try to autodetect most common assignment sign (separately for *** Variables *** section
-    and (*** Test Cases ***, *** Keywords ***) sections and report any not consistent type of sign in particular file.
+    By default, this checker will try to autodetect most common assignment sign (separately for *** Variables ***
+    section and *** Test Cases ***, *** Keywords *** sections) and report any inconsistent type of sign in particular
+    file.
 
     To force one type of sign type you, can configure two rules::
 

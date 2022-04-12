@@ -2,8 +2,8 @@ name: Repo visualizer
 
 on:
   push:
-    branches:
-      - visualize
+    branches-ignore:
+      - master
 
 jobs:
   get_data:

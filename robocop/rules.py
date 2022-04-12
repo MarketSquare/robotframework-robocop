@@ -24,12 +24,12 @@ Output message of rules can be defined with ``-f`` / ``--format`` argument. Defa
 
 """
 from enum import Enum
-from textwrap import dedent
 from functools import total_ordering
-from typing import Any, Callable, Union, Pattern, Dict, Optional
-from packaging.specifiers import SpecifierSet
+from textwrap import dedent
+from typing import Any, Callable, Dict, Optional, Pattern, Union
 
 from jinja2 import Template
+from packaging.specifiers import SpecifierSet
 
 import robocop.exceptions
 from robocop.utils import ROBOT_VERSION

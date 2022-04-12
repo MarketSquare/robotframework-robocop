@@ -3,7 +3,6 @@ import sys
 from collections import defaultdict
 from pathlib import Path
 
-
 sys.path.append(str(Path(__file__).parent.parent))
 import robocop
 

@@ -51,3 +51,4 @@ converter between ``Message`` and LSP diagnostic format::
     from robocop.utils import issues_to_lsp_diagnostic
 
     issues = issues_to_lsp_diagnostic(issues)
+

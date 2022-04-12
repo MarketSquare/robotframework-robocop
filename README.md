@@ -75,7 +75,7 @@ Python 3.6+ :snake: and Robot Framework 3.2.2+ :robot:.
 Installation <a name="installation"></a>
 ------------
 
-You can install latest version of Robocop simply by running::
+You can install the latest version of Robocop simply by running::
 
 ```
 pip install -U robotframework-robocop
@@ -333,7 +333,7 @@ FAQ <a name="faq"></a>
   - is highly configurable
   - has very good defaults that work out of the box
   - can be configured in source code
-  - uses latest [Robot Framework Parsing API](https://robot-framework.readthedocs.io/en/stable/)
+  - uses the latest [Robot Framework Parsing API](https://robot-framework.readthedocs.io/en/stable/)
   - is actively developed & fixed
   - is easy to integrate with external tools
   - can redirect output to a file

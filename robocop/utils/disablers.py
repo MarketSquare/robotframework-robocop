@@ -106,7 +106,7 @@ class DisablersFinder:
 
     def _is_file_disabled(self, last_line):
         """
-        The file is disabled if all rules are disabled in every lines - we need to iterate every block to see
+        The file is disabled if all rules are disabled in every line - we need to iterate every block to see
         if they are linked from first to last line without breaks.
         """
         if "all" not in self.rules:

@@ -143,16 +143,6 @@ Robocop's main features are explained in the `README
 The whole documentation is available `here <https://robocop.readthedocs.io/>`_.
 
 
-Repository visualization
-''''''''''''''''''''''''
-
-At the root of the repository there is a `VISUAL_CODEBASE.md
-<https://github.com/MarketSquare/robotframework-robocop/blob/master/VISUAL_CODEBASE.md>`_
-file which includes an SVG image with the visual representation of the repository content
-excluding ``tests`` directory (which is definitely the biggest part of the project).
-Taking a look at the generated diagram can help understand project's structure and
-complexity. The image is generated for each push to the `master` branch.
-
 Tests
 ~~~~~
 

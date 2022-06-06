@@ -7,3 +7,4 @@ ${rules_dir}${\}test.robot:15:1 [W] 0302 Keyword name 'pass' does not follow cas
 ${rules_dir}${\}test.robot:18:1 [W] 0302 Keyword name 'keyword' does not follow case convention
 ${rules_dir}${\}test.robot:36:1 [W] 0302 Keyword name 'keyword' does not follow case convention
 ${rules_dir}${\}test.robot:61:1 [W] 0302 Keyword name 'Keyword_With_underscores' does not follow case convention
+${rules_dir}${\}test.robot:107:1 [W] 0302 Keyword name 'Dot in name foo.bar' does not follow case convention

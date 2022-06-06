@@ -35,12 +35,12 @@ rules = {
         msg="Not allowed character '{{ character }}' found in {{ block_name }} name",
         severity=RuleSeverity.WARNING,
         docs="""
-        Reports not allowed character found in Suite, Test Case or Keyword names. By default it's dot (`.`). You can 
-        configure what characters are reported by calling::
-        
+        Reports not allowed pattern found in Test Case or Keyword names. By default it's dot (`.`). You can
+        configure what patterns are reported by calling::
+
              robocop --configure not-allowed-char-in-name:pattern:regex_pattern
-             
-        `regex_pattern` should define regex pattern for characters not allowed in names. For example `[@\[]` pattern 
+
+        `regex_pattern` should define regex pattern not allowed in names. For example `[@\[]` pattern
         reports any occurrence of `@[` characters.
         """,
     ),
@@ -50,6 +50,12 @@ rules = {
             default="each_word_capitalized",
             converter=str,
             desc="possible values: 'each_word_capitalized' (default) or 'first_word_capitalized'",
+        ),
+        RuleParam(
+            name="pattern",
+            default=re.compile(r""),
+            converter=pattern_type,
+            desc="pattern for accepted words in keyword",
         ),
         rule_id="0302",
         name="wrong-case-in-keyword-name",
@@ -63,7 +69,7 @@ rules = {
         severity=RuleSeverity.ERROR,
         docs="""
         Do not use reserved names for keyword names. Following names are reserved:
-        
+
           - IF
           - ELSE IF
           - ELSE
@@ -84,10 +90,10 @@ rules = {
         severity=RuleSeverity.WARNING,
         docs="""
         Example::
-        
+
             # bad
             keyword_with_underscores
-            
+
             # good
             Keyword Without Underscores
 
@@ -100,25 +106,25 @@ rules = {
         severity=RuleSeverity.WARNING,
         docs="""
         Good::
-        
+
              *** Settings ***
              Resource    file.resource
-             
+
              *** Test Cases ***
              Test
                  [DOCUMENTATION]  Some documentation
                  Step
-        
+
         Bad::
-        
+
              *** Settings ***
              resource    file.resource
-             
+
              *** Test Cases ***
              Test
                  [documentation]  Some documentation
                  Step
-            
+
         """,
     ),
     "0307": Rule(
@@ -128,12 +134,12 @@ rules = {
         severity=RuleSeverity.WARNING,
         docs="""
         Good::
-        
+
             *** SETTINGS ***
             *** Keywords ***
-        
+
         Bad::
-        
+
             *** keywords ***
 
         """,
@@ -181,17 +187,17 @@ rules = {
         severity=RuleSeverity.ERROR,
         docs="""
         Use non-empty name when using library import with alias.
-        
+
         Good::
-           
+
             *** Settings ***
             Library  CustomLibrary  AS  AnotherName
-        
+
         Bad::
-        
+
              *** Settings ***
              Library  CustomLibrary  AS
-        
+
         """,
     ),
     "0315": Rule(
@@ -201,11 +207,11 @@ rules = {
         severity=RuleSeverity.WARNING,
         docs="""
         Example of rule violation::
-        
+
              *** Settings ***
              Library  CustomLibrary  AS  CustomLibrary  # same as library name
              Library  CustomLibrary  AS  Custom Library  # same as library name (spaces are ignored)
-        
+
         """,
     ),
     "0316": Rule(
@@ -223,12 +229,12 @@ rules = {
         severity=RuleSeverity.INFO,
         docs="""
         Robot Framework supports evaluation of Python code inside ${ } brackets. For example::
-        
+
              ${var2}  Set Variable  ${${var}-${var2}}
-        
+
         That's why there is possibility that hyphen in name is not recognized as part of name but as minus sign.
         Better to use underscore (if it's intended)::
-        
+
         ${var2}  Set Variable  ${ ${var}_${var2}}
         """,
     ),
@@ -238,21 +244,21 @@ rules = {
         msg="BDD reserved keyword '{{ keyword_name }}' not followed by any keyword{{ error_msg }}",
         severity=RuleSeverity.WARNING,
         docs="""
-        When using BDD reserved keywords (such as `GIVEN`, `WHEN`, `AND`, `BUT` or `THEN`) use them together with 
-        name of the keyword to run. 
-        
+        When using BDD reserved keywords (such as `GIVEN`, `WHEN`, `AND`, `BUT` or `THEN`) use them together with
+        name of the keyword to run.
+
         Good::
-        
+
             Given Setup Is Complete
             When User Log In
             Then User Should See Welcome Page
-        
+
         Bad::
-        
+
             Given
             When User Log In
             Then User Should See Welcome Page
-        
+
         Since those words are used for BDD style it's also recommended not to use them within the keyword name.
         """,
     ),
@@ -263,13 +269,34 @@ rules = {
         "{{ version }}, use '{{ alternative }}' instead",
         severity=RuleSeverity.WARNING,
     ),
+    "0320": Rule(
+        RuleParam(
+            name="pattern",
+            default=re.compile(r"[\.\?]"),
+            converter=pattern_type,
+            desc="pattern defining characters (not) allowed in a name",
+        ),
+        rule_id="0320",
+        name="not-allowed-char-in-filename",
+        msg="Not allowed character '{{ character }}' found in {{ block_name }} name",
+        severity=RuleSeverity.WARNING,
+        docs="""
+        Reports not allowed pattern found in Suite names. By default it's dot (`.`). You can
+        configure what characters are reported by calling::
+
+             robocop --configure not-allowed-char-in-filename:pattern:regex_pattern
+
+        `regex_pattern` should define regex pattern for characters not allowed in names. For example `[@\[]` pattern
+        reports any occurrence of `@[` characters.
+        """,
+    ),
 }
 
 
-class InvalidCharactersInNameChecker(VisitorChecker):
+class InvalidCharactersInFileNameChecker(VisitorChecker):
     """Checker for invalid characters in suite, test case or keyword name."""
 
-    reports = ("not-allowed-char-in-name",)
+    reports = ("not-allowed-char-in-filename",)
 
     def visit_File(self, node):
         source = node.source if node.source else self.source
@@ -277,29 +304,48 @@ class InvalidCharactersInNameChecker(VisitorChecker):
             suite_name = Path(source).stem
             if "__init__" in suite_name:
                 suite_name = Path(source).parent.name
-            for char in suite_name:
-                if self.param("not-allowed-char-in-name", "pattern").search(char):
-                    self.report("not-allowed-char-in-name", character=char, block_name="suite", node=node)
+            for iter in self.param("not-allowed-char-in-filename", "pattern").finditer(suite_name):
+                self.report(
+                    "not-allowed-char-in-filename",
+                    character=iter.group(),
+                    block_name="suite",
+                    node=node,
+                    col=node.col_offset + iter.start(0) + 1,
+                )
         super().visit_File(node)
 
+
+class InvalidCharactersInNameChecker(VisitorChecker):
+    """Checker for invalid characters in suite, test case or keyword name."""
+
+    reports = ("not-allowed-char-in-name",)
+
     def check_if_char_in_node_name(self, node, name_of_node, is_keyword=False):
-        variables = find_robot_vars(node.name) if is_keyword else []
-        index = 0
-        while index < len(node.name):
-            # skip variables
-            if variables and variables[0][0] == index:
-                start, stop = variables.pop(0)
-                index += stop - start
-            else:
-                if self.param("not-allowed-char-in-name", "pattern").search(node.name[index]):
-                    self.report(
-                        "not-allowed-char-in-name",
-                        character=node.name[index],
-                        block_name=f"'{node.name}' {name_of_node}",
-                        node=node,
-                        col=node.col_offset + index + 1,
-                    )
-                index += 1
+        node_name = node.name
+        variables = find_robot_vars(node_name) if is_keyword else []
+        start_pos = 0
+        # skip variables
+        for variable in variables:
+            tmp_str = node_name[start_pos:variable[0]]
+            match = self.param("not-allowed-char-in-name", "pattern").search(tmp_str)
+            if match:
+                self.report(
+                    "not-allowed-char-in-name",
+                    character=match.group(),
+                    block_name=f"'{node_name}' {name_of_node}",
+                    node=node,
+                    col=node.col_offset + match.start(0) + 1,
+                )
+            start_pos = variable[1]
+
+        for iter in self.param("not-allowed-char-in-name", "pattern").finditer(node_name, start_pos):
+            self.report(
+                "not-allowed-char-in-name",
+                character=iter.group(),
+                block_name=f"'{node.name}' {name_of_node}",
+                node=node,
+                col=node.col_offset + iter.start(0) + 1,
+            )
 
     def visit_TestCaseName(self, node):  # noqa
         self.check_if_char_in_node_name(node, "test case")
@@ -408,6 +454,7 @@ class KeywordNamingChecker(VisitorChecker):
             return
         self.check_bdd_keywords(keyword_name, node)
         normalized = remove_robot_vars(keyword_name)
+        normalized = self.param("wrong-case-in-keyword-name", "pattern").sub("", normalized)
         normalized = normalized.split(".")[-1]  # remove any imports ie ExternalLib.SubLib.Log -> Log
         normalized = normalized.replace("'", "")  # replace ' apostrophes
         if "_" in normalized:

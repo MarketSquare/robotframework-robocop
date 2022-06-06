@@ -1,0 +1,2 @@
+${rules_dir}${\}test.robot:4:1 [W] 0302 Keyword name 'Not Allowed Dot In Keyword Foo.baz' does not follow case convention
+${rules_dir}${\}test.robot:10:1 [W] 0302 Keyword name 'Not Allowed Dot In Keyword Foo.baz' does not follow case convention

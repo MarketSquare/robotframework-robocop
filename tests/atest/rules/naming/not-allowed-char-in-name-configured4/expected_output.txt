@@ -1,0 +1,3 @@
+${rules_dir}${\}test.robot:2:23 [W] 0301 Not allowed character 'foo.' found in 'Test with not allowed foo.' test case name
+${rules_dir}${\}test.robot:10:26 [W] 0301 Not allowed character 'foo.' found in 'Keyword With not allowed foo.' keyword name
+${rules_dir}${\}test.robot:13:43 [W] 0301 Not allowed character 'foo.' found in 'Keyword With ${em.bedded} and not allowed foo.' keyword name

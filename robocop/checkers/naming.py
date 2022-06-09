@@ -293,10 +293,13 @@ rules = {
 }
 
 
-class InvalidCharactersInFileNameChecker(VisitorChecker):
+class InvalidCharactersInNameChecker(VisitorChecker):
     """Checker for invalid characters in suite, test case or keyword name."""
 
-    reports = ("not-allowed-char-in-filename",)
+    reports = (
+        "not-allowed-char-in-filename",
+        "not-allowed-char-in-name",
+    )
 
     def visit_File(self, node):
         source = node.source if node.source else self.source
@@ -314,20 +317,23 @@ class InvalidCharactersInFileNameChecker(VisitorChecker):
                 )
         super().visit_File(node)
 
-
-class InvalidCharactersInNameChecker(VisitorChecker):
-    """Checker for invalid characters in suite, test case or keyword name."""
-
-    reports = ("not-allowed-char-in-name",)
-
-    def check_if_char_in_node_name(self, node, name_of_node, is_keyword=False):
+    def check_if_pattern_in_node_name(self, node, name_of_node, is_keyword=False):
+        """ Search if regex pattern found from node name.
+        Skips embedded variables from keyword name
+        """
         node_name = node.name
         variables = find_robot_vars(node_name) if is_keyword else []
         start_pos = 0
-        # skip variables
         for variable in variables:
-            tmp_str = node_name[start_pos:variable[0]]
-            match = self.param("not-allowed-char-in-name", "pattern").search(tmp_str)
+            # Loop and skip variables:
+            # Search pattern from start_pos to variable starting position
+            # example `Keyword With ${em.bedded} Two ${second.Argument} Argument``
+            # is splitted to:
+            #   1. `Keyword With `
+            #   2. ` Two `
+            #   3. ` Argument` - last part is searched in finditer part after this loop
+            tmp_node_name = node_name[start_pos:variable[0]]
+            match = self.param("not-allowed-char-in-name", "pattern").search(tmp_node_name)
             if match:
                 self.report(
                     "not-allowed-char-in-name",
@@ -348,10 +354,10 @@ class InvalidCharactersInNameChecker(VisitorChecker):
             )
 
     def visit_TestCaseName(self, node):  # noqa
-        self.check_if_char_in_node_name(node, "test case")
+        self.check_if_pattern_in_node_name(node, "test case")
 
     def visit_KeywordName(self, node):  # noqa
-        self.check_if_char_in_node_name(node, "keyword", is_keyword=True)
+        self.check_if_pattern_in_node_name(node, "keyword", is_keyword=True)
 
 
 def reserved_error_msg(name, reserved_type):

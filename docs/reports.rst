@@ -16,3 +16,5 @@ Reports
 .. autoclass:: robocop.reports.JsonReport
 
 .. autoclass:: robocop.reports.FileStatsReport
+
+.. autoclass:: robocop.reports.RobocopVersionReport

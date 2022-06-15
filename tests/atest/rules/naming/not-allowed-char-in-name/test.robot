@@ -22,6 +22,9 @@ Keyword${?
 Keyword With ${em.bedded} Argument
     No Operation
 
+Keyword With ${em.bedded} Two ${second.Argument} Argument
+    No Operation
+
 Keyword ${?} Should Not Warn
     No Operation
 

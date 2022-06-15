@@ -103,3 +103,6 @@ Recognize Figure(s) (art) From Picture
 
 Recognize Figure(s) (Math) From Picture
     No Operation
+
+Dot in name foo.bar
+    No Operation

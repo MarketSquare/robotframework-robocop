@@ -41,6 +41,7 @@ setup(
     classifiers=CLASSIFIERS,
     keywords=KEYWORDS,
     packages=["robocop"],
+    python_requires=">=3.6",
     include_package_data=True,
     install_requires=[
         "jinja2>=3.0,<4.0",

@@ -94,6 +94,7 @@ def init_empty_checker(robocop_instance_pre_load, rule, exclude=False, **kwargs)
         robocop_instance_pre_load.config.exclude.update(set(rule.keys()))
         robocop_instance_pre_load.config.translate_patterns()
     robocop_instance_pre_load.register_checker(checker)
+    robocop_instance_pre_load.check_for_disabled_rules()
     return checker
 
 

@@ -1,0 +1,10 @@
+# Rule Configuration:
+-c missing-doc-test-case:severity:i
+
+# Severity values for info, warning, error: I, W, E
+# values i, w, e don't work here!
+# To only report rules with severity W and above:
+--threshold W
+#--threshold E
+
+--report rules_by_idf

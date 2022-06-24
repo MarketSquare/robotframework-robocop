@@ -13,6 +13,7 @@ from robocop.exceptions import (
     NestedArgumentFileError,
     InvalidArgumentError,
 )
+from robocop.rules import RuleSeverity
 from robocop.run import Robocop
 
 
@@ -207,3 +208,15 @@ class TestE2E:
         should_run_with_config(robocop_instance, str(test_data_dir / "encodings.robot"))
         out, _ = capsys.readouterr()
         assert "Failed to decode" not in out
+
+    def test_override_severity(self, test_data_dir):
+        config = Config()
+        config.threshold = RuleSeverity("W")
+        config.configure = [
+            "missing-doc-test-case:severity:i"
+        ]
+        test_file = test_data_dir / "override_severity" / "test.robot"
+        config.paths = [str(test_file)]
+        robocop_instance = Robocop(config=config)
+        robocop_instance.run()
+        assert not robocop_instance.reports["json_report"].issues

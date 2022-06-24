@@ -64,9 +64,10 @@ class Robocop:
         """Reload checkers and reports based on current config"""
         self.load_checkers()
         self.config.validate_rule_names(self.rules)
-        self.list_checkers()
         self.load_reports()
         self.configure_checkers_or_reports()
+        self.check_for_disabled_rules()
+        self.list_checkers()
 
     def run(self):
         """Entry point for running scans"""
@@ -222,12 +223,15 @@ class Robocop:
             sys.exit()
 
     def register_checker(self, checker):
-        if not self.any_rule_enabled(checker):
-            checker.disabled = True
         for rule_name, rule in checker.rules.items():
             self.rules[rule_name] = rule
             self.rules[rule.rule_id] = rule
         self.checkers.append(checker)
+
+    def check_for_disabled_rules(self):
+        """Check checker configuration to disable rules."""
+        for checker in self.checkers:
+            checker.enabled = not self.any_rule_enabled(checker)
 
     def make_reports(self):
         for report in self.reports.values():

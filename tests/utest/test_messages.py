@@ -70,7 +70,7 @@ class TestMessage:
         with pytest.raises(robocop.exceptions.RuleParamFailedInitError) as err:
             valid_msg.configure("severity", severity)
         assert (
-            f"Failed to configure param `severity` with value `{severity}`. Received error `Chose one of: I, W, E`"
+            f"Failed to configure param `severity` with value `{severity}`. Received error `Choose one from: I, W, E.`"
             in err.value.args[0]
         )
 

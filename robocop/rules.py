@@ -62,7 +62,7 @@ class RuleSeverity(Enum):
     ERROR = "E"
 
     @classmethod
-    def parser(cls, value: Union[str, "RuleSeverity"]) -> "RuleSeverity":
+    def parser(cls, value: Union[str, "RuleSeverity"], rule_severity=True) -> "RuleSeverity":
         # parser can be invoked from Rule() with severity=RuleSeverity.WARNING (enum directly) or
         # from configuration with severity:W (string representation)
         severity = {
@@ -75,8 +75,13 @@ class RuleSeverity(Enum):
         }.get(str(value).lower(), None)
         if severity is None:
             severity_values = ", ".join(sev.value for sev in cls)
+            hint = f"Choose one from: {severity_values}."
+            if rule_severity:
+                # it will be reraised as RuleParamFailedInitError
+                raise ValueError(hint)
+            # invalid severity threshold
             raise robocop.exceptions.InvalidArgumentError(
-                f"Invalid severity value '{value}'. Chose one of: {severity_values}."
+                f"Invalid severity value '{value}'. {hint}"
             ) from None
         return severity
 

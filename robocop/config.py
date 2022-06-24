@@ -48,7 +48,7 @@ class ParseFileTypes(argparse.Action):  # pylint: disable=too-few-public-methods
 
 class SetRuleThreshold(argparse.Action):
     def __call__(self, parser, namespace, values, option_string=None):
-        setattr(namespace, self.dest, RuleSeverity.parser(values))
+        setattr(namespace, self.dest, RuleSeverity.parser(values, rule_severity=False))
 
 
 class SetListOption(argparse.Action):

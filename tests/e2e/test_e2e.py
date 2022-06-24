@@ -182,16 +182,16 @@ class TestE2E:
     @pytest.mark.parametrize("threshold", ["i", "I", "e", "error", "W", "WARNING"])
     def test_set_rule_threshold(self, threshold, robocop_instance, test_data_dir):
         with mock.patch.object(sys, "argv", f"robocop --threshold {threshold}".split()):
-            config = Config(from_cli=True)
+            Config(from_cli=True)
 
     def test_set_rule_invalid_threshold(self, robocop_instance, test_data_dir):
-        error = "Invalid configuration for Robocop:\nInvalid severity value '3'. Chose one of: I, W, E."
+        error = "Invalid configuration for Robocop:\nInvalid severity value '3'. Choose one from: I, W, E."
         with mock.patch.object(
             sys,
             "argv",
             "robocop --threshold 3".split(),
         ), pytest.raises(InvalidArgumentError, match=error):
-            config = Config(from_cli=True)
+            Config(from_cli=True)
 
     def test_configure_severity(self, robocop_instance, test_data_dir):
         # issue 402

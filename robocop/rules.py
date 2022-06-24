@@ -76,7 +76,7 @@ class RuleSeverity(Enum):
         if severity is None:
             severity_values = ", ".join(sev.value for sev in cls)
             raise robocop.exceptions.InvalidArgumentError(
-                f"Invalid severity value '{value}'. Chose one of: {severity_values}."
+                f"Invalid severity value '{value}'. Choose one from: {severity_values}."
             ) from None
         return severity
 

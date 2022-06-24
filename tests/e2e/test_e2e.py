@@ -1,4 +1,4 @@
-""" General E2E tests to catch any general issue in robocop """
+""" General E2E tests to catch any general issue in Robocop """
 from pathlib import Path
 import sys
 from unittest import mock
@@ -185,7 +185,7 @@ class TestE2E:
             config = Config(from_cli=True)
 
     def test_set_rule_invalid_threshold(self, robocop_instance, test_data_dir):
-        error = "Invalid configuration for Robocop:\nInvalid severity value '3'. Chose one of: I, W, E."
+        error = "Invalid configuration for Robocop:\nInvalid severity value '3'. Choose one from: I, W, E."
         with mock.patch.object(
             sys,
             "argv",

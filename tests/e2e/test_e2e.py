@@ -1,4 +1,4 @@
-""" General E2E tests to catch any general issue in robocop """
+""" General E2E tests to catch any general issue in Robocop """
 from pathlib import Path
 import sys
 from unittest import mock

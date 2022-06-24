@@ -231,7 +231,8 @@ class Robocop:
     def check_for_disabled_rules(self):
         """Check checker configuration to disable rules."""
         for checker in self.checkers:
-            checker.enabled = not self.any_rule_enabled(checker)
+            if not self.any_rule_enabled(checker):
+                checker.disabled = True
 
     def make_reports(self):
         for report in self.reports.values():

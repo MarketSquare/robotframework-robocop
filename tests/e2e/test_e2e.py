@@ -1,10 +1,18 @@
 """ General E2E tests to catch any general issue in robocop """
 from pathlib import Path
+import sys
+from unittest import mock
 
 import pytest
 
 from robocop.config import Config
-from robocop.exceptions import ArgumentFileNotFoundError, ConfigGeneralError, FileError, NestedArgumentFileError
+from robocop.exceptions import (
+    ArgumentFileNotFoundError,
+    ConfigGeneralError,
+    FileError,
+    NestedArgumentFileError,
+    InvalidArgumentError,
+)
 from robocop.run import Robocop
 
 
@@ -171,11 +179,19 @@ class TestE2E:
             config.parse_opts(["-A", nested_args_path, str(test_data_dir)])
         assert "Nested argument file in " in str(err)
 
-    def test_set_rule_threshold(self, robocop_instance, test_data_dir):
-        should_run_with_config(robocop_instance, f"--threshold E {test_data_dir}")
+    @pytest.mark.parametrize("threshold", ["i", "I", "e", "error", "W", "WARNING"])
+    def test_set_rule_threshold(self, threshold, robocop_instance, test_data_dir):
+        with mock.patch.object(sys, "argv", f"robocop --threshold {threshold}".split()):
+            config = Config(from_cli=True)
 
     def test_set_rule_invalid_threshold(self, robocop_instance, test_data_dir):
-        should_run_with_config(robocop_instance, f"--threshold 3 {test_data_dir}")
+        error = "Invalid configuration for Robocop:\nInvalid severity value '3'. Chose one of: I, W, E."
+        with mock.patch.object(
+            sys,
+            "argv",
+            "robocop --threshold 3".split(),
+        ), pytest.raises(InvalidArgumentError, match=error):
+            config = Config(from_cli=True)
 
     def test_configure_severity(self, robocop_instance, test_data_dir):
         # issue 402

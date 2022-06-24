@@ -74,7 +74,10 @@ class RuleSeverity(Enum):
             "i": cls.INFO,
         }.get(str(value).lower(), None)
         if severity is None:
-            raise ValueError(f"Chose one of: {', '.join(sev.value for sev in cls)}") from None
+            severity_values = ", ".join(sev.value for sev in cls)
+            raise robocop.exceptions.InvalidArgumentError(
+                f"Invalid severity value '{value}'. Chose one of: {severity_values}."
+            ) from None
         return severity
 
     def __str__(self):

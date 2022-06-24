@@ -48,7 +48,7 @@ class ParseFileTypes(argparse.Action):  # pylint: disable=too-few-public-methods
 
 class SetRuleThreshold(argparse.Action):
     def __call__(self, parser, namespace, values, option_string=None):
-        setattr(namespace, self.dest, RuleSeverity.parser(values) if values in ("I", "W", "E") else RuleSeverity.INFO)
+        setattr(namespace, self.dest, RuleSeverity.parser(values))
 
 
 class SetListOption(argparse.Action):

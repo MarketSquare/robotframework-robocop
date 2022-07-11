@@ -52,9 +52,10 @@ setup(
         "pytz>=2022.1",
         "python-dateutil>=2.8.1",
     ],
-    extras_requires={
+    extras_require={
         "dev": [
             "black",
+            "coverage",
             "pytest", 
             "pytest-benchmark", 
             "pyyaml", 

@@ -50,9 +50,10 @@ setup(
         "pathspec>=0.9,<0.10", 
         "toml>=0.10.2",
     ],
-    extras_requires={
+    extras_require={
         "dev": [
             "black",
+            "coverage",
             "pytest", 
             "pytest-benchmark", 
             "pyyaml", 

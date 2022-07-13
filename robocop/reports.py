@@ -27,7 +27,7 @@ from robocop.version import __version__
 class Report:
     def configure(self, name, param_and_value):
         raise robocop.exceptions.ConfigGeneralError(
-            f"Provided param '{param_and_value}' for report '{getattr(self, 'name')}' does not exist"
+            f"Provided param '{name}' for report '{getattr(self, 'name')}' does not exist"
         )  # noqa
 
 

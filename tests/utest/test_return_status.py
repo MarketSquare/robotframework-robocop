@@ -51,7 +51,10 @@ class TestReturnStatus:
     )
     def test_quality_gates_configuration(self, param, configuration, quality_gates):
         report = ReturnStatusReport()
-        report.configure(param, configuration)
+        name = "return_status"
+        param_and_value = f'{param}:{configuration}'
+        # report.configure(param, configuration)
+        report.configure(name, param_and_value)
         assert report.quality_gate == quality_gates
 
     @pytest.mark.parametrize(
@@ -72,7 +75,9 @@ class TestReturnStatus:
     )
     def test_return_status_with_quality_gates(self, error_msg, warning_msg, info_msg, quality_gates, return_status):
         report = ReturnStatusReport()
-        report.configure("quality_gates", quality_gates)
+        name = "return_status"
+        param_and_value = f'quality_gates:{quality_gates}'
+        report.configure(name, param_and_value)
         for i in range(10):
             report.add_message(error_msg)
             report.add_message(warning_msg)

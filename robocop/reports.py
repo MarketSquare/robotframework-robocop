@@ -245,14 +245,14 @@ class TimestampReport(Report):
     Report name: ``timestamp``
 
     Report that returns Robocop execution timestamp.
-    Timestamp follows local time in format of 
+    Timestamp follows local time in format of
     `Year-Month-Day Hours(24-hour clock):Minutes:Seconds ±hh:mm UTC offset` as default.
 
     Example::
 
         Reported: 2022-07-10 21:25:00 +0300
 
-    Default values can be configured by 
+    Default values can be configured by
     ``-c/--configure`` and ``timestamp:timezone="<timezone name>":format="<format string>"`` param::
 
         robocop --configure timestamp:timezone="Europe/Paris":format="%Y-%m-%d %H:%M:%S %Z %z"
@@ -300,10 +300,8 @@ class TimestampReport(Report):
                 self.timezone = conf[0]
                 if len(conf) == 2:
                     param, value = conf[1].split("=")
-                value_err = False
             if param.startswith("format"):
                 self.format = value
-                value_err = False
         except ValueError:
             raise robocop.exceptions.ConfigGeneralError(
                 f"""Provided configuration '{param_and_value}' for report '{getattr(self, 'name')}' is not valid.
@@ -320,14 +318,13 @@ class TimestampReport(Report):
         try:
             if self.timezone == 'local':
                 return datetime.now(tz.tzlocal()).strftime(self.format)
-            else:
-                return datetime.now(pytz.timezone(self.timezone)).strftime(self.format)
+            return datetime.now(pytz.timezone(self.timezone)).strftime(self.format)
         except ValueError:
             raise robocop.exceptions.ConfigGeneralError(
                 f"Provided configuration for report '{getattr(self, 'name')}' is not valid. Maybe format is erroneous."
             )  # noqa
         except pytz.exceptions.UnknownTimeZoneError:
             raise robocop.exceptions.ConfigGeneralError(
-                f'''Provided timezone '{self.timezone}' for report '{getattr(self, 'name')}' is not valid.
+                fr'''Provided timezone '{self.timezone}' for report '{getattr(self, 'name')}' is not valid.
        Use timezone names like `Europe\Helsinki`. See: https://en.wikipedia.org/wiki/List_of_tz_database_time_zone'''
             )  # noqa

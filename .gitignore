@@ -86,7 +86,10 @@ ENV/
 env.bak/
 venv.bak/
 
-PyCharm project files
+# PyCharm project files
 .idea/
 
 .benchmarks/
+
+# VS Code files
+.vscode

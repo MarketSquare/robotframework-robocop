@@ -259,7 +259,7 @@ class Robocop:
                         f"Provided invalid config: '{config}' (general pattern: <rule>:<param>:<value>)"
                     )
                 param, value = param_and_value.split(":", maxsplit=1)
-                self.rules[rule_name].configure(param, value)
+                self.rules[rule_or_report].configure(param, value)
             elif rule_or_report in self.reports:
                 self.reports[rule_or_report].configure(rule_or_report, param_and_value)
             else:

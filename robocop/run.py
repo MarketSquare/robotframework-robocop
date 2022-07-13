@@ -248,16 +248,20 @@ class Robocop:
 
     def configure_checkers_or_reports(self):
         for config in self.config.configure:
-            if config.count(":") < 2:
+            if config.count(":") < 1:
                 raise robocop.exceptions.ConfigGeneralError(
-                    f"Provided invalid config: '{config}' (general pattern: <rule>:<param>:<value>)"
+                    f"Provided invalid config: '{config}' (general pattern: <rule or report>:<param>:<value>)"
                 )
-            rule_or_report, param, value = config.split(":", maxsplit=2)
+            rule_or_report, param_and_value = config.split(":", maxsplit=1)
             if rule_or_report in self.rules:
-                rule = self.rules[rule_or_report]
-                rule.configure(param, value)
+                if param_and_value.count(":") < 1:
+                    raise robocop.exceptions.ConfigGeneralError(
+                        f"Provided invalid config: '{config}' (general pattern: <rule>:<param>:<value>)"
+                    )
+                param, value = param_and_value.split(":", maxsplit=1)
+                self.rules[rule_name].configure(param, value)
             elif rule_or_report in self.reports:
-                self.reports[rule_or_report].configure(param, value)
+                self.reports[rule_or_report].configure(rule_or_report, param_and_value)
             else:
                 similar = RecommendationFinder().find_similar(rule_or_report, self.rules)
                 raise robocop.exceptions.ConfigGeneralError(

@@ -25,9 +25,9 @@ from robocop.version import __version__
 
 
 class Report:
-    def configure(self, name, value):
+    def configure(self, name, param_and_value):
         raise robocop.exceptions.ConfigGeneralError(
-            f"Provided param '{name}' for report '{getattr(self, 'name')}' does not exist"
+            f"Provided param '{param_and_value}' for report '{getattr(self, 'name')}' does not exist"
         )  # noqa
 
 
@@ -114,14 +114,20 @@ class ReturnStatusReport(Report):
         self.counter = RulesBySeverityReport()
         self.quality_gate = {"E": 0, "W": 0, "I": -1}
 
-    def configure(self, name, value):
-        if name not in ["quality_gate", "quality_gates"]:
-            super().configure(name, value)
+    def configure(self, name, param_and_value):
+        if param_and_value.count(":") < 1:
+            raise robocop.exceptions.ConfigGeneralError(
+                f"Provided invalid config: '{name}:{param_and_value}' (general pattern: <report>:<param>:<value>)"
+            )
+        param, value = param_and_value.split(":", maxsplit=1)
+
+        if param not in ["quality_gate", "quality_gates"]:
+            super().configure(param, value)
         for val in value.split(":"):
             try:
-                name, count = val.split("=", maxsplit=1)
-                if name.upper() in self.quality_gate:
-                    self.quality_gate[name.upper()] = int(count)
+                param, count = val.split("=", maxsplit=1)
+                if param.upper() in self.quality_gate:
+                    self.quality_gate[param.upper()] = int(count)
             except ValueError:
                 continue
 
@@ -247,9 +253,9 @@ class TimestampReport(Report):
         Reported: 2022-07-10 21:25:00 +0300
 
     Default values can be configured by 
-    ``-c/--configure`` and ``timestamp:conf:timezone="<timezone name>":format="<format string>"`` param::
+    ``-c/--configure`` and ``timestamp:timezone="<timezone name>":format="<format string>"`` param::
 
-        robocop --configure timestamp:conf:timezone="Europe/Paris":format="%Y-%m-%d %H:%M:%S %Z %z"
+        robocop --configure timestamp:timezone="Europe/Paris":format="%Y-%m-%d %H:%M:%S %Z %z"
 
     This yields following timestamp report::
          Reported: 2022-07-10 20:38:10 CEST +0200
@@ -262,19 +268,19 @@ class TimestampReport(Report):
 
     Useful configurations::
         Local time to ISO 8601 format:
-        robocop --configure timestamp:conf:format="%Y-%m-%dT%H:%M:%S%z"
+        robocop --configure timestamp:format="%Y-%m-%dT%H:%M:%S%z"
 
         UTC time:
-        robocop --configure timestamp:conf:timezone="UTC":format="%Y-%m-%dT%H:%M:%S %Z %z"
+        robocop --configure timestamp:timezone="UTC":format="%Y-%m-%dT%H:%M:%S %Z %z"
 
         Timestamp with high precision:
-        robocop --configure timestamp:conf:format="%Y-%m-%dT%H:%M:%S.%f %z"
+        robocop --configure timestamp:format="%Y-%m-%dT%H:%M:%S.%f %z"
 
         12-hour clock:
-        robocop --configure timestamp:conf:format="%Y-%m-%d %I:%M:%S %p %Z %z"
+        robocop --configure timestamp:format="%Y-%m-%d %I:%M:%S %p %Z %z"
 
         More human readable format ``On 10 July 2022 07:26:24 +0300``:
-        robocop --configure timestamp:conf:format="On %d %B %Y %H:%M:%S %z"
+        robocop --configure timestamp:format="On %d %B %Y %H:%M:%S %z"
     """
 
     def __init__(self):
@@ -283,31 +289,32 @@ class TimestampReport(Report):
         self.timezone = "local"
         self.format = "%Y-%m-%d %H:%M:%S %z"
 
-    def configure(self, name, value):
-        if name != "conf":
-            super().configure(name, value)
-        value_err = True
-        if value.startswith("timezone="):
-            conf = value.removeprefix("timezone=").split(":", maxsplit=1)
-            self.timezone = conf[0]
-            value = conf[1] if len(conf) == 2 else ''
-            value_err = False
-        if value.startswith("format="):
-            self.format = value.removeprefix("format=")
-            value_err = False
-        elif len(value):
-            value_err = True
+    def configure(self, name, param_and_value):
+        if not param_and_value.lower().startswith("timezone") and not param_and_value.lower().startswith("format"):
+            super().configure(name, param_and_value)
 
-        if value_err:
+        try:
+            param, value = param_and_value.split("=", maxsplit=1)
+            if param.startswith("timezone"):
+                conf = value.split(":", maxsplit=1)
+                self.timezone = conf[0]
+                if len(conf) == 2:
+                    param, value = conf[1].split("=")
+                value_err = False
+            if param.startswith("format"):
+                self.format = value
+                value_err = False
+        except ValueError:
             raise robocop.exceptions.ConfigGeneralError(
-                f"Provided configuration '{value}' for report '{getattr(self, 'name')}' is not valid."
+                f"""Provided configuration '{param_and_value}' for report '{getattr(self, 'name')}' is not valid.
+        General pattern: timestamp:timezone="<timezone name>":format="<format string>"""
             )  # noqa
 
     def add_message(self, *args):
         pass
 
     def get_report(self) -> str:
-        return f'Report executed: {self._get_timestamp()}'
+        return f'Reported: {self._get_timestamp()}'
 
     def _get_timestamp(self) -> str:
         try:

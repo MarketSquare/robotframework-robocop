@@ -61,3 +61,10 @@ RF 5 syntax
         CONTINUE  #invalid comment
         BREAK  #invalid comment
     END
+
+Double comments
+    # valid  still valid  with 2 spaces
+    # valid  ## valid
+    ########### block comments #########
+    Keyword  # valid  still valid  with 2 spaces
+    Keyword  # valid  ## valid

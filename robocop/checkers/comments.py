@@ -3,6 +3,7 @@ Comments checkers
 """
 from codecs import BOM_UTF8, BOM_UTF16_BE, BOM_UTF16_LE, BOM_UTF32_BE, BOM_UTF32_LE
 
+from robot.api import Token
 from robot.utils import FileReader
 
 from robocop.checkers import RawFileChecker, VisitorChecker
@@ -118,9 +119,27 @@ class CommentChecker(VisitorChecker):
         self.find_comments(node)
 
     def find_comments(self, node):
-        for token in node.tokens:
-            if token.type == "COMMENT":
-                self.check_comment_content(token)
+        """
+        Find comments in node and check them for validity.
+        Line can have only one comment, but the comment can contain separators.
+        If the comment have separator it will be recognized as COMMENT, SEPARATOR, COMMENT in AST.
+        We need to merge such comments into one for validity checks.
+        """
+        for line in node.lines:
+            first_comment = None
+            merged_comment = ""
+            prev_sep = ""
+            for token in line:
+                if token.type == Token.SEPARATOR:
+                    prev_sep = token.value
+                elif token.type == Token.COMMENT:
+                    if first_comment:
+                        merged_comment += prev_sep + token.value
+                    else:
+                        merged_comment = token.value
+                        first_comment = token
+            if first_comment:
+                self.check_comment_content(first_comment, merged_comment)
 
     def check_invalid_comments(self, name, node):
         if ROBOT_VERSION.major != 3:
@@ -129,28 +148,33 @@ class CommentChecker(VisitorChecker):
             hash_pos = name.find("#")
             self.report("invalid-comment", node=node, col=node.col_offset + hash_pos + 1)
 
-    def check_comment_content(self, token):
-        if "todo" in token.value.lower():
+    def check_comment_content(self, token, content):
+        content = content.lower()
+        if "todo" in content:
             self.report(
                 "todo-in-comment",
                 todo_or_fixme="TODO",
                 lineno=token.lineno,
-                col=token.col_offset + 1 + token.value.lower().find("todo"),
+                col=token.col_offset + 1 + content.find("todo"),
             )
-        if "fixme" in token.value.lower():
+        if "fixme" in content:
             self.report(
                 "todo-in-comment",
                 todo_or_fixme="FIXME",
                 lineno=token.lineno,
-                col=token.col_offset + 1 + token.value.lower().find("fixme"),
+                col=token.col_offset + 1 + content.find("fixme"),
             )
-        if token.value.startswith("#") and token.value != "#":
-            if not token.value.startswith("# "):
+        if content.startswith("#") and not self.is_block_comment(content):
+            if not content.startswith("# "):
                 self.report(
                     "missing-space-after-comment",
                     lineno=token.lineno,
                     col=token.col_offset + 1,
                 )
+
+    @staticmethod
+    def is_block_comment(comment):
+        return comment == "#" or comment[:3] == "###"
 
 
 class IgnoredDataChecker(RawFileChecker):

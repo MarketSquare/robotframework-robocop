@@ -49,6 +49,8 @@ setup(
         "packaging>=21,<22", 
         "pathspec>=0.9,<0.10", 
         "toml>=0.10.2",
+        "pytz>=2022.1",
+        "python-dateutil>=2.8.1",
     ],
     extras_require={
         "dev": [

@@ -18,3 +18,5 @@ Reports
 .. autoclass:: robocop.reports.FileStatsReport
 
 .. autoclass:: robocop.reports.RobocopVersionReport
+
+.. autoclass:: robocop.reports.TimestampReport

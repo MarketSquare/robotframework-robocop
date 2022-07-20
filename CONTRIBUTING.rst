@@ -158,7 +158,7 @@ tested on continuous integration.
 
 Most of our tests use pytest. To use it install Robocop with ``dev`` profile::
 
-    pip install robocop[dev]
+    pip install robotframework-robocop[dev]
 
 To run pytest tests navigate to directory with test files and run::
 

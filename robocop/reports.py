@@ -12,7 +12,9 @@ You can use separate arguments (``-r report1 -r report2``) or comma-separated li
 To enable all reports use ``--report all``.
 """
 from collections import defaultdict
+import json
 from operator import itemgetter
+from pathlib import Path
 from timeit import default_timer as timer
 from warnings import warn
 
@@ -308,3 +310,105 @@ class TimestampReport(Report):
                 "Use timezone names like `Europe\Helsinki`."
                 "See: https://en.wikipedia.org/wiki/List_of_tz_database_time_zone"
             ) from err  # noqa
+
+
+class SarifReport(Report):
+    SCHEMA_VERSION = "2.1.0"
+    SCHEMA = f"https://json.schemastore.org/sarif-{SCHEMA_VERSION}.json"
+
+    def __init__(self):
+        self.name = "sarif"
+        self.description = "Generate SARIF json report"
+        self.report_filename = ".sarif.json"
+        self.issues = []
+
+    def get_rule_desc(self, rule):
+        return {
+            "id": rule.rule_id,
+            "name": rule.name,
+            "helpUri": f"https://robocop.readthedocs.io/en/stable/rules.html#{rule.name}",
+            "shortDescription": {
+                "text": rule.msg
+            },
+            "fullDescription": {
+                "text": rule.docs
+            },
+            "defaultConfiguration": {
+                "level": "warning"  # TODO
+            },
+            "help": {
+                "text": rule.docs,
+                "markdown": rule.docs  # TODO it is rst, not markdown
+            }
+        }
+
+    def add_message(self, message: Message):
+        self.issues.append(message)
+
+    def generate_sarif_issues(self, config):
+        sarif_issues = []
+        for issue in self.issues:
+            relative_uri = Path(issue.source).relative_to(config.root)
+            # TODO You can use relative locations in message ('here[2]')
+            sarif_issue = {
+                "ruleId": issue.rule_id,
+                # level: error (if overriden config)
+                "message": {
+                    "text": issue.desc
+                },
+                "locations": [
+                {
+                "physicalLocation": {
+                    "artifactLocation": {
+                      "uri": relative_uri.as_posix(),
+                        "uriBaseId": "%SRCROOT%"
+                    },
+                    "region": {
+                      "startLine": issue.line,
+                        "endLine": issue.end_line,
+                      "startColumn": issue.col,
+                      "endColumn": issue.end_col
+                    }
+                }
+                }
+                ],
+            }
+            sarif_issues.append(sarif_issue)
+        return sarif_issues
+
+    def generate_rules_config(self, rules):
+        unique_enabled_rules = {rule.rule_id: rule for rule in rules.values() if rule.enabled}
+        sorted_rules = sorted(unique_enabled_rules.values(), key=lambda x: x.rule_id)
+        rules_config = [self.get_rule_desc(rule) for rule in sorted_rules]
+        return rules_config
+
+    def generate_sarif_report(self, config, rules):
+        report = {
+            "$schema": self.SCHEMA,
+            "version": self.SCHEMA_VERSION,
+            "runs": [
+                {
+                    "tool": {
+                        "driver": {
+                            "name": "Robocop",
+                            "semanticVersion": __version__,
+                            "informationUri": "https://robocop.readthedocs.io/",
+                            "rules": self.generate_rules_config(rules)
+                        }
+                    },
+                    "automationDetails": {
+                        "id": "robocop/"
+                    },
+                    "results": self.generate_sarif_issues(config)
+                }
+            ]
+        }
+        return report
+
+    def get_report(self, config, rules) -> str:
+        report = self.generate_sarif_report(config, rules)
+        output_path = Path(self.report_filename)
+        with open(output_path, "w") as fp:
+            json_string = json.dumps(report, indent=4)
+            fp.write(json_string)
+        return f"Generated sarif report in {output_path}"

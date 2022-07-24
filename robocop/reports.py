@@ -34,6 +34,7 @@ class Report:
     def add_message(self, *args):
         pass
 
+
 class RulesByIdReport(Report):
     """
     Report name: ``rules_by_id``
@@ -295,7 +296,7 @@ class TimestampReport(Report):
             super().configure(name, value)
 
     def get_report(self) -> str:
-        return f'Reported: {self._get_timestamp()}'
+        return f"Reported: {self._get_timestamp()}"
 
     def _get_timestamp(self) -> str:
         try:
@@ -303,7 +304,7 @@ class TimestampReport(Report):
             return datetime.now(timezone).strftime(self.format)
         except pytz.exceptions.UnknownTimeZoneError as err:
             raise robocop.exceptions.ConfigGeneralError(
-fr'''Provided timezone '{self.timezone}' for report '{getattr(self, 'name')}' is not valid.
-       Use timezone names like `Europe\Helsinki`.
-       See: https://en.wikipedia.org/wiki/List_of_tz_database_time_zone'''
+                f"Provided timezone '{self.timezone}' for report '{getattr(self, 'name')}' is not valid. "
+                "Use timezone names like `Europe\Helsinki`."
+                "See: https://en.wikipedia.org/wiki/List_of_tz_database_time_zone"
             ) from err  # noqa

@@ -313,12 +313,20 @@ class TimestampReport(Report):
 
 
 class SarifReport(Report):
+    """
+    Report name: ``sarif``
+
+    Report that generates SARIF output file.
+    All fields required by Github Code Scanning are supported. The output file will be generated
+    in the current working directory with the ``.sarif.json`` name.
+    """
+
     SCHEMA_VERSION = "2.1.0"
     SCHEMA = f"https://json.schemastore.org/sarif-{SCHEMA_VERSION}.json"
 
     def __init__(self):
         self.name = "sarif"
-        self.description = "Generate SARIF json report"
+        self.description = "Generate SARIF output file"
         self.report_filename = ".sarif.json"
         self.issues = []
 

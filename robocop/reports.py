@@ -12,6 +12,8 @@ You can use separate arguments (``-r report1 -r report2``) or comma-separated li
 To enable all reports use ``--report all``.
 """
 import json
+import inspect
+import sys
 from collections import defaultdict
 from datetime import datetime
 from operator import itemgetter
@@ -35,6 +37,35 @@ class Report:
 
     def add_message(self, *args):
         pass
+
+
+def get_reports(configured_reports):
+    """
+    Returns dictionary with list of valid, enabled reports (listed in `configured_reports` set of str).
+    If `configured_reports` contains `all` then all reports are enabled.
+    Report is considered valid if it inherits from `Report` class
+    and contains both `name` and `description` attributes.
+    """
+    reports = {}
+    classes = inspect.getmembers(sys.modules[__name__], inspect.isclass)
+    for report_class in classes:
+        if not issubclass(report_class[1], Report):
+            continue
+        report = report_class[1]()
+        if not hasattr(report, "name") or not hasattr(report, "description"):
+            continue
+        if "all" in configured_reports or report.name in configured_reports:
+            reports[report.name] = report
+    return reports
+
+
+def list_reports(reports):
+    """Returns description of enabled reports."""
+    sorted_by_name = sorted(reports.values(), key=lambda x: x.name)
+    available_reports = "Available reports:\n"
+    available_reports += "\n".join(f"{report.name:20} - {report.description}" for report in sorted_by_name) + "\n"
+    available_reports += "all" + " " * 18 + "- Turns on all available reports"
+    return available_reports
 
 
 class RulesByIdReport(Report):

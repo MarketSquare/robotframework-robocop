@@ -319,6 +319,11 @@ class SarifReport(Report):
     Report that generates SARIF output file.
     All fields required by Github Code Scanning are supported. The output file will be generated
     in the current working directory with the ``.sarif.json`` name.
+
+    You can configure output directory and report filename::
+
+        robocop --configure sarif:output_dir=C:/sarif_reports --configure sarif:report_filename=.sarif
+
     """
 
     SCHEMA_VERSION = "2.1.0"
@@ -327,8 +332,18 @@ class SarifReport(Report):
     def __init__(self):
         self.name = "sarif"
         self.description = "Generate SARIF output file"
+        self.output_dir = None
         self.report_filename = ".sarif.json"
         self.issues = []
+
+    def configure(self, name, value):
+        if name == "output_dir":
+            self.output_dir = Path(value)
+            self.output_dir.mkdir(parents=True, exist_ok=True)
+        elif name == "report_filename":
+            self.report_filename = value
+        else:
+            super().configure(name, value)
 
     @staticmethod
     def map_severity_to_level(severity):
@@ -402,7 +417,10 @@ class SarifReport(Report):
 
     def get_report(self, config, rules) -> str:
         report = self.generate_sarif_report(config, rules)
-        output_path = Path(self.report_filename)
+        if self.output_dir is not None:
+            output_path = self.output_dir / self.report_filename
+        else:
+            output_path = Path(self.report_filename)
         with open(output_path, "w") as fp:
             json_string = json.dumps(report, indent=4)
             fp.write(json_string)

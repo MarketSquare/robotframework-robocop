@@ -11,16 +11,16 @@ You can use separate arguments (``-r report1 -r report2``) or comma-separated li
 
 To enable all reports use ``--report all``.
 """
-from collections import defaultdict
 import json
+from collections import defaultdict
+from datetime import datetime
 from operator import itemgetter
 from pathlib import Path
 from timeit import default_timer as timer
 from warnings import warn
 
-from datetime import datetime
-from dateutil import tz
 import pytz
+from dateutil import tz
 
 import robocop.exceptions
 from robocop.rules import Message
@@ -322,24 +322,19 @@ class SarifReport(Report):
         self.report_filename = ".sarif.json"
         self.issues = []
 
+    @staticmethod
+    def map_severity_to_level(severity):
+        return {"WARNING": "warning", "ERROR": "error", "info": "note"}[severity.name]
+
     def get_rule_desc(self, rule):
         return {
             "id": rule.rule_id,
             "name": rule.name,
             "helpUri": f"https://robocop.readthedocs.io/en/stable/rules.html#{rule.name}",
-            "shortDescription": {
-                "text": rule.msg
-            },
-            "fullDescription": {
-                "text": rule.docs
-            },
-            "defaultConfiguration": {
-                "level": "warning"  # TODO
-            },
-            "help": {
-                "text": rule.docs,
-                "markdown": rule.docs  # TODO it is rst, not markdown
-            }
+            "shortDescription": {"text": rule.msg},
+            "fullDescription": {"text": rule.docs},
+            "defaultConfiguration": {"level": self.map_severity_to_level(rule.default_severity)},
+            "help": {"text": rule.docs, "markdown": rule.docs},
         }
 
     def add_message(self, message: Message):
@@ -349,28 +344,22 @@ class SarifReport(Report):
         sarif_issues = []
         for issue in self.issues:
             relative_uri = Path(issue.source).relative_to(config.root)
-            # TODO You can use relative locations in message ('here[2]')
             sarif_issue = {
                 "ruleId": issue.rule_id,
-                # level: error (if overriden config)
-                "message": {
-                    "text": issue.desc
-                },
+                "level": self.map_severity_to_level(issue.severity),
+                "message": {"text": issue.desc},
                 "locations": [
-                {
-                "physicalLocation": {
-                    "artifactLocation": {
-                      "uri": relative_uri.as_posix(),
-                        "uriBaseId": "%SRCROOT%"
-                    },
-                    "region": {
-                      "startLine": issue.line,
-                        "endLine": issue.end_line,
-                      "startColumn": issue.col,
-                      "endColumn": issue.end_col
+                    {
+                        "physicalLocation": {
+                            "artifactLocation": {"uri": relative_uri.as_posix(), "uriBaseId": "%SRCROOT%"},
+                            "region": {
+                                "startLine": issue.line,
+                                "endLine": issue.end_line,
+                                "startColumn": issue.col,
+                                "endColumn": issue.end_col,
+                            },
+                        }
                     }
-                }
-                }
                 ],
             }
             sarif_issues.append(sarif_issue)
@@ -393,15 +382,13 @@ class SarifReport(Report):
                             "name": "Robocop",
                             "semanticVersion": __version__,
                             "informationUri": "https://robocop.readthedocs.io/",
-                            "rules": self.generate_rules_config(rules)
+                            "rules": self.generate_rules_config(rules),
                         }
                     },
-                    "automationDetails": {
-                        "id": "robocop/"
-                    },
-                    "results": self.generate_sarif_issues(config)
+                    "automationDetails": {"id": "robocop/"},
+                    "results": self.generate_sarif_issues(config),
                 }
-            ]
+            ],
         }
         return report
 

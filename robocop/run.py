@@ -44,7 +44,6 @@ class Robocop:
         self.checkers = []
         self.rules = {}
         self.reports = {}
-        self.disabler = None
         self.root = os.getcwd()
         self.config = Config(from_cli=from_cli) if config is None else config
         self.from_cli = from_cli
@@ -125,10 +124,10 @@ class Robocop:
             self.reports["file_stats"].files_count = len(self.files)
 
     def run_check(self, ast_model, filename, source=None):
-        found_issues = []
-        self.register_disablers(filename, source)
-        if self.disabler.file_disabled:
+        disablers = DisablersFinder(filename=filename, source=source)
+        if disablers.file_disabled:
             return []
+        found_issues = []
         templated = is_suite_templated(ast_model)
         for checker in self.checkers:
             if checker.disabled:
@@ -136,13 +135,9 @@ class Robocop:
             found_issues += [
                 issue
                 for issue in checker.scan_file(ast_model, filename, source, templated)
-                if not self.disabler.is_rule_disabled(issue)
+                if not disablers.is_rule_disabled(issue)
             ]
         return found_issues
-
-    def register_disablers(self, filename, source):
-        """Parse content of file to find any disabler statements like # robocop: disable=rulename"""
-        self.disabler = DisablersFinder(filename=filename, source=source)
 
     def report(self, rule_msg: Message):
         for report in self.reports.values():
@@ -205,20 +200,9 @@ class Robocop:
         sys.exit()
 
     def load_reports(self):
-        self.reports = {}
-        classes = inspect.getmembers(reports, inspect.isclass)
-        available_reports = "Available reports:\n"
-        for report_class in classes:
-            if not issubclass(report_class[1], reports.Report):
-                continue
-            report = report_class[1]()
-            if not hasattr(report, "name"):
-                continue
-            if "all" in self.config.reports or report.name in self.config.reports:
-                self.reports[report.name] = report
-            available_reports += f"{report.name:20} - {report.description}\n"
+        self.reports = reports.get_reports(self.config.reports)
         if self.config.list_reports:
-            available_reports += "all" + " " * 18 + "- Turns on all available reports"
+            available_reports = reports.list_reports(self.reports)
             print(available_reports)
             sys.exit()
 

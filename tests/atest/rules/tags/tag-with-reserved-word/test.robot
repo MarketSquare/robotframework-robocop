@@ -1,5 +1,6 @@
 *** Settings ***
 Documentation  doc
+Default Tags    roBot:TEST
 
 
 *** Test Cases ***

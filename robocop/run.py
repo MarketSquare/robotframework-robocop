@@ -220,7 +220,10 @@ class Robocop:
 
     def make_reports(self):
         for report in self.reports.values():
-            output = report.get_report()
+            if report.name == "sarif":
+                output = report.get_report(self.config, self.rules)
+            else:
+                output = report.get_report()
             if output is not None:
                 self.write_line(output)
 

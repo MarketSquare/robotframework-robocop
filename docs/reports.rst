@@ -20,3 +20,5 @@ Reports
 .. autoclass:: robocop.reports.RobocopVersionReport
 
 .. autoclass:: robocop.reports.TimestampReport
+
+.. autoclass:: robocop.reports.SarifReport

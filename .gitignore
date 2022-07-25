@@ -93,3 +93,6 @@ venv.bak/
 
 # VS Code files
 .vscode/*
+
+# Sarif report file
+.sarif.json

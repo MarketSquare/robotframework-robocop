@@ -80,9 +80,7 @@ class RuleSeverity(Enum):
                 # it will be reraised as RuleParamFailedInitError
                 raise ValueError(hint)
             # invalid severity threshold
-            raise robocop.exceptions.InvalidArgumentError(
-                f"Invalid severity value '{value}'. {hint}"
-            ) from None
+            raise robocop.exceptions.InvalidArgumentError(f"Invalid severity value '{value}'. {hint}") from None
         return severity
 
     def __str__(self):
@@ -170,6 +168,7 @@ class Rule:
         self.name = name
         self.msg = msg
         self.msg_template = self.get_template(msg)
+        self.default_severity = severity
         self.docs = dedent(docs)
         self.config = {
             "severity": RuleParam(

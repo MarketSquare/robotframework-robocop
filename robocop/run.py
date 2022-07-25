@@ -205,20 +205,9 @@ class Robocop:
         sys.exit()
 
     def load_reports(self):
-        self.reports = {}
-        classes = inspect.getmembers(reports, inspect.isclass)
-        available_reports = "Available reports:\n"
-        for report_class in classes:
-            if not issubclass(report_class[1], reports.Report):
-                continue
-            report = report_class[1]()
-            if not hasattr(report, "name"):
-                continue
-            if "all" in self.config.reports or report.name in self.config.reports:
-                self.reports[report.name] = report
-            available_reports += f"{report.name:20} - {report.description}\n"
+        self.reports = reports.get_reports(self.config.reports)
         if self.config.list_reports:
-            available_reports += "all" + " " * 18 + "- Turns on all available reports"
+            available_reports = reports.list_reports(self.reports)
             print(available_reports)
             sys.exit()
 

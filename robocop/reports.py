@@ -347,7 +347,7 @@ class SarifReport(Report):
 
     @staticmethod
     def map_severity_to_level(severity):
-        return {"WARNING": "warning", "ERROR": "error", "info": "note"}[severity.name]
+        return {"WARNING": "warning", "ERROR": "error", "INFO": "note"}[severity.name]
 
     def get_rule_desc(self, rule):
         return {

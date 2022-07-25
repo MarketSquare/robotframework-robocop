@@ -26,7 +26,7 @@ class DisablersInFile:  # pylint: disable=too-few-public-methods
 class DisablersFinder:
     """Parse all scanned file and find and disablers (in line or blocks)"""
 
-    def __init__(self, filename, source=None):
+    def __init__(self, filename, source):
         self.file_disabled = False
         self.any_disabler = False
         self.disabler_pattern = re.compile(r"robocop: ?(?P<disabler>disable|enable)=?(?P<rules>[\w\-,]*)")

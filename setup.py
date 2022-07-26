@@ -29,7 +29,6 @@ PROJECT_URLS = {
     "Documentation": "https://robocop.readthedocs.io/en/stable",
     "Issue tracker": "https://github.com/MarketSquare/robotframework-robocop/issues",
     "Source code": "https://github.com/MarketSquare/robotframework-robocop",
-
 }
 
 
@@ -53,10 +52,10 @@ setup(
     include_package_data=True,
     install_requires=[
         "jinja2>=3.0,<4.0",
-        "robotframework>=3.2.2", 
-        "packaging>=21,<22", 
-        "pathspec>=0.9,<0.10", 
-        "toml>=0.10.2",
+        "robotframework>=3.2.2",
+        "packaging>=21,<22",
+        "pathspec>=0.9,<0.10",
+        "tomli>=2.0.0",
         "pytz>=2022.1",
         "python-dateutil>=2.8.1",
     ],
@@ -64,14 +63,14 @@ setup(
         "dev": [
             "black",
             "coverage",
-            "pytest", 
-            "pytest-benchmark", 
-            "pyyaml", 
-            "tox", 
+            "pytest",
+            "pytest-benchmark",
+            "pyyaml",
+            "tox",
         ],
         "doc": [
             "furo",
-            "sphinx", 
+            "sphinx",
             "sphinx_design",
         ],
     },

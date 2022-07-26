@@ -18,6 +18,8 @@ Including or excluding rules
 Rules can be included or excluded from command line. It is also possible to disable rule(s) from Robot Framework
 source code. More in :ref:`including-rules`.
 
+.. _configuration file:
+
 Loading configuration from file
 -------------------------------
 You can load arguments for Robocop from file with::

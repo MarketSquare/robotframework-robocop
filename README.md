@@ -279,19 +279,8 @@ FAQ <a name="faq"></a>
 <details>
   <summary>Can I use Robocop in continuous integration (CI) tools?</summary>
 
-  **Yes**, it is easy to integrate Robocop with other tools.
-  It is possible to redirect the output to a file by using `-o / --output` command line option
-  which can later be easily parsed because the format is very similar to other linter tools like
-  [pylint](https://github.com/PyCQA/pylint).
-
-  For example in Jenkins you can use
-  [Warnings Next Generation plugin](https://plugins.jenkins.io/warnings-ng/)
-  to integrate Robocop results in your pipeline. More details can be found
-  [here](https://github.com/jenkinsci/warnings-ng-plugin/blob/master/doc/Documentation.md#creating-support-for-a-custom-tool).
-
-  One of the important topics related to CI is return code which can also be configured in Robocop.
-  More on that can be found in the next question or in
-  [our documentation](https://robocop.readthedocs.io/en/stable/user_guide.html#return-status).
+  **Yes**, it is easy to integrate Robocop with CI and other tools.
+  For more details read [our documentation](https://robocop.readthedocs.io/en/stable/ci.html).
 
 </details>
 

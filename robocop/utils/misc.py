@@ -124,6 +124,8 @@ def issues_to_lsp_diagnostic(issues) -> List[Dict]:
 
 
 def str2bool(v):
+    if isinstance(v, bool):
+        return v
     return v.lower() in ("yes", "true", "1")
 
 

@@ -15,6 +15,7 @@ Robocop documentation
    including_rules
    reports
    external_rules
+   ci
    api
 
 Indices and tables

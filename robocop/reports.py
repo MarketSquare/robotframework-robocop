@@ -33,7 +33,7 @@ class Report:
     """
     Base class for report class.
     Override `configure` method if you want to allow report configuration.
-    Override `add_message`` if your report process the Robocop issues.
+    Override `add_message`` if your report processes the Robocop issues.
 
     Set class attribute `DEFAULT` to `False` if you don't want your report to be included in `all` reports.
     """

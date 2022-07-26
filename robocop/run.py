@@ -1,7 +1,6 @@
 """
 Main class of Robocop module. Gathers files to be scanned, checkers, parses CLI arguments and scans files.
 """
-import inspect
 import os
 import sys
 from collections import Counter
@@ -48,7 +47,7 @@ class Robocop:
         self.config = Config(from_cli=from_cli) if config is None else config
         self.from_cli = from_cli
         if not from_cli:
-            self.config.reports.add("json_report")
+            self.config.reports.append("json_report")
         self.out = self.set_output()
 
     def set_output(self):

@@ -1,20 +1,26 @@
 """
 Reports are configurable summaries after Robocop scan. For example, it can be a total number of issues discovered.
-They are dynamically loaded during setup according to a command line configuration.
+They are dynamically loaded during setup according to a configuration.
 
 Each report class collects rules messages from linter and parses it. At the end of the scan it will print the report.
 
-To enable report use ``-r`` / ``--report`` argument and the name of the report.
+To enable report use ``-r`` / ``--reports`` argument and the name of the report.
 You can use separate arguments (``-r report1 -r report2``) or comma-separated list (``-r report1,report2``). Example::
 
-    robocop --report rules_by_id,some_other_report path/to/file.robot
+    robocop --reports rules_by_id,some_other_report path/to/file.robot
 
-To enable all default reports use ``--report all``.
+To enable all default reports use ``--reports all``.
+
+The order of the reports is preserved. For example, if you want ``timestamp`` report to be printed before any
+other reports, you can use following configuration::
+
+    robocop --reports timestamp,all src.robot
+
 """
 import inspect
 import json
 import sys
-from collections import defaultdict
+from collections import OrderedDict, defaultdict
 from datetime import datetime
 from operator import itemgetter
 from pathlib import Path
@@ -26,6 +32,7 @@ from dateutil import tz
 
 import robocop.exceptions
 from robocop.rules import Message
+from robocop.utils import RecommendationFinder
 from robocop.version import __version__
 
 
@@ -49,17 +56,12 @@ class Report:
         pass
 
 
-def get_reports(configured_reports):
+def load_reports():
     """
-    Returns dictionary with list of valid, enabled reports (listed in `configured_reports` set of str).
-    If `configured_reports` contains `all` then all default reports are enabled.
+    Load all valid reports.
     Report is considered valid if it inherits from `Report` class
     and contains both `name` and `description` attributes.
     """
-
-    def enable_all_reports(configured_reports, report):
-        return "all" in configured_reports and getattr(report, "DEFAULT", False)
-
     reports = {}
     classes = inspect.getmembers(sys.modules[__name__], inspect.isclass)
     for report_class in classes:
@@ -68,9 +70,31 @@ def get_reports(configured_reports):
         report = report_class[1]()
         if not hasattr(report, "name") or not hasattr(report, "description"):
             continue
-        if enable_all_reports(configured_reports, report) or report.name in configured_reports:
-            reports[report.name] = report
+        reports[report.name] = report
     return reports
+
+
+def is_report_default(report):
+    return getattr(report, "DEFAULT", False)
+
+
+def get_reports(configured_reports):
+    """
+    Returns dictionary with list of valid, enabled reports (listed in `configured_reports` set of str).
+    If `configured_reports` contains `all` then all default reports are enabled.
+    """
+    reports = load_reports()
+    enabled_reports = OrderedDict()
+    for report in configured_reports:
+        if report == "all":
+            for name, report_class in reports.items():
+                if is_report_default(report_class) and name not in enabled_reports:
+                    enabled_reports[name] = report_class
+        elif report not in reports:
+            raise robocop.exceptions.InvalidReportName(report, reports)
+        elif report not in enabled_reports:
+            enabled_reports[report] = reports[report]
+    return enabled_reports
 
 
 def list_reports(reports):
@@ -346,7 +370,7 @@ class TimestampReport(Report):
             super().configure(name, value)
 
     def get_report(self) -> str:
-        return f"Reported: {self._get_timestamp()}"
+        return f"\nReported: {self._get_timestamp()}"
 
     def _get_timestamp(self) -> str:
         try:

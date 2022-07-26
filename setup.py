@@ -25,6 +25,13 @@ Intended Audience :: Developers
 """.strip().splitlines()
 KEYWORDS = "robotframework automation testautomation testing linter qa"
 DESCRIPTION = "Static code analysis tool (linter) for Robot Framework"
+PROJECT_URLS = {
+    "Documentation": "https://robocop.readthedocs.io/en/stable",
+    "Issue tracker": "https://github.com/MarketSquare/robotframework-robocop/issues",
+    "Source code": "https://github.com/MarketSquare/robotframework-robocop",
+
+}
+
 
 setup(
     name="robotframework-robocop",
@@ -41,6 +48,7 @@ setup(
     classifiers=CLASSIFIERS,
     keywords=KEYWORDS,
     packages=["robocop"],
+    project_urls=PROJECT_URLS,
     python_requires=">=3.6",
     include_package_data=True,
     install_requires=[

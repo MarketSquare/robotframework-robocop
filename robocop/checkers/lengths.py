@@ -4,15 +4,16 @@ Lengths checkers
 import re
 
 from robot.parsing.model.blocks import CommentSection, TestCase
-from robot.parsing.model.statements import Arguments, Comment, EmptyLine, KeywordCall
+from robot.parsing.model.statements import Arguments, Comment, Documentation, EmptyLine, KeywordCall
 
 from robocop.checkers import RawFileChecker, VisitorChecker
 from robocop.rules import Rule, RuleParam, RuleSeverity
-from robocop.utils import get_section_name, last_non_empty_line, normalize_robot_name, pattern_type
+from robocop.utils import get_section_name, last_non_empty_line, normalize_robot_name, pattern_type, str2bool
 
 rules = {
     "0501": Rule(
         RuleParam(name="max_len", default=40, converter=int, desc="number of lines allowed in a keyword"),
+        RuleParam(name="ignore_docs", default=False, converter=str2bool, desc="Ignore documentation"),
         rule_id="0501",
         name="too-long-keyword",
         msg="Keyword '{{ keyword_name }}' is too long ({{ keyword_length }}/{{ allowed_length}})",
@@ -34,6 +35,7 @@ rules = {
     ),
     "0504": Rule(
         RuleParam(name="max_len", default=20, converter=int, desc="number of lines allowed in a test case"),
+        RuleParam(name="ignore_docs", default=False, converter=str2bool, desc="Ignore documentation"),
         rule_id="0504",
         name="too-long-test-case",
         msg="Test case '{{ test_name }}' is too long ({{ test_length }}/{{ allowed_length }})",
@@ -180,6 +182,20 @@ rules = {
 }
 
 
+def check_node_length(node, ignore_docs):
+    if ignore_docs:
+        return node.end_lineno - node.lineno - get_documentation_length(node)
+    return node.end_lineno - node.lineno
+
+
+def get_documentation_length(node):
+    doc_len = 0
+    for child in node.body:
+        if isinstance(child, Documentation):
+            doc_len += child.end_lineno - child.lineno + 1
+    return doc_len
+
+
 class LengthChecker(VisitorChecker):
     """Checker for max and min length of keyword or test case. It analyses number of lines and also number of
     keyword calls (as you can have just few keywords but very long ones or vice versa).
@@ -221,7 +237,7 @@ class LengthChecker(VisitorChecker):
                         node=node,
                     )
                 break
-        length = LengthChecker.check_node_length(node)
+        length = check_node_length(node, ignore_docs=self.param("too-long-keyword", "ignore_docs"))
         if length > self.param("too-long-keyword", "max_len"):
             self.report(
                 "too-long-keyword",
@@ -254,7 +270,7 @@ class LengthChecker(VisitorChecker):
             return
 
     def visit_TestCase(self, node):  # noqa
-        length = LengthChecker.check_node_length(node)
+        length = check_node_length(node, ignore_docs=self.param("too-long-test-case", "ignore_docs"))
         if length > self.param("too-long-test-case", "max_len"):
             self.report(
                 "too-long-test-case",
@@ -273,10 +289,6 @@ class LengthChecker(VisitorChecker):
                 node=node,
             )
             return
-
-    @staticmethod
-    def check_node_length(node):
-        return node.end_lineno - node.lineno
 
     @staticmethod
     def count_keyword_calls(node):

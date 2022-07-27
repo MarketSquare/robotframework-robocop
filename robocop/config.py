@@ -7,7 +7,7 @@ from itertools import chain
 from pathlib import Path
 from typing import Dict, Pattern, Set
 
-import toml
+import tomli
 from robot.utils import FileReader
 
 from robocop.exceptions import (
@@ -373,8 +373,9 @@ class Config:
         if not pyproject_path.is_file():
             return
         try:
-            config = toml.load(str(pyproject_path))
-        except toml.TomlDecodeError as err:
+            with Path(pyproject_path).open("rb") as fp:
+                config = tomli.load(fp)
+        except tomli.TOMLDecodeError as err:
             raise InvalidArgumentError(f"Failed to decode {str(pyproject_path)}: {err}") from None
         config = config.get("tool", {}).get("robocop", {})
         if self.parse_toml_to_config(config):

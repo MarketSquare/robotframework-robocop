@@ -9,10 +9,10 @@ You can use separate arguments (``-r report1 -r report2``) or comma-separated li
 
     robocop --report rules_by_id,some_other_report path/to/file.robot
 
-To enable all reports use ``--report all``.
+To enable all default reports use ``--report all``.
 """
-import json
 import inspect
+import json
 import sys
 from collections import defaultdict
 from datetime import datetime
@@ -30,6 +30,16 @@ from robocop.version import __version__
 
 
 class Report:
+    """
+    Base class for report class.
+    Override `configure` method if you want to allow report configuration.
+    Override `add_message`` if your report processes the Robocop issues.
+
+    Set class attribute `DEFAULT` to `False` if you don't want your report to be included in `all` reports.
+    """
+
+    DEFAULT = True
+
     def configure(self, name, value):
         raise robocop.exceptions.ConfigGeneralError(
             f"Provided param '{name}' for report '{getattr(self, 'name')}' does not exist"
@@ -42,10 +52,14 @@ class Report:
 def get_reports(configured_reports):
     """
     Returns dictionary with list of valid, enabled reports (listed in `configured_reports` set of str).
-    If `configured_reports` contains `all` then all reports are enabled.
+    If `configured_reports` contains `all` then all default reports are enabled.
     Report is considered valid if it inherits from `Report` class
     and contains both `name` and `description` attributes.
     """
+
+    def enable_all_reports(configured_reports, report):
+        return "all" in configured_reports and getattr(report, "DEFAULT", False)
+
     reports = {}
     classes = inspect.getmembers(sys.modules[__name__], inspect.isclass)
     for report_class in classes:
@@ -54,7 +68,7 @@ def get_reports(configured_reports):
         report = report_class[1]()
         if not hasattr(report, "name") or not hasattr(report, "description"):
             continue
-        if "all" in configured_reports or report.name in configured_reports:
+        if enable_all_reports(configured_reports, report) or report.name in configured_reports:
             reports[report.name] = report
     return reports
 
@@ -64,7 +78,7 @@ def list_reports(reports):
     sorted_by_name = sorted(reports.values(), key=lambda x: x.name)
     available_reports = "Available reports:\n"
     available_reports += "\n".join(f"{report.name:20} - {report.description}" for report in sorted_by_name) + "\n"
-    available_reports += "all" + " " * 18 + "- Turns on all available reports"
+    available_reports += "all" + " " * 18 + "- Turns on all default reports"
     return available_reports
 
 
@@ -140,6 +154,7 @@ class ReturnStatusReport(Report):
     """
     Report name: ``return_status``
 
+    This report is always enabled.
     Report that checks if number of returned rules messages for given severity value does not exceed preset threshold.
     That information is later used as a return status from Robocop.
     """
@@ -199,6 +214,8 @@ class JsonReport(Report):
 
     Report that returns list of found issues in JSON format.
     """
+
+    DEFAULT = False
 
     def __init__(self):
         self.name = "json_report"
@@ -348,6 +365,10 @@ class SarifReport(Report):
     Report name: ``sarif``
 
     Report that generates SARIF output file.
+
+    This report is not included in the default reports. The ``--reports all`` option will not enable this report.
+    You can still enable it using report name directly: ``--reports sarif`` or ``reports all,sarif``.
+
     All fields required by Github Code Scanning are supported. The output file will be generated
     in the current working directory with the ``.sarif.json`` name.
 
@@ -357,6 +378,7 @@ class SarifReport(Report):
 
     """
 
+    DEFAULT = False
     SCHEMA_VERSION = "2.1.0"
     SCHEMA = f"https://json.schemastore.org/sarif-{SCHEMA_VERSION}.json"
 

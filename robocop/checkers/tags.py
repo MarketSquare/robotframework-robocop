@@ -59,7 +59,9 @@ rules = {
             - robot:recursive-continue-on-failure
             - robot:skip
             - robot:skip-on-failure
+            - robot:stop-on-failure
             - robot:exclude
+            - robot:private
 
         """,
     ),
@@ -172,7 +174,9 @@ class TagNameChecker(VisitorChecker):
         "robot:recursive-continue-on-failure",
         "robot:skip",
         "robot:skip-on-failure",
+        "robot:stop-on-failure",
         "robot:exclude",
+        "robot:private",
     }
 
     def visit_ForceTags(self, node):  # noqa
@@ -227,7 +231,8 @@ class TagNameChecker(VisitorChecker):
             self.report("tag-with-space", tag=tag.value, node=node, lineno=tag.lineno, col=tag.col_offset + 1)
         if "OR" in tag.value or "AND" in tag.value:
             self.report("tag-with-or-and", tag=tag.value, node=node, lineno=tag.lineno, col=tag.col_offset + 1)
-        if tag.value.startswith("robot:") and tag.value not in self.reserved_tags:
+        normalized = tag.value.lower()
+        if normalized.startswith("robot:") and normalized not in self.reserved_tags:
             self.report(
                 "tag-with-reserved-word",
                 tag=tag.value,

@@ -6,13 +6,7 @@ import pytest
 
 from robocop.config import Config
 from robocop.exceptions import ConfigGeneralError
-from robocop.reports import (
-    FileStatsReport,
-    JsonReport,
-    RobocopVersionReport,
-    SarifReport,
-    TimestampReport,
-)
+from robocop.reports import FileStatsReport, JsonReport, RobocopVersionReport, SarifReport, TimestampReport, get_reports
 from robocop.rules import Message, Rule, RuleParam, RuleSeverity
 from robocop.version import __version__
 
@@ -36,6 +30,25 @@ def rule2():
         msg="Some description. Example::\n",
         severity=RuleSeverity.ERROR,
     )
+
+
+@pytest.mark.parametrize(
+    "configured, expected",
+    [
+        ({"timestamp"}, {"timestamp"}),
+        ({"timestamp", "sarif"}, {"timestamp", "sarif"}),
+    ],
+)
+def test_get_reports(configured, expected):
+    reports = get_reports(configured)
+    assert set(reports.keys()) == expected
+
+
+def test_get_reports_all():
+    reports = get_reports({"all"})
+    assert "timestamp" in reports and "sarif" not in reports
+    reports = get_reports({"all", "sarif"})
+    assert "timestamp" in reports and "sarif" in reports
 
 
 class TestReports:

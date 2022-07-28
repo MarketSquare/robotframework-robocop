@@ -130,41 +130,6 @@ class Config:
         self.include = self.filter_patterns_from_names(self.include, self.include_patterns)
         self.exclude = self.filter_patterns_from_names(self.exclude, self.exclude_patterns)
 
-    def preparse(self, args):
-        args = sys.argv[1:] if args is None else args
-        parsed_args = []
-        args = (arg for arg in args)
-        for arg in args:
-            if arg in ("-A", "--argumentfile"):
-                try:
-                    argfile = next(args)
-                except StopIteration:
-                    raise ArgumentFileNotFoundError("") from None
-                parsed_args += self.load_args_from_file(argfile)
-            else:
-                parsed_args.append(arg)
-        return parsed_args
-
-    def load_args_from_file(self, argfile):
-        try:
-            with FileReader(argfile) as arg_f:
-                args = []
-                for line in arg_f.readlines():
-                    if line.strip().startswith("#"):
-                        continue
-                    for arg in line.split(" ", 1):
-                        arg = arg.strip()
-                        if not arg:
-                            continue
-                        args.append(arg)
-                if "-A" in args or "--argumentfile" in args:
-                    raise NestedArgumentFileError(argfile)
-                if args:
-                    self.config_from = argfile
-                return args
-        except FileNotFoundError:
-            raise ArgumentFileNotFoundError(argfile) from None
-
     def _create_parser(self):
         parser = CustomArgParser(
             prog="robocop",
@@ -340,46 +305,107 @@ class Config:
     def parse_opts(self, args=None, from_cli: bool = True):
         if self.root is None:
             self.root = find_project_root(self.paths)
-        default_args = self.load_default_config_file()
-        if default_args is None:
-            self.load_pyproject_file()
-        else:
-            default_args = self.preparse(default_args)
-            self.parse_args_to_config(default_args)
+        self.load_default_config_file()
 
-        args = self.preparse(args) if from_cli else None
-        if args:
-            args = self.parse_args_to_config(args)
+        if from_cli:
+            args = self.parse_args(args)
+        else:
+            args = None
 
         self.remove_severity()
         self.translate_patterns()
-
-        if self.verbose:
-            if self.config_from:
-                print(f"Loaded configuration from {self.config_from}")
-            else:
-                print("No config file found or configuration is empty. Using default configuration")
+        self.print_config_source()
 
         return args
 
+    def print_config_source(self):
+        # We can only print after readign all configs, since self.verbose is unknown before we read it from config
+        # TODO self.config_from can be multiple configs (if it's from argumentfile)
+        if not self.verbose:
+            return
+        if self.config_from:
+            print(f"Loaded configuration from {self.config_from}")
+        else:
+            print("No config file found or configuration is empty. Using default configuration")
+
     def load_default_config_file(self):
+        if not self.load_robocop_file():
+            self.load_pyproject_file()
+
+    def load_robocop_file(self):
+        """Returns True if .robocop exists"""
         robocop_path = find_file_in_project_root(".robocop", self.root)
-        if robocop_path.is_file():
-            return self.load_args_from_file(robocop_path)
-        return None
+        if not robocop_path.is_file():
+            return False
+        args = self.load_args_from_file(robocop_path)
+        self.parse_args(args)
+        return True
 
     def load_pyproject_file(self):
         pyproject_path = find_file_in_project_root("pyproject.toml", self.root)
         if not pyproject_path.is_file():
             return
+        config_dir = pyproject_path.parent
         try:
             with Path(pyproject_path).open("rb") as fp:
                 config = tomli.load(fp)
         except tomli.TOMLDecodeError as err:
             raise InvalidArgumentError(f"Failed to decode {str(pyproject_path)}: {err}") from None
         config = config.get("tool", {}).get("robocop", {})
-        if self.parse_toml_to_config(config):
+        if self.parse_toml_to_config(config, config_dir):
             self.config_from = pyproject_path
+
+    def parse_args_to_config(self, args):
+        if args is None:
+            return None
+
+        args = self.parser.parse_args(args)
+        for key, value in dict(**vars(args)).items():
+            if key in self.__dict__:
+                self.__dict__[key] = value
+
+        return args
+
+    def parse_args(self, args):
+        args = self.preparse(args)
+        if args:
+            args = self.parse_args_to_config(args)
+        return args
+
+    def preparse(self, args):
+        args = sys.argv[1:] if args is None else args
+        parsed_args = []
+        args = (arg for arg in args)
+        for arg in args:
+            if arg in ("-A", "--argumentfile"):
+                try:
+                    argfile = next(args)
+                except StopIteration:
+                    raise ArgumentFileNotFoundError("") from None
+                parsed_args += self.load_args_from_file(argfile)
+            else:
+                parsed_args.append(arg)
+        return parsed_args
+
+    def load_args_from_file(self, argfile):
+        try:
+            with FileReader(argfile) as arg_f:
+                args = []
+                for line in arg_f.readlines():
+                    if line.strip().startswith("#"):
+                        continue
+                    for arg in line.split(" ", 1):
+                        arg = arg.strip()
+                        if not arg:
+                            continue
+                        args.append(arg)
+                if "-A" in args or "--argumentfile" in args:
+                    raise NestedArgumentFileError(argfile)
+                if args:
+                    self.config_from = argfile
+                return args
+        except FileNotFoundError:
+            raise ArgumentFileNotFoundError(argfile) from None
 
     @staticmethod
     def replace_in_set(container: Set, old_key: str, new_key: str):
@@ -446,14 +472,27 @@ class Config:
                 rule_name = rule_name.replace(char, "")
         return rule_name
 
-    def parse_toml_to_config(self, toml_data: Dict):
+    def resolve_relative(self, orig_path, config_dir: Path):
+        path = Path(orig_path)
+        if path.is_absolute():
+            return orig_path
+        return str(config_dir / path)
+
+    def parse_toml_to_config(self, toml_data: Dict, config_dir: Path):
         if not toml_data:
             return False
+        resolve_relative = {"paths", "ext_rules", "output"}
         assign_type = {"paths", "format"}
         set_type = {"include", "exclude", "reports", "ignore", "ext_rules"}
         append_type = {"configure"}
         toml_data = {key.replace("-", "_"): value for key, value in toml_data.items()}
         for key, value in toml_data.items():
+            if key in resolve_relative:
+                if isinstance(value, list):
+                    for index, val in enumerate(value):
+                        value[index] = self.resolve_relative(val, config_dir)
+                else:
+                    value = self.resolve_relative(value, config_dir)
             if key in assign_type:
                 self.__dict__[key] = value
             elif key in set_type:
@@ -474,14 +513,3 @@ class Config:
             else:
                 raise InvalidArgumentError(f"Option '{key}' is not supported in pyproject.toml configuration file.")
         return True
-
-    def parse_args_to_config(self, args):
-        if args is None:
-            return None
-
-        args = self.parser.parse_args(args)
-        for key, value in dict(**vars(args)).items():
-            if key in self.__dict__:
-                self.__dict__[key] = value
-
-        return args

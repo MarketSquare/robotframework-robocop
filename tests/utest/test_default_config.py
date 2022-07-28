@@ -1,14 +1,14 @@
+import contextlib
 import os
 import sys
-import contextlib
 from pathlib import Path
 from unittest.mock import patch
 
 import pytest
 
 from robocop.config import Config
-from robocop.files import find_file_in_project_root
 from robocop.exceptions import InvalidArgumentError
+from robocop.files import find_file_in_project_root
 
 
 @pytest.fixture
@@ -131,6 +131,9 @@ class TestDefaultConfig:
         config.include_patterns, expected_config.include_patterns = None, None
         assert config.threshold.value == expected_config.threshold.value
         config.threshold, expected_config.threshold = None, None
+        # paths from config files are absolute paths, resolved with root of the config file
+        expected_config.paths = [str(Path(expected_config.root) / path) for path in expected_config.paths]
+        expected_config.ext_rules = {str(Path(expected_config.root) / path) for path in expected_config.ext_rules}
         assert config.__dict__ == expected_config.__dict__
 
     def test_append_config_pyproject_file(self, path_to_test_data):
@@ -184,3 +187,30 @@ class TestDefaultConfig:
         with working_directory(src), patch.object(sys, "argv", ["prog"]):
             config = Config(from_cli=True)
         assert sorted(config.configure) == expected
+
+    def test_load_config_with_relative_paths_pyproject(self, path_to_test_data):
+        """
+        pyproject.toml resolves relative path to config directory.
+        For example if root/pyproject.toml contains test.py, it will become root/test.py
+        """
+        src = path_to_test_data / f"relative_path_in_config_pyproject"
+        work_dir = src / "nested"
+        with working_directory(work_dir), patch.object(sys, "argv", ["robocop"]):
+            config = Config(from_cli=True)
+            ext_rule_path = config.ext_rules.pop()
+            assert Path(ext_rule_path).absolute() == src / "test.py"
+
+    def test_load_config_with_relative_paths_robocop(self, path_to_test_data):
+        """
+        .robocop argument files does not resolve relative paths -
+        they are relative to the path Robocop is running.
+        For example if root/.robocop contains test.py,
+        and you're running robocop from root/nested,
+        it will become root/nested/test.py
+        """
+        src = path_to_test_data / f"relative_path_in_config_robocop"
+        work_dir = src / "nested"
+        with working_directory(work_dir), patch.object(sys, "argv", ["robocop"]):
+            config = Config(from_cli=True)
+            ext_rule_path = config.ext_rules.pop()
+            assert Path(ext_rule_path).absolute() == work_dir / "test.py"

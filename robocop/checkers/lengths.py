@@ -7,13 +7,14 @@ from robot.parsing.model.blocks import CommentSection, TestCase
 from robot.parsing.model.statements import Arguments, Comment, Documentation, EmptyLine, KeywordCall
 
 from robocop.checkers import RawFileChecker, VisitorChecker
-from robocop.rules import Rule, RuleParam, RuleSeverity
+from robocop.rules import Rule, RuleParam, RuleSeverity, SeverityThreshold
 from robocop.utils import get_section_name, last_non_empty_line, normalize_robot_name, pattern_type, str2bool
 
 rules = {
     "0501": Rule(
         RuleParam(name="max_len", default=40, converter=int, desc="number of lines allowed in a keyword"),
         RuleParam(name="ignore_docs", default=False, converter=str2bool, desc="Ignore documentation"),
+        SeverityThreshold("max_len", compare_method="greater"),
         rule_id="0501",
         name="too-long-keyword",
         msg="Keyword '{{ keyword_name }}' is too long ({{ keyword_length }}/{{ allowed_length}})",
@@ -21,6 +22,7 @@ rules = {
     ),
     "0502": Rule(
         RuleParam(name="min_calls", default=1, converter=int, desc="number of keyword calls required in a keyword"),
+        SeverityThreshold("min_calls", compare_method="less"),
         rule_id="0502",
         name="too-few-calls-in-keyword",
         msg="Keyword '{{ keyword_name }}' has too few keywords inside ({{ keyword_count }}/{{ min_allowed_count }})",
@@ -28,6 +30,7 @@ rules = {
     ),
     "0503": Rule(
         RuleParam(name="max_calls", default=10, converter=int, desc="number of keyword calls allowed in a keyword"),
+        SeverityThreshold("max_calls", compare_method="greater"),
         rule_id="0503",
         name="too-many-calls-in-keyword",
         msg="Keyword '{{ keyword_name }}' has too many keywords inside ({{ keyword_count }}/{{ max_allowed_count }})",
@@ -36,6 +39,7 @@ rules = {
     "0504": Rule(
         RuleParam(name="max_len", default=20, converter=int, desc="number of lines allowed in a test case"),
         RuleParam(name="ignore_docs", default=False, converter=str2bool, desc="Ignore documentation"),
+        SeverityThreshold("max_calls", compare_method="greater"),
         rule_id="0504",
         name="too-long-test-case",
         msg="Test case '{{ test_name }}' is too long ({{ test_length }}/{{ allowed_length }})",
@@ -43,6 +47,7 @@ rules = {
     ),
     "0505": Rule(
         RuleParam(name="max_calls", default=10, converter=int, desc="number of keyword calls allowed in a test case"),
+        SeverityThreshold("max_calls", compare_method="greater"),
         rule_id="0505",
         name="too-many-calls-in-test-case",
         msg="Test case '{{ test_name }}' has too many keywords inside ({{ keyword_count }}/{{ max_allowed_count }})",
@@ -50,6 +55,7 @@ rules = {
     ),
     "0506": Rule(
         RuleParam(name="max_lines", default=400, converter=int, desc="number of lines allowed in a file"),
+        SeverityThreshold("max_lines", compare_method="greater"),
         rule_id="0506",
         name="file-too-long",
         msg="File has too many lines ({{ lines_count }}/{{max_allowed_count }})",
@@ -57,6 +63,7 @@ rules = {
     ),
     "0507": Rule(
         RuleParam(name="max_args", default=5, converter=int, desc="number of lines allowed in a file"),
+        SeverityThreshold("max_args", compare_method="greater"),
         rule_id="0507",
         name="too-many-arguments",
         msg="Keyword '{{ keyword_name }}' has too many arguments ({{ arguments_count }}/{{ max_allowed_count }})",
@@ -70,6 +77,7 @@ rules = {
             converter=pattern_type,
             desc="ignore lines that contain configured pattern",
         ),
+        SeverityThreshold("line_length"),
         rule_id="0508",
         name="line-too-long",
         msg="Line is too long ({{ line_length }}/{{ allowed_length }})",
@@ -79,7 +87,7 @@ rules = {
         
             robocop --configure line-too-long:ignore_pattern:pattern
         
-        The default pattern is `https?://\S+` that ignores the lines that look like an URL.
+        The default pattern is ``https?://\S+`` that ignores the lines that look like an URL.
 
         """,
     ),
@@ -90,6 +98,7 @@ rules = {
         RuleParam(
             name="max_returns", default=4, converter=int, desc="allowed number of returned values from a keyword"
         ),
+        SeverityThreshold("max_returns", compare_method="greater"),
         rule_id="0510",
         name="number-of-returned-values",
         msg="Too many return values ({{ return_count }}/{{ max_allowed_count }})",
@@ -174,6 +183,7 @@ rules = {
             converter=int,
             desc="number of test cases allowed in a templated suite",
         ),
+        SeverityThreshold("max_testcases or max_templated_testcases"),
         rule_id="0527",
         name="too-many-test-cases",
         msg="Too many test cases ({{ test_count }}/{{ max_allowed_count }})",
@@ -219,6 +229,7 @@ class LengthChecker(VisitorChecker):
                 max_allowed_count=self.param("file-too-long", "max_lines"),
                 node=node,
                 lineno=node.end_lineno,
+                sev_threshold_value=node.end_lineno,
             )
         super().visit_File(node)
 
@@ -235,6 +246,7 @@ class LengthChecker(VisitorChecker):
                         arguments_count=args_number,
                         max_allowed_count=self.param("too-many-arguments", "max_args"),
                         node=node,
+                        sev_threshold_value=args_number,
                     )
                 break
         length = check_node_length(node, ignore_docs=self.param("too-long-keyword", "ignore_docs"))
@@ -247,6 +259,7 @@ class LengthChecker(VisitorChecker):
                 node=node,
                 lineno=node.end_lineno,
                 ext_disablers=(node.lineno, last_non_empty_line(node)),
+                sev_threshold_value=length,
             )
             return
         key_calls = LengthChecker.count_keyword_calls(node)
@@ -257,6 +270,8 @@ class LengthChecker(VisitorChecker):
                 keyword_count=key_calls,
                 min_allowed_count=self.param("too-few-calls-in-keyword", "min_calls"),
                 node=node,
+                end_col=node.col_offset + len(node.name) + 1,
+                sev_threshold_value=key_calls,
             )
             return
         if key_calls > self.param("too-many-calls-in-keyword", "max_calls"):
@@ -266,6 +281,8 @@ class LengthChecker(VisitorChecker):
                 keyword_count=key_calls,
                 max_allowed_count=self.param("too-many-calls-in-keyword", "max_calls"),
                 node=node,
+                end_col=node.col_offset + len(node.name) + 1,
+                sev_threshold_value=key_calls,
             )
             return
 
@@ -278,6 +295,7 @@ class LengthChecker(VisitorChecker):
                 test_length=length,
                 allowed_length=self.param("too-long-test-case", "max_len"),
                 node=node,
+                sev_threshold_value=length,
             )
         key_calls = LengthChecker.count_keyword_calls(node)
         if key_calls > self.param("too-many-calls-in-test-case", "max_calls"):
@@ -287,6 +305,7 @@ class LengthChecker(VisitorChecker):
                 keyword_count=key_calls,
                 max_allowed_count=self.param("too-many-calls-in-test-case", "max_calls"),
                 node=node,
+                sev_threshold_value=key_calls,
             )
             return
 
@@ -317,6 +336,7 @@ class LineLengthChecker(RawFileChecker):
                 line_length=len(line),
                 allowed_length=self.param("line-too-long", "line_length"),
                 lineno=lineno,
+                sev_threshold_value=len(line),
             )
 
 
@@ -364,6 +384,7 @@ class NumberOfReturnedArgsChecker(VisitorChecker):
                 max_allowed_count=self.param("number-of-returned-values", "max_returns"),
                 node=node,
                 col=node.data_tokens[0].col_offset + 1,
+                sev_threshold_value=return_count,
             )
 
 
@@ -490,5 +511,9 @@ class TestCaseNumberChecker(VisitorChecker):
         discovered_testcases = sum([isinstance(child, TestCase) for child in node.body])
         if discovered_testcases > max_testcases:
             self.report(
-                "too-many-test-cases", test_count=discovered_testcases, max_allowed_count=max_testcases, node=node
+                "too-many-test-cases",
+                test_count=discovered_testcases,
+                max_allowed_count=max_testcases,
+                node=node,
+                sev_threshold_value=discovered_testcases,
             )

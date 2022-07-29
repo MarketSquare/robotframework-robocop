@@ -30,7 +30,7 @@ Loading configuration from file
 
     If no arguments are provided to Robocop it will try to find ``.robocop`` file and load it from there.
     It will start looking from current directory and go up until it founds it or '.git' file is found. ``.robocop`` file
-    supports the same syntax as given from cli::
+    supports the same syntax as given from CLI::
 
         --include rulename
         # inline comment
@@ -94,7 +94,7 @@ Loading configuration from file
         --ext-rules external.py
 
     If run Robocop from ``/nested`` directory, Robocop will automatically find and load configuration file from the parent directory.
-    If you configuration file contains relative paths the resolved paths will be different depending on the configuration type:
+    If your configuration file contains relative paths, the resolved paths will be different depending on the configuration type:
 
     - ``pyproject.toml`` will resolve path using configuration file as root. External rules path will point to ``root/external.py``
     - ``.robocop`` will resolve path using working directory of Robocop. External rules path will point to ``root/nested/external.py``

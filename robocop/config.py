@@ -319,7 +319,7 @@ class Config:
         return args
 
     def print_config_source(self):
-        # We can only print after readign all configs, since self.verbose is unknown before we read it from config
+        # We can only print after reading all configs, since self.verbose is unknown before we read it from config
         # TODO self.config_from can be multiple configs (if it's from argumentfile)
         if not self.verbose:
             return

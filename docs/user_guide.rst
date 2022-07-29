@@ -24,9 +24,10 @@ Loading configuration from file
 -------------------------------
 .. dropdown:: How to load configuratiom from file
 
-    You can load arguments for Robocop from file with::
+    You can load arguments for Robocop from file with ``--argumentfile / -A`` option and path to argument file::
 
-        --argumentfile jenkins_args.txt
+        robocop --argumentfile argument_file.txt
+        robocop -A path/to/file.txt
 
     If no arguments are provided to Robocop it will try to find ``.robocop`` file and load it from there.
     It will start looking from current directory and go up until it founds it or '.git' file is found. ``.robocop`` file

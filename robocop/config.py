@@ -29,7 +29,11 @@ def translate_pattern(pattern: str) -> Pattern:
 class ParseDelimitedArgAction(argparse.Action):  # pylint: disable=too-few-public-methods
     def __call__(self, parser, namespace, values, option_string=None):
         container = getattr(namespace, self.dest)
-        container.update(values.split(","))
+        config_values = values.split(",")
+        if isinstance(container, list):
+            container.extend(config_values)
+        else:
+            container.update(values.split(","))
 
 
 class ParseCheckerConfig(argparse.Action):  # pylint: disable=too-few-public-methods
@@ -87,7 +91,7 @@ class Config:
         self.exclude = set()
         self.ignore = set()
         self.ignore_default = re.compile(DEFAULT_EXCLUDES)
-        self.reports = {"return_status"}
+        self.reports = ["return_status"]
         self.threshold = RuleSeverity("I")
         self.configure = []
         self.format = "{source}:{line}:{col} [{severity}] {rule_id} {desc} ({name})"
@@ -225,7 +229,7 @@ class Config:
             "You can enable reports by listing them in comma-separated list:\n"
             "--reports rules_by_id,rules_by_error_type,scan_timer\n"
             "To enable all reports use all:\n"
-            "--report all",
+            "--reports all",
         )
         optional.add_argument(
             "-f",
@@ -450,8 +454,8 @@ class Config:
         if not toml_data:
             return False
         assign_type = {"paths", "format"}
-        set_type = {"include", "exclude", "reports", "ignore", "ext_rules"}
-        append_type = {"configure"}
+        set_type = {"include", "exclude", "ignore", "ext_rules"}
+        append_type = {"configure", "reports"}
         toml_data = {key.replace("-", "_"): value for key, value in toml_data.items()}
         for key, value in toml_data.items():
             if key in assign_type:

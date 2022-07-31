@@ -63,3 +63,13 @@ class RuleParamFailedInitError(RobocopFatalError):
 class RuleReportsNotFoundError(RobocopFatalError):
     def __init__(self, rule, checker):
         super().__init__(f"{checker.__class__.__name__} checker `reports` attribute contains unknown rule `{rule}`")
+
+
+class InvalidReportName(ConfigGeneralError):
+    def __init__(self, report, reports):
+        from robocop.utils import RecommendationFinder
+
+        report_names = sorted(list(reports.keys()) + ["all"])
+        similar = RecommendationFinder().find_similar(report, report_names)
+        msg = f"Provided report '{report}' does not exist. {similar}"
+        super().__init__(msg)

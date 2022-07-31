@@ -1,9 +1,11 @@
 import json
 import re
+from collections import OrderedDict
 from pathlib import Path
 
 import pytest
 
+import robocop.exceptions
 from robocop.config import Config
 from robocop.exceptions import ConfigGeneralError
 from robocop.reports import FileStatsReport, JsonReport, RobocopVersionReport, SarifReport, TimestampReport, get_reports
@@ -35,20 +37,30 @@ def rule2():
 @pytest.mark.parametrize(
     "configured, expected",
     [
-        ({"timestamp"}, {"timestamp"}),
-        ({"timestamp", "sarif"}, {"timestamp", "sarif"}),
+        (["timestamp", "sarif"], ["timestamp", "sarif"]),
+        (["timestamp"], ["timestamp"]),
+        (["version", "timestamp", "version"], ["version", "timestamp"]),
     ],
 )
 def test_get_reports(configured, expected):
     reports = get_reports(configured)
-    assert set(reports.keys()) == expected
+    assert list(reports.keys()) == expected
 
 
 def test_get_reports_all():
-    reports = get_reports({"all"})
+    reports = get_reports(["all"])
     assert "timestamp" in reports and "sarif" not in reports
-    reports = get_reports({"all", "sarif"})
+    reports = get_reports(["all", "sarif"])
     assert "timestamp" in reports and "sarif" in reports
+    # Check order with all
+    reports = get_reports(["version", "all", "sarif"])
+    reports_list = list(reports.keys())
+    assert reports_list.index("version") < reports_list.index("timestamp") < reports_list.index("sarif")
+
+
+def test_get_unknown_report():
+    with pytest.raises(robocop.exceptions.InvalidReportName, match="Provided report 'unknown' does not exist."):
+        get_reports(["all", "unknown"])
 
 
 class TestReports:

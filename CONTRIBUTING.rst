@@ -135,6 +135,11 @@ but most of it is located inside ``docs`` directory. The files are usually
 written using `reStructuredText format
 <https://www.writethedocs.org/guide/writing/reStructuredText/>`_ (.rst).
 
+To generate our documentation use ``nox`` tool that will create environment with required dependencies and generate
+the documentation. Documentaiton will be available under ``docs/_build/index.html`` path::
+
+    nox -s docs
+
 User manual
 '''''''''''
 
@@ -178,19 +183,23 @@ To run pytest tests navigate to directory with test files and run::
 Pytest will automatically discover all the tests, run them and display
 results. Make sure that tests do not fail.
 
-Together with Robocop installed with ``dev`` dependencies, you will be able to use
-`tox <https://github.com/tox-dev/tox>`_ tool (a CI task automation tool) which can run all tests on different environments.
-Currently two environments are available - one with Robot Framework v3.* and one with
-Robot Framework v4.*. You can simply run::
+Nox
+''''''''
+Robocop contains `nox <https://nox.thea.codes/en/stable/>`_ file for running the tests on all supported
+major Robot Framework version and generating the coverage or docs. The nox tool will create the virtual environment and
+install required dependencies for you.
 
-    tox
+Follow installation instruction from the ``nox`` documentation page. To execute Robocop tests run::
 
-and it will run all tests separately in these two environments and display the results.
+    nox
 
-If you want to run tests for only one specific environment, you can choose between
-``rf3`` and ``rf4`` and run them with option ``-e``, e.g.::
+Run following to see all possible run configurations::
 
-    tox -e rf3
+    nox --list
+
+You can select only one of the session. For example to only run tests for ``Python==3.10`` and ``Robot Framework==3.*``::
+
+    nox --session "unit-3.10(robot_version='3')"
 
 Unit tests
 ''''''''''
@@ -250,6 +259,10 @@ To calculate coverage locally run::
 and then::
 
     coverage html
+
+You can also use ``nox`` tool::
+
+    nox -s coverage
 
 HTML files will be generated - navigate to ``htmlcov`` directory and open ``index.html`` file.
 

@@ -1,0 +1,2 @@
+--ext-rules test.py
+--output robocop.log

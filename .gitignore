@@ -96,3 +96,6 @@ venv.bak/
 
 # Sarif report file
 .sarif.json
+
+# Robocop log produced by some unit tests
+robocop.log

@@ -136,7 +136,7 @@ written using `reStructuredText format
 <https://www.writethedocs.org/guide/writing/reStructuredText/>`_ (.rst).
 
 To generate our documentation use ``nox`` tool that will create environment with required dependencies and generate
-the documentation. Documentaiton will be available under ``docs/_build/index.html`` path::
+the documentation. Documentation will be available under ``docs/_build/index.html`` path::
 
     nox -s docs
 
@@ -186,18 +186,18 @@ results. Make sure that tests do not fail.
 Nox
 ''''''''
 Robocop contains `nox <https://nox.thea.codes/en/stable/>`_ file for running the tests on all supported
-major Robot Framework version and generating the coverage or docs. The nox tool will create the virtual environment and
+major Robot Framework versions and generating the coverage or docs. The nox tool will create the virtual environment and
 install required dependencies for you.
 
 Follow installation instruction from the ``nox`` documentation page. To execute Robocop tests run::
 
     nox
 
-Run following to see all possible run configurations::
+Run the following command to see all possible sessions (acting as environments or targets)::
 
     nox --list
 
-You can select only one of the session. For example to only run tests for ``Python==3.10`` and ``Robot Framework==3.*``::
+You can select only one session per run. For example, to only run tests for ``Python==3.10`` and ``Robot Framework==3.*``::
 
     nox --session "unit-3.10(robot_version='3')"
 

@@ -42,7 +42,7 @@ def benchmark(session):
     install_dev_deps(session, "5")
     session.run(
         "pytest",
-        " --benchmark-only",
+        "--benchmark-only",
         "--benchmark-enable",
         "--benchmark-save=benchmark_results",
         "--benchmark-save-data",

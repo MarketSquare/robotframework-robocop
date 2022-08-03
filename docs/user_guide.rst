@@ -22,43 +22,87 @@ source code. More in :ref:`including-rules`.
 
 Loading configuration from file
 -------------------------------
-You can load arguments for Robocop from file with::
+.. dropdown:: How to load configuratiom from file
 
-    --argumentfile jenkins_args.txt
+    You can load arguments for Robocop from file with ``--argumentfile / -A`` option and path to argument file::
 
-If no arguments are provided to Robocop it will try to find ``.robocop`` file and load it from there.
-It will start looking from current directory and go up until it founds it or '.git' file is found. ``.robocop`` file
-supports the same syntax as given from cli::
+        robocop --argumentfile argument_file.txt
+        robocop -A path/to/file.txt
 
-    --include rulename
-    # inline comment
-    --reports all
+    If no arguments are provided to Robocop it will try to find ``.robocop`` file and load it from there.
+    It will start looking from current directory and go up until it founds it or '.git' file is found. ``.robocop`` file
+    supports the same syntax as given from CLI::
 
-If there is no ``.robocop`` file present it will try to load ``pyproject.toml`` file (if there is toml module installed).
-Robocop use [tool.robocop] section. Options have the same names as CLI arguments. Example configuration file::
+        --include rulename
+        # inline comment
+        --reports all
 
-    [tool.robocop]
-    paths = [
-        "tests\\atest\\rules\\bad-indent",
-        "tests\\atest\\rules\\duplicated-library"
-    ]
-    include = ['W0504', '*doc*']
-    exclude = ["0203"]
-    reports = [
-        "rules_by_id",
-        "scan_timer"
-    ]
-    ignore = ["ignore_me.robot"]
-    ext-rules = ["path_to_external\\dir"]
-    filetypes = [".txt", ".tsv"]
-    threshold = "E"
-    format = "{source}:{line}:{col} [{severity}] {rule_id} {desc} (name)"
-    output = "robocop.log"
-    configure = [
-        "line-too-long:line_length:150",
-        "0201:severity:E"
-    ]
-    no_recursive = true
+    If there is no ``.robocop`` file present it will try to load ``pyproject.toml`` file (if there is toml module installed).
+    Robocop use [tool.robocop] section. Options have the same names as CLI arguments.
+
+    .. dropdown:: Example pyproject.toml configuration file
+
+        ::
+
+            [tool.robocop]
+            paths = [
+                "tests\\atest\\rules\\bad-indent",
+                "tests\\atest\\rules\\duplicated-library"
+            ]
+            include = ['W0504', '*doc*']
+            exclude = ["0203"]
+            reports = [
+                "rules_by_id",
+                "scan_timer"
+            ]
+            ignore = ["ignore_me.robot"]
+            ext-rules = ["path_to_external\\dir"]
+            filetypes = [".txt", ".tsv"]
+            threshold = "E"
+            format = "{source}:{line}:{col} [{severity}] {rule_id} {desc} (name)"
+            output = "robocop.log"
+            configure = [
+                "line-too-long:line_length:150",
+                "0201:severity:E"
+            ]
+            no_recursive = true
+
+.. dropdown:: Relative paths in the configuration
+
+    Configuration files can contain both relative and absolute paths when configuring paths,
+    external rules or log output path.
+
+    Hovewer extra care is needed when using relative paths because the configuration is automatically loaded.
+
+    Given following project structure:
+
+    root/
+    ::
+
+        nested/
+        external.py
+        pyproject.toml
+        .robocop
+
+    and following contents:
+
+    ``pyproject.toml``::
+
+        ext-rules = ["external.py"]
+
+    ``.robocop``::
+
+        --ext-rules external.py
+
+    If run Robocop from ``/nested`` directory, Robocop will automatically find and load configuration file from the parent directory.
+    If your configuration file contains relative paths, the resolved paths will be different depending on the configuration type:
+
+    - ``pyproject.toml`` will resolve path using configuration file as root. External rules path will point to ``root/external.py``
+    - ``.robocop`` will resolve path using working directory of Robocop. External rules path will point to ``root/nested/external.py``
+
+    This may cause issues in the execution - you can solve it by either using absolute paths or
+    using ``pyproject.toml`` file instead of ``.robocop``.
+
 
 Listing available rules
 -----------------------

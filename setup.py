@@ -67,7 +67,6 @@ setup(
             "pytest",
             "pytest-benchmark",
             "pyyaml",
-            "tox",
         ],
         "doc": [
             "furo",

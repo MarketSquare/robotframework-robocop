@@ -93,3 +93,9 @@ venv.bak/
 
 # VS Code files
 .vscode/*
+
+# Sarif report file
+.sarif.json
+
+# Robocop log produced by some unit tests
+robocop.log

@@ -13,10 +13,10 @@ Reports
 
 .. autoclass:: robocop.reports.TimeTakenReport
 
-.. autoclass:: robocop.reports.JsonReport
-
 .. autoclass:: robocop.reports.FileStatsReport
 
 .. autoclass:: robocop.reports.RobocopVersionReport
 
 .. autoclass:: robocop.reports.TimestampReport
+
+.. autoclass:: robocop.reports.SarifReport

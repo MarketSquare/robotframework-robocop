@@ -22,7 +22,7 @@ class TestArgumentValidation(unittest.TestCase):
         self.assertSetEqual(self.config.filetypes, {".resource", ".robot", ".tsv"})
         self.assertSetEqual(self.config.include, set())
         self.assertSetEqual(self.config.exclude, set())
-        self.assertSetEqual(self.config.reports, {"return_status"})
+        self.assertListEqual(self.config.reports, ["return_status"])
         self.assertListEqual(self.config.configure, [])
         self.assertEqual(
             self.config.format,
@@ -37,7 +37,7 @@ class TestArgumentValidation(unittest.TestCase):
         self.assertSetEqual(args.filetypes, {".resource", ".robot", ".tsv"})
         self.assertSetEqual(args.include, set())
         self.assertSetEqual(args.exclude, set())
-        self.assertSetEqual(args.reports, {"return_status"})
+        self.assertListEqual(args.reports, ["return_status"])
         self.assertListEqual(args.configure, [])
         self.assertEqual(args.format, "{source}:{line}:{col} [{severity}] {rule_id} {desc} ({name})")
         self.assertListEqual(args.paths, [""])

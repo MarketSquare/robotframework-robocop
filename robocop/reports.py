@@ -1,31 +1,52 @@
 """
 Reports are configurable summaries after Robocop scan. For example, it can be a total number of issues discovered.
-They are dynamically loaded during setup according to a command line configuration.
+They are dynamically loaded during setup according to a configuration.
 
 Each report class collects rules messages from linter and parses it. At the end of the scan it will print the report.
 
-To enable report use ``-r`` / ``--report`` argument and the name of the report.
+To enable report use ``-r`` / ``--reports`` argument and the name of the report.
 You can use separate arguments (``-r report1 -r report2``) or comma-separated list (``-r report1,report2``). Example::
 
-    robocop --report rules_by_id,some_other_report path/to/file.robot
+    robocop --reports rules_by_id,some_other_report path/to/file.robot
 
-To enable all reports use ``--report all``.
+To enable all default reports use ``--reports all``.
+
+The order of the reports is preserved. For example, if you want ``timestamp`` report to be printed before any
+other reports, you can use following configuration::
+
+    robocop --reports timestamp,all src.robot
+
 """
-from collections import defaultdict
+import inspect
+import json
+import sys
+from collections import OrderedDict, defaultdict
+from datetime import datetime
 from operator import itemgetter
+from pathlib import Path
 from timeit import default_timer as timer
 from warnings import warn
 
-from datetime import datetime
-from dateutil import tz
 import pytz
+from dateutil import tz
 
 import robocop.exceptions
 from robocop.rules import Message
+from robocop.utils import RecommendationFinder
 from robocop.version import __version__
 
 
 class Report:
+    """
+    Base class for report class.
+    Override `configure` method if you want to allow report configuration.
+    Override `add_message`` if your report processes the Robocop issues.
+
+    Set class attribute `DEFAULT` to `False` if you don't want your report to be included in `all` reports.
+    """
+
+    DEFAULT = True
+
     def configure(self, name, value):
         raise robocop.exceptions.ConfigGeneralError(
             f"Provided param '{name}' for report '{getattr(self, 'name')}' does not exist"
@@ -33,6 +54,57 @@ class Report:
 
     def add_message(self, *args):
         pass
+
+
+def load_reports():
+    """
+    Load all valid reports.
+    Report is considered valid if it inherits from `Report` class
+    and contains both `name` and `description` attributes.
+    """
+    reports = {}
+    classes = inspect.getmembers(sys.modules[__name__], inspect.isclass)
+    for report_class in classes:
+        if not issubclass(report_class[1], Report):
+            continue
+        report = report_class[1]()
+        if not hasattr(report, "name") or not hasattr(report, "description"):
+            continue
+        reports[report.name] = report
+    return reports
+
+
+def is_report_default(report):
+    return getattr(report, "DEFAULT", False)
+
+
+def get_reports(configured_reports):
+    """
+    Returns dictionary with list of valid, enabled reports (listed in `configured_reports` set of str).
+    If `configured_reports` contains `all` then all default reports are enabled.
+    """
+    reports = load_reports()
+    enabled_reports = OrderedDict()
+    for report in configured_reports:
+        if report == "all":
+            for name, report_class in reports.items():
+                if is_report_default(report_class) and name not in enabled_reports:
+                    enabled_reports[name] = report_class
+        elif report not in reports:
+            raise robocop.exceptions.InvalidReportName(report, reports)
+        elif report not in enabled_reports:
+            enabled_reports[report] = reports[report]
+    return enabled_reports
+
+
+def list_reports(reports):
+    """Returns description of enabled reports."""
+    sorted_by_name = sorted(reports.values(), key=lambda x: x.name)
+    available_reports = "Available reports:\n"
+    available_reports += "\n".join(f"{report.name:20} - {report.description}" for report in sorted_by_name) + "\n"
+    available_reports += "all" + " " * 18 + "- Turns on all default reports"
+    return available_reports
+
 
 class RulesByIdReport(Report):
     """
@@ -106,6 +178,7 @@ class ReturnStatusReport(Report):
     """
     Report name: ``return_status``
 
+    This report is always enabled.
     Report that checks if number of returned rules messages for given severity value does not exceed preset threshold.
     That information is later used as a return status from Robocop.
     """
@@ -165,6 +238,8 @@ class JsonReport(Report):
 
     Report that returns list of found issues in JSON format.
     """
+
+    DEFAULT = False
 
     def __init__(self):
         self.name = "json_report"
@@ -295,7 +370,7 @@ class TimestampReport(Report):
             super().configure(name, value)
 
     def get_report(self) -> str:
-        return f'Reported: {self._get_timestamp()}'
+        return f"\nReported: {self._get_timestamp()}"
 
     def _get_timestamp(self) -> str:
         try:
@@ -303,7 +378,127 @@ class TimestampReport(Report):
             return datetime.now(timezone).strftime(self.format)
         except pytz.exceptions.UnknownTimeZoneError as err:
             raise robocop.exceptions.ConfigGeneralError(
-fr'''Provided timezone '{self.timezone}' for report '{getattr(self, 'name')}' is not valid.
-       Use timezone names like `Europe\Helsinki`.
-       See: https://en.wikipedia.org/wiki/List_of_tz_database_time_zone'''
+                f"Provided timezone '{self.timezone}' for report '{getattr(self, 'name')}' is not valid. "
+                "Use timezone names like `Europe\Helsinki`."
+                "See: https://en.wikipedia.org/wiki/List_of_tz_database_time_zone"
             ) from err  # noqa
+
+
+class SarifReport(Report):
+    """
+    Report name: ``sarif``
+
+    Report that generates SARIF output file.
+
+    This report is not included in the default reports. The ``--reports all`` option will not enable this report.
+    You can still enable it using report name directly: ``--reports sarif`` or ``reports all,sarif``.
+
+    All fields required by Github Code Scanning are supported. The output file will be generated
+    in the current working directory with the ``.sarif.json`` name.
+
+    You can configure output directory and report filename::
+
+        robocop --configure sarif:output_dir=C:/sarif_reports --configure sarif:report_filename=.sarif
+
+    """
+
+    DEFAULT = False
+    SCHEMA_VERSION = "2.1.0"
+    SCHEMA = f"https://json.schemastore.org/sarif-{SCHEMA_VERSION}.json"
+
+    def __init__(self):
+        self.name = "sarif"
+        self.description = "Generate SARIF output file"
+        self.output_dir = None
+        self.report_filename = ".sarif.json"
+        self.issues = []
+
+    def configure(self, name, value):
+        if name == "output_dir":
+            self.output_dir = Path(value)
+            self.output_dir.mkdir(parents=True, exist_ok=True)
+        elif name == "report_filename":
+            self.report_filename = value
+        else:
+            super().configure(name, value)
+
+    @staticmethod
+    def map_severity_to_level(severity):
+        return {"WARNING": "warning", "ERROR": "error", "INFO": "note"}[severity.name]
+
+    def get_rule_desc(self, rule):
+        return {
+            "id": rule.rule_id,
+            "name": rule.name,
+            "helpUri": f"https://robocop.readthedocs.io/en/stable/rules.html#{rule.name}",
+            "shortDescription": {"text": rule.msg},
+            "fullDescription": {"text": rule.docs},
+            "defaultConfiguration": {"level": self.map_severity_to_level(rule.default_severity)},
+            "help": {"text": rule.docs, "markdown": rule.docs},
+        }
+
+    def add_message(self, message: Message):
+        self.issues.append(message)
+
+    def generate_sarif_issues(self, config):
+        sarif_issues = []
+        for issue in self.issues:
+            relative_uri = Path(issue.source).relative_to(config.root)
+            sarif_issue = {
+                "ruleId": issue.rule_id,
+                "level": self.map_severity_to_level(issue.severity),
+                "message": {"text": issue.desc},
+                "locations": [
+                    {
+                        "physicalLocation": {
+                            "artifactLocation": {"uri": relative_uri.as_posix(), "uriBaseId": "%SRCROOT%"},
+                            "region": {
+                                "startLine": issue.line,
+                                "endLine": issue.end_line,
+                                "startColumn": issue.col,
+                                "endColumn": issue.end_col,
+                            },
+                        }
+                    }
+                ],
+            }
+            sarif_issues.append(sarif_issue)
+        return sarif_issues
+
+    def generate_rules_config(self, rules):
+        unique_enabled_rules = {rule.rule_id: rule for rule in rules.values() if rule.enabled}
+        sorted_rules = sorted(unique_enabled_rules.values(), key=lambda x: x.rule_id)
+        rules_config = [self.get_rule_desc(rule) for rule in sorted_rules]
+        return rules_config
+
+    def generate_sarif_report(self, config, rules):
+        report = {
+            "$schema": self.SCHEMA,
+            "version": self.SCHEMA_VERSION,
+            "runs": [
+                {
+                    "tool": {
+                        "driver": {
+                            "name": "Robocop",
+                            "semanticVersion": __version__,
+                            "informationUri": "https://robocop.readthedocs.io/",
+                            "rules": self.generate_rules_config(rules),
+                        }
+                    },
+                    "automationDetails": {"id": "robocop/"},
+                    "results": self.generate_sarif_issues(config),
+                }
+            ],
+        }
+        return report
+
+    def get_report(self, config, rules) -> str:
+        report = self.generate_sarif_report(config, rules)
+        if self.output_dir is not None:
+            output_path = self.output_dir / self.report_filename
+        else:
+            output_path = Path(self.report_filename)
+        with open(output_path, "w") as fp:
+            json_string = json.dumps(report, indent=4)
+            fp.write(json_string)
+        return f"Generated sarif report in {output_path}"

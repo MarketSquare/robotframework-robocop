@@ -7,11 +7,12 @@ from robot.api import Token
 from robot.utils import FileReader
 
 from robocop.checkers import RawFileChecker, VisitorChecker
-from robocop.rules import Rule, RuleSeverity
+from robocop.rules import Rule, RuleSeverity, RuleParam
 from robocop.utils import ROBOT_VERSION
 
 rules = {
     "0701": Rule(
+        RuleParam(name="todos", default="todo,fixme", converter=str, desc="terms violated in comments."),
         rule_id="0701",
         name="todo-in-comment",
         msg="Found {{ todo_or_fixme }} in comment",
@@ -150,19 +151,14 @@ class CommentChecker(VisitorChecker):
 
     def check_comment_content(self, token, content):
         content = content.lower()
-        if "todo" in content:
+        todos = self.param("todo-in-comment", "todos").split(",")
+        violations = [term for term in todos if term.lower() in content]
+        for term in violations:
             self.report(
                 "todo-in-comment",
-                todo_or_fixme="TODO",
+                todo_or_fixme=term.upper(),
                 lineno=token.lineno,
-                col=token.col_offset + 1 + content.find("todo"),
-            )
-        if "fixme" in content:
-            self.report(
-                "todo-in-comment",
-                todo_or_fixme="FIXME",
-                lineno=token.lineno,
-                col=token.col_offset + 1 + content.find("fixme"),
+                col=token.col_offset + 1 + content.find(term),
             )
         if content.startswith("#") and not self.is_block_comment(content):
             if not content.startswith("# "):

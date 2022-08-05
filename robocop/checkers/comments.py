@@ -12,7 +12,12 @@ from robocop.utils import ROBOT_VERSION
 
 rules = {
     "0701": Rule(
-        RuleParam(name="todos", default="todo,fixme", converter=str, desc="terms violated in comments."),
+        RuleParam(
+            name="todos",
+            default="todo,fixme",
+            converter=str,
+            desc="List of terms that violate the rule in comments.",
+        ),
         rule_id="0701",
         name="todo-in-comment",
         msg="Found {{ todo_or_fixme }} in comment",
@@ -21,8 +26,12 @@ rules = {
         Example::
         
             # TODO: Refactor this code
-            # fixme 
+            # fixme
         
+        Configuration example::
+
+            robocop --configure "todo-in-comment:todos:todo,fixme,Remove me,Fix this!"
+
         """,
     ),
     "0702": Rule(
@@ -106,6 +115,7 @@ class CommentChecker(VisitorChecker):
         "missing-space-after-comment",
         "invalid-comment",
     )
+    todos = []
 
     def visit_Comment(self, node):  # noqa
         self.find_comments(node)
@@ -151,8 +161,11 @@ class CommentChecker(VisitorChecker):
 
     def check_comment_content(self, token, content):
         content = content.lower()
-        todos = self.param("todo-in-comment", "todos").split(",")
-        violations = [term for term in todos if term.lower() in content]
+        if self.todos:
+            pass  # avoid resolving todos for each and every comment separately.
+        else:
+            self.todos = self.param("todo-in-comment", "todos").split(",")
+        violations = [term for term in self.todos if term.lower() in content]
         for term in violations:
             self.report(
                 "todo-in-comment",

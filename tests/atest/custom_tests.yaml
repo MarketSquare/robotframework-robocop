@@ -45,3 +45,8 @@ tests:
   too-long-test-case:
     - config: too-long-test-case:ignore_docs:True
       src_dir: lengths/too-long-test-case-ignore-docs
+  todo-in-comment:
+    - config: todo-in-comment:markers:todo,fixme,OMG
+      src_dir: comments/todo-in-comment-added-terms
+    - config: "todo-in-comment:markers:remove me,fix this ugly bug,korjaa tämä hässäkkä"
+      src_dir: comments/todo-in-comment-phrases

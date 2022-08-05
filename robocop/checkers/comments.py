@@ -13,14 +13,14 @@ from robocop.utils import ROBOT_VERSION
 rules = {
     "0701": Rule(
         RuleParam(
-            name="todos",
+            name="markers",
             default="todo,fixme",
             converter=str,
-            desc="List of terms that violate the rule in comments.",
+            desc="List of case insensitive markers that violate the rule in comments.",
         ),
         rule_id="0701",
         name="todo-in-comment",
-        msg="Found {{ todo_or_fixme }} in comment",
+        msg="Found a marker '{{ marker }}' in the comments",
         severity=RuleSeverity.WARNING,
         docs="""
         Example::
@@ -30,7 +30,7 @@ rules = {
         
         Configuration example::
 
-            robocop --configure "todo-in-comment:todos:todo,fixme,Remove me,Fix this!"
+            robocop --configure "todo-in-comment:markers:todo,fixme,Remove me,Fix this!"
 
         """,
     ),
@@ -115,7 +115,16 @@ class CommentChecker(VisitorChecker):
         "missing-space-after-comment",
         "invalid-comment",
     )
-    todos = []
+
+    def __init__(self):
+        self._markers = None
+        super().__init__()
+
+    @property
+    def markers(self):
+        if not self._markers:
+            self._markers = self.param("todo-in-comment", "markers").lower().split(",")
+        return self._markers
 
     def visit_Comment(self, node):  # noqa
         self.find_comments(node)
@@ -160,18 +169,14 @@ class CommentChecker(VisitorChecker):
             self.report("invalid-comment", node=node, col=node.col_offset + hash_pos + 1)
 
     def check_comment_content(self, token, content):
-        content = content.lower()
-        if self.todos:
-            pass  # avoid resolving todos for each and every comment separately.
-        else:
-            self.todos = self.param("todo-in-comment", "todos").split(",")
-        violations = [term for term in self.todos if term.lower() in content]
-        for term in violations:
+        low_content = content.lower()
+        for violation in [marker for marker in self.markers if marker in low_content]:
+            index = low_content.find(violation)
             self.report(
                 "todo-in-comment",
-                todo_or_fixme=term.upper(),
+                marker=content[index:index+len(violation)],
                 lineno=token.lineno,
-                col=token.col_offset + 1 + content.find(term),
+                col=token.col_offset + 1 + index,
             )
         if content.startswith("#") and not self.is_block_comment(content):
             if not content.startswith("# "):

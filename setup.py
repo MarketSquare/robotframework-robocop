@@ -65,7 +65,6 @@ setup(
             "black",
             "coverage",
             "pytest",
-            "pytest-benchmark",
             "pyyaml",
         ],
         "doc": [

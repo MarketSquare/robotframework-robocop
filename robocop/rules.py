@@ -139,14 +139,14 @@ class SeverityThreshold:
     """
     Set issue severity depending on threshold values of configured rule param.
 
-    Rules that supports SeverityThreshold allows you to set thresholds::
+    Rules that support ``SeverityThreshold`` allow you to set thresholds::
 
         robocop -c line-too-long:severity_threshold:warning=140:error=200
 
     In this example ``line-too-long`` rule is a warning if the rule param
-    ("line_length") exceed 140 and is an error if it exceed 200.
+    ("line_length") exceeds 140, and is an error if it exceeds 200.
 
-    When adding support for SeverityThreshold to Rule, the value of the param
+    When adding support for ``SeverityThreshold`` to ``Rule``, the value of the param
     needs to be passed to self.report() call as ``sev_threshold_value``.
 
     ``compare_method`` is used to determine how to compare parameter value

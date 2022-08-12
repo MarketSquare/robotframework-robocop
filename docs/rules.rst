@@ -48,7 +48,7 @@ Rules
    Parameter ``{{ rule_doc.severity_threshold.param_name }}`` will be used to determine issue severity depending on the thresholds.
 
    When configuring thresholds remember to also set ``{{ rule_doc.severity_threshold.param_name }}`` - its value should be lower or
-   equal to lowest value in the threshold.
+   equal to the lowest value in the threshold.
 
 {% endif %}
 

@@ -400,31 +400,3 @@ class Message:
             "description": self.desc,
             "rule_name": self.name,
         }
-
-
-if __name__ == "__main__":
-    # FIXME remove this
-    thresholds = SeverityThreshold("line_length")
-    thresholds.set_thresholds("warning=100:info=50:error=150")
-    print(f"Severity for 30: {thresholds.get_severity(30)}")
-    print(f"Severity for 100: {thresholds.get_severity(100)}")
-    print(f"Severity for 101: {thresholds.get_severity(101)}")
-    print(f"Severity for 149: {thresholds.get_severity(149)}")
-    print(f"Severity for 150: {thresholds.get_severity(150)}")
-
-    rule = Rule(
-        RuleParam(name="line_length", default=120, converter=int, desc="number of characters allowed in line"),
-        SeverityThreshold("line_length"),
-        rule_id="0508",
-        name="line-too-long",
-        msg="Line is too long ({{ line_length }}/{{ allowed_length }})",
-        severity=RuleSeverity.WARNING,
-        docs="""
-        It is possible to ignore lines that match regex pattern. Configure it using following option::
-        
-            robocop --configure line-too-long:ignore_pattern:pattern
-        
-        The default pattern is `https?://\S+` that ignores the lines that look like an URL.
-
-        """,
-    )

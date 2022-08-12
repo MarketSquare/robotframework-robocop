@@ -4,7 +4,7 @@ Rule Severity Thresholds
 ===========================
 Selected rules can be configured to have different severity depending on the parameter value.
 
-Using ``line-too-long`` as an example - this rule issue an warning when line length exceed configured value (default ``140``).
+Using ``line-too-long`` as an example - this rule issues a warning when line length exceeds configured value (default ``140``).
 It is possible to configure this rule to issue a warning for line length above 120 but an error for line length above 200.
 We can use ``severity_threshold`` for this purpose.
 

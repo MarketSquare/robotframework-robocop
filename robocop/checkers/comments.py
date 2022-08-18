@@ -16,7 +16,7 @@ rules = {
             name="markers",
             default="todo,fixme",
             converter=str,
-            desc="List of case insensitive markers that violate the rule in comments.",
+            desc="Report occurences of the configured, case-insensitive marker in the comments. By default it reports TODO and FIXME markers.",
         ),
         rule_id="0701",
         name="todo-in-comment",
@@ -28,9 +28,12 @@ rules = {
             # TODO: Refactor this code
             # fixme
         
-        Configuration example::
+        Configuration examples::
 
-            robocop --configure "todo-in-comment:markers:todo,fixme,Remove me,Fix this!"
+            robocop --configure todo-in-comment:markers:todo,fixme,TBD
+
+            Use quotes to configure phrases as markers: 
+            robocop --configure "todo-in-comment:markers:todo,Remove me,Fix this!"
 
         """,
     ),

@@ -1,0 +1,4 @@
+${rules_dir}${\}test.robot:6:1 [W] 1012 Too many consecutive empty lines (2/1)
+${rules_dir}${\}test.robot:16:1 [W] 1012 Too many consecutive empty lines (2/1)
+${rules_dir}${\}test.robot:30:1 [W] 1012 Too many consecutive empty lines (2/1)
+${rules_dir}${\}test.robot:48:1 [E] 1012 Too many consecutive empty lines (3/1)

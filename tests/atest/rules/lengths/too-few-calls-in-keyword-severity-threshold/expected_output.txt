@@ -1,0 +1,2 @@
+${rules_dir}${\}test.robot:22:1 [W] 0502 Keyword 'Short Keyword' has too few keywords inside (1/2)
+${rules_dir}${\}test.robot:25:1 [E] 0502 Keyword 'Empty Keyword' has too few keywords inside (0/2)

@@ -2,7 +2,9 @@ import os
 from pathlib import Path
 
 import pytest
+import yaml
 
+from robocop.checkers import get_rules
 from robocop.config import Config
 from robocop.utils import ROBOT_VERSION
 
@@ -44,6 +46,37 @@ def find_test_data(test_data_path, rule):
 def load_expected_file(expected_file, src):
     with open(expected_file) as f:
         return [replace_paths(line, str(src)) for line in f]
+
+
+def get_covered_threshold_severity_tests():
+    is_covered = set()
+
+    with open(Path(__file__).parent / "custom_tests.yaml") as f:
+        tests = yaml.safe_load(f)
+    for rule, configs in tests["tests"].items():
+        for config in configs:
+            test_config = config["config"]
+            if not test_config:
+                continue
+            if isinstance(test_config, str):
+                if "severity_threshold" in test_config:
+                    is_covered.add(rule)
+            else:
+                for conf in test_config:
+                    if "severity_threshold" in conf:
+                        is_covered.add(rule)
+    return is_covered
+
+
+def test_threshold_severity_coverage():
+    require_coverage = set()
+    for _, rule in get_rules():
+        if rule.config.get("severity_threshold", None):
+            require_coverage.add(rule.name)
+
+    is_covered = get_covered_threshold_severity_tests()
+    covered = require_coverage - is_covered
+    assert covered == set(), "There are rules with severity_threshold not covered by tests"
 
 
 def test_rule(rule, args, test_data, enabled, robocop_instance, capsys):

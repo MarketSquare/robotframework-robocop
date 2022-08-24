@@ -5,6 +5,7 @@ from pathlib import Path
 
 sys.path.append(str(Path(__file__).parent.parent))
 import robocop
+from robocop.rules import SeverityThreshold
 
 # -- Project information -----------------------------------------------------
 
@@ -72,6 +73,7 @@ def get_checker_docs():
     checker_docs = defaultdict(list)
     for module_name, rule in robocop.checkers.get_rules():
         module_name = module_name.title()
+        severity_threshold = rule.config.get("severity_threshold", None)
         checker_docs[module_name].append(
             {
                 "name": rule.name,
@@ -88,7 +90,9 @@ def get_checker_docs():
                         "desc": param.desc,
                     }
                     for param in rule.config.values()
+                    if not isinstance(param, SeverityThreshold)
                 ],
+                "severity_threshold": severity_threshold,
             }
         )
     groups_sorted_by_id = []

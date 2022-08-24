@@ -10,7 +10,7 @@ from robot.parsing.model.statements import Comment, EmptyLine
 from robot.parsing.model.visitor import ModelVisitor
 
 from robocop.checkers import RawFileChecker, VisitorChecker
-from robocop.rules import Rule, RuleParam, RuleSeverity
+from robocop.rules import Rule, RuleParam, RuleSeverity, SeverityThreshold
 from robocop.utils import get_errors, get_section_name, token_col
 
 rules = {
@@ -108,6 +108,7 @@ rules = {
             converter=int,
             desc="number of empty lines allowed after section header",
         ),
+        SeverityThreshold("empty_lines"),
         rule_id="1009",
         name="empty-line-after-section",
         msg="Too many empty lines after '{{ section_name }}' section header "
@@ -155,6 +156,7 @@ rules = {
             converter=int,
             desc="number of allowed consecutive empty lines",
         ),
+        SeverityThreshold("empty_lines", compare_method="greater"),
         rule_id="1012",
         name="consecutive-empty-lines",
         msg="Too many consecutive empty lines ({{ empty_lines }}/{{ allowed_empty_lines }})",
@@ -312,6 +314,7 @@ class EmptyLinesChecker(VisitorChecker):
                         empty_lines=empty_lines,
                         allowed_empty_lines=self.param("consecutive-empty-lines", "empty_lines"),
                         node=prev_node,
+                        sev_threshold_value=empty_lines,
                     )
                 if not isinstance(child, Comment):
                     empty_lines = 0
@@ -406,6 +409,7 @@ class EmptyLinesChecker(VisitorChecker):
                 empty_lines=len(empty_lines),
                 allowed_empty_lines=self.param("empty-line-after-section", "empty_lines"),
                 node=empty_lines[-1],
+                sev_threshold_value=len(empty_lines),
             )
 
 

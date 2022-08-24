@@ -189,6 +189,22 @@ rules = {
         msg="Too many test cases ({{ test_count }}/{{ max_allowed_count }})",
         severity=RuleSeverity.WARNING,
     ),
+    "0528": Rule(
+        RuleParam(name="min_calls", default=1, converter=int, desc="number of keyword calls required in a test case"),
+        rule_id="0528",
+        name="too-few-calls-in-test-case",
+        msg="Test case '{{ test_name }}' has too few keywords inside ({{ keyword_count }}/{{ min_allowed_count }})",
+        docs="""
+        Test without keywords will fail. Add more keywords or set results using Fail, Pass, Skip keywords::
+        
+            *** Test Cases ***
+            Test case
+                [Tags]    smoke
+                Skip    Test case draft
+
+        """,
+        severity=RuleSeverity.ERROR,
+    ),
 }
 
 
@@ -212,11 +228,12 @@ class LengthChecker(VisitorChecker):
     """
 
     reports = (
-        "too-long-keyword",
         "too-few-calls-in-keyword",
+        "too-few-calls-in-test-case",
         "too-many-calls-in-keyword",
-        "too-long-test-case",
         "too-many-calls-in-test-case",
+        "too-long-keyword",
+        "too-long-test-case",
         "file-too-long",
         "too-many-arguments",
     )
@@ -273,8 +290,7 @@ class LengthChecker(VisitorChecker):
                 end_col=node.col_offset + len(node.name) + 1,
                 sev_threshold_value=key_calls,
             )
-            return
-        if key_calls > self.param("too-many-calls-in-keyword", "max_calls"):
+        elif key_calls > self.param("too-many-calls-in-keyword", "max_calls"):
             self.report(
                 "too-many-calls-in-keyword",
                 keyword_name=node.name,
@@ -284,7 +300,6 @@ class LengthChecker(VisitorChecker):
                 end_col=node.col_offset + len(node.name) + 1,
                 sev_threshold_value=key_calls,
             )
-            return
 
     def visit_TestCase(self, node):  # noqa
         length = check_node_length(node, ignore_docs=self.param("too-long-test-case", "ignore_docs"))
@@ -306,8 +321,18 @@ class LengthChecker(VisitorChecker):
                 max_allowed_count=self.param("too-many-calls-in-test-case", "max_calls"),
                 node=node,
                 sev_threshold_value=key_calls,
+                end_col=node.col_offset + len(node.name) + 1,
             )
-            return
+        elif key_calls < self.param("too-few-calls-in-test-case", "min_calls"):
+            self.report(
+                "too-few-calls-in-test-case",
+                test_name=node.name,
+                keyword_count=key_calls,
+                min_allowed_count=self.param("too-few-calls-in-test-case", "min_calls"),
+                node=node,
+                sev_threshold_value=key_calls,
+                end_col=node.col_offset + len(node.name) + 1,
+            )
 
     @staticmethod
     def count_keyword_calls(node):

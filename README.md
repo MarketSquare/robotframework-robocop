@@ -22,12 +22,16 @@ Robocop
 - [Robotidy](#robotidy)
 - [FAQ](#faq)
 
-[Watch our talk](https://www.youtube.com/watch?v=vZoyi2ObM8E)
-from RoboCon 2021 about Robocop &
+Watch our talks from
+[RoboCon 2021](https://www.youtube.com/watch?v=vZoyi2ObM8E)
+and
+[RoboCon 2022](https://www.youtube.com/watch?v=t_R36N_4UBk)
+about Robocop &
 [Robotidy](https://github.com/MarketSquare/robotframework-tidy)
 and learn more about these cool tools! :robot:
 
 [![Robocop & Robotidy presentation at RoboCon 2021](http://img.youtube.com/vi/vZoyi2ObM8E/0.jpg)](https://youtu.be/vZoyi2ObM8E "Robocop & Robotidy presentation at RoboCon 2021")
+[![Robocop presentation at RoboCon 2022](http://img.youtube.com/vi/t_R36N_4UBk/0.jpg)](https://youtu.be/t_R36N_4UBk "Robocop presentation at RoboCon 2022")
 
 ---
 

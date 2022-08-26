@@ -161,3 +161,11 @@ class TestArgumentValidation:
     def test_list_reports(self, config):
         args = config.parse_opts(["--list-reports"])
         assert args.list_reports
+
+    def test_single_language(self, config):
+        args = config.parse_opts(["--lang", "fi"])
+        assert ["fi"] == args
+
+    def test_two_languages(self, config):
+        args = config.parse_opts(["--lang", "fi,pl"])
+        assert ["fi", "pl"] == args.lang

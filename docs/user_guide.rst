@@ -203,3 +203,25 @@ Preceding example configuration results in following levels::
 Fixing issues
 -------------
 Many issues in your code reported by Robocop can be fixed using auto-formatting tool, Robotidy. Check out the Robotidy [documentation](https://robotidy.readthedocs.io/en/stable/).
+
+Language support
+-----------------
+Robot Framework 5.1 added support for Robot settings and headers translation. Robocop will not recognize translated names unless
+it is properly configured. You can supply language code or name in the configuration using ``--language / --lang`` option::
+
+    robocop --lang fi
+
+Support multiple languages by either using ``language`` option twice or provide language code/name in comma separated list::
+
+    robocop --lang pl --lang pt
+    robocop --lang fi,pt
+
+``pyproject.toml`` file accepts ``language`` array::
+
+    [tool.robocop]
+    language = [
+        "pt",
+        "fi"
+    ]
+
+Custom language file is currently not supported.

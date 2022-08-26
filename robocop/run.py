@@ -14,6 +14,7 @@ from robocop.config import Config
 from robocop.files import get_files
 from robocop.rules import Message
 from robocop.utils import DisablersFinder, FileType, FileTypeChecker, RecommendationFinder, is_suite_templated
+from robocop.utils.file_types import get_resource_with_lang
 
 
 class Robocop:
@@ -97,7 +98,8 @@ class Robocop:
                 file_type = FileType.GENERAL
             file_type_checker.source = file
             try:
-                model = file_type.get_parser()(str(file))
+                resource_parser = file_type.get_parser()
+                model = get_resource_with_lang(resource_parser, str(file), self.config.lang)
                 file_type_checker.visit(model)
                 self.files[file] = (file_type, model)
             except DataError:
@@ -107,7 +109,7 @@ class Robocop:
             if resource in self.files and self.files[resource][0].value != FileType.RESOURCE:
                 self.files[resource] = (
                     FileType.RESOURCE,
-                    get_resource_model(str(resource)),
+                    get_resource_with_lang(get_resource_model, str(resource), self.config.lang),
                 )
 
     def run_checks(self):

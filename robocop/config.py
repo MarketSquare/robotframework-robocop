@@ -100,6 +100,7 @@ class Config:
         self.include_patterns = []
         self.exclude_patterns = []
         self.filetypes = {".robot", ".resource", ".tsv"}
+        self.lang = []
         self.list = ""
         self.list_configurables = ""
         self.list_reports = False
@@ -285,6 +286,13 @@ class Config:
             help=f"Paths ignored by default. "
             f"A regular expression to exclude directories on file search.\n"
             f"An empty value means no path is excluded. Default: {DEFAULT_EXCLUDES}",
+        )
+        optional.add_argument(
+            "--lang",
+            "--language",
+            action=ParseDelimitedArgAction,
+            default=self.lang,
+            help="Parse Robot Framework files using additional languages.",
         )
         optional.add_argument("-h", "--help", action="help", help="Print this help message and exit.")
         optional.add_argument(

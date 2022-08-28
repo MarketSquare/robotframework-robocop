@@ -1,0 +1,7 @@
+${rules_dir}${\}test.robot:24:5 [W] 0510 Too many return values (5/4)
+${rules_dir}${\}test.robot:27:5 [W] 0510 Too many return values (5/4)
+${rules_dir}${\}test.robot:31:9 [E] 0510 Too many return values (6/4)
+${rules_dir}${\}test.robot:37:13 [W] 0510 Too many return values (5/4)
+${rules_dir}${\}test.robot:39:13 [W] 0510 Too many return values (5/4)
+${rules_dir}${\}test.robot:41:13 [E] 0510 Too many return values (6/4)
+${rules_dir}${\}test.robot:43:13 [W] 0510 Too many return values (5/4)

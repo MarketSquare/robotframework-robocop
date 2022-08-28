@@ -18,17 +18,16 @@ except ImportError:
 from robot.libraries import STDLIBS
 
 from robocop.checkers import VisitorChecker
-from robocop.rules import Rule, RuleParam, RuleSeverity
+from robocop.rules import Rule, RuleParam, RuleSeverity, SeverityThreshold
 from robocop.utils import (
     ROBOT_VERSION,
     AssignmentTypeDetector,
+    get_errors,
+    keyword_col,
     normalize_robot_name,
     parse_assignment_sign_type,
-    keyword_col,
     token_col,
-    get_errors,
 )
-
 
 rules = {
     "0901": Rule(
@@ -266,6 +265,7 @@ rules = {
             converter=int,
             desc="maximum width of IF (in characters) below which it will be recommended to use inline IF",
         ),
+        SeverityThreshold("max_width", compare_method="less"),
         rule_id="0916",
         name="inline-if-can-be-used",
         msg="IF can be replaced with inline IF",
@@ -604,7 +604,7 @@ class IfChecker(VisitorChecker):
         if min_possible > self.param("inline-if-can-be-used", "max_width"):
             return
         token = node.header.get_token(node.header.type)
-        self.report("inline-if-can-be-used", node=node, col=token.col_offset + 1)
+        self.report("inline-if-can-be-used", node=node, col=token.col_offset + 1, sev_threshold_value=min_possible)
 
 
 class LoopStatementsChecker(VisitorChecker):

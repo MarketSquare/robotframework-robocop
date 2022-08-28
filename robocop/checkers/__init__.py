@@ -71,6 +71,7 @@ class BaseChecker:
         end_lineno=None,
         end_col=None,
         ext_disablers=None,
+        sev_threshold_value=None,
         **kwargs,
     ):
         if rule not in self.rules:
@@ -83,6 +84,7 @@ class BaseChecker:
             end_lineno=end_lineno,
             end_col=end_col,
             ext_disablers=ext_disablers,
+            sev_threshold_value=sev_threshold_value,
             **kwargs,
         )
         if message.enabled:

@@ -135,6 +135,88 @@ class RuleParam:
             raise robocop.exceptions.RuleParamFailedInitError(self, value, str(err)) from None
 
 
+class SeverityThreshold:
+    """
+    Set issue severity depending on threshold values of configured rule param.
+
+    Rules that support ``SeverityThreshold`` allow you to set thresholds::
+
+        robocop -c line-too-long:severity_threshold:warning=140:error=200
+
+    In this example ``line-too-long`` rule is a warning if the rule param
+    ("line_length") exceeds 140, and is an error if it exceeds 200.
+
+    When adding support for ``SeverityThreshold`` to ``Rule``, the value of the param
+    needs to be passed to self.report() call as ``sev_threshold_value``.
+
+    ``compare_method`` is used to determine how to compare parameter value
+    with threshold ranges.
+    """
+
+    def __init__(self, param_name, compare_method="greater"):
+        self.name = "severity_threshold"
+        self.param_name = param_name
+        self.thresholds = None
+        self.compare_method = compare_method
+
+    @property
+    def value(self):
+        """Property syntax is used to match with RuleParam converting logic."""
+        return self.thresholds
+
+    @value.setter
+    def value(self, value):
+        self.set_thresholds(value)
+
+    @staticmethod
+    def parse_severity(value):
+        severity = {
+            "error": RuleSeverity.ERROR,
+            "e": RuleSeverity.ERROR,
+            "warning": RuleSeverity.WARNING,
+            "w": RuleSeverity.WARNING,
+            "info": RuleSeverity.INFO,
+            "i": RuleSeverity.INFO,
+        }.get(str(value).lower(), None)
+        if severity is None:
+            severity_values = ", ".join(sev.value for sev in RuleSeverity)
+            hint = f"Choose one from: {severity_values}."
+            raise robocop.exceptions.InvalidArgumentError(f"Invalid severity value '{value}'. {hint}") from None
+        return severity
+
+    def set_thresholds(self, value):
+        severity_pairs = value.split(":")
+        thresholds = []
+        for pair in severity_pairs:
+            try:
+                sev, param_value = pair.split("=")
+            except ValueError:
+                raise robocop.exceptions.InvalidArgumentError(
+                    f"Invalid severity value '{value}'. It should be list of `severity=param_value` pairs, separated by `:`."
+                ) from None
+            severity = self.parse_severity(sev)
+            thresholds.append((severity, int(param_value)))  # TODO support non-int params
+        self.thresholds = sorted(thresholds, key=lambda x: x[0], reverse=True)
+
+    def check_condition(self, value, threshold):
+        if self.compare_method == "greater":
+            return value >= threshold
+        if self.compare_method == "less":
+            return value <= threshold
+        return False
+
+    def get_severity(self, value):
+        if self.thresholds is None:
+            return None
+        for severity, threshold in self.thresholds:
+            if self.check_condition(value, threshold):
+                return severity
+        return None
+
+    def __str__(self):
+        return self.name
+
+
 class Rule:
     """
     Robocop linter rule.
@@ -146,7 +228,7 @@ class Rule:
 
     def __init__(
         self,
-        *params: RuleParam,
+        *params: Union[RuleParam, SeverityThreshold],
         rule_id: str,
         name: str,
         msg: str,
@@ -155,7 +237,7 @@ class Rule:
         docs: str = "",
     ):
         """
-        :param params: RuleParam() instances
+        :param params: RuleParam() or SeverityThreshold() instances
         :param rule_id: id of the rule
         :param name: name of the rule
         :param msg: message printed when rule breach is detected
@@ -175,6 +257,7 @@ class Rule:
                 "severity", severity, RuleSeverity.parser, "Rule severity (E = Error, W = Warning, I = Info)"
             )
         }
+        self.severity_threshold = None
         for param in params:
             self.config[param.name] = param
         self.enabled = True
@@ -184,6 +267,17 @@ class Rule:
     @property
     def severity(self):
         return self.config["severity"].value
+
+    def get_severity_with_threshold(self, threshold_value):
+        if threshold_value is None:
+            return self.severity
+        severity_threshold = self.config.get("severity_threshold", None)
+        if severity_threshold is None:
+            return self.severity
+        severity = severity_threshold.get_severity(threshold_value)
+        if severity is None:
+            return self.severity
+        return severity
 
     @staticmethod
     def supported_in_rf_version(version: str) -> bool:
@@ -232,7 +326,9 @@ class Rule:
         text = "\n    ".join(params)
         return count, text
 
-    def prepare_message(self, source, node, lineno, col, end_lineno, end_col, ext_disablers, **kwargs):
+    def prepare_message(
+        self, source, node, lineno, col, end_lineno, end_col, ext_disablers, sev_threshold_value, **kwargs
+    ):
         msg = self.get_message(**kwargs)
         return Message(
             rule=self,
@@ -244,6 +340,7 @@ class Rule:
             end_col=end_col,
             end_lineno=end_lineno,
             ext_disablers=ext_disablers,
+            sev_threshold_value=sev_threshold_value,
         )
 
     def matches_pattern(self, pattern: Union[str, Pattern]):
@@ -265,11 +362,12 @@ class Message:
         end_lineno,
         end_col,
         ext_disablers=None,
+        sev_threshold_value=None,
     ):
         self.enabled = rule.enabled
         self.rule_id = rule.rule_id
         self.name = rule.name
-        self.severity = rule.severity
+        self.severity = rule.get_severity_with_threshold(sev_threshold_value)
         self.desc = msg
         self.source = source
         self.line = 1

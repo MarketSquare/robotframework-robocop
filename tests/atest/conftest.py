@@ -50,7 +50,13 @@ def pytest_generate_tests(metafunc):
         tests = yaml.safe_load(f)
     for rule, configs in tests["tests"].items():
         for config in configs:
-            configuration = ["-c", config["config"]] if config["config"] else []
+            configuration = []
+            if config["config"]:
+                if isinstance(config["config"], str):
+                    configuration = ["-c", config["config"]]
+                else:
+                    for conf in config["config"]:
+                        configuration.extend(["-c", conf])
             if rule in rules:
                 configured_tests.append((rule, configuration, config["src_dir"], rules[rule][1].enabled_in_version))
             else:

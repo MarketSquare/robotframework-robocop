@@ -59,6 +59,21 @@ Issue details:
 
 You can configure Robocop using CLI or configuration file (:ref:`configuration file`).
 
+Gitlab pipeline
+---------------
+
+There is some basic ``.gitlab-ci.yml`` file that triggers Robocop in `Gitlab CI/CD <https://docs.gitlab.com/ee/ci/quick_start/>`_:
+
+.. code:: yaml
+
+    image: python:3
+
+    robocop:
+      before_script:
+      - pip install -U robotframework-robocop
+      script:
+      - robocop
+
 Jenkins
 ----------
 There is no direct support for Robocop in Jenkins. But it is possible to use existing plugins for tools like

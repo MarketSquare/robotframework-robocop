@@ -44,7 +44,7 @@ def find_test_data(test_data_path, rule):
 
 
 def load_expected_file(expected_file, src):
-    with open(expected_file) as f:
+    with open(expected_file, encoding="utf-8") as f:
         return [replace_paths(line, str(src)) for line in f]
 
 

@@ -2,12 +2,19 @@
 Naming checkers
 """
 import re
+import os.path
 from collections import defaultdict
 from pathlib import Path
 
 from robot.api import Token
+from robot.conf import RobotSettings
+from robot.output import LOGGER as OUTPUT_LOGGER, Output
 from robot.parsing.model.blocks import Keyword
 from robot.parsing.model.statements import Arguments, KeywordCall
+from robot.running.builder import ResourceFileBuilder, TestSuiteBuilder
+from robot.running.context import EXECUTION_CONTEXTS
+from robot.running.namespace import Namespace
+from robot.variables import VariableScopes
 
 from robocop.checkers import VisitorChecker
 from robocop.rules import Rule, RuleParam, RuleSeverity
@@ -289,6 +296,12 @@ rules = {
         `regex_pattern` should define regex pattern for characters not allowed in names. For example `[@\[]` pattern
         reports any occurrence of `@[` characters.
         """,
+    ),
+    "0321": Rule(
+        rule_id="0321",
+        name="missing-4-spaces-before-argument",
+        msg='There should be 4 spaces before argument(s) of keyword "{{ keyword_name }}"',
+        severity=RuleSeverity.ERROR
     ),
 }
 
@@ -743,3 +756,43 @@ class DeprecatedStatementChecker(VisitorChecker):
                 col=col,
                 version=f"{ROBOT_VERSION.major}.*",
             )
+
+
+class SpacesBeforeArgumentChecker(VisitorChecker):
+    reports = ("missing-4-spaces-before-argument",)
+
+    def visit_KeywordCall(self, node):
+        if node.keyword in KNOWN_KEYWORDS:
+            return
+        try:
+            known_keyword = next(keyword for keyword in KNOWN_KEYWORDS if node.keyword.startswith(f"{keyword} "))
+            self.report("missing-4-spaces-before-argument", node=node, col=len(known_keyword), keyword_name=known_keyword)
+        except StopIteration:
+            pass
+
+
+def all_builtin_keywords(suite_dir='.', src_filepath='./settings.robot'):
+    ts_builder = TestSuiteBuilder()
+    suite = ts_builder.build(suite_dir)
+    if os.path.exists(src_filepath):
+        rf_builder = ResourceFileBuilder()
+        resource = rf_builder.build(src_filepath)
+    else:
+        resource = suite.resource
+
+    settings = RobotSettings(output=None)
+    # Avoid this message: [ ERROR ] Log file is not created if output.xml is disabled.
+    OUTPUT_LOGGER.unregister_console_logger()
+    output, variables = Output(settings), VariableScopes(settings)
+    output.library_listeners.new_suite_scope()
+
+    ns = Namespace(variables, suite, resource)
+    EXECUTION_CONTEXTS.start_suite(suite, ns, output, dry_run=True)
+    ns.handle_imports()
+    for lib in ns.libraries:
+        for keyword in lib.handlers:
+            yield keyword
+    EXECUTION_CONTEXTS.end_suite()
+
+
+KNOWN_KEYWORDS = [keyword.name for keyword in all_builtin_keywords()]

@@ -4,7 +4,15 @@ Lengths checkers
 import re
 
 from robot.parsing.model.blocks import CommentSection, TestCase
-from robot.parsing.model.statements import Arguments, Comment, Documentation, EmptyLine, KeywordCall
+from robot.parsing.model.statements import (
+    Arguments,
+    Comment,
+    Documentation,
+    EmptyLine,
+    KeywordCall,
+    Template,
+    TemplateArguments,
+)
 
 from robocop.checkers import RawFileChecker, VisitorChecker
 from robocop.rules import Rule, RuleParam, RuleSeverity, SeverityThreshold
@@ -39,7 +47,7 @@ rules = {
     "0504": Rule(
         RuleParam(name="max_len", default=20, converter=int, desc="number of lines allowed in a test case"),
         RuleParam(name="ignore_docs", default=False, converter=str2bool, desc="Ignore documentation"),
-        SeverityThreshold("max_calls", compare_method="greater"),
+        SeverityThreshold("max_len", compare_method="greater"),
         rule_id="0504",
         name="too-long-test-case",
         msg="Test case '{{ test_name }}' is too long ({{ test_length }}/{{ allowed_length }})",
@@ -47,10 +55,12 @@ rules = {
     ),
     "0505": Rule(
         RuleParam(name="max_calls", default=10, converter=int, desc="number of keyword calls allowed in a test case"),
+        RuleParam(name="ignore_templated", default=False, converter=str2bool, desc="Ignore templated tests"),
         SeverityThreshold("max_calls", compare_method="greater"),
         rule_id="0505",
         name="too-many-calls-in-test-case",
         msg="Test case '{{ test_name }}' has too many keywords inside ({{ keyword_count }}/{{ max_allowed_count }})",
+        docs="Redesign the test and move complex logic to separate keywords to increase readiblity.",
         severity=RuleSeverity.WARNING,
     ),
     "0506": Rule(
@@ -191,6 +201,7 @@ rules = {
     ),
     "0528": Rule(
         RuleParam(name="min_calls", default=1, converter=int, desc="number of keyword calls required in a test case"),
+        RuleParam(name="ignore_templated", default=False, converter=str2bool, desc="Ignore templated tests"),
         rule_id="0528",
         name="too-few-calls-in-test-case",
         msg="Test case '{{ test_name }}' has too few keywords inside ({{ keyword_count }}/{{ min_allowed_count }})",
@@ -301,6 +312,16 @@ class LengthChecker(VisitorChecker):
                 sev_threshold_value=key_calls,
             )
 
+    def test_is_templated(self, node):
+        if self.templated_suite:
+            return True
+        if not node.body:
+            return False
+        for statement in node.body:
+            if isinstance(statement, Template):
+                return True
+        return False
+
     def visit_TestCase(self, node):  # noqa
         length = check_node_length(node, ignore_docs=self.param("too-long-test-case", "ignore_docs"))
         if length > self.param("too-long-test-case", "max_len"):
@@ -312,8 +333,13 @@ class LengthChecker(VisitorChecker):
                 node=node,
                 sev_threshold_value=length,
             )
+        test_is_templated = self.test_is_templated(node)
+        skip_too_many = test_is_templated and self.param("too-many-calls-in-test-case", "ignore_templated")
+        skip_too_few = test_is_templated and self.param("too-few-calls-in-test-case", "ignore_templated")
+        if skip_too_few and skip_too_many:
+            return
         key_calls = LengthChecker.count_keyword_calls(node)
-        if key_calls > self.param("too-many-calls-in-test-case", "max_calls"):
+        if not skip_too_many and (key_calls > self.param("too-many-calls-in-test-case", "max_calls")):
             self.report(
                 "too-many-calls-in-test-case",
                 test_name=node.name,
@@ -323,7 +349,7 @@ class LengthChecker(VisitorChecker):
                 sev_threshold_value=key_calls,
                 end_col=node.col_offset + len(node.name) + 1,
             )
-        elif key_calls < self.param("too-few-calls-in-test-case", "min_calls"):
+        elif not skip_too_few and (key_calls < self.param("too-few-calls-in-test-case", "min_calls")):
             self.report(
                 "too-few-calls-in-test-case",
                 test_name=node.name,
@@ -336,7 +362,7 @@ class LengthChecker(VisitorChecker):
 
     @staticmethod
     def count_keyword_calls(node):
-        if isinstance(node, KeywordCall):
+        if isinstance(node, (KeywordCall, TemplateArguments)):
             return 1
         if not hasattr(node, "body"):
             return 0

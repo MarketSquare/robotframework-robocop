@@ -52,57 +52,57 @@ class TestArgumentValidation(unittest.TestCase):
         self.assertSetEqual(args.filetypes, {".resource", ".robot", ".tsv"})
 
     def test_include_one_rule(self):
-        rule_name = "missing-keyword-doc"
+        rule_name = "missing-doc-keyword"
         args = self.config.parse_opts(["--include", rule_name, ""])
         self.assertSetEqual(args.include, {rule_name})
 
     def test_include_two_same_rules_comma_separated(self):
-        rule_name = "missing-keyword-doc"
+        rule_name = "missing-doc-keyword"
         args = self.config.parse_opts(["--include", ",".join([rule_name, rule_name]), ""])
         self.assertSetEqual(args.include, {rule_name})
 
     def test_include_two_same_rules_provided_separately(self):
-        rule_name = "missing-keyword-doc"
+        rule_name = "missing-doc-keyword"
         args = self.config.parse_opts(["--include", rule_name, "--include", rule_name, ""])
         self.assertSetEqual(args.include, {rule_name})
 
     def test_include_two_different_rules_comma_separated(self):
-        rule_name1 = "missing-keyword-doc"
+        rule_name1 = "missing-doc-keyword"
         rule_name2 = "not-allowed-char-in-name"
         rules_names = ",".join([rule_name1, rule_name2])
         args = self.config.parse_opts(["--include", rules_names, ""])
         self.assertSetEqual(args.include, {rule_name1, rule_name2})
 
     def test_include_two_different_rules_provided_separately(self):
-        rule_name1 = "missing-keyword-doc"
+        rule_name1 = "missing-doc-keyword"
         rule_name2 = "not-allowed-char-in-name"
         args = self.config.parse_opts(["--include", rule_name1, "--include", rule_name2, ""])
         self.assertSetEqual(args.include, {rule_name1, rule_name2})
 
     def test_exclude_one_rule(self):
-        rule_name = "missing-keyword-doc"
+        rule_name = "missing-doc-keyword"
         args = self.config.parse_opts(["--exclude", rule_name, ""])
         self.assertSetEqual(args.exclude, {rule_name})
 
     def test_exclude_two_same_rules_comma_separated(self):
-        rule_name = "missing-keyword-doc"
+        rule_name = "missing-doc-keyword"
         args = self.config.parse_opts(["--exclude", ",".join([rule_name, rule_name]), ""])
         self.assertSetEqual(args.exclude, {rule_name})
 
     def test_exclude_two_same_rules_provided_separately(self):
-        rule_name = "missing-keyword-doc"
+        rule_name = "missing-doc-keyword"
         args = self.config.parse_opts(["--exclude", rule_name, "--exclude", rule_name, ""])
         self.assertSetEqual(args.exclude, {rule_name})
 
     def test_exclude_two_different_rules_comma_separated(self):
-        rule_name1 = "missing-keyword-doc"
+        rule_name1 = "missing-doc-keyword"
         rule_name2 = "not-allowed-char-in-name"
         rules_names = ",".join([rule_name1, rule_name2])
         args = self.config.parse_opts(["--exclude", rules_names, ""])
         self.assertSetEqual(args.exclude, {rule_name1, rule_name2})
 
     def test_exclude_two_different_rules_provided_separately(self):
-        rule_name1 = "missing-keyword-doc"
+        rule_name1 = "missing-doc-keyword"
         rule_name2 = "not-allowed-char-in-name"
         args = self.config.parse_opts(["--exclude", rule_name1, "--exclude", rule_name2, ""])
         self.assertSetEqual(args.exclude, {rule_name1, rule_name2})

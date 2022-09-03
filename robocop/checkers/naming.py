@@ -512,6 +512,9 @@ class SettingsNamingChecker(VisitorChecker):
         "empty-library-alias",
         "duplicated-library-alias",
     )
+    ALIAS_TOKENS = [Token.WITH_NAME] if ROBOT_VERSION.major < 5 else [Token.WITH_NAME, "AS"]
+    # Separating alias values since RF 3 uses WITH_NAME instead of WITH NAME
+    ALIAS_TOKENS_VALUES = ["WITH NAME"] if ROBOT_VERSION.major < 5 else [Token.WITH_NAME, "AS"]
 
     def __init__(self):
         self.section_name_pattern = re.compile(r"\*\*\*\s.+\s\*\*\*")
@@ -548,10 +551,10 @@ class SettingsNamingChecker(VisitorChecker):
 
     def visit_LibraryImport(self, node):  # noqa
         self.check_setting_name(node.data_tokens[0].value, node)
-        with_name = node.get_token(Token.WITH_NAME)
+        with_name = node.get_token(*self.ALIAS_TOKENS)
         if with_name is None:
             for arg in node.get_tokens(Token.ARGUMENT):
-                if arg.value and arg.value == "WITH NAME":
+                if arg.value and arg.value in self.ALIAS_TOKENS_VALUES:
                     self.report("empty-library-alias", node=arg, col=arg.col_offset + 1)
         else:
             if node.alias.replace(" ", "") == node.name.replace(" ", ""):  # New Name == NewName

@@ -1,2 +1,4 @@
 ${rules_dir}${\}test.robot:3:40 [W] 0315 Library alias should not be the same as original name
-${rules_dir}${\}test.robot:6:42 [W] 0315 Library alias should not be the same as original name
+${rules_dir}${\}test.robot:4:33 [W] 0315 Library alias should not be the same as original name
+${rules_dir}${\}test.robot:7:42 [W] 0315 Library alias should not be the same as original name
+${rules_dir}${\}test.robot:8:35 [W] 0315 Library alias should not be the same as original name

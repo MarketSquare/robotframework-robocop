@@ -418,11 +418,11 @@ class KeywordNamingChecker(VisitorChecker):
         super().__init__()
 
     def check_keyword_naming_with_subkeywords(self, node, name_token_type):
-        for index, keyword in enumerate(iterate_keyword_names(node, name_token_type)):
-            root_node = node if index == 0 else None
-            self.check_keyword_naming(keyword.value, keyword, root_node)
+        for keyword in iterate_keyword_names(node, name_token_type):
+            self.check_keyword_naming(keyword.value, keyword)
 
     def visit_Setup(self, node):  # noqa
+        self.check_bdd_keywords(node.name, node)
         self.check_keyword_naming_with_subkeywords(node, Token.NAME)
 
     visit_TestTeardown = visit_SuiteTeardown = visit_Teardown = visit_TestSetup = visit_SuiteSetup = visit_Setup
@@ -438,21 +438,20 @@ class KeywordNamingChecker(VisitorChecker):
         if self.inside_if_block and node.keyword and node.keyword.lower() in self.else_statements:
             self.report("else-not-upper-case", node=node, col=keyword_col(node))
         self.check_keyword_naming_with_subkeywords(node, Token.KEYWORD)
+        self.check_bdd_keywords(node.keyword, node)
 
     def visit_If(self, node):  # noqa
         self.inside_if_block = True
         self.generic_visit(node)
         self.inside_if_block = False
 
-    def check_keyword_naming(self, keyword_name, node, root_keyword=None):  # noqa
+    def check_keyword_naming(self, keyword_name, node):  # noqa
         if not keyword_name or keyword_name.lstrip().startswith("#"):
             return
         if keyword_name == r"/":  # old for loop, / are interpreted as keywords
             return
         if self.check_if_keyword_is_reserved(keyword_name, node):
             return
-        if root_keyword:
-            self.check_bdd_keywords(keyword_name, node, root_keyword)
         normalized = remove_robot_vars(keyword_name)
         normalized = self.param("wrong-case-in-keyword-name", "pattern").sub("", normalized)
         normalized = normalized.split(".")[-1]  # remove any imports ie ExternalLib.SubLib.Log -> Log
@@ -477,19 +476,13 @@ class KeywordNamingChecker(VisitorChecker):
                 end_col=node.end_col_offset + 1,
             )
 
-    def check_bdd_keywords(self, keyword_name, node, root_keyword):
-        if keyword_name.lower() not in self.bdd or isinstance(node, Keyword):
+    def check_bdd_keywords(self, keyword_name, node):
+        if not keyword_name or keyword_name.lower() not in self.bdd:
             return
-        arg = root_keyword.get_token(Token.ARGUMENT)
+        arg = node.get_token(Token.ARGUMENT)
         suffix = f". Use one space between: '{keyword_name.title()} {arg.value}'" if arg else ""
-        self.report(
-            "bdd-without-keyword-call",
-            keyword_name=keyword_name,
-            error_msg=suffix,
-            node=node,
-            col=node.col_offset + 1,
-            end_col=node.end_col_offset + 1,
-        )
+        col = token_col(node, Token.NAME, Token.KEYWORD)
+        self.report("bdd-without-keyword-call", keyword_name=keyword_name, error_msg=suffix, node=node, col=col)
 
     def check_if_keyword_is_reserved(self, keyword_name, node):
         # if there is typo in syntax, it is interpreted as keyword

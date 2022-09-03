@@ -95,3 +95,8 @@ tests:
         - too-many-test-cases:max_templated_testcases:2
         - too-many-test-cases:severity_threshold:error=4
       src_dir: lengths/too-many-test-cases-severity-threshold
+  todo-in-comment:
+    - config: todo-in-comment:markers:todo,fixme,OMG
+      src_dir: comments/todo-in-comment-added-terms
+    - config: "todo-in-comment:markers:remove me,fix this ugly bug,korjaa tämä hässäkkä"
+      src_dir: comments/todo-in-comment-phrases

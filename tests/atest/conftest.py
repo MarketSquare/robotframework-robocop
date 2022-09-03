@@ -46,7 +46,7 @@ def pytest_generate_tests(metafunc):
     configured_tests = [
         (rule.name, None, f"{category}/{rule.name}", rule.enabled_in_version) for (category, rule) in rules.values()
     ]
-    with open(Path(__file__).parent / "custom_tests.yaml") as f:
+    with open(Path(__file__).parent / "custom_tests.yaml", encoding="utf-8") as f:
         tests = yaml.safe_load(f)
     for rule, configs in tests["tests"].items():
         for config in configs:

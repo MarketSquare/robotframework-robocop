@@ -99,7 +99,7 @@ class Robocop:
             file_type_checker.source = file
             try:
                 resource_parser = file_type.get_parser()
-                model = get_resource_with_lang(resource_parser, str(file), self.config.lang)
+                model = get_resource_with_lang(resource_parser, str(file), self.config.language)
                 file_type_checker.visit(model)
                 self.files[file] = (file_type, model)
             except DataError:
@@ -109,7 +109,7 @@ class Robocop:
             if resource in self.files and self.files[resource][0].value != FileType.RESOURCE:
                 self.files[resource] = (
                     FileType.RESOURCE,
-                    get_resource_with_lang(get_resource_model, str(resource), self.config.lang),
+                    get_resource_with_lang(get_resource_model, str(resource), self.config.language),
                 )
 
     def run_checks(self):

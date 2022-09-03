@@ -20,3 +20,7 @@ configure = [
     "0201:severity:E"
 ]
 no_recursive = true
+language = [
+    "pt",
+    "fi"
+]

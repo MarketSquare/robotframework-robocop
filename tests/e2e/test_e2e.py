@@ -243,7 +243,7 @@ class TestTranslatedRobot:
         config = Config()
         test_file = test_data_dir / "translation" / "fi.robot"
         config.paths = [str(test_file)]
-        config.lang = ["fi"]
+        config.language = ["fi"]
         robocop_instance = Robocop(config=config)
         robocop_instance.run()
         return self.assert_issue_was_not_found(robocop_instance, "Unrecognized section")
@@ -260,7 +260,7 @@ class TestTranslatedRobot:
         config = Config()
         test_file = test_data_dir / "translation" / "fi_and_pl.robot"
         config.paths = [str(test_file)]
-        config.lang = ["fi", "pl"]
+        config.language = ["fi", "pl"]
         robocop_instance = Robocop(config=config)
         robocop_instance.run()
         return self.assert_issue_was_not_found(robocop_instance, "Unrecognized section")

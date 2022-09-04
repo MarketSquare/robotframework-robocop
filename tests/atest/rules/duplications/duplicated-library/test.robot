@@ -5,6 +5,12 @@ Library    OtherLib
 Library
 Resource  some_resource.robot
 Library    MyLib
+Library    MyLib    arg
+Library    MyLib    arg
+Library    MyLib  WITH NAME    MyLib2
+Library    MyLib  AS    MyLib3
+Library    MyLib  AS    MyLib2
+Library    MyLib    argument    AS    MyLib2
 
 
 *** Test Cases ***

@@ -33,14 +33,25 @@ def replace_paths(line, rules_dir):
 
 
 def find_test_data(test_data_path, rule):
+    """
+    Returns the test data directory (using by default rule name) and expected data file.
+    Expected data is found in the following order:
+    - first we're looking for file matching 'expected_output_rf{RF_MAJOR_VERSION}.{RF_MINOR_VERSION}.txt'
+      (ie. for RF 5.0.1 we're looking for 'expected_output_rf5.0.txt' file
+    - if file does not exist, we're looking for file matching 'expected_output_rf_{RF_MAJOR_VERSION}.txt' pattern
+      (ie. for RF 4.1 we're looking for 'expected_output_rf4.txt' file)
+    - if file does not exist, we're looking for 'expected_output.txt' file. This is usually default expected data,
+      for most recent version of RF
+    """
     current_dir = Path(__file__).parent
     test_data = Path(current_dir, "rules", test_data_path)
-    expected_output = Path(test_data, f"expected_output_rf{ROBOT_VERSION.major}.txt")
-    if not expected_output.exists():
-        expected_output = Path(test_data, "expected_output.txt")
     assert test_data.exists(), f"Missing test data for rule '{rule}'"
-    assert expected_output.exists(), f"Missing expected_output.txt file for rule '{rule}'"
-    return test_data, expected_output
+    suffix_patterns = [f"_rf{ROBOT_VERSION.major}.{ROBOT_VERSION.minor}", f"_rf{ROBOT_VERSION.major}", ""]
+    for suffix in suffix_patterns:
+        expected_output = test_data / f"expected_output{suffix}.txt"
+        if expected_output.exists():
+            return test_data, expected_output
+    raise ValueError(f"Missing expected_output.txt file for rule '{rule}'")
 
 
 def load_expected_file(expected_file, src):

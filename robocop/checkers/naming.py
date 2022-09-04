@@ -291,6 +291,31 @@ rules = {
         reports any occurrence of `@[` characters.
         """,
     ),
+    "0321": Rule(
+        rule_id="0321",
+        name="deprecated-with-name",
+        msg=(
+            "'WITH NAME' alias marker is deprecated since Robot Framework 5.1 version "
+            "and will be removed in the future release. Use 'AS' instead"
+        ),
+        severity=RuleSeverity.WARNING,
+        version=">=5.1",
+        docs="""
+        ``WITH NAME`` marker that is used when giving an alias to an imported library is going to be renamed to ``AS``.
+        The motivation is to be consistent with Python that uses ``as`` for similar purpose.
+        
+        Code with the deprecated marker::
+        
+            *** Settings ***
+            Library    Collections    WITH NAME    AliasedName
+        
+        Code with the supported marker::
+        
+            *** Settings ***
+            Library    Collections    AS    AliasedName
+        
+        """,
+    ),
 }
 
 
@@ -702,7 +727,7 @@ class SimilarVariableChecker(VisitorChecker):
 class DeprecatedStatementChecker(VisitorChecker):
     """Checker for deprecated statements."""
 
-    reports = ("deprecated-statement",)
+    reports = ("deprecated-statement", "deprecated-with-name")
     deprecated_keywords = {
         5: {
             "runkeywordunless": "IF",
@@ -751,3 +776,11 @@ class DeprecatedStatementChecker(VisitorChecker):
                 col=col,
                 version=f"{ROBOT_VERSION.major}.*",
             )
+
+    def visit_LibraryImport(self, node):  # noqa
+        if ROBOT_VERSION.major < 5 or (ROBOT_VERSION.major == 5 and ROBOT_VERSION.minor == 0):
+            return
+        with_name_token = node.get_token(Token.WITH_NAME)
+        if not with_name_token or with_name_token.value == "AS":
+            return
+        self.report("deprecated-with-name", node=with_name_token, col=with_name_token.col_offset + 1)

@@ -1,8 +1,5 @@
 import io
 import pathlib
-import unittest
-from io import StringIO
-from unittest.mock import patch
 
 import pytest
 
@@ -58,12 +55,12 @@ class TestArgumentValidation:
         assert args.include == {rule_name}
 
     def test_include_two_same_rules_comma_separated(self, config):
-        rule_name = "missing-keyword-doc"
+        rule_name = "missing-doc-keyword"
         args = config.parse_opts(["--include", ",".join([rule_name, rule_name]), ""])
         assert args.include == {rule_name}
 
     def test_include_two_same_rules_provided_separately(self, config):
-        rule_name = "missing-keyword-doc"
+        rule_name = "missing-doc-keyword"
         args = config.parse_opts(["--include", rule_name, "--include", rule_name, ""])
         assert args.include == {rule_name}
 
@@ -161,3 +158,11 @@ class TestArgumentValidation:
     def test_list_reports(self, config):
         args = config.parse_opts(["--list-reports"])
         assert args.list_reports
+
+    def test_single_language(self, config):
+        args = config.parse_opts(["--lang", "fi"])
+        assert ["fi"] == args.language
+
+    def test_two_languages(self, config):
+        args = config.parse_opts(["--lang", "fi,pl"])
+        assert ["fi", "pl"] == args.language

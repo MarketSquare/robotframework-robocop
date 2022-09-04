@@ -1,6 +1,6 @@
 """ General E2E tests to catch any general issue in Robocop """
-from pathlib import Path
 import sys
+from pathlib import Path
 from unittest import mock
 
 import pytest
@@ -10,11 +10,12 @@ from robocop.exceptions import (
     ArgumentFileNotFoundError,
     ConfigGeneralError,
     FileError,
-    NestedArgumentFileError,
     InvalidArgumentError,
+    NestedArgumentFileError,
 )
 from robocop.rules import RuleSeverity
 from robocop.run import Robocop
+from robocop.utils.misc import rf_supports_lang
 
 
 @pytest.fixture
@@ -212,11 +213,54 @@ class TestE2E:
     def test_override_severity(self, test_data_dir):
         config = Config()
         config.threshold = RuleSeverity("W")
-        config.configure = [
-            "missing-doc-test-case:severity:i"
-        ]
+        config.configure = ["missing-doc-test-case:severity:i"]
         test_file = test_data_dir / "override_severity" / "test.robot"
         config.paths = [str(test_file)]
         robocop_instance = Robocop(config=config)
         robocop_instance.run()
         assert not robocop_instance.reports["json_report"].issues
+
+
+@pytest.mark.skipif(not rf_supports_lang(), reason="Requires RF 5.1 with languages support")
+class TestTranslatedRobot:
+    @staticmethod
+    def assert_issue_was_found(robocop_instance, issue_desc):
+        assert any(issue_desc in issue["description"] for issue in robocop_instance.reports["json_report"].issues)
+
+    @staticmethod
+    def assert_issue_was_not_found(robocop_instance, issue_desc):
+        assert all(issue_desc not in issue["description"] for issue in robocop_instance.reports["json_report"].issues)
+
+    def test_translated_default_lang(self, test_data_dir):
+        config = Config()
+        test_file = test_data_dir / "translation" / "fi.robot"
+        config.paths = [str(test_file)]
+        robocop_instance = Robocop(config=config)
+        robocop_instance.run()
+        return self.assert_issue_was_found(robocop_instance, "Unrecognized section")
+
+    def test_translated_fi_lang(self, test_data_dir):
+        config = Config()
+        test_file = test_data_dir / "translation" / "fi.robot"
+        config.paths = [str(test_file)]
+        config.language = ["fi"]
+        robocop_instance = Robocop(config=config)
+        robocop_instance.run()
+        return self.assert_issue_was_not_found(robocop_instance, "Unrecognized section")
+
+    def test_translated_mixed_with_fi_lang(self, test_data_dir):
+        config = Config()
+        test_file = test_data_dir / "translation" / "fi_and_pl.robot"
+        config.paths = [str(test_file)]
+        robocop_instance = Robocop(config=config)
+        robocop_instance.run()
+        return self.assert_issue_was_found(robocop_instance, "Unrecognized section")
+
+    def test_translated_mixed_with_fi_and_pl_lang(self, test_data_dir):
+        config = Config()
+        test_file = test_data_dir / "translation" / "fi_and_pl.robot"
+        config.paths = [str(test_file)]
+        config.language = ["fi", "pl"]
+        robocop_instance = Robocop(config=config)
+        robocop_instance.run()
+        return self.assert_issue_was_not_found(robocop_instance, "Unrecognized section")

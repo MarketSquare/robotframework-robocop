@@ -5,7 +5,6 @@ ${rules_dir}${\}if_blocks.robot:8:5 [E] 0303 'End' is a reserved keyword. It mus
 ${rules_dir}${\}if_blocks.robot:24:9 [E] 0303 'End' is a reserved keyword. It must be in uppercase (END) when used as a marker with 'FOR', 'IF' or 'TRY EXCEPT'. Each marker should have minimum of 2 spaces as separator.
 ${rules_dir}${\}test.robot:21:5 [E] 0303 'For' is a reserved keyword. It must be in uppercase (FOR) when used as a marker with 'FOR' loop. Each marker should have minimum of 2 spaces as separator.
 ${rules_dir}${\}test.robot:22:5 [E] 0303 'End' is a reserved keyword. It must be in uppercase (END) when used as a marker with 'FOR', 'IF' or 'TRY EXCEPT'. Each marker should have minimum of 2 spaces as separator.
-${rules_dir}${\}test.robot:24:10 [E] 0303 'else' is a reserved keyword. It must be in uppercase (ELSE) when used as a marker with 'Run Keyword If'. Each marker should have minimum of 2 spaces as separator.
 ${rules_dir}${\}test.robot:27:9 [E] 0303 'Return' is a reserved keyword. It must be in uppercase (RETURN) when used as a statement
 ${rules_dir}${\}test.robot:31:1 [E] 0303 'While' is a reserved keyword. It must be in uppercase (WHILE) when used as a statement
 ${rules_dir}${\}test.robot:32:5 [E] 0303 'While' is a reserved keyword. It must be in uppercase (WHILE) when used as a statement
@@ -13,4 +12,3 @@ ${rules_dir}${\}test.robot:33:5 [E] 0303 'Continue' is a reserved keyword. It mu
 ${rules_dir}${\}test.robot:34:5 [E] 0303 'Try' is a reserved keyword. It must be in uppercase (TRY) when used as a marker with 'TRY EXCEPT'. Each marker should have minimum of 2 spaces as separator.
 ${rules_dir}${\}test.robot:35:5 [E] 0303 'Except' is a reserved keyword. It must be in uppercase (EXCEPT) when used as a marker with 'TRY EXCEPT'. Each marker should have minimum of 2 spaces as separator.
 ${rules_dir}${\}test.robot:36:5 [E] 0303 'finally' is a reserved keyword. It must be in uppercase (FINALLY) when used as a marker with 'TRY EXCEPT'. Each marker should have minimum of 2 spaces as separator.
-${rules_dir}${\}test.robot:41:67 [E] 0303 'else if' is a reserved keyword. It must be in uppercase (ELSE IF) when used as a marker with 'Run Keyword If'. Each marker should have minimum of 2 spaces as separator.

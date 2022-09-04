@@ -23,3 +23,10 @@ Keyword
 
 Embedded Keyword With ${variable_with_underscore}
     Log    ${variable_with_underscore}
+
+Run Keywords
+    Run Keyword If    ${condition}
+    ...    Run_keywords
+    ...        Name    ${arg}    AND
+    ...        _Underscore    1    AND
+    ...        Under_sc ore

@@ -4,170 +4,160 @@ import unittest
 from io import StringIO
 from unittest.mock import patch
 
+import pytest
+
 from robocop.config import Config
 from robocop.version import __version__
 
 
-class TestArgumentValidation(unittest.TestCase):
-    def setUp(self):
-        self.config = Config()
+@pytest.fixture()
+def config():
+    return Config()
 
-    def test_prog_name(self):
-        self.assertEqual(self.config.parser.prog, "robocop")
 
-    def test_parser_default_help_disabled(self):
-        self.assertFalse(self.config.parser.add_help)
+class TestArgumentValidation:
+    def test_prog_name(self, config):
+        assert config.parser.prog == "robocop"
 
-    def test_default_args(self):
-        self.assertSetEqual(self.config.filetypes, {".resource", ".robot", ".tsv"})
-        self.assertSetEqual(self.config.include, set())
-        self.assertSetEqual(self.config.exclude, set())
-        self.assertListEqual(self.config.reports, ["return_status"])
-        self.assertListEqual(self.config.configure, [])
-        self.assertEqual(
-            self.config.format,
-            "{source}:{line}:{col} [{severity}] {rule_id} {desc} ({name})",
-        )
-        self.assertListEqual(self.config.paths, ["."])
-        self.assertIsNone(self.config.output)
-        self.assertFalse(self.config.list_reports)
+    def test_parser_default_help_disabled(self, config):
+        assert not config.parser.add_help
 
-    def test_default_args_after_parse(self):
-        args = self.config.parse_opts([""])
-        self.assertSetEqual(args.filetypes, {".resource", ".robot", ".tsv"})
-        self.assertSetEqual(args.include, set())
-        self.assertSetEqual(args.exclude, set())
-        self.assertListEqual(args.reports, ["return_status"])
-        self.assertListEqual(args.configure, [])
-        self.assertEqual(args.format, "{source}:{line}:{col} [{severity}] {rule_id} {desc} ({name})")
-        self.assertListEqual(args.paths, [""])
-        self.assertIsNone(args.output)
+    def test_default_args(self, config):
+        assert config.filetypes == {".resource", ".robot", ".tsv"}
+        assert config.include == set()
+        assert config.exclude == set()
+        assert config.reports, ["return_status"]
+        assert config.configure == []
+        assert config.format == "{source}:{line}:{col} [{severity}] {rule_id} {desc} ({name})"
+        assert config.paths == ["."]
+        assert config.output is None
+        assert not config.list_reports
 
-    def test_filetypes_duplicate_defaults(self):
-        args = self.config.parse_opts(["--filetypes", "robot,resource", ""])
-        self.assertSetEqual(args.filetypes, {".resource", ".robot", ".tsv"})
+    def test_default_args_after_parse(self, config):
+        args = config.parse_opts([""])
+        assert args.filetypes == {".resource", ".robot", ".tsv"}
+        assert args.include == set()
+        assert args.exclude == set()
+        assert args.reports == ["return_status"]
+        assert args.configure == []
+        assert args.format == "{source}:{line}:{col} [{severity}] {rule_id} {desc} ({name})"
+        assert args.paths == [""]
+        assert args.output is None
 
-    def test_filetypes_duplicate_dot_prefixed_defaults(self):
-        args = self.config.parse_opts(["--filetypes", ".robot,.resource", ""])
-        self.assertSetEqual(args.filetypes, {".resource", ".robot", ".tsv"})
+    def test_filetypes_duplicate_defaults(self, config):
+        args = config.parse_opts(["--filetypes", "robot,resource", ""])
+        assert args.filetypes == {".resource", ".robot", ".tsv"}
 
-    def test_include_one_rule(self):
+    def test_filetypes_duplicate_dot_prefixed_defaults(self, config):
+        args = config.parse_opts(["--filetypes", ".robot,.resource", ""])
+        assert args.filetypes == {".resource", ".robot", ".tsv"}
+
+    def test_include_one_rule(self, config):
+        rule_name = "missing-doc-keyword"
+        args = config.parse_opts(["--include", rule_name, ""])
+        assert args.include == {rule_name}
+
+    def test_include_two_same_rules_comma_separated(self, config):
         rule_name = "missing-keyword-doc"
-        args = self.config.parse_opts(["--include", rule_name, ""])
-        self.assertSetEqual(args.include, {rule_name})
+        args = config.parse_opts(["--include", ",".join([rule_name, rule_name]), ""])
+        assert args.include == {rule_name}
 
-    def test_include_two_same_rules_comma_separated(self):
+    def test_include_two_same_rules_provided_separately(self, config):
         rule_name = "missing-keyword-doc"
-        args = self.config.parse_opts(["--include", ",".join([rule_name, rule_name]), ""])
-        self.assertSetEqual(args.include, {rule_name})
+        args = config.parse_opts(["--include", rule_name, "--include", rule_name, ""])
+        assert args.include == {rule_name}
 
-    def test_include_two_same_rules_provided_separately(self):
-        rule_name = "missing-keyword-doc"
-        args = self.config.parse_opts(["--include", rule_name, "--include", rule_name, ""])
-        self.assertSetEqual(args.include, {rule_name})
-
-    def test_include_two_different_rules_comma_separated(self):
-        rule_name1 = "missing-keyword-doc"
+    def test_include_two_different_rules_comma_separated(self, config):
+        rule_name1 = "missing-doc-keyword"
         rule_name2 = "not-allowed-char-in-name"
         rules_names = ",".join([rule_name1, rule_name2])
-        args = self.config.parse_opts(["--include", rules_names, ""])
-        self.assertSetEqual(args.include, {rule_name1, rule_name2})
+        args = config.parse_opts(["--include", rules_names, ""])
+        assert args.include == {rule_name1, rule_name2}
 
-    def test_include_two_different_rules_provided_separately(self):
-        rule_name1 = "missing-keyword-doc"
+    def test_include_two_different_rules_provided_separately(self, config):
+        rule_name1 = "missing-doc-keyword"
         rule_name2 = "not-allowed-char-in-name"
-        args = self.config.parse_opts(["--include", rule_name1, "--include", rule_name2, ""])
-        self.assertSetEqual(args.include, {rule_name1, rule_name2})
+        args = config.parse_opts(["--include", rule_name1, "--include", rule_name2, ""])
+        assert args.include == {rule_name1, rule_name2}
 
-    def test_exclude_one_rule(self):
-        rule_name = "missing-keyword-doc"
-        args = self.config.parse_opts(["--exclude", rule_name, ""])
-        self.assertSetEqual(args.exclude, {rule_name})
+    def test_exclude_one_rule(self, config):
+        rule_name = "missing-doc-keyword"
+        args = config.parse_opts(["--exclude", rule_name, ""])
+        assert args.exclude == {rule_name}
 
-    def test_exclude_two_same_rules_comma_separated(self):
-        rule_name = "missing-keyword-doc"
-        args = self.config.parse_opts(["--exclude", ",".join([rule_name, rule_name]), ""])
-        self.assertSetEqual(args.exclude, {rule_name})
+    def test_exclude_two_same_rules_comma_separated(self, config):
+        rule_name = "missing-doc-keyword"
+        args = config.parse_opts(["--exclude", ",".join([rule_name, rule_name]), ""])
+        assert args.exclude == {rule_name}
 
-    def test_exclude_two_same_rules_provided_separately(self):
-        rule_name = "missing-keyword-doc"
-        args = self.config.parse_opts(["--exclude", rule_name, "--exclude", rule_name, ""])
-        self.assertSetEqual(args.exclude, {rule_name})
+    def test_exclude_two_same_rules_provided_separately(self, config):
+        rule_name = "missing-doc-keyword"
+        args = config.parse_opts(["--exclude", rule_name, "--exclude", rule_name, ""])
+        assert args.exclude == {rule_name}
 
-    def test_exclude_two_different_rules_comma_separated(self):
-        rule_name1 = "missing-keyword-doc"
+    def test_exclude_two_different_rules_comma_separated(self, config):
+        rule_name1 = "missing-doc-keyword"
         rule_name2 = "not-allowed-char-in-name"
         rules_names = ",".join([rule_name1, rule_name2])
-        args = self.config.parse_opts(["--exclude", rules_names, ""])
-        self.assertSetEqual(args.exclude, {rule_name1, rule_name2})
+        args = config.parse_opts(["--exclude", rules_names, ""])
+        assert args.exclude == {rule_name1, rule_name2}
 
-    def test_exclude_two_different_rules_provided_separately(self):
-        rule_name1 = "missing-keyword-doc"
+    def test_exclude_two_different_rules_provided_separately(self, config):
+        rule_name1 = "missing-doc-keyword"
         rule_name2 = "not-allowed-char-in-name"
-        args = self.config.parse_opts(["--exclude", rule_name1, "--exclude", rule_name2, ""])
-        self.assertSetEqual(args.exclude, {rule_name1, rule_name2})
+        args = config.parse_opts(["--exclude", rule_name1, "--exclude", rule_name2, ""])
+        assert args.exclude == {rule_name1, rule_name2}
 
-    def test_format_overwrite_default(self):
+    def test_format_overwrite_default(self, config):
         default_format = "{source}:{line}:{col} [{severity}] {rule_id} {desc}"
-        args = self.config.parse_opts(["--format", default_format, ""])
-        self.assertEqual(args.format, default_format)
+        args = config.parse_opts(["--format", default_format, ""])
+        assert args.format == default_format
 
-    def test_format_empty(self):
+    def test_format_empty(self, config):
         empty_format = ""
-        args = self.config.parse_opts(["--format", empty_format, ""])
-        self.assertEqual(args.format, "")
+        args = config.parse_opts(["--format", empty_format, ""])
+        assert args.format == ""
 
-    def test_format_new_value(self):
+    def test_format_new_value(self, config):
         new_format = "{source}: {rule_id} {desc}"
-        args = self.config.parse_opts(["--format", new_format, ""])
-        self.assertEqual(args.format, new_format)
+        args = config.parse_opts(["--format", new_format, ""])
+        assert args.format == new_format
 
-    def test_output_new_value(self):
+    def test_output_new_value(self, config):
         output_file = "results"
-        args = self.config.parse_opts(["--output", output_file, ""])
-        self.assertIsNotNone(args.output)
-        self.assertIsInstance(args.output, io.TextIOWrapper)
-        self.assertEqual(args.output.name, output_file)
-        self.assertEqual(args.output.mode, "w")
-        self.assertTrue(pathlib.Path(output_file).exists())
+        args = config.parse_opts(["--output", output_file, ""])
+        assert isinstance(args.output, io.TextIOWrapper)
+        assert args.output.name == output_file
+        assert args.output.mode == "w"
+        assert pathlib.Path(output_file).exists()
         # parser will not close the file itself
-        if not self.config.output.closed:
-            self.config.output.close()
+        if not config.output.closed:
+            config.output.close()
         # remove created file
         pathlib.Path(output_file).unlink()
 
-    @patch("sys.stdout", new_callable=StringIO)
-    def test_help_message(self, mock_stdout):
-        with self.assertRaises(SystemExit):
-            self.config.parse_opts(["-h"])
-        self.assertRegex(mock_stdout.getvalue(), r"usage:")
+    @pytest.mark.parametrize("cmd", ["-h", "--help"])
+    def test_help_message(self, config, cmd, capsys):
+        with pytest.raises(SystemExit):
+            config.parse_opts([cmd])
+        out, _ = capsys.readouterr()
+        assert "usage:" in out
 
-    @patch("sys.stdout", new_callable=StringIO)
-    def test_help_message_long(self, mock_stdout):
-        with self.assertRaises(SystemExit):
-            self.config.parse_opts(["--help"])
-        self.assertRegex(mock_stdout.getvalue(), r"usage:")
+    @pytest.mark.parametrize("cmd", ["-v", "--version"])
+    def test_version_number(self, config, cmd, capsys):
+        with pytest.raises(SystemExit):
+            config.parse_opts(["-v"])
+        out, _ = capsys.readouterr()
+        assert __version__ in out
 
-    @patch("sys.stdout", new_callable=StringIO)
-    def test_version_number(self, mock_stdout):
-        with self.assertRaises(SystemExit):
-            self.config.parse_opts(["-v"])
-        self.assertRegex(mock_stdout.getvalue(), __version__)
+    def test_paths_new_value(self, config):
+        args = config.parse_opts(["tests.robot"])
+        assert args.paths == ["tests.robot"]
 
-    @patch("sys.stdout", new_callable=StringIO)
-    def test_version_number_long(self, mock_stdout):
-        with self.assertRaises(SystemExit):
-            self.config.parse_opts(["--version"])
-        self.assertRegex(mock_stdout.getvalue(), __version__)
+    def test_paths_two_values(self, config):
+        args = config.parse_opts(["tests.robot", "test2.robot"])
+        assert args.paths == ["tests.robot", "test2.robot"]
 
-    def test_paths_new_value(self):
-        args = self.config.parse_opts(["tests.robot"])
-        self.assertListEqual(args.paths, ["tests.robot"])
-
-    def test_paths_two_values(self):
-        args = self.config.parse_opts(["tests.robot", "test2.robot"])
-        self.assertListEqual(args.paths, ["tests.robot", "test2.robot"])
-
-    def test_list_reports(self):
-        args = self.config.parse_opts(["--list-reports"])
-        self.assertTrue(args.list_reports)
+    def test_list_reports(self, config):
+        args = config.parse_opts(["--list-reports"])
+        assert args.list_reports

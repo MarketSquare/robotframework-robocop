@@ -8,13 +8,13 @@ Rules are matched in similar way how Robot Framework :code:`include/exclude` arg
 
 Described examples::
 
-    robocop --include missing-keyword-doc test.robot
+    robocop --include missing-doc-keyword test.robot
 
-All rules will be ignored except ``missing-keyword-doc`` rule::
+All rules will be ignored except ``missing-doc-keyword`` rule::
 
-    robocop --exclude missing-keyword-doc test.robot
+    robocop --exclude missing-doc-keyword test.robot
 
-Only ``missing-keyword-doc`` rule will be ignored.
+Only ``missing-doc-keyword`` rule will be ignored.
 
 Robocop supports glob patterns::
 

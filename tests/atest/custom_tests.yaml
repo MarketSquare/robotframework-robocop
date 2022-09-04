@@ -59,9 +59,13 @@ tests:
         - too-few-calls-in-keyword:min_calls:2
         - too-few-calls-in-keyword:severity_threshold:warning=1:error=0
       src_dir: lengths/too-few-calls-in-keyword-severity-threshold
+    - config: too-few-calls-in-keyword:min_calls:2
+      src_dir: lengths/too-few-calls-in-keyword-bug629
   too-few-calls-in-test-case:
     - config: too-few-calls-in-test-case:ignore_templated:True
       src_dir: lengths/too-few-calls-in-test-case-ignore-templated
+    - config: too-few-calls-in-test-case:min_calls:2
+      src_dir: lengths/too-few-calls-in-test-case-bug629
   too-many-calls-in-keyword:
     - config:
         - too-many-calls-in-keyword:max_calls:5

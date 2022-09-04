@@ -14,6 +14,11 @@ from robot.parsing.model.statements import (
     TemplateArguments,
 )
 
+try:
+    from robot.api.parsing import ReturnStatement
+except ImportError:
+    ReturnStatement = None
+
 from robocop.checkers import RawFileChecker, VisitorChecker
 from robocop.rules import Rule, RuleParam, RuleSeverity, SeverityThreshold
 from robocop.utils import get_section_name, last_non_empty_line, normalize_robot_name, pattern_type, str2bool
@@ -362,7 +367,7 @@ class LengthChecker(VisitorChecker):
 
     @staticmethod
     def count_keyword_calls(node):
-        if isinstance(node, (KeywordCall, TemplateArguments)):
+        if isinstance(node, (KeywordCall, TemplateArguments)) or ReturnStatement and isinstance(node, ReturnStatement):
             return 1
         if not hasattr(node, "body"):
             return 0

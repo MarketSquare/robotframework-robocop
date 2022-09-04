@@ -15,9 +15,9 @@ from robot.parsing.model.statements import (
 )
 
 try:
-    from robot.api.parsing import ReturnStatement
+    from robot.api.parsing import Break, Continue, ReturnStatement
 except ImportError:
-    ReturnStatement = None
+    ReturnStatement, Break, Continue = None, None, None
 
 from robocop.checkers import RawFileChecker, VisitorChecker
 from robocop.rules import Rule, RuleParam, RuleSeverity, SeverityThreshold
@@ -367,11 +367,19 @@ class LengthChecker(VisitorChecker):
 
     @staticmethod
     def count_keyword_calls(node):
-        if isinstance(node, (KeywordCall, TemplateArguments)) or ReturnStatement and isinstance(node, ReturnStatement):
+        # ReturnStatement is imported and evaluates to true in RF 5.0+, we don't need to also check Break/Continue
+        if isinstance(node, (KeywordCall, TemplateArguments)) or ReturnStatement and isinstance(node, (Break, Continue, ReturnStatement)):
             return 1
         if not hasattr(node, "body"):
             return 0
-        return sum(LengthChecker.count_keyword_calls(child) for child in node.body)
+        calls = sum(LengthChecker.count_keyword_calls(child) for child in node.body)
+        while node and getattr(node, "orelse", None):
+            node = node.orelse
+            calls += sum(LengthChecker.count_keyword_calls(child) for child in node.body)
+        while node and getattr(node, "next", None):
+            node = node.next
+            calls += sum(LengthChecker.count_keyword_calls(child) for child in node.body)
+        return calls
 
 
 class LineLengthChecker(RawFileChecker):

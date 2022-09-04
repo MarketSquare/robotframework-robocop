@@ -7,4 +7,4 @@
 --threshold W
 #--threshold E
 
---report rules_by_idf
+--report rules_by_id

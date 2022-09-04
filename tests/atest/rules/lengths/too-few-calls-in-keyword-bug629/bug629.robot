@@ -31,3 +31,21 @@ Keyword Call Only In ELSE
     ELSE
         No Operation
     END
+
+Inline IF
+    IF    $flag    Keyword    ELSE IF    not $flag    Keyword2    ${arg}
+
+TRY EXCEPT
+    TRY
+        No Operation
+    EXCEPT    *
+        No Operation
+    FINALLY
+        RETURN    ${1}
+    END
+
+WHILE
+    WHILE    ${x}
+        IF    ${x} % 2 == 0    CONTINUE
+        BREAK
+    END

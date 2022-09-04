@@ -12,7 +12,7 @@ from robocop.utils.misc import rf_supports_lang
 
 
 def get_resource_with_lang(get_resource_method, source, lang):
-    if rf_supports_lang:
+    if rf_supports_lang():
         return get_resource_method(source, lang=lang)
     return get_resource_method(source)
 

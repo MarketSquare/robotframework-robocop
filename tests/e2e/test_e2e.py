@@ -221,7 +221,7 @@ class TestE2E:
         assert not robocop_instance.reports["json_report"].issues
 
 
-@pytest.mark.skipif(rf_supports_lang(), reason="Requires RF 5.1 with languages support")
+@pytest.mark.skipif(not rf_supports_lang(), reason="Requires RF 5.1 with languages support")
 class TestTranslatedRobot:
     @staticmethod
     def assert_issue_was_found(robocop_instance, issue_desc):

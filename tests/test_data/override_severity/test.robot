@@ -7,3 +7,4 @@ Force Tags       comeANDgo    # Evoke rule 0602 with severity I
 Log Something
     # Missing [Documentation] evokes rule 0202 with severity W
     Log To Console    \nNice day today
+    No Operation

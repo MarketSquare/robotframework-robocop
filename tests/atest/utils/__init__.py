@@ -1,3 +1,5 @@
+import contextlib
+import io
 import os
 import sys
 from pathlib import Path
@@ -8,17 +10,37 @@ from robocop import Robocop
 from robocop.config import Config
 
 
+@contextlib.contextmanager
+def isolated_output():
+    old_stdout = sys.stdout
+    old_stderr = sys.stderr
+    bytes_output = io.BytesIO()
+    sys.stdout = io.TextIOWrapper(bytes_output, encoding="utf-8")
+    sys.stderr = sys.stdout
+    yield bytes_output
+    sys.stdout = old_stdout
+    sys.stderr = old_stderr
+
+
+def convert_to_output(stdout_bytes):
+    return stdout_bytes.decode("utf-8", "replace").replace("\r\n", "\n")
+
+
+def get_result(encoded_output):
+    stdout = convert_to_output(encoded_output.getvalue())
+    return stdout.splitlines()
+
+
+def normalize_result(result, test_data):
+    """Remove test data directory path from paths and sort the lines."""
+    test_data_str = f"{test_data}{os.path.sep}"
+    return sorted([line.replace(test_data_str, "") for line in result])
+
+
 def load_expected_file(test_data, expected_file):
     expected = test_data / expected_file
     with open(expected, encoding="utf-8") as f:
         return sorted([line.rstrip("\n") for line in f])
-
-
-def load_actual_results(capsys, test_data):
-    out, _ = capsys.readouterr()
-    actual = out.splitlines()
-    test_data_str = f"{test_data}{os.path.sep}"
-    return sorted([line.replace(test_data_str, "") for line in actual])
 
 
 def configure_robocop_with_rule(args, runner, rule, path, src_files):
@@ -48,7 +70,7 @@ class RuleAcceptance:
     SRC_FILE = "."
     EXPECTED_OUTPUT = "expected_output.txt"
 
-    def check_rule(self, capsys, expected_file, config=None, rule=None, src_files=None):
+    def check_rule(self, expected_file, config=None, rule=None, src_files=None):
         test_data = self.test_class_dir
         expected = load_expected_file(test_data, expected_file)
         if rule is None:
@@ -59,9 +81,13 @@ class RuleAcceptance:
             config = config.split()
         robocop_instance = Robocop(from_cli=False)
         robocop_instance = configure_robocop_with_rule(config, robocop_instance, rule, test_data, src_files)
-        with pytest.raises(SystemExit):
-            robocop_instance.run()
-        actual = load_actual_results(capsys, test_data)
+        with isolated_output() as output, pytest.raises(SystemExit):
+            try:
+                robocop_instance.run()
+            finally:
+                sys.stdout.flush()
+                result = get_result(output)
+        actual = normalize_result(result, test_data)
         assert actual == expected
 
     @property

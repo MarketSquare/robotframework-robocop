@@ -8,20 +8,17 @@ from robocop import Robocop
 from robocop.config import Config
 
 
-def replace_paths(line, rules_dir):
-    return line.replace("${rules_dir}", rules_dir).replace(r"${\}", os.path.sep).rstrip("\n")
-
-
 def load_expected_file(test_data, expected_file):
-    expected_path = test_data / expected_file
-    with open(expected_path, encoding="utf-8") as f:
-        return sorted([replace_paths(line, str(test_data)) for line in f])
+    expected = test_data / expected_file
+    with open(expected, encoding="utf-8") as f:
+        return sorted([line.rstrip("\n") for line in f])
 
 
-def load_actual_results(capsys):
+def load_actual_results(capsys, test_data):
     out, _ = capsys.readouterr()
     actual = out.splitlines()
-    return sorted([line.rstrip() for line in actual])
+    test_data_str = f"{test_data}{os.path.sep}"
+    return sorted([line.replace(test_data_str, "") for line in actual])
 
 
 def configure_robocop_with_rule(args, runner, rule, path, src_files):
@@ -64,7 +61,7 @@ class RuleAcceptance:
         robocop_instance = configure_robocop_with_rule(config, robocop_instance, rule, test_data, src_files)
         with pytest.raises(SystemExit):
             robocop_instance.run()
-        actual = load_actual_results(capsys)
+        actual = load_actual_results(capsys, test_data)
         assert actual == expected
 
     @property

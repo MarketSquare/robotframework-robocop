@@ -39,11 +39,6 @@ tests:
   missing-doc-test-case:
     - config: missing-doc-test-case:ignore_templated:False
       src_dir: documentation/missing-doc-test-case-templated
-  too-long-keyword:
-    - config: too-long-keyword:ignore_docs:True
-      src_dir: lengths/too-long-keyword-ignore-docs
-    - config: too-long-keyword:severity_threshold:warning=40:error=50
-      src_dir: lengths/too-long-keyword-severity-threshold
   too-long-test-case:
     - config: too-long-test-case:ignore_docs:True
       src_dir: lengths/too-long-test-case-ignore-docs

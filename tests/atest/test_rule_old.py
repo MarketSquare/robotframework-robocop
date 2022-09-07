@@ -45,6 +45,8 @@ def find_test_data(test_data_path, rule):
     """
     current_dir = Path(__file__).parent
     test_data = Path(current_dir, "rules", test_data_path)
+    if not test_data.exists():
+        pytest.skip("Skipped - test already migrated to new framework.")
     assert test_data.exists(), f"Missing test data for rule '{rule}'"
     suffix_patterns = [f"_rf{ROBOT_VERSION.major}.{ROBOT_VERSION.minor}", f"_rf{ROBOT_VERSION.major}", ""]
     for suffix in suffix_patterns:
@@ -79,6 +81,7 @@ def get_covered_threshold_severity_tests():
     return is_covered
 
 
+@pytest.mark.skip("Skipped until full migration to new framework")
 def test_threshold_severity_coverage():
     require_coverage = set()
     for _, rule in get_rules():

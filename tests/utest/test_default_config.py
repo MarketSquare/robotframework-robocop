@@ -135,7 +135,6 @@ class TestDefaultConfig:
         config.threshold, expected_config.threshold = None, None
         # paths from config files are absolute paths, resolved with root of the config file
         expected_config.paths = [str(Path(expected_config.root) / path) for path in expected_config.paths]
-        expected_config.ext_rules = {str(Path(expected_config.root) / path) for path in expected_config.ext_rules}
         assert config.__dict__ == expected_config.__dict__
 
     def test_append_config_pyproject_file(self, path_to_test_data):

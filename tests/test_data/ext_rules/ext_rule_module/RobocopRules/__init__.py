@@ -1,5 +1,6 @@
-from .some_rules import CustomRuleChecker
 from robocop.rules import Rule, RuleSeverity
+
+from .some_rules import CustomRuleChecker
 
 rules = {
     "9903": Rule(

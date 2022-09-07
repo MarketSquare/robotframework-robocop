@@ -1,0 +1,2 @@
+[tool.robocop]
+ext-rules = ["RobocopRules"]

@@ -295,30 +295,57 @@ class EmptyLinesChecker(VisitorChecker):
         "empty-lines-in-statement",
     )
 
-    def verify_empty_lines(self, node, check_leading=True):
-        """Verify number of consecutive empty lines inside node. Return number of trailing empty lines."""
+    def verify_consecutive_empty_lines(self, lines, check_leading=True, check_trailing=False):
+        allowed_consecutive = self.param("consecutive-empty-lines", "empty_lines")
         empty_lines = 0
-        prev_node = None
-        non_empty = check_leading  # if check_leading is set to False, we ignore leading empty lines
-        for child in node.body:
-            if isinstance(child, EmptyLine):
-                if not non_empty:
+        last_empty_line = None
+        data_found = check_leading
+        for line in lines:
+            if isinstance(line, EmptyLine):
+                if not data_found:
                     continue
                 empty_lines += 1
-                prev_node = child
+                last_empty_line = line
             else:
-                non_empty = True
-                if empty_lines > self.param("consecutive-empty-lines", "empty_lines"):
+                data_found = True
+                if empty_lines > allowed_consecutive:
                     self.report(
                         "consecutive-empty-lines",
                         empty_lines=empty_lines,
-                        allowed_empty_lines=self.param("consecutive-empty-lines", "empty_lines"),
-                        node=prev_node,
+                        allowed_empty_lines=allowed_consecutive,
+                        node=last_empty_line,
                         sev_threshold_value=empty_lines,
                     )
-                if not isinstance(child, Comment):
-                    empty_lines = 0
+                empty_lines = 0
+        if check_trailing:
+            if empty_lines > allowed_consecutive:
+                self.report(
+                    "consecutive-empty-lines",
+                    empty_lines=empty_lines,
+                    allowed_empty_lines=allowed_consecutive,
+                    node=last_empty_line,
+                    sev_threshold_value=empty_lines,
+                )
         return empty_lines
+
+    def check_empty_lines_in_keyword_test(self, node):
+        """
+        Verify number of consecutive empty lines inside keyword or test.
+        Return number of trailing empty lines.
+        """
+        # split node and trailing empty lines/comments
+        end_found = False
+        node_lines, trailing_lines = [], []
+        for child in node.body[::-1]:
+            if not end_found and isinstance(child, (EmptyLine, Comment)):
+                trailing_lines.append(child)
+            else:
+                end_found = True
+                node_lines.append(child)
+        node_lines = node_lines[::-1]
+        trailing_lines = trailing_lines[::-1]
+        self.verify_consecutive_empty_lines(node_lines)
+        return self.verify_consecutive_empty_lines(trailing_lines)
 
     def visit_Statement(self, node):  # noqa
         prev_token = None
@@ -331,11 +358,11 @@ class EmptyLinesChecker(VisitorChecker):
                 prev_token = None
 
     def visit_VariableSection(self, node):  # noqa
-        self.verify_empty_lines(node, check_leading=False)
+        self.verify_consecutive_empty_lines(node.body, check_leading=False)
         self.generic_visit(node)
 
     def visit_SettingSection(self, node):  # noqa
-        self.verify_empty_lines(node, check_leading=False)
+        self.verify_consecutive_empty_lines(node.body, check_leading=False)
         self.generic_visit(node)
 
     def verify_empty_lines_between_nodes(self, node, node_type, issue_name, allowed_empty_lines):
@@ -343,7 +370,7 @@ class EmptyLinesChecker(VisitorChecker):
         for index, child in enumerate(node.body):
             if not isinstance(child, node_type):
                 continue
-            empty_lines = self.verify_empty_lines(child)
+            empty_lines = self.check_empty_lines_in_keyword_test(child)
             if allowed_empty_lines not in (empty_lines, -1) and index < last_index:
                 self.report(
                     issue_name,
@@ -364,6 +391,12 @@ class EmptyLinesChecker(VisitorChecker):
             "empty-lines-between-keywords",
             self.param("empty-lines-between-keywords", "empty_lines"),
         )
+
+    def visit_For(self, node):  # noqa
+        self.verify_consecutive_empty_lines(node.body, check_trailing=True)
+        self.generic_visit(node)
+
+    visit_ForLoop = visit_While = visit_Try = visit_If = visit_For
 
     def visit_File(self, node):  # noqa
         for section in node.sections:

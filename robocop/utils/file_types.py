@@ -8,13 +8,20 @@ from robot.api import get_init_model, get_model, get_resource_model
 from robot.errors import DataError
 from robot.utils.robotpath import find_file
 
+import robocop.exceptions
 from robocop.utils.misc import rf_supports_lang
 
 
+@robocop.exceptions.handle_robot_errors
 def get_resource_with_lang(get_resource_method, source, lang):
     if rf_supports_lang():
         return get_resource_method(source, lang=lang)
     return get_resource_method(source)
+
+
+@robocop.exceptions.handle_robot_errors
+def check_model_type(file_type_checker, model):
+    file_type_checker.visit(model)
 
 
 class FileType(Enum):

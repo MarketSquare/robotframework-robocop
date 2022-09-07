@@ -5,9 +5,12 @@ import sys
 from pathlib import Path
 
 import pytest
+from packaging.specifiers import Specifier
+from packaging.version import Version
 
 from robocop import Robocop
 from robocop.config import Config
+from robocop.utils.misc import ROBOT_VERSION
 
 
 @contextlib.contextmanager
@@ -70,7 +73,9 @@ class RuleAcceptance:
     SRC_FILE = "."
     EXPECTED_OUTPUT = "expected_output.txt"
 
-    def check_rule(self, expected_file, config=None, rule=None, src_files=None):
+    def check_rule(self, expected_file, config=None, rule=None, src_files=None, target_version=None):
+        if not self.enabled_in_version(target_version):
+            pytest.skip(f"Test enabled only for RF {target_version}")
         test_data = self.test_class_dir
         expected = load_expected_file(test_data, expected_file)
         if rule is None:
@@ -100,3 +105,9 @@ class RuleAcceptance:
 
     def rule_is_enabled(self, robocop_rules):
         return robocop_rules[self.rule_name].enabled_in_version
+
+    @staticmethod
+    def enabled_in_version(target_version):
+        if target_version is None:
+            return True
+        return ROBOT_VERSION in Specifier(target_version)

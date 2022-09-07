@@ -1,3 +1,6 @@
+import robot.errors
+
+
 class RobocopFatalError(ValueError):
     pass
 
@@ -73,3 +76,29 @@ class InvalidReportName(ConfigGeneralError):
         similar = RecommendationFinder().find_similar(report, report_names)
         msg = f"Provided report '{report}' does not exist. {similar}"
         super().__init__(msg)
+
+
+class RobotFrameworkParsingError(Exception):
+    def __init__(self):
+        msg = (
+            "Fatal exception occurred when using Robot Framework parsing module. "
+            "Consider updating Robot Framework to recent stable version."
+        )
+        super().__init__(msg)
+
+
+def handle_robot_errors(func):
+    """
+    If the user uses older version of Robot Framework, it many fail while parsing the
+    source code due to bug that is already fixed in the more recent version.
+    """
+
+    def wrap_errors(*args, **kwargs):
+        try:
+            return func(*args, **kwargs)
+        except robot.errors.DataError:
+            raise
+        except:  # noqa
+            raise RobotFrameworkParsingError
+
+    return wrap_errors

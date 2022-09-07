@@ -14,7 +14,7 @@ from robocop.config import Config
 from robocop.files import get_files
 from robocop.rules import Message
 from robocop.utils import DisablersFinder, FileType, FileTypeChecker, RecommendationFinder, is_suite_templated
-from robocop.utils.file_types import get_resource_with_lang
+from robocop.utils.file_types import check_model_type, get_resource_with_lang
 
 
 class Robocop:
@@ -100,7 +100,7 @@ class Robocop:
             try:
                 resource_parser = file_type.get_parser()
                 model = get_resource_with_lang(resource_parser, str(file), self.config.language)
-                file_type_checker.visit(model)
+                check_model_type(file_type_checker, model)
                 self.files[file] = (file_type, model)
             except DataError:
                 print(f"Failed to decode {file}. Default supported encoding by Robot Framework is UTF-8. Skipping file")
@@ -257,6 +257,8 @@ def run_robocop():
     try:
         linter = Robocop(from_cli=True)
         linter.run()
+    except robocop.exceptions.RobotFrameworkParsingError:
+        raise
     except robocop.exceptions.RobocopFatalError as err:
         print(f"Error: {err}")
         sys.exit(1)

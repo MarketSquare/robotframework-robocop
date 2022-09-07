@@ -4,7 +4,9 @@ from pathlib import Path
 from unittest import mock
 
 import pytest
+from packaging import version
 
+import robocop.exceptions
 from robocop.config import Config
 from robocop.exceptions import (
     ArgumentFileNotFoundError,
@@ -15,7 +17,7 @@ from robocop.exceptions import (
 )
 from robocop.rules import RuleSeverity
 from robocop.run import Robocop
-from robocop.utils.misc import rf_supports_lang
+from robocop.utils.misc import ROBOT_VERSION, rf_supports_lang
 
 
 @pytest.fixture
@@ -31,6 +33,9 @@ def robocop_instance_not_cli():
 @pytest.fixture
 def test_data_dir():
     return Path(Path(__file__).parent.parent, "test_data")
+
+
+INVALID_TEST_DATA = Path(__file__).parent.parent / "test_data_invalid"
 
 
 def should_run_with_config(robocop_instance, cfg):
@@ -219,6 +224,15 @@ class TestE2E:
         robocop_instance = Robocop(config=config)
         robocop_instance.run()
         assert not robocop_instance.reports["json_report"].issues
+
+    @pytest.mark.skipif(ROBOT_VERSION > version.parse("4.0"), reason="Error occurs only in RF < 5")
+    def test_handling_error_in_robot_module(self):
+        config = Config()
+        test_file = INVALID_TEST_DATA / "invalid_syntax" / "invalid_file.robot"
+        config.paths = [str(test_file)]
+        robocop_instance = Robocop(config=config)
+        with pytest.raises(robocop.exceptions.RobotFrameworkParsingError):
+            robocop_instance.run()
 
 
 @pytest.mark.skipif(not rf_supports_lang(), reason="Requires RF 5.1 with languages support")

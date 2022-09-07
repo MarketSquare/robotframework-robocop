@@ -100,6 +100,7 @@ class Config:
         self.include_patterns = []
         self.exclude_patterns = []
         self.filetypes = {".robot", ".resource", ".tsv"}
+        self.language = []
         self.list = ""
         self.list_configurables = ""
         self.list_reports = False
@@ -285,6 +286,13 @@ class Config:
             help=f"Paths ignored by default. "
             f"A regular expression to exclude directories on file search.\n"
             f"An empty value means no path is excluded. Default: {DEFAULT_EXCLUDES}",
+        )
+        optional.add_argument(
+            "--language",
+            "--lang",
+            action=ParseDelimitedArgAction,
+            default=self.language,
+            help="Parse Robot Framework files using additional languages.",
         )
         optional.add_argument("-h", "--help", action="help", help="Print this help message and exit.")
         optional.add_argument(
@@ -488,7 +496,7 @@ class Config:
         resolve_relative = {"paths", "ext_rules", "output"}
         assign_type = {"paths", "format"}
         set_type = {"include", "exclude", "ignore", "ext_rules"}
-        append_type = {"configure", "reports"}
+        append_type = {"configure", "reports", "language"}
         toml_data = {key.replace("-", "_"): value for key, value in toml_data.items()}
         for key, value in toml_data.items():
             if key in resolve_relative:

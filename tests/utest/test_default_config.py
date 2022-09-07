@@ -103,6 +103,8 @@ class TestDefaultConfig:
             "--threshold",
             "E",
             "--no-recursive",
+            "--language",
+            "pt,fi",
             "--format",
             "{source}:{line}:{col} [{severity}] {rule_id} {desc} (name)1",
             "--output",

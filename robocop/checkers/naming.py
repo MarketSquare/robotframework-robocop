@@ -21,6 +21,7 @@ from robocop.utils import (
     remove_robot_vars,
     token_col,
 )
+from robocop.utils.run_keywords import iterate_keyword_names
 
 rules = {
     "0301": Rule(
@@ -318,7 +319,7 @@ class InvalidCharactersInNameChecker(VisitorChecker):
         super().visit_File(node)
 
     def check_if_pattern_in_node_name(self, node, name_of_node, is_keyword=False):
-        """ Search if regex pattern found from node name.
+        """Search if regex pattern found from node name.
         Skips embedded variables from keyword name
         """
         node_name = node.name
@@ -332,7 +333,7 @@ class InvalidCharactersInNameChecker(VisitorChecker):
             #   1. `Keyword With `
             #   2. ` Two `
             #   3. ` Argument` - last part is searched in finditer part after this loop
-            tmp_node_name = node_name[start_pos:variable[0]]
+            tmp_node_name = node_name[start_pos : variable[0]]
             match = self.param("not-allowed-char-in-name", "pattern").search(tmp_node_name)
             if match:
                 self.report(
@@ -416,8 +417,13 @@ class KeywordNamingChecker(VisitorChecker):
         self.inside_if_block = False
         super().__init__()
 
+    def check_keyword_naming_with_subkeywords(self, node, name_token_type):
+        for keyword in iterate_keyword_names(node, name_token_type):
+            self.check_keyword_naming(keyword.value, keyword)
+
     def visit_Setup(self, node):  # noqa
-        self.check_keyword_naming(node.name, node)
+        self.check_bdd_keywords(node.name, node)
+        self.check_keyword_naming_with_subkeywords(node, Token.NAME)
 
     visit_TestTeardown = visit_SuiteTeardown = visit_Teardown = visit_TestSetup = visit_SuiteSetup = visit_Setup
 
@@ -431,7 +437,8 @@ class KeywordNamingChecker(VisitorChecker):
     def visit_KeywordCall(self, node):  # noqa
         if self.inside_if_block and node.keyword and node.keyword.lower() in self.else_statements:
             self.report("else-not-upper-case", node=node, col=keyword_col(node))
-        self.check_keyword_naming(node.keyword, node)
+        self.check_keyword_naming_with_subkeywords(node, Token.KEYWORD)
+        self.check_bdd_keywords(node.keyword, node)
 
     def visit_If(self, node):  # noqa
         self.inside_if_block = True
@@ -443,36 +450,34 @@ class KeywordNamingChecker(VisitorChecker):
             return
         if keyword_name == r"/":  # old for loop, / are interpreted as keywords
             return
-        if (
-            isinstance(node, KeywordCall)
-            and normalize_robot_name(keyword_name, remove_prefix="builtin.") == "runkeywordif"
-        ):
-            for token in node.data_tokens:
-                if (token.value.lower() in self.else_statements) and not token.value.isupper():
-                    self.report(
-                        "keyword-name-is-reserved-word",
-                        keyword_name=token.value,
-                        error_msg=reserved_error_msg(token.value, "'Run Keyword If'"),
-                        node=node,
-                        col=token.col_offset + 1,
-                    )
-        elif self.check_if_keyword_is_reserved(keyword_name, node):
+        if self.check_if_keyword_is_reserved(keyword_name, node):
             return
-        self.check_bdd_keywords(keyword_name, node)
         normalized = remove_robot_vars(keyword_name)
         normalized = self.param("wrong-case-in-keyword-name", "pattern").sub("", normalized)
         normalized = normalized.split(".")[-1]  # remove any imports ie ExternalLib.SubLib.Log -> Log
         normalized = normalized.replace("'", "")  # replace ' apostrophes
         if "_" in normalized:
-            self.report("underscore-in-keyword-name", keyword_name=keyword_name, node=node)
+            self.report(
+                "underscore-in-keyword-name",
+                keyword_name=keyword_name,
+                node=node,
+                col=node.col_offset + 1,
+                end_col=node.end_col_offset + 1,
+            )
         words = self.letter_pattern.sub(" ", normalized).split(" ")
         if self.param("wrong-case-in-keyword-name", "convention") == "first_word_capitalized":
             words = words[:1]
         if any(word[0].islower() for word in words if word):
-            self.report("wrong-case-in-keyword-name", keyword_name=keyword_name, node=node)
+            self.report(
+                "wrong-case-in-keyword-name",
+                keyword_name=keyword_name,
+                node=node,
+                col=node.col_offset + 1,
+                end_col=node.end_col_offset + 1,
+            )
 
     def check_bdd_keywords(self, keyword_name, node):
-        if keyword_name.lower() not in self.bdd or isinstance(node, Keyword):
+        if not keyword_name or keyword_name.lower() not in self.bdd:
             return
         arg = node.get_token(Token.ARGUMENT)
         suffix = f". Use one space between: '{keyword_name.title()} {arg.value}'" if arg else ""
@@ -487,13 +492,13 @@ class KeywordNamingChecker(VisitorChecker):
         if keyword_name.lower() in self.else_statements and self.inside_if_block:
             return False  # handled by else-not-upper-case
         error_msg = reserved[keyword_name.lower()]
-        col = keyword_col(node) if isinstance(node, KeywordCall) else keyword_col(node.header)
         self.report(
             "keyword-name-is-reserved-word",
             keyword_name=keyword_name,
             error_msg=error_msg,
             node=node,
-            col=col,
+            col=node.col_offset + 1,
+            end_col=node.end_col_offset + 1,
         )
         return True
 
@@ -507,6 +512,9 @@ class SettingsNamingChecker(VisitorChecker):
         "empty-library-alias",
         "duplicated-library-alias",
     )
+    ALIAS_TOKENS = [Token.WITH_NAME] if ROBOT_VERSION.major < 5 else [Token.WITH_NAME, "AS"]
+    # Separating alias values since RF 3 uses WITH_NAME instead of WITH NAME
+    ALIAS_TOKENS_VALUES = ["WITH NAME"] if ROBOT_VERSION.major < 5 else [Token.WITH_NAME, "AS"]
 
     def __init__(self):
         self.section_name_pattern = re.compile(r"\*\*\*\s.+\s\*\*\*")
@@ -543,10 +551,10 @@ class SettingsNamingChecker(VisitorChecker):
 
     def visit_LibraryImport(self, node):  # noqa
         self.check_setting_name(node.data_tokens[0].value, node)
-        with_name = node.get_token(Token.WITH_NAME)
+        with_name = node.get_token(*self.ALIAS_TOKENS)
         if with_name is None:
             for arg in node.get_tokens(Token.ARGUMENT):
-                if arg.value and arg.value == "WITH NAME":
+                if arg.value and arg.value in self.ALIAS_TOKENS_VALUES:
                     self.report("empty-library-alias", node=arg, col=arg.col_offset + 1)
         else:
             if node.alias.replace(" ", "") == node.name.replace(" ", ""):  # New Name == NewName

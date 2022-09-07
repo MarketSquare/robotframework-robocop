@@ -340,7 +340,8 @@ class DuplicationsChecker(VisitorChecker):
     def visit_LibraryImport(self, node):  # noqa
         if not node.name:
             return
-        name_with_args = node.name + "".join(token.value for token in node.data_tokens[2:])
+        lib_name = node.alias if node.alias else node.name
+        name_with_args = lib_name + "".join(token.value for token in node.get_tokens(Token.ARGUMENT))
         self.libraries[name_with_args].append(node)
 
     def visit_Metadata(self, node):  # noqa

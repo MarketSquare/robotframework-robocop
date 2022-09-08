@@ -1,1 +1,0 @@
-${rules_dir}${\}test.robot:8:1 [E] 0803 Multiple variables with name '${V AR}' in Variables section (first occurrence in line 6). Note that Robot Framework is case-insensitive

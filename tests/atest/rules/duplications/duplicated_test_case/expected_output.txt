@@ -1,0 +1,4 @@
+test.robot:13:1 [E] 0801 Multiple test cases with name 'Test' (first occurrence in line 6)
+test1.robot:13:1 [E] 0801 Multiple test cases with name 'test' (first occurrence in line 6)
+test2.robot:13:1 [E] 0801 Multiple test cases with name 'test1' (first occurrence in line 6)
+test2.robot:16:1 [E] 0801 Multiple test cases with name 'Te s t_1' (first occurrence in line 6)

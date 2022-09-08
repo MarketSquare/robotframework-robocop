@@ -93,7 +93,7 @@ class RuleAcceptance:
                 sys.stdout.flush()
                 result = get_result(output)
         actual = normalize_result(result, test_data)
-        assert actual == expected
+        assert actual == expected, f"{actual} != {expected}"
 
     @property
     def test_class_dir(self):

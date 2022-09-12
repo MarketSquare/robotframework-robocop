@@ -1,0 +1,2 @@
+test.robot:1:1 [W] 0527 Too many test cases (51/50)
+templated_test.robot:5:1 [W] 0527 Too many test cases (101/100)

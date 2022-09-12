@@ -1,3 +1,0 @@
-${rules_dir}${\}test.robot:6:1 [W] 0505 Test case 'Test' has too many keywords inside (13/10)
-${rules_dir}${\}templated_suite.robot:7:1 [W] 0505 Test case 'Template Case' has too many keywords inside (12/10)
-${rules_dir}${\}templated_test.robot:6:1 [W] 0505 Test case 'Template Case' has too many keywords inside (12/10)

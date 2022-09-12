@@ -16,10 +16,9 @@ from robocop.exceptions import ConfigGeneralError
 def regex(value):
     converted = rf'{value}'
     try:
-        re.compile(converted)
+        return re.compile(converted)
     except re.error as regex_err:
         raise ValueError(f'Regex error: {regex_err}')
-    return converted
 
 rules = {
     "0701": Rule(
@@ -53,7 +52,7 @@ rules = {
             name="block",
             default="^###",
             converter=regex,
-            desc="Define regex for block comment.",
+            desc="Block comment regex pattern.",
         ),
         rule_id="0702",
         name="missing-space-after-comment",
@@ -164,6 +163,12 @@ class CommentChecker(VisitorChecker):
             self._markers = self.param("todo-in-comment", "markers").lower().split(",")
         return self._markers
 
+    @property
+    def block(self):
+        if not self._block:
+            self._block = self.param("missing-space-after-comment", "block")
+        return self._block
+
     def visit_Comment(self, node):  # noqa
         self.find_comments(node)
 
@@ -225,7 +230,7 @@ class CommentChecker(VisitorChecker):
                 )
 
     def is_block_comment(self, comment):
-        return comment == "#" or re.match(self.param("missing-space-after-comment", "block"), comment) is not None
+        return comment == "#" or self.block.match(comment) is not None
 
 
 class IgnoredDataChecker(RawFileChecker):

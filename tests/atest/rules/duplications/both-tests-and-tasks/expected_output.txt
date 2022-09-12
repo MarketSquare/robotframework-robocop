@@ -1,2 +1,0 @@
-${rules_dir}${\}test.robot:14:1 [E] 0810 Both Task(s) and Test Case(s) section headers defined in file
-${rules_dir}${\}test2.robot:2:1 [E] 0810 Both Task(s) and Test Case(s) section headers defined in file

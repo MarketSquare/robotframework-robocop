@@ -1,0 +1,2 @@
+variable_errors.robot:5:1 [E] 0401 Robot Framework syntax error: Invalid variable name 'value'.
+variable_errors.robot:7:1 [E] 0401 Robot Framework syntax error: Invalid dictionary variable item '1'. Items must use 'name=value' syntax or be dictionary variables themselves.

@@ -1,0 +1,4 @@
+templated.robot:10:1 [W] 0202 Missing documentation in 'Templated Test Without Documentation' test case
+templated.robot:14:1 [W] 0202 Missing documentation in 'Overriding Default Template In Test Without Documentation' test case
+templated.robot:25:1 [W] 0202 Missing documentation in 'Template With FOR Loop Containing Variables' test case
+templated.robot:32:1 [W] 0202 Missing documentation in 'Strange Test Without Docs In One Line' test case

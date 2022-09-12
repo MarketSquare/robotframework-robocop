@@ -1,0 +1,5 @@
+test.robot:8:1 [W] 0808 '*** Variables ***' section header already defined in file (first occurrence in line 7)
+test.robot:20:1 [W] 0808 '*** Test Case ***' section header already defined in file (first occurrence in line 11)
+test.robot:22:1 [W] 0808 '*** Keywords ***' section header already defined in file (first occurrence in line 5)
+test.robot:30:1 [W] 0808 '*** Settings ***' section header already defined in file (first occurrence in line 1)
+test.robot:32:1 [W] 0808 '*** Tasks ***' section header already defined in file (first occurrence in line 31)

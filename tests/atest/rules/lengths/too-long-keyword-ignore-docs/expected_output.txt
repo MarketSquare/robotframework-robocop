@@ -1,1 +1,0 @@
-${rules_dir}${\}test.robot:61:1 [W] 0501 Keyword 'Keyword' is too long (45/40)

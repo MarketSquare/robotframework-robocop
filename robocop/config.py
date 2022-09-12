@@ -484,11 +484,14 @@ class Config:
                 rule_name = rule_name.replace(char, "")
         return rule_name
 
-    def resolve_relative(self, orig_path, config_dir: Path):
+    def resolve_relative(self, orig_path, config_dir: Path, ensure_exists: bool):
         path = Path(orig_path)
         if path.is_absolute():
             return orig_path
-        return str(config_dir / path)
+        resolved_path = config_dir / path
+        if not ensure_exists or resolved_path.exists():
+            return str(resolved_path)
+        return orig_path
 
     def parse_toml_to_config(self, toml_data: Dict, config_dir: Path):
         if not toml_data:
@@ -502,9 +505,9 @@ class Config:
             if key in resolve_relative:
                 if isinstance(value, list):
                     for index, val in enumerate(value):
-                        value[index] = self.resolve_relative(val, config_dir)
+                        value[index] = self.resolve_relative(val, config_dir, ensure_exists=key == "ext_rules")
                 else:
-                    value = self.resolve_relative(value, config_dir)
+                    value = self.resolve_relative(value, config_dir, ensure_exists=key == "ext_rules")
             if key in assign_type:
                 self.__dict__[key] = value
             elif key in set_type:

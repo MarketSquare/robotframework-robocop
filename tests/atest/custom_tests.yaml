@@ -30,3 +30,6 @@ tests:
       src_dir: comments/todo-in-comment-added-terms
     - config: "todo-in-comment:markers:remove me,fix this ugly bug,korjaa tämä hässäkkä"
       src_dir: comments/todo-in-comment-phrases
+  missing-space-after-comment:
+    - config: "missing-space-after-comment:block:^#[*]+"
+      src_dir: comments/missing-space-after-comment-block

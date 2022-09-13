@@ -1,6 +1,8 @@
 """
 Comments checkers
 """
+import re
+
 from codecs import BOM_UTF8, BOM_UTF16_BE, BOM_UTF16_LE, BOM_UTF32_BE, BOM_UTF32_LE
 
 from robot.api import Token
@@ -9,6 +11,14 @@ from robot.utils import FileReader
 from robocop.checkers import RawFileChecker, VisitorChecker
 from robocop.rules import Rule, RuleSeverity, RuleParam
 from robocop.utils import ROBOT_VERSION
+from robocop.exceptions import ConfigGeneralError
+
+def regex(value):
+    converted = rf'{value}'
+    try:
+        return re.compile(converted)
+    except re.error as regex_err:
+        raise ValueError(f'Regex error: {regex_err}')
 
 rules = {
     "0701": Rule(
@@ -38,17 +48,40 @@ rules = {
         """,
     ),
     "0702": Rule(
+        RuleParam(
+            name="block",
+            default="^###",
+            converter=regex,
+            desc="Block comment regex pattern.",
+        ),
         rule_id="0702",
         name="missing-space-after-comment",
         msg="Missing blank space after comment character",
         severity=RuleSeverity.WARNING,
         docs="""
-        Make sure to have one blank space after '#' comment character
+        Make sure to have one blank space after '#' comment character.
+        Configured regex for block comment should take into account the first character is `#`.
 
         Example::
         
             #bad
             # good
+            ### good block
+
+        Configuration example::
+
+            robocop --configure missing-space-after-comment:block:^#[*]+
+
+            Allows commenting like:
+
+                #*****
+                #
+                # Important topics here!
+                #
+                #*****
+                or
+                #* Headers *#
+
         """,
     ),
     "0703": Rule(
@@ -121,6 +154,7 @@ class CommentChecker(VisitorChecker):
 
     def __init__(self):
         self._markers = None
+        self._block = None
         super().__init__()
 
     @property
@@ -128,6 +162,12 @@ class CommentChecker(VisitorChecker):
         if not self._markers:
             self._markers = self.param("todo-in-comment", "markers").lower().split(",")
         return self._markers
+
+    @property
+    def block(self):
+        if not self._block:
+            self._block = self.param("missing-space-after-comment", "block")
+        return self._block
 
     def visit_Comment(self, node):  # noqa
         self.find_comments(node)
@@ -189,9 +229,8 @@ class CommentChecker(VisitorChecker):
                     col=token.col_offset + 1,
                 )
 
-    @staticmethod
-    def is_block_comment(comment):
-        return comment == "#" or comment[:3] == "###"
+    def is_block_comment(self, comment):
+        return comment == "#" or self.block.match(comment) is not None
 
 
 class IgnoredDataChecker(RawFileChecker):

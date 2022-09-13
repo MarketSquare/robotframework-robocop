@@ -1,3 +1,0 @@
-${rules_dir}${\}bom_and_two_ignored_lines.robot:2:1 [W] 0704 Ignored data found in file
-${rules_dir}${\}with_ignored_data.robot:1:1 [W] 0704 Ignored data found in file
-${rules_dir}${\}with_ignored_rule_and_data.robot:2:1 [W] 0704 Ignored data found in file

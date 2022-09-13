@@ -6,7 +6,6 @@ from pathlib import Path
 
 import pytest
 from packaging.specifiers import Specifier
-from packaging.version import Version
 
 from robocop import Robocop
 from robocop.config import Config
@@ -53,6 +52,10 @@ def configure_robocop_with_rule(args, runner, rule, path, src_files):
         paths = [str(path)]
     else:
         paths = [str(path / src_file) for src_file in src_files]
+    if args is None:
+        args = []
+    elif isinstance(args, str):
+        args = args.split()
     arguments = ["--include", ",".join(rule)]
     arguments.extend(
         [
@@ -80,10 +83,6 @@ class RuleAcceptance:
         expected = load_expected_file(test_data, expected_file)
         if rule is None:
             rule = [self.rule_name]
-        if config is None:
-            config = []
-        else:
-            config = config.split()
         robocop_instance = Robocop(from_cli=False)
         robocop_instance = configure_robocop_with_rule(config, robocop_instance, rule, test_data, src_files)
         with isolated_output() as output, pytest.raises(SystemExit):

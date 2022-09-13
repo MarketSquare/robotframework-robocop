@@ -1,0 +1,5 @@
+configure4${/}test.robot:2:23 [W] 0301 Not allowed character 'foo.' found in 'Test with not allowed foo.' test case name
+configure4${/}test.robot:10:26 [W] 0301 Not allowed character 'foo.' found in 'Keyword With not allowed foo.' keyword name
+configure4${/}test.robot:13:43 [W] 0301 Not allowed character 'foo.' found in 'Keyword With ${em.bedded} and not allowed foo.' keyword name
+configure4${/}test.robot:16:6 [W] 0301 Not allowed character 'foo.' found in 'Keyword With ${em.bedded} and foo.a ${second} not allowed bar.b' keyword name
+configure4${/}test.robot:16:62 [W] 0301 Not allowed character '.' found in 'Keyword With ${em.bedded} and foo.a ${second} not allowed bar.b' keyword name

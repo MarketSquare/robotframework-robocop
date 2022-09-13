@@ -1,1 +1,0 @@
-${rules_dir}${\}test.robot:5:1 [W] 0308 Test case 'test not capitalized' title should start with capital letter

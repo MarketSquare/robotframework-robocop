@@ -1,3 +1,0 @@
-${rules_dir}${\}test.robot:2:14 [W] 0512 Documentation of Test Suite is empty
-${rules_dir}${\}test.robot:7:20 [W] 0512 Documentation of 'Test' Test Case is empty
-${rules_dir}${\}test.robot:16:20 [W] 0512 Documentation of 'Keyword' Keyword is empty

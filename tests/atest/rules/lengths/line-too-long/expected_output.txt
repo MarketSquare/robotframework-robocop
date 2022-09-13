@@ -1,3 +1,0 @@
-${rules_dir}${\}test.robot:17:1 [W] 0508 Line is too long (139/120)
-${rules_dir}${\}test.robot:27:1 [W] 0508 Line is too long (159/120)
-${rules_dir}${\}test.robot:30:1 [W] 0508 Line is too long (139/120)

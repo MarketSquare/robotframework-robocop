@@ -1,0 +1,1 @@
+ignore_templated${/}test.robot:6:1 [W] 0505 Test case 'Test' has too many keywords inside (13/10)

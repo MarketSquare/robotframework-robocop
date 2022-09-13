@@ -1,0 +1,7 @@
+test.robot:25:1 [W] 1005 Invalid number of empty lines between keywords (2/1)
+test.robot:29:1 [W] 1005 Invalid number of empty lines between keywords (0/1)
+test.robot:34:1 [W] 1005 Invalid number of empty lines between keywords (0/1)
+test.robot:37:1 [W] 1005 Invalid number of empty lines between keywords (0/1)
+test.robot:41:1 [W] 1005 Invalid number of empty lines between keywords (0/1)
+test.robot:46:1 [W] 1005 Invalid number of empty lines between keywords (0/1)
+test.robot:52:1 [W] 1005 Invalid number of empty lines between keywords (0/1)

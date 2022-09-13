@@ -1,4 +1,0 @@
-${rules_dir}${\}test.robot:2:1 [W] 1009 Too many empty lines after '*** Settings ***' section header (1/0)
-${rules_dir}${\}test.robot:11:1 [W] 1009 Too many empty lines after '*** Test Cases ***' section header (1/0)
-${rules_dir}${\}test.robot:22:1 [W] 1009 Too many empty lines after '*** Keywords ***' section header (2/0)
-${rules_dir}${\}missing_header.robot:1:1 [W] 1009 Too many empty lines after '*** Comments ***' section header (1/0)

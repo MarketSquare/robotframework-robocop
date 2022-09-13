@@ -1,3 +1,0 @@
-${rules_dir}${\}test.robot:13:3 [W] 0701 Found a marker 'remove me' in the comments
-${rules_dir}${\}test.robot:19:7 [W] 0701 Found a marker 'FIX this UGLY bug' in the comments
-${rules_dir}${\}test.robot:21:7 [W] 0701 Found a marker 'KORJAA TÄMÄ HÄSSÄKKÄ' in the comments

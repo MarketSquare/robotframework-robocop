@@ -1,0 +1,1 @@
+bom_in_file.robot:1:1 [W] 0705 This file contains BOM (Byte Order Mark) encoding not supported by Robot Framework

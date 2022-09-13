@@ -1,0 +1,7 @@
+test.robot:4:5 [E] 0403 Missing keyword name when calling some values
+test.robot:5:5 [E] 0403 Missing keyword name when calling some values
+test.robot:13:9 [E] 0403 Missing keyword name when calling some values
+test.robot:16:9 [E] 0403 Missing keyword name when calling some values
+test.robot:19:9 [E] 0403 Missing keyword name when calling some values
+test.robot:22:9 [E] 0403 Missing keyword name when calling some values
+test.robot:28:9 [E] 0403 Missing keyword name when calling some values

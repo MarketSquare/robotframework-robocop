@@ -1,0 +1,2 @@
+test.robot:7:5 [E] 0402 Provide at least two spaces after '[Documentation]' setting
+test.robot:20:5 [E] 0402 Provide at least two spaces after '[Arguments]' setting

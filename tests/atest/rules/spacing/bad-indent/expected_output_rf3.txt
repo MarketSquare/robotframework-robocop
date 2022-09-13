@@ -1,2 +1,0 @@
-${rules_dir}${\}test.robot:57:1 [E] 1008 Indent expected
-${rules_dir}${\}test.robot:64:1 [E] 1008 Indent expected

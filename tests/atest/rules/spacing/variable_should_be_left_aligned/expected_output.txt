@@ -1,0 +1,5 @@
+test.robot:7:2 [E] 1014 Variable in Variable section should be left aligned
+test.robot:8:3 [E] 1014 Variable in Variable section should be left aligned
+test.robot:9:4 [E] 1014 Variable in Variable section should be left aligned
+test.robot:10:5 [E] 1014 Variable in Variable section should be left aligned
+test.robot:12:3 [E] 1014 Variable in Variable section should be left aligned

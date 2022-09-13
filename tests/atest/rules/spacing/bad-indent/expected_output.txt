@@ -1,9 +1,0 @@
-${rules_dir}${\}test.robot:57:1 [E] 1008 Indent expected
-${rules_dir}${\}test.robot:64:1 [E] 1008 Indent expected
-${rules_dir}${\}test.robot:69:1 [E] 1008 Indent expected
-${rules_dir}${\}test.robot:74:1 [E] 1008 Indent expected
-${rules_dir}${\}test.robot:76:1 [E] 1008 Indent expected
-${rules_dir}${\}test.robot:83:1 [E] 1008 Indent expected
-${rules_dir}${\}test.robot:86:1 [E] 1008 Indent expected
-${rules_dir}${\}test.robot:88:1 [E] 1008 Indent expected
-${rules_dir}${\}test.robot:92:1 [E] 1008 Indent expected

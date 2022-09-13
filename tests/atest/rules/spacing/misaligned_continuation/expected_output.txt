@@ -1,0 +1,6 @@
+tests.robot:7:3 [W] 1011 Continuation marker should be aligned with starting row
+tests.robot:15:3 [W] 1011 Continuation marker should be aligned with starting row
+tests.robot:27:3 [W] 1011 Continuation marker should be aligned with starting row
+tests.robot:35:7 [W] 1011 Continuation marker should be aligned with starting row
+tests.robot:41:4 [W] 1011 Continuation marker should be aligned with starting row
+tests.robot:53:7 [W] 1011 Continuation marker should be aligned with starting row

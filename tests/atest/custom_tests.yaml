@@ -2,12 +2,6 @@ tests:
   tag-with-reserved-word:
     - config:
       src_dir: tags/tag-with-reserved-word-in-keyword-doc
-  consecutive-empty-lines:
-    - config: consecutive-empty-lines:severity_threshold:error=3
-      src_dir: spacing/consecutive-empty-lines-severity-threshold
-  empty-line-after-section:
-    - config: empty-line-after-section:severity_threshold:error=2
-      src_dir: spacing/empty-line-after-section-severity-threshold
   todo-in-comment:
     - config: todo-in-comment:markers:todo,fixme,OMG
       src_dir: comments/todo-in-comment-added-terms

@@ -1,0 +1,22 @@
+test.robot:3:5 [E] 0915 'Continue For Loop' keyword used outside a loop
+test.robot:13:5 [E] 0915 'BuiltIn.Exit For Loop' keyword used outside a loop
+test.robot:14:5 [E] 0915 CONTINUE statement used outside a loop
+test.robot:15:5 [E] 0915 BREAK statement used outside a loop
+test.robot:16:5 [E] 0915 'Exit For Loop If' keyword used outside a loop
+test.robot:17:5 [E] 0915 'Continuefor_loopIf' keyword used outside a loop
+test.robot:20:5 [E] 0915 'Exit For Loop' keyword used outside a loop
+test.robot:21:5 [E] 0915 'Continue For Loop' keyword used outside a loop
+test.robot:22:5 [E] 0915 CONTINUE statement used outside a loop
+test.robot:23:5 [E] 0915 BREAK statement used outside a loop
+test.robot:28:5 [E] 0915 'Continue For Loop' keyword used outside a loop
+test.robot:29:5 [E] 0915 CONTINUE statement used outside a loop
+test.robot:30:5 [E] 0915 BREAK statement used outside a loop
+test.robot:42:5 [E] 0915 'Exit For Loop' keyword used outside a loop
+test.robot:46:5 [E] 0915 'Exit For Loop' keyword used outside a loop
+test.robot:47:5 [E] 0915 'Continue For Loop' keyword used outside a loop
+test.robot:49:9 [E] 0915 CONTINUE statement used outside a loop
+test.robot:51:5 [E] 0915 BREAK statement used outside a loop
+test.robot:52:25 [E] 0915 'Exit For Loop If' keyword used outside a loop
+test.robot:53:5 [E] 0915 'Continuefor_loopIf' keyword used outside a loop
+test.robot:67:9 [E] 0915 'Continue For Loop' keyword used outside a loop
+test.robot:69:9 [E] 0915 BREAK statement used outside a loop

@@ -1,26 +1,9 @@
 tests:
-  inconsistent-assignment:
-    - config: inconsistent-assignment:assignment_sign_type:space_and_equal_sign
-      src_dir: misc/inconsistent-assignment-const
-    - config: inconsistent-assignment:assignment_sign_type:autodetect
-      src_dir: misc/inconsistent-assignment-autodetect
-  inconsistent-assignment-in-variables:
-    - config: inconsistent-assignment-in-variables:assignment_sign_type:space_and_equal_sign
-      src_dir: misc/inconsistent-assignment-in-variables-const
-    - config: inconsistent-assignment-in-variables:assignment_sign_type:autodetect
-      src_dir: misc/inconsistent-assignment-in-variables-autodetect
   wrong-case-in-keyword-name:
     - config: wrong-case-in-keyword-name:pattern:Foo\.bar
       src_dir: naming/wrong-case-in-keyword-name-configured
     - config: wrong-case-in-keyword-name:convention:first_word_capitalized
       src_dir: naming/wrong-case-in-keyword-name-first-word
-  section-out-of-order:
-    - config: section-out-of-order:sections_order:settings,keywords,testcases,variables
-      src_dir: duplications/section-out-of-order_custom_order
-    - config: section-out-of-order:sections_order:settings,variables,testcases,keywords
-      src_dir: duplications/section-out-of-order_default_order
-    - config: section-out-of-order:sections_order:settings,variables,testcases,tasks,keywords
-      src_dir: duplications/section-out-of-order_default_order
   not-allowed-char-in-filename:
     - config: not-allowed-char-in-filename:pattern:\.(?!bar)
       src_dir: naming/not-allowed-char-in-filename-configured
@@ -36,66 +19,12 @@ tests:
   tag-with-reserved-word:
     - config:
       src_dir: tags/tag-with-reserved-word-in-keyword-doc
-  too-long-test-case:
-    - config: too-long-test-case:ignore_docs:True
-      src_dir: lengths/too-long-test-case-ignore-docs
-    - config:
-        - too-long-test-case:severity_threshold:error=20
-        - too-long-test-case:max_len:10
-      src_dir: lengths/too-long-test-case-severity-threshold
-  line-too-long:
-    - config: line-too-long:severity_threshold:warning=100:info=50:error=150
-      src_dir: lengths/line-too-long-severity-threshold
-  too-few-calls-in-keyword:
-    - config:
-        - too-few-calls-in-keyword:min_calls:2
-        - too-few-calls-in-keyword:severity_threshold:warning=1:error=0
-      src_dir: lengths/too-few-calls-in-keyword-severity-threshold
-    - config: too-few-calls-in-keyword:min_calls:2
-      src_dir: lengths/too-few-calls-in-keyword-bug629
-  too-few-calls-in-test-case:
-    - config: too-few-calls-in-test-case:ignore_templated:True
-      src_dir: lengths/too-few-calls-in-test-case-ignore-templated
-    - config: too-few-calls-in-test-case:min_calls:2
-      src_dir: lengths/too-few-calls-in-test-case-bug629
-  too-many-calls-in-keyword:
-    - config:
-        - too-many-calls-in-keyword:max_calls:5
-        - too-many-calls-in-keyword:severity_threshold:warning=5:error=10
-      src_dir: lengths/too-many-calls-in-keyword-severity-threshold
-  too-many-calls-in-test-case:
-    - config: too-many-calls-in-test-case:ignore_templated:True
-      src_dir: lengths/too-many-calls-in-test-case-ignore-templated
-    - config:
-        - too-many-calls-in-test-case:max_calls:5
-        - too-many-calls-in-test-case:severity_threshold:warning=5:error=10
-      src_dir: lengths/too-many-calls-in-test-case-severity-threshold
-  file-too-long:
-    - config:
-        - file-too-long:max_lines:300
-        - file-too-long:severity_threshold:warning=300:error=400
-      src_dir: lengths/file-too-long-severity-threshold
-  too-many-arguments:
-    - config: too-many-arguments:severity_threshold:warning=5:error=7
-      src_dir: lengths/too-many-arguments-severity-threshold
-  number-of-returned-values:
-    - config: number-of-returned-values:severity_threshold:error=6
-      src_dir: lengths/number-of-returned-values-severity-threshold
-  inline-if-can-be-used:
-    - config: inline-if-can-be-used:severity_threshold:warning=40
-      src_dir: misc/inline-if-can-be-used-severity-threshold
   consecutive-empty-lines:
     - config: consecutive-empty-lines:severity_threshold:error=3
       src_dir: spacing/consecutive-empty-lines-severity-threshold
   empty-line-after-section:
     - config: empty-line-after-section:severity_threshold:error=2
       src_dir: spacing/empty-line-after-section-severity-threshold
-  too-many-test-cases:
-    - config:
-        - too-many-test-cases:max_testcases:2
-        - too-many-test-cases:max_templated_testcases:2
-        - too-many-test-cases:severity_threshold:error=4
-      src_dir: lengths/too-many-test-cases-severity-threshold
   todo-in-comment:
     - config: todo-in-comment:markers:todo,fixme,OMG
       src_dir: comments/todo-in-comment-added-terms

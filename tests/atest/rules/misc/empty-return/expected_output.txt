@@ -1,1 +1,0 @@
-${rules_dir}${\}test.robot:21:13 [W] 0903 [Return] is empty

@@ -1,0 +1,2 @@
+severity.robot:6:1 [E] 0504 Test case 'Test' is too long (21/10)
+severity.robot:32:1 [W] 0504 Test case 'Bit longer test' is too long (18/10)

@@ -1,14 +1,4 @@
 tests:
-  inconsistent-assignment:
-    - config: inconsistent-assignment:assignment_sign_type:space_and_equal_sign
-      src_dir: misc/inconsistent-assignment-const
-    - config: inconsistent-assignment:assignment_sign_type:autodetect
-      src_dir: misc/inconsistent-assignment-autodetect
-  inconsistent-assignment-in-variables:
-    - config: inconsistent-assignment-in-variables:assignment_sign_type:space_and_equal_sign
-      src_dir: misc/inconsistent-assignment-in-variables-const
-    - config: inconsistent-assignment-in-variables:assignment_sign_type:autodetect
-      src_dir: misc/inconsistent-assignment-in-variables-autodetect
   wrong-case-in-keyword-name:
     - config: wrong-case-in-keyword-name:pattern:Foo\.bar
       src_dir: naming/wrong-case-in-keyword-name-configured
@@ -29,9 +19,6 @@ tests:
   tag-with-reserved-word:
     - config:
       src_dir: tags/tag-with-reserved-word-in-keyword-doc
-  inline-if-can-be-used:
-    - config: inline-if-can-be-used:severity_threshold:warning=40
-      src_dir: misc/inline-if-can-be-used-severity-threshold
   consecutive-empty-lines:
     - config: consecutive-empty-lines:severity_threshold:error=3
       src_dir: spacing/consecutive-empty-lines-severity-threshold

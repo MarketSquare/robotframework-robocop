@@ -1,2 +1,0 @@
-${rules_dir}${\}test.robot:7:9 [W] 0910 The assignment sign is not consistent inside the variables section. Expected ' =' but got '=' instead
-${rules_dir}${\}test.robot:8:8 [W] 0910 The assignment sign is not consistent inside the variables section. Expected ' =' but got '' instead

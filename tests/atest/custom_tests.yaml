@@ -1,21 +1,4 @@
 tests:
-  wrong-case-in-keyword-name:
-    - config: wrong-case-in-keyword-name:pattern:Foo\.bar
-      src_dir: naming/wrong-case-in-keyword-name-configured
-    - config: wrong-case-in-keyword-name:convention:first_word_capitalized
-      src_dir: naming/wrong-case-in-keyword-name-first-word
-  not-allowed-char-in-filename:
-    - config: not-allowed-char-in-filename:pattern:\.(?!bar)
-      src_dir: naming/not-allowed-char-in-filename-configured
-  not-allowed-char-in-name:
-    - config: not-allowed-char-in-name:pattern:[$:{}]
-      src_dir: naming/not-allowed-char-in-name-configured
-    - config: not-allowed-char-in-name:pattern:[!.?/;+'"()[]{}#$%^&=<>|\]
-      src_dir: naming/not-allowed-char-in-name-configured2
-    - config: not-allowed-char-in-name:pattern:[^a-zA-Z\s]
-      src_dir: naming/not-allowed-char-in-name-configured3
-    - config: not-allowed-char-in-name:pattern:(?:(?<!foo)\.bar)|(?:foo\.(?!bar))|(?:(?<!foo)\.(?!bar))
-      src_dir: naming/not-allowed-char-in-name-configured4
   tag-with-reserved-word:
     - config:
       src_dir: tags/tag-with-reserved-word-in-keyword-doc

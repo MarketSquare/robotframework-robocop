@@ -1,1 +1,0 @@
-${rules_dir}${\}test.robot:18:1 [W] 0307 Section name should be in format '*** Keywords ***' or '*** KEYWORDS ***'

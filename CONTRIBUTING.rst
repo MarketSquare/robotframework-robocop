@@ -210,18 +210,18 @@ appropriate. They are located in ``tests/utest`` directory.
 Acceptance tests
 ''''''''''''''''
 
-Acceptance tests tests if Robocop rules reports issues in test data files.
+Acceptance tests check if Robocop rules report issues in test data files.
 
 They are located in ``tests/atest/rules/{rules_category}`` directories.
-Each rule have their subdirectory with the name of the rule. Hyphens in the
-name are replaced by underscored. For example ``rule-name`` from ``comments``
+Each rule has its subdirectory with the name of the rule. Hyphens in the
+name are replaced by underscores. For example, ``rule-name`` from ``comments``
 category rule should have ``tests/atest/rules/comments/rule_name`` directory.
-Inside each directory there should be empty ``__init__.py`` file, ``test_rule.py``
-file containing pytest tests and test data and expected data used by tests.
+Inside each directory there should be an empty ``__init__.py`` file, ``test_rule.py``
+file containing pytest tests, test data and expected data used by the tests.
 
 Acceptance tests should use ``tests.atest.utils.RuleAcceptance`` class that
-contains helper methods and assertions for tests purpose.
-Example of simple test::
+contains helper methods and assertions for the tests purpose.
+Example of a simple test::
 
     from tests.atest.utils import RuleAcceptance
 
@@ -258,7 +258,7 @@ specific version, it is possible to set target version of the tests using versio
         def test_rule_rf4(self):
             self.check_rule(expected_file="expected_output_rf3.txt", target_version="==3.2.2")
 
-You can provide rule custom configuration using ``config`` argument. It accepts either string or list::
+You can provide custom configuration for the rule using ``config`` argument. It accepts either string or list::
 
     from tests.atest.utils import RuleAcceptance
 

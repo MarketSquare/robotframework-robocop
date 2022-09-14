@@ -79,10 +79,17 @@ class TestDisablers:
         disabler = DisablersFinder(disablers_test_data / "enabled.robot", None)
         assert not disabler.any_disabler
 
-    @pytest.mark.parametrize("file", [1, 2, 3, 4])
+    @pytest.mark.parametrize("file", [1, 2, 3])
     def test_extended_disabling(self, file, disablers_test_data):
         source = disablers_test_data / f"extended_lines{file}.robot"
         with open(source) as f:
             data = f.read()
         issues = run_check_on_string(data, include={"too-long-keyword"}, configure=["too-long-keyword:max_len:1"])
         assert not issues
+
+    def test_disabling_after_keyword(self, disablers_test_data):
+        source = disablers_test_data / "extended_lines4.robot"
+        with open(source) as f:
+            data = f.read()
+        issues = run_check_on_string(data, include={"too-long-keyword"}, configure=["too-long-keyword:max_len:1"])
+        assert issues

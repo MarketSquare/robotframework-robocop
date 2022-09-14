@@ -375,7 +375,8 @@ class DuplicationsChecker(VisitorChecker):
 
     def visit_Error(self, node):  # noqa
         for error in get_errors(node):
-            self.report("duplicated-setting", error_msg=error, node=node)
+            if "is allowed only once" in error:
+                self.report("duplicated-setting", error_msg=error, node=node)
 
 
 class SectionHeadersChecker(VisitorChecker):

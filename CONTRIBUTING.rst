@@ -210,22 +210,66 @@ appropriate. They are located in ``tests/utest`` directory.
 Acceptance tests
 ''''''''''''''''
 
-Acceptance tests are dynamically generated for every rule in Robocop. Test data
-should be located in ``tests\atest\rules\{rules_category}`` directory. If your rule has name "rule-name"
-it will expect ``rule-name`` directory with ``expected_output.txt`` file inside.
-You can put one or more \*.robot files inside - it will be autoscanned with ``--include "rule-name"`` option.
-Robocop output will be compared with content of ``expected_output.txt`` file.
+Acceptance tests check if Robocop rules report issues in test data files.
 
-When updating ``expected_output.txt`` file you can use two macro variables: ``${rules_dir}`` and ``${/}``.
-The first is path to rules directory (so the correct path in Robocop output will be printed) and the
-second is path separator - \ under Windows and / under Linux.
+They are located in ``tests/atest/rules/{rules_category}`` directories.
+Each rule has its subdirectory with the name of the rule. Hyphens in the
+name are replaced by underscores. For example, ``rule-name`` from ``comments``
+category rule should have ``tests/atest/rules/comments/rule_name`` directory.
+Inside each directory there should be an empty ``__init__.py`` file, ``test_rule.py``
+file containing pytest tests, test data and expected data used by the tests.
 
-If you wish to use additional configuration or use different that default test data directory follow
-instructions from ``pytest_generate_tests`` method.
+Acceptance tests should use ``tests.atest.utils.RuleAcceptance`` class that
+contains helper methods and assertions for the tests purpose.
+Example of a simple test::
 
-In case you want to run only single test (not all dynamically generated ones) you can run::
+    from tests.atest.utils import RuleAcceptance
 
-    pytest --rule rule-name tests\atest
+
+    class TestRuleAcceptance(RuleAcceptance):
+        def test_rule(self):
+            self.check_rule(src_files=["test.robot"], expected_file="expected_output.txt")
+
+In this example we're invoking Robocop on ``test.robot`` file inside the same directory and
+we're comparing reported issues with the content of the ``expected_output.txt`` file.
+
+Example of the expected file::
+
+    test.robot:8:1 [E] 0803 Multiple variables with name '${V AR}' in Variables section (first occurrence in line 6). Note that Robot Framework is case-insensitive
+
+Issues are reported using following format: ``{source}:{line}:{col} [{severity}] {rule_id} {desc}``.
+If your test data file is inside subdirectory, the path to file should use ``${/}`` as path separator::
+
+    suite_dir{/}__init__.robot:4:1 [W] 0806 Duplicated metadata 'some text' (first occurrence in line 2)
+
+If the rule behaves differently depending on the Robot Framework version, or it is enabled only for
+specific version, it is possible to set target version of the tests using version specifiers::
+
+    from tests.atest.utils import RuleAcceptance
+
+
+    class TestRule(RuleAcceptance):
+        def test_rule(self):
+            self.check_rule(expected_file="expected_output.txt", target_version=">=5.0")
+
+        def test_rule_rf3(self):
+            self.check_rule(expected_file="expected_output_rf4.txt", target_version="==4.1.3")
+
+        def test_rule_rf4(self):
+            self.check_rule(expected_file="expected_output_rf3.txt", target_version="==3.2.2")
+
+You can provide custom configuration for the rule using ``config`` argument. It accepts either string or list::
+
+    from tests.atest.utils import RuleAcceptance
+
+
+    class TestRuleAcceptance(RuleAcceptance):
+        def test_configure_pattern(self):
+            self.check_rule(
+                config="-c not-allowed-char-in-filename:pattern:\.(?!bar)",
+                src_files=["allowed_suite_foo.bar.robot", "suite.withdot"],
+                expected_file="expected_output_configured.txt",
+            )
 
 E2E tests
 '''''''''
@@ -233,17 +277,6 @@ E2E tests
 Simple E2E tests are also included in repository in ``tests/e2e`` directory.
 They are being run automatically along with unit tests when ``pytest`` is
 executed.
-
-
-Performance tests
-''''''''''''''''''
-
-To execute performance tests on every rule run::
-
-    pytest --benchmark-enable tests
-
-Add `--benchmark-save=benchmark_results` option to save your test results in a JSON file. It can be later used to compare
-results between the different runs. See [here](https://pytest-benchmark.readthedocs.io/en/stable/comparing.html) for more details.
 
 Coverage
 ''''''''

@@ -3,7 +3,7 @@ from tests.atest.utils import RuleAcceptance
 
 class TestRuleAcceptance(RuleAcceptance):
     def test_rule(self):
-        self.check_rule(src_files=["golden/golden.robot"], expected_file="golden/empty.txt")
+        self.check_rule(src_files=["golden/golden.robot"], expected_file=None)
 
     def test_configured_const_assignment(self):
         self.check_rule(

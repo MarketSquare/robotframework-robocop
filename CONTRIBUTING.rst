@@ -271,6 +271,10 @@ You can provide custom configuration for the rule using ``config`` argument. It 
                 expected_file="expected_output_configured.txt",
             )
 
+Set ``expected_file`` to ``None`` if you expect the rule to not raise any issues during run::
+
+    self.check_rule(src_files=["golden.robot"], expected_file=None)
+
 E2E tests
 '''''''''
 

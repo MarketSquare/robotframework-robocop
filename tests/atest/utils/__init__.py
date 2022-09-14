@@ -40,6 +40,8 @@ def normalize_result(result, test_data):
 
 
 def load_expected_file(test_data, expected_file):
+    if expected_file is None:
+        return []
     expected = test_data / expected_file
     with open(expected, encoding="utf-8") as f:
         return sorted([line.rstrip("\n").replace(r"${/}", os.path.sep) for line in f])

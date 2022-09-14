@@ -22,7 +22,7 @@ except ImportError:
 
 from robocop.checkers import RawFileChecker, VisitorChecker
 from robocop.rules import Rule, RuleParam, RuleSeverity, SeverityThreshold
-from robocop.utils import get_section_name, last_non_empty_line, normalize_robot_name, pattern_type, str2bool
+from robocop.utils import get_section_name, normalize_robot_name, pattern_type, str2bool
 
 rules = {
     "0501": Rule(

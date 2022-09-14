@@ -13,7 +13,6 @@ from robocop.utils.misc import (
     is_suite_templated,
     issues_to_lsp_diagnostic,
     keyword_col,
-    last_non_empty_line,
     modules_from_path,
     modules_from_paths,
     modules_in_current_dir,

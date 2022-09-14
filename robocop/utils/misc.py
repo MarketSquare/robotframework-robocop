@@ -253,13 +253,6 @@ def is_suite_templated(model):
     return finder.templated
 
 
-def last_non_empty_line(node):
-    for child in node.body[::-1]:
-        if not isinstance(child, EmptyLine):
-            return child.lineno
-    return node.lineno
-
-
 def next_char_is(string: str, i: int, char: str) -> bool:
     if not i < len(string) - 1:
         return False

@@ -47,7 +47,7 @@ def load_expected_file(test_data, expected_file):
         return sorted([line.rstrip("\n").replace(r"${/}", os.path.sep) for line in f])
 
 
-def configure_robocop_with_rule(args, runner, rule, path, src_files):
+def configure_robocop_with_rule(args, runner, rule, path, src_files, format):
     runner.from_cli = True
     config = Config()
     if src_files is None:
@@ -62,7 +62,7 @@ def configure_robocop_with_rule(args, runner, rule, path, src_files):
     arguments.extend(
         [
             "--format",
-            "{source}:{line}:{col} [{severity}] {rule_id} {desc}",
+            format,
             "--configure",
             "return_status:quality_gate:E=0:W=0:I=0",
             *args,
@@ -77,16 +77,23 @@ def configure_robocop_with_rule(args, runner, rule, path, src_files):
 class RuleAcceptance:
     SRC_FILE = "."
     EXPECTED_OUTPUT = "expected_output.txt"
+    DEFAULT_ISSUE_FORMAT = "{source}:{line}:{col} [{severity}] {rule_id} {desc}"
+    END_COL_ISSUE_FORMAT = "{source}:{line}:{col}:{end_line}:{end_col} [{severity}] {rule_id} {desc}"
 
-    def check_rule(self, expected_file, config=None, rule=None, src_files=None, target_version=None):
+    def check_rule(
+        self, expected_file, config=None, rule=None, src_files=None, target_version=None, issue_format="default"
+    ):
         if not self.enabled_in_version(target_version):
             pytest.skip(f"Test enabled only for RF {target_version}")
         test_data = self.test_class_dir
         expected = load_expected_file(test_data, expected_file)
+        format = self.get_issue_format(issue_format)
         if rule is None:
             rule = [self.rule_name]
         robocop_instance = Robocop(from_cli=False)
-        robocop_instance = configure_robocop_with_rule(config, robocop_instance, rule, test_data, src_files)
+        robocop_instance = configure_robocop_with_rule(
+            config, robocop_instance, rule, test_data, src_files, format=format
+        )
         with isolated_output() as output, pytest.raises(SystemExit):
             try:
                 robocop_instance.run()
@@ -95,6 +102,13 @@ class RuleAcceptance:
                 result = get_result(output)
         actual = normalize_result(result, test_data)
         assert actual == expected, f"{actual} != {expected}"
+
+    def get_issue_format(self, issue_format):
+        if issue_format == "default":
+            return self.DEFAULT_ISSUE_FORMAT
+        if issue_format == "end_col":
+            return self.END_COL_ISSUE_FORMAT
+        return issue_format
 
     @property
     def test_class_dir(self):

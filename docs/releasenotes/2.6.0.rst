@@ -23,7 +23,7 @@ Such headers will raise deprecation warning and eventually will not be supported
 
 ## Issue end location (#290)
 
-Our test framework now supports custom format of the issue - which should help in enhancing the precision of the reported
-issues. Following rules has improved precision (reported beginning and end of the rule) in this release:
+Our test framework now supports custom format of the issue - which should help with enhancing the precision of the reported
+issues. The following rules have improved precision (reported beginning and end of the rule) in this release:
 
 - ``invalid-argument``

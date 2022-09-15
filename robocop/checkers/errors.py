@@ -348,7 +348,9 @@ class ParsingErrorChecker(VisitorChecker):
         for arg in node.get_tokens(Token.ARGUMENT):
             value, *_ = arg.value.split("=", maxsplit=1)
             if value == match.group(1):
-                self.report("invalid-argument", error_msg=error[:-1], node=arg, col=arg.col_offset + 1)
+                col = arg.col_offset + 1
+                end_col = arg.end_col_offset + 1
+                self.report("invalid-argument", error_msg=error[:-1], node=arg, col=col, end_col=end_col)
                 return
         self.report("parsing-error", error_msg=error, node=node)
 

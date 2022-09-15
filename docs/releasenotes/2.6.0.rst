@@ -11,4 +11,4 @@ or to install exactly this version::
 ## Fixes
 
 - unrecognized header is now only reported by ``parsing-error`` and not by ``duplicated-setting`` (#683)
-- empty lines and standalone comments are now not counted towards keyword/test lenght in ``too-long-test-case`` and ``too-long-keyword`` rules (#671)
+- empty lines and standalone comments are now not counted towards keyword/test length in ``too-long-test-case`` and ``too-long-keyword`` rules (#671)

@@ -1,0 +1,168 @@
+bug375.robot:7:5 [W] 1008 Line is over-indented
+bug375.robot:8:5 [W] 1008 Line is over-indented
+bug375.robot:9:24 [W] 1008 Line is over-indented
+bug375.robot:10:24 [W] 1008 Line is over-indented
+bug375.robot:11:24 [W] 1008 Line is over-indented
+bug375.robot:14:5 [W] 1008 Line is over-indented
+bug375.robot:15:5 [W] 1008 Line is over-indented
+bug375.robot:16:5 [W] 1008 Line is over-indented
+bug375.robot:17:5 [W] 1008 Line is over-indented
+bug375.robot:18:5 [W] 1008 Line is over-indented
+bug375.robot:22:5 [W] 1008 Line is over-indented
+bug375.robot:23:7 [W] 1008 Line is over-indented
+bug375.robot:24:5 [W] 1008 Line is over-indented
+bug375.robot:25:5 [W] 1008 Line is over-indented
+bug375.robot:26:5 [W] 1008 Line is over-indented
+bug375.robot:30:5 [W] 1008 Line is over-indented
+bug375.robot:31:5 [W] 1008 Line is over-indented
+bug375.robot:32:5 [W] 1008 Line is over-indented
+bug375.robot:34:5 [W] 1008 Line is over-indented
+bug375.robot:39:5 [W] 1008 Line is over-indented
+bug375.robot:40:5 [W] 1008 Line is over-indented
+bug375.robot:44:5 [W] 1008 Line is over-indented
+bug375.robot:45:5 [W] 1008 Line is over-indented
+comments.robot:19:3 [W] 1008 Line is over-indented
+comments.robot:21:5 [W] 1008 Line is over-indented
+comments.robot:22:5 [W] 1008 Line is over-indented
+comments.robot:23:3 [W] 1008 Line is under-indented
+comments.robot:26:5 [W] 1008 Line is over-indented
+comments.robot:29:5 [W] 1008 Line is over-indented
+comments.robot:30:5 [W] 1008 Line is over-indented
+comments.robot:31:9 [W] 1008 Line is over-indented
+comments.robot:32:1 [E] 1008 Indent expected. Provide 2 or more spaces of indentation for statements inside block
+comments.robot:33:5 [W] 1008 Line is over-indented
+comments.robot:37:5 [W] 1008 Line is over-indented
+comments.robot:38:5 [W] 1008 Line is over-indented
+comments.robot:39:3 [W] 1008 Line is under-indented
+comments.robot:44:5 [W] 1008 Line is over-indented
+comments.robot:45:5 [W] 1008 Line is over-indented
+comments.robot:46:9 [W] 1008 Line is over-indented
+comments.robot:47:1 [E] 1008 Indent expected. Provide 2 or more spaces of indentation for statements inside block
+comments.robot:48:5 [W] 1008 Line is over-indented
+test.robot:7:5 [W] 1008 Line is over-indented
+test.robot:8:5 [W] 1008 Line is over-indented
+test.robot:9:5 [W] 1008 Line is over-indented
+test.robot:10:5 [W] 1008 Line is over-indented
+test.robot:11:5 [W] 1008 Line is over-indented
+test.robot:18:5 [W] 1008 Line is over-indented
+test.robot:19:5 [W] 1008 Line is over-indented
+test.robot:20:4 [E] 1008 Indent expected. Provide 2 or more spaces of indentation for statements inside block
+test.robot:21:5 [E] 1008 Indent expected. Provide 2 or more spaces of indentation for statements inside block
+test.robot:23:13 [W] 1008 Line is over-indented
+test.robot:24:14 [W] 1008 Line is over-indented
+test.robot:25:14 [W] 1008 Line is over-indented
+test.robot:27:14 [W] 1008 Line is over-indented
+test.robot:28:13 [W] 1008 Line is over-indented
+test.robot:29:13 [W] 1008 Line is over-indented
+test.robot:33:5 [W] 1008 Line is over-indented
+test.robot:36:5 [W] 1008 Line is over-indented
+test.robot:39:5 [W] 1008 Line is over-indented
+test.robot:40:9 [W] 1008 Line is over-indented
+test.robot:41:9 [E] 1008 Indent expected. Provide 2 or more spaces of indentation for statements inside block
+test.robot:43:10 [E] 1008 Indent expected. Provide 2 or more spaces of indentation for statements inside block
+test.robot:44:6 [E] 1008 Indent expected. Provide 2 or more spaces of indentation for statements inside block
+test.robot:45:9 [W] 1008 Line is under-indented
+test.robot:46:9 [W] 1008 Line is under-indented
+test.robot:47:1 [E] 1008 Indent expected. Provide 2 or more spaces of indentation for statements inside block
+test.robot:48:9 [W] 1008 Line is under-indented
+test.robot:49:5 [E] 1008 Indent expected. Provide 2 or more spaces of indentation for statements inside block
+test.robot:52:5 [W] 1008 Line is over-indented
+test.robot:53:10 [W] 1008 Line is over-indented
+test.robot:54:12 [W] 1008 Line is over-indented
+test.robot:55:12 [W] 1008 Line is over-indented
+test.robot:56:12 [W] 1008 Line is over-indented
+test.robot:57:12 [W] 1008 Line is over-indented
+test.robot:58:10 [W] 1008 Line is over-indented
+test.robot:59:9 [W] 1008 Line is over-indented
+test.robot:60:9 [W] 1008 Line is over-indented
+test.robot:61:9 [W] 1008 Line is over-indented
+test.robot:62:5 [W] 1008 Line is over-indented
+test.robot:65:5 [W] 1008 Line is over-indented
+test.robot:66:6 [W] 1008 Line is over-indented
+test.robot:67:9 [W] 1008 Line is over-indented
+test.robot:68:10 [W] 1008 Line is over-indented
+test.robot:69:9 [W] 1008 Line is over-indented
+test.robot:70:5 [W] 1008 Line is over-indented
+test.robot:71:9 [W] 1008 Line is over-indented
+test.robot:72:10 [W] 1008 Line is over-indented
+test.robot:73:9 [W] 1008 Line is over-indented
+test.robot:74:5 [W] 1008 Line is over-indented
+test.robot:75:14 [W] 1008 Line is over-indented
+test.robot:76:14 [W] 1008 Line is over-indented
+test.robot:77:14 [W] 1008 Line is over-indented
+test.robot:78:5 [W] 1008 Line is over-indented
+test.robot:79:9 [W] 1008 Line is over-indented
+test.robot:80:10 [W] 1008 Line is over-indented
+test.robot:81:9 [W] 1008 Line is over-indented
+test.robot:82:5 [W] 1008 Line is over-indented
+test.robot:85:5 [W] 1008 Line is over-indented
+test.robot:86:5 [W] 1008 Line is over-indented
+test.robot:87:17 [W] 1008 Line is over-indented
+test.robot:89:5 [W] 1008 Line is over-indented
+test.robot:90:6 [W] 1008 Line is over-indented
+test.robot:95:5 [W] 1008 Line is over-indented
+test.robot:97:5 [W] 1008 Line is over-indented
+test.robot:98:5 [W] 1008 Line is over-indented
+test.robot:102:5 [W] 1008 Line is over-indented
+test.robot:104:5 [W] 1008 Line is over-indented
+test.robot:105:9 [W] 1008 Line is over-indented
+test.robot:106:11 [W] 1008 Line is over-indented
+test.robot:107:5 [W] 1008 Line is over-indented
+test.robot:108:10 [W] 1008 Line is over-indented
+test.robot:109:9 [W] 1008 Line is over-indented
+test.robot:110:5 [W] 1008 Line is over-indented
+test.robot:111:9 [W] 1008 Line is over-indented
+test.robot:112:5 [W] 1008 Line is over-indented
+test.robot:115:5 [W] 1008 Line is over-indented
+test.robot:116:4 [E] 1008 Indent expected. Provide 2 or more spaces of indentation for statements inside block
+test.robot:117:5 [W] 1008 Line is over-indented
+test.robot:120:5 [W] 1008 Line is over-indented
+test.robot:121:5 [W] 1008 Line is over-indented
+test.robot:122:9 [W] 1008 Line is over-indented
+test.robot:123:1 [E] 1008 Indent expected. Provide 2 or more spaces of indentation for statements inside block
+test.robot:124:5 [W] 1008 Line is over-indented
+test.robot:127:5 [W] 1008 Line is over-indented
+test.robot:128:5 [W] 1008 Line is over-indented
+test.robot:129:9 [W] 1008 Line is over-indented
+test.robot:130:13 [W] 1008 Line is over-indented
+test.robot:131:13 [E] 1008 Indent expected. Provide 2 or more spaces of indentation for statements inside block
+test.robot:133:9 [E] 1008 Indent expected. Provide 2 or more spaces of indentation for statements inside block
+test.robot:134:5 [E] 1008 Indent expected. Provide 2 or more spaces of indentation for statements inside block
+test.robot:137:5 [W] 1008 Line is over-indented
+test.robot:138:5 [W] 1008 Line is over-indented
+test.robot:139:5 [W] 1008 Line is over-indented
+test.robot:140:9 [W] 1008 Line is over-indented
+test.robot:141:9 [W] 1008 Line is over-indented
+test.robot:142:13 [W] 1008 Line is over-indented
+test.robot:143:13 [W] 1008 Line is over-indented
+test.robot:144:13 [E] 1008 Indent expected. Provide 2 or more spaces of indentation for statements inside block
+test.robot:146:13 [E] 1008 Indent expected. Provide 2 or more spaces of indentation for statements inside block
+test.robot:147:9 [E] 1008 Indent expected. Provide 2 or more spaces of indentation for statements inside block
+test.robot:148:5 [E] 1008 Indent expected. Provide 2 or more spaces of indentation for statements inside block
+test.robot:150:1 [E] 1008 Indent expected. Provide 2 or more spaces of indentation for statements inside block
+test.robot:153:5 [W] 1008 Line is over-indented
+test.robot:155:5 [W] 1008 Line is over-indented
+test.robot:156:10 [W] 1008 Line is over-indented
+test.robot:157:9 [W] 1008 Line is over-indented
+test.robot:158:12 [W] 1008 Line is over-indented
+test.robot:159:13 [W] 1008 Line is over-indented
+test.robot:160:13 [E] 1008 Indent expected. Provide 2 or more spaces of indentation for statements inside block
+test.robot:162:14 [E] 1008 Indent expected. Provide 2 or more spaces of indentation for statements inside block
+test.robot:163:9 [E] 1008 Indent expected. Provide 2 or more spaces of indentation for statements inside block
+test.robot:164:5 [E] 1008 Indent expected. Provide 2 or more spaces of indentation for statements inside block
+test.robot:165:5 [E] 1008 Indent expected. Provide 2 or more spaces of indentation for statements inside block
+test.robot:167:1 [E] 1008 Indent expected. Provide 2 or more spaces of indentation for statements inside block
+test.robot:169:3 [E] 1008 Indent expected. Provide 2 or more spaces of indentation for statements inside block
+test.robot:171:1 [E] 1008 Indent expected. Provide 2 or more spaces of indentation for statements inside block
+test.robot:174:5 [W] 1008 Line is over-indented
+test.robot:175:5 [W] 1008 Line is over-indented
+test.robot:176:5 [W] 1008 Line is over-indented
+test.robot:177:9 [W] 1008 Line is over-indented
+test.robot:178:9 [W] 1008 Line is over-indented
+test.robot:179:13 [W] 1008 Line is over-indented
+test.robot:180:13 [W] 1008 Line is over-indented
+test.robot:181:13 [E] 1008 Indent expected. Provide 2 or more spaces of indentation for statements inside block
+test.robot:183:13 [E] 1008 Indent expected. Provide 2 or more spaces of indentation for statements inside block
+test.robot:184:9 [E] 1008 Indent expected. Provide 2 or more spaces of indentation for statements inside block
+test.robot:185:5 [E] 1008 Indent expected. Provide 2 or more spaces of indentation for statements inside block
+test.robot:187:1 [E] 1008 Indent expected. Provide 2 or more spaces of indentation for statements inside block

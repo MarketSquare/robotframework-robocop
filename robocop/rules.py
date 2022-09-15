@@ -327,7 +327,7 @@ class Rule:
         return count, text
 
     def prepare_message(
-        self, source, node, lineno, col, end_lineno, end_col, ext_disablers, sev_threshold_value, **kwargs
+        self, source, node, lineno, col, end_lineno, end_col, ext_disablers, sev_threshold_value, severity, **kwargs
     ):
         msg = self.get_message(**kwargs)
         return Message(
@@ -341,6 +341,7 @@ class Rule:
             end_lineno=end_lineno,
             ext_disablers=ext_disablers,
             sev_threshold_value=sev_threshold_value,
+            overwrite_severity=severity,
         )
 
     def matches_pattern(self, pattern: Union[str, Pattern]):
@@ -363,11 +364,12 @@ class Message:
         end_col,
         ext_disablers=None,
         sev_threshold_value=None,
+        overwrite_severity=None,
     ):
         self.enabled = rule.enabled
         self.rule_id = rule.rule_id
         self.name = rule.name
-        self.severity = rule.get_severity_with_threshold(sev_threshold_value)
+        self.severity = self.get_severity(overwrite_severity, rule, sev_threshold_value)
         self.desc = msg
         self.source = source
         self.line = 1
@@ -386,6 +388,12 @@ class Message:
             other.col,
             other.rule_id,
         )
+
+    @staticmethod
+    def get_severity(overwrite_severity, rule, sev_threshold_value):
+        if overwrite_severity is not None:
+            return overwrite_severity
+        return rule.get_severity_with_threshold(sev_threshold_value)
 
     def get_fullname(self) -> str:
         return f"{self.severity.value}{self.rule_id} ({self.name})"

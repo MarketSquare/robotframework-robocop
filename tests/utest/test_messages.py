@@ -42,6 +42,7 @@ class TestMessage:
             end_col=None,
             ext_disablers=None,
             sev_threshold_value=None,
+            severity=None,
         )
         assert msg.get_fullname() == "W0101 (some-message)"
 
@@ -128,6 +129,7 @@ class TestMessage:
             end_col=end_col,
             ext_disablers=None,
             sev_threshold_value=None,
+            severity=None,
         )
         assert msg.line == lineno_exp
         assert msg.col == col_exp
@@ -190,6 +192,7 @@ class TestMessage:
             end_col=None,
             ext_disablers=None,
             sev_threshold_value=None,
+            severity=None,
             **kwargs,
         )
         assert msg.desc == exp

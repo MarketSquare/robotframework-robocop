@@ -20,3 +20,10 @@ Such headers will raise deprecation warning and eventually will not be supported
 
 - unrecognized header is now only reported by ``parsing-error`` and not by ``duplicated-setting`` (#683)
 - empty lines and standalone comments are now not counted towards keyword/test length in ``too-long-test-case`` and ``too-long-keyword`` rules (#671)
+
+## Issue end location (#290)
+
+Our test framework now supports custom format of the issue - which should help in enhancing the precision of the reported
+issues. Following rules has improved precision (reported beginning and end of the rule) in this release:
+
+- ``invalid-argument``

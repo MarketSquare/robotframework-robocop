@@ -2,6 +2,7 @@
 Naming checkers
 """
 import re
+import string
 from collections import defaultdict
 from pathlib import Path
 
@@ -314,6 +315,17 @@ rules = {
             *** Settings ***
             Library    Collections    AS    AliasedName
         
+        """,
+    ),
+    "0322": Rule(
+        rule_id="0322",
+        name="deprecated-singular-header",
+        msg="'{{ singular_header }}' singular header form is deprecated since RF 5.1 and will be removed in the future releases. Use '{{ plurar_header }}' instead",
+        severity=RuleSeverity.WARNING,
+        version=">=5.1",
+        docs="""
+        Robot Framework 5.1 starts deprecation period for singular headers forms. The rationale behind this change 
+        is available at https://github.com/robotframework/robotframework/issues/4431 .
         """,
     ),
 }
@@ -727,7 +739,7 @@ class SimilarVariableChecker(VisitorChecker):
 class DeprecatedStatementChecker(VisitorChecker):
     """Checker for deprecated statements."""
 
-    reports = ("deprecated-statement", "deprecated-with-name")
+    reports = ("deprecated-statement", "deprecated-with-name", "deprecated-singular-header")
     deprecated_keywords = {
         5: {
             "runkeywordunless": "IF",
@@ -739,6 +751,25 @@ class DeprecatedStatementChecker(VisitorChecker):
             "returnfromkeyword": "RETURN",
             "returnfromkeywordif": "IF and RETURN",
         },
+    }
+    english_headers_singular = {
+        "Comment",
+        "Setting",
+        "Variable",
+        "Test Case",
+        "Keyword",
+    }
+    english_headers_all = {
+        "Comment",
+        "Setting",
+        "Variable",
+        "Test Case",
+        "Keyword",
+        "Comments",
+        "Settings",
+        "Variables",
+        "Test Cases",
+        "Keywords",
     }
 
     def visit_KeywordCall(self, node):  # noqa
@@ -784,3 +815,21 @@ class DeprecatedStatementChecker(VisitorChecker):
         if not with_name_token or with_name_token.value == "AS":
             return
         self.report("deprecated-with-name", node=with_name_token, col=with_name_token.col_offset + 1)
+
+    def visit_SectionHeader(self, node):
+        if not node.name:
+            return
+        normalized_name = string.capwords(node.name)
+        # handle translated headers
+        if normalized_name not in self.english_headers_all:
+            return
+        if normalized_name not in self.english_headers_singular:
+            return
+        header_node = node.data_tokens[0]
+        self.report(
+            "deprecated-singular-header",
+            singular_header=f"*** {node.name} ***",
+            plurar_header=f"*** {node.name}s ***",
+            node=header_node,
+            end_col=header_node.col_offset + 1,
+        )

@@ -14,7 +14,11 @@ class TestRuleAcceptance(RuleAcceptance):
 
     def test_severity(self):
         self.check_rule(
-            config="-c too-long-test-case:severity_threshold:error=20 -c too-long-test-case:max_len:10",
+            # FIXME There is issue where previous rule configuration remains even with new Robocop instance
+            # that's why we need to 'unset' ignore_docs parameter value
+            config="-c too-long-test-case:ignore_docs:False "
+            "-c too-long-test-case:severity_threshold:error=20 "
+            "-c too-long-test-case:max_len:10",
             src_files=["severity.robot"],
             expected_file="expected_output_severity.txt",
         )

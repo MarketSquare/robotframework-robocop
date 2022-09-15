@@ -3,6 +3,7 @@ Lengths checkers
 """
 import re
 
+from robot.api import Token
 from robot.parsing.model.blocks import CommentSection, TestCase
 from robot.parsing.model.statements import (
     Arguments,
@@ -21,7 +22,7 @@ except ImportError:
 
 from robocop.checkers import RawFileChecker, VisitorChecker
 from robocop.rules import Rule, RuleParam, RuleSeverity, SeverityThreshold
-from robocop.utils import get_section_name, last_non_empty_line, normalize_robot_name, pattern_type, str2bool
+from robocop.utils import get_section_name, normalize_robot_name, pattern_type, str2bool
 
 rules = {
     "0501": Rule(
@@ -224,10 +225,23 @@ rules = {
 }
 
 
+def is_data_statement(node):
+    return not isinstance(node, (EmptyLine, Comment))
+
+
+def is_not_standalone_comment(node):
+    return isinstance(node, Comment) and node.tokens[0].type == Token.SEPARATOR
+
+
 def check_node_length(node, ignore_docs):
+    last_node = node
+    for child in node.body[::-1]:
+        if is_data_statement(child) or is_not_standalone_comment(child):
+            last_node = child
+            break
     if ignore_docs:
-        return node.end_lineno - node.lineno - get_documentation_length(node)
-    return node.end_lineno - node.lineno
+        return (last_node.end_lineno - node.lineno - get_documentation_length(node)), last_node.end_lineno
+    return (last_node.end_lineno - node.lineno), last_node.end_lineno
 
 
 def get_documentation_length(node):
@@ -282,7 +296,7 @@ class LengthChecker(VisitorChecker):
                         sev_threshold_value=args_number,
                     )
                 break
-        length = check_node_length(node, ignore_docs=self.param("too-long-keyword", "ignore_docs"))
+        length, node_end_line = check_node_length(node, ignore_docs=self.param("too-long-keyword", "ignore_docs"))
         if length > self.param("too-long-keyword", "max_len"):
             self.report(
                 "too-long-keyword",
@@ -290,8 +304,8 @@ class LengthChecker(VisitorChecker):
                 keyword_length=length,
                 allowed_length=self.param("too-long-keyword", "max_len"),
                 node=node,
-                lineno=node.end_lineno,
-                ext_disablers=(node.lineno, last_non_empty_line(node)),
+                lineno=node_end_line,
+                ext_disablers=(node.lineno, node_end_line),
                 sev_threshold_value=length,
             )
             return
@@ -328,7 +342,7 @@ class LengthChecker(VisitorChecker):
         return False
 
     def visit_TestCase(self, node):  # noqa
-        length = check_node_length(node, ignore_docs=self.param("too-long-test-case", "ignore_docs"))
+        length, _ = check_node_length(node, ignore_docs=self.param("too-long-test-case", "ignore_docs"))
         if length > self.param("too-long-test-case", "max_len"):
             self.report(
                 "too-long-test-case",
@@ -368,7 +382,11 @@ class LengthChecker(VisitorChecker):
     @staticmethod
     def count_keyword_calls(node):
         # ReturnStatement is imported and evaluates to true in RF 5.0+, we don't need to also check Break/Continue
-        if isinstance(node, (KeywordCall, TemplateArguments)) or ReturnStatement and isinstance(node, (Break, Continue, ReturnStatement)):
+        if (
+            isinstance(node, (KeywordCall, TemplateArguments))
+            or ReturnStatement
+            and isinstance(node, (Break, Continue, ReturnStatement))
+        ):
             return 1
         if not hasattr(node, "body"):
             return 0

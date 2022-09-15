@@ -24,6 +24,7 @@ Test
     ...  ${var}
     ...  ${var}
     ...  ${var}
+    ...  ${var}
     One More
 
 Golden test

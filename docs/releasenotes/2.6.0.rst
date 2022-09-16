@@ -16,14 +16,16 @@ Robot Framework 5.1 starts deprecating the singular header forms (such as ``*** 
 Such headers will raise deprecation warning and eventually will not be supported in the future Robot Framework versions.
 ``deprecated-singular-header`` warns you if you use singular header form.
 
-## Fixes
-
-- unrecognized header is now only reported by ``parsing-error`` and not by ``duplicated-setting`` (#683)
-- empty lines and standalone comments are now not counted towards keyword/test length in ``too-long-test-case`` and ``too-long-keyword`` rules (#671)
-
 ## Issue end location (#290)
 
 Our test framework now supports custom format of the issue - which should help with enhancing the precision of the reported
 issues. The following rules have improved precision (reported beginning and end of the rule) in this release:
 
 - ``invalid-argument``
+
+## Fixes
+
+- unrecognized header is now only reported by ``parsing-error`` and not by ``duplicated-setting`` (#683)
+- empty lines and standalone comments are now not counted towards keyword/test length in ``too-long-test-case`` and ``too-long-keyword`` rules (#671)
+- comments in the last line of the last keyword / test in the file will not be reported with ``uneven-indent`` rule if their indent is correct (#675)
+

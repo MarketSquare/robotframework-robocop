@@ -46,3 +46,15 @@ Keyword2
         Keyword
 # invalid comment
     END
+
+Keyword With Last Comment
+    No Operation
+    # comment
+
+Keyword With Last Uneven Comment
+    No Operation
+  # comment
+
+Keyword With Last Comment At EOF
+    No Operation
+    # comment

@@ -568,7 +568,7 @@ class UnevenIndentChecker(VisitorChecker):
                 else:
                     indents.append((indent_len, child))
         if not column_index:
-            self.validate_standalone_comments(node.body[end_of_block:])
+            self.validate_standalone_comments(node.body[end_of_block + 1 :])
         previous_indent = self.validate_indent_lists(indents, previous_indent)
         if templated:
             self.validate_indent_lists(header_indents)

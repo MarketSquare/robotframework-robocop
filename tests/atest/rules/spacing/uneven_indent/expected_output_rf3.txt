@@ -4,6 +4,8 @@ comments.robot:19:3 [W] 1007 Line is over-indented
 comments.robot:23:3 [W] 1007 Line is under-indented
 comments.robot:26:5 [W] 1007 Line is over-indented
 comments.robot:39:3 [W] 1007 Line is under-indented
+comments.robot:56:3 [W] 1007 Line is under-indented
+eof_invalid_comment.robot:7:5 [W] 1007 Line is over-indented
 test.robot:17:8 [W] 1007 Line is under-indented
 test.robot:22:9 [W] 1007 Line is over-indented
 test.robot:24:11 [W] 1007 Line is over-indented

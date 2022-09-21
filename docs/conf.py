@@ -86,7 +86,7 @@ def get_checker_docs():
                     {
                         "name": param.name,
                         "default": param.raw_value,
-                        "type": param.converter.__name__,
+                        "type": param.param_type,
                         "desc": param.desc,
                     }
                     for param in rule.config.values()

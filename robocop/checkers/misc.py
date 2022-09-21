@@ -98,6 +98,7 @@ rules = {
             name="assignment_sign_type",
             default="autodetect",
             converter=parse_assignment_sign_type,
+            show_type="assignment sign type",
             desc="possible values: 'autodetect' (default), 'none' (''), "
             "'equal_sign' ('=') or space_and_equal_sign (' =')",
         ),
@@ -135,6 +136,7 @@ rules = {
             name="assignment_sign_type",
             default="autodetect",
             converter=parse_assignment_sign_type,
+            show_type="assignment sign type",
             desc="possible values: 'autodetect' (default), 'none' (''), "
             "'equal_sign' ('=') or space_and_equal_sign (' =')",
         ),

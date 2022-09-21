@@ -37,6 +37,11 @@ issues. The following rules have improved precision (reported beginning and end 
 
 - ``invalid-argument``
 
+## Documentation improvements
+
+- Improved the documentation generation for rules parameters. It will now show more user-friendly types (such as "bool")
+  instead of name of the parser method (#732).
+
 ## Fixes
 
 - unrecognized header is now only reported by ``parsing-error`` and not by ``duplicated-setting`` (#683)

@@ -156,6 +156,7 @@ rules = {
             name="sections_order",
             default="settings,variables,testcases,keywords",
             converter=configure_sections_order,
+            show_type="str",
             desc="order of sections in comma-separated list",
         ),
         rule_id="0809",

@@ -16,6 +16,20 @@ Robot Framework 5.1 starts deprecating the singular header forms (such as ``*** 
 Such headers will raise deprecation warning and eventually will not be supported in the future Robot Framework versions.
 ``deprecated-singular-header`` warns you if you use singular header form.
 
+## Indentation rules changes
+
+We completely redesigned our indentation rules. Due to this the ``uneven-indent`` was merged into ``bad-indent``
+(configuration using ``uneven-indent`` will print deprecation message and use ``bad-indent`` instead) (#504).
+
+``bad-indent`` rule now covers uneven indent (which will result in the warning message) or invalid indent (resulting in
+the error message). It is now also possible to use ``strict`` (default ``False``) mode to enforce indentation to be
+multiply of ``indent`` (default 4) spaces.
+
+## Fixes
+
+- unrecognized header is now only reported by ``parsing-error`` and not by ``duplicated-setting`` (#683)
+- empty lines and standalone comments are now not counted towards keyword/test length in ``too-long-test-case`` and ``too-long-keyword`` rules (#671)
+
 ## Issue end location (#290)
 
 Our test framework now supports custom format of the issue - which should help with enhancing the precision of the reported

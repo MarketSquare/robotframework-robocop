@@ -23,7 +23,7 @@ We completely redesigned our indentation rules. Due to this the ``uneven-indent`
 
 ``bad-indent`` rule now covers uneven indent (which will result in the warning message) or invalid indent (resulting in
 the error message). It is now also possible to use ``strict`` (default ``False``) mode to enforce indentation to be
-multiply of ``indent`` (default 4) spaces.
+the multiple of ``indent`` space (default 4).
 
 ## Fixes
 

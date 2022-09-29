@@ -20,7 +20,7 @@ ${VAR1}  2
 Test1
     Keyword
     # comment
-  # invalid comment
+   # invalid comment
 
 # comment
     # now also invalid
@@ -36,7 +36,7 @@ Test2
 Keyword1
     Keyword
     # comment
-  # invalid comment
+   # invalid comment
 
 # comment
 
@@ -53,7 +53,13 @@ Keyword With Last Comment
 
 Keyword With Last Uneven Comment
     No Operation
-  # comment
+   # comment
+
+Keyword With Comment At 0 Index In The Middle
+    Keyword
+# comment
+    Keyword
+    # comment
 
 Keyword With Last Comment At EOF
     No Operation

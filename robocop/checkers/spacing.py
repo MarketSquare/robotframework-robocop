@@ -555,6 +555,20 @@ def block_indent(checker, node):
         checker.end_of_node = False
 
 
+def index_of_first_standalone_comment(node):
+    """
+    Get index of first standalone comment.
+    Comment can be standalone only if there are not other data statements in the node.
+    """
+    last_standalone_comment = len(node.body)
+    for index, child in enumerate(node.body[::-1], start=-(len(node.body) - 1)):
+        if not isinstance(child, (EmptyLine, Comment)):
+            return last_standalone_comment
+        if isinstance(child, Comment) and get_indent(child) == 0:
+            last_standalone_comment = abs(index)
+    return last_standalone_comment
+
+
 class UnevenIndentChecker(VisitorChecker):
     """Checker for indentation violations."""
 
@@ -577,11 +591,11 @@ class UnevenIndentChecker(VisitorChecker):
         self.generic_visit(node)
 
     def visit_TestCase(self, node):  # noqa
+        end_index = index_of_first_standalone_comment(node)
         with block_indent(self, node):
-            for child in node.body:
-                if isinstance(child, Comment):
-                    if get_indent(child) == 0:
-                        self.end_of_node = True
+            for index, child in enumerate(node.body):
+                if index == end_index:
+                    self.end_of_node = True
                 self.visit(child)
 
     visit_Keyword = visit_TestCase  # noqa

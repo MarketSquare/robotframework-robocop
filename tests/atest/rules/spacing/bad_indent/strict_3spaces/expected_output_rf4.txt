@@ -24,7 +24,6 @@ bug375.robot:45:5 [W] 1008 Line is over-indented
 comments.robot:19:3 [W] 1008 Line is over-indented
 comments.robot:21:5 [W] 1008 Line is over-indented
 comments.robot:22:5 [W] 1008 Line is over-indented
-comments.robot:23:3 [W] 1008 Line is under-indented
 comments.robot:26:5 [W] 1008 Line is over-indented
 comments.robot:29:5 [W] 1008 Line is over-indented
 comments.robot:30:5 [W] 1008 Line is over-indented
@@ -33,12 +32,20 @@ comments.robot:32:1 [E] 1008 Indent expected. Provide 2 or more spaces of indent
 comments.robot:33:5 [W] 1008 Line is over-indented
 comments.robot:37:5 [W] 1008 Line is over-indented
 comments.robot:38:5 [W] 1008 Line is over-indented
-comments.robot:39:3 [W] 1008 Line is under-indented
 comments.robot:44:5 [W] 1008 Line is over-indented
 comments.robot:45:5 [W] 1008 Line is over-indented
 comments.robot:46:9 [W] 1008 Line is over-indented
 comments.robot:47:1 [E] 1008 Indent expected. Provide 2 or more spaces of indentation for statements inside block
 comments.robot:48:5 [W] 1008 Line is over-indented
+comments.robot:51:5 [W] 1008 Line is over-indented
+comments.robot:52:5 [W] 1008 Line is over-indented
+comments.robot:55:5 [W] 1008 Line is over-indented
+comments.robot:59:5 [W] 1008 Line is over-indented
+comments.robot:60:1 [W] 1008 Line is under-indented
+comments.robot:61:5 [W] 1008 Line is over-indented
+comments.robot:62:5 [W] 1008 Line is over-indented
+comments.robot:65:5 [W] 1008 Line is over-indented
+comments.robot:66:5 [W] 1008 Line is over-indented
 test.robot:7:5 [W] 1008 Line is over-indented
 test.robot:8:5 [W] 1008 Line is over-indented
 test.robot:9:5 [W] 1008 Line is over-indented

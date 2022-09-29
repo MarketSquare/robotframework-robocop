@@ -688,7 +688,7 @@ class UnevenIndentChecker(VisitorChecker):
     def visit_Statement(self, statement):  # noqa
         if statement is None or isinstance(statement, EmptyLine) or not self.indents:
             return
-        # Ignore indent if current line is one the same line as parent, ie test case header or inline IFs
+        # Ignore indent if current line is on the same line as parent, i.e. test case header or inline IFs
         if self.parent_line == statement.lineno:
             return
         indent = get_indent(statement)

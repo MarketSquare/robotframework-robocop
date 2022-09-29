@@ -123,7 +123,7 @@ rules = {
         
         The correct indentation is determined by most common indentation in the current block. It allows more 
         flexible indentation. It's possible to use ``strict`` (default ``False``) mode for checking if the indentation 
-        is multiply of ``indent`` spaces (default 4).
+        is the multiple of ``indent`` spaces (default 4).
         """,
     ),
     "1009": Rule(

@@ -563,7 +563,7 @@ class UnevenIndentChecker(VisitorChecker):
     def __init__(self):
         self.indents = []
         self.parent_indent = 0
-        # used to ignore indents from statements in the same line as parent, ie Inline IFs
+        # used to ignore indents from statements in the same line as parent, i.e. Inline IFs
         self.parent_line = 0
         # used to denote end of keyword/test for comments indents
         self.end_of_node = False

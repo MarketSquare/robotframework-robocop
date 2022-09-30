@@ -206,7 +206,7 @@ Many issues in your code reported by Robocop can be fixed using auto-formatting 
 
 Language support
 -----------------
-Robot Framework 5.1 added support for Robot settings and headers translation. Robocop will not recognize translated names unless
+Robot Framework 6.0 added support for Robot settings and headers translation. Robocop will not recognize translated names unless
 it is properly configured. You can supply language code or name in the configuration using ``--language / --lang`` option::
 
     robocop --lang fi

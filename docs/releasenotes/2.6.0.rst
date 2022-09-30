@@ -12,7 +12,7 @@ or to install exactly this version::
 
 ### ``deprecated-singular-header`` (#697)
 
-Robot Framework 5.1 starts deprecating the singular header forms (such as ``*** Setting ***`` or ``*** Test Case ***``).
+Robot Framework 6.0 starts deprecating the singular header forms (such as ``*** Setting ***`` or ``*** Test Case ***``).
 Such headers will raise deprecation warning and eventually will not be supported in the future Robot Framework versions.
 ``deprecated-singular-header`` warns you if you use singular header form.
 

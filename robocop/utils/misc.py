@@ -22,7 +22,7 @@ from robocop.exceptions import InvalidExternalCheckerError
 from robocop.version import __version__
 
 ROBOT_VERSION = version.parse(RF_VERSION)
-ROBOT_WITH_LANG = version.parse("5.1")
+ROBOT_WITH_LANG = version.parse("6.0")
 
 
 def rf_supports_lang():

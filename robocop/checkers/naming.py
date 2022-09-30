@@ -398,13 +398,6 @@ class InvalidCharactersInNameChecker(VisitorChecker):
         self.check_if_pattern_in_node_name(node, "keyword", is_keyword=True)
 
 
-def reserved_error_msg(name, reserved_type):
-    return (
-        f". It must be in uppercase ({name.upper()}) when used as a marker with {reserved_type}. "
-        f"Each marker should have minimum of 2 spaces as separator."
-    )
-
-
 def uppercase_error_msg(name):
     return f". It must be in uppercase ({name.upper()}) when used as a statement"
 
@@ -421,30 +414,17 @@ class KeywordNamingChecker(VisitorChecker):
         "bdd-without-keyword-call",
     )
     reserved_words = {
-        3: {
-            "for": reserved_error_msg("for", "'FOR' loop"),
-            "end": reserved_error_msg("end", "'FOR' loop"),
-        },
-        4: {
-            "if": uppercase_error_msg("if"),
-            "else if": uppercase_error_msg("else if"),
-            "else": uppercase_error_msg("else"),
-            "for": reserved_error_msg("for", "'FOR' loop"),
-            "end": reserved_error_msg("end", "'FOR' or 'IF'"),
-        },
-        5: {
-            "if": uppercase_error_msg("if"),
-            "else if": uppercase_error_msg("else if"),
-            "else": uppercase_error_msg("else"),
-            "for": reserved_error_msg("for", "'FOR' loop"),
-            "end": reserved_error_msg("end", "'FOR', 'IF' or 'TRY EXCEPT'"),
-            "while": uppercase_error_msg("while"),
-            "continue": uppercase_error_msg("continue"),
-            "return": uppercase_error_msg("return"),
-            "try": reserved_error_msg("try", "'TRY EXCEPT'"),
-            "except": reserved_error_msg("except", "'TRY EXCEPT'"),
-            "finally": reserved_error_msg("finally", "'TRY EXCEPT'"),
-        },
+        "for": 3,
+        "end": 3,
+        "if": 4,
+        "else if": 4,
+        "else": 4,
+        "while": 5,
+        "continue": 5,
+        "return": 5,
+        "try": 5,
+        "except": 5,
+        "finally": 5,
     }
     else_statements = {"else", "else if"}
     bdd = {"given", "when", "and", "but", "then"}
@@ -523,12 +503,15 @@ class KeywordNamingChecker(VisitorChecker):
 
     def check_if_keyword_is_reserved(self, keyword_name, node):
         # if there is typo in syntax, it is interpreted as keyword
-        reserved = self.reserved_words[ROBOT_VERSION.major]
-        if keyword_name.lower() not in reserved:
+        lower_name = keyword_name.lower()
+        if lower_name not in self.reserved_words:
             return False
-        if keyword_name.lower() in self.else_statements and self.inside_if_block:
+        if lower_name in self.else_statements and self.inside_if_block:
             return False  # handled by else-not-upper-case
-        error_msg = reserved[keyword_name.lower()]
+        min_ver = self.reserved_words[lower_name]
+        if ROBOT_VERSION.major < min_ver:
+            return
+        error_msg = uppercase_error_msg(lower_name)
         self.report(
             "keyword-name-is-reserved-word",
             keyword_name=keyword_name,

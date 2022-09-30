@@ -25,11 +25,6 @@ We completely redesigned our indentation rules. Due to this the ``uneven-indent`
 the error message). It is now also possible to use ``strict`` (default ``False``) mode to enforce indentation to be
 the multiple of ``indent`` space (default 4).
 
-## Fixes
-
-- unrecognized header is now only reported by ``parsing-error`` and not by ``duplicated-setting`` (#683)
-- empty lines and standalone comments are now not counted towards keyword/test length in ``too-long-test-case`` and ``too-long-keyword`` rules (#671)
-
 ## Issue end location (#290)
 
 Our test framework now supports custom format of the issue - which should help with enhancing the precision of the reported
@@ -43,3 +38,7 @@ issues. The following rules have improved precision (reported beginning and end 
 - empty lines and standalone comments are now not counted towards keyword/test length in ``too-long-test-case`` and ``too-long-keyword`` rules (#671)
 - comments in the last line of the last keyword / test in the file will not be reported with ``uneven-indent`` rule if their indent is correct (#675)
 
+## Misc
+
+- we normalized ``keyword-name-is-reserved-word`` error messages across different Robot Framework versions and
+  prepared it to support RF 6.0.

@@ -67,9 +67,9 @@ rules = {
     ),
     "0605": Rule(
         rule_id="0605",
-        name="could-be-forced-tags",
+        name="could-be-test-tags",
         msg="All tests in suite share these tags: '{{ tags }}'. "
-        "You can define them in 'Force Tags' in suite settings instead",
+        "You can define them in 'Test Tags' in suite settings instead",
         severity=RuleSeverity.INFO,
         docs="""
         Example::
@@ -83,7 +83,8 @@ rules = {
                 [Tag]  featureX
                 Step
         
-        In this example all tests share one common tag `featureX`. It can be declared just once using `Force Tags`.
+        In this example all tests share one common tag `featureX`. It can be declared just once using ``Test Tags``
+        or ``Task Tags``.
         """,
     ),
     "0606": Rule(
@@ -243,10 +244,10 @@ class TagNameChecker(VisitorChecker):
 
 
 class TagScopeChecker(VisitorChecker):
-    """Checker for tag scopes. If all tests in suite have the same tags, it will suggest using `Force Tags`"""
+    """Checker for tag scopes."""
 
     reports = (
-        "could-be-forced-tags",
+        "could-be-test-tags",
         "tag-already-set-in-force-tags",
         "unnecessary-default-tags",
         "empty-tags",
@@ -284,7 +285,7 @@ class TagScopeChecker(VisitorChecker):
         common_tags = common_tags - set(self.force_tags)
         if common_tags:
             self.report(
-                "could-be-forced-tags",
+                "could-be-test-tags",
                 tags=", ".join(common_tags),
                 node=node if self.force_tags_node is None else self.force_tags_node,
             )

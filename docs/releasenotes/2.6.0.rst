@@ -30,7 +30,7 @@ the multiple of ``indent`` space (default 4).
 The ``Force Tags`` setting has been renamed to ``Test Tags``. To support this change, Robocop
 renamed ``could-be-forced-tags`` rule to ``could-be-test-tags`` and ``tag-already-set-in-force-tags``
 to ``tag-already-set-in-test-tags``.
-Usage of ``Force Tags`` will result in deprecation warning from ``<PLACEHOLDER>`` new rule.
+Usage of ``Force Tags`` will result in deprecation warning from ``deprecated-statement`` rule.
 
 ## Fixes
 

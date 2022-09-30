@@ -796,6 +796,20 @@ class DeprecatedStatementChecker(VisitorChecker):
             version="5.*",
         )
 
+    def visit_ForceTags(self, node):  # noqa
+        if ROBOT_VERSION.major < 6:
+            return
+        setting_name = node.data_tokens[0].value.lower()
+        if setting_name == "force tags":
+            self.report(
+                "deprecated-statement",
+                statement_name="Force Tags",
+                alternative="Test Tags",
+                node=node,
+                col=token_col(node, Token.FORCE_TAGS),
+                version="6.0",
+            )
+
     def check_if_keyword_is_deprecated(self, keyword_name, node):
         normalized_keyword_name = normalize_robot_name(keyword_name, remove_prefix="builtin.")
         deprecated_statements = self.deprecated_keywords.get(ROBOT_VERSION.major, {})

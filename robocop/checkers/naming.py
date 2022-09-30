@@ -296,11 +296,11 @@ rules = {
         rule_id="0321",
         name="deprecated-with-name",
         msg=(
-            "'WITH NAME' alias marker is deprecated since Robot Framework 5.1 version "
+            "'WITH NAME' alias marker is deprecated since Robot Framework 6.0 version "
             "and will be removed in the future release. Use 'AS' instead"
         ),
         severity=RuleSeverity.WARNING,
-        version=">=5.1",
+        version=">=6.0",
         docs="""
         ``WITH NAME`` marker that is used when giving an alias to an imported library is going to be renamed to ``AS``.
         The motivation is to be consistent with Python that uses ``as`` for similar purpose.
@@ -320,11 +320,11 @@ rules = {
     "0322": Rule(
         rule_id="0322",
         name="deprecated-singular-header",
-        msg="'{{ singular_header }}' singular header form is deprecated since RF 5.1 and will be removed in the future releases. Use '{{ plurar_header }}' instead",
+        msg="'{{ singular_header }}' singular header form is deprecated since RF 6.0 and will be removed in the future releases. Use '{{ plurar_header }}' instead",
         severity=RuleSeverity.WARNING,
-        version=">=5.1",
+        version=">=6.0",
         docs="""
-        Robot Framework 5.1 starts deprecation period for singular headers forms. The rationale behind this change 
+        Robot Framework 6.0 starts deprecation period for singular headers forms. The rationale behind this change 
         is available at https://github.com/robotframework/robotframework/issues/4431 .
         """,
     ),

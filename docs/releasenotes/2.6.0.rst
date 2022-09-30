@@ -39,6 +39,8 @@ issues. The following rules have improved precision (reported beginning and end 
 
 ## Documentation improvements
 
+- Improved the documentation generation for rules parameters. It will now show more user-friendly types (such as "bool")
+  instead of name of the parser method (#732).
 - do not use rule message as the first line in our documentation if the rule message is only templated variable (#733)
 
 ## Fixes

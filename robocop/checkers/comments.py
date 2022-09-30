@@ -2,23 +2,23 @@
 Comments checkers
 """
 import re
-
 from codecs import BOM_UTF8, BOM_UTF16_BE, BOM_UTF16_LE, BOM_UTF32_BE, BOM_UTF32_LE
 
 from robot.api import Token
 from robot.utils import FileReader
 
 from robocop.checkers import RawFileChecker, VisitorChecker
-from robocop.rules import Rule, RuleSeverity, RuleParam
+from robocop.rules import Rule, RuleParam, RuleSeverity
 from robocop.utils import ROBOT_VERSION
-from robocop.exceptions import ConfigGeneralError
+
 
 def regex(value):
-    converted = rf'{value}'
+    converted = rf"{value}"
     try:
         return re.compile(converted)
     except re.error as regex_err:
-        raise ValueError(f'Regex error: {regex_err}')
+        raise ValueError(f"Regex error: {regex_err}")
+
 
 rules = {
     "0701": Rule(
@@ -217,7 +217,7 @@ class CommentChecker(VisitorChecker):
             index = low_content.find(violation)
             self.report(
                 "todo-in-comment",
-                marker=content[index:index+len(violation)],
+                marker=content[index : index + len(violation)],
                 lineno=token.lineno,
                 col=token.col_offset + 1 + index,
             )

@@ -27,7 +27,7 @@ from robocop.utils import get_section_name, normalize_robot_name, pattern_type, 
 rules = {
     "0501": Rule(
         RuleParam(name="max_len", default=40, converter=int, desc="number of lines allowed in a keyword"),
-        RuleParam(name="ignore_docs", default=False, converter=str2bool, desc="Ignore documentation"),
+        RuleParam(name="ignore_docs", default=False, converter=str2bool, show_type="bool", desc="Ignore documentation"),
         SeverityThreshold("max_len", compare_method="greater"),
         rule_id="0501",
         name="too-long-keyword",
@@ -52,7 +52,7 @@ rules = {
     ),
     "0504": Rule(
         RuleParam(name="max_len", default=20, converter=int, desc="number of lines allowed in a test case"),
-        RuleParam(name="ignore_docs", default=False, converter=str2bool, desc="Ignore documentation"),
+        RuleParam(name="ignore_docs", default=False, converter=str2bool, show_type="bool", desc="Ignore documentation"),
         SeverityThreshold("max_len", compare_method="greater"),
         rule_id="0504",
         name="too-long-test-case",
@@ -61,7 +61,9 @@ rules = {
     ),
     "0505": Rule(
         RuleParam(name="max_calls", default=10, converter=int, desc="number of keyword calls allowed in a test case"),
-        RuleParam(name="ignore_templated", default=False, converter=str2bool, desc="Ignore templated tests"),
+        RuleParam(
+            name="ignore_templated", default=False, converter=str2bool, show_type="bool", desc="Ignore templated tests"
+        ),
         SeverityThreshold("max_calls", compare_method="greater"),
         rule_id="0505",
         name="too-many-calls-in-test-case",
@@ -91,6 +93,7 @@ rules = {
             name="ignore_pattern",
             default=re.compile(r"https?://\S+"),
             converter=pattern_type,
+            show_type="regex",
             desc="ignore lines that contain configured pattern",
         ),
         SeverityThreshold("line_length"),
@@ -207,7 +210,9 @@ rules = {
     ),
     "0528": Rule(
         RuleParam(name="min_calls", default=1, converter=int, desc="number of keyword calls required in a test case"),
-        RuleParam(name="ignore_templated", default=False, converter=str2bool, desc="Ignore templated tests"),
+        RuleParam(
+            name="ignore_templated", default=False, converter=str2bool, show_type="bool", desc="Ignore templated tests"
+        ),
         rule_id="0528",
         name="too-few-calls-in-test-case",
         msg="Test case '{{ test_name }}' has too few keywords inside ({{ keyword_count }}/{{ min_allowed_count }})",

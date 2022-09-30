@@ -29,6 +29,7 @@ rules = {
             name="ignore_templated",
             default="True",
             converter=str2bool,
+            show_type="bool",
             desc="whether templated tests should be documented or not",
         ),
         rule_id="0202",

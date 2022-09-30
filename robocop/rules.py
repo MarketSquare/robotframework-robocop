@@ -268,6 +268,16 @@ class Rule:
     def severity(self):
         return self.config["severity"].value
 
+    @property
+    def description(self):
+        desc = ""
+        if not (self.msg.startswith("{{") and self.msg.endswith("}}")):
+            desc += f"{self.msg}."
+        if self.docs:
+            desc += "\n"
+            desc += self.docs
+        return desc
+
     def get_severity_with_threshold(self, threshold_value):
         if threshold_value is None:
             return self.severity

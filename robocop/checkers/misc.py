@@ -36,9 +36,9 @@ rules = {
         msg="{{ error_msg }}",
         severity=RuleSeverity.WARNING,
         docs="""
-        To improve readability use `[Return]` setting at the end of the keyword. If you want to return immediately from 
-        the keyword use `RETURN` statement instead (`[Return]` does not return until all steps in the 
-        keyword are completed).
+        To improve readability use ``[Return]`` setting at the end of the keyword. If you want to return immediately 
+        from the keyword use ``RETURN`` statement instead. ``[Return]`` does not return from the keyword but only 
+        sets the values that will be returned at the end of the keyword.
         
         Bad::
         
@@ -62,8 +62,8 @@ rules = {
         msg="[Return] is empty",
         severity=RuleSeverity.WARNING,
         docs="""
-        `[Return]` statement is used to define variables returned from keyword. If you don't return anything from 
-        keyword,  don't use `[Return]`.
+        ``[Return]`` statement is used to define variables returned from keyword. If you don't return anything from 
+        keyword,  don't use ``[Return]``.
         """,
     ),
     "0907": Rule(

@@ -33,11 +33,7 @@ Rules
     - {{ rule_doc.id }}
     - {{ rule_doc.version }}
 
-{{ rule_doc.desc }}.
-
-{%- if rule_doc.ext_docs %}
-{{ rule_doc.ext_docs }}
-{% endif %}
+{{ rule_doc.desc }}
 
 {%- if rule_doc.severity_threshold is not none %}
 

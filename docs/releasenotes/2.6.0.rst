@@ -32,6 +32,8 @@ renamed ``could-be-forced-tags`` rule to ``could-be-test-tags`` and ``tag-alread
 to ``tag-already-set-in-test-tags``.
 Usage of ``Force Tags`` will result in deprecation warning from ``deprecated-statement`` rule.
 
+Robot Framework 6.0 also added ``Keyword Tags`` which is supported by Robocop with this release (#641).
+
 ## Issue end location (#290)
 
 Our test framework now supports custom format of the issue - which should help with enhancing the precision of the reported

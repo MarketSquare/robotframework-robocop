@@ -428,7 +428,7 @@ class Config:
 
     def validate_rule_names(self, rules):
         # add rule name in form of old_name: new_name
-        deprecated = {"uneven-indent": "bad-indent"}
+        deprecated = {"uneven-indent": "bad-indent", "could-be-forced-tags": "could-be-test-tags", "tag-already-set-in-force-tags": "tag-already-set-in-test-tags"}
         for rule in chain(self.include, self.exclude):
             if rule in deprecated:  # update warning description to specific case
                 print(

@@ -25,12 +25,25 @@ We completely redesigned our indentation rules. Due to this the ``uneven-indent`
 the error message). It is now also possible to use ``strict`` (default ``False``) mode to enforce indentation to be
 the multiple of ``indent`` space (default 4).
 
+## Tags rules changes
+
+The ``Force Tags`` setting has been renamed to ``Test Tags``. To support this change, Robocop
+renamed ``could-be-forced-tags`` rule to ``could-be-test-tags`` and ``tag-already-set-in-force-tags``
+to ``tag-already-set-in-test-tags``.
+Usage of ``Force Tags`` will result in deprecation warning from ``deprecated-statement`` rule.
+
 ## Issue end location (#290)
 
 Our test framework now supports custom format of the issue - which should help with enhancing the precision of the reported
 issues. The following rules have improved precision (reported beginning and end of the rule) in this release:
 
 - ``invalid-argument``
+
+## Documentation improvements
+
+- Improved the documentation generation for rules parameters. It will now show more user-friendly types (such as "bool")
+  instead of name of the parser method (#732).
+- do not use rule message as the first line in our documentation if the rule message is only templated variable (#733)
 
 ## Fixes
 

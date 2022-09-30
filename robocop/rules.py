@@ -100,7 +100,7 @@ class RuleParam:
     Each rule can have number of parameters (default one is severity).
     """
 
-    def __init__(self, name: str, default: Any, converter: Callable, desc: str):
+    def __init__(self, name: str, default: Any, converter: Callable, desc: str, show_type: Optional[str] = None):
         """
         :param name: Name of the parameter used when configuring rule (also displayed in the docs)
         :param default: Default value of the parameter
@@ -111,6 +111,7 @@ class RuleParam:
         """
         self.name = name
         self.converter = converter
+        self.show_type = show_type
         self.desc = desc
         self.raw_value = None
         self._value = None
@@ -133,6 +134,12 @@ class RuleParam:
             self._value = self.converter(value)
         except ValueError as err:
             raise robocop.exceptions.RuleParamFailedInitError(self, value, str(err)) from None
+
+    @property
+    def param_type(self):
+        if self.show_type is None:
+            return self.converter.__name__
+        return self.show_type
 
 
 class SeverityThreshold:
@@ -254,7 +261,11 @@ class Rule:
         self.docs = dedent(docs)
         self.config = {
             "severity": RuleParam(
-                "severity", severity, RuleSeverity.parser, "Rule severity (E = Error, W = Warning, I = Info)"
+                "severity",
+                severity,
+                RuleSeverity.parser,
+                desc="Rule severity (E = Error, W = Warning, I = Info)",
+                show_type="severity",
             )
         }
         self.severity_threshold = None
@@ -267,6 +278,16 @@ class Rule:
     @property
     def severity(self):
         return self.config["severity"].value
+
+    @property
+    def description(self):
+        desc = ""
+        if not (self.msg.startswith("{{") and self.msg.endswith("}}")):
+            desc += f"{self.msg}."
+        if self.docs:
+            desc += "\n"
+            desc += self.docs
+        return desc
 
     def get_severity_with_threshold(self, threshold_value):
         if threshold_value is None:

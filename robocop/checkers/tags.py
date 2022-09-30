@@ -67,9 +67,9 @@ rules = {
     ),
     "0605": Rule(
         rule_id="0605",
-        name="could-be-forced-tags",
+        name="could-be-test-tags",
         msg="All tests in suite share these tags: '{{ tags }}'. "
-        "You can define them in 'Force Tags' in suite settings instead",
+        "You can define them in 'Test Tags' in suite settings instead",
         severity=RuleSeverity.INFO,
         docs="""
         Example::
@@ -83,20 +83,21 @@ rules = {
                 [Tag]  featureX
                 Step
         
-        In this example all tests share one common tag `featureX`. It can be declared just once using `Force Tags`.
+        In this example all tests share one common tag `featureX`. It can be declared just once using ``Test Tags``
+        or ``Task Tags``.
         """,
     ),
     "0606": Rule(
         rule_id="0606",
-        name="tag-already-set-in-force-tags",
-        msg="Tag '{{ tag }}' is already set by Force Tags in suite settings",
+        name="tag-already-set-in-test-tags",
+        msg="Tag '{{ tag }}' is already set by {{ test_force_tags }} in suite settings",
         severity=RuleSeverity.INFO,
         docs="""
-        Avoid repeating same tags in tests when the tag is already declared in `Force Tags`.
+        Avoid repeating same tags in tests when the tag is already declared in ``Test Tags`` or ``Force Tags``.
         Example of rule violation::
         
             *** Setting ***
-            Force Tags  common-tag
+            Test Tags  common-tag
             
             *** Test Cases ***
             Test
@@ -243,20 +244,20 @@ class TagNameChecker(VisitorChecker):
 
 
 class TagScopeChecker(VisitorChecker):
-    """Checker for tag scopes. If all tests in suite have the same tags, it will suggest using `Force Tags`"""
+    """Checker for tag scopes."""
 
     reports = (
-        "could-be-forced-tags",
-        "tag-already-set-in-force-tags",
+        "could-be-test-tags",
+        "tag-already-set-in-test-tags",
         "unnecessary-default-tags",
         "empty-tags",
     )
 
     def __init__(self):
         self.tags = []
-        self.force_tags = []
-        self.default_tags = []
-        self.force_tags_node = None
+        self.test_tags = set()
+        self.default_tags = set()
+        self.test_tags_node = None
         self.default_tags_node = None
         self.test_cases_count = 0
         self.in_keywords = False
@@ -264,10 +265,10 @@ class TagScopeChecker(VisitorChecker):
 
     def visit_File(self, node):  # noqa
         self.tags = []
-        self.force_tags = []
-        self.default_tags = []
+        self.test_tags = set()
+        self.default_tags = set()
         self.test_cases_count = 0
-        self.force_tags_node = None
+        self.test_tags_node = None
         super().visit_File(node)
         if not self.tags:
             return
@@ -281,12 +282,12 @@ class TagScopeChecker(VisitorChecker):
         if self.test_cases_count < 2:
             return
         common_tags = set.intersection(*[set(tags) for tags in self.tags])
-        common_tags = common_tags - set(self.force_tags)
+        common_tags = common_tags - self.test_tags
         if common_tags:
             self.report(
-                "could-be-forced-tags",
+                "could-be-test-tags",
                 tags=", ".join(common_tags),
-                node=node if self.force_tags_node is None else self.force_tags_node,
+                node=node if self.test_tags_node is None else self.test_tags_node,
             )
 
     def visit_KeywordSection(self, node):  # noqa
@@ -299,11 +300,11 @@ class TagScopeChecker(VisitorChecker):
         self.generic_visit(node)
 
     def visit_ForceTags(self, node):  # noqa
-        self.force_tags = [token.value for token in node.data_tokens[1:]]
-        self.force_tags_node = node
+        self.test_tags = {token.value for token in node.data_tokens[1:]}
+        self.test_tags_node = node
 
     def visit_DefaultTags(self, node):  # noqa
-        self.default_tags = [token.value for token in node.data_tokens[1:]]
+        self.default_tags = {token.value for token in node.data_tokens[1:]}
         self.default_tags_node = node
 
     def visit_Tags(self, node):  # noqa
@@ -312,11 +313,14 @@ class TagScopeChecker(VisitorChecker):
             self.report("empty-tags", optional_warning=suffix, node=node, col=node.end_col_offset)
         self.tags.append([tag.value for tag in node.data_tokens[1:]])
         for tag in node.data_tokens[1:]:
-            if tag.value in self.force_tags:
-                self.report(
-                    "tag-already-set-in-force-tags",
-                    tag=tag.value,
-                    node=node,
-                    lineno=tag.lineno,
-                    col=tag.col_offset + 1,
-                )
+            if tag.value not in self.test_tags:
+                continue
+            test_force_tags = self.test_tags_node.data_tokens[0].value
+            self.report(
+                "tag-already-set-in-test-tags",
+                tag=tag.value,
+                test_force_tags=test_force_tags,
+                node=node,
+                lineno=tag.lineno,
+                col=tag.col_offset + 1,
+            )

@@ -428,14 +428,14 @@ class Config:
 
     def validate_rule_names(self, rules):
         # add rule name in form of old_name: new_name
-        deprecated = {}
+        deprecated = {"uneven-indent": "bad-indent"}
         for rule in chain(self.include, self.exclude):
             if rule in deprecated:  # update warning description to specific case
                 print(
                     f"### DEPRECATION WARNING ###\nThe name (or ID) of the rule '{rule}' is "
                     f"renamed to '{deprecated[rule]}'. "
                     f"Update your configuration if you're using old name. "
-                    f"This information will disappear in the next version (X.Y.Z)\n\n"
+                    f"This information will disappear in the next version.\n\n"
                 )
                 self.replace_in_set(self.include, rule, deprecated[rule])
                 self.replace_in_set(self.exclude, rule, deprecated[rule])

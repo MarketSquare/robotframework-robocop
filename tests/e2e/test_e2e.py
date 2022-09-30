@@ -1,4 +1,6 @@
 """ General E2E tests to catch any general issue in Robocop """
+
+import importlib
 import sys
 from pathlib import Path
 from unittest import mock

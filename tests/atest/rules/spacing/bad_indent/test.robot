@@ -3,36 +3,83 @@ Documentation  doc
 
 
 *** Test Cases ***
-Test
+Golden test
     [Documentation]  doc
     [Tags]  sometag
     Pass
     Keyword
     One More
 
+Test with matching indent but not multiple of 4
+   [Setup]    Keyword
+   Keyword Call
 
-*** Keywords ***
-Keyword With Over Indented Line
-    [Documentation]  this is doc
-       No Operation
-    Pass
-    No Operation
-    Fail
+Test with FOR
+    Keyword Call
+    FOR    ${var}    IN    RANGE    10
+   Bad Indent
+    Bad Indent
+      FOR    ${var}    IN    a    b
+            Multiply Of 4
+             But Unmatched
+             With Others
+               ...  Should Be Ignored
+             # valid comment
+            # invalid - not counted to indent count, but reported if it breaks rule
+            # invalid - same as above
+      END
+      ${assign}    Keyword Call    b
+      ...    a
+    END
 
-Keyword With Under Indented Line
-    [Documentation]  this is doc
-    No Operation
-   Pass
-    No Operation
-    Fail
+Test with IF
+    IF    ${condition}
 
-Keyword With Over Indented Setting
-    [Documentation]  this is doc
-     [Setup]  Keyword
-       No Operation
-    Pass
+
+    ELSE IF    $condition
+        IF    $var    No Operation    ELSE    RETURN
+        ${assign}    IF    $condition    Set Variable    1    ELSE IF    $other_condition    Keyword
+        ...    ${a}
+         No Operation
+     ELSE
+        # comment
+        No Operation
+# comment
+        # comment
+    END
+
+Test with WHILE
+    WHILE    $condition
+         WHILE    $condition
+           No Operation
+           No Operation
+           BREAK
+           CONTINUE
+         END
+        No Operation
+        No Operation
+        No Operation
+    END
+
+Test With TRY
     No Operation
-    Fail
+     TRY
+        No Operation
+         No Operation
+        No Operation
+    EXCEPT    *
+        No Operation
+         No Operation
+        No Operation
+    ELSE
+             No Operation
+             No Operation
+             No Operation
+    FINALLY
+        No Operation
+         No Operation
+        No Operation
+    END
 
 Templated Test
     [Documentation]  doc
@@ -42,14 +89,26 @@ Templated Test
     What Goes
      [Teardown]  Over Indented
 
-Keyword With Multiline For Loop
-    [Documentation]  Keyword doc
-    [Tags]  tag
-    FOR  ${elem}  IN  elem1  elem2  elem3
-     ...  elem4
-        Log  ${elem}  # this is valid comment
-       Keyword
 
+*** Keywords ***
+Keyword With Uneven NewLines
+    [Arguments]    ${arg}
+   ...    ${arg2}
+    Keyword 1
+    Keyword
+      ...  ${2}
+
+Keyword With Assignments
+    ${arg}    ${arg}    Keyword
+    ...  multiline
+    IF    ${condition}
+        ${value}    Correct Indent
+          ${arg}  Incorrect Indent
+    ELSE IF  ${flag}
+         Incorrect Indent
+        Correct Indent
+    ELSE
+        Correct Indent
     END
 
 Keyword With Under Indented For Loop Body
@@ -64,37 +123,69 @@ Keyword With Under Indented For Loop Body And Comment
 # invalid comment
     END
 
-IF ELSE
-    IF    $condition
-   Keyword
-    END
-    IF    $condition
-        Keyword
-    ELSE IF    $condition
-   Keyword
-    ELSE
-  Keyword
+Golden
+    Keyword Call
+    FOR  ${var}  IN  1  2
+        IF    ${var}
+            IF    $condition    RETURN
+            Keyword Call    ${var}
+             ...    misaligned but different rule
+        END
     END
 
-RF5 syntax
-    IF    $condition    Keyword
-
-    WHILE    $condition
-  Keyword
-    END
-    TRY
-  Keyword
-    EXCEPT
-  Keyword
-    ELSE
-        Keyword
-    FINALLY
-  Keyword
+Golden With Comments
+    Keyword Call
+    # comment
+    FOR  ${var}  IN  1  2
+        # comment
+        IF    ${var}
+            # comment
+            IF    $condition    RETURN
+            Keyword Call    ${var}
+             ...    misaligned but different rule
+            # comment
+        END
     END
 
-Golden IF
-    IF    ${condition}
-        Keyword
-    ELSE IF   ${condition}
-        Keyword
-    ElSE
+# standalone comment
+
+Bad Comment Indent
+    Keyword Call
+   # comment
+    FOR  ${var}  IN  1  2
+         # comment
+        IF    ${var}
+           # comment
+            IF    $condition    RETURN
+            Keyword Call    ${var}
+             ...    misaligned but different rule
+             # comment
+        END
+    END
+    # valid
+
+# standalone comment
+
+  # invalid
+
+# valid
+
+Golden With Comments
+    Keyword Call
+    # comment
+    FOR  ${var}  IN  1  2
+        # comment
+        IF    ${var}
+            # comment
+            IF    $condition    RETURN
+            Keyword Call    ${var}
+             ...    misaligned but different rule
+            # comment
+        END
+    END
+
+# standalone comment
+
+Keyword with empty if
+   IF  ${False}
+   END

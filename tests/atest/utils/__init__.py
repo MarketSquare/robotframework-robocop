@@ -3,6 +3,7 @@ import io
 import os
 import sys
 from pathlib import Path
+from typing import List, Optional
 
 import pytest
 from packaging.specifiers import Specifier
@@ -47,7 +48,7 @@ def load_expected_file(test_data, expected_file):
         return sorted([line.rstrip("\n").replace(r"${/}", os.path.sep) for line in f])
 
 
-def configure_robocop_with_rule(args, runner, rule, path, src_files, format):
+def configure_robocop_with_rule(args, runner, rule, path, src_files: Optional[List], format):
     runner.from_cli = True
     config = Config()
     if src_files is None:
@@ -81,7 +82,13 @@ class RuleAcceptance:
     END_COL_ISSUE_FORMAT = "{source}:{line}:{col}:{end_line}:{end_col} [{severity}] {rule_id} {desc}"
 
     def check_rule(
-        self, expected_file, config=None, rule=None, src_files=None, target_version=None, issue_format="default"
+        self,
+        expected_file,
+        config=None,
+        rule=None,
+        src_files: Optional[List] = None,
+        target_version=None,
+        issue_format="default",
     ):
         if not self.enabled_in_version(target_version):
             pytest.skip(f"Test enabled only for RF {target_version}")
@@ -101,6 +108,14 @@ class RuleAcceptance:
                 sys.stdout.flush()
                 result = get_result(output)
         actual = normalize_result(result, test_data)
+        if actual != expected:
+            present_in_actual = "\n    ".join(set(actual) - set(expected))
+            present_in_expected = "\n    ".join(set(expected) - set(actual))
+            raise AssertionError(
+                "Actual issues are different than expected.\n"
+                f"Actual issues not found in expected:\n    {present_in_actual}"
+                f"\n\nExpected issues not found in actual:\n    {present_in_expected}"
+            )
         assert actual == expected, f"{actual} != {expected}"
 
     def get_issue_format(self, issue_format):

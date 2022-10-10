@@ -37,7 +37,7 @@ This is an example of the file with custom checker that asserts that no test hav
 
 Rule parameters
 ---------------
-Rules can have configurable values. You need to specify them using RuleParam class and pass it as not named arg to Rule::
+Rules can have configurable values. You need to specify them using RuleParam class and pass it as argument to Rule::
 
     from robocop.checkers import VisitorChecker
     from robocop.rules import Rule, RuleParam, RuleSeverity
@@ -48,7 +48,7 @@ Rules can have configurable values. You need to specify them using RuleParam cla
             RuleParam(name="param_name", converter=str, default="Dummy", desc="Optional desc"),
             rule_id="9999",
             name="dummy-in-name",
-            msg="There is '{{ variable }}' in test case name",
+            msg="There is '{% raw %}{{ variable }}{% endraw %}' in test case name",
             severity=RuleSeverity.WARNING,
         )
     }
@@ -75,19 +75,19 @@ Value of the configurable parameter can be retrieved using :code:`param` method:
 
 Templated rule messages
 ------------------------
-When defining rule messages you can use `jinja` templates. The most basic usage is supplying variables to rule message::
+When defining rule messages you can use ``jinja`` templates. The most basic usage is supplying variables to rule message::
 
     rules = {
         "9001": Rule(
             rule_id="9001",
             name="my-rule",
-            msg="You can supply variables like {{ variable }} or {{ number }}. "
+            msg="You can supply variables like {% raw %}{{ variable }} or {{ number }}{% endraw %}. "
                 "Basic {% if number==10 %}jinja {% endif %}syntax supported",
             severity=RuleSeverity.ERROR
         )
     }
 
-Variables need to be passed to report() method by their name::
+Variables need to be passed to ``report()`` method by their name::
 
     self.report("my-rule", variable="some string", number=10, node=node)
 
@@ -136,13 +136,15 @@ Dotted syntax is also supported::
 :code:`rules` dictionary should be available at the same level as checker that is using it. That's why if you are defining your
 external rules using modules and `__init__.py` it should be also imported (or defined directly in `__init__.py`).
 
+Robot Framework version support
+--------------------------------
 You can enable (or disable) your rule for particular Robot Framework version. Add `version` parameter to Rule definition::
 
     rules = {
         "9903": Rule(rule_id="9903", name="external-rule", msg="This is external rule", severity=RuleSeverity.INFO, version=">=5.0")
     }
 
-In this case rule "external-rule" will be disabled for all Robot Framework versions except 5.0 and newer.
+In this case rule "external-rule" will be enabled only for Robot Framework versions equal to 5.0 or higher.
 
 It is also possible to adjust behaviour of your checker depending on the Robot Framework version::
 

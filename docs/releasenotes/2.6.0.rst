@@ -1,5 +1,6 @@
 Robocop 2.6.0
 ================
+This release focus on further support for Robot Framework 6.0 and also improve our documentation and spacing rules.
 
 You can install the latest available version by running::
 
@@ -41,16 +42,16 @@ Issue end location (#290)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Our test framework now supports custom format of the issue - which should help with enhancing the precision of the reported
-issues. The following rules have improved precision (reported beginning and end of the rule) in this release:
-
-- ``invalid-argument``
+issues. For now the ``invalid-argument`` rule have improved precision (reported beginning and end of the rule) but
+expect more in upcoming releases!
 
 Documentation improvements
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-- Improved the documentation generation for rules parameters. It will now show more user-friendly types (such as "bool")
+- improved the documentation generation for rules parameters. It will now show more user-friendly types (such as "bool")
   instead of name of the parser method (#732).
 - do not use rule message as the first line in our documentation if the rule message is only templated variable (#733)
+- updated sarif config example to use colon delimiters (#747)
 
 Fixes
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

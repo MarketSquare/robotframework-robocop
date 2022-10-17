@@ -398,7 +398,7 @@ class SarifReport(Report):
 
     You can configure output directory and report filename::
 
-        robocop --configure sarif:output_dir=C:/sarif_reports --configure sarif:report_filename=.sarif
+        robocop --configure sarif:output_dir:C:/sarif_reports --configure sarif:report_filename:.sarif
 
     """
 

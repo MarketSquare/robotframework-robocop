@@ -1,1 +1,1 @@
-robotframework==5.0.1
+robotframework==6.0

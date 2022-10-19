@@ -1,6 +1,6 @@
 Robocop 2.6.0
 ================
-This release focus on further support for Robot Framework 6.0 and also improve our documentation and spacing rules.
+This release focuses on better support for Robot Framework 6.0 and improvements to our documentation and spacing rules.
 
 You can install the latest available version by running::
 
@@ -42,8 +42,8 @@ Issue end location (#290)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Our test framework now supports custom format of the issue - which should help with enhancing the precision of the reported
-issues. For now the ``invalid-argument`` rule have improved precision (reported beginning and end of the rule) but
-expect more in upcoming releases!
+issues. For now, the ``invalid-argument`` rule has improved precision (properly reporting the beginning and the end of the rule) but
+expect more in the upcoming releases!
 
 Documentation improvements
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

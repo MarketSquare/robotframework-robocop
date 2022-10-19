@@ -1,6 +1,6 @@
 *** Settings ***
 Documentation    Testing Robocop
-Force Tags       comeANDgo    # Evoke rule 0602 with severity I
+Default Tags       comeANDgo    # Evoke rule 0602 with severity I
 
 
 *** Test Cases ***

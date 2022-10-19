@@ -727,16 +727,14 @@ class DeprecatedStatementChecker(VisitorChecker):
 
     reports = ("deprecated-statement", "deprecated-with-name", "deprecated-singular-header")
     deprecated_keywords = {
-        5: {
-            "runkeywordunless": "IF",
-            "runkeywordif": "IF",
-            "exitforloop": "BREAK",
-            "exitforloopif": "IF and BREAK",
-            "continueforloop": "CONTINUE",
-            "continueforloopif": "IF and CONTINUE",
-            "returnfromkeyword": "RETURN",
-            "returnfromkeywordif": "IF and RETURN",
-        },
+        "runkeywordunless": (5, "IF"),
+        "runkeywordif": (5, "IF"),
+        "exitforloop": (5, "BREAK"),
+        "exitforloopif": (5, "IF and BREAK"),
+        "continueforloop": (5, "CONTINUE"),
+        "continueforloopif": (5, "IF and CONTINUE"),
+        "returnfromkeyword": (5, "RETURN"),
+        "returnfromkeywordif": (5, "IF and RETURN"),
     }
     english_headers_singular = {
         "Comment",
@@ -795,18 +793,20 @@ class DeprecatedStatementChecker(VisitorChecker):
 
     def check_if_keyword_is_deprecated(self, keyword_name, node):
         normalized_keyword_name = normalize_robot_name(keyword_name, remove_prefix="builtin.")
-        deprecated_statements = self.deprecated_keywords.get(ROBOT_VERSION.major, {})
-        if normalized_keyword_name in deprecated_statements:
-            alternative = deprecated_statements[normalized_keyword_name]
-            col = token_col(node, Token.NAME, Token.KEYWORD)
-            self.report(
-                "deprecated-statement",
-                statement_name=keyword_name,
-                alternative=alternative,
-                node=node,
-                col=col,
-                version=f"{ROBOT_VERSION.major}.*",
-            )
+        if normalized_keyword_name not in self.deprecated_keywords:
+            return
+        version, alternative = self.deprecated_keywords[normalized_keyword_name]
+        if version > ROBOT_VERSION.major:
+            return
+        col = token_col(node, Token.NAME, Token.KEYWORD)
+        self.report(
+            "deprecated-statement",
+            statement_name=keyword_name,
+            alternative=alternative,
+            node=node,
+            col=col,
+            version=f"{version}.*",
+        )
 
     def visit_LibraryImport(self, node):  # noqa
         if ROBOT_VERSION.major < 5 or (ROBOT_VERSION.major == 5 and ROBOT_VERSION.minor == 0):

@@ -1,5 +1,6 @@
 Robocop 2.6.0
 ================
+This release focuses on better support for Robot Framework 6.0 and improvements to our documentation and spacing rules.
 
 You can install the latest available version by running::
 
@@ -41,16 +42,16 @@ Issue end location (#290)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Our test framework now supports custom format of the issue - which should help with enhancing the precision of the reported
-issues. The following rules have improved precision (reported beginning and end of the rule) in this release:
-
-- ``invalid-argument``
+issues. For now, the ``invalid-argument`` rule has improved precision (properly reporting the beginning and the end of the rule) but
+expect more in the upcoming releases!
 
 Documentation improvements
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-- Improved the documentation generation for rules parameters. It will now show more user-friendly types (such as "bool")
+- improved the documentation generation for rules parameters. It will now show more user-friendly types (such as "bool")
   instead of name of the parser method (#732).
 - do not use rule message as the first line in our documentation if the rule message is only templated variable (#733)
+- updated sarif config example to use colon delimiters (#747)
 
 Fixes
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -59,6 +60,7 @@ Fixes
 - empty lines and standalone comments are now not counted towards keyword/test length in ``too-long-test-case`` and ``too-long-keyword`` rules (#671)
 - comments in the last line of the last keyword / test in the file will not be reported with ``uneven-indent`` rule if their indent is correct (#675)
 - external rules documentation should now display templated rule messages properly (#745)
+- ``deprecated-statement`` should now work for RF 6.0+
 
 Misc
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

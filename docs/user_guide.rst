@@ -22,27 +22,33 @@ source code. More in :ref:`including-rules`.
 
 Loading configuration from file
 -------------------------------
-.. dropdown:: How to load configuratiom from file
+.. dropdown:: How to load configuration from the file
 
-    You can load arguments for Robocop from file with ``--argumentfile / -A`` option and path to argument file::
+    Robocop supports two formats of the configuration file: argument files and toml files. If argument file is not
+    provided using CLI, Robocop will try to find default configuration file using the following algorithm:
 
-        robocop --argumentfile argument_file.txt
-        robocop -A path/to/file.txt
+    - if the directory contains ``.robocop`` file, load it
+    - otherwise, if the directory contains ``pyproject.toml`` file, load it
+    - otherwise, go to parent directory. Stop search if ``.git`` or top disk directory is found
 
-    If no arguments are provided to Robocop it will try to find ``.robocop`` file and load it from there.
-    It will start looking from current directory and go up until it founds it or '.git' file is found. ``.robocop`` file
-    supports the same syntax as given from CLI::
+    .. dropdown:: ``.robocop`` argument file
 
-        --include rulename
-        # inline comment
-        --reports all
+        Argument file supports the same syntax as given from the CLI::
 
-    If there is no ``.robocop`` file present it will try to load ``pyproject.toml`` file (if there is toml module installed).
-    Robocop use [tool.robocop] section. Options have the same names as CLI arguments.
+            --include rulename
+            # inline comment
+            --reports all
 
-    .. dropdown:: Example pyproject.toml configuration file
+        You can load arguments for Robocop from file with ``--argumentfile / -A`` option and path to the argument file::
 
-        ::
+            robocop --argumentfile argument_file.txt
+            robocop -A path/to/file.txt
+
+    .. dropdown:: ``pyproject.toml`` configuration file
+
+        Robocop use [tool.robocop] section. Options have the same names as the CLI arguments.
+
+        Example pyproject.toml configuration file::
 
             [tool.robocop]
             paths = [

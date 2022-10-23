@@ -8,13 +8,15 @@ from robocop.exceptions import FileError
 DEFAULT_EXCLUDES = r"(\.direnv|\.eggs|\.git|\.hg|\.nox|\.tox|\.venv|venv|\.svn)"
 
 
-def find_project_root(srcs):
-    """Return a directory containing .git, .robocop or pyproject.toml.
-    That directory will be a common parent of all files and directories
-    passed in `srcs`.
-    If no directory in the tree contains a marker that would specify it's the
-    project root, the root of the file system is returned.
+def find_project_root(root, srcs):
     """
+    Find project root.
+    If not provided in ``root`` argument, the first parent directory containing either .git, .robocop or pyproject.toml
+    file in any of  ``srcs`` paths will be root category.
+    If not found, returns the root of the file system.
+    """
+    if root is not None:
+        return Path(root)
     if not srcs:
         return Path("/").resolve()
 

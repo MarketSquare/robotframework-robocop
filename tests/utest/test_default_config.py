@@ -61,6 +61,7 @@ class TestDefaultConfig:
         src = path_to_test_data / "default_config"
         with working_directory(src), patch.object(sys, "argv", ["prog", "--verbose"]):
             config = Config(from_cli=True)
+        config.print_config_source()
         out, _ = capsys.readouterr()
         assert out == f"Loaded configuration from {config.config_from}\n"
 
@@ -155,6 +156,7 @@ class TestDefaultConfig:
         src = path_to_test_data / "only_pyproject"
         with working_directory(src), patch.object(sys, "argv", ["prog", "--verbose"]):
             config = Config(from_cli=True)
+        config.print_config_source()
         out, _ = capsys.readouterr()
         assert out == f"Loaded configuration from {config.config_from}\n"
 
@@ -177,7 +179,8 @@ class TestDefaultConfig:
     def test_load_empty_config(self, path_to_test_data, capsys, config_dir):
         src = path_to_test_data / config_dir
         with working_directory(src), patch.object(sys, "argv", ["prog", "--verbose"]):
-            Config(from_cli=True)
+            config = Config(from_cli=True)
+        config.print_config_source()
         out, _ = capsys.readouterr()
         assert out == "No config file found or configuration is empty. Using default configuration\n"
 
@@ -194,7 +197,7 @@ class TestDefaultConfig:
         pyproject.toml resolves relative path to config directory.
         For example if root/pyproject.toml contains test.py, it will become root/test.py
         """
-        src = path_to_test_data / f"relative_path_in_config_pyproject"
+        src = path_to_test_data / "relative_path_in_config_pyproject"
         work_dir = src / "nested"
         with working_directory(work_dir), patch.object(sys, "argv", ["robocop"]):
             config = Config(from_cli=True)
@@ -209,9 +212,23 @@ class TestDefaultConfig:
         and you're running robocop from root/nested,
         it will become root/nested/test.py
         """
-        src = path_to_test_data / f"relative_path_in_config_robocop"
+        src = path_to_test_data / "relative_path_in_config_robocop"
         work_dir = src / "nested"
         with working_directory(work_dir), patch.object(sys, "argv", ["robocop"]):
             config = Config(from_cli=True)
             ext_rule_path = config.ext_rules.pop()
             assert Path(ext_rule_path).absolute() == work_dir / "test.py"
+
+    def test_override_default_config(self, path_to_test_data):
+        """
+        Default config should not be loaded if "--argumentfile" option is used.
+        """
+        default_config = path_to_test_data / "only_pyproject"
+        other_config = path_to_test_data / "default_config_and_pyproject" / ".robocop"
+        for option_name in ("-A", "--argumentfile"):
+            with working_directory(default_config), patch.object(
+                sys, "argv", ["robocop", option_name, str(other_config)]
+            ):
+                config = Config(from_cli=True)
+            assert str(config.config_from) == str(other_config)
+            assert config.include == {"0810"}

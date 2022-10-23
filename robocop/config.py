@@ -86,7 +86,6 @@ class Config:
     def __init__(self, root=None, from_cli: bool = False):
         self.from_cli = from_cli
         self.exec_dir = os.path.abspath(".")
-        self.root = Path(root) if root is not None else root
         self.include = set()
         self.exclude = set()
         self.ignore = set()
@@ -108,8 +107,8 @@ class Config:
         self.recursive = True
         self.verbose = False
         self.config_from = ""
-        self.parser = self._create_parser()
-        self.parse_opts(from_cli=from_cli)
+        self.root = find_project_root(root, ["."])
+        self.parse()
 
     def remove_severity(self):
         self.include = {self.replace_severity_values(rule) for rule in self.include}
@@ -184,6 +183,7 @@ class Config:
             "--no-recursive",
             dest="recursive",
             action="store_false",
+            default=self.recursive,
             help="Use this flag to stop scanning directories recursively.",
         )
         optional.add_argument(
@@ -303,32 +303,42 @@ class Config:
             help="Display Robocop version.",
         )
         optional.add_argument(
-            "-vv", "--verbose", action="store_true", help="Display extra information during execution."
+            "-vv",
+            "--verbose",
+            action="store_true",
+            default=self.verbose,
+            help="Display extra information during execution.",
         )
         optional.add_argument(
             "--directives",
             action="version",
-            version="1. Serve the public trust\n2. Protect the innocent\n3. Uphold the law\n4. [ACCESS " "DENIED]",
+            version="1. Serve the public trust\n2. Protect the innocent\n3. Uphold the law\n4. [ACCESS DENIED]",
             help=argparse.SUPPRESS,
         )
 
         return parser
 
-    def parse_opts(self, args=None, from_cli: bool = True):
-        if self.root is None:
-            self.root = find_project_root(self.paths)
-        self.load_default_config_file()
+    def parse(self):
+        if not self.from_cli:
+            self.load_default_config_file()
+            return
+        args = sys.argv[1:]
+        if not self.argument_file_in_cli(args):
+            self.load_default_config_file()
+        self.parse_args(args)
 
-        if from_cli:
-            args = self.parse_args(args)
-        else:
-            args = None
+    def argument_file_in_cli(self, args):
+        argument_options = {"-A", "--argumentfile"}
+        for arg in args:
+            if arg in argument_options:
+                return True
+        return False
 
+    def reload(self, rules):
         self.remove_severity()
         self.translate_patterns()
         self.print_config_source()
-
-        return args
+        self.validate_rule_names(rules)
 
     def print_config_source(self):
         # We can only print after reading all configs, since self.verbose is unknown before we read it from config
@@ -349,7 +359,7 @@ class Config:
         robocop_path = find_file_in_project_root(".robocop", self.root)
         if not robocop_path.is_file():
             return False
-        args = self.load_args_from_file(robocop_path)
+        args = self.load_argument_file(robocop_path)
         self.parse_args(args)
         return True
 
@@ -368,24 +378,17 @@ class Config:
             self.config_from = pyproject_path
 
     def parse_args_to_config(self, args):
-        if args is None:
-            return None
-
-        args = self.parser.parse_args(args)
+        parser = self._create_parser()
+        args = parser.parse_args(args)
         for key, value in dict(**vars(args)).items():
             if key in self.__dict__:
                 self.__dict__[key] = value
 
-        return args
-
     def parse_args(self, args):
         args = self.preparse(args)
-        if args:
-            args = self.parse_args_to_config(args)
-        return args
+        self.parse_args_to_config(args)
 
     def preparse(self, args):
-        args = sys.argv[1:] if args is None else args
         parsed_args = []
         args = (arg for arg in args)
         for arg in args:
@@ -394,12 +397,12 @@ class Config:
                     argfile = next(args)
                 except StopIteration:
                     raise ArgumentFileNotFoundError("") from None
-                parsed_args += self.load_args_from_file(argfile)
+                parsed_args += self.load_argument_file(argfile)
             else:
                 parsed_args.append(arg)
         return parsed_args
 
-    def load_args_from_file(self, argfile):
+    def load_argument_file(self, argfile):
         try:
             with FileReader(argfile) as arg_f:
                 args = []
@@ -428,7 +431,11 @@ class Config:
 
     def validate_rule_names(self, rules):
         # add rule name in form of old_name: new_name
-        deprecated = {"uneven-indent": "bad-indent", "could-be-forced-tags": "could-be-test-tags", "tag-already-set-in-force-tags": "tag-already-set-in-test-tags"}
+        deprecated = {
+            "uneven-indent": "bad-indent",
+            "could-be-forced-tags": "could-be-test-tags",
+            "tag-already-set-in-force-tags": "tag-already-set-in-test-tags",
+        }
         for rule in chain(self.include, self.exclude):
             if rule in deprecated:  # update warning description to specific case
                 print(

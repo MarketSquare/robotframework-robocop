@@ -70,7 +70,7 @@ def configure_robocop_with_rule(args, runner, rule, path, src_files: Optional[Li
             *paths,
         ]
     )
-    config.parse_opts(arguments)
+    config.parse_args(arguments)
     runner.config = config
     return runner
 

@@ -62,7 +62,7 @@ class Robocop:
     def reload_config(self):
         """Reload checkers and reports based on current config"""
         self.load_checkers()
-        self.config.validate_rule_names(self.rules)
+        self.config.reload(self.rules)
         self.load_reports()
         self.configure_checkers_or_reports()
         self.check_for_disabled_rules()

@@ -1,0 +1,29 @@
+Robocop 2.7.0
+================
+
+You can install the latest available version by running::
+
+    pip install --upgrade robotframework-robocop
+
+or to install exactly this version::
+
+    pip install robotframework-robocop==2.7.0
+
+
+File configuration changes
+---------------------------
+
+We addressed several smaller issues and incoherence with Robocop file configuration.
+
+Overriding default configuration file
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+When you're using Robocop from the command line it reads both the cli arguments and default
+configuration file (found in the disk). The default configuration file (either ``.robocop`` or ``pyproject.toml`` file)
+is used as a base that can be overridden by the cli arguments. The problem with the previous implementation was
+that when user specified path to argument file in the cli::
+
+    robocop --argumentfile myconfig.txt
+
+Robocop would read both default configuration file and configuration file from ``--argumentfile``. Now it will read
+default configuration file only if ``-A / --argumentfile`` options are not used.

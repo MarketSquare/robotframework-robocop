@@ -31,7 +31,7 @@ default configuration file only if ``-A / --argumentfile`` options are not used.
 Language header support (#696)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Robot Framework 6.0 allow to set source language using language headers at the beginning of the file::
+Robot Framework 6.0 allows to set source language using language headers at the beginning of the file::
 
     language: de
 
@@ -39,5 +39,5 @@ Robot Framework 6.0 allow to set source language using language headers at the b
 
 Following changes focus on improving support for the language header.
 
-- ``ignored-data`` rule now properly ignores language header if it's in the file first line
+- ``ignored-data`` rule now properly ignores language header if it's in the file's first line
 

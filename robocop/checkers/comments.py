@@ -241,13 +241,18 @@ class IgnoredDataChecker(RawFileChecker):
         "bom-encoding-in-file",
     )
     BOM = [BOM_UTF32_BE, BOM_UTF32_LE, BOM_UTF8, BOM_UTF16_LE, BOM_UTF16_BE]
+    SECTION_HEADER = "***"
+    ROBOCOP_HEADER = "# robocop:"
+    LANGUAGE_HEADER = "language:"
 
     def __init__(self):
         self.is_bom = False
+        self.has_language_header = False
         super().__init__()
 
     def parse_file(self):
         self.is_bom = False
+        self.has_language_header = False
         if self.lines is not None:
             for lineno, line in enumerate(self.lines, start=1):
                 if self.check_line(line, lineno):
@@ -260,15 +265,22 @@ class IgnoredDataChecker(RawFileChecker):
                         break
 
     def check_line(self, line, lineno):
-        if line.startswith("***"):
+        if line.startswith(self.SECTION_HEADER):
             return True
-        if not line.startswith("# robocop:"):
-            if lineno == 1 and self.is_bom:
+        if line.startswith(self.ROBOCOP_HEADER):
+            return False
+        if lineno == 1:
+            if line.startswith(self.LANGUAGE_HEADER):
+                self.has_language_header = True
+                return False
+            elif self.is_bom:
                 # if it's BOM encoded file, first line can be ignored
                 return "***" in line
-            self.report("ignored-data", lineno=lineno, col=1)
-            return True
-        return False
+        if self.has_language_header and not line.strip():
+            # empty lines after language: header can be ignored
+            return False
+        self.report("ignored-data", lineno=lineno, col=1)
+        return True
 
     def detect_bom(self, source):
         with open(source, "rb") as raw_file:

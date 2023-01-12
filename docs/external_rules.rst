@@ -18,7 +18,10 @@ Every custom checker needs to complete following requirements:
 
 4. Using names and rule IDs different than already existing rules is recommended but in case of using the same ones, they will be overwritten.
 
-This is an example of the file with custom checker that asserts that no test have "Dummy" in the name::
+This is an example of the file with custom checker that asserts that no test have "Dummy" in the name:
+
+..  code-block:: python
+    :caption: dummy.py
 
     from robocop.checkers import VisitorChecker
     from robocop.rules import Rule, RuleSeverity
@@ -37,7 +40,10 @@ This is an example of the file with custom checker that asserts that no test hav
 
 Rule parameters
 ---------------
-Rules can have configurable values. You need to specify them using RuleParam class and pass it as argument to Rule::
+Rules can have configurable values. You need to specify them using RuleParam class and pass it as argument to Rule:
+
+..  code-block:: python
+    :caption: dummy.py
 
     from robocop.checkers import VisitorChecker
     from robocop.rules import Rule, RuleParam, RuleSeverity
@@ -102,11 +108,17 @@ directory structure::
     RobocopRules/some_rules.py
     setup.py
 
-inside ``__init__.py``::
+inside ``__init__.py``:
+
+..  code-block:: python
+    :caption: __init__.py
 
     from .some_rules import CustomRule, rules
 
-inside ``some_rules.py``::
+inside ``some_rules.py``:
+
+..  code-block:: python
+    :caption: some_rules.py
 
     from robocop.checkers import VisitorChecker
     from robocop.rules import Rule, RuleSeverity
@@ -125,7 +137,7 @@ inside ``some_rules.py``::
             if node.keyword and 'Dummy' not in node.keyword:
                 self.report("external-rule", node=node)
 
-You can import is using module name::
+You can import this rule using module name::
 
     robocop --ext-rules RobocopRules .
 
@@ -134,7 +146,7 @@ Dotted syntax is also supported::
     robocop --ext-rules RobocopRules.submodule .
 
 :code:`rules` dictionary should be available at the same level as checker that is using it. That's why if you are defining your
-external rules using modules and `__init__.py` it should be also imported (or defined directly in `__init__.py`).
+external rules using modules and ``__init__.py`` it should be also imported (or defined directly in ``__init__.py``).
 
 Robot Framework version support
 --------------------------------
@@ -146,7 +158,10 @@ You can enable (or disable) your rule for particular Robot Framework version. Ad
 
 In this case rule "external-rule" will be enabled only for Robot Framework versions equal to 5.0 or higher.
 
-It is also possible to adjust behaviour of your checker depending on the Robot Framework version::
+It is also possible to adjust behavior of your checker depending on the Robot Framework version:
+
+..  code-block:: python
+    :caption: some_checker.py
 
     from robocop.utils import ROBOT_VERSION
 

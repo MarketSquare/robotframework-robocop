@@ -1,8 +1,8 @@
-[![Unit-tests](https://img.shields.io/github/workflow/status/MarketSquare/robotframework-robocop/Unit%20tests/master)](https://github.com/MarketSquare/robotframework-robocop/actions?query=workflow%3A%22Unit+tests%22 "GitHub Workflow Unit Tests Status")
+[![Unit tests](https://github.com/MarketSquare/robotframework-robocop/actions/workflows/unit-tests.yml/badge.svg)](https://github.com/MarketSquare/robotframework-robocop/actions/workflows/unit-tests.yml "GitHub Workflow Unit Tests Status")
 ![Codecov](https://img.shields.io/codecov/c/github/MarketSquare/robotframework-robocop/master "Code coverage on master branch")
 ![PyPI](https://img.shields.io/pypi/v/robotframework-robocop?label=version "PyPI package version")
 ![Python versions](https://img.shields.io/pypi/pyversions/robotframework-robocop "Supported Python versions")
-![Licence](https://img.shields.io/pypi/l/robotframework-robocop "PyPI - License")
+![License](https://img.shields.io/pypi/l/robotframework-robocop "PyPI - License")
 [![Downloads](https://static.pepy.tech/personalized-badge/robotframework-robocop?period=total&units=international_system&left_color=grey&right_color=orange&left_text=downloads)](https://pepy.tech/project/robotframework-robocop)
 
 ---
@@ -14,12 +14,12 @@ Robocop
 
 - [Introduction](#introduction)
 - [Documentation](#documentation)
-- [Values](#values)
 - [Requirements](#requirements)
 - [Installation](#installation)
 - [Usage](#usage)
-- [Example](#example)
-- [Robotidy](#robotidy)
+- [Example Output](#example-output)
+- [Values](#values)
+- [Fixing issues](#fixing-issues)
 - [FAQ](#faq)
 
 Watch our talks from
@@ -35,24 +35,77 @@ and learn more about these cool tools! :robot:
 
 ---
 
-Introduction <a name="introduction"></a>
+Introduction
 ------------
 
 Robocop is a tool that performs static code analysis of [Robot Framework](https://github.com/robotframework/robotframework) code.
 
-It uses official [Robot Framework parsing API](https://robot-framework.readthedocs.io/en/stable/) to parse files and run number of checks,
-looking for potential errors or violations to code quality standards.
+It uses official [Robot Framework parsing API](https://robot-framework.readthedocs.io/en/stable/) to parse files and runs number of checks,
+looking for potential errors or violations to code quality standards (commonly referred as *linting issues*).
 
 > Hosted on [GitHub](https://github.com/MarketSquare/robotframework-robocop). :medal_military:
 
-Documentation <a name="documentation"></a>
+Documentation
 -------------
 
-Full documentation available [here](https://robocop.readthedocs.io). :open_book:
+Full documentation is available [here](https://robocop.readthedocs.io). :open_book:
 
 Most common questions with answers can be found at the bottom ⬇ of this README file.
 
-Values <a name="values"></a>
+Requirements
+------------
+
+Python 3.6+ :snake: and Robot Framework 3.2.2+ :robot:.
+
+Installation
+------------
+
+You can install the latest version of Robocop simply by running:
+
+```
+pip install -U robotframework-robocop
+```
+
+
+Usage
+-----
+
+Robocop runs by default from the current directory and it discovers supported files recursively.
+You can simply run:
+
+```
+robocop
+```
+
+All command line options can be displayed in help message by executing:
+
+```
+robocop -h
+```
+
+Example Output
+--------------
+
+Executing command:
+
+```
+robocop --report rules_by_error_type test.robot
+```
+
+
+Will result in following output:
+
+```text
+\Users\OCP\test.robot:7:1 [W] 0509 Section '*** Variables ***' is empty (empty-section)
+\Users\OCP\test.robot:22:1 [E] 0801 Multiple test cases with name "Simple Test" (first occurrence in line 17) (duplicated-test-case)
+\Users\OCP\test.robot:42:1 [E] 0810 Both Task(s) and Test Case(s) section headers defined in file (both-tests-and-tasks)
+\Users\OCP\test.robot:48:1 [W] 0302 Keyword 'my keyword' does not follow case convention (wrong-case-in-keyword-name)
+\Users\OCP\test.robot:51:13 [I] 0606 Tag 'mytag' is already set by Force Tags in suite settings (tag-already-set-in-force-tags)
+
+Found 5 issues: 2 ERRORs, 2 WARNINGs, 1 INFO.
+```
+
+Values
 -------
 Original *RoboCop* - a fictional cybernetic police officer :policeman: - was following 3 prime directives
 which also drive the progress of Robocop linter:
@@ -71,68 +124,16 @@ so Robocop is there to **protect** them.
 Following the coding guidelines established in the project are something very important to keep the code clean,
 readable and understandable by others and Robocop can help to **uphold the law**.
 
-Requirements <a name="requirements"></a>
-------------
-
-Python 3.6+ :snake: and Robot Framework 3.2.2+ :robot:.
-
-Installation <a name="installation"></a>
-------------
-
-You can install the latest version of Robocop simply by running::
-
-```
-pip install -U robotframework-robocop
-```
-
-
-Usage <a name="usage"></a>
------
-
-Robocop runs by default from the current directory and it discovers supported files recursively.
-You can simply run::
-
-```
-robocop
-```
-    
-All command line options can be displayed in help message by executing::
-
-```
-robocop -h
-```
-
-Example Output <a name="example"></a>
---------------
-
-Executing command::
-
-```
-robocop --report rules_by_error_type tests\test.robot
-```
-
-
-Will result in following output::
-```shell
-C:\OCP_project\tests\test.robot:7:1 [W] 0509 Section '*** Variables ***' is empty (empty-section)
-C:\OCP_project\tests\test.robot:22:1 [E] 0801 Multiple test cases with name "Simple Test" (first occurrence in line 17) (duplicated-test-case)
-C:\OCP_project\tests\test.robot:42:1 [E] 0810 Both Task(s) and Test Case(s) section headers defined in file (both-tests-and-tasks)
-C:\OCP_project\tests\test.robot:48:1 [W] 0302 Keyword 'my keyword' does not follow case convention (wrong-case-in-keyword-name)
-C:\OCP_project\tests\test.robot:51:13 [I] 0606 Tag 'mytag' is already set by Force Tags in suite settings (tag-already-set-in-force-tags)
-
-Found 5 issues: 2 WARNINGs, 2 ERRORs, 1 INFOs.
-```
-
-Fixing issues <a name="robotidy"></a>
+Fixing issues
 --------------
 Many issues in your code reported by Robocop can be fixed using auto-formatting tool, Robotidy.
 Check out the Robotidy [documentation](https://robotidy.readthedocs.io/en/stable/).
 
-FAQ <a name="faq"></a>
+FAQ
 ---
 <details>
   <summary>Can I integrate Robocop with my code editor (IDE)?</summary>
-  
+
   **Yes**, Robocop integrates nicely with popular IDEs like PyCharm or VSCode
   thanks to [Robot Framework Language Server](https://github.com/robocorp/robotframework-lsp).
   Read simple manual (README) in that project to figure out how to install & use it.
@@ -159,13 +160,14 @@ FAQ <a name="faq"></a>
 
   **Yes**, there are multiple ways to configure Robocop:
 
-  ### Argument file
+  **Argument file**
 
   You can add command line options to an argument file, preferably one option with value for a line.
   Such file can be used as an input for Robocop with `--argumentfile / -A` option, e.g.
   ```robocop -A robocop.cfg```. You can mix arguments from a file with ones provided in run command.
 
   Example argument file:
+
   ```commandline
   --exclude *doc*
   --exclude 0510
@@ -178,7 +180,7 @@ FAQ <a name="faq"></a>
 
   ---
 
-  ### `.robocop` file
+  **`.robocop` file**
 
   It is a default file that is loaded only when no command line options are provided for Robocop.
   When running plain `robocop` command, it looks for `.robocop` file from place where it was run
@@ -186,7 +188,7 @@ FAQ <a name="faq"></a>
 
   ---
 
-  ### `pyproject.toml` file
+  **`pyproject.toml` file**
 
   If there is no `.robocop` file and `toml` module is installed,
   Robocop will try to load configuration from `pyproject.toml` file (if it exists).
@@ -194,6 +196,7 @@ FAQ <a name="faq"></a>
   and need to be placed under `[tool.robocop]` section.
 
   Example configuration file:
+
   ```commandline
   [tool.robocop]
   paths = [
@@ -233,24 +236,31 @@ FAQ <a name="faq"></a>
   - `<value>` is a desired value of the parameter
 
   For example:
+
   ```commandline
   --configure line-too-long:line_length:140
   ```
+
   is equivalent to
+
   ```commandline
   -c 0508:line_length:140
   ```
+
   ---
   Each rule's severity can also be overwritten. Possible values are
   `e/error`, `w/warning` or `i/info` and are case-insensitive. Example:
+
   ```commandline
   -c too-long-test-case:severity:e
   ```
+
   ---
   If there are special cases in your code that violate the rules,
-  you can also exclude them in the source code. 
+  you can also exclude them in the source code.
 
   Example:
+
   ```
   Keyword with lowercased name  # robocop: disable
   ```
@@ -276,7 +286,7 @@ FAQ <a name="faq"></a>
   You can also share your idea by
   [creating an issue](https://github.com/MarketSquare/robotframework-robocop/issues/new/choose).
 
-  More about external rules with code examples in 
+  More about external rules with code examples in
   [our documentation](https://robocop.readthedocs.io/en/stable/external_rules.html).
 </details>
 
@@ -296,6 +306,7 @@ FAQ <a name="faq"></a>
   Quality gates are the number specified for each severity (error, warning, info) that cannot be
   exceeded. Every violation of quality gates increases the return code by 1 up to maximum of 255.
   Default values for quality gates are:
+
   ```
   quality_gate = {
             'E': 0,
@@ -303,15 +314,18 @@ FAQ <a name="faq"></a>
             'I': -1
         }
   ```
+
   which shows the accepted number of issues by severity. In that case each error and warning
   increases the return code. Rules with INFO severity do not affect the return code.
 
   To configure quality gates, you simply use `-c / --configure` command line option
   with following pattern ```--configure return_status:quality_gates:<severity>=limit```.
   You can change all limits at once. Example:
+
   ```commandline
   --configure return_status:quality_gates:E=0:W=100:I=-1
   ```
+
   which means that no errors are accepted, up to 100 warnings are tolerated and issues with
   INFO severity do not affect the return code.
 
@@ -321,6 +335,7 @@ FAQ <a name="faq"></a>
   <summary>What is the difference between Robocop and rflint?</summary>
 
   Robocop is better in every case because it:
+
   - has maaaaany rules that check the quality of your Robot Framework code
   - is integrated with popular IDE tools
   - is highly configurable

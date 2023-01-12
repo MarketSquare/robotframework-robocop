@@ -54,7 +54,7 @@ All matched rules will be disabled until ``enable`` command::
 
     # robocop: enable=rule1
 
-    or:
+or::
 
     # robocop: enable
 
@@ -63,7 +63,8 @@ Ignored blocks can partly overlap. Rule name and rule id can be used interchange
 It is possible to ignore whole file if you start file with ``# robocop: disable`` and won't provide
 ``# robocop: enable`` before end of file.
 
-Examples::
+..  code-block:: none
+    :caption: example.robot
 
     *** Test Cases ***
     Some Test  # robocop: disable=missing-doc-test-case

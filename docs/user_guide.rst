@@ -33,22 +33,31 @@ Loading configuration from file
 
     .. dropdown:: ``.robocop`` argument file
 
-        Argument file supports the same syntax as given from the CLI::
+        Argument file supports the same syntax as given from the CLI:
+
+        ..  code-block::
+            :caption: .robocop
 
             --include rulename
             # inline comment
             --reports all
 
-        You can load arguments for Robocop from file with ``--argumentfile / -A`` option and path to the argument file::
+        You can load arguments for Robocop from file with ``--argumentfile / -A`` option and path to the argument file:
+
+        ..  code-block::
+            :caption: .robocop
 
             robocop --argumentfile argument_file.txt
             robocop -A path/to/file.txt
 
     .. dropdown:: ``pyproject.toml`` configuration file
 
-        Robocop use [tool.robocop] section. Options have the same names as the CLI arguments.
+        Robocop uses ``[tool.robocop]`` section. Options have the same names as the CLI arguments.
 
-        Example pyproject.toml configuration file::
+        Example ``pyproject.toml`` configuration file:
+
+        ..  code-block::
+            :caption: pyproject.toml
 
             [tool.robocop]
             paths = [
@@ -78,12 +87,12 @@ Loading configuration from file
     Configuration files can contain both relative and absolute paths when configuring paths,
     external rules or log output path.
 
-    Hovewer extra care is needed when using relative paths because the configuration is automatically loaded.
+    However, extra care is needed when using relative paths because the configuration is automatically loaded.
 
-    Given following project structure:
+    Given the following project structure:
 
-    root/
-    ::
+    .. code-block:: none
+        :caption: root/
 
         nested/
         external.py
@@ -92,11 +101,13 @@ Loading configuration from file
 
     and following contents:
 
-    ``pyproject.toml``::
+    .. code-block:: none
+        :caption: pyproject.toml
 
         ext-rules = ["external.py"]
 
-    ``.robocop``::
+    .. code-block:: none
+        :caption: .robocop
 
         --ext-rules external.py
 
@@ -112,7 +123,9 @@ Loading configuration from file
 
 Listing available rules
 -----------------------
-To get list of available rules (with enabled/disabled status) use ``-l / --list`` option::
+To get list of available rules (with enabled/disabled status) use ``-l / --list`` option:
+
+..  code-block:: none
 
     robocop --list
     Rule - 0201 [W]: missing-doc-keyword: Missing documentation in '{{ name }}' keyword (enabled)
@@ -120,7 +133,9 @@ To get list of available rules (with enabled/disabled status) use ``-l / --list`
     Rule - 0203 [W]: missing-doc-suite: Missing documentation in suite (enabled)
     (...)
 
-If some of the rules are disabled from CLI it will be reflected in the output::
+If some of the rules are disabled from CLI it will be reflected in the output:
+
+..  code-block:: none
 
     robocop --exclude 02* --list
     Rule - 0201 [W]: missing-doc-keyword: Missing documentation in '{{ name }}' keyword (disabled)
@@ -129,7 +144,9 @@ If some of the rules are disabled from CLI it will be reflected in the output::
     Rule - 0301 [W]: not-allowed-char-in-name: Not allowed character '{{ character }}' found in {{ block_name }} name (enabled)
     (...)
 
-Rules list can be filtered out by glob pattern::
+Rules list can be filtered out by glob pattern:
+
+..  code-block:: none
 
     robocop --list tag*
     Rule - 0601 [W]: tag-with-space: Tag '{{ tag }}' should not contain spaces (enabled)
@@ -137,7 +154,9 @@ Rules list can be filtered out by glob pattern::
     Rule - 0603 [W]: tag-with-reserved-word: Tag '{{ tag }}' prefixed with reserved word `robot:` (enabled)
     Rule - 0606 [I]: tag-already-set-in-force-tags: Tag 'mytag' is already set by Force Tags in suite settings (enabled)
 
-Use ``-lc \ --list-configurables`` argument to list rules together with available configurable parameters. Optional pattern argument is also supported::
+Use ``-lc \ --list-configurables`` argument to list rules together with available configurable parameters. Optional pattern argument is also supported:
+
+..  code-block:: none
 
     robocop --list-configurables empty-lines-between-sections
     Rule - 1003 [W]: empty-lines-between-sections: Invalid number of empty lines between sections ({{ empty_lines }}/{{ allowed_empty_lines }}) (enabled)
@@ -178,7 +197,7 @@ You can generate reports after run. Available reports are described in :ref:`rep
 Return status
 -------------
 
-::
+..  code-block:: none
 
     Come quietly or there will be... trouble. - Robocop
 

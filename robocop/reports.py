@@ -148,7 +148,7 @@ class RulesBySeverityReport(Report):
 
     Example::
 
-        Found 15 issues: 11 WARNINGs, 4 ERRORs.
+        Found 15 issues: 4 ERRORs, 11 WARNINGs.
     """
 
     def __init__(self):
@@ -393,7 +393,7 @@ class SarifReport(Report):
     This report is not included in the default reports. The ``--reports all`` option will not enable this report.
     You can still enable it using report name directly: ``--reports sarif`` or ``reports all,sarif``.
 
-    All fields required by Github Code Scanning are supported. The output file will be generated
+    All fields required by GitHub Code Scanning are supported. The output file will be generated
     in the current working directory with the ``.sarif.json`` name.
 
     You can configure output directory and report filename::

@@ -11,11 +11,14 @@ If there is no direct support for the Robocop, you can raise an issue to add sup
 One of the important configurations for CI integration is 'return status'.
 See the `docs <https://robocop.readthedocs.io/en/stable/user_guide.html#return-status>`_.
 
-Github Code Scanning
+GitHub Code Scanning
 ----------------------
-You can integrate Robocop results with Github Code Scanning (`Github documentation <https://docs.github.com/en/code-security/code-scanning/automatically-scanning-your-code-for-vulnerabilities-and-errors/about-code-scanning>`_).
-It is possible to use SARIF (Static Analysis Results Interchange Format) output format. Example below shows Github Workflow that runs the Robocop
-with ``sarif`` report and uses produced file to upload results to Github Code Scanning::
+You can integrate Robocop results with GitHub Code Scanning (`GitHub documentation <https://docs.github.com/en/code-security/code-scanning/automatically-scanning-your-code-for-vulnerabilities-and-errors/about-code-scanning>`_).
+It is possible to use SARIF (Static Analysis Results Interchange Format) output format. Example below shows GitHub Workflow that runs the Robocop
+with ``sarif`` report and uses produced file to upload results to GitHub Code Scanning:
+
+..  code-block:: yaml
+    :caption: robocop.yml
 
     name: Run Robocop
 
@@ -46,7 +49,7 @@ with ``sarif`` report and uses produced file to upload results to Github Code Sc
               sarif_file: .sarif.json
               category: robocop
 
-The Robocop issues will be recorded in Github project:
+The Robocop issues will be recorded in GitHub project:
 
 .. image:: images/github_code_scanning1.png
   :alt: Code Scanning in PR
@@ -59,25 +62,26 @@ Issue details:
 
 You can configure Robocop using CLI or configuration file (:ref:`configuration file`).
 
-Gitlab pipeline
+GitLab pipeline
 ---------------
 
-There is some basic ``.gitlab-ci.yml`` file that triggers Robocop in `Gitlab CI/CD <https://docs.gitlab.com/ee/ci/quick_start/>`_:
+There is some basic ``.gitlab-ci.yml`` file that triggers Robocop in `GitLab CI/CD <https://docs.gitlab.com/ee/ci/quick_start/>`_:
 
-.. code:: yaml
+..  code-block:: yaml
+    :caption: .gitlab-ci.yml
 
     image: python:3
 
     robocop:
       before_script:
-      - pip install -U robotframework-robocop
+        - pip install -U robotframework-robocop
       script:
-      - robocop
+        - robocop
 
 Jenkins
 ----------
 There is no direct support for Robocop in Jenkins. But it is possible to use existing plugins for tools like
-pylint with Robocop output.
+``pylint`` with Robocop output.
 You can start from generating Robocop output in the file (using ``-o / --output`` option). This file can be
 processed by `Warnings Next Generation plugin <https://plugins.jenkins.io/warnings-ng/>`_ to integrate Robocop
 results in your pipeline. More details can be found `here <https://github.com/jenkinsci/warnings-ng-plugin/blob/master/doc/Documentation.md#creating-support-for-a-custom-tool>`_.

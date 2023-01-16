@@ -36,19 +36,19 @@ rules = {
         msg="{{ error_msg }}",
         severity=RuleSeverity.WARNING,
         docs="""
-        To improve readability use ``[Return]`` setting at the end of the keyword. If you want to return immediately 
-        from the keyword use ``RETURN`` statement instead. ``[Return]`` does not return from the keyword but only 
+        To improve readability use ``[Return]`` setting at the end of the keyword. If you want to return immediately
+        from the keyword use ``RETURN`` statement instead. ``[Return]`` does not return from the keyword but only
         sets the values that will be returned at the end of the keyword.
-        
+
         Bad::
-        
+
             Keyword
                 Step
                 [Return]    ${variable}
                 ${variable}    Other Step
-        
+
         Good::
-        
+
             Keyword
                 Step
                 ${variable}    Other Step
@@ -62,7 +62,7 @@ rules = {
         msg="[Return] is empty",
         severity=RuleSeverity.WARNING,
         docs="""
-        ``[Return]`` statement is used to define variables returned from keyword. If you don't return anything from 
+        ``[Return]`` statement is used to define variables returned from keyword. If you don't return anything from
         keyword,  don't use ``[Return]``.
         """,
     ),
@@ -74,7 +74,7 @@ rules = {
         version="<4.0",
         docs="""
         Older versions of Robot Framework did not support nested for loops::
-        
+
             FOR    ${var}    IN RANGE    10
                 FOR   ${other_var}   IN    a  b
                     # Nesting supported from Robot Framework 4.0+
@@ -108,27 +108,27 @@ rules = {
         "but got '{{ actual_sign }}' instead",
         severity=RuleSeverity.WARNING,
         docs="""
-        Use only one type of assignment sign in a file. 
-        
+        Use only one type of assignment sign in a file.
+
         Example of rule violation::
-        
+
             *** Keywords ***
             Keyword
                 ${var} =  Other Keyword
                 No Operation
-            
+
             Keyword 2
                 No Operation
-                ${var}  ${var2}  Some Keyword  # this assignment doesn't use equal sign while the previous one uses ` =`
-        
-        By default Robocop looks for most popular assignment sign in the file. It is possible to define expected 
+                ${var}  ${var2}  Some Keyword  # this assignment doesn't use equal sign while the previous one uses ' ='
+
+        By default Robocop looks for most popular assignment sign in the file. It is possible to define expected
         assignment sign by running::
-        
+
             robocop --configure inconsistent-assignment:assignment_sign_type:equal_sign
-        
-        You can choose between following signs: 'autodetect' (default), 'none' (''), 'equal_sign' ('=') or 
+
+        You can choose between following signs: 'autodetect' (default), 'none' (''), 'equal_sign' ('=') or
         space_and_equal_sign (' =').
-    
+
         """,
     ),
     "0910": Rule(
@@ -146,25 +146,25 @@ rules = {
         "but got '{{ actual_sign }}' instead",
         severity=RuleSeverity.WARNING,
         docs="""
-        Use one type of assignment sign in Variables section. 
-        
+        Use one type of assignment sign in Variables section.
+
         Example of rule violation::
-        
+
             *** Variables ***
             ${var} =    1
             ${var2}=    2
             ${var3} =   3
             ${var4}     a
             ${var5}     b
-        
-        By default Robocop looks for most popular assignment sign in the file. It is possible to define expected 
+
+        By default Robocop looks for most popular assignment sign in the file. It is possible to define expected
         assignment sign by running::
-        
+
             robocop --configure inconsistent-assignment-in-variables:assignment_sign_type:equal_sign
-        
-        You can choose between following signs: 'autodetect' (default), 'none' (''), 'equal_sign' ('=') or 
+
+        You can choose between following signs: 'autodetect' (default), 'none' (''), 'equal_sign' ('=') or
         space_and_equal_sign (' =').
-        
+
         """,
     ),
     "0911": Rule(
@@ -174,7 +174,7 @@ rules = {
         severity=RuleSeverity.WARNING,
         docs="""
         Example of rule violation::
-        
+
             *** Settings ***
             Library    Collections
             Library    CustomLibrary
@@ -189,7 +189,7 @@ rules = {
         severity=RuleSeverity.INFO,
         docs="""
         Example of rule violation::
-        
+
             *** Variables ***
             ${VAR_NO_VALUE}                   # missing value
             ${VAR_WITH_EMPTY}       ${EMPTY}
@@ -217,9 +217,9 @@ rules = {
         version=">=4.0",
         docs="""
         IF statement follows another IF with identical conditions. It can be possibly merged into one.
-        
+
         Example of rule violation::
-        
+
             IF  ${var} == 4
                 Keyword
             END
@@ -227,11 +227,11 @@ rules = {
             IF  ${var}  == 4
                 Keyword 2
             END
-        
-        IF statement is considered identical only if all branches have identical conditions. 
-        
+
+        IF statement is considered identical only if all branches have identical conditions.
+
         Similar but not identical IF::
-        
+
             IF  ${variable}
                 Keyword
             ELSE
@@ -254,10 +254,10 @@ rules = {
             - ``Exit For Loop``,
             - ``Exit For Loop If``,
             - ``Continue For Loop``,
-            - ``Continue For Loop If ``
+            - ``Continue For Loop If``
             - ``CONTINUE``,
             - ``BREAK``
-        
+
         """,
     ),
     "0916": Rule(
@@ -275,15 +275,15 @@ rules = {
         version=">=5.0",
         docs="""
         Short and simple IFs can be replaced with inline IF.
-        
+
         Following IF::
-        
+
             IF    $condition
                 BREAK
             END
-        
+
         can be replaced with::
-        
+
             IF    $condition    BREAK
 
         """,

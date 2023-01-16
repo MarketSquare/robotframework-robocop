@@ -1,6 +1,6 @@
 .. _rule severity thresholds:
 
-Rule Severity Thresholds
+Rule severity thresholds
 ===========================
 Selected rules can be configured to have different severity depending on the parameter value.
 
@@ -14,9 +14,9 @@ We can use ``severity_threshold`` for this purpose.
 
 It supports all default severity values:
 
-  - error, e
-  - warning, w
-  - info, i
+- error, e
+- warning, w
+- info, i
 
 The issue needs to be raised in order for severity thresholds to be evaluated. That's why the parameter value needs to
 be configured to raise an issue for at least one of our threshold ranges. In our example, we want to issue a warning
@@ -26,7 +26,7 @@ Following rules support ``severity_threshold``:
 {% for checker_group in checker_groups %}
 {% for rule_doc in checker_group[1] %}
 {%- if rule_doc.severity_threshold is not none %}
-  - :ref:`{{ rule_doc.name }}`
+- :ref:`{{ rule_doc.name }}`
 {% endif %}
 {% endfor %}
 {% endfor %}

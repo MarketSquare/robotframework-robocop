@@ -1,3 +1,5 @@
+:orphan:
+
 Robocop 2.6.0
 ================
 This release focuses on better support for Robot Framework 6.0 and improvements to our documentation and spacing rules.

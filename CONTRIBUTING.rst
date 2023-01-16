@@ -147,7 +147,7 @@ Robocop's main features are explained in the `README
 <https://github.com/MarketSquare/robotframework-robocop/blob/master/README.md>`_.
 The whole documentation is available `here <https://robocop.readthedocs.io/>`_.
 
-Pre commit checks
+Pre-commit checks
 ~~~~~~~~~~~~~~~~~~~~
 Every change is required to pass pre-commit checks. To install pre-commit tool run::
 

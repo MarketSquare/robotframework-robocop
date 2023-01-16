@@ -391,7 +391,7 @@ class SarifReport(Report):
     Report that generates SARIF output file.
 
     This report is not included in the default reports. The ``--reports all`` option will not enable this report.
-    You can still enable it using report name directly: ``--reports sarif`` or ``reports all,sarif``.
+    You can still enable it using report name directly: ``--reports sarif`` or ``--reports all,sarif``.
 
     All fields required by GitHub Code Scanning are supported. The output file will be generated
     in the current working directory with the ``.sarif.json`` name.
@@ -501,4 +501,4 @@ class SarifReport(Report):
         with open(output_path, "w") as fp:
             json_string = json.dumps(report, indent=4)
             fp.write(json_string)
-        return f"Generated sarif report in {output_path}"
+        return f"Generated SARIF report in {output_path}"

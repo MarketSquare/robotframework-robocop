@@ -31,7 +31,7 @@ Robocop would read both default configuration file and configuration file from `
 default configuration file only if ``-A / --argumentfile`` options are not used.
 
 Language header support (#696)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+--------------------------------
 
 Robot Framework 6.0 allows to set source language using language headers at the beginning of the file::
 
@@ -41,5 +41,15 @@ Robot Framework 6.0 allows to set source language using language headers at the 
 
 Following changes focus on improving support for the language header.
 
-- ``ignored-data`` rule now properly ignores language header if it's in the file's first line
+Also, ``ignored-data`` rule now properly ignores language header if it's in the first line of the file.
 
+Precommit configuration file
+-----------------------------
+Starting from this release it is possible to use Robocop in precommit using Robocop version instead of the repository url::
+
+    repos:
+    - repo: https://github.com/MarketSquare/robotframework-robocop
+    rev: 2.7.0
+    hooks:
+        - id: robocop
+        name: robocop

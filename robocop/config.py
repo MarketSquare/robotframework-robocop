@@ -12,9 +12,9 @@ from robot.utils import FileReader
 
 from robocop.exceptions import (
     ArgumentFileNotFoundError,
+    CircularArgumentFileError,
     ConfigGeneralError,
     InvalidArgumentError,
-    NestedArgumentFileError,
 )
 from robocop.files import DEFAULT_EXCLUDES, find_file_in_project_root, find_project_root
 from robocop.rules import RuleSeverity
@@ -80,6 +80,90 @@ def validate_regex(pattern: str) -> Pattern:
         return re.compile(pattern) if pattern is not None else None
     except re.error:
         raise ConfigGeneralError(f"Provided regex pattern {pattern} failed to be compiled")
+
+
+def resolve_relative_path(orig_path, config_dir: Path, ensure_exists: bool):
+    path = Path(orig_path)
+    if path.is_absolute():
+        return orig_path
+    resolved_path = config_dir / path
+    if not ensure_exists or resolved_path.exists():
+        return str(resolved_path)
+    return orig_path
+
+
+class ArgumentFileParser:
+    ARGUMENT_FILE_OPTIONS = {"-A", "--argumentfile"}
+    RESOLVE_PATHS_OPTIONS = {"-o", "--output", "-rules", "--ext-rules"}
+    ENSURE_EXIST_PATHS_OPTIONS = {"-rules", "--ext-rules"}
+
+    def __init__(self):
+        self.loaded_argument_files = set()
+        self.config_from = ""
+
+    def expand_argument_files(self, args, config_dir=None):
+        """
+        Find argument files in the argument list and expand argument list with their content.
+        """
+        if not any(arg in self.ARGUMENT_FILE_OPTIONS for arg in args):
+            return list(args)
+        parsed_args = []
+        while args:
+            arg = args.pop(0)
+            if arg not in self.ARGUMENT_FILE_OPTIONS:
+                parsed_args.append(arg)
+                continue
+            if not args:  # argumentfile option declared but filename was not provided
+                raise ArgumentFileNotFoundError("") from None
+            argfile = args.pop(0)
+            argfile_path = Path(argfile)
+            if argfile_path.is_file():
+                loaded_config_dir = argfile_path.parent
+            else:
+                loaded_config_dir = None
+            file_args = self.load_argument_file(argfile, config_dir)
+            file_args = self.resolve_arguments_paths(file_args, config_dir)
+            parsed_args += self.expand_argument_files(file_args, loaded_config_dir)
+        return parsed_args
+
+    def resolve_arguments_paths(self, args, root_dir):
+        if root_dir is None:
+            return args
+        prev_option_like = False
+        prev_arg = "option"
+        resolved = []
+        for arg in args:
+            if (prev_option_like and prev_arg in self.RESOLVE_PATHS_OPTIONS) or prev_option_like:
+                ensure_exists = prev_arg in self.ENSURE_EXIST_PATHS_OPTIONS
+                # TODO: If the --rules is provided as comma separated list, it will not resolve paths
+                arg = resolve_relative_path(arg, root_dir, ensure_exists)
+            resolved.append(arg)
+            prev_option_like = arg.startswith("-")
+            prev_arg = arg
+        return resolved
+
+    def load_argument_file(self, argfile, config_dir):
+        if config_dir is not None:
+            argfile = resolve_relative_path(argfile, config_dir, True)
+        if argfile in self.loaded_argument_files:
+            raise CircularArgumentFileError(argfile) from None
+        else:
+            self.loaded_argument_files.add(argfile)
+        try:
+            with FileReader(argfile) as arg_f:
+                args = []
+                for line in arg_f.readlines():
+                    if line.strip().startswith("#"):
+                        continue
+                    for arg in line.split(" ", 1):
+                        arg = arg.strip()
+                        if arg:
+                            args.append(arg)
+                if args and not self.config_from:
+                    self.config_from = argfile
+                return args
+        except FileNotFoundError:
+            raise ArgumentFileNotFoundError(argfile) from None
 
 
 class Config:
@@ -342,7 +426,6 @@ class Config:
 
     def print_config_source(self):
         # We can only print after reading all configs, since self.verbose is unknown before we read it from config
-        # TODO self.config_from can be multiple configs (if it's from argumentfile)
         if not self.verbose:
             return
         if self.config_from:
@@ -359,7 +442,9 @@ class Config:
         robocop_path = find_file_in_project_root(".robocop", self.root)
         if not robocop_path.is_file():
             return False
-        args = self.load_argument_file(robocop_path)
+        argument_files_parser = ArgumentFileParser()
+        args = argument_files_parser.load_argument_file(robocop_path, robocop_path.parent)
+        self.config_from = argument_files_parser.config_from
         self.parse_args(args)
         return True
 
@@ -385,42 +470,11 @@ class Config:
                 self.__dict__[key] = value
 
     def parse_args(self, args):
-        args = self.preparse(args)
+        argument_files_parser = ArgumentFileParser()
+        args = argument_files_parser.expand_argument_files(args)
+        if argument_files_parser.config_from:
+            self.config_from = argument_files_parser.config_from
         self.parse_args_to_config(args)
-
-    def preparse(self, args):
-        parsed_args = []
-        args = (arg for arg in args)
-        for arg in args:
-            if arg in ("-A", "--argumentfile"):
-                try:
-                    argfile = next(args)
-                except StopIteration:
-                    raise ArgumentFileNotFoundError("") from None
-                parsed_args += self.load_argument_file(argfile)
-            else:
-                parsed_args.append(arg)
-        return parsed_args
-
-    def load_argument_file(self, argfile):
-        try:
-            with FileReader(argfile) as arg_f:
-                args = []
-                for line in arg_f.readlines():
-                    if line.strip().startswith("#"):
-                        continue
-                    for arg in line.split(" ", 1):
-                        arg = arg.strip()
-                        if not arg:
-                            continue
-                        args.append(arg)
-                if "-A" in args or "--argumentfile" in args:
-                    raise NestedArgumentFileError(argfile)
-                if args:
-                    self.config_from = argfile
-                return args
-        except FileNotFoundError:
-            raise ArgumentFileNotFoundError(argfile) from None
 
     @staticmethod
     def replace_in_set(container: Set, old_key: str, new_key: str):
@@ -491,15 +545,6 @@ class Config:
                 rule_name = rule_name.replace(char, "")
         return rule_name
 
-    def resolve_relative(self, orig_path, config_dir: Path, ensure_exists: bool):
-        path = Path(orig_path)
-        if path.is_absolute():
-            return orig_path
-        resolved_path = config_dir / path
-        if not ensure_exists or resolved_path.exists():
-            return str(resolved_path)
-        return orig_path
-
     def parse_toml_to_config(self, toml_data: Dict, config_dir: Path):
         if not toml_data:
             return False
@@ -512,9 +557,9 @@ class Config:
             if key in resolve_relative:
                 if isinstance(value, list):
                     for index, val in enumerate(value):
-                        value[index] = self.resolve_relative(val, config_dir, ensure_exists=key == "ext_rules")
+                        value[index] = resolve_relative_path(val, config_dir, ensure_exists=key == "ext_rules")
                 else:
-                    value = self.resolve_relative(value, config_dir, ensure_exists=key == "ext_rules")
+                    value = resolve_relative_path(value, config_dir, ensure_exists=key == "ext_rules")
             if key in assign_type:
                 self.__dict__[key] = value
             elif key in set_type:

@@ -27,9 +27,9 @@ class ArgumentFileNotFoundError(RobocopFatalError):
         super().__init__(msg)
 
 
-class NestedArgumentFileError(RobocopFatalError):
+class CircularArgumentFileError(RobocopFatalError):
     def __init__(self, source):
-        msg = f'Nested argument file in "{source}"'
+        msg = f'Circular argument file import in "{source}"'
         super().__init__(msg)
 
 

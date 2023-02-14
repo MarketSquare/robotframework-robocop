@@ -82,44 +82,6 @@ Loading configuration from file
             ]
             no_recursive = true
 
-.. dropdown:: Relative paths in the configuration
-
-    Configuration files can contain both relative and absolute paths when configuring paths,
-    external rules or log output path.
-
-    However, extra care is needed when using relative paths because the configuration is automatically loaded.
-
-    Given the following project structure:
-
-    .. code-block:: none
-        :caption: root/
-
-        nested/
-        external.py
-        pyproject.toml
-        .robocop
-
-    and following contents:
-
-    .. code-block:: none
-        :caption: pyproject.toml
-
-        ext-rules = ["external.py"]
-
-    .. code-block:: none
-        :caption: .robocop
-
-        --ext-rules external.py
-
-    If run Robocop from ``/nested`` directory, Robocop will automatically find and load configuration file from the parent directory.
-    If your configuration file contains relative paths, the resolved paths will be different depending on the configuration type:
-
-    - ``pyproject.toml`` will resolve path using configuration file as root. External rules path will point to ``root/external.py``
-    - ``.robocop`` will resolve path using working directory of Robocop. External rules path will point to ``root/nested/external.py``
-
-    This may cause issues in the execution - you can solve it by either using absolute paths or
-    using ``pyproject.toml`` file instead of ``.robocop``.
-
 
 Listing available rules
 -----------------------

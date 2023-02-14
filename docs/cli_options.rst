@@ -50,9 +50,13 @@ and you will be shown with the following output:
                             -c line-too-long:line_length:150
                             --configure 0101:severity:E
       -l [PATTERN], --list [PATTERN]
-                            List all available rules. You can use optional PATTERN argument.
+                            List all available rules. You can use optional PATTERN argument to match rule names
+                            (for example --list *doc*).
+                            PATTERN can be also ENABLED/DISABLED keyword to list only enabled/disabled rules.
       -lc [PATTERN], --list-configurables [PATTERN]
-                            List all available rules with configurable parameters. You can use optional PATTERN argument.
+                            List all available rules with configurable parameters.
+                            You can use optional PATTERN argument to match rule names (for example --list *doc*).
+                            PATTERN can be also ENABLED/DISABLED keyword to list only enabled/disabled rules.
       -lr, --list-reports   List all available reports.
       -o PATH, --output PATH
                             Path to output file.

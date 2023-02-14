@@ -310,7 +310,9 @@ class Config:
             const="",
             default=self.list,
             metavar="PATTERN",
-            help="List all available rules. You can use optional PATTERN argument.",
+            help="List all available rules. You can use optional PATTERN argument to match rule names "
+            "(for example --list *doc*). "
+            "PATTERN can be also ENABLED/DISABLED keyword to list only enabled/disabled rules.",
         )
         optional.add_argument(
             "-lc",
@@ -320,7 +322,9 @@ class Config:
             const="",
             default=self.list_configurables,
             metavar="PATTERN",
-            help="List all available rules with configurable parameters. You can use optional PATTERN argument.",
+            help="List all available rules with configurable parameters. You can use optional PATTERN argument "
+            "to match rule names (for example --list *doc*). "
+            "PATTERN can be also ENABLED/DISABLED keyword to list only enabled/disabled rules.",
         )
         optional.add_argument(
             "-lr",

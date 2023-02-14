@@ -33,6 +33,25 @@ It means that argument file can have paths relative to the argument file locatio
     --output robocop_output.txt # it will now refer to config/robocop_output.txt
     --ext-rules robocop/rules.py # it will now refer to config/robocop/rules.py
 
+List only enabled or disabled rules #764
+------------------------------------------
+
+Robocop can list all rules with ``--list`` option (or ``--list-configurables`` to only list rules that can be
+configured). Our every growing list of rules made the output of this command hard to read. That's why it is now
+possible to filter rules with ``ENABLED`` or ``DISABLED`` special patterns::
+
+    robocop --list ENABLED
+    robocop -i *doc* -i line-too-long --list ENABLED
+    robocop --exclude empty-lines-between-test-cases --list DISABLED
+    robocop --list-configurables ENABLED
+
+The new feature still coexist with existing feature that allows to filter list output using pattern::
+
+    robocop --list *line*
+
+However ``ENABLED``/``DISABLED`` patterns are more useful when you want to list only the rules that are enabled using
+your configuration.
+
 Bugs
 -----
 

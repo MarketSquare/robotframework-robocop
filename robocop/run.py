@@ -177,7 +177,12 @@ class Robocop:
                 "\n    E / error\n    W / warning\n    I / info\n"
             )
         pattern = self.config.list if self.config.list else self.config.list_configurables
-        rule_by_id = {rule.rule_id: rule for rule in self.rules.values() if rule.matches_pattern(pattern)}
+        if pattern in ("ENABLED", "DISABLED"):
+            rule_by_id = {
+                rule.rule_id: rule for rule in self.rules.values() if pattern.lower() in rule.get_enabled_status_desc()
+            }
+        else:
+            rule_by_id = {rule.rule_id: rule for rule in self.rules.values() if rule.matches_pattern(pattern)}
         rule_by_id = sorted(rule_by_id.values(), key=lambda x: x.rule_id)
         severity_counter = Counter({"E": 0, "W": 0, "I": 0})
         for rule in rule_by_id:

@@ -397,7 +397,7 @@ class ParsingErrorChecker(VisitorChecker):
             self.report(
                 "setting-not-supported",
                 setting_name=setting_error,
-                test_or_keyword="Test Case",
+                test_or_keyword="Test Case",  # TODO: Recognize if it is inside Task
                 allowed_settings=", ".join(self.test_case_settings),
                 node=node,
             )

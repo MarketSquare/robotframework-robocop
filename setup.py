@@ -55,7 +55,7 @@ setup(
         "jinja2>=3.0,<4.0",
         "robotframework>=3.2.2",
         "packaging>=21,<23",
-        "pathspec>=0.9,<0.10",
+        "pathspec>=0.9,<0.12",
         "tomli==1.2.3; python_version < '3.7.0'",
         "tomli>=2.0.0; python_version >= '3.7.0'",
         "pytz>=2022.1",

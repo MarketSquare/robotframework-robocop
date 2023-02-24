@@ -146,7 +146,7 @@ rules = {
         "Allowed are: {{ allowed_settings }}",
         severity=RuleSeverity.ERROR,
         docs="""
-        Following settings are supported in Test Case::
+        Following settings are supported in Test Case or Task::
         
             [Documentation]	 Used for specifying a test case documentation.
             [Tags]	         Used for tagging test cases.
@@ -310,6 +310,8 @@ class ParsingErrorChecker(VisitorChecker):
             return
         if "Invalid argument syntax" in error:
             self.handle_invalid_syntax(node, error)
+        elif "is not allowed with" in error:
+            self.handle_not_allowed_setting(node, error)
         elif "Non-existing setting" in error:
             self.handle_invalid_setting(node, error)
         elif "Invalid variable name" in error:
@@ -353,6 +355,34 @@ class ParsingErrorChecker(VisitorChecker):
                 self.report("invalid-argument", error_msg=error[:-1], node=arg, col=col, end_col=end_col)
                 return
         self.report("parsing-error", error_msg=error, node=node)
+
+    def handle_not_allowed_setting(self, node, error):
+        """
+        Since Robot Framework 6 settings that are not allowed in Test/Keyword are reported with separate error
+        message rather than with 'Non-existing setting'.
+        """
+        setting_error = re.search("Setting '(.*)' is not allowed", error)
+        if not setting_error:
+            return
+        setting_error = setting_error.group(1)
+        if not setting_error:
+            return
+        if setting_error in self.keyword_only_settings:
+            self.report(
+                "setting-not-supported",
+                setting_name=setting_error,
+                test_or_keyword="Test Case",  # TODO: Recognize if it is inside Task
+                allowed_settings=", ".join(self.test_case_settings),
+                node=node,
+            )
+        elif setting_error in self.test_case_only_settings:
+            self.report(
+                "setting-not-supported",
+                setting_name=setting_error,
+                test_or_keyword="Keyword",
+                allowed_settings=", ".join(self.keyword_settings),
+                node=node,
+            )
 
     def handle_invalid_setting(self, node, error):
         setting_error = re.search("Non-existing setting '(.*)'.", error)

@@ -1,0 +1,20 @@
+:orphan:
+
+Robocop 2.8.0
+================
+
+You can install the latest available version by running::
+
+    pip install --upgrade robotframework-robocop
+
+or to install exactly this version::
+
+    pip install robotframework-robocop==2.8.0
+
+Bugs
+-----
+
+Robot Framework 6.0 introduces some minor changes that affected our rules:
+
+- not supported settings uses different error message in Robot Framework now. That's why ``setting-not-supported``
+  failed to catch those errors and they were reported as ``parsing-error`` instead

@@ -18,3 +18,5 @@ Robot Framework 6.0 introduces some minor changes that affected our rules:
 
 - not supported settings uses different error message in Robot Framework now. That's why ``setting-not-supported``
   failed to catch those errors and they were reported as ``parsing-error`` instead
+- Task header now uses distinct token type internally. This causes Robocop to not recognize ``both-tests-and-tasks``
+  issues

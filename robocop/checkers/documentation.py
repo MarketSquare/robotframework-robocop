@@ -68,10 +68,10 @@ rules = {
     "0204": Rule(
         rule_id="0204",
         name="missing-doc-resource-file",
-        msg="Missing documentation in Resource file",
+        msg="Missing documentation in resource file",
         severity=RuleSeverity.WARNING,
         docs="""
-        You can add documentation to Resource file using following syntax::
+        You can add documentation to resource file using following syntax::
 
             *** Settings ***
             Documentation    Resource file documentation

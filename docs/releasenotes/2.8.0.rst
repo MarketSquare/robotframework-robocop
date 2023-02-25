@@ -13,7 +13,7 @@ or to install exactly this version::
 
 
 Nested argument files (#770)
----------------------------
+-----------------------------
 
 Nesting argument files was not allowed before. Now it is possible to import other argument file in the argument file::
 

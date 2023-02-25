@@ -50,6 +50,21 @@ Loading configuration from file
             robocop --argumentfile argument_file.txt
             robocop -A path/to/file.txt
 
+        Argument file can contain path to another argument file. Argument file directory will be used to resolve
+        relative paths. For example if you're executing::
+
+            > robocop -A config/robocop_options.txt
+
+        And ``config/robocop_options.txt`` contains following configuration:
+
+        ..  code-block::
+            :caption: config/robocop_options.txt
+
+            --argumentfile base.txt
+            --exclude section-out-of-order
+
+        ``base.txt`` path will be resolved as ``config/base.txt``.
+
     .. dropdown:: ``pyproject.toml`` configuration file
 
         Robocop uses ``[tool.robocop]`` section. Options have the same names as the CLI arguments.

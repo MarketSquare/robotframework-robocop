@@ -7,11 +7,11 @@ from pathlib import Path
 from typing import List, Optional
 
 import pytest
-from packaging.specifiers import Specifier
 
 from robocop import Robocop
 from robocop.config import Config
 from robocop.utils.misc import ROBOT_VERSION
+from robocop.utils.version_matching import VersionSpecifier
 
 
 @contextlib.contextmanager
@@ -147,4 +147,4 @@ class RuleAcceptance:
     def enabled_in_version(target_version):
         if target_version is None:
             return True
-        return ROBOT_VERSION in Specifier(target_version)
+        return ROBOT_VERSION in VersionSpecifier(target_version)

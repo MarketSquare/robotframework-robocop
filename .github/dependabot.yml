@@ -1,6 +1,6 @@
 version: 2
 updates:
   - package-ecosystem: pip
-    directory: "/tests/packages/rf-stable5"
+    directory: "/tests/packages/rf-stable6"
     schedule:
       interval: daily

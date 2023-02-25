@@ -16,6 +16,7 @@ Programming Language :: Python :: 3.7
 Programming Language :: Python :: 3.8
 Programming Language :: Python :: 3.9
 Programming Language :: Python :: 3.10
+Programming Language :: Python :: 3.11
 Framework :: Robot Framework
 Framework :: Robot Framework :: Tool
 Topic :: Software Development :: Testing
@@ -53,8 +54,8 @@ setup(
     install_requires=[
         "jinja2>=3.0,<4.0",
         "robotframework>=3.2.2",
-        "packaging>=21,<22",
-        "pathspec>=0.9,<0.10",
+        "packaging>=21,<23",
+        "pathspec>=0.9,<0.12",
         "tomli==1.2.3; python_version < '3.7.0'",
         "tomli>=2.0.0; python_version >= '3.7.0'",
         "pytz>=2022.1",

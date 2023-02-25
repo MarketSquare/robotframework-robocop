@@ -420,7 +420,8 @@ class SectionHeadersChecker(VisitorChecker):
         section_name = node.type
         if section_name not in self.param("section-out-of-order", "sections_order"):
             return
-        if section_name == Token.TESTCASE_HEADER:
+        if section_name in (Token.TESTCASE_HEADER, "TASK HEADER"):
+            # a bit awkward implementation because before RF 6.0 task header used TESTCASE_HEADER type
             if "task" in node.name.lower():
                 section_name = "TASK HEADER"
                 if Token.TESTCASE_HEADER in self.sections_by_existence:

@@ -163,7 +163,7 @@ class TestListingRules:
             "Rule - 0204 [I]: another-message: Message with meaning 4 (disabled)\n",
             "Altogether 1 rule with following severity:\n"
             "    0 error rules,\n"
-            "    2 warning rule,\n"
+            "    2 warning rules,\n"
             "    0 info rules.\n\n"
             "Visit https://robocop.readthedocs.io/en/stable/rules.html page for detailed documentation.\n",
         )

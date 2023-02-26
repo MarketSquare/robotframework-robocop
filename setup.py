@@ -67,6 +67,7 @@ setup(
             "coverage",
             "pytest",
             "pyyaml",
+            "pytest-benchmark",
         ],
         "doc": [
             "furo",

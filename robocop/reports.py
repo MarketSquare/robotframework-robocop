@@ -21,14 +21,13 @@ import inspect
 import json
 import sys
 from collections import OrderedDict, defaultdict
-from datetime import datetime
+from datetime import datetime, timezone
 from operator import itemgetter
 from pathlib import Path
 from timeit import default_timer as timer
 from warnings import warn
 
 import pytz
-from dateutil import tz
 
 import robocop.exceptions
 from robocop.rules import Message
@@ -374,8 +373,11 @@ class TimestampReport(Report):
 
     def _get_timestamp(self) -> str:
         try:
-            timezone = tz.tzlocal() if self.timezone == "local" else pytz.timezone(self.timezone)
-            return datetime.now(timezone).strftime(self.format)
+            if self.timezone == "local":
+                timezone_code = datetime.now(timezone.utc).astimezone().tzinfo
+            else:
+                timezone_code = pytz.timezone(self.timezone)
+            return datetime.now(timezone_code).strftime(self.format)
         except pytz.exceptions.UnknownTimeZoneError as err:
             raise robocop.exceptions.ConfigGeneralError(
                 f"Provided timezone '{self.timezone}' for report '{getattr(self, 'name')}' is not valid. "

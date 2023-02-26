@@ -38,7 +38,7 @@ most linters.
 
 It is possible to disable rule for particular line or lines::
 
-    Some Keyword  # robocop: disable:rule1,rule2
+    Some Keyword  # robocop: disable=rule1,rule2
 
 In this example no message will be printed for this line for rules named ``rule1``, ``rule2``.
 

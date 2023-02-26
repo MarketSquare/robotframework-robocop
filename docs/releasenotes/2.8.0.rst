@@ -11,6 +11,28 @@ or to install exactly this version::
 
     pip install robotframework-robocop==2.8.0
 
+
+Nested argument files (#770)
+-----------------------------
+
+Nesting argument files was not allowed before. Now it is possible to import other argument file in the argument file::
+
+    --include some-rule
+    --argumentfile base_argument_file.txt
+
+Relative paths in the argument files (#693)
+-----------------------------------------------
+
+Argument files now support relative paths. The support was added for the ``pyproject.toml`` files before but it was
+missing from the argument files.
+
+It means that argument file can have paths relative to the argument file location::
+
+    content of config/argumentfile.txt:
+
+    --output robocop_output.txt # it will now refer to config/robocop_output.txt
+    --ext-rules robocop/rules.py # it will now refer to config/robocop/rules.py
+
 Bugs
 -----
 

@@ -14,7 +14,7 @@ from robocop.exceptions import (
     ConfigGeneralError,
     FileError,
     InvalidArgumentError,
-    NestedArgumentFileError,
+    CircularArgumentFileError,
 )
 from robocop.rules import RuleSeverity
 from robocop.run import Robocop
@@ -178,12 +178,12 @@ class TestE2E:
             config.parse_args(["--argumentfile"])
         assert 'Argument file "" does not exist' in str(err)
 
-    def test_use_nested_argument_file(self, test_data_dir):
+    def test_use_circular_argument_file(self, test_data_dir):
         config = Config()
         nested_args_path = str(test_data_dir / "argument_file" / "args_nested.txt")
-        with pytest.raises(NestedArgumentFileError) as err:
+        with pytest.raises(CircularArgumentFileError) as err:
             config.parse_args(["-A", nested_args_path, str(test_data_dir)])
-        assert "Nested argument file in " in str(err)
+        assert "Circular argument file import in " in str(err)
 
     @pytest.mark.parametrize("threshold", ["i", "I", "e", "error", "W", "WARNING"])
     def test_set_rule_threshold(self, threshold, robocop_instance, test_data_dir):

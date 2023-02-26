@@ -61,3 +61,8 @@ Robot Framework 6.0 introduces some minor changes that affected our rules:
   failed to catch those errors and they were reported as ``parsing-error`` instead
 - Task header now uses distinct token type internally. This causes Robocop to not recognize ``both-tests-and-tasks``
   issues
+
+Rules
+-----
+
+New W0204 `missing-doc-resource-file` rule that checks if documentation is missing in a resource file. (#776)

@@ -232,3 +232,15 @@ class TestDefaultConfig:
                 config = Config(from_cli=True)
             assert str(config.config_from) == str(other_config)
             assert config.include == {"0810"}
+
+
+def test_nested_argument_files(path_to_test_data):
+    """
+    Load other argument files inside argument file.
+    """
+    argument_file = path_to_test_data / "argument_file" / "dev.txt"
+    with working_directory(path_to_test_data), patch.object(
+        sys, "argv", ["robocop", "--argumentfile", str(argument_file)]
+    ):
+        config = Config(from_cli=True)
+        assert config.ext_rules == {"rflinter.robocop.spacing", "rflinter.robocop.naming"}

@@ -159,13 +159,13 @@ class TestListingRules:
             robocop_pre_load.list_checkers()
         out, _ = capsys.readouterr()
         assert (
-            out == "Rule - 0102 [E]: other-message: this is description (disabled)\n",
-            "Rule - 0204 [I]: another-message: Message with meaning 4 (disabled)\n",
-            "Altogether 1 rule with following severity:\n"
-            "    0 error rules,\n"
-            "    2 warning rules,\n"
-            "    0 info rules.\n\n"
-            "Visit https://robocop.readthedocs.io/en/stable/rules.html page for detailed documentation.\n",
+            out == "Rule - 0102 [E]: other-message: this is description (disabled)\n"
+            "Rule - 0204 [I]: another-message: Message with meaning 4 (disabled)\n\n"
+            "Altogether 2 rules with following severity:\n"
+            "    1 error rule,\n"
+            "    0 warning rules,\n"
+            "    1 info rule.\n\n"
+            "Visit https://robocop.readthedocs.io/en/stable/rules.html page for detailed documentation.\n"
         )
 
     def test_list_reports(self, robocop_pre_load, msg_0101, capsys):

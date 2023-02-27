@@ -135,8 +135,8 @@ class ArgumentFileParser:
         for arg in args:
             option_like = arg.startswith("-")
             # resolve path if previous arg was an option that can be path, or the arg is a source
-            if (prev_option_like and prev_arg in self.RESOLVE_PATHS_OPTIONS) or (
-                not prev_option_like and not option_like
+            if (prev_option_like and prev_arg in self.RESOLVE_PATHS_OPTIONS) or (  # option value that can be path
+                not prev_option_like and not option_like  # source
             ):
                 ensure_exists = prev_arg in self.ENSURE_EXIST_PATHS_OPTIONS
                 # TODO: If the --rules is provided as comma separated list, it will not resolve paths

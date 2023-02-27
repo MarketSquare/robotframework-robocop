@@ -1,1 +1,2 @@
 --ext-rules rflinter.robocop.naming
+--configure too-long-test-case:severity:I

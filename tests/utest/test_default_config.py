@@ -244,3 +244,4 @@ def test_nested_argument_files(path_to_test_data):
     ):
         config = Config(from_cli=True)
         assert config.ext_rules == {"rflinter.robocop.spacing", "rflinter.robocop.naming"}
+        assert config.configure == ["too-long-test-case:severity:I"]

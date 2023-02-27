@@ -104,7 +104,7 @@ To get list of available rules (with enabled/disabled status) use ``-l / --list`
 
 ..  code-block:: none
 
-    robocop --list
+    > robocop --list
     Rule - 0201 [W]: missing-doc-keyword: Missing documentation in '{{ name }}' keyword (enabled)
     Rule - 0202 [W]: missing-doc-test-case: Missing documentation in '{{ name }}' test case (enabled)
     Rule - 0203 [W]: missing-doc-suite: Missing documentation in suite (enabled)
@@ -114,7 +114,7 @@ If some of the rules are disabled from CLI it will be reflected in the output:
 
 ..  code-block:: none
 
-    robocop --exclude 02* --list
+    > robocop --exclude 02* --list
     Rule - 0201 [W]: missing-doc-keyword: Missing documentation in '{{ name }}' keyword (disabled)
     Rule - 0202 [W]: missing-doc-test-case: Missing documentation in '{{ name }}' test case (disabled)
     Rule - 0203 [W]: missing-doc-suite: Missing documentation in suite (disabled)
@@ -125,7 +125,7 @@ Rules list can be filtered out by glob pattern:
 
 ..  code-block:: none
 
-    robocop --list tag*
+    > robocop --list tag*
     Rule - 0601 [W]: tag-with-space: Tag '{{ tag }}' should not contain spaces (enabled)
     Rule - 0602 [I]: tag-with-or-and: Tag '{{ tag }}' with reserved word OR/AND. Hint: make sure to include this tag using lowercase name to avoid issues (enabled)
     Rule - 0603 [W]: tag-with-reserved-word: Tag '{{ tag }}' prefixed with reserved word `robot:` (enabled)
@@ -141,6 +141,23 @@ Use ``-lc \ --list-configurables`` argument to list rules together with availabl
             empty_lines = 2
                 type: int
                 info: number of empty lines required between sections
+
+
+To list only enabled or disabled rules:
+
+..  code-block:: none
+
+    > robocop -i tag-with* --list ENABLED
+    Rule - 0601 [W]: tag-with-space: Tag '{{ tag }}' should not contain spaces (enabled)
+    Rule - 0602 [I]: tag-with-or-and: Tag '{{ tag }}' with reserved word OR/AND. Hint: make sure to include this tag using lowercase name to avoid issues (enabled)
+    Rule - 0603 [W]: tag-with-reserved-word: Tag '{{ tag }}' prefixed with reserved word `robot:` (enabled)
+
+    > robocop -e inconsistent-assignment-in-variables --list-configurables DISABLED
+    Rule - 0910 [W]: inconsistent-assignment-in-variables: The assignment sign is not consistent inside the variables section. Expected '{{ expected_sign }}' but got '{{ actual_sign }}' instead (disabled)
+        assignment_sign_type = autodetect
+            type: parse_assignment_sign_type
+            info: possible values: 'autodetect' (default), 'none' (''), 'equal_sign' ('=') or space_and_equal_sign (' =')
+
 
 Ignoring file
 -------------

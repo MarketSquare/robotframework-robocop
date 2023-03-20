@@ -68,7 +68,7 @@ rules = {
         rule_id="0505",
         name="too-many-calls-in-test-case",
         msg="Test case '{{ test_name }}' has too many keywords inside ({{ keyword_count }}/{{ max_allowed_count }})",
-        docs="Redesign the test and move complex logic to separate keywords to increase readiblity.",
+        docs="Redesign the test and move complex logic to separate keywords to increase readability.",
         severity=RuleSeverity.WARNING,
     ),
     "0506": Rule(
@@ -103,9 +103,9 @@ rules = {
         severity=RuleSeverity.WARNING,
         docs="""
         It is possible to ignore lines that match regex pattern. Configure it using following option::
-        
+
             robocop --configure line-too-long:ignore_pattern:pattern
-        
+
         The default pattern is ``https?://\S+`` that ignores the lines that look like an URL.
 
         """,
@@ -218,7 +218,7 @@ rules = {
         msg="Test case '{{ test_name }}' has too few keywords inside ({{ keyword_count }}/{{ min_allowed_count }})",
         docs="""
         Test without keywords will fail. Add more keywords or set results using Fail, Pass, Skip keywords::
-        
+
             *** Test Cases ***
             Test case
                 [Tags]    smoke

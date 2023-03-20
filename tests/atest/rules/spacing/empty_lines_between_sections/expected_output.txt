@@ -1,4 +1,4 @@
-test.robot:5:1 [W] 1003 Invalid number of empty lines between sections (3/2)
-test.robot:9:1 [W] 1003 Invalid number of empty lines between sections (1/2)
-test.robot:17:1 [W] 1003 Invalid number of empty lines between sections (1/2)
-test.robot:24:1 [W] 1003 Invalid number of empty lines between sections (0/2)
+test.robot:5:0 [W] 1003 Invalid number of empty lines between sections (3/2)
+test.robot:9:0 [W] 1003 Invalid number of empty lines between sections (1/2)
+test.robot:17:0 [W] 1003 Invalid number of empty lines between sections (1/2)
+test.robot:24:0 [W] 1003 Invalid number of empty lines between sections (0/2)

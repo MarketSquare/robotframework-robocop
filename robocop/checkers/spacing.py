@@ -99,17 +99,17 @@ rules = {
         severity=RuleSeverity.WARNING,
         docs="""
         Line is misaligned or indent is invalid.
-        
+
         This rule reports warning if the line is misaligned in the current block. Example of rule violation::
-        
+
             *** Keywords ***
             Keyword
                 Keyword Call
                  Misaligned Keyword Call  # line is over-intended by one space
                 IF    $condition    RETURN
                Keyword Call  # line is under-intended by two spaces
-        
-        If the indentation is less than two spaces than current block parent element 
+
+        If the indentation is less than two spaces than current block parent element
         (such as FOR/IF/WHILE/TRY header) the indentation is invalid and the rule reports an error::
 
             *** Keywords ***
@@ -117,12 +117,12 @@ rules = {
                  FOR  ${elem}  IN  ${list}
                 Log  stuff  # content of FOR blocks should use bigger indentation than FOR header
                  END
-        
-        To report only invalid indent and do not report misaligned lines, configure ``ignore_uneven`` parameter to 
+
+        To report only invalid indent and do not report misaligned lines, configure ``ignore_uneven`` parameter to
         ``True``.
-        
-        The correct indentation is determined by most common indentation in the current block. It allows more 
-        flexible indentation. It's possible to use ``strict`` (default ``False``) mode for checking if the indentation 
+
+        The correct indentation is determined by most common indentation in the current block. It allows more
+        flexible indentation. It's possible to use ``strict`` (default ``False``) mode for checking if the indentation
         is the multiple of ``indent`` spaces (default 4).
         """,
     ),
@@ -141,11 +141,11 @@ rules = {
         severity=RuleSeverity.WARNING,
         docs="""
         Empty lines after the section header are not allowed by default. Example of rule violation::
-        
+
              *** Test Cases ***
-             
+
              Resource  file.resource
-        
+
         It can be configured using `empty_lines` parameter.
         """,
     ),
@@ -163,15 +163,15 @@ rules = {
         severity=RuleSeverity.WARNING,
         docs="""
         Example of rule violation::
-        
+
                 Default Tags       default tag 1    default tag 2    default tag 3
             ...                default tag 4    default tag 5
-            
+
                 *** Test Cases ***
                 Example
                     Do X    first argument    second argument    third argument
                   ...    fourth argument    fifth argument    sixth argument
-        
+
         """,
     ),
     "1012": Rule(
@@ -188,11 +188,11 @@ rules = {
         severity=RuleSeverity.WARNING,
         docs="""
         Example of rule violation::
-        
+
             Keyword
                 Step 1
-                
-                
+
+
                 Step 2
 
         """,
@@ -204,12 +204,12 @@ rules = {
         severity=RuleSeverity.WARNING,
         docs="""
         Example of rule violation::
-        
+
              Keyword
              ...  1
              # empty line in-between multiline statement
              ...  2
-        
+
         """,
     ),
     "1014": Rule(
@@ -220,11 +220,11 @@ rules = {
         version=">=4.0",
         docs="""
         Example of rule violation::
-        
+
             *** Variables ***
              ${VAR}  1
               ${VAR2}  2
-        
+
         """,
     ),
     "1015": Rule(
@@ -234,18 +234,18 @@ rules = {
         severity=RuleSeverity.WARNING,
         docs="""
         Example of rule violation::
-        
+
             *** Settings ***
             Documentation      Here we have documentation for this suite.
             ...                Documentation is often quite long.
             ...
             ...            It can also contain multiple paragraphs.  # misaligned
-            
+
             *** Test Cases ***
             Test
             [Tags]    you    probably    do    not    have    this    many
             ...      tags    in    real    life  # misaligned
-        
+
         """,
     ),
     "1016": Rule(
@@ -256,12 +256,12 @@ rules = {
         version=">=4.0",
         docs="""
         Example of rule violation::
-        
+
             *** Settings ***
                 Library  Collections
                 Resource  data.resource
                 Variables  vars.robot
-        
+
         """,
     ),
 }
@@ -325,7 +325,7 @@ class EmptyLinesChecker(VisitorChecker):
         empty_lines = 0
         last_empty_line = None
         data_found = check_leading
-        for line in lines:
+        for i, line in enumerate(lines):
             if isinstance(line, EmptyLine):
                 if not data_found:
                     continue
@@ -333,13 +333,17 @@ class EmptyLinesChecker(VisitorChecker):
                 last_empty_line = line
             else:
                 data_found = True
-                if empty_lines > allowed_consecutive:
+                # allow for violation at the end of section, because we have 1003 rule
+                if empty_lines > allowed_consecutive: # and i != len(lines)-1:
                     self.report(
                         "consecutive-empty-lines",
                         empty_lines=empty_lines,
                         allowed_empty_lines=allowed_consecutive,
                         node=last_empty_line,
                         sev_threshold_value=empty_lines,
+                        col=0,
+                        lineno=last_empty_line.lineno - empty_lines + 1,
+                        end_lineno=last_empty_line.lineno,
                     )
                 empty_lines = 0
         if check_trailing:
@@ -350,6 +354,9 @@ class EmptyLinesChecker(VisitorChecker):
                     allowed_empty_lines=allowed_consecutive,
                     node=last_empty_line,
                     sev_threshold_value=empty_lines,
+                    col=0,
+                    lineno=last_empty_line.lineno - empty_lines + 1,
+                    end_lineno=last_empty_line.lineno,
                 )
         return empty_lines
 
@@ -449,6 +456,9 @@ class EmptyLinesChecker(VisitorChecker):
                     empty_lines=empty_lines,
                     allowed_empty_lines=self.param("empty-lines-between-sections", "empty_lines"),
                     lineno=section.end_lineno,
+                    end_lineno=section.end_lineno,
+                    col=0,
+                    end_col=section.end_col_offset,
                 )
         super().visit_File(node)
 
@@ -468,6 +478,10 @@ class EmptyLinesChecker(VisitorChecker):
                 allowed_empty_lines=self.param("empty-line-after-section", "empty_lines"),
                 node=empty_lines[-1],
                 sev_threshold_value=len(empty_lines),
+                lineno=empty_lines[-1].lineno - len(empty_lines) + 1,
+                end_lineno=empty_lines[-1].lineno,
+                # lineno=empty_lines[-1].lineno,
+                # end_lineno=empty_lines[-1].lineno + len(empty_lines),
             )
 
 

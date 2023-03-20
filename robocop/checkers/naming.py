@@ -307,27 +307,27 @@ rules = {
         docs="""
         ``WITH NAME`` marker that is used when giving an alias to an imported library is going to be renamed to ``AS``.
         The motivation is to be consistent with Python that uses ``as`` for similar purpose.
-        
+
         Code with the deprecated marker::
-        
+
             *** Settings ***
             Library    Collections    WITH NAME    AliasedName
-        
+
         Code with the supported marker::
-        
+
             *** Settings ***
             Library    Collections    AS    AliasedName
-        
+
         """,
     ),
     "0322": Rule(
         rule_id="0322",
         name="deprecated-singular-header",
-        msg="'{{ singular_header }}' singular header form is deprecated since RF 6.0 and will be removed in the future releases. Use '{{ plurar_header }}' instead",
+        msg="'{{ singular_header }}' singular header form is deprecated since RF 6.0 and will be removed in the future releases. Use '{{ plural_header }}' instead",
         severity=RuleSeverity.WARNING,
         version=">=6.0",
         docs="""
-        Robot Framework 6.0 starts deprecation period for singular headers forms. The rationale behind this change 
+        Robot Framework 6.0 starts deprecation period for singular headers forms. The rationale behind this change
         is available at https://github.com/robotframework/robotframework/issues/4431 .
         """,
     ),
@@ -637,6 +637,7 @@ class VariableNamingChecker(VisitorChecker):
                     variable_name=token.value,
                     lineno=token.lineno,
                     col=token.col_offset + 1,
+                    end_col=token.end_col_offset + 1,
                 )
 
     def visit_KeywordCall(self, node):  # noqa
@@ -829,7 +830,7 @@ class DeprecatedStatementChecker(VisitorChecker):
         self.report(
             "deprecated-singular-header",
             singular_header=f"*** {node.name} ***",
-            plurar_header=f"*** {node.name}s ***",
+            plural_header=f"*** {node.name}s ***",
             node=header_node,
             end_col=header_node.col_offset + 1,
         )

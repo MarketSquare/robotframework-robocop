@@ -1,5 +1,5 @@
 *** Settings ***
-Resources    library.py
+Resource     library.py
 Library      Collections    WITH NAME  Collections
 Library      Collections    AS  Collections
 Library      other_library.py    WITH NAME  PrettyName

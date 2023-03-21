@@ -331,8 +331,9 @@ class ParsingErrorChecker(VisitorChecker):
         else:
             error = error.replace("\n   ", "")
             token = node.header if hasattr(node, "header") else node
+            end_col = token.col_offset + len(node.name) + 1 if hasattr(node, "name") else token.end_col_offset + 1
             # TODO: 'col' location here can be specified more precisely
-            self.report("parsing-error", error_msg=error, node=node, col=token.col_offset + 1, end_col=token.end_col_offset)
+            self.report("parsing-error", error_msg=error, node=node, col=token.col_offset + 1, end_col=end_col)
 
     def handle_invalid_block(self, node, error, block_name):
         if hasattr(node, "header"):

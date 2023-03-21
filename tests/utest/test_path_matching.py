@@ -1,7 +1,7 @@
 from pathlib import Path
 
-from robocop.files import get_files
 from robocop.config import Config
+from robocop.files import get_files
 
 
 class TestPathMatching:

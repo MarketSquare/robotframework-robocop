@@ -225,11 +225,12 @@ class TagNameChecker(VisitorChecker):
                     column=nodes[0].col_offset + 1,
                     node=duplicate,
                     col=duplicate.col_offset + 1,
+                    end_col=duplicate.end_col_offset + 1,
                 )
 
     def check_tag(self, tag, node):
         if " " in tag.value:
-            self.report("tag-with-space", tag=tag.value, node=node, lineno=tag.lineno, col=tag.col_offset + 1)
+            self.report("tag-with-space", tag=tag.value, node=node, lineno=tag.lineno, col=tag.col_offset + 1, end_col=tag.end_col_offset + 1)
         if "OR" in tag.value or "AND" in tag.value:
             self.report("tag-with-or-and", tag=tag.value, node=node, lineno=tag.lineno, col=tag.col_offset + 1)
         normalized = tag.value.lower()
@@ -240,6 +241,7 @@ class TagNameChecker(VisitorChecker):
                 node=node,
                 lineno=tag.lineno,
                 col=tag.col_offset + 1,
+                end_col=tag.end_col_offset
             )
 
 
@@ -275,19 +277,23 @@ class TagScopeChecker(VisitorChecker):
         if len(self.tags) != self.test_cases_count:
             return
         if self.default_tags:
+            report_node = node if self.default_tags_node is None else self.default_tags_node
             self.report(
                 "unnecessary-default-tags",
-                node=node if self.default_tags_node is None else self.default_tags_node,
+                node=report_node,
+                col=report_node.col_offset + 1,
+                end_col=report_node.get_token(Token.DEFAULT_TAGS).end_col_offset + 1,
             )
         if self.test_cases_count < 2:
             return
         common_tags = set.intersection(*[set(tags) for tags in self.tags])
         common_tags = common_tags - self.test_tags
         if common_tags:
+            report_node = node if self.test_tags_node is None else self.test_tags_node
             self.report(
                 "could-be-test-tags",
                 tags=", ".join(common_tags),
-                node=node if self.test_tags_node is None else self.test_tags_node,
+                node=report_node,
             )
 
     def visit_KeywordSection(self, node):  # noqa
@@ -310,7 +316,7 @@ class TagScopeChecker(VisitorChecker):
     def visit_Tags(self, node):  # noqa
         if not node.values:
             suffix = "" if self.in_keywords else ". Consider using NONE if you want to overwrite the Default Tags"
-            self.report("empty-tags", optional_warning=suffix, node=node, col=node.end_col_offset)
+            self.report("empty-tags", optional_warning=suffix, node=node, col=node.data_tokens[0].col_offset + 1, end_col=node.end_col_offset)
         self.tags.append([tag.value for tag in node.data_tokens[1:]])
         for tag in node.data_tokens[1:]:
             if tag.value not in self.test_tags:

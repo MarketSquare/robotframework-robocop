@@ -441,7 +441,13 @@ class EmptySectionChecker(VisitorChecker):
             return
         anything_but = EmptyLine if isinstance(node, CommentSection) else (Comment, EmptyLine)
         if all(isinstance(child, anything_but) for child in node.body):
-            self.report("empty-section", section_name=get_section_name(node), node=node, col=node.col_offset + 1, end_col=node.header.end_col_offset)
+            self.report(
+                "empty-section",
+                section_name=get_section_name(node),
+                node=node,
+                col=node.col_offset + 1,
+                end_col=node.header.end_col_offset,
+            )
 
     def visit_Section(self, node):  # noqa
         self.check_if_empty(node)
@@ -530,7 +536,13 @@ class EmptySettingsChecker(VisitorChecker):
 
     def visit_Documentation(self, node):  # noqa
         if not node.value:
-            self.report("empty-documentation", block_name=self.parent_node_name, node=node, col=node.data_tokens[0].col_offset + 1, end_col=node.end_col_offset)
+            self.report(
+                "empty-documentation",
+                block_name=self.parent_node_name,
+                node=node,
+                col=node.data_tokens[0].col_offset + 1,
+                end_col=node.end_col_offset,
+            )
 
     def visit_ForceTags(self, node):  # noqa
         if not node.values:
@@ -554,7 +566,13 @@ class EmptySettingsChecker(VisitorChecker):
 
     def visit_Setup(self, node):  # noqa
         if not node.name:
-            self.report("empty-setup", block_name=self.parent_node_name, node=node, col=node.data_tokens[0].col_offset + 1, end_col=node.end_col_offset)
+            self.report(
+                "empty-setup",
+                block_name=self.parent_node_name,
+                node=node,
+                col=node.data_tokens[0].col_offset + 1,
+                end_col=node.end_col_offset,
+            )
 
     def visit_SuiteSetup(self, node):  # noqa
         if not node.name:
@@ -566,7 +584,13 @@ class EmptySettingsChecker(VisitorChecker):
 
     def visit_Teardown(self, node):  # noqa
         if not node.name:
-            self.report("empty-teardown", block_name=self.parent_node_name, node=node, col=node.data_tokens[0].col_offset + 1, end_col=node.end_col_offset)
+            self.report(
+                "empty-teardown",
+                block_name=self.parent_node_name,
+                node=node,
+                col=node.data_tokens[0].col_offset + 1,
+                end_col=node.end_col_offset,
+            )
 
     def visit_SuiteTeardown(self, node):  # noqa
         if not node.name:
@@ -578,7 +602,13 @@ class EmptySettingsChecker(VisitorChecker):
 
     def visit_Timeout(self, node):  # noqa
         if not node.value:
-            self.report("empty-timeout", block_name=self.parent_node_name, node=node, col=node.data_tokens[0].col_offset + 1, end_col=node.end_col_offset)
+            self.report(
+                "empty-timeout",
+                block_name=self.parent_node_name,
+                node=node,
+                col=node.data_tokens[0].col_offset + 1,
+                end_col=node.end_col_offset,
+            )
 
     def visit_TestTimeout(self, node):  # noqa
         if not node.value:
@@ -586,7 +616,13 @@ class EmptySettingsChecker(VisitorChecker):
 
     def visit_Arguments(self, node):  # noqa
         if not node.values:
-            self.report("empty-arguments", block_name=self.parent_node_name, node=node, col=node.data_tokens[0].col_offset + 1, end_col=node.end_col_offset + 1)
+            self.report(
+                "empty-arguments",
+                block_name=self.parent_node_name,
+                node=node,
+                col=node.data_tokens[0].col_offset + 1,
+                end_col=node.end_col_offset + 1,
+            )
 
 
 class TestCaseNumberChecker(VisitorChecker):

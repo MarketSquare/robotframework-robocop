@@ -230,7 +230,14 @@ class TagNameChecker(VisitorChecker):
 
     def check_tag(self, tag, node):
         if " " in tag.value:
-            self.report("tag-with-space", tag=tag.value, node=node, lineno=tag.lineno, col=tag.col_offset + 1, end_col=tag.end_col_offset + 1)
+            self.report(
+                "tag-with-space",
+                tag=tag.value,
+                node=node,
+                lineno=tag.lineno,
+                col=tag.col_offset + 1,
+                end_col=tag.end_col_offset + 1,
+            )
         if "OR" in tag.value or "AND" in tag.value:
             self.report("tag-with-or-and", tag=tag.value, node=node, lineno=tag.lineno, col=tag.col_offset + 1)
         normalized = tag.value.lower()
@@ -241,7 +248,7 @@ class TagNameChecker(VisitorChecker):
                 node=node,
                 lineno=tag.lineno,
                 col=tag.col_offset + 1,
-                end_col=tag.end_col_offset
+                end_col=tag.end_col_offset,
             )
 
 
@@ -316,7 +323,13 @@ class TagScopeChecker(VisitorChecker):
     def visit_Tags(self, node):  # noqa
         if not node.values:
             suffix = "" if self.in_keywords else ". Consider using NONE if you want to overwrite the Default Tags"
-            self.report("empty-tags", optional_warning=suffix, node=node, col=node.data_tokens[0].col_offset + 1, end_col=node.end_col_offset)
+            self.report(
+                "empty-tags",
+                optional_warning=suffix,
+                node=node,
+                col=node.data_tokens[0].col_offset + 1,
+                end_col=node.end_col_offset,
+            )
         self.tags.append([tag.value for tag in node.data_tokens[1:]])
         for tag in node.data_tokens[1:]:
             if tag.value not in self.test_tags:

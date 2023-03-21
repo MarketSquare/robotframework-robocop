@@ -550,7 +550,11 @@ class SettingsNamingChecker(VisitorChecker):
         if not self.section_name_pattern.match(name) or not (name.istitle() or name.isupper()):
             valid_name = f"*** {node.name.title()} ***"
             self.report(
-                "section-name-invalid", section_title_case=valid_name, section_upper_case=valid_name.upper(), node=node, end_col=node.col_offset + len(name) + 1
+                "section-name-invalid",
+                section_title_case=valid_name,
+                section_upper_case=valid_name.upper(),
+                node=node,
+                end_col=node.col_offset + len(name) + 1,
             )
 
     def visit_Setup(self, node):  # noqa
@@ -579,7 +583,7 @@ class SettingsNamingChecker(VisitorChecker):
         if ROBOT_VERSION.major < 6:
             arg_nodes = node.get_tokens(Token.ARGUMENT)
             # ignore cases where 'AS' is used to provide library alias for RF < 5
-            if arg_nodes and any(arg.value == 'AS' for arg in arg_nodes):
+            if arg_nodes and any(arg.value == "AS" for arg in arg_nodes):
                 return
             with_name = True if node.get_token(*self.ALIAS_TOKENS) else False
         else:
@@ -595,13 +599,15 @@ class SettingsNamingChecker(VisitorChecker):
                     "duplicated-library-alias",
                     node=name_token,
                     col=name_token.col_offset + 1,
-                    end_col=name_token.end_col_offset + 1
+                    end_col=name_token.end_col_offset + 1,
                 )
 
     def check_setting_name(self, name, node):
         if not (name.istitle() or name.isupper()):
-            col = node.tokens[0].end_col_offset if node.tokens[0].type == 'SEPARATOR' else node.col_offset
-            self.report("setting-name-not-in-title-case", setting_name=name, node=node, col=col + 1, end_col=col + len(name) + 1)
+            col = node.tokens[0].end_col_offset if node.tokens[0].type == "SEPARATOR" else node.col_offset
+            self.report(
+                "setting-name-not-in-title-case", setting_name=name, node=node, col=col + 1, end_col=col + len(name) + 1
+            )
 
 
 class TestCaseNamingChecker(VisitorChecker):
@@ -616,7 +622,12 @@ class TestCaseNamingChecker(VisitorChecker):
         if not node.name:
             self.report("test-case-name-is-empty", node=node)
         elif not node.name[0].isupper():
-            self.report("not-capitalized-test-case-title", test_name=node.name, node=node, end_col=node.col_offset + len(node.name) + 1)
+            self.report(
+                "not-capitalized-test-case-title",
+                test_name=node.name,
+                node=node,
+                end_col=node.col_offset + len(node.name) + 1,
+            )
 
 
 class VariableNamingChecker(VisitorChecker):
@@ -832,7 +843,12 @@ class DeprecatedStatementChecker(VisitorChecker):
         with_name_token = node.get_token(Token.WITH_NAME)
         if not with_name_token or with_name_token.value == "AS":
             return
-        self.report("deprecated-with-name", node=with_name_token, col=with_name_token.col_offset + 1, end_col=with_name_token.end_col_offset + 1)
+        self.report(
+            "deprecated-with-name",
+            node=with_name_token,
+            col=with_name_token.col_offset + 1,
+            end_col=with_name_token.end_col_offset + 1,
+        )
 
     def visit_SectionHeader(self, node):
         if not node.name:

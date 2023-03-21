@@ -438,7 +438,13 @@ class ParsingErrorChecker(VisitorChecker):
             error = error.replace("\n   ", "").replace("Robot Framework syntax error: ", "")
             if error.endswith("."):
                 error = error[:-1]
-            self.report("non-existing-setting", error_msg=error, node=node, col=token.col_offset + 1, end_col=token.end_col_offset + 1)
+            self.report(
+                "non-existing-setting",
+                error_msg=error,
+                node=node,
+                col=token.col_offset + 1,
+                end_col=token.end_col_offset + 1,
+            )
 
     def handle_invalid_variable(self, node, error):
         var_error = re.search("Invalid variable name '(.*)'.", error)

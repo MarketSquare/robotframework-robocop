@@ -297,13 +297,22 @@ class DuplicationsChecker(VisitorChecker):
                     end_col = duplicate.end_col_offset + 1
                 else:
                     end_col = duplicate.col_offset + len(duplicate.name) + 1
-                self.report(rule, name=duplicate.name, first_occurrence_line=nodes[0].lineno, node=duplicate, end_col=end_col)
+                self.report(
+                    rule, name=duplicate.name, first_occurrence_line=nodes[0].lineno, node=duplicate, end_col=end_col
+                )
 
     def check_library_duplicates(self, container, rule):
         for nodes in container.values():
             for duplicate in nodes[1:]:
                 lib_token = duplicate.get_token(Token.NAME)
-                self.report(rule, name=duplicate.name, first_occurrence_line=nodes[0].lineno, node=duplicate, col=lib_token.col_offset + 1, end_col=lib_token.end_col_offset + 1)
+                self.report(
+                    rule,
+                    name=duplicate.name,
+                    first_occurrence_line=nodes[0].lineno,
+                    node=duplicate,
+                    col=lib_token.col_offset + 1,
+                    end_col=lib_token.end_col_offset + 1,
+                )
 
     def visit_TestCase(self, node):  # noqa
         testcase_name = normalize_robot_name(node.name)
@@ -389,7 +398,9 @@ class DuplicationsChecker(VisitorChecker):
     def visit_Error(self, node):  # noqa
         for error in get_errors(node):
             if "is allowed only once" in error:
-                self.report("duplicated-setting", error_msg=error, node=node, end_col=node.data_tokens[0].end_col_offset)
+                self.report(
+                    "duplicated-setting", error_msg=error, node=node, end_col=node.data_tokens[0].end_col_offset
+                )
 
 
 class SectionHeadersChecker(VisitorChecker):

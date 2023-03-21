@@ -313,7 +313,12 @@ class ReturnChecker(VisitorChecker):
                 )
                 if not child.values:
                     token = child.data_tokens[0]
-                    self.report("empty-return", node=child, col=token.col_offset + 1, end_col=token.col_offset + len(token.value))
+                    self.report(
+                        "empty-return",
+                        node=child,
+                        col=token.col_offset + 1,
+                        end_col=token.col_offset + len(token.value),
+                    )
             elif ReturnStatement and isinstance(child, ReturnStatement):  # type: ignore[arg-type]
                 return_setting_node = child
                 error = "RETURN is not defined at the end of keyword"

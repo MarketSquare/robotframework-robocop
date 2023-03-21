@@ -334,7 +334,7 @@ class EmptyLinesChecker(VisitorChecker):
             else:
                 data_found = True
                 # allow for violation at the end of section, because we have 1003 rule
-                if empty_lines > allowed_consecutive: # and i != len(lines)-1:
+                if empty_lines > allowed_consecutive:  # and i != len(lines)-1:
                     self.report(
                         "consecutive-empty-lines",
                         empty_lines=empty_lines,
@@ -782,7 +782,7 @@ class MisalignedContinuation(VisitorChecker, ModelVisitor):
                 elif token.type != Token.EOL and token.value.strip():  # ignore trailing whitespace
                     if first_column:
                         if indent != first_column:
-                            cont = [token for token in line if token.type == 'CONTINUATION'][0]
+                            cont = [token for token in line if token.type == "CONTINUATION"][0]
                             self.report(
                                 "misaligned-continuation-row",
                                 node=token,

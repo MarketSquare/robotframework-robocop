@@ -481,10 +481,6 @@ class EmptyLinesChecker(VisitorChecker):
                 sev_threshold_value=len(empty_lines),
                 lineno=section.lineno,
                 end_col=len(get_section_name(section)) + 1,
-                # lineno=empty_lines[-1].lineno - len(empty_lines) + 1,
-                # end_lineno=empty_lines[-1].lineno,
-                # lineno=empty_lines[-1].lineno,
-                # end_lineno=empty_lines[-1].lineno + len(empty_lines),
             )
 
 

@@ -52,14 +52,14 @@ setup(
     python_requires=">=3.6",
     include_package_data=True,
     install_requires=[
-        "jinja2>=3.1,<4.0",
+        "jinja2>=3.0,<4.0",
         "robotframework>=3.2.2",
-        "packaging>=21,<=23",
+        "packaging>=21,<23",
         "pathspec>=0.9,<0.12",
         "tomli==1.2.3; python_version < '3.7.0'",
         "tomli>=2.0.0; python_version >= '3.7.0'",
-        "pytz>=2022.7",
-        "python-dateutil>=2.8.2",
+        "pytz>=2022.1",
+        "python-dateutil>=2.8.1",
     ],
     extras_require={
         "dev": [
@@ -68,7 +68,6 @@ setup(
             "pytest",
             "pyyaml",
             "pytest-benchmark",
-            "nox",
         ],
         "doc": [
             "furo",

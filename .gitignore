@@ -50,7 +50,6 @@ coverage.xml
 *.py,cover
 .hypothesis/
 .pytest_cache/
-status.json
 
 # Sphinx documentation
 docs/_build/
@@ -89,17 +88,14 @@ venv.bak/
 
 # PyCharm project files
 .idea/
+
 .benchmarks/
 
 # VS Code files
 .vscode/*
-interactive_console_output.xml
 
 # Sarif report file
 .sarif.json
 
 # Robocop log produced by some unit tests
 robocop.log
-
-# OS-related files
-.DS_Store

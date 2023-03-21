@@ -52,6 +52,7 @@ Test with comments at the end
     # comments
 
 Test with comments that are not part of the test
+    [Documentation]  abc
     Pass
     Keyword
     ...  ${var}

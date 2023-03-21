@@ -52,7 +52,7 @@ setup(
     python_requires=">=3.6",
     include_package_data=True,
     install_requires=[
-        "jinja2>=3.1,<4.0",
+        "jinja2>=3.0,<4.0",
         "robotframework>=3.2.2",
         "packaging>=21,<=23",
         "pathspec>=0.9,<0.12",

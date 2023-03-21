@@ -286,7 +286,7 @@ class InvalidSpacingChecker(RawFileChecker):
         if self.raw_lines:
             last_line = self.raw_lines[-1]
             if last_line in ["\n", "\r", "\r\n"]:
-                self.report("too-many-trailing-blank-lines", lineno=len(self.raw_lines) + 1)
+                self.report("too-many-trailing-blank-lines", lineno=len(self.raw_lines) + 1, end_col=len(last_line) + 1)
                 return
             empty_lines = 0
             for line in self.raw_lines[::-1]:
@@ -295,10 +295,10 @@ class InvalidSpacingChecker(RawFileChecker):
                 else:
                     break
                 if empty_lines > 1:
-                    self.report("too-many-trailing-blank-lines", lineno=len(self.raw_lines))
+                    self.report("too-many-trailing-blank-lines", lineno=len(self.raw_lines), end_col=len(last_line) + 1)
                     return
             if not empty_lines and not last_line.endswith(("\n", "\r")):
-                self.report("missing-trailing-blank-line", lineno=len(self.raw_lines))
+                self.report("missing-trailing-blank-line", lineno=len(self.raw_lines), end_col=len(last_line) + 1)
 
     def check_line(self, line, lineno):
         self.raw_lines.append(line)
@@ -341,7 +341,7 @@ class EmptyLinesChecker(VisitorChecker):
                         allowed_empty_lines=allowed_consecutive,
                         node=last_empty_line,
                         sev_threshold_value=empty_lines,
-                        col=0,
+                        col=1,
                         lineno=last_empty_line.lineno - empty_lines + 1,
                         end_lineno=last_empty_line.lineno,
                     )
@@ -354,7 +354,7 @@ class EmptyLinesChecker(VisitorChecker):
                     allowed_empty_lines=allowed_consecutive,
                     node=last_empty_line,
                     sev_threshold_value=empty_lines,
-                    col=0,
+                    col=1,
                     lineno=last_empty_line.lineno - empty_lines + 1,
                     end_lineno=last_empty_line.lineno,
                 )
@@ -409,6 +409,8 @@ class EmptyLinesChecker(VisitorChecker):
                     empty_lines=empty_lines,
                     allowed_empty_lines=allowed_empty_lines,
                     lineno=child.end_lineno,
+                    end_lineno=child.end_lineno + 1,
+                    end_col=len(child.name) + 1,
                 )
         self.generic_visit(node)
 
@@ -456,9 +458,8 @@ class EmptyLinesChecker(VisitorChecker):
                     empty_lines=empty_lines,
                     allowed_empty_lines=self.param("empty-lines-between-sections", "empty_lines"),
                     lineno=section.end_lineno,
-                    end_lineno=section.end_lineno,
-                    col=0,
-                    end_col=section.end_col_offset,
+                    col=1,
+                    end_col=child.end_col_offset,
                 )
         super().visit_File(node)
 
@@ -478,8 +479,10 @@ class EmptyLinesChecker(VisitorChecker):
                 allowed_empty_lines=self.param("empty-line-after-section", "empty_lines"),
                 node=empty_lines[-1],
                 sev_threshold_value=len(empty_lines),
-                lineno=empty_lines[-1].lineno - len(empty_lines) + 1,
-                end_lineno=empty_lines[-1].lineno,
+                lineno=section.lineno,
+                end_col=len(get_section_name(section)) + 1,
+                # lineno=empty_lines[-1].lineno - len(empty_lines) + 1,
+                # end_lineno=empty_lines[-1].lineno,
                 # lineno=empty_lines[-1].lineno,
                 # end_lineno=empty_lines[-1].lineno + len(empty_lines),
             )
@@ -634,7 +637,8 @@ class UnevenIndentChecker(VisitorChecker):
                         bad_indent_msg="Line is over-indented",
                         severity=RuleSeverity.WARNING,
                         node=child,
-                        col=token_col(child, Token.COMMENT),
+                        col=1,
+                        end_col=token_col(child, Token.COMMENT),
                     )
         self.generic_visit(node)
 
@@ -726,7 +730,8 @@ class UnevenIndentChecker(VisitorChecker):
                 bad_indent_msg="Indent expected. Provide 2 or more spaces of indentation for statements inside block",
                 severity=RuleSeverity.ERROR,
                 node=statement,
-                col=indent + 1,
+                col=1,
+                end_col=indent + 1,
             )
             return
         if self.param("bad-indent", "ignore_uneven"):
@@ -740,7 +745,8 @@ class UnevenIndentChecker(VisitorChecker):
             bad_indent_msg=f"Line is {over_or_under}-indented",
             severity=RuleSeverity.WARNING,
             node=statement,
-            col=indent + 1,
+            col=1,
+            end_col=indent + 1,
         )
 
 
@@ -773,6 +779,7 @@ class MisalignedContinuation(VisitorChecker, ModelVisitor):
                             "misaligned-continuation",
                             lineno=token.lineno,
                             col=token.col_offset + 1,
+                            end_col=token.end_col_offset + 1,
                         )
                         break
                     indent = 0
@@ -782,7 +789,8 @@ class MisalignedContinuation(VisitorChecker, ModelVisitor):
                             self.report(
                                 "misaligned-continuation-row",
                                 node=token,
-                                col=token.col_offset + 1,
+                                end_col=token.col_offset + 1,
+                                col=4,
                             )
                     else:
                         first_column = indent
@@ -859,7 +867,7 @@ class LeftAlignedChecker(VisitorChecker):
                     pos = len(token.value) - len(token.value.lstrip()) + 1
                 else:
                     pos = child.get_token(Token.ARGUMENT).col_offset + 1
-                self.report("variable-should-be-left-aligned", lineno=token.lineno, col=pos)
+                self.report("variable-should-be-left-aligned", lineno=token.lineno, col=1, end_col=pos)
 
     def visit_SettingSection(self, node):  # noqa
         for child in node.body:
@@ -879,6 +887,7 @@ class LeftAlignedChecker(VisitorChecker):
                     "suite-setting-should-be-left-aligned",
                     node=setting_cand,
                     col=setting_cand.col_offset + 1,
+                    end_col=setting_cand.end_col_offset + 1,
                 )
         elif not setting_error[0].strip():  # starts with space/tab
             suite_sett_cand = setting_error.replace(" ", "").lower()

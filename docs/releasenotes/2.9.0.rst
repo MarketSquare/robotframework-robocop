@@ -1,0 +1,26 @@
+:orphan:
+
+Robocop 2.9.0
+================
+
+This version of Robocop hugely improves the experience of using Robocop
+within the IDEs by fixing the locations of rule violations in code, which
+in turn results in correct underlining of the issues.
+
+    You can install the latest available version by running::
+
+        pip install --upgrade robotframework-robocop
+
+    or to install exactly this version::
+
+        pip install robotframework-robocop==2.9.0
+
+Precise locations of the rule violations
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The main improvement focused around adjusting the locations
+where the rules are violated in the code. More specifically, it improves
+where the rule violation starts and ends, meaning that the precise position
+is now defined correctly. Thanks to that, the LSP will correctly pass that
+information to the IDE you're using and will underline every place that
+needs your attention.

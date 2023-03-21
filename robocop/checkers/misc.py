@@ -312,7 +312,8 @@ class ReturnChecker(VisitorChecker):
                     "Note that [Return] does not quit from keyword but only set variables to be returned"
                 )
                 if not child.values:
-                    self.report("empty-return", node=child, col=child.end_col_offset)
+                    token = child.data_tokens[0]
+                    self.report("empty-return", node=child, col=token.col_offset + 1, end_col=token.col_offset + len(token.value))
             elif ReturnStatement and isinstance(child, ReturnStatement):  # type: ignore[arg-type]
                 return_setting_node = child
                 error = "RETURN is not defined at the end of keyword"
@@ -347,7 +348,8 @@ class NestedForLoopsChecker(VisitorChecker):
         # For RF 4.0 node is "For" but we purposely don't visit it because nested for loop is allowed in 4.0
         for child in node.body:
             if child.type == "FOR":
-                self.report("nested-for-loop", node=child)
+                token = child.get_token(Token.FOR)
+                self.report("nested-for-loop", node=child, col=token.col_offset + 1, end_col=token.end_col_offset + 1)
 
 
 class IfBlockCanBeUsed(VisitorChecker):
@@ -364,7 +366,7 @@ class IfBlockCanBeUsed(VisitorChecker):
             return
         if normalize_robot_name(node.keyword, remove_prefix="builtin.") in self.run_keyword_variants:
             col = keyword_col(node)
-            self.report("if-can-be-used", run_keyword=node.keyword, node=node, col=col)
+            self.report("if-can-be-used", run_keyword=node.keyword, node=node, col=col, end_col=col + len(node.keyword))
 
 
 class ConsistentAssignmentSignChecker(VisitorChecker):
@@ -442,7 +444,8 @@ class ConsistentAssignmentSignChecker(VisitorChecker):
                 expected_sign=expected,
                 actual_sign=sign,
                 lineno=token.lineno,
-                col=token.end_col_offset + 1,
+                col=token.col_offset + 1,
+                end_col=token.end_col_offset + 1,
             )
 
     @staticmethod
@@ -474,11 +477,14 @@ class SettingsOrderChecker(VisitorChecker):
                     first_non_builtin = library.name
             else:
                 if library.name in STDLIBS:
+                    lib_name = library.get_token(Token.NAME)
                     self.report(
                         "wrong-import-order",
                         builtin_import=library.name,
                         custom_import=first_non_builtin,
                         node=library,
+                        col=lib_name.col_offset + 1,
+                        end_col=lib_name.end_col_offset + 1,
                     )
 
     def visit_LibraryImport(self, node):  # noqa
@@ -496,7 +502,7 @@ class EmptyVariableChecker(VisitorChecker):
         if get_errors(node):
             return
         if not node.value:  # catch variable declaration without any value
-            self.report("empty-variable", var_type=node.name[0], node=node)
+            self.report("empty-variable", var_type=node.name[0], node=node, end_col=node.end_col_offset)
         for token in node.get_tokens(Token.ARGUMENT):
             if not token.value or token.value == "\\":
                 self.report(
@@ -504,7 +510,8 @@ class EmptyVariableChecker(VisitorChecker):
                     var_type="$",
                     node=token,
                     lineno=token.lineno,
-                    col=token.col_offset,
+                    col=1,
+                    end_col=token.end_col_offset + 1,
                 )
 
 
@@ -634,12 +641,14 @@ class LoopStatementsChecker(VisitorChecker):
         if node.errors or self.loops:
             return
         if normalize_robot_name(node.keyword, remove_prefix="builtin.") in self.for_keyword:
+            col = keyword_col(node)
             self.report(
                 "statement-outside-loop",
                 name=f"'{node.keyword}'",
                 statement_type="keyword",
                 node=node,
-                col=keyword_col(node),
+                col=col,
+                end_col=col + len(node.keyword),
             )
 
     def visit_Continue(self, node):  # noqa

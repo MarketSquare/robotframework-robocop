@@ -6,6 +6,7 @@ Documentation  doc
 ${v_ar}       10
 ${other_var}  20
 ${V AR}       a
+${other_var}  30
 
 ${variable}  1
 ... a

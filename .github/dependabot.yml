@@ -1,6 +1,11 @@
 version: 2
 updates:
   - package-ecosystem: pip
-    directory: "/tests/packages/rf-stable6"
+    directory: "/tests/packages/"
     schedule:
-      interval: daily
+      interval: "daily"
+
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"

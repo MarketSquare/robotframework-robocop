@@ -113,11 +113,11 @@ class MissingDocumentationChecker(VisitorChecker):
             if source:
                 extension = Path(source).suffix
                 if ".resource" in extension:
-                    self.report("missing-doc-resource-file", node=node, lineno=1, col=0)
+                    self.report("missing-doc-resource-file", node=node, lineno=1, col=1)
                 else:
-                    self.report("missing-doc-suite", node=node, lineno=1, col=0)
+                    self.report("missing-doc-suite", node=node, lineno=1, col=1)
             else:
-                self.report("missing-doc-suite", node=node, lineno=1, col=0)
+                self.report("missing-doc-suite", node=node, lineno=1, col=1)
         super().visit_File(node)
 
     def check_if_docs_are_present(self, node, msg):
@@ -126,6 +126,6 @@ class MissingDocumentationChecker(VisitorChecker):
                 break
         else:
             if hasattr(node, "name"):
-                self.report(msg, name=node.name, node=node, col=node.col_offset, end_col=node.col_offset + len(node.name) + 1)
+                self.report(msg, name=node.name, node=node, end_col=node.col_offset + len(node.name) + 1)
             else:
-                self.report(msg, node=node, col=node.col_offset, end_col=node.end_col_offset)
+                self.report(msg, node=node, end_col=node.end_col_offset)

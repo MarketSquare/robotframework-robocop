@@ -786,11 +786,12 @@ class MisalignedContinuation(VisitorChecker, ModelVisitor):
                 elif token.type != Token.EOL and token.value.strip():  # ignore trailing whitespace
                     if first_column:
                         if indent != first_column:
+                            cont = [token for token in line if token.type == 'CONTINUATION'][0]
                             self.report(
                                 "misaligned-continuation-row",
                                 node=token,
                                 end_col=token.col_offset + 1,
-                                col=4,
+                                col=cont.end_col_offset + 1,
                             )
                     else:
                         first_column = indent

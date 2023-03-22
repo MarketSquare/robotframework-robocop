@@ -22,7 +22,7 @@ Keyword
     No Operation
     No Operation
     No Operation
-    For  ${var}  IN RANGE  10
+    FOR  ${var}  IN RANGE  10
         No Operation
         No Operation
     END

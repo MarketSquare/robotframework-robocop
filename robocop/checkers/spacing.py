@@ -618,7 +618,6 @@ class UnevenIndentChecker(VisitorChecker):
                     self.report(
                         "bad-indent",
                         bad_indent_msg="Line is over-indented",
-                        severity=RuleSeverity.WARNING,
                         node=child,
                         col=token_col(child, Token.COMMENT),
                     )
@@ -710,7 +709,6 @@ class UnevenIndentChecker(VisitorChecker):
             self.report(
                 "bad-indent",
                 bad_indent_msg="Indent expected. Provide 2 or more spaces of indentation for statements inside block",
-                severity=RuleSeverity.ERROR,
                 node=statement,
                 col=indent + 1,
             )
@@ -724,7 +722,6 @@ class UnevenIndentChecker(VisitorChecker):
         self.report(
             "bad-indent",
             bad_indent_msg=f"Line is {over_or_under}-indented",
-            severity=RuleSeverity.WARNING,
             node=statement,
             col=indent + 1,
         )

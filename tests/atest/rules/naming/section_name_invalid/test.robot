@@ -2,11 +2,11 @@
 Documentation  doc
 
 
-*** Variables ***
+* Variables *
 ${var}  1
 
 
-*** Test Case ***
+*test cases*
 Test
     [Documentation]  doc
     [Tags]  sometag

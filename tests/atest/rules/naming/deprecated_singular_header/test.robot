@@ -1,6 +1,5 @@
-*** Comment ***
-*** Comments ***
 *** Setting ***  this is comment
+Documentation    doc
 *** Settings ***
 *** Variable ***  # this is also comment
 *** Variables ***
@@ -10,3 +9,5 @@
 ** Keyword ***
 *** Keywords ***
 *** Keywords **
+*** Comment ***
+*** Comments ***

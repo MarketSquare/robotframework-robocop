@@ -11,7 +11,7 @@ Test Template   Keyword  #invalid comment
 
 
 *** Variables ***
-${MY_VAR}    1  #invalid comment
+${MY_VAR}    1  #invalid comment  with 2 spaces
 
 
 *** Test Cases ***  # valid comment

@@ -29,4 +29,5 @@ Keyword ${?} Should Not Warn
     No Operation
 
 Keyword Escaped \${?} Should Warn
+    [Documentation]  this is doc
     No Operation

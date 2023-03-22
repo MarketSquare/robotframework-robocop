@@ -1,7 +1,7 @@
-test.robot:5:19 [W] 1015 Each next continuation line should be aligned with the previous one
-test.robot:10:8 [W] 1015 Each next continuation line should be aligned with the previous one
-test.robot:19:19 [W] 1015 Each next continuation line should be aligned with the previous one
-test.robot:38:14 [W] 1015 Each next continuation line should be aligned with the previous one
-test.robot:41:10 [W] 1015 Each next continuation line should be aligned with the previous one
-test.robot:44:13 [W] 1015 Each next continuation line should be aligned with the previous one
-test.robot:58:14 [W] 1015 Each next continuation line should be aligned with the previous one
+test.robot:5:4 [W] 1015 Each next continuation line should be aligned with the previous one
+test.robot:10:4 [W] 1015 Each next continuation line should be aligned with the previous one
+test.robot:19:4 [W] 1015 Each next continuation line should be aligned with the previous one
+test.robot:38:8 [W] 1015 Each next continuation line should be aligned with the previous one
+test.robot:41:8 [W] 1015 Each next continuation line should be aligned with the previous one
+test.robot:44:8 [W] 1015 Each next continuation line should be aligned with the previous one
+test.robot:58:8 [W] 1015 Each next continuation line should be aligned with the previous one

@@ -17,10 +17,10 @@ Test with matching indent but not multiple of 4
 Test with FOR
     Keyword Call
     FOR    ${var}    IN    RANGE    10
-   Bad Indent
+   No Operation
     Bad Indent
       FOR    ${var}    IN    a    b
-            Multiply Of 4
+            No Operation
              But Unmatched
              With Others
                ...  Should Be Ignored

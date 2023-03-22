@@ -8,7 +8,7 @@ Test
     [Tags]  sometag
     Pass
     Keyword
-    One_More
+    No_Operation
 
 Test Underscore
     Embedded Keyword With ${variable_with_underscore}

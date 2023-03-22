@@ -11,10 +11,10 @@ import robocop.exceptions
 from robocop.config import Config
 from robocop.exceptions import (
     ArgumentFileNotFoundError,
+    CircularArgumentFileError,
     ConfigGeneralError,
     FileError,
     InvalidArgumentError,
-    CircularArgumentFileError,
 )
 from robocop.rules import RuleSeverity
 from robocop.run import Robocop

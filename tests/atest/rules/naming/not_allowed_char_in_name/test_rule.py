@@ -10,10 +10,10 @@ class TestRuleAcceptance(RuleAcceptance):
     @pytest.mark.parametrize(
         "test_id, pattern",
         [
-            (1, "[$:{}]"),
-            (2, """[!.?/;+'"()[]{}#$%^&=<>|\]"""),
-            (3, "[^a-zA-Z\s]"),
-            (4, "(?:(?<!foo)\.bar)|(?:foo\.(?!bar))|(?:(?<!foo)\.(?!bar))"),
+            (1, r"[$:{}]"),
+            (2, r"""[!.?/;+'"()[]{}#$%^&=<>|\]"""),
+            (3, r"[^a-zA-Z\s]"),
+            (4, r"(?:(?<!foo)\.bar)|(?:foo\.(?!bar))|(?:(?<!foo)\.(?!bar))"),
         ],
     )
     def test_configure_pattern(self, test_id, pattern):

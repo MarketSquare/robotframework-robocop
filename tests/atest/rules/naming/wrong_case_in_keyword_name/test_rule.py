@@ -14,7 +14,7 @@ class TestRuleAcceptance(RuleAcceptance):
 
     def test_configure_pattern(self):
         self.check_rule(
-            config="-c wrong-case-in-keyword-name:pattern:Foo\.bar",
+            config=r"-c wrong-case-in-keyword-name:pattern:Foo\.bar",
             src_files=["configure_pattern"],
             expected_file="configure_pattern/expected_output.txt",
         )

@@ -3,4 +3,9 @@ updates:
   - package-ecosystem: pip
     directory: "/tests/packages/rf-stable6"
     schedule:
-      interval: daily
+      interval: "daily"
+
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"

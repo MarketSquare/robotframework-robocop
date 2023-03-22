@@ -193,6 +193,7 @@ rules = {
             *** Variables ***
             ${VAR_NO_VALUE}                   # missing value
             ${VAR_WITH_EMPTY}       ${EMPTY}
+            @{MULTILINE_FIRST_EMPTY}
             ...                               # missing value
             ...  value
             ${EMPTY_WITH_BACKSLASH}  \        # used backslash

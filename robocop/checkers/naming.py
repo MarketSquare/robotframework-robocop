@@ -307,27 +307,27 @@ rules = {
         docs="""
         ``WITH NAME`` marker that is used when giving an alias to an imported library is going to be renamed to ``AS``.
         The motivation is to be consistent with Python that uses ``as`` for similar purpose.
-        
+
         Code with the deprecated marker::
-        
+
             *** Settings ***
             Library    Collections    WITH NAME    AliasedName
-        
+
         Code with the supported marker::
-        
+
             *** Settings ***
             Library    Collections    AS    AliasedName
-        
+
         """,
     ),
     "0322": Rule(
         rule_id="0322",
         name="deprecated-singular-header",
-        msg="'{{ singular_header }}' singular header form is deprecated since RF 6.0 and will be removed in the future releases. Use '{{ plurar_header }}' instead",
+        msg="'{{ singular_header }}' singular header form is deprecated since RF 6.0 and will be removed in the future releases. Use '{{ plural_header }}' instead",
         severity=RuleSeverity.WARNING,
         version=">=6.0",
         docs="""
-        Robot Framework 6.0 starts deprecation period for singular headers forms. The rationale behind this change 
+        Robot Framework 6.0 starts deprecation period for singular headers forms. The rationale behind this change
         is available at https://github.com/robotframework/robotframework/issues/4431 .
         """,
     ),
@@ -382,6 +382,7 @@ class InvalidCharactersInNameChecker(VisitorChecker):
                     block_name=f"'{node_name}' {name_of_node}",
                     node=node,
                     col=node.col_offset + match.start(0) + 1,
+                    end_col=node.col_offset + match.end(0) + 1,
                 )
             start_pos = variable[1]
 
@@ -392,6 +393,7 @@ class InvalidCharactersInNameChecker(VisitorChecker):
                 block_name=f"'{node.name}' {name_of_node}",
                 node=node,
                 col=node.col_offset + iter.start(0) + 1,
+                end_col=node.col_offset + iter.end(0) + 1,
             )
 
     def visit_TestCaseName(self, node):  # noqa
@@ -493,7 +495,7 @@ class KeywordNamingChecker(VisitorChecker):
                 keyword_name=keyword_name,
                 node=node,
                 col=node.col_offset + 1,
-                end_col=node.end_col_offset + 1,
+                end_col=node.col_offset + len(keyword_name) + 1,
             )
 
     def check_bdd_keywords(self, keyword_name, node):
@@ -548,7 +550,11 @@ class SettingsNamingChecker(VisitorChecker):
         if not self.section_name_pattern.match(name) or not (name.istitle() or name.isupper()):
             valid_name = f"*** {node.name.title()} ***"
             self.report(
-                "section-name-invalid", section_title_case=valid_name, section_upper_case=valid_name.upper(), node=node
+                "section-name-invalid",
+                section_title_case=valid_name,
+                section_upper_case=valid_name.upper(),
+                node=node,
+                end_col=node.col_offset + len(name) + 1,
             )
 
     def visit_Setup(self, node):  # noqa
@@ -574,8 +580,15 @@ class SettingsNamingChecker(VisitorChecker):
 
     def visit_LibraryImport(self, node):  # noqa
         self.check_setting_name(node.data_tokens[0].value, node)
-        with_name = node.get_token(*self.ALIAS_TOKENS)
-        if with_name is None:
+        if ROBOT_VERSION.major < 6:
+            arg_nodes = node.get_tokens(Token.ARGUMENT)
+            # ignore cases where 'AS' is used to provide library alias for RF < 5
+            if arg_nodes and any(arg.value == "AS" for arg in arg_nodes):
+                return
+            with_name = True if node.get_token(*self.ALIAS_TOKENS) else False
+        else:
+            with_name = True if len(node.get_tokens(Token.NAME)) >= 2 else False
+        if not with_name:
             for arg in node.get_tokens(Token.ARGUMENT):
                 if arg.value and arg.value in self.ALIAS_TOKENS_VALUES:
                     self.report("empty-library-alias", node=arg, col=arg.col_offset + 1)
@@ -586,11 +599,15 @@ class SettingsNamingChecker(VisitorChecker):
                     "duplicated-library-alias",
                     node=name_token,
                     col=name_token.col_offset + 1,
+                    end_col=name_token.end_col_offset + 1,
                 )
 
     def check_setting_name(self, name, node):
         if not (name.istitle() or name.isupper()):
-            self.report("setting-name-not-in-title-case", setting_name=name, node=node)
+            col = node.tokens[0].end_col_offset if node.tokens[0].type == "SEPARATOR" else node.col_offset
+            self.report(
+                "setting-name-not-in-title-case", setting_name=name, node=node, col=col + 1, end_col=col + len(name) + 1
+            )
 
 
 class TestCaseNamingChecker(VisitorChecker):
@@ -605,7 +622,12 @@ class TestCaseNamingChecker(VisitorChecker):
         if not node.name:
             self.report("test-case-name-is-empty", node=node)
         elif not node.name[0].isupper():
-            self.report("not-capitalized-test-case-title", test_name=node.name, node=node)
+            self.report(
+                "not-capitalized-test-case-title",
+                test_name=node.name,
+                node=node,
+                end_col=node.col_offset + len(node.name) + 1,
+            )
 
 
 class VariableNamingChecker(VisitorChecker):
@@ -637,6 +659,7 @@ class VariableNamingChecker(VisitorChecker):
                     variable_name=token.value,
                     lineno=token.lineno,
                     col=token.col_offset + 1,
+                    end_col=token.col_offset + len(token.value) + 1,
                 )
 
     def visit_KeywordCall(self, node):  # noqa
@@ -647,6 +670,7 @@ class VariableNamingChecker(VisitorChecker):
                     variable_name=token.value,
                     lineno=token.lineno,
                     col=token.col_offset + 1,
+                    end_col=token.end_col_offset + 1,
                 )
 
         if not node.keyword:
@@ -660,6 +684,7 @@ class VariableNamingChecker(VisitorChecker):
                     "non-local-variables-should-be-uppercase",
                     node=node,
                     col=token.col_offset + 1,
+                    end_col=token.end_col_offset + 1,
                 )
 
 
@@ -717,7 +742,8 @@ class SimilarVariableChecker(VisitorChecker):
                     block_type=self.parent_type,
                     node=node,
                     lineno=token.lineno,
-                    col=token.col_offset,
+                    col=token.col_offset + 1,
+                    end_col=token.end_col_offset + 1,
                 )
             self.variables[normalized_token].add(token.value)
 
@@ -774,6 +800,7 @@ class DeprecatedStatementChecker(VisitorChecker):
             alternative="RETURN",
             node=node,
             col=token_col(node, Token.RETURN),
+            end_col=node.end_col_offset,
             version="5.*",
         )
 
@@ -788,6 +815,7 @@ class DeprecatedStatementChecker(VisitorChecker):
                 alternative="Test Tags",
                 node=node,
                 col=token_col(node, Token.FORCE_TAGS),
+                end_col=node.col_offset + len(setting_name) + 1,
                 version="6.0",
             )
 
@@ -805,6 +833,7 @@ class DeprecatedStatementChecker(VisitorChecker):
             alternative=alternative,
             node=node,
             col=col,
+            end_col=col + len(keyword_name),
             version=f"{version}.*",
         )
 
@@ -814,7 +843,12 @@ class DeprecatedStatementChecker(VisitorChecker):
         with_name_token = node.get_token(Token.WITH_NAME)
         if not with_name_token or with_name_token.value == "AS":
             return
-        self.report("deprecated-with-name", node=with_name_token, col=with_name_token.col_offset + 1)
+        self.report(
+            "deprecated-with-name",
+            node=with_name_token,
+            col=with_name_token.col_offset + 1,
+            end_col=with_name_token.end_col_offset + 1,
+        )
 
     def visit_SectionHeader(self, node):
         if not node.name:
@@ -829,7 +863,8 @@ class DeprecatedStatementChecker(VisitorChecker):
         self.report(
             "deprecated-singular-header",
             singular_header=f"*** {node.name} ***",
-            plurar_header=f"*** {node.name}s ***",
+            plural_header=f"*** {node.name}s ***",
             node=header_node,
-            end_col=header_node.col_offset + 1,
+            col=header_node.col_offset + 1,
+            end_col=header_node.end_col_offset + 1,
         )

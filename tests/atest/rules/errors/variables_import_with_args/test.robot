@@ -13,7 +13,7 @@ Variables  vars2.yaml
 Variables  vars2.yaml
 Variables  variables.robot
 Variables  variables.robot
-Variables  variables.robot    arg
+Variables  variables.robot    arg    arg2
 
 
 *** Test Cases ***

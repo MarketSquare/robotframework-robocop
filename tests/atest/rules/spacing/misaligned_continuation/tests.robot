@@ -28,7 +28,7 @@ Example
     ${var} =    Get X
     ...    first argument passed to this keyword is pretty long
     ...    second argument passed to this keyword is long too
-    
+
 *** Keywords ***
 Misaligned headers
     FOR  ${value}  IN  ${1}

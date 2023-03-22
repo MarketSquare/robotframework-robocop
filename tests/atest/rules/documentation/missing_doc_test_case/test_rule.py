@@ -11,3 +11,10 @@ class TestRuleAcceptance(RuleAcceptance):
             src_files=["templated.robot"],
             expected_file="expected_output_templated.txt",
         )
+
+    def test_templated_turned_off(self):
+        self.check_rule(
+            config="-c missing-doc-test-case:ignore_templated:True",
+            src_files=["templated.robot"],
+            expected_file=None,
+        )

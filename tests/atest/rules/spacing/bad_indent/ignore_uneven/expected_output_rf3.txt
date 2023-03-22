@@ -1,6 +1,6 @@
 comments.robot:32:1 [E] 1008 Indent expected. Provide 2 or more spaces of indentation for statements inside block
 comments.robot:47:1 [E] 1008 Indent expected. Provide 2 or more spaces of indentation for statements inside block
-test.robot:20:4 [E] 1008 Indent expected. Provide 2 or more spaces of indentation for statements inside block
-test.robot:21:5 [E] 1008 Indent expected. Provide 2 or more spaces of indentation for statements inside block
-test.robot:116:4 [E] 1008 Indent expected. Provide 2 or more spaces of indentation for statements inside block
+test.robot:20:1 [E] 1008 Indent expected. Provide 2 or more spaces of indentation for statements inside block
+test.robot:21:1 [E] 1008 Indent expected. Provide 2 or more spaces of indentation for statements inside block
+test.robot:116:1 [E] 1008 Indent expected. Provide 2 or more spaces of indentation for statements inside block
 test.robot:123:1 [E] 1008 Indent expected. Provide 2 or more spaces of indentation for statements inside block

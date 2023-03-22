@@ -12,7 +12,7 @@ Test
 
 
 *** Keywords ***
-Keyword
+Some Keyword
     [Documentation]  this is doc
     No Operation
     Pass

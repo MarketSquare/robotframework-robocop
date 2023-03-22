@@ -1,6 +1,7 @@
 *** Settings ***
 Suite Setup  Run Keyword If
 Suite Teardown  Run Keyword If
+Force Tags         tag
 
 Test Setup  Run Keyword If
 Test Teardown  Run Keyword If

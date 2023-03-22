@@ -288,7 +288,8 @@ class ParsingErrorChecker(VisitorChecker):
 
     def visit_KeywordCall(self, node):  # noqa
         if node.keyword and node.keyword.startswith("..."):
-            self.report("not-enough-whitespace-after-newline-marker", node=node)
+            col = node.data_tokens[0].col_offset + 1
+            self.report("not-enough-whitespace-after-newline-marker", node=node, col=col, end_col=col + 3)
         self.generic_visit(node)
 
     def visit_Statement(self, node):  # noqa
@@ -317,7 +318,8 @@ class ParsingErrorChecker(VisitorChecker):
         elif "Invalid variable name" in error:
             self.handle_invalid_variable(node, error)
         elif "RETURN can only be used inside" in error:
-            self.report("return-in-test-case", node=node, col=token_col(node, "RETURN STATEMENT"))
+            token = node.data_tokens[0]
+            self.report("return-in-test-case", node=node, col=token.col_offset + 1, end_col=token.end_col_offset)
         elif "IF" in error or ("ELSE" in error and If and isinstance(self.in_block, If)):
             self.handle_invalid_block(node, error, "invalid-if")
         elif "FOR loop" in error:
@@ -328,7 +330,10 @@ class ParsingErrorChecker(VisitorChecker):
             return
         else:
             error = error.replace("\n   ", "")
-            self.report("parsing-error", error_msg=error, node=node)
+            token = node.header if hasattr(node, "header") else node
+            end_col = token.col_offset + len(node.name) + 1 if hasattr(node, "name") else token.end_col_offset + 1
+            # TODO: 'col' location here can be specified more precisely
+            self.report("parsing-error", error_msg=error, node=node, col=token.col_offset + 1, end_col=end_col)
 
     def handle_invalid_block(self, node, error, block_name):
         if hasattr(node, "header"):
@@ -367,6 +372,7 @@ class ParsingErrorChecker(VisitorChecker):
         setting_error = setting_error.group(1)
         if not setting_error:
             return
+        token = node.data_tokens[0]
         if setting_error in self.keyword_only_settings:
             self.report(
                 "setting-not-supported",
@@ -374,6 +380,8 @@ class ParsingErrorChecker(VisitorChecker):
                 test_or_keyword="Test Case",  # TODO: Recognize if it is inside Task
                 allowed_settings=", ".join(self.test_case_settings),
                 node=node,
+                col=token.col_offset + 1,
+                end_col=token.end_col_offset + 1,
             )
         elif setting_error in self.test_case_only_settings:
             self.report(
@@ -382,6 +390,8 @@ class ParsingErrorChecker(VisitorChecker):
                 test_or_keyword="Keyword",
                 allowed_settings=", ".join(self.keyword_settings),
                 node=node,
+                col=token.col_offset + 1,
+                end_col=token.end_col_offset + 1,
             )
 
     def handle_invalid_setting(self, node, error):
@@ -391,8 +401,9 @@ class ParsingErrorChecker(VisitorChecker):
         setting_error = setting_error.group(1)
         if not setting_error:
             return
+        token = node.data_tokens[0]
         if setting_error.lstrip().startswith(".."):
-            self.handle_invalid_continuation_mark(node, node.data_tokens[0].value)
+            self.handle_invalid_continuation_mark(node, token.value)
         elif setting_error in self.keyword_only_settings:
             self.report(
                 "setting-not-supported",
@@ -400,6 +411,8 @@ class ParsingErrorChecker(VisitorChecker):
                 test_or_keyword="Test Case",  # TODO: Recognize if it is inside Task
                 allowed_settings=", ".join(self.test_case_settings),
                 node=node,
+                col=token.col_offset + 1,
+                end_col=token.end_col_offset + 1,
             )
         elif setting_error in self.test_case_only_settings:
             self.report(
@@ -408,6 +421,8 @@ class ParsingErrorChecker(VisitorChecker):
                 test_or_keyword="Keyword",
                 allowed_settings=", ".join(self.keyword_settings),
                 node=node,
+                col=token.col_offset + 1,
+                end_col=token.end_col_offset + 1,
             )
         else:
             suite_sett_cand = setting_error.replace(" ", "").lower()
@@ -423,7 +438,13 @@ class ParsingErrorChecker(VisitorChecker):
             error = error.replace("\n   ", "").replace("Robot Framework syntax error: ", "")
             if error.endswith("."):
                 error = error[:-1]
-            self.report("non-existing-setting", error_msg=error, node=node)
+            self.report(
+                "non-existing-setting",
+                error_msg=error,
+                node=node,
+                col=token.col_offset + 1,
+                end_col=token.end_col_offset + 1,
+            )
 
     def handle_invalid_variable(self, node, error):
         var_error = re.search("Invalid variable name '(.*)'.", error)
@@ -442,6 +463,7 @@ class ParsingErrorChecker(VisitorChecker):
                     variable_name=variable_token.value,
                     node=variable_token,
                     col=variable_token.col_offset + 1,
+                    end_col=variable_token.end_col_offset + 1,
                 )
             else:
                 error = error.replace("\n   ", "")
@@ -450,15 +472,19 @@ class ParsingErrorChecker(VisitorChecker):
     def handle_invalid_continuation_mark(self, node, name):
         stripped = name.lstrip()
         if len(stripped) == 2 or not stripped[2].strip():
-            self.report("invalid-continuation-mark", mark=stripped, node=node, col=name.find(".") + 1)
+            first_dot = name.find(".") + 1
+            self.report("invalid-continuation-mark", mark=stripped, node=node, col=first_dot, end_col=first_dot + 2)
         elif len(stripped) >= 4:
             if stripped[:4] == "....":
-                self.report("invalid-continuation-mark", mark=stripped, node=node, col=name.find(".") + 1)
+                first_dot = name.find(".") + 1
+                self.report("invalid-continuation-mark", mark=stripped, node=node, col=first_dot, end_col=first_dot + 4)
             else:  # '... ' or '...value' or '...\t'
+                col = name.find(".") + 1
                 self.report(
                     "not-enough-whitespace-after-newline-marker",
                     node=node,
-                    col=name.find(".") + 1,
+                    col=col,
+                    end_col=col + 3,
                 )
 
     @staticmethod
@@ -488,6 +514,7 @@ class ParsingErrorChecker(VisitorChecker):
             error_msg=f"Positional argument '{token.value}' follows named argument",
             node=token,
             col=token.col_offset + 1,
+            end_col=token.end_col_offset + 1,
         )
 
 
@@ -523,6 +550,7 @@ class TwoSpacesAfterSettingsChecker(VisitorChecker):
                 setting_name=match.group(0),
                 node=node,
                 col=node.data_tokens[0].col_offset + 1,
+                end_col=node.data_tokens[0].end_col_offset + 1,
             )
 
 
@@ -550,6 +578,7 @@ class MissingKeywordName(VisitorChecker):
                 node=node,
                 lineno=node.lineno,
                 col=node.data_tokens[0].col_offset + 1,
+                end_col=node.data_tokens[0].end_col_offset + 1,
             )
 
 

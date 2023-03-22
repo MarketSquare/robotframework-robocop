@@ -21,7 +21,7 @@ Keyword
     Pass
     No Operation
     Fail
-    [Return]    ${var}  2  4  4  5
+    RETURN    ${var}  2  4  4  5
 
 Keyword 2
     Return From Keyword  ${var}  2  4  4  5
@@ -44,3 +44,4 @@ Try Except While
         END
         RETURN    ${var}
     END
+    [Return]         ${var}  2  4  4  5

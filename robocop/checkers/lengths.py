@@ -68,7 +68,7 @@ rules = {
         rule_id="0505",
         name="too-many-calls-in-test-case",
         msg="Test case '{{ test_name }}' has too many keywords inside ({{ keyword_count }}/{{ max_allowed_count }})",
-        docs="Redesign the test and move complex logic to separate keywords to increase readiblity.",
+        docs="Redesign the test and move complex logic to separate keywords to increase readability.",
         severity=RuleSeverity.WARNING,
     ),
     "0506": Rule(
@@ -103,9 +103,9 @@ rules = {
         severity=RuleSeverity.WARNING,
         docs="""
         It is possible to ignore lines that match regex pattern. Configure it using following option::
-        
+
             robocop --configure line-too-long:ignore_pattern:pattern
-        
+
         The default pattern is ``https?://\S+`` that ignores the lines that look like an URL.
 
         """,
@@ -218,7 +218,7 @@ rules = {
         msg="Test case '{{ test_name }}' has too few keywords inside ({{ keyword_count }}/{{ min_allowed_count }})",
         docs="""
         Test without keywords will fail. Add more keywords or set results using Fail, Pass, Skip keywords::
-        
+
             *** Test Cases ***
             Test case
                 [Tags]    smoke
@@ -281,6 +281,7 @@ class LengthChecker(VisitorChecker):
                 max_allowed_count=self.param("file-too-long", "max_lines"),
                 node=node,
                 lineno=node.end_lineno,
+                end_col=node.end_col_offset,
                 sev_threshold_value=node.end_lineno,
             )
         super().visit_File(node)
@@ -298,6 +299,7 @@ class LengthChecker(VisitorChecker):
                         arguments_count=args_number,
                         max_allowed_count=self.param("too-many-arguments", "max_args"),
                         node=node,
+                        end_col=node.col_offset + len(node.name) + 1,
                         sev_threshold_value=args_number,
                     )
                 break
@@ -309,7 +311,7 @@ class LengthChecker(VisitorChecker):
                 keyword_length=length,
                 allowed_length=self.param("too-long-keyword", "max_len"),
                 node=node,
-                lineno=node_end_line,
+                end_col=node.col_offset + len(node.name) + 1,
                 ext_disablers=(node.lineno, node_end_line),
                 sev_threshold_value=length,
             )
@@ -355,6 +357,7 @@ class LengthChecker(VisitorChecker):
                 test_length=length,
                 allowed_length=self.param("too-long-test-case", "max_len"),
                 node=node,
+                end_col=node.col_offset + len(node.name) + 1,
                 sev_threshold_value=length,
             )
         test_is_templated = self.test_is_templated(node)
@@ -423,6 +426,7 @@ class LineLengthChecker(RawFileChecker):
                 line_length=len(line),
                 allowed_length=self.param("line-too-long", "line_length"),
                 lineno=lineno,
+                end_col=len(line) + 1,
                 sev_threshold_value=len(line),
             )
 
@@ -437,7 +441,13 @@ class EmptySectionChecker(VisitorChecker):
             return
         anything_but = EmptyLine if isinstance(node, CommentSection) else (Comment, EmptyLine)
         if all(isinstance(child, anything_but) for child in node.body):
-            self.report("empty-section", section_name=get_section_name(node), node=node)
+            self.report(
+                "empty-section",
+                section_name=get_section_name(node),
+                node=node,
+                col=node.col_offset + 1,
+                end_col=node.header.end_col_offset,
+            )
 
     def visit_Section(self, node):  # noqa
         self.check_if_empty(node)
@@ -471,6 +481,7 @@ class NumberOfReturnedArgsChecker(VisitorChecker):
                 max_allowed_count=self.param("number-of-returned-values", "max_returns"),
                 node=node,
                 col=node.data_tokens[0].col_offset + 1,
+                end_col=node.data_tokens[0].end_col_offset + 1,
                 sev_threshold_value=return_count,
             )
 
@@ -521,67 +532,97 @@ class EmptySettingsChecker(VisitorChecker):
 
     def visit_Metadata(self, node):  # noqa
         if node.name is None:
-            self.report("empty-metadata", node=node, col=node.end_col_offset)
+            self.report("empty-metadata", node=node, col=node.col_offset + 1)
 
     def visit_Documentation(self, node):  # noqa
         if not node.value:
-            self.report("empty-documentation", block_name=self.parent_node_name, node=node, col=node.end_col_offset)
+            self.report(
+                "empty-documentation",
+                block_name=self.parent_node_name,
+                node=node,
+                col=node.data_tokens[0].col_offset + 1,
+                end_col=node.end_col_offset,
+            )
 
     def visit_ForceTags(self, node):  # noqa
         if not node.values:
-            self.report("empty-force-tags", node=node, col=node.end_col_offset)
+            self.report("empty-force-tags", node=node, col=node.col_offset + 1, end_col=node.end_col_offset)
 
     def visit_DefaultTags(self, node):  # noqa
         if not node.values:
-            self.report("empty-default-tags", node=node, col=node.end_col_offset)
+            self.report("empty-default-tags", node=node, col=node.col_offset + 1, end_col=node.end_col_offset)
 
     def visit_VariablesImport(self, node):  # noqa
         if not node.name:
-            self.report("empty-variables-import", node=node, col=node.end_col_offset)
+            self.report("empty-variables-import", node=node, col=node.col_offset + 1, end_col=node.end_col_offset)
 
     def visit_ResourceImport(self, node):  # noqa
         if not node.name:
-            self.report("empty-resource-import", node=node, col=node.end_col_offset)
+            self.report("empty-resource-import", node=node, col=node.col_offset + 1)
 
     def visit_LibraryImport(self, node):  # noqa
         if not node.name:
-            self.report("empty-library-import", node=node, col=node.end_col_offset)
+            self.report("empty-library-import", node=node, col=node.col_offset + 1)
 
     def visit_Setup(self, node):  # noqa
         if not node.name:
-            self.report("empty-setup", block_name=self.parent_node_name, node=node, col=node.end_col_offset + 1)
+            self.report(
+                "empty-setup",
+                block_name=self.parent_node_name,
+                node=node,
+                col=node.data_tokens[0].col_offset + 1,
+                end_col=node.end_col_offset,
+            )
 
     def visit_SuiteSetup(self, node):  # noqa
         if not node.name:
-            self.report("empty-suite-setup", node=node, col=node.end_col_offset)
+            self.report("empty-suite-setup", node=node, col=node.col_offset + 1, end_col=node.end_col_offset)
 
     def visit_TestSetup(self, node):  # noqa
         if not node.name:
-            self.report("empty-test-setup", node=node, col=node.end_col_offset)
+            self.report("empty-test-setup", node=node, col=node.col_offset + 1, end_col=node.end_col_offset)
 
     def visit_Teardown(self, node):  # noqa
         if not node.name:
-            self.report("empty-teardown", block_name=self.parent_node_name, node=node, col=node.end_col_offset + 1)
+            self.report(
+                "empty-teardown",
+                block_name=self.parent_node_name,
+                node=node,
+                col=node.data_tokens[0].col_offset + 1,
+                end_col=node.end_col_offset,
+            )
 
     def visit_SuiteTeardown(self, node):  # noqa
         if not node.name:
-            self.report("empty-suite-teardown", node=node, col=node.end_col_offset)
+            self.report("empty-suite-teardown", node=node, col=node.col_offset + 1, end_col=node.end_col_offset)
 
     def visit_TestTeardown(self, node):  # noqa
         if not node.name:
-            self.report("empty-test-teardown", node=node, col=node.end_col_offset)
+            self.report("empty-test-teardown", node=node, col=node.col_offset + 1, end_col=node.end_col_offset)
 
     def visit_Timeout(self, node):  # noqa
         if not node.value:
-            self.report("empty-timeout", block_name=self.parent_node_name, node=node, col=node.end_col_offset + 1)
+            self.report(
+                "empty-timeout",
+                block_name=self.parent_node_name,
+                node=node,
+                col=node.data_tokens[0].col_offset + 1,
+                end_col=node.end_col_offset,
+            )
 
     def visit_TestTimeout(self, node):  # noqa
         if not node.value:
-            self.report("empty-test-timeout", node=node, col=node.end_col_offset)
+            self.report("empty-test-timeout", node=node, col=node.col_offset + 1, end_col=node.end_col_offset)
 
     def visit_Arguments(self, node):  # noqa
         if not node.values:
-            self.report("empty-arguments", block_name=self.parent_node_name, node=node, col=node.end_col_offset + 1)
+            self.report(
+                "empty-arguments",
+                block_name=self.parent_node_name,
+                node=node,
+                col=node.data_tokens[0].col_offset + 1,
+                end_col=node.end_col_offset + 1,
+            )
 
 
 class TestCaseNumberChecker(VisitorChecker):
@@ -602,5 +643,6 @@ class TestCaseNumberChecker(VisitorChecker):
                 test_count=discovered_testcases,
                 max_allowed_count=max_testcases,
                 node=node,
+                end_col=node.header.end_col_offset,
                 sev_threshold_value=discovered_testcases,
             )

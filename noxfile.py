@@ -17,10 +17,10 @@ def install_doc_deps(session, robot_major_ver):
 
 
 @nox.session(python=UNIT_TEST_PYTHON_VERSIONS)
-@nox.parametrize("robot_version", ["3", "4", "5"])
+@nox.parametrize("robot_version", ["3", "4", "5", "6"])
 def unit(session, robot_version):
     install_dev_deps(session, robot_version)
-    session.run("pytest", "--benchmark-skip", "tests")
+    session.run("pytest", "tests")
 
 
 @nox.session()

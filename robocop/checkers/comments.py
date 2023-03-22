@@ -37,10 +37,10 @@ rules = {
         By default, it reports TODO and FIXME markers.
 
         Example::
-        
+
             # TODO: Refactor this code
             # fixme
-        
+
         Configuration example::
 
             robocop --configure "todo-in-comment:markers:todo,Remove me,Fix this!"
@@ -63,7 +63,7 @@ rules = {
         Configured regex for block comment should take into account the first character is `#`.
 
         Example::
-        
+
             #bad
             # good
             ### good block
@@ -92,15 +92,15 @@ rules = {
         severity=RuleSeverity.ERROR,
         version="<4.0",
         docs="""
-        In Robot Framework 3.2.2 comments that started from second character in the cell were not recognized as 
+        In Robot Framework 3.2.2 comments that started from second character in the cell were not recognized as
         comments.
-        
+
         Example::
-        
+
             # good
              # bad
               # third cell so it's good
-        
+
         """,
     ),
     "0704": Rule(
@@ -109,26 +109,26 @@ rules = {
         msg="Ignored data found in file",
         severity=RuleSeverity.WARNING,
         docs="""
-        All lines before first test data section 
-        (`ref <https://robotframework.org/robotframework/latest/RobotFrameworkUserGuide.html#test-data-sections>`_) 
+        All lines before first test data section
+        (`ref <https://robotframework.org/robotframework/latest/RobotFrameworkUserGuide.html#test-data-sections>`_)
         are ignored. It's recommended to add `*** Comments ***` section header for lines that should be ignored.
-        
+
         Missing section header::
-    
+
             Resource   file.resource  # it looks like *** Settings *** but section header is missing - line is ignored
-            
+
             *** Keywords ***
             Keyword Name
                No Operation
-        
+
         Comment lines that should be inside `*** Comments ***`::
-            
+
             Deprecated Test
                 Keyword
                 Keyword 2
-            
+
             *** Test Cases ***
-    
+
         """,
     ),
     "0705": Rule(
@@ -209,7 +209,7 @@ class CommentChecker(VisitorChecker):
             return
         if name and name.lstrip().startswith("#"):
             hash_pos = name.find("#")
-            self.report("invalid-comment", node=node, col=node.col_offset + hash_pos + 1)
+            self.report("invalid-comment", node=node, col=node.col_offset + hash_pos + 1, end_col=len(name))
 
     def check_comment_content(self, token, content):
         low_content = content.lower()
@@ -227,6 +227,7 @@ class CommentChecker(VisitorChecker):
                     "missing-space-after-comment",
                     lineno=token.lineno,
                     col=token.col_offset + 1,
+                    end_col=token.col_offset + len(content) + 1,
                 )
 
     def is_block_comment(self, comment):
@@ -279,7 +280,7 @@ class IgnoredDataChecker(RawFileChecker):
         if self.has_language_header and not line.strip():
             # empty lines after language: header can be ignored
             return False
-        self.report("ignored-data", lineno=lineno, col=1)
+        self.report("ignored-data", lineno=lineno, col=1, end_col=len(line))
         return True
 
     def detect_bom(self, source):

@@ -71,11 +71,18 @@ class TestE2E:
     def test_all_reports(self, robocop_instance, test_data_dir):
         should_run_with_config(robocop_instance, f"-r all {test_data_dir}")
 
-    def test_no_issues_all_reports(self, robocop_instance, test_data_dir):
+    def test_no_issues_all_reports(self, robocop_instance, test_data_dir, capfd):
         should_run_with_config(robocop_instance, f'-r all {test_data_dir / "all_passing.robot"}')
+        out, err = capfd.readouterr()
+        assert "No issues found." in out
 
     def test_ignore_file_with_pattern(self, robocop_instance, test_data_dir):
         should_run_with_config(robocop_instance, f"--ignore *.robot --include 0502 {test_data_dir}")
+
+    def test_ignore_dir_with_pattern(self, robocop_instance, test_data_dir, capfd):
+        should_run_with_config(robocop_instance, f"--ignore {test_data_dir}* {test_data_dir}")
+        out, err = capfd.readouterr()
+        assert not out
 
     def test_include_one_rule(self, robocop_instance, test_data_dir):
         should_run_with_config(robocop_instance, f"--include 0503 {test_data_dir}")

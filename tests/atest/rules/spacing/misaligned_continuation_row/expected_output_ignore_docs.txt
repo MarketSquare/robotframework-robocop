@@ -5,5 +5,7 @@ test.robot:38:8 [W] 1015 Each next continuation line should be aligned with the 
 test.robot:41:8 [W] 1015 Each next continuation line should be aligned with the previous one
 test.robot:44:8 [W] 1015 Each next continuation line should be aligned with the previous one
 test.robot:58:8 [W] 1015 Each next continuation line should be aligned with the previous one
+test.robot:64:8 [W] 1015 Each next continuation line should be aligned with the previous one
+test.robot:65:8 [W] 1015 Each next continuation line should be aligned with the previous one
 test.robot:68:8 [W] 1015 Each next continuation line should be aligned with the previous one
 test.robot:69:8 [W] 1015 Each next continuation line should be aligned with the previous one

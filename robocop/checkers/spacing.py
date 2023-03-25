@@ -228,6 +228,7 @@ rules = {
         """,
     ),
     "1015": Rule(
+        RuleParam(name="ignore_docs", default=True, converter=str2bool, show_type="bool", desc="Ignore documentation"),
         rule_id="1015",
         name="misaligned-continuation-row",
         msg="Each next continuation line should be aligned with the previous one",
@@ -780,6 +781,9 @@ class MisalignedContinuation(VisitorChecker, ModelVisitor):
                         break
                     indent = 0
                 elif token.type != Token.EOL and token.value.strip():  # ignore trailing whitespace
+                    ignore_docs = self.param("misaligned-continuation-row", "ignore_docs")
+                    if node.type == Token.DOCUMENTATION and ignore_docs:
+                        break
                     if first_column:
                         if indent != first_column:
                             cont = [token for token in line if token.type == "CONTINUATION"][0]

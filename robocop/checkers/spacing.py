@@ -236,17 +236,16 @@ rules = {
         docs="""
         Example of rule violation::
 
-            *** Settings ***
-            Documentation      Here we have documentation for this suite.
-            ...                Documentation is often quite long.
-            ...
-            ...            It can also contain multiple paragraphs.  # misaligned
+            *** Variable ***
+            ${VAR}    This is a long string.
+            ...       It has multiple sentences.
+            ...         And this line is misaligned with previous one.
 
             *** Test Cases ***
-            Test
-            [Tags]    you    probably    do    not    have    this    many
-            ...      tags    in    real    life  # misaligned
-
+            My Test
+                My Keyword
+                ...    arg1
+                ...   arg2  # misaligned
         """,
     ),
     "1016": Rule(

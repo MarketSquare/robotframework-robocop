@@ -1,22 +1,44 @@
 name: Bug report
 description: File a bug report
-title: '[Bug] '
+title: '[Bug] Title'
 labels: 'bug'
 body:
   - type: textarea
     id: what-happened
     attributes:
       label: What happened?
-      description: Also tell us, what did you expect to happen?
-      value: "Bug details"
+      description: What steps led you to this problem?
+      placeholder: What steps led you to this problem?
     validations:
       required: true
+  - type: textarea
+    id: run-command
+    attributes:
+      label: What command/code did you try to run?
+      description: Please include as much details as possible
+      placeholder: Paste the command and/or the code snippet
+    validations:
+      required: true
+  - type: textarea
+    id: error-message
+    attributes:
+      label: What is the full error message?
+      description: Please include the output of the executed command
+      placeholder: Paste the error message
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What did you expect to happen instead?
+    validations:
+      required: false
   - type: input
     id: platform
     attributes:
       label: Operating System
-      description: On what OS does it happen?
-      placeholder: Windows
+      description: On what OS did it happen?
+      placeholder: Windows, Linux, macOS...
     validations:
       required: false
   - type: input

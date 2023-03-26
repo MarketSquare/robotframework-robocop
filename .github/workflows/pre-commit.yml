@@ -16,6 +16,10 @@ jobs:
 
     - name: Set up Python
       uses: actions/setup-python@v4
+      with:
+        python-version: '3.x'
 
     - name: Run pre-commit hooks
       uses: pre-commit/action@v3.0.0
+      with:
+        python-version: '3.x'

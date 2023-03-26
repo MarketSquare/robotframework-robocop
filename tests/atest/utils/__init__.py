@@ -106,10 +106,7 @@ class RuleAcceptance:
         format = self.get_issue_format(issue_format)
         if rule is None:
             rule = [self.rule_name]
-        robocop_instance = Robocop(from_cli=False)
-        robocop_instance = configure_robocop_with_rule(
-            config, robocop_instance, rule, test_data, src_files, format=format
-        )
+        robocop_instance = configure_robocop_with_rule(config, Robocop(), rule, test_data, src_files, format=format)
         with isolated_output() as output, pytest.raises(SystemExit):
             try:
                 robocop_instance.run()

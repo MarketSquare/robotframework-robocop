@@ -1,6 +1,7 @@
 import contextlib
 import io
 import os
+import re
 import sys
 from pathlib import Path
 from typing import List, Optional
@@ -31,13 +32,21 @@ def convert_to_output(stdout_bytes):
 
 def get_result(encoded_output):
     stdout = convert_to_output(encoded_output.getvalue())
-    return stdout.splitlines()
+    return stdout
 
 
 def normalize_result(result, test_data):
     """Remove test data directory path from paths and sort the lines."""
     test_data_str = f"{test_data}{os.path.sep}"
     return sorted([line.replace(test_data_str, "") for line in result])
+
+
+def remove_deprecation_warning(result):
+    """Remove deprecation warning from the results"""
+    deprecation_regex = (
+        r"(?s)(\#\#\# DEPRECATION WARNING \#\#\#)(.*?)(This information will disappear in the next version\.\n+)"
+    )
+    return re.sub(deprecation_regex, "", result)
 
 
 def load_expected_file(test_data, expected_file):
@@ -107,7 +116,8 @@ class RuleAcceptance:
             finally:
                 sys.stdout.flush()
                 result = get_result(output)
-        actual = normalize_result(result, test_data)
+                parsed_results = remove_deprecation_warning(result).splitlines()
+        actual = normalize_result(parsed_results, test_data)
         if actual != expected:
             present_in_actual = "\n    ".join(set(actual) - set(expected))
             present_in_expected = "\n    ".join(set(expected) - set(actual))

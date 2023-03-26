@@ -35,6 +35,18 @@ Now, all of them are updated, especially `packaging` now allows to use v23.
 
 Improved internal quality (#652)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 A couple of new GitHub Actions have been added to our GitHub CI.
 New Black action now scans Robocop code to ensure code quality.
 There is also new pre-commit job and additional unit tests.
+
+New E1017 rule for bad indentation in code block (#793)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Old `bad-indent` rule has been split into two:
+- the old one W1008 `bad-indent` stays, but it will only detect under- or
+  over-indented code. The `ignore_uneven` and `strict` are no longer available,
+  but `indent` parameter remains the same, with a new default value of -1,
+  which makes it being ignored by default.
+- the new E1017 `bad-block-indent` rule that detects invalid indentation
+  inside code block like FOR loops or TRY-EXCEPT statements.

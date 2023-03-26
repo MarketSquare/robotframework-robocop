@@ -56,3 +56,14 @@ Misaligned Continuation
     ...  ${value}
     ...  2
     ...      ${value2}
+
+Keyword With Documentation
+    [Documentation]    This is my keyword documentation.
+    ...
+    ...   Arguments:
+    ...       ${arg1}:      Value of arg1
+    ...       ${arg2}:      Value of arg2
+    No Operation
+    ...  1
+    ...   2
+    ...    3

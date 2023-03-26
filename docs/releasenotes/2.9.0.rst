@@ -36,9 +36,19 @@ Now, all of them are updated, especially `packaging` now allows to use v23.
 Improved internal quality (#652)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+
 A couple of new GitHub Actions have been added to our GitHub CI.
 New Black action now scans Robocop code to ensure code quality.
 There is also new pre-commit job and additional unit tests.
+
+`misaligned-continuation-row` rule now ignores documentation by default
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+There is a new `ignore_docs` parameter added to 1015
+`misaligned-continuation-row` rule set to `True` by default, which means
+that any violation of this rule within the Documentation will be ignored.
+If you want to detect the violations in the Documentation setting or section,
+configure this rule with `-c 1015:ignore_docs:False`.
 
 New E1017 rule for bad indentation in code block (#793)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

@@ -204,6 +204,7 @@ rules = {
         """,
     ),
     "1015": Rule(
+        RuleParam(name="ignore_docs", default=True, converter=str2bool, show_type="bool", desc="Ignore documentation"),
         rule_id="1015",
         name="misaligned-continuation-row",
         msg="Each next continuation line should be aligned with the previous one",
@@ -211,17 +212,16 @@ rules = {
         docs="""
         Example of rule violation::
 
-            *** Settings ***
-            Documentation      Here we have documentation for this suite.
-            ...                Documentation is often quite long.
-            ...
-            ...            It can also contain multiple paragraphs.  # misaligned
+            *** Variable ***
+            ${VAR}    This is a long string.
+            ...       It has multiple sentences.
+            ...         And this line is misaligned with previous one.
 
             *** Test Cases ***
-            Test
-            [Tags]    you    probably    do    not    have    this    many
-            ...      tags    in    real    life  # misaligned
-
+            My Test
+                My Keyword
+                ...    arg1
+                ...   arg2  # misaligned
         """,
     ),
     "1016": Rule(
@@ -769,6 +769,9 @@ class MisalignedContinuation(VisitorChecker, ModelVisitor):
                         break
                     indent = 0
                 elif token.type != Token.EOL and token.value.strip():  # ignore trailing whitespace
+                    ignore_docs = self.param("misaligned-continuation-row", "ignore_docs")
+                    if node.type == Token.DOCUMENTATION and ignore_docs:
+                        break
                     if first_column:
                         if indent != first_column:
                             cont = [token for token in line if token.type == "CONTINUATION"][0]

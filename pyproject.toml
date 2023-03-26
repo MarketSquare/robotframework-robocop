@@ -1,11 +1,14 @@
 [tool.black]
 line-length = 120
+
 [tool.isort]
 profile = "black"
 line_length = 120
+
 [tool.coverage.run]
 omit = ["*tests*"]
 source = ["robocop"]
+
 [tool.coverage.report]
 exclude_lines = [
         "pragma: no cover",

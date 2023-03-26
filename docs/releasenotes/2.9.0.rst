@@ -36,12 +36,11 @@ Now, all of them are updated, especially `packaging` now allows to use v23.
 Improved internal quality (#652)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-
 A couple of new GitHub Actions have been added to our GitHub CI.
 New Black action now scans Robocop code to ensure code quality.
 There is also new pre-commit job and additional unit tests.
 
-`misaligned-continuation-row` rule now ignores documentation by default
+`misaligned-continuation-row` rule now ignores documentation by default (#789)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 There is a new `ignore_docs` parameter added to 1015

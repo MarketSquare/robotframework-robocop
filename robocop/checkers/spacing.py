@@ -624,7 +624,6 @@ class UnevenIndentChecker(VisitorChecker):
                 self.report(
                     "bad-indent",
                     bad_indent_msg="Line is over-indented",
-                    severity=RuleSeverity.WARNING,
                     node=child,
                     col=1,
                     end_col=token_col(child, Token.COMMENT),
@@ -728,7 +727,6 @@ class UnevenIndentChecker(VisitorChecker):
         self.report(
             "bad-indent",
             bad_indent_msg=f"Line is {over_or_under}-indented",
-            severity=RuleSeverity.WARNING,
             node=statement,
             col=1,
             end_col=indent + 1,

@@ -1,7 +1,7 @@
 :orphan:
 
 Robocop 3.0.0
-================
+=============
 
 This version of Robocop hugely improves the experience of using Robocop
 within the IDEs by fixing the locations of rule violations in code, which
@@ -18,7 +18,7 @@ Additionally, we bumped the versions of the dependencies up.
         pip install robotframework-robocop==3.0.0
 
 Precise locations of the rule violations (#290)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The main improvement focused around adjusting the locations
 where the rules are violated in the code. More specifically, it improves
@@ -31,40 +31,45 @@ Bumped dependencies (#792)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 There were some compatibility issues due to outdated packages.
-Now, all of them are updated, especially `packaging` now allows to use v23.
+Now, all of them are updated, especially ``packaging`` now allows to use v23.
 
 Improved internal quality (#652)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 A couple of new GitHub Actions have been added to our GitHub CI.
 New Black action now scans Robocop code to ensure code quality.
 There is also new pre-commit job and additional unit tests.
 
-`misaligned-continuation-row` rule now ignores documentation by default (#789)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+``misaligned-continuation-row`` rule now ignores documentation by default (#789)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-There is a new `ignore_docs` parameter added to 1015
-`misaligned-continuation-row` rule set to `True` by default, which means
+There is a new ``ignore_docs`` parameter added to 1015
+``misaligned-continuation-row`` rule set to ``True`` by default, which means
 that any violation of this rule within the Documentation will be ignored.
 If you want to detect the violations in the Documentation setting or section,
-configure this rule with `-c 1015:ignore_docs:False`.
+configure this rule with ``-c 1015:ignore_docs:False``.
 
-Deprecated parameters of W1008 `bad-indent rule` and 
-new E1017 rule for bad indentation in code block (#793)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Deprecated parameters of W1008 ``bad-indent`` rule and new E1017 rule for bad indentation in code block (#793)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Old `bad-indent` rule has been split into two:
-- the old one W1008 `bad-indent` stays, but it will only detect under- or
-  over-indented code. The `ignore_uneven` and `strict` are no longer available,
-  but `indent` parameter remains the same, with a new default value of -1,
+Old ``bad-indent`` rule has been split into two:
+
+- the old one W1008 ``bad-indent`` stays, but it will only detect under- or
+  over-indented code. The ``ignore_uneven`` and ``strict`` are no longer available,
+  but ``indent`` parameter remains the same, with a new default value of -1,
   which makes it being ignored by default.
-- the new E1017 `bad-block-indent` rule that detects invalid indentation
+- the new E1017 ``bad-block-indent`` rule that detects invalid indentation
   inside code block like FOR loops or TRY-EXCEPT statements.
 
-Using `bad-indent` rule now prints a deprecation warning in the console
+Using ``bad-indent`` rule now prints a deprecation warning in the console
 that suggests to replace old parameters with new E1017 rule. The parameters
 are still accepted, but they no longer control the behavior of W1008 rule.
 The warning will disappear in the next major release.
 
-Also, there was a bug (#793) that prevented the severity of the old `bad-indent`
-rule from being configured. It is now fixed and the rule can be configured.
+The rule now reports only when the line is under- or over-indented.
+
+Also, there was a bug (#793) that prevented the severity of the old ``bad-indent``
+rule from being configured. It is fixed now.
+
+From now on, ``bad-indent`` also properly supports data-driven tests (#758)
+in templated suites. If you encounter any issues, please report them back to us.

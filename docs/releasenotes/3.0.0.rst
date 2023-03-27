@@ -7,6 +7,9 @@ This version of Robocop hugely improves the experience of using Robocop
 within the IDEs by fixing the locations of rule violations in code, which
 in turn results in correct underlining of the issues.
 
+There are backward-incompatible changes to the W1008 ``bad-indent`` rule
+and its parameters (described below in details).
+
 Additionally, we bumped the versions of the dependencies up.
 
     You can install the latest available version by running::
@@ -26,6 +29,10 @@ where the rule violation starts and ends, meaning that the precise position
 is now defined correctly. Thanks to that, the LSP will correctly pass that
 information to the IDE you're using and will underline every place that
 needs your attention.
+
+Changes to the locations of the issues may affect the locally used disablers,
+and in result may require doing reviewing them and updating. That's why we
+decided to release new major version.
 
 Bumped dependencies (#792)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -49,27 +56,46 @@ that any violation of this rule within the Documentation will be ignored.
 If you want to detect the violations in the Documentation setting or section,
 configure this rule with ``-c 1015:ignore_docs:False``.
 
-Deprecated parameters of W1008 ``bad-indent`` rule and new E1017 rule for bad indentation in code block (#793)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Deprecated parameters of W1008 ``bad-indent`` rule (#803)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Old ``bad-indent`` rule has been split into two:
 
-- the old one W1008 ``bad-indent`` stays, but it will only detect under- or
-  over-indented code. The ``ignore_uneven`` and ``strict`` are no longer available,
-  but ``indent`` parameter remains the same, with a new default value of -1,
-  which makes it being ignored by default.
-- the new E1017 ``bad-block-indent`` rule that detects invalid indentation
-  inside code block like FOR loops or TRY-EXCEPT statements.
+The old one W1008 ``bad-indent`` stays, but it will only detect under- or
+over-indented code. The ``ignore_uneven`` and ``strict`` are no longer available,
+but ``indent`` parameter remains the same, with a new default value of -1,
+which makes it being ignored by default.
 
 Using ``bad-indent`` rule now prints a deprecation warning in the console
 that suggests to replace old parameters with new E1017 rule. The parameters
 are still accepted, but they no longer control the behavior of W1008 rule.
 The warning will disappear in the next major release.
 
+The new rule is described below.
+
+New E1017 rule for bad indentation in code block (#803)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The new E1017 ``bad-block-indent`` rule that detects invalid indentation
+inside code block like FOR loops or TRY-EXCEPT statements.
+
 The rule now reports only when the line is under- or over-indented.
 
-Also, there was a bug (#793) that prevented the severity of the old ``bad-indent``
+Severity for ``bad-indent`` rule can be configured now (#793)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+There was a bug (#793) that prevented the severity of the old ``bad-indent``
 rule from being configured. It is fixed now.
+
+``bad-indent`` rule now supports data-driven tests
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 From now on, ``bad-indent`` also properly supports data-driven tests (#758)
 in templated suites. If you encounter any issues, please report them back to us.
+
+New bug report template
+~~~~~~~~~~~~~~~~~~~~~~~
+
+The `bug report template
+<https://github.com/MarketSquare/robotframework-robocop/issues/new?assignees=&labels=bug&template=bug_report.yml&title=%5BBug%5D+Title>`_
+is now extended to make it easier for the users to report bugs and for us to reproduce them.

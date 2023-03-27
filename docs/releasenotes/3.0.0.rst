@@ -1,6 +1,6 @@
 :orphan:
 
-Robocop 2.9.0
+Robocop 3.0.0
 ================
 
 This version of Robocop hugely improves the experience of using Robocop
@@ -15,7 +15,7 @@ Additionally, we bumped the versions of the dependencies up.
 
     or to install exactly this version::
 
-        pip install robotframework-robocop==2.9.0
+        pip install robotframework-robocop==3.0.0
 
 Precise locations of the rule violations (#290)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -40,7 +40,7 @@ A couple of new GitHub Actions have been added to our GitHub CI.
 New Black action now scans Robocop code to ensure code quality.
 There is also new pre-commit job and additional unit tests.
 
-`misaligned-continuation-row` rule now ignores documentation by default
+`misaligned-continuation-row` rule now ignores documentation by default (#789)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 There is a new `ignore_docs` parameter added to 1015
@@ -48,3 +48,23 @@ There is a new `ignore_docs` parameter added to 1015
 that any violation of this rule within the Documentation will be ignored.
 If you want to detect the violations in the Documentation setting or section,
 configure this rule with `-c 1015:ignore_docs:False`.
+
+Deprecated parameters of W1008 `bad-indent rule` and 
+new E1017 rule for bad indentation in code block (#793)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Old `bad-indent` rule has been split into two:
+- the old one W1008 `bad-indent` stays, but it will only detect under- or
+  over-indented code. The `ignore_uneven` and `strict` are no longer available,
+  but `indent` parameter remains the same, with a new default value of -1,
+  which makes it being ignored by default.
+- the new E1017 `bad-block-indent` rule that detects invalid indentation
+  inside code block like FOR loops or TRY-EXCEPT statements.
+
+Using `bad-indent` rule now prints a deprecation warning in the console
+that suggests to replace old parameters with new E1017 rule. The parameters
+are still accepted, but they no longer control the behavior of W1008 rule.
+The warning will disappear in the next major release.
+
+Also, there was a bug (#793) that prevented the severity of the old `bad-indent`
+rule from being configured. It is now fixed and the rule can be configured.

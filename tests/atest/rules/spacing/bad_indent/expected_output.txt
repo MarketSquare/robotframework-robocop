@@ -5,19 +5,14 @@ bug375.robot:33:1 [W] 1008 Line is under-indented
 comments.robot:19:1 [W] 1008 Line is over-indented
 comments.robot:23:1 [W] 1008 Line is under-indented
 comments.robot:26:1 [W] 1008 Line is over-indented
-comments.robot:32:1 [E] 1008 Indent expected. Provide 2 or more spaces of indentation for statements inside block
 comments.robot:39:1 [W] 1008 Line is under-indented
-comments.robot:47:1 [E] 1008 Indent expected. Provide 2 or more spaces of indentation for statements inside block
 comments.robot:56:1 [W] 1008 Line is under-indented
 comments.robot:60:1 [W] 1008 Line is under-indented
-test.robot:20:1 [E] 1008 Indent expected. Provide 2 or more spaces of indentation for statements inside block
-test.robot:21:1 [E] 1008 Indent expected. Provide 2 or more spaces of indentation for statements inside block
 test.robot:23:1 [W] 1008 Line is under-indented
 test.robot:28:1 [W] 1008 Line is under-indented
 test.robot:29:1 [W] 1008 Line is under-indented
 test.robot:43:1 [W] 1008 Line is over-indented
 test.robot:44:1 [W] 1008 Line is over-indented
-test.robot:47:1 [E] 1008 Indent expected. Provide 2 or more spaces of indentation for statements inside block
 test.robot:53:1 [W] 1008 Line is over-indented
 test.robot:58:1 [W] 1008 Line is over-indented
 test.robot:66:1 [W] 1008 Line is over-indented
@@ -31,8 +26,6 @@ test.robot:87:1 [W] 1008 Line is over-indented
 test.robot:90:1 [W] 1008 Line is over-indented
 test.robot:106:1 [W] 1008 Line is over-indented
 test.robot:108:1 [W] 1008 Line is over-indented
-test.robot:116:1 [E] 1008 Indent expected. Provide 2 or more spaces of indentation for statements inside block
-test.robot:123:1 [E] 1008 Indent expected. Provide 2 or more spaces of indentation for statements inside block
 test.robot:154:1 [W] 1008 Line is under-indented
 test.robot:156:1 [W] 1008 Line is over-indented
 test.robot:158:1 [W] 1008 Line is under-indented

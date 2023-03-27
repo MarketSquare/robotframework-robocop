@@ -431,6 +431,7 @@ class Config:
         self.translate_patterns()
         self.print_config_source()
         self.validate_rule_names(rules)
+        self.check_deprecations(rules)
 
     def print_config_source(self):
         # We can only print after reading all configs, since self.verbose is unknown before we read it from config
@@ -492,25 +493,38 @@ class Config:
         container.add(new_key)
 
     def validate_rule_names(self, rules):
-        # add rule name in form of old_name: new_name
-        deprecated = {
-            "uneven-indent": "bad-indent",
-            "could-be-forced-tags": "could-be-test-tags",
-            "tag-already-set-in-force-tags": "tag-already-set-in-test-tags",
-        }
         for rule in chain(self.include, self.exclude):
-            if rule in deprecated:  # update warning description to specific case
-                print(
-                    f"### DEPRECATION WARNING ###\nThe name (or ID) of the rule '{rule}' is "
-                    f"renamed to '{deprecated[rule]}'. "
-                    f"Update your configuration if you're using old name. "
-                    f"This information will disappear in the next version.\n\n"
-                )
-                self.replace_in_set(self.include, rule, deprecated[rule])
-                self.replace_in_set(self.exclude, rule, deprecated[rule])
-            elif rule not in rules:
+            if rule not in rules:
                 similar = RecommendationFinder().find_similar(rule, rules)
                 raise ConfigGeneralError(f"Provided rule '{rule}' does not exist. {similar}")
+
+    def check_deprecations(self, rules):
+        renamed = {
+            # "old-name": "new-name"
+        }
+        deprecated = {
+            # "rule-name": "deprecation message"
+            "bad-indent": "`strict` and `ignore_uneven` parameters are no longer available for this rule. Take a look at new E1017 bad-block-indent rule that replaces them."  # warning added in v.3.0.0
+        }
+        deprecation_header = "### DEPRECATION WARNING ###"
+        deprecation_footer = "This information will disappear in the next version.\n\n"
+        for rule in chain(self.include, self.exclude):
+            rule_name = rules[rule].name
+            if rule_name in renamed:  # update warning description to specific case
+                print(
+                    f"{deprecation_header}\n"
+                    f"Rule '{rule_name}' is renamed to '{renamed[rule_name]}'.\n"
+                    f"Update your configuration if you're using the old name. "
+                    f"{deprecation_footer}"
+                )
+                self.replace_in_set(self.include, rule_name, renamed[rule_name])
+                self.replace_in_set(self.exclude, rule_name, renamed[rule_name])
+            if rule_name in deprecated:
+                print(
+                    f"{deprecation_header}\n"
+                    f"Rule '{rule_name}' is deprecated - {deprecated[rule_name]}\n"
+                    f"{deprecation_footer}"
+                )
 
     def is_rule_enabled(self, rule):
         if self.is_rule_disabled(rule):

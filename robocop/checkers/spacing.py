@@ -75,7 +75,7 @@ rules = {
         severity=RuleSeverity.WARNING,
     ),
     "1008": Rule(
-        RuleParam(
+        RuleParam(  # TODO: unused, remove in the next release
             name="strict",
             default=False,
             converter=str2bool,
@@ -83,11 +83,11 @@ rules = {
         ),
         RuleParam(
             name="indent",
-            default=4,
+            default=-1,
             converter=int,
             desc="Number of spaces per indentation level",
         ),
-        RuleParam(
+        RuleParam(  # TODO: unused, remove in the next release
             name="ignore_uneven",
             default=False,
             converter=str2bool,
@@ -109,21 +109,9 @@ rules = {
                 IF    $condition    RETURN
                Keyword Call  # line is under-intended by two spaces
 
-        If the indentation is less than two spaces than current block parent element
-        (such as FOR/IF/WHILE/TRY header) the indentation is invalid and the rule reports an error::
-
-            *** Keywords ***
-            Keyword
-                 FOR  ${elem}  IN  ${list}
-                Log  stuff  # content of FOR blocks should use bigger indentation than FOR header
-                 END
-
-        To report only invalid indent and do not report misaligned lines, configure ``ignore_uneven`` parameter to
-        ``True``.
-
-        The correct indentation is determined by most common indentation in the current block. It allows more
-        flexible indentation. It's possible to use ``strict`` (default ``False``) mode for checking if the indentation
-        is the multiple of ``indent`` spaces (default 4).
+        The correct indentation is determined by the most common indentation in the current block. Although,
+        it allows for more flexible indentation by specifying the ``indent`` parameter for checking if the
+        indentation is the multiple of ``indent`` spaces (default -1, which makes this parameter being ignored).
         """,
     ),
     "1009": Rule(
@@ -262,6 +250,24 @@ rules = {
                 Resource  data.resource
                 Variables  vars.robot
 
+        """,
+    ),
+    "1017": Rule(
+        rule_id="1017",
+        name="bad-block-indent",
+        msg="Indent expected. Provide 2 or more spaces of indentation for statements inside block",
+        severity=RuleSeverity.ERROR,
+        docs="""
+        If the indentation is less than two spaces than current block parent element
+        (such as FOR/IF/WHILE/TRY header) the indentation is invalid and the rule reports an error::
+
+            *** Keywords ***
+            Some Keyword
+                FOR  ${elem}  IN  ${list}
+                    Log  ${elem}  # this is fine
+               Log  stuff    # this is bad indent
+            # bad comment
+                END
         """,
     ),
 }
@@ -585,7 +591,7 @@ def index_of_first_standalone_comment(node):
 class UnevenIndentChecker(VisitorChecker):
     """Checker for indentation violations."""
 
-    reports = ("bad-indent",)
+    reports = ("bad-indent", "bad-block-indent")
 
     def __init__(self):
         self.indents = []
@@ -621,21 +627,19 @@ class UnevenIndentChecker(VisitorChecker):
 
     def check_standalone_comments_indent(self, node):
         # comments before first test case / keyword
-        if not self.param("bad-indent", "ignore_uneven"):
-            for child in node.body:
-                if (
-                    getattr(child, "type", "") == Token.COMMENT
-                    and getattr(child, "tokens", None)
-                    and child.tokens[0].type == Token.SEPARATOR
-                ):
-                    self.report(
-                        "bad-indent",
-                        bad_indent_msg="Line is over-indented",
-                        severity=RuleSeverity.WARNING,
-                        node=child,
-                        col=1,
-                        end_col=token_col(child, Token.COMMENT),
-                    )
+        for child in node.body:
+            if (
+                getattr(child, "type", "") == Token.COMMENT
+                and getattr(child, "tokens", None)
+                and child.tokens[0].type == Token.SEPARATOR
+            ):
+                self.report(
+                    "bad-indent",
+                    bad_indent_msg="Line is over-indented",
+                    node=child,
+                    col=1,
+                    end_col=token_col(child, Token.COMMENT),
+                )
         self.generic_visit(node)
 
     def visit_For(self, node):
@@ -709,7 +713,7 @@ class UnevenIndentChecker(VisitorChecker):
     def get_required_indent(self, statement):
         if isinstance(statement, Comment) and self.end_of_node:
             return 0
-        if self.param("bad-indent", "strict"):
+        if self.param("bad-indent", "indent") != -1:
             return self.param("bad-indent", "indent") * len(self.indents)
         return self.indents[-1]
 
@@ -722,15 +726,11 @@ class UnevenIndentChecker(VisitorChecker):
         indent = get_indent(statement)
         if self.parent_indent and (indent - 2 < self.parent_indent):
             self.report(
-                "bad-indent",
-                bad_indent_msg="Indent expected. Provide 2 or more spaces of indentation for statements inside block",
-                severity=RuleSeverity.ERROR,
+                "bad-block-indent",
                 node=statement,
                 col=1,
                 end_col=indent + 1,
             )
-            return
-        if self.param("bad-indent", "ignore_uneven"):
             return
         req_indent = self.get_required_indent(statement)
         if indent == req_indent:
@@ -739,7 +739,6 @@ class UnevenIndentChecker(VisitorChecker):
         self.report(
             "bad-indent",
             bad_indent_msg=f"Line is {over_or_under}-indented",
-            severity=RuleSeverity.WARNING,
             node=statement,
             col=1,
             end_col=indent + 1,

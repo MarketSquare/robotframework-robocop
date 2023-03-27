@@ -504,7 +504,7 @@ class Config:
         }
         deprecated = {
             # "rule-name": "deprecation message"
-            "bad-indent": "`strict` and `ignore_uneven` parameters are no longer available for this rule"
+            "bad-indent": "`strict` and `ignore_uneven` parameters are no longer available for this rule. Take a look at new E1017 bad-block-indent rule that replaces them."
         }
         deprecation_header = "### DEPRECATION WARNING ###"
         deprecation_footer = "This information will disappear in the next version.\n\n"

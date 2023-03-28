@@ -517,6 +517,11 @@ class InconsistentUseOfTabsAndSpacesChecker(VisitorChecker, ModelVisitor):
 
 
 def get_indent(node):
+    """Calculate the indentation length for given node
+
+    Returns:
+        int: Indentation length
+    """
     tokens = node.tokens if hasattr(node, "tokens") else node.header.tokens
     indent_len = 0
     for token in tokens:
@@ -527,17 +532,34 @@ def get_indent(node):
 
 
 def count_indents(node):
+    """Counts number of occurrences for unique indent values
+
+    Returns:
+        Counter: A counter of unique indent values with associated number of occurrences in given node
+    """
     indents = Counter()
     if node is None:
         return indents
     for line in node.body:
         if isinstance(line, (EmptyLine, Comment)):
             continue
-        indents[(get_indent(line))] += 1
+        # for templated suite, there can be data on the same line where the test case name is
+        if node.lineno == line.lineno and isinstance(node, TestCase):
+            indents[len(node.name) + (get_indent(line))] += 1
+        else:
+            indents[(get_indent(line))] += 1
     return indents
 
 
 def most_common_indent(indents):
+    """Returns most commonly occurred indent
+
+    Args:
+        indents (Counter): A counter of unique indent values with associated number of occurrences in given node
+
+    Returns:
+        indent (int): Most common indent or the first one
+    """
     common_indents = indents.most_common(1)
     if not common_indents:
         return 0

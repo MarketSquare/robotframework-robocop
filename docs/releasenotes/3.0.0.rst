@@ -31,7 +31,16 @@ Bumped dependencies (#792)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 There were some compatibility issues due to outdated packages.
-Now, all of them are updated, especially `packaging` now allows to use v23.
+Now, all of them are updated.
+
+Removed packaging dependency (#742)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+``packaging`` dependency brings a lot of other dependencies and often caused
+compatibility issues for us. We only used it for its versioning module when
+deciding if the Robocop rule should be enabled for given Robot Framework rule.
+That's why we have decided to remove the dependency and rewrite version handling
+in the Roocop.
 
 Improved internal quality (#652)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

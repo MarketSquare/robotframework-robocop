@@ -10,6 +10,9 @@ in turn results in correct underlining of the issues.
 There are backward-incompatible changes to the W1008 ``bad-indent`` rule
 and its parameters (described below in details).
 
+This release also drops the support for Python 3.6, and the minimum
+required version now is Python 3.7+.
+
 Additionally, we bumped the versions of the dependencies up.
 
     You can install the latest available version by running::
@@ -33,6 +36,21 @@ needs your attention.
 Changes to the locations of the issues may affect the locally used disablers,
 and in result may require doing reviewing them and updating. That's why we
 decided to release new major version.
+
+Python 3.6 support dropped
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+Python 3.6 is not supported anymore since Dec 23, 2021, it's been already
+quite a long time we kept it supported for Robocop. Due to that, we could
+not benefit from the features of newer versions of Python and it started
+becoming undesired. Also, taking security risk seriously, we need to be
+mindful about possible vulnerabilities in our software that are out of
+our control, and that may affect us if we use outdated dependencies.
+
+From Robocop 3.0.0 we are dropping the support for Python 3.6, and we plan
+to also drop Python 3.7 in the near future, since the scheduled security
+support for this version ends on Jun 27, 2023.
+
+Right now, minimum required version for Robocop is Python 3.7+.
 
 Bumped dependencies (#792)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~

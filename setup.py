@@ -11,7 +11,6 @@ Development Status :: 5 - Production/Stable
 License :: OSI Approved :: Apache Software License
 Operating System :: OS Independent
 Programming Language :: Python
-Programming Language :: Python :: 3.6
 Programming Language :: Python :: 3.7
 Programming Language :: Python :: 3.8
 Programming Language :: Python :: 3.9
@@ -49,14 +48,13 @@ setup(
     keywords=KEYWORDS,
     packages=["robocop"],
     project_urls=PROJECT_URLS,
-    python_requires=">=3.6",
+    python_requires=">=3.7",
     include_package_data=True,
     install_requires=[
         "jinja2>=3.0,<4.0",
         "robotframework>=3.2.2",
         "pathspec>=0.9,<0.12",
-        "tomli==1.2.3; python_version < '3.7.0'",
-        "tomli>=2.0.0; python_version >= '3.7.0'",
+        "tomli>=2.0.0",
         "pytz>=2022.7",
         "python-dateutil>=2.8.2",
     ],

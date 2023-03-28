@@ -1,9 +1,10 @@
 import nox
 
-UNIT_TEST_PYTHON_VERSIONS = ["3.6", "3.7", "3.8", "3.9", "3.10", "3.11"]
+UNIT_TEST_PYTHON_VERSIONS = ["3.7", "3.8", "3.9", "3.10", "3.11"]
 nox.options.sessions = [
     "unit",
 ]
+# TODO: Add better session names for easier control
 
 
 def install_dev_deps(session, robot_major_ver):

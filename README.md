@@ -55,7 +55,7 @@ Most common questions with answers can be found at the bottom ⬇ of this README
 Requirements
 ------------
 
-Python 3.6+ :snake: and Robot Framework 3.2.2+ :robot:.
+Python 3.7+ :snake: and Robot Framework 3.2.2+ :robot:.
 
 Installation
 ------------

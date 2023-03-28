@@ -100,7 +100,7 @@ Will result in following output:
 \Users\OCP\test.robot:22:1 [E] 0801 Multiple test cases with name "Simple Test" (first occurrence in line 17) (duplicated-test-case)
 \Users\OCP\test.robot:42:1 [E] 0810 Both Task(s) and Test Case(s) section headers defined in file (both-tests-and-tasks)
 \Users\OCP\test.robot:48:1 [W] 0302 Keyword 'my keyword' does not follow case convention (wrong-case-in-keyword-name)
-\Users\OCP\test.robot:51:13 [I] 0606 Tag 'mytag' is already set by Force Tags in suite settings (tag-already-set-in-force-tags)
+\Users\OCP\test.robot:51:13 [I] 0606 Tag 'mytag' is already set by Test Tags in suite settings (tag-already-set-in-test-tags)
 
 Found 5 issues: 2 ERRORs, 2 WARNINGs, 1 INFO.
 ```

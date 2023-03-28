@@ -5,7 +5,6 @@ from pathlib import Path
 from unittest import mock
 
 import pytest
-from packaging import version
 
 import robocop.exceptions
 from robocop.config import Config
@@ -19,6 +18,7 @@ from robocop.exceptions import (
 from robocop.rules import RuleSeverity
 from robocop.run import Robocop
 from robocop.utils.misc import ROBOT_VERSION, rf_supports_lang
+from robocop.utils.version_matching import Version
 
 
 @pytest.fixture
@@ -231,7 +231,7 @@ class TestE2E:
         robocop_instance.run()
         assert not robocop_instance.reports["json_report"].issues
 
-    @pytest.mark.skipif(ROBOT_VERSION > version.parse("4.0"), reason="Error occurs only in RF < 5")
+    @pytest.mark.skipif(ROBOT_VERSION > Version("4.0"), reason="Error occurs only in RF < 5")
     def test_handling_error_in_robot_module(self):
         config = Config()
         test_file = INVALID_TEST_DATA / "invalid_syntax" / "invalid_file.robot"

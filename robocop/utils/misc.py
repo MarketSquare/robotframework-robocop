@@ -8,21 +8,20 @@ from pathlib import Path
 from typing import Dict, List, Optional, Pattern, Tuple
 
 from robot.api import Token
-from robot.parsing.model.statements import EmptyLine
 
 try:
     from robot.api.parsing import Variable
 except ImportError:
     from robot.parsing.model.statements import Variable
 
-from packaging import version
 from robot.version import VERSION as RF_VERSION
 
 from robocop.exceptions import InvalidExternalCheckerError
+from robocop.utils.version_matching import Version
 from robocop.version import __version__
 
-ROBOT_VERSION = version.parse(RF_VERSION)
-ROBOT_WITH_LANG = version.parse("6.0")
+ROBOT_VERSION = Version(RF_VERSION)
+ROBOT_WITH_LANG = Version("6.0")
 
 
 def rf_supports_lang():

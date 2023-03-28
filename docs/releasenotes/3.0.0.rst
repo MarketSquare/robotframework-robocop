@@ -37,8 +37,8 @@ Changes to the locations of the issues may affect the locally used disablers,
 and in result may require doing reviewing them and updating. That's why we
 decided to release new major version.
 
-Python 3.6 support dropped
-~~~~~~~~~~~~~~~~~~~~~~~~~~
+Python 3.6 support dropped (#806)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Python 3.6 is not supported anymore since Dec 23, 2021, it's been already
 quite a long time we kept it supported for Robocop. Due to that, we could
 not benefit from the features of newer versions of Python and it started

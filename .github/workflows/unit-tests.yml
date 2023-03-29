@@ -15,8 +15,8 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - os: 'ubuntu-20.04'
-            python-version: '3.6'
+          - os: 'ubuntu-latest'
+            python-version: '3.7'
             rf-version: 'rf-stable3'
           - os: 'ubuntu-latest'
             python-version: '3.7'

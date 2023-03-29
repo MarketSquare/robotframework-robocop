@@ -17,6 +17,9 @@ jobs:
         include:
           - os: 'ubuntu-latest'
             python-version: '3.7'
+            rf-version: 'rf-stable3'
+          - os: 'ubuntu-latest'
+            python-version: '3.7'
             rf-version: 'rf-stable4'
           - os: 'ubuntu-latest'
             python-version: '3.8'

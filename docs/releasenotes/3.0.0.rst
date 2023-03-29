@@ -1,5 +1,6 @@
 :orphan:
 
+=============
 Robocop 3.0.0
 =============
 
@@ -15,16 +16,27 @@ required version now is Python 3.7+.
 
 Additionally, we bumped the versions of the dependencies up.
 
-    You can install the latest available version by running::
+You can install the latest available version by running
 
-        pip install --upgrade robotframework-robocop
+::
 
-    or to install exactly this version::
+    pip install --upgrade robotframework-robocop
 
-        pip install robotframework-robocop==3.0.0
+or to install exactly this version
+
+::
+
+    pip install robotframework-robocop==3.0.0
+
+.. contents::
+   :depth: 2
+   :local:
+
+Most important changes
+======================
 
 Precise locations of the rule violations (#290)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-----------------------------------------------
 
 The main improvement focused around adjusting the locations
 where the rules are violated in the code. More specifically, it improves
@@ -38,7 +50,8 @@ and in result may require doing reviewing them and updating. That's why we
 decided to release new major version.
 
 Python 3.6 support dropped (#806)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+---------------------------------
+
 Python 3.6 is not supported anymore since Dec 23, 2021, it's been already
 quite a long time we kept it supported for Robocop. Due to that, we could
 not benefit from the features of newer versions of Python and it started
@@ -52,30 +65,11 @@ support for this version ends on Jun 27, 2023.
 
 Right now, minimum required version for Robocop is Python 3.7+.
 
-Bumped dependencies (#792)
-~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-There were some compatibility issues due to outdated packages.
-Now, all of them are updated.
-
-Removed packaging dependency (#742)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-``packaging`` dependency brings a lot of other dependencies and often caused
-compatibility issues for us. We only used it for its versioning module when
-deciding if the Robocop rule should be enabled for given Robot Framework rule.
-That's why we have decided to remove the dependency and rewrite version handling
-in the Roocop.
-
-Improved internal quality (#652)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-A couple of new GitHub Actions have been added to our GitHub CI.
-New Black action now scans Robocop code to ensure code quality.
-There is also new pre-commit job and additional unit tests.
+Rule changes
+============
 
 ``misaligned-continuation-row`` rule now ignores documentation by default (#789)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+--------------------------------------------------------------------------------
 
 There is a new ``ignore_docs`` parameter added to 1015
 ``misaligned-continuation-row`` rule set to ``True`` by default, which means
@@ -84,7 +78,7 @@ If you want to detect the violations in the Documentation setting or section,
 configure this rule with ``-c 1015:ignore_docs:False``.
 
 Deprecated parameters of W1008 ``bad-indent`` rule (#803)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+---------------------------------------------------------
 
 Old ``bad-indent`` rule has been split into two:
 
@@ -101,7 +95,7 @@ The warning will disappear in the next major release.
 The new rule is described below.
 
 New E1017 rule for bad indentation in code block (#803)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-------------------------------------------------------
 
 The new E1017 ``bad-block-indent`` rule that detects invalid indentation
 inside code block like FOR loops or TRY-EXCEPT statements.
@@ -109,20 +103,45 @@ inside code block like FOR loops or TRY-EXCEPT statements.
 The rule now reports only when the line is under- or over-indented.
 
 Severity for ``bad-indent`` rule can be configured now (#793)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-------------------------------------------------------------
 
 There was a bug (#793) that prevented the severity of the old ``bad-indent``
 rule from being configured. It is fixed now.
 
-``bad-indent`` rule now supports data-driven tests
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+``bad-indent`` rule now supports data-driven tests (#758)
+---------------------------------------------------------
 
-From now on, ``bad-indent`` also properly supports data-driven tests (#758)
+From now on, ``bad-indent`` also properly supports data-driven tests
 in templated suites. If you encounter any issues, please report them back to us.
 
-New bug report template
-~~~~~~~~~~~~~~~~~~~~~~~
+Other features
+==============
+
+Improved internal quality (#652)
+--------------------------------
+
+A couple of new GitHub Actions have been added to our GitHub CI.
+New Black action now scans Robocop code to ensure code quality.
+There is also new pre-commit job and additional unit tests.
+
+New bug report template (#801)
+------------------------------
 
 The `bug report template
 <https://github.com/MarketSquare/robotframework-robocop/issues/new?assignees=&labels=bug&template=bug_report.yml&title=%5BBug%5D+Title>`_
 is now extended to make it easier for the users to report bugs and for us to reproduce them.
+
+Bumped dependencies (#792)
+--------------------------
+
+There were some compatibility issues due to outdated packages.
+Now, all of them are updated.
+
+Removed packaging dependency (#742)
+-----------------------------------
+
+``packaging`` dependency brings a lot of other dependencies and often causes
+compatibility issues for us. We only used it for its versioning module for
+deciding if the Robocop rule should be enabled for given Robot Framework version.
+That's why we have decided to remove the dependency and rewrite version handling
+in the Robocop.

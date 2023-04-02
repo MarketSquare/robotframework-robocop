@@ -671,8 +671,8 @@ class VariableNamingChecker(VisitorChecker):
             if not child.data_tokens:
                 continue
             token = child.data_tokens[0]
-            if token.type != Token.VARIABLE or not token.value:
-                return
+            if not (token.type == Token.VARIABLE or token.value):
+                continue
             var_name = search_variable(token.value).base
             normalized_var_name = remove_nested_variables(var_name)
             if not normalized_var_name.isupper():
@@ -701,7 +701,7 @@ class VariableNamingChecker(VisitorChecker):
             if len(node.data_tokens) < 2:
                 return
             token = node.data_tokens[1]
-            if token.type != Token.VARIABLE or not token.value:
+            if not (token.type == Token.VARIABLE or token.value):
                 return
             var_name = search_variable(token.value).base
             normalized_var_name = remove_nested_variables(var_name)

@@ -671,9 +671,11 @@ class VariableNamingChecker(VisitorChecker):
             if not child.data_tokens:
                 continue
             token = child.data_tokens[0]
+            if token.type != Token.VARIABLE or not token.value:
+                return
             var_name = search_variable(token.value).base
             normalized_var_name = remove_nested_variables(var_name)
-            if token.type == Token.VARIABLE and token.value and not normalized_var_name.isupper():
+            if not normalized_var_name.isupper():
                 self.report(
                     "section-variable-not-uppercase",
                     variable_name=token.value,
@@ -699,9 +701,11 @@ class VariableNamingChecker(VisitorChecker):
             if len(node.data_tokens) < 2:
                 return
             token = node.data_tokens[1]
+            if token.type != Token.VARIABLE or not token.value:
+                return
             var_name = search_variable(token.value).base
             normalized_var_name = remove_nested_variables(var_name)
-            if token.type == Token.ARGUMENT and not normalized_var_name.isupper():
+            if not normalized_var_name.isupper():
                 self.report(
                     "non-local-variables-should-be-uppercase",
                     node=node,

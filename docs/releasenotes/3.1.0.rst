@@ -1,0 +1,56 @@
+:orphan:
+
+=============
+Robocop 3.1.0
+=============
+
+<Release description>
+
+You can install the latest available version by running
+
+::
+
+    pip install --upgrade robotframework-robocop
+
+or to install exactly this version
+
+::
+
+    pip install robotframework-robocop==3.1.0
+
+.. contents::
+   :depth: 2
+   :local:
+
+Most important changes
+======================
+
+Change title (#0)
+-----------------------------------------------
+
+Description
+
+Rule changes
+============
+
+Rules W0310 and W0309 now ignore nested variables (#678)
+------------------------------------------------------------------------------------------
+
+Rules W0310 ``non-local-variables-should-be-uppercase`` and W0309 ``section-variable-not-uppercase``
+were previously reporting when the variable had another nested variable with lowercase name,
+e.g. `${EXAMPLE_${lowercase}}`.
+Now, the nested variables are ignored and if the rest of the name is uppercase, the rules
+will not report the issue anymore.
+
+Other features
+==============
+
+Feature title (#0)
+--------------------------------
+
+Description
+
+Acknowledgements
+================
+
+Thanks to...

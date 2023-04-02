@@ -5,3 +5,8 @@ test.robot:8:1 [W] 0309 Section variable '${MyVar}' name should be uppercase
 test.robot:9:1 [W] 0309 Section variable '${My_Var}' name should be uppercase
 test.robot:10:1 [W] 0309 Section variable '${myVar}' name should be uppercase
 test.robot:11:1 [W] 0309 Section variable '${MY_var}' name should be uppercase
+test.robot:18:1 [W] 0309 Section variable '${${var${VAR}}my_var}' name should be uppercase
+test.robot:19:1 [W] 0309 Section variable '${${VAR}my_var}' name should be uppercase
+test.robot:20:1 [W] 0309 Section variable '${${VAR}my_var${var}}' name should be uppercase
+test.robot:21:1 [W] 0309 Section variable '${@{VAR}[1]my_var}' name should be uppercase
+test.robot:22:1 [W] 0309 Section variable '${@{VAR}[1]my_var&{var.param}}' name should be uppercase

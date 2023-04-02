@@ -671,14 +671,16 @@ class VariableNamingChecker(VisitorChecker):
             if not child.data_tokens:
                 continue
             token = child.data_tokens[0]
-            if not (token.type == Token.VARIABLE or token.value):
+            if token.type != Token.VARIABLE or not token.value:
                 continue
             var_name = search_variable(token.value).base
+            if var_name is None:
+                continue  # in RF<=5, a continuation mark ` ...` is wrongly considered a variable
             normalized_var_name = remove_nested_variables(var_name)
             if not normalized_var_name.isupper():
                 self.report(
                     "section-variable-not-uppercase",
-                    variable_name=token.value,
+                    variable_name=token.value.strip(),
                     lineno=token.lineno,
                     col=token.col_offset + 1,
                     end_col=token.col_offset + len(token.value) + 1,
@@ -701,7 +703,7 @@ class VariableNamingChecker(VisitorChecker):
             if len(node.data_tokens) < 2:
                 return
             token = node.data_tokens[1]
-            if not (token.type == Token.VARIABLE or token.value):
+            if token.type != Token.ARGUMENT or not token.value:
                 return
             var_name = search_variable(token.value).base
             normalized_var_name = remove_nested_variables(var_name)

@@ -667,11 +667,7 @@ class VariableNamingChecker(VisitorChecker):
         super().__init__()
 
     def visit_Variable(self, node):  # noqa
-        if not node.data_tokens:
-            return
         token = node.data_tokens[0]
-        if not token.value:
-            return
         var_name = search_variable(token.value).base
         if var_name is None:
             return  # in RF<=5, a continuation mark ` ...` is wrongly considered a variable

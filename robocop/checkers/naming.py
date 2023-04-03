@@ -675,8 +675,9 @@ class VariableNamingChecker(VisitorChecker):
         var_name = search_variable(token.value).base
         if var_name is None:
             return  # in RF<=5, a continuation mark ` ...` is wrongly considered a variable
-        normalized_var_name = remove_nested_variables(var_name)
-        if not normalized_var_name.isupper():
+        # in Variables section, everything needs to be in uppercase
+        # because even when the variable is nested, it needs to be global
+        if not var_name.isupper():
             self.report(
                 "section-variable-not-uppercase",
                 variable_name=token.value.strip(),
@@ -706,6 +707,8 @@ class VariableNamingChecker(VisitorChecker):
                 return
             var_name = search_variable(token.value).base
             normalized_var_name = remove_nested_variables(var_name)
+            # a variable as a keyword argument can contain lowercase nested variable
+            # because the actual value of it may be uppercase
             if not normalized_var_name.isupper():
                 self.report(
                     "non-local-variables-should-be-uppercase",

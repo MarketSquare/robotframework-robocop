@@ -316,7 +316,7 @@ rules = {
         rule_id="0918",
         name="multiline-inline-if",
         msg="Avoid splitting inline IF to multiple lines",
-        severity=RuleSeverity.INFO,
+        severity=RuleSeverity.WARNING,
         version=">=5.0",
         docs="""
         It's allowed to create inline IF that spans multiple lines, but it should be avoided,

@@ -45,6 +45,28 @@ will not report the issue anymore.
 For variables in Variables section, the name still needs to be all uppercase (including
 nested variable), because all nested variables in this section need to be global anyway.
 
+New rule for detecting unreachable code (#810)
+----------------------------------------------
+
+Added new rule W0917 ``unreachable-code`` for detecting if there is a code after
+``RETURN``, ``BREAK`` or ``CONTINUE`` statements, on the same scope level.
+
+For example::
+
+    Example Keyword
+        FOR    ${animal}    IN    cat    dog
+            IF    '${animal}' == 'cat'
+                CONTINUE
+                Log  ${animal}  # unreachable log
+            END
+            BREAK
+            Log    Unreachable log
+        END
+        RETURN
+        Log    Unreachable log
+
+Also, old W0901 ``keyword-after-return`` rule no longer detects ``RETURN`` statements,
+only the keywords after ``Return From Keyword`` and when there is code after ``[Return]``.
 
 Other features
 ==============

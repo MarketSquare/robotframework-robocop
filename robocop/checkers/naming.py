@@ -9,6 +9,7 @@ from pathlib import Path
 from robot.api import Token
 from robot.parsing.model.blocks import Keyword
 from robot.parsing.model.statements import Arguments, KeywordCall
+from robot.variables.search import search_variable
 
 from robocop.checkers import VisitorChecker
 from robocop.rules import Rule, RuleParam, RuleSeverity
@@ -22,6 +23,7 @@ from robocop.utils import (
     remove_robot_vars,
     token_col,
 )
+from robocop.utils.misc import remove_nested_variables
 from robocop.utils.run_keywords import iterate_keyword_names
 
 rules = {
@@ -165,6 +167,22 @@ rules = {
         name="non-local-variables-should-be-uppercase",
         msg="Test, suite and global variables should be uppercase",
         severity=RuleSeverity.WARNING,
+        docs="""
+        Good::
+
+            Set Task Variable    ${MY_VAR}           1
+            Set Suite Variable   ${MY VAR}           1
+            Set Test Variable    ${MY_VAR}           1
+            Set Global Variable  ${MY VAR${nested}}  1
+
+        Bad::
+
+            Set Task Variable    ${my_var}           1
+            Set Suite Variable   ${My Var}           1
+            Set Test Variable    ${myvar}            1
+            Set Global Variable  ${my_var${NESTED}}  1
+
+        """,
     ),
     "0311": Rule(
         rule_id="0311",
@@ -670,19 +688,21 @@ class VariableNamingChecker(VisitorChecker):
         }
         super().__init__()
 
-    def visit_VariableSection(self, node):  # noqa
-        for child in node.body:
-            if not child.data_tokens:
-                continue
-            token = child.data_tokens[0]
-            if token.type == Token.VARIABLE and token.value and not token.value.isupper():
-                self.report(
-                    "section-variable-not-uppercase",
-                    variable_name=token.value,
-                    lineno=token.lineno,
-                    col=token.col_offset + 1,
-                    end_col=token.col_offset + len(token.value) + 1,
-                )
+    def visit_Variable(self, node):  # noqa
+        token = node.data_tokens[0]
+        var_name = search_variable(token.value).base
+        if var_name is None:
+            return  # in RF<=5, a continuation mark ` ...` is wrongly considered a variable
+        # in Variables section, everything needs to be in uppercase
+        # because even when the variable is nested, it needs to be global
+        if not var_name.isupper():
+            self.report(
+                "section-variable-not-uppercase",
+                variable_name=token.value.strip(),
+                lineno=token.lineno,
+                col=token.col_offset + 1,
+                end_col=token.col_offset + len(token.value) + 1,
+            )
 
     def visit_KeywordCall(self, node):  # noqa
         for token in node.get_tokens(Token.ASSIGN):
@@ -701,7 +721,13 @@ class VariableNamingChecker(VisitorChecker):
             if len(node.data_tokens) < 2:
                 return
             token = node.data_tokens[1]
-            if token.type == Token.ARGUMENT and not token.value.isupper():
+            if not token.value:
+                return
+            var_name = search_variable(token.value).base
+            normalized_var_name = remove_nested_variables(var_name)
+            # a variable as a keyword argument can contain lowercase nested variable
+            # because the actual value of it may be uppercase
+            if not normalized_var_name.isupper():
                 self.report(
                     "non-local-variables-should-be-uppercase",
                     node=node,

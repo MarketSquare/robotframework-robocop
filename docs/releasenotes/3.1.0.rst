@@ -71,7 +71,7 @@ only the keywords after ``Return From Keyword`` and when there is code after ``[
 New rule that reports when inline IF is split into multiple lines (#804)
 ------------------------------------------------------------------------
 
-New I0918 ``multiline-inline-if`` rule that detects when inline IF is split into
+New W0918 ``multiline-inline-if`` rule that detects when inline IF is split into
 multiple lines. It's allowed, but it should be avoided, since it decreases readability.
 It recommends to use normal IF/ELSE instead.
 

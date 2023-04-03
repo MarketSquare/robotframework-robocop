@@ -19,3 +19,10 @@ Keyword
     No Operation
     Return From Keyword
     Fail
+
+Keyword
+    [Documentation]  this is doc
+    No Operation
+    Pass
+    No Operation
+    Return From Keyword

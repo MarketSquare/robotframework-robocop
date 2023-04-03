@@ -37,7 +37,7 @@ rules = {
         severity=RuleSeverity.WARNING,
         docs="""
         To improve readability use ``[Return]`` setting at the end of the keyword. If you want to return immediately
-        from the keyword use ``RETURN`` statement instead. ``[Return]`` does not return from the keyword but only
+        from the keyword, use ``RETURN`` statement instead. ``[Return]`` does not return from the keyword but only
         sets the values that will be returned at the end of the keyword.
 
         Bad::
@@ -288,6 +288,30 @@ rules = {
 
         """,
     ),
+    "0917": Rule(
+        rule_id="0917",
+        name="unreachable-code",
+        msg="Unreachable code after {{ statement }} statement",
+        severity=RuleSeverity.WARNING,
+        version=">=5.0",
+        docs="""
+        Detect the unreachable code after RETURN, BREAK or CONTINUE statements.
+
+        For example::
+
+        Example Keyword
+            FOR    ${animal}    IN    cat    dog
+                IF    '${animal}' == 'cat'
+                    CONTINUE
+                    Log  ${animal}  # unreachable log
+                END
+                BREAK
+                Log    Unreachable log
+            END
+            RETURN
+            Log    Unreachable log
+        """,
+    ),
 }
 
 
@@ -319,9 +343,6 @@ class ReturnChecker(VisitorChecker):
                         col=token.col_offset + 1,
                         end_col=token.col_offset + len(token.value),
                     )
-            elif ReturnStatement and isinstance(child, ReturnStatement):  # type: ignore[arg-type]
-                return_setting_node = child
-                error = "RETURN is not defined at the end of keyword"
             elif not isinstance(child, (EmptyLine, Comment, Teardown)):
                 if return_setting_node is not None:
                     keyword_after_return = True
@@ -335,7 +356,42 @@ class ReturnChecker(VisitorChecker):
                     return_from = True
         if keyword_after_return:
             token = return_setting_node.data_tokens[0]
-            self.report("keyword-after-return", error_msg=error, node=token, col=token.col_offset + 1)
+            self.report(
+                "keyword-after-return",
+                error_msg=error,
+                node=token,
+                col=token.col_offset + 1,
+                end_col=token.end_col_offset + 1,
+            )
+        self.generic_visit(node)
+
+    visit_If = visit_For = visit_While = visit_Try = visit_Keyword
+
+
+class UnreachableCodeChecker(VisitorChecker):
+    """Checker for unreachable code after RETURN, BREAK or CONTINUE statements."""
+
+    reports = ("unreachable-code",)
+
+    def visit_Keyword(self, node):  # noqa
+        statement_node = None
+
+        for child in node.body:
+            if (ReturnStatement and isinstance(child, ReturnStatement)) or isinstance(child, Break) or isinstance(child, Continue):  # type: ignore[arg-type]
+                statement_node = child
+            elif not isinstance(child, (EmptyLine, Comment, Teardown)):
+                if statement_node is not None:
+                    token = statement_node.data_tokens[0]
+                    code_after_statement = child.data_tokens[0] if hasattr(child, "data_tokens") else child
+                    self.report(
+                        "unreachable-code",
+                        statement=token.value,
+                        node=child,
+                        col=code_after_statement.col_offset + 1,
+                        end_col=child.end_col_offset + 1,
+                    )
+                    statement_node = None
+
         self.generic_visit(node)
 
     visit_If = visit_For = visit_While = visit_Try = visit_Keyword

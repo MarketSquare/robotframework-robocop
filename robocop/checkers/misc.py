@@ -639,7 +639,7 @@ class IfChecker(VisitorChecker):
     visit_For = visit_If = visit_Keyword = visit_TestCase  # TODO  While, Try Except?
 
     @staticmethod
-    def is_if_inline(node):
+    def is_inline_if(node):
         return isinstance(node.header, InlineIfHeader)
 
     def check_adjacent_ifs(self, node):
@@ -690,7 +690,7 @@ class IfChecker(VisitorChecker):
     def check_whether_if_should_be_inline(self, node):
         if ROBOT_VERSION.major < 5:
             return
-        if self.is_if_inline(node):
+        if self.is_inline_if(node):
             if node.lineno != node.end_lineno:
                 self.report(
                     "multiline-inline-if",

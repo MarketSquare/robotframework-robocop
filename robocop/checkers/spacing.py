@@ -10,6 +10,8 @@ from robot.parsing.model.blocks import Keyword, TestCase
 from robot.parsing.model.statements import Comment, EmptyLine
 from robot.parsing.model.visitor import ModelVisitor
 
+from robocop.utils.misc import ROBOT_VERSION
+
 try:
     from robot.api.parsing import InlineIfHeader
 except ImportError:
@@ -774,6 +776,15 @@ class MisalignedContinuation(VisitorChecker, ModelVisitor):
         "misaligned-continuation",
         "misaligned-continuation-row",
     )
+
+    @staticmethod
+    def is_inline_if(node):
+        return isinstance(node.header, InlineIfHeader)
+
+    def visit_If(self, node):
+        # suppress the rules if the multiline-inline-if is already reported
+        if ROBOT_VERSION.major >= 5 and self.is_inline_if(node):
+            return
 
     def visit_Statement(self, node):  # noqa
         if not node.data_tokens:

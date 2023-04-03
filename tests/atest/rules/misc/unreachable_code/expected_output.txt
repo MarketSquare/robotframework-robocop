@@ -11,4 +11,4 @@ test.robot:106:13 [W] 0917 Unreachable code after CONTINUE statement
 test.robot:109:9 [W] 0917 Unreachable code after BREAK statement
 test.robot:112:5 [W] 0917 Unreachable code after RETURN statement
 test.robot:118:13 [W] 0917 Unreachable code after BREAK statement
-test.robot:122:1 [W] 0917 Unreachable code after RETURN statement
+test.robot:123:1 [W] 0917 Unreachable code after RETURN statement

@@ -116,6 +116,7 @@ Break Example
         IF    '${animal}' == 'cat'
             BREAK
             Log  ${animal}  # unreachable code
+            Log  ${animal}  # should not report here
         END
     END
     RETURN

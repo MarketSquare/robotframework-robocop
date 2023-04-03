@@ -377,7 +377,7 @@ class UnreachableCodeChecker(VisitorChecker):
         statement_node = None
 
         for child in node.body:
-            if (ReturnStatement and isinstance(child, ReturnStatement)) or isinstance(child, Break) or isinstance(child, Continue):  # type: ignore[arg-type]
+            if ReturnStatement and isinstance(child, (ReturnStatement, Break, Continue)):  # type: ignore[arg-type]
                 statement_node = child
             elif not isinstance(child, (EmptyLine, Comment, Teardown)):
                 if statement_node is not None:

@@ -312,6 +312,33 @@ rules = {
             Log    Unreachable log
         """,
     ),
+    "0918": Rule(
+        rule_id="0918",
+        name="multiline-inline-if",
+        msg="Avoid splitting inline IF to multiple lines.",
+        severity=RuleSeverity.INFO,
+        version=">=5.0",
+        docs="""
+        It's allowed to create inline IF that spans multiple lines, but it should be avoided,
+        since it decreases readability. Try to use normal IF/ELSE instead.
+
+        Bad::
+
+            IF  ${condition}  Log  hello
+            ...    ELSE       Log  hi!
+
+        Good::
+
+            IF  ${condition}    Log  hello     ELSE    Log  hi!
+        or::
+
+            IF  ${condition}
+                Log  hello
+            ELSE
+                Log  hi!
+            END
+        """,
+    ),
 }
 
 

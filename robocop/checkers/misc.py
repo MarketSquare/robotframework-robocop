@@ -315,7 +315,7 @@ rules = {
     "0918": Rule(
         rule_id="0918",
         name="multiline-inline-if",
-        msg="Avoid splitting inline IF to multiple lines.",
+        msg="Avoid splitting inline IF to multiple lines",
         severity=RuleSeverity.INFO,
         version=">=5.0",
         docs="""
@@ -628,6 +628,7 @@ class IfChecker(VisitorChecker):
     reports = (
         "if-can-be-merged",
         "inline-if-can-be-used",
+        "multiline-inline-if",
     )
 
     def visit_TestCase(self, node):  # noqa
@@ -690,6 +691,14 @@ class IfChecker(VisitorChecker):
         if ROBOT_VERSION.major < 5:
             return
         if self.is_if_inline(node):
+            if node.lineno != node.end_lineno:
+                self.report(
+                    "multiline-inline-if",
+                    node=node,
+                    col=node.col_offset + 1,
+                    end_lineno=node.end_lineno,
+                    end_col=node.end_col_offset + 1,
+                )
             return
         if (
             len(node.body) != 1

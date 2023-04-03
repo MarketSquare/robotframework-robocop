@@ -312,6 +312,33 @@ rules = {
             Log    Unreachable log
         """,
     ),
+    "0918": Rule(
+        rule_id="0918",
+        name="multiline-inline-if",
+        msg="Avoid splitting inline IF to multiple lines",
+        severity=RuleSeverity.WARNING,
+        version=">=5.0",
+        docs="""
+        It's allowed to create inline IF that spans multiple lines, but it should be avoided,
+        since it decreases readability. Try to use normal IF/ELSE instead.
+
+        Bad::
+
+            IF  ${condition}  Log  hello
+            ...    ELSE       Log  hi!
+
+        Good::
+
+            IF  ${condition}    Log  hello     ELSE    Log  hi!
+        or::
+
+            IF  ${condition}
+                Log  hello
+            ELSE
+                Log  hi!
+            END
+        """,
+    ),
 }
 
 
@@ -601,6 +628,7 @@ class IfChecker(VisitorChecker):
     reports = (
         "if-can-be-merged",
         "inline-if-can-be-used",
+        "multiline-inline-if",
     )
 
     def visit_TestCase(self, node):  # noqa
@@ -611,7 +639,7 @@ class IfChecker(VisitorChecker):
     visit_For = visit_If = visit_Keyword = visit_TestCase  # TODO  While, Try Except?
 
     @staticmethod
-    def is_if_inline(node):
+    def is_inline_if(node):
         return isinstance(node.header, InlineIfHeader)
 
     def check_adjacent_ifs(self, node):
@@ -662,7 +690,15 @@ class IfChecker(VisitorChecker):
     def check_whether_if_should_be_inline(self, node):
         if ROBOT_VERSION.major < 5:
             return
-        if self.is_if_inline(node):
+        if self.is_inline_if(node):
+            if node.lineno != node.end_lineno:
+                self.report(
+                    "multiline-inline-if",
+                    node=node,
+                    col=node.col_offset + 1,
+                    end_lineno=node.end_lineno,
+                    end_col=node.end_col_offset + 1,
+                )
             return
         if (
             len(node.body) != 1

@@ -1,0 +1,6 @@
+test.robot:4:1 [W] 0918 Avoid splitting inline IF to multiple lines
+test.robot:11:1 [W] 0918 Avoid splitting inline IF to multiple lines
+test.robot:16:1 [W] 0918 Avoid splitting inline IF to multiple lines
+test.robot:23:1 [W] 0918 Avoid splitting inline IF to multiple lines
+test.robot:30:1 [W] 0918 Avoid splitting inline IF to multiple lines
+test.robot:35:1 [W] 0918 Avoid splitting inline IF to multiple lines

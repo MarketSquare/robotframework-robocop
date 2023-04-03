@@ -6,7 +6,7 @@ test.robot:15:24 [W] 0310 Test, suite and global variables should be uppercase
 test.robot:16:25 [W] 0310 Test, suite and global variables should be uppercase
 test.robot:17:24 [W] 0310 Test, suite and global variables should be uppercase
 test.robot:18:26 [W] 0310 Test, suite and global variables should be uppercase
-test.robot:25:24 [W] 0310 Test, suite and global variables should be uppercase
-test.robot:26:25 [W] 0310 Test, suite and global variables should be uppercase
-test.robot:27:24 [W] 0310 Test, suite and global variables should be uppercase
-test.robot:28:26 [W] 0310 Test, suite and global variables should be uppercase
+test.robot:28:24 [W] 0310 Test, suite and global variables should be uppercase
+test.robot:29:25 [W] 0310 Test, suite and global variables should be uppercase
+test.robot:30:24 [W] 0310 Test, suite and global variables should be uppercase
+test.robot:31:26 [W] 0310 Test, suite and global variables should be uppercase

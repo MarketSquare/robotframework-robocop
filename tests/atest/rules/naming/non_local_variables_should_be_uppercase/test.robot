@@ -20,6 +20,9 @@ Some Keyword
     Set Suite Variable  ${MY VAR}  1
     Set Test Variable  ${MY_VAR}  1
     Set Global Variable  ${MY VAR}  1
+    Set Global Variable
+    ...
+    ...    previous arg is empty now
 
 Keyword With Nested Variables
     Set Task Variable  ${${var@{var}}multiple_nestings&{var}}  0

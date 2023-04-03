@@ -9,6 +9,7 @@ from robocop.utils import (
     pattern_type,
     remove_robot_vars,
 )
+from robocop.utils.misc import remove_nested_variables
 from robocop.utils.version_matching import Version, VersionSpecifier
 
 
@@ -191,6 +192,26 @@ class TestMisc:
         with pytest.raises(ValueError) as error:
             pattern_type(r"[\911]")
         assert r"Invalid regex pattern: bad escape \\9 at position 1" in str(error)
+
+    @pytest.mark.parametrize(
+        "var_name, normalized_var_name",
+        [
+            ("var", "var"),
+            ("my_var", "my_var"),
+            ("my var", "my var"),
+            ("my_var${var}", "my_var"),
+            ("my_var${MY_VAR}", "my_var"),
+            ("my_var${my var}", "my_var"),
+            ("${VAR}var${var}", "var"),
+            ("${VAR${var}}var${var}", "var"),
+            ("@{VAR${var}}var&{var}", "var"),
+            ("@{VAR}[1]var&{var}", "var"),
+            ("@{VAR}[1]var&{var.param}", "var"),
+            ("my ${VAR} var", "my  var"),
+        ],
+    )
+    def test_remove_nested_variables(self, var_name, normalized_var_name):
+        assert remove_nested_variables(var_name) == normalized_var_name
 
 
 @pytest.mark.parametrize(

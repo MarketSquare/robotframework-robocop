@@ -15,7 +15,7 @@ body:
     id: run-command
     attributes:
       label: What command/code did you try to run?
-      description: Please include as much details as possible
+      description: Please include as much details as possible. Consider using \`\`\` for formatting.
       placeholder: Paste the command and/or the code snippet
     validations:
       required: true

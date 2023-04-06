@@ -692,10 +692,11 @@ class IfChecker(VisitorChecker):
             return
         if self.is_inline_if(node):
             if node.lineno != node.end_lineno:
+                if_header = node.header.data_tokens[0]
                 self.report(
                     "multiline-inline-if",
                     node=node,
-                    col=node.col_offset + 1,
+                    col=if_header.col_offset + 1,
                     end_lineno=node.end_lineno,
                     end_col=node.end_col_offset + 1,
                 )

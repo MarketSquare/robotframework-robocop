@@ -12,7 +12,7 @@ except ImportError:
 
 from robocop.checkers import VisitorChecker
 from robocop.rules import Rule, RuleSeverity
-from robocop.utils import ROBOT_VERSION, find_robot_vars, token_col
+from robocop.utils import ROBOT_VERSION, find_robot_vars
 
 rules = {
     "0401": Rule(
@@ -217,6 +217,15 @@ rules = {
         severity=RuleSeverity.ERROR,
         version=">=5.0",
     ),
+    "0415": Rule(
+        rule_id="0415",
+        name="invalid-section-in-resource",
+        msg="Resource file with '{{ section_name }}' section is invalid",
+        docs="""
+        Resource file cannot contain ``Test Cases`` or ``Tasks`` sections.
+        """,
+        severity=RuleSeverity.ERROR,
+    ),
 }
 
 
@@ -235,6 +244,7 @@ class ParsingErrorChecker(VisitorChecker):
         "invalid-for-loop",
         "invalid-if",
         "return-in-test-case",
+        "invalid-section-in-resource",
     )
 
     keyword_only_settings = {"Arguments", "Return"}
@@ -328,6 +338,8 @@ class ParsingErrorChecker(VisitorChecker):
             self.handle_positional_after_named(node, error_index)
         elif "is allowed only once. Only the first value is used" in error:
             return
+        elif "Resource file with" in error:
+            self.handle_invalid_section_in_resource(node, error)
         else:
             error = error.replace("\n   ", "")
             token = node.header if hasattr(node, "header") else node
@@ -515,6 +527,16 @@ class ParsingErrorChecker(VisitorChecker):
             node=token,
             col=token.col_offset + 1,
             end_col=token.end_col_offset + 1,
+        )
+
+    def handle_invalid_section_in_resource(self, node, error):
+        error_token = node.tokens[0]
+        section_name = error_token.value
+        self.report(
+            "invalid-section-in-resource",
+            section_name=section_name,
+            node=node,
+            end_col=node.col_offset + len(section_name) + 1,
         )
 
 

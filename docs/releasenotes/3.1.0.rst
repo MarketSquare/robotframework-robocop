@@ -75,6 +75,12 @@ New W0918 ``multiline-inline-if`` rule that detects when inline IF is split into
 multiple lines. It's allowed, but it should be avoided, since it decreases readability.
 It recommends to use normal IF/ELSE instead.
 
+New rule for invalid sections in resource file (#525)
+------------------------------------------------------
+
+New E0415 ``invalid-section-in-resource`` rule that reports invalid section used in the resource file. Resource file
+cannot contain ``*** Test Cases ***`` or ``*** Tasks ***`` sections.
+
 Fixes
 =====
 

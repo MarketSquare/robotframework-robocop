@@ -1,0 +1,3 @@
+test.resource:1:1 [E] 0415 Resource file with '*** Test Cases ***' section is invalid
+test.resource:5:1 [E] 0415 Resource file with '*** task ***' section is invalid
+task.resource:6:1 [E] 0415 Resource file with '*** Task ***' section is invalid

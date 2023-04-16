@@ -75,11 +75,11 @@ New W0918 ``multiline-inline-if`` rule that detects when inline IF is split into
 multiple lines. It's allowed, but it should be avoided, since it decreases readability.
 It recommends to use normal IF/ELSE instead.
 
-New rules that reports empty Template and Test Template (#443)
+New rules that report empty Template and Test Template (#443)
 --------------------------------------------------------------
 
 Added new W0530 ``empty-template`` rule that reports ``[Template]`` setting without value.
-There is also new E0539 ``empty-test-template`` that reports empty ``Test Template``.
+There is also new E0529 ``empty-test-template`` that reports empty ``Test Template``.
 
 Other features
 ==============

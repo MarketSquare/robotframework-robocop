@@ -817,12 +817,14 @@ class MisalignedContinuation(VisitorChecker, ModelVisitor):
                         break
                     if first_column:
                         if indent != first_column:
-                            cont = [token for token in line if token.type == "CONTINUATION"][0]
+                            cont = [token for token in line if token.type == "CONTINUATION"]
+                            if not cont:
+                                break
                             self.report(
                                 "misaligned-continuation-row",
                                 node=token,
                                 end_col=token.col_offset + 1,
-                                col=cont.end_col_offset + 1,
+                                col=cont[0].end_col_offset + 1,
                             )
                     else:
                         first_column = indent

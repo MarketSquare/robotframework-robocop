@@ -67,3 +67,11 @@ Keyword With Documentation
     ...  1
     ...   2
     ...    3
+
+Robocop Crash Example
+    Run Keywords
+    ...    Log Message     1   AND
+    # ...    Log Message     2   AND
+    ...    Log Message     3   AND
+# ...    Log Message     4   AND
+    ...    Log Message     5

@@ -513,6 +513,8 @@ class Config:
         # add the rules mentioned in configure CLI option
         mentioned_rules.update(configured.split(":", 1)[0] for configured in self.configure)
         for rule in mentioned_rules:
+            if rule not in rules:  # reports can also be configured, but we only want rules here
+                continue
             rule_name = rules[rule].name
             if rule_name in renamed:  # update warning description to specific case
                 print(

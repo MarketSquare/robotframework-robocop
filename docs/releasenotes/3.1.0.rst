@@ -75,6 +75,16 @@ New W0918 ``multiline-inline-if`` rule that detects when inline IF is split into
 multiple lines. It's allowed, but it should be avoided, since it decreases readability.
 It recommends to use normal IF/ELSE instead.
 
+Fixes
+=====
+
+Fix for deprecation warning to appear also when configuring deprecated rules (#819)
+-----------------------------------------------------------------------------------
+
+When a deprecated rule was configured using a `--configure` CLI option, the deprecation
+warning was not displayed. This is now fixed, and the warning appears for all rules
+explicitly configured, included or excluded through a command line options.
+
 Other features
 ==============
 
@@ -86,4 +96,4 @@ Description
 Acknowledgements
 ================
 
-Thanks to...
+Thanks to @hrsc-viessmann and @MoreFamed for bug reports that helped improve our tool!

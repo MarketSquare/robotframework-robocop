@@ -78,10 +78,10 @@ It recommends to use normal IF/ELSE instead.
 Fixes
 =====
 
-Fix for rule W1013 `empty-lines-in-statement` (#821)
+Fix for rule W1015 `misaligned-continuation-row` (#821)
 ----------------------------------------------------
 
-Fixed a case where rule W1013 `empty-lines-in-statement` was failing due to the
+Fixed a case where rule W1015 `misaligned-continuation-row` was failing due to the
 continuation of the keyword starting with a comment at the beginning of the line::
 
     *** Test Cases ***

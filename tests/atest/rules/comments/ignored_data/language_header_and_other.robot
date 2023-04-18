@@ -1,4 +1,4 @@
-language: fi
+Language: fi
 
 I am comment that should be in the *** Comments *** section
 

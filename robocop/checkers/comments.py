@@ -271,7 +271,7 @@ class IgnoredDataChecker(RawFileChecker):
         if line.startswith(self.ROBOCOP_HEADER):
             return False
         if lineno == 1:
-            if line.startswith(self.LANGUAGE_HEADER):
+            if line.lower().startswith(self.LANGUAGE_HEADER):
                 self.has_language_header = True
                 return False
             elif self.is_bom:

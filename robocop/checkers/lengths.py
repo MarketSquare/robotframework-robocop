@@ -227,11 +227,22 @@ rules = {
         """,
         severity=RuleSeverity.ERROR,
     ),
-    "0529": Rule(rule_id="0529", name="empty-test-template", msg="Test Template is empty", severity=RuleSeverity.ERROR),
+    "0529": Rule(
+        rule_id="0529",
+        name="empty-test-template",
+        msg="Test Template is empty",
+        docs="""
+        The ``Test Template`` set template to all tests in the suite. Empty value is considered an error
+        because it leads users to wrong impression on how the suite operates.
+        Without value, the setting is ignored and tests are not templated.
+        """,
+        severity=RuleSeverity.ERROR,
+    ),
     "0530": Rule(
         rule_id="0530",
         name="empty-template",
-        msg="Template of {{ block_name }} is empty. To overwrite suite Test Template use more explicit [Template]  NONE",
+        msg="Template of {{ block_name }} is empty. "
+        "To overwrite suite Test Template use more explicit [Template]  NONE",
         docs="""
         The ``[Template]`` setting overrides the possible template set in the Setting section, and an empty value for 
         ``[Template]`` means that the test has no template even when Test Template is used.

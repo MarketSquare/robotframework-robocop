@@ -227,6 +227,42 @@ rules = {
         """,
         severity=RuleSeverity.ERROR,
     ),
+    "0529": Rule(
+        rule_id="0529",
+        name="empty-test-template",
+        msg="Test Template is empty",
+        docs="""
+        ``Test Template`` sets the template to all tests in a suite. Empty value is considered an error
+        because it leads the users to wrong impression on how the suite operates.
+        Without value, the setting is ignored and the tests are not templated.
+        """,
+        severity=RuleSeverity.ERROR,
+    ),
+    "0530": Rule(
+        rule_id="0530",
+        name="empty-template",
+        msg="Template of {{ block_name }} is empty. "
+        "To overwrite suite Test Template use more explicit [Template]  NONE",
+        docs="""
+        The ``[Template]`` setting overrides the possible template set in the Setting section, and an empty value for 
+        ``[Template]`` means that the test has no template even when Test Template is used.
+        
+        If it is intended behaviour, use more explicit ``NONE`` value to indicate that you want to overwrite suite 
+        Test Template::
+        
+            *** Settings ***
+            Test Template    Template Keyword
+            
+            *** Test Cases ***
+            Templated test
+                argument
+            
+            Not templated test
+                [Template]    NONE
+
+        """,
+        severity=RuleSeverity.WARNING,
+    ),
 }
 
 
@@ -505,6 +541,8 @@ class EmptySettingsChecker(VisitorChecker):
         "empty-test-teardown",
         "empty-timeout",
         "empty-test-timeout",
+        "empty-template",
+        "empty-test-template",
         "empty-arguments",
     )
 
@@ -599,6 +637,20 @@ class EmptySettingsChecker(VisitorChecker):
     def visit_TestTeardown(self, node):  # noqa
         if not node.name:
             self.report("empty-test-teardown", node=node, col=node.col_offset + 1, end_col=node.end_col_offset)
+
+    def visit_TestTemplate(self, node):  # noqa
+        if not node.value:
+            self.report("empty-test-template", node=node, col=node.col_offset + 1, end_col=node.end_col_offset)
+
+    def visit_Template(self, node):  # noqa
+        if len(node.data_tokens) < 2:
+            self.report(
+                "empty-template",
+                block_name=self.parent_node_name,
+                node=node,
+                col=node.data_tokens[0].col_offset + 1,
+                end_col=node.end_col_offset,
+            )
 
     def visit_Timeout(self, node):  # noqa
         if not node.value:

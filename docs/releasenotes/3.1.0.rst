@@ -81,6 +81,48 @@ New rules that report empty Template and Test Template (#443)
 Added new W0530 ``empty-template`` rule that reports ``[Template]`` setting without value.
 There is also new E0529 ``empty-test-template`` that reports empty ``Test Template``.
 
+Fixes
+=====
+
+Fixes for rule W1015 `misaligned-continuation-row` (#821, #818)
+---------------------------------------------------------------
+
+Fixed a case (#821) where rule W1015 `misaligned-continuation-row` was failing due to the
+continuation of the keyword starting with a comment at the beginning of the line::
+
+    *** Test Cases ***
+    Robocop Crash Example
+        Run Keywords
+        ...    Log Message     1   AND
+    # ...    Log Message     2   AND
+        ...    Log Message     3
+
+Another bug (#818) was reported for the case when there was a properly indented comment
+in between the statements, like this::
+
+    *** Test Cases ***
+    My Keyword
+        ${arf}  Create List   1  2  3
+        # ...  4
+        ...  5
+
+Which cause the rule to be incorrectly reported in the last line of the example above
+even though it's aligned properly. It is now fixed and the rule does not report in such case.
+
+Fix for deprecation warning to appear also when configuring deprecated rules (#819)
+-----------------------------------------------------------------------------------
+
+When a deprecated rule was configured using a `--configure` CLI option, the deprecation
+warning was not displayed. This is now fixed, and the warning appears for all rules
+explicitly configured, included or excluded through a command line options.
+
+Fix for language header reported by ignored-data (#825)
+-------------------------------------------------------
+
+Language headers at the beginning of the file (``Language: de``) were reported by ``ignored-data`` rule if they were
+not lowercase.
+Now the rule properly recognizes all language headers.
+
 Other features
 ==============
 
@@ -92,4 +134,4 @@ Description
 Acknowledgements
 ================
 
-Thanks to...
+Thanks to @hrsc-viessmann and @MoreFamed for bug reports that helped improve our tool!

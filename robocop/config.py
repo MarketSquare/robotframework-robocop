@@ -508,7 +508,13 @@ class Config:
         }
         deprecation_header = "### DEPRECATION WARNING ###"
         deprecation_footer = "This information will disappear in the next version.\n\n"
-        for rule in chain(self.include, self.exclude):
+        # get all rules mentioned in include and exclude CLI options
+        mentioned_rules = self.include.union(self.exclude)
+        # add the rules mentioned in configure CLI option
+        mentioned_rules.update(configured.split(":", 1)[0] for configured in self.configure)
+        for rule in mentioned_rules:
+            if rule not in rules:  # reports can also be configured, but we only want rules here
+                continue
             rule_name = rules[rule].name
             if rule_name in renamed:  # update warning description to specific case
                 print(

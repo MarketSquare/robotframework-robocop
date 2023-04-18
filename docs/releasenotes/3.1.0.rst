@@ -81,6 +81,12 @@ New rule for invalid sections in resource file (#525)
 New E0415 ``invalid-section-in-resource`` rule that reports invalid section used in the resource file. Resource file
 cannot contain ``*** Test Cases ***`` or ``*** Tasks ***`` sections.
 
+New rules that report empty Template and Test Template (#443)
+--------------------------------------------------------------
+
+Added new W0530 ``empty-template`` rule that reports ``[Template]`` setting without value.
+There is also new E0529 ``empty-test-template`` that reports empty ``Test Template``.
+
 Fixes
 =====
 

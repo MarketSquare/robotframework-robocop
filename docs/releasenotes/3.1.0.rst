@@ -116,6 +116,13 @@ When a deprecated rule was configured using a `--configure` CLI option, the depr
 warning was not displayed. This is now fixed, and the warning appears for all rules
 explicitly configured, included or excluded through a command line options.
 
+Fix for language header reported by ignored-data (#825)
+-------------------------------------------------------
+
+Language headers at the beginning of the file (``Language: de``) were reported by ``ignored-data`` rule if they were
+not lowercase.
+Now the rule properly recognizes all language headers.
+
 Other features
 ==============
 

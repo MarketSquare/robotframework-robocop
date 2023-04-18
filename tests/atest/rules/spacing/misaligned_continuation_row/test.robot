@@ -67,3 +67,16 @@ Keyword With Documentation
     ...  1
     ...   2
     ...    3
+
+Keyword For 821 Bug
+    Run Keywords
+    ...    Log Message     1   AND
+    # ...    Log Message     2   AND
+    ...    Log Message     3   AND
+# ...    Log Message     4   AND
+    ...    Log Message     5
+
+Keyword For 818 Bug
+    ${arf}  Create List   1  2  3
+    # ...  4
+    ...  5

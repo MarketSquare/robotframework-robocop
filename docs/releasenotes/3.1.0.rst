@@ -9,7 +9,7 @@ The variable naming rules (W0310 ``non-local-variables-should-be-uppercase`` and
 ``section-variable-not-uppercase``) were also updated to support nested variables.
 
 This release also contains fixes for W1015 ``misaligned-continuation-row`` rule, deprecating warning not appearing for
-rules from ``--configure`` option. Also the W0704 ``ignored-data`` rule provide better support for language headers.
+rules from ``--configure`` option. Also, the W0704 ``ignored-data`` rule provides better support for language headers.
 
 You can install the latest available version by running
 

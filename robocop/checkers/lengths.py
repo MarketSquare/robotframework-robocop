@@ -232,9 +232,9 @@ rules = {
         name="empty-test-template",
         msg="Test Template is empty",
         docs="""
-        The ``Test Template`` set template to all tests in the suite. Empty value is considered an error
-        because it leads users to wrong impression on how the suite operates.
-        Without value, the setting is ignored and tests are not templated.
+        ``Test Template`` sets the template to all tests in a suite. Empty value is considered an error
+        because it leads the users to wrong impression on how the suite operates.
+        Without value, the setting is ignored and the tests are not templated.
         """,
         severity=RuleSeverity.ERROR,
     ),

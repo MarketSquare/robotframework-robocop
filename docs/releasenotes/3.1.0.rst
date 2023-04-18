@@ -4,7 +4,12 @@
 Robocop 3.1.0
 =============
 
-<Release description>
+Several new rules for detecting unreachable code, multiline IFs, empty templates and invalid sections in resource file.
+The variable naming rules (W0310 ``non-local-variables-should-be-uppercase`` and W0309
+``section-variable-not-uppercase``) were also updated to support nested variables.
+
+This release also contains fixes for W1015 ``misaligned-continuation-row`` rule, deprecating warning not appearing for
+rules from ``--configure`` option. Also, the W0704 ``ignored-data`` rule provides better support for language headers.
 
 You can install the latest available version by running
 
@@ -21,14 +26,6 @@ or to install exactly this version
 .. contents::
    :depth: 2
    :local:
-
-Most important changes
-======================
-
-Change title (#0)
------------------------------------------------
-
-Description
 
 Rule changes
 ============
@@ -128,14 +125,6 @@ Fix for language header reported by ignored-data (#825)
 Language headers at the beginning of the file (``Language: de``) were reported by ``ignored-data`` rule if they were
 not lowercase.
 Now the rule properly recognizes all language headers.
-
-Other features
-==============
-
-Feature title (#0)
---------------------------------
-
-Description
 
 Acknowledgements
 ================

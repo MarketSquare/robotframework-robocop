@@ -220,9 +220,10 @@ rules = {
     "0415": Rule(
         rule_id="0415",
         name="invalid-section-in-resource",
-        msg="Resource file with '{{ section_name }}' section is invalid",
+        msg="Resource file can't contain '{{ section_name }}' section",
         docs="""
-        Resource file cannot contain ``Test Cases`` or ``Tasks`` sections.
+        The higher-level structure of resource files is the same as that of test case files,
+        but they can't contain Test Cases or Tasks sections.
         """,
         severity=RuleSeverity.ERROR,
     ),

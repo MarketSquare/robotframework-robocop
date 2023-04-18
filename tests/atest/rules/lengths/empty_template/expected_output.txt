@@ -1,0 +1,1 @@
+test.robot:14:5 [W] 0530 Template of 'Test with empty template' Test Case is empty. To overwrite suite Test Template use more explicit [Template]  NONE

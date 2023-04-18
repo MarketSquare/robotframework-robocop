@@ -103,6 +103,13 @@ in between the statements, like this::
 Which cause the rule to be incorrectly reported in the last line of the example above
 even though it's aligned properly. It is now fixed and the rule does not report in such case.
 
+Fix for deprecation warning to appear also when configuring deprecated rules (#819)
+-----------------------------------------------------------------------------------
+
+When a deprecated rule was configured using a `--configure` CLI option, the deprecation
+warning was not displayed. This is now fixed, and the warning appears for all rules
+explicitly configured, included or excluded through a command line options.
+
 Other features
 ==============
 
@@ -114,4 +121,4 @@ Description
 Acknowledgements
 ================
 
-Thanks to...
+Thanks to @hrsc-viessmann and @MoreFamed for bug reports that helped improve our tool!

@@ -75,6 +75,34 @@ New W0918 ``multiline-inline-if`` rule that detects when inline IF is split into
 multiple lines. It's allowed, but it should be avoided, since it decreases readability.
 It recommends to use normal IF/ELSE instead.
 
+Fixes
+=====
+
+Fixes for rule W1015 `misaligned-continuation-row` (#821, #818)
+---------------------------------------------------------------
+
+Fixed a case (#821) where rule W1015 `misaligned-continuation-row` was failing due to the
+continuation of the keyword starting with a comment at the beginning of the line::
+
+    *** Test Cases ***
+    Robocop Crash Example
+        Run Keywords
+        ...    Log Message     1   AND
+    # ...    Log Message     2   AND
+        ...    Log Message     3
+
+Another bug (#818) was reported for the case when there was a properly indented comment
+in between the statements, like this::
+
+    *** Test Cases ***
+    My Keyword
+        ${arf}  Create List   1  2  3
+        # ...  4
+        ...  5
+
+Which cause the rule to be incorrectly reported in the last line of the example above
+even though it's aligned properly. It is now fixed and the rule does not report in such case.
+
 Other features
 ==============
 

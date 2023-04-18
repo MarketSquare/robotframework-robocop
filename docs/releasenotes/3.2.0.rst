@@ -1,0 +1,48 @@
+:orphan:
+
+=============
+Robocop 3.2.0
+=============
+
+<Release description>
+
+You can install the latest available version by running
+
+::
+
+    pip install --upgrade robotframework-robocop
+
+or to install exactly this version
+
+::
+
+    pip install robotframework-robocop==3.2.0
+
+.. contents::
+   :depth: 2
+   :local:
+
+Most important changes
+======================
+
+Change title (#0)
+-----------------------------------------------
+
+Description
+
+Rule changes
+============
+
+Fixes
+=====
+
+Other features
+==============
+
+Feature title (#0)
+--------------------------------
+
+Description
+
+Acknowledgements
+================

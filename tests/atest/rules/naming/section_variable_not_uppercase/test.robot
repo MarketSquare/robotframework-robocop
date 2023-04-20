@@ -33,6 +33,7 @@ ${${VAR}my_var${var}}  11
 ${@{VAR}[1]my_var}  11
 ${@{VAR}[1]my_var&{var.param}}  11
 
+${it        is not closed
 
 *** Test Cases ***
 Test

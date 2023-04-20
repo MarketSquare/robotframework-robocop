@@ -23,6 +23,18 @@ Some Keyword
     Set Global Variable
     ...
     ...    previous arg is empty now
+    Set Test Variable  $escaped  1
+    Set Task Variable  $escaped  0
+    Set Suite Variable  $escaped  1
+    Set Global Variable  $escaped  1
+    Set Test Variable  \${escaped}  1
+    Set Task Variable  \${escaped}  0
+    Set Suite Variable  \${escaped}  1
+    Set Global Variable  \${escaped}  1
+    Set Test Variable  invalid  1
+    Set Task Variable  invalid  0
+    Set Suite Variable  invalid  1
+    Set Global Variable  invalid  1
 
 Keyword With Nested Variables
     Set Task Variable  ${${var@{var}}multiple_nestings&{var}}  0

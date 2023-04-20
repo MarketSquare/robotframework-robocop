@@ -1,0 +1,10 @@
+test.robot:20:31:20:38 [W] 0919 Keyword '${arg2}' argument is not used
+test.robot:24:31:24:46 [W] 0919 Keyword '${overwritten1}' argument is not used
+test.robot:24:50:24:65 [W] 0919 Keyword '${overwritten2}' argument is not used
+test.robot:24:69:24:84 [W] 0919 Keyword '${overwritten3}' argument is not used
+test.robot:35:31:35:42 [W] 0919 Keyword '${not_used}' argument is not used
+test.robot:40:43:40:54 [W] 0919 Keyword '${not_used}' argument is not used
+test.robot:48:26:48:38 [W] 0919 Keyword '${argument2}' argument is not used
+test.robot:51:34:51:46 [W] 0919 Keyword '${argument2}' argument is not used
+test.robot:63:20:63:28 [W] 0919 Keyword '${error}' argument is not used
+test.robot:73:20:73:26 [W] 0919 Keyword '${var}' argument is not used

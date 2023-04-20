@@ -33,6 +33,25 @@ Description
 Rule changes
 ============
 
+New rule for detecting not used arguments (#501)
+------------------------------------------------
+
+Added new rule W0919 ``unused-argument`` for detecting not used keyword arguments.
+For example::
+
+    *** Keywords ***
+    Keyword
+        [Arguments]    ${used}    ${overwritten_before_used}    ${not_used}  # will report ${overwritten_before_used} and ${not_used}
+        Log    ${used}
+        ${overwritten_before_used}    Process Stuff    value
+        Log    ${overwritten_before_used}  # used, but original argument was overwritten before using
+        IF    $used
+            Log    Escaped syntax is supported.
+        END
+
+    Keyword with ${embedded} and ${not_used}  # will report ${not_used}
+        Log    ${embedded}
+
 Fixes
 =====
 

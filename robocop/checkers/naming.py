@@ -7,8 +7,8 @@ from collections import defaultdict
 from pathlib import Path
 
 from robot.api import Token
-from robot.parsing.model.blocks import Keyword
-from robot.parsing.model.statements import Arguments, KeywordCall
+from robot.errors import VariableError
+from robot.parsing.model.statements import Arguments
 from robot.variables.search import search_variable
 
 from robocop.checkers import VisitorChecker
@@ -668,7 +668,10 @@ class VariableNamingChecker(VisitorChecker):
 
     def visit_Variable(self, node):  # noqa
         token = node.data_tokens[0]
-        var_name = search_variable(token.value).base
+        try:
+            var_name = search_variable(token.value).base
+        except VariableError:
+            return  # TODO: Ignore for now, for example ${not  closed in variables will throw it
         if var_name is None:
             return  # in RF<=5, a continuation mark ` ...` is wrongly considered a variable
         # in Variables section, everything needs to be in uppercase
@@ -701,7 +704,12 @@ class VariableNamingChecker(VisitorChecker):
             token = node.data_tokens[1]
             if not token.value:
                 return
-            var_name = search_variable(token.value).base
+            try:
+                var_name = search_variable(token.value).base
+            except VariableError:
+                return  # TODO: Ignore for now, for example ${not  closed in variables will throw it
+            if var_name is None:  # possibly $escaped or \${escaped}, or invalid variable name
+                return
             normalized_var_name = remove_nested_variables(var_name)
             # a variable as a keyword argument can contain lowercase nested variable
             # because the actual value of it may be uppercase

@@ -916,11 +916,11 @@ class UnusedVariablesChecker(VisitorChecker):
     def visit_For(self, node):  # noqa
         if getattr(node.header, "errors", None):
             return node
+        self.ignore_overwriting = True
         for token in node.header.get_tokens(Token.ARGUMENT):
             self.find_not_nested_variable(token.value, is_var=False)
         for token in node.header.get_tokens(Token.VARIABLE):
             self.handle_assign_variable(token, remove_equal=False)
-        self.ignore_overwriting = True
         self.generic_visit(node)
         self.ignore_overwriting = False
 

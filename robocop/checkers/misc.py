@@ -797,7 +797,7 @@ class LoopStatementsChecker(VisitorChecker):
         )
 
 
-VariableArgument = namedtuple("VariableArgument", "name is_embedded token")
+VariableArgument = namedtuple("VariableArgument", "name token")
 
 
 class UnusedVariablesChecker(VisitorChecker):
@@ -807,8 +807,8 @@ class UnusedVariablesChecker(VisitorChecker):
         self.arguments = {}
         super().__init__()
 
-    def add_argument(self, argument, normalized_name, is_embedded, token):
-        self.arguments[normalized_name] = VariableArgument(argument, is_embedded, token)
+    def add_argument(self, argument, normalized_name, token):
+        self.arguments[normalized_name] = VariableArgument(argument, token)
 
     def visit_Keyword(self, node):  # noqa
         self.arguments = {}
@@ -824,7 +824,7 @@ class UnusedVariablesChecker(VisitorChecker):
         for arg in self.arguments.values():
             self.report_unused_argument(arg)
 
-    def report_unused_argument(self, arg):  # TODO test end col
+    def report_unused_argument(self, arg):
         """Report unused argument. Only report argument name, ignore optional =default value."""
         value, *_ = arg.token.value.split("=", maxsplit=1)
         self.report(
@@ -844,7 +844,7 @@ class UnusedVariablesChecker(VisitorChecker):
                 continue
             name, *_ = arg.value.split("=", maxsplit=1)
             normalized_name = normalize_robot_var_name(name)
-            self.add_argument(name, normalized_name, is_embedded=False, token=arg)
+            self.add_argument(name, normalized_name, token=arg)
 
     def parse_embedded_arguments(self, name_token):
         try:
@@ -852,7 +852,7 @@ class UnusedVariablesChecker(VisitorChecker):
                 if token.type == Token.VARIABLE:
                     normalized_name = normalize_robot_var_name(token.value)
                     name, *_ = normalized_name.split(":", maxsplit=1)
-                    self.add_argument(token.value, name, is_embedded=True, token=token)
+                    self.add_argument(token.value, name, token=token)
         except VariableError:
             pass
 

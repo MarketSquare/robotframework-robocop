@@ -5,9 +5,6 @@ test.robot:10:64 [W] 0919 Keyword argument '${arg5}' is not used
 test.robot:10:75 [W] 0919 Keyword argument '${arg6}' is not used
 test.robot:10:86 [W] 0919 Keyword argument '${arg7}' is not used
 test.robot:20:31 [W] 0919 Keyword argument '${arg2}' is not used
-test.robot:24:31 [W] 0919 Keyword argument '${overwritten1}' is not used
-test.robot:24:50 [W] 0919 Keyword argument '${overwritten2}' is not used
-test.robot:24:69 [W] 0919 Keyword argument '${overwritten3}' is not used
 test.robot:35:31 [W] 0919 Keyword argument '${not_used}' is not used
 test.robot:40:43 [W] 0919 Keyword argument '${not_used}' is not used
 test.robot:48:26 [W] 0919 Keyword argument '${argument2}' is not used

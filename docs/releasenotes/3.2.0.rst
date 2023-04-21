@@ -41,16 +41,29 @@ For example::
 
     *** Keywords ***
     Keyword
-        [Arguments]    ${used}    ${overwritten_before_used}    ${not_used}  # will report ${overwritten_before_used} and ${not_used}
+        [Arguments]    ${used}    ${not_used}
         Log    ${used}
-        ${overwritten_before_used}    Process Stuff    value
-        Log    ${overwritten_before_used}  # used, but original argument was overwritten before using
         IF    $used
             Log    Escaped syntax is supported.
         END
 
     Keyword with ${embedded} and ${not_used}  # will report ${not_used}
         Log    ${embedded}
+
+New rules for overwriting arguments and variables before first use (#836)
+--------------------------------------------------------------------------
+
+Added new rules W0920 ``argument-overwritten-before-usage`` and W0921 ``variable-overwritten-before-usage`` for
+arguments or variables overwritten before first use::
+
+    *** Keywords ***
+    Overwritten Argument
+        [Arguments]    ${overwritten}  # we do not use ${overwritten} value at all
+        ${overwritten}    Set Variable    value
+
+    Overwritten Variable
+    ${value}    Keyword
+    ${value}    Keyword
 
 Fixes
 =====

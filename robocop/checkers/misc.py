@@ -351,22 +351,52 @@ rules = {
     "0919": Rule(
         rule_id="0919",
         name="unused-argument",
-        msg="Keyword argument '{{ arg }}' is not used",
+        msg="Keyword argument '{{ name }}' is not used",
         severity=RuleSeverity.WARNING,
         docs="""
         Keyword argument was defined but not used::
         
             *** Keywords ***
             Keyword
-                [Arguments]    ${used}    ${overwritten_before_used}    ${not_used}
+                [Arguments]    ${used}    ${not_used}  # will report ${not_used}
                 Log    ${used}
-                ${overwritten_before_used}    Process Stuff    value
-                Log    ${overwritten_before_used}  # used, but original argument was overwritten before using
                 IF    $used
                     Log    Escaped syntax is supported.
                 END
 
-        This code will report following unused arguments: ``${overwritten_before_used}`` and ``${not_used}``.
+            Keyword with ${embedded} and ${not_used}  # will report ${not_used}
+                Log    ${embedded}
+
+        """,
+    ),
+    "0920": Rule(
+        rule_id="0920",
+        name="argument-overwritten-before-usage",
+        msg="Keyword argument '{{ name }}' is overwritten before usage",
+        severity=RuleSeverity.WARNING,
+        docs="""
+        Keyword argument was overwritten before it is used::
+        
+            *** Keywords ***
+            Overwritten Argument
+                [Arguments]    ${overwritten}  # we do not use ${overwritten} value at all
+                ${overwritten}    Set Variable    value
+
+        """,
+    ),
+    "0921": Rule(
+        rule_id="0921",
+        name="variable-overwritten-before-usage",
+        msg="Local variable '{{ name }}' is overwritten before usage",
+        severity=RuleSeverity.WARNING,
+        docs="""
+        Keyword, Test Case or Task local variable is overwritten before it is used::
+
+            *** Keywords ***
+            Overwritten Variable
+                ${value}    Keyword
+                ${value}    Keyword
+
         """,
     ),
 }
@@ -797,43 +827,49 @@ class LoopStatementsChecker(VisitorChecker):
         )
 
 
-VariableArgument = namedtuple("VariableArgument", "name token")
+CachedVariable = namedtuple("CachedVariable", "name token")
 
 
 class UnusedVariablesChecker(VisitorChecker):
-    reports = ("unused-argument",)
+    reports = ("unused-argument", "argument-overwritten-before-usage", "variable-overwritten-before-usage")
 
     def __init__(self):
         self.arguments = {}
+        self.variables = [{}]  # variables are list of scope-dictionaries, to support IF branches
+        self.ignore_overwriting = False  # temporarily ignore overwriting, ie in FOR loops
         super().__init__()
 
     def add_argument(self, argument, normalized_name, token):
-        self.arguments[normalized_name] = VariableArgument(argument, token)
+        self.arguments[normalized_name] = CachedVariable(argument, token)
+
+    def visit_TestCase(self, node):  # noqa
+        self.variables = [{}]
+        self.generic_visit(node)
 
     def visit_Keyword(self, node):  # noqa
         self.arguments = {}
+        self.variables = [{}]
         name_token = node.header.get_token(Token.KEYWORD_NAME)
         self.parse_embedded_arguments(name_token)
         # iterating there instead of using visit_Arguments, so we don't check keywords without arguments
         for statement in node.body:
             if isinstance(statement, Arguments):
                 self.parse_arguments(statement)
-        if not self.arguments:
-            return
         self.generic_visit(node)
         for arg in self.arguments.values():
-            self.report_unused_argument(arg)
+            value, *_ = arg.token.value.split("=", maxsplit=1)
+            self.report_arg_or_var_rule("unused-argument", arg.token, value)
 
-    def report_unused_argument(self, arg):
-        """Report unused argument. Only report argument name, ignore optional =default value."""
-        value, *_ = arg.token.value.split("=", maxsplit=1)
+    def report_arg_or_var_rule(self, rule, token, value=None):
+        if value is None:
+            value = token.value
         self.report(
-            "unused-argument",
-            arg=value,
-            node=arg.token,
-            lineno=arg.token.lineno,
-            col=arg.token.col_offset + 1,
-            end_col=arg.token.col_offset + len(value) + 1,
+            rule,
+            name=value,
+            node=token,
+            lineno=token.lineno,
+            col=token.col_offset + 1,
+            end_col=token.col_offset + len(value) + 1,
         )
 
     def parse_arguments(self, node):
@@ -862,8 +898,13 @@ class UnusedVariablesChecker(VisitorChecker):
         for token in node.header.get_tokens(Token.ARGUMENT):
             self.find_not_nested_variable(token.value, is_var=False)
         for token in node.header.get_tokens(Token.ASSIGN):
-            self.handle_assign_variable(token.value, remove_equal=True)
-        return self.generic_visit(node)
+            self.handle_assign_variable(token, remove_equal=True)
+        self.variables.append({})
+        for item in node.body:
+            self.visit(item)
+        self.variables.pop()
+        if node.orelse:
+            self.visit(node.orelse)
 
     def visit_While(self, node):  # noqa
         if node.header.errors:
@@ -878,8 +919,10 @@ class UnusedVariablesChecker(VisitorChecker):
         for token in node.header.get_tokens(Token.ARGUMENT):
             self.find_not_nested_variable(token.value, is_var=False)
         for token in node.header.get_tokens(Token.VARIABLE):
-            self.handle_assign_variable(token.value, remove_equal=False)
-        return self.generic_visit(node)
+            self.handle_assign_variable(token, remove_equal=False)
+        self.ignore_overwriting = True
+        self.generic_visit(node)
+        self.ignore_overwriting = False
 
     visit_ForLoop = visit_For
 
@@ -889,16 +932,14 @@ class UnusedVariablesChecker(VisitorChecker):
         if node.variable is not None:
             error_var = node.header.get_token(Token.VARIABLE)
             if error_var is not None:
-                self.handle_assign_variable(error_var.value, remove_equal=False)
+                self.handle_assign_variable(error_var, remove_equal=False)
         return self.generic_visit(node)
 
     def visit_KeywordCall(self, node):  # noqa
-        if not self.arguments:
-            return
         for token in node.get_tokens(Token.ARGUMENT, Token.KEYWORD):  # argument can be used in keyword name
             self.find_not_nested_variable(token.value, is_var=False)
         for token in node.get_tokens(Token.ASSIGN):  # we first check args, then assign for used and then overwritten
-            self.handle_assign_variable(token.value, remove_equal=True)
+            self.handle_assign_variable(token, remove_equal=True)
 
     def visit_Return(self, node):  # noqa
         for token in node.get_tokens(Token.ARGUMENT):
@@ -906,14 +947,20 @@ class UnusedVariablesChecker(VisitorChecker):
 
     visit_ReturnStatement = visit_Teardown = visit_Timeout = visit_Return
 
-    def handle_assign_variable(self, value, remove_equal):
-        """Check if assign does not overwrite arguments"""
+    def handle_assign_variable(self, token, remove_equal):
+        """Check if assign does not overwrite arguments or variables"""
+        value = token.value
         if remove_equal:
             value = value.rstrip("=").strip()  # remove possible '=' and ' ='
-        value = normalize_robot_var_name(value)  # remove ${ } and normalize
-        if value in self.arguments:
-            arg = self.arguments.pop(value)
-            self.report_unused_argument(arg)
+        normalized = normalize_robot_var_name(value)  # remove ${ } and normalize
+        arg = self.arguments.pop(normalized, None)
+        if arg is not None:
+            self.report_arg_or_var_rule("argument-overwritten-before-usage", arg.token)
+        for variable_scope in self.variables[::-1]:
+            variable = variable_scope.pop(normalized, None)
+            if variable is not None and not self.ignore_overwriting:
+                self.report_arg_or_var_rule("variable-overwritten-before-usage", variable.token, value)
+        self.variables[-1][normalized] = CachedVariable(value, token)
 
     def find_not_nested_variable(self, value, is_var):
         """Find not nested variable.
@@ -926,7 +973,7 @@ class UnusedVariablesChecker(VisitorChecker):
             return
         if not variables:
             if is_var:
-                self.update_used_arguments(value)
+                self.update_used_variables(value)
             elif "$" in value:
                 self.find_escaped_variables(value)  # $var
                 if r"\${" in value:  # \\${var}
@@ -939,7 +986,7 @@ class UnusedVariablesChecker(VisitorChecker):
                 if "$" in before:
                     self.find_escaped_variables(before)
                 elif is_var:  # ${test.kws[0].msgs[${index}]}
-                    self.update_used_arguments(before)
+                    self.update_used_variables(before)
             # handle ${variable}[item][${syntax}]
             match = search_variable(variable, ignore_errors=True)
             if match.base and match.base.startswith("{") and match.base.endswith("}"):  # inline val
@@ -952,21 +999,30 @@ class UnusedVariablesChecker(VisitorChecker):
             if "$" in remaining:
                 self.find_escaped_variables(remaining)
             elif is_var:  # ${test.kws[0].msgs[${index}]}
-                self.update_used_arguments(remaining)
+                self.update_used_variables(remaining)
 
     def find_escaped_variables(self, value):
         variables = find_escaped_variables(value)
         for var in variables:
-            self.update_used_arguments(var)
+            self.update_used_variables(var)
 
-    def update_used_arguments(self, variable_name):
+    def update_used_variables(self, variable_name):
         normalized = normalize_robot_name(variable_name)
         arg = self.arguments.pop(normalized, None)
-        if arg is not None:
-            return
-        for attr_access in (".", "[", "("):  # ${arg.attr}
-            if attr_access in normalized:
-                name, _ = normalized.split(attr_access, maxsplit=1)
-                arg = self.arguments.pop(name, None)
-                if arg is not None:
-                    return
+        if arg is None:
+            for attr_access in (".", "[", "("):  # ${arg.attr}
+                if attr_access in normalized:
+                    name, _ = normalized.split(attr_access, maxsplit=1)
+                    arg = self.arguments.pop(name, None)
+                    if arg is not None:
+                        break
+        for variable_scope in self.variables[::-1]:
+            arg_var = variable_scope.pop(normalized, None)
+            if arg_var is not None:
+                continue
+            for attr_access in (".", "[", "("):  # ${arg.attr}
+                if attr_access in normalized:
+                    name, _ = normalized.split(attr_access, maxsplit=1)
+                    arg_var = variable_scope.pop(name, None)
+                    if arg_var is not None:
+                        continue

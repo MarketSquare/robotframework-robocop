@@ -351,7 +351,7 @@ rules = {
     "0919": Rule(
         rule_id="0919",
         name="unused-argument",
-        msg="Keyword '{{ arg }}' argument is not used",
+        msg="Keyword argument '{{ arg }}' is not used",
         severity=RuleSeverity.WARNING,
         docs="""
         Keyword argument was defined but not used::

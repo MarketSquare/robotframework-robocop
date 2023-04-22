@@ -75,10 +75,10 @@ Other features
 Load toml configuration file from cli (#787)
 ---------------------------------------------
 
-Previously, Robocop only supported toml configuration file by loading it automatically if ``pyproject.toml`` file
-existed in the root directory. Now it is possible to load it from any path using ``--config`` option::
+Previously, Robocop only supported TOML configuration file by loading it automatically if ``pyproject.toml`` file
+existed in the root directory. Now, it is possible to load it from any path using ``--config`` option::
 
-    >robocop --config path/to/config_file.toml
+    robocop --config path/to/config_file.toml
 
 Acknowledgements
 ================

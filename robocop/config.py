@@ -362,7 +362,7 @@ class Config:
             f'{" < ".join(sev.value for sev in RuleSeverity)}',
         )
         optional.add_argument("-A", "--argumentfile", metavar="PATH", help="Path to file with arguments.")
-        optional.add_argument("--config", metavar="PATH", help="Path to toml configuration file.")
+        optional.add_argument("--config", metavar="PATH", help="Path to TOML configuration file.")
         optional.add_argument(
             "-g",
             "--ignore",

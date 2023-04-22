@@ -65,14 +65,14 @@ Loading configuration from file
 
         ``base.txt`` path will be resolved as ``config/base.txt``.
 
-    .. dropdown:: ``pyproject.toml`` or toml configuration file
+    .. dropdown:: ``pyproject.toml`` or TOML configuration file
 
         Robocop uses ``[tool.robocop]`` section. Options have the same names as the CLI arguments.
 
-        This configuration file can be loaded automatically (if your project have ``pyproject.toml`` file) or by
-        using ``--config`` option and path to to the configuration file.
+        This configuration file can be loaded automatically (if your project has ``pyproject.toml`` file) or by
+        using ``--config`` option and providing path to the configuration file.
 
-        Example toml configuration file:
+        Example of TOML configuration file:
 
         ..  code-block::
             :caption: pyproject.toml

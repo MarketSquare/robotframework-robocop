@@ -280,7 +280,7 @@ class TestConfigurationFile:
         config = Config()
         with pytest.raises(TomlFileNotFoundError) as err:
             config.parse_args(["--config", "some_file", str(path_to_test_data)])
-        assert 'Toml configuration file "some_file" does not exist' in str(err)
+        assert 'TOML configuration file "some_file" does not exist' in str(err)
 
     def test_argument_file_without_path(self):
         config = Config()

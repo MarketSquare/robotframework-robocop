@@ -23,7 +23,7 @@ class FileError(RobocopFatalError):
 
 class TomlFileNotFoundError(RobocopFatalError):
     def __init__(self, source):
-        msg = f'Toml configuration file "{source}" does not exist'
+        msg = f'TOML configuration file "{source}" does not exist'
         super().__init__(msg)
 
 

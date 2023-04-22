@@ -1,11 +1,16 @@
 """
 Miscellaneous checkers
 """
+from collections import namedtuple
 from pathlib import Path
 
 from robot.api import Token
+from robot.errors import VariableError
 from robot.parsing.model.blocks import TestCaseSection
-from robot.parsing.model.statements import KeywordCall, Return, Teardown
+from robot.parsing.model.statements import Arguments, KeywordCall, Return, Teardown
+from robot.utils import unescape
+from robot.variables import VariableIterator
+from robot.variables.search import search_variable
 
 try:
     from robot.api.parsing import Comment, EmptyLine, If, Variable
@@ -25,9 +30,11 @@ from robocop.utils import (
     get_errors,
     keyword_col,
     normalize_robot_name,
+    normalize_robot_var_name,
     parse_assignment_sign_type,
     token_col,
 )
+from robocop.utils.misc import find_escaped_variables
 
 rules = {
     "0901": Rule(
@@ -299,17 +306,18 @@ rules = {
 
         For example::
 
-        Example Keyword
-            FOR    ${animal}    IN    cat    dog
-                IF    '${animal}' == 'cat'
-                    CONTINUE
-                    Log  ${animal}  # unreachable log
+            Example Keyword
+                FOR    ${animal}    IN    cat    dog
+                    IF    '${animal}' == 'cat'
+                        CONTINUE
+                        Log  ${animal}  # unreachable log
+                    END
+                    BREAK
+                    Log    Unreachable log
                 END
-                BREAK
+                RETURN
                 Log    Unreachable log
-            END
-            RETURN
-            Log    Unreachable log
+
         """,
     ),
     "0918": Rule(
@@ -330,6 +338,7 @@ rules = {
         Good::
 
             IF  ${condition}    Log  hello     ELSE    Log  hi!
+
         or::
 
             IF  ${condition}
@@ -337,6 +346,57 @@ rules = {
             ELSE
                 Log  hi!
             END
+        """,
+    ),
+    "0919": Rule(
+        rule_id="0919",
+        name="unused-argument",
+        msg="Keyword argument '{{ name }}' is not used",
+        severity=RuleSeverity.WARNING,
+        docs="""
+        Keyword argument was defined but not used::
+        
+            *** Keywords ***
+            Keyword
+                [Arguments]    ${used}    ${not_used}  # will report ${not_used}
+                Log    ${used}
+                IF    $used
+                    Log    Escaped syntax is supported.
+                END
+
+            Keyword with ${embedded} and ${not_used}  # will report ${not_used}
+                Log    ${embedded}
+
+        """,
+    ),
+    "0920": Rule(
+        rule_id="0920",
+        name="argument-overwritten-before-usage",
+        msg="Keyword argument '{{ name }}' is overwritten before usage",
+        severity=RuleSeverity.WARNING,
+        docs="""
+        Keyword argument was overwritten before it is used::
+        
+            *** Keywords ***
+            Overwritten Argument
+                [Arguments]    ${overwritten}  # we do not use ${overwritten} value at all
+                ${overwritten}    Set Variable    value  # we only overwrite it
+
+        """,
+    ),
+    "0921": Rule(
+        rule_id="0921",
+        name="variable-overwritten-before-usage",
+        msg="Local variable '{{ name }}' is overwritten before usage",
+        severity=RuleSeverity.WARNING,
+        docs="""
+        Local variable in Keyword, Test Case or Task is overwritten before it is used::
+
+            *** Keywords ***
+            Overwritten Variable
+                ${value}    Keyword
+                ${value}    Keyword
+
         """,
     ),
 }
@@ -765,3 +825,218 @@ class LoopStatementsChecker(VisitorChecker):
             node=node,
             col=token_col(node, token_type),
         )
+
+
+CachedVariable = namedtuple("CachedVariable", "name token")
+
+
+class UnusedVariablesChecker(VisitorChecker):
+    reports = ("unused-argument", "argument-overwritten-before-usage", "variable-overwritten-before-usage")
+
+    def __init__(self):
+        self.arguments = {}
+        self.variables = [{}]  # variables are list of scope-dictionaries, to support IF branches
+        self.ignore_overwriting = False  # temporarily ignore overwriting, e.g. in FOR loops
+        super().__init__()
+
+    def visit_TestCase(self, node):  # noqa
+        self.variables = [{}]
+        self.generic_visit(node)
+
+    def visit_Keyword(self, node):  # noqa
+        self.arguments = {}
+        self.variables = [{}]
+        name_token = node.header.get_token(Token.KEYWORD_NAME)
+        self.parse_embedded_arguments(name_token)
+        # iterating there instead of using visit_Arguments, so we don't check keywords without arguments
+        for statement in node.body:
+            if isinstance(statement, Arguments):
+                self.parse_arguments(statement)
+        self.generic_visit(node)
+        for arg in self.arguments.values():
+            value, *_ = arg.token.value.split("=", maxsplit=1)
+            self.report_arg_or_var_rule("unused-argument", arg.token, value)
+
+    def report_arg_or_var_rule(self, rule, token, value=None):
+        if value is None:
+            value = token.value
+        self.report(
+            rule,
+            name=value,
+            node=token,
+            lineno=token.lineno,
+            col=token.col_offset + 1,
+            end_col=token.col_offset + len(value) + 1,
+        )
+
+    def add_argument(self, argument, normalized_name, token):
+        self.arguments[normalized_name] = CachedVariable(argument, token)
+
+    def parse_arguments(self, node):
+        """Store arguments from [Arguments]. Ignore @{args} and &{kwargs}, strip default values."""
+        if get_errors(node):
+            return
+        for arg in node.get_tokens(Token.ARGUMENT):
+            if arg.value[0] in ("@", "&"):  # ignore *args and &kwargs
+                continue
+            name, *_ = arg.value.split("=", maxsplit=1)
+            normalized_name = normalize_robot_var_name(name)
+            self.add_argument(name, normalized_name, token=arg)
+
+    def parse_embedded_arguments(self, name_token):
+        """Store embedded arguments from keyword name. Ignore embedded variables patterns (${var:pattern})."""
+        try:
+            for token in name_token.tokenize_variables():
+                if token.type == Token.VARIABLE:
+                    normalized_name = normalize_robot_var_name(token.value)
+                    name, *_ = normalized_name.split(":", maxsplit=1)
+                    self.add_argument(token.value, name, token=token)
+        except VariableError:
+            pass
+
+    def visit_If(self, node):  # noqa
+        if node.header.errors:
+            return node
+        for token in node.header.get_tokens(Token.ARGUMENT):
+            self.find_not_nested_variable(token.value, is_var=False)
+        for token in node.header.get_tokens(Token.ASSIGN):
+            self.handle_assign_variable(token, remove_equal=True)
+        self.variables.append({})
+        for item in node.body:
+            self.visit(item)
+        self.variables.pop()
+        if node.orelse:
+            self.visit(node.orelse)
+
+    def visit_While(self, node):  # noqa
+        if node.header.errors:
+            return node
+        for token in node.header.get_tokens(Token.ARGUMENT):
+            self.find_not_nested_variable(token.value, is_var=False)
+        return self.generic_visit(node)
+
+    def visit_For(self, node):  # noqa
+        if getattr(node.header, "errors", None):
+            return node
+        self.ignore_overwriting = True
+        for token in node.header.get_tokens(Token.ARGUMENT):
+            self.find_not_nested_variable(token.value, is_var=False)
+        for token in node.header.get_tokens(Token.VARIABLE):
+            self.handle_assign_variable(token, remove_equal=False)
+        self.generic_visit(node)
+        self.ignore_overwriting = False
+
+    visit_ForLoop = visit_For
+
+    def visit_Try(self, node):  # noqa
+        if node.errors or node.header.errors:
+            return node
+        if node.variable is not None:
+            error_var = node.header.get_token(Token.VARIABLE)
+            if error_var is not None:
+                self.handle_assign_variable(error_var, remove_equal=False)
+        return self.generic_visit(node)
+
+    def visit_KeywordCall(self, node):  # noqa
+        for token in node.get_tokens(Token.ARGUMENT, Token.KEYWORD):  # argument can be used in keyword name
+            self.find_not_nested_variable(token.value, is_var=False)
+        for token in node.get_tokens(Token.ASSIGN):  # we first check args, then assign for used and then overwritten
+            self.handle_assign_variable(token, remove_equal=True)
+
+    def visit_Return(self, node):  # noqa
+        for token in node.get_tokens(Token.ARGUMENT):
+            self.find_not_nested_variable(token.value, is_var=False)
+
+    visit_ReturnStatement = visit_Teardown = visit_Timeout = visit_Return
+
+    def handle_assign_variable(self, token, remove_equal):
+        """Check if assign does not overwrite arguments or variables.
+
+        Store assign variables for future overwriting checks."""
+        value = token.value
+        if remove_equal:
+            value = value.rstrip("=").strip()  # remove possible '=' and ' ='
+        normalized = normalize_robot_var_name(value)  # remove ${ } and normalize
+        arg = self.arguments.pop(normalized, None)
+        if arg is not None:
+            self.report_arg_or_var_rule("argument-overwritten-before-usage", arg.token)
+        for variable_scope in self.variables[::-1]:
+            variable = variable_scope.pop(normalized, None)
+            if variable is not None and not self.ignore_overwriting:
+                self.report_arg_or_var_rule("variable-overwritten-before-usage", variable.token, value)
+        self.variables[-1][normalized] = CachedVariable(value, token)
+
+    def find_not_nested_variable(self, value, is_var):
+        """Find and process not nested variable.
+
+        Search `value` string until there is ${variable} without other variables inside. Unescaped escaped syntax
+        ($var or \\${var}). If variable does exist in assign variables or arguments, it is removed to denote it was
+        used.
+        """
+        try:
+            variables = list(VariableIterator(value))
+        except VariableError:  # for example ${variable which wasn't closed properly
+            return
+        if not variables:
+            if is_var:
+                self.update_used_variables(value)
+            elif "$" in value:
+                self.find_escaped_variables(value)  # $var
+                if r"\${" in value:  # \\${var}
+                    unescaped = unescape(value)
+                    self.find_not_nested_variable(unescaped, is_var=False)
+            return
+        remaining = ""
+        for before, variable, remaining in variables:
+            if before:
+                if "$" in before:
+                    self.find_escaped_variables(before)
+                elif is_var:  # ${test.kws[0].msgs[${index}]}
+                    self.update_used_variables(before)
+            # handle ${variable}[item][${syntax}]
+            match = search_variable(variable, ignore_errors=True)
+            if match.base and match.base.startswith("{") and match.base.endswith("}"):  # inline val
+                self.find_not_nested_variable(match.base[1:-1].strip(), is_var=False)
+            else:
+                self.find_not_nested_variable(match.base, is_var=True)
+            for item in match.items:
+                self.find_not_nested_variable(item, is_var=False)
+        if remaining:
+            if "$" in remaining:
+                self.find_escaped_variables(remaining)
+            elif is_var:  # ${test.kws[0].msgs[${index}]}
+                self.update_used_variables(remaining)
+
+    def find_escaped_variables(self, value):
+        """Find all $var escaped variables in the value string and process them."""
+        for var in find_escaped_variables(value):
+            self.update_used_variables(var)
+
+    def update_used_variables(self, variable_name):
+        """Remove used variable from the arguments and variables store.
+
+        If the normalized variable name was already defined, we need to remove it to know which variables are not used.
+        If the variable is not found, we try to remove possible attribute access from the name and search again.
+        For example:
+
+          arg.attr -> arg
+          arg["value"] -> arg
+        """
+        normalized = normalize_robot_name(variable_name)
+        arg = self.arguments.pop(normalized, None)
+        if arg is None:
+            self.search_by_removing_attr_access(normalized, self.arguments)
+        for variable_scope in self.variables[::-1]:
+            arg_var = variable_scope.pop(normalized, None)
+            if arg_var is None:
+                self.search_by_removing_attr_access(normalized, variable_scope)
+
+    @staticmethod
+    def search_by_removing_attr_access(variable_name, variable_scope):
+        """Search and remove variables from variable_scope by removing attribute access elements from the name."""
+        for attr_access in (".", "[", "("):  # ${arg.attr}
+            if attr_access in variable_name:
+                name, _ = variable_name.split(attr_access, maxsplit=1)
+                arg_var = variable_scope.pop(name, None)
+                if arg_var is not None:
+                    return

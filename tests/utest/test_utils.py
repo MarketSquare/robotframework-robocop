@@ -9,7 +9,7 @@ from robocop.utils import (
     pattern_type,
     remove_robot_vars,
 )
-from robocop.utils.misc import remove_nested_variables
+from robocop.utils.misc import find_escaped_variables, remove_nested_variables
 from robocop.utils.version_matching import Version, VersionSpecifier
 
 
@@ -277,3 +277,17 @@ def test_version_parsing_and_comparison():
 def test_invalid_version_specifier():
     with pytest.raises(ValueError, match="Invalid specifier: '=<5'"):
         VersionSpecifier("=<5")
+
+
+@pytest.mark.parametrize(
+    "string, expected_variables",
+    [
+        ("string", []),
+        ("$var", ["var"]),
+        ("$var != $var2", ["var", "var2"]),
+        ("$var is None", ["var"]),
+        ("$item_access['item'] and $var('method')", ["item_access", "var"]),
+    ],
+)
+def test_find_escaped_variables(string, expected_variables):
+    assert find_escaped_variables(string) == expected_variables

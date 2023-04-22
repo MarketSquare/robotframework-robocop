@@ -2,9 +2,13 @@ import ast
 import difflib
 import importlib.util
 import re
+import token
+import tokenize
 from collections import Counter, defaultdict
 from importlib import import_module
+from io import StringIO
 from pathlib import Path
+from tokenize import generate_tokens
 from typing import Dict, List, Optional, Pattern, Tuple
 
 from robot.api import Token
@@ -346,3 +350,24 @@ def get_errors(node):
     if ROBOT_VERSION.major == 3:
         return [node.error] if node.error else []
     return node.errors
+
+
+def find_escaped_variables(string):
+    """Return list of $escaped or \${escaped} variables from the string.
+
+    We are tokenizing the string using Python ast modules. This allows us to find valid Python-like names and check
+    if they are escaped Robot Framework variables.
+    """
+    variable_started = False
+    variables = []
+    try:
+        for toknum, tokval, _, _, _ in generate_tokens(StringIO(string).readline):
+            if variable_started:
+                if toknum == token.NAME:
+                    variables.append(tokval)
+                variable_started = False
+            if toknum == token.ERRORTOKEN and tokval == "$":
+                variable_started = True
+    except tokenize.TokenError:
+        pass
+    return variables

@@ -341,7 +341,8 @@ rules = {
     "0322": Rule(
         rule_id="0322",
         name="deprecated-singular-header",
-        msg="'{{ singular_header }}' singular header form is deprecated since RF 6.0 and will be removed in the future releases. Use '{{ plural_header }}' instead",
+        msg="'{{ singular_header }}' singular header form is deprecated since RF 6.0 and "
+        "will be removed in the future releases. Use '{{ plural_header }}' instead",
         severity=RuleSeverity.WARNING,
         version=">=6.0",
         docs="""

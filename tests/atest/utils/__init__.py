@@ -116,8 +116,10 @@ class RuleAcceptance:
                 parsed_results = remove_deprecation_warning(result).splitlines()
         actual = normalize_result(parsed_results, test_data)
         if actual != expected:
-            present_in_actual = "\n    ".join(set(actual) - set(expected))
-            present_in_expected = "\n    ".join(set(expected) - set(actual))
+            missing_expected = sorted(set(actual) - set(expected))
+            missing_actual = sorted(set(expected) - set(actual))
+            present_in_actual = "\n    ".join(missing_expected)
+            present_in_expected = "\n    ".join(missing_actual)
             raise AssertionError(
                 "Actual issues are different than expected.\n"
                 f"Actual issues not found in expected:\n    {present_in_actual}"

@@ -98,10 +98,14 @@ def get_reports(configured_reports):
 
 def list_reports(reports):
     """Returns description of enabled reports."""
-    sorted_by_name = sorted(reports.values(), key=lambda x: x.name)
-    available_reports = "Available reports:\n"
-    available_reports += "\n".join(f"{report.name:20} - {report.description}" for report in sorted_by_name) + "\n"
-    available_reports += "all" + " " * 18 + "- Turns on all default reports"
+    all_reports = get_reports(["all"])
+    sorted_by_name = sorted(all_reports.values(), key=lambda x: x.name)
+    configured_reports = {x.name for x in reports.values()}
+    available_reports = "Available reports:"
+    for report in sorted_by_name:
+        status = "enabled" if report.name in configured_reports else "disabled"
+        available_reports += f"\n{report.name:20} - {report.description} ({status})"
+    available_reports += "\nall" + " " * 18 + "- Turns on all default reports"
     return available_reports
 
 

@@ -58,12 +58,13 @@ arguments or variables overwritten before first use::
 
     *** Keywords ***
     Overwritten Argument
-        [Arguments]    ${overwritten}  # we do not use ${overwritten} value at all
-        ${overwritten}    Set Variable    value
+        [Arguments]    ${overwritten}  # we do not call ${overwritten} value at all
+        ${overwritten}    Set Variable    value  # we only overwrite it
 
     Overwritten Variable
-    ${value}    Keyword
-    ${value}    Keyword
+        ${var1}    ${var2}    Assign Variables
+        Log        ${var2}  # this variable is used
+        ${var1}    Overwrite Variable  # this one is only overwritten
 
 Fixes
 =====

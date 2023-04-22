@@ -380,7 +380,7 @@ rules = {
             *** Keywords ***
             Overwritten Argument
                 [Arguments]    ${overwritten}  # we do not use ${overwritten} value at all
-                ${overwritten}    Set Variable    value
+                ${overwritten}    Set Variable    value  # we only overwrite it
 
         """,
     ),
@@ -390,7 +390,7 @@ rules = {
         msg="Local variable '{{ name }}' is overwritten before usage",
         severity=RuleSeverity.WARNING,
         docs="""
-        Keyword, Test Case or Task local variable is overwritten before it is used::
+        Local variable in Keyword, Test Case or Task is overwritten before it is used::
 
             *** Keywords ***
             Overwritten Variable
@@ -836,7 +836,7 @@ class UnusedVariablesChecker(VisitorChecker):
     def __init__(self):
         self.arguments = {}
         self.variables = [{}]  # variables are list of scope-dictionaries, to support IF branches
-        self.ignore_overwriting = False  # temporarily ignore overwriting, ie in FOR loops
+        self.ignore_overwriting = False  # temporarily ignore overwriting, e.g. in FOR loops
         super().__init__()
 
     def add_argument(self, argument, normalized_name, token):

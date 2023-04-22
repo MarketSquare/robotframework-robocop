@@ -76,6 +76,17 @@ class TestE2E:
         out, err = capfd.readouterr()
         assert "No issues found." in out
 
+    def test_list_all_reports(self, robocop_instance, capfd):
+        exp_msg = (
+            "Available reports:\n"
+            "return_status        - Checks if number of specific issues exceed quality gate limits\n"
+            "all                  - Turns on all default reports\n"
+        )
+        for option in ("--list-reports", "-lr"):
+            should_run_with_config(robocop_instance, option)
+            out, err = capfd.readouterr()
+            assert exp_msg == out
+
     def test_ignore_file_with_pattern(self, robocop_instance, test_data_dir):
         should_run_with_config(robocop_instance, f"--ignore *.robot --include 0502 {test_data_dir}")
 

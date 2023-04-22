@@ -839,9 +839,6 @@ class UnusedVariablesChecker(VisitorChecker):
         self.ignore_overwriting = False  # temporarily ignore overwriting, e.g. in FOR loops
         super().__init__()
 
-    def add_argument(self, argument, normalized_name, token):
-        self.arguments[normalized_name] = CachedVariable(argument, token)
-
     def visit_TestCase(self, node):  # noqa
         self.variables = [{}]
         self.generic_visit(node)
@@ -872,7 +869,11 @@ class UnusedVariablesChecker(VisitorChecker):
             end_col=token.col_offset + len(value) + 1,
         )
 
+    def add_argument(self, argument, normalized_name, token):
+        self.arguments[normalized_name] = CachedVariable(argument, token)
+
     def parse_arguments(self, node):
+        """Store arguments from [Arguments]. Ignore @{args} and &{kwargs}, strip default values."""
         if get_errors(node):
             return
         for arg in node.get_tokens(Token.ARGUMENT):
@@ -883,6 +884,7 @@ class UnusedVariablesChecker(VisitorChecker):
             self.add_argument(name, normalized_name, token=arg)
 
     def parse_embedded_arguments(self, name_token):
+        """Store embedded arguments from keyword name. Ignore embedded variables patterns (${var:pattern})."""
         try:
             for token in name_token.tokenize_variables():
                 if token.type == Token.VARIABLE:
@@ -948,7 +950,9 @@ class UnusedVariablesChecker(VisitorChecker):
     visit_ReturnStatement = visit_Teardown = visit_Timeout = visit_Return
 
     def handle_assign_variable(self, token, remove_equal):
-        """Check if assign does not overwrite arguments or variables"""
+        """Check if assign does not overwrite arguments or variables.
+
+        Store assign variables for future overwriting checks."""
         value = token.value
         if remove_equal:
             value = value.rstrip("=").strip()  # remove possible '=' and ' ='
@@ -963,9 +967,11 @@ class UnusedVariablesChecker(VisitorChecker):
         self.variables[-1][normalized] = CachedVariable(value, token)
 
     def find_not_nested_variable(self, value, is_var):
-        """Find not nested variable.
+        """Find and process not nested variable.
 
-        Search `value` string until there is ${variable} without other variables inside.
+        Search `value` string until there is ${variable} without other variables inside. Unescaped escaped syntax
+        ($var or \\${var}). If variable does exist in assign variables or arguments, it is removed to denote it was
+        used.
         """
         try:
             variables = list(VariableIterator(value))
@@ -1002,27 +1008,35 @@ class UnusedVariablesChecker(VisitorChecker):
                 self.update_used_variables(remaining)
 
     def find_escaped_variables(self, value):
-        variables = find_escaped_variables(value)
-        for var in variables:
+        """Find all $var escaped variables in the value string and process them."""
+        for var in find_escaped_variables(value):
             self.update_used_variables(var)
 
     def update_used_variables(self, variable_name):
+        """Remove used variable from the arguments and variables store.
+
+        If the normalized variable name was already defined, we need to remove it to know which variables are not used.
+        If the variable is not found, we try to remove possible attribute access from the name and search again.
+        For example:
+
+          arg.attr -> arg
+          arg["value"] -> arg
+        """
         normalized = normalize_robot_name(variable_name)
         arg = self.arguments.pop(normalized, None)
         if arg is None:
-            for attr_access in (".", "[", "("):  # ${arg.attr}
-                if attr_access in normalized:
-                    name, _ = normalized.split(attr_access, maxsplit=1)
-                    arg = self.arguments.pop(name, None)
-                    if arg is not None:
-                        break
+            self.search_by_removing_attr_access(normalized, self.arguments)
         for variable_scope in self.variables[::-1]:
             arg_var = variable_scope.pop(normalized, None)
-            if arg_var is not None:
-                continue
-            for attr_access in (".", "[", "("):  # ${arg.attr}
-                if attr_access in normalized:
-                    name, _ = normalized.split(attr_access, maxsplit=1)
-                    arg_var = variable_scope.pop(name, None)
-                    if arg_var is not None:
-                        continue
+            if arg_var is None:
+                self.search_by_removing_attr_access(normalized, variable_scope)
+
+    @staticmethod
+    def search_by_removing_attr_access(variable_name, variable_scope):
+        """Search and remove variables from variable_scope by removing attribute access elements from the name."""
+        for attr_access in (".", "[", "("):  # ${arg.attr}
+            if attr_access in variable_name:
+                name, _ = variable_name.split(attr_access, maxsplit=1)
+                arg_var = variable_scope.pop(name, None)
+                if arg_var is not None:
+                    return

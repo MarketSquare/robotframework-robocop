@@ -80,5 +80,15 @@ existed in the root directory. Now, it is possible to load it from any path usin
 
     robocop --config path/to/config_file.toml
 
+List reports now list all reports (#833)
+----------------------------------------
+
+<insert description here>
+
+List reports output can be filterted using ENABLED?DISABLED (#833)
+------------------------------------------------------------------
+
+<insert description here>
+
 Acknowledgements
 ================

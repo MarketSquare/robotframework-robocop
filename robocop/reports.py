@@ -9,12 +9,20 @@ You can use separate arguments (``-r report1 -r report2``) or comma-separated li
 
     robocop --reports rules_by_id,some_other_report path/to/file.robot
 
-To enable all default reports use ``--reports all``.
+To enable all default reports use ``--reports all``.  Non-default reports can be only enabled using report name.
 
 The order of the reports is preserved. For example, if you want ``timestamp`` report to be printed before any
 other reports, you can use following configuration::
 
     robocop --reports timestamp,all src.robot
+
+Print list of all reports with their configured status by using ``--list-reports``::
+
+    robocop --reports all --list-reports
+
+You can filter the list using optional ENABLED/DISABLED argument::
+
+    robocop --reports timestamp,sarif --list-reports DISABLED
 
 """
 import inspect
@@ -112,7 +120,7 @@ def list_reports(reports, list_reports_with_status):
     available_reports = "Available reports:"
     for report in all_public_reports:
         status = "enabled" if report.name in configured_reports else "disabled"
-        if list_reports_with_status and list_reports_with_status != status.upper():
+        if list_reports_with_status != "default" and list_reports_with_status != status.upper():
             continue
         if not is_report_default(report):
             status += " - non-default"

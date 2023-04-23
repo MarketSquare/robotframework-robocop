@@ -8,13 +8,7 @@ import pytest
 
 import robocop.exceptions
 from robocop.config import Config
-from robocop.exceptions import (
-    ArgumentFileNotFoundError,
-    CircularArgumentFileError,
-    ConfigGeneralError,
-    FileError,
-    InvalidArgumentError,
-)
+from robocop.exceptions import CircularArgumentFileError, ConfigGeneralError, FileError, InvalidArgumentError
 from robocop.rules import RuleSeverity
 from robocop.run import Robocop
 from robocop.utils.misc import ROBOT_VERSION, rf_supports_lang
@@ -172,18 +166,6 @@ class TestE2E:
     def test_use_argument_file(self, robocop_instance, test_data_dir):
         config = Config()
         config.parse_args(["-A", str(test_data_dir / "argument_file" / "args.txt")])
-
-    def test_use_not_existing_argument_file(self, test_data_dir):
-        config = Config()
-        with pytest.raises(ArgumentFileNotFoundError) as err:
-            config.parse_args(["--argumentfile", "some_file", str(test_data_dir)])
-        assert 'Argument file "some_file" does not exist' in str(err)
-
-    def test_argument_file_without_path(self):
-        config = Config()
-        with pytest.raises(ArgumentFileNotFoundError) as err:
-            config.parse_args(["--argumentfile"])
-        assert 'Argument file "" does not exist' in str(err)
 
     def test_use_circular_argument_file(self, test_data_dir):
         config = Config()

@@ -208,7 +208,7 @@ class Robocop:
     def load_reports(self):
         self.reports = reports.get_reports(self.config.reports)
         if self.config.list_reports:
-            available_reports = reports.list_reports(self.reports)
+            available_reports = reports.list_reports(self.reports, self.config.list_reports)
             print(available_reports)
             sys.exit()
 

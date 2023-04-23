@@ -31,7 +31,6 @@ import pytz
 
 import robocop.exceptions
 from robocop.rules import Message
-from robocop.utils import RecommendationFinder
 from robocop.version import __version__
 
 
@@ -45,6 +44,7 @@ class Report:
     """
 
     DEFAULT = True
+    INTERNAL = False
 
     def configure(self, name, value):
         raise robocop.exceptions.ConfigGeneralError(
@@ -77,6 +77,10 @@ def is_report_default(report):
     return getattr(report, "DEFAULT", False)
 
 
+def is_report_internal(report):
+    return getattr(report, "INTERNAL", False)
+
+
 def get_reports(configured_reports):
     """
     Returns dictionary with list of valid, enabled reports (listed in `configured_reports` set of str).
@@ -96,16 +100,28 @@ def get_reports(configured_reports):
     return enabled_reports
 
 
-def list_reports(reports):
-    """Returns description of enabled reports."""
-    all_reports = get_reports(["all"])
-    sorted_by_name = sorted(all_reports.values(), key=lambda x: x.name)
+def list_reports(reports, list_reports_with_status):
+    """Returns description of reports.
+
+    The reports list is filtered and only public reports are provided. If the report is enabled in current
+    configuration it will have (enabled) suffix (and (disabled) if it is disabled).
+    """
+    all_public_reports = [report for report in load_reports().values() if not is_report_internal(report)]
+    all_public_reports = sorted(all_public_reports, key=lambda x: x.name)
     configured_reports = {x.name for x in reports.values()}
     available_reports = "Available reports:"
-    for report in sorted_by_name:
+    for report in all_public_reports:
         status = "enabled" if report.name in configured_reports else "disabled"
+        if list_reports_with_status and list_reports_with_status != status.upper():
+            continue
+        if not is_report_default(report):
+            status += " - non-default"
         available_reports += f"\n{report.name:20} - {report.description} ({status})"
-    available_reports += "\nall" + " " * 18 + "- Turns on all default reports"
+    available_reports += (
+        "\n\nEnable report by passing report name using --reports option. "
+        "Use `all` to enable all default reports. "
+        "Non-default reports can be only enabled using report name."
+    )
     return available_reports
 
 
@@ -186,6 +202,8 @@ class ReturnStatusReport(Report):
     That information is later used as a return status from Robocop.
     """
 
+    INTERNAL = True
+
     def __init__(self):
         self.name = "return_status"
         self.description = "Checks if number of specific issues exceed quality gate limits"
@@ -243,6 +261,7 @@ class JsonReport(Report):
     """
 
     DEFAULT = False
+    INTERNAL = True
 
     def __init__(self):
         self.name = "json_report"

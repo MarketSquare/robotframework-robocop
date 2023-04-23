@@ -73,13 +73,83 @@ class TestE2E:
     def test_list_all_reports(self, robocop_instance, capfd):
         exp_msg = (
             "Available reports:\n"
-            "return_status        - Checks if number of specific issues exceed quality gate limits\n"
-            "all                  - Turns on all default reports\n"
+            "file_stats           - Prints overall statistics about number of processed files (disabled)\n"
+            "rules_by_error_type  - Prints total number of issues grouped by severity (disabled)\n"
+            "rules_by_id          - Groups detected issues by rule id and prints it ordered by most common (disabled)\n"
+            "sarif                - Generate SARIF output file (disabled - non-default)\n"
+            "scan_timer           - Returns Robocop execution time (disabled)\n"
+            "timestamp            - Returns Robocop execution timestamp. (disabled)\n"
+            "version              - Returns Robocop version (disabled)\n"
+            "\nEnable report by passing report name using --reports option. "
+            "Use `all` to enable all default reports. "
+            "Non-default reports can be only enabled using report name.\n"
         )
         for option in ("--list-reports", "-lr"):
             should_run_with_config(robocop_instance, option)
             out, err = capfd.readouterr()
-            assert exp_msg == out
+            assert out == exp_msg
+
+    def test_list_enabled_reports(self, robocop_instance, capfd):
+        for option in ("--list-reports", "-lr"):
+            exp_msg = (
+                "Available reports:\n"
+                "\nEnable report by passing report name using --reports option. "
+                "Use `all` to enable all default reports. "
+                "Non-default reports can be only enabled using report name.\n"
+            )
+            config = f"{option} ENABLED"
+            should_run_with_config(robocop_instance, config)
+            out, err = capfd.readouterr()
+            assert out == exp_msg
+            exp_msg = (
+                "Available reports:\n"
+                "sarif                - Generate SARIF output file (enabled - non-default)\n"
+                "version              - Returns Robocop version (enabled)\n"
+                "\nEnable report by passing report name using --reports option. "
+                "Use `all` to enable all default reports. "
+                "Non-default reports can be only enabled using report name.\n"
+            )
+            config = f"--reports version,sarif {option} ENABLED"
+            should_run_with_config(robocop_instance, config)
+            out, err = capfd.readouterr()
+            assert out == exp_msg
+
+    def test_list_disabled_reports(self, robocop_instance, capfd):
+        for option in ("--list-reports", "-lr"):
+            exp_msg = (
+                "Available reports:\n"
+                "file_stats           - Prints overall statistics about number of processed files (disabled)\n"
+                "rules_by_error_type  - Prints total number of issues grouped by severity (disabled)\n"
+                "rules_by_id          - Groups detected issues by rule id and prints it ordered by most common "
+                "(disabled)\n"
+                "sarif                - Generate SARIF output file (disabled - non-default)\n"
+                "scan_timer           - Returns Robocop execution time (disabled)\n"
+                "timestamp            - Returns Robocop execution timestamp. (disabled)\n"
+                "version              - Returns Robocop version (disabled)\n"
+                "\nEnable report by passing report name using --reports option. "
+                "Use `all` to enable all default reports. "
+                "Non-default reports can be only enabled using report name.\n"
+            )
+            config = f"{option} DISABLED"
+            should_run_with_config(robocop_instance, config)
+            out, err = capfd.readouterr()
+            assert out == exp_msg
+            exp_msg = (
+                "Available reports:\n"
+                "file_stats           - Prints overall statistics about number of processed files (disabled)\n"
+                "rules_by_error_type  - Prints total number of issues grouped by severity (disabled)\n"
+                "rules_by_id          - Groups detected issues by rule id and prints it ordered by most common "
+                "(disabled)\n"
+                "scan_timer           - Returns Robocop execution time (disabled)\n"
+                "timestamp            - Returns Robocop execution timestamp. (disabled)\n"
+                "\nEnable report by passing report name using --reports option. "
+                "Use `all` to enable all default reports. "
+                "Non-default reports can be only enabled using report name.\n"
+            )
+            config = f"--reports version,sarif {option} DISABLED"
+            should_run_with_config(robocop_instance, config)
+            out, err = capfd.readouterr()
+            assert out == exp_msg
 
     def test_ignore_file_with_pattern(self, robocop_instance, test_data_dir):
         should_run_with_config(robocop_instance, f"--ignore *.robot --include 0502 {test_data_dir}")

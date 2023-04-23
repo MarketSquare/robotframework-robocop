@@ -15,6 +15,7 @@ from robocop.exceptions import (
     CircularArgumentFileError,
     ConfigGeneralError,
     InvalidArgumentError,
+    TomlFileNotFoundError,
 )
 from robocop.files import DEFAULT_EXCLUDES, find_file_in_project_root, find_project_root
 from robocop.rules import RuleSeverity
@@ -361,6 +362,7 @@ class Config:
             f'{" < ".join(sev.value for sev in RuleSeverity)}',
         )
         optional.add_argument("-A", "--argumentfile", metavar="PATH", help="Path to file with arguments.")
+        optional.add_argument("--config", metavar="PATH", help="Path to TOML configuration file.")
         optional.add_argument(
             "-g",
             "--ignore",
@@ -415,16 +417,14 @@ class Config:
             self.load_default_config_file()
             return
         args = sys.argv[1:]
-        if not self.argument_file_in_cli(args):
+        if not self.config_file_in_cli(args):
             self.load_default_config_file()
         self.parse_args(args)
 
-    def argument_file_in_cli(self, args):
-        argument_options = {"-A", "--argumentfile"}
-        for arg in args:
-            if arg in argument_options:
-                return True
-        return False
+    @staticmethod
+    def config_file_in_cli(args):
+        config_options = {"-A", "--argumentfile", "--config"}
+        return any(arg in config_options for arg in args)
 
     def reload(self, rules):
         self.remove_severity()
@@ -443,8 +443,14 @@ class Config:
             print("No config file found or configuration is empty. Using default configuration")
 
     def load_default_config_file(self):
-        if not self.load_robocop_file():
-            self.load_pyproject_file()
+        """Find and load default configuration file.
+
+        First look for .robocop file. If it does not exist, search for pyproject.toml file."""
+        if self.load_robocop_file():
+            return
+        pyproject_path = find_file_in_project_root("pyproject.toml", self.root)
+        if pyproject_path.is_file():
+            self.load_pyproject_file(pyproject_path)
 
     def load_robocop_file(self):
         """Returns True if .robocop exists"""
@@ -457,10 +463,7 @@ class Config:
         self.parse_args(args)
         return True
 
-    def load_pyproject_file(self):
-        pyproject_path = find_file_in_project_root("pyproject.toml", self.root)
-        if not pyproject_path.is_file():
-            return
+    def load_pyproject_file(self, pyproject_path):
         config_dir = pyproject_path.parent
         try:
             with Path(pyproject_path).open("rb") as fp:
@@ -474,6 +477,11 @@ class Config:
     def parse_args_to_config(self, args):
         parser = self._create_parser()
         args = parser.parse_args(args)
+        if args.config is not None:
+            config_path = Path(args.config)
+            if not config_path.is_file():
+                raise TomlFileNotFoundError(str(config_path)) from None
+            self.load_pyproject_file(config_path)
         for key, value in dict(**vars(args)).items():
             if key in self.__dict__:
                 self.__dict__[key] = value
@@ -504,7 +512,8 @@ class Config:
         }
         deprecated = {
             # "rule-name": "deprecation message"
-            "bad-indent": "'strict' and 'ignore_uneven' parameters are no longer available for this rule. Take a look at new E1017 bad-block-indent rule that replaces them."  # warning added in v.3.0.0
+            "bad-indent": "'strict' and 'ignore_uneven' parameters are no longer available for this rule. "
+            "Take a look at new E1017 bad-block-indent rule that replaces them."  # warning added in v.3.0.0
         }
         deprecation_header = "### DEPRECATION WARNING ###"
         deprecation_footer = "This information will disappear in the next version.\n\n"

@@ -21,6 +21,12 @@ class FileError(RobocopFatalError):
         super().__init__(msg)
 
 
+class TomlFileNotFoundError(RobocopFatalError):
+    def __init__(self, source):
+        msg = f'TOML configuration file "{source}" does not exist'
+        super().__init__(msg)
+
+
 class ArgumentFileNotFoundError(RobocopFatalError):
     def __init__(self, source):
         msg = f'Argument file "{source}" does not exist'

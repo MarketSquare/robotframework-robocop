@@ -72,10 +72,23 @@ Fixes
 Other features
 ==============
 
-Feature title (#0)
---------------------------------
+Load toml configuration file from cli (#787)
+---------------------------------------------
 
-Description
+Previously, Robocop only supported TOML configuration file by loading it automatically if ``pyproject.toml`` file
+existed in the root directory. Now, it is possible to load it from any path using ``--config`` option::
+
+    robocop --config path/to/config_file.toml
+
+List reports now list all reports (#833)
+----------------------------------------
+
+<insert description here>
+
+List reports output can be filterted using ENABLED?DISABLED (#833)
+------------------------------------------------------------------
+
+<insert description here>
 
 Acknowledgements
 ================

@@ -64,6 +64,12 @@ class SetListOption(argparse.Action):
         setattr(namespace, self.dest, pattern)
 
 
+class SetOptionalValue(argparse.Action):
+    def __call__(self, parser, namespace, value, option_string=None):
+        value = value if value else "default"
+        setattr(namespace, self.dest, value)
+
+
 class CustomArgParser(argparse.ArgumentParser):
     def __init__(self, *args, from_cli=False, **kwargs):
         self.from_cli = from_cli
@@ -191,7 +197,7 @@ class Config:
         self.language = []
         self.list = ""
         self.list_configurables = ""
-        self.list_reports = False
+        self.list_reports = ""
         self.output = None
         self.recursive = True
         self.verbose = False
@@ -334,9 +340,13 @@ class Config:
         optional.add_argument(
             "-lr",
             "--list-reports",
-            action="store_true",
+            action=SetOptionalValue,
+            nargs="?",
+            const="",
             default=self.list_reports,
-            help="List all available reports.",
+            metavar="ENABLED/DISABLED",
+            help="List all available reports. "
+            "Pass ENABLED or DISABLED as argument to list only enabled/disabled reports.",
         )
         optional.add_argument(
             "-o",

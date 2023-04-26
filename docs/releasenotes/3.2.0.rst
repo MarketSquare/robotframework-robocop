@@ -83,8 +83,8 @@ existed in the root directory. Now, it is possible to load it from any path usin
 List reports now list all reports (#833)
 ----------------------------------------
 
-List reports command previously only listed enabled reports. Now the option list all reports together with its
-enabled/disabled status. Also, internal reports are now omitted::
+List reports command (``--list-reports``) previously only listed enabled reports. Now, the option lists all reports
+together with their enabled/disabled status. Also, internal reports are now omitted::
 
     > robocop --list-reports
     Available reports:
@@ -96,14 +96,14 @@ enabled/disabled status. Also, internal reports are now omitted::
     timestamp            - Returns Robocop execution timestamp. (disabled)
     version              - Returns Robocop version (disabled)
 
-    Enable report by passing report name using --reports option. Use `all` to enable all default reports.
-    Non-default reports can be only enabled using report name.
+    Enable report by passing its name using ``--reports`` option. Use ``all`` to enable all default reports.
+    Non-default reports (like ``sarif``) can be only enabled using their name explicitly.
 
 
 List reports output can be filtered using ENABLED/DISABLED (#833)
 ------------------------------------------------------------------
 
-Same as ``--list`` rules option, ``--list-reports`` now support optional ``ENABLED`` / ``DISABLED`` argument to filter
+Same as ``--list`` rules option, ``--list-reports`` now supports optional ``ENABLED`` / ``DISABLED`` argument to filter
 out reports by their status::
 
     > robocop --reports version --list-reports ENABLED

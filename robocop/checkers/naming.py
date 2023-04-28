@@ -9,6 +9,7 @@ from pathlib import Path
 from robot.api import Token
 from robot.errors import VariableError
 from robot.parsing.model.statements import Arguments
+from robot.variables import VariableIterator
 from robot.variables.search import search_variable
 
 from robocop.checkers import VisitorChecker
@@ -242,6 +243,17 @@ rules = {
         msg="Variable '{{ variable_name }}' may overwrite similar variable inside '{{ block_name }}' {{ block_type }}. "
         "Note that variables are case-insensitive, and also spaces and underscores are ignored.",
         severity=RuleSeverity.INFO,
+        docs="""
+        Following assignments overwrite the same variable::
+        
+            *** Keywords ***
+            Keyword
+                ${variable}    Keyword Call
+                ${VARIABLE}    Keyword Call
+                ${vari_ab le}    Keyword Call
+        
+        Use consistent variable naming guidelines to avoid not intended variable overwriting.
+        """,
     ),
     "0317": Rule(
         rule_id="0317",
@@ -350,6 +362,36 @@ rules = {
         is available at https://github.com/robotframework/robotframework/issues/4431 .
         """,
     ),
+    "0323": Rule(
+        rule_id="0323",
+        name="inconsistent-variable-name",
+        msg="Variable '{{ name }}' has inconsistent naming. First used as '{{ first_use }}'",
+        severity=RuleSeverity.WARNING,
+        docs="""
+        Variable names are case-insensitive and ignore underscores and spaces. It is possible to 
+        write the variable in multiple ways and it will be a valid Robot Framework code. However
+        it makes it harder to maintain the code that is not following consistent naming.
+        
+        Example::
+        
+            *** Keywords ***
+            Keyword
+                [Arguments]    ${argument}
+                ${variable}    Keyword Call
+                IF    ${ARGUMENT}  # inconsistent name with ${argument}
+                    Should Be True    ${vari_able}  # inconsistent name with ${variable}
+                END
+                Log    ${variable}  # consistent name
+
+        """,
+    ),
+}
+
+SET_VARIABLE_VARIANTS = {
+    "settaskvariable",
+    "settestvariable",
+    "setsuitevariable",
+    "setglobalvariable",
 }
 
 
@@ -658,15 +700,6 @@ class VariableNamingChecker(VisitorChecker):
         "hyphen-in-variable-name",
     )
 
-    def __init__(self):
-        self.set_variable_variants = {
-            "settaskvariable",
-            "settestvariable",
-            "setsuitevariable",
-            "setglobalvariable",
-        }
-        super().__init__()
-
     def visit_Variable(self, node):  # noqa
         token = node.data_tokens[0]
         try:
@@ -699,7 +732,7 @@ class VariableNamingChecker(VisitorChecker):
 
         if not node.keyword:
             return
-        if normalize_robot_name(node.keyword, remove_prefix="builtin.") in self.set_variable_variants:
+        if normalize_robot_name(node.keyword, remove_prefix="builtin.") in SET_VARIABLE_VARIANTS:
             if len(node.data_tokens) < 2:
                 return
             token = node.data_tokens[1]
@@ -726,53 +759,160 @@ class VariableNamingChecker(VisitorChecker):
 class SimilarVariableChecker(VisitorChecker):
     """Checker for finding same variables with similar names."""
 
-    reports = ("possible-variable-overwriting",)
+    reports = ("possible-variable-overwriting", "inconsistent-variable-name")
 
     def __init__(self):
-        self.variables = defaultdict(set)
+        self.assign_variables = defaultdict(list)
         self.parent_name = ""
         self.parent_type = ""
         super().__init__()
 
     def visit_Keyword(self, node):  # noqa
-        self.variables = defaultdict(set)
+        self.assign_variables = defaultdict(list)
         self.parent_name = node.name
         self.parent_type = type(node).__name__
+        name_token = node.header.get_token(Token.KEYWORD_NAME)
+        self.parse_embedded_arguments(name_token)
         self.visit_vars_and_find_similar(node)
         self.generic_visit(node)
 
-    visit_TestCase = visit_Keyword
+    def visit_TestCase(self, node):  # noqa
+        self.assign_variables = defaultdict(list)
+        self.parent_name = node.name
+        self.parent_type = type(node).__name__
+        self.generic_visit(node)
 
     def visit_KeywordCall(self, node):  # noqa
+        if normalize_robot_name(node.keyword, remove_prefix="builtin.") in SET_VARIABLE_VARIANTS:
+            normalized, assign_value = "", ""
+            for index, token in enumerate(node.data_tokens[1:]):
+                if index == 0:  # First argument is assign-like
+                    normalized = normalize_robot_var_name(token.value)
+                    assign_value = token.value  # process assign last, cache for now
+                else:
+                    self.find_not_nested_variable(token, token.value, is_var=False)
+            self.assign_variables[normalized].append(assign_value)
+        else:
+            for token in node.get_tokens(Token.ARGUMENT, Token.KEYWORD):  # argument can be used in keyword name
+                self.find_not_nested_variable(token, token.value, is_var=False)
         tokens = node.get_tokens(Token.ASSIGN)
         self.find_similar_variables(tokens, node)
 
+    def visit_If(self, node):  # noqa
+        for token in node.header.get_tokens(Token.ARGUMENT):
+            self.find_not_nested_variable(token, token.value, is_var=False)
+        tokens = node.header.get_tokens(Token.ASSIGN)
+        self.find_similar_variables(tokens, node)
+        self.generic_visit(node)
+
+    def visit_While(self, node):  # noqa
+        for token in node.header.get_tokens(Token.ARGUMENT):
+            self.find_not_nested_variable(token, token.value, is_var=False)
+        return self.generic_visit(node)
+
     def visit_For(self, node):  # noqa
+        for token in node.header.get_tokens(Token.ARGUMENT):
+            self.find_not_nested_variable(token, token.value, is_var=False)
         for var in node.variables:
-            self.variables[normalize_robot_var_name(var)].add(var)
+            self.assign_variables[normalize_robot_var_name(var)].append(var)
         self.generic_visit(node)
 
     visit_ForLoop = visit_For
 
+    def visit_Return(self, node):  # noqa
+        for token in node.get_tokens(Token.ARGUMENT):
+            self.find_not_nested_variable(token, token.value, is_var=False)
+
+    visit_ReturnStatement = visit_Teardown = visit_Timeout = visit_Return
+
+    def parse_embedded_arguments(self, name_token):
+        """Store embedded arguments from keyword name. Ignore embedded variables patterns (${var:pattern})."""
+        try:
+            for token in name_token.tokenize_variables():
+                if token.type == Token.VARIABLE:
+                    var_name, *pattern = token.value.split(":", maxsplit=1)
+                    if pattern:
+                        var_name = var_name + "}"  # recreate, so it handles ${variable:pattern} -> ${variable} matching
+                    normalized_name = normalize_robot_var_name(var_name)
+                    self.assign_variables[normalized_name].append(var_name)
+        except VariableError:
+            pass
+
+    def check_inconsistent_naming(self, token, value: str, offset: int):
+        """Check if variable name ``value`` was already defined under matching but not the same name.
+        :param token: ast token representing the string with variable
+        :param value: name of variable found in token value string
+        :param offset: starting position of variable in token value string
+        """
+        normalized = normalize_robot_name(value)
+        if normalized not in self.assign_variables:
+            return  # we could handle attr access here, ignoring now
+        latest_assign = self.assign_variables[normalized][-1]
+        assign_normalized = latest_assign.lstrip("$@%&").lstrip("{").rstrip("}")
+        if value != assign_normalized:
+            name = "${" + value + "}"
+            self.report(
+                "inconsistent-variable-name",
+                name=name,
+                first_use=latest_assign,
+                node=token,
+                lineno=token.lineno,
+                col=token.col_offset + offset + 1,
+                end_col=token.col_offset + offset + len(name) + 1,
+            )
+
+    def find_not_nested_variable(self, token, value, is_var: bool, offset: int = 0):
+        """Find and process not nested variable.
+
+        Search `value` string until there is ${variable} without other variables inside.
+        Unescaped escaped syntax ($var or \\${var}) is ignored.
+        Offset is to determine position of the variable in the string.
+        For example 'This is ${var}' contains ${var} at 8th position.
+        """
+        try:
+            variables = list(VariableIterator(value))
+        except VariableError:  # for example ${variable which wasn't closed properly
+            return
+        if not variables:
+            if is_var:
+                self.check_inconsistent_naming(token, value, offset)
+            return
+        if is_var:
+            offset += 2  # handle ${var_${var}} case
+        for before, variable, _ in variables:
+            if before:
+                offset += len(before)
+            match = search_variable(variable, ignore_errors=True)
+            if match.base and match.base.startswith("{") and match.base.endswith("}"):  # inline val
+                self.find_not_nested_variable(token, match.base[1:-1].strip(), is_var=False, offset=offset + 1)
+            else:
+                self.find_not_nested_variable(token, match.base, is_var=True, offset=offset)
+            offset += len(variable)
+            for item in match.items:
+                self.find_not_nested_variable(token, item, is_var=False, offset=offset)
+                offset += len(item)
+
     def visit_vars_and_find_similar(self, node):
         """
-        Creates a dictionary `variables` with normalized variable name as a key
+        Updates a dictionary `assign_variables` with normalized variable name as a key
         and ads a list of all detected variations of this variable in the node as a value,
         then it checks if similar variable was found.
         """
         for child in node.body:
-            # read arguments from Test Case or Keyword
+            # read arguments from Keywords
             if isinstance(child, Arguments):
                 for token in child.get_tokens(Token.ARGUMENT):
-                    self.variables[normalize_robot_var_name(token.value)].add(token.value)
+                    name, *_ = token.value.split("=", maxsplit=1)
+                    self.assign_variables[normalize_robot_var_name(name)].append(name.strip())
 
     def find_similar_variables(self, tokens, node):
         for token in tokens:
-            normalized_token = normalize_robot_var_name(token.value)
-            if normalized_token in self.variables and token.value not in self.variables[normalized_token]:
+            name, *_ = token.value.split("=", maxsplit=1)
+            normalized_token = normalize_robot_var_name(name)
+            if normalized_token in self.assign_variables and name not in self.assign_variables[normalized_token]:
                 self.report(
                     "possible-variable-overwriting",
-                    variable_name=token.value,
+                    variable_name=name,
                     block_name=self.parent_name,
                     block_type=self.parent_type,
                     node=node,
@@ -780,7 +920,7 @@ class SimilarVariableChecker(VisitorChecker):
                     col=token.col_offset + 1,
                     end_col=token.end_col_offset + 1,
                 )
-            self.variables[normalized_token].add(token.value)
+            self.assign_variables[normalized_token].append(name.strip())
 
 
 class DeprecatedStatementChecker(VisitorChecker):

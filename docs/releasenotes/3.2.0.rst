@@ -66,8 +66,27 @@ arguments or variables overwritten before first use::
         Log        ${var2}  # this variable is used
         ${var1}    Overwrite Variable  # this one is only overwritten
 
+New rule for not consistent variable naming (#496)
+--------------------------------------------------
+
+Added new rule W0323 ``inconsistent-variable-name`` which reports variables with inconsistent naming::
+
+    *** Keywords ***
+    Inconsistent variables
+        ${variable}    Keyword
+        Keyword    ${variablE}  # matches ${variable} but is not consistent
+        IF    ${var_iable} < 10  # matches ${variable} but is not consistent
+            Log    ${varia ble}  # matches ${variable} but is not consistent
+        END
+
 Fixes
 =====
+
+Possibly overwritten variables are now detected in more places (#841, #842)
+---------------------------------------------------------------------------
+
+The ``possible-variable-overwriting`` now detects issues in ``IF`` assignments, embedded variables
+and variable with default values.
 
 Other features
 ==============

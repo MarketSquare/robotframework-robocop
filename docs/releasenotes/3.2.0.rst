@@ -84,6 +84,11 @@ Added new rule W0323 ``inconsistent-variable-name`` which reports variables with
 Since Robot Framework ignore underscores and spaces in variable names, and also normalizes them to
 lowercase, this code should report new tule violations::
 
+New rule for not consistent variable naming (#496)
+--------------------------------------------------
+
+Added new rule W0323 ``inconsistent-variable-name`` which reports variables with inconsistent naming::
+
     *** Keywords ***
     Inconsistent variables
         ${variable}    Keyword

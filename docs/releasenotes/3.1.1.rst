@@ -34,13 +34,10 @@ Fix for invalid variable syntax crashing Robocop (#830)
 -------------------------------------------------------
 
 The invalid variable syntax caused fatal exception with ``section-variable-not-uppercase`` rule. Now following code
-should work with Robocop:
+should work with Robocop::
 
-```
-*** Variables ***
-${not    closed
-
-```
+    *** Variables ***
+    ${not    closed
 
 Note that this code is not valid and Robocop raises ``parsing-error`` for this. This fix only addressed issue with
 crashing when parsing such code.

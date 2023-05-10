@@ -252,7 +252,9 @@ rules = {
                 ${VARIABLE}    Keyword Call
                 ${vari_ab le}    Keyword Call
         
-        Use consistent variable naming guidelines to avoid not intended variable overwriting.
+        Use consistent variable naming guidelines to avoid unintended variable overwriting.
+        Remember that variable names in Robot Framework are case-insensitive and
+        underscores and whitespaces are ignored.
         """,
     ),
     "0317": Rule(
@@ -369,8 +371,8 @@ rules = {
         severity=RuleSeverity.WARNING,
         docs="""
         Variable names are case-insensitive and ignore underscores and spaces. It is possible to 
-        write the variable in multiple ways and it will be a valid Robot Framework code. However
-        it makes it harder to maintain the code that is not following consistent naming.
+        write the variable in multiple ways and it will be a valid Robot Framework code. However,
+        it makes it harder to maintain the code that does not follow the consistent naming.
         
         Example::
         

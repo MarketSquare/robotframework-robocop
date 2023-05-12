@@ -764,13 +764,13 @@ class SimilarVariableChecker(VisitorChecker):
     reports = ("possible-variable-overwriting", "inconsistent-variable-name")
 
     def __init__(self):
-        self.assign_variables = defaultdict(list)
+        self.assigned_variables = defaultdict(list)
         self.parent_name = ""
         self.parent_type = ""
         super().__init__()
 
     def visit_Keyword(self, node):  # noqa
-        self.assign_variables = defaultdict(list)
+        self.assigned_variables = defaultdict(list)
         self.parent_name = node.name
         self.parent_type = type(node).__name__
         name_token = node.header.get_token(Token.KEYWORD_NAME)
@@ -779,7 +779,7 @@ class SimilarVariableChecker(VisitorChecker):
         self.generic_visit(node)
 
     def visit_TestCase(self, node):  # noqa
-        self.assign_variables = defaultdict(list)
+        self.assigned_variables = defaultdict(list)
         self.parent_name = node.name
         self.parent_type = type(node).__name__
         self.generic_visit(node)
@@ -793,7 +793,7 @@ class SimilarVariableChecker(VisitorChecker):
                     assign_value = token.value  # process assign last, cache for now
                 else:
                     self.find_not_nested_variable(token, token.value, is_var=False)
-            self.assign_variables[normalized].append(assign_value)
+            self.assigned_variables[normalized].append(assign_value)
         else:
             for token in node.get_tokens(Token.ARGUMENT, Token.KEYWORD):  # argument can be used in keyword name
                 self.find_not_nested_variable(token, token.value, is_var=False)
@@ -816,7 +816,7 @@ class SimilarVariableChecker(VisitorChecker):
         for token in node.header.get_tokens(Token.ARGUMENT):
             self.find_not_nested_variable(token, token.value, is_var=False)
         for var in node.variables:
-            self.assign_variables[normalize_robot_var_name(var)].append(var)
+            self.assigned_variables[normalize_robot_var_name(var)].append(var)
         self.generic_visit(node)
 
     visit_ForLoop = visit_For
@@ -836,7 +836,7 @@ class SimilarVariableChecker(VisitorChecker):
                     if pattern:
                         var_name = var_name + "}"  # recreate, so it handles ${variable:pattern} -> ${variable} matching
                     normalized_name = normalize_robot_var_name(var_name)
-                    self.assign_variables[normalized_name].append(var_name)
+                    self.assigned_variables[normalized_name].append(var_name)
         except VariableError:
             pass
 
@@ -847,9 +847,9 @@ class SimilarVariableChecker(VisitorChecker):
         :param offset: starting position of variable in token value string
         """
         normalized = normalize_robot_name(value)
-        if normalized not in self.assign_variables:
+        if normalized not in self.assigned_variables:
             return  # we could handle attr access here, ignoring now
-        latest_assign = self.assign_variables[normalized][-1]
+        latest_assign = self.assigned_variables[normalized][-1]
         assign_normalized = latest_assign.lstrip("$@%&").lstrip("{").rstrip("}")
         if value != assign_normalized:
             name = "${" + value + "}"
@@ -905,13 +905,13 @@ class SimilarVariableChecker(VisitorChecker):
             if isinstance(child, Arguments):
                 for token in child.get_tokens(Token.ARGUMENT):
                     name, *_ = token.value.split("=", maxsplit=1)
-                    self.assign_variables[normalize_robot_var_name(name)].append(name.strip())
+                    self.assigned_variables[normalize_robot_var_name(name)].append(name.strip())
 
     def find_similar_variables(self, tokens, node):
         for token in tokens:
             name, *_ = token.value.split("=", maxsplit=1)
             normalized_token = normalize_robot_var_name(name)
-            if normalized_token in self.assign_variables and name not in self.assign_variables[normalized_token]:
+            if normalized_token in self.assigned_variables and name not in self.assigned_variables[normalized_token]:
                 self.report(
                     "possible-variable-overwriting",
                     variable_name=name,
@@ -922,7 +922,7 @@ class SimilarVariableChecker(VisitorChecker):
                     col=token.col_offset + 1,
                     end_col=token.end_col_offset + 1,
                 )
-            self.assign_variables[normalized_token].append(name.strip())
+            self.assigned_variables[normalized_token].append(name.strip())
 
 
 class DeprecatedStatementChecker(VisitorChecker):

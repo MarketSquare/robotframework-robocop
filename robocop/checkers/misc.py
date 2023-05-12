@@ -375,21 +375,23 @@ rules = {
         msg="Variable '{{ name }}' is assigned but not used",
         severity=RuleSeverity.INFO,
         docs="""
-    Variable was assigned but not used::
-
-        *** Test Cases ***
-        Test
-            ${variable}    Keyword Call  # not used variable
-            ${variable2}    Keyword Call
-            Log    ${variable2}
-
-    Use ``${_}`` variable name if you purposefully do not use variable::
-
-        *** Keywords ***
-        Keyword
-            FOR    ${_}   IN RANGE    10
-                Process Value
-            END
+        Variable was assigned but not used::
+    
+            *** Keywords ***
+            Get Triangle Base Points
+                [Arguments]       ${triangle}
+                ${p1}    ${p2}    ${p3}    Get Triangle Points    ${triangle}
+                Log      Triangle base points are: ${p1} and ${p2}.
+                RETURN   ${p1}    ${p2}  # ${p3} is never used
+    
+        Use ``${_}`` variable name if you purposefully do not use variable::
+    
+            *** Keywords ***
+            Process Value 10 Times
+                [Arguments]    ${value}
+                FOR    ${_}   IN RANGE    10
+                    Process Value    ${value}
+                END
 
     """,
     ),

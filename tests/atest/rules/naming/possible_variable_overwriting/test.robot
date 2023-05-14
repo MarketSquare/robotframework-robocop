@@ -65,3 +65,20 @@ Keyword With Different Types Of Variables
     ${simpleVar}    Set Variable        2
     @{SIMPLE_VAR}   Create List         1    2    3
     &{SIMPLE_VAR}   Create Dictionary   a=1  b=2  c=3
+
+Argument With Default Value
+    [Arguments]     ${variable}='default'
+    ${VARIABLE}    Keyword  # possible overwriting
+
+Embedded ${variable} with ${possible:pattern}
+    ${other}    Keyword    ${variable}
+    ${VARIABLE}   Possible Overwriting
+    ${poss_ible}   IF    $cond    RETURN
+
+IF Assignment
+    ${initial}    IF    ${condition} > 0    Keyword
+    ${_initiaL}    Possible Overwriting
+
+Assignment Sign
+    ${variable}    Keyword
+    ${VARiable} =    Keyword

@@ -371,6 +371,32 @@ rules = {
     ),
     "0920": Rule(
         rule_id="0920",
+        name="unused-variable",
+        msg="Variable '{{ name }}' is assigned but not used",
+        severity=RuleSeverity.INFO,
+        docs="""
+        Variable was assigned but not used::
+    
+            *** Keywords ***
+            Get Triangle Base Points
+                [Arguments]       ${triangle}
+                ${p1}    ${p2}    ${p3}    Get Triangle Points    ${triangle}
+                Log      Triangle base points are: ${p1} and ${p2}.
+                RETURN   ${p1}    ${p2}  # ${p3} is never used
+    
+        Use ``${_}`` variable name if you purposefully do not use variable::
+    
+            *** Keywords ***
+            Process Value 10 Times
+                [Arguments]    ${value}
+                FOR    ${_}   IN RANGE    10
+                    Process Value    ${value}
+                END
+
+    """,
+    ),
+    "0921": Rule(
+        rule_id="0921",
         name="argument-overwritten-before-usage",
         msg="Keyword argument '{{ name }}' is overwritten before usage",
         severity=RuleSeverity.WARNING,
@@ -384,8 +410,8 @@ rules = {
 
         """,
     ),
-    "0921": Rule(
-        rule_id="0921",
+    "0922": Rule(
+        rule_id="0922",
         name="variable-overwritten-before-usage",
         msg="Local variable '{{ name }}' is overwritten before usage",
         severity=RuleSeverity.WARNING,
@@ -831,7 +857,12 @@ CachedVariable = namedtuple("CachedVariable", "name token")
 
 
 class UnusedVariablesChecker(VisitorChecker):
-    reports = ("unused-argument", "argument-overwritten-before-usage", "variable-overwritten-before-usage")
+    reports = (
+        "unused-argument",
+        "unused-variable",
+        "argument-overwritten-before-usage",
+        "variable-overwritten-before-usage",
+    )
 
     def __init__(self):
         self.arguments = {}
@@ -842,6 +873,7 @@ class UnusedVariablesChecker(VisitorChecker):
     def visit_TestCase(self, node):  # noqa
         self.variables = [{}]
         self.generic_visit(node)
+        self.check_unused_variables()
 
     def visit_Keyword(self, node):  # noqa
         self.arguments = {}
@@ -856,6 +888,14 @@ class UnusedVariablesChecker(VisitorChecker):
         for arg in self.arguments.values():
             value, *_ = arg.token.value.split("=", maxsplit=1)
             self.report_arg_or_var_rule("unused-argument", arg.token, value)
+        self.check_unused_variables()
+
+    def check_unused_variables(self):
+        for scope in self.variables:
+            for variable in scope.values():
+                if variable.name == "${_}":
+                    continue
+                self.report_arg_or_var_rule("unused-variable", variable.token, variable.name)
 
     def report_arg_or_var_rule(self, rule, token, value=None):
         if value is None:

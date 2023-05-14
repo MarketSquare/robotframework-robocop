@@ -50,10 +50,21 @@ For example::
     Keyword with ${embedded} and ${not_used}  # will report ${not_used}
         Log    ${embedded}
 
+New rule for detecting not used variables (#209)
+------------------------------------------------
+
+Added new rule I0920 ``unused-variable`` for detecting not used variables.
+For example::
+
+    *** Keywords ***
+    Keyword
+        ${var}    ${var2}    Calculate Cutoff  # ${var2} is not used
+        Log    ${var}
+
 New rules for overwriting arguments and variables before first use (#836)
 --------------------------------------------------------------------------
 
-Added new rules W0920 ``argument-overwritten-before-usage`` and W0921 ``variable-overwritten-before-usage`` for
+Added new rules W0921 ``argument-overwritten-before-usage`` and W0922 ``variable-overwritten-before-usage`` for
 arguments or variables overwritten before first use::
 
     *** Keywords ***

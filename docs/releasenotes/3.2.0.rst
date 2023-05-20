@@ -98,7 +98,7 @@ New rule for overwriting reserved variables (#553)
 --------------------------------------------------
 
 Added new rule W0324 ``overwriting-reserved-variable`` which reports overwriting reserved Robot Framework variables.
-There are variables used by Robot Framework itself which are not safe to overwrite. See the list at
+There are variables used by Robot Framework itself which should not be overwritten. See the list at
 `Robot Framework User Guide <https://robotframework.org/robotframework/latest/RobotFrameworkUserGuide.html#automatic-variables>`_.
 
 Fixes

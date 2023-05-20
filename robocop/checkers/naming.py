@@ -390,12 +390,12 @@ rules = {
     "0324": Rule(
         rule_id="0324",
         name="overwriting-reserved-variable",
-        msg="{{ var_or_arg }} '{{ variable_name }}' overwrites reserved variable '{{ reserved_variable}}'",
+        msg="{{ var_or_arg }} '{{ variable_name }}' overwrites reserved variable '{{ reserved_variable }}'",
         severity=RuleSeverity.WARNING,
         docs="""
         Overwriting reserved variables may bring unexpected results.
-        For example overwriting variable with name ``${LOG_LEVEL}`` can broke the Robot Framework logging.
-        See list of reserved variables at
+        For example, overwriting variable with name ``${LOG_LEVEL}`` can break Robot Framework logging.
+        See full list of reserved variables at
         `Robot Framework User Guide <https://robotframework.org/robotframework/latest/RobotFrameworkUserGuide.html#automatic-variables>`_
         """,
     ),
@@ -737,7 +737,7 @@ class VariableNamingChecker(VisitorChecker):
         "reportfile": "${REPORT_FILE}",
         "debugfile": "${DEBUG_FILE}",
         "outputdir": "${OUTPUT_DIR}",
-        # "options": "&{OPTIONS}",  Ignoring the name. This name is widely used nad is relatively safe to overwrite
+        # "options": "&{OPTIONS}", This variable is widely used and is relatively safe to overwrite
     }
 
     def visit_Keyword(self, node):  # noqa
@@ -812,7 +812,7 @@ class VariableNamingChecker(VisitorChecker):
             self.check_for_reserved_naming(arg, "Argument")
 
     def parse_embedded_arguments(self, name_token):
-        """Store embedded arguments from keyword name. Ignore embedded variables patterns (${var:pattern})."""
+        """Store embedded arguments from keyword name. Ignore embedded variables patterns like (${var:pattern})."""
         try:
             for token in name_token.tokenize_variables():
                 if token.type == Token.VARIABLE:
@@ -821,7 +821,7 @@ class VariableNamingChecker(VisitorChecker):
             pass
 
     def check_for_reserved_naming(self, token, var_or_arg, has_pattern=False):
-        """Check if variable name is reserved Robot Framework name."""
+        """Check if variable name is a reserved Robot Framework name."""
         name, *_ = token.value.split("=", maxsplit=1)
         name = name.rstrip()
         if has_pattern:

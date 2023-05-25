@@ -389,6 +389,18 @@ rules = {
     ),
     "0324": Rule(
         rule_id="0324",
+        name="overwriting-reserved-variable",
+        msg="{{ var_or_arg }} '{{ variable_name }}' overwrites reserved variable '{{ reserved_variable }}'",
+        severity=RuleSeverity.WARNING,
+        docs="""
+        Overwriting reserved variables may bring unexpected results.
+        For example, overwriting variable with name ``${LOG_LEVEL}`` can break Robot Framework logging.
+        See full list of reserved variables at
+        `Robot Framework User Guide <https://robotframework.org/robotframework/latest/RobotFrameworkUserGuide.html#automatic-variables>`_
+        """,
+    ),
+    "0325": Rule(
+        rule_id="0325",
             name="invalid-section",
             msg="Invalid section '{{ invalid_section }}'. Consider using --language parameter if the file is defined with different language.",
             severity=RuleSeverity.ERROR,
@@ -723,7 +735,38 @@ class VariableNamingChecker(VisitorChecker):
         "section-variable-not-uppercase",
         "non-local-variables-should-be-uppercase",
         "hyphen-in-variable-name",
+        "overwriting-reserved-variable",
     )
+    RESERVED_VARIABLES = {
+        "testname": "${TEST_NAME}",
+        "testtags": "@{TEST_TAGS}",
+        "testdocumentation": "${TEST_DOCUMENTATION}",
+        "teststatus": "${TEST_STATUS}",
+        "testmessage": "${TEST_MESSAGE}",
+        "prevtestname": "${PREV_TEST_NAME}",
+        "prevteststatus": "${PREV_TEST_STATUS}",
+        "prevtestmessage": "${PREV_TEST_MESSAGE}",
+        "suitename": "${SUITE_NAME}",
+        "suitesource": "${SUITE_SOURCE}",
+        "suitedocumentation": "${SUITE_DOCUMENTATION}",
+        "suitemetadata": "&{SUITE_METADATA}",
+        "suitestatus": "${SUITE_STATUS}",
+        "suitemessage": "${SUITE_MESSAGE}",
+        "keywordstatus": "${KEYWORD_STATUS}",
+        "keywordmessage": "${KEYWORD_MESSAGE}",
+        "loglevel": "${LOG_LEVEL}",
+        "outputfile": "${OUTPUT_FILE}",
+        "logfile": "${LOG_FILE}",
+        "reportfile": "${REPORT_FILE}",
+        "debugfile": "${DEBUG_FILE}",
+        "outputdir": "${OUTPUT_DIR}",
+        # "options": "&{OPTIONS}", This variable is widely used and is relatively safe to overwrite
+    }
+
+    def visit_Keyword(self, node):  # noqa
+        name_token = node.header.get_token(Token.KEYWORD_NAME)
+        self.parse_embedded_arguments(name_token)
+        self.generic_visit(node)
 
     def visit_Variable(self, node):  # noqa
         token = node.data_tokens[0]
@@ -743,6 +786,7 @@ class VariableNamingChecker(VisitorChecker):
                 col=token.col_offset + 1,
                 end_col=token.col_offset + len(token.value) + 1,
             )
+        self.check_for_reserved_naming(token, "Variable")
 
     def visit_KeywordCall(self, node):  # noqa
         for token in node.get_tokens(Token.ASSIGN):
@@ -754,6 +798,7 @@ class VariableNamingChecker(VisitorChecker):
                     col=token.col_offset + 1,
                     end_col=token.end_col_offset + 1,
                 )
+            self.check_for_reserved_naming(token, "Variable")
 
         if not node.keyword:
             return
@@ -779,6 +824,46 @@ class VariableNamingChecker(VisitorChecker):
                     col=token.col_offset + 1,
                     end_col=token.end_col_offset + 1,
                 )
+
+    def visit_If(self, node):  # noqa
+        for token in node.header.get_tokens(Token.ASSIGN):
+            self.check_for_reserved_naming(token, "Variable")
+        self.generic_visit(node)
+
+    def visit_Arguments(self, node):  # noqa
+        for arg in node.get_tokens(Token.ARGUMENT):
+            self.check_for_reserved_naming(arg, "Argument")
+
+    def parse_embedded_arguments(self, name_token):
+        """Store embedded arguments from keyword name. Ignore embedded variables patterns like (${var:pattern})."""
+        try:
+            for token in name_token.tokenize_variables():
+                if token.type == Token.VARIABLE:
+                    self.check_for_reserved_naming(token, "Embedded argument", has_pattern=True)
+        except VariableError:
+            pass
+
+    def check_for_reserved_naming(self, token, var_or_arg, has_pattern=False):
+        """Check if variable name is a reserved Robot Framework name."""
+        name, *_ = token.value.split("=", maxsplit=1)
+        name = name.rstrip()
+        if has_pattern:
+            name, *pattern = name.split(":", maxsplit=1)
+            if pattern:
+                name += "}"  # recreate, so it handles ${variable:pattern} -> ${variable} matching
+        normalized_name = normalize_robot_var_name(name)
+        if normalized_name in self.RESERVED_VARIABLES:
+            reserved_variable = self.RESERVED_VARIABLES[normalized_name]
+            self.report(
+                "overwriting-reserved-variable",
+                var_or_arg=var_or_arg,
+                variable_name=name,
+                reserved_variable=reserved_variable,
+                node=token,
+                lineno=token.lineno,
+                col=token.col_offset + 1,
+                end_col=token.col_offset + len(name) + 1,
+            )
 
 
 class SimilarVariableChecker(VisitorChecker):

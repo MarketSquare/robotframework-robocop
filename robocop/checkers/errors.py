@@ -60,14 +60,15 @@ rules = {
     "0404": Rule(
         rule_id="0404",
         name="variables-import-with-args",
-        msg="Robot and YAML variable files do not take arguments",
+        msg="YAML variable files do not take arguments",
         severity=RuleSeverity.ERROR,
+        version="<5.0",
         docs="""
         Example of rule violation::
         
             *** Settings ***
-            Variables    vars.yaml    arg1
-            Variables    variables.robot    arg
+            Variables    vars.yaml        arg1
+            Variables    variables.yml    arg2
         
         """,
     ),
@@ -611,5 +612,5 @@ class VariablesImportErrorChecker(VisitorChecker):
     reports = ("variables-import-with-args",)
 
     def visit_VariablesImport(self, node):  # noqa
-        if node.name and not node.name.endswith(".py") and node.get_token(Token.ARGUMENT):
+        if node.name and (node.name.endswith(".yaml") or node.name.endswith(".yml")) and node.get_token(Token.ARGUMENT):
             self.report("variables-import-with-args", node=node)

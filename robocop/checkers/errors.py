@@ -62,13 +62,13 @@ rules = {
         name="variables-import-with-args",
         msg="YAML variable files do not take arguments",
         severity=RuleSeverity.ERROR,
-        version="<5.0",
         docs="""
         Example of rule violation::
         
             *** Settings ***
             Variables    vars.yaml        arg1
             Variables    variables.yml    arg2
+            Variables    module           arg3  # valid from RF > 5
         
         """,
     ),

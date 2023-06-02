@@ -11,9 +11,8 @@ Variables  other1.py    arg1
 Variables  vars.yaml    arg1
 Variables  vars2.yaml
 Variables  vars2.yaml
-Variables  variables.robot
-Variables  variables.robot
-Variables  variables.robot    arg    arg2
+Variables  variables
+Variables  variables    arg    arg2
 
 
 *** Test Cases ***

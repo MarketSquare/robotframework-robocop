@@ -612,5 +612,5 @@ class VariablesImportErrorChecker(VisitorChecker):
     reports = ("variables-import-with-args",)
 
     def visit_VariablesImport(self, node):  # noqa
-        if node.name and (node.name.endswith(".yaml") or node.name.endswith(".yml")) and node.get_token(Token.ARGUMENT):
+        if node.name and node.name.endswith((".yaml", ".yml")) and node.get_token(Token.ARGUMENT):
             self.report("variables-import-with-args", node=node)

@@ -373,7 +373,7 @@ class DuplicationsChecker(VisitorChecker):
         if not node.name:
             return
         # only YAML files can't have arguments - covered in E0404 variables-import-with-args
-        if (node.name.endswith(".yaml") or node.name.endswith(".yml")) and node.get_token(Token.ARGUMENT):
+        if node.name.endswith((".yaml", ".yml")) and node.get_token(Token.ARGUMENT):
             return
         name_with_args = node.name + "".join(token.value for token in node.data_tokens[2:])
         self.variable_imports[name_with_args].append(node)

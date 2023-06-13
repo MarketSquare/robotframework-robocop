@@ -447,6 +447,7 @@ class EmptyLinesChecker(VisitorChecker):
             if not section.header:  # for comment section
                 continue
             empty_lines = 0
+            child = section  # workaround for empty sections when reporting issue
             for child in reversed(section.body):
                 if isinstance(child, (Keyword, TestCase)):
                     for statement in reversed(child.body):

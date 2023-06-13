@@ -43,3 +43,9 @@ Not Used From FOR
     FOR    ${_}    IN    1  2  3
         Keyword
     END
+
+While Limit
+    ${used_var}    Get Loop Limit
+    WHILE    $condition    limit=${used_var} sec
+        Log    In loop.
+    END

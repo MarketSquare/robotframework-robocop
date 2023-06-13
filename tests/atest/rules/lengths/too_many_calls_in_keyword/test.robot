@@ -22,8 +22,8 @@ Some Keyword
     No Operation
     No Operation
     No Operation
+    No Operation
     FOR  ${var}  IN RANGE  10
-        No Operation
         No Operation
         No Operation
     END

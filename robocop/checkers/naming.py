@@ -417,7 +417,6 @@ SET_VARIABLE_VARIANTS = {
     "settestvariable",
     "setsuitevariable",
     "setglobalvariable",
->>>>>>> 88c213b (Add inconsistent-variable-name rule (#843))
 }
 
 

@@ -113,11 +113,12 @@ and variable with default values.
 Breaking changes in Robot Framework 6.1
 ---------------------------------------
 
-Several rules stopped working after Robot Framework 6.1 release. There is list of fixes:
+Several rules stopped working after Robot Framework 6.1 release. Following rules should now work:
 
     - W1003 ``empty-lines-between-sections`` rule should now work with empty sections
-    - W0511 ``empty-metadata`` rule should now work
-    - E0403 ``missing-keyword-name`` rule should now work
+    - W0511 ``empty-metadata``
+    - E0403 ``missing-keyword-name``
+    - E0414 ``return-in-test-case``
 
 Other features
 ==============

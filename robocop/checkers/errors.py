@@ -329,7 +329,7 @@ class ParsingErrorChecker(VisitorChecker):
             self.handle_invalid_setting(node, error)
         elif "Invalid variable name" in error:
             self.handle_invalid_variable(node, error)
-        elif "RETURN can only be used inside" in error:
+        elif "RETURN can only be used inside" in error or "RETURN is not allowed in this context" in error:
             token = node.data_tokens[0]
             self.report("return-in-test-case", node=node, col=token.col_offset + 1, end_col=token.end_col_offset)
         elif "IF" in error or ("ELSE" in error and If and isinstance(self.in_block, If)):

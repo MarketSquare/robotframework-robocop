@@ -121,12 +121,13 @@ Breaking changes in Robot Framework 6.1
 
 Several rules stopped working after Robot Framework 6.1 release. Following rules should now work:
 
-    - W1003 ``empty-lines-between-sections`` rule should now work with empty sections
-    - W0511 ``empty-metadata``
+    - E0401 ``parsing-error``
     - E0403 ``missing-keyword-name``
     - E0414 ``return-in-test-case``
-    - E0915 ``statement-outside-loop``
     - E0415 ``invalid-section-in-resource``
+    - W1003 ``empty-lines-between-sections`` rule should now work with empty sections
+    - W0511 ``empty-metadata``
+    - E0915 ``statement-outside-loop``
 
 Other features
 ==============

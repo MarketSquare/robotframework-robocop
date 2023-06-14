@@ -282,7 +282,13 @@ class ParsingErrorChecker(VisitorChecker):
         "resource": "Resource",
         "variables": "Variables",
     }
-    ignore_errors = ("can only be used inside a loop",)
+    ignore_errors = (
+        "can only be used inside a loop",
+        "is allowed only once. Only the first value is used",
+        "Test name cannot be empty",  # handled by test-case-name-is-empty
+        "User keyword name cannot be empty",  # handled by keyword-name-is-empty
+        "END is not allowed in this contex",  # handled by statement-outside-loop
+    )
 
     def __init__(self):
         super().__init__()
@@ -349,8 +355,6 @@ class ParsingErrorChecker(VisitorChecker):
             self.handle_invalid_block(node, error, "invalid-for-loop")
         elif "Non-default argument after default arguments" in error or "Only last argument can be kwargs" in error:
             self.handle_positional_after_named(node, error_index)
-        elif "is allowed only once. Only the first value is used" in error:
-            return
         elif "Resource file with" in error:
             self.handle_invalid_section_in_resource(node, error)
         else:

@@ -107,18 +107,18 @@ Fixes
 Possibly overwritten variables are now detected in more places (#841, #842)
 ---------------------------------------------------------------------------
 
-The ``possible-variable-overwriting`` now detects issues in ``IF`` assignments, embedded variables
+The I0316 ``possible-variable-overwriting`` now detects issues in ``IF`` assignments, embedded variables
 and variable with default values.
 
 Fix for empty-lines-between-sections failing to parse empty section
 -------------------------------------------------------------------
 
-``empty-lines-between-sections`` rule should now work with empty sections with Robot Framework 6.1.
+W1003 ``empty-lines-between-sections`` rule should now work with empty sections with Robot Framework 6.1.
 
 Fix for empty-metadata not reported in Robot Framework 6.1
 -----------------------------------------------------------
 
-``empty-metadata`` rule should now work with Robot Framework 6.1.
+W0511 ``empty-metadata`` rule should now work with Robot Framework 6.1.
 
 Other features
 ==============

@@ -119,6 +119,7 @@ Several rules stopped working after Robot Framework 6.1 release. Following rules
     - W0511 ``empty-metadata``
     - E0403 ``missing-keyword-name``
     - E0414 ``return-in-test-case``
+    - E0915 ``statement-outside-loop``
 
 Other features
 ==============

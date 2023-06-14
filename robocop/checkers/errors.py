@@ -583,6 +583,9 @@ class MissingKeywordName(VisitorChecker):
 
     reports = ("missing-keyword-name",)
 
+    def visit_File(self, node):
+        self.generic_visit(node)
+
     def visit_EmptyLine(self, node):  # noqa
         if ROBOT_VERSION.major < 5:
             return
@@ -596,7 +599,7 @@ class MissingKeywordName(VisitorChecker):
             )
 
     def visit_KeywordCall(self, node):  # noqa
-        if node.keyword is None:
+        if not node.keyword:
             self.report(
                 "missing-keyword-name",
                 node=node,

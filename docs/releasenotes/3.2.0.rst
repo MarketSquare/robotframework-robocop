@@ -101,6 +101,12 @@ Added new rule W0324 ``overwriting-reserved-variable`` which reports overwriting
 There are variables used by Robot Framework itself which should not be overwritten. See the list at
 `Robot Framework User Guide <https://robotframework.org/robotframework/latest/RobotFrameworkUserGuide.html#automatic-variables>`_.
 
+New rule for invalid sections
+------------------------------
+
+Added new rule E0325 ``invalid-section``. It reports any unrecognized sections, for example if you are using
+translated headers but did not configure the language.
+
 Fixes
 =====
 
@@ -120,6 +126,7 @@ Several rules stopped working after Robot Framework 6.1 release. Following rules
     - E0403 ``missing-keyword-name``
     - E0414 ``return-in-test-case``
     - E0915 ``statement-outside-loop``
+    - E0415 ``invalid-section-in-resource``
 
 Other features
 ==============

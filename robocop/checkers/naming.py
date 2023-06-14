@@ -401,15 +401,25 @@ rules = {
     ),
     "0325": Rule(
         rule_id="0325",
-            name="invalid-section",
-            msg="Invalid section '{{ invalid_section }}'. Consider using --language parameter if the file is defined with different language.",
-            severity=RuleSeverity.ERROR,
-            version=">=6.1",
-            docs="""
+        name="invalid-section",
+        msg="Invalid section '{{ invalid_section }}'. Consider using --language parameter if the file is defined with different language.",
+        severity=RuleSeverity.ERROR,
+        version=">=6.1",
+        docs="""
             Robot Framework 6.1 detects unrecognized sections based on the language defined for the specific files.
             Consider using --language parameter if the file is defined with different language.
+            
+            It is also possible to configure language in the file:
+            
+            ```
+            language: pl
+            
+            *** Przypadki Testowe ***
+            Test case
+                Step
+            ```
             """,
-        ),
+    ),
 }
 
 SET_VARIABLE_VARIANTS = {
@@ -634,13 +644,17 @@ class SettingsNamingChecker(VisitorChecker):
 
     def visit_InvalidSection(self, node):  # noqa
         name = node.header.data_tokens[0].value
-        self.report(
-            "invalid-section",
-            invalid_section=name,
-            node=node,
-            col=node.header.col_offset + 1,
-            end_col=node.header.end_col_offset + 1,
-        )
+        invalid_header = node.header.get_token(Token.INVALID_HEADER)
+        if "Resource file with" in invalid_header.error:
+            return
+        if invalid_header:
+            self.report(
+                "invalid-section",
+                invalid_section=name,
+                node=node,
+                col=node.header.col_offset + 1,
+                end_col=node.header.end_col_offset + 1,
+            )
 
     def visit_SectionHeader(self, node):  # noqa
         name = node.data_tokens[0].value

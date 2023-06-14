@@ -307,6 +307,17 @@ class ParsingErrorChecker(VisitorChecker):
     def visit_Statement(self, node):  # noqa
         self.parse_errors(node)
 
+    def visit_InvalidSection(self, node):  # noqa
+        invalid_header = node.header.get_token(Token.INVALID_HEADER)
+        if "Resource file with" in invalid_header.error:
+            section_name = invalid_header.value
+            self.report(
+                "invalid-section-in-resource",
+                section_name=section_name,
+                node=node,
+                end_col=node.col_offset + len(section_name) + 1,
+            )
+
     def parse_errors(self, node):  # noqa
         if node is None:
             return

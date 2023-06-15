@@ -43,3 +43,17 @@ Not Used From FOR
     FOR    ${_}    IN    1  2  3
         Keyword
     END
+
+
+*** Test Cases ***
+Test with template
+    [Template]    Template Keyword
+    FOR    ${category}    IN    @{CATEGORIES}
+        ${category}
+    END
+
+Test with template - not used
+    [Template]    Template Keyword
+    FOR    ${category}    IN    @{CATEGORIES}
+        constant
+    END

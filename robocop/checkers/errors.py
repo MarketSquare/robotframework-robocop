@@ -282,7 +282,13 @@ class ParsingErrorChecker(VisitorChecker):
         "resource": "Resource",
         "variables": "Variables",
     }
-    ignore_errors = ("can only be used inside a loop",)
+    ignore_errors = (
+        "can only be used inside a loop",
+        "is allowed only once. Only the first value is used",
+        "Test name cannot be empty",  # handled by test-case-name-is-empty
+        "User keyword name cannot be empty",  # handled by keyword-name-is-empty
+        "END is not allowed in this context",  # handled by statement-outside-loop
+    )
 
     def __init__(self):
         super().__init__()
@@ -307,6 +313,17 @@ class ParsingErrorChecker(VisitorChecker):
     def visit_Statement(self, node):  # noqa
         self.parse_errors(node)
 
+    def visit_InvalidSection(self, node):  # noqa
+        invalid_header = node.header.get_token(Token.INVALID_HEADER)
+        if "Resource file with" in invalid_header.error:
+            section_name = invalid_header.value
+            self.report(
+                "invalid-section-in-resource",
+                section_name=section_name,
+                node=node,
+                end_col=node.col_offset + len(section_name) + 1,
+            )
+
     def parse_errors(self, node):  # noqa
         if node is None:
             return
@@ -329,7 +346,7 @@ class ParsingErrorChecker(VisitorChecker):
             self.handle_invalid_setting(node, error)
         elif "Invalid variable name" in error:
             self.handle_invalid_variable(node, error)
-        elif "RETURN can only be used inside" in error:
+        elif "RETURN can only be used inside" in error or "RETURN is not allowed in this context" in error:
             token = node.data_tokens[0]
             self.report("return-in-test-case", node=node, col=token.col_offset + 1, end_col=token.end_col_offset)
         elif "IF" in error or ("ELSE" in error and If and isinstance(self.in_block, If)):
@@ -338,8 +355,6 @@ class ParsingErrorChecker(VisitorChecker):
             self.handle_invalid_block(node, error, "invalid-for-loop")
         elif "Non-default argument after default arguments" in error or "Only last argument can be kwargs" in error:
             self.handle_positional_after_named(node, error_index)
-        elif "is allowed only once. Only the first value is used" in error:
-            return
         elif "Resource file with" in error:
             self.handle_invalid_section_in_resource(node, error)
         else:
@@ -583,6 +598,9 @@ class MissingKeywordName(VisitorChecker):
 
     reports = ("missing-keyword-name",)
 
+    def visit_File(self, node):
+        self.generic_visit(node)
+
     def visit_EmptyLine(self, node):  # noqa
         if ROBOT_VERSION.major < 5:
             return
@@ -596,7 +614,7 @@ class MissingKeywordName(VisitorChecker):
             )
 
     def visit_KeywordCall(self, node):  # noqa
-        if node.keyword is None:
+        if not node.keyword:
             self.report(
                 "missing-keyword-name",
                 node=node,

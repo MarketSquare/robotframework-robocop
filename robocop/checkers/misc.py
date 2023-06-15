@@ -841,6 +841,18 @@ class LoopStatementsChecker(VisitorChecker):
     def visit_Break(self, node):  # noqa
         self.check_statement_in_loop(node, "BREAK")  # type: ignore[arg-type]
 
+    def visit_Error(self, node):  # noqa
+        """Support for RF >= 6.1"""
+        for error_token in node.get_tokens(Token.ERROR):
+            if "is not allowed in this context" in error_token.error:
+                self.report(
+                    "statement-outside-loop",
+                    name=error_token.value,
+                    statement_type="statement",
+                    node=node,
+                    col=error_token.col_offset + 1,
+                )
+
     def check_statement_in_loop(self, node, token_type):
         if self.loops or node.errors and f"{token_type} can only be used inside a loop." not in node.errors:
             return

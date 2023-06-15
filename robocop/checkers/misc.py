@@ -972,6 +972,8 @@ class UnusedVariablesChecker(VisitorChecker):
             return node
         for token in node.header.get_tokens(Token.ARGUMENT):
             self.find_not_nested_variable(token.value, is_var=False)
+        if node.limit:
+            self.find_not_nested_variable(node.limit, is_var=False)
         return self.generic_visit(node)
 
     def visit_For(self, node):  # noqa

@@ -48,6 +48,12 @@ Single Underscore Not Used
     ${_}    ${var}    Keyword
     Log    ${var}
 
+While Limit
+    ${used_var}    Get Loop Limit
+    WHILE    $condition    limit=${used_var} sec
+        Log    In loop.
+    END
+
 *** Test Cases ***
 Test with template
     [Template]    Template Keyword
@@ -60,4 +66,3 @@ Test with template - not used
     FOR    ${category}    IN    @{CATEGORIES}
         constant
     END
-

@@ -158,3 +158,12 @@ Empty Condition Or Var
 Errors In Arguments
     [Arguments]    ${argument} = value
     Log    ${argument}
+
+While Limit
+    [Arguments]    ${used_arg}    ${used_arg2}
+    WHILE    $condition    limit=${used_arg}
+        Log    In loop.
+    END
+    WHILE    ${used_arg2}
+        Log    In loop.
+    END

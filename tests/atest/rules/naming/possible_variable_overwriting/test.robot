@@ -82,3 +82,11 @@ IF Assignment
 Assignment Sign
     ${variable}    Keyword
     ${VARiable} =    Keyword
+
+Keyword With Kwargs
+    [Arguments]    ${argument}    &{keyword_args}
+    ${keyword_args}    Create Dictionary   key=${FLAG}    &{keyword_args}
+
+Keyword With Possible Overwritten Kwargs
+    [Arguments]    ${argument}    &{keyword_args}
+    ${keywordArgs}    Create Dictionary    &{keyword_args}

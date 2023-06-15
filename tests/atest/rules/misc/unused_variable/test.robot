@@ -32,6 +32,7 @@ Used In IF
     ...    ${var2}    Keyword
     IF    $var
         Keyword    String with ${var2}
+    END
 
 Not Used From FOR
     FOR    ${var}    IN    1  2  3

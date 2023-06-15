@@ -287,7 +287,7 @@ class ParsingErrorChecker(VisitorChecker):
         "is allowed only once. Only the first value is used",
         "Test name cannot be empty",  # handled by test-case-name-is-empty
         "User keyword name cannot be empty",  # handled by keyword-name-is-empty
-        "END is not allowed in this contex",  # handled by statement-outside-loop
+        "END is not allowed in this context",  # handled by statement-outside-loop
     )
 
     def __init__(self):

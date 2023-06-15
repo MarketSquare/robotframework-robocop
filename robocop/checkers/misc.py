@@ -423,7 +423,7 @@ rules = {
                 ${value}    Keyword
                 ${value}    Keyword
 
-        In case the value of the variable is not important it is possible to use `${_}` name::
+        In case the value of the variable is not important, it is possible to use `${_}` name::
         
             *** Test Cases ***
             Call keyword and ignore some return values

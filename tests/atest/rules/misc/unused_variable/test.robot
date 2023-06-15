@@ -43,3 +43,7 @@ Not Used From FOR
     FOR    ${_}    IN    1  2  3
         Keyword
     END
+
+Single Underscore Not Used
+    ${_}    ${var}    Keyword
+    Log    ${var}

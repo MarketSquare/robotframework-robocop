@@ -423,6 +423,15 @@ rules = {
                 ${value}    Keyword
                 ${value}    Keyword
 
+        In case the value of the variable is not important it is possible to use `${_}` name::
+        
+            *** Test Cases ***
+            Call keyword and ignore some return values
+                ${_}    ${item}    Unpack List    @{LIST}
+                FOR    ${_}    IN RANGE  10
+                    Log    Run this code 10 times.
+                END
+
         """,
     ),
 }
@@ -905,8 +914,6 @@ class UnusedVariablesChecker(VisitorChecker):
     def check_unused_variables(self):
         for scope in self.variables:
             for variable in scope.values():
-                if variable.name == "${_}":
-                    continue
                 self.report_arg_or_var_rule("unused-variable", variable.token, variable.name)
 
     def report_arg_or_var_rule(self, rule, token, value=None):
@@ -1009,6 +1016,8 @@ class UnusedVariablesChecker(VisitorChecker):
         if remove_equal:
             value = value.rstrip("=").strip()  # remove possible '=' and ' ='
         normalized = normalize_robot_var_name(value)  # remove ${ } and normalize
+        if not normalized:  # ie. "${_}" -> ""
+            return
         arg = self.arguments.pop(normalized, None)
         if arg is not None:
             self.report_arg_or_var_rule("argument-overwritten-before-usage", arg.token)

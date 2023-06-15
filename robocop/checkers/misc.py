@@ -1008,6 +1008,10 @@ class UnusedVariablesChecker(VisitorChecker):
 
     visit_ReturnStatement = visit_Teardown = visit_Timeout = visit_Return
 
+    def visit_TemplateArguments(self, node):  # noqa
+        for argument in node.data_tokens:
+            self.find_not_nested_variable(argument.value, is_var=False)
+
     def handle_assign_variable(self, token, remove_equal):
         """Check if assign does not overwrite arguments or variables.
 

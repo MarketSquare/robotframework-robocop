@@ -47,3 +47,17 @@ Not Used From FOR
 Single Underscore Not Used
     ${_}    ${var}    Keyword
     Log    ${var}
+
+*** Test Cases ***
+Test with template
+    [Template]    Template Keyword
+    FOR    ${category}    IN    @{CATEGORIES}
+        ${category}
+    END
+
+Test with template - not used
+    [Template]    Template Keyword
+    FOR    ${category}    IN    @{CATEGORIES}
+        constant
+    END
+

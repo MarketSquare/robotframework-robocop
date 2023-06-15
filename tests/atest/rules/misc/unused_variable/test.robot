@@ -48,4 +48,16 @@ While Limit
     ${used_var}    Get Loop Limit
     WHILE    $condition    limit=${used_var} sec
         Log    In loop.
+
+*** Test Cases ***
+Test with template
+    [Template]    Template Keyword
+    FOR    ${category}    IN    @{CATEGORIES}
+        ${category}
+    END
+
+Test with template - not used
+    [Template]    Template Keyword
+    FOR    ${category}    IN    @{CATEGORIES}
+        constant
     END

@@ -85,3 +85,12 @@ Empty Condition Or Var
 Errors In Arguments
     [Arguments]    ${argument} = value
     Log    ${argument}
+
+Single Underscore Variable
+    ${_}    ${var}    Keyword
+    FOR    ${_}    IN    @{LIST}
+        Log    ${var}
+    END
+    ${_}    ${var}    Keyword
+    @{_} =    Keyword
+    @{_} =    Keyword

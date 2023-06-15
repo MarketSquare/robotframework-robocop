@@ -32,6 +32,7 @@ Used In IF
     ...    ${var2}    Keyword
     IF    $var
         Keyword    String with ${var2}
+    END
 
 Not Used From FOR
     FOR    ${var}    IN    1  2  3
@@ -44,10 +45,15 @@ Not Used From FOR
         Keyword
     END
 
+Single Underscore Not Used
+    ${_}    ${var}    Keyword
+    Log    ${var}
+
 While Limit
     ${used_var}    Get Loop Limit
     WHILE    $condition    limit=${used_var} sec
         Log    In loop.
+    END
 
 *** Test Cases ***
 Test with template

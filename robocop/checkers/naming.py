@@ -399,6 +399,27 @@ rules = {
         `Robot Framework User Guide <https://robotframework.org/robotframework/latest/RobotFrameworkUserGuide.html#automatic-variables>`_
         """,
     ),
+    "0325": Rule(
+        rule_id="0325",
+        name="invalid-section",
+        msg="Invalid section '{{ invalid_section }}'. Consider using --language parameter if the file is defined with different language.",
+        severity=RuleSeverity.ERROR,
+        version=">=6.1",
+        docs="""
+            Robot Framework 6.1 detects unrecognized sections based on the language defined for the specific files.
+            Consider using --language parameter if the file is defined with different language.
+            
+            It is also possible to configure language in the file:
+            
+            ```
+            language: pl
+            
+            *** Przypadki Testowe ***
+            Test case
+                Step
+            ```
+            """,
+    ),
 }
 
 SET_VARIABLE_VARIANTS = {
@@ -611,6 +632,7 @@ class SettingsNamingChecker(VisitorChecker):
         "section-name-invalid",
         "empty-library-alias",
         "duplicated-library-alias",
+        "invalid-section",
     )
     ALIAS_TOKENS = [Token.WITH_NAME] if ROBOT_VERSION.major < 5 else [Token.WITH_NAME, "AS"]
     # Separating alias values since RF 3 uses WITH_NAME instead of WITH NAME
@@ -619,6 +641,20 @@ class SettingsNamingChecker(VisitorChecker):
     def __init__(self):
         self.section_name_pattern = re.compile(r"\*\*\*\s.+\s\*\*\*")
         super().__init__()
+
+    def visit_InvalidSection(self, node):  # noqa
+        name = node.header.data_tokens[0].value
+        invalid_header = node.header.get_token(Token.INVALID_HEADER)
+        if "Resource file with" in invalid_header.error:
+            return
+        if invalid_header:
+            self.report(
+                "invalid-section",
+                invalid_section=name,
+                node=node,
+                col=node.header.col_offset + 1,
+                end_col=node.header.end_col_offset + 1,
+            )
 
     def visit_SectionHeader(self, node):  # noqa
         name = node.data_tokens[0].value

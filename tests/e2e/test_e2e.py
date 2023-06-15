@@ -320,7 +320,7 @@ class TestTranslatedRobot:
         config.paths = [str(test_file)]
         robocop_instance = Robocop(config=config)
         robocop_instance.run()
-        return self.assert_issue_was_found(robocop_instance, "Unrecognized section")
+        return self.assert_issue_was_found(robocop_instance, "Invalid section")
 
     def test_translated_fi_lang(self, test_data_dir):
         config = Config()
@@ -329,7 +329,7 @@ class TestTranslatedRobot:
         config.language = ["fi"]
         robocop_instance = Robocop(config=config)
         robocop_instance.run()
-        return self.assert_issue_was_not_found(robocop_instance, "Unrecognized section")
+        return self.assert_issue_was_not_found(robocop_instance, "Invalid section")
 
     def test_translated_mixed_with_fi_lang(self, test_data_dir):
         config = Config()
@@ -337,7 +337,7 @@ class TestTranslatedRobot:
         config.paths = [str(test_file)]
         robocop_instance = Robocop(config=config)
         robocop_instance.run()
-        return self.assert_issue_was_found(robocop_instance, "Unrecognized section")
+        return self.assert_issue_was_found(robocop_instance, "Invalid section")
 
     def test_translated_mixed_with_fi_and_pl_lang(self, test_data_dir):
         config = Config()
@@ -346,4 +346,4 @@ class TestTranslatedRobot:
         config.language = ["fi", "pl"]
         robocop_instance = Robocop(config=config)
         robocop_instance.run()
-        return self.assert_issue_was_not_found(robocop_instance, "Unrecognized section")
+        return self.assert_issue_was_not_found(robocop_instance, "Invalid section")

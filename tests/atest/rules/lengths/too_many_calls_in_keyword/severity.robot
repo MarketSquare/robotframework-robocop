@@ -22,7 +22,8 @@ Keyword
     No Operation
     No Operation
     No Operation
-    For  ${var}  IN RANGE  10
+    No Operation
+    FOR  ${var}  IN RANGE  10
         No Operation
         No Operation
     END
@@ -35,4 +36,3 @@ Keyword 2
     Fail
     No Operation
     No Operation
-

@@ -569,7 +569,7 @@ class EmptySettingsChecker(VisitorChecker):
         self.generic_visit(node)
 
     def visit_Metadata(self, node):  # noqa
-        if node.name is None:
+        if not node.name:
             self.report("empty-metadata", node=node, col=node.col_offset + 1)
 
     def visit_Documentation(self, node):  # noqa

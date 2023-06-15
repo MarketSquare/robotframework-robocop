@@ -44,6 +44,10 @@ Not Used From FOR
         Keyword
     END
 
+While Limit
+    ${used_var}    Get Loop Limit
+    WHILE    $condition    limit=${used_var} sec
+        Log    In loop.
 
 *** Test Cases ***
 Test with template

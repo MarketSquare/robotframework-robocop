@@ -167,3 +167,7 @@ While Limit
     WHILE    ${used_arg2}
         Log    In loop.
     END
+
+Variable Used Next to Other
+    [Arguments]    ${file_location}
+    Log To Console    message=${file_location}${/}filename

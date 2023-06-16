@@ -12,7 +12,7 @@ except ImportError:
 
 from robocop.checkers import VisitorChecker
 from robocop.rules import Rule, RuleSeverity
-from robocop.utils import get_errors, ROBOT_VERSION, find_robot_vars
+from robocop.utils import ROBOT_VERSION, find_robot_vars, get_errors
 
 rules = {
     "0401": Rule(

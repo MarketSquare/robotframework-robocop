@@ -1,8 +1,10 @@
+*** Settings ***
+
+
 *** Variables ***
 ${MY_VAR}    1
 
 
-# some comment
 *** Keywords ***
 Keyword
     [Documentation]  this is doc

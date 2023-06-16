@@ -457,8 +457,6 @@ class EmptyLinesChecker(VisitorChecker):
                             break
                 if isinstance(child, EmptyLine):
                     empty_lines += 1
-                elif isinstance(child, Comment):
-                    continue
                 else:
                     break
             if empty_lines != self.param("empty-lines-between-sections", "empty_lines"):

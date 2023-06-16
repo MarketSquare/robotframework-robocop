@@ -181,7 +181,13 @@ To run pytest tests navigate to directory with test files and run::
     pytest .
 
 Pytest will automatically discover all the tests, run them and display
-results. Make sure that tests do not fail.
+results.
+
+You can test a specific rule by providing a path to the related ``test_rule.py`` file, e.g.::
+
+    pytest tests/atest/rules/spacing/empty_lines_between_sections/test_rule.py
+
+Make sure that tests do not fail.
 
 Nox
 ''''''''
@@ -199,7 +205,7 @@ Run the following command to see all possible sessions (acting as environments o
 
 You can select only one session per run. For example, to only run tests for ``Python==3.10`` and ``Robot Framework==3.*``::
 
-    nox --session "unit-3.10(robot_version='3')"
+    nox --session "unit-3.10(rf='3')"
 
 Unit tests
 ''''''''''

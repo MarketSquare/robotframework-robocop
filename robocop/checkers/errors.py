@@ -12,7 +12,7 @@ except ImportError:
 
 from robocop.checkers import VisitorChecker
 from robocop.rules import Rule, RuleSeverity
-from robocop.utils import ROBOT_VERSION, find_robot_vars
+from robocop.utils import get_errors, ROBOT_VERSION, find_robot_vars
 
 rules = {
     "0401": Rule(
@@ -228,6 +228,16 @@ rules = {
         """,
         severity=RuleSeverity.ERROR,
     ),
+    "0416": Rule(
+        rule_id="0416",
+        name="invalid-setting-in-resource",
+        msg="Settings section in resource file can't contain '{{ section_name }}' setting",
+        docs="""
+        The Setting section in resource files can contain only import settings (Library,
+        Resource, Variables), Documentation and Keyword Tags.
+        """,
+        severity=RuleSeverity.ERROR,
+    ),
 }
 
 
@@ -247,6 +257,7 @@ class ParsingErrorChecker(VisitorChecker):
         "invalid-if",
         "return-in-test-case",
         "invalid-section-in-resource",
+        "invalid-setting-in-resource",
     )
 
     keyword_only_settings = {"Arguments", "Return"}
@@ -323,6 +334,19 @@ class ParsingErrorChecker(VisitorChecker):
                 node=node,
                 end_col=node.col_offset + len(section_name) + 1,
             )
+
+    def visit_SettingSection(self, node):  # noqa
+        for child in node.body:
+            for error in get_errors(child):
+                setting_error = re.search("Setting '(.*)' is not allowed in resource file", error)
+                if setting_error:
+                    self.report(
+                        "invalid-setting-in-resource",
+                        section_name=setting_error.group(1),
+                        node=child,
+                        lineno=child.lineno,
+                        end_col=child.end_col_offset + 1,
+                    )
 
     def parse_errors(self, node):  # noqa
         if node is None:

@@ -103,3 +103,8 @@ robocop.log
 
 # OS-related files
 .DS_Store
+
+# Robot Framework output files
+log.html
+output.xml
+report.html

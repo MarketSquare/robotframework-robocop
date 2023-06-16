@@ -1,0 +1,45 @@
+:orphan:
+
+=============
+Robocop 3.3.0
+=============
+
+Description.
+
+You can install the latest available version by running
+
+::
+
+    pip install --upgrade robotframework-robocop
+
+or to install exactly this version
+
+::
+
+    pip install robotframework-robocop==3.3.0
+
+.. contents::
+   :depth: 2
+   :local:
+
+Rule changes
+============
+
+New rule for detecting not supported settings in resource files (#827)
+----------------------------------------------------------------------
+
+According to the official RF User Guide:
+
+"Additionally, the Setting section in resource files can contain only
+import settings (Library, Resource, Variables) and Documentation.
+The Variable section and Keyword section are used exactly the same way
+as in test case files."
+
+New E0416 ``invalid-setting-in-resource`` rule detects unsupported
+settings in resource files.
+
+
+Acknowledgements
+================
+
+Thanks to...

@@ -199,7 +199,7 @@ Run the following command to see all possible sessions (acting as environments o
 
 You can select only one session per run. For example, to only run tests for ``Python==3.10`` and ``Robot Framework==3.*``::
 
-    nox --session "unit-3.10(robot_version='3')"
+    nox --session "unit-3.10(rf='3')"
 
 Unit tests
 ''''''''''

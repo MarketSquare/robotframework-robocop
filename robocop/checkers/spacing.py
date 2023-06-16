@@ -457,7 +457,7 @@ class EmptyLinesChecker(VisitorChecker):
                             break
                 if isinstance(child, EmptyLine):
                     empty_lines += 1
-                elif isinstance(child, Comment):
+                elif isinstance(child, Comment) and not empty_lines:
                     continue
                 else:
                     break

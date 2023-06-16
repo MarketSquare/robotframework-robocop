@@ -335,19 +335,6 @@ class ParsingErrorChecker(VisitorChecker):
                 end_col=node.col_offset + len(section_name) + 1,
             )
 
-    def visit_SettingSection(self, node):  # noqa
-        for child in node.body:
-            for error in get_errors(child):
-                setting_error = re.search("Setting '(.*)' is not allowed in resource file", error)
-                if setting_error:
-                    self.report(
-                        "invalid-setting-in-resource",
-                        section_name=setting_error.group(1),
-                        node=child,
-                        lineno=child.lineno,
-                        end_col=child.end_col_offset + 1,
-                    )
-
     def parse_errors(self, node):  # noqa
         if node is None:
             return
@@ -380,7 +367,9 @@ class ParsingErrorChecker(VisitorChecker):
         elif "Non-default argument after default arguments" in error or "Only last argument can be kwargs" in error:
             self.handle_positional_after_named(node, error_index)
         elif "Resource file with" in error:
-            self.handle_invalid_section_in_resource(node, error)
+            self.handle_invalid_section_in_resource(node)
+        elif "is not allowed in resource file" in error:
+            self.handle_invalid_setting_in_resource_file(node, error)
         else:
             error = error.replace("\n   ", "")
             token = node.header if hasattr(node, "header") else node
@@ -570,7 +559,7 @@ class ParsingErrorChecker(VisitorChecker):
             end_col=token.end_col_offset + 1,
         )
 
-    def handle_invalid_section_in_resource(self, node, error):
+    def handle_invalid_section_in_resource(self, node):
         error_token = node.tokens[0]
         section_name = error_token.value
         self.report(
@@ -578,6 +567,16 @@ class ParsingErrorChecker(VisitorChecker):
             section_name=section_name,
             node=node,
             end_col=node.col_offset + len(section_name) + 1,
+        )
+
+    def handle_invalid_setting_in_resource_file(self, node, error):
+        setting_error = re.search("Setting '(.*)' is not allowed in resource file", error)
+        self.report(
+            "invalid-setting-in-resource",
+            section_name=setting_error.group(1),
+            node=node,
+            lineno=node.lineno,
+            end_col=node.end_col_offset + 1,
         )
 
 

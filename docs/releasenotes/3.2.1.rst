@@ -4,7 +4,7 @@
 Robocop 3.2.1
 =============
 
-Fix issues with variable rules.
+This release fixes the issues with new variable rules.
 
 You can install the latest available version by running
 

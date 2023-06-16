@@ -55,6 +55,30 @@ Simple Operations
 
 ```
 
+Fix for W1003 rule to simplify counting space between sections (#861)
+---------------------------------------------------------------------
+
+Previously, the comments between sections were ignored and each empty line
+was counted towards the 2 space requirement. That means that this code:
+
+```
+*** Variables ***
+${VAR}     value
+
+# Comment
+
+*** Test Cases ***
+Some Test Case
+    No Operation
+```
+
+reported no issue, because of 2 empty lines between sections.
+
+When one empty lines was added before the Test Cases section, it was considered a violation,
+while it still looked fine. We decided to simplify the rule, and now it only counts
+empty lines after the last piece of text in the section, comments included.
+
+
 Acknowledgements
 ================
 

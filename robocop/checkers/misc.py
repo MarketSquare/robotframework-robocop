@@ -2,6 +2,7 @@
 Miscellaneous checkers
 """
 from collections import namedtuple
+from dataclasses import dataclass
 from pathlib import Path
 
 from robot.api import Token
@@ -874,7 +875,11 @@ class LoopStatementsChecker(VisitorChecker):
         )
 
 
-CachedVariable = namedtuple("CachedVariable", "name token")
+@dataclass
+class CachedVariable:
+    name: str
+    token: Token
+    is_used: bool
 
 
 class UnusedVariablesChecker(VisitorChecker):
@@ -889,6 +894,7 @@ class UnusedVariablesChecker(VisitorChecker):
         self.arguments = {}
         self.variables = [{}]  # variables are list of scope-dictionaries, to support IF branches
         self.ignore_overwriting = False  # temporarily ignore overwriting, e.g. in FOR loops
+        self.in_loop = False  # if we're in the loop we need to check whole scope for unused-variable
         super().__init__()
 
     def visit_TestCase(self, node):  # noqa
@@ -907,14 +913,16 @@ class UnusedVariablesChecker(VisitorChecker):
                 self.parse_arguments(statement)
         self.generic_visit(node)
         for arg in self.arguments.values():
-            value, *_ = arg.token.value.split("=", maxsplit=1)
-            self.report_arg_or_var_rule("unused-argument", arg.token, value)
+            if not arg.is_used:
+                value, *_ = arg.token.value.split("=", maxsplit=1)
+                self.report_arg_or_var_rule("unused-argument", arg.token, value)
         self.check_unused_variables()
 
     def check_unused_variables(self):
         for scope in self.variables:
             for variable in scope.values():
-                self.report_arg_or_var_rule("unused-variable", variable.token, variable.name)
+                if not variable.is_used:
+                    self.report_arg_or_var_rule("unused-variable", variable.token, variable.name)
 
     def report_arg_or_var_rule(self, rule, token, value=None):
         if value is None:
@@ -929,7 +937,7 @@ class UnusedVariablesChecker(VisitorChecker):
         )
 
     def add_argument(self, argument, normalized_name, token):
-        self.arguments[normalized_name] = CachedVariable(argument, token)
+        self.arguments[normalized_name] = CachedVariable(argument, token, False)
 
     def parse_arguments(self, node):
         """Store arguments from [Arguments]. Ignore @{args} and &{kwargs}, strip default values."""
@@ -967,18 +975,27 @@ class UnusedVariablesChecker(VisitorChecker):
         if node.orelse:
             self.visit(node.orelse)
 
+    def clear_variables_after_loop(self):
+        """Remove used variables after loop finishes."""
+        for index, scope in enumerate(self.variables):
+            self.variables[index] = {name: variable for name, variable in scope.items() if not variable.is_used}
+
     def visit_While(self, node):  # noqa
         if node.header.errors:
             return node
+        self.in_loop = True
         for token in node.header.get_tokens(Token.ARGUMENT):
             self.find_not_nested_variable(token.value, is_var=False)
         if node.limit:
             self.find_not_nested_variable(node.limit, is_var=False)
-        return self.generic_visit(node)
+        self.generic_visit(node)
+        self.in_loop = False
+        self.clear_variables_after_loop()
 
     def visit_For(self, node):  # noqa
         if getattr(node.header, "errors", None):
             return node
+        self.in_loop = True
         self.ignore_overwriting = True
         for token in node.header.get_tokens(Token.ARGUMENT):
             self.find_not_nested_variable(token.value, is_var=False)
@@ -986,6 +1003,8 @@ class UnusedVariablesChecker(VisitorChecker):
             self.handle_assign_variable(token, remove_equal=False)
         self.generic_visit(node)
         self.ignore_overwriting = False
+        self.in_loop = False
+        self.clear_variables_after_loop()
 
     visit_ForLoop = visit_For
 
@@ -1027,11 +1046,19 @@ class UnusedVariablesChecker(VisitorChecker):
         arg = self.arguments.pop(normalized, None)
         if arg is not None:
             self.report_arg_or_var_rule("argument-overwritten-before-usage", arg.token)
+        is_used = False
         for variable_scope in self.variables[::-1]:
-            variable = variable_scope.pop(normalized, None)
-            if variable is not None and not self.ignore_overwriting:
-                self.report_arg_or_var_rule("variable-overwritten-before-usage", variable.token, value)
-        self.variables[-1][normalized] = CachedVariable(value, token)
+            if normalized in variable_scope:
+                is_used = variable_scope[normalized].is_used or is_used
+                if not variable_scope[normalized].is_used and not self.ignore_overwriting:
+                    self.report_arg_or_var_rule(
+                        "variable-overwritten-before-usage", variable_scope[normalized].token, value
+                    )
+        if self.in_loop:
+            variable = CachedVariable(value, token, is_used)
+        else:
+            variable = CachedVariable(value, token, False)
+        self.variables[-1][normalized] = variable
 
     def find_not_nested_variable(self, value, is_var):
         """Find and process not nested variable.
@@ -1094,16 +1121,18 @@ class UnusedVariablesChecker(VisitorChecker):
         if arg is None:
             self.search_by_removing_attr_access(normalized, self.arguments)
         for variable_scope in self.variables[::-1]:
-            arg_var = variable_scope.pop(normalized, None)
-            if arg_var is None:
+            if normalized in variable_scope:
+                variable_scope[normalized].is_used = True
+            else:
                 self.search_by_removing_attr_access(normalized, variable_scope)
 
     @staticmethod
     def search_by_removing_attr_access(variable_name, variable_scope):
         """Search and remove variables from variable_scope by removing attribute access elements from the name."""
-        for attr_access in (".", "[", "("):  # ${arg.attr}
+        for attr_access in (".", "[", "(", "%", "+", "-", "*", "/"):  # ${arg.attr}
             if attr_access in variable_name:
                 name, _ = variable_name.split(attr_access, maxsplit=1)
-                arg_var = variable_scope.pop(name, None)
-                if arg_var is not None:
+                name = name.strip()
+                if name in variable_scope:
+                    variable_scope[name].is_used = True
                     return

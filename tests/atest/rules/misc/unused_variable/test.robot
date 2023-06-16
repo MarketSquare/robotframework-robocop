@@ -67,3 +67,11 @@ Test with template - not used
     FOR    ${category}    IN    @{CATEGORIES}
         constant
     END
+
+Simple Operations
+    ${sum}    Calculate    ${random}
+    ${var}    Set Variable    ${sum%11}
+    ${var}    Set Variable    ${sum + 11}
+    ${var}    Set Variable    ${sum - 11}
+    ${var}    Set Variable    ${sum * 11}
+    Log    ${var}

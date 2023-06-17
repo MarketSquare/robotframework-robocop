@@ -34,7 +34,7 @@ rules = {
         severity=RuleSeverity.WARNING,
         docs="""
         Report occurrences of the configured, case-insensitive marker in the comments.
-        By default, it reports TODO and FIXME markers.
+        By default, it reports ``TODO`` and ``FIXME`` markers.
 
         Example::
 
@@ -59,8 +59,8 @@ rules = {
         msg="Missing blank space after comment character",
         severity=RuleSeverity.WARNING,
         docs="""
-        Make sure to have one blank space after '#' comment character.
-        Configured regex for block comment should take into account the first character is `#`.
+        Make sure to have one blank space after ``#`` comment character.
+        Configured regex for block comment should take into account the first character is ``#``.
 
         Example::
 
@@ -111,7 +111,7 @@ rules = {
         docs="""
         All lines before first test data section
         (`ref <https://robotframework.org/robotframework/latest/RobotFrameworkUserGuide.html#test-data-sections>`_)
-        are ignored. It's recommended to add `*** Comments ***` section header for lines that should be ignored.
+        are ignored. It's recommended to add ``*** Comments ***`` section header for lines that should be ignored.
 
         Missing section header::
 
@@ -121,7 +121,7 @@ rules = {
             Keyword Name
                No Operation
 
-        Comment lines that should be inside `*** Comments ***`::
+        Comment lines that should be inside ``*** Comments ***``::
 
             Deprecated Test
                 Keyword

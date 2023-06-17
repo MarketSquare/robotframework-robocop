@@ -8,6 +8,7 @@ from pathlib import Path
 
 from robot.api import Token
 from robot.errors import VariableError
+from robot.parsing.model.blocks import TestCaseSection
 from robot.parsing.model.statements import Arguments
 from robot.variables import VariableIterator
 from robot.variables.search import search_variable
@@ -420,6 +421,16 @@ rules = {
             ```
             """,
     ),
+    "0326": Rule(
+        rule_id="0326",
+        name="task-related-setting",
+        msg="Use task-related setting '{{ setting }}' if Tasks section is used.",
+        severity=RuleSeverity.INFO,
+        docs="""
+        If ``*** Tasks ***`` section is present in the file, use task-related settings like ``Task Setup``,
+        ``Task Teardown``, ``Task Template`` and ``Task Timeout`` instead of their `Test` variants. 
+        """,
+    ),
 }
 
 SET_VARIABLE_VARIANTS = {
@@ -633,6 +644,7 @@ class SettingsNamingChecker(VisitorChecker):
         "empty-library-alias",
         "duplicated-library-alias",
         "invalid-section",
+        "task-related-setting",
     )
     ALIAS_TOKENS = [Token.WITH_NAME] if ROBOT_VERSION.major < 5 else [Token.WITH_NAME, "AS"]
     # Separating alias values since RF 3 uses WITH_NAME instead of WITH NAME
@@ -640,6 +652,7 @@ class SettingsNamingChecker(VisitorChecker):
 
     def __init__(self):
         self.section_name_pattern = re.compile(r"\*\*\*\s.+\s\*\*\*")
+        self.task_section = False
         super().__init__()
 
     def visit_InvalidSection(self, node):  # noqa
@@ -668,8 +681,18 @@ class SettingsNamingChecker(VisitorChecker):
                 end_col=node.col_offset + len(name) + 1,
             )
 
+    def visit_File(self, node):  # noqa
+        for section in node.sections:
+            if isinstance(section, TestCaseSection) and "task" in section.header.name.lower():
+                self.task_section = True
+            else:
+                self.task_section = False
+        super().visit_File(node)
+
     def visit_Setup(self, node):  # noqa
         self.check_setting_name(node.data_tokens[0].value, node)
+        if self.task_section:
+            self.check_task_related_settings(node.data_tokens[0].value, node)
 
     visit_SuiteSetup = (
         visit_TestSetup
@@ -679,6 +702,10 @@ class SettingsNamingChecker(VisitorChecker):
         visit_SuiteTeardown
     ) = (
         visit_TestTeardown
+    ) = (
+        visit_TestTimeout
+    ) = (
+        visit_TestTemplate
     ) = (
         visit_ForceTags
     ) = (
@@ -719,6 +746,10 @@ class SettingsNamingChecker(VisitorChecker):
             self.report(
                 "setting-name-not-in-title-case", setting_name=name, node=node, col=col + 1, end_col=col + len(name) + 1
             )
+
+    def check_task_related_settings(self, name, node):
+        if "test" in name.lower() and not "task" in name.lower():
+            self.report("task-related-setting", setting="Task " + name.split()[1], node=node)
 
 
 class TestCaseNamingChecker(VisitorChecker):

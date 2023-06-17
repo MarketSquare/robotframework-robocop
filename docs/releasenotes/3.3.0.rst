@@ -37,6 +37,14 @@ as in test case files.
 New E0416 ``invalid-setting-in-resource`` rule detects unsupported
 settings in resource files.
 
+New rule that suggests using task-related settings if Task section is used (#522)
+---------------------------------------------------------------------------------
+
+If the file contains ``*** Task ***`` section, it is recommended to use settings like ``Task Setup``,
+``Task Teardown``, ``Task Template`` and ``Task Timeout`` instead of their `Test` variants.
+
+A new rule I0326 ``task-related-setting`` is introduced to cover this case.
+
 
 Acknowledgements
 ================

@@ -96,3 +96,50 @@ class TestExternalRules:
         with pytest.raises(robocop.exceptions.RuleReportsNotFoundError) as err:
             robocop_pre_load.load_checkers()
         assert "SmthChecker checker `reports` attribute contains unknown rule `idontexist`" in str(err)
+
+    def test_load_disabled_by_default(self, robocop_pre_load):
+        robocop_pre_load.config.ext_rules = {
+            str(TEST_DATA / "disabled_by_default" / "external_rule.py"),
+            str(TEST_DATA / "disabled_by_default" / "external_rule2.py"),
+        }
+        robocop_pre_load.load_checkers()
+        assert robocop_pre_load.rules["1101"].enabled
+        assert not robocop_pre_load.rules["1102"].enabled
+
+    @pytest.mark.parametrize(
+        "params",
+        [
+            {"include": {"1102"}, "exclude": None, "expected_1101": False, "expected_1102": True},
+            {"include": {"1101"}, "exclude": None, "expected_1101": True, "expected_1102": False},
+            {"include": {"1102"}, "exclude": {"1102"}, "expected_1101": False, "expected_1102": False},
+            {"include": None, "exclude": {"1102"}, "expected_1101": True, "expected_1102": False},
+        ],
+    )
+    def test_load_disabled_by_default_include(self, robocop_pre_load, params):
+        robocop_pre_load.config.ext_rules = {
+            str(TEST_DATA / "disabled_by_default" / "external_rule.py"),
+            str(TEST_DATA / "disabled_by_default" / "external_rule2.py"),
+        }
+        if params["include"]:
+            robocop_pre_load.config.include = params["include"]
+        if params["exclude"]:
+            robocop_pre_load.config.exclude = params["exclude"]
+        robocop_pre_load.load_checkers()
+        robocop_pre_load.check_for_disabled_rules()
+        assert robocop_pre_load.rules["1101"].enabled == params["expected_1101"]
+        assert robocop_pre_load.rules["1102"].enabled == params["expected_1102"]
+
+    def test_load_disabled_by_default_enable(self, robocop_pre_load):
+        robocop_pre_load.config.ext_rules = {
+            str(TEST_DATA / "disabled_by_default" / "external_rule.py"),
+            str(TEST_DATA / "disabled_by_default" / "external_rule2.py"),
+        }
+        robocop_pre_load.config.configure = ["1102:enabled:True"]
+        robocop_pre_load.load_checkers()
+        robocop_pre_load.configure_checkers_or_reports()
+        robocop_pre_load.check_for_disabled_rules()
+        assert robocop_pre_load.rules["1101"].enabled
+        assert robocop_pre_load.rules["1102"].enabled
+        # FIXME resetting config due to pytest cache issue
+        robocop_pre_load.config.include = set()
+        robocop_pre_load.config.ext_rules = set()

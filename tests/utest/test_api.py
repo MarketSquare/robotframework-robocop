@@ -1,4 +1,3 @@
-import importlib
 from pathlib import Path
 
 import pytest
@@ -27,6 +26,7 @@ def run_check_on_string(in_memory, root="."):
     config = robocop.Config(root=root)
     robocop_runner = robocop.Robocop(config=config)
     robocop_runner.reload_config()
+
     ast_model = get_model(in_memory)
     file_path = str(Path(Path.home(), "directory", "file.robot"))
     return robocop_runner.run_check(ast_model, file_path, in_memory)

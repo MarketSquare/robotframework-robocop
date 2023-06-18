@@ -37,6 +37,32 @@ as in test case files.
 New E0416 ``invalid-setting-in-resource`` rule detects unsupported
 settings in resource files.
 
+Other features
+==============
+
+New ``enabled`` Rule parameter used to create disabled by default rules (#809)
+------------------------------------------------------------------------------
+
+Previously, all defined rules were enabled by default and could be disabled using ``--exclude`` option (or by
+using ``--include`` if not listed with the option). It is now possible to create rule disabled by default using
+new parameter, ``enabled``::
+
+    rules = {
+        "1155": Rule(
+            rule_id="1155",
+            name="custom-rule",
+            msg="Custom rule message",
+            severity=RuleSeverity.INFO,
+            enabled=False,
+            docs="""
+            Custom rule description.
+            """,
+        )
+    }
+
+Such rules can be enabled using ``--include`` option or by configuring ``enabled`` parameter directly::
+
+    robocop --ext-rules custom_rules.py -c custom-rule:enabled:True .
 
 Acknowledgements
 ================

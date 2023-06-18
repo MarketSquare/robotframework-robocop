@@ -148,6 +148,29 @@ Dotted syntax is also supported::
 :code:`rules` dictionary should be available at the same level as checker that is using it. That's why if you are defining your
 external rules using modules and ``__init__.py`` it should be also imported (or defined directly in ``__init__.py``).
 
+Disabled by default rules
+-------------------------
+
+All rules are enabled by default and included after importing them. It is possible to define rule that is disabled
+by default by using ``enabled`` parameter::
+
+    rules = {
+        "1155": Rule(
+            rule_id="1155",
+            name="custom-rule",
+            msg="Custom rule message",
+            severity=RuleSeverity.INFO,
+            enabled=False,
+            docs="""
+            Custom rule description.
+            """,
+        )
+    }
+
+Such rules can be enabled with ``--include`` option or by configuring ``enabled`` parameter directly::
+
+    robocop --ext-rules custom_rules.py -c custom-rule:enabled:True .
+
 Robot Framework version support
 --------------------------------
 You can enable (or disable) your rule for particular Robot Framework version. Add `version` parameter to Rule definition::

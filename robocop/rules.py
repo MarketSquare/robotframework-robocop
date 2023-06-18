@@ -242,6 +242,7 @@ class Rule:
         severity: RuleSeverity,
         version: str = None,
         docs: str = "",
+        added_in_version: Optional[str] = None,
     ):
         """
         :param params: RuleParam() or SeverityThreshold() instances
@@ -252,6 +253,7 @@ class Rule:
         :param version: supported Robot Framework version (ie: >=4.0)
         :param docs: Full documentation of the rule (rst supported)
         description of the rule
+        :param added_in_version: Version of the Robocop when the Rule was created
         """
         self.rule_id = rule_id
         self.name = name
@@ -274,6 +276,7 @@ class Rule:
         self.enabled = True
         self.supported_version = version if version else "All"
         self.enabled_in_version = self.supported_in_rf_version(version)
+        self.added_in_version = added_in_version
 
     @property
     def severity(self):

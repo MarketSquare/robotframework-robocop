@@ -1,7 +1,6 @@
 """
 Miscellaneous checkers
 """
-from collections import namedtuple
 from dataclasses import dataclass
 from pathlib import Path
 

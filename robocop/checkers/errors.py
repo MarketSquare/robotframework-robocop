@@ -237,6 +237,7 @@ rules = {
         ``Resource``, ``Variables``), ``Documentation`` and ``Keyword Tags``.
         """,
         severity=RuleSeverity.ERROR,
+        added_in_version="3.3.0",
     ),
 }
 

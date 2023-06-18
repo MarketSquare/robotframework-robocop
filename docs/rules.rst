@@ -29,9 +29,11 @@ Rules
   * - Severity
     - Rule id
     - Robot Framework version
+    - Robocop version
   * - {{ rule_doc.severity }}
     - {{ rule_doc.id }}
     - {{ rule_doc.version }}
+    - {{ rule_doc.robocop_version }}
 
 {{ rule_doc.desc }}
 

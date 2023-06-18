@@ -4,7 +4,7 @@ External rules
 ========================
 
 You can include your own custom rules with ``-rules`` or ``--ext-rules`` arguments.
-It accepts comma-separated list of paths to files or directories. Example::
+It accepts comma-separated list of paths to files, directories or name of the Python module. Example::
 
     robocop -rules my/own/rule.py --ext-rules rules.py,external_rules.py
 
@@ -18,32 +18,32 @@ Every custom checker needs to complete following requirements:
 
 4. Using names and rule IDs different than already existing rules is recommended but in case of using the same ones, they will be overwritten.
 
-This is an example of the file with custom checker that asserts that no test have "Dummy" in the name:
+This is an example of the file with custom checker that asserts that no test have "Example" in the name:
 
 ..  code-block:: python
-    :caption: dummy.py
+    :caption: example.py
 
     from robocop.checkers import VisitorChecker
     from robocop.rules import Rule, RuleSeverity
 
     rules = {
-        "9999": Rule(rule_id="9999", name="dummy-in-name", msg="There is 'Dummy' in test case name", severity=RuleSeverity.WARNING)
+        "9999": Rule(rule_id="9999", name="example-in-name", msg="There is 'Example' in test case name", severity=RuleSeverity.WARNING)
     }
 
 
-    class NoDummiesChecker(VisitorChecker):
-        reports = ("dummy-in-name",)
+    class NoExamplesChecker(VisitorChecker):
+        reports = ("example-in-name",)
 
         def visit_TestCaseName(self, node):
-            if 'Dummy' in node.name:
-                self.report("dummy-in-name", node=node, col=node.name.find('Dummy'))
+            if 'Example' in node.name:
+                self.report("example-in-name", node=node, col=node.name.find('Example'))
 
 Rule parameters
 ---------------
 Rules can have configurable values. You need to specify them using RuleParam class and pass it as argument to Rule:
 
 ..  code-block:: python
-    :caption: dummy.py
+    :caption: example.py
 
     from robocop.checkers import VisitorChecker
     from robocop.rules import Rule, RuleParam, RuleSeverity
@@ -51,37 +51,50 @@ Rules can have configurable values. You need to specify them using RuleParam cla
 
     rules = {
         "9999": Rule(
-            RuleParam(name="param_name", converter=str, default="Dummy", desc="Optional desc"),
+            RuleParam(name="param_name", converter=str, default="Example", desc="Optional desc"),
             rule_id="9999",
-            name="dummy-in-name",
+            name="example-in-name",
             msg="There is '{% raw %}{{ variable }}{% endraw %}' in test case name",
             severity=RuleSeverity.WARNING,
         )
     }
 
 
-    class NoDummiesChecker(VisitorChecker):
-        reports = ("dummy-in-name",)
+    class NoExamplesChecker(VisitorChecker):
+        reports = ("example-in-name",)
 
         def visit_TestCaseName(self, node):
-            if self.private_name in node.name:
+            configured_param = self.param("example-in-name", "param_name")
+            if configured_param in node.name:
                 self.report(
-                    "dummy-in-name",
-                    variable=self.param("dummy-in-name", "param_name"),
+                    "example-in-name",
+                    variable=configured_param,
                     node=node,
-                    col=node.name.find(self.param("dummy-in-name", "param_name")))
+                    col=node.name.find(configured_param))
 
 Configurable parameter can be referred by its :code:`name` in command line options::
 
-    robocop --ext-rules my/own/rule.py --configure dummy-in-name:param_name:AnotherDummy
+    robocop --ext-rules my/own/rule.py --configure example-in-name:param_name:AnotherExample
 
-Value of the configurable parameter can be retrieved using :code:`param` method::
+Value of the configurable parameter can be retrieved using :code:`param` method:
+
+..  code-block:: python
 
     self.param("name-of-the-rule", "name-of-param")
 
+Parameter value is passed as string. Use ``converter`` argument to define method that will be use to convert the value:
+
+..  code-block:: python
+
+    RuleParam(name="int_param", converter=int, default=10, desc="Optional desc")  # convert str to int
+      # my_own_method will be called with custom_param value
+    RuleParam(name="custom_param", converter=my_own_method, default="custom", desc="Optional desc")
+
 Templated rule messages
 ------------------------
-When defining rule messages you can use ``jinja`` templates. The most basic usage is supplying variables to rule message::
+When defining rule messages you can use ``jinja`` templates. The most basic usage is supplying variables to rule message:
+
+..  code-block:: python
 
     rules = {
         "9001": Rule(
@@ -93,10 +106,11 @@ When defining rule messages you can use ``jinja`` templates. The most basic usag
         )
     }
 
-Variables need to be passed to ``report()`` method by their name::
+Variables need to be passed to ``report()`` method by their name:
+
+..  code-block:: python
 
     self.report("my-rule", variable="some string", number=10, node=node)
-
 
 Import from external module
 ----------------------------
@@ -114,6 +128,13 @@ inside ``__init__.py``:
     :caption: __init__.py
 
     from .some_rules import CustomRule, rules
+
+You can also import whole files to namespace:
+
+..  code-block:: python
+    :caption: __init__.py
+
+    import RobocopRules.some_rules
 
 inside ``some_rules.py``:
 
@@ -134,7 +155,7 @@ inside ``some_rules.py``:
         reports = ("external-rule",)
 
         def visit_KeywordCall(self, node):  # noqa
-            if node.keyword and 'Dummy' not in node.keyword:
+            if node.keyword and 'Example' not in node.keyword:
                 self.report("external-rule", node=node)
 
 You can import this rule using module name::
@@ -145,8 +166,8 @@ Dotted syntax is also supported::
 
     robocop --ext-rules RobocopRules.submodule .
 
-:code:`rules` dictionary should be available at the same level as checker that is using it. That's why if you are defining your
-external rules using modules and ``__init__.py`` it should be also imported (or defined directly in ``__init__.py``).
+:code:`rules` dictionary should be available at the same level as checker that is using it. It could be either defined
+or imported from other files.
 
 Rules disabled by default
 -------------------------
@@ -197,4 +218,3 @@ It is also possible to adjust behavior of your checker depending on the Robot Fr
         # do stuff for RF 3.x version
     else:
         # execute this code for RF != 3.x
-

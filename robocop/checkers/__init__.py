@@ -29,7 +29,13 @@ Every rule has a `unique id` made of 4 digits where first 2 are `checker id` whi
 `Unique id` as well as `rule name` can be used to refer to the rule (e.g. in include/exclude statements,
 configurations etc.). You can optionally configure rule severity or other parameters.
 """
+import ast
+import importlib.util
 import inspect
+from collections import defaultdict
+from importlib import import_module
+from pathlib import Path
+from typing import Dict, List, Tuple
 
 try:
     from robot.api.parsing import ModelVisitor
@@ -38,8 +44,12 @@ except ImportError:
 
 from robot.utils import FileReader
 
-from robocop.exceptions import RuleNotFoundError, RuleParamNotFoundError, RuleReportsNotFoundError
-from robocop.utils import modules_from_paths, modules_in_current_dir
+from robocop.exceptions import (
+    InvalidExternalCheckerError,
+    RuleNotFoundError,
+    RuleParamNotFoundError,
+    RuleReportsNotFoundError,
+)
 
 
 class BaseChecker:
@@ -147,29 +157,139 @@ class RawFileChecker(BaseChecker):  # noqa
         raise NotImplementedError
 
 
-def init(linter):
-    """For each module get `rules` dictionary and visitors. Instantiate each visitor and map it to the
-    rule class instance using `reports` visitor attribute."""
-    for module in get_modules(linter.config.ext_rules):
+def is_checker(checker_class_def: Tuple) -> bool:
+    return issubclass(checker_class_def[1], BaseChecker) and getattr(checker_class_def[1], "reports", False)
+
+
+class RobocopImporter:
+    def __init__(self, external_rules_paths=None):
+        self.internal_checkers_dir = Path(__file__).parent
+        self.external_rules_paths = external_rules_paths
+        self.imported_modules = set()
+        self.seen_modules = set()
+        self.seen_checkers = defaultdict(list)
+
+    def get_initialized_checkers(self):
+        for module in self.modules_from_paths([self.internal_checkers_dir, *self.external_rules_paths]):
+            if module in self.seen_modules:
+                continue
+            for _, submodule in inspect.getmembers(module, inspect.ismodule):
+                if submodule not in self.seen_modules:
+                    yield from self._get_initialized_checkers_from_module(submodule)
+            yield from self._get_initialized_checkers_from_module(module)
+
+    def _get_initialized_checkers_from_module(self, module):
+        self.seen_modules.add(module)
+        for checker_instance in self.get_checkers_from_module(module):
+            if not self.is_checker_already_imported(checker_instance):
+                yield checker_instance
+
+    def is_checker_already_imported(self, checker):
+        """Check if checker was already imported.
+
+        Checker name does not have to be unique, but it should use different rules."""
+        checker_name = checker.__class__.__name__
+        if checker_name in self.seen_checkers:
+            if sorted(checker.rules.keys()) in self.seen_checkers[checker_name]:
+                return True
+        self.seen_checkers[checker_name].append(sorted(checker.rules.keys()))
+        return False
+
+    def modules_from_paths(self, paths):
+        for path in paths:
+            path_object = Path(path)
+            if path_object.exists():
+                if path_object.is_dir():
+                    if path_object.name in {".git", "__pycache__"}:
+                        continue
+                    yield from self.modules_from_paths([file for file in path_object.iterdir()])
+                else:
+                    yield self._import_module_from_file(path_object)
+            else:
+                # if it's not physical path, try to import from installed modules
+                try:
+                    mod = import_module(path)
+                    yield from self._iter_imports(Path(mod.__file__))
+                    yield mod
+                except ImportError:
+                    raise InvalidExternalCheckerError(path) from None
+
+    @staticmethod
+    def _import_module_from_file(file_path):
+        """Import Python file as module.
+
+        importlib does not support importing python files directly, and we need to create module specification first."""
+        spec = importlib.util.spec_from_file_location(file_path.stem, file_path)
+        mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(mod)
+        return mod
+
+    @staticmethod
+    def _find_imported_modules(module: ast.Module):
+        """Return modules imported using `import module.dot.submodule` syntax.
+
+        `from . import` are ignored - they are later covered by exploring submodules in the same namespace.
+        """
+        for st in module.body:
+            if isinstance(st, ast.Import):
+                for n in st.names:
+                    yield n.name
+
+    def _iter_imports(self, file_path: Path):
+        """Discover Python imports in the file using ast module."""
+        try:
+            parsed = ast.parse(file_path.read_bytes())
+        except Exception:  # noqa
+            return
+        for import_name in self._find_imported_modules(parsed):
+            if import_name not in self.imported_modules:
+                self.imported_modules.add(import_name)
+            try:
+                yield import_module(import_name)
+            except ImportError:
+                pass
+
+    def get_imported_rules(self):
+        for module in self.modules_from_paths([self.internal_checkers_dir]):
+            module_name = module.__name__.split(".")[-1]
+            for rule in getattr(module, "rules", {}).values():
+                yield module_name, rule
+
+    @staticmethod
+    def get_rules_from_module(module) -> Dict:
+        module_rules = getattr(module, "rules", {})
+        if not isinstance(module_rules, dict):
+            return {}
+        return {rule.name: rule for rule in getattr(module, "rules", {}).values()}
+
+    def get_checkers_from_module(self, module) -> List:
         classes = inspect.getmembers(module, inspect.isclass)
-        module_rules = {rule.name: rule for rule in getattr(module, "rules", {}).values()}
-        for checker in classes:
-            if issubclass(checker[1], BaseChecker) and getattr(checker[1], "reports", False):
-                checker_instance = checker[1]()
-                for reported_rule in checker_instance.reports:
-                    if reported_rule not in module_rules:
+        checkers = [checker for checker in classes if is_checker(checker)]
+        module_rules = self.get_rules_from_module(module)
+        checker_instances = []
+        for checker in checkers:
+            checker_instance = checker[1]()
+            valid_checker = True
+            for reported_rule in checker_instance.reports:
+                if reported_rule not in module_rules:
+                    valid_checker = False
+                    if module_rules:
+                        # empty rules are silently ignored when rules and checkers are imported separately
                         raise RuleReportsNotFoundError(reported_rule, checker_instance) from None
-                    checker_instance.rules[reported_rule] = module_rules[reported_rule]
-                linter.register_checker(checker_instance)
+                    continue
+                checker_instance.rules[reported_rule] = module_rules[reported_rule]
+            if valid_checker:
+                checker_instances.append(checker_instance)
+        return checker_instances
 
 
-def get_modules(ext_rules):
-    yield from modules_in_current_dir(__file__, __name__)
-    yield from modules_from_paths(ext_rules)
+def init(linter):
+    robocop_importer = RobocopImporter(linter.config.ext_rules)
+    for checker in robocop_importer.get_initialized_checkers():
+        linter.register_checker(checker)
 
 
 def get_rules():
-    for module in modules_in_current_dir(__file__, __name__):
-        module_name = module.__name__.split(".")[-1]
-        for rule in getattr(module, "rules", {}).values():
-            yield module_name, rule
+    """Get only rules definitions for documentation generation."""
+    robocop_importer = RobocopImporter()
+    yield from robocop_importer.get_imported_rules()

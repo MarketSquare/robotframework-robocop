@@ -16,7 +16,7 @@ or to install exactly this version
 
 ::
 
-    pip install robotframework-robocop==3.3.0
+    pip install robotframework-robocop==4.0.0
 
 .. contents::
    :depth: 2
@@ -74,6 +74,16 @@ rule (E0417).
 
 Other features
 ==============
+
+Overhaul of rules & checkers importing (#790)
+---------------------------------------------
+
+Complete refactor of how Robocop imports rules and checkers internally. This change is backward compatible.
+Thanks for those changes it's now possible to import external rules from module by listing modules with Robocop rules
+in the ``__init__.py`` module file::
+
+    import custom_rules.naming
+    from custom_rules.errors import ErrorChecker, rules  # this syntax was already supported
 
 New ``enabled`` rule parameter used to create rules disabled by default (#809)
 ------------------------------------------------------------------------------

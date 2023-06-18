@@ -27,9 +27,10 @@ You can filter the list using optional ``ENABLED``/``DISABLED`` argument::
 """
 import inspect
 from collections import OrderedDict
+from pathlib import Path
 
 import robocop.exceptions
-from robocop.utils.misc import modules_in_current_dir
+from robocop.checkers import RobocopImporter
 
 
 class Report:
@@ -60,7 +61,8 @@ def load_reports():
     and contains both `name` and `description` attributes.
     """
     reports = {}
-    for module in modules_in_current_dir(__file__, __name__):
+    robocop_importer = RobocopImporter()
+    for module in robocop_importer.modules_from_paths([Path(__file__).parent]):
         classes = inspect.getmembers(module, inspect.isclass)
         for report_class in classes:
             if not issubclass(report_class[1], Report):

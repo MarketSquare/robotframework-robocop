@@ -428,7 +428,7 @@ rules = {
         severity=RuleSeverity.INFO,
         docs="""
         If ``*** Tasks ***`` section is present in the file, use task-related settings like ``Task Setup``,
-        ``Task Teardown``, ``Task Template`` and ``Task Timeout`` instead of their `Test` variants. 
+        ``Task Teardown``, ``Task Template``, ``Task Tags`` and ``Task Timeout`` instead of their `Test` variants. 
         """,
     ),
 }
@@ -683,8 +683,11 @@ class SettingsNamingChecker(VisitorChecker):
 
     def visit_File(self, node):  # noqa
         for section in node.sections:
-            if isinstance(section, TestCaseSection) and "task" in section.header.name.lower():
-                self.task_section = True
+            if isinstance(section, TestCaseSection):
+                if ROBOT_VERSION.major < 6 and "task" in section.header.name.lower():
+                    self.task_section = True
+                elif ROBOT_VERSION.major == 6 and section.header.type == Token.TASK_HEADER:
+                    self.task_section = True
             else:
                 self.task_section = False
         super().visit_File(node)
@@ -706,6 +709,8 @@ class SettingsNamingChecker(VisitorChecker):
         visit_TestTimeout
     ) = (
         visit_TestTemplate
+    ) = (
+        visit_TestTags
     ) = (
         visit_ForceTags
     ) = (
@@ -748,7 +753,7 @@ class SettingsNamingChecker(VisitorChecker):
             )
 
     def check_task_related_settings(self, name, node):
-        if "test" in name.lower() and not "task" in name.lower():
+        if "test" in name.lower():
             self.report("task-related-setting", setting="Task " + name.split()[1], node=node)
 
 

@@ -37,6 +37,15 @@ as in test case files.
 New E0416 ``invalid-setting-in-resource`` rule detects unsupported
 settings in resource files.
 
+Other features
+==============
+
+Reports refactor (#834)
+-----------------------
+
+Our internal reports structure was refactored to make it easier to maintain and develop it in the future. Now
+each report is stored in the separate file in Robocop project. From the user perspective, reports should work the same
+as before.
 
 Acknowledgements
 ================

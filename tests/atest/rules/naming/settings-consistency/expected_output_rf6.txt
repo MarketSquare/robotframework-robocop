@@ -1,0 +1,10 @@
+task-with-test.robot:2:1 [I] 0326 Use task-related setting 'Task Setup' if Tasks section is used.
+task-with-test.robot:3:1 [I] 0326 Use task-related setting 'Task Teardown' if Tasks section is used.
+task-with-test.robot:4:1 [I] 0326 Use task-related setting 'Task Template' if Tasks section is used.
+task-with-test.robot:5:1 [I] 0326 Use task-related setting 'Task Timeout' if Tasks section is used.
+task-with-test.robot:6:1 [I] 0326 Use task-related setting 'Task Tags' if Tasks section is used.
+test-with-task.robot:2:1 [I] 0326 Use test-related setting 'Test Setup' if Test Cases section is used.
+test-with-task.robot:3:1 [I] 0326 Use test-related setting 'Test Teardown' if Test Cases section is used.
+test-with-task.robot:4:1 [I] 0326 Use test-related setting 'Test Template' if Test Cases section is used.
+test-with-task.robot:5:1 [I] 0326 Use test-related setting 'Test Timeout' if Test Cases section is used.
+test-with-task.robot:6:1 [I] 0326 Use test-related setting 'Test Tags' if Test Cases section is used.

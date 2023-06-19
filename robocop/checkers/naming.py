@@ -423,12 +423,14 @@ rules = {
     ),
     "0326": Rule(
         rule_id="0326",
-        name="task-related-setting",
-        msg="Use task-related setting '{{ setting }}' if Tasks section is used.",
+        name="settings-consistency",
+        msg="Use {{ task_or_test }}-related setting '{{ setting }}' if {{ tasks_or_tests }} section is used.",
         severity=RuleSeverity.INFO,
         docs="""
         If ``*** Tasks ***`` section is present in the file, use task-related settings like ``Task Setup``,
-        ``Task Teardown``, ``Task Template``, ``Task Tags`` and ``Task Timeout`` instead of their `Test` variants. 
+        ``Task Teardown``, ``Task Template``, ``Task Tags`` and ``Task Timeout`` instead of their `Test` variants.
+
+        Similarly, use test-related settings when using ``*** Test Cases ***`` section.
         """,
     ),
 }
@@ -644,7 +646,7 @@ class SettingsNamingChecker(VisitorChecker):
         "empty-library-alias",
         "duplicated-library-alias",
         "invalid-section",
-        "task-related-setting",
+        "settings-consistency",
     )
     ALIAS_TOKENS = [Token.WITH_NAME] if ROBOT_VERSION.major < 5 else [Token.WITH_NAME, "AS"]
     # Separating alias values since RF 3 uses WITH_NAME instead of WITH NAME
@@ -684,9 +686,9 @@ class SettingsNamingChecker(VisitorChecker):
     def visit_File(self, node):  # noqa
         for section in node.sections:
             if isinstance(section, TestCaseSection):
-                if ROBOT_VERSION.major < 6 and "task" in section.header.name.lower():
-                    self.task_section = True
-                elif ROBOT_VERSION.major == 6 and section.header.type == Token.TASK_HEADER:
+                if (ROBOT_VERSION.major < 6 and "task" in section.header.name.lower()) or (
+                    ROBOT_VERSION.major >= 6 and section.header.type == Token.TASK_HEADER
+                ):
                     self.task_section = True
             else:
                 self.task_section = False
@@ -694,8 +696,7 @@ class SettingsNamingChecker(VisitorChecker):
 
     def visit_Setup(self, node):  # noqa
         self.check_setting_name(node.data_tokens[0].value, node)
-        if self.task_section:
-            self.check_task_related_settings(node.data_tokens[0].value, node)
+        self.check_settings_consistency(node.data_tokens[0].value, node)
 
     visit_SuiteSetup = (
         visit_TestSetup
@@ -752,9 +753,23 @@ class SettingsNamingChecker(VisitorChecker):
                 "setting-name-not-in-title-case", setting_name=name, node=node, col=col + 1, end_col=col + len(name) + 1
             )
 
-    def check_task_related_settings(self, name, node):
-        if "test" in name.lower():
-            self.report("task-related-setting", setting="Task " + name.split()[1], node=node)
+    def check_settings_consistency(self, name, node):
+        if "test" in name.lower() and self.task_section:
+            self.report(
+                "settings-consistency",
+                setting="Task " + name.split()[1],
+                task_or_test="task",
+                tasks_or_tests="Tasks",
+                node=node,
+            )
+        elif "task" in name.lower() and not self.task_section:
+            self.report(
+                "settings-consistency",
+                setting="Test " + name.split()[1],
+                task_or_test="test",
+                tasks_or_tests="Test Cases",
+                node=node,
+            )
 
 
 class TestCaseNamingChecker(VisitorChecker):

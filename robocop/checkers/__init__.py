@@ -75,9 +75,16 @@ class BaseChecker:
         severity=None,
         **kwargs,
     ):
-        if rule not in self.rules:
+        rule_def = self.rules.get(rule, None)
+        if rule_def is None:
             raise ValueError(f"Missing definition for message with name {rule}")
-        message = self.rules[rule].prepare_message(
+        rule_threshold = rule_def.config.get("severity_threshold", None)
+        if rule_threshold and rule_threshold.substitute_value and rule_threshold.thresholds:
+            threshold_trigger = rule_threshold.get_matching_threshold(sev_threshold_value)
+            if threshold_trigger is None:
+                return
+            kwargs[rule_threshold.substitute_value] = threshold_trigger
+        message = rule_def.prepare_message(
             source=self.source,
             node=node,
             lineno=lineno,

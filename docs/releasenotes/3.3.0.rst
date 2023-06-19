@@ -84,6 +84,25 @@ Our internal reports structure was refactored to make it easier to maintain and 
 each report is stored in a separate file in Robocop project. From the user's perspective, reports should work
 the same as before.
 
+Severity threshold print value (#791)
+-------------------------------------
+
+Rules with severity threshold should now print the message with the
+severity threshold value instead of default value::
+
+    test.robot:33:1 [W] 0505 Test case 'Test case 1' has too many keywords inside (24/10) (too-many-calls-in-test-case)
+    test.robot:62:1 [E] 0505 Test case 'Test case 2' has too many keywords inside (30/30) (too-many-calls-in-test-case)
+
+Not configured severity threshold should be ignored (#791)
+----------------------------------------------------------
+
+Previously, if the severity threshold was not configured the rule was reported for default value.
+Now not configured severity threshold are omitted::
+
+    robocop -c line-too-long:severity_threshold:error=150
+
+With above configuration, ``line-too-long`` will be reported only with error severity.
+
 Acknowledgements
 ================
 

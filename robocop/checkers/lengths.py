@@ -28,7 +28,7 @@ rules = {
     "0501": Rule(
         RuleParam(name="max_len", default=40, converter=int, desc="number of lines allowed in a keyword"),
         RuleParam(name="ignore_docs", default=False, converter=str2bool, show_type="bool", desc="Ignore documentation"),
-        SeverityThreshold("max_len", compare_method="greater"),
+        SeverityThreshold("max_len", compare_method="greater", substitute_value="allowed_length"),
         rule_id="0501",
         name="too-long-keyword",
         msg="Keyword '{{ keyword_name }}' is too long ({{ keyword_length }}/{{ allowed_length}})",
@@ -37,7 +37,7 @@ rules = {
     ),
     "0502": Rule(
         RuleParam(name="min_calls", default=1, converter=int, desc="number of keyword calls required in a keyword"),
-        SeverityThreshold("min_calls", compare_method="less"),
+        SeverityThreshold("min_calls", compare_method="less", substitute_value="min_allowed_count"),
         rule_id="0502",
         name="too-few-calls-in-keyword",
         msg="Keyword '{{ keyword_name }}' has too few keywords inside ({{ keyword_count }}/{{ min_allowed_count }})",
@@ -46,7 +46,7 @@ rules = {
     ),
     "0503": Rule(
         RuleParam(name="max_calls", default=10, converter=int, desc="number of keyword calls allowed in a keyword"),
-        SeverityThreshold("max_calls", compare_method="greater"),
+        SeverityThreshold("max_calls", compare_method="greater", substitute_value="max_allowed_count"),
         rule_id="0503",
         name="too-many-calls-in-keyword",
         msg="Keyword '{{ keyword_name }}' has too many keywords inside ({{ keyword_count }}/{{ max_allowed_count }})",
@@ -56,7 +56,7 @@ rules = {
     "0504": Rule(
         RuleParam(name="max_len", default=20, converter=int, desc="number of lines allowed in a test case"),
         RuleParam(name="ignore_docs", default=False, converter=str2bool, show_type="bool", desc="Ignore documentation"),
-        SeverityThreshold("max_len", compare_method="greater"),
+        SeverityThreshold("max_len", compare_method="greater", substitute_value="allowed_length"),
         rule_id="0504",
         name="too-long-test-case",
         msg="Test case '{{ test_name }}' is too long ({{ test_length }}/{{ allowed_length }})",
@@ -68,7 +68,7 @@ rules = {
         RuleParam(
             name="ignore_templated", default=False, converter=str2bool, show_type="bool", desc="Ignore templated tests"
         ),
-        SeverityThreshold("max_calls", compare_method="greater"),
+        SeverityThreshold("max_calls", compare_method="greater", substitute_value="max_allowed_count"),
         rule_id="0505",
         name="too-many-calls-in-test-case",
         msg="Test case '{{ test_name }}' has too many keywords inside ({{ keyword_count }}/{{ max_allowed_count }})",
@@ -78,7 +78,7 @@ rules = {
     ),
     "0506": Rule(
         RuleParam(name="max_lines", default=400, converter=int, desc="number of lines allowed in a file"),
-        SeverityThreshold("max_lines", compare_method="greater"),
+        SeverityThreshold("max_lines", compare_method="greater", substitute_value="max_allowed_count"),
         rule_id="0506",
         name="file-too-long",
         msg="File has too many lines ({{ lines_count }}/{{max_allowed_count }})",
@@ -87,7 +87,7 @@ rules = {
     ),
     "0507": Rule(
         RuleParam(name="max_args", default=5, converter=int, desc="number of lines allowed in a file"),
-        SeverityThreshold("max_args", compare_method="greater"),
+        SeverityThreshold("max_args", compare_method="greater", substitute_value="max_allowed_count"),
         rule_id="0507",
         name="too-many-arguments",
         msg="Keyword '{{ keyword_name }}' has too many arguments ({{ arguments_count }}/{{ max_allowed_count }})",
@@ -103,7 +103,7 @@ rules = {
             show_type="regex",
             desc="ignore lines that contain configured pattern",
         ),
-        SeverityThreshold("line_length"),
+        SeverityThreshold("line_length", substitute_value="allowed_length"),
         rule_id="0508",
         name="line-too-long",
         msg="Line is too long ({{ line_length }}/{{ allowed_length }})",
@@ -129,7 +129,7 @@ rules = {
         RuleParam(
             name="max_returns", default=4, converter=int, desc="allowed number of returned values from a keyword"
         ),
-        SeverityThreshold("max_returns", compare_method="greater"),
+        SeverityThreshold("max_returns", compare_method="greater", substitute_value="max_allowed_count"),
         rule_id="0510",
         name="number-of-returned-values",
         msg="Too many return values ({{ return_count }}/{{ max_allowed_count }})",
@@ -256,7 +256,7 @@ rules = {
             converter=int,
             desc="number of test cases allowed in a templated suite",
         ),
-        SeverityThreshold("max_testcases or max_templated_testcases"),
+        SeverityThreshold("max_testcases or max_templated_testcases", substitute_value="max_allowed_count"),
         rule_id="0527",
         name="too-many-test-cases",
         msg="Too many test cases ({{ test_count }}/{{ max_allowed_count }})",

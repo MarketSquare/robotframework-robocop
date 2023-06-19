@@ -130,7 +130,7 @@ rules = {
             converter=int,
             desc="number of empty lines allowed after section header",
         ),
-        SeverityThreshold("empty_lines"),
+        SeverityThreshold("empty_lines", substitute_value="allowed_empty_lines"),
         rule_id="1009",
         name="empty-line-after-section",
         msg="Too many empty lines after '{{ section_name }}' section header "
@@ -181,7 +181,7 @@ rules = {
             converter=int,
             desc="number of allowed consecutive empty lines",
         ),
-        SeverityThreshold("empty_lines", compare_method="greater"),
+        SeverityThreshold("empty_lines", compare_method="greater", substitute_value="allowed_empty_lines"),
         rule_id="1012",
         name="consecutive-empty-lines",
         msg="Too many consecutive empty lines ({{ empty_lines }}/{{ allowed_empty_lines }})",

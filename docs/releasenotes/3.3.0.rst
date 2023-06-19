@@ -40,11 +40,11 @@ settings in resource files.
 Other features
 ==============
 
-New ``enabled`` Rule parameter used to create disabled by default rules (#809)
+New ``enabled`` rule parameter used to create rules disabled by default (#809)
 ------------------------------------------------------------------------------
 
 Previously, all defined rules were enabled by default and could be disabled using ``--exclude`` option (or by
-using ``--include`` if not listed with the option). It is now possible to create rule disabled by default using
+using ``--include`` if not listed with the option). It is now possible to create a rule disabled by default using
 new parameter, ``enabled``::
 
     rules = {
@@ -60,7 +60,11 @@ new parameter, ``enabled``::
         )
     }
 
-Such rules can be enabled using ``--include`` option or by configuring ``enabled`` parameter directly::
+Such rules can be enabled when called explicitly with ``--include`` option::
+
+    robocop --include custom-rule .
+
+ or by configuring ``enabled`` parameter directly::
 
     robocop --ext-rules custom_rules.py -c custom-rule:enabled:True .
 

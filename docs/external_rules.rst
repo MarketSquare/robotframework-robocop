@@ -148,11 +148,11 @@ Dotted syntax is also supported::
 :code:`rules` dictionary should be available at the same level as checker that is using it. That's why if you are defining your
 external rules using modules and ``__init__.py`` it should be also imported (or defined directly in ``__init__.py``).
 
-Disabled by default rules
+Rules disabled by default
 -------------------------
 
-All rules are enabled by default and included after importing them. It is possible to define rule that is disabled
-by default by using ``enabled`` parameter::
+All rules are enabled by default and included after importing them. It is possible to define a rule that is disabled
+by using ``enabled`` parameter with ``False`` value::
 
     rules = {
         "1155": Rule(
@@ -167,7 +167,11 @@ by default by using ``enabled`` parameter::
         )
     }
 
-Such rules can be enabled with ``--include`` option or by configuring ``enabled`` parameter directly::
+Such rules can be enabled when called explicitly with ``--include`` option::
+
+    robocop --include custom-rule .
+
+ or by configuring ``enabled`` parameter directly::
 
     robocop --ext-rules custom_rules.py -c custom-rule:enabled:True .
 

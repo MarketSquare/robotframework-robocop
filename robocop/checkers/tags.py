@@ -29,18 +29,18 @@ rules = {
         " Hint: make sure to include this tag using lowercase name to avoid issues",
         severity=RuleSeverity.INFO,
         docs="""
-        OR and AND words are used to combine tags when selecting tests to be run in Robot Framework. Using following 
+        ``OR`` and ``AND`` words are used to combine tags when selecting tests to be run in Robot Framework. Using following 
         configuration::
         
             robot --include tagANDtag2
         
-        Robot Framework will only execute tests that contain `tag` and `tag2`. That's why it's best to avoid AND and OR 
+        Robot Framework will only execute tests that contain ``tag`` and ``tag2``. That's why it's best to avoid ``AND`` and ``OR``
         in tag names. See 
-        `docs <https://robotframework.org/robotframework/latest/RobotFrameworkUserGuide.html#tag-patterns>`_ 
+        `docs <https://robotframework.org/robotframework/latest/RobotFrameworkUserGuide.html#tag-patterns>`_
         for more information.
         
-        Tag matching is case-insensitive. If your tag contains OR or AND you can use lowercase to match it.
-        For example, if your tag is `PORT` you can match it with `port`.
+        Tag matching is case-insensitive. If your tag contains ``OR`` or ``AND`` you can use lowercase to match it.
+        For example, if your tag is ``PORT``, you can match it with ``port``.
         """,
     ),
     "0603": Rule(
@@ -49,11 +49,12 @@ rules = {
         msg="Tag '{{ tag }}' prefixed with reserved word `robot:`",
         severity=RuleSeverity.WARNING,
         docs="""
-        This prefix is used by Robot Framework special tags. More details 
+        ``robot:`` prefix is used by Robot Framework special tags. More details 
         `here <https://robotframework.org/robotframework/latest/RobotFrameworkUserGuide.html#reserved-tags>`_.
         Special tags currently in use:
         
             - robot:exit
+            - robot:flatten
             - robot:no-dry-run
             - robot:continue-on-failure 
             - robot:recursive-continue-on-failure
@@ -83,7 +84,7 @@ rules = {
                 [Tag]  featureX
                 Step
         
-        In this example all tests share one common tag `featureX`. It can be declared just once using ``Test Tags``
+        In this example all tests share one common tag ``featureX``. It can be declared just once using ``Test Tags``
         or ``Task Tags``.
         """,
     ),
@@ -125,7 +126,7 @@ rules = {
                 [Tags]  tag4
                 Step
         
-        Since `Test` and `Test 2` have `[Tags]` section, `Default Tags` setting is never used.
+        Since ``Test`` and ``Test 2`` have ``[Tags]`` section, ``Default Tags`` setting is never used.
         """,
     ),
     "0608": Rule(
@@ -134,7 +135,7 @@ rules = {
         msg="[Tags] setting without values{{ optional_warning }}",
         severity=RuleSeverity.WARNING,
         docs="""
-        If you want to use empty `[Tags]` (for example to overwrite `Default Tags`) then use `NONE` value 
+        If you want to use empty ``[Tags]`` (for example to overwrite ``Default Tags``) then use ``NONE`` value 
         to be explicit.
         """,
     ),
@@ -170,6 +171,7 @@ class TagNameChecker(VisitorChecker):
     is_keyword = False
     reserved_tags = {
         "robot:exit",
+        "robot:flatten",
         "robot:no-dry-run",
         "robot:continue-on-failure",
         "robot:recursive-continue-on-failure",

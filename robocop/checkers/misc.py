@@ -98,7 +98,7 @@ rules = {
         severity=RuleSeverity.INFO,
         version="==4.*",
         docs="""
-        Starting from Robot Framework 4.0 `Run Keyword If` and `Run Keyword Unless` can be replaced by IF block.
+        Starting from Robot Framework 4.0 ``Run Keyword If`` and ``Run Keyword Unless`` can be replaced by IF block.
         """,
     ),
     "0909": Rule(
@@ -134,8 +134,8 @@ rules = {
 
             robocop --configure inconsistent-assignment:assignment_sign_type:equal_sign
 
-        You can choose between following signs: 'autodetect' (default), 'none' (''), 'equal_sign' ('=') or
-        space_and_equal_sign (' =').
+        You can choose between following signs: 'autodetect' (default), 'none', 'equal_sign' (``=``) or
+        space_and_equal_sign (`` =``).
 
         """,
     ),
@@ -165,13 +165,13 @@ rules = {
             ${var4}     a
             ${var5}     b
 
-        By default Robocop looks for most popular assignment sign in the file. It is possible to define expected
+        By default, Robocop looks for the most popular assignment sign in the file. It is possible to define expected
         assignment sign by running::
 
             robocop --configure inconsistent-assignment-in-variables:assignment_sign_type:equal_sign
 
-        You can choose between following signs: 'autodetect' (default), 'none' (''), 'equal_sign' ('=') or
-        space_and_equal_sign (' =').
+        You can choose between following signs: 'autodetect' (default), 'none', 'equal_sign' (``=``) or
+        space_and_equal_sign (`` =``).
 
         """,
     ),
@@ -214,7 +214,7 @@ rules = {
         msg="No tests in '{{ file_name }}' file, consider renaming to '{{ file_name_stem }}.resource'",
         severity=RuleSeverity.INFO,
         docs="""
-        If the Robot file contains only keywords or variables it's a good practice to use `.resource` extension.
+        If the Robot file contains only keywords or variables, it's a good practice to use ``.resource`` extension.
         """,
     ),
     "0914": Rule(
@@ -224,7 +224,7 @@ rules = {
         severity=RuleSeverity.INFO,
         version=">=4.0",
         docs="""
-        IF statement follows another IF with identical conditions. It can be possibly merged into one.
+        ``IF`` statement follows another ``IF`` with identical conditions. It can be possibly merged into one.
 
         Example of rule violation::
 
@@ -236,9 +236,9 @@ rules = {
                 Keyword 2
             END
 
-        IF statement is considered identical only if all branches have identical conditions.
+        ``IF`` statement is considered identical only if all branches have identical conditions.
 
-        Similar but not identical IF::
+        Similar but not identical ``IF``::
 
             IF  ${variable}
                 Keyword
@@ -259,11 +259,11 @@ rules = {
         version=">=5.0",
         docs="""
         Following keywords and statements should only be used inside loop (``WHILE`` or ``FOR``):
-            - ``Exit For Loop``,
-            - ``Exit For Loop If``,
-            - ``Continue For Loop``,
+            - ``Exit For Loop``
+            - ``Exit For Loop If``
+            - ``Continue For Loop``
             - ``Continue For Loop If``
-            - ``CONTINUE``,
+            - ``CONTINUE``
             - ``BREAK``
 
         """,
@@ -282,9 +282,9 @@ rules = {
         severity=RuleSeverity.INFO,
         version=">=5.0",
         docs="""
-        Short and simple IFs can be replaced with inline IF.
+        Short and simple ``IF`` statements can be replaced with ``inline IF``.
 
-        Following IF::
+        Following ``IF``::
 
             IF    $condition
                 BREAK
@@ -303,7 +303,7 @@ rules = {
         severity=RuleSeverity.WARNING,
         version=">=5.0",
         docs="""
-        Detect the unreachable code after RETURN, BREAK or CONTINUE statements.
+        Detect the unreachable code after ``RETURN``, ``BREAK`` or ``CONTINUE`` statements.
 
         For example::
 
@@ -328,8 +328,8 @@ rules = {
         severity=RuleSeverity.WARNING,
         version=">=5.0",
         docs="""
-        It's allowed to create inline IF that spans multiple lines, but it should be avoided,
-        since it decreases readability. Try to use normal IF/ELSE instead.
+        It's allowed to create ``inline IF`` that spans multiple lines, but it should be avoided,
+        since it decreases readability. Try to use normal ``IF``/``ELSE`` instead.
 
         Bad::
 
@@ -340,7 +340,7 @@ rules = {
 
             IF  ${condition}    Log  hello     ELSE    Log  hi!
 
-        or::
+        or also good::
 
             IF  ${condition}
                 Log  hello
@@ -424,7 +424,7 @@ rules = {
                 ${value}    Keyword
                 ${value}    Keyword
 
-        In case the value of the variable is not important, it is possible to use `${_}` name::
+        In case the value of the variable is not important, it is possible to use ``${_}`` name::
         
             *** Test Cases ***
             Call keyword and ignore some return values

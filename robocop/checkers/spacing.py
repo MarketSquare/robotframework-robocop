@@ -136,7 +136,7 @@ rules = {
 
              Resource  file.resource
 
-        It can be configured using `empty_lines` parameter.
+        It can be configured using ``empty_lines`` parameter.
         """,
     ),
     "1010": Rule(
@@ -261,7 +261,7 @@ rules = {
         severity=RuleSeverity.ERROR,
         docs="""
         If the indentation is less than two spaces than current block parent element
-        (such as FOR/IF/WHILE/TRY header) the indentation is invalid and the rule reports an error::
+        (such as ``FOR``/``IF``/``WHILE``/``TRY`` header) the indentation is invalid and the rule reports an error::
 
             *** Keywords ***
             Some Keyword

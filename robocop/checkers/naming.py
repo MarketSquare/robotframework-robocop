@@ -423,9 +423,9 @@ rules = {
     ),
     "0326": Rule(
         rule_id="0326",
-        name="settings-consistency",
+        name="mixed-task-test-settings",
         msg="Use {{ task_or_test }}-related setting '{{ setting }}' if {{ tasks_or_tests }} section is used.",
-        severity=RuleSeverity.INFO,
+        severity=RuleSeverity.WARNING,
         docs="""
         If ``*** Tasks ***`` section is present in the file, use task-related settings like ``Task Setup``,
         ``Task Teardown``, ``Task Template``, ``Task Tags`` and ``Task Timeout`` instead of their `Test` variants.
@@ -646,7 +646,7 @@ class SettingsNamingChecker(VisitorChecker):
         "empty-library-alias",
         "duplicated-library-alias",
         "invalid-section",
-        "settings-consistency",
+        "mixed-task-test-settings",
     )
     ALIAS_TOKENS = [Token.WITH_NAME] if ROBOT_VERSION.major < 5 else [Token.WITH_NAME, "AS"]
     # Separating alias values since RF 3 uses WITH_NAME instead of WITH NAME
@@ -756,7 +756,7 @@ class SettingsNamingChecker(VisitorChecker):
     def check_settings_consistency(self, name, node):
         if "test" in name.lower() and self.task_section:
             self.report(
-                "settings-consistency",
+                "mixed-task-test-settings",
                 setting="Task " + name.split()[1],
                 task_or_test="task",
                 tasks_or_tests="Tasks",
@@ -764,7 +764,7 @@ class SettingsNamingChecker(VisitorChecker):
             )
         elif "task" in name.lower() and not self.task_section:
             self.report(
-                "settings-consistency",
+                "mixed-task-test-settings",
                 setting="Test " + name.split()[1],
                 task_or_test="test",
                 tasks_or_tests="Test Cases",

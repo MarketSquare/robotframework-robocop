@@ -44,7 +44,7 @@ If the file contains ``*** Task ***`` section, it is recommended to use settings
 ``Task Teardown``, ``Task Template``, ``Task Tags`` and ``Task Timeout`` instead of their `Test` variants.
 Similarly, use test-related settings when using ``*** Test Cases ***`` section.
 
-A new rule I0326 ``settings-consistency`` is introduced to cover these cases.
+A new rule W0326 ``mixed-task-test-settings`` is introduced to cover these cases.
 
 
 Acknowledgements

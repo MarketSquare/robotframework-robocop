@@ -62,6 +62,7 @@ rules = {
                 [Return]    ${variable}
 
         """,
+        added_in_version="1.0.0",
     ),
     "0903": Rule(
         rule_id="0903",
@@ -72,6 +73,7 @@ rules = {
         ``[Return]`` statement is used to define variables returned from keyword. If you don't return anything from
         keyword,  don't use ``[Return]``.
         """,
+        added_in_version="1.0.0",
     ),
     "0907": Rule(
         rule_id="0907",
@@ -89,6 +91,7 @@ rules = {
             END
 
         """,
+        added_in_version="1.0.0",
     ),
     "0908": Rule(
         rule_id="0908",
@@ -99,6 +102,7 @@ rules = {
         docs="""
         Starting from Robot Framework 4.0 ``Run Keyword If`` and ``Run Keyword Unless`` can be replaced by IF block.
         """,
+        added_in_version="1.4.0",
     ),
     "0909": Rule(
         RuleParam(
@@ -137,6 +141,7 @@ rules = {
         space_and_equal_sign (`` =``).
 
         """,
+        added_in_version="1.7.0",
     ),
     "0910": Rule(
         RuleParam(
@@ -173,6 +178,7 @@ rules = {
         space_and_equal_sign (`` =``).
 
         """,
+        added_in_version="1.7.0",
     ),
     "0911": Rule(
         rule_id="0911",
@@ -188,6 +194,7 @@ rules = {
             Library    OperatingSystem  # BuiltIn library defined after custom CustomLibrary
 
         """,
+        added_in_version="1.7.0",
     ),
     "0912": Rule(
         rule_id="0912",
@@ -206,6 +213,7 @@ rules = {
             ${EMPTY_WITH_BACKSLASH}  \        # used backslash
 
         """,
+        added_in_version="1.10.0",
     ),
     "0913": Rule(
         rule_id="0913",
@@ -215,6 +223,7 @@ rules = {
         docs="""
         If the Robot file contains only keywords or variables, it's a good practice to use ``.resource`` extension.
         """,
+        added_in_version="1.10.0",
     ),
     "0914": Rule(
         rule_id="0914",
@@ -249,6 +258,7 @@ rules = {
             END
 
         """,
+        added_in_version="2.0.0",
     ),
     "0915": Rule(
         rule_id="0915",
@@ -266,6 +276,7 @@ rules = {
             - ``BREAK``
 
         """,
+        added_in_version="2.0.0",
     ),
     "0916": Rule(
         RuleParam(
@@ -294,6 +305,7 @@ rules = {
             IF    $condition    BREAK
 
         """,
+        added_in_version="2.0.0",
     ),
     "0917": Rule(
         rule_id="0917",
@@ -319,6 +331,7 @@ rules = {
                 Log    Unreachable log
 
         """,
+        added_in_version="3.1.0",
     ),
     "0918": Rule(
         rule_id="0918",
@@ -347,6 +360,7 @@ rules = {
                 Log  hi!
             END
         """,
+        added_in_version="3.1.0",
     ),
     "0919": Rule(
         rule_id="0919",
@@ -368,6 +382,7 @@ rules = {
                 Log    ${embedded}
 
         """,
+        added_in_version="3.2.0",
     ),
     "0920": Rule(
         rule_id="0920",
@@ -394,6 +409,7 @@ rules = {
                 END
 
     """,
+        added_in_version="3.2.0",
     ),
     "0921": Rule(
         rule_id="0921",
@@ -409,6 +425,7 @@ rules = {
                 ${overwritten}    Set Variable    value  # we only overwrite it
 
         """,
+        added_in_version="3.2.0",
     ),
     "0922": Rule(
         rule_id="0922",
@@ -433,6 +450,7 @@ rules = {
                 END
 
         """,
+        added_in_version="3.2.0",
     ),
 }
 

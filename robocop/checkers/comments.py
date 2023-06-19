@@ -46,6 +46,7 @@ rules = {
             robocop --configure "todo-in-comment:markers:todo,Remove me,Fix this!"
 
         """,
+        added_in_version="1.0.0",
     ),
     "0702": Rule(
         RuleParam(
@@ -83,6 +84,7 @@ rules = {
                 #* Headers *#
 
         """,
+        added_in_version="1.0.0",
     ),
     "0703": Rule(
         rule_id="0703",
@@ -102,6 +104,7 @@ rules = {
               # third cell so it's good
 
         """,
+        added_in_version="1.0.0",
     ),
     "0704": Rule(
         rule_id="0704",
@@ -130,6 +133,7 @@ rules = {
             *** Test Cases ***
 
         """,
+        added_in_version="1.3.0",
     ),
     "0705": Rule(
         rule_id="0705",
@@ -139,6 +143,7 @@ rules = {
         docs="""
         Some code editors can save Robot file using BOM encoding. Ensure that file is saved in UTF-8 encoding.
         """,
+        added_in_version="1.7.0",
     ),
 }
 

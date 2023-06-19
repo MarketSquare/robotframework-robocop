@@ -50,6 +50,7 @@ rules = {
         ``regex_pattern`` should define regex pattern not allowed in names. For example ``[@\[]`` pattern
         reports any occurrence of ``@[`` characters.
         """,
+        added_in_version="1.0.0",
     ),
     "0302": Rule(
         RuleParam(
@@ -69,6 +70,7 @@ rules = {
         name="wrong-case-in-keyword-name",
         msg="Keyword name '{{ keyword_name }}' does not follow case convention",
         severity=RuleSeverity.WARNING,
+        added_in_version="1.0.0",
     ),
     "0303": Rule(
         rule_id="0303",
@@ -90,6 +92,7 @@ rules = {
           - EXCEPT
 
         """,
+        added_in_version="1.0.0",
     ),
     "0305": Rule(
         rule_id="0305",
@@ -106,6 +109,7 @@ rules = {
             Keyword Without Underscores
 
         """,
+        added_in_version="1.0.0",
     ),
     "0306": Rule(
         rule_id="0306",
@@ -134,6 +138,7 @@ rules = {
                  Step
 
         """,
+        added_in_version="1.0.0",
     ),
     "0307": Rule(
         rule_id="0307",
@@ -151,18 +156,21 @@ rules = {
             *** keywords ***
 
         """,
+        added_in_version="1.0.0",
     ),
     "0308": Rule(
         rule_id="0308",
         name="not-capitalized-test-case-title",
         msg="Test case '{{ test_name }}' title should start with capital letter",
         severity=RuleSeverity.WARNING,
+        added_in_version="1.4.0",
     ),
     "0309": Rule(
         rule_id="0309",
         name="section-variable-not-uppercase",
         msg="Section variable '{{ variable_name }}' name should be uppercase",
         severity=RuleSeverity.WARNING,
+        added_in_version="1.4.0",
     ),
     "0310": Rule(
         rule_id="0310",
@@ -185,24 +193,28 @@ rules = {
             Set Global Variable  ${my_var${NESTED}}  1
 
         """,
+        added_in_version="1.4.0",
     ),
     "0311": Rule(
         rule_id="0311",
         name="else-not-upper-case",
         msg="ELSE and ELSE IF should be upper case",
         severity=RuleSeverity.ERROR,
+        added_in_version="1.5.0",
     ),
     "0312": Rule(
         rule_id="0312",
         name="keyword-name-is-empty",
         msg="Keyword name should not be empty",
         severity=RuleSeverity.ERROR,
+        added_in_version="1.8.0",
     ),
     "0313": Rule(
         rule_id="0313",
         name="test-case-name-is-empty",
         msg="Test case name should not be empty",
         severity=RuleSeverity.ERROR,
+        added_in_version="1.8.0",
     ),
     "0314": Rule(
         rule_id="0314",
@@ -223,6 +235,7 @@ rules = {
              Library  CustomLibrary  AS
 
         """,
+        added_in_version="1.10.0",
     ),
     "0315": Rule(
         rule_id="0315",
@@ -237,6 +250,7 @@ rules = {
              Library  CustomLibrary  AS  Custom Library  # same as library name (spaces are ignored)
 
         """,
+        added_in_version="1.10.0",
     ),
     "0316": Rule(
         rule_id="0316",
@@ -257,6 +271,7 @@ rules = {
         Remember that variable names in Robot Framework are case-insensitive and
         underscores and whitespaces are ignored.
         """,
+        added_in_version="1.10.0",
     ),
     "0317": Rule(
         rule_id="0317",
@@ -274,6 +289,7 @@ rules = {
 
         ${var2}  Set Variable  ${ ${var}_${var2}}
         """,
+        added_in_version="1.10.0",
     ),
     "0318": Rule(
         rule_id="0318",
@@ -298,6 +314,7 @@ rules = {
 
         Since those words are used for BDD style it's also recommended not to use them within the keyword name.
         """,
+        added_in_version="1.11.0",
     ),
     "0319": Rule(
         rule_id="0319",
@@ -305,6 +322,7 @@ rules = {
         msg="'{{ statement_name }}' is deprecated since Robot Framework version "
         "{{ version }}, use '{{ alternative }}' instead",
         severity=RuleSeverity.WARNING,
+        added_in_version="2.0.0",
     ),
     "0320": Rule(
         RuleParam(
@@ -327,6 +345,7 @@ rules = {
         ``regex_pattern`` should define regex pattern for characters not allowed in names. For example `[@\[]` pattern
         reports any occurrence of ``@[`` characters.
         """,
+        added_in_version="2.1.0",
     ),
     "0321": Rule(
         rule_id="0321",
@@ -352,6 +371,7 @@ rules = {
             Library    Collections    AS    AliasedName
 
         """,
+        added_in_version="2.5.0",
     ),
     "0322": Rule(
         rule_id="0322",
@@ -364,6 +384,7 @@ rules = {
         Robot Framework 6.0 starts deprecation period for singular headers forms. The rationale behind this change
         is available at https://github.com/robotframework/robotframework/issues/4431 .
         """,
+        added_in_version="2.6.0",
     ),
     "0323": Rule(
         rule_id="0323",
@@ -387,6 +408,7 @@ rules = {
                 Log    ${variable}  # consistent name
 
         """,
+        added_in_version="3.2.0",
     ),
     "0324": Rule(
         rule_id="0324",
@@ -399,6 +421,7 @@ rules = {
         See full list of reserved variables at
         `Robot Framework User Guide <https://robotframework.org/robotframework/latest/RobotFrameworkUserGuide.html#automatic-variables>`_
         """,
+        added_in_version="3.2.0",
     ),
     "0325": Rule(
         rule_id="0325",
@@ -419,6 +442,7 @@ rules = {
                 Step
 
         """,
+        added_in_version="3.2.0",
     ),
     "0326": Rule(
         rule_id="0326",

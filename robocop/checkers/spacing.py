@@ -27,12 +27,14 @@ rules = {
         name="trailing-whitespace",
         msg="Trailing whitespace at the end of line",
         severity=RuleSeverity.WARNING,
+        added_in_version="1.0.0",
     ),
     "1002": Rule(
         rule_id="1002",
         name="missing-trailing-blank-line",
         msg="Missing trailing blank line at the end of file",
         severity=RuleSeverity.WARNING,
+        added_in_version="1.0.0",
     ),
     "1003": Rule(
         RuleParam(
@@ -45,6 +47,7 @@ rules = {
         name="empty-lines-between-sections",
         msg="Invalid number of empty lines between sections ({{ empty_lines }}/{{ allowed_empty_lines }})",
         severity=RuleSeverity.WARNING,
+        added_in_version="1.0.0",
     ),
     "1004": Rule(
         RuleParam(
@@ -57,6 +60,7 @@ rules = {
         name="empty-lines-between-test-cases",
         msg="Invalid number of empty lines between test cases ({{ empty_lines }}/{{ allowed_empty_lines }})",
         severity=RuleSeverity.WARNING,
+        added_in_version="1.0.0",
     ),
     "1005": Rule(
         RuleParam(
@@ -69,12 +73,14 @@ rules = {
         name="empty-lines-between-keywords",
         msg="Invalid number of empty lines between keywords ({{ empty_lines }}/{{ allowed_empty_lines }})",
         severity=RuleSeverity.WARNING,
+        added_in_version="1.0.0",
     ),
     "1006": Rule(
         rule_id="1006",
         name="mixed-tabs-and-spaces",
         msg="Inconsistent use of tabs and spaces in file",
         severity=RuleSeverity.WARNING,
+        added_in_version="1.1.0",
     ),
     "1008": Rule(
         RuleParam(  # TODO: unused, remove in the next release
@@ -115,6 +121,7 @@ rules = {
         it allows for more flexible indentation by specifying the ``indent`` parameter for checking if the
         indentation is the multiple of ``indent`` spaces (default -1, which makes this parameter being ignored).
         """,
+        added_in_version="3.0.0",
     ),
     "1009": Rule(
         RuleParam(
@@ -138,6 +145,7 @@ rules = {
 
         It can be configured using ``empty_lines`` parameter.
         """,
+        added_in_version="1.2.0",
     ),
     "1010": Rule(
         rule_id="1010",
@@ -145,6 +153,7 @@ rules = {
         msg="Too many blank lines at the end of file",
         severity=RuleSeverity.WARNING,
         docs="""There should be exactly one blank line at the end of the file""",
+        added_in_version="1.4.0",
     ),
     "1011": Rule(
         rule_id="1011",
@@ -163,6 +172,7 @@ rules = {
                   ...    fourth argument    fifth argument    sixth argument
 
         """,
+        added_in_version="1.6.0",
     ),
     "1012": Rule(
         RuleParam(
@@ -186,6 +196,7 @@ rules = {
                 Step 2
 
         """,
+        added_in_version="1.8.0",
     ),
     "1013": Rule(
         rule_id="1013",
@@ -201,6 +212,7 @@ rules = {
              ...  2
 
         """,
+        added_in_version="1.8.0",
     ),
     "1014": Rule(
         rule_id="1014",
@@ -216,6 +228,7 @@ rules = {
               ${VAR2}  2
 
         """,
+        added_in_version="1.8.0",
     ),
     "1015": Rule(
         RuleParam(name="ignore_docs", default=True, converter=str2bool, show_type="bool", desc="Ignore documentation"),
@@ -237,6 +250,7 @@ rules = {
                 ...    arg1
                 ...   arg2  # misaligned
         """,
+        added_in_version="1.11.0",
     ),
     "1016": Rule(
         rule_id="1016",
@@ -253,6 +267,7 @@ rules = {
                 Variables  vars.robot
 
         """,
+        added_in_version="2.4.0",
     ),
     "1017": Rule(
         rule_id="1017",
@@ -271,6 +286,7 @@ rules = {
             # bad comment
                 END
         """,
+        added_in_version="3.0.0",
     ),
 }
 

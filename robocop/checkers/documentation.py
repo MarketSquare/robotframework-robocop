@@ -25,6 +25,7 @@ rules = {
                 Other Step
 
         """,
+        added_in_version="1.0.0",
     ),
     "0202": Rule(
         RuleParam(
@@ -52,6 +53,7 @@ rules = {
 
         Possible values are: ``Yes`` / ``1`` / ``True`` (default) or ``No`` / ``False`` / ``0``.
         """,
+        added_in_version="1.0.0",
     ),
     "0203": Rule(
         rule_id="0203",
@@ -65,6 +67,7 @@ rules = {
             Documentation    Suite documentation
 
         """,
+        added_in_version="1.0.0",
     ),
     "0204": Rule(
         rule_id="0204",
@@ -78,6 +81,7 @@ rules = {
             Documentation    Resource file documentation
 
         """,
+        added_in_version="2.8.0",
     ),
 }
 

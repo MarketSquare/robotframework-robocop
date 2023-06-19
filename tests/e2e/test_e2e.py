@@ -348,7 +348,7 @@ class TestTranslatedRobot:
         robocop_instance.run()
         return self.assert_issue_was_not_found(robocop_instance, "Invalid section")
 
-    @pytest.mark.xfail(reason="It will pass if all rules have added_in_version parameter added")
     def test_all_rules_have_added_in_version_info(self, robocop_instance):
         robocop_instance.reload_config()
-        assert all(rule.added_in_version for rule in robocop_instance.rules.values())
+        without_version = {rule.name for rule in robocop_instance.rules.values() if not rule.added_in_version}
+        assert without_version == set()

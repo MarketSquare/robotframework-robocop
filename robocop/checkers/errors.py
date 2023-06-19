@@ -20,6 +20,7 @@ rules = {
         name="parsing-error",
         msg="Robot Framework syntax error: {{ error_msg }}",
         severity=RuleSeverity.ERROR,
+        added_in_version="1.0.0",
     ),
     "0402": Rule(
         rule_id="0402",
@@ -41,6 +42,7 @@ rules = {
                 Should Be True  ${var}
             
         """,
+        added_in_version="1.0.0",
     ),
     "0403": Rule(
         rule_id="0403",
@@ -56,6 +58,7 @@ rules = {
                 ${one}      ${two}
 
         """,
+        added_in_version="1.8.0",
     ),
     "0404": Rule(
         rule_id="0404",
@@ -71,6 +74,7 @@ rules = {
             Variables    module           arg3  # valid from RF > 5
         
         """,
+        added_in_version="1.11.0",
     ),
     "0405": Rule(
         rule_id="0405",
@@ -86,6 +90,7 @@ rules = {
             ....  2  # .... instead of ...
 
         """,
+        added_in_version="1.11.0",
     ),
     # there is not-enough-whitespace-after-newline-marker for keyword calls already
     "0406": Rule(
@@ -101,6 +106,7 @@ rules = {
             ...  3
 
         """,
+        added_in_version="1.11.0",
     ),
     "0407": Rule(
         rule_id="0407",
@@ -123,6 +129,7 @@ rules = {
                 [Arguments]    {var}    @args}    var=default
         
         """,
+        added_in_version="1.11.0",
     ),
     "0408": Rule(
         rule_id="0408",
@@ -139,6 +146,7 @@ rules = {
                [Arguments]  ${arg}
     
         """,
+        added_in_version="1.11.0",
     ),
     "0409": Rule(
         rule_id="0409",
@@ -166,6 +174,7 @@ rules = {
             [Timeout]	     Used for specifying a user keyword timeout.
         
         """,
+        added_in_version="1.11.0",
     ),
     "0410": Rule(
         rule_id="0410",
@@ -180,6 +189,7 @@ rules = {
             ${other_var}  2
         
         """,
+        added_in_version="1.11.0",
     ),
     "0411": Rule(
         rule_id="0411",
@@ -196,6 +206,7 @@ rules = {
             Suite Setup Keyword  # not enough whitespace
         
         """,
+        added_in_version="1.11.0",
     ),
     "0412": Rule(
         rule_id="0412",
@@ -203,6 +214,7 @@ rules = {
         msg="Invalid for loop syntax: {{ error_msg }}",
         severity=RuleSeverity.ERROR,
         version=">=4.0",
+        added_in_version="1.11.0",
     ),
     "0413": Rule(
         rule_id="0413",
@@ -210,6 +222,7 @@ rules = {
         msg="Invalid IF syntax: {{ error_msg }}",
         severity=RuleSeverity.ERROR,
         version=">=4.0",
+        added_in_version="1.11.0",
     ),
     "0414": Rule(
         rule_id="0414",
@@ -217,6 +230,7 @@ rules = {
         msg="RETURN can only be used inside a user keyword",
         severity=RuleSeverity.ERROR,
         version=">=5.0",
+        added_in_version="2.0.0",
     ),
     "0415": Rule(
         rule_id="0415",
@@ -227,6 +241,7 @@ rules = {
         but they can't contain Test Cases or Tasks sections.
         """,
         severity=RuleSeverity.ERROR,
+        added_in_version="3.1.0",
     ),
     "0416": Rule(
         rule_id="0416",

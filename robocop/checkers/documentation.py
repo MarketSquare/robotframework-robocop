@@ -50,7 +50,7 @@ rules = {
 
             robocop --configure missing-doc-test-case:ignore_templated:False
 
-        Possible values are: Yes / 1 / True (default) or No / False / 0.
+        Possible values are: ``Yes`` / ``1`` / ``True`` (default) or ``No`` / ``False`` / ``0``.
         """,
     ),
     "0203": Rule(

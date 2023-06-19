@@ -217,7 +217,8 @@ rules = {
         name="too-few-calls-in-test-case",
         msg="Test case '{{ test_name }}' has too few keywords inside ({{ keyword_count }}/{{ min_allowed_count }})",
         docs="""
-        Test without keywords will fail. Add more keywords or set results using Fail, Pass, Skip keywords::
+        Test without keywords will fail. Add more keywords or set results using ``Fail``, ``Pass Execution`` or
+        ``Skip`` keywords::
 
             *** Test Cases ***
             Test case

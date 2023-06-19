@@ -41,13 +41,13 @@ rules = {
         msg="Not allowed character '{{ character }}' found in {{ block_name }} name",
         severity=RuleSeverity.WARNING,
         docs="""
-        Reports not allowed pattern found in Test Case or Keyword names. By default it's dot (`.`). You can
+        Reports not allowed pattern found in Test Case or Keyword names. By default it's dot (``.``). You can
         configure what patterns are reported by calling::
 
              robocop --configure not-allowed-char-in-name:pattern:regex_pattern
 
-        `regex_pattern` should define regex pattern not allowed in names. For example `[@\[]` pattern
-        reports any occurrence of `@[` characters.
+        ``regex_pattern`` should define regex pattern not allowed in names. For example ``[@\[]`` pattern
+        reports any occurrence of ``@[`` characters.
         """,
     ),
     "0302": Rule(
@@ -232,7 +232,7 @@ rules = {
         Example of rule violation::
 
              *** Settings ***
-             Library  CustomLibrary  AS  CustomLibrary  # same as library name
+             Library  CustomLibrary  AS  CustomLibrary   # same as library name
              Library  CustomLibrary  AS  Custom Library  # same as library name (spaces are ignored)
 
         """,
@@ -323,8 +323,8 @@ rules = {
 
              robocop --configure not-allowed-char-in-filename:pattern:regex_pattern
 
-        `regex_pattern` should define regex pattern for characters not allowed in names. For example `[@\[]` pattern
-        reports any occurrence of `@[` characters.
+        ``regex_pattern`` should define regex pattern for characters not allowed in names. For example `[@\[]` pattern
+        reports any occurrence of ``@[`` characters.
         """,
     ),
     "0321": Rule(
@@ -406,19 +406,18 @@ rules = {
         severity=RuleSeverity.ERROR,
         version=">=6.1",
         docs="""
-            Robot Framework 6.1 detects unrecognized sections based on the language defined for the specific files.
-            Consider using --language parameter if the file is defined with different language.
+        Robot Framework 6.1 detects unrecognized sections based on the language defined for the specific files.
+        Consider using ``--language`` parameter if the file is defined with different language.
+        
+        It is also possible to configure language in the file::
             
-            It is also possible to configure language in the file:
-            
-            ```
             language: pl
             
             *** Przypadki Testowe ***
             Test case
                 Step
-            ```
-            """,
+
+        """,
     ),
 }
 

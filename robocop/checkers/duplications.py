@@ -164,8 +164,8 @@ rules = {
         msg="'{{ section_name }}' section header is defined in wrong order: {{ recommended_order }}",
         severity=RuleSeverity.WARNING,
         docs="""
-        Sections should be defined in order set by `sections_order` 
-        parameter (default: `settings,variables,testcases,keywords`).
+        Sections should be defined in order set by ``sections_order``
+        parameter (default: ``settings,variables,testcases,keywords``).
         
         To change the default order use following option::
         
@@ -190,7 +190,7 @@ rules = {
         msg="Both Task(s) and Test Case(s) section headers defined in file",
         severity=RuleSeverity.ERROR,
         docs="""
-        The file contains both Test Case and Task sections. Use only one of them. ::
+        The file contains both ``*** Test Cases ***`` and ``*** Tasks ***`` sections. Use only one of them. ::
         
             *** Test Cases ***
             

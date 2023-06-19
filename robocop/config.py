@@ -289,8 +289,9 @@ class Config:
             help="Generate reports after scan.\n"
             "You can enable reports by listing them in comma-separated list:\n"
             "--reports rules_by_id,rules_by_error_type,scan_timer\n"
-            "To enable all reports use all:\n"
-            "--reports all",
+            "To enable all default reports use all:\n"
+            "--reports all\n"
+            "List available reports with --list-reports option.",
         )
         optional.add_argument(
             "-f",

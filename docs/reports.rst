@@ -19,4 +19,6 @@ Reports
 
 .. autoclass:: robocop.reports.timestamp_report.TimestampReport
 
+.. autoclass:: robocop.reports.json_report.JsonReport
+
 .. autoclass:: robocop.reports.sarif_report.SarifReport

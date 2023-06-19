@@ -70,6 +70,7 @@ class TestE2E:
         exp_msg = (
             "Available reports:\n"
             "file_stats           - Prints overall statistics about number of processed files (disabled)\n"
+            "json_report          - Accumulates found issues in JSON format (disabled - non-default)\n"
             "rules_by_error_type  - Prints total number of issues grouped by severity (disabled)\n"
             "rules_by_id          - Groups detected issues by rule id and prints it ordered by most common (disabled)\n"
             "sarif                - Generate SARIF output file (disabled - non-default)\n"
@@ -115,6 +116,7 @@ class TestE2E:
             exp_msg = (
                 "Available reports:\n"
                 "file_stats           - Prints overall statistics about number of processed files (disabled)\n"
+                "json_report          - Accumulates found issues in JSON format (disabled - non-default)\n"
                 "rules_by_error_type  - Prints total number of issues grouped by severity (disabled)\n"
                 "rules_by_id          - Groups detected issues by rule id and prints it ordered by most common "
                 "(disabled)\n"
@@ -133,6 +135,7 @@ class TestE2E:
             exp_msg = (
                 "Available reports:\n"
                 "file_stats           - Prints overall statistics about number of processed files (disabled)\n"
+                "json_report          - Accumulates found issues in JSON format (disabled - non-default)\n"
                 "rules_by_error_type  - Prints total number of issues grouped by severity (disabled)\n"
                 "rules_by_id          - Groups detected issues by rule id and prints it ordered by most common "
                 "(disabled)\n"
@@ -288,7 +291,7 @@ class TestE2E:
         config.paths = [str(test_file)]
         robocop_instance = Robocop(config=config)
         robocop_instance.run()
-        assert not robocop_instance.reports["json_report"].issues
+        assert not robocop_instance.reports["internal_json_report"].issues
 
     @pytest.mark.skipif(ROBOT_VERSION > Version("4.0"), reason="Error occurs only in RF < 5")
     def test_handling_error_in_robot_module(self):
@@ -304,11 +307,15 @@ class TestE2E:
 class TestTranslatedRobot:
     @staticmethod
     def assert_issue_was_found(robocop_instance, issue_desc):
-        assert any(issue_desc in issue["description"] for issue in robocop_instance.reports["json_report"].issues)
+        assert any(
+            issue_desc in issue["description"] for issue in robocop_instance.reports["internal_json_report"].issues
+        )
 
     @staticmethod
     def assert_issue_was_not_found(robocop_instance, issue_desc):
-        assert all(issue_desc not in issue["description"] for issue in robocop_instance.reports["json_report"].issues)
+        assert all(
+            issue_desc not in issue["description"] for issue in robocop_instance.reports["internal_json_report"].issues
+        )
 
     def test_translated_default_lang(self):
         config = Config()

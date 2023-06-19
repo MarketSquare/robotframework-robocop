@@ -109,8 +109,8 @@ rules = {
         severity=RuleSeverity.ERROR,
         version=">=4.0",
         docs="""
-        Argument names should follow variable naming syntax: start with identifier (`$`, `@` or `&`) and enclosed in 
-        curly brackets (`{}`).
+        Argument names should follow variable naming syntax: start with identifier (``$``, ``@`` or ``&``) and enclosed in 
+        curly brackets (``{}``).
         
         Valid names::
         
@@ -132,7 +132,7 @@ rules = {
         docs="""
         Non-existing setting can't be used in the code.
         
-        Rule violation example::
+        Example of rule violation::
         
            *** Test Case ***
                [Not Existing]  arg
@@ -233,8 +233,8 @@ rules = {
         name="invalid-setting-in-resource",
         msg="Settings section in resource file can't contain '{{ section_name }}' setting",
         docs="""
-        The Setting section in resource files can contain only import settings (Library,
-        Resource, Variables), Documentation and Keyword Tags.
+        The Setting section in resource files can contain only import settings (``Library``,
+        ``Resource``, ``Variables``), ``Documentation`` and ``Keyword Tags``.
         """,
         severity=RuleSeverity.ERROR,
     ),

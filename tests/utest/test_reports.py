@@ -1,6 +1,5 @@
 import json
 import re
-from collections import OrderedDict
 from pathlib import Path
 
 import pytest
@@ -8,7 +7,12 @@ import pytest
 import robocop.exceptions
 from robocop.config import Config
 from robocop.exceptions import ConfigGeneralError
-from robocop.reports import FileStatsReport, JsonReport, RobocopVersionReport, SarifReport, TimestampReport, get_reports
+from robocop.reports import get_reports
+from robocop.reports.file_stats_report import FileStatsReport
+from robocop.reports.json_report import JsonReport
+from robocop.reports.robocop_version_report import RobocopVersionReport
+from robocop.reports.sarif_report import SarifReport
+from robocop.reports.timestamp_report import TimestampReport
 from robocop.rules import Message, Rule, RuleParam, RuleSeverity
 from robocop.version import __version__
 

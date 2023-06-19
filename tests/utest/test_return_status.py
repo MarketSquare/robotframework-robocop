@@ -1,6 +1,6 @@
 import pytest
 
-from robocop.reports import ReturnStatusReport
+from robocop.reports.return_status_report import ReturnStatusReport
 from robocop.rules import Rule, RuleParam, RuleSeverity
 
 

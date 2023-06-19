@@ -28,14 +28,23 @@ Rule changes
 New rule for detecting not supported settings in resource files (#827)
 ----------------------------------------------------------------------
 
-According to the official RF User Guide:
+According to the official RF User Guide::
 
-"Setting section in resource files can contain only import settings (Library, Resource, Variables)
-and Documentation. The Variable section and Keyword section are used exactly the same way
-as in test case files.
+    "Setting section in resource files can contain only import settings (Library, Resource, Variables)
+    and Documentation. The Variable section and Keyword section are used exactly the same way
+    as in test case files."
 
 New E0416 ``invalid-setting-in-resource`` rule detects unsupported
 settings in resource files.
+
+New rule that suggests using task- or test-related settings for corresponding sections (#522)
+---------------------------------------------------------------------------------------------
+
+If the file contains ``*** Task ***`` section, it is recommended to use settings like ``Task Setup``,
+``Task Teardown``, ``Task Template``, ``Task Tags`` and ``Task Timeout`` instead of their `Test` variants.
+Similarly, use test-related settings when using ``*** Test Cases ***`` section.
+
+A new rule W0326 ``mixed-task-test-settings`` is introduced to cover these cases.
 
 Other features
 ==============

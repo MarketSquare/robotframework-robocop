@@ -8,6 +8,7 @@ from pathlib import Path
 
 from robot.api import Token
 from robot.errors import VariableError
+from robot.parsing.model.blocks import TestCaseSection
 from robot.parsing.model.statements import Arguments
 from robot.variables import VariableIterator
 from robot.variables.search import search_variable
@@ -41,13 +42,13 @@ rules = {
         msg="Not allowed character '{{ character }}' found in {{ block_name }} name",
         severity=RuleSeverity.WARNING,
         docs="""
-        Reports not allowed pattern found in Test Case or Keyword names. By default it's dot (`.`). You can
+        Reports not allowed pattern found in Test Case or Keyword names. By default it's dot (``.``). You can
         configure what patterns are reported by calling::
 
              robocop --configure not-allowed-char-in-name:pattern:regex_pattern
 
-        `regex_pattern` should define regex pattern not allowed in names. For example `[@\[]` pattern
-        reports any occurrence of `@[` characters.
+        ``regex_pattern`` should define regex pattern not allowed in names. For example ``[@\[]`` pattern
+        reports any occurrence of ``@[`` characters.
         """,
     ),
     "0302": Rule(
@@ -232,7 +233,7 @@ rules = {
         Example of rule violation::
 
              *** Settings ***
-             Library  CustomLibrary  AS  CustomLibrary  # same as library name
+             Library  CustomLibrary  AS  CustomLibrary   # same as library name
              Library  CustomLibrary  AS  Custom Library  # same as library name (spaces are ignored)
 
         """,
@@ -323,8 +324,8 @@ rules = {
 
              robocop --configure not-allowed-char-in-filename:pattern:regex_pattern
 
-        `regex_pattern` should define regex pattern for characters not allowed in names. For example `[@\[]` pattern
-        reports any occurrence of `@[` characters.
+        ``regex_pattern`` should define regex pattern for characters not allowed in names. For example `[@\[]` pattern
+        reports any occurrence of ``@[`` characters.
         """,
     ),
     "0321": Rule(
@@ -406,19 +407,30 @@ rules = {
         severity=RuleSeverity.ERROR,
         version=">=6.1",
         docs="""
-            Robot Framework 6.1 detects unrecognized sections based on the language defined for the specific files.
-            Consider using --language parameter if the file is defined with different language.
+        Robot Framework 6.1 detects unrecognized sections based on the language defined for the specific files.
+        Consider using ``--language`` parameter if the file is defined with different language.
+        
+        It is also possible to configure language in the file::
             
-            It is also possible to configure language in the file:
-            
-            ```
             language: pl
             
             *** Przypadki Testowe ***
             Test case
                 Step
-            ```
-            """,
+
+        """,
+    ),
+    "0326": Rule(
+        rule_id="0326",
+        name="mixed-task-test-settings",
+        msg="Use {{ task_or_test }}-related setting '{{ setting }}' if {{ tasks_or_tests }} section is used.",
+        severity=RuleSeverity.WARNING,
+        docs="""
+        If ``*** Tasks ***`` section is present in the file, use task-related settings like ``Task Setup``,
+        ``Task Teardown``, ``Task Template``, ``Task Tags`` and ``Task Timeout`` instead of their `Test` variants.
+
+        Similarly, use test-related settings when using ``*** Test Cases ***`` section.
+        """,
     ),
 }
 
@@ -633,6 +645,7 @@ class SettingsNamingChecker(VisitorChecker):
         "empty-library-alias",
         "duplicated-library-alias",
         "invalid-section",
+        "mixed-task-test-settings",
     )
     ALIAS_TOKENS = [Token.WITH_NAME] if ROBOT_VERSION.major < 5 else [Token.WITH_NAME, "AS"]
     # Separating alias values since RF 3 uses WITH_NAME instead of WITH NAME
@@ -640,6 +653,7 @@ class SettingsNamingChecker(VisitorChecker):
 
     def __init__(self):
         self.section_name_pattern = re.compile(r"\*\*\*\s.+\s\*\*\*")
+        self.task_section = False
         super().__init__()
 
     def visit_InvalidSection(self, node):  # noqa
@@ -668,8 +682,20 @@ class SettingsNamingChecker(VisitorChecker):
                 end_col=node.col_offset + len(name) + 1,
             )
 
+    def visit_File(self, node):  # noqa
+        for section in node.sections:
+            if isinstance(section, TestCaseSection):
+                if (ROBOT_VERSION.major < 6 and "task" in section.header.name.lower()) or (
+                    ROBOT_VERSION.major >= 6 and section.header.type == Token.TASK_HEADER
+                ):
+                    self.task_section = True
+            else:
+                self.task_section = False
+        super().visit_File(node)
+
     def visit_Setup(self, node):  # noqa
         self.check_setting_name(node.data_tokens[0].value, node)
+        self.check_settings_consistency(node.data_tokens[0].value, node)
 
     visit_SuiteSetup = (
         visit_TestSetup
@@ -679,6 +705,12 @@ class SettingsNamingChecker(VisitorChecker):
         visit_SuiteTeardown
     ) = (
         visit_TestTeardown
+    ) = (
+        visit_TestTimeout
+    ) = (
+        visit_TestTemplate
+    ) = (
+        visit_TestTags
     ) = (
         visit_ForceTags
     ) = (
@@ -718,6 +750,24 @@ class SettingsNamingChecker(VisitorChecker):
             col = node.tokens[0].end_col_offset if node.tokens[0].type == "SEPARATOR" else node.col_offset
             self.report(
                 "setting-name-not-in-title-case", setting_name=name, node=node, col=col + 1, end_col=col + len(name) + 1
+            )
+
+    def check_settings_consistency(self, name, node):
+        if "test" in name.lower() and self.task_section:
+            self.report(
+                "mixed-task-test-settings",
+                setting="Task " + name.split()[1],
+                task_or_test="task",
+                tasks_or_tests="Tasks",
+                node=node,
+            )
+        elif "task" in name.lower() and not self.task_section:
+            self.report(
+                "mixed-task-test-settings",
+                setting="Test " + name.split()[1],
+                task_or_test="test",
+                tasks_or_tests="Test Cases",
+                node=node,
             )
 
 

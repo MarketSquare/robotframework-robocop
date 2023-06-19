@@ -46,6 +46,15 @@ Similarly, use test-related settings when using ``*** Test Cases ***`` section.
 
 A new rule W0326 ``mixed-task-test-settings`` is introduced to cover these cases.
 
+Other features
+==============
+
+Reports refactor (#834)
+-----------------------
+
+Our internal reports structure was refactored to make it easier to maintain and develop it in the future. Now,
+each report is stored in a separate file in Robocop project. From the user's perspective, reports should work
+the same as before.
 
 Acknowledgements
 ================

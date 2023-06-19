@@ -455,6 +455,7 @@ rules = {
 
         Similarly, use test-related settings when using ``*** Test Cases ***`` section.
         """,
+        added_in_version="3.3.0",
     ),
 }
 

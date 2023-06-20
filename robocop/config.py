@@ -561,7 +561,7 @@ class Config:
                 if pattern.match(rule.rule_id) or pattern.match(rule.name):
                     return True
             return False
-        return True
+        return rule.enabled
 
     def is_rule_disabled(self, rule):
         if not rule.enabled_in_version:

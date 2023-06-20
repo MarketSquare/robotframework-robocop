@@ -99,7 +99,7 @@ rules = {
         msg="Tag '{{ tag }}' is already set by {{ test_force_tags }} in suite settings",
         severity=RuleSeverity.INFO,
         docs="""
-        Avoid repeating same tags in tests when the tag is already declared in ``Test Tags`` or ``Force Tags``.
+        Avoid repeating the same tags in tests when the tag is already declared in ``Test Tags`` or ``Force Tags``.
         Example of rule violation::
 
             *** Setting ***
@@ -196,7 +196,7 @@ rules = {
         severity=RuleSeverity.INFO,
         version=">=6",
         docs="""
-        Avoid repeating same tags in keywords when the tag is already declared in ``Keyword Tags``.
+        Avoid repeating the same tags in keywords when the tag is already declared in ``Keyword Tags``.
         Example of rule violation::
 
             *** Setting ***
@@ -410,24 +410,26 @@ class KeywordTagsChecker(VisitorChecker):
     )
 
     def __init__(self):
-        self.keywords_tags = []
+        self.tags_in_keywords = []
+        self.keyword_tags = set()
         self.keyword_tags_node = None
+        self.keywords_count = 0
         self.in_keywords = False
         super().__init__()
 
     def visit_File(self, node):  # noqa
-        self.keywords_tags = []
+        self.tags_in_keywords = []
         self.keyword_tags = set()
-        self.keywords_count = 0
         self.keyword_tags_node = None
+        self.keywords_count = 0
         super().visit_File(node)
-        if not self.keywords_tags:
+        if not self.tags_in_keywords:
             return
-        if len(self.keywords_tags) != self.keywords_count:
+        if len(self.tags_in_keywords) != self.keywords_count:
             return
         if self.keywords_count < 2:
             return
-        common_keyword_tags = set.intersection(*[set(tags) for tags in self.keywords_tags])
+        common_keyword_tags = set.intersection(*[set(tags) for tags in self.tags_in_keywords])
         common_keyword_tags = common_keyword_tags - self.keyword_tags
         if common_keyword_tags:
             report_node = node if self.keyword_tags_node is None else self.keyword_tags_node
@@ -452,7 +454,7 @@ class KeywordTagsChecker(VisitorChecker):
 
     def visit_Tags(self, node):  # noqa
         if self.in_keywords:
-            self.keywords_tags.append([tag.value for tag in node.data_tokens[1:]])
+            self.tags_in_keywords.append([tag.value for tag in node.data_tokens[1:]])
         for tag in node.data_tokens[1:]:
             if not self.in_keywords or tag.value not in self.keyword_tags:
                 continue

@@ -2,6 +2,7 @@ import ast
 import difflib
 import importlib.util
 import re
+import sys
 import token
 import tokenize
 from collections import Counter, defaultdict
@@ -69,7 +70,12 @@ def modules_from_paths(paths):
 def modules_from_path(path, module_name=None, relative="."):
     """Traverse current directory and yield python files imported as module"""
     if path.is_file():
-        yield import_module(relative + path.stem, module_name)
+        import_name = relative + path.stem
+        full_name = f"{module_name}{import_name}" if module_name else import_name
+        # workaround for API and pytest tests reusing the same module with different config
+        if full_name in sys.modules:
+            sys.modules.pop(full_name)
+        yield import_module(import_name, module_name)
     elif path.is_dir():
         for file in path.iterdir():
             if "__pycache__" in str(file):

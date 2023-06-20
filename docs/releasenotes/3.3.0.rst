@@ -88,7 +88,7 @@ Rule severity thresholds printed value (#791)
 -----------------------------------------------
 
 Rule severity threshold allows to change rule severity depending on the threshold value and configured severities.
-However it was confusing to see reports for the same rule with different severities but the same limit value.
+In fact, it was confusing to see the reports for the same rule with different severities but the same limit value.
 We changed this behaviour to log the actual value that met the severity threshold.
 
 As for example, you can configure ``too-many-calls-in-test-case`` to report warning on 10 keywords and error on 30
@@ -103,15 +103,17 @@ Not configured severity threshold should be ignored (#791)
 Previously, if the rule severity threshold was configured but the rule value didn't met any conditions it was reported
 with default severity. Now if the value don't pass any configured severity threshold, the issue is ignored.
 
-For example, if the ``line-too-long`` (with default severity W) is configured to have severity E if number of lines
-is higher than 150::
+For example, let's assume that ``line-too-long`` (with default severity ``W``) is configured to have severity ``E`` when
+the number of the lines is higher than 150::
 
     robocop -c line-too-long:severity_threshold:error=150
 
-With above configuration, ``line-too-long`` will only be reported if number of lines is higher than 150.
-Rule will work as before if all rule severity thresholds are configured::
+With above configuration, ``line-too-long`` will only be reported if number of the lines is higher than 150.
+The rule will display the WARNING message only if it is explicitly configured::
 
     robocop -c line-too-long:severity_threshold:warning=120:error=150
+
+which is how it used to work before this release - the thresholds were added to the default ones, and now they are overwritten.
 
 Acknowledgements
 ================

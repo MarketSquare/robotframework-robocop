@@ -22,8 +22,8 @@ It supports all default severity values:
 
 The issue needs to be raised in order for severity thresholds to be evaluated. That's why the parameter value needs to
 be configured to raise an issue for at least one of our threshold ranges. In previous example, if we want to issue
-info message if the line is longer than 80 characters, we need to configure rule ``line_length`` (default ``120``)
-to trigger rule::
+info message if the line is longer than 80 characters, we need to configure ``line_length`` parameter
+(default ``120``) to 80 to trigger the rule::
 
     robocop -c line-too-long:line_length:80 -c line-too-long:severity_threshold:info=80:warning=120:error=200
 

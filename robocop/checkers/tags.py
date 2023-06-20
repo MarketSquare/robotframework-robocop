@@ -21,6 +21,7 @@ rules = {
                 [Tags]  ${tag with space}
         
         """,
+        added_in_version="1.0.0",
     ),
     "0602": Rule(
         rule_id="0602",
@@ -42,6 +43,7 @@ rules = {
         Tag matching is case-insensitive. If your tag contains ``OR`` or ``AND`` you can use lowercase to match it.
         For example, if your tag is ``PORT``, you can match it with ``port``.
         """,
+        added_in_version="1.0.0",
     ),
     "0603": Rule(
         rule_id="0603",
@@ -65,6 +67,7 @@ rules = {
             - robot:private
 
         """,
+        added_in_version="1.0.0",
     ),
     "0605": Rule(
         rule_id="0605",
@@ -86,7 +89,9 @@ rules = {
         
         In this example all tests share one common tag ``featureX``. It can be declared just once using ``Test Tags``
         or ``Task Tags``.
+        This rule was renamed from ``could-be-force-tags`` to ``could-be-test-tags`` in Robocop 2.6.0.
         """,
+        added_in_version="1.0.0",
     ),
     "0606": Rule(
         rule_id="0606",
@@ -104,7 +109,10 @@ rules = {
             Test
                 [Tag]  sanity  common-tag
         
+        This rule was renamed from ``tag-already-set-in-force-tags`` to ``tag-already-set-in-test-tags`` in
+        Robocop 2.6.0.
         """,
+        added_in_version="1.0.0",
     ),
     "0607": Rule(
         rule_id="0607",
@@ -128,6 +136,7 @@ rules = {
         
         Since ``Test`` and ``Test 2`` have ``[Tags]`` section, ``Default Tags`` setting is never used.
         """,
+        added_in_version="1.0.0",
     ),
     "0608": Rule(
         rule_id="0608",
@@ -138,6 +147,7 @@ rules = {
         If you want to use empty ``[Tags]`` (for example to overwrite ``Default Tags``) then use ``NONE`` value 
         to be explicit.
         """,
+        added_in_version="2.0.0",
     ),
     "0609": Rule(
         rule_id="0609",
@@ -154,6 +164,7 @@ rules = {
                 [Tags]    Tag    TAG    tag    t a g
 
         """,
+        added_in_version="2.0.0",
     ),
 }
 

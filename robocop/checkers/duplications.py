@@ -49,6 +49,7 @@ rules = {
             test_with Name  # it is a duplicate of 'Test with name'
                 No Operation
         """,
+        added_in_version="1.0.0",
     ),
     "0802": Rule(
         rule_id="0802",
@@ -71,6 +72,7 @@ rules = {
                 No Operation
             
         """,
+        added_in_version="1.0.0",
     ),
     "0803": Rule(
         rule_id="0803",
@@ -91,12 +93,14 @@ rules = {
             ${v_ariable}   d
 
         """,
+        added_in_version="1.0.0",
     ),
     "0804": Rule(
         rule_id="0804",
         name="duplicated-resource",
         msg="Multiple resource imports with path '{{ name }}' (first occurrence in line {{ first_occurrence_line }})",
         severity=RuleSeverity.WARNING,
+        added_in_version="1.0.0",
     ),
     "0805": Rule(
         rule_id="0805",
@@ -112,18 +116,21 @@ rules = {
             Library  RobotLibrary  AS  OtherRobotLibrary
 
         """,
+        added_in_version="1.0.0",
     ),
     "0806": Rule(
         rule_id="0806",
         name="duplicated-metadata",
         msg="Duplicated metadata '{{ name }}' (first occurrence in line {{ first_occurrence_line }})",
         severity=RuleSeverity.WARNING,
+        added_in_version="1.0.0",
     ),
     "0807": Rule(
         rule_id="0807",
         name="duplicated-variables-import",
         msg="Duplicated variables import with path '{{ name }}' (first occurrence in line {{ first_occurrence_line }})",
         severity=RuleSeverity.WARNING,
+        added_in_version="1.0.0",
     ),
     "0808": Rule(
         rule_id="0808",
@@ -150,6 +157,7 @@ rules = {
                 Keyword
 
         """,
+        added_in_version="1.0.0",
     ),
     "0809": Rule(
         RuleParam(
@@ -183,6 +191,7 @@ rules = {
             *** Test Cases ***  # it will report issue because Test Cases should be defined before Keywords
 
         """,
+        added_in_version="1.0.0",
     ),
     "0810": Rule(
         rule_id="0810",
@@ -197,6 +206,7 @@ rules = {
             *** Tasks ***
 
         """,
+        added_in_version="1.0.0",
     ),
     "0811": Rule(
         rule_id="0811",
@@ -213,6 +223,7 @@ rules = {
                 Other Keyword
 
         """,
+        added_in_version="1.11.0",
     ),
     "0812": Rule(
         rule_id="0812",
@@ -228,6 +239,7 @@ rules = {
                 ${var}  ${VAR}  ${v_ar}  ${v ar}  Keyword
         
         """,
+        added_in_version="1.12.0",
     ),
     "0813": Rule(
         rule_id="0813",
@@ -243,6 +255,7 @@ rules = {
             Force Tags        F2  # this setting will be ignored
         
         """,
+        added_in_version="2.0.0",
     ),
 }
 

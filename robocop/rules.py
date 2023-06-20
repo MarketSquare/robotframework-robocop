@@ -224,7 +224,7 @@ class SeverityThreshold:
 
     def get_matching_threshold(self, value):
         """
-        Find first threshold that pass the condition with passed value.
+        Find first threshold that passes the condition with passed value.
 
         It's useful to get rule message updated with the threshold value that triggered rule.
         """

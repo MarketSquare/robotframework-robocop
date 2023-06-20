@@ -161,11 +161,12 @@ class SeverityThreshold:
     with threshold ranges.
     """
 
-    def __init__(self, param_name, compare_method="greater"):
+    def __init__(self, param_name, compare_method="greater", substitute_value=None):
         self.name = "severity_threshold"
         self.param_name = param_name
         self.thresholds = None
         self.compare_method = compare_method
+        self.substitute_value = substitute_value
 
     @property
     def value(self):
@@ -220,6 +221,18 @@ class SeverityThreshold:
             if self.check_condition(value, threshold):
                 return severity
         return None
+
+    def get_matching_threshold(self, value):
+        """
+        Find first threshold that passes the condition with passed value.
+
+        It's useful to get rule message updated with the threshold value that triggered rule.
+        """
+        if value is None:
+            return None
+        for severity, threshold in self.thresholds:
+            if self.check_condition(value, threshold):
+                return threshold
 
     def __str__(self):
         return self.name

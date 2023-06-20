@@ -1,4 +1,1 @@
-test.robot:5:1 [W] 1012 Too many consecutive empty lines (2/1)
-test.robot:15:1 [W] 1012 Too many consecutive empty lines (2/1)
-test.robot:29:1 [W] 1012 Too many consecutive empty lines (2/1)
-test.robot:46:1 [E] 1012 Too many consecutive empty lines (3/1)
+test.robot:46:1 [E] 1012 Too many consecutive empty lines (3/3)

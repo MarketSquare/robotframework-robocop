@@ -84,6 +84,37 @@ Our internal reports structure was refactored to make it easier to maintain and 
 each report is stored in a separate file in Robocop project. From the user's perspective, reports should work
 the same as before.
 
+Rule severity thresholds printed value (#791)
+-----------------------------------------------
+
+Rule severity threshold allows to change rule severity depending on the threshold value and configured severities.
+In fact, it was confusing to see the reports for the same rule with different severities but the same limit value.
+We changed this behaviour to log the actual value that met the severity threshold.
+
+As for example, you can configure ``too-many-calls-in-test-case`` to report warning on 10 keywords and error on 30
+keywords. With such configuration you will get following reports::
+
+    test.robot:33:1 [W] 0505 Test case 'Test case 1' has too many keywords inside (24/10) (too-many-calls-in-test-case)
+    test.robot:62:1 [E] 0505 Test case 'Test case 2' has too many keywords inside (30/30) (too-many-calls-in-test-case)
+
+Not configured severity threshold should be ignored (#791)
+----------------------------------------------------------
+
+Previously, if the rule severity threshold was configured but the rule value didn't met any conditions it was reported
+with default severity. Now if the value don't pass any configured severity threshold, the issue is ignored.
+
+For example, let's assume that ``line-too-long`` (with default severity ``W``) is configured to have severity ``E`` when
+the number of the lines is higher than 150::
+
+    robocop -c line-too-long:severity_threshold:error=150
+
+With above configuration, ``line-too-long`` will only be reported if number of the lines is higher than 150.
+The rule will display the WARNING message only if it is explicitly configured::
+
+    robocop -c line-too-long:severity_threshold:warning=120:error=150
+
+which is how it used to work before this release - the thresholds were added to the default ones, and now they are overwritten.
+
 Acknowledgements
 ================
 

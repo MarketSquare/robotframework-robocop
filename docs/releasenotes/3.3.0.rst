@@ -49,6 +49,34 @@ A new rule W0326 ``mixed-task-test-settings`` is introduced to cover these cases
 Other features
 ==============
 
+New ``enabled`` rule parameter used to create rules disabled by default (#809)
+------------------------------------------------------------------------------
+
+Previously, all defined rules were enabled by default and could be disabled using ``--exclude`` option (or by
+using ``--include`` if not listed with the option). It is now possible to create a rule disabled by default using
+new parameter, ``enabled``::
+
+    rules = {
+        "1155": Rule(
+            rule_id="1155",
+            name="custom-rule",
+            msg="Custom rule message",
+            severity=RuleSeverity.INFO,
+            enabled=False,
+            docs="""
+            Custom rule description.
+            """,
+        )
+    }
+
+Such rules can be enabled when called explicitly with ``--include`` option::
+
+    robocop --include custom-rule .
+
+ or by configuring ``enabled`` parameter directly::
+
+    robocop --ext-rules custom_rules.py -c custom-rule:enabled:True .
+
 Reports refactor (#834)
 -----------------------
 

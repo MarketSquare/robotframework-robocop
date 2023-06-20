@@ -32,6 +32,7 @@ from jinja2 import Template
 
 import robocop.exceptions
 from robocop.utils import ROBOT_VERSION
+from robocop.utils.misc import str2bool
 from robocop.utils.version_matching import VersionSpecifier
 
 
@@ -243,6 +244,7 @@ class Rule:
         version: str = None,
         docs: str = "",
         added_in_version: Optional[str] = None,
+        enabled: bool = True,
     ):
         """
         :param params: RuleParam() or SeverityThreshold() instances
@@ -263,17 +265,23 @@ class Rule:
         self.docs = dedent(docs)
         self.config = {
             "severity": RuleParam(
-                "severity",
-                severity,
-                RuleSeverity.parser,
+                name="severity",
+                default=severity,
+                converter=RuleSeverity.parser,
                 desc="Rule severity (E = Error, W = Warning, I = Info)",
                 show_type="severity",
-            )
+            ),
+            "enabled": RuleParam(
+                name="enabled",
+                default=enabled,
+                converter=str2bool,
+                desc="Rule default enable status",
+                show_type="bool",
+            ),
         }
         self.severity_threshold = None
         for param in params:
             self.config[param.name] = param
-        self.enabled = True
         self.supported_version = version if version else "All"
         self.enabled_in_version = self.supported_in_rf_version(version)
         self.added_in_version = added_in_version
@@ -281,6 +289,14 @@ class Rule:
     @property
     def severity(self):
         return self.config["severity"].value
+
+    @property
+    def enabled(self):
+        return self.config["enabled"].value
+
+    @enabled.setter
+    def enabled(self, value):
+        self.config["enabled"].value = value
 
     @property
     def description(self):
@@ -343,7 +359,11 @@ class Rule:
         self.config[param].value = value
 
     def available_configurables(self, include_severity: bool = True):
-        params = [str(param) for param in self.config.values() if param.name != "severity" or include_severity]
+        params = []
+        for param in self.config.values():
+            if (param.name == "severity" and not include_severity) or param.name == "enabled":
+                continue
+            params.append(str(param))
         if not params:
             return 0, ""
         count = len(params)

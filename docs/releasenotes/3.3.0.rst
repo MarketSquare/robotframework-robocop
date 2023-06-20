@@ -46,6 +46,23 @@ Similarly, use test-related settings when using ``*** Test Cases ***`` section.
 
 A new rule W0326 ``mixed-task-test-settings`` is introduced to cover these cases.
 
+New rules for Keyword Tags (#641)
+---------------------------------
+
+There are 3 new rules added to support new (in RF 6.0) Keyword Tags.
+
+``empty-keyword-tags`` rule (W0531) checks for the situation where ``Keyword Tags`` in `*** Settings ***` section
+does not have any value provided::
+
+    *** Settings ***
+    Keyword Tags
+
+``could-be-keyword-tags`` rule (I0610) checks if all keywords in a file share the same tag. In that case, it can be
+simply added to ``Keyword Tags`` setting, which the tule suggests.
+
+``tag-already-set-in-keyword-tags`` rule (I0611) detects a situation where all keywords share the same tag
+which is already added to the ``Keyword Tags`` setting. In such case, the tags in keywords may be removed.
+
 Other features
 ==============
 

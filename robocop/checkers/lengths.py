@@ -322,6 +322,14 @@ rules = {
         severity=RuleSeverity.WARNING,
         added_in_version="3.1.0",
     ),
+    "0531": Rule(
+        rule_id="0531",
+        name="empty-keyword-tags",
+        msg="Keyword Tags are empty",
+        severity=RuleSeverity.WARNING,
+        version=">=6",
+        added_in_version="3.3.0",
+    ),
 }
 
 
@@ -603,6 +611,7 @@ class EmptySettingsChecker(VisitorChecker):
         "empty-template",
         "empty-test-template",
         "empty-arguments",
+        "empty-keyword-tags",
     )
 
     def __init__(self):
@@ -648,6 +657,10 @@ class EmptySettingsChecker(VisitorChecker):
     def visit_DefaultTags(self, node):  # noqa
         if not node.values:
             self.report("empty-default-tags", node=node, col=node.col_offset + 1, end_col=node.end_col_offset)
+
+    def visit_KeywordTags(self, node):  # noqa
+        if not node.values:
+            self.report("empty-keyword-tags", node=node, col=node.col_offset + 1, end_col=node.end_col_offset)
 
     def visit_VariablesImport(self, node):  # noqa
         if not node.name:

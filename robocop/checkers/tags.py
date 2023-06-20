@@ -16,10 +16,10 @@ rules = {
         severity=RuleSeverity.WARNING,
         docs="""
         Example of rule violation::
-        
+
             Test
                 [Tags]  ${tag with space}
-        
+
         """,
         added_in_version="1.0.0",
     ),
@@ -32,14 +32,14 @@ rules = {
         docs="""
         ``OR`` and ``AND`` words are used to combine tags when selecting tests to be run in Robot Framework. Using following 
         configuration::
-        
+
             robot --include tagANDtag2
-        
+
         Robot Framework will only execute tests that contain ``tag`` and ``tag2``. That's why it's best to avoid ``AND`` and ``OR``
         in tag names. See 
         `docs <https://robotframework.org/robotframework/latest/RobotFrameworkUserGuide.html#tag-patterns>`_
         for more information.
-        
+
         Tag matching is case-insensitive. If your tag contains ``OR`` or ``AND`` you can use lowercase to match it.
         For example, if your tag is ``PORT``, you can match it with ``port``.
         """,
@@ -54,7 +54,7 @@ rules = {
         ``robot:`` prefix is used by Robot Framework special tags. More details 
         `here <https://robotframework.org/robotframework/latest/RobotFrameworkUserGuide.html#reserved-tags>`_.
         Special tags currently in use:
-        
+
             - robot:exit
             - robot:flatten
             - robot:no-dry-run
@@ -77,16 +77,16 @@ rules = {
         severity=RuleSeverity.INFO,
         docs="""
         Example::
-        
+
             *** Test Cases ***
             Test
-                [Tag]  featureX  smoke
+                [Tags]  featureX  smoke
                 Step
-            
+
             Test 2
-                [Tag]  featureX
+                [Tags]  featureX
                 Step
-        
+
         In this example all tests share one common tag ``featureX``. It can be declared just once using ``Test Tags``
         or ``Task Tags``.
         This rule was renamed from ``could-be-force-tags`` to ``could-be-test-tags`` in Robocop 2.6.0.
@@ -101,14 +101,14 @@ rules = {
         docs="""
         Avoid repeating same tags in tests when the tag is already declared in ``Test Tags`` or ``Force Tags``.
         Example of rule violation::
-        
+
             *** Setting ***
             Test Tags  common-tag
-            
+
             *** Test Cases ***
             Test
-                [Tag]  sanity  common-tag
-        
+                [Tags]  sanity  common-tag
+
         This rule was renamed from ``tag-already-set-in-force-tags`` to ``tag-already-set-in-test-tags`` in
         Robocop 2.6.0.
         """,
@@ -121,19 +121,19 @@ rules = {
         severity=RuleSeverity.INFO,
         docs="""
         Example of rule violation::
-        
+
             *** Settings ***
             Default Tags  tag1  tag2
-            
+
             *** Test Cases ***
             Test
                 [Tags]  tag3
                 Step
-            
+
             Test 2
                 [Tags]  tag4
                 Step
-        
+
         Since ``Test`` and ``Test 2`` have ``[Tags]`` section, ``Default Tags`` setting is never used.
         """,
         added_in_version="1.0.0",
@@ -157,7 +157,7 @@ rules = {
         docs="""
         Tags are free text, but they are normalized so that they are converted to lowercase and all spaces are removed.
         Only first tag is used, other occurrences are ignored.
-        
+
         Example of duplicated tags::
         
             Test
@@ -165,6 +165,48 @@ rules = {
 
         """,
         added_in_version="2.0.0",
+    ),
+    "0610": Rule(
+        rule_id="0610",
+        name="could-be-keyword-tags",
+        msg="All keywords in suite share these tags: '{{ tags }}'. "
+        "You can define them in 'Keyword Tags' in suite settings instead",
+        severity=RuleSeverity.INFO,
+        version=">=6",
+        docs="""
+        Example::
+
+            *** Keywords ***
+            Keyword
+                [Tags]  featureX  smoke
+                Step
+
+            Keyword 2
+                [Tags]  featureX
+                Step
+
+        In this example all keywords share one common tag ``featureX``. It can be declared just once using ``Keyword Tags``.
+        """,
+        added_in_version="3.3.0",
+    ),
+    "0611": Rule(
+        rule_id="0611",
+        name="tag-already-set-in-keyword-tags",
+        msg="Tag '{{ tag }}' is already set by {{ keyword_tags }} in suite settings",
+        severity=RuleSeverity.INFO,
+        version=">=6",
+        docs="""
+        Avoid repeating same tags in keywords when the tag is already declared in ``Keyword Tags``.
+        Example of rule violation::
+
+            *** Setting ***
+            Keyword Tags  common_tag
+
+            *** Keywords ***
+            Keyword
+                [Tags]  sanity  common_tag
+        """,
+        added_in_version="3.3.0",
     ),
 }
 
@@ -343,15 +385,82 @@ class TagScopeChecker(VisitorChecker):
                 col=node.data_tokens[0].col_offset + 1,
                 end_col=node.end_col_offset,
             )
-        self.tags.append([tag.value for tag in node.data_tokens[1:]])
+        if not self.in_keywords:
+            self.tags.append([tag.value for tag in node.data_tokens[1:]])
         for tag in node.data_tokens[1:]:
-            if tag.value not in self.test_tags:
+            if self.in_keywords or tag.value not in self.test_tags:
                 continue
             test_force_tags = self.test_tags_node.data_tokens[0].value
             self.report(
                 "tag-already-set-in-test-tags",
                 tag=tag.value,
                 test_force_tags=test_force_tags,
+                node=node,
+                lineno=tag.lineno,
+                col=tag.col_offset + 1,
+            )
+
+
+class KeywordTagsChecker(VisitorChecker):
+    """Checker for keyword tags."""
+
+    reports = (
+        "could-be-keyword-tags",
+        "tag-already-set-in-keyword-tags",
+    )
+
+    def __init__(self):
+        self.keywords_tags = []
+        self.keyword_tags_node = None
+        self.in_keywords = False
+        super().__init__()
+
+    def visit_File(self, node):  # noqa
+        self.keywords_tags = []
+        self.keyword_tags = set()
+        self.keywords_count = 0
+        self.keyword_tags_node = None
+        super().visit_File(node)
+        if not self.keywords_tags:
+            return
+        if len(self.keywords_tags) != self.keywords_count:
+            return
+        if self.keywords_count < 2:
+            return
+        common_keyword_tags = set.intersection(*[set(tags) for tags in self.keywords_tags])
+        common_keyword_tags = common_keyword_tags - self.keyword_tags
+        if common_keyword_tags:
+            report_node = node if self.keyword_tags_node is None else self.keyword_tags_node
+            self.report(
+                "could-be-keyword-tags",
+                tags=", ".join(common_keyword_tags),
+                node=report_node,
+            )
+
+    def visit_Keyword(self, node):  # noqa
+        self.keywords_count += 1
+        self.generic_visit(node)
+
+    def visit_KeywordTags(self, node):  # noqa
+        self.keyword_tags = {token.value for token in node.data_tokens[1:]}
+        self.keyword_tags_node = node
+
+    def visit_KeywordSection(self, node):  # noqa
+        self.in_keywords = True
+        self.generic_visit(node)
+        self.in_keywords = False
+
+    def visit_Tags(self, node):  # noqa
+        if self.in_keywords:
+            self.keywords_tags.append([tag.value for tag in node.data_tokens[1:]])
+        for tag in node.data_tokens[1:]:
+            if not self.in_keywords or tag.value not in self.keyword_tags:
+                continue
+            keyword_tags = self.keyword_tags_node.data_tokens[0].value
+            self.report(
+                "tag-already-set-in-keyword-tags",
+                tag=tag.value,
+                keyword_tags=keyword_tags,
                 node=node,
                 lineno=tag.lineno,
                 col=tag.col_offset + 1,

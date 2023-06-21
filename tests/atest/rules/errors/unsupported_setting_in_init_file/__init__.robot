@@ -1,5 +1,5 @@
 *** Settings ***
-Test Template       Template
+Test Template       template
 Default Tags        tag
 Documentation       some documentation
 

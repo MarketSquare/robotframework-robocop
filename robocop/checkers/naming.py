@@ -457,16 +457,6 @@ rules = {
         """,
         added_in_version="3.3.0",
     ),
-    "0327": Rule(
-        rule_id="0327",
-        name="unsupported-setting-in-init-file",
-        msg="Setting '{{ setting }}' is not supported in initialization files",
-        severity=RuleSeverity.ERROR,
-        docs="""
-        Settings ``Default Tags`` and ``Test Template`` are not supported in initialization files.
-        """,
-        added_in_version="3.3.0",
-    ),
 }
 
 SET_VARIABLE_VARIANTS = {
@@ -681,7 +671,6 @@ class SettingsNamingChecker(VisitorChecker):
         "duplicated-library-alias",
         "invalid-section",
         "mixed-task-test-settings",
-        "unsupported-setting-in-init-file",
     )
     ALIAS_TOKENS = [Token.WITH_NAME] if ROBOT_VERSION.major < 5 else [Token.WITH_NAME, "AS"]
     # Separating alias values since RF 3 uses WITH_NAME instead of WITH NAME
@@ -690,7 +679,6 @@ class SettingsNamingChecker(VisitorChecker):
     def __init__(self):
         self.section_name_pattern = re.compile(r"\*\*\*\s.+\s\*\*\*")
         self.task_section = False
-        self.init_file = False
         super().__init__()
 
     def visit_InvalidSection(self, node):  # noqa
@@ -720,11 +708,6 @@ class SettingsNamingChecker(VisitorChecker):
             )
 
     def visit_File(self, node):  # noqa
-        self.init_file = False
-        source = node.source if node.source else self.source
-        if source:
-            if "__init__" in Path(source).stem:
-                self.init_file = True
         for section in node.sections:
             if isinstance(section, TestCaseSection):
                 if (ROBOT_VERSION.major < 6 and "task" in section.header.name.lower()) or (
@@ -785,24 +768,6 @@ class SettingsNamingChecker(VisitorChecker):
                     node=name_token,
                     col=name_token.col_offset + 1,
                     end_col=name_token.end_col_offset + 1,
-                )
-
-    def visit_SettingSection(self, node):  # noqa
-        self.generic_visit(node)
-        if not self.init_file:
-            return
-        for setting in node.body:
-            if not setting.data_tokens:
-                continue
-            setting_name = setting.data_tokens[0].value
-            if setting_name.lower() in ["test template", "default tags"]:
-                self.report(
-                    "unsupported-setting-in-init-file",
-                    setting=setting_name,
-                    node=setting,
-                    col=setting.col_offset + 1,
-                    end_col=setting.col_offset + 1 + len(setting_name),
-                    lineno=setting.lineno,
                 )
 
     def check_setting_name(self, name, node):

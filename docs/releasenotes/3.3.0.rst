@@ -69,7 +69,7 @@ New rule for discovering unsupported setting in initialization file (#498)
 
 According to RF User Guide, ``Default Tags`` and ``Test Template`` settings are not allowed
 in suite initialization files, and this is covered by new ``unsupported-setting-in-init-file``
-rule (E0327).
+rule (E0417).
 
 
 Other features

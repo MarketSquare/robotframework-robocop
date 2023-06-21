@@ -22,6 +22,7 @@ or to install exactly this version
    :depth: 2
    :local:
 
+
 Rule changes
 ============
 
@@ -45,6 +46,23 @@ If the file contains ``*** Task ***`` section, it is recommended to use settings
 Similarly, use test-related settings when using ``*** Test Cases ***`` section.
 
 A new rule W0326 ``mixed-task-test-settings`` is introduced to cover these cases.
+
+New rules for Keyword Tags (#641)
+---------------------------------
+
+There are 3 new rules added to support new (in RF 6.0) Keyword Tags.
+
+``empty-keyword-tags`` rule (W0531) checks for the situation where ``Keyword Tags`` in `*** Settings ***` section
+does not have any value provided::
+
+    *** Settings ***
+    Keyword Tags
+
+``could-be-keyword-tags`` rule (I0610) checks if all keywords in a file share the same tag. In that case, it can be
+simply added to ``Keyword Tags`` setting, which the rule suggests.
+
+``tag-already-set-in-keyword-tags`` rule (I0611) detects a situation where all keywords share the same tag
+which is already added to the ``Keyword Tags`` setting. In such case, the tags in keywords may be removed.
 
 New rule for discovering unsupported setting in initialization file (#498)
 --------------------------------------------------------------------------
@@ -122,6 +140,7 @@ The rule will display the WARNING message only if it is explicitly configured::
     robocop -c line-too-long:severity_threshold:warning=120:error=150
 
 which is how it used to work before this release - the thresholds were added to the default ones, and now they are overwritten.
+
 
 Acknowledgements
 ================

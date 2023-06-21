@@ -22,6 +22,7 @@ or to install exactly this version
    :depth: 2
    :local:
 
+
 Rule changes
 ============
 
@@ -62,6 +63,14 @@ simply added to ``Keyword Tags`` setting, which the rule suggests.
 
 ``tag-already-set-in-keyword-tags`` rule (I0611) detects a situation where all keywords share the same tag
 which is already added to the ``Keyword Tags`` setting. In such case, the tags in keywords may be removed.
+
+New rule for discovering unsupported setting in initialization file (#498)
+--------------------------------------------------------------------------
+
+According to RF User Guide, ``Default Tags`` and ``Test Template`` settings are not allowed
+in suite initialization files, and this is covered by new ``unsupported-setting-in-init-file``
+rule (E0417).
+
 
 Other features
 ==============
@@ -131,6 +140,7 @@ The rule will display the WARNING message only if it is explicitly configured::
     robocop -c line-too-long:severity_threshold:warning=120:error=150
 
 which is how it used to work before this release - the thresholds were added to the default ones, and now they are overwritten.
+
 
 Acknowledgements
 ================

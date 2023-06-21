@@ -1,0 +1,2 @@
+pl_language${/}__init__.robot:4:1:4:14 [E] 0417 Setting 'Szablon testu' is not supported in initialization files
+pl_language${/}__init__.resource:4:1:4:14 [E] 0417 Setting 'Szablon testu' is not supported in initialization files

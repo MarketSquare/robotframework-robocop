@@ -260,13 +260,13 @@ rules = {
         severity=RuleSeverity.INFO,
         docs="""
         Following assignments overwrite the same variable::
-        
+
             *** Keywords ***
             Keyword
-                ${variable}    Keyword Call
-                ${VARIABLE}    Keyword Call
+                ${variable}      Keyword Call
+                ${VARIABLE}      Keyword Call
                 ${vari_ab le}    Keyword Call
-        
+
         Use consistent variable naming guidelines to avoid unintended variable overwriting.
         Remember that variable names in Robot Framework are case-insensitive and
         underscores and whitespaces are ignored.
@@ -282,12 +282,12 @@ rules = {
         docs="""
         Robot Framework supports evaluation of Python code inside ${ } brackets. For example::
 
-             ${var2}  Set Variable  ${${var}-${var2}}
+            ${var2}  Set Variable  ${${var}-${var2}}
 
         That's why there is possibility that hyphen in name is not recognized as part of name but as minus sign.
         Better to use underscore (if it's intended)::
 
-        ${var2}  Set Variable  ${ ${var}_${var2}}
+            ${var2}  Set Variable  ${${var}_${var2}}
         """,
         added_in_version="1.10.0",
     ),
@@ -426,7 +426,7 @@ rules = {
     "0325": Rule(
         rule_id="0325",
         name="invalid-section",
-        msg="Invalid section '{{ invalid_section }}'. Consider using --language parameter if the file is defined with different language.",
+        msg="Invalid section '{{ invalid_section }}'. Consider using --language parameter if the file is defined with different language",
         severity=RuleSeverity.ERROR,
         version=">=6.1",
         docs="""
@@ -447,7 +447,7 @@ rules = {
     "0326": Rule(
         rule_id="0326",
         name="mixed-task-test-settings",
-        msg="Use {{ task_or_test }}-related setting '{{ setting }}' if {{ tasks_or_tests }} section is used.",
+        msg="Use {{ task_or_test }}-related setting '{{ setting }}' if {{ tasks_or_tests }} section is used",
         severity=RuleSeverity.WARNING,
         docs="""
         If ``*** Tasks ***`` section is present in the file, use task-related settings like ``Task Setup``,

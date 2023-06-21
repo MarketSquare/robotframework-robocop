@@ -254,6 +254,16 @@ rules = {
         severity=RuleSeverity.ERROR,
         added_in_version="3.3.0",
     ),
+    "0417": Rule(
+        rule_id="0417",
+        name="unsupported-setting-in-init-file",
+        msg="Setting '{{ setting }}' is not supported in initialization files",
+        severity=RuleSeverity.ERROR,
+        docs="""
+        Settings ``Default Tags`` and ``Test Template`` are not supported in initialization files.
+        """,
+        added_in_version="3.3.0",
+    ),
 }
 
 
@@ -274,6 +284,7 @@ class ParsingErrorChecker(VisitorChecker):
         "return-in-test-case",
         "invalid-section-in-resource",
         "invalid-setting-in-resource",
+        "unsupported-setting-in-init-file",
     )
 
     keyword_only_settings = {"Arguments", "Return"}
@@ -386,6 +397,8 @@ class ParsingErrorChecker(VisitorChecker):
             self.handle_invalid_section_in_resource(node)
         elif "is not allowed in resource file" in error:
             self.handle_invalid_setting_in_resource_file(node, error)
+        elif "is not allowed in suite initialization file" in error:
+            self.handle_unsupported_settings_in_init_file(node, error)
         else:
             error = error.replace("\n   ", "")
             token = node.header if hasattr(node, "header") else node
@@ -544,6 +557,18 @@ class ParsingErrorChecker(VisitorChecker):
                     col=col,
                     end_col=col + 3,
                 )
+
+    def handle_unsupported_settings_in_init_file(self, node, error):
+        setting_node = node.data_tokens[0]
+        setting_name = setting_node.value
+        self.report(
+            "unsupported-setting-in-init-file",
+            setting=setting_name,
+            node=setting_node,
+            col=setting_node.col_offset + 1,
+            end_col=setting_node.col_offset + 1 + len(setting_name),
+            lineno=setting_node.lineno,
+        )
 
     @staticmethod
     def is_var_positional(value):

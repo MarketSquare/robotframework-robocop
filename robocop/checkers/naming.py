@@ -788,6 +788,7 @@ class SettingsNamingChecker(VisitorChecker):
                 )
 
     def visit_SettingSection(self, node):  # noqa
+        self.generic_visit(node)
         if not self.init_file:
             return
         for setting in node.body:
@@ -803,7 +804,6 @@ class SettingsNamingChecker(VisitorChecker):
                     end_col=setting.col_offset + 1 + len(setting_name),
                     lineno=setting.lineno,
                 )
-        self.generic_visit(node)
 
     def check_setting_name(self, name, node):
         if not (name.istitle() or name.isupper()):

@@ -260,13 +260,13 @@ rules = {
         severity=RuleSeverity.INFO,
         docs="""
         Following assignments overwrite the same variable::
-        
+
             *** Keywords ***
             Keyword
-                ${variable}    Keyword Call
-                ${VARIABLE}    Keyword Call
+                ${variable}      Keyword Call
+                ${VARIABLE}      Keyword Call
                 ${vari_ab le}    Keyword Call
-        
+
         Use consistent variable naming guidelines to avoid unintended variable overwriting.
         Remember that variable names in Robot Framework are case-insensitive and
         underscores and whitespaces are ignored.
@@ -282,12 +282,12 @@ rules = {
         docs="""
         Robot Framework supports evaluation of Python code inside ${ } brackets. For example::
 
-             ${var2}  Set Variable  ${${var}-${var2}}
+            ${var2}  Set Variable  ${${var}-${var2}}
 
         That's why there is possibility that hyphen in name is not recognized as part of name but as minus sign.
         Better to use underscore (if it's intended)::
 
-        ${var2}  Set Variable  ${ ${var}_${var2}}
+            ${var2}  Set Variable  ${${var}_${var2}}
         """,
         added_in_version="1.10.0",
     ),
@@ -426,7 +426,7 @@ rules = {
     "0325": Rule(
         rule_id="0325",
         name="invalid-section",
-        msg="Invalid section '{{ invalid_section }}'. Consider using --language parameter if the file is defined with different language.",
+        msg="Invalid section '{{ invalid_section }}'. Consider using --language parameter if the file is defined with different language",
         severity=RuleSeverity.ERROR,
         version=">=6.1",
         docs="""
@@ -447,13 +447,23 @@ rules = {
     "0326": Rule(
         rule_id="0326",
         name="mixed-task-test-settings",
-        msg="Use {{ task_or_test }}-related setting '{{ setting }}' if {{ tasks_or_tests }} section is used.",
+        msg="Use {{ task_or_test }}-related setting '{{ setting }}' if {{ tasks_or_tests }} section is used",
         severity=RuleSeverity.WARNING,
         docs="""
         If ``*** Tasks ***`` section is present in the file, use task-related settings like ``Task Setup``,
         ``Task Teardown``, ``Task Template``, ``Task Tags`` and ``Task Timeout`` instead of their `Test` variants.
 
         Similarly, use test-related settings when using ``*** Test Cases ***`` section.
+        """,
+        added_in_version="3.3.0",
+    ),
+    "0327": Rule(
+        rule_id="0327",
+        name="unsupported-setting-in-init-file",
+        msg="Setting '{{ setting }}' is not supported in initialization files",
+        severity=RuleSeverity.ERROR,
+        docs="""
+        Settings ``Default Tags`` and ``Test Template`` are not supported in initialization files.
         """,
         added_in_version="3.3.0",
     ),
@@ -671,6 +681,7 @@ class SettingsNamingChecker(VisitorChecker):
         "duplicated-library-alias",
         "invalid-section",
         "mixed-task-test-settings",
+        "unsupported-setting-in-init-file",
     )
     ALIAS_TOKENS = [Token.WITH_NAME] if ROBOT_VERSION.major < 5 else [Token.WITH_NAME, "AS"]
     # Separating alias values since RF 3 uses WITH_NAME instead of WITH NAME
@@ -679,6 +690,7 @@ class SettingsNamingChecker(VisitorChecker):
     def __init__(self):
         self.section_name_pattern = re.compile(r"\*\*\*\s.+\s\*\*\*")
         self.task_section = False
+        self.init_file = False
         super().__init__()
 
     def visit_InvalidSection(self, node):  # noqa
@@ -708,6 +720,11 @@ class SettingsNamingChecker(VisitorChecker):
             )
 
     def visit_File(self, node):  # noqa
+        self.init_file = False
+        source = node.source if node.source else self.source
+        if source:
+            if "__init__" in Path(source).stem:
+                self.init_file = True
         for section in node.sections:
             if isinstance(section, TestCaseSection):
                 if (ROBOT_VERSION.major < 6 and "task" in section.header.name.lower()) or (
@@ -769,6 +786,24 @@ class SettingsNamingChecker(VisitorChecker):
                     col=name_token.col_offset + 1,
                     end_col=name_token.end_col_offset + 1,
                 )
+
+    def visit_SettingSection(self, node):  # noqa
+        if not self.init_file:
+            return
+        for setting in node.body:
+            if not setting.data_tokens:
+                continue
+            setting_name = setting.data_tokens[0].value
+            if setting_name.lower() in ["test template", "default tags"]:
+                self.report(
+                    "unsupported-setting-in-init-file",
+                    setting=setting_name,
+                    node=setting,
+                    col=setting.col_offset + 1,
+                    end_col=setting.col_offset + 1 + len(setting_name),
+                    lineno=setting.lineno,
+                )
+        self.generic_visit(node)
 
     def check_setting_name(self, name, node):
         if not (name.istitle() or name.isupper()):

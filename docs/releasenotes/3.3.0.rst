@@ -46,6 +46,14 @@ Similarly, use test-related settings when using ``*** Test Cases ***`` section.
 
 A new rule W0326 ``mixed-task-test-settings`` is introduced to cover these cases.
 
+New rule for discovering unsupported setting in initialization file (#498)
+--------------------------------------------------------------------------
+
+According to RF User Guide, ``Default Tags`` and ``Test Template`` settings are not allowed
+in suite initialization files, and this is covered by new ``unsupported-setting-in-init-file``
+rule (E0327).
+
+
 Other features
 ==============
 

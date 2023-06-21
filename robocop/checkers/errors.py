@@ -386,6 +386,8 @@ class ParsingErrorChecker(VisitorChecker):
             self.handle_invalid_section_in_resource(node)
         elif "is not allowed in resource file" in error:
             self.handle_invalid_setting_in_resource_file(node, error)
+        elif "is not allowed in suite initialization file" in error:
+            return
         else:
             error = error.replace("\n   ", "")
             token = node.header if hasattr(node, "header") else node

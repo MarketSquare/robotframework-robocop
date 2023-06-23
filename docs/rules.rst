@@ -1,7 +1,8 @@
 .. _rules:
 
+*****
 Rules
-========
+*****
 
 .. automodule:: robocop.rules
 
@@ -14,12 +15,12 @@ Rules
 
 {% for checker_group in checker_groups %}
 {{ checker_group[0] }}
--------------
+=============
 {% for rule_doc in checker_group[1] %}
 .. _{{ rule_doc.name }}:
 
 {{ rule_doc.name }} / {{ rule_doc.severity }}{{ rule_doc.id }}
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+--------------------------------------------------------------
 
 *Added in* ``v{{ rule_doc.robocop_version }}``
 
@@ -32,6 +33,9 @@ Supported RF versions: ``{{ rule_doc.version }}``
 {% if rule_doc.docs|length %}
 
 **Documentation**:
+
+.. highlight:: robotframework
+   :force:
 
 {{ rule_doc.docs }}
 

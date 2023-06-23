@@ -68,7 +68,9 @@ Supported RF versions: ``{{ rule_doc.version }}``
     - {{ rule_param.desc }}
 {% endfor %}
 
+{% if not loop.last %}
 ----
+{% endif %}
 
 {% endfor %}
 

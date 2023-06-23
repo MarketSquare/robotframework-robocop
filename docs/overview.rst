@@ -19,7 +19,7 @@ Full documentation is available `here <https://robocop.readthedocs.io>`_.
 Requirements
 ------------
 
-Python 3.7+ and Robot Framework 3.2.2+.
+Python 3.7+ |:snake:| and Robot Framework 3.2.2+ |:robot:|.
 
 Installation
 ------------

@@ -18,24 +18,24 @@ Rules
 {% for rule_doc in checker_group[1] %}
 .. _{{ rule_doc.name }}:
 
-{{ rule_doc.name }}
+{{ rule_doc.name }} / {{ rule_doc.severity }}{{ rule_doc.id }}
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-.. list-table::
-  :width: 100%
-  :widths: auto
-  :header-rows: 1
+*Added in* ``v{{ rule_doc.robocop_version }}``
 
-  * - Severity
-    - Rule id
-    - Robot Framework version
-    - New from Robocop
-  * - {{ rule_doc.severity }}
-    - {{ rule_doc.id }}
-    - {{ rule_doc.version }}
-    - {{ rule_doc.robocop_version }}
+Supported RF versions: ``{{ rule_doc.version }}``
 
-{{ rule_doc.desc }}
+**Message**:
+
+``{{ rule_doc.msg }}``
+
+{% if rule_doc.docs|length %}
+
+**Documentation**:
+
+{{ rule_doc.docs }}
+
+{% endif %}
 
 {%- if rule_doc.severity_threshold is not none %}
 
@@ -50,7 +50,9 @@ Rules
 
 {% endif %}
 
-.. list-table:: Configurable parameters
+**Configurable parameters**:
+
+.. list-table::
   :width: 100%
   :widths: auto
   :header-rows: 1
@@ -60,12 +62,13 @@ Rules
     - Type
     - Description
 {% for rule_param in rule_doc.params %}
-  * - {{ rule_param.name }}
-    - {{ rule_param.default }}
-    - {{ rule_param.type }}
+  * - ``{{ rule_param.name }}``
+    - ``{{ rule_param.default }}``
+    - ``{{ rule_param.type }}``
     - {{ rule_param.desc }}
 {% endfor %}
 
+----
 
 {% endfor %}
 

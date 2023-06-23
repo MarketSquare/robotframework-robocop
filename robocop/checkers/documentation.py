@@ -40,14 +40,19 @@ rules = {
         msg="Missing documentation in '{{ name }}' test case",
         severity=RuleSeverity.WARNING,
         docs="""
-        You can add documentation to test case using following syntax::
+        You can add documentation to test case using following syntax:
 
+        .. code-block:: robotframework
+
+            *** Test Cases ***
             Test
                 [Documentation]  Test documentation
                 Keyword Step
                 Other Step
 
-        The rule by default ignores templated test cases but it can be configured with::
+        The rule by default ignores templated test cases but it can be configured with:
+
+        .. code-block:: bash
 
             robocop --configure missing-doc-test-case:ignore_templated:False
 

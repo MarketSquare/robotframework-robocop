@@ -141,6 +141,10 @@ The rule will display the WARNING message only if it is explicitly configured::
 
 which is how it used to work before this release - the thresholds were added to the default ones, and now they are overwritten.
 
+.. note::
+    If your configuration contains any changes to the rule severity threshold, make sure to update it after bumping the
+    Robocop version to 3.3.0+, otherwise it may provide results other than expected.
+
 Improved documentation (#882)
 -----------------------------
 

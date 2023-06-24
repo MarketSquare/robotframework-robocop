@@ -141,6 +141,14 @@ The rule will display the WARNING message only if it is explicitly configured::
 
 which is how it used to work before this release - the thresholds were added to the default ones, and now they are overwritten.
 
+Improved documentation (#882)
+-----------------------------
+
+Our documentation has improved with better formatting of the rules.
+They now have a better structure and feature a syntax highlighting for all examples.
+There's also a copy button now next to the code snippets.
+
+We plan to improve the examples with the ones that are inspired by the real-world examples soon.
 
 Acknowledgements
 ================

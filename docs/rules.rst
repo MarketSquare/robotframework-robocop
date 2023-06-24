@@ -22,7 +22,7 @@ Rules
 {{ rule_doc.name }} / {{ rule_doc.severity }}{{ rule_doc.id }}
 --------------------------------------------------------------
 
-*Added in* ``v{{ rule_doc.robocop_version }}`` ⦁ Supported RF versions: ``{{ rule_doc.version }}``
+*Added in* ``v{{ rule_doc.robocop_version }}`` ⦁ *Supported RF versions*: ``{{ rule_doc.version }}``
 
 **Message**:
 

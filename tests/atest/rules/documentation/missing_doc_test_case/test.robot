@@ -13,6 +13,11 @@ Test With Doc
     [Documentation]  Some documentation
     My Keyword
 
+Disabled Rule
+    # robocop: disable=missing-doc-test-case
+    Disablers Should Check Inside Node For Disabler
+
+
 *** Keywords ***
 Keyword
     [Documentation]  this is doc

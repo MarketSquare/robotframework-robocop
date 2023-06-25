@@ -20,3 +20,6 @@ Keyword
 
  # Special case
 
+Disabled Rule
+    # robocop: disable=missing-doc-keyword
+    Disablers Should Check Inside Node For Disabler

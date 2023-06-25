@@ -403,6 +403,7 @@ class LengthChecker(VisitorChecker):
                         max_allowed_count=self.param("too-many-arguments", "max_args"),
                         node=node,
                         end_col=node.col_offset + len(node.name) + 1,
+                        ext_disablers=(node.lineno, node.end_lineno),
                         sev_threshold_value=args_number,
                     )
                 break
@@ -428,6 +429,7 @@ class LengthChecker(VisitorChecker):
                 min_allowed_count=self.param("too-few-calls-in-keyword", "min_calls"),
                 node=node,
                 end_col=node.col_offset + len(node.name) + 1,
+                ext_disablers=(node.lineno, node.end_lineno),
                 sev_threshold_value=key_calls,
             )
         elif key_calls > self.param("too-many-calls-in-keyword", "max_calls"):
@@ -438,6 +440,7 @@ class LengthChecker(VisitorChecker):
                 max_allowed_count=self.param("too-many-calls-in-keyword", "max_calls"),
                 node=node,
                 end_col=node.col_offset + len(node.name) + 1,
+                ext_disablers=(node.lineno, node.end_lineno),
                 sev_threshold_value=key_calls,
             )
 
@@ -452,7 +455,7 @@ class LengthChecker(VisitorChecker):
         return False
 
     def visit_TestCase(self, node):  # noqa
-        length, _ = check_node_length(node, ignore_docs=self.param("too-long-test-case", "ignore_docs"))
+        length, node_end_line = check_node_length(node, ignore_docs=self.param("too-long-test-case", "ignore_docs"))
         if length > self.param("too-long-test-case", "max_len"):
             self.report(
                 "too-long-test-case",
@@ -461,6 +464,7 @@ class LengthChecker(VisitorChecker):
                 allowed_length=self.param("too-long-test-case", "max_len"),
                 node=node,
                 end_col=node.col_offset + len(node.name) + 1,
+                ext_disablers=(node.lineno, node_end_line),
                 sev_threshold_value=length,
             )
         test_is_templated = self.test_is_templated(node)
@@ -477,6 +481,7 @@ class LengthChecker(VisitorChecker):
                 max_allowed_count=self.param("too-many-calls-in-test-case", "max_calls"),
                 node=node,
                 sev_threshold_value=key_calls,
+                ext_disablers=(node.lineno, node.end_lineno),
                 end_col=node.col_offset + len(node.name) + 1,
             )
         elif not skip_too_few and (key_calls < self.param("too-few-calls-in-test-case", "min_calls")):
@@ -487,6 +492,7 @@ class LengthChecker(VisitorChecker):
                 min_allowed_count=self.param("too-few-calls-in-test-case", "min_calls"),
                 node=node,
                 sev_threshold_value=key_calls,
+                ext_disablers=(node.lineno, node.end_lineno),
                 end_col=node.col_offset + len(node.name) + 1,
             )
 

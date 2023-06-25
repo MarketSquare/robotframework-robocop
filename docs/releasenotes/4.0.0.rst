@@ -91,6 +91,38 @@ before the change, only ``CustomChecker`` would be loaded by Robocop, while the 
 ``custom_rules.errors`` would be ignored. Now such imports will be parsed and external Robocop rules defined
 inside them will be loaded as well.
 
+Context aware Robocop disablers (#777)
+--------------------------------------
+
+Disablers module was rewritten in Robocop in order to improve how rules disablers are handled.
+Previously, disablers were parsed as lines only and were not aware of the Robot Framework code.
+
+For example, with the following code::
+
+    *** Keywords ***
+    Read Data From Database
+        [Arguments]    ${query}
+        # robocop: disable=missing-doc-keyword
+        Connect To Database    ${CONNECTION_STRING}
+        Query Database    ${query}
+        RETURN    ${query}
+
+    Validate Data Is Not Empty
+        [Arguments]    ${data}
+        Should Be True    len(${data}) != 0
+
+``# robocop: disable=missing-doc-keyword`` disabler is called in ``Read Data From Database``. In the old
+implementation such disabler would ignore all matching rules till it was enabled again or end of the file.
+Now it will be enabled again at end of the keyword. Disablers supports also other code blocks, such as test cases,
+for and while loops and if statements.
+
+Reports refactor (#834)
+-----------------------
+
+Our internal reports structure was refactored to make it easier to maintain and develop it in the future. Now,
+each report is stored in a separate file in Robocop project. From the user's perspective, reports should work
+the same as before.
+
 New ``enabled`` rule parameter used to create rules disabled by default (#809)
 ------------------------------------------------------------------------------
 
@@ -119,12 +151,6 @@ Such rules can be enabled when called explicitly with ``--include`` option::
 
     robocop --ext-rules custom_rules.py -c custom-rule:enabled:True .
 
-Reports refactor (#834)
------------------------
-
-Our internal reports structure was refactored to make it easier to maintain and develop it in the future. Now,
-each report is stored in a separate file in Robocop project. From the user's perspective, reports should work
-the same as before.
 
 Rule severity thresholds printed value (#791)
 -----------------------------------------------

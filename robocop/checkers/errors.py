@@ -141,7 +141,8 @@ rules = {
         
         Example of rule violation::
         
-           *** Test Case ***
+           *** Test Cases ***
+           My Test Case
                [Not Existing]  arg
                [Arguments]  ${arg}
     

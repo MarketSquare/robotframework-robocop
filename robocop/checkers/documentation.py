@@ -42,6 +42,7 @@ rules = {
         docs="""
         You can add documentation to test case using following syntax::
 
+            *** Test Cases ***
             Test
                 [Documentation]  Test documentation
                 Keyword Step

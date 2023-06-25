@@ -21,7 +21,9 @@ master_doc = "index"
 
 # -- General configuration ---------------------------------------------------
 
-extensions = ["sphinx.ext.autodoc", "sphinx_design"]
+extensions = ["sphinx.ext.autodoc", "sphinx_design", "sphinx_copybutton", "sphinxemoji.sphinxemoji"]
+
+pygments_style = "sphinx"
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ["_templates"]
@@ -45,7 +47,7 @@ html_theme_options = {
         },
     ],
 }
-html_static_path = ["images"]
+html_static_path = ["images", "_static"]
 html_favicon = "images/robocop.ico"
 
 
@@ -63,7 +65,7 @@ def rstjinja(app, docname, source):
 
 def setup(app):
     app.connect("source-read", rstjinja)
-    app.add_css_file("theme.css")
+    app.add_css_file("css/custom.css")
 
 
 def get_checker_docs():
@@ -83,6 +85,8 @@ def get_checker_docs():
                 "desc": rule.description,
                 "version": rule.supported_version,
                 "robocop_version": robocop_version,
+                "msg": rule.msg,
+                "docs": rule.docs,
                 "params": [
                     {
                         "name": param.name,

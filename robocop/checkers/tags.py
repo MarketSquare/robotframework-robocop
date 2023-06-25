@@ -102,12 +102,13 @@ rules = {
         Avoid repeating the same tags in tests when the tag is already declared in ``Test Tags`` or ``Force Tags``.
         Example of rule violation::
 
-            *** Setting ***
-            Test Tags  common-tag
+            *** Settings ***
+            Test Tags  common_tag
 
             *** Test Cases ***
             Test
-                [Tags]  sanity  common-tag
+                [Tags]  sanity  common_tag
+                Some Keyword
 
         This rule was renamed from ``tag-already-set-in-force-tags`` to ``tag-already-set-in-test-tags`` in
         Robocop 2.6.0.
@@ -199,7 +200,7 @@ rules = {
         Avoid repeating the same tags in keywords when the tag is already declared in ``Keyword Tags``.
         Example of rule violation::
 
-            *** Setting ***
+            *** Settings ***
             Keyword Tags  common_tag
 
             *** Keywords ***

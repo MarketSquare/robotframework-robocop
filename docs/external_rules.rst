@@ -82,7 +82,7 @@ Value of the configurable parameter can be retrieved using :code:`param` method:
 
     self.param("name-of-the-rule", "name-of-param")
 
-Parameter value is passed as string. Use ``converter`` argument to define method that will be use to convert the value:
+Parameter value is passed as string. Use ``converter`` argument to define a method that will be used to convert the value:
 
 ..  code-block:: python
 

@@ -218,7 +218,7 @@ class RobocopImporter:
     def _import_module_from_file(file_path):
         """Import Python file as module.
 
-        importlib does not support importing python files directly, and we need to create module specification first."""
+        importlib does not support importing Python files directly, and we need to create module specification first."""
         spec = importlib.util.spec_from_file_location(file_path.stem, file_path)
         mod = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(mod)

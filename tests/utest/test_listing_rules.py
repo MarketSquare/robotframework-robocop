@@ -27,7 +27,7 @@ def msg_0101_config():
     }
 
 
-def dummy_parser(value):
+def example_parser(value):
     return value
 
 
@@ -36,7 +36,7 @@ def msg_0101_config_meta():
     return {
         "0101": Rule(
             RuleParam(name="conf_param", converter=int, default=0, desc=""),
-            RuleParam(name="conf_param2", converter=dummy_parser, default=0, desc="meta information"),
+            RuleParam(name="conf_param2", converter=example_parser, default=0, desc="meta information"),
             rule_id="0101",
             name="some-message",
             msg="Some description",
@@ -222,7 +222,7 @@ class TestListingRules:
             "    conf_param = 0\n"
             "        type: int\n"
             "    conf_param2 = 0\n"
-            "        type: dummy_parser\n"
+            "        type: example_parser\n"
             "        info: meta information\n\n"
             "Altogether 1 rule with following severity:\n"
             "    0 error rules,\n"

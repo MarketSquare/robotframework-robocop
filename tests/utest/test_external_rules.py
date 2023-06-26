@@ -11,6 +11,8 @@ from robocop.config import Config
 
 TEST_DATA = Path(__file__).parent.parent / "test_data" / "ext_rules"
 EXT_MODULE = str(TEST_DATA / "ext_rule_module")
+EXT_MODULE_SIMPLE = str(TEST_DATA / "ext_rule_module_simple_import")
+EXT_MODULE_ROBOCOP_IMPORT = str(TEST_DATA / "ext_rule_module_import_robocop")
 
 
 @contextmanager
@@ -21,6 +23,10 @@ def add_sys_path(path):
         yield
     finally:
         sys.path.remove(path)
+
+
+def clear_imported_module(module):
+    sys.modules.pop(module, None)
 
 
 @contextmanager
@@ -34,6 +40,18 @@ def working_directory(path):
         os.chdir(prev_cwd)
 
 
+def assert_no_duplicated_checker(checkers):
+    seen_checkers = []
+    for checker in checkers:
+        checker_name = checker.__class__.__name__
+        for seen_checker in seen_checkers:
+            if checker_name == seen_checker.__class__.__name__:
+                assert sorted(checker.rules.keys()) != sorted(
+                    seen_checker.rules.keys()
+                ), f"Checker {checker_name} was imported more than once."
+        seen_checkers.append(checker)
+
+
 class TestExternalRules:
     def test_loading_external_rule(self, robocop_pre_load):
         robocop_pre_load.config.ext_rules = {str(TEST_DATA / "ext_rule" / "external_rule.py")}
@@ -41,12 +59,30 @@ class TestExternalRules:
         assert "1101" in robocop_pre_load.rules
 
     def test_loading_external_rule_from_module(self, robocop_pre_load):
+        clear_imported_module("RobocopRules")
         with add_sys_path(EXT_MODULE):
             robocop_pre_load.config.ext_rules = {"RobocopRules"}
             robocop_pre_load.load_checkers()
             assert "9903" in robocop_pre_load.rules
 
+    def test_loading_external_rule_from_module_simple_import(self, robocop_pre_load):
+        clear_imported_module("RobocopRules")
+        with add_sys_path(EXT_MODULE_SIMPLE):
+            robocop_pre_load.config.ext_rules = {"RobocopRules"}
+            robocop_pre_load.load_checkers()
+            assert "9904" in robocop_pre_load.rules
+            assert "9903" in robocop_pre_load.rules
+            assert_no_duplicated_checker(robocop_pre_load.checkers)
+
+    def test_loading_external_rule_with_robocop_import(self, robocop_pre_load):
+        clear_imported_module("RobocopRules")
+        with add_sys_path(EXT_MODULE_ROBOCOP_IMPORT):
+            robocop_pre_load.config.ext_rules = {"RobocopCustomRules"}
+            robocop_pre_load.load_checkers()
+            assert_no_duplicated_checker(robocop_pre_load.checkers)
+
     def test_loading_external_rule_from_dotted_module(self, robocop_pre_load):
+        clear_imported_module("RobocopRules")
         with add_sys_path(EXT_MODULE):
             robocop_pre_load.config.ext_rules = {"RobocopRules.submodule"}
             robocop_pre_load.load_checkers()
@@ -55,6 +91,7 @@ class TestExternalRules:
 
     @pytest.mark.parametrize("config_dir", ["config_robocop", "config_pyproject"])
     def test_loading_external_rule_in_robocop_config(self, robocop_pre_load, config_dir):
+        clear_imported_module("RobocopRules")
         src = TEST_DATA / config_dir
         with add_sys_path(EXT_MODULE), working_directory(src), patch.object(sys, "argv", ["prog"]):
             config = Config(from_cli=True)
@@ -63,6 +100,7 @@ class TestExternalRules:
             assert "9903" in robocop_pre_load.rules
 
     def test_loading_multiple_external_rules(self, robocop_pre_load):
+        clear_imported_module("RobocopRules")
         robocop_pre_load.config.ext_rules = {
             str(TEST_DATA / "ext_rule" / "external_rule.py"),
             str(TEST_DATA / "ext_rule" / "external_rule2.py"),
@@ -72,18 +110,21 @@ class TestExternalRules:
         assert "1102" in robocop_pre_load.rules
 
     def test_loading_external_rule_dir(self, robocop_pre_load):
+        clear_imported_module("RobocopRules")
         robocop_pre_load.config.ext_rules = {str(TEST_DATA / "ext_rule")}
         robocop_pre_load.load_checkers()
         assert "1101" in robocop_pre_load.rules
         assert "1102" in robocop_pre_load.rules
 
     def test_loading_non_existing_rule(self, robocop_pre_load):
+        clear_imported_module("RobocopRules")
         robocop_pre_load.config.ext_rules = {str(TEST_DATA / "ext_rule" / "non_existing.py")}
         with pytest.raises(robocop.exceptions.InvalidExternalCheckerError) as err:
             robocop_pre_load.load_checkers()
         assert "Fatal error: Failed to load external rules from file" in str(err)
 
     def test_loading_duplicated_rule(self, robocop_pre_load):
+        clear_imported_module("RobocopRules")
         robocop_pre_load.config.ext_rules = {
             str(TEST_DATA / "ext_rule" / "external_rule.py"),
             str(TEST_DATA / "ext_rule_duplicate" / "external_rule_dup.py"),

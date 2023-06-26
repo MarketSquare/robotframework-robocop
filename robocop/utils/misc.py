@@ -1,14 +1,10 @@
 import ast
 import difflib
-import importlib.util
 import re
-import sys
 import token
 import tokenize
 from collections import Counter, defaultdict
-from importlib import import_module
 from io import StringIO
-from pathlib import Path
 from tokenize import generate_tokens
 from typing import Dict, List, Optional, Pattern, Tuple
 
@@ -22,7 +18,6 @@ except ImportError:
 from robot.variables.search import VariableIterator
 from robot.version import VERSION as RF_VERSION
 
-from robocop.exceptions import InvalidExternalCheckerError
 from robocop.utils.version_matching import Version
 from robocop.version import __version__
 
@@ -32,56 +27,6 @@ ROBOT_WITH_LANG = Version("6.0")
 
 def rf_supports_lang():
     return ROBOT_VERSION >= ROBOT_WITH_LANG
-
-
-def modules_in_current_dir(path, module_name):
-    """Yield modules inside `path` parent directory"""
-    yield from modules_from_path(Path(path).parent, module_name)
-
-
-def modules_from_paths(paths):
-    for path in paths:
-        path_object = Path(path)
-        if path_object.exists():
-            if path_object.is_dir():
-                yield from modules_from_paths(
-                    [file for file in path_object.iterdir() if "__pycache__" not in str(file)]
-                )
-            else:
-                spec = importlib.util.spec_from_file_location(path_object.stem, path_object)
-                mod = importlib.util.module_from_spec(spec)
-
-                spec.loader.exec_module(mod)
-                yield mod
-        else:
-            # if it's not physical path, try to import from installed modules
-            try:
-                parent_name, *lib_name = path.rsplit(".", 1)
-                if lib_name:
-                    parent = __import__(parent_name, fromlist=lib_name)
-                    mod = getattr(parent, "".join(lib_name))
-                else:
-                    mod = __import__(parent_name, None)
-                yield mod
-            except ImportError:
-                raise InvalidExternalCheckerError(path) from None
-
-
-def modules_from_path(path, module_name=None, relative="."):
-    """Traverse current directory and yield python files imported as module"""
-    if path.is_file():
-        import_name = relative + path.stem
-        full_name = f"{module_name}{import_name}" if module_name else import_name
-        # workaround for API and pytest tests reusing the same module with different config
-        if full_name in sys.modules:
-            sys.modules.pop(full_name)
-        yield import_module(import_name, module_name)
-    elif path.is_dir():
-        for file in path.iterdir():
-            if "__pycache__" in str(file):
-                continue
-            if file.suffix == ".py" and file.stem != "__init__":
-                yield from modules_from_path(file, module_name, relative)
 
 
 def normalize_robot_name(name: str, remove_prefix: Optional[str] = None) -> str:
@@ -359,7 +304,7 @@ def get_errors(node):
 
 
 def find_escaped_variables(string):
-    """Return list of $escaped or \${escaped} variables from the string.
+    r"""Return list of $escaped or \${escaped} variables from the string.
 
     We are tokenizing the string using Python ast modules. This allows us to find valid Python-like names and check
     if they are escaped Robot Framework variables.

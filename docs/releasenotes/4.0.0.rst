@@ -1,7 +1,7 @@
 :orphan:
 
 =============
-Robocop 3.3.0
+Robocop 4.0.0
 =============
 
 Description.
@@ -16,7 +16,7 @@ or to install exactly this version
 
 ::
 
-    pip install robotframework-robocop==3.3.0
+    pip install robotframework-robocop==4.0.0
 
 .. contents::
    :depth: 2
@@ -74,6 +74,22 @@ rule (E0417).
 
 Other features
 ==============
+
+Overhaul of rules & checkers importing (#790)
+---------------------------------------------
+
+Complete refactor of how Robocop imports rules and checkers internally. Our import mechanism is now more uniform.
+Additionally, it is now possible to load external rules from the modules imported inside Python file.
+
+Let's assume we have the following code with loading external rules::
+
+    import custom_rules.naming
+    import custom_rules.errors
+    from custom_rules.lengths import rules, CustomChecker
+
+before the change, only ``CustomChecker`` would be loaded by Robocop, while the content of the ``custom_rules.naming`` and
+``custom_rules.errors`` would be ignored. Now such imports will be parsed and external Robocop rules defined
+inside them will be loaded as well.
 
 New ``enabled`` rule parameter used to create rules disabled by default (#809)
 ------------------------------------------------------------------------------

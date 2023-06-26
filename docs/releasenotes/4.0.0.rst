@@ -81,15 +81,15 @@ Overhaul of rules & checkers importing (#790)
 Complete refactor of how Robocop imports rules and checkers internally. Our import mechanism is now more uniform.
 Additionally, it is now possible to load external rules from the modules imported inside Python file.
 
-Given following file with external rules::
+Let's assume we have the following code with loading external rules::
 
     import custom_rules.naming
     import custom_rules.errors
     from custom_rules.lengths import rules, CustomChecker
 
-Before the change, only ``CustomChecker`` would be loaded by Robocop and content of the ``custom_rules.naming`` and
+before the change, only ``CustomChecker`` would be loaded by Robocop, while the content of the ``custom_rules.naming`` and
 ``custom_rules.errors`` would be ignored. Now such imports will be parsed and external Robocop rules defined
-inside them will be also loaded.
+inside them will be loaded as well.
 
 New ``enabled`` rule parameter used to create rules disabled by default (#809)
 ------------------------------------------------------------------------------

@@ -1,7 +1,7 @@
 :orphan:
 
 =============
-Robocop 3.3.0
+Robocop 4.0.0
 =============
 
 Description.

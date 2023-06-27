@@ -112,9 +112,9 @@ For example, with the following code::
         Should Be True    len(${data}) != 0
 
 ``# robocop: disable=missing-doc-keyword`` disabler is called in ``Read Data From Database``. In the old
-implementation such disabler would ignore all matching rules till it was enabled again or end of the file.
-Now it will be enabled again at end of the keyword. Disablers supports also other code blocks, such as test cases,
-for and while loops and if statements.
+implementation such disabler would ignore all matching rules till it was enabled again or end of the file is met.
+Now, the disabler is aware of the context where it was called, and it will be enabled again at the end of the keyword.
+The disablers support also other code blocks, such as test cases, "for" and "while" loops and "if" statements.
 
 Reports refactor (#834)
 -----------------------

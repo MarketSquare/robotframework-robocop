@@ -60,6 +60,23 @@ or::
 
 Ignored blocks can partly overlap. Rule name and rule id can be used interchangeably.
 
+The disabler is aware of the context where it was called, and it will be enabled again at the end of the current code
+block (such as keyword, test case, "for" and "while" loop and "if" statement). In following example,
+``wrong-case-in-keyword-name`` disabler will be enabled only inside "for" loop.
+
+..  code-block:: robotframework
+    :caption: example.robot
+
+    *** Keywords ***
+    Compare Table With CSV Files
+        [Arguments]    ${table}    @{files}
+        ${data}    Get Data From Table    ${table}
+        FOR    ${file}    IN    @{files}
+            # robocop: disable=wrong-case-in-keyword-name
+            Table data should be in file     ${data}    ${file}
+        END
+        Should Be Equal    ${erorrs}    @{EMPTY}
+
 It is possible to ignore whole file if you start file with ``# robocop: disable``.
 
 ..  code-block:: robotframework

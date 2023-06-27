@@ -104,7 +104,7 @@ class DisablersFinder(ModelVisitor):
             return False
         return any(
             self.is_line_disabled(line, rule)
-            for line in (rule_msg.line, *rule_msg.ext_disablers)
+            for line in (rule_msg.line, *rule_msg.extended_disablers)
             for rule in ("all", rule_msg.rule_id, rule_msg.name)
         )
 

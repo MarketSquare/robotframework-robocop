@@ -40,7 +40,7 @@ class TestMessage:
             col=None,
             end_lineno=None,
             end_col=None,
-            ext_disablers=None,
+            extended_disablers=None,
             sev_threshold_value=None,
             severity=None,
         )
@@ -127,7 +127,7 @@ class TestMessage:
             col=col,
             end_lineno=end_lineno,
             end_col=end_col,
-            ext_disablers=None,
+            extended_disablers=None,
             sev_threshold_value=None,
             severity=None,
         )
@@ -190,7 +190,7 @@ class TestMessage:
             col=None,
             end_lineno=None,
             end_col=None,
-            ext_disablers=None,
+            extended_disablers=None,
             sev_threshold_value=None,
             severity=None,
             **kwargs,

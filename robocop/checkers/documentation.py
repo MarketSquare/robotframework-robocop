@@ -131,14 +131,14 @@ class MissingDocumentationChecker(VisitorChecker):
             if isinstance(statement, Documentation):
                 break
         else:
-            ext_disablers = (node.lineno, node.end_lineno) if extend_disablers else None
+            extended_disablers = (node.lineno, node.end_lineno) if extend_disablers else None
             if hasattr(node, "name"):
                 self.report(
                     msg,
                     name=node.name,
                     node=node,
                     end_col=node.col_offset + len(node.name) + 1,
-                    ext_disablers=ext_disablers,
+                    extended_disablers=extended_disablers,
                 )
             else:
-                self.report(msg, node=node, end_col=node.end_col_offset, ext_disablers=ext_disablers)
+                self.report(msg, node=node, end_col=node.end_col_offset, extended_disablers=extended_disablers)

@@ -71,6 +71,21 @@ According to RF User Guide, ``Default Tags`` and ``Test Template`` settings are 
 in suite initialization files, and this is covered by new ``unsupported-setting-in-init-file``
 rule (E0417).
 
+New rule for unnecessary string conversion in IF and WHILE conditions (#442)
+----------------------------------------------------------------------------
+
+Unnecessary string conversion is now detected and I0923 ``unnecessary-string-conversion`` is raised.
+Following code::
+
+    WHILE    "${status}" == "200"
+        ${status}    Get Health Status    ${service_name}
+    END
+
+can be rewritten to::
+
+    WHILE    $status == 200
+        ${status}    Get Health Status    ${service_name}
+    END
 
 Other features
 ==============

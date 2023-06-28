@@ -1,0 +1,7 @@
+test.robot:3:12 [I] 0923 Variable '${variable}' in IF condition has unnecessary string conversion
+test.robot:5:20 [I] 0923 Variable '${variable}' in ELSE IF condition has unnecessary string conversion
+test.robot:7:16 [I] 0923 Variable '${variable}' in IF condition has unnecessary string conversion
+test.robot:17:25 [I] 0923 Variable '${variable}' in INLINE IF condition has unnecessary string conversion
+test.robot:17:75 [I] 0923 Variable '${string_var}' in ELSE IF condition has unnecessary string conversion
+test.robot:20:15 [I] 0923 Variable '${variable}' in WHILE condition has unnecessary string conversion
+test.robot:21:19 [I] 0923 Variable '${variable}' in WHILE condition has unnecessary string conversion

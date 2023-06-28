@@ -384,7 +384,17 @@ class Rule:
         return count, text
 
     def prepare_message(
-        self, source, node, lineno, col, end_lineno, end_col, ext_disablers, sev_threshold_value, severity, **kwargs
+        self,
+        source,
+        node,
+        lineno,
+        col,
+        end_lineno,
+        end_col,
+        extended_disablers,
+        sev_threshold_value,
+        severity,
+        **kwargs,
     ):
         msg = self.get_message(**kwargs)
         return Message(
@@ -396,7 +406,7 @@ class Rule:
             col=col,
             end_col=end_col,
             end_lineno=end_lineno,
-            ext_disablers=ext_disablers,
+            extended_disablers=extended_disablers,
             sev_threshold_value=sev_threshold_value,
             overwrite_severity=severity,
         )
@@ -419,7 +429,7 @@ class Message:
         col,
         end_lineno,
         end_col,
-        ext_disablers=None,
+        extended_disablers=None,
         sev_threshold_value=None,
         overwrite_severity=None,
     ):
@@ -437,7 +447,7 @@ class Message:
         self.col = 1 if col is None else col
         self.end_line = self.line if end_lineno is None else end_lineno
         self.end_col = self.col if end_col is None else end_col
-        self.ext_disablers = ext_disablers if ext_disablers else []
+        self.extended_disablers = extended_disablers if extended_disablers else []
 
     def __lt__(self, other):
         return (self.line, self.col, self.rule_id) < (

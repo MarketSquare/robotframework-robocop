@@ -60,28 +60,52 @@ or::
 
 Ignored blocks can partly overlap. Rule name and rule id can be used interchangeably.
 
-It is possible to ignore whole file if you start file with ``# robocop: disable`` and won't provide
-``# robocop: enable`` before end of file.
+The disabler is aware of the context where it was called, and it will be enabled again at the end of the current code
+block (such as keyword, test case, "for" and "while" loops and "if" statement). In the following example,
+``wrong-case-in-keyword-name`` disabler will disable the rule only inside the "for" loop.
 
-..  code-block:: none
+..  code-block:: robotframework
     :caption: example.robot
 
+    *** Keywords ***
+    Compare Table With CSV Files
+        [Arguments]    ${table}    @{files}
+        ${data}    Get Data From Table    ${table}
+        FOR    ${file}    IN    @{files}
+            # robocop: disable=wrong-case-in-keyword-name
+            Table data should be in file     ${data}    ${file}
+        END
+        Should Be Equal    ${erorrs}    @{EMPTY}
+
+It is possible to ignore whole file if you start file with ``# robocop: disable``.
+
+..  code-block:: robotframework
+    :caption: example.robot
+
+    # robocop: disable=missing-doc-test-case
+
     *** Test Cases ***
-    Some Test  # robocop: disable=missing-doc-test-case
+    Some Test
         Keyword 1
         Keyword 2
         Keyword 3
 
     *** Keywords ***
-    # robocop: disable
     Keyword 1
+        # robocop: disable
         Log  1
 
     Keyword 2
         Log  2
 
+    # robocop: disable
+    Keyword 3
+        Log  3
+
+    Keyword 4
+        Log  4
     # robocop: enable
 
-In this example we are disabling ``missing-doc-test-case`` rule in 2nd line of the file.
-Also we are disabling all rules for ``*** Keywords ***`` section.
-
+In this example we are disabling ``missing-doc-test-case`` rule in the whole file.
+Also we are disabling all rules inside ``Keyword 1`` keyword and all lines between
+``Keyword 3`` and ``Keyword 4`` keywords.

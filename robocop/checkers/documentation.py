@@ -100,15 +100,15 @@ class MissingDocumentationChecker(VisitorChecker):
     def visit_Keyword(self, node):  # noqa
         if node.name.lstrip().startswith("#"):
             return
-        self.check_if_docs_are_present(node, "missing-doc-keyword")
+        self.check_if_docs_are_present(node, "missing-doc-keyword", extend_disablers=True)
 
     def visit_TestCase(self, node):  # noqa
         if self.param("missing-doc-test-case", "ignore_templated") and self.templated_suite:
             return
-        self.check_if_docs_are_present(node, "missing-doc-test-case")
+        self.check_if_docs_are_present(node, "missing-doc-test-case", extend_disablers=True)
 
     def visit_SettingSection(self, node):  # noqa
-        self.check_if_docs_are_present(node, "missing-doc-suite")
+        self.check_if_docs_are_present(node, "missing-doc-suite", extend_disablers=False)
 
     def visit_File(self, node):  # noqa
         for section in node.sections:
@@ -126,12 +126,19 @@ class MissingDocumentationChecker(VisitorChecker):
                 self.report("missing-doc-suite", node=node, lineno=1, col=1)
         super().visit_File(node)
 
-    def check_if_docs_are_present(self, node, msg):
+    def check_if_docs_are_present(self, node, msg, extend_disablers):
         for statement in node.body:
             if isinstance(statement, Documentation):
                 break
         else:
+            extended_disablers = (node.lineno, node.end_lineno) if extend_disablers else None
             if hasattr(node, "name"):
-                self.report(msg, name=node.name, node=node, end_col=node.col_offset + len(node.name) + 1)
+                self.report(
+                    msg,
+                    name=node.name,
+                    node=node,
+                    end_col=node.col_offset + len(node.name) + 1,
+                    extended_disablers=extended_disablers,
+                )
             else:
-                self.report(msg, node=node, end_col=node.end_col_offset)
+                self.report(msg, node=node, end_col=node.end_col_offset, extended_disablers=extended_disablers)

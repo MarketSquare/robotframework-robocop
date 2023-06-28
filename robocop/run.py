@@ -125,7 +125,7 @@ class Robocop:
             self.reports["file_stats"].files_count = len(self.files)
 
     def run_check(self, ast_model, filename, source=None):
-        disablers = DisablersFinder(filename=filename, source=source)
+        disablers = DisablersFinder(ast_model)
         if disablers.file_disabled:
             return []
         found_issues = []

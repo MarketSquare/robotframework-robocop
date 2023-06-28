@@ -1,4 +1,3 @@
-# robocop: disable
 *** Settings ***
 Library  SomeLib
 # robocop: enable

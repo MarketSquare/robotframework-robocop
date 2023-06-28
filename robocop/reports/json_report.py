@@ -20,6 +20,33 @@ class JsonReport(Report):
         robocop --configure json_report:output_dir:C:/json_reports
         robocop --configure json_report:report_filename:robocop_output.json
 
+    Example content of the file::
+
+        [
+            {
+                "source": "C:\\robot_tests\\keywords.robot",
+                "line": 1,
+                "end_line": 1,
+                "column": 1,
+                "end_column": 1,
+                "severity": "I",
+                "rule_id": "0913",
+                "description": "No tests in 'keywords.robot' file, consider renaming to 'keywords.resource'",
+                "rule_name": "can-be-resource-file"
+            },
+            {
+                "source": "C:\\robot_tests\\keywords.robot",
+                "line": 51,
+                "end_line": 51,
+                "column": 1,
+                "end_column": 13,
+                "severity": "W",
+                "rule_id": "0324",
+                "description": "Variable '${TEST_NAME}' overwrites reserved variable '${TEST_NAME}'",
+                "rule_name": "overwriting-reserved-variable"
+            }
+        ]
+
     """
 
     DEFAULT = False

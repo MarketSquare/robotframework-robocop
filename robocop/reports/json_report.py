@@ -1,11 +1,11 @@
 import json
 from pathlib import Path
 
-from robocop.reports import Report
+import robocop.reports
 from robocop.rules import Message
 
 
-class JsonReport(Report):
+class JsonReport(robocop.reports.Report):
     """
     Report name: ``json_report``
 
@@ -69,7 +69,7 @@ class JsonReport(Report):
         with open(output_path, "w") as fp:
             json_string = json.dumps(self.issues, indent=4)
             fp.write(json_string)
-        return f"Generated JSON report at {output_path}"
+        return f"\nGenerated JSON report at {output_path}"
 
     def configure(self, name, value):
         if name == "output_dir":
@@ -81,7 +81,7 @@ class JsonReport(Report):
             super().configure(name, value)
 
 
-class InternalJsonReport(Report):
+class InternalJsonReport(robocop.reports.Report):
     """
     Report name: ``internal_json_report``
 
@@ -98,6 +98,3 @@ class InternalJsonReport(Report):
 
     def add_message(self, message: Message):
         self.issues.append(message.to_json())
-
-    def get_report(self):
-        return None

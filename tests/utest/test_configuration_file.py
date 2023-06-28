@@ -116,6 +116,7 @@ class TestConfigurationFile:
             ".txt,tsv",
             "--threshold",
             "E",
+            "--persistent",
             "--no-recursive",
             "--language",
             "pt,fi",

@@ -69,6 +69,7 @@ class TestE2E:
     def test_list_all_reports(self, robocop_instance, capfd):
         exp_msg = (
             "Available reports:\n"
+            "compare_runs         - Compare reports between two Robocop runs. (disabled - non-default)\n"
             "file_stats           - Prints overall statistics about number of processed files (disabled)\n"
             "json_report          - Produces JSON file with found issues (disabled - non-default)\n"
             "rules_by_error_type  - Prints total number of issues grouped by severity (disabled)\n"
@@ -115,6 +116,7 @@ class TestE2E:
         for option in ("--list-reports", "-lr"):
             exp_msg = (
                 "Available reports:\n"
+                "compare_runs         - Compare reports between two Robocop runs. (disabled - non-default)\n"
                 "file_stats           - Prints overall statistics about number of processed files (disabled)\n"
                 "json_report          - Produces JSON file with found issues (disabled - non-default)\n"
                 "rules_by_error_type  - Prints total number of issues grouped by severity (disabled)\n"
@@ -134,6 +136,7 @@ class TestE2E:
             assert out == exp_msg
             exp_msg = (
                 "Available reports:\n"
+                "compare_runs         - Compare reports between two Robocop runs. (disabled - non-default)\n"
                 "file_stats           - Prints overall statistics about number of processed files (disabled)\n"
                 "json_report          - Produces JSON file with found issues (disabled - non-default)\n"
                 "rules_by_error_type  - Prints total number of issues grouped by severity (disabled)\n"

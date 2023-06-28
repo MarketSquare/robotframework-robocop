@@ -201,6 +201,7 @@ class Config:
         self.output = None
         self.recursive = True
         self.verbose = False
+        self.persistent = False
         self.config_from = ""
         self.root = find_project_root(root, ["."])
         self.parse()
@@ -398,6 +399,12 @@ class Config:
             action=ParseDelimitedArgAction,
             default=self.language,
             help="Parse Robot Framework files using additional languages.",
+        )
+        optional.add_argument(
+            "--persistent",
+            action="store_true",
+            default=self.persistent,
+            help="Use this flag to save Robocop reports in cache directory for later comparison.",
         )
         optional.add_argument("-h", "--help", action="help", help="Print this help message and exit.")
         optional.add_argument(
@@ -625,6 +632,8 @@ class Config:
                 self.recursive = not value
             elif key == "verbose":
                 self.verbose = value
+            elif key == "persistent":
+                self.persistent = value
             else:
                 raise InvalidArgumentError(f"Option '{key}' is not supported in pyproject.toml configuration file.")
         return True

@@ -88,8 +88,8 @@ Output directory and filename can be configured with::
 
     robocop --configure json_report:output_dir:output --configure json_report:report_filename:issues.json --reports json_report .
 
-``json_report`` was created from the old, internal only report with the same name. Previous report is renamed to
-``internal_json_report``. If you are using Robocop programmatically and you are using``json_report``, rename it to
+``json_report`` was created from the old, internal-only report with the same name. The previous report is renamed to
+``internal_json_report``. If you are using Robocop programmatically and you were using``json_report``, rename it to
 ``internal_json_report``.
 
 Overhaul of rules & checkers importing (#790)

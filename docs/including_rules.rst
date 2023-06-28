@@ -61,8 +61,8 @@ or::
 Ignored blocks can partly overlap. Rule name and rule id can be used interchangeably.
 
 The disabler is aware of the context where it was called, and it will be enabled again at the end of the current code
-block (such as keyword, test case, "for" and "while" loop and "if" statement). In following example,
-``wrong-case-in-keyword-name`` disabler will be enabled only inside "for" loop.
+block (such as keyword, test case, "for" and "while" loops and "if" statement). In the following example,
+``wrong-case-in-keyword-name`` disabler will disable the rule only inside the "for" loop.
 
 ..  code-block:: robotframework
     :caption: example.robot

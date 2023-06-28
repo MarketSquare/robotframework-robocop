@@ -243,7 +243,7 @@ class TestJSONReport:
         for issue in issues:
             report.add_message(issue)
         report.get_report()
-        json_path = report.output_dir / report.report_filename
+        json_path = report.output_dir / "robocop.json"
         with open(json_path) as fp:
             json_report = json.load(fp)
         assert expected_report == json_report

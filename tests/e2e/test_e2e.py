@@ -70,7 +70,7 @@ class TestE2E:
         exp_msg = (
             "Available reports:\n"
             "file_stats           - Prints overall statistics about number of processed files (disabled)\n"
-            "json_report          - Accumulates found issues in JSON format (disabled - non-default)\n"
+            "json_report          - Produces JSON file with found issues (disabled - non-default)\n"
             "rules_by_error_type  - Prints total number of issues grouped by severity (disabled)\n"
             "rules_by_id          - Groups detected issues by rule id and prints it ordered by most common (disabled)\n"
             "sarif                - Generate SARIF output file (disabled - non-default)\n"
@@ -116,7 +116,7 @@ class TestE2E:
             exp_msg = (
                 "Available reports:\n"
                 "file_stats           - Prints overall statistics about number of processed files (disabled)\n"
-                "json_report          - Accumulates found issues in JSON format (disabled - non-default)\n"
+                "json_report          - Produces JSON file with found issues (disabled - non-default)\n"
                 "rules_by_error_type  - Prints total number of issues grouped by severity (disabled)\n"
                 "rules_by_id          - Groups detected issues by rule id and prints it ordered by most common "
                 "(disabled)\n"
@@ -135,7 +135,7 @@ class TestE2E:
             exp_msg = (
                 "Available reports:\n"
                 "file_stats           - Prints overall statistics about number of processed files (disabled)\n"
-                "json_report          - Accumulates found issues in JSON format (disabled - non-default)\n"
+                "json_report          - Produces JSON file with found issues (disabled - non-default)\n"
                 "rules_by_error_type  - Prints total number of issues grouped by severity (disabled)\n"
                 "rules_by_id          - Groups detected issues by rule id and prints it ordered by most common "
                 "(disabled)\n"

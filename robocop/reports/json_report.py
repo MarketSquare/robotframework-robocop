@@ -10,7 +10,7 @@ class JsonReport(Report):
     Report name: ``json_report``
 
     Report that returns a list of found issues in a JSON format. The output file will be generated
-    in the current working directory with the ``robocop_output.json`` name.
+    in the current working directory with the ``robocop.json`` name.
 
     This report is not included in the default reports. The ``--reports all`` option will not enable this report.
     You can still enable it using report name directly: ``--reports json_report`` or ``--reports all,json_report``.
@@ -18,7 +18,7 @@ class JsonReport(Report):
     You can configure output directory and report filename::
 
         robocop --configure json_report:output_dir:C:/json_reports
-        robocop --configure json_report:report_filename:robocop.json
+        robocop --configure json_report:report_filename:robocop_output.json
 
     """
 
@@ -28,7 +28,7 @@ class JsonReport(Report):
         self.name = "json_report"
         self.description = "Produces JSON file with found issues"
         self.output_dir = None
-        self.report_filename = "robocop_output.json"
+        self.report_filename = "robocop.json"
         self.issues = []
 
     def add_message(self, message: Message):

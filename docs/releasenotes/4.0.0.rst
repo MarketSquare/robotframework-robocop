@@ -75,6 +75,23 @@ rule (E0417).
 Other features
 ==============
 
+New report ``json_report`` (#663)
+---------------------------------
+
+Added new ``json_report`` report that produces file with issues in JSON format. It's a non-default report which needs
+to be called explicitly by name (it will not be loaded with ``--reports all``)::
+
+    robocop --reports json_report .
+
+It will save the results to a JSON file in the current working directory under ``robocop_output.json`` filename.
+Output directory and filename can be configured with::
+
+    robocop --configure json_report:output_dir:output --configure json_report:report_filename:issues.json --reports json_report .
+
+``json_report`` was created from the old, internal-only report with the same name. The previous report is renamed to
+``internal_json_report``. If you are using Robocop programmatically and you were using``json_report``, rename it to
+``internal_json_report``.
+
 Overhaul of rules & checkers importing (#790)
 ---------------------------------------------
 

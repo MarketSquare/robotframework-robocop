@@ -497,6 +497,48 @@ rules = {
         """,
         added_in_version="4.0.0",
     ),
+    "0924": Rule(
+        rule_id="0924",
+        name="expression-can-be-simplified",
+        msg="'{{ block_name }}' condition can be simplified",
+        severity=RuleSeverity.INFO,
+        version=">=4.0",
+        docs="""
+        Evaluated expression can be simplified. For example::
+        
+            *** Keywords ***
+            Click On Element
+                [Arguments]    ${locator}
+                IF    ${is_element_visible}==${TRUE}    RETURN
+                ${is_element_enabled}    Set Variable    ${TRUE}
+                WHILE    ${is_element_enabled} != ${TRUE}
+                    ${is_element_enabled}    Get Element Status    ${locator}
+                END
+                Click    ${locator}
+        
+        can be rewritten to::
+        
+            *** Keywords ***
+            Click On Element
+                [Arguments]    ${locator}
+                IF    ${is_element_visible}    RETURN
+                ${is_element_enabled}    Set Variable    ${FALSE}
+                WHILE    not ${is_element_enabled}
+                    ${is_element_enabled}    Get Element Status    ${locator}
+                END
+                Click    ${locator}
+
+        Comparisons to empty sequences (lists, dicts, sets), empty string or ``0`` can be also simplified::
+        
+            *** Test Cases ***
+            Check conditions
+                Should Be True     ${list} == []  # equivalent of 'not ${list}'
+                Should Be True     ${string} != ""  # equivalent of '${string}'
+                Should Be True     len(${sequence}))  # equivalent of '${sequence}'
+
+        """,
+        added_in_version="4.0.0",
+    ),
 }
 
 
@@ -1201,9 +1243,11 @@ class UnusedVariablesChecker(VisitorChecker):
 
 
 class ExpressionsChecker(VisitorChecker):
-    reports = ("unnecessary-string-conversion",)
+    reports = ("unnecessary-string-conversion", "expression-can-be-simplified")
     QUOTE_CHARS = {"'", '"'}
     CONDITION_KEYWORDS = {"passexecutionif", "setvariableif", "shouldbetrue", "shouldnotbetrue", "skipif"}
+    COMPARISON_SIGNS = {"==", "!="}
+    EMPTY_COMPARISON = {"${true}", "${false}", "true", "false", "[]", "{}", "set()", "list()", "dict()", "0"}
 
     def visit_If(self, node):  # noqa
         condition_token = node.header.get_token(Token.ARGUMENT)
@@ -1234,15 +1278,45 @@ class ExpressionsChecker(VisitorChecker):
             return
         position = condition_token.col_offset + 1
         for before, variable, remaining in variables:
+            position += len(before)
+            self.check_for_complex_condition(condition_token, node_name, before, variable, remaining, position)
             if not before or not remaining:
                 continue
-            position += len(before)
             if before[-1] in self.QUOTE_CHARS and before[-1] == remaining[0]:
                 self.report(
                     "unnecessary-string-conversion",
-                    node=node,
                     name=variable,
                     block_name=node_name,
+                    node=condition_token,
                     col=position,
                     end_col=position + len(variable),
                 )
+
+    def check_for_complex_condition(self, condition_token, node_name, left_side, variable, right_side, position):
+        """Check if right side of the equation can be simplified."""
+        if not right_side:
+            return
+        normalized = right_side.lower().lstrip()  # ' == ${TRUE}' -> '== ${true}'
+        if len(normalized) < 3:
+            if normalized == ")" and left_side.endswith("len("):
+                self.report(
+                    "expression-can-be-simplified",
+                    block_name=node_name,
+                    node=condition_token,
+                    col=position - len("len("),
+                    end_col=position + len(variable) + 1,
+                )
+                pass
+            return
+        equation = normalized[:2]  # '=='
+        compared_value = normalized[2:].lstrip()  # '${true}'
+        if equation not in self.COMPARISON_SIGNS:
+            return
+        if compared_value in self.EMPTY_COMPARISON:
+            self.report(
+                "expression-can-be-simplified",
+                block_name=node_name,
+                node=condition_token,
+                col=position,
+                end_col=position + len(variable) + len(right_side),
+            )

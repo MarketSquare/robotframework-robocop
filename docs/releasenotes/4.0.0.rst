@@ -71,7 +71,7 @@ According to RF User Guide, ``Default Tags`` and ``Test Template`` settings are 
 in suite initialization files, and this is covered by new ``unsupported-setting-in-init-file``
 rule (E0417).
 
-New rule for unnecessary string conversion in IF and WHILE conditions (#442)
+New rule for unnecessary string conversion in evaluated conditions (#442)
 ----------------------------------------------------------------------------
 
 Unnecessary string conversion is now detected and I0923 ``unnecessary-string-conversion`` is raised.
@@ -86,6 +86,21 @@ can be rewritten to::
     WHILE    $status == 200
         ${status}    Get Health Status    ${service_name}
     END
+
+New rule for conditions that can be simplified (#891)
+-----------------------------------------------------
+
+Added new rule I0924 ``expression-can-be-simplified`` that checks if the evaluated condition
+can be simplified.
+For example::
+
+    IF    ${session_created} == ${FALSE}    Create Session
+    Skip If    ${rows} == []
+
+can be rewritten to::
+
+    IF    not ${session_created}    Create Session
+    Skip If    not ${rows}
 
 Other features
 ==============

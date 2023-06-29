@@ -1,0 +1,12 @@
+test.robot:3:12 [I] 0923 Variable '${variable}' in 'IF' condition has unnecessary string conversion
+test.robot:5:20 [I] 0923 Variable '${variable}' in 'ELSE IF' condition has unnecessary string conversion
+test.robot:7:16 [I] 0923 Variable '${variable}' in 'IF' condition has unnecessary string conversion
+test.robot:32:27 [I] 0923 Variable '${variable}' in 'Pass Execution If' condition has unnecessary string conversion
+test.robot:33:38 [I] 0923 Variable '${variable}' in 'Set Variable If' condition has unnecessary string conversion
+test.robot:34:25 [I] 0923 Variable '${variable}' in 'Set Variable If' condition has unnecessary string conversion
+test.robot:35:25 [I] 0923 Variable '${variable}' in 'Set Variable If' condition has unnecessary string conversion
+test.robot:36:25 [I] 0923 Variable '${variable}' in 'Set Variable If' condition has unnecessary string conversion
+test.robot:36:61 [I] 0923 Variable '${variable}' in 'Set Variable If' condition has unnecessary string conversion
+test.robot:39:30 [I] 0923 Variable '${variable}' in 'Should Be True' condition has unnecessary string conversion
+test.robot:42:30 [I] 0923 Variable '${variable}' in 'Should Not Be True' condition has unnecessary string conversion
+test.robot:43:17 [I] 0923 Variable '${variable}' in 'Skip If' condition has unnecessary string conversion

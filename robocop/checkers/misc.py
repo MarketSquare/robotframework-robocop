@@ -452,6 +452,51 @@ rules = {
         """,
         added_in_version="3.2.0",
     ),
+    "0923": Rule(
+        rule_id="0923",
+        name="unnecessary-string-conversion",
+        msg="Variable '{{ name }}' in '{{ block_name }}' condition has unnecessary string conversion",
+        severity=RuleSeverity.INFO,
+        version=">=4.0",
+        docs="""
+        Expressions in Robot Framework are evaluated using Python's eval function. When a variable is used
+        in the expression using the normal ``${variable}`` syntax, its value is replaced before the expression
+        is evaluated. For example, with the following expression::
+        
+            *** Test Cases ***
+            Check if schema was uploaded
+                Upload Schema    schema.avsc
+                Check If File Exist In SFTP    schema.avsc
+        
+            *** Keywords ***
+            Upload Schema
+                [Arguments]    ${filename}
+                IF    ${filename} == 'default'
+                    ${filename}    Get Default Upload Path
+                END
+                Send File To SFTP Root   ${filename}
+        
+        "${filename}" will be replaced by "schema.avsc"::
+        
+            IF    schema.avsc == 'default'
+        
+        "schema.avsc" will not be recognized as Python variable. That's why you need to quote it::
+        
+            IF    '${filename}' == 'default'
+        
+        However it introduces unnecessary string conversion and can mask difference in the type. For example::
+        
+            ${numerical}    Set Variable    10  # ${numerical} is actually string 10, not integer 10
+            IF    "${numerical}" == "10"
+
+        You can use  ``$variable`` syntax instead::
+        
+            IF    $numerical == 10
+        
+        It will put the actual variable in the evaluated expression without converting it to string.
+        """,
+        added_in_version="4.0.0",
+    ),
 }
 
 
@@ -1153,3 +1198,51 @@ class UnusedVariablesChecker(VisitorChecker):
                 if name in variable_scope:
                     variable_scope[name].is_used = True
                     return
+
+
+class ExpressionsChecker(VisitorChecker):
+    reports = ("unnecessary-string-conversion",)
+    QUOTE_CHARS = {"'", '"'}
+    CONDITION_KEYWORDS = {"passexecutionif", "setvariableif", "shouldbetrue", "shouldnotbetrue", "skipif"}
+
+    def visit_If(self, node):  # noqa
+        condition_token = node.header.get_token(Token.ARGUMENT)
+        self.check_condition(node, node.header.type, condition_token, node.condition)
+        self.generic_visit(node)
+
+    visit_While = visit_If
+
+    def visit_KeywordCall(self, node):  # noqa
+        normalized_name = normalize_robot_name(node.keyword, remove_prefix="builtin.")
+        if normalized_name not in self.CONDITION_KEYWORDS:
+            return
+        condition_token = node.get_token(Token.ARGUMENT)
+        self.check_condition(node, node.keyword, condition_token, condition_token.value)
+        if normalized_name == "setvariableif":
+            arguments = node.get_tokens(Token.ARGUMENT)
+            if len(arguments) < 4:
+                return
+            for condition_token in arguments[2::2]:
+                self.check_condition(node, node.keyword, condition_token, condition_token.value)
+
+    def check_condition(self, node, node_name, condition_token, condition):
+        if not condition:
+            return
+        try:
+            variables = list(VariableIterator(condition))
+        except VariableError:  # for example ${variable which wasn't closed properly
+            return
+        position = condition_token.col_offset + 1
+        for before, variable, remaining in variables:
+            if not before or not remaining:
+                continue
+            position += len(before)
+            if before[-1] in self.QUOTE_CHARS and before[-1] == remaining[0]:
+                self.report(
+                    "unnecessary-string-conversion",
+                    node=node,
+                    name=variable,
+                    block_name=node_name,
+                    col=position,
+                    end_col=position + len(variable),
+                )

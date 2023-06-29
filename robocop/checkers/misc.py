@@ -455,7 +455,7 @@ rules = {
     "0923": Rule(
         rule_id="0923",
         name="unnecessary-string-conversion",
-        msg="Variable '{{ name }}' in {{ block_name }} condition has unnecessary string conversion",
+        msg="Variable '{{ name }}' in '{{ block_name }}' condition has unnecessary string conversion",
         severity=RuleSeverity.INFO,
         version=">=4.0",
         docs="""
@@ -1203,34 +1203,46 @@ class UnusedVariablesChecker(VisitorChecker):
 class ExpressionsChecker(VisitorChecker):
     reports = ("unnecessary-string-conversion",)
     QUOTE_CHARS = {"'", '"'}
+    CONDITION_KEYWORDS = {"passexecutionif", "setvariableif", "shouldbetrue", "shouldnotbetrue", "skipif"}
 
     def visit_If(self, node):  # noqa
-        self.check_condition(node, node.condition)
+        condition_token = node.header.get_token(Token.ARGUMENT)
+        self.check_condition(node, node.header.type, condition_token, node.condition)
         self.generic_visit(node)
 
-    def visit_While(self, node):  # noqa
-        self.check_condition(node, node.condition)
-        self.generic_visit(node)
+    visit_While = visit_If
 
-    def check_condition(self, node, condition):
+    def visit_KeywordCall(self, node):  # noqa
+        normalized_name = normalize_robot_name(node.keyword, remove_prefix="builtin.")
+        if normalized_name not in self.CONDITION_KEYWORDS:
+            return
+        condition_token = node.get_token(Token.ARGUMENT)
+        self.check_condition(node, node.keyword, condition_token, condition_token.value)
+        if normalized_name == "setvariableif":
+            arguments = node.get_tokens(Token.ARGUMENT)
+            if len(arguments) < 4:
+                return
+            for condition_token in arguments[2::2]:
+                self.check_condition(node, node.keyword, condition_token, condition_token.value)
+
+    def check_condition(self, node, node_name, condition_token, condition):
         if not condition:
             return
         try:
             variables = list(VariableIterator(condition))
         except VariableError:  # for example ${variable which wasn't closed properly
             return
-        condition_token = node.header.get_token(Token.ARGUMENT)
-        pos = condition_token.col_offset + 1
+        position = condition_token.col_offset + 1
         for before, variable, remaining in variables:
             if not before or not remaining:
                 continue
-            pos += len(before)
+            position += len(before)
             if before[-1] in self.QUOTE_CHARS and before[-1] == remaining[0]:
                 self.report(
                     "unnecessary-string-conversion",
                     node=node,
                     name=variable,
-                    block_name=node.header.type,
-                    col=pos,
-                    end_col=pos + len(variable),
+                    block_name=node_name,
+                    col=position,
+                    end_col=position + len(variable),
                 )

@@ -34,7 +34,7 @@ class RulesBySeverityReport(robocop.reports.ComparableReport):
         }
 
     @staticmethod
-    def get_plurar(count):
+    def get_plural(count):
         return "s" if count != 1 else ""
 
     def get_report(self, prev_results) -> str:
@@ -46,10 +46,10 @@ class RulesBySeverityReport(robocop.reports.ComparableReport):
         issues_count = sum(self.severity_counter.values())
         if not issues_count:
             return "\nFound 0 issues."
-        report = f"\nFound {issues_count} issue{self.get_plurar(issues_count)}: "
+        report = f"\nFound {issues_count} issue{self.get_plural(issues_count)}: "
         warning_types = []
         for severity, count in self.severity_counter.items():
-            warning_types.append(f"{count} {severity.name}{self.get_plurar(count)}")
+            warning_types.append(f"{count} {severity.name}{self.get_plural(count)}")
         report += ", ".join(warning_types)
         report += "."
         return report
@@ -61,11 +61,11 @@ class RulesBySeverityReport(robocop.reports.ComparableReport):
             diff = get_string_diff(prev_issues, issues_count)
             return f"\nFound 0 ({diff}) issues."
         diff = f" ({get_string_diff(prev_results['all_issues'], issues_count)})"
-        report = f"\nFound {issues_count}{diff} issue{self.get_plurar(issues_count)}: "
+        report = f"\nFound {issues_count}{diff} issue{self.get_plural(issues_count)}: "
         warning_types = []
         for severity, count in self.severity_counter.items():
             diff = f" ({get_string_diff(prev_results[severity.name.lower()], count)})"
-            warning_types.append(f"{count}{diff} {severity.name}{self.get_plurar(count)}")
+            warning_types.append(f"{count}{diff} {severity.name}{self.get_plural(count)}")
         report += ", ".join(warning_types)
         report += "."
         return report

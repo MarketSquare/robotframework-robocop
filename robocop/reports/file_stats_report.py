@@ -43,9 +43,9 @@ class FileStatsReport(robocop.reports.ComparableReport):
             files_count = prev_results["files_count"]
             return (
                 f"\nNo files were processed. "
-                f"Previously {files_count} file{self.get_plurar(files_count)} were processed."
+                f"Previously {files_count} file{self.get_plural(files_count)} were processed."
             )
-        plural_files = self.get_plurar(self.files_count)
+        plural_files = self.get_plural(self.files_count)
         prev_files = prev_results["files_count"]
         prev_count = f" ({get_string_diff(prev_files, self.files_count)})"
         processed_files_summary = f"\nProcessed {self.files_count}{prev_count} file{plural_files}"
@@ -54,7 +54,7 @@ class FileStatsReport(robocop.reports.ComparableReport):
                 f"{processed_files_summary} but no issues were found. "
                 f"Previously there were {prev_results['files_with_issues']} files with issues."
             )
-        plural_files_with_issues = self.get_plurar(len(self.files_with_issues))
+        plural_files_with_issues = self.get_plural(len(self.files_with_issues))
         prev_files = prev_results["files_with_issues"]
         prev_count = f" ({get_string_diff(prev_files, len(self.files_with_issues))})"
         return (
@@ -65,11 +65,11 @@ class FileStatsReport(robocop.reports.ComparableReport):
     def get_report_without_compare(self) -> str:
         if not self.files_count:
             return "\nNo files were processed."
-        plural_files = self.get_plurar(self.files_count)
+        plural_files = self.get_plural(self.files_count)
         processed_files_summary = f"\nProcessed {self.files_count} file{plural_files}"
         if not self.files_with_issues:
             return f"{processed_files_summary} but no issues were found."
-        plural_files_with_issues = self.get_plurar(len(self.files_with_issues))
+        plural_files_with_issues = self.get_plural(len(self.files_with_issues))
         return (
             f"{processed_files_summary} from which {len(self.files_with_issues)} "
             f"file{plural_files_with_issues} contained issues."

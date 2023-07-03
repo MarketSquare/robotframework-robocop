@@ -108,7 +108,7 @@ Other features
 New report ``compare_runs`` for comparing results with the previous run (#489)
 ------------------------------------------------------------------------------
 
-We have implemented a way to compare reports output with the previous run. It's done thanks for special, non-default
+We have implemented a way to compare reports output with the previous run. It's done thanks to special, non-default
 report ``compare_runs``. Additionally, there should be previous run results saved with the ``--persistent`` flag::
 
     robocop --reports all --persistent

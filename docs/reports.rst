@@ -14,7 +14,7 @@ You can use multiple reports with separate arguments (``-r report1 -r report2``)
 
     robocop --reports rules_by_id,some_other_report path/to/file.robot
 
-To enable all default reports use ``--reports all``.  Non-default reports can be only enabled using report name.
+To enable all default reports use ``--reports all``.  Non-default reports can be only enabled using their name.
 
 The order of the reports is preserved. For example, if you want ``timestamp`` report to be printed before any
 other reports, you can use the following configuration::
@@ -56,7 +56,7 @@ Saving the results is disabled by default and can be enabled with ``--persistent
 
     robocop --persistent
 
-or in the toml configuration file::
+or in the TOML configuration file::
 
     [tool.robocop]
     persistent = true

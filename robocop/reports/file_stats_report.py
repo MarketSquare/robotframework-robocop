@@ -30,7 +30,7 @@ class FileStatsReport(robocop.reports.ComparableReport):
         return {"files_count": self.files_count, "files_with_issues": len(self.files_with_issues)}
 
     @staticmethod
-    def get_plurar(count):
+    def get_plural(count):
         return "s" if count != 1 else ""
 
     def get_report(self, prev_results: Dict) -> str:

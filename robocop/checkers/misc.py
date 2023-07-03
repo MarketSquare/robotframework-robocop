@@ -539,6 +539,43 @@ rules = {
         """,
         added_in_version="4.0.0",
     ),
+    "0925": Rule(
+        rule_id="0925",
+        name="misplaced-not-in-condition",
+        msg="'{{ block_name }}' condition '{{ original_condition }}' can be rewritten to '{{ proposed_condition }}'",
+        severity=RuleSeverity.INFO,
+        version=">=4.0",
+        docs="""
+        Position of not operator can be changed for better readability.
+        
+        For example::
+        
+            *** Keywords ***
+            Check Unmapped Codes
+                ${codes}    Get Codes From API
+                IF    not ${codes} is None
+                    FOR    ${code}    IN    @{codes}
+                        Validate Single Code    ${code}
+                    END
+                ELSE
+                    Fail    Did not receive codes from API.
+                END
+        
+        Can be rewritten to::
+        
+            *** Keywords ***
+            Check Unmapped Codes
+                ${codes}    Get Codes From API
+                IF    ${codes} is not None
+                    FOR    ${code}    IN    @{codes}
+                        Validate Single Code    ${code}
+                    END
+                ELSE
+                    Fail    Did not receive codes from API.
+                END
+
+        """,
+    ),
 }
 
 
@@ -1243,7 +1280,7 @@ class UnusedVariablesChecker(VisitorChecker):
 
 
 class ExpressionsChecker(VisitorChecker):
-    reports = ("unnecessary-string-conversion", "expression-can-be-simplified")
+    reports = ("unnecessary-string-conversion", "expression-can-be-simplified", "misplaced-not-in-condition")
     QUOTE_CHARS = {"'", '"'}
     CONDITION_KEYWORDS = {"passexecutionif", "setvariableif", "shouldbetrue", "shouldnotbetrue", "skipif"}
     COMPARISON_SIGNS = {"==", "!="}
@@ -1251,7 +1288,7 @@ class ExpressionsChecker(VisitorChecker):
 
     def visit_If(self, node):  # noqa
         condition_token = node.header.get_token(Token.ARGUMENT)
-        self.check_condition(node, node.header.type, condition_token, node.condition)
+        self.check_condition(node.header.type, condition_token, node.condition)
         self.generic_visit(node)
 
     visit_While = visit_If
@@ -1261,15 +1298,15 @@ class ExpressionsChecker(VisitorChecker):
         if normalized_name not in self.CONDITION_KEYWORDS:
             return
         condition_token = node.get_token(Token.ARGUMENT)
-        self.check_condition(node, node.keyword, condition_token, condition_token.value)
+        self.check_condition(node.keyword, condition_token, condition_token.value)
         if normalized_name == "setvariableif":
             arguments = node.get_tokens(Token.ARGUMENT)
             if len(arguments) < 4:
                 return
             for condition_token in arguments[2::2]:
-                self.check_condition(node, node.keyword, condition_token, condition_token.value)
+                self.check_condition(node.keyword, condition_token, condition_token.value)
 
-    def check_condition(self, node, node_name, condition_token, condition):
+    def check_condition(self, node_name, condition_token, condition):
         if not condition:
             return
         try:
@@ -1279,6 +1316,7 @@ class ExpressionsChecker(VisitorChecker):
         position = condition_token.col_offset + 1
         for before, variable, remaining in variables:
             position += len(before)
+            self.check_for_misplaced_not(condition_token, node_name, before, variable, remaining)
             self.check_for_complex_condition(condition_token, node_name, before, variable, remaining, position)
             if not before or not remaining:
                 continue
@@ -1291,6 +1329,27 @@ class ExpressionsChecker(VisitorChecker):
                     col=position,
                     end_col=position + len(variable),
                 )
+
+    def check_for_misplaced_not(self, condition_token, node_name, left_side, variable, right_side):
+        """Check if the condition contains misplaced not.
+
+        An example of misplaced condition would be 'not ${variable} is None'.
+        """
+        if not (left_side.endswith("not ") and right_side.startswith(" is ")):
+            return
+        right_tokens = right_side.split(" ")
+        orig_right_side = " ".join(right_tokens[1:3])
+        original_condition = f"not {variable} {orig_right_side}"
+        proposed_condition = f"{variable} is not {right_tokens[2]}"
+        self.report(
+            "misplaced-not-in-condition",
+            block_name=node_name,
+            original_condition=original_condition,
+            proposed_condition=proposed_condition,
+            node=condition_token,
+            col=condition_token.col_offset + 1,
+            end_col=condition_token.end_col_offset + 1,
+        )
 
     def check_for_complex_condition(self, condition_token, node_name, left_side, variable, right_side, position):
         """Check if right side of the equation can be simplified."""
@@ -1306,7 +1365,6 @@ class ExpressionsChecker(VisitorChecker):
                     col=position - len("len("),
                     end_col=position + len(variable) + 1,
                 )
-                pass
             return
         equation = normalized[:2]  # '=='
         compared_value = normalized[2:].lstrip()  # '${true}'

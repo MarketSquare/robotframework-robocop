@@ -102,6 +102,34 @@ can be rewritten to::
     IF    not ${session_created}    Create Session
     Skip If    not ${rows}
 
+New rule for misplaced not in conditions (#893)
+-----------------------------------------------
+
+Added new rule I0925 ``misplaced-not-in-condition`` that checks if the evaluated condition contains ``not`` operator
+that can be moved for better readability.
+
+For example::
+
+    *** Keywords ***
+    Check Unmapped Codes
+        ${codes}    Get Codes From API
+        IF    not ${codes} is None
+            FOR    ${code}    IN    @{codes}
+                Validate Single Code    ${code}
+            END
+        END
+
+Can be rewritten to::
+
+    *** Keywords ***
+    Check Unmapped Codes
+        ${codes}    Get Codes From API
+        IF    ${codes} is not None
+            FOR    ${code}    IN    @{codes}
+                Validate Single Code    ${code}
+            END
+        END
+
 Other features
 ==============
 

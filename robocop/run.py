@@ -232,7 +232,6 @@ class Robocop:
         for report in self.reports.values():
             if report.name == "sarif":
                 output = report.get_report(self.config, self.rules)
-                # has attribute support_compare
             elif is_report_comparable(report):
                 prev_result = prev_results.get(report.name) if prev_results is not None else None
                 output = report.get_report(prev_result)

@@ -541,7 +541,7 @@ rules = {
     ),
     "0925": Rule(
         rule_id="0925",
-        name="misplaced-not-in-condition",
+        name="misplaced-negative-condition",
         msg="'{{ block_name }}' condition '{{ original_condition }}' can be rewritten to '{{ proposed_condition }}'",
         severity=RuleSeverity.INFO,
         version=">=4.0",
@@ -575,6 +575,7 @@ rules = {
                 END
 
         """,
+        added_in_version="4.0.0",
     ),
 }
 
@@ -1280,7 +1281,7 @@ class UnusedVariablesChecker(VisitorChecker):
 
 
 class ExpressionsChecker(VisitorChecker):
-    reports = ("unnecessary-string-conversion", "expression-can-be-simplified", "misplaced-not-in-condition")
+    reports = ("unnecessary-string-conversion", "expression-can-be-simplified", "misplaced-negative-condition")
     QUOTE_CHARS = {"'", '"'}
     CONDITION_KEYWORDS = {"passexecutionif", "setvariableif", "shouldbetrue", "shouldnotbetrue", "skipif"}
     COMPARISON_SIGNS = {"==", "!="}
@@ -1342,7 +1343,7 @@ class ExpressionsChecker(VisitorChecker):
         original_condition = f"not {variable} {orig_right_side}"
         proposed_condition = f"{variable} is not {right_tokens[2]}"
         self.report(
-            "misplaced-not-in-condition",
+            "misplaced-negative-condition",
             block_name=node_name,
             original_condition=original_condition,
             proposed_condition=proposed_condition,

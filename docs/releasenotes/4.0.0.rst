@@ -105,7 +105,7 @@ can be rewritten to::
 New rule for misplaced not in conditions (#893)
 -----------------------------------------------
 
-Added new rule I0925 ``misplaced-not-in-condition`` that checks if the evaluated condition contains ``not`` operator
+Added new rule I0925 ``misplaced-negative-condition`` that checks if the evaluated condition contains ``not`` operator
 that can be moved for better readability.
 
 For example::

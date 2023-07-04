@@ -48,3 +48,6 @@ Keyword
 
 Keyword with ${log_level} and ${suite_documentation:[a-z]}
     Log    ${log_level}
+
+Item Assignment
+    ${SUITE METADATA}[key]    Set Variable    ${1}

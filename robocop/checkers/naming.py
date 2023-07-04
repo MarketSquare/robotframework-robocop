@@ -874,19 +874,11 @@ class VariableNamingChecker(VisitorChecker):
                 col=token.col_offset + 1,
                 end_col=token.col_offset + len(token.value) + 1,
             )
-        self.check_for_reserved_naming(token, "Variable")
+        self.check_for_reserved_naming_or_hyphen(token, "Variable")
 
     def visit_KeywordCall(self, node):  # noqa
         for token in node.get_tokens(Token.ASSIGN):
-            if "-" in token.value:
-                self.report(
-                    "hyphen-in-variable-name",
-                    variable_name=token.value,
-                    lineno=token.lineno,
-                    col=token.col_offset + 1,
-                    end_col=token.end_col_offset + 1,
-                )
-            self.check_for_reserved_naming(token, "Variable")
+            self.check_for_reserved_naming_or_hyphen(token, "Variable", is_assign=True)
 
         if not node.keyword:
             return
@@ -915,42 +907,50 @@ class VariableNamingChecker(VisitorChecker):
 
     def visit_If(self, node):  # noqa
         for token in node.header.get_tokens(Token.ASSIGN):
-            self.check_for_reserved_naming(token, "Variable")
+            self.check_for_reserved_naming_or_hyphen(token, "Variable")
         self.generic_visit(node)
 
     def visit_Arguments(self, node):  # noqa
         for arg in node.get_tokens(Token.ARGUMENT):
-            self.check_for_reserved_naming(arg, "Argument")
+            self.check_for_reserved_naming_or_hyphen(arg, "Argument")
 
     def parse_embedded_arguments(self, name_token):
         """Store embedded arguments from keyword name. Ignore embedded variables patterns like (${var:pattern})."""
         try:
             for token in name_token.tokenize_variables():
                 if token.type == Token.VARIABLE:
-                    self.check_for_reserved_naming(token, "Embedded argument", has_pattern=True)
+                    self.check_for_reserved_naming_or_hyphen(token, "Embedded argument", has_pattern=True)
         except VariableError:
             pass
 
-    def check_for_reserved_naming(self, token, var_or_arg, has_pattern=False):
-        """Check if variable name is a reserved Robot Framework name."""
-        name, *_ = token.value.split("=", maxsplit=1)
-        name = name.rstrip()
+    def check_for_reserved_naming_or_hyphen(self, token, var_or_arg, has_pattern=False, is_assign=False):
+        """Check if variable name is a reserved Robot Framework name or uses hyphen in the name."""
+        variable_match = search_variable(token.value, ignore_errors=True)
+        name = variable_match.base
         if has_pattern:
-            name, *pattern = name.split(":", maxsplit=1)
-            if pattern:
-                name += "}"  # recreate, so it handles ${variable:pattern} -> ${variable} matching
-        normalized_name = normalize_robot_var_name(name)
+            name, *_ = name.split(":", maxsplit=1)  # var:pattern -> var
+        if is_assign and "-" in variable_match.base:
+            self.report(
+                "hyphen-in-variable-name",
+                variable_name=token.value,
+                lineno=token.lineno,
+                col=token.col_offset + 1,
+                end_col=token.end_col_offset + 1,
+            )
+        if variable_match.items:  # item assignments ${dict}[key] =
+            return
+        normalized_name = normalize_robot_name(name)
         if normalized_name in self.RESERVED_VARIABLES:
             reserved_variable = self.RESERVED_VARIABLES[normalized_name]
             self.report(
                 "overwriting-reserved-variable",
                 var_or_arg=var_or_arg,
-                variable_name=name,
+                variable_name=variable_match.match,
                 reserved_variable=reserved_variable,
                 node=token,
                 lineno=token.lineno,
                 col=token.col_offset + 1,
-                end_col=token.col_offset + len(name) + 1,
+                end_col=token.col_offset + len(variable_match.match) + 1,
             )
 
 

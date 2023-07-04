@@ -136,7 +136,9 @@ Fixes
 Dictionary and list item assignment support (#903)
 --------------------------------------------------
 
-Robot Framework 6.1 makes it possible to assign return values from keywords to list and dictionary items::
+Robot Framework 6.1 makes it possible to assign return values from keywords to list and dictionary items (
+`User Guide <https://robotframework.org/robotframework/latest/RobotFrameworkUserGuide.html#toc-entry-326>`_
+, in `Assigning variables with item values` section)::
 
     *** Keywords ***
     Item Assignments
@@ -144,7 +146,8 @@ Robot Framework 6.1 makes it possible to assign return values from keywords to l
         ${dict}[key] =    Keyword
         ${result}[users][0] =    Keyword
 
-It should be now properly handled by ``unused-variable`` and ``inconsistent-assignment`` rules.
+It should be now properly handled by ``unused-variable``, ``variable-overwritten-before-usage``,
+``hyphen-in-variable-name`` and ``inconsistent-assignment`` rules.
 
 Other features
 ==============

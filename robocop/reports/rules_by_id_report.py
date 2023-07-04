@@ -1,11 +1,12 @@
 from collections import defaultdict
 from operator import itemgetter
+from typing import Dict
 
-from robocop.reports import Report
+import robocop.reports
 from robocop.rules import Message
 
 
-class RulesByIdReport(Report):
+class RulesByIdReport(robocop.reports.ComparableReport):
     """
     Report name: ``rules_by_id``
 
@@ -20,15 +21,53 @@ class RulesByIdReport(Report):
         W0901 (keyword-after-return)        : 1
     """
 
-    def __init__(self):
+    def __init__(self, compare_runs):
         self.name = "rules_by_id"
         self.description = "Groups detected issues by rule id and prints it ordered by most common"
         self.message_counter = defaultdict(int)
+        super().__init__(compare_runs)
 
     def add_message(self, message: Message):  # noqa
         self.message_counter[message.get_fullname()] += 1
 
-    def get_report(self) -> str:
+    def persist_result(self) -> Dict:
+        return {issue_code: count for issue_code, count in self.message_counter.items()}
+
+    def get_diff_counter(self, prev_results: Dict) -> Dict:
+        result = {}
+        for issue_code, count in self.message_counter.items():
+            old_count = prev_results.pop(issue_code, 0)
+            result[issue_code] = count - old_count
+        for issue_code, old_count in prev_results.items():
+            result[issue_code] = -old_count
+        return result
+
+    def get_report(self, prev_results) -> str:
+        if self.compare_runs and prev_results:
+            return self.get_report_with_compare(prev_results)
+        return self.get_report_without_compare()
+
+    def get_report_with_compare(self, prev_results: Dict) -> str:
+        diff_counter = self.get_diff_counter(prev_results)
+        message_counter_ordered = sorted(self.message_counter.items(), key=itemgetter(1), reverse=True)
+        report = "\nIssues by ID:"
+        if message_counter_ordered:
+            longest_name = max(len(msg[0]) for msg in message_counter_ordered)
+        else:
+            longest_name = 0
+        fixed_counter_ordered = sorted(diff_counter.items(), key=itemgetter(1))
+        if fixed_counter_ordered:
+            longest_name = max(longest_name, max(len(msg[0]) for msg in fixed_counter_ordered))
+        for message, count in message_counter_ordered:
+            diff = "+" if diff_counter[message] >= 0 else ""
+            report += f"\n{message:{longest_name}} : {count} ({diff}{diff_counter[message]})"
+        for message, count_diff in fixed_counter_ordered:
+            if message not in self.message_counter:
+                diff = "+" if count_diff >= 0 else ""
+                report += f"\n{message:{longest_name}} : 0 ({diff}{count_diff})"
+        return report
+
+    def get_report_without_compare(self) -> str:
         message_counter_ordered = sorted(self.message_counter.items(), key=itemgetter(1), reverse=True)
         report = "\nIssues by ID:\n"
         if not message_counter_ordered:

@@ -5,9 +5,11 @@ import token
 import tokenize
 from collections import Counter, defaultdict
 from io import StringIO
+from pathlib import Path
 from tokenize import generate_tokens
 from typing import Dict, List, Optional, Pattern, Tuple
 
+import platformdirs
 from robot.api import Token
 
 try:
@@ -322,3 +324,14 @@ def find_escaped_variables(string):
     except tokenize.TokenError:
         pass
     return variables
+
+
+def get_robocop_cache_directory(ensure_exists):
+    return Path(platformdirs.user_cache_dir("robocop", ensure_exists=ensure_exists))
+
+
+def get_string_diff(prev_count, count):
+    """Get +0, -10 string."""
+    diff = count - prev_count
+    prefix = "+" if diff >= 0 else ""
+    return prefix + str(diff)

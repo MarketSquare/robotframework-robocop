@@ -4,10 +4,10 @@ from warnings import warn
 import pytz
 
 import robocop.exceptions
-from robocop.reports import Report
+import robocop.reports
 
 
-class TimestampReport(Report):
+class TimestampReport(robocop.reports.Report):
     """
     Report name: ``timestamp``
 
@@ -48,7 +48,7 @@ class TimestampReport(Report):
         12-hour clock:
         robocop --configure timestamp:format:"%Y-%m-%d %I:%M:%S %p %Z %z"
 
-        More human readable format 'On 10 July 2022 07:26:24 +0300':
+        More human-readable format 'On 10 July 2022 07:26:24 +0300':
         robocop --configure timestamp:format:"On %d %B %Y %H:%M:%S %z"
 
     """

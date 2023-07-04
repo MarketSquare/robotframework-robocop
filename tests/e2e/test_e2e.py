@@ -58,17 +58,28 @@ class TestE2E:
     def test_run_all_checkers_not_recursive(self, robocop_instance):
         should_run_with_config(robocop_instance, f"--no-recursive {TEST_DATA_DIR}")
 
-    def test_all_reports(self, robocop_instance):
-        should_run_with_config(robocop_instance, f"-r all {TEST_DATA_DIR}")
+    @pytest.mark.parametrize("persistent", [True, False])
+    def test_all_reports(self, robocop_instance, persistent):
+        if persistent:
+            command = f"--persistent -r all {TEST_DATA_DIR}"
+        else:
+            command = f"-r all {TEST_DATA_DIR}"
+        should_run_with_config(robocop_instance, command)
 
-    def test_no_issues_all_reports(self, robocop_instance, capfd):
-        should_run_with_config(robocop_instance, f'-r all {TEST_DATA_DIR / "all_passing.robot"}')
+    @pytest.mark.parametrize("persistent", [True, False])
+    def test_no_issues_all_reports(self, robocop_instance, persistent, capfd):
+        if persistent:
+            command = f'--persistent -r all {TEST_DATA_DIR / "all_passing.robot"}'
+        else:
+            command = f'-r all {TEST_DATA_DIR / "all_passing.robot"}'
+        should_run_with_config(robocop_instance, command)
         out, err = capfd.readouterr()
         assert "No issues found." in out
 
     def test_list_all_reports(self, robocop_instance, capfd):
         exp_msg = (
             "Available reports:\n"
+            "compare_runs         - Compare reports between two Robocop runs. (disabled - non-default)\n"
             "file_stats           - Prints overall statistics about number of processed files (disabled)\n"
             "json_report          - Produces JSON file with found issues (disabled - non-default)\n"
             "rules_by_error_type  - Prints total number of issues grouped by severity (disabled)\n"
@@ -115,6 +126,7 @@ class TestE2E:
         for option in ("--list-reports", "-lr"):
             exp_msg = (
                 "Available reports:\n"
+                "compare_runs         - Compare reports between two Robocop runs. (disabled - non-default)\n"
                 "file_stats           - Prints overall statistics about number of processed files (disabled)\n"
                 "json_report          - Produces JSON file with found issues (disabled - non-default)\n"
                 "rules_by_error_type  - Prints total number of issues grouped by severity (disabled)\n"
@@ -134,6 +146,7 @@ class TestE2E:
             assert out == exp_msg
             exp_msg = (
                 "Available reports:\n"
+                "compare_runs         - Compare reports between two Robocop runs. (disabled - non-default)\n"
                 "file_stats           - Prints overall statistics about number of processed files (disabled)\n"
                 "json_report          - Produces JSON file with found issues (disabled - non-default)\n"
                 "rules_by_error_type  - Prints total number of issues grouped by severity (disabled)\n"

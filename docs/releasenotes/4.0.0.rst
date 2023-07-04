@@ -105,6 +105,27 @@ can be rewritten to::
 Other features
 ==============
 
+New report ``compare_runs`` for comparing results with the previous run (#489)
+------------------------------------------------------------------------------
+
+We have implemented a way to compare reports output with the previous run. It's done thanks to special, non-default
+report ``compare_runs``. Additionally, there should be previous run results saved with the ``--persistent`` flag::
+
+    robocop --reports all --persistent
+    robocop --reports all,compare_runs
+
+Example output::
+
+    Found 18 (-3) issues: 13 (-4) INFOs, 5 (+1) WARNINGs.
+
+    Issues by ID:
+    I0923 (unnecessary-string-conversion)     : 10 (+0)
+    W0922 (variable-overwritten-before-usage) : 2 (+1)
+    I0920 (unused-variable)                   : 2 (-4)
+    W0301 (not-allowed-char-in-name)          : 2 (+0)
+    W0324 (overwriting-reserved-variable)     : 1 (+0)
+    I0605 (could-be-test-tags)                : 1 (+0)
+
 New report ``json_report`` (#663)
 ---------------------------------
 

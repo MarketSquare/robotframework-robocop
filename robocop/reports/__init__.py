@@ -1,36 +1,14 @@
-"""
-Reports are configurable summaries after a Robocop scan. For example, it can display a total number of issues discovered.
-They are dynamically loaded during setup according to a configuration.
-
-Each report class collects rules messages from linter and parses it. At the end of the scan it will print the report.
-
-To enable report use ``-r`` / ``--reports`` argument and provide the name of the report.
-You can use multiple reports with separate arguments (``-r report1 -r report2``) or comma-separated list (``-r report1,report2``). Example::
-
-    robocop --reports rules_by_id,some_other_report path/to/file.robot
-
-To enable all default reports use ``--reports all``.  Non-default reports can be only enabled using report name.
-
-The order of the reports is preserved. For example, if you want ``timestamp`` report to be printed before any
-other reports, you can use the following configuration::
-
-    robocop --reports timestamp,all src.robot
-
-Print a list of all reports with their configured status by using ``--list-reports``::
-
-    robocop --reports all --list-reports
-
-You can filter the list using optional ``ENABLED``/``DISABLED`` argument::
-
-    robocop --reports timestamp,sarif --list-reports DISABLED
-
-"""
 import inspect
+import json
 from collections import OrderedDict
 from pathlib import Path
+from typing import Dict
 
 import robocop.exceptions
 from robocop.checkers import RobocopImporter
+from robocop.utils.misc import get_robocop_cache_directory
+
+ROBOCOP_CACHE_FILE = ".robocop_cache"
 
 
 class Report:
@@ -44,6 +22,7 @@ class Report:
 
     DEFAULT = True
     INTERNAL = False
+    COMPARE_RESULTS = False
 
     def configure(self, name, value):
         raise robocop.exceptions.ConfigGeneralError(
@@ -53,8 +32,24 @@ class Report:
     def add_message(self, *args):
         pass
 
+    def get_report(self, *args):
+        return None
 
-def load_reports():
+
+class ComparableReport(Report):
+    COMPARE_RESULTS = True
+
+    def __init__(self, compare_runs):
+        self.compare_runs = compare_runs
+
+    def get_report(self, prev_results):
+        raise NotImplemented
+
+    def persist_result(self):
+        raise NotImplemented
+
+
+def load_reports(compare_runs=False):
     """
     Load all valid reports.
     Report is considered valid if it inherits from `Report` class
@@ -67,11 +62,18 @@ def load_reports():
         for report_class in classes:
             if not issubclass(report_class[1], Report):
                 continue
-            report = report_class[1]()
+            if is_report_comparable(report_class[1]):
+                report = report_class[1](compare_runs)
+            else:
+                report = report_class[1]()
             if not hasattr(report, "name") or not hasattr(report, "description"):
                 continue
             reports[report.name] = report
     return reports
+
+
+def is_report_comparable(report):
+    return getattr(report, "COMPARE_RESULTS", False)
 
 
 def is_report_default(report):
@@ -87,7 +89,8 @@ def get_reports(configured_reports):
     Returns dictionary with list of valid, enabled reports (listed in `configured_reports` set of str).
     If `configured_reports` contains `all` then all default reports are enabled.
     """
-    reports = load_reports()
+    compare_runs = "compare_runs" in configured_reports
+    reports = load_reports(compare_runs)
     enabled_reports = OrderedDict()
     for report in configured_reports:
         if report == "all":
@@ -124,3 +127,32 @@ def list_reports(reports, list_reports_with_status):
         "Non-default reports can be only enabled using report name."
     )
     return available_reports
+
+
+def load_reports_result_from_cache():
+    cache_dir = get_robocop_cache_directory(ensure_exists=False)
+    cache_file = cache_dir / ROBOCOP_CACHE_FILE
+    if not cache_file.is_file():
+        return None
+    with open(cache_file) as fp:
+        try:
+            return json.load(fp)
+        except json.JSONDecodeError:
+            return None
+
+
+def save_reports_result_to_cache(working_dir: str, report_results: Dict):
+    """Save results from Robocop reports to json file.
+
+    Result file contains results grouped using working directory.
+    That's why we are loading previous results and overwriting only
+    the results for current working directory."""
+    cache_dir = get_robocop_cache_directory(ensure_exists=True)
+    cache_file = cache_dir / ROBOCOP_CACHE_FILE
+    prev_results = load_reports_result_from_cache()
+    if prev_results is None:
+        prev_results = {}
+    prev_results[working_dir] = report_results
+    with open(cache_file, "w") as fp:
+        json_string = json.dumps(prev_results, indent=4)
+        fp.write(json_string)

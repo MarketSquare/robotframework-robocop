@@ -19,6 +19,7 @@ configure = [
     "line-too-long:line_length:150",
     "0201:severity:E"
 ]
+persistent = true
 no_recursive = true
 language = [
     "pt",

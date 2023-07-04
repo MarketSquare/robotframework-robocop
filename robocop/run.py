@@ -12,6 +12,7 @@ import robocop.exceptions
 from robocop import checkers, reports
 from robocop.config import Config
 from robocop.files import get_files
+from robocop.reports import is_report_comparable, load_reports_result_from_cache, save_reports_result_to_cache
 from robocop.rules import Message
 from robocop.utils import DisablersFinder, FileType, FileTypeChecker, RecommendationFinder, is_suite_templated
 from robocop.utils.file_types import check_model_type, get_resource_with_lang
@@ -225,13 +226,25 @@ class Robocop:
                 checker.disabled = True
 
     def make_reports(self):
+        report_results = {}
+        prev_results = load_reports_result_from_cache()
+        prev_results = prev_results.get(str(self.root)) if prev_results is not None else None
         for report in self.reports.values():
             if report.name == "sarif":
                 output = report.get_report(self.config, self.rules)
+            elif is_report_comparable(report):
+                prev_result = prev_results.get(report.name) if prev_results is not None else None
+                output = report.get_report(prev_result)
             else:
                 output = report.get_report()
             if output is not None:
                 self.write_line(output)
+            if self.config.persistent and is_report_comparable(report):
+                result = report.persist_result()
+                if result is not None:
+                    report_results[report.name] = result
+        if self.config.persistent:
+            save_reports_result_to_cache(str(self.root), report_results)
 
     def any_rule_enabled(self, checker) -> bool:
         for name, rule in checker.rules.items():

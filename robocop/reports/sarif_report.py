@@ -1,12 +1,12 @@
 import json
 from pathlib import Path
 
-from robocop.reports import Report
+import robocop.reports
 from robocop.rules import Message
 from robocop.version import __version__
 
 
-class SarifReport(Report):
+class SarifReport(robocop.reports.Report):
     """
     Report name: ``sarif``
 

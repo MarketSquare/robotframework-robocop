@@ -1,9 +1,9 @@
-from robocop.reports import Report
+import robocop.reports
 from robocop.reports.rules_by_severity_report import RulesBySeverityReport
 from robocop.rules import Message
 
 
-class ReturnStatusReport(Report):
+class ReturnStatusReport(robocop.reports.Report):
     """
     Report name: ``return_status``
 
@@ -18,7 +18,7 @@ class ReturnStatusReport(Report):
         self.name = "return_status"
         self.description = "Checks if number of specific issues exceed quality gate limits"
         self.return_status = 0
-        self.counter = RulesBySeverityReport()
+        self.counter = RulesBySeverityReport(compare_runs=False)
         self.quality_gate = {"E": 0, "W": 0, "I": -1}
 
     def configure(self, name, value):

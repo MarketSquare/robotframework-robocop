@@ -130,6 +130,22 @@ Can be rewritten to::
             END
         END
 
+Fixes
+=====
+
+Dictionary and list item assignment support (#903)
+--------------------------------------------------
+
+Robot Framework 6.1 makes it possible to assign return values from keywords to list and dictionary items::
+
+    *** Keywords ***
+    Item Assignments
+        ${list}[0] =    Keyword
+        ${dict}[key] =    Keyword
+        ${result}[users][0] =    Keyword
+
+It should be now properly handled by ``unused-variable`` and ``inconsistent-assignment`` rules.
+
 Other features
 ==============
 

@@ -21,3 +21,6 @@ class TestRuleAcceptance(RuleAcceptance):
             src_files=["autodetect/test.robot"],
             expected_file="autodetect/expected_output.txt",
         )
+
+    def test_item_assignment(self):
+        self.check_rule(src_files=["item_assignment.robot"], expected_file=None)

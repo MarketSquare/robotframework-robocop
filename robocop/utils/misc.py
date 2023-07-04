@@ -17,7 +17,7 @@ try:
 except ImportError:
     from robot.parsing.model.statements import Variable
 
-from robot.variables.search import VariableIterator
+from robot.variables.search import VariableIterator, search_variable
 from robot.version import VERSION as RF_VERSION
 
 from robocop.utils.version_matching import Version
@@ -132,7 +132,8 @@ class AssignmentTypeDetector(ast.NodeVisitor):
 
     @staticmethod
     def get_assignment_sign(token_value):
-        return token_value[token_value.find("}") + 1 :]
+        variable = search_variable(token_value, ignore_errors=True)
+        return variable.after
 
 
 def parse_assignment_sign_type(value: str) -> str:

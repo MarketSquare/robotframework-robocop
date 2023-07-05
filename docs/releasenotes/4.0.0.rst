@@ -130,6 +130,21 @@ Can be rewritten to::
             END
         END
 
+New rule for double negation in conditions (#896)
+-------------------------------------------------
+
+Added new rule I0926 ``double-negation-in-condition`` that checks if the evaluated condition contains unnecessary
+double negation.
+
+An example of such issue::
+
+    *** Test Cases ***
+    All internal links should be clickable
+        FOR    ${link}    IN    @{LINKS}
+            ${is_external}    Is Link External    ${link}
+            IF    not not $is_external    Element Should Be Clickable    ${link}
+        END
+
 Other features
 ==============
 

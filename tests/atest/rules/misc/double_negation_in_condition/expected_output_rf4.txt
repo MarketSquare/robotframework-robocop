@@ -1,0 +1,4 @@
+test.robot:5:16 [I] 0926 'ELSE IF' condition has unnecessary double negation
+test.robot:7:15 [I] 0926 'IF' condition has unnecessary double negation
+test.robot:33:12 [I] 0926 'Set Variable If' condition has unnecessary double negation
+test.robot:36:16 [I] 0926 'Skip If' condition has unnecessary double negation

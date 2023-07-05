@@ -577,6 +577,36 @@ rules = {
         """,
         added_in_version="4.0.0",
     ),
+    "0926": Rule(
+        rule_id="0926",
+        name="double-negation-in-condition",
+        msg="'{{ block_name }}' condition has unnecessary double negation",
+        severity=RuleSeverity.INFO,
+        version=">=4.0",
+        docs="""
+        Double negation can be removed as not necessary.
+        
+        For example::
+        
+            *** Test Cases ***
+            All internal links should be clickable
+                FOR    ${link}    IN    @{LINKS}
+                    ${is_external}    Is Link External    ${link}
+                    IF    not not $is_external    Element Should Be Clickable    ${link}
+                END
+        
+        can be rewritten to::
+        
+            *** Test Cases ***
+            All internal links should be clickable
+                FOR    ${link}    IN    @{LINKS}
+                    ${is_external}    Is Link External    ${link}
+                    IF    $is_external    Element Should Be Clickable    ${link}
+                END
+
+        """,
+        added_in_version="4.0.0",
+    ),
 }
 
 
@@ -1281,7 +1311,12 @@ class UnusedVariablesChecker(VisitorChecker):
 
 
 class ExpressionsChecker(VisitorChecker):
-    reports = ("unnecessary-string-conversion", "expression-can-be-simplified", "misplaced-negative-condition")
+    reports = (
+        "unnecessary-string-conversion",
+        "expression-can-be-simplified",
+        "misplaced-negative-condition",
+        "double-negation-in-condition",
+    )
     QUOTE_CHARS = {"'", '"'}
     CONDITION_KEYWORDS = {"passexecutionif", "setvariableif", "shouldbetrue", "shouldnotbetrue", "skipif"}
     COMPARISON_SIGNS = {"==", "!="}
@@ -1310,6 +1345,14 @@ class ExpressionsChecker(VisitorChecker):
     def check_condition(self, node_name, condition_token, condition):
         if not condition:
             return
+        if "not not " in condition:
+            self.report(
+                "double-negation-in-condition",
+                block_name=node_name,
+                node=condition_token,
+                col=condition_token.col_offset + 1,
+                end_col=condition_token.end_col_offset + 1,
+            )
         try:
             variables = list(VariableIterator(condition))
         except VariableError:  # for example ${variable which wasn't closed properly

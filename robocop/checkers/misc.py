@@ -1109,7 +1109,7 @@ class UnusedVariablesChecker(VisitorChecker):
         for token in node.header.get_tokens(Token.ARGUMENT):
             self.find_not_nested_variable(token.value, is_var=False)
         for token in node.header.get_tokens(Token.ASSIGN):
-            self.handle_assign_variable(token, remove_equal=True)
+            self.handle_assign_variable(token)
         self.variables.append({})
         for item in node.body:
             self.visit(item)
@@ -1142,7 +1142,7 @@ class UnusedVariablesChecker(VisitorChecker):
         for token in node.header.get_tokens(Token.ARGUMENT):
             self.find_not_nested_variable(token.value, is_var=False)
         for token in node.header.get_tokens(Token.VARIABLE):
-            self.handle_assign_variable(token, remove_equal=False)
+            self.handle_assign_variable(token)
         self.generic_visit(node)
         self.ignore_overwriting = False
         self.in_loop = False
@@ -1156,14 +1156,14 @@ class UnusedVariablesChecker(VisitorChecker):
         if node.variable is not None:
             error_var = node.header.get_token(Token.VARIABLE)
             if error_var is not None:
-                self.handle_assign_variable(error_var, remove_equal=False)
+                self.handle_assign_variable(error_var)
         return self.generic_visit(node)
 
     def visit_KeywordCall(self, node):  # noqa
         for token in node.get_tokens(Token.ARGUMENT, Token.KEYWORD):  # argument can be used in keyword name
             self.find_not_nested_variable(token.value, is_var=False)
         for token in node.get_tokens(Token.ASSIGN):  # we first check args, then assign for used and then overwritten
-            self.handle_assign_variable(token, remove_equal=True)
+            self.handle_assign_variable(token)
 
     def visit_Return(self, node):  # noqa
         for token in node.get_tokens(Token.ARGUMENT):
@@ -1175,31 +1175,31 @@ class UnusedVariablesChecker(VisitorChecker):
         for argument in node.data_tokens:
             self.find_not_nested_variable(argument.value, is_var=False)
 
-    def handle_assign_variable(self, token, remove_equal):
+    def handle_assign_variable(self, token):
         """Check if assign does not overwrite arguments or variables.
 
         Store assign variables for future overwriting checks."""
         value = token.value
-        if remove_equal:
-            value = value.rstrip("=").strip()  # remove possible '=' and ' ='
-        normalized = normalize_robot_var_name(value)  # remove ${ } and normalize
+        variable_match = search_variable(value, ignore_errors=True)
+        normalized = normalize_robot_name(variable_match.base)
         if not normalized:  # ie. "${_}" -> ""
             return
         arg = self.arguments.pop(normalized, None)
         if arg is not None:
             self.report_arg_or_var_rule("argument-overwritten-before-usage", arg.token)
         is_used = False
-        for variable_scope in self.variables[::-1]:
-            if normalized in variable_scope:
-                is_used = variable_scope[normalized].is_used or is_used
-                if not variable_scope[normalized].is_used and not self.ignore_overwriting:
-                    self.report_arg_or_var_rule(
-                        "variable-overwritten-before-usage", variable_scope[normalized].token, value
-                    )
+        if not variable_match.items:  # not item assignment like ${var}[1] =
+            for variable_scope in self.variables[::-1]:
+                if normalized in variable_scope:
+                    is_used = variable_scope[normalized].is_used or is_used
+                    if not variable_scope[normalized].is_used and not self.ignore_overwriting:
+                        self.report_arg_or_var_rule(
+                            "variable-overwritten-before-usage", variable_scope[normalized].token, variable_match.name
+                        )
         if self.in_loop:
-            variable = CachedVariable(value, token, is_used)
+            variable = CachedVariable(variable_match.name, token, is_used)
         else:
-            variable = CachedVariable(value, token, False)
+            variable = CachedVariable(variable_match.name, token, False)
         self.variables[-1][normalized] = variable
 
     def find_not_nested_variable(self, value, is_var):

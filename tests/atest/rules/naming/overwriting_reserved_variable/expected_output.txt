@@ -45,4 +45,4 @@ test.robot:40:5:40:18 [W] 0324 Variable '${OUTPUT DIR}' overwrites reserved vari
 test.robot:45:35:45:47 [W] 0324 Argument '${log_level}' overwrites reserved variable '${LOG_LEVEL}'
 test.robot:47:5:47:22 [W] 0324 Variable '${keyword_status}' overwrites reserved variable '${KEYWORD_STATUS}'
 test.robot:49:14:49:26 [W] 0324 Embedded argument '${log_level}' overwrites reserved variable '${LOG_LEVEL}'
-test.robot:49:31:49:53 [W] 0324 Embedded argument '${suite_documentation}' overwrites reserved variable '${SUITE_DOCUMENTATION}'
+test.robot:49:31:49:59 [W] 0324 Embedded argument '${suite_documentation:[a-z]}' overwrites reserved variable '${SUITE_DOCUMENTATION}'

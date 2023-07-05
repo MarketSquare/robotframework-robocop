@@ -5,7 +5,7 @@ import re
 import sys
 from itertools import chain
 from pathlib import Path
-from typing import Dict, Pattern, Set
+from typing import Dict, List, Pattern, Set
 
 import tomli
 from robot.utils import FileReader
@@ -231,204 +231,8 @@ class Config:
         self.exclude = self.filter_patterns_from_names(self.exclude, self.exclude_patterns)
 
     def _create_parser(self):
-        parser = CustomArgParser(
-            prog="robocop",
-            formatter_class=argparse.RawTextHelpFormatter,
-            description="Static code analysis tool for Robot Framework",
-            epilog="For full documentation visit: https://robocop.readthedocs.io/en/latest/",
-            add_help=False,
-            from_cli=self.from_cli,
-        )
-        required = parser.add_argument_group(title="Required parameters")
-        optional = parser.add_argument_group(title="Optional parameters")
-
-        required.add_argument(
-            "paths",
-            metavar="paths",
-            type=str,
-            nargs="*",
-            default=self.paths,
-            help="List of paths (files or directories) to be parsed by Robocop.",
-        )
-        optional.add_argument(
-            "-i",
-            "--include",
-            action=ParseDelimitedArgAction,
-            default=self.include,
-            metavar="RULES",
-            help="Run Robocop only with specified rules. You can define rule by its name or id.\n"
-            "Glob patterns are supported.",
-        )
-        optional.add_argument(
-            "-e",
-            "--exclude",
-            action=ParseDelimitedArgAction,
-            default=self.exclude,
-            metavar="RULES",
-            help="Ignore specified rules. You can define rule by its name or id.\nGlob patterns are supported.",
-        )
-        optional.add_argument(
-            "-rules",
-            "--ext-rules",
-            action=ParseDelimitedArgAction,
-            default=self.ext_rules,
-            help="List of paths with custom rules.",
-        )
-        optional.add_argument(
-            "-nr",
-            "--no-recursive",
-            dest="recursive",
-            action="store_false",
-            default=self.recursive,
-            help="Use this flag to stop scanning directories recursively.",
-        )
-        optional.add_argument(
-            "-r",
-            "--reports",
-            action=ParseDelimitedArgAction,
-            default=self.reports,
-            help="Generate reports after scan.\n"
-            "You can enable reports by listing them in comma-separated list:\n"
-            "--reports rules_by_id,rules_by_error_type,scan_timer\n"
-            "To enable all default reports use 'all':\n"
-            "--reports all\n"
-            "List available reports with --list-reports option.",
-        )
-        optional.add_argument(
-            "-f",
-            "--format",
-            type=str,
-            default=self.format,
-            help="Format of output message. "
-            "You can use placeholders to change the way an issue is reported.\n"
-            "Default: {source}:{line}:{col} [{severity}] {rule_id} {desc} ({name})",
-        )
-        optional.add_argument(
-            "-c",
-            "--configure",
-            action=ParseCheckerConfig,
-            default=self.configure,
-            metavar="CONFIGURABLE",
-            help="Configure checker or report with parameter value. Usage:\n"
-            "-c message_name_or_id:param_name:param_value\n"
-            "Examples:\n"
-            "-c line-too-long:line_length:150\n"
-            "--configure 0101:severity:E",
-        )
-        optional.add_argument(
-            "-l",
-            "--list",
-            action=SetListOption,
-            nargs="?",
-            const="",
-            default=self.list,
-            metavar="PATTERN",
-            help="List all available rules. You can use optional PATTERN argument to match rule names "
-            "(for example --list *doc*). "
-            "PATTERN can be also ENABLED/DISABLED keyword to list only enabled/disabled rules.",
-        )
-        optional.add_argument(
-            "-lc",
-            "--list-configurables",
-            action=SetListOption,
-            nargs="?",
-            const="",
-            default=self.list_configurables,
-            metavar="PATTERN",
-            help="List all available rules with configurable parameters. You can use optional PATTERN argument "
-            "to match rule names (for example --list *doc*). "
-            "PATTERN can be also ENABLED/DISABLED keyword to list only enabled/disabled rules.",
-        )
-        optional.add_argument(
-            "-lr",
-            "--list-reports",
-            action=SetOptionalValue,
-            nargs="?",
-            const="",
-            default=self.list_reports,
-            metavar="ENABLED/DISABLED",
-            help="List all available reports. "
-            "Pass ENABLED or DISABLED as argument to list only enabled/disabled reports.",
-        )
-        optional.add_argument(
-            "-o",
-            "--output",
-            type=argparse.FileType("w"),
-            default=self.output,
-            metavar="PATH",
-            help="Path to output file.",
-        )
-        optional.add_argument(
-            "-ft",
-            "--filetypes",
-            action=ParseFileTypes,
-            default=self.filetypes,
-            help="Comma-separated list of file extensions to be scanned by Robocop",
-        )
-        optional.add_argument(
-            "-t",
-            "--threshold",
-            action=SetRuleThreshold,
-            default=self.threshold,
-            help=f"Disable rules below given threshold. Available message levels: "
-            f'{" < ".join(sev.value for sev in RuleSeverity)}',
-        )
-        optional.add_argument("-A", "--argumentfile", metavar="PATH", help="Path to file with arguments.")
-        optional.add_argument("--config", metavar="PATH", help="Path to TOML configuration file.")
-        optional.add_argument(
-            "-g",
-            "--ignore",
-            action=ParseDelimitedArgAction,
-            default=self.ignore,
-            metavar="PATH",
-            help="Ignore file(s) and path(s) provided. Glob patterns are supported.",
-        )
-        optional.add_argument(
-            "-gd",
-            "--ignore-default",
-            type=validate_regex,
-            default=self.ignore_default,
-            metavar="PATTERN",
-            help=f"Paths ignored by default. "
-            f"A regular expression to exclude directories on file search.\n"
-            f"An empty value means no path is excluded. Default: {DEFAULT_EXCLUDES}",
-        )
-        optional.add_argument(
-            "--language",
-            "--lang",
-            action=ParseDelimitedArgAction,
-            default=self.language,
-            help="Parse Robot Framework files using additional languages.",
-        )
-        optional.add_argument(
-            "--persistent",
-            action="store_true",
-            default=self.persistent,
-            help="Use this flag to save Robocop reports in cache directory for later comparison.",
-        )
-        optional.add_argument("-h", "--help", action="help", help="Print this help message and exit.")
-        optional.add_argument(
-            "-v",
-            "--version",
-            action="version",
-            version=__version__,
-            help="Display Robocop version.",
-        )
-        optional.add_argument(
-            "-vv",
-            "--verbose",
-            action="store_true",
-            default=self.verbose,
-            help="Display extra information during execution.",
-        )
-        optional.add_argument(
-            "--directives",
-            action="version",
-            version="1. Serve the public trust\n2. Protect the innocent\n3. Uphold the law\n4. [ACCESS DENIED]",
-            help=argparse.SUPPRESS,
-        )
-
-        return parser
+        config_parser = ConfigurationParser(self)
+        return config_parser.get_arg_parser(self.from_cli)
 
     def parse(self):
         if not self.from_cli:
@@ -637,3 +441,343 @@ class Config:
             else:
                 raise InvalidArgumentError(f"Option '{key}' is not supported in pyproject.toml configuration file.")
         return True
+
+
+class RobocopOption:
+    def __init__(
+        self,
+        *names,
+        required=False,
+        include_in_default_config=True,
+        comment_in_default_config=False,
+        cli_default=None,
+        toml_default=None,
+        **kwargs,
+    ):
+        self.names = names
+        self.toml_name = self.parse_toml_name(names)
+        self.kwargs = kwargs
+        self.required = required
+        self.include_in_default_config = include_in_default_config
+        self.comment_in_default_config = comment_in_default_config
+        self.cli_default = cli_default
+        self.toml_default = toml_default
+
+    def parse_toml_name(self, names):
+        long_cli_name = names[-1]
+        return long_cli_name.lstrip("-").replace("-", "_")
+
+    def parse_help_to_desc(self):
+        description = self.kwargs.get("help", "")
+        desc = ""
+        for line in description.split("\n"):
+            desc += f"\n# {line}"
+        desc += "\n"
+        return desc
+
+    def get_cli_config(self):
+        cli_config = self.parse_help_to_desc()
+        if self.comment_in_default_config:
+            cli_config += f"# "
+        cli_config += self.names[-1]
+        if self.cli_default is not None:
+            default = self.cli_default
+        else:
+            default = self.kwargs.get("default", "")
+        if default:
+            cli_config += f" {default}"
+        return cli_config
+
+    def get_toml_config(self):
+        toml_config = self.parse_help_to_desc()
+        if self.comment_in_default_config:
+            toml_config += f"# "
+        toml_config += self.toml_name
+        if self.toml_default is not None:
+            toml_config += f" = {self.toml_default}"
+        elif self.kwargs.get("default", ""):
+            toml_config += f' = "{self.kwargs.get("default", "")}"'
+        return toml_config
+
+
+class ConfigurationParser:
+    def __init__(self, robocop_config: Config):
+        self.options: List[RobocopOption] = []
+        self.add_option(
+            "paths",
+            metavar="paths",
+            type=str,
+            nargs="*",
+            default=robocop_config.paths,
+            help="List of paths (files or directories) to be parsed by Robocop.",
+            required=True,
+            include_in_default_config=False,
+        )
+        self.add_option(
+            "-i",
+            "--include",
+            action=ParseDelimitedArgAction,
+            default=robocop_config.include,
+            metavar="RULES",
+            help="Run Robocop only with specified rules. You can define rule by its name or id.\n"
+            "Glob patterns are supported.",
+            comment_in_default_config=True,
+        )
+        self.add_option(
+            "-e",
+            "--exclude",
+            action=ParseDelimitedArgAction,
+            default=robocop_config.exclude,
+            metavar="RULES",
+            help="Ignore specified rules. You can define rule by its name or id.\nGlob patterns are supported.",
+            comment_in_default_config=True,
+        )
+        self.add_option(
+            "-rules",
+            "--ext-rules",
+            action=ParseDelimitedArgAction,
+            default=robocop_config.ext_rules,
+            help="List of paths with custom rules.",
+            comment_in_default_config=True,
+            cli_default="robocop_rules.py",
+            toml_default='["robocop_rules.py"]',
+        )
+        self.add_option(
+            "-nr",
+            "--no-recursive",
+            dest="recursive",
+            action="store_false",
+            default=robocop_config.recursive,
+            help="Use this flag to stop scanning directories recursively.",
+            comment_in_default_config=True,
+            cli_default="",
+            toml_default="false",
+        )
+        self.add_option(
+            "-r",
+            "--reports",
+            action=ParseDelimitedArgAction,
+            default=robocop_config.reports,
+            help="Generate reports after scan.\n"
+            "You can enable reports by listing them in comma-separated list:\n"
+            "--reports rules_by_id,rules_by_error_type,scan_timer\n"
+            "To enable all default reports use 'all':\n"
+            "--reports all\n"
+            "List available reports with --list-reports option.",
+            cli_default="all",
+            toml_default='["all"]',
+        )
+        self.add_option(
+            "-f",
+            "--format",
+            type=str,
+            default=robocop_config.format,
+            help="Format of output message. "
+            "You can use placeholders to change the way an issue is reported.\n"
+            "Default: {source}:{line}:{col} [{severity}] {rule_id} {desc} ({name})",
+        )
+        self.add_option(
+            "-c",
+            "--configure",
+            action=ParseCheckerConfig,
+            default=robocop_config.configure,
+            metavar="CONFIGURABLE",
+            help="Configure checker or report with parameter value. Usage:\n"
+            "-c message_name_or_id:param_name:param_value\n"
+            "Examples:\n"
+            "-c line-too-long:line_length:150\n"
+            "--configure 0101:severity:E",
+            comment_in_default_config=True,
+        )
+        self.add_option(
+            "-l",
+            "--list",
+            action=SetListOption,
+            nargs="?",
+            const="",
+            default=robocop_config.list,
+            metavar="PATTERN",
+            help="List all available rules. You can use optional PATTERN argument to match rule names "
+            "(for example --list *doc*). "
+            "PATTERN can be also ENABLED/DISABLED keyword to list only enabled/disabled rules.",
+            include_in_default_config=False,
+        )
+        self.add_option(
+            "-lc",
+            "--list-configurables",
+            action=SetListOption,
+            nargs="?",
+            const="",
+            default=robocop_config.list_configurables,
+            metavar="PATTERN",
+            help="List all available rules with configurable parameters. You can use optional PATTERN argument "
+            "to match rule names (for example --list *doc*). "
+            "PATTERN can be also ENABLED/DISABLED keyword to list only enabled/disabled rules.",
+            include_in_default_config=False,
+        )
+        self.add_option(
+            "-lr",
+            "--list-reports",
+            action=SetOptionalValue,
+            nargs="?",
+            const="",
+            default=robocop_config.list_reports,
+            metavar="ENABLED/DISABLED",
+            help="List all available reports. "
+            "Pass ENABLED or DISABLED as argument to list only enabled/disabled reports.",
+            include_in_default_config=False,
+        )
+        self.add_option(
+            "-o",
+            "--output",
+            type=argparse.FileType("w"),
+            default=robocop_config.output,
+            metavar="PATH",
+            help="Path to output file.",
+            comment_in_default_config=True,
+            cli_default="robocop_output.txt",
+        )
+
+        self.add_option(
+            "-ft",
+            "--filetypes",
+            action=ParseFileTypes,
+            default=robocop_config.filetypes,
+            help="Comma-separated list of file extensions to be scanned by Robocop",
+            cli_default=".robot,.tsv,.resource",
+            toml_default='[".robot", ".tsv", ".resource"]',
+        )
+        self.add_option(
+            "-t",
+            "--threshold",
+            action=SetRuleThreshold,
+            default=robocop_config.threshold,
+            help=f"Disable rules below given threshold. Available message levels: "
+            f'{" < ".join(sev.value for sev in RuleSeverity)}',
+        )
+        self.add_option(
+            "-A",
+            "--argumentfile",
+            metavar="PATH",
+            help="Path to file with arguments.",
+            comment_in_default_config=True,
+            cli_default="robocop_config.txt",
+        )
+        self.add_option(
+            "--config",
+            metavar="PATH",
+            help="Path to TOML configuration file.",
+            comment_in_default_config=True,
+            cli_default="robocop_config.toml",
+        )
+        self.add_option(
+            "-g",
+            "--ignore",
+            action=ParseDelimitedArgAction,
+            default=robocop_config.ignore,
+            metavar="PATH",
+            help="Ignore file(s) and path(s) provided. Glob patterns are supported.",
+            comment_in_default_config=True,
+            cli_default="file_to_ignore.robot",
+        )
+        self.add_option(
+            "-gd",
+            "--ignore-default",
+            type=validate_regex,
+            default=robocop_config.ignore_default,
+            metavar="PATTERN",
+            help=f"Paths ignored by default. "
+            f"A regular expression to exclude directories on file search.\n"
+            f"An empty value means no path is excluded. Default: {DEFAULT_EXCLUDES}",
+            include_in_default_config=False,
+        )
+        self.add_option(
+            "--lang",
+            "--language",
+            action=ParseDelimitedArgAction,
+            default=robocop_config.language,
+            help="Parse Robot Framework files using additional languages.",
+            comment_in_default_config=True,
+            cli_default="en",
+            toml_default='["en"]',
+        )
+        self.add_option(
+            "--persistent",
+            action="store_true",
+            default=robocop_config.persistent,
+            help="Use this flag to save Robocop reports in cache directory for later comparison.",
+            comment_in_default_config=True,
+            toml_default="true",
+        )
+        self.add_option(
+            "-h", "--help", action="help", help="Print this help message and exit.", include_in_default_config=False
+        )
+        self.add_option(
+            "-v",
+            "--version",
+            action="version",
+            version=__version__,
+            help="Display Robocop version.",
+            include_in_default_config=False,
+        )
+        self.add_option(
+            "-vv",
+            "--verbose",
+            action="store_true",
+            default=robocop_config.verbose,
+            help="Display extra information during execution.",
+            toml_default="true",
+        )
+        self.add_option(
+            "--directives",
+            action="version",
+            version="1. Serve the public trust\n2. Protect the innocent\n3. Uphold the law\n4. [ACCESS DENIED]",
+            help=argparse.SUPPRESS,
+            include_in_default_config=False,
+        )
+
+    def add_option(self, *args, **kwargs):
+        self.options.append(RobocopOption(*args, **kwargs))
+
+    def get_arg_parser(self, from_cli):
+        parser = CustomArgParser(
+            prog="robocop",
+            formatter_class=argparse.RawTextHelpFormatter,
+            description="Static code analysis tool for Robot Framework",
+            epilog="For full documentation visit: https://robocop.readthedocs.io/en/latest/",
+            add_help=False,
+            from_cli=from_cli,
+        )
+        required = parser.add_argument_group(title="Required parameters")
+        optional = parser.add_argument_group(title="Optional parameters")
+        for option in self.options:
+            if option.required:
+                required.add_argument(*option.names, **option.kwargs)
+            else:
+                optional.add_argument(*option.names, **option.kwargs)
+        return parser
+
+    def get_default_cli_config(self):
+        default_config = [f"# Generated with Robocop {__version__}"]
+        for option in self.options:
+            if option.include_in_default_config:
+                default_config.append(option.get_cli_config())
+        return "\n".join(default_config)
+
+    def get_default_toml_config(self):
+        default_config = ["[tool.robocop]", f"# Generated with Robocop {__version__}"]
+        for option in self.options:
+            if option.include_in_default_config:
+                default_config.append(option.get_toml_config())
+        return "\n".join(default_config)
+
+
+if __name__ == "__main__":
+    config = Config(from_cli=True)
+    config_parser = ConfigurationParser(config)
+    conf = config_parser.get_default_cli_config()
+    with open("default_config.txt", "w") as fp:
+        fp.write(conf)
+    conf = config_parser.get_default_toml_config()
+    with open("default_config.toml", "w") as fp:
+        fp.write(conf)

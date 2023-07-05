@@ -1,0 +1,61 @@
+# Generated with Robocop 3.2.1
+
+# Run Robocop only with specified rules. You can define rule by its name or id.
+# Glob patterns are supported.
+# --include
+
+# Ignore specified rules. You can define rule by its name or id.
+# Glob patterns are supported.
+# --exclude
+
+# List of paths with custom rules.
+# --ext-rules robocop_rules.py
+
+# Use this flag to stop scanning directories recursively.
+# --no-recursive
+
+# Generate reports after scan.
+# You can enable reports by listing them in comma-separated list:
+# --reports rules_by_id,rules_by_error_type,scan_timer
+# To enable all default reports use 'all':
+# --reports all
+# List available reports with --list-reports option.
+--reports all
+
+# Format of output message. You can use placeholders to change the way an issue is reported.
+# Default: {source}:{line}:{col} [{severity}] {rule_id} {desc} ({name})
+--format {source}:{line}:{col} [{severity}] {rule_id} {desc} ({name})
+
+# Configure checker or report with parameter value. Usage:
+# -c message_name_or_id:param_name:param_value
+# Examples:
+# -c line-too-long:line_length:150
+# --configure 0101:severity:E
+# --configure
+
+# Path to output file.
+# --output robocop_output.txt
+
+# Comma-separated list of file extensions to be scanned by Robocop
+--filetypes .robot,.tsv,.resource
+
+# Disable rules below given threshold. Available message levels: I < W < E
+--threshold I
+
+# Path to file with arguments.
+# --argumentfile robocop_config.txt
+
+# Path to TOML configuration file.
+# --config robocop_config.toml
+
+# Ignore file(s) and path(s) provided. Glob patterns are supported.
+# --ignore file_to_ignore.robot
+
+# Parse Robot Framework files using additional languages.
+# --language en
+
+# Use this flag to save Robocop reports in cache directory for later comparison.
+# --persistent
+
+# Display extra information during execution.
+--verbose

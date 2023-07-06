@@ -4,7 +4,13 @@
 Robocop 4.0.0
 =============
 
-Description.
+Added several new rules, new reports (including comparison with the previous run!). Our rule disablers are smarter
+(context aware) and new rules can be defined to be disabled by default. Checkers & rules importing was also rewritten to
+allow to load external rules from the modules imported inside Python file.
+
+Our documentation was also updated with better formatting of the rules.
+
+There are backward-incompatible changes to rule severity thresholds and rule disablers (described below in details).
 
 You can install the latest available version by running
 
@@ -81,7 +87,7 @@ Following code::
         ${status}    Get Health Status    ${service_name}
     END
 
-can be rewritten to::
+Can be rewritten to::
 
     WHILE    $status == 200
         ${status}    Get Health Status    ${service_name}
@@ -97,7 +103,7 @@ For example::
     IF    ${session_created} == ${FALSE}    Create Session
     Skip If    ${rows} == []
 
-can be rewritten to::
+Can be rewritten to::
 
     IF    not ${session_created}    Create Session
     Skip If    not ${rows}
@@ -187,7 +193,7 @@ Output directory and filename can be configured with::
     robocop --configure json_report:output_dir:output --configure json_report:report_filename:issues.json --reports json_report .
 
 ``json_report`` was created from the old, internal-only report with the same name. The previous report is renamed to
-``internal_json_report``. If you are using Robocop programmatically and you were using``json_report``, rename it to
+``internal_json_report``. If you are using Robocop programmatically and you were using ``json_report``, rename it to
 ``internal_json_report``.
 
 Overhaul of rules & checkers importing (#790)
@@ -262,7 +268,7 @@ Such rules can be enabled when called explicitly with ``--include`` option::
 
     robocop --include custom-rule .
 
- or by configuring ``enabled`` parameter directly::
+Or by configuring ``enabled`` parameter directly::
 
     robocop --ext-rules custom_rules.py -c custom-rule:enabled:True .
 
@@ -314,4 +320,4 @@ We plan to improve the examples with the ones that are inspired by the real-worl
 Acknowledgements
 ================
 
-Thanks to...
+Thanks to Jyrki (@jyrlindr) and Sayed (@sayedtenkanen) for bug reports and feature requests that helped improve our tool!

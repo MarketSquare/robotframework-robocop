@@ -1,0 +1,4 @@
+test.robot:8:5 [W] 10001 Sleep keyword with '10s' sleep time found
+test.robot:11:9 [W] 10001 Sleep keyword with '${var}' sleep time found
+test.robot:14:9 [W] 10001 Sleep keyword with '1 min' sleep time found
+test.robot:17:5 [W] 10001 Sleep keyword with '' sleep time found

@@ -336,3 +336,7 @@ def get_string_diff(prev_count, count):
     diff = count - prev_count
     prefix = "+" if diff >= 0 else ""
     return prefix + str(diff)
+
+
+def get_plural_form(container):
+    return "" if container == 1 else "s"

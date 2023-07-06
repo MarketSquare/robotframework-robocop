@@ -368,3 +368,10 @@ class TestTranslatedRobot:
         robocop_instance.reload_config()
         without_version = {rule.name for rule in robocop_instance.rules.values() if not rule.added_in_version}
         assert without_version == set()
+
+    def test_all_community_rules_should_be_disabled_by_default(self, robocop_instance):
+        robocop_instance.reload_config()
+        community_rules = [rule for rule in robocop_instance.rules.values() if rule.community_rule]
+        assert community_rules != []
+        enabled_community = {rule.name for rule in community_rules if rule.enabled}
+        assert enabled_community == set()

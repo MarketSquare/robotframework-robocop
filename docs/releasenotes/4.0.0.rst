@@ -4,7 +4,29 @@
 Robocop 4.0.0
 =============
 
-Description.
+This release brings a handful of long-awaited features requested by our users and a few improvements we were keeping in our heads for some time.
+
+Besides the 9 new rules, Robocop is now able to compare results between runs and see the difference in the report.
+
+Moreover, the disablers are now smarter and they become context-aware, meaning that they disable the rules in the whole related code block.
+
+Another improvement is the severity thresholds for the rules, which are now dynamically referenced in the rule messages.
+
+We also added a possibility to create rules that are disabled by default, and this is a first step we made towards Community Rules, which is a huge feature we are working on, and we plan to add it in the next major release.
+
+The results from the Robocop execution can also be exported to a JSON file with our new ``json_report``.
+
+Another updates are:
+- a new way of importing custom rules thanks to refactored mechanism of importing rules and checkers
+- better readability and formatting of the documentation
+- internal refactor of the reports to make it easier to maintain and extend they functionality
+
+
+Backward-incompatible changes relate to rule severity thresholds and rule disablers (described below in details).
+
+Sit down, grab a popcorn 🍿, relax and enjoy our release notes!
+
+----
 
 You can install the latest available version by running
 
@@ -36,7 +58,7 @@ According to the official RF User Guide::
     as in test case files."
 
 New E0416 ``invalid-setting-in-resource`` rule detects unsupported
-settings in resource files.
+settings in the resource files.
 
 New rule that suggests using task- or test-related settings for corresponding sections (#522)
 ---------------------------------------------------------------------------------------------
@@ -52,7 +74,7 @@ New rules for Keyword Tags (#641)
 
 There are 3 new rules added to support new (in RF 6.0) Keyword Tags.
 
-``empty-keyword-tags`` rule (W0531) checks for the situation where ``Keyword Tags`` in `*** Settings ***` section
+``empty-keyword-tags`` rule (W0531) checks for the situation where ``Keyword Tags`` in ``*** Settings ***`` section
 does not have any value provided::
 
     *** Settings ***
@@ -68,11 +90,11 @@ New rule for discovering unsupported setting in initialization file (#498)
 --------------------------------------------------------------------------
 
 According to RF User Guide, ``Default Tags`` and ``Test Template`` settings are not allowed
-in suite initialization files, and this is covered by new ``unsupported-setting-in-init-file``
+in suite initialization files, and this is covered by a new ``unsupported-setting-in-init-file``
 rule (E0417).
 
 New rule for unnecessary string conversion in evaluated conditions (#442)
-----------------------------------------------------------------------------
+-------------------------------------------------------------------------
 
 Unnecessary string conversion is now detected and I0923 ``unnecessary-string-conversion`` is raised.
 Following code::
@@ -81,7 +103,7 @@ Following code::
         ${status}    Get Health Status    ${service_name}
     END
 
-can be rewritten to::
+Can be rewritten to::
 
     WHILE    $status == 200
         ${status}    Get Health Status    ${service_name}
@@ -97,7 +119,7 @@ For example::
     IF    ${session_created} == ${FALSE}    Create Session
     Skip If    ${rows} == []
 
-can be rewritten to::
+Can be rewritten to::
 
     IF    not ${session_created}    Create Session
     Skip If    not ${rows}
@@ -156,10 +178,11 @@ New report ``compare_runs`` for comparing results with the previous run (#489)
 ------------------------------------------------------------------------------
 
 We have implemented a way to compare reports output with the previous run. It's done thanks to special, non-default
-report ``compare_runs``. Additionally, there should be previous run results saved with the ``--persistent`` flag::
+report ``compare_runs``.  You need to first run Robocop with a ``--persistent`` flag to save the results of the
+current run, and then run it with the ``compare_runs`` report (and other chosen reports) to see the differences between the runs::
 
-    robocop --reports all --persistent
-    robocop --reports all,compare_runs
+    robocop --persistent .
+    robocop --reports rules_by_error_type,rules_by_id,compare_runs .
 
 Example output::
 
@@ -186,9 +209,10 @@ Output directory and filename can be configured with::
 
     robocop --configure json_report:output_dir:output --configure json_report:report_filename:issues.json --reports json_report .
 
-``json_report`` was created from the old, internal-only report with the same name. The previous report is renamed to
-``internal_json_report``. If you are using Robocop programmatically and you were using``json_report``, rename it to
-``internal_json_report``.
+.. note::
+    ``json_report`` was created from the old, internal-only report with the same name. The previous report is renamed to
+    ``internal_json_report``. If you are using Robocop programmatically and you were using ``json_report``, rename it to
+    ``internal_json_report``.
 
 Overhaul of rules & checkers importing (#790)
 ---------------------------------------------
@@ -203,13 +227,13 @@ Let's assume we have the following code with loading external rules::
     from custom_rules.lengths import rules, CustomChecker
 
 before the change, only ``CustomChecker`` would be loaded by Robocop, while the content of the ``custom_rules.naming`` and
-``custom_rules.errors`` would be ignored. Now such imports will be parsed and external Robocop rules defined
+``custom_rules.errors`` would be ignored. Now, such imports will be parsed and external Robocop rules defined
 inside them will be loaded as well.
 
 Context aware Robocop disablers (#777)
 --------------------------------------
 
-Disablers module was rewritten in Robocop in order to improve how rules disablers are handled.
+Disablers module was rewritten in Robocop in order to improve how rule disablers are handled.
 Previously, disablers were parsed as lines only and were not aware of the Robot Framework code.
 
 For example, with the following code::
@@ -262,17 +286,17 @@ Such rules can be enabled when called explicitly with ``--include`` option::
 
     robocop --include custom-rule .
 
- or by configuring ``enabled`` parameter directly::
+Or by configuring ``enabled`` parameter directly::
 
     robocop --ext-rules custom_rules.py -c custom-rule:enabled:True .
 
 
 Rule severity thresholds printed value (#791)
------------------------------------------------
+---------------------------------------------
 
 Rule severity threshold allows to change rule severity depending on the threshold value and configured severities.
 In fact, it was confusing to see the reports for the same rule with different severities but the same limit value.
-We changed this behaviour to log the actual value that met the severity threshold.
+We changed this behavior to log the actual value that met the severity threshold.
 
 As for example, you can configure ``too-many-calls-in-test-case`` to report warning on 10 keywords and error on 30
 keywords. With such configuration you will get following reports::
@@ -314,4 +338,4 @@ We plan to improve the examples with the ones that are inspired by the real-worl
 Acknowledgements
 ================
 
-Thanks to...
+Thanks to Jyrki (@jyrlindr) and Sayed (@sayedtenkanen) for bug reports and feature requests that helped improve our tool!

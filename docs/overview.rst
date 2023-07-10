@@ -1,5 +1,5 @@
 Introduction
-------------
+============
 
 Robocop is a tool that performs static code analysis of `Robot Framework
 <https://github.com/robotframework/robotframework>`_ code.
@@ -12,24 +12,24 @@ looking for potential errors or violations to code quality standards (commonly r
     <https://github.com/MarketSquare/robotframework-robocop>`_
 
 Documentation
--------------
+=============
 
 Full documentation is available `here <https://robocop.readthedocs.io>`_.
 
 Requirements
-------------
+============
 
 Python 3.7+ |:snake:| and Robot Framework 3.2.2+ |:robot:|.
 
 Installation
-------------
+============
 
 You can install Robocop simply by running::
 
     pip install -U robotframework-robocop
 
 Usage
------
+=====
 
 Robocop runs by default from the current directory and it discovers supported files recursively.
 You can simply run::
@@ -43,7 +43,7 @@ All command line options can be displayed in help message by executing::
 or found in our :ref:`cli-options` documentation.
 
 Example Output
---------------
+==============
 
 Executing command::
 
@@ -62,7 +62,8 @@ Will result in following output:
     Found 5 issues: 2 ERRORs, 2 WARNINGs, 1 INFO.
 
 Values
--------
+======
+
 Original *RoboCop* - a fictional cybernetic police officer - was following 3 prime directives
 which also drive the progress of Robocop linter:
 

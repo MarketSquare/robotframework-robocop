@@ -1,6 +1,8 @@
-User guide
-==========
-This is short overview of how to use Robocop together with links to more extensive documentation.
+***************
+Getting started
+***************
+
+This is a short overview of how to use Robocop (with links to more extensive documentation).
 
 You can run lint scan on Robot Framework code by simply running::
 
@@ -13,7 +15,7 @@ Robocop accepts files or directories as path. You can also specify multiple path
 Robocop will find and skip paths from `.gitignore` files.
 
 Including or excluding rules
-----------------------------
+============================
 
 Rules can be included or excluded from command line. It is also possible to disable rule(s) from Robot Framework
 source code. More in :ref:`including-rules`.
@@ -21,88 +23,90 @@ source code. More in :ref:`including-rules`.
 .. _configuration file:
 
 Loading configuration from file
--------------------------------
-.. dropdown:: How to load configuration from the file
+===============================
 
-    Robocop supports two formats of the configuration file: argument files and toml files. If argument file is not
-    provided using CLI, Robocop will try to find default configuration file using the following algorithm:
+Robocop supports two formats of the configuration file: argument files and toml files. If argument file is not
+provided using CLI, Robocop will try to find default configuration file using the following algorithm:
 
-    - if the directory contains ``.robocop`` file, load it
-    - otherwise, if the directory contains ``pyproject.toml`` file, load it
-    - otherwise, go to parent directory. Stop search if ``.git`` or top disk directory is found
+- if the directory contains ``.robocop`` file, load it
+- otherwise, if the directory contains ``pyproject.toml`` file, load it
+- otherwise, go to parent directory. Stop search if ``.git`` or top disk directory is found
 
-    .. dropdown:: ``.robocop`` argument file
+``.robocop`` argument file
+^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-        Argument file supports the same syntax as given from the CLI:
+Argument file supports the same syntax as given from the CLI:
 
-        ..  code-block::
-            :caption: .robocop
+..  code-block::
+    :caption: .robocop
 
-            --include rulename
-            # inline comment
-            --reports all
+    --include rulename
+    # inline comment
+    --reports all
 
-        You can load arguments for Robocop from file with ``--argumentfile / -A`` option and path to the argument file:
+You can load arguments for Robocop from file with ``--argumentfile / -A`` option and path to the argument file:
 
-        ..  code-block::
-            :caption: .robocop
+..  code-block::
+    :caption: .robocop
 
-            robocop --argumentfile argument_file.txt
-            robocop -A path/to/file.txt
+    robocop --argumentfile argument_file.txt
+    robocop -A path/to/file.txt
 
-        Argument file can contain path to another argument file. Argument file directory will be used to resolve
-        relative paths. For example if you're executing::
+Argument file can contain path to another argument file. Argument file directory will be used to resolve
+relative paths. For example if you're executing::
 
-            > robocop -A config/robocop_options.txt
+    > robocop -A config/robocop_options.txt
 
-        And ``config/robocop_options.txt`` contains following configuration:
+And ``config/robocop_options.txt`` contains following configuration:
 
-        ..  code-block::
-            :caption: config/robocop_options.txt
+..  code-block::
+    :caption: config/robocop_options.txt
 
-            --argumentfile base.txt
-            --exclude section-out-of-order
+    --argumentfile base.txt
+    --exclude section-out-of-order
 
-        ``base.txt`` path will be resolved as ``config/base.txt``.
+``base.txt`` path will be resolved as ``config/base.txt``.
 
-    .. dropdown:: ``pyproject.toml`` or TOML configuration file
+``pyproject.toml`` or TOML configuration file
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-        Robocop uses ``[tool.robocop]`` section. Options have the same names as the CLI arguments.
+Robocop uses ``[tool.robocop]`` section. Options have the same names as the CLI arguments.
 
-        This configuration file can be loaded automatically (if your project has ``pyproject.toml`` file) or by
-        using ``--config`` option and providing path to the configuration file.
+This configuration file can be loaded automatically (if your project has ``pyproject.toml`` file) or by
+using ``--config`` option and providing path to the configuration file.
 
-        Example of TOML configuration file:
+Example of TOML configuration file:
 
-        ..  code-block::
-            :caption: pyproject.toml
+..  code-block::
+    :caption: pyproject.toml
 
-            [tool.robocop]
-            paths = [
-                "tests\\atest\\rules\\bad-indent",
-                "tests\\atest\\rules\\duplicated-library"
-            ]
-            include = ['W0504', '*doc*']
-            exclude = ["0203"]
-            reports = [
-                "rules_by_id",
-                "scan_timer"
-            ]
-            ignore = ["ignore_me.robot"]
-            ext-rules = ["path_to_external\\dir"]
-            filetypes = [".txt", ".tsv"]
-            threshold = "E"
-            format = "{source}:{line}:{col} [{severity}] {rule_id} {desc} (name)"
-            output = "robocop.log"
-            configure = [
-                "line-too-long:line_length:150",
-                "0201:severity:E"
-            ]
-            no_recursive = true
+    [tool.robocop]
+    paths = [
+        "tests\\atest\\rules\\bad-indent",
+        "tests\\atest\\rules\\duplicated-library"
+    ]
+    include = ['W0504', '*doc*']
+    exclude = ["0203"]
+    reports = [
+        "rules_by_id",
+        "scan_timer"
+    ]
+    ignore = ["ignore_me.robot"]
+    ext-rules = ["path_to_external\\dir"]
+    filetypes = [".txt", ".tsv"]
+    threshold = "E"
+    format = "{source}:{line}:{col} [{severity}] {rule_id} {desc} (name)"
+    output = "robocop.log"
+    configure = [
+        "line-too-long:line_length:150",
+        "0201:severity:E"
+    ]
+    no_recursive = true
 
 
 Listing available rules
------------------------
+=======================
+
 To get list of available rules (with enabled/disabled status) use ``-l / --list`` option:
 
 ..  code-block:: none
@@ -163,36 +167,37 @@ To list only enabled or disabled rules:
 
 
 Ignoring file
--------------
+=============
+
 Path matching glob pattern can be ignored (or *skipped* during scan). You can pass list of patterns::
 
     robocop --ignore *.robot,resources/* --ignore special_file.txt
 
 Format output message
----------------------
+=====================
 
 Format of rules output messages can be redefined. More in messages documentation: :ref:`rules`.
 
 Configuring rules
------------------
+=================
 
 Rules are configurable. Severity of every rule message can be changed and also some of the rules have
 optional parameters. More on this in :ref:`rules`.
 
 Save output to file
--------------------
+===================
 
 You can redirect output of Robocop to a file by using pipes (``>`` in unix) or by ``-o`` / ``--output`` argument::
 
   robocop --output robocop.log
 
 Generating reports
-------------------
+==================
 
 You can generate reports after run. Available reports are described in :ref:`reports`.
 
 Return status
--------------
+=============
 
 ..  code-block:: none
 
@@ -223,11 +228,14 @@ Preceding example configuration results in following levels::
         }
 
 Fixing issues
--------------
-Many issues in your code reported by Robocop can be fixed using auto-formatting tool, Robotidy. Check out the Robotidy [documentation](https://robotidy.readthedocs.io/en/stable/).
+=============
+
+Many issues in your code reported by Robocop can be fixed using auto-formatting tool, Robotidy.
+Check out the Robotidy `documentation <https://robotidy.readthedocs.io/en/stable/>`_.
 
 Language support
------------------
+================
+
 Robot Framework 6.0 added support for Robot settings and headers translation. Robocop will not recognize translated names unless
 it is properly configured. You can supply language code or name in the configuration using ``--language / --lang`` option::
 

@@ -1,7 +1,8 @@
 .. _api:
 
-API
-===
+***********
+Robocop API
+***********
 
 ``robocop`` package can be imported and used directly in Python code.
 You need to create instance of ``Config`` class that will contain your configuration:

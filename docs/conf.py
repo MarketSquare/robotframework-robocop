@@ -10,7 +10,7 @@ from robocop.rules import SeverityThreshold
 # -- Project information -----------------------------------------------------
 
 project = "Robocop"
-copyright = f"{datetime.datetime.now().year}, Bartlomiej Hirsz, Mateusz Nojek"
+copyright = f"{datetime.datetime.now().year} ⦁ Bartlomiej Hirsz, Mateusz Nojek"
 author = "Bartlomiej Hirsz, Mateusz Nojek"
 
 # The full version, including alpha/beta/rc tags
@@ -31,7 +31,7 @@ templates_path = ["_templates"]
 exclude_patterns = ["**/releasenotes/*"]
 
 html_theme = "furo"
-html_title = f"Robocop {release}"
+html_title = f"Robocop {release} documentation"
 html_logo = "images/robocop_logo_small.png"
 html_theme_options = {
     "footer_icons": [

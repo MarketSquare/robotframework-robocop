@@ -1,80 +1,62 @@
 .. _rules:
 
-*****
-Rules
-*****
+***********
+Rule basics
+***********
+
+Checkers
+========
+
+.. automodule:: robocop.checkers
+
+Rule message
+============
 
 .. automodule:: robocop.rules
 
 .. module:: robocop
 
-.. automodule:: robocop.checkers
+Rule severity
+=============
 
-.. autoclass:: robocop.rules.RuleSeverity
-   :members:
+.. automodule:: robocop.rules.RuleSeverity
+
+.. _severity-threshold:
+
+Severity threshold
+-------------------
+
+Selected rules can be configured to have different severity depending on the parameter value.
+
+Using ``line-too-long`` as an example - this rule issues a warning when line length exceeds
+configured value (default ``120``).
+It is possible to configure this rule to issue a warning for line length above 120
+but an error for line length above 200.
+We can use ``severity_threshold`` for this purpose::
+
+    robocop -c line-too-long:severity_threshold:warning=120:error=200
+
+It supports all default severity values:
+
+- error, e
+- warning, w
+- info, i
+
+The issue needs to be raised in order for severity thresholds to be evaluated. That's why the parameter value needs to
+be configured to raise an issue for at least one of our threshold ranges. In previous example, if we want to issue
+info message if the line is longer than 80 characters, we need to configure ``line_length`` parameter
+(default ``120``) to 80 to trigger the rule::
+
+    robocop -c line-too-long:line_length:80 -c line-too-long:severity_threshold:info=80:warning=120:error=200
+
+Following rules support ``severity_threshold``:
 
 {% for checker_group in checker_groups %}
-{{ checker_group[0] }}
-=============
 {% for rule_doc in checker_group[1] %}
-.. _{{ rule_doc.name }}:
-
-{{ rule_doc.name }} / {{ rule_doc.severity }}{{ rule_doc.id }}
---------------------------------------------------------------
-
-*Added in* ``v{{ rule_doc.robocop_version }}`` ⦁ *Supported RF versions*: ``{{ rule_doc.version }}``
-
-**Message**:
-
-``{{ rule_doc.msg }}``
-
-{% if rule_doc.docs|length %}
-
-**Documentation**:
-
-.. highlight:: robotframework
-   :force:
-
-{{ rule_doc.docs }}
-
-{% endif %}
-
 {%- if rule_doc.severity_threshold is not none %}
-
-.. admonition:: Severity thresholds
-   :class: note
-
-   This rule supports dynamic severity configurable using thresholds (:ref:`rule severity thresholds`).
-   Parameter ``{{ rule_doc.severity_threshold.param_name }}`` will be used to determine issue severity depending on the thresholds.
-
-   When configuring thresholds remember to also set ``{{ rule_doc.severity_threshold.param_name }}`` - its value should be lower or
-   equal to the lowest value in the threshold.
-
+- :ref:`{{ rule_doc.name }}`
 {% endif %}
-
-**Configurable parameters**:
-
-.. list-table::
-  :width: 100%
-  :widths: auto
-  :header-rows: 1
-
-  * - Name
-    - Default value
-    - Type
-    - Description
-{% for rule_param in rule_doc.params %}
-  * - ``{{ rule_param.name }}``
-    - ``{{ rule_param.default }}``
-    - ``{{ rule_param.type }}``
-    - {{ rule_param.desc }}
+{% endfor %}
 {% endfor %}
 
-{% if not loop.last %}
-----
-{% endif %}
-
-{% endfor %}
-
-
-{% endfor %}
+.. include:: including_rules.rst

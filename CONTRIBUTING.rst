@@ -1,5 +1,6 @@
+***********************
 Contribution guidelines
-=======================
+***********************
 
 These guidelines instruct how to submit issues and contribute code or
 documentation to the `Robocop project
@@ -17,12 +18,8 @@ as well as why and how to contribute to open source projects. If you are
 totally new to these topics, it may be a good idea to look at the generic
 `Open Source Guides <https://opensource.guide/>`_ first.
 
-.. contents::
-   :depth: 2
-   :local:
-
 Submitting issues
------------------
+=================
 
 Bugs and enhancements are tracked in the `issue tracker
 <https://github.com/MarketSquare/robotframework-robocop/issues>`_.
@@ -62,7 +59,7 @@ To suggest an idea for the project please create an issue using
 why this should be useful and what needs to be done to accomplish the goal.
 
 Code contributions
-------------------
+==================
 
 If you have fixed a bug or implemented an enhancement, you can contribute
 your changes via GitHub's pull requests. This is not restricted to code,
@@ -149,6 +146,7 @@ The whole documentation is available `here <https://robocop.readthedocs.io/>`_.
 
 Pre-commit checks
 ~~~~~~~~~~~~~~~~~~~~
+
 Every change is required to pass pre-commit checks. To install pre-commit tool run::
 
     pip install pre-commit
@@ -191,6 +189,7 @@ Make sure that tests do not fail.
 
 Nox
 ''''''''
+
 Robocop contains `nox <https://nox.thea.codes/en/stable/>`_ file for running the tests on all supported
 major Robot Framework versions and generating the coverage or docs. The nox tool will create the virtual environment and
 install required dependencies for you.

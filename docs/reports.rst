@@ -1,7 +1,8 @@
 .. _reports:
 
+*******
 Reports
-========
+*******
 
 Reports are configurable summaries after a Robocop scan. For example, it can display a total number of issues discovered.
 They are dynamically loaded during setup according to a configuration.
@@ -30,7 +31,7 @@ You can filter the list using optional ``ENABLED``/``DISABLED`` argument::
     robocop --reports timestamp,sarif --list-reports DISABLED
 
 Compare report results
-----------------------
+======================
 
 Reports results can be compared with the previous run. Example output::
 

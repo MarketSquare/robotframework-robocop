@@ -22,6 +22,9 @@ other reports, you can use the following configuration::
 
     robocop --reports timestamp,all src.robot
 
+List available reports
+======================
+
 Print a list of all reports with their configured status by using ``--list-reports``::
 
     robocop --reports all --list-reports
@@ -30,8 +33,30 @@ You can filter the list using optional ``ENABLED``/``DISABLED`` argument::
 
     robocop --reports timestamp,sarif --list-reports DISABLED
 
-Compare report results
-======================
+.. _configuring-reports:
+
+Configuring reports
+===================
+
+Similarly as rules, reports can also be configured. The same ``--configure`` (or ``-c``) option is used followed by report name, its parameter and the value::
+
+    robocop --configure <report_name>:<param_name>:<value>
+
+For example::
+
+    robocop --configure return_status:quality_gate:E=100:W=100:I=9
+
+configures ``quality_gate`` parameter and sets new threshold values for different severities of the rules (see more at :ref:`return_status`).
+
+There are also other configurable reports like ``timestamp`` or ``json_report``. More about them below.
+
+Reports list
+============
+
+Compare results
+---------------
+
+**Report name**: ``compare_runs``
 
 Reports results can be compared with the previous run. Example output::
 
@@ -70,20 +95,47 @@ To used stored results to compare with current run, enable ``compare_runs`` repo
 
 .. automodule:: robocop.reports
 
-.. autoclass:: robocop.reports.rules_by_id_report.RulesByIdReport
+Rules by ID
+-----------
 
-.. autoclass:: robocop.reports.rules_by_severity_report.RulesBySeverityReport
+.. automodule:: robocop.reports.rules_by_id_report.RulesByIdReport
 
-.. autoclass:: robocop.reports.return_status_report.ReturnStatusReport
+Rules by severity
+-----------------
 
-.. autoclass:: robocop.reports.time_taken_report.TimeTakenReport
+.. automodule:: robocop.reports.rules_by_severity_report.RulesBySeverityReport
 
-.. autoclass:: robocop.reports.file_stats_report.FileStatsReport
+Return status
+-------------
 
-.. autoclass:: robocop.reports.robocop_version_report.RobocopVersionReport
+.. automodule:: robocop.reports.return_status_report.ReturnStatusReport
 
-.. autoclass:: robocop.reports.timestamp_report.TimestampReport
+Execution time
+--------------
 
-.. autoclass:: robocop.reports.json_report.JsonReport
+.. automodule:: robocop.reports.time_taken_report.TimeTakenReport
 
-.. autoclass:: robocop.reports.sarif_report.SarifReport
+File statistics
+---------------
+
+.. automodule:: robocop.reports.file_stats_report.FileStatsReport
+
+Robocop version
+---------------
+
+.. automodule:: robocop.reports.robocop_version_report.RobocopVersionReport
+
+Report timestamp
+----------------
+
+.. automodule:: robocop.reports.timestamp_report.TimestampReport
+
+JSON export
+-----------
+
+.. automodule:: robocop.reports.json_report.JsonReport
+
+SARIF export
+------------
+
+.. automodule:: robocop.reports.sarif_report.SarifReport

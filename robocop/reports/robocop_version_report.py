@@ -4,7 +4,7 @@ from robocop.version import __version__
 
 class RobocopVersionReport(robocop.reports.ComparableReport):
     """
-    Report name: ``version``
+    **Report name**: ``version``
 
     Report that returns Robocop version.
 

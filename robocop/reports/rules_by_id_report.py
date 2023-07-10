@@ -8,7 +8,7 @@ from robocop.rules import Message
 
 class RulesByIdReport(robocop.reports.ComparableReport):
     """
-    Report name: ``rules_by_id``
+    **Report name**: ``rules_by_id``
 
     Report that groups linter rules messages by rule id and prints it ordered by most common message.
     Example::

@@ -14,16 +14,117 @@ Robocop accepts files or directories as path. You can also specify multiple path
 
 Robocop will find and skip paths from `.gitignore` files.
 
+Rules management
+================
+
 Including or excluding rules
-============================
+----------------------------
 
 Rules can be included or excluded from command line. It is also possible to disable rule(s) from Robot Framework
 source code. More in :ref:`including-rules`.
 
 .. _configuration file:
 
+Configuring rules
+-----------------
+
+Rules are configurable. Severity of every rule message can be changed (see more :ref:`severity-threshold`) and also some of the rules have
+optional parameters.
+
+.. note::
+
+    To see all configurable rules and their parameters, run ``robocop --list-configurables`` or just ``robocop -lc``.
+
+For configuring rules you can use ``--configure`` or ``-c`` option followed by rule name, its parameter and the value delimited by colon (``:``)::
+
+    --configure <rule_name>:<param_name>:<value>
+
+For example::
+
+    robocop -c line-too-long:line_length:140
+
+which overwrites the value for the maximum line length (120 by default).
+
+Some rules accept comma-separated values like::
+
+    robocop -c todo-in-comment:markers:todo,changeme,refactor
+
+which changes the markers that trigger the rule when the marker appears in the comment.
+
+If you need to provide a value with a space, wrap the whole configurable in quotes, like here::
+
+    robocop --configure "todo-in-comment:markers:Remove me,Fix this!"
+
+.. note::
+
+    Configuration parameter (``--configure`` / ``-c``) can also be used to configure reports. More about it here :ref:`configuring-reports`.
+
+Listing available rules
+-----------------------
+
+To get list of available rules (with enabled/disabled status) use ``-l`` / ``--list`` option:
+
+..  code-block:: none
+
+    > robocop --list
+    Rule - 0201 [W]: missing-doc-keyword: Missing documentation in '{{ name }}' keyword (enabled)
+    Rule - 0202 [W]: missing-doc-test-case: Missing documentation in '{{ name }}' test case (enabled)
+    Rule - 0203 [W]: missing-doc-suite: Missing documentation in suite (enabled)
+    (...)
+
+If some of the rules are disabled from CLI it will be reflected in the output:
+
+..  code-block:: none
+
+    > robocop --exclude 02* --list
+    Rule - 0201 [W]: missing-doc-keyword: Missing documentation in '{{ name }}' keyword (disabled)
+    Rule - 0202 [W]: missing-doc-test-case: Missing documentation in '{{ name }}' test case (disabled)
+    Rule - 0203 [W]: missing-doc-suite: Missing documentation in suite (disabled)
+    Rule - 0301 [W]: not-allowed-char-in-name: Not allowed character '{{ character }}' found in {{ block_name }} name (enabled)
+    (...)
+
+Rules list can be filtered out by glob pattern:
+
+..  code-block:: none
+
+    > robocop --list tag*
+    Rule - 0601 [W]: tag-with-space: Tag '{{ tag }}' should not contain spaces (enabled)
+    Rule - 0602 [I]: tag-with-or-and: Tag '{{ tag }}' with reserved word OR/AND. Hint: make sure to include this tag using lowercase name to avoid issues (enabled)
+    Rule - 0603 [W]: tag-with-reserved-word: Tag '{{ tag }}' prefixed with reserved word `robot:` (enabled)
+    Rule - 0606 [I]: tag-already-set-in-test-tags: Tag 'mytag' is already set by Test Tags in suite settings (enabled)
+
+Use ``-lc \ --list-configurables`` argument to list rules together with available configurable parameters. Optional pattern argument is also supported:
+
+..  code-block:: none
+
+    robocop --list-configurables empty-lines-between-sections
+    Rule - 1003 [W]: empty-lines-between-sections: Invalid number of empty lines between sections ({{ empty_lines }}/{{ allowed_empty_lines }}) (enabled)
+        Available configurables for this rule:
+            empty_lines = 2
+                type: int
+                info: number of empty lines required between sections
+
+
+To list only enabled or disabled rules:
+
+..  code-block:: none
+
+    > robocop -i tag-with* --list ENABLED
+    Rule - 0601 [W]: tag-with-space: Tag '{{ tag }}' should not contain spaces (enabled)
+    Rule - 0602 [I]: tag-with-or-and: Tag '{{ tag }}' with reserved word OR/AND. Hint: make sure to include this tag using lowercase name to avoid issues (enabled)
+    Rule - 0603 [W]: tag-with-reserved-word: Tag '{{ tag }}' prefixed with reserved word `robot:` (enabled)
+
+    > robocop -e inconsistent-assignment-in-variables --list-configurables DISABLED
+    Rule - 0910 [W]: inconsistent-assignment-in-variables: The assignment sign is not consistent inside the variables section. Expected '{{ expected_sign }}' but got '{{ actual_sign }}' instead (disabled)
+        assignment_sign_type = autodetect
+            type: parse_assignment_sign_type
+            info: possible values: 'autodetect' (default), 'none' (''), 'equal_sign' ('=') or space_and_equal_sign (' =')
+
+Handling output
+===============
+
 Loading configuration from file
-===============================
+-------------------------------
 
 Robocop supports two formats of the configuration file: argument files and toml files. If argument file is not
 provided using CLI, Robocop will try to find default configuration file using the following algorithm:
@@ -103,101 +204,27 @@ Example of TOML configuration file:
     ]
     no_recursive = true
 
-
-Listing available rules
-=======================
-
-To get list of available rules (with enabled/disabled status) use ``-l / --list`` option:
-
-..  code-block:: none
-
-    > robocop --list
-    Rule - 0201 [W]: missing-doc-keyword: Missing documentation in '{{ name }}' keyword (enabled)
-    Rule - 0202 [W]: missing-doc-test-case: Missing documentation in '{{ name }}' test case (enabled)
-    Rule - 0203 [W]: missing-doc-suite: Missing documentation in suite (enabled)
-    (...)
-
-If some of the rules are disabled from CLI it will be reflected in the output:
-
-..  code-block:: none
-
-    > robocop --exclude 02* --list
-    Rule - 0201 [W]: missing-doc-keyword: Missing documentation in '{{ name }}' keyword (disabled)
-    Rule - 0202 [W]: missing-doc-test-case: Missing documentation in '{{ name }}' test case (disabled)
-    Rule - 0203 [W]: missing-doc-suite: Missing documentation in suite (disabled)
-    Rule - 0301 [W]: not-allowed-char-in-name: Not allowed character '{{ character }}' found in {{ block_name }} name (enabled)
-    (...)
-
-Rules list can be filtered out by glob pattern:
-
-..  code-block:: none
-
-    > robocop --list tag*
-    Rule - 0601 [W]: tag-with-space: Tag '{{ tag }}' should not contain spaces (enabled)
-    Rule - 0602 [I]: tag-with-or-and: Tag '{{ tag }}' with reserved word OR/AND. Hint: make sure to include this tag using lowercase name to avoid issues (enabled)
-    Rule - 0603 [W]: tag-with-reserved-word: Tag '{{ tag }}' prefixed with reserved word `robot:` (enabled)
-    Rule - 0606 [I]: tag-already-set-in-test-tags: Tag 'mytag' is already set by Test Tags in suite settings (enabled)
-
-Use ``-lc \ --list-configurables`` argument to list rules together with available configurable parameters. Optional pattern argument is also supported:
-
-..  code-block:: none
-
-    robocop --list-configurables empty-lines-between-sections
-    Rule - 1003 [W]: empty-lines-between-sections: Invalid number of empty lines between sections ({{ empty_lines }}/{{ allowed_empty_lines }}) (enabled)
-        Available configurables for this rule:
-            empty_lines = 2
-                type: int
-                info: number of empty lines required between sections
-
-
-To list only enabled or disabled rules:
-
-..  code-block:: none
-
-    > robocop -i tag-with* --list ENABLED
-    Rule - 0601 [W]: tag-with-space: Tag '{{ tag }}' should not contain spaces (enabled)
-    Rule - 0602 [I]: tag-with-or-and: Tag '{{ tag }}' with reserved word OR/AND. Hint: make sure to include this tag using lowercase name to avoid issues (enabled)
-    Rule - 0603 [W]: tag-with-reserved-word: Tag '{{ tag }}' prefixed with reserved word `robot:` (enabled)
-
-    > robocop -e inconsistent-assignment-in-variables --list-configurables DISABLED
-    Rule - 0910 [W]: inconsistent-assignment-in-variables: The assignment sign is not consistent inside the variables section. Expected '{{ expected_sign }}' but got '{{ actual_sign }}' instead (disabled)
-        assignment_sign_type = autodetect
-            type: parse_assignment_sign_type
-            info: possible values: 'autodetect' (default), 'none' (''), 'equal_sign' ('=') or space_and_equal_sign (' =')
-
-
-Ignoring file
-=============
-
-Path matching glob pattern can be ignored (or *skipped* during scan). You can pass list of patterns::
-
-    robocop --ignore *.robot,resources/* --ignore special_file.txt
-
 Format output message
-=====================
+---------------------
 
-Format of rules output messages can be redefined. More in messages documentation: :ref:`rules`.
-
-Configuring rules
-=================
-
-Rules are configurable. Severity of every rule message can be changed and also some of the rules have
-optional parameters. More on this in :ref:`rules`.
+Format of rules output messages can be redefined. More in messages documentation: :ref:`output-message-format`.
 
 Save output to file
-===================
+-------------------
 
 You can redirect output of Robocop to a file by using pipes (``>`` in unix) or by ``-o`` / ``--output`` argument::
 
   robocop --output robocop.log
 
 Generating reports
-==================
+------------------
 
 You can generate reports after run. Available reports are described in :ref:`reports`.
 
+.. _return_status:
+
 Return status
-=============
+-------------
 
 ..  code-block:: none
 
@@ -226,6 +253,13 @@ Preceding example configuration results in following levels::
             'W': 100,
             'I': 9
         }
+
+Ignoring files
+==============
+
+Path matching glob pattern can be ignored (or *skipped* during scan). You can pass list of patterns::
+
+    robocop --ignore *.robot,resources/* --ignore special_file.txt
 
 Fixing issues
 =============

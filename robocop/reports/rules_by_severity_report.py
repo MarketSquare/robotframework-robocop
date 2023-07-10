@@ -7,7 +7,7 @@ from robocop.utils.misc import get_string_diff
 
 class RulesBySeverityReport(robocop.reports.ComparableReport):
     """
-    Report name: ``rules_by_error_type``
+    **Report name**: ``rules_by_error_type``
 
     Report that groups linter rules messages by severity and prints total of issues per every severity level.
 

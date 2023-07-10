@@ -5,7 +5,7 @@ import robocop.reports
 
 class TimeTakenReport(robocop.reports.ComparableReport):
     """
-    Report name: ``scan_timer``
+    **Report name**: ``scan_timer``
 
     Report that returns Robocop execution time
 

@@ -7,7 +7,7 @@ from robocop.utils.misc import get_string_diff
 
 class FileStatsReport(robocop.reports.ComparableReport):
     """
-    Report name: ``file_stats``
+    **Report name**: ``file_stats``
 
     Report that displays overall statistics about number of processed files.
 

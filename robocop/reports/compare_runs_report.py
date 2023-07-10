@@ -3,7 +3,7 @@ import robocop.reports
 
 class CompareRunsReport(robocop.reports.Report):
     """
-    Report name: ``compare_runs``
+    **Report name**: ``compare_runs``
 
     Special report that is used to enhance other reports output with the comparison to the previous run results.
 

@@ -9,11 +9,11 @@ import robocop.reports
 
 class TimestampReport(robocop.reports.Report):
     """
-    Report name: ``timestamp``
+    **Report name**: ``timestamp``
 
     Report that returns Robocop execution timestamp.
     Timestamp follows local time in format of
-    `Year-Month-Day Hours(24-hour clock):Minutes:Seconds ±hh:mm UTC offset` as default.
+    ``Year-Month-Day Hours(24-hour clock):Minutes:Seconds ±hh:mm UTC offset`` as default.
 
     Example::
 

@@ -4,8 +4,23 @@
 Disablers
 *********
 
-Rules can be disabled directly from Robot Framework code. It is similar to how ``# noqa`` comment works for
-most linters.
+Rules can be disabled directly from Robot Framework code.
+A special comment needs to be placed in order to disable specific rules of Robocop.
+The comments is always prefixed with ``robocop`` marker followed by ``disable`` or ``enable`` word keywords::
+
+    # robocop disable
+
+The keyword may optionally have specified rules, separated by comma::
+
+    # robocop disable:rule1,rule2
+
+The disablers are also context-aware, meaning that they turn off the Robocop rules for the related code block, e.g. keyword, test case, or even for loops and if statements.
+
+.. note::
+    The disablers are similar to how ``# noqa`` comment works for most linters.
+
+Disabling lines
+---------------
 
 It is possible to disable rule for particular line or lines::
 
@@ -16,6 +31,9 @@ In this example no message will be printed for this line for rules named ``rule1
 You can disable all rules with::
 
     Some Keyword  # robocop: disable
+
+Enabling back
+-------------
 
 Ignore whole blocks of code by defining a disabler in the new line::
 
@@ -28,6 +46,9 @@ All matched rules will be disabled until ``enable`` command::
 or::
 
     # robocop: enable
+
+Disabling code blocks
+---------------------
 
 Ignored blocks can partly overlap. Rule name and rule id can be used interchangeably.
 
@@ -47,6 +68,9 @@ block (such as keyword, test case, "for" and "while" loops and "if" statement). 
             Table data should be in file     ${data}    ${file}
         END
         Should Be Equal    ${erorrs}    @{EMPTY}
+
+Disabling files
+---------------
 
 It is possible to ignore whole file if you start file with ``# robocop: disable``.
 

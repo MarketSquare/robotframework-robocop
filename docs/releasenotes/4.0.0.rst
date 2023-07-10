@@ -17,6 +17,7 @@ We also added a possibility to create rules that are disabled by default, and th
 The results from the Robocop execution can also be exported to a JSON file with our new ``json_report``.
 
 Another updates are:
+
 - a new way of importing custom rules thanks to refactored mechanism of importing rules and checkers
 - better readability and formatting of the documentation
 - internal refactor of the reports to make it easier to maintain and extend they functionality

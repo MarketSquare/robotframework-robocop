@@ -29,10 +29,10 @@ class TimestampReport(robocop.reports.Report):
          Reported: 2022-07-10 20:38:10 CEST +0200
 
     For timezone names,
-    see: https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
+    see `here <https://en.wikipedia.org/wiki/List_of_tz_database_time_zones>`_.
 
     For timestamp formats,
-    see: https://docs.python.org/3/library/datetime.html#strftime-and-strptime-format-codes
+    see `datetime format codes <https://docs.python.org/3/library/datetime.html#strftime-and-strptime-format-codes>`_.
 
     Useful configurations::
 

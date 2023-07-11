@@ -25,7 +25,7 @@ or to install exactly this version
 Fixes
 =====
 
-Fix ``possible-variable-overwriting`` with different types of assignments  (#913)
+Fix ``possible-variable-overwriting`` with different types of assignments (#913)
 ---------------------------------------------------------------------------------
 
 Variables using assignments signs were not parsed correctly and raised false positive

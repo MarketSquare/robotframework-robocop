@@ -15,6 +15,7 @@ Table of contents
    :maxdepth: 2
 
    getting_started
+   cli_options
 
 .. toctree::
    :maxdepth: 2
@@ -30,7 +31,6 @@ Table of contents
 
    reports
    disablers
-   cli_options
 
 .. toctree::
    :maxdepth: 2

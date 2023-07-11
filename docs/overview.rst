@@ -11,11 +11,6 @@ looking for potential errors or violations to code quality standards (commonly r
     Hosted on `GitHub
     <https://github.com/MarketSquare/robotframework-robocop>`_ |:medal:|
 
-Documentation
-=============
-
-Full documentation is available `here <https://robocop.readthedocs.io>`_. |:book:|
-
 Requirements
 ============
 

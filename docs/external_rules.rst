@@ -192,7 +192,7 @@ Such rules can be enabled when called explicitly with ``--include`` option::
 
     robocop --include custom-rule .
 
- or by configuring ``enabled`` parameter directly::
+or by configuring ``enabled`` parameter directly::
 
     robocop --ext-rules custom_rules.py -c custom-rule:enabled:True .
 

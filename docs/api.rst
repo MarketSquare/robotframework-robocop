@@ -49,7 +49,7 @@ To scan all files provided in ``Config`` invoke:
 
 ``run()`` method by default returns issues in JSON format.
 
-Scan existing robot ast model
+Scan existing robot AST model
 -----------------------------
 If you have `AST <https://docs.python.org/3/library/ast.html>`_ model loaded before, you can use ``robocop`` to scan it:
 

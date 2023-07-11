@@ -72,11 +72,11 @@ Reports results can be compared with the previous run. Example output::
 
 
 Robocop stores previous result in cache directory.
-Cache directory is stored in the different location depending on the platform::
+Cache directory is stored in the different location depending on the platform:
 
-    - Linux: "~/.cache/robocop"
-    - macOS: "~/Library/Caches/robocop"
-    - Windows: "C:\\Users\\<username>\\AppData\\Local\\robocop"
+- Linux: ``"~/.cache/robocop"``
+- macOS: ``"~/Library/Caches/robocop"``
+- Windows: ``"C:\\Users\\<username>\\AppData\\Local\\robocop"``
 
 Saving the results is disabled by default and can be enabled with ``--persistent`` flag::
 

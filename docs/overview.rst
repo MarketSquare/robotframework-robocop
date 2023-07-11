@@ -1,7 +1,7 @@
 Introduction
 ============
 
-Robocop is a tool that performs static code analysis of `Robot Framework
+Robocop |:robot:| is a tool that performs static code analysis of `Robot Framework
 <https://github.com/robotframework/robotframework>`_ code.
 
 It uses official `Robot Framework parsing API
@@ -9,12 +9,12 @@ It uses official `Robot Framework parsing API
 looking for potential errors or violations to code quality standards (commonly referred as *linting issues*).
 
     Hosted on `GitHub
-    <https://github.com/MarketSquare/robotframework-robocop>`_
+    <https://github.com/MarketSquare/robotframework-robocop>`_ |:medal:|
 
 Documentation
 =============
 
-Full documentation is available `here <https://robocop.readthedocs.io>`_.
+Full documentation is available `here <https://robocop.readthedocs.io>`_. |:book:|
 
 Requirements
 ============
@@ -64,19 +64,19 @@ Will result in following output:
 Values
 ======
 
-Original *RoboCop* - a fictional cybernetic police officer - was following 3 prime directives
+Original *RoboCop* - a fictional cybernetic police officer |:cop:| - was following 3 prime directives
 which also drive the progress of Robocop linter:
 
-    First Directive: **Serve the public trust**
+    First Directive: **Serve the public trust** |:family_man_woman_girl_boy:|
 
 Which lies behind the creation of the project - to **serve** developers and testers as a tool to build applications they can **trust**
 
-    Second Directive: **Protect the innocent**
+    Second Directive: **Protect the innocent** |:baby:|
 
 **The innocent** testers and developers have no intention to produce ugly code but sometimes, you know, it just happens,
 so Robocop is there to **protect** them
 
-    Third Directive: **Uphold the law**
+    Third Directive: **Uphold the law** |:classical_building:|
 
 Following the coding guidelines established in the project are something very important to keep the code clean,
 readable and understandable by others and Robocop can help to **uphold the law**

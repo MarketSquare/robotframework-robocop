@@ -149,4 +149,6 @@ class RuleAcceptance:
     def enabled_in_version(target_version):
         if target_version is None:
             return True
+        if isinstance(target_version, list):
+            return any(ROBOT_VERSION in VersionSpecifier(version) for version in target_version)
         return ROBOT_VERSION in VersionSpecifier(target_version)

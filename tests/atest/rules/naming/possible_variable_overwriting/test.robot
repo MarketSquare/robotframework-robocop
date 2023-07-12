@@ -90,3 +90,13 @@ Keyword With Kwargs
 Keyword With Possible Overwritten Kwargs
     [Arguments]    ${argument}    &{keyword_args}
     ${keywordArgs}    Create Dictionary    &{keyword_args}
+
+Assignment Sign But Not Overwritten
+    ${v} =    No Operation
+    Log    ${v}
+    ${v} =    No Operation
+    Log    ${v}
+
+Item Assignment
+    ${variable}    Create Dictionary
+    ${VARIABLE}[item]    Set Variable    value

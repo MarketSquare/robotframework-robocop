@@ -1100,14 +1100,17 @@ class SimilarVariableChecker(VisitorChecker):
             # read arguments from Keywords
             if isinstance(child, Arguments):
                 for token in child.get_tokens(Token.ARGUMENT):
-                    name, *_ = token.value.split("=", maxsplit=1)
-                    self.assigned_variables[normalize_robot_var_name(name)].append(name.strip())
+                    variable_match = search_variable(token.value, ignore_errors=True)
+                    name = variable_match.name
+                    normalized = normalize_robot_name(variable_match.base)
+                    self.assigned_variables[normalized].append(name)
 
     def find_similar_variables(self, tokens, node):
         for token in tokens:
-            name, *_ = token.value.split("=", maxsplit=1)
-            normalized_token = normalize_robot_var_name(name)
-            if normalized_token in self.assigned_variables and name not in self.assigned_variables[normalized_token]:
+            variable_match = search_variable(token.value, ignore_errors=True)
+            name = variable_match.name
+            normalized = normalize_robot_name(variable_match.base)
+            if normalized in self.assigned_variables and name not in self.assigned_variables[normalized]:
                 self.report(
                     "possible-variable-overwriting",
                     variable_name=name,
@@ -1118,7 +1121,7 @@ class SimilarVariableChecker(VisitorChecker):
                     col=token.col_offset + 1,
                     end_col=token.end_col_offset + 1,
                 )
-            self.assigned_variables[normalized_token].append(name.strip())
+            self.assigned_variables[normalized].append(name)
 
 
 class DeprecatedStatementChecker(VisitorChecker):

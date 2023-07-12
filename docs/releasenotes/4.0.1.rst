@@ -1,0 +1,49 @@
+:orphan:
+
+=============
+Robocop 4.0.1
+=============
+
+This release fixes the issue with ``possible-variable-overwriting`` rule.
+
+You can install the latest available version by running
+
+::
+
+    pip install --upgrade robotframework-robocop
+
+or to install exactly this version
+
+::
+
+    pip install robotframework-robocop==4.0.1
+
+.. contents::
+   :depth: 2
+   :local:
+
+Fixes
+=====
+
+Fix ``possible-variable-overwriting`` with different types of assignments (#913)
+---------------------------------------------------------------------------------
+
+Variables using assignments signs were not parsed correctly and raised false positive
+I0316 ``possible-variable-overwriting``.
+
+For example, following code will not be reported by Robocop with the fixed version::
+
+    *** Test Cases ***
+    Test
+        [Documentation]    doc
+        ${v} =    No Operation
+        Log    ${v}
+        ${v} =    No Operation
+        Log    ${v}
+
+Also, ``possible-variable-overwriting`` now supports item assignments introduced in Robot Framework 6.1.
+
+Acknowledgements
+================
+
+Thanks to @KotlinIsland for bug reports that helped improve our tool!

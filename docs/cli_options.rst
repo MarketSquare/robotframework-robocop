@@ -13,6 +13,8 @@ or::
 
 and you will be shown with the following output:
 
+.. TODO: Generate help output dynamically
+
 ..  code-block:: none
 
     usage: robocop [-i RULES] [-e RULES] [-rules EXT_RULES] [-nr] [-r REPORTS] [-f FORMAT] [-c CONFIGURABLE] [-l [PATTERN]] [-lc [PATTERN]] [-lr] [-o PATH] [-ft FILETYPES] [-t THRESHOLD] [-A PATH] [-g PATH] [-gd PATTERN]

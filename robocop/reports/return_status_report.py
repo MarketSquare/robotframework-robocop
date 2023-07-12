@@ -5,7 +5,7 @@ from robocop.rules import Message
 
 class ReturnStatusReport(robocop.reports.Report):
     """
-    Report name: ``return_status``
+    **Report name**: ``return_status``
 
     This report is always enabled.
     Report that checks if number of returned rules messages for given severity value does not exceed preset threshold.

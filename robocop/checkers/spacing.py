@@ -83,23 +83,11 @@ rules = {
         added_in_version="1.1.0",
     ),
     "1008": Rule(
-        RuleParam(  # TODO: unused, remove in the next release
-            name="strict",
-            default=False,
-            converter=str2bool,
-            desc="Strict checking of the indentation",
-        ),
         RuleParam(
             name="indent",
             default=-1,
             converter=int,
             desc="Number of spaces per indentation level",
-        ),
-        RuleParam(  # TODO: unused, remove in the next release
-            name="ignore_uneven",
-            default=False,
-            converter=str2bool,
-            desc="Ignore uneven indent and report only invalid indent",
         ),
         rule_id="1008",
         name="bad-indent",

@@ -7,7 +7,7 @@ from robocop.rules import Message
 
 class JsonReport(robocop.reports.Report):
     """
-    Report name: ``json_report``
+    **Report name**: ``json_report``
 
     Report that returns a list of found issues in a JSON format. The output file will be generated
     in the current working directory with the ``robocop.json`` name.

@@ -8,7 +8,7 @@ from robocop.version import __version__
 
 class SarifReport(robocop.reports.Report):
     """
-    Report name: ``sarif``
+    **Report name**: ``sarif``
 
     Report that generates SARIF output file.
 

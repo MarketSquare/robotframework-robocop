@@ -1,5 +1,6 @@
+*********************
 Robocop documentation
-=====================
+*********************
 
 .. toctree::
    :maxdepth: 2
@@ -13,15 +14,31 @@ Table of contents
 .. toctree::
    :maxdepth: 2
 
-   user_guide
+   getting_started
    cli_options
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Rules
+
    rules
-   including_rules
-   rule_severity_thresholds
-   reports
+   rules_list
    external_rules
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Other features
+
+   reports
+   disablers
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Advanced
+
    ci
    api
+   contributing
 
 Index
 ==================

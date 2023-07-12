@@ -1,6 +1,6 @@
 .. _ci:
 
-Continuous Integration support
+CI integration
 =========================================
 
 You can use Robocop in CI/CD from any provider using generated reports or output file.

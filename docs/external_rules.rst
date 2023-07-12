@@ -72,11 +72,11 @@ Rules can have configurable values. You need to specify them using RuleParam cla
                     node=node,
                     col=node.name.find(configured_param))
 
-Configurable parameter can be referred by its :code:`name` in command line options::
+Configurable parameter can be referred by its ``name`` in command line options::
 
     robocop --ext-rules my/own/rule.py --configure example-in-name:param_name:AnotherExample
 
-Value of the configurable parameter can be retrieved using :code:`param` method:
+Value of the configurable parameter can be retrieved using ``param`` method:
 
 ..  code-block:: python
 
@@ -166,7 +166,7 @@ Dotted syntax is also supported::
 
     robocop --ext-rules RobocopRules.submodule .
 
-:code:`rules` dictionary should be available at the same level as checker that is using it. It could be either defined
+``rules`` dictionary should be available at the same level as checker that is using it. It could be either defined
 or imported from other files.
 
 Rules disabled by default
@@ -192,7 +192,7 @@ Such rules can be enabled when called explicitly with ``--include`` option::
 
     robocop --include custom-rule .
 
- or by configuring ``enabled`` parameter directly::
+or by configuring ``enabled`` parameter directly::
 
     robocop --ext-rules custom_rules.py -c custom-rule:enabled:True .
 

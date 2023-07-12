@@ -35,25 +35,29 @@ optional parameters.
 
     To see all configurable rules and their parameters, run ``robocop --list-configurables`` or just ``robocop -lc``.
 
-For configuring rules you can use ``--configure`` or ``-c`` option followed by rule name, its parameter and the value delimited by colon (``:``)::
+For configuring rules you can use ``--configure`` or ``-c`` option followed by rule name (or ID), its parameter and the value delimited by colon (``:``)::
 
     --configure <rule_name>:<param_name>:<value>
 
 For example::
 
-    robocop -c line-too-long:line_length:140
+    robocop --configure line-too-long:line_length:140 .
+
+or more concise variant using rule ID instead of its name and short ``-c`` option::
+
+    robocop -c 0508:line_length:140 .
 
 which overwrites the value for the maximum line length (120 by default).
 
 Some rules accept comma-separated values like::
 
-    robocop -c todo-in-comment:markers:todo,changeme,refactor
+    robocop -c todo-in-comment:markers:todo,changeme,refactor .
 
 which changes the markers that trigger the rule when the marker appears in the comment.
 
 If you need to provide a value with a space, wrap the whole configurable in quotes, like here::
 
-    robocop --configure "todo-in-comment:markers:Remove me,Fix this!"
+    robocop -c "todo-in-comment:markers:Remove me,Fix this!" .
 
 .. note::
 

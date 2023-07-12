@@ -41,16 +41,16 @@ rules = {
         name="not-allowed-char-in-name",
         msg="Not allowed character '{{ character }}' found in {{ block_name }} name",
         severity=RuleSeverity.WARNING,
+        added_in_version="1.0.0",
         docs="""
-        Reports not allowed pattern found in Test Case or Keyword names. By default it's dot (``.``). You can
+        Reports not allowed characters found in Test Case or Keyword names. By default it's a dot (``.``). You can
         configure what patterns are reported by calling::
 
-             robocop --configure not-allowed-char-in-name:pattern:regex_pattern
+            robocop --configure not-allowed-char-in-name:pattern:regex_pattern
 
         ``regex_pattern`` should define regex pattern not allowed in names. For example ``[@\[]`` pattern
-        reports any occurrence of ``@[`` characters.
+        would report any occurrence of ``@[`` characters.
         """,
-        added_in_version="1.0.0",
     ),
     "0302": Rule(
         RuleParam(
@@ -71,12 +71,43 @@ rules = {
         msg="Keyword name '{{ keyword_name }}' does not follow case convention",
         severity=RuleSeverity.WARNING,
         added_in_version="1.0.0",
+        docs="""
+        Keyword names need to follow a specific case convention.
+        The convention can be set using ``convention`` parameter and accepts
+        one of the 2 values: ``each_word_capitalized`` or ``first_word_capitalized``.
+
+        By default, it's configured to ``each_word_capitalized``, which requires each keyword to follow such convention::
+
+            *** Keywords ***
+            Fill Out The Form
+                Provide Shipping Address
+                Provide Payment Method
+                Click 'Next' Button
+                [Teardown]  Log Form Data
+
+        You can also set it to ``first_word_capitalized`` which requires first word to have first letter capital::
+
+            *** Keywords ***
+            Fill out the form
+                Provide shipping address
+                Provide payment method
+                Click 'Next' button
+                [Teardown]  Log form data
+        
+        The rule also accepts another parameter ``pattern`` which can be used to configure words
+        that are accepted in the keyword name, even though they violate the case convention.
+
+        ``pattern`` parameter accepts a regex pattern. For example, configuring it to ``robocop\.readthedocs\.io`` would make such keyword legal::
+
+            Go To robocop.readthedocs.io Page
+        """,
     ),
     "0303": Rule(
         rule_id="0303",
         name="keyword-name-is-reserved-word",
         msg="'{{ keyword_name }}' is a reserved keyword{{ error_msg }}",
         severity=RuleSeverity.ERROR,
+        added_in_version="1.0.0",
         docs="""
         Do not use reserved names for keyword names. Following names are reserved:
 
@@ -90,73 +121,74 @@ rules = {
           - RETURN
           - TRY
           - EXCEPT
-
+          - FINALLY
         """,
-        added_in_version="1.0.0",
     ),
     "0305": Rule(
         rule_id="0305",
         name="underscore-in-keyword-name",
         msg="Underscores in keyword name '{{ keyword_name }}' can be replaced with spaces",
         severity=RuleSeverity.WARNING,
+        added_in_version="1.0.0",
         docs="""
-        Example::
+        Bad |:x:|
 
-            # bad
+        ..  code-block:: none
+
             keyword_with_underscores
 
-            # good
-            Keyword Without Underscores
+        Good |:white_check_mark:|
 
+        ..  code-block:: none
+
+            Keyword Without Underscores
         """,
-        added_in_version="1.0.0",
     ),
     "0306": Rule(
         rule_id="0306",
         name="setting-name-not-in-title-case",
         msg="Setting name '{{ setting_name }}' should use title or upper case",
         severity=RuleSeverity.WARNING,
-        docs="""
-        Good::
-
-             *** Settings ***
-             Resource    file.resource
-
-             *** Test Cases ***
-             Test
-                 [DOCUMENTATION]  Some documentation
-                 Step
-
-        Bad::
-
-             *** Settings ***
-             resource    file.resource
-
-             *** Test Cases ***
-             Test
-                 [documentation]  Some documentation
-                 Step
-
-        """,
         added_in_version="1.0.0",
+        docs="""
+        Good |:white_check_mark:| ::
+
+            *** Settings ***
+            Resource    file.resource
+
+            *** Test Cases ***
+            Test
+                [DOCUMENTATION]  Some documentation
+                Step
+
+        Bad |:x:| ::
+
+            *** Settings ***
+            resource    file.resource
+
+            *** Test Cases ***
+            Test
+                [documentation]  Some documentation
+                Step
+        """,
     ),
     "0307": Rule(
         rule_id="0307",
         name="section-name-invalid",
         msg="Section name should be in format '{{ section_title_case }}' or '{{ section_upper_case }}'",
         severity=RuleSeverity.WARNING,
+        added_in_version="1.0.0",
         docs="""
-        Good::
+        Good |:white_check_mark:| ::
 
             *** SETTINGS ***
             *** Keywords ***
 
-        Bad::
+        Bad |:x:| ::
 
             *** keywords ***
 
         """,
-        added_in_version="1.0.0",
     ),
     "0308": Rule(
         rule_id="0308",
@@ -164,6 +196,17 @@ rules = {
         msg="Test case '{{ test_name }}' title should start with capital letter",
         severity=RuleSeverity.WARNING,
         added_in_version="1.4.0",
+        docs="""
+        Good |:white_check_mark:| ::
+
+            *** Test Cases ***
+            Validate user details
+
+        Bad |:x:| ::
+
+            *** Test Cases ***
+            validate user details
+        """,
     ),
     "0309": Rule(
         rule_id="0309",
@@ -177,23 +220,26 @@ rules = {
         name="non-local-variables-should-be-uppercase",
         msg="Test, suite and global variables should be uppercase",
         severity=RuleSeverity.WARNING,
+        added_in_version="1.4.0",
         docs="""
-        Good::
+        Good |:white_check_mark:|
+
+        ..  code-block:: none
 
             Set Task Variable    ${MY_VAR}           1
             Set Suite Variable   ${MY VAR}           1
             Set Test Variable    ${MY_VAR}           1
             Set Global Variable  ${MY VAR${nested}}  1
 
-        Bad::
+        Bad |:x:|
+
+        ..  code-block:: none
 
             Set Task Variable    ${my_var}           1
             Set Suite Variable   ${My Var}           1
             Set Test Variable    ${myvar}            1
             Set Global Variable  ${my_var${NESTED}}  1
-
         """,
-        added_in_version="1.4.0",
     ),
     "0311": Rule(
         rule_id="0311",
@@ -201,6 +247,31 @@ rules = {
         msg="ELSE and ELSE IF should be upper case",
         severity=RuleSeverity.ERROR,
         added_in_version="1.5.0",
+        docs="""
+        Good |:white_check_mark:| ::
+
+            *** Keywords ***
+            Describe Temperature
+                [Arguments]     ${degrees}
+                IF         ${degrees} > ${30}
+                    RETURN  Hot
+                ELSE IF    ${degrees} > ${15}
+                    RETURN  Warm
+                ELSE
+                    RETURN  Cold
+
+        Bad |:x:| ::
+
+            *** Keywords ***
+            Describe Temperature
+                [Arguments]     ${degrees}
+                If         ${degrees} > ${30}
+                    RETURN  Hot
+                else if    ${degrees} > ${15}
+                    RETURN  Warm
+                Else
+                    RETURN  Cold
+        """,
     ),
     "0312": Rule(
         rule_id="0312",
@@ -208,6 +279,13 @@ rules = {
         msg="Keyword name should not be empty",
         severity=RuleSeverity.ERROR,
         added_in_version="1.8.0",
+        docs="""
+        Remember to always add a keyword name and avoid such code::
+
+            *** Keywords ***
+            # no keyword name here!!!
+                Log To Console  hi
+        """,
     ),
     "0313": Rule(
         rule_id="0313",
@@ -215,42 +293,47 @@ rules = {
         msg="Test case name should not be empty",
         severity=RuleSeverity.ERROR,
         added_in_version="1.8.0",
+        docs="""
+        Remember to always add a test case name and avoid such code::
+
+            *** Test Cases ***
+            # no test case name here!!!
+                Log To Console  hello
+        """,
     ),
     "0314": Rule(
         rule_id="0314",
         name="empty-library-alias",
         msg="Library alias should not be empty",
         severity=RuleSeverity.ERROR,
+        added_in_version="1.10.0",
         docs="""
         Use non-empty name when using library import with alias.
 
-        Good::
+        Good |:white_check_mark:| ::
 
             *** Settings ***
             Library  CustomLibrary  AS  AnotherName
 
-        Bad::
+        Bad |:x:| ::
 
              *** Settings ***
              Library  CustomLibrary  AS
-
         """,
-        added_in_version="1.10.0",
     ),
     "0315": Rule(
         rule_id="0315",
         name="duplicated-library-alias",
         msg="Library alias should not be the same as original name",
         severity=RuleSeverity.WARNING,
+        added_in_version="1.10.0",
         docs="""
-        Example of rule violation::
+        Examples of rule violation::
 
              *** Settings ***
              Library  CustomLibrary  AS  CustomLibrary   # same as library name
              Library  CustomLibrary  AS  Custom Library  # same as library name (spaces are ignored)
-
         """,
-        added_in_version="1.10.0",
     ),
     "0316": Rule(
         rule_id="0316",
@@ -258,6 +341,7 @@ rules = {
         msg="Variable '{{ variable_name }}' may overwrite similar variable inside '{{ block_name }}' {{ block_type }}. "
         "Note that variables are case-insensitive, and also spaces and underscores are ignored.",
         severity=RuleSeverity.INFO,
+        added_in_version="1.10.0",
         docs="""
         Following assignments overwrite the same variable::
 
@@ -271,7 +355,6 @@ rules = {
         Remember that variable names in Robot Framework are case-insensitive and
         underscores and whitespaces are ignored.
         """,
-        added_in_version="1.10.0",
     ),
     "0317": Rule(
         rule_id="0317",
@@ -279,42 +362,42 @@ rules = {
         msg="Use underscore in variable name '{{ variable_name }}' instead of hyphens to "
         "avoid treating them like minus sign",
         severity=RuleSeverity.INFO,
+        added_in_version="1.10.0",
         docs="""
         Robot Framework supports evaluation of Python code inside ${ } brackets. For example::
 
             ${var2}  Set Variable  ${${var}-${var2}}
 
-        That's why there is possibility that hyphen in name is not recognized as part of name but as minus sign.
-        Better to use underscore (if it's intended)::
+        That's why there is a possibility that hyphen in name is not recognized as part of the name but as a minus sign.
+        Better to use underscore instead::
 
             ${var2}  Set Variable  ${${var}_${var2}}
         """,
-        added_in_version="1.10.0",
     ),
     "0318": Rule(
         rule_id="0318",
         name="bdd-without-keyword-call",
         msg="BDD reserved keyword '{{ keyword_name }}' not followed by any keyword{{ error_msg }}",
         severity=RuleSeverity.WARNING,
+        added_in_version="1.11.0",
         docs="""
         When using BDD reserved keywords (such as `GIVEN`, `WHEN`, `AND`, `BUT` or `THEN`) use them together with
         name of the keyword to run.
 
-        Good::
+        Good |:white_check_mark:| ::
 
             Given Setup Is Complete
             When User Log In
             Then User Should See Welcome Page
 
-        Bad::
+        Bad |:x:| ::
 
             Given
             When User Log In
             Then User Should See Welcome Page
 
-        Since those words are used for BDD style it's also recommended not to use them within the keyword name.
+        Since those words are used for BDD style, it's also recommended not to use them within the user keyword name.
         """,
-        added_in_version="1.11.0",
     ),
     "0319": Rule(
         rule_id="0319",
@@ -323,6 +406,11 @@ rules = {
         "{{ version }}, use '{{ alternative }}' instead",
         severity=RuleSeverity.WARNING,
         added_in_version="2.0.0",
+        docs="""
+        This rule detects any piece of code that is marked as deprecated but still works in RF.
+
+        For example, ``Run Keyword`` and ``Continue For Loop`` keywords or ``[Return]`` setting.
+        """,
     ),
     "0320": Rule(
         RuleParam(
@@ -336,16 +424,16 @@ rules = {
         name="not-allowed-char-in-filename",
         msg="Not allowed character '{{ character }}' found in {{ block_name }} name",
         severity=RuleSeverity.WARNING,
-        docs="""
-        Reports not allowed pattern found in Suite names. By default it's dot (`.`). You can
-        configure what characters are reported by calling::
-
-             robocop --configure not-allowed-char-in-filename:pattern:regex_pattern
-
-        ``regex_pattern`` should define regex pattern for characters not allowed in names. For example `[@\[]` pattern
-        reports any occurrence of ``@[`` characters.
-        """,
         added_in_version="2.1.0",
+        docs="""
+        Reports not allowed pattern found in Suite names. By default, it's a dot (`.`).
+        You can configure what characters are reported by running::
+
+             robocop --configure not-allowed-char-in-filename:pattern:regex_pattern .
+
+        where ``regex_pattern`` should define regex pattern for characters not allowed in names. For example `[@\[]` pattern
+        would report any occurrence of ``@[`` characters.
+        """,
     ),
     "0321": Rule(
         rule_id="0321",
@@ -356,6 +444,7 @@ rules = {
         ),
         severity=RuleSeverity.WARNING,
         version=">=6.0",
+        added_in_version="2.5.0",
         docs="""
         ``WITH NAME`` marker that is used when giving an alias to an imported library is going to be renamed to ``AS``.
         The motivation is to be consistent with Python that uses ``as`` for similar purpose.
@@ -369,9 +458,7 @@ rules = {
 
             *** Settings ***
             Library    Collections    AS    AliasedName
-
         """,
-        added_in_version="2.5.0",
     ),
     "0322": Rule(
         rule_id="0322",
@@ -380,24 +467,25 @@ rules = {
         "will be removed in the future releases. Use '{{ plural_header }}' instead",
         severity=RuleSeverity.WARNING,
         version=">=6.0",
+        added_in_version="2.6.0",
         docs="""
         Robot Framework 6.0 starts deprecation period for singular headers forms. The rationale behind this change
-        is available at https://github.com/robotframework/robotframework/issues/4431 .
+        is available at https://github.com/robotframework/robotframework/issues/4431
         """,
-        added_in_version="2.6.0",
     ),
     "0323": Rule(
         rule_id="0323",
         name="inconsistent-variable-name",
         msg="Variable '{{ name }}' has inconsistent naming. First used as '{{ first_use }}'",
         severity=RuleSeverity.WARNING,
+        added_in_version="3.2.0",
         docs="""
         Variable names are case-insensitive and ignore underscores and spaces. It is possible to 
         write the variable in multiple ways and it will be a valid Robot Framework code. However,
         it makes it harder to maintain the code that does not follow the consistent naming.
-        
+
         Example::
-        
+
             *** Keywords ***
             Keyword
                 [Arguments]    ${argument}
@@ -406,22 +494,20 @@ rules = {
                     Should Be True    ${vari_able}  # inconsistent name with ${variable}
                 END
                 Log    ${variable}  # consistent name
-
         """,
-        added_in_version="3.2.0",
     ),
     "0324": Rule(
         rule_id="0324",
         name="overwriting-reserved-variable",
         msg="{{ var_or_arg }} '{{ variable_name }}' overwrites reserved variable '{{ reserved_variable }}'",
         severity=RuleSeverity.WARNING,
+        added_in_version="3.2.0",
         docs="""
         Overwriting reserved variables may bring unexpected results.
         For example, overwriting variable with name ``${LOG_LEVEL}`` can break Robot Framework logging.
-        See full list of reserved variables at
+        See the full list of reserved variables at
         `Robot Framework User Guide <https://robotframework.org/robotframework/latest/RobotFrameworkUserGuide.html#automatic-variables>`_
         """,
-        added_in_version="3.2.0",
     ),
     "0325": Rule(
         rule_id="0325",
@@ -429,33 +515,32 @@ rules = {
         msg="Invalid section '{{ invalid_section }}'. Consider using --language parameter if the file is defined with different language",
         severity=RuleSeverity.ERROR,
         version=">=6.1",
+        added_in_version="3.2.0",
         docs="""
         Robot Framework 6.1 detects unrecognized sections based on the language defined for the specific files.
         Consider using ``--language`` parameter if the file is defined with different language.
-        
+
         It is also possible to configure language in the file::
-            
+
             language: pl
-            
+
             *** Przypadki Testowe ***
             Test case
                 Step
-
         """,
-        added_in_version="3.2.0",
     ),
     "0326": Rule(
         rule_id="0326",
         name="mixed-task-test-settings",
         msg="Use {{ task_or_test }}-related setting '{{ setting }}' if {{ tasks_or_tests }} section is used",
         severity=RuleSeverity.WARNING,
+        added_in_version="3.3.0",
         docs="""
         If ``*** Tasks ***`` section is present in the file, use task-related settings like ``Task Setup``,
         ``Task Teardown``, ``Task Template``, ``Task Tags`` and ``Task Timeout`` instead of their `Test` variants.
 
         Similarly, use test-related settings when using ``*** Test Cases ***`` section.
         """,
-        added_in_version="3.3.0",
     ),
 }
 
@@ -551,6 +636,7 @@ class KeywordNamingChecker(VisitorChecker):
         "keyword-name-is-empty",
         "bdd-without-keyword-call",
     )
+    # reserved word followed by a RF version when it was introduced
     reserved_words = {
         "for": 3,
         "end": 3,

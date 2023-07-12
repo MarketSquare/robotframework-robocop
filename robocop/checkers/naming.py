@@ -346,10 +346,10 @@ rules = {
         Following assignments overwrite the same variable::
 
             *** Keywords ***
-            Keyword
-                ${variable}      Keyword Call
-                ${VARIABLE}      Keyword Call
-                ${vari_ab le}    Keyword Call
+            Retrieve Usernames
+                ${username}      Get Username       id=1
+                ${User Name}     Get Username       id=2
+                ${user_name}     Get Username       id=3
 
         Use consistent variable naming guidelines to avoid unintended variable overwriting.
         Remember that variable names in Robot Framework are case-insensitive and
@@ -364,12 +364,16 @@ rules = {
         severity=RuleSeverity.INFO,
         added_in_version="1.10.0",
         docs="""
-        Robot Framework supports evaluation of Python code inside ${ } brackets. For example::
+        Robot Framework supports evaluation of Python code inside ${ } brackets. For example:
+
+        ..  code-block: none
 
             ${var2}  Set Variable  ${${var}-${var2}}
 
         That's why there is a possibility that hyphen in name is not recognized as part of the name but as a minus sign.
-        Better to use underscore instead::
+        Better to use underscore instead:
+
+        ..  code-block: none
 
             ${var2}  Set Variable  ${${var}_${var2}}
         """,
@@ -487,13 +491,14 @@ rules = {
         Example::
 
             *** Keywords ***
-            Keyword
-                [Arguments]    ${argument}
-                ${variable}    Keyword Call
-                IF    ${ARGUMENT}  # inconsistent name with ${argument}
-                    Should Be True    ${vari_able}  # inconsistent name with ${variable}
+            Check If User Is Admin
+                [Arguments]    ${username}
+                ${role}    Get User Role     ${username}
+                IF    '${ROLE}' == 'Admin'   # inconsistent name with ${role}
+                    Log    ${Username} is an admin  # inconsistent name with ${username}
+                ELSE
+                    Log    ${user name} is not an admin  # inconsistent name
                 END
-                Log    ${variable}  # consistent name
         """,
     ),
     "0324": Rule(
@@ -525,8 +530,8 @@ rules = {
             language: pl
 
             *** Przypadki Testowe ***
-            Test case
-                Step
+            Wypisz dyrektywę 4
+                Log   Błąd dostępu
         """,
     ),
     "0326": Rule(

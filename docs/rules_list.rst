@@ -7,7 +7,26 @@ Rules list
 This is the complete list of all Robocop rules grouped by categories.
 If you want to learn more about the rules and their features, see :ref:`rules`.
 
+There are over a 100 rules available in Robocop and they are organized into the following groups:
+
+* 01: Base
+* 02: :ref:`Documentation`
+* 03: :ref:`Naming`
+* 04: :ref:`Errors`
+* 05: :ref:`Lengths`
+* 06: :ref:`Tags`
+* 07: :ref:`Comments`
+* 08: :ref:`Duplications`
+* 09: :ref:`Misc`
+* 10: :ref:`Spacing`
+
+Each category has a corresponding 2-digit ID that is a prefix for the 4-digit rule ID.
+
+Below is the list of all built-in Robocop rules. Enjoy |:sunglasses:|
+
 {% for checker_group in checker_groups %}
+.. _{{ checker_group[0] }}:
+
 {{ checker_group[0] }}
 ----------------------
 {% for rule_doc in checker_group[1] %}

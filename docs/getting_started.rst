@@ -14,115 +14,67 @@ Robocop accepts files or directories as path. You can also specify multiple path
 
 Robocop will find and skip paths from `.gitignore` files.
 
+An example of the output the tool can produce::
+
+    \Users\OCP\test.robot:7:1 [W] 0509 Section '*** Variables ***' is empty (empty-section)
+    \Users\OCP\test.robot:22:1 [E] 0801 Multiple test cases with name "Simple Test" (first occurrence in line 17) (duplicated-test-case)
+    \Users\OCP\test.robot:42:1 [E] 0810 Both Task(s) and Test Case(s) section headers defined in file (both-tests-and-tasks)
+    \Users\OCP\test.robot:48:1 [W] 0302 Keyword 'my keyword' does not follow case convention (wrong-case-in-keyword-name)
+    \Users\OCP\test.robot:51:13 [I] 0606 Tag 'mytag' is already set by Test Tags in suite settings (tag-already-set-in-test-tags)
+
+    Found 5 issues: 2 ERRORs, 2 WARNINGs, 1 INFO.
+
+.. note::
+
+    In some examples of the run command, the dot ``.`` at the represents a path to the current directory.
+
 Rules management
 ================
 
 Including or excluding rules
 ----------------------------
 
-Rules can be included or excluded from command line. It is also possible to disable rule(s) from Robot Framework
-source code. More in :ref:`including-rules`.
+Rules can be included or excluded from the command line.
+Use ``--include`` / ``--exclude`` options to include or exclude rules (or use their short variants ``-i`` / ``-e``), for example::
 
-.. _configuration file:
+    robocop --include missing-doc-test-case .
 
-Configuring rules
------------------
+Instead of the whole name of the rule, you can also use the rule ID. In that case, the above example would look like this::
 
-Rules are configurable. Severity of every rule message can be changed (see more :ref:`severity-threshold`) and also some of the rules have
-optional parameters.
+    robocop -i 0202 .
+
+More in :ref:`including-rules`.
+
+Disabling rules from source code
+--------------------------------
+
+It is also possible to disable rule(s) from Robot Framework source code.
+Use a comment followed by ``robocop`` and optionally a rule that is going to be disabled, e.g.::
+
+    *** Keywords ***
+    Display Sentence
+        [Arguments]      ${sentence}
+        ${one-liner}     Parse Sentence  ${sentence}  # robocop: disable=hyphen-in-variable-name
+        Print To Welcome Page   ${one-liner}
+
+Learn more about disablers here - :ref:`disablers`.
+
+Listing rules
+-------------
+
+To quickly see the list of all the rules, run::
+
+    robocop --list
+
+or short version ``robocop -l``.
+
+You can provide a ``pattern`` to filter the rules that you are interested in, e.g. ``robocop -l *doc*``.
+
+Read more about how to list the rules in :ref:`listing-rules`.
 
 .. note::
 
-    To see all configurable rules and their parameters, run ``robocop --list-configurables`` or just ``robocop -lc``.
-
-For configuring rules you can use ``--configure`` or ``-c`` option followed by rule name (or ID), its parameter and the value delimited by colon (``:``)::
-
-    --configure <rule_name>:<param_name>:<value>
-
-For example::
-
-    robocop --configure line-too-long:line_length:140 .
-
-or more concise variant using rule ID instead of its name and short ``-c`` option::
-
-    robocop -c 0508:line_length:140 .
-
-which overwrites the value for the maximum line length (120 by default).
-
-Some rules accept comma-separated values like::
-
-    robocop -c todo-in-comment:markers:todo,changeme,refactor .
-
-which changes the markers that trigger the rule when the marker appears in the comment.
-
-If you need to provide a value with a space, wrap the whole configurable in quotes, like here::
-
-    robocop -c "todo-in-comment:markers:Remove me,Fix this!" .
-
-.. note::
-
-    Configuration parameter (``--configure`` / ``-c``) can also be used to configure reports. More about it here :ref:`configuring-reports`.
-
-Listing available rules
------------------------
-
-To get list of available rules (with enabled/disabled status) use ``-l`` / ``--list`` option:
-
-..  code-block:: none
-
-    > robocop --list
-    Rule - 0201 [W]: missing-doc-keyword: Missing documentation in '{{ name }}' keyword (enabled)
-    Rule - 0202 [W]: missing-doc-test-case: Missing documentation in '{{ name }}' test case (enabled)
-    Rule - 0203 [W]: missing-doc-suite: Missing documentation in suite (enabled)
-    (...)
-
-If some of the rules are disabled from CLI it will be reflected in the output:
-
-..  code-block:: none
-
-    > robocop --exclude 02* --list
-    Rule - 0201 [W]: missing-doc-keyword: Missing documentation in '{{ name }}' keyword (disabled)
-    Rule - 0202 [W]: missing-doc-test-case: Missing documentation in '{{ name }}' test case (disabled)
-    Rule - 0203 [W]: missing-doc-suite: Missing documentation in suite (disabled)
-    Rule - 0301 [W]: not-allowed-char-in-name: Not allowed character '{{ character }}' found in {{ block_name }} name (enabled)
-    (...)
-
-Rules list can be filtered out by glob pattern:
-
-..  code-block:: none
-
-    > robocop --list tag*
-    Rule - 0601 [W]: tag-with-space: Tag '{{ tag }}' should not contain spaces (enabled)
-    Rule - 0602 [I]: tag-with-or-and: Tag '{{ tag }}' with reserved word OR/AND. Hint: make sure to include this tag using lowercase name to avoid issues (enabled)
-    Rule - 0603 [W]: tag-with-reserved-word: Tag '{{ tag }}' prefixed with reserved word `robot:` (enabled)
-    Rule - 0606 [I]: tag-already-set-in-test-tags: Tag 'mytag' is already set by Test Tags in suite settings (enabled)
-
-Use ``-lc \ --list-configurables`` argument to list rules together with available configurable parameters. Optional pattern argument is also supported:
-
-..  code-block:: none
-
-    robocop --list-configurables empty-lines-between-sections
-    Rule - 1003 [W]: empty-lines-between-sections: Invalid number of empty lines between sections ({{ empty_lines }}/{{ allowed_empty_lines }}) (enabled)
-        Available configurables for this rule:
-            empty_lines = 2
-                type: int
-                info: number of empty lines required between sections
-
-
-To list only enabled or disabled rules:
-
-..  code-block:: none
-
-    > robocop -i tag-with* --list ENABLED
-    Rule - 0601 [W]: tag-with-space: Tag '{{ tag }}' should not contain spaces (enabled)
-    Rule - 0602 [I]: tag-with-or-and: Tag '{{ tag }}' with reserved word OR/AND. Hint: make sure to include this tag using lowercase name to avoid issues (enabled)
-    Rule - 0603 [W]: tag-with-reserved-word: Tag '{{ tag }}' prefixed with reserved word `robot:` (enabled)
-
-    > robocop -e inconsistent-assignment-in-variables --list-configurables DISABLED
-    Rule - 0910 [W]: inconsistent-assignment-in-variables: The assignment sign is not consistent inside the variables section. Expected '{{ expected_sign }}' but got '{{ actual_sign }}' instead (disabled)
-        assignment_sign_type = autodetect
-            type: parse_assignment_sign_type
-            info: possible values: 'autodetect' (default), 'none' (''), 'equal_sign' ('=') or space_and_equal_sign (' =')
+    All Robocop rules are also nicely available here at :ref:`rules list`.
 
 Handling output
 ===============
@@ -137,7 +89,7 @@ Save output to file
 
 You can redirect output of Robocop to a file by using pipes (``>`` in unix) or by ``-o`` / ``--output`` argument::
 
-  robocop --output robocop.log
+  robocop --output robocop.log .
 
 Generating reports
 ------------------
@@ -167,96 +119,15 @@ Default levels are following::
 Number -1 means that return status is not affected by number of issues for given message. Default values can be configured
 by ``-c/--configure`` and ``return_status:quality_gate`` param::
 
-  robocop --configure return_status:quality_gate:E=100:W=100:I=9
+  robocop --configure return_status:quality_gate:E=10:W=100:I=9
 
 Preceding example configuration results in following levels::
 
   quality_gate = {
-            'E': 100,
+            'E': 10,
             'W': 100,
             'I': 9
         }
-
-Loading configuration from file
-===============================
-
-Robocop supports two formats of the configuration file: argument files and toml files. If argument file is not
-provided using CLI, Robocop will try to find default configuration file using the following algorithm:
-
-- if the directory contains ``.robocop`` file, load it
-- otherwise, if the directory contains ``pyproject.toml`` file, load it
-- otherwise, go to parent directory. Stop search if ``.git`` or top disk directory is found
-
-``.robocop`` argument file
---------------------------
-
-Argument file supports the same syntax as given from the CLI:
-
-..  code-block::
-    :caption: .robocop
-
-    --include rulename
-    # inline comment
-    --reports all
-
-You can load arguments for Robocop from file with ``--argumentfile / -A`` option and path to the argument file:
-
-..  code-block::
-    :caption: .robocop
-
-    robocop --argumentfile argument_file.txt
-    robocop -A path/to/file.txt
-
-Argument file can contain path to another argument file. Argument file directory will be used to resolve
-relative paths. For example if you're executing::
-
-    > robocop -A config/robocop_options.txt
-
-And ``config/robocop_options.txt`` contains following configuration:
-
-..  code-block::
-    :caption: config/robocop_options.txt
-
-    --argumentfile base.txt
-    --exclude section-out-of-order
-
-``base.txt`` path will be resolved as ``config/base.txt``.
-
-``pyproject.toml`` or TOML configuration file
----------------------------------------------
-
-Robocop uses ``[tool.robocop]`` section. Options have the same names as the CLI arguments.
-
-This configuration file can be loaded automatically (if your project has ``pyproject.toml`` file) or by
-using ``--config`` option and providing path to the configuration file.
-
-Example of TOML configuration file:
-
-..  code-block::
-    :caption: pyproject.toml
-
-    [tool.robocop]
-    paths = [
-        "tests\\atest\\rules\\bad-indent",
-        "tests\\atest\\rules\\duplicated-library"
-    ]
-    include = ['W0504', '*doc*']
-    exclude = ["0203"]
-    reports = [
-        "rules_by_id",
-        "scan_timer"
-    ]
-    ignore = ["ignore_me.robot"]
-    ext-rules = ["path_to_external\\dir"]
-    filetypes = [".txt", ".tsv"]
-    threshold = "E"
-    format = "{source}:{line}:{col} [{severity}] {rule_id} {desc} (name)"
-    output = "robocop.log"
-    configure = [
-        "line-too-long:line_length:150",
-        "0201:severity:E"
-    ]
-    no_recursive = true
 
 Ignoring files
 ==============

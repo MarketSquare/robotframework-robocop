@@ -8,11 +8,11 @@ Rules can be disabled directly from Robot Framework code.
 A special comment needs to be placed in order to disable specific rules of Robocop.
 The comments is always prefixed with ``robocop`` marker followed by ``disable`` or ``enable`` word keywords::
 
-    # robocop disable
+    # robocop: disable
 
 The keyword may optionally have specified rules, separated by comma::
 
-    # robocop disable:rule1,rule2
+    # robocop: disable=rule1,rule2
 
 The disablers are also context-aware, meaning that they turn off the Robocop rules for the related code block, e.g. keyword, test case, or even for loops and if statements.
 

@@ -34,7 +34,7 @@ def coverage(session):
 @nox.session()
 def docs(session):
     install_doc_deps(session, "5")
-    session.run("sphinx-build", "-b", "html", "docs", "docs/_build/")
+    session.run("sphinx-build", "-a", "-E", "-b", "html", "docs", "docs/_build/")
 
 
 @nox.session()

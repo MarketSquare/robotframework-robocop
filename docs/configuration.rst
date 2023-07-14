@@ -50,7 +50,7 @@ If you need to provide a value with a space, wrap the whole configurable in quot
 Loading configuration from file
 ===============================
 
-Robocop supports two formats of the configuration file: argument files and toml files. If argument file is not
+Robocop supports two formats of the configuration file: argument files and toml files. If configuration file is not
 provided using CLI, Robocop will try to find default configuration file using the following algorithm:
 
 - if the directory contains ``.robocop`` file, load it

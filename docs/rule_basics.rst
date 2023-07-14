@@ -79,6 +79,8 @@ Rule message
 
 .. module:: robocop
 
+.. _rule-severity:
+
 Rule severity
 =============
 

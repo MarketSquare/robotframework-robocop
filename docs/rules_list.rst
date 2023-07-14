@@ -20,7 +20,7 @@ There are over a 100 rules available in Robocop and they are organized into the 
 * 09: :ref:`Misc`
 * 10: :ref:`Spacing`
 
-Each category has a corresponding 2-digit ID that is a prefix for the 4-digit rule ID.
+Each rule has 4-digit ID which starts with a 2-digit ID of the corresponding category, followed by a 2-digit rule number.
 
 Below is the list of all built-in Robocop rules. Enjoy |:sunglasses:|
 

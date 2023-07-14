@@ -12,7 +12,7 @@ It's done using CLI options and such configuration can be stored and loaded from
 Configuring rules
 =================
 
-Rules are configurable. Severity of every rule message can be changed (see more :ref:`severity-threshold`) and also some of the rules have
+Rules are configurable. Severity of every rule message can be changed (see more :ref:`rule-severity`) and also some of the rules have
 optional parameters.
 
 .. note::
@@ -126,4 +126,4 @@ Example of TOML configuration file:
         "line-too-long:line_length:150",
         "0201:severity:E"
     ]
-    no_recursive = true
+    persistent = true

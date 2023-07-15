@@ -15,4 +15,3 @@ class TestRuleAcceptance(RuleAcceptance):
             config="-c sleep-keyword-used:max_time:1min",
             src_files=["test.robot"],
             expected_file="expected_output_1min.txt",
-        )

@@ -51,11 +51,7 @@ rules = {
 }
 
 
-<<<<<<< HEAD
 class SleepKeywordUsedChecker(VisitorChecker):
-=======
-class ContinueOnFailureChecker(VisitorChecker):
->>>>>>> 78ca790 (Add first community rule)
     """
     Find and report use of the Sleep keyword in tests and keywords.
 
@@ -87,21 +83,12 @@ class ContinueOnFailureChecker(VisitorChecker):
                 return
             if allowed_time >= time_from_sleep:  # if Sleep time is less than allowed maximum, we can ignore issue
                 return
-<<<<<<< HEAD
         # node can be multiline, ie Sleep ...  1 min -> report either just Sleep, or multi-line report
         duration_time = time_token.value if time_token else ""
         name_token = node.get_token(Token.KEYWORD)
         self.report(
             "sleep-keyword-used",
             duration_time=duration_time,
-=======
-        # node can be multiline, ie Sleep ...  1 min -> report either just Sleep, or multiline report
-        sleep_time = time_token.value if time_token else ""
-        name_token = node.get_token(Token.KEYWORD)
-        self.report(
-            "sleep-keyword-used",
-            sleep_time=sleep_time,
->>>>>>> 78ca790 (Add first community rule)
             node=name_token,
             col=name_token.col_offset + 1,
             end_col=name_token.end_col_offset + 1,

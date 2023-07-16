@@ -32,5 +32,5 @@ jobs:
       with:
         version: "~= 23.0"
 
-    - name: Code quality with pylama
-      run: python tests/pylama_parse.py
+    - name: MegaLinter
+      uses: oxsecurity/megalinter@v7.1.0

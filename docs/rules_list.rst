@@ -7,7 +7,7 @@ Rules list
 This is the complete list of all Robocop rules grouped by categories.
 If you want to learn more about the rules and their features, see :ref:`rules`.
 
-There are over a 100 rules available in Robocop and they are organized into the following groups:
+There are over a 100 rules available in Robocop and they are organized into the following categories:
 
 * 01: Base
 * 02: :ref:`Documentation`
@@ -20,7 +20,9 @@ There are over a 100 rules available in Robocop and they are organized into the 
 * 09: :ref:`Misc`
 * 10: :ref:`Spacing`
 
-Each rule has 4-digit ID which starts with a 2-digit ID of the corresponding category, followed by a 2-digit rule number.
+Each rule has a 4-digit ID that contains:
+- a 2-digit category ID (listed above), followed by
+- a 2-digit rule number.
 
 Below is the list of all built-in Robocop rules. Enjoy |:sunglasses:|
 

@@ -231,7 +231,7 @@ class SeverityThreshold:
         """
         if value is None:
             return None
-        for severity, threshold in self.thresholds:
+        for _, threshold in self.thresholds:
             if self.check_condition(value, threshold):
                 return threshold
 

@@ -766,7 +766,7 @@ class TestCaseNumberChecker(VisitorChecker):
             if self.templated_suite
             else self.param("too-many-test-cases", "max_testcases")
         )
-        discovered_testcases = sum([isinstance(child, TestCase) for child in node.body])
+        discovered_testcases = sum(isinstance(child, TestCase) for child in node.body)
         if discovered_testcases > max_testcases:
             self.report(
                 "too-many-test-cases",

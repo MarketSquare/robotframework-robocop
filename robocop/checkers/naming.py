@@ -571,13 +571,13 @@ class InvalidCharactersInNameChecker(VisitorChecker):
             suite_name = Path(source).stem
             if "__init__" in suite_name:
                 suite_name = Path(source).parent.name
-            for iter in self.param("not-allowed-char-in-filename", "pattern").finditer(suite_name):
+            for match in self.param("not-allowed-char-in-filename", "pattern").finditer(suite_name):
                 self.report(
                     "not-allowed-char-in-filename",
-                    character=iter.group(),
+                    character=match.group(),
                     block_name="suite",
                     node=node,
-                    col=node.col_offset + iter.start(0) + 1,
+                    col=node.col_offset + match.start(0) + 1,
                 )
         super().visit_File(node)
 
@@ -739,7 +739,7 @@ class KeywordNamingChecker(VisitorChecker):
             return False  # handled by else-not-upper-case
         min_ver = self.reserved_words[lower_name]
         if ROBOT_VERSION.major < min_ver:
-            return
+            return False
         error_msg = uppercase_error_msg(lower_name)
         self.report(
             "keyword-name-is-reserved-word",
@@ -844,9 +844,9 @@ class SettingsNamingChecker(VisitorChecker):
             # ignore cases where 'AS' is used to provide library alias for RF < 5
             if arg_nodes and any(arg.value == "AS" for arg in arg_nodes):
                 return
-            with_name = True if node.get_token(*self.ALIAS_TOKENS) else False
+            with_name = bool(node.get_token(*self.ALIAS_TOKENS))
         else:
-            with_name = True if len(node.get_tokens(Token.NAME)) >= 2 else False
+            with_name = len(node.get_tokens(Token.NAME)) >= 2
         if not with_name:
             for arg in node.get_tokens(Token.ARGUMENT):
                 if arg.value and arg.value in self.ALIAS_TOKENS_VALUES:

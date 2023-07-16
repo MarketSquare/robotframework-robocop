@@ -1,6 +1,6 @@
--   id: robocop
-    name: robocop
-    entry: robocop
-    files: '.*\.(robot|resource)$'
-    language: python
-    description: "RobotFramework source code linter"
+- id: robocop
+  name: robocop
+  entry: robocop
+  files: '.*\.(robot|resource)$'
+  language: python
+  description: "RobotFramework source code linter"

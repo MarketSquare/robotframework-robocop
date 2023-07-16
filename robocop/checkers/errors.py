@@ -12,7 +12,7 @@ except ImportError:
 
 from robocop.checkers import VisitorChecker
 from robocop.rules import Rule, RuleSeverity
-from robocop.utils import ROBOT_VERSION, find_robot_vars, get_errors
+from robocop.utils import ROBOT_VERSION, find_robot_vars
 
 rules = {
     "0401": Rule(
@@ -399,7 +399,7 @@ class ParsingErrorChecker(VisitorChecker):
         elif "is not allowed in resource file" in error:
             self.handle_invalid_setting_in_resource_file(node, error)
         elif "is not allowed in suite initialization file" in error:
-            self.handle_unsupported_settings_in_init_file(node, error)
+            self.handle_unsupported_settings_in_init_file(node)
         else:
             error = error.replace("\n   ", "")
             token = node.header if hasattr(node, "header") else node
@@ -522,7 +522,7 @@ class ParsingErrorChecker(VisitorChecker):
         var_error = re.search("Invalid variable name '(.*)'.", error)
         if not var_error or not var_error.group(1):  # empty variable name due to invalid parsing
             return
-        elif var_error.group(1).lstrip().startswith(".."):
+        if var_error.group(1).lstrip().startswith(".."):
             self.handle_invalid_continuation_mark(node, var_error.group(1))
         elif not var_error.group(1)[0].strip():  # not left aligned variable
             return
@@ -559,7 +559,7 @@ class ParsingErrorChecker(VisitorChecker):
                     end_col=col + 3,
                 )
 
-    def handle_unsupported_settings_in_init_file(self, node, error):
+    def handle_unsupported_settings_in_init_file(self, node):
         setting_node = node.data_tokens[0]
         setting_name = setting_node.value
         self.report(

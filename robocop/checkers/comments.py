@@ -279,7 +279,7 @@ class IgnoredDataChecker(RawFileChecker):
             if line.lower().startswith(self.LANGUAGE_HEADER):
                 self.has_language_header = True
                 return False
-            elif self.is_bom:
+            if self.is_bom:
                 # if it's BOM encoded file, first line can be ignored
                 return "***" in line
         if self.has_language_header and not line.strip():

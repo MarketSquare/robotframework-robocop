@@ -114,10 +114,10 @@ class Robocop:
                 )
 
     def run_checks(self):
-        for file in self.files:
+        for file, file_model in self.files.items():
             if self.config.verbose:
                 print(f"Scanning file: {file}")
-            model = self.files[file][1]
+            model = file_model[1]
             found_issues = self.run_check(model, str(file))
             found_issues.sort()
             for issue in found_issues:

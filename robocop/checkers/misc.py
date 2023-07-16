@@ -855,7 +855,7 @@ class ResourceFileChecker(VisitorChecker):
                 ".resource" not in extension
                 and "__init__" not in file_name
                 and node.sections
-                and not any([isinstance(section, TestCaseSection) for section in node.sections])
+                and not any(isinstance(section, TestCaseSection) for section in node.sections)
             ):
                 self.report("can-be-resource-file", file_name=Path(source).name, file_name_stem=file_name, node=node)
 

@@ -21,7 +21,7 @@ Table of contents
    :maxdepth: 2
    :caption: Rules
 
-   rules
+   rule_basics
    rules_list
    external_rules
 
@@ -31,6 +31,7 @@ Table of contents
 
    reports
    disablers
+   configuration
 
 .. toctree::
    :maxdepth: 2

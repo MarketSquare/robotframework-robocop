@@ -97,3 +97,6 @@ Recognize Figure(s) (art) From Picture
 
 Recognize Figure(s) (Math) From Picture
     No Operation
+
+Click 'Next' button
+    No Operation

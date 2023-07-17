@@ -16,16 +16,19 @@ rules = {
         name="missing-doc-keyword",
         msg="Missing documentation in '{{ name }}' keyword",
         severity=RuleSeverity.WARNING,
+        added_in_version="1.0.0",
         docs="""
+        Keyword documentation is displayed in a tooltip in most code editors,
+        so it is recommended to write it for each keyword.
+
         You can add documentation to keyword using following syntax::
 
+            *** Keywords ***
             Keyword
                 [Documentation]  Keyword documentation
                 Keyword Step
                 Other Step
-
         """,
-        added_in_version="1.0.0",
     ),
     "0202": Rule(
         RuleParam(
@@ -39,6 +42,7 @@ rules = {
         name="missing-doc-test-case",
         msg="Missing documentation in '{{ name }}' test case",
         severity=RuleSeverity.WARNING,
+        added_in_version="1.0.0",
         docs="""
         You can add documentation to test case using following syntax::
 
@@ -54,35 +58,32 @@ rules = {
 
         Possible values are: ``Yes`` / ``1`` / ``True`` (default) or ``No`` / ``False`` / ``0``.
         """,
-        added_in_version="1.0.0",
     ),
     "0203": Rule(
         rule_id="0203",
         name="missing-doc-suite",
         msg="Missing documentation in suite",
         severity=RuleSeverity.WARNING,
+        added_in_version="1.0.0",
         docs="""
         You can add documentation to suite using following syntax::
 
             *** Settings ***
             Documentation    Suite documentation
-
         """,
-        added_in_version="1.0.0",
     ),
     "0204": Rule(
         rule_id="0204",
         name="missing-doc-resource-file",
         msg="Missing documentation in resource file",
         severity=RuleSeverity.WARNING,
+        added_in_version="2.8.0",
         docs="""
         You can add documentation to resource file using following syntax::
 
             *** Settings ***
             Documentation    Resource file documentation
-
         """,
-        added_in_version="2.8.0",
     ),
 }
 

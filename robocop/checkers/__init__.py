@@ -306,7 +306,7 @@ def init(linter):
         linter.register_checker(checker)
 
 
-def get_rules():
+def get_builtin_rules():
     """Get only rules definitions for documentation generation."""
     robocop_importer = RobocopImporter()
     rule_modules = robocop_importer.get_internal_modules()

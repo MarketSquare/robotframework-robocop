@@ -45,7 +45,7 @@ rules = {
 }
 
 
-class ContinueOnFailureChecker(VisitorChecker):
+class SleepKeywordUsedChecker(VisitorChecker):
     """
     Find and report use of the Sleep keyword in tests and keywords.
 

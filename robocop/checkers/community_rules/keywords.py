@@ -14,7 +14,7 @@ rules = {
         name="sleep-keyword-used",
         msg="Sleep keyword with '{{ sleep_time }}' sleep time found",
         severity=RuleSeverity.WARNING,
-        added_in_version="4.1.0",
+        added_in_version="5.0.0",
         enabled=False,
         docs="""
         Avoid using Sleep keyword in favour of polling.
@@ -36,7 +36,7 @@ rules = {
                 Wait Until Element Is Visible    ${MAIN_HEADER}
                 Click Element    //div[@name='${item_name}']/div[@id='add_to_cart']
         
-        It is also possible to report only ``Sleep`` exceeding given time limit using ``max_time`` parameter::
+        It is also possible to report only if ``Sleep`` exceeds given time limit using ``max_time`` parameter::
         
             robocop -c sleep-keyword-used:max_time:1min .
 

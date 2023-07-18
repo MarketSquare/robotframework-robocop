@@ -1,0 +1,53 @@
+:orphan:
+
+=============
+Robocop 5.0.0
+=============
+
+You can install the latest available version by running
+
+::
+
+    pip install --upgrade robotframework-robocop
+
+or to install exactly this version
+
+::
+
+    pip install robotframework-robocop==5.0.0
+
+.. contents::
+   :depth: 2
+   :local:
+
+Most important changes
+======================
+
+Rule changes
+============
+
+Other features
+==============
+
+Fixes
+=====
+
+Enable if-can-be-used for Robot Framework 5+
+---------------------------------------------
+
+I0908 ``if-can-be-used`` was incorrectly enabled only for Robot Framework 4.*. It should now work for all >=4 versions.
+
+Acknowledgements
+================
+
+Thanks to the whole community for submitting bug reports and feature requests.
+Without you, Robocop wouldn't be in the place where it is now. All the feedback
+is essential to drive the tool towards higher quality and better user
+experience.
+
+If you want to help us more, consider contributing to the project directly.
+We can offer our constant support to make the work fun and effective. We do
+our best to create a supportive and welcoming environment for everyone.
+Feel free to ping us on our official `#robocop-linter Slack channel`_ anytime.
+
+.. _#robocop-linter Slack channel: https://robotframework.slack.com/archives/C01AWSNKC2H

@@ -1,5 +1,6 @@
 """ General E2E tests to catch any general issue in Robocop """
 
+import re
 import sys
 from pathlib import Path
 from unittest import mock
@@ -382,3 +383,17 @@ class TestTranslatedRobot:
         assert community_rules != []
         enabled_community = {rule.name for rule in community_rules if rule.enabled}
         assert enabled_community == set()
+
+    def test_builtin_rules_id_match_pattern(self, robocop_instance):
+        robocop_instance.reload_config()
+        builtin_rules_id = {rule.rule_id for rule in robocop_instance.rules.values() if not rule.community_rule}
+        builtin_rule_id_pattern = re.compile("[0-9]{4}")
+        invalid_ids = {rule_id for rule_id in builtin_rules_id if not builtin_rule_id_pattern.fullmatch(rule_id)}
+        assert invalid_ids == set()
+
+    def test_community_rules_id_match_pattern(self, robocop_instance):
+        robocop_instance.reload_config()
+        community_rules_id = {rule.rule_id for rule in robocop_instance.rules.values() if rule.community_rule}
+        community_rule_id_pattern = re.compile("1[0-9]{4}")
+        invalid_ids = {rule_id for rule_id in community_rules_id if not community_rule_id_pattern.fullmatch(rule_id)}
+        assert invalid_ids == set()

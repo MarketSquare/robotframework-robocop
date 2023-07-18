@@ -38,11 +38,7 @@ rules = {
                 Wait Until Element Is Visible    ${MAIN_HEADER}
                 Click Element    //div[@name='${item_name}']/div[@id='add_to_cart']
         
-<<<<<<< HEAD
         It is also possible to report only if ``Sleep`` exceeds given time limit using ``max_time`` parameter::
-=======
-        It is also possible to report only ``Sleep`` exceeding given time limit using ``max_time`` parameter::
->>>>>>> 78ca790 (Add first community rule)
         
             robocop -c sleep-keyword-used:max_time:1min .
 

@@ -12,7 +12,7 @@ rules = {
         ),
         rule_id="10001",
         name="sleep-keyword-used",
-        msg="Sleep keyword with '{{ sleep_time }}' sleep time found",
+        msg="Sleep keyword with '{{ duration_time }}' sleep time found",
         severity=RuleSeverity.WARNING,
         added_in_version="5.0.0",
         enabled=False,
@@ -77,12 +77,12 @@ class SleepKeywordUsedChecker(VisitorChecker):
                 return
             if allowed_time >= time_from_sleep:  # if Sleep time is less than allowed maximum, we can ignore issue
                 return
-        # node can be multiline, ie Sleep ...  1 min -> report either just Sleep, or multiline report
-        sleep_time = time_token.value if time_token else ""
+        # node can be multiline, ie Sleep ...  1 min -> report either just Sleep, or multi-line report
+        duration_time = time_token.value if time_token else ""
         name_token = node.get_token(Token.KEYWORD)
         self.report(
             "sleep-keyword-used",
-            sleep_time=sleep_time,
+            duration_time=duration_time,
             node=name_token,
             col=name_token.col_offset + 1,
             end_col=name_token.end_col_offset + 1,

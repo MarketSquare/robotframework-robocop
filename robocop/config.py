@@ -18,7 +18,7 @@ from robocop.exceptions import (
     TomlFileNotFoundError,
 )
 from robocop.files import DEFAULT_EXCLUDES, find_file_in_project_root, find_project_root
-from robocop.rules import RuleSeverity
+from robocop.rules import RuleFilter, RuleSeverity
 from robocop.utils import RecommendationFinder
 from robocop.version import __version__
 
@@ -58,7 +58,7 @@ class SetRuleThreshold(argparse.Action):
 
 class SetListOption(argparse.Action):
     def __call__(self, parser, namespace, values, option_string=None):
-        pattern = values if values else "*"
+        pattern = values if values else RuleFilter.EMPTY_PATTERN
         if "*" in pattern:
             pattern = translate_pattern(pattern)
         setattr(namespace, self.dest, pattern)

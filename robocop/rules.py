@@ -96,6 +96,31 @@ class RuleSeverity(Enum):
         return {"I": 3, "W": 2, "E": 1}.get(self.value, 4)
 
 
+class RuleFilter:
+    EMPTY_PATTERN = "EMPTY_PATTERN"
+    ALL_PATTERN = "ALL"
+    ENABLED_PATTERN = "ENABLED"
+    DISABLED_PATTERN = "DISABLED"
+    COMMUNITY_PATTERN = "COMMUNITY"
+
+    def get_filtered_rules(self, rules, pattern):
+        if pattern in (self.ENABLED_PATTERN, self.DISABLED_PATTERN):
+            rule_by_id = {
+                rule.rule_id: rule
+                for rule in rules.values()
+                if pattern.lower() in rule.get_enabled_status_desc() and not rule.community_rule
+            }
+        elif pattern == self.COMMUNITY_PATTERN:
+            rule_by_id = {rule.rule_id: rule for rule in rules.values() if rule.community_rule}
+        elif pattern == self.EMPTY_PATTERN:
+            rule_by_id = {rule.rule_id: rule for rule in rules.values() if not rule.community_rule}
+        elif pattern == self.ALL_PATTERN:
+            rule_by_id = {rule.rule_id: rule for rule in rules.values()}
+        else:
+            rule_by_id = {rule.rule_id: rule for rule in rules.values() if rule.matches_pattern(pattern)}
+        return sorted(rule_by_id.values(), key=lambda x: int(x.rule_id))
+
+
 class RuleParam:
     """
     Parameter of the Rule.
@@ -299,6 +324,8 @@ class Rule:
         self.supported_version = version if version else "All"
         self.enabled_in_version = self.supported_in_rf_version(version)
         self.added_in_version = added_in_version
+        self.community_rule = False
+        self.category_id = None
 
     @property
     def severity(self):

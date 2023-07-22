@@ -36,6 +36,8 @@ from robocop.utils import (
 )
 from robocop.utils.misc import find_escaped_variables
 
+RULE_CATEGORY_ID = "09"
+
 rules = {
     "0901": Rule(
         rule_id="0901",

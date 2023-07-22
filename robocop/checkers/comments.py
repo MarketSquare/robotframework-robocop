@@ -20,6 +20,8 @@ def regex(value):
         raise ValueError(f"Regex error: {regex_err}")
 
 
+RULE_CATEGORY_ID = "07"
+
 rules = {
     "0701": Rule(
         RuleParam(

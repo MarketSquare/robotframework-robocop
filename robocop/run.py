@@ -13,9 +13,10 @@ from robocop import checkers, reports
 from robocop.config import Config
 from robocop.files import get_files
 from robocop.reports import is_report_comparable, load_reports_result_from_cache, save_reports_result_to_cache
-from robocop.rules import Message
+from robocop.rules import Message, RuleFilter
 from robocop.utils import DisablersFinder, FileType, FileTypeChecker, RecommendationFinder, is_suite_templated
 from robocop.utils.file_types import check_model_type, get_resource_with_lang
+from robocop.utils.misc import get_plural_form
 
 
 class Robocop:
@@ -178,13 +179,7 @@ class Robocop:
                 "\n    E / error\n    W / warning\n    I / info\n"
             )
         pattern = self.config.list if self.config.list else self.config.list_configurables
-        if pattern in ("ENABLED", "DISABLED"):
-            rule_by_id = {
-                rule.rule_id: rule for rule in self.rules.values() if pattern.lower() in rule.get_enabled_status_desc()
-            }
-        else:
-            rule_by_id = {rule.rule_id: rule for rule in self.rules.values() if rule.matches_pattern(pattern)}
-        rule_by_id = sorted(rule_by_id.values(), key=lambda x: x.rule_id)
+        rule_by_id = RuleFilter().get_filtered_rules(self.rules, pattern)
         severity_counter = Counter({"E": 0, "W": 0, "I": 0})
         for rule in rule_by_id:
             if self.config.list:
@@ -196,12 +191,12 @@ class Robocop:
                     print(f"{rule}\n" f"    {params}")
                     severity_counter[rule.severity.value] += 1
         configurable_rules_sum = sum(severity_counter.values())
-        plural = "" if configurable_rules_sum == 1 else "s"
+        plural = get_plural_form(configurable_rules_sum)
         print(
             f"\nAltogether {configurable_rules_sum} rule{plural} with following severity:\n"
-            f"    {severity_counter['E']} error rule{'' if severity_counter['E'] == 1 else 's'},\n"
-            f"    {severity_counter['W']} warning rule{'' if severity_counter['W'] == 1 else 's'},\n"
-            f"    {severity_counter['I']} info rule{'' if severity_counter['I'] == 1 else 's'}.\n"
+            f"    {severity_counter['E']} error rule{get_plural_form(severity_counter['E'])},\n"
+            f"    {severity_counter['W']} warning rule{get_plural_form(severity_counter['W'])},\n"
+            f"    {severity_counter['I']} info rule{get_plural_form(severity_counter['I'])}.\n"
         )
         print("Visit https://robocop.readthedocs.io/en/stable/rules.html page for detailed documentation.")
         sys.exit()

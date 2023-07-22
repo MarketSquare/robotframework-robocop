@@ -28,6 +28,8 @@ from robocop.utils import (
 from robocop.utils.misc import remove_nested_variables
 from robocop.utils.run_keywords import iterate_keyword_names
 
+RULE_CATEGORY_ID = "03"
+
 rules = {
     "0301": Rule(
         RuleParam(

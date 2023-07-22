@@ -24,6 +24,8 @@ from robocop.checkers import RawFileChecker, VisitorChecker
 from robocop.rules import Rule, RuleParam, RuleSeverity, SeverityThreshold
 from robocop.utils import get_section_name, normalize_robot_name, pattern_type, str2bool
 
+RULE_CATEGORY_ID = "05"
+
 rules = {
     "0501": Rule(
         RuleParam(name="max_len", default=40, converter=int, desc="number of lines allowed in a keyword"),

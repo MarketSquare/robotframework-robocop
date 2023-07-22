@@ -10,6 +10,8 @@ from robocop.checkers import VisitorChecker
 from robocop.rules import Rule, RuleParam, RuleSeverity
 from robocop.utils.misc import str2bool
 
+RULE_CATEGORY_ID = "02"
+
 rules = {
     "0201": Rule(
         rule_id="0201",

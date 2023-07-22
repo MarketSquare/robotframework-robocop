@@ -21,6 +21,8 @@ from robocop.checkers import RawFileChecker, VisitorChecker
 from robocop.rules import Rule, RuleParam, RuleSeverity, SeverityThreshold
 from robocop.utils import get_errors, get_section_name, str2bool, token_col
 
+RULE_CATEGORY_ID = "10"
+
 rules = {
     "1001": Rule(
         rule_id="1001",

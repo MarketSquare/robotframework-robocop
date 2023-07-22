@@ -5,6 +5,8 @@ from robocop.checkers import VisitorChecker
 from robocop.rules import Rule, RuleParam, RuleSeverity
 from robocop.utils.misc import normalize_robot_name
 
+RULE_CATEGORY_ID = "00"
+
 rules = {
     "10001": Rule(
         RuleParam(

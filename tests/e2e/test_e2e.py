@@ -397,3 +397,31 @@ class TestTranslatedRobot:
         community_rule_id_pattern = re.compile("1[0-9]{4}")
         invalid_ids = {rule_id for rule_id in community_rules_id if not community_rule_id_pattern.fullmatch(rule_id)}
         assert invalid_ids == set()
+
+    def test_builtin_rules_have_matching_category_id(self, robocop_instance):
+        robocop_instance.reload_config()
+        builtin_rules = [rule for rule in robocop_instance.rules.values() if not rule.community_rule]
+        assert builtin_rules != []
+        errors = []
+        for rule in builtin_rules:
+            if rule.category_id is None:
+                raise ValueError(f"Missing category_id for rule {rule.rule_id} {rule.name}")
+            if not rule.rule_id.startswith(rule.category_id):
+                errors.append(
+                    f"Rule {rule.rule_id} {rule.name} does not start with correct category id ({rule.category_id})"
+                )
+        assert errors == []
+
+    def test_community_rules_have_matching_category_id(self, robocop_instance):
+        robocop_instance.reload_config()
+        community_rules = [rule for rule in robocop_instance.rules.values() if rule.community_rule]
+        assert community_rules != []
+        errors = []
+        for rule in community_rules:
+            if rule.category_id is None:
+                raise ValueError(f"Missing category_id for rule {rule.rule_id} {rule.name}")
+            if not rule.rule_id.startswith("1" + rule.category_id):
+                errors.append(
+                    f"Rule {rule.rule_id} {rule.name} does not start with correct category id ({rule.category_id})"
+                )
+        assert errors == []

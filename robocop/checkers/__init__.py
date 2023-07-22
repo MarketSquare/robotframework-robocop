@@ -275,11 +275,19 @@ class RobocopImporter:
         module_rules = getattr(module, "rules", {})
         if not isinstance(module_rules, dict):
             return {}
-        return {rule.name: rule for rule in module_rules.values()}
+        rules = {}
+        for rule_id, rule in module_rules.items():
+            if rule_id != rule.rule_id:
+                raise ValueError(
+                    f"Rule id in rules dictionary does not match defined Rule id. {rule_id} != {rule.rule_id}"
+                )
+            rules[rule.name] = rule
+        return rules
 
     def get_checkers_from_module(self, module, is_community: bool) -> List:
         classes = inspect.getmembers(module, inspect.isclass)
         checkers = [checker for checker in classes if is_checker(checker)]
+        category_id = getattr(module, "RULE_CATEGORY_ID", None)
         module_rules = self.get_rules_from_module(module)
         checker_instances = []
         for checker in checkers:
@@ -294,6 +302,7 @@ class RobocopImporter:
                     continue
                 rule = module_rules[reported_rule]
                 rule.community_rule = is_community
+                rule.category_id = category_id
                 checker_instance.rules[reported_rule] = rule
             if valid_checker:
                 checker_instances.append(checker_instance)

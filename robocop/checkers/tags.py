@@ -8,6 +8,8 @@ from robot.api import Token
 from robocop.checkers import VisitorChecker
 from robocop.rules import Rule, RuleSeverity
 
+RULE_CATEGORY_ID = "06"
+
 rules = {
     "0601": Rule(
         rule_id="0601",

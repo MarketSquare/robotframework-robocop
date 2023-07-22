@@ -325,6 +325,7 @@ class Rule:
         self.enabled_in_version = self.supported_in_rf_version(version)
         self.added_in_version = added_in_version
         self.community_rule = False
+        self.category_id = None
 
     @property
     def severity(self):

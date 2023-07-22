@@ -16,6 +16,8 @@ from robocop.utils import ROBOT_VERSION, find_robot_vars
 
 RULE_CATEGORY_ID = "04"
 
+RULE_CATEGORY_ID = "04"
+
 rules = {
     "0401": Rule(
         rule_id="0401",

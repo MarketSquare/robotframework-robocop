@@ -143,8 +143,7 @@ class DisablersFinder(ModelVisitor):
     def get_scope_for_disabler(self, token):
         if token.col_offset == 0 and self.keyword_or_test_section:
             return self.disablers_in_scope[0]
-        else:
-            return self.disablers_in_scope[-1]
+        return self.disablers_in_scope[-1]
 
     def _is_file_disabled(self, last_line):
         """

@@ -1,7 +1,7 @@
 import ast
 import difflib
 import re
-import token
+import token as python_token
 import tokenize
 from collections import Counter, defaultdict
 from io import StringIO
@@ -283,7 +283,7 @@ def pattern_type(value: str) -> Pattern:
     try:
         pattern = re.compile(value)
     except re.error as err:
-        raise ValueError(f"Invalid regex pattern: {err}")
+        raise ValueError(f"Invalid regex pattern: {err}") from err
     return pattern
 
 
@@ -317,10 +317,10 @@ def find_escaped_variables(string):
     try:
         for toknum, tokval, _, _, _ in generate_tokens(StringIO(string).readline):
             if variable_started:
-                if toknum == token.NAME:
+                if toknum == python_token.NAME:
                     variables.append(tokval)
                 variable_started = False
-            if toknum == token.ERRORTOKEN and tokval == "$":
+            if toknum == python_token.ERRORTOKEN and tokval == "$":
                 variable_started = True
     except tokenize.TokenError:
         pass

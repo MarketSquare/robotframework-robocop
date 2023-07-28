@@ -78,8 +78,7 @@ def split_on_token_value(tokens, value, resolve: int):
             branch = tokens[index : index + resolve]
             remainder = tokens[index + resolve :]
             return prefix, branch, remainder
-    else:
-        return [], [], tokens
+    return [], [], tokens
 
 
 def iterate_keyword_names(keyword_node, name_token_type):

@@ -70,6 +70,7 @@ class BaseChecker:
                 raise RuleNotFoundError(rule, self) from None
             if param_name not in self.rules[rule].config:
                 raise RuleParamNotFoundError(self.rules[rule], param_name, self) from None
+            raise
 
     def report(
         self,
@@ -216,7 +217,7 @@ class RobocopImporter:
                 if path_object.is_dir():
                     if not recursive or path_object.name in {".git", "__pycache__"}:
                         continue
-                    yield from self.modules_from_paths([file for file in path_object.iterdir()])
+                    yield from self.modules_from_paths(list(path_object.iterdir()))
                 else:
                     yield self._import_module_from_file(path_object)
             else:

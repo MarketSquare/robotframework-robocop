@@ -429,12 +429,12 @@ class SectionHeadersChecker(VisitorChecker):
 
     def __init__(self):
         self.sections_by_order = []
-        self.sections_by_existence = dict()
+        self.sections_by_existence = {}
         super().__init__()
 
     @staticmethod
     def section_order_to_str(order):
-        by_index = sorted([(key, value) for key, value in order.items()], key=lambda x: x[1])
+        by_index = sorted(list(order.items()), key=lambda x: x[1])
         name_map = {
             Token.SETTING_HEADER: "Settings",
             Token.VARIABLE_HEADER: "Variables",
@@ -451,7 +451,7 @@ class SectionHeadersChecker(VisitorChecker):
 
     def visit_File(self, node):  # noqa
         self.sections_by_order = []
-        self.sections_by_existence = dict()
+        self.sections_by_existence = {}
         super().visit_File(node)
 
     def visit_SectionHeader(self, node):  # noqa

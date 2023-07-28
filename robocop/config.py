@@ -158,8 +158,7 @@ class ArgumentFileParser:
             argfile = resolve_relative_path(argfile, config_dir, True)
         if argfile in self.loaded_argument_files:
             raise CircularArgumentFileError(argfile) from None
-        else:
-            self.loaded_argument_files.add(argfile)
+        self.loaded_argument_files.add(argfile)
         try:
             with FileReader(argfile) as arg_f:
                 args = []

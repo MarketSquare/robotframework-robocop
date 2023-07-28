@@ -31,7 +31,7 @@ class RulesByIdReport(robocop.reports.ComparableReport):
         self.message_counter[message.get_fullname()] += 1
 
     def persist_result(self) -> Dict:
-        return {issue_code: count for issue_code, count in self.message_counter.items()}
+        return dict(self.message_counter.items())
 
     def get_diff_counter(self, prev_results: Dict) -> Dict:
         result = {}

@@ -43,10 +43,10 @@ class ComparableReport(Report):
         self.compare_runs = compare_runs
 
     def get_report(self, prev_results):
-        raise NotImplemented
+        raise NotImplementedError
 
     def persist_result(self):
-        raise NotImplemented
+        raise NotImplementedError
 
 
 def load_reports(compare_runs=False):

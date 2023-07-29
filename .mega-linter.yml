@@ -13,3 +13,4 @@ PRE_COMMANDS:
     venv: pylint
   - command: pip install robotframework-robocop[doc]
     venv: rstcheck
+PYTHON_PYLINT_FILTER_REGEX_EXCLUDE: "invalid_file.py"

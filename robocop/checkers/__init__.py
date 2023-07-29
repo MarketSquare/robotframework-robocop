@@ -218,7 +218,7 @@ class RobocopImporter:
                     if not recursive or path_object.name in {".git", "__pycache__"}:
                         continue
                     yield from self.modules_from_paths(list(path_object.iterdir()))
-                else:
+                elif path_object.suffix == ".py":
                     yield self._import_module_from_file(path_object)
             else:
                 # if it's not physical path, try to import from installed modules

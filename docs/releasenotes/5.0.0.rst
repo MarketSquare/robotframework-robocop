@@ -46,7 +46,7 @@ I0908 ``if-can-be-used`` was incorrectly enabled only for Robot Framework 4.*. I
 External rules with non-Python files in the directory
 -----------------------------------------------------
 
-Robocop should now be able to load external rules directory that contains non-Python files.
+Robocop no longer reports a problem when loading the external rules from a directory that also contains non-Python files.
 
 Acknowledgements
 ================

@@ -43,6 +43,11 @@ Enable ``if-can-be-used`` rule for Robot Framework 5+
 
 I0908 ``if-can-be-used`` was incorrectly enabled only for Robot Framework 4.*. It should now work for all >=4 versions.
 
+External rules with non-Python files in the directory
+-----------------------------------------------------
+
+Robocop no longer reports a problem when loading the external rules from a directory that also contains non-Python files.
+
 Acknowledgements
 ================
 

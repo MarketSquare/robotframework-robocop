@@ -1,7 +1,7 @@
 :orphan:
 
 =============
-Robocop 5.0.0
+Robocop {{ version }}
 =============
 
 You can install the latest available version by running
@@ -14,39 +14,36 @@ or to install exactly this version
 
 ::
 
-    pip install robotframework-robocop==5.0.0
+    pip install robotframework-robocop=={{ version }}
 
 .. contents::
    :depth: 2
    :local:
 
+{% if most_important|length > 0 %}
 Most important changes
 ======================
+{% for note in most_important %}{{ note }}{% endfor %}
+{% endif -%}
 
-New community rules
--------------------
-
-<description here, together with first community rule (working as example)>
-<also describe somewhere robocop --list COMMUNITY and robocop --list ALL>
-
+{% if rules|length > 0 %}
 Rule changes
 ============
 
-Other features
-==============
+{% for note in rules %}{{ note }}{% endfor %}
+{% endif -%}
 
+{% if fixes|length > 0 %}
 Fixes
 =====
+{% for note in fixes %}{{ note }}{% endfor %}
+{% endif -%}
 
-Enable ``if-can-be-used`` rule for Robot Framework 5+
----------------------------------------------
-
-I0908 ``if-can-be-used`` was incorrectly enabled only for Robot Framework 4.*. It should now work for all >=4 versions.
-
-External rules with non-Python files in the directory
------------------------------------------------------
-
-Robocop no longer reports a problem when loading the external rules from a directory that also contains non-Python files.
+{% if other|length > 0 %}
+Other features
+==============
+{% for note in other %}{{ note }}{% endfor %}
+{% endif -%}
 
 Acknowledgements
 ================

@@ -1,0 +1,1 @@
+loops.robot:43:9:43:20 [W] 0922 Local variable '${variable}' is overwritten before usage

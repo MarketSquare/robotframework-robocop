@@ -1,7 +1,7 @@
 TRY/EXCEPT with shared variables scope for all branches (#925)
 --------------------------------------------------------------
 
-``variable-overwritten-before-usage`` will no longer be raised  if the same variable names are used in different
+``variable-overwritten-before-usage`` will no longer be raised if the same variable names are used in different
 branches of the ``TRY/EXCEPT`` block::
 
     *** Test Cases ***

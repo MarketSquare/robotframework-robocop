@@ -1155,11 +1155,16 @@ class UnusedVariablesChecker(VisitorChecker):
     def visit_Try(self, node):  # noqa
         if node.errors or node.header.errors:
             return node
+        self.variables.append({})
         if node.variable is not None:
             error_var = node.header.get_token(Token.VARIABLE)
             if error_var is not None:
                 self.handle_assign_variable(error_var)
-        return self.generic_visit(node)
+        for item in node.body:
+            self.visit(item)
+        self.variables.pop()
+        if node.next:
+            self.visit_Try(node.next)
 
     def visit_KeywordCall(self, node):  # noqa
         for token in node.get_tokens(Token.ARGUMENT, Token.KEYWORD):  # argument can be used in keyword name

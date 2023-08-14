@@ -36,3 +36,18 @@ Keyword With FOR
         ${variable}    Get New Value
     END
 
+Each Try Branch Is Separate Scope
+    TRY
+        ${variable}    Set Variable    value
+    EXCEPT    Error message
+        ${variablE}    Error Handler 1
+        ${variable}    Error Handler 2
+    EXCEPT    Another error    # comment
+        ${variable}    Error Handler 2
+    EXCEPT    ${message}       # match with variable
+        ${Variable}    Error Handler 3
+    ELSE
+        ${variable}    Set Variable    value
+    FINALLY
+        ${variable}    Set Variable    value  # technically FINALLY should be in the same scope as all try/excepts
+    END

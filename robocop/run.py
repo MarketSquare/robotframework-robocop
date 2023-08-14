@@ -138,7 +138,7 @@ class Robocop:
             found_issues += [
                 issue
                 for issue in checker.scan_file(ast_model, filename, source, templated)
-                if not disablers.is_rule_disabled(issue)
+                if not disablers.is_rule_disabled(issue) and not issue.severity < self.config.threshold
             ]
         return found_issues
 

@@ -318,7 +318,6 @@ class Rule:
                 show_type="bool",
             ),
         }
-        self.severity_threshold = None
         for param in params:
             self.config[param.name] = param
         self.supported_version = version if version else "All"

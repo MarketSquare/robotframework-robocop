@@ -573,7 +573,7 @@ class Config:
     def is_rule_disabled(self, rule):
         if not rule.enabled_in_version:
             return True
-        if rule.severity < self.threshold:
+        if rule.severity < self.threshold and not rule.config.get("severity_threshold"):
             return True
         if rule.rule_id in self.exclude or rule.name in self.exclude:
             return True

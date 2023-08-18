@@ -1,6 +1,5 @@
 """ General E2E tests to catch any general issue in Robocop """
 
-import re
 import sys
 from pathlib import Path
 from unittest import mock
@@ -369,59 +368,3 @@ class TestTranslatedRobot:
         robocop_instance.reload_config()
         without_version = {rule.name for rule in robocop_instance.rules.values() if not rule.added_in_version}
         assert without_version == set()
-
-    def test_all_builtin_rules_should_be_enabled_by_default(self, robocop_instance):
-        robocop_instance.reload_config()
-        builtin_rules = [rule for rule in robocop_instance.rules.values() if not rule.community_rule]
-        assert builtin_rules != []
-        disabled_builtin = {rule.name for rule in builtin_rules if not rule.enabled and rule.enabled_in_version}
-        assert disabled_builtin == set()
-
-    def test_all_community_rules_should_be_disabled_by_default(self, robocop_instance):
-        robocop_instance.reload_config()
-        community_rules = [rule for rule in robocop_instance.rules.values() if rule.community_rule]
-        assert community_rules != []
-        enabled_community = {rule.name for rule in community_rules if rule.enabled}
-        assert enabled_community == set()
-
-    def test_builtin_rules_id_match_pattern(self, robocop_instance):
-        robocop_instance.reload_config()
-        builtin_rules_id = {rule.rule_id for rule in robocop_instance.rules.values() if not rule.community_rule}
-        builtin_rule_id_pattern = re.compile("[0-9]{4}")
-        invalid_ids = {rule_id for rule_id in builtin_rules_id if not builtin_rule_id_pattern.fullmatch(rule_id)}
-        assert invalid_ids == set()
-
-    def test_community_rules_id_match_pattern(self, robocop_instance):
-        robocop_instance.reload_config()
-        community_rules_id = {rule.rule_id for rule in robocop_instance.rules.values() if rule.community_rule}
-        community_rule_id_pattern = re.compile("1[0-9]{4}")
-        invalid_ids = {rule_id for rule_id in community_rules_id if not community_rule_id_pattern.fullmatch(rule_id)}
-        assert invalid_ids == set()
-
-    def test_builtin_rules_have_matching_category_id(self, robocop_instance):
-        robocop_instance.reload_config()
-        builtin_rules = [rule for rule in robocop_instance.rules.values() if not rule.community_rule]
-        assert builtin_rules != []
-        errors = []
-        for rule in builtin_rules:
-            if rule.category_id is None:
-                raise ValueError(f"Missing category_id for rule {rule.rule_id} {rule.name}")
-            if not rule.rule_id.startswith(rule.category_id):
-                errors.append(
-                    f"Rule {rule.rule_id} {rule.name} does not start with correct category id ({rule.category_id})"
-                )
-        assert errors == []
-
-    def test_community_rules_have_matching_category_id(self, robocop_instance):
-        robocop_instance.reload_config()
-        community_rules = [rule for rule in robocop_instance.rules.values() if rule.community_rule]
-        assert community_rules != []
-        errors = []
-        for rule in community_rules:
-            if rule.category_id is None:
-                raise ValueError(f"Missing category_id for rule {rule.rule_id} {rule.name}")
-            if not rule.rule_id.startswith("1" + rule.category_id):
-                errors.append(
-                    f"Rule {rule.rule_id} {rule.name} does not start with correct category id ({rule.category_id})"
-                )
-        assert errors == []

@@ -32,7 +32,6 @@ import importlib.util
 import inspect
 from collections import defaultdict
 from importlib import import_module
-from itertools import chain
 from pathlib import Path
 from typing import Dict, List, Tuple
 
@@ -164,38 +163,23 @@ def is_checker(checker_class_def: Tuple) -> bool:
 class RobocopImporter:
     def __init__(self, external_rules_paths=None):
         self.internal_checkers_dir = Path(__file__).parent
-        self.community_checkers_dir = self.internal_checkers_dir / "community_rules"
         self.external_rules_paths = external_rules_paths
         self.imported_modules = set()
         self.seen_modules = set()
         self.seen_checkers = defaultdict(list)
 
     def get_initialized_checkers(self):
-        yield from self._get_checkers_from_modules(self.get_internal_modules(), is_community=False)
-        yield from self._get_checkers_from_modules(self.get_community_modules(), is_community=True)
-        yield from self._get_checkers_from_modules(self.get_external_modules(), is_community=False)
-
-    def get_internal_modules(self):
-        return self.modules_from_paths([file for file in self.internal_checkers_dir.iterdir()], recursive=False)
-
-    def get_community_modules(self):
-        return self.modules_from_paths([self.community_checkers_dir], recursive=True)
-
-    def get_external_modules(self):
-        return self.modules_from_paths([*self.external_rules_paths], recursive=True)
-
-    def _get_checkers_from_modules(self, modules, is_community):
-        for module in modules:
+        for module in self.modules_from_paths([self.internal_checkers_dir, *self.external_rules_paths]):
             if module in self.seen_modules:
                 continue
             for _, submodule in inspect.getmembers(module, inspect.ismodule):
                 if submodule not in self.seen_modules:
-                    yield from self._get_initialized_checkers_from_module(submodule, is_community)
-            yield from self._get_initialized_checkers_from_module(module, is_community)
+                    yield from self._get_initialized_checkers_from_module(submodule)
+            yield from self._get_initialized_checkers_from_module(module)
 
-    def _get_initialized_checkers_from_module(self, module, is_community):
+    def _get_initialized_checkers_from_module(self, module):
         self.seen_modules.add(module)
-        for checker_instance in self.get_checkers_from_module(module, is_community):
+        for checker_instance in self.get_checkers_from_module(module):
             if not self.is_checker_already_imported(checker_instance):
                 yield checker_instance
 
@@ -210,12 +194,12 @@ class RobocopImporter:
         self.seen_checkers[checker_name].append(sorted(checker.rules.keys()))
         return False
 
-    def modules_from_paths(self, paths, recursive=True):
+    def modules_from_paths(self, paths):
         for path in paths:
             path_object = Path(path)
             if path_object.exists():
                 if path_object.is_dir():
-                    if not recursive or path_object.name in {".git", "__pycache__"}:
+                    if path_object.name in {".git", "__pycache__"}:
                         continue
                     yield from self.modules_from_paths(list(path_object.iterdir()))
                 elif path_object.suffix == ".py":
@@ -264,9 +248,8 @@ class RobocopImporter:
             except ImportError:
                 pass
 
-    @staticmethod
-    def get_imported_rules(rule_modules):
-        for module in rule_modules:
+    def get_imported_rules(self):
+        for module in self.modules_from_paths([self.internal_checkers_dir]):
             module_name = module.__name__.split(".")[-1]
             for rule in getattr(module, "rules", {}).values():
                 yield module_name, rule
@@ -276,19 +259,11 @@ class RobocopImporter:
         module_rules = getattr(module, "rules", {})
         if not isinstance(module_rules, dict):
             return {}
-        rules = {}
-        for rule_id, rule in module_rules.items():
-            if rule_id != rule.rule_id:
-                raise ValueError(
-                    f"Rule id in rules dictionary does not match defined Rule id. {rule_id} != {rule.rule_id}"
-                )
-            rules[rule.name] = rule
-        return rules
+        return {rule.name: rule for rule in getattr(module, "rules", {}).values()}
 
-    def get_checkers_from_module(self, module, is_community: bool) -> List:
+    def get_checkers_from_module(self, module) -> List:
         classes = inspect.getmembers(module, inspect.isclass)
         checkers = [checker for checker in classes if is_checker(checker)]
-        category_id = getattr(module, "RULE_CATEGORY_ID", None)
         module_rules = self.get_rules_from_module(module)
         checker_instances = []
         for checker in checkers:
@@ -301,10 +276,7 @@ class RobocopImporter:
                         # empty rules are silently ignored when rules and checkers are imported separately
                         raise RuleReportsNotFoundError(reported_rule, checker_instance) from None
                     continue
-                rule = module_rules[reported_rule]
-                rule.community_rule = is_community
-                rule.category_id = category_id
-                checker_instance.rules[reported_rule] = rule
+                checker_instance.rules[reported_rule] = module_rules[reported_rule]
             if valid_checker:
                 checker_instances.append(checker_instance)
         return checker_instances
@@ -316,15 +288,7 @@ def init(linter):
         linter.register_checker(checker)
 
 
-def get_builtin_rules():
+def get_rules():
     """Get only rules definitions for documentation generation."""
     robocop_importer = RobocopImporter()
-    rule_modules = robocop_importer.get_internal_modules()
-    yield from robocop_importer.get_imported_rules(rule_modules)
-
-
-def get_community_rules():
-    """Get only community rules definitions for documentation generation."""
-    robocop_importer = RobocopImporter()
-    rule_modules = robocop_importer.get_community_modules()
-    yield from robocop_importer.get_imported_rules(rule_modules)
+    yield from robocop_importer.get_imported_rules()

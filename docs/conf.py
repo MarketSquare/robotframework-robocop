@@ -73,7 +73,7 @@ def get_checker_docs():
     Load rules for dynamic docs generation
     """
     checker_docs = defaultdict(list)
-    for module_name, rule in robocop.checkers.get_builtin_rules():
+    for module_name, rule in robocop.checkers.get_rules():
         module_name = module_name.title()
         severity_threshold = rule.config.get("severity_threshold", None)
         robocop_version = rule.added_in_version if rule.added_in_version else "\\-"

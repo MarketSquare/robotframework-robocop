@@ -14,8 +14,6 @@ from robocop.checkers import VisitorChecker
 from robocop.rules import Rule, RuleSeverity
 from robocop.utils import ROBOT_VERSION, find_robot_vars
 
-RULE_CATEGORY_ID = "04"
-
 rules = {
     "0401": Rule(
         rule_id="0401",

@@ -31,8 +31,6 @@ def configure_sections_order(value):
     return sections_order
 
 
-RULE_CATEGORY_ID = "08"
-
 rules = {
     "0801": Rule(
         rule_id="0801",

@@ -14,3 +14,6 @@ class TestRuleAcceptance(RuleAcceptance):
             issue_format="end_col",
             target_version="<5",
         )
+
+    def test_rule_arguments_should_clear_after_keyword(self):
+        self.check_rule(src_files=["arguments_cleared_after_keyword.robot"], expected_file=None)

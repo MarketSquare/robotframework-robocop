@@ -1061,6 +1061,7 @@ class UnusedVariablesChecker(VisitorChecker):
                 value, *_ = arg.token.value.split("=", maxsplit=1)
                 self.report_arg_or_var_rule("unused-argument", arg.token, value)
         self.check_unused_variables()
+        self.arguments = {}
 
     def check_unused_variables(self):
         for scope in self.variables:

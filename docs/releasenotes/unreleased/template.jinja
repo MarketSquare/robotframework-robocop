@@ -36,7 +36,8 @@ Rule changes
 {% if fixes|length > 0 %}
 Fixes
 =====
-{% for note in fixes %}{{ note }}{% endfor %}
+{% for note in fixes %}{{ note }}
+{% endfor %}
 {% endif -%}
 
 {% if other|length > 0 %}

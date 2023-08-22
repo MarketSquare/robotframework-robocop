@@ -35,6 +35,7 @@ some new articles describing how Robocop works, rewritten rules explanation and 
 
 Fixes
 =====
+
 Enable ``if-can-be-used`` rule for Robot Framework 5+
 -----------------------------------------------------
 

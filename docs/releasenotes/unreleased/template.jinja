@@ -27,6 +27,7 @@ Most important changes
 {% endif -%}
 
 {% if rules|length > 0 %}
+
 Rule changes
 ============
 
@@ -34,6 +35,7 @@ Rule changes
 {% endif -%}
 
 {% if fixes|length > 0 %}
+
 Fixes
 =====
 {% for note in fixes %}{{ note }}
@@ -41,6 +43,7 @@ Fixes
 {% endif -%}
 
 {% if other|length > 0 %}
+
 Other features
 ==============
 {% for note in other %}{{ note }}{% endfor %}

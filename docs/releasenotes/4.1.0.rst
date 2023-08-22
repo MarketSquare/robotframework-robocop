@@ -5,7 +5,7 @@ Robocop 4.1.0
 =============
 
 This release fixes issues with ``if-can-be-used``, ``variable-overwritten-before-usage`` and
-``argument-overwritten-before-usage`` rules. Also, rule severity threshold now properly respect threshold filter.
+``argument-overwritten-before-usage`` rules. Also, rule severity threshold now properly respects threshold filter.
 
 You can install the latest available version by running
 
@@ -29,8 +29,9 @@ Most important changes
 
 Documentation makeover (#916, #917)
 ------------------------------------
-Our external documentation (https://robocop.readthedocs.io/) got makeover that hugely improves navigating and
-readability of the documentation.
+Our external documentation (https://robocop.readthedocs.io/) got a makeover that hugely improves navigating and
+readability of the documentation. It now has a better structure, proper formatting, more clear sentences,
+some new articles describing how Robocop works, rewritten rules explanation and emojis!
 
 Fixes
 =====
@@ -71,11 +72,11 @@ For example, given rule ``file-too-long`` which has default Warning severity and
 
 If file has more than 700 lines it should be reported as Error and not be filtered out by ``--threshold``.
 
-argument-overwritten-before-usage reported on test variables (#927)
+``argument-overwritten-before-usage`` reported on test variables (#927)
 --------------------------------------------------------------------
 
 ``argument-overwritten-before-usage`` should now clear arguments after keyword definition and it will not be
-raised on next test case using the same variable names.
+raised on the next test case using the same variable names.
 
 Acknowledgements
 ================

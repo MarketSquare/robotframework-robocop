@@ -1,0 +1,95 @@
+:orphan:
+
+=============
+Robocop 4.1.0
+=============
+
+This release fixes issues with ``if-can-be-used``, ``variable-overwritten-before-usage`` and
+``argument-overwritten-before-usage`` rules. Also, rule severity threshold now properly respects threshold filter.
+
+You can install the latest available version by running
+
+::
+
+    pip install --upgrade robotframework-robocop
+
+or to install exactly this version
+
+::
+
+    pip install robotframework-robocop==4.1.0
+
+.. contents::
+   :depth: 2
+   :local:
+
+
+Most important changes
+======================
+
+Documentation makeover (#916, #917)
+------------------------------------
+Our external documentation (https://robocop.readthedocs.io/) got a makeover that hugely improves navigating and
+readability of the documentation. It now has a better structure, proper formatting, more clear sentences,
+some new articles describing how Robocop works, rewritten rules explanation and emojis!
+
+Fixes
+=====
+
+Enable ``if-can-be-used`` rule for Robot Framework 5+
+-----------------------------------------------------
+
+I0908 ``if-can-be-used`` was incorrectly enabled only for Robot Framework 4.*. It should now work for all >=4 versions.
+
+External rules with non-Python files in the directory
+-----------------------------------------------------
+
+Robocop no longer reports a problem when loading the external rules from a directory that also contains non-Python files.
+
+TRY/EXCEPT with shared variables scope for all branches (#925)
+--------------------------------------------------------------
+
+``variable-overwritten-before-usage`` will no longer be raised if the same variable names are used in different
+branches of the ``TRY/EXCEPT`` block::
+
+    *** Test Cases ***
+    Example Test
+        TRY
+            ${value}    Possibly Failing Keyword
+        EXCEPT
+            ${value}    Set Variable    Keyword failed  # each TRY/EXCEPT/ELSE/FINALLY branch is now separate scope
+        END
+        Log To Console    ${value}
+
+Rule severity threshold and global threshold filter (#930)
+-----------------------------------------------------------
+
+Rule that uses configured severity threshold (which can dynamically set rule severity) will no longer be filtered out
+by global threshold ``-t/--threshold`` if rule default severity is lower than configured threshold.
+
+For example, given rule ``file-too-long`` which has default Warning severity and following configuration::
+
+    robocop -c file-too-long:severity_threshold:warning=600:error=700 -t E .
+
+If file has more than 700 lines it should be reported as Error and not be filtered out by ``--threshold``.
+
+``argument-overwritten-before-usage`` reported on test variables (#927)
+--------------------------------------------------------------------
+
+``argument-overwritten-before-usage`` should now clear arguments after keyword definition and it will not be
+raised on the next test case using the same variable names.
+
+Acknowledgements
+================
+
+Thanks to the whole community for submitting bug reports and feature requests.
+Without you, Robocop wouldn't be in the place where it is now. All the feedback
+is essential to drive the tool towards higher quality and better user
+experience.
+
+If you want to help us more, consider contributing to the project directly.
+We can offer our constant support to make the work fun and effective. We do
+our best to create a supportive and welcoming environment for everyone.
+Feel free to ping us on our official `#robocop-linter Slack channel`_ anytime.
+
+.. _#robocop-linter Slack channel: https://robotframework.slack.com/archives/C01AWSNKC2H

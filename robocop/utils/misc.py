@@ -25,6 +25,7 @@ from robocop.version import __version__
 
 ROBOT_VERSION = Version(RF_VERSION)
 ROBOT_WITH_LANG = Version("6.0")
+ROBOCOP_RULES_URL = "https://robocop.readthedocs.io/en/{version}/rules_list.html"
 
 
 def rf_supports_lang():
@@ -88,7 +89,7 @@ def issues_to_lsp_diagnostic(issues) -> List[Dict]:
             "code": issue.rule_id,
             "source": "robocop",
             "message": issue.desc,
-            "codeDescription": {"href": f"https://robocop.readthedocs.io/en/{__version__}/rules.html#{issue.name}"},
+            "codeDescription": {"href": f"{ROBOCOP_RULES_URL.format(version=__version__)}#{issue.name}"},
         }
         for issue in issues
     ]

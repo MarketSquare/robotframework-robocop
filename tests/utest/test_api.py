@@ -120,7 +120,7 @@ class TestAPI:
                 "source": "robocop",
                 "message": "Some description",
                 "codeDescription": {
-                    "href": f"https://robocop.readthedocs.io/en/{__version__}/rules.html#some-message",
+                    "href": f"https://robocop.readthedocs.io/en/{__version__}/rules_list.html#some-message",
                 },
             },
             {
@@ -133,7 +133,7 @@ class TestAPI:
                 "source": "robocop",
                 "message": "Some description",
                 "codeDescription": {
-                    "href": f"https://robocop.readthedocs.io/en/{__version__}/rules.html#some-message",
+                    "href": f"https://robocop.readthedocs.io/en/{__version__}/rules_list.html#some-message",
                 },
             },
         ]

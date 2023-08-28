@@ -41,11 +41,12 @@ def find_project_root(root, srcs):
     return directory
 
 
-def find_file_in_project_root(config_name, root):
+def find_file_in_project_root(config_name, root, ignore_git_dir: bool):
     for parent in (root, *root.parents):
-        if (parent / ".git").exists() or (parent / config_name).is_file():
+        if (parent / config_name).is_file():
             return parent / config_name
-    return parent / config_name
+        if not ignore_git_dir and (parent / ".git").exists():
+            return None
 
 
 @lru_cache()

@@ -31,14 +31,25 @@ class TestConfigurationFile:
     def test_find_project_root_same_dir(self, path_to_test_data):
         src = path_to_test_data / "default_config"
         with working_directory(src):
-            root = find_file_in_project_root(".robocop", src)
+            root = find_file_in_project_root(".robocop", src, False)
         assert root == src / ".robocop"
 
     def test_find_project_root_missing_but_git(self, path_to_test_data):
         src = path_to_test_data / "default_config_missing" / "nested" / "deeper"
         with working_directory(src):
-            root = find_file_in_project_root(".robocop", src)
-        assert root == Path(__file__).parent.parent.parent / ".robocop"
+            root = find_file_in_project_root(".robocop", src, False)
+        assert root is None
+
+    def test_ignore_git_dir(self, path_to_test_data):
+        src = path_to_test_data / "default_config_outside_git"
+        cwd_src = src / "root"
+        (cwd_src / ".git").mkdir(parents=True, exist_ok=True)
+        with working_directory(cwd_src):
+            config_file_disabled = find_file_in_project_root("pyproject.toml", cwd_src, False)
+            config_file_enabled = find_file_in_project_root("pyproject.toml", cwd_src, True)
+
+        assert config_file_disabled is None
+        assert config_file_enabled == src / "pyproject.toml"
 
     def test_load_config_from_default_file(self, path_to_test_data):
         src = path_to_test_data / "default_config"

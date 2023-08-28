@@ -201,6 +201,7 @@ class Config:
         self.recursive = True
         self.verbose = False
         self.persistent = False
+        self.ignore_git_dir = False
         self.config_from = ""
         self.root = find_project_root(root, ["."])
         self.parse()
@@ -375,6 +376,13 @@ class Config:
         optional.add_argument("-A", "--argumentfile", metavar="PATH", help="Path to file with arguments.")
         optional.add_argument("--config", metavar="PATH", help="Path to TOML configuration file.")
         optional.add_argument(
+            "--ignore-git-dir",
+            action="store_true",
+            default=self.ignore_git_dir,
+            help="Use this flag to continue searching for the default configuration file even if parent directory "
+            "contains '.git' directory. Useful for multirepo.",
+        )
+        optional.add_argument(
             "-g",
             "--ignore",
             action=ParseDelimitedArgAction,
@@ -435,7 +443,7 @@ class Config:
             return
         args = sys.argv[1:]
         if not self.config_file_in_cli(args):
-            self.load_default_config_file()
+            self.load_default_config_file(ignore_git_dir="--ignore-git-dir" in args)
         self.parse_args(args)
 
     @staticmethod
@@ -459,20 +467,20 @@ class Config:
         else:
             print("No config file found or configuration is empty. Using default configuration")
 
-    def load_default_config_file(self):
+    def load_default_config_file(self, ignore_git_dir: bool = False):
         """Find and load default configuration file.
 
         First look for .robocop file. If it does not exist, search for pyproject.toml file."""
-        if self.load_robocop_file():
+        if self.load_robocop_file(ignore_git_dir):
             return
-        pyproject_path = find_file_in_project_root("pyproject.toml", self.root)
-        if pyproject_path.is_file():
+        pyproject_path = find_file_in_project_root("pyproject.toml", self.root, ignore_git_dir)
+        if pyproject_path is not None:
             self.load_pyproject_file(pyproject_path)
 
-    def load_robocop_file(self):
+    def load_robocop_file(self, ignore_git_dir: bool):
         """Returns True if .robocop exists"""
-        robocop_path = find_file_in_project_root(".robocop", self.root)
-        if not robocop_path.is_file():
+        robocop_path = find_file_in_project_root(".robocop", self.root, ignore_git_dir)
+        if robocop_path is None:
             return False
         argument_files_parser = ArgumentFileParser()
         args = argument_files_parser.load_argument_file(robocop_path, robocop_path.parent)

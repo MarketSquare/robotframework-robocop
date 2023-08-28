@@ -2,7 +2,7 @@ from collections import defaultdict
 
 import robocop.reports
 from robocop.rules import Message, RuleSeverity
-from robocop.utils.misc import get_string_diff
+from robocop.utils.misc import get_plural_form, get_string_diff
 
 
 class RulesBySeverityReport(robocop.reports.ComparableReport):
@@ -33,10 +33,6 @@ class RulesBySeverityReport(robocop.reports.ComparableReport):
             "info": self.severity_counter[RuleSeverity.INFO],
         }
 
-    @staticmethod
-    def get_plural(count):
-        return "s" if count != 1 else ""
-
     def get_report(self, prev_results) -> str:
         if self.compare_runs and prev_results:
             return self.get_report_with_compare(prev_results)
@@ -46,10 +42,10 @@ class RulesBySeverityReport(robocop.reports.ComparableReport):
         issues_count = sum(self.severity_counter.values())
         if not issues_count:
             return "\nFound 0 issues."
-        report = f"\nFound {issues_count} issue{self.get_plural(issues_count)}: "
+        report = f"\nFound {issues_count} issue{get_plural_form(issues_count)}: "
         warning_types = []
         for severity, count in self.severity_counter.items():
-            warning_types.append(f"{count} {severity.name}{self.get_plural(count)}")
+            warning_types.append(f"{count} {severity.name}{get_plural_form(count)}")
         report += ", ".join(warning_types)
         report += "."
         return report
@@ -61,11 +57,11 @@ class RulesBySeverityReport(robocop.reports.ComparableReport):
             diff = get_string_diff(prev_issues, issues_count)
             return f"\nFound 0 ({diff}) issues."
         diff = f" ({get_string_diff(prev_results['all_issues'], issues_count)})"
-        report = f"\nFound {issues_count}{diff} issue{self.get_plural(issues_count)}: "
+        report = f"\nFound {issues_count}{diff} issue{get_plural_form(issues_count)}: "
         warning_types = []
         for severity, count in self.severity_counter.items():
             diff = f" ({get_string_diff(prev_results[severity.name.lower()], count)})"
-            warning_types.append(f"{count}{diff} {severity.name}{self.get_plural(count)}")
+            warning_types.append(f"{count}{diff} {severity.name}{get_plural_form(count)}")
         report += ", ".join(warning_types)
         report += "."
         return report

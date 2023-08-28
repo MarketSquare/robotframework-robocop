@@ -4,7 +4,7 @@ import pytest
 
 import robocop.config
 from robocop.checkers import VisitorChecker
-from robocop.rules import Rule, RuleParam, RuleSeverity
+from robocop.rules import Rule, RuleFilter, RuleParam, RuleSeverity
 from robocop.utils import ROBOT_VERSION
 
 TEST_DATA = Path(__file__).parent.parent / "test_data" / "ext_rules"
@@ -71,6 +71,15 @@ def msg_0101():
 
 
 @pytest.fixture
+def community_rule():
+    rules = {
+        "19999": Rule(rule_id="19999", name="community-rule", msg="Some description", severity=RuleSeverity.WARNING)
+    }
+    rules["19999"].community_rule = True
+    return rules
+
+
+@pytest.fixture
 def msg_0102_0204():
     return {
         "0102": Rule(rule_id="0102", name="other-message", msg="""this is description""", severity=RuleSeverity.ERROR),
@@ -102,9 +111,10 @@ def init_empty_checker(robocop_instance_pre_load, rule, exclude=False, **kwargs)
 
 
 class TestListingRules:
-    def test_list_rule(self, robocop_pre_load, msg_0101, capsys):
-        robocop_pre_load.config.list = robocop.config.translate_pattern("*")
+    def test_list_rule(self, robocop_pre_load, msg_0101, community_rule, capsys):
+        robocop_pre_load.config.list = RuleFilter.EMPTY_PATTERN
         init_empty_checker(robocop_pre_load, msg_0101)
+        init_empty_checker(robocop_pre_load, community_rule)
         with pytest.raises(SystemExit):
             robocop_pre_load.list_checkers()
         out, _ = capsys.readouterr()
@@ -208,6 +218,24 @@ class TestListingRules:
         not_exp_msg = "Rule - 0204 [I]: another-message: Message with meaning 4 (disabled)\n"
         assert all(msg in out for msg in exp_msg)
         assert not_exp_msg not in out
+
+    @pytest.mark.parametrize("pattern", [robocop.config.translate_pattern("*"), "ALL"])
+    def test_list_rule_filtered_and_community(self, pattern, robocop_pre_load, msg_0101, community_rule, capsys):
+        robocop_pre_load.config.list = pattern
+        init_empty_checker(robocop_pre_load, msg_0101)
+        init_empty_checker(robocop_pre_load, community_rule)
+        with pytest.raises(SystemExit):
+            robocop_pre_load.list_checkers()
+        out, _ = capsys.readouterr()
+        assert (
+            out == "Rule - 0101 [W]: some-message: Some description (enabled)\n"
+            "Rule - 19999 [W]: community-rule: Some description (enabled)\n\n"
+            "Altogether 2 rules with following severity:\n"
+            "    0 error rules,\n"
+            "    2 warning rules,\n"
+            "    0 info rules.\n\n"
+            "Visit https://robocop.readthedocs.io/en/stable/rules_list.html page for detailed documentation.\n"
+        )
 
     def test_list_configurables(self, robocop_pre_load, msg_0101_config_meta, capsys):
         robocop_pre_load.config.list_configurables = robocop.config.translate_pattern("*")

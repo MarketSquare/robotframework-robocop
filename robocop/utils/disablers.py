@@ -29,13 +29,16 @@ class DisablersInFile:  # pylint: disable=too-few-public-methods
 class DisablersFinder(ModelVisitor):
     """Visit and find robocop disablers in Robot Framework file."""
 
+    ENABLERS = {"enable", "on"}
+    DISABLERS = {"disable", "off"}
+
     def __init__(self, model):
         self.file_disabled = False
         self.keyword_or_test_section = False
         self.last_name_header_line = 0
         self.rules_disabled_in_file = set()
         self.disablers_in_scope = []
-        self.disabler_pattern = re.compile(r"robocop: ?(?P<disabler>disable|enable)=?(?P<rules>[\w\-,]*)")
+        self.disabler_pattern = re.compile(r"robocop: ?(?P<disabler>disable|off|enable|on)=?(?P<rules>[\w\-,]*)")
         self.rules = defaultdict(DisablersInFile().copy)
         self.visit(model)
 
@@ -128,14 +131,14 @@ class DisablersFinder(ModelVisitor):
             rules = ["all"]
         else:
             rules = disabler.group("rules").split(",")
-        if disabler.group("disabler") == "disable":
+        if disabler.group("disabler") in self.DISABLERS:
             for rule in rules:
                 if is_inline:
                     self._add_inline_disabler(rule, token.lineno)
                 else:
                     scope = self.get_scope_for_disabler(token)
                     self._start_block(scope, rule, token.lineno)
-        elif disabler.group("disabler") == "enable" and not is_inline:
+        elif disabler.group("disabler") in self.ENABLERS and not is_inline:
             scope = self.get_scope_for_disabler(token)
             for rule in rules:
                 self._end_block(scope, rule, token.lineno)

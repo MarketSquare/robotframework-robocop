@@ -3,7 +3,7 @@
 Too Long
     Log    1
     Log    2
-# robocop: enable
+# robocop: on
 
 Dummy
     Log    1

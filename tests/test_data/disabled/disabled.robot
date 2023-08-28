@@ -8,5 +8,5 @@ Test 1  # robocop: disable=1010
 
 *** Keywords ***
 Keyword1  # robocop: disable=somerule
-    Log  1  # robocop: disable=test-rule
+    Log  1  # robocop: off=test-rule
     No Operation  # noqa

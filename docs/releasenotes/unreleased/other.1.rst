@@ -9,5 +9,5 @@ Robotidy also supports disablers but using different keywords::
 
     # robotidy:off
 
-We have decided to make it more consistent and use Robotidy ``on`` and ``off`` markers instead of ``enable`` and
-``disable``. Both types of the markers are supported but ``on`` and ``off`` are recommended instead.
+We have decided to make it more consistent and use ``on`` and ``off`` markers (mimicking [Robotidy tool](https://github.com/MarketSquare/robotframework-tidy)) instead of ``enable`` and
+``disable``. Both types of the markers are supported but ``on`` and ``off`` are now recommended.

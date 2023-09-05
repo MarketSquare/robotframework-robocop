@@ -5,7 +5,7 @@ Documentation    doc.
 
 Test Timeout    1 min
 
-# robocop: disable
+# robocop: off
 
 *** Test Cases ***
 No disabler

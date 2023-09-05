@@ -16,6 +16,7 @@ from robocop.reports import is_report_comparable, load_reports_result_from_cache
 from robocop.rules import Message
 from robocop.utils import DisablersFinder, FileType, FileTypeChecker, RecommendationFinder, is_suite_templated
 from robocop.utils.file_types import check_model_type, get_resource_with_lang
+from robocop.utils.misc import ROBOCOP_RULES_URL
 
 
 class Robocop:
@@ -203,7 +204,7 @@ class Robocop:
             f"    {severity_counter['W']} warning rule{'' if severity_counter['W'] == 1 else 's'},\n"
             f"    {severity_counter['I']} info rule{'' if severity_counter['I'] == 1 else 's'}.\n"
         )
-        print("Visit https://robocop.readthedocs.io/en/stable/rules.html page for detailed documentation.")
+        print(f"Visit {ROBOCOP_RULES_URL.format(version='stable')} page for detailed documentation.")
         sys.exit()
 
     def load_reports(self):

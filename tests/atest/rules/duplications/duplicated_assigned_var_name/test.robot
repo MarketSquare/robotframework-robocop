@@ -37,3 +37,10 @@ Keyword4
 Keyword5
     [Arguments]    var
     Log  ${var}
+
+Duplicated With Equal Sign
+    ${duplicate}    ${duplicate}=    Keyword
+
+Non Important Variable
+    ${_}    ${middle}    ${_}    Unpack Tuple
+    ${_}    ${middle}    ${_}=    Unpack Tuple

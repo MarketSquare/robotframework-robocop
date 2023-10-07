@@ -1327,7 +1327,7 @@ class ExpressionsChecker(VisitorChecker):
             self.check_for_complex_condition(condition_token, node_name, before, variable, remaining, position)
             if not before or not remaining:
                 continue
-            if before[-1] in self.QUOTE_CHARS and before[-1] == remaining[0]:
+            if before[-1] in self.QUOTE_CHARS and before[-1] == remaining[0] and not variable.startswith("%"):
                 self.report(
                     "unnecessary-string-conversion",
                     name=variable,

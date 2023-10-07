@@ -1195,13 +1195,13 @@ class UnusedVariablesChecker(VisitorChecker):
             self.report_arg_or_var_rule("argument-overwritten-before-usage", arg.token)
         is_used = False
         if not variable_match.items:  # not item assignment like ${var}[1] =
-            for variable_scope in self.variables[::-1]:
-                if normalized in variable_scope:
-                    is_used = variable_scope[normalized].is_used or is_used
-                    if not variable_scope[normalized].is_used and not self.ignore_overwriting:
-                        self.report_arg_or_var_rule(
-                            "variable-overwritten-before-usage", variable_scope[normalized].token, variable_match.name
-                        )
+            variable_scope = self.variables[-1]
+            if normalized in variable_scope:
+                is_used = variable_scope[normalized].is_used or is_used
+                if not variable_scope[normalized].is_used and not self.ignore_overwriting:
+                    self.report_arg_or_var_rule(
+                        "variable-overwritten-before-usage", variable_scope[normalized].token, variable_match.name
+                    )
         if self.in_loop:
             variable = CachedVariable(variable_match.name, token, is_used)
         else:

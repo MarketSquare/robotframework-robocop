@@ -57,6 +57,9 @@ provided using CLI, Robocop will try to find default configuration file using th
 - otherwise, if the directory contains ``pyproject.toml`` file, load it
 - otherwise, go to parent directory. Stop search if ``.git`` or top disk directory is found
 
+It is possible to not stop searching parent directories even if ``.git`` directory is found using
+``--ignore-git-dir`` flag.
+
 ``.robocop`` argument file
 --------------------------
 

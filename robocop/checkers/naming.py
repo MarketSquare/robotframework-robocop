@@ -898,13 +898,18 @@ class TestCaseNamingChecker(VisitorChecker):
     def visit_TestCase(self, node):  # noqa
         if not node.name:
             self.report("test-case-name-is-empty", node=node)
-        elif not node.name[0].isupper():
-            self.report(
-                "not-capitalized-test-case-title",
-                test_name=node.name,
-                node=node,
-                end_col=node.col_offset + len(node.name) + 1,
-            )
+        else:
+            for c in node.name:
+                if not c.isalpha():
+                    continue
+                if not c.isupper():
+                    self.report(
+                        "not-capitalized-test-case-title",
+                        test_name=node.name,
+                        node=node,
+                        end_col=node.col_offset + len(node.name) + 1,
+                    )
+                break
 
 
 class VariableNamingChecker(VisitorChecker):

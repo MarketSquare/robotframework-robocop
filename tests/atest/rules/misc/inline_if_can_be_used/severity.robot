@@ -1,7 +1,7 @@
 *** Test Cases ***
 Short IF
     IF    $condition
-        ${var}  Keyword    ${var}
+        Keyword    ${var}
     END
 
 IF with ELSE and ELSE IF

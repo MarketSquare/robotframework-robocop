@@ -43,6 +43,13 @@ class TestFileStatReport:
                 True,
                 "\nProcessed 10 (+8) files but no issues were found. Previously there were 2 files with issues.",
             ),
+            (
+                {"files_count": 2, "files_with_issues": 1},
+                10,
+                set(),
+                True,
+                "\nProcessed 10 (+8) files but no issues were found. Previously there was 1 file with issues.",
+            ),
             (None, 10, set(), False, "\nProcessed 10 files but no issues were found."),
             ({}, 10, set(), False, "\nProcessed 10 files but no issues were found."),
             (

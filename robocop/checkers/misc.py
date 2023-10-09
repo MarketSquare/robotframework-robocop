@@ -98,7 +98,7 @@ rules = {
         name="if-can-be-used",
         msg="'{{ run_keyword }}' can be replaced with IF block since Robot Framework 4.0",
         severity=RuleSeverity.INFO,
-        version=">=4",
+        version="==4.*",
         docs="""
         Starting from Robot Framework 4.0 ``Run Keyword If`` and ``Run Keyword Unless`` can be replaced by IF block.
         """,
@@ -407,6 +407,10 @@ rules = {
                 FOR    ${_}   IN RANGE    10
                     Process Value    ${value}
                 END
+
+        Note that some keywords may use your local variables even if you don't pass them directly. For example
+        BuiltIn ``Replace Variables`` or any custom keyword that retrieves variables from local scope. In such case
+        Robocop will still raise ``unused-variable`` even if variable is used.
 
     """,
         added_in_version="3.2.0",
@@ -941,7 +945,9 @@ class IfChecker(VisitorChecker):
             return
         if (
             len(node.body) != 1
-            or node.orelse
+            or node.orelse  # TODO it could still report with orelse? if short enough
+            # IF with one branch and assign require ELSE to be valid, better to ignore it
+            or getattr(node.body[0], "assign", None)
             or not isinstance(node.body[0], (KeywordCall, ReturnStatement, Break, Continue))  # type: ignore[arg-type]
         ):
             return
@@ -1327,7 +1333,7 @@ class ExpressionsChecker(VisitorChecker):
             self.check_for_complex_condition(condition_token, node_name, before, variable, remaining, position)
             if not before or not remaining:
                 continue
-            if before[-1] in self.QUOTE_CHARS and before[-1] == remaining[0]:
+            if before[-1] in self.QUOTE_CHARS and before[-1] == remaining[0] and not variable.startswith("%"):
                 self.report(
                     "unnecessary-string-conversion",
                     name=variable,

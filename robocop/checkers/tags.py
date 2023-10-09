@@ -63,6 +63,7 @@ rules = {
             - robot:skip
             - robot:skip-on-failure
             - robot:stop-on-failure
+            - robot:recursive-stop-on-failure
             - robot:exclude
             - robot:private
 
@@ -232,6 +233,7 @@ class TagNameChecker(VisitorChecker):
         "robot:skip",
         "robot:skip-on-failure",
         "robot:stop-on-failure",
+        "robot:recursive-stop-on-failure",
         "robot:exclude",
         "robot:private",
     }

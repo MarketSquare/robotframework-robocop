@@ -941,7 +941,9 @@ class IfChecker(VisitorChecker):
             return
         if (
             len(node.body) != 1
-            or node.orelse
+            or node.orelse  # TODO it could still report with orelse? if short enough
+            # IF with one branch and assign require ELSE to be valid, better to ignore it
+            or getattr(node.body[0], "assign", None)
             or not isinstance(node.body[0], (KeywordCall, ReturnStatement, Break, Continue))  # type: ignore[arg-type]
         ):
             return

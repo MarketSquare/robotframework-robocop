@@ -4,6 +4,7 @@ Duplications checkers
 from collections import defaultdict
 
 from robot.api import Token
+from robot.variables.search import search_variable
 
 from robocop.checkers import VisitorChecker
 from robocop.rules import Rule, RuleParam, RuleSeverity
@@ -238,6 +239,14 @@ rules = {
             Test
                 ${var}  ${VAR}  ${v_ar}  ${v ar}  Keyword
         
+        It is possible to use `${_}` to note that variable name is not important and will not be used::
+        
+            *** Keywords ***
+            Get Middle Element
+                [Arguments]    ${list}
+                ${_}    ${middle}    ${_}    Split List    ${list}
+                RETURN    ${middle}
+
         """,
         added_in_version="1.12.0",
     ),
@@ -341,11 +350,14 @@ class DuplicationsChecker(VisitorChecker):
         assign = node.get_tokens(Token.ASSIGN)
         seen = set()
         for var in assign:
-            name = normalize_robot_var_name(var.value)
+            var_name, *_ = var.value.split("=", maxsplit=1)
+            name = normalize_robot_var_name(var_name)
+            if not name:  # ie. "${_}" -> ""
+                return
             if name in seen:
                 self.report(
                     "duplicated-assigned-var-name",
-                    variable_name=var.value,
+                    variable_name=var_name,
                     node=node,
                     lineno=var.lineno,
                     col=var.col_offset + 1,

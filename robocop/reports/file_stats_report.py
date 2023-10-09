@@ -39,24 +39,26 @@ class FileStatsReport(robocop.reports.ComparableReport):
         return self.get_report_without_compare()
 
     def get_report_with_compare(self, prev_results: Dict) -> str:
-        if not self.files_count:
-            files_count = prev_results["files_count"]
-            return (
-                f"\nNo files were processed. "
-                f"Previously {files_count} file{self.get_plural(files_count)} were processed."
-            )
         plural_files = self.get_plural(self.files_count)
-        prev_files = prev_results["files_count"]
-        prev_count = f" ({get_string_diff(prev_files, self.files_count)})"
+        prev_files_count = prev_results["files_count"]
+        prev_files_with_issues = prev_results["files_with_issues"]
+        if not self.files_count:
+            if prev_files_count == 1:
+                return "\nNo files were processed. Previously 1 file was processed."
+            else:
+                return f"\nNo files were processed. Previously {prev_files_count} files were processed."
+        prev_count = f" ({get_string_diff(prev_files_count, self.files_count)})"
         processed_files_summary = f"\nProcessed {self.files_count}{prev_count} file{plural_files}"
         if not self.files_with_issues:
-            return (
-                f"{processed_files_summary} but no issues were found. "
-                f"Previously there were {prev_results['files_with_issues']} files with issues."
-            )
+            if prev_files_with_issues == 1:
+                return f"{processed_files_summary} but no issues were found. Previously there was 1 file with issues."
+            else:
+                return (
+                    f"{processed_files_summary} but no issues were found. "
+                    f"Previously there were {prev_files_with_issues} files with issues."
+                )
         plural_files_with_issues = self.get_plural(len(self.files_with_issues))
-        prev_files = prev_results["files_with_issues"]
-        prev_count = f" ({get_string_diff(prev_files, len(self.files_with_issues))})"
+        prev_count = f" ({get_string_diff(prev_files_with_issues, len(self.files_with_issues))})"
         return (
             f"{processed_files_summary} from which {len(self.files_with_issues)}{prev_count} "
             f"file{plural_files_with_issues} contained issues."

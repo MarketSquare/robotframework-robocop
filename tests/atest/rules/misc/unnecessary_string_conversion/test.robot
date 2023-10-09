@@ -41,3 +41,8 @@ Keywords With Conditions
     Should Not Be True    $variable == "word"
     Should Not Be True    '''${variable}''' == "word"
     Skip If    "${variable}" == "word"
+
+Environment Variable
+    IF    ""%{ENV_VAR}""
+        Log    Such variable is always string and there is no conversion.
+    END

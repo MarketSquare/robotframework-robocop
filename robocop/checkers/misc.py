@@ -408,6 +408,10 @@ rules = {
                     Process Value    ${value}
                 END
 
+        Note that some keywords may use your local variables even if you don't pass them directly. For example
+        BuiltIn ``Replace Variables`` or any custom keyword that retrieves variables from local scope. In such case
+        Robocop will still raise ``unused-variable`` even if variable is used.
+
     """,
         added_in_version="3.2.0",
     ),

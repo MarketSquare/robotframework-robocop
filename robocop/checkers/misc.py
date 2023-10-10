@@ -210,7 +210,7 @@ rules = {
             @{MULTILINE_FIRST_EMPTY}
             ...                               # missing value
             ...  value
-            ${EMPTY_WITH_BACKSLASH}  \        # used backslash
+            ${EMPTY_WITH_BACKSLASH}  \\       # used backslash
 
         """,
         added_in_version="1.10.0",
@@ -1234,13 +1234,11 @@ class UnusedVariablesChecker(VisitorChecker):
                     unescaped = unescape(value)
                     self.find_not_nested_variable(unescaped, is_var=False)
             return
-        remaining = ""
+        replaced, remaining = "", ""
         for before, variable, remaining in variables:
-            if before:
-                if "$" in before:
-                    self.find_escaped_variables(before)
-                elif is_var:  # ${test.kws[0].msgs[${index}]}
-                    self.update_used_variables(before)
+            replaced += f"{before}placeholder${remaining}"
+            if before and "$" not in before and is_var:  # ${test.kws[0].msgs[${index}]}
+                self.update_used_variables(before)
             # handle ${variable}[item][${syntax}]
             match = search_variable(variable, ignore_errors=True)
             if match.base and match.base.startswith("{") and match.base.endswith("}"):  # inline val
@@ -1249,11 +1247,11 @@ class UnusedVariablesChecker(VisitorChecker):
                 self.find_not_nested_variable(match.base, is_var=True)
             for item in match.items:
                 self.find_not_nested_variable(item, is_var=False)
-        if remaining:
-            if "$" in remaining:
-                self.find_escaped_variables(remaining)
-            elif is_var:  # ${test.kws[0].msgs[${index}]}
-                self.update_used_variables(remaining)
+        if not replaced:
+            print()
+        self.find_escaped_variables(replaced)
+        if remaining and "$" not in remaining and is_var:  # ${test.kws[0].msgs[${index}]}
+            self.update_used_variables(remaining)
 
     def find_escaped_variables(self, value):
         """Find all $var escaped variables in the value string and process them."""

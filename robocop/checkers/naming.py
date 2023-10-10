@@ -48,7 +48,7 @@ rules = {
 
             robocop --configure not-allowed-char-in-name:pattern:regex_pattern
 
-        ``regex_pattern`` should define regex pattern not allowed in names. For example ``[@\[]`` pattern
+        ``regex_pattern`` should define regex pattern not allowed in names. For example ``[@\\[]`` pattern
         would report any occurrence of ``@[`` characters.
         """,
     ),
@@ -97,7 +97,8 @@ rules = {
         The rule also accepts another parameter ``pattern`` which can be used to configure words
         that are accepted in the keyword name, even though they violate the case convention.
 
-        ``pattern`` parameter accepts a regex pattern. For example, configuring it to ``robocop\.readthedocs\.io`` would make such keyword legal::
+        ``pattern`` parameter accepts a regex pattern. For example, configuring it to ``robocop\\.readthedocs\\.io``
+        would make such keyword legal::
 
             Go To robocop.readthedocs.io Page
         """,
@@ -435,8 +436,8 @@ rules = {
 
              robocop --configure not-allowed-char-in-filename:pattern:regex_pattern .
 
-        where ``regex_pattern`` should define regex pattern for characters not allowed in names. For example `[@\[]` pattern
-        would report any occurrence of ``@[`` characters.
+        where ``regex_pattern`` should define regex pattern for characters not allowed in names. For example `[@\\[]`
+        pattern would report any occurrence of ``@[`` characters.
         """,
     ),
     "0321": Rule(

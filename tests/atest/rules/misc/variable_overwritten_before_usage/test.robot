@@ -24,7 +24,7 @@ Overwritten In FOR
     END
 
 Defined In Both IF Branches
-    ${overwritten}    Keyword  # should be reported
+    ${overwritten}    Keyword
     IF   $required is None
         ${longitude}=    Create Dictionary    key=longitude    type=float    required=${None}  # should not be reported
     ELSE
@@ -108,3 +108,11 @@ Keyword With Dict And List Item Assignments
 
 Invalid Item Assignment
     ${DICTIONARY    Create Dictionary    first_name=John
+
+Overwritten In IF
+    ${variable}    Set Variable    default value
+    IF    ${TRUE}
+        ${variable}    Set Variable    special value
+    ELSE
+        ${variable}    Set Variable    special value
+    END

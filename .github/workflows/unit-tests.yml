@@ -35,7 +35,7 @@ jobs:
             python-version: '3.11'
             rf-version: 'rf-stable5'
           - os: 'ubuntu-latest'
-            python-version: '3.11'
+            python-version: '3.12'
             rf-version: 'rf-stable6'
           - os: 'windows-latest'
             python-version: '3.11'

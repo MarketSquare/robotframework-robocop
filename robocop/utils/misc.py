@@ -321,7 +321,7 @@ def find_escaped_variables(string):
                 if toknum == python_token.NAME:
                     variables.append(tokval)
                 variable_started = False
-            if toknum == python_token.ERRORTOKEN and tokval == "$":
+            if tokval == "$":
                 variable_started = True
     except tokenize.TokenError:
         pass

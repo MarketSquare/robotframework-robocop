@@ -21,7 +21,7 @@ jobs:
           pip install .[dev]
 
       - name: Run robocop
-        run: python -m robocop --verbose --reports sarif,rules_by_id --include *comment*  -c return_status:quality_gate:E=1:W=-1:I=-1 tests/atest/rules/comments/missing-space-after-comment/
+        run: python -m robocop --verbose --reports sarif,rules_by_id --include *comment*  -c return_status:quality_gate:E=1:W=-1:I=-1 tests/atest/rules/comments/missing_space_after_comment/
 
       - name: Upload SARIF file
         uses: github/codeql-action/upload-sarif@v2

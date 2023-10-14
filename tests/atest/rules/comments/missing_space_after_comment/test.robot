@@ -68,3 +68,4 @@ Double comments
     ########### block comments #########
     Keyword  # valid  still valid  with 2 spaces
     Keyword  # valid  ## valid
+    Keyword  #invalid comment

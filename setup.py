@@ -57,7 +57,7 @@ setup(
         "tomli>=2.0.0",
         "pytz>=2022.7",
         "python-dateutil>=2.8.2",
-        "platformdirs>=3.2.0,<3.9.0",
+        "platformdirs>=3.2.0,<3.12.0",
     ],
     extras_require={
         "dev": [

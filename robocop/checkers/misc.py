@@ -3,6 +3,7 @@ Miscellaneous checkers
 """
 from dataclasses import dataclass
 from pathlib import Path
+from typing import Optional
 
 from robot.api import Token
 from robot.errors import VariableError
@@ -1071,6 +1072,9 @@ class UnusedVariablesChecker(VisitorChecker):
         for scope in self.variables:
             for variable in scope.values():
                 if not variable.is_used:
+                    match = search_variable(variable.name, ignore_errors=True)
+                    # check if by removing possible attribute access like .lower(), .x we can find the variable in current scope
+                    # mark it as used if found
                     self.report_arg_or_var_rule("unused-variable", variable.token, variable.name)
 
     def report_arg_or_var_rule(self, rule, token, value=None):
@@ -1203,11 +1207,18 @@ class UnusedVariablesChecker(VisitorChecker):
         if not variable_match.items:  # not item assignment like ${var}[1] =
             variable_scope = self.variables[-1]
             if normalized in variable_scope:
-                is_used = variable_scope[normalized].is_used or is_used
+                is_used = variable_scope[normalized].is_used
                 if not variable_scope[normalized].is_used and not self.ignore_overwriting:
                     self.report_arg_or_var_rule(
                         "variable-overwritten-before-usage", variable_scope[normalized].token, variable_match.name
                     )
+            else:  # check for attribute access like .lower() or .x
+                for variable_scope in self.variables[::-1]:
+                    base_name = self.search_by_removing_attr_access(normalized, variable_scope)
+                    if base_name is not None:
+                        variable_scope[base_name].is_used = True
+                        self.variables[-1][normalized] = CachedVariable(variable_match.name, token, True)
+                        return
         if self.in_loop:
             variable = CachedVariable(variable_match.name, token, is_used)
         else:
@@ -1247,8 +1258,6 @@ class UnusedVariablesChecker(VisitorChecker):
                 self.find_not_nested_variable(match.base, is_var=True)
             for item in match.items:
                 self.find_not_nested_variable(item, is_var=False)
-        if not replaced:
-            print()
         self.find_escaped_variables(replaced)
         if remaining and "$" not in remaining and is_var:  # ${test.kws[0].msgs[${index}]}
             self.update_used_variables(remaining)
@@ -1270,7 +1279,7 @@ class UnusedVariablesChecker(VisitorChecker):
         """
         normalized = normalize_robot_name(variable_name)
         arg = self.arguments.pop(normalized, None)
-        if arg is None:
+        if arg is None and self.arguments:
             self.search_by_removing_attr_access(normalized, self.arguments)
         for variable_scope in self.variables[::-1]:
             if normalized in variable_scope:
@@ -1279,7 +1288,7 @@ class UnusedVariablesChecker(VisitorChecker):
                 self.search_by_removing_attr_access(normalized, variable_scope)
 
     @staticmethod
-    def search_by_removing_attr_access(variable_name, variable_scope):
+    def search_by_removing_attr_access(variable_name, variable_scope) -> Optional[str]:
         """Search and remove variables from variable_scope by removing attribute access elements from the name."""
         for attr_access in (".", "[", "(", "%", "+", "-", "*", "/"):  # ${arg.attr}
             if attr_access in variable_name:
@@ -1287,7 +1296,8 @@ class UnusedVariablesChecker(VisitorChecker):
                 name = name.strip()
                 if name in variable_scope:
                     variable_scope[name].is_used = True
-                    return
+                    return name
+        return None
 
 
 class ExpressionsChecker(VisitorChecker):

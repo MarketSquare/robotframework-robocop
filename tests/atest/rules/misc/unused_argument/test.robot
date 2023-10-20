@@ -171,3 +171,21 @@ While Limit
 Variable Used Next to Other
     [Arguments]    ${file_location}
     Log To Console    message=${file_location}${/}filename
+
+Prepare Item With Attribute
+    ${item}    Get Item
+    ${item.x}    Set Variable    abc
+    RETURN    ${item}
+
+Update Item With Attribute
+    ${item}    Get Item
+    ${item.x}    Set Variable    abc
+
+Use Item With Attribute
+    ${item}    Prepare Item
+    Log    ${item.x}
+
+Use Item With Method
+    ${string}    Set Variable    string
+    ${lower_string}    Set Variable    ${string.lower()}
+    Log    ${lower_string}

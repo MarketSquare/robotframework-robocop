@@ -91,3 +91,21 @@ Test With Dict And List Item Assignments
 
 Invalid Item Assignment
     ${DICTIONARY    Create Dictionary    first_name=John
+
+Prepare Item With Attribute
+    ${item}    Get Item
+    ${item.x}    Set Variable    abc
+    RETURN    ${item}
+
+Update Item With Attribute
+    ${item}    Get Item
+    ${item.x}    Set Variable    abc
+
+Use Item With Attribute
+    ${item}    Prepare Item
+    Log    ${item.x}
+
+Use Item With Method
+    ${string}    Set Variable    string
+    ${lower_string}    Set Variable    ${string.lower()}
+    Log    ${lower_string}

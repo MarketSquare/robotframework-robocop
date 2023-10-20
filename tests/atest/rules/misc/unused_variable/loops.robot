@@ -36,3 +36,15 @@ Keyword With FOR
         ${variable}    Get New Value
     END
 
+Used variable from arguments
+    [Arguments]    ${counter}
+    WHILE    ${counter} < 10
+        Log To Console    ${counter}
+        ${counter}    Evaluate    ${counter} + 1
+    END
+
+Used variable from arguments 2
+    [Arguments]    ${counter}
+    WHILE    ${counter} < 10
+        Log    Used only in condition.
+    END

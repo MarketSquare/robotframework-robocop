@@ -3,7 +3,7 @@ Miscellaneous checkers
 """
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Optional
+from typing import Dict, Optional
 
 from robot.api import Token
 from robot.errors import VariableError
@@ -1200,10 +1200,13 @@ class UnusedVariablesChecker(VisitorChecker):
         normalized = normalize_robot_name(variable_match.base)
         if not normalized:  # ie. "${_}" -> ""
             return
-        arg = self.arguments.pop(normalized, None)
+        arg = self.arguments.get(normalized, None)
         if arg is not None:
-            self.report_arg_or_var_rule("argument-overwritten-before-usage", arg.token)
-        is_used = False
+            if not arg.is_used:
+                self.report_arg_or_var_rule("argument-overwritten-before-usage", arg.token)
+            arg.is_used = is_used = True
+        else:
+            is_used = False
         if not variable_match.items:  # not item assignment like ${var}[1] =
             variable_scope = self.variables[-1]
             if normalized in variable_scope:
@@ -1278,14 +1281,18 @@ class UnusedVariablesChecker(VisitorChecker):
           arg["value"] -> arg
         """
         normalized = normalize_robot_name(variable_name)
-        arg = self.arguments.pop(normalized, None)
-        if arg is None and self.arguments:
-            self.search_by_removing_attr_access(normalized, self.arguments)
+        self._set_variable_as_used(normalized, self.arguments)
         for variable_scope in self.variables[::-1]:
-            if normalized in variable_scope:
-                variable_scope[normalized].is_used = True
-            else:
-                self.search_by_removing_attr_access(normalized, variable_scope)
+            self._set_variable_as_used(normalized, variable_scope)
+
+    def _set_variable_as_used(self, normalized_name: str, variable_scope: Dict[str, CachedVariable]) -> None:
+        """
+        If variable is found in variable_scope, set it as used.
+        """
+        if normalized_name in variable_scope:
+            variable_scope[normalized_name].is_used = True
+        else:
+            self.search_by_removing_attr_access(normalized_name, variable_scope)
 
     @staticmethod
     def search_by_removing_attr_access(variable_name, variable_scope) -> Optional[str]:

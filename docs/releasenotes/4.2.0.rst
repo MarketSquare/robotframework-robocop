@@ -40,11 +40,9 @@ ${_}  ${middle}  ${_}    Unpack Variable    ${variable}
 duplicated-assigned-var-name now works with assignment sign
 -----------------------------------------------------------
 
-`duplicated-assigned-var-name` is now parsing assignment sign (``=``) correctly:
+`duplicated-assigned-var-name` is now parsing assignment sign (``=``) correctly::
 
-```
-${duplicate}    ${duplicate}=    Set Variables
-```
+    ${duplicate}    ${duplicate}=    Set Variables
 
 Missing reserved tag in tag-with-reserved-word (#953)
 -----------------------------------------------------
@@ -55,16 +53,14 @@ variable-overwritten-before-usage should not be raised if overridden in an IF bl
 ------------------------------------------------------------------------------------------
 
 W0922 ``variable-overwritten-before-usage`` warns if the variable was overwritten before first use. It should now
-ignore cases where the variable was initiated and then conditionally overriden in a IF block:
+ignore cases where the variable was initiated and then conditionally overriden in a IF block::
 
-```
-Conditionally Overriden Variable
-    ${output}  Set Variable  default_value
-    IF    os.path.isdir("/special_dir")
-        ${output}  Set Variable  special_value  # it will not be reported from now on
-    END
-    RETURN    ${output}
-```
+    Conditionally Overriden Variable
+        ${output}  Set Variable  default_value
+        IF    os.path.isdir("/special_dir")
+            ${output}  Set Variable  special_value  # it will not be reported from now on
+        END
+        RETURN    ${output}
 
 Such cases could be also handled better by using `IF` with `ELSE` branch or `Set Variable If`. However, in more
 complicated case this rule produced lot of additional unnecessary reports and this fix should help with it.
@@ -80,37 +76,33 @@ inline-if-can-be-used should not suggest using invalid syntax (#951)
 -----------------------------------------------------------------------------------
 
 I0916 ``inline-if-can-be-used`` recommended to convert short `IF` to inline `IF` even if it was not possible without
-adding additional code. See example:
+adding additional code. See example::
 
-```
-*** Keywords ***
-Set Variable On Flag Value
-    [Arguments]    ${flag}
-    # ${var} value will be set to `1` only if ${flag} is True
-    IF    $flag
-        ${var}    Set Variable    1
-    END
-
-    # ${var} will be `1` if ${flag} is True and `None` otherwise - which may be unexpected
-    ${var}    IF    $flag    Set Variable    1
-
-    # previous example 'fixed' to work the same as IF block
-    ${var}    IF    $flag    Set Variable    1    ELSE    Set Variable    ${var}
-```
+    *** Keywords ***
+    Set Variable On Flag Value
+        [Arguments]    ${flag}
+        # ${var} value will be set to `1` only if ${flag} is True
+        IF    $flag
+            ${var}    Set Variable    1
+        END
+    
+        # ${var} will be `1` if ${flag} is True and `None` otherwise - which may be unexpected
+        ${var}    IF    $flag    Set Variable    1
+    
+        # previous example 'fixed' to work the same as IF block
+        ${var}    IF    $flag    Set Variable    1    ELSE    Set Variable    ${var}
 
 Because of that ``inline-if-can-be-used`` will no longer recommend to convert `IF` blocks with assignments to `Inline IF`.
 
 not-capitalized-test-case-title should ignore non letters (#948)
 ----------------------------------------------------------------
 
-W0308 ``not-capitalized-test-case-title`` was also reporting if the test case started with character other than letter:
+W0308 ``not-capitalized-test-case-title`` was also reporting if the test case started with character other than letter::
 
-```
-15 - Test case with test identifier
-    Prepare
-    Run
-    Assert
-```
+    15 - Test case with test identifier
+        Prepare
+        Run
+        Assert
 
 It should now properly check if first letter found in the test case name (ignoring other characters) is capitalized.
 
@@ -142,23 +134,21 @@ Variables with attribute access detected as unused (#971)
 ---------------------------------------------------------
 
 Arguments and variables could be reported as unused with W0919 ``unused-argument`` or I0920 ``unused-variable``
-if they were used with attribute access:
+if they were used with attribute access::
 
-```
-*** Keywords ***
-Use Item With Attribute
-    ${item}    Prepare Item
-    Log    ${item.x}
-
-Update Item With Attribute
-    ${item}    Get Item
-    ${item.x}    Set Variable    abc  # overwriting attribute should also count as using the variable
-
-Use Item With Method
-    ${string}    Set Variable    string
-    ${lower_string}    Set Variable    ${string.lower()}
-    Log    ${lower_string}
-```
+    *** Keywords ***
+    Use Item With Attribute
+        ${item}    Prepare Item
+        Log    ${item.x}
+    
+    Update Item With Attribute
+        ${item}    Get Item
+        ${item.x}    Set Variable    abc  # overwriting attribute should also count as using the variable
+    
+    Use Item With Method
+        ${string}    Set Variable    string
+        ${lower_string}    Set Variable    ${string.lower()}
+        Log    ${lower_string}
 
 It should now be fixed. However our variable with attributes handling will be soon refactored to avoid similar cases
 in the future - please report any false positive errors you may encounter.
@@ -166,19 +156,16 @@ in the future - please report any false positive errors you may encounter.
 Loop variable from keyword argument marked as unused (#868)
 -----------------------------------------------------------
 
-If the loop variable originated from the keyword arguments, it was not marked as used:
+If the loop variable originated from the keyword arguments, it was not marked as used::
 
-```
-*** Keywords ***
-Unused Variable Rule Validation
-    [Documentation]    doc
-    [Arguments]    ${counter}
-    WHILE    ${counter} < 10
-        Log To Console    ${counter}
-        ${counter}    Evaluate    ${counter} + 1
-    END
-
-```
+    *** Keywords ***
+    Unused Variable Rule Validation
+        [Documentation]    doc
+        [Arguments]    ${counter}
+        WHILE    ${counter} < 10
+            Log To Console    ${counter}
+            ${counter}    Evaluate    ${counter} + 1
+        END
 
 Other features
 ==============

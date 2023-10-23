@@ -189,3 +189,7 @@ Use Item With Method
     ${string}    Set Variable    string
     ${lower_string}    Set Variable    ${string.lower()}
     Log    ${lower_string}
+
+Used In String Literal
+    [Arguments]    ${used}    ${unused}
+    Log  ${used} unused

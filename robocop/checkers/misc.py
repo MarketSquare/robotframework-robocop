@@ -1250,7 +1250,7 @@ class UnusedVariablesChecker(VisitorChecker):
             return
         replaced, remaining = "", ""
         for before, variable, remaining in variables:
-            replaced += f"{before}placeholder${remaining}"
+            replaced += f"{before}placeholder{remaining}"
             if before and "$" not in before and is_var:  # ${test.kws[0].msgs[${index}]}
                 self.update_used_variables(before)
             # handle ${variable}[item][${syntax}]

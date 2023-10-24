@@ -193,3 +193,10 @@ Use Item With Method
 Used In String Literal
     [Arguments]    ${used}    ${unused}
     Log  ${used} unused
+
+Loop Header From Arguments And Global Count
+    [Arguments]    ${list}
+    FOR    ${item}    IN    @{list}
+        Set To Dictionary    ${item}    displayOrder=${count}
+        ${count}    Evaluate    ${count} + 1
+    END

@@ -48,3 +48,10 @@ Used variable from arguments 2
     WHILE    ${counter} < 10
         Log    Used only in condition.
     END
+
+Loop Header From Arguments And Global Count
+    [Arguments]    ${list}
+    FOR    ${item}    IN    @{list}
+        Set To Dictionary    ${item}    displayOrder=${count}
+        ${count}    Evaluate    ${count} + 1
+    END

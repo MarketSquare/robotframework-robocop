@@ -4,3 +4,5 @@ test.robot:22:5:22:11 [I] 0920 Variable '${var}' is assigned but not used
 test.robot:30:5:30:14 [I] 0920 Variable '${assign}' is assigned but not used
 test.robot:41:12:41:18 [I] 0920 Variable '${var}' is assigned but not used
 test.robot:67:12:67:23 [I] 0920 Variable '${category}' is assigned but not used
+test.robot:115:5:115:11 [I] 0920 Variable '${var}' is assigned but not used
+test.robot:118:5:118:14 [I] 0920 Variable '${assign}' is assigned but not used

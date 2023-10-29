@@ -109,3 +109,10 @@ Use Item With Method
     ${string}    Set Variable    string
     ${lower_string}    Set Variable    ${string.lower()}
     Log    ${lower_string}
+
+Inline If - Overwritten Variable
+    ${var}    Set Variable    default
+    ${var}    IF    condition    Use    ${var}
+
+InlineIf - Assign With The Same Name As Arg
+    ${assign}    IF    condition    Do Nothing    ELSE    Use    ${assign}

@@ -118,14 +118,14 @@ class RuleAcceptance:
         if actual != expected:
             missing_expected = sorted(set(actual) - set(expected))
             missing_actual = sorted(set(expected) - set(actual))
-            present_in_actual = "\n    ".join(missing_expected)
-            present_in_expected = "\n    ".join(missing_actual)
-            raise AssertionError(
-                "Actual issues are different than expected.\n"
-                f"Actual issues not found in expected:\n    {present_in_actual}"
-                f"\n\nExpected issues not found in actual:\n    {present_in_expected}"
-            )
-        assert actual == expected, f"{actual} != {expected}"
+            error = "Actual issues are different than expected.\n"
+            if missing_expected:
+                present_in_actual = "\n    ".join(missing_expected)
+                error += f"Actual issues not found in expected:\n    {present_in_actual}\n\n"
+            if missing_actual:
+                present_in_expected = "\n    ".join(missing_actual)
+                error += f"Expected issues not found in actual:\n    {present_in_expected}"
+            pytest.fail(error, pytrace=False)
 
     def get_issue_format(self, issue_format):
         if issue_format == "default":

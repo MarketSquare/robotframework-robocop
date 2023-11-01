@@ -1,7 +1,7 @@
 Inline If with assign variables handling variables in invalid order (#987)
 ---------------------------------------------------------------------------
 
-Inline If did not properly recognized that variables were used inside if loop before assigning return value.
+"Inline If" did not properly recognize that variables were used inside "if statement" before assigning return value.
 Following code::
 
     *** Keywords ***

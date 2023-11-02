@@ -48,3 +48,20 @@ Overwritten In Try As
 Errors In Arguments
     [Arguments]    ${argument} = value
     Log    ${argument}
+
+Overwritten In Inline IF
+    [Arguments]    ${arg}
+    ${arg}    IF  ${CONDITION}  Replace String  ${arg}  TAG  ${CONDITION_TAG}
+
+Overwritten In Inline IF ELSE
+    [Arguments]    ${arg}
+    ${arg}    IF  ${CONDITION}  Do Nothing  ELSE  Replace String  ${arg}  TAG  ${CONDITION_TAG}
+
+Overwritten In Inline IF ELSE IF
+    [Arguments]    ${arg}
+    ${arg}    IF  ${CONDITION}  Do Nothing  ELSE IF  ${OTHER}  Replace String  ${arg}  TAG  ${CONDITION_TAG}
+
+Overwritten In Inline IF - Just Variable
+    [Documentation]    Should not raise anything - it is not argument
+    ${variable}    Set Variable    default value
+    ${variable}    IF  ${CONDITION}  Replace String  ${variable}  TAG  ${CONDITION_TAG}

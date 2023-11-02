@@ -15,3 +15,6 @@ class TestRuleAcceptance(RuleAcceptance):
             issue_format="end_col",
             target_version=">=5",
         )
+
+    def test_rule_inline_if(self):
+        self.check_rule(src_files=["inline_if.robot"], expected_file=None, target_version=">=4")

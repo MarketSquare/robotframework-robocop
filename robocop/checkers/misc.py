@@ -1117,14 +1117,14 @@ class UnusedVariablesChecker(VisitorChecker):
             return node
         for token in node.header.get_tokens(Token.ARGUMENT):
             self.find_not_nested_variable(token.value, is_var=False)
-        for token in node.header.get_tokens(Token.ASSIGN):
-            self.handle_assign_variable(token)
         self.variables.append({})
         for item in node.body:
             self.visit(item)
         self.variables.pop()
         if node.orelse:
             self.visit(node.orelse)
+        for token in node.header.get_tokens(Token.ASSIGN):
+            self.handle_assign_variable(token)
 
     def clear_variables_after_loop(self):
         """Remove used variables after loop finishes."""

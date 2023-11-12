@@ -7,12 +7,12 @@ nox.options.sessions = [
 
 
 def install_dev_deps(session, robot_major_ver):
-    session.install("-r", f"tests/packages/rf-stable{robot_major_ver}/requirements.txt")
+    session.install("-r", f"tests/rf_versions_matrix/requirements_{robot_major_ver}.txt")
     session.install(".[dev]")
 
 
 def install_doc_deps(session, robot_major_ver):
-    session.install("-r", f"tests/packages/rf-stable{robot_major_ver}/requirements.txt")
+    session.install("-r", f"tests/rf_versions_matrix/requirements_{robot_major_ver}.txt")
     session.install(".[doc]")
 
 

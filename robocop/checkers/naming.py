@@ -10,7 +10,6 @@ from robot.api import Token
 from robot.errors import VariableError
 from robot.parsing.model.blocks import TestCaseSection
 from robot.parsing.model.statements import Arguments
-from robot.variables import VariableIterator
 from robot.variables.search import search_variable
 
 from robocop.checkers import VisitorChecker
@@ -27,6 +26,7 @@ from robocop.utils import (
 )
 from robocop.utils.misc import remove_nested_variables
 from robocop.utils.run_keywords import iterate_keyword_names
+from robocop.utils.variable_matcher import VariableMatches
 
 rules = {
     "0301": Rule(
@@ -764,9 +764,9 @@ class SettingsNamingChecker(VisitorChecker):
         "invalid-section",
         "mixed-task-test-settings",
     )
-    ALIAS_TOKENS = [Token.WITH_NAME] if ROBOT_VERSION.major < 5 else [Token.WITH_NAME, "AS"]
+    ALIAS_TOKENS = [Token.WITH_NAME] if ROBOT_VERSION.major < 5 else ["WITH NAME", "AS"]
     # Separating alias values since RF 3 uses WITH_NAME instead of WITH NAME
-    ALIAS_TOKENS_VALUES = ["WITH NAME"] if ROBOT_VERSION.major < 5 else [Token.WITH_NAME, "AS"]
+    ALIAS_TOKENS_VALUES = ["WITH NAME"] if ROBOT_VERSION.major < 5 else ["WITH NAME", "AS"]
 
     def __init__(self):
         self.section_name_pattern = re.compile(r"\*\*\*\s.+\s\*\*\*")
@@ -1165,7 +1165,7 @@ class SimilarVariableChecker(VisitorChecker):
         For example 'This is ${var}' contains ${var} at 8th position.
         """
         try:
-            variables = list(VariableIterator(value))
+            variables = list(VariableMatches(value))
         except VariableError:  # for example ${variable which wasn't closed properly
             return
         if not variables:
@@ -1174,15 +1174,15 @@ class SimilarVariableChecker(VisitorChecker):
             return
         if is_var:
             offset += 2  # handle ${var_${var}} case
-        for before, variable, _ in variables:
-            if before:
-                offset += len(before)
-            match = search_variable(variable, ignore_errors=True)
+        for match in variables:
+            if match.before:
+                offset += len(match.before)
+            # match = search_variable(variable, ignore_errors=True)
             if match.base and match.base.startswith("{") and match.base.endswith("}"):  # inline val
                 self.find_not_nested_variable(token, match.base[1:-1].strip(), is_var=False, offset=offset + 1)
             else:
                 self.find_not_nested_variable(token, match.base, is_var=True, offset=offset)
-            offset += len(variable)
+            offset += len(match.match)
             for item in match.items:
                 self.find_not_nested_variable(token, item, is_var=False, offset=offset)
                 offset += len(item)

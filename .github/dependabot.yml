@@ -1,7 +1,7 @@
 version: 2
 updates:
   - package-ecosystem: pip
-    directory: "/tests/packages/rf-stable6"
+    directory: "/tests/rf_versions_matrix/requirements_rf7.txt"
     schedule:
       interval: "daily"
 

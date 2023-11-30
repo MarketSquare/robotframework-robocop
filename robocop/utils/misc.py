@@ -17,9 +17,10 @@ try:
 except ImportError:
     from robot.parsing.model.statements import Variable
 
-from robot.variables.search import VariableIterator, search_variable
+from robot.variables.search import search_variable
 from robot.version import VERSION as RF_VERSION
 
+from robocop.utils.variable_matcher import VariableMatches
 from robocop.utils.version_matching import Version
 from robocop.version import __version__
 
@@ -44,11 +45,10 @@ def normalize_robot_var_name(name: str) -> str:
 
 
 def remove_nested_variables(var_name):
-    for prefix, match, suffix in VariableIterator(var_name, ignore_errors=True):
-        if match:  # if nested variable exists
-            # take what surrounds it and run the check again
-            var_name = remove_nested_variables(prefix + suffix)
-            break
+    for match in VariableMatches(var_name, ignore_errors=True):
+        # take what surrounds it and run the check again
+        var_name = remove_nested_variables(match.before + match.after)
+        break
     return var_name.strip()
 
 

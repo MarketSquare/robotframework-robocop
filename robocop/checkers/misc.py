@@ -7,10 +7,10 @@ from typing import Dict, Optional
 
 from robot.api import Token
 from robot.errors import VariableError
+from robot.libraries import STDLIBS
 from robot.parsing.model.blocks import TestCaseSection
 from robot.parsing.model.statements import Arguments, KeywordCall, Return, Teardown
 from robot.utils import unescape
-from robot.variables import VariableIterator
 from robot.variables.search import search_variable
 
 try:
@@ -21,7 +21,6 @@ try:
     from robot.api.parsing import Break, Continue, InlineIfHeader, ReturnStatement
 except ImportError:
     ReturnStatement, InlineIfHeader, Break, Continue = None, None, None, None
-from robot.libraries import STDLIBS
 
 from robocop.checkers import VisitorChecker
 from robocop.rules import Rule, RuleParam, RuleSeverity, SeverityThreshold
@@ -36,6 +35,7 @@ from robocop.utils import (
     token_col,
 )
 from robocop.utils.misc import find_escaped_variables
+from robocop.utils.variable_matcher import VariableMatches
 
 rules = {
     "0901": Rule(
@@ -1254,7 +1254,7 @@ class UnusedVariablesChecker(VisitorChecker):
         used.
         """
         try:
-            variables = list(VariableIterator(value))
+            variables = list(VariableMatches(value))
         except VariableError:  # for example ${variable which wasn't closed properly
             return
         if not variables:
@@ -1266,22 +1266,22 @@ class UnusedVariablesChecker(VisitorChecker):
                     unescaped = unescape(value)
                     self.find_not_nested_variable(unescaped, is_var=False)
             return
-        replaced, remaining = "", ""
-        for before, variable, remaining in variables:
-            replaced += f"{before}placeholder{remaining}"
-            if before and "$" not in before and is_var:  # ${test.kws[0].msgs[${index}]}
-                self.update_used_variables(before)
+        replaced, after = "", ""
+        for match in variables:
+            replaced += f"{match.before}placeholder{match.after}"
+            if match.before and "$" not in match.before and is_var:  # ${test.kws[0].msgs[${index}]}
+                self.update_used_variables(match.before)
             # handle ${variable}[item][${syntax}]
-            match = search_variable(variable, ignore_errors=True)
             if match.base and match.base.startswith("{") and match.base.endswith("}"):  # inline val
                 self.find_not_nested_variable(match.base[1:-1].strip(), is_var=False)
             else:
                 self.find_not_nested_variable(match.base, is_var=True)
             for item in match.items:
                 self.find_not_nested_variable(item, is_var=False)
+            after = match.after
         self.find_escaped_variables(replaced)
-        if remaining and "$" not in remaining and is_var:  # ${test.kws[0].msgs[${index}]}
-            self.update_used_variables(remaining)
+        if after and "$" not in after and is_var:  # ${test.kws[0].msgs[${index}]}
+            self.update_used_variables(after)
 
     def find_escaped_variables(self, value):
         """Find all $var escaped variables in the value string and process them."""
@@ -1357,24 +1357,30 @@ class ExpressionsChecker(VisitorChecker):
         if not condition:
             return
         try:
-            variables = list(VariableIterator(condition))
+            variables = list(VariableMatches(condition))
         except VariableError:  # for example ${variable which wasn't closed properly
             return
         position = condition_token.col_offset + 1
-        for before, variable, remaining in variables:
-            position += len(before)
-            self.check_for_misplaced_not(condition_token, node_name, before, variable, remaining)
-            self.check_for_complex_condition(condition_token, node_name, before, variable, remaining, position)
-            if not before or not remaining:
+        for match in variables:
+            position += len(match.before)
+            self.check_for_misplaced_not(condition_token, node_name, match.before, match.match, match.after)
+            self.check_for_complex_condition(
+                condition_token, node_name, match.before, match.match, match.after, position
+            )
+            if not match.before or not match.after:
                 continue
-            if before[-1] in self.QUOTE_CHARS and before[-1] == remaining[0] and not variable.startswith("%"):
+            if (
+                match.before[-1] in self.QUOTE_CHARS
+                and match.before[-1] == match.after[0]
+                and not match.match.startswith("%")
+            ):
                 self.report(
                     "unnecessary-string-conversion",
-                    name=variable,
+                    name=match.match,
                     block_name=node_name,
                     node=condition_token,
                     col=position,
-                    end_col=position + len(variable),
+                    end_col=position + len(match.match),
                 )
 
     def check_for_misplaced_not(self, condition_token, node_name, left_side, variable, right_side):

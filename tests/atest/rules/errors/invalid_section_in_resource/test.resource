@@ -2,4 +2,4 @@
 Test case
     Step
 
-*** task ***
+*** tasks ***

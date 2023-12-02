@@ -5,6 +5,7 @@ import re
 import string
 from collections import defaultdict
 from pathlib import Path
+from typing import Iterable
 
 from robot.api import Token
 from robot.errors import VariableError
@@ -1105,10 +1106,17 @@ class SimilarVariableChecker(VisitorChecker):
             self.find_not_nested_variable(token, token.value, is_var=False)
         return self.generic_visit(node)
 
+    @staticmethod
+    def for_assign_vars(for_node) -> Iterable[str]:
+        if ROBOT_VERSION.major < 7:
+            yield from for_node.variables
+        else:
+            yield from for_node.assign
+
     def visit_For(self, node):  # noqa
         for token in node.header.get_tokens(Token.ARGUMENT):
             self.find_not_nested_variable(token, token.value, is_var=False)
-        for var in node.variables:
+        for var in self.for_assign_vars(node):
             self.assigned_variables[normalize_robot_var_name(var)].append(var)
         self.generic_visit(node)
 

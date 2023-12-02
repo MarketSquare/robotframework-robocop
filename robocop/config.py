@@ -537,9 +537,9 @@ class Config:
         }
         deprecated = {
             # "rule-name": "deprecation message"
-            "bad-indent": "'strict' and 'ignore_uneven' parameters are no longer available for this rule. "
-            "Take a look at new E1017 bad-block-indent rule that replaces them."  # warning added in v.3.0.0
         }
+        if not (deprecated or renamed):
+            return
         deprecation_header = "### DEPRECATION WARNING ###"
         deprecation_footer = "This information will disappear in the next version.\n\n"
         # get all rules mentioned in include and exclude CLI options

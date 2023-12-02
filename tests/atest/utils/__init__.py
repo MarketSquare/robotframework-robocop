@@ -13,6 +13,8 @@ from robocop.config import Config
 from robocop.utils.misc import ROBOT_VERSION
 from robocop.utils.version_matching import VersionSpecifier
 
+DEPRECATION_PERIOD = False
+
 
 @contextlib.contextmanager
 def isolated_output():
@@ -113,7 +115,10 @@ class RuleAcceptance:
             finally:
                 sys.stdout.flush()
                 result = get_result(output)
-                parsed_results = remove_deprecation_warning(result).splitlines()
+                if DEPRECATION_PERIOD:
+                    parsed_results = remove_deprecation_warning(result).splitlines()
+                else:
+                    parsed_results = result.splitlines()
         actual = normalize_result(parsed_results, test_data)
         if actual != expected:
             missing_expected = sorted(set(actual) - set(expected))

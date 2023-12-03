@@ -1179,11 +1179,17 @@ class UnusedVariablesChecker(VisitorChecker):
 
     visit_ForLoop = visit_For
 
+    @staticmethod
+    def try_assign(try_node) -> str:
+        if ROBOT_VERSION.major < 7:
+            return try_node.variable
+        return try_node.assign
+
     def visit_Try(self, node):  # noqa
         if node.errors or node.header.errors:
             return node
         self.variables.append({})
-        if node.variable is not None:
+        if self.try_assign(node) is not None:
             error_var = node.header.get_token(Token.VARIABLE)
             if error_var is not None:
                 self.handle_assign_variable(error_var)

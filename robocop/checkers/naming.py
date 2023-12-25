@@ -596,7 +596,7 @@ class InvalidCharactersInNameChecker(VisitorChecker):
             # Loop and skip variables:
             # Search pattern from start_pos to variable starting position
             # example `Keyword With ${em.bedded} Two ${second.Argument} Argument``
-            # is splitted to:
+            # is split to:
             #   1. `Keyword With `
             #   2. ` Two `
             #   3. ` Argument` - last part is searched in finditer part after this loop
@@ -981,7 +981,6 @@ class VariableNamingChecker(VisitorChecker):
     def visit_KeywordCall(self, node):  # noqa
         for token in node.get_tokens(Token.ASSIGN):
             self.check_for_reserved_naming_or_hyphen(token, "Variable", is_assign=True)
-
         if not node.keyword:
             return
         if normalize_robot_name(node.keyword, remove_prefix="builtin.") in SET_VARIABLE_VARIANTS:
@@ -996,16 +995,38 @@ class VariableNamingChecker(VisitorChecker):
                 return  # TODO: Ignore for now, for example ${not  closed in variables will throw it
             if var_name is None:  # possibly $escaped or \${escaped}, or invalid variable name
                 return
-            normalized_var_name = remove_nested_variables(var_name)
-            # a variable as a keyword argument can contain lowercase nested variable
-            # because the actual value of it may be uppercase
-            if not normalized_var_name.isupper():
-                self.report(
-                    "non-local-variables-should-be-uppercase",
-                    node=node,
-                    col=token.col_offset + 1,
-                    end_col=token.end_col_offset + 1,
-                )
+            self.check_non_local_variable(var_name, node, token)
+
+    def check_non_local_variable(self, variable_name: str, node, token):
+        normalized_var_name = remove_nested_variables(variable_name)
+        # a variable as a keyword argument can contain lowercase nested variable
+        # because the actual value of it may be uppercase
+        if not normalized_var_name.isupper():
+            self.report(
+                "non-local-variables-should-be-uppercase",
+                node=node,
+                col=token.col_offset + 1,
+                end_col=token.end_col_offset + 1,
+            )
+
+    @staticmethod
+    def _is_var_scope_local(node):
+        is_local = True
+        for option in node.get_tokens(Token.OPTION):
+            if "scope=" in option.value:
+                is_local = option.value.lower() == "scope=local"
+        return is_local
+
+    def visit_Var(self, node):  # noqa
+        if node.errors:  # for example invalid variable definition like $var}
+            return
+        variable = node.get_token(Token.VARIABLE)
+        if not variable:
+            return
+        self.check_for_reserved_naming_or_hyphen(variable, "Variable", is_assign=True)
+        # TODO Check supported syntax for variable, ie ${{var}}?
+        if not self._is_var_scope_local(node):
+            self.check_non_local_variable(variable.value, node, variable)
 
     def visit_If(self, node):  # noqa
         for token in node.header.get_tokens(Token.ASSIGN):

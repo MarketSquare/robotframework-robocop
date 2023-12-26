@@ -103,7 +103,7 @@ comments are generally not needed.
 
 All code, including test code, must be compatible with all supported Python
 interpreters and versions. Most importantly this means that the code must
-support Python 3.7+ and Robot Framework 3.2.2+.
+support Python 3.8+ and Robot Framework 3.2.2+.
 
 To ensure high quality of the code we use `pylama
 <https://github.com/klen/pylama>`_ static code analysis tool to check

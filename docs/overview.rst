@@ -14,7 +14,7 @@ looking for potential errors or violations to code quality standards (commonly r
 Requirements
 ============
 
-Python 3.7+ |:snake:| and Robot Framework 3.2.2+ |:robot:|.
+Python 3.8+ |:snake:| and Robot Framework 3.2.2+ |:robot:|.
 
 Installation
 ============

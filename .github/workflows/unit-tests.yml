@@ -15,31 +15,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        include:
-          - os: 'ubuntu-latest'
-            python-version: '3.8'
-            rf-version: 'rf3'
-          - os: 'ubuntu-latest'
-            python-version: '3.8'
-            rf-version: 'rf4'
-          - os: 'ubuntu-latest'
-            python-version: '3.8'
-            rf-version: 'rf5'
-          - os: 'ubuntu-latest'
-            python-version: '3.9'
-            rf-version: 'rf6'
-          - os: 'ubuntu-latest'
-            python-version: '3.10'
-            rf-version: 'rf6'
-          - os: 'ubuntu-latest'
-            python-version: '3.11'
-            rf-version: 'rf5'
-          - os: 'ubuntu-latest'
-            python-version: '3.12'
-            rf-version: 'rf7'
-          - os: 'windows-latest'
-            python-version: '3.11'
-            rf-version: 'rf6'
+        os: [ubuntu-latest, macos-latest, windows-latest]
     runs-on: ${{ matrix.os }}
 
     steps:
@@ -51,19 +27,22 @@ jobs:
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v5
         with:
-          python-version: ${{ matrix.python-version }}
-
+          python-version: |
+            3.8
+            3.9
+            3.10
+            3.11
+            3.12
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r tests/rf_versions_matrix/requirements_${{ matrix.rf-version }}.txt
-          pip install .[dev]
+          pip install nox
 
       - name: Run unit tests with coverage
         run:
-          coverage run -m pytest
+          nox -s coverage
 
       - name: Codecov
         uses: codecov/codecov-action@v3
         with:
-          name: ${{ matrix.python-version }}-${{ matrix.os }}-${{ matrix.rf-version }}
+          name: ${{ matrix.os }}

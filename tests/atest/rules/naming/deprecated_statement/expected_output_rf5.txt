@@ -1,6 +1,5 @@
 test.robot:2:14 [W] 0319 'Run Keyword If' is deprecated since Robot Framework version 5.*, use 'IF' instead
 test.robot:3:17 [W] 0319 'Run Keyword If' is deprecated since Robot Framework version 5.*, use 'IF' instead
-test.robot:4:1 [W] 0319 'Force Tags' is deprecated since Robot Framework version 6.0, use 'Test Tags' instead
 test.robot:6:13 [W] 0319 'Run Keyword If' is deprecated since Robot Framework version 5.*, use 'IF' instead
 test.robot:7:16 [W] 0319 'Run Keyword If' is deprecated since Robot Framework version 5.*, use 'IF' instead
 test.robot:11:14 [W] 0319 'Run Keyword Unless' is deprecated since Robot Framework version 5.*, use 'IF' instead

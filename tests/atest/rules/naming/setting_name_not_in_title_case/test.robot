@@ -82,3 +82,6 @@ Keyword Uppercase Settings
     Fail
     [TEARDOWN]  Teardown
     [RETURN]  value
+
+New Return
+    RETURN

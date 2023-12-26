@@ -19,7 +19,7 @@ Some Keyword
     No Operation
     Fail
     No Operation
-    No Operation
+    VAR    ${variable}    value
     No Operation
     No Operation
     No Operation

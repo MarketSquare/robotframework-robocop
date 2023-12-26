@@ -9,7 +9,7 @@ from robot.api import Token
 from robot.errors import VariableError
 from robot.libraries import STDLIBS
 from robot.parsing.model.blocks import TestCaseSection
-from robot.parsing.model.statements import Arguments, KeywordCall, Return, Teardown
+from robot.parsing.model.statements import Arguments, KeywordCall, Teardown
 from robot.utils import unescape
 from robot.variables.search import search_variable
 
@@ -18,13 +18,9 @@ try:
 except ImportError:
     from robot.parsing.model.statements import Comment, EmptyLine, Variable
 try:
-    from robot.api.parsing import Break, Continue, InlineIfHeader, ReturnStatement
+    from robot.api.parsing import Break, Continue, InlineIfHeader
 except ImportError:
-    ReturnStatement, InlineIfHeader, Break, Continue = None, None, None, None
-try:
-    from robot.api.parsing import ReturnSetting  # RF 7.0 [Return]
-except ImportError:
-    ReturnSetting = None
+    InlineIfHeader, Break, Continue = None, None, None
 
 from robocop.checkers import VisitorChecker
 from robocop.rules import Rule, RuleParam, RuleSeverity, SeverityThreshold
@@ -38,7 +34,7 @@ from robocop.utils import (
     parse_assignment_sign_type,
     token_col,
 )
-from robocop.utils.misc import find_escaped_variables
+from robocop.utils.misc import RETURN_CLASSES, find_escaped_variables
 from robocop.utils.variable_matcher import VariableMatches
 
 RULE_CATEGORY_ID = "09"
@@ -599,17 +595,13 @@ class ReturnChecker(VisitorChecker):
         "empty-return",
     )
 
-    def __init__(self):
-        self.return_class = Return if ROBOT_VERSION.major < 7 else ReturnSetting
-        super().__init__()
-
     def visit_Keyword(self, node):  # noqa
         return_setting_node = None
         keyword_after_return = False
         return_from = False
         error = ""
         for child in node.body:
-            if isinstance(child, self.return_class):
+            if isinstance(child, RETURN_CLASSES.return_setting_class):
                 return_setting_node = child
                 error = (
                     "[Return] is not defined at the end of keyword. "
@@ -653,15 +645,11 @@ class UnreachableCodeChecker(VisitorChecker):
 
     reports = ("unreachable-code",)
 
-    def __init__(self):
-        self.return_class = ReturnStatement if ROBOT_VERSION.major < 7 else Return
-        super().__init__()
-
     def visit_Keyword(self, node):  # noqa
         statement_node = None
 
         for child in node.body:
-            if isinstance(child, (self.return_class, Break, Continue)):
+            if isinstance(child, (RETURN_CLASSES.return_class, Break, Continue)):
                 statement_node = child
             elif not isinstance(child, (EmptyLine, Comment, Teardown)):
                 if statement_node is not None:
@@ -963,7 +951,7 @@ class IfChecker(VisitorChecker):
             or node.orelse  # TODO it could still report with orelse? if short enough
             # IF with one branch and assign require ELSE to be valid, better to ignore it
             or getattr(node.body[0], "assign", None)
-            or not isinstance(node.body[0], (KeywordCall, ReturnStatement, Break, Continue))  # type: ignore[arg-type]
+            or not isinstance(node.body[0], (KeywordCall, RETURN_CLASSES.return_class, Break, Continue))  # type: ignore[arg-type]
         ):
             return
         min_possible = self.tokens_length(node.header.tokens) + self.tokens_length(node.body[0].tokens[1:]) + 2

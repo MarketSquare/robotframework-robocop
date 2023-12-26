@@ -16,13 +16,18 @@ from robot.parsing.model.statements import (
 )
 
 try:
-    from robot.api.parsing import Break, Continue, ReturnStatement
+    from robot.api.parsing import Break, Continue
 except ImportError:
-    ReturnStatement, Break, Continue = None, None, None
+    Break, Continue = None, None
+try:  # RF7+
+    from robot.api.parsing import Var
+except ImportError:
+    Var = None
 
 from robocop.checkers import RawFileChecker, VisitorChecker
 from robocop.rules import Rule, RuleParam, RuleSeverity, SeverityThreshold
 from robocop.utils import get_section_name, normalize_robot_name, pattern_type, str2bool
+from robocop.utils.misc import RETURN_CLASSES
 
 RULE_CATEGORY_ID = "05"
 
@@ -378,6 +383,22 @@ class LengthChecker(VisitorChecker):
         "too-many-arguments",
     )
 
+    def __init__(self):
+        self.keyword_call_alike = tuple(
+            klass
+            for klass in (
+                KeywordCall,
+                TemplateArguments,
+                RETURN_CLASSES.return_class,
+                RETURN_CLASSES.return_setting_class,
+                Break,
+                Continue,
+                Var,
+            )
+            if klass
+        )
+        super().__init__()
+
     def visit_File(self, node):
         if node.end_lineno > self.param("file-too-long", "max_lines"):
             self.report(
@@ -422,7 +443,7 @@ class LengthChecker(VisitorChecker):
                 sev_threshold_value=length,
             )
             return
-        key_calls = LengthChecker.count_keyword_calls(node)
+        key_calls = self.count_keyword_calls(node)
         if key_calls < self.param("too-few-calls-in-keyword", "min_calls"):
             self.report(
                 "too-few-calls-in-keyword",
@@ -474,7 +495,7 @@ class LengthChecker(VisitorChecker):
         skip_too_few = test_is_templated and self.param("too-few-calls-in-test-case", "ignore_templated")
         if skip_too_few and skip_too_many:
             return
-        key_calls = LengthChecker.count_keyword_calls(node)
+        key_calls = self.count_keyword_calls(node)
         if not skip_too_many and (key_calls > self.param("too-many-calls-in-test-case", "max_calls")):
             self.report(
                 "too-many-calls-in-test-case",
@@ -498,24 +519,18 @@ class LengthChecker(VisitorChecker):
                 end_col=node.col_offset + len(node.name) + 1,
             )
 
-    @staticmethod
-    def count_keyword_calls(node):
-        # ReturnStatement is imported and evaluates to true in RF 5.0+, we don't need to also check Break/Continue
-        if (
-            isinstance(node, (KeywordCall, TemplateArguments))
-            or ReturnStatement
-            and isinstance(node, (Break, Continue, ReturnStatement))
-        ):
+    def count_keyword_calls(self, node):
+        if isinstance(node, self.keyword_call_alike):
             return 1
         if not hasattr(node, "body"):
             return 0
-        calls = sum(LengthChecker.count_keyword_calls(child) for child in node.body)
+        calls = sum(self.count_keyword_calls(child) for child in node.body)
         while node and getattr(node, "orelse", None):
             node = node.orelse
-            calls += sum(LengthChecker.count_keyword_calls(child) for child in node.body)
+            calls += sum(self.count_keyword_calls(child) for child in node.body)
         while node and getattr(node, "next", None):
             node = node.next
-            calls += sum(LengthChecker.count_keyword_calls(child) for child in node.body)
+            calls += sum(self.count_keyword_calls(child) for child in node.body)
         return calls
 
 

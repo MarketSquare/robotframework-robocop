@@ -3,7 +3,7 @@ import difflib
 import re
 import token as python_token
 import tokenize
-from collections import Counter, defaultdict
+from collections import Counter, defaultdict, namedtuple
 from io import StringIO
 from pathlib import Path
 from tokenize import generate_tokens
@@ -27,6 +27,35 @@ from robocop.version import __version__
 ROBOT_VERSION = Version(RF_VERSION)
 ROBOT_WITH_LANG = Version("6.0")
 ROBOCOP_RULES_URL = "https://robocop.readthedocs.io/en/{version}/rules_list.html"
+
+
+ReturnClasses = namedtuple("ReturnClasses", ["return_class", "return_setting_class"])
+
+
+def get_return_classes() -> ReturnClasses:
+    """
+    Robot Framework change model names for [Return] and RETURN depending on the RF version. To achieve backward
+    compatibility we need to define mapping.
+    """
+    from robot.parsing.model.statements import Return
+
+    if ROBOT_VERSION.major < 5:
+        return_class = Return  # it does not exist, but we define it for backward compatibility
+        return_setting_class = Return
+    elif ROBOT_VERSION.major < 7:
+        from robot.api.parsing import ReturnStatement
+
+        return_class = ReturnStatement
+        return_setting_class = Return
+    else:
+        from robot.api.parsing import ReturnSetting
+
+        return_class = Return
+        return_setting_class = ReturnSetting
+    return ReturnClasses(return_class, return_setting_class)
+
+
+RETURN_CLASSES = get_return_classes()
 
 
 def rf_supports_lang():

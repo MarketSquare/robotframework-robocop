@@ -24,7 +24,7 @@ Test
     ...  ${var}
     ...  ${var}
     ...  ${var}
-    One More
+    VAR    ${variable}    value
 
 Test with comments at the end
     Pass

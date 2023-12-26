@@ -58,6 +58,7 @@ Some Keyword
     ...   ${var}
     ...   ${var}
     ...   ${var}
+    VAR    ${variable}
 
 
 Keyword with comments at the end

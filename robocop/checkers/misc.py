@@ -21,6 +21,10 @@ try:
     from robot.api.parsing import Break, Continue, InlineIfHeader, ReturnStatement
 except ImportError:
     ReturnStatement, InlineIfHeader, Break, Continue = None, None, None, None
+try:
+    from robot.api.parsing import ReturnSetting  # RF 7.0 [Return]
+except ImportError:
+    ReturnSetting = None
 
 from robocop.checkers import VisitorChecker
 from robocop.rules import Rule, RuleParam, RuleSeverity, SeverityThreshold
@@ -595,13 +599,17 @@ class ReturnChecker(VisitorChecker):
         "empty-return",
     )
 
+    def __init__(self):
+        self.return_class = Return if ROBOT_VERSION.major < 7 else ReturnSetting
+        super().__init__()
+
     def visit_Keyword(self, node):  # noqa
         return_setting_node = None
         keyword_after_return = False
         return_from = False
         error = ""
         for child in node.body:
-            if isinstance(child, Return):
+            if isinstance(child, self.return_class):
                 return_setting_node = child
                 error = (
                     "[Return] is not defined at the end of keyword. "
@@ -645,11 +653,15 @@ class UnreachableCodeChecker(VisitorChecker):
 
     reports = ("unreachable-code",)
 
+    def __init__(self):
+        self.return_class = ReturnStatement if ROBOT_VERSION.major < 7 else Return
+        super().__init__()
+
     def visit_Keyword(self, node):  # noqa
         statement_node = None
 
         for child in node.body:
-            if ReturnStatement and isinstance(child, (ReturnStatement, Break, Continue)):  # type: ignore[arg-type]
+            if isinstance(child, (self.return_class, Break, Continue)):
                 statement_node = child
             elif not isinstance(child, (EmptyLine, Comment, Teardown)):
                 if statement_node is not None:
@@ -1211,7 +1223,7 @@ class UnusedVariablesChecker(VisitorChecker):
         for token in node.get_tokens(Token.ARGUMENT):
             self.find_not_nested_variable(token.value, is_var=False)
 
-    visit_ReturnStatement = visit_Teardown = visit_Timeout = visit_Return
+    visit_ReturnStatement = visit_ReturnSetting = visit_Teardown = visit_Timeout = visit_Return
 
     def visit_TemplateArguments(self, node):  # noqa
         for argument in node.data_tokens:

@@ -572,7 +572,7 @@ class NumberOfReturnedArgsChecker(VisitorChecker):
     def visit_Return(self, node):  # noqa
         self.check_node_returns(len(node.values), node)
 
-    visit_ReturnStatement = visit_Return
+    visit_ReturnStatement = visit_ReturnSetting = visit_Return
 
     def visit_KeywordCall(self, node):  # noqa
         if not node.keyword:

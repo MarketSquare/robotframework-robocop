@@ -839,7 +839,9 @@ class SettingsNamingChecker(VisitorChecker):
         visit_ResourceImport
     ) = (
         visit_VariablesImport
-    ) = visit_Documentation = visit_Tags = visit_Timeout = visit_Template = visit_Arguments = visit_Return = visit_Setup
+    ) = (
+        visit_Documentation
+    ) = visit_Tags = visit_Timeout = visit_Template = visit_Arguments = visit_ReturnSetting = visit_Return = visit_Setup
 
     def visit_LibraryImport(self, node):  # noqa
         self.check_setting_name(node.data_tokens[0].value, node)
@@ -1275,8 +1277,14 @@ class DeprecatedStatementChecker(VisitorChecker):
 
     def visit_Return(self, node):  # noqa
         """For RETURN use visit_ReturnStatement - visit_Return will most likely visit RETURN in the future"""
-        if ROBOT_VERSION.major < 5:
+        if ROBOT_VERSION.major not in (5, 6):
             return
+        self.check_deprecated_return(node)
+
+    def visit_ReturnSetting(self, node):  # noqa
+        self.check_deprecated_return(node)
+
+    def check_deprecated_return(self, node):
         self.report(
             "deprecated-statement",
             statement_name="[Return]",

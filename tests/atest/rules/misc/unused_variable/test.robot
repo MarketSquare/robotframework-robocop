@@ -116,3 +116,15 @@ Inline If - Overwritten Variable
 
 InlineIf - Assign With The Same Name As Arg
     ${assign}    IF    condition    Do Nothing    ELSE    Use    ${assign}
+
+Unused With VAR
+    VAR    ${not_used}    value
+    VAR    ${not_used_global}    value    scope=TEST
+    VAR    ${used_in_kw}    value
+    Keyword Call    ${used_in_kw}
+    VAR    ${used_in_var}    value
+    VAR    ${used_in_var}    ${used_in_var}    scope=SUITE
+    VAR    ${used_without_sign}=    value
+    Keyword Call    ${used_without_sign}
+    VAR    ${variable}  # missing value
+    VAR    $variable  # ignored for invalid variable name

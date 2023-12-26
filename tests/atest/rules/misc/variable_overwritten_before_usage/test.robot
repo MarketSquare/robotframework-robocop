@@ -116,3 +116,18 @@ Overwritten In IF
     ELSE
         ${variable}    Set Variable    special value
     END
+
+Overwritten With VAR
+    VAR    ${variable}    value
+    VAR    ${variable}    value
+    VAR    ${variable2}    value
+    VAR    ${variable2} =    value
+    ${from_keyword}    Keyword Call
+    ${from_keyword2}    Keyword Call
+    ${from_keyword3}    Keyword Call
+    VAR    ${from_keyword}    ${from_keyword}    scope=GLOBAL  # fine
+    VAR    ${from_keyword2}    ${from_keyword2}val  # fine
+    VAR    ${from_keyword3}    value  # not fine
+    VAR    ${variable3}    value
+    VAR    ${variable3}  # missing value
+    VAR    $variable  # ignored for invalid variable name

@@ -1207,6 +1207,15 @@ class UnusedVariablesChecker(VisitorChecker):
         for token in node.get_tokens(Token.ASSIGN):  # we first check args, then assign for used and then overwritten
             self.handle_assign_variable(token)
 
+    def visit_Var(self, node):  # noqa
+        if node.errors:  # for example invalid variable definition like $var}
+            return
+        for arg in node.get_tokens(Token.ARGUMENT):
+            self.find_not_nested_variable(arg.value, is_var=False)
+        variable = node.get_token(Token.VARIABLE)
+        if variable:
+            self.handle_assign_variable(variable)
+
     def visit_Return(self, node):  # noqa
         for token in node.get_tokens(Token.ARGUMENT):
             self.find_not_nested_variable(token.value, is_var=False)

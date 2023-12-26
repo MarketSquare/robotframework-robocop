@@ -65,3 +65,11 @@ Overwritten In Inline IF - Just Variable
     [Documentation]    Should not raise anything - it is not argument
     ${variable}    Set Variable    default value
     ${variable}    IF  ${CONDITION}  Replace String  ${variable}  TAG  ${CONDITION_TAG}
+
+Overwritten in VAR
+    [Arguments]    ${arg1}    ${overwritten1}    ${overwritten2}    ${overwritten_but_used}
+    VAR    ${overwritten1}    ${arg1}
+    VAR    ${overwritten2}    ${arg1}
+    VAR    ${overwritten_but_used}    String with ${overwritten_but_used}
+    Keyword Call    ${overwritten1}  # used, but overwritten before
+    Keyword Call    ${overwritten2}  # used, but overwritten before

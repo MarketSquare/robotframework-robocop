@@ -4,7 +4,7 @@ import os
 import re
 import sys
 from pathlib import Path
-from typing import List, Optional
+from typing import List, Optional, Union
 
 import pytest
 
@@ -151,9 +151,12 @@ class RuleAcceptance:
         return robocop_rules[self.rule_name].enabled_in_version
 
     @staticmethod
-    def enabled_in_version(target_version):
+    def enabled_in_version(target_version: Optional[Union["list", str]]):
         if target_version is None:
             return True
         if isinstance(target_version, list):
             return any(ROBOT_VERSION in VersionSpecifier(version) for version in target_version)
+        if ";" in target_version:
+            must_match_versions = target_version.split(";")
+            return all(ROBOT_VERSION in VersionSpecifier(version) for version in must_match_versions)
         return ROBOT_VERSION in VersionSpecifier(target_version)

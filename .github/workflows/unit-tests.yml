@@ -17,10 +17,10 @@ jobs:
       matrix:
         include:
           - os: 'ubuntu-latest'
-            python-version: '3.7'
+            python-version: '3.8'
             rf-version: 'rf3'
           - os: 'ubuntu-latest'
-            python-version: '3.7'
+            python-version: '3.8'
             rf-version: 'rf4'
           - os: 'ubuntu-latest'
             python-version: '3.8'

@@ -1,20 +1,30 @@
+from typing import List, Optional
+
 from robocop.utils.misc import normalize_robot_name
 
 
 class RunKeywordVariant:
-    def __init__(self, name, resolve=1, branches=None, split_on_and=False):
+    def __init__(
+        self,
+        name: str,
+        resolve: int = 1,
+        branches: Optional[List] = None,
+        split_on_and: bool = False,
+        prefix: str = "builtin",
+    ):
         self.name = normalize_robot_name(name)
+        self.prefix = prefix
         self.resolve = resolve
         self.branches = branches
         self.split_on_and = split_on_and
 
 
 class RunKeywords(dict):
-    def __init__(self, keywords):
+    def __init__(self, keywords: List[RunKeywordVariant]):
         normalized_keywords = {}
         for keyword_variant in keywords:
             normalized_name = normalize_robot_name(keyword_variant.name)
-            name_with_lib = f"builtin.{normalized_name}"
+            name_with_lib = f"{keyword_variant.prefix}.{normalized_name}"
             normalized_keywords[normalized_name] = keyword_variant
             normalized_keywords[name_with_lib] = keyword_variant
         super().__init__(normalized_keywords)
@@ -53,6 +63,10 @@ RUN_KEYWORDS = RunKeywords(
         RunKeywordVariant("Run Keywords", split_on_and=True),
         RunKeywordVariant("Repeat Keyword", resolve=2),
         RunKeywordVariant("Wait Until Keyword Succeeds", resolve=3),
+        RunKeywordVariant("Run Setup Only Once", prefix="pabotlib"),
+        RunKeywordVariant("Run Teardown Only Once", prefix="pabotlib"),
+        RunKeywordVariant("Run Only Once", prefix="pabotlib"),
+        RunKeywordVariant("Run On Last Process", prefix="pabotlib"),
     ]
 )
 

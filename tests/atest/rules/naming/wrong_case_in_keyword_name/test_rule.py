@@ -5,6 +5,9 @@ class TestRuleAcceptance(RuleAcceptance):
     def test_rule(self):
         self.check_rule(src_files=["test.robot", "run_keywords.robot"], expected_file="expected_output.txt")
 
+    def test_rule_pabot(self):
+        self.check_rule(src_files=["pabot_run_keywords.robot"], expected_file="expected_output_pabot.txt")
+
     def test_convention_first_word_capitalized(self):
         self.check_rule(
             config="-c wrong-case-in-keyword-name:convention:first_word_capitalized",

@@ -25,77 +25,14 @@ VERSION_PATTERN = r"""
 """
 
 
-class InfinityType:
-    def __lt__(self, other: object) -> bool:
-        return False
-
-    def __le__(self, other: object) -> bool:
-        return False
-
-    def __eq__(self, other: object) -> bool:
-        return isinstance(other, self.__class__)
-
-    def __gt__(self, other: object) -> bool:
-        return True
-
-    def __ge__(self, other: object) -> bool:
-        return True
-
-    def __neg__(self: object) -> "NegativeInfinityType":
-        return NegativeInfinity
-
-
-class NegativeInfinityType:
-    def __lt__(self, other: object) -> bool:
-        return True
-
-    def __le__(self, other: object) -> bool:
-        return True
-
-    def __eq__(self, other: object) -> bool:
-        return isinstance(other, self.__class__)
-
-    def __gt__(self, other: object) -> bool:
-        return False
-
-    def __ge__(self, other: object) -> bool:
-        return False
-
-    def __neg__(self: object) -> InfinityType:
-        return Infinity
-
-
-Infinity = InfinityType()
-NegativeInfinity = NegativeInfinityType()
-
-
-def _get_comparison_key(
-    release: Tuple[int, ...],
-    pre: Optional[Tuple[str, int]],
-    dev: Optional[Tuple[str, int]],
-):
+def _get_comparison_key(release: Tuple[int, ...]):
     # When we compare a release version, we want to compare it with all the
     # trailing zeros removed. So we'll use a reverse the list, drop all the now
     # leading zeros until we come to something non zero, then take the rest
     # re-reverse it back into the correct order and make it a tuple and use
     # that for our sorting key.
     _release = tuple(reversed(list(itertools.dropwhile(lambda x: x == 0, reversed(release)))))
-
-    # We need to "trick" the sorting algorithm to put 1.0.dev0 before 1.0a0.
-    # We'll do this by abusing the pre segment, but we _only_ want to do this
-    # if there is not a pre segment. Otherwise, the normal sorting rules will handle this case correctly.
-    if pre is None and dev is not None:
-        _pre = NegativeInfinity
-    # Versions without a pre-release (except as noted above) should sort after
-    # those with one.
-    elif pre is None:
-        _pre = Infinity
-    else:
-        _pre = pre
-
-    # Versions without a development segment should sort after those with one.
-    _dev = Infinity if dev is None else dev
-    return _release, _pre, _dev
+    return _release
 
 
 def _parse_letter_version(letter: str, number: Union[str, bytes, SupportsInt]) -> Optional[Tuple[str, int]]:
@@ -128,11 +65,7 @@ class Version:
         self.release = tuple(int(i) for i in match.group("release").split("."))
         self.pre = _parse_letter_version(match.group("pre_l"), match.group("pre_n"))
         self._dev = _parse_letter_version(match.group("dev_l"), match.group("dev_n"))
-        self._key = _get_comparison_key(
-            self.release,
-            self.pre,
-            self._dev,
-        )
+        self._key = _get_comparison_key(self.release)
 
     def __lt__(self, other) -> bool:
         return self._key < other._key
@@ -141,18 +74,7 @@ class Version:
         return self._key == other._key
 
     def __str__(self) -> str:
-        parts = [".".join(str(x) for x in self.release)]
-        if self.pre is not None:
-            parts.append("".join(str(x) for x in self.pre))
-
-        if self.dev is not None:
-            parts.append(f".dev{self.dev}")
-
-        return "".join(parts)
-
-    @property
-    def dev(self) -> Optional[int]:
-        return self._dev[1] if self._dev else None
+        return ".".join(str(x) for x in self.release)
 
     @property
     def public(self) -> str:
@@ -162,10 +84,6 @@ class Version:
     def base_version(self) -> str:
         parts = [".".join(str(x) for x in self.release)]
         return "".join(parts)
-
-    @property
-    def is_prerelease(self) -> bool:
-        return self.dev is not None or self.pre is not None
 
     @property
     def major(self) -> int:
@@ -229,18 +147,9 @@ class VersionSpecifier:
                 \s*
                 v?
                 [0-9]+(?:\.[0-9]+)*   # release
-                (?:                   # pre release
-                    [-_\.]?
-                    (a|b|c|rc|alpha|beta|pre|preview)
-                    [-_\.]?
-                    [0-9]*
-                )?
                 # You cannot use a wild card and a dev or local version
                 # together so group them with a | and make them optional.
                 (?:
-                    (?:[-_\.]?dev[-_\.]?[0-9]*)?         # dev release
-                    (?:\+[a-z0-9]+(?:[-_\.][a-z0-9]+)*)? # local
-                    |
                     \.\*  # Wild card syntax of .*
                 )?
             )
@@ -253,13 +162,6 @@ class VersionSpecifier:
                 \s*
                 v?
                 [0-9]+(?:\.[0-9]+)+   # release  (We have a + instead of a *)
-                (?:                   # pre release
-                    [-_\.]?
-                    (a|b|c|rc|alpha|beta|pre|preview)
-                    [-_\.]?
-                    [0-9]*
-                )?
-                (?:[-_\.]?dev[-_\.]?[0-9]*)?          # dev release
             )
             |
             (?:
@@ -274,13 +176,6 @@ class VersionSpecifier:
                 \s*
                 v?
                 [0-9]+(?:\.[0-9]+)*   # release
-                (?:                   # pre release
-                    [-_\.]?
-                    (a|b|c|rc|alpha|beta|pre|preview)
-                    [-_\.]?
-                    [0-9]*
-                )?
-                (?:[-_\.]?dev[-_\.]?[0-9]*)?          # dev release
             )
         )
         """
@@ -384,12 +279,7 @@ class VersionSpecifier:
         return Version(prospective.public) >= Version(spec)
 
     def _compare_less_than(self, prospective, spec_str: str) -> bool:
-        spec = Version(spec_str)
-        if not prospective < spec:
-            return False
-        if not spec.is_prerelease and prospective.is_prerelease:
-            return Version(prospective.base_version) != Version(spec.base_version)
-        return True
+        return prospective < Version(spec_str)
 
     def _compare_greater_than(self, prospective, spec_str: str) -> bool:
         return prospective <= Version(spec_str)

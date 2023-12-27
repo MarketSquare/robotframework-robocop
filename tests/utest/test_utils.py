@@ -219,17 +219,14 @@ class TestMisc:
     [
         ("6.0.2", ">=6", True),
         ("6.1a2.dev1", ">=6", True),
-        ("6.0rc2.dev1", ">=6", False),
-        ("6.0pre2.dev1", ">=6", False),
+        ("6.0rc2.dev1", ">=6", True),
+        ("6.0pre2.dev1", ">=6", True),
         ("6.0.2", "<5", False),
         ("6.1a2.dev1", "<=5", False),
         ("6.1a2.dev1", "~=5.0", False),
         ("6.0rc2.dev1", "<=6", True),
         ("6.0rc2.dev", "<=6", True),
-        ("5.0", "<=5dev1", False),
-        ("5.0", ">5dev1", False),
-        ("5.0", ">5.0.dev1", False),
-        ("6.0dev0", ">=6", False),
+        ("6.0dev0", ">=6", True),
         ("6.0", ">=6", True),
         ("6", ">=6", True),
         ("5.0.2", ">=6", False),
@@ -261,12 +258,8 @@ def test_version_parsing_and_comparison():
     lower_version = Version("3")
     for version in versions:
         assert (version.major, version.minor, version.micro) == (4, 0, 0)
-        if version.dev is None:
-            assert version == equal_version
-            assert version >= equal_version
-        else:
-            assert version != equal_version
-            assert not version >= equal_version
+        assert version == equal_version
+        assert version >= equal_version
         assert version <= equal_version
         assert version < higher_version
         assert not version > higher_version

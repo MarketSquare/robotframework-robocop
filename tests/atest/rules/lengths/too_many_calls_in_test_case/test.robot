@@ -17,7 +17,7 @@ Test
     Keyword
     Keyword
     Keyword
-    Keyword
+    VAR    ${variable}    value    scope=GLOBAL
     One More
 
 

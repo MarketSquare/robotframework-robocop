@@ -32,6 +32,11 @@ Test case with settings and no keyword calls
     [Timeout]    1 min
     [Documentation]    doc
 
+Test only with VAR
+    VAR    ${variable}
+    VAR    ${variable}
+    VAR    ${variable}
+
 
 *** Keywords ***
 Keyword

@@ -19,6 +19,11 @@ Keyword
     No Operation
     Fail
 
+Only VAR
+    VAR    ${variable}
+    VAR    ${variable}
+    VAR    ${variable}
+
 Short Keyword
     Keyword
 

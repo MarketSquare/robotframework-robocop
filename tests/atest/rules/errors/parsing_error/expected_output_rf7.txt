@@ -14,8 +14,8 @@ invalid_try_except.robot:36:1 [E] 0401 Robot Framework syntax error: TRY does no
 invalid_try_except.robot:48:1 [E] 0401 Robot Framework syntax error: EXCEPT branch cannot be empty.
 invalid_try_except.robot:57:1 [E] 0401 Robot Framework syntax error: EXCEPT without patterns must be last.
 invalid_try_except.robot:69:1 [E] 0401 Robot Framework syntax error: Only one EXCEPT without patterns allowed.
-invalid_try_except.robot:83:1 [E] 0401 Robot Framework syntax error: EXCEPT AS requires variable.
-invalid_try_except.robot:91:1 [E] 0401 Robot Framework syntax error: EXCEPT AS accepts only one variable.
+invalid_try_except.robot:83:1 [E] 0401 Robot Framework syntax error: EXCEPT AS requires a value.
+invalid_try_except.robot:91:1 [E] 0401 Robot Framework syntax error: EXCEPT AS accepts only one value.
 invalid_try_except.robot:99:1 [E] 0401 Robot Framework syntax error: EXCEPT AS variable 'foo' is invalid.
 invalid_try_except.robot:109:1 [E] 0401 Robot Framework syntax error: ELSE does not accept arguments, got 'I should not be here'.
 invalid_try_except.robot:121:1 [E] 0401 Robot Framework syntax error: ELSE branch cannot be empty.

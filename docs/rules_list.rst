@@ -34,6 +34,11 @@ Below is the list of all built-in Robocop rules. Enjoy |:sunglasses:|
 {% for rule_doc in checker_group[1] %}
 .. _{{ rule_doc.name }}:
 
+{% if rule_doc.deprecated %}
+.. warning::
+
+      Rule is deprecated.
+{% endif %}
 {{ rule_doc.name }} / {{ rule_doc.severity }}{{ rule_doc.id }}
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 

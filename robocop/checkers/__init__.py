@@ -32,9 +32,8 @@ import importlib.util
 import inspect
 from collections import defaultdict
 from importlib import import_module
-from itertools import chain
 from pathlib import Path
-from typing import Dict, List, Tuple
+from typing import TYPE_CHECKING, Dict, List, Tuple
 
 try:
     from robot.api.parsing import ModelVisitor
@@ -49,6 +48,10 @@ from robocop.exceptions import (
     RuleParamNotFoundError,
     RuleReportsNotFoundError,
 )
+
+if TYPE_CHECKING:
+    from robocop.rules import Rule
+    from robocop.run import Robocop
 
 
 class BaseChecker:
@@ -169,6 +172,7 @@ class RobocopImporter:
         self.imported_modules = set()
         self.seen_modules = set()
         self.seen_checkers = defaultdict(list)
+        self.deprecated_rules = dict()
 
     def get_initialized_checkers(self):
         yield from self._get_checkers_from_modules(self.get_internal_modules(), is_community=False)
@@ -285,11 +289,18 @@ class RobocopImporter:
             rules[rule.name] = rule
         return rules
 
+    def register_deprecated_rules(self, module_rules: Dict[str, "Rule"]):
+        for rule_name, rule_def in module_rules.items():
+            if rule_def.deprecated:
+                self.deprecated_rules[rule_name] = rule_def
+                self.deprecated_rules[rule_def.rule_id] = rule_def
+
     def get_checkers_from_module(self, module, is_community: bool) -> List:
         classes = inspect.getmembers(module, inspect.isclass)
         checkers = [checker for checker in classes if is_checker(checker)]
         category_id = getattr(module, "RULE_CATEGORY_ID", None)
         module_rules = self.get_rules_from_module(module)
+        self.register_deprecated_rules(module_rules)
         checker_instances = []
         for checker in checkers:
             checker_instance = checker[1]()
@@ -310,10 +321,11 @@ class RobocopImporter:
         return checker_instances
 
 
-def init(linter):
+def init(linter: "Robocop"):
     robocop_importer = RobocopImporter(linter.config.ext_rules)
     for checker in robocop_importer.get_initialized_checkers():
         linter.register_checker(checker)
+    linter.rules.update(robocop_importer.deprecated_rules)
 
 
 def get_builtin_rules():

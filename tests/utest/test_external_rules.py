@@ -181,3 +181,36 @@ class TestExternalRules:
         robocop_pre_load.check_for_disabled_rules()
         assert robocop_pre_load.rules["1101"].enabled
         assert robocop_pre_load.rules["1102"].enabled
+
+
+class TestDeprecatedRules:
+    def test_load_deprecated_rules(self, robocop_pre_load, capsys):
+        robocop_pre_load.config.ext_rules = {str(TEST_DATA / "deprecated" / "deprecated_rules.py")}
+        robocop_pre_load.reload_config()
+        # Rules loaded correctly
+        assert all(
+            rule in robocop_pre_load.rules for rule in ("not-deprecated", "deprecated", "deprecated-no-implementation")
+        )
+        # Rules enabled status is set correctly
+        assert all(not robocop_pre_load.rules[rule].enabled for rule in ("deprecated", "deprecated-no-implementation"))
+        assert robocop_pre_load.rules["not-deprecated"].enabled
+        # Deprecated rules are disabled, non deprecated are not
+        assert all(
+            not robocop_pre_load.config.is_rule_enabled(robocop_pre_load.rules[rule])
+            for rule in ("deprecated", "deprecated-no-implementation")
+        )
+        assert robocop_pre_load.config.is_rule_enabled(robocop_pre_load.rules["not-deprecated"])
+        # No warning if rule not mentioned in the configuration
+        out, _ = capsys.readouterr()
+        assert "Rule W1103 deprecated-no-implementation is deprecated. Remove it from your configuration.\n" not in out
+        assert "Rule W1102 deprecated is deprecated. Remove it from your configuration.\n" not in out
+
+    def test_use_deprecated_rule(self, robocop_pre_load, capsys):
+        robocop_pre_load.config.ext_rules = {str(TEST_DATA / "deprecated" / "deprecated_rules.py")}
+        robocop_pre_load.config.configure = ["deprecated:enabled:True"]
+        robocop_pre_load.config.include = {"deprecated-no-implementation"}
+        robocop_pre_load.config.exclude = {"deprecated", "not-deprecated"}
+        robocop_pre_load.reload_config()
+        out, _ = capsys.readouterr()
+        assert "Rule W1103 deprecated-no-implementation is deprecated. Remove it from your configuration.\n" in out
+        assert "Rule W1102 deprecated is deprecated. Remove it from your configuration.\n"

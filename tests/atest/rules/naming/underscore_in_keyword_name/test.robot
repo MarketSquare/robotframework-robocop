@@ -13,6 +13,10 @@ Test
 Test Underscore
     Embedded Keyword With ${variable_with_underscore}
 
+Templated test
+    [Template]    With_Underscore
+
+
 *** Keywords ***
 Keyword
     [Documentation]  this is doc

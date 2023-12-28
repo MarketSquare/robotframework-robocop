@@ -17,13 +17,13 @@ Test
     One More
     [Teardown]  keyword
 
-My Test(s) Are Nice
+Keyword(s) with words inside brackets
     Execute Command(s)
     Test Flash(es)
     Recognize Figure(s) (Math) From Picture
     Test Sulfur (S) Concentration
 
-Weird Test
+Keywords with plural suffixes
     Test Agile Story(-ies)
     Feed Wolf(-ves)
     Life(-ves) Count Should Be
@@ -31,6 +31,11 @@ Weird Test
 Questionable Test
     Test Time Input (s)
     Recognize Figure(s) (art) From Picture
+
+Templated test
+    [Template]    lowercase
+    Pass
+
 
 *** Keywords ***
 keyword

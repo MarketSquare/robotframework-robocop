@@ -1,0 +1,2 @@
+*** Settings ***
+Test Template    End

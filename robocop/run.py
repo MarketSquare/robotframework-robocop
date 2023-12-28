@@ -252,18 +252,18 @@ class Robocop:
             if config.count(":") < 2:
                 raise robocop.exceptions.ConfigGeneralError(
                     f"Provided invalid config: '{config}' (general pattern: <rule>:<param>:<value>)"
-                )
+                ) from None
             rule_or_report, param, value = config.split(":", maxsplit=2)
             if rule_or_report in self.rules:
                 rule = self.rules[rule_or_report]
-                rule.configure(param, value)
+                if rule.deprecated:
+                    rule.deprecation_warning()
+                else:
+                    rule.configure(param, value)
             elif rule_or_report in self.reports:
                 self.reports[rule_or_report].configure(param, value)
             else:
-                similar = RecommendationFinder().find_similar(rule_or_report, self.rules)
-                raise robocop.exceptions.ConfigGeneralError(
-                    f"Provided rule or report '{rule_or_report}' does not exist. {similar}"
-                )
+                raise robocop.exceptions.RuleOrReportDoesNotExist(rule_or_report, self.rules)
 
 
 def run_robocop():

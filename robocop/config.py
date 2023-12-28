@@ -5,22 +5,18 @@ import re
 import sys
 from itertools import chain
 from pathlib import Path
-from typing import Dict, Pattern, Set
+from typing import TYPE_CHECKING, Dict, Pattern, Set
 
 import tomli
 from robot.utils import FileReader
 
-from robocop.exceptions import (
-    ArgumentFileNotFoundError,
-    CircularArgumentFileError,
-    ConfigGeneralError,
-    InvalidArgumentError,
-    TomlFileNotFoundError,
-)
+from robocop import exceptions
 from robocop.files import DEFAULT_EXCLUDES, find_file_in_project_root, find_project_root
 from robocop.rules import RuleFilter, RuleSeverity
-from robocop.utils import RecommendationFinder
 from robocop.version import __version__
+
+if TYPE_CHECKING:
+    from robocop.rules import Rule
 
 
 def translate_pattern(pattern: str) -> Pattern:
@@ -79,14 +75,14 @@ class CustomArgParser(argparse.ArgumentParser):
         if self.from_cli:
             super().error(message)
         else:
-            raise InvalidArgumentError(message)
+            raise exceptions.InvalidArgumentError(message)
 
 
 def validate_regex(pattern: str) -> Pattern:
     try:
         return re.compile(pattern) if pattern is not None else None
     except re.error:
-        raise ConfigGeneralError(f"Provided regex pattern {pattern} failed to be compiled")
+        raise exceptions.ConfigGeneralError(f"Provided regex pattern {pattern} failed to be compiled")
 
 
 def resolve_relative_path(orig_path, config_dir: Path, ensure_exists: bool):
@@ -121,7 +117,7 @@ class ArgumentFileParser:
                 parsed_args.append(arg)
                 continue
             if not args:  # argumentfile option declared but filename was not provided
-                raise ArgumentFileNotFoundError("") from None
+                raise exceptions.ArgumentFileNotFoundError("") from None
             argfile = args.pop(0)
             argfile_path = Path(argfile)
             if argfile_path.is_file():
@@ -157,7 +153,7 @@ class ArgumentFileParser:
         if config_dir is not None:
             argfile = resolve_relative_path(argfile, config_dir, True)
         if argfile in self.loaded_argument_files:
-            raise CircularArgumentFileError(argfile) from None
+            raise exceptions.CircularArgumentFileError(argfile) from None
         self.loaded_argument_files.add(argfile)
         try:
             with FileReader(argfile) as arg_f:
@@ -173,7 +169,7 @@ class ArgumentFileParser:
                     self.config_from = argfile
                 return args
         except FileNotFoundError:
-            raise ArgumentFileNotFoundError(argfile) from None
+            raise exceptions.ArgumentFileNotFoundError(argfile) from None
 
 
 class Config:
@@ -455,8 +451,7 @@ class Config:
         self.remove_severity()
         self.translate_patterns()
         self.print_config_source()
-        self.validate_rule_names(rules)
-        self.check_deprecations(rules)
+        self.validate_rules_exists_and_not_deprecated(rules)
 
     def print_config_source(self):
         # We can only print after reading all configs, since self.verbose is unknown before we read it from config
@@ -494,7 +489,7 @@ class Config:
             with Path(pyproject_path).open("rb") as fp:
                 config = tomli.load(fp)
         except tomli.TOMLDecodeError as err:
-            raise InvalidArgumentError(f"Failed to decode {str(pyproject_path)}: {err}") from None
+            raise exceptions.InvalidArgumentError(f"Failed to decode {str(pyproject_path)}: {err}") from None
         config = config.get("tool", {}).get("robocop", {})
         if self.parse_toml_to_config(config, config_dir):
             self.config_from = pyproject_path
@@ -505,7 +500,7 @@ class Config:
         if args.config is not None:
             config_path = Path(args.config)
             if not config_path.is_file():
-                raise TomlFileNotFoundError(str(config_path)) from None
+                raise exceptions.TomlFileNotFoundError(str(config_path)) from None
             self.load_pyproject_file(config_path)
         for key, value in dict(**vars(args)).items():
             if key in self.__dict__:
@@ -525,48 +520,15 @@ class Config:
         container.remove(old_key)
         container.add(new_key)
 
-    def validate_rule_names(self, rules):
+    def validate_rules_exists_and_not_deprecated(self, rules: Dict[str, "Rule"]):
         for rule in chain(self.include, self.exclude):
             if rule not in rules:
-                similar = RecommendationFinder().find_similar(rule, rules)
-                raise ConfigGeneralError(f"Provided rule '{rule}' does not exist. {similar}")
+                raise exceptions.RuleDoesNotExist(rule, rules) from None
+            rule_def = rules[rule]
+            if rule_def.deprecated:
+                rule_def.deprecation_warning()
 
-    def check_deprecations(self, rules):
-        renamed = {
-            # "old-name": "new-name"
-        }
-        deprecated = {
-            # "rule-name": "deprecation message"
-        }
-        if not (deprecated or renamed):
-            return
-        deprecation_header = "### DEPRECATION WARNING ###"
-        deprecation_footer = "This information will disappear in the next version.\n\n"
-        # get all rules mentioned in include and exclude CLI options
-        mentioned_rules = self.include.union(self.exclude)
-        # add the rules mentioned in configure CLI option
-        mentioned_rules.update(configured.split(":", 1)[0] for configured in self.configure)
-        for rule in mentioned_rules:
-            if rule not in rules:  # reports can also be configured, but we only want rules here
-                continue
-            rule_name = rules[rule].name
-            if rule_name in renamed:  # update warning description to specific case
-                print(
-                    f"{deprecation_header}\n"
-                    f"Rule '{rule_name}' is renamed to '{renamed[rule_name]}'.\n"
-                    f"Update your configuration if you're using the old name. "
-                    f"{deprecation_footer}"
-                )
-                self.replace_in_set(self.include, rule_name, renamed[rule_name])
-                self.replace_in_set(self.exclude, rule_name, renamed[rule_name])
-            if rule_name in deprecated:
-                print(
-                    f"{deprecation_header}\n"
-                    f"Rule '{rule_name}' is deprecated - {deprecated[rule_name]}\n"
-                    f"{deprecation_footer}"
-                )
-
-    def is_rule_enabled(self, rule):
+    def is_rule_enabled(self, rule: "Rule") -> bool:
         if self.is_rule_disabled(rule):
             return False
         if self.include or self.include_patterns:  # if any include pattern, it must match with something
@@ -578,8 +540,8 @@ class Config:
             return False
         return rule.enabled
 
-    def is_rule_disabled(self, rule):
-        if not rule.enabled_in_version:
+    def is_rule_disabled(self, rule: "Rule") -> bool:
+        if rule.deprecated or not rule.enabled_in_version:
             return True
         if rule.severity < self.threshold and not rule.config.get("severity_threshold"):
             return True
@@ -590,7 +552,7 @@ class Config:
                 return True
         return False
 
-    def is_path_ignored(self, path):
+    def is_path_ignored(self, path) -> bool:
         for pattern in self.ignore:
             if path.match(pattern):
                 return True
@@ -642,5 +604,7 @@ class Config:
             elif key == "persistent":
                 self.persistent = value
             else:
-                raise InvalidArgumentError(f"Option '{key}' is not supported in pyproject.toml configuration file.")
+                raise exceptions.InvalidArgumentError(
+                    f"Option '{key}' is not supported in pyproject.toml configuration file."
+                ) from None
         return True

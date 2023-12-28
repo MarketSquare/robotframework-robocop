@@ -284,6 +284,7 @@ class Rule:
         docs: str = "",
         added_in_version: Optional[str] = None,
         enabled: bool = True,
+        deprecated: bool = False,
     ):
         """
         :param params: RuleParam() or SeverityThreshold() instances
@@ -295,6 +296,8 @@ class Rule:
         :param docs: Full documentation of the rule (rst supported)
         description of the rule
         :param added_in_version: Version of the Robocop when the Rule was created
+        :param enabled: Enable/disable rule by default using this parameter
+        :param deprecated: Deprecate rule. If rule is used in configuration, it will issue a warning.
         """
         self.rule_id = rule_id
         self.name = name
@@ -321,6 +324,7 @@ class Rule:
         for param in params:
             self.config[param.name] = param
         self.supported_version = version if version else "All"
+        self.deprecated = deprecated
         self.enabled_in_version = self.supported_in_rf_version(version)
         self.added_in_version = added_in_version
         self.community_rule = False
@@ -332,6 +336,8 @@ class Rule:
 
     @property
     def enabled(self):
+        if self.deprecated:
+            return False
         return self.config["enabled"].value
 
     @enabled.setter
@@ -347,6 +353,10 @@ class Rule:
             desc += "\n"
             desc += self.docs
         return desc
+
+    def deprecation_warning(self):
+        """Used when rule is deprecated and used in configuration."""
+        print(f"Rule {self.severity}{self.rule_id} {self.name} is deprecated. " f"Remove it from your configuration.")
 
     def get_severity_with_threshold(self, threshold_value):
         if threshold_value is None:
@@ -377,10 +387,7 @@ class Rule:
         return self.msg
 
     def __str__(self):
-        return (
-            f"Rule - {self.rule_id} [{self.config['severity'].value}]: {self.name}: {self.msg} "
-            f"({self.get_enabled_status_desc()})"
-        )
+        return f"Rule - {self.rule_id} [{self.severity}]: {self.name}: {self.msg} ({self.get_enabled_status_desc()})"
 
     def get_enabled_status_desc(self):
         s = "enabled" if self.enabled else "disabled"

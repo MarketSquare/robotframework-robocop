@@ -87,6 +87,7 @@ def get_checker_docs():
                 "robocop_version": robocop_version,
                 "msg": rule.msg,
                 "docs": rule.docs,
+                "deprecated": rule.deprecated,
                 "params": [
                     {
                         "name": param.name,

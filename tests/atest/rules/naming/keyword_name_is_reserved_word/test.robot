@@ -11,6 +11,9 @@ Test
     One More
     RETURN
 
+Templated test
+    [Template]    End
+
 
 *** Keywords ***
 Keyword
@@ -34,7 +37,6 @@ While
     Try
     Except
     finally
-
 
 Run Keyword If
     [Arguments]    ${name}    ${condition}    @{args}

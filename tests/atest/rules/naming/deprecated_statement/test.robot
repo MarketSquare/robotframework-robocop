@@ -16,6 +16,9 @@ Test
     builtin.run_KeywoRD_UNLESS   True   Hello World
     BuiltIn.Run Keyword Unless   True   Hello World
 
+Templated test
+    [Template]    Run Keyword Unless
+
 *** Keywords ***
 CONTINUE and BREAK
     FOR    ${var}  IN RANGE  10

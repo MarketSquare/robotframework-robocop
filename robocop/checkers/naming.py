@@ -677,6 +677,14 @@ class KeywordNamingChecker(VisitorChecker):
 
     visit_TestTeardown = visit_SuiteTeardown = visit_Teardown = visit_TestSetup = visit_SuiteSetup = visit_Setup
 
+    def visit_Template(self, node):  # noqa
+        if node.value:
+            name_token = node.get_token(Token.NAME)
+            self.check_keyword_naming(node.value, name_token)
+        self.generic_visit(node)
+
+    visit_TestTemplate = visit_Template
+
     def visit_Keyword(self, node):  # noqa
         if not node.name:
             self.report("keyword-name-is-empty", node=node)
@@ -1295,6 +1303,13 @@ class DeprecatedStatementChecker(VisitorChecker):
         self.check_if_keyword_is_deprecated(node.name, node)
 
     visit_TestSetup = visit_Setup = visit_SuiteTeardown = visit_TestTeardown = visit_Teardown = visit_SuiteSetup
+
+    def visit_Template(self, node):  # noqa
+        if not node.value:
+            return
+        self.check_if_keyword_is_deprecated(node.value, node)
+
+    visit_TestTemplate = visit_Template
 
     def visit_Return(self, node):  # noqa
         """For RETURN use visit_ReturnStatement - visit_Return will most likely visit RETURN in the future"""

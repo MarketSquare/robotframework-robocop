@@ -526,7 +526,7 @@ class Config:
                 raise exceptions.RuleDoesNotExist(rule, rules) from None
             rule_def = rules[rule]
             if rule_def.deprecated:
-                rule_def.deprecation_warning()
+                print(rule_def.deprecation_warning)
 
     def is_rule_enabled(self, rule: "Rule") -> bool:
         if self.is_rule_disabled(rule):

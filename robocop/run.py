@@ -257,7 +257,7 @@ class Robocop:
             if rule_or_report in self.rules:
                 rule = self.rules[rule_or_report]
                 if rule.deprecated:
-                    rule.deprecation_warning()
+                    print(rule.deprecation_warning)
                 else:
                     rule.configure(param, value)
             elif rule_or_report in self.reports:

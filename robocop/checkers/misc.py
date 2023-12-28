@@ -464,6 +464,7 @@ rules = {
         name="unnecessary-string-conversion",
         msg="Variable '{{ name }}' in '{{ block_name }}' condition has unnecessary string conversion",
         severity=RuleSeverity.INFO,
+        deprecated=True,
         version=">=4.0",
         docs="""
         Expressions in Robot Framework are evaluated using Python's eval function. When a variable is used
@@ -1344,7 +1345,7 @@ class UnusedVariablesChecker(VisitorChecker):
 
 
 class ExpressionsChecker(VisitorChecker):
-    reports = ("unnecessary-string-conversion", "expression-can-be-simplified", "misplaced-negative-condition")
+    reports = ("expression-can-be-simplified", "misplaced-negative-condition")
     QUOTE_CHARS = {"'", '"'}
     CONDITION_KEYWORDS = {"passexecutionif", "setvariableif", "shouldbetrue", "shouldnotbetrue", "skipif"}
     COMPARISON_SIGNS = {"==", "!="}
@@ -1384,21 +1385,6 @@ class ExpressionsChecker(VisitorChecker):
             self.check_for_complex_condition(
                 condition_token, node_name, match.before, match.match, match.after, position
             )
-            if not match.before or not match.after:
-                continue
-            if (
-                match.before[-1] in self.QUOTE_CHARS
-                and match.before[-1] == match.after[0]
-                and not match.match.startswith("%")
-            ):
-                self.report(
-                    "unnecessary-string-conversion",
-                    name=match.match,
-                    block_name=node_name,
-                    node=condition_token,
-                    col=position,
-                    end_col=position + len(match.match),
-                )
 
     def check_for_misplaced_not(self, condition_token, node_name, left_side, variable, right_side):
         """Check if the condition contains misplaced not.

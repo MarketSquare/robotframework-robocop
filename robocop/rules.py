@@ -354,9 +354,10 @@ class Rule:
             desc += self.docs
         return desc
 
+    @property
     def deprecation_warning(self):
         """Used when rule is deprecated and used in configuration."""
-        print(f"Rule {self.severity}{self.rule_id} {self.name} is deprecated. " f"Remove it from your configuration.")
+        return f"Rule {self.severity}{self.rule_id} {self.name} is deprecated. Remove it from your configuration."
 
     def get_severity_with_threshold(self, threshold_value):
         if threshold_value is None:

@@ -14,7 +14,7 @@ from robocop.config import Config
 from robocop.files import get_files
 from robocop.reports import is_report_comparable, load_reports_result_from_cache, save_reports_result_to_cache
 from robocop.rules import Message, RuleFilter
-from robocop.utils import DisablersFinder, FileType, FileTypeChecker, RecommendationFinder, is_suite_templated
+from robocop.utils import DisablersFinder, FileType, FileTypeChecker, is_suite_templated
 from robocop.utils.file_types import check_model_type, get_resource_with_lang
 from robocop.utils.misc import ROBOCOP_RULES_URL, get_plural_form
 

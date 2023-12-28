@@ -6,3 +6,4 @@ test.robot:41:12:41:18 [I] 0920 Variable '${var}' is assigned but not used
 test.robot:67:12:67:23 [I] 0920 Variable '${category}' is assigned but not used
 test.robot:115:5:115:11 [I] 0920 Variable '${var}' is assigned but not used
 test.robot:118:5:118:14 [I] 0920 Variable '${assign}' is assigned but not used
+unused_section_vars.robot:7:1:7:19 [I] 0920 Variable '${GLOBAL_NOT_USED}' is assigned but not used

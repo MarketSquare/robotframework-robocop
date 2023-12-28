@@ -1,9 +1,10 @@
 """
 Miscellaneous checkers
 """
+import ast
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Dict, Optional
+from typing import Dict, List, Optional
 
 from robot.api import Token
 from robot.errors import VariableError
@@ -1034,6 +1035,21 @@ class CachedVariable:
     is_used: bool
 
 
+class SectionVariablesCollector(ast.NodeVisitor):
+    """Visitor for collecting all variables in the suite"""
+
+    def __init__(self):
+        self.section_variables: Dict[str, CachedVariable] = {}
+
+    def visit_Variable(self, node):  # noqa
+        if get_errors(node):
+            return
+        var_token = node.get_token(Token.VARIABLE)
+        variable_match = search_variable(var_token.value, ignore_errors=True)
+        normalized = normalize_robot_name(variable_match.base)
+        self.section_variables[normalized] = CachedVariable(variable_match.name, var_token, False)
+
+
 class UnusedVariablesChecker(VisitorChecker):
     reports = (
         "unused-argument",
@@ -1043,12 +1059,35 @@ class UnusedVariablesChecker(VisitorChecker):
     )
 
     def __init__(self):
-        self.arguments = {}
-        self.variables = [{}]  # variables are list of scope-dictionaries, to support IF branches
+        self.arguments: Dict[str, CachedVariable] = {}
+        self.variables: List[Dict[str, CachedVariable]] = [
+            {}
+        ]  # variables are list of scope-dictionaries, to support IF branches
+        self.section_variables: Dict[str, CachedVariable] = {}
         self.used_in_scope = set()  # variables that were used in current FOR/WHILE loop
         self.ignore_overwriting = False  # temporarily ignore overwriting, e.g. in FOR loops
         self.in_loop = False  # if we're in the loop we need to check whole scope for unused-variable
+        self.test_or_task_section = False
         super().__init__()
+
+    def visit_File(self, node):  # noqa
+        self.test_or_task_section = False
+        section_variables = SectionVariablesCollector()
+        section_variables.visit(node)
+        self.section_variables = section_variables.section_variables
+        self.generic_visit(node)
+        self.report_not_used_section_variables()
+
+    def report_not_used_section_variables(self):
+        if not self.test_or_task_section:
+            return
+        self.check_unused_variables_in_scope(self.section_variables)
+
+    def visit_TestCaseSection(self, node):  # noqa
+        self.test_or_task_section = True
+        self.generic_visit(node)
+
+    visit_TaskSection = visit_TestCaseSection
 
     def visit_TestCase(self, node):  # noqa
         self.variables = [{}]
@@ -1074,9 +1113,12 @@ class UnusedVariablesChecker(VisitorChecker):
 
     def check_unused_variables(self):
         for scope in self.variables:
-            for variable in scope.values():
-                if not variable.is_used:
-                    self.report_arg_or_var_rule("unused-variable", variable.token, variable.name)
+            self.check_unused_variables_in_scope(scope)
+
+    def check_unused_variables_in_scope(self, scope):
+        for variable in scope.values():
+            if not variable.is_used:
+                self.report_arg_or_var_rule("unused-variable", variable.token, variable.name)
 
     def report_arg_or_var_rule(self, rule, token, value=None):
         if value is None:
@@ -1208,13 +1250,30 @@ class UnusedVariablesChecker(VisitorChecker):
         for token in node.get_tokens(Token.ASSIGN):  # we first check args, then assign for used and then overwritten
             self.handle_assign_variable(token)
 
+    def visit_Variable(self, node):  # noqa
+        """Visit section variables.
+
+        We already visit and collect section variables definitions, but we revisit it to find variables that are used
+        in other variables.
+        """
+        for token in node.get_tokens(Token.ARGUMENT):
+            self.find_not_nested_variable(token.value, is_var=False)
+
+    @staticmethod
+    def _is_var_scope_local(node):
+        is_local = True
+        for option in node.get_tokens(Token.OPTION):
+            if "scope=" in option.value:
+                is_local = option.value.lower() == "scope=local"
+        return is_local
+
     def visit_Var(self, node):  # noqa
         if node.errors:  # for example invalid variable definition like $var}
             return
         for arg in node.get_tokens(Token.ARGUMENT):
             self.find_not_nested_variable(arg.value, is_var=False)
         variable = node.get_token(Token.VARIABLE)
-        if variable:
+        if variable and self._is_var_scope_local(node):
             self.handle_assign_variable(variable)
 
     def visit_Return(self, node):  # noqa
@@ -1318,9 +1377,13 @@ class UnusedVariablesChecker(VisitorChecker):
         """
         normalized = normalize_robot_name(variable_name)
         self.used_in_scope.add(normalized)
-        self._set_variable_as_used(normalized, self.arguments)
-        for variable_scope in self.variables[::-1]:
+        for variable_scope in self.variable_namespaces():
             self._set_variable_as_used(normalized, variable_scope)
+
+    def variable_namespaces(self):
+        yield self.arguments
+        yield self.section_variables
+        yield from self.variables[::-1]
 
     def _set_variable_as_used(self, normalized_name: str, variable_scope: Dict[str, CachedVariable]) -> None:
         """

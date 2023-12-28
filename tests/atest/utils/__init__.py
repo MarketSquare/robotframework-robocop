@@ -13,8 +13,6 @@ from robocop.config import Config
 from robocop.utils.misc import ROBOT_VERSION
 from robocop.utils.version_matching import VersionSpecifier
 
-DEPRECATION_PERIOD = False
-
 
 @contextlib.contextmanager
 def isolated_output():
@@ -41,14 +39,6 @@ def normalize_result(result, test_data):
     """Remove test data directory path from paths and sort the lines."""
     test_data_str = f"{test_data}{os.path.sep}"
     return sorted([line.replace(test_data_str, "") for line in result])
-
-
-def remove_deprecation_warning(result):
-    """Remove deprecation warning from the results"""
-    deprecation_regex = (
-        r"(?s)(\#\#\# DEPRECATION WARNING \#\#\#)(.*?)(This information will disappear in the next version\.\n+)"
-    )
-    return re.sub(deprecation_regex, "", result)
 
 
 def load_expected_file(test_data, expected_file):
@@ -94,12 +84,13 @@ class RuleAcceptance:
 
     def check_rule(
         self,
-        expected_file,
-        config=None,
-        rule=None,
+        expected_file: Optional[str] = None,
+        config: Optional[str] = None,
+        rule: Optional[str] = None,
         src_files: Optional[List] = None,
-        target_version=None,
-        issue_format="default",
+        target_version: Optional[str] = None,
+        issue_format: str = "default",
+        deprecated: bool = False,
     ):
         if not self.enabled_in_version(target_version):
             pytest.skip(f"Test enabled only for RF {target_version}")
@@ -115,12 +106,11 @@ class RuleAcceptance:
             finally:
                 sys.stdout.flush()
                 result = get_result(output)
-                if DEPRECATION_PERIOD:
-                    parsed_results = remove_deprecation_warning(result).splitlines()
-                else:
-                    parsed_results = result.splitlines()
+                parsed_results = result.splitlines()
         actual = normalize_result(parsed_results, test_data)
-        if actual != expected:
+        if deprecated:
+            assert robocop_instance.rules[self.rule_name].deprecation_warning in actual
+        elif actual != expected:
             missing_expected = sorted(set(actual) - set(expected))
             missing_actual = sorted(set(expected) - set(actual))
             error = "Actual issues are different than expected.\n"

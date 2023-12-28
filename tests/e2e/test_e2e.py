@@ -372,7 +372,9 @@ class TestTranslatedRobot:
 
     def test_all_builtin_rules_should_be_enabled_by_default(self, robocop_instance):
         robocop_instance.reload_config()
-        builtin_rules = [rule for rule in robocop_instance.rules.values() if not rule.community_rule]
+        builtin_rules = [
+            rule for rule in robocop_instance.rules.values() if not rule.community_rule and not rule.deprecated
+        ]
         assert builtin_rules != []
         disabled_builtin = {rule.name for rule in builtin_rules if not rule.enabled and rule.enabled_in_version}
         assert disabled_builtin == set()
@@ -400,7 +402,9 @@ class TestTranslatedRobot:
 
     def test_builtin_rules_have_matching_category_id(self, robocop_instance):
         robocop_instance.reload_config()
-        builtin_rules = [rule for rule in robocop_instance.rules.values() if not rule.community_rule]
+        builtin_rules = [
+            rule for rule in robocop_instance.rules.values() if not rule.community_rule and not rule.deprecated
+        ]
         assert builtin_rules != []
         errors = []
         for rule in builtin_rules:

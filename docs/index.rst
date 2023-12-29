@@ -23,6 +23,7 @@ Table of contents
 
    rule_basics
    rules_list
+   community_rules
    external_rules
 
 .. toctree::

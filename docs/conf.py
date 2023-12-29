@@ -68,12 +68,16 @@ def setup(app):
     app.add_css_file("css/custom.css")
 
 
-def get_checker_docs():
+def get_checker_docs(rule_type: str):
     """
     Load rules for dynamic docs generation
     """
     checker_docs = defaultdict(list)
-    for module_name, rule in robocop.checkers.get_builtin_rules():
+    if rule_type == "builtin":
+        rules = robocop.checkers.get_builtin_rules()
+    else:
+        rules = robocop.checkers.get_community_rules()
+    for module_name, rule in rules:
         module_name = module_name.title()
         severity_threshold = rule.config.get("severity_threshold", None)
         robocop_version = rule.added_in_version if rule.added_in_version else "\\-"
@@ -110,4 +114,4 @@ def get_checker_docs():
     return groups_sorted_by_id
 
 
-html_context = {"checker_groups": get_checker_docs()}
+html_context = {"builtin_checkers": get_checker_docs("builtin"), "community_checkers": get_checker_docs("community")}

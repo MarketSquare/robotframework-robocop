@@ -88,7 +88,7 @@ class RuleAcceptance:
         config: Optional[str] = None,
         rule: Optional[str] = None,
         src_files: Optional[List] = None,
-        target_version: Optional[str] = None,
+        target_version: Optional[Union[str, List[str]]] = None,
         issue_format: str = "default",
         deprecated: bool = False,
     ):
@@ -142,6 +142,14 @@ class RuleAcceptance:
 
     @staticmethod
     def enabled_in_version(target_version: Optional[Union["list", str]]):
+        """
+        Check if rule is enabled for given target version condition.
+
+        If the target version condition is a string it needs to match with RF version.
+        If target version is a string and  contains `;`, the string is split into list and each element is a condition
+        that should match RF version.
+        If the target version is a list of strings, any version conditions need to match.
+        """
         if target_version is None:
             return True
         if isinstance(target_version, list):

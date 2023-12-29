@@ -51,3 +51,12 @@ Set Variable Scope
     Set Test Variable    ${VARIABLE}    ${VARIABLE}  # should report only on second
     BuiltIn.Set Suite Variable    ${VARIABLE}    ${variable}  # should report only on second
     Set Suite Variable    ${VARIABLE}    ${VARIABLE}  # should not report
+
+VAR Syntax
+    ${variable}    Set Variable    value
+    VAR    ${VARIABLE}    ${VARIABLE}  # should report on second
+    VAR    ${variable2}    value    scope=local
+    VAR    ${VARIABLE2}    ${variable2}    scope=TEST  # overwritten,  should not report
+    VAR    ${VARIABLE2}    Value with ${VARIABLE2}    scope=GLOBAL  # should not report
+    VAR    ${VARIABLE3}    Value with inconsistent ${variable2}
+    VAR    ${variable}    ${VARIABLE}  # should not report

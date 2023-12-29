@@ -1187,6 +1187,15 @@ class SimilarVariableChecker(VisitorChecker):
         tokens = node.get_tokens(Token.ASSIGN)
         self.find_similar_variables(tokens, node)
 
+    def visit_Var(self, node):  # noqa
+        if node.errors:  # for example invalid variable definition like $var}
+            return
+        for arg in node.get_tokens(Token.ARGUMENT):
+            self.find_not_nested_variable(arg, arg.value, is_var=False)
+        variable = node.get_token(Token.VARIABLE)
+        if variable:
+            self.find_similar_variables([variable], node)
+
     def visit_If(self, node):  # noqa
         for token in node.header.get_tokens(Token.ARGUMENT):
             self.find_not_nested_variable(token, token.value, is_var=False)

@@ -100,3 +100,10 @@ Assignment Sign But Not Overwritten
 Item Assignment
     ${variable}    Create Dictionary
     ${VARIABLE}[item]    Set Variable    value
+
+VAR Syntax
+    ${variable_name} =    Set Variable    value
+    VAR    ${variableName}    value
+    VAR    ${variable name}    value    scope=GLOBAL
+    VAR    ${variable namE}=    value    scope=local
+    VAR    ${variable_name}    Value with ${Variable_Name}    scope=SUITE

@@ -13,3 +13,7 @@ Deprecated rule implementation can be removed and only rule definition can stay.
 ``--exclude`` or ``--configure`` warning will be printed::
 
     Rule W1102 deprecated is deprecated. Remove it from your configuration.
+
+Deprecated rules can be now listed with ``DEPRECATED`` filter::
+
+    robocop --list DEPRECATED

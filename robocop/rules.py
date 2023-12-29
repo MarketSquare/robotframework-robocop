@@ -97,27 +97,34 @@ class RuleSeverity(Enum):
 
 
 class RuleFilter:
-    EMPTY_PATTERN = "EMPTY_PATTERN"
-    ALL_PATTERN = "ALL"
-    ENABLED_PATTERN = "ENABLED"
-    DISABLED_PATTERN = "DISABLED"
-    COMMUNITY_PATTERN = "COMMUNITY"
+    DEFAULT = "DEFAULT"
+    ALL = "ALL"
+    ENABLED = "ENABLED"
+    DISABLED = "DISABLED"
+    COMMUNITY = "COMMUNITY"
+    DEPRECATED = "DEPRECATED"
 
     def get_filtered_rules(self, rules, pattern):
-        if pattern in (self.ENABLED_PATTERN, self.DISABLED_PATTERN):
+        if pattern in (self.ENABLED, self.DISABLED):
             rule_by_id = {
                 rule.rule_id: rule
                 for rule in rules.values()
-                if pattern.lower() in rule.get_enabled_status_desc() and not rule.community_rule
+                if pattern.lower() in rule.get_enabled_status_desc() and not rule.community_rule and not rule.deprecated
             }
-        elif pattern == self.COMMUNITY_PATTERN:
-            rule_by_id = {rule.rule_id: rule for rule in rules.values() if rule.community_rule}
-        elif pattern == self.EMPTY_PATTERN:
-            rule_by_id = {rule.rule_id: rule for rule in rules.values() if not rule.community_rule}
-        elif pattern == self.ALL_PATTERN:
-            rule_by_id = {rule.rule_id: rule for rule in rules.values()}
+        elif pattern == self.COMMUNITY:
+            rule_by_id = {rule.rule_id: rule for rule in rules.values() if rule.community_rule and not rule.deprecated}
+        elif pattern == self.DEFAULT:
+            rule_by_id = {
+                rule.rule_id: rule for rule in rules.values() if not rule.community_rule and not rule.deprecated
+            }
+        elif pattern == self.ALL:
+            rule_by_id = {rule.rule_id: rule for rule in rules.values() if not rule.deprecated}
+        elif pattern == self.DEPRECATED:
+            rule_by_id = {rule.rule_id: rule for rule in rules.values() if rule.deprecated}
         else:
-            rule_by_id = {rule.rule_id: rule for rule in rules.values() if rule.matches_pattern(pattern)}
+            rule_by_id = {
+                rule.rule_id: rule for rule in rules.values() if rule.matches_pattern(pattern) and not rule.deprecated
+            }
         return sorted(rule_by_id.values(), key=lambda x: int(x.rule_id))
 
 
@@ -391,10 +398,13 @@ class Rule:
         return f"Rule - {self.rule_id} [{self.severity}]: {self.name}: {self.msg} ({self.get_enabled_status_desc()})"
 
     def get_enabled_status_desc(self):
-        s = "enabled" if self.enabled else "disabled"
-        if not self.enabled and self.supported_version != "All":
-            s += f" - supported only for RF version {self.supported_version}"
-        return s
+        if self.deprecated:
+            return "deprecated"
+        if self.enabled:
+            return "enabled"
+        if self.supported_version != "All":
+            return f"disabled - supported only for RF version {self.supported_version}"
+        return "disabled"
 
     def configure(self, param, value):
         if param not in self.config:

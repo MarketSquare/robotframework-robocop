@@ -54,7 +54,7 @@ class SetRuleThreshold(argparse.Action):
 
 class SetListOption(argparse.Action):
     def __call__(self, parser, namespace, values, option_string=None):
-        pattern = values if values else RuleFilter.EMPTY_PATTERN
+        pattern = values if values else RuleFilter.DEFAULT
         if "*" in pattern:
             pattern = translate_pattern(pattern)
         setattr(namespace, self.dest, pattern)

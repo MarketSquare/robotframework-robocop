@@ -98,6 +98,23 @@ def msg_disabled_for_4():
     }
 
 
+@pytest.fixture
+def deprecated_rule():
+    return {
+        "9991": Rule(
+            rule_id="9991", name="deprecated-rule", msg="Deprecated rule", severity=RuleSeverity.ERROR, deprecated=True
+        ),
+        "9992": Rule(
+            rule_id="9992",
+            name="deprecated-disabled-rule",
+            msg="Deprecated and disabled rule",
+            severity=RuleSeverity.INFO,
+            deprecated=True,
+            enabled=False,
+        ),
+    }
+
+
 def init_empty_checker(robocop_instance_pre_load, rule, exclude=False, **kwargs):
     checker = EmptyChecker()
     checker.rules = rule
@@ -111,10 +128,11 @@ def init_empty_checker(robocop_instance_pre_load, rule, exclude=False, **kwargs)
 
 
 class TestListingRules:
-    def test_list_rule(self, robocop_pre_load, msg_0101, community_rule, capsys):
-        robocop_pre_load.config.list = RuleFilter.EMPTY_PATTERN
+    def test_list_rule(self, robocop_pre_load, msg_0101, community_rule, deprecated_rule, capsys):
+        robocop_pre_load.config.list = RuleFilter.DEFAULT
         init_empty_checker(robocop_pre_load, msg_0101)
         init_empty_checker(robocop_pre_load, community_rule)
+        init_empty_checker(robocop_pre_load, deprecated_rule)
         with pytest.raises(SystemExit):
             robocop_pre_load.list_checkers()
         out, _ = capsys.readouterr()
@@ -149,7 +167,7 @@ class TestListingRules:
         )
 
     def test_list_filter_enabled(self, robocop_pre_load, msg_0101, msg_0102_0204, capsys):
-        robocop_pre_load.config.list = "ENABLED"
+        robocop_pre_load.config.list = RuleFilter.ENABLED
         init_empty_checker(robocop_pre_load, msg_0101)
         init_empty_checker(robocop_pre_load, msg_0102_0204, exclude=True)
         with pytest.raises(SystemExit):
@@ -164,9 +182,10 @@ class TestListingRules:
             "Visit https://robocop.readthedocs.io/en/stable/rules_list.html page for detailed documentation.\n"
         )
 
-    def test_list_filter_disabled(self, robocop_pre_load, msg_0101, msg_0102_0204, capsys):
-        robocop_pre_load.config.list = "DISABLED"
+    def test_list_filter_disabled(self, robocop_pre_load, msg_0101, msg_0102_0204, deprecated_rule, capsys):
+        robocop_pre_load.config.list = RuleFilter.DISABLED
         init_empty_checker(robocop_pre_load, msg_0101)
+        init_empty_checker(robocop_pre_load, deprecated_rule)
         init_empty_checker(robocop_pre_load, msg_0102_0204, exclude=True)
         with pytest.raises(SystemExit):
             robocop_pre_load.list_checkers()
@@ -174,6 +193,24 @@ class TestListingRules:
         assert (
             out == "Rule - 0102 [E]: other-message: this is description (disabled)\n"
             "Rule - 0204 [I]: another-message: Message with meaning 4 (disabled)\n\n"
+            "Altogether 2 rules with following severity:\n"
+            "    1 error rule,\n"
+            "    0 warning rules,\n"
+            "    1 info rule.\n\n"
+            "Visit https://robocop.readthedocs.io/en/stable/rules_list.html page for detailed documentation.\n"
+        )
+
+    def test_list_filter_deprecated(self, robocop_pre_load, msg_0101, msg_0102_0204, deprecated_rule, capsys):
+        robocop_pre_load.config.list = RuleFilter.DEPRECATED
+        init_empty_checker(robocop_pre_load, msg_0101)
+        init_empty_checker(robocop_pre_load, deprecated_rule)
+        init_empty_checker(robocop_pre_load, msg_0102_0204, exclude=True)
+        with pytest.raises(SystemExit):
+            robocop_pre_load.list_checkers()
+        out, _ = capsys.readouterr()
+        assert (
+            out == "Rule - 9991 [E]: deprecated-rule: Deprecated rule (deprecated)\n"
+            "Rule - 9992 [I]: deprecated-disabled-rule: Deprecated and disabled rule (deprecated)\n\n"
             "Altogether 2 rules with following severity:\n"
             "    1 error rule,\n"
             "    0 warning rules,\n"
@@ -204,10 +241,11 @@ class TestListingRules:
         )
         assert all(msg in out for msg in exp_msg)
 
-    def test_list_filtered(self, robocop_pre_load, msg_0101, msg_0102_0204, capsys):
+    def test_list_filtered(self, robocop_pre_load, msg_0101, msg_0102_0204, deprecated_rule, capsys):
         robocop_pre_load.config.list = robocop.config.translate_pattern("01*")
         init_empty_checker(robocop_pre_load, msg_0102_0204, exclude=True)
         init_empty_checker(robocop_pre_load, msg_0101)
+        init_empty_checker(robocop_pre_load, deprecated_rule)
         with pytest.raises(SystemExit):
             robocop_pre_load.list_checkers()
         out, _ = capsys.readouterr()

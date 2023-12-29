@@ -1,0 +1,10 @@
+test.robot:3:5:3:23 [I] 0327 Set Local Variable can be replaced with VAR
+test.robot:4:5:4:24 [I] 0327 Set Global Variable can be replaced with VAR
+test.robot:5:5:5:22 [I] 0327 Set Test Variable can be replaced with VAR
+test.robot:7:9:7:26 [I] 0327 Set Task Variable can be replaced with VAR
+test.robot:9:13:9:31 [I] 0327 Set Suite Variable can be replaced with VAR
+test.robot:17:5:17:23 [I] 0327 Set Local Variable can be replaced with VAR
+test.robot:18:5:18:23 [I] 0327 Setglobal Variable can be replaced with VAR
+test.robot:19:5:19:22 [I] 0327 Set Test Variable can be replaced with VAR
+test.robot:21:9:21:26 [I] 0327 Set_Task Variable can be replaced with VAR
+test.robot:23:9:23:27 [I] 0327 Set Suite Variable can be replaced with VAR

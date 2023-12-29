@@ -551,6 +551,66 @@ rules = {
         Similarly, use test-related settings when using ``*** Test Cases ***`` section.
         """,
     ),
+    "0327": Rule(
+        rule_id="0327",
+        name="replace-set-variable-with-var",
+        msg="{{ set_variable_keyword }} can be replaced with VAR",
+        severity=RuleSeverity.INFO,
+        version=">=7.0",
+        added_in_version="5.0.0",
+        docs="""
+        Starting from Robot Framework 7.0, it is possible to create variables inside tests and user keywords using the
+        VAR syntax. The VAR syntax is recommended over previously existing keywords.
+        
+        Example with Set Variable keywords::
+        
+          *** Keywords ***
+          Set Variables To Different Scopes
+              Set Local Variable    ${local}    value
+              Set Test Variable    ${TEST_VAR}    value
+              Set Task Variable    ${TASK_VAR}    value
+              Set Suite Variable    ${SUITE_VAR}    value
+              Set Global Variable    ${GLOBAL_VAR}    value
+        
+        Can be now rewritten to::
+        
+          *** Keywords ***
+          Set Variables To Different Scopes
+              VAR    ${local}    value
+              VAR    ${TEST_VAR}    value    scope=TEST
+              VAR    ${TASK_VAR}    value    scope=TASK
+              VAR    ${SUITE_VAR}    value    scope=SUITE
+              VAR    ${GLOBAL_VAR}    value    scope=GLOBAL
+
+        """,
+    ),
+    "0328": Rule(
+        rule_id="0328",
+        name="replace-create-with-var",
+        msg="{{ create_keyword }} can be replaced with VAR",
+        severity=RuleSeverity.INFO,
+        version=">=7.0",
+        added_in_version="5.0.0",
+        docs="""
+        Starting from Robot Framework 7.0, it is possible to create variables inside tests and user keywords using the
+        VAR syntax. The VAR syntax is recommended over previously existing keywords.
+        
+        Example with Create keywords::
+
+          *** Keywords ***
+          Create Variables
+              @{list}    Create List    a  b
+              &{dict}    Create Dictionary    key=value
+        
+        Can be now rewritten to::
+        
+          *** Keywords ***
+          Create Variables
+              VAR    @{list}    a  b
+              VAR    &{dict}    key=value
+        
+        """,
+    ),
 }
 
 SET_VARIABLE_VARIANTS = {
@@ -645,7 +705,7 @@ class KeywordNamingChecker(VisitorChecker):
         "keyword-name-is-empty",
         "bdd-without-keyword-call",
     )
-    # reserved word followed by a RF version when it was introduced
+    # reserved word followed by the RF version when it was introduced
     reserved_words = {
         "for": 3,
         "end": 3,
@@ -1265,7 +1325,13 @@ class SimilarVariableChecker(VisitorChecker):
 class DeprecatedStatementChecker(VisitorChecker):
     """Checker for deprecated statements."""
 
-    reports = ("deprecated-statement", "deprecated-with-name", "deprecated-singular-header")
+    reports = (
+        "deprecated-statement",
+        "deprecated-with-name",
+        "deprecated-singular-header",
+        "replace-set-variable-with-var",
+        "replace-create-with-var",
+    )
     deprecated_keywords = {
         "runkeywordunless": (5, "IF"),
         "runkeywordif": (5, "IF"),
@@ -1295,9 +1361,18 @@ class DeprecatedStatementChecker(VisitorChecker):
         "Test Cases",
         "Keywords",
     }
+    set_variable_keywords = {
+        "setlocalvariable",
+        "settestvariable",
+        "settaskvariable",
+        "setsuitevariable",
+        "setglobalvariable",
+    }
+    create_keywords = {"createdictionary", "createlist"}
 
     def visit_KeywordCall(self, node):  # noqa
         self.check_if_keyword_is_deprecated(node.keyword, node)
+        self.check_keyword_can_be_replaced_with_var(node.keyword, node)
 
     def visit_SuiteSetup(self, node):  # noqa
         self.check_if_keyword_is_deprecated(node.name, node)
@@ -1364,6 +1439,28 @@ class DeprecatedStatementChecker(VisitorChecker):
             version=f"{version}.*",
         )
 
+    def check_keyword_can_be_replaced_with_var(self, keyword_name, node):
+        if ROBOT_VERSION.major < 7:
+            return
+        normalized = normalize_robot_name(keyword_name, remove_prefix="builtin.")
+        col = token_col(node, Token.NAME, Token.KEYWORD)
+        if normalized in self.set_variable_keywords:
+            self.report(
+                "replace-set-variable-with-var",
+                set_variable_keyword=keyword_name,
+                node=node,
+                col=col,
+                end_col=col + len(keyword_name),
+            )
+        elif normalized in self.create_keywords:
+            self.report(
+                "replace-create-with-var",
+                create_keyword=keyword_name,
+                node=node,
+                col=col,
+                end_col=col + len(keyword_name),
+            )
+
     def visit_LibraryImport(self, node):  # noqa
         if ROBOT_VERSION.major < 5 or (ROBOT_VERSION.major == 5 and ROBOT_VERSION.minor == 0):
             return
@@ -1377,7 +1474,7 @@ class DeprecatedStatementChecker(VisitorChecker):
             end_col=with_name_token.end_col_offset + 1,
         )
 
-    def visit_SectionHeader(self, node):
+    def visit_SectionHeader(self, node):  # noqa
         if not node.name:
             return
         normalized_name = string.capwords(node.name)

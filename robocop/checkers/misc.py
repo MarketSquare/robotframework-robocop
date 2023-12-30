@@ -849,6 +849,29 @@ class EmptyVariableChecker(VisitorChecker):
                     end_col=token.end_col_offset + 1,
                 )
 
+    def visit_Var(self, node):  # noqa
+        if node.errors:
+            return
+        if not node.value:  # catch variable declaration without any value
+            first_data = node.data_tokens[0]
+            self.report(
+                "empty-variable",
+                var_type=node.name[0],
+                node=first_data,
+                col=first_data.col_offset + 1,
+                end_col=first_data.end_col_offset + 1,
+            )
+        for token in node.get_tokens(Token.ARGUMENT):
+            if not token.value or token.value == "\\":
+                self.report(
+                    "empty-variable",
+                    var_type="$",
+                    node=token,
+                    lineno=token.lineno,
+                    col=token.col_offset + 1,
+                    end_col=token.end_col_offset + 1,
+                )
+
 
 class ResourceFileChecker(VisitorChecker):
     """Checker for resource files."""

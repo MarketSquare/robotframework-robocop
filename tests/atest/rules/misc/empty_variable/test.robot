@@ -43,3 +43,23 @@ ${EMPTY_WITH_BACKSLASH}  \
 ... invalid
 {also_invalid}  2
 ...
+
+
+*** Keywords ***
+VAR Syntax
+    VAR    ${variable}    value
+    VAR    ${variable}
+    IF    ${variable}
+        VAR    @{variable}
+        VAR    &{variable}    scope=GLOBAL
+    END
+    VAR    $variable  # error
+    VAR
+    # VAR FIXME - uncomment after RF fix error (reported at https://github.com/robotframework/robotframework/issues/4995)
+    # ...
+    VAR    @{list}
+    ...    value
+    ...
+    ...    scope=SUITE
+    VAR
+    ...    scope=local

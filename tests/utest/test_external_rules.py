@@ -8,6 +8,7 @@ import pytest
 
 import robocop.exceptions
 from robocop.config import Config
+from robocop.utils.version_matching import Version
 
 TEST_DATA = Path(__file__).parent.parent / "test_data" / "ext_rules"
 EXT_MODULE = str(TEST_DATA / "ext_rule_module")
@@ -214,3 +215,27 @@ class TestDeprecatedRules:
         out, _ = capsys.readouterr()
         assert "Rule W1103 deprecated-no-implementation is deprecated. Remove it from your configuration.\n" in out
         assert "Rule W1102 deprecated is deprecated. Remove it from your configuration.\n"
+
+
+class TestVersionMatching:
+    @pytest.mark.parametrize(
+        "rf_version, rules_status",
+        [
+            (
+                "4.0",
+                {"no-version": True, "lower-than-5": True, "higher-or-equal-than-5": False, "range-5-and-6": False},
+            ),
+            (
+                "5.0",
+                {"no-version": True, "lower-than-5": False, "higher-or-equal-than-5": True, "range-5-and-6": False},
+            ),
+            ("6.0", {"no-version": True, "lower-than-5": False, "higher-or-equal-than-5": True, "range-5-and-6": True}),
+        ],
+    )
+    def test_no_version_always_enabled(self, robocop_pre_load, rf_version, rules_status):
+        robocop_pre_load.config.ext_rules = {str(TEST_DATA / "version_matching" / "rules_with_version_limits.py")}
+
+        with patch("robocop.rules.ROBOT_VERSION", Version(rf_version)):
+            robocop_pre_load.reload_config()
+        actual_status = {rule: robocop_pre_load.rules[rule].enabled for rule in rules_status}
+        assert actual_status == rules_status

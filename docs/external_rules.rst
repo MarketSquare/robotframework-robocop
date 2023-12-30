@@ -206,6 +206,18 @@ You can enable (or disable) your rule for particular Robot Framework version. Ad
 
 In this case rule "external-rule" will be enabled only for Robot Framework versions equal to 5.0 or higher.
 
+To enable rule only for given range of versions, use ``;`` as a delimiter::
+
+    rules = {
+        "1105": Rule(
+            rule_id="1105",
+            name="range-5-and-6",
+            msg="Rule that is only enabled for RF version higher than 5 and lower or equal to 6",
+            severity=RuleSeverity.INFO,
+            version=">5;<=6",
+        ),
+    }
+
 It is also possible to adjust behavior of your checker depending on the Robot Framework version:
 
 ..  code-block:: python

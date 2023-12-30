@@ -381,7 +381,7 @@ class Rule:
     def supported_in_rf_version(version: str) -> bool:
         if not version:
             return True
-        return ROBOT_VERSION in VersionSpecifier(version)
+        return all(ROBOT_VERSION in VersionSpecifier(condition) for condition in version.split(";"))
 
     @staticmethod
     def get_template(msg: str) -> Optional[Template]:

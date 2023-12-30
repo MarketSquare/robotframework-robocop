@@ -12,7 +12,3 @@ test.robot:36:1 [I] 0912 Use built-in variable ${EMPTY} instead of leaving varia
 test.robot:37:1 [I] 0912 Use built-in variable ${EMPTY} instead of leaving variable without value or using backslash
 test.robot:38:1 [I] 0912 Use built-in variable ${EMPTY} instead of leaving variable without value or using backslash
 test.robot:39:1 [I] 0912 Use built-in variable ${EMPTY} instead of leaving variable without value or using backslash
-test.robot:51:5 [I] 0912 Use built-in variable ${EMPTY} instead of leaving variable without value or using backslash
-test.robot:53:9 [I] 0912 Use built-in variable @{EMPTY} instead of leaving variable without value or using backslash
-test.robot:54:9 [I] 0912 Use built-in variable &{EMPTY} instead of leaving variable without value or using backslash
-test.robot:62:8 [I] 0912 Use built-in variable ${EMPTY} instead of leaving variable without value or using backslash

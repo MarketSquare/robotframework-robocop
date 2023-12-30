@@ -13,6 +13,7 @@ Following rules now support ``VAR`` syntax:
 - W0503 ``too-many-calls-in-keyword``
 - W0504 ``too-long-test-case``
 - W0505 ``too-many-calls-in-test-case``
+- I0912 ``empty-variable``
 - W0919 ``unused-argument``
 - I0920 ``unused-variable``
 - W0921 ``argument-overwritten-before-usage``

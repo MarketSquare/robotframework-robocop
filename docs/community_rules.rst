@@ -1,32 +1,19 @@
-.. _rules list:
+.. _community rules:
 
-**********
-Rules list
-**********
+********************
+Community rules list
+********************
 
-This is the complete list of all Robocop rules grouped by categories.
-If you want to learn more about the rules and their features, see :ref:`rules`.
+Community rules are optional rules that may handle specific issues or offer particular utility with certain limitations.
+All community rules are disabled by default and can be enabled by configuring ``enabled`` parameter::
 
-There are over a 100 rules available in Robocop and they are organized into the following categories:
+    robocop --configure sleep-keyword-used:enabled:True
 
-* 01: Base
-* 02: :ref:`Documentation`
-* 03: :ref:`Naming`
-* 04: :ref:`Errors`
-* 05: :ref:`Lengths`
-* 06: :ref:`Tags`
-* 07: :ref:`Comments`
-* 08: :ref:`Duplications`
-* 09: :ref:`Misc`
-* 10: :ref:`Spacing`
+or by including rule in ``--include``::
 
-Each rule has a 4-digit ID that contains:
-- a 2-digit category ID (listed above), followed by
-- a 2-digit rule number.
+    robocop --include sleep-keyword-used
 
-Below is the list of all built-in Robocop rules. Enjoy |:sunglasses:|
-
-{% for checker_group in builtin_checkers %}
+{% for checker_group in community_checkers %}
 .. _{{ checker_group[0] }}:
 
 {{ checker_group[0] }}

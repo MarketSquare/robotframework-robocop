@@ -282,4 +282,4 @@ class VersionSpecifier:
         return prospective < Version(spec_str)
 
     def _compare_greater_than(self, prospective, spec_str: str) -> bool:
-        return prospective <= Version(spec_str)
+        return prospective > Version(spec_str)

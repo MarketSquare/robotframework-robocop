@@ -1,0 +1,3 @@
+file1.robot:1:1 [I] 9901 This check will be called after visiting all files
+file2.robot:1:1 [I] 9901 This check will be called after visiting all files
+Project-name:1:1 [I] 9902 There is total of 3 tests in the project.

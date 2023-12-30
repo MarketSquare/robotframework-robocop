@@ -72,6 +72,15 @@ To list only enabled or disabled rules:
             type: parse_assignment_sign_type
             info: possible values: 'autodetect' (default), 'none' (''), 'equal_sign' ('=') or space_and_equal_sign (' =')
 
+Available list filters::
+
+    DEFAULT - no pattern specified, print all default rules (enabled and disabled)
+    ENABLED - print only enabled rules
+    DISABLED - print only disabled rules
+    COMMUNITY - print only community rules
+    DEPRECATED - print only deprecated rules
+    ALL - print all default and community rules
+
 Rule message
 ============
 

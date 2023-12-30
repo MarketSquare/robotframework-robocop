@@ -10,7 +10,8 @@ It accepts comma-separated list of paths to files, directories or name of the Py
 
 Every custom checker needs to complete following requirements:
 
-1. It needs to inherit from official checker classes (``VisitorChecker`` or ``RawFileChecker``) and implement required methods. Refer to :ref:`rules` for more details.
+1. It needs to inherit from official checker classes (``VisitorChecker``, ``ProjectChecker`` or ``RawFileChecker``) and
+   implement required methods. Refer to :ref:`rules` for more details.
 
 2. There should be a non-empty *rules* dictionary containing rules definition with your checkers.
 
@@ -87,7 +88,7 @@ Parameter value is passed as string. Use ``converter`` argument to define a meth
 ..  code-block:: python
 
     RuleParam(name="int_param", converter=int, default=10, desc="Optional desc")  # convert str to int
-      # my_own_method will be called with custom_param value
+    # my_own_method will be called with custom_param value
     RuleParam(name="custom_param", converter=my_own_method, default="custom", desc="Optional desc")
 
 Templated rule messages

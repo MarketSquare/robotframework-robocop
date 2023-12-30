@@ -4,6 +4,7 @@ Main class of Robocop module. Gathers files to be scanned, checkers, parses CLI 
 import os
 import sys
 from collections import Counter
+from typing import List
 
 from robot.api import get_resource_model
 from robot.errors import DataError
@@ -123,6 +124,9 @@ class Robocop:
             found_issues.sort()
             for issue in found_issues:
                 self.report(issue)
+        found_issues = self.run_project_checks()
+        for issue in found_issues:
+            self.report(issue)
         if "file_stats" in self.reports:
             self.reports["file_stats"].files_count = len(self.files)
 
@@ -141,6 +145,15 @@ class Robocop:
                 if not disablers.is_rule_disabled(issue) and not issue.severity < self.config.threshold
             ]
         return found_issues
+
+    def run_project_checks(self) -> List:
+        found_issues = []
+        for checker in self.checkers:
+            if not checker.disabled and isinstance(checker, checkers.ProjectChecker):
+                found_issues += [
+                    issue for issue in checker.scan_project() if not issue.severity < self.config.threshold
+                ]
+        return sorted(found_issues)
 
     def report(self, rule_msg: Message):
         for report in self.reports.values():

@@ -362,7 +362,7 @@ class Rule:
         return desc
 
     @property
-    def deprecation_warning(self):
+    def deprecation_warning(self) -> str:
         """Used when rule is deprecated and used in configuration."""
         return f"Rule {self.severity}{self.rule_id} {self.name} is deprecated. Remove it from your configuration."
 
@@ -474,9 +474,9 @@ class Message:
         col,
         end_lineno,
         end_col,
-        extended_disablers=None,
-        sev_threshold_value=None,
-        overwrite_severity=None,
+        extended_disablers: Optional = None,
+        sev_threshold_value: Optional = None,
+        overwrite_severity: Optional = None,
     ):
         self.enabled = rule.enabled
         self.rule_id = rule.rule_id

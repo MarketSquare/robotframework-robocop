@@ -17,14 +17,19 @@ Checkers are categorized into following categories with a corresponding ID:
     * 11-50: not yet used: reserved for future internal checkers
     * 51-99: reserved for external checkers
 
-Checkers have two basic types:
+Checkers have three basic types:
 
 - ``VisitorChecker`` uses Robot Framework parsing API and Python `ast` module for traversing Robot code as nodes,
 
+- ``ProjectChecker`` extends ``VisitorChecker`` and has ``scan_project`` method called after visiting all the files
+
 - ``RawFileChecker`` simply reads Robot file as normal file and scans every line.
 
-Every rule has a `unique id` made of 4 digits where first 2 are `checker id` while 2 latter are `rule id`.
-`Unique id` as well as `rule name` can be used to refer to the rule (e.g. in include/exclude statements,
+Each rule has a unique 4-digit ID that contains:
+- a 2-digit category ID (listed above), followed by
+- a 2-digit rule number.
+
+Rule ID as well as rule name can be used to refer to the rule (e.g. in include/exclude statements,
 configurations etc.). You can optionally configure rule severity or other parameters.
 """
 import ast
@@ -33,7 +38,7 @@ import inspect
 from collections import defaultdict
 from importlib import import_module
 from pathlib import Path
-from typing import TYPE_CHECKING, Dict, List, Tuple
+from typing import TYPE_CHECKING, Dict, List, Optional, Tuple
 
 try:
     from robot.api.parsing import ModelVisitor
@@ -50,7 +55,7 @@ from robocop.exceptions import (
 )
 
 if TYPE_CHECKING:
-    from robocop.rules import Rule
+    from robocop.rules import Message, Rule
     from robocop.run import Robocop
 
 
@@ -62,7 +67,7 @@ class BaseChecker:
         self.source = None
         self.lines = None
         self.issues = []
-        self.rules = {}
+        self.rules: Dict[str, "Rule"] = {}
         self.templated_suite = False
 
     def param(self, rule, param_name):
@@ -86,6 +91,7 @@ class BaseChecker:
         extended_disablers=None,
         sev_threshold_value=None,
         severity=None,
+        source: Optional[str] = None,
         **kwargs,
     ):
         rule_def = self.rules.get(rule, None)
@@ -98,7 +104,7 @@ class BaseChecker:
                 return
             kwargs[rule_threshold.substitute_value] = threshold_trigger
         message = rule_def.prepare_message(
-            source=self.source,
+            source=source or self.source,
             node=node,
             lineno=lineno,
             col=col,
@@ -114,10 +120,8 @@ class BaseChecker:
 
 
 class VisitorChecker(BaseChecker, ModelVisitor):  # noqa
-    type = "visitor_checker"
-
-    def scan_file(self, ast_model, filename, in_memory_content, templated=False):
-        self.issues = []
+    def scan_file(self, ast_model, filename, in_memory_content, templated=False) -> List["Message"]:
+        self.issues: List["Message"] = []
         self.source = filename
         self.templated_suite = templated
         if in_memory_content is not None:
@@ -132,11 +136,19 @@ class VisitorChecker(BaseChecker, ModelVisitor):  # noqa
         self.generic_visit(node)
 
 
-class RawFileChecker(BaseChecker):  # noqa
-    type = "rawfile_checker"
+class ProjectChecker(VisitorChecker):
+    def scan_project(self) -> List["Message"]:
+        """Perform checks on the whole project.
 
-    def scan_file(self, ast_model, filename, in_memory_content, templated=False):
-        self.issues = []
+        This method is called after visiting all files. Accumulating any necessary data for check depends on
+        the checker.
+        """
+        raise NotImplementedError
+
+
+class RawFileChecker(BaseChecker):  # noqa
+    def scan_file(self, ast_model, filename, in_memory_content, templated=False) -> List["Message"]:
+        self.issues: List["Message"] = []
         self.source = filename
         self.templated_suite = templated
         if in_memory_content is not None:

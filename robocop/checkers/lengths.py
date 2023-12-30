@@ -2,6 +2,7 @@
 Lengths checkers
 """
 import re
+from typing import List, Optional
 
 from robot.api import Token
 from robot.parsing.model.blocks import CommentSection, TestCase
@@ -336,6 +337,41 @@ rules = {
         severity=RuleSeverity.WARNING,
         version=">=6",
         added_in_version="3.3.0",
+    ),
+    "0532": Rule(
+        RuleParam(
+            name="max_args",
+            default=1,
+            converter=int,
+            desc="maximum number of arguments allowed in the continuation line",
+        ),
+        rule_id="0532",
+        name="arguments-per-continuation-line",
+        msg="There is too many arguments per continuation line ({{ arguments_count }} / {{ max_arguments_count }})",
+        severity=RuleSeverity.INFO,
+        added_in_version="5.0.0",
+        docs="""
+        If the keywords ``[Arguments]`` are split into multiple lines, it is recommended to put only one argument
+        per every line.
+        
+        Bad |:x:| ::
+
+            *** Keywords ***
+            Keyword With Multiple Arguments
+            [Arguments]    ${first_arg
+            ...    ${second_arg}    ${third_arg}=default
+
+         Good |:white_check_mark:| ::
+
+        ..  code-block:: none
+
+            *** Keywords ***
+            Keyword With Multiple Arguments
+            [Arguments]    ${first_arg
+            ...    ${second_arg}
+            ...    ${third_arg}=default
+
+        """,
     ),
 }
 
@@ -793,3 +829,31 @@ class TestCaseNumberChecker(VisitorChecker):
                 end_col=node.header.end_col_offset,
                 sev_threshold_value=discovered_testcases,
             )
+
+
+class TooManyArgumentsInLineChecker(VisitorChecker):
+    reports = ("arguments-per-continuation-line",)
+
+    def visit_Arguments(self, node):  # noqa
+        max_args = self.param("arguments-per-continuation-line", "max_args")
+        for index, line in enumerate(node.lines):
+            if not index:  # skip first line
+                continue
+            args_count = sum(1 for token in line if token.type == Token.ARGUMENT)
+            if args_count > max_args:
+                cont_token = self.get_first_cont_token(line)
+                last_token = line[-1]
+                if cont_token:
+                    self.report(
+                        "arguments-per-continuation-line",
+                        node=cont_token,
+                        col=cont_token.col_offset + 1,
+                        end_col=last_token.end_col_offset + 1,
+                        arguments_count=args_count,
+                        max_arguments_count=max_args,
+                    )
+
+    def get_first_cont_token(self, line: List[Token]) -> Optional[Token]:
+        for token in line:
+            if token.type == Token.CONTINUATION:
+                return token

@@ -16,11 +16,6 @@ Keyword With Arguments In Multiple Lines - Good
     ...    ${arg3}
     No Operation
 
-Keyword With Arguments In Multiple Lines - Good 2
-    [Arguments]  ${arg}    ${arg2}
-    ...    ${arg3}
-    No Operation
-
 Keyword With Arguments In Multiple Lines - Bad
     [Arguments]  ${arg}
     ...    ${arg2}    ${arg3}
@@ -36,6 +31,11 @@ Keyword With Arguments In Multiple Lines - Bad 3
     ...    ${arg2}    ${arg3}
     # ... it works for all except RF 4.0 which has critical bug on empty arguments
     ...    ${arg5}    ${arg6}
+    No Operation
+
+Keyword With Arguments In Multiple Lines - Bad 4
+    [Arguments]  ${arg}    ${arg2}
+    ...    ${arg3}
     No Operation
 
 Keyword With ${embedded} Arguments

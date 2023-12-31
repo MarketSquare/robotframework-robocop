@@ -346,7 +346,7 @@ rules = {
             desc="maximum number of arguments allowed in the continuation line",
         ),
         rule_id="0532",
-        name="arguments-per-continuation-line",
+        name="arguments-per-line",
         msg="There is too many arguments per continuation line ({{ arguments_count }} / {{ max_arguments_count }})",
         severity=RuleSeverity.INFO,
         added_in_version="5.0.0",
@@ -832,28 +832,30 @@ class TestCaseNumberChecker(VisitorChecker):
 
 
 class TooManyArgumentsInLineChecker(VisitorChecker):
-    reports = ("arguments-per-continuation-line",)
+    reports = ("arguments-per-line",)
 
     def visit_Arguments(self, node):  # noqa
-        max_args = self.param("arguments-per-continuation-line", "max_args")
+        any_cont_token = node.get_token(Token.CONTINUATION)
+        if not any_cont_token:  # only one line, ignoring
+            return
+        max_args = self.param("arguments-per-line", "max_args")
         for index, line in enumerate(node.lines):
-            if not index:  # skip first line
-                continue
             args_count = sum(1 for token in line if token.type == Token.ARGUMENT)
             if args_count > max_args:
-                cont_token = self.get_first_cont_token(line)
+                data_token = self.first_non_sep(line)
                 last_token = line[-1]
-                if cont_token:
+                if data_token:
                     self.report(
-                        "arguments-per-continuation-line",
-                        node=cont_token,
-                        col=cont_token.col_offset + 1,
+                        "arguments-per-line",
+                        node=data_token,
+                        col=data_token.col_offset + 1,
                         end_col=last_token.end_col_offset + 1,
                         arguments_count=args_count,
                         max_arguments_count=max_args,
                     )
 
-    def get_first_cont_token(self, line: List[Token]) -> Optional[Token]:
+    @staticmethod
+    def first_non_sep(line: List[Token]) -> Token:
         for token in line:
-            if token.type == Token.CONTINUATION:
+            if token.type != Token.SEPARATOR:
                 return token

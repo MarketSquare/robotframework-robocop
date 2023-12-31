@@ -9,5 +9,5 @@ class TestRuleAcceptance(RuleAcceptance):
         self.check_rule(
             src_files=["test.robot"],
             expected_file="expected_output_max_2.txt",
-            config=" --configure arguments-per-continuation-line:max_args:2",
+            config=" --configure arguments-per-line:max_args:2",
         )

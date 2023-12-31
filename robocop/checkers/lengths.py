@@ -351,7 +351,7 @@ rules = {
         severity=RuleSeverity.INFO,
         added_in_version="5.0.0",
         docs="""
-        If the keywords ``[Arguments]`` are split into multiple lines, it is recommended to put only one argument
+        If the keyword's ``[Arguments]`` are split into multiple lines, it is recommended to put only one argument
         per every line.
         
         Bad |:x:| ::

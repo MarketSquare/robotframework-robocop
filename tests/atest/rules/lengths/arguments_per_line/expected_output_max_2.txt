@@ -1,0 +1,1 @@
+test.robot:26:5 [I] 0532 There is too many arguments per continuation line (3 / 2)

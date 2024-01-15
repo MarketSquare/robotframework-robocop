@@ -1094,7 +1094,7 @@ class VariableNamingChecker(VisitorChecker):
         self.check_for_reserved_naming_or_hyphen(variable, "Variable", is_assign=True)
         # TODO Check supported syntax for variable, ie ${{var}}?
         if not self._is_var_scope_local(node):
-            self.check_non_local_variable(variable.value, node, variable)
+            self.check_non_local_variable(search_variable(variable.value).base, node, variable)
 
     def visit_If(self, node):  # noqa
         for token in node.header.get_tokens(Token.ASSIGN):

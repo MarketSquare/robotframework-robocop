@@ -1165,9 +1165,13 @@ class UnusedVariablesChecker(VisitorChecker):
         for arg in node.get_tokens(Token.ARGUMENT):
             if arg.value[0] in ("@", "&"):  # ignore *args and &kwargs
                 continue
-            name, *_ = arg.value.split("=", maxsplit=1)
-            normalized_name = normalize_robot_var_name(name)
-            self.add_argument(name, normalized_name, token=arg)
+            if "=" in arg.value:
+                arg_name, default_value = arg.value.split("=", maxsplit=1)
+                self.find_not_nested_variable(default_value, is_var=False)
+            else:
+                arg_name = arg.value
+            normalized_name = normalize_robot_var_name(arg_name)
+            self.add_argument(arg_name, normalized_name, token=arg)
 
     def parse_embedded_arguments(self, name_token):
         """Store embedded arguments from keyword name. Ignore embedded variables patterns (${var:pattern})."""
@@ -1193,6 +1197,20 @@ class UnusedVariablesChecker(VisitorChecker):
             self.visit(node.orelse)
         for token in node.header.get_tokens(Token.ASSIGN):
             self.handle_assign_variable(token)
+
+    def visit_LibraryImport(self, node):  # noqa
+        for token in node.get_tokens(Token.NAME, Token.ARGUMENT):
+            self.find_not_nested_variable(token.value, is_var=False)
+
+    visit_SuiteSetup = (
+        visit_SuiteTeardown
+    ) = visit_TestSetup = visit_TestTeardown = visit_ResourceImport = visit_VariablesImport = visit_LibraryImport
+
+    def visit_DefaultTags(self, node):  # noqa
+        for token in node.get_tokens(Token.ARGUMENT):
+            self.find_not_nested_variable(token.value, is_var=False)
+
+    visit_TestTags = visit_ForceTags = visit_Metadata = visit_DefaultTags
 
     def clear_variables_after_loop(self):
         """Remove used variables after loop finishes."""

@@ -1204,7 +1204,13 @@ class UnusedVariablesChecker(VisitorChecker):
 
     visit_SuiteSetup = (
         visit_SuiteTeardown
-    ) = visit_TestSetup = visit_TestTeardown = visit_ResourceImport = visit_VariablesImport = visit_LibraryImport
+    ) = (
+        visit_TestSetup
+    ) = (
+        visit_TestTeardown
+    ) = (
+        visit_Setup
+    ) = visit_Teardown = visit_Timeout = visit_ResourceImport = visit_VariablesImport = visit_LibraryImport
 
     def visit_DefaultTags(self, node):  # noqa
         for token in node.get_tokens(Token.ARGUMENT):

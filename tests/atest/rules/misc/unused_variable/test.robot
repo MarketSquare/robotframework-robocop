@@ -1,5 +1,6 @@
 *** Variables ***
 ${VARIABLE}    value
+${USED_IN_SETUP}    value
 
 
 *** Keywords ***
@@ -128,3 +129,7 @@ Unused With VAR
     Keyword Call    ${used_without_sign}
     VAR    ${variable}  # missing value
     VAR    $variable  # ignored for invalid variable name
+
+Unused In Setup
+    [Setup]    Keyword Setup    ${used_in_setup}
+    Step

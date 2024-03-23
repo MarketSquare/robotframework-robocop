@@ -35,7 +35,7 @@ from robocop.utils import (
     parse_assignment_sign_type,
     token_col,
 )
-from robocop.utils.misc import RETURN_CLASSES, find_escaped_variables
+from robocop.utils.misc import RETURN_CLASSES, _is_var_scope_local, find_escaped_variables
 from robocop.utils.variable_matcher import VariableMatches
 
 RULE_CATEGORY_ID = "09"
@@ -1202,21 +1202,31 @@ class UnusedVariablesChecker(VisitorChecker):
         for token in node.get_tokens(Token.NAME, Token.ARGUMENT):
             self.find_not_nested_variable(token.value, is_var=False)
 
-    visit_SuiteSetup = (
+    visit_TestTags = (
+        visit_ForceTags
+    ) = (
+        visit_Metadata
+    ) = (
+        visit_DefaultTags
+    ) = (
+        visit_Variable
+    ) = (
+        visit_ReturnStatement
+    ) = (
+        visit_ReturnSetting
+    ) = (
+        visit_Teardown
+    ) = (
+        visit_Timeout
+    ) = (
+        visit_Return
+    ) = (
+        visit_SuiteSetup
+    ) = (
         visit_SuiteTeardown
     ) = (
         visit_TestSetup
-    ) = (
-        visit_TestTeardown
-    ) = (
-        visit_Setup
-    ) = visit_Teardown = visit_Timeout = visit_ResourceImport = visit_VariablesImport = visit_LibraryImport
-
-    def visit_DefaultTags(self, node):  # noqa
-        for token in node.get_tokens(Token.ARGUMENT):
-            self.find_not_nested_variable(token.value, is_var=False)
-
-    visit_TestTags = visit_ForceTags = visit_Metadata = visit_DefaultTags
+    ) = visit_TestTeardown = visit_Setup = visit_ResourceImport = visit_VariablesImport = visit_LibraryImport
 
     def clear_variables_after_loop(self):
         """Remove used variables after loop finishes."""
@@ -1297,37 +1307,14 @@ class UnusedVariablesChecker(VisitorChecker):
         for token in node.get_tokens(Token.ASSIGN):  # we first check args, then assign for used and then overwritten
             self.handle_assign_variable(token)
 
-    def visit_Variable(self, node):  # noqa
-        """Visit section variables.
-
-        We already visit and collect section variables definitions, but we revisit it to find variables that are used
-        in other variables.
-        """
-        for token in node.get_tokens(Token.ARGUMENT):
-            self.find_not_nested_variable(token.value, is_var=False)
-
-    @staticmethod
-    def _is_var_scope_local(node):
-        is_local = True
-        for option in node.get_tokens(Token.OPTION):
-            if "scope=" in option.value:
-                is_local = option.value.lower() == "scope=local"
-        return is_local
-
     def visit_Var(self, node):  # noqa
         if node.errors:  # for example invalid variable definition like $var}
             return
         for arg in node.get_tokens(Token.ARGUMENT):
             self.find_not_nested_variable(arg.value, is_var=False)
         variable = node.get_token(Token.VARIABLE)
-        if variable and self._is_var_scope_local(node):
+        if variable and _is_var_scope_local(node):
             self.handle_assign_variable(variable)
-
-    def visit_Return(self, node):  # noqa
-        for token in node.get_tokens(Token.ARGUMENT):
-            self.find_not_nested_variable(token.value, is_var=False)
-
-    visit_ReturnStatement = visit_ReturnSetting = visit_Teardown = visit_Timeout = visit_Return
 
     def visit_TemplateArguments(self, node):  # noqa
         for argument in node.data_tokens:

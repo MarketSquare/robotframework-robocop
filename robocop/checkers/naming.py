@@ -25,7 +25,7 @@ from robocop.utils import (
     remove_robot_vars,
     token_col,
 )
-from robocop.utils.misc import remove_nested_variables
+from robocop.utils.misc import _is_var_scope_local, remove_nested_variables
 from robocop.utils.run_keywords import iterate_keyword_names
 from robocop.utils.variable_matcher import VariableMatches
 
@@ -1077,14 +1077,6 @@ class VariableNamingChecker(VisitorChecker):
                 end_col=token.end_col_offset + 1,
             )
 
-    @staticmethod
-    def _is_var_scope_local(node):
-        is_local = True
-        for option in node.get_tokens(Token.OPTION):
-            if "scope=" in option.value:
-                is_local = option.value.lower() == "scope=local"
-        return is_local
-
     def visit_Var(self, node):  # noqa
         if node.errors:  # for example invalid variable definition like $var}
             return
@@ -1093,7 +1085,7 @@ class VariableNamingChecker(VisitorChecker):
             return
         self.check_for_reserved_naming_or_hyphen(variable, "Variable", is_assign=True)
         # TODO Check supported syntax for variable, ie ${{var}}?
-        if not self._is_var_scope_local(node):
+        if not _is_var_scope_local(node):
             self.check_non_local_variable(search_variable(variable.value).base, node, variable)
 
     def visit_If(self, node):  # noqa
@@ -1194,7 +1186,7 @@ class SimilarVariableChecker(VisitorChecker):
             self.find_not_nested_variable(arg, arg.value, is_var=False)
         variable = node.get_token(Token.VARIABLE)
         if variable:
-            self.find_similar_variables([variable], node)
+            self.find_similar_variables([variable], node, ignore_overwriting=not _is_var_scope_local(node))
 
     def visit_If(self, node):  # noqa
         for token in node.header.get_tokens(Token.ARGUMENT):
@@ -1312,12 +1304,16 @@ class SimilarVariableChecker(VisitorChecker):
                     normalized = normalize_robot_name(variable_match.base)
                     self.assigned_variables[normalized].append(name)
 
-    def find_similar_variables(self, tokens, node):
+    def find_similar_variables(self, tokens, node, ignore_overwriting: bool = False):
         for token in tokens:
             variable_match = search_variable(token.value, ignore_errors=True)
             name = variable_match.name
             normalized = normalize_robot_name(variable_match.base)
-            if normalized in self.assigned_variables and name not in self.assigned_variables[normalized]:
+            if (
+                not ignore_overwriting
+                and normalized in self.assigned_variables
+                and name not in self.assigned_variables[normalized]
+            ):
                 self.report(
                     "possible-variable-overwriting",
                     variable_name=name,

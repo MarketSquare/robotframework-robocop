@@ -370,3 +370,11 @@ def get_string_diff(prev_count, count):
 
 def get_plural_form(container):
     return "" if container == 1 else "s"
+
+
+def _is_var_scope_local(node) -> bool:
+    is_local = True
+    for option in node.get_tokens(Token.OPTION):
+        if "scope=" in option.value:
+            is_local = option.value.lower() == "scope=local"
+    return is_local

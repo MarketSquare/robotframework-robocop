@@ -27,3 +27,8 @@ Keyword With Reserved Tags
 
 Another Keyword
     [Tags]  robot:skip  robot:skip-on-failure  robot:exclude  robot:exit
+
+Variable In Tag
+    [Tags]    robot:${dynamic_behaviour}
+    Keyword
+

@@ -313,15 +313,12 @@ class TagNameChecker(VisitorChecker):
     def check_tag(self, tag_token, node):
         var_found = False
         substrings = []
-        after = ""
+        after = tag_token.value
         for match in variable_matcher.VariableMatches(tag_token.value, ignore_errors=True):
             substrings.append(match.before)
             var_found = var_found or bool(match.match)
             after = match.after
-        if var_found:
-            substrings.append(after)
-        else:
-            substrings = [tag_token.value]
+        substrings.append(after)
         for substring in substrings:
             if self.check_tag_substring(substring, tag_token, node):
                 break

@@ -7,6 +7,7 @@ from robot.api import Token
 
 from robocop.checkers import VisitorChecker
 from robocop.rules import Rule, RuleSeverity
+from robocop.utils import variable_matcher
 
 RULE_CATEGORY_ID = "06"
 
@@ -246,21 +247,42 @@ class TagNameChecker(VisitorChecker):
     visit_DefaultTags = visit_Tags = visit_KeywordTags = visit_ForceTags
 
     def visit_Documentation(self, node):  # noqa
-        if self.is_keyword:
-            *_, last_line = node.lines
-            filtered_line = filter(
-                lambda tag: tag.type not in Token.NON_DATA_TOKENS and tag.type != Token.DOCUMENTATION,
-                last_line,
-            )
-            tags = defaultdict(list)
-            for index, token in enumerate(filtered_line):
-                if index == 0 and token.value.lower() != "tags:":
-                    break
-                token.value = token.value.rstrip(",")
-                normalized_tag = token.value.lower().replace(" ", "")
-                tags[normalized_tag].append(token)
-                self.check_tag(token, node)
-            self.check_duplicates(tags)
+        """
+        Parse tags from last line of documentation.
+
+        Tags can be defined as comma separated list - Tags: tag1, tag2 .
+        """
+        if not self.is_keyword:
+            return
+        *_, last_line = node.lines
+        args = [tag for tag in last_line if tag.type == Token.ARGUMENT]
+        if not args or not args[0].value.lower().startswith("tags:"):
+            return
+        duplicates = defaultdict(list)
+        for index, token in enumerate(args):
+            tags = token.value
+            col_start = token.col_offset
+            if index == 0:
+                tags = tags[len("tags:") :]
+                col_start += len("tags:")
+            for tag in tags.split(","):
+                tag_len = len(tag)
+                tag = tag.strip()
+                if not tag:
+                    continue
+                normalized = tag.lower().replace(" ", "")
+                subtoken = self._get_new_tag_token(tag, token.lineno, col_start)
+                col_start += tag_len + 1  # 1 for ,
+                duplicates[normalized].append(subtoken)
+                self.check_tag(subtoken, node)
+        self.check_duplicates(duplicates)
+
+    def _get_new_tag_token(self, tag_value: str, lineno: int, col_offset: int) -> Token:
+        """Create new token based on tag value."""
+        subtoken = Token(Token.ARGUMENT, tag_value)
+        subtoken.lineno = lineno
+        subtoken.col_offset = col_offset
+        return subtoken
 
     def visit_Keyword(self, node):  # noqa
         self.is_keyword = True
@@ -288,8 +310,32 @@ class TagNameChecker(VisitorChecker):
                     end_col=duplicate.end_col_offset + 1,
                 )
 
-    def check_tag(self, tag, node):
-        if " " in tag.value:
+    def check_tag(self, tag_token, node):
+        var_found = False
+        substrings = []
+        after = tag_token.value
+        for match in variable_matcher.VariableMatches(tag_token.value, ignore_errors=True):
+            substrings.append(match.before)
+            var_found = var_found or bool(match.match)
+            after = match.after
+        substrings.append(after)
+        for substring in substrings:
+            if self.check_tag_substring(substring, tag_token, node):
+                break
+        normalized = tag_token.value.lower()
+        if not var_found and normalized.startswith("robot:") and normalized not in self.reserved_tags:
+            self.report(
+                "tag-with-reserved-word",
+                tag=tag_token.value,
+                node=node,
+                lineno=tag_token.lineno,
+                col=tag_token.col_offset + 1,
+                end_col=tag_token.end_col_offset,
+            )
+
+    def check_tag_substring(self, substring, tag, node) -> bool:
+        res = False
+        if " " in substring:
             self.report(
                 "tag-with-space",
                 tag=tag.value,
@@ -298,18 +344,11 @@ class TagNameChecker(VisitorChecker):
                 col=tag.col_offset + 1,
                 end_col=tag.end_col_offset + 1,
             )
-        if "OR" in tag.value or "AND" in tag.value:
+            res = True
+        if "OR" in substring or "AND" in substring:
             self.report("tag-with-or-and", tag=tag.value, node=node, lineno=tag.lineno, col=tag.col_offset + 1)
-        normalized = tag.value.lower()
-        if normalized.startswith("robot:") and normalized not in self.reserved_tags:
-            self.report(
-                "tag-with-reserved-word",
-                tag=tag.value,
-                node=node,
-                lineno=tag.lineno,
-                col=tag.col_offset + 1,
-                end_col=tag.end_col_offset,
-            )
+            res = True
+        return res
 
 
 class TagScopeChecker(VisitorChecker):

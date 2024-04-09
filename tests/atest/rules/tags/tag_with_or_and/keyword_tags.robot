@@ -1,2 +1,2 @@
 *** Settings ***
-Keyword Tags    tagORtag2  tagor
+Keyword Tags    tagORtag2  tagor  tag${OR}

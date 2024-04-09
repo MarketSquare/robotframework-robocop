@@ -1,0 +1,88 @@
+:orphan:
+
+=============
+Robocop 5.0.4
+=============
+
+You can install the latest available version by running
+
+::
+
+    pip install --upgrade robotframework-robocop
+
+or to install exactly this version
+
+::
+
+    pip install robotframework-robocop==5.0.4
+
+.. contents::
+   :depth: 2
+   :local:
+
+
+
+Fixes
+=====
+unused-variable when the variable is used in a Test Setup (#1062)
+------------------------------------------------------------------
+
+I0920 ``unused-variable`` was incorrectly reported if the variable was declared in the ``*** Variables ***`` section
+and used in ``[Setup]``, ``[Teardown]`` or ``[Timeout]``.
+
+Unexpected possible-variable-overwriting when elevating the scope an variable (#1053)
+-------------------------------------------------------------------------------------
+
+Using ``VAR`` to elevate scope of the variable should not longer report I0316 ``possible-variable-overwriting``::
+
+    *** Test Cases ***
+    ${date}    Get Invoice Date
+    VAR    ${DATE}    ${date}    scope=SUITE
+
+Ignore variables in tags (#1059)
+--------------------------------
+
+Variables in tags are now not checked by tag rules but variable rules only.
+
+For example::
+
+    *** Test Cases ***
+    Test with dynamic tag
+        [Tags]    tag${GLOBAL VARIABLE}
+        Step
+
+Will now not raise W0601 ``tag-with-space`` since the space is inside variable name.
+
+Tags in documentation
+----------------------
+
+Keyword tags can be specified on the last line of the documentation with ``Tags:`` prefix. It was handled by Robocop
+already but not all tags were parsed correctly. For example::
+
+    *** Keywords ***
+    Already working
+    [Documentation]    Tags: tag
+        Step
+
+    Multiple tags not supported before
+    [Documentation]    Tags: tag1, tag2
+        Step
+
+    Multiple spaces not supported before
+    [Documentation]    Tags:  tag1,    tag2
+        Step
+
+Acknowledgements
+================
+
+Thanks to the whole community for submitting bug reports and feature requests.
+Without you, Robocop wouldn't be in the place where it is now. All the feedback
+is essential to drive the tool towards higher quality and better user
+experience.
+
+If you want to help us more, consider contributing to the project directly.
+We can offer our constant support to make the work fun and effective. We do
+our best to create a supportive and welcoming environment for everyone.
+Feel free to ping us on our official `#robocop-linter Slack channel`_ anytime.
+
+.. _#robocop-linter Slack channel: https://robotframework.slack.com/archives/C01AWSNKC2H

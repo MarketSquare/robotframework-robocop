@@ -877,8 +877,9 @@ class SettingsNamingChecker(VisitorChecker):
                     ROBOT_VERSION.major >= 6 and section.header.type == Token.TASK_HEADER
                 ):
                     self.task_section = True
-            else:
-                self.task_section = False
+                    break
+        else:
+            self.task_section = False
         super().visit_File(node)
 
     def visit_Setup(self, node):  # noqa

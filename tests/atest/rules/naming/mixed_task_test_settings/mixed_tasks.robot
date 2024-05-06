@@ -7,6 +7,15 @@ Task Tags       tag
 Documentation   some docs
 
 
+*** Variables ***
+${variable}    value
+
+
+
 *** Tasks ***
 Some Task
+    No Operation
+
+*** Keywords ***
+Some Keyword
     No Operation

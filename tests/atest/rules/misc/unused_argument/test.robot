@@ -212,3 +212,12 @@ Overwritten in VAR
 Used In Other Argument
     [Arguments]    ${argument}    ${argument2}=default with ${argument}
     Log    ${argument2}
+
+Used In For While Option
+    [Arguments]    ${start}    ${limit}    ${condition}    @{list}
+    FOR    ${index}    ${value}    IN ENUMERATE    @{list}    start=${start}
+        Log Many    ${index}    ${value}
+    END
+    WHILE    ${condition}    limit=${limit}
+        No Operation
+    END

@@ -1269,7 +1269,7 @@ class UnusedVariablesChecker(VisitorChecker):
         self.in_loop = True
         self.used_in_scope = set()
         self.ignore_overwriting = True
-        for token in node.header.get_tokens(Token.ARGUMENT, Token.OPTION):
+        for token in node.header.get_tokens(Token.ARGUMENT, "OPTION"):  # Token.Option does not exist for RF3 and RF4
             self.find_not_nested_variable(token.value, is_var=False)
         for token in node.header.get_tokens(Token.VARIABLE):
             self.handle_assign_variable(token)

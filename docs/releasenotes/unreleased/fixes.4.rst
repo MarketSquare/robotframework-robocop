@@ -10,3 +10,5 @@ empty lines::
     First Test Case
         [Documentation]    Doc
         No Operation
+
+Additionally robotidy disablers (``# robotidy: off``) are now recognized as well.

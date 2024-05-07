@@ -50,6 +50,14 @@ configures ``quality_gate`` parameter and sets new threshold values for differen
 
 There are also other configurable reports like ``timestamp`` or ``json_report``. More about them below.
 
+Disable all reports
+-------------------
+
+When handling multiple configuration sources it may be possible to inherit reports configuration that we don't want to
+use. Use special keyword ``None`` to not run any reports even if configured::
+
+    robocop --reports sarif,all,None
+
 Reports list
 ============
 

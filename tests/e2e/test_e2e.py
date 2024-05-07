@@ -99,17 +99,21 @@ class TestE2E:
             assert out == exp_msg
 
     def test_list_enabled_reports(self, robocop_instance, capfd):
+        def with_config_output_should_be(config: str, expected_msg: str):
+            should_run_with_config(robocop_instance, config)
+            out, err = capfd.readouterr()
+            assert out == expected_msg
+
         for option in ("--list-reports", "-lr"):
-            exp_msg = (
+            exp_nothing_enabled = (
                 "Available reports:\n"
                 "\nEnable report by passing report name using --reports option. "
                 "Use `all` to enable all default reports. "
                 "Non-default reports can be only enabled using report name.\n"
             )
-            config = f"{option} ENABLED"
-            should_run_with_config(robocop_instance, config)
-            out, err = capfd.readouterr()
-            assert out == exp_msg
+            with_config_output_should_be(f"{option} ENABLED", exp_nothing_enabled)
+            with_config_output_should_be(f"--reports version,sarif,None {option} ENABLED", exp_nothing_enabled)
+            with_config_output_should_be(f"--reports None {option} ENABLED", exp_nothing_enabled)
             exp_msg = (
                 "Available reports:\n"
                 "sarif                - Generate SARIF output file (enabled - non-default)\n"
@@ -119,9 +123,7 @@ class TestE2E:
                 "Non-default reports can be only enabled using report name.\n"
             )
             config = f"--reports version,sarif {option} ENABLED"
-            should_run_with_config(robocop_instance, config)
-            out, err = capfd.readouterr()
-            assert out == exp_msg
+            with_config_output_should_be(config, exp_msg)
 
     def test_list_disabled_reports(self, robocop_instance, capfd):
         for option in ("--list-reports", "-lr"):

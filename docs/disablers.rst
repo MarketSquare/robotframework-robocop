@@ -78,7 +78,8 @@ block (such as keyword, test case, "for" and "while" loops and "if" statement). 
 Disabling files
 ---------------
 
-It is possible to ignore whole file if you start file with ``# robocop: off``.
+It is possible to ignore whole file if you put Robocop disabler in the first comment section, at the beginning of the
+file.
 
 ..  code-block:: robotframework
     :caption: example.robot

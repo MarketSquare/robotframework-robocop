@@ -1226,7 +1226,11 @@ class UnusedVariablesChecker(VisitorChecker):
         visit_SuiteTeardown
     ) = (
         visit_TestSetup
-    ) = visit_TestTeardown = visit_Setup = visit_ResourceImport = visit_VariablesImport = visit_LibraryImport
+    ) = (
+        visit_TestTeardown
+    ) = (
+        visit_Setup
+    ) = visit_ResourceImport = visit_VariablesImport = visit_Tags = visit_Documentation = visit_LibraryImport
 
     def clear_variables_after_loop(self):
         """Remove used variables after loop finishes."""

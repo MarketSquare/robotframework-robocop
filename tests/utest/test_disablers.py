@@ -113,5 +113,5 @@ class TestDisablers:
             "rule3": [(22, 29), (55, 62)],
             "rule4": [(24, 25), (57, 58)],
         }
-        disabled_rules = {rule_name: sorted(rule.blocks) for rule_name, rule in disabler.rules.items()}
+        disabled_rules = {rule_name: sorted(rule.blocks) for rule_name, rule in disabler.disabled.rules.items()}
         assert disabled_rules == exp_disabled_rules

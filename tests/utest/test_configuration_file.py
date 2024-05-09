@@ -229,7 +229,7 @@ class TestConfigurationFile:
     def test_load_config_with_relative_paths_pyproject(self, path_to_test_data, config_source):
         """
         pyproject.toml resolves relative path to config directory.
-        For example if root/pyproject.toml contains test.py, it will become root/test.py
+        For example if root/pyproject.toml contains test.py, it will become root/test.py .
         """
         src = path_to_test_data / "relative_path_in_config_pyproject"
         work_dir = src / "nested"
@@ -255,6 +255,17 @@ class TestConfigurationFile:
             config = Config(from_cli=True)
             ext_rule_path = config.ext_rules.pop()
             assert Path(ext_rule_path).absolute() == work_dir / "test.py"
+
+    def test_load_config_with_relative_paths_argfile(self, path_to_test_data):
+        """
+        Argument files resolves relative paths to config directory.
+        """
+        src = path_to_test_data / "relative_path_in_argfile"
+        work_dir = src
+        with working_directory(work_dir), patch.object(sys, "argv", ["robocop", "-A", "tests/args.txt"]):
+            config = Config(from_cli=True)
+            ext_rule_path = config.ext_rules.pop()
+            assert Path(ext_rule_path).absolute() == work_dir / "tests/libraries/test.py"
 
     def test_override_default_config(self, path_to_test_data):
         """

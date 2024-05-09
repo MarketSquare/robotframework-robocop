@@ -179,11 +179,19 @@ rules = {
         docs="""
         Example of rule violation::
 
+            *** Variables ***
+            ${VAR}    value
+            
+            
+            ${VAR2}    value  # previous line will be reported with 2/1 consecutive lines
+            
+            
+            *** Keywords ***
             Keyword
                 Step 1
 
 
-                Step 2
+                Step 2  # previous line will be reported with 2/1 consecutive lines
 
         """,
         added_in_version="1.8.0",

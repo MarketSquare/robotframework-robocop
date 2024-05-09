@@ -1,0 +1,13 @@
+test.robot:2:16:2:27 [W] 10002 Keyword 'Not Allowed' is not allowed
+test.robot:4:15:4:26 [W] 10002 Keyword 'Not Allowed' is not allowed
+test.robot:5:18:5:39 [W] 10002 Keyword 'Not Allowed With Args' is not allowed
+test.robot:15:5:15:16 [W] 10002 Keyword 'Not Allowed' is not allowed
+test.robot:18:9:18:30 [W] 10002 Keyword 'Not_allowed With Args' is not allowed
+test.robot:23:9:23:20 [W] 10002 Keyword 'Not Allowed' is not allowed
+test.robot:28:12:28:23 [W] 10002 Keyword 'Not Allowed' is not allowed
+test.robot:30:12:30:23 [W] 10002 Keyword 'Not Allowed' is not allowed
+test.robot:31:19:31:40 [W] 10002 Keyword 'Not Allowed With Args' is not allowed
+test.robot:34:19:34:30 [W] 10002 Keyword 'Not Allowed' is not allowed
+test.robot:38:5:38:33 [W] 10002 Keyword 'Library.Not Allowed With Lib' is not allowed
+test.robot:39:5:39:32 [W] 10002 Keyword 'Library2.Nested.Not Allowed' is not allowed
+test.robot:44:5:44:16 [W] 10002 Keyword 'Not Allowed' is not allowed

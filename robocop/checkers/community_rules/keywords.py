@@ -1,11 +1,21 @@
+from typing import Set
+
 from robot.api import Token
 from robot.utils.robottime import timestr_to_secs
 
 from robocop.checkers import VisitorChecker
 from robocop.rules import Rule, RuleParam, RuleSeverity
 from robocop.utils.misc import normalize_robot_name
+from robocop.utils.run_keywords import iterate_keyword_names
 
 RULE_CATEGORY_ID = "00"
+
+
+def comma_separated_list(value: str) -> Set[str]:
+    if value is None:
+        return set()
+    return {normalize_robot_name(kw) for kw in value.split(",")}
+
 
 rules = {
     "10001": Rule(
@@ -43,7 +53,41 @@ rules = {
             robocop -c sleep-keyword-used:max_time:1min .
 
         """,
-    )
+    ),
+    "10002": Rule(
+        RuleParam(
+            name="keywords",
+            default=None,
+            converter=comma_separated_list,
+            desc="Comma separated list of not allowed keywords",
+        ),
+        rule_id="10002",
+        name="not-allowed-keyword",
+        msg="Keyword '{{ keyword }}' is not allowed",
+        severity=RuleSeverity.WARNING,
+        added_in_version="5.1.0",
+        enabled=False,
+        docs="""
+        Reports usage of not allowed keywords.
+        
+        Configure which keywords should be reported by using ``keywords`` parameter.
+        Keyword names are normalized to match Robot Framework search behaviour (lower case, removed whitespace and
+        underscores). 
+
+        For example::
+        
+            > robocop -i not-allowed-keyword -c not-allowed-keyword:keywords:click_using_javascript
+
+            *** Keywords ***
+            Keyword With Obsolete Implementation
+                [Arguments]    ${locator}
+                Click Using Javascript    ${locator}  # Robocop will report not allowed keyword
+
+        If keyword call contains possible library name (ie. Library.Keyword Name), Robocop checks if it matches
+        the not allowed keywords and if not, it will remove library part and check again.
+
+        """,
+    ),
 }
 
 
@@ -89,3 +133,48 @@ class SleepKeywordUsedChecker(VisitorChecker):
             col=name_token.col_offset + 1,
             end_col=name_token.end_col_offset + 1,
         )
+
+
+class NotAllowedKeyword(VisitorChecker):
+    reports = ("not-allowed-keyword",)
+
+    def check_keyword_naming_with_subkeywords(self, node, name_token_type):
+        for keyword in iterate_keyword_names(node, name_token_type):
+            self.check_keyword_naming(keyword.value, keyword)
+
+    def check_keyword_naming(self, name: str, keyword):
+        if not name:
+            return
+        not_allowed = self.param("not-allowed-keyword", "keywords")
+        normalized_name = normalize_robot_name(name)
+        if normalized_name not in not_allowed:
+            if "." not in normalized_name:
+                return
+            # handle possible library names (builtin.log)
+            normalized_name = normalized_name.split(".")[-1]
+            if normalized_name not in not_allowed:
+                return
+        self.report(
+            "not-allowed-keyword",
+            keyword=name,
+            node=keyword,
+            col=keyword.col_offset + 1,
+            end_col=keyword.end_col_offset + 1,
+        )
+
+    def visit_Setup(self, node):  # noqa
+        self.check_keyword_naming_with_subkeywords(node, Token.NAME)
+
+    visit_TestTeardown = visit_SuiteTeardown = visit_Teardown = visit_TestSetup = visit_SuiteSetup = visit_Setup
+
+    def visit_Template(self, node):  # noqa
+        # allow / disallow param
+        if node.value:
+            name_token = node.get_token(Token.NAME)
+            self.check_keyword_naming(node.value, name_token)
+        self.generic_visit(node)
+
+    visit_TestTemplate = visit_Template
+
+    def visit_KeywordCall(self, node):  # noqa
+        self.check_keyword_naming_with_subkeywords(node, Token.KEYWORD)

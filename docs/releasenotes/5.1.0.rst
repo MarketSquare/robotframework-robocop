@@ -1,0 +1,170 @@
+:orphan:
+
+=============
+Robocop 5.1.0
+=============
+
+You can install the latest available version by running
+
+::
+
+    pip install --upgrade robotframework-robocop
+
+or to install exactly this version
+
+::
+
+    pip install robotframework-robocop==5.1.0
+
+.. contents::
+   :depth: 2
+   :local:
+
+Rule changes
+============
+
+Community rule: not-allowed-keyword (#1067)
+-------------------------------------------
+
+New community (optional) rule W10002 ``not-allowed-keyword``. You can use this rule to find keywords that should not
+be used in your project.
+
+For example with following configuration::
+
+    > > robocop -i not-allowed-keyword -c not-allowed-keyword:keywords:click_using_javascript,click_with_sleep
+
+It will find and raise issues in the following code::
+
+    *** Test Cases ***
+    Test with obsolete keyword
+        [Setup]    Click With Sleep    1 min  # Robocop will report not allowed keyword
+        Test Step
+
+
+    *** Keywords ***
+    Keyword With Obsolete Implementation
+        [Arguments]    ${locator}
+        Click Using Javascript    ${locator}  # Robocop will report not allowed keyword
+
+Fixes
+=====
+Task section not recognized for mixed-task-test-settings rule (#1074)
+----------------------------------------------------------------------
+
+If last section of the file wasn't Tasks section, Robocop assumed that file contains only Test Cases section. This
+caused W0326 ``mixed-task-test-settings`` to be issued with incorrect message.
+
+Thanks @MrBIN89 for finding the issue.
+
+Variables in FOR loop option not recognized by unused-argument (#1073)
+----------------------------------------------------------------------
+
+Variables in FOR option should be now recognized by W0919 ``unused-argument``::
+
+    *** Keywords ***
+    Keyword With For
+        [Arguments]    ${argument}
+        # ${argument} will no longer issue unused-argument
+        FOR    ${index}    ${value}    IN ENUMERATE    @{LIST}    start=${argument}
+            Log    ${value}
+        END
+
+Variable not detected as used in [Tags] and [Documentation] (#1070)
+-------------------------------------------------------------------
+
+I0920 ``unused-variable`` was incorrectly raised even if variable was used in Test Case / Keyword ``[Tags]`` or
+``[Documentation]``. Following code should not raise any issue anymore::
+
+    *** Variables ***
+    ${VAR_DOCUMENTATION}    Documentation value
+    ${VAR_TAG}              Tag value
+
+
+    *** Test Cases ***
+    Test variable in documentation
+        [Documentation]    ${VAR_DOCUMENTATION}
+        No Operation
+
+    Test variable in tags
+        [Documentation]    Documentation in test about variable in tags
+        [Tags]    ${VAR_TAG}
+        No Operation
+
+Comments section with only robocop disabler raising ignored-data (#1044)
+------------------------------------------------------------------------
+
+Following code will not raise W0704 ``ignored-data`` anymore since comments section contains only robocop disabler and
+empty lines::
+
+    # robocop: off=0701
+
+    *** Test Cases ***
+    First Test Case
+        [Documentation]    Doc
+        No Operation
+
+Additionally robotidy disablers (``# robotidy: off``) are now recognized as well.
+
+Relative paths in argument files (#1071)
+-----------------------------------------
+
+Relative paths in argument files will be now resolved correctly. For example, using following command::
+
+    robocop -A tests/args.txt
+
+And tests/args.txt file::
+
+    --ext-rules rules/robocop_rules.py
+
+``--ext-rules rules/robocop_rules.py`` will be resolved to ``--ext-rules tests/rules/robocop_rules.py``. This
+behaviour already worked for toml configuration files and wasn't working correctly for argument files.
+
+Other features
+==============
+
+Robocop file disablers can be defined anywhere in the first comment section (#1044)
+-----------------------------------------------------------------------------------
+
+It was possible to disable Robocop for selected or all rules in the given file. However such disablers had to be defined
+in the the first line of the file::
+
+    # robocop: off
+
+    *** Test Cases ***
+    Test
+        Step
+
+It is now also possible to define file-level disablers anywhere in the first comment section::
+
+    # robocop: off=onerule
+    # explanation why the rule is disabled
+    # robocop: off=onerule2
+
+    *** Test Cases ***
+    Test
+        Step
+
+Disable reports from the configuration (#1072)
+----------------------------------------------
+
+It is now possible to disable all reports with special keyword ``None``::
+
+    robocop --reports all,None
+
+It is useful when Robocop joins configuration from multiple sources (configuration files or cli) but user want to
+override any configured report and do not run any report.
+
+Acknowledgements
+================
+
+Thanks to the whole community for submitting bug reports and feature requests.
+Without you, Robocop wouldn't be in the place where it is now. All the feedback
+is essential to drive the tool towards higher quality and better user
+experience.
+
+If you want to help us more, consider contributing to the project directly.
+We can offer our constant support to make the work fun and effective. We do
+our best to create a supportive and welcoming environment for everyone.
+Feel free to ping us on our official `#robocop-linter Slack channel`_ anytime.
+
+.. _#robocop-linter Slack channel: https://robotframework.slack.com/archives/C01AWSNKC2H

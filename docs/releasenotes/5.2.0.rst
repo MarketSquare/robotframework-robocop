@@ -1,0 +1,76 @@
+:orphan:
+
+=============
+Robocop 5.2.0
+=============
+
+This release brings three new rules for order of the imports.
+Big thanks for @szymonslodkowski contribution with the new rules.
+
+You can install the latest available version by running
+
+::
+
+    pip install --upgrade robotframework-robocop
+
+or to install exactly this version
+
+::
+
+    pip install robotframework-robocop==5.2.0
+
+.. contents::
+   :depth: 2
+   :local:
+
+Rule changes
+============
+
+Community rule: non-builtin-imports-not-sorted (#1088)
+-------------------------------------------------------
+
+New community (optional) rule W10101 ``non-builtin-imports-not-sorted``.
+
+Example of rule violation::
+
+    *** Settings ***
+    Library    Collections
+    Library    CustomLibrary
+    Library    AnotherCustomLibrary  # AnotherCustomLibrary library defined after custom CustomLibrary
+
+Community rule: resources-imports-not-sorted (#1088)
+-----------------------------------------------------
+
+New community (optional) rule W10102 ``resources-imports-not-sorted``.
+
+Example of rule violation::
+
+    *** Settings ***
+    Resource   CustomResource.resource
+    Resource   AnotherFile.resource
+
+Rule: builtin-imports-not-sorted (#1088)
+----------------------------------------
+
+New rule W0926 ``builtin-imports-not-sorted``.
+
+Example of rule violation::
+
+    *** Settings ***
+    Library    OperatingSystem
+    Library    Collections  # BuiltIn libraries imported not in alphabetical order
+
+Acknowledgements
+================
+
+Thanks to the whole community for submitting bug reports and feature requests.
+Without you, Robocop wouldn't be in the place where it is now. All the feedback
+is essential to drive the tool towards higher quality and better user
+experience.
+
+If you want to help us more, consider contributing to the project directly.
+We can offer our constant support to make the work fun and effective. We do
+our best to create a supportive and welcoming environment for everyone.
+Feel free to ping us on our official `#robocop-linter Slack channel`_ anytime.
+
+.. _#robocop-linter Slack channel: https://robotframework.slack.com/archives/C01AWSNKC2H

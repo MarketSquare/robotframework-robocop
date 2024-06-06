@@ -46,7 +46,14 @@ def load_expected_file(test_data, expected_file):
         return []
     expected = test_data / expected_file
     with open(expected, encoding="utf-8") as f:
-        return sorted([line.rstrip("\n").replace(r"${/}", os.path.sep) for line in f])
+        return sorted(
+            [
+                re.sub(r"(?<!\\)(?:\\\\)*(\${/})", os.path.sep.replace("\\", "\\\\"), line.rstrip("\n")).replace(
+                    "\\${/}", "${/}"
+                )
+                for line in f
+            ]
+        )
 
 
 def configure_robocop_with_rule(args, runner, rule, path, src_files: Optional[List], format):

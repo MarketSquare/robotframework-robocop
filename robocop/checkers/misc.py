@@ -599,21 +599,7 @@ rules = {
             Library    Collections  # BuiltIn libraries imported not in alphabetical order
 
         """,
-    ),
-    "0927": Rule(
-        rule_id="0927",
-        name="custom-imports-not-sorted",
-        msg="Custom library import '{{ custom_import }}' should be placed before '{{ previous_custom_import }}'",
-        severity=RuleSeverity.WARNING,
-        docs="""
-        Example of rule violation::
-
-            *** Settings ***
-            Library    Collections
-            Library    CustomLibrary
-            Library    AnotherCustomLibrary  # AnotherCustomLibrary library defined after custom CustomLibrary
-
-        """,
+        added_in_version="5.2.0",
     ),
 }
 
@@ -825,7 +811,10 @@ class SettingsOrderChecker(VisitorChecker):
     BuiltIn libraries imports should always be placed before other libraries imports.
     """
 
-    reports = ("wrong-import-order", "builtin-imports-not-sorted", "custom-imports-not-sorted")
+    reports = (
+        "wrong-import-order",
+        "builtin-imports-not-sorted",
+    )
 
     def __init__(self):
         self.libraries = []
@@ -836,7 +825,6 @@ class SettingsOrderChecker(VisitorChecker):
         self.generic_visit(node)
         first_non_builtin = None
         previous_builtin = None
-        previous_non_builtin = None
         for library in self.libraries:
             if first_non_builtin is None:
                 if library.name not in STDLIBS:
@@ -864,18 +852,6 @@ class SettingsOrderChecker(VisitorChecker):
                         end_col=lib_name.end_col_offset + 1,
                     )
                 previous_builtin = library
-            else:
-                if previous_non_builtin is not None and library.name < previous_non_builtin.name:
-                    lib_name = library.get_token(Token.NAME)
-                    self.report(
-                        "custom-imports-not-sorted",
-                        custom_import=library.name,
-                        previous_custom_import=previous_non_builtin.name,
-                        node=library,
-                        col=lib_name.col_offset + 1,
-                        end_col=lib_name.end_col_offset + 1,
-                    )
-                previous_non_builtin = library
 
     def visit_LibraryImport(self, node):  # noqa
         if not node.name:

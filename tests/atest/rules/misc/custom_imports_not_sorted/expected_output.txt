@@ -1,2 +1,0 @@
-no_builtins.robot:4:12 [W] 0927 Custom library import 'OwnLib.py' should be placed before 'RequestsLibrary'
-test.robot:9:12 [W] 0927 Custom library import 'AnotherLibrary' should be placed before 'RequestsLibrary'

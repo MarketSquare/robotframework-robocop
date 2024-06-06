@@ -13,6 +13,7 @@ rules = {
         name="non-builtin-imports-not-sorted",
         msg="Non builtin library import '{{ custom_import }}' should be placed before '{{ previous_custom_import }}'",
         severity=RuleSeverity.WARNING,
+        added_in_version="5.2.0",
         enabled=False,
         docs="""
         Example of rule violation:
@@ -23,13 +24,13 @@ rules = {
             Library    AnotherCustomLibrary  # AnotherCustomLibrary library defined after custom CustomLibrary
 
         """,
-        added_in_version="5.2.0",
     ),
     "10102": Rule(
         rule_id="10102",
         name="resources-imports-not-sorted",
         msg="Resource import '{{ resource_import }}' should be placed before '{{ previous_resource_import }}'",
         severity=RuleSeverity.WARNING,
+        added_in_version="5.2.0",
         enabled=False,
         docs="""
         Example of rule violation:
@@ -39,7 +40,6 @@ rules = {
             Resource   AnotherFile.resource
 
         """,
-        added_in_version="5.2.0",
     ),
 }
 

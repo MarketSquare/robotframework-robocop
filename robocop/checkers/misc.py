@@ -591,6 +591,7 @@ rules = {
         name="builtin-imports-not-sorted",
         msg="BuiltIn library import '{{ builtin_import }}' should be placed before '{{ previous_builtin_import }}'",
         severity=RuleSeverity.WARNING,
+        added_in_version="5.2.0",
         docs="""
         Example of rule violation::
 
@@ -599,7 +600,6 @@ rules = {
             Library    Collections  # BuiltIn libraries imported not in alphabetical order
 
         """,
-        added_in_version="5.2.0",
     ),
 }
 

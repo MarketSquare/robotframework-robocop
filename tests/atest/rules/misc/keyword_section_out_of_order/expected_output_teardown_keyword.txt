@@ -1,2 +1,2 @@
-test.robot:23:1 [W] 0928 'TEARDOWN is in wrong place of Keyword. Recommended order of elements in Test Cases: TEARDOWN, KEYWORD
-test.robot:57:1 [W] 0928 'TEARDOWN is in wrong place of Keyword. Recommended order of elements in Test Cases: TEARDOWN, KEYWORD
+test.robot:23:1 [W] 0928 'TEARDOWN is in wrong place of Keyword. Recommended order of elements in Keyword: TEARDOWN, KEYWORD
+test.robot:57:1 [W] 0928 'TEARDOWN is in wrong place of Keyword. Recommended order of elements in Keyword: TEARDOWN, KEYWORD

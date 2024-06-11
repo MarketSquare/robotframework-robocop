@@ -9,7 +9,7 @@ from typing import Dict, List, Optional
 from robot.api import Token
 from robot.errors import VariableError
 from robot.libraries import STDLIBS
-from robot.parsing.model.blocks import TestCaseSection
+from robot.parsing.model.blocks import Keyword, TestCase, TestCaseSection
 from robot.parsing.model.statements import Arguments, KeywordCall, Teardown
 from robot.utils import unescape
 from robot.variables.search import search_variable
@@ -35,7 +35,13 @@ from robocop.utils import (
     parse_assignment_sign_type,
     token_col,
 )
-from robocop.utils.misc import RETURN_CLASSES, _is_var_scope_local, find_escaped_variables
+from robocop.utils.misc import (
+    RETURN_CLASSES,
+    _is_var_scope_local,
+    find_escaped_variables,
+    parse_keyword_order_param,
+    parse_test_case_order_param,
+)
 from robocop.utils.variable_matcher import VariableMatches
 
 RULE_CATEGORY_ID = "09"
@@ -599,6 +605,78 @@ rules = {
             Library    OperatingSystem
             Library    Collections  # BuiltIn libraries imported not in alphabetical order
 
+        """,
+    ),
+    "0927": Rule(
+        RuleParam(
+            name="sections_order",
+            default="documentation,tags,timeout,setup,template,keyword,teardown",
+            converter=parse_test_case_order_param,
+            show_type="str",
+            desc="order of sections in comma-separated list",
+        ),
+        rule_id="0927",
+        name="test-case-section-out-of-order",
+        msg="'{{ section_name }} is in wrong place of Test Case. "
+        "Recommended order of elements in Test Cases: {{ recommended_order }}",
+        severity=RuleSeverity.WARNING,
+        added_in_version="5.3.0",
+        docs="""
+        Sections should be defined in order set by ``sections_order``
+        parameter (default: ``documentation,tags,timeout,setup,template,keyword,teardown``).
+
+        To change the default order use following option::
+
+            robocop --configure test-case-section-out-of-order:sections_order:comma,separated,list,of,sections
+
+        where section should be case-insensitive name from the list: 
+        documentation, tags, timeout, setup, template, keywords, teardown. 
+        Order of not configured sections is ignored.
+    
+        Example of rule violation::
+
+            *** Test Cases ***
+            Keyword After Teardown
+                [Documentation]    This is test Documentation
+                [Tags]    tag1    tag2
+                [Teardown]    Log    abc
+                Keyword1
+        """,
+    ),
+    "0928": Rule(
+        RuleParam(
+            name="sections_order",
+            default="documentation,tags,arguments,timeout,setup,keyword,teardown",
+            converter=parse_keyword_order_param,
+            show_type="str",
+            desc="order of sections in comma-separated list",
+        ),
+        rule_id="0928",
+        name="keyword-section-out-of-order",
+        msg="'{{ section_name }} is in wrong place of Keyword. "
+        "Recommended order of elements in Keyword: {{ recommended_order }}",
+        severity=RuleSeverity.WARNING,
+        added_in_version="5.3.0",
+        docs="""
+        Sections should be defined in order set by ``sections_order``
+        parameter (default: ``documentation,tags,arguments,timeout,setup,keyword,teardown``).
+
+        To change the default order use following option::
+
+            robocop --configure keyword-section-out-of-order:sections_order:comma,separated,list,of,sections
+
+        where section should be case-insensitive name from the list: 
+        documentation, tags, arguments, timeout, setup, keyword, teardown. 
+        Order of not configured sections is ignored.
+
+        Example of rule violation::
+
+            *** Keywords ***
+            Keyword After Teardown
+                [Documentation]    This is keyword Documentation
+                [Tags]    tag1    tag2
+                [Teardown]    Log    abc
+                Keyword1
         """,
     ),
 }
@@ -1566,3 +1644,47 @@ class ExpressionsChecker(VisitorChecker):
                 col=position,
                 end_col=position + len(variable) + len(right_side),
             )
+
+
+class TestAndKeywordOrderChecker(VisitorChecker):
+    reports = ("test-case-section-out-of-order", "keyword-section-out-of-order")
+
+    def __init__(self):
+        self.rules_by_node_type = {}
+        self.expected_order = {}
+        super().__init__()
+
+    def visit_File(self, node):  # noqa
+        self.rules_by_node_type = {Keyword: "keyword-section-out-of-order", TestCase: "test-case-section-out-of-order"}
+        self.expected_order = {
+            Keyword: self.param("keyword-section-out-of-order", "sections_order"),
+            TestCase: self.param("test-case-section-out-of-order", "sections_order"),
+        }
+        self.generic_visit(node)
+
+    def check_order(self, node):
+        if type(node) not in self.rules_by_node_type:
+            raise ValueError("Invalid node type")
+        already_used_sections = []
+        for subnode in node.body:
+            try:
+                subnode_type = subnode.type
+            except AttributeError:
+                continue
+            if subnode_type not in self.expected_order[type(node)]:
+                continue
+            this_node_expected_order = self.expected_order[type(node)].index(subnode_type)
+            for item in already_used_sections:
+                if this_node_expected_order < self.expected_order[type(node)].index(item):
+                    self.report(
+                        self.rules_by_node_type[type(node)],
+                        section_name=subnode_type,
+                        recommended_order=", ".join(self.expected_order[type(node)]),
+                        node=subnode,
+                        col=subnode.col_offset + 1,
+                        end_col=subnode.end_col_offset + 1,
+                    )
+                    break
+            already_used_sections.append(subnode_type)
+
+    visit_Keyword = visit_TestCase = check_order

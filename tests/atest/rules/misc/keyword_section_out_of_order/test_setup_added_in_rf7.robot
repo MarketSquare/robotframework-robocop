@@ -15,30 +15,21 @@ Correct Keyword
     [Tags]    xd
     [Arguments]    ${argument1}
     [Timeout]    30
+    [Setup]    Log    Preparing
     No Operation
     No Operation
     Fail
     [Teardown]    Log    Cleaning
 
-Documentation After Tags
-    [Tags]    xd
+Timeout After Setup
     [Documentation]  this is doc
-    No Operation
-
-Tags After Arguments
-    [Documentation]  this is doc
-    [Arguments]    ${argument1}
-    [Tags]    xd
-    Fail
-
-Arguments After Timeout
-    [Documentation]  this is doc
+    [Setup]    Log    Preparing
     [Timeout]    30
-    [Arguments]    ${argument1}
     No Operation
 
-Teardown After Teardown
+Setup After Keyword
     [Documentation]  this is doc
     No Operation
-    [Teardown]    Log    Cleaning
-    No Operation
+    [Setup]    Log    Preparing
+    Log    Test
+

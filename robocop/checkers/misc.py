@@ -617,7 +617,7 @@ rules = {
         ),
         rule_id="0927",
         name="test-case-section-out-of-order",
-        msg="'{{ section_name }} is in wrong place of Test Case. "
+        msg="'{{ section_name }}' is in wrong place of Test Case. "
         "Recommended order of elements in Test Cases: {{ recommended_order }}",
         severity=RuleSeverity.WARNING,
         added_in_version="5.3.0",
@@ -653,7 +653,7 @@ rules = {
         ),
         rule_id="0928",
         name="keyword-section-out-of-order",
-        msg="'{{ section_name }} is in wrong place of Keyword. "
+        msg="'{{ section_name }}' is in wrong place of Keyword. "
         "Recommended order of elements in Keyword: {{ recommended_order }}",
         severity=RuleSeverity.WARNING,
         added_in_version="5.3.0",

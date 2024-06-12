@@ -1663,9 +1663,7 @@ class TestAndKeywordOrderChecker(VisitorChecker):
         self.generic_visit(node)
 
     def check_order(self, node):
-        if type(node) not in self.rules_by_node_type:
-            raise ValueError("Invalid node type")
-        already_used_sections = []
+        max_order_indicator = -1
         for subnode in node.body:
             try:
                 subnode_type = subnode.type
@@ -1673,18 +1671,17 @@ class TestAndKeywordOrderChecker(VisitorChecker):
                 continue
             if subnode_type not in self.expected_order[type(node)]:
                 continue
-            this_node_expected_order = self.expected_order[type(node)].index(subnode_type)
-            for item in already_used_sections:
-                if this_node_expected_order < self.expected_order[type(node)].index(item):
-                    self.report(
-                        self.rules_by_node_type[type(node)],
-                        section_name=subnode_type,
-                        recommended_order=", ".join(self.expected_order[type(node)]),
-                        node=subnode,
-                        col=subnode.col_offset + 1,
-                        end_col=subnode.end_col_offset + 1,
-                    )
-                    break
-            already_used_sections.append(subnode_type)
+            this_node_expected_order = self.expected_order[type(node)].index(subnode.type)
+            if this_node_expected_order < max_order_indicator:
+                self.report(
+                    self.rules_by_node_type[type(node)],
+                    section_name=subnode_type,
+                    recommended_order=", ".join(self.expected_order[type(node)]),
+                    node=subnode,
+                    col=subnode.col_offset + 1,
+                    end_col=subnode.end_col_offset + 1,
+                )
+            else:
+                max_order_indicator = this_node_expected_order
 
     visit_Keyword = visit_TestCase = check_order

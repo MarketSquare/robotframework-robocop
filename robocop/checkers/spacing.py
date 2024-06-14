@@ -286,6 +286,23 @@ rules = {
         """,
         added_in_version="3.0.0",
     ),
+    "1018": Rule(
+        rule_id="1018",
+        name="first-argument-in-new-line",
+        msg="First argument: '{{ argument_name }}' should be placed on the same line as [Arguments] setting",
+        severity=RuleSeverity.WARNING,
+        added_in_version="5.3.0",
+        docs="""
+        Example of rule violation::
+
+            *** Keywords ***
+            Custom Keyword With Five Required Arguments
+            [Arguments]
+            ...    ${name}
+            ...    ${surname}
+
+        """,
+    ),
 }
 
 
@@ -948,3 +965,31 @@ class LeftAlignedChecker(VisitorChecker):
                         col=indent + 1,
                     )
                     break
+
+
+class ArgumentsChecker(VisitorChecker):
+    reports = ("first-argument-in-new-line",)
+
+    def __init__(self):
+        super().__init__()
+
+    def visit_File(self, node):
+        self.generic_visit(node)
+
+    def visit_Arguments(self, node):
+        eol_already = None
+        for t in node.tokens:
+            if t.type == Token.EOL:
+                eol_already = t
+                continue
+            if t.type == Token.ARGUMENT:
+                if eol_already is not None:
+                    self.report(
+                        "first-argument-in-new-line",
+                        argument_name=t.value,
+                        lineno=eol_already.lineno,
+                        end_lineno=t.lineno,
+                        col=eol_already.end_col_offset,
+                        end_col=t.end_col_offset,
+                    )
+                return

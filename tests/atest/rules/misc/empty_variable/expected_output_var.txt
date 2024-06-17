@@ -1,0 +1,4 @@
+test.robot:51:5 [I] 0912 Use built-in variable ${EMPTY} instead of leaving variable without value or using backslash
+test.robot:53:9 [I] 0912 Use built-in variable @{EMPTY} instead of leaving variable without value or using backslash
+test.robot:54:9 [I] 0912 Use built-in variable &{EMPTY} instead of leaving variable without value or using backslash
+test.robot:62:8 [I] 0912 Use built-in variable ${EMPTY} instead of leaving variable without value or using backslash

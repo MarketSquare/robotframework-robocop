@@ -46,6 +46,11 @@ from robocop.utils.variable_matcher import VariableMatches
 
 RULE_CATEGORY_ID = "09"
 
+
+def comma_separated_list(value: str) -> List[str]:
+    return value.split(",")
+
+
 rules = {
     "0901": Rule(
         rule_id="0901",
@@ -207,11 +212,20 @@ rules = {
         added_in_version="1.7.0",
     ),
     "0912": Rule(
+        RuleParam(
+            name="variable_source",
+            default="section,var",
+            converter=comma_separated_list,
+            show_type="comma separated list",
+            desc="Variable sources that will be checked",
+        ),
         rule_id="0912",
         name="empty-variable",
         msg="Use built-in variable {{ var_type }}{EMPTY} instead of leaving variable without value or using backslash",
         severity=RuleSeverity.INFO,
         docs="""
+        Variables with placeholder ${EMPTY} values are more explicit.
+        
         Example of rule violation::
 
             *** Variables ***
@@ -222,6 +236,13 @@ rules = {
             ...  value
             ${EMPTY_WITH_BACKSLASH}  \\       # used backslash
 
+            *** Keywords ***
+            Create Variables
+                VAR    ${var_no_value}  # missing value
+                VAR    ${var_with_empty}    ${EMPTY}
+
+        You can configure ``empty-variable`` rule to run only in ```*** Variables ***``` section or on
+        ``VAR`` statements using ``variable_source`` parameter.
         """,
         added_in_version="1.10.0",
     ),
@@ -941,6 +962,27 @@ class EmptyVariableChecker(VisitorChecker):
     """Checker for variables without value."""
 
     reports = ("empty-variable",)
+
+    def __init__(self):
+        self.visit_var_section = False
+        self.visit_var = False
+        super().__init__()
+
+    def visit_File(self, node):  # noqa
+        variable_source = self.param("empty-variable", "variable_source")
+        self.visit_var_section = "section" in variable_source
+        self.visit_var = "var" in variable_source
+        self.generic_visit(node)
+
+    def visit_VariableSection(self, node):  # noqa
+        if self.visit_var_section:
+            self.generic_visit(node)
+
+    def visit_KeywordSection(self, node):  # noqa
+        if self.visit_var:
+            self.generic_visit(node)
+
+    visit_TestCaseSection = visit_KeywordSection
 
     def visit_Variable(self, node):  # noqa
         if get_errors(node):

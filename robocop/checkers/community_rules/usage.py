@@ -71,9 +71,6 @@ class RobotFile:
         return [keyword for keyword in self.keywords.values() if not keyword.used]
 
     def search_usage(self):
-        any_private = self.any_private
-        if not (self.is_suite or any_private):
-            return
         # TODO search in other files (imports) for non suites
         # TODO option to also report keyword only used in not used keywords ('Nested Not Used Keyword' from tests)
         # TODO below could be done inside robotfile? unless the access to others is required
@@ -96,6 +93,8 @@ class UnusedKeywords(ProjectChecker):
     def scan_project(self) -> List["Message"]:
         self.issues = []
         for robot_file in self.files.values():
+            if not (robot_file.is_suite or robot_file.any_private):
+                continue
             robot_file.search_usage()
             for keyword in robot_file.not_used_keywords:
                 name = keyword.keyword_node.name

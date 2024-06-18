@@ -970,13 +970,13 @@ class LeftAlignedChecker(VisitorChecker):
 class ArgumentsChecker(VisitorChecker):
     reports = ("first-argument-in-new-line",)
 
-    def visit_Arguments(self, node):
+    def visit_Arguments(self, node):  # noqa
         eol_already = None
         for t in node.tokens:
             if t.type == Token.EOL:
                 eol_already = t
                 continue
-            elif t.type == Token.ARGUMENT:
+            if t.type == Token.ARGUMENT:
                 if eol_already is not None:
                     self.report(
                         "first-argument-in-new-line",

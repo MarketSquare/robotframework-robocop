@@ -4,8 +4,8 @@ from typing import Dict, List, Optional
 from robot.api import Token
 from robot.parsing.model.blocks import Keyword
 
-from robocop.checkers import ProjectChecker, VisitorChecker
-from robocop.rules import Message, Rule, RuleParam, RuleSeverity
+from robocop.checkers import ProjectChecker
+from robocop.rules import Message, Rule, RuleSeverity
 from robocop.utils.misc import normalize_robot_name
 from robocop.utils.run_keywords import iterate_keyword_names
 
@@ -112,7 +112,7 @@ class UnusedKeywords(ProjectChecker):
         self.generic_visit(node)
         self.files[self.current_file.path] = self.current_file
 
-    def visit_TestCaseSection(self, node):  # noqa  TODO check with tasks
+    def visit_TestCaseSection(self, node):  # noqa
         self.current_file.is_suite = True
         self.generic_visit(node)
 

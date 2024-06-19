@@ -9,7 +9,7 @@ from robot.running.arguments import EmbeddedArguments
 
 from robocop.checkers import ProjectChecker
 from robocop.rules import Message, Rule, RuleSeverity
-from robocop.utils.misc import normalize_robot_name
+from robocop.utils.misc import ROBOT_VERSION, normalize_robot_name
 from robocop.utils.run_keywords import iterate_keyword_names
 
 RULE_CATEGORY_ID = "01"
@@ -31,6 +31,11 @@ rules = {
         """,
     )
 }
+
+if ROBOT_VERSION.major < 6:
+    KeywordEmbedded = EmbeddedArguments
+else:
+    KeywordEmbedded = EmbeddedArguments.from_name
 
 
 @dataclass
@@ -170,8 +175,7 @@ class UnusedKeywords(ProjectChecker):
         self.mark_used_keywords(node, Token.KEYWORD)
 
     def visit_Keyword(self, node):  # noqa
-        # TODO test embedded on different robot versions -> EmbeddedArguments implementation changed
-        embedded = EmbeddedArguments.from_name(node.name)
+        embedded = KeywordEmbedded(node.name)
         if embedded and embedded.args:
             self.current_file.embedded_keywords[node.name] = KeywordDefinition(
                 embedded.name, node, is_private=self.is_keyword_private(node)

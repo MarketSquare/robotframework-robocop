@@ -21,6 +21,10 @@ rules = {
         added_in_version="5.1.0",
         enabled=False,
         docs="""
+        Reports not used keywords.
+        
+        Rule is under development - may report false negatives or positives. Currently it does only support 
+        keywords from suites and private keywords. Keywords from run keywords or embedded keywords are not supported.
 
         """,
     )
@@ -103,7 +107,6 @@ class UnusedKeywords(ProjectChecker):
                 continue
             robot_file.search_usage()
             for keyword in robot_file.not_used_keywords:
-                # TODO ignore non private ones if not is_suite
                 name = keyword.keyword_node.name
                 self.report(
                     "unused-keyword",

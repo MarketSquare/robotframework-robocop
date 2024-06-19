@@ -16,7 +16,7 @@ Used Keyword 3
 Not Used Keyword
     Nested Not Used Keyword
 
-Nested Not Used Keyword
+Nested Not Used Keyword  # it should be reported in the future since parent keyword is not used
     Log    ${TEST_NAME}
 
 

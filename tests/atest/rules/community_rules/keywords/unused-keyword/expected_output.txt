@@ -1,2 +1,3 @@
 suite.robot:16:1:16:17 [W] 10101 Keyword 'Not Used Keyword' is not used
 tasks.robot:16:1:16:17 [W] 10101 Keyword 'Not Used Keyword' is not used
+resource.robot:10:1:10:25 [W] 10101 Keyword 'Private Not Used Keyword' is not used

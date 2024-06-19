@@ -3,6 +3,7 @@ from typing import Dict, List, Optional
 
 from robot.api import Token
 from robot.parsing.model.blocks import Keyword
+from robot.parsing.model.statements import Tags
 
 from robocop.checkers import ProjectChecker
 from robocop.rules import Message, Rule, RuleSeverity
@@ -59,16 +60,21 @@ class RobotFile:
     used_keywords: Dict[str, KeywordUsage] = field(default_factory=dict)
 
     @property
-    def any_private(self):
+    def any_private(self) -> bool:
         return any(keyword.is_private for keyword in self.keywords.values())
 
     @property
-    def private_keywords(self):
+    def private_keywords(self) -> List[KeywordDefinition]:
         return [keyword for keyword in self.keywords.values() if keyword.is_private]
 
     @property
-    def not_used_keywords(self):
-        return [keyword for keyword in self.keywords.values() if not keyword.used]
+    def not_used_keywords(self) -> List[KeywordDefinition]:
+        not_used = []
+        for keyword in self.keywords.values():
+            if keyword.used or not (self.is_suite or keyword.is_private):
+                continue
+            not_used.append(keyword)
+        return not_used
 
     def search_usage(self):
         # TODO search in other files (imports) for non suites
@@ -97,6 +103,7 @@ class UnusedKeywords(ProjectChecker):
                 continue
             robot_file.search_usage()
             for keyword in robot_file.not_used_keywords:
+                # TODO ignore non private ones if not is_suite
                 name = keyword.keyword_node.name
                 self.report(
                     "unused-keyword",
@@ -147,8 +154,18 @@ class UnusedKeywords(ProjectChecker):
         self.mark_used_keywords(node, Token.KEYWORD)
 
     def visit_Keyword(self, node):  # noqa
-        # TODO handle robot:private
         name = node.name
         normalized_name = normalize_robot_name(name)
-        self.current_file.keywords[normalized_name] = KeywordDefinition(name, node)
+        self.current_file.keywords[normalized_name] = KeywordDefinition(
+            name, node, is_private=self.is_keyword_private(node)
+        )
         self.generic_visit(node)
+
+    @staticmethod
+    def is_keyword_private(node):
+        for statement in node.body:
+            if isinstance(statement, Tags):
+                for tag in statement.get_tokens(Token.ARGUMENT):
+                    if tag.value == "robot:private":
+                        return True
+        return False

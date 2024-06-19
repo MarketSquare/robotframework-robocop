@@ -1,9 +1,11 @@
 from dataclasses import dataclass, field
-from typing import Dict, List, Optional
+from itertools import chain
+from typing import Dict, Iterable, List, Optional, Pattern, Union
 
 from robot.api import Token
 from robot.parsing.model.blocks import Keyword
 from robot.parsing.model.statements import Tags
+from robot.running.arguments import EmbeddedArguments
 
 from robocop.checkers import ProjectChecker
 from robocop.rules import Message, Rule, RuleSeverity
@@ -24,7 +26,7 @@ rules = {
         Reports not used keywords.
         
         Rule is under development - may report false negatives or positives. Currently it does only support 
-        keywords from suites and private keywords. Keywords from run keywords or embedded keywords are not supported.
+        keywords from suites and private keywords. Keywords from run keywords are not supported.
 
         """,
     )
@@ -44,7 +46,7 @@ class KeywordUsage:
 
 @dataclass
 class KeywordDefinition:
-    name: str
+    name: Union[str, Pattern]
     keyword_node: Keyword
     used: int = 0
     used_names: set[str] = field(default_factory=set)
@@ -60,21 +62,26 @@ class KeywordDefinition:
 class RobotFile:
     path: str
     is_suite: bool = False
-    keywords: Dict[str, KeywordDefinition] = field(default_factory=dict)
+    normal_keywords: Dict[str, KeywordDefinition] = field(default_factory=dict)
+    embedded_keywords: Dict[str, KeywordDefinition] = field(default_factory=dict)
     used_keywords: Dict[str, KeywordUsage] = field(default_factory=dict)
 
     @property
+    def keywords(self) -> Iterable[KeywordDefinition]:
+        return chain(self.normal_keywords.values(), self.embedded_keywords.values())
+
+    @property
     def any_private(self) -> bool:
-        return any(keyword.is_private for keyword in self.keywords.values())
+        return any(keyword.is_private for keyword in self.keywords)
 
     @property
     def private_keywords(self) -> List[KeywordDefinition]:
-        return [keyword for keyword in self.keywords.values() if keyword.is_private]
+        return [keyword for keyword in self.keywords if keyword.is_private]
 
     @property
     def not_used_keywords(self) -> List[KeywordDefinition]:
         not_used = []
-        for keyword in self.keywords.values():
+        for keyword in self.keywords:
             if keyword.used or not (self.is_suite or keyword.is_private):
                 continue
             not_used.append(keyword)
@@ -85,15 +92,21 @@ class RobotFile:
         # TODO option to also report keyword only used in not used keywords ('Nested Not Used Keyword' from tests)
         # TODO below could be done inside robotfile? unless the access to others is required
         for normalized_name, keyword_usage in self.used_keywords.items():
-            if normalized_name in self.keywords:
-                self.keywords[normalized_name].update(keyword_usage)
+            if normalized_name in self.normal_keywords:
+                self.normal_keywords[normalized_name].update(keyword_usage)
+            else:
+                for name in keyword_usage.names:
+                    for keyword_name, keyword_def in self.embedded_keywords.items():
+                        if keyword_def.name.match(name):
+                            # not entirely correct since keyword usage could be two usages with the same normalized name
+                            self.embedded_keywords[keyword_name].update(keyword_usage)
 
 
 class UnusedKeywords(ProjectChecker):
     reports = ("unused-keyword",)
 
-    # TODO embedded
     # TODO ignore run keywords with variables?
+    # TODO handle BDD
 
     def __init__(self):
         self.files: Dict[str, RobotFile] = {}
@@ -157,11 +170,17 @@ class UnusedKeywords(ProjectChecker):
         self.mark_used_keywords(node, Token.KEYWORD)
 
     def visit_Keyword(self, node):  # noqa
-        name = node.name
-        normalized_name = normalize_robot_name(name)
-        self.current_file.keywords[normalized_name] = KeywordDefinition(
-            name, node, is_private=self.is_keyword_private(node)
-        )
+        # TODO test embedded on different robot versions -> EmbeddedArguments implementation changed
+        embedded = EmbeddedArguments.from_name(node.name)
+        if embedded and embedded.args:
+            self.current_file.embedded_keywords[node.name] = KeywordDefinition(
+                embedded.name, node, is_private=self.is_keyword_private(node)
+            )
+        else:
+            normalized_name = normalize_robot_name(node.name)
+            self.current_file.normal_keywords[normalized_name] = KeywordDefinition(
+                node.name, node, is_private=self.is_keyword_private(node)
+            )
         self.generic_visit(node)
 
     @staticmethod

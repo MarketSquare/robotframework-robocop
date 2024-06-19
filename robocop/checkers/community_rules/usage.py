@@ -1,6 +1,6 @@
 from dataclasses import dataclass, field
 from itertools import chain
-from typing import Dict, Iterable, List, Optional, Pattern, Union
+from typing import Dict, Iterable, List, Optional, Pattern, Set, Union
 
 from robot.api import Token
 from robot.parsing.model.blocks import Keyword
@@ -42,7 +42,7 @@ else:
 class KeywordUsage:
     found_def: bool = False
     used: int = 0
-    names: set[str] = field(default_factory=set)
+    names: Set[str] = field(default_factory=set)
 
     def update(self, name: str):
         self.used += 1
@@ -54,7 +54,7 @@ class KeywordDefinition:
     name: Union[str, Pattern]
     keyword_node: Keyword
     used: int = 0
-    used_names: set[str] = field(default_factory=set)
+    used_names: Set[str] = field(default_factory=set)
     is_private: bool = False
 
     def update(self, used_as: KeywordUsage):

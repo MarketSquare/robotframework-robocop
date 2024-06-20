@@ -3,6 +3,7 @@ from itertools import chain
 from typing import Dict, Iterable, List, Optional, Pattern, Set, Union
 
 from robot.api import Token
+from robot.errors import DataError
 from robot.parsing.model.blocks import Keyword
 from robot.parsing.model.statements import Tags
 from robot.running.arguments import EmbeddedArguments
@@ -175,16 +176,19 @@ class UnusedKeywords(ProjectChecker):
         self.mark_used_keywords(node, Token.KEYWORD)
 
     def visit_Keyword(self, node):  # noqa
-        embedded = KeywordEmbedded(node.name)
-        if embedded and embedded.args:
-            self.current_file.embedded_keywords[node.name] = KeywordDefinition(
-                embedded.name, node, is_private=self.is_keyword_private(node)
-            )
-        else:
-            normalized_name = normalize_robot_name(node.name)
-            self.current_file.normal_keywords[normalized_name] = KeywordDefinition(
-                node.name, node, is_private=self.is_keyword_private(node)
-            )
+        try:
+            embedded = KeywordEmbedded(node.name)
+            if embedded and embedded.args:
+                self.current_file.embedded_keywords[node.name] = KeywordDefinition(
+                    embedded.name, node, is_private=self.is_keyword_private(node)
+                )
+            else:
+                normalized_name = normalize_robot_name(node.name)
+                self.current_file.normal_keywords[normalized_name] = KeywordDefinition(
+                    node.name, node, is_private=self.is_keyword_private(node)
+                )
+        except DataError:
+            pass
         self.generic_visit(node)
 
     @staticmethod

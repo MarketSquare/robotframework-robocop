@@ -1,0 +1,4 @@
+suite.robot:19:1:19:17 [I] 10101 Keyword 'Not Used Keyword' is not used
+suite.robot:34:1:34:21 [I] 10101 Keyword 'Embedded ${not} Used' is not used
+tasks.robot:16:1:16:17 [I] 10101 Keyword 'Not Used Keyword' is not used
+resource.robot:10:1:10:25 [I] 10101 Keyword 'Private Not Used Keyword' is not used

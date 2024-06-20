@@ -1,9 +1,5 @@
-New first-argument-in-new-line rule (#1001)
--------------------------------------------
+empty-variable can be now disabled for VAR (#1056)
+--------------------------------------------------
 
-New W1018 ``first-argument-in-new-line`` rule that checks if first argument is placed in the same line as
-``[Argument]`` setting.
-
-This rule covers Robot Framework Style Guide recommendation:
-
-https://docs.robotframework.org/docs/style_guide#line-continuation-for-arguments-in-keyword-definition
+I0912 ``empty-variable`` received new parameter ``variable_source`` which allows to enable the rule either only for
+variables from ```*** Variables ***``` section or only ``VAR`` statements. By default it works on both.

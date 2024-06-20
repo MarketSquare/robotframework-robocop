@@ -20,15 +20,26 @@ rules = {
         rule_id="10101",
         name="unused-keyword",
         msg="Keyword '{{ keyword_name }}' is not used",
-        severity=RuleSeverity.WARNING,
+        severity=RuleSeverity.INFO,
         added_in_version="5.1.0",
         enabled=False,
         docs="""
         Reports not used keywords.
         
-        Rule is under development - may report false negatives or positives. Currently it does only support 
-        keywords from suites and private keywords. Keywords from run keywords are not supported.
+        Example::
 
+            *** Test Cases ***
+            Test that only non used keywords are reported
+                Used Keyword
+        
+            *** Keywords ***
+            Not Used Keyword  # this keyword will be reported as not used
+                [Arguments]    ${arg}
+                Should Be True    ${arg}>50
+        
+        Rule is under development - may report false negatives or positives. Currently it does only support 
+        keywords from suites and private keywords. If the keyword is called dynamically (for example through variable)
+        it will be not detected as used.
         """,
     )
 }

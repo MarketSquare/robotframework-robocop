@@ -34,7 +34,29 @@ Embedded ${inside} Keyword
 Embedded ${not} Used
     No Operation
 
+Used In Setup
+    No Operation
+
+Used In Teardown
+    No Operation
+
+Used In Timeout
+    No Operation
+
+Used In Run Keyword
+    No Operation
+
 
 *** Test Cases ***
 Test cases are last for testing purposes
     Used_Keyword
+
+Test with settings
+    [Setup]    Used In Setup
+    [Template]    Used In Timeout
+    [Teardown]    Used In Teardown
+
+Test with run keywords
+    Run Keywords    Used Keyword
+    ...    AND
+    ...    Used In Run Keyword

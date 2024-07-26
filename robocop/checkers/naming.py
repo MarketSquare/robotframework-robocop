@@ -5,7 +5,7 @@ import re
 import string
 from collections import defaultdict
 from pathlib import Path
-from typing import Iterable
+from typing import Iterable, Optional
 
 from robot.api import Token
 from robot.errors import VariableError
@@ -841,7 +841,7 @@ class SettingsNamingChecker(VisitorChecker):
 
     def __init__(self):
         self.section_name_pattern = re.compile(r"\*\*\*\s.+\s\*\*\*")
-        self.task_section = False
+        self.task_section: Optional[bool] = None
         super().__init__()
 
     def visit_InvalidSection(self, node):  # noqa
@@ -871,15 +871,16 @@ class SettingsNamingChecker(VisitorChecker):
             )
 
     def visit_File(self, node):  # noqa
+        self.task_section = None
         for section in node.sections:
             if isinstance(section, TestCaseSection):
                 if (ROBOT_VERSION.major < 6 and "task" in section.header.name.lower()) or (
                     ROBOT_VERSION.major >= 6 and section.header.type == Token.TASK_HEADER
                 ):
                     self.task_section = True
-                    break
-        else:
-            self.task_section = False
+                else:
+                    self.task_section = False
+                break
         super().visit_File(node)
 
     def visit_Setup(self, node):  # noqa
@@ -943,8 +944,12 @@ class SettingsNamingChecker(VisitorChecker):
                 "setting-name-not-in-title-case", setting_name=name, node=node, col=col + 1, end_col=col + len(name) + 1
             )
 
-    def check_settings_consistency(self, name, node):
-        if "test" in name.lower() and self.task_section:
+    def check_settings_consistency(self, name: str, node):
+        name_normalized = name.lower()
+        # if there is no task/test section, determine by first setting in the file
+        if self.task_section is None and ("test" in name_normalized or "task" in name_normalized):
+            self.task_section = "task" in name_normalized
+        if "test" in name_normalized and self.task_section:
             self.report(
                 "mixed-task-test-settings",
                 setting="Task " + name.split()[1],
@@ -952,7 +957,7 @@ class SettingsNamingChecker(VisitorChecker):
                 tasks_or_tests="Tasks",
                 node=node,
             )
-        elif "task" in name.lower() and not self.task_section:
+        elif "task" in name_normalized and not self.task_section:
             self.report(
                 "mixed-task-test-settings",
                 setting="Test " + name.split()[1],

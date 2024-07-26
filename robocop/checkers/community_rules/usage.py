@@ -21,7 +21,7 @@ rules = {
         name="unused-keyword",
         msg="Keyword '{{ keyword_name }}' is not used",
         severity=RuleSeverity.INFO,
-        added_in_version="5.1.0",
+        added_in_version="5.3.0",
         enabled=False,
         docs="""
         Reports not used keywords.

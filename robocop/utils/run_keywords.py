@@ -132,3 +132,8 @@ def split_on_and(tokens):
         prefix, branch, tokens = split_on_token_value(tokens, "AND", 1)
         yield from parse_run_keyword(prefix)
     yield from parse_run_keyword(tokens)
+
+
+def is_run_keyword(token_name: str) -> bool:
+    run_keyword = RUN_KEYWORDS[token_name]
+    return run_keyword is not None

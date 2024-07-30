@@ -34,6 +34,30 @@ Used In IF
     IF    $var
         Keyword    String with ${var2}
     END
+    ${used_in_if}    Keyword
+    IF    True
+        ${not_used}    Keyword
+        # TODO even if branch used it, it should be mark as unused. Could be achieved by making
+        # add_variables_from_if_to_scope temporarily saving popped variables
+        ${used_in_branch}    Keyword
+    ELSE IF    False
+        ${not_used_from_branch}    Keyword    ${used_in_branch}
+    ELSE
+        Keyword    ${used_in_if}
+    END
+    IF    nested
+        IF    nested-loop
+            ${nested_define}    Keyword
+            ${nested_define2}    Keyword
+            ${nested_define3}    Keyword
+        ELSE
+            ${nested_define}    Keyword
+            ${nested_define2}    Keyword
+            ${nested_define3}    Keyword
+        END
+        Keyword    ${nested_define}
+    END
+    Keyword    ${nested_define2}
 
 Not Used From FOR
     FOR    ${var}    IN    1  2  3

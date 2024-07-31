@@ -1343,11 +1343,27 @@ class UnusedVariablesChecker(VisitorChecker):
         self.variables.append({})
         for item in node.body:
             self.visit(item)
-        self.variables.pop()
+        self.add_variables_from_if_to_scope()
         if node.orelse:
             self.visit(node.orelse)
         for token in node.header.get_tokens(Token.ASSIGN):
             self.handle_assign_variable(token)
+
+    def add_variables_from_if_to_scope(self):
+        """
+        Add all variables in given IF branch to common scope. If variable is used already in the branch, if it will
+        also be mark as used.
+        """
+        variables = self.variables.pop()
+        if not self.variables:
+            self.variables.append(variables)
+            return
+        for var_name, cached_var in variables.items():
+            if var_name in self.variables[-1]:
+                if cached_var.is_used:
+                    self.variables[-1][var_name].is_used = True
+            else:
+                self.variables[-1][var_name] = cached_var
 
     def visit_LibraryImport(self, node):  # noqa
         for token in node.get_tokens(Token.NAME, Token.ARGUMENT):

@@ -1,0 +1,86 @@
+:orphan:
+
+=============
+Robocop 5.4.0
+=============
+
+You can install the latest available version by running
+
+::
+
+    pip install --upgrade robotframework-robocop
+
+or to install exactly this version
+
+::
+
+    pip install robotframework-robocop==5.4.0
+
+.. contents::
+   :depth: 2
+   :local:
+
+Rule changes
+============
+
+Allow to ignore run keywords in misaligned-continuation-row rule (#1065)
+------------------------------------------------------------------------
+
+W1015 ``misaligned-continuation-row`` detects if statements have misaligned rows::
+
+    *** Keywords ***
+    Misaligned example
+        Keyword Call
+        ...    first argument
+        ...  second argument  # should be executed
+
+This rules contradicts with how Robotidy aligns nested keywords with ``IndentNestedKeywords`` transformer to provide
+extra alignment for readability purposes::
+
+    SSH Wait For Device To Close SSH
+        [Documentation]    Wait until SSH connection is closed by device.
+        Wait Until Keyword Succeeds    2min    2s
+        ...    Run Keyword And Expect Error    SSHException: SSH session not active
+        ...        SSH Log FW Version    level=DEBUG
+
+It is now possible to ignore run keywords by setting ignore_run_keywords to True::
+
+    robocop -c misaligned-continuation-row:ignore_run_keywords:True src
+
+By default it is disabled and run keywords are not ignored.
+
+Fixes
+=====
+
+mixed-task-test-settings reporting task settings in __init__.robot file (#1101)
+-------------------------------------------------------------------------------
+
+Fixes the issue where all task settings (such as ``Task Tags``) were reported as W0326 ``mixed-task-test-settings``
+violation in files without Test or Task section.
+
+unused-variable not detected within IF block (#1093)
+----------------------------------------------------
+
+If the variable was defined in the IF block, I0920 ``unused-variable`` was not reported even if variable was not used
+anywhere::
+
+    *** Test Cases ***
+    Useless variable definition
+        IF    True
+             ${not_used}    Keyword Call
+        END
+
+Acknowledgements
+================
+
+Thanks to the whole community for submitting bug reports and feature requests.
+Without you, Robocop wouldn't be in the place where it is now. All the feedback
+is essential to drive the tool towards higher quality and better user
+experience.
+
+If you want to help us more, consider contributing to the project directly.
+We can offer our constant support to make the work fun and effective. We do
+our best to create a supportive and welcoming environment for everyone.
+Feel free to ping us on our official `#robocop-linter Slack channel`_ anytime.
+
+.. _#robocop-linter Slack channel: https://robotframework.slack.com/archives/C01AWSNKC2H

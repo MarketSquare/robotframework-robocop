@@ -1,6 +1,7 @@
 from typing import Set
 
 from robot.api import Token
+from robot.model import Keyword
 from robot.utils.robottime import timestr_to_secs
 
 from robocop.checkers import VisitorChecker
@@ -86,6 +87,54 @@ rules = {
         If keyword call contains possible library name (ie. Library.Keyword Name), Robocop checks if it matches
         the not allowed keywords and if not, it will remove library part and check again.
 
+        """,
+    ),
+    "10003": Rule(
+        rule_id="10003",
+        name="no-embedded-keyword-arguments",
+        msg="Not allowed embedded arguments {{ arguments }} found in keyword '{{ keyword }}'",
+        severity=RuleSeverity.WARNING,
+        added_in_version="5.5.0",
+        enabled=False,
+        docs="""
+        Avoid using embedded arguments in keywords.
+
+        When using embedded keyword arguments, you mix what you do (the keyword name) with the data
+        related to the action (the arguments). Mixing these two concepts can create
+        hard-to-understand code, which can result in mistakes in your test code.
+
+        Embedded keyword arguments can also make it hard to understand which keyword you're using.
+        Sometimes even Robotframework gets confused when naming conflicts occur. There are ways to
+        fix naming conflicts, but this adds unnecessary complexity to your keyword.
+
+
+        To prevent these issues, use normal arguments instead.
+
+        Example:
+
+        Using a keyword with one embedded argument. Buying the drink and the size of the drink are
+        jumbled together.
+
+            *** Test Cases ***
+            Prepare for an amazing movie
+                Buy a large soda
+
+            *** Keywords ***
+            Buy a ${size} soda
+                # Do something wonderful
+
+        Change the embedded argument to a normal argument. Now buying the drink is separate from the
+        size of the drink. In this approach, it's easier to see that you can change the size of your
+        drink.
+
+            *** Test Cases ***
+            Prepare for an amazing movie
+                Buy a soda    size=large
+
+            *** Keywords ***
+            Buy a soda
+                [Arguments]    ${size}
+                # Do something wonderful
         """,
     ),
 }
@@ -178,3 +227,22 @@ class NotAllowedKeyword(VisitorChecker):
 
     def visit_KeywordCall(self, node):  # noqa
         self.check_keyword_naming_with_subkeywords(node, Token.KEYWORD)
+
+
+class NoEmbeddedKeywordArgumentsChecker(VisitorChecker):
+    reports = ("no-embedded-keyword-arguments",)
+
+    def visit_Keyword(self, node: Keyword):  # noqa
+        name_token: Token = node.header.get_token(Token.KEYWORD_NAME)
+        variable_tokens = [t for t in name_token.tokenize_variables() if t.type == Token.VARIABLE]
+
+        if len(variable_tokens) == 0:
+            return
+
+        self.report(
+            "no-embedded-keyword-arguments",
+            node=name_token,
+            end_col=name_token.end_col_offset + 1,
+            arguments=", ".join([t.value for t in variable_tokens]),
+            keyword=name_token,
+        )

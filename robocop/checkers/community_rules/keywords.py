@@ -97,6 +97,44 @@ rules = {
         added_in_version="5.5.0",
         enabled=False,
         docs="""
+        Avoid using embedded arguments in keywords.
+
+        When using embedded keyword arguments, you mix what you do (the keyword name) with the data
+        related to the action (the arguments). Mixing these two concepts can create
+        hard-to-understand code, which can result in mistakes in your test code.
+
+        Embedded keyword arguments can also make it hard to understand which keyword you're using.
+        Sometimes even Robotframework gets confused when naming conflicts occur. There are ways to
+        fix naming conflicts, but this adds unnecessary complexity to your keyword.
+
+
+        To prevent these issues, use normal arguments instead.
+
+        Example:
+
+        Using a keyword with one embedded argument. Buying the drink and the size of the drink are
+        jumbled together.
+
+            *** Test Cases ***
+            Prepare for an amazing movie
+                Buy a large soda
+
+            *** Keywords ***
+            Buy a ${size} soda
+                # Do something wonderful
+
+        Change the embedded argument to a normal argument. Now buying the drink is separate from the
+        size of the drink. In this approach, it's easier to see that you can change the size of your
+        drink.
+
+            *** Test Cases ***
+            Prepare for an amazing movie
+                Buy a soda    size=large
+
+            *** Keywords ***
+            Buy a soda
+                [Arguments]    ${size}
+                # Do something wonderful
         """,
     ),
 }

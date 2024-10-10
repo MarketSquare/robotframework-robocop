@@ -228,6 +228,7 @@ class NotAllowedKeyword(VisitorChecker):
     def visit_KeywordCall(self, node):  # noqa
         self.check_keyword_naming_with_subkeywords(node, Token.KEYWORD)
 
+
 class NoEmbeddedKeywordArgumentsChecker(VisitorChecker):
     reports = ("no-embedded-keyword-arguments",)
 
@@ -239,9 +240,9 @@ class NoEmbeddedKeywordArgumentsChecker(VisitorChecker):
             return
 
         self.report(
-            'no-embedded-keyword-arguments',
+            "no-embedded-keyword-arguments",
             node=name_token,
             end_col=name_token.end_col_offset + 1,
             arguments=", ".join([t.value for t in variable_tokens]),
-            keyword=name_token
+            keyword=name_token,
         )

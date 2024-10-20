@@ -49,7 +49,7 @@ def find_file_in_project_root(config_name, root, ignore_git_dir: bool):
             return None
 
 
-@lru_cache()
+@lru_cache
 def get_gitignore(root):
     """Return a PathSpec matching gitignore content if present."""
     gitignore = root / ".gitignore"

@@ -7,6 +7,10 @@ Task Tags       tag
 Documentation   some docs
 
 
+*** Variables ***
+${variable}    value
+
+
 *** Test Cases ***
 Some Task
     No Operation

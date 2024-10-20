@@ -7,7 +7,7 @@ from contextlib import contextmanager
 
 from robot.api import Token
 from robot.parsing.model.blocks import Keyword, TestCase
-from robot.parsing.model.statements import Comment, EmptyLine
+from robot.parsing.model.statements import Comment, EmptyLine, KeywordCall
 from robot.parsing.model.visitor import ModelVisitor
 
 from robocop.utils.misc import ROBOT_VERSION
@@ -20,6 +20,7 @@ except ImportError:
 from robocop.checkers import RawFileChecker, VisitorChecker
 from robocop.rules import Rule, RuleParam, RuleSeverity, SeverityThreshold
 from robocop.utils import get_errors, get_section_name, str2bool, token_col
+from robocop.utils.run_keywords import is_run_keyword
 
 RULE_CATEGORY_ID = "10"
 
@@ -179,11 +180,19 @@ rules = {
         docs="""
         Example of rule violation::
 
+            *** Variables ***
+            ${VAR}    value
+            
+            
+            ${VAR2}    value  # previous line will be reported with 2/1 consecutive lines
+            
+            
+            *** Keywords ***
             Keyword
                 Step 1
 
 
-                Step 2
+                Step 2  # previous line will be reported with 2/1 consecutive lines
 
         """,
         added_in_version="1.8.0",
@@ -222,6 +231,9 @@ rules = {
     ),
     "1015": Rule(
         RuleParam(name="ignore_docs", default=True, converter=str2bool, show_type="bool", desc="Ignore documentation"),
+        RuleParam(
+            name="ignore_run_keywords", default=False, converter=str2bool, show_type="bool", desc="Ignore run keywords"
+        ),
         rule_id="1015",
         name="misaligned-continuation-row",
         msg="Each next continuation line should be aligned with the previous one",
@@ -277,6 +289,23 @@ rules = {
                 END
         """,
         added_in_version="3.0.0",
+    ),
+    "1018": Rule(
+        rule_id="1018",
+        name="first-argument-in-new-line",
+        msg="First argument: '{{ argument_name }}' should be placed on the same line as [Arguments] setting",
+        severity=RuleSeverity.WARNING,
+        added_in_version="5.3.0",
+        docs="""
+        Example of rule violation::
+
+            *** Keywords ***
+            Custom Keyword With Five Required Arguments
+            [Arguments]
+            ...    ${name}
+            ...    ${surname}
+
+        """,
     ),
 }
 
@@ -781,6 +810,7 @@ class MisalignedContinuation(VisitorChecker, ModelVisitor):
         "misaligned-continuation",
         "misaligned-continuation-row",
     )
+    # detect if run keyword, but not parse it
 
     @staticmethod
     def is_inline_if(node):
@@ -791,8 +821,16 @@ class MisalignedContinuation(VisitorChecker, ModelVisitor):
         if ROBOT_VERSION.major >= 5 and self.is_inline_if(node):
             return
 
+    def is_ignorable_run_keyword(self, node) -> bool:
+        return (
+            isinstance(node, KeywordCall)
+            and self.param("misaligned-continuation-row", "ignore_run_keywords")
+            and is_run_keyword(node.keyword)
+        )
+        # TODO: test on different version, may lack .keyword
+
     def visit_Statement(self, node):  # noqa
-        if not node.data_tokens:
+        if not node.data_tokens or self.is_ignorable_run_keyword(node):
             return
         starting_row = self.get_indent(node.tokens)
         first_column, indent = 0, 0
@@ -940,3 +978,25 @@ class LeftAlignedChecker(VisitorChecker):
                         col=indent + 1,
                     )
                     break
+
+
+class ArgumentsChecker(VisitorChecker):
+    reports = ("first-argument-in-new-line",)
+
+    def visit_Arguments(self, node):  # noqa
+        eol_already = None
+        for t in node.tokens:
+            if t.type == Token.EOL:
+                eol_already = t
+                continue
+            if t.type == Token.ARGUMENT:
+                if eol_already is not None:
+                    self.report(
+                        "first-argument-in-new-line",
+                        argument_name=t.value,
+                        lineno=eol_already.lineno,
+                        end_lineno=t.lineno,
+                        col=eol_already.end_col_offset,
+                        end_col=t.end_col_offset,
+                    )
+                return

@@ -125,7 +125,7 @@ class ArgumentFileParser:
             else:
                 loaded_config_dir = None
             file_args = self.load_argument_file(argfile, config_dir)
-            file_args = self.resolve_arguments_paths(file_args, config_dir)
+            file_args = self.resolve_arguments_paths(file_args, loaded_config_dir)
             parsed_args += self.expand_argument_files(file_args, loaded_config_dir)
         return parsed_args
 

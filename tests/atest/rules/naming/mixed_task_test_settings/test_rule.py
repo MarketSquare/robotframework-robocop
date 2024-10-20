@@ -11,9 +11,10 @@ class TestRuleAcceptance(RuleAcceptance):
                 "mixed_tests.robot",
                 "golden_task.robot",
                 "golden_test.robot",
+                "__init__.robot",
             ],
             expected_file="expected_output_rf6.txt",
-            target_version="==6.*",
+            target_version=">=6",
         )
 
     def test_rule(self):
@@ -25,6 +26,7 @@ class TestRuleAcceptance(RuleAcceptance):
                 "mixed_tests.robot",
                 "golden_task.robot",
                 "golden_test.robot",
+                "__init__.robot",
             ],
             expected_file="expected_output_pre_rf6.txt",
             target_version="<6",

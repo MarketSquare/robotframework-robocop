@@ -370,3 +370,47 @@ def get_string_diff(prev_count, count):
 
 def get_plural_form(container):
     return "" if container == 1 else "s"
+
+
+def _is_var_scope_local(node) -> bool:
+    is_local = True
+    for option in node.get_tokens(Token.OPTION):
+        if "scope=" in option.value:
+            is_local = option.value.lower() == "scope=local"
+    return is_local
+
+
+def parse_order_comma_sep_list(value: str, mapping: dict) -> list:
+    ordered = []
+    for item in value.split(","):
+        item_lower = item.lower()
+        if item_lower not in mapping:
+            raise ValueError(f"Invalid value: {item}. Supported values: {', '.join(mapping.keys())}")
+        ordered.append(mapping[item_lower])
+    return ordered
+
+
+def parse_keyword_order_param(value: str) -> list:
+    mapping = {
+        "documentation": Token.DOCUMENTATION,
+        "tags": Token.TAGS,
+        "arguments": Token.ARGUMENTS,
+        "timeout": Token.TIMEOUT,
+        "setup": Token.SETUP,
+        "keyword": Token.KEYWORD,
+        "teardown": Token.TEARDOWN,
+    }
+    return parse_order_comma_sep_list(value, mapping)
+
+
+def parse_test_case_order_param(value: str) -> list:
+    mapping = {
+        "documentation": Token.DOCUMENTATION,
+        "tags": Token.TAGS,
+        "timeout": Token.TIMEOUT,
+        "setup": Token.SETUP,
+        "template": Token.TEMPLATE,
+        "keyword": Token.KEYWORD,
+        "teardown": Token.TEARDOWN,
+    }
+    return parse_order_comma_sep_list(value, mapping)

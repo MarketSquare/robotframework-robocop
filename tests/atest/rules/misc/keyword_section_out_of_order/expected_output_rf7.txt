@@ -1,0 +1,6 @@
+test.robot:25:1 [W] 0928 'DOCUMENTATION' is in wrong place of Keyword. Recommended order of elements in Keyword: DOCUMENTATION, TAGS, ARGUMENTS, TIMEOUT, SETUP, KEYWORD, TEARDOWN
+test.robot:31:1 [W] 0928 'TAGS' is in wrong place of Keyword. Recommended order of elements in Keyword: DOCUMENTATION, TAGS, ARGUMENTS, TIMEOUT, SETUP, KEYWORD, TEARDOWN
+test.robot:37:1 [W] 0928 'ARGUMENTS' is in wrong place of Keyword. Recommended order of elements in Keyword: DOCUMENTATION, TAGS, ARGUMENTS, TIMEOUT, SETUP, KEYWORD, TEARDOWN
+test.robot:44:1 [W] 0928 'KEYWORD' is in wrong place of Keyword. Recommended order of elements in Keyword: DOCUMENTATION, TAGS, ARGUMENTS, TIMEOUT, SETUP, KEYWORD, TEARDOWN
+test_kw_setup_added_in_rf7.robot:27:1 [W] 0928 'TIMEOUT' is in wrong place of Keyword. Recommended order of elements in Keyword: DOCUMENTATION, TAGS, ARGUMENTS, TIMEOUT, SETUP, KEYWORD, TEARDOWN
+test_kw_setup_added_in_rf7.robot:33:1 [W] 0928 'SETUP' is in wrong place of Keyword. Recommended order of elements in Keyword: DOCUMENTATION, TAGS, ARGUMENTS, TIMEOUT, SETUP, KEYWORD, TEARDOWN

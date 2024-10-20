@@ -35,6 +35,8 @@ ${SUITE_TEARDOWN_ARG}    value
 ${TEST_SETUP_ARG}    value
 ${METADATA_VALUE}    value
 @{TEMPLATE_ARGS}    arg1   arg2
+${VAR_DOCUMENTATION}    Documentation value
+${VAR_TAG}              Tag value
 
 
 *** Test Cases ****
@@ -46,6 +48,15 @@ Test
 Test with template
     [Template]    Template
     @{TEMPLATE_ARGS}
+
+Test variable in documentation
+    [Documentation]    ${VAR_DOCUMENTATION}
+    No Operation
+
+Test variable in tags
+    [Documentation]    Documentation in test about variable in tags
+    [Tags]    ${VAR_TAG}
+    No Operation
 
 
 *** Keywords ***

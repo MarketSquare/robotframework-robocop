@@ -5,7 +5,7 @@ import re
 import string
 from collections import defaultdict
 from pathlib import Path
-from typing import Iterable
+from typing import Iterable, Optional
 
 from robot.api import Token
 from robot.errors import VariableError
@@ -25,7 +25,7 @@ from robocop.utils import (
     remove_robot_vars,
     token_col,
 )
-from robocop.utils.misc import remove_nested_variables
+from robocop.utils.misc import _is_var_scope_local, remove_nested_variables
 from robocop.utils.run_keywords import iterate_keyword_names
 from robocop.utils.variable_matcher import VariableMatches
 
@@ -841,7 +841,7 @@ class SettingsNamingChecker(VisitorChecker):
 
     def __init__(self):
         self.section_name_pattern = re.compile(r"\*\*\*\s.+\s\*\*\*")
-        self.task_section = False
+        self.task_section: Optional[bool] = None
         super().__init__()
 
     def visit_InvalidSection(self, node):  # noqa
@@ -871,14 +871,16 @@ class SettingsNamingChecker(VisitorChecker):
             )
 
     def visit_File(self, node):  # noqa
+        self.task_section = None
         for section in node.sections:
             if isinstance(section, TestCaseSection):
                 if (ROBOT_VERSION.major < 6 and "task" in section.header.name.lower()) or (
                     ROBOT_VERSION.major >= 6 and section.header.type == Token.TASK_HEADER
                 ):
                     self.task_section = True
-            else:
-                self.task_section = False
+                else:
+                    self.task_section = False
+                break
         super().visit_File(node)
 
     def visit_Setup(self, node):  # noqa
@@ -942,8 +944,12 @@ class SettingsNamingChecker(VisitorChecker):
                 "setting-name-not-in-title-case", setting_name=name, node=node, col=col + 1, end_col=col + len(name) + 1
             )
 
-    def check_settings_consistency(self, name, node):
-        if "test" in name.lower() and self.task_section:
+    def check_settings_consistency(self, name: str, node):
+        name_normalized = name.lower()
+        # if there is no task/test section, determine by first setting in the file
+        if self.task_section is None and ("test" in name_normalized or "task" in name_normalized):
+            self.task_section = "task" in name_normalized
+        if "test" in name_normalized and self.task_section:
             self.report(
                 "mixed-task-test-settings",
                 setting="Task " + name.split()[1],
@@ -951,7 +957,7 @@ class SettingsNamingChecker(VisitorChecker):
                 tasks_or_tests="Tasks",
                 node=node,
             )
-        elif "task" in name.lower() and not self.task_section:
+        elif "task" in name_normalized and not self.task_section:
             self.report(
                 "mixed-task-test-settings",
                 setting="Test " + name.split()[1],
@@ -1077,14 +1083,6 @@ class VariableNamingChecker(VisitorChecker):
                 end_col=token.end_col_offset + 1,
             )
 
-    @staticmethod
-    def _is_var_scope_local(node):
-        is_local = True
-        for option in node.get_tokens(Token.OPTION):
-            if "scope=" in option.value:
-                is_local = option.value.lower() == "scope=local"
-        return is_local
-
     def visit_Var(self, node):  # noqa
         if node.errors:  # for example invalid variable definition like $var}
             return
@@ -1093,7 +1091,7 @@ class VariableNamingChecker(VisitorChecker):
             return
         self.check_for_reserved_naming_or_hyphen(variable, "Variable", is_assign=True)
         # TODO Check supported syntax for variable, ie ${{var}}?
-        if not self._is_var_scope_local(node):
+        if not _is_var_scope_local(node):
             self.check_non_local_variable(search_variable(variable.value).base, node, variable)
 
     def visit_If(self, node):  # noqa
@@ -1194,7 +1192,7 @@ class SimilarVariableChecker(VisitorChecker):
             self.find_not_nested_variable(arg, arg.value, is_var=False)
         variable = node.get_token(Token.VARIABLE)
         if variable:
-            self.find_similar_variables([variable], node)
+            self.find_similar_variables([variable], node, ignore_overwriting=not _is_var_scope_local(node))
 
     def visit_If(self, node):  # noqa
         for token in node.header.get_tokens(Token.ARGUMENT):
@@ -1312,12 +1310,16 @@ class SimilarVariableChecker(VisitorChecker):
                     normalized = normalize_robot_name(variable_match.base)
                     self.assigned_variables[normalized].append(name)
 
-    def find_similar_variables(self, tokens, node):
+    def find_similar_variables(self, tokens, node, ignore_overwriting: bool = False):
         for token in tokens:
             variable_match = search_variable(token.value, ignore_errors=True)
             name = variable_match.name
             normalized = normalize_robot_name(variable_match.base)
-            if normalized in self.assigned_variables and name not in self.assigned_variables[normalized]:
+            if (
+                not ignore_overwriting
+                and normalized in self.assigned_variables
+                and name not in self.assigned_variables[normalized]
+            ):
                 self.report(
                     "possible-variable-overwriting",
                     variable_name=name,

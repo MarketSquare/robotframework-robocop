@@ -9,7 +9,7 @@ from typing import Dict, List, Optional
 from robot.api import Token
 from robot.errors import VariableError
 from robot.libraries import STDLIBS
-from robot.parsing.model.blocks import TestCaseSection
+from robot.parsing.model.blocks import Keyword, TestCase, TestCaseSection
 from robot.parsing.model.statements import Arguments, KeywordCall, Teardown
 from robot.utils import unescape
 from robot.variables.search import search_variable
@@ -35,10 +35,21 @@ from robocop.utils import (
     parse_assignment_sign_type,
     token_col,
 )
-from robocop.utils.misc import RETURN_CLASSES, find_escaped_variables
+from robocop.utils.misc import (
+    RETURN_CLASSES,
+    _is_var_scope_local,
+    find_escaped_variables,
+    parse_keyword_order_param,
+    parse_test_case_order_param,
+)
 from robocop.utils.variable_matcher import VariableMatches
 
 RULE_CATEGORY_ID = "09"
+
+
+def comma_separated_list(value: str) -> List[str]:
+    return value.split(",")
+
 
 rules = {
     "0901": Rule(
@@ -201,11 +212,20 @@ rules = {
         added_in_version="1.7.0",
     ),
     "0912": Rule(
+        RuleParam(
+            name="variable_source",
+            default="section,var",
+            converter=comma_separated_list,
+            show_type="comma separated list",
+            desc="Variable sources that will be checked",
+        ),
         rule_id="0912",
         name="empty-variable",
         msg="Use built-in variable {{ var_type }}{EMPTY} instead of leaving variable without value or using backslash",
         severity=RuleSeverity.INFO,
         docs="""
+        Variables with placeholder ${EMPTY} values are more explicit.
+        
         Example of rule violation::
 
             *** Variables ***
@@ -216,6 +236,13 @@ rules = {
             ...  value
             ${EMPTY_WITH_BACKSLASH}  \\       # used backslash
 
+            *** Keywords ***
+            Create Variables
+                VAR    ${var_no_value}  # missing value
+                VAR    ${var_with_empty}    ${EMPTY}
+
+        You can configure ``empty-variable`` rule to run only in ```*** Variables ***``` section or on
+        ``VAR`` statements using ``variable_source`` parameter.
         """,
         added_in_version="1.10.0",
     ),
@@ -586,6 +613,93 @@ rules = {
         """,
         added_in_version="4.0.0",
     ),
+    "0926": Rule(
+        rule_id="0926",
+        name="builtin-imports-not-sorted",
+        msg="BuiltIn library import '{{ builtin_import }}' should be placed before '{{ previous_builtin_import }}'",
+        severity=RuleSeverity.WARNING,
+        added_in_version="5.2.0",
+        docs="""
+        Example of rule violation::
+
+            *** Settings ***
+            Library    OperatingSystem
+            Library    Collections  # BuiltIn libraries imported not in alphabetical order
+
+        """,
+    ),
+    "0927": Rule(
+        RuleParam(
+            name="sections_order",
+            default="documentation,tags,timeout,setup,template,keyword,teardown",
+            converter=parse_test_case_order_param,
+            show_type="str",
+            desc="order of sections in comma-separated list",
+        ),
+        rule_id="0927",
+        name="test-case-section-out-of-order",
+        msg="'{{ section_name }}' is in wrong place of Test Case. "
+        "Recommended order of elements in Test Cases: {{ recommended_order }}",
+        severity=RuleSeverity.WARNING,
+        added_in_version="5.3.0",
+        docs="""
+        Sections should be defined in order set by ``sections_order``
+        parameter (default: ``documentation,tags,timeout,setup,template,keyword,teardown``).
+
+        To change the default order use following option::
+
+            robocop --configure test-case-section-out-of-order:sections_order:comma,separated,list,of,sections
+
+        where section should be case-insensitive name from the list: 
+        documentation, tags, timeout, setup, template, keywords, teardown. 
+        Order of not configured sections is ignored.
+    
+        Example of rule violation::
+
+            *** Test Cases ***
+            Keyword After Teardown
+                [Documentation]    This is test Documentation
+                [Tags]    tag1    tag2
+                [Teardown]    Log    abc
+                Keyword1
+        """,
+    ),
+    "0928": Rule(
+        RuleParam(
+            name="sections_order",
+            default="documentation,tags,arguments,timeout,setup,keyword,teardown",
+            converter=parse_keyword_order_param,
+            show_type="str",
+            desc="order of sections in comma-separated list",
+        ),
+        rule_id="0928",
+        name="keyword-section-out-of-order",
+        msg="'{{ section_name }}' is in wrong place of Keyword. "
+        "Recommended order of elements in Keyword: {{ recommended_order }}",
+        severity=RuleSeverity.WARNING,
+        added_in_version="5.3.0",
+        docs="""
+        Sections should be defined in order set by ``sections_order``
+        parameter (default: ``documentation,tags,arguments,timeout,setup,keyword,teardown``).
+
+        To change the default order use following option::
+
+            robocop --configure keyword-section-out-of-order:sections_order:comma,separated,list,of,sections
+
+        where section should be case-insensitive name from the list: 
+        documentation, tags, arguments, timeout, setup, keyword, teardown. 
+        Order of not configured sections is ignored.
+
+        Example of rule violation::
+
+            *** Keywords ***
+            Keyword After Teardown
+                [Documentation]    This is keyword Documentation
+                [Tags]    tag1    tag2
+                [Teardown]    Log    abc
+                Keyword1
+        """,
+    ),
 }
 
 
@@ -796,7 +910,10 @@ class SettingsOrderChecker(VisitorChecker):
     BuiltIn libraries imports should always be placed before other libraries imports.
     """
 
-    reports = ("wrong-import-order",)
+    reports = (
+        "wrong-import-order",
+        "builtin-imports-not-sorted",
+    )
 
     def __init__(self):
         self.libraries = []
@@ -806,6 +923,7 @@ class SettingsOrderChecker(VisitorChecker):
         self.libraries = []
         self.generic_visit(node)
         first_non_builtin = None
+        previous_builtin = None
         for library in self.libraries:
             if first_non_builtin is None:
                 if library.name not in STDLIBS:
@@ -821,6 +939,18 @@ class SettingsOrderChecker(VisitorChecker):
                         col=lib_name.col_offset + 1,
                         end_col=lib_name.end_col_offset + 1,
                     )
+            if library.name in STDLIBS:
+                if previous_builtin is not None and library.name < previous_builtin.name:
+                    lib_name = library.get_token(Token.NAME)
+                    self.report(
+                        "builtin-imports-not-sorted",
+                        builtin_import=library.name,
+                        previous_builtin_import=previous_builtin.name,
+                        node=library,
+                        col=lib_name.col_offset + 1,
+                        end_col=lib_name.end_col_offset + 1,
+                    )
+                previous_builtin = library
 
     def visit_LibraryImport(self, node):  # noqa
         if not node.name:
@@ -832,6 +962,27 @@ class EmptyVariableChecker(VisitorChecker):
     """Checker for variables without value."""
 
     reports = ("empty-variable",)
+
+    def __init__(self):
+        self.visit_var_section = False
+        self.visit_var = False
+        super().__init__()
+
+    def visit_File(self, node):  # noqa
+        variable_source = self.param("empty-variable", "variable_source")
+        self.visit_var_section = "section" in variable_source
+        self.visit_var = "var" in variable_source
+        self.generic_visit(node)
+
+    def visit_VariableSection(self, node):  # noqa
+        if self.visit_var_section:
+            self.generic_visit(node)
+
+    def visit_KeywordSection(self, node):  # noqa
+        if self.visit_var:
+            self.generic_visit(node)
+
+    visit_TestCaseSection = visit_KeywordSection
 
     def visit_Variable(self, node):  # noqa
         if get_errors(node):
@@ -1192,25 +1343,61 @@ class UnusedVariablesChecker(VisitorChecker):
         self.variables.append({})
         for item in node.body:
             self.visit(item)
-        self.variables.pop()
+        self.add_variables_from_if_to_scope()
         if node.orelse:
             self.visit(node.orelse)
         for token in node.header.get_tokens(Token.ASSIGN):
             self.handle_assign_variable(token)
 
+    def add_variables_from_if_to_scope(self):
+        """
+        Add all variables in given IF branch to common scope. If variable is used already in the branch, if it will
+        also be mark as used.
+        """
+        variables = self.variables.pop()
+        if not self.variables:
+            self.variables.append(variables)
+            return
+        for var_name, cached_var in variables.items():
+            if var_name in self.variables[-1]:
+                if cached_var.is_used:
+                    self.variables[-1][var_name].is_used = True
+            else:
+                self.variables[-1][var_name] = cached_var
+
     def visit_LibraryImport(self, node):  # noqa
         for token in node.get_tokens(Token.NAME, Token.ARGUMENT):
             self.find_not_nested_variable(token.value, is_var=False)
 
-    visit_SuiteSetup = (
+    visit_TestTags = (
+        visit_ForceTags
+    ) = (
+        visit_Metadata
+    ) = (
+        visit_DefaultTags
+    ) = (
+        visit_Variable
+    ) = (
+        visit_ReturnStatement
+    ) = (
+        visit_ReturnSetting
+    ) = (
+        visit_Teardown
+    ) = (
+        visit_Timeout
+    ) = (
+        visit_Return
+    ) = (
+        visit_SuiteSetup
+    ) = (
         visit_SuiteTeardown
-    ) = visit_TestSetup = visit_TestTeardown = visit_ResourceImport = visit_VariablesImport = visit_LibraryImport
-
-    def visit_DefaultTags(self, node):  # noqa
-        for token in node.get_tokens(Token.ARGUMENT):
-            self.find_not_nested_variable(token.value, is_var=False)
-
-    visit_TestTags = visit_ForceTags = visit_Metadata = visit_DefaultTags
+    ) = (
+        visit_TestSetup
+    ) = (
+        visit_TestTeardown
+    ) = (
+        visit_Setup
+    ) = visit_ResourceImport = visit_VariablesImport = visit_Tags = visit_Documentation = visit_LibraryImport
 
     def clear_variables_after_loop(self):
         """Remove used variables after loop finishes."""
@@ -1253,7 +1440,7 @@ class UnusedVariablesChecker(VisitorChecker):
         self.in_loop = True
         self.used_in_scope = set()
         self.ignore_overwriting = True
-        for token in node.header.get_tokens(Token.ARGUMENT):
+        for token in node.header.get_tokens(Token.ARGUMENT, "OPTION"):  # Token.Option does not exist for RF3 and RF4
             self.find_not_nested_variable(token.value, is_var=False)
         for token in node.header.get_tokens(Token.VARIABLE):
             self.handle_assign_variable(token)
@@ -1291,37 +1478,14 @@ class UnusedVariablesChecker(VisitorChecker):
         for token in node.get_tokens(Token.ASSIGN):  # we first check args, then assign for used and then overwritten
             self.handle_assign_variable(token)
 
-    def visit_Variable(self, node):  # noqa
-        """Visit section variables.
-
-        We already visit and collect section variables definitions, but we revisit it to find variables that are used
-        in other variables.
-        """
-        for token in node.get_tokens(Token.ARGUMENT):
-            self.find_not_nested_variable(token.value, is_var=False)
-
-    @staticmethod
-    def _is_var_scope_local(node):
-        is_local = True
-        for option in node.get_tokens(Token.OPTION):
-            if "scope=" in option.value:
-                is_local = option.value.lower() == "scope=local"
-        return is_local
-
     def visit_Var(self, node):  # noqa
         if node.errors:  # for example invalid variable definition like $var}
             return
         for arg in node.get_tokens(Token.ARGUMENT):
             self.find_not_nested_variable(arg.value, is_var=False)
         variable = node.get_token(Token.VARIABLE)
-        if variable and self._is_var_scope_local(node):
+        if variable and _is_var_scope_local(node):
             self.handle_assign_variable(variable)
-
-    def visit_Return(self, node):  # noqa
-        for token in node.get_tokens(Token.ARGUMENT):
-            self.find_not_nested_variable(token.value, is_var=False)
-
-    visit_ReturnStatement = visit_ReturnSetting = visit_Teardown = visit_Timeout = visit_Return
 
     def visit_TemplateArguments(self, node):  # noqa
         for argument in node.data_tokens:
@@ -1538,3 +1702,44 @@ class ExpressionsChecker(VisitorChecker):
                 col=position,
                 end_col=position + len(variable) + len(right_side),
             )
+
+
+class TestAndKeywordOrderChecker(VisitorChecker):
+    reports = ("test-case-section-out-of-order", "keyword-section-out-of-order")
+
+    def __init__(self):
+        self.rules_by_node_type = {}
+        self.expected_order = {}
+        super().__init__()
+
+    def visit_File(self, node):  # noqa
+        self.rules_by_node_type = {Keyword: "keyword-section-out-of-order", TestCase: "test-case-section-out-of-order"}
+        self.expected_order = {
+            Keyword: self.param("keyword-section-out-of-order", "sections_order"),
+            TestCase: self.param("test-case-section-out-of-order", "sections_order"),
+        }
+        self.generic_visit(node)
+
+    def check_order(self, node):
+        max_order_indicator = -1
+        for subnode in node.body:
+            try:
+                subnode_type = subnode.type
+            except AttributeError:
+                continue
+            if subnode_type not in self.expected_order[type(node)]:
+                continue
+            this_node_expected_order = self.expected_order[type(node)].index(subnode.type)
+            if this_node_expected_order < max_order_indicator:
+                self.report(
+                    self.rules_by_node_type[type(node)],
+                    section_name=subnode_type,
+                    recommended_order=", ".join(self.expected_order[type(node)]),
+                    node=subnode,
+                    col=subnode.col_offset + 1,
+                    end_col=subnode.end_col_offset + 1,
+                )
+            else:
+                max_order_indicator = this_node_expected_order
+
+    visit_Keyword = visit_TestCase = check_order

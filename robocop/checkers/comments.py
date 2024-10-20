@@ -251,16 +251,17 @@ class IgnoredDataChecker(RawFileChecker):
     BOM = [BOM_UTF32_BE, BOM_UTF32_LE, BOM_UTF8, BOM_UTF16_LE, BOM_UTF16_BE]
     SECTION_HEADER = "***"
     ROBOCOP_HEADER = "# robocop:"
+    ROBOTIDY_HEADER = "# robotidy:"
     LANGUAGE_HEADER = "language:"
 
     def __init__(self):
         self.is_bom = False
-        self.has_language_header = False
+        self.ignore_empty_lines = False  # ignore empty lines if language header or robocop disabler is present
         super().__init__()
 
     def parse_file(self):
         self.is_bom = False
-        self.has_language_header = False
+        self.ignore_empty_lines = False
         if self.lines is not None:
             for lineno, line in enumerate(self.lines, start=1):
                 if self.check_line(line, lineno):
@@ -275,17 +276,17 @@ class IgnoredDataChecker(RawFileChecker):
     def check_line(self, line, lineno):
         if line.startswith(self.SECTION_HEADER):
             return True
-        if line.startswith(self.ROBOCOP_HEADER):
+        if line.startswith(self.ROBOCOP_HEADER) or line.startswith(self.ROBOTIDY_HEADER):
+            self.ignore_empty_lines = True
             return False
         if lineno == 1:
             if line.lower().startswith(self.LANGUAGE_HEADER):
-                self.has_language_header = True
+                self.ignore_empty_lines = True
                 return False
             if self.is_bom:
                 # if it's BOM encoded file, first line can be ignored
                 return "***" in line
-        if self.has_language_header and not line.strip():
-            # empty lines after language: header can be ignored
+        if self.ignore_empty_lines and not line.strip():
             return False
         self.report("ignored-data", lineno=lineno, col=1, end_col=len(line))
         return True

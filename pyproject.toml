@@ -47,7 +47,6 @@ lint.ignore = [
     "ANN202", # TODO: type annotation for return type of private function
     "ANN205", # TODO: type annotation for return type of staticmethod (30 issues)
     "PT006", # TODO: pytest.parametrize with ("param", "param2") instead of "param,param2" (30 issues)
-    "RUF100", # TODO: unused blanked noqa directive
     "SIM108", # TODO: ternary operator
     "FBT002", # TODO: boolean default positional argument in function definition
     "RUF012", # TODO: mutable class attributes should be annotated with typing.classvar

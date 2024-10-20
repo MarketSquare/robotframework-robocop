@@ -27,7 +27,7 @@ class RulesByIdReport(robocop.reports.ComparableReport):
         self.message_counter = defaultdict(int)
         super().__init__(compare_runs)
 
-    def add_message(self, message: Message):  # noqa
+    def add_message(self, message: Message):
         self.message_counter[message.get_fullname()] += 1
 
     def persist_result(self) -> Dict:

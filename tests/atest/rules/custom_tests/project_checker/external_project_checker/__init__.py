@@ -33,7 +33,7 @@ class MyProjectChecker(ProjectChecker):
         self.sources.append(node.source)
         self.generic_visit(node)
 
-    def visit_TestCase(self, node):  # noqa
+    def visit_TestCase(self, node):
         self.test_count += 1
 
     def scan_project(self) -> List[Message]:

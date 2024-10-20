@@ -151,7 +151,7 @@ class SleepKeywordUsedChecker(VisitorChecker):
 
     reports = ("sleep-keyword-used",)
 
-    def visit_KeywordCall(self, node):  # noqa
+    def visit_KeywordCall(self, node):
         if not node.keyword:  # Keyword name can be empty if the syntax is invalid
             return
         # Robot Framework ignores case, underscores and whitespace when searching for keywords
@@ -211,12 +211,12 @@ class NotAllowedKeyword(VisitorChecker):
             end_col=keyword.end_col_offset + 1,
         )
 
-    def visit_Setup(self, node):  # noqa
+    def visit_Setup(self, node):
         self.check_keyword_naming_with_subkeywords(node, Token.NAME)
 
     visit_TestTeardown = visit_SuiteTeardown = visit_Teardown = visit_TestSetup = visit_SuiteSetup = visit_Setup
 
-    def visit_Template(self, node):  # noqa
+    def visit_Template(self, node):
         # allow / disallow param
         if node.value:
             name_token = node.get_token(Token.NAME)
@@ -225,14 +225,14 @@ class NotAllowedKeyword(VisitorChecker):
 
     visit_TestTemplate = visit_Template
 
-    def visit_KeywordCall(self, node):  # noqa
+    def visit_KeywordCall(self, node):
         self.check_keyword_naming_with_subkeywords(node, Token.KEYWORD)
 
 
 class NoEmbeddedKeywordArgumentsChecker(VisitorChecker):
     reports = ("no-embedded-keyword-arguments",)
 
-    def visit_Keyword(self, node: Keyword):  # noqa
+    def visit_Keyword(self, node: Keyword):
         name_token: Token = node.header.get_token(Token.KEYWORD_NAME)
         variable_tokens = [t for t in name_token.tokenize_variables() if t.type == Token.VARIABLE]
 

@@ -28,7 +28,7 @@ class Report:
     def configure(self, name, value):
         raise robocop.exceptions.ConfigGeneralError(
             f"Provided param '{name}' for report '{getattr(self, 'name')}' does not exist"
-        )  # noqa
+        )
 
     def add_message(self, *args):
         pass

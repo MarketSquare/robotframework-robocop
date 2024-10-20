@@ -120,7 +120,7 @@ class BaseChecker:
             self.issues.append(message)
 
 
-class VisitorChecker(BaseChecker, ModelVisitor):  # noqa
+class VisitorChecker(BaseChecker, ModelVisitor):
     def scan_file(self, ast_model, filename, in_memory_content, templated=False) -> List["Message"]:
         self.issues: List["Message"] = []
         self.source = filename
@@ -132,7 +132,7 @@ class VisitorChecker(BaseChecker, ModelVisitor):  # noqa
         self.visit_File(ast_model)
         return self.issues
 
-    def visit_File(self, node):  # noqa
+    def visit_File(self, node):
         """Perform generic ast visit on file node."""
         self.generic_visit(node)
 
@@ -148,7 +148,7 @@ class ProjectChecker(VisitorChecker):
         raise NotImplementedError
 
 
-class RawFileChecker(BaseChecker):  # noqa
+class RawFileChecker(BaseChecker):
     def scan_file(self, ast_model, filename, in_memory_content, templated=False) -> List["Message"]:
         self.issues: List["Message"] = []
         self.source = filename

@@ -32,7 +32,7 @@ INVALID_MSG_MISSING_DESC_SEV = "some-message"
 
 
 class TestMessage:
-    def test_get_fullname(self, valid_msg):  # noqa
+    def test_get_fullname(self, valid_msg):
         msg = valid_msg.prepare_message(
             source=None,
             node=None,
@@ -64,11 +64,11 @@ class TestMessage:
             ("Warning", "W"),
         ],
     )
-    def test_change_message_severity(self, valid_msg, severity, exp_sev):  # noqa
+    def test_change_message_severity(self, valid_msg, severity, exp_sev):
         assert str(TestMessage.change_severity(valid_msg, severity).severity) == exp_sev
 
     @pytest.mark.parametrize("severity", ["invalid", 1, "errorE", None, {}])
-    def test_change_message_severity_invalid(self, valid_msg, severity):  # noqa
+    def test_change_message_severity_invalid(self, valid_msg, severity):
         with pytest.raises(robocop.exceptions.RuleParamFailedInitError) as err:
             valid_msg.configure("severity", severity)
         assert (
@@ -76,7 +76,7 @@ class TestMessage:
             in err.value.args[0]
         )
 
-    def test_get_configurable_existing(self, valid_msg_with_conf):  # noqa
+    def test_get_configurable_existing(self, valid_msg_with_conf):
         assert str(valid_msg_with_conf.config["param_name"]) == str(
             RuleParam(name="param_name", converter=int, default=1, desc="")
         )
@@ -115,7 +115,7 @@ class TestMessage:
             ("path/to/file2.robot", (15, 200, None, None), (15, 200, 15, 200)),
         ],
     )
-    def test_prepare_message(self, valid_msg, source, range, range_exp):  # noqa
+    def test_prepare_message(self, valid_msg, source, range, range_exp):
         node = ast.AST()
         node.lineno = 10
         lineno, col, end_lineno, end_col = range
@@ -179,7 +179,7 @@ class TestMessage:
             ),
         ],
     )
-    def test_prepare_message_with_jinja(self, kwargs, msg, exp):  # noqa
+    def test_prepare_message_with_jinja(self, kwargs, msg, exp):
         node = ast.AST()
         node.lineno = 10
         rule = Rule(rule_id="0101", name="some-message", msg=msg, severity=RuleSeverity.WARNING)

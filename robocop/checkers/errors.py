@@ -337,23 +337,23 @@ class ParsingErrorChecker(VisitorChecker):
     def visit_File(self, node):
         self.generic_visit(node)
 
-    def visit_If(self, node):  # noqa
+    def visit_If(self, node):
         self.in_block = node  # to ensure we're in IF for `invalid-if` rule
         self.parse_errors(node)
         self.generic_visit(node)
 
     visit_For = visit_While = visit_Try = visit_If
 
-    def visit_KeywordCall(self, node):  # noqa
+    def visit_KeywordCall(self, node):
         if node.keyword and node.keyword.startswith("..."):
             col = node.data_tokens[0].col_offset + 1
             self.report("not-enough-whitespace-after-newline-marker", node=node, col=col, end_col=col + 3)
         self.generic_visit(node)
 
-    def visit_Statement(self, node):  # noqa
+    def visit_Statement(self, node):
         self.parse_errors(node)
 
-    def visit_InvalidSection(self, node):  # noqa
+    def visit_InvalidSection(self, node):
         invalid_header = node.header.get_token(Token.INVALID_HEADER)
         if "Resource file with" in invalid_header.error:
             section_name = invalid_header.value
@@ -364,7 +364,7 @@ class ParsingErrorChecker(VisitorChecker):
                 end_col=node.col_offset + len(section_name) + 1,
             )
 
-    def parse_errors(self, node):  # noqa
+    def parse_errors(self, node):
         if node is None:
             return
         if ROBOT_VERSION.major != 3:
@@ -373,7 +373,7 @@ class ParsingErrorChecker(VisitorChecker):
         else:
             self.handle_error(node, node.error)
 
-    def handle_error(self, node, error, error_index=0):  # noqa
+    def handle_error(self, node, error, error_index=0):
         if not error:
             return
         if any(should_ignore in error for should_ignore in self.ignore_errors):
@@ -641,7 +641,7 @@ class TwoSpacesAfterSettingsChecker(VisitorChecker):
         self.setting_pattern = re.compile(r"\[\s?(\w+)\s?\]")
         super().__init__()
 
-    def visit_KeywordCall(self, node):  # noqa
+    def visit_KeywordCall(self, node):
         """Invalid settings like '[Arguments] ${var}' will be parsed as keyword call"""
         if not node.keyword:
             return
@@ -667,7 +667,7 @@ class MissingKeywordName(VisitorChecker):
     def visit_File(self, node):
         self.generic_visit(node)
 
-    def visit_EmptyLine(self, node):  # noqa
+    def visit_EmptyLine(self, node):
         if ROBOT_VERSION.major < 5:
             return
         assign_token = node.get_token(Token.ASSIGN)
@@ -679,7 +679,7 @@ class MissingKeywordName(VisitorChecker):
                 col=assign_token.col_offset + 1,
             )
 
-    def visit_KeywordCall(self, node):  # noqa
+    def visit_KeywordCall(self, node):
         if not node.keyword:
             self.report(
                 "missing-keyword-name",
@@ -695,6 +695,6 @@ class VariablesImportErrorChecker(VisitorChecker):
 
     reports = ("variables-import-with-args",)
 
-    def visit_VariablesImport(self, node):  # noqa
+    def visit_VariablesImport(self, node):
         if node.name and node.name.endswith((".yaml", ".yml")) and node.get_token(Token.ARGUMENT):
             self.report("variables-import-with-args", node=node)

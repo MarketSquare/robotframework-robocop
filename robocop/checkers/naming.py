@@ -1281,7 +1281,7 @@ class SimilarVariableChecker(VisitorChecker):
 
     def visit_vars_and_find_similar(self, node):
         """
-        Updates a dictionary `assign_variables` with normalized variable name as a key
+        Update a dictionary `assign_variables` with normalized variable name as a key
         and ads a list of all detected variations of this variable in the node as a value,
         then it checks if similar variable was found.
         """

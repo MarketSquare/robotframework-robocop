@@ -203,7 +203,10 @@ class RecommendationFinder:
 
     @staticmethod
     def _calculate_cutoff(string, min_cutoff=0.5, max_cutoff=0.85, step=0.03):
-        """The longer the string the bigger required cutoff."""
+        """
+        Calculate cutoff for difflib string matching.
+        The longer the string the bigger required cutoff.
+        """
         cutoff = min_cutoff + len(string) * step
         return min(cutoff, max_cutoff)
 

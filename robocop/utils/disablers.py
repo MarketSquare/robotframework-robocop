@@ -23,7 +23,6 @@ class DisablersInFile:  # pylint: disable=too-few-public-methods
         self.blocks = [] if not blocks else blocks
 
     def copy(self):
-        """Used by defaultdict to create new instance for every new key in disablers container"""
         return deepcopy(self)
 
 
@@ -180,7 +179,7 @@ class DisablersFinder(ModelVisitor):
         )
 
     def is_line_disabled(self, line, rule):
-        """Helper method for is_rule_disabled that check if given line is in range of any disabled block"""
+        """Check if given line is in range of any disabled block"""
         if rule not in self.disabled.rules:
             return False
         if line in self.disabled.rules[rule].lines:

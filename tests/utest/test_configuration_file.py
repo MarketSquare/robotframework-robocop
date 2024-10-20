@@ -18,7 +18,7 @@ def path_to_test_data():
 
 @contextlib.contextmanager
 def working_directory(path):
-    """Changes working directory and returns to previous on exit"""
+    """Change working directory and return to previous on exit"""
     prev_cwd = Path.cwd()
     os.chdir(path)
     try:

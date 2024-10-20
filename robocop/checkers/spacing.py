@@ -569,7 +569,7 @@ def get_indent(node):
 
 def count_indents(node):
     """
-    Counts number of occurrences for unique indent values
+    Count number of occurrences for unique indent values
 
     Returns:
         Counter: A counter of unique indent values with associated number of occurrences in given node
@@ -590,7 +590,7 @@ def count_indents(node):
 
 def most_common_indent(indents):
     """
-    Returns most commonly occurred indent
+    Return most commonly occurred indent
 
     Args:
         indents (Counter): A counter of unique indent values with associated number of occurrences in given node

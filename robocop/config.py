@@ -473,7 +473,7 @@ class Config:
             self.load_pyproject_file(pyproject_path)
 
     def load_robocop_file(self, ignore_git_dir: bool):
-        """Returns True if .robocop exists"""
+        """Return True if .robocop exists"""
         robocop_path = find_file_in_project_root(".robocop", self.root, ignore_git_dir)
         if robocop_path is None:
             return False

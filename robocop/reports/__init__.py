@@ -97,7 +97,7 @@ def disable_external_reports_if_none(configured_reports: List[str]) -> List[str]
 
 def get_reports(configured_reports):
     """
-    Returns dictionary with list of valid, enabled reports (listed in `configured_reports` set of str).
+    Return dictionary with list of valid, enabled reports (listed in `configured_reports` set of str).
     If `configured_reports` contains `all` then all default reports are enabled.
     """
     configured_reports = disable_external_reports_if_none(configured_reports)
@@ -118,7 +118,7 @@ def get_reports(configured_reports):
 
 def list_reports(reports, list_reports_with_status):
     """
-    Returns description of reports.
+    Return description of reports.
 
     The reports list is filtered and only public reports are provided. If the report is enabled in current
     configuration it will have (enabled) suffix (and (disabled) if it is disabled).

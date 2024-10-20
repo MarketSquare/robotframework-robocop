@@ -475,9 +475,8 @@ class SectionHeadersChecker(VisitorChecker):
                 section_name = "TASK HEADER"
                 if Token.TESTCASE_HEADER in self.sections_by_existence:
                     self.report("both-tests-and-tasks", node=node, col=node.col_offset + 1, end_col=node.end_col_offset)
-            else:
-                if "TASK HEADER" in self.sections_by_existence:
-                    self.report("both-tests-and-tasks", node=node, col=node.col_offset + 1, end_col=node.end_col_offset)
+            elif "TASK HEADER" in self.sections_by_existence:
+                self.report("both-tests-and-tasks", node=node, col=node.col_offset + 1, end_col=node.end_col_offset)
         order_id = self.param("section-out-of-order", "sections_order")[section_name]
         if section_name in self.sections_by_existence:
             self.report(

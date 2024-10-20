@@ -930,17 +930,16 @@ class SettingsOrderChecker(VisitorChecker):
             if first_non_builtin is None:
                 if library.name not in STDLIBS:
                     first_non_builtin = library.name
-            else:
-                if library.name in STDLIBS:
-                    lib_name = library.get_token(Token.NAME)
-                    self.report(
-                        "wrong-import-order",
-                        builtin_import=library.name,
-                        custom_import=first_non_builtin,
-                        node=library,
-                        col=lib_name.col_offset + 1,
-                        end_col=lib_name.end_col_offset + 1,
-                    )
+            elif library.name in STDLIBS:
+                lib_name = library.get_token(Token.NAME)
+                self.report(
+                    "wrong-import-order",
+                    builtin_import=library.name,
+                    custom_import=first_non_builtin,
+                    node=library,
+                    col=lib_name.col_offset + 1,
+                    end_col=lib_name.end_col_offset + 1,
+                )
             if library.name in STDLIBS:
                 if previous_builtin is not None and library.name < previous_builtin.name:
                     lib_name = library.get_token(Token.NAME)

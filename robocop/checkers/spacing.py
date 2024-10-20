@@ -871,9 +871,8 @@ class MisalignedContinuation(VisitorChecker, ModelVisitor):
                                 end_col=token.col_offset + 1,
                                 col=cont[0].end_col_offset + 1,
                             )
-                    else:
-                        if token.type != Token.COMMENT:
-                            first_column = indent
+                    elif token.type != Token.COMMENT:
+                        first_column = indent
                     break  # check only first value
 
     @staticmethod

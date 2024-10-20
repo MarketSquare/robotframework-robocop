@@ -103,7 +103,6 @@ lint.ignore = [
     "PLR0912", # TODO: too many branches
     "SIM110", # TODO: use any instead of for loop
     "RUF010", # TODO: use explicit conversion flag
-    "PLR5501", # TODO: convert to elif
     "FURB187", # TODO: assignment of reversed list
     "ERA001", # TODO: commented out code
     "SIM105", # TODO: use supress

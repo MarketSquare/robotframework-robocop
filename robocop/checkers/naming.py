@@ -909,15 +909,14 @@ class SettingsNamingChecker(VisitorChecker):
             for arg in node.get_tokens(Token.ARGUMENT):
                 if arg.value and arg.value in self.ALIAS_TOKENS_VALUES:
                     self.report("empty-library-alias", node=arg, col=arg.col_offset + 1)
-        else:
-            if node.alias.replace(" ", "") == node.name.replace(" ", ""):  # New Name == NewName
-                name_token = node.get_tokens(Token.NAME)[-1]
-                self.report(
-                    "duplicated-library-alias",
-                    node=name_token,
-                    col=name_token.col_offset + 1,
-                    end_col=name_token.end_col_offset + 1,
-                )
+        elif node.alias.replace(" ", "") == node.name.replace(" ", ""):  # New Name == NewName
+            name_token = node.get_tokens(Token.NAME)[-1]
+            self.report(
+                "duplicated-library-alias",
+                node=name_token,
+                col=name_token.col_offset + 1,
+                end_col=name_token.end_col_offset + 1,
+            )
 
     def check_setting_name(self, name, node):
         if not (name.istitle() or name.isupper()):

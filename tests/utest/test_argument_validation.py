@@ -58,7 +58,7 @@ class TestArgumentValidation:
 
     def test_include_two_same_rules_comma_separated(self, config):
         rule_name = "missing-doc-keyword"
-        config.parse_args(["--include", ",".join([rule_name, rule_name]), ""])
+        config.parse_args(["--include", f"{rule_name},{rule_name}", ""])
         assert config.include == {rule_name}
 
     def test_include_two_same_rules_provided_separately(self, config):
@@ -69,7 +69,7 @@ class TestArgumentValidation:
     def test_include_two_different_rules_comma_separated(self, config):
         rule_name1 = "missing-doc-keyword"
         rule_name2 = "not-allowed-char-in-name"
-        rules_names = ",".join([rule_name1, rule_name2])
+        rules_names = f"{rule_name1},{rule_name2}"
         config.parse_args(["--include", rules_names, ""])
         assert config.include == {rule_name1, rule_name2}
 
@@ -86,7 +86,7 @@ class TestArgumentValidation:
 
     def test_exclude_two_same_rules_comma_separated(self, config):
         rule_name = "missing-doc-keyword"
-        config.parse_args(["--exclude", ",".join([rule_name, rule_name]), ""])
+        config.parse_args(["--exclude", f"{rule_name},{rule_name}", ""])
         assert config.exclude == {rule_name}
 
     def test_exclude_two_same_rules_provided_separately(self, config):
@@ -97,7 +97,7 @@ class TestArgumentValidation:
     def test_exclude_two_different_rules_comma_separated(self, config):
         rule_name1 = "missing-doc-keyword"
         rule_name2 = "not-allowed-char-in-name"
-        rules_names = ",".join([rule_name1, rule_name2])
+        rules_names = f"{rule_name1},{rule_name2}"
         config.parse_args(["--exclude", rules_names, ""])
         assert config.exclude == {rule_name1, rule_name2}
 

@@ -54,7 +54,6 @@ lint.ignore = [
     "T201", # TODO: print
     "FBT003", # TODO: boolean positional value in function call
     "ARG002", # TODO: unused method argument
-    "FLY002", # TODO: use fstring instead of string join
     "SLF001", # TODO: private member accessed
     "PT001", # TODO: fixture instead of fixture()
     "PT012", # TODO: pytest.raises should contain a signle simple statement

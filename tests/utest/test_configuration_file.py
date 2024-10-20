@@ -18,7 +18,7 @@ def path_to_test_data():
 
 @contextlib.contextmanager
 def working_directory(path):
-    """Changes working directory and returns to previous on exit"""
+    """Change working directory and return to previous on exit"""
     prev_cwd = Path.cwd()
     os.chdir(path)
     try:
@@ -263,9 +263,7 @@ class TestConfigurationFile:
             assert Path(ext_rule_path).absolute() == work_dir / "test.py"
 
     def test_load_config_with_relative_paths_argfile(self, path_to_test_data):
-        """
-        Argument files resolves relative paths to config directory.
-        """
+        """Argument files resolves relative paths to config directory."""
         src = path_to_test_data / "relative_path_in_argfile"
         work_dir = src
         with working_directory(work_dir), patch.object(sys, "argv", ["robocop", "-A", "tests/args.txt"]):
@@ -274,9 +272,7 @@ class TestConfigurationFile:
             assert Path(ext_rule_path).absolute() == work_dir / "tests/libraries/test.py"
 
     def test_override_default_config(self, path_to_test_data):
-        """
-        Default config should not be loaded if "--argumentfile" option is used.
-        """
+        """Default config should not be loaded if "--argumentfile" option is used."""
         default_config = path_to_test_data / "only_pyproject"
         other_config = path_to_test_data / "default_config_and_pyproject" / ".robocop"
         for option_name in ("-A", "--argumentfile"):
@@ -289,9 +285,7 @@ class TestConfigurationFile:
             assert config.include == {"0810"}
 
     def test_nested_argument_files(self, path_to_test_data):
-        """
-        Load other argument files inside argument file.
-        """
+        """Load other argument files inside argument file."""
         argument_file = path_to_test_data / "argument_file" / "dev.txt"
         with (
             working_directory(path_to_test_data),

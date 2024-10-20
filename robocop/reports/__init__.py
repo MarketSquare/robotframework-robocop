@@ -86,12 +86,10 @@ def is_report_internal(report):
 
 
 def disable_external_reports_if_none(configured_reports: List[str]) -> List[str]:
-    """
-    If any reports is 'None', disable other reports other than internal reports.
-    """
+    """If any reports is 'None', disable other reports other than internal reports."""
     if "None" in configured_reports:
         if "internal_json_report" in configured_reports:
-            # TODO Improve how internal reports are handled
+            # TODO: Improve how internal reports are handled
             return ["return_status", "internal_json_report"]
         return ["return_status"]
     return configured_reports
@@ -99,7 +97,7 @@ def disable_external_reports_if_none(configured_reports: List[str]) -> List[str]
 
 def get_reports(configured_reports):
     """
-    Returns dictionary with list of valid, enabled reports (listed in `configured_reports` set of str).
+    Return dictionary with list of valid, enabled reports (listed in `configured_reports` set of str).
     If `configured_reports` contains `all` then all default reports are enabled.
     """
     configured_reports = disable_external_reports_if_none(configured_reports)
@@ -119,7 +117,8 @@ def get_reports(configured_reports):
 
 
 def list_reports(reports, list_reports_with_status):
-    """Returns description of reports.
+    """
+    Return description of reports.
 
     The reports list is filtered and only public reports are provided. If the report is enabled in current
     configuration it will have (enabled) suffix (and (disabled) if it is disabled).
@@ -156,11 +155,13 @@ def load_reports_result_from_cache():
 
 
 def save_reports_result_to_cache(working_dir: str, report_results: Dict):
-    """Save results from Robocop reports to json file.
+    """
+    Save results from Robocop reports to json file.
 
     Result file contains results grouped using working directory.
     That's why we are loading previous results and overwriting only
-    the results for current working directory."""
+    the results for current working directory.
+    """
     cache_dir = get_robocop_cache_directory(ensure_exists=True)
     cache_file = cache_dir / ROBOCOP_CACHE_FILE
     prev_results = load_reports_result_from_cache()

@@ -1,6 +1,4 @@
-"""
-Documentation checkers
-"""
+"""Documentation checkers"""
 
 from pathlib import Path
 

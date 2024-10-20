@@ -52,9 +52,7 @@ html_favicon = "images/robocop.ico"
 
 
 def rstjinja(app, docname, source):
-    """
-    Render our pages as a jinja template for fancy templating goodness.
-    """
+    """Render our pages as a jinja template for fancy templating goodness."""
     # Make sure we're outputting HTML
     if app.builder.format != "html":
         return
@@ -69,9 +67,7 @@ def setup(app):
 
 
 def get_checker_docs(rule_type: str):
-    """
-    Load rules for dynamic docs generation
-    """
+    """Load rules for dynamic docs generation"""
     checker_docs = defaultdict(list)
     if rule_type == "builtin":
         rules = robocop.checkers.get_builtin_rules()

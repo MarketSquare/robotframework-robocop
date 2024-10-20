@@ -1,6 +1,4 @@
-"""
-Miscellaneous checkers
-"""
+"""Miscellaneous checkers"""
 
 import ast
 from dataclasses import dataclass
@@ -226,7 +224,7 @@ rules = {
         severity=RuleSeverity.INFO,
         docs="""
         Variables with placeholder ${EMPTY} values are more explicit.
-        
+
         Example of rule violation::
 
             *** Variables ***
@@ -401,7 +399,7 @@ rules = {
         severity=RuleSeverity.WARNING,
         docs="""
         Keyword argument was defined but not used::
-        
+
             *** Keywords ***
             Keyword
                 [Arguments]    ${used}    ${not_used}  # will report ${not_used}
@@ -423,16 +421,16 @@ rules = {
         severity=RuleSeverity.INFO,
         docs="""
         Variable was assigned but not used::
-    
+
             *** Keywords ***
             Get Triangle Base Points
                 [Arguments]       ${triangle}
                 ${p1}    ${p2}    ${p3}    Get Triangle Points    ${triangle}
                 Log      Triangle base points are: ${p1} and ${p2}.
                 RETURN   ${p1}    ${p2}  # ${p3} is never used
-    
+
         Use ``${_}`` variable name if you purposefully do not use variable::
-    
+
             *** Keywords ***
             Process Value 10 Times
                 [Arguments]    ${value}
@@ -454,7 +452,7 @@ rules = {
         severity=RuleSeverity.WARNING,
         docs="""
         Keyword argument was overwritten before it is used::
-        
+
             *** Keywords ***
             Overwritten Argument
                 [Arguments]    ${overwritten}  # we do not use ${overwritten} value at all
@@ -477,7 +475,7 @@ rules = {
                 ${value}    Keyword
 
         In case the value of the variable is not important, it is possible to use ``${_}`` name::
-        
+
             *** Test Cases ***
             Call keyword and ignore some return values
                 ${_}    ${item}    Unpack List    @{LIST}
@@ -499,12 +497,12 @@ rules = {
         Expressions in Robot Framework are evaluated using Python's eval function. When a variable is used
         in the expression using the normal ``${variable}`` syntax, its value is replaced before the expression
         is evaluated. For example, with the following expression::
-        
+
             *** Test Cases ***
             Check if schema was uploaded
                 Upload Schema    schema.avsc
                 Check If File Exist In SFTP    schema.avsc
-        
+
             *** Keywords ***
             Upload Schema
                 [Arguments]    ${filename}
@@ -512,24 +510,24 @@ rules = {
                     ${filename}    Get Default Upload Path
                 END
                 Send File To SFTP Root   ${filename}
-        
+
         "${filename}" will be replaced by "schema.avsc"::
-        
+
             IF    schema.avsc == 'default'
-        
+
         "schema.avsc" will not be recognized as Python variable. That's why you need to quote it::
-        
+
             IF    '${filename}' == 'default'
-        
+
         However it introduces unnecessary string conversion and can mask difference in the type. For example::
-        
+
             ${numerical}    Set Variable    10  # ${numerical} is actually string 10, not integer 10
             IF    "${numerical}" == "10"
 
         You can use  ``$variable`` syntax instead::
-        
+
             IF    $numerical == 10
-        
+
         It will put the actual variable in the evaluated expression without converting it to string.
         """,
         added_in_version="4.0.0",
@@ -542,7 +540,7 @@ rules = {
         version=">=4.0",
         docs="""
         Evaluated expression can be simplified. For example::
-        
+
             *** Keywords ***
             Click On Element
                 [Arguments]    ${locator}
@@ -552,9 +550,9 @@ rules = {
                     ${is_element_enabled}    Get Element Status    ${locator}
                 END
                 Click    ${locator}
-        
+
         can be rewritten to::
-        
+
             *** Keywords ***
             Click On Element
                 [Arguments]    ${locator}
@@ -566,7 +564,7 @@ rules = {
                 Click    ${locator}
 
         Comparisons to empty sequences (lists, dicts, sets), empty string or ``0`` can be also simplified::
-        
+
             *** Test Cases ***
             Check conditions
                 Should Be True     ${list} == []  # equivalent of 'not ${list}'
@@ -584,9 +582,9 @@ rules = {
         version=">=4.0",
         docs="""
         Position of not operator can be changed for better readability.
-        
+
         For example::
-        
+
             *** Keywords ***
             Check Unmapped Codes
                 ${codes}    Get Codes From API
@@ -597,9 +595,9 @@ rules = {
                 ELSE
                     Fail    Did not receive codes from API.
                 END
-        
+
         Can be rewritten to::
-        
+
             *** Keywords ***
             Check Unmapped Codes
                 ${codes}    Get Codes From API
@@ -651,10 +649,10 @@ rules = {
 
             robocop --configure test-case-section-out-of-order:sections_order:comma,separated,list,of,sections
 
-        where section should be case-insensitive name from the list: 
-        documentation, tags, timeout, setup, template, keywords, teardown. 
+        where section should be case-insensitive name from the list:
+        documentation, tags, timeout, setup, template, keywords, teardown.
         Order of not configured sections is ignored.
-    
+
         Example of rule violation::
 
             *** Test Cases ***
@@ -687,8 +685,8 @@ rules = {
 
             robocop --configure keyword-section-out-of-order:sections_order:comma,separated,list,of,sections
 
-        where section should be case-insensitive name from the list: 
-        documentation, tags, arguments, timeout, setup, keyword, teardown. 
+        where section should be case-insensitive name from the list:
+        documentation, tags, arguments, timeout, setup, keyword, teardown.
         Order of not configured sections is ignored.
 
         Example of rule violation::
@@ -787,7 +785,8 @@ class UnreachableCodeChecker(VisitorChecker):
 
 
 class NestedForLoopsChecker(VisitorChecker):
-    """Checker for not supported nested FOR loops.
+    """
+    Checker for not supported nested FOR loops.
 
     Deprecated in RF 4.0
     """
@@ -803,7 +802,8 @@ class NestedForLoopsChecker(VisitorChecker):
 
 
 class IfBlockCanBeUsed(VisitorChecker):
-    """Checker for potential IF block usage in Robot Framework 4.0
+    """
+    Checker for potential IF block usage in Robot Framework 4.0
 
     Run Keyword variants (Run Keyword If, Run Keyword Unless) can be replaced with IF in RF 4.0
     """
@@ -820,7 +820,8 @@ class IfBlockCanBeUsed(VisitorChecker):
 
 
 class ConsistentAssignmentSignChecker(VisitorChecker):
-    """Checker for inconsistent assignment signs.
+    """
+    Checker for inconsistent assignment signs.
 
     By default, this checker will try to autodetect most common assignment sign (separately for *** Variables ***
     section and *** Test Cases ***, *** Keywords *** sections) and report any inconsistent type of sign in particular
@@ -906,7 +907,8 @@ class ConsistentAssignmentSignChecker(VisitorChecker):
 
 
 class SettingsOrderChecker(VisitorChecker):
-    """Checker for settings order.
+    """
+    Checker for settings order.
 
     BuiltIn libraries imports should always be placed before other libraries imports.
     """
@@ -1058,7 +1060,7 @@ class IfChecker(VisitorChecker):
             return
         self.check_adjacent_ifs(node)
 
-    visit_For = visit_If = visit_Keyword = visit_TestCase  # TODO  While, Try Except?
+    visit_For = visit_If = visit_Keyword = visit_TestCase  # TODO: While, Try Except?
 
     @staticmethod
     def is_inline_if(node):
@@ -1125,7 +1127,7 @@ class IfChecker(VisitorChecker):
             return
         if (
             len(node.body) != 1
-            or node.orelse  # TODO it could still report with orelse? if short enough
+            or node.orelse  # TODO: it could still report with orelse? if short enough
             # IF with one branch and assign require ELSE to be valid, better to ignore it
             or getattr(node.body[0], "assign", None)
             or not isinstance(node.body[0], (KeywordCall, RETURN_CLASSES.return_class, Break, Continue))  # type: ignore[arg-type]
@@ -1471,9 +1473,11 @@ class UnusedVariablesChecker(VisitorChecker):
             self.find_not_nested_variable(argument.value, is_var=False)
 
     def handle_assign_variable(self, token):
-        """Check if assign does not overwrite arguments or variables.
+        """
+        Check if assign does not overwrite arguments or variables.
 
-        Store assign variables for future overwriting checks."""
+        Store assign variables for future overwriting checks.
+        """
         value = token.value
         variable_match = search_variable(value, ignore_errors=True)
         normalized = normalize_robot_name(variable_match.base)
@@ -1508,7 +1512,8 @@ class UnusedVariablesChecker(VisitorChecker):
         self.variables[-1][normalized] = variable
 
     def find_not_nested_variable(self, value, is_var):
-        """Find and process not nested variable.
+        """
+        Find and process not nested variable.
 
         Search `value` string until there is ${variable} without other variables inside. Unescaped escaped syntax
         ($var or \\${var}). If variable does exist in assign variables or arguments, it is removed to denote it was
@@ -1550,7 +1555,8 @@ class UnusedVariablesChecker(VisitorChecker):
             self.update_used_variables(var)
 
     def update_used_variables(self, variable_name):
-        """Remove used variable from the arguments and variables store.
+        """
+        Remove used variable from the arguments and variables store.
 
         If the normalized variable name was already defined, we need to remove it to know which variables are not used.
         If the variable is not found, we try to remove possible attribute access from the name and search again.
@@ -1570,9 +1576,7 @@ class UnusedVariablesChecker(VisitorChecker):
         yield from self.variables[::-1]
 
     def _set_variable_as_used(self, normalized_name: str, variable_scope: Dict[str, CachedVariable]) -> None:
-        """
-        If variable is found in variable_scope, set it as used.
-        """
+        """If variable is found in variable_scope, set it as used."""
         if normalized_name in variable_scope:
             variable_scope[normalized_name].is_used = True
         else:
@@ -1634,7 +1638,8 @@ class ExpressionsChecker(VisitorChecker):
             )
 
     def check_for_misplaced_not(self, condition_token, node_name, left_side, variable, right_side):
-        """Check if the condition contains misplaced not.
+        """
+        Check if the condition contains misplaced not.
 
         An example of misplaced condition would be 'not ${variable} is None'.
         """

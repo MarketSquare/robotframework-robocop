@@ -1,6 +1,4 @@
-"""
-Naming checkers
-"""
+"""Naming checkers"""
 
 import re
 import string
@@ -97,7 +95,7 @@ rules = {
                 Provide payment method
                 Click 'Next' button
                 [Teardown]  Log form data
-        
+
         The rule also accepts another parameter ``pattern`` which can be used to configure words
         that are accepted in the keyword name, even though they violate the case convention.
 
@@ -489,7 +487,7 @@ rules = {
         severity=RuleSeverity.WARNING,
         added_in_version="3.2.0",
         docs="""
-        Variable names are case-insensitive and ignore underscores and spaces. It is possible to 
+        Variable names are case-insensitive and ignore underscores and spaces. It is possible to
         write the variable in multiple ways and it will be a valid Robot Framework code. However,
         it makes it harder to maintain the code that does not follow the consistent naming.
 
@@ -562,9 +560,9 @@ rules = {
         docs="""
         Starting from Robot Framework 7.0, it is possible to create variables inside tests and user keywords using the
         VAR syntax. The VAR syntax is recommended over previously existing keywords.
-        
+
         Example with Set Variable keywords::
-        
+
           *** Keywords ***
           Set Variables To Different Scopes
               Set Local Variable    ${local}    value
@@ -572,9 +570,9 @@ rules = {
               Set Task Variable    ${TASK_VAR}    value
               Set Suite Variable    ${SUITE_VAR}    value
               Set Global Variable    ${GLOBAL_VAR}    value
-        
+
         Can be now rewritten to::
-        
+
           *** Keywords ***
           Set Variables To Different Scopes
               VAR    ${local}    value
@@ -595,21 +593,21 @@ rules = {
         docs="""
         Starting from Robot Framework 7.0, it is possible to create variables inside tests and user keywords using the
         VAR syntax. The VAR syntax is recommended over previously existing keywords.
-        
+
         Example with Create keywords::
 
           *** Keywords ***
           Create Variables
               @{list}    Create List    a  b
               &{dict}    Create Dictionary    key=value
-        
+
         Can be now rewritten to::
-        
+
           *** Keywords ***
           Create Variables
               VAR    @{list}    a  b
               VAR    &{dict}    key=value
-        
+
         """,
     ),
 }
@@ -647,7 +645,8 @@ class InvalidCharactersInNameChecker(VisitorChecker):
         super().visit_File(node)
 
     def check_if_pattern_in_node_name(self, node, name_of_node, is_keyword=False):
-        """Search if regex pattern found from node name.
+        """
+        Search if regex pattern found from node name.
         Skips embedded variables from keyword name
         """
         node_name = node.name
@@ -1073,7 +1072,7 @@ class VariableNamingChecker(VisitorChecker):
         if not variable:
             return
         self.check_for_reserved_naming_or_hyphen(variable, "Variable", is_assign=True)
-        # TODO Check supported syntax for variable, ie ${{var}}?
+        # TODO: Check supported syntax for variable, ie ${{var}}?
         if not _is_var_scope_local(node):
             self.check_non_local_variable(search_variable(variable.value).base, node, variable)
 
@@ -1225,7 +1224,8 @@ class SimilarVariableChecker(VisitorChecker):
             pass
 
     def check_inconsistent_naming(self, token, value: str, offset: int):
-        """Check if variable name ``value`` was already defined under matching but not the same name.
+        """
+        Check if variable name ``value`` was already defined under matching but not the same name.
         :param token: ast token representing the string with variable
         :param value: name of variable found in token value string
         :param offset: starting position of variable in token value string
@@ -1248,7 +1248,8 @@ class SimilarVariableChecker(VisitorChecker):
             )
 
     def find_not_nested_variable(self, token, value, is_var: bool, offset: int = 0):
-        """Find and process not nested variable.
+        """
+        Find and process not nested variable.
 
         Search `value` string until there is ${variable} without other variables inside.
         Unescaped escaped syntax ($var or \\${var}) is ignored.
@@ -1280,7 +1281,7 @@ class SimilarVariableChecker(VisitorChecker):
 
     def visit_vars_and_find_similar(self, node):
         """
-        Updates a dictionary `assign_variables` with normalized variable name as a key
+        Update a dictionary `assign_variables` with normalized variable name as a key
         and ads a list of all detected variations of this variable in the node as a value,
         then it checks if similar variable was found.
         """

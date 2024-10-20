@@ -45,9 +45,7 @@ rules = {
 
 
 class NonBuiltinLibrariesImportOrderChecker(VisitorChecker):
-    """
-    Find and report Non Builtin Libraries or Resources imported not in alphabetical order.
-    """
+    """Find and report Non Builtin Libraries or Resources imported not in alphabetical order."""
 
     reports = (
         "non-builtin-imports-not-sorted",

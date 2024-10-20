@@ -1,6 +1,4 @@
-"""
-Tags checkers
-"""
+"""Tags checkers"""
 
 from collections import defaultdict
 
@@ -34,13 +32,13 @@ rules = {
         " Hint: make sure to include this tag using lowercase name to avoid issues",
         severity=RuleSeverity.INFO,
         docs="""
-        ``OR`` and ``AND`` words are used to combine tags when selecting tests to be run in Robot Framework. Using following 
+        ``OR`` and ``AND`` words are used to combine tags when selecting tests to be run in Robot Framework. Using following
         configuration::
 
             robot --include tagANDtag2
 
         Robot Framework will only execute tests that contain ``tag`` and ``tag2``. That's why it's best to avoid ``AND`` and ``OR``
-        in tag names. See 
+        in tag names. See
         `docs <https://robotframework.org/robotframework/latest/RobotFrameworkUserGuide.html#tag-patterns>`_
         for more information.
 
@@ -55,14 +53,14 @@ rules = {
         msg="Tag '{{ tag }}' prefixed with reserved word `robot:`",
         severity=RuleSeverity.WARNING,
         docs="""
-        ``robot:`` prefix is used by Robot Framework special tags. More details 
+        ``robot:`` prefix is used by Robot Framework special tags. More details
         `here <https://robotframework.org/robotframework/latest/RobotFrameworkUserGuide.html#reserved-tags>`_.
         Special tags currently in use:
 
             - robot:exit
             - robot:flatten
             - robot:no-dry-run
-            - robot:continue-on-failure 
+            - robot:continue-on-failure
             - robot:recursive-continue-on-failure
             - robot:skip
             - robot:skip-on-failure
@@ -150,7 +148,7 @@ rules = {
         msg="[Tags] setting without values{{ optional_warning }}",
         severity=RuleSeverity.WARNING,
         docs="""
-        If you want to use empty ``[Tags]`` (for example to overwrite ``Default Tags``) then use ``NONE`` value 
+        If you want to use empty ``[Tags]`` (for example to overwrite ``Default Tags``) then use ``NONE`` value
         to be explicit.
         """,
         added_in_version="2.0.0",
@@ -165,7 +163,7 @@ rules = {
         Only first tag is used, other occurrences are ignored.
 
         Example of duplicated tags::
-        
+
             Test
                 [Tags]    Tag    TAG    tag    t a g
 

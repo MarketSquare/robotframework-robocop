@@ -1,6 +1,4 @@
-"""
-Lengths checkers
-"""
+"""Lengths checkers"""
 
 import re
 from typing import List, Optional
@@ -311,19 +309,19 @@ rules = {
         msg="Template of {{ block_name }} is empty. "
         "To overwrite suite Test Template use more explicit [Template]  NONE",
         docs="""
-        The ``[Template]`` setting overrides the possible template set in the Setting section, and an empty value for 
+        The ``[Template]`` setting overrides the possible template set in the Setting section, and an empty value for
         ``[Template]`` means that the test has no template even when Test Template is used.
-        
-        If it is intended behaviour, use more explicit ``NONE`` value to indicate that you want to overwrite suite 
+
+        If it is intended behaviour, use more explicit ``NONE`` value to indicate that you want to overwrite suite
         Test Template::
-        
+
             *** Settings ***
             Test Template    Template Keyword
-            
+
             *** Test Cases ***
             Templated test
                 argument
-            
+
             Not templated test
                 [Template]    NONE
 
@@ -354,7 +352,7 @@ rules = {
         docs="""
         If the keyword's ``[Arguments]`` are split into multiple lines, it is recommended to put only one argument
         per every line.
-        
+
         Bad |:x:| ::
 
             *** Keywords ***
@@ -405,7 +403,8 @@ def get_documentation_length(node):
 
 
 class LengthChecker(VisitorChecker):
-    """Checker for max and min length of keyword or test case. It analyses number of lines and also number of
+    """
+    Checker for max and min length of keyword or test case. It analyses number of lines and also number of
     keyword calls (as you can have just few keywords but very long ones or vice versa).
     """
 

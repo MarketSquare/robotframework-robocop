@@ -1,6 +1,4 @@
-"""
-Duplications checkers
-"""
+"""Duplications checkers"""
 
 from collections import defaultdict
 
@@ -42,14 +40,14 @@ rules = {
         msg="Multiple test cases with name '{{ name }}' (first occurrence in line {{ first_occurrence_line }})",
         severity=RuleSeverity.ERROR,
         docs="""
-        It is not allowed to reuse the same name of the test case within the same suite in Robot Framework. 
+        It is not allowed to reuse the same name of the test case within the same suite in Robot Framework.
         Name matching is case-insensitive and ignores spaces and underscore characters.
         Duplicated test cases example::
-        
+
             *** Test Cases ***
             Test with name
                 No Operation
-            
+
             test_with Name  # it is a duplicate of 'Test with name'
                 No Operation
         """,
@@ -61,20 +59,20 @@ rules = {
         msg="Multiple keywords with name '{{ name }}' (first occurrence in line {{ first_occurrence_line }})",
         severity=RuleSeverity.ERROR,
         docs="""
-        Do not define keywords with the same name inside the same file. Name matching is case-insensitive and 
+        Do not define keywords with the same name inside the same file. Name matching is case-insensitive and
         ignores spaces and underscore characters.
         Duplicated keyword names example::
-        
+
             *** Keywords ***
             Keyword
                 No Operation
-            
+
             keyword
                 No Operation
-            
+
             K_eywor d
                 No Operation
-            
+
         """,
         added_in_version="1.0.0",
     ),
@@ -86,9 +84,9 @@ rules = {
         "Note that Robot Framework is case-insensitive",
         severity=RuleSeverity.ERROR,
         docs="""
-        Variable names in Robot Framework are case-insensitive and ignore spaces and underscores. Following variables 
+        Variable names in Robot Framework are case-insensitive and ignore spaces and underscores. Following variables
         are duplicates::
-        
+
             *** Variables ***
             ${variable}    1
             ${VARIAble}    a
@@ -114,7 +112,7 @@ rules = {
         severity=RuleSeverity.WARNING,
         docs="""
         If you need to reimport library use alias::
-        
+
             *** Settings ***
             Library  RobotLibrary
             Library  RobotLibrary  AS  OtherRobotLibrary
@@ -143,19 +141,19 @@ rules = {
         "{{ first_occurrence_line }})",
         severity=RuleSeverity.WARNING,
         docs="""
-        Duplicated section in the file. Robot Framework will handle repeated sections but it is recommended to not 
+        Duplicated section in the file. Robot Framework will handle repeated sections but it is recommended to not
         duplicate them.
-        
+
         Example::
-        
+
             *** Test Cases ***
             My Test
                 Keyword
-            
+
             *** Keywords ***
             Keyword
                 No Operation
-            
+
             *** Test Cases ***  # duplicate
             Other Test
                 Keyword
@@ -178,20 +176,20 @@ rules = {
         docs="""
         Sections should be defined in order set by ``sections_order``
         parameter (default: ``settings,variables,testcases,keywords``).
-        
+
         To change the default order use following option::
-        
+
             robocop --configure section-out-of-order:sections_order:comma,separated,list,of,sections
-        
-        where section should be case-insensitive name from the list: comments, settings, variables, testcases, keywords. 
+
+        where section should be case-insensitive name from the list: comments, settings, variables, testcases, keywords.
         Order of not configured sections is ignored.
-        
+
         Example::
-        
+
             *** Settings ***
-            
+
             *** Keywords ***
-            
+
             *** Test Cases ***  # it will report issue because Test Cases should be defined before Keywords
 
         """,
@@ -204,9 +202,9 @@ rules = {
         severity=RuleSeverity.ERROR,
         docs="""
         The file contains both ``*** Test Cases ***`` and ``*** Tasks ***`` sections. Use only one of them. ::
-        
+
             *** Test Cases ***
-            
+
             *** Tasks ***
 
         """,
@@ -218,9 +216,9 @@ rules = {
         msg="Argument name '{{ argument_name }}' is already used",
         severity=RuleSeverity.ERROR,
         docs="""
-        Variable names in Robot Framework are case-insensitive and ignores spaces and underscores. Following arguments 
+        Variable names in Robot Framework are case-insensitive and ignores spaces and underscores. Following arguments
         are duplicates::
-        
+
             *** Keywords ***
             Keyword
                 [Arguments]    ${var}  ${VAR}  ${v_ar}  ${v ar}
@@ -235,15 +233,15 @@ rules = {
         msg="Assigned variable name '{{ variable_name }}' is already used",
         severity=RuleSeverity.INFO,
         docs="""
-        Variable names in Robot Framework are case-insensitive and ignores spaces and underscores. Following variables 
+        Variable names in Robot Framework are case-insensitive and ignores spaces and underscores. Following variables
         are duplicates::
-        
+
             *** Test Cases ***
             Test
                 ${var}  ${VAR}  ${v_ar}  ${v ar}  Keyword
-        
+
         It is possible to use `${_}` to note that variable name is not important and will not be used::
-        
+
             *** Keywords ***
             Get Middle Element
                 [Arguments]    ${list}
@@ -261,11 +259,11 @@ rules = {
         docs="""
         Some settings can be used only once in a file. Only the first value is used.
         Example::
-        
+
             *** Settings ***
             Force Tags        F1
             Force Tags        F2  # this setting will be ignored
-        
+
         """,
         added_in_version="2.0.0",
     ),

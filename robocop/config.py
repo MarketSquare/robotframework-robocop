@@ -105,9 +105,7 @@ class ArgumentFileParser:
         self.config_from = ""
 
     def expand_argument_files(self, args, config_dir=None):
-        """
-        Find argument files in the argument list and expand argument list with their content.
-        """
+        """Find argument files in the argument list and expand argument list with their content."""
         if not any(arg in self.ARGUMENT_FILE_OPTIONS for arg in args):
             return list(args)
         parsed_args = []
@@ -463,9 +461,11 @@ class Config:
             print("No config file found or configuration is empty. Using default configuration")
 
     def load_default_config_file(self, ignore_git_dir: bool = False):
-        """Find and load default configuration file.
+        """
+        Find and load default configuration file.
 
-        First look for .robocop file. If it does not exist, search for pyproject.toml file."""
+        First look for .robocop file. If it does not exist, search for pyproject.toml file.
+        """
         if self.load_robocop_file(ignore_git_dir):
             return
         pyproject_path = find_file_in_project_root("pyproject.toml", self.root, ignore_git_dir)
@@ -473,7 +473,7 @@ class Config:
             self.load_pyproject_file(pyproject_path)
 
     def load_robocop_file(self, ignore_git_dir: bool):
-        """Returns True if .robocop exists"""
+        """Return True if .robocop exists"""
         robocop_path = find_file_in_project_root(".robocop", self.root, ignore_git_dir)
         if robocop_path is None:
             return False

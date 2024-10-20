@@ -1,6 +1,4 @@
-"""
-Spacing checkers
-"""
+"""Spacing checkers"""
 
 import re
 from collections import Counter
@@ -183,11 +181,11 @@ rules = {
 
             *** Variables ***
             ${VAR}    value
-            
-            
+
+
             ${VAR2}    value  # previous line will be reported with 2/1 consecutive lines
-            
-            
+
+
             *** Keywords ***
             Keyword
                 Step 1
@@ -554,10 +552,12 @@ class InconsistentUseOfTabsAndSpacesChecker(VisitorChecker, ModelVisitor):
 
 
 def get_indent(node):
-    """Calculate the indentation length for given node
+    """
+    Calculate the indentation length for given node
 
     Returns:
         int: Indentation length
+
     """
     tokens = node.tokens if hasattr(node, "tokens") else node.header.tokens
     indent_len = 0
@@ -569,10 +569,12 @@ def get_indent(node):
 
 
 def count_indents(node):
-    """Counts number of occurrences for unique indent values
+    """
+    Count number of occurrences for unique indent values
 
     Returns:
         Counter: A counter of unique indent values with associated number of occurrences in given node
+
     """
     indents = Counter()
     if node is None:
@@ -589,13 +591,15 @@ def count_indents(node):
 
 
 def most_common_indent(indents):
-    """Returns most commonly occurred indent
+    """
+    Return most commonly occurred indent
 
     Args:
         indents (Counter): A counter of unique indent values with associated number of occurrences in given node
 
     Returns:
         indent (int): Most common indent or the first one
+
     """
     common_indents = indents.most_common(1)
     if not common_indents:
@@ -606,9 +610,7 @@ def most_common_indent(indents):
 
 @contextmanager
 def replace_parent_indent(checker, node):
-    """
-    Temporarily replace parent indent with current node indent.
-    """
+    """Temporarily replace parent indent with current node indent."""
     parent_line = checker.parent_line
     parent_indent = checker.parent_indent
     checker.parent_indent = get_indent(node)

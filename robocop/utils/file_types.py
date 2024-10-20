@@ -26,9 +26,7 @@ def check_model_type(file_type_checker, model):
 
 
 class FileType(Enum):
-    """
-    Enum holding type of Robot file.
-    """
+    """Enum holding type of Robot file."""
 
     RESOURCE = "resource"
     GENERAL = "general"

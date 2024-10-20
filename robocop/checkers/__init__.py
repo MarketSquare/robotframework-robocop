@@ -139,7 +139,8 @@ class VisitorChecker(BaseChecker, ModelVisitor):  # noqa
 
 class ProjectChecker(VisitorChecker):
     def scan_project(self) -> List["Message"]:
-        """Perform checks on the whole project.
+        """
+        Perform checks on the whole project.
 
         This method is called after visiting all files. Accumulating any necessary data for check depends on
         the checker.
@@ -217,9 +218,11 @@ class RobocopImporter:
                 yield checker_instance
 
     def is_checker_already_imported(self, checker):
-        """Check if checker was already imported.
+        """
+        Check if checker was already imported.
 
-        Checker name does not have to be unique, but it should use different rules."""
+        Checker name does not have to be unique, but it should use different rules.
+        """
         checker_name = checker.__class__.__name__
         if checker_name in self.seen_checkers:
             if sorted(checker.rules.keys()) in self.seen_checkers[checker_name]:
@@ -248,9 +251,11 @@ class RobocopImporter:
 
     @staticmethod
     def _import_module_from_file(file_path):
-        """Import Python file as module.
+        """
+        Import Python file as module.
 
-        importlib does not support importing Python files directly, and we need to create module specification first."""
+        importlib does not support importing Python files directly, and we need to create module specification first.
+        """
         spec = importlib.util.spec_from_file_location(file_path.stem, file_path)
         mod = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(mod)
@@ -258,7 +263,8 @@ class RobocopImporter:
 
     @staticmethod
     def _find_imported_modules(module: ast.Module):
-        """Return modules imported using `import module.dot.submodule` syntax.
+        """
+        Return modules imported using `import module.dot.submodule` syntax.
 
         `from . import` are ignored - they are later covered by exploring submodules in the same namespace.
         """

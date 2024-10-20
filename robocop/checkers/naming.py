@@ -489,7 +489,7 @@ rules = {
         severity=RuleSeverity.WARNING,
         added_in_version="3.2.0",
         docs="""
-        Variable names are case-insensitive and ignore underscores and spaces. It is possible to 
+        Variable names are case-insensitive and ignore underscores and spaces. It is possible to
         write the variable in multiple ways and it will be a valid Robot Framework code. However,
         it makes it harder to maintain the code that does not follow the consistent naming.
 

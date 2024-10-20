@@ -73,7 +73,7 @@ rules = {
 
         Configure which keywords should be reported by using ``keywords`` parameter.
         Keyword names are normalized to match Robot Framework search behaviour (lower case, removed whitespace and
-        underscores). 
+        underscores).
 
         For example::
 

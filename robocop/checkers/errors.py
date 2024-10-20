@@ -118,7 +118,7 @@ rules = {
         severity=RuleSeverity.ERROR,
         version=">=4.0",
         docs="""
-        Argument names should follow variable naming syntax: start with identifier (``$``, ``@`` or ``&``) and enclosed in 
+        Argument names should follow variable naming syntax: start with identifier (``$``, ``@`` or ``&``) and enclosed in
         curly brackets (``{}``).
 
         Valid names::

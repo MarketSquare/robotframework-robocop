@@ -311,10 +311,10 @@ rules = {
         msg="Template of {{ block_name }} is empty. "
         "To overwrite suite Test Template use more explicit [Template]  NONE",
         docs="""
-        The ``[Template]`` setting overrides the possible template set in the Setting section, and an empty value for 
+        The ``[Template]`` setting overrides the possible template set in the Setting section, and an empty value for
         ``[Template]`` means that the test has no template even when Test Template is used.
 
-        If it is intended behaviour, use more explicit ``NONE`` value to indicate that you want to overwrite suite 
+        If it is intended behaviour, use more explicit ``NONE`` value to indicate that you want to overwrite suite
         Test Template::
 
             *** Settings ***

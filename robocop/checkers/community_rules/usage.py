@@ -37,7 +37,7 @@ rules = {
                 [Arguments]    ${arg}
                 Should Be True    ${arg}>50
 
-        Rule is under development - may report false negatives or positives. Currently it does only support 
+        Rule is under development - may report false negatives or positives. Currently it does only support
         keywords from suites and private keywords. If the keyword is called dynamically (for example through variable)
         it will be not detected as used.
         """,

@@ -42,7 +42,7 @@ rules = {
         msg="Multiple test cases with name '{{ name }}' (first occurrence in line {{ first_occurrence_line }})",
         severity=RuleSeverity.ERROR,
         docs="""
-        It is not allowed to reuse the same name of the test case within the same suite in Robot Framework. 
+        It is not allowed to reuse the same name of the test case within the same suite in Robot Framework.
         Name matching is case-insensitive and ignores spaces and underscore characters.
         Duplicated test cases example::
 
@@ -61,7 +61,7 @@ rules = {
         msg="Multiple keywords with name '{{ name }}' (first occurrence in line {{ first_occurrence_line }})",
         severity=RuleSeverity.ERROR,
         docs="""
-        Do not define keywords with the same name inside the same file. Name matching is case-insensitive and 
+        Do not define keywords with the same name inside the same file. Name matching is case-insensitive and
         ignores spaces and underscore characters.
         Duplicated keyword names example::
 
@@ -86,7 +86,7 @@ rules = {
         "Note that Robot Framework is case-insensitive",
         severity=RuleSeverity.ERROR,
         docs="""
-        Variable names in Robot Framework are case-insensitive and ignore spaces and underscores. Following variables 
+        Variable names in Robot Framework are case-insensitive and ignore spaces and underscores. Following variables
         are duplicates::
 
             *** Variables ***
@@ -143,7 +143,7 @@ rules = {
         "{{ first_occurrence_line }})",
         severity=RuleSeverity.WARNING,
         docs="""
-        Duplicated section in the file. Robot Framework will handle repeated sections but it is recommended to not 
+        Duplicated section in the file. Robot Framework will handle repeated sections but it is recommended to not
         duplicate them.
 
         Example::
@@ -183,7 +183,7 @@ rules = {
 
             robocop --configure section-out-of-order:sections_order:comma,separated,list,of,sections
 
-        where section should be case-insensitive name from the list: comments, settings, variables, testcases, keywords. 
+        where section should be case-insensitive name from the list: comments, settings, variables, testcases, keywords.
         Order of not configured sections is ignored.
 
         Example::
@@ -218,7 +218,7 @@ rules = {
         msg="Argument name '{{ argument_name }}' is already used",
         severity=RuleSeverity.ERROR,
         docs="""
-        Variable names in Robot Framework are case-insensitive and ignores spaces and underscores. Following arguments 
+        Variable names in Robot Framework are case-insensitive and ignores spaces and underscores. Following arguments
         are duplicates::
 
             *** Keywords ***
@@ -235,7 +235,7 @@ rules = {
         msg="Assigned variable name '{{ variable_name }}' is already used",
         severity=RuleSeverity.INFO,
         docs="""
-        Variable names in Robot Framework are case-insensitive and ignores spaces and underscores. Following variables 
+        Variable names in Robot Framework are case-insensitive and ignores spaces and underscores. Following variables
         are duplicates::
 
             *** Test Cases ***

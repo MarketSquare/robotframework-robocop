@@ -651,8 +651,8 @@ rules = {
 
             robocop --configure test-case-section-out-of-order:sections_order:comma,separated,list,of,sections
 
-        where section should be case-insensitive name from the list: 
-        documentation, tags, timeout, setup, template, keywords, teardown. 
+        where section should be case-insensitive name from the list:
+        documentation, tags, timeout, setup, template, keywords, teardown.
         Order of not configured sections is ignored.
 
         Example of rule violation::
@@ -687,8 +687,8 @@ rules = {
 
             robocop --configure keyword-section-out-of-order:sections_order:comma,separated,list,of,sections
 
-        where section should be case-insensitive name from the list: 
-        documentation, tags, arguments, timeout, setup, keyword, teardown. 
+        where section should be case-insensitive name from the list:
+        documentation, tags, arguments, timeout, setup, keyword, teardown.
         Order of not configured sections is ignored.
 
         Example of rule violation::

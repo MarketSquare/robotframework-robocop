@@ -105,7 +105,6 @@ lint.ignore = [
     "RUF010", # TODO: use explicit conversion flag
     "ERA001", # TODO: commented out code
     "SIM105", # TODO: use supress
-    "C416", # TODO: unnecessary list comprehension
     "UP037", # TODO: remove quotes from type annotation
     "ARG001", # TODO: unused function argument
     "DTZ005", # TODO: `datetime.datetime.now()` called without a `tz` argument

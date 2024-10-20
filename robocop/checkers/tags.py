@@ -265,13 +265,12 @@ class TagNameChecker(VisitorChecker):
                 tags = tags[len("tags:") :]
                 col_start += len("tags:")
             for tag in tags.split(","):
-                tag_len = len(tag)
-                tag = tag.strip()
-                if not tag:
+                stripped_tag = tag.strip()
+                if not stripped_tag:
                     continue
-                normalized = tag.lower().replace(" ", "")
-                subtoken = self._get_new_tag_token(tag, token.lineno, col_start)
-                col_start += tag_len + 1  # 1 for ,
+                normalized = stripped_tag.lower().replace(" ", "")
+                subtoken = self._get_new_tag_token(stripped_tag, token.lineno, col_start)
+                col_start += len(tag) + 1  # 1 for ,
                 duplicates[normalized].append(subtoken)
                 self.check_tag(subtoken, node)
         self.check_duplicates(duplicates)

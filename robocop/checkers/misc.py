@@ -1,6 +1,7 @@
 """
 Miscellaneous checkers
 """
+
 import ast
 from dataclasses import dataclass
 from pathlib import Path
@@ -1369,35 +1370,13 @@ class UnusedVariablesChecker(VisitorChecker):
         for token in node.get_tokens(Token.NAME, Token.ARGUMENT):
             self.find_not_nested_variable(token.value, is_var=False)
 
-    visit_TestTags = (
-        visit_ForceTags
-    ) = (
-        visit_Metadata
-    ) = (
-        visit_DefaultTags
-    ) = (
-        visit_Variable
-    ) = (
-        visit_ReturnStatement
-    ) = (
+    visit_TestTags = visit_ForceTags = visit_Metadata = visit_DefaultTags = visit_Variable = visit_ReturnStatement = (
         visit_ReturnSetting
-    ) = (
-        visit_Teardown
-    ) = (
-        visit_Timeout
-    ) = (
-        visit_Return
-    ) = (
-        visit_SuiteSetup
-    ) = (
-        visit_SuiteTeardown
-    ) = (
-        visit_TestSetup
-    ) = (
+    ) = visit_Teardown = visit_Timeout = visit_Return = visit_SuiteSetup = visit_SuiteTeardown = visit_TestSetup = (
         visit_TestTeardown
-    ) = (
-        visit_Setup
-    ) = visit_ResourceImport = visit_VariablesImport = visit_Tags = visit_Documentation = visit_LibraryImport
+    ) = visit_Setup = visit_ResourceImport = visit_VariablesImport = visit_Tags = visit_Documentation = (
+        visit_LibraryImport
+    )
 
     def clear_variables_after_loop(self):
         """Remove used variables after loop finishes."""

@@ -1,4 +1,4 @@
-""" General E2E tests to catch any general issue in Robocop """
+"""General E2E tests to catch any general issue in Robocop"""
 
 import re
 import sys
@@ -277,11 +277,14 @@ class TestE2E:
 
     def test_set_rule_invalid_threshold(self, robocop_instance):
         error = "Invalid configuration for Robocop:\nInvalid severity value '3'. Choose one from: I, W, E."
-        with mock.patch.object(
-            sys,
-            "argv",
-            "robocop --threshold 3".split(),
-        ), pytest.raises(InvalidArgumentError, match=error):
+        with (
+            mock.patch.object(
+                sys,
+                "argv",
+                "robocop --threshold 3".split(),
+            ),
+            pytest.raises(InvalidArgumentError, match=error),
+        ):
             Config(from_cli=True)
 
     def test_configure_severity(self, robocop_instance):

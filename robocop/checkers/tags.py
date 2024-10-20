@@ -1,6 +1,7 @@
 """
 Tags checkers
 """
+
 from collections import defaultdict
 
 from robot.api import Token

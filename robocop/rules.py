@@ -25,6 +25,7 @@ Output message of rules can be defined with ``-f`` / ``--format`` argument. Defa
 * ``desc``:       description of the rule
 
 """
+
 from enum import Enum
 from functools import total_ordering
 from textwrap import dedent

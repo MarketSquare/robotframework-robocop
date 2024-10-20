@@ -117,7 +117,7 @@ class ArgumentFileParser:
                 parsed_args.append(arg)
                 continue
             if not args:  # argumentfile option declared but filename was not provided
-                raise exceptions.ArgumentFileNotFoundError("") from None
+                raise exceptions.ArgumentFileNotFoundError("") from None  # TODO: denote that file was not provided
             argfile = args.pop(0)
             argfile_path = Path(argfile)
             if argfile_path.is_file():
@@ -596,7 +596,7 @@ class Config:
             elif key == "threshold":
                 self.threshold = RuleSeverity(value)
             elif key == "output":
-                self.output = open(value, "w")
+                self.output = open(value, "w")  # noqa: SIM115
             elif key == "no_recursive":
                 self.recursive = not value
             elif key == "verbose":

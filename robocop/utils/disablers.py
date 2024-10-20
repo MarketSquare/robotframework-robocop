@@ -1,6 +1,7 @@
 """
 Collection of classes for detecting checker disablers (like # robocop: disable) in robot files
 """
+
 import re
 from collections import defaultdict
 from copy import deepcopy

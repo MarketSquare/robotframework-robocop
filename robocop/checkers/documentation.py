@@ -1,6 +1,7 @@
 """
 Documentation checkers
 """
+
 from pathlib import Path
 
 from robot.parsing.model.blocks import SettingSection

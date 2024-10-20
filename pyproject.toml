@@ -1,10 +1,144 @@
-[tool.black]
+[tool.ruff]
 line-length = 120
-force-exclude = "invalid_file.py"
+show-fixes = true
+target-version = "py39"
+lint.select = [
+    "ALL", # include all the rules, including new ones
+]
+extend-exclude = [
+    "tests/test_data/"
+]
+lint.ignore = [
+    #### modules
+    "DJ",  # django
+    "PD", # pandas
+    #"C90", # mccabe complexity
 
-[tool.isort]
-profile = "black"
-line_length = 120
+    #"EXE", # flake8-executable
+    #"PTH", # flake8-use-pathlib
+    #"TID", # flake8-tidy-imports
+    #### specific rules
+    "D100", # missing docstring in public module
+    "D101", # missing docstring in public class
+    "D102", # missing docstring in public method
+    "D103", # missing docstring in public function
+    "D104", # missing docstring in public package
+    "D105", # missing docstring in magic method
+    "D107", # missing docstring in __init__
+    "D203", # blank line before class
+    "D400", # first line should end with a period
+    "D415", # first line should end with period, question mark or exlamation point
+    "ANN204", # missing type annotation for __init__
+    "EM102", # exception with fstring
+    "TD002", # 'to do' without author
+    "PT011", # pytest.raises is too broad
+    "S101", # use of assert
+    "COM812", # trailing commas
+    "FIX002", # code with to do - check all of them later
+    "PERF203", # try except in for loop - check all of them for possible refactors
+    "C901", # code too complex (duplicate with other rules)
+    "EM101", # exception with string literal
+    "W291", # TODO: trailing whitespace
+    "W293", # TODO: blankline with whitespace
+    "D200", # TODO: fit one-line docstrign in one line
+    "D205", # TODO: 1 blank line between summary and description - see if makes sense
+    "D209", # TODO: multi-line docstring closing quites on a separate line
+    "D212", # TODO: multi-line docstring summary should start at the first line OR pick rule D213
+    "D213", # TODO: multi-line docstring summary should start at the second line
+    "D401", # TODO: imperative mood. Low priority
+    "ANN001", # TODO: type annotation for function argument (900 issues)
+    "ANN002", # TODO: type annotation for private function
+    "ANN003", # TODO: type annotation for *kwargs
+    "ANN201", # TODO: type annotation for return type (800 issues)
+    "ANN202", # TODO: type annotation for return type of private function
+    "ANN205", # TODO: type annotation for return type of staticmethod (30 issues)
+    "PT006", # TODO: pytest.parametrize with ("param", "param2") instead of "param,param2" (30 issues)
+    "RUF100", # TODO: unused blanked noqa directive
+    "C408", # TODO: rewrite dict() to {}
+    "SIM108", # TODO: ternary operator
+    "FBT002", # TODO: boolean default positional argument in function definition
+    "RUF012", # TODO: mutable class attributes should be annotated with typing.classvar
+    "PLW0129", # TODO: assert on non-empty string literal
+    "SIM300", # TODO: yoda conditions (lol)
+    "T201", # TODO: print
+    "FBT003", # TODO: boolean positional value in function call
+    "ARG002", # TODO: unused method argument
+    "FLY002", # TODO: use fstring instead of string join
+    "SLF001", # TODO: private member accessed
+    "PT001", # TODO: fixture instead of fixture()
+    "PT012", # TODO: pytest.raises should contain a signle simple statement
+    "PLR0913", # TODO: too many arguments in fn def (consider if it's good to keep the rule)
+    "B007", # TODO: loop variable not used
+    "PT018", # TODO: split assertion
+    "TRY003", # TODO: exception with long message outside exception class
+    "D210", # TODO: docstring wrapped with whitespace
+    "INP001", # TODO: file part of implicit namespace package
+    "FA100", # TODO: Use from future import to replace Optional with | None
+    "A001", # TODO: variable shadowing python builtin
+    "A002", # TODO: argument shadowing python builtin
+    "FBT001", # TODO: boolean positional argument in fn def. Check if fn can be splitted on two depending on flag
+    "UP006", # TODO: List -> list
+    "UP035", # TODO: List -> list
+    "RET504", # TODO: unnecessary assigment
+    "E501", # TODO: line too long
+    "FIX001", # TODO: code with fixme
+    "TD003", # TODO: code with fixme and without issue link
+    "TD004", # TODO: missing colon in TODO
+    "TD001", # TODO: invalid TODO tag
+    "N802", # TODO: function name should be lowercase (use noqa for visitors)
+    "N815", # TODO: same as N802
+    "N818", # TODO: exception without error in name
+    "N999", # TODO: invalid module name unused-keyword
+    "PGH004", # TODO: use specific rule codes when using noqa (300 issues)
+    "F541", # TODO: f-string without any placeholders (6 issues)
+    "PLR2004", # TODO: magic value used in comparison (50 issues)
+    "RET505", # TODO: else after return
+    "F401", # TODO: not used import
+    "RET503", # TODO: missing explicit return
+    "D403", # TODO: capitalize first word
+    "C401", # TODO: unnecessary generator
+    "C414", # TODO: unnecessary list with sorted
+    "PYI024", # TODO: namedtuple -> NamedTuple
+    "SIM212", # TODO: reverse condition to simplify it
+    "TRY201", # TODO: use raise without exception name
+    "ISC001", # TODO: implicitly concatenated string literals on one line
+    "PTH100", # TODO: use Path
+    "PTH109", # TODO: use Path
+    "PTH110", # TODO: use Path
+    "PTH111", # TODO: use Path
+    "PTH123", # TODO: use Path.open()
+    "D301", # TODO: use r if any backslashes in a docstring
+    "RUF013", # TODO: implicit Optional
+    "ANN401", # TODO: replace Any
+    "B009", # TODO: getattr with constant attribute value
+    "B028", # TODO: no explicit stacklevel in warn
+    "PLW3301", # TODO: nested max can be flattened
+    "UP011", # TODO: unnecessary paranthesis
+    "B904", # TODO: raise from
+    "RUF005", # TODO: replace ['item'] + ['second']
+    "PLW2901", # TODO: for loop variable overwritten
+    "PLR0912", # TODO: too many branches
+    "SIM110", # TODO: use any instead of for loop
+    "RUF010", # TODO: use explicit conversion flag
+    "PLR5501", # TODO: convert to elif
+    "D413", # TODO: missing blank line after last section
+    "FURB187", # TODO: assignment of reversed list
+    "SIM102", # TODO: combine if
+    "SIM103", # TODO: return condition directly
+    "PIE810", # TODO: merge startswith
+    "ERA001", # TODO: commented out code
+    "RET502", # TODO: return -> return None if function return non-None value
+    "SIM105", # TODO: use supress
+    "C416", # TODO: unnecessary list comprehension
+    "UP037", # TODO: remove quotes from type annotation
+    "ARG001", # TODO: unused function argument
+    "DTZ005", # TODO: `datetime.datetime.now()` called without a `tz` argument
+]
+lint.unfixable = [
+    # PT022 replace empty `yield` to empty `return`. Might be fixed with a combination of PLR1711
+    # In addition, it can't do anything with invalid typing annotations, protected by mypy.
+    "PT022",
+]
 
 [tool.coverage.run]
 omit = ["*tests*"]

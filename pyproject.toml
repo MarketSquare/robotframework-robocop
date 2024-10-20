@@ -77,7 +77,6 @@ lint.ignore = [
     "E501", # TODO: line too long
     "FIX001", # TODO: code with fixme
     "TD003", # TODO: code with fixme and without issue link
-    #"TD004", # TODO: missing colon in TODO
     "TD001", # TODO: invalid TODO tag
     "N802", # TODO: function name should be lowercase (use noqa for visitors)
     "N815", # TODO: same as N802

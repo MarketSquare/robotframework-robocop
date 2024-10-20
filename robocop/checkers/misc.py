@@ -1060,7 +1060,7 @@ class IfChecker(VisitorChecker):
             return
         self.check_adjacent_ifs(node)
 
-    visit_For = visit_If = visit_Keyword = visit_TestCase  # TODO  While, Try Except?
+    visit_For = visit_If = visit_Keyword = visit_TestCase  # TODO: While, Try Except?
 
     @staticmethod
     def is_inline_if(node):
@@ -1127,7 +1127,7 @@ class IfChecker(VisitorChecker):
             return
         if (
             len(node.body) != 1
-            or node.orelse  # TODO it could still report with orelse? if short enough
+            or node.orelse  # TODO: it could still report with orelse? if short enough
             # IF with one branch and assign require ELSE to be valid, better to ignore it
             or getattr(node.body[0], "assign", None)
             or not isinstance(node.body[0], (KeywordCall, RETURN_CLASSES.return_class, Break, Continue))  # type: ignore[arg-type]

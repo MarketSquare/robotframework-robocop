@@ -227,14 +227,13 @@ class CommentChecker(VisitorChecker):
                 lineno=token.lineno,
                 col=token.col_offset + 1 + index,
             )
-        if content.startswith("#") and not self.is_block_comment(content):
-            if not content.startswith("# "):
-                self.report(
-                    "missing-space-after-comment",
-                    lineno=token.lineno,
-                    col=token.col_offset + 1,
-                    end_col=token.col_offset + len(content) + 1,
-                )
+        if content.startswith("#") and not self.is_block_comment(content) and not content.startswith("# "):
+            self.report(
+                "missing-space-after-comment",
+                lineno=token.lineno,
+                col=token.col_offset + 1,
+                end_col=token.col_offset + len(content) + 1,
+            )
 
     def is_block_comment(self, comment):
         return comment == "#" or self.block.match(comment) is not None

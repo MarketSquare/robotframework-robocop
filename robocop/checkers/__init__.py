@@ -224,9 +224,8 @@ class RobocopImporter:
         Checker name does not have to be unique, but it should use different rules.
         """
         checker_name = checker.__class__.__name__
-        if checker_name in self.seen_checkers:
-            if sorted(checker.rules.keys()) in self.seen_checkers[checker_name]:
-                return True
+        if checker_name in self.seen_checkers and sorted(checker.rules.keys()) in self.seen_checkers[checker_name]:
+            return True
         self.seen_checkers[checker_name].append(sorted(checker.rules.keys()))
         return False
 

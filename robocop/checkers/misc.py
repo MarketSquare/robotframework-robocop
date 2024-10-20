@@ -766,18 +766,17 @@ class UnreachableCodeChecker(VisitorChecker):
         for child in node.body:
             if isinstance(child, (RETURN_CLASSES.return_class, Break, Continue)):
                 statement_node = child
-            elif not isinstance(child, (EmptyLine, Comment, Teardown)):
-                if statement_node is not None:
-                    token = statement_node.data_tokens[0]
-                    code_after_statement = child.data_tokens[0] if hasattr(child, "data_tokens") else child
-                    self.report(
-                        "unreachable-code",
-                        statement=token.value,
-                        node=child,
-                        col=code_after_statement.col_offset + 1,
-                        end_col=child.end_col_offset + 1,
-                    )
-                    statement_node = None
+            elif not isinstance(child, (EmptyLine, Comment, Teardown)) and statement_node is not None:
+                token = statement_node.data_tokens[0]
+                code_after_statement = child.data_tokens[0] if hasattr(child, "data_tokens") else child
+                self.report(
+                    "unreachable-code",
+                    statement=token.value,
+                    node=child,
+                    col=code_after_statement.col_offset + 1,
+                    end_col=child.end_col_offset + 1,
+                )
+                statement_node = None
 
         self.generic_visit(node)
 

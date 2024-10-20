@@ -388,18 +388,17 @@ class EmptyLinesChecker(VisitorChecker):
                         end_lineno=last_empty_line.lineno,
                     )
                 empty_lines = 0
-        if check_trailing:
-            if empty_lines > allowed_consecutive:
-                self.report(
-                    "consecutive-empty-lines",
-                    empty_lines=empty_lines,
-                    allowed_empty_lines=allowed_consecutive,
-                    node=last_empty_line,
-                    sev_threshold_value=empty_lines,
-                    col=1,
-                    lineno=last_empty_line.lineno - empty_lines + 1,
-                    end_lineno=last_empty_line.lineno,
-                )
+        if check_trailing and empty_lines > allowed_consecutive:
+            self.report(
+                "consecutive-empty-lines",
+                empty_lines=empty_lines,
+                allowed_empty_lines=allowed_consecutive,
+                node=last_empty_line,
+                sev_threshold_value=empty_lines,
+                col=1,
+                lineno=last_empty_line.lineno - empty_lines + 1,
+                end_lineno=last_empty_line.lineno,
+            )
         return empty_lines
 
     def check_empty_lines_in_keyword_test(self, node):

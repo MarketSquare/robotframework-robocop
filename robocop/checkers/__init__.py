@@ -186,7 +186,7 @@ class RobocopImporter:
         self.imported_modules = set()
         self.seen_modules = set()
         self.seen_checkers = defaultdict(list)
-        self.deprecated_rules = dict()
+        self.deprecated_rules = {}
 
     def get_initialized_checkers(self):
         yield from self._get_checkers_from_modules(self.get_internal_modules(), is_community=False)

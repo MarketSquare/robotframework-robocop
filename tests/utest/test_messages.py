@@ -67,7 +67,7 @@ class TestMessage:
     def test_change_message_severity(self, valid_msg, severity, exp_sev):  # noqa
         assert str(TestMessage.change_severity(valid_msg, severity).severity) == exp_sev
 
-    @pytest.mark.parametrize("severity", ["invalid", 1, "errorE", None, dict()])
+    @pytest.mark.parametrize("severity", ["invalid", 1, "errorE", None, {}])
     def test_change_message_severity_invalid(self, valid_msg, severity):  # noqa
         with pytest.raises(robocop.exceptions.RuleParamFailedInitError) as err:
             valid_msg.configure("severity", severity)

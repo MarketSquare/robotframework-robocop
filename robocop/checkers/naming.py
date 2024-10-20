@@ -97,7 +97,7 @@ rules = {
                 Provide payment method
                 Click 'Next' button
                 [Teardown]  Log form data
-        
+
         The rule also accepts another parameter ``pattern`` which can be used to configure words
         that are accepted in the keyword name, even though they violate the case convention.
 
@@ -562,9 +562,9 @@ rules = {
         docs="""
         Starting from Robot Framework 7.0, it is possible to create variables inside tests and user keywords using the
         VAR syntax. The VAR syntax is recommended over previously existing keywords.
-        
+
         Example with Set Variable keywords::
-        
+
           *** Keywords ***
           Set Variables To Different Scopes
               Set Local Variable    ${local}    value
@@ -572,9 +572,9 @@ rules = {
               Set Task Variable    ${TASK_VAR}    value
               Set Suite Variable    ${SUITE_VAR}    value
               Set Global Variable    ${GLOBAL_VAR}    value
-        
+
         Can be now rewritten to::
-        
+
           *** Keywords ***
           Set Variables To Different Scopes
               VAR    ${local}    value
@@ -595,21 +595,21 @@ rules = {
         docs="""
         Starting from Robot Framework 7.0, it is possible to create variables inside tests and user keywords using the
         VAR syntax. The VAR syntax is recommended over previously existing keywords.
-        
+
         Example with Create keywords::
 
           *** Keywords ***
           Create Variables
               @{list}    Create List    a  b
               &{dict}    Create Dictionary    key=value
-        
+
         Can be now rewritten to::
-        
+
           *** Keywords ***
           Create Variables
               VAR    @{list}    a  b
               VAR    &{dict}    key=value
-        
+
         """,
     ),
 }

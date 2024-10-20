@@ -226,7 +226,7 @@ rules = {
         severity=RuleSeverity.INFO,
         docs="""
         Variables with placeholder ${EMPTY} values are more explicit.
-        
+
         Example of rule violation::
 
             *** Variables ***
@@ -401,7 +401,7 @@ rules = {
         severity=RuleSeverity.WARNING,
         docs="""
         Keyword argument was defined but not used::
-        
+
             *** Keywords ***
             Keyword
                 [Arguments]    ${used}    ${not_used}  # will report ${not_used}
@@ -423,16 +423,16 @@ rules = {
         severity=RuleSeverity.INFO,
         docs="""
         Variable was assigned but not used::
-    
+
             *** Keywords ***
             Get Triangle Base Points
                 [Arguments]       ${triangle}
                 ${p1}    ${p2}    ${p3}    Get Triangle Points    ${triangle}
                 Log      Triangle base points are: ${p1} and ${p2}.
                 RETURN   ${p1}    ${p2}  # ${p3} is never used
-    
+
         Use ``${_}`` variable name if you purposefully do not use variable::
-    
+
             *** Keywords ***
             Process Value 10 Times
                 [Arguments]    ${value}
@@ -454,7 +454,7 @@ rules = {
         severity=RuleSeverity.WARNING,
         docs="""
         Keyword argument was overwritten before it is used::
-        
+
             *** Keywords ***
             Overwritten Argument
                 [Arguments]    ${overwritten}  # we do not use ${overwritten} value at all
@@ -477,7 +477,7 @@ rules = {
                 ${value}    Keyword
 
         In case the value of the variable is not important, it is possible to use ``${_}`` name::
-        
+
             *** Test Cases ***
             Call keyword and ignore some return values
                 ${_}    ${item}    Unpack List    @{LIST}
@@ -499,12 +499,12 @@ rules = {
         Expressions in Robot Framework are evaluated using Python's eval function. When a variable is used
         in the expression using the normal ``${variable}`` syntax, its value is replaced before the expression
         is evaluated. For example, with the following expression::
-        
+
             *** Test Cases ***
             Check if schema was uploaded
                 Upload Schema    schema.avsc
                 Check If File Exist In SFTP    schema.avsc
-        
+
             *** Keywords ***
             Upload Schema
                 [Arguments]    ${filename}
@@ -512,24 +512,24 @@ rules = {
                     ${filename}    Get Default Upload Path
                 END
                 Send File To SFTP Root   ${filename}
-        
+
         "${filename}" will be replaced by "schema.avsc"::
-        
+
             IF    schema.avsc == 'default'
-        
+
         "schema.avsc" will not be recognized as Python variable. That's why you need to quote it::
-        
+
             IF    '${filename}' == 'default'
-        
+
         However it introduces unnecessary string conversion and can mask difference in the type. For example::
-        
+
             ${numerical}    Set Variable    10  # ${numerical} is actually string 10, not integer 10
             IF    "${numerical}" == "10"
 
         You can use  ``$variable`` syntax instead::
-        
+
             IF    $numerical == 10
-        
+
         It will put the actual variable in the evaluated expression without converting it to string.
         """,
         added_in_version="4.0.0",
@@ -542,7 +542,7 @@ rules = {
         version=">=4.0",
         docs="""
         Evaluated expression can be simplified. For example::
-        
+
             *** Keywords ***
             Click On Element
                 [Arguments]    ${locator}
@@ -552,9 +552,9 @@ rules = {
                     ${is_element_enabled}    Get Element Status    ${locator}
                 END
                 Click    ${locator}
-        
+
         can be rewritten to::
-        
+
             *** Keywords ***
             Click On Element
                 [Arguments]    ${locator}
@@ -566,7 +566,7 @@ rules = {
                 Click    ${locator}
 
         Comparisons to empty sequences (lists, dicts, sets), empty string or ``0`` can be also simplified::
-        
+
             *** Test Cases ***
             Check conditions
                 Should Be True     ${list} == []  # equivalent of 'not ${list}'
@@ -584,9 +584,9 @@ rules = {
         version=">=4.0",
         docs="""
         Position of not operator can be changed for better readability.
-        
+
         For example::
-        
+
             *** Keywords ***
             Check Unmapped Codes
                 ${codes}    Get Codes From API
@@ -597,9 +597,9 @@ rules = {
                 ELSE
                     Fail    Did not receive codes from API.
                 END
-        
+
         Can be rewritten to::
-        
+
             *** Keywords ***
             Check Unmapped Codes
                 ${codes}    Get Codes From API
@@ -654,7 +654,7 @@ rules = {
         where section should be case-insensitive name from the list: 
         documentation, tags, timeout, setup, template, keywords, teardown. 
         Order of not configured sections is ignored.
-    
+
         Example of rule violation::
 
             *** Test Cases ***

@@ -37,13 +37,13 @@ rules = {
             Test
                 [Documentation] doc  # only one space after [Documentation]
                 Keyword
-                
+
             *** Keywords ***
             Keyword
                 [Documentation]  This is doc
                 [Arguments] ${var}  # only one space after [Arguments]
                 Should Be True  ${var}
-            
+
         """,
         added_in_version="1.0.0",
     ),
@@ -54,7 +54,7 @@ rules = {
         severity=RuleSeverity.ERROR,
         docs="""
         Example of rule violation::
-        
+
             *** Keywords ***
             Keyword
                 ${var}
@@ -70,12 +70,12 @@ rules = {
         severity=RuleSeverity.ERROR,
         docs="""
         Example of rule violation::
-        
+
             *** Settings ***
             Variables    vars.yaml        arg1
             Variables    variables.yml    arg2
             Variables    module           arg3  # valid from RF > 5
-        
+
         """,
         added_in_version="1.11.0",
     ),
@@ -86,7 +86,7 @@ rules = {
         severity=RuleSeverity.ERROR,
         docs="""
         Example of rule violation::
-        
+
             Keyword
             ..  ${var}  # .. instead of ...
             ...  1
@@ -103,7 +103,7 @@ rules = {
         severity=RuleSeverity.ERROR,
         docs="""
         Example of rule violation::
-        
+
             @{LIST}  1
             ... 2  # not enough whitespace
             ...  3
@@ -120,17 +120,17 @@ rules = {
         docs="""
         Argument names should follow variable naming syntax: start with identifier (``$``, ``@`` or ``&``) and enclosed in 
         curly brackets (``{}``).
-        
+
         Valid names::
-        
+
             Keyword
                 [Arguments]    ${var}    @{args}    &{config}    ${var}=default
-        
+
         Invalid names::
-        
+
             Keyword
                 [Arguments]    {var}    @args}    var=default
-        
+
         """,
         added_in_version="1.11.0",
     ),
@@ -141,14 +141,14 @@ rules = {
         severity=RuleSeverity.ERROR,
         docs="""
         Non-existing setting can't be used in the code.
-        
+
         Example of rule violation::
-        
+
            *** Test Cases ***
            My Test Case
                [Not Existing]  arg
                [Arguments]  ${arg}
-    
+
         """,
         added_in_version="1.11.0",
     ),
@@ -160,23 +160,23 @@ rules = {
         severity=RuleSeverity.ERROR,
         docs="""
         Following settings are supported in Test Case or Task::
-        
+
             [Documentation]	 Used for specifying a test case documentation.
             [Tags]	         Used for tagging test cases.
             [Setup]	         Used for specifying a test setup.
             [Teardown]	     Used for specifying a test teardown.
             [Template]	     Used for specifying a template keyword.
             [Timeout]	     Used for specifying a test case timeout.
-        
+
         Following settings are supported in Keyword::
-        
+
             [Documentation]	 Used for specifying a user keyword documentation.
             [Tags]	         Used for specifying user keyword tags.
             [Arguments]	     Used for specifying user keyword arguments.
             [Return]	     Used for specifying user keyword return values.
             [Teardown]	     Used for specifying user keyword teardown.
             [Timeout]	     Used for specifying a user keyword timeout.
-        
+
         """,
         added_in_version="1.11.0",
     ),
@@ -188,10 +188,10 @@ rules = {
         version=">=4.0",
         docs="""
         Example of rule violation::
-        
+
             ${variable} 1  # not enough whitespace
             ${other_var}  2
-        
+
         """,
         added_in_version="1.11.0",
     ),
@@ -202,13 +202,13 @@ rules = {
         severity=RuleSeverity.ERROR,
         docs="""
         Example of rule violation::
-        
+
             *** Settings ***
             Library Collections  # not enough whitespace
             Force Tags  tag
             ...  tag2
             Suite Setup Keyword  # not enough whitespace
-        
+
         """,
         added_in_version="1.11.0",
     ),

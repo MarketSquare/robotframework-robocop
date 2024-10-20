@@ -31,26 +31,26 @@ rules = {
         enabled=False,
         docs="""
         Avoid using Sleep keyword in favour of polling.
-        
+
         For example::
-        
+
             *** Keywords ***
             Add To Cart
                 [Arguments]    ${item_name}
                 Sleep    30s  # wait for page to load
                 Element Should Be Visible    ${MAIN_HEADER}
                 Click Element    //div[@name='${item_name}']/div[@id='add_to_cart']
-        
+
         Can be rewritten to::
-        
+
             *** Keywords ***
             Add To Cart
                 [Arguments]    ${item_name}
                 Wait Until Element Is Visible    ${MAIN_HEADER}
                 Click Element    //div[@name='${item_name}']/div[@id='add_to_cart']
-        
+
         It is also possible to report only if ``Sleep`` exceeds given time limit using ``max_time`` parameter::
-        
+
             robocop -c sleep-keyword-used:max_time:1min .
 
         """,
@@ -70,13 +70,13 @@ rules = {
         enabled=False,
         docs="""
         Reports usage of not allowed keywords.
-        
+
         Configure which keywords should be reported by using ``keywords`` parameter.
         Keyword names are normalized to match Robot Framework search behaviour (lower case, removed whitespace and
         underscores). 
 
         For example::
-        
+
             > robocop -i not-allowed-keyword -c not-allowed-keyword:keywords:click_using_javascript
 
             *** Keywords ***

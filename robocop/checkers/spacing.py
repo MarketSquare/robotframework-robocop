@@ -183,11 +183,11 @@ rules = {
 
             *** Variables ***
             ${VAR}    value
-            
-            
+
+
             ${VAR2}    value  # previous line will be reported with 2/1 consecutive lines
-            
-            
+
+
             *** Keywords ***
             Keyword
                 Step 1

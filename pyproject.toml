@@ -39,7 +39,6 @@ lint.ignore = [
     "C901", # code too complex (duplicate with other rules)
     "EM101", # exception with string literal
     "W291", # TODO: trailing whitespace
-    "W293", # TODO: blankline with whitespace
     "D200", # TODO: fit one-line docstrign in one line
     "D205", # TODO: 1 blank line between summary and description - see if makes sense
     "D209", # TODO: multi-line docstring closing quites on a separate line

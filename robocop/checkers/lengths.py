@@ -313,17 +313,17 @@ rules = {
         docs="""
         The ``[Template]`` setting overrides the possible template set in the Setting section, and an empty value for 
         ``[Template]`` means that the test has no template even when Test Template is used.
-        
+
         If it is intended behaviour, use more explicit ``NONE`` value to indicate that you want to overwrite suite 
         Test Template::
-        
+
             *** Settings ***
             Test Template    Template Keyword
-            
+
             *** Test Cases ***
             Templated test
                 argument
-            
+
             Not templated test
                 [Template]    NONE
 
@@ -354,7 +354,7 @@ rules = {
         docs="""
         If the keyword's ``[Arguments]`` are split into multiple lines, it is recommended to put only one argument
         per every line.
-        
+
         Bad |:x:| ::
 
             *** Keywords ***

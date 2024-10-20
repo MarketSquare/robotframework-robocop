@@ -165,7 +165,7 @@ rules = {
         Only first tag is used, other occurrences are ignored.
 
         Example of duplicated tags::
-        
+
             Test
                 [Tags]    Tag    TAG    tag    t a g
 

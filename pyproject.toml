@@ -55,7 +55,6 @@ lint.ignore = [
     "FBT003", # TODO: boolean positional value in function call
     "ARG002", # TODO: unused method argument
     "SLF001", # TODO: private member accessed
-    "PT001", # TODO: fixture instead of fixture()
     "PT012", # TODO: pytest.raises should contain a signle simple statement
     "PLR0913", # TODO: too many arguments in fn def (consider if it's good to keep the rule)
     "B007", # TODO: loop variable not used

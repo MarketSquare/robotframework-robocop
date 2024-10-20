@@ -7,7 +7,7 @@ from robocop.config import Config
 from robocop.version import __version__
 
 
-@pytest.fixture()
+@pytest.fixture
 def config():
     return Config()
 

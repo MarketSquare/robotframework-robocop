@@ -1471,7 +1471,8 @@ class UnusedVariablesChecker(VisitorChecker):
     def handle_assign_variable(self, token):
         """Check if assign does not overwrite arguments or variables.
 
-        Store assign variables for future overwriting checks."""
+        Store assign variables for future overwriting checks.
+        """
         value = token.value
         variable_match = search_variable(value, ignore_errors=True)
         normalized = normalize_robot_name(variable_match.base)

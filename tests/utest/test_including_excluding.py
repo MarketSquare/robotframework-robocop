@@ -67,7 +67,8 @@ class TestIncludingExcluding:
     )
     def test_only_excluded_patterns(self, patterns, included, excluded, robocop_pre_load):
         """Test data contains rules with rule id's "0101", "0105", "0204", "0405", "0405"
-        and rule names created using `some-message-{rule_id}` pattern"""
+        and rule names created using `some-message-{rule_id}` pattern
+        """
         robocop_pre_load.config.exclude.update(set(patterns))
         robocop_pre_load.config.remove_severity()
         robocop_pre_load.config.translate_patterns()

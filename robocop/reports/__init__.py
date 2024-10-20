@@ -158,7 +158,8 @@ def save_reports_result_to_cache(working_dir: str, report_results: Dict):
 
     Result file contains results grouped using working directory.
     That's why we are loading previous results and overwriting only
-    the results for current working directory."""
+    the results for current working directory.
+    """
     cache_dir = get_robocop_cache_directory(ensure_exists=True)
     cache_file = cache_dir / ROBOCOP_CACHE_FILE
     prev_results = load_reports_result_from_cache()

@@ -463,7 +463,8 @@ class Config:
     def load_default_config_file(self, ignore_git_dir: bool = False):
         """Find and load default configuration file.
 
-        First look for .robocop file. If it does not exist, search for pyproject.toml file."""
+        First look for .robocop file. If it does not exist, search for pyproject.toml file.
+        """
         if self.load_robocop_file(ignore_git_dir):
             return
         pyproject_path = find_file_in_project_root("pyproject.toml", self.root, ignore_git_dir)

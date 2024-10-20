@@ -219,7 +219,8 @@ class RobocopImporter:
     def is_checker_already_imported(self, checker):
         """Check if checker was already imported.
 
-        Checker name does not have to be unique, but it should use different rules."""
+        Checker name does not have to be unique, but it should use different rules.
+        """
         checker_name = checker.__class__.__name__
         if checker_name in self.seen_checkers:
             if sorted(checker.rules.keys()) in self.seen_checkers[checker_name]:
@@ -250,7 +251,8 @@ class RobocopImporter:
     def _import_module_from_file(file_path):
         """Import Python file as module.
 
-        importlib does not support importing Python files directly, and we need to create module specification first."""
+        importlib does not support importing Python files directly, and we need to create module specification first.
+        """
         spec = importlib.util.spec_from_file_location(file_path.stem, file_path)
         mod = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(mod)

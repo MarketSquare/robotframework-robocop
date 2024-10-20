@@ -863,7 +863,7 @@ class ConsistentAssignmentSignChecker(VisitorChecker):
 
     def visit_KeywordCall(self, node):
         if self.keyword_expected_sign_type is None or not node.keyword:
-            return
+            return None
         if node.assign:  # if keyword returns any value
             assign_tokens = node.get_tokens(Token.ASSIGN)
             self.check_assign_type(
@@ -875,7 +875,7 @@ class ConsistentAssignmentSignChecker(VisitorChecker):
 
     def visit_VariableSection(self, node):
         if self.variables_expected_sign_type is None:
-            return
+            return None
         for child in node.body:
             if not isinstance(child, Variable) or get_errors(child):
                 continue

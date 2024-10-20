@@ -109,7 +109,6 @@ lint.ignore = [
     "SIM103", # TODO: return condition directly
     "PIE810", # TODO: merge startswith
     "ERA001", # TODO: commented out code
-    "RET502", # TODO: return -> return None if function return non-None value
     "SIM105", # TODO: use supress
     "C416", # TODO: unnecessary list comprehension
     "UP037", # TODO: remove quotes from type annotation

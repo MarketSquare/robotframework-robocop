@@ -60,7 +60,7 @@ setup(
     ],
     extras_require={
         "dev": [
-            "black",
+            "ruff",
             "coverage",
             "pytest",
             "pyyaml",

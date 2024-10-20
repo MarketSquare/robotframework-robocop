@@ -445,7 +445,7 @@ class SectionHeadersChecker(VisitorChecker):
 
     @staticmethod
     def section_order_to_str(order):
-        by_index = sorted(list(order.items()), key=lambda x: x[1])
+        by_index = sorted(order.items(), key=lambda x: x[1])
         name_map = {
             Token.SETTING_HEADER: "Settings",
             Token.VARIABLE_HEADER: "Variables",

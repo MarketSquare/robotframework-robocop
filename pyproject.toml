@@ -80,7 +80,6 @@ lint.ignore = [
     "RET503", # TODO: missing explicit return
     "D403", # TODO: capitalize first word
     "C401", # TODO: unnecessary generator
-    "C414", # TODO: unnecessary list with sorted
     "PYI024", # TODO: namedtuple -> NamedTuple
     "TRY201", # TODO: use raise without exception name
     "ISC001", # TODO: implicitly concatenated string literals on one line

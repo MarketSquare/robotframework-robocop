@@ -31,8 +31,7 @@ def convert_to_output(stdout_bytes):
 
 
 def get_result(encoded_output):
-    stdout = convert_to_output(encoded_output.getvalue())
-    return stdout
+    return convert_to_output(encoded_output.getvalue())
 
 
 def normalize_result(result, test_data):

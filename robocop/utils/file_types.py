@@ -70,5 +70,4 @@ class FileTypeChecker(ast.NodeVisitor):
 def normalize_robot_path(robot_path, curr_path, exec_path):
     normalized_path = str(robot_path).replace("${/}", os.path.sep)
     normalized_path = normalized_path.replace("${CURDIR}", str(curr_path))
-    normalized_path = normalized_path.replace("${EXECDIR}", str(exec_path))
-    return normalized_path
+    return normalized_path.replace("${EXECDIR}", str(exec_path))

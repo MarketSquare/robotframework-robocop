@@ -106,8 +106,7 @@ def get_checker_docs(rule_type: str):
         sorted_rules = sorted(checker_docs[module_name], key=lambda x: x["id"])
         group_id = int(sorted_rules[0]["id"][:2])
         groups_sorted_by_id.append((module_name, sorted_rules, group_id))
-    groups_sorted_by_id = sorted(groups_sorted_by_id, key=lambda x: x[2])
-    return groups_sorted_by_id
+    return sorted(groups_sorted_by_id, key=lambda x: x[2])
 
 
 html_context = {"builtin_checkers": get_checker_docs("builtin"), "community_checkers": get_checker_docs("community")}

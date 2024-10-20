@@ -31,8 +31,7 @@ def _get_comparison_key(release: Tuple[int, ...]):
     # leading zeros until we come to something non zero, then take the rest
     # re-reverse it back into the correct order and make it a tuple and use
     # that for our sorting key.
-    _release = tuple(reversed(list(itertools.dropwhile(lambda x: x == 0, reversed(release)))))
-    return _release
+    return tuple(reversed(list(itertools.dropwhile(lambda x: x == 0, reversed(release)))))
 
 
 def _parse_letter_version(letter: str, number: Union[str, bytes, SupportsInt]) -> Optional[Tuple[str, int]]:
@@ -214,8 +213,7 @@ class VersionSpecifier:
         return version
 
     def _get_operator(self, op: str):
-        operator_callable = getattr(self, f"_compare_{self._operators[op]}")
-        return operator_callable
+        return getattr(self, f"_compare_{self._operators[op]}")
 
     @property
     def operator(self) -> str:

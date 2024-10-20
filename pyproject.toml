@@ -95,7 +95,6 @@ lint.ignore = [
     "ANN401", # TODO: replace Any
     "B009", # TODO: getattr with constant attribute value
     "B028", # TODO: no explicit stacklevel in warn
-    "PLW3301", # TODO: nested max can be flattened
     "B904", # TODO: raise from
     "PLR0912", # TODO: too many branches
     "RUF010", # TODO: use explicit conversion flag

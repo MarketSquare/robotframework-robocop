@@ -261,10 +261,9 @@ class VersionSpecifier:
             padded_spec, padded_prospective = _pad_version(split_spec, shortened_prospective)
 
             return padded_prospective == padded_spec
-        else:
-            # Convert our spec string into a Version
-            spec_version = Version(spec)
-            return prospective == spec_version
+        # Convert our spec string into a Version
+        spec_version = Version(spec)
+        return prospective == spec_version
 
     def _compare_not_equal(self, prospective, spec: str) -> bool:
         return not self._compare_equal(prospective, spec)

@@ -68,7 +68,7 @@ class TestRuleSeverityThreshold:
             RuleParam(name="param_name", converter=int, default=1, desc=""),
             SeverityThreshold("param_name", compare_method="greater"),
             rule_id="0101",
-            name=f"some-message",
+            name="some-message",
             msg="Some description",
             severity=RuleSeverity.WARNING,
         )

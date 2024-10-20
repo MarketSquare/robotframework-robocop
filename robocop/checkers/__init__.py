@@ -120,7 +120,7 @@ class BaseChecker:
             self.issues.append(message)
 
 
-class VisitorChecker(BaseChecker, ModelVisitor):  # noqa
+class VisitorChecker(BaseChecker, ModelVisitor):
     def scan_file(self, ast_model, filename, in_memory_content, templated=False) -> List["Message"]:
         self.issues: List["Message"] = []
         self.source = filename
@@ -132,7 +132,7 @@ class VisitorChecker(BaseChecker, ModelVisitor):  # noqa
         self.visit_File(ast_model)
         return self.issues
 
-    def visit_File(self, node):  # noqa
+    def visit_File(self, node):
         """Perform generic ast visit on file node."""
         self.generic_visit(node)
 
@@ -148,7 +148,7 @@ class ProjectChecker(VisitorChecker):
         raise NotImplementedError
 
 
-class RawFileChecker(BaseChecker):  # noqa
+class RawFileChecker(BaseChecker):
     def scan_file(self, ast_model, filename, in_memory_content, templated=False) -> List["Message"]:
         self.issues: List["Message"] = []
         self.source = filename
@@ -186,7 +186,7 @@ class RobocopImporter:
         self.imported_modules = set()
         self.seen_modules = set()
         self.seen_checkers = defaultdict(list)
-        self.deprecated_rules = dict()
+        self.deprecated_rules = {}
 
     def get_initialized_checkers(self):
         yield from self._get_checkers_from_modules(self.get_internal_modules(), is_community=False)
@@ -277,7 +277,7 @@ class RobocopImporter:
         """Discover Python imports in the file using ast module."""
         try:
             parsed = ast.parse(file_path.read_bytes())
-        except Exception:  # noqa
+        except:  # noqa: E722
             return
         for import_name in self._find_imported_modules(parsed):
             if import_name not in self.imported_modules:

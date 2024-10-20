@@ -127,7 +127,7 @@ def handle_robot_errors(func):
             return func(*args, **kwargs)
         except robot.errors.DataError:
             raise
-        except:  # noqa
+        except:  # noqa: E722
             raise RobotFrameworkParsingError
 
     return wrap_errors

@@ -175,16 +175,16 @@ class CommentChecker(VisitorChecker):
             self._block = self.param("missing-space-after-comment", "block")
         return self._block
 
-    def visit_Comment(self, node):  # noqa
+    def visit_Comment(self, node):
         self.find_comments(node)
 
-    def visit_TestCase(self, node):  # noqa
+    def visit_TestCase(self, node):
         self.check_invalid_comments(node.name, node)
         self.generic_visit(node)
 
     visit_Keyword = visit_TestCase
 
-    def visit_Statement(self, node):  # noqa
+    def visit_Statement(self, node):
         self.find_comments(node)
 
     def find_comments(self, node):

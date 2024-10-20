@@ -8,7 +8,7 @@ class TestRuleAcceptance(RuleAcceptance):
         self.check_rule(src_files=["test.robot"], expected_file="expected_output.txt")
 
     @pytest.mark.parametrize(
-        "test_id, pattern",
+        ("test_id", "pattern"),
         [
             (1, r"[$:{}]"),
             (2, r"""[!.?/;+'"()[]{}#$%^&=<>|\]"""),

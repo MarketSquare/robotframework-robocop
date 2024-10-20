@@ -203,7 +203,7 @@ class TestE2E:
         configure_robocop(robocop_instance, args=f"-c line-too-long:line_length:1000 {TEST_DATA_DIR}")
 
     @pytest.mark.parametrize(
-        "rule, expected",
+        ("rule", "expected"),
         [
             ("idontexist", "Provided rule or report 'idontexist' does not exist."),
             (
@@ -219,7 +219,7 @@ class TestE2E:
         assert expected in str(err)
 
     @pytest.mark.parametrize(
-        "rules, expected",
+        ("rules", "expected"),
         [
             ("invalid", "Provided rule 'invalid' does not exist."),
             ("parsing-error,invalid", "Provided rule 'invalid' does not exist."),

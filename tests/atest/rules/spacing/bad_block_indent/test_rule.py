@@ -4,7 +4,7 @@ from tests.atest.utils import RuleAcceptance
 
 
 class TestRuleAcceptance(RuleAcceptance):
-    @pytest.mark.parametrize("file_suffix, target_version", [("", ">=5"), ("_rf4", "==4.*"), ("_rf3", "==3.*")])
+    @pytest.mark.parametrize(("file_suffix", "target_version"), [("", ">=5"), ("_rf4", "==4.*"), ("_rf3", "==3.*")])
     def test_rule(self, file_suffix, target_version):
         self.check_rule(
             expected_file=f"expected_output{file_suffix}.txt",

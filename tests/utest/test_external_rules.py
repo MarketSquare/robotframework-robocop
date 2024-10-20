@@ -219,7 +219,7 @@ class TestDeprecatedRules:
 
 class TestVersionMatching:
     @pytest.mark.parametrize(
-        "rf_version, rules_status",
+        ("rf_version", "rules_status"),
         [
             (
                 "4.0",

@@ -32,7 +32,7 @@ def get_message_with_sev_value(rule, sev_value):
 
 class TestThresholds:
     @pytest.mark.parametrize(
-        "threshold, included, excluded",
+        ("threshold", "included", "excluded"),
         [
             ("E", ["E"], ["I", "W"]),
             ("W", ["E", "W"], ["I"]),

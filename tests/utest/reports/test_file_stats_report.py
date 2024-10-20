@@ -6,7 +6,7 @@ from robocop.rules import Message
 
 class TestFileStatReport:
     @pytest.mark.parametrize(
-        "previous_results, files, files_with_issues, compare_runs, output",
+        ("previous_results", "files", "files_with_issues", "compare_runs", "output"),
         [
             (None, 0, set(), False, "\nNo files were processed."),
             ({}, 0, set(), False, "\nNo files were processed."),

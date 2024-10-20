@@ -16,7 +16,7 @@ EXPECTED_EXTRA_PREV = "\nFound 4 (-1) issues: 1 (+1) ERROR, 2 (+0) WARNINGs, 1 (
 
 class TestRulesByIdReport:
     @pytest.mark.parametrize(
-        "previous_results, compare_results, issues_names, expected",
+        ("previous_results", "compare_results", "issues_names", "expected"),
         [
             (None, False, FOUR_ISSUES, EXPECTED_NO_PREV),
             ({}, False, FOUR_ISSUES, EXPECTED_NO_PREV),

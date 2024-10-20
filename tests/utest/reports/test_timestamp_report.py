@@ -26,7 +26,7 @@ class TestTimestampReport:
         assert "Reported: " in report.get_report()
 
     @pytest.mark.parametrize(
-        "name, value, expected",
+        ("name", "value", "expected"),
         [
             ("timezone", "UTC", r"\+0000"),
             ("format", "hello", r"Reported: hello"),
@@ -37,7 +37,7 @@ class TestTimestampReport:
         self._configure_and_run(name, value, expected)
 
     @pytest.mark.parametrize(
-        "name, value, expected",
+        ("name", "value", "expected"),
         [
             ("", "", "Provided param '' for report 'timestamp' does not exist"),
             ("BAD", "", "Provided param 'BAD' for report 'timestamp' does not exist"),
@@ -52,7 +52,7 @@ class TestTimestampReport:
         assert expected in str(err)
 
     @pytest.mark.parametrize(
-        "name, value, expected",
+        ("name", "value", "expected"),
         [
             ("format", "", r".*([0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2})"),
         ],

@@ -14,7 +14,7 @@ from robocop.reports import (
 
 
 @pytest.mark.parametrize(
-    "configured, expected",
+    ("configured", "expected"),
     [
         (["timestamp", "sarif"], ["timestamp", "sarif"]),
         (["timestamp"], ["timestamp"]),

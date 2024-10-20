@@ -52,7 +52,7 @@ class TestMessage:
         return msg
 
     @pytest.mark.parametrize(
-        "severity, exp_sev",
+        ("severity", "exp_sev"),
         [
             ("e", "E"),
             ("error", "E"),
@@ -107,7 +107,7 @@ class TestMessage:
         assert rule.config["Some"].value == 5
 
     @pytest.mark.parametrize(
-        "source, range, range_exp",
+        ("source", "range", "range_exp"),
         [
             ("path/to/file1.robot", (None, None, None, None), (10, 1, 10, 1)),
             ("path/to/file1.robot", (15, None, None, 7), (15, 1, 15, 7)),
@@ -138,7 +138,7 @@ class TestMessage:
         assert msg.source == source
 
     @pytest.mark.parametrize(
-        "kwargs, msg, exp",
+        ("kwargs", "msg", "exp"),
         [
             (
                 {},

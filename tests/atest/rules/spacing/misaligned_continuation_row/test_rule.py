@@ -15,7 +15,7 @@ class TestRuleAcceptance(RuleAcceptance):
         )
 
     @pytest.mark.parametrize(
-        "ignore_run_keywords, expected_file",
+        ("ignore_run_keywords", "expected_file"),
         [(True, "expected_output_run_kw.txt"), (False, "expected_output_run_kw_off.txt")],
     )
     def test_run_keyword(self, ignore_run_keywords, expected_file):

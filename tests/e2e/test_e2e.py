@@ -312,7 +312,7 @@ class TestE2E:
         robocop_instance.run()
         assert not robocop_instance.reports["internal_json_report"].issues
 
-    @pytest.mark.skipif(ROBOT_VERSION > Version("4.0"), reason="Error occurs only in RF < 5")
+    @pytest.mark.skipif(ROBOT_VERSION > Version("4.0"), reason="Error occurs only in RF < 5")  # noqa: SIM300
     def test_handling_error_in_robot_module(self):
         config = Config()
         test_file = INVALID_TEST_DATA / "invalid_syntax" / "invalid_file.robot"

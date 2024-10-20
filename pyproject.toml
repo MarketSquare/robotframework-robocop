@@ -51,7 +51,6 @@ lint.ignore = [
     "FBT002", # TODO: boolean default positional argument in function definition
     "RUF012", # TODO: mutable class attributes should be annotated with typing.classvar
     "PLW0129", # TODO: assert on non-empty string literal
-    "SIM300", # TODO: yoda conditions (lol)
     "T201", # TODO: print
     "FBT003", # TODO: boolean positional value in function call
     "ARG002", # TODO: unused method argument

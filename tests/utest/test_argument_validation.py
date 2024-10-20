@@ -163,8 +163,8 @@ class TestArgumentValidation:
 
     def test_single_language(self, config):
         config.parse_args(["--lang", "fi"])
-        assert ["fi"] == config.language
+        assert config.language == ["fi"]
 
     def test_two_languages(self, config):
         config.parse_args(["--lang", "fi,pl"])
-        assert ["fi", "pl"] == config.language
+        assert config.language == ["fi", "pl"]

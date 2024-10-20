@@ -65,7 +65,7 @@ class TestConfigurationFile:
             args.extend(["--config", str(src / "pyproject.toml")])
         with working_directory(src), patch.object(sys, "argv", args):
             config = Config()
-        assert '"{source}:{line}:{col} [{severity}] {rule_id} {desc} ({name})"' == config.format.strip()
+        assert config.format.strip() == '"{source}:{line}:{col} [{severity}] {rule_id} {desc} ({name})"'
 
     def test_load_config_with_comments(self, path_to_test_data):
         src = path_to_test_data / "config_with_comments"
@@ -85,8 +85,8 @@ class TestConfigurationFile:
         with working_directory(src), patch.object(sys, "argv", ["prog", "--include", "0202"]):
             config = Config(from_cli=True)
 
-        assert ["line-too-long:line_length:150"] == config.configure
-        assert {"0202", "0810"} == config.include
+        assert config.configure == ["line-too-long:line_length:150"]
+        assert config.include == {"0202", "0810"}
 
     def test_load_default_config_before_pyproject(self, path_to_test_data):
         src = path_to_test_data / "default_config_and_pyproject"
@@ -177,11 +177,11 @@ class TestConfigurationFile:
             config = Config(from_cli=True)
 
         assert {"0203", "0810"} == config.exclude
-        assert [
+        assert config.configure == [
             "line-too-long:line_length:150",
             "0201:severity:E",
             "too-many-calls-in-keyword:max_calls:20",
-        ] == config.configure
+        ]
 
     @pytest.mark.parametrize("config_source", ["default", "option"])
     def test_pyproject_verbose(self, path_to_test_data, capsys, config_source):

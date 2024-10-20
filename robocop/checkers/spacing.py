@@ -388,18 +388,17 @@ class EmptyLinesChecker(VisitorChecker):
                         end_lineno=last_empty_line.lineno,
                     )
                 empty_lines = 0
-        if check_trailing:
-            if empty_lines > allowed_consecutive:
-                self.report(
-                    "consecutive-empty-lines",
-                    empty_lines=empty_lines,
-                    allowed_empty_lines=allowed_consecutive,
-                    node=last_empty_line,
-                    sev_threshold_value=empty_lines,
-                    col=1,
-                    lineno=last_empty_line.lineno - empty_lines + 1,
-                    end_lineno=last_empty_line.lineno,
-                )
+        if check_trailing and empty_lines > allowed_consecutive:
+            self.report(
+                "consecutive-empty-lines",
+                empty_lines=empty_lines,
+                allowed_empty_lines=allowed_consecutive,
+                node=last_empty_line,
+                sev_threshold_value=empty_lines,
+                col=1,
+                lineno=last_empty_line.lineno - empty_lines + 1,
+                end_lineno=last_empty_line.lineno,
+            )
         return empty_lines
 
     def check_empty_lines_in_keyword_test(self, node):
@@ -416,10 +415,8 @@ class EmptyLinesChecker(VisitorChecker):
             else:
                 end_found = True
                 node_lines.append(child)
-        node_lines = node_lines[::-1]
-        trailing_lines = trailing_lines[::-1]
-        self.verify_consecutive_empty_lines(node_lines)
-        return self.verify_consecutive_empty_lines(trailing_lines)
+        self.verify_consecutive_empty_lines(reversed(node_lines))
+        return self.verify_consecutive_empty_lines(reversed(trailing_lines))
 
     def visit_Statement(self, node):
         prev_token = None
@@ -872,9 +869,8 @@ class MisalignedContinuation(VisitorChecker, ModelVisitor):
                                 end_col=token.col_offset + 1,
                                 col=cont[0].end_col_offset + 1,
                             )
-                    else:
-                        if token.type != Token.COMMENT:
-                            first_column = indent
+                    elif token.type != Token.COMMENT:
+                        first_column = indent
                     break  # check only first value
 
     @staticmethod

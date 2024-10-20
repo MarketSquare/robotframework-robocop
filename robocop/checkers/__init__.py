@@ -194,7 +194,7 @@ class RobocopImporter:
         yield from self._get_checkers_from_modules(self.get_external_modules(), is_community=False)
 
     def get_internal_modules(self):
-        return self.modules_from_paths([file for file in self.internal_checkers_dir.iterdir()], recursive=False)
+        return self.modules_from_paths(list(self.internal_checkers_dir.iterdir()), recursive=False)
 
     def get_community_modules(self):
         return self.modules_from_paths([self.community_checkers_dir], recursive=True)
@@ -224,9 +224,8 @@ class RobocopImporter:
         Checker name does not have to be unique, but it should use different rules.
         """
         checker_name = checker.__class__.__name__
-        if checker_name in self.seen_checkers:
-            if sorted(checker.rules.keys()) in self.seen_checkers[checker_name]:
-                return True
+        if checker_name in self.seen_checkers and sorted(checker.rules.keys()) in self.seen_checkers[checker_name]:
+            return True
         self.seen_checkers[checker_name].append(sorted(checker.rules.keys()))
         return False
 

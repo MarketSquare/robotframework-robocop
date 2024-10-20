@@ -3,7 +3,6 @@
 from collections import defaultdict
 
 from robot.api import Token
-from robot.variables.search import search_variable
 
 from robocop.checkers import VisitorChecker
 from robocop.rules import Rule, RuleParam, RuleSeverity
@@ -445,7 +444,7 @@ class SectionHeadersChecker(VisitorChecker):
 
     @staticmethod
     def section_order_to_str(order):
-        by_index = sorted(list(order.items()), key=lambda x: x[1])
+        by_index = sorted(order.items(), key=lambda x: x[1])
         name_map = {
             Token.SETTING_HEADER: "Settings",
             Token.VARIABLE_HEADER: "Variables",
@@ -475,9 +474,8 @@ class SectionHeadersChecker(VisitorChecker):
                 section_name = "TASK HEADER"
                 if Token.TESTCASE_HEADER in self.sections_by_existence:
                     self.report("both-tests-and-tasks", node=node, col=node.col_offset + 1, end_col=node.end_col_offset)
-            else:
-                if "TASK HEADER" in self.sections_by_existence:
-                    self.report("both-tests-and-tasks", node=node, col=node.col_offset + 1, end_col=node.end_col_offset)
+            elif "TASK HEADER" in self.sections_by_existence:
+                self.report("both-tests-and-tasks", node=node, col=node.col_offset + 1, end_col=node.end_col_offset)
         order_id = self.param("section-out-of-order", "sections_order")[section_name]
         if section_name in self.sections_by_existence:
             self.report(

@@ -141,7 +141,7 @@ class ArgumentFileParser:
             ):
                 ensure_exists = prev_arg in self.ENSURE_EXIST_PATHS_OPTIONS
                 # TODO: If the --rules is provided as comma separated list, it will not resolve paths
-                arg = resolve_relative_path(arg, root_dir, ensure_exists)
+                arg = resolve_relative_path(arg, root_dir, ensure_exists)  # noqa: PLW2901
             resolved.append(arg)
             prev_option_like = option_like
             prev_arg = arg
@@ -159,10 +159,7 @@ class ArgumentFileParser:
                 for line in arg_f.readlines():
                     if line.strip().startswith("#"):
                         continue
-                    for arg in line.split(" ", 1):
-                        arg = arg.strip()
-                        if arg:
-                            args.append(arg)
+                    args.extend([arg.strip() for arg in line.split(" ", 1) if arg.strip()])
                 if args and not self.config_from:
                     self.config_from = argfile
                 return args
@@ -534,10 +531,7 @@ class Config:
         if self.include or self.include_patterns:  # if any include pattern, it must match with something
             if rule.rule_id in self.include or rule.name in self.include:
                 return True
-            for pattern in self.include_patterns:
-                if pattern.match(rule.rule_id) or pattern.match(rule.name):
-                    return True
-            return False
+            return any(pattern.match(rule.rule_id) or pattern.match(rule.name) for pattern in self.include_patterns)
         return rule.enabled
 
     def is_rule_disabled(self, rule: "Rule") -> bool:
@@ -547,10 +541,7 @@ class Config:
             return True
         if rule.rule_id in self.exclude or rule.name in self.exclude:
             return True
-        for pattern in self.exclude_patterns:
-            if pattern.match(rule.rule_id) or pattern.match(rule.name):
-                return True
-        return False
+        return any(pattern.match(rule.rule_id) or pattern.match(rule.name) for pattern in self.exclude_patterns)
 
     def is_path_ignored(self, path) -> bool:
         for pattern in self.ignore:
@@ -583,7 +574,7 @@ class Config:
                     for index, val in enumerate(value):
                         value[index] = resolve_relative_path(val, config_dir, ensure_exists=key == "ext_rules")
                 else:
-                    value = resolve_relative_path(value, config_dir, ensure_exists=key == "ext_rules")
+                    value = resolve_relative_path(value, config_dir, ensure_exists=key == "ext_rules")  # noqa: PLW2901
             if key in assign_type:
                 self.__dict__[key] = value
             elif key in set_type:

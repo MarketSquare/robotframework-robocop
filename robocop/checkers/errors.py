@@ -574,11 +574,7 @@ class ParsingErrorChecker(VisitorChecker):
 
     @staticmethod
     def is_var_positional(value):
-        if not value:
-            return False
-        if value.startswith("&") or "=" in value:
-            return True
-        return False
+        return value and (value.startswith("&") or "=" in value)
 
     def handle_positional_after_named(self, node, error_index):
         """

@@ -20,7 +20,7 @@ class DisablersInFile:  # pylint: disable=too-few-public-methods
     def __init__(self, blocks: Optional[List] = None):
         self.lastblock = -1
         self.lines = set()
-        self.blocks = [] if not blocks else blocks
+        self.blocks = blocks if blocks else []
 
     def copy(self):
         return deepcopy(self)

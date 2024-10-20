@@ -766,18 +766,17 @@ class UnreachableCodeChecker(VisitorChecker):
         for child in node.body:
             if isinstance(child, (RETURN_CLASSES.return_class, Break, Continue)):
                 statement_node = child
-            elif not isinstance(child, (EmptyLine, Comment, Teardown)):
-                if statement_node is not None:
-                    token = statement_node.data_tokens[0]
-                    code_after_statement = child.data_tokens[0] if hasattr(child, "data_tokens") else child
-                    self.report(
-                        "unreachable-code",
-                        statement=token.value,
-                        node=child,
-                        col=code_after_statement.col_offset + 1,
-                        end_col=child.end_col_offset + 1,
-                    )
-                    statement_node = None
+            elif not isinstance(child, (EmptyLine, Comment, Teardown)) and statement_node is not None:
+                token = statement_node.data_tokens[0]
+                code_after_statement = child.data_tokens[0] if hasattr(child, "data_tokens") else child
+                self.report(
+                    "unreachable-code",
+                    statement=token.value,
+                    node=child,
+                    col=code_after_statement.col_offset + 1,
+                    end_col=child.end_col_offset + 1,
+                )
+                statement_node = None
 
         self.generic_visit(node)
 
@@ -863,7 +862,7 @@ class ConsistentAssignmentSignChecker(VisitorChecker):
 
     def visit_KeywordCall(self, node):
         if self.keyword_expected_sign_type is None or not node.keyword:
-            return
+            return None
         if node.assign:  # if keyword returns any value
             assign_tokens = node.get_tokens(Token.ASSIGN)
             self.check_assign_type(
@@ -875,7 +874,7 @@ class ConsistentAssignmentSignChecker(VisitorChecker):
 
     def visit_VariableSection(self, node):
         if self.variables_expected_sign_type is None:
-            return
+            return None
         for child in node.body:
             if not isinstance(child, Variable) or get_errors(child):
                 continue
@@ -931,17 +930,16 @@ class SettingsOrderChecker(VisitorChecker):
             if first_non_builtin is None:
                 if library.name not in STDLIBS:
                     first_non_builtin = library.name
-            else:
-                if library.name in STDLIBS:
-                    lib_name = library.get_token(Token.NAME)
-                    self.report(
-                        "wrong-import-order",
-                        builtin_import=library.name,
-                        custom_import=first_non_builtin,
-                        node=library,
-                        col=lib_name.col_offset + 1,
-                        end_col=lib_name.end_col_offset + 1,
-                    )
+            elif library.name in STDLIBS:
+                lib_name = library.get_token(Token.NAME)
+                self.report(
+                    "wrong-import-order",
+                    builtin_import=library.name,
+                    custom_import=first_non_builtin,
+                    node=library,
+                    col=lib_name.col_offset + 1,
+                    end_col=lib_name.end_col_offset + 1,
+                )
             if library.name in STDLIBS:
                 if previous_builtin is not None and library.name < previous_builtin.name:
                     lib_name = library.get_token(Token.NAME)

@@ -74,10 +74,10 @@ def get_checker_docs(rule_type: str):
     else:
         rules = robocop.checkers.get_community_rules()
     for module_name, rule in rules:
-        module_name = module_name.title()
+        title_name = module_name.title()
         severity_threshold = rule.config.get("severity_threshold", None)
         robocop_version = rule.added_in_version if rule.added_in_version else "\\-"
-        checker_docs[module_name].append(
+        checker_docs[title_name].append(
             {
                 "name": rule.name,
                 "id": rule.rule_id,

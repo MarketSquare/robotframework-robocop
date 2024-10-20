@@ -57,7 +57,7 @@ class RulesByIdReport(robocop.reports.ComparableReport):
             longest_name = 0
         fixed_counter_ordered = sorted(diff_counter.items(), key=itemgetter(1))
         if fixed_counter_ordered:
-            longest_name = max(longest_name, max(len(msg[0]) for msg in fixed_counter_ordered))
+            longest_name = max(longest_name, *(len(msg[0]) for msg in fixed_counter_ordered))
         for message, count in message_counter_ordered:
             diff = "+" if diff_counter[message] >= 0 else ""
             report += f"\n{message:{longest_name}} : {count} ({diff}{diff_counter[message]})"

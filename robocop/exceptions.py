@@ -83,7 +83,7 @@ class InvalidReportName(ConfigGeneralError):
     def __init__(self, report, reports):
         from robocop.utils import RecommendationFinder
 
-        report_names = sorted(list(reports.keys()) + ["all"])
+        report_names = sorted([*list(reports.keys()), "all"])
         similar = RecommendationFinder().find_similar(report, report_names)
         msg = f"Provided report '{report}' does not exist. {similar}"
         super().__init__(msg)

@@ -75,14 +75,9 @@ lint.ignore = [
     "N818", # TODO: exception without error in name
     "N999", # TODO: invalid module name unused-keyword
     "PLR2004", # TODO: magic value used in comparison (50 issues)
-    "RET505", # TODO: else after return
-    "F401", # TODO: not used import
     "RET503", # TODO: missing explicit return
     "D403", # TODO: capitalize first word
-    "C401", # TODO: unnecessary generator
-    "C414", # TODO: unnecessary list with sorted
     "PYI024", # TODO: namedtuple -> NamedTuple
-    "SIM212", # TODO: reverse condition to simplify it
     "TRY201", # TODO: use raise without exception name
     "ISC001", # TODO: implicitly concatenated string literals on one line
     "PTH100", # TODO: use Path
@@ -95,23 +90,11 @@ lint.ignore = [
     "ANN401", # TODO: replace Any
     "B009", # TODO: getattr with constant attribute value
     "B028", # TODO: no explicit stacklevel in warn
-    "PLW3301", # TODO: nested max can be flattened
-    "UP011", # TODO: unnecessary paranthesis
     "B904", # TODO: raise from
-    "RUF005", # TODO: replace ['item'] + ['second']
-    "PLW2901", # TODO: for loop variable overwritten
     "PLR0912", # TODO: too many branches
-    "SIM110", # TODO: use any instead of for loop
     "RUF010", # TODO: use explicit conversion flag
-    "PLR5501", # TODO: convert to elif
-    "FURB187", # TODO: assignment of reversed list
-    "SIM102", # TODO: combine if
-    "SIM103", # TODO: return condition directly
-    "PIE810", # TODO: merge startswith
     "ERA001", # TODO: commented out code
-    "RET502", # TODO: return -> return None if function return non-None value
     "SIM105", # TODO: use supress
-    "C416", # TODO: unnecessary list comprehension
     "UP037", # TODO: remove quotes from type annotation
     "ARG001", # TODO: unused function argument
     "DTZ005", # TODO: `datetime.datetime.now()` called without a `tz` argument

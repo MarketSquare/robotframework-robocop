@@ -82,7 +82,6 @@ lint.ignore = [
     "C401", # TODO: unnecessary generator
     "C414", # TODO: unnecessary list with sorted
     "PYI024", # TODO: namedtuple -> NamedTuple
-    "SIM212", # TODO: reverse condition to simplify it
     "TRY201", # TODO: use raise without exception name
     "ISC001", # TODO: implicitly concatenated string literals on one line
     "PTH100", # TODO: use Path

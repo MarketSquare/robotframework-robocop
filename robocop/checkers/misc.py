@@ -785,7 +785,8 @@ class UnreachableCodeChecker(VisitorChecker):
 
 
 class NestedForLoopsChecker(VisitorChecker):
-    """Checker for not supported nested FOR loops.
+    """
+    Checker for not supported nested FOR loops.
 
     Deprecated in RF 4.0
     """
@@ -801,7 +802,8 @@ class NestedForLoopsChecker(VisitorChecker):
 
 
 class IfBlockCanBeUsed(VisitorChecker):
-    """Checker for potential IF block usage in Robot Framework 4.0
+    """
+    Checker for potential IF block usage in Robot Framework 4.0
 
     Run Keyword variants (Run Keyword If, Run Keyword Unless) can be replaced with IF in RF 4.0
     """
@@ -818,7 +820,8 @@ class IfBlockCanBeUsed(VisitorChecker):
 
 
 class ConsistentAssignmentSignChecker(VisitorChecker):
-    """Checker for inconsistent assignment signs.
+    """
+    Checker for inconsistent assignment signs.
 
     By default, this checker will try to autodetect most common assignment sign (separately for *** Variables ***
     section and *** Test Cases ***, *** Keywords *** sections) and report any inconsistent type of sign in particular
@@ -904,7 +907,8 @@ class ConsistentAssignmentSignChecker(VisitorChecker):
 
 
 class SettingsOrderChecker(VisitorChecker):
-    """Checker for settings order.
+    """
+    Checker for settings order.
 
     BuiltIn libraries imports should always be placed before other libraries imports.
     """
@@ -1469,7 +1473,8 @@ class UnusedVariablesChecker(VisitorChecker):
             self.find_not_nested_variable(argument.value, is_var=False)
 
     def handle_assign_variable(self, token):
-        """Check if assign does not overwrite arguments or variables.
+        """
+        Check if assign does not overwrite arguments or variables.
 
         Store assign variables for future overwriting checks.
         """
@@ -1507,7 +1512,8 @@ class UnusedVariablesChecker(VisitorChecker):
         self.variables[-1][normalized] = variable
 
     def find_not_nested_variable(self, value, is_var):
-        """Find and process not nested variable.
+        """
+        Find and process not nested variable.
 
         Search `value` string until there is ${variable} without other variables inside. Unescaped escaped syntax
         ($var or \\${var}). If variable does exist in assign variables or arguments, it is removed to denote it was
@@ -1549,7 +1555,8 @@ class UnusedVariablesChecker(VisitorChecker):
             self.update_used_variables(var)
 
     def update_used_variables(self, variable_name):
-        """Remove used variable from the arguments and variables store.
+        """
+        Remove used variable from the arguments and variables store.
 
         If the normalized variable name was already defined, we need to remove it to know which variables are not used.
         If the variable is not found, we try to remove possible attribute access from the name and search again.
@@ -1631,7 +1638,8 @@ class ExpressionsChecker(VisitorChecker):
             )
 
     def check_for_misplaced_not(self, condition_token, node_name, left_side, variable, right_side):
-        """Check if the condition contains misplaced not.
+        """
+        Check if the condition contains misplaced not.
 
         An example of misplaced condition would be 'not ${variable} is None'.
         """

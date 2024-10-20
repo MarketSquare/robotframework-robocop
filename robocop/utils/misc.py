@@ -337,7 +337,8 @@ def get_errors(node):
 
 
 def find_escaped_variables(string):
-    r"""Return list of $escaped or \${escaped} variables from the string.
+    r"""
+    Return list of $escaped or \${escaped} variables from the string.
 
     We are tokenizing the string using Python ast modules. This allows us to find valid Python-like names and check
     if they are escaped Robot Framework variables.

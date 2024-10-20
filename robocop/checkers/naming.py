@@ -645,7 +645,8 @@ class InvalidCharactersInNameChecker(VisitorChecker):
         super().visit_File(node)
 
     def check_if_pattern_in_node_name(self, node, name_of_node, is_keyword=False):
-        """Search if regex pattern found from node name.
+        """
+        Search if regex pattern found from node name.
         Skips embedded variables from keyword name
         """
         node_name = node.name
@@ -1223,7 +1224,8 @@ class SimilarVariableChecker(VisitorChecker):
             pass
 
     def check_inconsistent_naming(self, token, value: str, offset: int):
-        """Check if variable name ``value`` was already defined under matching but not the same name.
+        """
+        Check if variable name ``value`` was already defined under matching but not the same name.
         :param token: ast token representing the string with variable
         :param value: name of variable found in token value string
         :param offset: starting position of variable in token value string
@@ -1246,7 +1248,8 @@ class SimilarVariableChecker(VisitorChecker):
             )
 
     def find_not_nested_variable(self, token, value, is_var: bool, offset: int = 0):
-        """Find and process not nested variable.
+        """
+        Find and process not nested variable.
 
         Search `value` string until there is ${variable} without other variables inside.
         Unescaped escaped syntax ($var or \\${var}) is ignored.

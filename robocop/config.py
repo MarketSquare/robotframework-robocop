@@ -461,7 +461,8 @@ class Config:
             print("No config file found or configuration is empty. Using default configuration")
 
     def load_default_config_file(self, ignore_git_dir: bool = False):
-        """Find and load default configuration file.
+        """
+        Find and load default configuration file.
 
         First look for .robocop file. If it does not exist, search for pyproject.toml file.
         """

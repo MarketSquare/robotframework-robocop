@@ -117,7 +117,8 @@ def get_reports(configured_reports):
 
 
 def list_reports(reports, list_reports_with_status):
-    """Returns description of reports.
+    """
+    Returns description of reports.
 
     The reports list is filtered and only public reports are provided. If the report is enabled in current
     configuration it will have (enabled) suffix (and (disabled) if it is disabled).
@@ -154,7 +155,8 @@ def load_reports_result_from_cache():
 
 
 def save_reports_result_to_cache(working_dir: str, report_results: Dict):
-    """Save results from Robocop reports to json file.
+    """
+    Save results from Robocop reports to json file.
 
     Result file contains results grouped using working directory.
     That's why we are loading previous results and overwriting only

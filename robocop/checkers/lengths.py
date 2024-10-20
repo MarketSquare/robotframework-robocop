@@ -403,7 +403,8 @@ def get_documentation_length(node):
 
 
 class LengthChecker(VisitorChecker):
-    """Checker for max and min length of keyword or test case. It analyses number of lines and also number of
+    """
+    Checker for max and min length of keyword or test case. It analyses number of lines and also number of
     keyword calls (as you can have just few keywords but very long ones or vice versa).
     """
 

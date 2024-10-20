@@ -552,7 +552,8 @@ class InconsistentUseOfTabsAndSpacesChecker(VisitorChecker, ModelVisitor):
 
 
 def get_indent(node):
-    """Calculate the indentation length for given node
+    """
+    Calculate the indentation length for given node
 
     Returns:
         int: Indentation length
@@ -567,7 +568,8 @@ def get_indent(node):
 
 
 def count_indents(node):
-    """Counts number of occurrences for unique indent values
+    """
+    Counts number of occurrences for unique indent values
 
     Returns:
         Counter: A counter of unique indent values with associated number of occurrences in given node
@@ -587,7 +589,8 @@ def count_indents(node):
 
 
 def most_common_indent(indents):
-    """Returns most commonly occurred indent
+    """
+    Returns most commonly occurred indent
 
     Args:
         indents (Counter): A counter of unique indent values with associated number of occurrences in given node

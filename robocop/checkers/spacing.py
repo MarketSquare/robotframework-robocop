@@ -1,6 +1,7 @@
 """
 Spacing checkers
 """
+
 import re
 from collections import Counter
 from contextlib import contextmanager

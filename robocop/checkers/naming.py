@@ -1,6 +1,7 @@
 """
 Naming checkers
 """
+
 import re
 import string
 from collections import defaultdict
@@ -887,31 +888,13 @@ class SettingsNamingChecker(VisitorChecker):
         self.check_setting_name(node.data_tokens[0].value, node)
         self.check_settings_consistency(node.data_tokens[0].value, node)
 
-    visit_SuiteSetup = (
-        visit_TestSetup
-    ) = (
-        visit_Teardown
-    ) = (
-        visit_SuiteTeardown
-    ) = (
-        visit_TestTeardown
-    ) = (
+    visit_SuiteSetup = visit_TestSetup = visit_Teardown = visit_SuiteTeardown = visit_TestTeardown = (
         visit_TestTimeout
-    ) = (
-        visit_TestTemplate
-    ) = (
-        visit_TestTags
-    ) = (
-        visit_ForceTags
-    ) = (
-        visit_DefaultTags
-    ) = (
-        visit_ResourceImport
-    ) = (
+    ) = visit_TestTemplate = visit_TestTags = visit_ForceTags = visit_DefaultTags = visit_ResourceImport = (
         visit_VariablesImport
-    ) = (
-        visit_Documentation
-    ) = visit_Tags = visit_Timeout = visit_Template = visit_Arguments = visit_ReturnSetting = visit_Return = visit_Setup
+    ) = visit_Documentation = visit_Tags = visit_Timeout = visit_Template = visit_Arguments = visit_ReturnSetting = (
+        visit_Return
+    ) = visit_Setup
 
     def visit_LibraryImport(self, node):  # noqa
         self.check_setting_name(node.data_tokens[0].value, node)

@@ -142,10 +142,13 @@ class TestConfigurationFile:
             "tests\\atest\\rules\\bad-indent",
             "tests\\atest\\rules\\duplicated-library",
         ]
-        with working_directory(src), patch.object(
-            sys,
-            "argv",
-            argv,
+        with (
+            working_directory(src),
+            patch.object(
+                sys,
+                "argv",
+                argv,
+            ),
         ):
             expected_config = Config(from_cli=True)
 
@@ -165,8 +168,11 @@ class TestConfigurationFile:
 
     def test_append_config_pyproject_file(self, path_to_test_data):
         src = path_to_test_data / "only_pyproject"
-        with working_directory(src), patch.object(
-            sys, "argv", ["prog", "--configure", "too-many-calls-in-keyword:max_calls:20", "--exclude", "0810"]
+        with (
+            working_directory(src),
+            patch.object(
+                sys, "argv", ["prog", "--configure", "too-many-calls-in-keyword:max_calls:20", "--exclude", "0810"]
+            ),
         ):
             config = Config(from_cli=True)
 
@@ -274,8 +280,9 @@ class TestConfigurationFile:
         default_config = path_to_test_data / "only_pyproject"
         other_config = path_to_test_data / "default_config_and_pyproject" / ".robocop"
         for option_name in ("-A", "--argumentfile"):
-            with working_directory(default_config), patch.object(
-                sys, "argv", ["robocop", option_name, str(other_config)]
+            with (
+                working_directory(default_config),
+                patch.object(sys, "argv", ["robocop", option_name, str(other_config)]),
             ):
                 config = Config(from_cli=True)
             assert str(config.config_from) == str(other_config)
@@ -286,8 +293,9 @@ class TestConfigurationFile:
         Load other argument files inside argument file.
         """
         argument_file = path_to_test_data / "argument_file" / "dev.txt"
-        with working_directory(path_to_test_data), patch.object(
-            sys, "argv", ["robocop", "--argumentfile", str(argument_file)]
+        with (
+            working_directory(path_to_test_data),
+            patch.object(sys, "argv", ["robocop", "--argumentfile", str(argument_file)]),
         ):
             config = Config(from_cli=True)
             assert config.ext_rules == {"rflinter.robocop.spacing", "rflinter.robocop.naming"}

@@ -32,6 +32,7 @@ Each rule has a unique 4-digit ID that contains:
 Rule ID as well as rule name can be used to refer to the rule (e.g. in include/exclude statements,
 configurations etc.). You can optionally configure rule severity or other parameters.
 """
+
 import ast
 import importlib.util
 import inspect

@@ -1,4 +1,5 @@
-""" Auto detect robot file type (it can be resource, general or init) """
+"""Auto detect robot file type (it can be resource, general or init)"""
+
 import ast
 import os
 from enum import Enum

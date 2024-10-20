@@ -1,6 +1,7 @@
 """
 Errors checkers
 """
+
 import re
 
 from robot.api import Token

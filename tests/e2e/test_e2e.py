@@ -221,7 +221,7 @@ class TestE2E:
     @pytest.mark.parametrize(
         "rules, expected",
         [
-            ("invalid", f"Provided rule 'invalid' does not exist."),
+            ("invalid", "Provided rule 'invalid' does not exist."),
             ("parsing-error,invalid", "Provided rule 'invalid' does not exist."),
             (
                 "line-toolong",

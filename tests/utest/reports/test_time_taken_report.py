@@ -14,9 +14,9 @@ class TestTimeTakenReport:
         with mock.patch("robocop.reports.time_taken_report.timer", mock_time):
             report = TimeTakenReport(compare_runs=compare_runs)
             if previous_results and compare_runs:
-                expected_message = f"\nScan finished in 3.541s (-7.000)."
+                expected_message = "\nScan finished in 3.541s (-7.000)."
             else:
-                expected_message = f"\nScan finished in 3.541s."
+                expected_message = "\nScan finished in 3.541s."
             assert report.get_report(previous_results) == expected_message
 
     @pytest.mark.parametrize("previous_results", [None, {"time_taken": "10.541"}])  # previous is ignored in save

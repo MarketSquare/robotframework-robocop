@@ -277,7 +277,7 @@ class RobocopImporter:
         """Discover Python imports in the file using ast module."""
         try:
             parsed = ast.parse(file_path.read_bytes())
-        except Exception:  # noqa
+        except:  # noqa: E722
             return
         for import_name in self._find_imported_modules(parsed):
             if import_name not in self.imported_modules:

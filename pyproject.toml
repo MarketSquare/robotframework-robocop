@@ -74,7 +74,6 @@ lint.ignore = [
     "N815", # TODO: same as N802
     "N818", # TODO: exception without error in name
     "N999", # TODO: invalid module name unused-keyword
-    "PGH004", # TODO: use specific rule codes when using noqa (300 issues)
     "F541", # TODO: f-string without any placeholders (6 issues)
     "PLR2004", # TODO: magic value used in comparison (50 issues)
     "RET505", # TODO: else after return

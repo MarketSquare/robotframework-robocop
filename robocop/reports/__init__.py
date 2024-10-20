@@ -5,7 +5,6 @@ from pathlib import Path
 from typing import Dict, List
 
 import robocop.exceptions
-from robocop import config
 from robocop.checkers import RobocopImporter
 from robocop.utils.misc import get_robocop_cache_directory
 

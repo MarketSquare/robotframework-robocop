@@ -3,7 +3,6 @@
 from collections import defaultdict
 
 from robot.api import Token
-from robot.variables.search import search_variable
 
 from robocop.checkers import VisitorChecker
 from robocop.rules import Rule, RuleParam, RuleSeverity

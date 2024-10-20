@@ -2,7 +2,6 @@
 
 from pathlib import Path
 
-from robot.parsing.model.blocks import SettingSection
 from robot.parsing.model.statements import Documentation
 
 from robocop.checkers import VisitorChecker

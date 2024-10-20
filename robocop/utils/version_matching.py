@@ -1,4 +1,3 @@
-import collections
 import itertools
 import re
 from functools import total_ordering

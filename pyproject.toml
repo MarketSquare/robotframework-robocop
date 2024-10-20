@@ -38,7 +38,6 @@ lint.ignore = [
     "PERF203", # try except in for loop - check all of them for possible refactors
     "C901", # code too complex (duplicate with other rules)
     "EM101", # exception with string literal
-    "D200", # TODO: fit one-line docstrign in one line
     "D205", # TODO: 1 blank line between summary and description - see if makes sense
     "D209", # TODO: multi-line docstring closing quites on a separate line
     "D212", # TODO: multi-line docstring summary should start at the first line OR pick rule D213

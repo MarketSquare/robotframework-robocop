@@ -1,6 +1,4 @@
-"""
-Duplications checkers
-"""
+"""Duplications checkers"""
 
 from collections import defaultdict
 

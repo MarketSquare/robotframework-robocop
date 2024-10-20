@@ -1,6 +1,4 @@
-"""
-Naming checkers
-"""
+"""Naming checkers"""
 
 import re
 import string

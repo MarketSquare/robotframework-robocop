@@ -1,6 +1,4 @@
-"""
-Spacing checkers
-"""
+"""Spacing checkers"""
 
 import re
 from collections import Counter
@@ -606,9 +604,7 @@ def most_common_indent(indents):
 
 @contextmanager
 def replace_parent_indent(checker, node):
-    """
-    Temporarily replace parent indent with current node indent.
-    """
+    """Temporarily replace parent indent with current node indent."""
     parent_line = checker.parent_line
     parent_indent = checker.parent_indent
     checker.parent_indent = get_indent(node)

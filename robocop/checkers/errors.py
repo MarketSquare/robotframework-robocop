@@ -1,6 +1,4 @@
-"""
-Errors checkers
-"""
+"""Errors checkers"""
 
 import re
 

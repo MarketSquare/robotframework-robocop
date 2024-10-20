@@ -1,6 +1,4 @@
-"""
-Miscellaneous checkers
-"""
+"""Miscellaneous checkers"""
 
 import ast
 from dataclasses import dataclass
@@ -1570,9 +1568,7 @@ class UnusedVariablesChecker(VisitorChecker):
         yield from self.variables[::-1]
 
     def _set_variable_as_used(self, normalized_name: str, variable_scope: Dict[str, CachedVariable]) -> None:
-        """
-        If variable is found in variable_scope, set it as used.
-        """
+        """If variable is found in variable_scope, set it as used."""
         if normalized_name in variable_scope:
             variable_scope[normalized_name].is_used = True
         else:

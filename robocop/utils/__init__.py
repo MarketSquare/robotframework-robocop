@@ -1,6 +1,4 @@
-"""
-Parsing utils
-"""
+"""Parsing utils"""
 
 from robocop.utils.disablers import DisablersFinder
 from robocop.utils.file_types import FileType, FileTypeChecker

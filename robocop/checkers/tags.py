@@ -1,6 +1,4 @@
-"""
-Tags checkers
-"""
+"""Tags checkers"""
 
 from collections import defaultdict
 

@@ -105,9 +105,7 @@ class ArgumentFileParser:
         self.config_from = ""
 
     def expand_argument_files(self, args, config_dir=None):
-        """
-        Find argument files in the argument list and expand argument list with their content.
-        """
+        """Find argument files in the argument list and expand argument list with their content."""
         if not any(arg in self.ARGUMENT_FILE_OPTIONS for arg in args):
             return list(args)
         parsed_args = []

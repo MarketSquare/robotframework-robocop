@@ -101,7 +101,6 @@ lint.ignore = [
     "RUF005", # TODO: replace ['item'] + ['second']
     "PLW2901", # TODO: for loop variable overwritten
     "PLR0912", # TODO: too many branches
-    "SIM110", # TODO: use any instead of for loop
     "RUF010", # TODO: use explicit conversion flag
     "ERA001", # TODO: commented out code
     "SIM105", # TODO: use supress

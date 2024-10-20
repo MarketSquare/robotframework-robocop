@@ -508,10 +508,7 @@ class LengthChecker(VisitorChecker):
             return True
         if not node.body:
             return False
-        for statement in node.body:
-            if isinstance(statement, Template):
-                return True
-        return False
+        return any(isinstance(statement, Template) for statement in node.body)
 
     def visit_TestCase(self, node):
         length, node_end_line = check_node_length(node, ignore_docs=self.param("too-long-test-case", "ignore_docs"))

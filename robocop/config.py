@@ -534,10 +534,7 @@ class Config:
         if self.include or self.include_patterns:  # if any include pattern, it must match with something
             if rule.rule_id in self.include or rule.name in self.include:
                 return True
-            for pattern in self.include_patterns:
-                if pattern.match(rule.rule_id) or pattern.match(rule.name):
-                    return True
-            return False
+            return any(pattern.match(rule.rule_id) or pattern.match(rule.name) for pattern in self.include_patterns)
         return rule.enabled
 
     def is_rule_disabled(self, rule: "Rule") -> bool:
@@ -547,10 +544,7 @@ class Config:
             return True
         if rule.rule_id in self.exclude or rule.name in self.exclude:
             return True
-        for pattern in self.exclude_patterns:
-            if pattern.match(rule.rule_id) or pattern.match(rule.name):
-                return True
-        return False
+        return any(pattern.match(rule.rule_id) or pattern.match(rule.name) for pattern in self.exclude_patterns)
 
     def is_path_ignored(self, path) -> bool:
         for pattern in self.ignore:

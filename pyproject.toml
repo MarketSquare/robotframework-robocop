@@ -39,6 +39,7 @@ lint.ignore = [
     "PERF203", # try except in for loop - check all of them for possible refactors
     "C901", # code too complex (duplicate with other rules)
     "EM101", # exception with string literal
+    "SIM108", # ternary operator - reconsider, sometimes the code readability is lower with ternary
     "D205", # TODO: 1 blank line between summary and description - see if makes sense
     "ANN001", # TODO: type annotation for function argument (900 issues)
     "ANN002", # TODO: type annotation for private function
@@ -47,7 +48,6 @@ lint.ignore = [
     "ANN202", # TODO: type annotation for return type of private function
     "ANN205", # TODO: type annotation for return type of staticmethod (30 issues)
     "PT006", # TODO: pytest.parametrize with ("param", "param2") instead of "param,param2" (30 issues)
-    "SIM108", # TODO: ternary operator
     "FBT002", # TODO: boolean default positional argument in function definition
     "RUF012", # TODO: mutable class attributes should be annotated with typing.classvar
     "PLW0129", # TODO: assert on non-empty string literal
@@ -58,7 +58,6 @@ lint.ignore = [
     "PT012", # TODO: pytest.raises should contain a signle simple statement
     "PLR0913", # TODO: too many arguments in fn def (consider if it's good to keep the rule)
     "B007", # TODO: loop variable not used
-    "PT018", # TODO: split assertion
     "TRY003", # TODO: exception with long message outside exception class
     "D210", # TODO: docstring wrapped with whitespace
     "INP001", # TODO: file part of implicit namespace package

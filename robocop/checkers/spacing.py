@@ -415,10 +415,8 @@ class EmptyLinesChecker(VisitorChecker):
             else:
                 end_found = True
                 node_lines.append(child)
-        node_lines = node_lines[::-1]
-        trailing_lines = trailing_lines[::-1]
-        self.verify_consecutive_empty_lines(node_lines)
-        return self.verify_consecutive_empty_lines(trailing_lines)
+        self.verify_consecutive_empty_lines(reversed(node_lines))
+        return self.verify_consecutive_empty_lines(reversed(trailing_lines))
 
     def visit_Statement(self, node):
         prev_token = None

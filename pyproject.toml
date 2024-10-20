@@ -107,7 +107,6 @@ lint.ignore = [
     "FURB187", # TODO: assignment of reversed list
     "SIM102", # TODO: combine if
     "SIM103", # TODO: return condition directly
-    "PIE810", # TODO: merge startswith
     "ERA001", # TODO: commented out code
     "SIM105", # TODO: use supress
     "C416", # TODO: unnecessary list comprehension

@@ -275,7 +275,7 @@ class IgnoredDataChecker(RawFileChecker):
     def check_line(self, line, lineno):
         if line.startswith(self.SECTION_HEADER):
             return True
-        if line.startswith(self.ROBOCOP_HEADER) or line.startswith(self.ROBOTIDY_HEADER):
+        if line.startswith((self.ROBOCOP_HEADER, self.ROBOTIDY_HEADER)):
             self.ignore_empty_lines = True
             return False
         if lineno == 1:

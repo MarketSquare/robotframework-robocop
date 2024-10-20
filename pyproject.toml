@@ -106,7 +106,6 @@ lint.ignore = [
     "PLR5501", # TODO: convert to elif
     "FURB187", # TODO: assignment of reversed list
     "SIM102", # TODO: combine if
-    "SIM103", # TODO: return condition directly
     "ERA001", # TODO: commented out code
     "SIM105", # TODO: use supress
     "C416", # TODO: unnecessary list comprehension

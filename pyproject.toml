@@ -98,7 +98,6 @@ lint.ignore = [
     "PLW3301", # TODO: nested max can be flattened
     "UP011", # TODO: unnecessary paranthesis
     "B904", # TODO: raise from
-    "RUF005", # TODO: replace ['item'] + ['second']
     "PLR0912", # TODO: too many branches
     "RUF010", # TODO: use explicit conversion flag
     "ERA001", # TODO: commented out code

@@ -557,6 +557,7 @@ def get_indent(node):
 
     Returns:
         int: Indentation length
+
     """
     tokens = node.tokens if hasattr(node, "tokens") else node.header.tokens
     indent_len = 0
@@ -573,6 +574,7 @@ def count_indents(node):
 
     Returns:
         Counter: A counter of unique indent values with associated number of occurrences in given node
+
     """
     indents = Counter()
     if node is None:
@@ -597,6 +599,7 @@ def most_common_indent(indents):
 
     Returns:
         indent (int): Most common indent or the first one
+
     """
     common_indents = indents.most_common(1)
     if not common_indents:

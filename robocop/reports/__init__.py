@@ -89,7 +89,7 @@ def disable_external_reports_if_none(configured_reports: List[str]) -> List[str]
     """If any reports is 'None', disable other reports other than internal reports."""
     if "None" in configured_reports:
         if "internal_json_report" in configured_reports:
-            # TODO Improve how internal reports are handled
+            # TODO: Improve how internal reports are handled
             return ["return_status", "internal_json_report"]
         return ["return_status"]
     return configured_reports

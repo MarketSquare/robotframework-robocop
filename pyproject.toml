@@ -77,7 +77,7 @@ lint.ignore = [
     "E501", # TODO: line too long
     "FIX001", # TODO: code with fixme
     "TD003", # TODO: code with fixme and without issue link
-    "TD004", # TODO: missing colon in TODO
+    #"TD004", # TODO: missing colon in TODO
     "TD001", # TODO: invalid TODO tag
     "N802", # TODO: function name should be lowercase (use noqa for visitors)
     "N815", # TODO: same as N802
@@ -115,7 +115,6 @@ lint.ignore = [
     "SIM110", # TODO: use any instead of for loop
     "RUF010", # TODO: use explicit conversion flag
     "PLR5501", # TODO: convert to elif
-    "D413", # TODO: missing blank line after last section
     "FURB187", # TODO: assignment of reversed list
     "SIM102", # TODO: combine if
     "SIM103", # TODO: return condition directly

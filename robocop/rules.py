@@ -238,7 +238,7 @@ class SeverityThreshold:
                     f"Invalid severity value '{value}'. It should be list of `severity=param_value` pairs, separated by `:`."
                 ) from None
             severity = self.parse_severity(sev)
-            thresholds.append((severity, int(param_value)))  # TODO support non-int params
+            thresholds.append((severity, int(param_value)))  # TODO: support non-int params
         self.thresholds = sorted(thresholds, key=lambda x: x[0], reverse=True)
 
     def check_condition(self, value, threshold):

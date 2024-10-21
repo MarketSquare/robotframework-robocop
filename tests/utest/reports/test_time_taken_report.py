@@ -21,7 +21,7 @@ class TestTimeTakenReport:
 
     @pytest.mark.parametrize("previous_results", [None, {"time_taken": "10.541"}])  # previous is ignored in save
     @pytest.mark.parametrize("compare_runs", [True, False])  # saved even if compare is disabled
-    @pytest.mark.parametrize("get_report, expected_time", [(True, "2.000"), (False, "0.000")])
+    @pytest.mark.parametrize(("get_report", "expected_time"), [(True, "2.000"), (False, "0.000")])
     def test_persistent_save(self, previous_results, compare_runs, get_report, expected_time):
         mock_time = mock.Mock()
         mock_time.side_effect = [1.0, 3.0]

@@ -47,7 +47,6 @@ lint.ignore = [
     "ANN201", # TODO: type annotation for return type (800 issues)
     "ANN202", # TODO: type annotation for return type of private function
     "ANN205", # TODO: type annotation for return type of staticmethod (30 issues)
-    "PT006", # TODO: pytest.parametrize with ("param", "param2") instead of "param,param2" (30 issues)
     "FBT002", # TODO: boolean default positional argument in function definition
     "RUF012", # TODO: mutable class attributes should be annotated with typing.classvar
     "PLW0129", # TODO: assert on non-empty string literal
@@ -55,7 +54,6 @@ lint.ignore = [
     "FBT003", # TODO: boolean positional value in function call
     "ARG002", # TODO: unused method argument
     "SLF001", # TODO: private member accessed
-    "PT012", # TODO: pytest.raises should contain a signle simple statement
     "PLR0913", # TODO: too many arguments in fn def (consider if it's good to keep the rule)
     "B007", # TODO: loop variable not used
     "TRY003", # TODO: exception with long message outside exception class

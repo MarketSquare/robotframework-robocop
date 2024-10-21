@@ -5,7 +5,7 @@ from robocop.reports.return_status_report import ReturnStatusReport
 
 class TestReturnStatus:
     @pytest.mark.parametrize(
-        "param, configuration, quality_gates",
+        ("param", "configuration", "quality_gates"),
         [
             ("quality_gate", "", {"E": 0, "W": 0, "I": -1}),
             ("quality_gates", "", {"E": 0, "W": 0, "I": -1}),
@@ -21,7 +21,7 @@ class TestReturnStatus:
         assert report.quality_gate == quality_gates
 
     @pytest.mark.parametrize(
-        "quality_gates, return_status",
+        ("quality_gates", "return_status"),
         [
             ("", 20),
             ("e=-1", 10),

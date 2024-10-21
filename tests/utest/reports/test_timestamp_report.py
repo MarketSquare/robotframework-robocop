@@ -26,7 +26,7 @@ class TestTimestampReport:
         assert "Reported: " in report.get_report()
 
     @pytest.mark.parametrize(
-        "name, value, expected",
+        ("name", "value", "expected"),
         [
             ("timezone", "UTC", r"\+0000"),
             ("format", "hello", r"Reported: hello"),
@@ -37,22 +37,27 @@ class TestTimestampReport:
         self._configure_and_run(name, value, expected)
 
     @pytest.mark.parametrize(
-        "name, value, expected",
+        ("name", "value", "expected"),
         [
             ("", "", "Provided param '' for report 'timestamp' does not exist"),
             ("BAD", "", "Provided param 'BAD' for report 'timestamp' does not exist"),
-            ("timezone", "BAD", "Provided timezone 'BAD' for report 'timestamp' is not valid."),
         ],
     )
     def test_timestamp_configure_invalid(self, name, value, expected):
+        report = TimestampReport()
         with pytest.raises(ConfigGeneralError) as err:
-            report = TimestampReport()
             report.configure(name, value)
-            report.get_report()
         assert expected in str(err)
 
+    def test_invalid_timestamp_report(self):
+        report = TimestampReport()
+        report.configure("timezone", "BAD")
+        with pytest.raises(ConfigGeneralError) as err:
+            report.get_report()
+        assert "Provided timezone 'BAD' for report 'timestamp' is not valid." in str(err)
+
     @pytest.mark.parametrize(
-        "name, value, expected",
+        ("name", "value", "expected"),
         [
             ("format", "", r".*([0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2})"),
         ],

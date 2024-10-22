@@ -700,6 +700,36 @@ rules = {
                 Keyword1
         """,
     ),
+    "0929": Rule(
+        rule_id="0929",
+        name="no-global-variable",
+        msg="TODO",
+        severity=RuleSeverity.WARNING,
+        added_in_version="5.6.0",
+        docs="""
+        TODO
+        """,
+    ),
+    "0930": Rule(
+        rule_id="0930",
+        name="no-suite-variable",
+        msg="TODO",
+        severity=RuleSeverity.WARNING,
+        added_in_version="5.6.0",
+        docs="""
+        TODO
+        """,
+    ),
+    "0931": Rule(
+        rule_id="0931",
+        name="no-test-variable",
+        msg="TODO",
+        severity=RuleSeverity.WARNING,
+        added_in_version="5.6.0",
+        docs="""
+        TODO
+        """,
+    ),
 }
 
 
@@ -1743,3 +1773,82 @@ class TestAndKeywordOrderChecker(VisitorChecker):
                 max_order_indicator = this_node_expected_order
 
     visit_Keyword = visit_TestCase = check_order
+
+class NonLocalVariableChecker(VisitorChecker):
+    reports = (
+        "no-global-variable",
+        "no-suite-variable",
+        "no-test-variable",
+    )
+
+    def visit_KeywordCall(self, node: KeywordCall):
+        keyword_token = node.get_token(Token.KEYWORD)
+
+        if not keyword_token:
+            return
+
+        keyword_name = normalize_robot_name(keyword_token.value, remove_prefix='builtin.')
+
+        if keyword_name == 'setglobalvariable':
+            self.report(
+                "no-global-variable",
+                node=keyword_token,
+                lineno=keyword_token.lineno,
+                col=keyword_token.col_offset + 1,
+                end_col=keyword_token.col_offset + len(keyword_token.value) + 1,
+            )
+
+        if keyword_name == 'setsuitevariable':
+            self.report(
+                "no-suite-variable",
+                node=keyword_token,
+                lineno=keyword_token.lineno,
+                col=keyword_token.col_offset + 1,
+                end_col=keyword_token.col_offset + len(keyword_token.value) + 1,
+            )
+
+        if keyword_name in ['settestvariable', 'settaskvariable']:
+            self.report(
+                "no-test-variable",
+                node=keyword_token,
+                lineno=keyword_token.lineno,
+                col=keyword_token.col_offset + 1,
+                end_col=keyword_token.col_offset + len(keyword_token.value) + 1,
+            )
+
+    def visit_Var(self, node):
+        if ROBOT_VERSION.major < 7:
+            return
+
+        if not node.scope:
+            return
+
+        option_token = node.get_token(Token.OPTION)
+        scope = node.scope.upper()
+
+        if scope == 'GLOBAL':
+            self.report(
+                "no-global-variable",
+                node=option_token,
+                lineno=option_token.lineno,
+                col=option_token.col_offset + 1,
+                end_col=option_token.col_offset + len(option_token.value) + 1,
+            )
+
+        if scope in ['SUITE', 'SUITES']:
+            self.report(
+                "no-suite-variable",
+                node=option_token,
+                lineno=option_token.lineno,
+                col=option_token.col_offset + 1,
+                end_col=option_token.col_offset + len(option_token.value) + 1,
+            )
+
+        if scope in ['TEST', 'TASK']:
+            self.report(
+                "no-test-variable",
+                node=option_token,
+                lineno=option_token.lineno,
+                col=option_token.col_offset + 1,
+                end_col=option_token.col_offset + len(option_token.value) + 1,
+            )

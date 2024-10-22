@@ -740,7 +740,7 @@ class EmptySettingsChecker(VisitorChecker):
                 end_col=node.end_col_offset,
             )
 
-    def visit_SuiteSetupmplate(self, node):  # noqa: N802
+    def visit_SuiteSetup(self, node):  # noqa: N802
         if not node.name:
             self.report("empty-suite-setup", node=node, col=node.col_offset + 1, end_col=node.end_col_offset)
 
@@ -762,7 +762,7 @@ class EmptySettingsChecker(VisitorChecker):
         if not node.name:
             self.report("empty-suite-teardown", node=node, col=node.col_offset + 1, end_col=node.end_col_offset)
 
-    def visit_TestTeardownmeout(self, node):  # noqa: N802
+    def visit_TestTeardown(self, node):  # noqa: N802
         if not node.name:
             self.report("empty-test-teardown", node=node, col=node.col_offset + 1, end_col=node.end_col_offset)
 

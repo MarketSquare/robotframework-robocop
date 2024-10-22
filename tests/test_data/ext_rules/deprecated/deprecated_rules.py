@@ -17,8 +17,8 @@ rules = {
 class FirstChecker(VisitorChecker):
     reports = ("not-deprecated", "deprecated")
 
-    def visit_Keyword(self, node):  # noqa
+    def visit_Keyword(self, node):  # noqa: N802
         self.report("not-deprecated", node=node)
 
-    def visit_TestCase(self, node):  # noqa
+    def visit_TestCase(self, node):  # noqa: N802
         self.report("deprecated", node=node)

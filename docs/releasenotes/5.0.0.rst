@@ -305,7 +305,7 @@ Example custom rule with ``ProjectChecker``::
             self.test_count = 0
             super().__init__()
 
-        def visit_TestCase(self, node):  # noqa
+        def visit_TestCase(self, node):  # noqa: N802
             self.test_count += 1
 
         def scan_project(self) -> List[Message]:

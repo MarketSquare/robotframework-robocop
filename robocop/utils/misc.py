@@ -139,19 +139,19 @@ class AssignmentTypeDetector(ast.NodeVisitor):
         self.variables_sign_counter = Counter()
         self.variables_most_common = None
 
-    def visit_File(self, node):
+    def visit_File(self, node):  # noqa: N802
         self.generic_visit(node)
         if len(self.keyword_sign_counter) >= 2:
             self.keyword_most_common = self.keyword_sign_counter.most_common(1)[0][0]
         if len(self.variables_sign_counter) >= 2:
             self.variables_most_common = self.variables_sign_counter.most_common(1)[0][0]
 
-    def visit_KeywordCall(self, node):
+    def visit_KeywordCall(self, node):  # noqa: N802
         if node.assign:  # if keyword returns any value
             sign = self.get_assignment_sign(node.assign[-1])
             self.keyword_sign_counter[sign] += 1
 
-    def visit_VariableSection(self, node):
+    def visit_VariableSection(self, node):  # noqa: N802
         for child in node.body:
             if not isinstance(child, Variable):
                 continue
@@ -243,7 +243,7 @@ class TestTemplateFinder(ast.NodeVisitor):
     def __init__(self):
         self.templated = False
 
-    def visit_TestTemplate(self, node):
+    def visit_TestTemplate(self, node):  # noqa: N802
         self.templated = bool(node.value)
 
 

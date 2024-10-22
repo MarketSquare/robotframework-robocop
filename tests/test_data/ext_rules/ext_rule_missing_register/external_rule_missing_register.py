@@ -11,5 +11,5 @@ class SmthChecker(VisitorChecker):
 
     reports = ("smth",)
 
-    def visit_Keyword(self, node):  # noqa
+    def visit_Keyword(self, node):  # noqa: N802
         self.report("smth", node=node)

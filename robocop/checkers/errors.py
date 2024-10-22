@@ -334,26 +334,26 @@ class ParsingErrorChecker(VisitorChecker):
         super().__init__()
         self.in_block = None
 
-    def visit_File(self, node):
+    def visit_File(self, node):  # noqa: N802
         self.generic_visit(node)
 
-    def visit_If(self, node):
+    def visit_If(self, node):  # noqa: N802
         self.in_block = node  # to ensure we're in IF for `invalid-if` rule
         self.parse_errors(node)
         self.generic_visit(node)
 
-    visit_For = visit_While = visit_Try = visit_If
+    visit_For = visit_While = visit_Try = visit_If  # noqa: N815
 
-    def visit_KeywordCall(self, node):
+    def visit_KeywordCall(self, node):  # noqa: N802
         if node.keyword and node.keyword.startswith("..."):
             col = node.data_tokens[0].col_offset + 1
             self.report("not-enough-whitespace-after-newline-marker", node=node, col=col, end_col=col + 3)
         self.generic_visit(node)
 
-    def visit_Statement(self, node):
+    def visit_Statement(self, node):  # noqa: N802
         self.parse_errors(node)
 
-    def visit_InvalidSection(self, node):
+    def visit_InvalidSection(self, node):  # noqa: N802
         invalid_header = node.header.get_token(Token.INVALID_HEADER)
         if "Resource file with" in invalid_header.error:
             section_name = invalid_header.value
@@ -637,7 +637,7 @@ class TwoSpacesAfterSettingsChecker(VisitorChecker):
         self.setting_pattern = re.compile(r"\[\s?(\w+)\s?\]")
         super().__init__()
 
-    def visit_KeywordCall(self, node):
+    def visit_KeywordCall(self, node):  # noqa: N802
         """Invalid settings like '[Arguments] ${var}' will be parsed as keyword call"""
         if not node.keyword:
             return
@@ -660,10 +660,10 @@ class MissingKeywordName(VisitorChecker):
 
     reports = ("missing-keyword-name",)
 
-    def visit_File(self, node):
+    def visit_File(self, node):  # noqa: N802
         self.generic_visit(node)
 
-    def visit_EmptyLine(self, node):
+    def visit_EmptyLine(self, node):  # noqa: N802
         if ROBOT_VERSION.major < 5:
             return
         assign_token = node.get_token(Token.ASSIGN)
@@ -675,7 +675,7 @@ class MissingKeywordName(VisitorChecker):
                 col=assign_token.col_offset + 1,
             )
 
-    def visit_KeywordCall(self, node):
+    def visit_KeywordCall(self, node):  # noqa: N802
         if not node.keyword:
             self.report(
                 "missing-keyword-name",
@@ -691,6 +691,6 @@ class VariablesImportErrorChecker(VisitorChecker):
 
     reports = ("variables-import-with-args",)
 
-    def visit_VariablesImport(self, node):
+    def visit_VariablesImport(self, node):  # noqa: N802
         if node.name and node.name.endswith((".yaml", ".yml")) and node.get_token(Token.ARGUMENT):
             self.report("variables-import-with-args", node=node)

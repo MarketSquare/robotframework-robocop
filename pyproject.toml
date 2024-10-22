@@ -53,7 +53,7 @@ lint.ignore = [
     "T201", # TODO: print
     "FBT003", # TODO: boolean positional value in function call
     "ARG002", # TODO: unused method argument
-    "SLF001", # TODO: private member accessed
+    "SLF001", # TODO: private member accessedAsnfz
     "PLR0913", # TODO: too many arguments in fn def (consider if it's good to keep the rule)
     "B007", # TODO: loop variable not used
     "TRY003", # TODO: exception with long message outside exception class
@@ -68,8 +68,6 @@ lint.ignore = [
     "FIX001", # TODO: code with fixme
     "TD003", # TODO: code with fixme and without issue link
     "TD001", # TODO: invalid TODO tag
-    "N802", # TODO: function name should be lowercase (use noqa for visitors)
-    "N815", # TODO: same as N802
     "N818", # TODO: exception without error in name
     "N999", # TODO: invalid module name unused-keyword
     "PLR2004", # TODO: magic value used in comparison (50 issues)

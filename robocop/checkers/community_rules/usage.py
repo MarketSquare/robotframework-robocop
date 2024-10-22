@@ -147,12 +147,12 @@ class UnusedKeywords(ProjectChecker):
                 )
         return self.issues
 
-    def visit_File(self, node):
+    def visit_File(self, node):  # noqa: N802
         self.current_file = RobotFile(node.source)  # TODO: handle "-"
         self.generic_visit(node)
         self.files[self.current_file.path] = self.current_file
 
-    def visit_TestCaseSection(self, node):
+    def visit_TestCaseSection(self, node):  # noqa: N802
         self.current_file.is_suite = True
         self.generic_visit(node)
 
@@ -169,24 +169,24 @@ class UnusedKeywords(ProjectChecker):
         self.current_file.used_keywords[normalized_name].update(name)
         # what about possible library names? searching removes, but for sake of collecting
 
-    def visit_Setup(self, node):
+    def visit_Setup(self, node):  # noqa: N802
         self.mark_used_keywords(node, Token.NAME)
 
-    visit_TestTeardown = visit_SuiteTeardown = visit_Teardown = visit_TestSetup = visit_SuiteSetup = visit_Setup
+    visit_TestTeardown = visit_SuiteTeardown = visit_Teardown = visit_TestSetup = visit_SuiteSetup = visit_Setup  # noqa: N815
 
-    def visit_Template(self, node):
+    def visit_Template(self, node):  # noqa: N802
         # allow / disallow param
         if node.value:
             name_token = node.get_token(Token.NAME)
             self.mark_used_keyword(node.value, name_token)
         self.generic_visit(node)
 
-    visit_TestTemplate = visit_Template
+    visit_TestTemplate = visit_Template  # noqa: N815
 
-    def visit_KeywordCall(self, node):
+    def visit_KeywordCall(self, node):  # noqa: N802
         self.mark_used_keywords(node, Token.KEYWORD)
 
-    def visit_Keyword(self, node):
+    def visit_Keyword(self, node):  # noqa: N802
         try:
             embedded = KeywordEmbedded(node.name)
             if embedded and embedded.args:

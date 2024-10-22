@@ -29,11 +29,11 @@ class MyProjectChecker(ProjectChecker):
         self.test_count = 0
         super().__init__()
 
-    def visit_File(self, node):
+    def visit_File(self, node):  # noqa: N802
         self.sources.append(node.source)
         self.generic_visit(node)
 
-    def visit_TestCase(self, node):
+    def visit_TestCase(self, node):  # noqa: N802
         self.test_count += 1
 
     def scan_project(self) -> List[Message]:

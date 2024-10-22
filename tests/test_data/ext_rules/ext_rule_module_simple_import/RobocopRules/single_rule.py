@@ -16,6 +16,6 @@ class CustomRuleChecker(VisitorChecker):
 
     reports = ("external-rule",)
 
-    def visit_KeywordCall(self, node):  # noqa
+    def visit_KeywordCall(self, node):  # noqa: N802
         if node.keyword and "Example" not in node.keyword:
             self.report("external-rule", node=node)

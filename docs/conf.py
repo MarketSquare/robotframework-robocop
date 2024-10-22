@@ -52,9 +52,7 @@ html_favicon = "images/robocop.ico"
 
 
 def rstjinja(app, docname, source):
-    """
-    Render our pages as a jinja template for fancy templating goodness.
-    """
+    """Render our pages as a jinja template for fancy templating goodness."""
     # Make sure we're outputting HTML
     if app.builder.format != "html":
         return
@@ -69,19 +67,17 @@ def setup(app):
 
 
 def get_checker_docs(rule_type: str):
-    """
-    Load rules for dynamic docs generation
-    """
+    """Load rules for dynamic docs generation"""
     checker_docs = defaultdict(list)
     if rule_type == "builtin":
         rules = robocop.checkers.get_builtin_rules()
     else:
         rules = robocop.checkers.get_community_rules()
     for module_name, rule in rules:
-        module_name = module_name.title()
+        title_name = module_name.title()
         severity_threshold = rule.config.get("severity_threshold", None)
         robocop_version = rule.added_in_version if rule.added_in_version else "\\-"
-        checker_docs[module_name].append(
+        checker_docs[title_name].append(
             {
                 "name": rule.name,
                 "id": rule.rule_id,
@@ -110,8 +106,7 @@ def get_checker_docs(rule_type: str):
         sorted_rules = sorted(checker_docs[module_name], key=lambda x: x["id"])
         group_id = int(sorted_rules[0]["id"][:2])
         groups_sorted_by_id.append((module_name, sorted_rules, group_id))
-    groups_sorted_by_id = sorted(groups_sorted_by_id, key=lambda x: x[2])
-    return groups_sorted_by_id
+    return sorted(groups_sorted_by_id, key=lambda x: x[2])
 
 
 html_context = {"builtin_checkers": get_checker_docs("builtin"), "community_checkers": get_checker_docs("community")}

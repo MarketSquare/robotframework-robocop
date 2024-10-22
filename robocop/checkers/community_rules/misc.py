@@ -45,9 +45,7 @@ rules = {
 
 
 class NonBuiltinLibrariesImportOrderChecker(VisitorChecker):
-    """
-    Find and report Non Builtin Libraries or Resources imported not in alphabetical order.
-    """
+    """Find and report Non Builtin Libraries or Resources imported not in alphabetical order."""
 
     reports = (
         "non-builtin-imports-not-sorted",
@@ -59,7 +57,7 @@ class NonBuiltinLibrariesImportOrderChecker(VisitorChecker):
         self.resources = []
         super().__init__()
 
-    def visit_File(self, node):  # noqa
+    def visit_File(self, node):
         self.non_builtin_libraries = []
         self.resources = []
         self.generic_visit(node)
@@ -90,11 +88,11 @@ class NonBuiltinLibrariesImportOrderChecker(VisitorChecker):
                 )
             previous = resource
 
-    def visit_LibraryImport(self, node):  # noqa
+    def visit_LibraryImport(self, node):
         if node.name and node.name not in STDLIBS:
             self.non_builtin_libraries.append(node)
 
-    def visit_ResourceImport(self, node):  # noqa
+    def visit_ResourceImport(self, node):
         if not node.name:
             return
         self.resources.append(node)

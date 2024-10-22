@@ -105,9 +105,7 @@ class ArgumentFileParser:
         self.config_from = ""
 
     def expand_argument_files(self, args, config_dir=None):
-        """
-        Find argument files in the argument list and expand argument list with their content.
-        """
+        """Find argument files in the argument list and expand argument list with their content."""
         if not any(arg in self.ARGUMENT_FILE_OPTIONS for arg in args):
             return list(args)
         parsed_args = []
@@ -117,7 +115,7 @@ class ArgumentFileParser:
                 parsed_args.append(arg)
                 continue
             if not args:  # argumentfile option declared but filename was not provided
-                raise exceptions.ArgumentFileNotFoundError("") from None
+                raise exceptions.ArgumentFileNotFoundError("") from None  # TODO: denote that file was not provided
             argfile = args.pop(0)
             argfile_path = Path(argfile)
             if argfile_path.is_file():
@@ -143,7 +141,7 @@ class ArgumentFileParser:
             ):
                 ensure_exists = prev_arg in self.ENSURE_EXIST_PATHS_OPTIONS
                 # TODO: If the --rules is provided as comma separated list, it will not resolve paths
-                arg = resolve_relative_path(arg, root_dir, ensure_exists)
+                arg = resolve_relative_path(arg, root_dir, ensure_exists)  # noqa: PLW2901
             resolved.append(arg)
             prev_option_like = option_like
             prev_arg = arg
@@ -161,10 +159,7 @@ class ArgumentFileParser:
                 for line in arg_f.readlines():
                     if line.strip().startswith("#"):
                         continue
-                    for arg in line.split(" ", 1):
-                        arg = arg.strip()
-                        if arg:
-                            args.append(arg)
+                    args.extend([arg.strip() for arg in line.split(" ", 1) if arg.strip()])
                 if args and not self.config_from:
                     self.config_from = argfile
                 return args
@@ -463,9 +458,11 @@ class Config:
             print("No config file found or configuration is empty. Using default configuration")
 
     def load_default_config_file(self, ignore_git_dir: bool = False):
-        """Find and load default configuration file.
+        """
+        Find and load default configuration file.
 
-        First look for .robocop file. If it does not exist, search for pyproject.toml file."""
+        First look for .robocop file. If it does not exist, search for pyproject.toml file.
+        """
         if self.load_robocop_file(ignore_git_dir):
             return
         pyproject_path = find_file_in_project_root("pyproject.toml", self.root, ignore_git_dir)
@@ -473,7 +470,7 @@ class Config:
             self.load_pyproject_file(pyproject_path)
 
     def load_robocop_file(self, ignore_git_dir: bool):
-        """Returns True if .robocop exists"""
+        """Return True if .robocop exists"""
         robocop_path = find_file_in_project_root(".robocop", self.root, ignore_git_dir)
         if robocop_path is None:
             return False
@@ -534,10 +531,7 @@ class Config:
         if self.include or self.include_patterns:  # if any include pattern, it must match with something
             if rule.rule_id in self.include or rule.name in self.include:
                 return True
-            for pattern in self.include_patterns:
-                if pattern.match(rule.rule_id) or pattern.match(rule.name):
-                    return True
-            return False
+            return any(pattern.match(rule.rule_id) or pattern.match(rule.name) for pattern in self.include_patterns)
         return rule.enabled
 
     def is_rule_disabled(self, rule: "Rule") -> bool:
@@ -547,10 +541,7 @@ class Config:
             return True
         if rule.rule_id in self.exclude or rule.name in self.exclude:
             return True
-        for pattern in self.exclude_patterns:
-            if pattern.match(rule.rule_id) or pattern.match(rule.name):
-                return True
-        return False
+        return any(pattern.match(rule.rule_id) or pattern.match(rule.name) for pattern in self.exclude_patterns)
 
     def is_path_ignored(self, path) -> bool:
         for pattern in self.ignore:
@@ -583,7 +574,7 @@ class Config:
                     for index, val in enumerate(value):
                         value[index] = resolve_relative_path(val, config_dir, ensure_exists=key == "ext_rules")
                 else:
-                    value = resolve_relative_path(value, config_dir, ensure_exists=key == "ext_rules")
+                    value = resolve_relative_path(value, config_dir, ensure_exists=key == "ext_rules")  # noqa: PLW2901
             if key in assign_type:
                 self.__dict__[key] = value
             elif key in set_type:
@@ -596,7 +587,7 @@ class Config:
             elif key == "threshold":
                 self.threshold = RuleSeverity(value)
             elif key == "output":
-                self.output = open(value, "w")
+                self.output = open(value, "w")  # noqa: SIM115
             elif key == "no_recursive":
                 self.recursive = not value
             elif key == "verbose":

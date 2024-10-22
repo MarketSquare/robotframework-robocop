@@ -14,7 +14,7 @@ from robocop.reports import (
 
 
 @pytest.mark.parametrize(
-    "configured, expected",
+    ("configured", "expected"),
     [
         (["timestamp", "sarif"], ["timestamp", "sarif"]),
         (["timestamp"], ["timestamp"]),
@@ -28,9 +28,11 @@ def test_get_reports(configured, expected):
 
 def test_get_reports_all():
     reports = get_reports(["all"])
-    assert "timestamp" in reports and "sarif" not in reports
+    assert "timestamp" in reports
+    assert "sarif" not in reports
     reports = get_reports(["all", "sarif"])
-    assert "timestamp" in reports and "sarif" in reports
+    assert "timestamp" in reports
+    assert "sarif" in reports
     # Check order with all
     reports = get_reports(["version", "all", "sarif"])
     reports_list = list(reports.keys())

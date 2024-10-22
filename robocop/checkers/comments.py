@@ -1,6 +1,5 @@
-"""
-Comments checkers
-"""
+"""Comments checkers"""
+
 import re
 from codecs import BOM_UTF8, BOM_UTF16_BE, BOM_UTF16_LE, BOM_UTF32_BE, BOM_UTF32_LE
 
@@ -176,16 +175,16 @@ class CommentChecker(VisitorChecker):
             self._block = self.param("missing-space-after-comment", "block")
         return self._block
 
-    def visit_Comment(self, node):  # noqa
+    def visit_Comment(self, node):
         self.find_comments(node)
 
-    def visit_TestCase(self, node):  # noqa
+    def visit_TestCase(self, node):
         self.check_invalid_comments(node.name, node)
         self.generic_visit(node)
 
     visit_Keyword = visit_TestCase
 
-    def visit_Statement(self, node):  # noqa
+    def visit_Statement(self, node):
         self.find_comments(node)
 
     def find_comments(self, node):
@@ -228,14 +227,13 @@ class CommentChecker(VisitorChecker):
                 lineno=token.lineno,
                 col=token.col_offset + 1 + index,
             )
-        if content.startswith("#") and not self.is_block_comment(content):
-            if not content.startswith("# "):
-                self.report(
-                    "missing-space-after-comment",
-                    lineno=token.lineno,
-                    col=token.col_offset + 1,
-                    end_col=token.col_offset + len(content) + 1,
-                )
+        if content.startswith("#") and not self.is_block_comment(content) and not content.startswith("# "):
+            self.report(
+                "missing-space-after-comment",
+                lineno=token.lineno,
+                col=token.col_offset + 1,
+                end_col=token.col_offset + len(content) + 1,
+            )
 
     def is_block_comment(self, comment):
         return comment == "#" or self.block.match(comment) is not None
@@ -276,7 +274,7 @@ class IgnoredDataChecker(RawFileChecker):
     def check_line(self, line, lineno):
         if line.startswith(self.SECTION_HEADER):
             return True
-        if line.startswith(self.ROBOCOP_HEADER) or line.startswith(self.ROBOTIDY_HEADER):
+        if line.startswith((self.ROBOCOP_HEADER, self.ROBOTIDY_HEADER)):
             self.ignore_empty_lines = True
             return False
         if lineno == 1:

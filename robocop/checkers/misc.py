@@ -1,6 +1,5 @@
-"""
-Miscellaneous checkers
-"""
+"""Miscellaneous checkers"""
+
 import ast
 from dataclasses import dataclass
 from pathlib import Path
@@ -225,7 +224,7 @@ rules = {
         severity=RuleSeverity.INFO,
         docs="""
         Variables with placeholder ${EMPTY} values are more explicit.
-        
+
         Example of rule violation::
 
             *** Variables ***
@@ -400,7 +399,7 @@ rules = {
         severity=RuleSeverity.WARNING,
         docs="""
         Keyword argument was defined but not used::
-        
+
             *** Keywords ***
             Keyword
                 [Arguments]    ${used}    ${not_used}  # will report ${not_used}
@@ -422,16 +421,16 @@ rules = {
         severity=RuleSeverity.INFO,
         docs="""
         Variable was assigned but not used::
-    
+
             *** Keywords ***
             Get Triangle Base Points
                 [Arguments]       ${triangle}
                 ${p1}    ${p2}    ${p3}    Get Triangle Points    ${triangle}
                 Log      Triangle base points are: ${p1} and ${p2}.
                 RETURN   ${p1}    ${p2}  # ${p3} is never used
-    
+
         Use ``${_}`` variable name if you purposefully do not use variable::
-    
+
             *** Keywords ***
             Process Value 10 Times
                 [Arguments]    ${value}
@@ -453,7 +452,7 @@ rules = {
         severity=RuleSeverity.WARNING,
         docs="""
         Keyword argument was overwritten before it is used::
-        
+
             *** Keywords ***
             Overwritten Argument
                 [Arguments]    ${overwritten}  # we do not use ${overwritten} value at all
@@ -476,7 +475,7 @@ rules = {
                 ${value}    Keyword
 
         In case the value of the variable is not important, it is possible to use ``${_}`` name::
-        
+
             *** Test Cases ***
             Call keyword and ignore some return values
                 ${_}    ${item}    Unpack List    @{LIST}
@@ -498,12 +497,12 @@ rules = {
         Expressions in Robot Framework are evaluated using Python's eval function. When a variable is used
         in the expression using the normal ``${variable}`` syntax, its value is replaced before the expression
         is evaluated. For example, with the following expression::
-        
+
             *** Test Cases ***
             Check if schema was uploaded
                 Upload Schema    schema.avsc
                 Check If File Exist In SFTP    schema.avsc
-        
+
             *** Keywords ***
             Upload Schema
                 [Arguments]    ${filename}
@@ -511,24 +510,24 @@ rules = {
                     ${filename}    Get Default Upload Path
                 END
                 Send File To SFTP Root   ${filename}
-        
+
         "${filename}" will be replaced by "schema.avsc"::
-        
+
             IF    schema.avsc == 'default'
-        
+
         "schema.avsc" will not be recognized as Python variable. That's why you need to quote it::
-        
+
             IF    '${filename}' == 'default'
-        
+
         However it introduces unnecessary string conversion and can mask difference in the type. For example::
-        
+
             ${numerical}    Set Variable    10  # ${numerical} is actually string 10, not integer 10
             IF    "${numerical}" == "10"
 
         You can use  ``$variable`` syntax instead::
-        
+
             IF    $numerical == 10
-        
+
         It will put the actual variable in the evaluated expression without converting it to string.
         """,
         added_in_version="4.0.0",
@@ -541,7 +540,7 @@ rules = {
         version=">=4.0",
         docs="""
         Evaluated expression can be simplified. For example::
-        
+
             *** Keywords ***
             Click On Element
                 [Arguments]    ${locator}
@@ -551,9 +550,9 @@ rules = {
                     ${is_element_enabled}    Get Element Status    ${locator}
                 END
                 Click    ${locator}
-        
+
         can be rewritten to::
-        
+
             *** Keywords ***
             Click On Element
                 [Arguments]    ${locator}
@@ -565,7 +564,7 @@ rules = {
                 Click    ${locator}
 
         Comparisons to empty sequences (lists, dicts, sets), empty string or ``0`` can be also simplified::
-        
+
             *** Test Cases ***
             Check conditions
                 Should Be True     ${list} == []  # equivalent of 'not ${list}'
@@ -583,9 +582,9 @@ rules = {
         version=">=4.0",
         docs="""
         Position of not operator can be changed for better readability.
-        
+
         For example::
-        
+
             *** Keywords ***
             Check Unmapped Codes
                 ${codes}    Get Codes From API
@@ -596,9 +595,9 @@ rules = {
                 ELSE
                     Fail    Did not receive codes from API.
                 END
-        
+
         Can be rewritten to::
-        
+
             *** Keywords ***
             Check Unmapped Codes
                 ${codes}    Get Codes From API
@@ -650,10 +649,10 @@ rules = {
 
             robocop --configure test-case-section-out-of-order:sections_order:comma,separated,list,of,sections
 
-        where section should be case-insensitive name from the list: 
-        documentation, tags, timeout, setup, template, keywords, teardown. 
+        where section should be case-insensitive name from the list:
+        documentation, tags, timeout, setup, template, keywords, teardown.
         Order of not configured sections is ignored.
-    
+
         Example of rule violation::
 
             *** Test Cases ***
@@ -686,8 +685,8 @@ rules = {
 
             robocop --configure keyword-section-out-of-order:sections_order:comma,separated,list,of,sections
 
-        where section should be case-insensitive name from the list: 
-        documentation, tags, arguments, timeout, setup, keyword, teardown. 
+        where section should be case-insensitive name from the list:
+        documentation, tags, arguments, timeout, setup, keyword, teardown.
         Order of not configured sections is ignored.
 
         Example of rule violation::
@@ -711,7 +710,7 @@ class ReturnChecker(VisitorChecker):
         "empty-return",
     )
 
-    def visit_Keyword(self, node):  # noqa
+    def visit_Keyword(self, node):
         return_setting_node = None
         keyword_after_return = False
         return_from = False
@@ -761,24 +760,23 @@ class UnreachableCodeChecker(VisitorChecker):
 
     reports = ("unreachable-code",)
 
-    def visit_Keyword(self, node):  # noqa
+    def visit_Keyword(self, node):
         statement_node = None
 
         for child in node.body:
             if isinstance(child, (RETURN_CLASSES.return_class, Break, Continue)):
                 statement_node = child
-            elif not isinstance(child, (EmptyLine, Comment, Teardown)):
-                if statement_node is not None:
-                    token = statement_node.data_tokens[0]
-                    code_after_statement = child.data_tokens[0] if hasattr(child, "data_tokens") else child
-                    self.report(
-                        "unreachable-code",
-                        statement=token.value,
-                        node=child,
-                        col=code_after_statement.col_offset + 1,
-                        end_col=child.end_col_offset + 1,
-                    )
-                    statement_node = None
+            elif not isinstance(child, (EmptyLine, Comment, Teardown)) and statement_node is not None:
+                token = statement_node.data_tokens[0]
+                code_after_statement = child.data_tokens[0] if hasattr(child, "data_tokens") else child
+                self.report(
+                    "unreachable-code",
+                    statement=token.value,
+                    node=child,
+                    col=code_after_statement.col_offset + 1,
+                    end_col=child.end_col_offset + 1,
+                )
+                statement_node = None
 
         self.generic_visit(node)
 
@@ -786,14 +784,15 @@ class UnreachableCodeChecker(VisitorChecker):
 
 
 class NestedForLoopsChecker(VisitorChecker):
-    """Checker for not supported nested FOR loops.
+    """
+    Checker for not supported nested FOR loops.
 
     Deprecated in RF 4.0
     """
 
     reports = ("nested-for-loop",)
 
-    def visit_ForLoop(self, node):  # noqa
+    def visit_ForLoop(self, node):
         # For RF 4.0 node is "For" but we purposely don't visit it because nested for loop is allowed in 4.0
         for child in node.body:
             if child.type == "FOR":
@@ -802,7 +801,8 @@ class NestedForLoopsChecker(VisitorChecker):
 
 
 class IfBlockCanBeUsed(VisitorChecker):
-    """Checker for potential IF block usage in Robot Framework 4.0
+    """
+    Checker for potential IF block usage in Robot Framework 4.0
 
     Run Keyword variants (Run Keyword If, Run Keyword Unless) can be replaced with IF in RF 4.0
     """
@@ -810,7 +810,7 @@ class IfBlockCanBeUsed(VisitorChecker):
     reports = ("if-can-be-used",)
     run_keyword_variants = {"runkeywordif", "runkeywordunless"}
 
-    def visit_KeywordCall(self, node):  # noqa
+    def visit_KeywordCall(self, node):
         if not node.keyword:
             return
         if normalize_robot_name(node.keyword, remove_prefix="builtin.") in self.run_keyword_variants:
@@ -819,7 +819,8 @@ class IfBlockCanBeUsed(VisitorChecker):
 
 
 class ConsistentAssignmentSignChecker(VisitorChecker):
-    """Checker for inconsistent assignment signs.
+    """
+    Checker for inconsistent assignment signs.
 
     By default, this checker will try to autodetect most common assignment sign (separately for *** Variables ***
     section and *** Test Cases ***, *** Keywords *** sections) and report any inconsistent type of sign in particular
@@ -845,7 +846,7 @@ class ConsistentAssignmentSignChecker(VisitorChecker):
         self.variables_expected_sign_type = None
         super().__init__()
 
-    def visit_File(self, node):  # noqa
+    def visit_File(self, node):
         self.keyword_expected_sign_type = self.param("inconsistent-assignment", "assignment_sign_type")
         self.variables_expected_sign_type = self.param("inconsistent-assignment-in-variables", "assignment_sign_type")
         if "autodetect" in [
@@ -859,9 +860,9 @@ class ConsistentAssignmentSignChecker(VisitorChecker):
                 self.variables_expected_sign_type = auto_detector.variables_most_common
         self.generic_visit(node)
 
-    def visit_KeywordCall(self, node):  # noqa
+    def visit_KeywordCall(self, node):
         if self.keyword_expected_sign_type is None or not node.keyword:
-            return
+            return None
         if node.assign:  # if keyword returns any value
             assign_tokens = node.get_tokens(Token.ASSIGN)
             self.check_assign_type(
@@ -871,9 +872,9 @@ class ConsistentAssignmentSignChecker(VisitorChecker):
             )
         return node
 
-    def visit_VariableSection(self, node):  # noqa
+    def visit_VariableSection(self, node):
         if self.variables_expected_sign_type is None:
-            return
+            return None
         for child in node.body:
             if not isinstance(child, Variable) or get_errors(child):
                 continue
@@ -905,7 +906,8 @@ class ConsistentAssignmentSignChecker(VisitorChecker):
 
 
 class SettingsOrderChecker(VisitorChecker):
-    """Checker for settings order.
+    """
+    Checker for settings order.
 
     BuiltIn libraries imports should always be placed before other libraries imports.
     """
@@ -919,7 +921,7 @@ class SettingsOrderChecker(VisitorChecker):
         self.libraries = []
         super().__init__()
 
-    def visit_File(self, node):  # noqa
+    def visit_File(self, node):
         self.libraries = []
         self.generic_visit(node)
         first_non_builtin = None
@@ -928,17 +930,16 @@ class SettingsOrderChecker(VisitorChecker):
             if first_non_builtin is None:
                 if library.name not in STDLIBS:
                     first_non_builtin = library.name
-            else:
-                if library.name in STDLIBS:
-                    lib_name = library.get_token(Token.NAME)
-                    self.report(
-                        "wrong-import-order",
-                        builtin_import=library.name,
-                        custom_import=first_non_builtin,
-                        node=library,
-                        col=lib_name.col_offset + 1,
-                        end_col=lib_name.end_col_offset + 1,
-                    )
+            elif library.name in STDLIBS:
+                lib_name = library.get_token(Token.NAME)
+                self.report(
+                    "wrong-import-order",
+                    builtin_import=library.name,
+                    custom_import=first_non_builtin,
+                    node=library,
+                    col=lib_name.col_offset + 1,
+                    end_col=lib_name.end_col_offset + 1,
+                )
             if library.name in STDLIBS:
                 if previous_builtin is not None and library.name < previous_builtin.name:
                     lib_name = library.get_token(Token.NAME)
@@ -952,7 +953,7 @@ class SettingsOrderChecker(VisitorChecker):
                     )
                 previous_builtin = library
 
-    def visit_LibraryImport(self, node):  # noqa
+    def visit_LibraryImport(self, node):
         if not node.name:
             return
         self.libraries.append(node)
@@ -968,23 +969,23 @@ class EmptyVariableChecker(VisitorChecker):
         self.visit_var = False
         super().__init__()
 
-    def visit_File(self, node):  # noqa
+    def visit_File(self, node):
         variable_source = self.param("empty-variable", "variable_source")
         self.visit_var_section = "section" in variable_source
         self.visit_var = "var" in variable_source
         self.generic_visit(node)
 
-    def visit_VariableSection(self, node):  # noqa
+    def visit_VariableSection(self, node):
         if self.visit_var_section:
             self.generic_visit(node)
 
-    def visit_KeywordSection(self, node):  # noqa
+    def visit_KeywordSection(self, node):
         if self.visit_var:
             self.generic_visit(node)
 
     visit_TestCaseSection = visit_KeywordSection
 
-    def visit_Variable(self, node):  # noqa
+    def visit_Variable(self, node):
         if get_errors(node):
             return
         if not node.value:  # catch variable declaration without any value
@@ -1000,7 +1001,7 @@ class EmptyVariableChecker(VisitorChecker):
                     end_col=token.end_col_offset + 1,
                 )
 
-    def visit_Var(self, node):  # noqa
+    def visit_Var(self, node):
         if node.errors:
             return
         if not node.value:  # catch variable declaration without any value
@@ -1029,7 +1030,7 @@ class ResourceFileChecker(VisitorChecker):
 
     reports = ("can-be-resource-file",)
 
-    def visit_File(self, node):  # noqa
+    def visit_File(self, node):
         source = node.source if node.source else self.source
         if source:
             extension = Path(source).suffix
@@ -1052,12 +1053,12 @@ class IfChecker(VisitorChecker):
         "multiline-inline-if",
     )
 
-    def visit_TestCase(self, node):  # noqa
+    def visit_TestCase(self, node):
         if get_errors(node):
             return
         self.check_adjacent_ifs(node)
 
-    visit_For = visit_If = visit_Keyword = visit_TestCase  # TODO  While, Try Except?
+    visit_For = visit_If = visit_Keyword = visit_TestCase  # TODO: While, Try Except?
 
     @staticmethod
     def is_inline_if(node):
@@ -1124,7 +1125,7 @@ class IfChecker(VisitorChecker):
             return
         if (
             len(node.body) != 1
-            or node.orelse  # TODO it could still report with orelse? if short enough
+            or node.orelse  # TODO: it could still report with orelse? if short enough
             # IF with one branch and assign require ELSE to be valid, better to ignore it
             or getattr(node.body[0], "assign", None)
             or not isinstance(node.body[0], (KeywordCall, RETURN_CLASSES.return_class, Break, Continue))  # type: ignore[arg-type]
@@ -1147,18 +1148,18 @@ class LoopStatementsChecker(VisitorChecker):
         self.loops = 0
         super().__init__()
 
-    def visit_File(self, node):  # noqa
+    def visit_File(self, node):
         self.loops = 0
         self.generic_visit(node)
 
-    def visit_For(self, node):  # noqa
+    def visit_For(self, node):
         self.loops += 1
         self.generic_visit(node)
         self.loops -= 1
 
     visit_While = visit_For
 
-    def visit_KeywordCall(self, node):  # noqa
+    def visit_KeywordCall(self, node):
         if node.errors or self.loops:
             return
         if normalize_robot_name(node.keyword, remove_prefix="builtin.") in self.for_keyword:
@@ -1172,13 +1173,13 @@ class LoopStatementsChecker(VisitorChecker):
                 end_col=col + len(node.keyword),
             )
 
-    def visit_Continue(self, node):  # noqa
+    def visit_Continue(self, node):
         self.check_statement_in_loop(node, "CONTINUE")  # type: ignore[arg-type]
 
-    def visit_Break(self, node):  # noqa
+    def visit_Break(self, node):
         self.check_statement_in_loop(node, "BREAK")  # type: ignore[arg-type]
 
-    def visit_Error(self, node):  # noqa
+    def visit_Error(self, node):
         """Support for RF >= 6.1"""
         for error_token in node.get_tokens(Token.ERROR):
             if "is not allowed in this context" in error_token.error:
@@ -1215,7 +1216,7 @@ class SectionVariablesCollector(ast.NodeVisitor):
     def __init__(self):
         self.section_variables: Dict[str, CachedVariable] = {}
 
-    def visit_Variable(self, node):  # noqa
+    def visit_Variable(self, node):
         if get_errors(node):
             return
         var_token = node.get_token(Token.VARIABLE)
@@ -1244,7 +1245,7 @@ class UnusedVariablesChecker(VisitorChecker):
         self.test_or_task_section = False
         super().__init__()
 
-    def visit_File(self, node):  # noqa
+    def visit_File(self, node):
         self.test_or_task_section = False
         section_variables = SectionVariablesCollector()
         section_variables.visit(node)
@@ -1257,18 +1258,18 @@ class UnusedVariablesChecker(VisitorChecker):
             return
         self.check_unused_variables_in_scope(self.section_variables)
 
-    def visit_TestCaseSection(self, node):  # noqa
+    def visit_TestCaseSection(self, node):
         self.test_or_task_section = True
         self.generic_visit(node)
 
     visit_TaskSection = visit_TestCaseSection
 
-    def visit_TestCase(self, node):  # noqa
+    def visit_TestCase(self, node):
         self.variables = [{}]
         self.generic_visit(node)
         self.check_unused_variables()
 
-    def visit_Keyword(self, node):  # noqa
+    def visit_Keyword(self, node):
         self.arguments = {}
         self.variables = [{}]
         name_token = node.header.get_token(Token.KEYWORD_NAME)
@@ -1335,7 +1336,7 @@ class UnusedVariablesChecker(VisitorChecker):
         except VariableError:
             pass
 
-    def visit_If(self, node):  # noqa
+    def visit_If(self, node):
         if node.header.errors:
             return node
         for token in node.header.get_tokens(Token.ARGUMENT):
@@ -1365,39 +1366,17 @@ class UnusedVariablesChecker(VisitorChecker):
             else:
                 self.variables[-1][var_name] = cached_var
 
-    def visit_LibraryImport(self, node):  # noqa
+    def visit_LibraryImport(self, node):
         for token in node.get_tokens(Token.NAME, Token.ARGUMENT):
             self.find_not_nested_variable(token.value, is_var=False)
 
-    visit_TestTags = (
-        visit_ForceTags
-    ) = (
-        visit_Metadata
-    ) = (
-        visit_DefaultTags
-    ) = (
-        visit_Variable
-    ) = (
-        visit_ReturnStatement
-    ) = (
+    visit_TestTags = visit_ForceTags = visit_Metadata = visit_DefaultTags = visit_Variable = visit_ReturnStatement = (
         visit_ReturnSetting
-    ) = (
-        visit_Teardown
-    ) = (
-        visit_Timeout
-    ) = (
-        visit_Return
-    ) = (
-        visit_SuiteSetup
-    ) = (
-        visit_SuiteTeardown
-    ) = (
-        visit_TestSetup
-    ) = (
+    ) = visit_Teardown = visit_Timeout = visit_Return = visit_SuiteSetup = visit_SuiteTeardown = visit_TestSetup = (
         visit_TestTeardown
-    ) = (
-        visit_Setup
-    ) = visit_ResourceImport = visit_VariablesImport = visit_Tags = visit_Documentation = visit_LibraryImport
+    ) = visit_Setup = visit_ResourceImport = visit_VariablesImport = visit_Tags = visit_Documentation = (
+        visit_LibraryImport
+    )
 
     def clear_variables_after_loop(self):
         """Remove used variables after loop finishes."""
@@ -1420,7 +1399,7 @@ class UnusedVariablesChecker(VisitorChecker):
         for name in self.used_in_scope:
             self._set_variable_as_used(name, self.variables[-1])
 
-    def visit_While(self, node):  # noqa
+    def visit_While(self, node):
         if node.header.errors:
             return node
         self.in_loop = True
@@ -1434,7 +1413,7 @@ class UnusedVariablesChecker(VisitorChecker):
         self.revisit_variables_used_in_loop()
         self.clear_variables_after_loop()
 
-    def visit_For(self, node):  # noqa
+    def visit_For(self, node):
         if getattr(node.header, "errors", None):
             return node
         self.in_loop = True
@@ -1458,7 +1437,7 @@ class UnusedVariablesChecker(VisitorChecker):
             return try_node.variable
         return try_node.assign
 
-    def visit_Try(self, node):  # noqa
+    def visit_Try(self, node):
         if node.errors or node.header.errors:
             return node
         self.variables.append({})
@@ -1472,13 +1451,13 @@ class UnusedVariablesChecker(VisitorChecker):
         if node.next:
             self.visit_Try(node.next)
 
-    def visit_KeywordCall(self, node):  # noqa
+    def visit_KeywordCall(self, node):
         for token in node.get_tokens(Token.ARGUMENT, Token.KEYWORD):  # argument can be used in keyword name
             self.find_not_nested_variable(token.value, is_var=False)
         for token in node.get_tokens(Token.ASSIGN):  # we first check args, then assign for used and then overwritten
             self.handle_assign_variable(token)
 
-    def visit_Var(self, node):  # noqa
+    def visit_Var(self, node):
         if node.errors:  # for example invalid variable definition like $var}
             return
         for arg in node.get_tokens(Token.ARGUMENT):
@@ -1487,14 +1466,16 @@ class UnusedVariablesChecker(VisitorChecker):
         if variable and _is_var_scope_local(node):
             self.handle_assign_variable(variable)
 
-    def visit_TemplateArguments(self, node):  # noqa
+    def visit_TemplateArguments(self, node):
         for argument in node.data_tokens:
             self.find_not_nested_variable(argument.value, is_var=False)
 
     def handle_assign_variable(self, token):
-        """Check if assign does not overwrite arguments or variables.
+        """
+        Check if assign does not overwrite arguments or variables.
 
-        Store assign variables for future overwriting checks."""
+        Store assign variables for future overwriting checks.
+        """
         value = token.value
         variable_match = search_variable(value, ignore_errors=True)
         normalized = normalize_robot_name(variable_match.base)
@@ -1529,7 +1510,8 @@ class UnusedVariablesChecker(VisitorChecker):
         self.variables[-1][normalized] = variable
 
     def find_not_nested_variable(self, value, is_var):
-        """Find and process not nested variable.
+        """
+        Find and process not nested variable.
 
         Search `value` string until there is ${variable} without other variables inside. Unescaped escaped syntax
         ($var or \\${var}). If variable does exist in assign variables or arguments, it is removed to denote it was
@@ -1571,7 +1553,8 @@ class UnusedVariablesChecker(VisitorChecker):
             self.update_used_variables(var)
 
     def update_used_variables(self, variable_name):
-        """Remove used variable from the arguments and variables store.
+        """
+        Remove used variable from the arguments and variables store.
 
         If the normalized variable name was already defined, we need to remove it to know which variables are not used.
         If the variable is not found, we try to remove possible attribute access from the name and search again.
@@ -1591,9 +1574,7 @@ class UnusedVariablesChecker(VisitorChecker):
         yield from self.variables[::-1]
 
     def _set_variable_as_used(self, normalized_name: str, variable_scope: Dict[str, CachedVariable]) -> None:
-        """
-        If variable is found in variable_scope, set it as used.
-        """
+        """If variable is found in variable_scope, set it as used."""
         if normalized_name in variable_scope:
             variable_scope[normalized_name].is_used = True
         else:
@@ -1619,14 +1600,14 @@ class ExpressionsChecker(VisitorChecker):
     COMPARISON_SIGNS = {"==", "!="}
     EMPTY_COMPARISON = {"${true}", "${false}", "true", "false", "[]", "{}", "set()", "list()", "dict()", "0"}
 
-    def visit_If(self, node):  # noqa
+    def visit_If(self, node):
         condition_token = node.header.get_token(Token.ARGUMENT)
         self.check_condition(node.header.type, condition_token, node.condition)
         self.generic_visit(node)
 
     visit_While = visit_If
 
-    def visit_KeywordCall(self, node):  # noqa
+    def visit_KeywordCall(self, node):
         normalized_name = normalize_robot_name(node.keyword, remove_prefix="builtin.")
         if normalized_name not in self.CONDITION_KEYWORDS:
             return
@@ -1655,7 +1636,8 @@ class ExpressionsChecker(VisitorChecker):
             )
 
     def check_for_misplaced_not(self, condition_token, node_name, left_side, variable, right_side):
-        """Check if the condition contains misplaced not.
+        """
+        Check if the condition contains misplaced not.
 
         An example of misplaced condition would be 'not ${variable} is None'.
         """
@@ -1712,7 +1694,7 @@ class TestAndKeywordOrderChecker(VisitorChecker):
         self.expected_order = {}
         super().__init__()
 
-    def visit_File(self, node):  # noqa
+    def visit_File(self, node):
         self.rules_by_node_type = {Keyword: "keyword-section-out-of-order", TestCase: "test-case-section-out-of-order"}
         self.expected_order = {
             Keyword: self.param("keyword-section-out-of-order", "sections_order"),

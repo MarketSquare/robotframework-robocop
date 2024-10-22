@@ -102,7 +102,7 @@ class TestDisablers:
         issues = run_check_on_string(data, include={"too-long-keyword"}, configure=["too-long-keyword:max_len:1"])
         assert issues
 
-    @pytest.mark.skipif(ROBOT_VERSION < Version("5.0"), reason="Test with RF 5.0 syntax")
+    @pytest.mark.skipif(ROBOT_VERSION < Version("5.0"), reason="Test with RF 5.0 syntax")  # noqa: SIM300
     def test_disablers_in_scopes(self):
         model = get_model(DISABLED_TEST_DIR / "scopes.robot")
         disabler = DisablersFinder(model)

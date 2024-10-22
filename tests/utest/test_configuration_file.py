@@ -18,7 +18,7 @@ def path_to_test_data():
 
 @contextlib.contextmanager
 def working_directory(path):
-    """Changes working directory and returns to previous on exit"""
+    """Change working directory and return to previous on exit"""
     prev_cwd = Path.cwd()
     os.chdir(path)
     try:
@@ -65,7 +65,7 @@ class TestConfigurationFile:
             args.extend(["--config", str(src / "pyproject.toml")])
         with working_directory(src), patch.object(sys, "argv", args):
             config = Config()
-        assert '"{source}:{line}:{col} [{severity}] {rule_id} {desc} ({name})"' == config.format.strip()
+        assert config.format.strip() == '"{source}:{line}:{col} [{severity}] {rule_id} {desc} ({name})"'
 
     def test_load_config_with_comments(self, path_to_test_data):
         src = path_to_test_data / "config_with_comments"
@@ -85,8 +85,8 @@ class TestConfigurationFile:
         with working_directory(src), patch.object(sys, "argv", ["prog", "--include", "0202"]):
             config = Config(from_cli=True)
 
-        assert ["line-too-long:line_length:150"] == config.configure
-        assert {"0202", "0810"} == config.include
+        assert config.configure == ["line-too-long:line_length:150"]
+        assert config.include == {"0202", "0810"}
 
     def test_load_default_config_before_pyproject(self, path_to_test_data):
         src = path_to_test_data / "default_config_and_pyproject"
@@ -142,10 +142,13 @@ class TestConfigurationFile:
             "tests\\atest\\rules\\bad-indent",
             "tests\\atest\\rules\\duplicated-library",
         ]
-        with working_directory(src), patch.object(
-            sys,
-            "argv",
-            argv,
+        with (
+            working_directory(src),
+            patch.object(
+                sys,
+                "argv",
+                argv,
+            ),
         ):
             expected_config = Config(from_cli=True)
 
@@ -165,17 +168,20 @@ class TestConfigurationFile:
 
     def test_append_config_pyproject_file(self, path_to_test_data):
         src = path_to_test_data / "only_pyproject"
-        with working_directory(src), patch.object(
-            sys, "argv", ["prog", "--configure", "too-many-calls-in-keyword:max_calls:20", "--exclude", "0810"]
+        with (
+            working_directory(src),
+            patch.object(
+                sys, "argv", ["prog", "--configure", "too-many-calls-in-keyword:max_calls:20", "--exclude", "0810"]
+            ),
         ):
             config = Config(from_cli=True)
 
         assert {"0203", "0810"} == config.exclude
-        assert [
+        assert config.configure == [
             "line-too-long:line_length:150",
             "0201:severity:E",
             "too-many-calls-in-keyword:max_calls:20",
-        ] == config.configure
+        ]
 
     @pytest.mark.parametrize("config_source", ["default", "option"])
     def test_pyproject_verbose(self, path_to_test_data, capsys, config_source):
@@ -257,9 +263,7 @@ class TestConfigurationFile:
             assert Path(ext_rule_path).absolute() == work_dir / "test.py"
 
     def test_load_config_with_relative_paths_argfile(self, path_to_test_data):
-        """
-        Argument files resolves relative paths to config directory.
-        """
+        """Argument files resolves relative paths to config directory."""
         src = path_to_test_data / "relative_path_in_argfile"
         work_dir = src
         with working_directory(work_dir), patch.object(sys, "argv", ["robocop", "-A", "tests/args.txt"]):
@@ -268,26 +272,24 @@ class TestConfigurationFile:
             assert Path(ext_rule_path).absolute() == work_dir / "tests/libraries/test.py"
 
     def test_override_default_config(self, path_to_test_data):
-        """
-        Default config should not be loaded if "--argumentfile" option is used.
-        """
+        """Default config should not be loaded if "--argumentfile" option is used."""
         default_config = path_to_test_data / "only_pyproject"
         other_config = path_to_test_data / "default_config_and_pyproject" / ".robocop"
         for option_name in ("-A", "--argumentfile"):
-            with working_directory(default_config), patch.object(
-                sys, "argv", ["robocop", option_name, str(other_config)]
+            with (
+                working_directory(default_config),
+                patch.object(sys, "argv", ["robocop", option_name, str(other_config)]),
             ):
                 config = Config(from_cli=True)
             assert str(config.config_from) == str(other_config)
             assert config.include == {"0810"}
 
     def test_nested_argument_files(self, path_to_test_data):
-        """
-        Load other argument files inside argument file.
-        """
+        """Load other argument files inside argument file."""
         argument_file = path_to_test_data / "argument_file" / "dev.txt"
-        with working_directory(path_to_test_data), patch.object(
-            sys, "argv", ["robocop", "--argumentfile", str(argument_file)]
+        with (
+            working_directory(path_to_test_data),
+            patch.object(sys, "argv", ["robocop", "--argumentfile", str(argument_file)]),
         ):
             config = Config(from_cli=True)
             assert config.ext_rules == {"rflinter.robocop.spacing", "rflinter.robocop.naming"}

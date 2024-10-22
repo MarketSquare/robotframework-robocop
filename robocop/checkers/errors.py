@@ -1,6 +1,5 @@
-"""
-Errors checkers
-"""
+"""Errors checkers"""
+
 import re
 
 from robot.api import Token
@@ -36,13 +35,13 @@ rules = {
             Test
                 [Documentation] doc  # only one space after [Documentation]
                 Keyword
-                
+
             *** Keywords ***
             Keyword
                 [Documentation]  This is doc
                 [Arguments] ${var}  # only one space after [Arguments]
                 Should Be True  ${var}
-            
+
         """,
         added_in_version="1.0.0",
     ),
@@ -53,7 +52,7 @@ rules = {
         severity=RuleSeverity.ERROR,
         docs="""
         Example of rule violation::
-        
+
             *** Keywords ***
             Keyword
                 ${var}
@@ -69,12 +68,12 @@ rules = {
         severity=RuleSeverity.ERROR,
         docs="""
         Example of rule violation::
-        
+
             *** Settings ***
             Variables    vars.yaml        arg1
             Variables    variables.yml    arg2
             Variables    module           arg3  # valid from RF > 5
-        
+
         """,
         added_in_version="1.11.0",
     ),
@@ -85,7 +84,7 @@ rules = {
         severity=RuleSeverity.ERROR,
         docs="""
         Example of rule violation::
-        
+
             Keyword
             ..  ${var}  # .. instead of ...
             ...  1
@@ -102,7 +101,7 @@ rules = {
         severity=RuleSeverity.ERROR,
         docs="""
         Example of rule violation::
-        
+
             @{LIST}  1
             ... 2  # not enough whitespace
             ...  3
@@ -117,19 +116,19 @@ rules = {
         severity=RuleSeverity.ERROR,
         version=">=4.0",
         docs="""
-        Argument names should follow variable naming syntax: start with identifier (``$``, ``@`` or ``&``) and enclosed in 
+        Argument names should follow variable naming syntax: start with identifier (``$``, ``@`` or ``&``) and enclosed in
         curly brackets (``{}``).
-        
+
         Valid names::
-        
+
             Keyword
                 [Arguments]    ${var}    @{args}    &{config}    ${var}=default
-        
+
         Invalid names::
-        
+
             Keyword
                 [Arguments]    {var}    @args}    var=default
-        
+
         """,
         added_in_version="1.11.0",
     ),
@@ -140,14 +139,14 @@ rules = {
         severity=RuleSeverity.ERROR,
         docs="""
         Non-existing setting can't be used in the code.
-        
+
         Example of rule violation::
-        
+
            *** Test Cases ***
            My Test Case
                [Not Existing]  arg
                [Arguments]  ${arg}
-    
+
         """,
         added_in_version="1.11.0",
     ),
@@ -159,23 +158,23 @@ rules = {
         severity=RuleSeverity.ERROR,
         docs="""
         Following settings are supported in Test Case or Task::
-        
+
             [Documentation]	 Used for specifying a test case documentation.
             [Tags]	         Used for tagging test cases.
             [Setup]	         Used for specifying a test setup.
             [Teardown]	     Used for specifying a test teardown.
             [Template]	     Used for specifying a template keyword.
             [Timeout]	     Used for specifying a test case timeout.
-        
+
         Following settings are supported in Keyword::
-        
+
             [Documentation]	 Used for specifying a user keyword documentation.
             [Tags]	         Used for specifying user keyword tags.
             [Arguments]	     Used for specifying user keyword arguments.
             [Return]	     Used for specifying user keyword return values.
             [Teardown]	     Used for specifying user keyword teardown.
             [Timeout]	     Used for specifying a user keyword timeout.
-        
+
         """,
         added_in_version="1.11.0",
     ),
@@ -187,10 +186,10 @@ rules = {
         version=">=4.0",
         docs="""
         Example of rule violation::
-        
+
             ${variable} 1  # not enough whitespace
             ${other_var}  2
-        
+
         """,
         added_in_version="1.11.0",
     ),
@@ -201,13 +200,13 @@ rules = {
         severity=RuleSeverity.ERROR,
         docs="""
         Example of rule violation::
-        
+
             *** Settings ***
             Library Collections  # not enough whitespace
             Force Tags  tag
             ...  tag2
             Suite Setup Keyword  # not enough whitespace
-        
+
         """,
         added_in_version="1.11.0",
     ),
@@ -338,23 +337,23 @@ class ParsingErrorChecker(VisitorChecker):
     def visit_File(self, node):
         self.generic_visit(node)
 
-    def visit_If(self, node):  # noqa
+    def visit_If(self, node):
         self.in_block = node  # to ensure we're in IF for `invalid-if` rule
         self.parse_errors(node)
         self.generic_visit(node)
 
     visit_For = visit_While = visit_Try = visit_If
 
-    def visit_KeywordCall(self, node):  # noqa
+    def visit_KeywordCall(self, node):
         if node.keyword and node.keyword.startswith("..."):
             col = node.data_tokens[0].col_offset + 1
             self.report("not-enough-whitespace-after-newline-marker", node=node, col=col, end_col=col + 3)
         self.generic_visit(node)
 
-    def visit_Statement(self, node):  # noqa
+    def visit_Statement(self, node):
         self.parse_errors(node)
 
-    def visit_InvalidSection(self, node):  # noqa
+    def visit_InvalidSection(self, node):
         invalid_header = node.header.get_token(Token.INVALID_HEADER)
         if "Resource file with" in invalid_header.error:
             section_name = invalid_header.value
@@ -365,7 +364,7 @@ class ParsingErrorChecker(VisitorChecker):
                 end_col=node.col_offset + len(section_name) + 1,
             )
 
-    def parse_errors(self, node):  # noqa
+    def parse_errors(self, node):
         if node is None:
             return
         if ROBOT_VERSION.major != 3:
@@ -374,7 +373,7 @@ class ParsingErrorChecker(VisitorChecker):
         else:
             self.handle_error(node, node.error)
 
-    def handle_error(self, node, error, error_index=0):  # noqa
+    def handle_error(self, node, error, error_index=0):
         if not error:
             return
         if any(should_ignore in error for should_ignore in self.ignore_errors):
@@ -575,11 +574,7 @@ class ParsingErrorChecker(VisitorChecker):
 
     @staticmethod
     def is_var_positional(value):
-        if not value:
-            return False
-        if value.startswith("&") or "=" in value:
-            return True
-        return False
+        return value and (value.startswith("&") or "=" in value)
 
     def handle_positional_after_named(self, node, error_index):
         """
@@ -642,7 +637,7 @@ class TwoSpacesAfterSettingsChecker(VisitorChecker):
         self.setting_pattern = re.compile(r"\[\s?(\w+)\s?\]")
         super().__init__()
 
-    def visit_KeywordCall(self, node):  # noqa
+    def visit_KeywordCall(self, node):
         """Invalid settings like '[Arguments] ${var}' will be parsed as keyword call"""
         if not node.keyword:
             return
@@ -668,7 +663,7 @@ class MissingKeywordName(VisitorChecker):
     def visit_File(self, node):
         self.generic_visit(node)
 
-    def visit_EmptyLine(self, node):  # noqa
+    def visit_EmptyLine(self, node):
         if ROBOT_VERSION.major < 5:
             return
         assign_token = node.get_token(Token.ASSIGN)
@@ -680,7 +675,7 @@ class MissingKeywordName(VisitorChecker):
                 col=assign_token.col_offset + 1,
             )
 
-    def visit_KeywordCall(self, node):  # noqa
+    def visit_KeywordCall(self, node):
         if not node.keyword:
             self.report(
                 "missing-keyword-name",
@@ -696,6 +691,6 @@ class VariablesImportErrorChecker(VisitorChecker):
 
     reports = ("variables-import-with-args",)
 
-    def visit_VariablesImport(self, node):  # noqa
+    def visit_VariablesImport(self, node):
         if node.name and node.name.endswith((".yaml", ".yml")) and node.get_token(Token.ARGUMENT):
             self.report("variables-import-with-args", node=node)

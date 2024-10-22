@@ -1,6 +1,5 @@
-"""
-Collection of classes for detecting checker disablers (like # robocop: disable) in robot files
-"""
+"""Collection of classes for detecting checker disablers (like # robocop: disable) in robot files"""
+
 import re
 from collections import defaultdict
 from copy import deepcopy
@@ -21,10 +20,9 @@ class DisablersInFile:  # pylint: disable=too-few-public-methods
     def __init__(self, blocks: Optional[List] = None):
         self.lastblock = -1
         self.lines = set()
-        self.blocks = [] if not blocks else blocks
+        self.blocks = blocks if blocks else []
 
     def copy(self):
-        """Used by defaultdict to create new instance for every new key in disablers container"""
         return deepcopy(self)
 
 
@@ -43,7 +41,7 @@ class DisablersVisitor(ModelVisitor):
         self.rules = defaultdict(DisablersInFile().copy)
         self.visit(model)
 
-    def visit_File(self, node):  # noqa
+    def visit_File(self, node):
         self.file_end = node.end_lineno
         self.generic_visit(node)
 
@@ -62,36 +60,36 @@ class DisablersVisitor(ModelVisitor):
                 self.rules[rule_name].lines.update(rule_disabler.lines)
         self.disablers_in_scope.pop()
 
-    def visit_KeywordSection(self, node):  # noqa
+    def visit_KeywordSection(self, node):
         self.keyword_or_test_section = True
         self.parse_disablers_in_node(node)
         self.keyword_or_test_section = False
 
     visit_TestCaseSection = visit_KeywordSection
 
-    def visit_Section(self, node):  # noqa
+    def visit_Section(self, node):
         self.is_first_comment_section = self.is_first_comment_section and isinstance(node, CommentSection)
         self.parse_disablers_in_node(node)
         self.is_first_comment_section = False
 
     visit_TestCase = visit_Keyword = visit_Try = visit_For = visit_ForLoop = visit_While = visit_Section
 
-    def visit_If(self, node):  # noqa
+    def visit_If(self, node):
         last_line = node.body[-1].end_lineno if node.body else None
         self.parse_disablers_in_node(node, last_line)
 
-    def visit_Statement(self, node):  # noqa
+    def visit_Statement(self, node):
         for comment in node.get_tokens(Token.COMMENT):
             self.parse_comment_token(comment, is_inline=True)
 
-    def visit_TestCaseName(self, node):  # noqa
+    def visit_TestCaseName(self, node):
         """Save last test case / keyword header line number to check if comment is standalone."""
         self.last_name_header_line = node.lineno
         self.visit_Statement(node)
 
     visit_KeywordName = visit_TestCaseName
 
-    def visit_Comment(self, node):  # noqa
+    def visit_Comment(self, node):
         for comment in node.get_tokens(Token.COMMENT):
             # Comment is only inline if it is next to test/kw name
             is_inline = comment.lineno == self.last_name_header_line
@@ -181,7 +179,7 @@ class DisablersFinder(ModelVisitor):
         )
 
     def is_line_disabled(self, line, rule):
-        """Helper method for is_rule_disabled that check if given line is in range of any disabled block"""
+        """Check if given line is in range of any disabled block"""
         if rule not in self.disabled.rules:
             return False
         if line in self.disabled.rules[rule].lines:

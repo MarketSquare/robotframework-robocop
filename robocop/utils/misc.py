@@ -139,19 +139,19 @@ class AssignmentTypeDetector(ast.NodeVisitor):
         self.variables_sign_counter = Counter()
         self.variables_most_common = None
 
-    def visit_File(self, node):  # noqa
+    def visit_File(self, node):
         self.generic_visit(node)
         if len(self.keyword_sign_counter) >= 2:
             self.keyword_most_common = self.keyword_sign_counter.most_common(1)[0][0]
         if len(self.variables_sign_counter) >= 2:
             self.variables_most_common = self.variables_sign_counter.most_common(1)[0][0]
 
-    def visit_KeywordCall(self, node):  # noqa
+    def visit_KeywordCall(self, node):
         if node.assign:  # if keyword returns any value
             sign = self.get_assignment_sign(node.assign[-1])
             self.keyword_sign_counter[sign] += 1
 
-    def visit_VariableSection(self, node):  # noqa
+    def visit_VariableSection(self, node):
         for child in node.body:
             if not isinstance(child, Variable):
                 continue
@@ -203,7 +203,10 @@ class RecommendationFinder:
 
     @staticmethod
     def _calculate_cutoff(string, min_cutoff=0.5, max_cutoff=0.85, step=0.03):
-        """The longer the string the bigger required cutoff."""
+        """
+        Calculate cutoff for difflib string matching.
+        The longer the string the bigger required cutoff.
+        """
         cutoff = min_cutoff + len(string) * step
         return min(cutoff, max_cutoff)
 
@@ -219,7 +222,7 @@ class RecommendationFinder:
     @staticmethod
     def get_original_candidates(candidates, norm_candidates):
         """Map found normalized candidates to unique original candidates."""
-        return sorted(list(set(c for cand in candidates for c in norm_candidates[cand])))
+        return sorted({c for cand in candidates for c in norm_candidates[cand]})
 
     def get_normalized_candidates(self, candidates):
         """
@@ -240,7 +243,7 @@ class TestTemplateFinder(ast.NodeVisitor):
     def __init__(self):
         self.templated = False
 
-    def visit_TestTemplate(self, node):  # noqa
+    def visit_TestTemplate(self, node):
         self.templated = bool(node.value)
 
 
@@ -337,7 +340,8 @@ def get_errors(node):
 
 
 def find_escaped_variables(string):
-    r"""Return list of $escaped or \${escaped} variables from the string.
+    r"""
+    Return list of $escaped or \${escaped} variables from the string.
 
     We are tokenizing the string using Python ast modules. This allows us to find valid Python-like names and check
     if they are escaped Robot Framework variables.

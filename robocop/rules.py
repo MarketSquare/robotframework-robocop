@@ -25,6 +25,7 @@ Output message of rules can be defined with ``-f`` / ``--format`` argument. Defa
 * ``desc``:       description of the rule
 
 """
+
 from enum import Enum
 from functools import total_ordering
 from textwrap import dedent
@@ -237,7 +238,7 @@ class SeverityThreshold:
                     f"Invalid severity value '{value}'. It should be list of `severity=param_value` pairs, separated by `:`."
                 ) from None
             severity = self.parse_severity(sev)
-            thresholds.append((severity, int(param_value)))  # TODO support non-int params
+            thresholds.append((severity, int(param_value)))  # TODO: support non-int params
         self.thresholds = sorted(thresholds, key=lambda x: x[0], reverse=True)
 
     def check_condition(self, value, threshold):

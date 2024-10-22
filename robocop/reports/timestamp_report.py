@@ -85,4 +85,4 @@ class TimestampReport(robocop.reports.Report):
                 f"Provided timezone '{self.timezone}' for report '{getattr(self, 'name')}' is not valid. "
                 "Use timezone names like `Europe\\Helsinki`."
                 "See: https://en.wikipedia.org/wiki/List_of_tz_database_time_zone"
-            ) from err  # noqa
+            ) from err

@@ -31,8 +31,7 @@ def convert_to_output(stdout_bytes):
 
 
 def get_result(encoded_output):
-    stdout = convert_to_output(encoded_output.getvalue())
-    return stdout
+    return convert_to_output(encoded_output.getvalue())
 
 
 def normalize_result(result, test_data):
@@ -107,9 +106,10 @@ class RuleAcceptance:
         if rule is None:
             rule = [self.rule_name]
         robocop_instance = configure_robocop_with_rule(config, Robocop(), rule, test_data, src_files, format=format)
-        with isolated_output() as output, pytest.raises(SystemExit):
+        with isolated_output() as output:
             try:
-                robocop_instance.run()
+                with pytest.raises(SystemExit):
+                    robocop_instance.run()
             finally:
                 sys.stdout.flush()
                 result = get_result(output)

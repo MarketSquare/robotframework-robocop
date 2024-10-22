@@ -1,4 +1,5 @@
-""" Auto detect robot file type (it can be resource, general or init) """
+"""Auto detect robot file type (it can be resource, general or init)"""
+
 import ast
 import os
 from enum import Enum
@@ -25,9 +26,7 @@ def check_model_type(file_type_checker, model):
 
 
 class FileType(Enum):
-    """
-    Enum holding type of Robot file.
-    """
+    """Enum holding type of Robot file."""
 
     RESOURCE = "resource"
     GENERAL = "general"
@@ -53,7 +52,7 @@ class FileTypeChecker(ast.NodeVisitor):
         self.exec_dir = exec_dir
         self.source = None
 
-    def visit_ResourceImport(self, node):  # noqa
+    def visit_ResourceImport(self, node):
         """
         Check all imports in scanned file. If one of our scanned file is imported somewhere else
         it means this file is resource type
@@ -71,5 +70,4 @@ class FileTypeChecker(ast.NodeVisitor):
 def normalize_robot_path(robot_path, curr_path, exec_path):
     normalized_path = str(robot_path).replace("${/}", os.path.sep)
     normalized_path = normalized_path.replace("${CURDIR}", str(curr_path))
-    normalized_path = normalized_path.replace("${EXECDIR}", str(exec_path))
-    return normalized_path
+    return normalized_path.replace("${EXECDIR}", str(exec_path))

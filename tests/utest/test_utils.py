@@ -22,7 +22,7 @@ def detect_from_file(file):
 
 class TestParseAssignmentSignType:
     @pytest.mark.parametrize(
-        "value, expected",
+        ("value", "expected"),
         [("none", ""), ("equal_sign", "="), ("space_and_equal_sign", " =")],
     )
     def test_happy_paths(self, value, expected):
@@ -101,7 +101,7 @@ class TestAssignmentTypeDetector:
 
 class TestRecommendationFinder:
     @pytest.mark.parametrize(
-        "name, normalized",
+        ("name", "normalized"),
         [
             ("justname", ("justname", "justname")),
             ("just_name", ("just name", "justname")),
@@ -115,7 +115,7 @@ class TestRecommendationFinder:
         assert actual == normalized
 
     @pytest.mark.parametrize(
-        "name, candidates, similar",
+        ("name", "candidates", "similar"),
         [
             ("", ["some"], ""),
             ("some", [], ""),
@@ -141,7 +141,7 @@ class TestRecommendationFinder:
 
 class TestMisc:
     @pytest.mark.parametrize(
-        "string, replaced",
+        ("string", "replaced"),
         [
             (
                 "Keyword With Embedded ${var} Variable",
@@ -174,7 +174,7 @@ class TestMisc:
         assert actual == replaced
 
     @pytest.mark.parametrize(
-        "string, exp_vars",
+        ("string", "exp_vars"),
         [
             ("${var}", [(0, 6)]),
             ("${var}}", [(0, 6)]),
@@ -194,7 +194,7 @@ class TestMisc:
         assert r"Invalid regex pattern: bad escape \\9 at position 1" in str(error)
 
     @pytest.mark.parametrize(
-        "var_name, normalized_var_name",
+        ("var_name", "normalized_var_name"),
         [
             ("var", "var"),
             ("my_var", "my_var"),
@@ -215,7 +215,7 @@ class TestMisc:
 
 
 @pytest.mark.parametrize(
-    "robot_version, rule_version, should_pass",
+    ("robot_version", "rule_version", "should_pass"),
     [
         ("6.0.2", ">=6", True),
         ("6.1a2.dev1", ">=6", True),
@@ -273,7 +273,7 @@ def test_invalid_version_specifier():
 
 
 @pytest.mark.parametrize(
-    "string, expected_variables",
+    ("string", "expected_variables"),
     [
         ("string", []),
         ("$var", ["var"]),

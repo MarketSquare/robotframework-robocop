@@ -1,4 +1,3 @@
-import collections
 import itertools
 import re
 from functools import total_ordering
@@ -31,8 +30,7 @@ def _get_comparison_key(release: Tuple[int, ...]):
     # leading zeros until we come to something non zero, then take the rest
     # re-reverse it back into the correct order and make it a tuple and use
     # that for our sorting key.
-    _release = tuple(reversed(list(itertools.dropwhile(lambda x: x == 0, reversed(release)))))
-    return _release
+    return tuple(reversed(list(itertools.dropwhile(lambda x: x == 0, reversed(release)))))
 
 
 def _parse_letter_version(letter: str, number: Union[str, bytes, SupportsInt]) -> Optional[Tuple[str, int]]:
@@ -214,8 +212,7 @@ class VersionSpecifier:
         return version
 
     def _get_operator(self, op: str):
-        operator_callable = getattr(self, f"_compare_{self._operators[op]}")
-        return operator_callable
+        return getattr(self, f"_compare_{self._operators[op]}")
 
     @property
     def operator(self) -> str:
@@ -264,10 +261,9 @@ class VersionSpecifier:
             padded_spec, padded_prospective = _pad_version(split_spec, shortened_prospective)
 
             return padded_prospective == padded_spec
-        else:
-            # Convert our spec string into a Version
-            spec_version = Version(spec)
-            return prospective == spec_version
+        # Convert our spec string into a Version
+        spec_version = Version(spec)
+        return prospective == spec_version
 
     def _compare_not_equal(self, prospective, spec: str) -> bool:
         return not self._compare_equal(prospective, spec)

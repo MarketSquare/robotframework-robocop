@@ -2,6 +2,7 @@
 Those exceptions usually happens when trying to add new rules for Robocop and using wrong configuration (already
 existing rule name or id, get value of non-existing parameter inside checker etc.).
 """
+
 import pytest
 
 import robocop.exceptions

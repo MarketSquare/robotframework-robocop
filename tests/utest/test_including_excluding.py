@@ -11,7 +11,7 @@ def get_message_with_id(rule_id):
 
 class TestIncludingExcluding:
     @pytest.mark.parametrize(
-        "included, excluded",
+        ("included", "excluded"),
         [
             (["0101"], ["0102", "0501", "0402"]),
             (["W0101", "0102"], ["0501", "0402"]),
@@ -26,7 +26,7 @@ class TestIncludingExcluding:
         assert all(not robocop_pre_load.config.is_rule_enabled(get_message_with_id(msg)) for msg in excluded)
 
     @pytest.mark.parametrize(
-        "patterns, included, excluded",
+        ("patterns", "included", "excluded"),
         [
             (["01*"], [], ["0202", "0501", "0403"]),
             (["01*", "*5"], ["0101", "0105", "0405"], ["0204", "0402"]),
@@ -42,7 +42,7 @@ class TestIncludingExcluding:
         assert all(not robocop_pre_load.config.is_rule_enabled(get_message_with_id(msg)) for msg in excluded)
 
     @pytest.mark.parametrize(
-        "included, excluded",
+        ("included", "excluded"),
         [
             (["0101"], ["0102", "0501", "0402"]),
             (["W0101", "0102"], ["0501", "0402"]),
@@ -57,7 +57,7 @@ class TestIncludingExcluding:
         assert all(not robocop_pre_load.config.is_rule_enabled(get_message_with_id(msg)) for msg in excluded)
 
     @pytest.mark.parametrize(
-        "patterns, included, excluded",
+        ("patterns", "included", "excluded"),
         [
             (["01*"], ["0204", "0405", "0405"], ["0101", "0105"]),
             (["01*", "*5"], ["0204"], ["0101", "0105", "0405", "0405"]),
@@ -66,8 +66,10 @@ class TestIncludingExcluding:
         ],
     )
     def test_only_excluded_patterns(self, patterns, included, excluded, robocop_pre_load):
-        """Test data contains rules with rule id's "0101", "0105", "0204", "0405", "0405"
-        and rule names created using `some-message-{rule_id}` pattern"""
+        """
+        Test data contains rules with rule id's "0101", "0105", "0204", "0405", "0405"
+        and rule names created using `some-message-{rule_id}` pattern
+        """
         robocop_pre_load.config.exclude.update(set(patterns))
         robocop_pre_load.config.remove_severity()
         robocop_pre_load.config.translate_patterns()

@@ -91,11 +91,10 @@ class SarifReport(robocop.reports.Report):
     def generate_rules_config(self, rules):
         unique_enabled_rules = {rule.rule_id: rule for rule in rules.values() if rule.enabled}
         sorted_rules = sorted(unique_enabled_rules.values(), key=lambda x: x.rule_id)
-        rules_config = [self.get_rule_desc(rule) for rule in sorted_rules]
-        return rules_config
+        return [self.get_rule_desc(rule) for rule in sorted_rules]
 
     def generate_sarif_report(self, config, rules):
-        report = {
+        return {
             "$schema": self.SCHEMA,
             "version": self.SCHEMA_VERSION,
             "runs": [
@@ -113,7 +112,6 @@ class SarifReport(robocop.reports.Report):
                 }
             ],
         }
-        return report
 
     def get_report(self, config, rules) -> str:
         report = self.generate_sarif_report(config, rules)

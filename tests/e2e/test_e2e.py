@@ -1,4 +1,4 @@
-""" General E2E tests to catch any general issue in Robocop """
+"""General E2E tests to catch any general issue in Robocop"""
 
 import re
 import sys
@@ -203,7 +203,7 @@ class TestE2E:
         configure_robocop(robocop_instance, args=f"-c line-too-long:line_length:1000 {TEST_DATA_DIR}")
 
     @pytest.mark.parametrize(
-        "rule, expected",
+        ("rule", "expected"),
         [
             ("idontexist", "Provided rule or report 'idontexist' does not exist."),
             (
@@ -219,9 +219,9 @@ class TestE2E:
         assert expected in str(err)
 
     @pytest.mark.parametrize(
-        "rules, expected",
+        ("rules", "expected"),
         [
-            ("invalid", f"Provided rule 'invalid' does not exist."),
+            ("invalid", "Provided rule 'invalid' does not exist."),
             ("parsing-error,invalid", "Provided rule 'invalid' does not exist."),
             (
                 "line-toolong",
@@ -277,11 +277,14 @@ class TestE2E:
 
     def test_set_rule_invalid_threshold(self, robocop_instance):
         error = "Invalid configuration for Robocop:\nInvalid severity value '3'. Choose one from: I, W, E."
-        with mock.patch.object(
-            sys,
-            "argv",
-            "robocop --threshold 3".split(),
-        ), pytest.raises(InvalidArgumentError, match=error):
+        with (
+            mock.patch.object(
+                sys,
+                "argv",
+                "robocop --threshold 3".split(),
+            ),
+            pytest.raises(InvalidArgumentError, match=error),
+        ):
             Config(from_cli=True)
 
     def test_configure_severity(self, robocop_instance):
@@ -309,7 +312,7 @@ class TestE2E:
         robocop_instance.run()
         assert not robocop_instance.reports["internal_json_report"].issues
 
-    @pytest.mark.skipif(ROBOT_VERSION > Version("4.0"), reason="Error occurs only in RF < 5")
+    @pytest.mark.skipif(ROBOT_VERSION > Version("4.0"), reason="Error occurs only in RF < 5")  # noqa: SIM300
     def test_handling_error_in_robot_module(self):
         config = Config()
         test_file = INVALID_TEST_DATA / "invalid_syntax" / "invalid_file.robot"

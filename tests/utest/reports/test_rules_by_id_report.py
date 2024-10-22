@@ -45,7 +45,7 @@ W0105 (fixed-message)   : 0 (-1)"""
 
 class TestRulesByIdReport:
     @pytest.mark.parametrize(
-        "previous_results, compare_results, issues_names, expected",
+        ("previous_results", "compare_results", "issues_names", "expected"),
         [
             (None, False, FOUR_ISSUES, EXPECTED_NO_PREV),
             ({}, False, FOUR_ISSUES, EXPECTED_NO_PREV),

@@ -1,6 +1,5 @@
-"""
-Main class of Robocop module. Gathers files to be scanned, checkers, parses CLI arguments and scans files.
-"""
+"""Main class of Robocop module. Gathers files to be scanned, checkers, parses CLI arguments and scans files."""
+
 import os
 import sys
 from collections import Counter

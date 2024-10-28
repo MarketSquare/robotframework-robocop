@@ -75,7 +75,6 @@ lint.ignore = [
     "D403", # TODO: capitalize first word
     "PYI024", # TODO: namedtuple -> NamedTuple
     "TRY201", # TODO: use raise without exception name
-    "ISC001", # TODO: implicitly concatenated string literals on one line
     "PTH100", # TODO: use Path
     "PTH109", # TODO: use Path
     "PTH110", # TODO: use Path

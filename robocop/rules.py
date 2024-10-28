@@ -153,9 +153,9 @@ class RuleParam:
         self.value = default
 
     def __str__(self):
-        s = f"{self.name} = {self.raw_value}\n" f"        type: {self.converter.__name__}"
+        s = f"{self.name} = {self.raw_value}\n        type: {self.converter.__name__}"
         if self.desc:
-            s += "\n" f"        info: {self.desc}"
+            s += f"\n        info: {self.desc}"
         return s
 
     @property

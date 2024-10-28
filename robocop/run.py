@@ -200,7 +200,7 @@ class Robocop:
             else:
                 _, params = rule.available_configurables(include_severity=False)
                 if params:
-                    print(f"{rule}\n" f"    {params}")
+                    print(f"{rule}\n    {params}")
                     severity_counter[rule.severity.value] += 1
         configurable_rules_sum = sum(severity_counter.values())
         plural = get_plural_form(configurable_rules_sum)

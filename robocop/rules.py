@@ -458,7 +458,7 @@ class Rule:
         )
 
     def matches_pattern(self, pattern: Union[str, Pattern]):
-        """check if this rule matches given pattern"""
+        """Check if this rule matches given pattern"""
         if isinstance(pattern, str):
             return pattern in (self.name, self.rule_id)
         return pattern.match(self.name) or pattern.match(self.rule_id)

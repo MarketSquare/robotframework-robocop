@@ -72,7 +72,6 @@ lint.ignore = [
     "N999", # TODO: invalid module name unused-keyword
     "PLR2004", # TODO: magic value used in comparison (50 issues)
     "RET503", # TODO: missing explicit return
-    "D403", # TODO: capitalize first word
     "PYI024", # TODO: namedtuple -> NamedTuple
     "TRY201", # TODO: use raise without exception name
     "PTH100", # TODO: use Path

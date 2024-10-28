@@ -289,7 +289,7 @@ def remove_robot_vars(name: str) -> str:
 
 
 def find_robot_vars(name: str) -> List[Tuple[int, int]]:
-    """return list of tuples with (start, end) pos of vars in name"""
+    """Return list of tuples with (start, end) pos of vars in name"""
     var_start = set("$@%&")
     brackets = 0
     index = 0

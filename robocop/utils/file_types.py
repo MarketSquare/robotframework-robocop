@@ -33,7 +33,7 @@ class FileType(Enum):
     INIT = "init"
 
     def get_parser(self):
-        """return parser (method) for given model type"""
+        """Return parser (method) for given model type"""
         return {
             "resource": get_resource_model,
             "general": get_model,

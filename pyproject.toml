@@ -90,7 +90,6 @@ lint.ignore = [
     "PLR0912", # TODO: too many branches
     "ERA001", # TODO: commented out code
     "SIM105", # TODO: use supress
-    "UP037", # TODO: remove quotes from type annotation
     "ARG001", # TODO: unused function argument
     "DTZ005", # TODO: `datetime.datetime.now()` called without a `tz` argument
 ]

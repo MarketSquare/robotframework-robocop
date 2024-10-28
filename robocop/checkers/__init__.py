@@ -68,7 +68,7 @@ class BaseChecker:
         self.source = None
         self.lines = None
         self.issues = []
-        self.rules: Dict[str, "Rule"] = {}
+        self.rules: Dict[str, Rule] = {}
         self.templated_suite = False
 
     def param(self, rule, param_name):
@@ -122,7 +122,7 @@ class BaseChecker:
 
 class VisitorChecker(BaseChecker, ModelVisitor):
     def scan_file(self, ast_model, filename, in_memory_content, templated=False) -> List["Message"]:
-        self.issues: List["Message"] = []
+        self.issues: List[Message] = []
         self.source = filename
         self.templated_suite = templated
         if in_memory_content is not None:
@@ -150,7 +150,7 @@ class ProjectChecker(VisitorChecker):
 
 class RawFileChecker(BaseChecker):
     def scan_file(self, ast_model, filename, in_memory_content, templated=False) -> List["Message"]:
-        self.issues: List["Message"] = []
+        self.issues: List[Message] = []
         self.source = filename
         self.templated_suite = templated
         if in_memory_content is not None:

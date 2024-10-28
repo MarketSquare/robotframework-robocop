@@ -1,7 +1,9 @@
+from __future__ import annotations
+
 import itertools
 import re
 from functools import total_ordering
-from typing import Optional, SupportsInt, Union
+from typing import SupportsInt
 
 VERSION_PATTERN = r"""
     v?
@@ -33,7 +35,7 @@ def _get_comparison_key(release: tuple[int, ...]):
     return tuple(reversed(list(itertools.dropwhile(lambda x: x == 0, reversed(release)))))
 
 
-def _parse_letter_version(letter: str, number: Union[str, bytes, SupportsInt]) -> Optional[tuple[str, int]]:
+def _parse_letter_version(letter: str, number: str | bytes | SupportsInt) -> tuple[str, int] | None:
     if letter:
         # We consider there to be an implicit 0 in a pre-release if there is
         # not a numeral associated with it.

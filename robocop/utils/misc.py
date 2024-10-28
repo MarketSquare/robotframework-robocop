@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import ast
 import difflib
 import re
@@ -8,7 +10,6 @@ from io import StringIO
 from pathlib import Path
 from re import Pattern
 from tokenize import generate_tokens
-from typing import Optional
 
 import platformdirs
 from robot.api import Token
@@ -63,7 +64,7 @@ def rf_supports_lang():
     return ROBOT_VERSION >= ROBOT_WITH_LANG
 
 
-def normalize_robot_name(name: str, remove_prefix: Optional[str] = None) -> str:
+def normalize_robot_name(name: str, remove_prefix: str | None = None) -> str:
     name = name.replace(" ", "").replace("_", "").lower() if name else ""
     if remove_prefix:
         return name[name.startswith(remove_prefix) and len(remove_prefix) :]

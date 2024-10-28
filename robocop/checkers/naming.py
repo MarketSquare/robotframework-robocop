@@ -1,11 +1,12 @@
 """Naming checkers"""
 
+from __future__ import annotations
+
 import re
 import string
 from collections import defaultdict
-from collections.abc import Iterable
 from pathlib import Path
-from typing import Optional
+from typing import TYPE_CHECKING
 
 from robot.api import Token
 from robot.errors import VariableError
@@ -28,6 +29,9 @@ from robocop.utils import (
 from robocop.utils.misc import _is_var_scope_local, remove_nested_variables
 from robocop.utils.run_keywords import iterate_keyword_names
 from robocop.utils.variable_matcher import VariableMatches
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable
 
 RULE_CATEGORY_ID = "03"
 
@@ -842,7 +846,7 @@ class SettingsNamingChecker(VisitorChecker):
 
     def __init__(self):
         self.section_name_pattern = re.compile(r"\*\*\*\s.+\s\*\*\*")
-        self.task_section: Optional[bool] = None
+        self.task_section: bool | None = None
         super().__init__()
 
     def visit_InvalidSection(self, node):  # noqa: N802

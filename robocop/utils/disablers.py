@@ -1,9 +1,10 @@
 """Collection of classes for detecting checker disablers (like # robocop: disable) in robot files"""
 
+from __future__ import annotations
+
 import re
 from collections import defaultdict
 from copy import deepcopy
-from typing import Optional
 
 from robot.api import Token
 from robot.parsing.model.blocks import CommentSection
@@ -17,7 +18,7 @@ except ImportError:
 class DisablersInFile:  # pylint: disable=too-few-public-methods
     """Container for file disablers"""
 
-    def __init__(self, blocks: Optional[list] = None):
+    def __init__(self, blocks: list | None = None):
         self.lastblock = -1
         self.lines = set()
         self.blocks = blocks if blocks else []

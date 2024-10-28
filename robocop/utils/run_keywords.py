@@ -1,4 +1,4 @@
-from typing import Optional
+from __future__ import annotations
 
 from robocop.utils.misc import normalize_robot_name
 
@@ -8,7 +8,7 @@ class RunKeywordVariant:
         self,
         name: str,
         resolve: int = 1,
-        branches: Optional[list] = None,
+        branches: list | None = None,
         split_on_and: bool = False,
         prefix: str = "builtin",
     ):

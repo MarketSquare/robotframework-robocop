@@ -26,11 +26,12 @@ Output message of rules can be defined with ``-f`` / ``--format`` argument. Defa
 
 """
 
+from __future__ import annotations
+
 from enum import Enum
 from functools import total_ordering
-from re import Pattern
 from textwrap import dedent
-from typing import Any, Callable, Optional, Union
+from typing import TYPE_CHECKING, Any, Callable, Optional
 
 from jinja2 import Template
 
@@ -38,6 +39,9 @@ import robocop.exceptions
 from robocop.utils import ROBOT_VERSION
 from robocop.utils.misc import str2bool
 from robocop.utils.version_matching import VersionSpecifier
+
+if TYPE_CHECKING:
+    from re import Pattern
 
 
 @total_ordering
@@ -66,7 +70,7 @@ class RuleSeverity(Enum):
     ERROR = "E"
 
     @classmethod
-    def parser(cls, value: Union[str, "RuleSeverity"], rule_severity=True) -> "RuleSeverity":
+    def parser(cls, value: str | RuleSeverity, rule_severity=True) -> RuleSeverity:
         # parser can be invoked from Rule() with severity=RuleSeverity.WARNING (enum directly) or
         # from configuration with severity:W (string representation)
         severity = {
@@ -136,7 +140,7 @@ class RuleParam:
     Each rule can have number of parameters (default one is severity).
     """
 
-    def __init__(self, name: str, default: Any, converter: Callable, desc: str, show_type: Optional[str] = None):
+    def __init__(self, name: str, default: Any, converter: Callable, desc: str, show_type: str | None = None):
         """
         :param name: Name of the parameter used when configuring rule (also displayed in the docs)
         :param default: Default value of the parameter
@@ -284,14 +288,14 @@ class Rule:
 
     def __init__(
         self,
-        *params: Union[RuleParam, SeverityThreshold],
+        *params: RuleParam | SeverityThreshold,
         rule_id: str,
         name: str,
         msg: str,
         severity: RuleSeverity,
         version: str = None,
         docs: str = "",
-        added_in_version: Optional[str] = None,
+        added_in_version: str | None = None,
         enabled: bool = True,
         deprecated: bool = False,
     ):
@@ -386,7 +390,7 @@ class Rule:
         return all(ROBOT_VERSION in VersionSpecifier(condition) for condition in version.split(";"))
 
     @staticmethod
-    def get_template(msg: str) -> Optional[Template]:
+    def get_template(msg: str) -> Template | None:
         if "{" in msg:
             return Template(msg)
         return None
@@ -458,7 +462,7 @@ class Rule:
             overwrite_severity=severity,
         )
 
-    def matches_pattern(self, pattern: Union[str, Pattern]):
+    def matches_pattern(self, pattern: str | Pattern):
         """Check if this rule matches given pattern"""
         if isinstance(pattern, str):
             return pattern in (self.name, self.rule_id)

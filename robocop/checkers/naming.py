@@ -3,8 +3,9 @@
 import re
 import string
 from collections import defaultdict
+from collections.abc import Iterable
 from pathlib import Path
-from typing import Iterable, Optional
+from typing import Optional
 
 from robot.api import Token
 from robot.errors import VariableError

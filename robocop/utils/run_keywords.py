@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import Optional
 
 from robocop.utils.misc import normalize_robot_name
 
@@ -8,7 +8,7 @@ class RunKeywordVariant:
         self,
         name: str,
         resolve: int = 1,
-        branches: Optional[List] = None,
+        branches: Optional[list] = None,
         split_on_and: bool = False,
         prefix: str = "builtin",
     ):
@@ -20,7 +20,7 @@ class RunKeywordVariant:
 
 
 class RunKeywords(dict):
-    def __init__(self, keywords: List[RunKeywordVariant]):
+    def __init__(self, keywords: list[RunKeywordVariant]):
         normalized_keywords = {}
         for keyword_variant in keywords:
             normalized_name = normalize_robot_name(keyword_variant.name)

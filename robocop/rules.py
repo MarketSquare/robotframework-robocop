@@ -28,8 +28,9 @@ Output message of rules can be defined with ``-f`` / ``--format`` argument. Defa
 
 from enum import Enum
 from functools import total_ordering
+from re import Pattern
 from textwrap import dedent
-from typing import Any, Callable, Dict, Optional, Pattern, Union
+from typing import Any, Callable, Optional, Union
 
 from jinja2 import Template
 
@@ -511,7 +512,7 @@ class Message:
     def get_fullname(self) -> str:
         return f"{self.severity.value}{self.rule_id} ({self.name})"
 
-    def to_json(self) -> Dict:
+    def to_json(self) -> dict:
         return {
             "source": self.source,
             "line": self.line,

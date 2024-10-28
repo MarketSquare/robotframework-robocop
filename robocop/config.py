@@ -5,7 +5,8 @@ import re
 import sys
 from itertools import chain
 from pathlib import Path
-from typing import TYPE_CHECKING, Dict, Pattern, Set
+from re import Pattern
+from typing import TYPE_CHECKING
 
 import tomli
 from robot.utils import FileReader
@@ -511,13 +512,13 @@ class Config:
         self.parse_args_to_config(args)
 
     @staticmethod
-    def replace_in_set(container: Set, old_key: str, new_key: str):
+    def replace_in_set(container: set, old_key: str, new_key: str):
         if old_key not in container:
             return
         container.remove(old_key)
         container.add(new_key)
 
-    def validate_rules_exists_and_not_deprecated(self, rules: Dict[str, "Rule"]):
+    def validate_rules_exists_and_not_deprecated(self, rules: dict[str, "Rule"]):
         for rule in chain(self.include, self.exclude):
             if rule not in rules:
                 raise exceptions.RuleDoesNotExist(rule, rules) from None
@@ -560,7 +561,7 @@ class Config:
                 rule_name = rule_name.replace(char, "")
         return rule_name
 
-    def parse_toml_to_config(self, toml_data: Dict, config_dir: Path):
+    def parse_toml_to_config(self, toml_data: dict, config_dir: Path):
         if not toml_data:
             return False
         resolve_relative = {"paths", "ext_rules", "output"}

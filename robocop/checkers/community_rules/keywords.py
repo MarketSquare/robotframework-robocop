@@ -1,5 +1,3 @@
-from typing import Set
-
 from robot.api import Token
 from robot.model import Keyword
 from robot.utils.robottime import timestr_to_secs
@@ -12,7 +10,7 @@ from robocop.utils.run_keywords import iterate_keyword_names
 RULE_CATEGORY_ID = "00"
 
 
-def comma_separated_list(value: str) -> Set[str]:
+def comma_separated_list(value: str) -> set[str]:
     if value is None:
         return set()
     return {normalize_robot_name(kw) for kw in value.split(",")}

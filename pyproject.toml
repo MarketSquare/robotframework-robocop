@@ -62,8 +62,6 @@ lint.ignore = [
     "A001", # TODO: variable shadowing python builtin
     "A002", # TODO: argument shadowing python builtin
     "FBT001", # TODO: boolean positional argument in fn def. Check if fn can be splitted on two depending on flag
-    "UP006", # TODO: List -> list
-    "UP035", # TODO: List -> list
     "E501", # TODO: line too long
     "FIX001", # TODO: code with fixme
     "TD003", # TODO: code with fixme and without issue link

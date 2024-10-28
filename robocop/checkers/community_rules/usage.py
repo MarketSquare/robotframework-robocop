@@ -1,6 +1,8 @@
+from collections.abc import Iterable
 from dataclasses import dataclass, field
 from itertools import chain
-from typing import Dict, Iterable, List, Optional, Pattern, Set, Union
+from re import Pattern
+from typing import Optional, Union
 
 from robot.api import Token
 from robot.errors import DataError
@@ -54,7 +56,7 @@ else:
 class KeywordUsage:
     found_def: bool = False
     used: int = 0
-    names: Set[str] = field(default_factory=set)
+    names: set[str] = field(default_factory=set)
 
     def update(self, name: str):
         self.used += 1
@@ -66,7 +68,7 @@ class KeywordDefinition:
     name: Union[str, Pattern]
     keyword_node: Keyword
     used: int = 0
-    used_names: Set[str] = field(default_factory=set)
+    used_names: set[str] = field(default_factory=set)
     is_private: bool = False
 
     def update(self, used_as: KeywordUsage):
@@ -79,9 +81,9 @@ class KeywordDefinition:
 class RobotFile:
     path: str
     is_suite: bool = False
-    normal_keywords: Dict[str, KeywordDefinition] = field(default_factory=dict)
-    embedded_keywords: Dict[str, KeywordDefinition] = field(default_factory=dict)
-    used_keywords: Dict[str, KeywordUsage] = field(default_factory=dict)
+    normal_keywords: dict[str, KeywordDefinition] = field(default_factory=dict)
+    embedded_keywords: dict[str, KeywordDefinition] = field(default_factory=dict)
+    used_keywords: dict[str, KeywordUsage] = field(default_factory=dict)
 
     @property
     def keywords(self) -> Iterable[KeywordDefinition]:
@@ -92,11 +94,11 @@ class RobotFile:
         return any(keyword.is_private for keyword in self.keywords)
 
     @property
-    def private_keywords(self) -> List[KeywordDefinition]:
+    def private_keywords(self) -> list[KeywordDefinition]:
         return [keyword for keyword in self.keywords if keyword.is_private]
 
     @property
-    def not_used_keywords(self) -> List[KeywordDefinition]:
+    def not_used_keywords(self) -> list[KeywordDefinition]:
         not_used = []
         for keyword in self.keywords:
             if keyword.used or not (self.is_suite or keyword.is_private):
@@ -126,11 +128,11 @@ class UnusedKeywords(ProjectChecker):
     # TODO: handle BDD
 
     def __init__(self):
-        self.files: Dict[str, RobotFile] = {}
+        self.files: dict[str, RobotFile] = {}
         self.current_file: Optional[RobotFile] = None
         super().__init__()
 
-    def scan_project(self) -> List["Message"]:
+    def scan_project(self) -> list["Message"]:
         self.issues = []
         for robot_file in self.files.values():
             if not (robot_file.is_suite or robot_file.any_private):

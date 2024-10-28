@@ -6,8 +6,9 @@ import tokenize
 from collections import Counter, defaultdict, namedtuple
 from io import StringIO
 from pathlib import Path
+from re import Pattern
 from tokenize import generate_tokens
-from typing import Dict, List, Optional, Pattern, Tuple
+from typing import Optional
 
 import platformdirs
 from robot.api import Token
@@ -101,7 +102,7 @@ def token_col(node, *token_type) -> int:
     return token.col_offset + 1
 
 
-def issues_to_lsp_diagnostic(issues) -> List[Dict]:
+def issues_to_lsp_diagnostic(issues) -> list[dict]:
     return [
         {
             "range": {
@@ -288,7 +289,7 @@ def remove_robot_vars(name: str) -> str:
     return replaced
 
 
-def find_robot_vars(name: str) -> List[Tuple[int, int]]:
+def find_robot_vars(name: str) -> list[tuple[int, int]]:
     """Return list of tuples with (start, end) pos of vars in name"""
     var_start = set("$@%&")
     brackets = 0

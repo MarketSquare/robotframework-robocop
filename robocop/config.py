@@ -486,7 +486,7 @@ class Config:
             with Path(pyproject_path).open("rb") as fp:
                 config = tomli.load(fp)
         except tomli.TOMLDecodeError as err:
-            raise exceptions.InvalidArgumentError(f"Failed to decode {str(pyproject_path)}: {err}") from None
+            raise exceptions.InvalidArgumentError(f"Failed to decode {pyproject_path!s}: {err}") from None
         config = config.get("tool", {}).get("robocop", {})
         if self.parse_toml_to_config(config, config_dir):
             self.config_from = pyproject_path

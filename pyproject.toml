@@ -88,7 +88,6 @@ lint.ignore = [
     "B028", # TODO: no explicit stacklevel in warn
     "B904", # TODO: raise from
     "PLR0912", # TODO: too many branches
-    "RUF010", # TODO: use explicit conversion flag
     "ERA001", # TODO: commented out code
     "SIM105", # TODO: use supress
     "UP037", # TODO: remove quotes from type annotation

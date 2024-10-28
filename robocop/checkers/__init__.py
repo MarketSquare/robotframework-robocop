@@ -132,7 +132,7 @@ class VisitorChecker(BaseChecker, ModelVisitor):
         self.visit_File(ast_model)
         return self.issues
 
-    def visit_File(self, node):
+    def visit_File(self, node):  # noqa: N802
         """Perform generic ast visit on file node."""
         self.generic_visit(node)
 

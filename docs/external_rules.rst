@@ -35,7 +35,7 @@ This is an example of the file with custom checker that asserts that no test hav
     class NoExamplesChecker(VisitorChecker):
         reports = ("example-in-name",)
 
-        def visit_TestCaseName(self, node):
+        def visit_TestCaseName(self, node):  # noqa: N802
             if 'Example' in node.name:
                 self.report("example-in-name", node=node, col=node.name.find('Example'))
 
@@ -64,7 +64,7 @@ Rules can have configurable values. You need to specify them using RuleParam cla
     class NoExamplesChecker(VisitorChecker):
         reports = ("example-in-name",)
 
-        def visit_TestCaseName(self, node):
+        def visit_TestCaseName(self, node):  # noqa: N802
             configured_param = self.param("example-in-name", "param_name")
             if configured_param in node.name:
                 self.report(
@@ -155,7 +155,7 @@ inside ``some_rules.py``:
         """ Checker for missing keyword name. """
         reports = ("external-rule",)
 
-        def visit_KeywordCall(self, node):  # noqa
+        def visit_KeywordCall(self, node):  # noqa: N802
             if node.keyword and 'Example' not in node.keyword:
                 self.report("external-rule", node=node)
 

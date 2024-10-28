@@ -41,7 +41,7 @@ class DisablersVisitor(ModelVisitor):
         self.rules = defaultdict(DisablersInFile().copy)
         self.visit(model)
 
-    def visit_File(self, node):
+    def visit_File(self, node):  # noqa: N802
         self.file_end = node.end_lineno
         self.generic_visit(node)
 
@@ -60,36 +60,36 @@ class DisablersVisitor(ModelVisitor):
                 self.rules[rule_name].lines.update(rule_disabler.lines)
         self.disablers_in_scope.pop()
 
-    def visit_KeywordSection(self, node):
+    def visit_KeywordSection(self, node):  # noqa: N802
         self.keyword_or_test_section = True
         self.parse_disablers_in_node(node)
         self.keyword_or_test_section = False
 
-    visit_TestCaseSection = visit_KeywordSection
+    visit_TestCaseSection = visit_KeywordSection  # noqa: N815
 
-    def visit_Section(self, node):
+    def visit_Section(self, node):  # noqa: N802
         self.is_first_comment_section = self.is_first_comment_section and isinstance(node, CommentSection)
         self.parse_disablers_in_node(node)
         self.is_first_comment_section = False
 
-    visit_TestCase = visit_Keyword = visit_Try = visit_For = visit_ForLoop = visit_While = visit_Section
+    visit_TestCase = visit_Keyword = visit_Try = visit_For = visit_ForLoop = visit_While = visit_Section  # noqa: N815
 
-    def visit_If(self, node):
+    def visit_If(self, node):  # noqa: N802
         last_line = node.body[-1].end_lineno if node.body else None
         self.parse_disablers_in_node(node, last_line)
 
-    def visit_Statement(self, node):
+    def visit_Statement(self, node):  # noqa: N802
         for comment in node.get_tokens(Token.COMMENT):
             self.parse_comment_token(comment, is_inline=True)
 
-    def visit_TestCaseName(self, node):
+    def visit_TestCaseName(self, node):  # noqa: N802
         """Save last test case / keyword header line number to check if comment is standalone."""
         self.last_name_header_line = node.lineno
         self.visit_Statement(node)
 
-    visit_KeywordName = visit_TestCaseName
+    visit_KeywordName = visit_TestCaseName  # noqa: N815
 
-    def visit_Comment(self, node):
+    def visit_Comment(self, node):  # noqa: N802
         for comment in node.get_tokens(Token.COMMENT):
             # Comment is only inline if it is next to test/kw name
             is_inline = comment.lineno == self.last_name_header_line

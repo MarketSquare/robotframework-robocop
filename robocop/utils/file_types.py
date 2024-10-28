@@ -52,7 +52,7 @@ class FileTypeChecker(ast.NodeVisitor):
         self.exec_dir = exec_dir
         self.source = None
 
-    def visit_ResourceImport(self, node):
+    def visit_ResourceImport(self, node):  # noqa: N802
         """
         Check all imports in scanned file. If one of our scanned file is imported somewhere else
         it means this file is resource type

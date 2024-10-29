@@ -3,7 +3,6 @@
 import os
 import sys
 from collections import Counter
-from typing import List
 
 from robot.api import get_resource_model
 from robot.errors import DataError
@@ -145,7 +144,7 @@ class Robocop:
             ]
         return found_issues
 
-    def run_project_checks(self) -> List:
+    def run_project_checks(self) -> list:
         found_issues = []
         for checker in self.checkers:
             if not checker.disabled and isinstance(checker, checkers.ProjectChecker):
@@ -200,7 +199,7 @@ class Robocop:
             else:
                 _, params = rule.available_configurables(include_severity=False)
                 if params:
-                    print(f"{rule}\n" f"    {params}")
+                    print(f"{rule}\n    {params}")
                     severity_counter[rule.severity.value] += 1
         configurable_rules_sum = sum(severity_counter.values())
         plural = get_plural_form(configurable_rules_sum)

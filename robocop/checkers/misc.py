@@ -3,7 +3,7 @@
 import ast
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Dict, List, Optional
+from typing import Optional
 
 from robot.api import Token
 from robot.errors import VariableError
@@ -46,7 +46,7 @@ from robocop.utils.variable_matcher import VariableMatches
 RULE_CATEGORY_ID = "09"
 
 
-def comma_separated_list(value: str) -> List[str]:
+def comma_separated_list(value: str) -> list[str]:
     return value.split(",")
 
 
@@ -1214,7 +1214,7 @@ class SectionVariablesCollector(ast.NodeVisitor):
     """Visitor for collecting all variables in the suite"""
 
     def __init__(self):
-        self.section_variables: Dict[str, CachedVariable] = {}
+        self.section_variables: dict[str, CachedVariable] = {}
 
     def visit_Variable(self, node):  # noqa: N802
         if get_errors(node):
@@ -1234,11 +1234,11 @@ class UnusedVariablesChecker(VisitorChecker):
     )
 
     def __init__(self):
-        self.arguments: Dict[str, CachedVariable] = {}
-        self.variables: List[Dict[str, CachedVariable]] = [
+        self.arguments: dict[str, CachedVariable] = {}
+        self.variables: list[dict[str, CachedVariable]] = [
             {}
         ]  # variables are list of scope-dictionaries, to support IF branches
-        self.section_variables: Dict[str, CachedVariable] = {}
+        self.section_variables: dict[str, CachedVariable] = {}
         self.used_in_scope = set()  # variables that were used in current FOR/WHILE loop
         self.ignore_overwriting = False  # temporarily ignore overwriting, e.g. in FOR loops
         self.in_loop = False  # if we're in the loop we need to check whole scope for unused-variable
@@ -1573,7 +1573,7 @@ class UnusedVariablesChecker(VisitorChecker):
         yield self.section_variables
         yield from self.variables[::-1]
 
-    def _set_variable_as_used(self, normalized_name: str, variable_scope: Dict[str, CachedVariable]) -> None:
+    def _set_variable_as_used(self, normalized_name: str, variable_scope: dict[str, CachedVariable]) -> None:
         """If variable is found in variable_scope, set it as used."""
         if normalized_name in variable_scope:
             variable_scope[normalized_name].is_used = True

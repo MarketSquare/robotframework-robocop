@@ -1,7 +1,6 @@
 """Lengths checkers"""
 
 import re
-from typing import List
 
 from robot.api import Token
 from robot.parsing.model.blocks import CommentSection, TestCase
@@ -852,7 +851,7 @@ class TooManyArgumentsInLineChecker(VisitorChecker):
                     )
 
     @staticmethod
-    def first_non_sep(line: List[Token]) -> Token:
+    def first_non_sep(line: list[Token]) -> Token:
         for token in line:
             if token.type != Token.SEPARATOR:
                 return token

@@ -1,6 +1,5 @@
 from collections import defaultdict
 from operator import itemgetter
-from typing import Dict
 
 import robocop.reports
 from robocop.rules import Message
@@ -30,10 +29,10 @@ class RulesByIdReport(robocop.reports.ComparableReport):
     def add_message(self, message: Message):
         self.message_counter[message.get_fullname()] += 1
 
-    def persist_result(self) -> Dict:
+    def persist_result(self) -> dict:
         return dict(self.message_counter.items())
 
-    def get_diff_counter(self, prev_results: Dict) -> Dict:
+    def get_diff_counter(self, prev_results: dict) -> dict:
         result = {}
         for issue_code, count in self.message_counter.items():
             old_count = prev_results.pop(issue_code, 0)
@@ -47,7 +46,7 @@ class RulesByIdReport(robocop.reports.ComparableReport):
             return self.get_report_with_compare(prev_results)
         return self.get_report_without_compare()
 
-    def get_report_with_compare(self, prev_results: Dict) -> str:
+    def get_report_with_compare(self, prev_results: dict) -> str:
         diff_counter = self.get_diff_counter(prev_results)
         message_counter_ordered = sorted(self.message_counter.items(), key=itemgetter(1), reverse=True)
         report = "\nIssues by ID:"

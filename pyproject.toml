@@ -58,12 +58,9 @@ lint.ignore = [
     "B007", # TODO: loop variable not used
     "TRY003", # TODO: exception with long message outside exception class
     "INP001", # TODO: file part of implicit namespace package
-    "FA100", # TODO: Use from future import to replace Optional with | None
     "A001", # TODO: variable shadowing python builtin
     "A002", # TODO: argument shadowing python builtin
     "FBT001", # TODO: boolean positional argument in fn def. Check if fn can be splitted on two depending on flag
-    "UP006", # TODO: List -> list
-    "UP035", # TODO: List -> list
     "E501", # TODO: line too long
     "FIX001", # TODO: code with fixme
     "TD003", # TODO: code with fixme and without issue link
@@ -72,10 +69,8 @@ lint.ignore = [
     "N999", # TODO: invalid module name unused-keyword
     "PLR2004", # TODO: magic value used in comparison (50 issues)
     "RET503", # TODO: missing explicit return
-    "D403", # TODO: capitalize first word
     "PYI024", # TODO: namedtuple -> NamedTuple
     "TRY201", # TODO: use raise without exception name
-    "ISC001", # TODO: implicitly concatenated string literals on one line
     "PTH100", # TODO: use Path
     "PTH109", # TODO: use Path
     "PTH110", # TODO: use Path
@@ -88,10 +83,8 @@ lint.ignore = [
     "B028", # TODO: no explicit stacklevel in warn
     "B904", # TODO: raise from
     "PLR0912", # TODO: too many branches
-    "RUF010", # TODO: use explicit conversion flag
     "ERA001", # TODO: commented out code
     "SIM105", # TODO: use supress
-    "UP037", # TODO: remove quotes from type annotation
     "ARG001", # TODO: unused function argument
     "DTZ005", # TODO: `datetime.datetime.now()` called without a `tz` argument
 ]
@@ -100,6 +93,13 @@ lint.unfixable = [
     # In addition, it can't do anything with invalid typing annotations, protected by mypy.
     "PT022",
 ]
+[tool.ruff.lint.extend-per-file-ignores]
+# following breaks for now with Robot Framework dynamic importing
+"robocop/checkers/misc.py" = ["FA100"]
+"robocop/checkers/community_rules/usage.py" = ["FA100"]
+# return type for tests does not make sense
+"tests/*" = ["ANN201"]
+
 
 [tool.coverage.run]
 omit = ["*tests*"]

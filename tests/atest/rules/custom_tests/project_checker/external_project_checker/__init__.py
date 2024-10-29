@@ -1,5 +1,3 @@
-from typing import List
-
 from robocop.checkers import ProjectChecker
 from robocop.rules import Message, Rule, RuleSeverity
 
@@ -36,7 +34,7 @@ class MyProjectChecker(ProjectChecker):
     def visit_TestCase(self, node):  # noqa: N802
         self.test_count += 1
 
-    def scan_project(self) -> List[Message]:
+    def scan_project(self) -> list[Message]:
         self.issues = []
         for source in self.sources:
             self.report("project-checker", source=source)

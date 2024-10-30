@@ -703,31 +703,146 @@ rules = {
     "0929": Rule(
         rule_id="0929",
         name="no-global-variable",
-        msg="TODO",
+        msg="Don't set global variables outside the variables section",
         severity=RuleSeverity.WARNING,
         added_in_version="5.6.0",
         docs="""
-        TODO
+        Setting or updating global variables in a test/keyword often leads to hard-to-understand
+        code. In most cases, you're better off using local variables.
+
+        Changes in global variables during a test are hard to track because you must remember what's
+        happening in multiple pieces of code at once. A line in a seemingly unrelated file can mess
+        up your understanding of what the code should be doing.
+
+        Local variables don't suffer from this issue because they are always created in the
+        keyword/test you're looking at.
+
+        In this example, the keyword changes the global variable. This will cause the test to fail.
+        Looking at just the test, it's unclear why the test fails. It only becomes clear if you also
+        remember the seemingly unrelated keyword.
+
+            *** Variables ***
+            ${hello}    Hello, world!
+
+            *** Test Cases ***
+            My Amazing Test
+                Do A Thing
+                Should Be Equal    ${hello}    Hello, world!
+
+            *** Keywords ***
+            Do A Thing
+                Set Global Variable    ${hello}    Goodnight, moon!
+
+        Using the VAR-syntax:
+
+            *** Variables ***
+            ${hello}    Hello, world!
+
+            *** Test Cases ***
+            My Amazing Test
+                Do A Thing
+                Should Be Equal    ${hello}    Hello, world!
+
+            *** Keywords ***
+            Do A Thing
+                VAR    ${hello}    Goodnight, moon!    scope=GLOBAL
+
+        There are exceptions. In some specific situations, global variables are a great tool. But
+        most of the time, it makes code needlessly hard to understand.
         """,
     ),
     "0930": Rule(
         rule_id="0930",
         name="no-suite-variable",
-        msg="TODO",
+        msg="Don't use suite variables",
         severity=RuleSeverity.WARNING,
         added_in_version="5.6.0",
         docs="""
-        TODO
+        Using suite variables in a test/keyword often leads to hard-to-understand code. In most
+        cases, you're better off using local variables.
+
+        Changes in suite variables during a test are hard to track because you must remember what's
+        happening in multiple pieces of code at once. A line in a seemingly unrelated file can mess
+        up your understanding of what the code should be doing.
+
+        Local variables don't suffer from this issue because they are always created in the
+        keyword/test you're looking at.
+
+        In this example, the keyword changes the suite variable. This will cause the test to fail.
+        Looking at just the test, it's unclear why the test fails. It only becomes clear if you also
+        remember the seemingly unrelated keyword.
+
+            *** Test Cases ***
+            My Amazing Test
+                Set Suite Variable    ${hello}    Hello, world!
+                Do A Thing
+                Should Be Equal    ${hello}    Hello, world!
+
+            *** Keywords ***
+            Do A Thing
+                Set Suite Variable    ${hello}    Goodnight, moon!
+
+        Using the VAR-syntax:
+
+            *** Test Cases ***
+            My Amazing Test
+                VAR    ${hello}    Hello, world!    scope=SUITE
+                Do A Thing
+                Should Be Equal    ${hello}    Hello, world!
+
+            *** Keywords ***
+            Do A Thing
+                VAR    ${hello}    Goodnight, moon!    scope=SUITE
+
+        There are exceptions. In some specific situations, suite variables are a great tool. But
+        most of the time, it makes code needlessly hard to understand.
         """,
     ),
     "0931": Rule(
         rule_id="0931",
         name="no-test-variable",
-        msg="TODO",
+        msg="Don't use test/task variables",
         severity=RuleSeverity.WARNING,
         added_in_version="5.6.0",
         docs="""
-        TODO
+        Using test/task variables in a test/keyword often leads to hard-to-understand code. In most
+        cases, you're better off using local variables.
+
+        Changes in test/task variables during a test are hard to track because you must remember what's
+        happening in multiple pieces of code at once. A line in a seemingly unrelated file can mess
+        up your understanding of what the code should be doing.
+
+        Local variables don't suffer from this issue because they are always created in the
+        keyword/test you're looking at.
+
+        In this example, the keyword changes the test/task variable. This will cause the test to fail.
+        Looking at just the test, it's unclear why the test fails. It only becomes clear if you also
+        remember the seemingly unrelated keyword.
+
+            *** Test Cases ***
+            My Amazing Test
+                Set Test Variable    ${hello}    Hello, world!
+                Do A Thing
+                Should Be Equal    ${hello}    Hello, world!
+
+            *** Keywords ***
+            Do A Thing
+                Set Test Variable    ${hello}    Goodnight, moon!
+
+        Using the VAR-syntax:
+
+            *** Test Cases ***
+            My Amazing Test
+                VAR    ${hello}    Hello, world!    scope=TEST
+                Do A Thing
+                Should Be Equal    ${hello}    Hello, world!
+
+            *** Keywords ***
+            Do A Thing
+                VAR    ${hello}    Goodnight, moon!    scope=TEST
+
+        There are exceptions. In some specific situations, test/task variables are a great tool. But
+        most of the time, it makes code needlessly hard to understand.
         """,
     ),
 }

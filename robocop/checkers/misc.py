@@ -1871,6 +1871,7 @@ class TestAndKeywordOrderChecker(VisitorChecker):
 
     visit_Keyword = visit_TestCase = check_order  # noqa: N815
 
+
 class NonLocalVariableChecker(VisitorChecker):
     reports = (
         "no-global-variable",
@@ -1878,15 +1879,15 @@ class NonLocalVariableChecker(VisitorChecker):
         "no-test-variable",
     )
 
-    def visit_KeywordCall(self, node: KeywordCall):
+    def visit_KeywordCall(self, node: KeywordCall):  # noqa: N802
         keyword_token = node.get_token(Token.KEYWORD)
 
         if not keyword_token:
             return
 
-        keyword_name = normalize_robot_name(keyword_token.value, remove_prefix='builtin.')
+        keyword_name = normalize_robot_name(keyword_token.value, remove_prefix="builtin.")
 
-        if keyword_name == 'setglobalvariable':
+        if keyword_name == "setglobalvariable":
             self.report(
                 "no-global-variable",
                 node=keyword_token,
@@ -1895,7 +1896,7 @@ class NonLocalVariableChecker(VisitorChecker):
                 end_col=keyword_token.col_offset + len(keyword_token.value) + 1,
             )
 
-        if keyword_name == 'setsuitevariable':
+        if keyword_name == "setsuitevariable":
             self.report(
                 "no-suite-variable",
                 node=keyword_token,
@@ -1904,7 +1905,7 @@ class NonLocalVariableChecker(VisitorChecker):
                 end_col=keyword_token.col_offset + len(keyword_token.value) + 1,
             )
 
-        if keyword_name in ['settestvariable', 'settaskvariable']:
+        if keyword_name in ["settestvariable", "settaskvariable"]:
             self.report(
                 "no-test-variable",
                 node=keyword_token,
@@ -1913,7 +1914,7 @@ class NonLocalVariableChecker(VisitorChecker):
                 end_col=keyword_token.col_offset + len(keyword_token.value) + 1,
             )
 
-    def visit_Var(self, node):
+    def visit_Var(self, node):  # noqa: N802
         if ROBOT_VERSION.major < 7:
             return
 
@@ -1923,7 +1924,7 @@ class NonLocalVariableChecker(VisitorChecker):
         option_token = node.get_token(Token.OPTION)
         scope = node.scope.upper()
 
-        if scope == 'GLOBAL':
+        if scope == "GLOBAL":
             self.report(
                 "no-global-variable",
                 node=option_token,
@@ -1932,7 +1933,7 @@ class NonLocalVariableChecker(VisitorChecker):
                 end_col=option_token.col_offset + len(option_token.value) + 1,
             )
 
-        if scope in ['SUITE', 'SUITES']:
+        if scope in ["SUITE", "SUITES"]:
             self.report(
                 "no-suite-variable",
                 node=option_token,
@@ -1941,7 +1942,7 @@ class NonLocalVariableChecker(VisitorChecker):
                 end_col=option_token.col_offset + len(option_token.value) + 1,
             )
 
-        if scope in ['TEST', 'TASK']:
+        if scope in ["TEST", "TASK"]:
             self.report(
                 "no-test-variable",
                 node=option_token,

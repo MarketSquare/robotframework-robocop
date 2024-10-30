@@ -1,5 +1,3 @@
-from typing import Dict
-
 import robocop.reports
 from robocop.rules import Message
 from robocop.utils.misc import get_plural_form, get_string_diff
@@ -29,12 +27,12 @@ class FileStatsReport(robocop.reports.ComparableReport):
     def persist_result(self):
         return {"files_count": self.files_count, "files_with_issues": len(self.files_with_issues)}
 
-    def get_report(self, prev_results: Dict) -> str:
+    def get_report(self, prev_results: dict) -> str:
         if self.compare_runs and prev_results:
             return self.get_report_with_compare(prev_results)
         return self.get_report_without_compare()
 
-    def get_report_with_compare(self, prev_results: Dict) -> str:
+    def get_report_with_compare(self, prev_results: dict) -> str:
         plural_files = get_plural_form(self.files_count)
         prev_files_count = prev_results["files_count"]
         prev_files_with_issues = prev_results["files_with_issues"]

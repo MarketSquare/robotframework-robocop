@@ -1,6 +1,8 @@
+from collections.abc import Iterable
 from dataclasses import dataclass, field
 from itertools import chain
-from typing import Dict, Iterable, List, Optional, Pattern, Set, Union
+from re import Pattern
+from typing import Optional, Union
 
 from robot.api import Token
 from robot.errors import DataError
@@ -54,7 +56,7 @@ else:
 class KeywordUsage:
     found_def: bool = False
     used: int = 0
-    names: Set[str] = field(default_factory=set)
+    names: set[str] = field(default_factory=set)
 
     def update(self, name: str):
         self.used += 1
@@ -66,7 +68,7 @@ class KeywordDefinition:
     name: Union[str, Pattern]
     keyword_node: Keyword
     used: int = 0
-    used_names: Set[str] = field(default_factory=set)
+    used_names: set[str] = field(default_factory=set)
     is_private: bool = False
 
     def update(self, used_as: KeywordUsage):
@@ -79,9 +81,9 @@ class KeywordDefinition:
 class RobotFile:
     path: str
     is_suite: bool = False
-    normal_keywords: Dict[str, KeywordDefinition] = field(default_factory=dict)
-    embedded_keywords: Dict[str, KeywordDefinition] = field(default_factory=dict)
-    used_keywords: Dict[str, KeywordUsage] = field(default_factory=dict)
+    normal_keywords: dict[str, KeywordDefinition] = field(default_factory=dict)
+    embedded_keywords: dict[str, KeywordDefinition] = field(default_factory=dict)
+    used_keywords: dict[str, KeywordUsage] = field(default_factory=dict)
 
     @property
     def keywords(self) -> Iterable[KeywordDefinition]:
@@ -92,11 +94,11 @@ class RobotFile:
         return any(keyword.is_private for keyword in self.keywords)
 
     @property
-    def private_keywords(self) -> List[KeywordDefinition]:
+    def private_keywords(self) -> list[KeywordDefinition]:
         return [keyword for keyword in self.keywords if keyword.is_private]
 
     @property
-    def not_used_keywords(self) -> List[KeywordDefinition]:
+    def not_used_keywords(self) -> list[KeywordDefinition]:
         not_used = []
         for keyword in self.keywords:
             if keyword.used or not (self.is_suite or keyword.is_private):
@@ -126,11 +128,11 @@ class UnusedKeywords(ProjectChecker):
     # TODO: handle BDD
 
     def __init__(self):
-        self.files: Dict[str, RobotFile] = {}
+        self.files: dict[str, RobotFile] = {}
         self.current_file: Optional[RobotFile] = None
         super().__init__()
 
-    def scan_project(self) -> List["Message"]:
+    def scan_project(self) -> list["Message"]:
         self.issues = []
         for robot_file in self.files.values():
             if not (robot_file.is_suite or robot_file.any_private):
@@ -147,12 +149,12 @@ class UnusedKeywords(ProjectChecker):
                 )
         return self.issues
 
-    def visit_File(self, node):
+    def visit_File(self, node):  # noqa: N802
         self.current_file = RobotFile(node.source)  # TODO: handle "-"
         self.generic_visit(node)
         self.files[self.current_file.path] = self.current_file
 
-    def visit_TestCaseSection(self, node):
+    def visit_TestCaseSection(self, node):  # noqa: N802
         self.current_file.is_suite = True
         self.generic_visit(node)
 
@@ -169,24 +171,24 @@ class UnusedKeywords(ProjectChecker):
         self.current_file.used_keywords[normalized_name].update(name)
         # what about possible library names? searching removes, but for sake of collecting
 
-    def visit_Setup(self, node):
+    def visit_Setup(self, node):  # noqa: N802
         self.mark_used_keywords(node, Token.NAME)
 
-    visit_TestTeardown = visit_SuiteTeardown = visit_Teardown = visit_TestSetup = visit_SuiteSetup = visit_Setup
+    visit_TestTeardown = visit_SuiteTeardown = visit_Teardown = visit_TestSetup = visit_SuiteSetup = visit_Setup  # noqa: N815
 
-    def visit_Template(self, node):
+    def visit_Template(self, node):  # noqa: N802
         # allow / disallow param
         if node.value:
             name_token = node.get_token(Token.NAME)
             self.mark_used_keyword(node.value, name_token)
         self.generic_visit(node)
 
-    visit_TestTemplate = visit_Template
+    visit_TestTemplate = visit_Template  # noqa: N815
 
-    def visit_KeywordCall(self, node):
+    def visit_KeywordCall(self, node):  # noqa: N802
         self.mark_used_keywords(node, Token.KEYWORD)
 
-    def visit_Keyword(self, node):
+    def visit_Keyword(self, node):  # noqa: N802
         try:
             embedded = KeywordEmbedded(node.name)
             if embedded and embedded.args:

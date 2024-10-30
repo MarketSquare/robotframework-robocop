@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import ast
 import difflib
 import re
@@ -6,8 +8,8 @@ import tokenize
 from collections import Counter, defaultdict, namedtuple
 from io import StringIO
 from pathlib import Path
+from re import Pattern
 from tokenize import generate_tokens
-from typing import Dict, List, Optional, Pattern, Tuple
 
 import platformdirs
 from robot.api import Token
@@ -62,7 +64,7 @@ def rf_supports_lang():
     return ROBOT_VERSION >= ROBOT_WITH_LANG
 
 
-def normalize_robot_name(name: str, remove_prefix: Optional[str] = None) -> str:
+def normalize_robot_name(name: str, remove_prefix: str | None = None) -> str:
     name = name.replace(" ", "").replace("_", "").lower() if name else ""
     if remove_prefix:
         return name[name.startswith(remove_prefix) and len(remove_prefix) :]
@@ -101,7 +103,7 @@ def token_col(node, *token_type) -> int:
     return token.col_offset + 1
 
 
-def issues_to_lsp_diagnostic(issues) -> List[Dict]:
+def issues_to_lsp_diagnostic(issues) -> list[dict]:
     return [
         {
             "range": {
@@ -139,19 +141,19 @@ class AssignmentTypeDetector(ast.NodeVisitor):
         self.variables_sign_counter = Counter()
         self.variables_most_common = None
 
-    def visit_File(self, node):
+    def visit_File(self, node):  # noqa: N802
         self.generic_visit(node)
         if len(self.keyword_sign_counter) >= 2:
             self.keyword_most_common = self.keyword_sign_counter.most_common(1)[0][0]
         if len(self.variables_sign_counter) >= 2:
             self.variables_most_common = self.variables_sign_counter.most_common(1)[0][0]
 
-    def visit_KeywordCall(self, node):
+    def visit_KeywordCall(self, node):  # noqa: N802
         if node.assign:  # if keyword returns any value
             sign = self.get_assignment_sign(node.assign[-1])
             self.keyword_sign_counter[sign] += 1
 
-    def visit_VariableSection(self, node):
+    def visit_VariableSection(self, node):  # noqa: N802
         for child in node.body:
             if not isinstance(child, Variable):
                 continue
@@ -243,7 +245,7 @@ class TestTemplateFinder(ast.NodeVisitor):
     def __init__(self):
         self.templated = False
 
-    def visit_TestTemplate(self, node):
+    def visit_TestTemplate(self, node):  # noqa: N802
         self.templated = bool(node.value)
 
 
@@ -288,8 +290,8 @@ def remove_robot_vars(name: str) -> str:
     return replaced
 
 
-def find_robot_vars(name: str) -> List[Tuple[int, int]]:
-    """return list of tuples with (start, end) pos of vars in name"""
+def find_robot_vars(name: str) -> list[tuple[int, int]]:
+    """Return list of tuples with (start, end) pos of vars in name"""
     var_start = set("$@%&")
     brackets = 0
     index = 0

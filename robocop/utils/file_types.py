@@ -33,7 +33,7 @@ class FileType(Enum):
     INIT = "init"
 
     def get_parser(self):
-        """return parser (method) for given model type"""
+        """Return parser (method) for given model type"""
         return {
             "resource": get_resource_model,
             "general": get_model,
@@ -52,7 +52,7 @@ class FileTypeChecker(ast.NodeVisitor):
         self.exec_dir = exec_dir
         self.source = None
 
-    def visit_ResourceImport(self, node):
+    def visit_ResourceImport(self, node):  # noqa: N802
         """
         Check all imports in scanned file. If one of our scanned file is imported somewhere else
         it means this file is resource type

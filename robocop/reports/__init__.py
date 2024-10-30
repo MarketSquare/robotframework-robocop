@@ -2,7 +2,6 @@ import inspect
 import json
 from collections import OrderedDict
 from pathlib import Path
-from typing import Dict, List
 
 import robocop.exceptions
 from robocop.checkers import RobocopImporter
@@ -84,7 +83,7 @@ def is_report_internal(report):
     return getattr(report, "INTERNAL", False)
 
 
-def disable_external_reports_if_none(configured_reports: List[str]) -> List[str]:
+def disable_external_reports_if_none(configured_reports: list[str]) -> list[str]:
     """If any reports is 'None', disable other reports other than internal reports."""
     if "None" in configured_reports:
         if "internal_json_report" in configured_reports:
@@ -153,7 +152,7 @@ def load_reports_result_from_cache():
             return None
 
 
-def save_reports_result_to_cache(working_dir: str, report_results: Dict):
+def save_reports_result_to_cache(working_dir: str, report_results: dict):
     """
     Save results from Robocop reports to json file.
 

@@ -1,10 +1,11 @@
+from __future__ import annotations
+
 import contextlib
 import io
 import os
 import re
 import sys
 from pathlib import Path
-from typing import List, Optional, Union
 
 import pytest
 
@@ -55,7 +56,7 @@ def load_expected_file(test_data, expected_file):
         )
 
 
-def configure_robocop_with_rule(args, runner, rule, path, src_files: Optional[List], format):
+def configure_robocop_with_rule(args, runner, rule, path, src_files: list | None, format):
     runner.from_cli = True
     config = Config()
     if src_files is None:
@@ -90,11 +91,11 @@ class RuleAcceptance:
 
     def check_rule(
         self,
-        expected_file: Optional[str] = None,
-        config: Optional[str] = None,
-        rule: Optional[str] = None,
-        src_files: Optional[List] = None,
-        target_version: Optional[Union[str, List[str]]] = None,
+        expected_file: str | None = None,
+        config: str | None = None,
+        rule: str | None = None,
+        src_files: list | None = None,
+        target_version: str | list[str] | None = None,
         issue_format: str = "default",
         deprecated: bool = False,
     ):
@@ -148,7 +149,7 @@ class RuleAcceptance:
         return robocop_rules[self.rule_name].enabled_in_version
 
     @staticmethod
-    def enabled_in_version(target_version: Optional[Union["list", str]]):
+    def enabled_in_version(target_version: list | str | None):
         """
         Check if rule is enabled for given target version condition.
 

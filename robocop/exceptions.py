@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Dict
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from robocop.rules import Rule
@@ -90,7 +90,7 @@ class InvalidReportName(ConfigGeneralError):
 
 
 class RuleDoesNotExist(ConfigGeneralError):
-    def __init__(self, rule: str, rules: Dict[str, "Rule"]):
+    def __init__(self, rule: str, rules: dict[str, "Rule"]):
         from robocop.utils import RecommendationFinder
 
         similar = RecommendationFinder().find_similar(rule, rules)
@@ -99,7 +99,7 @@ class RuleDoesNotExist(ConfigGeneralError):
 
 
 class RuleOrReportDoesNotExist(ConfigGeneralError):
-    def __init__(self, rule: str, rules: Dict[str, "Rule"]):
+    def __init__(self, rule: str, rules: dict[str, "Rule"]):
         from robocop.utils import RecommendationFinder
 
         similar = RecommendationFinder().find_similar(rule, rules)

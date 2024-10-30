@@ -699,6 +699,151 @@ rules = {
                 Keyword1
         """,
     ),
+    "0929": Rule(
+        rule_id="0929",
+        name="no-global-variable",
+        msg="Don't set global variables outside the variables section",
+        severity=RuleSeverity.WARNING,
+        added_in_version="5.6.0",
+        docs="""
+        Setting or updating global variables in a test/keyword often leads to hard-to-understand
+        code. In most cases, you're better off using local variables.
+
+        Changes in global variables during a test are hard to track because you must remember what's
+        happening in multiple pieces of code at once. A line in a seemingly unrelated file can mess
+        up your understanding of what the code should be doing.
+
+        Local variables don't suffer from this issue because they are always created in the
+        keyword/test you're looking at.
+
+        In this example, the keyword changes the global variable. This will cause the test to fail.
+        Looking at just the test, it's unclear why the test fails. It only becomes clear if you also
+        remember the seemingly unrelated keyword.
+
+            *** Variables ***
+            ${hello}    Hello, world!
+
+            *** Test Cases ***
+            My Amazing Test
+                Do A Thing
+                Should Be Equal    ${hello}    Hello, world!
+
+            *** Keywords ***
+            Do A Thing
+                Set Global Variable    ${hello}    Goodnight, moon!
+
+        Using the VAR-syntax:
+
+            *** Variables ***
+            ${hello}    Hello, world!
+
+            *** Test Cases ***
+            My Amazing Test
+                Do A Thing
+                Should Be Equal    ${hello}    Hello, world!
+
+            *** Keywords ***
+            Do A Thing
+                VAR    ${hello}    Goodnight, moon!    scope=GLOBAL
+
+        There are exceptions. In some specific situations, global variables are a great tool. But
+        most of the time, it makes code needlessly hard to understand.
+        """,
+    ),
+    "0930": Rule(
+        rule_id="0930",
+        name="no-suite-variable",
+        msg="Don't use suite variables",
+        severity=RuleSeverity.WARNING,
+        added_in_version="5.6.0",
+        docs="""
+        Using suite variables in a test/keyword often leads to hard-to-understand code. In most
+        cases, you're better off using local variables.
+
+        Changes in suite variables during a test are hard to track because you must remember what's
+        happening in multiple pieces of code at once. A line in a seemingly unrelated file can mess
+        up your understanding of what the code should be doing.
+
+        Local variables don't suffer from this issue because they are always created in the
+        keyword/test you're looking at.
+
+        In this example, the keyword changes the suite variable. This will cause the test to fail.
+        Looking at just the test, it's unclear why the test fails. It only becomes clear if you also
+        remember the seemingly unrelated keyword.
+
+            *** Test Cases ***
+            My Amazing Test
+                Set Suite Variable    ${hello}    Hello, world!
+                Do A Thing
+                Should Be Equal    ${hello}    Hello, world!
+
+            *** Keywords ***
+            Do A Thing
+                Set Suite Variable    ${hello}    Goodnight, moon!
+
+        Using the VAR-syntax:
+
+            *** Test Cases ***
+            My Amazing Test
+                VAR    ${hello}    Hello, world!    scope=SUITE
+                Do A Thing
+                Should Be Equal    ${hello}    Hello, world!
+
+            *** Keywords ***
+            Do A Thing
+                VAR    ${hello}    Goodnight, moon!    scope=SUITE
+
+        There are exceptions. In some specific situations, suite variables are a great tool. But
+        most of the time, it makes code needlessly hard to understand.
+        """,
+    ),
+    "0931": Rule(
+        rule_id="0931",
+        name="no-test-variable",
+        msg="Don't use test/task variables",
+        severity=RuleSeverity.WARNING,
+        added_in_version="5.6.0",
+        docs="""
+        Using test/task variables in a test/keyword often leads to hard-to-understand code. In most
+        cases, you're better off using local variables.
+
+        Changes in test/task variables during a test are hard to track because you must remember what's
+        happening in multiple pieces of code at once. A line in a seemingly unrelated file can mess
+        up your understanding of what the code should be doing.
+
+        Local variables don't suffer from this issue because they are always created in the
+        keyword/test you're looking at.
+
+        In this example, the keyword changes the test/task variable. This will cause the test to fail.
+        Looking at just the test, it's unclear why the test fails. It only becomes clear if you also
+        remember the seemingly unrelated keyword.
+
+            *** Test Cases ***
+            My Amazing Test
+                Set Test Variable    ${hello}    Hello, world!
+                Do A Thing
+                Should Be Equal    ${hello}    Hello, world!
+
+            *** Keywords ***
+            Do A Thing
+                Set Test Variable    ${hello}    Goodnight, moon!
+
+        Using the VAR-syntax:
+
+            *** Test Cases ***
+            My Amazing Test
+                VAR    ${hello}    Hello, world!    scope=TEST
+                Do A Thing
+                Should Be Equal    ${hello}    Hello, world!
+
+            *** Keywords ***
+            Do A Thing
+                VAR    ${hello}    Goodnight, moon!    scope=TEST
+
+        There are exceptions. In some specific situations, test/task variables are a great tool. But
+        most of the time, it makes code needlessly hard to understand.
+        """,
+    ),
 }
 
 
@@ -1725,3 +1870,82 @@ class TestAndKeywordOrderChecker(VisitorChecker):
                 max_order_indicator = this_node_expected_order
 
     visit_Keyword = visit_TestCase = check_order  # noqa: N815
+
+class NonLocalVariableChecker(VisitorChecker):
+    reports = (
+        "no-global-variable",
+        "no-suite-variable",
+        "no-test-variable",
+    )
+
+    def visit_KeywordCall(self, node: KeywordCall):
+        keyword_token = node.get_token(Token.KEYWORD)
+
+        if not keyword_token:
+            return
+
+        keyword_name = normalize_robot_name(keyword_token.value, remove_prefix='builtin.')
+
+        if keyword_name == 'setglobalvariable':
+            self.report(
+                "no-global-variable",
+                node=keyword_token,
+                lineno=keyword_token.lineno,
+                col=keyword_token.col_offset + 1,
+                end_col=keyword_token.col_offset + len(keyword_token.value) + 1,
+            )
+
+        if keyword_name == 'setsuitevariable':
+            self.report(
+                "no-suite-variable",
+                node=keyword_token,
+                lineno=keyword_token.lineno,
+                col=keyword_token.col_offset + 1,
+                end_col=keyword_token.col_offset + len(keyword_token.value) + 1,
+            )
+
+        if keyword_name in ['settestvariable', 'settaskvariable']:
+            self.report(
+                "no-test-variable",
+                node=keyword_token,
+                lineno=keyword_token.lineno,
+                col=keyword_token.col_offset + 1,
+                end_col=keyword_token.col_offset + len(keyword_token.value) + 1,
+            )
+
+    def visit_Var(self, node):
+        if ROBOT_VERSION.major < 7:
+            return
+
+        if not node.scope:
+            return
+
+        option_token = node.get_token(Token.OPTION)
+        scope = node.scope.upper()
+
+        if scope == 'GLOBAL':
+            self.report(
+                "no-global-variable",
+                node=option_token,
+                lineno=option_token.lineno,
+                col=option_token.col_offset + 1,
+                end_col=option_token.col_offset + len(option_token.value) + 1,
+            )
+
+        if scope in ['SUITE', 'SUITES']:
+            self.report(
+                "no-suite-variable",
+                node=option_token,
+                lineno=option_token.lineno,
+                col=option_token.col_offset + 1,
+                end_col=option_token.col_offset + len(option_token.value) + 1,
+            )
+
+        if scope in ['TEST', 'TASK']:
+            self.report(
+                "no-test-variable",
+                node=option_token,
+                lineno=option_token.lineno,
+                col=option_token.col_offset + 1,
+                end_col=option_token.col_offset + len(option_token.value) + 1,
+            )

@@ -1878,42 +1878,58 @@ class NonLocalVariableChecker(VisitorChecker):
         "no-suite-variable",
         "no-test-variable",
     )
+    non_local_variable_keywords = set(
+        "setglobalvariable",
+        "setsuitevariable",
+        "settestvariable",
+        "settaskvariable",
+    )
 
     def visit_KeywordCall(self, node: KeywordCall):  # noqa: N802
         keyword_token = node.get_token(Token.KEYWORD)
-
         if not keyword_token:
             return
 
         keyword_name = normalize_robot_name(keyword_token.value, remove_prefix="builtin.")
+        if keyword_name not in self.non_local_variable_keywords:
+            return
 
         if keyword_name == "setglobalvariable":
             self._report("no-global-variable", keyword_token)
+            return
 
         if keyword_name == "setsuitevariable":
             self._report("no-suite-variable", keyword_token)
+            return
 
         if keyword_name in ["settestvariable", "settaskvariable"]:
             self._report("no-test-variable", keyword_token)
-
-    def visit_Var(self, node):  # noqa: N802
-        if ROBOT_VERSION.major < 7:
             return
 
+    def visit_Var(self, node):  # noqa: N802
+        """Visit VAR syntax introduced in Robot Framework 7. Is ignored in Robot < 7"""
         if not node.scope:
             return
 
-        option_token = node.get_token(Token.OPTION)
         scope = node.scope.upper()
+        if scope == "LOCAL":
+            return
+
+        option_token = node.get_token(Token.OPTION)
 
         if scope == "GLOBAL":
             self._report("no-global-variable", option_token)
+            return
 
         if scope in ["SUITE", "SUITES"]:
             self._report("no-suite-variable", option_token)
+            return
 
         if scope in ["TEST", "TASK"]:
             self._report("no-test-variable", option_token)
+            return
+
+        # Unexpected scope, or variable-defined scope
 
     def _report(self, rule_name: str, node: Node):
         self.report(

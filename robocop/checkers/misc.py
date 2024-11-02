@@ -9,7 +9,7 @@ from robot.api import Token
 from robot.errors import VariableError
 from robot.libraries import STDLIBS
 from robot.parsing.model.blocks import Keyword, TestCase, TestCaseSection
-from robot.parsing.model.statements import Arguments, KeywordCall, Node, Teardown
+from robot.parsing.model.statements import Arguments, KeywordCall, Teardown
 from robot.utils import unescape
 from robot.variables.search import search_variable
 
@@ -1931,7 +1931,7 @@ class NonLocalVariableChecker(VisitorChecker):
 
         # Unexpected scope, or variable-defined scope
 
-    def _report(self, rule_name: str, node: Node):
+    def _report(self, rule_name: str, node):
         self.report(
             rule_name,
             node=node,

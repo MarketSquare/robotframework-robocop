@@ -9,7 +9,7 @@ from robot.api import Token
 from robot.errors import VariableError
 from robot.libraries import STDLIBS
 from robot.parsing.model.blocks import Keyword, TestCase, TestCaseSection
-from robot.parsing.model.statements import Arguments, KeywordCall, Teardown
+from robot.parsing.model.statements import Arguments, KeywordCall, Node, Teardown
 from robot.utils import unescape
 from robot.variables.search import search_variable
 
@@ -1888,31 +1888,13 @@ class NonLocalVariableChecker(VisitorChecker):
         keyword_name = normalize_robot_name(keyword_token.value, remove_prefix="builtin.")
 
         if keyword_name == "setglobalvariable":
-            self.report(
-                "no-global-variable",
-                node=keyword_token,
-                lineno=keyword_token.lineno,
-                col=keyword_token.col_offset + 1,
-                end_col=keyword_token.col_offset + len(keyword_token.value) + 1,
-            )
+            self._report("no-global-variable", keyword_token)
 
         if keyword_name == "setsuitevariable":
-            self.report(
-                "no-suite-variable",
-                node=keyword_token,
-                lineno=keyword_token.lineno,
-                col=keyword_token.col_offset + 1,
-                end_col=keyword_token.col_offset + len(keyword_token.value) + 1,
-            )
+            self._report("no-suite-variable", keyword_token)
 
         if keyword_name in ["settestvariable", "settaskvariable"]:
-            self.report(
-                "no-test-variable",
-                node=keyword_token,
-                lineno=keyword_token.lineno,
-                col=keyword_token.col_offset + 1,
-                end_col=keyword_token.col_offset + len(keyword_token.value) + 1,
-            )
+            self._report("no-test-variable", keyword_token)
 
     def visit_Var(self, node):  # noqa: N802
         if ROBOT_VERSION.major < 7:
@@ -1925,28 +1907,19 @@ class NonLocalVariableChecker(VisitorChecker):
         scope = node.scope.upper()
 
         if scope == "GLOBAL":
-            self.report(
-                "no-global-variable",
-                node=option_token,
-                lineno=option_token.lineno,
-                col=option_token.col_offset + 1,
-                end_col=option_token.col_offset + len(option_token.value) + 1,
-            )
+            self._report("no-global-variable", option_token)
 
         if scope in ["SUITE", "SUITES"]:
-            self.report(
-                "no-suite-variable",
-                node=option_token,
-                lineno=option_token.lineno,
-                col=option_token.col_offset + 1,
-                end_col=option_token.col_offset + len(option_token.value) + 1,
-            )
+            self._report("no-suite-variable", option_token)
 
         if scope in ["TEST", "TASK"]:
-            self.report(
-                "no-test-variable",
-                node=option_token,
-                lineno=option_token.lineno,
-                col=option_token.col_offset + 1,
-                end_col=option_token.col_offset + len(option_token.value) + 1,
-            )
+            self._report("no-test-variable", option_token)
+
+    def _report(self, rule_name: str, node: Node):
+        self.report(
+            rule_name,
+            node=node,
+            lineno=node.lineno,
+            col=node.col_offset + 1,
+            end_col=node.col_offset + len(node.value) + 1,
+        )

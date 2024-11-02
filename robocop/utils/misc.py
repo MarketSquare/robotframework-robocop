@@ -10,6 +10,7 @@ from io import StringIO
 from pathlib import Path
 from re import Pattern
 from tokenize import generate_tokens
+from typing import Literal
 
 import platformdirs
 from robot.api import Token
@@ -120,7 +121,7 @@ def issues_to_lsp_diagnostic(issues) -> list[dict]:
             "code": issue.rule_id,
             "source": "robocop",
             "message": issue.desc,
-            "codeDescription": {"href": f"{ROBOCOP_RULES_URL.format(version=__version__)}#{issue.name}"},
+            "codeDescription": {"href": issue.help_url},
         }
         for issue in issues
     ]
@@ -420,3 +421,13 @@ def parse_test_case_order_param(value: str) -> list:
         "teardown": Token.TEARDOWN,
     }
     return parse_order_comma_sep_list(value, mapping)
+
+
+def get_rule_help_url(type: Literal["default", "custom"], rule_name: str):
+    base_url = f"https://robocop.readthedocs.io/en/{__version__}"
+
+    if type == "default":
+        return f"{base_url}/rules_list.html#{rule_name}"
+
+    if type == "default":
+        return f"{base_url}/community_rules.html#{rule_name}"

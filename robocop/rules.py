@@ -298,6 +298,7 @@ class Rule:
         added_in_version: str | None = None,
         enabled: bool = True,
         deprecated: bool = False,
+        help_url: str = "",
     ):
         """
         :param params: RuleParam() or SeverityThreshold() instances
@@ -311,6 +312,7 @@ class Rule:
         :param added_in_version: Version of the Robocop when the Rule was created
         :param enabled: Enable/disable rule by default using this parameter
         :param deprecated: Deprecate rule. If rule is used in configuration, it will issue a warning.
+        :param help_url: URL to rule documentation or other help resource.
         """
         self.rule_id = rule_id
         self.name = name
@@ -342,6 +344,7 @@ class Rule:
         self.added_in_version = added_in_version
         self.community_rule = False
         self.category_id = None
+        self.help_url = help_url
 
     @property
     def severity(self):
@@ -487,6 +490,7 @@ class Message:
         self.enabled = rule.enabled
         self.rule_id = rule.rule_id
         self.name = rule.name
+        self.help_url = rule.help_url
         self.severity = self.get_severity(overwrite_severity, rule, sev_threshold_value)
         self.desc = msg
         self.source = source

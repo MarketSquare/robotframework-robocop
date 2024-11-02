@@ -1878,12 +1878,12 @@ class NonLocalVariableChecker(VisitorChecker):
         "no-suite-variable",
         "no-test-variable",
     )
-    non_local_variable_keywords = set(
+    non_local_variable_keywords = {
         "setglobalvariable",
         "setsuitevariable",
         "settestvariable",
         "settaskvariable",
-    )
+    }
 
     def visit_KeywordCall(self, node: KeywordCall):  # noqa: N802
         keyword_token = node.get_token(Token.KEYWORD)

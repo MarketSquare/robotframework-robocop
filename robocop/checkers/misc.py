@@ -746,8 +746,8 @@ rules = {
             Do A Thing
                 VAR    ${hello}    Goodnight, moon!    scope=GLOBAL
 
-        There are exceptions. In some specific situations, global variables are a great tool. But
-        most of the time, it makes code needlessly hard to understand.
+        In some specific situations, global variables are a great tool. But most of the time, it
+        makes code needlessly hard to understand.
         """,
     ),
     "0930": Rule(
@@ -793,8 +793,8 @@ rules = {
             Do A Thing
                 VAR    ${hello}    Goodnight, moon!    scope=SUITE
 
-        There are exceptions. In some specific situations, suite variables are a great tool. But
-        most of the time, it makes code needlessly hard to understand.
+        In some specific situations, suite variables are a great tool. But most of the time, it
+        makes code needlessly hard to understand.
         """,
     ),
     "0931": Rule(
@@ -840,8 +840,8 @@ rules = {
             Do A Thing
                 VAR    ${hello}    Goodnight, moon!    scope=TEST
 
-        There are exceptions. In some specific situations, test/task variables are a great tool. But
-        most of the time, it makes code needlessly hard to understand.
+        In some specific situations, test/task variables are a great tool. But most of the time, it
+        makes code needlessly hard to understand.
         """,
     ),
 }

@@ -7,7 +7,7 @@ from robot.api import Token
 from robot.utils import FileReader
 
 from robocop.checkers import RawFileChecker, VisitorChecker
-from robocop.rules import Rule, RuleParam, RuleSeverity
+from robocop.rules import DefaultRule, RuleParam, RuleSeverity
 from robocop.utils import ROBOT_VERSION
 
 
@@ -22,7 +22,7 @@ def regex(value):
 RULE_CATEGORY_ID = "07"
 
 rules = {
-    "0701": Rule(
+    "0701": DefaultRule(
         RuleParam(
             name="markers",
             default="todo,fixme",
@@ -49,7 +49,7 @@ rules = {
         """,
         added_in_version="1.0.0",
     ),
-    "0702": Rule(
+    "0702": DefaultRule(
         RuleParam(
             name="block",
             default="^###",
@@ -87,7 +87,7 @@ rules = {
         """,
         added_in_version="1.0.0",
     ),
-    "0703": Rule(
+    "0703": DefaultRule(
         rule_id="0703",
         name="invalid-comment",
         msg="Invalid comment. '#' needs to be first character in the cell. "
@@ -107,7 +107,7 @@ rules = {
         """,
         added_in_version="1.0.0",
     ),
-    "0704": Rule(
+    "0704": DefaultRule(
         rule_id="0704",
         name="ignored-data",
         msg="Ignored data found in file",
@@ -136,7 +136,7 @@ rules = {
         """,
         added_in_version="1.3.0",
     ),
-    "0705": Rule(
+    "0705": DefaultRule(
         rule_id="0705",
         name="bom-encoding-in-file",
         msg="This file contains BOM (Byte Order Mark) encoding not supported by Robot Framework",

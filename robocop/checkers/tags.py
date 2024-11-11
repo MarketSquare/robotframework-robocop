@@ -5,13 +5,13 @@ from collections import defaultdict
 from robot.api import Token
 
 from robocop.checkers import VisitorChecker
-from robocop.rules import Rule, RuleSeverity
+from robocop.rules import DefaultRule, RuleSeverity
 from robocop.utils import variable_matcher
 
 RULE_CATEGORY_ID = "06"
 
 rules = {
-    "0601": Rule(
+    "0601": DefaultRule(
         rule_id="0601",
         name="tag-with-space",
         msg="Tag '{{ tag }}' should not contain spaces",
@@ -25,7 +25,7 @@ rules = {
         """,
         added_in_version="1.0.0",
     ),
-    "0602": Rule(
+    "0602": DefaultRule(
         rule_id="0602",
         name="tag-with-or-and",
         msg="Tag '{{ tag }}' with reserved word OR/AND."
@@ -47,7 +47,7 @@ rules = {
         """,
         added_in_version="1.0.0",
     ),
-    "0603": Rule(
+    "0603": DefaultRule(
         rule_id="0603",
         name="tag-with-reserved-word",
         msg="Tag '{{ tag }}' prefixed with reserved word `robot:`",
@@ -72,7 +72,7 @@ rules = {
         """,
         added_in_version="1.0.0",
     ),
-    "0605": Rule(
+    "0605": DefaultRule(
         rule_id="0605",
         name="could-be-test-tags",
         msg="All tests in suite share these tags: '{{ tags }}'. "
@@ -96,7 +96,7 @@ rules = {
         """,
         added_in_version="1.0.0",
     ),
-    "0606": Rule(
+    "0606": DefaultRule(
         rule_id="0606",
         name="tag-already-set-in-test-tags",
         msg="Tag '{{ tag }}' is already set by {{ test_force_tags }} in suite settings",
@@ -118,7 +118,7 @@ rules = {
         """,
         added_in_version="1.0.0",
     ),
-    "0607": Rule(
+    "0607": DefaultRule(
         rule_id="0607",
         name="unnecessary-default-tags",
         msg="Tags defined in Default Tags are always overwritten",
@@ -142,7 +142,7 @@ rules = {
         """,
         added_in_version="1.0.0",
     ),
-    "0608": Rule(
+    "0608": DefaultRule(
         rule_id="0608",
         name="empty-tags",
         msg="[Tags] setting without values{{ optional_warning }}",
@@ -153,7 +153,7 @@ rules = {
         """,
         added_in_version="2.0.0",
     ),
-    "0609": Rule(
+    "0609": DefaultRule(
         rule_id="0609",
         name="duplicated-tags",
         msg="Multiple tags with name '{{ name }}' (first occurrence at line {{ line }} column {{ column }})",
@@ -170,7 +170,7 @@ rules = {
         """,
         added_in_version="2.0.0",
     ),
-    "0610": Rule(
+    "0610": DefaultRule(
         rule_id="0610",
         name="could-be-keyword-tags",
         msg="All keywords in suite share these tags: '{{ tags }}'. "
@@ -193,7 +193,7 @@ rules = {
         """,
         added_in_version="3.3.0",
     ),
-    "0611": Rule(
+    "0611": DefaultRule(
         rule_id="0611",
         name="tag-already-set-in-keyword-tags",
         msg="Tag '{{ tag }}' is already set by {{ keyword_tags }} in suite settings",

@@ -11,7 +11,7 @@ from robot.parsing.model.statements import Tags
 from robot.running.arguments import EmbeddedArguments
 
 from robocop.checkers import ProjectChecker
-from robocop.rules import Message, CommunityRule, RuleSeverity
+from robocop.rules import CommunityRule, Message, RuleSeverity
 from robocop.utils.misc import ROBOT_VERSION, normalize_robot_name
 from robocop.utils.run_keywords import iterate_keyword_names
 

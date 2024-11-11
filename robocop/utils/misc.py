@@ -10,7 +10,6 @@ from io import StringIO
 from pathlib import Path
 from re import Pattern
 from tokenize import generate_tokens
-from typing import Literal
 
 import platformdirs
 from robot.api import Token
@@ -25,7 +24,6 @@ from robot.version import VERSION as RF_VERSION
 
 from robocop.utils.variable_matcher import VariableMatches
 from robocop.utils.version_matching import Version
-from robocop.version import __version__
 
 ROBOT_VERSION = Version(RF_VERSION)
 ROBOT_WITH_LANG = Version("6.0")

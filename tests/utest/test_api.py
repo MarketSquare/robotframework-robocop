@@ -8,7 +8,6 @@ from robocop.config import Config
 from robocop.exceptions import InvalidArgumentError
 from robocop.rules import Message, Rule, RuleParam, RuleSeverity
 from robocop.utils import issues_to_lsp_diagnostic
-from robocop.version import __version__
 
 
 @pytest.fixture
@@ -121,7 +120,7 @@ class TestAPI:
                 "source": "robocop",
                 "message": "Some description",
                 "codeDescription": {
-                    "href": f"https://fake.com/rules-docs",
+                    "href": "https://fake.com/rules-docs",
                 },
             },
             {
@@ -134,7 +133,7 @@ class TestAPI:
                 "source": "robocop",
                 "message": "Some description",
                 "codeDescription": {
-                    "href": f"https://fake.com/rules-docs",
+                    "href": "https://fake.com/rules-docs",
                 },
             },
         ]

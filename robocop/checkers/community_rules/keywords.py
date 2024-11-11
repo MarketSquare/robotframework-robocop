@@ -3,7 +3,7 @@ from robot.model import Keyword
 from robot.utils.robottime import timestr_to_secs
 
 from robocop.checkers import VisitorChecker
-from robocop.rules import Rule, RuleParam, RuleSeverity
+from robocop.rules import CommunityRule, RuleParam, RuleSeverity
 from robocop.utils.misc import normalize_robot_name
 from robocop.utils.run_keywords import iterate_keyword_names
 
@@ -17,7 +17,7 @@ def comma_separated_list(value: str) -> set[str]:
 
 
 rules = {
-    "10001": Rule(
+    "10001": CommunityRule(
         RuleParam(
             name="max_time", default=0, converter=timestr_to_secs, desc="Maximum amount of time allowed in Sleep"
         ),
@@ -53,7 +53,7 @@ rules = {
 
         """,
     ),
-    "10002": Rule(
+    "10002": CommunityRule(
         RuleParam(
             name="keywords",
             default=None,
@@ -87,7 +87,7 @@ rules = {
 
         """,
     ),
-    "10003": Rule(
+    "10003": CommunityRule(
         rule_id="10003",
         name="no-embedded-keyword-arguments",
         msg="Not allowed embedded arguments {{ arguments }} found in keyword '{{ keyword }}'",

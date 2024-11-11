@@ -2,13 +2,13 @@ from robot.api import Token
 from robot.libraries import STDLIBS
 
 from robocop.checkers import VisitorChecker
-from robocop.rules import Rule, RuleSeverity
+from robocop.rules import CommunityRule, RuleSeverity
 
 RULE_CATEGORY_ID = "01"
 
 
 rules = {
-    "10101": Rule(
+    "10101": CommunityRule(
         rule_id="10101",
         name="non-builtin-imports-not-sorted",
         msg="Non builtin library import '{{ custom_import }}' should be placed before '{{ previous_custom_import }}'",
@@ -25,7 +25,7 @@ rules = {
 
         """,
     ),
-    "10102": Rule(
+    "10102": CommunityRule(
         rule_id="10102",
         name="resources-imports-not-sorted",
         msg="Resource import '{{ resource_import }}' should be placed before '{{ previous_resource_import }}'",

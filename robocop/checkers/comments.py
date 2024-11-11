@@ -9,7 +9,6 @@ from robot.utils import FileReader
 from robocop.checkers import RawFileChecker, VisitorChecker
 from robocop.rules import Rule, RuleParam, RuleSeverity
 from robocop.utils import ROBOT_VERSION
-from robocop.utils.misc import get_rule_help_url
 
 
 def regex(value):
@@ -49,7 +48,6 @@ rules = {
 
         """,
         added_in_version="1.0.0",
-        help_url=get_rule_help_url("default", "todo-in-comment"),
     ),
     "0702": Rule(
         RuleParam(
@@ -88,7 +86,6 @@ rules = {
 
         """,
         added_in_version="1.0.0",
-        help_url=get_rule_help_url("default", "missing-space-after-comment"),
     ),
     "0703": Rule(
         rule_id="0703",
@@ -109,7 +106,6 @@ rules = {
 
         """,
         added_in_version="1.0.0",
-        help_url=get_rule_help_url("default", "invalid-comment"),
     ),
     "0704": Rule(
         rule_id="0704",
@@ -139,7 +135,6 @@ rules = {
 
         """,
         added_in_version="1.3.0",
-        help_url=get_rule_help_url("default", "ignored-data"),
     ),
     "0705": Rule(
         rule_id="0705",
@@ -150,7 +145,6 @@ rules = {
         Some code editors can save Robot file using BOM encoding. Ensure that file is saved in UTF-8 encoding.
         """,
         added_in_version="1.7.0",
-        help_url=get_rule_help_url("default", "bom-encoding-in-file"),
     ),
 }
 

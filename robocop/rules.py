@@ -39,6 +39,7 @@ import robocop.exceptions
 from robocop.utils import ROBOT_VERSION
 from robocop.utils.misc import str2bool
 from robocop.utils.version_matching import VersionSpecifier
+from robocop.version import __version__
 
 if TYPE_CHECKING:
     from re import Pattern
@@ -470,6 +471,26 @@ class Rule:
         if isinstance(pattern, str):
             return pattern in (self.name, self.rule_id)
         return pattern.match(self.name) or pattern.match(self.rule_id)
+
+
+class DefaultRule(Rule):
+    @property
+    def help_url(self) -> str:
+        return f"https://robocop.readthedocs.io/en/{__version__}/rules_list.html#{self.name}"
+
+    @help_url.setter
+    def help_url(self, _):
+        pass
+
+
+class CommunityRule(Rule):
+    @property
+    def help_url(self) -> str:
+        return f"https://robocop.readthedocs.io/en/{__version__}/community_rules.html#{self.name}"
+
+    @help_url.setter
+    def help_url(self, _):
+        pass
 
 
 class Message:

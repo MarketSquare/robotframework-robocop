@@ -421,15 +421,3 @@ def parse_test_case_order_param(value: str) -> list:
         "teardown": Token.TEARDOWN,
     }
     return parse_order_comma_sep_list(value, mapping)
-
-
-def get_rule_help_url(type: Literal["default", "community"], rule_name: str):
-    base_url = f"https://robocop.readthedocs.io/en/{__version__}"
-
-    if type == "default":
-        return f"{base_url}/rules_list.html#{rule_name}"
-
-    if type == "community":
-        return f"{base_url}/community_rules.html#{rule_name}"
-
-    raise TypeError(f"Can't create help url for rule. Unexpected type '{type}'")

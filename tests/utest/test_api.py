@@ -19,6 +19,7 @@ def rule():
         name="some-message",
         msg="Some description",
         severity=RuleSeverity.WARNING,
+        help_url="https://fake.com/rules-docs",
     )
 
 
@@ -120,7 +121,7 @@ class TestAPI:
                 "source": "robocop",
                 "message": "Some description",
                 "codeDescription": {
-                    "href": f"https://robocop.readthedocs.io/en/{__version__}/rules_list.html#some-message",
+                    "href": f"https://fake.com/rules-docs",
                 },
             },
             {
@@ -133,7 +134,7 @@ class TestAPI:
                 "source": "robocop",
                 "message": "Some description",
                 "codeDescription": {
-                    "href": f"https://robocop.readthedocs.io/en/{__version__}/rules_list.html#some-message",
+                    "href": f"https://fake.com/rules-docs",
                 },
             },
         ]

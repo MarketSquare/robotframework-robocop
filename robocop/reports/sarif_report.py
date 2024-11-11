@@ -3,7 +3,6 @@ from pathlib import Path
 
 import robocop.reports
 from robocop.rules import Message
-from robocop.utils.misc import ROBOCOP_RULES_URL
 from robocop.version import __version__
 
 
@@ -50,10 +49,11 @@ class SarifReport(robocop.reports.Report):
         return {"WARNING": "warning", "ERROR": "error", "INFO": "note"}[severity.name]
 
     def get_rule_desc(self, rule):
+        print(rule)
         return {
             "id": rule.rule_id,
             "name": rule.name,
-            "helpUri": f"{ROBOCOP_RULES_URL.format(version=__version__)}#{rule.name}",
+            "helpUri": rule.help_url,
             "shortDescription": {"text": rule.msg},
             "fullDescription": {"text": rule.docs},
             "defaultConfiguration": {"level": self.map_severity_to_level(rule.default_severity)},

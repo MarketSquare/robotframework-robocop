@@ -699,7 +699,7 @@ rules = {
                 Keyword1
         """,
     ),
-    "0929": Rule(
+    "0929": DefaultRule(
         rule_id="0929",
         name="no-global-variable",
         msg="Don't set global variables outside the variables section",
@@ -750,7 +750,7 @@ rules = {
         makes code needlessly hard to understand.
         """,
     ),
-    "0930": Rule(
+    "0930": DefaultRule(
         rule_id="0930",
         name="no-suite-variable",
         msg="Don't use suite variables",
@@ -797,7 +797,7 @@ rules = {
         makes code needlessly hard to understand.
         """,
     ),
-    "0931": Rule(
+    "0931": DefaultRule(
         rule_id="0931",
         name="no-test-variable",
         msg="Don't use test/task variables",

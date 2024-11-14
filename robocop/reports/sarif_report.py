@@ -49,11 +49,10 @@ class SarifReport(robocop.reports.Report):
         return {"WARNING": "warning", "ERROR": "error", "INFO": "note"}[severity.name]
 
     def get_rule_desc(self, rule):
-        print(rule)
         return {
             "id": rule.rule_id,
             "name": rule.name,
-            "helpUri": rule.help_url,
+            "helpUri": rule.help_url or "",
             "shortDescription": {"text": rule.msg},
             "fullDescription": {"text": rule.docs},
             "defaultConfiguration": {"level": self.map_severity_to_level(rule.default_severity)},

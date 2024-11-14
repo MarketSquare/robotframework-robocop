@@ -299,7 +299,7 @@ class Rule:
         added_in_version: str | None = None,
         enabled: bool = True,
         deprecated: bool = False,
-        help_url: str = "",
+        help_url: str | None = None,
     ):
         """
         :param params: RuleParam() or SeverityThreshold() instances

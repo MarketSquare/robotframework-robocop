@@ -103,8 +103,9 @@ def token_col(node, *token_type) -> int:
 
 
 def issues_to_lsp_diagnostic(issues) -> list[dict]:
-    return [
-        {
+    diagnostics = []
+    for issue in issues:
+        diagnostic = {
             "range": {
                 "start": {
                     "line": max(0, issue.line - 1),
@@ -119,10 +120,14 @@ def issues_to_lsp_diagnostic(issues) -> list[dict]:
             "code": issue.rule_id,
             "source": "robocop",
             "message": issue.desc,
-            "codeDescription": {"href": issue.help_url},
         }
-        for issue in issues
-    ]
+
+        if issue.help_url:
+            diagnostic["codeDescription"] = {"href": issue.help_url or ""}
+
+        diagnostics.append(diagnostic)
+
+    return diagnostics
 
 
 def str2bool(v):

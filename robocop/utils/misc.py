@@ -123,7 +123,7 @@ def issues_to_lsp_diagnostic(issues) -> list[dict]:
         }
 
         if issue.help_url:
-            diagnostic["codeDescription"] = {"href": issue.help_url or ""}
+            diagnostic["codeDescription"] = {"href": issue.help_url}
 
         diagnostics.append(diagnostic)
 

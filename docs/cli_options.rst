@@ -68,6 +68,8 @@ and you will be shown with the following output:
                             Disable rules below given threshold. Available message levels: I < W < E
       -A PATH, --argumentfile PATH
                             Path to file with arguments.
+      --config PATH
+                            Path to TOML configuration file.
       -g PATH, --ignore PATH
                             Ignore file(s) and path(s) provided. Glob patterns are supported.
       -gd PATTERN, --ignore-default PATTERN

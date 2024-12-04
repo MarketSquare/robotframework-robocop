@@ -5,13 +5,13 @@ from pathlib import Path
 from robot.parsing.model.statements import Documentation
 
 from robocop.checkers import VisitorChecker
-from robocop.rules import Rule, RuleParam, RuleSeverity
+from robocop.rules import DefaultRule, RuleParam, RuleSeverity
 from robocop.utils.misc import str2bool
 
 RULE_CATEGORY_ID = "02"
 
 rules = {
-    "0201": Rule(
+    "0201": DefaultRule(
         rule_id="0201",
         name="missing-doc-keyword",
         msg="Missing documentation in '{{ name }}' keyword",
@@ -30,7 +30,7 @@ rules = {
                 Other Step
         """,
     ),
-    "0202": Rule(
+    "0202": DefaultRule(
         RuleParam(
             name="ignore_templated",
             default="True",
@@ -59,7 +59,7 @@ rules = {
         Possible values are: ``Yes`` / ``1`` / ``True`` (default) or ``No`` / ``False`` / ``0``.
         """,
     ),
-    "0203": Rule(
+    "0203": DefaultRule(
         rule_id="0203",
         name="missing-doc-suite",
         msg="Missing documentation in suite",
@@ -72,7 +72,7 @@ rules = {
             Documentation    Suite documentation
         """,
     ),
-    "0204": Rule(
+    "0204": DefaultRule(
         rule_id="0204",
         name="missing-doc-resource-file",
         msg="Missing documentation in resource file",

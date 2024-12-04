@@ -17,28 +17,28 @@ except ImportError:
     InlineIfHeader = None
 
 from robocop.checkers import RawFileChecker, VisitorChecker
-from robocop.rules import Rule, RuleParam, RuleSeverity, SeverityThreshold
+from robocop.rules import DefaultRule, RuleParam, RuleSeverity, SeverityThreshold
 from robocop.utils import get_errors, get_section_name, str2bool, token_col
 from robocop.utils.run_keywords import is_run_keyword
 
 RULE_CATEGORY_ID = "10"
 
 rules = {
-    "1001": Rule(
+    "1001": DefaultRule(
         rule_id="1001",
         name="trailing-whitespace",
         msg="Trailing whitespace at the end of line",
         severity=RuleSeverity.WARNING,
         added_in_version="1.0.0",
     ),
-    "1002": Rule(
+    "1002": DefaultRule(
         rule_id="1002",
         name="missing-trailing-blank-line",
         msg="Missing trailing blank line at the end of file",
         severity=RuleSeverity.WARNING,
         added_in_version="1.0.0",
     ),
-    "1003": Rule(
+    "1003": DefaultRule(
         RuleParam(
             name="empty_lines",
             default=2,
@@ -51,7 +51,7 @@ rules = {
         severity=RuleSeverity.WARNING,
         added_in_version="1.0.0",
     ),
-    "1004": Rule(
+    "1004": DefaultRule(
         RuleParam(
             name="empty_lines",
             default=1,
@@ -64,7 +64,7 @@ rules = {
         severity=RuleSeverity.WARNING,
         added_in_version="1.0.0",
     ),
-    "1005": Rule(
+    "1005": DefaultRule(
         RuleParam(
             name="empty_lines",
             default=1,
@@ -77,14 +77,14 @@ rules = {
         severity=RuleSeverity.WARNING,
         added_in_version="1.0.0",
     ),
-    "1006": Rule(
+    "1006": DefaultRule(
         rule_id="1006",
         name="mixed-tabs-and-spaces",
         msg="Inconsistent use of tabs and spaces in file",
         severity=RuleSeverity.WARNING,
         added_in_version="1.1.0",
     ),
-    "1008": Rule(
+    "1008": DefaultRule(
         RuleParam(
             name="indent",
             default=-1,
@@ -113,7 +113,7 @@ rules = {
         """,
         added_in_version="3.0.0",
     ),
-    "1009": Rule(
+    "1009": DefaultRule(
         RuleParam(
             name="empty_lines",
             default=0,
@@ -137,7 +137,7 @@ rules = {
         """,
         added_in_version="1.2.0",
     ),
-    "1010": Rule(
+    "1010": DefaultRule(
         rule_id="1010",
         name="too-many-trailing-blank-lines",
         msg="Too many blank lines at the end of file",
@@ -145,7 +145,7 @@ rules = {
         docs="""There should be exactly one blank line at the end of the file""",
         added_in_version="1.4.0",
     ),
-    "1011": Rule(
+    "1011": DefaultRule(
         rule_id="1011",
         name="misaligned-continuation",
         msg="Continuation marker should be aligned with starting row",
@@ -164,7 +164,7 @@ rules = {
         """,
         added_in_version="1.6.0",
     ),
-    "1012": Rule(
+    "1012": DefaultRule(
         RuleParam(
             name="empty_lines",
             default=1,
@@ -196,7 +196,7 @@ rules = {
         """,
         added_in_version="1.8.0",
     ),
-    "1013": Rule(
+    "1013": DefaultRule(
         rule_id="1013",
         name="empty-lines-in-statement",
         msg="Multi-line statement with empty lines",
@@ -212,7 +212,7 @@ rules = {
         """,
         added_in_version="1.8.0",
     ),
-    "1014": Rule(
+    "1014": DefaultRule(
         rule_id="1014",
         name="variable-should-be-left-aligned",
         msg="Variable in Variable section should be left aligned",
@@ -228,7 +228,7 @@ rules = {
         """,
         added_in_version="1.8.0",
     ),
-    "1015": Rule(
+    "1015": DefaultRule(
         RuleParam(name="ignore_docs", default=True, converter=str2bool, show_type="bool", desc="Ignore documentation"),
         RuleParam(
             name="ignore_run_keywords", default=False, converter=str2bool, show_type="bool", desc="Ignore run keywords"
@@ -253,7 +253,7 @@ rules = {
         """,
         added_in_version="1.11.0",
     ),
-    "1016": Rule(
+    "1016": DefaultRule(
         rule_id="1016",
         name="suite-setting-should-be-left-aligned",
         msg="Setting in Settings section should be left aligned",
@@ -270,7 +270,7 @@ rules = {
         """,
         added_in_version="2.4.0",
     ),
-    "1017": Rule(
+    "1017": DefaultRule(
         rule_id="1017",
         name="bad-block-indent",
         msg="Indent expected. Provide 2 or more spaces of indentation for statements inside block",
@@ -289,7 +289,7 @@ rules = {
         """,
         added_in_version="3.0.0",
     ),
-    "1018": Rule(
+    "1018": DefaultRule(
         rule_id="1018",
         name="first-argument-in-new-line",
         msg="First argument: '{{ argument_name }}' should be placed on the same line as [Arguments] setting",

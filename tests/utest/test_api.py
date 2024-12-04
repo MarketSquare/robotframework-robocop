@@ -8,7 +8,6 @@ from robocop.config import Config
 from robocop.exceptions import InvalidArgumentError
 from robocop.rules import Message, Rule, RuleParam, RuleSeverity
 from robocop.utils import issues_to_lsp_diagnostic
-from robocop.version import __version__
 
 
 @pytest.fixture
@@ -19,6 +18,17 @@ def rule():
         name="some-message",
         msg="Some description",
         severity=RuleSeverity.WARNING,
+        help_url="https://fake.com/rules-docs",
+    )
+
+
+@pytest.fixture
+def rule_without_help():
+    return Rule(
+        rule_id="0102",
+        name="another-message",
+        msg="Another description",
+        severity=RuleSeverity.INFO,
     )
 
 
@@ -86,7 +96,7 @@ class TestAPI:
             Config(root=config_path)
         assert r"Invalid configuration for Robocop:\nunrecognized arguments: --some" in str(exception)
 
-    def test_lsp_diagnostic(self, rule):
+    def test_lsp_diagnostic(self, rule, rule_without_help):
         issues = [
             Message(
                 rule=rule,
@@ -99,8 +109,8 @@ class TestAPI:
                 end_col=50,
             ),
             Message(
-                rule=rule,
-                msg=rule.get_message(),
+                rule=rule_without_help,
+                msg=rule_without_help.get_message(),
                 source=r"C:\directory\file.robot",
                 node=None,
                 lineno=1,
@@ -120,7 +130,7 @@ class TestAPI:
                 "source": "robocop",
                 "message": "Some description",
                 "codeDescription": {
-                    "href": f"https://robocop.readthedocs.io/en/{__version__}/rules_list.html#some-message",
+                    "href": "https://fake.com/rules-docs",
                 },
             },
             {
@@ -128,13 +138,10 @@ class TestAPI:
                     "start": {"line": 0, "character": 0},
                     "end": {"line": 0, "character": 0},
                 },
-                "severity": 2,
-                "code": "0101",
+                "severity": 3,
+                "code": "0102",
                 "source": "robocop",
-                "message": "Some description",
-                "codeDescription": {
-                    "href": f"https://robocop.readthedocs.io/en/{__version__}/rules_list.html#some-message",
-                },
+                "message": "Another description",
             },
         ]
         diagnostic = issues_to_lsp_diagnostic(issues)

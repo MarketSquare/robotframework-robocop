@@ -23,9 +23,9 @@ class TestSarifReport:
         assert report.report_filename == filename
 
     @pytest.mark.parametrize("compare_runs", [True, False])
-    def test_sarif_report(self, rule, rule2, compare_runs, tmp_path):
+    def test_sarif_report(self, rule, rule2, community_rule, custom_rule, compare_runs, tmp_path):
         config = Config(from_cli=False)
-        rules = {m.rule_id: m for m in (rule, rule2)}
+        rules = {m.rule_id: m for m in (rule, rule2, community_rule, custom_rule)}
         source1_rel = "tests/atest/rules/comments/ignored-data/test.robot"
         source2_rel = "tests/atest/rules/misc/empty-return/test.robot"
         source1 = str(config.root / source1_rel)
@@ -49,13 +49,21 @@ class TestSarifReport:
                 (rule2, source1, 50, 51, 10, None),
                 (rule, source2, 50, None, 10, 12),
                 (rule2, source2, 11, 15, 10, 15),
+                (community_rule, source2, 50, None, 10, None),
+                (custom_rule, source2, 50, None, 10, None),
             ]
         ]
+
+        def severity_to_sarif(severity: str) -> str:
+            severity = severity.lower()
+            if severity == "info":
+                return "note"
+            return severity
 
         def get_expected_result(message, level, source):
             return {
                 "ruleId": message.rule_id,
-                "level": level,
+                "level": severity_to_sarif(level),
                 "message": {"text": message.desc},
                 "locations": [
                     {
@@ -86,13 +94,13 @@ class TestSarifReport:
                                 {
                                     "id": r.rule_id,
                                     "name": r.name,
-                                    "helpUri": f"https://robocop.readthedocs.io/en/{__version__}/rules_list.html#{r.name}",
+                                    "helpUri": r.help_url or "",
                                     "shortDescription": {"text": r.msg},
                                     "fullDescription": {"text": r.docs},
-                                    "defaultConfiguration": {"level": r.default_severity.name.lower()},
+                                    "defaultConfiguration": {"level": severity_to_sarif(r.default_severity.name)},
                                     "help": {"text": r.docs, "markdown": r.docs},
                                 }
-                                for r in (rule, rule2)
+                                for r in (rule, rule2, community_rule, custom_rule)
                             ],
                         }
                     },
@@ -102,6 +110,8 @@ class TestSarifReport:
                         get_expected_result(issues[1], "error", source1_rel),
                         get_expected_result(issues[2], "warning", source2_rel),
                         get_expected_result(issues[3], "error", source2_rel),
+                        get_expected_result(issues[4], "info", source2_rel),
+                        get_expected_result(issues[5], "error", source2_rel),
                     ],
                 }
             ],

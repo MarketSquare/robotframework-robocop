@@ -39,6 +39,7 @@ import robocop.exceptions
 from robocop.utils import ROBOT_VERSION
 from robocop.utils.misc import str2bool
 from robocop.utils.version_matching import VersionSpecifier
+from robocop.version import __version__
 
 if TYPE_CHECKING:
     from re import Pattern
@@ -298,6 +299,7 @@ class Rule:
         added_in_version: str | None = None,
         enabled: bool = True,
         deprecated: bool = False,
+        help_url: str | None = None,
     ):
         """
         :param params: RuleParam() or SeverityThreshold() instances
@@ -311,6 +313,7 @@ class Rule:
         :param added_in_version: Version of the Robocop when the Rule was created
         :param enabled: Enable/disable rule by default using this parameter
         :param deprecated: Deprecate rule. If rule is used in configuration, it will issue a warning.
+        :param help_url: URL to rule documentation or other help resource.
         """
         self.rule_id = rule_id
         self.name = name
@@ -342,6 +345,7 @@ class Rule:
         self.added_in_version = added_in_version
         self.community_rule = False
         self.category_id = None
+        self.help_url = help_url
 
     @property
     def severity(self):
@@ -469,6 +473,26 @@ class Rule:
         return pattern.match(self.name) or pattern.match(self.rule_id)
 
 
+class DefaultRule(Rule):
+    @property
+    def help_url(self) -> str:
+        return f"https://robocop.readthedocs.io/en/{__version__}/rules_list.html#{self.name}"
+
+    @help_url.setter
+    def help_url(self, _):
+        pass
+
+
+class CommunityRule(Rule):
+    @property
+    def help_url(self) -> str:
+        return f"https://robocop.readthedocs.io/en/{__version__}/community_rules.html#{self.name}"
+
+    @help_url.setter
+    def help_url(self, _):
+        pass
+
+
 class Message:
     def __init__(
         self,
@@ -487,6 +511,7 @@ class Message:
         self.enabled = rule.enabled
         self.rule_id = rule.rule_id
         self.name = rule.name
+        self.help_url = rule.help_url
         self.severity = self.get_severity(overwrite_severity, rule, sev_threshold_value)
         self.desc = msg
         self.source = source

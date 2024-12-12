@@ -24,7 +24,6 @@ from robot.version import VERSION as RF_VERSION
 
 from robocop.utils.variable_matcher import VariableMatches
 from robocop.utils.version_matching import Version
-from robocop.version import __version__
 
 ROBOT_VERSION = Version(RF_VERSION)
 ROBOT_WITH_LANG = Version("6.0")
@@ -104,8 +103,9 @@ def token_col(node, *token_type) -> int:
 
 
 def issues_to_lsp_diagnostic(issues) -> list[dict]:
-    return [
-        {
+    diagnostics = []
+    for issue in issues:
+        diagnostic = {
             "range": {
                 "start": {
                     "line": max(0, issue.line - 1),
@@ -120,10 +120,14 @@ def issues_to_lsp_diagnostic(issues) -> list[dict]:
             "code": issue.rule_id,
             "source": "robocop",
             "message": issue.desc,
-            "codeDescription": {"href": f"{ROBOCOP_RULES_URL.format(version=__version__)}#{issue.name}"},
         }
-        for issue in issues
-    ]
+
+        if issue.help_url:
+            diagnostic["codeDescription"] = {"href": issue.help_url}
+
+        diagnostics.append(diagnostic)
+
+    return diagnostics
 
 
 def str2bool(v):

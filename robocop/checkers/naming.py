@@ -15,7 +15,7 @@ from robot.parsing.model.statements import Arguments
 from robot.variables.search import search_variable
 
 from robocop.checkers import VisitorChecker
-from robocop.rules import Rule, RuleParam, RuleSeverity
+from robocop.rules import DefaultRule, RuleParam, RuleSeverity
 from robocop.utils import (
     ROBOT_VERSION,
     find_robot_vars,
@@ -36,7 +36,7 @@ if TYPE_CHECKING:
 RULE_CATEGORY_ID = "03"
 
 rules = {
-    "0301": Rule(
+    "0301": DefaultRule(
         RuleParam(
             name="pattern",
             default=re.compile(r"[\.\?]"),
@@ -59,7 +59,7 @@ rules = {
         would report any occurrence of ``@[`` characters.
         """,
     ),
-    "0302": Rule(
+    "0302": DefaultRule(
         RuleParam(
             name="convention",
             default="each_word_capitalized",
@@ -110,7 +110,7 @@ rules = {
             Go To robocop.readthedocs.io Page
         """,
     ),
-    "0303": Rule(
+    "0303": DefaultRule(
         rule_id="0303",
         name="keyword-name-is-reserved-word",
         msg="'{{ keyword_name }}' is a reserved keyword{{ error_msg }}",
@@ -132,7 +132,7 @@ rules = {
           - FINALLY
         """,
     ),
-    "0305": Rule(
+    "0305": DefaultRule(
         rule_id="0305",
         name="underscore-in-keyword-name",
         msg="Underscores in keyword name '{{ keyword_name }}' can be replaced with spaces",
@@ -152,7 +152,7 @@ rules = {
             Keyword Without Underscores
         """,
     ),
-    "0306": Rule(
+    "0306": DefaultRule(
         rule_id="0306",
         name="setting-name-not-in-title-case",
         msg="Setting name '{{ setting_name }}' should use title or upper case",
@@ -180,7 +180,7 @@ rules = {
                 Step
         """,
     ),
-    "0307": Rule(
+    "0307": DefaultRule(
         rule_id="0307",
         name="section-name-invalid",
         msg="Section name should be in format '{{ section_title_case }}' or '{{ section_upper_case }}'",
@@ -198,7 +198,7 @@ rules = {
 
         """,
     ),
-    "0308": Rule(
+    "0308": DefaultRule(
         rule_id="0308",
         name="not-capitalized-test-case-title",
         msg="Test case '{{ test_name }}' title should start with capital letter",
@@ -216,14 +216,14 @@ rules = {
             validate user details
         """,
     ),
-    "0309": Rule(
+    "0309": DefaultRule(
         rule_id="0309",
         name="section-variable-not-uppercase",
         msg="Section variable '{{ variable_name }}' name should be uppercase",
         severity=RuleSeverity.WARNING,
         added_in_version="1.4.0",
     ),
-    "0310": Rule(
+    "0310": DefaultRule(
         rule_id="0310",
         name="non-local-variables-should-be-uppercase",
         msg="Test, suite and global variables should be uppercase",
@@ -249,7 +249,7 @@ rules = {
             Set Global Variable  ${my_var${NESTED}}  1
         """,
     ),
-    "0311": Rule(
+    "0311": DefaultRule(
         rule_id="0311",
         name="else-not-upper-case",
         msg="ELSE and ELSE IF should be upper case",
@@ -281,7 +281,7 @@ rules = {
                     RETURN  Cold
         """,
     ),
-    "0312": Rule(
+    "0312": DefaultRule(
         rule_id="0312",
         name="keyword-name-is-empty",
         msg="Keyword name should not be empty",
@@ -295,7 +295,7 @@ rules = {
                 Log To Console  hi
         """,
     ),
-    "0313": Rule(
+    "0313": DefaultRule(
         rule_id="0313",
         name="test-case-name-is-empty",
         msg="Test case name should not be empty",
@@ -309,7 +309,7 @@ rules = {
                 Log To Console  hello
         """,
     ),
-    "0314": Rule(
+    "0314": DefaultRule(
         rule_id="0314",
         name="empty-library-alias",
         msg="Library alias should not be empty",
@@ -329,7 +329,7 @@ rules = {
              Library  CustomLibrary  AS
         """,
     ),
-    "0315": Rule(
+    "0315": DefaultRule(
         rule_id="0315",
         name="duplicated-library-alias",
         msg="Library alias should not be the same as original name",
@@ -343,7 +343,7 @@ rules = {
              Library  CustomLibrary  AS  Custom Library  # same as library name (spaces are ignored)
         """,
     ),
-    "0316": Rule(
+    "0316": DefaultRule(
         rule_id="0316",
         name="possible-variable-overwriting",
         msg="Variable '{{ variable_name }}' may overwrite similar variable inside '{{ block_name }}' {{ block_type }}. "
@@ -364,7 +364,7 @@ rules = {
         underscores and whitespaces are ignored.
         """,
     ),
-    "0317": Rule(
+    "0317": DefaultRule(
         rule_id="0317",
         name="hyphen-in-variable-name",
         msg="Use underscore in variable name '{{ variable_name }}' instead of hyphens to "
@@ -386,7 +386,7 @@ rules = {
             ${var2}  Set Variable  ${${var}_${var2}}
         """,
     ),
-    "0318": Rule(
+    "0318": DefaultRule(
         rule_id="0318",
         name="bdd-without-keyword-call",
         msg="BDD reserved keyword '{{ keyword_name }}' not followed by any keyword{{ error_msg }}",
@@ -411,7 +411,7 @@ rules = {
         Since those words are used for BDD style, it's also recommended not to use them within the user keyword name.
         """,
     ),
-    "0319": Rule(
+    "0319": DefaultRule(
         rule_id="0319",
         name="deprecated-statement",
         msg="'{{ statement_name }}' is deprecated since Robot Framework version "
@@ -424,7 +424,7 @@ rules = {
         For example, ``Run Keyword`` and ``Continue For Loop`` keywords or ``[Return]`` setting.
         """,
     ),
-    "0320": Rule(
+    "0320": DefaultRule(
         RuleParam(
             name="pattern",
             default=re.compile(r"[\.\?]"),
@@ -447,7 +447,7 @@ rules = {
         pattern would report any occurrence of ``@[`` characters.
         """,
     ),
-    "0321": Rule(
+    "0321": DefaultRule(
         rule_id="0321",
         name="deprecated-with-name",
         msg=(
@@ -472,7 +472,7 @@ rules = {
             Library    Collections    AS    AliasedName
         """,
     ),
-    "0322": Rule(
+    "0322": DefaultRule(
         rule_id="0322",
         name="deprecated-singular-header",
         msg="'{{ singular_header }}' singular header form is deprecated since RF 6.0 and "
@@ -485,7 +485,7 @@ rules = {
         is available at https://github.com/robotframework/robotframework/issues/4431
         """,
     ),
-    "0323": Rule(
+    "0323": DefaultRule(
         rule_id="0323",
         name="inconsistent-variable-name",
         msg="Variable '{{ name }}' has inconsistent naming. First used as '{{ first_use }}'",
@@ -509,7 +509,7 @@ rules = {
                 END
         """,
     ),
-    "0324": Rule(
+    "0324": DefaultRule(
         rule_id="0324",
         name="overwriting-reserved-variable",
         msg="{{ var_or_arg }} '{{ variable_name }}' overwrites reserved variable '{{ reserved_variable }}'",
@@ -522,7 +522,7 @@ rules = {
         `Robot Framework User Guide <https://robotframework.org/robotframework/latest/RobotFrameworkUserGuide.html#automatic-variables>`_
         """,
     ),
-    "0325": Rule(
+    "0325": DefaultRule(
         rule_id="0325",
         name="invalid-section",
         msg="Invalid section '{{ invalid_section }}'. Consider using --language parameter if the file is defined with different language",
@@ -542,7 +542,7 @@ rules = {
                 Log   Błąd dostępu
         """,
     ),
-    "0326": Rule(
+    "0326": DefaultRule(
         rule_id="0326",
         name="mixed-task-test-settings",
         msg="Use {{ task_or_test }}-related setting '{{ setting }}' if {{ tasks_or_tests }} section is used",
@@ -555,7 +555,7 @@ rules = {
         Similarly, use test-related settings when using ``*** Test Cases ***`` section.
         """,
     ),
-    "0327": Rule(
+    "0327": DefaultRule(
         rule_id="0327",
         name="replace-set-variable-with-var",
         msg="{{ set_variable_keyword }} can be replaced with VAR",
@@ -588,7 +588,7 @@ rules = {
 
         """,
     ),
-    "0328": Rule(
+    "0328": DefaultRule(
         rule_id="0328",
         name="replace-create-with-var",
         msg="{{ create_keyword }} can be replaced with VAR",

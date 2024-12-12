@@ -23,7 +23,7 @@ except ImportError:
     InlineIfHeader, Break, Continue = None, None, None
 
 from robocop.checkers import VisitorChecker
-from robocop.rules import Rule, RuleParam, RuleSeverity, SeverityThreshold
+from robocop.rules import DefaultRule, RuleParam, RuleSeverity, SeverityThreshold
 from robocop.utils import (
     ROBOT_VERSION,
     AssignmentTypeDetector,
@@ -51,7 +51,7 @@ def comma_separated_list(value: str) -> list[str]:
 
 
 rules = {
-    "0901": Rule(
+    "0901": DefaultRule(
         rule_id="0901",
         name="keyword-after-return",
         msg="{{ error_msg }}",
@@ -78,7 +78,7 @@ rules = {
         """,
         added_in_version="1.0.0",
     ),
-    "0903": Rule(
+    "0903": DefaultRule(
         rule_id="0903",
         name="empty-return",
         msg="[Return] is empty",
@@ -89,7 +89,7 @@ rules = {
         """,
         added_in_version="1.0.0",
     ),
-    "0907": Rule(
+    "0907": DefaultRule(
         rule_id="0907",
         name="nested-for-loop",
         msg="Nested for loops are not supported. You can use keyword with for loop instead",
@@ -107,7 +107,7 @@ rules = {
         """,
         added_in_version="1.0.0",
     ),
-    "0908": Rule(
+    "0908": DefaultRule(
         rule_id="0908",
         name="if-can-be-used",
         msg="'{{ run_keyword }}' can be replaced with IF block since Robot Framework 4.0",
@@ -118,7 +118,7 @@ rules = {
         """,
         added_in_version="1.4.0",
     ),
-    "0909": Rule(
+    "0909": DefaultRule(
         RuleParam(
             name="assignment_sign_type",
             default="autodetect",
@@ -157,7 +157,7 @@ rules = {
         """,
         added_in_version="1.7.0",
     ),
-    "0910": Rule(
+    "0910": DefaultRule(
         RuleParam(
             name="assignment_sign_type",
             default="autodetect",
@@ -194,7 +194,7 @@ rules = {
         """,
         added_in_version="1.7.0",
     ),
-    "0911": Rule(
+    "0911": DefaultRule(
         rule_id="0911",
         name="wrong-import-order",
         msg="BuiltIn library import '{{ builtin_import }}' should be placed before '{{ custom_import }}'",
@@ -210,7 +210,7 @@ rules = {
         """,
         added_in_version="1.7.0",
     ),
-    "0912": Rule(
+    "0912": DefaultRule(
         RuleParam(
             name="variable_source",
             default="section,var",
@@ -245,7 +245,7 @@ rules = {
         """,
         added_in_version="1.10.0",
     ),
-    "0913": Rule(
+    "0913": DefaultRule(
         rule_id="0913",
         name="can-be-resource-file",
         msg="No tests in '{{ file_name }}' file, consider renaming to '{{ file_name_stem }}.resource'",
@@ -255,7 +255,7 @@ rules = {
         """,
         added_in_version="1.10.0",
     ),
-    "0914": Rule(
+    "0914": DefaultRule(
         rule_id="0914",
         name="if-can-be-merged",
         msg="IF statement can be merged with previous IF (defined in line {{ line }})",
@@ -290,7 +290,7 @@ rules = {
         """,
         added_in_version="2.0.0",
     ),
-    "0915": Rule(
+    "0915": DefaultRule(
         rule_id="0915",
         name="statement-outside-loop",
         msg="{{ name }} {{ statement_type }} used outside a loop",
@@ -308,7 +308,7 @@ rules = {
         """,
         added_in_version="2.0.0",
     ),
-    "0916": Rule(
+    "0916": DefaultRule(
         RuleParam(
             name="max_width",
             default=80,
@@ -337,7 +337,7 @@ rules = {
         """,
         added_in_version="2.0.0",
     ),
-    "0917": Rule(
+    "0917": DefaultRule(
         rule_id="0917",
         name="unreachable-code",
         msg="Unreachable code after {{ statement }} statement",
@@ -363,7 +363,7 @@ rules = {
         """,
         added_in_version="3.1.0",
     ),
-    "0918": Rule(
+    "0918": DefaultRule(
         rule_id="0918",
         name="multiline-inline-if",
         msg="Avoid splitting inline IF to multiple lines",
@@ -392,7 +392,7 @@ rules = {
         """,
         added_in_version="3.1.0",
     ),
-    "0919": Rule(
+    "0919": DefaultRule(
         rule_id="0919",
         name="unused-argument",
         msg="Keyword argument '{{ name }}' is not used",
@@ -414,7 +414,7 @@ rules = {
         """,
         added_in_version="3.2.0",
     ),
-    "0920": Rule(
+    "0920": DefaultRule(
         rule_id="0920",
         name="unused-variable",
         msg="Variable '{{ name }}' is assigned but not used",
@@ -445,7 +445,7 @@ rules = {
     """,
         added_in_version="3.2.0",
     ),
-    "0921": Rule(
+    "0921": DefaultRule(
         rule_id="0921",
         name="argument-overwritten-before-usage",
         msg="Keyword argument '{{ name }}' is overwritten before usage",
@@ -461,7 +461,7 @@ rules = {
         """,
         added_in_version="3.2.0",
     ),
-    "0922": Rule(
+    "0922": DefaultRule(
         rule_id="0922",
         name="variable-overwritten-before-usage",
         msg="Local variable '{{ name }}' is overwritten before usage",
@@ -486,7 +486,7 @@ rules = {
         """,
         added_in_version="3.2.0",
     ),
-    "0923": Rule(
+    "0923": DefaultRule(
         rule_id="0923",
         name="unnecessary-string-conversion",
         msg="Variable '{{ name }}' in '{{ block_name }}' condition has unnecessary string conversion",
@@ -532,7 +532,7 @@ rules = {
         """,
         added_in_version="4.0.0",
     ),
-    "0924": Rule(
+    "0924": DefaultRule(
         rule_id="0924",
         name="expression-can-be-simplified",
         msg="'{{ block_name }}' condition can be simplified",
@@ -574,7 +574,7 @@ rules = {
         """,
         added_in_version="4.0.0",
     ),
-    "0925": Rule(
+    "0925": DefaultRule(
         rule_id="0925",
         name="misplaced-negative-condition",
         msg="'{{ block_name }}' condition '{{ original_condition }}' can be rewritten to '{{ proposed_condition }}'",
@@ -612,7 +612,7 @@ rules = {
         """,
         added_in_version="4.0.0",
     ),
-    "0926": Rule(
+    "0926": DefaultRule(
         rule_id="0926",
         name="builtin-imports-not-sorted",
         msg="BuiltIn library import '{{ builtin_import }}' should be placed before '{{ previous_builtin_import }}'",
@@ -627,7 +627,7 @@ rules = {
 
         """,
     ),
-    "0927": Rule(
+    "0927": DefaultRule(
         RuleParam(
             name="sections_order",
             default="documentation,tags,timeout,setup,template,keyword,teardown",
@@ -663,7 +663,7 @@ rules = {
                 Keyword1
         """,
     ),
-    "0928": Rule(
+    "0928": DefaultRule(
         RuleParam(
             name="sections_order",
             default="documentation,tags,arguments,timeout,setup,keyword,teardown",
@@ -697,6 +697,151 @@ rules = {
                 [Tags]    tag1    tag2
                 [Teardown]    Log    abc
                 Keyword1
+        """,
+    ),
+    "0929": DefaultRule(
+        rule_id="0929",
+        name="no-global-variable",
+        msg="Don't set global variables outside the variables section",
+        severity=RuleSeverity.WARNING,
+        added_in_version="5.6.0",
+        docs="""
+        Setting or updating global variables in a test/keyword often leads to hard-to-understand
+        code. In most cases, you're better off using local variables.
+
+        Changes in global variables during a test are hard to track because you must remember what's
+        happening in multiple pieces of code at once. A line in a seemingly unrelated file can mess
+        up your understanding of what the code should be doing.
+
+        Local variables don't suffer from this issue because they are always created in the
+        keyword/test you're looking at.
+
+        In this example, the keyword changes the global variable. This will cause the test to fail.
+        Looking at just the test, it's unclear why the test fails. It only becomes clear if you also
+        remember the seemingly unrelated keyword.
+
+            *** Variables ***
+            ${hello}    Hello, world!
+
+            *** Test Cases ***
+            My Amazing Test
+                Do A Thing
+                Should Be Equal    ${hello}    Hello, world!
+
+            *** Keywords ***
+            Do A Thing
+                Set Global Variable    ${hello}    Goodnight, moon!
+
+        Using the VAR-syntax:
+
+            *** Variables ***
+            ${hello}    Hello, world!
+
+            *** Test Cases ***
+            My Amazing Test
+                Do A Thing
+                Should Be Equal    ${hello}    Hello, world!
+
+            *** Keywords ***
+            Do A Thing
+                VAR    ${hello}    Goodnight, moon!    scope=GLOBAL
+
+        In some specific situations, global variables are a great tool. But most of the time, it
+        makes code needlessly hard to understand.
+        """,
+    ),
+    "0930": DefaultRule(
+        rule_id="0930",
+        name="no-suite-variable",
+        msg="Don't use suite variables",
+        severity=RuleSeverity.WARNING,
+        added_in_version="5.6.0",
+        docs="""
+        Using suite variables in a test/keyword often leads to hard-to-understand code. In most
+        cases, you're better off using local variables.
+
+        Changes in suite variables during a test are hard to track because you must remember what's
+        happening in multiple pieces of code at once. A line in a seemingly unrelated file can mess
+        up your understanding of what the code should be doing.
+
+        Local variables don't suffer from this issue because they are always created in the
+        keyword/test you're looking at.
+
+        In this example, the keyword changes the suite variable. This will cause the test to fail.
+        Looking at just the test, it's unclear why the test fails. It only becomes clear if you also
+        remember the seemingly unrelated keyword.
+
+            *** Test Cases ***
+            My Amazing Test
+                Set Suite Variable    ${hello}    Hello, world!
+                Do A Thing
+                Should Be Equal    ${hello}    Hello, world!
+
+            *** Keywords ***
+            Do A Thing
+                Set Suite Variable    ${hello}    Goodnight, moon!
+
+        Using the VAR-syntax:
+
+            *** Test Cases ***
+            My Amazing Test
+                VAR    ${hello}    Hello, world!    scope=SUITE
+                Do A Thing
+                Should Be Equal    ${hello}    Hello, world!
+
+            *** Keywords ***
+            Do A Thing
+                VAR    ${hello}    Goodnight, moon!    scope=SUITE
+
+        In some specific situations, suite variables are a great tool. But most of the time, it
+        makes code needlessly hard to understand.
+        """,
+    ),
+    "0931": DefaultRule(
+        rule_id="0931",
+        name="no-test-variable",
+        msg="Don't use test/task variables",
+        severity=RuleSeverity.WARNING,
+        added_in_version="5.6.0",
+        docs="""
+        Using test/task variables in a test/keyword often leads to hard-to-understand code. In most
+        cases, you're better off using local variables.
+
+        Changes in test/task variables during a test are hard to track because you must remember what's
+        happening in multiple pieces of code at once. A line in a seemingly unrelated file can mess
+        up your understanding of what the code should be doing.
+
+        Local variables don't suffer from this issue because they are always created in the
+        keyword/test you're looking at.
+
+        In this example, the keyword changes the test/task variable. This will cause the test to fail.
+        Looking at just the test, it's unclear why the test fails. It only becomes clear if you also
+        remember the seemingly unrelated keyword.
+
+            *** Test Cases ***
+            My Amazing Test
+                Set Test Variable    ${hello}    Hello, world!
+                Do A Thing
+                Should Be Equal    ${hello}    Hello, world!
+
+            *** Keywords ***
+            Do A Thing
+                Set Test Variable    ${hello}    Goodnight, moon!
+
+        Using the VAR-syntax:
+
+            *** Test Cases ***
+            My Amazing Test
+                VAR    ${hello}    Hello, world!    scope=TEST
+                Do A Thing
+                Should Be Equal    ${hello}    Hello, world!
+
+            *** Keywords ***
+            Do A Thing
+                VAR    ${hello}    Goodnight, moon!    scope=TEST
+
+        In some specific situations, test/task variables are a great tool. But most of the time, it
+        makes code needlessly hard to understand.
         """,
     ),
 }
@@ -1725,3 +1870,72 @@ class TestAndKeywordOrderChecker(VisitorChecker):
                 max_order_indicator = this_node_expected_order
 
     visit_Keyword = visit_TestCase = check_order  # noqa: N815
+
+
+class NonLocalVariableChecker(VisitorChecker):
+    reports = (
+        "no-global-variable",
+        "no-suite-variable",
+        "no-test-variable",
+    )
+    non_local_variable_keywords = {
+        "setglobalvariable",
+        "setsuitevariable",
+        "settestvariable",
+        "settaskvariable",
+    }
+
+    def visit_KeywordCall(self, node: KeywordCall):  # noqa: N802
+        keyword_token = node.get_token(Token.KEYWORD)
+        if not keyword_token:
+            return
+
+        keyword_name = normalize_robot_name(keyword_token.value, remove_prefix="builtin.")
+        if keyword_name not in self.non_local_variable_keywords:
+            return
+
+        if keyword_name == "setglobalvariable":
+            self._report("no-global-variable", keyword_token)
+            return
+
+        if keyword_name == "setsuitevariable":
+            self._report("no-suite-variable", keyword_token)
+            return
+
+        if keyword_name in ["settestvariable", "settaskvariable"]:
+            self._report("no-test-variable", keyword_token)
+            return
+
+    def visit_Var(self, node):  # noqa: N802
+        """Visit VAR syntax introduced in Robot Framework 7. Is ignored in Robot < 7"""
+        if not node.scope:
+            return
+
+        scope = node.scope.upper()
+        if scope == "LOCAL":
+            return
+
+        option_token = node.get_token(Token.OPTION)
+
+        if scope == "GLOBAL":
+            self._report("no-global-variable", option_token)
+            return
+
+        if scope in ["SUITE", "SUITES"]:
+            self._report("no-suite-variable", option_token)
+            return
+
+        if scope in ["TEST", "TASK"]:
+            self._report("no-test-variable", option_token)
+            return
+
+        # Unexpected scope, or variable-defined scope
+
+    def _report(self, rule_name: str, node):
+        self.report(
+            rule_name,
+            node=node,
+            lineno=node.lineno,
+            col=node.col_offset + 1,
+            end_col=node.col_offset + len(node.value) + 1,
+        )

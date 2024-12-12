@@ -24,14 +24,14 @@ except ImportError:
     Var = None
 
 from robocop.checkers import RawFileChecker, VisitorChecker
-from robocop.rules import Rule, RuleParam, RuleSeverity, SeverityThreshold
+from robocop.rules import DefaultRule, RuleParam, RuleSeverity, SeverityThreshold
 from robocop.utils import get_section_name, normalize_robot_name, pattern_type, str2bool
 from robocop.utils.misc import RETURN_CLASSES
 
 RULE_CATEGORY_ID = "05"
 
 rules = {
-    "0501": Rule(
+    "0501": DefaultRule(
         RuleParam(name="max_len", default=40, converter=int, desc="number of lines allowed in a keyword"),
         RuleParam(name="ignore_docs", default=False, converter=str2bool, show_type="bool", desc="Ignore documentation"),
         SeverityThreshold("max_len", compare_method="greater", substitute_value="allowed_length"),
@@ -41,7 +41,7 @@ rules = {
         severity=RuleSeverity.WARNING,
         added_in_version="1.0.0",
     ),
-    "0502": Rule(
+    "0502": DefaultRule(
         RuleParam(name="min_calls", default=1, converter=int, desc="number of keyword calls required in a keyword"),
         SeverityThreshold("min_calls", compare_method="less", substitute_value="min_allowed_count"),
         rule_id="0502",
@@ -50,7 +50,7 @@ rules = {
         severity=RuleSeverity.WARNING,
         added_in_version="1.0.0",
     ),
-    "0503": Rule(
+    "0503": DefaultRule(
         RuleParam(name="max_calls", default=10, converter=int, desc="number of keyword calls allowed in a keyword"),
         SeverityThreshold("max_calls", compare_method="greater", substitute_value="max_allowed_count"),
         rule_id="0503",
@@ -59,7 +59,7 @@ rules = {
         severity=RuleSeverity.WARNING,
         added_in_version="1.0.0",
     ),
-    "0504": Rule(
+    "0504": DefaultRule(
         RuleParam(name="max_len", default=20, converter=int, desc="number of lines allowed in a test case"),
         RuleParam(name="ignore_docs", default=False, converter=str2bool, show_type="bool", desc="Ignore documentation"),
         SeverityThreshold("max_len", compare_method="greater", substitute_value="allowed_length"),
@@ -69,7 +69,7 @@ rules = {
         severity=RuleSeverity.WARNING,
         added_in_version="1.0.0",
     ),
-    "0505": Rule(
+    "0505": DefaultRule(
         RuleParam(name="max_calls", default=10, converter=int, desc="number of keyword calls allowed in a test case"),
         RuleParam(
             name="ignore_templated", default=False, converter=str2bool, show_type="bool", desc="Ignore templated tests"
@@ -82,7 +82,7 @@ rules = {
         severity=RuleSeverity.WARNING,
         added_in_version="1.0.0",
     ),
-    "0506": Rule(
+    "0506": DefaultRule(
         RuleParam(name="max_lines", default=400, converter=int, desc="number of lines allowed in a file"),
         SeverityThreshold("max_lines", compare_method="greater", substitute_value="max_allowed_count"),
         rule_id="0506",
@@ -91,7 +91,7 @@ rules = {
         severity=RuleSeverity.WARNING,
         added_in_version="1.0.0",
     ),
-    "0507": Rule(
+    "0507": DefaultRule(
         RuleParam(name="max_args", default=5, converter=int, desc="number of lines allowed in a file"),
         SeverityThreshold("max_args", compare_method="greater", substitute_value="max_allowed_count"),
         rule_id="0507",
@@ -100,7 +100,7 @@ rules = {
         severity=RuleSeverity.WARNING,
         added_in_version="1.0.0",
     ),
-    "0508": Rule(
+    "0508": DefaultRule(
         RuleParam(name="line_length", default=120, converter=int, desc="number of characters allowed in line"),
         RuleParam(
             name="ignore_pattern",
@@ -124,14 +124,14 @@ rules = {
         """,
         added_in_version="1.0.0",
     ),
-    "0509": Rule(
+    "0509": DefaultRule(
         rule_id="0509",
         name="empty-section",
         msg="Section '{{ section_name }}' is empty",
         severity=RuleSeverity.WARNING,
         added_in_version="1.0.0",
     ),
-    "0510": Rule(
+    "0510": DefaultRule(
         RuleParam(
             name="max_returns", default=4, converter=int, desc="allowed number of returned values from a keyword"
         ),
@@ -142,119 +142,119 @@ rules = {
         severity=RuleSeverity.WARNING,
         added_in_version="1.0.0",
     ),
-    "0511": Rule(
+    "0511": DefaultRule(
         rule_id="0511",
         name="empty-metadata",
         msg="Metadata settings does not have any value set",
         severity=RuleSeverity.WARNING,
         added_in_version="1.0.0",
     ),
-    "0512": Rule(
+    "0512": DefaultRule(
         rule_id="0512",
         name="empty-documentation",
         msg="Documentation of {{ block_name }} is empty",
         severity=RuleSeverity.WARNING,
         added_in_version="1.0.0",
     ),
-    "0513": Rule(
+    "0513": DefaultRule(
         rule_id="0513",
         name="empty-force-tags",
         msg="Force Tags are empty",
         severity=RuleSeverity.WARNING,
         added_in_version="1.0.0",
     ),
-    "0514": Rule(
+    "0514": DefaultRule(
         rule_id="0514",
         name="empty-default-tags",
         msg="Default Tags are empty",
         severity=RuleSeverity.WARNING,
         added_in_version="1.0.0",
     ),
-    "0515": Rule(
+    "0515": DefaultRule(
         rule_id="0515",
         name="empty-variables-import",
         msg="Import variables path is empty",
         severity=RuleSeverity.ERROR,
         added_in_version="1.0.0",
     ),
-    "0516": Rule(
+    "0516": DefaultRule(
         rule_id="0516",
         name="empty-resource-import",
         msg="Import resource path is empty",
         severity=RuleSeverity.ERROR,
         added_in_version="1.0.0",
     ),
-    "0517": Rule(
+    "0517": DefaultRule(
         rule_id="0517",
         name="empty-library-import",
         msg="Import library path is empty",
         severity=RuleSeverity.ERROR,
         added_in_version="1.0.0",
     ),
-    "0518": Rule(
+    "0518": DefaultRule(
         rule_id="0518",
         name="empty-setup",
         msg="Setup of {{ block_name }} does not have any keywords",
         severity=RuleSeverity.ERROR,
         added_in_version="1.0.0",
     ),
-    "0519": Rule(
+    "0519": DefaultRule(
         rule_id="0519",
         name="empty-suite-setup",
         msg="Suite Setup does not have any keywords",
         severity=RuleSeverity.ERROR,
         added_in_version="1.0.0",
     ),
-    "0520": Rule(
+    "0520": DefaultRule(
         rule_id="0520",
         name="empty-test-setup",
         msg="Test Setup does not have any keywords",
         severity=RuleSeverity.ERROR,
         added_in_version="1.0.0",
     ),
-    "0521": Rule(
+    "0521": DefaultRule(
         rule_id="0521",
         name="empty-teardown",
         msg="Teardown of {{ block_name }} does not have any keywords",
         severity=RuleSeverity.ERROR,
         added_in_version="1.0.0",
     ),
-    "0522": Rule(
+    "0522": DefaultRule(
         rule_id="0522",
         name="empty-suite-teardown",
         msg="Suite Teardown does not have any keywords",
         severity=RuleSeverity.ERROR,
         added_in_version="1.0.0",
     ),
-    "0523": Rule(
+    "0523": DefaultRule(
         rule_id="0523",
         name="empty-test-teardown",
         msg="Test Teardown does not have any keywords",
         severity=RuleSeverity.ERROR,
         added_in_version="1.0.0",
     ),
-    "0524": Rule(
+    "0524": DefaultRule(
         rule_id="0524",
         name="empty-timeout",
         msg="Timeout of {{ block_name }} is empty",
         severity=RuleSeverity.WARNING,
         added_in_version="1.0.0",
     ),
-    "0525": Rule(
+    "0525": DefaultRule(
         rule_id="0525",
         name="empty-test-timeout",
         msg="Test Timeout is empty",
         severity=RuleSeverity.WARNING,
         added_in_version="1.0.0",
     ),
-    "0526": Rule(
+    "0526": DefaultRule(
         rule_id="0526",
         name="empty-arguments",
         msg="Arguments of {{ block_name }} are empty",
         severity=RuleSeverity.ERROR,
         added_in_version="1.0.0",
     ),
-    "0527": Rule(
+    "0527": DefaultRule(
         RuleParam(name="max_testcases", default=50, converter=int, desc="number of test cases allowed in a suite"),
         RuleParam(
             name="max_templated_testcases",
@@ -269,7 +269,7 @@ rules = {
         severity=RuleSeverity.WARNING,
         added_in_version="1.10.0",
     ),
-    "0528": Rule(
+    "0528": DefaultRule(
         RuleParam(name="min_calls", default=1, converter=int, desc="number of keyword calls required in a test case"),
         RuleParam(
             name="ignore_templated", default=False, converter=str2bool, show_type="bool", desc="Ignore templated tests"
@@ -290,7 +290,7 @@ rules = {
         severity=RuleSeverity.ERROR,
         added_in_version="2.4.0",
     ),
-    "0529": Rule(
+    "0529": DefaultRule(
         rule_id="0529",
         name="empty-test-template",
         msg="Test Template is empty",
@@ -302,7 +302,7 @@ rules = {
         severity=RuleSeverity.ERROR,
         added_in_version="3.1.0",
     ),
-    "0530": Rule(
+    "0530": DefaultRule(
         rule_id="0530",
         name="empty-template",
         msg="Template of {{ block_name }} is empty. "
@@ -328,7 +328,7 @@ rules = {
         severity=RuleSeverity.WARNING,
         added_in_version="3.1.0",
     ),
-    "0531": Rule(
+    "0531": DefaultRule(
         rule_id="0531",
         name="empty-keyword-tags",
         msg="Keyword Tags are empty",
@@ -336,7 +336,7 @@ rules = {
         version=">=6",
         added_in_version="3.3.0",
     ),
-    "0532": Rule(
+    "0532": DefaultRule(
         RuleParam(
             name="max_args",
             default=1,
@@ -359,7 +359,7 @@ rules = {
             [Arguments]    ${first_arg
             ...    ${second_arg}    ${third_arg}=default
 
-         Good |:white_check_mark:| ::
+        Good |:white_check_mark:| ::
 
         ..  code-block:: none
 

@@ -10,20 +10,20 @@ except ImportError:
     If = None
 
 from robocop.checkers import VisitorChecker
-from robocop.rules import Rule, RuleSeverity
+from robocop.rules import DefaultRule, RuleSeverity
 from robocop.utils import ROBOT_VERSION, find_robot_vars
 
 RULE_CATEGORY_ID = "04"
 
 rules = {
-    "0401": Rule(
+    "0401": DefaultRule(
         rule_id="0401",
         name="parsing-error",
         msg="Robot Framework syntax error: {{ error_msg }}",
         severity=RuleSeverity.ERROR,
         added_in_version="1.0.0",
     ),
-    "0402": Rule(
+    "0402": DefaultRule(
         rule_id="0402",
         name="not-enough-whitespace-after-setting",
         msg="Provide at least two spaces after '{{ setting_name }}' setting",
@@ -45,7 +45,7 @@ rules = {
         """,
         added_in_version="1.0.0",
     ),
-    "0403": Rule(
+    "0403": DefaultRule(
         rule_id="0403",
         name="missing-keyword-name",
         msg="Missing keyword name when calling some values",
@@ -61,7 +61,7 @@ rules = {
         """,
         added_in_version="1.8.0",
     ),
-    "0404": Rule(
+    "0404": DefaultRule(
         rule_id="0404",
         name="variables-import-with-args",
         msg="YAML variable files do not take arguments",
@@ -77,7 +77,7 @@ rules = {
         """,
         added_in_version="1.11.0",
     ),
-    "0405": Rule(
+    "0405": DefaultRule(
         rule_id="0405",
         name="invalid-continuation-mark",
         msg="Invalid continuation mark '{{ mark }}'. It should be '...'",
@@ -94,7 +94,7 @@ rules = {
         added_in_version="1.11.0",
     ),
     # there is not-enough-whitespace-after-newline-marker for keyword calls already
-    "0406": Rule(
+    "0406": DefaultRule(
         rule_id="0406",
         name="not-enough-whitespace-after-newline-marker",
         msg="Provide at least two spaces after '...' marker",
@@ -109,7 +109,7 @@ rules = {
         """,
         added_in_version="1.11.0",
     ),
-    "0407": Rule(
+    "0407": DefaultRule(
         rule_id="0407",
         name="invalid-argument",
         msg="{{ error_msg }}",
@@ -132,7 +132,7 @@ rules = {
         """,
         added_in_version="1.11.0",
     ),
-    "0408": Rule(
+    "0408": DefaultRule(
         rule_id="0408",
         name="non-existing-setting",
         msg="{{ error_msg }}",
@@ -150,7 +150,7 @@ rules = {
         """,
         added_in_version="1.11.0",
     ),
-    "0409": Rule(
+    "0409": DefaultRule(
         rule_id="0409",
         name="setting-not-supported",
         msg="Setting '[{{ setting_name }}]' is not supported in {{ test_or_keyword }}. "
@@ -178,7 +178,7 @@ rules = {
         """,
         added_in_version="1.11.0",
     ),
-    "0410": Rule(
+    "0410": DefaultRule(
         rule_id="0410",
         name="not-enough-whitespace-after-variable",
         msg="Provide at least two spaces after '{{ variable_name }}' variable name",
@@ -193,7 +193,7 @@ rules = {
         """,
         added_in_version="1.11.0",
     ),
-    "0411": Rule(
+    "0411": DefaultRule(
         rule_id="0411",
         name="not-enough-whitespace-after-suite-setting",
         msg="Provide at least two spaces after '{{ setting_name }}' setting",
@@ -210,7 +210,7 @@ rules = {
         """,
         added_in_version="1.11.0",
     ),
-    "0412": Rule(
+    "0412": DefaultRule(
         rule_id="0412",
         name="invalid-for-loop",
         msg="Invalid for loop syntax: {{ error_msg }}",
@@ -218,7 +218,7 @@ rules = {
         version=">=4.0",
         added_in_version="1.11.0",
     ),
-    "0413": Rule(
+    "0413": DefaultRule(
         rule_id="0413",
         name="invalid-if",
         msg="Invalid IF syntax: {{ error_msg }}",
@@ -226,7 +226,7 @@ rules = {
         version=">=4.0",
         added_in_version="1.11.0",
     ),
-    "0414": Rule(
+    "0414": DefaultRule(
         rule_id="0414",
         name="return-in-test-case",
         msg="RETURN can only be used inside a user keyword",
@@ -234,7 +234,7 @@ rules = {
         version=">=5.0",
         added_in_version="2.0.0",
     ),
-    "0415": Rule(
+    "0415": DefaultRule(
         rule_id="0415",
         name="invalid-section-in-resource",
         msg="Resource file can't contain '{{ section_name }}' section",
@@ -245,7 +245,7 @@ rules = {
         severity=RuleSeverity.ERROR,
         added_in_version="3.1.0",
     ),
-    "0416": Rule(
+    "0416": DefaultRule(
         rule_id="0416",
         name="invalid-setting-in-resource",
         msg="Settings section in resource file can't contain '{{ section_name }}' setting",
@@ -256,7 +256,7 @@ rules = {
         severity=RuleSeverity.ERROR,
         added_in_version="3.3.0",
     ),
-    "0417": Rule(
+    "0417": DefaultRule(
         rule_id="0417",
         name="unsupported-setting-in-init-file",
         msg="Setting '{{ setting }}' is not supported in initialization files",

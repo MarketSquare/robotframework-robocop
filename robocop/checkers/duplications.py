@@ -5,7 +5,7 @@ from collections import defaultdict
 from robot.api import Token
 
 from robocop.checkers import VisitorChecker
-from robocop.rules import Rule, RuleParam, RuleSeverity
+from robocop.rules import DefaultRule, RuleParam, RuleSeverity
 from robocop.utils import get_errors, normalize_robot_name, normalize_robot_var_name
 
 
@@ -33,7 +33,7 @@ def configure_sections_order(value):
 RULE_CATEGORY_ID = "08"
 
 rules = {
-    "0801": Rule(
+    "0801": DefaultRule(
         rule_id="0801",
         name="duplicated-test-case",
         msg="Multiple test cases with name '{{ name }}' (first occurrence in line {{ first_occurrence_line }})",
@@ -52,7 +52,7 @@ rules = {
         """,
         added_in_version="1.0.0",
     ),
-    "0802": Rule(
+    "0802": DefaultRule(
         rule_id="0802",
         name="duplicated-keyword",
         msg="Multiple keywords with name '{{ name }}' (first occurrence in line {{ first_occurrence_line }})",
@@ -75,7 +75,7 @@ rules = {
         """,
         added_in_version="1.0.0",
     ),
-    "0803": Rule(
+    "0803": DefaultRule(
         rule_id="0803",
         name="duplicated-variable",
         msg="Multiple variables with name '{{ name }}' in Variables section (first occurrence in line "
@@ -96,14 +96,14 @@ rules = {
         """,
         added_in_version="1.0.0",
     ),
-    "0804": Rule(
+    "0804": DefaultRule(
         rule_id="0804",
         name="duplicated-resource",
         msg="Multiple resource imports with path '{{ name }}' (first occurrence in line {{ first_occurrence_line }})",
         severity=RuleSeverity.WARNING,
         added_in_version="1.0.0",
     ),
-    "0805": Rule(
+    "0805": DefaultRule(
         rule_id="0805",
         name="duplicated-library",
         msg="Multiple library imports with name '{{ name }}' and identical arguments (first occurrence in line "
@@ -119,21 +119,21 @@ rules = {
         """,
         added_in_version="1.0.0",
     ),
-    "0806": Rule(
+    "0806": DefaultRule(
         rule_id="0806",
         name="duplicated-metadata",
         msg="Duplicated metadata '{{ name }}' (first occurrence in line {{ first_occurrence_line }})",
         severity=RuleSeverity.WARNING,
         added_in_version="1.0.0",
     ),
-    "0807": Rule(
+    "0807": DefaultRule(
         rule_id="0807",
         name="duplicated-variables-import",
         msg="Duplicated variables import with path '{{ name }}' (first occurrence in line {{ first_occurrence_line }})",
         severity=RuleSeverity.WARNING,
         added_in_version="1.0.0",
     ),
-    "0808": Rule(
+    "0808": DefaultRule(
         rule_id="0808",
         name="section-already-defined",
         msg="'{{ section_name }}' section header already defined in file (first occurrence in line "
@@ -160,7 +160,7 @@ rules = {
         """,
         added_in_version="1.0.0",
     ),
-    "0809": Rule(
+    "0809": DefaultRule(
         RuleParam(
             name="sections_order",
             default="settings,variables,testcases,keywords",
@@ -194,7 +194,7 @@ rules = {
         """,
         added_in_version="1.0.0",
     ),
-    "0810": Rule(
+    "0810": DefaultRule(
         rule_id="0810",
         name="both-tests-and-tasks",
         msg="Both Task(s) and Test Case(s) section headers defined in file",
@@ -209,7 +209,7 @@ rules = {
         """,
         added_in_version="1.0.0",
     ),
-    "0811": Rule(
+    "0811": DefaultRule(
         rule_id="0811",
         name="duplicated-argument-name",
         msg="Argument name '{{ argument_name }}' is already used",
@@ -226,7 +226,7 @@ rules = {
         """,
         added_in_version="1.11.0",
     ),
-    "0812": Rule(
+    "0812": DefaultRule(
         rule_id="0812",
         name="duplicated-assigned-var-name",
         msg="Assigned variable name '{{ variable_name }}' is already used",
@@ -250,7 +250,7 @@ rules = {
         """,
         added_in_version="1.12.0",
     ),
-    "0813": Rule(
+    "0813": DefaultRule(
         rule_id="0813",
         name="duplicated-setting",
         msg="{{ error_msg }}",

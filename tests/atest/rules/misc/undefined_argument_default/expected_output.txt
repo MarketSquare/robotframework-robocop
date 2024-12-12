@@ -1,0 +1,2 @@
+test.robot:3:30 [E] 0932 Undefined argument default, use ${bar}=${EMPTY} instead
+test.robot:10:10 [E] 0932 Undefined argument default, use ${baz}=${EMPTY} instead

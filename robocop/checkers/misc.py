@@ -844,6 +844,16 @@ rules = {
         makes code needlessly hard to understand.
         """,
     ),
+    "0932": DefaultRule(
+        rule_id="0932",
+        name="undefined-argument-default",
+        msg="Undefined argument default, use {{ arg_name }}=${EMPTY} instead",
+        severity=RuleSeverity.ERROR,
+        added_in_version="5.7.0",
+        docs="""
+        TODO
+        """,
+    ),
 }
 
 
@@ -1939,3 +1949,30 @@ class NonLocalVariableChecker(VisitorChecker):
             col=node.col_offset + 1,
             end_col=node.col_offset + len(node.value) + 1,
         )
+
+
+class UndefinedArgumentDefaultChecker(VisitorChecker):
+    reports = ("undefined-argument-default",)
+
+    def visit_Arguments(self, node: Arguments):  # noqa: N802
+        for token in node.get_tokens(Token.ARGUMENT):
+            arg = token.value
+
+            # From the Robot User Guide:
+            # "The syntax for default values is space sensitive. Spaces before
+            # the `=` sign are not allowed."
+            if "}=" not in arg:
+                # has no default
+                continue
+
+            (arg_name, default_val) = arg.split("}=", maxsplit=1)
+
+            if default_val == "":
+                self.report(
+                    "undefined-argument-default",
+                    node=token,
+                    lineno=token.lineno,
+                    col=token.col_offset + 1,
+                    end_col=token.col_offset + len(token.value) + 1,
+                    arg_name=arg_name + "}",
+                )

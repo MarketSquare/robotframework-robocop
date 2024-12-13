@@ -851,7 +851,20 @@ rules = {
         severity=RuleSeverity.ERROR,
         added_in_version="5.7.0",
         docs="""
-        TODO
+        Keyword arguments can define a default value. Every time you call the keyword, you can
+        optionally overwrite this default.
+
+        When you use an argument default, you should be as clear as possible. This improves the
+        readability of your code. The syntax `${argument}=` is unclear unless you happen to know
+        that it is technically equivalent to `${argument}=${EMPTY}`. To prevent people from
+        misreading your keyword arguments, explicitly state that the value is empty using the
+        built-in `${EMPTY}` variable.
+
+        Example of a rule violation:
+
+            *** Keywords ***
+            My Amazing Keyword
+                [Arguments]    ${argument_name}=
         """,
     ),
 }

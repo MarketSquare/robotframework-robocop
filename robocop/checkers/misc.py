@@ -1965,7 +1965,7 @@ class UndefinedArgumentDefaultChecker(VisitorChecker):
                 # has no default
                 continue
 
-            (arg_name, default_val) = arg.split("}=", maxsplit=1)
+            arg_name, default_val = arg.split("}=", maxsplit=1)
 
             if default_val == "":
                 self.report(

@@ -30,3 +30,7 @@ Keyword with invalid syntax
 Keyword with invalid syntax including equal sign
     [Arguments]    ${arg=
     No Operation
+
+Keyword with named-only arguments
+    [Arguments]    @{}    ${bar}=    ${foo}=${None}
+    No Operation

@@ -94,7 +94,7 @@ class TestExternalRules:
     def test_loading_external_rule_including_relative_import(self, robocop_pre_load):
         clear_imported_module("RobocopRules")
         with add_sys_path(EXT_MODULE_WITH_RELATIVE_IMPORT):
-            robocop_pre_load.config.ext_rules = {f"{EXT_MODULE_WITH_RELATIVE_IMPORT}"}
+            robocop_pre_load.config.ext_rules = {EXT_MODULE_WITH_RELATIVE_IMPORT}
             robocop_pre_load.load_checkers()
             assert "9905" in robocop_pre_load.rules
 

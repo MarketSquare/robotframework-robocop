@@ -718,7 +718,7 @@ rules = {
 
         In this example, the keyword changes the global variable. This will cause the test to fail.
         Looking at just the test, it's unclear why the test fails. It only becomes clear if you also
-        remember the seemingly unrelated keyword.
+        remember the seemingly unrelated keyword::
 
             *** Variables ***
             ${hello}    Hello, world!
@@ -732,7 +732,7 @@ rules = {
             Do A Thing
                 Set Global Variable    ${hello}    Goodnight, moon!
 
-        Using the VAR-syntax:
+        Using the VAR-syntax::
 
             *** Variables ***
             ${hello}    Hello, world!
@@ -769,7 +769,7 @@ rules = {
 
         In this example, the keyword changes the suite variable. This will cause the test to fail.
         Looking at just the test, it's unclear why the test fails. It only becomes clear if you also
-        remember the seemingly unrelated keyword.
+        remember the seemingly unrelated keyword::
 
             *** Test Cases ***
             My Amazing Test
@@ -781,7 +781,7 @@ rules = {
             Do A Thing
                 Set Suite Variable    ${hello}    Goodnight, moon!
 
-        Using the VAR-syntax:
+        Using the VAR-syntax::
 
             *** Test Cases ***
             My Amazing Test
@@ -816,7 +816,7 @@ rules = {
 
         In this example, the keyword changes the test/task variable. This will cause the test to fail.
         Looking at just the test, it's unclear why the test fails. It only becomes clear if you also
-        remember the seemingly unrelated keyword.
+        remember the seemingly unrelated keyword::
 
             *** Test Cases ***
             My Amazing Test
@@ -828,7 +828,7 @@ rules = {
             Do A Thing
                 Set Test Variable    ${hello}    Goodnight, moon!
 
-        Using the VAR-syntax:
+        Using the VAR-syntax::
 
             *** Test Cases ***
             My Amazing Test

@@ -860,7 +860,7 @@ rules = {
         misreading your keyword arguments, explicitly state that the value is empty using the
         built-in `${EMPTY}` variable.
 
-        Example of a rule violation:
+        Example of a rule violation::
 
             *** Keywords ***
             My Amazing Keyword

@@ -718,7 +718,7 @@ rules = {
 
         In this example, the keyword changes the global variable. This will cause the test to fail.
         Looking at just the test, it's unclear why the test fails. It only becomes clear if you also
-        remember the seemingly unrelated keyword.
+        remember the seemingly unrelated keyword::
 
             *** Variables ***
             ${hello}    Hello, world!
@@ -732,7 +732,7 @@ rules = {
             Do A Thing
                 Set Global Variable    ${hello}    Goodnight, moon!
 
-        Using the VAR-syntax:
+        Using the VAR-syntax::
 
             *** Variables ***
             ${hello}    Hello, world!
@@ -769,7 +769,7 @@ rules = {
 
         In this example, the keyword changes the suite variable. This will cause the test to fail.
         Looking at just the test, it's unclear why the test fails. It only becomes clear if you also
-        remember the seemingly unrelated keyword.
+        remember the seemingly unrelated keyword::
 
             *** Test Cases ***
             My Amazing Test
@@ -781,7 +781,7 @@ rules = {
             Do A Thing
                 Set Suite Variable    ${hello}    Goodnight, moon!
 
-        Using the VAR-syntax:
+        Using the VAR-syntax::
 
             *** Test Cases ***
             My Amazing Test
@@ -816,7 +816,7 @@ rules = {
 
         In this example, the keyword changes the test/task variable. This will cause the test to fail.
         Looking at just the test, it's unclear why the test fails. It only becomes clear if you also
-        remember the seemingly unrelated keyword.
+        remember the seemingly unrelated keyword::
 
             *** Test Cases ***
             My Amazing Test
@@ -828,7 +828,7 @@ rules = {
             Do A Thing
                 Set Test Variable    ${hello}    Goodnight, moon!
 
-        Using the VAR-syntax:
+        Using the VAR-syntax::
 
             *** Test Cases ***
             My Amazing Test
@@ -842,6 +842,29 @@ rules = {
 
         In some specific situations, test/task variables are a great tool. But most of the time, it
         makes code needlessly hard to understand.
+        """,
+    ),
+    "0932": DefaultRule(
+        rule_id="0932",
+        name="undefined-argument-default",
+        msg="Undefined argument default, use {{ arg_name }}=${EMPTY} instead",
+        severity=RuleSeverity.ERROR,
+        added_in_version="5.7.0",
+        docs="""
+        Keyword arguments can define a default value. Every time you call the keyword, you can
+        optionally overwrite this default.
+
+        When you use an argument default, you should be as clear as possible. This improves the
+        readability of your code. The syntax `${argument}=` is unclear unless you happen to know
+        that it is technically equivalent to `${argument}=${EMPTY}`. To prevent people from
+        misreading your keyword arguments, explicitly state that the value is empty using the
+        built-in `${EMPTY}` variable.
+
+        Example of a rule violation::
+
+            *** Keywords ***
+            My Amazing Keyword
+                [Arguments]    ${argument_name}=
         """,
     ),
 }
@@ -1939,3 +1962,30 @@ class NonLocalVariableChecker(VisitorChecker):
             col=node.col_offset + 1,
             end_col=node.col_offset + len(node.value) + 1,
         )
+
+
+class UndefinedArgumentDefaultChecker(VisitorChecker):
+    reports = ("undefined-argument-default",)
+
+    def visit_Arguments(self, node: Arguments):  # noqa: N802
+        for token in node.get_tokens(Token.ARGUMENT):
+            arg = token.value
+
+            # From the Robot User Guide:
+            # "The syntax for default values is space sensitive. Spaces before
+            # the `=` sign are not allowed."
+            if "}=" not in arg:
+                # has no default
+                continue
+
+            arg_name, default_val = arg.split("}=", maxsplit=1)
+
+            if default_val == "":
+                self.report(
+                    "undefined-argument-default",
+                    node=token,
+                    lineno=token.lineno,
+                    col=token.col_offset + 1,
+                    end_col=token.col_offset + len(token.value) + 1,
+                    arg_name=arg_name + "}",
+                )

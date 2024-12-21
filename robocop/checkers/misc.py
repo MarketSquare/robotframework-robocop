@@ -855,10 +855,10 @@ rules = {
         optionally overwrite this default.
 
         When you use an argument default, you should be as clear as possible. This improves the
-        readability of your code. The syntax `${argument}=` is unclear unless you happen to know
-        that it is technically equivalent to `${argument}=${EMPTY}`. To prevent people from
+        readability of your code. The syntax ``${argument}=`` is unclear unless you happen to know
+        that it is technically equivalent to ``${argument}=${EMPTY}``. To prevent people from
         misreading your keyword arguments, explicitly state that the value is empty using the
-        built-in `${EMPTY}` variable.
+        built-in ``${EMPTY}`` variable.
 
         Example of a rule violation::
 
@@ -874,7 +874,20 @@ rules = {
         severity=RuleSeverity.ERROR,
         added_in_version="5.7.0",
         docs="""
-        TODO
+        When calling a keyword, it can accept named arguments.
+
+        When you call a keyword, you should be as clear as possible. This improves the
+        readability of your code. The syntax ``argument=`` is unclear unless you happen to know
+        that it is technically equivalent to ``argument=${EMPTY}``. To prevent people from
+        misreading your keyword arguments, explicitly state that the value is empty using the
+        built-in ``${EMPTY}`` variable.
+
+        If your argument is falsly flagged by this rule, escape the ``=`` character in your argument
+        value by like so: ``\\=``.
+
+        Example of a rule violation::
+
+            My Amazing Keyword    argument_name=
         """,
     ),
 }

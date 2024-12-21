@@ -170,6 +170,63 @@ Dotted syntax is also supported::
 ``rules`` dictionary should be available at the same level as checker that is using it. It could be either defined
 or imported from other files.
 
+Import from rules directory
+----------------------------
+
+Robocop rules can discovered from a directory. For example, using the following directory
+structure::
+
+    external_rules/
+    external_rules/some_rule.py
+    external_rules/utilities.py
+    setup.py
+
+Inside ``some_rules.py``:
+
+..  code-block:: python
+    :caption: some_rules.py
+
+    from robocop.checkers import VisitorChecker
+    from robocop.rules import Rule, RuleSeverity
+    from external_rules.utilities import DISALLOWED_KEYWORDS
+
+
+    rules = {
+        "9903": Rule(rule_id="9903", name="external-rule", msg="This is an external rule", severity=RuleSeverity.INFO)
+    }
+
+
+    class CustomRule(VisitorChecker):
+        """ Checker for missing keyword name. """
+        reports = ("external-rule",)
+
+        def visit_KeywordCall(self, node):  # noqa: N802
+            if node.keyword and node.keyword not in DISALLOWED_KEYWORDS:
+                self.report("external-rule", node=node)
+
+Inside ``utilities.py``:
+
+..  code-block:: python
+    :caption: utilities.py
+
+    DISALLOWED_KEYWORDS = ['Some Keyword', 'Another Keyword']
+
+Note how you can import other files from the directory:
+
+..  code-block:: python
+
+    from external_rules.utilities import DISALLOWED_KEYWORDS
+
+You can also import relative to the external rules directory:
+
+..  code-block:: python
+
+    from utilities import DISALLOWED_KEYWORDS
+
+You can import this rule directory using a relative path to the directory::
+
+    robocop --ext-rules ./external_rules .
+
 Rules disabled by default
 -------------------------
 

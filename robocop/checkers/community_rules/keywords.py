@@ -111,7 +111,7 @@ rules = {
         Example:
 
         Using a keyword with one embedded argument. Buying the drink and the size of the drink are
-        jumbled together.
+        jumbled together::
 
             *** Test Cases ***
             Prepare for an amazing movie
@@ -123,7 +123,7 @@ rules = {
 
         Change the embedded argument to a normal argument. Now buying the drink is separate from the
         size of the drink. In this approach, it's easier to see that you can change the size of your
-        drink.
+        drink::
 
             *** Test Cases ***
             Prepare for an amazing movie

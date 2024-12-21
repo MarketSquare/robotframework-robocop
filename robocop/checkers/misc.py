@@ -867,6 +867,16 @@ rules = {
                 [Arguments]    ${argument_name}=
         """,
     ),
+    "0933": DefaultRule(
+        rule_id="0933",
+        name="undefined-argument-value",
+        msg="Undefined argument value, use {{ arg_name }}=${EMPTY} instead",
+        severity=RuleSeverity.ERROR,
+        added_in_version="5.7.0",
+        docs="""
+        TODO
+        """,
+    ),
 }
 
 
@@ -1965,7 +1975,10 @@ class NonLocalVariableChecker(VisitorChecker):
 
 
 class UndefinedArgumentDefaultChecker(VisitorChecker):
-    reports = ("undefined-argument-default",)
+    reports = (
+        "undefined-argument-default",
+        "undefined-argument-value",
+    )
 
     def visit_Arguments(self, node: Arguments):  # noqa: N802
         for token in node.get_tokens(Token.ARGUMENT):
@@ -1989,3 +2002,31 @@ class UndefinedArgumentDefaultChecker(VisitorChecker):
                     end_col=token.col_offset + len(token.value) + 1,
                     arg_name=arg_name + "}",
                 )
+
+    def visit_KeywordCall(self, node: KeywordCall):  # noqa: N802
+        for token in node.get_tokens(Token.ARGUMENT):
+            arg = token.value
+
+            if "=" not in arg or arg.startswith("="):
+                # Is a positional arg
+                continue
+
+            arg_name, default_val = arg.split("=", maxsplit=1)
+            if arg_name.endswith("\\"):
+                # `=` is escaped
+                continue
+
+            if default_val != "":
+                # Has a value
+                continue
+
+            # Falsly triggers if a positional argument ends with `=`
+            # The language server has the same behavior
+            self.report(
+                "undefined-argument-value",
+                node=token,
+                lineno=token.lineno,
+                col=token.col_offset + 1,
+                end_col=token.col_offset + len(token.value) + 1,
+                arg_name=arg_name,
+            )

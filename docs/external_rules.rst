@@ -178,7 +178,7 @@ structure::
 
     external_rules/
     external_rules/some_rule.py
-    external_rules/utilities.py
+    external_rules/constants.py
     setup.py
 
 Inside ``some_rules.py``:
@@ -188,7 +188,7 @@ Inside ``some_rules.py``:
 
     from robocop.checkers import VisitorChecker
     from robocop.rules import Rule, RuleSeverity
-    from external_rules.utilities import DISALLOWED_KEYWORDS
+    from external_rules.constants import DISALLOWED_KEYWORDS
 
 
     rules = {
@@ -204,10 +204,10 @@ Inside ``some_rules.py``:
             if node.keyword and node.keyword not in DISALLOWED_KEYWORDS:
                 self.report("external-rule", node=node)
 
-Inside ``utilities.py``:
+Inside ``constants.py``:
 
 ..  code-block:: python
-    :caption: utilities.py
+    :caption: constants.py
 
     DISALLOWED_KEYWORDS = ['Some Keyword', 'Another Keyword']
 
@@ -215,13 +215,13 @@ Note how you can import other files from the directory:
 
 ..  code-block:: python
 
-    from external_rules.utilities import DISALLOWED_KEYWORDS
+    from external_rules.constants import DISALLOWED_KEYWORDS
 
 You can also import relative to the external rules directory:
 
 ..  code-block:: python
 
-    from utilities import DISALLOWED_KEYWORDS
+    from constants import DISALLOWED_KEYWORDS
 
 You can import this rule directory using a relative path to the directory::
 

@@ -1,0 +1,1 @@
+EXPECTED_KEYWORD = 'Example'

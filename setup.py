@@ -50,7 +50,7 @@ setup(
     include_package_data=True,
     install_requires=[
         "jinja2>=3.0,<4.0",
-        "robotframework>=3.2.2",
+        "robotframework>=3.2.2,<7.2",
         "pathspec>=0.9,<0.13",
         "tomli>=2.0.0",
         "pytz>=2022.7",

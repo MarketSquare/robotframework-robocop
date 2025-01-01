@@ -34,7 +34,7 @@ It is technically possible to define keyword argument default with empty string:
     My Keyword
     [Arguments]    ${argument_name}=
 
-This syntax is unclear and it is better to explicitly state that the valeu is empty using built-in variable::
+This syntax is unclear and it is better to explicitly state that the value is empty using built-in variable::
 
     *** Keywords ***
     My Keyword

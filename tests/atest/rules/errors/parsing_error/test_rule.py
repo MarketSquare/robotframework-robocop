@@ -3,7 +3,10 @@ from tests.atest.utils import RuleAcceptance
 
 class TestRule(RuleAcceptance):
     def test_rule(self):
-        self.check_rule(expected_file="expected_output_rf7.txt", target_version=">=7")
+        self.check_rule(expected_file="expected_output_rf7_2.txt", target_version=">=7.2")
+
+    def test_rule_rf7_1(self):
+        self.check_rule(expected_file="expected_output_rf7_1.txt", target_version=">=7;<7.2")
 
     def test_rule_rf61(self):
         self.check_rule(expected_file="expected_output.txt", target_version="==6.1.*")

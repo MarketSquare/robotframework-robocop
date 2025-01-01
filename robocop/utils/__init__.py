@@ -22,11 +22,11 @@ from robocop.utils.misc import (
 )
 
 __all__ = [  # TODO: replace with direct imports
+    "ROBOT_VERSION",
+    "AssignmentTypeDetector",
     "DisablersFinder",
     "FileType",
     "FileTypeChecker",
-    "ROBOT_VERSION",
-    "AssignmentTypeDetector",
     "RecommendationFinder",
     "find_robot_vars",
     "get_errors",

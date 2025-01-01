@@ -33,3 +33,6 @@ class TestRuleAcceptance(RuleAcceptance):
             issue_format="end_col",
             target_version=">=5",
         )
+
+    def test_groups(self):
+        self.check_rule(src_files=["groups.robot"], expected_file="expected_output_groups.txt", target_version=">=7.2")

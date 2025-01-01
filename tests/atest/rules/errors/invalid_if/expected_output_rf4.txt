@@ -5,3 +5,4 @@ test.robot:28:5 [E] 0413 Invalid IF syntax: IF has more than one condition
 test.robot:53:9 [E] 0413 Invalid IF syntax: IF has no condition
 test.robot:58:13 [E] 0413 Invalid IF syntax: IF has no condition
 test.robot:63:9 [E] 0413 Invalid IF syntax: IF has no condition
+test.robot:72:9 [E] 0413 Invalid IF syntax: IF has no condition

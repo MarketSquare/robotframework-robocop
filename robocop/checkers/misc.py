@@ -1383,7 +1383,7 @@ class LoopStatementsChecker(VisitorChecker):
                 )
 
     def check_statement_in_loop(self, node, token_type):
-        if self.loops or node.errors and f"{token_type} can only be used inside a loop." not in node.errors:
+        if self.loops or (node.errors and f"{token_type} can only be used inside a loop." not in node.errors):
             return
         self.report(
             "statement-outside-loop",
@@ -1641,6 +1641,11 @@ class UnusedVariablesChecker(VisitorChecker):
         self.variables.pop()
         if node.next:
             self.visit_Try(node.next)
+
+    def visit_Group(self, node):  # noqa: N802
+        for token in node.header.get_tokens(Token.ARGUMENT):
+            self.find_not_nested_variable(token.value, is_var=False)
+        self.generic_visit(node)
 
     def visit_KeywordCall(self, node):  # noqa: N802
         for token in node.get_tokens(Token.ARGUMENT, Token.KEYWORD):  # argument can be used in keyword name

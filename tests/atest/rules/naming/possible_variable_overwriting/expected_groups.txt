@@ -1,0 +1,2 @@
+groups.robot:5:16 [I] 0316 Variable '${variableName}' may overwrite similar variable inside 'VAR Syntax' TestCase. Note that variables are case-insensitive, and also spaces and underscores are ignored.
+groups.robot:7:20 [I] 0316 Variable '${variable name}' may overwrite similar variable inside 'VAR Syntax' TestCase. Note that variables are case-insensitive, and also spaces and underscores are ignored.

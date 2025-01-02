@@ -6,3 +6,4 @@ test.robot:11:9 [E] 0414 RETURN can only be used inside a user keyword
 test.robot:14:9 [E] 0414 RETURN can only be used inside a user keyword
 test.robot:17:9 [E] 0414 RETURN can only be used inside a user keyword
 test.robot:19:9 [E] 0414 RETURN can only be used inside a user keyword
+test.robot:22:9 [E] 0414 RETURN can only be used inside a user keyword

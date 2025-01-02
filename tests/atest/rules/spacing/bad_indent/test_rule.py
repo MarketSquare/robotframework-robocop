@@ -32,3 +32,8 @@ class TestRuleAcceptance(RuleAcceptance):
             src_files=["bug758/templated_suite.robot"],
             expected_file="bug758/expected_output.txt",
         )
+
+    def test_groups(self):
+        self.check_rule(
+            src_files=["groups/groups.robot"], expected_file="groups/expected_groups.txt", target_version=">=7.2"
+        )

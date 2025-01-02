@@ -18,6 +18,9 @@ RETURN
     EXCEPT
         RETURN
     END
+    GROUP
+        RETURN
+    END
     [Return]
 
 *** Keywords ***

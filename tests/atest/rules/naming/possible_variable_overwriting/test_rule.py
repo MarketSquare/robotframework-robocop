@@ -17,3 +17,6 @@ class TestRuleAcceptance(RuleAcceptance):
 
     def test_rf3(self):
         self.check_rule(src_files=["test.robot"], expected_file="expected_output_rf3.txt", target_version="==3.*")
+
+    def test_groups(self):
+        self.check_rule(src_files=["groups.robot"], expected_file="expected_groups.txt", target_version=">=7.2")

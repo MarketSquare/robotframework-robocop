@@ -16,7 +16,7 @@ rules = {
         added_in_version="5.2.0",
         enabled=False,
         docs="""
-        Example of rule violation:
+        Example of rule violation::
 
             *** Settings ***
             Library    Collections
@@ -33,7 +33,7 @@ rules = {
         added_in_version="5.2.0",
         enabled=False,
         docs="""
-        Example of rule violation:
+        Example of rule violation::
 
             *** Settings ***
             Resource   CustomResource.resource

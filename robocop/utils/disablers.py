@@ -73,7 +73,7 @@ class DisablersVisitor(ModelVisitor):
         self.parse_disablers_in_node(node)
         self.is_first_comment_section = False
 
-    visit_TestCase = visit_Keyword = visit_Try = visit_For = visit_ForLoop = visit_While = visit_Section  # noqa: N815
+    visit_TestCase = visit_Keyword = visit_Try = visit_For = visit_ForLoop = visit_While = visit_Group = visit_Section  # noqa: N815
 
     def visit_If(self, node):  # noqa: N802
         last_line = node.body[-1].end_lineno if node.body else None

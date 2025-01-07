@@ -1,0 +1,80 @@
+:orphan:
+
+=============
+Robocop 5.7.0
+=============
+
+You can install the latest available version by running
+
+::
+
+    pip install --upgrade robotframework-robocop
+
+or to install exactly this version
+
+::
+
+    pip install robotframework-robocop==5.7.0
+
+.. contents::
+   :depth: 2
+   :local:
+
+Rules
+=====
+
+Undefined argument default (#1144)
+----------------------------------
+
+New rule E0932 ``undefined-argument-default``.
+
+It is technically possible to define keyword argument default with empty string::
+
+    *** Keywords ***
+    My Keyword
+    [Arguments]    ${argument_name}=
+
+This syntax is unclear and it is better to explicitly state that the value is empty using built-in variable::
+
+    *** Keywords ***
+    My Keyword
+    [Arguments]    ${argument_name}=${EMPTY}
+
+New rule catches all occurrences where argument have empty default value and reports it.
+
+Undefined argument value (#1149)
+---------------------------------
+
+New rule E0933 ``undefined-argument-value``.
+
+Similarly to ``undefined-argument-default``, it is possible to pass value to argument with empty string::
+
+    Keyword Call    argument_name=
+
+It is recommended to use explicit value instead::
+
+    Keyword Call    argument_name=${EMPTY}
+
+Fixes
+=====
+
+Relative imports in custom rule folder (#1122)
+-----------------------------------------------
+
+Custom rules directory is now automatically added to python path. It allows to use relative imports inside custom
+rules module.
+
+Acknowledgements
+================
+
+Thanks to the whole community for submitting bug reports and feature requests.
+Without you, Robocop wouldn't be in the place where it is now. All the feedback
+is essential to drive the tool towards higher quality and better user
+experience.
+
+If you want to help us more, consider contributing to the project directly.
+We can offer our constant support to make the work fun and effective. We do
+our best to create a supportive and welcoming environment for everyone.
+Feel free to ping us on our official `#robocop-linter Slack channel`_ anytime.
+
+.. _#robocop-linter Slack channel: https://robotframework.slack.com/archives/C01AWSNKC2H

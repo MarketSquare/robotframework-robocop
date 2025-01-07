@@ -38,6 +38,7 @@ from __future__ import annotations
 import ast
 import importlib.util
 import inspect
+import sys
 from collections import defaultdict
 from importlib import import_module
 from pathlib import Path
@@ -202,6 +203,11 @@ class RobocopImporter:
         return self.modules_from_paths([self.community_checkers_dir], recursive=True)
 
     def get_external_modules(self):
+        for ext_rule_path in self.external_rules_paths:
+            # Allow relative imports in external rules folder
+            sys.path.append(ext_rule_path)
+            sys.path.append(str(Path(ext_rule_path).parent))
+
         return self.modules_from_paths([*self.external_rules_paths], recursive=True)
 
     def _get_checkers_from_modules(self, modules, is_community):

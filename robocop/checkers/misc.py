@@ -855,16 +855,39 @@ rules = {
         optionally overwrite this default.
 
         When you use an argument default, you should be as clear as possible. This improves the
-        readability of your code. The syntax `${argument}=` is unclear unless you happen to know
-        that it is technically equivalent to `${argument}=${EMPTY}`. To prevent people from
+        readability of your code. The syntax ``${argument}=`` is unclear unless you happen to know
+        that it is technically equivalent to ``${argument}=${EMPTY}``. To prevent people from
         misreading your keyword arguments, explicitly state that the value is empty using the
-        built-in `${EMPTY}` variable.
+        built-in ``${EMPTY}`` variable.
 
         Example of a rule violation::
 
             *** Keywords ***
             My Amazing Keyword
                 [Arguments]    ${argument_name}=
+        """,
+    ),
+    "0933": DefaultRule(
+        rule_id="0933",
+        name="undefined-argument-value",
+        msg="Undefined argument value, use {{ arg_name }}=${EMPTY} instead",
+        severity=RuleSeverity.ERROR,
+        added_in_version="5.7.0",
+        docs="""
+        When calling a keyword, it can accept named arguments.
+
+        When you call a keyword, you should be as clear as possible. This improves the
+        readability of your code. The syntax ``argument=`` is unclear unless you happen to know
+        that it is technically equivalent to ``argument=${EMPTY}``. To prevent people from
+        misreading your keyword arguments, explicitly state that the value is empty using the
+        built-in ``${EMPTY}`` variable.
+
+        If your argument is falsly flagged by this rule, escape the ``=`` character in your argument
+        value by like so: ``\\=``.
+
+        Example of a rule violation::
+
+            My Amazing Keyword    argument_name=
         """,
     ),
 }
@@ -1360,7 +1383,7 @@ class LoopStatementsChecker(VisitorChecker):
                 )
 
     def check_statement_in_loop(self, node, token_type):
-        if self.loops or node.errors and f"{token_type} can only be used inside a loop." not in node.errors:
+        if self.loops or (node.errors and f"{token_type} can only be used inside a loop." not in node.errors):
             return
         self.report(
             "statement-outside-loop",
@@ -1618,6 +1641,11 @@ class UnusedVariablesChecker(VisitorChecker):
         self.variables.pop()
         if node.next:
             self.visit_Try(node.next)
+
+    def visit_Group(self, node):  # noqa: N802
+        for token in node.header.get_tokens(Token.ARGUMENT):
+            self.find_not_nested_variable(token.value, is_var=False)
+        self.generic_visit(node)
 
     def visit_KeywordCall(self, node):  # noqa: N802
         for token in node.get_tokens(Token.ARGUMENT, Token.KEYWORD):  # argument can be used in keyword name
@@ -1965,7 +1993,10 @@ class NonLocalVariableChecker(VisitorChecker):
 
 
 class UndefinedArgumentDefaultChecker(VisitorChecker):
-    reports = ("undefined-argument-default",)
+    reports = (
+        "undefined-argument-default",
+        "undefined-argument-value",
+    )
 
     def visit_Arguments(self, node: Arguments):  # noqa: N802
         for token in node.get_tokens(Token.ARGUMENT):
@@ -1989,3 +2020,31 @@ class UndefinedArgumentDefaultChecker(VisitorChecker):
                     end_col=token.col_offset + len(token.value) + 1,
                     arg_name=arg_name + "}",
                 )
+
+    def visit_KeywordCall(self, node: KeywordCall):  # noqa: N802
+        for token in node.get_tokens(Token.ARGUMENT):
+            arg = token.value
+
+            if "=" not in arg or arg.startswith("="):
+                # Is a positional arg
+                continue
+
+            arg_name, default_val = arg.split("=", maxsplit=1)
+            if arg_name.endswith("\\"):
+                # `=` is escaped
+                continue
+
+            if default_val != "":
+                # Has a value
+                continue
+
+            # Falsly triggers if a positional argument ends with `=`
+            # The language server has the same behavior
+            self.report(
+                "undefined-argument-value",
+                node=token,
+                lineno=token.lineno,
+                col=token.col_offset + 1,
+                end_col=token.col_offset + len(token.value) + 1,
+                arg_name=arg_name,
+            )

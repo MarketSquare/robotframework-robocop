@@ -1,6 +1,7 @@
 """Miscellaneous checkers"""
 
 import ast
+import re
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Optional
@@ -1997,6 +1998,7 @@ class UndefinedArgumentDefaultChecker(VisitorChecker):
         "undefined-argument-default",
         "undefined-argument-value",
     )
+    valid_argument_name = re.compile(r"[a-zA-Z0-9-_ ]+")
 
     def visit_Arguments(self, node: Arguments):  # noqa: N802
         for token in node.get_tokens(Token.ARGUMENT):
@@ -2034,8 +2036,17 @@ class UndefinedArgumentDefaultChecker(VisitorChecker):
                 # `=` is escaped
                 continue
 
+            if arg_name.endswith(" "):
+                # Space before `=` is not a named arg
+                continue
+
             if default_val != "":
                 # Has a value
+                continue
+
+            is_plain_var_name = self.valid_argument_name.fullmatch(arg_name)
+            if is_plain_var_name is None:
+                # Argument name includes invalid chars
                 continue
 
             # Falsly triggers if a positional argument ends with `=`

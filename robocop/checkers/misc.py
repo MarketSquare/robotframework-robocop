@@ -883,12 +883,20 @@ rules = {
         misreading your keyword arguments, explicitly state that the value is empty using the
         built-in ``${EMPTY}`` variable.
 
-        If your argument is falsly flagged by this rule, escape the ``=`` character in your argument
-        value by like so: ``\\=``.
-
         Example of a rule violation::
 
             My Amazing Keyword    argument_name=
+
+        Positional arguments that end with a ``=`` character can be falsly flagged by this rule. You
+        can fix this by making the situation more explicit:
+
+        1. Escape the ``=`` character::
+
+            Log    value\\=
+
+        2. Make it a named argument instead::
+
+            Log    message=value=
         """,
     ),
 }

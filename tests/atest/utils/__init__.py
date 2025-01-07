@@ -121,7 +121,7 @@ class RuleAcceptance:
         elif actual != expected:
             missing_expected = sorted(set(actual) - set(expected))
             missing_actual = sorted(set(expected) - set(actual))
-            error = "Actual issues are different than expected.\n"
+            error = f"Actual issues are different than expected.\nExpected file: {expected_file}\n"
             if missing_expected:
                 present_in_actual = "\n    ".join(missing_expected)
                 error += f"Actual issues not found in expected:\n    {present_in_actual}\n\n"

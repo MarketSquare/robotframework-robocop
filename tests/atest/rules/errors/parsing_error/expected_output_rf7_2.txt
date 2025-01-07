@@ -36,3 +36,4 @@ invalid_try_except.robot:269:1 [E] 0401 Robot Framework syntax error: RETURN can
 invalid_while.robot:10:1 [E] 0401 Robot Framework syntax error: WHILE accepts only one condition, got 3 conditions 'Too', 'many' and '!'.
 invalid_while.robot:16:1 [E] 0401 Robot Framework syntax error: WHILE loop cannot be empty.
 invalid_while.robot:21:1 [E] 0401 Robot Framework syntax error: WHILE loop must have closing END.
+groups.robot:15:1 [E] 0401 Robot Framework syntax error: GROUP accepts only one argument as name, got 3 arguments 'Too', 'many' and 'values'.

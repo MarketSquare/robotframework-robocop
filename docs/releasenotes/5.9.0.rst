@@ -1,0 +1,34 @@
+:orphan:
+
+=============
+Robocop 5.8.0
+=============
+
+Update Robocop rules with GROUP support from Robot Framework 7.2.
+
+Following rules are updated & tested with GROUPs:
+
+- ``invalid-if``
+- ``missing-keyword-name``
+- ``parsing-error``
+- ``return-in-test-case``
+- ``too-many-calls-in-keyword``
+- ``too-many-calls-in-test-case``
+- ``possible-variable-overwriting``
+- ``bad-indent``
+- ``bad-block-indent``
+
+Acknowledgements
+================
+
+Thanks to the whole community for submitting bug reports and feature requests.
+Without you, Robocop wouldn't be in the place where it is now. All the feedback
+is essential to drive the tool towards higher quality and better user
+experience.
+
+If you want to help us more, consider contributing to the project directly.
+We can offer our constant support to make the work fun and effective. We do
+our best to create a supportive and welcoming environment for everyone.
+Feel free to ping us on our official `#robocop-linter Slack channel`_ anytime.
+
+.. _#robocop-linter Slack channel: https://robotframework.slack.com/archives/C01AWSNKC2H

@@ -3,7 +3,7 @@
 import re
 
 from robot.api import Token
-from robot.parsing.model.blocks import CommentSection, TestCase
+from robot.parsing.model.blocks import CommentSection, Keyword, TestCase
 from robot.parsing.model.statements import (
     Arguments,
     Comment,
@@ -92,13 +92,16 @@ rules = {
         added_in_version="1.0.0",
     ),
     "0507": DefaultRule(
-        RuleParam(name="max_args", default=5, converter=int, desc="number of lines allowed in a file"),
+        RuleParam(name="max_args", default=5, converter=int, desc="number of allowed keyword arguments"),
         SeverityThreshold("max_args", compare_method="greater", substitute_value="max_allowed_count"),
         rule_id="0507",
         name="too-many-arguments",
         msg="Keyword '{{ keyword_name }}' has too many arguments ({{ arguments_count }}/{{ max_allowed_count }})",
         severity=RuleSeverity.WARNING,
         added_in_version="1.0.0",
+        docs="""
+            TODO:
+        """,
     ),
     "0508": DefaultRule(
         RuleParam(name="line_length", default=120, converter=int, desc="number of characters allowed in line"),
@@ -447,24 +450,14 @@ class LengthChecker(VisitorChecker):
             )
         super().visit_File(node)
 
-    def visit_Keyword(self, node):  # noqa: N802
+    def visit_Keyword(self, node: Keyword):  # noqa: N802
         if node.name.lstrip().startswith("#"):
             return
         for child in node.body:
             if isinstance(child, Arguments):
-                args_number = len(child.values)
-                if args_number > self.param("too-many-arguments", "max_args"):
-                    self.report(
-                        "too-many-arguments",
-                        keyword_name=node.name,
-                        arguments_count=args_number,
-                        max_allowed_count=self.param("too-many-arguments", "max_args"),
-                        node=node,
-                        end_col=node.col_offset + len(node.name) + 1,
-                        extended_disablers=(node.lineno, node.end_lineno),
-                        sev_threshold_value=args_number,
-                    )
+                self._visit_keyword_arguments(node, child)
                 break
+
         length, node_end_line = check_node_length(node, ignore_docs=self.param("too-long-keyword", "ignore_docs"))
         if length > self.param("too-long-keyword", "max_len"):
             self.report(
@@ -500,6 +493,24 @@ class LengthChecker(VisitorChecker):
                 end_col=node.col_offset + len(node.name) + 1,
                 extended_disablers=(node.lineno, node.end_lineno),
                 sev_threshold_value=key_calls,
+            )
+
+    def _visit_keyword_arguments(self, keyword_node: Keyword, arguments: Arguments):
+        arg_node = arguments.get_token(Token.ARGUMENTS)
+
+        arg_count = len(arguments.values)
+        if arg_count > self.param("too-many-arguments", "max_args"):
+            self.report(
+                "too-many-arguments",
+                keyword_name=keyword_node.name,
+                arguments_count=arg_count,
+                max_allowed_count=self.param("too-many-arguments", "max_args"),
+                node=arg_node,
+                lineno=arg_node.lineno,
+                col=arg_node.col_offset + 1,
+                end_col=arg_node.col_offset + len(arg_node.value) + 1,
+                extended_disablers=(keyword_node.lineno, keyword_node.end_lineno),
+                sev_threshold_value=arg_count,
             )
 
     def test_is_templated(self, node):

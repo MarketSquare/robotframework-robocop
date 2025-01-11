@@ -1,6 +1,7 @@
 """Miscellaneous checkers"""
 
 import ast
+import re
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Optional
@@ -882,12 +883,20 @@ rules = {
         misreading your keyword arguments, explicitly state that the value is empty using the
         built-in ``${EMPTY}`` variable.
 
-        If your argument is falsly flagged by this rule, escape the ``=`` character in your argument
-        value by like so: ``\\=``.
-
         Example of a rule violation::
 
             My Amazing Keyword    argument_name=
+
+        Positional arguments that end with a ``=`` character can be falsly flagged by this rule. You
+        can fix this by making the situation more explicit:
+
+        1. Escape the ``=`` character::
+
+            Log    value\\=
+
+        2. Make it a named argument instead::
+
+            Log    message=value=
         """,
     ),
 }
@@ -1997,6 +2006,7 @@ class UndefinedArgumentDefaultChecker(VisitorChecker):
         "undefined-argument-default",
         "undefined-argument-value",
     )
+    valid_argument_name = re.compile(r"[a-zA-Z0-9-_ ]+")
 
     def visit_Arguments(self, node: Arguments):  # noqa: N802
         for token in node.get_tokens(Token.ARGUMENT):
@@ -2034,8 +2044,17 @@ class UndefinedArgumentDefaultChecker(VisitorChecker):
                 # `=` is escaped
                 continue
 
+            if arg_name.endswith(" "):
+                # Space before `=` is not a named arg
+                continue
+
             if default_val != "":
                 # Has a value
+                continue
+
+            is_plain_var_name = self.valid_argument_name.fullmatch(arg_name)
+            if is_plain_var_name is None:
+                # Argument name includes invalid chars
                 continue
 
             # Falsly triggers if a positional argument ends with `=`

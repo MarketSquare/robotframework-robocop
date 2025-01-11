@@ -374,6 +374,30 @@ rules = {
 
         """,
     ),
+    "0533": DefaultRule(
+        RuleParam(name="max_args", default=5, converter=int, desc="number of allowed required keyword arguments"),
+        SeverityThreshold("max_args", compare_method="greater", substitute_value="max_allowed_count"),
+        rule_id="0533",
+        name="too-many-required-arguments",
+        msg="Keyword '{{ keyword_name }}' has too many required arguments ({{ arguments_count }}/{{ max_allowed_count }})",
+        severity=RuleSeverity.WARNING,
+        added_in_version="5.9.0",
+        docs="""
+            TODO:
+        """,
+    ),
+    "0534": DefaultRule(
+        RuleParam(name="max_args", default=10, converter=int, desc="number of allowed optional keyword arguments"),
+        SeverityThreshold("max_args", compare_method="greater", substitute_value="max_allowed_count"),
+        rule_id="0534",
+        name="too-many-optional-arguments",
+        msg="Keyword '{{ keyword_name }}' has too many optional arguments ({{ arguments_count }}/{{ max_allowed_count }})",
+        severity=RuleSeverity.WARNING,
+        added_in_version="5.9.0",
+        docs="""
+            TODO:
+        """,
+    ),
 }
 
 
@@ -419,6 +443,8 @@ class LengthChecker(VisitorChecker):
         "too-long-test-case",
         "file-too-long",
         "too-many-arguments",
+        "too-many-required-arguments",
+        "too-many-optional-arguments",
     )
 
     def __init__(self):
@@ -511,6 +537,42 @@ class LengthChecker(VisitorChecker):
                 end_col=arg_node.col_offset + len(arg_node.value) + 1,
                 extended_disablers=(keyword_node.lineno, keyword_node.end_lineno),
                 sev_threshold_value=arg_count,
+            )
+
+        required_arg_count = 0
+        optional_arg_count = 0
+        for arg in arguments.values:
+            if "}=" in arg:
+                optional_arg_count += 1
+            else:
+                required_arg_count += 1
+
+        if required_arg_count > self.param("too-many-required-arguments", "max_args"):
+            self.report(
+                "too-many-required-arguments",
+                keyword_name=keyword_node.name,
+                arguments_count=required_arg_count,
+                max_allowed_count=self.param("too-many-required-arguments", "max_args"),
+                node=arg_node,
+                lineno=arg_node.lineno,
+                col=arg_node.col_offset + 1,
+                end_col=arg_node.col_offset + len(arg_node.value) + 1,
+                extended_disablers=(keyword_node.lineno, keyword_node.end_lineno),
+                sev_threshold_value=required_arg_count,
+            )
+
+        if optional_arg_count > self.param("too-many-optional-arguments", "max_args"):
+            self.report(
+                "too-many-optional-arguments",
+                keyword_name=keyword_node.name,
+                arguments_count=optional_arg_count,
+                max_allowed_count=self.param("too-many-optional-arguments", "max_args"),
+                node=arg_node,
+                lineno=arg_node.lineno,
+                col=arg_node.col_offset + 1,
+                end_col=arg_node.col_offset + len(arg_node.value) + 1,
+                extended_disablers=(keyword_node.lineno, keyword_node.end_lineno),
+                sev_threshold_value=optional_arg_count,
             )
 
     def test_is_templated(self, node):

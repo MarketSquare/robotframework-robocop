@@ -38,3 +38,11 @@ Keyword With Allowed Number Of Arguments
     [Arguments]     ${arg1}=optional   ${arg2}=optional  ${arg3}=optional   ${arg4}=optional   ${arg5}=optional  ${var6}=optional  ${var7}=optional  ${var8}=optional  ${var9}=optional  ${var10}=optional
     No Operation
     No Operation
+
+Keyword With Too Many required Arguments
+    [Documentation]  this is doc
+    [Arguments]  ${var1}  @{var2}  ${var3}  ${var4}  ${var5}  ${var6}
+    No Operation
+    Pass
+    No Operation
+    Fail

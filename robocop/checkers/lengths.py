@@ -100,7 +100,18 @@ rules = {
         severity=RuleSeverity.WARNING,
         added_in_version="1.0.0",
         docs="""
-            TODO:
+            Keywords with many arguments can be hard to understand. A large number of arguments can
+            indicate that the argument does multiple different things and/or that it's complex.
+
+            Try to reduce the number of arguments. For example:
+
+            - Split the keyword into multiple keywords
+            - Collect the required data in a different way
+
+            Related rules:
+
+            - `too-many-required-arguments <#too-many-required-arguments>`_
+            - `too-many-optional-arguments <#too-many-optional-arguments>`_
         """,
     ),
     "0508": DefaultRule(
@@ -383,7 +394,23 @@ rules = {
         severity=RuleSeverity.WARNING,
         added_in_version="5.9.0",
         docs="""
-            TODO:
+            Keywords with many required arguments can be hard to understand. A large number of
+            required arguments can indicate that the argument does multiple different things and/or
+            that it's complex.
+
+            Optional arguments are less troublesome as they reduce the amount of things you need to
+            understand to use a keyword.
+
+            Try to reduce the number of required arguments. For example:
+
+            - Split the keyword into multiple keywords
+            - Make some keywords optional by giving them a default value
+            - Collect the required data in a different way
+
+            Related rules:
+
+            - `too-many-arguments <#too-many-arguments>`_
+            - `too-many-optional-arguments <#too-many-optional-arguments>`_
         """,
     ),
     "0534": DefaultRule(
@@ -395,7 +422,19 @@ rules = {
         severity=RuleSeverity.WARNING,
         added_in_version="5.9.0",
         docs="""
-            TODO:
+            Keywords with many optional arguments can be hard to understand. A large number of
+            optional arguments can indicate that the argument does multiple different things and/or
+            that it's complex.
+
+            Try to reduce the number of optional arguments. For example:
+
+            - Split the keyword into multiple keywords
+            - Collect the required data in a different way
+
+            Related rules:
+
+            - `too-many-arguments <#too-many-arguments>`_
+            - `too-many-required-arguments <#too-many-required-arguments>`_
         """,
     ),
 }

@@ -99,6 +99,7 @@ rules = {
         msg="Keyword '{{ keyword_name }}' has too many arguments ({{ arguments_count }}/{{ max_allowed_count }})",
         severity=RuleSeverity.WARNING,
         added_in_version="1.0.0",
+        enabled=False,
         docs="""
             Keywords with many arguments can be hard to understand. A large number of arguments can
             indicate that the argument does multiple different things and/or that it's complex.

@@ -1,7 +1,7 @@
 *** Keywords ***
 Keyword
-    # robocop: disable=too-many-arguments
-    [Arguments]    ${too}  ${many}
+    # robocop: disable=too-many-optional-arguments
+    [Arguments]    ${too}=optional  ${many}=optional
     Some keyword call
     # robocop: disable=some-rule
     Other keyword call
@@ -9,8 +9,8 @@ Keyword
     and some more
 
 Keyword 2
-    # robocop: disable=too-many-arguments
-    [Arguments]    ${too}  ${many}
+    # robocop: disable=too-many-optional-arguments
+    [Arguments]    ${too}=optional  ${many}=optional
     Some keyword call
     # robocop: disable=some-rule
     Other keyword call
@@ -18,5 +18,5 @@ Keyword 2
     and some more
 
 Should Be Reported
-    [Arguments]    ${too}  ${many}
+    [Arguments]    ${too}=optional  ${many}=optional
     No Operation

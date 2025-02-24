@@ -3,7 +3,7 @@
 import re
 
 from robot.api import Token
-from robot.parsing.model.blocks import CommentSection, TestCase
+from robot.parsing.model.blocks import CommentSection, Keyword, TestCase
 from robot.parsing.model.statements import (
     Arguments,
     Comment,
@@ -92,13 +92,28 @@ rules = {
         added_in_version="1.0.0",
     ),
     "0507": DefaultRule(
-        RuleParam(name="max_args", default=5, converter=int, desc="number of lines allowed in a file"),
+        RuleParam(name="max_args", default=5, converter=int, desc="number of allowed keyword arguments"),
         SeverityThreshold("max_args", compare_method="greater", substitute_value="max_allowed_count"),
         rule_id="0507",
         name="too-many-arguments",
         msg="Keyword '{{ keyword_name }}' has too many arguments ({{ arguments_count }}/{{ max_allowed_count }})",
         severity=RuleSeverity.WARNING,
         added_in_version="1.0.0",
+        enabled=False,
+        docs="""
+            Keywords with many arguments can be hard to understand. A large number of arguments can
+            indicate that the argument does multiple different things and/or that it's complex.
+
+            Try to reduce the number of arguments. For example:
+
+            - Split the keyword into multiple keywords
+            - Collect the required data in a different way
+
+            Related rules:
+
+            - `too-many-required-arguments <#too-many-required-arguments>`_
+            - `too-many-optional-arguments <#too-many-optional-arguments>`_
+        """,
     ),
     "0508": DefaultRule(
         RuleParam(name="line_length", default=120, converter=int, desc="number of characters allowed in line"),
@@ -371,6 +386,58 @@ rules = {
 
         """,
     ),
+    "0533": DefaultRule(
+        RuleParam(name="max_args", default=5, converter=int, desc="number of allowed required keyword arguments"),
+        SeverityThreshold("max_args", compare_method="greater", substitute_value="max_allowed_count"),
+        rule_id="0533",
+        name="too-many-required-arguments",
+        msg="Keyword '{{ keyword_name }}' has too many required arguments ({{ arguments_count }}/{{ max_allowed_count }})",
+        severity=RuleSeverity.WARNING,
+        added_in_version="5.9.0",
+        docs="""
+            Keywords with many required arguments can be hard to understand. A large number of
+            required arguments can indicate that the argument does multiple different things and/or
+            that it's complex.
+
+            Optional arguments are less troublesome as they reduce the amount of things you need to
+            understand to use a keyword.
+
+            Try to reduce the number of required arguments. For example:
+
+            - Split the keyword into multiple keywords
+            - Make some keywords optional by giving them a default value
+            - Collect the required data in a different way
+
+            Related rules:
+
+            - `too-many-arguments <#too-many-arguments>`_
+            - `too-many-optional-arguments <#too-many-optional-arguments>`_
+        """,
+    ),
+    "0534": DefaultRule(
+        RuleParam(name="max_args", default=10, converter=int, desc="number of allowed optional keyword arguments"),
+        SeverityThreshold("max_args", compare_method="greater", substitute_value="max_allowed_count"),
+        rule_id="0534",
+        name="too-many-optional-arguments",
+        msg="Keyword '{{ keyword_name }}' has too many optional arguments ({{ arguments_count }}/{{ max_allowed_count }})",
+        severity=RuleSeverity.WARNING,
+        added_in_version="5.9.0",
+        docs="""
+            Keywords with many optional arguments can be hard to understand. A large number of
+            optional arguments can indicate that the argument does multiple different things and/or
+            that it's complex.
+
+            Try to reduce the number of optional arguments. For example:
+
+            - Split the keyword into multiple keywords
+            - Collect the required data in a different way
+
+            Related rules:
+
+            - `too-many-arguments <#too-many-arguments>`_
+            - `too-many-required-arguments <#too-many-required-arguments>`_
+        """,
+    ),
 }
 
 
@@ -416,6 +483,8 @@ class LengthChecker(VisitorChecker):
         "too-long-test-case",
         "file-too-long",
         "too-many-arguments",
+        "too-many-required-arguments",
+        "too-many-optional-arguments",
     )
 
     def __init__(self):
@@ -447,24 +516,14 @@ class LengthChecker(VisitorChecker):
             )
         super().visit_File(node)
 
-    def visit_Keyword(self, node):  # noqa: N802
+    def visit_Keyword(self, node: Keyword):  # noqa: N802
         if node.name.lstrip().startswith("#"):
             return
         for child in node.body:
             if isinstance(child, Arguments):
-                args_number = len(child.values)
-                if args_number > self.param("too-many-arguments", "max_args"):
-                    self.report(
-                        "too-many-arguments",
-                        keyword_name=node.name,
-                        arguments_count=args_number,
-                        max_allowed_count=self.param("too-many-arguments", "max_args"),
-                        node=node,
-                        end_col=node.col_offset + len(node.name) + 1,
-                        extended_disablers=(node.lineno, node.end_lineno),
-                        sev_threshold_value=args_number,
-                    )
+                self._visit_keyword_arguments(node, child)
                 break
+
         length, node_end_line = check_node_length(node, ignore_docs=self.param("too-long-keyword", "ignore_docs"))
         if length > self.param("too-long-keyword", "max_len"):
             self.report(
@@ -500,6 +559,59 @@ class LengthChecker(VisitorChecker):
                 end_col=node.col_offset + len(node.name) + 1,
                 extended_disablers=(node.lineno, node.end_lineno),
                 sev_threshold_value=key_calls,
+            )
+
+    def _visit_keyword_arguments(self, keyword_node: Keyword, arguments: Arguments):
+        arg_node = arguments.get_token(Token.ARGUMENTS)
+
+        if (arg_count := len(arguments.values)) > self.param("too-many-arguments", "max_args"):
+            self.report(
+                "too-many-arguments",
+                keyword_name=keyword_node.name,
+                arguments_count=arg_count,
+                max_allowed_count=self.param("too-many-arguments", "max_args"),
+                node=arg_node,
+                lineno=arg_node.lineno,
+                col=arg_node.col_offset + 1,
+                end_col=arg_node.col_offset + len(arg_node.value) + 1,
+                extended_disablers=(keyword_node.lineno, keyword_node.end_lineno),
+                sev_threshold_value=arg_count,
+            )
+
+        required_arg_count = 0
+        optional_arg_count = 0
+        for arg in arguments.values:
+            if "}=" in arg:
+                optional_arg_count += 1
+            else:
+                required_arg_count += 1
+
+        if required_arg_count > self.param("too-many-required-arguments", "max_args"):
+            self.report(
+                "too-many-required-arguments",
+                keyword_name=keyword_node.name,
+                arguments_count=required_arg_count,
+                max_allowed_count=self.param("too-many-required-arguments", "max_args"),
+                node=arg_node,
+                lineno=arg_node.lineno,
+                col=arg_node.col_offset + 1,
+                end_col=arg_node.col_offset + len(arg_node.value) + 1,
+                extended_disablers=(keyword_node.lineno, keyword_node.end_lineno),
+                sev_threshold_value=required_arg_count,
+            )
+
+        if optional_arg_count > self.param("too-many-optional-arguments", "max_args"):
+            self.report(
+                "too-many-optional-arguments",
+                keyword_name=keyword_node.name,
+                arguments_count=optional_arg_count,
+                max_allowed_count=self.param("too-many-optional-arguments", "max_args"),
+                node=arg_node,
+                lineno=arg_node.lineno,
+                col=arg_node.col_offset + 1,
+                end_col=arg_node.col_offset + len(arg_node.value) + 1,
+                extended_disablers=(keyword_node.lineno, keyword_node.end_lineno),
+                sev_threshold_value=optional_arg_count,
             )
 
     def test_is_templated(self, node):

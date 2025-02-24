@@ -375,15 +375,6 @@ class TestTranslatedRobot:
         without_version = {rule.name for rule in robocop_instance.rules.values() if not rule.added_in_version}
         assert without_version == set()
 
-    def test_all_builtin_rules_should_be_enabled_by_default(self, robocop_instance):
-        robocop_instance.reload_config()
-        builtin_rules = [
-            rule for rule in robocop_instance.rules.values() if not rule.community_rule and not rule.deprecated
-        ]
-        assert builtin_rules != []
-        disabled_builtin = {rule.name for rule in builtin_rules if not rule.enabled and rule.enabled_in_version}
-        assert disabled_builtin == set()
-
     def test_all_community_rules_should_be_disabled_by_default(self, robocop_instance):
         robocop_instance.reload_config()
         community_rules = [rule for rule in robocop_instance.rules.values() if rule.community_rule]

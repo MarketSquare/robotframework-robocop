@@ -564,8 +564,7 @@ class LengthChecker(VisitorChecker):
     def _visit_keyword_arguments(self, keyword_node: Keyword, arguments: Arguments):
         arg_node = arguments.get_token(Token.ARGUMENTS)
 
-        arg_count = len(arguments.values)
-        if arg_count > self.param("too-many-arguments", "max_args"):
+        if (arg_count := len(arguments.values)) > self.param("too-many-arguments", "max_args"):
             self.report(
                 "too-many-arguments",
                 keyword_name=keyword_node.name,

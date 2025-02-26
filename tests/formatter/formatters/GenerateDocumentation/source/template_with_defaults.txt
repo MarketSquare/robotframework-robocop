@@ -1,0 +1,11 @@
+{{ formatting.separator }}{{ keyword.name }}
+{% if keyword.arguments|length > 0 %}
+{{ formatting.cont_indent }}Arguments:
+{%- for arg in keyword.arguments %}
+{{ formatting.cont_indent }}{{ formatting.cont_indent }}{{ arg.name }}{% if arg.default %} = '{{ arg.default }}'{% endif %}: {% endfor %}
+{% endif -%}
+{% if keyword.returns|length > 0 %}
+{{ formatting.cont_indent }}Returned values:
+{%- for value in keyword.returns %}
+{{ formatting.cont_indent }}{{ formatting.cont_indent }}{{ value }}: {% endfor %}
+{% endif -%}

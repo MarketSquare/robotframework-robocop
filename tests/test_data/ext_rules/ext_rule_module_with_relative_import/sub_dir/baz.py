@@ -1,1 +1,0 @@
-EXPECTED_KEYWORD = 'Example'

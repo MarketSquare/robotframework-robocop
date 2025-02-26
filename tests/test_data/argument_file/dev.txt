@@ -1,2 +1,0 @@
---ext-rules rflinter.robocop.spacing
--A base.txt

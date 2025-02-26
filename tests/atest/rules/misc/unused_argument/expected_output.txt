@@ -1,7 +1,0 @@
-test.robot:20:31:20:38 [W] 0919 Keyword argument '${arg2}' is not used
-test.robot:35:31:35:42 [W] 0919 Keyword argument '${not_used}' is not used
-test.robot:40:43:40:54 [W] 0919 Keyword argument '${not_used}' is not used
-test.robot:48:26:48:38 [W] 0919 Keyword argument '${argument2}' is not used
-test.robot:51:34:51:46 [W] 0919 Keyword argument '${argument2}' is not used
-test.robot:73:20:73:26 [W] 0919 Keyword argument '${var}' is not used
-test.robot:194:31:194:40 [W] 0919 Keyword argument '${unused}' is not used

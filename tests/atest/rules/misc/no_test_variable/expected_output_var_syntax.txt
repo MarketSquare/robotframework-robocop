@@ -1,7 +1,0 @@
-test_var_syntax.robot:9:44 [W] 0931 Don't use test/task variables
-test_var_syntax.robot:10:44 [W] 0931 Don't use test/task variables
-test_var_syntax.robot:13:44 [W] 0931 Don't use test/task variables
-test_var_syntax.robot:17:12 [W] 0931 Don't use test/task variables
-test_var_syntax.robot:19:31 [W] 0931 Don't use test/task variables
-test_var_syntax.robot:21:27 [W] 0931 Don't use test/task variables
-test_var_syntax.robot:27:44 [W] 0931 Don't use test/task variables

@@ -1,3 +1,0 @@
---include some_rule
--A args_nested.txt
---list

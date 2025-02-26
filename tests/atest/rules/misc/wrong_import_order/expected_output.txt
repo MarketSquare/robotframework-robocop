@@ -1,3 +1,0 @@
-test.robot:6:12 [W] 0911 BuiltIn library import 'DateTime' should be placed before 'RequestsLibrary'
-test.robot:7:12 [W] 0911 BuiltIn library import 'OperatingSystem' should be placed before 'RequestsLibrary'
-test.robot:12:12 [W] 0911 BuiltIn library import 'BuiltIn' should be placed before 'RequestsLibrary'

@@ -1,5 +1,0 @@
-test.robot:3:16:3:27 [I] 0328 Create List can be replaced with VAR
-test.robot:5:22:5:39 [I] 0328 Create Dictionary can be replaced with VAR
-test.robot:12:21:12:32 [I] 0328 Create List can be replaced with VAR
-test.robot:14:20:14:30 [I] 0328 createlist can be replaced with VAR
-test.robot:16:22:16:47 [I] 0328 BuiltIn.Create Dictionary can be replaced with VAR

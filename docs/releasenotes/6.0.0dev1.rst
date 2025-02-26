@@ -1,0 +1,30 @@
+Breaking changes
+=================
+
+return_status report is now optional
+-------------------------------------
+
+Return status (exit code) of Robocop depended on internal, always enabled `return_status` report. It was calculated
+based on parameter `quality_gate`. Default configuration::
+
+    quality_gate = {
+        'E': 0,
+        'W': 0,
+        'I': -1
+    }
+
+It means that any error or warning will count towards exit code. Information messages by default were not counted
+towards exit code. Actual exit code is number of issues over set limit, up to 255 (for example with 'W': 100 and 105
+warnings, exit code will be 5).
+
+This behaviour wasn't clear to most, and makes Robocop unpredictable when run in CI/CD pipelines. That's why we are
+now making `return_status` report optional. It means that now exit code follows different logic:
+
+- 0, if no rule violations were found
+- 1, if violations were found
+- 2, if Robocop terminated abnormally
+
+It is possible to always return 0, ignoring any violations, with new ``--exit-zero`` flag. The previous behaviour
+can be reproduced by simply enabling ``return_status`` report again::
+
+    robocop checks --reports return_status

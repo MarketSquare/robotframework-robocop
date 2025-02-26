@@ -1,0 +1,129 @@
+[project]
+name = "robotframework-robocop"
+description = "Static code analysis tool (linter) and code formatter for Robot Framework"
+readme = "README.md"
+authors = [
+  { name = "Bartlomiej Hirsz", email = "bartek.hirsz@gmail.com" },
+  { name = "Mateusz Nojek", email = "matnojek@gmail.com" },
+]
+requires-python = "~=3.9,<3.13"
+dependencies = [
+    "jinja2>=3.1.4,<4.0",
+    "robotframework>=4.0,<8.0",
+    "typer>=0.12.5,<0.13",
+    "tomli==2.0.2; python_version < '3.11'"
+]
+
+keywords = ["robotframework", "automation", "testautomation", "testing", "linter", "qa", "formatting", "formatter"]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "License :: OSI Approved :: Apache Software License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Framework :: Robot Framework",
+    "Framework :: Robot Framework :: Tool",
+    "Topic :: Software Development :: Testing",
+    "Topic :: Software Development :: Quality Assurance",
+    "Topic :: Utilities",
+    "Intended Audience :: Developers"
+]
+
+dynamic = ["version"]
+
+[project.scripts]
+robocop = "robocop.cli:main"
+
+[project.urls]
+"Bug tracker" = "https://github.com/MarketSquare/robotframework-robocop/issues"
+"Source code" = "https://github.com/MarketSquare/robotframework-robocop"
+Documentation = "https://robocop.readthedocs.io/"
+Downloads = "https://archive.apache.org/dist/airflow/"
+Homepage = "https://robocop.readthedocs.io/"
+
+[build-system]
+requires = ["hatchling==1.25.0"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/robocop"]
+
+[tool.hatch.version]
+path = "src/robocop/__init__.py"
+
+[dependency-groups]
+dev = [
+    "coverage>=7.6.4",
+    "pytest>=8.3.3",
+    "ruff>=0.7.1",
+]
+
+[tool.ruff]
+line-length = 120
+show-fixes = true
+target-version = "py39"
+lint.select = [
+    "ALL", # include all the rules, including new ones
+]
+lint.ignore = [
+    #### modules
+    "DJ",  # django
+    "PD", # pandas
+    #"C90", # mccabe complexity
+
+    #"EXE", # flake8-executable
+    #"PTH", # flake8-use-pathlib
+    #"TID", # flake8-tidy-imports
+    #### specific rules
+    "D100", # missing docstring in public module
+    "D101", # missing docstring in public class
+    "D102", # missing docstring in public method
+    "D103", # missing docstring in public function
+    "D104", # missing docstring in public package
+    "D105", # missing docstring in magic method
+    "D107", # missing docstring in __init__
+    "D203", # blank line before class
+    "D212", # multi-line docstring summary should start at the first line
+    "D400", # first line should end with a period
+    "D415", # first line should end with period, question mark or exlamation point
+    "ANN204", # missing type annotation for __init__
+    "EM102", # exception with fstring
+    "TD002", # 'to do' without author
+    "PT011", # pytest.raises is too broad
+    "S101", # use of assert
+    "COM812", # trailing commas
+    "FIX002", # code with to do - check all of them later
+    "PERF203", # try except in for loop - check all of them for possible refactors
+    "C901", # code too complex (duplicate with other rules)
+    "EM101", # exception with string literal
+    "SIM108", # ternary operator - reconsider, sometimes the code readability is lower with ternary
+    "ISC001", # potential conflict with formatter
+]
+lint.unfixable = [
+    # PT022 replace empty `yield` to empty `return`. Might be fixed with a combination of PLR1711
+    # In addition, it can't do anything with invalid typing annotations, protected by mypy.
+    "PT022",
+]
+extend-exclude = [
+    "tests/test_data/"
+]
+[tool.ruff.lint.extend-per-file-ignores]
+# return type for tests does not make sense
+"tests/*" = ["ANN201"]
+# html code embedded
+"docs/conf.py" = ["E501"]
+
+[tool.coverage.run]
+omit = ["*tests*"]
+source = ["robocop"]
+
+[tool.coverage.report]
+exclude_lines = [
+        "pragma: no cover",
+        "if __name__ == .__main__.:",
+        "raise NotImplementedError"
+]
+fail_under = 90

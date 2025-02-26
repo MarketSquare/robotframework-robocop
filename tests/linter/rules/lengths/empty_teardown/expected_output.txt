@@ -1,1 +1,1 @@
-test.robot:21:5 [E] 0521 Teardown of 'Keyword' Keyword does not have any keywords
+test.robot:21:5 [E] LEN21 Teardown of 'Keyword' Keyword does not have any keywords

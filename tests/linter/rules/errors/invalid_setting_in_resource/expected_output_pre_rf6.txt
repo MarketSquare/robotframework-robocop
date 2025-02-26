@@ -1,9 +1,9 @@
-test.resource:10:1 [E] 0416 Settings section in resource file can't contain 'Metadata' setting
-test.resource:11:1 [E] 0416 Settings section in resource file can't contain 'Suite Setup' setting
-test.resource:12:1 [E] 0416 Settings section in resource file can't contain 'Suite Teardown' setting
-test.resource:14:1 [E] 0416 Settings section in resource file can't contain 'Test Setup' setting
-test.resource:15:1 [E] 0416 Settings section in resource file can't contain 'Test Teardown' setting
-test.resource:16:1 [E] 0416 Settings section in resource file can't contain 'Test Template' setting
-test.resource:17:1 [E] 0416 Settings section in resource file can't contain 'Test Timeout' setting
-test.resource:18:1 [E] 0416 Settings section in resource file can't contain 'Force Tags' setting
-test.resource:19:1 [E] 0416 Settings section in resource file can't contain 'Default Tags' setting
+test.resource:10:1 [E] ERR16 Settings section in resource file can't contain 'Metadata' setting
+test.resource:11:1 [E] ERR16 Settings section in resource file can't contain 'Suite Setup' setting
+test.resource:12:1 [E] ERR16 Settings section in resource file can't contain 'Suite Teardown' setting
+test.resource:14:1 [E] ERR16 Settings section in resource file can't contain 'Test Setup' setting
+test.resource:15:1 [E] ERR16 Settings section in resource file can't contain 'Test Teardown' setting
+test.resource:16:1 [E] ERR16 Settings section in resource file can't contain 'Test Template' setting
+test.resource:17:1 [E] ERR16 Settings section in resource file can't contain 'Test Timeout' setting
+test.resource:18:1 [E] ERR16 Settings section in resource file can't contain 'Force Tags' setting
+test.resource:19:1 [E] ERR16 Settings section in resource file can't contain 'Default Tags' setting

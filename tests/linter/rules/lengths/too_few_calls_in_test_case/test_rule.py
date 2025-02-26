@@ -10,14 +10,14 @@ class TestRuleAcceptance(RuleAcceptance):
 
     def test_templated(self):
         self.check_rule(
-            config="-c too-few-calls-in-test-case:ignore_templated:True",
+            configure=["too-few-calls-in-test-case.ignore_templated=True"],
             src_files=["templated"],
             expected_file="templated/expected_output.txt",
         )
 
     def test_bug629(self):
         self.check_rule(
-            config="-c too-few-calls-in-test-case:min_calls:2",
+            configure=["too-few-calls-in-test-case.min_calls=2"],
             src_files=["bug629/test.robot"],
             expected_file="bug629/expected_output.txt",
         )

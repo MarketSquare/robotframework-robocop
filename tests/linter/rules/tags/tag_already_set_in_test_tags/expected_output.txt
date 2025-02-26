@@ -1,1 +1,1 @@
-test.robot:9:13 [I] 0606 Tag 'sometag' is already set by Force Tags in suite settings
+test.robot:9:13 [I] TAG06 Tag 'sometag' is already set by Force Tags in suite settings

@@ -1,2 +1,2 @@
-severity.robot:31:9 [E] 0510 Too many return values (6/6)
-severity.robot:41:13 [E] 0510 Too many return values (6/6)
+severity.robot:31:9 [E] LEN10 Too many return values (6/6)
+severity.robot:41:13 [E] LEN10 Too many return values (6/6)

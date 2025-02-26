@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from robot.api.parsing import (
     Comment,
     ElseHeader,
@@ -10,6 +12,7 @@ from robot.api.parsing import (
     Template,
     Token,
 )
+
 from robocop.formatter.disablers import skip_if_disabled, skip_section_if_disabled
 from robocop.formatter.formatters import Formatter
 from robocop.formatter.utils import misc
@@ -42,7 +45,7 @@ class AlignTemplatedTestCases(Formatter):
     header names) then configure `only_with_headers` parameter:
 
     ```
-    robocop format -c AlignSettingsSection:only_with_headers:True <src>
+    robocop format -c AlignSettingsSection.only_with_headers:True <src>
     ```
 
     For non-templated test cases use ``AlignTestCasesSection`` formatter.
@@ -50,7 +53,7 @@ class AlignTemplatedTestCases(Formatter):
 
     ENABLED = False
 
-    def __init__(self, only_with_headers: bool = False, min_width: int = None):
+    def __init__(self, only_with_headers: bool = False, min_width: int | None = None):
         super().__init__()
         self.only_with_headers = only_with_headers
         self.min_width = min_width
@@ -59,22 +62,22 @@ class AlignTemplatedTestCases(Formatter):
         self.test_without_eol = False
         self.indent = 0
 
-    def visit_File(self, node):  # noqa
+    def visit_File(self, node):  # noqa: N802
         if not misc.is_suite_templated(node):
             return node
         self.test_without_eol = False
         return self.generic_visit(node)
 
-    def visit_If(self, node):  # noqa
+    def visit_If(self, node):  # noqa: N802
         self.indent += 1
         self.generic_visit(node)
         self.indent -= 1
         return node
 
-    visit_Else = visit_ElseIf = visit_For = visit_If
+    visit_Else = visit_ElseIf = visit_For = visit_If  # noqa: N815
 
     @skip_section_if_disabled
-    def visit_TestCaseSection(self, node):  # noqa
+    def visit_TestCaseSection(self, node):  # noqa: N802
         if len(node.header.data_tokens) == 1 and self.only_with_headers:
             return node
         counter = ColumnWidthCounter(self.disablers)
@@ -82,14 +85,14 @@ class AlignTemplatedTestCases(Formatter):
         self.widths = counter.widths
         return self.generic_visit(node)
 
-    def visit_TestCase(self, node):  # noqa
+    def visit_TestCase(self, node):  # noqa: N802
         for statement in node.body:
             if isinstance(statement, Template) and statement.value is None:
                 return node
         return self.generic_visit(node)
 
     @skip_if_disabled
-    def visit_Statement(self, statement):  # noqa
+    def visit_Statement(self, statement):  # noqa: N802
         if statement.type == Token.TESTCASE_NAME:
             self.test_name_len = len(statement.data_tokens[0].value) if statement.data_tokens else 0
             self.test_without_eol = statement.tokens[-1].type != Token.EOL
@@ -147,10 +150,10 @@ class AlignTemplatedTestCases(Formatter):
             return self.widths
         return [max(width, indent * self.formatting_config.space_count) for width in self.widths]
 
-    def visit_SettingSection(self, node):  # noqa
+    def visit_SettingSection(self, node):  # noqa: N802
         return node
 
-    visit_VariableSection = visit_KeywordSection = visit_CommentSection = visit_SettingSection
+    visit_VariableSection = visit_KeywordSection = visit_CommentSection = visit_SettingSection  # noqa: N815
 
 
 class ColumnWidthCounter(ModelVisitor):
@@ -161,20 +164,20 @@ class ColumnWidthCounter(ModelVisitor):
         self.any_one_line_test = False
         self.header_with_cols = False
 
-    def visit_TestCaseSection(self, node):  # noqa
+    def visit_TestCaseSection(self, node):  # noqa: N802
         self.generic_visit(node)
         if not self.header_with_cols and not self.any_one_line_test and self.widths:
             self.widths[0] = 0
         self.widths = [misc.round_to_four(length) for length in self.widths]
 
-    def visit_TestCase(self, node):  # noqa
+    def visit_TestCase(self, node):  # noqa: N802
         for statement in node.body:
             if isinstance(statement, Template) and statement.value is None:
                 return
         self.generic_visit(node)
 
     @skip_if_disabled
-    def visit_Statement(self, statement):  # noqa
+    def visit_Statement(self, statement):  # noqa: N802
         if statement.type == Token.COMMENT:
             return
         if statement.type == Token.TESTCASE_HEADER:
@@ -193,7 +196,7 @@ class ColumnWidthCounter(ModelVisitor):
             if not isinstance(statement, (ForHeader, IfHeader, ElseHeader, ElseIfHeader, End)):
                 self._count_widths_from_statement(statement, indent=1)
 
-    def _count_widths_from_statement(self, statement, indent=0):
+    def _count_widths_from_statement(self, statement, indent: int = 0) -> None:
         for line in statement.lines:
             line = [t for t in line if t.type not in (Token.SEPARATOR, Token.EOL)]
             for index, token in enumerate(line, start=indent):

@@ -1,2 +1,0 @@
-loops.robot:9:5:9:15 [I] 0920 Variable '${counter}' is assigned but not used
-loops.robot:14:9:14:20 [I] 0920 Variable '${not_used}' is assigned but not used

@@ -19,7 +19,7 @@ class TestNormalizeSettingName(FormatterAcceptanceTest):
         self.compare(source="disablers.robot", not_modified=True)
 
     def test_translated(self):
-        self.compare(source="translated.robot", target_version=">=6")
+        self.compare(source="translated.robot", test_on_version=">=6")
 
     def test_rf6_syntax(self):
-        self.compare(source="rf6.robot", target_version=">=6")
+        self.compare(source="rf6.robot", test_on_version=">=6")

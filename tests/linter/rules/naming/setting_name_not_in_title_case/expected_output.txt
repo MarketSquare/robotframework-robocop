@@ -1,21 +1,21 @@
-test.robot:3:1 [W] 0306 Setting name 'library' should use title or upper case
-test.robot:4:1 [W] 0306 Setting name 'resource' should use title or upper case
-test.robot:5:1 [W] 0306 Setting name 'variablES' should use title or upper case
-test.robot:6:1 [W] 0306 Setting name 'suite setup' should use title or upper case
-test.robot:7:1 [W] 0306 Setting name 'suite Teardown' should use title or upper case
-test.robot:8:1 [W] 0306 Setting name 'test seTup' should use title or upper case
-test.robot:9:1 [W] 0306 Setting name 'Test teardown' should use title or upper case
-test.robot:10:1 [W] 0306 Setting name 'force tags' should use title or upper case
-test.robot:11:1 [W] 0306 Setting name 'default tags' should use title or upper case
-test.robot:16:5 [W] 0306 Setting name '[documentation]' should use title or upper case
-test.robot:17:5 [W] 0306 Setting name '[tags]' should use title or upper case
-test.robot:18:5 [W] 0306 Setting name '[setup]' should use title or upper case
-test.robot:19:5 [W] 0306 Setting name '[template]' should use title or upper case
-test.robot:20:5 [W] 0306 Setting name '[timeout]' should use title or upper case
-test.robot:24:5 [W] 0306 Setting name '[teardown]' should use title or upper case
-test.robot:51:5 [W] 0306 Setting name '[documentation]' should use title or upper case
-test.robot:52:5 [W] 0306 Setting name '[tags]' should use title or upper case
-test.robot:53:5 [W] 0306 Setting name '[arguments]' should use title or upper case
-test.robot:54:5 [W] 0306 Setting name '[timeout]' should use title or upper case
-test.robot:59:5 [W] 0306 Setting name '[teardown]' should use title or upper case
-test.robot:60:5 [W] 0306 Setting name '[return]' should use title or upper case
+test.robot:3:1 [W] NAME05 Setting name 'library' not in title or uppercase
+test.robot:4:1 [W] NAME05 Setting name 'resource' not in title or uppercase
+test.robot:5:1 [W] NAME05 Setting name 'variablES' not in title or uppercase
+test.robot:6:1 [W] NAME05 Setting name 'suite setup' not in title or uppercase
+test.robot:7:1 [W] NAME05 Setting name 'suite Teardown' not in title or uppercase
+test.robot:8:1 [W] NAME05 Setting name 'test seTup' not in title or uppercase
+test.robot:9:1 [W] NAME05 Setting name 'Test teardown' not in title or uppercase
+test.robot:10:1 [W] NAME05 Setting name 'force tags' not in title or uppercase
+test.robot:11:1 [W] NAME05 Setting name 'default tags' not in title or uppercase
+test.robot:16:5 [W] NAME05 Setting name '[documentation]' not in title or uppercase
+test.robot:17:5 [W] NAME05 Setting name '[tags]' not in title or uppercase
+test.robot:18:5 [W] NAME05 Setting name '[setup]' not in title or uppercase
+test.robot:19:5 [W] NAME05 Setting name '[template]' not in title or uppercase
+test.robot:20:5 [W] NAME05 Setting name '[timeout]' not in title or uppercase
+test.robot:24:5 [W] NAME05 Setting name '[teardown]' not in title or uppercase
+test.robot:51:5 [W] NAME05 Setting name '[documentation]' not in title or uppercase
+test.robot:52:5 [W] NAME05 Setting name '[tags]' not in title or uppercase
+test.robot:53:5 [W] NAME05 Setting name '[arguments]' not in title or uppercase
+test.robot:54:5 [W] NAME05 Setting name '[timeout]' not in title or uppercase
+test.robot:59:5 [W] NAME05 Setting name '[teardown]' not in title or uppercase
+test.robot:60:5 [W] NAME05 Setting name '[return]' not in title or uppercase

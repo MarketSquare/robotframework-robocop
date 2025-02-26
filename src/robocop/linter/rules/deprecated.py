@@ -93,7 +93,7 @@ class DeprecatedSingularHeaderRule(Rule):
         *** Setting ***
         *** Keyword ***
 
-    Correct code:
+    Correct code::
 
         *** Settings ***
         *** Keywords ***

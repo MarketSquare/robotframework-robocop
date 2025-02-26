@@ -1,5 +1,5 @@
 [tool.robocop]
-extend_exclude = ["file3.resource"]
+default_exclude = ["file3.resource"]
 
 [tool.robocop.lint]
 configure = [

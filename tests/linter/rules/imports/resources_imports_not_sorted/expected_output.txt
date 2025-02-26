@@ -1,2 +1,2 @@
-test.robot:5:12 [W] 10102 Resource import 'AnotherFile.resource' should be placed before 'CustomResource.resource'
-test.robot:6:12 [W] 10102 Resource import '..\${/}Libs\${/}MyResource.robot' should be placed before 'AnotherFile.resource'
+test.robot:5:12 [W] IMP04 Resource import 'AnotherFile.resource' should be placed before 'CustomResource.resource'
+test.robot:6:12 [W] IMP04 Resource import '..\${/}Libs\${/}MyResource.robot' should be placed before 'AnotherFile.resource'

@@ -44,4 +44,4 @@ Skip formatting
 
 It is possible to use the following arguments to skip formatting of the code:
 
-- :ref:`skip comments`
+- :ref:`skip option` (``--skip comments``)

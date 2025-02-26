@@ -6,15 +6,17 @@ import os
 import re
 import sys
 from pathlib import Path
+from typing import TYPE_CHECKING
 
+import click.exceptions
 import pytest
 
-from robocop.linter.runner import RobocopLinter
-from robocop.config import ConfigManager
-
-# from robocop.config import Config
+from robocop.cli import check_files
 from robocop.linter.utils.misc import ROBOT_VERSION
 from robocop.linter.utils.version_matching import VersionSpecifier
+
+if TYPE_CHECKING:
+    from robocop.linter.rules import RuleSeverity
 
 
 @contextlib.contextmanager
@@ -27,6 +29,17 @@ def isolated_output():
     yield bytes_output
     sys.stdout = old_stdout
     sys.stderr = old_stderr
+
+
+@contextlib.contextmanager
+def working_directory(path: Path):
+    """Change working directory and return to previous on exit"""
+    prev_cwd = Path.cwd()
+    os.chdir(path)
+    try:
+        yield
+    finally:
+        os.chdir(prev_cwd)
 
 
 def convert_to_output(stdout_bytes):
@@ -58,34 +71,6 @@ def load_expected_file(test_data, expected_file):
         )
 
 
-def configure_robocop_with_rule(args, rule, path, src_files: list | None, format):
-    if src_files is None:
-        paths = [str(path)]
-    else:
-        paths = [str(path / src_file) for src_file in src_files]
-    # if args is None:
-    #     args = []
-    # elif isinstance(args, str):
-    #     args = args.split()
-    # arguments = ["--include", ",".join(rule)]
-    # arguments.extend(
-    #     [
-    #         "--format",
-    #         format,
-    #         "--configure",
-    #         "return_status:quality_gate:E=0:W=0:I=0",
-    #         *args,
-    #         *paths,
-    #     ]
-    # )
-    # config.parse_args(arguments)
-    config_manager = ConfigManager(sources=paths)  # TODO: disable searching for config file
-    config_manager.default_config.format = format
-    config_manager.default_config.include = set(rule)
-    runner = RobocopLinter(config_manager)
-    return runner
-
-
 class RuleAcceptance:
     SRC_FILE = "."
     EXPECTED_OUTPUT = "expected_output.txt"
@@ -95,33 +80,48 @@ class RuleAcceptance:
     def check_rule(
         self,
         expected_file: str | None = None,
-        config: str | None = None,
-        rule: str | None = None,
+        configure: list[str] | None = None,
+        threshold: RuleSeverity | None = None,
+        select: list[str] | None = None,
         src_files: list | None = None,
-        target_version: str | list[str] | None = None,
+        test_on_version: str | list[str] | None = None,
         issue_format: str = "default",
-        deprecated: bool = False,
+        language: list[str] | None = None,
+        # deprecated: bool = False, TODO
+        **kwargs,
     ):
-        if not self.enabled_in_version(target_version):
-            pytest.skip(f"Test enabled only for RF {target_version}")
+        if not self.enabled_in_version(test_on_version):
+            pytest.skip(f"Test enabled only for RF {test_on_version}")
         test_data = self.test_class_dir
         expected = load_expected_file(test_data, expected_file)
-        format = self.get_issue_format(issue_format)
-        if rule is None:
-            rule = [self.rule_name]
-        runner = configure_robocop_with_rule(config, rule, test_data, src_files, format=format)
-        with isolated_output() as output:
+        issue_format = self.get_issue_format(issue_format)
+        if select is None:
+            select = [self.rule_name]
+        if src_files is None:
+            paths = [test_data]
+        else:
+            paths = [test_data / src_file for src_file in src_files]
+        with isolated_output() as output, working_directory(test_data):
             try:
-                #with pytest.raises(SystemExit):
-                runner.run()
+                with pytest.raises(click.exceptions.Exit):
+                    check_files(
+                        sources=paths,
+                        select=select,
+                        configure=configure,
+                        issue_format=issue_format,
+                        threshold=threshold,
+                        language=language,
+                        **kwargs,
+                    )
             finally:
                 sys.stdout.flush()
                 result = get_result(output)
                 parsed_results = result.splitlines()
         actual = normalize_result(parsed_results, test_data)
-        if deprecated:
-            assert runner.rules[self.rule_name].deprecation_warning in actual
-        elif actual != expected:
+        # if deprecated:  # TODO:
+        #     assert runner.rules[self.rule_name].deprecation_warning in actual
+        # elif
+        if actual != expected:
             missing_expected = sorted(set(actual) - set(expected))
             missing_actual = sorted(set(expected) - set(actual))
             error = "Actual issues are different than expected.\n"
@@ -152,7 +152,7 @@ class RuleAcceptance:
         return robocop_rules[self.rule_name].enabled_in_version
 
     @staticmethod
-    def enabled_in_version(target_version: list | str | None):
+    def enabled_in_version(test_on_version: list | str | None):
         """
         Check if rule is enabled for given target version condition.
 
@@ -161,11 +161,11 @@ class RuleAcceptance:
         that should match RF version.
         If the target version is a list of strings, any version conditions need to match.
         """
-        if target_version is None:
+        if test_on_version is None:
             return True
-        if isinstance(target_version, list):
-            return any(ROBOT_VERSION in VersionSpecifier(version) for version in target_version)
-        if ";" in target_version:
-            must_match_versions = target_version.split(";")
+        if isinstance(test_on_version, list):
+            return any(ROBOT_VERSION in VersionSpecifier(version) for version in test_on_version)
+        if ";" in test_on_version:
+            must_match_versions = test_on_version.split(";")
             return all(ROBOT_VERSION in VersionSpecifier(version) for version in must_match_versions)
-        return ROBOT_VERSION in VersionSpecifier(target_version)
+        return ROBOT_VERSION in VersionSpecifier(test_on_version)

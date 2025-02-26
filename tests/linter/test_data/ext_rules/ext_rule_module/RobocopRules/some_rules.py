@@ -1,4 +1,4 @@
-from robocop.checkers import VisitorChecker
+from robocop.linter.rules import VisitorChecker
 
 
 class CustomRuleChecker(VisitorChecker):

@@ -1,7 +1,9 @@
 from collections import defaultdict
 
 import robocop.linter.reports
-from robocop.linter.rules import Message, RuleSeverity
+from robocop.config import Config
+from robocop.linter.diagnostics import Diagnostic
+from robocop.linter.rules import RuleSeverity
 from robocop.linter.utils.misc import get_plural_form, get_string_diff
 
 
@@ -16,13 +18,13 @@ class RulesBySeverityReport(robocop.linter.reports.ComparableReport):
         Found 15 issues: 4 ERRORs, 11 WARNINGs.
     """
 
-    def __init__(self, compare_runs):
+    def __init__(self, config: Config):
         self.name = "rules_by_error_type"
         self.description = "Prints total number of issues grouped by severity"
         self.severity_counter = defaultdict(int)
-        super().__init__(compare_runs)
+        super().__init__(config)
 
-    def add_message(self, message: Message):
+    def add_message(self, message: Diagnostic) -> None:
         self.severity_counter[message.severity] += 1
 
     def persist_result(self):

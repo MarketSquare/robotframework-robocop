@@ -56,7 +56,7 @@ class TestNormalizeTags(FormatterAcceptanceTest):
         )
 
     def test_rf6(self):
-        self.compare(source="rf6.robot", target_version=">=6", not_modified=True)
+        self.compare(source="rf6.robot", test_on_version=">=6", not_modified=True)
 
     def test_preserve_format(self):
         self.compare(
@@ -78,5 +78,5 @@ class TestNormalizeTags(FormatterAcceptanceTest):
             source="variables_in_tags.robot",
             expected=f"variables_in_tags_{case_function}.robot",
             configure=[f"{self.FORMATTER_NAME}.case={case_function}"],
-            target_version=">=6",
+            test_on_version=">=6",
         )

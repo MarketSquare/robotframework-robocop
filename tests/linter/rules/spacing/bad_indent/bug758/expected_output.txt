@@ -1,3 +1,3 @@
-bug758${/}templated_suite.robot:21:1 [W] 1008 Line is under-indented
-bug758${/}templated_suite.robot:26:1 [W] 1008 Line is under-indented
-bug758${/}templated_suite.robot:30:1 [W] 1008 Line is under-indented
+bug758${/}templated_suite.robot:21:1 [W] SPC08 Line is under-indented
+bug758${/}templated_suite.robot:26:1 [W] SPC08 Line is under-indented
+bug758${/}templated_suite.robot:30:1 [W] SPC08 Line is under-indented

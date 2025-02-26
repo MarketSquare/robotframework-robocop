@@ -1,5 +1,5 @@
-test.robot:2:23 [W] 0701 Found a marker 'todo' in the comments
-test.robot:13:3 [W] 0701 Found a marker 'fixme' in the comments
-test.robot:14:21 [W] 0701 Found a marker 'TODO' in the comments
-test.robot:15:12 [W] 0701 Found a marker 'FIXME' in the comments
-test.robot:17:21 [W] 0701 Found a marker 'todo' in the comments
+test.robot:2:23 [W] COM01 Found a marker 'todo' in the comments
+test.robot:13:3 [W] COM01 Found a marker 'fixme' in the comments
+test.robot:14:21 [W] COM01 Found a marker 'TODO' in the comments
+test.robot:15:12 [W] COM01 Found a marker 'FIXME' in the comments
+test.robot:17:21 [W] COM01 Found a marker 'todo' in the comments

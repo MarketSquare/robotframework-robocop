@@ -1,1 +1,1 @@
-test.robot:17:5 [E] 0526 Arguments of 'Keyword Without Arguments' Keyword are empty
+test.robot:17:5 [E] LEN26 Arguments of 'Keyword Without Arguments' Keyword are empty

@@ -1,3 +1,3 @@
-test.robot:11:5 [E] 0408 Non-existing setting 'Invalid'
-test.robot:16:5 [E] 0408 Non-existing setting 'Argument'. Did you mean: Arguments
-test.robot:17:5 [E] 0408 Non-existing setting 'Invalid'
+test.robot:11:5 [E] ERR08 Non-existing setting 'Invalid'
+test.robot:16:5 [E] ERR08 Non-existing setting 'Argument'. Did you mean: Arguments
+test.robot:17:5 [E] ERR08 Non-existing setting 'Invalid'

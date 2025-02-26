@@ -1,3 +1,3 @@
-test.robot:27:1 [W] 0502 Keyword 'Short Keyword' has too few keywords inside (1/1)
-test.robot:30:1 [E] 0502 Keyword 'Empty Keyword' has too few keywords inside (0/0)
-test.robot:32:1 [E] 0502 Keyword 'Keyword' has too few keywords inside (0/0)
+test.robot:27:1 [W] LEN02 Keyword 'Short Keyword' has too few keywords inside (1/1)
+test.robot:30:1 [E] LEN02 Keyword 'Empty Keyword' has too few keywords inside (0/0)
+test.robot:32:1 [E] LEN02 Keyword 'Keyword' has too few keywords inside (0/0)

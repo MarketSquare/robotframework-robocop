@@ -15,6 +15,8 @@ def comma_separated_list(value: str) -> set[str]:
 
 class SleepKeywordUsedRule(Rule):
     """
+    ``Sleep`` keyword used.
+
     Avoid using Sleep keyword in favour of polling.
 
     For example::
@@ -36,13 +38,12 @@ class SleepKeywordUsedRule(Rule):
 
     It is also possible to report only if ``Sleep`` exceeds given time limit using ``max_time`` parameter::
 
-        robocop -c sleep-keyword-used:max_time:1min .
-
+        robocop check -c sleep-keyword-used.max_time=1min .
 
     """
 
     name = "sleep-keyword-used"
-    rule_id = "10001"
+    rule_id = "KW01"
     message = "Sleep keyword with '{duration_time}' sleep time found"
     severity = RuleSeverity.WARNING
     enabled = False
@@ -62,7 +63,9 @@ class NotAllowedKeywordRule(Rule):
 
     For example::
 
-        > robocop -i not-allowed-keyword -c not-allowed-keyword:keywords:click_using_javascript  # TODO: update all examples
+        > robocop check --select not-allowed-keyword -c not-allowed-keyword.keywords=click_using_javascript
+
+    ::
 
         *** Keywords ***
         Keyword With Obsolete Implementation
@@ -72,11 +75,10 @@ class NotAllowedKeywordRule(Rule):
     If keyword call contains possible library name (ie. Library.Keyword Name), Robocop checks if it matches
     the not allowed keywords and if not, it will remove library part and check again.
 
-
     """
 
     name = "not-allowed-keyword"
-    rule_id = "10002"
+    rule_id = "KW02"
     message = "Keyword '{keyword}' is not allowed"
     severity = RuleSeverity.WARNING
     enabled = False
@@ -93,6 +95,8 @@ class NotAllowedKeywordRule(Rule):
 
 class NoEmbeddedKeywordArgumentsRule(Rule):
     """
+    Embedded arguments in keyword found.
+
     Avoid using embedded arguments in keywords.
 
     When using embedded keyword arguments, you mix what you do (the keyword name) with the data
@@ -103,12 +107,11 @@ class NoEmbeddedKeywordArgumentsRule(Rule):
     Sometimes even Robotframework gets confused when naming conflicts occur. There are ways to
     fix naming conflicts, but this adds unnecessary complexity to your keyword.
 
-
     To prevent these issues, use normal arguments instead.
 
     Example:
     Using a keyword with one embedded argument. Buying the drink and the size of the drink are
-    jumbled together.
+    jumbled together::
 
         *** Test Cases ***
         Prepare for an amazing movie
@@ -120,7 +123,7 @@ class NoEmbeddedKeywordArgumentsRule(Rule):
 
     Change the embedded argument to a normal argument. Now buying the drink is separate from the
     size of the drink. In this approach, it's easier to see that you can change the size of your
-    drink.
+    drink::
 
         *** Test Cases ***
         Prepare for an amazing movie
@@ -134,7 +137,7 @@ class NoEmbeddedKeywordArgumentsRule(Rule):
     """
 
     name = "no-embedded-keyword-arguments"
-    rule_id = "10003"
+    rule_id = "KW03"
     message = "Not allowed embedded arguments {arguments} found in keyword '{keyword}'"
     severity = RuleSeverity.WARNING
     enabled = False

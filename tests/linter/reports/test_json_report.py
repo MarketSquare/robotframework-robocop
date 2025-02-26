@@ -1,20 +1,16 @@
 import json
 from pathlib import Path
 
-import pytest
-
-from robocop.config import Config
-from robocop.linter.reports.json_report import InternalJsonReport, JsonReport
-from robocop.linter.rules import Message
+from robocop.linter.diagnostics import Diagnostic
+from robocop.linter.reports.json_report import JsonReport
+from tests.linter.reports import generate_issues
 
 
 class TestJSONReport:
-    @pytest.mark.parametrize("json_class", [JsonReport, InternalJsonReport])
-    def test_json_report(self, rule, json_class):
-        report = json_class()
-        issue = Message(
+    def test_json_report(self, rule, config):
+        report = JsonReport(config)
+        issue = Diagnostic(
             rule=rule,
-            msg=rule.get_message(),
             source="some/path/file.robot",
             node=None,
             lineno=50,
@@ -35,50 +31,24 @@ class TestJSONReport:
             "description": "Some description",
         }
 
-    def test_configure_output_dir(self):
+    def test_configure_output_dir(self, config):
         output_dir = "path/to/dir"
-        report = JsonReport()
+        report = JsonReport(config)
         report.configure("output_dir", output_dir)
         assert report.output_dir == Path(output_dir)
 
-    def test_configure_filename(self):
+    def test_configure_filename(self, config):
         filename = ".robocop.json"
-        report = JsonReport()
+        report = JsonReport(config)
         report.configure("report_filename", filename)
         assert report.report_filename == filename
 
-    @pytest.mark.parametrize("previous_results", [None, {}, {"issue": 10}])
-    @pytest.mark.parametrize("compare_runs", [True, False])
-    def test_json_reports_saved_to_file(self, rule, rule2, compare_runs, previous_results, tmp_path):
-        root = Path(".").resolve()
-        source1_rel = "tests/atest/rules/comments/ignored-data/test.robot"
-        source2_rel = "tests/atest/rules/misc/empty-return/test.robot"
-        source1 = str(root / source1_rel)
-        source2 = str(root / source2_rel)
-
-        report = JsonReport()
+    def test_json_reports_saved_to_file(self, rule, rule2, tmp_path, config):
+        issues = generate_issues(rule, rule2)
+        report = JsonReport(config)
         report.configure("output_dir", tmp_path)
 
-        issues = [
-            Message(
-                rule=r,
-                msg=r.get_message(),
-                source=source,
-                node=None,
-                lineno=line,
-                col=col,
-                end_lineno=end_line,
-                end_col=end_col,
-            )
-            for r, source, line, end_line, col, end_col in [
-                (rule, source1, 50, None, 10, None),
-                (rule2, source1, 50, 51, 10, None),
-                (rule, source2, 50, None, 10, 12),
-                (rule2, source2, 11, 15, 10, 15),
-            ]
-        ]
-
-        expected_report = [issue.to_json() for issue in issues]
+        expected_report = [JsonReport.message_to_json(issue) for issue in issues]
         for issue in issues:
             report.add_message(issue)
         report.get_report()

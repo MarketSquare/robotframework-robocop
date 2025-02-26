@@ -1,1 +1,1 @@
-test.robot:3:1 [E] 0522 Suite Teardown does not have any keywords
+test.robot:3:1 [E] LEN22 Suite Teardown does not have any keywords

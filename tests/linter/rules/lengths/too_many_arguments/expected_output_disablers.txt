@@ -1,1 +1,1 @@
-disablers.robot:20:1 [W] 0507 Keyword 'Should Be Reported' has too many arguments (2/1)
+disablers.robot:20:1 [W] LEN07 Keyword 'Should Be Reported' has too many arguments (2/1)

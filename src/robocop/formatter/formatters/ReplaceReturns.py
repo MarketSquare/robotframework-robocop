@@ -50,10 +50,10 @@ class ReplaceReturns(Formatter):
         self.return_statement = None
 
     @skip_section_if_disabled
-    def visit_Section(self, node):  # noqa
+    def visit_Section(self, node):  # noqa: N802
         return self.generic_visit(node)
 
-    def visit_Keyword(self, node):  # noqa
+    def visit_Keyword(self, node):  # noqa: N802
         self.return_statement = None
         node = self.generic_visit(node)
         if self.return_statement:
@@ -69,7 +69,7 @@ class ReplaceReturns(Formatter):
         return node
 
     @skip_if_disabled
-    def visit_KeywordCall(self, node):  # noqa
+    def visit_KeywordCall(self, node):  # noqa: N802
         if not node.keyword or node.errors:
             return node
         normalized_name = misc.after_last_dot(misc.normalize_name(node.keyword))
@@ -82,17 +82,17 @@ class ReplaceReturns(Formatter):
         return node
 
     @skip_if_disabled
-    def visit_ReturnSetting(self, node):  # noqa
+    def visit_ReturnSetting(self, node):  # noqa: N802
         self.return_statement = node
 
     @skip_if_disabled
-    def visit_Return(self, node):  # noqa
-        if misc.ROBOT_VERSION.major >= 7:  # In RF 7, RETURN was class was renamed to Return
-            return node
-        self.return_statement = node
+    def visit_Return(self, node):  # noqa: N802
+        if misc.ROBOT_VERSION.major < 7:  # In RF 7, RETURN was class was renamed to Return
+            self.return_statement = node
+        return node
 
     @skip_if_disabled
-    def visit_Error(self, node):  # noqa
+    def visit_Error(self, node):  # noqa: N802
         """Remove duplicate [Return]"""
         for error in node.errors:
             if "Setting 'Return' is allowed only once" in error:

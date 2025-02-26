@@ -7,7 +7,7 @@ class TestRuleAcceptance(RuleAcceptance):
 
     def test_configured_block(self):
         self.check_rule(
-            config="-c missing-space-after-comment:block:^#[*]+",
+            configure=["missing-space-after-comment.block=^#[*]+"],
             src_files=["block.robot"],
             expected_file="expected_output_block.txt",
         )

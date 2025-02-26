@@ -1,4 +1,4 @@
-from robocop.rules import Rule, RuleSeverity
+from robocop.linter.rules import Rule, RuleSeverity
 
 from .some_rules import CustomRuleChecker
 

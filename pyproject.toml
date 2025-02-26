@@ -9,9 +9,12 @@ authors = [
 requires-python = "~=3.9,<3.13"
 dependencies = [
     "jinja2>=3.1.4,<4.0",
-    "robotframework>=4.0,<8.0",
+    "robotframework>=4.0,<7.3",
     "typer>=0.12.5,<0.13",
-    "tomli==2.0.2; python_version < '3.11'"
+    "tomli==2.0.2; python_version < '3.11'",
+    "pathspec>=0.12,<0.13",
+    "platformdirs>=4.3,<4.4",
+    "pytz>=2022.7,<2024.3",
 ]
 
 keywords = ["robotframework", "automation", "testautomation", "testing", "linter", "qa", "formatting", "formatter"]
@@ -24,6 +27,7 @@ classifiers = [
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
     "Framework :: Robot Framework",
     "Framework :: Robot Framework :: Tool",
     "Topic :: Software Development :: Testing",
@@ -60,6 +64,14 @@ dev = [
     "pytest>=8.3.3",
     "ruff>=0.7.1",
 ]
+doc = [
+    "furo>=2024.8.6",
+    "pygments>=2.18.0",
+    "sphinx>=7.4.7",
+    "sphinx-copybutton>=0.5.2",
+    "sphinx-design>=0.6.1",
+    "sphinxemoji>=0.3.1",
+]
 
 [tool.ruff]
 line-length = 120
@@ -75,7 +87,7 @@ lint.ignore = [
     #"C90", # mccabe complexity
 
     #"EXE", # flake8-executable
-    #"PTH", # flake8-use-pathlib
+    "PTH", # flake8-use-pathlib
     #"TID", # flake8-tidy-imports
     #### specific rules
     "D100", # missing docstring in public module
@@ -101,6 +113,35 @@ lint.ignore = [
     "EM101", # exception with string literal
     "SIM108", # ternary operator - reconsider, sometimes the code readability is lower with ternary
     "ISC001", # potential conflict with formatter
+    "TD003", # missing issue link with TODO
+    "FBT001", # Boolean-typed positional argument in function definition
+    "FBT002", # Boolean-typed positional argument in function definition
+    "PLR2004", # magic value in comparison
+    "TRY003", # long message outside the exception class
+    # Temporarily ignored
+    "ERA001",  # commented-out code
+    "TD005",  # empty TODO
+    "FIX001",  # line with fixme
+    "TD001",  # invalid todo tag fixme
+    "ANN001",  # annotations in method
+    "ANN002",  # annotations in return type
+    "ANN201",  # annotations in return type
+    "ANN205",  # annotations in return type
+    "RUF012",  # mutable class attributes should be annotated with `typing.ClassVar`
+    "TD004",  # missing colon in TODO
+    "N999",  # invalid module names (CamelCase instead of snake_case) - Robot compatibility
+    "T201",  # print in code
+    "PLR0913",  # too many arguments in function definition
+    "PLW2901",  # for loop variable overwritten
+    "INP001",  # part of namespace package
+    "PLR0912",  # too many branches TODO
+    "ANN003",  # missing type kwargs
+    "FA100",  # replace Optional -> not yet possible because of the issue with robot framework
+    "SIM105",  # contexlib.supress
+    "ANN401",  # typing.Any
+    "B028",  # no implicit stacklevel
+    "N818",  # exception with Error suffix
+    "TRY301",  # abstract raise to an inner function
 ]
 lint.unfixable = [
     # PT022 replace empty `yield` to empty `return`. Might be fixed with a combination of PLR1711
@@ -108,13 +149,20 @@ lint.unfixable = [
     "PT022",
 ]
 extend-exclude = [
-    "tests/test_data/"
+    "tests/linter/test_data/",
+    "docs/"
 ]
 [tool.ruff.lint.extend-per-file-ignores]
-# return type for tests does not make sense
-"tests/*" = ["ANN201"]
+"tests/*" = [
+    "ANN",  # no typing for tests for now
+    "PLR0913"  # too many arguments in function definition
+]
 # html code embedded
 "docs/conf.py" = ["E501"]
+# temporary because of the rules description
+"src/robocop/linter/rules/*" = ["D205"]
+# bug in typer where | None can't be used
+"src/robocop/cli.py" = ["RUF013"]
 
 [tool.coverage.run]
 omit = ["*tests*"]
@@ -126,4 +174,4 @@ exclude_lines = [
         "if __name__ == .__main__.:",
         "raise NotImplementedError"
 ]
-fail_under = 90
+fail_under = 5

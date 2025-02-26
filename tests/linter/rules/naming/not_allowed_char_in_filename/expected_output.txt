@@ -1,2 +1,2 @@
-not_allowed_suite_foo.bar.robot:1:21 [W] 0320 Not allowed character '.' found in suite name
-suite.withdot${/}__init__.robot:1:5 [W] 0320 Not allowed character '.' found in suite name
+not_allowed_suite_foo.bar.robot:1:21 [W] NAME15 Not allowed character '.' found in suite name
+suite.withdot${/}__init__.robot:1:5 [W] NAME15 Not allowed character '.' found in suite name

@@ -7,6 +7,6 @@ class TestRuleAcceptance(RuleAcceptance):
 
     def test_severity(self):
         self.check_rule(
-            config="-c empty-line-after-section:severity_threshold:error=2",
+            configure=["empty-line-after-section.severity_threshold=error=2"],
             expected_file="expected_output_severity.txt",
         )

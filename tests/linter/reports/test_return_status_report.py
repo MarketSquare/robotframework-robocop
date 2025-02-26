@@ -15,8 +15,8 @@ class TestReturnStatus:
             ("quality_gates", "E=100:W=100:I=100", {"E": 100, "W": 100, "I": 100}),
         ],
     )
-    def test_quality_gates_configuration(self, param, configuration, quality_gates):
-        report = ReturnStatusReport()
+    def test_quality_gates_configuration(self, param, configuration, quality_gates, config):
+        report = ReturnStatusReport(config)
         report.configure(param, configuration)
         assert report.quality_gate == quality_gates
 
@@ -36,8 +36,10 @@ class TestReturnStatus:
             ("e=20:w=20:i=20", 0),
         ],
     )
-    def test_return_status_with_quality_gates(self, error_msg, warning_msg, info_msg, quality_gates, return_status):
-        report = ReturnStatusReport()
+    def test_return_status_with_quality_gates(
+        self, error_msg, warning_msg, info_msg, quality_gates, return_status, config
+    ):
+        report = ReturnStatusReport(config)
         report.configure("quality_gates", quality_gates)
         for _ in range(10):
             report.add_message(error_msg)

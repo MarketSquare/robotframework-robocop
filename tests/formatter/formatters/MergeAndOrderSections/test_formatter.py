@@ -1,4 +1,3 @@
-
 from tests.formatter import FormatterAcceptanceTest
 
 
@@ -9,10 +8,10 @@ class TestMergeAndOrderSections(FormatterAcceptanceTest):
         self.compare(source="tests.robot")
 
     def test_both_test_and_task(self):
-        self.compare(source="both_test_and_task.robot", target_version="<6")
+        self.compare(source="both_test_and_task.robot", test_on_version="<6")
 
     def test_both_test_and_task_rf6(self):
-        self.compare(source="both_test_and_task.robot", expected="both_test_and_task_rf6.robot", target_version=">=6")
+        self.compare(source="both_test_and_task.robot", expected="both_test_and_task_rf6.robot", test_on_version=">=6")
 
     def test_multiple_header_comments(self):
         self.compare(source="multiple_header_comments.robot")
@@ -81,7 +80,7 @@ class TestMergeAndOrderSections(FormatterAcceptanceTest):
         self.compare(source="disablers.robot")
 
     def test_translated(self):
-        self.compare(source="translated.robot", target_version=">=6")
+        self.compare(source="translated.robot", test_on_version=">=6")
 
     def test_invalid(self):
-        self.compare(source="invalid.robot", not_modified=True, target_version=">=6.1")
+        self.compare(source="invalid.robot", not_modified=True, test_on_version=">=6.1")

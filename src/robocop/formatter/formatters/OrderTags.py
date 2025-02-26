@@ -1,4 +1,5 @@
 from robot.api.parsing import Token
+
 from robocop.formatter.disablers import skip_section_if_disabled
 from robocop.formatter.formatters import Formatter
 
@@ -56,16 +57,16 @@ class OrderTags(Formatter):
         self.force_tags = force_tags
 
     @skip_section_if_disabled
-    def visit_Section(self, node):  # noqa
+    def visit_Section(self, node):  # noqa: N802
         return self.generic_visit(node)
 
-    def visit_Tags(self, node):  # noqa
+    def visit_Tags(self, node):  # noqa: N802
         return self.order_tags(node, indent=True)
 
-    def visit_DefaultTags(self, node):  # noqa
+    def visit_DefaultTags(self, node):  # noqa: N802
         return self.order_tags(node) if self.default_tags else node
 
-    def visit_ForceTags(self, node):  # noqa
+    def visit_ForceTags(self, node):  # noqa: N802
         return self.order_tags(node) if self.force_tags else node
 
     def order_tags(self, node, indent=False):

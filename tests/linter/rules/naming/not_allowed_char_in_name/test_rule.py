@@ -18,7 +18,7 @@ class TestRuleAcceptance(RuleAcceptance):
     )
     def test_configure_pattern(self, test_id, pattern):
         self.check_rule(
-            config=f"-c not-allowed-char-in-name:pattern:{pattern}",
+            configure=[f"not-allowed-char-in-name.pattern={pattern}"],
             src_files=[f"configure{test_id}/test.robot"],
             expected_file=f"configure{test_id}/expected_output.txt",
         )

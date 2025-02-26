@@ -1,7 +1,8 @@
 from robot.api.parsing import Token
+
 from robocop.formatter.disablers import skip_if_disabled, skip_section_if_disabled
-from robocop.formatter.skip import Skip
 from robocop.formatter.formatters import Formatter
+from robocop.formatter.skip import Skip
 
 
 class ReplaceEmptyValues(Formatter):
@@ -41,11 +42,11 @@ class ReplaceEmptyValues(Formatter):
         super().__init__(skip)
 
     @skip_section_if_disabled
-    def visit_VariableSection(self, node):  # noqa
+    def visit_VariableSection(self, node):  # noqa: N802
         return self.generic_visit(node)
 
     @skip_if_disabled
-    def visit_Variable(self, node):  # noqa
+    def visit_Variable(self, node):  # noqa: N802
         if node.errors or not node.name:
             return node
         args = node.get_tokens(Token.ARGUMENT)

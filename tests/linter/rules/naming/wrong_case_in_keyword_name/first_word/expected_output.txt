@@ -1,8 +1,8 @@
-first_word${/}test.robot:3:14 [W] 0302 Keyword name 'keyword' does not follow case convention
-first_word${/}test.robot:4:17 [W] 0302 Keyword name 'keyword' does not follow case convention
-first_word${/}test.robot:5:13 [W] 0302 Keyword name 'keyword' does not follow case convention
-first_word${/}test.robot:6:16 [W] 0302 Keyword name 'keyword' does not follow case convention
-first_word${/}test.robot:14:14 [W] 0302 Keyword name 'keyword' does not follow case convention
-first_word${/}test.robot:15:5 [W] 0302 Keyword name 'pass' does not follow case convention
-first_word${/}test.robot:18:17 [W] 0302 Keyword name 'keyword' does not follow case convention
-first_word${/}test.robot:36:1 [W] 0302 Keyword name 'keyword' does not follow case convention
+first_word${/}test.robot:3:14 [W] NAME02 Keyword name 'keyword' does not follow case convention
+first_word${/}test.robot:4:17 [W] NAME02 Keyword name 'keyword' does not follow case convention
+first_word${/}test.robot:5:13 [W] NAME02 Keyword name 'keyword' does not follow case convention
+first_word${/}test.robot:6:16 [W] NAME02 Keyword name 'keyword' does not follow case convention
+first_word${/}test.robot:14:14 [W] NAME02 Keyword name 'keyword' does not follow case convention
+first_word${/}test.robot:15:5 [W] NAME02 Keyword name 'pass' does not follow case convention
+first_word${/}test.robot:18:17 [W] NAME02 Keyword name 'keyword' does not follow case convention
+first_word${/}test.robot:36:1 [W] NAME02 Keyword name 'keyword' does not follow case convention

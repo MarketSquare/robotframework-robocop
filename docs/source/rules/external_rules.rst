@@ -10,7 +10,7 @@ It accepts comma-separated list of paths to files, directories or name of the Py
 
     .. tab-item:: Cli
 
-        .. code:: none
+        .. code:: shell
 
             robocop check ext-rules my/own/rule.py --ext-rules external_rules.py
 
@@ -173,9 +173,9 @@ Configurable parameter can be referred by its ``name`` in command line options:
 
     .. tab-item:: Cli
 
-        .. code:: none
+        .. code:: shell
 
-            robocop --ext-rules my/own/rule.py --configure example-in-name.param_name=AnotherExample
+            robocop check --ext-rules my/own/rule.py --configure example-in-name.param_name=AnotherExample
 
     .. tab-item:: Configuration file
 

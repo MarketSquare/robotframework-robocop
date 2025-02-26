@@ -33,7 +33,7 @@ _RUN_KW = [
 
 
 def get_run_keywords():
-    run_keywords = dict()
+    run_keywords = {}
     for run_kw in _RUN_KW:
         run_keywords[run_kw.name] = run_kw
         run_keywords[f"{run_kw.libname}.{run_kw.name}"] = run_kw

@@ -1,7 +1,7 @@
 import pytest
 
+from robocop.linter.diagnostics import Diagnostic
 from robocop.linter.reports.rules_by_severity_report import RulesBySeverityReport
-from robocop.linter.rules import Message
 
 FOUR_ISSUES = ["error-message", "warning-message", "info-message", "warning-message"]
 PREV_SAME_ISSUES = {"all_issues": 4, "error": 1, "info": 1, "warning": 2}
@@ -31,15 +31,15 @@ class TestRulesByIdReport:
         ],
     )
     def test_rules_by_id_report(
-        self, previous_results, compare_results, issues_names, expected, error_msg, warning_msg, info_msg
+        self, previous_results, compare_results, issues_names, expected, error_msg, warning_msg, info_msg, config
     ):
         issues_map = {"error-message": error_msg, "warning-message": warning_msg, "info-message": info_msg}
-        report = RulesBySeverityReport(compare_results)
+        config.linter.compare = compare_results
+        report = RulesBySeverityReport(config)
         for issue in issues_names:
             issue_def = issues_map[issue]
-            msg = Message(
+            msg = Diagnostic(
                 rule=issue_def,
-                msg=issue_def.get_message(),
                 source="some/path/file.robot",
                 node=None,
                 lineno=50,
@@ -51,12 +51,12 @@ class TestRulesByIdReport:
         assert report.get_report(previous_results) == expected
 
     @pytest.mark.parametrize("compare_runs", [True, False])
-    def test_persistent_save(self, compare_runs, error_msg, warning_msg, info_msg):
-        report = RulesBySeverityReport(compare_runs)
+    def test_persistent_save(self, compare_runs, error_msg, warning_msg, info_msg, config):
+        config.linter.compare = compare_runs
+        report = RulesBySeverityReport(config)
         for issue in (error_msg, warning_msg, info_msg, info_msg):
-            msg = Message(
+            msg = Diagnostic(
                 rule=issue,
-                msg=issue.get_message(),
                 source="test.robot",
                 node=None,
                 lineno=50,

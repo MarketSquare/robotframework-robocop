@@ -1,6 +1,6 @@
-test.robot:11:5 [W] 0305 Underscores in keyword name 'No_Operation' can be replaced with spaces
-test.robot:17:19 [W] 0305 Underscores in keyword name 'With_Underscore' can be replaced with spaces
-test.robot:33:12 [W] 0305 Underscores in keyword name 'Run_keywords' can be replaced with spaces
-test.robot:35:16 [W] 0305 Underscores in keyword name '_Underscore' can be replaced with spaces
-test.robot:36:16 [W] 0305 Underscores in keyword name 'Under_sc ore' can be replaced with spaces
-templated_suite.robot:2:18 [W] 0305 Underscores in keyword name 'With_Underscore' can be replaced with spaces
+test.robot:11:5 [W] NAME04 Underscores in keyword name 'No_Operation'
+test.robot:17:19 [W] NAME04 Underscores in keyword name 'With_Underscore'
+test.robot:33:12 [W] NAME04 Underscores in keyword name 'Run_keywords'
+test.robot:35:16 [W] NAME04 Underscores in keyword name '_Underscore'
+test.robot:36:16 [W] NAME04 Underscores in keyword name 'Under_sc ore'
+templated_suite.robot:2:18 [W] NAME04 Underscores in keyword name 'With_Underscore'

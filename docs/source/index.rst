@@ -3,20 +3,42 @@ Robocop documentation
 *********************
 
 .. toctree::
-   :maxdepth: 2
-   :caption: Contents:
+    :maxdepth: 2
+    :caption: Contents:
 
-.. include:: overview.rst
+.. include:: overview/overview.rst
 
 Table of contents
 =================
 
 .. toctree::
-   :maxdepth: 2
-   :caption: Rules
+    :caption: Overview
 
-   rule_basics
-   rules_list
+    Overview <self>
+    Linter <overview/linter>
+    Formatter <overview/formatter.rst>
+
+.. toctree::
+    :maxdepth: 2
+    :caption: Rules
+
+    rules/rules_basics
+    rules/rules_list
+    rules/external_rules
+
+.. toctree::
+    :maxdepth: 3
+    :caption: Formatters
+
+    formatters/formatters_list/index.rst
+    formatters/skip_formatting.rst
+
+.. toctree::
+    :maxdepth: 2
+    :caption: Other features
+
+    reports
+    disablers
 
 Index
 ==================

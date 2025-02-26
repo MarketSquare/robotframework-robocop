@@ -1,6 +1,14 @@
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 from robocop.linter.utils.misc import normalize_robot_name
+
+if TYPE_CHECKING:
+    from collections.abc import Generator
+
+    from robot.parsing import Token
+    from robot.parsing.model import Keyword
 
 
 class RunKeywordVariant:
@@ -29,17 +37,17 @@ class RunKeywords(dict):
             normalized_keywords[name_with_lib] = keyword_variant
         super().__init__(normalized_keywords)
 
-    def __setitem__(self, keyword_name, kw_variant):
+    def __setitem__(self, keyword_name: str, kw_variant: RunKeywordVariant):
         normalized_name = normalize_robot_name(keyword_name)
         name_with_lib = f"builtin.{normalized_name}"
         super().__setitem__(normalized_name, kw_variant)
         super().__setitem__(name_with_lib, kw_variant)
 
-    def __getitem__(self, keyword_name):
+    def __getitem__(self, keyword_name: str) -> RunKeywordVariant:
         normalized_name = normalize_robot_name(keyword_name)
         return super().__getitem__(normalized_name)
 
-    def __missing__(self, keyword_name):
+    def __missing__(self, keyword_name: str):
         return None
 
 
@@ -71,19 +79,21 @@ RUN_KEYWORDS = RunKeywords(
 )
 
 
-def skip_leading_tokens(tokens, break_token):
+def skip_leading_tokens(tokens: list[Token], break_token: str) -> list[Token]:
     for index, token in enumerate(tokens):
         if token.type == break_token:
             return tokens[index:]
+    return tokens
 
 
-def is_token_value_in_tokens(value, tokens):
+def is_token_value_in_tokens(value: str, tokens: list[Token]) -> bool:
     return any(value == token.value for token in tokens)
 
 
-def split_on_token_value(tokens, value, resolve: int):
+def split_on_token_value(tokens: list[Token], value: str, resolve: int) -> tuple[list[Token], list[Token], list[Token]]:
     """
     Split list of tokens into three lists based on token value.
+
     Returns tokens before found token, found token + `resolve` number of tokens, remaining tokens.
     """
     for index, token in enumerate(tokens):
@@ -95,12 +105,12 @@ def split_on_token_value(tokens, value, resolve: int):
     return [], [], tokens
 
 
-def iterate_keyword_names(keyword_node, name_token_type):
+def iterate_keyword_names(keyword_node: Keyword, name_token_type: str) -> Generator[Token, None, None]:
     tokens = skip_leading_tokens(keyword_node.data_tokens, name_token_type)
     yield from parse_run_keyword(tokens)
 
 
-def parse_run_keyword(tokens):
+def parse_run_keyword(tokens: list[Token]) -> Generator[Token, None, None]:
     if not tokens:
         return
     yield tokens[0]
@@ -124,7 +134,7 @@ def parse_run_keyword(tokens):
     yield from parse_run_keyword(tokens)
 
 
-def split_on_and(tokens):
+def split_on_and(tokens: list[Token]) -> Generator[Token, None, None]:
     if not is_token_value_in_tokens("AND", tokens):
         yield from (token for token in tokens)
         return

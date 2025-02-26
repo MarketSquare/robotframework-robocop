@@ -1,3 +1,3 @@
-test.robot:1:1 [E] 0325 Invalid section '*** Kommentit ***'. Consider using --language parameter if the file is defined with different language
-test.robot:9:1 [E] 0325 Invalid section '*** Testit ***'. Consider using --language parameter if the file is defined with different language
-test.robot:14:1 [E] 0325 Invalid section '*** Bad ***'. Consider using --language parameter if the file is defined with different language
+test.robot:1:1 [E] NAME16 Invalid section '*** Kommentit ***'
+test.robot:9:1 [E] NAME16 Invalid section '*** Testit ***'
+test.robot:14:1 [E] NAME16 Invalid section '*** Bad ***'

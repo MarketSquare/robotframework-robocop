@@ -1,1 +1,1 @@
-test.robot:5:1 [W] 0804 Multiple resource imports with path 'resource.robot' (first occurrence in line 3)
+test.robot:5:1 [W] DUP04 Multiple resource imports with path 'resource.robot' (first occurrence in line 3)

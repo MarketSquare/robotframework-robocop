@@ -1,3 +1,3 @@
-test.robot:17:1 [W] 0508 Line is too long (139/120)
-test.robot:27:1 [W] 0508 Line is too long (159/120)
-test.robot:30:1 [W] 0508 Line is too long (139/120)
+test.robot:17:1 [W] LEN08 Line is too long (139/120)
+test.robot:27:1 [W] LEN08 Line is too long (159/120)
+test.robot:30:1 [W] LEN08 Line is too long (139/120)

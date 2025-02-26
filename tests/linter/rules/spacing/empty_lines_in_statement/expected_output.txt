@@ -1,4 +1,4 @@
-test.robot:4:1 [W] 1013 Multi-line statement with empty lines
-test.robot:11:1 [W] 1013 Multi-line statement with empty lines
-test.robot:20:1 [W] 1013 Multi-line statement with empty lines
-test.robot:29:1 [W] 1013 Multi-line statement with empty lines
+test.robot:4:1 [W] SPC13 Multi-line statement with empty lines
+test.robot:11:1 [W] SPC13 Multi-line statement with empty lines
+test.robot:20:1 [W] SPC13 Multi-line statement with empty lines
+test.robot:29:1 [W] SPC13 Multi-line statement with empty lines

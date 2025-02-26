@@ -37,7 +37,7 @@ class TestNormalizeSeparators(FormatterAcceptanceTest):
             )
 
     def test_rf5_syntax(self):
-        self.compare(source="rf5_syntax.robot", target_version=">=5")
+        self.compare(source="rf5_syntax.robot", test_on_version=">=5")
 
     @pytest.mark.parametrize(
         "disablers", ["disablers.robot", "disablers2.robot", "disablers3.robot", "disablers4.robot"]
@@ -66,7 +66,7 @@ class TestNormalizeSeparators(FormatterAcceptanceTest):
             expected=f"inline_if_{indent}indent_{spaces}spaces.robot",
             space_count=spaces,
             indent=indent,
-            target_version=">=5",
+            test_on_version=">=5",
         )
 
     def test_inline_if_flatten(self):
@@ -76,7 +76,7 @@ class TestNormalizeSeparators(FormatterAcceptanceTest):
             space_count=4,
             indent=4,
             configure=[f"{self.FORMATTER_NAME}.flatten_lines=True"],
-            target_version=">=5",
+            test_on_version=">=5",
         )
 
     def test_skip_keyword_call(self):
@@ -92,17 +92,17 @@ class TestNormalizeSeparators(FormatterAcceptanceTest):
     def test_skip_comments(self):
         configure = [f"{self.FORMATTER_NAME}.skip_comments=True"]
         expected = "comments_skip_comments.robot"
-        self.compare(source="comments.robot", expected=expected, configure=configure, target_version=">=5")
+        self.compare(source="comments.robot", expected=expected, configure=configure, test_on_version=">=5")
 
     def test_skip_block_comments(self):
         configure = [f"{self.FORMATTER_NAME}.skip_block_comments=True"]
         expected = "comments_skip_block_comments.robot"
-        self.compare(source="comments.robot", expected=expected, configure=configure, target_version=">=5")
+        self.compare(source="comments.robot", expected=expected, configure=configure, test_on_version=">=5")
 
     def test_skip_all_comments(self):
         configure = [f"{self.FORMATTER_NAME}.skip_comments=True", f"{self.FORMATTER_NAME}.skip_block_comments=True"]
         expected = "comments_skip_comments.robot"
-        self.compare(source="comments.robot", expected=expected, configure=configure, target_version=">=5")
+        self.compare(source="comments.robot", expected=expected, configure=configure, test_on_version=">=5")
 
     def test_flatten_lines(self):
         if ROBOT_VERSION.major > 4:

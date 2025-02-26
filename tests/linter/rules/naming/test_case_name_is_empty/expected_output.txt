@@ -1,1 +1,1 @@
-test.robot:4:1 [E] 0313 Test case name should not be empty
+test.robot:4:1 [E] NAME11 Test case name is empty

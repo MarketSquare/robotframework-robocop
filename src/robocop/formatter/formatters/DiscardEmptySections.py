@@ -1,12 +1,14 @@
 from robot.api.parsing import Comment, CommentSection, EmptyLine
+
 from robocop.formatter.disablers import skip_section_if_disabled
-from robocop.formatter.skip import Skip
 from robocop.formatter.formatters import Formatter
+from robocop.formatter.skip import Skip
 
 
 class DiscardEmptySections(Formatter):
     """
     Remove empty sections.
+
     Sections are considered empty if there are only empty lines inside.
     You can remove sections with only comments by setting ``allow_only_comments`` parameter to False:
 
@@ -24,7 +26,7 @@ class DiscardEmptySections(Formatter):
         self.allow_only_comments = allow_only_comments
 
     @skip_section_if_disabled
-    def visit_Section(self, node):  # noqa
+    def visit_Section(self, node):  # noqa: N802
         anything_but = (
             EmptyLine if self.allow_only_comments or isinstance(node, CommentSection) else (Comment, EmptyLine)
         )

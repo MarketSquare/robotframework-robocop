@@ -1,3 +1,3 @@
-test.robot:2:1 [W] 0512 Documentation of Test Suite is empty
-test.robot:7:5 [W] 0512 Documentation of 'Test' Test Case is empty
-test.robot:16:5 [W] 0512 Documentation of 'Keyword' Keyword is empty
+test.robot:2:1 [W] LEN12 Documentation of Test Suite is empty
+test.robot:7:5 [W] LEN12 Documentation of 'Test' Test Case is empty
+test.robot:16:5 [W] LEN12 Documentation of 'Keyword' Keyword is empty

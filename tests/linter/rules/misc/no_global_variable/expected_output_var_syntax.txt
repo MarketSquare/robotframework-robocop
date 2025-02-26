@@ -1,6 +1,0 @@
-test_var_syntax.robot:9:44 [W] 0929 Don't set global variables outside the variables section
-test_var_syntax.robot:10:44 [W] 0929 Don't set global variables outside the variables section
-test_var_syntax.robot:14:12 [W] 0929 Don't set global variables outside the variables section
-test_var_syntax.robot:16:31 [W] 0929 Don't set global variables outside the variables section
-test_var_syntax.robot:18:27 [W] 0929 Don't set global variables outside the variables section
-test_var_syntax.robot:24:44 [W] 0929 Don't set global variables outside the variables section

@@ -1,4 +1,5 @@
 from robot.api.parsing import Comment, EmptyLine, Token
+
 from robocop.formatter.disablers import skip_if_disabled, skip_section_if_disabled
 from robocop.formatter.exceptions import InvalidParameterValueError, RobotidyConfigError
 from robocop.formatter.formatters import Formatter
@@ -71,7 +72,7 @@ class OrderSettings(Formatter):
 
     Not all settings names need to be passed to given parameter. Missing setting names are not ordered. Example::
 
-        robocop format --configure OrderSettings:keyword_before=:keyword_after=
+        robocop format -c OrderSettings.keyword_before= -c OrderSettings.keyword_after=
 
     It will order only test cases because all setting names for keywords are missing.
     """
@@ -117,10 +118,10 @@ class OrderSettings(Formatter):
         try:
             return [name_map[part] for part in parts]
         except KeyError:
-            raise InvalidSettingsOrderError(self.__class__.__name__, param_name, order, name_map)
+            raise InvalidSettingsOrderError(self.__class__.__name__, param_name, order, name_map) from None
 
     def assert_no_duplicates_in_orders(self):
-        """Checks if settings are not duplicated in after/before section and in the same section itself."""
+        """Check if settings are not duplicated in after/before section and in the same section itself."""
         orders = {
             "keyword_before": set(self.keyword_before),
             "keyword_after": set(self.keyword_after),
@@ -140,21 +141,21 @@ class OrderSettings(Formatter):
             raise SettingInBothOrdersError(self.__class__.__name__, "test_before", "test_after", shared_test)
 
     @skip_section_if_disabled
-    def visit_Section(self, node):  # noqa
+    def visit_Section(self, node):  # noqa: N802
         return self.generic_visit(node)
 
     @skip_if_disabled
-    def visit_Keyword(self, node):  # noqa
+    def visit_Keyword(self, node):  # noqa: N802
         return self.order_settings(node, self.all_keyword_settings, self.keyword_before, self.keyword_after)
 
     @skip_if_disabled
-    def visit_TestCase(self, node):  # noqa
+    def visit_TestCase(self, node):  # noqa: N802
         return self.order_settings(node, self.all_test_settings, self.test_before, self.test_after)
 
     def order_settings(self, node, setting_types, before, after):
         if not node.body:
             return node
-        settings = dict()
+        settings = {}
         not_settings, trailing_after = [], []
         after_seen = False
         # when after_seen is set to True then all statements go to trailing_after and last non data

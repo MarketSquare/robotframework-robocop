@@ -22,12 +22,9 @@ def display_file_diff(expected, actual):
     with open(expected, encoding="utf-8") as f, open(actual, encoding="utf-8") as f2:
         expected_lines = f.readlines()
         actual_lines = f2.readlines()
-    lines = [
-        line
-        for line in unified_diff(
-            expected_lines, actual_lines, fromfile=f"expected: {expected}\t", tofile=f"actual: {actual}\t"
-        )
-    ]
+    lines = list(
+        unified_diff(expected_lines, actual_lines, fromfile=f"expected: {expected}\t", tofile=f"actual: {actual}\t")
+    )
     colorized_output = decorate_diff_with_color(lines)
     console = Console(color_system="windows", width=400)
     for line in colorized_output:
@@ -44,15 +41,16 @@ class FormatterAcceptanceTest:
         not_modified: bool = False,
         expected: str | None = None,
         configure: list[str] = "",
-        target_version: str | None = None,
+        test_on_version: str | None = None,
         run_all: bool = False,
-        select: list[str] = None,
+        select: list[str] | None = None,
         **kwargs,
     ):
         """
-        Compare actual (source) and expected files. If expected filename is not provided it's assumed to be the same
-        as source.
+        Compare actual (source) and expected files.
 
+        If expected filename is not provided it's assumed to be the same
+        as source.
         Use not_modified flag if the content of the file shouldn't be modified by transformer.
         """
         if expected is None:
@@ -66,7 +64,7 @@ class FormatterAcceptanceTest:
             configure=configure,
             source=source,
             not_modified=not_modified,
-            target_version=target_version,
+            test_on_version=test_on_version,
             **kwargs,
         )
         if not not_modified:
@@ -74,16 +72,16 @@ class FormatterAcceptanceTest:
 
     def run_tidy(
         self,
-        select: list[str] = None,
-        configure: list[str] = None,
-        source: str = None,
-        exit_code: int = 0,
+        select: list[str] | None = None,
+        configure: list[str] | None = None,
+        source: str | None = None,
+        # exit_code: int = 0, TODO
         not_modified: bool = False,
-        target_version: str | None = None,
+        test_on_version: str | None = None,
         **kwargs,
     ):
-        if not self.enabled_in_version(target_version):
-            pytest.skip(f"Test enabled only for RF {target_version}")
+        if not self.enabled_in_version(test_on_version):
+            pytest.skip(f"Test enabled only for RF {test_on_version}")
         output_path = self.FORMATTERS_DIR / "actual" / source
         if source is None:
             source_path = self.FORMATTERS_DIR / self.FORMATTER_NAME / "source"
@@ -105,7 +103,7 @@ class FormatterAcceptanceTest:
         #     )
         # return result
 
-    def compare_file(self, actual_name: str, expected_name: str = None):
+    def compare_file(self, actual_name: str, expected_name: str | None = None):
         if expected_name is None:
             expected_name = actual_name
         expected = self.FORMATTERS_DIR / self.FORMATTER_NAME / "expected" / expected_name

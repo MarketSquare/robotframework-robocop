@@ -1,24 +1,24 @@
-test.robot:3:14 [W] 0302 Keyword name 'keyword' does not follow case convention
-test.robot:4:17 [W] 0302 Keyword name 'keyword' does not follow case convention
-test.robot:5:13 [W] 0302 Keyword name 'keyword' does not follow case convention
-test.robot:6:16 [W] 0302 Keyword name 'keyword' does not follow case convention
-test.robot:14:14 [W] 0302 Keyword name 'keyword' does not follow case convention
-test.robot:15:5 [W] 0302 Keyword name 'pass' does not follow case convention
-test.robot:18:17 [W] 0302 Keyword name 'keyword' does not follow case convention
-test.robot:36:19 [W] 0302 Keyword name 'lowercase' does not follow case convention
-test.robot:41:1 [W] 0302 Keyword name 'keyword' does not follow case convention
-test.robot:66:5 [W] 0302 Keyword name 'Keyword_With_underscores' does not follow case convention
-test.robot:112:1 [W] 0302 Keyword name 'Dot in name foo.bar' does not follow case convention
-templated_suite.robot:2:18 [W] 0302 Keyword name 'lowercase' does not follow case convention
-run_keywords.robot:2:32 [W] 0302 Keyword name 'some keyword' does not follow case convention
-run_keywords.robot:8:12 [W] 0302 Keyword name 'Run Keyword if' does not follow case convention
-run_keywords.robot:9:14 [W] 0302 Keyword name 'Run keywords' does not follow case convention
-run_keywords.robot:10:16 [W] 0302 Keyword name 'log' does not follow case convention
-run_keywords.robot:13:14 [W] 0302 Keyword name 'log' does not follow case convention
-run_keywords.robot:17:35 [W] 0302 Keyword name 'keyword' does not follow case convention
-run_keywords.robot:21:47 [W] 0302 Keyword name 'run Keywords' does not follow case convention
-run_keywords.robot:21:63 [W] 0302 Keyword name 'keyword' does not follow case convention
-run_keywords.robot:25:12 [W] 0302 Keyword name 'log' does not follow case convention
-run_keywords.robot:31:17 [W] 0302 Keyword name 'keyword' does not follow case convention
-run_keywords.robot:33:16 [W] 0302 Keyword name 'other_keyword' does not follow case convention
-run_keywords.robot:36:35 [W] 0302 Keyword name 'keyword' does not follow case convention
+test.robot:3:14 [W] NAME02 Keyword name 'keyword' does not follow case convention
+test.robot:4:17 [W] NAME02 Keyword name 'keyword' does not follow case convention
+test.robot:5:13 [W] NAME02 Keyword name 'keyword' does not follow case convention
+test.robot:6:16 [W] NAME02 Keyword name 'keyword' does not follow case convention
+test.robot:14:14 [W] NAME02 Keyword name 'keyword' does not follow case convention
+test.robot:15:5 [W] NAME02 Keyword name 'pass' does not follow case convention
+test.robot:18:17 [W] NAME02 Keyword name 'keyword' does not follow case convention
+test.robot:36:19 [W] NAME02 Keyword name 'lowercase' does not follow case convention
+test.robot:41:1 [W] NAME02 Keyword name 'keyword' does not follow case convention
+test.robot:66:5 [W] NAME02 Keyword name 'Keyword_With_underscores' does not follow case convention
+test.robot:112:1 [W] NAME02 Keyword name 'Dot in name foo.bar' does not follow case convention
+templated_suite.robot:2:18 [W] NAME02 Keyword name 'lowercase' does not follow case convention
+run_keywords.robot:2:32 [W] NAME02 Keyword name 'some keyword' does not follow case convention
+run_keywords.robot:8:12 [W] NAME02 Keyword name 'Run Keyword if' does not follow case convention
+run_keywords.robot:9:14 [W] NAME02 Keyword name 'Run keywords' does not follow case convention
+run_keywords.robot:10:16 [W] NAME02 Keyword name 'log' does not follow case convention
+run_keywords.robot:13:14 [W] NAME02 Keyword name 'log' does not follow case convention
+run_keywords.robot:17:35 [W] NAME02 Keyword name 'keyword' does not follow case convention
+run_keywords.robot:21:47 [W] NAME02 Keyword name 'run Keywords' does not follow case convention
+run_keywords.robot:21:63 [W] NAME02 Keyword name 'keyword' does not follow case convention
+run_keywords.robot:25:12 [W] NAME02 Keyword name 'log' does not follow case convention
+run_keywords.robot:31:17 [W] NAME02 Keyword name 'keyword' does not follow case convention
+run_keywords.robot:33:16 [W] NAME02 Keyword name 'other_keyword' does not follow case convention
+run_keywords.robot:36:35 [W] NAME02 Keyword name 'keyword' does not follow case convention

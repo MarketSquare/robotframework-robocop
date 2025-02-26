@@ -1,4 +1,3 @@
-
 from tests.formatter import FormatterAcceptanceTest
 
 
@@ -12,10 +11,10 @@ class TestRenameVariables(FormatterAcceptanceTest):
         self.compare(source="test_template.robot")
 
     def test_try_except(self):
-        self.compare(source="try_except.robot", target_version=">=5.0")
+        self.compare(source="try_except.robot", test_on_version=">=5.0")
 
     def test_inline_if(self):
-        self.compare(source="inline_if.robot", target_version=">=5.0")
+        self.compare(source="inline_if.robot", test_on_version=">=5.0")
 
     def test_disablers(self):
         self.compare(source="disablers.robot")
@@ -30,7 +29,7 @@ class TestRenameVariables(FormatterAcceptanceTest):
             source="test.robot",
             expected="test_lower.robot",
             configure=configure,
-            target_version="<6.1",
+            test_on_version="<6.1",
         )
 
     def test_lower_case_rf61(self):
@@ -43,7 +42,7 @@ class TestRenameVariables(FormatterAcceptanceTest):
             source="test.robot",
             expected="test_lower_with_nested.robot",
             configure=configure,
-            target_version=">=6.1",
+            test_on_version=">=6.1",
         )
 
     def test_ignore_unknown_case(self):
@@ -135,7 +134,7 @@ class TestRenameVariables(FormatterAcceptanceTest):
         self.compare(source="math_operations.robot")
 
     def test_var_syntax(self):
-        self.compare(source="VAR_syntax.robot", target_version=">6.1.1")
+        self.compare(source="VAR_syntax.robot", test_on_version=">6.1.1")
 
     def test_equal_sign_in_section(self):
         self.compare(source="equal_sign_in_section.robot")

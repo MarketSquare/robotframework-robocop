@@ -35,3 +35,10 @@ Keywords With Conditions
     Skip If    ${true}
     Skip If    ${variable} != ${truE}
     Should Be True    ${flag} == False
+
+Empty Set Variable If
+    ${var}    Set Variable If
+
+Empty IF
+    IF
+    END

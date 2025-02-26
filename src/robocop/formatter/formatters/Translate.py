@@ -45,7 +45,7 @@ class Translate(Formatter):
     source files:
 
     ```
-    robocop format --configure Translate:enabled=True:language=uk --language pl,de source_in_pl_and_de.robot
+    robocop format -c Translate.enabled=True -c Translate.language=uk --language pl,de source_in_pl_and_de.robot
     ```
 
     BDD keywords are not translated by default. Set ``translate_bdd`` parameter to ``True`` to enable it.
@@ -102,7 +102,8 @@ class Translate(Formatter):
                     self.__class__.__name__,
                     param_name,
                     alternative,
-                    f"Provided BDD keyword alternative does not exist in the destination language. Select one of: {names}",
+                    f"Provided BDD keyword alternative does not exist in the destination language. "
+                    f"Select one of: {names}",
                 )
             return alternative.title()
         return sorted(kw.title() for kw in container)[0]
@@ -127,7 +128,8 @@ class Translate(Formatter):
 
     def add_replace_language_header(self, node):
         """
-        Adds or replaces language headers in transformed files.
+        Add or replaces language headers in transformed files.
+
         If the file already contains language header it will be replaced.
         If the destination language is English, it will be removed.
         """
@@ -151,16 +153,18 @@ class Translate(Formatter):
             node.sections.insert(0, section)
         return node
 
-    def visit_File(self, node):  # noqa
+    def visit_File(self, node):  # noqa: N802
         self.in_settings = False
         self.add_replace_language_header(node)
         return self.generic_visit(node)
 
     @skip_if_disabled
-    def visit_KeywordCall(self, node):  # noqa
+    def visit_KeywordCall(self, node):  # noqa: N802
         """
-        Translate BDD keyword in Keyword Call. BDD is translated only if keyword call name starts with BDD,
-        it is recognized as BDD and there is one space of separation before rest of the keyword name.
+        Translate BDD keyword in Keyword Call.
+
+        BDD is translated only if keyword call name starts with BDD, it is recognized as BDD and there is one space of
+        separation before rest of the keyword name.
         Example of keyword name with BDD keyword:
             Given I Open Main Page
         Source keyword call can be written in any language - that's why we need to translate first word of the keyword
@@ -187,28 +191,28 @@ class Translate(Formatter):
         name_token.value = f"*** {translated_value} ***"
         return self.generic_visit(node)
 
-    def visit_SettingSection(self, node):  # noqa
+    def visit_SettingSection(self, node):  # noqa: N802
         self.in_settings = True
         node = self.translate_section_header(node, "settings_header")
         self.in_settings = False
         return node
 
-    def visit_TestCaseSection(self, node):  # noqa
+    def visit_TestCaseSection(self, node):  # noqa: N802
         return self.translate_section_header(node, "test_cases_header")
 
-    def visit_KeywordSection(self, node):  # noqa
+    def visit_KeywordSection(self, node):  # noqa: N802
         return self.translate_section_header(node, "keywords_header")
 
-    def visit_VariableSection(self, node):  # noqa
+    def visit_VariableSection(self, node):  # noqa: N802
         return self.translate_section_header(node, "variables_header")
 
-    def visit_CommentSection(self, node):  # noqa
+    def visit_CommentSection(self, node):  # noqa: N802
         if node.header is None:
             return node
         return self.translate_section_header(node, "comments_header")
 
     @skip_if_disabled
-    def visit_ForceTags(self, node):  # noqa
+    def visit_ForceTags(self, node):  # noqa: N802
         node_type = node.data_tokens[0].value.title()
         # special handling because it's renamed in 6.0
         if node_type == "Force Tags":
@@ -222,10 +226,10 @@ class Translate(Formatter):
         node.data_tokens[0].value = translated_value.title()
         return node
 
-    visit_TestTags = visit_TaskTags = visit_ForceTags
+    visit_TestTags = visit_TaskTags = visit_ForceTags  # noqa: N815
 
     @skip_if_disabled
-    def visit_Setup(self, node):  # noqa
+    def visit_Setup(self, node):  # noqa: N802
         node_type = node.type.title()
         translated_value = self.settings.get(node_type, None)
         if translated_value is None:
@@ -235,8 +239,8 @@ class Translate(Formatter):
         node.data_tokens[0].value = translated_value
         return self.generic_visit(node)
 
-    visit_Teardown = visit_Template = visit_Timeout = visit_Arguments = visit_Tags = visit_Documentation = (
-        visit_Metadata
-    ) = visit_SuiteSetup = visit_SuiteTeardown = visit_TestSetup = visit_TestTeardown = visit_TestTemplate = (
-        visit_TestTimeout
-    ) = visit_KeywordTags = visit_LibraryImport = visit_VariablesImport = visit_ResourceImport = visit_Setup
+    visit_Teardown = visit_Template = visit_Timeout = visit_Arguments = visit_Tags = visit_Documentation = (  # noqa: N815
+        visit_Metadata  # noqa: N815
+    ) = visit_SuiteSetup = visit_SuiteTeardown = visit_TestSetup = visit_TestTeardown = visit_TestTemplate = (  # noqa: N815
+        visit_TestTimeout  # noqa: N815
+    ) = visit_KeywordTags = visit_LibraryImport = visit_VariablesImport = visit_ResourceImport = visit_Setup  # noqa: N815

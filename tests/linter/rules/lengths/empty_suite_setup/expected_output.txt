@@ -1,1 +1,1 @@
-test.robot:3:1 [E] 0519 Suite Setup does not have any keywords
+test.robot:3:1 [E] LEN19 Suite Setup does not have any keywords

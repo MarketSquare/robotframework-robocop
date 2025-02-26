@@ -4,9 +4,10 @@ import sys
 from collections import defaultdict
 from pathlib import Path
 
-sys.path.append(str(Path(__file__).parent.parent))
+sys.path.append(str(Path(__file__).parent.parent.parent))
 import robocop
 from robocop.linter.rules import SeverityThreshold
+from docs.source.rules_metadata import GROUPS_LOOKUP
 
 # -- Project information -----------------------------------------------------
 
@@ -31,7 +32,7 @@ exclude_patterns = ["**/releasenotes/*"]
 suppress_warnings = ["config.cache"]
 
 html_theme = "furo"
-html_title = f"Robocop {release} documentation"
+html_title = f"Robocop {release}"
 html_logo = "images/robocop_logo_small.png"
 html_theme_options = {
     "footer_icons": [
@@ -46,9 +47,6 @@ html_theme_options = {
             "class": "",
         },
     ],
-#     "light_css_variables": {
-#     "color-code-background": "#f8f8f8",
-# }
 }
 html_static_path = ["images", "_static"]
 html_favicon = "images/robocop.ico"
@@ -60,6 +58,8 @@ def rstjinja(app, docname, source):
     if app.builder.format != "html":
         return
     src = source[0]
+    if "GenerateDocumentation" in src:  # jinja templates inside code examples
+        return
     rendered = app.builder.templates.render_string(src, app.config.html_context)
     source[0] = rendered
 
@@ -69,15 +69,21 @@ def setup(app):
     app.add_css_file("css/custom.css")
 
 
-def get_checker_docs():
+def get_checker_docs() -> tuple[list[tuple], int]:
     """Load rules for dynamic docs generation"""
-    checker_docs = defaultdict(list)
     rules = robocop.linter.rules.get_builtin_rules()
-    for module_name, rule in rules:
-        title_name = module_name.title()
+    rules_count = 0
+    for _, rule in rules:
+        rules_count += 1
         severity_threshold = rule.config.get("severity_threshold", None)
         robocop_version = rule.added_in_version if rule.added_in_version else "\\-"
-        checker_docs[title_name].append(
+        match = re.match("(?P<group>.+)(?P<rule_no>[0-9]{2,})", rule.rule_id)
+        group_id = match.group("group")
+        try:
+            group = GROUPS_LOOKUP[group_id]
+        except KeyError:
+            raise ValueError(f"Missing group metadata in rules_metadata.py for {group_id}.")
+        group.rules.append(
             {
                 "name": rule.name,
                 "id": rule.rule_id,
@@ -86,7 +92,7 @@ def get_checker_docs():
                 "version": rule.supported_version,
                 "robocop_version": robocop_version,
                 "msg": rule.message,
-                "docs":rule.docs,
+                "docs": rule.docs,
                 "deprecated": rule.deprecated,
                 "params": [
                     {
@@ -101,16 +107,16 @@ def get_checker_docs():
                 "severity_threshold": severity_threshold,
             }
         )
-    groups_sorted_by_id = []
-    for module_name in checker_docs:
-        sorted_rules = sorted(checker_docs[module_name], key=lambda x: x["id"])
-        match = re.match("(?P<group>.+)(?P<rule_no>[0-9]{2,})", sorted_rules[0]["id"])
-        group_id = match.group("group")
-        groups_sorted_by_id.append((module_name, sorted_rules, group_id))
-    return sorted(groups_sorted_by_id, key=lambda x: x[2])
+    sorted_groups = []
+    for group in GROUPS_LOOKUP.values():
+        group.rules = sorted(group.rules, key=lambda x: x["id"])
+        sorted_groups.append(group)
+    return sorted_groups, rules_count
 
 
-html_context = {"builtin_checkers": get_checker_docs()}
+rule_metadata, rules_count = get_checker_docs()
+rules_length_in_10 = (rules_count // 10) * 10
+html_context = {"builtin_checkers": rule_metadata, "rules_length_in_10": rules_length_in_10}
 
 
 if __name__ == "__main__":

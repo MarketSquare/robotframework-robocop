@@ -1,1 +1,1 @@
-test.robot:20:1 [E] 1009 Too many empty lines after '*** Keywords ***' section header (2/2)
+test.robot:20:1 [E] SPC09 Too many empty lines after '*** Keywords ***' section header (2/2)

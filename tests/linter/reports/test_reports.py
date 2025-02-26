@@ -16,32 +16,37 @@ from robocop.linter.reports import (
 @pytest.mark.parametrize(
     ("configured", "expected"),
     [
-        (["timestamp", "sarif"], ["timestamp", "sarif"]),
-        (["timestamp"], ["timestamp"]),
-        (["version", "timestamp", "version"], ["version", "timestamp"]),
+        (["timestamp", "sarif"], ["print_issues", "timestamp", "sarif"]),
+        (["timestamp"], ["print_issues", "timestamp"]),
+        (["version", "timestamp", "version"], ["print_issues", "version", "timestamp"]),
     ],
 )
-def test_get_reports(configured, expected):
-    reports = get_reports(configured)
+def test_get_reports(configured, expected, config):
+    config.linter.reports = configured
+    reports = get_reports(config)
     assert list(reports.keys()) == expected
 
 
-def test_get_reports_all():
-    reports = get_reports(["all"])
+def test_get_reports_all(config):
+    config.linter.reports = ["all"]
+    reports = get_reports(config)
     assert "timestamp" in reports
     assert "sarif" not in reports
-    reports = get_reports(["all", "sarif"])
+    config.linter.reports = ["all", "sarif"]
+    reports = get_reports(config)
     assert "timestamp" in reports
     assert "sarif" in reports
     # Check order with all
-    reports = get_reports(["version", "all", "sarif"])
+    config.linter.reports = ["version", "all", "sarif"]
+    reports = get_reports(config)
     reports_list = list(reports.keys())
     assert reports_list.index("version") < reports_list.index("timestamp") < reports_list.index("sarif")
 
 
-def test_get_unknown_report():
+def test_get_unknown_report(config):
+    config.linter.reports = ["all", "unknown"]
     with pytest.raises(robocop.linter.exceptions.InvalidReportName, match="Provided report 'unknown' does not exist."):
-        get_reports(["all", "unknown"])
+        get_reports(config)
 
 
 def clear_cache():

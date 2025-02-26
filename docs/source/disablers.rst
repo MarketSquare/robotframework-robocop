@@ -4,15 +4,15 @@
 Disablers
 *********
 
-Rules can be disabled directly from Robot Framework code.
-A special comment needs to be placed in order to disable specific rules of Robocop.
-The comments is always prefixed with ``robocop`` marker followed by ``off`` or ``on`` word keywords::
+Rules and formatters can be disabled directly from Robot Framework code.
+
+Use following comment for disabling::
 
     # robocop: off
 
-The keyword may optionally have specified rules, separated by comma::
+The keyword may optionally have specified rules or formatters, separated by comma::
 
-    # robocop: off=rule1,rule2
+    # robocop: off=rule1,rule2,FormatterName
 
 The disablers are also context-aware, meaning that they turn off the Robocop rules for the related code block,
 e.g. keyword, test case, or even for loops and if statements.
@@ -26,11 +26,12 @@ Disabling lines
 
 It is possible to disable rule for particular line or lines::
 
-    Some Keyword  # robocop: off=rule1,rule2
+    Some Keyword  # robocop: off=rule1,FormatterName
 
-In this example no message will be printed for this line for rules named ``rule1``, ``rule2``.
+In this example no message will be printed for this line for rule named ``rule1`` and no formatting changes
+will be applied by FormatterName formatter.
 
-You can disable all rules with::
+You can disable all rules and formatters with::
 
     Some Keyword  # robocop: off
 
@@ -41,18 +42,13 @@ Ignore whole blocks of code by defining a disabler in the new line::
 
     # robocop: off=rule1
 
-All matched rules will be disabled until ``on`` command::
+Enable it again with ``on`` command::
 
     # robocop: on=rule1
 
 or::
 
     # robocop: on
-
-.. note::
-
-    Previously, Robocop used ``enable`` and ``disable`` as disabler keywords. It is still supported, however ``on`` and
-    ``off`` are recommended instead.
 
 Disabling code blocks
 ---------------------

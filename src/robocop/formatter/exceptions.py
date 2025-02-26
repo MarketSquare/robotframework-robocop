@@ -3,7 +3,8 @@ from __future__ import annotations
 import sys
 
 from click import NoSuchOption
-from robotidy.utils import misc
+
+from robocop.formatter.utils import misc
 
 
 class RobotidyConfigError(Exception):
@@ -13,26 +14,26 @@ class RobotidyConfigError(Exception):
 
 
 class InvalidParameterValueError(RobotidyConfigError):
-    def __init__(self, transformer, param, value, msg):
-        exc_msg = f"{transformer}: Invalid '{param}' parameter value: '{value}'. {msg}"
+    def __init__(self, formatter, param, value, msg):
+        exc_msg = f"{formatter}: Invalid '{param}' parameter value: '{value}'. {msg}"
         super().__init__(exc_msg)
 
 
 class InvalidParameterError(RobotidyConfigError):
-    def __init__(self, transformer, similar):
+    def __init__(self, formatter, similar):
         super().__init__(
-            f"{transformer}: Failed to import. Verify if correct name or configuration was provided.{similar}"
+            f"{formatter}: Failed to import. Verify if correct name or configuration was provided.{similar}"
         )
 
 
 class InvalidParameterFormatError(RobotidyConfigError):
-    def __init__(self, transformer):
+    def __init__(self, formatter):
         super().__init__(
-            f"{transformer}: Invalid parameter format. Pass parameters using MyTransformer:param_name=value syntax."
+            f"{formatter}: Invalid parameter format. Pass parameters using MyFormatter.param_name=value syntax."
         )
 
 
-class ImportTransformerError(RobotidyConfigError):
+class ImportFormatterError(RobotidyConfigError):
     pass
 
 

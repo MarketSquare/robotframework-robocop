@@ -1,11 +1,17 @@
+from __future__ import annotations
+
 from collections import defaultdict
+from typing import TYPE_CHECKING
 
 from robot.api.parsing import Documentation, Token
 from robot.parsing.model import Statement
+
 from robocop.formatter.disablers import skip_section_if_disabled
-from robocop.formatter.skip import Skip
 from robocop.formatter.formatters import Formatter
 from robocop.formatter.utils import misc
+
+if TYPE_CHECKING:
+    from robocop.formatter.skip import Skip
 
 
 class AlignSettingsSection(Formatter):
@@ -39,7 +45,7 @@ class AlignSettingsSection(Formatter):
     To align first three columns:
 
     ```
-    robocop format --transform AlignSettingsSection:up_to_column=3
+    robocop format --transform AlignSettingsSection.up_to_column=3
     ```
 
     To align all columns set ``up_to_column`` to 0.
@@ -75,9 +81,9 @@ class AlignSettingsSection(Formatter):
         self,
         up_to_column: int = 2,
         argument_indent: int = 4,
-        min_width: int = None,
-        fixed_width: int = None,
-        skip: Skip = None,
+        min_width: int | None = None,
+        fixed_width: int | None = None,
+        skip: Skip | None = None,
     ):
         super().__init__(skip=skip)
         self.up_to_column = up_to_column - 1
@@ -86,7 +92,7 @@ class AlignSettingsSection(Formatter):
         self.fixed_width = fixed_width
 
     @skip_section_if_disabled
-    def visit_SettingSection(self, node):  # noqa
+    def visit_SettingSection(self, node):  # noqa: N802
         statements = []
         for child in node.body:
             if self.disablers.is_node_disabled("AlignSettingsSection", child) or self.is_node_skip(child):
@@ -102,10 +108,8 @@ class AlignSettingsSection(Formatter):
         node.body = self.align_rows(statements, look_up)
         return node
 
-    def is_node_skip(self, node):
-        if isinstance(node, Documentation) and self.skip.documentation:
-            return True
-        return False
+    def is_node_skip(self, node) -> bool:
+        return isinstance(node, Documentation) and self.skip.documentation
 
     def should_indent_arguments(self, statement):
         statement_type = statement[0][0].type

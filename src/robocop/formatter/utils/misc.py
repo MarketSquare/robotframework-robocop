@@ -4,8 +4,6 @@ import ast
 import difflib
 import os
 import re
-from collections.abc import Iterable
-from enum import Enum
 from functools import total_ordering
 from re import Pattern
 
@@ -16,10 +14,15 @@ try:
 except ImportError:  # Fails on vendored-in LSP plugin
     escape = None
 
+from typing import TYPE_CHECKING
+
 from robot.api.parsing import Comment, End, If, IfHeader, ModelVisitor, Token
 from robot.parsing.model import Statement
 from robot.utils.robotio import file_writer
 from robot.version import VERSION as RF_VERSION
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable
 
 
 @total_ordering
@@ -30,7 +33,7 @@ class Version:
         self.fix = fix
 
     @classmethod
-    def parse(cls, raw_version):
+    def parse(cls, raw_version) -> Version:
         version = re.search(r"(?P<major>[0-9]+)\.(?P<minor>[0-9]+)\.?(?P<fix>[0-9]+)*", raw_version)
         major = int(version.group("major"))
         minor = int(version.group("minor")) if version.group("minor") is not None else 0
@@ -58,23 +61,14 @@ def rf_supports_lang():
     return ROBOT_VERSION.major >= 6
 
 
-class TargetVersion(Enum):
-    RF4 = 4
-    RF5 = 5
-    RF6 = 6
-    RF7 = 7
-
-
 class StatementLinesCollector(ModelVisitor):
-    """
-    Used to get writeable presentation of Robot Framework model.
-    """
+    """Used to get writeable presentation of Robot Framework model."""
 
     def __init__(self, model):
         self.text = ""
         self.visit(model)
 
-    def visit_Statement(self, node):  # noqa
+    def visit_Statement(self, node):  # noqa: N802
         for token in node.tokens:
             self.text += token.value
 
@@ -86,7 +80,7 @@ def validate_regex(value: str | None) -> Pattern | None:
     try:
         return re.compile(value) if value is not None else None
     except re.error:
-        raise click.BadParameter("Not a valid regular expression")
+        raise click.BadParameter("Not a valid regular expression") from None
 
 
 def decorate_diff_with_color(contents: list[str]) -> list[str]:
@@ -94,7 +88,7 @@ def decorate_diff_with_color(contents: list[str]) -> list[str]:
     lines = []
     for line in contents:
         style = None
-        if line.startswith("+++") or line.startswith("---"):
+        if line.startswith(("+++", "---")):
             style = "bold"
         elif line.startswith("@@"):
             style = "cyan"
@@ -138,7 +132,7 @@ def split_args_from_name_or_path(name):
     return name, args
 
 
-def _escaped_split(string, delim):
+def _escaped_split(string, delim) -> list[str]:
     ret = []
     current = []
     itr = iter(string)
@@ -159,7 +153,7 @@ def _escaped_split(string, delim):
     return ret
 
 
-def _get_arg_separator_index_from_name_or_path(name):
+def _get_arg_separator_index_from_name_or_path(name) -> int:
     colon_index = name.find(":")
     # Handle absolute Windows paths
     if colon_index == 1 and name[2:3] in ("/", "\\"):
@@ -230,14 +224,18 @@ class RecommendationFinder:
 
     @staticmethod
     def _calculate_cutoff(string, min_cutoff=0.5, max_cutoff=0.85, step=0.03):
-        """The longer the string the bigger required cutoff."""
+        """
+        Calculate cutoff.
+
+        The longer the string the bigger required cutoff.
+        """
         cutoff = min_cutoff + len(string) * step
         return min(cutoff, max_cutoff)
 
     @staticmethod
     def get_original_candidates(candidates, norm_candidates):
         """Map found normalized candidates to unique original candidates."""
-        return sorted(list(set(c for cand in candidates for c in norm_candidates[cand])))
+        return sorted({c for cand in candidates for c in norm_candidates[cand]})
 
     @staticmethod
     def get_normalized_candidates(candidates):
@@ -270,7 +268,7 @@ class ModelWriter(ModelVisitor):
             if self.close_writer:
                 self.writer.close()
 
-    def visit_Statement(self, statement):  # noqa
+    def visit_Statement(self, statement):  # noqa: N802
         for token in statement.tokens:
             self.writer.write(token.value)
 
@@ -279,7 +277,7 @@ class TestTemplateFinder(ast.NodeVisitor):
     def __init__(self):
         self.templated = False
 
-    def visit_TestTemplate(self, node):  # noqa
+    def visit_TestTemplate(self, node):  # noqa: N802
         if node.value:
             self.templated = True
 
@@ -338,8 +336,7 @@ def wrap_in_if_and_replace_statement(node, statement, default_separator):
         ]
     )
     end = End.from_params(indent=node.tokens[0].value)
-    if_block = If(header=header, body=[body], orelse=None, end=end)
-    return if_block
+    return If(header=header, body=[body], orelse=None, end=end)
 
 
 def get_comments(tokens):
@@ -358,11 +355,8 @@ def get_comments(tokens):
     return comments
 
 
-def merge_comments_into_one(tokens):
-    comments = []
-    for token in tokens:
-        if token.type == Token.COMMENT:
-            comments.append(token.value.lstrip("#").strip())
+def merge_comments_into_one(tokens) -> Token | None:
+    comments = [token.value.lstrip("#").strip() for token in tokens if token.type == Token.COMMENT]
     if not comments:
         return None
     comment = " ".join(comments)
@@ -399,16 +393,18 @@ def flatten_multiline(tokens, separator, remove_comments: bool = False):
     return flattened
 
 
-def split_on_token_type(tokens, token_type):
+def split_on_token_type(tokens, token_type) -> tuple[list[Token], list[Token]]:
     """Split list of tokens into two lists on token with token_type type."""
     for index, token in enumerate(tokens):
         if token.type == token_type:
             return tokens[:index], tokens[index:]
+    return tokens, []
 
 
 def split_on_token_value(tokens, value, resolve: int):
     """
     Split list of tokens into three lists based on token value.
+
     Returns tokens before found token, found token + `resolve` number of tokens, remaining tokens.
     """
     for index, token in enumerate(tokens):

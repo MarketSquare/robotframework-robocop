@@ -4,6 +4,7 @@ from collections import defaultdict
 
 from robot.api.parsing import Token
 from robot.parsing.model import Statement
+
 from robocop.formatter.disablers import skip_section_if_disabled
 from robocop.formatter.exceptions import InvalidParameterValueError
 from robocop.formatter.formatters import Formatter
@@ -39,13 +40,15 @@ class AlignVariablesSection(Formatter):
     To align first three columns:
 
     ```console
-    robocop format --transform AlignVariablesSection:up_to_column=3
+    robocop format --transform AlignVariablesSection.up_to_column=3
     ```
 
     To align all columns set ``up_to_column`` to 0.
     """
 
-    def __init__(self, up_to_column: int = 2, skip_types: str = "", min_width: int = None, fixed_width: int = None):
+    def __init__(
+        self, up_to_column: int = 2, skip_types: str = "", min_width: int | None = None, fixed_width: int | None = None
+    ):
         super().__init__()
         self.up_to_column = up_to_column - 1
         self.min_width = min_width
@@ -74,7 +77,7 @@ class AlignVariablesSection(Formatter):
         return node.name[0] not in self.skip_types
 
     @skip_section_if_disabled
-    def visit_VariableSection(self, node):  # noqa
+    def visit_VariableSection(self, node):  # noqa: N802
         statements = []
         for child in node.body:
             if self.disablers.is_node_disabled("AlignVariablesSection", child):

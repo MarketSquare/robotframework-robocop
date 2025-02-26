@@ -1,7 +1,0 @@
-language: pl
-
-
-*** Ustawienia ***
-
-
-*** Zmienne ***

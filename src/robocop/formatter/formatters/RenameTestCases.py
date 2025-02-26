@@ -3,6 +3,7 @@ from __future__ import annotations
 import re
 
 from robot.api.parsing import Token
+
 from robocop.formatter.disablers import skip_if_disabled, skip_section_if_disabled
 from robocop.formatter.exceptions import InvalidParameterValueError
 from robocop.formatter.formatters import Formatter
@@ -11,9 +12,7 @@ IGNORE_CHARS = {"(", "[", "{", "!", "?"}
 
 
 def cap_string_until_succeed(word: str):
-    """
-    Yield characters from the word and capitalize character until we are able to make char uppercase.
-    """
+    """Yield characters from the word and capitalize character until we are able to make char uppercase."""
     capitalize = True
     for char in word:
         if capitalize:
@@ -54,7 +53,8 @@ class RenameTestCases(Formatter):
     to set replacement value. This configuration:
 
     ```
-    robocop format --transform RenameTestCases -c RenameTestCases:replace_pattern=[A-Z]{3,}-\d{2,}:replace_to=foo
+    robocop format --formatter RenameTestCases -c RenameTestCases.replace_pattern=[A-Z]{3,}-\d{2,}
+    -c RenameTestCases.replace_to=foo
     ```
 
     will transform following code:
@@ -74,7 +74,7 @@ class RenameTestCases(Formatter):
     ```
 
     ```
-    robocop format --transform RenameTestCases -c RenameTestCases:capitalize_each_word=True
+    robocop format --transform RenameTestCases -c RenameTestCases.capitalize_each_word=True
     ```
 
     will transform following code:
@@ -111,16 +111,16 @@ class RenameTestCases(Formatter):
                 "replace_pattern",
                 replace_pattern,
                 f"It should be a valid regex expression. Regex error: '{err.msg}'",
-            )
+            ) from None
         self.replace_to = "" if replace_to is None else replace_to
         self.capitalize_each_word = capitalize_each_word
 
     @skip_section_if_disabled
-    def visit_TestCaseSection(self, node):  # noqa
+    def visit_TestCaseSection(self, node):  # noqa: N802
         return self.generic_visit(node)
 
     @skip_if_disabled
-    def visit_TestCaseName(self, node):  # noqa
+    def visit_TestCaseName(self, node):  # noqa: N802
         token = node.get_token(Token.TESTCASE_NAME)
         if token.value:
             if self.capitalize_each_word:
@@ -130,7 +130,6 @@ class RenameTestCases(Formatter):
                 token.value = token.value[0].upper() + token.value[1:]
             if self.replace_pattern is not None:
                 token.value = self.replace_pattern.sub(repl=self.replace_to, string=token.value)
-            if token.value.endswith("."):
-                token.value = token.value[:-1]
+            token.value = token.value.removesuffix(".")
             token.value = token.value.strip()
         return node

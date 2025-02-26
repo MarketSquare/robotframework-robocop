@@ -14,7 +14,7 @@ Formatters list
 
 To see list of all formatters currently implemented in `robocop format` run:
 
-.. code:: none
+.. code:: shell
 
     robocop format --list
 
@@ -23,7 +23,7 @@ Formatters are sorted in the order they are run by default.
 # TODO
 To see description of the transformer run:
 
-.. code:: none
+.. code:: shell
 
     robocop format --desc TRANSFORMER_NAME
 
@@ -33,19 +33,19 @@ See :ref:`configuring-formatters` to learn how formatters can be configured (inc
 
 By default all formatters run in the same order. Whether called with:
 
-.. code:: none
+.. code:: shell
 
    robocop format
 
 or:
 
-.. code:: none
+.. code:: shell
 
    robocop format --select ReplaceRunKeywordIf --select SplitTooLongLine
 
 or:
 
-.. code:: none
+.. code:: shell
 
    robocop format --select SplitTooLongLine --select ReplaceRunKeywordIf
 
@@ -54,14 +54,14 @@ It will transform files according to internal order (in this example ``ReplaceRu
 
 If you want to transform files using different transformer order you need to run formatters separately:
 
-.. code:: none
+.. code:: shell
 
    robocop format --select SplitTooLongLine
    robocop format --select ReplaceRunKeywordIf
 
 You can also add ``--force-order`` flag to use order provided in cli:
 
-.. code:: none
+.. code:: shell
 
    robocop format --force-order --select SplitTooLongLine --select ReplaceRunKeywordIf
 

@@ -1,1 +1,1 @@
-test.robot:8:5 [W] 0524 Timeout of 'Test' Test Case is empty
+test.robot:8:5 [W] LEN24 Timeout of 'Test' Test Case is empty

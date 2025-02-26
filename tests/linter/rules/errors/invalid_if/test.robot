@@ -66,3 +66,10 @@ RF 5 syntax
     FINALLY
         Keyword
     END
+
+RF 7.2 Group
+    GROUP
+        IF
+            Keyword
+        END
+    END

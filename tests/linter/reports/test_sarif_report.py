@@ -1,71 +1,49 @@
 import json
 from pathlib import Path
 
-import pytest
-
-from robocop.config import Config
-from robocop.linter.reports.sarif_report import SarifReport
-from robocop.linter.rules import Message
 from robocop import __version__
+from robocop.linter.diagnostics import Diagnostic
+from robocop.linter.reports.sarif_report import SarifReport
+from tests.linter.reports import generate_issues
 
 
 class TestSarifReport:
-    def test_configure_output_dir(self):
+    def test_configure_output_dir(self, config):
         output_dir = "path/to/dir"
-        report = SarifReport()
+        report = SarifReport(config)
         report.configure("output_dir", output_dir)
         assert report.output_dir == Path(output_dir)
 
-    def test_configure_filename(self):
+    def test_configure_filename(self, config):
         filename = ".sarif"
-        report = SarifReport()
+        report = SarifReport(config)
         report.configure("report_filename", filename)
         assert report.report_filename == filename
 
-    @pytest.mark.parametrize("compare_runs", [True, False])
-    def test_sarif_report(self, rule, rule2, compare_runs, tmp_path):
-        root = Path(".").resolve()
+    def test_sarif_report(self, rule, rule2, tmp_path, config):
+        root = Path.cwd()
         rules = {m.rule_id: m for m in (rule, rule2)}
         source1_rel = "tests/atest/rules/comments/ignored-data/test.robot"
         source2_rel = "tests/atest/rules/misc/empty-return/test.robot"
-        source1 = str(root / source1_rel)
-        source2 = str(root / source2_rel)
-        report = SarifReport()
+        report = SarifReport(config)
         report.configure("output_dir", tmp_path)
 
-        issues = [
-            Message(
-                rule=r,
-                msg=r.get_message(),
-                source=source,
-                node=None,
-                lineno=line,
-                col=col,
-                end_lineno=end_line,
-                end_col=end_col,
-            )
-            for r, source, line, end_line, col, end_col in [
-                (rule, source1, 50, None, 10, None),
-                (rule2, source1, 50, 51, 10, None),
-                (rule, source2, 50, None, 10, 12),
-                (rule2, source2, 11, 15, 10, 15),
-            ]
-        ]
+        issues = generate_issues(rule, rule2)
 
-        def get_expected_result(message, level, source):
+        def get_expected_result(diagnostic: Diagnostic, level, source):
             return {
-                "ruleId": message.rule_id,
+                "ruleId": diagnostic.rule.rule_id,
                 "level": level,
-                "message": {"text": message.desc},
+                "message": {"text": diagnostic.message},
                 "locations": [
                     {
                         "physicalLocation": {
                             "artifactLocation": {"uri": source, "uriBaseId": "%SRCROOT%"},
                             "region": {
-                                "startLine": message.line,
-                                "endLine": message.end_line,
-                                "startColumn": message.col,
-                                "endColumn": message.end_col,
+                                "startLine": diagnostic.range.start.line,
+                                "endLine": diagnostic.range.end.line,
+                                "startColumn": diagnostic.range.start.character,
+                                "endColumn": diagnostic.range.end.character,
                             },
                         }
                     }
@@ -87,10 +65,10 @@ class TestSarifReport:
                                     "id": r.rule_id,
                                     "name": r.name,
                                     "helpUri": f"https://robocop.readthedocs.io/en/{__version__}/rules_list.html#{r.name}",
-                                    "shortDescription": {"text": r.msg},
-                                    "fullDescription": {"text": r.docs},
+                                    "shortDescription": {"text": r.message},
+                                    "fullDescription": {"text": r.__doc__},
                                     "defaultConfiguration": {"level": r.default_severity.name.lower()},
-                                    "help": {"text": r.docs, "markdown": r.docs},
+                                    "help": {"text": r.__doc__, "markdown": r.__doc__},
                                 }
                                 for r in (rule, rule2)
                             ],

@@ -1,13 +1,14 @@
 import string
 
 from robocop.formatter.disablers import skip_section_if_disabled
-from robocop.formatter.skip import Skip
 from robocop.formatter.formatters import Formatter
+from robocop.formatter.skip import Skip
 
 
 class NormalizeSectionHeaderName(Formatter):
     """
     Normalize section headers names.
+
     Robot Framework is quite flexible with the section header naming. Following lines are equal:
 
     ```robotframework
@@ -42,10 +43,10 @@ class NormalizeSectionHeaderName(Formatter):
         self.uppercase = uppercase
 
     @skip_section_if_disabled
-    def visit_Section(self, node):  # noqa
+    def visit_Section(self, node):  # noqa: N802
         return self.generic_visit(node)
 
-    def visit_SectionHeader(self, node):  # noqa
+    def visit_SectionHeader(self, node):  # noqa: N802
         if not node.name:
             return node
         # only normalize, and if found in english ones then add plural

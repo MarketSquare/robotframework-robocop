@@ -1,1 +1,1 @@
-severity.robot:6:1 [E] 0504 Test case 'Test' is too long (22/20)
+severity.robot:6:1 [E] LEN04 Test case 'Test' is too long (22/20)

@@ -6,6 +6,7 @@ from pathlib import Path
 from jinja2 import Template
 from jinja2.exceptions import TemplateError
 from robot.api.parsing import Documentation, ModelVisitor, Token
+
 from robocop.formatter.exceptions import InvalidParameterValueError
 from robocop.formatter.formatters import Formatter
 
@@ -55,7 +56,7 @@ class ArgumentsAndReturnsVisitor(ModelVisitor):
         self.returns = []
         self.doc_exists = False
 
-    def visit_Keyword(self, node):  # noqa
+    def visit_Keyword(self, node):  # noqa: N802
         self.arguments = []
         self.returns = []
         # embedded variables
@@ -65,20 +66,20 @@ class ArgumentsAndReturnsVisitor(ModelVisitor):
         self.doc_exists = False
         self.generic_visit(node)
 
-    def visit_Documentation(self, node):  # noqa
+    def visit_Documentation(self, _node):  # noqa: N802
         self.doc_exists = True
 
-    def visit_Arguments(self, node):  # noqa
+    def visit_Arguments(self, node):  # noqa: N802
         if node.errors:
             return
         self.arguments = [Argument(arg) for arg in node.values]
 
-    def visit_ReturnStatement(self, node):  # noqa
+    def visit_ReturnStatement(self, node):  # noqa: N802
         if node.errors:
             return
         self.returns = list(node.values)
 
-    visit_Return = visit_ReturnSetting = visit_ReturnStatement
+    visit_Return = visit_ReturnSetting = visit_ReturnStatement  # noqa: N815
 
 
 class GenerateDocumentation(Formatter):
@@ -121,7 +122,8 @@ class GenerateDocumentation(Formatter):
     skip formatting documentation by this formatter:
 
     ```
-    > robocop format --configure GenerateDocumentation:enabled=True --configure NormalizeSeparators:skip_documentation=True src
+    > robocop format --configure GenerateDocumentation.enabled=True
+    --configure NormalizeSeparators.skip_documentation=True src
     ```
     """
 
@@ -135,10 +137,10 @@ class GenerateDocumentation(Formatter):
         self.args_returns_finder = ArgumentsAndReturnsVisitor()
         super().__init__()
 
-    def visit_TestCaseSection(self, node):  # noqa
+    def visit_TestCaseSection(self, node):  # noqa: N802
         return node
 
-    visit_SettingSection = visit_TestCaseSection
+    visit_SettingSection = visit_TestCaseSection  # noqa: N815
 
     def load_template(self, template: str, template_directory: str | None = None) -> Template:
         try:
@@ -149,7 +151,7 @@ class GenerateDocumentation(Formatter):
                 "doc_template",
                 "template content",
                 f"Failed to load the template: {err}",
-            )
+            ) from None
 
     def get_template(self, template: str, template_directory: str | None = None) -> str:
         if template == "google":
@@ -168,7 +170,7 @@ class GenerateDocumentation(Formatter):
         with open(template_path) as fp:
             return fp.read()
 
-    def visit_Keyword(self, node):  # noqa
+    def visit_Keyword(self, node):  # noqa: N802
         self.args_returns_finder.visit(node)
         if not self.overwrite and self.args_returns_finder.doc_exists:
             return node
@@ -181,7 +183,7 @@ class GenerateDocumentation(Formatter):
         node.body.insert(0, doc_node)
         return node
 
-    def visit_Documentation(self, node):  # noqa
+    def visit_Documentation(self, _node):  # noqa: N802
         return None
 
     def create_documentation_from_string(self, doc_string):

@@ -18,9 +18,9 @@ You can use multiple reports with separate arguments (``-r report1 -r report2``)
 
     .. tab-item:: Cli
 
-        .. code:: none
+        .. code:: shell
 
-            robocop --reports rules_by_id,some_other_report
+            robocop check --reports rules_by_id,some_other_report
 
     .. tab-item:: Configuration file
 
@@ -32,6 +32,11 @@ You can use multiple reports with separate arguments (``-r report1 -r report2``)
                 "some_other_report"
             ]
 
+.. note::
+
+    Reports can be only enabled and configured from the configuration file closest to the current working directory.
+    If you configure reports in multiple configuration files, only one configuration file will apply.
+
 To enable all default reports use ``--reports all``.  Non-default reports can be only enabled using their name.
 
 The order of the reports is preserved. For example, if you want ``timestamp`` report to be printed before any
@@ -41,9 +46,9 @@ other reports, you can use the following configuration:
 
     .. tab-item:: Cli
 
-        .. code:: none
+        .. code:: shell
 
-            robocop --reports timestamp,all
+            robocop check --reports timestamp,all
 
     .. tab-item:: Configuration file
 
@@ -74,7 +79,7 @@ Configuring reports
 It is possible to configure some of the reports using ``--configure`` (or ``-c``) option followed by report name,
 its parameter and the value::
 
-    robocop --configure <report_name>.<param_name>=<value>
+    robocop check --configure <report_name>.<param_name>=<value>
 
 For example:
 
@@ -82,7 +87,7 @@ For example:
 
     .. tab-item:: Cli
 
-        .. code:: none
+        .. code:: shell
 
             robocop check --configure sarif.report_filename=robocop_sarif.json --reports sarif
 
@@ -106,7 +111,7 @@ Disable all reports
 When handling multiple configuration sources it may be possible to inherit reports configuration that we don't want to
 use. Use special keyword ``None`` to not run any reports even if configured::
 
-    robocop --reports sarif,all,None
+    robocop check --reports sarif,all,None
 
 Comparing results
 ------------------
@@ -138,7 +143,7 @@ Saving the results is disabled by default and can be enabled with ``--persistent
 
     .. tab-item:: Cli
 
-        .. code:: none
+        .. code:: shell
 
             robocop check --persistent
 
@@ -157,7 +162,7 @@ To used stored results to compare with current run, enable ``compare_runs`` repo
 
     .. tab-item:: Cli
 
-        .. code:: none
+        .. code:: shell
 
             robocop check --reports all,compare_runs
 

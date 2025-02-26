@@ -102,7 +102,7 @@ Custom templates can be loaded from the file using ``doc_template`` parameter. I
     > robocop format --configure GenerateDocumentation.doc_template=google
 
 Templates support `Jinja templating engine <https://jinja.palletsprojects.com/>`_ and we are providing several variables
-based on the keyword data. Below, there is a default template::
+based on the keyword data. Below, there is a default template:
 
     {% if keyword.arguments|length > 0 %}
     {{ formatting.cont_indent }}Args:

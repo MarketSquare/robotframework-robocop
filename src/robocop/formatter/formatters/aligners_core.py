@@ -10,11 +10,15 @@ try:
 except ImportError:
     InlineIfHeader, TryHeader = None, None
 
+from typing import TYPE_CHECKING
+
 from robocop.formatter.disablers import skip_if_disabled
 from robocop.formatter.exceptions import InvalidParameterValueError
-from robocop.formatter.skip import Skip
 from robocop.formatter.formatters import Formatter
 from robocop.formatter.utils import misc
+
+if TYPE_CHECKING:
+    from robocop.formatter.skip import Skip
 
 WHITESPACE_TOKENS = frozenset({Token.SEPARATOR, Token.EOS})
 
@@ -67,12 +71,12 @@ class AlignKeywordsTestsSection(Formatter):
         self.settings_widths = []
 
     @skip_if_disabled
-    def visit_File(self, node):  # noqa
+    def visit_File(self, node):  # noqa: N802
         self.split_too_long = self.is_split_too_long_enabled()
         return self.generic_visit(node)
 
     def parse_widths(self, widths: str):
-        parsed_widths = dict()
+        parsed_widths = {}
         for index, width in enumerate(widths.split(",")):
             try:
                 number = int(width)
@@ -105,8 +109,7 @@ class AlignKeywordsTestsSection(Formatter):
                 self.__class__.__name__,
                 "alignment_type",
                 value,
-                "Chose between two modes: 'fixed' (align to fixed width) or "
-                "'auto' (align to longest token in column).",
+                "Chose between two modes: 'fixed' (align to fixed width) or 'auto' (align to longest token in column).",
             )
         return value == "fixed"
 
@@ -121,7 +124,7 @@ class AlignKeywordsTestsSection(Formatter):
             )
         return doc_mode == "skip"
 
-    def visit_If(self, node):  # noqa
+    def visit_If(self, node):  # noqa: N802
         # ignore inline ifs and their else/else if branches
         if self.is_inline:
             return node
@@ -138,7 +141,7 @@ class AlignKeywordsTestsSection(Formatter):
         self.remove_auto_widths_for_context()
         return node
 
-    def visit_Try(self, node):  # noqa
+    def visit_Try(self, node):  # noqa: N802
         self.create_auto_widths_for_context(node)
         # do not increase header for Except, Else, Finally - it was done in Try already
         if isinstance(node.header, TryHeader):
@@ -149,7 +152,7 @@ class AlignKeywordsTestsSection(Formatter):
         self.remove_auto_widths_for_context()
         return node
 
-    def visit_For(self, node):  # noqa
+    def visit_For(self, node):  # noqa: N802
         self.create_auto_widths_for_context(node)
         self.indent += 1
         self.generic_visit(node)
@@ -157,7 +160,7 @@ class AlignKeywordsTestsSection(Formatter):
         self.remove_auto_widths_for_context()
         return node
 
-    visit_While = visit_For
+    visit_While = visit_For  # noqa: N815
 
     def get_width(self, col: int, is_setting: bool, override_default_zero: bool = False) -> int:
         # If auto mode is enabled, use auto widths for current context (last defined widths)
@@ -174,11 +177,11 @@ class AlignKeywordsTestsSection(Formatter):
             return self.formatting_config.space_count
         return width
 
-    def visit_SettingSection(self, node):  # noqa
+    def visit_SettingSection(self, node):  # noqa: N802
         return node
 
     @skip_if_disabled
-    def visit_Documentation(self, node):  # noqa
+    def visit_Documentation(self, node):  # noqa: N802
         if self.skip.documentation:
             return node
         # For every line:
@@ -230,16 +233,16 @@ class AlignKeywordsTestsSection(Formatter):
         if not self.fixed_alignment:
             self.auto_widths.pop()
 
-    def visit_ForHeader(self, node):  # noqa
+    def visit_ForHeader(self, node):  # noqa: N802
         # Fix indent for `FOR`, IF, WHILE, TRY block headers & ends
         indent = Token(Token.SEPARATOR, (self.indent - 1) * self.formatting_config.indent)
-        node.tokens = [indent] + list(node.tokens[1:])
+        node.tokens = [indent, *list(node.tokens[1:])]
         return node
 
-    visit_End = visit_ForHeader  # TODO add other headers
+    visit_End = visit_ForHeader  # noqa: N815  # TODO add other headers
 
     @skip_if_disabled
-    def visit_KeywordCall(self, node):  # noqa
+    def visit_KeywordCall(self, node):  # noqa: N802
         if node.errors:
             return node
         if self.skip.keyword_call(node):
@@ -258,7 +261,7 @@ class AlignKeywordsTestsSection(Formatter):
             if aligned_line is None:
                 aligned_lines.extend(line)
                 continue
-            aligned_line = [indent] + assign + aligned_line
+            aligned_line = [indent, *assign, *aligned_line]
             if check_length and self.is_line_too_long(aligned_line):
                 split_node = self.split_too_long_node(node)
                 return self.align_node(split_node, check_length=False)
@@ -267,8 +270,7 @@ class AlignKeywordsTestsSection(Formatter):
 
     def split_assign(self, line: list, possible_assign: bool) -> tuple[list, list, int]:
         """
-        This method returns return values together with their separators in case
-        we don't want to align them.
+        Return `return` values together with their separators in case we don't want to align them.
 
         Returns:
             A tuple, containing:
@@ -292,58 +294,59 @@ class AlignKeywordsTestsSection(Formatter):
                     skip_width,
                 )
             assign.append(token)
+        return assign, [], 0  # TODO check when happens
 
     @skip_if_disabled
-    def visit_Tags(self, node):  # noqa
+    def visit_Tags(self, node):  # noqa: N802
         if node.errors or self.skip.setting("Tags"):
             return node
         return self.align_node(node, check_length=False, is_setting=True)
 
     @skip_if_disabled
-    def visit_Return(self, node):  # noqa
+    def visit_Return(self, node):  # noqa: N802
         if node.errors or self.skip.setting("Return_Statement"):
             return node
         return self.align_node(node, check_length=False, is_setting=True)
 
-    visit_ReturnStatement = visit_ReturnSetting = visit_Return
+    visit_ReturnStatement = visit_ReturnSetting = visit_Return  # noqa: N815
 
     @skip_if_disabled
-    def visit_TemplateArguments(self, node):  # noqa
+    def visit_TemplateArguments(self, node):  # noqa: N802
         if node.errors or self.skip.setting("Template"):
             return node
         return self.align_node(node, check_length=False)
 
     @skip_if_disabled
-    def visit_Timeout(self, node):  # noqa
+    def visit_Timeout(self, node):  # noqa: N802
         if node.errors or self.skip.setting("Timeout"):
             return node
         return self.align_node(node, check_length=False, is_setting=True)
 
     @skip_if_disabled
-    def visit_Teardown(self, node):  # noqa
+    def visit_Teardown(self, node):  # noqa: N802
         if node.errors or self.skip.setting("Teardown"):
             return node
         return self.align_node(node, check_length=False, is_setting=True)
 
     @skip_if_disabled
-    def visit_Setup(self, node):  # noqa
+    def visit_Setup(self, node):  # noqa: N802
         if node.errors or self.skip.setting("Setup"):
             return node
         return self.align_node(node, check_length=False, is_setting=True)
 
     @skip_if_disabled
-    def visit_Arguments(self, node):  # noqa
+    def visit_Arguments(self, node):  # noqa: N802
         if node.errors or self.skip.setting("Arguments"):
             return node
         return self.align_node(node, check_length=False, is_setting=True)
 
-    def visit_Comment(self, node):  # noqa
+    def visit_Comment(self, node):  # noqa: N802
         if node.errors:
             return node
         return self.align_node(node, check_length=False, is_setting=False)
 
     @skip_if_disabled
-    def visit_Template(self, node):  # noqa
+    def visit_Template(self, node):  # noqa: N802
         if node.errors or self.skip.setting("Template"):
             return node
         return self.align_node(node, check_length=False, is_setting=True)
@@ -393,10 +396,7 @@ class AlignKeywordsTestsSection(Formatter):
         return misaligned_cols >= self.compact_overflow_limit and prev_overflow_len and index < len(tokens) - 1
 
     def find_starting_column(self, skip_width: int, is_setting: bool):
-        """
-        If we're skipping values at the beginning of the line,
-        we need to find next column for remaining tokens.
-        """
+        """If we're skipping values at the beginning of the line, we need to find next column for remaining tokens."""
         column = 0
         while skip_width > 0:
             width = self.get_width(column, override_default_zero=True, is_setting=is_setting)
@@ -405,9 +405,7 @@ class AlignKeywordsTestsSection(Formatter):
         return column, abs(skip_width)
 
     def get_start_column_and_aligned(self, skip_width: int, min_separator: int, is_setting: bool):
-        """
-        In case we are skipping return tokens alignment, calculate starting column and create leading separator.
-        """
+        """In case we are skipping return tokens alignment, calculate starting column and create leading separator."""
         if skip_width == 0:
             return 0, 0, []
         column, skip_width = self.find_starting_column(skip_width, is_setting=is_setting)
@@ -419,7 +417,7 @@ class AlignKeywordsTestsSection(Formatter):
         return column, prev_overflow_len, [get_separator(skip_width)]
 
     def align_tokens(self, tokens: list, skip_width: int, is_setting: bool):
-        last_assign, misaligned_cols = 0, 0
+        misaligned_cols = 0
         min_separator = self.formatting_config.space_count
         column, prev_overflow_len, aligned = self.get_start_column_and_aligned(
             skip_width, min_separator, is_setting=is_setting
@@ -548,8 +546,8 @@ class ColumnWidthCounter(ModelVisitor):
         self.align_settings_separately = align_settings_separately
         self.raw_widths = defaultdict(list)
         self.settings_raw_widths = defaultdict(list)
-        self.widths = dict()
-        self.settings_widths = dict()
+        self.widths = {}
+        self.settings_widths = {}
         self.disablers = disablers
 
     # TODO: raw_widths etc can be sets
@@ -622,29 +620,29 @@ class ColumnWidthCounter(ModelVisitor):
                 widths[col].append(token)
 
     @skip_if_disabled
-    def visit_KeywordCall(self, node):  # noqa
+    def visit_KeywordCall(self, node):  # noqa: N802
         self.get_and_store_columns_widths(node, self.raw_widths)
 
-    visit_TemplateArguments = visit_KeywordCall
+    visit_TemplateArguments = visit_KeywordCall  # noqa: N815
 
-    def visit_Comment(self, node):  # noqa
+    def visit_Comment(self, node):  # noqa: N802
         if self.align_comments:
             self.get_and_store_columns_widths(node, self.raw_widths, filter_tokens=self.NON_DATA_TOKENS_WITH_COMMENTS)
 
     @skip_if_disabled
-    def visit_Tags(self, node):  # noqa
+    def visit_Tags(self, node):  # noqa: N802
         self.get_and_store_columns_widths(node, self.settings_raw_widths)
 
     # TODO skip-settings
-    visit_Arguments = visit_Setup = visit_Teardown = visit_Timeout = visit_Return = visit_Tags
+    visit_Arguments = visit_Setup = visit_Teardown = visit_Timeout = visit_Return = visit_Tags  # noqa: N815
 
     @skip_if_disabled
-    def visit_Documentation(self, node):  # noqa
+    def visit_Documentation(self, node):  # noqa: N802
         if self.skip_documentation:
             return
         doc_header_len = misc.round_to_four(len(node.data_tokens[0].value) + self.min_separator)
         self.settings_raw_widths[0].append(doc_header_len)
 
     @skip_if_disabled
-    def visit_Template(self, node):  # noqa
+    def visit_Template(self, node):  # noqa: N802
         self.get_and_store_columns_widths(node, self.settings_raw_widths, up_to=1)

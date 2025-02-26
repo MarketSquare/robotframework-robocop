@@ -1,4 +1,0 @@
-test_builtin_syntax.robot:7:5 [W] 0929 Don't set global variables outside the variables section
-test_builtin_syntax.robot:11:5 [W] 0929 Don't set global variables outside the variables section
-test_builtin_syntax.robot:15:5 [W] 0929 Don't set global variables outside the variables section
-test_builtin_syntax.robot:20:5 [W] 0929 Don't set global variables outside the variables section

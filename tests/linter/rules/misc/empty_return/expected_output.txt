@@ -1,1 +1,1 @@
-test.robot:21:5 [W] 0903 [Return] is empty
+test.robot:21:5 [W] MISC02 [Return] is empty

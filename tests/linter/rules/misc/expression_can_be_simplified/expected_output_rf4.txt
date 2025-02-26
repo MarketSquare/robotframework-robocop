@@ -1,8 +1,8 @@
-test.robot:3:11 [I] 0924 'IF' condition can be simplified
-test.robot:5:16 [I] 0924 'ELSE IF' condition can be simplified
-test.robot:7:15 [I] 0924 'IF' condition can be simplified
-test.robot:29:24 [I] 0924 'Set Variable If' condition can be simplified
-test.robot:31:16 [I] 0924 'Set Variable If' condition can be simplified
-test.robot:33:12 [I] 0924 'Set Variable If' condition can be simplified
-test.robot:36:16 [I] 0924 'Skip If' condition can be simplified
-test.robot:37:23 [I] 0924 'Should Be True' condition can be simplified
+test.robot:3:11 [I] MISC13 'IF' condition can be simplified
+test.robot:5:16 [I] MISC13 'ELSE IF' condition can be simplified
+test.robot:7:15 [I] MISC13 'IF' condition can be simplified
+test.robot:29:24 [I] MISC13 'Set Variable If' condition can be simplified
+test.robot:31:16 [I] MISC13 'Set Variable If' condition can be simplified
+test.robot:33:12 [I] MISC13 'Set Variable If' condition can be simplified
+test.robot:36:16 [I] MISC13 'Skip If' condition can be simplified
+test.robot:37:23 [I] MISC13 'Should Be True' condition can be simplified

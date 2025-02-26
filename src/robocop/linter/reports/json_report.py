@@ -2,11 +2,12 @@ import json
 from pathlib import Path
 
 import robocop.linter.reports
-from robocop.linter.rules import Message
+from robocop.config import Config
+from robocop.linter.diagnostics import Diagnostic
 
 
 class JsonReport(robocop.linter.reports.Report):
-    """
+    r"""
     **Report name**: ``json_report``
 
     Report that returns a list of found issues in a JSON format. The output file will be generated
@@ -17,14 +18,14 @@ class JsonReport(robocop.linter.reports.Report):
 
     You can configure output directory and report filename::
 
-        robocop --configure json_report:output_dir:C:/json_reports
-        robocop --configure json_report:report_filename:robocop_output.json
+        robocop check --configure json_report.output_dir=C:/json_reports
+        robocop check --configure json_report.report_filename=robocop_output.json
 
     Example content of the file::
 
         [
             {
-                "source": "C:\\robot_tests\\keywords.robot",
+                "source": "C:\robot_tests\keywords.robot",
                 "line": 1,
                 "end_line": 1,
                 "column": 1,
@@ -49,19 +50,20 @@ class JsonReport(robocop.linter.reports.Report):
 
     """
 
-    DEFAULT = False
+    NO_ALL = False
 
-    def __init__(self):
+    def __init__(self, config: Config):
         self.name = "json_report"
         self.description = "Produces JSON file with found issues"
         self.output_dir = None
         self.report_filename = "robocop.json"
         self.issues = []
+        super().__init__(config)
 
-    def add_message(self, message: Message):
-        self.issues.append(message.to_json())
+    def add_message(self, message: Diagnostic) -> None:
+        self.issues.append(self.message_to_json(message))
 
-    def get_report(self):
+    def get_report(self) -> str:
         if self.output_dir is not None:
             output_path = self.output_dir / self.report_filename
         else:
@@ -71,7 +73,7 @@ class JsonReport(robocop.linter.reports.Report):
             fp.write(json_string)
         return f"\nGenerated JSON report at {output_path}"
 
-    def configure(self, name, value):
+    def configure(self, name: str, value: str) -> None:
         if name == "output_dir":
             self.output_dir = Path(value)
             self.output_dir.mkdir(parents=True, exist_ok=True)
@@ -80,21 +82,16 @@ class JsonReport(robocop.linter.reports.Report):
         else:
             super().configure(name, value)
 
-
-class InternalJsonReport(robocop.linter.reports.Report):
-    """
-    Report name: ``internal_json_report``
-
-    Report that returns list of found issues in JSON format.
-    """
-
-    DEFAULT = False
-    INTERNAL = True
-
-    def __init__(self):
-        self.name = "internal_json_report"
-        self.description = "Accumulates found issues in JSON format"
-        self.issues = []
-
-    def add_message(self, message: Message):
-        self.issues.append(message.to_json())
+    @staticmethod
+    def message_to_json(message: Diagnostic) -> dict:
+        return {
+            "source": message.source,
+            "line": message.range.start.line,
+            "end_line": message.range.end.line,
+            "column": message.range.start.character,
+            "end_column": message.range.end.character,
+            "severity": message.severity.value,
+            "rule_id": message.rule.rule_id,
+            "description": message.message,
+            "rule_name": message.rule.name,
+        }

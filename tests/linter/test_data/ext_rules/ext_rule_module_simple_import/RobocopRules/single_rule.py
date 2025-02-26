@@ -1,5 +1,5 @@
-from robocop.checkers import VisitorChecker
-from robocop.rules import Rule, RuleSeverity
+from robocop.linter.rules import VisitorChecker
+from robocop.linter.rules import Rule, RuleSeverity
 
 rules = {
     "9903": Rule(

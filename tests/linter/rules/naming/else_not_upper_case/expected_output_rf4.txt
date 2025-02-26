@@ -1,4 +1,4 @@
-test.robot:6:5 [E] 0311 ELSE and ELSE IF should be upper case
-test.robot:7:5 [E] 0311 ELSE and ELSE IF should be upper case
-test.robot:11:5 [E] 0311 ELSE and ELSE IF should be upper case
-test.robot:18:5 [E] 0311 ELSE and ELSE IF should be upper case
+test.robot:6:5 [E] NAME09 ELSE and ELSE IF is not uppercase
+test.robot:7:5 [E] NAME09 ELSE and ELSE IF is not uppercase
+test.robot:11:5 [E] NAME09 ELSE and ELSE IF is not uppercase
+test.robot:18:5 [E] NAME09 ELSE and ELSE IF is not uppercase

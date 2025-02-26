@@ -1,1 +1,1 @@
-test.robot:9:5 [E] 0518 Setup of 'Test' Test Case does not have any keywords
+test.robot:9:5 [E] LEN18 Setup of 'Test' Test Case does not have any keywords

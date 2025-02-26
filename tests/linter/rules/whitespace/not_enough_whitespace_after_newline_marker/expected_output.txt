@@ -1,0 +1,5 @@
+test.robot:12:5 [E] SPC20 Not enough whitespace after '...' marker
+test.robot:18:5 [E] SPC20 Not enough whitespace after '...' marker
+settings_errors.robot:3:1 [E] SPC20 Not enough whitespace after '...' marker
+variable_errors.robot:3:1 [E] SPC20 Not enough whitespace after '...' marker
+variable_errors.robot:13:1 [E] SPC20 Not enough whitespace after '...' marker

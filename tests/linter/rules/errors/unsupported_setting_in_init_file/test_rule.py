@@ -14,5 +14,5 @@ class TestRuleAcceptance(RuleAcceptance):
             src_files=["pl_language/__init__.robot", "pl_language/__init__.resource", "pl_language/test.robot"],
             expected_file="pl_language/expected_output.txt",
             issue_format="end_col",
-            target_version=">=6",
+            test_on_version=">=6",
         )

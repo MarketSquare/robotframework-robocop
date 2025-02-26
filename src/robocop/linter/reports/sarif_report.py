@@ -3,7 +3,8 @@ from pathlib import Path
 
 import robocop.linter.reports
 from robocop import __version__
-from robocop.linter.rules import Message
+from robocop.config import Config
+from robocop.linter.diagnostics import Diagnostic
 from robocop.linter.utils.misc import ROBOCOP_RULES_URL
 
 
@@ -21,22 +22,23 @@ class SarifReport(robocop.linter.reports.Report):
 
     You can configure output directory and report filename::
 
-        robocop --configure sarif:output_dir:C:/sarif_reports --configure sarif:report_filename:.sarif
+        robocop check --configure sarif.output_dir=C:/sarif_reports --configure sarif.report_filename=.sarif
 
     """
 
-    DEFAULT = False
+    NO_ALL = False
     SCHEMA_VERSION = "2.1.0"
     SCHEMA = f"https://json.schemastore.org/sarif-{SCHEMA_VERSION}.json"
 
-    def __init__(self):
+    def __init__(self, config: Config):
         self.name = "sarif"
         self.description = "Generate SARIF output file"
         self.output_dir = None
         self.report_filename = ".sarif.json"
-        self.issues = []
+        self.issues: list[Diagnostic] = []
+        super().__init__(config)
 
-    def configure(self, name, value):
+    def configure(self, name, value) -> None:
         if name == "output_dir":
             self.output_dir = Path(value)
             self.output_dir.mkdir(parents=True, exist_ok=True)
@@ -54,32 +56,32 @@ class SarifReport(robocop.linter.reports.Report):
             "id": rule.rule_id,
             "name": rule.name,
             "helpUri": f"{ROBOCOP_RULES_URL.format(version=__version__)}#{rule.name}",
-            "shortDescription": {"text": rule.msg},
-            "fullDescription": {"text": rule.docs},
+            "shortDescription": {"text": rule.message},
+            "fullDescription": {"text": rule.__doc__},
             "defaultConfiguration": {"level": self.map_severity_to_level(rule.default_severity)},
-            "help": {"text": rule.docs, "markdown": rule.docs},
+            "help": {"text": rule.__doc__, "markdown": rule.__doc__},
         }
 
-    def add_message(self, message: Message):
+    def add_message(self, message: Diagnostic) -> None:
         self.issues.append(message)
 
     def generate_sarif_issues(self, root: Path):
         sarif_issues = []
-        for issue in self.issues:
-            relative_uri = Path(issue.source).relative_to(root)
+        for diagnostic in self.issues:
+            relative_uri = Path(diagnostic.source).relative_to(root)
             sarif_issue = {
-                "ruleId": issue.rule_id,
-                "level": self.map_severity_to_level(issue.severity),
-                "message": {"text": issue.desc},
+                "ruleId": diagnostic.rule.rule_id,
+                "level": self.map_severity_to_level(diagnostic.severity),
+                "message": {"text": diagnostic.message},
                 "locations": [
                     {
                         "physicalLocation": {
                             "artifactLocation": {"uri": relative_uri.as_posix(), "uriBaseId": "%SRCROOT%"},
                             "region": {
-                                "startLine": issue.line,
-                                "endLine": issue.end_line,
-                                "startColumn": issue.col,
-                                "endColumn": issue.end_col,
+                                "startLine": diagnostic.range.start.line,
+                                "endLine": diagnostic.range.end.line,
+                                "startColumn": diagnostic.range.start.character,
+                                "endColumn": diagnostic.range.end.character,
                             },
                         }
                     }

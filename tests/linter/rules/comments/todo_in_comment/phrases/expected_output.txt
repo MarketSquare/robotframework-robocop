@@ -1,3 +1,3 @@
-phrases${/}test.robot:13:3 [W] 0701 Found a marker 'remove me' in the comments
-phrases${/}test.robot:19:7 [W] 0701 Found a marker 'FIX this UGLY bug' in the comments
-phrases${/}test.robot:21:7 [W] 0701 Found a marker 'KORJAA TÄMÄ HÄSSÄKKÄ' in the comments
+phrases${/}test.robot:13:3 [W] COM01 Found a marker 'remove me' in the comments
+phrases${/}test.robot:19:7 [W] COM01 Found a marker 'FIX this UGLY bug' in the comments
+phrases${/}test.robot:21:7 [W] COM01 Found a marker 'KORJAA TÄMÄ HÄSSÄKKÄ' in the comments

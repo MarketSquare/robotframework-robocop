@@ -1,16 +1,16 @@
 from robot.api.parsing import Token
+
 from robocop.formatter.disablers import skip_if_disabled
 from robocop.formatter.exceptions import InvalidParameterValueError
-from robocop.formatter.skip import Skip
 from robocop.formatter.formatters import Formatter
 from robocop.formatter.formatters.run_keywords import get_run_keywords
+from robocop.formatter.skip import Skip
 from robocop.formatter.utils import misc
 
 
 class IndentNestedKeywords(Formatter):
     """
-    Format indentation inside run keywords variants such as ``Run Keywords`` or
-    ``Run Keyword And Continue On Failure``.
+    Format indentation inside run keywords variants such as ``Run Keywords`` or ``Run Keyword And Continue On Failure``.
 
     Keywords inside run keywords variants are detected and
     whitespace is formatted to outline them. This code:
@@ -84,16 +84,14 @@ class IndentNestedKeywords(Formatter):
         separator = self.get_separator()
         for column, line in lines[1:]:
             tokens.extend(new_line)
-            tokens.append(self.get_separator(column, True))
+            tokens.append(self.get_separator(column, continuation=True))
             tokens.extend(misc.join_tokens_with_token(line, separator))
         tokens.append(eol)
         return tokens
 
     @staticmethod
     def node_was_transformed(old_tokens, new_tokens) -> bool:
-        """
-        Compare code before and after transformation while ignoring comments to check if code was transformed.
-        """
+        """Compare code before and after transformation while ignoring comments to check if code was transformed."""
         if len(new_tokens) > len(old_tokens):
             return True
         old_tokens_no_comm = []
@@ -118,7 +116,7 @@ class IndentNestedKeywords(Formatter):
         return False
 
     @skip_if_disabled
-    def visit_SuiteSetup(self, node):  # noqa
+    def visit_SuiteSetup(self, node):  # noqa: N802
         lines = self.get_setting_lines(node, 0)
         if not lines:
             return node
@@ -132,10 +130,10 @@ class IndentNestedKeywords(Formatter):
             return (*comments, node)
         return node
 
-    visit_SuiteTeardown = visit_TestSetup = visit_TestTeardown = visit_SuiteSetup
+    visit_SuiteTeardown = visit_TestSetup = visit_TestTeardown = visit_SuiteSetup  # noqa: N815
 
     @skip_if_disabled
-    def visit_Setup(self, node):  # noqa
+    def visit_Setup(self, node):  # noqa: N802
         indent = len(node.tokens[0].value)
         lines = self.get_setting_lines(node, indent)
         if not lines:
@@ -152,10 +150,10 @@ class IndentNestedKeywords(Formatter):
         node.tokens = self.parse_keyword_lines(lines, tokens, new_line, eol=node.tokens[-1])
         return node
 
-    visit_Teardown = visit_Setup
+    visit_Teardown = visit_Setup  # noqa: N815
 
     @skip_if_disabled
-    def visit_KeywordCall(self, node):  # noqa
+    def visit_KeywordCall(self, node):  # noqa: N802
         if node.errors or not node.keyword:
             return node
         run_keyword = self.get_run_keyword(node.keyword)
@@ -183,9 +181,7 @@ class IndentNestedKeywords(Formatter):
         return node
 
     def split_too_long_lines(self, lines, indent):
-        """
-        Parse indented lines to split too long lines
-        """
+        """Parse indented lines to split too long lines"""
         # TODO: Keep things like ELSE IF <condition>, Run Keyword If <> together no matter what
         if "SplitTooLongLine" not in self.formatters:
             return lines

@@ -1,9 +1,9 @@
-test.robot:5:1 [W] 0309 Section variable '${my_var}' name should be uppercase
-test.robot:6:1 [W] 0309 Section variable '${My Var}' name should be uppercase
-test.robot:7:1 [W] 0309 Section variable '${my var}' name should be uppercase
-test.robot:8:1 [W] 0309 Section variable '${MyVar}' name should be uppercase
-test.robot:9:1 [W] 0309 Section variable '${My_Var}' name should be uppercase
-test.robot:10:1 [W] 0309 Section variable '${myVar}' name should be uppercase
-test.robot:11:1 [W] 0309 Section variable '${MY_var}' name should be uppercase
-test.robot:14:1 [W] 0309 Section variable '${my_var}' name should be uppercase
-test.robot:21:1 [W] 0309 Section variable '@{var4}' name should be uppercase
+test.robot:5:1 [W] NAME08 Section variable '${my_var}' name is not uppercase
+test.robot:6:1 [W] NAME08 Section variable '${My Var}' name is not uppercase
+test.robot:7:1 [W] NAME08 Section variable '${my var}' name is not uppercase
+test.robot:8:1 [W] NAME08 Section variable '${MyVar}' name is not uppercase
+test.robot:9:1 [W] NAME08 Section variable '${My_Var}' name is not uppercase
+test.robot:10:1 [W] NAME08 Section variable '${myVar}' name is not uppercase
+test.robot:11:1 [W] NAME08 Section variable '${MY_var}' name is not uppercase
+test.robot:14:1 [W] NAME08 Section variable '${my_var}' name is not uppercase
+test.robot:21:1 [W] NAME08 Section variable '@{var4}' name is not uppercase

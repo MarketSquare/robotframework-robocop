@@ -1,2 +1,2 @@
-severity${/}four.robot:1:1 [E] 0527 Too many test cases (4/4)
-severity${/}templated_test_4.robot:5:1 [E] 0527 Too many test cases (4/4)
+severity${/}four.robot:1:1 [E] LEN27 Too many test cases (4/4)
+severity${/}templated_test_4.robot:5:1 [E] LEN27 Too many test cases (4/4)

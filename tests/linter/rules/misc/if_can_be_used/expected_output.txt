@@ -1,4 +1,0 @@
-test.robot:8:5 [I] 0908 'Run Keyword If' can be replaced with IF block since Robot Framework 4.0
-test.robot:19:15 [I] 0908 'Run Keyword If' can be replaced with IF block since Robot Framework 4.0
-test.robot:20:5 [I] 0908 'Run Keyword Unless' can be replaced with IF block since Robot Framework 4.0
-test.robot:21:5 [I] 0908 'BuiltIn.Run Keyword If' can be replaced with IF block since Robot Framework 4.0

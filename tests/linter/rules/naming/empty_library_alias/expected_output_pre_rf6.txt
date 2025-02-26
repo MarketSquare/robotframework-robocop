@@ -1,2 +1,2 @@
-test.robot:3:29 [E] 0314 Library alias should not be empty
-test.robot:4:34 [E] 0314 Library alias should not be empty
+test.robot:3:29 [E] NAME12 Library alias is empty
+test.robot:4:34 [E] NAME12 Library alias is empty

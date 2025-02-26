@@ -1,4 +1,3 @@
-
 from tests.formatter import FormatterAcceptanceTest
 
 

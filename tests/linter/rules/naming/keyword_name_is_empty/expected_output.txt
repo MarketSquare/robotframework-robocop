@@ -1,1 +1,1 @@
-test.robot:8:1 [E] 0312 Keyword name should not be empty
+test.robot:8:1 [E] NAME10 Keyword name is empty

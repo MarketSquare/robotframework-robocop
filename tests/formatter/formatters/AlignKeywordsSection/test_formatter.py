@@ -26,13 +26,13 @@ class TestAlignKeywordsSection(FormatterAcceptanceTest):
         )
 
     def test_blocks_rf5(self):
-        self.compare(source="blocks_rf5.robot", target_version=">=5")
+        self.compare(source="blocks_rf5.robot", test_on_version=">=5")
 
     def test_one_column(self):
         self.compare(source="one_column.robot")
 
     def test_invalid(self):
-        self.compare(source="non_ascii_spaces.robot", target_version=">=5")
+        self.compare(source="non_ascii_spaces.robot", test_on_version=">=5")
 
     @pytest.mark.parametrize(
         "widths",
@@ -69,7 +69,8 @@ class TestAlignKeywordsSection(FormatterAcceptanceTest):
             expected="skip_settings.robot",
             configure=[f"{self.FORMATTER_NAME}.skip_settings=True"],
         )
-        # self.compare(source="settings.robot", expected="skip_settings.robot", config=" --skip-settings") TODO implement global skip options
+        #  TODO implement global skip options
+        # self.compare(source="settings.robot", expected="skip_settings.robot", config=" --skip-settings")
 
     def test_compact_overflow_first_line(self):
         configure = [
@@ -126,7 +127,7 @@ class TestAlignKeywordsSection(FormatterAcceptanceTest):
         self.compare(source="too_long_line_disablers.robot", select=["SplitTooLongLine"])
 
     def test_error_node(self):
-        self.compare(source="error_node.robot", not_modified=True, target_version=">=5")
+        self.compare(source="error_node.robot", not_modified=True, test_on_version=">=5")
 
     def test_skip_return_values(self):
         configure = [

@@ -1,2 +1,2 @@
 import robocop.checkers.naming
-from robocop.checkers import documentation
+from robocop.linter.rules import documentation

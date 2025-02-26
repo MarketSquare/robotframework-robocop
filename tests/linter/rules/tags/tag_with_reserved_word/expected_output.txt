@@ -1,2 +1,2 @@
-test.robot:3:17 [W] 0603 Tag 'roBot:TEST' prefixed with reserved word `robot:`
-test.robot:24:84 [W] 0603 Tag 'robot:my_tag' prefixed with reserved word `robot:`
+test.robot:3:17 [W] TAG03 Tag 'roBot:TEST' prefixed with reserved word `robot:`
+test.robot:24:84 [W] TAG03 Tag 'robot:my_tag' prefixed with reserved word `robot:`

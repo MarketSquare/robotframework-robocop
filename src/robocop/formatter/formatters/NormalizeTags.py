@@ -1,4 +1,5 @@
 from robot.api.parsing import Token
+
 from robocop.formatter.disablers import skip_section_if_disabled
 from robocop.formatter.exceptions import InvalidParameterValueError
 from robocop.formatter.formatters import Formatter
@@ -8,24 +9,25 @@ from robocop.formatter.utils import variable_matcher
 class NormalizeTags(Formatter):
     """
     Normalize tag names by normalizing case and removing duplicates.
+
     Example usage:
 
     ```
-    robocop format --transform NormalizeTags:case=lowercase test.robot
+    robocop format --transform NormalizeTags.case=lowercase test.robot
     ```
 
     Other supported cases: uppercase, title case. The default is lowercase.
     You can also run it to remove duplicates but preserve current case by setting ``normalize_case`` parameter to False:
 
     ```
-    robocop format --transform NormalizeTags:normalize_case=False test.robot
+    robocop format --transform NormalizeTags.normalize_case=False test.robot
     ```
 
     NormalizeTags will change the formatting of the tags by removing the duplicates, new lines and moving comments.
     If you want to preserved formatting set ``preserve_format``:
 
     ```
-    robocop format --configure NormalizeTags:preserve_format=True test.robot
+    robocop format --configure NormalizeTags.preserve_format=True test.robot
     ```
 
     The duplicates will not be removed with ``preserve_format`` set to ``True``.
@@ -51,16 +53,16 @@ class NormalizeTags(Formatter):
             )
 
     @skip_section_if_disabled
-    def visit_Section(self, node):  # noqa
+    def visit_Section(self, node):  # noqa: N802
         return self.generic_visit(node)
 
-    def visit_Tags(self, node):  # noqa
+    def visit_Tags(self, node):  # noqa: N802
         return self.normalize_tags(node, indent=True)
 
-    def visit_DefaultTags(self, node):  # noqa
+    def visit_DefaultTags(self, node):  # noqa: N802
         return self.normalize_tags(node)
 
-    visit_TestTags = visit_ForceTags = visit_DefaultTags
+    visit_TestTags = visit_ForceTags = visit_DefaultTags  # noqa: N815
 
     def normalize_tags(self, node, indent=False):
         if self.disablers.is_node_disabled("NormalizeTags", node, full_match=False):

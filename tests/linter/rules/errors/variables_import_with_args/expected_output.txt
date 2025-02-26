@@ -1,1 +1,1 @@
-test.robot:11:1 [E] 0404 YAML variable files do not take arguments
+test.robot:11:1 [E] ERR04 YAML variable files do not take arguments

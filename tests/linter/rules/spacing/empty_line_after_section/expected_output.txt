@@ -1,4 +1,4 @@
-test.robot:1:1 [W] 1009 Too many empty lines after '*** Settings ***' section header (1/0)
-test.robot:10:1 [W] 1009 Too many empty lines after '*** Test Cases ***' section header (1/0)
-test.robot:20:1 [W] 1009 Too many empty lines after '*** Keywords ***' section header (2/0)
-missing_header.robot:1:1 [W] 1009 Too many empty lines after '*** Comments ***' section header (1/0)
+test.robot:1:1 [W] SPC09 Too many empty lines after '*** Settings ***' section header (1/0)
+test.robot:10:1 [W] SPC09 Too many empty lines after '*** Test Cases ***' section header (1/0)
+test.robot:20:1 [W] SPC09 Too many empty lines after '*** Keywords ***' section header (2/0)
+missing_header.robot:1:1 [W] SPC09 Too many empty lines after '*** Comments ***' section header (1/0)

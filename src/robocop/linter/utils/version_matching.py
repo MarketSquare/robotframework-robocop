@@ -26,10 +26,10 @@ VERSION_PATTERN = r"""
 """
 
 
-def _get_comparison_key(release: tuple[int, ...]):
+def _get_comparison_key(release: tuple[int, ...]) -> tuple[int, ...]:
     # When we compare a release version, we want to compare it with all the
     # trailing zeros removed. So we'll use a reverse the list, drop all the now
-    # leading zeros until we come to something non zero, then take the rest
+    # leading zeros until we come to something non-zero, then take the rest
     # re-reverse it back into the correct order and make it a tuple and use
     # that for our sorting key.
     return tuple(reversed(list(itertools.dropwhile(lambda x: x == 0, reversed(release)))))
@@ -67,10 +67,10 @@ class Version:
         self._dev = _parse_letter_version(match.group("dev_l"), match.group("dev_n"))
         self._key = _get_comparison_key(self.release)
 
-    def __lt__(self, other) -> bool:
+    def __lt__(self, other: Version) -> bool:
         return self._key < other._key
 
-    def __eq__(self, other) -> bool:
+    def __eq__(self, other: Version) -> bool:
         return self._key == other._key
 
     def __str__(self) -> str:
@@ -98,7 +98,7 @@ class Version:
         return self.release[2] if len(self.release) >= 3 else 0
 
 
-def _pad_version(left, right):
+def _pad_version(left: list[str], right: list[str]) -> tuple[list, list]:
     left_split, right_split = [], []
 
     # Get the release segment of our versions
@@ -113,13 +113,13 @@ def _pad_version(left, right):
     left_split.insert(1, ["0"] * max(0, len(right_split[0]) - len(left_split[0])))
     right_split.insert(1, ["0"] * max(0, len(left_split[0]) - len(right_split[0])))
 
-    return (list(itertools.chain(*left_split)), list(itertools.chain(*right_split)))
+    return list(itertools.chain(*left_split)), list(itertools.chain(*right_split))
 
 
 _prefix_regex = re.compile(r"^([0-9]+)((?:a|b|c|rc)[0-9]+)$")
 
 
-def _version_split(version: str):
+def _version_split(version: str) -> list[str]:
     result: list[str] = []
     for item in version.split("."):
         match = _prefix_regex.search(item)
@@ -182,39 +182,36 @@ class VersionSpecifier:
 
     _regex = re.compile(r"^\s*" + _regex_str + r"\s*$", re.VERBOSE | re.IGNORECASE)
 
-    _operators = {
-        "~=": "compatible",
-        "==": "equal",
-        "!=": "not_equal",
-        "<=": "less_than_equal",
-        ">=": "greater_than_equal",
-        "<": "less_than",
-        ">": "greater_than",
-    }
-
     def __init__(self, spec: str = "") -> None:
+        self._spec: tuple[str, str] = self._parse_spec(spec)
+        self._operators = {
+            "~=": self._compare_compatible,
+            "==": self._compare_equal,
+            "!=": self._compare_not_equal,
+            "<=": self._compare_less_than_equal,
+            ">=": self._compare_greater_than_equal,
+            "<": self._compare_less_than,
+            ">": self._compare_greater_than,
+        }
+
+    def _parse_spec(self, spec: str) -> tuple[str, str]:
         match = self._regex.search(spec)
         if not match:
             raise ValueError(f"Invalid specifier: '{spec}'")
 
-        self._spec: tuple[str, str] = (
+        return (
             match.group("operator").strip(),
             match.group("version").strip(),
         )
 
     def __contains__(self, item: str) -> bool:
         normalized_item = self._coerce_version(item)
+        return self._operators[self.operator](normalized_item, self.version)
 
-        operator_callable = self._get_operator(self.operator)
-        return operator_callable(normalized_item, self.version)
-
-    def _coerce_version(self, version):
+    def _coerce_version(self, version: Version | str) -> Version:
         if not isinstance(version, Version):
             version = Version(version)
         return version
-
-    def _get_operator(self, op: str):
-        return getattr(self, f"_compare_{self._operators[op]}")
 
     @property
     def operator(self) -> str:
@@ -224,7 +221,7 @@ class VersionSpecifier:
     def version(self) -> str:
         return self._spec[1]
 
-    def _compare_compatible(self, prospective, spec: str) -> bool:
+    def _compare_compatible(self, prospective: Version, spec: str) -> bool:
         # Compatible releases have an equivalent combination of >= and ==. That
         # is that ~=2.2 is equivalent to >=2.2,==2.*. This allows us to
         # implement this in terms of the other specifiers instead of
@@ -238,9 +235,9 @@ class VersionSpecifier:
         # Add the prefix notation to the end of our string
         prefix += ".*"
 
-        return self._get_operator(">=")(prospective, spec) and self._get_operator("==")(prospective, prefix)
+        return self._compare_greater_than_equal(prospective, spec) and self._compare_equal(prospective, prefix)
 
-    def _compare_equal(self, prospective, spec: str) -> bool:
+    def _compare_equal(self, prospective: Version, spec: str) -> bool:
         if spec.endswith(".*"):
             # In the case of prefix matching we want to ignore local segment.
             prospective = Version(prospective.public)
@@ -267,17 +264,17 @@ class VersionSpecifier:
         spec_version = Version(spec)
         return prospective == spec_version
 
-    def _compare_not_equal(self, prospective, spec: str) -> bool:
+    def _compare_not_equal(self, prospective: Version, spec: str) -> bool:
         return not self._compare_equal(prospective, spec)
 
-    def _compare_less_than_equal(self, prospective, spec: str) -> bool:
+    def _compare_less_than_equal(self, prospective: Version, spec: str) -> bool:
         return Version(prospective.public) <= Version(spec)
 
-    def _compare_greater_than_equal(self, prospective, spec: str) -> bool:
+    def _compare_greater_than_equal(self, prospective: Version, spec: str) -> bool:
         return Version(prospective.public) >= Version(spec)
 
-    def _compare_less_than(self, prospective, spec_str: str) -> bool:
+    def _compare_less_than(self, prospective: Version, spec_str: str) -> bool:
         return prospective < Version(spec_str)
 
-    def _compare_greater_than(self, prospective, spec_str: str) -> bool:
+    def _compare_greater_than(self, prospective: Version, spec_str: str) -> bool:
         return prospective > Version(spec_str)

@@ -1,6 +1,0 @@
-test.robot:1:1 [W] 0322 '*** Setting ***' singular header form is deprecated since RF 6.0 and will be removed in the future releases. Use '*** Settings ***' instead
-test.robot:4:1 [W] 0322 '*** Variable ***' singular header form is deprecated since RF 6.0 and will be removed in the future releases. Use '*** Variables ***' instead
-test.robot:6:1 [W] 0322 '*** Test Case ***' singular header form is deprecated since RF 6.0 and will be removed in the future releases. Use '*** Test Cases ***' instead
-test.robot:8:1 [W] 0322 '*** Keyword ***' singular header form is deprecated since RF 6.0 and will be removed in the future releases. Use '*** Keywords ***' instead
-test.robot:9:1 [W] 0322 '*** Keyword ***' singular header form is deprecated since RF 6.0 and will be removed in the future releases. Use '*** Keywords ***' instead
-test.robot:12:1 [W] 0322 '*** Comment ***' singular header form is deprecated since RF 6.0 and will be removed in the future releases. Use '*** Comments ***' instead

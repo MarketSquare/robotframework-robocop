@@ -1,5 +1,5 @@
-from robocop.checkers import VisitorChecker
-from robocop.rules import Rule, RuleSeverity
+from robocop.linter.rules import VisitorChecker
+from robocop.linter.rules import Rule, RuleSeverity
 
 rules = {
     "1105": Rule(rule_id="1105", name="smth", msg="Keyword call after [Return] statement", severity=RuleSeverity.ERROR)

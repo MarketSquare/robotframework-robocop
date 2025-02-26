@@ -8,8 +8,8 @@ except ImportError:
     Config = None
 
 from robocop.formatter.disablers import skip_section_if_disabled
-from robocop.formatter.skip import Skip
 from robocop.formatter.formatters import Formatter
+from robocop.formatter.skip import Skip
 from robocop.formatter.utils.misc import is_suite_templated
 
 
@@ -56,7 +56,7 @@ class NormalizeNewLines(Formatter):
         self.last_keyword = None
         self.templated = False
 
-    def visit_File(self, node):  # noqa
+    def visit_File(self, node):  # noqa: N802
         self.templated = not self.separate_templated_tests and is_suite_templated(node)
         self.last_section = node.sections[-1] if node.sections else None
         return self.generic_visit(node)
@@ -64,6 +64,7 @@ class NormalizeNewLines(Formatter):
     def should_be_trimmed(self, node):
         """
         Check whether given section should have empty lines trimmed.
+
         Section should not be trimmed if it contains only language marker and there is no more than
         allowed section empty lines.
         """
@@ -83,7 +84,7 @@ class NormalizeNewLines(Formatter):
         return not language_marker_only
 
     @skip_section_if_disabled
-    def visit_Section(self, node):  # noqa
+    def visit_Section(self, node):  # noqa: N802
         should_be_trimmed = self.should_be_trimmed(node)
         if should_be_trimmed:
             self.trim_empty_lines(node)
@@ -94,33 +95,33 @@ class NormalizeNewLines(Formatter):
             node.body.extend([empty_line] * self.section_lines)
         return self.generic_visit(node)
 
-    def visit_TestCaseSection(self, node):  # noqa
+    def visit_TestCaseSection(self, node):  # noqa: N802
         self.last_test = node.body[-1] if node.body else None
         return self.visit_Section(node)
 
-    def visit_KeywordSection(self, node):  # noqa
+    def visit_KeywordSection(self, node):  # noqa: N802
         self.last_keyword = node.body[-1] if node.body else None
         return self.visit_Section(node)
 
-    def visit_TestCase(self, node):  # noqa
+    def visit_TestCase(self, node):  # noqa: N802
         self.trim_empty_lines(node)
         if node is not self.last_test and not self.templated:
             node.body.extend([EmptyLine.from_params()] * self.test_case_lines)
         return self.generic_visit(node)
 
-    def visit_Keyword(self, node):  # noqa
+    def visit_Keyword(self, node):  # noqa: N802
         self.trim_empty_lines(node)
         if node is not self.last_keyword:
             node.body.extend([EmptyLine.from_params()] * self.keyword_lines)
         return self.generic_visit(node)
 
-    def visit_If(self, node):  # noqa
+    def visit_If(self, node):  # noqa: N802
         self.trim_empty_lines(node)
         return self.generic_visit(node)
 
-    visit_For = visit_While = visit_Try = visit_If
+    visit_For = visit_While = visit_Try = visit_If  # noqa: N815
 
-    def visit_Statement(self, node):  # noqa
+    def visit_Statement(self, node):  # noqa: N802
         tokens = []
         cont = node.get_token(Token.CONTINUATION)
         for line in node.lines:

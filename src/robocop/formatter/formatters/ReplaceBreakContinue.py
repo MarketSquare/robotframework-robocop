@@ -53,12 +53,12 @@ class ReplaceBreakContinue(Formatter):
         super().__init__()
         self.in_loop = False
 
-    def visit_File(self, node):  # noqa
+    def visit_File(self, node):  # noqa: N802
         self.in_loop = False
         return self.generic_visit(node)
 
     @skip_section_if_disabled
-    def visit_Section(self, node):  # noqa
+    def visit_Section(self, node):  # noqa: N802
         return self.generic_visit(node)
 
     @staticmethod
@@ -66,7 +66,7 @@ class ReplaceBreakContinue(Formatter):
         return statement([indent, Token(statement.type), *tokens])
 
     @skip_if_disabled
-    def visit_KeywordCall(self, node):  # noqa
+    def visit_KeywordCall(self, node):  # noqa: N802,PLR0911
         if not self.in_loop or not node.keyword or node.errors:
             return node
         normalized_name = misc.after_last_dot(misc.normalize_name(node.keyword))
@@ -82,10 +82,10 @@ class ReplaceBreakContinue(Formatter):
             return misc.wrap_in_if_and_replace_statement(node, Break, self.formatting_config.separator)
         return node
 
-    def visit_For(self, node):  # noqa
+    def visit_For(self, node):  # noqa: N802
         self.in_loop = True
         node = self.generic_visit(node)
         self.in_loop = False
         return node
 
-    visit_While = visit_For
+    visit_While = visit_For  # noqa: N815

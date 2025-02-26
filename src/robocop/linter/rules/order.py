@@ -41,6 +41,27 @@ def parse_test_case_order_param(value: str) -> list:
     return parse_order_comma_sep_list(value, mapping)
 
 
+def configure_sections_order(value):
+    section_map = {
+        "settings": Token.SETTING_HEADER,
+        "variables": Token.VARIABLE_HEADER,
+        "testcase": Token.TESTCASE_HEADER,
+        "testcases": Token.TESTCASE_HEADER,
+        "task": "TASK HEADER",
+        "tasks": "TASK HEADER",
+        "keyword": Token.KEYWORD_HEADER,
+        "keywords": Token.KEYWORD_HEADER,
+    }
+    sections_order = {}
+    for index, name in enumerate(value.split(",")):
+        if name.lower() not in section_map or section_map[name.lower()] in sections_order:
+            raise ValueError(f"Invalid section name: `{name}`")
+        sections_order[section_map[name.lower()]] = index
+    if Token.TESTCASE_HEADER in sections_order:
+        sections_order["TASK HEADER"] = sections_order[Token.TESTCASE_HEADER]
+    return sections_order
+
+
 class TestCaseSectionOutOfOrderRule(Rule):
     """
     Settings or body in test case are out of order.
@@ -66,21 +87,21 @@ class TestCaseSectionOutOfOrderRule(Rule):
 
     Incorrect code example::
 
-    *** Test Cases ***
-    Keyword After Teardown
-        [Documentation]    This is test Documentation
-        [Tags]    tag1    tag2
-        [Teardown]    Log    abc
-        Keyword1
+        *** Test Cases ***
+        Keyword After Teardown
+            [Documentation]    This is test Documentation
+            [Tags]    tag1    tag2
+            [Teardown]    Log    abc
+            Keyword1
 
     Correct code::
 
-    *** Test Cases ***
-    Keyword After Teardown
-        [Documentation]    This is test Documentation
-        [Tags]    tag1    tag2
-        Keyword1
-        [Teardown]    Log    abc
+        *** Test Cases ***
+        Keyword After Teardown
+            [Documentation]    This is test Documentation
+            [Tags]    tag1    tag2
+            Keyword1
+            [Teardown]    Log    abc
 
     """
 
@@ -154,3 +175,50 @@ class KeywordSectionOutOfOrderRule(Rule):
         ),
     ]
     added_in_version = "5.3.0"
+
+
+class SectionOutOfOrderRule(Rule):  # FIXME it is not dup, more like ORD
+    """
+    # TODO explain why
+    Sections should be defined in order set by ``sections_order``
+    parameter (default: ``settings,variables,testcases,keywords``).
+
+    To change the default order use following option::
+
+        robocop check configure section-out-of-order:sections_order:comma,separated,list,of,sections
+
+    where section should be case-insensitive name from the list: comments, settings, variables, testcases, keywords.
+    Order of not configured sections is ignored.
+
+    Incorrect code example::
+
+        *** Settings ***
+
+        *** Keywords ***
+
+        *** Test Cases ***
+
+    Correct code::
+
+        *** Settings ***
+
+        *** Test Cases ***
+
+        *** Keywords ***
+
+    """
+
+    name = "section-out-of-order"
+    rule_id = "ORD03"
+    message = "'{section_name}' section header is defined in wrong order: {recommended_order}"
+    severity = RuleSeverity.WARNING
+    added_in_version = "1.0.0"
+    parameters = [
+        RuleParam(
+            name="sections_order",
+            default="settings,variables,testcases,keywords",
+            converter=configure_sections_order,
+            show_type="str",
+            desc="order of sections in comma-separated list",
+        )
+    ]

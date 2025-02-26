@@ -1,8 +1,8 @@
-configure3${/}test.robot:2:32 [W] 0301 Not allowed character '$' found in 'Test with not allowed variable ${var}' test case name
-configure3${/}test.robot:2:33 [W] 0301 Not allowed character '{' found in 'Test with not allowed variable ${var}' test case name
-configure3${/}test.robot:2:37 [W] 0301 Not allowed character '}' found in 'Test with not allowed variable ${var}' test case name
-configure3${/}test.robot:6:8 [W] 0301 Not allowed character '?' found in 'Keyword?' keyword name
-configure3${/}test.robot:13:26 [W] 0301 Not allowed character '$' found in 'Keyword With ${em.bedded}$ Argument{}' keyword name
-configure3${/}test.robot:13:36 [W] 0301 Not allowed character '{' found in 'Keyword With ${em.bedded}$ Argument{}' keyword name
-configure3${/}test.robot:13:37 [W] 0301 Not allowed character '}' found in 'Keyword With ${em.bedded}$ Argument{}' keyword name
-configure3${/}test.robot:16:14 [W] 0301 Not allowed character ':' found in 'Keyword With :' keyword name
+configure3${/}test.robot:2:32 [W] NAME01 Not allowed character '$' found in 'Test with not allowed variable ${var}' test case name
+configure3${/}test.robot:2:33 [W] NAME01 Not allowed character '{' found in 'Test with not allowed variable ${var}' test case name
+configure3${/}test.robot:2:37 [W] NAME01 Not allowed character '}' found in 'Test with not allowed variable ${var}' test case name
+configure3${/}test.robot:6:8 [W] NAME01 Not allowed character '?' found in 'Keyword?' keyword name
+configure3${/}test.robot:13:26 [W] NAME01 Not allowed character '$' found in 'Keyword With ${em.bedded}$ Argument{}' keyword name
+configure3${/}test.robot:13:36 [W] NAME01 Not allowed character '{' found in 'Keyword With ${em.bedded}$ Argument{}' keyword name
+configure3${/}test.robot:13:37 [W] NAME01 Not allowed character '}' found in 'Keyword With ${em.bedded}$ Argument{}' keyword name
+configure3${/}test.robot:16:14 [W] NAME01 Not allowed character ':' found in 'Keyword With :' keyword name

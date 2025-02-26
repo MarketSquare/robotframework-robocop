@@ -7,8 +7,8 @@ except ImportError:
     ReturnStatement = None
 
 from robocop.formatter.disablers import skip_if_disabled, skip_section_if_disabled
-from robocop.formatter.skip import Skip
 from robocop.formatter.formatters import Formatter
+from robocop.formatter.skip import Skip
 from robocop.formatter.utils.misc import join_comments
 
 
@@ -51,12 +51,12 @@ class NormalizeSeparators(Formatter):
                 self._allowed_line_length = self.formatting_config.line_length
         return self._allowed_line_length
 
-    def visit_File(self, node):  # noqa
+    def visit_File(self, node):  # noqa: N802
         self.indent = 0
         return self.generic_visit(node)
 
     @skip_section_if_disabled
-    def visit_Section(self, node):  # noqa
+    def visit_Section(self, node):  # noqa: N802
         return self.generic_visit(node)
 
     def indented_block(self, node):
@@ -66,17 +66,17 @@ class NormalizeSeparators(Formatter):
         self.indent -= 1
         return node
 
-    def visit_TestCase(self, node):  # noqa
+    def visit_TestCase(self, node):  # noqa: N802
         return self.indented_block(node)
 
-    visit_Keyword = visit_While = visit_TestCase  # noqa
+    visit_Keyword = visit_While = visit_TestCase  # noqa: N815
 
-    def visit_For(self, node):
+    def visit_For(self, node):  # noqa: N802
         node = self.indented_block(node)
         self.visit_Statement(node.end)
         return node
 
-    def visit_Try(self, node):
+    def visit_Try(self, node):  # noqa: N802
         node = self.indented_block(node)
         if node.next:
             self.visit(node.next)
@@ -84,7 +84,7 @@ class NormalizeSeparators(Formatter):
             self.visit_Statement(node.end)
         return node
 
-    def visit_If(self, node):
+    def visit_If(self, node):  # noqa: N802
         if self.is_inline and InlineIfHeader and isinstance(node.header, InlineIfHeader):  # nested inline if is ignored
             return node
         self.is_inline = self.is_inline or (InlineIfHeader and isinstance(node.header, InlineIfHeader))
@@ -100,19 +100,19 @@ class NormalizeSeparators(Formatter):
         return node
 
     @skip_if_disabled
-    def visit_Documentation(self, doc):  # noqa
+    def visit_Documentation(self, doc):  # noqa: N802
         if self.skip.documentation or self.flatten_lines:
             has_pipes = doc.tokens[0].value.startswith("|")
             return self.handle_spaces(doc, has_pipes, only_indent=True)
         return self.visit_Statement(doc)
 
-    def visit_KeywordCall(self, keyword):  # noqa
+    def visit_KeywordCall(self, keyword):  # noqa: N802
         if self.skip.keyword_call(keyword):
             return keyword
         return self.visit_Statement(keyword)
 
     @skip_if_disabled
-    def visit_Comment(self, node):  # noqa
+    def visit_Comment(self, node):  # noqa: N802
         if self.skip.comment(node):
             return node
         has_pipes = node.tokens[0].value.startswith("|")
@@ -122,7 +122,7 @@ class NormalizeSeparators(Formatter):
         return self.is_inline and not isinstance(node, InlineIfHeader)
 
     @skip_if_disabled
-    def visit_Statement(self, statement):  # noqa
+    def visit_Statement(self, statement):  # noqa: N802
         if statement is None:
             return None
         has_pipes = statement.tokens[0].value.startswith("|")

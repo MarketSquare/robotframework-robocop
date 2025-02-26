@@ -81,7 +81,7 @@ List of formatters
 
 To see list of formatters included with `Robocop` use ``list formatters``::
 
-    > robotidy list formatters
+    > robocop list formatters
                   Transformers
     ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━┓
     ┃ Name                       ┃ Enabled ┃
@@ -119,7 +119,7 @@ To see list of formatters included with `Robocop` use ``list formatters``::
     Formatters are listed in the order they are run by default. The status of the formatter will be displayed in the
     different color if it is changed by the configuration.
     To see detailed docs run:
-        robotidy --desc transformer_name
+        robotidy --desc formatter_nameF
     or
         robotidy --desc all
 
@@ -169,20 +169,22 @@ You can display short documentation on particular transformer with ``--desc``::
             *** Variables ***
             # this section will be removed with'alow_only_comments' parameter set to False
 
-        Supports global formatting params: '--startline' and '--endline'.
+        Supports global formatting params: '--start-line' and '--end-line'.
 
-        See https://robotidy.readthedocs.io/en/latest/transformers/DiscardEmptySections.html for more examples.
+        See https://robocop.readthedocs.io/en/stable/formatters/formatters_list/DiscardEmptySections.html for more examples.
 
 Format selected lines
 ---------------------
-Most formatters support running `Robocop` only on selected lines. Use ``--startline`` and ``--endline`` for this::
 
-    robocop format --startline 5 --endline 10 file.robot
+Most formatters support running `Robocop` only on selected lines. Use ``--start-line`` and ``--end-line`` for this::
+
+    robocop format --start-line 5 --end-line 10 file.robot
 
 If you want to disable formatting in particular files see disablers section in :ref:`configuration`.
 
 Format code from standard input
 --------------------------------
+
 Use ``-`` to load code from input:
 
 ..  code-block:: none

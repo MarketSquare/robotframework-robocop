@@ -27,3 +27,8 @@ Nested in blocks
     FINALLY
         ${var}
     END
+
+Group
+    GROUP    Missing keyword name
+       ${var}
+    END

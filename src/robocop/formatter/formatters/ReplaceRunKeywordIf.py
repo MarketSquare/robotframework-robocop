@@ -1,4 +1,5 @@
 from robot.api.parsing import ElseHeader, ElseIfHeader, End, If, IfHeader, KeywordCall, Token
+
 from robocop.formatter.disablers import skip_if_disabled, skip_section_if_disabled
 from robocop.formatter.formatters import Formatter
 from robocop.formatter.utils import misc
@@ -83,11 +84,11 @@ class ReplaceRunKeywordIf(Formatter):
     """
 
     @skip_section_if_disabled
-    def visit_Section(self, node):  # noqa
+    def visit_Section(self, node):  # noqa: N802
         return self.generic_visit(node)
 
     @skip_if_disabled
-    def visit_KeywordCall(self, node):  # noqa
+    def visit_KeywordCall(self, node):  # noqa: N802
         if not node.keyword:
             return node
         if misc.after_last_dot(misc.normalize_name(node.keyword)) == "runkeywordif":
@@ -151,7 +152,7 @@ class ReplaceRunKeywordIf(Formatter):
             ]
         if misc.is_var(keyword_name):
             keyword_token = Token(Token.KEYWORD_NAME, "Run Keyword")
-            arg_tokens = [keyword_token] + arg_tokens
+            arg_tokens = [keyword_token, *arg_tokens]
         return [self.args_to_keyword(arg_tokens, assign, indent)]
 
     def args_to_keyword(self, arg_tokens, assign, indent):

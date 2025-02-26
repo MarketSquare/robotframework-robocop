@@ -39,7 +39,7 @@ class TestAlignSettingsSection(FormatterAcceptanceTest):
             configure=[f"{self.FORMATTER_NAME}.up_to_column=3"],
         )
 
-    @pytest.mark.parametrize("indent", (0, 2, 20))
+    @pytest.mark.parametrize("indent", [0, 2, 20])
     def test_continued_statement_style_all_columns_configure_indent(self, indent):
         configure = [f"{self.FORMATTER_NAME}.up_to_column=3", f"{self.FORMATTER_NAME}.argument_indent={indent}"]
         self.compare(

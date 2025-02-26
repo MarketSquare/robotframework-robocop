@@ -12,17 +12,17 @@ class TestGenerateDocumentation(FormatterAcceptanceTest):
     FORMATTER_NAME = "GenerateDocumentation"
 
     def test_transformer(self):
-        self.compare(source="test.robot", target_version=">=5")
+        self.compare(source="test.robot", test_on_version=">=5")
 
     def test_transformer_rf4(self):
-        self.compare(source="test.robot", expected="test_rf4.robot", target_version="<=4")
+        self.compare(source="test.robot", expected="test_rf4.robot", test_on_version="<=4")
 
     def test_transformer_overwrite(self):
         self.compare(
             source="test.robot",
             expected="overwrite.robot",
             configure=[f"{self.FORMATTER_NAME}.overwrite=True"],
-            target_version=">=5",
+            test_on_version=">=5",
         )
 
     def test_template_with_defaults(self):
@@ -32,7 +32,7 @@ class TestGenerateDocumentation(FormatterAcceptanceTest):
             select=[self.FORMATTER_NAME],
             configure=[f"{self.FORMATTER_NAME}.doc_template={template_path}"],
             source=source,
-            target_version=">=5",
+            test_on_version=">=5",
         )
         self.compare_file(source, "template_with_defaults.robot")
 
@@ -44,7 +44,7 @@ class TestGenerateDocumentation(FormatterAcceptanceTest):
             select=[self.FORMATTER_NAME],
             configure=[f"{self.FORMATTER_NAME}.doc_template={rel_template_path}"],
             source=source,
-            target_version=">=5",
+            test_on_version=">=5",
         )
         self.compare_file(source, "template_with_defaults.robot")
 

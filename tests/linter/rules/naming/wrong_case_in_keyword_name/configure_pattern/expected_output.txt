@@ -1,2 +1,2 @@
-configure_pattern${/}test.robot:4:3 [W] 0302 Keyword name 'Not Allowed Dot In Keyword Foo.baz' does not follow case convention
-configure_pattern${/}test.robot:10:1 [W] 0302 Keyword name 'Not Allowed Dot In Keyword Foo.baz' does not follow case convention
+configure_pattern${/}test.robot:4:3 [W] NAME02 Keyword name 'Not Allowed Dot In Keyword Foo.baz' does not follow case convention
+configure_pattern${/}test.robot:10:1 [W] NAME02 Keyword name 'Not Allowed Dot In Keyword Foo.baz' does not follow case convention

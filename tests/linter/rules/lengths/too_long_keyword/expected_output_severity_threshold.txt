@@ -1,2 +1,2 @@
-severity_threshold.robot:15:1 [W] 0501 Keyword 'Keyword' is too long (44/40)
-severity_threshold.robot:61:1 [E] 0501 Keyword 'Keyword2' is too long (51/50)
+severity_threshold.robot:15:1 [W] LEN01 Keyword 'Keyword' is too long (44/40)
+severity_threshold.robot:61:1 [E] LEN01 Keyword 'Keyword2' is too long (51/50)

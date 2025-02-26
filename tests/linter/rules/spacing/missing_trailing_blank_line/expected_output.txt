@@ -1,1 +1,1 @@
-test.robot:7:1 [W] 1002 Missing trailing blank line at the end of file
+test.robot:7:1 [W] SPC02 Missing trailing blank line at the end of file

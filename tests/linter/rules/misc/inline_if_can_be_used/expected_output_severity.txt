@@ -1,2 +1,2 @@
-severity.robot:3:5 [I] 0916 IF can be replaced with inline IF
-severity.robot:25:5 [W] 0916 IF can be replaced with inline IF
+severity.robot:3:5 [I] MISC09 IF can be replaced with inline IF
+severity.robot:25:5 [W] MISC09 IF can be replaced with inline IF

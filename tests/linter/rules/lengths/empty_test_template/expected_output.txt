@@ -1,1 +1,1 @@
-test.robot:2:1 [E] 0529 Test Template is empty
+test.robot:2:1 [E] LEN29 Test Template is empty

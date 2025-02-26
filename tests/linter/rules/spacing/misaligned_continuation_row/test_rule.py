@@ -9,7 +9,7 @@ class TestRuleAcceptance(RuleAcceptance):
 
     def test_ignore_docs(self):
         self.check_rule(
-            config="-c misaligned-continuation-row:ignore_docs:False",
+            configure=["misaligned-continuation-row.ignore_docs=False"],
             src_files=["test.robot"],
             expected_file="expected_output_ignore_docs.txt",
         )
@@ -20,7 +20,7 @@ class TestRuleAcceptance(RuleAcceptance):
     )
     def test_run_keyword(self, ignore_run_keywords, expected_file):
         self.check_rule(
-            config=f"-c misaligned-continuation-row:ignore_run_keywords:{ignore_run_keywords}",
+            configure=[f"misaligned-continuation-row.ignore_run_keywords={ignore_run_keywords}"],
             src_files=["run_keyword.robot"],
             expected_file=expected_file,
         )

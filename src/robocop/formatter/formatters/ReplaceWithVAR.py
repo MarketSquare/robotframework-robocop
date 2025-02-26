@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
-
 from robot.api.parsing import Comment, ElseHeader, ElseIfHeader, End, If, IfHeader, KeywordCall, Token
 from robot.utils.escaping import split_from_equals
 from robot.variables.search import is_dict_variable, is_list_variable
@@ -14,9 +12,6 @@ except ImportError:
 from robocop.formatter.disablers import skip_if_disabled
 from robocop.formatter.formatters import Formatter
 from robocop.formatter.utils import misc
-
-if TYPE_CHECKING:
-    from robot.parsing.model.blocks import If
 
 
 class ReplaceWithVAR(Formatter):
@@ -87,7 +82,7 @@ class ReplaceWithVAR(Formatter):
         }
 
     @skip_if_disabled
-    def visit_KeywordCall(self, node):  # noqa
+    def visit_KeywordCall(self, node):  # noqa: N802
         if node.errors:
             return node
         kw_name = misc.after_last_dot(misc.normalize_name(node.keyword))
@@ -101,7 +96,7 @@ class ReplaceWithVAR(Formatter):
         return self.restore_comments(converted_node, comments, indent.value)
 
     @skip_if_disabled
-    def visit_If(self, node: "If"):  # noqa
+    def visit_If(self, node: If):  # noqa: N802,PLR0915  TODO
         if not self.is_inline_if(node):
             return self.generic_visit(node)
         indent = node.header.get_token(Token.SEPARATOR).value
@@ -132,16 +127,14 @@ class ReplaceWithVAR(Formatter):
                     modified = True
                 else:
                     if assign:
-                        kw_tokens = (
-                            [block_indent_token] + assign_tokens + [sep_token] + list(branch_statement.tokens[1:])
-                        )
+                        kw_tokens = [block_indent_token, *assign_tokens, sep_token, *list(branch_statement.tokens[1:])]
                     else:
-                        kw_tokens = [block_indent_token] + list(branch_statement.tokens[1:])
+                        kw_tokens = [block_indent_token, *list(branch_statement.tokens[1:])]
                     if kw_tokens[-1].type == Token.SEPARATOR:
                         kw_tokens[-1] = Token(Token.EOL)
                     branch_statement = KeywordCall.from_tokens(kw_tokens)
             else:
-                kw_tokens = [block_indent_token] + list(branch_statement.tokens[1:])
+                kw_tokens = [block_indent_token, *list(branch_statement.tokens[1:])]
                 if kw_tokens[-1].type == Token.SEPARATOR:
                     kw_tokens[-1] = Token(Token.EOL)
                 branch_statement = KeywordCall.from_tokens(kw_tokens)
@@ -173,7 +166,7 @@ class ReplaceWithVAR(Formatter):
 
     @staticmethod
     def update_statement_in_inline_if(statement, indent_token):
-        updated_tokens = [indent_token] + list(statement.tokens[1:])
+        updated_tokens = [indent_token, *list(statement.tokens[1:])]
         if updated_tokens[-1].type == Token.SEPARATOR:
             updated_tokens[-1] = Token(Token.EOL)
         statement.tokens = tuple(updated_tokens)
@@ -184,15 +177,14 @@ class ReplaceWithVAR(Formatter):
             return node
         if len(comments) == 1:
             # insert comment between last data token and EOL
-            node.tokens = tuple(list(node.tokens[:-1]) + [Token(Token.SEPARATOR, "  "), comments[0], node.tokens[-1]])
+            node.tokens = [*node.tokens[:-1], Token(Token.SEPARATOR, "  "), comments[0], node.tokens[-1]]
             return node
         comment_nodes = [Comment.from_params(comment=comment.value, indent=indent) for comment in comments]
         return *comment_nodes, node
 
     @staticmethod
     def resolve_variable_name(name: str) -> str | None:
-        if name.startswith("\\"):
-            name = name[1:]
+        name = name.removeprefix("\\")
         if len(name) < 2 or name[0] not in "$@&":
             return None
         if name[1] != "{":
@@ -206,7 +198,7 @@ class ReplaceWithVAR(Formatter):
     def get_assign_names(self, assign: tuple[str, ...]) -> list[str]:
         return [self.resolve_assign_name(assign) for assign in assign]
 
-    def replace_set_variable(self, node, kw_name: str, indent: str, assign: list[str] | None = None):
+    def replace_set_variable(self, node, _kw_name: str, indent: str, assign: list[str] | None = None):
         assign = assign or self.get_assign_names(node.assign)
         args = node.get_tokens(Token.ARGUMENT)
         if not assign or (len(assign) != 1 and len(assign) != len(args)):
@@ -256,8 +248,10 @@ class ReplaceWithVAR(Formatter):
             name=var_name, value=values, separator=self.formatting_config.separator, indent=indent, scope=scope
         )
 
-    def replace_set_variable_if_kw(self, node, kw_name: str, indent: str, assign: list[str] | None = None):
+    def replace_set_variable_if_kw(self, node, _kw_name: str, indent: str, assign: list[str] | None = None):
         """
+        Replace Set Variable If keyword with IF.
+
         # ${var}    Set Variable If    ${cond}    1
         # IF    ${cond}    VAR    1    ELSE    VAR    ${None}
 
@@ -308,7 +302,7 @@ class ReplaceWithVAR(Formatter):
                 return head
             args = args[2:]
 
-    def replace_catenate_kw(self, node, kw_name: str, indent: str, assign: list[str] | None = None):
+    def replace_catenate_kw(self, node, _kw_name: str, indent: str, assign: list[str] | None = None):
         assign = assign or self.get_assign_names(node.assign)
         # not items - VAR with ${EMPTY}
         if not self.replace_catenate or len(assign) != 1:
@@ -328,7 +322,7 @@ class ReplaceWithVAR(Formatter):
         scope = "LOCAL" if self.explicit_local else None
         return Var.from_params(name=var_name, value=values, indent=indent, value_separator=separator, scope=scope)
 
-    def replace_create_list_kw(self, node, kw_name: str, indent: str, assign: list[str] | None = None):
+    def replace_create_list_kw(self, node, _kw_name: str, indent: str, assign: list[str] | None = None):
         assign = assign or self.get_assign_names(node.assign)
         if not self.replace_create_list or len(assign) != 1:
             return None
@@ -344,7 +338,7 @@ class ReplaceWithVAR(Formatter):
             name=var_name, value=values, separator=self.formatting_config.separator, indent=indent, scope=scope
         )
 
-    def _split_dict_items(self, items: list[str]):
+    def _split_dict_items(self, items: list[str]) -> tuple[list[str], list[str]]:
         separate = []
         for item in items:
             name, value = split_from_equals(item)
@@ -362,7 +356,7 @@ class ReplaceWithVAR(Formatter):
             combined.append(items[-1])
         return combined
 
-    def replace_create_dictionary_kw(self, node, kw_name: str, indent: str, assign: list[str] | None = None):
+    def replace_create_dictionary_kw(self, node, _kw_name: str, indent: str, assign: list[str] | None = None):
         assign = assign or self.get_assign_names(node.assign)
         if not self.replace_create_dictionary or len(assign) != 1:
             return None

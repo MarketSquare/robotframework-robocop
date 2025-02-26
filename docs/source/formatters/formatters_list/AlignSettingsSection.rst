@@ -268,7 +268,7 @@ Skip formatting
 
 It is possible to use the following arguments to skip formatting of the code:
 
-- :ref:`skip documentation`
+- :ref:`skip option` (``--skip documentation``)
 
 It is highly recommended to use one of the ``skip`` options if you wish to use the alignment but you have part of the code
 that looks better with manual alignment. It is also possible to use disablers (:ref:`disablers`) but ``skip`` option

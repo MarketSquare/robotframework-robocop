@@ -1,9 +1,12 @@
+from __future__ import annotations
+
 import inspect
 import json
-from collections import OrderedDict
 from pathlib import Path
+from typing import NoReturn
 
 import robocop.linter.exceptions
+from robocop.config import Config
 from robocop.linter.rules import RobocopImporter
 from robocop.linter.utils.misc import get_robocop_cache_directory
 
@@ -13,44 +16,48 @@ ROBOCOP_CACHE_FILE = ".robocop_cache"
 class Report:
     """
     Base class for report class.
+
     Override `configure` method if you want to allow report configuration.
     Override `add_message`` if your report processes the Robocop issues.
 
-    Set class attribute `DEFAULT` to `False` if you don't want your report to be included in `all` reports.
+    Set class attribute `NO_ALL` to `False` if you don't want your report to be included in `all` reports.
     """
 
-    DEFAULT = True
+    NO_ALL = True
+    ENABLED = False
     INTERNAL = False
-    COMPARE_RESULTS = False
 
-    def configure(self, name, value):
+    def __init__(self, config: Config) -> None:
+        self.config = config
+
+    def configure(self, name: str, value: str) -> None:  # noqa: ARG002
         raise robocop.linter.exceptions.ConfigGeneralError(
-            f"Provided param '{name}' for report '{getattr(self, 'name')}' does not exist"
+            f"Provided param '{name}' for report '{self.name}' does not exist"
         )
 
-    def add_message(self, *args):
+    def add_message(self, *args) -> None:
         pass
 
-    def get_report(self, *args):
+    def get_report(self, *args) -> None:  # noqa: ARG002
         return None
 
 
 class ComparableReport(Report):
-    COMPARE_RESULTS = True
+    def __init__(self, config: Config) -> None:
+        self.compare_runs = config.linter.compare
+        super().__init__(config)
 
-    def __init__(self, compare_runs):
-        self.compare_runs = compare_runs
-
-    def get_report(self, prev_results):
+    def get_report(self, prev_results) -> NoReturn:
         raise NotImplementedError
 
-    def persist_result(self):
+    def persist_result(self) -> NoReturn:
         raise NotImplementedError
 
 
-def load_reports(compare_runs=False):
+def load_reports(config: Config) -> dict[str, type[Report]]:
     """
     Load all valid reports.
+
     Report is considered valid if it inherits from `Report` class
     and contains both `name` and `description` attributes.
     """
@@ -61,77 +68,69 @@ def load_reports(compare_runs=False):
         for report_class in classes:
             if not issubclass(report_class[1], Report):
                 continue
-            if is_report_comparable(report_class[1]):
-                report = report_class[1](compare_runs)
-            else:
-                report = report_class[1]()
+            report = report_class[1](config)
             if not hasattr(report, "name") or not hasattr(report, "description"):
                 continue
             reports[report.name] = report
     return reports
 
 
-def is_report_comparable(report):
-    return getattr(report, "COMPARE_RESULTS", False)
-
-
-def is_report_default(report):
-    return getattr(report, "DEFAULT", False)
-
-
-def is_report_internal(report):
-    return getattr(report, "INTERNAL", False)
-
-
-def disable_external_reports_if_none(configured_reports: list[str]) -> list[str]:
-    """If any reports is 'None', disable other reports other than internal reports."""
-    if "None" in configured_reports:
-        if "internal_json_report" in configured_reports:
-            # TODO: Improve how internal reports are handled
-            return ["return_status", "internal_json_report"]
-        return ["return_status"]
-    return configured_reports
-
-
-def get_reports(configured_reports: list[str]):
+def get_reports(config: Config):
     """
     Return dictionary with list of valid, enabled reports (listed in `configured_reports` set of str).
+
     If `configured_reports` contains `all` then all default reports are enabled.
     """
-    configured_reports = disable_external_reports_if_none(configured_reports)
-    compare_runs = "compare_runs" in configured_reports
-    reports = load_reports(compare_runs)
-    enabled_reports = OrderedDict()
+    configured_reports = config.linter.reports
+    configured_reports = [csv_report for report in configured_reports for csv_report in report.split(",")]
+    if "None" in configured_reports:
+        configured_reports = []
+    reports = load_reports(config)
+    enabled_reports = {name: report_class for name, report_class in reports.items() if report_class.ENABLED}
     for report in configured_reports:
         if report == "all":
             for name, report_class in reports.items():
-                if is_report_default(report_class) and name not in enabled_reports:
+                if report_class.NO_ALL and name not in enabled_reports:
                     enabled_reports[name] = report_class
         elif report not in reports:
             raise robocop.linter.exceptions.InvalidReportName(report, reports)
         elif report not in enabled_reports:
             enabled_reports[report] = reports[report]
+    for report, report_class in reports.items():
+        if report_class.ENABLED and report not in enabled_reports:
+            enabled_reports[report] = report_class
     return enabled_reports
 
 
-def list_reports(reports, list_reports_with_status):
+def print_reports(reports: dict[str, Report], only_enabled: bool | None) -> str:
     """
     Return description of reports.
 
     The reports list is filtered and only public reports are provided. If the report is enabled in current
     configuration it will have (enabled) suffix (and (disabled) if it is disabled).
+
+    Args:
+        reports: Dictionary with loaded reports.
+        only_enabled: if set to True/False, it will filter reports by enabled/disabled status
+
     """
-    all_public_reports = [report for report in load_reports().values() if not is_report_internal(report)]
+    config = Config()
+    all_public_reports = [report for report in load_reports(config).values() if not report.INTERNAL]
     all_public_reports = sorted(all_public_reports, key=lambda x: x.name)
     configured_reports = {x.name for x in reports.values()}
-    available_reports = "Available reports:"
+    available_reports = ""
     for report in all_public_reports:
-        status = "enabled" if report.name in configured_reports else "disabled"
-        if list_reports_with_status != "default" and list_reports_with_status != status.upper():
+        is_enabled = report.name in configured_reports
+        if only_enabled is not None and only_enabled != is_enabled:
             continue
-        if not is_report_default(report):
-            status += " - non-default"
+        status = "[green]enabled[/green]" if is_enabled else "[red]disabled[/red]"
+        if not report.NO_ALL and not report.INTERNAL:
+            status += " - not included in all"
         available_reports += f"\n{report.name:20} - {report.description} ({status})"
+    if available_reports:
+        available_reports = "Available reports:" + available_reports
+    else:
+        available_reports = "No available reports that meet your search criteria."
     available_reports += (
         "\n\nEnable report by passing report name using --reports option. "
         "Use `all` to enable all default reports. "
@@ -152,7 +151,7 @@ def load_reports_result_from_cache():
             return None
 
 
-def save_reports_result_to_cache(working_dir: str, report_results: dict):
+def save_reports_result_to_cache(working_dir: str, report_results: dict) -> None:
     """
     Save results from Robocop reports to json file.
 

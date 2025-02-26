@@ -7,5 +7,5 @@ class TestRuleAcceptance(RuleAcceptance):
 
     def test_keyword_tags(self):
         self.check_rule(
-            src_files=["keyword_tags.robot"], expected_file="expected_output_keyword_tags.txt", target_version=">=6"
+            src_files=["keyword_tags.robot"], expected_file="expected_output_keyword_tags.txt", test_on_version=">=6"
         )

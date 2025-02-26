@@ -279,11 +279,9 @@ filling the line until line the length limit (with one of the ``split_on_every_a
 Ignore comments
 ----------------
 
-# TODO: skip comments or skip=comments
+To not count length of the comment to line length use :ref:`skip option` option::
 
-To not count length of the comment to line length use :ref:`skip comments` option::
-
-    robocop format --configure SplitTooLongLine.skip_comments=True
+    robocop format --configure SplitTooLongLine.skip=comments
 
 This allows to accept and do not format lines that are longer than allowed length because of the added comment.
 
@@ -292,10 +290,9 @@ Skip formatting
 
 It is possible to use the following arguments to skip formatting of the code:
 
+- :ref:`skip option`
 - :ref:`skip keyword call`
 - :ref:`skip keyword call pattern`
-- :ref:`skip settings`
-- :ref:`skip comments`
 - :ref:`skip sections`
 
 It is also possible to use disablers (:ref:`disablers`) but ``skip`` option

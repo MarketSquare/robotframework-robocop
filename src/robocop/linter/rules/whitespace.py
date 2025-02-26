@@ -4,6 +4,7 @@ Whitespace rules.
 Holds rules that are used outside spacing module for now - after redesign to seperate rules/checkers spacing rules
 can be moved here.
 """
+
 from robocop.linter.rules import Rule, RuleSeverity
 
 
@@ -56,12 +57,14 @@ class NotEnoughWhitespaceAfterNewlineMarkerRule(Rule):
 
     Incorrect code example::
 
+        *** Variables ***
         @{LIST}  1
         ... 2
         ...  3
 
     Correct code::
 
+        *** Variables ***
         @{LIST}  1
         ...  2
         ...  3
@@ -83,11 +86,13 @@ class NotEnoughWhitespaceAfterVariableRule(Rule):
 
     Incorrect code example::
 
+        *** Variables ***
         ${variable} 1
         ${other_var}  2
 
     Correct code::
 
+        *** Variables ***
         ${variable}  1
         ${other_var}  2
 
@@ -99,7 +104,6 @@ class NotEnoughWhitespaceAfterVariableRule(Rule):
     severity = RuleSeverity.ERROR
     version = ">=4.0"
     added_in_version = "1.11.0"
-
 
 
 class NotEnoughWhitespaceAfterSuiteSettingRule(Rule):

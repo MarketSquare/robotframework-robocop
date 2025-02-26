@@ -14,7 +14,7 @@ class TestOrderSettings(FormatterAcceptanceTest):
         self.compare(source="test.robot", expected=expected)
 
     @pytest.mark.parametrize(
-        "keyword_before, keyword_after, test_before, test_after, expected",
+        ("keyword_before", "keyword_after", "test_before", "test_after", "expected"),
         [
             (
                 "documentation,tags,arguments,timeout,setup",
@@ -97,7 +97,7 @@ class TestOrderSettings(FormatterAcceptanceTest):
     #     assert result.output == expected_output
 
     def test_translated(self):
-        self.compare(source="translated.robot", target_version=">=6")
+        self.compare(source="translated.robot", test_on_version=">=6")
 
     def test_stick_comments_with_settings(self):
         self.compare(source="stick_comments.robot")

@@ -251,10 +251,9 @@ Skip formatting
 
 It is possible to use the following arguments to skip formatting of the code:
 
-- :ref:`skip documentation`
+- :ref:`skip option`
 - :ref:`skip keyword call`
 - :ref:`skip keyword call pattern`
-- :ref:`skip comments`
 - :ref:`skip sections`
 
 Documentation is formatted by default. To disable formatting the separators inside documentation, and to only format

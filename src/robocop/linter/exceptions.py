@@ -1,7 +1,7 @@
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from robocop.rules import Rule
+    from robocop.linter.rules import Rule
 
 import robot.errors
 
@@ -118,16 +118,18 @@ class RobotFrameworkParsingError(Exception):
 
 def handle_robot_errors(func):
     """
+    Handle bugs in Robot Framework.
+
     If the user uses older version of Robot Framework, it may fail while parsing the
     source code due to bug that is already fixed in the more recent version.
     """
 
-    def wrap_errors(*args, **kwargs):
+    def wrap_errors(*args, **kwargs):  # noqa: ANN202
         try:
             return func(*args, **kwargs)
         except robot.errors.DataError:
             raise
-        except:  # noqa: E722
-            raise RobotFrameworkParsingError
+        except Exception as err:
+            raise RobotFrameworkParsingError from err
 
     return wrap_errors

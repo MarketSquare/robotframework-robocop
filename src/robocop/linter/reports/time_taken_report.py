@@ -1,6 +1,7 @@
 from timeit import default_timer as timer
 
 import robocop.linter.reports
+from robocop.config import Config
 
 
 class TimeTakenReport(robocop.linter.reports.ComparableReport):
@@ -14,12 +15,12 @@ class TimeTakenReport(robocop.linter.reports.ComparableReport):
         Scan finished in 0.054s.
     """
 
-    def __init__(self, compare_runs):
+    def __init__(self, config: Config):
         self.name = "scan_timer"
         self.description = "Returns Robocop execution time"
         self.start_time = timer()
         self.time_taken = "0.000"
-        super().__init__(compare_runs)
+        super().__init__(config)
 
     def persist_result(self):
         return {"time_taken": self.time_taken}

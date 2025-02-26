@@ -3,10 +3,11 @@ import re
 from collections import Counter
 
 from robot.api.parsing import Token, Variable
+
 from robocop.formatter.disablers import skip_if_disabled, skip_section_if_disabled
 from robocop.formatter.exceptions import InvalidParameterValueError
-from robocop.formatter.skip import Skip
 from robocop.formatter.formatters import Formatter
+from robocop.formatter.skip import Skip
 
 
 class NormalizeAssignments(Formatter):
@@ -90,10 +91,11 @@ class NormalizeAssignments(Formatter):
             )
         return types[value]
 
-    def visit_File(self, node):  # noqa
+    def visit_File(self, node):  # noqa: N802
         """
         If no assignment sign was set the file will be scanned to find most common assignment sign.
-        This auto detection will happen for every file separately.
+
+        This auto-detection will happen for every file separately.
         """
         if self.equal_sign_type is None or self.equal_sign_type_variables is None:
             common, common_variables = self.auto_detect_equal_sign(node)
@@ -106,19 +108,20 @@ class NormalizeAssignments(Formatter):
         self.generic_visit(node)
         self.file_equal_sign_type = None
         self.file_equal_sign_type_variables = None
+        return node
 
     @skip_section_if_disabled
-    def visit_Section(self, node):  # noqa
+    def visit_Section(self, node):  # noqa: N802
         return self.generic_visit(node)
 
     @skip_if_disabled
-    def visit_KeywordCall(self, node):  # noqa
+    def visit_KeywordCall(self, node):  # noqa: N802
         if node.assign:  # if keyword returns any value
             assign_tokens = node.get_tokens(Token.ASSIGN)
             self.normalize_equal_sign(assign_tokens[-1], self.equal_sign_type, self.file_equal_sign_type)
         return node
 
-    def visit_VariableSection(self, node):  # noqa
+    def visit_VariableSection(self, node):  # noqa: N802
         for child in node.body:
             if not isinstance(child, Variable):
                 continue
@@ -152,19 +155,19 @@ class AssignmentTypeDetector(ast.NodeVisitor):
         self.most_common = None
         self.most_common_variables = None
 
-    def visit_File(self, node):  # noqa
+    def visit_File(self, node):  # noqa: N802
         self.generic_visit(node)
         if len(self.sign_counter) >= 2:
             self.most_common = self.sign_counter.most_common(1)[0][0]
         if len(self.sign_counter_variables) >= 2:
             self.most_common_variables = self.sign_counter_variables.most_common(1)[0][0]
 
-    def visit_KeywordCall(self, node):  # noqa
+    def visit_KeywordCall(self, node):  # noqa: N802
         if node.assign:  # if keyword returns any value
             sign = self.get_assignment_sign(node.assign[-1])
             self.sign_counter[sign] += 1
 
-    def visit_VariableSection(self, node):  # noqa
+    def visit_VariableSection(self, node):  # noqa: N802
         for child in node.body:
             if not isinstance(child, Variable):
                 continue

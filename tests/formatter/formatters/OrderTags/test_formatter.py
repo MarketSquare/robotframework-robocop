@@ -67,4 +67,4 @@ class TestOrderTags(FormatterAcceptanceTest):
         self.compare(source="disablers.robot", not_modified=True)
 
     def test_test_tags(self):
-        self.compare(source="test_tags.robot", target_version=">=6")
+        self.compare(source="test_tags.robot", test_on_version=">=6")

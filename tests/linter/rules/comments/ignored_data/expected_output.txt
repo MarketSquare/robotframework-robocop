@@ -1,5 +1,5 @@
-bom_and_two_ignored_lines.robot:2:1 [W] 0704 Ignored data found in file
-with_ignored_data.robot:1:1 [W] 0704 Ignored data found in file
-with_ignored_rule_and_data.robot:2:1 [W] 0704 Ignored data found in file
-language_header_and_other.robot:3:1 [W] 0704 Ignored data found in file
-language_header_in_second_line.robot:1:1 [W] 0704 Ignored data found in file
+bom_and_two_ignored_lines.robot:2:1 [W] COM04 Ignored data found in file
+with_ignored_data.robot:1:1 [W] COM04 Ignored data found in file
+with_ignored_rule_and_data.robot:2:1 [W] COM04 Ignored data found in file
+language_header_and_other.robot:3:1 [W] COM04 Ignored data found in file
+language_header_in_second_line.robot:1:1 [W] COM04 Ignored data found in file

@@ -14,7 +14,7 @@ class TestRuleAcceptance(RuleAcceptance):
                 "__init__.robot",
             ],
             expected_file="expected_output_rf6.txt",
-            target_version=">=6",
+            test_on_version=">=6",
         )
 
     def test_rule(self):
@@ -29,5 +29,5 @@ class TestRuleAcceptance(RuleAcceptance):
                 "__init__.robot",
             ],
             expected_file="expected_output_pre_rf6.txt",
-            target_version="<6",
+            test_on_version="<6",
         )

@@ -32,7 +32,8 @@ class TestDiscardEmptySections(FormatterAcceptanceTest):
             expected="removes_empty_sections_skip_variables.robot",
             configure=[f"{self.FORMATTER_NAME}.skip_sections=variables"],
         )
-        # config = " --skip-sections=variables"  TODO global skip
-        # self.compare(
-        #     source="removes_empty_sections.robot", expected="removes_empty_sections_skip_variables.robot", config=config
-        # )
+        self.compare(
+            source="removes_empty_sections.robot",
+            expected="removes_empty_sections_skip_variables.robot",
+            skip_sections=["variables"],
+        )

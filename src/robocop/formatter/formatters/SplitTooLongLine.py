@@ -8,11 +8,15 @@ try:
     from robot.api.parsing import InlineIfHeader
 except ImportError:
     InlineIfHeader = None
+from typing import TYPE_CHECKING
+
 from robocop.formatter.disablers import skip_if_disabled, skip_section_if_disabled
-from robocop.formatter.skip import Skip
 from robocop.formatter.formatters import Formatter
 from robocop.formatter.formatters.run_keywords import get_run_keywords
 from robocop.formatter.utils.misc import ROBOT_VERSION, normalize_name
+
+if TYPE_CHECKING:
+    from robocop.formatter.skip import Skip
 
 EOL = Token(Token.EOL)
 CONTINUATION = Token(Token.CONTINUATION)
@@ -21,6 +25,7 @@ CONTINUATION = Token(Token.CONTINUATION)
 class SplitTooLongLine(Formatter):
     """
     Split too long lines.
+
     If line exceeds given length limit (120 by default) it will be split:
 
     ```robotframework
@@ -50,7 +55,7 @@ class SplitTooLongLine(Formatter):
     Or using dedicated for this formatter parameter ``line_length``:
 
     ```
-    robocop format --configure SplitTooLongLine:line_length:140 src.robot
+    robocop format --configure SplitTooLongLine.line_length:140 src.robot
     ```
 
     ``split_on_every_arg``, `split_on_every_value`` and ``split_on_every_setting_arg`` flags (``True`` by default)
@@ -80,13 +85,13 @@ class SplitTooLongLine(Formatter):
 
     def __init__(
         self,
-        line_length: int = None,
+        line_length: int | None = None,
         split_on_every_arg: bool = True,
         split_on_every_value: bool = True,
         split_on_every_setting_arg: bool = True,
         split_single_value: bool = False,
         align_new_line: bool = False,
-        skip: Skip = None,
+        skip: Skip | None = None,
     ):
         super().__init__(skip)
         self._line_length = line_length
@@ -116,10 +121,10 @@ class SplitTooLongLine(Formatter):
         return kw_norm in self.run_keywords
 
     @skip_section_if_disabled
-    def visit_Section(self, node):  # noqa
+    def visit_Section(self, node):  # noqa: N802
         return self.generic_visit(node)
 
-    def visit_If(self, node):  # noqa
+    def visit_If(self, node):  # noqa: N802
         if self.is_inline(node):
             return node
         return self.generic_visit(node)
@@ -153,7 +158,7 @@ class SplitTooLongLine(Formatter):
                 return True
         return False
 
-    def visit_KeywordCall(self, node):  # noqa
+    def visit_KeywordCall(self, node):  # noqa: N802
         if self.skip.keyword_call(node):
             return node
         if not self.should_transform_node(node):
@@ -164,7 +169,7 @@ class SplitTooLongLine(Formatter):
             return node
         return self.split_keyword_call(node)
 
-    def visit_Var(self, node):  # noqa
+    def visit_Var(self, node):  # noqa: N802
         if self.disablers.is_node_disabled(
             "SplitTooLongLine", node, full_match=False
         ) or not self.should_transform_node(node):
@@ -184,30 +189,30 @@ class SplitTooLongLine(Formatter):
         return (*comments, node)
 
     @skip_if_disabled
-    def visit_Variable(self, node):  # noqa
+    def visit_Variable(self, node):  # noqa: N802
         if not self.should_transform_node(node):
             return node
         return self.split_variable_def(node)
 
     @skip_if_disabled
-    def visit_Tags(self, node):  # noqa
+    def visit_Tags(self, node):  # noqa: N802
         if self.skip.setting("tags"):  # TODO test
             return node
         return self.split_setting_with_args(node, settings_section=False)
 
     @skip_if_disabled
-    def visit_Arguments(self, node):  # noqa
+    def visit_Arguments(self, node):  # noqa: N802
         if self.skip.setting("arguments"):
             return node
         return self.split_setting_with_args(node, settings_section=False)
 
     @skip_if_disabled
-    def visit_ForceTags(self, node):  # noqa
+    def visit_ForceTags(self, node):  # noqa: N802
         if self.skip.setting("tags"):
             return node
         return self.split_setting_with_args(node, settings_section=True)
 
-    visit_DefaultTags = visit_TestTags = visit_ForceTags
+    visit_DefaultTags = visit_TestTags = visit_ForceTags  # noqa: N815
 
     def split_setting_with_args(self, node, settings_section):
         if not self.should_transform_node(node):
@@ -269,7 +274,7 @@ class SplitTooLongLine(Formatter):
             elif token.type in split_types:
                 if token.value == "":
                     token.value = "${EMPTY}"
-                if split_on or not self.col_fit_in_line(line + [separator, token]):
+                if split_on or not self.col_fit_in_line([*line, separator, token]):
                     if align_new_line and cont_indent is None:  # we are yet to calculate aligned indent
                         cont_indent = Token(Token.SEPARATOR, self.calculate_align_separator(line))
                     line.append(EOL)
@@ -288,6 +293,7 @@ class SplitTooLongLine(Formatter):
     def join_split_comments(comments: list, token: Token, last_separator: Token):
         """
         Join split comments when splitting line.
+
         AST splits comments with separators, e.g.
         "# Comment     rest" -> ["# Comment", "     ", "rest"].
         Notice the third value not starting with a hash - we need to join such comment with previous comment.

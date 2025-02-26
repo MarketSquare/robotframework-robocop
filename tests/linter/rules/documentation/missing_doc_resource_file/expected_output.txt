@@ -1,2 +1,2 @@
-test.resource:1:1 [W] 0204 Missing documentation in resource file
-with_settings.resource:1:1 [W] 0204 Missing documentation in resource file
+test.resource:1:1 [W] DOC04 Missing documentation in resource file
+with_settings.resource:1:1 [W] DOC04 Missing documentation in resource file

@@ -41,7 +41,7 @@ Use ``--select`` and ``--ignore`` to select only rules to run or run all default
 
     .. tab-item:: Cli
 
-        .. code:: none
+        .. code:: shell
 
              robocop check --select rule1 --select rule2 --select rule3 --ignore rule2
 
@@ -81,7 +81,9 @@ Learn more about disablers here - :ref:`disablers`.
 List rules
 ----------
 
-To see the list of all the rules, run::
+To see the list of all the rules, run:
+
+.. code:: shell
 
     robocop list rules
 
@@ -108,7 +110,7 @@ Save output to file
 # TODO
 You can redirect output of Robocop to a file by using pipes (``>`` in unix) or by ``-o`` / ``--output`` argument::
 
-  robocop --output robocop.log .
+  robocop --output robocop.log
 
 Generating reports
 ------------------
@@ -127,7 +129,7 @@ it is properly configured. You can supply language code or name in the configura
 
     .. tab-item:: Cli
 
-        .. code:: none
+        .. code:: shell
 
              robocop check --language fi
 
@@ -147,7 +149,7 @@ Support multiple languages by either using ``language`` option multiple times:
 
     .. tab-item:: Cli
 
-        .. code:: none
+        .. code:: shell
 
             robocop check -l pl -l pt
 

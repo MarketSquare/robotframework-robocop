@@ -1,6 +1,6 @@
-test.robot:4:5 [W] 0918 Avoid splitting inline IF to multiple lines
-test.robot:11:5 [W] 0918 Avoid splitting inline IF to multiple lines
-test.robot:16:5 [W] 0918 Avoid splitting inline IF to multiple lines
-test.robot:23:5 [W] 0918 Avoid splitting inline IF to multiple lines
-test.robot:30:5 [W] 0918 Avoid splitting inline IF to multiple lines
-test.robot:35:5 [W] 0918 Avoid splitting inline IF to multiple lines
+test.robot:4:5 [W] MISC11 Inline IF split to multiple lines
+test.robot:11:5 [W] MISC11 Inline IF split to multiple lines
+test.robot:16:5 [W] MISC11 Inline IF split to multiple lines
+test.robot:23:5 [W] MISC11 Inline IF split to multiple lines
+test.robot:30:5 [W] MISC11 Inline IF split to multiple lines
+test.robot:35:5 [W] MISC11 Inline IF split to multiple lines

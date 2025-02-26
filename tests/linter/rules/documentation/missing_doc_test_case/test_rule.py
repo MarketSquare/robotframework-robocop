@@ -7,14 +7,14 @@ class TestRuleAcceptance(RuleAcceptance):
 
     def test_templated(self):
         self.check_rule(
-            config="-c missing-doc-test-case:ignore_templated:False",
+            configure=["missing-doc-test-case.ignore_templated=False"],
             src_files=["templated.robot"],
             expected_file="expected_output_templated.txt",
         )
 
     def test_templated_turned_off(self):
         self.check_rule(
-            config="-c missing-doc-test-case:ignore_templated:True",
+            configure=["missing-doc-test-case.ignore_templated=True"],
             src_files=["templated.robot"],
             expected_file=None,
         )

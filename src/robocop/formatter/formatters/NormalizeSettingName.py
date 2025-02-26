@@ -1,5 +1,6 @@
 from robot.api.parsing import Token
 from robot.utils.normalizing import normalize_whitespace
+
 from robocop.formatter.disablers import skip_if_disabled, skip_section_if_disabled
 from robocop.formatter.formatters import Formatter
 
@@ -7,6 +8,7 @@ from robocop.formatter.formatters import Formatter
 class NormalizeSettingName(Formatter):
     """
     Normalize setting name.
+
     Ensure that setting names are title case without leading or trailing whitespace. For example from:
 
     ```robotframework
@@ -37,11 +39,11 @@ class NormalizeSettingName(Formatter):
     """
 
     @skip_section_if_disabled
-    def visit_Section(self, node):  # noqa
+    def visit_Section(self, node):  # noqa: N802
         return self.generic_visit(node)
 
     @skip_if_disabled
-    def visit_Statement(self, node):  # noqa
+    def visit_Statement(self, node):  # noqa: N802
         if node.type not in Token.SETTING_TOKENS:
             return node
         name = node.data_tokens[0].value

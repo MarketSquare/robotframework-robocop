@@ -1,2 +1,2 @@
-[tool.robocop.linter]
+[tool.robocop.lint]
 reports = ["all"]

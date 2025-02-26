@@ -3,6 +3,7 @@ from __future__ import annotations
 import re
 
 from robot.api.parsing import Token
+
 from robocop.formatter.disablers import skip_if_disabled, skip_section_if_disabled
 from robocop.formatter.exceptions import InvalidParameterValueError
 from robocop.formatter.formatters import Formatter
@@ -11,7 +12,7 @@ from robocop.formatter.utils import misc, variable_matcher
 
 
 class RenameKeywords(Formatter):
-    """
+    r"""
     Enforce keyword naming.
 
     Title Case is applied to keyword name and underscores are replaced by spaces.
@@ -20,14 +21,15 @@ class RenameKeywords(Formatter):
     To keep underscores, set ``remove_underscores`` to ``False``:
 
     ```
-    robocop format --transform RenameKeywords -c RenameKeywords:remove_underscores=False .
+    robocop format --select RenameKeywords -c RenameKeywords.remove_underscores=False .
     ```
 
     It is also possible to configure `replace_pattern` parameter to find and replace regex pattern. Use `replace_to`
     to set replacement value. This configuration (underscores are used instead of spaces):
 
     ```
-    robocop format --transform RenameKeywords -c RenameKeywords:replace_pattern=^(?i)rename\\s?me$:replace_to=New_Shining_Name .
+    robocop format --select RenameKeywords -c RenameKeywords.replace_pattern=^(?i)rename\s?me$
+    -c RenameKeywords.replace_to=New_Shining_Name .
     ```
 
     will transform following code:
@@ -90,14 +92,14 @@ class RenameKeywords(Formatter):
                 "replace_pattern",
                 replace_pattern,
                 f"It should be a valid regex expression. Regex error: '{err.msg}'",
-            )
+            ) from None
 
     def get_run_keyword(self, kw_name):
         kw_norm = misc.normalize_name(kw_name)
         return self.run_keywords.get(kw_norm, None)
 
     @skip_section_if_disabled
-    def visit_Section(self, node):  # noqa
+    def visit_Section(self, node):  # noqa: N802
         return self.generic_visit(node)
 
     def rename_node(self, token, is_keyword_call):
@@ -175,7 +177,7 @@ class RenameKeywords(Formatter):
         )
 
     @skip_if_disabled
-    def visit_KeywordName(self, node):  # noqa
+    def visit_KeywordName(self, node):  # noqa: N802
         name_token = node.get_token(Token.KEYWORD_NAME)
         if not name_token or not name_token.value:
             return node
@@ -183,7 +185,7 @@ class RenameKeywords(Formatter):
         return node
 
     @skip_if_disabled
-    def visit_KeywordCall(self, node):  # noqa
+    def visit_KeywordCall(self, node):  # noqa: N802
         name_token = node.get_token(Token.KEYWORD)
         if not name_token or not name_token.value:
             return node
@@ -213,6 +215,7 @@ class RenameKeywords(Formatter):
         elif run_keyword.split_on_and:
             return self.split_on_and(tokens)
         self.parse_run_keyword(tokens)
+        return None
 
     def split_on_and(self, tokens):
         if not misc.is_token_value_in_tokens("AND", tokens):
@@ -225,19 +228,19 @@ class RenameKeywords(Formatter):
         self.parse_run_keyword(tokens)
 
     @skip_if_disabled
-    def visit_SuiteSetup(self, node):  # noqa
+    def visit_SuiteSetup(self, node):  # noqa: N802
         if node.errors:
             return node
         self.parse_run_keyword(node.data_tokens[1:])
         return node
 
-    visit_SuiteTeardown = visit_TestSetup = visit_TestTeardown = visit_SuiteSetup
+    visit_SuiteTeardown = visit_TestSetup = visit_TestTeardown = visit_SuiteSetup  # noqa: N815
 
     @skip_if_disabled
-    def visit_Setup(self, node):  # noqa
+    def visit_Setup(self, node):  # noqa: N802
         if node.errors:
             return node
         self.parse_run_keyword(node.data_tokens[1:])
         return node
 
-    visit_Teardown = visit_Setup
+    visit_Teardown = visit_Setup  # noqa: N815

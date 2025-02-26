@@ -1,7 +1,7 @@
 import pytest
 
+from robocop.linter.diagnostics import Diagnostic
 from robocop.linter.reports.file_stats_report import FileStatsReport
-from robocop.linter.rules import Message
 
 
 class TestFileStatReport:
@@ -110,14 +110,14 @@ class TestFileStatReport:
             ),
         ],
     )
-    def test_file_stats_report(self, previous_results, files, files_with_issues, compare_runs, output, rule):
-        report = FileStatsReport(compare_runs)
+    def test_file_stats_report(self, previous_results, files, files_with_issues, compare_runs, output, rule, config):
+        config.linter.compare = compare_runs
+        report = FileStatsReport(config)
         report.files_count = files
         report.files_with_issues = files_with_issues
         if files_with_issues:
-            issue = Message(
+            issue = Diagnostic(
                 rule=rule,
-                msg=rule.get_message(),
                 source="some/path/file.robot",
                 node=None,
                 lineno=50,
@@ -129,13 +129,13 @@ class TestFileStatReport:
         assert report.get_report(previous_results) == output
 
     @pytest.mark.parametrize("compare_runs", [True, False])
-    def test_persistent_save(self, compare_runs, rule):
-        report = FileStatsReport(compare_runs)
+    def test_persistent_save(self, compare_runs, rule, config):
+        config.linter.compare = compare_runs
+        report = FileStatsReport(config)
         report.files_count += 1
         for source in ("a.robot", "b.robot"):
-            issue = Message(
+            issue = Diagnostic(
                 rule=rule,
-                msg=rule.get_message(),
                 source=source,
                 node=None,
                 lineno=50,

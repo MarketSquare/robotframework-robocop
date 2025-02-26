@@ -14,7 +14,7 @@ from robot.parsing.model.blocks import TestCaseSection
 from robot.parsing.model.statements import Arguments
 from robot.variables.search import search_variable
 
-from robocop.linter.rules import Rule, RuleParam, RuleSeverity, VisitorChecker
+from robocop.linter.rules import Rule, RuleParam, RuleSeverity, VisitorChecker, deprecated, variables
 from robocop.linter.utils import (
     ROBOT_VERSION,
     find_robot_vars,
@@ -32,33 +32,79 @@ from robocop.linter.utils.variable_matcher import VariableMatches
 if TYPE_CHECKING:
     from collections.abc import Iterable
 
-RULE_CATEGORY_ID = "03"
 
-rules = {
-    "0301": Rule(
+class NotAllowedCharInNameRule(Rule):
+    r"""
+    Not allowed character found.
+
+    Reports not allowed characters found in Test Case or Keyword names. By default it's a dot (``.``). You can
+    configure what patterns are reported by calling::
+
+        robocop check --configure not-allowed-char-in-name.pattern=regex_pattern
+
+    ``regex_pattern`` should define regex pattern not allowed in names. For example ``[@\[]`` pattern
+    would report any occurrence of ``@[`` characters.
+
+    """
+
+    name = "not-allowed-char-in-name"
+    rule_id = "NAME01"
+    message = "Not allowed character '{character}' found in {block_name} name"
+    severity = RuleSeverity.WARNING
+    parameters = [
         RuleParam(
             name="pattern",
             default=re.compile(r"[\.\?]"),
             converter=pattern_type,
             show_type="regex",
             desc="pattern defining characters (not) allowed in a name",
-        ),
-        rule_id="0301",
-        name="not-allowed-char-in-name",
-        msg="Not allowed character '{{ character }}' found in {{ block_name }} name",
-        severity=RuleSeverity.WARNING,
-        added_in_version="1.0.0",
-        docs="""
-        Reports not allowed characters found in Test Case or Keyword names. By default it's a dot (``.``). You can
-        configure what patterns are reported by calling::
+        )
+    ]
+    added_in_version = "1.0.0"
 
-            robocop --configure not-allowed-char-in-name:pattern:regex_pattern
 
-        ``regex_pattern`` should define regex pattern not allowed in names. For example ``[@\\[]`` pattern
-        would report any occurrence of ``@[`` characters.
-        """,
-    ),
-    "0302": Rule(
+class WrongCaseInKeywordNameRule(Rule):
+    r"""
+    Keyword name does not follow case convention.
+
+    Keyword names need to follow a specific case convention.
+    The convention can be set using ``convention`` parameter and accepts
+    one of the 2 values: ``each_word_capitalized`` or ``first_word_capitalized``.
+
+    By default, it's configured to ``each_word_capitalized``, which requires each keyword to follow such
+    convention::
+
+        *** Keywords ***
+        Fill Out The Form
+            Provide Shipping Address
+            Provide Payment Method
+            Click 'Next' Button
+            [Teardown]  Log Form Data
+
+    You can also set it to ``first_word_capitalized`` which requires first word to have first letter capital::
+
+        *** Keywords ***
+        Fill out the form
+            Provide shipping address
+            Provide payment method
+            Click 'Next' button
+            [Teardown]  Log form data
+
+    The rule also accepts another parameter ``pattern`` which can be used to configure words
+    that are accepted in the keyword name, even though they violate the case convention.
+
+    ``pattern`` parameter accepts a regex pattern. For example, configuring it to ``robocop\.readthedocs\.io``
+    would make such keyword legal::
+
+        Go To robocop.readthedocs.io Page
+
+    """
+
+    name = "wrong-case-in-keyword-name"
+    rule_id = "NAME02"
+    message = "Keyword name '{keyword_name}' does not follow case convention"
+    severity = RuleSeverity.WARNING
+    parameters = [
         RuleParam(
             name="convention",
             default="each_word_capitalized",
@@ -72,359 +118,337 @@ rules = {
             show_type="regex",
             desc="pattern for accepted words in keyword",
         ),
-        rule_id="0302",
-        name="wrong-case-in-keyword-name",
-        msg="Keyword name '{{ keyword_name }}' does not follow case convention",
-        severity=RuleSeverity.WARNING,
-        added_in_version="1.0.0",
-        docs="""
-        Keyword names need to follow a specific case convention.
-        The convention can be set using ``convention`` parameter and accepts
-        one of the 2 values: ``each_word_capitalized`` or ``first_word_capitalized``.
+    ]
+    added_in_version = "1.0.0"
 
-        By default, it's configured to ``each_word_capitalized``, which requires each keyword to follow such
-        convention::
 
-            *** Keywords ***
-            Fill Out The Form
-                Provide Shipping Address
-                Provide Payment Method
-                Click 'Next' Button
-                [Teardown]  Log Form Data
+class KeywordNameIsReservedWordRule(Rule):
+    """
+    Keyword name is a reserved word.
 
-        You can also set it to ``first_word_capitalized`` which requires first word to have first letter capital::
+    Do not use reserved names for keyword names. Following names are reserved:
 
-            *** Keywords ***
-            Fill out the form
-                Provide shipping address
-                Provide payment method
-                Click 'Next' button
-                [Teardown]  Log form data
+      - IF
+      - ELSE IF
+      - ELSE
+      - FOR
+      - END
+      - WHILE
+      - CONTINUE
+      - RETURN
+      - TRY
+      - EXCEPT
+      - FINALLY
 
-        The rule also accepts another parameter ``pattern`` which can be used to configure words
-        that are accepted in the keyword name, even though they violate the case convention.
+    """
 
-        ``pattern`` parameter accepts a regex pattern. For example, configuring it to ``robocop\\.readthedocs\\.io``
-        would make such keyword legal::
+    name = "keyword-name-is-reserved-word"
+    rule_id = "NAME03"
+    message = "'{keyword_name}' is a reserved keyword{error_msg}"
+    severity = RuleSeverity.ERROR
+    added_in_version = "1.0.0"
 
-            Go To robocop.readthedocs.io Page
-        """,
-    ),
-    "0303": Rule(
-        rule_id="0303",
-        name="keyword-name-is-reserved-word",
-        msg="'{{ keyword_name }}' is a reserved keyword{{ error_msg }}",
-        severity=RuleSeverity.ERROR,
-        added_in_version="1.0.0",
-        docs="""
-        Do not use reserved names for keyword names. Following names are reserved:
 
-          - IF
-          - ELSE IF
-          - ELSE
-          - FOR
-          - END
-          - WHILE
-          - CONTINUE
-          - RETURN
-          - TRY
-          - EXCEPT
-          - FINALLY
-        """,
-    ),
-    "0305": Rule(
-        rule_id="0305",
-        name="underscore-in-keyword-name",
-        msg="Underscores in keyword name '{{ keyword_name }}' can be replaced with spaces",
-        severity=RuleSeverity.WARNING,
-        added_in_version="1.0.0",
-        docs="""
-        Bad |:x:|
+class UnderscoreInKeywordNameRule(Rule):
+    """
+    Underscores in keyword name.
 
-        ..  code-block:: none
+    You can replace underscores with spaces.
 
-            keyword_with_underscores
+    Incorrect code example::
 
-        Good |:white_check_mark:|
+        keyword_with_underscores
 
-        ..  code-block:: none
+    Correct code::
 
-            Keyword Without Underscores
-        """,
-    ),
-    "0306": Rule(
-        rule_id="0306",
-        name="setting-name-not-in-title-case",
-        msg="Setting name '{{ setting_name }}' should use title or upper case",
-        severity=RuleSeverity.WARNING,
-        added_in_version="1.0.0",
-        docs="""
-        Good |:white_check_mark:| ::
+        Keyword Without Underscores
 
-            *** Settings ***
-            Resource    file.resource
+    """
 
-            *** Test Cases ***
-            Test
-                [DOCUMENTATION]  Some documentation
-                Step
+    name = "underscore-in-keyword-name"
+    rule_id = "NAME04"
+    message = "Underscores in keyword name '{keyword_name}'"
+    severity = RuleSeverity.WARNING
+    added_in_version = "1.0.0"
 
-        Bad |:x:| ::
 
-            *** Settings ***
-            resource    file.resource
+class SettingNameNotInTitleCaseRule(Rule):
+    """
+    Setting name not in title or upper case.
 
-            *** Test Cases ***
-            Test
-                [documentation]  Some documentation
-                Step
-        """,
-    ),
-    "0307": Rule(
-        rule_id="0307",
-        name="section-name-invalid",
-        msg="Section name should be in format '{{ section_title_case }}' or '{{ section_upper_case }}'",
-        severity=RuleSeverity.WARNING,
-        added_in_version="1.0.0",
-        docs="""
-        Good |:white_check_mark:| ::
+    Incorrect code example::
 
-            *** SETTINGS ***
-            *** Keywords ***
+        *** Settings ***
+        resource    file.resource
 
-        Bad |:x:| ::
+        *** Test Cases ***
+        Test
+            [documentation]  Some documentation
+            Step
 
-            *** keywords ***
+    Correct code::
 
-        """,
-    ),
-    "0308": Rule(
-        rule_id="0308",
-        name="not-capitalized-test-case-title",
-        msg="Test case '{{ test_name }}' title should start with capital letter",
-        severity=RuleSeverity.WARNING,
-        added_in_version="1.4.0",
-        docs="""
-        Good |:white_check_mark:| ::
+        *** Settings ***
+        Resource    file.resource
 
-            *** Test Cases ***
-            Validate user details
+        *** Test Cases ***
+        Test
+            [DOCUMENTATION]  Some documentation
+            Step
 
-        Bad |:x:| ::
 
-            *** Test Cases ***
-            validate user details
-        """,
-    ),
-    "0309": Rule(
-        rule_id="0309",
-        name="section-variable-not-uppercase",
-        msg="Section variable '{{ variable_name }}' name should be uppercase",
-        severity=RuleSeverity.WARNING,
-        added_in_version="1.4.0",
-    ),
-    "0310": Rule(
-        rule_id="0310",
-        name="non-local-variables-should-be-uppercase",
-        msg="Test, suite and global variables should be uppercase",
-        severity=RuleSeverity.WARNING,
-        added_in_version="1.4.0",
-        docs="""
-        Good |:white_check_mark:|
+    """
 
-        ..  code-block:: none
+    name = "setting-name-not-in-title-case"
+    rule_id = "NAME05"
+    message = "Setting name '{setting_name}' not in title or uppercase"
+    severity = RuleSeverity.WARNING
+    added_in_version = "1.0.0"
 
-            Set Task Variable    ${MY_VAR}           1
-            Set Suite Variable   ${MY VAR}           1
-            Set Test Variable    ${MY_VAR}           1
-            Set Global Variable  ${MY VAR${nested}}  1
 
-        Bad |:x:|
+class SectionNameInvalidRule(Rule):
+    """
+    Section name does not follow convention.
 
-        ..  code-block:: none
+    Section name should use Title Case or CAP CASE case convention.
 
-            Set Task Variable    ${my_var}           1
-            Set Suite Variable   ${My Var}           1
-            Set Test Variable    ${myvar}            1
-            Set Global Variable  ${my_var${NESTED}}  1
-        """,
-    ),
-    "0311": Rule(
-        rule_id="0311",
-        name="else-not-upper-case",
-        msg="ELSE and ELSE IF should be upper case",
-        severity=RuleSeverity.ERROR,
-        added_in_version="1.5.0",
-        docs="""
-        Good |:white_check_mark:| ::
+    Incorrect code example::
 
-            *** Keywords ***
-            Describe Temperature
-                [Arguments]     ${degrees}
-                IF         ${degrees} > ${30}
-                    RETURN  Hot
-                ELSE IF    ${degrees} > ${15}
-                    RETURN  Warm
-                ELSE
-                    RETURN  Cold
+        *** settings ***
+        *** KEYwords ***
 
-        Bad |:x:| ::
+    Correct code::
 
-            *** Keywords ***
-            Describe Temperature
-                [Arguments]     ${degrees}
-                If         ${degrees} > ${30}
-                    RETURN  Hot
-                else if    ${degrees} > ${15}
-                    RETURN  Warm
-                Else
-                    RETURN  Cold
-        """,
-    ),
-    "0312": Rule(
-        rule_id="0312",
-        name="keyword-name-is-empty",
-        msg="Keyword name should not be empty",
-        severity=RuleSeverity.ERROR,
-        added_in_version="1.8.0",
-        docs="""
-        Remember to always add a keyword name and avoid such code::
+        *** SETTINGS ***
+        *** Keywords ***
 
-            *** Keywords ***
-            # no keyword name here!!!
-                Log To Console  hi
-        """,
-    ),
-    "0313": Rule(
-        rule_id="0313",
-        name="test-case-name-is-empty",
-        msg="Test case name should not be empty",
-        severity=RuleSeverity.ERROR,
-        added_in_version="1.8.0",
-        docs="""
-        Remember to always add a test case name and avoid such code::
+    """
 
-            *** Test Cases ***
-            # no test case name here!!!
-                Log To Console  hello
-        """,
-    ),
-    "0314": Rule(
-        rule_id="0314",
-        name="empty-library-alias",
-        msg="Library alias should not be empty",
-        severity=RuleSeverity.ERROR,
-        added_in_version="1.10.0",
-        docs="""
-        Use non-empty name when using library import with alias.
+    name = "section-name-invalid"
+    rule_id = "NAME06"
+    message = "Section name should be in format '{section_title_case}' or '{section_upper_case}'"  # TODO: rename
+    severity = RuleSeverity.WARNING
+    added_in_version = "1.0.0"
 
-        Good |:white_check_mark:| ::
 
-            *** Settings ***
-            Library  CustomLibrary  AS  AnotherName
+class NotCapitalizedTestCaseTitleRule(Rule):
+    """
+    Test case title does not start with capital letter.
 
-        Bad |:x:| ::
+    Incorrect code example::
 
-             *** Settings ***
-             Library  CustomLibrary  AS
-        """,
-    ),
-    "0315": Rule(
-        rule_id="0315",
-        name="duplicated-library-alias",
-        msg="Library alias should not be the same as original name",
-        severity=RuleSeverity.WARNING,
-        added_in_version="1.10.0",
-        docs="""
-        Examples of rule violation::
+        *** Test Cases ***
+        validate user details
 
-             *** Settings ***
-             Library  CustomLibrary  AS  CustomLibrary   # same as library name
-             Library  CustomLibrary  AS  Custom Library  # same as library name (spaces are ignored)
-        """,
-    ),
-    "0316": Rule(
-        rule_id="0316",
-        name="possible-variable-overwriting",
-        msg="Variable '{{ variable_name }}' may overwrite similar variable inside '{{ block_name }}' {{ block_type }}. "
-        "Note that variables are case-insensitive, and also spaces and underscores are ignored.",
-        severity=RuleSeverity.INFO,
-        added_in_version="1.10.0",
-        docs="""
-        Following assignments overwrite the same variable::
+    Correct code example::
 
-            *** Keywords ***
-            Retrieve Usernames
-                ${username}      Get Username       id=1
-                ${User Name}     Get Username       id=2
-                ${user_name}     Get Username       id=3
+        *** Test Cases ***
+        Validate user details
 
-        Use consistent variable naming guidelines to avoid unintended variable overwriting.
-        Remember that variable names in Robot Framework are case-insensitive and
-        underscores and whitespaces are ignored.
-        """,
-    ),
-    "0317": Rule(
-        rule_id="0317",
-        name="hyphen-in-variable-name",
-        msg="Use underscore in variable name '{{ variable_name }}' instead of hyphens to "
-        "avoid treating them like minus sign",
-        severity=RuleSeverity.INFO,
-        added_in_version="1.10.0",
-        docs="""
-        Robot Framework supports evaluation of Python code inside ${ } brackets. For example:
+    """
 
-        ..  code-block: none
+    name = "not-capitalized-test-case-title"
+    rule_id = "NAME07"
+    message = "Test case '{test_name}' title does not start with capital letter"
+    severity = RuleSeverity.WARNING
+    added_in_version = "1.4.0"
 
-            ${var2}  Set Variable  ${${var}-${var2}}
 
-        That's why there is a possibility that hyphen in name is not recognized as part of the name but as a minus sign.
-        Better to use underscore instead:
+class SectionVariableNotUppercaseRule(Rule):
+    """
+    Section variable name is not uppercase.
 
-        ..  code-block: none
+    Incorrect code example::
 
-            ${var2}  Set Variable  ${${var}_${var2}}
-        """,
-    ),
-    "0318": Rule(
-        rule_id="0318",
-        name="bdd-without-keyword-call",
-        msg="BDD reserved keyword '{{ keyword_name }}' not followed by any keyword{{ error_msg }}",
-        severity=RuleSeverity.WARNING,
-        added_in_version="1.11.0",
-        docs="""
-        When using BDD reserved keywords (such as `GIVEN`, `WHEN`, `AND`, `BUT` or `THEN`) use them together with
-        name of the keyword to run.
+        *** Variables ***
+        ${section_variable}    value
 
-        Good |:white_check_mark:| ::
+    Correct code::
 
-            Given Setup Is Complete
-            When User Log In
-            Then User Should See Welcome Page
+        *** Variables ***
+        ${SECTION_VARIABLE}    value
 
-        Bad |:x:| ::
+    """
 
+    name = "section-variable-not-uppercase"
+    rule_id = "NAME08"
+    message = "Section variable '{variable_name}' name is not uppercase"
+    severity = RuleSeverity.WARNING
+    added_in_version = "1.4.0"
+
+
+class ElseNotUpperCaseRule(Rule):
+    """
+    ELSE and ELSE IF is not uppercase.
+
+    Incorrect code example::
+
+        *** Keywords ***
+        Describe Temperature
+            [Arguments]     ${degrees}
+            If         ${degrees} > ${30}
+                RETURN  Hot
+            else if    ${degrees} > ${15}
+                RETURN  Warm
+            Else
+                RETURN  Cold
+
+    Correct code::
+
+        *** Keywords ***
+        Describe Temperature
+            [Arguments]     ${degrees}
+            IF         ${degrees} > ${30}
+                RETURN  Hot
+            ELSE IF    ${degrees} > ${15}
+                RETURN  Warm
+            ELSE
+                RETURN  Cold
+
+    """
+
+    name = "else-not-upper-case"
+    rule_id = "NAME09"
+    message = "ELSE and ELSE IF is not uppercase"
+    severity = RuleSeverity.ERROR
+    added_in_version = "1.5.0"
+
+
+class KeywordNameIsEmptyRule(Rule):
+    """
+    Keyword name is empty.
+
+    Remember to always add a keyword name and avoid such code::
+
+        *** Keywords ***
+        # no keyword name here!!!
+            Log To Console  hi
+
+    """
+
+    name = "keyword-name-is-empty"
+    rule_id = "NAME10"
+    message = "Keyword name is empty"
+    severity = RuleSeverity.ERROR
+    added_in_version = "1.8.0"
+
+
+class TestCaseNameIsEmptyRule(Rule):
+    """
+    Test case name is empty.
+
+    Remember to always add a test case name and avoid such code::
+
+        *** Test Cases ***
+        # no test case name here!!!
+            Log To Console  hello
+
+    """
+
+    name = "test-case-name-is-empty"
+    rule_id = "NAME11"
+    message = "Test case name is empty"
+    severity = RuleSeverity.ERROR
+    added_in_version = "1.8.0"
+
+
+class EmptyLibraryAliasRule(Rule):
+    """
+    Library alias is empty.
+
+    Use non-empty name when using library import with alias.
+
+    Incorrect code example::
+
+         *** Settings ***
+         Library  CustomLibrary  AS
+
+    Correct code::
+
+        *** Settings ***
+        Library  CustomLibrary  AS  AnotherName
+
+    """
+
+    name = "empty-library-alias"
+    rule_id = "NAME12"
+    message = "Library alias is empty"
+    severity = RuleSeverity.ERROR
+    added_in_version = "1.10.0"
+
+
+class DuplicatedLibraryAliasRule(Rule):
+    """
+    Library alias is the same as original name.
+
+    Examples of rule violation::
+
+         *** Settings ***
+         Library  CustomLibrary  AS  CustomLibrary   # same as library name
+         Library  CustomLibrary  AS  Custom Library  # same as library name (spaces are ignored)
+
+    """
+
+    name = "duplicated-library-alias"
+    rule_id = "NAME13"
+    message = "Library alias is the same as original name"
+    severity = RuleSeverity.WARNING
+    added_in_version = "1.10.0"
+
+
+class BddWithoutKeywordCallRule(Rule):
+    """
+    BDD keyword not followed by any keyword.
+
+    When using BDD reserved keywords (such as `GIVEN`, `WHEN`, `AND`, `BUT` or `THEN`) use them together with
+    name of the keyword to run.
+
+    Incorrect code example::
+
+        *** Test Cases ***
+        Test case
             Given
             When User Log In
             Then User Should See Welcome Page
 
-        Since those words are used for BDD style, it's also recommended not to use them within the user keyword name.
-        """,
-    ),
-    "0319": Rule(
-        rule_id="0319",
-        name="deprecated-statement",
-        msg="'{{ statement_name }}' is deprecated since Robot Framework version "
-        "{{ version }}, use '{{ alternative }}' instead",
-        severity=RuleSeverity.WARNING,
-        added_in_version="2.0.0",
-        docs="""
-        This rule detects any piece of code that is marked as deprecated but still works in RF.
+    Correct code::
 
-        For example, ``Run Keyword`` and ``Continue For Loop`` keywords or ``[Return]`` setting.
-        """,
-    ),
-    "0320": Rule(
+        *** Test Cases ***
+        Test case
+            Given Setup Is Complete
+            When User Log In
+            Then User Should See Welcome Page
+
+    Since those words are used for BDD style, it's also recommended not to use them within the user keyword name.
+
+    """
+
+    name = "bdd-without-keyword-call"
+    rule_id = "NAME14"
+    message = "BDD reserved keyword '{keyword_name}' not followed by any keyword{error_msg}"
+    severity = RuleSeverity.WARNING
+    added_in_version = "1.11.0"
+
+
+class NotAllowedCharInFilenameRule(Rule):
+    r"""
+    Not allowed character found in filename.
+
+    Reports not allowed pattern found in Suite names. By default, it's a dot (`.`).
+    You can configure what characters are reported by running::
+
+         robocop check --configure not-allowed-char-in-filename.pattern=regex_pattern .
+
+    where ``regex_pattern`` should define regex pattern for characters not allowed in names. For example `[@\[]`
+    pattern would report any occurrence of ``@[`` characters.
+
+    """
+
+    name = "not-allowed-char-in-filename"
+    rule_id = "NAME15"
+    message = "Not allowed character '{character}' found in {block_name} name"
+    severity = RuleSeverity.WARNING
+    parameters = [
         RuleParam(
             name="pattern",
             default=re.compile(r"[\.\?]"),
@@ -432,191 +456,52 @@ rules = {
             show_type="regex",
             desc="pattern defining characters (not) allowed in a name",
         ),
-        rule_id="0320",
-        name="not-allowed-char-in-filename",
-        msg="Not allowed character '{{ character }}' found in {{ block_name }} name",
-        severity=RuleSeverity.WARNING,
-        added_in_version="2.1.0",
-        docs="""
-        Reports not allowed pattern found in Suite names. By default, it's a dot (`.`).
-        You can configure what characters are reported by running::
+    ]
+    added_in_version = "2.1.0"
 
-             robocop --configure not-allowed-char-in-filename:pattern:regex_pattern .
 
-        where ``regex_pattern`` should define regex pattern for characters not allowed in names. For example `[@\\[]`
-        pattern would report any occurrence of ``@[`` characters.
-        """,
-    ),
-    "0321": Rule(
-        rule_id="0321",
-        name="deprecated-with-name",
-        msg=(
-            "'WITH NAME' alias marker is deprecated since Robot Framework 6.0 version "
-            "and will be removed in the future release. Use 'AS' instead"
-        ),
-        severity=RuleSeverity.WARNING,
-        version=">=6.0",
-        added_in_version="2.5.0",
-        docs="""
-        ``WITH NAME`` marker that is used when giving an alias to an imported library is going to be renamed to ``AS``.
-        The motivation is to be consistent with Python that uses ``as`` for similar purpose.
+class InvalidSectionRule(Rule):
+    """
+    Invalid section found.
 
-        Code with the deprecated marker::
+    Robot Framework 6.1 detects unrecognized sections based on the language defined for the specific files.
+    Consider using ``--language`` parameter if the file is defined with different language.
 
-            *** Settings ***
-            Library    Collections    WITH NAME    AliasedName
+    It is also possible to configure language in the file::
 
-        Code with the supported marker::
+        language: pl
 
-            *** Settings ***
-            Library    Collections    AS    AliasedName
-        """,
-    ),
-    "0322": Rule(
-        rule_id="0322",
-        name="deprecated-singular-header",
-        msg="'{{ singular_header }}' singular header form is deprecated since RF 6.0 and "
-        "will be removed in the future releases. Use '{{ plural_header }}' instead",
-        severity=RuleSeverity.WARNING,
-        version=">=6.0",
-        added_in_version="2.6.0",
-        docs="""
-        Robot Framework 6.0 starts deprecation period for singular headers forms. The rationale behind this change
-        is available at https://github.com/robotframework/robotframework/issues/4431
-        """,
-    ),
-    "0323": Rule(
-        rule_id="0323",
-        name="inconsistent-variable-name",
-        msg="Variable '{{ name }}' has inconsistent naming. First used as '{{ first_use }}'",
-        severity=RuleSeverity.WARNING,
-        added_in_version="3.2.0",
-        docs="""
-        Variable names are case-insensitive and ignore underscores and spaces. It is possible to
-        write the variable in multiple ways and it will be a valid Robot Framework code. However,
-        it makes it harder to maintain the code that does not follow the consistent naming.
+        *** Przypadki Testowe ***
+        Wypisz dyrektywę 4
+            Log   Błąd dostępu
 
-        Example::
+    """
 
-            *** Keywords ***
-            Check If User Is Admin
-                [Arguments]    ${username}
-                ${role}    Get User Role     ${username}
-                IF    '${ROLE}' == 'Admin'   # inconsistent name with ${role}
-                    Log    ${Username} is an admin  # inconsistent name with ${username}
-                ELSE
-                    Log    ${user name} is not an admin  # inconsistent name
-                END
-        """,
-    ),
-    "0324": Rule(
-        rule_id="0324",
-        name="overwriting-reserved-variable",
-        msg="{{ var_or_arg }} '{{ variable_name }}' overwrites reserved variable '{{ reserved_variable }}'",
-        severity=RuleSeverity.WARNING,
-        added_in_version="3.2.0",
-        docs="""
-        Overwriting reserved variables may bring unexpected results.
-        For example, overwriting variable with name ``${LOG_LEVEL}`` can break Robot Framework logging.
-        See the full list of reserved variables at
-        `Robot Framework User Guide <https://robotframework.org/robotframework/latest/RobotFrameworkUserGuide.html#automatic-variables>`_
-        """,
-    ),
-    "0325": Rule(
-        rule_id="0325",
-        name="invalid-section",
-        msg="Invalid section '{{ invalid_section }}'. Consider using --language parameter if the file is defined with"
-        " different language",
-        severity=RuleSeverity.ERROR,
-        version=">=6.1",
-        added_in_version="3.2.0",
-        docs="""
-        Robot Framework 6.1 detects unrecognized sections based on the language defined for the specific files.
-        Consider using ``--language`` parameter if the file is defined with different language.
+    name = "invalid-section"
+    rule_id = "NAME16"
+    message = "Invalid section '{invalid_section}'"
+    severity = RuleSeverity.ERROR
+    version = ">=6.1"
+    added_in_version = "3.2.0"
 
-        It is also possible to configure language in the file::
 
-            language: pl
+class MixedTaskTestSettingsRule(Rule):
+    """
+    Task related setting used with ``*** Test Cases ***`` or Test related setting used with ``*** Tasks ***`` section.
 
-            *** Przypadki Testowe ***
-            Wypisz dyrektywę 4
-                Log   Błąd dostępu
-        """,
-    ),
-    "0326": Rule(
-        rule_id="0326",
-        name="mixed-task-test-settings",
-        msg="Use {{ task_or_test }}-related setting '{{ setting }}' if {{ tasks_or_tests }} section is used",
-        severity=RuleSeverity.WARNING,
-        added_in_version="3.3.0",
-        docs="""
-        If ``*** Tasks ***`` section is present in the file, use task-related settings like ``Task Setup``,
-        ``Task Teardown``, ``Task Template``, ``Task Tags`` and ``Task Timeout`` instead of their `Test` variants.
+    If ``*** Tasks ***`` section is present in the file, use task-related settings like ``Task Setup``,
+    ``Task Teardown``, ``Task Template``, ``Task Tags`` and ``Task Timeout`` instead of their `Test` variants.
 
-        Similarly, use test-related settings when using ``*** Test Cases ***`` section.
-        """,
-    ),
-    "0327": Rule(
-        rule_id="0327",
-        name="replace-set-variable-with-var",
-        msg="{{ set_variable_keyword }} can be replaced with VAR",
-        severity=RuleSeverity.INFO,
-        version=">=7.0",
-        added_in_version="5.0.0",
-        docs="""
-        Starting from Robot Framework 7.0, it is possible to create variables inside tests and user keywords using the
-        VAR syntax. The VAR syntax is recommended over previously existing keywords.
+    Similarly, use test-related settings when using ``*** Test Cases ***`` section.
 
-        Example with Set Variable keywords::
+    """
 
-          *** Keywords ***
-          Set Variables To Different Scopes
-              Set Local Variable    ${local}    value
-              Set Test Variable    ${TEST_VAR}    value
-              Set Task Variable    ${TASK_VAR}    value
-              Set Suite Variable    ${SUITE_VAR}    value
-              Set Global Variable    ${GLOBAL_VAR}    value
+    name = "mixed-task-test-settings"
+    rule_id = "NAME17"
+    message = "Use {task_or_test}-related setting '{setting}' if {tasks_or_tests} section is used"  # TODO: Rename
+    severity = RuleSeverity.WARNING
+    added_in_version = "3.3.0"
 
-        Can be now rewritten to::
-
-          *** Keywords ***
-          Set Variables To Different Scopes
-              VAR    ${local}    value
-              VAR    ${TEST_VAR}    value    scope=TEST
-              VAR    ${TASK_VAR}    value    scope=TASK
-              VAR    ${SUITE_VAR}    value    scope=SUITE
-              VAR    ${GLOBAL_VAR}    value    scope=GLOBAL
-
-        """,
-    ),
-    "0328": Rule(
-        rule_id="0328",
-        name="replace-create-with-var",
-        msg="{{ create_keyword }} can be replaced with VAR",
-        severity=RuleSeverity.INFO,
-        version=">=7.0",
-        added_in_version="5.0.0",
-        docs="""
-        Starting from Robot Framework 7.0, it is possible to create variables inside tests and user keywords using the
-        VAR syntax. The VAR syntax is recommended over previously existing keywords.
-
-        Example with Create keywords::
-
-          *** Keywords ***
-          Create Variables
-              @{list}    Create List    a  b
-              &{dict}    Create Dictionary    key=value
-
-        Can be now rewritten to::
-
-          *** Keywords ***
-          Create Variables
-              VAR    @{list}    a  b
-              VAR    &{dict}    key=value
-
-        """,
-    ),
-}
 
 SET_VARIABLE_VARIANTS = {
     "settaskvariable",
@@ -629,20 +514,18 @@ SET_VARIABLE_VARIANTS = {
 class InvalidCharactersInNameChecker(VisitorChecker):
     """Checker for invalid characters in suite, test case or keyword name."""
 
-    reports = (
-        "not-allowed-char-in-filename",
-        "not-allowed-char-in-name",
-    )
+    not_allowed_char_in_filename: NotAllowedCharInFilenameRule
+    not_allowed_char_in_name: NotAllowedCharInNameRule
 
-    def visit_File(self, node):  # noqa: N802
+    def visit_File(self, node) -> None:  # noqa: N802
         source = node.source if node.source else self.source
         if source:
             suite_name = Path(source).stem
             if "__init__" in suite_name:
                 suite_name = Path(source).parent.name
-            for match in self.param("not-allowed-char-in-filename", "pattern").finditer(suite_name):
+            for match in self.not_allowed_char_in_filename.pattern.finditer(suite_name):
                 self.report(
-                    "not-allowed-char-in-filename",
+                    self.not_allowed_char_in_filename,
                     character=match.group(),
                     block_name="suite",
                     node=node,
@@ -650,27 +533,27 @@ class InvalidCharactersInNameChecker(VisitorChecker):
                 )
         super().visit_File(node)
 
-    def check_if_pattern_in_node_name(self, node, name_of_node, is_keyword=False):
+    def check_if_pattern_in_node_name(self, node, name_of_node, is_keyword=False) -> None:
         """
         Search if regex pattern found from node name.
         Skips embedded variables from keyword name
         """
         node_name = node.name
-        variables = find_robot_vars(node_name) if is_keyword else []
+        robot_vars = find_robot_vars(node_name) if is_keyword else []
         start_pos = 0
-        for variable in variables:
+        for variable in robot_vars:
             # Loop and skip variables:
             # Search pattern from start_pos to variable starting position
-            # example `Keyword With ${em.bedded} Two ${second.Argument} Argument``
+            # example `Keyword With ${em.bedded} Two ${second.Argument} Argument`
             # is split to:
             #   1. `Keyword With `
             #   2. ` Two `
             #   3. ` Argument` - last part is searched in finditer part after this loop
             tmp_node_name = node_name[start_pos : variable[0]]
-            match = self.param("not-allowed-char-in-name", "pattern").search(tmp_node_name)
+            match = self.not_allowed_char_in_name.pattern.search(tmp_node_name)
             if match:
                 self.report(
-                    "not-allowed-char-in-name",
+                    self.not_allowed_char_in_name,
                     character=match.group(),
                     block_name=f"'{node_name}' {name_of_node}",
                     node=node,
@@ -679,38 +562,37 @@ class InvalidCharactersInNameChecker(VisitorChecker):
                 )
             start_pos = variable[1]
 
-        for iter in self.param("not-allowed-char-in-name", "pattern").finditer(node_name, start_pos):
+        for not_allowed_char in self.not_allowed_char_in_name.pattern.finditer(node_name, start_pos):
             self.report(
-                "not-allowed-char-in-name",
-                character=iter.group(),
+                self.not_allowed_char_in_name,
+                character=not_allowed_char.group(),
                 block_name=f"'{node.name}' {name_of_node}",
                 node=node,
-                col=node.col_offset + iter.start(0) + 1,
-                end_col=node.col_offset + iter.end(0) + 1,
+                col=node.col_offset + not_allowed_char.start(0) + 1,
+                end_col=node.col_offset + not_allowed_char.end(0) + 1,
             )
 
-    def visit_TestCaseName(self, node):  # noqa: N802
+    def visit_TestCaseName(self, node) -> None:  # noqa: N802
         self.check_if_pattern_in_node_name(node, "test case")
 
-    def visit_KeywordName(self, node):  # noqa: N802
+    def visit_KeywordName(self, node) -> None:  # noqa: N802
         self.check_if_pattern_in_node_name(node, "keyword", is_keyword=True)
 
 
-def uppercase_error_msg(name):
+def uppercase_error_msg(name) -> str:
     return f". It must be in uppercase ({name.upper()}) when used as a statement"
 
 
 class KeywordNamingChecker(VisitorChecker):
     """Checker for keyword naming violations."""
 
-    reports = (
-        "wrong-case-in-keyword-name",
-        "keyword-name-is-reserved-word",
-        "underscore-in-keyword-name",
-        "else-not-upper-case",
-        "keyword-name-is-empty",
-        "bdd-without-keyword-call",
-    )
+    wrong_case_in_keyword_name: WrongCaseInKeywordNameRule
+    keyword_name_is_reserved_word: KeywordNameIsReservedWordRule
+    underscore_in_keyword_name: UnderscoreInKeywordNameRule
+    else_not_upper_case: ElseNotUpperCaseRule
+    keyword_name_is_empty: KeywordNameIsEmptyRule
+    bdd_without_keyword_call: BddWithoutKeywordCallRule
+
     # reserved word followed by the RF version when it was introduced
     reserved_words = {
         "for": 3,
@@ -733,17 +615,17 @@ class KeywordNamingChecker(VisitorChecker):
         self.inside_if_block = False
         super().__init__()
 
-    def check_keyword_naming_with_subkeywords(self, node, name_token_type):
+    def check_keyword_naming_with_subkeywords(self, node, name_token_type) -> None:
         for keyword in iterate_keyword_names(node, name_token_type):
             self.check_keyword_naming(keyword.value, keyword)
 
-    def visit_Setup(self, node):  # noqa: N802
+    def visit_Setup(self, node) -> None:  # noqa: N802
         self.check_bdd_keywords(node.name, node)
         self.check_keyword_naming_with_subkeywords(node, Token.NAME)
 
     visit_TestTeardown = visit_SuiteTeardown = visit_Teardown = visit_TestSetup = visit_SuiteSetup = visit_Setup  # noqa: N815
 
-    def visit_Template(self, node):  # noqa: N802
+    def visit_Template(self, node) -> None:  # noqa: N802
         if node.value:
             name_token = node.get_token(Token.NAME)
             self.check_keyword_naming(node.value, name_token)
@@ -751,25 +633,25 @@ class KeywordNamingChecker(VisitorChecker):
 
     visit_TestTemplate = visit_Template  # noqa: N815
 
-    def visit_Keyword(self, node):  # noqa: N802
+    def visit_Keyword(self, node) -> None:  # noqa: N802
         if not node.name:
-            self.report("keyword-name-is-empty", node=node)
+            self.report(self.keyword_name_is_empty, node=node)
         else:
             self.check_keyword_naming(node.name, node)
         self.generic_visit(node)
 
-    def visit_KeywordCall(self, node):  # noqa: N802
+    def visit_KeywordCall(self, node) -> None:  # noqa: N802
         if self.inside_if_block and node.keyword and node.keyword.lower() in self.else_statements:
-            self.report("else-not-upper-case", node=node, col=keyword_col(node))
+            self.report(self.else_not_upper_case, node=node, col=keyword_col(node))
         self.check_keyword_naming_with_subkeywords(node, Token.KEYWORD)
         self.check_bdd_keywords(node.keyword, node)
 
-    def visit_If(self, node):  # noqa: N802
+    def visit_If(self, node) -> None:  # noqa: N802
         self.inside_if_block = True
         self.generic_visit(node)
         self.inside_if_block = False
 
-    def check_keyword_naming(self, keyword_name, node):
+    def check_keyword_naming(self, keyword_name, node) -> None:
         if not keyword_name or keyword_name.lstrip().startswith("#"):
             return
         if keyword_name == r"/":  # old for loop, / are interpreted as keywords
@@ -777,38 +659,38 @@ class KeywordNamingChecker(VisitorChecker):
         if self.check_if_keyword_is_reserved(keyword_name, node):
             return
         normalized = remove_robot_vars(keyword_name)
-        normalized = self.param("wrong-case-in-keyword-name", "pattern").sub("", normalized)
+        normalized = self.wrong_case_in_keyword_name.pattern.sub("", normalized)
         normalized = normalized.split(".")[-1]  # remove any imports ie ExternalLib.SubLib.Log -> Log
         normalized = normalized.replace("'", "")  # replace ' apostrophes
         if "_" in normalized:
             self.report(
-                "underscore-in-keyword-name",
+                self.underscore_in_keyword_name,
                 keyword_name=keyword_name,
                 node=node,
                 col=node.col_offset + 1,
                 end_col=node.end_col_offset + 1,
             )
         words = self.letter_pattern.sub(" ", normalized).split(" ")
-        if self.param("wrong-case-in-keyword-name", "convention") == "first_word_capitalized":
+        if self.wrong_case_in_keyword_name.convention == "first_word_capitalized":
             words = words[:1]
         if any(word[0].islower() for word in words if word):
             self.report(
-                "wrong-case-in-keyword-name",
+                self.wrong_case_in_keyword_name,
                 keyword_name=keyword_name,
                 node=node,
                 col=node.col_offset + 1,
                 end_col=node.col_offset + len(keyword_name) + 1,
             )
 
-    def check_bdd_keywords(self, keyword_name, node):
+    def check_bdd_keywords(self, keyword_name, node) -> None:
         if not keyword_name or keyword_name.lower() not in self.bdd:
             return
         arg = node.get_token(Token.ARGUMENT)
         suffix = f". Use one space between: '{keyword_name.title()} {arg.value}'" if arg else ""
         col = token_col(node, Token.NAME, Token.KEYWORD)
-        self.report("bdd-without-keyword-call", keyword_name=keyword_name, error_msg=suffix, node=node, col=col)
+        self.report(self.bdd_without_keyword_call, keyword_name=keyword_name, error_msg=suffix, node=node, col=col)
 
-    def check_if_keyword_is_reserved(self, keyword_name, node):
+    def check_if_keyword_is_reserved(self, keyword_name, node) -> bool:
         # if there is typo in syntax, it is interpreted as keyword
         lower_name = keyword_name.lower()
         if lower_name not in self.reserved_words:
@@ -820,7 +702,7 @@ class KeywordNamingChecker(VisitorChecker):
             return False
         error_msg = uppercase_error_msg(lower_name)
         self.report(
-            "keyword-name-is-reserved-word",
+            self.keyword_name_is_reserved_word,
             keyword_name=keyword_name,
             error_msg=error_msg,
             node=node,
@@ -833,14 +715,13 @@ class KeywordNamingChecker(VisitorChecker):
 class SettingsNamingChecker(VisitorChecker):
     """Checker for settings and sections naming violations."""
 
-    reports = (
-        "setting-name-not-in-title-case",
-        "section-name-invalid",
-        "empty-library-alias",
-        "duplicated-library-alias",
-        "invalid-section",
-        "mixed-task-test-settings",
-    )
+    setting_name_not_in_title_case: SettingNameNotInTitleCaseRule
+    section_name_invalid: SectionNameInvalidRule
+    empty_library_alias: EmptyLibraryAliasRule
+    duplicated_library_alias: DuplicatedLibraryAliasRule
+    invalid_section: InvalidSectionRule
+    mixed_task_test_settings: MixedTaskTestSettingsRule
+
     ALIAS_TOKENS = [Token.WITH_NAME] if ROBOT_VERSION.major < 5 else ["WITH NAME", "AS"]
     # Separating alias values since RF 3 uses WITH_NAME instead of WITH NAME
     ALIAS_TOKENS_VALUES = ["WITH NAME"] if ROBOT_VERSION.major < 5 else ["WITH NAME", "AS"]
@@ -850,33 +731,33 @@ class SettingsNamingChecker(VisitorChecker):
         self.task_section: bool | None = None
         super().__init__()
 
-    def visit_InvalidSection(self, node):  # noqa: N802
+    def visit_InvalidSection(self, node) -> None:  # noqa: N802
         name = node.header.data_tokens[0].value
         invalid_header = node.header.get_token(Token.INVALID_HEADER)
         if "Resource file with" in invalid_header.error:
             return
         if invalid_header:
             self.report(
-                "invalid-section",
+                self.invalid_section,
                 invalid_section=name,
                 node=node,
                 col=node.header.col_offset + 1,
                 end_col=node.header.end_col_offset + 1,
             )
 
-    def visit_SectionHeader(self, node):  # noqa: N802
+    def visit_SectionHeader(self, node) -> None:  # noqa: N802
         name = node.data_tokens[0].value
         if not self.section_name_pattern.match(name) or not (name.istitle() or name.isupper()):
             valid_name = f"*** {node.name.title()} ***"
             self.report(
-                "section-name-invalid",
+                self.section_name_invalid,
                 section_title_case=valid_name,
                 section_upper_case=valid_name.upper(),
                 node=node,
                 end_col=node.col_offset + len(name) + 1,
             )
 
-    def visit_File(self, node):  # noqa: N802
+    def visit_File(self, node) -> None:  # noqa: N802
         self.task_section = None
         for section in node.sections:
             if isinstance(section, TestCaseSection):
@@ -889,7 +770,7 @@ class SettingsNamingChecker(VisitorChecker):
                 break
         super().visit_File(node)
 
-    def visit_Setup(self, node):  # noqa: N802
+    def visit_Setup(self, node) -> None:  # noqa: N802
         self.check_setting_name(node.data_tokens[0].value, node)
         self.check_settings_consistency(node.data_tokens[0].value, node)
 
@@ -901,7 +782,7 @@ class SettingsNamingChecker(VisitorChecker):
         visit_Return  # noqa: N815
     ) = visit_Setup
 
-    def visit_LibraryImport(self, node):  # noqa: N802
+    def visit_LibraryImport(self, node) -> None:  # noqa: N802
         self.check_setting_name(node.data_tokens[0].value, node)
         if ROBOT_VERSION.major < 6:
             arg_nodes = node.get_tokens(Token.ARGUMENT)
@@ -914,31 +795,35 @@ class SettingsNamingChecker(VisitorChecker):
         if not with_name:
             for arg in node.get_tokens(Token.ARGUMENT):
                 if arg.value and arg.value in self.ALIAS_TOKENS_VALUES:
-                    self.report("empty-library-alias", node=arg, col=arg.col_offset + 1)
+                    self.report(self.empty_library_alias, node=arg, col=arg.col_offset + 1)
         elif node.alias.replace(" ", "") == node.name.replace(" ", ""):  # New Name == NewName
             name_token = node.get_tokens(Token.NAME)[-1]
             self.report(
-                "duplicated-library-alias",
+                self.duplicated_library_alias,
                 node=name_token,
                 col=name_token.col_offset + 1,
                 end_col=name_token.end_col_offset + 1,
             )
 
-    def check_setting_name(self, name, node):
+    def check_setting_name(self, name, node) -> None:
         if not (name.istitle() or name.isupper()):
             col = node.tokens[0].end_col_offset if node.tokens[0].type == "SEPARATOR" else node.col_offset
             self.report(
-                "setting-name-not-in-title-case", setting_name=name, node=node, col=col + 1, end_col=col + len(name) + 1
+                self.setting_name_not_in_title_case,
+                setting_name=name,
+                node=node,
+                col=col + 1,
+                end_col=col + len(name) + 1,
             )
 
-    def check_settings_consistency(self, name: str, node):
+    def check_settings_consistency(self, name: str, node) -> None:
         name_normalized = name.lower()
         # if there is no task/test section, determine by first setting in the file
         if self.task_section is None and ("test" in name_normalized or "task" in name_normalized):
             self.task_section = "task" in name_normalized
         if "test" in name_normalized and self.task_section:
             self.report(
-                "mixed-task-test-settings",
+                self.mixed_task_test_settings,
                 setting="Task " + name.split()[1],
                 task_or_test="task",
                 tasks_or_tests="Tasks",
@@ -946,7 +831,7 @@ class SettingsNamingChecker(VisitorChecker):
             )
         elif "task" in name_normalized and not self.task_section:
             self.report(
-                "mixed-task-test-settings",
+                self.mixed_task_test_settings,
                 setting="Test " + name.split()[1],
                 task_or_test="test",
                 tasks_or_tests="Test Cases",
@@ -957,21 +842,19 @@ class SettingsNamingChecker(VisitorChecker):
 class TestCaseNamingChecker(VisitorChecker):
     """Checker for test case naming violations."""
 
-    reports = (
-        "not-capitalized-test-case-title",
-        "test-case-name-is-empty",
-    )
+    not_capitalized_test_case_title: NotCapitalizedTestCaseTitleRule
+    test_case_name_is_empty: TestCaseNameIsEmptyRule
 
-    def visit_TestCase(self, node):  # noqa: N802
+    def visit_TestCase(self, node) -> None:  # noqa: N802
         if not node.name:
-            self.report("test-case-name-is-empty", node=node)
+            self.report(self.test_case_name_is_empty, node=node)
         else:
             for c in node.name:
                 if not c.isalpha():
                     continue
                 if not c.isupper():
                     self.report(
-                        "not-capitalized-test-case-title",
+                        self.not_capitalized_test_case_title,
                         test_name=node.name,
                         node=node,
                         end_col=node.col_offset + len(node.name) + 1,
@@ -982,13 +865,12 @@ class TestCaseNamingChecker(VisitorChecker):
 class VariableNamingChecker(VisitorChecker):
     """Checker for variable naming violations."""
 
-    reports = (
-        "section-variable-not-uppercase",
-        "non-local-variables-should-be-uppercase",
-        "hyphen-in-variable-name",
-        "overwriting-reserved-variable",
-    )
-    RESERVED_VARIABLES = {
+    section_variable_not_uppercase: SectionVariableNotUppercaseRule
+    non_local_variables_should_be_uppercase: variables.NonLocalVariablesShouldBeUppercaseRule
+    hyphen_in_variable_name: variables.HyphenInVariableNameRule
+    overwriting_reserved_variable: variables.OverwritingReservedVariableRule
+
+    RESERVED_VARIABLES = {  # TODO could be part of the rule class
         "testname": "${TEST_NAME}",
         "testtags": "@{TEST_TAGS}",
         "testdocumentation": "${TEST_DOCUMENTATION}",
@@ -1014,12 +896,12 @@ class VariableNamingChecker(VisitorChecker):
         # "options": "&{OPTIONS}", This variable is widely used and is relatively safe to overwrite
     }
 
-    def visit_Keyword(self, node):  # noqa: N802
+    def visit_Keyword(self, node) -> None:  # noqa: N802
         name_token = node.header.get_token(Token.KEYWORD_NAME)
         self.parse_embedded_arguments(name_token)
         self.generic_visit(node)
 
-    def visit_Variable(self, node):  # noqa: N802
+    def visit_Variable(self, node) -> None:  # noqa: N802
         token = node.data_tokens[0]
         try:
             var_name = search_variable(token.value).base
@@ -1031,7 +913,7 @@ class VariableNamingChecker(VisitorChecker):
         # because even when the variable is nested, it needs to be global
         if not var_name.isupper():
             self.report(
-                "section-variable-not-uppercase",
+                self.section_variable_not_uppercase,
                 variable_name=token.value.strip(),
                 lineno=token.lineno,
                 col=token.col_offset + 1,
@@ -1039,7 +921,7 @@ class VariableNamingChecker(VisitorChecker):
             )
         self.check_for_reserved_naming_or_hyphen(token, "Variable")
 
-    def visit_KeywordCall(self, node):  # noqa: N802
+    def visit_KeywordCall(self, node) -> None:  # noqa: N802
         for token in node.get_tokens(Token.ASSIGN):
             self.check_for_reserved_naming_or_hyphen(token, "Variable", is_assign=True)
         if not node.keyword:
@@ -1058,19 +940,19 @@ class VariableNamingChecker(VisitorChecker):
                 return
             self.check_non_local_variable(var_name, node, token)
 
-    def check_non_local_variable(self, variable_name: str, node, token):
+    def check_non_local_variable(self, variable_name: str, node, token) -> None:
         normalized_var_name = remove_nested_variables(variable_name)
         # a variable as a keyword argument can contain lowercase nested variable
         # because the actual value of it may be uppercase
         if not normalized_var_name.isupper():
             self.report(
-                "non-local-variables-should-be-uppercase",
+                self.non_local_variables_should_be_uppercase,
                 node=node,
                 col=token.col_offset + 1,
                 end_col=token.end_col_offset + 1,
             )
 
-    def visit_Var(self, node):  # noqa: N802
+    def visit_Var(self, node) -> None:  # noqa: N802
         if node.errors:  # for example invalid variable definition like $var}
             return
         variable = node.get_token(Token.VARIABLE)
@@ -1081,16 +963,16 @@ class VariableNamingChecker(VisitorChecker):
         if not _is_var_scope_local(node):
             self.check_non_local_variable(search_variable(variable.value).base, node, variable)
 
-    def visit_If(self, node):  # noqa: N802
+    def visit_If(self, node) -> None:  # noqa: N802
         for token in node.header.get_tokens(Token.ASSIGN):
             self.check_for_reserved_naming_or_hyphen(token, "Variable")
         self.generic_visit(node)
 
-    def visit_Arguments(self, node):  # noqa: N802
+    def visit_Arguments(self, node) -> None:  # noqa: N802
         for arg in node.get_tokens(Token.ARGUMENT):
             self.check_for_reserved_naming_or_hyphen(arg, "Argument")
 
-    def parse_embedded_arguments(self, name_token):
+    def parse_embedded_arguments(self, name_token) -> None:
         """Store embedded arguments from keyword name. Ignore embedded variables patterns like (${var:pattern})."""
         try:
             for token in name_token.tokenize_variables():
@@ -1099,7 +981,7 @@ class VariableNamingChecker(VisitorChecker):
         except VariableError:
             pass
 
-    def check_for_reserved_naming_or_hyphen(self, token, var_or_arg, has_pattern=False, is_assign=False):
+    def check_for_reserved_naming_or_hyphen(self, token, var_or_arg, has_pattern=False, is_assign=False) -> None:
         """Check if variable name is a reserved Robot Framework name or uses hyphen in the name."""
         variable_match = search_variable(token.value, ignore_errors=True)
         name = variable_match.base
@@ -1107,7 +989,7 @@ class VariableNamingChecker(VisitorChecker):
             name, *_ = name.split(":", maxsplit=1)  # var:pattern -> var
         if is_assign and "-" in variable_match.base:
             self.report(
-                "hyphen-in-variable-name",
+                self.hyphen_in_variable_name,
                 variable_name=token.value,
                 lineno=token.lineno,
                 col=token.col_offset + 1,
@@ -1119,7 +1001,7 @@ class VariableNamingChecker(VisitorChecker):
         if normalized_name in self.RESERVED_VARIABLES:
             reserved_variable = self.RESERVED_VARIABLES[normalized_name]
             self.report(
-                "overwriting-reserved-variable",
+                self.overwriting_reserved_variable,
                 var_or_arg=var_or_arg,
                 variable_name=variable_match.match,
                 reserved_variable=reserved_variable,
@@ -1133,7 +1015,8 @@ class VariableNamingChecker(VisitorChecker):
 class SimilarVariableChecker(VisitorChecker):
     """Checker for finding same variables with similar names."""
 
-    reports = ("possible-variable-overwriting", "inconsistent-variable-name")
+    possible_variable_overwriting: variables.PossibleVariableOverwritingRule
+    inconsistent_variable_name: variables.InconsistentVariableNameRule
 
     def __init__(self):
         self.assigned_variables = defaultdict(list)
@@ -1141,7 +1024,7 @@ class SimilarVariableChecker(VisitorChecker):
         self.parent_type = ""
         super().__init__()
 
-    def visit_Keyword(self, node):  # noqa: N802
+    def visit_Keyword(self, node) -> None:  # noqa: N802
         self.assigned_variables = defaultdict(list)
         self.parent_name = node.name
         self.parent_type = type(node).__name__
@@ -1150,13 +1033,13 @@ class SimilarVariableChecker(VisitorChecker):
         self.visit_vars_and_find_similar(node)
         self.generic_visit(node)
 
-    def visit_TestCase(self, node):  # noqa: N802
+    def visit_TestCase(self, node) -> None:  # noqa: N802
         self.assigned_variables = defaultdict(list)
         self.parent_name = node.name
         self.parent_type = type(node).__name__
         self.generic_visit(node)
 
-    def visit_KeywordCall(self, node):  # noqa: N802
+    def visit_KeywordCall(self, node) -> None:  # noqa: N802
         if normalize_robot_name(node.keyword, remove_prefix="builtin.") in SET_VARIABLE_VARIANTS:
             normalized, assign_value = "", ""
             for index, token in enumerate(node.data_tokens[1:]):
@@ -1172,7 +1055,7 @@ class SimilarVariableChecker(VisitorChecker):
         tokens = node.get_tokens(Token.ASSIGN)
         self.find_similar_variables(tokens, node)
 
-    def visit_Var(self, node):  # noqa: N802
+    def visit_Var(self, node) -> None:  # noqa: N802
         if node.errors:  # for example invalid variable definition like $var}
             return
         for arg in node.get_tokens(Token.ARGUMENT):
@@ -1181,7 +1064,7 @@ class SimilarVariableChecker(VisitorChecker):
         if variable:
             self.find_similar_variables([variable], node, ignore_overwriting=not _is_var_scope_local(node))
 
-    def visit_If(self, node):  # noqa: N802
+    def visit_If(self, node) -> None:  # noqa: N802
         for token in node.header.get_tokens(Token.ARGUMENT):
             self.find_not_nested_variable(token, token.value, is_var=False)
         tokens = node.header.get_tokens(Token.ASSIGN)
@@ -1200,7 +1083,7 @@ class SimilarVariableChecker(VisitorChecker):
         else:
             yield from for_node.assign
 
-    def visit_For(self, node):  # noqa: N802
+    def visit_For(self, node) -> None:  # noqa: N802
         for token in node.header.get_tokens(Token.ARGUMENT):
             self.find_not_nested_variable(token, token.value, is_var=False)
         for var in self.for_assign_vars(node):
@@ -1209,13 +1092,13 @@ class SimilarVariableChecker(VisitorChecker):
 
     visit_ForLoop = visit_For  # noqa: N815
 
-    def visit_Return(self, node):  # noqa: N802
+    def visit_Return(self, node) -> None:  # noqa: N802
         for token in node.get_tokens(Token.ARGUMENT):
             self.find_not_nested_variable(token, token.value, is_var=False)
 
     visit_ReturnStatement = visit_Teardown = visit_Timeout = visit_Return  # noqa: N815
 
-    def parse_embedded_arguments(self, name_token):
+    def parse_embedded_arguments(self, name_token) -> None:
         """Store embedded arguments from keyword name. Ignore embedded variables patterns (${var:pattern})."""
         try:
             for token in name_token.tokenize_variables():
@@ -1228,7 +1111,7 @@ class SimilarVariableChecker(VisitorChecker):
         except VariableError:
             pass
 
-    def check_inconsistent_naming(self, token, value: str, offset: int):
+    def check_inconsistent_naming(self, token, value: str, offset: int) -> None:
         """
         Check if variable name ``value`` was already defined under matching but not the same name.
         :param token: ast token representing the string with variable
@@ -1243,7 +1126,7 @@ class SimilarVariableChecker(VisitorChecker):
         if value != assign_normalized:
             name = "${" + value + "}"
             self.report(
-                "inconsistent-variable-name",
+                self.inconsistent_variable_name,
                 name=name,
                 first_use=latest_assign,
                 node=token,
@@ -1252,8 +1135,8 @@ class SimilarVariableChecker(VisitorChecker):
                 end_col=token.col_offset + offset + len(name) + 1,
             )
 
-    def find_not_nested_variable(self, token, value, is_var: bool, offset: int = 0):
-        """
+    def find_not_nested_variable(self, token, value, is_var: bool, offset: int = 0) -> None:
+        r"""
         Find and process not nested variable.
 
         Search `value` string until there is ${variable} without other variables inside.
@@ -1284,7 +1167,7 @@ class SimilarVariableChecker(VisitorChecker):
                 self.find_not_nested_variable(token, item, is_var=False, offset=offset)
                 offset += len(item)
 
-    def visit_vars_and_find_similar(self, node):
+    def visit_vars_and_find_similar(self, node) -> None:
         """
         Update a dictionary `assign_variables` with normalized variable name as a key
         and ads a list of all detected variations of this variable in the node as a value,
@@ -1299,7 +1182,7 @@ class SimilarVariableChecker(VisitorChecker):
                     normalized = normalize_robot_name(variable_match.base)
                     self.assigned_variables[normalized].append(name)
 
-    def find_similar_variables(self, tokens, node, ignore_overwriting: bool = False):
+    def find_similar_variables(self, tokens, node, ignore_overwriting: bool = False) -> None:
         for token in tokens:
             variable_match = search_variable(token.value, ignore_errors=True)
             name = variable_match.name
@@ -1310,7 +1193,7 @@ class SimilarVariableChecker(VisitorChecker):
                 and name not in self.assigned_variables[normalized]
             ):
                 self.report(
-                    "possible-variable-overwriting",
+                    self.possible_variable_overwriting,
                     variable_name=name,
                     block_name=self.parent_name,
                     block_type=self.parent_type,
@@ -1325,13 +1208,12 @@ class SimilarVariableChecker(VisitorChecker):
 class DeprecatedStatementChecker(VisitorChecker):
     """Checker for deprecated statements."""
 
-    reports = (
-        "deprecated-statement",
-        "deprecated-with-name",
-        "deprecated-singular-header",
-        "replace-set-variable-with-var",
-        "replace-create-with-var",
-    )
+    deprecated_statement: deprecated.DeprecatedStatementRule
+    deprecated_with_name: deprecated.DeprecatedWithNameRule
+    deprecated_singular_header: deprecated.DeprecatedSingularHeaderRule
+    replace_set_variable_with_var: deprecated.ReplaceSetVariableWithVarRule
+    replace_create_with_var: deprecated.ReplaceCreateWithVarRule
+
     deprecated_keywords = {
         "runkeywordunless": (5, "IF"),
         "runkeywordif": (5, "IF"),
@@ -1370,34 +1252,34 @@ class DeprecatedStatementChecker(VisitorChecker):
     }
     create_keywords = {"createdictionary", "createlist"}
 
-    def visit_KeywordCall(self, node):  # noqa: N802
+    def visit_KeywordCall(self, node) -> None:  # noqa: N802
         self.check_if_keyword_is_deprecated(node.keyword, node)
         self.check_keyword_can_be_replaced_with_var(node.keyword, node)
 
-    def visit_SuiteSetup(self, node):  # noqa: N802
+    def visit_SuiteSetup(self, node) -> None:  # noqa: N802
         self.check_if_keyword_is_deprecated(node.name, node)
 
     visit_TestSetup = visit_Setup = visit_SuiteTeardown = visit_TestTeardown = visit_Teardown = visit_SuiteSetup  # noqa: N815
 
-    def visit_Template(self, node):  # noqa: N802
+    def visit_Template(self, node) -> None:  # noqa: N802
         if not node.value:
             return
         self.check_if_keyword_is_deprecated(node.value, node)
 
     visit_TestTemplate = visit_Template  # noqa: N815
 
-    def visit_Return(self, node):  # noqa: N802
+    def visit_Return(self, node) -> None:  # noqa: N802
         """For RETURN use visit_ReturnStatement - visit_Return will most likely visit RETURN in the future"""
         if ROBOT_VERSION.major not in (5, 6):
             return
         self.check_deprecated_return(node)
 
-    def visit_ReturnSetting(self, node):  # noqa: N802
+    def visit_ReturnSetting(self, node) -> None:  # noqa: N802
         self.check_deprecated_return(node)
 
-    def check_deprecated_return(self, node):
+    def check_deprecated_return(self, node) -> None:
         self.report(
-            "deprecated-statement",
+            self.deprecated_statement,
             statement_name="[Return]",
             alternative="RETURN",
             node=node,
@@ -1406,13 +1288,13 @@ class DeprecatedStatementChecker(VisitorChecker):
             version="5.*",
         )
 
-    def visit_ForceTags(self, node):  # noqa: N802
+    def visit_ForceTags(self, node) -> None:  # noqa: N802
         if ROBOT_VERSION.major < 6:
             return
         setting_name = node.data_tokens[0].value.lower()
         if setting_name == "force tags":
             self.report(
-                "deprecated-statement",
+                self.deprecated_statement,
                 statement_name="Force Tags",
                 alternative="Test Tags",
                 node=node,
@@ -1421,7 +1303,7 @@ class DeprecatedStatementChecker(VisitorChecker):
                 version="6.0",
             )
 
-    def check_if_keyword_is_deprecated(self, keyword_name, node):
+    def check_if_keyword_is_deprecated(self, keyword_name, node) -> None:
         normalized_keyword_name = normalize_robot_name(keyword_name, remove_prefix="builtin.")
         if normalized_keyword_name not in self.deprecated_keywords:
             return
@@ -1430,7 +1312,7 @@ class DeprecatedStatementChecker(VisitorChecker):
             return
         col = token_col(node, Token.NAME, Token.KEYWORD)
         self.report(
-            "deprecated-statement",
+            self.deprecated_statement,
             statement_name=keyword_name,
             alternative=alternative,
             node=node,
@@ -1439,14 +1321,14 @@ class DeprecatedStatementChecker(VisitorChecker):
             version=f"{version}.*",
         )
 
-    def check_keyword_can_be_replaced_with_var(self, keyword_name, node):
+    def check_keyword_can_be_replaced_with_var(self, keyword_name, node) -> None:
         if ROBOT_VERSION.major < 7:
             return
         normalized = normalize_robot_name(keyword_name, remove_prefix="builtin.")
         col = token_col(node, Token.NAME, Token.KEYWORD)
         if normalized in self.set_variable_keywords:
             self.report(
-                "replace-set-variable-with-var",
+                self.replace_set_variable_with_var,
                 set_variable_keyword=keyword_name,
                 node=node,
                 col=col,
@@ -1454,27 +1336,27 @@ class DeprecatedStatementChecker(VisitorChecker):
             )
         elif normalized in self.create_keywords:
             self.report(
-                "replace-create-with-var",
+                self.replace_create_with_var,
                 create_keyword=keyword_name,
                 node=node,
                 col=col,
                 end_col=col + len(keyword_name),
             )
 
-    def visit_LibraryImport(self, node):  # noqa: N802
+    def visit_LibraryImport(self, node) -> None:  # noqa: N802
         if ROBOT_VERSION.major < 5 or (ROBOT_VERSION.major == 5 and ROBOT_VERSION.minor == 0):
             return
         with_name_token = node.get_token(Token.WITH_NAME)
         if not with_name_token or with_name_token.value == "AS":
             return
         self.report(
-            "deprecated-with-name",
+            self.deprecated_with_name,
             node=with_name_token,
             col=with_name_token.col_offset + 1,
             end_col=with_name_token.end_col_offset + 1,
         )
 
-    def visit_SectionHeader(self, node):  # noqa: N802
+    def visit_SectionHeader(self, node) -> None:  # noqa: N802
         if not node.name:
             return
         normalized_name = string.capwords(node.name)
@@ -1485,7 +1367,7 @@ class DeprecatedStatementChecker(VisitorChecker):
             return
         header_node = node.data_tokens[0]
         self.report(
-            "deprecated-singular-header",
+            self.deprecated_singular_header,
             singular_header=f"*** {node.name} ***",
             plural_header=f"*** {node.name}s ***",
             node=header_node,

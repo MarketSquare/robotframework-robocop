@@ -1,1 +1,1 @@
-test.robot:6:1 [W] 0202 Missing documentation in 'Test' test case
+test.robot:6:1 [W] DOC02 Missing documentation in 'Test' test case

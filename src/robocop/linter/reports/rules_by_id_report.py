@@ -2,7 +2,8 @@ from collections import defaultdict
 from operator import itemgetter
 
 import robocop.linter.reports
-from robocop.linter.rules import Message
+from robocop.config import Config
+from robocop.linter.diagnostics import Diagnostic
 
 
 class RulesByIdReport(robocop.linter.reports.ComparableReport):
@@ -13,21 +14,22 @@ class RulesByIdReport(robocop.linter.reports.ComparableReport):
     Example::
 
         Issues by ID:
-        W0502 (too-little-calls-in-keyword) : 5
-        W0201 (missing-doc-keyword)         : 4
-        E0401 (parsing-error)               : 3
-        W0301 (not-allowed-char-in-name)    : 2
-        W0901 (keyword-after-return)        : 1
+        VAR03 [W] (variable-overwritten-before-usage) : 5
+        DOC01 [W] (missing-doc-keyword)               : 4
+        ERR01 [E] (parsing-error)                     : 3
+        NAME01 [W] (not-allowed-char-in-name)         : 2
+        MISC01 [W] (keyword-after-return)             : 1
     """
 
-    def __init__(self, compare_runs):
+    def __init__(self, config: Config):
         self.name = "rules_by_id"
         self.description = "Groups detected issues by rule id and prints it ordered by most common"
         self.message_counter = defaultdict(int)
-        super().__init__(compare_runs)
+        super().__init__(config)
 
-    def add_message(self, message: Message):
-        self.message_counter[message.get_fullname()] += 1
+    def add_message(self, message: Diagnostic) -> None:
+        rule_name = f"{message.rule.rule_id} [{message.severity.value}] ({message.rule.name})"
+        self.message_counter[rule_name] += 1
 
     def persist_result(self) -> dict:
         return dict(self.message_counter.items())

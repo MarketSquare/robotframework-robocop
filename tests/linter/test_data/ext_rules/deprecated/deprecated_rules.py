@@ -1,5 +1,5 @@
-from robocop.checkers import VisitorChecker
-from robocop.rules import Rule, RuleSeverity
+from robocop.linter.rules import VisitorChecker
+from robocop.linter.rules import Rule, RuleSeverity
 
 rules = {
     "1101": Rule(rule_id="1101", name="not-deprecated", msg="Not deprecated", severity=RuleSeverity.ERROR),

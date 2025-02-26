@@ -1,2 +1,2 @@
-no_builtins.robot:4:12 [W] 10101 Non builtin library import 'OwnLib.py' should be placed before 'RequestsLibrary'
-test.robot:9:12 [W] 10101 Non builtin library import 'AnotherLibrary' should be placed before 'RequestsLibrary'
+no_builtins.robot:4:12 [W] IMP03 Non builtin library import 'OwnLib.py' should be placed before 'RequestsLibrary'
+test.robot:9:12 [W] IMP03 Non builtin library import 'AnotherLibrary' should be placed before 'RequestsLibrary'

@@ -1,6 +1,6 @@
 from robocop.formatter.disablers import skip_if_disabled
-from robocop.formatter.skip import Skip
 from robocop.formatter.formatters.aligners_core import AlignKeywordsTestsSection
+from robocop.formatter.skip import Skip
 from robocop.formatter.utils.misc import is_suite_templated
 
 
@@ -45,7 +45,7 @@ class AlignTestCasesSection(AlignKeywordsTestsSection):
         compact_overflow_limit: int = 2,
         align_comments: bool = False,
         align_settings_separately: bool = False,
-        skip_documentation: str = "True",  # noqa - override skip_documentation from Skip
+        skip_documentation: str = "True",  # noqa: ARG002 override skip_documentation from Skip
         skip: Skip = None,
     ):
         super().__init__(
@@ -58,17 +58,17 @@ class AlignTestCasesSection(AlignKeywordsTestsSection):
             skip,
         )
 
-    def visit_File(self, node):  # noqa
+    def visit_File(self, node):  # noqa: N802
         if is_suite_templated(node):
             return node
-        super().visit_File(node)
+        return super().visit_File(node)
 
     @skip_if_disabled
-    def visit_TestCase(self, node):  # noqa
+    def visit_TestCase(self, node):  # noqa: N802
         self.create_auto_widths_for_context(node)
         self.generic_visit(node)
         self.remove_auto_widths_for_context()
         return node
 
-    def visit_Keyword(self, node):  # noqa
+    def visit_Keyword(self, node):  # noqa: N802
         return node

@@ -1,5 +1,5 @@
 [tool.robocop]
-extend_exclude = ["excluded_dir/"]
+default_exclude = ["excluded_dir/"]
 
 [tool.robocop.lint]
 configure = [

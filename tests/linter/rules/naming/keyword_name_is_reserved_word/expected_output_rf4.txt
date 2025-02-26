@@ -1,7 +1,7 @@
-if_blocks.robot:4:5 [E] 0303 'If' is a reserved keyword. It must be in uppercase (IF) when used as a statement
-if_blocks.robot:8:5 [E] 0303 'End' is a reserved keyword. It must be in uppercase (END) when used as a statement
-if_blocks.robot:24:9 [E] 0303 'End' is a reserved keyword. It must be in uppercase (END) when used as a statement
-test.robot:15:19 [E] 0303 'End' is a reserved keyword. It must be in uppercase (END) when used as a statement
-test.robot:24:5 [E] 0303 'For' is a reserved keyword. It must be in uppercase (FOR) when used as a statement
-test.robot:25:5 [E] 0303 'End' is a reserved keyword. It must be in uppercase (END) when used as a statement
-templated_suite.robot:2:18 [E] 0303 'End' is a reserved keyword. It must be in uppercase (END) when used as a statement
+if_blocks.robot:4:5 [E] NAME03 'If' is a reserved keyword. It must be in uppercase (IF) when used as a statement
+if_blocks.robot:8:5 [E] NAME03 'End' is a reserved keyword. It must be in uppercase (END) when used as a statement
+if_blocks.robot:24:9 [E] NAME03 'End' is a reserved keyword. It must be in uppercase (END) when used as a statement
+test.robot:15:19 [E] NAME03 'End' is a reserved keyword. It must be in uppercase (END) when used as a statement
+test.robot:24:5 [E] NAME03 'For' is a reserved keyword. It must be in uppercase (FOR) when used as a statement
+test.robot:25:5 [E] NAME03 'End' is a reserved keyword. It must be in uppercase (END) when used as a statement
+templated_suite.robot:2:18 [E] NAME03 'End' is a reserved keyword. It must be in uppercase (END) when used as a statement

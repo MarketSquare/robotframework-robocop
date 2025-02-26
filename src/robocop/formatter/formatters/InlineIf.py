@@ -65,10 +65,10 @@ class InlineIf(Formatter):
         self.skip_else = skip_else
 
     @skip_section_if_disabled
-    def visit_Section(self, node):  # noqa
+    def visit_Section(self, node):  # noqa: N802
         return self.generic_visit(node)
 
-    def visit_If(self, node: If):  # noqa
+    def visit_If(self, node: If):  # noqa: N802
         if node.errors or getattr(node.end, "errors", None):
             return node
         if self.disablers.is_node_disabled("InlineIf", node, full_match=False):

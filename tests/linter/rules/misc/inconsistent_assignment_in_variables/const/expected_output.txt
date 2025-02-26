@@ -1,2 +1,2 @@
-const${/}test.robot:7:1 [W] 0910 The assignment sign is not consistent inside the variables section. Expected ' =' but got '=' instead
-const${/}test.robot:8:1 [W] 0910 The assignment sign is not consistent inside the variables section. Expected ' =' but got '' instead
+const${/}test.robot:7:1 [W] MISC05 The assignment sign is not consistent inside the variables section. Expected ' =' but got '=' instead
+const${/}test.robot:8:1 [W] MISC05 The assignment sign is not consistent inside the variables section. Expected ' =' but got '' instead

@@ -7,9 +7,9 @@ from robocop.formatter.skip import Skip, SkipConfig
 
 
 class TestSkip:
-    @pytest.mark.parametrize("keyword_call, str_keyword_call", [({"test", "keyword"}, "test,keyword")])
-    @pytest.mark.parametrize("return_values, str_return_values", [(True, "True"), (False, "False")])
-    @pytest.mark.parametrize("doc, str_doc", [(True, "True"), (False, "False")])
+    @pytest.mark.parametrize(("keyword_call", "str_keyword_call"), [({"test", "keyword"}, "test,keyword")])
+    @pytest.mark.parametrize(("return_values", "str_return_values"), [(True, "True"), (False, "False")])
+    @pytest.mark.parametrize(("doc", "str_doc"), [(True, "True"), (False, "False")])
     def test_from_str_cfg(self, doc, str_doc, return_values, str_return_values, keyword_call, str_keyword_call):
         skip_config_from_str = SkipConfig()
         skip_config_from_str.update_with_str_config(
@@ -26,7 +26,7 @@ class TestSkip:
         assert skip_config_from_str == skip_config
 
     @pytest.mark.parametrize(
-        "skip_keyword, names, disabled",
+        ("skip_keyword", "names", "disabled"),
         [
             ("executejavascript", ["Execute Javascript"], [True]),
             ("executejavascript", ["OtherLib.Execute Javascript"], [False]),
@@ -50,7 +50,7 @@ class TestSkip:
             assert disable == skip.keyword_call(mock_node)
 
     @pytest.mark.parametrize(
-        "skip_keyword, names, disabled",
+        ("skip_keyword", "names", "disabled"),
         [
             ("Execute Javascript", ["Execute Javascript"], [True]),
             ("Execute Javascript", ["executejavascript"], [False]),

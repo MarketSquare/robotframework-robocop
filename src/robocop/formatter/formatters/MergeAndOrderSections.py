@@ -1,5 +1,6 @@
 from robot.api.parsing import EmptyLine, SectionHeader, Token
 from robot.parsing.model.statements import Statement
+
 from robocop.formatter.exceptions import InvalidParameterValueError
 
 try:
@@ -27,7 +28,7 @@ class MergeAndOrderSections(Formatter):
     spaces):
 
     ```
-    robocop format --transform MergeAndOrderSections:order=settings,keywords,variables,testcases,comments
+    robocop format --transform MergeAndOrderSections.order=settings,keywords,variables,testcases,comments
     ```
 
     Because merging and changing the order of sections can shuffle your empty lines it's greatly advised to always
@@ -92,8 +93,7 @@ class MergeAndOrderSections(Formatter):
             "keyword": Token.KEYWORD_HEADER,
         }
         parsed_order = [self.LANGUAGE_MARKER_SECTION]
-        for part in parts:
-            parsed_order.append(map_names.get(part))
+        parsed_order.extend([map_names.get(part) for part in parts])
         # all sections need to be here, and either tasks or test cases or both of them
         any_of_sections = [Token.TESTCASE_HEADER, "TASK HEADER"]
         required_sections = [section for section in default_order if section not in any_of_sections]
@@ -114,7 +114,7 @@ class MergeAndOrderSections(Formatter):
             )
         return parsed_order
 
-    def visit_File(self, node):  # noqa
+    def visit_File(self, node):  # noqa: N802
         if len(node.sections) < 2:
             return node
         sections = {}
@@ -148,6 +148,8 @@ class MergeAndOrderSections(Formatter):
 
     def from_last_section(self, node):
         """
+        Preserve empty lines for last section.
+
         Last node use different logic for new line marker. It is not possible to preserve all empty lines, but
         we need at least ensure that following code::
 

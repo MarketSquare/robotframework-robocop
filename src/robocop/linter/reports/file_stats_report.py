@@ -1,5 +1,6 @@
 import robocop.linter.reports
-from robocop.linter.rules import Message
+from robocop.config import Config
+from robocop.linter.diagnostics import Diagnostic
 from robocop.linter.utils.misc import get_plural_form, get_string_diff
 
 
@@ -14,14 +15,14 @@ class FileStatsReport(robocop.linter.reports.ComparableReport):
         Processed 7 files from which 5 files contained issues.
     """
 
-    def __init__(self, compare_runs):
+    def __init__(self, config: Config):
         self.name = "file_stats"
         self.description = "Prints overall statistics about number of processed files"
         self.files_count = 0
         self.files_with_issues = set()
-        super().__init__(compare_runs)
+        super().__init__(config)
 
-    def add_message(self, message: Message):
+    def add_message(self, message: Diagnostic) -> None:
         self.files_with_issues.add(message.source)
 
     def persist_result(self):

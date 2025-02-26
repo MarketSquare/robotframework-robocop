@@ -1,0 +1,5 @@
+test.robot:3:30 [E] ARG06 Argument name '${var}' is already used
+test.robot:4:12 [E] ARG06 Argument name '${var}' is already used
+test.robot:4:22 [E] ARG06 Argument name '${Var}' is already used
+test.robot:4:32 [E] ARG06 Argument name '${var}' is already used
+test.robot:15:42 [E] ARG06 Argument name '${PARAM}' is already used

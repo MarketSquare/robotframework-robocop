@@ -1,0 +1,2 @@
+test.robot:20:1 [W] ORD03 '*** Settings ***' section header is defined in wrong order: Settings > Variables > Test Cases / Tasks > Keywords
+test.robot:23:1 [W] ORD03 '*** Variables ***' section header is defined in wrong order: Settings > Variables > Test Cases / Tasks > Keywords

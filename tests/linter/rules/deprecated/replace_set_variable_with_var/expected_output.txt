@@ -1,0 +1,10 @@
+test.robot:3:5:3:23 [I] DEPR05 Set Local Variable used instead of VAR
+test.robot:4:5:4:24 [I] DEPR05 Set Global Variable used instead of VAR
+test.robot:5:5:5:22 [I] DEPR05 Set Test Variable used instead of VAR
+test.robot:7:9:7:26 [I] DEPR05 Set Task Variable used instead of VAR
+test.robot:9:13:9:31 [I] DEPR05 Set Suite Variable used instead of VAR
+test.robot:17:5:17:23 [I] DEPR05 Set Local Variable used instead of VAR
+test.robot:18:5:18:23 [I] DEPR05 Setglobal Variable used instead of VAR
+test.robot:19:5:19:22 [I] DEPR05 Set Test Variable used instead of VAR
+test.robot:21:9:21:26 [I] DEPR05 Set_Task Variable used instead of VAR
+test.robot:23:9:23:27 [I] DEPR05 Set Suite Variable used instead of VAR

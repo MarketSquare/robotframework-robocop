@@ -1,0 +1,5 @@
+test.robot:3:16:3:27 [I] DEPR06 Create List used instead of VAR
+test.robot:5:22:5:39 [I] DEPR06 Create Dictionary used instead of VAR
+test.robot:12:21:12:32 [I] DEPR06 Create List used instead of VAR
+test.robot:14:20:14:30 [I] DEPR06 createlist used instead of VAR
+test.robot:16:22:16:47 [I] DEPR06 BuiltIn.Create Dictionary used instead of VAR

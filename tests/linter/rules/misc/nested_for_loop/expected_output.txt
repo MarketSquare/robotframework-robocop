@@ -1,0 +1,1 @@
+test.robot:20:9 [E] 0907 Nested for loops are not supported. You can use keyword with for loop instead

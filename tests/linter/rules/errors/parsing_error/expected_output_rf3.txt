@@ -1,0 +1,4 @@
+variable_errors.robot:5:1 [E] 0401 Robot Framework syntax error: Invalid variable name 'value'.
+variable_errors.robot:7:1 [E] 0401 Robot Framework syntax error: Invalid dictionary variable item '1'. Items must use 'name=value' syntax or be dictionary variables themselves.
+resource_with_test_lang.resource:7:1 [E] 0401 Robot Framework syntax error: Unrecognized section header '*** Ustawienia ***'. Valid sections: 'Settings', 'Variables', 'Keywords' and 'Comments'.
+resource_with_test_lang.resource:3:1 [E] 0401 Robot Framework syntax error: Unrecognized section header '*** Przypadki Testowe ***'. Valid sections: 'Settings', 'Variables', 'Keywords' and 'Comments'.

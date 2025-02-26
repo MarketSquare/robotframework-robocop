@@ -1,0 +1,7 @@
+test.robot:9:5 [E] 0413 Invalid IF syntax: IF has no closing END
+test.robot:14:5 [E] 0413 Invalid IF syntax: ELSE IF has empty body
+test.robot:14:5 [E] 0413 Invalid IF syntax: ELSE IF has more than one condition
+test.robot:28:5 [E] 0413 Invalid IF syntax: IF has more than one condition
+test.robot:53:9 [E] 0413 Invalid IF syntax: IF has no condition
+test.robot:58:13 [E] 0413 Invalid IF syntax: IF has no condition
+test.robot:63:9 [E] 0413 Invalid IF syntax: IF has no condition

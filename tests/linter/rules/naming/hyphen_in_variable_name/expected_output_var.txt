@@ -1,0 +1,5 @@
+VAR_syntax.robot:4:12 [I] 0317 Use underscore in variable name '${a-b}' instead of hyphens to avoid treating them like minus sign
+VAR_syntax.robot:5:12 [I] 0317 Use underscore in variable name '${a\-b}' instead of hyphens to avoid treating them like minus sign
+VAR_syntax.robot:6:12 [I] 0317 Use underscore in variable name '${-}' instead of hyphens to avoid treating them like minus sign
+VAR_syntax.robot:7:12 [I] 0317 Use underscore in variable name '${a-}' instead of hyphens to avoid treating them like minus sign
+VAR_syntax.robot:8:12 [I] 0317 Use underscore in variable name '${-b}' instead of hyphens to avoid treating them like minus sign

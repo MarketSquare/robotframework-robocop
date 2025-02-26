@@ -1,0 +1,2 @@
+test.robot:14:1 [E] 0810 Both Task(s) and Test Case(s) section headers defined in file
+test2.robot:3:1 [E] 0810 Both Task(s) and Test Case(s) section headers defined in file

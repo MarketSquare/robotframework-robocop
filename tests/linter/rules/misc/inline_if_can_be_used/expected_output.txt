@@ -1,0 +1,1 @@
+test.robot:3:5 [I] 0916 IF can be replaced with inline IF

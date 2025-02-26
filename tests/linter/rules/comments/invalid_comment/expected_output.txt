@@ -1,0 +1,1 @@
+test.robot:12:2 [E] 0703 Invalid comment. '#' needs to be first character in the cell. For block comments you can use '*** Comments ***' section

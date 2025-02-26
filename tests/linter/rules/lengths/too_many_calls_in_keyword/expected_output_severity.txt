@@ -1,0 +1,2 @@
+severity.robot:15:1 [E] 0503 Keyword 'Keyword' has too many keywords inside (11/10)
+severity.robot:31:1 [W] 0503 Keyword 'Keyword 2' has too many keywords inside (6/5)

@@ -1,0 +1,3 @@
+settings_errors.robot:6:1 [E] 0405 Invalid continuation mark '..'. It should be '...'
+variable_errors.robot:4:2 [E] 0405 Invalid continuation mark '.... val'. It should be '...'
+variable_errors.robot:11:1 [E] 0405 Invalid continuation mark '....'. It should be '...'

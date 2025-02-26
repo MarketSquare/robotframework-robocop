@@ -1,0 +1,3 @@
+const${/}test.robot:16:5 [W] 0909 The assignment sign is not consistent within the file. Expected ' =' but got '' instead
+const${/}test.robot:28:15 [W] 0909 The assignment sign is not consistent within the file. Expected ' =' but got '' instead
+const${/}test.robot:31:15 [W] 0909 The assignment sign is not consistent within the file. Expected ' =' but got '=' instead

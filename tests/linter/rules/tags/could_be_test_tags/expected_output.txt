@@ -1,0 +1,2 @@
+test.robot:1:1 [I] 0605 All tests in suite share these tags: 'sometag'. You can define them in 'Test Tags' in suite settings instead
+tests_with_keywords.robot:1:1 [I] 0605 All tests in suite share these tags: 'sometag'. You can define them in 'Test Tags' in suite settings instead

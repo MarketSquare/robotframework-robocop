@@ -1,0 +1,2 @@
+test.robot:7:12 [W] 0805 Multiple library imports with name 'MyLib' and identical arguments (first occurrence in line 3)
+test.robot:9:12 [W] 0805 Multiple library imports with name 'MyLib' and identical arguments (first occurrence in line 8)

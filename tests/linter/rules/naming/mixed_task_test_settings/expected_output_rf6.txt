@@ -1,0 +1,15 @@
+tasks_with_test_settings.robot:2:1 [W] 0326 Use task-related setting 'Task Setup' if Tasks section is used
+tasks_with_test_settings.robot:3:1 [W] 0326 Use task-related setting 'Task Teardown' if Tasks section is used
+tasks_with_test_settings.robot:4:1 [W] 0326 Use task-related setting 'Task Template' if Tasks section is used
+tasks_with_test_settings.robot:5:1 [W] 0326 Use task-related setting 'Task Timeout' if Tasks section is used
+tasks_with_test_settings.robot:6:1 [W] 0326 Use task-related setting 'Task Tags' if Tasks section is used
+tests_with_task_settings.robot:2:1 [W] 0326 Use test-related setting 'Test Setup' if Test Cases section is used
+tests_with_task_settings.robot:3:1 [W] 0326 Use test-related setting 'Test Teardown' if Test Cases section is used
+tests_with_task_settings.robot:4:1 [W] 0326 Use test-related setting 'Test Template' if Test Cases section is used
+tests_with_task_settings.robot:5:1 [W] 0326 Use test-related setting 'Test Timeout' if Test Cases section is used
+tests_with_task_settings.robot:6:1 [W] 0326 Use test-related setting 'Test Tags' if Test Cases section is used
+mixed_tests.robot:2:1 [W] 0326 Use test-related setting 'Test Setup' if Test Cases section is used
+mixed_tests.robot:4:1 [W] 0326 Use test-related setting 'Test Template' if Test Cases section is used
+mixed_tests.robot:6:1 [W] 0326 Use test-related setting 'Test Tags' if Test Cases section is used
+mixed_tasks.robot:3:1 [W] 0326 Use task-related setting 'Task Teardown' if Tasks section is used
+mixed_tasks.robot:5:1 [W] 0326 Use task-related setting 'Task Timeout' if Tasks section is used

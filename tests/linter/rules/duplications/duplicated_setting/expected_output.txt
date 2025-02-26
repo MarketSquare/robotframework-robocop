@@ -1,0 +1,29 @@
+test.robot:3:1 [W] 0813 Setting 'Documentation' is allowed only once. Only the first value is used.
+test.robot:7:1 [W] 0813 Setting 'Suite Setup' is allowed only once. Only the first value is used.
+test.robot:9:1 [W] 0813 Setting 'Suite Teardown' is allowed only once. Only the first value is used.
+test.robot:11:1 [W] 0813 Setting 'Test Setup' is allowed only once. Only the first value is used.
+test.robot:13:1 [W] 0813 Setting 'Test Teardown' is allowed only once. Only the first value is used.
+test.robot:14:1 [W] 0813 Setting 'Test Teardown' is allowed only once. Only the first value is used.
+test.robot:16:1 [W] 0813 Setting 'Test Template' is allowed only once. Only the first value is used.
+test.robot:18:1 [W] 0813 Setting 'Force Tags' is allowed only once. Only the first value is used.
+test.robot:19:1 [W] 0813 Setting 'Force Tags' is allowed only once. Only the first value is used.
+test.robot:21:1 [W] 0813 Setting 'Default Tags' is allowed only once. Only the first value is used.
+test.robot:22:1 [W] 0813 Setting 'Default Tags' is allowed only once. Only the first value is used.
+test.robot:24:1 [W] 0813 Setting 'Test Timeout' is allowed only once. Only the first value is used.
+test.robot:32:1 [W] 0813 Setting 'Documentation' is allowed only once. Only the first value is used.
+test.robot:34:1 [W] 0813 Setting 'Tags' is allowed only once. Only the first value is used.
+test.robot:35:1 [W] 0813 Setting 'Tags' is allowed only once. Only the first value is used.
+test.robot:37:1 [W] 0813 Setting 'Setup' is allowed only once. Only the first value is used.
+test.robot:39:1 [W] 0813 Setting 'Teardown' is allowed only once. Only the first value is used.
+test.robot:40:1 [W] 0813 Setting 'Teardown' is allowed only once. Only the first value is used.
+test.robot:42:1 [W] 0813 Setting 'Template' is allowed only once. Only the first value is used.
+test.robot:44:1 [W] 0813 Setting 'Timeout' is allowed only once. Only the first value is used.
+test.robot:55:1 [W] 0813 Setting 'Arguments' is allowed only once. Only the first value is used.
+test.robot:57:1 [W] 0813 Setting 'Documentation' is allowed only once. Only the first value is used.
+test.robot:58:1 [W] 0813 Setting 'Documentation' is allowed only once. Only the first value is used.
+test.robot:60:1 [W] 0813 Setting 'Tags' is allowed only once. Only the first value is used.
+test.robot:62:1 [W] 0813 Setting 'Timeout' is allowed only once. Only the first value is used.
+test.robot:63:1 [W] 0813 Setting 'Timeout' is allowed only once. Only the first value is used.
+test.robot:66:1 [W] 0813 Setting 'Return' is allowed only once. Only the first value is used.
+test.robot:67:1 [W] 0813 Setting 'Return' is allowed only once. Only the first value is used.
+test.robot:68:1 [W] 0813 Setting 'Return' is allowed only once. Only the first value is used.

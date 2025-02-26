@@ -1,0 +1,3 @@
+test.robot:5:19 [W] 1001 Trailing whitespace at the end of line
+test.robot:16:34 [W] 1001 Trailing whitespace at the end of line
+test.robot:24:34 [W] 1001 Trailing whitespace at the end of line

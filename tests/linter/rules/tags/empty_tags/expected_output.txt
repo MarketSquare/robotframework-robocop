@@ -1,0 +1,2 @@
+default_and_empty_tags.robot:8:5 [W] 0608 [Tags] setting without values. Consider using NONE if you want to overwrite the Default Tags
+default_and_empty_tags.robot:31:5 [W] 0608 [Tags] setting without values

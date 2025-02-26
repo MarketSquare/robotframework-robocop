@@ -1,0 +1,7 @@
+test.robot:25:16 [W] 1018 First argument: '${optional_argument}=value' should be placed on the same line as [Arguments] setting
+test.robot:31:16 [W] 1018 First argument: '${some_argument}' should be placed on the same line as [Arguments] setting
+test.robot:37:16 [W] 1018 First argument: '&{named}' should be placed on the same line as [Arguments] setting
+test.robot:43:16 [W] 1018 First argument: '${required}' should be placed on the same line as [Arguments] setting
+test.robot:50:16 [W] 1018 First argument: '@{args}' should be placed on the same line as [Arguments] setting
+test.robot:57:16 [W] 1018 First argument: '@{varargs}' should be placed on the same line as [Arguments] setting
+test.robot:64:16 [W] 1018 First argument: '@{}' should be placed on the same line as [Arguments] setting

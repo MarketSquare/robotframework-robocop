@@ -1,0 +1,8 @@
+test.robot:5:16 [I] 0925 'ELSE IF' condition 'not ${status} is ${false}' can be rewritten to '${status} is not ${false}'
+test.robot:7:15 [I] 0925 'IF' condition 'not ${status} is ${NONE}' can be rewritten to '${status} is not ${NONE}'
+test.robot:17:14 [I] 0925 'WHILE' condition 'not ${status} is ${variable}' can be rewritten to '${status} is not ${variable}'
+test.robot:18:18 [I] 0925 'WHILE' condition 'not ${status} is None' can be rewritten to '${status} is not None'
+test.robot:31:12 [I] 0925 'Set Variable If' condition 'not ${status} is None' can be rewritten to '${status} is not None'
+test.robot:33:12 [I] 0925 'Set Variable If' condition 'not ${class.attr['item']} is set()' can be rewritten to '${class.attr['item']} is not set()'
+test.robot:36:16 [I] 0925 'Skip If' condition 'not ${status} is None' can be rewritten to '${status} is not None'
+test.robot:37:23 [I] 0925 'Should Be True' condition 'not ${status} is None' can be rewritten to '${status} is not None'

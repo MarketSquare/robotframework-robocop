@@ -1,0 +1,2 @@
+only_keywords.robot:1:1 [I] 0610 All keywords in suite share these tags: 'tag'. You can define them in 'Keyword Tags' in suite settings instead
+keywords_with_tests.robot:1:1 [I] 0610 All keywords in suite share these tags: 'tag'. You can define them in 'Keyword Tags' in suite settings instead

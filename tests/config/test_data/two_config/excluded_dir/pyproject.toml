@@ -1,0 +1,4 @@
+[tool.robocop]
+config = [
+    "line-too-long.line_length=160"
+]

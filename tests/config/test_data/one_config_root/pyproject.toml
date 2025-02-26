@@ -1,0 +1,4 @@
+[tool.robocop]
+lint.configure = [
+    "line-too-long.line_length=110"
+]

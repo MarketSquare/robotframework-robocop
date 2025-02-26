@@ -1,0 +1,7 @@
+[tool.robocop]
+extend_exclude = ["file3.resource"]
+
+[tool.robocop.lint]
+configure = [
+    "line-too-long.line_length=110"
+]

@@ -1,0 +1,7 @@
+[tool.robocop]
+extend_exclude = ["file1.robot"]  # ignored, as file1.robot is in parent directory
+
+[tool.robocop.lint]
+configure = [
+    "line-too-long.line_length=140"
+]

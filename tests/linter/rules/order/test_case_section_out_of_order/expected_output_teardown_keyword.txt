@@ -1,0 +1,1 @@
+test.robot:9:1 [W] ORD01 'TEARDOWN' is in wrong place of Test Case. Recommended order of elements in Test Cases: TEARDOWN, KEYWORD

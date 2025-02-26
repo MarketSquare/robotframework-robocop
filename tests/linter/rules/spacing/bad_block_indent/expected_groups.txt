@@ -1,0 +1,3 @@
+groups.robot:4:1 [E] SPC17 Not enough indentation inside block
+groups.robot:10:1 [E] SPC17 Not enough indentation inside block
+groups.robot:12:1 [E] SPC17 Not enough indentation inside block

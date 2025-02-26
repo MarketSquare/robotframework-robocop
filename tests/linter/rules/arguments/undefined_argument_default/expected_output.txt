@@ -1,0 +1,5 @@
+test.robot:3:30 [E] ARG03 Undefined argument default, use ${bar}=${EMPTY} instead
+test.robot:10:10 [E] ARG03 Undefined argument default, use ${baz}=${EMPTY} instead
+test.robot:23:20 [E] ARG03 Undefined argument default, use ${arg}=${EMPTY} instead
+test.robot:23:31 [E] ARG03 Undefined argument default, use ${arg2}=${EMPTY} instead
+test.robot:35:27 [E] ARG03 Undefined argument default, use ${bar}=${EMPTY} instead

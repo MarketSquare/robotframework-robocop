@@ -1,0 +1,12 @@
+test.robot:3:24 [W] VAR07 Non local variable is not uppercase
+test.robot:4:25 [W] VAR07 Non local variable is not uppercase
+test.robot:5:24 [W] VAR07 Non local variable is not uppercase
+test.robot:6:26 [W] VAR07 Non local variable is not uppercase
+test.robot:15:24 [W] VAR07 Non local variable is not uppercase
+test.robot:16:25 [W] VAR07 Non local variable is not uppercase
+test.robot:17:24 [W] VAR07 Non local variable is not uppercase
+test.robot:18:26 [W] VAR07 Non local variable is not uppercase
+test.robot:40:24 [W] VAR07 Non local variable is not uppercase
+test.robot:41:25 [W] VAR07 Non local variable is not uppercase
+test.robot:42:24 [W] VAR07 Non local variable is not uppercase
+test.robot:43:26 [W] VAR07 Non local variable is not uppercase

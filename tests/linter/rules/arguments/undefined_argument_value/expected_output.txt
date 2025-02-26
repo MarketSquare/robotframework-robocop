@@ -1,0 +1,6 @@
+test.robot:3:12 [E] ARG04 Undefined argument value, use message=${EMPTY} instead
+test.robot:4:12 [E] ARG04 Undefined argument value, use message=${EMPTY} instead
+test.robot:4:24 [E] ARG04 Undefined argument value, use level=${EMPTY} instead
+test.robot:5:27 [E] ARG04 Undefined argument value, use level=${EMPTY} instead
+test.robot:6:12 [E] ARG04 Undefined argument value, use A great log message=${EMPTY} instead
+test.robot:7:12 [E] ARG04 Undefined argument value, use A great log message =${EMPTY} instead

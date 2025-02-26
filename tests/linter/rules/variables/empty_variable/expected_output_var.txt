@@ -1,0 +1,4 @@
+test.robot:51:5 [I] VAR01 Empty variable value
+test.robot:53:9 [I] VAR01 Empty variable value
+test.robot:54:9 [I] VAR01 Empty variable value
+test.robot:62:8 [I] VAR01 Empty variable value

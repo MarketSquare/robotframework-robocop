@@ -1,0 +1,6 @@
+test.robot:7:5 [W] VAR03 Local variable '${value}' is overwritten before usage
+test.robot:15:5 [W] VAR03 Local variable '${val_ue}' is overwritten before usage
+test.robot:27:5 [W] VAR03 Local variable '${overwritten}' is overwritten before usage
+test.robot:29:9 [W] VAR03 Local variable '${longitude}' is overwritten before usage
+test.robot:113:5 [W] VAR03 Local variable '${variable}' is overwritten before usage
+test.robot:115:9 [W] VAR03 Local variable '${variable}' is overwritten before usage

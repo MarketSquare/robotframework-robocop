@@ -1,0 +1,5 @@
+VAR_syntax.robot:3:12 [W] VAR07 Non local variable is not uppercase
+VAR_syntax.robot:4:12 [W] VAR07 Non local variable is not uppercase
+VAR_syntax.robot:5:12 [W] VAR07 Non local variable is not uppercase
+VAR_syntax.robot:6:12 [W] VAR07 Non local variable is not uppercase
+VAR_syntax.robot:15:12 [W] VAR07 Non local variable is not uppercase

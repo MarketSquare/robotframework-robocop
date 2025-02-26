@@ -1,0 +1,8 @@
+test.robot:24:5 [W] 0510 Too many return values (5/4)
+test.robot:27:5 [W] 0510 Too many return values (5/4)
+test.robot:31:9 [W] 0510 Too many return values (5/4)
+test.robot:37:13 [W] 0510 Too many return values (5/4)
+test.robot:39:13 [W] 0510 Too many return values (5/4)
+test.robot:41:13 [W] 0510 Too many return values (5/4)
+test.robot:43:13 [W] 0510 Too many return values (5/4)
+test.robot:47:5 [W] 0510 Too many return values (5/4)

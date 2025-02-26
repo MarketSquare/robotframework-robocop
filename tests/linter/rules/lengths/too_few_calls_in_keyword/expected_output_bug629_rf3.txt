@@ -1,0 +1,1 @@
+bug629.robot:35:1 [W] 0502 Keyword 'Inline IF' has too few keywords inside (1/1)

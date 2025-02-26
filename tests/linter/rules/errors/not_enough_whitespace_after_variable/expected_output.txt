@@ -1,0 +1,2 @@
+test.robot:2:1 [E] 0410 Provide at least two spaces after '${VAR} 1' variable name
+test.robot:7:1 [E] 0410 Provide at least two spaces after '@{LIST} value' variable name

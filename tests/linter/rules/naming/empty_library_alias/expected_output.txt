@@ -1,0 +1,4 @@
+test.robot:3:29 [E] 0314 Library alias should not be empty
+test.robot:4:34 [E] 0314 Library alias should not be empty
+test.robot:6:34 [E] 0314 Library alias should not be empty
+test.robot:10:44 [E] 0314 Library alias should not be empty

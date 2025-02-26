@@ -1,0 +1,10 @@
+variable_errors.robot:5:1 [E] 0401 Robot Framework syntax error: Invalid variable name 'value'.
+variable_errors.robot:7:1 [E] 0401 Robot Framework syntax error: Invalid dictionary variable item '1'. Items must use 'name=value' syntax or be dictionary variables themselves.
+positional_args.robot:3:32 [E] 0401 Robot Framework syntax error: Positional argument '${arg2}' follows named argument
+positional_args.robot:3:43 [E] 0401 Robot Framework syntax error: Positional argument '${arg3}' follows named argument
+positional_args.robot:8:32 [E] 0401 Robot Framework syntax error: Positional argument '${arg2}' follows named argument
+positional_args.robot:8:57 [E] 0401 Robot Framework syntax error: Positional argument '${arg1}' follows named argument
+positional_args.robot:12:29 [E] 0401 Robot Framework syntax error: Positional argument '@{args}' follows named argument
+positional_args.robot:12:38 [E] 0401 Robot Framework syntax error: Positional argument '${arg}' follows named argument
+resource_with_test_lang.resource:7:1 [E] 0401 Robot Framework syntax error: Unrecognized section header '*** Ustawienia ***'. Valid sections: 'Settings', 'Variables', 'Keywords' and 'Comments'.
+resource_with_test_lang.resource:3:1 [E] 0401 Robot Framework syntax error: Unrecognized section header '*** Przypadki Testowe ***'. Valid sections: 'Settings', 'Variables', 'Keywords' and 'Comments'.

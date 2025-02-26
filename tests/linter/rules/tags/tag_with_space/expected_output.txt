@@ -1,0 +1,7 @@
+test.robot:3:15 [W] 0601 Tag 'with space' should not contain spaces
+test.robot:4:15 [W] 0601 Tag 'with space' should not contain spaces
+test.robot:4:50 [W] 0601 Tag '${var} space' should not contain spaces
+test.robot:10:13 [W] 0601 Tag 'some tag' should not contain spaces
+test.robot:10:46 [W] 0601 Tag '${var} space' should not contain spaces
+test.robot:19:27 [W] 0601 Tag 'space tag' should not contain spaces
+test.robot:19:59 [W] 0601 Tag '${var} space' should not contain spaces

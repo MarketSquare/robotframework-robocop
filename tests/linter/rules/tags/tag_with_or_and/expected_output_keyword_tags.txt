@@ -1,0 +1,1 @@
+keyword_tags.robot:2:17 [I] 0602 Tag 'tagORtag2' with reserved word OR/AND. Hint: make sure to include this tag using lowercase name to avoid issues

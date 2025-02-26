@@ -1,0 +1,2 @@
+severity${/}test.robot:6:1 [E] 0505 Test case 'Test' has too many keywords inside (13/10)
+severity${/}test.robot:23:1 [W] 0505 Test case 'Test 2' has too many keywords inside (7/5)

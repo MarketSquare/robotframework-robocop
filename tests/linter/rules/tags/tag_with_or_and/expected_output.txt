@@ -1,0 +1,5 @@
+test.robot:3:13 [I] 0602 Tag 'tagORtag2' with reserved word OR/AND. Hint: make sure to include this tag using lowercase name to avoid issues
+test.robot:4:15 [I] 0602 Tag 'tagORtag2' with reserved word OR/AND. Hint: make sure to include this tag using lowercase name to avoid issues
+test.robot:10:13 [I] 0602 Tag 'tagORtag2' with reserved word OR/AND. Hint: make sure to include this tag using lowercase name to avoid issues
+test.robot:10:41 [I] 0602 Tag 'tagOR${var}' with reserved word OR/AND. Hint: make sure to include this tag using lowercase name to avoid issues
+test.robot:19:29 [I] 0602 Tag 'tagORtag2' with reserved word OR/AND. Hint: make sure to include this tag using lowercase name to avoid issues

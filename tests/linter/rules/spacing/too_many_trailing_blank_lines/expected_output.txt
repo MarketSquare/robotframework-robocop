@@ -1,0 +1,2 @@
+test.robot:23:1 [W] 1010 Too many blank lines at the end of file
+test2.robot:22:1 [W] 1010 Too many blank lines at the end of file

@@ -1,0 +1,4 @@
+test.robot:27:1 [E] 0528 Test case 'Test case with no keyword calls' has too few keywords inside (0/1)
+test.robot:29:1 [E] 0528 Test case 'Test case with settings and no keyword calls' has too few keywords inside (0/1)
+templated_suite.robot:7:1 [E] 0528 Test case 'Template Case' has too few keywords inside (0/1)
+templated_test.robot:6:1 [E] 0528 Test case 'Template Case' has too few keywords inside (0/1)

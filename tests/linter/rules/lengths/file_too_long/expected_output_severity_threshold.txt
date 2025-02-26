@@ -1,0 +1,2 @@
+longer.robot:434:1 [E] 0506 File has too many lines (434/400)
+shorter.robot:302:1 [W] 0506 File has too many lines (302/300)

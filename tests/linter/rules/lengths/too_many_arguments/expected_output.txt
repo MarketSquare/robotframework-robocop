@@ -1,0 +1,2 @@
+test.robot:15:1 [W] 0507 Keyword 'Keyword With Too Many Arguments' has too many arguments (6/5)
+test.robot:23:1 [W] 0507 Keyword 'Keyword With Too Many Arguments In Multi Lines' has too many arguments (6/5)

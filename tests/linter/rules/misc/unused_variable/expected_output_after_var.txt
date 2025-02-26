@@ -1,0 +1,14 @@
+test.robot:15:5:15:11 [I] 0920 Variable '${var}' is assigned but not used
+test.robot:19:15:19:22 [I] 0920 Variable '${var2}' is assigned but not used
+test.robot:23:5:23:11 [I] 0920 Variable '${var}' is assigned but not used
+test.robot:31:5:31:14 [I] 0920 Variable '${assign}' is assigned but not used
+test.robot:39:9:39:20 [I] 0920 Variable '${not_used}' is assigned but not used
+test.robot:44:9:44:32 [I] 0920 Variable '${not_used_from_branch}' is assigned but not used
+test.robot:52:13:52:30 [I] 0920 Variable '${nested_define3}' is assigned but not used
+test.robot:66:12:66:18 [I] 0920 Variable '${var}' is assigned but not used
+test.robot:92:12:92:23 [I] 0920 Variable '${category}' is assigned but not used
+test.robot:140:5:140:11 [I] 0920 Variable '${var}' is assigned but not used
+test.robot:143:5:143:14 [I] 0920 Variable '${assign}' is assigned but not used
+test.robot:146:12:146:23 [I] 0920 Variable '${not_used}' is assigned but not used
+test.robot:154:12:154:23 [I] 0920 Variable '${variable}' is assigned but not used
+unused_section_vars.robot:21:1:21:19 [I] 0920 Variable '${GLOBAL_NOT_USED}' is assigned but not used

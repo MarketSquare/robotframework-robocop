@@ -1,0 +1,2 @@
+test.robot:8:1 [E] 0803 Multiple variables with name '${V AR}' in Variables section (first occurrence in line 6). Note that Robot Framework is case-insensitive
+test.robot:9:1 [E] 0803 Multiple variables with name '${other_var}' in Variables section (first occurrence in line 7). Note that Robot Framework is case-insensitive

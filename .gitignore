@@ -108,3 +108,6 @@ robocop.log
 log.html
 output.xml
 report.html
+
+# Formatters temporary files
+actual/

@@ -1,2 +1,0 @@
-[tool.robocop]
-include = ['W0504']

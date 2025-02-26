@@ -1,5 +1,0 @@
-test.robot:3:30 [E] 0932 Undefined argument default, use ${bar}=${EMPTY} instead
-test.robot:10:10 [E] 0932 Undefined argument default, use ${baz}=${EMPTY} instead
-test.robot:23:20 [E] 0932 Undefined argument default, use ${arg}=${EMPTY} instead
-test.robot:23:31 [E] 0932 Undefined argument default, use ${arg2}=${EMPTY} instead
-test.robot:35:27 [E] 0932 Undefined argument default, use ${bar}=${EMPTY} instead

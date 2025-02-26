@@ -1,1 +1,0 @@
---format "{source}:{line}:{col} [{severity}] {rule_id} {desc} ({name})"

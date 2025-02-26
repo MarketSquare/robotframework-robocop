@@ -1,0 +1,20 @@
+test.robot:2:14 [W] DEPR02 'Run Keyword If' is deprecated since Robot Framework version 5.*, use 'IF' instead
+test.robot:3:17 [W] DEPR02 'Run Keyword If' is deprecated since Robot Framework version 5.*, use 'IF' instead
+test.robot:6:13 [W] DEPR02 'Run Keyword If' is deprecated since Robot Framework version 5.*, use 'IF' instead
+test.robot:7:16 [W] DEPR02 'Run Keyword If' is deprecated since Robot Framework version 5.*, use 'IF' instead
+test.robot:11:14 [W] DEPR02 'Run Keyword Unless' is deprecated since Robot Framework version 5.*, use 'IF' instead
+test.robot:12:17 [W] DEPR02 'Run Keyword Unless' is deprecated since Robot Framework version 5.*, use 'IF' instead
+test.robot:13:5 [W] DEPR02 'Run Keyword Unless' is deprecated since Robot Framework version 5.*, use 'IF' instead
+test.robot:14:5 [W] DEPR02 'Run Keyword If' is deprecated since Robot Framework version 5.*, use 'IF' instead
+test.robot:15:5 [W] DEPR02 'run_keyword_unless' is deprecated since Robot Framework version 5.*, use 'IF' instead
+test.robot:16:5 [W] DEPR02 'builtin.run_KeywoRD_UNLESS' is deprecated since Robot Framework version 5.*, use 'IF' instead
+test.robot:17:5 [W] DEPR02 'BuiltIn.Run Keyword Unless' is deprecated since Robot Framework version 5.*, use 'IF' instead
+test.robot:20:19 [W] DEPR02 'Run Keyword Unless' is deprecated since Robot Framework version 5.*, use 'IF' instead
+test.robot:26:13 [W] DEPR02 'Continue For Loop' is deprecated since Robot Framework version 5.*, use 'CONTINUE' instead
+test.robot:27:13 [W] DEPR02 'Continue For Loop If' is deprecated since Robot Framework version 5.*, use 'IF and CONTINUE' instead
+test.robot:28:13 [W] DEPR02 'Exit For Loop If' is deprecated since Robot Framework version 5.*, use 'IF and BREAK' instead
+test.robot:29:13 [W] DEPR02 'BuiltIn.Exit For Loop' is deprecated since Robot Framework version 5.*, use 'BREAK' instead
+test.robot:34:5 [W] DEPR02 'Return From Keyword If' is deprecated since Robot Framework version 5.*, use 'IF and RETURN' instead
+test.robot:35:5 [W] DEPR02 'BuiltIn.Return From Keyword' is deprecated since Robot Framework version 5.*, use 'RETURN' instead
+test.robot:37:5 [W] DEPR02 '[Return]' is deprecated since Robot Framework version 5.*, use 'RETURN' instead
+templated_suite.robot:2:18 [W] DEPR02 'Run Keyword Unless' is deprecated since Robot Framework version 5.*, use 'IF' instead

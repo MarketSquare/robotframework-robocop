@@ -1,0 +1,6 @@
+test.robot:1:1 [W] DEPR04 '*** Setting ***' deprecated singular header used instead of '*** Settings ***'
+test.robot:4:1 [W] DEPR04 '*** Variable ***' deprecated singular header used instead of '*** Variables ***'
+test.robot:6:1 [W] DEPR04 '*** Test Case ***' deprecated singular header used instead of '*** Test Cases ***'
+test.robot:8:1 [W] DEPR04 '*** Keyword ***' deprecated singular header used instead of '*** Keywords ***'
+test.robot:9:1 [W] DEPR04 '*** Keyword ***' deprecated singular header used instead of '*** Keywords ***'
+test.robot:12:1 [W] DEPR04 '*** Comment ***' deprecated singular header used instead of '*** Comments ***'

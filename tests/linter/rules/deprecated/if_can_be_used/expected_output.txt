@@ -1,0 +1,4 @@
+test.robot:8:5 [I] DEPR01 'Run Keyword If' can be replaced with IF block since Robot Framework 4.0
+test.robot:19:15 [I] DEPR01 'Run Keyword If' can be replaced with IF block since Robot Framework 4.0
+test.robot:20:5 [I] DEPR01 'Run Keyword Unless' can be replaced with IF block since Robot Framework 4.0
+test.robot:21:5 [I] DEPR01 'BuiltIn.Run Keyword If' can be replaced with IF block since Robot Framework 4.0

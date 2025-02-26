@@ -1,0 +1,13 @@
+test.robot:10:31 [W] ARG01 Keyword argument '${arg2}' is not used
+test.robot:10:42 [W] ARG01 Keyword argument '${arg3}' is not used
+test.robot:10:53 [W] ARG01 Keyword argument '${arg4}' is not used
+test.robot:10:64 [W] ARG01 Keyword argument '${arg5}' is not used
+test.robot:10:75 [W] ARG01 Keyword argument '${arg6}' is not used
+test.robot:10:86 [W] ARG01 Keyword argument '${arg7}' is not used
+test.robot:20:31 [W] ARG01 Keyword argument '${arg2}' is not used
+test.robot:35:31 [W] ARG01 Keyword argument '${not_used}' is not used
+test.robot:40:43 [W] ARG01 Keyword argument '${not_used}' is not used
+test.robot:48:26 [W] ARG01 Keyword argument '${argument2}' is not used
+test.robot:51:34 [W] ARG01 Keyword argument '${argument2}' is not used
+test.robot:73:20 [W] ARG01 Keyword argument '${var}' is not used
+test.robot:194:31 [W] ARG01 Keyword argument '${unused}' is not used

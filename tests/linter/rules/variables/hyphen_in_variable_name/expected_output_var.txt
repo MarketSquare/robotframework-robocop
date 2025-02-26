@@ -1,0 +1,5 @@
+VAR_syntax.robot:4:12 [I] VAR09 Hyphen in variable name '${a-b}'
+VAR_syntax.robot:5:12 [I] VAR09 Hyphen in variable name '${a\-b}'
+VAR_syntax.robot:6:12 [I] VAR09 Hyphen in variable name '${-}'
+VAR_syntax.robot:7:12 [I] VAR09 Hyphen in variable name '${a-}'
+VAR_syntax.robot:8:12 [I] VAR09 Hyphen in variable name '${-b}'

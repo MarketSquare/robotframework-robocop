@@ -1,0 +1,2 @@
+groups.robot:5:16 [I] VAR08 Variable '${variableName}' may overwrite similar variable inside 'VAR Syntax' TestCase
+groups.robot:7:20 [I] VAR08 Variable '${variable name}' may overwrite similar variable inside 'VAR Syntax' TestCase

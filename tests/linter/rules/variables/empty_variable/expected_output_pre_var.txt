@@ -1,0 +1,14 @@
+test.robot:3:1 [I] VAR01 Empty variable value
+test.robot:4:1 [I] VAR01 Empty variable value
+test.robot:5:1 [I] VAR01 Empty variable value
+test.robot:7:1 [I] VAR01 Empty variable value
+test.robot:20:1 [I] VAR01 Empty variable value
+test.robot:22:1 [I] VAR01 Empty variable value
+test.robot:25:1 [I] VAR01 Empty variable value
+test.robot:30:1 [I] VAR01 Empty variable value
+test.robot:33:1 [I] VAR01 Empty variable value
+test.robot:35:1 [I] VAR01 Empty variable value
+test.robot:36:1 [I] VAR01 Empty variable value
+test.robot:37:1 [I] VAR01 Empty variable value
+test.robot:38:1 [I] VAR01 Empty variable value
+test.robot:39:1 [I] VAR01 Empty variable value

@@ -1,0 +1,4 @@
+test_builtin_syntax.robot:7:5 [W] VAR04 Variable with global scope defined outside variables section
+test_builtin_syntax.robot:11:5 [W] VAR04 Variable with global scope defined outside variables section
+test_builtin_syntax.robot:15:5 [W] VAR04 Variable with global scope defined outside variables section
+test_builtin_syntax.robot:20:5 [W] VAR04 Variable with global scope defined outside variables section

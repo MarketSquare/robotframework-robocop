@@ -1,0 +1,5 @@
+test_builtin_syntax.robot:7:5 [W] VAR06 Variable defined with test/task scope
+test_builtin_syntax.robot:11:5 [W] VAR06 Variable defined with test/task scope
+test_builtin_syntax.robot:15:5 [W] VAR06 Variable defined with test/task scope
+test_builtin_syntax.robot:19:5 [W] VAR06 Variable defined with test/task scope
+test_builtin_syntax.robot:24:5 [W] VAR06 Variable defined with test/task scope

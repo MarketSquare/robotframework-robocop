@@ -1,0 +1,26 @@
+test.robot:5:5 [I] VAR08 Variable '${MY VAR}' may overwrite similar variable inside 'Test With Overwritten Variables' TestCase
+test.robot:6:5 [I] VAR08 Variable '${myVar}' may overwrite similar variable inside 'Test With Overwritten Variables' TestCase
+test.robot:8:5 [I] VAR08 Variable '${MYVAR}' may overwrite similar variable inside 'Test With Overwritten Variables' TestCase
+test.robot:9:5 [I] VAR08 Variable '${M Y V A R}' may overwrite similar variable inside 'Test With Overwritten Variables' TestCase
+test.robot:10:5 [I] VAR08 Variable '${mYvAr}' may overwrite similar variable inside 'Test With Overwritten Variables' TestCase
+test.robot:22:9 [I] VAR08 Variable '${VAL}' may overwrite similar variable inside 'Keyword With For Loops' Keyword
+test.robot:29:13 [I] VAR08 Variable '${this var}' may overwrite similar variable inside 'Keyword With For Loops' Keyword
+test.robot:31:20 [I] VAR08 Variable '${myVar}' may overwrite similar variable inside 'Keyword With For Loops' Keyword
+test.robot:41:9 [I] VAR08 Variable '${VAL}' may overwrite similar variable inside 'Keyword With If Conditions' Keyword
+test.robot:46:5 [I] VAR08 Variable '${MY_VAL}' may overwrite similar variable inside 'Keyword With If Conditions' Keyword
+test.robot:48:38 [I] VAR08 Variable '${val}' may overwrite similar variable inside 'Keyword With If Conditions' Keyword
+test.robot:57:5 [I] VAR08 Variable '${SOME_VAR}' may overwrite similar variable inside 'Keyword With Overwritten Variables' Keyword
+test.robot:58:5 [I] VAR08 Variable '${myvar}' may overwrite similar variable inside 'Keyword With Overwritten Variables' Keyword
+test.robot:60:5 [I] VAR08 Variable '${somevar}' may overwrite similar variable inside 'Keyword With Overwritten Variables' Keyword
+test.robot:60:21 [I] VAR08 Variable '${some var}' may overwrite similar variable inside 'Keyword With Overwritten Variables' Keyword
+test.robot:65:5 [I] VAR08 Variable '${simpleVar}' may overwrite similar variable inside 'Keyword With Different Types Of Variables' Keyword
+test.robot:66:5 [I] VAR08 Variable '@{SIMPLE_VAR}' may overwrite similar variable inside 'Keyword With Different Types Of Variables' Keyword
+test.robot:67:5 [I] VAR08 Variable '&{SIMPLE_VAR}' may overwrite similar variable inside 'Keyword With Different Types Of Variables' Keyword
+test.robot:71:5 [I] VAR08 Variable '${VARIABLE}' may overwrite similar variable inside 'Argument With Default Value' Keyword
+test.robot:75:5 [I] VAR08 Variable '${VARIABLE}' may overwrite similar variable inside 'Embedded ${variable} with ${possible:pattern}' Keyword
+test.robot:76:5 [I] VAR08 Variable '${poss_ible}' may overwrite similar variable inside 'Embedded ${variable} with ${possible:pattern}' Keyword
+test.robot:80:5 [I] VAR08 Variable '${_initiaL}' may overwrite similar variable inside 'IF Assignment' Keyword
+test.robot:84:5 [I] VAR08 Variable '${VARiable}' may overwrite similar variable inside 'Assignment Sign' Keyword
+test.robot:92:5 [I] VAR08 Variable '${keywordArgs}' may overwrite similar variable inside 'Keyword With Possible Overwritten Kwargs' Keyword
+test.robot:88:5 [I] VAR08 Variable '${keyword_args}' may overwrite similar variable inside 'Keyword With Kwargs' Keyword
+test.robot:102:5 [I] VAR08 Variable '${VARIABLE}' may overwrite similar variable inside 'Item Assignment' Keyword

@@ -1,0 +1,3 @@
+test.robot:8:20:8:25 [E] ARG05 Invalid argument syntax '{var}'
+test.robot:13:12:13:17 [E] ARG05 Invalid argument syntax 'value'
+test.robot:17:30:17:37 [E] ARG05 Invalid argument syntax 'value'

@@ -1,0 +1,6 @@
+VAR_syntax.robot:3:13 [W] VAR11 Variable '${TEST_NAME}' overwrites reserved variable '${TEST_NAME}'
+VAR_syntax.robot:4:12 [W] VAR11 Variable '${TEST DOCUMENTATION}' overwrites reserved variable '${TEST_DOCUMENTATION}'
+VAR_syntax.robot:5:12 [W] VAR11 Variable '${LOG LEVEL}' overwrites reserved variable '${LOG_LEVEL}'
+VAR_syntax.robot:10:13 [W] VAR11 Variable '${TEST_NAME}' overwrites reserved variable '${TEST_NAME}'
+VAR_syntax.robot:11:12 [W] VAR11 Variable '${TEST DOCUMENTATION}' overwrites reserved variable '${TEST_DOCUMENTATION}'
+VAR_syntax.robot:12:12 [W] VAR11 Variable '${LOG LEVEL}' overwrites reserved variable '${LOG_LEVEL}'

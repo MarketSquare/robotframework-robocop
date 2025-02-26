@@ -1,0 +1,2 @@
+loops.robot:9:5:9:15 [I] VAR02 Variable '${counter}' is assigned but not used
+loops.robot:14:9:14:20 [I] VAR02 Variable '${not_used}' is assigned but not used

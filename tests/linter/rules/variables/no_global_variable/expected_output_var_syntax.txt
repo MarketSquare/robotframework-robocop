@@ -1,0 +1,6 @@
+test_var_syntax.robot:9:44 [W] VAR04 Variable with global scope defined outside variables section
+test_var_syntax.robot:10:44 [W] VAR04 Variable with global scope defined outside variables section
+test_var_syntax.robot:14:12 [W] VAR04 Variable with global scope defined outside variables section
+test_var_syntax.robot:16:31 [W] VAR04 Variable with global scope defined outside variables section
+test_var_syntax.robot:18:27 [W] VAR04 Variable with global scope defined outside variables section
+test_var_syntax.robot:24:44 [W] VAR04 Variable with global scope defined outside variables section

@@ -1,0 +1,4 @@
+only_builtins.robot:4:12 [W] IMP02 BuiltIn library import 'String' should be placed before 'XML'
+only_builtins.robot:8:12 [W] IMP02 BuiltIn library import 'BuiltIn' should be placed before 'String'
+test.robot:3:12 [W] IMP02 BuiltIn library import 'Collections' should be placed before 'DateTime'
+test.robot:6:12 [W] IMP02 BuiltIn library import 'String' should be placed before 'XML'

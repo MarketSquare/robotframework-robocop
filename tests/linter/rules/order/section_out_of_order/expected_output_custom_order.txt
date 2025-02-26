@@ -1,0 +1,2 @@
+custom_order.robot:15:1 [W] ORD03 '*** Keywords ***' section header is defined in wrong order: Settings > Keywords > Test Cases / Tasks > Variables
+custom_order.robot:6:1 [W] ORD03 '*** Test Cases ***' section header is defined in wrong order: Settings > Keywords > Test Cases / Tasks > Variables

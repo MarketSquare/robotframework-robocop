@@ -1,0 +1,8 @@
+test.robot:3:15 [I] VAR12 Assigned variable name '${var}' is already used
+test.robot:5:19 [I] VAR12 Assigned variable name '${var}' is already used
+test.robot:9:23 [I] VAR12 Assigned variable name '${var}' is already used
+test.robot:11:23 [I] VAR12 Assigned variable name '${var}' is already used
+test.robot:21:26 [I] VAR12 Assigned variable name '${var}' is already used
+test.robot:22:15 [I] VAR12 Assigned variable name '${Va r}' is already used
+test.robot:24:12 [I] VAR12 Assigned variable name '${var}' is already used
+test.robot:42:21 [I] VAR12 Assigned variable name '${duplicate}' is already used

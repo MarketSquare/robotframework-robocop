@@ -1,0 +1,6 @@
+test.robot:15:1 [W] ORD01 'KEYWORD' is in wrong place of Test Case. Recommended order of elements in Test Cases: DOCUMENTATION, TAGS, TIMEOUT, SETUP, TEMPLATE, KEYWORD, TEARDOWN
+test.robot:19:1 [W] ORD01 'DOCUMENTATION' is in wrong place of Test Case. Recommended order of elements in Test Cases: DOCUMENTATION, TAGS, TIMEOUT, SETUP, TEMPLATE, KEYWORD, TEARDOWN
+test.robot:25:1 [W] ORD01 'TAGS' is in wrong place of Test Case. Recommended order of elements in Test Cases: DOCUMENTATION, TAGS, TIMEOUT, SETUP, TEMPLATE, KEYWORD, TEARDOWN
+test.robot:31:1 [W] ORD01 'TIMEOUT' is in wrong place of Test Case. Recommended order of elements in Test Cases: DOCUMENTATION, TAGS, TIMEOUT, SETUP, TEMPLATE, KEYWORD, TEARDOWN
+test.robot:37:1 [W] ORD01 'SETUP' is in wrong place of Test Case. Recommended order of elements in Test Cases: DOCUMENTATION, TAGS, TIMEOUT, SETUP, TEMPLATE, KEYWORD, TEARDOWN
+test.robot:43:1 [W] ORD01 'TEMPLATE' is in wrong place of Test Case. Recommended order of elements in Test Cases: DOCUMENTATION, TAGS, TIMEOUT, SETUP, TEMPLATE, KEYWORD, TEARDOWN

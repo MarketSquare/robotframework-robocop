@@ -1,0 +1,5 @@
+test.robot:21:5 [I] ARG07 There is too many arguments per continuation line (2 / 1)
+test.robot:26:5 [I] ARG07 There is too many arguments per continuation line (3 / 1)
+test.robot:31:5 [I] ARG07 There is too many arguments per continuation line (2 / 1)
+test.robot:33:5 [I] ARG07 There is too many arguments per continuation line (2 / 1)
+test.robot:37:5 [I] ARG07 There is too many arguments per continuation line (2 / 1)

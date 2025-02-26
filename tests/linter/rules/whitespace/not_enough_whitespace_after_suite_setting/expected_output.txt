@@ -1,0 +1,12 @@
+test.robot:2:1 [E] SPC22 Not enough whitespace after 'Library' setting
+test.robot:3:1 [E] SPC22 Not enough whitespace after 'Resource' setting
+test.robot:4:1 [E] SPC22 Not enough whitespace after 'Variables' setting
+test.robot:6:1 [E] SPC22 Not enough whitespace after 'Force Tags' setting
+test.robot:8:1 [E] SPC22 Not enough whitespace after 'Default Tags' setting
+test.robot:13:1 [E] SPC22 Not enough whitespace after 'Suite Setup' setting
+test.robot:14:1 [E] SPC22 Not enough whitespace after 'Suite Teardown' setting
+test.robot:16:1 [E] SPC22 Not enough whitespace after 'Test Setup' setting
+test.robot:17:1 [E] SPC22 Not enough whitespace after 'Test Teardown' setting
+test.robot:18:1 [E] SPC22 Not enough whitespace after 'Test Timeout' setting
+test.robot:19:1 [E] SPC22 Not enough whitespace after 'Documentation' setting
+test.robot:21:1 [E] SPC22 Not enough whitespace after 'Metadata' setting

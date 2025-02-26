@@ -1,0 +1,2 @@
+test.robot:2:1 [E] SPC21 Not enough whitespace after '${VAR} 1' variable name
+test.robot:7:1 [E] SPC21 Not enough whitespace after '@{LIST} value' variable name

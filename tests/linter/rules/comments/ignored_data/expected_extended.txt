@@ -1,0 +1,39 @@
+bom_and_two_ignored_lines.robot:2:1 COM04 Ignored data found in file
+   |
+ 1 | ignored but prefixed with bom
+ 2 | second line
+   | ^^^^^^^^^^^ COM04
+ 3 | *** Settings ***
+ 4 | Documentation     This file is created with VSCode by choosing `UTF-8 with BOM` encoding.
+   |
+
+language_header_and_other.robot:3:1 COM04 Ignored data found in file
+   |
+ 3 | I am comment that should be in the *** Comments *** section
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ COM04
+   |
+
+language_header_in_second_line.robot:1:1 COM04 Ignored data found in file
+   |
+ 1 |
+   | ^ COM04
+ 2 | language: pl
+   |
+
+with_ignored_data.robot:1:1 COM04 Ignored data found in file
+   |
+ 1 | ${var}    10    # This should throw a warning.
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ COM04
+ 2 | *** Settings ***
+ 3 | Documentation    Doc
+   |
+
+with_ignored_rule_and_data.robot:2:1 COM04 Ignored data found in file
+   |
+ 1 | # robocop: disable=1001
+ 2 | ${var}    10    # This should throw a warning.
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ COM04
+ 3 | ${var}    20    # This is not good but one warning is enough.
+ 4 | *** Settings ***
+   |
+

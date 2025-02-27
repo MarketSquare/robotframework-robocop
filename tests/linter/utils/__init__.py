@@ -156,6 +156,9 @@ class RuleAcceptance:
                     present_in_expected = "\n    ".join(missing_actual)
                     error += f"Expected issues not found in actual:\n    {present_in_expected}"
             else:
+                # false alarm (rare occurence if OS have random file order), we don't sort at first to save time
+                if sorted(actual) == sorted(expected):
+                    return
                 display_lines_diff(expected, actual)
             pytest.fail(error, pytrace=False)
 

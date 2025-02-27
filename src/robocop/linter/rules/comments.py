@@ -176,6 +176,7 @@ class BomEncodingRule(Rule):
     name = "bom-encoding-in-file"
     rule_id = "COM05"
     message = "BOM (Byte Order Mark) found in the file"
+    file_wide_rule = True
     severity = RuleSeverity.WARNING
     added_in_version = "1.7.0"
 
@@ -238,13 +239,13 @@ class CommentChecker(VisitorChecker):
                 marker=content[index : index + len(violation)],
                 lineno=token.lineno,
                 col=token.col_offset + 1 + index,
+                end_col=token.col_offset + 1 + index + len(violation),
             )
         if content.startswith("#") and not self.is_block_comment(content) and not content.startswith("# "):
             self.report(
                 self.missing_space_after_comment,
                 lineno=token.lineno,
                 col=token.col_offset + 1,
-                end_col=token.col_offset + len(content) + 1,
             )
 
     def is_block_comment(self, comment: str) -> bool:

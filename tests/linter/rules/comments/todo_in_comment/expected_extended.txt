@@ -1,0 +1,45 @@
+test.robot:2:23 COM01 Found a marker 'todo' in the comments
+   |
+ 1 | *** Settings ***
+ 2 | Documentation  doc  # todo so many things
+   |                       ^^^^ COM01
+   |
+
+test.robot:13:3 COM01 Found a marker 'fixme' in the comments
+    |
+ 13 | # fixme: this whole section
+    |   ^^^^^ COM01
+ 14 | *** Keywords ***  # TODO do this
+ 15 | Keyword  # FIXME now!
+    |
+
+test.robot:14:21 COM01 Found a marker 'TODO' in the comments
+    |
+ 12 |
+ 13 | # fixme: this whole section
+ 14 | *** Keywords ***  # TODO do this
+    |                     ^^^^ COM01
+ 15 | Keyword  # FIXME now!
+ 16 |     [Documentation]  this is doc
+    |
+
+test.robot:15:12 COM01 Found a marker 'FIXME' in the comments
+    |
+ 13 | # fixme: this whole section
+ 14 | *** Keywords ***  # TODO do this
+ 15 | Keyword  # FIXME now!
+    |            ^^^^^ COM01
+ 16 |     [Documentation]  this is doc
+ 17 |     No Operation  # todo: do something
+    |
+
+test.robot:17:21 COM01 Found a marker 'todo' in the comments
+    |
+ 15 | Keyword  # FIXME now!
+ 16 |     [Documentation]  this is doc
+ 17 |     No Operation  # todo: do something
+    |                     ^^^^ COM01
+ 18 |     Pass
+ 19 |     No Operation
+    |
+

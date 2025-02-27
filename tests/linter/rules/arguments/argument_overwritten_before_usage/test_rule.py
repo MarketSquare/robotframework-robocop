@@ -34,5 +34,5 @@ class TestRuleAcceptance(RuleAcceptance):
             src_files=["test.robot"],
             expected_file="expected_extended.txt",
             test_on_version=">=7",
-            output_format="extended"
+            output_format="extended",
         )

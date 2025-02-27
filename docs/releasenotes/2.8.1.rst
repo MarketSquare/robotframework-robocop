@@ -1,0 +1,15 @@
+:orphan:
+
+Robocop 2.8.1
+================
+
+Recent update to configuration argument files introduces a bug where option values were appended by a path to the
+argument file directory. It should be fixed with this release.
+
+You can install the latest available version by running::
+
+    pip install --upgrade robotframework-robocop
+
+or to install exactly this version::
+
+    pip install robotframework-robocop==2.8.1

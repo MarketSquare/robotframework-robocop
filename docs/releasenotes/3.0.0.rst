@@ -1,0 +1,162 @@
+:orphan:
+
+=============
+Robocop 3.0.0
+=============
+
+This version of Robocop hugely improves the experience of using Robocop
+within the IDEs by fixing the locations of rule violations in code, which
+in turn results in correct underlining of the issues.
+
+There are backward-incompatible changes to the W1008 ``bad-indent`` rule
+and its parameters (described below in details).
+
+This release also drops the support for Python 3.6, and the minimum
+required version now is Python 3.7+.
+
+Additionally, we bumped the versions of the dependencies up.
+
+You can install the latest available version by running
+
+::
+
+    pip install --upgrade robotframework-robocop
+
+or to install exactly this version
+
+::
+
+    pip install robotframework-robocop==3.0.0
+
+.. contents::
+   :depth: 2
+   :local:
+
+Most important changes
+======================
+
+Precise locations of the rule violations (#290)
+-----------------------------------------------
+
+The main improvement focused around adjusting the locations
+where the rules are violated in the code. More specifically, it improves
+where the rule violation starts and ends, meaning that the precise position
+is now defined correctly. Thanks to that, the LSP will correctly pass that
+information to the IDE you're using and will underline every place that
+needs your attention.
+
+Changes to the locations of the issues may affect the locally used disablers,
+and in result may require doing reviewing them and updating. That's why we
+decided to release new major version.
+
+Python 3.6 support dropped (#806)
+---------------------------------
+
+Python 3.6 is not supported anymore since Dec 23, 2021, it's been already
+quite a long time we kept it supported for Robocop. Due to that, we could
+not benefit from the features of newer versions of Python and it started
+becoming undesired. Also, taking security risk seriously, we need to be
+mindful about possible vulnerabilities in our software that are out of
+our control, and that may affect us if we use outdated dependencies.
+
+From Robocop 3.0.0 we are dropping the support for Python 3.6, and we plan
+to also drop Python 3.7 in the near future, since the scheduled security
+support for this version ends on Jun 27, 2023.
+
+Right now, minimum required version for Robocop is Python 3.7+.
+
+Rule changes
+============
+
+``misaligned-continuation-row`` rule now ignores documentation by default (#789)
+--------------------------------------------------------------------------------
+
+There is a new ``ignore_docs`` parameter added to 1015
+``misaligned-continuation-row`` rule set to ``True`` by default, which means
+that any violation of this rule within the Documentation will be ignored.
+If you want to detect the violations in the Documentation setting or section,
+configure this rule with ``-c 1015:ignore_docs:False``.
+
+Deprecated parameters of W1008 ``bad-indent`` rule (#803)
+---------------------------------------------------------
+
+Old ``bad-indent`` rule has been split into two:
+
+The old one W1008 ``bad-indent`` stays, but it will only detect under- or
+over-indented code. The ``ignore_uneven`` and ``strict`` are no longer available,
+but ``indent`` parameter remains the same, with a new default value of -1,
+which makes it being ignored by default.
+
+Using ``bad-indent`` rule now prints a deprecation warning in the console
+that suggests to replace old parameters with new E1017 rule. The parameters
+are still accepted, but they no longer control the behavior of W1008 rule.
+The warning will disappear in the next major release.
+
+The new rule is described below.
+
+New E1017 rule for bad indentation in code block (#803)
+-------------------------------------------------------
+
+The new E1017 ``bad-block-indent`` rule that detects invalid indentation
+inside code block like FOR loops or TRY-EXCEPT statements.
+
+The rule now reports only when the line is under- or over-indented.
+
+Severity for ``bad-indent`` rule can be configured now (#793)
+-------------------------------------------------------------
+
+There was a bug (#793) that prevented the severity of the old ``bad-indent``
+rule from being configured. It is fixed now.
+
+``bad-indent`` rule now supports data-driven tests (#758)
+---------------------------------------------------------
+
+From now on, ``bad-indent`` also properly supports data-driven tests
+in templated suites. If you encounter any issues, please report them back to us.
+
+Other features
+==============
+
+Improved internal quality (#652)
+--------------------------------
+
+A couple of new GitHub Actions have been added to our GitHub CI.
+New Black action now scans Robocop code to ensure code quality.
+There is also new pre-commit job and additional unit tests.
+
+New bug report template (#801)
+------------------------------
+
+The `bug report template
+<https://github.com/MarketSquare/robotframework-robocop/issues/new?assignees=&labels=bug&template=bug_report.yml&title=%5BBug%5D+Title>`_
+is now extended to make it easier for the users to report bugs and for us to reproduce them.
+
+Bumped dependencies (#792)
+--------------------------
+
+There were some compatibility issues due to outdated packages.
+Now, all of them are updated.
+
+Removed packaging dependency (#742)
+-----------------------------------
+
+``packaging`` dependency brings a lot of other dependencies and often causes
+compatibility issues for us. We only used it for its versioning module for
+deciding if the Robocop rule should be enabled for given Robot Framework version.
+That's why we have decided to remove the dependency and rewrite version handling
+in the Robocop.
+
+Acknowledgements
+================
+
+Thanks to the whole community for submitting bug reports and feature requests.
+Without you, Robocop wouldn't be in the place where it is now. All the feedback
+is essential to drive the tool towards higher quality and better user
+experience.
+
+If you want to help us more, consider contributing to the project directly.
+We can offer our constant support to make the work fun and effective. We do
+our best to create a supportive and welcoming environment for everyone.
+Feel free to ping us on our official `#robocop-linter Slack channel`_ anytime.
+
+.. _#robocop-linter Slack channel: https://robotframework.slack.com/archives/C01AWSNKC2H

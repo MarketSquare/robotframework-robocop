@@ -1,0 +1,71 @@
+:orphan:
+
+Robocop 2.6.0
+================
+This release focuses on better support for Robot Framework 6.0 and improvements to our documentation and spacing rules.
+
+You can install the latest available version by running::
+
+    pip install --upgrade robotframework-robocop
+
+or to install exactly this version::
+
+    pip install robotframework-robocop==2.6.0
+
+
+New rule ``deprecated-singular-header`` (#697)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Robot Framework 6.0 starts deprecating the singular header forms (such as ``*** Setting ***`` or ``*** Test Case ***``).
+Such headers will raise deprecation warning and eventually will not be supported in the future Robot Framework versions.
+``deprecated-singular-header`` warns you if you use singular header form.
+
+Indentation rules changes
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+We completely redesigned our indentation rules. Due to this the ``uneven-indent`` was merged into ``bad-indent``
+(configuration using ``uneven-indent`` will print deprecation message and use ``bad-indent`` instead) (#504).
+
+``bad-indent`` rule now covers uneven indent (which will result in the warning message) or invalid indent (resulting in
+the error message). It is now also possible to use ``strict`` (default ``False``) mode to enforce indentation to be
+the multiple of ``indent`` space (default 4).
+
+Tags rules changes
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The ``Force Tags`` setting has been renamed to ``Test Tags``. To support this change, Robocop
+renamed ``could-be-forced-tags`` rule to ``could-be-test-tags`` and ``tag-already-set-in-force-tags``
+to ``tag-already-set-in-test-tags``.
+Usage of ``Force Tags`` will result in deprecation warning from ``deprecated-statement`` rule.
+
+Robot Framework 6.0 also added ``Keyword Tags`` which is supported by Robocop with this release (#641).
+
+Issue end location (#290)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Our test framework now supports custom format of the issue - which should help with enhancing the precision of the reported
+issues. For now, the ``invalid-argument`` rule has improved precision (properly reporting the beginning and the end of the rule) but
+expect more in the upcoming releases!
+
+Documentation improvements
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+- improved the documentation generation for rules parameters. It will now show more user-friendly types (such as "bool")
+  instead of name of the parser method (#732).
+- do not use rule message as the first line in our documentation if the rule message is only templated variable (#733)
+- updated sarif config example to use colon delimiters (#747)
+
+Fixes
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+- unrecognized header is now only reported by ``parsing-error`` and not by ``duplicated-setting`` (#683)
+- empty lines and standalone comments are now not counted towards keyword/test length in ``too-long-test-case`` and ``too-long-keyword`` rules (#671)
+- comments in the last line of the last keyword / test in the file will not be reported with ``uneven-indent`` rule if their indent is correct (#675)
+- external rules documentation should now display templated rule messages properly (#745)
+- ``deprecated-statement`` should now work for RF 6.0+
+
+Misc
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+- we normalized ``keyword-name-is-reserved-word`` error messages across different Robot Framework versions and
+  prepared it to support RF 6.0.

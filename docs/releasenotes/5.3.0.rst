@@ -1,0 +1,74 @@
+:orphan:
+
+=============
+Robocop 5.3.0
+=============
+
+You can install the latest available version by running
+
+::
+
+    pip install --upgrade robotframework-robocop
+
+or to install exactly this version
+
+::
+
+    pip install robotframework-robocop==5.3.0
+
+.. contents::
+   :depth: 2
+   :local:
+
+Rule changes
+============
+
+New unused-keyword rule (#1017)
+-------------------------------
+
+New I10101 ``unused-keyword`` community rule. This optional rule finds not used keywords defined in suites (robot files
+with tests/tasks) or private keywords (keywords with ``robot:private`` tag).
+
+For example::
+
+    *** Test Cases ***
+    Test that only non used keywords are reported
+        Used Keyword
+
+    *** Keywords ***
+    Not Used Keyword  # this keyword will be reported as not used
+        [Arguments]    ${arg}
+        Should Be True    ${arg}>50
+
+This rule will be developed in the future releases to cover other sources like resource files.
+
+empty-variable can be now disabled for VAR (#1056)
+--------------------------------------------------
+
+I0912 ``empty-variable`` received new parameter ``variable_source`` which allows to enable the rule either only for
+variables from ```*** Variables ***``` section or only ``VAR`` statements. By default it works on both.
+
+New first-argument-in-new-line rule (#1001)
+-------------------------------------------
+
+New W1018 ``first-argument-in-new-line`` rule that checks if first argument is placed in the same line as
+``[Argument]`` setting.
+
+This rule covers Robot Framework Style Guide recommendation:
+
+https://docs.robotframework.org/docs/style_guide#line-continuation-for-arguments-in-keyword-definition
+
+Acknowledgements
+================
+
+Thanks to the whole community for submitting bug reports and feature requests.
+Without you, Robocop wouldn't be in the place where it is now. All the feedback
+is essential to drive the tool towards higher quality and better user
+experience.
+
+If you want to help us more, consider contributing to the project directly.
+We can offer our constant support to make the work fun and effective. We do
+our best to create a supportive and welcoming environment for everyone.
+Feel free to ping us on our official `#robocop-linter Slack channel`_ anytime.
+
+.. _#robocop-linter Slack channel: https://robotframework.slack.com/archives/C01AWSNKC2H

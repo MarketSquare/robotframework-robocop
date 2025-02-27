@@ -1,0 +1,48 @@
+:orphan:
+
+=============
+Robocop 3.1.1
+=============
+
+Fix issues with variable naming rules causing Robocop to crash on escaped or invalid variable definition.
+
+You can install the latest available version by running
+
+::
+
+    pip install --upgrade robotframework-robocop
+
+or to install exactly this version
+
+::
+
+    pip install robotframework-robocop==3.1.1
+
+.. contents::
+   :depth: 2
+   :local:
+
+Fixes
+=====
+
+Fix for escaped variable syntax crashing Robocop (#829)
+-------------------------------------------------------
+
+The escaped variables syntax like ``$escaped`` or ``\${escaped`` caused fatal exception with variable naming rules.
+
+Fix for invalid variable syntax crashing Robocop (#830)
+-------------------------------------------------------
+
+The invalid variable syntax caused fatal exception with ``section-variable-not-uppercase`` rule. Now following code
+should work with Robocop::
+
+    *** Variables ***
+    ${not    closed
+
+Note that this code is not valid and Robocop raises ``parsing-error`` for this. This fix only addressed issue with
+crashing when parsing such code.
+
+Acknowledgements
+================
+
+Thanks to @Loch64 for bug reports that helped improve our tool!

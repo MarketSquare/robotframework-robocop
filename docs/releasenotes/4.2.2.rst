@@ -1,0 +1,93 @@
+:orphan:
+
+=============
+Robocop 4.2.2
+=============
+
+Fixes for Robot Framework 7.0 critical issues and Python 3.12 support.
+
+You can install the latest available version by running
+
+::
+
+    pip install --upgrade robotframework-robocop
+
+or to install exactly this version
+
+::
+
+    pip install robotframework-robocop==4.2.2
+
+.. contents::
+   :depth: 2
+   :local:
+
+Fixes
+=====
+
+Inline If with assign variables handling variables in invalid order (#987)
+---------------------------------------------------------------------------
+
+"Inline If" did not properly recognize that variables were used inside "if statement" before assigning return value.
+Following code::
+
+    *** Keywords ***
+    Keyword With Argument
+        [Arguments]    ${arg}
+        ${arg}    IF    ${VALUE}    Use  ${arg}
+
+    Keyword With Local Variable
+        ${var}    Set Variable    default value
+        ${var}    IF    ${VALUE}    Use  ${var}
+
+Will no longer raise W0921 ``argument-overwritten-before-usage`` and W0922 ``variable-overwritten-before-usage``.
+
+And following code::
+
+    *** Keywords ***
+    Inline If - Overwritten Variable
+        ${var}    Set Variable    default
+        ${var}    IF    condition    Use    ${var}
+
+    InlineIf - Assign With The Same Name As Arg
+        ${assign}    IF    condition    Do Nothing    ELSE    Use    ${assign}
+
+Should now raise I0920 ``unused-variable`` for ``${var}`` and ``${assign}`` variables.
+
+Robot Framework 7.0 backward incompatible changes: VariableIterator refactor (#991)
+-----------------------------------------------------------------------------------
+
+Robocop variables handling relied upon ``VariableIterator`` class imported from Robot Framework package.
+It caused ImportError which should be now fixed.
+
+Robot Framework 7.0 backward incompatible changes: empty-library-alias and WITH NAME
+-------------------------------------------------------------------------------------
+
+Rule E0314 ``empty-library-alias`` should now work with Robot Framework 7.0 and ``WITH NAME`` keyword.
+
+Robot Framework 7.0 backward incompatible changes: Deprecation warnings in Robocop output (#993)
+-------------------------------------------------------------------------------------------------
+
+Several rules started to issue additional deprecation warnings such as `'For.variables' is deprecated and will be
+removed in Robot Framework 8.0. Use 'For.assign' instead`. Those warnings were for Robocop code only and should not
+appear anymore.
+
+Python 3.12 support: invalid escape sequence warnings (#1003)
+-------------------------------------------------------------
+
+`SyntaxWarning: invalid escape sequence '\S'` warnings should not appear anymore when importing Robocop with Python 3.12.
+
+Acknowledgements
+================
+
+Thanks to the whole community for submitting bug reports and feature requests.
+Without you, Robocop wouldn't be in the place where it is now. All the feedback
+is essential to drive the tool towards higher quality and better user
+experience.
+
+If you want to help us more, consider contributing to the project directly.
+We can offer our constant support to make the work fun and effective. We do
+our best to create a supportive and welcoming environment for everyone.
+Feel free to ping us on our official `#robocop-linter Slack channel`_ anytime.
+
+.. _#robocop-linter Slack channel: https://robotframework.slack.com/archives/C01AWSNKC2H

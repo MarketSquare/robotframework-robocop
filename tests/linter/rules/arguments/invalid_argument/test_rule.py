@@ -6,3 +6,11 @@ class TestRuleAcceptance(RuleAcceptance):
         self.check_rule(
             src_files=["test.robot"], expected_file="expected_output.txt", test_on_version=">=4", issue_format="end_col"
         )
+
+    def test_extended(self):
+        self.check_rule(
+            src_files=["test.robot"],
+            expected_file="expected_extended.txt",
+            test_on_version=">=4",
+            output_format="extended",
+        )

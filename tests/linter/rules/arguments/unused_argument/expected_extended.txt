@@ -1,0 +1,62 @@
+test.robot:20:31 ARG01 Keyword argument '${arg2}' is not used
+    |
+ 18 |
+ 19 | Not Used Arguments
+ 20 |     [Arguments]    ${arg1}    ${arg2}
+    |                               ^^^^^^^ ARG01
+ 21 |     ${value}    Set Variable    ${arg 1}
+    |
+
+test.robot:35:31 ARG01 Keyword argument '${not_used}' is not used
+    |
+ 33 |
+ 34 | Argument In String
+ 35 |     [Arguments]    ${used}    ${not_used}
+    |                               ^^^^^^^^^^^ ARG01
+ 36 |     Keyword Call
+ 37 |     ...    Sentence with ${used} argument
+    |
+
+test.robot:40:43 ARG01 Keyword argument '${not_used}' is not used
+    |
+ 38 |
+ 39 | Nested Arguments
+ 40 |     [Arguments]    ${used}    ${used2}    ${not_used}
+    |                                           ^^^^^^^^^^^ ARG01
+ 41 |     Keyword Call    ${name_${used}}
+ 42 |     Keyword Call    ${variable}[${used2}]
+    |
+
+test.robot:48:26 ARG01 Keyword argument '${argument2}' is not used
+    |
+ 48 | Embedded ${argument} and ${argument2}
+    |                          ^^^^^^^^^^^^ ARG01
+ 49 |     Keyword Call    ${ARGUMENT}
+    |
+
+test.robot:51:34 ARG01 Keyword argument '${argument2}' is not used
+    |
+ 51 | Embedded ${argument:pattern} and ${argument2}
+    |                                  ^^^^^^^^^^^^ ARG01
+ 52 |     WHILE    $argument
+ 53 |         No Operation
+    |
+
+test.robot:73:20 ARG01 Keyword argument '${var}' is not used
+    |
+ 71 |
+ 72 | Arguments With Defaults
+ 73 |     [Arguments]    ${var}='default'    ${var2}=2
+    |                    ^^^^^^ ARG01
+ 74 |     Log    ${var2}
+    |
+
+test.robot:194:31 ARG01 Keyword argument '${unused}' is not used
+     |
+ 192 |
+ 193 | Used In String Literal
+ 194 |     [Arguments]    ${used}    ${unused}
+     |                               ^^^^^^^^^ ARG01
+ 195 |     Log  ${used} unused
+     |
+

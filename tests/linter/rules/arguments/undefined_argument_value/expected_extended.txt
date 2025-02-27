@@ -1,0 +1,57 @@
+test.robot:3:12 ARG04 Undefined argument value, use message=${EMPTY} instead
+   |
+ 1 | *** Test Cases ***
+ 2 | With undefined value
+ 3 |     Log    message=
+   |            ^^^^^^^^ ARG04
+ 4 |     Log    message=    level=
+ 5 |     Log    Hello world    level=    html=${True}
+   |
+
+test.robot:4:12 ARG04 Undefined argument value, use message=${EMPTY} instead
+   |
+ 2 | With undefined value
+ 3 |     Log    message=
+ 4 |     Log    message=    level=
+   |            ^^^^^^^^ ARG04
+ 5 |     Log    Hello world    level=    html=${True}
+ 6 |     Log    A great log message=
+   |
+
+test.robot:4:24 ARG04 Undefined argument value, use level=${EMPTY} instead
+   |
+ 2 | With undefined value
+ 3 |     Log    message=
+ 4 |     Log    message=    level=
+   |                        ^^^^^^ ARG04
+ 5 |     Log    Hello world    level=    html=${True}
+ 6 |     Log    A great log message=
+   |
+
+test.robot:5:27 ARG04 Undefined argument value, use level=${EMPTY} instead
+   |
+ 3 |     Log    message=
+ 4 |     Log    message=    level=
+ 5 |     Log    Hello world    level=    html=${True}
+   |                           ^^^^^^ ARG04
+ 6 |     Log    A great log message=
+ 7 |     Log    A great log message =
+   |
+
+test.robot:6:12 ARG04 Undefined argument value, use A great log message=${EMPTY} instead
+   |
+ 4 |     Log    message=    level=
+ 5 |     Log    Hello world    level=    html=${True}
+ 6 |     Log    A great log message=
+   |            ^^^^^^^^^^^^^^^^^^^^ ARG04
+ 7 |     Log    A great log message =
+   |
+
+test.robot:7:12 ARG04 Undefined argument value, use A great log message =${EMPTY} instead
+   |
+ 5 |     Log    Hello world    level=    html=${True}
+ 6 |     Log    A great log message=
+ 7 |     Log    A great log message =
+   |            ^^^^^^^^^^^^^^^^^^^^^ ARG04
+   |
+

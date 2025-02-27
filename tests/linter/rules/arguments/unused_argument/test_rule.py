@@ -19,3 +19,11 @@ class TestRuleAcceptance(RuleAcceptance):
             expected_file=None,
             test_on_version=">=7.2",
         )
+
+    def test_extended(self):
+        self.check_rule(
+            src_files=["test.robot"],
+            expected_file="expected_extended.txt",
+            test_on_version=">=5",
+            output_format="extended",
+        )

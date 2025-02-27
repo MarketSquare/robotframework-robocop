@@ -1,0 +1,27 @@
+test.robot:8:20 ARG05 Invalid argument syntax '{var}'
+   |
+ 6 |
+ 7 | Keyword2
+ 8 |     [Arguments]    {var}
+   |                    ^^^^^ ARG05
+ 9 |     No Operation
+   |
+
+test.robot:13:12 ARG05 Invalid argument syntax 'value'
+    |
+ 11 | Keyword3
+ 12 |     [Arguments]    ${var}
+ 13 |     ...    value
+    |            ^^^^^ ARG05
+ 14 |     No Operation
+    |
+
+test.robot:17:30 ARG05 Invalid argument syntax 'value'
+    |
+ 15 |
+ 16 | Keyword4
+ 17 |     [Arguments]    ${var}    value=3
+    |                              ^^^^^^^ ARG05
+ 18 |     No Operation
+    |
+

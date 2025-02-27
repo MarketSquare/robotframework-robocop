@@ -1,0 +1,47 @@
+test.robot:21:5 ARG07 There is too many arguments per continuation line (2 / 1)
+    |
+ 19 | Keyword With Arguments In Multiple Lines - Bad
+ 20 |     [Arguments]  ${arg}
+ 21 |     ...    ${arg2}    ${arg3}
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^ ARG07
+ 22 |     No Operation
+    |
+
+test.robot:26:5 ARG07 There is too many arguments per continuation line (3 / 1)
+    |
+ 24 | Keyword With Arguments In Multiple Lines - Bad 2
+ 25 |     [Arguments]  ${arg}
+ 26 |     ...    ${arg2}    ${arg3}    ${arg4}=default
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ ARG07
+ 27 |     No Operation
+    |
+
+test.robot:31:5 ARG07 There is too many arguments per continuation line (2 / 1)
+    |
+ 29 | Keyword With Arguments In Multiple Lines - Bad 3
+ 30 |     [Arguments]  ${arg}
+ 31 |     ...    ${arg2}    ${arg3}
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^ ARG07
+ 32 |     # ... it works for all except RF 4.0 which has critical bug on empty arguments
+ 33 |     ...    ${arg5}    ${arg6}
+    |
+
+test.robot:33:5 ARG07 There is too many arguments per continuation line (2 / 1)
+    |
+ 31 |     ...    ${arg2}    ${arg3}
+ 32 |     # ... it works for all except RF 4.0 which has critical bug on empty arguments
+ 33 |     ...    ${arg5}    ${arg6}
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^ ARG07
+ 34 |     No Operation
+    |
+
+test.robot:37:5 ARG07 There is too many arguments per continuation line (2 / 1)
+    |
+ 35 |
+ 36 | Keyword With Arguments In Multiple Lines - Bad 4
+ 37 |     [Arguments]  ${arg}    ${arg2}
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ ARG07
+ 38 |     ...    ${arg3}
+ 39 |     No Operation
+    |
+

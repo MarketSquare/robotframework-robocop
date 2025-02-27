@@ -1,0 +1,337 @@
+test.robot:2:21 COM02 Missing blank space after comment character
+   |
+ 1 | *** Settings ***
+ 2 | Documentation  doc  #invalid comment
+   |                     ^ COM02
+ 3 | Metadata   myvalue  #invalid comment
+ 4 | Force Tags  sometag  #invalid comment
+   |
+
+test.robot:3:21 COM02 Missing blank space after comment character
+   |
+ 1 | *** Settings ***
+ 2 | Documentation  doc  #invalid comment
+ 3 | Metadata   myvalue  #invalid comment
+   |                     ^ COM02
+ 4 | Force Tags  sometag  #invalid comment
+ 5 | Default Tags  mytag  #invalid comment
+   |
+
+test.robot:4:22 COM02 Missing blank space after comment character
+   |
+ 2 | Documentation  doc  #invalid comment
+ 3 | Metadata   myvalue  #invalid comment
+ 4 | Force Tags  sometag  #invalid comment
+   |                      ^ COM02
+ 5 | Default Tags  mytag  #invalid comment
+ 6 | Test Setup      Keyword  #invalid comment
+   |
+
+test.robot:5:22 COM02 Missing blank space after comment character
+   |
+ 3 | Metadata   myvalue  #invalid comment
+ 4 | Force Tags  sometag  #invalid comment
+ 5 | Default Tags  mytag  #invalid comment
+   |                      ^ COM02
+ 6 | Test Setup      Keyword  #invalid comment
+ 7 | Test Teardown   Keyword  #invalid comment
+   |
+
+test.robot:6:26 COM02 Missing blank space after comment character
+   |
+ 4 | Force Tags  sometag  #invalid comment
+ 5 | Default Tags  mytag  #invalid comment
+ 6 | Test Setup      Keyword  #invalid comment
+   |                          ^ COM02
+ 7 | Test Teardown   Keyword  #invalid comment
+ 8 | Suite Setup     Keyword  #invalid comment
+   |
+
+test.robot:7:26 COM02 Missing blank space after comment character
+   |
+ 5 | Default Tags  mytag  #invalid comment
+ 6 | Test Setup      Keyword  #invalid comment
+ 7 | Test Teardown   Keyword  #invalid comment
+   |                          ^ COM02
+ 8 | Suite Setup     Keyword  #invalid comment
+ 9 | Suite Teardown  Keyword  #invalid comment
+   |
+
+test.robot:8:26 COM02 Missing blank space after comment character
+   |
+ 6 | Test Setup      Keyword  #invalid comment
+ 7 | Test Teardown   Keyword  #invalid comment
+ 8 | Suite Setup     Keyword  #invalid comment
+   |                          ^ COM02
+ 9 | Suite Teardown  Keyword  #invalid comment
+10 | Test Template   Keyword  #invalid comment
+   |
+
+test.robot:9:26 COM02 Missing blank space after comment character
+   |
+ 7 | Test Teardown   Keyword  #invalid comment
+ 8 | Suite Setup     Keyword  #invalid comment
+ 9 | Suite Teardown  Keyword  #invalid comment
+   |                          ^ COM02
+10 | Test Template   Keyword  #invalid comment
+   |
+
+test.robot:10:26 COM02 Missing blank space after comment character
+    |
+  8 | Suite Setup     Keyword  #invalid comment
+  9 | Suite Teardown  Keyword  #invalid comment
+ 10 | Test Template   Keyword  #invalid comment
+    |                          ^ COM02
+    |
+
+test.robot:14:17 COM02 Missing blank space after comment character
+    |
+ 12 |
+ 13 | *** Variables ***
+ 14 | ${MY_VAR}    1  #invalid comment  with 2 spaces
+    |                 ^ COM02
+    |
+
+test.robot:18:7 COM02 Missing blank space after comment character
+    |
+ 16 |
+ 17 | *** Test Cases ***  # valid comment
+ 18 | Test  #invalid comment
+    |       ^ COM02
+ 19 |     [Documentation]  doc  # valid comment
+ 20 |     [Tags]  sometag  #invalid comment
+    |
+
+test.robot:20:22 COM02 Missing blank space after comment character
+    |
+ 18 | Test  #invalid comment
+ 19 |     [Documentation]  doc  # valid comment
+ 20 |     [Tags]  sometag  #invalid comment
+    |                      ^ COM02
+ 21 |     [Setup]  Keyword  #invalid comment
+ 22 |     [Template]  Keyword  #invalid comment
+    |
+
+test.robot:21:23 COM02 Missing blank space after comment character
+    |
+ 19 |     [Documentation]  doc  # valid comment
+ 20 |     [Tags]  sometag  #invalid comment
+ 21 |     [Setup]  Keyword  #invalid comment
+    |                       ^ COM02
+ 22 |     [Template]  Keyword  #invalid comment
+ 23 |     [Timeout]  10  #invalid comment
+    |
+
+test.robot:22:26 COM02 Missing blank space after comment character
+    |
+ 20 |     [Tags]  sometag  #invalid comment
+ 21 |     [Setup]  Keyword  #invalid comment
+ 22 |     [Template]  Keyword  #invalid comment
+    |                          ^ COM02
+ 23 |     [Timeout]  10  #invalid comment
+ 24 |     Pass
+    |
+
+test.robot:23:20 COM02 Missing blank space after comment character
+    |
+ 21 |     [Setup]  Keyword  #invalid comment
+ 22 |     [Template]  Keyword  #invalid comment
+ 23 |     [Timeout]  10  #invalid comment
+    |                    ^ COM02
+ 24 |     Pass
+ 25 |     Keyword  # valid comment
+    |
+
+test.robot:27:1 COM02 Missing blank space after comment character
+    |
+ 25 |     Keyword  # valid comment
+ 26 |     One More
+ 27 | #invalid comment
+    | ^ COM02
+    |
+
+test.robot:29:19 COM02 Missing blank space after comment character
+    |
+ 29 | *** Keywords ***  #invalid comment
+    |                   ^ COM02
+ 30 | Keyword  #invalid comment
+ 31 |     [Documentation]  this is doc  #invalid comment
+    |
+
+test.robot:30:10 COM02 Missing blank space after comment character
+    |
+ 28 |
+ 29 | *** Keywords ***  #invalid comment
+ 30 | Keyword  #invalid comment
+    |          ^ COM02
+ 31 |     [Documentation]  this is doc  #invalid comment
+ 32 |     [Arguments]  ${arg}  #invalid comment
+    |
+
+test.robot:31:35 COM02 Missing blank space after comment character
+    |
+ 29 | *** Keywords ***  #invalid comment
+ 30 | Keyword  #invalid comment
+ 31 |     [Documentation]  this is doc  #invalid comment
+    |                                   ^ COM02
+ 32 |     [Arguments]  ${arg}  #invalid comment
+ 33 |     [Timeout]  10  #invalid comment
+    |
+
+test.robot:32:26 COM02 Missing blank space after comment character
+    |
+ 30 | Keyword  #invalid comment
+ 31 |     [Documentation]  this is doc  #invalid comment
+ 32 |     [Arguments]  ${arg}  #invalid comment
+    |                          ^ COM02
+ 33 |     [Timeout]  10  #invalid comment
+ 34 |     No Operation  #invalid comment
+    |
+
+test.robot:33:20 COM02 Missing blank space after comment character
+    |
+ 31 |     [Documentation]  this is doc  #invalid comment
+ 32 |     [Arguments]  ${arg}  #invalid comment
+ 33 |     [Timeout]  10  #invalid comment
+    |                    ^ COM02
+ 34 |     No Operation  #invalid comment
+ 35 |     Pass
+    |
+
+test.robot:34:19 COM02 Missing blank space after comment character
+    |
+ 32 |     [Arguments]  ${arg}  #invalid comment
+ 33 |     [Timeout]  10  #invalid comment
+ 34 |     No Operation  #invalid comment
+    |                   ^ COM02
+ 35 |     Pass
+ 36 |     No Operation
+    |
+
+test.robot:38:17 COM02 Missing blank space after comment character
+    |
+ 36 |     No Operation
+ 37 |     Fail
+ 38 |     IF  ${var}  #invalid comment
+    |                 ^ COM02
+ 39 |         My Keyword
+ 40 |     ELSE IF  ${another_var}  #invalid comment
+    |
+
+test.robot:40:30 COM02 Missing blank space after comment character
+    |
+ 38 |     IF  ${var}  #invalid comment
+ 39 |         My Keyword
+ 40 |     ELSE IF  ${another_var}  #invalid comment
+    |                              ^ COM02
+ 41 |         Not My Keyword
+ 42 |     ELSE  #invalid comment
+    |
+
+test.robot:42:11 COM02 Missing blank space after comment character
+    |
+ 40 |     ELSE IF  ${another_var}  #invalid comment
+ 41 |         Not My Keyword
+ 42 |     ELSE  #invalid comment
+    |           ^ COM02
+ 43 |         Banned Keyword
+ 44 |     END
+    |
+
+test.robot:45:31 COM02 Missing blank space after comment character
+    |
+ 43 |         Banned Keyword
+ 44 |     END
+ 45 |     FOR  ${var}  IN  @{list}  #invalid comment
+    |                               ^ COM02
+ 46 |         My Keyword
+ 47 |     END
+    |
+
+test.robot:48:23 COM02 Missing blank space after comment character
+    |
+ 46 |         My Keyword
+ 47 |     END
+ 48 |     [Return]  ${val}  #invalid comment
+    |                       ^ COM02
+    |
+
+test.robot:51:26 COM02 Missing blank space after comment character
+    |
+ 49 |
+ 50 | RF 5 syntax
+ 51 |     WHILE    $condition  #invalid comment
+    |                          ^ COM02
+ 52 |         TRY  #invalid comment
+ 53 |             Keyword
+    |
+
+test.robot:52:14 COM02 Missing blank space after comment character
+    |
+ 50 | RF 5 syntax
+ 51 |     WHILE    $condition  #invalid comment
+ 52 |         TRY  #invalid comment
+    |              ^ COM02
+ 53 |             Keyword
+ 54 |         EXCEPT  #invalid comment
+    |
+
+test.robot:54:17 COM02 Missing blank space after comment character
+    |
+ 52 |         TRY  #invalid comment
+ 53 |             Keyword
+ 54 |         EXCEPT  #invalid comment
+    |                 ^ COM02
+ 55 |             Keyword
+ 56 |         FINALLY  #invalid comment
+    |
+
+test.robot:56:18 COM02 Missing blank space after comment character
+    |
+ 54 |         EXCEPT  #invalid comment
+ 55 |             Keyword
+ 56 |         FINALLY  #invalid comment
+    |                  ^ COM02
+ 57 |             Keyword
+ 58 |         ELSE  #invalid comment
+    |
+
+test.robot:58:15 COM02 Missing blank space after comment character
+    |
+ 56 |         FINALLY  #invalid comment
+ 57 |             Keyword
+ 58 |         ELSE  #invalid comment
+    |               ^ COM02
+ 59 |             Keyword
+ 60 |         END  #invalid comment
+    |
+
+test.robot:60:14 COM02 Missing blank space after comment character
+    |
+ 58 |         ELSE  #invalid comment
+ 59 |             Keyword
+ 60 |         END  #invalid comment
+    |              ^ COM02
+ 61 |         CONTINUE  #invalid comment
+ 62 |         BREAK  #invalid comment
+    |
+
+test.robot:61:19 COM02 Missing blank space after comment character
+    |
+ 59 |             Keyword
+ 60 |         END  #invalid comment
+ 61 |         CONTINUE  #invalid comment
+    |                   ^ COM02
+ 62 |         BREAK  #invalid comment
+ 63 |     END
+    |
+
+test.robot:62:16 COM02 Missing blank space after comment character
+    |
+ 60 |         END  #invalid comment
+ 61 |         CONTINUE  #invalid comment
+ 62 |         BREAK  #invalid comment
+    |                ^ COM02
+ 63 |     END
+    |
+

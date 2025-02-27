@@ -1,0 +1,46 @@
+test.robot:3:30 ARG03 Undefined argument default, use ${bar}=${EMPTY} instead
+   |
+ 1 | *** Keywords ***
+ 2 | Keyword with undefined arg
+ 3 |     [Arguments]    ${foo}    ${bar}=    ${baz}=123
+   |                              ^^^^^^^ ARG03
+ 4 |     No Operation
+   |
+
+test.robot:10:10 ARG03 Undefined argument default, use ${baz}=${EMPTY} instead
+    |
+  8 |     ...  ${foo}
+  9 |     ...  ${bar}=123
+ 10 |     ...  ${baz}=
+    |          ^^^^^^^ ARG03
+ 11 |     ...  ${lorum}=${ipsum}
+ 12 |     No Operation
+    |
+
+test.robot:23:20 ARG03 Undefined argument default, use ${arg}=${EMPTY} instead
+    |
+ 21 |
+ 22 | Keyword with multiple violations in one line
+ 23 |     [Arguments]    ${arg}=    ${arg2}=
+    |                    ^^^^^^^ ARG03
+ 24 |     No Operation
+    |
+
+test.robot:23:31 ARG03 Undefined argument default, use ${arg2}=${EMPTY} instead
+    |
+ 21 |
+ 22 | Keyword with multiple violations in one line
+ 23 |     [Arguments]    ${arg}=    ${arg2}=
+    |                               ^^^^^^^^ ARG03
+ 24 |     No Operation
+    |
+
+test.robot:35:27 ARG03 Undefined argument default, use ${bar}=${EMPTY} instead
+    |
+ 33 |
+ 34 | Keyword with named-only arguments
+ 35 |     [Arguments]    @{}    ${bar}=    ${foo}=${None}
+    |                           ^^^^^^^ ARG03
+ 36 |     No Operation
+    |
+

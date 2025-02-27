@@ -184,3 +184,4 @@ class ArgumentsPerLineRule(Rule):
             desc="maximum number of arguments allowed in the continuation line",
         ),
     ]
+    # TODO flag to allow for [Arguments] multiple args ine one line, just not in other ...

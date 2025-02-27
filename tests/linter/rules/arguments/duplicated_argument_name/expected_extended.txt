@@ -1,0 +1,46 @@
+test.robot:3:30 ARG06 Argument name '${var}' is already used
+   |
+ 1 | *** Keywords ***
+ 2 | Keyword1
+ 3 |     [Arguments]    ${var}    ${var}    ${var2}
+   |                              ^^^^^^ ARG06
+ 4 |     ...    ${var}    ${Var}    ${var}=value
+ 5 |     Log  ${var}
+   |
+
+test.robot:4:12 ARG06 Argument name '${var}' is already used
+   |
+ 2 | Keyword1
+ 3 |     [Arguments]    ${var}    ${var}    ${var2}
+ 4 |     ...    ${var}    ${Var}    ${var}=value
+   |            ^^^^^^ ARG06
+ 5 |     Log  ${var}
+   |
+
+test.robot:4:22 ARG06 Argument name '${Var}' is already used
+   |
+ 2 | Keyword1
+ 3 |     [Arguments]    ${var}    ${var}    ${var2}
+ 4 |     ...    ${var}    ${Var}    ${var}=value
+   |                      ^^^^^^ ARG06
+ 5 |     Log  ${var}
+   |
+
+test.robot:4:32 ARG06 Argument name '${var}' is already used
+   |
+ 2 | Keyword1
+ 3 |     [Arguments]    ${var}    ${var}    ${var2}
+ 4 |     ...    ${var}    ${Var}    ${var}=value
+   |                                ^^^^^^ ARG06
+ 5 |     Log  ${var}
+   |
+
+test.robot:15:42 ARG06 Argument name '${PARAM}' is already used
+    |
+ 13 |
+ 14 | Keyword4
+ 15 |     [Arguments]    %{var}    ${PARAM}    ${PARAM}
+    |                                          ^^^^^^^^ ARG06
+ 16 |     Log  ${var}
+    |
+

@@ -1,0 +1,67 @@
+:orphan:
+
+Robocop 2.8.0
+================
+
+You can install the latest available version by running::
+
+    pip install --upgrade robotframework-robocop
+
+or to install exactly this version::
+
+    pip install robotframework-robocop==2.8.0
+
+Rules
+-----
+
+New W0204 `missing-doc-resource-file` rule that checks if documentation is missing in a resource file. (#776)
+
+Nested argument files (#770)
+-----------------------------
+
+Nesting argument files was not allowed before. Now it is possible to import other argument file in the argument file::
+
+    --include some-rule
+    --argumentfile base_argument_file.txt
+
+Relative paths in the argument files (#693)
+-----------------------------------------------
+
+Argument files now support relative paths. The support was added for the ``pyproject.toml`` files before but it was
+missing from the argument files.
+
+It means that argument file can have paths relative to the argument file location::
+
+    content of config/argumentfile.txt:
+
+    --output robocop_output.txt # it will now refer to config/robocop_output.txt
+    --ext-rules robocop/rules.py # it will now refer to config/robocop/rules.py
+
+List only enabled or disabled rules #764
+------------------------------------------
+
+Robocop can list all rules with ``--list`` option (or ``--list-configurables`` to only list rules that can be
+configured). Our every growing list of rules made the output of this command hard to read. That's why it is now
+possible to filter rules with ``ENABLED`` or ``DISABLED`` special patterns::
+
+    robocop --list ENABLED
+    robocop -i *doc* -i line-too-long --list ENABLED
+    robocop --exclude empty-lines-between-test-cases --list DISABLED
+    robocop --list-configurables ENABLED
+
+The new feature still coexist with existing feature that allows to filter list output using pattern::
+
+    robocop --list *line*
+
+However ``ENABLED``/``DISABLED`` patterns are more useful when you want to list only the rules that are enabled using
+your configuration.
+
+Bugs
+-----
+
+Robot Framework 6.0 introduces some minor changes that affected our rules:
+
+- not supported settings uses different error message in Robot Framework now. That's why ``setting-not-supported``
+  failed to catch those errors and they were reported as ``parsing-error`` instead
+- Task header now uses distinct token type internally. This causes Robocop to not recognize ``both-tests-and-tasks``
+  issues

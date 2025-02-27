@@ -1,0 +1,166 @@
+:orphan:
+
+=============
+Robocop 3.2.0
+=============
+
+This release brings several new variable related rules! We have also fixed several issues that appeared after
+Robot Framework 6.1 release.
+
+You can install the latest available version by running
+
+::
+
+    pip install --upgrade robotframework-robocop
+
+or to install exactly this version
+
+::
+
+    pip install robotframework-robocop==3.2.0
+
+.. contents::
+   :depth: 2
+   :local:
+
+Rule changes
+============
+
+New rule for detecting not used arguments (#501)
+------------------------------------------------
+
+Added new rule W0919 ``unused-argument`` for detecting not used keyword arguments.
+For example::
+
+    *** Keywords ***
+    Keyword
+        [Arguments]    ${used}    ${not_used}
+        Log    ${used}
+        IF    $used
+            Log    Escaped syntax is supported.
+        END
+
+    Keyword with ${embedded} and ${not_used}  # will report ${not_used}
+        Log    ${embedded}
+
+New rule for detecting not used variables (#209)
+------------------------------------------------
+
+Added new rule I0920 ``unused-variable`` for detecting not used variables.
+For example::
+
+    *** Keywords ***
+    Keyword
+        ${var}    ${var2}    Calculate Cutoff  # ${var2} is not used
+        Log    ${var}
+
+New rules for overwriting arguments and variables before first use (#836)
+--------------------------------------------------------------------------
+
+Added new rules W0921 ``argument-overwritten-before-usage`` and W0922 ``variable-overwritten-before-usage`` for
+arguments or variables overwritten before first use::
+
+    *** Keywords ***
+    Overwritten Argument
+        [Arguments]    ${overwritten}  # we do not call ${overwritten} value at all
+        ${overwritten}    Set Variable    value  # we only overwrite it
+
+    Overwritten Variable
+        ${var1}    ${var2}    Assign Variables
+        Log        ${var2}  # this variable is used
+        ${var1}    Overwrite Variable  # this one is only overwritten
+
+New rule for inconsistent variable naming (#496)
+--------------------------------------------------
+
+Added new rule W0323 ``inconsistent-variable-name`` which reports variables with inconsistent naming.
+Since Robot Framework ignore underscores and spaces in variable names, and also normalizes them to
+lowercase, this code should report new rule violations::
+
+    *** Keywords ***
+    Inconsistent variables
+        ${variable}    Keyword
+        Keyword    ${variablE}  # matches ${variable} but is not consistent
+        IF    ${var_iable} < 10  # matches ${variable} but is not consistent
+            Log    ${varia ble}  # matches ${variable} but is not consistent
+        END
+
+New rule for overwriting reserved variables (#553)
+--------------------------------------------------
+
+Added new rule W0324 ``overwriting-reserved-variable`` which reports overwriting reserved Robot Framework variables.
+There are variables used by Robot Framework itself which should not be overwritten. See the list at
+`Robot Framework User Guide <https://robotframework.org/robotframework/latest/RobotFrameworkUserGuide.html#automatic-variables>`_.
+
+New rule for invalid sections
+------------------------------
+
+Added new rule E0325 ``invalid-section``. It reports any unrecognized sections, for example if you are using
+translated headers but did not configure the language.
+
+Fixes
+=====
+
+Possibly overwritten variables are now detected in more places (#841, #842)
+---------------------------------------------------------------------------
+
+The I0316 ``possible-variable-overwriting`` now detects issues in ``IF`` assignments, embedded variables
+and variable with default values.
+
+Breaking changes in Robot Framework 6.1
+---------------------------------------
+
+Several rules stopped working after Robot Framework 6.1 release. Following rules should now work:
+
+    - E0401 ``parsing-error``
+    - E0403 ``missing-keyword-name``
+    - E0414 ``return-in-test-case``
+    - E0415 ``invalid-section-in-resource``
+    - W1003 ``empty-lines-between-sections`` rule should now work with empty sections
+    - W0511 ``empty-metadata``
+    - E0915 ``statement-outside-loop``
+
+Other features
+==============
+
+Load toml configuration file from cli (#787)
+---------------------------------------------
+
+Previously, Robocop only supported TOML configuration file by loading it automatically if ``pyproject.toml`` file
+existed in the root directory. Now, it is possible to load it from any path using ``--config`` option::
+
+    robocop --config path/to/config_file.toml
+
+List reports now list all reports (#833)
+----------------------------------------
+
+List reports command (``--list-reports``) previously only listed enabled reports. Now, the option lists all reports
+together with their enabled/disabled status. Also, internal reports are now omitted::
+
+    > robocop --list-reports
+    Available reports:
+    file_stats           - Prints overall statistics about number of processed files (disabled)
+    rules_by_error_type  - Prints total number of issues grouped by severity (disabled)
+    rules_by_id          - Groups detected issues by rule id and prints it ordered by most common (disabled)
+    sarif                - Generate SARIF output file (disabled - non-default)
+    scan_timer           - Returns Robocop execution time (disabled)
+    timestamp            - Returns Robocop execution timestamp. (disabled)
+    version              - Returns Robocop version (disabled)
+
+    Enable report by passing its name using ``--reports`` option. Use ``all`` to enable all default reports.
+    Non-default reports (like ``sarif``) can be only enabled using their name explicitly.
+
+
+List reports output can be filtered using ENABLED/DISABLED (#833)
+------------------------------------------------------------------
+
+Same as ``--list`` rules option, ``--list-reports`` now supports optional ``ENABLED`` / ``DISABLED`` argument to filter
+out reports by their status::
+
+    > robocop --reports version --list-reports ENABLED
+    Available reports:
+    version              - Returns Robocop version (enabled)
+
+    > robocop --reports all --list-reports DISABLED
+    Available reports:
+    sarif                - Generate SARIF output file (disabled - non-default)

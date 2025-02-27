@@ -1,0 +1,132 @@
+:orphan:
+
+=============
+Robocop 3.1.0
+=============
+
+Several new rules for detecting unreachable code, multiline IFs, empty templates and invalid sections in resource file.
+The variable naming rules (W0310 ``non-local-variables-should-be-uppercase`` and W0309
+``section-variable-not-uppercase``) were also updated to support nested variables.
+
+This release also contains fixes for W1015 ``misaligned-continuation-row`` rule, deprecating warning not appearing for
+rules from ``--configure`` option. Also, the W0704 ``ignored-data`` rule provides better support for language headers.
+
+You can install the latest available version by running
+
+::
+
+    pip install --upgrade robotframework-robocop
+
+or to install exactly this version
+
+::
+
+    pip install robotframework-robocop==3.1.0
+
+.. contents::
+   :depth: 2
+   :local:
+
+Rule changes
+============
+
+Rules W0310 and W0309 now handle nested variables (#678)
+------------------------------------------------------------------------------------------
+
+Rules W0310 ``non-local-variables-should-be-uppercase`` and W0309 ``section-variable-not-uppercase``
+were previously reporting when the variable had another nested variable with lowercase name,
+e.g. `${EXAMPLE_${lowercase}}`.
+Now, the nested variable names passed as an argument to one of the keywords `Set Test Variable`,
+`Set Suite Variable` or `Set Global Variable` are ignored and if the rest of the name is uppercase, the rules
+will not report the issue anymore.
+For variables in Variables section, the name still needs to be all uppercase (including
+nested variable), because all nested variables in this section need to be global anyway.
+
+New rule for detecting unreachable code (#810)
+----------------------------------------------
+
+Added new rule W0917 ``unreachable-code`` for detecting if there is a code after
+``RETURN``, ``BREAK`` or ``CONTINUE`` statements, on the same scope level.
+
+For example::
+
+    Example Keyword
+        FOR    ${animal}    IN    cat    dog
+            IF    '${animal}' == 'cat'
+                CONTINUE
+                Log  ${animal}  # unreachable log
+            END
+            BREAK
+            Log    Unreachable log
+        END
+        RETURN
+        Log    Unreachable log
+
+Also, old W0901 ``keyword-after-return`` rule no longer detects ``RETURN`` statements,
+only the keywords after ``Return From Keyword`` and when there is code after ``[Return]``.
+
+New rule that reports when inline IF is split into multiple lines (#804)
+------------------------------------------------------------------------
+
+New W0918 ``multiline-inline-if`` rule that detects when inline IF is split into
+multiple lines. It's allowed, but it should be avoided, since it decreases readability.
+It recommends to use normal IF/ELSE instead.
+
+New rule for invalid sections in resource file (#525)
+------------------------------------------------------
+
+New E0415 ``invalid-section-in-resource`` rule that reports invalid section used in the resource file. Resource file
+cannot contain ``*** Test Cases ***`` or ``*** Tasks ***`` sections.
+
+New rules that report empty Template and Test Template (#443)
+--------------------------------------------------------------
+
+Added new W0530 ``empty-template`` rule that reports ``[Template]`` setting without value.
+There is also new E0529 ``empty-test-template`` that reports empty ``Test Template``.
+
+Fixes
+=====
+
+Fixes for rule W1015 `misaligned-continuation-row` (#821, #818)
+---------------------------------------------------------------
+
+Fixed a case (#821) where rule W1015 `misaligned-continuation-row` was failing due to the
+continuation of the keyword starting with a comment at the beginning of the line::
+
+    *** Test Cases ***
+    Robocop Crash Example
+        Run Keywords
+        ...    Log Message     1   AND
+    # ...    Log Message     2   AND
+        ...    Log Message     3
+
+Another bug (#818) was reported for the case when there was a properly indented comment
+in between the statements, like this::
+
+    *** Test Cases ***
+    My Keyword
+        ${arf}  Create List   1  2  3
+        # ...  4
+        ...  5
+
+Which cause the rule to be incorrectly reported in the last line of the example above
+even though it's aligned properly. It is now fixed and the rule does not report in such case.
+
+Fix for deprecation warning to appear also when configuring deprecated rules (#819)
+-----------------------------------------------------------------------------------
+
+When a deprecated rule was configured using a `--configure` CLI option, the deprecation
+warning was not displayed. This is now fixed, and the warning appears for all rules
+explicitly configured, included or excluded through a command line options.
+
+Fix for language header reported by ignored-data (#825)
+-------------------------------------------------------
+
+Language headers at the beginning of the file (``Language: de``) were reported by ``ignored-data`` rule if they were
+not lowercase.
+Now the rule properly recognizes all language headers.
+
+Acknowledgements
+================
+
+Thanks to @hrsc-viessmann and @MoreFamed for bug reports that helped improve our tool!

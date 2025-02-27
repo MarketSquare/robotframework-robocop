@@ -1,0 +1,331 @@
+:orphan:
+
+=============
+Robocop 5.0.0
+=============
+
+You can install the latest available version by running
+
+::
+
+    pip install --upgrade robotframework-robocop
+
+or to install exactly this version
+
+::
+
+    pip install robotframework-robocop==5.0.0
+
+.. contents::
+   :depth: 2
+   :local:
+
+
+Most important changes
+======================
+New community rules
+-------------------
+
+Robocop now contains new type of rules: **community rules**. To put it simply, community rule is just rule disabled
+by default. However it allows us to add rules that handle specific problems or have certain limitations. Such rules
+will not be enabled by default and users will be able to choose to run them or not.
+
+``Community rule`` name originates from our purpose behind this feature - we want users (our community) to more actively
+contribute to Robocop rules. If you developed rule for your company that may benefit more people but is not fit for
+everyone feel free to add it in our repository.
+
+Existing community rules can be listed with ``COMMUNITY`` or ``ALL`` filters::
+
+    > robocop --list COMMUNITY
+    Rule - 10001 [W]: sleep-keyword-used: Sleep keyword with '{{ duration_time }}' sleep time found (disabled)
+
+Those rules can be enabled by configuring ``enabled`` parameter::
+
+    robocop --configure sleep-keyword-used:enabled:True
+
+or by including rule in ``--include``::
+
+    robocop --include sleep-keyword-used
+
+Community rules - or in other words rules disabled by default - are now part of our core code. It is now also
+possible to create custom disabled by default rule. If you want to contribute new community rule or create your own
+custom rule then <check out this doc page>. # TODO
+
+https://robocop.readthedocs.io/en/stable/external_rules.html#rules-disabled-by-default
+
+Rule changes
+============
+
+Updated existing rules with VAR support (#973)
+-----------------------------------------------
+
+Following rules now support ``VAR`` syntax:
+
+- W0310 ``non-local-variables-should-be-uppercase``
+- I0316 ``possible-variable-overwriting``
+- I0317 ``hyphen-in-variable-name``
+- W0323 ``inconsistent-variable-name``
+- W0324 ``overwriting-reserved-variable``
+- W0501 ``too-long-keyword``
+- W0502 ``too-few-calls-in-keyword``
+- W0503 ``too-many-calls-in-keyword``
+- W0504 ``too-long-test-case``
+- W0505 ``too-many-calls-in-test-case``
+- I0912 ``empty-variable``
+- W0919 ``unused-argument``
+- I0920 ``unused-variable``
+- W0921 ``argument-overwritten-before-usage``
+- W0922 ``variable-overwritten-before-usage``
+
+Recognize keywords in Pabot run keywords (#1014)
+------------------------------------------------
+
+Keywords used in Pabot run keywords such as ``Run Setup Only Once`` are now recognized as keywords by Robocop rules::
+
+    *** Keywords ***
+    Keyword Run In Parallel
+        Run Only Once    keyword  # should raise wrong-case-in-keyword-name
+
+Deprecate unnecessary-string-conversion rule (#986)
+----------------------------------------------------
+
+Rule I0923 ``unnecessary-string-conversion`` is now deprecated. It reported multiple false positive issues that lead
+to users breaking the code. If the rule was useful in your project and you know its limitations (coming from not knowing
+the exact type of the variable in the IF condition) you can reimplement this rule as custom rule in your project.
+
+Variable not used from Variables section (#1002)
+------------------------------------------------
+
+Variables defined in ``*** Variables ***`` section in test/task file and not used within the file are now reported
+with I0920 ``unused-variable`` rule:"
+
+    *** Variables ***
+    ${GLOBAL_USED}    value
+    ${GLOBAL_NOT_USED}    value  # will be reported in Robocop
+    ${GLOBAL_USED_IN_SECTION}    value
+    ${GLOBAL_USED2}    value with ${GLOBAL_USED_IN_SECTION}
+    
+    
+    *** Test Cases ****
+    Test
+        [Documentation]    Use one global variable and call keyword that uses second.
+        Log    ${GLOBAL_USED}
+        Keyword
+    
+    
+    *** Keywords ***
+    Keyword
+        [Documentation]    Use second global variable.
+        Log    ${GLOBAL_USED2}
+
+New rule replace-set-variable-with-var (#973)
+---------------------------------------------
+
+Added new I0327 ``replace-set-variable-with-var`` rule.
+
+Starting from Robot Framework 7.0, it is possible to create variables inside tests and user keywords using the VAR
+syntax. The VAR syntax is recommended over previously existing keywords. Starting from RF 7.0 Robocop will report
+new issue when ``Set Variable`` type of keyword is used.
+
+Example with Set Variable keywords::
+
+    *** Keywords ***
+    Set Variables To Different Scopes
+        Set Local Variable    ${local}    value
+        Set Test Variable    ${TEST_VAR}    value
+        Set Task Variable    ${TASK_VAR}    value
+        Set Suite Variable    ${SUITE_VAR}    value
+        Set Global Variable    ${GLOBAL_VAR}    value
+
+Can be now rewritten to::
+
+    *** Keywords ***
+    Set Variables To Different Scopes
+        VAR    ${local}    value
+        VAR    ${TEST_VAR}    value    scope=TEST
+        VAR    ${TASK_VAR}    value    scope=TASK
+        VAR    ${SUITE_VAR}    value    scope=SUITE
+        VAR    ${GLOBAL_VAR}    value    scope=GLOBAL
+
+New rule replace-create-with-var (#973)
+---------------------------------------
+
+Added new I0328 ``replace-create-with-var`` rule.
+
+Starting from Robot Framework 7.0, it is possible to create variables inside tests and user keywords using the VAR
+syntax. The VAR syntax is recommended over previously existing keywords. Starting from RF 7.0 Robocop will report
+new issue when ``Create Dictionary`` or ``Create List`` keyword is used.
+
+Example with Create keywords::
+
+    *** Keywords ***
+    Create Variables
+        @{list}    Create List    a  b
+        &{dict}    Create Dictionary    key=value
+
+Can be now rewritten to::
+
+    *** Keywords ***
+    Create Variables
+        VAR    @{list}    a  b
+        VAR    &{dict}    key=value
+
+New rule arguments-per-line (#1000)
+------------------------------------------------
+
+Added new I0532 ``arguments-per-line`` rule.
+
+If the keyword's ``[Arguments]`` are split into multiple lines, it is recommended to put only one argument per
+every line.
+
+Example of rule violation::
+
+    *** Keywords ***
+    Keyword With Multiple Arguments
+    [Arguments]    ${first_arg}
+    ...    ${second_arg}    ${third_arg}=default
+
+Fixes
+=====
+[Return] setting deprecation
+----------------------------
+
+``[Return]`` setting is now visibly deprecated. The internal Robot Framework model also changed and several Robocop
+rules had to be updated:
+
+- W0306 ``setting-name-not-in-title-case``
+- W0319 ``deprecated-statement``
+- W0510 ``number-of-returned-values``
+- W0903 ``empty-return``
+- W0919 ``unused-argument``
+- I0920 ``unused-variable``
+
+Keyword naming rules in [Template] / Test Template (#1013)
+----------------------------------------------------------
+
+Following rules check the keyword naming in ``[Template]`` and ``Test Template``:
+
+- W0302 ``wrong-case-in-keyword-name``
+- E0303 ``keyword-name-is-reserved-word``
+- W0305 ``underscore-in-keyword-name``
+- W0319 ``deprecated-statement``
+
+Other features
+==============
+Drop Python 3.7 support (#942)
+-------------------------------
+
+Robocop dropped support for Python 3.7 as it is no longer officially supported. See more details at
+https://endoflife.date/python .
+
+Consider Robot Framework development version as final version in rule version matching
+---------------------------------------------------------------------------------------
+
+Robot Framework development version (for example 7.0rc1) is considered as final version (for example 7.0) in our
+version matcher. Thanks to this change it is easier to test rules with not released version - it's not required
+to define exact version specifier anymore (for example '==7.0rc1').
+
+It's internal change but can have effect on your custom rules if you have rule version specifier using development
+version::
+
+    "XYZ": Rule(
+        rule_id="XYZ",
+        name="custom-rule",
+        msg="custom-message",
+        severity=RuleSeverity.WARNING,
+        version=">=4.0alpha",  # it is not allowed anymore, use >=4.0 instead
+        )
+
+Rules can be now deprecated (#1025)
+------------------------------------
+
+Some of our rules were deprecated and then removed in the past. It could lead to issues when jumping from older
+Robocop versions. Because of that we have introduced mechanism to deprecate the rules. It can be also used
+in custom rules::
+
+    rules = {
+        "1102": Rule(rule_id="1102", name="custom-rule", msg="Example rule", deprecated=True, severity=RuleSeverity.ERROR),
+    }
+
+Deprecated rule implementation can be removed and only rule definition can stay. If the rule is used in ``--include``,
+``--exclude`` or ``--configure`` warning will be printed::
+
+    Rule W1102 deprecated is deprecated. Remove it from your configuration.
+
+Deprecated rules can be now listed with ``DEPRECATED`` filter::
+
+    robocop --list DEPRECATED
+
+Rule version matching allows for multiple Robot Framework versions (#1026)
+--------------------------------------------------------------------------
+
+When defining a rule it was possible to define Robot Framework version for which rule was enabled. Is is now also
+possible to define range of versions using ``;`` as separator::
+
+    rules = {
+        "1105": Rule(
+            rule_id="1105",
+            name="range-5-and-6",
+            msg="Rule that is only enabled for RF version higher than 5 and lower or equal to 6",
+            severity=RuleSeverity.INFO,
+            version=">5;<=6",
+        ),
+    }
+
+New checker type - ProjectChecker (#1015)
+-----------------------------------------
+
+Robocop supported two type of checkers: ``VisitorChecker`` and ``RawFileChecker``. We have added new type of checker -
+``ProjectChecker``. It extends the ``VisitorChecker`` but contains special ``scan_project`` method, that can be
+overriden, which is called at the end of Robocop run. Typical usage of this checker would be collecting information
+about our project using visitors and then performing checks and report issues in ``scan_project`` method.
+Example custom rule with ``ProjectChecker``::
+
+    from typing import List
+
+    from robocop.checkers import ProjectChecker
+    from robocop.rules import Message, Rule, RuleSeverity
+
+    rules = {
+        "9901": Rule(
+            rule_id="9901",
+            name="test-total-count",
+            msg="There is total of {{ tests_count }} tests in the project.",
+            severity=RuleSeverity.INFO,
+        ),
+    }
+
+
+    class MyProjectChecker(ProjectChecker):
+        """Checker for total tests count."""
+
+        reports = ("test-total-count",)
+
+        def __init__(self):
+            self.test_count = 0
+            super().__init__()
+
+        def visit_TestCase(self, node):  # noqa: N802
+            self.test_count += 1
+
+        def scan_project(self) -> List[Message]:
+            # self.report is append issues to self.issues -> clearing it at the start of scan_project
+            self.issues = []
+            # Default issue format print file path with the issue - in this case we replace it with our custom string
+            self.report("test-total-count", source="Project-name", tests_count=self.test_count)
+            return self.issues
+
+Acknowledgements
+================
+
+Thanks to the whole community for submitting bug reports and feature requests.
+Without you, Robocop wouldn't be in the place where it is now. All the feedback
+is essential to drive the tool towards higher quality and better user
+experience.
+
+If you want to help us more, consider contributing to the project directly.
+We can offer our constant support to make the work fun and effective. We do
+our best to create a supportive and welcoming environment for everyone.
+Feel free to ping us on our official `#robocop-linter Slack channel`_ anytime.
+
+.. _#robocop-linter Slack channel: https://robotframework.slack.com/archives/C01AWSNKC2H

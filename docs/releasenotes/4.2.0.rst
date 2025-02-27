@@ -1,0 +1,205 @@
+:orphan:
+
+=============
+Robocop 4.2.0
+=============
+
+It's truly a bug season! Thankfully we managed to catch and properly discipline most of the bugs - the old crickets
+and freshly hatched flies. Together with 12 fixed bugs we also made Robocop disabler more consistent with Robocop
+and added ``--ignore-git-dir`` option for handling configuration in multi repos.
+
+You can install the latest available version by running
+
+::
+
+    pip install --upgrade robotframework-robocop
+
+or to install exactly this version
+
+::
+
+    pip install robotframework-robocop==4.2.0
+
+.. contents::
+   :depth: 2
+   :local:
+
+
+Fixes
+=====
+
+${_} should be ignored by duplicated-assigned-var-name (#954)
+-------------------------------------------------------------
+
+`duplicated-assigned-var-name` now allows to use `${_}` as replacement for duplicated assignments::
+
+    ${_}  ${middle}  ${_}    Unpack Variable    ${variable}
+
+duplicated-assigned-var-name now works with assignment sign
+-----------------------------------------------------------
+
+`duplicated-assigned-var-name` is now parsing assignment sign (``=``) correctly::
+
+    ${duplicate}    ${duplicate}=    Set Variables
+
+Missing reserved tag in tag-with-reserved-word (#953)
+-----------------------------------------------------
+
+``robot:recursive-stop-on-failure`` was missing from W0603 ``tag-with-reserved-word`` rule.
+
+variable-overwritten-before-usage should not be raised if overridden in an IF block (#950)
+------------------------------------------------------------------------------------------
+
+W0922 ``variable-overwritten-before-usage`` warns if the variable was overwritten before first use. It should now
+ignore cases where the variable was initiated and then conditionally overriden in a IF block::
+
+    Conditionally Overriden Variable
+        ${output}  Set Variable  default_value
+        IF    os.path.isdir("/special_dir")
+            ${output}  Set Variable  special_value  # it will not be reported from now on
+        END
+        RETURN    ${output}
+
+Such cases could be also handled better by using `IF` with `ELSE` branch or `Set Variable If`. However, in more
+complicated case this rule produced lot of additional unnecessary reports and this fix should help with it.
+
+unnecessary-string-conversion should not be raised for environment variables (#952)
+-----------------------------------------------------------------------------------
+
+I0923 ``unnecessary-string-conversion`` was raised for all types of variables including environment variables
+(``%{ENV_VAR}``). Such variables are always strings and there is no unnecessary string conversion. For that reason
+this rule will now ignore environment variables.
+
+inline-if-can-be-used should not suggest using invalid syntax (#951)
+-----------------------------------------------------------------------------------
+
+I0916 ``inline-if-can-be-used`` recommended to convert short `IF` to inline `IF` even if it was not possible without
+adding additional code. See example::
+
+    *** Keywords ***
+    Set Variable On Flag Value
+        [Arguments]    ${flag}
+        # ${var} value will be set to `1` only if ${flag} is True
+        IF    $flag
+            ${var}    Set Variable    1
+        END
+    
+        # ${var} will be `1` if ${flag} is True and `None` otherwise - which may be unexpected
+        ${var}    IF    $flag    Set Variable    1
+    
+        # previous example 'fixed' to work the same as IF block
+        ${var}    IF    $flag    Set Variable    1    ELSE    Set Variable    ${var}
+
+Because of that ``inline-if-can-be-used`` will no longer recommend to convert `IF` blocks with assignments to `Inline IF`.
+
+not-capitalized-test-case-title should ignore non letters (#948)
+----------------------------------------------------------------
+
+W0308 ``not-capitalized-test-case-title`` was also reporting if the test case started with character other than letter::
+
+    15 - Test case with test identifier
+        Prepare
+        Run
+        Assert
+
+It should now properly check if first letter found in the test case name (ignoring other characters) is capitalized.
+
+file_stats report output with single file (#946)
+--------------------------------------------------------
+
+Fixed typos in ``file_stats`` report output with ``compare_runs`` enabled.
+
+if-can-be-used and deprecated-statement double reporting on Run Keyword Unless (#945)
+-------------------------------------------------------------------------------------
+
+I0908 ``if-can-be-used`` was introduced in Robot Framework 4.0 to suggest replacing ``Run Keyword If`` and
+``Run Keyword Unless`` keywords by ``IF``. Since Robot Framework 5.0 W0319 ``deprecated-statement`` started to warn
+on the use of those keywords. Because of that there were 2 issues reported starting from Robot Framework 5.0.
+
+``if-can-be-used`` was updated to only report for Robot Framework 4.0 code. Starting from RF version 5.0 only
+``deprecated-statement`` will be reported.
+
+Python 3.12 support (#968 #969)
+--------------------------------
+
+Fixes related to Python 3.12 support:
+
+- escaped variables and special variable syntax (such as ``$variable``) should now work with Python 3.12 and variable
+  rules like ``unused-variable`` or ``unused-argument``
+- Robocop should not print code warnings from not properly escaped docstrings anymore
+
+Variables with attribute access detected as unused (#971)
+---------------------------------------------------------
+
+Arguments and variables could be reported as unused with W0919 ``unused-argument`` or I0920 ``unused-variable``
+if they were used with attribute access::
+
+    *** Keywords ***
+    Use Item With Attribute
+        ${item}    Prepare Item
+        Log    ${item.x}
+    
+    Update Item With Attribute
+        ${item}    Get Item
+        ${item.x}    Set Variable    abc  # overwriting attribute should also count as using the variable
+    
+    Use Item With Method
+        ${string}    Set Variable    string
+        ${lower_string}    Set Variable    ${string.lower()}
+        Log    ${lower_string}
+
+It should now be fixed. However our variable with attributes handling will be soon refactored to avoid similar cases
+in the future - please report any false positive errors you may encounter.
+
+Loop variable from keyword argument marked as unused (#868)
+-----------------------------------------------------------
+
+If the loop variable originated from the keyword arguments, it was not marked as used::
+
+    *** Keywords ***
+    Unused Variable Rule Validation
+        [Documentation]    doc
+        [Arguments]    ${counter}
+        WHILE    ${counter} < 10
+            Log To Console    ${counter}
+            ${counter}    Evaluate    ${counter} + 1
+        END
+
+Other features
+==============
+
+Disabler keyword are now consistent with Robotidy (#933)
+--------------------------------------------------------
+
+Disabling the line from the linting can be done using disabler comment::
+
+    # robocop:disable=rule_name
+
+Robotidy also supports disablers but using different keywords::
+
+    # robotidy:off
+
+We have decided to make it more consistent and use ``on`` and ``off`` markers
+(mimicking [Robotidy tool](https://github.com/MarketSquare/robotframework-tidy)) instead of ``enable`` and
+``disable``. Both types of the markers are supported but ``on`` and ``off`` are now recommended.
+
+--ignore-git-dir option to ignore .git when searching for configuration file (#908)
+------------------------------------------------------------------------------------
+
+When searching for the default configuration file, Robocop stop searching if ``.git`` directory is found. It is now
+possible to disable this behaviour using ``--ignore-git-dir`` flag.
+
+Acknowledgements
+================
+
+Thanks to the whole community for submitting bug reports and feature requests.
+Without you, Robocop wouldn't be in the place where it is now. All the feedback
+is essential to drive the tool towards higher quality and better user
+experience.
+
+If you want to help us more, consider contributing to the project directly.
+We can offer our constant support to make the work fun and effective. We do
+our best to create a supportive and welcoming environment for everyone.
+Feel free to ping us on our official `#robocop-linter Slack channel`_ anytime.
+
+.. _#robocop-linter Slack channel: https://robotframework.slack.com/archives/C01AWSNKC2H

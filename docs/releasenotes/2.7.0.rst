@@ -1,0 +1,55 @@
+:orphan:
+
+Robocop 2.7.0
+================
+
+You can install the latest available version by running::
+
+    pip install --upgrade robotframework-robocop
+
+or to install exactly this version::
+
+    pip install robotframework-robocop==2.7.0
+
+
+File configuration changes
+---------------------------
+
+We addressed several smaller issues and incoherence with Robocop file configuration.
+
+Overriding default configuration file
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+When you're using Robocop from the command line it reads both the cli arguments and default
+configuration file (found in the disk). The default configuration file (either ``.robocop`` or ``pyproject.toml`` file)
+is used as a base that can be overridden by the cli arguments. The problem with the previous implementation was
+that when user specified path to argument file in the cli::
+
+    robocop --argumentfile myconfig.txt
+
+Robocop would read both default configuration file and configuration file from ``--argumentfile``. Now it will read
+default configuration file only if ``-A / --argumentfile`` options are not used.
+
+Language header support (#696)
+--------------------------------
+
+Robot Framework 6.0 allows to set source language using language headers at the beginning of the file::
+
+    language: de
+
+    *** Einstellungen ***
+
+Following changes focus on improving support for the language header.
+
+Also, ``ignored-data`` rule now properly ignores language header if it's in the first line of the file.
+
+Precommit configuration file
+-----------------------------
+Starting from this release it is possible to use Robocop in precommit using Robocop version instead of the repository url::
+
+    repos:
+    - repo: https://github.com/MarketSquare/robotframework-robocop
+        rev: 2.7.0
+        hooks:
+        - id: robocop
+            name: robocop

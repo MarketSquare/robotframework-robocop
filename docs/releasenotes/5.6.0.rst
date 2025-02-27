@@ -1,0 +1,71 @@
+:orphan:
+
+=============
+Robocop 5.6.0
+=============
+
+You can install the latest available version by running
+
+::
+
+    pip install --upgrade robotframework-robocop
+
+or to install exactly this version
+
+::
+
+    pip install robotframework-robocop==5.6.0
+
+.. contents::
+   :depth: 2
+   :local:
+
+Rules
+=====
+
+No global variable setters keywords (#1117)
+--------------------------------------------
+
+New rules that prohibits usage of variable setters with global scopes:
+
+- W0929 ``no-global-variable``
+- W0930 ``no-suite-variable``
+- W0931 ``no-test-variable``
+
+Using global variables might be necessary in some cases; however, they often result in code that is difficult
+to understand. It's generally better to avoid them and instead use local variables.
+
+Other
+=====
+
+Allow to overwrite documentation url (#1123)
+--------------------------------------------
+
+Robocop rules pointed to default rules documentation webpage (https://robocop.readthedocs.io/en/stable/rules_list.html).
+Because of that, any custom rule incorrectly pointed out to the robocop rules page.
+
+With this change, it's now possible to overwrite default rules documentation page using ``help_url`` argument::
+
+    (...)
+    "0601": Rule(
+    rule_id="0601",
+    name="custom-rule",
+    msg="Custom message",
+    severity=RuleSeverity.WARNING,
+    help_url="https://www.your_company.com/robocop/rules/custom_rule"
+    ),
+
+Acknowledgements
+================
+
+Thanks to the whole community for submitting bug reports and feature requests.
+Without you, Robocop wouldn't be in the place where it is now. All the feedback
+is essential to drive the tool towards higher quality and better user
+experience.
+
+If you want to help us more, consider contributing to the project directly.
+We can offer our constant support to make the work fun and effective. We do
+our best to create a supportive and welcoming environment for everyone.
+Feel free to ping us on our official `#robocop-linter Slack channel`_ anytime.
+
+.. _#robocop-linter Slack channel: https://robotframework.slack.com/archives/C01AWSNKC2H

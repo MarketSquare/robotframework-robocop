@@ -1,0 +1,78 @@
+:orphan:
+
+=============
+Robocop 3.2.1
+=============
+
+This release fixes the issues with new variable rules.
+
+You can install the latest available version by running
+
+::
+
+    pip install --upgrade robotframework-robocop
+
+or to install exactly this version
+
+::
+
+    pip install robotframework-robocop==3.2.1
+
+.. contents::
+   :depth: 2
+   :local:
+
+Fixes
+=====
+
+Fix for variables in loop not detected as used (#868)
+-------------------------------------------------------
+
+Following code should not report not used variable anymore::
+
+    Keyword
+        ${counter}    Set Variable    1
+        WHILE    ${counter} < 10
+            Log To Console    ${counter}
+            ${counter}    Evaluate ${counter} + 1  # used in loop
+        END
+
+Fix for variables used with math operations not detected as used (#870)
+--------------------------------------------------------------------------
+
+Following code should not report not used variable anymore::
+
+    Simple Operations
+        ${sum}    Calculate    ${random}
+        ${var}    Set Variable    ${sum%11}
+        ${var}    Set Variable    ${sum + 11}
+        ${var}    Set Variable    ${sum - 11}
+        ${var}    Set Variable    ${sum * 11}
+        Log    ${var}
+
+Fix for W1003 rule to simplify counting space between sections (#861)
+---------------------------------------------------------------------
+
+Previously, the comments between sections were ignored and each empty line
+was counted towards the 2 space requirement. That means that this code:
+
+    *** Variables ***
+    ${VAR}     value
+
+    # Comment
+
+    *** Test Cases ***
+    Some Test Case
+    No Operation
+
+reported no issue, because of 2 empty lines between sections.
+
+When one empty lines was added before the Test Cases section, it was considered a violation,
+while it still looked fine. We decided to simplify the rule, and now it only counts
+empty lines after the last piece of text in the section, comments included.
+
+
+Acknowledgements
+================
+
+Thanks to Emile for bug reports that helped improve our tool!

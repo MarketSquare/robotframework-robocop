@@ -1,0 +1,342 @@
+:orphan:
+
+=============
+Robocop 4.0.0
+=============
+
+This release brings a handful of long-awaited features requested by our users and a few improvements we were keeping in our heads for some time.
+
+Besides the 9 new rules, Robocop is now able to compare results between runs and see the difference in the report.
+
+Moreover, the disablers are now smarter and they become context-aware, meaning that they disable the rules in the whole related code block.
+
+Another improvement is the severity thresholds for the rules, which are now dynamically referenced in the rule messages.
+
+We also added a possibility to create rules that are disabled by default, and this is a first step we made towards Community Rules, which is a huge feature we are working on, and we plan to add it in the next major release.
+
+The results from the Robocop execution can also be exported to a JSON file with our new ``json_report``.
+
+Another updates are:
+
+- a new way of importing custom rules thanks to refactored mechanism of importing rules and checkers
+- better readability and formatting of the documentation
+- internal refactor of the reports to make it easier to maintain and extend they functionality
+
+
+Backward-incompatible changes relate to rule severity thresholds and rule disablers (described below in details).
+
+Sit down, grab a popcorn 🍿, relax and enjoy our release notes!
+
+----
+
+You can install the latest available version by running
+
+::
+
+    pip install --upgrade robotframework-robocop
+
+or to install exactly this version
+
+::
+
+    pip install robotframework-robocop==4.0.0
+
+.. contents::
+   :depth: 2
+   :local:
+
+
+Rule changes
+============
+
+New rule for detecting not supported settings in resource files (#827)
+----------------------------------------------------------------------
+
+According to the official RF User Guide::
+
+    "Setting section in resource files can contain only import settings (Library, Resource, Variables)
+    and Documentation. The Variable section and Keyword section are used exactly the same way
+    as in test case files."
+
+New E0416 ``invalid-setting-in-resource`` rule detects unsupported
+settings in the resource files.
+
+New rule that suggests using task- or test-related settings for corresponding sections (#522)
+---------------------------------------------------------------------------------------------
+
+If the file contains ``*** Task ***`` section, it is recommended to use settings like ``Task Setup``,
+``Task Teardown``, ``Task Template``, ``Task Tags`` and ``Task Timeout`` instead of their `Test` variants.
+Similarly, use test-related settings when using ``*** Test Cases ***`` section.
+
+A new rule W0326 ``mixed-task-test-settings`` is introduced to cover these cases.
+
+New rules for Keyword Tags (#641)
+---------------------------------
+
+There are 3 new rules added to support new (in RF 6.0) Keyword Tags.
+
+``empty-keyword-tags`` rule (W0531) checks for the situation where ``Keyword Tags`` in ``*** Settings ***`` section
+does not have any value provided::
+
+    *** Settings ***
+    Keyword Tags
+
+``could-be-keyword-tags`` rule (I0610) checks if all keywords in a file share the same tag. In that case, it can be
+simply added to ``Keyword Tags`` setting, which the rule suggests.
+
+``tag-already-set-in-keyword-tags`` rule (I0611) detects a situation where all keywords share the same tag
+which is already added to the ``Keyword Tags`` setting. In such case, the tags in keywords may be removed.
+
+New rule for discovering unsupported setting in initialization file (#498)
+--------------------------------------------------------------------------
+
+According to RF User Guide, ``Default Tags`` and ``Test Template`` settings are not allowed
+in suite initialization files, and this is covered by a new ``unsupported-setting-in-init-file``
+rule (E0417).
+
+New rule for unnecessary string conversion in evaluated conditions (#442)
+-------------------------------------------------------------------------
+
+Unnecessary string conversion is now detected and I0923 ``unnecessary-string-conversion`` is raised.
+Following code::
+
+    WHILE    "${status}" == "200"
+        ${status}    Get Health Status    ${service_name}
+    END
+
+Can be rewritten to::
+
+    WHILE    $status == 200
+        ${status}    Get Health Status    ${service_name}
+    END
+
+New rule for conditions that can be simplified (#891)
+-----------------------------------------------------
+
+Added new rule I0924 ``expression-can-be-simplified`` that checks if the evaluated condition
+can be simplified.
+For example::
+
+    IF    ${session_created} == ${FALSE}    Create Session
+    Skip If    ${rows} == []
+
+Can be rewritten to::
+
+    IF    not ${session_created}    Create Session
+    Skip If    not ${rows}
+
+New rule for misplaced not in conditions (#893)
+-----------------------------------------------
+
+Added new rule I0925 ``misplaced-negative-condition`` that checks if the evaluated condition contains ``not`` operator
+that can be moved for better readability.
+
+For example::
+
+    *** Keywords ***
+    Check Unmapped Codes
+        ${codes}    Get Codes From API
+        IF    not ${codes} is None
+            FOR    ${code}    IN    @{codes}
+                Validate Single Code    ${code}
+            END
+        END
+
+Can be rewritten to::
+
+    *** Keywords ***
+    Check Unmapped Codes
+        ${codes}    Get Codes From API
+        IF    ${codes} is not None
+            FOR    ${code}    IN    @{codes}
+                Validate Single Code    ${code}
+            END
+        END
+
+Fixes
+=====
+
+Dictionary and list item assignment support (#903)
+--------------------------------------------------
+
+Robot Framework 6.1 makes it possible to assign return values from keywords to list and dictionary items (
+`User Guide <https://robotframework.org/robotframework/latest/RobotFrameworkUserGuide.html#toc-entry-326>`_
+, in `Assigning variables with item values` section)::
+
+    *** Keywords ***
+    Item Assignments
+        ${list}[0] =    Keyword
+        ${dict}[key] =    Keyword
+        ${result}[users][0] =    Keyword
+
+It should be now properly handled by ``unused-variable``, ``variable-overwritten-before-usage``,
+``hyphen-in-variable-name`` and ``inconsistent-assignment`` rules.
+
+Other features
+==============
+
+New report ``compare_runs`` for comparing results with the previous run (#489)
+------------------------------------------------------------------------------
+
+We have implemented a way to compare reports output with the previous run. It's done thanks to special, non-default
+report ``compare_runs``.  You need to first run Robocop with a ``--persistent`` flag to save the results of the
+current run, and then run it with the ``compare_runs`` report (and other chosen reports) to see the differences between the runs::
+
+    robocop --persistent .
+    robocop --reports rules_by_error_type,rules_by_id,compare_runs .
+
+Example output::
+
+    Found 18 (-3) issues: 13 (-4) INFOs, 5 (+1) WARNINGs.
+
+    Issues by ID:
+    I0923 (unnecessary-string-conversion)     : 10 (+0)
+    W0922 (variable-overwritten-before-usage) : 2 (+1)
+    I0920 (unused-variable)                   : 2 (-4)
+    W0301 (not-allowed-char-in-name)          : 2 (+0)
+    W0324 (overwriting-reserved-variable)     : 1 (+0)
+    I0605 (could-be-test-tags)                : 1 (+0)
+
+New report ``json_report`` (#663)
+---------------------------------
+
+Added new ``json_report`` report that produces file with issues in JSON format. It's a non-default report which needs
+to be called explicitly by name (it will not be loaded with ``--reports all``)::
+
+    robocop --reports json_report .
+
+It will save the results to a JSON file in the current working directory under ``robocop_output.json`` filename.
+Output directory and filename can be configured with::
+
+    robocop --configure json_report:output_dir:output --configure json_report:report_filename:issues.json --reports json_report .
+
+.. note::
+    ``json_report`` was created from the old, internal-only report with the same name. The previous report is renamed to
+    ``internal_json_report``. If you are using Robocop programmatically and you were using ``json_report``, rename it to
+    ``internal_json_report``.
+
+Overhaul of rules & checkers importing (#790)
+---------------------------------------------
+
+Complete refactor of how Robocop imports rules and checkers internally. Our import mechanism is now more uniform.
+Additionally, it is now possible to load external rules from the modules imported inside Python file.
+
+Let's assume we have the following code with loading external rules::
+
+    import custom_rules.naming
+    import custom_rules.errors
+    from custom_rules.lengths import rules, CustomChecker
+
+before the change, only ``CustomChecker`` would be loaded by Robocop, while the content of the ``custom_rules.naming`` and
+``custom_rules.errors`` would be ignored. Now, such imports will be parsed and external Robocop rules defined
+inside them will be loaded as well.
+
+Context aware Robocop disablers (#777)
+--------------------------------------
+
+Disablers module was rewritten in Robocop in order to improve how rule disablers are handled.
+Previously, disablers were parsed as lines only and were not aware of the Robot Framework code.
+
+For example, with the following code::
+
+    *** Keywords ***
+    Read Data From Database
+        [Arguments]    ${query}
+        # robocop: disable=missing-doc-keyword
+        Connect To Database    ${CONNECTION_STRING}
+        Query Database    ${query}
+        RETURN    ${query}
+
+    Validate Data Is Not Empty
+        [Arguments]    ${data}
+        Should Be True    len(${data}) != 0
+
+``# robocop: disable=missing-doc-keyword`` disabler is called in ``Read Data From Database``. In the old
+implementation such disabler would ignore all matching rules till it was enabled again or end of the file is met.
+Now, the disabler is aware of the context where it was called, and it will be enabled again at the end of the keyword.
+The disablers support also other code blocks, such as test cases, "for" and "while" loops and "if" statements.
+
+Reports refactor (#834)
+-----------------------
+
+Our internal reports structure was refactored to make it easier to maintain and develop it in the future. Now,
+each report is stored in a separate file in Robocop project. From the user's perspective, reports should work
+the same as before.
+
+New ``enabled`` rule parameter used to create rules disabled by default (#809)
+------------------------------------------------------------------------------
+
+Previously, all defined rules were enabled by default and could be disabled using ``--exclude`` option (or by
+using ``--include`` if not listed with the option). It is now possible to create a rule disabled by default using
+new parameter, ``enabled``::
+
+    rules = {
+        "1155": Rule(
+            rule_id="1155",
+            name="custom-rule",
+            msg="Custom rule message",
+            severity=RuleSeverity.INFO,
+            enabled=False,
+            docs="""
+            Custom rule description.
+            """,
+        )
+    }
+
+Such rules can be enabled when called explicitly with ``--include`` option::
+
+    robocop --include custom-rule .
+
+Or by configuring ``enabled`` parameter directly::
+
+    robocop --ext-rules custom_rules.py -c custom-rule:enabled:True .
+
+
+Rule severity thresholds printed value (#791)
+---------------------------------------------
+
+Rule severity threshold allows to change rule severity depending on the threshold value and configured severities.
+In fact, it was confusing to see the reports for the same rule with different severities but the same limit value.
+We changed this behavior to log the actual value that met the severity threshold.
+
+As for example, you can configure ``too-many-calls-in-test-case`` to report warning on 10 keywords and error on 30
+keywords. With such configuration you will get following reports::
+
+    test.robot:33:1 [W] 0505 Test case 'Test case 1' has too many keywords inside (24/10) (too-many-calls-in-test-case)
+    test.robot:62:1 [E] 0505 Test case 'Test case 2' has too many keywords inside (30/30) (too-many-calls-in-test-case)
+
+Not configured severity threshold should be ignored (#791)
+----------------------------------------------------------
+
+Previously, if the rule severity threshold was configured but the rule value didn't met any conditions it was reported
+with default severity. Now if the value don't pass any configured severity threshold, the issue is ignored.
+
+For example, let's assume that ``line-too-long`` (with default severity ``W``) is configured to have severity ``E`` when
+the number of the lines is higher than 150::
+
+    robocop -c line-too-long:severity_threshold:error=150
+
+With above configuration, ``line-too-long`` will only be reported if number of the lines is higher than 150.
+The rule will display the WARNING message only if it is explicitly configured::
+
+    robocop -c line-too-long:severity_threshold:warning=120:error=150
+
+which is how it used to work before this release - the thresholds were added to the default ones, and now they are overwritten.
+
+.. note::
+    If your configuration contains any changes to the rule severity threshold, make sure to update it after bumping the
+    Robocop version to 3.3.0+, otherwise it may provide results other than expected.
+
+Improved documentation (#882)
+-----------------------------
+
+Our documentation has improved with better formatting of the rules.
+They now have a better structure and feature a syntax highlighting for all examples.
+There's also a copy button now next to the code snippets.
+
+We plan to improve the examples with the ones that are inspired by the real-world examples soon.
+
+Acknowledgements
+================
+
+Thanks to Jyrki (@jyrlindr) and Sayed (@sayedtenkanen) for bug reports and feature requests that helped improve our tool!

@@ -1,0 +1,1 @@
+bom_in_file.robot:1:1 COM05 BOM (Byte Order Mark) found in the file

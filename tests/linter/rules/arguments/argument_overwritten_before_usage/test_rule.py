@@ -28,3 +28,11 @@ class TestRuleAcceptance(RuleAcceptance):
 
     def test_rule_arguments_should_clear_after_keyword(self):
         self.check_rule(src_files=["arguments_cleared_after_keyword.robot"], expected_file=None)
+
+    def test_extended_view(self):
+        self.check_rule(
+            src_files=["test.robot"],
+            expected_file="expected_extended.txt",
+            test_on_version=">=7",
+            output_format="extended"
+        )

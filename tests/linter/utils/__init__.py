@@ -6,10 +6,13 @@ import os
 import re
 import sys
 from pathlib import Path
+from unittest import mock
 from typing import TYPE_CHECKING
 
 import click.exceptions
+from difflib import unified_diff
 import pytest
+from rich.console import Console
 
 from robocop.cli import check_files
 from robocop.linter.utils.misc import ROBOT_VERSION
@@ -26,7 +29,9 @@ def isolated_output():
     bytes_output = io.BytesIO()
     sys.stdout = io.TextIOWrapper(bytes_output, encoding="utf-8")
     sys.stderr = sys.stdout
-    yield bytes_output
+    # By default, pytest uses 80-chars long terminal which depends on COLUMNS env variable
+    with mock.patch.dict(os.environ, {"COLUMNS": "200"}, clear=True):
+        yield bytes_output
     sys.stdout = old_stdout
     sys.stderr = old_stderr
 
@@ -50,25 +55,38 @@ def get_result(encoded_output):
     return convert_to_output(encoded_output.getvalue())
 
 
-def normalize_result(result, test_data):
+def normalize_result(result, test_data, sort_lines: bool):
     """Remove test data directory path from paths and sort the lines."""
     test_data_str = f"{test_data}{os.path.sep}"
-    return sorted([line.replace(test_data_str, "") for line in result])
+    lines = [line.replace(test_data_str, "") for line in result]
+    if sort_lines:
+        return sorted(lines)
+    return lines
 
-
-def load_expected_file(test_data, expected_file):
+def load_expected_file(test_data, expected_file, sort_lines: bool):
     if expected_file is None:
         return []
     expected = test_data / expected_file
     with open(expected, encoding="utf-8") as f:
-        return sorted(
-            [
+        lines =             [
                 re.sub(r"(?<!\\)(?:\\\\)*(\${/})", os.path.sep.replace("\\", "\\\\"), line.rstrip("\n")).replace(
                     "\\${/}", "${/}"
                 )
                 for line in f
             ]
-        )
+        if sort_lines:
+            return sorted(lines)
+        return lines
+
+
+def display_lines_diff(expected: list[str], actual: list[str]):
+    lines = list(
+        unified_diff(expected, actual, fromfile=f"expected:\t", tofile=f"actual:\t")
+    )
+    # colorized_output = decorate_diff_with_color(lines)
+    console = Console(color_system="auto", width=400)
+    for line in lines:
+        console.print(line, highlight=False)
 
 
 class RuleAcceptance:
@@ -87,13 +105,15 @@ class RuleAcceptance:
         test_on_version: str | list[str] | None = None,
         issue_format: str = "default",
         language: list[str] | None = None,
+        output_format: str = "simple",
         # deprecated: bool = False, TODO
         **kwargs,
     ):
         if not self.enabled_in_version(test_on_version):
             pytest.skip(f"Test enabled only for RF {test_on_version}")
         test_data = self.test_class_dir
-        expected = load_expected_file(test_data, expected_file)
+        sort_lines = output_format=="simple"
+        expected = load_expected_file(test_data, expected_file, sort_lines=sort_lines)
         issue_format = self.get_issue_format(issue_format)
         if select is None:
             select = [self.rule_name]
@@ -101,6 +121,9 @@ class RuleAcceptance:
             paths = [test_data]
         else:
             paths = [test_data / src_file for src_file in src_files]
+        if configure is None:
+            configure = []
+        configure.append(f"print_issues.output_format={output_format}")
         with isolated_output() as output, working_directory(test_data):
             try:
                 with pytest.raises(click.exceptions.Exit):
@@ -117,20 +140,24 @@ class RuleAcceptance:
                 sys.stdout.flush()
                 result = get_result(output)
                 parsed_results = result.splitlines()
-        actual = normalize_result(parsed_results, test_data)
+        actual = normalize_result(parsed_results, test_data, sort_lines=sort_lines)
         # if deprecated:  # TODO:
         #     assert runner.rules[self.rule_name].deprecation_warning in actual
         # elif
         if actual != expected:
-            missing_expected = sorted(set(actual) - set(expected))
-            missing_actual = sorted(set(expected) - set(actual))
             error = "Actual issues are different than expected.\n"
-            if missing_expected:
-                present_in_actual = "\n    ".join(missing_expected)
-                error += f"Actual issues not found in expected:\n    {present_in_actual}\n\n"
-            if missing_actual:
-                present_in_expected = "\n    ".join(missing_actual)
-                error += f"Expected issues not found in actual:\n    {present_in_expected}"
+            if sort_lines:
+                missing_expected = sorted(set(actual) - set(expected))
+                missing_actual = sorted(set(expected) - set(actual))
+                error = "Actual issues are different than expected.\n"
+                if missing_expected:
+                    present_in_actual = "\n    ".join(missing_expected)
+                    error += f"Actual issues not found in expected:\n    {present_in_actual}\n\n"
+                if missing_actual:
+                    present_in_expected = "\n    ".join(missing_actual)
+                    error += f"Expected issues not found in actual:\n    {present_in_expected}"
+            else:
+                display_lines_diff(expected, actual)
             pytest.fail(error, pytrace=False)
 
     def get_issue_format(self, issue_format):

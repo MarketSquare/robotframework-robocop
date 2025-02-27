@@ -5,12 +5,12 @@ import io
 import os
 import re
 import sys
+from difflib import unified_diff
 from pathlib import Path
-from unittest import mock
 from typing import TYPE_CHECKING
+from unittest import mock
 
 import click.exceptions
-from difflib import unified_diff
 import pytest
 from rich.console import Console
 
@@ -63,26 +63,25 @@ def normalize_result(result, test_data, sort_lines: bool):
         return sorted(lines)
     return lines
 
+
 def load_expected_file(test_data, expected_file, sort_lines: bool):
     if expected_file is None:
         return []
     expected = test_data / expected_file
     with open(expected, encoding="utf-8") as f:
-        lines =             [
-                re.sub(r"(?<!\\)(?:\\\\)*(\${/})", os.path.sep.replace("\\", "\\\\"), line.rstrip("\n")).replace(
-                    "\\${/}", "${/}"
-                )
-                for line in f
-            ]
+        lines = [
+            re.sub(r"(?<!\\)(?:\\\\)*(\${/})", os.path.sep.replace("\\", "\\\\"), line.rstrip("\n")).replace(
+                "\\${/}", "${/}"
+            )
+            for line in f
+        ]
         if sort_lines:
             return sorted(lines)
         return lines
 
 
 def display_lines_diff(expected: list[str], actual: list[str]):
-    lines = list(
-        unified_diff(expected, actual, fromfile=f"expected:\t", tofile=f"actual:\t")
-    )
+    lines = list(unified_diff(expected, actual, fromfile="expected:\t", tofile="actual:\t"))
     # colorized_output = decorate_diff_with_color(lines)
     console = Console(color_system="auto", width=400)
     for line in lines:
@@ -112,7 +111,7 @@ class RuleAcceptance:
         if not self.enabled_in_version(test_on_version):
             pytest.skip(f"Test enabled only for RF {test_on_version}")
         test_data = self.test_class_dir
-        sort_lines = output_format=="simple"
+        sort_lines = output_format == "simple"
         expected = load_expected_file(test_data, expected_file, sort_lines=sort_lines)
         issue_format = self.get_issue_format(issue_format)
         if select is None:

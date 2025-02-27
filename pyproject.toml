@@ -62,7 +62,7 @@ path = "src/robocop/__init__.py"
 dev = [
     "coverage>=7.6.4",
     "pytest>=8.3.3",
-    "ruff>=0.7.1",
+    "ruff==0.9.7",
 ]
 doc = [
     "furo>=2024.8.6",
@@ -118,6 +118,7 @@ lint.ignore = [
     "FBT002", # Boolean-typed positional argument in function definition
     "PLR2004", # magic value in comparison
     "TRY003", # long message outside the exception class
+    "A005", # formatter shadows a Python standard-library module
     # Temporarily ignored
     "ERA001",  # commented-out code
     "TD005",  # empty TODO

@@ -1,0 +1,60 @@
+test.robot:22:31 ARG02 Keyword argument '${overwritten1}' is overwritten before usage
+    |
+ 20 |
+ 21 | Overwritten Argument
+ 22 |     [Arguments]    ${arg1}    ${overwritten1}    ${overwritten2}    ${overwritten3}    ${overwritten_but_used}
+    |                               ^^^^^^^^^^^^^^^ ARG02
+ 23 |     ${overwritten1}    Set Variable    ${arg1}
+ 24 |     ${overwritten2}    Set Variable    ${arg1}
+    |
+
+test.robot:22:50 ARG02 Keyword argument '${overwritten2}' is overwritten before usage
+    |
+ 20 |
+ 21 | Overwritten Argument
+ 22 |     [Arguments]    ${arg1}    ${overwritten1}    ${overwritten2}    ${overwritten3}    ${overwritten_but_used}
+    |                                                  ^^^^^^^^^^^^^^^ ARG02
+ 23 |     ${overwritten1}    Set Variable    ${arg1}
+ 24 |     ${overwritten2}    Set Variable    ${arg1}
+    |
+
+test.robot:22:69 ARG02 Keyword argument '${overwritten3}' is overwritten before usage
+    |
+ 20 |
+ 21 | Overwritten Argument
+ 22 |     [Arguments]    ${arg1}    ${overwritten1}    ${overwritten2}    ${overwritten3}    ${overwritten_but_used}
+    |                                                                     ^^^^^^^^^^^^^^^ ARG02
+ 23 |     ${overwritten1}    Set Variable    ${arg1}
+ 24 |     ${overwritten2}    Set Variable    ${arg1}
+    |
+
+test.robot:39:20 ARG02 Keyword argument '${error}' is overwritten before usage
+    |
+ 37 |
+ 38 | Overwritten In Try As
+ 39 |     [Arguments]    ${error}    ${used}
+    |                    ^^^^^^^^ ARG02
+ 40 |     TRY
+ 41 |         Do Stuff
+    |
+
+test.robot:70:31 ARG02 Keyword argument '${overwritten1}' is overwritten before usage
+    |
+ 68 |
+ 69 | Overwritten in VAR
+ 70 |     [Arguments]    ${arg1}    ${overwritten1}    ${overwritten2}    ${overwritten_but_used}
+    |                               ^^^^^^^^^^^^^^^ ARG02
+ 71 |     VAR    ${overwritten1}    ${arg1}
+ 72 |     VAR    ${overwritten2}    ${arg1}
+    |
+
+test.robot:70:50 ARG02 Keyword argument '${overwritten2}' is overwritten before usage
+    |
+ 68 |
+ 69 | Overwritten in VAR
+ 70 |     [Arguments]    ${arg1}    ${overwritten1}    ${overwritten2}    ${overwritten_but_used}
+    |                                                  ^^^^^^^^^^^^^^^ ARG02
+ 71 |     VAR    ${overwritten1}    ${arg1}
+ 72 |     VAR    ${overwritten2}    ${arg1}
+    |
+

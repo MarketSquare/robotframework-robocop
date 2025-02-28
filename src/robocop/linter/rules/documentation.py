@@ -90,6 +90,7 @@ class MissingDocTestSuiteRule(Rule):
     rule_id = "DOC03"
     message = "Missing documentation in suite"
     severity = RuleSeverity.WARNING
+    file_wide_rule = True
     added_in_version = "1.0.0"
 
 
@@ -108,6 +109,7 @@ class MissingDocResourceFileRule(Rule):
     rule_id = "DOC04"
     message = "Missing documentation in resource file"
     severity = RuleSeverity.WARNING
+    file_wide_rule = True
     added_in_version = "2.8.0"
 
 
@@ -139,9 +141,9 @@ class MissingDocumentationChecker(VisitorChecker):
     def visit_SettingSection(self, node: SettingSection) -> None:  # noqa: N802
         self.settings_section_exists = True
         if self.is_resource:
-            self.check_if_docs_are_present(node, self.missing_doc_resource_file, extend_disablers=False)
+            self.check_if_suite_docs_are_present(node, self.missing_doc_resource_file)
         else:
-            self.check_if_docs_are_present(node, self.missing_doc_test_suite, extend_disablers=False)
+            self.check_if_suite_docs_are_present(node, self.missing_doc_test_suite)
 
     def visit_File(self, node: File) -> None:  # noqa: N802
         source = node.source if node.source else self.source
@@ -173,3 +175,9 @@ class MissingDocumentationChecker(VisitorChecker):
                 )
             else:
                 self.report(rule, node=node, end_col=node.end_col_offset, extended_disablers=extended_disablers)
+
+    def check_if_suite_docs_are_present(self, node: SettingSection, rule: Rule):
+        for statement in node.body:
+            if isinstance(statement, Documentation):
+                return
+        self.report(rule, node=node)

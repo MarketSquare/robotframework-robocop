@@ -1,0 +1,10 @@
+test.robot:6:1 DOC02 Missing documentation in 'Test' test case
+   |
+ 4 |
+ 5 | *** Test Cases ***
+ 6 | Test
+   | ^^^^ DOC02
+ 7 |     [Tags]  sometag
+ 8 |     Pass
+   |
+

@@ -1,0 +1,38 @@
+only_builtins.robot:4:12 IMP02 BuiltIn library import 'String' should be placed before 'XML'
+   |
+ 2 | Library    Collections
+ 3 | Library    XML
+ 4 | Library    String
+   |            ^^^^^^ IMP02
+ 5 | Resource   ..\${/}Libs\${/}MyResource.robot
+ 6 | Variables    variables.py
+   |
+
+only_builtins.robot:8:12 IMP02 BuiltIn library import 'BuiltIn' should be placed before 'String'
+   |
+ 6 | Variables    variables.py
+ 7 | Test Template    Keyword
+ 8 | Library    BuiltIn
+   |            ^^^^^^^ IMP02
+   |
+
+test.robot:3:12 IMP02 BuiltIn library import 'Collections' should be placed before 'DateTime'
+   |
+ 1 | *** Settings ***
+ 2 | Library    DateTime
+ 3 | Library    Collections
+   |            ^^^^^^^^^^^ IMP02
+ 4 | Library    OperatingSystem
+ 5 | Library    XML
+   |
+
+test.robot:6:12 IMP02 BuiltIn library import 'String' should be placed before 'XML'
+   |
+ 4 | Library    OperatingSystem
+ 5 | Library    XML
+ 6 | Library    String
+   |            ^^^^^^ IMP02
+ 7 | Library    RequestsLibrary
+ 8 | Resource   ..\${/}Libs\${/}MyResource.robot
+   |
+

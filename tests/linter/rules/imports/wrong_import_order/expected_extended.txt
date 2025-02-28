@@ -1,0 +1,28 @@
+test.robot:6:12 IMP01 BuiltIn library import 'DateTime' should be placed before 'RequestsLibrary'
+   |
+ 4 | Library    XML
+ 5 | Library    RequestsLibrary
+ 6 | Library    DateTime
+   |            ^^^^^^^^ IMP01
+ 7 | Library    OperatingSystem
+ 8 | Resource   ..\${/}Libs\${/}MyResource.robot
+   |
+
+test.robot:7:12 IMP01 BuiltIn library import 'OperatingSystem' should be placed before 'RequestsLibrary'
+   |
+ 5 | Library    RequestsLibrary
+ 6 | Library    DateTime
+ 7 | Library    OperatingSystem
+   |            ^^^^^^^^^^^^^^^ IMP01
+ 8 | Resource   ..\${/}Libs\${/}MyResource.robot
+ 9 | Library    OwnLib.py
+   |
+
+test.robot:12:12 IMP01 BuiltIn library import 'BuiltIn' should be placed before 'RequestsLibrary'
+    |
+ 10 | Variables    variables.py
+ 11 | Test Template    Keyword
+ 12 | Library    BuiltIn
+    |            ^^^^^^^ IMP01
+    |
+

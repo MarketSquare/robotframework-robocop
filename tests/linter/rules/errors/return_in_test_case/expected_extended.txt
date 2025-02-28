@@ -1,0 +1,90 @@
+test.robot:3:5 ERR14 RETURN can only be used inside a user keyword
+   |
+ 1 | *** Test Cases ***
+ 2 | RETURN
+ 3 |     RETURN
+   |     ^^^^^^ ERR14
+ 4 |     IF    $var
+ 5 |         RETURN
+   |
+
+test.robot:5:9 ERR14 RETURN can only be used inside a user keyword
+   |
+ 3 |     RETURN
+ 4 |     IF    $var
+ 5 |         RETURN
+   |         ^^^^^^ ERR14
+ 6 |     ELSE
+ 7 |         RETURN
+   |
+
+test.robot:7:9 ERR14 RETURN can only be used inside a user keyword
+   |
+ 5 |         RETURN
+ 6 |     ELSE
+ 7 |         RETURN
+   |         ^^^^^^ ERR14
+ 8 |     END
+ 9 |     IF    $var    RETURN
+   |
+
+test.robot:9:19 ERR14 RETURN can only be used inside a user keyword
+   |
+ 7 |         RETURN
+ 8 |     END
+ 9 |     IF    $var    RETURN
+   |                   ^^^^^^ ERR14
+10 |     WHILE    $condition
+11 |         RETURN
+   |
+
+test.robot:11:9 ERR14 RETURN can only be used inside a user keyword
+    |
+  9 |     IF    $var    RETURN
+ 10 |     WHILE    $condition
+ 11 |         RETURN
+    |         ^^^^^^ ERR14
+ 12 |     END
+ 13 |     FOR    ${var}  IN  1  2
+    |
+
+test.robot:14:9 ERR14 RETURN can only be used inside a user keyword
+    |
+ 12 |     END
+ 13 |     FOR    ${var}  IN  1  2
+ 14 |         RETURN
+    |         ^^^^^^ ERR14
+ 15 |     END
+ 16 |     TRY
+    |
+
+test.robot:17:9 ERR14 RETURN can only be used inside a user keyword
+    |
+ 15 |     END
+ 16 |     TRY
+ 17 |         RETURN
+    |         ^^^^^^ ERR14
+ 18 |     EXCEPT
+ 19 |         RETURN
+    |
+
+test.robot:19:9 ERR14 RETURN can only be used inside a user keyword
+    |
+ 17 |         RETURN
+ 18 |     EXCEPT
+ 19 |         RETURN
+    |         ^^^^^^ ERR14
+ 20 |     END
+ 21 |     GROUP
+    |
+
+test.robot:22:9 ERR14 RETURN can only be used inside a user keyword
+    |
+ 20 |     END
+ 21 |     GROUP
+ 22 |         RETURN
+    |         ^^^^^^ ERR14
+ 23 |     END
+ 24 |     [Return]
+    |
+

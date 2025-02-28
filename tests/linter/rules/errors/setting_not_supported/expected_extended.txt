@@ -1,0 +1,25 @@
+test.robot:12:5 ERR09 Setting '[Arguments]' is not supported in Test Case. Allowed are: [Documentation], [Tags], [Setup], [Teardown], [Template], [Timeout]
+    |
+ 10 | *** Test Case ***
+ 11 |     [Invalid]  arg
+ 12 |     [Arguments]  ${arg}
+    |     ^^^^^^^^^^^ ERR09
+ 13 |     [Return]    ${value}
+    |
+
+test.robot:13:5 ERR09 Setting '[Return]' is not supported in Test Case. Allowed are: [Documentation], [Tags], [Setup], [Teardown], [Template], [Timeout]
+    |
+ 11 |     [Invalid]  arg
+ 12 |     [Arguments]  ${arg}
+ 13 |     [Return]    ${value}
+    |     ^^^^^^^^ ERR09
+    |
+
+test.robot:18:5 ERR09 Setting '[Template]' is not supported in Keyword. Allowed are: [Documentation], [Tags], [Arguments], [Return], [Teardown], [Timeout]
+    |
+ 16 |     [Invalid]    arg
+ 17 |     [Setup]    ${arg}
+ 18 |     [Template]    Keyword
+    |     ^^^^^^^^^^ ERR09
+    |
+

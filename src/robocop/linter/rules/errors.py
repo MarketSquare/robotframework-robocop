@@ -331,7 +331,7 @@ class ParsingErrorChecker(VisitorChecker):
             self.handle_invalid_variable(node, error)
         elif "RETURN can only be used inside" in error or "RETURN is not allowed in this context" in error:
             token = node.data_tokens[0]
-            self.report(self.return_in_test_case, node=node, col=token.col_offset + 1, end_col=token.end_col_offset)
+            self.report(self.return_in_test_case, node=node, col=token.col_offset + 1, end_col=token.end_col_offset + 1)
         elif "IF" in error or ("ELSE" in error and If and isinstance(self.in_block, If)):
             self.handle_invalid_block(node, error, self.invalid_if)
         elif "FOR loop" in error:
@@ -346,10 +346,10 @@ class ParsingErrorChecker(VisitorChecker):
             self.handle_unsupported_settings_in_init_file(node)
         else:
             error = error.replace("\n   ", "")
-            token = node.header if hasattr(node, "header") else node
-            end_col = token.col_offset + len(node.name) + 1 if hasattr(node, "name") else token.end_col_offset + 1
-            # TODO: 'col' location here can be specified more precisely
-            self.report(self.parsing_error, error_msg=error, node=node, col=token.col_offset + 1, end_col=end_col)
+            error_node = node.header if hasattr(node, "header") else node
+            start_col = error_node.data_tokens[0].col_offset + 1
+            end_col = error_node.col_offset + len(node.name) if hasattr(node, "name") else error_node.end_col_offset
+            self.report(self.parsing_error, error_msg=error, node=node, col=start_col, end_col=end_col)
 
     def handle_invalid_block(self, node, error, block_name) -> None:
         if hasattr(node, "header"):
@@ -361,6 +361,7 @@ class ParsingErrorChecker(VisitorChecker):
             error_msg=error.replace("Robot Framework syntax error: ", "")[:-1],
             node=token,
             col=token.col_offset + 1,
+            end_col=token.end_col_offset + 1,
         )
 
     def handle_invalid_syntax(self, node, error) -> None:
@@ -631,11 +632,12 @@ class MissingKeywordName(VisitorChecker):  # TODO should be part of other checke
             )
 
 
-class VariablesImportErrorChecker(VisitorChecker):  # merge such visitors into one
+class VariablesImportErrorChecker(VisitorChecker):  # TODO merge such visitors into one
     """Checker for syntax error in variables import."""
 
     variables_import_with_args: VariablesImportWithArgsRule
 
     def visit_VariablesImport(self, node) -> None:  # noqa: N802
         if node.name and node.name.endswith((".yaml", ".yml")) and node.get_token(Token.ARGUMENT):
-            self.report(self.variables_import_with_args, node=node)
+            eol = node.get_token(Token.EOL) or node
+            self.report(self.variables_import_with_args, node=node, end_col=eol.end_col_offset)

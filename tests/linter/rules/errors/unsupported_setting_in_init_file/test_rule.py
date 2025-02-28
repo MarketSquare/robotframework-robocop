@@ -16,3 +16,10 @@ class TestRuleAcceptance(RuleAcceptance):
             issue_format="end_col",
             test_on_version=">=6",
         )
+
+    def test_extended(self):
+        self.check_rule(
+            src_files=["__init__.robot", "__init__.resource", "test.robot"],
+            expected_file="expected_extended.txt",
+            output_format="extended",
+        )

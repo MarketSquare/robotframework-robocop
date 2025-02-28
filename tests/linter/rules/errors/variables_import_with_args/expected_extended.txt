@@ -1,0 +1,20 @@
+test.robot:11:1 ERR04 YAML variable files do not take arguments
+    |
+  9 | Variables  other1.py    arg1
+ 10 | Variables  other1.py    arg1
+ 11 | Variables  vars.yaml    arg1
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ ERR04
+ 12 | Variables  vars.yaml
+ 13 | ...    arg1
+    |
+
+test.robot:12:1 ERR04 YAML variable files do not take arguments
+    |
+ 10 | Variables  other1.py    arg1
+ 11 | Variables  vars.yaml    arg1
+ 12 | Variables  vars.yaml
+    | ^^^^^^^^^^^^^^^^^^^^ ERR04
+ 13 | ...    arg1
+ 14 | Variables  vars2.yaml
+    |
+

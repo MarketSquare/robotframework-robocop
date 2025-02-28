@@ -1,0 +1,117 @@
+test.robot:37:5 ERR12 Invalid for loop syntax: FOR loop has no loop variables
+    |
+ 35 |
+ 36 | For Loop
+ 37 |     FOR  IN RANGE  10
+    |     ^^^ ERR12
+ 38 |         Keyword
+ 39 |     END
+    |
+
+test.robot:40:5 ERR12 Invalid for loop syntax: FOR loop cannot be empty
+    |
+ 38 |         Keyword
+ 39 |     END
+ 40 |     FOR  ${var}  IN  @{list}
+    |     ^^^ ERR12
+ 41 |     END
+ 42 |     FOR  ${var}  IN RANGE
+    |
+
+test.robot:42:5 ERR12 Invalid for loop syntax: FOR loop has no loop values
+    |
+ 40 |     FOR  ${var}  IN  @{list}
+ 41 |     END
+ 42 |     FOR  ${var}  IN RANGE
+    |     ^^^ ERR12
+ 43 |         Keyword
+ 44 |     END
+    |
+
+test.robot:45:5 ERR12 Invalid for loop syntax: FOR loop must have closing END
+    |
+ 43 |         Keyword
+ 44 |     END
+ 45 |     FOR  ${var}  IN RANGE  10
+    |     ^^^ ERR12
+ 46 |         Keyword
+ 47 |     FOR  ${var}  @{list}
+    |
+
+test.robot:47:5 ERR12 Invalid for loop syntax: FOR loop has no 'IN' or other valid separator
+    |
+ 45 |     FOR  ${var}  IN RANGE  10
+ 46 |         Keyword
+ 47 |     FOR  ${var}  @{list}
+    |     ^^^ ERR12
+ 48 |         Keyword
+ 49 |     END
+    |
+
+test.robot:50:5 ERR12 Invalid for loop syntax: FOR loop must have closing END
+    |
+ 48 |         Keyword
+ 49 |     END
+ 50 |     FOR  ${var}  IN  1  2  3
+    |     ^^^ ERR12
+ 51 |         FOR
+ 52 |     END
+    |
+
+test.robot:51:9 ERR12 Invalid for loop syntax: FOR loop cannot be empty
+    |
+ 49 |     END
+ 50 |     FOR  ${var}  IN  1  2  3
+ 51 |         FOR
+    |         ^^^ ERR12
+ 52 |     END
+    |
+
+test.robot:51:9 ERR12 Invalid for loop syntax: FOR loop has no loop variables
+    |
+ 49 |     END
+ 50 |     FOR  ${var}  IN  1  2  3
+ 51 |         FOR
+    |         ^^^ ERR12
+ 52 |     END
+    |
+
+test.robot:51:9 ERR12 Invalid for loop syntax: FOR loop has no 'IN' or other valid separator
+    |
+ 49 |     END
+ 50 |     FOR  ${var}  IN  1  2  3
+ 51 |         FOR
+    |         ^^^ ERR12
+ 52 |     END
+    |
+
+test.robot:56:9 ERR12 Invalid for loop syntax: FOR loop has no loop variables
+    |
+ 54 | RF 5.0 syntax
+ 55 |     TRY
+ 56 |         FOR  IN RANGE  10
+    |         ^^^ ERR12
+ 57 |             Keyword
+ 58 |         END
+    |
+
+test.robot:64:9 ERR12 Invalid for loop syntax: FOR loop has no loop variables
+    |
+ 62 |         Keyword
+ 63 |     FINALLY
+ 64 |         FOR  IN RANGE  10
+    |         ^^^ ERR12
+ 65 |             Keyword
+ 66 |         END
+    |
+
+test.robot:69:9 ERR12 Invalid for loop syntax: FOR loop has no loop variables
+    |
+ 67 |     END
+ 68 |     WHILE    ${condition}
+ 69 |         FOR  IN RANGE  10
+    |         ^^^ ERR12
+ 70 |             Keyword
+ 71 |         END
+    |
+

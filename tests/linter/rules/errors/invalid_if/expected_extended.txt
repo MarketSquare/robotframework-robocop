@@ -1,0 +1,70 @@
+test.robot:14:5 ERR13 Invalid IF syntax: ELSE IF branch cannot be empty
+    |
+ 12 |     IF    ${condition}
+ 13 |         Keyword
+ 14 |     ELSE IF  ${condition}    Empty Body
+    |     ^^^^^^^ ERR13
+ 15 |     END
+ 16 |     IF    ${condition}
+    |
+
+test.robot:14:5 ERR13 Invalid IF syntax: ELSE IF cannot have more than one condition, got '${condition}' and 'Empty Body'
+    |
+ 12 |     IF    ${condition}
+ 13 |         Keyword
+ 14 |     ELSE IF  ${condition}    Empty Body
+    |     ^^^^^^^ ERR13
+ 15 |     END
+ 16 |     IF    ${condition}
+    |
+
+test.robot:28:5 ERR13 Invalid IF syntax: Inline IF branches cannot contain assignments
+    |
+ 26 |         Keyword
+ 27 |     END
+ 28 |     IF    ${condition}    ${condition}
+    |     ^^ ERR13
+ 29 |         Keyword
+ 30 |     END
+    |
+
+test.robot:53:9 ERR13 Invalid IF syntax: IF must have a condition
+    |
+ 51 | RF 5 syntax
+ 52 |     TRY
+ 53 |         IF
+    |         ^^ ERR13
+ 54 |             Keyword
+ 55 |         END
+    |
+
+test.robot:58:13 ERR13 Invalid IF syntax: IF must have a condition
+    |
+ 56 |     EXCEPT
+ 57 |         WHILE    $condition
+ 58 |             IF
+    |             ^^ ERR13
+ 59 |                 Keyword
+ 60 |             END
+    |
+
+test.robot:63:9 ERR13 Invalid IF syntax: IF must have a condition
+    |
+ 61 |         END
+ 62 |     ELSE
+ 63 |         IF
+    |         ^^ ERR13
+ 64 |             Keyword
+ 65 |         END
+    |
+
+test.robot:72:9 ERR13 Invalid IF syntax: IF must have a condition
+    |
+ 70 | RF 7.2 Group
+ 71 |     GROUP
+ 72 |         IF
+    |         ^^ ERR13
+ 73 |             Keyword
+ 74 |         END
+    |
+

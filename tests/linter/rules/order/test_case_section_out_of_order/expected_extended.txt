@@ -1,0 +1,53 @@
+test.robot:15:5 ORD01 'KEYWORD' is in wrong place of Test Case. Recommended order of elements in Test Cases: DOCUMENTATION, TAGS, TIMEOUT, SETUP, TEMPLATE, KEYWORD, TEARDOWN
+    |
+ 13 |     [Tags]    tag1    tag2
+ 14 |     [Teardown]    Log    abc
+ 15 |     Keyword1
+    |     ^^^^^^^^ ORD01
+    |
+
+test.robot:19:5 ORD01 'DOCUMENTATION' is in wrong place of Test Case. Recommended order of elements in Test Cases: DOCUMENTATION, TAGS, TIMEOUT, SETUP, TEMPLATE, KEYWORD, TEARDOWN
+    |
+ 17 | Documentation After Tags
+ 18 |     [Tags]    tag1    tag2
+ 19 |     [Documentation]    This is test Documentation
+    |     ^^^^^^^^^^^^^^^ ORD01
+ 20 |     Keyword1
+    |
+
+test.robot:25:5 ORD01 'TAGS' is in wrong place of Test Case. Recommended order of elements in Test Cases: DOCUMENTATION, TAGS, TIMEOUT, SETUP, TEMPLATE, KEYWORD, TEARDOWN
+    |
+ 23 |     [Documentation]    This is test Documentation
+ 24 |     [Timeout]    30
+ 25 |     [Tags]    MyTag
+    |     ^^^^^^ ORD01
+ 26 |     Keyword1
+    |
+
+test.robot:31:5 ORD01 'TIMEOUT' is in wrong place of Test Case. Recommended order of elements in Test Cases: DOCUMENTATION, TAGS, TIMEOUT, SETUP, TEMPLATE, KEYWORD, TEARDOWN
+    |
+ 29 |     [Documentation]    This is test Documentation
+ 30 |     [Setup]    Log    Setting up
+ 31 |     [Timeout]    30
+    |     ^^^^^^^^^ ORD01
+ 32 |     Keyword1
+    |
+
+test.robot:37:5 ORD01 'SETUP' is in wrong place of Test Case. Recommended order of elements in Test Cases: DOCUMENTATION, TAGS, TIMEOUT, SETUP, TEMPLATE, KEYWORD, TEARDOWN
+    |
+ 35 |     [Documentation]    This is test Documentation
+ 36 |     [Template]    Do Stuff
+ 37 |     [Setup]    Log    Setting up
+    |     ^^^^^^^ ORD01
+ 38 |     a    b
+    |
+
+test.robot:43:5 ORD01 'TEMPLATE' is in wrong place of Test Case. Recommended order of elements in Test Cases: DOCUMENTATION, TAGS, TIMEOUT, SETUP, TEMPLATE, KEYWORD, TEARDOWN
+    |
+ 41 |     [Documentation]    This is test Documentation
+ 42 |     [Teardown]    Teardown
+ 43 |     [Template]    Do Stuff
+    |     ^^^^^^^^^^ ORD01
+ 44 |     a    b
+    |
+

@@ -1,0 +1,78 @@
+test.robot:4:5 ERR03 Missing keyword name when calling some values
+   |
+ 2 | Keyword
+ 3 |     var
+ 4 |     ${var}
+   |     ^^^^^^ ERR03
+ 5 |     ${one}      ${two}
+ 6 |     ${var}var
+   |
+
+test.robot:5:5 ERR03 Missing keyword name when calling some values
+   |
+ 3 |     var
+ 4 |     ${var}
+ 5 |     ${one}      ${two}
+   |     ^^^^^^ ERR03
+ 6 |     ${var}var
+ 7 |     ${var} var
+   |
+
+test.robot:13:9 ERR03 Missing keyword name when calling some values
+    |
+ 11 | Nested in blocks
+ 12 |     IF    $condition
+ 13 |         ${var}
+    |         ^^^^^^ ERR03
+ 14 |     END
+ 15 |     FOR    ${var}    IN RANGE  10
+    |
+
+test.robot:16:9 ERR03 Missing keyword name when calling some values
+    |
+ 14 |     END
+ 15 |     FOR    ${var}    IN RANGE  10
+ 16 |         ${var}
+    |         ^^^^^^ ERR03
+ 17 |     END
+ 18 |     WHILE    $condition
+    |
+
+test.robot:19:9 ERR03 Missing keyword name when calling some values
+    |
+ 17 |     END
+ 18 |     WHILE    $condition
+ 19 |         ${var}
+    |         ^^^^^^ ERR03
+ 20 |     END
+ 21 |     TRY
+    |
+
+test.robot:22:9 ERR03 Missing keyword name when calling some values
+    |
+ 20 |     END
+ 21 |     TRY
+ 22 |         ${var}
+    |         ^^^^^^ ERR03
+ 23 |     EXCEPT
+ 24 |         Keyword
+    |
+
+test.robot:28:9 ERR03 Missing keyword name when calling some values
+    |
+ 26 |         Keyword
+ 27 |     FINALLY
+ 28 |         ${var}
+    |         ^^^^^^ ERR03
+ 29 |     END
+    |
+
+test.robot:33:8 ERR03 Missing keyword name when calling some values
+    |
+ 31 | Group
+ 32 |     GROUP    Missing keyword name
+ 33 |        ${var}
+    |        ^^^^^^ ERR03
+ 34 |     END
+    |
+

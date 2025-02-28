@@ -1,0 +1,30 @@
+task.resource:6:1 ERR15 Resource file can't contain '*** Tasks ***' section
+   |
+ 6 | *** Tasks ***
+   | ^^^^^^^^^^^^^ ERR15
+ 7 | Task
+ 8 |     Keyword
+   |
+
+test.resource:1:1 ERR15 Resource file can't contain '*** Test Cases ***' section
+   |
+ 1 | *** Test Cases ***
+   | ^^^^^^^^^^^^^^^^^^ ERR15
+ 2 | Test case
+ 3 |     Step
+   |
+
+test.resource:5:1 ERR15 Resource file can't contain '*** tasks ***' section
+   |
+ 5 | *** tasks ***
+   | ^^^^^^^^^^^^^ ERR15
+   |
+
+test_lang.resource:3:1 ERR15 Resource file can't contain '*** Przypadki Testowe ***' section
+   |
+ 3 | *** Przypadki Testowe ***
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^ ERR15
+ 4 | Test case
+ 5 |     Step
+   |
+

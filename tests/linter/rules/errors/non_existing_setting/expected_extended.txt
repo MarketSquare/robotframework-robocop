@@ -1,0 +1,30 @@
+test.robot:11:5 ERR08 Non-existing setting 'Invalid'
+    |
+  9 |
+ 10 | *** Test Case ***
+ 11 |     [Invalid]  arg
+    |     ^^^^^^^^^ ERR08
+ 12 |     [Arguments]  ${arg}
+ 13 |     [Return]    ${value}
+    |
+
+test.robot:16:5 ERR08 Non-existing setting 'Argument'. Did you mean: Arguments
+    |
+ 14 |
+ 15 | *** Keywords ***
+ 16 |     [Argument]   ${value}
+    |     ^^^^^^^^^^ ERR08
+ 17 |     [Invalid]    arg
+ 18 |     [Setup]    ${arg}
+    |
+
+test.robot:17:5 ERR08 Non-existing setting 'Invalid'
+    |
+ 15 | *** Keywords ***
+ 16 |     [Argument]   ${value}
+ 17 |     [Invalid]    arg
+    |     ^^^^^^^^^ ERR08
+ 18 |     [Setup]    ${arg}
+ 19 |     [Template]    Keyword
+    |
+

@@ -1,0 +1,36 @@
+__init__.robot:2:1 ERR17 Setting 'Test Template' is not supported in initialization files
+   |
+ 1 | *** Settings ***
+ 2 | Test Template       template
+   | ^^^^^^^^^^^^^ ERR17
+ 3 | Default Tags        tag
+ 4 | Documentation       some documentation
+   |
+
+__init__.robot:3:1 ERR17 Setting 'Default Tags' is not supported in initialization files
+   |
+ 1 | *** Settings ***
+ 2 | Test Template       template
+ 3 | Default Tags        tag
+   | ^^^^^^^^^^^^ ERR17
+ 4 | Documentation       some documentation
+   |
+
+__init__.resource:2:1 ERR17 Setting 'Test Template' is not supported in initialization files
+   |
+ 1 | *** Settings ***
+ 2 | Test Template       Template
+   | ^^^^^^^^^^^^^ ERR17
+ 3 | Default Tags        tag
+ 4 | Documentation       some documentation
+   |
+
+__init__.resource:3:1 ERR17 Setting 'Default Tags' is not supported in initialization files
+   |
+ 1 | *** Settings ***
+ 2 | Test Template       Template
+ 3 | Default Tags        tag
+   | ^^^^^^^^^^^^ ERR17
+ 4 | Documentation       some documentation
+   |
+

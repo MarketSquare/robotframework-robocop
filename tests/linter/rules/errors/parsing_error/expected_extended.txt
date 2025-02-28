@@ -1,0 +1,366 @@
+invalid_try_except.robot:4:5 ERR01 Robot Framework syntax error: TRY must have closing END.
+   |
+ 2 | TRY without END
+ 3 |     [Documentation]    FAIL    TRY must have closing END.
+ 4 |     TRY
+   |     ^^^ ERR01
+ 5 |         Fail   Should not be executed
+ 6 |     EXCEPT    Error
+   |
+
+invalid_try_except.robot:13:5 ERR01 Robot Framework syntax error: TRY branch cannot be empty.
+    |
+ 11 | TRY without body
+ 12 |     [Documentation]    FAIL    TRY branch cannot be empty.
+ 13 |     TRY
+    |     ^^^ ERR01
+ 14 |     EXCEPT    Error
+ 15 |         Fail   Should not be executed
+    |
+
+invalid_try_except.robot:22:5 ERR01 Robot Framework syntax error: TRY structure must have EXCEPT or FINALLY branch.
+    |
+ 20 | TRY without EXCEPT or FINALLY
+ 21 |     [Documentation]    FAIL    TRY structure must have EXCEPT or FINALLY branch.
+ 22 |     TRY
+    |     ^^^ ERR01
+ 23 |         Fail   Should not be executed
+ 24 |     END
+    |
+
+invalid_try_except.robot:28:5 ERR01 Robot Framework syntax error: TRY structure must have EXCEPT or FINALLY branch.
+    |
+ 26 | TRY with ELSE without EXCEPT or FINALLY
+ 27 |     [Documentation]    FAIL    TRY structure must have EXCEPT or FINALLY branch.
+ 28 |     TRY
+    |     ^^^ ERR01
+ 29 |         Fail   Should not be executed
+ 30 |     ELSE
+    |
+
+invalid_try_except.robot:36:5 ERR01 Robot Framework syntax error: TRY does not accept arguments, got 'I should not be here'.
+    |
+ 34 | TRY with argument
+ 35 |     [Documentation]    FAIL    TRY does not accept arguments, got 'I should not be here'.
+ 36 |     TRY    I should not be here
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^ ERR01
+ 37 |         Fail   Should not be executed
+ 38 |     EXCEPT    Error
+    |
+
+invalid_try_except.robot:48:5 ERR01 Robot Framework syntax error: EXCEPT branch cannot be empty.
+    |
+ 46 |     TRY
+ 47 |         Fail   Should not be executed
+ 48 |     EXCEPT    foo
+    |     ^^^^^^^^^^^^^ ERR01
+ 49 |     EXCEPT    Error
+ 50 |         Fail   Should not be executed
+    |
+
+invalid_try_except.robot:57:5 ERR01 Robot Framework syntax error: EXCEPT without patterns must be last.
+    |
+ 55 | Default EXCEPT not last
+ 56 |     [Documentation]    FAIL    EXCEPT without patterns must be last.
+ 57 |     TRY
+    |     ^^^ ERR01
+ 58 |         Fail   Should not be executed
+ 59 |     EXCEPT
+    |
+
+invalid_try_except.robot:69:5 ERR01 Robot Framework syntax error: Only one EXCEPT without patterns allowed.
+    |
+ 67 | Multiple default EXCEPTs
+ 68 |     [Documentation]    FAIL    Only one EXCEPT without patterns allowed.
+ 69 |     TRY
+    |     ^^^ ERR01
+ 70 |         Fail   Should not be executed
+ 71 |     EXCEPT
+    |
+
+invalid_try_except.robot:83:5 ERR01 Robot Framework syntax error: EXCEPT AS requires a value.
+    |
+ 81 |     TRY
+ 82 |         Fail   Should not be executed
+ 83 |     EXCEPT    AS
+    |     ^^^^^^^^^^^^ ERR01
+ 84 |         Fail   Should not be executed
+ 85 |     END
+    |
+
+invalid_try_except.robot:91:5 ERR01 Robot Framework syntax error: EXCEPT AS accepts only one value.
+    |
+ 89 |     TRY
+ 90 |         Fail   Should not be executed
+ 91 |     EXCEPT    AS    foo    ${foo}
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ ERR01
+ 92 |         Fail   Should not be executed
+ 93 |     END
+    |
+
+invalid_try_except.robot:99:5 ERR01 Robot Framework syntax error: EXCEPT AS variable 'foo' is invalid.
+    |
+ 97 |     TRY
+ 98 |         Fail   Should not be executed
+ 99 |     EXCEPT    AS    foo
+    |     ^^^^^^^^^^^^^^^^^^^ ERR01
+100 |         Fail   Should not be executed
+101 |     END
+    |
+
+invalid_try_except.robot:109:5 ERR01 Robot Framework syntax error: ELSE does not accept arguments, got 'I should not be here'.
+     |
+ 107 |     EXCEPT    Error
+ 108 |         Fail   Should not be executed
+ 109 |     ELSE    I should not be here
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ ERR01
+ 110 |         Fail   Should not be executed
+ 111 |     FINALLY
+     |
+
+invalid_try_except.robot:121:5 ERR01 Robot Framework syntax error: ELSE branch cannot be empty.
+     |
+ 119 |     EXCEPT    Error
+ 120 |         Fail   Should not be executed
+ 121 |     ELSE
+     |     ^^^^ ERR01
+ 122 |     FINALLY
+ 123 |         Fail   Should not be executed
+     |
+
+invalid_try_except.robot:128:5 ERR01 Robot Framework syntax error: Only one ELSE allowed.
+     |
+ 126 | Multiple ELSE blocks
+ 127 |     [Documentation]    FAIL    Only one ELSE allowed.
+ 128 |     TRY
+     |     ^^^ ERR01
+ 129 |         Fail   Should not be executed
+ 130 |     EXCEPT    Error
+     |
+
+invalid_try_except.robot:146:5 ERR01 Robot Framework syntax error: FINALLY does not accept arguments, got 'ooops', 'i', 'did', 'it' and 'again'.
+     |
+ 144 |     EXCEPT    Error
+ 145 |         Fail   Should not be executed
+ 146 |     FINALLY    ooops    i    did    it    again
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ ERR01
+ 147 |         Fail   Should not be executed
+ 148 |     END
+     |
+
+invalid_try_except.robot:154:5 ERR01 Robot Framework syntax error: FINALLY branch cannot be empty.
+     |
+ 152 |     TRY
+ 153 |         Fail   Should not be executed
+ 154 |     FINALLY
+     |     ^^^^^^^ ERR01
+ 155 |     END
+     |
+
+invalid_try_except.robot:159:5 ERR01 Robot Framework syntax error: Only one FINALLY allowed.
+     |
+ 157 | Multiple FINALLY blocks
+ 158 |     [Documentation]    FAIL    Only one FINALLY allowed.
+ 159 |     TRY
+     |     ^^^ ERR01
+ 160 |         Fail   Should not be executed
+ 161 |     EXCEPT    Error
+     |
+
+invalid_try_except.robot:171:5 ERR01 Robot Framework syntax error: EXCEPT not allowed after ELSE.
+     |
+ 169 | ELSE before EXCEPT
+ 170 |     [Documentation]    FAIL    EXCEPT not allowed after ELSE.
+ 171 |     TRY
+     |     ^^^ ERR01
+ 172 |         Fail   Should not be executed
+ 173 |     EXCEPT    Error
+     |
+
+invalid_try_except.robot:185:5 ERR01 Robot Framework syntax error: EXCEPT not allowed after FINALLY.
+     |
+ 183 | FINALLY before EXCEPT
+ 184 |     [Documentation]    FAIL    EXCEPT not allowed after FINALLY.
+ 185 |     TRY
+     |     ^^^ ERR01
+ 186 |         Fail   Should not be executed
+ 187 |     EXCEPT    Error
+     |
+
+invalid_try_except.robot:197:5 ERR01 Robot Framework syntax error: ELSE not allowed after FINALLY.
+     |
+ 195 | FINALLY before ELSE
+ 196 |     [Documentation]    FAIL    ELSE not allowed after FINALLY.
+ 197 |     TRY
+     |     ^^^ ERR01
+ 198 |         Fail   Should not be executed
+ 199 |     EXCEPT    Error
+     |
+
+invalid_try_except.robot:210:5 ERR01 Robot Framework syntax error: TRY does not support templates.
+     |
+ 208 |     [Documentation]    FAIL    Templates cannot be used with TRY.
+ 209 |     [Template]    Log many
+ 210 |     TRY
+     |     ^^^ ERR01
+ 211 |         Fail   Should not be executed
+ 212 |     EXCEPT    Error
+     |
+
+invalid_try_except.robot:220:9 ERR01 Robot Framework syntax error: TRY does not support templates.
+     |
+ 218 |     [Template]    Log many
+ 219 |     IF    True
+ 220 |         TRY
+     |         ^^^ ERR01
+ 221 |             Fail   Should not be executed
+ 222 |         EXCEPT    Error
+     |
+
+invalid_try_except.robot:233:5 ERR01 Robot Framework syntax error: TRY must have closing END.
+     |
+ 231 |     ...    - Templates cannot be used with TRY.
+ 232 |     [Template]    Log many
+ 233 |     TRY
+     |     ^^^ ERR01
+ 234 |         IF    True
+ 235 |             Fail    Should not be executed
+     |
+
+invalid_try_except.robot:233:5 ERR01 Robot Framework syntax error: TRY does not support templates.
+     |
+ 231 |     ...    - Templates cannot be used with TRY.
+ 232 |     [Template]    Log many
+ 233 |     TRY
+     |     ^^^ ERR01
+ 234 |         IF    True
+ 235 |             Fail    Should not be executed
+     |
+
+invalid_try_except.robot:246:53 ERR01 Robot Framework syntax error: BREAK cannot be used in FINALLY branch.
+     |
+ 244 |             No Operation
+ 245 |         FINALLY
+ 246 |             BREAK
+     |             ^^^^^ ERR01
+ 247 |         END
+ 248 |     END
+     |
+
+invalid_try_except.robot:256:53 ERR01 Robot Framework syntax error: CONTINUE cannot be used in FINALLY branch.
+     |
+ 254 |             No Operation
+ 255 |         FINALLY
+ 256 |             CONTINUE
+     |             ^^^^^^^^ ERR01
+ 257 |         END
+ 258 |     END
+     |
+
+invalid_try_except.robot:269:9 ERR01 Robot Framework syntax error: RETURN cannot be used in FINALLY branch.
+     |
+ 267 |         No Operation
+ 268 |     FINALLY
+ 269 |         RETURN
+     |         ^^^^^^ ERR01
+ 270 |     END
+     |
+
+invalid_while.robot:10:5 ERR01 Robot Framework syntax error: WHILE accepts only one condition, got 3 conditions 'Too', 'many' and '!'.
+    |
+  8 | Multiple conditions
+  9 |     [Documentation]    FAIL WHILE cannot have more than one condition.
+ 10 |     WHILE    Too    many    !
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^ ERR01
+ 11 |         Fail    Not executed!
+ 12 |     END
+    |
+
+invalid_while.robot:16:5 ERR01 Robot Framework syntax error: WHILE loop cannot be empty.
+    |
+ 14 | No body
+ 15 |     [Documentation]    FAIL WHILE loop cannot be empty.
+ 16 |     WHILE    True
+    |     ^^^^^^^^^^^^^ ERR01
+ 17 |     END
+    |
+
+invalid_while.robot:21:5 ERR01 Robot Framework syntax error: WHILE loop must have closing END.
+    |
+ 19 | No END
+ 20 |     [Documentation]    FAIL WHILE loop must have closing END.
+ 21 |     WHILE    True
+    |     ^^^^^^^^^^^^^ ERR01
+ 22 |         Fail    Not executed!
+    |
+
+positional_args.robot:3:32 ERR01 Robot Framework syntax error: Positional argument '${arg2}' follows named argument
+   |
+ 1 | *** Keywords ***
+ 2 | Keyword
+ 3 |     [Arguments]    ${arg}=3    ${arg2}    ${arg3}  # invalid
+   |                                ^^^^^^^ ERR01
+ 4 |     Log  ${arg}
+ 5 |     Log  ${arg2}
+   |
+
+positional_args.robot:3:43 ERR01 Robot Framework syntax error: Positional argument '${arg3}' follows named argument
+   |
+ 1 | *** Keywords ***
+ 2 | Keyword
+ 3 |     [Arguments]    ${arg}=3    ${arg2}    ${arg3}  # invalid
+   |                                           ^^^^^^^ ERR01
+ 4 |     Log  ${arg}
+ 5 |     Log  ${arg2}
+   |
+
+positional_args.robot:8:32 ERR01 Robot Framework syntax error: Positional argument '${arg2}' follows named argument
+   |
+ 6 |
+ 7 | Keyword With Mixed Arguments
+ 8 |     [Arguments]    ${arg}=3    ${arg2}     ${arg4}=5    ${arg1}
+   |                                ^^^^^^^ ERR01
+ 9 |     No Operation
+   |
+
+positional_args.robot:8:57 ERR01 Robot Framework syntax error: Positional argument '${arg1}' follows named argument
+   |
+ 6 |
+ 7 | Keyword With Mixed Arguments
+ 8 |     [Arguments]    ${arg}=3    ${arg2}     ${arg4}=5    ${arg1}
+   |                                                         ^^^^^^^ ERR01
+ 9 |     No Operation
+   |
+
+positional_args.robot:12:29 ERR01 Robot Framework syntax error: Positional argument '@{args}' follows named argument
+    |
+ 10 |
+ 11 | Keyword With Kwargs
+ 12 |     [Arguments]  &{kwargs}  @{args}  ${arg}
+    |                             ^^^^^^^ ERR01
+ 13 |     No Operation
+    |
+
+positional_args.robot:12:38 ERR01 Robot Framework syntax error: Positional argument '${arg}' follows named argument
+    |
+ 10 |
+ 11 | Keyword With Kwargs
+ 12 |     [Arguments]  &{kwargs}  @{args}  ${arg}
+    |                                      ^^^^^^ ERR01
+ 13 |     No Operation
+    |
+
+variable_errors.robot:5:1 ERR01 Robot Framework syntax error: Invalid variable name 'value'.
+   |
+ 3 | ... val
+ 4 |  .... val
+ 5 | value
+   | ^ ERR01
+   |
+
+variable_errors.robot:7:1 ERR01 Robot Framework syntax error: Invalid dictionary variable item '1'. Items must use 'name=value' syntax or be dictionary variables themselves.
+   |
+ 7 | &{dict}    1
+   | ^^^^^^ ERR01
+   |
+

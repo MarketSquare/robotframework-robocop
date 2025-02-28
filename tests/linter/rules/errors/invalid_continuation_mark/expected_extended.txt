@@ -1,0 +1,27 @@
+settings_errors.robot:6:1 ERR05 Invalid continuation mark '..'. It should be '...'
+   |
+ 4 |
+ 5 | Force Tags  tag
+ 6 | ..    tag2
+   | ^^ ERR05
+   |
+
+variable_errors.robot:4:2 ERR05 Invalid continuation mark '.... val'. It should be '...'
+   |
+ 2 | ${var}
+ 3 | ... val
+ 4 |  .... val
+   |  ^^^^ ERR05
+ 5 | value
+   |
+
+variable_errors.robot:11:1 ERR05 Invalid continuation mark '....'. It should be '...'
+    |
+  9 | @{variable}    a
+ 10 | ...    b
+ 11 | ....   c
+    | ^^^^ ERR05
+ 12 | ...
+ 13 | ...d
+    |
+

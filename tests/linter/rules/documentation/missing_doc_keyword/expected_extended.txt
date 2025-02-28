@@ -1,0 +1,10 @@
+test.robot:15:1 DOC01 Missing documentation in 'Keyword' keyword
+    |
+ 13 |
+ 14 | *** Keywords ***
+ 15 | Keyword
+    | ^^^^^^^ DOC01
+ 16 |     No Operation
+ 17 |     Pass
+    |
+

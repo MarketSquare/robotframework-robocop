@@ -1,0 +1,17 @@
+test.robot:5:12 IMP04 Resource import 'AnotherFile.resource' should be placed before 'CustomResource.resource'
+   |
+ 3 | Library    RequestsLibrary
+ 4 | Resource   CustomResource.resource
+ 5 | Resource   AnotherFile.resource
+   |            ^^^^^^^^^^^^^^^^^^^^ IMP04
+ 6 | Resource   ..\${/}Libs\${/}MyResource.robot
+   |
+
+test.robot:6:12 IMP04 Resource import '..\${/}Libs\${/}MyResource.robot' should be placed before 'AnotherFile.resource'
+   |
+ 4 | Resource   CustomResource.resource
+ 5 | Resource   AnotherFile.resource
+ 6 | Resource   ..\${/}Libs\${/}MyResource.robot
+   |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ IMP04
+   |
+

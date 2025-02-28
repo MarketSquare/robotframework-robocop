@@ -1,0 +1,19 @@
+no_builtins.robot:4:12 IMP03 Non builtin library import 'OwnLib.py' should be placed before 'RequestsLibrary'
+   |
+ 2 | Library    RequestsLibrary
+ 3 | Resource   ..\${/}Libs\${/}MyResource.robot
+ 4 | Library    OwnLib.py
+   |            ^^^^^^^^^ IMP03
+ 5 | Variables    variables.py
+ 6 | Test Template    Keyword
+   |
+
+test.robot:9:12 IMP03 Non builtin library import 'AnotherLibrary' should be placed before 'RequestsLibrary'
+   |
+ 7 | Library    OwnLib.py
+ 8 | Library    RequestsLibrary
+ 9 | Library    AnotherLibrary
+   |            ^^^^^^^^^^^^^^ IMP03
+10 | Resource   ..\${/}Libs\${/}MyResource.robot
+   |
+

@@ -374,7 +374,11 @@ class DuplicationsChecker(VisitorChecker):
         for error in get_errors(node):
             if "is allowed only once" in error:
                 self.report(
-                    self.duplicated_setting, error_msg=error, node=node, end_col=node.data_tokens[0].end_col_offset
+                    self.duplicated_setting,
+                    error_msg=error,
+                    node=node,
+                    col=node.data_tokens[0].col_offset + 1,
+                    end_col=node.data_tokens[0].end_col_offset,
                 )
 
 

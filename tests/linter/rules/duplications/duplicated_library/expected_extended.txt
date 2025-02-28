@@ -1,0 +1,29 @@
+test.robot:7:12 DUP05 Multiple library imports with name 'MyLib' and identical arguments (first occurrence in line 3)
+   |
+ 5 | Library
+ 6 | Resource  some_resource.robot
+ 7 | Library    MyLib
+   |            ^^^^^ DUP05
+ 8 | Library    MyLib    arg
+ 9 | Library    MyLib    arg
+   |
+
+test.robot:9:12 DUP05 Multiple library imports with name 'MyLib' and identical arguments (first occurrence in line 8)
+   |
+ 7 | Library    MyLib
+ 8 | Library    MyLib    arg
+ 9 | Library    MyLib    arg
+   |            ^^^^^ DUP05
+10 | Library    MyLib  WITH NAME    MyLib2
+11 | Library    MyLib  AS    MyLib3
+   |
+
+test.robot:12:12 DUP05 Multiple library imports with name 'MyLib' and identical arguments (first occurrence in line 10)
+    |
+ 10 | Library    MyLib  WITH NAME    MyLib2
+ 11 | Library    MyLib  AS    MyLib3
+ 12 | Library    MyLib  AS    MyLib2
+    |            ^^^^^ DUP05
+ 13 | Library    MyLib    argument    AS    MyLib2
+    |
+

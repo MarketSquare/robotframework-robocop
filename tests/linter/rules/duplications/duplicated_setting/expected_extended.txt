@@ -1,0 +1,284 @@
+test.robot:3:1 DUP10 Setting 'Documentation' is allowed only once. Only the first value is used.
+   |
+ 1 | *** Settings ***
+ 2 | Documentation                 S1
+ 3 | Documentation                 S2
+   | ^^^^^^^^^^^^ DUP10
+ 4 | Metadata          Foo         M1
+ 5 | Metadata          Foo         M2
+   |
+
+test.robot:7:1 DUP10 Setting 'Suite Setup' is allowed only once. Only the first value is used.
+   |
+ 5 | Metadata          Foo         M2
+ 6 | Suite Setup       Log Many    S1
+ 7 | Suite Setup       Comment     S2
+   | ^^^^^^^^^^ DUP10
+ 8 | Suite Teardown    Comment     S1
+ 9 | Suite Teardown    Log Many    S2
+   |
+
+test.robot:9:1 DUP10 Setting 'Suite Teardown' is allowed only once. Only the first value is used.
+   |
+ 7 | Suite Setup       Comment     S2
+ 8 | Suite Teardown    Comment     S1
+ 9 | Suite Teardown    Log Many    S2
+   | ^^^^^^^^^^^^^ DUP10
+10 | Test Setup        Log Many    T1
+11 | Test Setup        Comment     T2
+   |
+
+test.robot:11:1 DUP10 Setting 'Test Setup' is allowed only once. Only the first value is used.
+    |
+  9 | Suite Teardown    Log Many    S2
+ 10 | Test Setup        Log Many    T1
+ 11 | Test Setup        Comment     T2
+    | ^^^^^^^^^ DUP10
+ 12 | Test Teardown
+ 13 | Test Teardown     Comment     T1
+    |
+
+test.robot:13:1 DUP10 Setting 'Test Teardown' is allowed only once. Only the first value is used.
+    |
+ 11 | Test Setup        Comment     T2
+ 12 | Test Teardown
+ 13 | Test Teardown     Comment     T1
+    | ^^^^^^^^^^^^ DUP10
+ 14 | Test Teardown     Log Many    T2
+ 15 | Test Template     Log Many
+    |
+
+test.robot:14:1 DUP10 Setting 'Test Teardown' is allowed only once. Only the first value is used.
+    |
+ 12 | Test Teardown
+ 13 | Test Teardown     Comment     T1
+ 14 | Test Teardown     Log Many    T2
+    | ^^^^^^^^^^^^ DUP10
+ 15 | Test Template     Log Many
+ 16 | Test Template     Ignored
+    |
+
+test.robot:16:1 DUP10 Setting 'Test Template' is allowed only once. Only the first value is used.
+    |
+ 14 | Test Teardown     Log Many    T2
+ 15 | Test Template     Log Many
+ 16 | Test Template     Ignored
+    | ^^^^^^^^^^^^ DUP10
+ 17 | Force Tags
+ 18 | Force Tags        F1
+    |
+
+test.robot:18:1 DUP10 Setting 'Force Tags' is allowed only once. Only the first value is used.
+    |
+ 16 | Test Template     Ignored
+ 17 | Force Tags
+ 18 | Force Tags        F1
+    | ^^^^^^^^^ DUP10
+ 19 | Force Tags        F2
+ 20 | Default Tags      D1
+    |
+
+test.robot:19:1 DUP10 Setting 'Force Tags' is allowed only once. Only the first value is used.
+    |
+ 17 | Force Tags
+ 18 | Force Tags        F1
+ 19 | Force Tags        F2
+    | ^^^^^^^^^ DUP10
+ 20 | Default Tags      D1
+ 21 | Default Tags      D2
+    |
+
+test.robot:21:1 DUP10 Setting 'Default Tags' is allowed only once. Only the first value is used.
+    |
+ 19 | Force Tags        F2
+ 20 | Default Tags      D1
+ 21 | Default Tags      D2
+    | ^^^^^^^^^^^ DUP10
+ 22 | Default Tags      D3
+ 23 | Test Timeout      1 s
+    |
+
+test.robot:22:1 DUP10 Setting 'Default Tags' is allowed only once. Only the first value is used.
+    |
+ 20 | Default Tags      D1
+ 21 | Default Tags      D2
+ 22 | Default Tags      D3
+    | ^^^^^^^^^^^ DUP10
+ 23 | Test Timeout      1 s
+ 24 | Test Timeout      0.001 s
+    |
+
+test.robot:24:1 DUP10 Setting 'Test Timeout' is allowed only once. Only the first value is used.
+    |
+ 22 | Default Tags      D3
+ 23 | Test Timeout      1 s
+ 24 | Test Timeout      0.001 s
+    | ^^^^^^^^^^^ DUP10
+    |
+
+test.robot:32:5 DUP10 Setting 'Documentation' is allowed only once. Only the first value is used.
+    |
+ 30 | Test Settings
+ 31 |     [Documentation]    T1
+ 32 |     [Documentation]    FAIL 2 s
+    |     ^^^^^^^^^^^^^^ DUP10
+ 33 |     [Tags]
+ 34 |     [Tags]    T1
+    |
+
+test.robot:34:5 DUP10 Setting 'Tags' is allowed only once. Only the first value is used.
+    |
+ 32 |     [Documentation]    FAIL 2 s
+ 33 |     [Tags]
+ 34 |     [Tags]    T1
+    |     ^^^^^ DUP10
+ 35 |     [Tags]    T2
+ 36 |     [Setup]    Log Many    Own
+    |
+
+test.robot:35:5 DUP10 Setting 'Tags' is allowed only once. Only the first value is used.
+    |
+ 33 |     [Tags]
+ 34 |     [Tags]    T1
+ 35 |     [Tags]    T2
+    |     ^^^^^ DUP10
+ 36 |     [Setup]    Log Many    Own
+ 37 |     [Setup]    stuff    here
+    |
+
+test.robot:37:5 DUP10 Setting 'Setup' is allowed only once. Only the first value is used.
+    |
+ 35 |     [Tags]    T2
+ 36 |     [Setup]    Log Many    Own
+ 37 |     [Setup]    stuff    here
+    |     ^^^^^^ DUP10
+ 38 |     [Teardown]
+ 39 |     [Teardown]    Log Many    And
+    |
+
+test.robot:39:5 DUP10 Setting 'Teardown' is allowed only once. Only the first value is used.
+    |
+ 37 |     [Setup]    stuff    here
+ 38 |     [Teardown]
+ 39 |     [Teardown]    Log Many    And
+    |     ^^^^^^^^^ DUP10
+ 40 |     [Teardown]    also    here
+ 41 |     [Template]    Log
+    |
+
+test.robot:40:5 DUP10 Setting 'Teardown' is allowed only once. Only the first value is used.
+    |
+ 38 |     [Teardown]
+ 39 |     [Teardown]    Log Many    And
+ 40 |     [Teardown]    also    here
+    |     ^^^^^^^^^ DUP10
+ 41 |     [Template]    Log
+ 42 |     [Template]    ignored
+    |
+
+test.robot:42:5 DUP10 Setting 'Template' is allowed only once. Only the first value is used.
+    |
+ 40 |     [Teardown]    also    here
+ 41 |     [Template]    Log
+ 42 |     [Template]    ignored
+    |     ^^^^^^^^^ DUP10
+ 43 |     [Timeout]    2 s
+ 44 |     [Timeout]    2 ms
+    |
+
+test.robot:44:5 DUP10 Setting 'Timeout' is allowed only once. Only the first value is used.
+    |
+ 42 |     [Template]    ignored
+ 43 |     [Timeout]    2 s
+ 44 |     [Timeout]    2 ms
+    |     ^^^^^^^^ DUP10
+ 45 |     No Operation
+    |
+
+test.robot:55:5 DUP10 Setting 'Arguments' is allowed only once. Only the first value is used.
+    |
+ 53 | Keyword Settings
+ 54 |     [Arguments]    ${a1}    ${a2}    ${a3}
+ 55 |     [Arguments]    ${arg}
+    |     ^^^^^^^^^^ DUP10
+ 56 |     [Documentation]
+ 57 |     [Documentation]    K1
+    |
+
+test.robot:57:5 DUP10 Setting 'Documentation' is allowed only once. Only the first value is used.
+    |
+ 55 |     [Arguments]    ${arg}
+ 56 |     [Documentation]
+ 57 |     [Documentation]    K1
+    |     ^^^^^^^^^^^^^^ DUP10
+ 58 |     [Documentation]    K2
+ 59 |     [Tags]    K1
+    |
+
+test.robot:58:5 DUP10 Setting 'Documentation' is allowed only once. Only the first value is used.
+    |
+ 56 |     [Documentation]
+ 57 |     [Documentation]    K1
+ 58 |     [Documentation]    K2
+    |     ^^^^^^^^^^^^^^ DUP10
+ 59 |     [Tags]    K1
+ 60 |     [Tags]    K2
+    |
+
+test.robot:60:5 DUP10 Setting 'Tags' is allowed only once. Only the first value is used.
+    |
+ 58 |     [Documentation]    K2
+ 59 |     [Tags]    K1
+ 60 |     [Tags]    K2
+    |     ^^^^^ DUP10
+ 61 |     [Timeout]
+ 62 |     [Timeout]    1s
+    |
+
+test.robot:62:5 DUP10 Setting 'Timeout' is allowed only once. Only the first value is used.
+    |
+ 60 |     [Tags]    K2
+ 61 |     [Timeout]
+ 62 |     [Timeout]    1s
+    |     ^^^^^^^^ DUP10
+ 63 |     [Timeout]    2s
+ 64 |     No Operation
+    |
+
+test.robot:63:5 DUP10 Setting 'Timeout' is allowed only once. Only the first value is used.
+    |
+ 61 |     [Timeout]
+ 62 |     [Timeout]    1s
+ 63 |     [Timeout]    2s
+    |     ^^^^^^^^ DUP10
+ 64 |     No Operation
+ 65 |     [Return]    R0
+    |
+
+test.robot:66:5 DUP10 Setting 'Return' is allowed only once. Only the first value is used.
+    |
+ 64 |     No Operation
+ 65 |     [Return]    R0
+ 66 |     [Return]    R1
+    |     ^^^^^^^ DUP10
+ 67 |     [Return]    R2
+ 68 |     [Return]    R3
+    |
+
+test.robot:67:5 DUP10 Setting 'Return' is allowed only once. Only the first value is used.
+    |
+ 65 |     [Return]    R0
+ 66 |     [Return]    R1
+ 67 |     [Return]    R2
+    |     ^^^^^^^ DUP10
+ 68 |     [Return]    R3
+    |
+
+test.robot:68:5 DUP10 Setting 'Return' is allowed only once. Only the first value is used.
+    |
+ 66 |     [Return]    R1
+ 67 |     [Return]    R2
+ 68 |     [Return]    R3
+    |     ^^^^^^^ DUP10
+    |
+

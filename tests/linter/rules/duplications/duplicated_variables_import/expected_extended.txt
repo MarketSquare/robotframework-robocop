@@ -1,0 +1,47 @@
+test.robot:5:1 DUP07 Duplicated variables import with path 'variables.py' (first occurrence in line 3)
+   |
+ 3 | Variables  variables.py
+ 4 | Variables  other.robot
+ 5 | Variables  variables.py
+   | ^^^^^^^^^^^^^^^^^^^^^^^^ DUP07
+   |
+
+test.robot:10:1 DUP07 Duplicated variables import with path 'other1.py' (first occurrence in line 9)
+    |
+  8 | Variables  other.py    arg2
+  9 | Variables  other1.py    arg1
+ 10 | Variables  other1.py    arg1
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ DUP07
+ 11 | Variables  vars.yaml    arg1
+ 12 | Variables  vars2.yaml
+    |
+
+test.robot:13:1 DUP07 Duplicated variables import with path 'vars2.yaml' (first occurrence in line 12)
+    |
+ 11 | Variables  vars.yaml    arg1
+ 12 | Variables  vars2.yaml
+ 13 | Variables  vars2.yaml
+    | ^^^^^^^^^^^^^^^^^^^^^^ DUP07
+ 14 | Variables  variables.robot
+ 15 | Variables  variables.robot
+    |
+
+test.robot:15:1 DUP07 Duplicated variables import with path 'variables.robot' (first occurrence in line 14)
+    |
+ 13 | Variables  vars2.yaml
+ 14 | Variables  variables.robot
+ 15 | Variables  variables.robot
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^ DUP07
+ 16 | Variables  variables.robot
+ 17 | Variables  variables.robot    arg
+    |
+
+test.robot:16:1 DUP07 Duplicated variables import with path 'variables.robot' (first occurrence in line 14)
+    |
+ 14 | Variables  variables.robot
+ 15 | Variables  variables.robot
+ 16 | Variables  variables.robot
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^ DUP07
+ 17 | Variables  variables.robot    arg
+    |
+

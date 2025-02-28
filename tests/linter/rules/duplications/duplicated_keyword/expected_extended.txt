@@ -1,0 +1,7 @@
+test.robot:25:1 DUP02 Multiple keywords with name 'Duplicated Keyword' (first occurrence in line 15)
+    |
+ 25 | Duplicated Keyword
+    | ^^^^^^^^^^^^^^^^^^ DUP02
+ 26 |     No Operation
+    |
+

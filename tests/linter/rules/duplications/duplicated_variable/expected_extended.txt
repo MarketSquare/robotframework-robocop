@@ -1,0 +1,17 @@
+test.robot:8:1 DUP03 Multiple variables with name '${V AR}' in Variables section (first occurrence in line 6)
+   |
+ 6 | ${v_ar}       10
+ 7 | ${other_var}  20
+ 8 | ${V AR}       a
+   | ^^^^^^^ DUP03
+ 9 | ${other_var}  30
+   |
+
+test.robot:9:1 DUP03 Multiple variables with name '${other_var}' in Variables section (first occurrence in line 7)
+   |
+ 7 | ${other_var}  20
+ 8 | ${V AR}       a
+ 9 | ${other_var}  30
+   | ^^^^^^^^^^^^ DUP03
+   |
+

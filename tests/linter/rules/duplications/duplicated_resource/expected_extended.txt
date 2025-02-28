@@ -1,0 +1,8 @@
+test.robot:5:1 DUP04 Multiple resource imports with path 'resource.robot' (first occurrence in line 3)
+   |
+ 3 | Resource  resource.robot
+ 4 | Resource  other_file.robot
+ 5 | Resource  resource.robot
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^ DUP04
+   |
+

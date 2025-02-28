@@ -7,3 +7,6 @@ class TestRuleAcceptance(RuleAcceptance):
 
     def test_rule_rf6(self):
         self.check_rule(expected_file="expected_output_rf6.txt", test_on_version=">=6.0")
+
+    def test_extended(self):
+        self.check_rule(expected_file="expected_extended.txt", output_format="extended", test_on_version=">=6.0")

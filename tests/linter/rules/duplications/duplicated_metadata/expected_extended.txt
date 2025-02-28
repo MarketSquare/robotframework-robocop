@@ -1,0 +1,8 @@
+__init__.robot:4:1 DUP06 Duplicated metadata 'some text' (first occurrence in line 2)
+   |
+ 2 | Metadata  some text
+ 3 | Metadata  some text2
+ 4 | Metadata  some text
+   | ^^^^^^^^^^^^^^^^^^^^ DUP06
+   |
+

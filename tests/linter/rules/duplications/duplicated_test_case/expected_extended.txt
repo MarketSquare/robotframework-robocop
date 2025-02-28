@@ -1,0 +1,28 @@
+test.robot:13:1 DUP01 Multiple test cases with name 'Test' (first occurrence in line 6)
+    |
+ 13 | Test
+    | ^^^^ DUP01
+ 14 |     No Operation
+    |
+
+test1.robot:13:1 DUP01 Multiple test cases with name 'test' (first occurrence in line 6)
+    |
+ 13 | test
+    | ^^^^ DUP01
+ 14 |     No Operation
+    |
+
+test2.robot:13:1 DUP01 Multiple test cases with name 'test1' (first occurrence in line 6)
+    |
+ 13 | test1
+    | ^^^^^ DUP01
+ 14 |     No Operation
+    |
+
+test2.robot:16:1 DUP01 Multiple test cases with name 'Te s t_1' (first occurrence in line 6)
+    |
+ 16 | Te s t_1
+    | ^^^^^^^^ DUP01
+ 17 |     No Operation
+    |
+

@@ -1,0 +1,17 @@
+test.robot:14:1 DUP09 Both Task(s) and Test Case(s) section headers defined in file
+    |
+ 14 | *** Tasks ***
+    | ^^^^^^^^^^^^^ DUP09
+ 15 | Task
+ 16 |     No Operation
+    |
+
+test2.robot:3:1 DUP09 Both Task(s) and Test Case(s) section headers defined in file
+   |
+ 1 | *** Tasks ***
+ 2 | Documentation    abc
+ 3 | *** Test Cases ***
+   | ^^^^^^^^^^^^^^^^^^ DUP09
+ 4 | Documentation    some
+   |
+

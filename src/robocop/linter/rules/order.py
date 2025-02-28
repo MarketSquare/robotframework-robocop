@@ -1,8 +1,9 @@
 from __future__ import annotations
 
 from robot.api import Token
+from robot.parsing.model.blocks import Keyword, TestCase
 
-from robocop.linter.rules import Rule, RuleParam, RuleSeverity
+from robocop.linter.rules import Rule, RuleParam, RuleSeverity, VisitorChecker
 
 
 def parse_order_comma_sep_list(value: str, mapping: dict) -> list:
@@ -222,3 +223,49 @@ class SectionOutOfOrderRule(Rule):  # FIXME it is not dup, more like ORD
             desc="order of sections in comma-separated list",
         )
     ]
+
+
+class TestAndKeywordOrderChecker(VisitorChecker):
+    test_case_section_out_of_order: TestCaseSectionOutOfOrderRule
+    keyword_section_out_of_order: KeywordSectionOutOfOrderRule
+
+    def __init__(self):
+        self.rules_by_node_type = {}
+        self.expected_order = {}
+        super().__init__()
+
+    def visit_File(self, node) -> None:  # noqa: N802
+        self.rules_by_node_type = {
+            Keyword: self.keyword_section_out_of_order,
+            TestCase: self.test_case_section_out_of_order,
+        }
+        self.expected_order = {
+            Keyword: self.keyword_section_out_of_order.sections_order,
+            TestCase: self.test_case_section_out_of_order.sections_order,
+        }
+        self.generic_visit(node)
+
+    def check_order(self, node) -> None:
+        max_order_indicator = -1
+        for subnode in node.body:
+            try:
+                subnode_type = subnode.type
+            except AttributeError:
+                continue
+            if subnode_type not in self.expected_order[type(node)]:
+                continue
+            this_node_expected_order = self.expected_order[type(node)].index(subnode.type)
+            if this_node_expected_order < max_order_indicator:
+                error_node = subnode.data_tokens[0]
+                self.report(
+                    self.rules_by_node_type[type(node)],
+                    section_name=subnode_type,
+                    recommended_order=", ".join(self.expected_order[type(node)]),
+                    node=error_node,
+                    col=error_node.col_offset + 1,
+                    end_col=error_node.end_col_offset + 1,
+                )
+            else:
+                max_order_indicator = this_node_expected_order
+
+    visit_Keyword = visit_TestCase = check_order  # noqa: N815

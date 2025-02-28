@@ -23,3 +23,6 @@ class TestRuleAcceptance(RuleAcceptance):
             src_files=["test.robot"],
             expected_file="expected_output_default_order.txt",
         )
+
+    def test_extended(self):
+        self.check_rule(src_files=["test.robot"], expected_file="expected_extended.txt", output_format="extended")

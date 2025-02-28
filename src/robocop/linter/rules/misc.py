@@ -7,7 +7,7 @@ from typing import Optional
 
 from robot.api import Token
 from robot.errors import VariableError
-from robot.parsing.model.blocks import Keyword, TestCase, TestCaseSection
+from robot.parsing.model.blocks import TestCaseSection
 from robot.parsing.model.statements import Arguments, KeywordCall, Teardown
 from robot.utils import unescape
 from robot.variables.search import search_variable
@@ -29,7 +29,6 @@ from robocop.linter.rules import (
     VisitorChecker,
     arguments,
     deprecated,
-    order,
     variables,
 )
 from robocop.linter.utils import (  # FIXME: import as module
@@ -1525,51 +1524,6 @@ class ExpressionsChecker(VisitorChecker):
                 col=position,
                 end_col=position + len(variable) + len(right_side),
             )
-
-
-class TestAndKeywordOrderChecker(VisitorChecker):
-    test_case_section_out_of_order: order.TestCaseSectionOutOfOrderRule
-    keyword_section_out_of_order: order.KeywordSectionOutOfOrderRule
-
-    def __init__(self):
-        self.rules_by_node_type = {}
-        self.expected_order = {}
-        super().__init__()
-
-    def visit_File(self, node) -> None:  # noqa: N802
-        self.rules_by_node_type = {
-            Keyword: self.keyword_section_out_of_order,
-            TestCase: self.test_case_section_out_of_order,
-        }
-        self.expected_order = {
-            Keyword: self.keyword_section_out_of_order.sections_order,
-            TestCase: self.test_case_section_out_of_order.sections_order,
-        }
-        self.generic_visit(node)
-
-    def check_order(self, node) -> None:
-        max_order_indicator = -1
-        for subnode in node.body:
-            try:
-                subnode_type = subnode.type
-            except AttributeError:
-                continue
-            if subnode_type not in self.expected_order[type(node)]:
-                continue
-            this_node_expected_order = self.expected_order[type(node)].index(subnode.type)
-            if this_node_expected_order < max_order_indicator:
-                self.report(
-                    self.rules_by_node_type[type(node)],
-                    section_name=subnode_type,
-                    recommended_order=", ".join(self.expected_order[type(node)]),
-                    node=subnode,
-                    col=subnode.col_offset + 1,
-                    end_col=subnode.end_col_offset + 1,
-                )
-            else:
-                max_order_indicator = this_node_expected_order
-
-    visit_Keyword = visit_TestCase = check_order  # noqa: N815
 
 
 class NonLocalVariableChecker(VisitorChecker):

@@ -1,0 +1,35 @@
+test.robot:25:5 ORD02 'DOCUMENTATION' is in wrong place of Keyword. Recommended order of elements in Keyword: DOCUMENTATION, TAGS, ARGUMENTS, TIMEOUT, SETUP, KEYWORD, TEARDOWN
+    |
+ 23 | Documentation After Tags
+ 24 |     [Tags]    xd
+ 25 |     [Documentation]  this is doc
+    |     ^^^^^^^^^^^^^^^ ORD02
+ 26 |     No Operation
+    |
+
+test.robot:31:5 ORD02 'TAGS' is in wrong place of Keyword. Recommended order of elements in Keyword: DOCUMENTATION, TAGS, ARGUMENTS, TIMEOUT, SETUP, KEYWORD, TEARDOWN
+    |
+ 29 |     [Documentation]  this is doc
+ 30 |     [Arguments]    ${argument1}
+ 31 |     [Tags]    xd
+    |     ^^^^^^ ORD02
+ 32 |     Fail
+    |
+
+test.robot:37:5 ORD02 'ARGUMENTS' is in wrong place of Keyword. Recommended order of elements in Keyword: DOCUMENTATION, TAGS, ARGUMENTS, TIMEOUT, SETUP, KEYWORD, TEARDOWN
+    |
+ 35 |     [Documentation]  this is doc
+ 36 |     [Timeout]    30
+ 37 |     [Arguments]    ${argument1}
+    |     ^^^^^^^^^^^ ORD02
+ 38 |     No Operation
+    |
+
+test.robot:44:5 ORD02 'KEYWORD' is in wrong place of Keyword. Recommended order of elements in Keyword: DOCUMENTATION, TAGS, ARGUMENTS, TIMEOUT, SETUP, KEYWORD, TEARDOWN
+    |
+ 42 |     No Operation
+ 43 |     [Teardown]    Log    Cleaning
+ 44 |     No Operation
+    |     ^^^^^^^^^^^^ ORD02
+    |
+

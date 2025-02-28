@@ -1,0 +1,57 @@
+test.robot:1:1 DEPR04 '*** Setting ***' deprecated singular header used instead of '*** Settings ***'
+   |
+ 1 | *** Setting ***  this is comment
+   | ^^^^^^^^^^^^^^^ DEPR04
+ 2 | Documentation    doc
+ 3 | *** Settings ***
+   |
+
+test.robot:4:1 DEPR04 '*** Variable ***' deprecated singular header used instead of '*** Variables ***'
+   |
+ 2 | Documentation    doc
+ 3 | *** Settings ***
+ 4 | *** Variable ***  # this is also comment
+   | ^^^^^^^^^^^^^^^^ DEPR04
+ 5 | *** Variables ***
+ 6 | *** Test Case ***
+   |
+
+test.robot:6:1 DEPR04 '*** Test Case ***' deprecated singular header used instead of '*** Test Cases ***'
+   |
+ 4 | *** Variable ***  # this is also comment
+ 5 | *** Variables ***
+ 6 | *** Test Case ***
+   | ^^^^^^^^^^^^^^^^^ DEPR04
+ 7 | *** Test Cases ***
+ 8 | *** Keyword ***
+   |
+
+test.robot:8:1 DEPR04 '*** Keyword ***' deprecated singular header used instead of '*** Keywords ***'
+   |
+ 6 | *** Test Case ***
+ 7 | *** Test Cases ***
+ 8 | *** Keyword ***
+   | ^^^^^^^^^^^^^^^ DEPR04
+ 9 | ** Keyword ***
+10 | *** Keywords ***
+   |
+
+test.robot:9:1 DEPR04 '*** Keyword ***' deprecated singular header used instead of '*** Keywords ***'
+   |
+ 7 | *** Test Cases ***
+ 8 | *** Keyword ***
+ 9 | ** Keyword ***
+   | ^^^^^^^^^^^^^^ DEPR04
+10 | *** Keywords ***
+11 | *** Keywords **
+   |
+
+test.robot:12:1 DEPR04 '*** Comment ***' deprecated singular header used instead of '*** Comments ***'
+    |
+ 10 | *** Keywords ***
+ 11 | *** Keywords **
+ 12 | *** Comment ***
+    | ^^^^^^^^^^^^^^^ DEPR04
+ 13 | *** Comments ***
+    |
+

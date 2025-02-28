@@ -1,0 +1,199 @@
+force_tags.robot:2:1 DEPR02 'Force Tags' is deprecated since Robot Framework version 6.0, use 'Test Tags' instead
+   |
+ 1 | *** Settings ***
+ 2 | Force Tags    tag
+   | ^^^^^^^^^^ DEPR02
+ 3 | Test Tags    other tag
+   |
+
+templated_suite.robot:2:18 DEPR02 'Run Keyword Unless' is deprecated since Robot Framework version 5.*, use 'IF' instead
+   |
+ 1 | *** Settings ***
+ 2 | Test Template    Run Keyword Unless
+   |                  ^^^^^^^^^^^^^^^^^^ DEPR02
+   |
+
+test.robot:2:14 DEPR02 'Run Keyword If' is deprecated since Robot Framework version 5.*, use 'IF' instead
+   |
+ 1 | *** Settings ***
+ 2 | Suite Setup  Run Keyword If
+   |              ^^^^^^^^^^^^^^ DEPR02
+ 3 | Suite Teardown  Run Keyword If
+ 4 | Force Tags         tag
+   |
+
+test.robot:3:17 DEPR02 'Run Keyword If' is deprecated since Robot Framework version 5.*, use 'IF' instead
+   |
+ 1 | *** Settings ***
+ 2 | Suite Setup  Run Keyword If
+ 3 | Suite Teardown  Run Keyword If
+   |                 ^^^^^^^^^^^^^^ DEPR02
+ 4 | Force Tags         tag
+   |
+
+test.robot:4:1 DEPR02 'Force Tags' is deprecated since Robot Framework version 6.0, use 'Test Tags' instead
+   |
+ 2 | Suite Setup  Run Keyword If
+ 3 | Suite Teardown  Run Keyword If
+ 4 | Force Tags         tag
+   | ^^^^^^^^^^ DEPR02
+   |
+
+test.robot:6:13 DEPR02 'Run Keyword If' is deprecated since Robot Framework version 5.*, use 'IF' instead
+   |
+ 6 | Test Setup  Run Keyword If
+   |             ^^^^^^^^^^^^^^ DEPR02
+ 7 | Test Teardown  Run Keyword If
+   |
+
+test.robot:7:16 DEPR02 'Run Keyword If' is deprecated since Robot Framework version 5.*, use 'IF' instead
+   |
+ 5 |
+ 6 | Test Setup  Run Keyword If
+ 7 | Test Teardown  Run Keyword If
+   |                ^^^^^^^^^^^^^^ DEPR02
+   |
+
+test.robot:11:14 DEPR02 'Run Keyword Unless' is deprecated since Robot Framework version 5.*, use 'IF' instead
+    |
+  9 | *** Test Cases ***
+ 10 | Test
+ 11 |     [Setup]  Run Keyword Unless
+    |              ^^^^^^^^^^^^^^^^^^ DEPR02
+ 12 |     [Teardown]  Run Keyword Unless
+ 13 |     Run Keyword Unless   True   Hello World
+    |
+
+test.robot:12:17 DEPR02 'Run Keyword Unless' is deprecated since Robot Framework version 5.*, use 'IF' instead
+    |
+ 10 | Test
+ 11 |     [Setup]  Run Keyword Unless
+ 12 |     [Teardown]  Run Keyword Unless
+    |                 ^^^^^^^^^^^^^^^^^^ DEPR02
+ 13 |     Run Keyword Unless   True   Hello World
+ 14 |     Run Keyword If   True   Hello World
+    |
+
+test.robot:13:5 DEPR02 'Run Keyword Unless' is deprecated since Robot Framework version 5.*, use 'IF' instead
+    |
+ 11 |     [Setup]  Run Keyword Unless
+ 12 |     [Teardown]  Run Keyword Unless
+ 13 |     Run Keyword Unless   True   Hello World
+    |     ^^^^^^^^^^^^^^^^^^ DEPR02
+ 14 |     Run Keyword If   True   Hello World
+ 15 |     run_keyword_unless   True   Hello World
+    |
+
+test.robot:14:5 DEPR02 'Run Keyword If' is deprecated since Robot Framework version 5.*, use 'IF' instead
+    |
+ 12 |     [Teardown]  Run Keyword Unless
+ 13 |     Run Keyword Unless   True   Hello World
+ 14 |     Run Keyword If   True   Hello World
+    |     ^^^^^^^^^^^^^^ DEPR02
+ 15 |     run_keyword_unless   True   Hello World
+ 16 |     builtin.run_KeywoRD_UNLESS   True   Hello World
+    |
+
+test.robot:15:5 DEPR02 'run_keyword_unless' is deprecated since Robot Framework version 5.*, use 'IF' instead
+    |
+ 13 |     Run Keyword Unless   True   Hello World
+ 14 |     Run Keyword If   True   Hello World
+ 15 |     run_keyword_unless   True   Hello World
+    |     ^^^^^^^^^^^^^^^^^^ DEPR02
+ 16 |     builtin.run_KeywoRD_UNLESS   True   Hello World
+ 17 |     BuiltIn.Run Keyword Unless   True   Hello World
+    |
+
+test.robot:16:5 DEPR02 'builtin.run_KeywoRD_UNLESS' is deprecated since Robot Framework version 5.*, use 'IF' instead
+    |
+ 14 |     Run Keyword If   True   Hello World
+ 15 |     run_keyword_unless   True   Hello World
+ 16 |     builtin.run_KeywoRD_UNLESS   True   Hello World
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^ DEPR02
+ 17 |     BuiltIn.Run Keyword Unless   True   Hello World
+    |
+
+test.robot:17:5 DEPR02 'BuiltIn.Run Keyword Unless' is deprecated since Robot Framework version 5.*, use 'IF' instead
+    |
+ 15 |     run_keyword_unless   True   Hello World
+ 16 |     builtin.run_KeywoRD_UNLESS   True   Hello World
+ 17 |     BuiltIn.Run Keyword Unless   True   Hello World
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^ DEPR02
+    |
+
+test.robot:20:19 DEPR02 'Run Keyword Unless' is deprecated since Robot Framework version 5.*, use 'IF' instead
+    |
+ 18 |
+ 19 | Templated test
+ 20 |     [Template]    Run Keyword Unless
+    |                   ^^^^^^^^^^^^^^^^^^ DEPR02
+    |
+
+test.robot:26:13 DEPR02 'Continue For Loop' is deprecated since Robot Framework version 5.*, use 'CONTINUE' instead
+    |
+ 24 |     FOR    ${var}  IN RANGE  10
+ 25 |         WHILE    $var
+ 26 |             Continue For Loop
+    |             ^^^^^^^^^^^^^^^^^ DEPR02
+ 27 |             Continue For Loop If  $var > 10
+ 28 |             Exit For Loop If  $var < 0
+    |
+
+test.robot:27:13 DEPR02 'Continue For Loop If' is deprecated since Robot Framework version 5.*, use 'IF and CONTINUE' instead
+    |
+ 25 |         WHILE    $var
+ 26 |             Continue For Loop
+ 27 |             Continue For Loop If  $var > 10
+    |             ^^^^^^^^^^^^^^^^^^^^ DEPR02
+ 28 |             Exit For Loop If  $var < 0
+ 29 |             BuiltIn.Exit For Loop
+    |
+
+test.robot:28:13 DEPR02 'Exit For Loop If' is deprecated since Robot Framework version 5.*, use 'IF and BREAK' instead
+    |
+ 26 |             Continue For Loop
+ 27 |             Continue For Loop If  $var > 10
+ 28 |             Exit For Loop If  $var < 0
+    |             ^^^^^^^^^^^^^^^^ DEPR02
+ 29 |             BuiltIn.Exit For Loop
+ 30 |         END
+    |
+
+test.robot:29:13 DEPR02 'BuiltIn.Exit For Loop' is deprecated since Robot Framework version 5.*, use 'BREAK' instead
+    |
+ 27 |             Continue For Loop If  $var > 10
+ 28 |             Exit For Loop If  $var < 0
+ 29 |             BuiltIn.Exit For Loop
+    |             ^^^^^^^^^^^^^^^^^^^^^ DEPR02
+ 30 |         END
+ 31 |     END
+    |
+
+test.robot:34:5 DEPR02 'Return From Keyword If' is deprecated since Robot Framework version 5.*, use 'IF and RETURN' instead
+    |
+ 32 |
+ 33 | RETURN
+ 34 |     Return From Keyword If  $GLOBAL > 10
+    |     ^^^^^^^^^^^^^^^^^^^^^^ DEPR02
+ 35 |     BuiltIn.Return From Keyword
+ 36 |     RETURN
+    |
+
+test.robot:35:5 DEPR02 'BuiltIn.Return From Keyword' is deprecated since Robot Framework version 5.*, use 'RETURN' instead
+    |
+ 33 | RETURN
+ 34 |     Return From Keyword If  $GLOBAL > 10
+ 35 |     BuiltIn.Return From Keyword
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^ DEPR02
+ 36 |     RETURN
+ 37 |     [Return]
+    |
+
+test.robot:37:5 DEPR02 '[Return]' is deprecated since Robot Framework version 5.*, use 'RETURN' instead
+    |
+ 35 |     BuiltIn.Return From Keyword
+ 36 |     RETURN
+ 37 |     [Return]
+    |     ^^^^^^^^ DEPR02
+    |
+

@@ -1,0 +1,9 @@
+test.robot:3:22 DEPR03 Deprecated 'WITH NAME' alias marker used instead of 'AS'
+   |
+ 1 | *** Settings ***
+ 2 | Library    Library
+ 3 | Library   Library    WITH NAME    Library2
+   |                      ^^^^^^^^^ DEPR03
+ 4 | Library   Library    AS    Library2
+   |
+

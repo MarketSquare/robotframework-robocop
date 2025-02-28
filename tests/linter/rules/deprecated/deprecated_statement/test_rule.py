@@ -9,6 +9,9 @@ class TestRuleAcceptance(RuleAcceptance):
             test_on_version=">=6",
         )
 
+    def test_extended(self):
+        self.check_rule(expected_file="expected_extended.txt", output_format="extended", test_on_version=">=6")
+
     def test_rule_rf5(self):
         self.check_rule(
             src_files=["test.robot", "templated_suite.robot"],

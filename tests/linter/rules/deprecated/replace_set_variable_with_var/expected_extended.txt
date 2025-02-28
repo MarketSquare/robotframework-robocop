@@ -1,0 +1,100 @@
+test.robot:3:5 DEPR05 Set Local Variable used instead of VAR
+   |
+ 1 | *** Test Cases ***
+ 2 | Test with Set Variables
+ 3 |     Set Local Variable    $variable
+   |     ^^^^^^^^^^^^^^^^^^ DEPR05
+ 4 |     Set Global Variable    ${variable}
+ 5 |     Set Test Variable    ${variable}    value
+   |
+
+test.robot:4:5 DEPR05 Set Global Variable used instead of VAR
+   |
+ 2 | Test with Set Variables
+ 3 |     Set Local Variable    $variable
+ 4 |     Set Global Variable    ${variable}
+   |     ^^^^^^^^^^^^^^^^^^^ DEPR05
+ 5 |     Set Test Variable    ${variable}    value
+ 6 |     FOR    ${v}    IN    a  b
+   |
+
+test.robot:5:5 DEPR05 Set Test Variable used instead of VAR
+   |
+ 3 |     Set Local Variable    $variable
+ 4 |     Set Global Variable    ${variable}
+ 5 |     Set Test Variable    ${variable}    value
+   |     ^^^^^^^^^^^^^^^^^ DEPR05
+ 6 |     FOR    ${v}    IN    a  b
+ 7 |         Set Task Variable    ${v}
+   |
+
+test.robot:7:9 DEPR05 Set Task Variable used instead of VAR
+   |
+ 5 |     Set Test Variable    ${variable}    value
+ 6 |     FOR    ${v}    IN    a  b
+ 7 |         Set Task Variable    ${v}
+   |         ^^^^^^^^^^^^^^^^^ DEPR05
+ 8 |         IF    $v
+ 9 |             Set Suite Variable    ${SUITE_VAR}
+   |
+
+test.robot:9:13 DEPR05 Set Suite Variable used instead of VAR
+   |
+ 7 |         Set Task Variable    ${v}
+ 8 |         IF    $v
+ 9 |             Set Suite Variable    ${SUITE_VAR}
+   |             ^^^^^^^^^^^^^^^^^^ DEPR05
+10 |         END
+11 |     END
+   |
+
+test.robot:17:5 DEPR05 Set Local Variable used instead of VAR
+    |
+ 15 | *** Keywords ***
+ 16 | Keyword With Set Variables
+ 17 |     Set Local Variable    $variable
+    |     ^^^^^^^^^^^^^^^^^^ DEPR05
+ 18 |     Setglobal Variable    ${variable}
+ 19 |     Set Test Variable    ${variable}    value
+    |
+
+test.robot:18:5 DEPR05 Setglobal Variable used instead of VAR
+    |
+ 16 | Keyword With Set Variables
+ 17 |     Set Local Variable    $variable
+ 18 |     Setglobal Variable    ${variable}
+    |     ^^^^^^^^^^^^^^^^^^ DEPR05
+ 19 |     Set Test Variable    ${variable}    value
+ 20 |     TRY
+    |
+
+test.robot:19:5 DEPR05 Set Test Variable used instead of VAR
+    |
+ 17 |     Set Local Variable    $variable
+ 18 |     Setglobal Variable    ${variable}
+ 19 |     Set Test Variable    ${variable}    value
+    |     ^^^^^^^^^^^^^^^^^ DEPR05
+ 20 |     TRY
+ 21 |         Set_Task Variable    ${v}
+    |
+
+test.robot:21:9 DEPR05 Set_Task Variable used instead of VAR
+    |
+ 19 |     Set Test Variable    ${variable}    value
+ 20 |     TRY
+ 21 |         Set_Task Variable    ${v}
+    |         ^^^^^^^^^^^^^^^^^ DEPR05
+ 22 |     EXCEPT
+ 23 |         Set Suite Variable    ${SUITE_VAR}
+    |
+
+test.robot:23:9 DEPR05 Set Suite Variable used instead of VAR
+    |
+ 21 |         Set_Task Variable    ${v}
+ 22 |     EXCEPT
+ 23 |         Set Suite Variable    ${SUITE_VAR}
+    |         ^^^^^^^^^^^^^^^^^^ DEPR05
+ 24 |     END
+ 25 |     VAR    ${var}
+    |
+

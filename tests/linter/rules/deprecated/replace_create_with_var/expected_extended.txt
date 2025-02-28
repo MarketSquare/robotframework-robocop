@@ -1,0 +1,50 @@
+test.robot:3:16 DEPR06 Create List used instead of VAR
+   |
+ 1 | *** Test Cases ***
+ 2 | Test with Create keywords
+ 3 |     @{list}    Create List    a   b
+   |                ^^^^^^^^^^^ DEPR06
+ 4 |     FOR    ${v}    IN    a  b
+ 5 |         &{dict} =    Create Dictionary    key=${v}
+   |
+
+test.robot:5:22 DEPR06 Create Dictionary used instead of VAR
+   |
+ 3 |     @{list}    Create List    a   b
+ 4 |     FOR    ${v}    IN    a  b
+ 5 |         &{dict} =    Create Dictionary    key=${v}
+   |                      ^^^^^^^^^^^^^^^^^ DEPR06
+ 6 |     END
+ 7 |     VAR    ${var}
+   |
+
+test.robot:12:21 DEPR06 Create List used instead of VAR
+    |
+ 10 | *** Keywords ***
+ 11 | Keyword With Set Variables
+ 12 |     @{list_var}=    Create List    a   b
+    |                     ^^^^^^^^^^^ DEPR06
+ 13 |     TRY
+ 14 |         @{list}    createlist    a   b
+    |
+
+test.robot:14:20 DEPR06 createlist used instead of VAR
+    |
+ 12 |     @{list_var}=    Create List    a   b
+ 13 |     TRY
+ 14 |         @{list}    createlist    a   b
+    |                    ^^^^^^^^^^ DEPR06
+ 15 |     EXCEPT
+ 16 |         &{dict} =    BuiltIn.Create Dictionary    key=${v}
+    |
+
+test.robot:16:22 DEPR06 BuiltIn.Create Dictionary used instead of VAR
+    |
+ 14 |         @{list}    createlist    a   b
+ 15 |     EXCEPT
+ 16 |         &{dict} =    BuiltIn.Create Dictionary    key=${v}
+    |                      ^^^^^^^^^^^^^^^^^^^^^^^^^ DEPR06
+ 17 |     END
+ 18 |     VAR    ${var}
+    |
+

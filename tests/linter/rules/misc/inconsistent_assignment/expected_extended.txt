@@ -1,0 +1,18 @@
+test.robot:25:5 MISC04 The assignment sign is not consistent within the file. Expected '' but got ' =' instead
+    |
+ 23 |
+ 24 | Keyword With One Assignment
+ 25 |     ${var} =    Keyword
+    |     ^^^^^^^^ MISC04
+    |
+
+test.robot:31:15 MISC04 The assignment sign is not consistent within the file. Expected '' but got '=' instead
+    |
+ 29 |
+ 30 | Keyword With Multiline Keyword
+ 31 |     ${var}    ${var}=    Keyword
+    |               ^^^^^^^ MISC04
+ 32 |     ...    ${arg}
+ 33 |     ...    ${1}
+    |
+

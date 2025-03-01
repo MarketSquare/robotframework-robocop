@@ -556,6 +556,7 @@ class ConfigManager:
         config: Path | None = None,
         root: str | None = None,  # noqa: ARG002  TODO
         ignore_git_dir: bool = False,
+        ignore_file_config: bool = False,
         skip_gitignore: bool = False,  # noqa: ARG002  TODO
         overwrite_config: Config | None = None,
     ):
@@ -568,6 +569,7 @@ class ConfigManager:
             root: Root of the project. Can be supplied if it's known beforehand (for example by IDE plugin)
             Otherwise it will be automatically found.
             ignore_git_dir: Flag for project root discovery to decide if directories with `.git` should be ignored.
+            ignore_file_config: If set to True, Robocop will not load found configuration files
             skip_gitignore: Do not load .gitignore files when looking for the files to parse
             overwrite_config: Overwrite existing configuration file with the Config class
 
@@ -575,6 +577,7 @@ class ConfigManager:
         self.cached_configs: dict[Path, Config] = {}
         self.overwrite_config = overwrite_config
         self.ignore_git_dir = ignore_git_dir
+        self.ignore_file_config = ignore_file_config
         self.gitignore_resolver = GitIgnoreResolver()
         self.overridden_config = (
             config is not None
@@ -666,7 +669,7 @@ class ConfigManager:
             source_file: Path to Robot Framework source file or directory.
 
         """
-        if self.overridden_config:
+        if self.overridden_config or self.ignore_file_config:
             return self.default_config
         return self.find_closest_config(source_file)
 

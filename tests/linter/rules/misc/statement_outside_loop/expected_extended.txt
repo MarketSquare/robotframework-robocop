@@ -1,0 +1,208 @@
+test.robot:3:5 MISC08 'Continue For Loop' keyword used outside a loop
+   |
+ 1 | *** Test Cases ***
+ 2 | Test
+ 3 |     Continue For Loop
+   |     ^^^^^^^^^^^^^^^^^ MISC08
+ 4 |     FOR    ${var}    IN RANGE    10
+ 5 |         Keyword 2
+   |
+
+test.robot:13:5 MISC08 'BuiltIn.Exit For Loop' keyword used outside a loop
+    |
+ 11 |         Continuefor_loopIf    $condition
+ 12 |     END
+ 13 |     BuiltIn.Exit For Loop
+    |     ^^^^^^^^^^^^^^^^^^^^^ MISC08
+ 14 |     CONTINUE
+ 15 |     BREAK
+    |
+
+test.robot:14:5 MISC08 CONTINUE statement used outside a loop
+    |
+ 12 |     END
+ 13 |     BuiltIn.Exit For Loop
+ 14 |     CONTINUE
+    |     ^^^^^^^^ MISC08
+ 15 |     BREAK
+ 16 |     Exit For Loop If    $condition
+    |
+
+test.robot:15:5 MISC08 BREAK statement used outside a loop
+    |
+ 13 |     BuiltIn.Exit For Loop
+ 14 |     CONTINUE
+ 15 |     BREAK
+    |     ^^^^^ MISC08
+ 16 |     Exit For Loop If    $condition
+ 17 |     Continuefor_loopIf    $condition
+    |
+
+test.robot:16:5 MISC08 'Exit For Loop If' keyword used outside a loop
+    |
+ 14 |     CONTINUE
+ 15 |     BREAK
+ 16 |     Exit For Loop If    $condition
+    |     ^^^^^^^^^^^^^^^^ MISC08
+ 17 |     Continuefor_loopIf    $condition
+    |
+
+test.robot:17:5 MISC08 'Continuefor_loopIf' keyword used outside a loop
+    |
+ 15 |     BREAK
+ 16 |     Exit For Loop If    $condition
+ 17 |     Continuefor_loopIf    $condition
+    |     ^^^^^^^^^^^^^^^^^^ MISC08
+    |
+
+test.robot:20:5 MISC08 'Exit For Loop' keyword used outside a loop
+    |
+ 18 |
+ 19 | Test 2
+ 20 |     Exit For Loop
+    |     ^^^^^^^^^^^^^ MISC08
+ 21 |     Continue For Loop
+ 22 |     CONTINUE
+    |
+
+test.robot:21:5 MISC08 'Continue For Loop' keyword used outside a loop
+    |
+ 19 | Test 2
+ 20 |     Exit For Loop
+ 21 |     Continue For Loop
+    |     ^^^^^^^^^^^^^^^^^ MISC08
+ 22 |     CONTINUE
+ 23 |     BREAK
+    |
+
+test.robot:22:5 MISC08 CONTINUE statement used outside a loop
+    |
+ 20 |     Exit For Loop
+ 21 |     Continue For Loop
+ 22 |     CONTINUE
+    |     ^^^^^^^^ MISC08
+ 23 |     BREAK
+    |
+
+test.robot:23:5 MISC08 BREAK statement used outside a loop
+    |
+ 21 |     Continue For Loop
+ 22 |     CONTINUE
+ 23 |     BREAK
+    |     ^^^^^ MISC08
+    |
+
+test.robot:28:5 MISC08 'Continue For Loop' keyword used outside a loop
+    |
+ 26 | *** Keywords ***
+ 27 | Keyword
+ 28 |     Continue For Loop
+    |     ^^^^^^^^^^^^^^^^^ MISC08
+ 29 |     CONTINUE
+ 30 |     BREAK
+    |
+
+test.robot:29:5 MISC08 CONTINUE statement used outside a loop
+    |
+ 27 | Keyword
+ 28 |     Continue For Loop
+ 29 |     CONTINUE
+    |     ^^^^^^^^ MISC08
+ 30 |     BREAK
+ 31 |     FOR    ${var}    IN RANGE    10
+    |
+
+test.robot:30:5 MISC08 BREAK statement used outside a loop
+    |
+ 28 |     Continue For Loop
+ 29 |     CONTINUE
+ 30 |     BREAK
+    |     ^^^^^ MISC08
+ 31 |     FOR    ${var}    IN RANGE    10
+ 32 |         Keyword 2
+    |
+
+test.robot:42:5 MISC08 'Exit For Loop' keyword used outside a loop
+    |
+ 40 |     END
+ 41 |     Keyword
+ 42 |     Exit For Loop
+    |     ^^^^^^^^^^^^^ MISC08
+    |
+
+test.robot:46:5 MISC08 'Exit For Loop' keyword used outside a loop
+    |
+ 44 | Keyword 2
+ 45 |     Keyword
+ 46 |     Exit For Loop
+    |     ^^^^^^^^^^^^^ MISC08
+ 47 |     Continue For Loop
+ 48 |     IF    $condition
+    |
+
+test.robot:47:5 MISC08 'Continue For Loop' keyword used outside a loop
+    |
+ 45 |     Keyword
+ 46 |     Exit For Loop
+ 47 |     Continue For Loop
+    |     ^^^^^^^^^^^^^^^^^ MISC08
+ 48 |     IF    $condition
+ 49 |         CONTINUE
+    |
+
+test.robot:49:9 MISC08 CONTINUE statement used outside a loop
+    |
+ 47 |     Continue For Loop
+ 48 |     IF    $condition
+ 49 |         CONTINUE
+    |         ^^^^^^^^ MISC08
+ 50 |     END
+ 51 |     BREAK
+    |
+
+test.robot:51:5 MISC08 BREAK statement used outside a loop
+    |
+ 49 |         CONTINUE
+ 50 |     END
+ 51 |     BREAK
+    |     ^^^^^ MISC08
+ 52 |     IF    $condition    Exit For Loop If    $condition
+ 53 |     Continuefor_loopIf    $condition
+    |
+
+test.robot:52:25 MISC08 'Exit For Loop If' keyword used outside a loop
+    |
+ 50 |     END
+ 51 |     BREAK
+ 52 |     IF    $condition    Exit For Loop If    $condition
+    |                         ^^^^^^^^^^^^^^^^ MISC08
+ 53 |     Continuefor_loopIf    $condition
+    |
+
+test.robot:53:5 MISC08 'Continuefor_loopIf' keyword used outside a loop
+    |
+ 51 |     BREAK
+ 52 |     IF    $condition    Exit For Loop If    $condition
+ 53 |     Continuefor_loopIf    $condition
+    |     ^^^^^^^^^^^^^^^^^^ MISC08
+    |
+
+test.robot:67:9 MISC08 'Continue For Loop' keyword used outside a loop
+    |
+ 65 |     END
+ 66 |     TRY
+ 67 |         Continue For Loop
+    |         ^^^^^^^^^^^^^^^^^ MISC08
+ 68 |     EXCEPT
+ 69 |         BREAK
+    |
+
+test.robot:69:9 MISC08 BREAK statement used outside a loop
+    |
+ 67 |         Continue For Loop
+ 68 |     EXCEPT
+ 69 |         BREAK
+    |         ^^^^^ MISC08
+ 70 |     END
+    |
+

@@ -1,0 +1,77 @@
+test.robot:5:16 MISC14 'ELSE IF' condition 'not ${status} is ${false}' can be rewritten to '${status} is not ${false}'
+   |
+ 3 |     IF    ${status} is ${TRUE}
+ 4 |         Log    ${variable}
+ 5 |     ELSE IF    not ${status} is ${false}
+   |                ^^^^^^^^^^^^^^^^^^^^^^^^^ MISC14
+ 6 |         Log    ${variable}
+ 7 |         IF    not ${status} is ${NONE}
+   |
+
+test.robot:7:15 MISC14 'IF' condition 'not ${status} is ${NONE}' can be rewritten to '${status} is not ${NONE}'
+   |
+ 5 |     ELSE IF    not ${status} is ${false}
+ 6 |         Log    ${variable}
+ 7 |         IF    not ${status} is ${NONE}
+   |               ^^^^^^^^^^^^^^^^^^^^^^^^ MISC14
+ 8 |             Log    ${variable}
+ 9 |         END
+   |
+
+test.robot:17:14 MISC14 'WHILE' condition 'not ${status} is ${variable}' can be rewritten to '${status} is not ${variable}'
+    |
+ 15 |
+ 16 | While condition
+ 17 |     WHILE    not ${status} is ${variable}    limit=1 min
+    |              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ MISC14
+ 18 |         WHILE    not not ${status} is None
+ 19 |             Log    ${variable}
+    |
+
+test.robot:18:18 MISC14 'WHILE' condition 'not ${status} is None' can be rewritten to '${status} is not None'
+    |
+ 16 | While condition
+ 17 |     WHILE    not ${status} is ${variable}    limit=1 min
+ 18 |         WHILE    not not ${status} is None
+    |                  ^^^^^^^^^^^^^^^^^^^^^^^^^ MISC14
+ 19 |             Log    ${variable}
+ 20 |         END
+    |
+
+test.robot:31:12 MISC14 'Set Variable If' condition 'not ${status} is None' can be rewritten to '${status} is not None'
+    |
+ 29 |     Set Variable If    len(@{list})
+ 30 |     ...    value
+ 31 |     ...    not ${status} is None
+    |            ^^^^^^^^^^^^^^^^^^^^^ MISC14
+ 32 |     ...    value
+ 33 |     ...    not ${class.attr['item']} is set()
+    |
+
+test.robot:33:12 MISC14 'Set Variable If' condition 'not ${class.attr['item']} is set()' can be rewritten to '${class.attr['item']} is not set()'
+    |
+ 31 |     ...    not ${status} is None
+ 32 |     ...    value
+ 33 |     ...    not ${class.attr['item']} is set()
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ MISC14
+ 34 |     ...    value
+ 35 |     Skip If    ${true}
+    |
+
+test.robot:36:16 MISC14 'Skip If' condition 'not ${status} is None' can be rewritten to '${status} is not None'
+    |
+ 34 |     ...    value
+ 35 |     Skip If    ${true}
+ 36 |     Skip If    not ${status} is None
+    |                ^^^^^^^^^^^^^^^^^^^^^ MISC14
+ 37 |     Should Be True    not ${status} is None
+    |
+
+test.robot:37:23 MISC14 'Should Be True' condition 'not ${status} is None' can be rewritten to '${status} is not None'
+    |
+ 35 |     Skip If    ${true}
+ 36 |     Skip If    not ${status} is None
+ 37 |     Should Be True    not ${status} is None
+    |                       ^^^^^^^^^^^^^^^^^^^^^ MISC14
+    |
+

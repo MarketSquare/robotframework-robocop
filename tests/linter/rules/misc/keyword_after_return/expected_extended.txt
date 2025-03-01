@@ -1,0 +1,17 @@
+keyword_after_return_from.robot:21:5 MISC01 Keyword call after 'Return From Keyword'
+    |
+ 19 |     No Operation
+ 20 |     Return From Keyword
+ 21 |     Fail
+    |     ^^^^ MISC01
+    |
+
+test.robot:20:5 MISC01 [Return] is not defined at the end of keyword. Note that [Return] does not quit from keyword but only set variables to be returned
+    |
+ 18 |     Pass
+ 19 |     No Operation
+ 20 |     [Return]    ${var}
+    |     ^^^^^^^^ MISC01
+ 21 |     Fail
+    |
+

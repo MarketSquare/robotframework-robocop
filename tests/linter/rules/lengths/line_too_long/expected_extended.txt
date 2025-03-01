@@ -1,0 +1,27 @@
+test.robot:17:120 LEN08 Line is too long (139/120)
+    |
+ 15 |     Pass
+ 16 |     Keyword
+ 17 |     Keyword With Looooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooong Name And  ${args}
+    |                                                                                                                        ^^^^^^^^^^^^^^^^^^^^ LEN08
+    |
+
+test.robot:27:120 LEN08 Line is too long (159/120)
+    |
+ 25 | *** Keywords ***
+ 26 | Keyword
+ 27 |   [Documentation]  this is looooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooong doc
+    |                                                                                                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ LEN08
+ 28 |     No Operation
+ 29 |     Pass
+    |
+
+test.robot:30:120 LEN08 Line is too long (139/120)
+    |
+ 28 |     No Operation
+ 29 |     Pass
+ 30 |     Keyword With Looooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooong Name And  ${args}
+    |                                                                                                                        ^^^^^^^^^^^^^^^^^^^^ LEN08
+ 31 |     Fail
+    |
+

@@ -1,0 +1,8 @@
+test.robot:3:1 LEN11 Metadata settings does not have any value set
+   |
+ 1 | *** Settings ***
+ 2 | Documentation  doc
+ 3 | Metadata
+   | ^ LEN11
+   |
+

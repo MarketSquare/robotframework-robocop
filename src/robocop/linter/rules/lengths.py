@@ -157,6 +157,7 @@ class FileTooLongRule(Rule):
     rule_id = "LEN28"
     message = "File has too many lines ({lines_count}/{max_allowed_count})"
     severity = RuleSeverity.WARNING
+    file_wide_rule = True
     parameters = [
         RuleParam(name="max_lines", default=400, converter=int, desc="number of lines allowed in a file"),
     ]
@@ -588,13 +589,15 @@ class LengthChecker(VisitorChecker):
             if isinstance(child, Arguments):
                 args_number = len(child.values)
                 if args_number > self.too_many_arguments.max_args:
+                    name_token = child.data_tokens[0]
                     self.report(
                         self.too_many_arguments,
                         keyword_name=node.name,
                         arguments_count=args_number,
                         max_allowed_count=self.too_many_arguments.max_args,
-                        node=node,
-                        end_col=node.col_offset + len(node.name) + 1,
+                        node=name_token,
+                        end_lineno=child.end_lineno,
+                        end_col=child.end_col_offset + 1,
                         extended_disablers=(node.lineno, node.end_lineno),
                         sev_threshold_value=args_number,
                     )
@@ -718,6 +721,7 @@ class LineLengthChecker(RawFileChecker):
                 line_length=len(line),
                 allowed_length=self.line_too_long.line_length,
                 lineno=lineno,
+                col=self.line_too_long.line_length,
                 end_col=len(line) + 1,
                 sev_threshold_value=len(line),
             )
@@ -855,11 +859,11 @@ class EmptySettingsChecker(VisitorChecker):
 
     def visit_ResourceImport(self, node) -> None:  # noqa: N802
         if not node.name:
-            self.report(self.empty_resource_import, node=node, col=node.col_offset + 1)
+            self.report(self.empty_resource_import, node=node, col=node.col_offset + 1, end_col=node.end_col_offset)
 
     def visit_LibraryImport(self, node) -> None:  # noqa: N802
         if not node.name:
-            self.report(self.empty_library_import, node=node, col=node.col_offset + 1)
+            self.report(self.empty_library_import, node=node, col=node.col_offset + 1, end_col=node.end_col_offset)
 
     def visit_Setup(self, node) -> None:  # noqa: N802
         if not node.name:

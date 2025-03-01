@@ -1,0 +1,10 @@
+test.robot:17:5 LEN26 Arguments of 'Keyword Without Arguments' Keyword are empty
+    |
+ 15 | Keyword Without Arguments
+ 16 |     [Documentation]  this is doc
+ 17 |     [Arguments]
+    |     ^^^^^^^^^^^^ LEN26
+ 18 |     No Operation
+ 19 |     Pass
+    |
+

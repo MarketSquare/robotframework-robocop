@@ -1,0 +1,10 @@
+test.robot:9:5 LEN18 Setup of 'Test' Test Case does not have any keywords
+   |
+ 7 |     [Documentation]  doc
+ 8 |     [Tags]  sometag
+ 9 |     [Setup]
+   |     ^^^^^^^ LEN18
+10 |     Pass
+11 |     Keyword
+   |
+

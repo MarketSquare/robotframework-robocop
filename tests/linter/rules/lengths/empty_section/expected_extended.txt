@@ -1,0 +1,19 @@
+with_empty_sections.robot:1:1 LEN09 Section '*** Settings ***' is empty
+   |
+ 1 | *** Settings ***
+   | ^^^^^^^^^^^^^^^^ LEN09
+   |
+
+with_empty_sections.robot:13:1 LEN09 Section '*** Keywords ***' is empty
+    |
+ 13 | *** Keywords ***
+    | ^^^^^^^^^^^^^^^^ LEN09
+ 14 | # This section considered as empty.
+    |
+
+with_empty_sections.robot:17:1 LEN09 Section '*** Variables ***' is empty
+    |
+ 17 | *** Variables ***
+    | ^^^^^^^^^^^^^^^^^ LEN09
+    |
+

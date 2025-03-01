@@ -1,0 +1,8 @@
+test.robot:3:1 LEN13 Force Tags are empty
+   |
+ 1 | *** Settings ***
+ 2 | Documentation  doc
+ 3 | Force Tags
+   | ^^^^^^^^^^ LEN13
+   |
+

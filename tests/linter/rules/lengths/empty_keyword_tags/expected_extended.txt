@@ -1,0 +1,8 @@
+test.robot:3:1 LEN31 Keyword Tags are empty
+   |
+ 1 | *** Settings ***
+ 2 | Documentation  doc
+ 3 | Keyword Tags
+   | ^^^^^^^^^^^^ LEN31
+   |
+

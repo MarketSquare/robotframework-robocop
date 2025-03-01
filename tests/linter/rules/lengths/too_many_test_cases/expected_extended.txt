@@ -1,0 +1,15 @@
+test.robot:1:1 LEN27 Too many test cases (51/50)
+   |
+ 1 | *** Test Cases ***
+   | ^^^^^^^^^^^^^^^^^^ LEN27
+ 2 | # Some comment
+   |
+
+templated_test.robot:5:1 LEN27 Too many test cases (101/100)
+   |
+ 5 | *** Test Cases ***
+   | ^^^^^^^^^^^^^^^^^^ LEN27
+ 6 | # Some comment
+ 7 | TestCase1      ${arg}    ${arg}
+   |
+

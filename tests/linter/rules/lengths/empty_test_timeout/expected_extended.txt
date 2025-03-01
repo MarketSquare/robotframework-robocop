@@ -1,0 +1,8 @@
+test.robot:3:1 LEN25 Test Timeout is empty
+   |
+ 1 | *** Settings ***
+ 2 | Documentation  doc
+ 3 | Test Timeout
+   | ^^^^^^^^^^^^ LEN25
+   |
+

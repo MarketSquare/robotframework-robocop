@@ -1,0 +1,12 @@
+test.robot:30:1 LEN02 Keyword 'Empty Keyword' has too few keywords inside (0/1)
+    |
+ 30 | Empty Keyword
+    | ^^^^^^^^^^^^^ LEN02
+    |
+
+test.robot:32:1 LEN02 Keyword 'Keyword' has too few keywords inside (0/1)
+    |
+ 32 | Keyword
+    | ^^^^^^^ LEN02
+    |
+

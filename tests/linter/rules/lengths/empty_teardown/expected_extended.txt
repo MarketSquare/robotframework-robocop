@@ -1,0 +1,8 @@
+test.robot:21:5 LEN21 Teardown of 'Keyword' Keyword does not have any keywords
+    |
+ 19 |     No Operation
+ 20 |     Fail
+ 21 |     [Teardown]
+    |     ^^^^^^^^^^ LEN21
+    |
+

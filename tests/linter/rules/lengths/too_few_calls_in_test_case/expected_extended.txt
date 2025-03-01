@@ -1,0 +1,14 @@
+test.robot:27:1 LEN05 Test case 'Test case with no keyword calls' has too few keywords inside (0/1)
+    |
+ 27 | Test case with no keyword calls
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ LEN05
+    |
+
+test.robot:29:1 LEN05 Test case 'Test case with settings and no keyword calls' has too few keywords inside (0/1)
+    |
+ 29 | Test case with settings and no keyword calls
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ LEN05
+ 30 |     [Tags]    smoke
+ 31 |     [Setup]    Keyword
+    |
+

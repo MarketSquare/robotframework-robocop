@@ -1,0 +1,8 @@
+test.robot:3:1 LEN20 Test Setup does not have any keywords
+   |
+ 1 | *** Settings ***
+ 2 | Documentation  doc
+ 3 | Test Setup
+   | ^^^^^^^^^^ LEN20
+   |
+

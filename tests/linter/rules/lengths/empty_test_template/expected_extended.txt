@@ -1,0 +1,7 @@
+test.robot:2:1 LEN29 Test Template is empty
+   |
+ 1 | *** Settings ***
+ 2 | Test Template
+   | ^^^^^^^^^^^^^ LEN29
+   |
+

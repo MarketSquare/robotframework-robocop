@@ -1,0 +1,22 @@
+test.robot:17:5 LEN07 Keyword 'Keyword With Too Many Arguments' has too many arguments (6/5)
+    |
+ 15 | Keyword With Too Many Arguments
+ 16 |     [Documentation]  this is doc
+ 17 |     [Arguments]  ${var1}  @{var2}  ${var3}  ${var4}  ${var5}  ${var6}
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ LEN07
+ 18 |     No Operation
+ 19 |     Pass
+    |
+
+test.robot:25:5 LEN07 Keyword 'Keyword With Too Many Arguments In Multi Lines' has too many arguments (6/5)
+    |  
+ 23 |   Keyword With Too Many Arguments In Multi Lines
+ 24 |       [Documentation]  this is doc
+ 25 | /     [Arguments]  ${var1}  @{var2}
+ 26 | |     ...  ${var3}  ${var4}
+ 27 | |     ...  ${var5}  ${var6}
+    | |_^ LEN07
+ 28 |       No Operation
+ 29 |       Pass
+    |  
+

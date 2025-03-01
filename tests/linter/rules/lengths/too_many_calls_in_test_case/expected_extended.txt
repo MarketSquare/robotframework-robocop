@@ -1,0 +1,10 @@
+test.robot:6:1 LEN06 Test case 'Test' has too many keywords inside (13/10)
+   |
+ 4 |
+ 5 | *** Test Cases ***
+ 6 | Test
+   | ^^^^ LEN06
+ 7 |     [Documentation]  doc
+ 8 |     [Tags]  sometag
+   |
+

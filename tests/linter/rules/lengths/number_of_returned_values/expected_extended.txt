@@ -1,0 +1,73 @@
+test.robot:24:5 LEN10 Too many return values (5/4)
+    |
+ 22 |     No Operation
+ 23 |     Fail
+ 24 |     RETURN    ${var}  2  4  4  5
+    |     ^^^^^^ LEN10
+    |
+
+test.robot:27:5 LEN10 Too many return values (5/4)
+    |
+ 25 |
+ 26 | Keyword 2
+ 27 |     Return From Keyword  ${var}  2  4  4  5
+    |     ^^^^^^^^^^^^^^^^^^^ LEN10
+    |
+
+test.robot:31:9 LEN10 Too many return values (5/4)
+    |
+ 29 | Keyword 3
+ 30 |     FOR  ${var}  IN RANGE  10
+ 31 |         BuiltIn.Return From Keyword If    ${condition}==${True}    ${var}  2  4  4  5
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ LEN10
+ 32 |     END
+    |
+
+test.robot:37:13 LEN10 Too many return values (5/4)
+    |
+ 35 |     WHILE    $condition
+ 36 |         TRY
+ 37 |             RETURN    ${var}  2  4  4  5
+    |             ^^^^^^ LEN10
+ 38 |         EXCEPT
+ 39 |             RETURN    ${var}  2  4  4  5
+    |
+
+test.robot:39:13 LEN10 Too many return values (5/4)
+    |
+ 37 |             RETURN    ${var}  2  4  4  5
+ 38 |         EXCEPT
+ 39 |             RETURN    ${var}  2  4  4  5
+    |             ^^^^^^ LEN10
+ 40 |         FINALLY
+ 41 |             RETURN    ${var}  2  4  4  5
+    |
+
+test.robot:41:13 LEN10 Too many return values (5/4)
+    |
+ 39 |             RETURN    ${var}  2  4  4  5
+ 40 |         FINALLY
+ 41 |             RETURN    ${var}  2  4  4  5
+    |             ^^^^^^ LEN10
+ 42 |         ELSE
+ 43 |             RETURN    ${var}  2  4  4  5
+    |
+
+test.robot:43:13 LEN10 Too many return values (5/4)
+    |
+ 41 |             RETURN    ${var}  2  4  4  5
+ 42 |         ELSE
+ 43 |             RETURN    ${var}  2  4  4  5
+    |             ^^^^^^ LEN10
+ 44 |         END
+ 45 |         RETURN    ${var}
+    |
+
+test.robot:47:5 LEN10 Too many return values (5/4)
+    |
+ 45 |         RETURN    ${var}
+ 46 |     END
+ 47 |     [Return]         ${var}  2  4  4  5
+    |     ^^^^^^^^ LEN10
+    |
+

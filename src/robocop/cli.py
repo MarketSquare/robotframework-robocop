@@ -433,7 +433,7 @@ def format_files(
 def list_rules(
     filter_category: Annotated[
         RuleFilter, typer.Option("--filter", case_sensitive=False, help="Filter rules by category.")
-    ] = RuleFilter.DEFAULT,
+    ] = RuleFilter.ALL,
     filter_pattern: Annotated[Optional[str], typer.Option("--pattern", help="Filter rules by pattern")] = None,
 ) -> None:
     """
@@ -450,7 +450,6 @@ def list_rules(
     Use `robocop rule rule_name` for more detailed information on the rule.
     The output list is affected by default configuration file (if it is found).
     """
-    # TODO: support list-configurables (maybe as separate robocop rule <>)
     # TODO: rich support (colorized enabled, severity etc)
     console = Console(soft_wrap=True)
     config_manager = config.ConfigManager()
@@ -514,6 +513,7 @@ def list_formatters(
 ) -> None:
     """List available formatters."""
     # We will need ConfigManager later for listing based on configuration
+    raise NotImplementedError("Command not yet implemented.")
 
 
 @app.command("docs")

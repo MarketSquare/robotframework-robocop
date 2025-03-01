@@ -1,0 +1,8 @@
+test.robot:3:1 LEN16 Import resource path is empty
+   |
+ 1 | *** Settings ***
+ 2 | Documentation  doc
+ 3 | Resource
+   | ^^^^^^^^ LEN16
+   |
+

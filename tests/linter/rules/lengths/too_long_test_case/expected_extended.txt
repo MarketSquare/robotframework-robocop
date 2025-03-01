@@ -1,0 +1,26 @@
+test.robot:6:1 LEN04 Test case 'Test' is too long (21/20)
+   |
+ 4 |
+ 5 | *** Test Cases ***
+ 6 | Test
+   | ^^^^ LEN04
+ 7 |     [Documentation]  doc
+ 8 |     [Tags]  sometag
+   |
+
+test.robot:29:1 LEN04 Test case 'Test with comments at the end' is too long (23/20)
+    |
+ 29 | Test with comments at the end
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ LEN04
+ 30 |     Pass
+ 31 |     Keyword
+    |
+
+test.robot:54:1 LEN04 Test case 'Test with comments that are not part of the test' is too long (24/20)
+    |
+ 54 | Test with comments that are not part of the test
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ LEN04
+ 55 |     [Documentation]  abc
+ 56 |     Pass
+    |
+

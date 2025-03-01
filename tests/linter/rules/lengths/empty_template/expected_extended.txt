@@ -1,0 +1,9 @@
+test.robot:14:5 LEN30 Template of 'Test with empty template' Test Case is empty. To overwrite suite Test Template use more explicit [Template]  NONE
+    |
+ 12 |
+ 13 | Test with empty template
+ 14 |     [Template]
+    |     ^^^^^^^^^^ LEN30
+ 15 |     No Operation
+    |
+

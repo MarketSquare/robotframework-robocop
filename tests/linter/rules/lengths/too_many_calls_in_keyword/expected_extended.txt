@@ -1,0 +1,10 @@
+test.robot:15:1 LEN03 Keyword 'Some Keyword' has too many keywords inside (11/10)
+    |
+ 13 |
+ 14 | *** Keywords ***
+ 15 | Some Keyword
+    | ^^^^^^^^^^^^ LEN03
+ 16 |     [Documentation]  this is doc
+ 17 |     No Operation
+    |
+

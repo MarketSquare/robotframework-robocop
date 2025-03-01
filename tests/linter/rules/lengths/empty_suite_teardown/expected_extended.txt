@@ -1,0 +1,8 @@
+test.robot:3:1 LEN22 Suite Teardown does not have any keywords
+   |
+ 1 | *** Settings ***
+ 2 | Documentation  doc
+ 3 | Suite Teardown
+   | ^^^^^^^^^^^^^^ LEN22
+   |
+

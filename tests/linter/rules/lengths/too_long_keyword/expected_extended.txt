@@ -1,0 +1,10 @@
+test.robot:15:1 LEN01 Keyword 'Some Keyword' is too long (46/40)
+    |
+ 13 |
+ 14 | *** Keywords ***
+ 15 | Some Keyword
+    | ^^^^^^^^^^^^ LEN01
+ 16 |     [Documentation]  this is doc
+ 17 |     Keyword
+    |
+

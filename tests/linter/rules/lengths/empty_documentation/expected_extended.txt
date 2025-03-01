@@ -1,0 +1,27 @@
+test.robot:2:1 LEN12 Documentation of Test Suite is empty
+   |
+ 1 | *** Settings ***
+ 2 | Documentation
+   | ^^^^^^^^^^^^^ LEN12
+   |
+
+test.robot:7:5 LEN12 Documentation of 'Test' Test Case is empty
+   |
+ 5 | *** Test Cases ***
+ 6 | Test
+ 7 |     [Documentation]
+   |     ^^^^^^^^^^^^^^^ LEN12
+ 8 |     [Tags]  sometag
+ 9 |     Pass
+   |
+
+test.robot:16:5 LEN12 Documentation of 'Keyword' Keyword is empty
+    |
+ 14 | *** Keywords ***
+ 15 | Keyword
+ 16 |     [Documentation]
+    |     ^^^^^^^^^^^^^^^ LEN12
+ 17 |     No Operation
+ 18 |     Pass
+    |
+

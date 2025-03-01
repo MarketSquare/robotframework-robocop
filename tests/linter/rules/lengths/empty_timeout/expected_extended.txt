@@ -1,0 +1,10 @@
+test.robot:8:5 LEN24 Timeout of 'Test' Test Case is empty
+   |
+ 6 |     [Documentation]  doc
+ 7 |     [Tags]  sometag
+ 8 |     [Timeout]
+   |     ^^^^^^^^^ LEN24
+ 9 |     Pass
+10 |     Keyword
+   |
+

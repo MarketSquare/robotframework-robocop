@@ -1,0 +1,8 @@
+test.robot:3:1 LEN14 Default Tags are empty
+   |
+ 1 | *** Settings ***
+ 2 | Documentation  doc
+ 3 | Default Tags
+   | ^^^^^^^^^^^^ LEN14
+   |
+

@@ -187,10 +187,11 @@ class TestListingRules:
             list_rules()
         out, _ = capsys.readouterr()
         assert (
-            out == "Rule - 0101 [W]: some-message: Some description (enabled)\n\n"
-            "Altogether 1 rule with following severity:\n"
+            out == "Rule - 0101 [W]: some-message: Some description (enabled)\n"
+            "Rule - 19999 [W]: non-default-rule: Some description (disabled)\n\n"
+            "Altogether 2 rules with following severity:\n"
             "    0 error rules,\n"
-            "    1 warning rule,\n"
+            "    2 warning rules,\n"
             "    0 info rules.\n\n"
             "Visit https://robocop.readthedocs.io/en/stable/rules_list.html page for detailed documentation.\n"
         )

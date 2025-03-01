@@ -1,0 +1,8 @@
+test.robot:3:1 LEN17 Import library path is empty
+   |
+ 1 | *** Settings ***
+ 2 | Documentation  doc
+ 3 | Library
+   | ^^^^^^^ LEN17
+   |
+

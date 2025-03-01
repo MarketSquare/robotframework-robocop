@@ -1,0 +1,127 @@
+test.robot:2:16 KW02 Keyword 'Not Allowed' is not allowed
+   |
+ 1 | *** Settings ***
+ 2 | Suite Setup    Not Allowed
+   |                ^^^^^^^^^^^ KW02
+ 3 | Suite Teardown
+ 4 | Test Setup    Not Allowed
+   |
+
+test.robot:4:15 KW02 Keyword 'Not Allowed' is not allowed
+   |
+ 2 | Suite Setup    Not Allowed
+ 3 | Suite Teardown
+ 4 | Test Setup    Not Allowed
+   |               ^^^^^^^^^^^ KW02
+ 5 | Test Teardown    Not Allowed With Args
+ 6 | ...    ${arg}
+   |
+
+test.robot:5:18 KW02 Keyword 'Not Allowed With Args' is not allowed
+   |
+ 3 | Suite Teardown
+ 4 | Test Setup    Not Allowed
+ 5 | Test Teardown    Not Allowed With Args
+   |                  ^^^^^^^^^^^^^^^^^^^^^ KW02
+ 6 | ...    ${arg}
+   |
+
+test.robot:15:5 KW02 Keyword 'Not Allowed' is not allowed
+    |
+ 13 |
+ 14 | Test with not allowed keywords
+ 15 |     Not Allowed
+    |     ^^^^^^^^^^^ KW02
+ 16 |     IF    $condition    Notallowed
+ 17 |     FOR    ${var}    IN RANGE    10
+    |
+
+test.robot:16:25 KW02 Keyword 'Notallowed' is not allowed
+    |
+ 14 | Test with not allowed keywords
+ 15 |     Not Allowed
+ 16 |     IF    $condition    Notallowed
+    |                         ^^^^^^^^^^ KW02
+ 17 |     FOR    ${var}    IN RANGE    10
+ 18 |         Not_allowed With Args    ${arg}
+    |
+
+test.robot:18:9 KW02 Keyword 'Not_allowed With Args' is not allowed
+    |
+ 16 |     IF    $condition    Notallowed
+ 17 |     FOR    ${var}    IN RANGE    10
+ 18 |         Not_allowed With Args    ${arg}
+    |         ^^^^^^^^^^^^^^^^^^^^^ KW02
+ 19 |         ...    ${arg}
+ 20 |     END
+    |
+
+test.robot:23:9 KW02 Keyword 'Not Allowed' is not allowed
+    |
+ 21 |     IF    True
+ 22 |         Log    statement
+ 23 |         Not Allowed
+    |         ^^^^^^^^^^^ KW02
+ 24 |     END
+    |
+
+test.robot:28:12 KW02 Keyword 'Not Allowed' is not allowed
+    |
+ 26 | Test with settings
+ 27 |     [Setup]    Run Keywords
+ 28 |     ...    Not Allowed
+    |            ^^^^^^^^^^^ KW02
+ 29 |     ...    AND
+ 30 |     ...    Not Allowed
+    |
+
+test.robot:30:12 KW02 Keyword 'Not Allowed' is not allowed
+    |
+ 28 |     ...    Not Allowed
+ 29 |     ...    AND
+ 30 |     ...    Not Allowed
+    |            ^^^^^^^^^^^ KW02
+ 31 |     [Teardown]    Not Allowed With Args    ${arg}
+    |
+
+test.robot:31:19 KW02 Keyword 'Not Allowed With Args' is not allowed
+    |
+ 29 |     ...    AND
+ 30 |     ...    Not Allowed
+ 31 |     [Teardown]    Not Allowed With Args    ${arg}
+    |                   ^^^^^^^^^^^^^^^^^^^^^ KW02
+    |
+
+test.robot:34:19 KW02 Keyword 'Not Allowed' is not allowed
+    |
+ 32 |
+ 33 | Test with template
+ 34 |     [Template]    Not Allowed
+    |                   ^^^^^^^^^^^ KW02
+    |
+
+test.robot:38:5 KW02 Keyword 'Library.Not Allowed With Lib' is not allowed
+    |
+ 36 | Test with library
+ 37 |     Not Allowed With Lib  # should be ignored
+ 38 |     Library.Not Allowed With Lib  # should be reported
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ KW02
+ 39 |     Library2.Nested.Not Allowed  # should be reported
+    |
+
+test.robot:39:5 KW02 Keyword 'Library2.Nested.Not Allowed' is not allowed
+    |
+ 37 |     Not Allowed With Lib  # should be ignored
+ 38 |     Library.Not Allowed With Lib  # should be reported
+ 39 |     Library2.Nested.Not Allowed  # should be reported
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^ KW02
+    |
+
+test.robot:44:5 KW02 Keyword 'Not Allowed' is not allowed
+    |
+ 42 | *** Keywords ***
+ 43 | Keyword with not allowed
+ 44 |     Not Allowed
+    |     ^^^^^^^^^^^ KW02
+    |
+

@@ -446,10 +446,12 @@ class ParsingErrorChecker(VisitorChecker):
             for setting in self.suite_settings:
                 if suite_sett_cand.startswith(setting):
                     if setting_error[0].strip():  # filter out "suite-setting-should-be-left-aligned"
+                        token = node.data_tokens[0]
                         self.report(
                             self.not_enough_whitespace_after_suite_setting,
                             setting_name=self.suite_settings[setting],
-                            node=node,
+                            node=token,
+                            end_col=token.end_col_offset + 1,
                         )
                     return
             error = error.replace("\n   ", "").replace("Robot Framework syntax error: ", "")

@@ -1,0 +1,36 @@
+test.robot:9:1 KW03 Keyword with embedded arguments: ${one}
+   |
+ 9 | Keyword with ${one} embedded argument
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ KW03
+10 |     No Operation
+   |
+
+test.robot:12:1 KW03 Keyword with embedded arguments: ${count}, ${arguments}
+    |
+ 12 | Keyword with ${count} embedded ${arguments}
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ KW03
+ 13 |     No Operation
+    |
+
+test.robot:15:1 KW03 Keyword with embedded arguments: ${keyword}, ${with}, ${only}, ${embedded}, ${arguments}
+    |
+ 15 | ${keyword} ${with} ${only} ${embedded} ${arguments}
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ KW03
+ 16 |     No Operation
+    |
+
+test.robot:18:1 KW03 Keyword with embedded arguments: ${embedded}
+    |
+ 18 | Keyword with both ${embedded} and normal arguments
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ KW03
+ 19 |     [Arguments]    ${foo}
+ 20 |     No Operation
+    |
+
+test.robot:22:1 KW03 Keyword with embedded arguments: ${regex:(\d{4}-\d{2}-\d{2}|today)}
+    |
+ 22 | Keyword with embedded ${regex:(\d{4}-\d{2}-\d{2}|today)} argument
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ KW03
+ 23 |     No Operation
+    |
+

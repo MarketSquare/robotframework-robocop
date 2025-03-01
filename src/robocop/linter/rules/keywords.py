@@ -138,7 +138,7 @@ class NoEmbeddedKeywordArgumentsRule(Rule):
 
     name = "no-embedded-keyword-arguments"
     rule_id = "KW03"
-    message = "Not allowed embedded arguments {arguments} found in keyword '{keyword}'"
+    message = "Keyword with embedded arguments: {arguments}"
     severity = RuleSeverity.WARNING
     enabled = False
     added_in_version = "5.5.0"
@@ -247,5 +247,4 @@ class NoEmbeddedKeywordArgumentsChecker(VisitorChecker):  # TODO merge
             node=name_token,
             end_col=name_token.end_col_offset + 1,
             arguments=", ".join([t.value for t in variable_tokens]),
-            keyword=name_token,
         )

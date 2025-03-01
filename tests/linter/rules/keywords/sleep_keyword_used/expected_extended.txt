@@ -1,0 +1,38 @@
+test.robot:8:5 KW01 Sleep keyword with '10s' sleep time found
+   |
+ 6 | Test with sleeps
+ 7 |     Log    Let's sleep for some time.
+ 8 |     Sleep    10s
+   |     ^^^^^ KW01
+ 9 |     Log    It may not be enough, let's do it in loop.
+10 |     FOR    ${var}    IN RANGE    1    10
+   |
+
+test.robot:11:9 KW01 Sleep keyword with '${var}' sleep time found
+    |
+  9 |     Log    It may not be enough, let's do it in loop.
+ 10 |     FOR    ${var}    IN RANGE    1    10
+ 11 |         Sleep    ${var}  # non-parsable time strings are ignored
+    |         ^^^^^ KW01
+ 12 |     END
+ 13 |     IF    ${var} == 10
+    |
+
+test.robot:14:9 KW01 Sleep keyword with '1 min' sleep time found
+    |
+ 12 |     END
+ 13 |     IF    ${var} == 10
+ 14 |         Sleep
+    |         ^^^^^ KW01
+ 15 |         ...    1 min
+ 16 |     END
+    |
+
+test.robot:17:5 KW01 Sleep keyword with '' sleep time found
+    |
+ 15 |         ...    1 min
+ 16 |     END
+ 17 |     Sleep
+    |     ^^^^^ KW01
+    |
+

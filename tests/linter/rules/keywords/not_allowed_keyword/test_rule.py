@@ -11,6 +11,15 @@ class TestRuleAcceptance(RuleAcceptance):
             test_on_version=">=5",
         )
 
+    def test_extended(self):
+        self.check_rule(
+            src_files=["test.robot"],
+            expected_file="expected_extended.txt",
+            configure=["not-allowed-keyword.keywords=NotAllowed,Not_AllowedWithArgs,library.not_allowed_with_lib"],
+            output_format="extended",
+            test_on_version=">=5",
+        )
+
     def test_rule_rf3(self):
         self.check_rule(
             src_files=["test.robot"],

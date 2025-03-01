@@ -39,7 +39,6 @@ from robocop.linter.utils import (  # FIXME: import as module
     normalize_robot_name,
     normalize_robot_var_name,
     parse_assignment_sign_type,
-    token_col,
 )
 from robocop.linter.utils.misc import RETURN_CLASSES, _is_var_scope_local, find_escaped_variables
 from robocop.linter.utils.variable_matcher import VariableMatches
@@ -457,6 +456,7 @@ class MultilineInlineIfRule(Rule):
 
 class UnnecessaryStringConversionRule(Rule):
     """
+    # TODO: Not used atm, see if it was deprecated before
     Variable in condition has unnecessary string conversion.
 
     Expressions in Robot Framework are evaluated using Python's eval function. When a variable is used
@@ -657,7 +657,9 @@ class UnreachableCodeChecker(VisitorChecker):
                 statement_node = child
             elif not isinstance(child, (EmptyLine, Comment, Teardown)) and statement_node is not None:
                 token = statement_node.data_tokens[0]
-                code_after_statement = child.data_tokens[0] if hasattr(child, "data_tokens") else child
+                if hasattr(child, "header"):
+                    child = child.header
+                code_after_statement = child.data_tokens[0]
                 self.report(
                     self.unreachable_code,
                     statement=token.value,
@@ -904,7 +906,13 @@ class IfChecker(VisitorChecker):
                 self.check_whether_if_should_be_inline(child)
                 if previous_if and child.header and self.compare_conditions(child, previous_if):
                     token = child.header.get_token(child.header.type)
-                    self.report(self.if_can_be_merged, line=previous_if.lineno, node=token, col=token.col_offset + 1)
+                    self.report(
+                        self.if_can_be_merged,
+                        line=previous_if.lineno,
+                        node=token,
+                        col=token.col_offset + 1,
+                        end_col=token.end_col_offset + 1,
+                    )
                 previous_if = child
             elif not isinstance(child, (Comment, EmptyLine)):
                 previous_if = None
@@ -966,7 +974,13 @@ class IfChecker(VisitorChecker):
         if min_possible > self.inline_if_can_be_used.max_width:
             return
         token = node.header.get_token(node.header.type)
-        self.report(self.inline_if_can_be_used, node=node, col=token.col_offset + 1, sev_threshold_value=min_possible)
+        self.report(
+            self.inline_if_can_be_used,
+            node=node,
+            col=token.col_offset + 1,
+            end_col=token.end_col_offset + 1,
+            sev_threshold_value=min_possible,
+        )
 
 
 class LoopStatementsChecker(VisitorChecker):
@@ -1020,17 +1034,20 @@ class LoopStatementsChecker(VisitorChecker):
                     statement_type="statement",
                     node=node,
                     col=error_token.col_offset + 1,
+                    end_col=error_token.end_col_offset + 1,
                 )
 
     def check_statement_in_loop(self, node, token_type) -> None:
         if self.loops or (node.errors and f"{token_type} can only be used inside a loop." not in node.errors):
             return
+        error_token = node.get_token(token_type)
         self.report(
             self.statement_outside_loop,
             name=token_type,
             statement_type="statement",
             node=node,
-            col=token_col(node, token_type),
+            col=error_token.col_offset + 1,
+            end_col=error_token.end_col_offset + 1,
         )
 
 

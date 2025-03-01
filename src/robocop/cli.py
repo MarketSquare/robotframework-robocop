@@ -171,7 +171,15 @@ def check_files(
         list[str],
         typer.Option("--ext-rules", help="Load custom rules", show_default=False, rich_help_panel="Selecting rules"),
     ] = None,
-    ignore_git_dir: Annotated[bool, typer.Option(rich_help_panel="Configuration")] = False,
+    ignore_git_dir: Annotated[
+        bool,
+        typer.Option(
+            rich_help_panel="Configuration", help="Do not stop searching for config file when .git directory is found."
+        ),
+    ] = False,
+    ignore_file_config: Annotated[
+        bool, typer.Option(rich_help_panel="Configuration", help="Do not load configuration files.")
+    ] = False,
     skip_gitignore: Annotated[bool, typer.Option(rich_help_panel="File discovery")] = False,
     persistent: Annotated[
         bool,
@@ -221,6 +229,7 @@ def check_files(
         config=configuration_file,
         root=root,
         ignore_git_dir=ignore_git_dir,
+        ignore_file_config=ignore_file_config,
         skip_gitignore=skip_gitignore,
         overwrite_config=overwrite_config,
     )
@@ -365,7 +374,15 @@ def format_files(
             rich_help_panel="Skip formatting",
         ),
     ] = None,
-    ignore_git_dir: Annotated[bool, typer.Option(rich_help_panel="Configuration")] = False,
+    ignore_git_dir: Annotated[
+        bool,
+        typer.Option(
+            rich_help_panel="Configuration", help="Do not stop searching for config file when .git directory is found."
+        ),
+    ] = False,
+    ignore_file_config: Annotated[
+        bool, typer.Option(rich_help_panel="Configuration", help="Do not load configuration files.")
+    ] = False,
     skip_gitignore: Annotated[bool, typer.Option(rich_help_panel="File discovery")] = False,
     reruns: Annotated[
         int,
@@ -422,6 +439,7 @@ def format_files(
         config=configuration_file,
         root=root,
         ignore_git_dir=ignore_git_dir,
+        ignore_file_config=ignore_file_config,
         skip_gitignore=skip_gitignore,
         overwrite_config=overwrite_config,
     )

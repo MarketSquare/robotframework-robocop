@@ -133,6 +133,7 @@ class RuleAcceptance:
                         issue_format=issue_format,
                         threshold=threshold,
                         language=language,
+                        ignore_file_config=True,
                         **kwargs,
                     )
             finally:

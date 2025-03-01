@@ -1,0 +1,17 @@
+test.robot:7:1 MISC05 The assignment sign is not consistent inside the variables section. Expected ' =' but got '=' instead
+   |
+ 5 | *** Variables ***
+ 6 | ${var} =    1
+ 7 | ${var2}=    2
+   | ^^^^^^^^ MISC05
+ 8 | ${var3}     3
+   |
+
+test.robot:8:1 MISC05 The assignment sign is not consistent inside the variables section. Expected ' =' but got '' instead
+   |
+ 6 | ${var} =    1
+ 7 | ${var2}=    2
+ 8 | ${var3}     3
+   | ^^^^^^^ MISC05
+   |
+

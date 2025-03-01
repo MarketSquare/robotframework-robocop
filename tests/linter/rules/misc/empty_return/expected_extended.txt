@@ -1,0 +1,8 @@
+test.robot:21:5 MISC02 [Return] is empty
+    |
+ 19 |     No Operation
+ 20 |     Fail
+ 21 |     [Return]
+    |     ^^^^^^^ MISC02
+    |
+

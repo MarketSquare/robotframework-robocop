@@ -1,0 +1,1 @@
+no_test.robot:1:1 MISC06 No tests in 'no_test.robot' file, consider renaming to 'no_test.resource'

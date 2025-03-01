@@ -1,0 +1,10 @@
+test.robot:3:5 MISC09 IF can be replaced with inline IF
+   |
+ 1 | *** Test Cases ***
+ 2 | Short IF
+ 3 |     IF    $condition
+   |     ^^ MISC09
+ 4 |         Keyword    ${var}
+ 5 |     END
+   |
+

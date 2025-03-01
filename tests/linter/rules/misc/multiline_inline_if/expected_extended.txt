@@ -1,0 +1,66 @@
+test.robot:4:5 MISC11 Inline IF split to multiple lines
+   |  
+ 2 |   My Test Case
+ 3 |       IF  ${condition}    Log  hello     ELSE    Log  hi!
+ 4 | /     IF  ${condition}  Log  hello
+ 5 | |   ...    ELSE       Log  hi!
+   | |_^ MISC11
+ 6 |       IF  ${condition}
+ 7 |           Log  hello
+   |  
+
+test.robot:11:5 MISC11 Inline IF split to multiple lines
+    |  
+  9 |           Log  hi!
+ 10 |       END
+ 11 | /     IF  ${condition}
+ 12 | |     ...  Log  hello
+ 13 | |     ...  ELSE
+ 14 | |     ...  Log  hi!
+    | |_^ MISC11
+ 15 |       Log    something
+ 16 |       IF  ${condition}
+    |  
+
+test.robot:16:5 MISC11 Inline IF split to multiple lines
+    |  
+ 14 |       ...  Log  hi!
+ 15 |       Log    something
+ 16 | /     IF  ${condition}
+ 17 | |     ...  Log  hello  ELSE  Log  hi!
+    | |_^ MISC11
+    |  
+
+test.robot:23:5 MISC11 Inline IF split to multiple lines
+    |  
+ 21 |   My Keyword
+ 22 |       IF  ${condition}    Log  hello     ELSE    Log  hi!
+ 23 | /     IF  ${condition}  Log  hello
+ 24 | |     ...    ELSE       Log  hi!
+    | |_^ MISC11
+ 25 |       IF  ${condition}
+ 26 |           Log  hello
+    |  
+
+test.robot:30:5 MISC11 Inline IF split to multiple lines
+    |  
+ 28 |           Log  hi!
+ 29 |       END
+ 30 | /     IF  ${condition}
+ 31 | |     ...  Log  hello
+ 32 | |     ...  ELSE
+ 33 | |     ...  Log  hi!
+    | |_^ MISC11
+ 34 |       Log    something
+ 35 |       IF  ${condition}
+    |  
+
+test.robot:35:5 MISC11 Inline IF split to multiple lines
+    |  
+ 33 |       ...  Log  hi!
+ 34 |       Log    something
+ 35 | /     IF  ${condition}
+ 36 | |     ...  Log  hello  ELSE  Log  hi!
+    | |_^ MISC11
+    |  
+

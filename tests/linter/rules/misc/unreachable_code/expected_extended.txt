@@ -1,0 +1,135 @@
+test.robot:14:9 MISC10 Unreachable code after RETURN statement
+    |
+ 12 |     IF    $condition
+ 13 |         RETURN
+ 14 |         Keyword
+    |         ^^^^^^^^ MISC10
+ 15 |     END
+    |
+
+test.robot:62:9 MISC10 Unreachable code after RETURN statement
+    |
+ 60 |     IF    $condition
+ 61 |         RETURN
+ 62 |         Keyword
+    |         ^^^^^^^^ MISC10
+ 63 |     END
+ 64 |     WHILE    $condition
+    |
+
+test.robot:66:9 MISC10 Unreachable code after RETURN statement
+    |
+ 64 |     WHILE    $condition
+ 65 |         RETURN
+ 66 |         Keyword
+    |         ^^^^^^^^ MISC10
+ 67 |     END
+ 68 |     FOR    ${var}    IN RANGE  10
+    |
+
+test.robot:70:9 MISC10 Unreachable code after RETURN statement
+    |
+ 68 |     FOR    ${var}    IN RANGE  10
+ 69 |         RETURN
+ 70 |         Keyword
+    |         ^^^^^^^^ MISC10
+ 71 |     END
+ 72 |     TRY
+    |
+
+test.robot:74:9 MISC10 Unreachable code after RETURN statement
+    |
+ 72 |     TRY
+ 73 |         RETURN
+ 74 |         Keyword
+    |         ^^^^^^^^ MISC10
+ 75 |     EXCEPT
+ 76 |         RETURN
+    |
+
+test.robot:77:9 MISC10 Unreachable code after RETURN statement
+    |
+ 75 |     EXCEPT
+ 76 |         RETURN
+ 77 |         Keyword
+    |         ^^^^^^^^ MISC10
+ 78 |     FINALLY
+ 79 |         RETURN
+    |
+
+test.robot:80:9 MISC10 Unreachable code after RETURN statement
+    |
+ 78 |     FINALLY
+ 79 |         RETURN
+ 80 |         IF    $condition    RETURN
+    |         ^^^^^^^^^^^^^^^^ MISC10
+ 81 |     END
+ 82 |     RETURN
+    |
+
+test.robot:83:5 MISC10 Unreachable code after RETURN statement
+    |
+ 81 |     END
+ 82 |     RETURN
+ 83 |     No Operation
+    |     ^^^^^^^^^^^^^ MISC10
+ 84 |     FOR    ${var}    IN    @{LIST}
+ 85 |         RETURN
+    |
+
+test.robot:86:9 MISC10 Unreachable code after RETURN statement
+    |
+ 84 |     FOR    ${var}    IN    @{LIST}
+ 85 |         RETURN
+ 86 |         Keyword
+    |         ^^^^^^^^ MISC10
+ 87 |         RETURN
+ 88 |     END
+    |
+
+test.robot:106:13 MISC10 Unreachable code after CONTINUE statement
+     |
+ 104 |         IF    '${animal}' == 'cat'
+ 105 |             CONTINUE
+ 106 |             Log  ${animal}  # unreachable log
+     |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ MISC10
+ 107 |         END
+ 108 |         BREAK
+     |
+
+test.robot:109:9 MISC10 Unreachable code after BREAK statement
+     |
+ 107 |         END
+ 108 |         BREAK
+ 109 |         Log    Unreachable log
+     |         ^^^^^^^^^^^^^^^^^^^^^^^ MISC10
+ 110 |     END
+ 111 |     RETURN
+     |
+
+test.robot:112:5 MISC10 Unreachable code after RETURN statement
+     |
+ 110 |     END
+ 111 |     RETURN
+ 112 |     Log    Unreachable log
+     |     ^^^^^^^^^^^^^^^^^^^^^^^ MISC10
+     |
+
+test.robot:118:13 MISC10 Unreachable code after BREAK statement
+     |
+ 116 |         IF    '${animal}' == 'cat'
+ 117 |             BREAK
+ 118 |             Log  ${animal}  # unreachable code
+     |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ MISC10
+ 119 |             Log  ${animal}  # should not report here
+ 120 |         END
+     |
+
+test.robot:123:5 MISC10 Unreachable code after RETURN statement
+     |
+ 121 |     END
+ 122 |     RETURN
+ 123 |     IF    $condition    RETURN
+     |     ^^^^^^^^^^^^^^^^ MISC10
+     |
+

@@ -1,0 +1,104 @@
+inline_if.robot:21:15 MISC07 IF statement can be merged with previous IF (defined in line 20)
+    |
+ 19 | Adjacent with return
+ 20 |     ${var}    IF    $condition    Keyword2    ${arg}
+ 21 |     ${var}    IF    $condition    Keyword2    ${arg}
+    |               ^^ MISC07
+    |
+
+inline_if.robot:26:5 MISC07 IF statement can be merged with previous IF (defined in line 25)
+    |
+ 24 | Adjacent with no return
+ 25 |     IF    $condition    Keyword2    ${arg}    ELSE    Keyword3
+ 26 |     IF    $condition    Keyword2    ${arg}    ELSE    Keyword3
+    |     ^^ MISC07
+    |
+
+test.robot:8:5 MISC07 IF statement can be merged with previous IF (defined in line 4)
+   |
+ 6 |     END
+ 7 |     # comment
+ 8 |     IF  ${condition} == 'True'
+   |     ^^ MISC07
+ 9 |         Step 2
+10 |     END
+   |
+
+test.robot:50:5 MISC07 IF statement can be merged with previous IF (defined in line 41)
+    |
+ 50 |     IF  ${condition} == 'True'
+    |     ^^ MISC07
+ 51 |         Step 2
+ 52 |     END
+    |
+
+test.robot:67:9 MISC07 IF statement can be merged with previous IF (defined in line 64)
+    |
+ 65 |             Log    ${value}
+ 66 |         END
+ 67 |         IF  ${value}==${5}
+    |         ^^ MISC07
+ 68 |             Log    ${value}
+ 69 |         END
+    |
+
+test.robot:79:5 MISC07 IF statement can be merged with previous IF (defined in line 76)
+    |
+ 77 |         Step 1
+ 78 |     END
+ 79 |     IF  ${condition} == 'True'  # comment
+    |     ^^ MISC07
+ 80 |         Step 2
+ 81 |     END
+    |
+
+test.robot:90:5 MISC07 IF statement can be merged with previous IF (defined in line 86)
+    |
+ 88 |     END
+ 89 |     # comment
+ 90 |     IF  ${condition} == 'True'
+    |     ^^ MISC07
+ 91 |         Step 2
+ 92 |     END
+    |
+
+test.robot:99:9 MISC07 IF statement can be merged with previous IF (defined in line 96)
+    |
+ 97 |             Step 1
+ 98 |         END
+ 99 |         IF  ${condition} == 'True'
+    |         ^^ MISC07
+100 |             Step 2
+101 |         END
+    |
+
+test.robot:148:5 MISC07 IF statement can be merged with previous IF (defined in line 141)
+     |
+ 146 |         Step 3
+ 147 |     END
+ 148 |     IF  ${condition} == 'True'
+     |     ^^ MISC07
+ 149 |         Step 1
+ 150 |     ELSE IF  ${stuff}
+     |
+
+test.robot:162:5 MISC07 IF statement can be merged with previous IF (defined in line 157)
+     |
+ 160 |         Step 2
+ 161 |     END
+ 162 |     IF  ${condition} == 'True'
+     |     ^^ MISC07
+ 163 |         Step 1
+ 164 |     ELSE IF  ${stuff}
+     |
+
+test.robot:167:5 MISC07 IF statement can be merged with previous IF (defined in line 162)
+     |
+ 165 |         Step 2
+ 166 |     END
+ 167 |     IF  ${condition} == 'True'
+     |     ^^ MISC07
+ 168 |         Step 1
+ 169 |     ELSE IF  ${stuff}
+     |
+

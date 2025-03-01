@@ -1,0 +1,97 @@
+test.robot:3:11 MISC13 'IF' condition can be simplified
+   |
+ 1 | *** Test Cases ***
+ 2 | If condition
+ 3 |     IF    ${status} == ${TRUE}
+   |           ^^^^^^^^^^^^^^^^^^^^ MISC13
+ 4 |         Log    ${variable}
+ 5 |     ELSE IF    ${status} == ${false}
+   |
+
+test.robot:5:16 MISC13 'ELSE IF' condition can be simplified
+   |
+ 3 |     IF    ${status} == ${TRUE}
+ 4 |         Log    ${variable}
+ 5 |     ELSE IF    ${status} == ${false}
+   |                ^^^^^^^^^^^^^^^^^^^^^ MISC13
+ 6 |         Log    ${variable}
+ 7 |         IF    ${status} != ${true}
+   |
+
+test.robot:7:15 MISC13 'IF' condition can be simplified
+   |
+ 5 |     ELSE IF    ${status} == ${false}
+ 6 |         Log    ${variable}
+ 7 |         IF    ${status} != ${true}
+   |               ^^^^^^^^^^^^^^^^^^^^ MISC13
+ 8 |             Log    ${variable}
+ 9 |         END
+   |
+
+test.robot:17:14 MISC13 'WHILE' condition can be simplified
+    |
+ 15 |
+ 16 | While condition
+ 17 |     WHILE    ${status} == ${TRUE}    limit=1 min
+    |              ^^^^^^^^^^^^^^^^^^^^ MISC13
+ 18 |         WHILE    ${status} != ${true}
+ 19 |             Log    ${variable}
+    |
+
+test.robot:18:18 MISC13 'WHILE' condition can be simplified
+    |
+ 16 | While condition
+ 17 |     WHILE    ${status} == ${TRUE}    limit=1 min
+ 18 |         WHILE    ${status} != ${true}
+    |                  ^^^^^^^^^^^^^^^^^^^^ MISC13
+ 19 |             Log    ${variable}
+ 20 |         END
+    |
+
+test.robot:29:24 MISC13 'Set Variable If' condition can be simplified
+    |
+ 27 |
+ 28 | Keywords With Conditions
+ 29 |     Set Variable If    len(@{list})
+    |                        ^^^^^^^^^^^^ MISC13
+ 30 |     ...    value
+ 31 |     ...    not ${variable} == []
+    |
+
+test.robot:31:16 MISC13 'Set Variable If' condition can be simplified
+    |
+ 29 |     Set Variable If    len(@{list})
+ 30 |     ...    value
+ 31 |     ...    not ${variable} == []
+    |                ^^^^^^^^^^^^^^^^^ MISC13
+ 32 |     ...    value
+ 33 |     ...    ${class.attr['item']} != set()
+    |
+
+test.robot:33:12 MISC13 'Set Variable If' condition can be simplified
+    |
+ 31 |     ...    not ${variable} == []
+ 32 |     ...    value
+ 33 |     ...    ${class.attr['item']} != set()
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ MISC13
+ 34 |     ...    value
+ 35 |     Skip If    ${true}
+    |
+
+test.robot:36:16 MISC13 'Skip If' condition can be simplified
+    |
+ 34 |     ...    value
+ 35 |     Skip If    ${true}
+ 36 |     Skip If    ${variable} != ${truE}
+    |                ^^^^^^^^^^^^^^^^^^^^^^ MISC13
+ 37 |     Should Be True    ${flag} == False
+    |
+
+test.robot:37:23 MISC13 'Should Be True' condition can be simplified
+    |
+ 35 |     Skip If    ${true}
+ 36 |     Skip If    ${variable} != ${truE}
+ 37 |     Should Be True    ${flag} == False
+    |                       ^^^^^^^^^^^^^^^^ MISC13
+    |
+

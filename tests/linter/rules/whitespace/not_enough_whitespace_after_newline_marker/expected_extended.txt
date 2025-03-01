@@ -1,0 +1,44 @@
+settings_errors.robot:3:1 SPC20 Not enough whitespace after '...' marker
+   |
+ 1 | *** Settings ***
+ 2 | Default Tags  tag
+ 3 | ... tag2
+   | ^^^ SPC20
+   |
+
+test.robot:12:5 SPC20 Not enough whitespace after '...' marker
+    |
+ 10 |     Keyword
+ 11 |     One More  ${var}
+ 12 |     ... ${var2}
+    |     ^^^ SPC20
+    |
+
+test.robot:18:5 SPC20 Not enough whitespace after '...' marker
+    |
+ 16 | Keyword
+ 17 |     [Documentation]  this is doc
+ 18 |     ... and new line
+    |     ^^^ SPC20
+ 19 |     No Operation
+ 20 |     Pass
+    |
+
+variable_errors.robot:3:1 SPC20 Not enough whitespace after '...' marker
+   |
+ 1 | *** Variables ***
+ 2 | ${var}
+ 3 | ... val
+   | ^^^ SPC20
+ 4 |  .... val
+ 5 | value
+   |
+
+variable_errors.robot:13:1 SPC20 Not enough whitespace after '...' marker
+    |
+ 11 | ....   c
+ 12 | ...
+ 13 | ...d
+    | ^^^ SPC20
+    |
+

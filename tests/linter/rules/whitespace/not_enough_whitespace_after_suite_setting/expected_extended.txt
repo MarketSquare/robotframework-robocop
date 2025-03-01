@@ -1,0 +1,100 @@
+test.robot:2:1 SPC22 Not enough whitespace after 'Library' setting
+   |
+ 1 | *** Settings ***
+ 2 | Library Collections
+   | ^^^^^^^^^^^^^^^^^^^ SPC22
+ 3 | Resource file.robot
+ 4 | Variablesvars.yaml
+   |
+
+test.robot:3:1 SPC22 Not enough whitespace after 'Resource' setting
+   |
+ 1 | *** Settings ***
+ 2 | Library Collections
+ 3 | Resource file.robot
+   | ^^^^^^^^^^^^^^^^^^^ SPC22
+ 4 | Variablesvars.yaml
+   |
+
+test.robot:4:1 SPC22 Not enough whitespace after 'Variables' setting
+   |
+ 2 | Library Collections
+ 3 | Resource file.robot
+ 4 | Variablesvars.yaml
+   | ^^^^^^^^^^^^^^^^^^ SPC22
+   |
+
+test.robot:6:1 SPC22 Not enough whitespace after 'Force Tags' setting
+   |
+ 6 | Force Tags tag
+   | ^^^^^^^^^^^^^^ SPC22
+ 7 | ...    tag2
+ 8 | Default Tagstag1    tag2
+   |
+
+test.robot:8:1 SPC22 Not enough whitespace after 'Default Tags' setting
+   |
+ 6 | Force Tags tag
+ 7 | ...    tag2
+ 8 | Default Tagstag1    tag2
+   | ^^^^^^^^^^^^^^^^ SPC22
+   |
+
+test.robot:13:1 SPC22 Not enough whitespace after 'Suite Setup' setting
+    |
+ 11 |
+ 12 | Timeout 1min
+ 13 | Suite Setup Keyword
+    | ^^^^^^^^^^^^^^^^^^^ SPC22
+ 14 | Suite Teardown Keyword2
+    |
+
+test.robot:14:1 SPC22 Not enough whitespace after 'Suite Teardown' setting
+    |
+ 12 | Timeout 1min
+ 13 | Suite Setup Keyword
+ 14 | Suite Teardown Keyword2
+    | ^^^^^^^^^^^^^^^^^^^^^^^ SPC22
+    |
+
+test.robot:16:1 SPC22 Not enough whitespace after 'Test Setup' setting
+    |
+ 16 | Test Setup Keyword
+    | ^^^^^^^^^^^^^^^^^^ SPC22
+ 17 | Test Teardown Keyword2
+ 18 | Testtimeout 1min
+    |
+
+test.robot:17:1 SPC22 Not enough whitespace after 'Test Teardown' setting
+    |
+ 15 |
+ 16 | Test Setup Keyword
+ 17 | Test Teardown Keyword2
+    | ^^^^^^^^^^^^^^^^^^^^^^ SPC22
+ 18 | Testtimeout 1min
+ 19 | Documentation this is doc
+    |
+
+test.robot:18:1 SPC22 Not enough whitespace after 'Test Timeout' setting
+    |
+ 16 | Test Setup Keyword
+ 17 | Test Teardown Keyword2
+ 18 | Testtimeout 1min
+    | ^^^^^^^^^^^^^^^^ SPC22
+ 19 | Documentation this is doc
+    |
+
+test.robot:19:1 SPC22 Not enough whitespace after 'Documentation' setting
+    |
+ 17 | Test Teardown Keyword2
+ 18 | Testtimeout 1min
+ 19 | Documentation this is doc
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^ SPC22
+    |
+
+test.robot:21:1 SPC22 Not enough whitespace after 'Metadata' setting
+    |
+ 21 | Metadata key value
+    | ^^^^^^^^^^^^^^^^^^ SPC22
+    |
+

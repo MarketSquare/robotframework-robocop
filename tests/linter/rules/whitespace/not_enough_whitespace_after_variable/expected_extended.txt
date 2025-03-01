@@ -1,0 +1,16 @@
+test.robot:2:1 SPC21 Not enough whitespace after '${VAR} 1' variable name
+   |
+ 1 | *** Variables ***
+ 2 | ${VAR} 1
+   | ^^^^^^^^ SPC21
+ 3 |  ${VAR}  1
+ 4 |   ${VAR}  1
+   |
+
+test.robot:7:1 SPC21 Not enough whitespace after '@{LIST} value' variable name
+   |
+ 7 | @{LIST} value
+   | ^^^^^^^^^^^^^ SPC21
+ 8 | ...  value2
+   |
+

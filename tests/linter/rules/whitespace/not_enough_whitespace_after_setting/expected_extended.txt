@@ -1,0 +1,20 @@
+test.robot:7:5 SPC19 Not enough whitespace after '[Documentation]' setting
+   |
+ 5 | *** Test Cases ***
+ 6 | Test
+ 7 |     [Documentation] doc
+   |     ^^^^^^^^^^^^^^^^^^^ SPC19
+ 8 |     [Tags]  sometag
+ 9 |     Pass
+   |
+
+test.robot:20:5 SPC19 Not enough whitespace after '[Arguments]' setting
+    |
+ 18 | Keyword
+ 19 |     [Documentation]  this is doc
+ 20 |     [Arguments] ${var}
+    |     ^^^^^^^^^^^^^^^^^^ SPC19
+ 21 |     No Operation
+ 22 |     Pass
+    |
+

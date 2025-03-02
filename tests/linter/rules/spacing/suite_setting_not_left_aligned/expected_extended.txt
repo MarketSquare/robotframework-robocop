@@ -1,0 +1,218 @@
+four_spaces.robot:2:5 SPC16 Setting in Settings section is not left aligned
+   |
+ 1 | *** Settings ***
+ 2 |     Library  Collections
+   |     ^^^^^^^ SPC16
+ 3 |     Resource  data.resource
+ 4 |     Variables  vars.robot
+   |
+
+four_spaces.robot:3:5 SPC16 Setting in Settings section is not left aligned
+   |
+ 1 | *** Settings ***
+ 2 |     Library  Collections
+ 3 |     Resource  data.resource
+   |     ^^^^^^^^ SPC16
+ 4 |     Variables  vars.robot
+   |
+
+four_spaces.robot:4:5 SPC16 Setting in Settings section is not left aligned
+   |
+ 2 |     Library  Collections
+ 3 |     Resource  data.resource
+ 4 |     Variables  vars.robot
+   |     ^^^^^^^^^ SPC16
+   |
+
+four_spaces.robot:6:5 SPC16 Setting in Settings section is not left aligned
+   |
+ 6 |     Force Tags  tag
+   |     ^^^^^^^^^^ SPC16
+ 7 |     ...  tag2
+   |
+
+four_spaces.robot:9:5 SPC16 Setting in Settings section is not left aligned
+   |
+ 9 |     Default Tags  tag
+   |     ^^^^^^^^^^^^ SPC16
+   |
+
+four_spaces.robot:11:5 SPC16 Setting in Settings section is not left aligned
+    |
+ 11 |     Suite Setup  Keyword
+    |     ^^^^^^^^^^^ SPC16
+ 12 |     Suite Teardown  Keyword
+ 13 |     Test Setup  Keyword
+    |
+
+four_spaces.robot:12:5 SPC16 Setting in Settings section is not left aligned
+    |
+ 10 |
+ 11 |     Suite Setup  Keyword
+ 12 |     Suite Teardown  Keyword
+    |     ^^^^^^^^^^^^^^ SPC16
+ 13 |     Test Setup  Keyword
+ 14 |     Test Teardown  Keyword
+    |
+
+four_spaces.robot:13:5 SPC16 Setting in Settings section is not left aligned
+    |
+ 11 |     Suite Setup  Keyword
+ 12 |     Suite Teardown  Keyword
+ 13 |     Test Setup  Keyword
+    |     ^^^^^^^^^^ SPC16
+ 14 |     Test Teardown  Keyword
+ 15 |     Test Timeout  1 day
+    |
+
+four_spaces.robot:14:5 SPC16 Setting in Settings section is not left aligned
+    |
+ 12 |     Suite Teardown  Keyword
+ 13 |     Test Setup  Keyword
+ 14 |     Test Teardown  Keyword
+    |     ^^^^^^^^^^^^^ SPC16
+ 15 |     Test Timeout  1 day
+ 16 |     Test Template  Keyword
+    |
+
+four_spaces.robot:15:5 SPC16 Setting in Settings section is not left aligned
+    |
+ 13 |     Test Setup  Keyword
+ 14 |     Test Teardown  Keyword
+ 15 |     Test Timeout  1 day
+    |     ^^^^^^^^^^^^ SPC16
+ 16 |     Test Template  Keyword
+    |
+
+four_spaces.robot:16:5 SPC16 Setting in Settings section is not left aligned
+    |
+ 14 |     Test Teardown  Keyword
+ 15 |     Test Timeout  1 day
+ 16 |     Test Template  Keyword
+    |     ^^^^^^^^^^^^^ SPC16
+    |
+
+four_spaces.robot:18:5 SPC16 Setting in Settings section is not left aligned
+    |
+ 18 |     Documentation  doc
+    |     ^^^^^^^^^^^^^ SPC16
+ 19 |     Metadata  meta  data
+    |
+
+four_spaces.robot:19:5 SPC16 Setting in Settings section is not left aligned
+    |
+ 17 |
+ 18 |     Documentation  doc
+ 19 |     Metadata  meta  data
+    |     ^^^^^^^^ SPC16
+    |
+
+one_space.robot:2:2 SPC16 Setting in Settings section is not left aligned
+   |
+ 1 | *** Settings ***
+ 2 |  Library  Collections
+   |  ^ SPC16
+ 3 |  Resource  data.resource
+ 4 |  Variables  vars.robot
+   |
+
+one_space.robot:3:2 SPC16 Setting in Settings section is not left aligned
+   |
+ 1 | *** Settings ***
+ 2 |  Library  Collections
+ 3 |  Resource  data.resource
+   |  ^ SPC16
+ 4 |  Variables  vars.robot
+   |
+
+one_space.robot:4:2 SPC16 Setting in Settings section is not left aligned
+   |
+ 2 |  Library  Collections
+ 3 |  Resource  data.resource
+ 4 |  Variables  vars.robot
+   |  ^ SPC16
+   |
+
+one_space.robot:6:2 SPC16 Setting in Settings section is not left aligned
+   |
+ 6 |  Force Tags  tag
+   |  ^ SPC16
+ 7 | ...  tag2
+   |
+
+one_space.robot:9:2 SPC16 Setting in Settings section is not left aligned
+   |
+ 9 |  Default Tags tag
+   |  ^ SPC16
+   |
+
+one_space.robot:11:2 SPC16 Setting in Settings section is not left aligned
+    |
+ 11 |  Suite Setup  Keyword
+    |  ^ SPC16
+ 12 |  Suite Teardown  Keyword
+ 13 |  Test Setup  Keyword
+    |
+
+one_space.robot:12:2 SPC16 Setting in Settings section is not left aligned
+    |
+ 10 |
+ 11 |  Suite Setup  Keyword
+ 12 |  Suite Teardown  Keyword
+    |  ^ SPC16
+ 13 |  Test Setup  Keyword
+ 14 |  Test Teardown  Keyword
+    |
+
+one_space.robot:13:2 SPC16 Setting in Settings section is not left aligned
+    |
+ 11 |  Suite Setup  Keyword
+ 12 |  Suite Teardown  Keyword
+ 13 |  Test Setup  Keyword
+    |  ^ SPC16
+ 14 |  Test Teardown  Keyword
+ 15 |  Test Timeout  1 day
+    |
+
+one_space.robot:14:2 SPC16 Setting in Settings section is not left aligned
+    |
+ 12 |  Suite Teardown  Keyword
+ 13 |  Test Setup  Keyword
+ 14 |  Test Teardown  Keyword
+    |  ^ SPC16
+ 15 |  Test Timeout  1 day
+ 16 |  Test Template  Keyword
+    |
+
+one_space.robot:15:2 SPC16 Setting in Settings section is not left aligned
+    |
+ 13 |  Test Setup  Keyword
+ 14 |  Test Teardown  Keyword
+ 15 |  Test Timeout  1 day
+    |  ^ SPC16
+ 16 |  Test Template  Keyword
+    |
+
+one_space.robot:16:2 SPC16 Setting in Settings section is not left aligned
+    |
+ 14 |  Test Teardown  Keyword
+ 15 |  Test Timeout  1 day
+ 16 |  Test Template  Keyword
+    |  ^ SPC16
+    |
+
+one_space.robot:18:2 SPC16 Setting in Settings section is not left aligned
+    |
+ 18 |  Documentation  doc
+    |  ^ SPC16
+ 19 |  Metadata  meta  data
+    |
+
+one_space.robot:19:2 SPC16 Setting in Settings section is not left aligned
+    |
+ 17 |
+ 18 |  Documentation  doc
+ 19 |  Metadata  meta  data
+    |  ^ SPC16
+    |
+

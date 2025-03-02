@@ -26,6 +26,14 @@ class TestRuleAcceptance(RuleAcceptance):
             test_on_version=test_on_version,
         )
 
+    def test_extended(self):
+        self.check_rule(
+            src_files=["bug375.robot", "comments.robot", "test.robot"],
+            expected_file="expected_extended.txt",
+            output_format="extended",
+            test_on_version=">=5",
+        )
+
     def test_758_bug(self):
         self.check_rule(
             configure=["bad-indent.indent=-1"],

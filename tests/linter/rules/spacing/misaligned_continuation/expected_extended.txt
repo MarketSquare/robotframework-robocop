@@ -1,0 +1,57 @@
+tests.robot:7:3 SPC11 Continuation marker is not aligned with starting row
+   |
+ 5 | ...                It can also contain multiple paragraphs.
+ 6 | Default Tags       default tag 1    default tag 2    default tag 3
+ 7 |   ...                default tag 4    default tag 5
+   |   ^^^ SPC11
+   |
+
+tests.robot:15:3 SPC11 Continuation marker is not aligned with starting row
+    |
+ 13 | ${MULTILINE}       SEPARATOR=\n
+ 14 | ...                This is a long multiline string.
+ 15 |   ...                This is the second line.
+    |   ^^^ SPC11
+ 16 | ...                This is the third and the last line.
+ 17 | @{LIST}            this     list     is      quite    long     and
+    |
+
+tests.robot:27:3 SPC11 Continuation marker is not aligned with starting row
+    |
+ 25 |     ...       tags    in    real    life
+ 26 |     Do X    first argument    second argument    third argument
+ 27 |   ...    fourth argument    fifth argument    sixth argument
+    |   ^^^ SPC11
+ 28 |     ${var} =    Get X
+ 29 |     ...    first argument passed to this keyword is pretty long
+    |
+
+tests.robot:35:7 SPC11 Continuation marker is not aligned with starting row
+    |
+ 33 | Misaligned headers
+ 34 |     FOR  ${value}  IN  ${1}
+ 35 |       ...  ${2}
+    |       ^^^ SPC11
+ 36 |         Keyword
+ 37 |     END
+    |
+
+tests.robot:41:4 SPC11 Continuation marker is not aligned with starting row
+    |
+ 39 | Misaligned Arguments
+ 40 |     [Arguments]    ${arg}
+ 41 |    ...  ${arg}
+    |    ^^^ SPC11
+ 42 |     Keyword
+    |
+
+tests.robot:53:7 SPC11 Continuation marker is not aligned with starting row
+    |
+ 51 |         Keyword
+ 52 |     EXCEPT  Error
+ 53 |       ...  Error2
+    |       ^^^ SPC11
+ 54 |         Keyword
+ 55 |     END
+    |
+

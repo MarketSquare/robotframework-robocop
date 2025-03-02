@@ -1,0 +1,315 @@
+bug375.robot:7:1 SPC08 Line is under-indented
+   |
+ 5 | *** Test Case ***
+ 6 | My templated test
+ 7 |     [Documentation]    This test is templated
+   | ^^^^ SPC08
+ 8 |     [Template]         Some Template
+ 9 |                        10     arg2
+   |
+
+bug375.robot:8:1 SPC08 Line is under-indented
+   |
+ 6 | My templated test
+ 7 |     [Documentation]    This test is templated
+ 8 |     [Template]         Some Template
+   | ^^^^ SPC08
+ 9 |                        10     arg2
+10 |                        20     arg3
+   |
+
+bug375.robot:23:1 SPC08 Line is over-indented
+    |
+ 21 | My templated test3
+ 22 |     [Documentation]    This test is templated
+ 23 |       [Template]         Some Template
+    | ^^^^^^ SPC08
+ 24 |     10     arg2
+ 25 |     20     arg3
+    |
+
+bug375.robot:33:1 SPC08 Line is under-indented
+    |
+ 31 |     [Template]         Some Template
+ 32 |     10     arg2
+ 33 |    20     arg3
+    | ^^^ SPC08
+ 34 |     -30    arg4
+    |
+
+comments.robot:19:1 SPC08 Line is over-indented
+    |
+ 17 | *** Test Cases ***
+ 18 | # valid comment
+ 19 |   # invalid comment
+    | ^^ SPC08
+ 20 | Test1
+ 21 |     Keyword
+    |
+
+comments.robot:23:1 SPC08 Line is under-indented
+    |
+ 21 |     Keyword
+ 22 |     # comment
+ 23 |    # invalid comment
+    | ^^^ SPC08
+    |
+
+comments.robot:26:1 SPC08 Line is over-indented
+    |
+ 24 |
+ 25 | # comment
+ 26 |     # now also invalid
+    | ^^^^ SPC08
+    |
+
+comments.robot:39:1 SPC08 Line is under-indented
+    |
+ 37 |     Keyword
+ 38 |     # comment
+ 39 |    # invalid comment
+    | ^^^ SPC08
+    |
+
+comments.robot:56:1 SPC08 Line is under-indented
+    |
+ 54 | Keyword With Last Uneven Comment
+ 55 |     No Operation
+ 56 |    # comment
+    | ^^^ SPC08
+    |
+
+comments.robot:60:1 SPC08 Line is under-indented
+    |
+ 58 | Keyword With Comment At 0 Index In The Middle
+ 59 |     Keyword
+ 60 | # comment
+    | ^ SPC08
+ 61 |     Keyword
+ 62 |     # comment
+    |
+
+test.robot:23:1 SPC08 Line is under-indented
+    |
+ 21 |     Bad Indent
+ 22 |       FOR    ${var}    IN    a    b
+ 23 |             No Operation
+    | ^^^^^^^^^^^^ SPC08
+ 24 |              But Unmatched
+ 25 |              With Others
+    |
+
+test.robot:28:1 SPC08 Line is under-indented
+    |
+ 26 |                ...  Should Be Ignored
+ 27 |              # valid comment
+ 28 |             # invalid - not counted to indent count, but reported if it breaks rule
+    | ^^^^^^^^^^^^ SPC08
+ 29 |             # invalid - same as above
+ 30 |       END
+    |
+
+test.robot:29:1 SPC08 Line is under-indented
+    |
+ 27 |              # valid comment
+ 28 |             # invalid - not counted to indent count, but reported if it breaks rule
+ 29 |             # invalid - same as above
+    | ^^^^^^^^^^^^ SPC08
+ 30 |       END
+ 31 |       ${assign}    Keyword Call    b
+    |
+
+test.robot:43:1 SPC08 Line is over-indented
+    |
+ 41 |         ${assign}    IF    $condition    Set Variable    1    ELSE IF    $other_condition    Keyword
+ 42 |         ...    ${a}
+ 43 |          No Operation
+    | ^^^^^^^^^ SPC08
+ 44 |      ELSE
+ 45 |         # comment
+    |
+
+test.robot:44:1 SPC08 Line is over-indented
+    |
+ 42 |         ...    ${a}
+ 43 |          No Operation
+ 44 |      ELSE
+    | ^^^^^ SPC08
+ 45 |         # comment
+ 46 |         No Operation
+    |
+
+test.robot:53:1 SPC08 Line is over-indented
+    |
+ 51 | Test with WHILE
+ 52 |     WHILE    $condition
+ 53 |          WHILE    $condition
+    | ^^^^^^^^^ SPC08
+ 54 |            No Operation
+ 55 |            No Operation
+    |
+
+test.robot:58:1 SPC08 Line is over-indented
+    |
+ 56 |            BREAK
+ 57 |            CONTINUE
+ 58 |          END
+    | ^^^^^^^^^ SPC08
+ 59 |         No Operation
+ 60 |         No Operation
+    |
+
+test.robot:66:1 SPC08 Line is over-indented
+    |
+ 64 | Test With TRY
+ 65 |     No Operation
+ 66 |      TRY
+    | ^^^^^ SPC08
+ 67 |         No Operation
+ 68 |          No Operation
+    |
+
+test.robot:68:1 SPC08 Line is over-indented
+    |
+ 66 |      TRY
+ 67 |         No Operation
+ 68 |          No Operation
+    | ^^^^^^^^^ SPC08
+ 69 |         No Operation
+ 70 |     EXCEPT    *
+    |
+
+test.robot:72:1 SPC08 Line is over-indented
+    |
+ 70 |     EXCEPT    *
+ 71 |         No Operation
+ 72 |          No Operation
+    | ^^^^^^^^^ SPC08
+ 73 |         No Operation
+ 74 |     ELSE
+    |
+
+test.robot:75:1 SPC08 Line is over-indented
+    |
+ 73 |         No Operation
+ 74 |     ELSE
+ 75 |              No Operation
+    | ^^^^^^^^^^^^^ SPC08
+ 76 |              No Operation
+ 77 |              No Operation
+    |
+
+test.robot:76:1 SPC08 Line is over-indented
+    |
+ 74 |     ELSE
+ 75 |              No Operation
+ 76 |              No Operation
+    | ^^^^^^^^^^^^^ SPC08
+ 77 |              No Operation
+ 78 |     FINALLY
+    |
+
+test.robot:77:1 SPC08 Line is over-indented
+    |
+ 75 |              No Operation
+ 76 |              No Operation
+ 77 |              No Operation
+    | ^^^^^^^^^^^^^ SPC08
+ 78 |     FINALLY
+ 79 |         No Operation
+    |
+
+test.robot:80:1 SPC08 Line is over-indented
+    |
+ 78 |     FINALLY
+ 79 |         No Operation
+ 80 |          No Operation
+    | ^^^^^^^^^ SPC08
+ 81 |     No Operation
+ 82 |     END
+    |
+
+test.robot:87:1 SPC08 Line is over-indented
+    |
+ 85 |     [Documentation]  doc
+ 86 |     [Template]  Some Template
+ 87 |                 Over Indent
+    | ^^^^^^^^^^^^^^^^ SPC08
+ 88 |                 ...  Same Here
+ 89 |     What Goes
+    |
+
+test.robot:90:1 SPC08 Line is over-indented
+    |
+ 88 |                 ...  Same Here
+ 89 |     What Goes
+ 90 |      [Teardown]  Over Indented
+    | ^^^^^ SPC08
+    |
+
+test.robot:106:1 SPC08 Line is over-indented
+     |
+ 104 |     IF    ${condition}
+ 105 |         ${value}    Correct Indent
+ 106 |           ${arg}  Incorrect Indent
+     | ^^^^^^^^^^ SPC08
+ 107 |     ELSE IF  ${flag}
+ 108 |          Incorrect Indent
+     |
+
+test.robot:108:1 SPC08 Line is over-indented
+     |
+ 106 |           ${arg}  Incorrect Indent
+ 107 |     ELSE IF  ${flag}
+ 108 |          Incorrect Indent
+     | ^^^^^^^^^ SPC08
+ 109 |         Correct Indent
+ 110 |     ELSE
+     |
+
+test.robot:154:1 SPC08 Line is under-indented
+     |
+ 152 | Bad Comment Indent
+ 153 |     Keyword Call
+ 154 |    # comment
+     | ^^^ SPC08
+ 155 |     FOR  ${var}  IN  1  2
+ 156 |          # comment
+     |
+
+test.robot:156:1 SPC08 Line is over-indented
+     |
+ 154 |    # comment
+ 155 |     FOR  ${var}  IN  1  2
+ 156 |          # comment
+     | ^^^^^^^^^ SPC08
+ 157 |         IF    ${var}
+ 158 |            # comment
+     |
+
+test.robot:158:1 SPC08 Line is under-indented
+     |
+ 156 |          # comment
+ 157 |         IF    ${var}
+ 158 |            # comment
+     | ^^^^^^^^^^^ SPC08
+ 159 |             IF    $condition    RETURN
+ 160 |             Keyword Call    ${var}
+     |
+
+test.robot:162:1 SPC08 Line is over-indented
+     |
+ 160 |             Keyword Call    ${var}
+ 161 |              ...    misaligned but different rule
+ 162 |              # comment
+     | ^^^^^^^^^^^^^ SPC08
+ 163 |         END
+ 164 |     END
+     |
+
+test.robot:169:1 SPC08 Line is over-indented
+     |
+ 169 |   # invalid
+     | ^^ SPC08
+     |
+

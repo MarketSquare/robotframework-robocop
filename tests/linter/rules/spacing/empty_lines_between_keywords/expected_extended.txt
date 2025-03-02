@@ -1,0 +1,67 @@
+test.robot:24:1 SPC05 Invalid number of empty lines between keywords (2/1)
+    |
+ 22 |   Keyword2
+ 23 |       No Operation
+ 24 | /
+ 25 | |
+    | |_^ SPC05
+ 26 |   Keyword3
+ 27 |       No Operation
+    |
+
+test.robot:29:1 SPC05 Invalid number of empty lines between keywords (0/1)
+    |
+ 29 | # Some comment
+    | ^ SPC05
+ 30 | Keyword4
+ 31 |     No Operation
+    |
+
+test.robot:34:1 SPC05 Invalid number of empty lines between keywords (0/1)
+    |
+ 34 | # Some comment
+    | ^ SPC05
+ 35 | Keyword5
+ 36 |     No Operation
+    |
+
+test.robot:37:1 SPC05 Invalid number of empty lines between keywords (0/1)
+    |
+ 35 | Keyword5
+ 36 |     No Operation
+ 37 | # Some comment
+    | ^ SPC05
+ 38 | Keyword6
+ 39 |     No Operation
+    |
+
+test.robot:41:1 SPC05 Invalid number of empty lines between keywords (0/1)
+    |
+ 39 |     No Operation
+ 40 | # Some comment
+ 41 | # Some comment
+    | ^ SPC05
+ 42 | Keyword7
+ 43 |     No Operation
+    |
+
+test.robot:46:1 SPC05 Invalid number of empty lines between keywords (0/1)
+    |
+ 44 |
+ 45 | # Some comment
+ 46 | # Some comment
+    | ^ SPC05
+ 47 | Keyword8
+ 48 |     No Operation
+    |
+
+test.robot:52:1 SPC05 Invalid number of empty lines between keywords (0/1)
+    |
+ 50 |
+ 51 | # Some comment
+ 52 | # Some comment
+    | ^ SPC05
+ 53 | Keyword9
+ 54 |     No Operation
+    |
+

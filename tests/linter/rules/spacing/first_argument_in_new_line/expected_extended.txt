@@ -1,0 +1,74 @@
+test.robot:25:16 SPC18 First argument: '${optional_argument}=value' is not placed on the same line as [Arguments] setting
+    |
+ 23 |   Keyword With First Arg In New Line
+ 24 |       [Documentation]  doc
+ 25 | /     [Arguments]
+ 26 | |     ...     ${optional_argument}=value
+    | |_^ SPC18
+ 27 |       Log    ${optional_argument}
+    |
+
+test.robot:31:16 SPC18 First argument: '${some_argument}' is not placed on the same line as [Arguments] setting
+    |
+ 29 |   Another Keyword With First Arg In New Line
+ 30 |       [Documentation]  doc
+ 31 | /     [Arguments]
+ 32 | |     ...     ${some_argument}
+    | |_^ SPC18
+ 33 |       Log    ${some_argument}
+    |
+
+test.robot:37:16 SPC18 First argument: '&{named}' is not placed on the same line as [Arguments] setting
+    |
+ 35 |   Free Named Only
+ 36 |       [Documentation]  doc
+ 37 | /     [Arguments]
+ 38 | |     ...    &{named}
+    | |_^ SPC18
+ 39 |       Log Many    &{named}
+    |
+
+test.robot:43:16 SPC18 First argument: '${required}' is not placed on the same line as [Arguments] setting
+    |
+ 41 |   Positional And Free Named
+ 42 |       [Documentation]  doc
+ 43 | /     [Arguments]
+ 44 | |     ...    ${required}
+    | |_^ SPC18
+ 45 |       ...    &{extra}
+ 46 |       Log Many    ${required}    &{extra}
+    |
+
+test.robot:50:16 SPC18 First argument: '@{args}' is not placed on the same line as [Arguments] setting
+    |
+ 48 |   Run Program
+ 49 |       [Documentation]  doc
+ 50 | /     [Arguments]
+ 51 | |     ...    @{args}
+    | |_^ SPC18
+ 52 |       ...    &{config}
+ 53 |       No Operation
+    |
+
+test.robot:57:16 SPC18 First argument: '@{varargs}' is not placed on the same line as [Arguments] setting
+    |
+ 55 |   With Varargs
+ 56 |       [Documentation]  doc
+ 57 | /     [Arguments]
+ 58 | |     ...    @{varargs}
+    | |_^ SPC18
+ 59 |       ...    ${named}
+ 60 |       Log Many    @{varargs}    ${named}
+    |
+
+test.robot:64:16 SPC18 First argument: '@{}' is not placed on the same line as [Arguments] setting
+    |
+ 62 |   Without Varargs
+ 63 |       [Documentation]  doc
+ 64 | /     [Arguments]
+ 65 | |     ...    @{}
+    | |_^ SPC18
+ 66 |       ...    ${first}
+ 67 |       ...    ${second}
+    |
+

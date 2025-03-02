@@ -1,0 +1,72 @@
+empty_section.robot:1:1 SPC03 Invalid number of empty lines between sections (0/2)
+   |
+ 1 | *** Settings ***
+   | ^^^^^^^^^^^^^^^^ SPC03
+ 2 | *** Keywords ***
+ 3 | Keyword
+   |
+
+test.robot:5:1 SPC03 Invalid number of empty lines between sections (3/2)
+   |
+ 5 |
+   | ^^^^^^^^^^^^^^^^^^ SPC03
+ 6 | *** Variables ***
+ 7 | ${MY_VAR}    1
+   |
+
+test.robot:9:1 SPC03 Invalid number of empty lines between sections (0/2)
+   |
+ 9 | # some comment
+   | ^^^^^^^^^^^^^^ SPC03
+10 | *** Test Cases ***
+11 | Test
+   |
+
+test.robot:17:1 SPC03 Invalid number of empty lines between sections (1/2)
+    |
+ 15 |     Keyword
+ 16 |     One More
+ 17 |
+    | ^ SPC03
+ 18 | *** Keywords ***
+ 19 | Keyword
+    |
+
+test.robot:24:1 SPC03 Invalid number of empty lines between sections (0/2)
+    |
+ 22 |     Pass
+ 23 |     No Operation
+ 24 |     Fail
+    | ^^^^^^^^ SPC03
+ 25 | *** Comments ***
+ 26 | Blah Blah Blah
+    |
+
+bug861.robot:4:1 SPC03 Invalid number of empty lines between sections (0/2)
+   |
+ 4 | # Comment
+   | ^^^^^^^^^ SPC03
+ 5 | *** Variables ***
+ 6 | ${VAR}      value
+   |
+
+bug861.robot:15:1 SPC03 Invalid number of empty lines between sections (1/2)
+    |
+ 13 |     No Operation
+ 14 | # Comment
+ 15 |
+    | ^ SPC03
+ 16 | *** Keywords ***
+ 17 | Some Keyword
+    |
+
+bug861.robot:21:1 SPC03 Invalid number of empty lines between sections (1/2)
+    |
+ 19 |
+ 20 | # Comment
+ 21 |
+    | ^ SPC03
+ 22 | *** Comments ***
+ 23 | Blah Blah
+    |
+

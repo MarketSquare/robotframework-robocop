@@ -1,0 +1,50 @@
+test.robot:7:1 SPC14 Variable in Variables section is not left aligned
+   |
+ 5 |
+ 6 | *** Variables ***
+ 7 |  ${MY VAR}  10
+   | ^ SPC14
+ 8 |   ${MY VAR1}  10
+ 9 |    ${MY VAR2}  10
+   |
+
+test.robot:8:1 SPC14 Variable in Variables section is not left aligned
+   |
+ 6 | *** Variables ***
+ 7 |  ${MY VAR}  10
+ 8 |   ${MY VAR1}  10
+   | ^^ SPC14
+ 9 |    ${MY VAR2}  10
+10 |     ${MY VAR3}  10
+   |
+
+test.robot:9:1 SPC14 Variable in Variables section is not left aligned
+   |
+ 7 |  ${MY VAR}  10
+ 8 |   ${MY VAR1}  10
+ 9 |    ${MY VAR2}  10
+   | ^^^ SPC14
+10 |     ${MY VAR3}  10
+11 | ${GOLD VAR}  10
+   |
+
+test.robot:10:1 SPC14 Variable in Variables section is not left aligned
+    |
+  8 |   ${MY VAR1}  10
+  9 |    ${MY VAR2}  10
+ 10 |     ${MY VAR3}  10
+    | ^^^^ SPC14
+ 11 | ${GOLD VAR}  10
+ 12 |   ${NOT_ALIGNED}  1
+    |
+
+test.robot:12:1 SPC14 Variable in Variables section is not left aligned
+    |
+ 10 |     ${MY VAR3}  10
+ 11 | ${GOLD VAR}  10
+ 12 |   ${NOT_ALIGNED}  1
+    | ^^ SPC14
+ 13 | ...  2
+ 14 | ${ALIGNED}  1
+    |
+

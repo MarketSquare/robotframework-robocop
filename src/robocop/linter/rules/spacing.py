@@ -206,6 +206,7 @@ class MixedTabsAndSpacesRule(Rule):
     name = "mixed-tabs-and-spaces"
     rule_id = "SPC06"
     message = "Inconsistent use of tabs and spaces in file"
+    file_wide_rule = True
     severity = RuleSeverity.WARNING
     added_in_version = "1.1.0"
 
@@ -298,6 +299,7 @@ class TooManyTrailingBlankLinesRule(Rule):
     name = "too-many-trailing-blank-lines"
     rule_id = "SPC10"
     message = "Too many blank lines at the end of file"
+    file_wide_rule = True  # TODO: improve checking to report on trailing lines
     severity = RuleSeverity.WARNING
     added_in_version = "1.4.0"
 
@@ -627,7 +629,13 @@ class InvalidSpacingChecker(RawFileChecker):  # TODO merge, we can just use sing
 
         stripped_line = line.rstrip("\n\r")
         if stripped_line and stripped_line[-1] in [" ", "\t"]:
-            self.report(self.trailing_whitespace, lineno=lineno, col=len(stripped_line))
+            whitespace_length = len(stripped_line) - len(stripped_line.rstrip())
+            self.report(
+                self.trailing_whitespace,
+                lineno=lineno,
+                col=len(stripped_line) - whitespace_length + 1,
+                end_col=len(stripped_line) + 1,
+            )
 
 
 class EmptyLinesChecker(VisitorChecker):
@@ -725,13 +733,13 @@ class EmptyLinesChecker(VisitorChecker):
                 continue
             empty_lines = self.check_empty_lines_in_keyword_test(child)
             if allowed_empty_lines not in (empty_lines, -1) and index < last_index:
+                lineno = min(child.end_lineno - empty_lines + 1, child.end_lineno)
                 self.report(
                     rule,
                     empty_lines=empty_lines,
                     allowed_empty_lines=allowed_empty_lines,
-                    lineno=child.end_lineno,
-                    end_lineno=child.end_lineno + 1,
-                    end_col=len(child.name) + 1,
+                    lineno=lineno,
+                    end_lineno=child.end_lineno,
                 )
         self.generic_visit(node)
 

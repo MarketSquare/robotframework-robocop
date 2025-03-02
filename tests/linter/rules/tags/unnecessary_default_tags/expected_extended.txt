@@ -1,0 +1,8 @@
+test.robot:3:1 TAG07 Tags defined in Default Tags are always overwritten
+   |
+ 1 | *** Settings ***
+ 2 | Documentation  doc
+ 3 | Default Tags  tag  othertag
+   | ^^^^^^^^^^^^ TAG07
+   |
+

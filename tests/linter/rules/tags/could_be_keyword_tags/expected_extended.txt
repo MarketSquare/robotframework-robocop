@@ -1,0 +1,2 @@
+keywords_with_tests.robot:1:1 TAG10 All keywords in suite share these tags: 'tag'
+only_keywords.robot:1:1 TAG10 All keywords in suite share these tags: 'tag'

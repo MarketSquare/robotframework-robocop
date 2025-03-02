@@ -1,0 +1,19 @@
+default_and_empty_tags.robot:8:5 TAG08 [Tags] setting without values. Consider using NONE if you want to overwrite the Default Tags
+   |
+ 6 | Test
+ 7 |     [Documentation]  doc
+ 8 |     [Tags]
+   |     ^^^^^^ TAG08
+ 9 |     Pass
+10 |     Keyword
+   |
+
+default_and_empty_tags.robot:31:5 TAG08 [Tags] setting without values
+    |
+ 29 |
+ 30 | Keyword With Empty Tags
+ 31 |     [Tags]
+    |     ^^^^^^ TAG08
+ 32 |     No Operation
+    |
+

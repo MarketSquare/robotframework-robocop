@@ -117,6 +117,7 @@ class CouldBeTestTagsRule(Rule):
     name = "could-be-test-tags"
     rule_id = "TAG05"
     message = "All tests in suite share these tags: '{tags}'"
+    file_wide_rule = True
     severity = RuleSeverity.INFO
     added_in_version = "1.0.0"
 
@@ -238,6 +239,7 @@ class CouldBeKeywordTagsRule(Rule):
     name = "could-be-keyword-tags"
     rule_id = "TAG10"
     message = "All keywords in suite share these tags: '{tags}'"
+    file_wide_rule = True
     severity = RuleSeverity.INFO
     version = ">=6"
     added_in_version = "3.3.0"
@@ -379,7 +381,7 @@ class TagNameChecker(VisitorChecker):
                 node=node,
                 lineno=tag_token.lineno,
                 col=tag_token.col_offset + 1,
-                end_col=tag_token.end_col_offset,
+                end_col=tag_token.end_col_offset + 1,
             )
 
     def check_tag_substring(self, substring: str, tag: Token, node: type[Node]) -> bool:
@@ -395,7 +397,14 @@ class TagNameChecker(VisitorChecker):
             )
             res = True
         if "OR" in substring or "AND" in substring:
-            self.report(self.tag_with_or_and, tag=tag.value, node=node, lineno=tag.lineno, col=tag.col_offset + 1)
+            self.report(
+                self.tag_with_or_and,
+                tag=tag.value,
+                node=node,
+                lineno=tag.lineno,
+                col=tag.col_offset + 1,
+                end_col=tag.end_col_offset + 1,
+            )
             res = True
         return res
 
@@ -489,6 +498,7 @@ class TagScopeChecker(VisitorChecker):
                 node=node,
                 lineno=tag.lineno,
                 col=tag.col_offset + 1,
+                end_col=tag.end_col_offset + 1,
             )
 
 
@@ -555,4 +565,5 @@ class KeywordTagsChecker(VisitorChecker):
                 node=node,
                 lineno=tag.lineno,
                 col=tag.col_offset + 1,
+                end_col=tag.end_col_offset + 1,
             )

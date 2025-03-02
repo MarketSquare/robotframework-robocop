@@ -1,0 +1,124 @@
+test.robot:11:16 VAR10 Variable '${variablE}' has inconsistent naming. First used as '${variable}'
+    |
+  9 | Inconsistent variables
+ 10 |     ${variable}    Keyword
+ 11 |     Keyword    ${variablE}
+    |                ^^^^^^^^^^^ VAR10
+ 12 |     IF    ${var_iable} < 10
+ 13 |         Log    ${varia ble}
+    |
+
+test.robot:12:11 VAR10 Variable '${var_iable}' has inconsistent naming. First used as '${variable}'
+    |
+ 10 |     ${variable}    Keyword
+ 11 |     Keyword    ${variablE}
+ 12 |     IF    ${var_iable} < 10
+    |           ^^^^^^^^^^^^ VAR10
+ 13 |         Log    ${varia ble}
+ 14 |     END
+    |
+
+test.robot:13:16 VAR10 Variable '${varia ble}' has inconsistent naming. First used as '${variable}'
+    |
+ 11 |     Keyword    ${variablE}
+ 12 |     IF    ${var_iable} < 10
+ 13 |         Log    ${varia ble}
+    |                ^^^^^^^^^^^^ VAR10
+ 14 |     END
+    |
+
+test.robot:19:33 VAR10 Variable '${INconsistent}' has inconsistent naming. First used as '${inconsistent}'
+    |
+ 17 | Arguments
+ 18 |     [Arguments]    ${consistent}    ${inconsistent}
+ 19 |     Keyword    ${consistent}    ${INconsistent}
+    |                                 ^^^^^^^^^^^^^^^ VAR10
+ 20 |     IF    ${i_n_consistenT}    RETURN
+    |
+
+test.robot:20:11 VAR10 Variable '${i_n_consistenT}' has inconsistent naming. First used as '${inconsistent}'
+    |
+ 18 |     [Arguments]    ${consistent}    ${inconsistent}
+ 19 |     Keyword    ${consistent}    ${INconsistent}
+ 20 |     IF    ${i_n_consistenT}    RETURN
+    |           ^^^^^^^^^^^^^^^^^ VAR10
+    |
+
+test.robot:24:33 VAR10 Variable '${INconsistent}' has inconsistent naming. First used as '${inconsistent}'
+    |
+ 22 | Arguments With Defaults
+ 23 |     [Arguments]    ${consistent}    ${inconsistent}='default'
+ 24 |     Keyword    ${consistent}    ${INconsistent}
+    |                                 ^^^^^^^^^^^^^^^ VAR10
+    |
+
+test.robot:27:16 VAR10 Variable '${ARGUMENT}' has inconsistent naming. First used as '${argument}'
+    |
+ 25 |
+ 26 | Embedded ${argument} with ${possible:pattern}
+ 27 |     Keyword    ${ARGUMENT}    ${po_ssible}
+    |                ^^^^^^^^^^^ VAR10
+    |
+
+test.robot:27:31 VAR10 Variable '${po_ssible}' has inconsistent naming. First used as '${possible}'
+    |
+ 25 |
+ 26 | Embedded ${argument} with ${possible:pattern}
+ 27 |     Keyword    ${ARGUMENT}    ${po_ssible}
+    |                               ^^^^^^^^^^^^ VAR10
+    |
+
+test.robot:43:24 VAR10 Variable '${VARIABLE}' has inconsistent naming. First used as '${variable}'
+    |
+ 41 | Nested Variables
+ 42 |     ${variable}    Keyword
+ 43 |     Keyword    ${other_${VARIABLE}}
+    |                        ^^^^^^^^^^^ VAR10
+    |
+
+test.robot:47:16 VAR10 Variable '${VARIABLE2}' has inconsistent naming. First used as '${variable2}'
+    |
+ 45 | Assignment Signs
+ 46 |     ${variable}    ${variable2} =    Keyword
+ 47 |     Keyword    ${VARIABLE2}
+    |                ^^^^^^^^^^^^ VAR10
+    |
+
+test.robot:51:41 VAR10 Variable '${VARIABLE}' has inconsistent naming. First used as '${variable}'
+    |
+ 49 | Set Variable Scope
+ 50 |     ${variable}    Set Variable    value
+ 51 |     Set Test Variable    ${VARIABLE}    ${VARIABLE}  # should report only on second
+    |                                         ^^^^^^^^^^^ VAR10
+ 52 |     BuiltIn.Set Suite Variable    ${VARIABLE}    ${variable}  # should report only on second
+ 53 |     Set Suite Variable    ${VARIABLE}    ${VARIABLE}  # should not report
+    |
+
+test.robot:52:50 VAR10 Variable '${variable}' has inconsistent naming. First used as '${VARIABLE}'
+    |
+ 50 |     ${variable}    Set Variable    value
+ 51 |     Set Test Variable    ${VARIABLE}    ${VARIABLE}  # should report only on second
+ 52 |     BuiltIn.Set Suite Variable    ${VARIABLE}    ${variable}  # should report only on second
+    |                                                  ^^^^^^^^^^^ VAR10
+ 53 |     Set Suite Variable    ${VARIABLE}    ${VARIABLE}  # should not report
+    |
+
+test.robot:57:27 VAR10 Variable '${VARIABLE}' has inconsistent naming. First used as '${variable}'
+    |
+ 55 | VAR Syntax
+ 56 |     ${variable}    Set Variable    value
+ 57 |     VAR    ${VARIABLE}    ${VARIABLE}  # should report on second
+    |                           ^^^^^^^^^^^ VAR10
+ 58 |     VAR    ${variable2}    value    scope=local
+ 59 |     VAR    ${VARIABLE2}    ${variable2}    scope=TEST  # overwritten,  should not report
+    |
+
+test.robot:61:52 VAR10 Variable '${variable2}' has inconsistent naming. First used as '${VARIABLE2}'
+    |
+ 59 |     VAR    ${VARIABLE2}    ${variable2}    scope=TEST  # overwritten,  should not report
+ 60 |     VAR    ${VARIABLE2}    Value with ${VARIABLE2}    scope=GLOBAL  # should not report
+ 61 |     VAR    ${VARIABLE3}    Value with inconsistent ${variable2}
+    |                                                    ^^^^^^^^^^^^ VAR10
+ 62 |     VAR    ${variable}    ${VARIABLE}  # should not report
+    |
+

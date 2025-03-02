@@ -1,0 +1,254 @@
+test.robot:5:5 VAR08 Variable '${MY VAR}' may overwrite similar variable inside 'Test With Overwritten Variables' TestCase
+   |
+ 3 |     ${my_var}       Set Variable    1
+ 4 |     ${my_var}       Set Variable    2
+ 5 |     ${MY VAR}       Set Variable    2
+   |     ^^^^^^^^^ VAR08
+ 6 |     ${myVar}        Set Variable    3
+ 7 |     ${another_var}  Set Variable    4
+   |
+
+test.robot:6:5 VAR08 Variable '${myVar}' may overwrite similar variable inside 'Test With Overwritten Variables' TestCase
+   |
+ 4 |     ${my_var}       Set Variable    2
+ 5 |     ${MY VAR}       Set Variable    2
+ 6 |     ${myVar}        Set Variable    3
+   |     ^^^^^^^^ VAR08
+ 7 |     ${another_var}  Set Variable    4
+ 8 |     ${MYVAR}        Set Variable    5
+   |
+
+test.robot:8:5 VAR08 Variable '${MYVAR}' may overwrite similar variable inside 'Test With Overwritten Variables' TestCase
+   |
+ 6 |     ${myVar}        Set Variable    3
+ 7 |     ${another_var}  Set Variable    4
+ 8 |     ${MYVAR}        Set Variable    5
+   |     ^^^^^^^^ VAR08
+ 9 |     ${M Y V A R}    Set Variable    6
+10 |     ${mYvAr}        Some Keyword    123
+   |
+
+test.robot:9:5 VAR08 Variable '${M Y V A R}' may overwrite similar variable inside 'Test With Overwritten Variables' TestCase
+   |
+ 7 |     ${another_var}  Set Variable    4
+ 8 |     ${MYVAR}        Set Variable    5
+ 9 |     ${M Y V A R}    Set Variable    6
+   |     ^^^^^^^^^^^^ VAR08
+10 |     ${mYvAr}        Some Keyword    123
+   |
+
+test.robot:10:5 VAR08 Variable '${mYvAr}' may overwrite similar variable inside 'Test With Overwritten Variables' TestCase
+    |
+  8 |     ${MYVAR}        Set Variable    5
+  9 |     ${M Y V A R}    Set Variable    6
+ 10 |     ${mYvAr}        Some Keyword    123
+    |     ^^^^^^^^ VAR08
+    |
+
+test.robot:22:9 VAR08 Variable '${VAL}' may overwrite similar variable inside 'Keyword With For Loops' Keyword
+    |
+ 20 | Keyword With For Loops
+ 21 |     FOR  ${val}  IN  @{some_list}
+ 22 |         ${VAL}    Some Variable    1
+    |         ^^^^^^ VAR08
+ 23 |     END
+ 24 |     FOR  ${my_var}  IN  @{my_list}
+    |
+
+test.robot:29:13 VAR08 Variable '${this var}' may overwrite similar variable inside 'Keyword With For Loops' Keyword
+    |
+ 27 |         FOR  ${this_var}  IN  @{this_list}
+ 28 |             My Keyword    ${myVar}
+ 29 |             ${this var}     This Keyword   ${MY_VAR}
+    |             ^^^^^^^^^^^ VAR08
+ 30 |         END
+ 31 |         ${unique}  ${myVar}    Keyword
+    |
+
+test.robot:31:20 VAR08 Variable '${myVar}' may overwrite similar variable inside 'Keyword With For Loops' Keyword
+    |
+ 29 |             ${this var}     This Keyword   ${MY_VAR}
+ 30 |         END
+ 31 |         ${unique}  ${myVar}    Keyword
+    |                    ^^^^^^^^ VAR08
+ 32 |         FOR  ${this_var}  IN  @{this_list}
+ 33 |             My Keyword    ${myVar}
+    |
+
+test.robot:41:9 VAR08 Variable '${VAL}' may overwrite similar variable inside 'Keyword With If Conditions' Keyword
+    |
+ 39 |     ${v a l}    Some Keyword
+ 40 |     IF  ${val}
+ 41 |         ${VAL}    Set Variable    1
+    |         ^^^^^^ VAR08
+ 42 |     END
+ 43 |     IF  ${my_val} == ${True}
+    |
+
+test.robot:46:5 VAR08 Variable '${MY_VAL}' may overwrite similar variable inside 'Keyword With If Conditions' Keyword
+    |
+ 44 |         ${my val}    Change To False
+ 45 |     END
+ 46 |     ${MY_VAL}    Change To True
+    |     ^^^^^^^^^ VAR08
+ 47 |     IF  ${some_val}
+ 48 |         ${some val}  ${another val}  ${val}  Return Three Values
+    |
+
+test.robot:48:38 VAR08 Variable '${val}' may overwrite similar variable inside 'Keyword With If Conditions' Keyword
+    |
+ 46 |     ${MY_VAL}    Change To True
+ 47 |     IF  ${some_val}
+ 48 |         ${some val}  ${another val}  ${val}  Return Three Values
+    |                                      ^^^^^^ VAR08
+ 49 |         IF  ${another_val}
+ 50 |             ${some val}  ${another val}  ${val}  Return Three Values
+    |
+
+test.robot:57:5 VAR08 Variable '${SOME_VAR}' may overwrite similar variable inside 'Keyword With Overwritten Variables' Keyword
+    |
+ 55 |     [Arguments]     ${my_var}
+ 56 |     ${someVar}      Set Variable    1
+ 57 |     ${SOME_VAR}     Set Variable    2
+    |     ^^^^^^^^^^^ VAR08
+ 58 |     ${myvar}        Set Variable    3
+ 59 |     ${myvar}        Set Variable    4
+    |
+
+test.robot:58:5 VAR08 Variable '${myvar}' may overwrite similar variable inside 'Keyword With Overwritten Variables' Keyword
+    |
+ 56 |     ${someVar}      Set Variable    1
+ 57 |     ${SOME_VAR}     Set Variable    2
+ 58 |     ${myvar}        Set Variable    3
+    |     ^^^^^^^^ VAR08
+ 59 |     ${myvar}        Set Variable    4
+ 60 |     ${somevar}      ${some var}     Return Two Values
+    |
+
+test.robot:60:5 VAR08 Variable '${somevar}' may overwrite similar variable inside 'Keyword With Overwritten Variables' Keyword
+    |
+ 58 |     ${myvar}        Set Variable    3
+ 59 |     ${myvar}        Set Variable    4
+ 60 |     ${somevar}      ${some var}     Return Two Values
+    |     ^^^^^^^^^^ VAR08
+    |
+
+test.robot:60:21 VAR08 Variable '${some var}' may overwrite similar variable inside 'Keyword With Overwritten Variables' Keyword
+    |
+ 58 |     ${myvar}        Set Variable    3
+ 59 |     ${myvar}        Set Variable    4
+ 60 |     ${somevar}      ${some var}     Return Two Values
+    |                     ^^^^^^^^^^^ VAR08
+    |
+
+test.robot:65:5 VAR08 Variable '${simpleVar}' may overwrite similar variable inside 'Keyword With Different Types Of Variables' Keyword
+    |
+ 63 |     [Arguments]     ${simple_var}
+ 64 |     ${simple_var}   Set Variable        1
+ 65 |     ${simpleVar}    Set Variable        2
+    |     ^^^^^^^^^^^^ VAR08
+ 66 |     @{SIMPLE_VAR}   Create List         1    2    3
+ 67 |     &{SIMPLE_VAR}   Create Dictionary   a=1  b=2  c=3
+    |
+
+test.robot:66:5 VAR08 Variable '@{SIMPLE_VAR}' may overwrite similar variable inside 'Keyword With Different Types Of Variables' Keyword
+    |
+ 64 |     ${simple_var}   Set Variable        1
+ 65 |     ${simpleVar}    Set Variable        2
+ 66 |     @{SIMPLE_VAR}   Create List         1    2    3
+    |     ^^^^^^^^^^^^^ VAR08
+ 67 |     &{SIMPLE_VAR}   Create Dictionary   a=1  b=2  c=3
+    |
+
+test.robot:67:5 VAR08 Variable '&{SIMPLE_VAR}' may overwrite similar variable inside 'Keyword With Different Types Of Variables' Keyword
+    |
+ 65 |     ${simpleVar}    Set Variable        2
+ 66 |     @{SIMPLE_VAR}   Create List         1    2    3
+ 67 |     &{SIMPLE_VAR}   Create Dictionary   a=1  b=2  c=3
+    |     ^^^^^^^^^^^^^ VAR08
+    |
+
+test.robot:71:5 VAR08 Variable '${VARIABLE}' may overwrite similar variable inside 'Argument With Default Value' Keyword
+    |
+ 69 | Argument With Default Value
+ 70 |     [Arguments]     ${variable}='default'
+ 71 |     ${VARIABLE}    Keyword  # possible overwriting
+    |     ^^^^^^^^^^^ VAR08
+    |
+
+test.robot:75:5 VAR08 Variable '${VARIABLE}' may overwrite similar variable inside 'Embedded ${variable} with ${possible:pattern}' Keyword
+    |
+ 73 | Embedded ${variable} with ${possible:pattern}
+ 74 |     ${other}    Keyword    ${variable}
+ 75 |     ${VARIABLE}   Possible Overwriting
+    |     ^^^^^^^^^^^ VAR08
+ 76 |     ${poss_ible}   IF    $cond    RETURN
+    |
+
+test.robot:76:5 VAR08 Variable '${poss_ible}' may overwrite similar variable inside 'Embedded ${variable} with ${possible:pattern}' Keyword
+    |
+ 74 |     ${other}    Keyword    ${variable}
+ 75 |     ${VARIABLE}   Possible Overwriting
+ 76 |     ${poss_ible}   IF    $cond    RETURN
+    |     ^^^^^^^^^^^^ VAR08
+    |
+
+test.robot:80:5 VAR08 Variable '${_initiaL}' may overwrite similar variable inside 'IF Assignment' Keyword
+    |
+ 78 | IF Assignment
+ 79 |     ${initial}    IF    ${condition} > 0    Keyword
+ 80 |     ${_initiaL}    Possible Overwriting
+    |     ^^^^^^^^^^^ VAR08
+    |
+
+test.robot:84:5 VAR08 Variable '${VARiable}' may overwrite similar variable inside 'Assignment Sign' Keyword
+    |
+ 82 | Assignment Sign
+ 83 |     ${variable}    Keyword
+ 84 |     ${VARiable} =    Keyword
+    |     ^^^^^^^^^^^^^ VAR08
+    |
+
+test.robot:88:5 VAR08 Variable '${keyword_args}' may overwrite similar variable inside 'Keyword With Kwargs' Keyword
+    |
+ 86 | Keyword With Kwargs
+ 87 |     [Arguments]    ${argument}    &{keyword_args}
+ 88 |     ${keyword_args}    Create Dictionary   key=${FLAG}    &{keyword_args}
+    |     ^^^^^^^^^^^^^^^ VAR08
+    |
+
+test.robot:92:5 VAR08 Variable '${keywordArgs}' may overwrite similar variable inside 'Keyword With Possible Overwritten Kwargs' Keyword
+    |
+ 90 | Keyword With Possible Overwritten Kwargs
+ 91 |     [Arguments]    ${argument}    &{keyword_args}
+ 92 |     ${keywordArgs}    Create Dictionary    &{keyword_args}
+    |     ^^^^^^^^^^^^^^ VAR08
+    |
+
+test.robot:102:5 VAR08 Variable '${VARIABLE}' may overwrite similar variable inside 'Item Assignment' Keyword
+     |
+ 100 | Item Assignment
+ 101 |     ${variable}    Create Dictionary
+ 102 |     ${VARIABLE}[item]    Set Variable    value
+     |     ^^^^^^^^^^^^^^^^^ VAR08
+     |
+
+test.robot:106:12 VAR08 Variable '${variableName}' may overwrite similar variable inside 'VAR Syntax' Keyword
+     |
+ 104 | VAR Syntax
+ 105 |     ${variable_name} =    Set Variable    value
+ 106 |     VAR    ${variableName}    value
+     |            ^^^^^^^^^^^^^^^ VAR08
+ 107 |     VAR    ${variable name}    value    scope=GLOBAL
+ 108 |     VAR    ${variable namE}=    value    scope=local
+     |
+
+test.robot:108:12 VAR08 Variable '${variable namE}' may overwrite similar variable inside 'VAR Syntax' Keyword
+     |
+ 106 |     VAR    ${variableName}    value
+ 107 |     VAR    ${variable name}    value    scope=GLOBAL
+ 108 |     VAR    ${variable namE}=    value    scope=local
+     |            ^^^^^^^^^^^^^^^^^ VAR08
+ 109 |     VAR    ${variable_name}    Value with ${Variable_Name}    scope=SUITE
+     |
+

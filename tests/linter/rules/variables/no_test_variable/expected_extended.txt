@@ -1,0 +1,63 @@
+test_var_syntax.robot:9:44 VAR06 Variable defined with test/task scope
+   |
+ 7 |     VAR    ${foo}    bar
+ 8 |     VAR    ${lorum}    ipsum    scope=LOCAL
+ 9 |     VAR    ${amazing}    Hello universe    scope=TEST
+   |                                            ^^^^^^^^^^ VAR06
+10 |     VAR    ${amazing}    Hello universe    scope=test
+   |
+
+test_var_syntax.robot:10:44 VAR06 Variable defined with test/task scope
+    |
+  8 |     VAR    ${lorum}    ipsum    scope=LOCAL
+  9 |     VAR    ${amazing}    Hello universe    scope=TEST
+ 10 |     VAR    ${amazing}    Hello universe    scope=test
+    |                                            ^^^^^^^^^^ VAR06
+    |
+
+test_var_syntax.robot:13:44 VAR06 Variable defined with test/task scope
+    |
+ 11 |
+ 12 | Using Task
+ 13 |     VAR    ${amazing}    Hello universe    scope=TASK
+    |                                            ^^^^^^^^^^ VAR06
+    |
+
+test_var_syntax.robot:17:12 VAR06 Variable defined with test/task scope
+    |
+ 15 | Using misc ways of writing weird things
+ 16 |     VAR
+ 17 |     VAR    scope=TEST
+    |            ^^^^^^^^^^ VAR06
+ 18 |     VAR    $without_braces
+ 19 |     VAR    $without_braces    scope=TEST
+    |
+
+test_var_syntax.robot:19:31 VAR06 Variable defined with test/task scope
+    |
+ 17 |     VAR    scope=TEST
+ 18 |     VAR    $without_braces
+ 19 |     VAR    $without_braces    scope=TEST
+    |                               ^^^^^^^^^^ VAR06
+ 20 |     VAR    ${no_value}    scope=invalid_scope
+ 21 |     VAR    ${no_value}    scope=TEST
+    |
+
+test_var_syntax.robot:21:27 VAR06 Variable defined with test/task scope
+    |
+ 19 |     VAR    $without_braces    scope=TEST
+ 20 |     VAR    ${no_value}    scope=invalid_scope
+ 21 |     VAR    ${no_value}    scope=TEST
+    |                           ^^^^^^^^^^ VAR06
+ 22 |     VAR    ${no_value}    scope=${scope}
+ 23 |     VAR    ${no_value}    scope=${{ 'TEST' }}
+    |
+
+test_var_syntax.robot:27:44 VAR06 Variable defined with test/task scope
+    |
+ 25 | *** Keywords ***
+ 26 | Keyword
+ 27 |     VAR    ${amazing}    Hello universe    scope=TEST
+    |                                            ^^^^^^^^^^ VAR06
+    |
+

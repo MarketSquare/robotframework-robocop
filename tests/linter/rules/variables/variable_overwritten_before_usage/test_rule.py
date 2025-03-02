@@ -5,6 +5,14 @@ class TestRuleAcceptance(RuleAcceptance):
     def test_rule_after_var(self):
         self.check_rule(src_files=["test.robot"], expected_file="expected_output_after_var.txt", test_on_version=">=7")
 
+    def test_extended(self):
+        self.check_rule(
+            src_files=["test.robot"],
+            expected_file="expected_extended.txt",
+            output_format="extended",
+            test_on_version=">=7",
+        )
+
     def test_rule_pre_var(self):
         self.check_rule(src_files=["test.robot"], expected_file="expected_output_pre_var.txt", test_on_version=">=4;<7")
 

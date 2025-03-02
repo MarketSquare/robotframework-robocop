@@ -1,0 +1,130 @@
+test.robot:15:5 VAR02 Variable '${var}' is assigned but not used
+    |
+ 13 |
+ 14 | Not Used Variable
+ 15 |     ${var}    Keyword
+    |     ^^^^^^ VAR02
+    |
+
+test.robot:19:15 VAR02 Variable '${var2}' is assigned but not used
+    |
+ 17 | Mixed Use Variable
+ 18 |     ${var}    ${var2}    Keyword
+ 19 |     ${var}    ${var2}    Keyword  # overwritten, should report there
+    |               ^^^^^^^ VAR02
+ 20 |     Log    ${var}
+    |
+
+test.robot:23:5 VAR02 Variable '${var}' is assigned but not used
+    |
+ 21 |
+ 22 | Assignment Sign
+ 23 |     ${var} =  Keyword
+    |     ^^^^^^ VAR02
+    |
+
+test.robot:31:5 VAR02 Variable '${assign}' is assigned but not used
+    |
+ 29 |
+ 30 | Used In IF
+ 31 |     ${assign}   IF    $arg2    Keyword
+    |     ^^^^^^^^^ VAR02
+ 32 |     ${var}
+ 33 |     ...    ${var2}    Keyword
+    |
+
+test.robot:39:9 VAR02 Variable '${not_used}' is assigned but not used
+    |
+ 37 |     ${used_in_if}    Keyword
+ 38 |     IF    True
+ 39 |         ${not_used}    Keyword
+    |         ^^^^^^^^^^^ VAR02
+ 40 |         # TODO even if branch used it, it should be mark as unused. Could be achieved by making
+ 41 |         # add_variables_from_if_to_scope temporarily saving popped variables
+    |
+
+test.robot:44:9 VAR02 Variable '${not_used_from_branch}' is assigned but not used
+    |
+ 42 |         ${used_in_branch}    Keyword
+ 43 |     ELSE IF    False
+ 44 |         ${not_used_from_branch}    Keyword    ${used_in_branch}
+    |         ^^^^^^^^^^^^^^^^^^^^^^^ VAR02
+ 45 |     ELSE
+ 46 |         Keyword    ${used_in_if}
+    |
+
+test.robot:52:13 VAR02 Variable '${nested_define3}' is assigned but not used
+    |
+ 50 |             ${nested_define}    Keyword
+ 51 |             ${nested_define2}    Keyword
+ 52 |             ${nested_define3}    Keyword
+    |             ^^^^^^^^^^^^^^^^^ VAR02
+ 53 |         ELSE
+ 54 |             ${nested_define}    Keyword
+    |
+
+test.robot:66:12 VAR02 Variable '${var}' is assigned but not used
+    |
+ 64 |         Keyword    ${VAR}
+ 65 |     END
+ 66 |     FOR    ${var}    IN    1  2  3
+    |            ^^^^^^ VAR02
+ 67 |         Keyword
+ 68 |     END
+    |
+
+test.robot:92:12 VAR02 Variable '${category}' is assigned but not used
+    |
+ 90 | Test with template - not used
+ 91 |     [Template]    Template Keyword
+ 92 |     FOR    ${category}    IN    @{CATEGORIES}
+    |            ^^^^^^^^^^^ VAR02
+ 93 |         constant
+ 94 |     END
+    |
+
+test.robot:140:5 VAR02 Variable '${var}' is assigned but not used
+     |
+ 138 | Inline If - Overwritten Variable
+ 139 |     ${var}    Set Variable    default
+ 140 |     ${var}    IF    condition    Use    ${var}
+     |     ^^^^^^ VAR02
+     |
+
+test.robot:143:5 VAR02 Variable '${assign}' is assigned but not used
+     |
+ 141 |
+ 142 | InlineIf - Assign With The Same Name As Arg
+ 143 |     ${assign}    IF    condition    Do Nothing    ELSE    Use    ${assign}
+     |     ^^^^^^^^^ VAR02
+     |
+
+test.robot:146:12 VAR02 Variable '${not_used}' is assigned but not used
+     |
+ 144 |
+ 145 | Unused With VAR
+ 146 |     VAR    ${not_used}    value
+     |            ^^^^^^^^^^^ VAR02
+ 147 |     VAR    ${not_used_global}    value    scope=TEST
+ 148 |     VAR    ${used_in_kw}    value
+     |
+
+test.robot:154:12 VAR02 Variable '${variable}' is assigned but not used
+     |
+ 152 |     VAR    ${used_without_sign}=    value
+ 153 |     Keyword Call    ${used_without_sign}
+ 154 |     VAR    ${variable}  # missing value
+     |            ^^^^^^^^^^^ VAR02
+ 155 |     VAR    $variable  # ignored for invalid variable name
+     |
+
+unused_section_vars.robot:21:1 VAR02 Variable '${GLOBAL_NOT_USED}' is assigned but not used
+    |
+ 19 | *** Variables ***
+ 20 | ${GLOBAL_USED}    value
+ 21 | ${GLOBAL_NOT_USED}    value
+    | ^^^^^^^^^^^^^^^^^^ VAR02
+ 22 | ${GLOBAL_USED_IN_SECTION}    value
+ 23 | ${GLOBAL_USED2}    value with ${GLOBAL_USED_IN_SECTION}
+    |
+

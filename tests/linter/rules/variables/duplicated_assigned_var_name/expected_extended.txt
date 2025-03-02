@@ -1,0 +1,76 @@
+test.robot:3:15 VAR12 Assigned variable name '${var}' is already used
+   |
+ 1 | *** Test Cases ***
+ 2 | Test
+ 3 |     ${var}    ${var}    My Keyword
+   |               ^^^^^^ VAR12
+ 4 |     FOR  ${i}  IN RANGE  10
+ 5 |         ${var}    ${var}    My Keyword
+   |
+
+test.robot:5:19 VAR12 Assigned variable name '${var}' is already used
+   |
+ 3 |     ${var}    ${var}    My Keyword
+ 4 |     FOR  ${i}  IN RANGE  10
+ 5 |         ${var}    ${var}    My Keyword
+   |                   ^^^^^^ VAR12
+ 6 |     END
+ 7 |     IF    ${condition}
+   |
+
+test.robot:9:23 VAR12 Assigned variable name '${var}' is already used
+   |
+ 7 |     IF    ${condition}
+ 8 |         IF    ${condition}
+ 9 |             ${var}    ${var}    My Keyword
+   |                       ^^^^^^ VAR12
+10 |         ELSE IF
+11 |             ${var}    ${var}    My Keyword
+   |
+
+test.robot:11:23 VAR12 Assigned variable name '${var}' is already used
+    |
+  9 |             ${var}    ${var}    My Keyword
+ 10 |         ELSE IF
+ 11 |             ${var}    ${var}    My Keyword
+    |                       ^^^^^^ VAR12
+ 12 |         END
+ 13 |     END
+    |
+
+test.robot:21:26 VAR12 Assigned variable name '${var}' is already used
+    |
+ 19 |     ${var}    My Keyword
+ 20 |     ${var}    My Keyword    ${var}
+ 21 |     ${var}    ${var2}    ${var}    My Keyword    ${var}
+    |                          ^^^^^^ VAR12
+ 22 |     ${var}    ${Va r}    My Keyword    ${var}
+ 23 |     ${var}
+    |
+
+test.robot:22:15 VAR12 Assigned variable name '${Va r}' is already used
+    |
+ 20 |     ${var}    My Keyword    ${var}
+ 21 |     ${var}    ${var2}    ${var}    My Keyword    ${var}
+ 22 |     ${var}    ${Va r}    My Keyword    ${var}
+    |               ^^^^^^^ VAR12
+ 23 |     ${var}
+ 24 |     ...    ${var}    My Keyword    ${var}
+    |
+
+test.robot:24:12 VAR12 Assigned variable name '${var}' is already used
+    |
+ 22 |     ${var}    ${Va r}    My Keyword    ${var}
+ 23 |     ${var}
+ 24 |     ...    ${var}    My Keyword    ${var}
+    |            ^^^^^^ VAR12
+    |
+
+test.robot:42:21 VAR12 Assigned variable name '${duplicate}' is already used
+    |
+ 40 |
+ 41 | Duplicated With Equal Sign
+ 42 |     ${duplicate}    ${duplicate}=    Keyword
+    |                     ^^^^^^^^^^^^^ VAR12
+    |
+

@@ -1,0 +1,58 @@
+test.robot:7:5 VAR03 Local variable '${value}' is overwritten before usage
+   |
+ 5 | *** Keywords ***
+ 6 | Overwritten Variable
+ 7 |     ${value}    Keyword
+   |     ^^^^^^^^ VAR03
+ 8 |     ${value}    Keyword
+   |
+
+test.robot:15:5 VAR03 Local variable '${val_ue}' is overwritten before usage
+    |
+ 13 |
+ 14 | Overwritten IF assign
+ 15 |     ${value} =    IF    $condition    Keyword
+    |     ^^^^^^^^^ VAR03
+ 16 |     ${val_ue}    Keyword
+    |
+
+test.robot:121:12 VAR03 Local variable '${variable}' is overwritten before usage
+     |
+ 119 |
+ 120 | Overwritten With VAR
+ 121 |     VAR    ${variable}    value
+     |            ^^^^^^^^^^^ VAR03
+ 122 |     VAR    ${variable}    value
+ 123 |     VAR    ${variable2}    value
+     |
+
+test.robot:123:12 VAR03 Local variable '${variable2}' is overwritten before usage
+     |
+ 121 |     VAR    ${variable}    value
+ 122 |     VAR    ${variable}    value
+ 123 |     VAR    ${variable2}    value
+     |            ^^^^^^^^^^^^ VAR03
+ 124 |     VAR    ${variable2} =    value
+ 125 |     ${from_keyword}    Keyword Call
+     |
+
+test.robot:127:5 VAR03 Local variable '${from_keyword3}' is overwritten before usage
+     |
+ 125 |     ${from_keyword}    Keyword Call
+ 126 |     ${from_keyword2}    Keyword Call
+ 127 |     ${from_keyword3}    Keyword Call
+     |     ^^^^^^^^^^^^^^^^ VAR03
+ 128 |     VAR    ${from_keyword}    ${from_keyword}    scope=GLOBAL  # fine
+ 129 |     VAR    ${from_keyword2}    ${from_keyword2}val  # fine
+     |
+
+test.robot:131:12 VAR03 Local variable '${variable3}' is overwritten before usage
+     |
+ 129 |     VAR    ${from_keyword2}    ${from_keyword2}val  # fine
+ 130 |     VAR    ${from_keyword3}    value  # not fine
+ 131 |     VAR    ${variable3}    value
+     |            ^^^^^^^^^^^^ VAR03
+ 132 |     VAR    ${variable3}  # missing value
+ 133 |     VAR    $variable  # ignored for invalid variable name
+     |
+

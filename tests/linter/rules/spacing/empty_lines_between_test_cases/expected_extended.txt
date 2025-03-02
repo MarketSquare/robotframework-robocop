@@ -1,0 +1,77 @@
+test.robot:11:1 SPC04 Invalid number of empty lines between test cases (0/1)
+    |
+  9 |     Pass
+ 10 |     Keyword
+ 11 |     One More
+    | ^ SPC04
+ 12 | Test2
+ 13 |     Keyword
+    |
+
+test.robot:14:1 SPC04 Invalid number of empty lines between test cases (2/1)
+    |
+ 12 |   Test2
+ 13 |       Keyword
+ 14 | /
+ 15 | |
+    | |_^ SPC04
+ 16 |   Test3
+ 17 |       Keyword
+    |
+
+test.robot:19:1 SPC04 Invalid number of empty lines between test cases (0/1)
+    |
+ 19 | # Some comment
+    | ^ SPC04
+ 20 | Test 4
+ 21 |     Keyword
+    |
+
+test.robot:24:1 SPC04 Invalid number of empty lines between test cases (0/1)
+    |
+ 24 | # Some comment
+    | ^ SPC04
+ 25 | Test 5
+ 26 |     Keyword
+    |
+
+test.robot:27:1 SPC04 Invalid number of empty lines between test cases (0/1)
+    |
+ 25 | Test 5
+ 26 |     Keyword
+ 27 | # Some comment
+    | ^ SPC04
+ 28 | Test 6
+ 29 |     Keyword
+    |
+
+test.robot:32:1 SPC04 Invalid number of empty lines between test cases (0/1)
+    |
+ 30 |
+ 31 | # Some comment
+ 32 | # Some comment
+    | ^ SPC04
+ 33 | Test 7
+ 34 |     Keyword
+    |
+
+test.robot:36:1 SPC04 Invalid number of empty lines between test cases (0/1)
+    |
+ 34 |     Keyword
+ 35 | # Some comment
+ 36 | # Some comment
+    | ^ SPC04
+ 37 | Test 8
+ 38 |     Keyword
+    |
+
+test.robot:42:1 SPC04 Invalid number of empty lines between test cases (0/1)
+    |
+ 40 |
+ 41 | # Some comment
+ 42 | # Some comment
+    | ^ SPC04
+ 43 | Test 9
+ 44 |     Keyword
+    |
+

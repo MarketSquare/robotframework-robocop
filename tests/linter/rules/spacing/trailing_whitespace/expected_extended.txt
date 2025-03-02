@@ -1,0 +1,28 @@
+test.robot:5:19 SPC01 Trailing whitespace at the end of line
+   |
+ 5 | *** Test Cases ***
+   |                   ^ SPC01
+ 6 | Test
+ 7 |     [Documentation]  doc
+   |
+
+test.robot:16:33 SPC01 Trailing whitespace at the end of line
+    |
+ 14 | *** Keywords ***
+ 15 | Keyword
+ 16 |     [Documentation]  this is doc
+    |                                 ^^ SPC01
+ 17 |     No Operation
+ 18 |     Pass
+    |
+
+test.robot:24:33 SPC01 Trailing whitespace at the end of line
+    |
+ 22 |
+ 23 | Keyword1  # with tab
+ 24 |     [Documentation]  this is doc
+    |                                 ^^ SPC01
+ 25 |     No Operation
+ 26 |     Pass
+    |
+

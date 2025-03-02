@@ -149,7 +149,7 @@ class PrintIssuesReport(robocop.linter.reports.Report):
             indent = ""
         else:
             indent = "  "
-        self.console.print(self._gutter(" ", gutter_width, indent))
+        self.console.print(self._gutter(" ", gutter_width, ""))
         # code before issue
         if start_line >= 2 and lines[start_line - 2].strip():  # no empty lines before
             for line_no in range(start_line - 2, start_line):
@@ -175,7 +175,7 @@ class PrintIssuesReport(robocop.linter.reports.Report):
             if line_no > len(lines) or not lines[line_no - 1].strip():
                 break
             self._print_line(f"{self._gutter(line_no, gutter_width, indent)} {escape(lines[line_no - 1])}")
-        self.console.print(self._gutter(" ", gutter_width, indent))
+        self.console.print(self._gutter(" ", gutter_width, ""))
         print()
 
     def print_diagnostics_extended(self) -> None:

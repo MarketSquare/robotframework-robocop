@@ -1,0 +1,71 @@
+test.robot:10:4 SPC15 Continuation line is not aligned with the previous one
+    |
+  8 | Force Tags
+  9 | ...   tag
+ 10 | ...    tag2
+    |    ^^^^ SPC15
+    |
+
+test.robot:19:4 SPC15 Continuation line is not aligned with the previous one
+    |
+ 17 | ${MULTILINE}       SEPARATOR=\n
+ 18 | ...                This is a long multiline string.
+ 19 | ...               This is the second line.
+    |    ^^^^^^^^^^^^^^^ SPC15
+ 20 | ...                This is the third and the last line.
+ 21 | @{LIST}            this     list     is      quite    long     and
+    |
+
+test.robot:38:8 SPC15 Continuation line is not aligned with the previous one
+    |
+ 36 | Test
+ 37 |     [Tags]    you    probably    do    not    have    this    many
+ 38 |     ...      tags    in    real    life
+    |        ^^^^^^ SPC15
+ 39 |     Do X    first argument    second argument    third argument
+ 40 |     ...    fourth argument    fifth argument    sixth argument
+    |
+
+test.robot:41:8 SPC15 Continuation line is not aligned with the previous one
+    |
+ 39 |     Do X    first argument    second argument    third argument
+ 40 |     ...    fourth argument    fifth argument    sixth argument
+ 41 |     ...  misaligned argument
+    |        ^^ SPC15
+ 42 |     ${var} =    Get X
+ 43 |     ...    first argument passed to this keyword is pretty long
+    |
+
+test.robot:44:8 SPC15 Continuation line is not aligned with the previous one
+    |
+ 42 |     ${var} =    Get X
+ 43 |     ...    first argument passed to this keyword is pretty long
+ 44 |     ...     second argument passed to this keyword is long too
+    |        ^^^^^ SPC15
+    |
+
+test.robot:58:8 SPC15 Continuation line is not aligned with the previous one
+    |
+ 56 |     ...  ${value}
+ 57 |     ...  2
+ 58 |     ...      ${value2}
+    |        ^^^^^^ SPC15
+    |
+
+test.robot:68:8 SPC15 Continuation line is not aligned with the previous one
+    |
+ 66 |     No Operation
+ 67 |     ...  1
+ 68 |     ...   2
+    |        ^^^ SPC15
+ 69 |     ...    3
+    |
+
+test.robot:69:8 SPC15 Continuation line is not aligned with the previous one
+    |
+ 67 |     ...  1
+ 68 |     ...   2
+ 69 |     ...    3
+    |        ^^^^ SPC15
+    |
+

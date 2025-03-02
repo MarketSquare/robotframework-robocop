@@ -1,0 +1,75 @@
+comments.robot:32:1 SPC17 Not enough indentation inside block
+    |
+ 30 |     FOR    ${var}  IN   1  2
+ 31 |         Keyword
+ 32 | # invalid comment
+    | ^ SPC17
+ 33 |     END
+    |
+
+comments.robot:47:1 SPC17 Not enough indentation inside block
+    |
+ 45 |     FOR    ${var}  IN   1  2
+ 46 |         Keyword
+ 47 | # invalid comment
+    | ^ SPC17
+ 48 |     END
+    |
+
+test.robot:20:1 SPC17 Not enough indentation inside block
+    |
+ 18 |     Keyword Call
+ 19 |     FOR    ${var}    IN    RANGE    10
+ 20 |    No Operation
+    | ^^^ SPC17
+ 21 |     Bad Indent
+ 22 |       FOR    ${var}    IN    a    b
+    |
+
+test.robot:21:1 SPC17 Not enough indentation inside block
+    |
+ 19 |     FOR    ${var}    IN    RANGE    10
+ 20 |    No Operation
+ 21 |     Bad Indent
+    | ^^^^ SPC17
+ 22 |       FOR    ${var}    IN    a    b
+ 23 |             No Operation
+    |
+
+test.robot:47:1 SPC17 Not enough indentation inside block
+    |
+ 45 |         # comment
+ 46 |         No Operation
+ 47 | # comment
+    | ^ SPC17
+ 48 |         # comment
+ 49 |     END
+    |
+
+test.robot:81:1 SPC17 Not enough indentation inside block
+    |
+ 79 |         No Operation
+ 80 |          No Operation
+ 81 |     No Operation
+    | ^^^^ SPC17
+ 82 |     END
+    |
+
+test.robot:116:1 SPC17 Not enough indentation inside block
+     |
+ 114 | Keyword With Under Indented For Loop Body
+ 115 |     FOR  ${elem}  IN  ${list}
+ 116 |    Log  stuff
+     | ^^^ SPC17
+ 117 |     END
+     |
+
+test.robot:123:1 SPC17 Not enough indentation inside block
+     |
+ 121 |     FOR    ${var}  IN   1  2
+ 122 |         Keyword
+ 123 | # invalid comment
+     | ^ SPC17
+ 124 |     END
+     |
+

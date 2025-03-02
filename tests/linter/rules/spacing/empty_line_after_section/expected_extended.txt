@@ -1,0 +1,26 @@
+missing_header.robot:1:1 SPC09 Too many empty lines after '*** Comments ***' section header (1/0)
+   |
+ 1 |
+   | ^^^^^^^^^^^^^^^^ SPC09
+ 2 | # comment
+ 3 | *** Settings ***
+   |
+
+test.robot:1:1 SPC09 Too many empty lines after '*** Settings ***' section header (1/0)
+   |
+ 1 | *** Settings ***
+   | ^^^^^^^^^^^^^^^^ SPC09
+   |
+
+test.robot:10:1 SPC09 Too many empty lines after '*** Test Cases ***' section header (1/0)
+    |
+ 10 | *** Test Cases ***
+    | ^^^^^^^^^^^^^^^^^^ SPC09
+    |
+
+test.robot:20:1 SPC09 Too many empty lines after '*** Keywords ***' section header (2/0)
+    |
+ 20 | *** Keywords ***
+    | ^^^^^^^^^^^^^^^^ SPC09
+    |
+

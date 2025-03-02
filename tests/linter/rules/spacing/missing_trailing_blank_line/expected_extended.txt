@@ -1,0 +1,8 @@
+test.robot:7:1 SPC02 Missing trailing blank line at the end of file
+   |
+ 5 |     Pass
+ 6 |     Keyword
+ 7 |     No Operation
+   | ^^^^^^^^^^^^^^^^ SPC02
+   |
+

@@ -82,7 +82,7 @@ class FormatterAcceptanceTest:
     ):
         if not self.enabled_in_version(test_on_version):
             pytest.skip(f"Test enabled only for RF {test_on_version}")
-        output_path = self.FORMATTERS_DIR / "actual" / source
+        output_path = self.FORMATTERS_DIR / self.FORMATTER_NAME / "actual" / source
         if source is None:
             source_path = self.FORMATTERS_DIR / self.FORMATTER_NAME / "source"
         else:
@@ -107,7 +107,7 @@ class FormatterAcceptanceTest:
         if expected_name is None:
             expected_name = actual_name
         expected = self.FORMATTERS_DIR / self.FORMATTER_NAME / "expected" / expected_name
-        actual = self.FORMATTERS_DIR / "actual" / actual_name
+        actual = self.FORMATTERS_DIR / self.FORMATTER_NAME / "actual" / actual_name
         if not filecmp.cmp(expected, actual):
             display_file_diff(expected, actual)
             pytest.fail(f"File {actual_name} is not same as expected")

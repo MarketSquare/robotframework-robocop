@@ -1,0 +1,467 @@
+test.robot:2:1 VAR11 Variable '${TEST_NAME}' overwrites reserved variable '${TEST_NAME}'
+   |
+ 1 | *** Variables ***
+ 2 | ${TEST_NAME}    value
+   | ^^^^^^^^^^^^ VAR11
+ 3 | @{TEST_TAGS}    value
+ 4 | ${TEST_DOCUMENTATION}    value
+   |
+
+test.robot:3:1 VAR11 Variable '@{TEST_TAGS}' overwrites reserved variable '@{TEST_TAGS}'
+   |
+ 1 | *** Variables ***
+ 2 | ${TEST_NAME}    value
+ 3 | @{TEST_TAGS}    value
+   | ^^^^^^^^^^^^ VAR11
+ 4 | ${TEST_DOCUMENTATION}    value
+ 5 | ${TEST_STATUS}    value
+   |
+
+test.robot:4:1 VAR11 Variable '${TEST_DOCUMENTATION}' overwrites reserved variable '${TEST_DOCUMENTATION}'
+   |
+ 2 | ${TEST_NAME}    value
+ 3 | @{TEST_TAGS}    value
+ 4 | ${TEST_DOCUMENTATION}    value
+   | ^^^^^^^^^^^^^^^^^^^^^ VAR11
+ 5 | ${TEST_STATUS}    value
+ 6 | ${TEST_MESSAGE}    value
+   |
+
+test.robot:5:1 VAR11 Variable '${TEST_STATUS}' overwrites reserved variable '${TEST_STATUS}'
+   |
+ 3 | @{TEST_TAGS}    value
+ 4 | ${TEST_DOCUMENTATION}    value
+ 5 | ${TEST_STATUS}    value
+   | ^^^^^^^^^^^^^^ VAR11
+ 6 | ${TEST_MESSAGE}    value
+ 7 | ${PREV_TEST_NAME}    value
+   |
+
+test.robot:6:1 VAR11 Variable '${TEST_MESSAGE}' overwrites reserved variable '${TEST_MESSAGE}'
+   |
+ 4 | ${TEST_DOCUMENTATION}    value
+ 5 | ${TEST_STATUS}    value
+ 6 | ${TEST_MESSAGE}    value
+   | ^^^^^^^^^^^^^^^ VAR11
+ 7 | ${PREV_TEST_NAME}    value
+ 8 | ${PREV_TEST_STATUS}    value
+   |
+
+test.robot:7:1 VAR11 Variable '${PREV_TEST_NAME}' overwrites reserved variable '${PREV_TEST_NAME}'
+   |
+ 5 | ${TEST_STATUS}    value
+ 6 | ${TEST_MESSAGE}    value
+ 7 | ${PREV_TEST_NAME}    value
+   | ^^^^^^^^^^^^^^^^^ VAR11
+ 8 | ${PREV_TEST_STATUS}    value
+ 9 | ${PREV_TEST_MESSAGE}    value
+   |
+
+test.robot:8:1 VAR11 Variable '${PREV_TEST_STATUS}' overwrites reserved variable '${PREV_TEST_STATUS}'
+   |
+ 6 | ${TEST_MESSAGE}    value
+ 7 | ${PREV_TEST_NAME}    value
+ 8 | ${PREV_TEST_STATUS}    value
+   | ^^^^^^^^^^^^^^^^^^^ VAR11
+ 9 | ${PREV_TEST_MESSAGE}    value
+10 | ${SUITE_NAME}    value
+   |
+
+test.robot:9:1 VAR11 Variable '${PREV_TEST_MESSAGE}' overwrites reserved variable '${PREV_TEST_MESSAGE}'
+   |
+ 7 | ${PREV_TEST_NAME}    value
+ 8 | ${PREV_TEST_STATUS}    value
+ 9 | ${PREV_TEST_MESSAGE}    value
+   | ^^^^^^^^^^^^^^^^^^^^ VAR11
+10 | ${SUITE_NAME}    value
+11 | ${SUITE_SOURCE}    value
+   |
+
+test.robot:10:1 VAR11 Variable '${SUITE_NAME}' overwrites reserved variable '${SUITE_NAME}'
+    |
+  8 | ${PREV_TEST_STATUS}    value
+  9 | ${PREV_TEST_MESSAGE}    value
+ 10 | ${SUITE_NAME}    value
+    | ^^^^^^^^^^^^^ VAR11
+ 11 | ${SUITE_SOURCE}    value
+ 12 | ${SUITE_DOCUMENTATION}    value
+    |
+
+test.robot:11:1 VAR11 Variable '${SUITE_SOURCE}' overwrites reserved variable '${SUITE_SOURCE}'
+    |
+  9 | ${PREV_TEST_MESSAGE}    value
+ 10 | ${SUITE_NAME}    value
+ 11 | ${SUITE_SOURCE}    value
+    | ^^^^^^^^^^^^^^^ VAR11
+ 12 | ${SUITE_DOCUMENTATION}    value
+ 13 | &{SUITE_METADATA}    value
+    |
+
+test.robot:12:1 VAR11 Variable '${SUITE_DOCUMENTATION}' overwrites reserved variable '${SUITE_DOCUMENTATION}'
+    |
+ 10 | ${SUITE_NAME}    value
+ 11 | ${SUITE_SOURCE}    value
+ 12 | ${SUITE_DOCUMENTATION}    value
+    | ^^^^^^^^^^^^^^^^^^^^^^ VAR11
+ 13 | &{SUITE_METADATA}    value
+ 14 | ${SUITE_STATUS}    value
+    |
+
+test.robot:13:1 VAR11 Variable '&{SUITE_METADATA}' overwrites reserved variable '&{SUITE_METADATA}'
+    |
+ 11 | ${SUITE_SOURCE}    value
+ 12 | ${SUITE_DOCUMENTATION}    value
+ 13 | &{SUITE_METADATA}    value
+    | ^^^^^^^^^^^^^^^^^ VAR11
+ 14 | ${SUITE_STATUS}    value
+ 15 | ${SUITE_MESSAGE}    value
+    |
+
+test.robot:14:1 VAR11 Variable '${SUITE_STATUS}' overwrites reserved variable '${SUITE_STATUS}'
+    |
+ 12 | ${SUITE_DOCUMENTATION}    value
+ 13 | &{SUITE_METADATA}    value
+ 14 | ${SUITE_STATUS}    value
+    | ^^^^^^^^^^^^^^^ VAR11
+ 15 | ${SUITE_MESSAGE}    value
+ 16 | ${KEYWORD_STATUS}    value
+    |
+
+test.robot:15:1 VAR11 Variable '${SUITE_MESSAGE}' overwrites reserved variable '${SUITE_MESSAGE}'
+    |
+ 13 | &{SUITE_METADATA}    value
+ 14 | ${SUITE_STATUS}    value
+ 15 | ${SUITE_MESSAGE}    value
+    | ^^^^^^^^^^^^^^^^ VAR11
+ 16 | ${KEYWORD_STATUS}    value
+ 17 | ${KEYWORD_MESSAGE}    value
+    |
+
+test.robot:16:1 VAR11 Variable '${KEYWORD_STATUS}' overwrites reserved variable '${KEYWORD_STATUS}'
+    |
+ 14 | ${SUITE_STATUS}    value
+ 15 | ${SUITE_MESSAGE}    value
+ 16 | ${KEYWORD_STATUS}    value
+    | ^^^^^^^^^^^^^^^^^ VAR11
+ 17 | ${KEYWORD_MESSAGE}    value
+ 18 | ${LOG_LEVEL}    value
+    |
+
+test.robot:17:1 VAR11 Variable '${KEYWORD_MESSAGE}' overwrites reserved variable '${KEYWORD_MESSAGE}'
+    |
+ 15 | ${SUITE_MESSAGE}    value
+ 16 | ${KEYWORD_STATUS}    value
+ 17 | ${KEYWORD_MESSAGE}    value
+    | ^^^^^^^^^^^^^^^^^^ VAR11
+ 18 | ${LOG_LEVEL}    value
+ 19 | ${OUTPUT_FILE}    value
+    |
+
+test.robot:18:1 VAR11 Variable '${LOG_LEVEL}' overwrites reserved variable '${LOG_LEVEL}'
+    |
+ 16 | ${KEYWORD_STATUS}    value
+ 17 | ${KEYWORD_MESSAGE}    value
+ 18 | ${LOG_LEVEL}    value
+    | ^^^^^^^^^^^^ VAR11
+ 19 | ${OUTPUT_FILE}    value
+ 20 | ${LOG_FILE}    value
+    |
+
+test.robot:19:1 VAR11 Variable '${OUTPUT_FILE}' overwrites reserved variable '${OUTPUT_FILE}'
+    |
+ 17 | ${KEYWORD_MESSAGE}    value
+ 18 | ${LOG_LEVEL}    value
+ 19 | ${OUTPUT_FILE}    value
+    | ^^^^^^^^^^^^^^ VAR11
+ 20 | ${LOG_FILE}    value
+ 21 | ${REPORT_FILE}    value
+    |
+
+test.robot:20:1 VAR11 Variable '${LOG_FILE}' overwrites reserved variable '${LOG_FILE}'
+    |
+ 18 | ${LOG_LEVEL}    value
+ 19 | ${OUTPUT_FILE}    value
+ 20 | ${LOG_FILE}    value
+    | ^^^^^^^^^^^ VAR11
+ 21 | ${REPORT_FILE}    value
+ 22 | ${DEBUG_FILE}    value
+    |
+
+test.robot:21:1 VAR11 Variable '${REPORT_FILE}' overwrites reserved variable '${REPORT_FILE}'
+    |
+ 19 | ${OUTPUT_FILE}    value
+ 20 | ${LOG_FILE}    value
+ 21 | ${REPORT_FILE}    value
+    | ^^^^^^^^^^^^^^ VAR11
+ 22 | ${DEBUG_FILE}    value
+ 23 | ${OUTPUT_DIR}    value
+    |
+
+test.robot:22:1 VAR11 Variable '${DEBUG_FILE}' overwrites reserved variable '${DEBUG_FILE}'
+    |
+ 20 | ${LOG_FILE}    value
+ 21 | ${REPORT_FILE}    value
+ 22 | ${DEBUG_FILE}    value
+    | ^^^^^^^^^^^^^ VAR11
+ 23 | ${OUTPUT_DIR}    value
+ 24 | &{OPTIONS}    value
+    |
+
+test.robot:23:1 VAR11 Variable '${OUTPUT_DIR}' overwrites reserved variable '${OUTPUT_DIR}'
+    |
+ 21 | ${REPORT_FILE}    value
+ 22 | ${DEBUG_FILE}    value
+ 23 | ${OUTPUT_DIR}    value
+    | ^^^^^^^^^^^^^ VAR11
+ 24 | &{OPTIONS}    value
+    |
+
+test.robot:34:5 VAR11 Variable '${testname}' overwrites reserved variable '${TEST_NAME}'
+    |
+ 32 |     ...    ${KEYWORD MESSAGE}    ${LOG LEVEL}    ${OUTPUT FILE}    ${LOG FILE}    ${REPORT FILE}    ${DEBUG FILE}
+ 33 |     ...    ${OUTPUT DIR}    &{OPTIONS}
+ 34 |     ${testname}    ${test_tags}    ${TEST_DOCUMENTATION}    ${TEST_STATUS}    Overwrite
+    |     ^^^^^^^^^^^ VAR11
+ 35 |     ${testMessage}    ${prevtestname}    ${PREV_TEST_STATUS}    ${PREV TEST MESSAGE}    Overwrite
+ 36 |     ${SUITE NAME}    ${SUITE SOURCE}    ${SUITE DOCUMENTATION}    ${SUITE METADATA}    Overwrite
+    |
+
+test.robot:34:20 VAR11 Variable '${test_tags}' overwrites reserved variable '@{TEST_TAGS}'
+    |
+ 32 |     ...    ${KEYWORD MESSAGE}    ${LOG LEVEL}    ${OUTPUT FILE}    ${LOG FILE}    ${REPORT FILE}    ${DEBUG FILE}
+ 33 |     ...    ${OUTPUT DIR}    &{OPTIONS}
+ 34 |     ${testname}    ${test_tags}    ${TEST_DOCUMENTATION}    ${TEST_STATUS}    Overwrite
+    |                    ^^^^^^^^^^^^ VAR11
+ 35 |     ${testMessage}    ${prevtestname}    ${PREV_TEST_STATUS}    ${PREV TEST MESSAGE}    Overwrite
+ 36 |     ${SUITE NAME}    ${SUITE SOURCE}    ${SUITE DOCUMENTATION}    ${SUITE METADATA}    Overwrite
+    |
+
+test.robot:34:36 VAR11 Variable '${TEST_DOCUMENTATION}' overwrites reserved variable '${TEST_DOCUMENTATION}'
+    |
+ 32 |     ...    ${KEYWORD MESSAGE}    ${LOG LEVEL}    ${OUTPUT FILE}    ${LOG FILE}    ${REPORT FILE}    ${DEBUG FILE}
+ 33 |     ...    ${OUTPUT DIR}    &{OPTIONS}
+ 34 |     ${testname}    ${test_tags}    ${TEST_DOCUMENTATION}    ${TEST_STATUS}    Overwrite
+    |                                    ^^^^^^^^^^^^^^^^^^^^^ VAR11
+ 35 |     ${testMessage}    ${prevtestname}    ${PREV_TEST_STATUS}    ${PREV TEST MESSAGE}    Overwrite
+ 36 |     ${SUITE NAME}    ${SUITE SOURCE}    ${SUITE DOCUMENTATION}    ${SUITE METADATA}    Overwrite
+    |
+
+test.robot:34:61 VAR11 Variable '${TEST_STATUS}' overwrites reserved variable '${TEST_STATUS}'
+    |
+ 32 |     ...    ${KEYWORD MESSAGE}    ${LOG LEVEL}    ${OUTPUT FILE}    ${LOG FILE}    ${REPORT FILE}    ${DEBUG FILE}
+ 33 |     ...    ${OUTPUT DIR}    &{OPTIONS}
+ 34 |     ${testname}    ${test_tags}    ${TEST_DOCUMENTATION}    ${TEST_STATUS}    Overwrite
+    |                                                             ^^^^^^^^^^^^^^ VAR11
+ 35 |     ${testMessage}    ${prevtestname}    ${PREV_TEST_STATUS}    ${PREV TEST MESSAGE}    Overwrite
+ 36 |     ${SUITE NAME}    ${SUITE SOURCE}    ${SUITE DOCUMENTATION}    ${SUITE METADATA}    Overwrite
+    |
+
+test.robot:35:5 VAR11 Variable '${testMessage}' overwrites reserved variable '${TEST_MESSAGE}'
+    |
+ 33 |     ...    ${OUTPUT DIR}    &{OPTIONS}
+ 34 |     ${testname}    ${test_tags}    ${TEST_DOCUMENTATION}    ${TEST_STATUS}    Overwrite
+ 35 |     ${testMessage}    ${prevtestname}    ${PREV_TEST_STATUS}    ${PREV TEST MESSAGE}    Overwrite
+    |     ^^^^^^^^^^^^^^ VAR11
+ 36 |     ${SUITE NAME}    ${SUITE SOURCE}    ${SUITE DOCUMENTATION}    ${SUITE METADATA}    Overwrite
+ 37 |     ${SUITE STATUS}    ${SUITE MESSAGE}    ${KEYWORD STATUS}    ${KEYWORD MESSAGE}
+    |
+
+test.robot:35:23 VAR11 Variable '${prevtestname}' overwrites reserved variable '${PREV_TEST_NAME}'
+    |
+ 33 |     ...    ${OUTPUT DIR}    &{OPTIONS}
+ 34 |     ${testname}    ${test_tags}    ${TEST_DOCUMENTATION}    ${TEST_STATUS}    Overwrite
+ 35 |     ${testMessage}    ${prevtestname}    ${PREV_TEST_STATUS}    ${PREV TEST MESSAGE}    Overwrite
+    |                       ^^^^^^^^^^^^^^^ VAR11
+ 36 |     ${SUITE NAME}    ${SUITE SOURCE}    ${SUITE DOCUMENTATION}    ${SUITE METADATA}    Overwrite
+ 37 |     ${SUITE STATUS}    ${SUITE MESSAGE}    ${KEYWORD STATUS}    ${KEYWORD MESSAGE}
+    |
+
+test.robot:35:42 VAR11 Variable '${PREV_TEST_STATUS}' overwrites reserved variable '${PREV_TEST_STATUS}'
+    |
+ 33 |     ...    ${OUTPUT DIR}    &{OPTIONS}
+ 34 |     ${testname}    ${test_tags}    ${TEST_DOCUMENTATION}    ${TEST_STATUS}    Overwrite
+ 35 |     ${testMessage}    ${prevtestname}    ${PREV_TEST_STATUS}    ${PREV TEST MESSAGE}    Overwrite
+    |                                          ^^^^^^^^^^^^^^^^^^^ VAR11
+ 36 |     ${SUITE NAME}    ${SUITE SOURCE}    ${SUITE DOCUMENTATION}    ${SUITE METADATA}    Overwrite
+ 37 |     ${SUITE STATUS}    ${SUITE MESSAGE}    ${KEYWORD STATUS}    ${KEYWORD MESSAGE}
+    |
+
+test.robot:35:65 VAR11 Variable '${PREV TEST MESSAGE}' overwrites reserved variable '${PREV_TEST_MESSAGE}'
+    |
+ 33 |     ...    ${OUTPUT DIR}    &{OPTIONS}
+ 34 |     ${testname}    ${test_tags}    ${TEST_DOCUMENTATION}    ${TEST_STATUS}    Overwrite
+ 35 |     ${testMessage}    ${prevtestname}    ${PREV_TEST_STATUS}    ${PREV TEST MESSAGE}    Overwrite
+    |                                                                 ^^^^^^^^^^^^^^^^^^^^ VAR11
+ 36 |     ${SUITE NAME}    ${SUITE SOURCE}    ${SUITE DOCUMENTATION}    ${SUITE METADATA}    Overwrite
+ 37 |     ${SUITE STATUS}    ${SUITE MESSAGE}    ${KEYWORD STATUS}    ${KEYWORD MESSAGE}
+    |
+
+test.robot:36:5 VAR11 Variable '${SUITE NAME}' overwrites reserved variable '${SUITE_NAME}'
+    |
+ 34 |     ${testname}    ${test_tags}    ${TEST_DOCUMENTATION}    ${TEST_STATUS}    Overwrite
+ 35 |     ${testMessage}    ${prevtestname}    ${PREV_TEST_STATUS}    ${PREV TEST MESSAGE}    Overwrite
+ 36 |     ${SUITE NAME}    ${SUITE SOURCE}    ${SUITE DOCUMENTATION}    ${SUITE METADATA}    Overwrite
+    |     ^^^^^^^^^^^^^ VAR11
+ 37 |     ${SUITE STATUS}    ${SUITE MESSAGE}    ${KEYWORD STATUS}    ${KEYWORD MESSAGE}
+ 38 |     ...    ${LOG LEVEL}    ${OUTPUT FILE}    ${LOG FILE}    ${REPORT FILE}    Overwrite
+    |
+
+test.robot:36:22 VAR11 Variable '${SUITE SOURCE}' overwrites reserved variable '${SUITE_SOURCE}'
+    |
+ 34 |     ${testname}    ${test_tags}    ${TEST_DOCUMENTATION}    ${TEST_STATUS}    Overwrite
+ 35 |     ${testMessage}    ${prevtestname}    ${PREV_TEST_STATUS}    ${PREV TEST MESSAGE}    Overwrite
+ 36 |     ${SUITE NAME}    ${SUITE SOURCE}    ${SUITE DOCUMENTATION}    ${SUITE METADATA}    Overwrite
+    |                      ^^^^^^^^^^^^^^^ VAR11
+ 37 |     ${SUITE STATUS}    ${SUITE MESSAGE}    ${KEYWORD STATUS}    ${KEYWORD MESSAGE}
+ 38 |     ...    ${LOG LEVEL}    ${OUTPUT FILE}    ${LOG FILE}    ${REPORT FILE}    Overwrite
+    |
+
+test.robot:36:41 VAR11 Variable '${SUITE DOCUMENTATION}' overwrites reserved variable '${SUITE_DOCUMENTATION}'
+    |
+ 34 |     ${testname}    ${test_tags}    ${TEST_DOCUMENTATION}    ${TEST_STATUS}    Overwrite
+ 35 |     ${testMessage}    ${prevtestname}    ${PREV_TEST_STATUS}    ${PREV TEST MESSAGE}    Overwrite
+ 36 |     ${SUITE NAME}    ${SUITE SOURCE}    ${SUITE DOCUMENTATION}    ${SUITE METADATA}    Overwrite
+    |                                         ^^^^^^^^^^^^^^^^^^^^^^ VAR11
+ 37 |     ${SUITE STATUS}    ${SUITE MESSAGE}    ${KEYWORD STATUS}    ${KEYWORD MESSAGE}
+ 38 |     ...    ${LOG LEVEL}    ${OUTPUT FILE}    ${LOG FILE}    ${REPORT FILE}    Overwrite
+    |
+
+test.robot:36:67 VAR11 Variable '${SUITE METADATA}' overwrites reserved variable '&{SUITE_METADATA}'
+    |
+ 34 |     ${testname}    ${test_tags}    ${TEST_DOCUMENTATION}    ${TEST_STATUS}    Overwrite
+ 35 |     ${testMessage}    ${prevtestname}    ${PREV_TEST_STATUS}    ${PREV TEST MESSAGE}    Overwrite
+ 36 |     ${SUITE NAME}    ${SUITE SOURCE}    ${SUITE DOCUMENTATION}    ${SUITE METADATA}    Overwrite
+    |                                                                   ^^^^^^^^^^^^^^^^^ VAR11
+ 37 |     ${SUITE STATUS}    ${SUITE MESSAGE}    ${KEYWORD STATUS}    ${KEYWORD MESSAGE}
+ 38 |     ...    ${LOG LEVEL}    ${OUTPUT FILE}    ${LOG FILE}    ${REPORT FILE}    Overwrite
+    |
+
+test.robot:37:5 VAR11 Variable '${SUITE STATUS}' overwrites reserved variable '${SUITE_STATUS}'
+    |
+ 35 |     ${testMessage}    ${prevtestname}    ${PREV_TEST_STATUS}    ${PREV TEST MESSAGE}    Overwrite
+ 36 |     ${SUITE NAME}    ${SUITE SOURCE}    ${SUITE DOCUMENTATION}    ${SUITE METADATA}    Overwrite
+ 37 |     ${SUITE STATUS}    ${SUITE MESSAGE}    ${KEYWORD STATUS}    ${KEYWORD MESSAGE}
+    |     ^^^^^^^^^^^^^^^ VAR11
+ 38 |     ...    ${LOG LEVEL}    ${OUTPUT FILE}    ${LOG FILE}    ${REPORT FILE}    Overwrite
+ 39 |     ${DEBUG FILE}    IF    ${SUITE_SOURCE}    Keyword    ${LOG_FILE}
+    |
+
+test.robot:37:24 VAR11 Variable '${SUITE MESSAGE}' overwrites reserved variable '${SUITE_MESSAGE}'
+    |
+ 35 |     ${testMessage}    ${prevtestname}    ${PREV_TEST_STATUS}    ${PREV TEST MESSAGE}    Overwrite
+ 36 |     ${SUITE NAME}    ${SUITE SOURCE}    ${SUITE DOCUMENTATION}    ${SUITE METADATA}    Overwrite
+ 37 |     ${SUITE STATUS}    ${SUITE MESSAGE}    ${KEYWORD STATUS}    ${KEYWORD MESSAGE}
+    |                        ^^^^^^^^^^^^^^^^ VAR11
+ 38 |     ...    ${LOG LEVEL}    ${OUTPUT FILE}    ${LOG FILE}    ${REPORT FILE}    Overwrite
+ 39 |     ${DEBUG FILE}    IF    ${SUITE_SOURCE}    Keyword    ${LOG_FILE}
+    |
+
+test.robot:37:44 VAR11 Variable '${KEYWORD STATUS}' overwrites reserved variable '${KEYWORD_STATUS}'
+    |
+ 35 |     ${testMessage}    ${prevtestname}    ${PREV_TEST_STATUS}    ${PREV TEST MESSAGE}    Overwrite
+ 36 |     ${SUITE NAME}    ${SUITE SOURCE}    ${SUITE DOCUMENTATION}    ${SUITE METADATA}    Overwrite
+ 37 |     ${SUITE STATUS}    ${SUITE MESSAGE}    ${KEYWORD STATUS}    ${KEYWORD MESSAGE}
+    |                                            ^^^^^^^^^^^^^^^^^ VAR11
+ 38 |     ...    ${LOG LEVEL}    ${OUTPUT FILE}    ${LOG FILE}    ${REPORT FILE}    Overwrite
+ 39 |     ${DEBUG FILE}    IF    ${SUITE_SOURCE}    Keyword    ${LOG_FILE}
+    |
+
+test.robot:37:65 VAR11 Variable '${KEYWORD MESSAGE}' overwrites reserved variable '${KEYWORD_MESSAGE}'
+    |
+ 35 |     ${testMessage}    ${prevtestname}    ${PREV_TEST_STATUS}    ${PREV TEST MESSAGE}    Overwrite
+ 36 |     ${SUITE NAME}    ${SUITE SOURCE}    ${SUITE DOCUMENTATION}    ${SUITE METADATA}    Overwrite
+ 37 |     ${SUITE STATUS}    ${SUITE MESSAGE}    ${KEYWORD STATUS}    ${KEYWORD MESSAGE}
+    |                                                                 ^^^^^^^^^^^^^^^^^^ VAR11
+ 38 |     ...    ${LOG LEVEL}    ${OUTPUT FILE}    ${LOG FILE}    ${REPORT FILE}    Overwrite
+ 39 |     ${DEBUG FILE}    IF    ${SUITE_SOURCE}    Keyword    ${LOG_FILE}
+    |
+
+test.robot:38:12 VAR11 Variable '${LOG LEVEL}' overwrites reserved variable '${LOG_LEVEL}'
+    |
+ 36 |     ${SUITE NAME}    ${SUITE SOURCE}    ${SUITE DOCUMENTATION}    ${SUITE METADATA}    Overwrite
+ 37 |     ${SUITE STATUS}    ${SUITE MESSAGE}    ${KEYWORD STATUS}    ${KEYWORD MESSAGE}
+ 38 |     ...    ${LOG LEVEL}    ${OUTPUT FILE}    ${LOG FILE}    ${REPORT FILE}    Overwrite
+    |            ^^^^^^^^^^^^ VAR11
+ 39 |     ${DEBUG FILE}    IF    ${SUITE_SOURCE}    Keyword    ${LOG_FILE}
+ 40 |     ${OUTPUT DIR}    ${OPTIONS}    Overwrite
+    |
+
+test.robot:38:28 VAR11 Variable '${OUTPUT FILE}' overwrites reserved variable '${OUTPUT_FILE}'
+    |
+ 36 |     ${SUITE NAME}    ${SUITE SOURCE}    ${SUITE DOCUMENTATION}    ${SUITE METADATA}    Overwrite
+ 37 |     ${SUITE STATUS}    ${SUITE MESSAGE}    ${KEYWORD STATUS}    ${KEYWORD MESSAGE}
+ 38 |     ...    ${LOG LEVEL}    ${OUTPUT FILE}    ${LOG FILE}    ${REPORT FILE}    Overwrite
+    |                            ^^^^^^^^^^^^^^ VAR11
+ 39 |     ${DEBUG FILE}    IF    ${SUITE_SOURCE}    Keyword    ${LOG_FILE}
+ 40 |     ${OUTPUT DIR}    ${OPTIONS}    Overwrite
+    |
+
+test.robot:38:46 VAR11 Variable '${LOG FILE}' overwrites reserved variable '${LOG_FILE}'
+    |
+ 36 |     ${SUITE NAME}    ${SUITE SOURCE}    ${SUITE DOCUMENTATION}    ${SUITE METADATA}    Overwrite
+ 37 |     ${SUITE STATUS}    ${SUITE MESSAGE}    ${KEYWORD STATUS}    ${KEYWORD MESSAGE}
+ 38 |     ...    ${LOG LEVEL}    ${OUTPUT FILE}    ${LOG FILE}    ${REPORT FILE}    Overwrite
+    |                                              ^^^^^^^^^^^ VAR11
+ 39 |     ${DEBUG FILE}    IF    ${SUITE_SOURCE}    Keyword    ${LOG_FILE}
+ 40 |     ${OUTPUT DIR}    ${OPTIONS}    Overwrite
+    |
+
+test.robot:38:61 VAR11 Variable '${REPORT FILE}' overwrites reserved variable '${REPORT_FILE}'
+    |
+ 36 |     ${SUITE NAME}    ${SUITE SOURCE}    ${SUITE DOCUMENTATION}    ${SUITE METADATA}    Overwrite
+ 37 |     ${SUITE STATUS}    ${SUITE MESSAGE}    ${KEYWORD STATUS}    ${KEYWORD MESSAGE}
+ 38 |     ...    ${LOG LEVEL}    ${OUTPUT FILE}    ${LOG FILE}    ${REPORT FILE}    Overwrite
+    |                                                             ^^^^^^^^^^^^^^ VAR11
+ 39 |     ${DEBUG FILE}    IF    ${SUITE_SOURCE}    Keyword    ${LOG_FILE}
+ 40 |     ${OUTPUT DIR}    ${OPTIONS}    Overwrite
+    |
+
+test.robot:39:5 VAR11 Variable '${DEBUG FILE}' overwrites reserved variable '${DEBUG_FILE}'
+    |
+ 37 |     ${SUITE STATUS}    ${SUITE MESSAGE}    ${KEYWORD STATUS}    ${KEYWORD MESSAGE}
+ 38 |     ...    ${LOG LEVEL}    ${OUTPUT FILE}    ${LOG FILE}    ${REPORT FILE}    Overwrite
+ 39 |     ${DEBUG FILE}    IF    ${SUITE_SOURCE}    Keyword    ${LOG_FILE}
+    |     ^^^^^^^^^^^^^ VAR11
+ 40 |     ${OUTPUT DIR}    ${OPTIONS}    Overwrite
+    |
+
+test.robot:40:5 VAR11 Variable '${OUTPUT DIR}' overwrites reserved variable '${OUTPUT_DIR}'
+    |
+ 38 |     ...    ${LOG LEVEL}    ${OUTPUT FILE}    ${LOG FILE}    ${REPORT FILE}    Overwrite
+ 39 |     ${DEBUG FILE}    IF    ${SUITE_SOURCE}    Keyword    ${LOG_FILE}
+ 40 |     ${OUTPUT DIR}    ${OPTIONS}    Overwrite
+    |     ^^^^^^^^^^^^^ VAR11
+    |
+
+test.robot:45:35 VAR11 Argument '${log_level}' overwrites reserved variable '${LOG_LEVEL}'
+    |
+ 43 | *** Keywords ***
+ 44 | Keyword
+ 45 |     [Arguments]    ${variable}    ${log_level}
+    |                                   ^^^^^^^^^^^^ VAR11
+ 46 |     Log    ${log_level}
+ 47 |     ${keyword_status} =  IF   $cond    Keyword
+    |
+
+test.robot:47:5 VAR11 Variable '${keyword_status}' overwrites reserved variable '${KEYWORD_STATUS}'
+    |
+ 45 |     [Arguments]    ${variable}    ${log_level}
+ 46 |     Log    ${log_level}
+ 47 |     ${keyword_status} =  IF   $cond    Keyword
+    |     ^^^^^^^^^^^^^^^^^ VAR11
+    |
+
+test.robot:49:14 VAR11 Embedded argument '${log_level}' overwrites reserved variable '${LOG_LEVEL}'
+    |
+ 49 | Keyword with ${log_level} and ${suite_documentation:[a-z]}
+    |              ^^^^^^^^^^^^ VAR11
+ 50 |     Log    ${log_level}
+    |
+
+test.robot:49:31 VAR11 Embedded argument '${suite_documentation:[a-z]}' overwrites reserved variable '${SUITE_DOCUMENTATION}'
+    |
+ 49 | Keyword with ${log_level} and ${suite_documentation:[a-z]}
+    |                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ VAR11
+ 50 |     Log    ${log_level}
+    |
+

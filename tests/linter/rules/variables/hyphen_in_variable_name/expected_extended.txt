@@ -1,0 +1,96 @@
+test.robot:4:5 VAR09 Hyphen in variable name '${a-b}'
+   |
+ 2 | My Test Case
+ 3 |     ${r}    Set Variable  ${2-1}  # this is fine
+ 4 |     ${a-b}  Set Variable  1     # this will warn - because if it's later used as ${a-b} it can lead to ambiguous results
+   |     ^^^^^^ VAR09
+ 5 |     ${a\-b}  Set Variable  1    # this will warn - because if it's later used as ${a-b} it can lead to ambiguous results
+ 6 |     ${-}    Set Variable  1     # this will warn - because if it's later used as ${a-b} it can lead to ambiguous results
+   |
+
+test.robot:5:5 VAR09 Hyphen in variable name '${a\-b}'
+   |
+ 3 |     ${r}    Set Variable  ${2-1}  # this is fine
+ 4 |     ${a-b}  Set Variable  1     # this will warn - because if it's later used as ${a-b} it can lead to ambiguous results
+ 5 |     ${a\-b}  Set Variable  1    # this will warn - because if it's later used as ${a-b} it can lead to ambiguous results
+   |     ^^^^^^^ VAR09
+ 6 |     ${-}    Set Variable  1     # this will warn - because if it's later used as ${a-b} it can lead to ambiguous results
+ 7 |     ${a-}   Set Variable  1     # this will warn - because if it's later used as ${a-b} it can lead to ambiguous results
+   |
+
+test.robot:6:5 VAR09 Hyphen in variable name '${-}'
+   |
+ 4 |     ${a-b}  Set Variable  1     # this will warn - because if it's later used as ${a-b} it can lead to ambiguous results
+ 5 |     ${a\-b}  Set Variable  1    # this will warn - because if it's later used as ${a-b} it can lead to ambiguous results
+ 6 |     ${-}    Set Variable  1     # this will warn - because if it's later used as ${a-b} it can lead to ambiguous results
+   |     ^^^^ VAR09
+ 7 |     ${a-}   Set Variable  1     # this will warn - because if it's later used as ${a-b} it can lead to ambiguous results
+ 8 |     ${-b}   Set Variable  1     # this will warn - because if it's later used as ${a-b} it can lead to ambiguous results
+   |
+
+test.robot:7:5 VAR09 Hyphen in variable name '${a-}'
+   |
+ 5 |     ${a\-b}  Set Variable  1    # this will warn - because if it's later used as ${a-b} it can lead to ambiguous results
+ 6 |     ${-}    Set Variable  1     # this will warn - because if it's later used as ${a-b} it can lead to ambiguous results
+ 7 |     ${a-}   Set Variable  1     # this will warn - because if it's later used as ${a-b} it can lead to ambiguous results
+   |     ^^^^^ VAR09
+ 8 |     ${-b}   Set Variable  1     # this will warn - because if it's later used as ${a-b} it can lead to ambiguous results
+ 9 |     My Keyword    1  2  3
+   |
+
+test.robot:8:5 VAR09 Hyphen in variable name '${-b}'
+   |
+ 6 |     ${-}    Set Variable  1     # this will warn - because if it's later used as ${a-b} it can lead to ambiguous results
+ 7 |     ${a-}   Set Variable  1     # this will warn - because if it's later used as ${a-b} it can lead to ambiguous results
+ 8 |     ${-b}   Set Variable  1     # this will warn - because if it's later used as ${a-b} it can lead to ambiguous results
+   |     ^^^^^ VAR09
+ 9 |     My Keyword    1  2  3
+   |
+
+test.robot:15:5 VAR09 Hyphen in variable name '${a-b}'
+    |
+ 13 | My Keyword
+ 14 |     ${r}    Set Variable  ${2-1}  # this is fine
+ 15 |     ${a-b}  Set Variable  1     # this will warn - because if it's later used as ${a-b} it can lead to ambiguous results
+    |     ^^^^^^ VAR09
+ 16 |     ${a\-b}  Set Variable  1    # this will warn - because if it's later used as ${a-b} it can lead to ambiguous results
+ 17 |     ${-}    Set Variable  1     # this will warn - because if it's later used as ${a-b} it can lead to ambiguous results
+    |
+
+test.robot:16:5 VAR09 Hyphen in variable name '${a\-b}'
+    |
+ 14 |     ${r}    Set Variable  ${2-1}  # this is fine
+ 15 |     ${a-b}  Set Variable  1     # this will warn - because if it's later used as ${a-b} it can lead to ambiguous results
+ 16 |     ${a\-b}  Set Variable  1    # this will warn - because if it's later used as ${a-b} it can lead to ambiguous results
+    |     ^^^^^^^ VAR09
+ 17 |     ${-}    Set Variable  1     # this will warn - because if it's later used as ${a-b} it can lead to ambiguous results
+ 18 |     ${a-}   Set Variable  1     # this will warn - because if it's later used as ${a-b} it can lead to ambiguous results
+    |
+
+test.robot:17:5 VAR09 Hyphen in variable name '${-}'
+    |
+ 15 |     ${a-b}  Set Variable  1     # this will warn - because if it's later used as ${a-b} it can lead to ambiguous results
+ 16 |     ${a\-b}  Set Variable  1    # this will warn - because if it's later used as ${a-b} it can lead to ambiguous results
+ 17 |     ${-}    Set Variable  1     # this will warn - because if it's later used as ${a-b} it can lead to ambiguous results
+    |     ^^^^ VAR09
+ 18 |     ${a-}   Set Variable  1     # this will warn - because if it's later used as ${a-b} it can lead to ambiguous results
+ 19 |     ${-b}   Set Variable  1     # this will warn - because if it's later used as ${a-b} it can lead to ambiguous results
+    |
+
+test.robot:18:5 VAR09 Hyphen in variable name '${a-}'
+    |
+ 16 |     ${a\-b}  Set Variable  1    # this will warn - because if it's later used as ${a-b} it can lead to ambiguous results
+ 17 |     ${-}    Set Variable  1     # this will warn - because if it's later used as ${a-b} it can lead to ambiguous results
+ 18 |     ${a-}   Set Variable  1     # this will warn - because if it's later used as ${a-b} it can lead to ambiguous results
+    |     ^^^^^ VAR09
+ 19 |     ${-b}   Set Variable  1     # this will warn - because if it's later used as ${a-b} it can lead to ambiguous results
+    |
+
+test.robot:19:5 VAR09 Hyphen in variable name '${-b}'
+    |
+ 17 |     ${-}    Set Variable  1     # this will warn - because if it's later used as ${a-b} it can lead to ambiguous results
+ 18 |     ${a-}   Set Variable  1     # this will warn - because if it's later used as ${a-b} it can lead to ambiguous results
+ 19 |     ${-b}   Set Variable  1     # this will warn - because if it's later used as ${a-b} it can lead to ambiguous results
+    |     ^^^^^ VAR09
+    |
+

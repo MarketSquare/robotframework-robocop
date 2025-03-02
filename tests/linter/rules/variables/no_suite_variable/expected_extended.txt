@@ -1,0 +1,32 @@
+test_builtin_syntax.robot:7:5 VAR05 Variable defined with suite scope
+   |
+ 5 | Test
+ 6 |     ${amazing} =    Set Variable    Hello universe
+ 7 |     Set Suite Variable    ${amazing}
+   |     ^^^^^^^^^^^^^^^^^^ VAR05
+   |
+
+test_builtin_syntax.robot:11:5 VAR05 Variable defined with suite scope
+    |
+  9 | Using BuiltIn library prefix
+ 10 |     ${amazing} =    Set Variable    Hello universe
+ 11 |     BuiltIn.Set Suite Variable    ${amazing}
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^ VAR05
+    |
+
+test_builtin_syntax.robot:15:5 VAR05 Variable defined with suite scope
+    |
+ 13 | Using underscores
+ 14 |     ${amazing} =    Set Variable    Hello universe
+ 15 |     Set_Suite_Variable    ${amazing}
+    |     ^^^^^^^^^^^^^^^^^^ VAR05
+    |
+
+test_builtin_syntax.robot:20:5 VAR05 Variable defined with suite scope
+    |
+ 18 | Keyword
+ 19 |     ${amazing} =    Set Variable    Hello universe
+ 20 |     Set Suite Variable    ${amazing}
+    |     ^^^^^^^^^^^^^^^^^^ VAR05
+    |
+

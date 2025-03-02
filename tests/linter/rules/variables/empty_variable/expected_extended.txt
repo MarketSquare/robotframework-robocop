@@ -1,0 +1,180 @@
+test.robot:3:1 VAR01 Empty variable value
+   |
+ 1 | *** Variables ***
+ 2 | {VAR_WITH_NO_TYPE}
+ 3 | ${VAR_NO_VALUE}
+   | ^^^^^^^^^^^^^^^ VAR01
+ 4 | @{LIST_NO_VALUE}
+ 5 | &{DICT_NO_VALUE}
+   |
+
+test.robot:4:1 VAR01 Empty variable value
+   |
+ 2 | {VAR_WITH_NO_TYPE}
+ 3 | ${VAR_NO_VALUE}
+ 4 | @{LIST_NO_VALUE}
+   | ^^^^^^^^^^^^^^^^ VAR01
+ 5 | &{DICT_NO_VALUE}
+ 6 | @{LIST_NO_VALUE}
+   |
+
+test.robot:5:1 VAR01 Empty variable value
+   |
+ 3 | ${VAR_NO_VALUE}
+ 4 | @{LIST_NO_VALUE}
+ 5 | &{DICT_NO_VALUE}
+   | ^^^^^^^^^^^^^^^^ VAR01
+ 6 | @{LIST_NO_VALUE}
+ 7 | ...
+   |
+
+test.robot:7:1 VAR01 Empty variable value
+   |
+ 5 | &{DICT_NO_VALUE}
+ 6 | @{LIST_NO_VALUE}
+ 7 | ...
+   | ^^^ VAR01
+ 8 | &{DICT_NO_VALUE}
+ 9 | ...
+   |
+
+test.robot:20:1 VAR01 Empty variable value
+    |
+ 18 | ...    ${EMPTY}
+ 19 | ${MULTILINE_NO_VALUE}
+ 20 | ...
+    | ^^^ VAR01
+ 21 | @{MULTILINE_EMPTY_WITH_COMMENT}   value
+ 22 | ...    # I think it should be just empty line, without value - but I'm not sure
+    |
+
+test.robot:22:1 VAR01 Empty variable value
+    |
+ 20 | ...
+ 21 | @{MULTILINE_EMPTY_WITH_COMMENT}   value
+ 22 | ...    # I think it should be just empty line, without value - but I'm not sure
+    | ^^^ VAR01
+ 23 | ...    ${EMPTY}
+ 24 | @{MULTILINE_FIRST_EMPTY}
+    |
+
+test.robot:25:1 VAR01 Empty variable value
+    |
+ 23 | ...    ${EMPTY}
+ 24 | @{MULTILINE_FIRST_EMPTY}
+ 25 | ...
+    | ^^^ VAR01
+ 26 | ...  value
+ 27 | @{MULTILINE_WITH_MULTIPLE_EMPTIES}
+    |
+
+test.robot:30:1 VAR01 Empty variable value
+    |
+ 28 | ...  1
+ 29 | ...  2
+ 30 | ...
+    | ^^^ VAR01
+ 31 | ...  a
+ 32 | ...  b
+    |
+
+test.robot:33:1 VAR01 Empty variable value
+    |
+ 31 | ...  a
+ 32 | ...  b
+ 33 | ...
+    | ^^^ VAR01
+ 34 | ...  3
+ 35 | ${EMPTY_WITH_BACKSLASH}  \\
+    |
+
+test.robot:35:1 VAR01 Empty variable value
+    |
+ 33 | ...
+ 34 | ...  3
+ 35 | ${EMPTY_WITH_BACKSLASH}  \\
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^ VAR01
+ 36 | @{MULTILINE_EMPTY_WITH_BACKSLASH}  \\
+ 37 | ...  \\
+    |
+
+test.robot:36:1 VAR01 Empty variable value
+    |
+ 34 | ...  3
+ 35 | ${EMPTY_WITH_BACKSLASH}  \\
+ 36 | @{MULTILINE_EMPTY_WITH_BACKSLASH}  \\
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ VAR01
+ 37 | ...  \\
+ 38 | @{MIXED_EMPTY}  \\
+    |
+
+test.robot:37:1 VAR01 Empty variable value
+    |
+ 35 | ${EMPTY_WITH_BACKSLASH}  \\
+ 36 | @{MULTILINE_EMPTY_WITH_BACKSLASH}  \\
+ 37 | ...  \\
+    | ^^^^^^ VAR01
+ 38 | @{MIXED_EMPTY}  \\
+ 39 | ...
+    |
+
+test.robot:38:1 VAR01 Empty variable value
+    |
+ 36 | @{MULTILINE_EMPTY_WITH_BACKSLASH}  \\
+ 37 | ...  \\
+ 38 | @{MIXED_EMPTY}  \\
+    | ^^^^^^^^^^^^^^^^^ VAR01
+ 39 | ...
+ 40 | ...  ${EMPTY}
+    |
+
+test.robot:39:1 VAR01 Empty variable value
+    |
+ 37 | ...  \\
+ 38 | @{MIXED_EMPTY}  \\
+ 39 | ...
+    | ^^^ VAR01
+ 40 | ...  ${EMPTY}
+ 41 | ...  @{EMPTY}
+    |
+
+test.robot:51:5 VAR01 Empty variable value
+    |
+ 49 | VAR Syntax
+ 50 |     VAR    ${variable}    value
+ 51 |     VAR    ${variable}
+    |     ^^^ VAR01
+ 52 |     IF    ${variable}
+ 53 |         VAR    @{variable}
+    |
+
+test.robot:53:9 VAR01 Empty variable value
+    |
+ 51 |     VAR    ${variable}
+ 52 |     IF    ${variable}
+ 53 |         VAR    @{variable}
+    |         ^^^ VAR01
+ 54 |         VAR    &{variable}    scope=GLOBAL
+ 55 |     END
+    |
+
+test.robot:54:9 VAR01 Empty variable value
+    |
+ 52 |     IF    ${variable}
+ 53 |         VAR    @{variable}
+ 54 |         VAR    &{variable}    scope=GLOBAL
+    |         ^^^ VAR01
+ 55 |     END
+ 56 |     VAR    $variable  # error
+    |
+
+test.robot:62:8 VAR01 Empty variable value
+    |
+ 60 |     VAR    @{list}
+ 61 |     ...    value
+ 62 |     ...
+    |        ^ VAR01
+ 63 |     ...    scope=SUITE
+ 64 |     VAR
+    |
+

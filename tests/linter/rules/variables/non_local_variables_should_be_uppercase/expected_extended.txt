@@ -1,0 +1,120 @@
+test.robot:3:24 VAR07 Non local variable is not uppercase
+   |
+ 1 | *** Test Cases ***
+ 2 | Test
+ 3 |     Set Task Variable  ${my_var}  0
+   |                        ^^^^^^^^^ VAR07
+ 4 |     Set Suite Variable  ${my var}  0
+ 5 |     Set Test Variable  ${My Var}  0
+   |
+
+test.robot:4:25 VAR07 Non local variable is not uppercase
+   |
+ 2 | Test
+ 3 |     Set Task Variable  ${my_var}  0
+ 4 |     Set Suite Variable  ${my var}  0
+   |                         ^^^^^^^^^ VAR07
+ 5 |     Set Test Variable  ${My Var}  0
+ 6 |     Set Global Variable  ${My_Var}  0
+   |
+
+test.robot:5:24 VAR07 Non local variable is not uppercase
+   |
+ 3 |     Set Task Variable  ${my_var}  0
+ 4 |     Set Suite Variable  ${my var}  0
+ 5 |     Set Test Variable  ${My Var}  0
+   |                        ^^^^^^^^^ VAR07
+ 6 |     Set Global Variable  ${My_Var}  0
+ 7 |     Set Task Variable  ${MY_VAR}  1
+   |
+
+test.robot:6:26 VAR07 Non local variable is not uppercase
+   |
+ 4 |     Set Suite Variable  ${my var}  0
+ 5 |     Set Test Variable  ${My Var}  0
+ 6 |     Set Global Variable  ${My_Var}  0
+   |                          ^^^^^^^^^ VAR07
+ 7 |     Set Task Variable  ${MY_VAR}  1
+ 8 |     Set Suite Variable  ${MY VAR}  1
+   |
+
+test.robot:15:24 VAR07 Non local variable is not uppercase
+    |
+ 13 | *** Keywords ***
+ 14 | Some Keyword
+ 15 |     Set Task Variable  ${my_var}  0
+    |                        ^^^^^^^^^ VAR07
+ 16 |     Set Suite Variable  ${my var}  0
+ 17 |     Set Test Variable  ${My Var}  0
+    |
+
+test.robot:16:25 VAR07 Non local variable is not uppercase
+    |
+ 14 | Some Keyword
+ 15 |     Set Task Variable  ${my_var}  0
+ 16 |     Set Suite Variable  ${my var}  0
+    |                         ^^^^^^^^^ VAR07
+ 17 |     Set Test Variable  ${My Var}  0
+ 18 |     Set Global Variable  ${My_Var}  0
+    |
+
+test.robot:17:24 VAR07 Non local variable is not uppercase
+    |
+ 15 |     Set Task Variable  ${my_var}  0
+ 16 |     Set Suite Variable  ${my var}  0
+ 17 |     Set Test Variable  ${My Var}  0
+    |                        ^^^^^^^^^ VAR07
+ 18 |     Set Global Variable  ${My_Var}  0
+ 19 |     Set Task Variable  ${MY_VAR}  1
+    |
+
+test.robot:18:26 VAR07 Non local variable is not uppercase
+    |
+ 16 |     Set Suite Variable  ${my var}  0
+ 17 |     Set Test Variable  ${My Var}  0
+ 18 |     Set Global Variable  ${My_Var}  0
+    |                          ^^^^^^^^^ VAR07
+ 19 |     Set Task Variable  ${MY_VAR}  1
+ 20 |     Set Suite Variable  ${MY VAR}  1
+    |
+
+test.robot:40:24 VAR07 Non local variable is not uppercase
+    |
+ 38 |
+ 39 | Keyword With Nested Variables
+ 40 |     Set Task Variable  ${${var@{var}}multiple_nestings&{var}}  0
+    |                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ VAR07
+ 41 |     Set Suite Variable  ${nesting at the end${VAR}}  0
+ 42 |     Set Test Variable  ${${var}Front Nesting}  0
+    |
+
+test.robot:41:25 VAR07 Non local variable is not uppercase
+    |
+ 39 | Keyword With Nested Variables
+ 40 |     Set Task Variable  ${${var@{var}}multiple_nestings&{var}}  0
+ 41 |     Set Suite Variable  ${nesting at the end${VAR}}  0
+    |                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^ VAR07
+ 42 |     Set Test Variable  ${${var}Front Nesting}  0
+ 43 |     Set Global Variable  ${Middle_${var}_Nesting}  0
+    |
+
+test.robot:42:24 VAR07 Non local variable is not uppercase
+    |
+ 40 |     Set Task Variable  ${${var@{var}}multiple_nestings&{var}}  0
+ 41 |     Set Suite Variable  ${nesting at the end${VAR}}  0
+ 42 |     Set Test Variable  ${${var}Front Nesting}  0
+    |                        ^^^^^^^^^^^^^^^^^^^^^^ VAR07
+ 43 |     Set Global Variable  ${Middle_${var}_Nesting}  0
+ 44 |     Set Task Variable  ${CAPITAL_${var}}  1
+    |
+
+test.robot:43:26 VAR07 Non local variable is not uppercase
+    |
+ 41 |     Set Suite Variable  ${nesting at the end${VAR}}  0
+ 42 |     Set Test Variable  ${${var}Front Nesting}  0
+ 43 |     Set Global Variable  ${Middle_${var}_Nesting}  0
+    |                          ^^^^^^^^^^^^^^^^^^^^^^^^ VAR07
+ 44 |     Set Task Variable  ${CAPITAL_${var}}  1
+ 45 |     Set Suite Variable  ${CAPITAL SPACE @{var}}  1
+    |
+

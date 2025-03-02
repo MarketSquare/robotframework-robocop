@@ -1,0 +1,18 @@
+test.robot:3:17 TAG03 Tag 'roBot:TEST' prefixed with reserved word `robot:`
+   |
+ 1 | *** Settings ***
+ 2 | Documentation  doc
+ 3 | Default Tags    roBot:TEST
+   |                 ^^^^^^^^^^ TAG03
+   |
+
+test.robot:24:84 TAG03 Tag 'robot:my_tag' prefixed with reserved word `robot:`
+    |
+ 22 |
+ 23 | Keyword With Reserved Tags
+ 24 |     [Tags]  tagORtag  tagorand  andsmth  with space or reserved  robot:no-dry-run  robot:my_tag
+    |                                                                                    ^^^^^^^^^^^^ TAG03
+ 25 |     ...     robot:continue-on-failure    robot:recursive-continue-on-failure
+ 26 |     Keyword
+    |
+

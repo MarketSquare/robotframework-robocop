@@ -1,0 +1,18 @@
+keyword_tags.robot:8:13 TAG11 Tag 'tag' is already set by Keyword Tags in suite settings
+   |
+ 6 | *** Keywords ***
+ 7 | Keyword
+ 8 |     [Tags]  tag
+   |             ^^^ TAG11
+ 9 |     No Operation
+   |
+
+keyword_tags.robot:12:13 TAG11 Tag 'tag' is already set by Keyword Tags in suite settings
+    |
+ 10 |
+ 11 | Keyword 2
+ 12 |     [Tags]  tag   tag2
+    |             ^^^ TAG11
+ 13 |     No Operation
+    |
+

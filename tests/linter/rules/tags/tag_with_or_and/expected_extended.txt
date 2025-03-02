@@ -1,0 +1,47 @@
+test.robot:3:13 TAG02 Tag 'tagORtag2' with reserved word OR/AND
+   |
+ 1 | *** Settings ***
+ 2 | Documentation  doc
+ 3 | Force Tags  tagORtag2  tagor
+   |             ^^^^^^^^^ TAG02
+ 4 | Default Tags  tagORtag2  tagor  tag${AND}
+   |
+
+test.robot:4:15 TAG02 Tag 'tagORtag2' with reserved word OR/AND
+   |
+ 2 | Documentation  doc
+ 3 | Force Tags  tagORtag2  tagor
+ 4 | Default Tags  tagORtag2  tagor  tag${AND}
+   |               ^^^^^^^^^ TAG02
+   |
+
+test.robot:10:13 TAG02 Tag 'tagORtag2' with reserved word OR/AND
+    |
+  8 | Test
+  9 |     [Documentation]  doc
+ 10 |     [Tags]  tagORtag2  tagor  tag${OR}  tagOR${var}
+    |             ^^^^^^^^^ TAG02
+ 11 |     Pass
+ 12 |     Keyword
+    |
+
+test.robot:10:41 TAG02 Tag 'tagOR${var}' with reserved word OR/AND
+    |
+  8 | Test
+  9 |     [Documentation]  doc
+ 10 |     [Tags]  tagORtag2  tagor  tag${OR}  tagOR${var}
+    |                                         ^^^^^^^^^^^ TAG02
+ 11 |     Pass
+ 12 |     Keyword
+    |
+
+test.robot:19:29 TAG02 Tag 'tagORtag2' with reserved word OR/AND
+    |
+ 17 | Keyword
+ 18 |     [Documentation]  this is doc
+ 19 |     ...              Tags:  tagORtag2,  tagor, tag${OR}
+    |                             ^^^^^^^^^ TAG02
+ 20 |     No Operation
+ 21 |     Pass
+    |
+

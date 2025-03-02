@@ -1,0 +1,10 @@
+test.robot:9:13 TAG06 Tag 'sometag' is already set by Force Tags in suite settings
+   |
+ 7 | Test
+ 8 |     [Documentation]  doc
+ 9 |     [Tags]  sometag  anothertag
+   |             ^^^^^^^ TAG06
+10 |     Pass
+11 |     Keyword
+   |
+

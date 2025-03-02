@@ -1,0 +1,50 @@
+test.robot:3:30 TAG09 Multiple tags with name 'Tag' (first occurrence at line 3 column 15)
+   |
+ 1 | *** Settings ***
+ 2 | Documentation  doc
+ 3 | Default Tags  tag  othertag  Tag
+   |                              ^^^ TAG09
+ 4 | Force Tags  t ag  tag  sometag
+   |
+
+test.robot:4:19 TAG09 Multiple tags with name 'tag' (first occurrence at line 4 column 13)
+   |
+ 2 | Documentation  doc
+ 3 | Default Tags  tag  othertag  Tag
+ 4 | Force Tags  t ag  tag  sometag
+   |                   ^^^ TAG09
+   |
+
+test.robot:8:27 TAG09 Multiple tags with name 'TAG' (first occurrence at line 8 column 22)
+   |
+ 6 | *** Test Cases ***
+ 7 | Test With Tags
+ 8 |     [Tags]    dummy  tag  TAG
+   |                           ^^^ TAG09
+ 9 |     Log    2
+   |
+
+test.robot:21:31 TAG09 Multiple tags with name 'taG' (first occurrence at line 21 column 15)
+    |
+ 19 |
+ 20 | Keyword With Tags
+ 21 |     [Tags]    tag  sometag    taG   t-ag
+    |                               ^^^ TAG09
+    |
+
+test.robot:24:45 TAG09 Multiple tags with name 'tag' (first occurrence at line 24 column 29)
+    |
+ 22 |
+ 23 | Keyword With Tags In Documentation
+ 24 |     [Documentation]  Tags:  tag,  sometag,  tag,  t ag
+    |                                             ^^^ TAG09
+    |
+
+test.robot:24:51 TAG09 Multiple tags with name 't ag' (first occurrence at line 24 column 29)
+    |
+ 22 |
+ 23 | Keyword With Tags In Documentation
+ 24 |     [Documentation]  Tags:  tag,  sometag,  tag,  t ag
+    |                                                   ^^^^ TAG09
+    |
+

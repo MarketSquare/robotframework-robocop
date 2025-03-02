@@ -1,0 +1,65 @@
+test.robot:3:15 TAG01 Tag 'with space' contains spaces
+   |
+ 1 | *** Settings ***
+ 2 | Documentation  doc
+ 3 | Force Tags    with space
+   |               ^^^^^^^^^^ TAG01
+ 4 | Default Tags  with space    ${var with space}    ${var} space
+   |
+
+test.robot:4:15 TAG01 Tag 'with space' contains spaces
+   |
+ 2 | Documentation  doc
+ 3 | Force Tags    with space
+ 4 | Default Tags  with space    ${var with space}    ${var} space
+   |               ^^^^^^^^^^ TAG01
+   |
+
+test.robot:4:50 TAG01 Tag '${var} space' contains spaces
+   |
+ 2 | Documentation  doc
+ 3 | Force Tags    with space
+ 4 | Default Tags  with space    ${var with space}    ${var} space
+   |                                                  ^^^^^^^^^^^^ TAG01
+   |
+
+test.robot:10:13 TAG01 Tag 'some tag' contains spaces
+    |
+  8 | Test
+  9 |     [Documentation]  doc
+ 10 |     [Tags]  some tag    ${var with space}    ${var} space
+    |             ^^^^^^^^ TAG01
+ 11 |     Pass
+ 12 |     Keyword
+    |
+
+test.robot:10:46 TAG01 Tag '${var} space' contains spaces
+    |
+  8 | Test
+  9 |     [Documentation]  doc
+ 10 |     [Tags]  some tag    ${var with space}    ${var} space
+    |                                              ^^^^^^^^^^^^ TAG01
+ 11 |     Pass
+ 12 |     Keyword
+    |
+
+test.robot:19:27 TAG01 Tag 'space tag' contains spaces
+    |
+ 17 | Keyword
+ 18 |     [Documentation]  this is doc
+ 19 |     ...              Tags: space tag,${var with space}tag, ${var} space
+    |                           ^^^^^^^^^ TAG01
+ 20 |     No Operation
+ 21 |     Pass
+    |
+
+test.robot:19:59 TAG01 Tag '${var} space' contains spaces
+    |
+ 17 | Keyword
+ 18 |     [Documentation]  this is doc
+ 19 |     ...              Tags: space tag,${var with space}tag, ${var} space
+    |                                                           ^^^^^^^^^^^^ TAG01
+ 20 |     No Operation
+ 21 |     Pass
+    |
+

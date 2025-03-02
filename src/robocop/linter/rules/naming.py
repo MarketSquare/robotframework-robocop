@@ -642,7 +642,9 @@ class KeywordNamingChecker(VisitorChecker):
 
     def visit_KeywordCall(self, node) -> None:  # noqa: N802
         if self.inside_if_block and node.keyword and node.keyword.lower() in self.else_statements:
-            self.report(self.else_not_upper_case, node=node, col=keyword_col(node))
+            col = keyword_col(node)
+            end_col = col + len(node.keyword)
+            self.report(self.else_not_upper_case, node=node, col=col, end_col=end_col)
         self.check_keyword_naming_with_subkeywords(node, Token.KEYWORD)
         self.check_bdd_keywords(node.keyword, node)
 
@@ -688,7 +690,15 @@ class KeywordNamingChecker(VisitorChecker):
         arg = node.get_token(Token.ARGUMENT)
         suffix = f". Use one space between: '{keyword_name.title()} {arg.value}'" if arg else ""
         col = token_col(node, Token.NAME, Token.KEYWORD)
-        self.report(self.bdd_without_keyword_call, keyword_name=keyword_name, error_msg=suffix, node=node, col=col)
+        end_col = col + len(keyword_name)
+        self.report(
+            self.bdd_without_keyword_call,
+            keyword_name=keyword_name,
+            error_msg=suffix,
+            node=node,
+            col=col,
+            end_col=end_col,
+        )
 
     def check_if_keyword_is_reserved(self, keyword_name, node) -> bool:
         # if there is typo in syntax, it is interpreted as keyword
@@ -795,7 +805,10 @@ class SettingsNamingChecker(VisitorChecker):
         if not with_name:
             for arg in node.get_tokens(Token.ARGUMENT):
                 if arg.value and arg.value in self.ALIAS_TOKENS_VALUES:
-                    self.report(self.empty_library_alias, node=arg, col=arg.col_offset + 1)
+                    col = arg.col_offset + 1
+                    self.report(
+                        self.empty_library_alias, node=arg, col=arg.col_offset + 1, end_col=col + len(arg.value)
+                    )
         elif node.alias.replace(" ", "") == node.name.replace(" ", ""):  # New Name == NewName
             name_token = node.get_tokens(Token.NAME)[-1]
             self.report(
@@ -822,20 +835,24 @@ class SettingsNamingChecker(VisitorChecker):
         if self.task_section is None and ("test" in name_normalized or "task" in name_normalized):
             self.task_section = "task" in name_normalized
         if "test" in name_normalized and self.task_section:
+            end_col = node.col_offset + 1 + len(name)
             self.report(
                 self.mixed_task_test_settings,
                 setting="Task " + name.split()[1],
                 task_or_test="task",
                 tasks_or_tests="Tasks",
                 node=node,
+                end_col=end_col,
             )
         elif "task" in name_normalized and not self.task_section:
+            end_col = node.col_offset + 1 + len(name)
             self.report(
                 self.mixed_task_test_settings,
                 setting="Test " + name.split()[1],
                 task_or_test="test",
                 tasks_or_tests="Test Cases",
                 node=node,
+                end_col=end_col,
             )
 
 

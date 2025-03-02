@@ -1,0 +1,43 @@
+test.robot:11:5 NAME04 Underscores in keyword name 'No_Operation'
+    |
+  9 |     Pass
+ 10 |     Keyword
+ 11 |     No_Operation
+    |     ^^^^^^^^^^^^ NAME04
+    |
+
+test.robot:17:19 NAME04 Underscores in keyword name 'With_Underscore'
+    |
+ 15 |
+ 16 | Templated test
+ 17 |     [Template]    With_Underscore
+    |                   ^^^^^^^^^^^^^^^ NAME04
+    |
+
+test.robot:33:12 NAME04 Underscores in keyword name 'Run_keywords'
+    |
+ 31 | Run Keywords
+ 32 |     Run Keyword If    ${condition}
+ 33 |     ...    Run_keywords
+    |            ^^^^^^^^^^^^ NAME04
+ 34 |     ...        Name    ${arg}    AND
+ 35 |     ...        _Underscore    1    AND
+    |
+
+test.robot:35:16 NAME04 Underscores in keyword name '_Underscore'
+    |
+ 33 |     ...    Run_keywords
+ 34 |     ...        Name    ${arg}    AND
+ 35 |     ...        _Underscore    1    AND
+    |                ^^^^^^^^^^^ NAME04
+ 36 |     ...        Under_sc ore
+    |
+
+test.robot:36:16 NAME04 Underscores in keyword name 'Under_sc ore'
+    |
+ 34 |     ...        Name    ${arg}    AND
+ 35 |     ...        _Underscore    1    AND
+ 36 |     ...        Under_sc ore
+    |                ^^^^^^^^^^^^ NAME04
+    |
+

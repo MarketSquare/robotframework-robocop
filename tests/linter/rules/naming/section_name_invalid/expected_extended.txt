@@ -1,0 +1,23 @@
+test.robot:5:1 NAME06 Section name should be in format '*** Variables ***' or '*** VARIABLES ***'
+   |
+ 5 | * Variables *
+   | ^^^^^^^^^^^^^ NAME06
+ 6 | ${var}  1
+   |
+
+test.robot:9:1 NAME06 Section name should be in format '*** Test Cases ***' or '*** TEST CASES ***'
+   |
+ 9 | *test cases*
+   | ^^^^^^^^^^^^ NAME06
+10 | Test
+11 |     [Documentation]  doc
+   |
+
+test.robot:18:1 NAME06 Section name should be in format '*** Keywords ***' or '*** KEYWORDS ***'
+    |
+ 18 | *** keywords ***
+    | ^^^^^^^^^^^^^^^^ NAME06
+ 19 | Keyword
+ 20 |     [Documentation]  this is doc
+    |
+

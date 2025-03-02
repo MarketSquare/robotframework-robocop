@@ -1,0 +1,28 @@
+test.robot:6:5 NAME01 Not allowed character '.' found in 'Test.' test case name
+   |
+ 4 |
+ 5 | *** Test Cases ***
+ 6 | Test.
+   |     ^ NAME01
+ 7 |     [Documentation]  doc
+ 8 |     [Tags]  sometag
+   |
+
+test.robot:15:10 NAME01 Not allowed character '?' found in 'Keyword${?' keyword name
+    |
+ 13 |
+ 14 | *** Keywords ***
+ 15 | Keyword${?
+    |          ^ NAME01
+ 16 |     [Documentation]  this is doc
+ 17 |     No Operation
+    |
+
+test.robot:31:20 NAME01 Not allowed character '?' found in 'Keyword Escaped \${?} Should Warn' keyword name
+    |
+ 31 | Keyword Escaped \${?} Should Warn
+    |                    ^ NAME01
+ 32 |     [Documentation]  this is doc
+ 33 |     No Operation
+    |
+

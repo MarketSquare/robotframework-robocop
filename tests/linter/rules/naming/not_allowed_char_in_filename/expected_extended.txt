@@ -1,0 +1,2 @@
+not_allowed_suite_foo.bar.robot:1:21 NAME15 Not allowed character '.' found in suite name
+suite.withdot${/}__init__.robot:1:5 NAME15 Not allowed character '.' found in suite name

@@ -1,0 +1,202 @@
+test.robot:3:1 NAME05 Setting name 'library' not in title or uppercase
+   |
+ 1 | *** Settings ***
+ 2 | Documentation   doc
+ 3 | library         Library
+   | ^^^^^^^ NAME05
+ 4 | resource        resource.robot
+ 5 | variablES       variables.py
+   |
+
+test.robot:4:1 NAME05 Setting name 'resource' not in title or uppercase
+   |
+ 2 | Documentation   doc
+ 3 | library         Library
+ 4 | resource        resource.robot
+   | ^^^^^^^^ NAME05
+ 5 | variablES       variables.py
+ 6 | suite setup     Keyword
+   |
+
+test.robot:5:1 NAME05 Setting name 'variablES' not in title or uppercase
+   |
+ 3 | library         Library
+ 4 | resource        resource.robot
+ 5 | variablES       variables.py
+   | ^^^^^^^^^ NAME05
+ 6 | suite setup     Keyword
+ 7 | suite Teardown  Keyword
+   |
+
+test.robot:6:1 NAME05 Setting name 'suite setup' not in title or uppercase
+   |
+ 4 | resource        resource.robot
+ 5 | variablES       variables.py
+ 6 | suite setup     Keyword
+   | ^^^^^^^^^^^ NAME05
+ 7 | suite Teardown  Keyword
+ 8 | test seTup      Keyword
+   |
+
+test.robot:7:1 NAME05 Setting name 'suite Teardown' not in title or uppercase
+   |
+ 5 | variablES       variables.py
+ 6 | suite setup     Keyword
+ 7 | suite Teardown  Keyword
+   | ^^^^^^^^^^^^^^ NAME05
+ 8 | test seTup      Keyword
+ 9 | Test teardown   Keyword
+   |
+
+test.robot:8:1 NAME05 Setting name 'test seTup' not in title or uppercase
+   |
+ 6 | suite setup     Keyword
+ 7 | suite Teardown  Keyword
+ 8 | test seTup      Keyword
+   | ^^^^^^^^^^ NAME05
+ 9 | Test teardown   Keyword
+10 | force tags      tag
+   |
+
+test.robot:9:1 NAME05 Setting name 'Test teardown' not in title or uppercase
+   |
+ 7 | suite Teardown  Keyword
+ 8 | test seTup      Keyword
+ 9 | Test teardown   Keyword
+   | ^^^^^^^^^^^^^ NAME05
+10 | force tags      tag
+11 | default tags    defaulttag
+   |
+
+test.robot:10:1 NAME05 Setting name 'force tags' not in title or uppercase
+    |
+  8 | test seTup      Keyword
+  9 | Test teardown   Keyword
+ 10 | force tags      tag
+    | ^^^^^^^^^^ NAME05
+ 11 | default tags    defaulttag
+    |
+
+test.robot:11:1 NAME05 Setting name 'default tags' not in title or uppercase
+    |
+  9 | Test teardown   Keyword
+ 10 | force tags      tag
+ 11 | default tags    defaulttag
+    | ^^^^^^^^^^^^ NAME05
+    |
+
+test.robot:16:5 NAME05 Setting name '[documentation]' not in title or uppercase
+    |
+ 14 | *** Test Cases ***
+ 15 | Test Lowercase Settings
+ 16 |     [documentation]  doc
+    |     ^^^^^^^^^^^^^^^ NAME05
+ 17 |     [tags]  sometag
+ 18 |     [setup]  Keyword
+    |
+
+test.robot:17:5 NAME05 Setting name '[tags]' not in title or uppercase
+    |
+ 15 | Test Lowercase Settings
+ 16 |     [documentation]  doc
+ 17 |     [tags]  sometag
+    |     ^^^^^^ NAME05
+ 18 |     [setup]  Keyword
+ 19 |     [template]  template
+    |
+
+test.robot:18:5 NAME05 Setting name '[setup]' not in title or uppercase
+    |
+ 16 |     [documentation]  doc
+ 17 |     [tags]  sometag
+ 18 |     [setup]  Keyword
+    |     ^^^^^^^ NAME05
+ 19 |     [template]  template
+ 20 |     [timeout]  timeout
+    |
+
+test.robot:19:5 NAME05 Setting name '[template]' not in title or uppercase
+    |
+ 17 |     [tags]  sometag
+ 18 |     [setup]  Keyword
+ 19 |     [template]  template
+    |     ^^^^^^^^^^ NAME05
+ 20 |     [timeout]  timeout
+ 21 |     Pass
+    |
+
+test.robot:20:5 NAME05 Setting name '[timeout]' not in title or uppercase
+    |
+ 18 |     [setup]  Keyword
+ 19 |     [template]  template
+ 20 |     [timeout]  timeout
+    |     ^^^^^^^^^ NAME05
+ 21 |     Pass
+ 22 |     Keyword
+    |
+
+test.robot:24:5 NAME05 Setting name '[teardown]' not in title or uppercase
+    |
+ 22 |     Keyword
+ 23 |     One More
+ 24 |     [teardown]  Keyword
+    |     ^^^^^^^^^^ NAME05
+    |
+
+test.robot:51:5 NAME05 Setting name '[documentation]' not in title or uppercase
+    |
+ 49 | *** Keywords ***
+ 50 | Keyword Lowercase Settings
+ 51 |     [documentation]  this is doc
+    |     ^^^^^^^^^^^^^^^ NAME05
+ 52 |     [tags]  sometag
+ 53 |     [arguments]  arg1  arg2
+    |
+
+test.robot:52:5 NAME05 Setting name '[tags]' not in title or uppercase
+    |
+ 50 | Keyword Lowercase Settings
+ 51 |     [documentation]  this is doc
+ 52 |     [tags]  sometag
+    |     ^^^^^^ NAME05
+ 53 |     [arguments]  arg1  arg2
+ 54 |     [timeout]  timeout
+    |
+
+test.robot:53:5 NAME05 Setting name '[arguments]' not in title or uppercase
+    |
+ 51 |     [documentation]  this is doc
+ 52 |     [tags]  sometag
+ 53 |     [arguments]  arg1  arg2
+    |     ^^^^^^^^^^^ NAME05
+ 54 |     [timeout]  timeout
+ 55 |     No Operation
+    |
+
+test.robot:54:5 NAME05 Setting name '[timeout]' not in title or uppercase
+    |
+ 52 |     [tags]  sometag
+ 53 |     [arguments]  arg1  arg2
+ 54 |     [timeout]  timeout
+    |     ^^^^^^^^^ NAME05
+ 55 |     No Operation
+ 56 |     Pass
+    |
+
+test.robot:59:5 NAME05 Setting name '[teardown]' not in title or uppercase
+    |
+ 57 |     No Operation
+ 58 |     Fail
+ 59 |     [teardown]  Teardown
+    |     ^^^^^^^^^^ NAME05
+ 60 |     [return]  value
+    |
+
+test.robot:60:5 NAME05 Setting name '[return]' not in title or uppercase
+    |
+ 58 |     Fail
+ 59 |     [teardown]  Teardown
+ 60 |     [return]  value
+    |     ^^^^^^^^ NAME05
+    |
+

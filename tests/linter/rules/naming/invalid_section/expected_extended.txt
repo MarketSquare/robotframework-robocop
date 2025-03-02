@@ -1,0 +1,21 @@
+test.robot:1:1 NAME16 Invalid section '*** Kommentit ***'
+   |
+ 1 | *** Kommentit ***
+   | ^^^^^^^^^^^^^^^^^^ NAME16
+ 2 | Some general comments
+   |
+
+test.robot:9:1 NAME16 Invalid section '*** Testit ***'
+   |
+ 9 | *** Testit ***
+   | ^^^^^^^^^^^^^^^ NAME16
+10 | Test
+11 |     [Documentation]    doc.
+   |
+
+test.robot:14:1 NAME16 Invalid section '*** Bad ***'
+    |
+ 14 | *** Bad ***
+    | ^^^^^^^^^^^^ NAME16
+    |
+

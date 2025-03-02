@@ -1,0 +1,215 @@
+test.robot:3:14 NAME02 Keyword name 'keyword' does not follow case convention
+   |
+ 1 | *** Settings ***
+ 2 | Documentation  doc
+ 3 | Suite Setup  keyword
+   |              ^^^^^^^ NAME02
+ 4 | Suite Teardown  keyword
+ 5 | Test Setup  keyword
+   |
+
+test.robot:4:17 NAME02 Keyword name 'keyword' does not follow case convention
+   |
+ 2 | Documentation  doc
+ 3 | Suite Setup  keyword
+ 4 | Suite Teardown  keyword
+   |                 ^^^^^^^ NAME02
+ 5 | Test Setup  keyword
+ 6 | Test Teardown  keyword
+   |
+
+test.robot:5:13 NAME02 Keyword name 'keyword' does not follow case convention
+   |
+ 3 | Suite Setup  keyword
+ 4 | Suite Teardown  keyword
+ 5 | Test Setup  keyword
+   |             ^^^^^^^ NAME02
+ 6 | Test Teardown  keyword
+   |
+
+test.robot:6:16 NAME02 Keyword name 'keyword' does not follow case convention
+   |
+ 4 | Suite Teardown  keyword
+ 5 | Test Setup  keyword
+ 6 | Test Teardown  keyword
+   |                ^^^^^^^ NAME02
+   |
+
+test.robot:14:14 NAME02 Keyword name 'keyword' does not follow case convention
+    |
+ 12 |     [Documentation]  doc
+ 13 |     [Tags]  sometag
+ 14 |     [Setup]  keyword
+    |              ^^^^^^^ NAME02
+ 15 |     pass
+ 16 |     Keyword
+    |
+
+test.robot:15:5 NAME02 Keyword name 'pass' does not follow case convention
+    |
+ 13 |     [Tags]  sometag
+ 14 |     [Setup]  keyword
+ 15 |     pass
+    |     ^^^^ NAME02
+ 16 |     Keyword
+ 17 |     One More
+    |
+
+test.robot:18:17 NAME02 Keyword name 'keyword' does not follow case convention
+    |
+ 16 |     Keyword
+ 17 |     One More
+ 18 |     [Teardown]  keyword
+    |                 ^^^^^^^ NAME02
+    |
+
+test.robot:36:19 NAME02 Keyword name 'lowercase' does not follow case convention
+    |
+ 34 |
+ 35 | Templated test
+ 36 |     [Template]    lowercase
+    |                   ^^^^^^^^^ NAME02
+ 37 |     Pass
+    |
+
+test.robot:41:1 NAME02 Keyword name 'keyword' does not follow case convention
+    |
+ 39 |
+ 40 | *** Keywords ***
+ 41 | keyword
+    | ^^^^^^^ NAME02
+ 42 |     [Documentation]  this is doc
+ 43 |     No Operation
+    |
+
+test.robot:66:5 NAME02 Keyword name 'Keyword_With_underscores' does not follow case convention
+    |
+ 64 |     Take2 Is Capitalized
+ 65 |     Quoted "Strings" Are Fine Too
+ 66 |     Keyword_With_underscores
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^ NAME02
+    |
+
+test.robot:112:1 NAME02 Keyword name 'Dot in name foo.bar' does not follow case convention
+     |
+ 112 | Dot in name foo.bar
+     | ^^^^^^^^^^^^^^^^^^^ NAME02
+ 113 |     No Operation
+     |
+
+templated_suite.robot:2:18 NAME02 Keyword name 'lowercase' does not follow case convention
+   |
+ 1 | *** Settings ***
+ 2 | Test Template    lowercase
+   |                  ^^^^^^^^^ NAME02
+   |
+
+run_keywords.robot:2:32 NAME02 Keyword name 'some keyword' does not follow case convention
+   |
+ 1 | *** Settings ***
+ 2 | Suite Setup    Run Keywords    some keyword  AND  SOME_Keyword
+   |                                ^^^^^^^^^^^^ NAME02
+   |
+
+run_keywords.robot:8:12 NAME02 Keyword name 'Run Keyword if' does not follow case convention
+   |
+ 6 | Test with run keywords
+ 7 |     Run Keyword And Continue On Failure
+ 8 |     ...    Run Keyword if    ${True}
+   |            ^^^^^^^^^^^^^^ NAME02
+ 9 |     ...      Run keywords
+10 |     ...        log    foo    AND
+   |
+
+run_keywords.robot:9:14 NAME02 Keyword name 'Run keywords' does not follow case convention
+   |
+ 7 |     Run Keyword And Continue On Failure
+ 8 |     ...    Run Keyword if    ${True}
+ 9 |     ...      Run keywords
+   |              ^^^^^^^^^^^^ NAME02
+10 |     ...        log    foo    AND
+11 |     ...        Log    bar
+   |
+
+run_keywords.robot:10:16 NAME02 Keyword name 'log' does not follow case convention
+    |
+  8 |     ...    Run Keyword if    ${True}
+  9 |     ...      Run keywords
+ 10 |     ...        log    foo    AND
+    |                ^^^ NAME02
+ 11 |     ...        Log    bar
+ 12 |     ...    ELSE
+    |
+
+run_keywords.robot:13:14 NAME02 Keyword name 'log' does not follow case convention
+    |
+ 11 |     ...        Log    bar
+ 12 |     ...    ELSE
+ 13 |     ...      log    baz
+    |              ^^^ NAME02
+    |
+
+run_keywords.robot:17:35 NAME02 Keyword name 'keyword' does not follow case convention
+    |
+ 15 | Settings
+ 16 |     [Setup]    Keyword
+ 17 |     [Teardown]    Run Keywords    keyword    Keyword
+    |                                   ^^^^^^^ NAME02
+    |
+
+run_keywords.robot:21:47 NAME02 Keyword name 'run Keywords' does not follow case convention
+    |
+ 19 | *** Keywords ***
+ 20 | Keyword With Run Keywords
+ 21 |     Builtin.Run Keyword_If    ${condition}    run Keywords    keyword    Keyword
+    |                                               ^^^^^^^^^^^^ NAME02
+ 22 |     Run Keywords
+ 23 |     ...    Log    a
+    |
+
+run_keywords.robot:21:63 NAME02 Keyword name 'keyword' does not follow case convention
+    |
+ 19 | *** Keywords ***
+ 20 | Keyword With Run Keywords
+ 21 |     Builtin.Run Keyword_If    ${condition}    run Keywords    keyword    Keyword
+    |                                                               ^^^^^^^ NAME02
+ 22 |     Run Keywords
+ 23 |     ...    Log    a
+    |
+
+run_keywords.robot:25:12 NAME02 Keyword name 'log' does not follow case convention
+    |
+ 23 |     ...    Log    a
+ 24 |     ...    AND
+ 25 |     ...    log    b
+    |            ^^^ NAME02
+ 26 |     ...    AND
+ 27 |     ...    Log    c
+    |
+
+run_keywords.robot:31:17 NAME02 Keyword name 'keyword' does not follow case convention
+    |
+ 29 | More Branches
+ 30 |     Run Keyword If    ${condition
+ 31 |     ...         keyword
+    |                 ^^^^^^^ NAME02
+ 32 |     ...    ELSE IF    ${other_cond}
+ 33 |     ...        other_keyword
+    |
+
+run_keywords.robot:33:16 NAME02 Keyword name 'other_keyword' does not follow case convention
+    |
+ 31 |     ...         keyword
+ 32 |     ...    ELSE IF    ${other_cond}
+ 33 |     ...        other_keyword
+    |                ^^^^^^^^^^^^^ NAME02
+    |
+
+run_keywords.robot:36:35 NAME02 Keyword name 'keyword' does not follow case convention
+    |
+ 34 |
+ 35 | Settings
+ 36 |     [Teardown]    Run Keywords    keyword    Keyword
+    |                                   ^^^^^^^ NAME02
+    |
+

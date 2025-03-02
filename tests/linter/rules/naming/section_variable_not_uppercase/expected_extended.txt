@@ -1,0 +1,195 @@
+test.robot:5:1 NAME08 Section variable '${my_var}' name is not uppercase
+   |
+ 3 | ${MY VAR}  2
+ 4 | ${MYVAR}   3
+ 5 | ${my_var}  4
+   | ^^^^^^^^^ NAME08
+ 6 | ${My Var}  5
+ 7 | ${my var}  6
+   |
+
+test.robot:6:1 NAME08 Section variable '${My Var}' name is not uppercase
+   |
+ 4 | ${MYVAR}   3
+ 5 | ${my_var}  4
+ 6 | ${My Var}  5
+   | ^^^^^^^^^ NAME08
+ 7 | ${my var}  6
+ 8 | ${MyVar}   7
+   |
+
+test.robot:7:1 NAME08 Section variable '${my var}' name is not uppercase
+   |
+ 5 | ${my_var}  4
+ 6 | ${My Var}  5
+ 7 | ${my var}  6
+   | ^^^^^^^^^ NAME08
+ 8 | ${MyVar}   7
+ 9 | ${My_Var}  8
+   |
+
+test.robot:8:1 NAME08 Section variable '${MyVar}' name is not uppercase
+   |
+ 6 | ${My Var}  5
+ 7 | ${my var}  6
+ 8 | ${MyVar}   7
+   | ^^^^^^^^ NAME08
+ 9 | ${My_Var}  8
+10 | ${myVar}   9
+   |
+
+test.robot:9:1 NAME08 Section variable '${My_Var}' name is not uppercase
+   |
+ 7 | ${my var}  6
+ 8 | ${MyVar}   7
+ 9 | ${My_Var}  8
+   | ^^^^^^^^^ NAME08
+10 | ${myVar}   9
+11 | ${MY_var}  10
+   |
+
+test.robot:10:1 NAME08 Section variable '${myVar}' name is not uppercase
+    |
+  8 | ${MyVar}   7
+  9 | ${My_Var}  8
+ 10 | ${myVar}   9
+    | ^^^^^^^^ NAME08
+ 11 | ${MY_var}  10
+ 12 | ${MY_VAR}
+    |
+
+test.robot:11:1 NAME08 Section variable '${MY_var}' name is not uppercase
+    |
+  9 | ${My_Var}  8
+ 10 | ${myVar}   9
+ 11 | ${MY_var}  10
+    | ^^^^^^^^^ NAME08
+ 12 | ${MY_VAR}
+ 13 | ...         11
+    |
+
+test.robot:14:1 NAME08 Section variable '${my_var}' name is not uppercase
+    |
+ 12 | ${MY_VAR}
+ 13 | ...         11
+ 14 | ${my_var}
+    | ^^^^^^^^^ NAME08
+ 15 | ...         12
+ 16 |  ${var}  1
+    |
+
+test.robot:16:1 NAME08 Section variable '${var}' name is not uppercase
+    |
+ 14 | ${my_var}
+ 15 | ...         12
+ 16 |  ${var}  1
+    | ^^^^^^^ NAME08
+ 17 |  @{var3}  a
+ 18 |  ...      b
+    |
+
+test.robot:17:1 NAME08 Section variable '@{var3}' name is not uppercase
+    |
+ 15 | ...         12
+ 16 |  ${var}  1
+ 17 |  @{var3}  a
+    | ^^^^^^^^ NAME08
+ 18 |  ...      b
+ 19 |  ...      c
+    |
+
+test.robot:21:1 NAME08 Section variable '@{var4}' name is not uppercase
+    |
+ 19 |  ...      c
+ 20 | ...      d
+ 21 | @{var4}  a
+    | ^^^^^^^ NAME08
+ 22 | ...      1
+ 23 |  ...     2
+    |
+
+test.robot:25:1 NAME08 Section variable '${MY_VAR${var}}' name is not uppercase
+    |
+ 25 | ${MY_VAR${var}}  11
+    | ^^^^^^^^^^^^^^^ NAME08
+ 26 | ${MY VAR${VAR}}  11
+ 27 | ${${var}MY VAR${VAR}}  11
+    |
+
+test.robot:27:1 NAME08 Section variable '${${var}MY VAR${VAR}}' name is not uppercase
+    |
+ 25 | ${MY_VAR${var}}  11
+ 26 | ${MY VAR${VAR}}  11
+ 27 | ${${var}MY VAR${VAR}}  11
+    | ^^^^^^^^^^^^^^^^^^^^^ NAME08
+ 28 | ${${var${VAR}}MY VAR${VAR}}  11
+ 29 | ${@{VAR}[1]MY_VAR&{var.param}}  11
+    |
+
+test.robot:28:1 NAME08 Section variable '${${var${VAR}}MY VAR${VAR}}' name is not uppercase
+    |
+ 26 | ${MY VAR${VAR}}  11
+ 27 | ${${var}MY VAR${VAR}}  11
+ 28 | ${${var${VAR}}MY VAR${VAR}}  11
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^ NAME08
+ 29 | ${@{VAR}[1]MY_VAR&{var.param}}  11
+ 30 | ${${var${VAR}}my_var}  11
+    |
+
+test.robot:29:1 NAME08 Section variable '${@{VAR}[1]MY_VAR&{var.param}}' name is not uppercase
+    |
+ 27 | ${${var}MY VAR${VAR}}  11
+ 28 | ${${var${VAR}}MY VAR${VAR}}  11
+ 29 | ${@{VAR}[1]MY_VAR&{var.param}}  11
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ NAME08
+ 30 | ${${var${VAR}}my_var}  11
+ 31 | ${${VAR}my_var}  11
+    |
+
+test.robot:30:1 NAME08 Section variable '${${var${VAR}}my_var}' name is not uppercase
+    |
+ 28 | ${${var${VAR}}MY VAR${VAR}}  11
+ 29 | ${@{VAR}[1]MY_VAR&{var.param}}  11
+ 30 | ${${var${VAR}}my_var}  11
+    | ^^^^^^^^^^^^^^^^^^^^^ NAME08
+ 31 | ${${VAR}my_var}  11
+ 32 | ${${VAR}my_var${var}}  11
+    |
+
+test.robot:31:1 NAME08 Section variable '${${VAR}my_var}' name is not uppercase
+    |
+ 29 | ${@{VAR}[1]MY_VAR&{var.param}}  11
+ 30 | ${${var${VAR}}my_var}  11
+ 31 | ${${VAR}my_var}  11
+    | ^^^^^^^^^^^^^^^ NAME08
+ 32 | ${${VAR}my_var${var}}  11
+ 33 | ${@{VAR}[1]my_var}  11
+    |
+
+test.robot:32:1 NAME08 Section variable '${${VAR}my_var${var}}' name is not uppercase
+    |
+ 30 | ${${var${VAR}}my_var}  11
+ 31 | ${${VAR}my_var}  11
+ 32 | ${${VAR}my_var${var}}  11
+    | ^^^^^^^^^^^^^^^^^^^^^ NAME08
+ 33 | ${@{VAR}[1]my_var}  11
+ 34 | ${@{VAR}[1]my_var&{var.param}}  11
+    |
+
+test.robot:33:1 NAME08 Section variable '${@{VAR}[1]my_var}' name is not uppercase
+    |
+ 31 | ${${VAR}my_var}  11
+ 32 | ${${VAR}my_var${var}}  11
+ 33 | ${@{VAR}[1]my_var}  11
+    | ^^^^^^^^^^^^^^^^^^ NAME08
+ 34 | ${@{VAR}[1]my_var&{var.param}}  11
+    |
+
+test.robot:34:1 NAME08 Section variable '${@{VAR}[1]my_var&{var.param}}' name is not uppercase
+    |
+ 32 | ${${VAR}my_var${var}}  11
+ 33 | ${@{VAR}[1]my_var}  11
+ 34 | ${@{VAR}[1]my_var&{var.param}}  11
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ NAME08
+    |
+

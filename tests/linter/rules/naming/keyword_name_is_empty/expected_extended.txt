@@ -1,0 +1,8 @@
+test.robot:8:1 NAME10 Keyword name is empty
+   |
+ 6 | *** Keywords ***
+ 7 | # no keyword name here!!!
+ 8 |     Log To Console  hi
+   | ^ NAME10
+   |
+

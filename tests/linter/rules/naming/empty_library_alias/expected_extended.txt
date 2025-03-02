@@ -1,0 +1,38 @@
+test.robot:3:29 NAME12 Library alias is empty
+   |
+ 1 | *** Settings ***
+ 2 | Resources    library.py
+ 3 | Library      Collections    WITH NAME
+   |                             ^^^^^^^^^ NAME12
+ 4 | Library      other_library.py    WITH NAME  # comment
+ 5 | Library      other_library.py    WITH NAME  PrettyName  # comment
+   |
+
+test.robot:4:34 NAME12 Library alias is empty
+   |
+ 2 | Resources    library.py
+ 3 | Library      Collections    WITH NAME
+ 4 | Library      other_library.py    WITH NAME  # comment
+   |                                  ^^^^^^^^^ NAME12
+ 5 | Library      other_library.py    WITH NAME  PrettyName  # comment
+ 6 | Library      other_library.py    AS
+   |
+
+test.robot:6:34 NAME12 Library alias is empty
+   |
+ 4 | Library      other_library.py    WITH NAME  # comment
+ 5 | Library      other_library.py    WITH NAME  PrettyName  # comment
+ 6 | Library      other_library.py    AS
+   |                                  ^^ NAME12
+ 7 | Library      other_library.py    AS    SomeName
+ 8 | Library      WITH NAME
+   |
+
+test.robot:10:44 NAME12 Library alias is empty
+    |
+  8 | Library      WITH NAME
+  9 | Library      other_library.py     arg=1    AS     MyName
+ 10 | Library      other_library.py     arg=1    AS
+    |                                            ^^ NAME12
+    |
+

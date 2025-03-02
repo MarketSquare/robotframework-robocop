@@ -1,0 +1,144 @@
+tasks_with_test_settings.robot:2:1 NAME17 Use task-related setting 'Task Setup' if Tasks section is used
+   |
+ 1 | *** Settings ***
+ 2 | Test Setup      Some Keyword
+   | ^^^^^^^^^^ NAME17
+ 3 | Test Teardown   Some Keyword
+ 4 | Test Template   Some Keyword
+   |
+
+tasks_with_test_settings.robot:3:1 NAME17 Use task-related setting 'Task Teardown' if Tasks section is used
+   |
+ 1 | *** Settings ***
+ 2 | Test Setup      Some Keyword
+ 3 | Test Teardown   Some Keyword
+   | ^^^^^^^^^^^^^ NAME17
+ 4 | Test Template   Some Keyword
+ 5 | Test Timeout    100
+   |
+
+tasks_with_test_settings.robot:4:1 NAME17 Use task-related setting 'Task Template' if Tasks section is used
+   |
+ 2 | Test Setup      Some Keyword
+ 3 | Test Teardown   Some Keyword
+ 4 | Test Template   Some Keyword
+   | ^^^^^^^^^^^^^ NAME17
+ 5 | Test Timeout    100
+ 6 | Test Tags       tag
+   |
+
+tasks_with_test_settings.robot:5:1 NAME17 Use task-related setting 'Task Timeout' if Tasks section is used
+   |
+ 3 | Test Teardown   Some Keyword
+ 4 | Test Template   Some Keyword
+ 5 | Test Timeout    100
+   | ^^^^^^^^^^^^ NAME17
+ 6 | Test Tags       tag
+ 7 | Documentation   some docs
+   |
+
+tasks_with_test_settings.robot:6:1 NAME17 Use task-related setting 'Task Tags' if Tasks section is used
+   |
+ 4 | Test Template   Some Keyword
+ 5 | Test Timeout    100
+ 6 | Test Tags       tag
+   | ^^^^^^^^^ NAME17
+ 7 | Documentation   some docs
+   |
+
+tests_with_task_settings.robot:2:1 NAME17 Use test-related setting 'Test Setup' if Test Cases section is used
+   |
+ 1 | *** Settings ***
+ 2 | Task Setup      Some Keyword
+   | ^^^^^^^^^^ NAME17
+ 3 | Task Teardown   Some Keyword
+ 4 | Task Template   Some Keyword
+   |
+
+tests_with_task_settings.robot:3:1 NAME17 Use test-related setting 'Test Teardown' if Test Cases section is used
+   |
+ 1 | *** Settings ***
+ 2 | Task Setup      Some Keyword
+ 3 | Task Teardown   Some Keyword
+   | ^^^^^^^^^^^^^ NAME17
+ 4 | Task Template   Some Keyword
+ 5 | Task Timeout    100
+   |
+
+tests_with_task_settings.robot:4:1 NAME17 Use test-related setting 'Test Template' if Test Cases section is used
+   |
+ 2 | Task Setup      Some Keyword
+ 3 | Task Teardown   Some Keyword
+ 4 | Task Template   Some Keyword
+   | ^^^^^^^^^^^^^ NAME17
+ 5 | Task Timeout    100
+ 6 | Task Tags       tag
+   |
+
+tests_with_task_settings.robot:5:1 NAME17 Use test-related setting 'Test Timeout' if Test Cases section is used
+   |
+ 3 | Task Teardown   Some Keyword
+ 4 | Task Template   Some Keyword
+ 5 | Task Timeout    100
+   | ^^^^^^^^^^^^ NAME17
+ 6 | Task Tags       tag
+ 7 | Documentation   some docs
+   |
+
+tests_with_task_settings.robot:6:1 NAME17 Use test-related setting 'Test Tags' if Test Cases section is used
+   |
+ 4 | Task Template   Some Keyword
+ 5 | Task Timeout    100
+ 6 | Task Tags       tag
+   | ^^^^^^^^^ NAME17
+ 7 | Documentation   some docs
+   |
+
+mixed_tasks.robot:3:1 NAME17 Use task-related setting 'Task Teardown' if Tasks section is used
+   |
+ 1 | *** Settings ***
+ 2 | Task Setup      Some Keyword
+ 3 | Test Teardown   Some Keyword
+   | ^^^^^^^^^^^^^ NAME17
+ 4 | Task Template   Some Keyword
+ 5 | Test Timeout    100
+   |
+
+mixed_tasks.robot:5:1 NAME17 Use task-related setting 'Task Timeout' if Tasks section is used
+   |
+ 3 | Test Teardown   Some Keyword
+ 4 | Task Template   Some Keyword
+ 5 | Test Timeout    100
+   | ^^^^^^^^^^^^ NAME17
+ 6 | Task Tags       tag
+ 7 | Documentation   some docs
+   |
+
+mixed_tests.robot:2:1 NAME17 Use test-related setting 'Test Setup' if Test Cases section is used
+   |
+ 1 | *** Settings ***
+ 2 | Task Setup      Some Keyword
+   | ^^^^^^^^^^ NAME17
+ 3 | Test Teardown   Some Keyword
+ 4 | Task Template   Some Keyword
+   |
+
+mixed_tests.robot:4:1 NAME17 Use test-related setting 'Test Template' if Test Cases section is used
+   |
+ 2 | Task Setup      Some Keyword
+ 3 | Test Teardown   Some Keyword
+ 4 | Task Template   Some Keyword
+   | ^^^^^^^^^^^^^ NAME17
+ 5 | Test Timeout    100
+ 6 | Task Tags       tag
+   |
+
+mixed_tests.robot:6:1 NAME17 Use test-related setting 'Test Tags' if Test Cases section is used
+   |
+ 4 | Task Template   Some Keyword
+ 5 | Test Timeout    100
+ 6 | Task Tags       tag
+   | ^^^^^^^^^ NAME17
+ 7 | Documentation   some docs
+   |
+

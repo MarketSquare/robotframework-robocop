@@ -7,6 +7,13 @@ class TestRuleAcceptance(RuleAcceptance):
             src_files=["test.robot", "templated_suite.robot", "run_keywords.robot"], expected_file="expected_output.txt"
         )
 
+    def test_extended(self):
+        self.check_rule(
+            src_files=["test.robot", "templated_suite.robot", "run_keywords.robot"],
+            expected_file="expected_extended.txt",
+            output_format="extended",
+        )
+
     def test_rule_pabot(self):
         self.check_rule(src_files=["pabot_run_keywords.robot"], expected_file="expected_output_pabot.txt")
 

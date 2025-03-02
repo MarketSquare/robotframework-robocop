@@ -136,7 +136,8 @@ class PrintIssuesReport(robocop.linter.reports.Report):
         start_line, end_line = diagnostic.range.start.line, diagnostic.range.end.line
         start_col, end_col = diagnostic.range.start.character, diagnostic.range.end.character
         self.console.print(
-            f"{source_rel_path}:{start_line}:{start_col} [red]{diagnostic.rule.rule_id}[/red] {diagnostic.message}"
+            f"{source_rel_path}:{start_line}:{start_col} "
+            f"[red]{diagnostic.rule.rule_id}[/red] {escape(diagnostic.message)}"
         )
         if diagnostic.rule.file_wide_rule or start_line > len(lines):
             return

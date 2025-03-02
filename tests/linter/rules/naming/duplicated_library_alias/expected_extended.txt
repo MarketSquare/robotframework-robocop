@@ -1,0 +1,37 @@
+test.robot:3:40 NAME13 Library alias is the same as original name
+   |
+ 1 | *** Settings ***
+ 2 | Resource     library.py
+ 3 | Library      Collections    WITH NAME  Collections
+   |                                        ^^^^^^^^^^^ NAME13
+ 4 | Library      Collections    AS  Collections
+ 5 | Library      other_library.py    WITH NAME  PrettyName
+   |
+
+test.robot:4:33 NAME13 Library alias is the same as original name
+   |
+ 2 | Resource     library.py
+ 3 | Library      Collections    WITH NAME  Collections
+ 4 | Library      Collections    AS  Collections
+   |                                 ^^^^^^^^^^^ NAME13
+ 5 | Library      other_library.py    WITH NAME  PrettyName
+ 6 | Library      WITH NAME
+   |
+
+test.robot:7:42 NAME13 Library alias is the same as original name
+   |
+ 5 | Library      other_library.py    WITH NAME  PrettyName
+ 6 | Library      WITH NAME
+ 7 | Library      Collections    WITH NAME    Coll ections
+   |                                          ^^^^^^^^^^^^ NAME13
+ 8 | Library      Collections    AS    Coll ections
+   |
+
+test.robot:8:35 NAME13 Library alias is the same as original name
+   |
+ 6 | Library      WITH NAME
+ 7 | Library      Collections    WITH NAME    Coll ections
+ 8 | Library      Collections    AS    Coll ections
+   |                                   ^^^^^^^^^^^^ NAME13
+   |
+

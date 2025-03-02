@@ -1,0 +1,7 @@
+test.robot:5:1 NAME07 Test case 'test not capitalized' title does not start with capital letter
+   |
+ 5 | test not capitalized
+   | ^^^^^^^^^^^^^^^^^^^^ NAME07
+ 6 |     Pass Execution
+   |
+

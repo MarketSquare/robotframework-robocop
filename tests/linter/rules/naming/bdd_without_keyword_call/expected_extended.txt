@@ -1,0 +1,232 @@
+test.robot:3:19 NAME14 BDD reserved keyword 'Given' not followed by any keyword
+   |
+ 1 | *** Settings ***
+ 2 | Suite Setup    Given Keyword
+ 3 | Suite Teardown    Given
+   |                   ^^^^^ NAME14
+   |
+
+test.robot:5:15 NAME14 BDD reserved keyword 'Given' not followed by any keyword
+   |
+ 5 | Test Setup    Given
+   |               ^^^^^ NAME14
+ 6 | Test Teardown    Then  Keyword With  ${args}
+   |
+
+test.robot:6:18 NAME14 BDD reserved keyword 'Then' not followed by any keyword. Use one space between: 'Then Keyword With'
+   |
+ 4 |
+ 5 | Test Setup    Given
+ 6 | Test Teardown    Then  Keyword With  ${args}
+   |                  ^^^^ NAME14
+   |
+
+test.robot:17:14 NAME14 BDD reserved keyword 'Given' not followed by any keyword
+    |
+ 15 |
+ 16 | Invalid Empty
+ 17 |     [Setup]  Given
+    |              ^^^^^ NAME14
+ 18 |     Given
+ 19 |     When
+    |
+
+test.robot:18:5 NAME14 BDD reserved keyword 'Given' not followed by any keyword
+    |
+ 16 | Invalid Empty
+ 17 |     [Setup]  Given
+ 18 |     Given
+    |     ^^^^^ NAME14
+ 19 |     When
+ 20 |     But
+    |
+
+test.robot:19:5 NAME14 BDD reserved keyword 'When' not followed by any keyword
+    |
+ 17 |     [Setup]  Given
+ 18 |     Given
+ 19 |     When
+    |     ^^^^ NAME14
+ 20 |     But
+ 21 |     IF  ${condtion}
+    |
+
+test.robot:20:5 NAME14 BDD reserved keyword 'But' not followed by any keyword
+    |
+ 18 |     Given
+ 19 |     When
+ 20 |     But
+    |     ^^^ NAME14
+ 21 |     IF  ${condtion}
+ 22 |         and
+    |
+
+test.robot:22:9 NAME14 BDD reserved keyword 'and' not followed by any keyword
+    |
+ 20 |     But
+ 21 |     IF  ${condtion}
+ 22 |         and
+    |         ^^^ NAME14
+ 23 |     END
+ 24 |     FOR  ${var}  IN RANGE  10
+    |
+
+test.robot:25:9 NAME14 BDD reserved keyword 'Then' not followed by any keyword
+    |
+ 23 |     END
+ 24 |     FOR  ${var}  IN RANGE  10
+ 25 |         Then
+    |         ^^^^ NAME14
+ 26 |     END
+ 27 |     [Teardown]  Then
+    |
+
+test.robot:27:17 NAME14 BDD reserved keyword 'Then' not followed by any keyword
+    |
+ 25 |         Then
+ 26 |     END
+ 27 |     [Teardown]  Then
+    |                 ^^^^ NAME14
+    |
+
+test.robot:30:5 NAME14 BDD reserved keyword 'Given' not followed by any keyword. Use one space between: 'Given login page is open'
+    |
+ 28 |
+ 29 | Invalid Separator
+ 30 |     Given  login page is open
+    |     ^^^^^ NAME14
+ 31 |     When  valid username and password are inserted
+ 32 |     and  credentials are submitted
+    |
+
+test.robot:31:5 NAME14 BDD reserved keyword 'When' not followed by any keyword. Use one space between: 'When valid username and password are inserted'
+    |
+ 29 | Invalid Separator
+ 30 |     Given  login page is open
+ 31 |     When  valid username and password are inserted
+    |     ^^^^ NAME14
+ 32 |     and  credentials are submitted
+ 33 |     But  still Authorized
+    |
+
+test.robot:32:5 NAME14 BDD reserved keyword 'and' not followed by any keyword. Use one space between: 'And credentials are submitted'
+    |
+ 30 |     Given  login page is open
+ 31 |     When  valid username and password are inserted
+ 32 |     and  credentials are submitted
+    |     ^^^ NAME14
+ 33 |     But  still Authorized
+ 34 |     Then  welcome page should be open
+    |
+
+test.robot:33:5 NAME14 BDD reserved keyword 'But' not followed by any keyword. Use one space between: 'But still Authorized'
+    |
+ 31 |     When  valid username and password are inserted
+ 32 |     and  credentials are submitted
+ 33 |     But  still Authorized
+    |     ^^^ NAME14
+ 34 |     Then  welcome page should be open
+    |
+
+test.robot:34:5 NAME14 BDD reserved keyword 'Then' not followed by any keyword. Use one space between: 'Then welcome page should be open'
+    |
+ 32 |     and  credentials are submitted
+ 33 |     But  still Authorized
+ 34 |     Then  welcome page should be open
+    |     ^^^^ NAME14
+    |
+
+test.robot:45:5 NAME14 BDD reserved keyword 'Given' not followed by any keyword
+    |
+ 43 |
+ 44 | Invalid Empty Keyword
+ 45 |     Given
+    |     ^^^^^ NAME14
+ 46 |     When
+ 47 |     and
+    |
+
+test.robot:46:5 NAME14 BDD reserved keyword 'When' not followed by any keyword
+    |
+ 44 | Invalid Empty Keyword
+ 45 |     Given
+ 46 |     When
+    |     ^^^^ NAME14
+ 47 |     and
+ 48 |     BuT
+    |
+
+test.robot:47:5 NAME14 BDD reserved keyword 'and' not followed by any keyword
+    |
+ 45 |     Given
+ 46 |     When
+ 47 |     and
+    |     ^^^ NAME14
+ 48 |     BuT
+ 49 |     Then
+    |
+
+test.robot:48:5 NAME14 BDD reserved keyword 'BuT' not followed by any keyword
+    |
+ 46 |     When
+ 47 |     and
+ 48 |     BuT
+    |     ^^^ NAME14
+ 49 |     Then
+    |
+
+test.robot:49:5 NAME14 BDD reserved keyword 'Then' not followed by any keyword
+    |
+ 47 |     and
+ 48 |     BuT
+ 49 |     Then
+    |     ^^^^ NAME14
+    |
+
+test.robot:52:5 NAME14 BDD reserved keyword 'Given' not followed by any keyword. Use one space between: 'Given ${variable}'
+    |
+ 50 |
+ 51 | Invalid Separator Keyword
+ 52 |     Given  ${variable}
+    |     ^^^^^ NAME14
+ 53 |     When  %valid username and password are inserted
+ 54 |     and  credentials are submitted
+    |
+
+test.robot:53:5 NAME14 BDD reserved keyword 'When' not followed by any keyword. Use one space between: 'When %valid username and password are inserted'
+    |
+ 51 | Invalid Separator Keyword
+ 52 |     Given  ${variable}
+ 53 |     When  %valid username and password are inserted
+    |     ^^^^ NAME14
+ 54 |     and  credentials are submitted
+ 55 |     But  still authorized
+    |
+
+test.robot:54:5 NAME14 BDD reserved keyword 'and' not followed by any keyword. Use one space between: 'And credentials are submitted'
+    |
+ 52 |     Given  ${variable}
+ 53 |     When  %valid username and password are inserted
+ 54 |     and  credentials are submitted
+    |     ^^^ NAME14
+ 55 |     But  still authorized
+ 56 |     Then  welcome page should be open
+    |
+
+test.robot:55:5 NAME14 BDD reserved keyword 'But' not followed by any keyword. Use one space between: 'But still authorized'
+    |
+ 53 |     When  %valid username and password are inserted
+ 54 |     and  credentials are submitted
+ 55 |     But  still authorized
+    |     ^^^ NAME14
+ 56 |     Then  welcome page should be open
+    |
+
+test.robot:56:5 NAME14 BDD reserved keyword 'Then' not followed by any keyword. Use one space between: 'Then welcome page should be open'
+    |
+ 54 |     and  credentials are submitted
+ 55 |     But  still authorized
+ 56 |     Then  welcome page should be open
+    |     ^^^^ NAME14
+    |
+

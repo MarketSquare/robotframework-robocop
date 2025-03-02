@@ -1,0 +1,149 @@
+if_blocks.robot:4:5 NAME03 'If' is a reserved keyword. It must be in uppercase (IF) when used as a statement
+   |
+ 2 | Test
+ 3 |     No Operation
+ 4 |     If  ${condition}    Keyword     END
+   |     ^^ NAME03
+ 5 |     IF    ${condition}    Keyword
+ 6 |     ELSE if    Keyword2
+   |
+
+if_blocks.robot:6:5 NAME03 'ELSE if' is a reserved keyword. It must be in uppercase (ELSE IF) when used as a statement
+   |
+ 4 |     If  ${condition}    Keyword     END
+ 5 |     IF    ${condition}    Keyword
+ 6 |     ELSE if    Keyword2
+   |     ^^^^^^^ NAME03
+ 7 |     ELse    Keyword3
+ 8 |     End
+   |
+
+if_blocks.robot:7:5 NAME03 'ELse' is a reserved keyword. It must be in uppercase (ELSE) when used as a statement
+   |
+ 5 |     IF    ${condition}    Keyword
+ 6 |     ELSE if    Keyword2
+ 7 |     ELse    Keyword3
+   |     ^^^^ NAME03
+ 8 |     End
+ 9 |     IF    ${condition}
+   |
+
+if_blocks.robot:8:5 NAME03 'End' is a reserved keyword. It must be in uppercase (END) when used as a statement
+   |
+ 6 |     ELSE if    Keyword2
+ 7 |     ELse    Keyword3
+ 8 |     End
+   |     ^^^ NAME03
+ 9 |     IF    ${condition}
+10 |         Keyword
+   |
+
+if_blocks.robot:24:9 NAME03 'End' is a reserved keyword. It must be in uppercase (END) when used as a statement
+    |
+ 22 |         FOR  ${i}  IN  @{list}
+ 23 |             Keyword
+ 24 |         End
+    |         ^^^ NAME03
+ 25 |     END
+    |
+
+templated_suite.robot:2:18 NAME03 'End' is a reserved keyword. It must be in uppercase (END) when used as a statement
+   |
+ 1 | *** Settings ***
+ 2 | Test Template    End
+   |                  ^^^ NAME03
+   |
+
+test.robot:15:19 NAME03 'End' is a reserved keyword. It must be in uppercase (END) when used as a statement
+    |
+ 13 |
+ 14 | Templated test
+ 15 |     [Template]    End
+    |                   ^^^ NAME03
+    |
+
+test.robot:24:5 NAME03 'For' is a reserved keyword. It must be in uppercase (FOR) when used as a statement
+    |
+ 22 |     Pass
+ 23 |     No Operation
+ 24 |     For
+    |     ^^^ NAME03
+ 25 |     End
+ 26 |     Fail
+    |
+
+test.robot:25:5 NAME03 'End' is a reserved keyword. It must be in uppercase (END) when used as a statement
+    |
+ 23 |     No Operation
+ 24 |     For
+ 25 |     End
+    |     ^^^ NAME03
+ 26 |     Fail
+ 27 |     Run Keyword If  ${True}  Keyword
+    |
+
+test.robot:30:9 NAME03 'Return' is a reserved keyword. It must be in uppercase (RETURN) when used as a statement
+    |
+ 28 |     ...  else  Keyword2
+ 29 |     IF    $condition
+ 30 |         Return
+    |         ^^^^^^ NAME03
+ 31 |     END
+ 32 |     RETURN
+    |
+
+test.robot:34:1 NAME03 'While' is a reserved keyword. It must be in uppercase (WHILE) when used as a statement
+    |
+ 34 | While
+    | ^ NAME03
+ 35 |     While
+ 36 |     Continue
+    |
+
+test.robot:35:5 NAME03 'While' is a reserved keyword. It must be in uppercase (WHILE) when used as a statement
+    |
+ 33 |
+ 34 | While
+ 35 |     While
+    |     ^^^^^ NAME03
+ 36 |     Continue
+ 37 |     Try
+    |
+
+test.robot:36:5 NAME03 'Continue' is a reserved keyword. It must be in uppercase (CONTINUE) when used as a statement
+    |
+ 34 | While
+ 35 |     While
+ 36 |     Continue
+    |     ^^^^^^^^ NAME03
+ 37 |     Try
+ 38 |     Except
+    |
+
+test.robot:37:5 NAME03 'Try' is a reserved keyword. It must be in uppercase (TRY) when used as a statement
+    |
+ 35 |     While
+ 36 |     Continue
+ 37 |     Try
+    |     ^^^ NAME03
+ 38 |     Except
+ 39 |     finally
+    |
+
+test.robot:38:5 NAME03 'Except' is a reserved keyword. It must be in uppercase (EXCEPT) when used as a statement
+    |
+ 36 |     Continue
+ 37 |     Try
+ 38 |     Except
+    |     ^^^^^^ NAME03
+ 39 |     finally
+    |
+
+test.robot:39:5 NAME03 'finally' is a reserved keyword. It must be in uppercase (FINALLY) when used as a statement
+    |
+ 37 |     Try
+ 38 |     Except
+ 39 |     finally
+    |     ^^^^^^^ NAME03
+    |
+

@@ -1,0 +1,8 @@
+test.robot:4:1 NAME11 Test case name is empty
+   |
+ 2 |
+ 3 | #  no test case name!!!
+ 4 |     Log To Console  hello
+   | ^ NAME11
+   |
+

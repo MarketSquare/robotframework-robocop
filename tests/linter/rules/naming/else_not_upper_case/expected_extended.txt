@@ -1,0 +1,20 @@
+test.robot:11:5 NAME09 ELSE and ELSE IF is not uppercase
+    |
+  9 |     IF    ${condition}
+ 10 |         Keyword
+ 11 |     ELse IF   ${condition}
+    |     ^^^^^^^ NAME09
+ 12 |         Keyword
+ 13 |     END
+    |
+
+test.robot:18:5 NAME09 ELSE and ELSE IF is not uppercase
+    |
+ 16 |     ELSE IF   ${condition}
+ 17 |         Keyword
+ 18 |     ElSE
+    |     ^^^^ NAME09
+ 19 |         Keyword
+ 20 |     END
+    |
+

@@ -1,0 +1,62 @@
+[tool.other_tool]
+flag = true
+
+[tool.robocop]
+include = [
+    "tests\\atest\\rules\\bad-indent",
+    "tests\\atest\\rules\\duplicated-library",
+]
+exclude = [
+    "ignore_me.robot",
+]
+
+[tool.robocop.lint]
+select = [
+    "LEN04",
+    "*doc*",
+]
+ignore = [
+    "DOC03",
+    "too-many-arguments",
+]
+reports = [
+    "rules_by_id",
+    "scan_timer",
+    "text_file",
+]
+issue_format = "{source}:{line}:{col} [{severity}] {rule_id} {desc} (name)1{source}"
+threshold = "E"
+persistent = true
+language = [
+    "pt",
+    "fi",
+]
+ext_rules = [
+    "path_to_external\\dir",
+]
+configure = [
+    "line-too-long.line_length=150",
+    "DOC01.severity=E",
+    "text_file.output_path=robocop.log",
+]
+
+[tool.robocop.format]
+diff = false
+overwrite = true
+verbose = false
+line_length = 120
+separator = "space"
+space_count = 4
+continuation_indent = 2
+line_separator = "native"
+configure = [
+    "OrderSettings.keyword_before=documentation,tags,timeout,arguments:keyword_after=return",
+    "OrderSettingsSection.group_order=documentation,imports,settings,tags",
+    "OrderSettingsSection.imports_order=library,resource,variables",
+    "AlignKeywordsSection.skip_return_values=False",
+]
+skip = [
+    "return_values",
+]
+
+[other_section]

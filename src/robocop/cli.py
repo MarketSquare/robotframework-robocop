@@ -13,6 +13,7 @@ from robocop.linter.reports import load_reports, print_reports
 from robocop.linter.rules import RuleFilter, RuleSeverity, filter_rules_by_category, filter_rules_by_pattern
 from robocop.linter.runner import RobocopLinter
 from robocop.linter.utils.misc import ROBOCOP_RULES_URL, compile_rule_pattern, get_plural_form  # TODO: move higher up
+from robocop.migrate_config import migrate_deprecated_configs
 
 
 class CliWithVersion(typer.core.TyperGroup):
@@ -559,6 +560,17 @@ def print_resource_documentation(name: Annotated[str, typer.Argument(help="Rule 
     else:
         console.print(f"There is no rule, formatter or a report with a '{name}' name.")
         raise typer.Exit(code=2)
+
+
+@app.command("migrate")
+def migrate_config(
+    config_path: Annotated[
+        Path, typer.Argument(help="Path to the configuration file to be migrated.", show_default=False)
+    ],
+) -> None:
+    """Migrate Robocop and Robotidy old configuration files to new format."""
+    # TODO: ask user to proceed, list warning with possible issues
+    migrate_deprecated_configs(config_path)
 
 
 def main() -> None:

@@ -175,7 +175,7 @@ class InconsistentAssignmentRule(Rule):
 
             .. code:: toml
 
-                [robocop.linter]
+                [robocop.lint]
                 configure = [
                     "inconsistent-assignment.assignment_sign_type=none"
                 ]

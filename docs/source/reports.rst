@@ -26,7 +26,7 @@ You can use multiple reports with separate arguments (``-r report1 -r report2``)
 
         .. code:: toml
 
-            [robocop.linter]
+            [robocop.lint]
             reports = [
                 "rules_by_id",
                 "some_other_report"
@@ -54,7 +54,7 @@ other reports, you can use the following configuration:
 
         .. code:: toml
 
-            [robocop.linter]
+            [robocop.lint]
             reports = [
                 "timestamp",
                 "all"
@@ -95,7 +95,7 @@ For example:
 
         .. code:: toml
 
-            [robocop.linter]
+            [robocop.lint]
             reports = [
                 "sarif"
             ]
@@ -151,7 +151,7 @@ Saving the results is disabled by default and can be enabled with ``--persistent
 
         .. code:: toml
 
-            [robocop.linter]
+            [robocop.lint]
             persistent = true
 
 Only the previous run for the current working directory is saved.
@@ -170,7 +170,7 @@ To used stored results to compare with current run, enable ``compare_runs`` repo
 
         .. code:: toml
 
-            [robocop.linter]
+            [robocop.lint]
             reports = [
                 "all",
                 "compare_runs"

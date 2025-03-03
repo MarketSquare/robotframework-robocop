@@ -43,8 +43,8 @@ class PrintIssuesReport(robocop.linter.reports.Report):
         self.name = "print_issues"
         self.description = "Collect and print rules messages"
         self.diagn_by_source: dict[str, list[Diagnostic]] = {}
-        self.output_format = OutputFormat.SIMPLE
-        self.console = Console(highlight=False)
+        self.output_format = OutputFormat.EXTENDED
+        self.console = Console(highlight=False, soft_wrap=True)
         super().__init__(config)
 
     def configure(self, name: str, value: str) -> None:

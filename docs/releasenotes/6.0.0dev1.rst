@@ -601,20 +601,24 @@ are usually best to use for rules and formatters configuration.
 Print Issues report
 --------------------
 
-Reporting linter issues is now handled by ``print_issues`` report. It's internal report, enabled by default.
+Reporting linter issues is now handled by ``print_issues`` report. It's an internal report, enabled by default.
 Thanks for this change it is easier to handle different types of outputs or even completely silence linter output.
 
-# TODO add examples & more docs after implementing all new types of output or silent mode
+There are 3 different output formats supported by ``print_issues``:
 
-Grouped output format
----------------------
+- extended, new default. It prints source code alongside the issue::
 
-New optional output format: ``grouped``. Issues are grouped and printed separately for each source file.
-It can be enabled by configuring ``print_issues`` report::
+    test.robot:10:10 ARG03 Undefined argument default, use ${baz}=${EMPTY} instead
+        |
+      8 |     ...  ${foo}
+      9 |     ...  ${bar}=123
+     10 |     ...  ${baz}=
+        |          ^^^^^^^ ARG03
+     11 |     ...  ${lorum}=${ipsum}
+     12 |     No Operation
+        |
 
-    robocop check --configure print_issues.output_format=grouped
-
-Example output::
+- grouped. It groups issues for each source file::
 
     tests\linter\rules\tags\unnecessary_default_tags\test.robot:
       3:1 0607 Tags defined in Default Tags are always overwritten (unnecessary-default-tags)
@@ -622,6 +626,15 @@ Example output::
 
     tests\linter\rules\tags\tag_already_set_in_test_tags\keyword_tag.robot:
       3:1 0319 'Force Tags' is deprecated since Robot Framework version 6.0, use 'Test Tags' instead (deprecated-statement)
+
+- simple, previous default. It print issue location and message in one line::
+
+    test.robot:3:30 [E] ARG03 Undefined argument default, use ${bar}=${EMPTY} instead
+    test.robot:10:10 [E] ARG03 Undefined argument default, use ${baz}=${EMPTY} instead
+
+You can change output format by configuring ``print_issues`` report::
+
+    robocop check --configure print_issues.output_format=grouped
 
 Shell autocompletion
 ---------------------

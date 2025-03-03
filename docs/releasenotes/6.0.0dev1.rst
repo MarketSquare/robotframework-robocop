@@ -57,15 +57,15 @@ File inclusion changes:
 Previously, Robocop used ``paths`` argument and Robotidy ``src`` for selecting paths. It was then additionally
 configured using options for filtering based on directory names or file types.
 
-Now it is not possible to use ``paths / src`` in the configuration file. Paths can be configured only via cli,
-and then additionally filtered using new options listed below. The reason behind is that users always selected
-paths from the cli (``robocop src.robot`` or ``robotidy .``) and those arguments were overwritten anyway.
-Default path is ``.`` (current directory) and can be omitted (``robocop check`` / ``robocop format`` will start
-from the current directory).
+Now the role of ``paths`` was taken by ``include`` and ``--default--include`` (``*.robot`` and ``.resource``) options.
+It is recommended to use cli for selecting directory and leave it to robocop to find and filter out files.
+If nothing is configured (we only run ``robocop check`` / ``robocop format``) then it will start from the current
+directory. List of new or deprecated options:
 
+- ``paths`` became ``--include``
+- ``-ft/--filetypes`` is now deprecated in favour of using ``--include`` or ``--default-include`` option
 - ``-g/--ignore`` became ``-e/--exclude`` (additionally excluded paths)
 - ``-gd/--ignore-default`` became ``--default-exclude`` (paths excluded by default)
-- ``-ft/--filetypes`` is now deprecated in favour of using ``--include`` or ``--default-include`` option
 
 More on how to configure file paths in the X section in the documentation. # TODO
 
@@ -101,6 +101,7 @@ Issue format ``--format`` is now renamed to ``--issue-format``.
 Formatting options from Robotidy:
 
 - ``--lineseparator`` became ``--line-ending``
+- ``--spacecount`` became ``--space-count``
 - ``-sl/--startline`` became ``--start-line``
 - ``-el/--endline`` became ``--end-line``
 
@@ -373,8 +374,6 @@ id while ``01`` was unique rule number. This naming scheme wasn't clear and made
 glance. That's why we have switched to alphanumeric group names (for example ``DOC`` instead of ``02``).
 Various groups are also additionally split into smaller sub-groups. This change leads to backward incompatible
 changes to all rule ids.
-
-# TODO: LEN
 
 Documentation rules are now grouped under 'DOC' group:
 

@@ -18,7 +18,7 @@ It accepts comma-separated list of paths to files, directories or name of the Py
 
         .. code:: toml
 
-            [robocop.linter]
+            [robocop.lint]
             ext_rules = [
                 "my/own/rule.py",
                 "external_rules.py"
@@ -181,7 +181,7 @@ Configurable parameter can be referred by its ``name`` in command line options:
 
         .. code:: toml
 
-            [robocop.linter]
+            [robocop.lint]
             ext_rules = [
                 "my/own/rule.py"
             ]

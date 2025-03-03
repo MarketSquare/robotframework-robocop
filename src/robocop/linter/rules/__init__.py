@@ -81,7 +81,7 @@ class RuleSeverity(Enum):
 
             .. code:: toml
 
-                [robocop.linter]
+                [robocop.lint]
                 configure = [
                     "line-too-long.severity=e"
                 ]
@@ -106,7 +106,7 @@ class RuleSeverity(Enum):
 
             .. code:: toml
 
-                [robocop.linter]
+                [robocop.lint]
                 threshold = "W"
 
     """

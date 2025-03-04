@@ -439,7 +439,7 @@ class ParsingErrorChecker(VisitorChecker):
                 end_col=token.end_col_offset + 1,
             )
         else:
-            suite_sett_cand = setting_error.replace(" ", "").lower()
+            suite_sett_cand = node.data_tokens[0].value.replace(" ", "").lower()
             for setting in self.suite_settings:
                 if suite_sett_cand.startswith(setting):
                     if setting_error[0].strip():  # filter out "suite-setting-should-be-left-aligned"

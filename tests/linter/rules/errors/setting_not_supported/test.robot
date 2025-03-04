@@ -16,3 +16,5 @@ Force Tags  tag
     [Invalid]    arg
     [Setup]    ${arg}
     [Template]    Keyword
+    [Metadata]    Not valid.
+    [Doc Umentation]

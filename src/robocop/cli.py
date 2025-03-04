@@ -168,9 +168,9 @@ def check_files(
         str, typer.Option("--issue-format", show_default=config.DEFAULT_ISSUE_FORMAT, rich_help_panel="Other")
     ] = None,
     language: language_option = None,
-    ext_rules: Annotated[
+    custom_rules: Annotated[
         list[str],
-        typer.Option("--ext-rules", help="Load custom rules", show_default=False, rich_help_panel="Selecting rules"),
+        typer.Option("--custom-rules", help="Load custom rules", show_default=False, rich_help_panel="Selecting rules"),
     ] = None,
     ignore_git_dir: Annotated[
         bool,
@@ -213,7 +213,7 @@ def check_files(
         ignore=ignore,
         issue_format=issue_format,
         threshold=threshold,
-        ext_rules=ext_rules,
+        custom_rules=custom_rules,
         reports=reports,
         persistent=persistent,
         compare=compare,

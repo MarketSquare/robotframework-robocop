@@ -274,8 +274,8 @@ def migrate_deprecated_configs(config_path: Path) -> None:
             "persistent": "persistent",
             "language": "language",
             "ignore_git_dir": "ignore_git_dir",
-            "ext_rules": "ext_rules",
-            "rules": "ext_rules",
+            "ext_rules": "custom_rules",
+            "rules": "custom_rules",
             "configure": ("configure", convert_robocop_configure),
         },
     )

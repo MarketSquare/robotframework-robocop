@@ -247,12 +247,10 @@ FAQ
 <details>
   <summary>Can I define custom rules?</summary>
 
-  # TODO refactor to update with new option names etc
-  **Yes**, you can define and include custom rules using `-rules / --ext-rules` command line option
-  by providing a path to a file containing your rule(s). The option accepts comma-separated list
-  of paths to files or directories, e.g.
+  **Yes**, you can define and include custom rules using `--custom-rules` command line option
+  by providing a path to a file containing your rule(s):
   ```
-  robocop -rules my/own/rule.py --ext-rules rules.py,external_rules.py
+  robocop --custom-rules my/own/rule.py --custom-rules rules.py,external_rules.py
   ```
 
   If you feel that your rule is very helpful and should be included in Robocop permanently,

@@ -50,7 +50,7 @@ def overwrite_config() -> Config:
         ignore=None,
         issue_format=None,
         threshold=None,
-        ext_rules=None,
+        custom_rules=None,
         reports=None,
         persistent=None,
         compare=None,
@@ -112,7 +112,7 @@ class TestConfigFinder:
         config.linter.reports = ["all", "sarif"]
         config.linter.issue_format = "{source_abs}:{line}:{col} [{severity}] {rule_id} {desc} ({name})"
         config.language = ["eng", "pl"]
-        config.linter.ext_rules = ["CustomRules.py"]
+        config.linter.custom_rules = ["CustomRules.py"]
         config.linter.persistent = True
         config.linter.compare = True
         config.linter.exit_zero = True

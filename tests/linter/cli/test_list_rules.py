@@ -7,7 +7,7 @@ from robocop.cli import list_rules
 from robocop.linter.rules import Rule, RuleFilter, RuleSeverity, VisitorChecker
 from robocop.linter.utils.misc import ROBOT_VERSION
 
-TEST_DATA = Path(__file__).parent.parent / "test_data" / "ext_rules"
+TEST_DATA = Path(__file__).parent.parent / "test_data" / "custom_rules"
 
 
 # @pytest.fixture
@@ -400,8 +400,8 @@ class TestListingRules:
     #     )
     #     assert all(msg in out for msg in exp_msg)
 
-    # def test_list_ext_rules_disabled_by_default(self, empty_linter, capsys):  # TODO
-    #     empty_linter.config.ext_rules = {
+    # def test_list_custom_rules_disabled_by_default(self, empty_linter, capsys):  # TODO
+    #     empty_linter.config.custom_rules = {
     #         str(TEST_DATA / "disabled_by_default" / "external_rule.py"),
     #         str(TEST_DATA / "disabled_by_default" / "external_rule2.py"),
     #     }
@@ -415,8 +415,8 @@ class TestListingRules:
     #     )
     #     assert all(msg in out for msg in exp_msg)
 
-    # def test_list_ext_rules_disabled_by_default_enable(self, empty_linter, capsys):  # TODO
-    #     empty_linter.config.ext_rules = {
+    # def test_list_custom_rules_disabled_by_default_enable(self, empty_linter, capsys):  # TODO
+    #     empty_linter.config.custom_rules = {
     #         str(TEST_DATA / "disabled_by_default" / "external_rule.py"),
     #         str(TEST_DATA / "disabled_by_default" / "external_rule2.py"),
     #     }

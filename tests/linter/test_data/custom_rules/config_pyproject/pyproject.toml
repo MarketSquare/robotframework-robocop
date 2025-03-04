@@ -1,0 +1,2 @@
+[tool.robocop.lint]
+custom_rules = ["RobocopRules"]

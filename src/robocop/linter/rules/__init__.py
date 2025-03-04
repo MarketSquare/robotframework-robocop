@@ -787,7 +787,7 @@ class RobocopImporter:
 
 
 def init(config: LinterConfig) -> None:
-    robocop_importer = RobocopImporter(external_rules_paths=config.ext_rules)
+    robocop_importer = RobocopImporter(external_rules_paths=config.custom_rules)
     for checker in robocop_importer.get_initialized_checkers():
         config.register_checker(checker)
     # linter.rules.update(robocop_importer.deprecated_rules)

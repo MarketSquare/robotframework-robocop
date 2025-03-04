@@ -22,3 +22,6 @@ Keyword
     Pass
     No Operation
     Fail
+
+Keyword With Invalid Documentation
+    [Doc Umentation]

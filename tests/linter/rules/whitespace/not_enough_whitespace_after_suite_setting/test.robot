@@ -19,3 +19,7 @@ Testtimeout 1min
 Documentation this is doc
 
 Metadata key value
+
+*** Keywords ***
+Keyword With Invalid Setting
+    [Doc Umentation]

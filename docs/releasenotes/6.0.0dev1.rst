@@ -668,3 +668,12 @@ Following code will now report invalid ``[Metadata]`` setting use::
         [Invalid]    reported before
         [Metadata]    not reported
         Keyword
+
+Not enough whitespace error is reported instead of invalid setting (#1286)
+--------------------------------------------------------------------------
+
+Following code will now report ``invalid-setting`` instead off ``not-enough-whitespace-after-suite-setting``::
+
+    *** Test Cases ***
+    Keyword
+        [Doc Umentation]

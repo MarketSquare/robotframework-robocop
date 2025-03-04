@@ -28,3 +28,11 @@ test.robot:17:5 ERR08 Non-existing setting 'Invalid'
  19 |     [Template]    Keyword
     |
 
+test.robot:20:5 ERR08 Non-existing setting 'Doc Umentation'. Did you mean: Documentation
+    |
+ 18 |     [Setup]    ${arg}
+ 19 |     [Template]    Keyword
+ 20 |     [Doc Umentation]
+    |     ^^^^^^^^^^^^^^^^ ERR08
+    |
+

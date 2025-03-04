@@ -155,7 +155,7 @@ class LinterConfig:
     ignore: list[str] | None = field(default_factory=list)
     issue_format: str | None = DEFAULT_ISSUE_FORMAT
     threshold: RuleSeverity | None = RuleSeverity.INFO
-    ext_rules: list[str] | None = field(default_factory=list)
+    custom_rules: list[str] | None = field(default_factory=list)
     include_rules: set[str] | None = field(default_factory=set, compare=False)
     exclude_rules: set[str] | None = field(default_factory=set, compare=False)
     include_rules_patterns: set[re.Pattern] | None = field(default_factory=set, compare=False)

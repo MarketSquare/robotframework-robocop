@@ -106,7 +106,7 @@ Formatting options from Robotidy:
 - ``-el/--endline`` became ``--end-line``
 
 
-``-rules / --ext-rules`` can be now only used under ``--ext-rules`` name.
+``-rules / --ext-rules`` can be now only used under ``--custom-rules`` name.
 
 ``--load-transformers / --custom-transformers`` is now renamed to ``--custom-formatters``.
 

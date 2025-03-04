@@ -1,9 +1,9 @@
 .. _external-rules:
 
-External rules
-========================
+Custom rules
+=============
 
-You can include your own custom rules with ``--ext-rules`` arguments.
+You can include your own custom rules with ``--custom-rules`` arguments.
 It accepts comma-separated list of paths to files, directories or name of the Python module. Example:
 
 .. tab-set::
@@ -12,14 +12,14 @@ It accepts comma-separated list of paths to files, directories or name of the Py
 
         .. code:: shell
 
-            robocop check ext-rules my/own/rule.py --ext-rules external_rules.py
+            robocop check --custom-rules my/own/rule.py --custom-rules custom_rules.py
 
     .. tab-item:: Configuration file
 
         .. code:: toml
 
             [robocop.lint]
-            ext_rules = [
+            custom_rules = [
                 "my/own/rule.py",
                 "external_rules.py"
             ]
@@ -175,14 +175,14 @@ Configurable parameter can be referred by its ``name`` in command line options:
 
         .. code:: shell
 
-            robocop check --ext-rules my/own/rule.py --configure example-in-name.param_name=AnotherExample
+            robocop check --custom-rules my/own/rule.py --configure example-in-name.param_name=AnotherExample
 
     .. tab-item:: Configuration file
 
         .. code:: toml
 
             [robocop.lint]
-            ext_rules = [
+            custom_rules = [
                 "my/own/rule.py"
             ]
             configure = [

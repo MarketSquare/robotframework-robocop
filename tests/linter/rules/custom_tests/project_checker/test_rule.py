@@ -14,5 +14,5 @@ class TestRuleAcceptance(RuleAcceptance):
             src_files=["."],
             expected_file="expected_output.txt",
             include=["project-checker", "test-total-count"],
-            ext_rules=[f"{CUR_DIR}/external_project_checker"],
+            custom_rules=[f"{CUR_DIR}/external_project_checker"],
         )

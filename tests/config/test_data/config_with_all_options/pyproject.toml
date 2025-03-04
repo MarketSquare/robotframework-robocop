@@ -19,7 +19,7 @@ ignore = [
 threshold = "W"
 reports = ["all", "sarif"]
 issue_format = "{source_abs}:{line}:{col} [{severity}] {rule_id} {desc} ({name})"
-ext_rules = [
+custom_rules = [
     "CustomRules.py"
 ]
 persistent = true

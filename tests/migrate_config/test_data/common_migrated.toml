@@ -31,7 +31,7 @@ language = [
     "pt",
     "fi",
 ]
-ext_rules = [
+custom_rules = [
     "path_to_external\\dir",
 ]
 configure = [

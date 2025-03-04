@@ -148,6 +148,23 @@ def validate_target_version(value: str | None) -> int | None:
     return target_version
 
 
+def resolve_relative_path(orig_path: str, config_dir: Path, ensure_exists: bool) -> str:
+    """
+    Resolve a given path relative to a configuration directory.
+
+    If the path is absolute, it is returned as-is. If the path is relative, it is resolved
+    relative to `config_dir`. Optionally, the method can ensure the resolved path exists
+    before returning it.
+    """
+    path = Path(orig_path)
+    if path.is_absolute():
+        return orig_path
+    resolved_path = config_dir / path
+    if not ensure_exists or resolved_path.exists():
+        return str(resolved_path)
+    return orig_path
+
+
 @dataclass
 class LinterConfig:
     configure: list[str] | None = field(default_factory=list)
@@ -264,12 +281,16 @@ class LinterConfig:
     #                 print(rule_def.deprecation_warning)
 
     @classmethod
-    def from_toml(cls, config: dict) -> LinterConfig:
+    def from_toml(cls, config: dict, config_parent: Path) -> LinterConfig:
         config_fields = {config_field.name for config_field in fields(cls) if config_field.compare}
         # TODO assert type (list vs list etc)
         override = {param: value for param, value in config.items() if param in config_fields}
         if "threshold" in config:
             override["threshold"] = parse_rule_severity(config["threshold"])
+        if "custom_rules" in config:
+            override["custom_rules"] = [
+                resolve_relative_path(path, config_parent, ensure_exists=True) for path in config["custom_rules"]
+            ]
         return cls(**override)
 
 
@@ -297,7 +318,7 @@ class FormatterConfig:
     _formatters: dict[str, ...] | None = field(default=None, compare=False)
 
     @classmethod
-    def from_toml(cls, config: dict) -> FormatterConfig:
+    def from_toml(cls, config: dict, config_parent: Path) -> FormatterConfig:
         config_fields = {config_field.name for config_field in fields(cls) if config_field.compare}
         # TODO assert type (list vs list etc)
         override = {param: value for param, value in config.items() if param in config_fields}
@@ -305,6 +326,10 @@ class FormatterConfig:
             override["target_version"] = validate_target_version(config["target_version"])
         override["whitespace_config"] = WhitespaceConfig.from_toml(config)
         override["skip_config"] = SkipConfig.from_toml(config)
+        if "custom_formatters" in override:
+            override["custom_formatters"] = [
+                resolve_relative_path(path, config_parent, ensure_exists=True) for path in config["custom_formatters"]
+            ]
         return cls(**override)
 
     @property
@@ -451,11 +476,11 @@ class Config:
         """
         # TODO: validate all key and types
         parsed_config = {"config_source": str(config_path)}
-        parsed_config["linter"] = LinterConfig.from_toml(config.pop("lint", {}))
+        parsed_config["linter"] = LinterConfig.from_toml(config.pop("lint", {}), config_path.parent)
         parsed_config["file_filters"] = FileFiltersOptions.from_toml(config)
         parsed_config["language"] = config.pop("language", [])
         parsed_config["verbose"] = config.pop("verbose", False)
-        parsed_config["formatter"] = FormatterConfig.from_toml(config.pop("format", {}))
+        parsed_config["formatter"] = FormatterConfig.from_toml(config.pop("format", {}), config_path.parent)
         parsed_config = {key: value for key, value in parsed_config.items() if value is not None}
         return cls(**parsed_config)
 

@@ -1,0 +1,5 @@
+[tool.robocop.lint]
+custom_rules = ["custom_rules/CustomRules.py"]
+
+[tool.robocop.format]
+custom_formatters = ["custom_formatters/"]

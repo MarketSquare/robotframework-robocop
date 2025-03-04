@@ -275,3 +275,17 @@ class TestConfigFinder:
 
         # Assert
         assert actual_results == expected_results
+
+    def test_relative_paths_from_config_option(self, test_data):
+        """Relative paths in --config configuration file should be resolved."""
+        config_path = test_data / "relative_paths" / "pyproject.toml"
+        relative_parent = config_path.parent
+        config_manager = ConfigManager(config=config_path)
+        assert (
+            Path(config_manager.default_config.linter.custom_rules[0]).resolve()
+            == (relative_parent / "custom_rules/CustomRules.py").resolve()
+        )
+        assert (
+            Path(config_manager.default_config.formatter.custom_formatters[0]).resolve()
+            == (relative_parent / "custom_formatters").resolve()
+        )

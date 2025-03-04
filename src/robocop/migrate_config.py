@@ -241,6 +241,23 @@ def copy_keys(src_dict: dict, keys: dict[str, str | tuple[str, Callable]]) -> di
     return dst_dict
 
 
+def split_config_from_select(select: list[str], configure: list[str]) -> tuple[list[str], list[str]]:
+    new_select = []
+    for formatter in select:
+        if ":" not in formatter:
+            new_select.append(formatter)
+        else:
+            try:
+                name, param_and_value = formatter.split(":", maxsplit=1)
+                name = RENAMED_RULES.get(name, name)
+                param, value = param_and_value.split("=", maxsplit=1)
+                new_select.append(name)
+                configure.append(f"{name.strip()}.{param.strip()}={value.strip()}")
+            except ValueError:
+                continue
+    return new_select, configure
+
+
 def migrate_deprecated_configs(config_path: Path) -> None:
     # TODO: Warn that file should have [tool.robocop] and [tool.robotidy] sections
     config = load_toml_file(config_path)
@@ -289,11 +306,14 @@ def migrate_deprecated_configs(config_path: Path) -> None:
         else:
             migrated["lint"]["configure"] = [f"text_file.output_path={robocop_config['output']}"]
     migrated["format"] = copy_keys(
-        robotidy_config,
+        robotidy_config,  # load-transformers / --custom-transformers
         {
+            "transform": "select",
             "diff": "diff",
             "overwrite": "overwrite",
             "verbose": "verbose",
+            "load_transformers": "custom_formatters",
+            "custom_transformers": "custom_formatters",
             "line_length": "line_length",
             "separator": "separator",
             "spacecount": "space_count",
@@ -305,6 +325,10 @@ def migrate_deprecated_configs(config_path: Path) -> None:
             "configure": ("configure", convert_robotidy_configure),
         },
     )
+    if "select" in migrated["format"]:
+        migrated["format"]["select"], migrated["format"]["configure"] = split_config_from_select(
+            migrated["format"]["select"], migrated["format"].get("configure", [])
+        )
     if skips := convert_skips(robotidy_config):
         migrated["format"]["skip"] = skips
     if not migrated["lint"]:

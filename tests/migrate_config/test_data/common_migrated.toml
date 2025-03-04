@@ -41,6 +41,10 @@ configure = [
 ]
 
 [tool.robocop.format]
+select = [
+    "AlignKeywordsSection",
+    "SplitTooLongLine",
+]
 diff = false
 overwrite = true
 verbose = false
@@ -54,6 +58,7 @@ configure = [
     "OrderSettingsSection.group_order=documentation,imports,settings,tags",
     "OrderSettingsSection.imports_order=library,resource,variables",
     "AlignKeywordsSection.skip_return_values=False",
+    "SplitTooLongLine.split_on_every_arg=False",
 ]
 skip = [
     "return_values",

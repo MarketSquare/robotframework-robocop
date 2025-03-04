@@ -34,6 +34,7 @@ language = [
 
 # comment that will be discarded
 [tool.robotidy]
+transform = ["AlignKeywordsSection", "SplitTooLongLine:split_on_every_arg=False"]
 skip_return_values = true
 skip_tags = false
 diff = false

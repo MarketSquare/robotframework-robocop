@@ -208,8 +208,8 @@ Documentation describes with examples where particular options should be configu
 Formatter ``--target-version`` can now only accept numbers. Previous configuration such as ``--target-version RF5``
 should be now ``--target-version 5``.
 
-Issue source is now relative by default (#38)
----------------------------------------------
+Issue source is now relative by default
+---------------------------------------
 
 Relative path to source is now used by default when printing the linter issues.
 
@@ -226,8 +226,8 @@ absolute paths in output by configuring issue format to ``source_abs``::
 
     robocop check --issue-format "{source_abs}:{line}:{col} [{severity}] {rule_id} {desc} ({name})"
 
-Replaced --output option with text_file report (#16)
-----------------------------------------------------
+Replaced --output option with text_file report
+----------------------------------------------
 
 As part of the improved and safer design, linter option ``--output`` is now deprecated.
 
@@ -333,8 +333,8 @@ enough to set them as non-default rules.
 For that reason we are deprecating term 'community' rules and all options related to it, such as filtering list of
 rules by community rules.
 
-Rule severity is now separate from the rule id (#19)
-----------------------------------------------------
+Rule severity is now separate from the rule id
+----------------------------------------------
 
 Robocop previously allowed to select / ignore / configure rules using rule id with rule severity. For example::
 
@@ -347,8 +347,8 @@ severity or rule name instead::
 
     robocop check --select DOC01 --select missing-doc-test-case
 
-Rules changes (#30)
--------------------
+Rules changes
+-------------
 
 We have reviewed all the rules to improve rule ids, names, documentation, messages and overall design.
 It would be too much to list of all the changes, but we will list all changes that have impact on the users.
@@ -658,3 +658,13 @@ Example of code that is now properly handled::
         IF
         END
 
+
+Not all settings used in invalid scope are reported (#1284)
+-----------------------------------------------------------
+
+Following code will now report invalid ``[Metadata]`` setting use::
+
+    *** Keywords ***
+        [Invalid]    reported before
+        [Metadata]    not reported
+        Keyword

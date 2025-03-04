@@ -390,26 +390,23 @@ class ParsingErrorChecker(VisitorChecker):
         if not setting_error:
             return
         token = node.data_tokens[0]
-        if setting_error in self.keyword_only_settings:
-            self.report(
-                self.setting_not_suported,
-                setting_name=setting_error,
-                test_or_keyword="Test Case",  # TODO: Recognize if it is inside Task
-                allowed_settings=", ".join(self.test_case_settings),
-                node=node,
-                col=token.col_offset + 1,
-                end_col=token.end_col_offset + 1,
-            )
-        elif setting_error in self.test_case_only_settings:
-            self.report(
-                self.setting_not_suported,
-                setting_name=setting_error,
-                test_or_keyword="Keyword",
-                allowed_settings=", ".join(self.keyword_settings),
-                node=node,
-                col=token.col_offset + 1,
-                end_col=token.end_col_offset + 1,
-            )
+        if "with tests" in error:
+            node_name = "Test Case or Task"
+            allowed_settings = ", ".join(self.test_case_settings)
+        elif "keywords" in error:
+            node_name = "Keyword"
+            allowed_settings = ", ".join(self.keyword_settings)
+        else:
+            return
+        self.report(
+            self.setting_not_suported,
+            setting_name=setting_error,
+            test_or_keyword=node_name,
+            allowed_settings=allowed_settings,
+            node=node,
+            col=token.col_offset + 1,
+            end_col=token.end_col_offset + 1,
+        )
 
     def handle_invalid_setting(self, node, error) -> None:
         setting_error = re.search("Non-existing setting '(.*)'.", error)

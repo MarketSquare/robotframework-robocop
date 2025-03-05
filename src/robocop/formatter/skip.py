@@ -43,6 +43,10 @@ class SkipConfig:
     keyword_call: set[str] | None = field(default_factory=set)
     keyword_call_pattern: set[str] | None = field(default_factory=set)
 
+    @property
+    def config_fields(self) -> set[str]:
+        return {"skip", "skip_sections", "skip_keyword_call", "skip_keyword_call_pattern"}
+
     @classmethod
     def from_toml(cls, config: dict) -> SkipConfig:
         override = {

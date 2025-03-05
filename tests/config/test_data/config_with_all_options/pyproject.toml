@@ -4,9 +4,9 @@ default_exclude = ["archived/"]
 include = ["custom.txt"]
 default_include = ["*.robot"]
 language = ["eng", "pl"]
-config = "other_config.toml"  # ignored, --config can be only passed via cli move up TODO
-ignore_git_dir = true  # ignored, only from cli
-skip_gitignore = true  # ignored, only from cli, but may change in the future
+# config = "other_config.toml"  # ignored, --config can be only passed via cli
+# ignore_git_dir = true  # ignored, only from cli
+# skip_gitignore = true  # ignored, only from cli, but may change in the future
 
 [tool.robocop.lint]
 select = [

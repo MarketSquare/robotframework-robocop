@@ -9,6 +9,11 @@ include = [
 exclude = [
     "ignore_me.robot",
 ]
+language = [
+    "pt",
+    "fi",
+]
+verbose = false
 
 [tool.robocop.lint]
 select = [
@@ -27,10 +32,6 @@ reports = [
 issue_format = "{source}:{line}:{col} [{severity}] {rule_id} {desc} (name)1{source}"
 threshold = "E"
 persistent = true
-language = [
-    "pt",
-    "fi",
-]
 custom_rules = [
     "path_to_external\\dir",
 ]
@@ -47,7 +48,6 @@ select = [
 ]
 diff = false
 overwrite = true
-verbose = false
 line_length = 120
 separator = "space"
 space_count = 4

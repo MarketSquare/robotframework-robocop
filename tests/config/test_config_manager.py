@@ -3,6 +3,7 @@ import os
 from pathlib import Path
 
 import pytest
+import typer
 
 from robocop import files
 from robocop.config import Config, ConfigManager, FileFiltersOptions, FormatterConfig, LinterConfig
@@ -58,7 +59,7 @@ def overwrite_config() -> Config:
     )
     formatter = FormatterConfig(
         overwrite=None,
-        show_diff=None,
+        diff=None,
         color=None,
         check=None,
         reruns=None,
@@ -289,3 +290,24 @@ class TestConfigFinder:
             Path(config_manager.default_config.formatter.custom_formatters[0]).resolve()
             == (relative_parent / "custom_formatters").resolve()
         )
+
+    def test_fail_on_deprecated_config_options(self, test_data, capsys):
+        """Unknown or deprecated options in configuration file should raise an error."""
+        config_path = test_data / "old_config" / "pyproject.toml"
+        configuration = files.read_toml_config(config_path)
+        with pytest.raises(typer.Exit):
+            Config.from_toml(configuration, config_path)
+        out, _ = capsys.readouterr()
+        assert (
+            f"Configuration file seems to use Robocop < 6.0.0 or Robotidy syntax. "
+            f"Please migrate the config: {config_path}" in out
+        )
+
+    def test_fail_on_unknown_config_options(self, test_data, capsys):
+        """Unknown or deprecated options in configuration file should raise an error."""
+        config_path = test_data / "invalid_config" / "pyproject.toml"
+        configuration = files.read_toml_config(config_path)
+        with pytest.raises(typer.Exit):
+            Config.from_toml(configuration, config_path)
+        out, _ = capsys.readouterr()
+        assert f"Unknown configuration key: 'unknown' in {config_path}" in out

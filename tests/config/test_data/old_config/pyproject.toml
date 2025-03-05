@@ -31,7 +31,6 @@ language = [
     "pt",
     "fi"
 ]
-verbose = false
 
 # comment that will be discarded
 [tool.robotidy]
@@ -40,6 +39,7 @@ skip_return_values = true
 skip_tags = false
 diff = false
 overwrite = true
+verbose = false
 separator = "space"
 spacecount = 4
 continuation_indent = 2

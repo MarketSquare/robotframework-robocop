@@ -10,8 +10,8 @@ try:
     from robot.api import Languages  # RF 6.0
 except ImportError:
     Languages = None
-import click
 import pathspec
+import typer
 from typing_extensions import Self
 
 from robocop import errors, files
@@ -22,7 +22,7 @@ from robocop.linter import exceptions, rules
 from robocop.linter.rules import BaseChecker, RuleSeverity
 from robocop.linter.utils.misc import compile_rule_pattern
 
-CONFIG_NAMES = frozenset(("robotidy.toml", "pyproject.toml"))
+CONFIG_NAMES = frozenset(("robocop.toml", "pyproject.toml", "robot.toml"))
 DEFAULT_INCLUDE = frozenset(("*.robot", "*.resource"))
 DEFAULT_EXCLUDE = frozenset((".direnv", ".eggs", ".git", ".svn", ".hg", ".nox", ".tox", ".venv", "venv", "dist"))
 
@@ -90,8 +90,7 @@ class WhitespaceConfig(ConfigContainer):
 
     @classmethod
     def from_toml(cls, config: dict) -> WhitespaceConfig:
-        config_fields = {config_field.name for config_field in fields(cls) if config_field.compare}
-        # TODO assert type (list vs list etc)
+        config_fields = {config_field.name for config_field in fields(cls)}
         override = {param: value for param, value in config.items() if param in config_fields}
         return cls(**override)
 
@@ -137,11 +136,11 @@ def validate_target_version(value: str | None) -> int | None:
         target_version = int(TargetVersion[f"RF{value}"].value)
     except KeyError:
         versions = ", ".join(ver.value for ver in TargetVersion)
-        raise click.BadParameter(
+        raise typer.BadParameter(
             f"Invalid target Robot Framework version: '{value}' is not one of {versions}"
         ) from None
     if target_version > misc.ROBOT_VERSION.major:
-        raise click.BadParameter(
+        raise typer.BadParameter(
             f"Target Robot Framework version ({target_version}) should not be higher than "
             f"installed version ({misc.ROBOT_VERSION})."
         ) from None
@@ -284,6 +283,9 @@ class LinterConfig:
     def from_toml(cls, config: dict, config_parent: Path) -> LinterConfig:
         config_fields = {config_field.name for config_field in fields(cls) if config_field.compare}
         # TODO assert type (list vs list etc)
+        if unknown_fields := {param: value for param, value in config.items() if param not in config_fields}:
+            print(f"Unknown fields in the [robocop.lint] section: {unknown_fields}")
+            raise typer.Exit(code=1)
         override = {param: value for param, value in config.items() if param in config_fields}
         if "threshold" in config:
             override["threshold"] = parse_rule_severity(config["threshold"])
@@ -305,7 +307,7 @@ class FormatterConfig:
     target_version: int | str | None = misc.ROBOT_VERSION.major
     skip_config: SkipConfig = field(default_factory=SkipConfig)
     overwrite: bool | None = False
-    show_diff: bool | None = False
+    diff: bool | None = False
     output: Path | None = None  # TODO
     color: bool | None = False
     check: bool | None = False
@@ -330,6 +332,17 @@ class FormatterConfig:
             override["custom_formatters"] = [
                 resolve_relative_path(path, config_parent, ensure_exists=True) for path in config["custom_formatters"]
             ]
+        known_fields = (
+            config_fields
+            | {config_field.name for config_field in fields(WhitespaceConfig)}
+            | {
+                f"skip_{config_field.name}" if not config_field.name.startswith("skip") else config_field.name
+                for config_field in fields(SkipConfig)
+            }
+        )
+        if unknown_fields := {param: value for param, value in config.items() if param not in known_fields}:
+            print(f"Unknown fields in the [robocop.format] section: {unknown_fields}")
+            raise typer.Exit(code=1)
         return cls(**override)
 
     @property
@@ -475,6 +488,7 @@ class Config:
         If there is parent configuration, use it to overwrite loaded configuration.
         """
         # TODO: validate all key and types
+        Config.validate_config(config, config_path)
         parsed_config = {"config_source": str(config_path)}
         parsed_config["linter"] = LinterConfig.from_toml(config.pop("lint", {}), config_path.parent)
         parsed_config["file_filters"] = FileFiltersOptions.from_toml(config)
@@ -483,6 +497,43 @@ class Config:
         parsed_config["formatter"] = FormatterConfig.from_toml(config.pop("format", {}), config_path.parent)
         parsed_config = {key: value for key, value in parsed_config.items() if value is not None}
         return cls(**parsed_config)
+
+    @staticmethod
+    def validate_config(config: dict, config_path: Path) -> None:
+        old_options = {  # some options were deprecated, but most were moved into subdict (lint)
+            "reports",
+            "filetypesignore",
+            "ignore_default",
+            "threshold",
+            "no_recursive",
+            "persistent",
+            "ext_rules",
+            "configure",
+            "output",
+            "verbose",
+            "paths",
+            "robotidy",
+        }
+        if isinstance(config.get("format", {}), str) or any(key in old_options for key in config):
+            print(
+                f"Configuration file seems to use Robocop < 6.0.0 or Robotidy syntax. "
+                f"Please migrate the config: {config_path}"
+            )
+            raise typer.Exit(code=1)
+        known_keys = {
+            "lint",
+            "format",
+            "language",
+            "verbose",
+            "include",
+            "default_include",
+            "exclude",
+            "default_exclude",
+        }
+        for key in config:
+            if key not in known_keys:
+                print(f"Unknown configuration key: '{key}' in {config_path}")
+                raise typer.Exit(code=1)
 
     def overwrite_from_config(self, overwrite_config: Config | None) -> None:
         if not overwrite_config:

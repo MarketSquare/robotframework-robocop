@@ -129,7 +129,7 @@ class RobocopFormatter:
         return sys.stdin.read()
 
     def print_to_stdout(self, collected_lines):
-        if not self.config.formatter.show_diff:
+        if not self.config.formatter.diff:
             print(collected_lines.text)
 
     def save_model(self, source, model):
@@ -149,7 +149,7 @@ class RobocopFormatter:
         return self.config.formatter.whitespace_config.line_ending
 
     def output_diff(self, path: Path, old_model: misc.StatementLinesCollector, new_model: misc.StatementLinesCollector):
-        if not self.config.formatter.show_diff:
+        if not self.config.formatter.diff:
             return
         old = [line + "\n" for line in old_model.text.splitlines()]
         new = [line + "\n" for line in new_model.text.splitlines()]

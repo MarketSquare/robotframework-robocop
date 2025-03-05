@@ -31,11 +31,14 @@ def read_toml_config(config_path: Path) -> dict[str, Any] | None:
     required for the robocop.toml file.
     """
     config = load_toml_file(config_path)
-    if config_path.name == "pyproject.toml" or "tool" in config:
+    if config_path.name == "robocop.toml":
+        if tool_config := config.get("tool", {}).get("robocop", {}):
+            config = tool_config
+    else:
         config = config.get("tool", {}).get("robocop", {})
-        if not config:
-            return None
-    return {k.replace("--", "").replace("-", "_"): v for k, v in config.items()}
+    if not config:
+        return None
+    return {k.replace("-", "_"): v for k, v in config.items()}
 
 
 def get_path_relative_to_path(path: Path, root_parent: Path) -> Path:

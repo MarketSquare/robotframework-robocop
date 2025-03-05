@@ -1,0 +1,7 @@
+[tool.robocop]
+exclude = ["deprecated.robot"]
+default_exclude = ["archived/"]
+include = ["custom.txt"]
+default_include = ["*.robot"]
+language = ["eng", "pl"]
+unknown = true

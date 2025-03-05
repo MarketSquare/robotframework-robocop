@@ -422,7 +422,7 @@ def format_files(
         configure=configure,
         overwrite=overwrite,
         output=output,
-        show_diff=diff,
+        diff=diff,
         check=check,
         start_line=start_line,
         end_line=end_line,

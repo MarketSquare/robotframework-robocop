@@ -276,7 +276,9 @@ def migrate_deprecated_configs(config_path: Path) -> None:
             "paths": "include",
             "ignore": "exclude",
             "ignore_default": "exclude_default",
-            # "filetypes": "", TODO
+            "language": "language",
+            "verbose": "verbose",
+            # "filetypes": "",
         },
     )
     migrated["lint"] = copy_keys(
@@ -287,9 +289,7 @@ def migrate_deprecated_configs(config_path: Path) -> None:
             "reports": "reports",
             "format": ("issue_format", lambda x: x.replace("{source_rel}", "{source}")),
             "threshold": "threshold",
-            "verbose": "verbose",
             "persistent": "persistent",
-            "language": "language",
             "ignore_git_dir": "ignore_git_dir",
             "ext_rules": "custom_rules",
             "rules": "custom_rules",
@@ -309,9 +309,9 @@ def migrate_deprecated_configs(config_path: Path) -> None:
         robotidy_config,  # load-transformers / --custom-transformers
         {
             "transform": "select",
+            "check": "check",
             "diff": "diff",
             "overwrite": "overwrite",
-            "verbose": "verbose",
             "load_transformers": "custom_formatters",
             "custom_transformers": "custom_formatters",
             "line_length": "line_length",
@@ -319,6 +319,8 @@ def migrate_deprecated_configs(config_path: Path) -> None:
             "spacecount": "space_count",
             "continuation_indent": "continuation_indent",
             "lineseparator": "line_separator",
+            "startline": "start_line",
+            "endline": "end_line",
             "skip_sections": "skip_sections",
             "skip_keyword_call": "skip_keyword_call",
             "skip_keyword_call_pattern": "skip_keyword_call_pattern",

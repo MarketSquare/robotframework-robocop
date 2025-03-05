@@ -642,6 +642,24 @@ You can now use shell autocompletion by installing it for the current shell::
 
     robocop --install-completion
 
+New rules and rule updates
+===========================
+
+Ignore built in tags in tag rules (#1166)
+-----------------------------------------
+
+TAG05 ``could-be-test-tags`` and TAG10 ``could-be-keyword-tags`` will now ignore builtin tags.
+Following code will not warn anymore that builtin tag (robot:private) should be set in Keyword or Test Tags::
+
+    *** Keywords ***
+    Keyword
+        [Tags]  robot:flatten    robot:private
+        No Operation
+
+    Keyword 2
+        [Tags]  robot:flatten    robot:private
+        No Operation
+
 Fixes
 =====
 

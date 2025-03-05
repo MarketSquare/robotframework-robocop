@@ -6,6 +6,9 @@ authors = [
   { name = "Bartlomiej Hirsz", email = "bartek.hirsz@gmail.com" },
   { name = "Mateusz Nojek", email = "matnojek@gmail.com" },
 ]
+maintainers = [
+    { name = "Bartlomiej Hirsz", email = "bartek.hirsz@gmail.com" },
+]
 requires-python = "~=3.9,<3.13"
 dependencies = [
     "jinja2>=3.1.4,<4.0",
@@ -46,11 +49,10 @@ robocop = "robocop.cli:main"
 "Bug tracker" = "https://github.com/MarketSquare/robotframework-robocop/issues"
 "Source code" = "https://github.com/MarketSquare/robotframework-robocop"
 Documentation = "https://robocop.readthedocs.io/"
-Downloads = "https://archive.apache.org/dist/airflow/"
 Homepage = "https://robocop.readthedocs.io/"
 
 [build-system]
-requires = ["hatchling==1.25.0"]
+requires = ["hatchling>=1.26.1"]
 build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]

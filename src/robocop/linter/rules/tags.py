@@ -112,6 +112,7 @@ class CouldBeTestTagsRule(Rule):
     or ``Task Tags``.
     This rule was renamed from ``could-be-force-tags`` to ``could-be-test-tags`` in Robocop 2.6.0.
 
+    Will ignore `robot:*` tags.
     """
 
     name = "could-be-test-tags"
@@ -234,6 +235,7 @@ class CouldBeKeywordTagsRule(Rule):
     In this example all keywords share one common tag ``featureX``.It can be declared just once using
     ``Keyword Tags``.
 
+    Will ignore `robot:*` tags.
     """
 
     name = "could-be-keyword-tags"
@@ -486,7 +488,7 @@ class TagScopeChecker(VisitorChecker):
                 end_col=node.end_col_offset,
             )
         if not self.in_keywords:
-            self.tags.append([tag.value for tag in node.data_tokens[1:]])
+            self.tags.append([tag.value for tag in node.data_tokens[1:] if not tag.value.startswith("robot:")])
         for tag in node.data_tokens[1:]:
             if self.in_keywords or tag.value not in self.test_tags:
                 continue
@@ -553,7 +555,9 @@ class KeywordTagsChecker(VisitorChecker):
 
     def visit_Tags(self, node: type[Node]) -> None:  # noqa: N802
         if self.in_keywords:
-            self.tags_in_keywords.append([tag.value for tag in node.data_tokens[1:]])
+            self.tags_in_keywords.append(
+                [tag.value for tag in node.data_tokens[1:] if not tag.value.startswith("robot:")]
+            )
         for tag in node.data_tokens[1:]:
             if not self.in_keywords or tag.value not in self.keyword_tags:
                 continue

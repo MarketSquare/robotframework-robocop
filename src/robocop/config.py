@@ -580,7 +580,7 @@ class GitIgnoreResolver:
             return False
         for gitignore_path, gitignore in gitignores:
             relative_path = files.get_path_relative_to_path(path, gitignore_path)
-            if gitignore.match_file(relative_path):  # TODO test on dir
+            if gitignore.match_file(relative_path):
                 return True
         return False
 
@@ -767,20 +767,19 @@ class ConfigManager:
             ignore_file_filters: force robocop to parse file even if it's excluded in the configuration
 
         """
-        # FIXME ignore file filters is True for default source
         for source in sources:
             source = Path(source).resolve()
             if source in self._paths:
                 continue
             if not source.exists():  # TODO only for passed sources
                 raise errors.FileError(source)
-            # if gitignores is None:  # TODO it works, but should be added with tests later
-            #     source_gitignore = self.gitignore_resolver.resolve_path_ignores(source)
-            # else:
-            #     source_gitignore = gitignores
+            if gitignores is None:
+                source_gitignore = self.gitignore_resolver.resolve_path_ignores(source)
+            else:
+                source_gitignore = gitignores
             config = self.get_config_for_source_file(source)
-            # if self.gitignore_resolver.path_excluded(source, source_gitignore):
-            #     continue
+            if self.gitignore_resolver.path_excluded(source, source_gitignore):
+                continue
             if not ignore_file_filters:
                 if config.file_filters.path_excluded(source):
                     continue
@@ -788,6 +787,5 @@ class ConfigManager:
                     continue
             if source.is_dir():
                 self.resolve_paths(source.iterdir(), gitignores)
-                # TODO cache resolved dirs too
             elif source.is_file():
                 self._paths[source] = config

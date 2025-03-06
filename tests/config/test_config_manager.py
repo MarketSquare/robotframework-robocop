@@ -1,5 +1,6 @@
 import contextlib
 import os
+import shutil
 from pathlib import Path
 
 import pytest
@@ -311,3 +312,31 @@ class TestConfigFinder:
             Config.from_toml(configuration, config_path)
         out, _ = capsys.readouterr()
         assert f"Unknown configuration key: 'unknown' in {config_path}" in out
+
+    def test_filter_paths_from_config(self, test_data, tmp_path):
+        # Arrange
+        test_files = test_data / "filter_paths"
+        tmp_test_files = tmp_path / "filter_paths"
+        git_dir = tmp_path / "filter_paths" / ".git"
+        git_dir.mkdir(parents=True)
+        shutil.copy(test_files / "file.py", tmp_test_files)
+        shutil.copy(test_files / "file.robot", tmp_test_files)
+        shutil.copy(test_files / "file.robot", git_dir)
+
+        # Act
+        actual_results = get_sources_and_configs(tmp_test_files)
+
+        # Assert
+        assert tmp_test_files / "file.robot" in actual_results
+        assert len(actual_results) == 1
+
+    def test_filter_paths_from_gitignore(self, test_data):
+        # Arrange
+        test_dir = test_data / "gitignore"
+
+        # Act
+        actual_results = get_sources_and_configs(test_dir)
+
+        # Assert
+        assert test_dir / "file.robot" in actual_results
+        assert len(actual_results) == 1

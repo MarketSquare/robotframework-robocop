@@ -46,14 +46,14 @@ class RobocopLinter:
             if self.config.verbose:
                 print(f"Scanning file: {source}")
             try:
-                self.current_model = self.get_model_for_file_type(source)
+                ast_model = self.get_model_for_file_type(source)
             except DataError:
                 print(
                     f"Failed to decode {source}. Default supported encoding by Robot Framework is UTF-8. Skipping file"
                 )
                 continue
             files += 1
-            diagnostics = self.run_check(str(source))
+            diagnostics = self.run_check(str(source), ast_model)
             issues_no += len(diagnostics)
             for diagnostic in diagnostics:
                 self.report(diagnostic)
@@ -62,7 +62,8 @@ class RobocopLinter:
         self.make_reports()
         self.return_with_exit_code(issues_no)
 
-    def run_check(self, filename: str, source: str | None = None) -> list[Diagnostic]:
+    def run_check(self, filename: str, ast_model, limit: int | None = None) -> list[Diagnostic]:
+        self.current_model = ast_model
         disablers = DisablersFinder(self.current_model)
         if disablers.file_disabled:
             return []
@@ -73,9 +74,11 @@ class RobocopLinter:
                 continue
             found_diagnostics += [
                 diagnostic
-                for diagnostic in checker.scan_file(self.current_model, filename, source, templated)
+                for diagnostic in checker.scan_file(self.current_model, filename, source=None, templated=templated)
                 if not disablers.is_rule_disabled(diagnostic) and not diagnostic.severity < self.config.linter.threshold
             ]
+            if limit and len(found_diagnostics) >= limit:
+                return found_diagnostics
         return found_diagnostics
 
     def return_with_exit_code(self, issues_count: int) -> None:

@@ -21,12 +21,12 @@ SET_GLOBAL_VARIABLES = {"settestvariable", "settaskvariable", "setsuitevariable"
 SET_LOCAL_VARIABLE = "setlocalvariable"
 
 
-class RobotidyEnumParam(Enum):
+class RobocopEnumParam(Enum):
     def __str__(self):
         return self.value
 
 
-class VariableCase(RobotidyEnumParam):
+class VariableCase(RobocopEnumParam):
     UPPER = "upper"
     LOWER = "lower"
     IGNORE = "ignore"
@@ -37,7 +37,7 @@ class VariableCase(RobotidyEnumParam):
         return "upper, lower, ignore"
 
 
-class VariableSeparator(RobotidyEnumParam):
+class VariableSeparator(RobocopEnumParam):
     UNDERSCORE = "underscore"
     SPACE = "space"
     IGNORE = "ignore"
@@ -186,7 +186,7 @@ class RenameVariables(Formatter):
 
     ```
 
-    will be transformed to:
+    will be formatted to:
 
     ```robotframework
     *** Settings ***

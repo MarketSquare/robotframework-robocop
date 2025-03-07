@@ -9,8 +9,8 @@ class SmartSortKeywords(Formatter):
     """
     Sort keywords in ``*** Keywords ***`` section.
 
-    By default sorting is case insensitive, but keywords with leading underscore go to the bottom. Other underscores are
-    treated as spaces.
+    By default, sorting is case-insensitive, but keywords with leading underscore go to the bottom. Other underscores
+    are treated as spaces.
     Empty lines (or lack of them) between keywords are preserved.
 
     Following code:
@@ -29,7 +29,7 @@ class SmartSortKeywords(Formatter):
         Kw3
     ```
 
-    Will be transformed to:
+    Will be formatted to:
 
     ```robotframework
     *** Keywords ***

@@ -1,7 +1,7 @@
 from robot.api.parsing import Comment, EmptyLine, Token
 
 from robocop.formatter.disablers import skip_if_disabled, skip_section_if_disabled
-from robocop.formatter.exceptions import InvalidParameterValueError, RobotidyConfigError
+from robocop.formatter.exceptions import InvalidParameterValueError, RobocopConfigError
 from robocop.formatter.formatters import Formatter
 
 
@@ -19,7 +19,7 @@ class DuplicateInSettingsOrderError(InvalidParameterValueError):
         super().__init__(formatter, param_name, provided_order, msg)
 
 
-class SettingInBothOrdersError(RobotidyConfigError):
+class SettingInBothOrdersError(RobocopConfigError):
     def __init__(self, formatter, first_order, second_order, duplicates):
         names = ",".join(setting.lower() for setting in duplicates)
         msg = (

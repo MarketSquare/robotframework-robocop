@@ -29,7 +29,7 @@ class ReplaceRunKeywordIf(Formatter):
         ...  ELSE  Keyword3
     ```
 
-    Will be transformed to:
+    Will be formatted to:
 
     ```robotframework
     *** Keywords ***

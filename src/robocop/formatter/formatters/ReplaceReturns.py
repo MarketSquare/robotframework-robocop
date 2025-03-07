@@ -27,7 +27,7 @@ class ReplaceReturns(Formatter):
         Return From Keyword    ${arg}
     ```
 
-    will be transformed to:
+    will be formatted to:
 
     ```robotframework
     *** Keywords ***

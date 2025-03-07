@@ -38,7 +38,7 @@ class InlineIf(Formatter):
         END
     ```
 
-    will be transformed to:
+    will be formatted to:
 
     ```robotframework
     *** Test Cases ***
@@ -54,7 +54,6 @@ class InlineIf(Formatter):
     Too long inline IFs (over `line_length` character limit) will be replaced with normal IF block.
     You can decide to not replace IF blocks containing ELSE or ELSE IF branches by setting `skip_else` to True.
 
-    Supports global formatting params: `--startline` and `--endline`.
     """
 
     MIN_VERSION = 5
@@ -79,11 +78,11 @@ class InlineIf(Formatter):
         if self.no_end(node):
             return node
         indent = node.header.tokens[0]
-        if not (self.should_transform(node) and self.assignment_identical(node)):
+        if not (self.should_format(node) and self.assignment_identical(node)):
             return node
         return self.to_inline(node, indent.value)
 
-    def should_transform(self, node):
+    def should_format(self, node):
         if node.header.errors:
             return False
         if (
@@ -93,7 +92,7 @@ class InlineIf(Formatter):
         ):
             return False
         if node.orelse:
-            return self.should_transform(node.orelse)
+            return self.should_format(node.orelse)
         return True
 
     @staticmethod

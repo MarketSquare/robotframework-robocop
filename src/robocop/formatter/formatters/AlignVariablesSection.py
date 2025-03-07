@@ -25,7 +25,7 @@ class AlignVariablesSection(Formatter):
     ...  b=c
     ```
 
-    will be transformed to:
+    will be formatted to:
 
     ```robotframework
     *** Variables ***
@@ -36,11 +36,11 @@ class AlignVariablesSection(Formatter):
     ```
 
     You can configure how many columns should be aligned to the longest token in given column. The remaining columns
-    will use fixed length separator length ``--spacecount``. By default, only first two columns are aligned.
+    will use fixed length separator length ``--space-count``. By default, only first two columns are aligned.
     To align first three columns:
 
     ```console
-    robocop format --transform AlignVariablesSection.up_to_column=3
+    robocop format --select AlignVariablesSection.up_to_column=3
     ```
 
     To align all columns set ``up_to_column`` to 0.

@@ -4,7 +4,7 @@ from tests.formatter import FormatterAcceptanceTest
 class TestRenameTestCases(FormatterAcceptanceTest):
     FORMATTER_NAME = "RenameTestCases"
 
-    def test_transformer(self):
+    def test_formatter(self):
         self.compare(source="test.robot", expected="test.robot")
 
     def test_test_without_name(self):

@@ -27,7 +27,7 @@ class OrderSettingsSection(Formatter):
       - ``imports_order = preserved``
       - ``settings_order = suite_setup,suite_teardown,test_setup,test_teardown,test_timeout,test_template``
 
-    By default order of imports is preserved. Read more on configuring this behaviour in the documentation in
+    By default, order of imports is preserved. Read more on configuring this behaviour in the documentation in
     ``Imports order`` section.
 
     Setting names omitted from custom order will be removed from the file. In following example we are missing metadata

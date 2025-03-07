@@ -19,7 +19,7 @@ class IndentNestedKeywords(Formatter):
         Run Keyword    Run Keyword If    ${True}    Run keywords   Log    foo    AND    Log    bar    ELSE    Log    baz
     ```
 
-    will be transformed to:
+    will be formatted to:
 
     ```robotframework
         Run Keyword
@@ -90,8 +90,8 @@ class IndentNestedKeywords(Formatter):
         return tokens
 
     @staticmethod
-    def node_was_transformed(old_tokens, new_tokens) -> bool:
-        """Compare code before and after transformation while ignoring comments to check if code was transformed."""
+    def node_was_formatted(old_tokens, new_tokens) -> bool:
+        """Compare code before and after formatting while ignoring comments to check if code was formatted."""
         if len(new_tokens) > len(old_tokens):
             return True
         old_tokens_no_comm = []
@@ -125,7 +125,7 @@ class IndentNestedKeywords(Formatter):
         new_line = misc.get_new_line()
         tokens = [node.data_tokens[0], separator, *misc.join_tokens_with_token(lines[0][1], separator)]
         formatted_tokens = self.parse_keyword_lines(lines, tokens, new_line, eol=node.tokens[-1])
-        if self.node_was_transformed(node.tokens, formatted_tokens):
+        if self.node_was_formatted(node.tokens, formatted_tokens):
             node.tokens = formatted_tokens
             return (*comments, node)
         return node
@@ -175,7 +175,7 @@ class IndentNestedKeywords(Formatter):
         tokens.extend(misc.join_tokens_with_token(lines[0][1], separator))
         new_line = misc.get_new_line(indent)
         formatted_tokens = self.parse_keyword_lines(lines, tokens, new_line, eol=node.tokens[-1])
-        if self.node_was_transformed(node.tokens, formatted_tokens):
+        if self.node_was_formatted(node.tokens, formatted_tokens):
             node.tokens = formatted_tokens
             return (*comments, node)
         return node

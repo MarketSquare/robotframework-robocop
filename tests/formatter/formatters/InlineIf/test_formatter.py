@@ -6,10 +6,10 @@ from tests.formatter import FormatterAcceptanceTest
 class TestInlineIf(FormatterAcceptanceTest):
     FORMATTER_NAME = "InlineIf"
 
-    def test_transformer(self):
+    def test_formatter(self):
         self.compare(source="test.robot")
 
-    def test_transformer_skip_else(self):
+    def test_formatter_skip_else(self):
         configure = [f"{self.FORMATTER_NAME}.skip_else=True", f"{self.FORMATTER_NAME}.line_length=120"]
         self.compare(source="test.robot", expected="test_skip_else.robot", configure=configure)
 

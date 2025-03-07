@@ -31,7 +31,7 @@ class Translate(Formatter):
         Step
     ```
 
-    will be transformed to (with the German language configured):
+    will be formatted to (with the German language configured):
 
     ```robotframework
     *** Testfälle ***
@@ -128,7 +128,7 @@ class Translate(Formatter):
 
     def add_replace_language_header(self, node):
         """
-        Add or replaces language headers in transformed files.
+        Add or replaces language headers in formatted files.
 
         If the file already contains language header it will be replaced.
         If the destination language is English, it will be removed.

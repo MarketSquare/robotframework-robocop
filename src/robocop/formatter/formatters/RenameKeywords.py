@@ -32,7 +32,7 @@ class RenameKeywords(Formatter):
     -c RenameKeywords.replace_to=New_Shining_Name .
     ```
 
-    will transform following code:
+    will format following code:
 
     ```robotframework
     *** Keywords ***

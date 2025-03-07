@@ -7,43 +7,43 @@ from click import NoSuchOption
 from robocop.formatter.utils import misc
 
 
-class RobotidyConfigError(Exception):
+class RobocopConfigError(Exception):
     def __init__(self, err):
         print(f"Error: {err}")
         sys.exit(1)
 
 
-class InvalidParameterValueError(RobotidyConfigError):
+class InvalidParameterValueError(RobocopConfigError):
     def __init__(self, formatter, param, value, msg):
         exc_msg = f"{formatter}: Invalid '{param}' parameter value: '{value}'. {msg}"
         super().__init__(exc_msg)
 
 
-class InvalidParameterError(RobotidyConfigError):
+class InvalidParameterError(RobocopConfigError):
     def __init__(self, formatter, similar):
         super().__init__(
             f"{formatter}: Failed to import. Verify if correct name or configuration was provided.{similar}"
         )
 
 
-class InvalidParameterFormatError(RobotidyConfigError):
+class InvalidParameterFormatError(RobocopConfigError):
     def __init__(self, formatter):
         super().__init__(
             f"{formatter}: Invalid parameter format. Pass parameters using MyFormatter.param_name=value syntax."
         )
 
 
-class ImportFormatterError(RobotidyConfigError):
+class ImportFormatterError(RobocopConfigError):
     pass
 
 
-class MissingOptionalRichDependencyError(RobotidyConfigError):
+class MissingOptionalRichDependencyError(RobocopConfigError):
     def __init__(self):
         msg = "It looks like you have rich module uninstalled. Install it to be able to use robotidy in the cli mode."
         super().__init__(msg)
 
 
-class MissingOptionalTomliWDependencyError(RobotidyConfigError):
+class MissingOptionalTomliWDependencyError(RobocopConfigError):
     def __init__(self):
         super().__init__(
             "Missing optional dependency: tomli_w. Install robotidy with extra `generate_config` "

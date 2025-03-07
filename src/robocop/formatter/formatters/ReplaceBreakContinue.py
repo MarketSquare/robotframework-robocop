@@ -29,7 +29,7 @@ class ReplaceBreakContinue(Formatter):
         END
     ```
 
-    will be transformed to:
+    will be formatted to:
 
     ```robotframework
     *** Keywords ***

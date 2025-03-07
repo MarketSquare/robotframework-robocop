@@ -28,7 +28,7 @@ class MergeAndOrderSections(Formatter):
     spaces):
 
     ```
-    robocop format --transform MergeAndOrderSections.order=settings,keywords,variables,testcases,comments
+    robocop format --select MergeAndOrderSections.order=settings,keywords,variables,testcases,comments
     ```
 
     Because merging and changing the order of sections can shuffle your empty lines it's greatly advised to always

@@ -57,7 +57,7 @@ class RenameTestCases(Formatter):
     -c RenameTestCases.replace_to=foo
     ```
 
-    will transform following code:
+    will format following code:
 
     ```robotframework
     *** Test Cases ***
@@ -74,10 +74,10 @@ class RenameTestCases(Formatter):
     ```
 
     ```
-    robocop format --transform RenameTestCases -c RenameTestCases.capitalize_each_word=True
+    robocop format --select RenameTestCases -c RenameTestCases.capitalize_each_word=True
     ```
 
-    will transform following code:
+    will format following code:
 
     ```robotframework
     *** Test Cases ***

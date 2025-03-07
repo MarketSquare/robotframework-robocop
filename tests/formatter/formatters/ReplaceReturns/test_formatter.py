@@ -14,7 +14,7 @@ class TestReplaceReturns(FormatterAcceptanceTest):
             "test.robot",
         ],
     )
-    def test_transformer(self, source):
+    def test_formatter(self, source):
         self.compare(source=source)
 
     @pytest.mark.parametrize(

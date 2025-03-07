@@ -29,7 +29,7 @@ class AlignSettingsSection(Formatter):
         # this should be left aligned
     ```
 
-    will be transformed to:
+    will be formatted to:
 
     ```robotframework
     *** Settings ***
@@ -40,12 +40,12 @@ class AlignSettingsSection(Formatter):
     # this should be left aligned
     ```
 
-    You can configure how many columns should be aligned to longest token in given column. The remaining columns
-    will use fixed length separator length ``--spacecount``. By default only first two columns are aligned.
+    You can configure how many columns should be aligned to the longest token in given column. The remaining columns
+    will use fixed length separator length ``--space-count``. By default, only first two columns are aligned.
     To align first three columns:
 
     ```
-    robocop format --transform AlignSettingsSection.up_to_column=3
+    robocop format --select AlignSettingsSection.up_to_column=3
     ```
 
     To align all columns set ``up_to_column`` to 0.
@@ -64,7 +64,7 @@ class AlignSettingsSection(Formatter):
 
     To disable it configure ``argument_indent`` with ``0``.
 
-    Supports global formatting param ``--spacecount`` (for columns with fixed length).
+    Supports global formatting param ``--space-count`` (for columns with fixed length).
     """
 
     TOKENS_WITH_ARGUMENTS = {

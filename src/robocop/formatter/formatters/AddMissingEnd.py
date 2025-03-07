@@ -23,7 +23,7 @@ class AddMissingEnd(Formatter):
             Log    ${x}
     ```
 
-    will be transformed to:
+    will be formatted to:
 
     ```robotframework
     *** Keywords ***

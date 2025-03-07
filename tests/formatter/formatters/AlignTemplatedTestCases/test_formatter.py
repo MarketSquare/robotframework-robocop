@@ -17,7 +17,7 @@ class TestAlignTemplatedTestCases(FormatterAcceptanceTest):
             "templated_for_loops_header_cols.robot",
         ],
     )
-    def test_transformer(self, source):
+    def test_formatter(self, source):
         self.compare(source=source, expected=source)
 
     @pytest.mark.parametrize("source", ["for_loops.robot", "empty_line.robot"])

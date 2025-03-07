@@ -4,7 +4,7 @@ from tests.formatter import FormatterAcceptanceTest
 class TestReplaceBreakContinue(FormatterAcceptanceTest):
     FORMATTER_NAME = "ReplaceBreakContinue"
 
-    def test_transformer(self):
+    def test_formatter(self):
         self.compare(source="test.robot")
 
     def test_with_errors(self):

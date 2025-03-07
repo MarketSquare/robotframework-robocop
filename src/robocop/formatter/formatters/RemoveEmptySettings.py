@@ -15,7 +15,7 @@ class RemoveEmptySettings(Formatter):
     You can configure which settings are affected by parameter ``work_mode``. Possible values:
         - overwrite_ok (default): does not remove settings that are overwriting suite settings (Test Setup,
           Test Teardown, Test Template, Test Timeout or Default Tags)
-        - always : works on every settings
+        - always : works on every setting
 
     Empty settings that are overwriting suite settings will be converted to be more explicit
     (given that there is related suite settings present):

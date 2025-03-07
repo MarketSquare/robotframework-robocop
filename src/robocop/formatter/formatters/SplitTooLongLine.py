@@ -77,7 +77,7 @@ class SplitTooLongLine(Formatter):
 
     ```
 
-    Supports global formatting params: ``spacecount`` and ``separator``.
+    Supports global formatting params: ``space-count`` and ``separator``.
     """
 
     IGNORED_WHITESPACE = {Token.EOL, Token.CONTINUATION}
@@ -133,7 +133,7 @@ class SplitTooLongLine(Formatter):
     def is_inline(node):
         return ROBOT_VERSION.major > 4 and isinstance(node.header, InlineIfHeader)
 
-    def should_transform_node(self, node):
+    def should_format_node(self, node):
         if not self.any_line_too_long(node):
             return False
         # find if any line contains more than one data tokens - so we have something to split
@@ -161,7 +161,7 @@ class SplitTooLongLine(Formatter):
     def visit_KeywordCall(self, node):  # noqa: N802
         if self.skip.keyword_call(node):
             return node
-        if not self.should_transform_node(node):
+        if not self.should_format_node(node):
             return node
         if self.disablers.is_node_disabled("SplitTooLongLine", node, full_match=False):
             return node
@@ -170,9 +170,9 @@ class SplitTooLongLine(Formatter):
         return self.split_keyword_call(node)
 
     def visit_Var(self, node):  # noqa: N802
-        if self.disablers.is_node_disabled(
-            "SplitTooLongLine", node, full_match=False
-        ) or not self.should_transform_node(node):
+        if self.disablers.is_node_disabled("SplitTooLongLine", node, full_match=False) or not self.should_format_node(
+            node
+        ):
             return node
         var_name = node.get_token(Token.VARIABLE)
         if not var_name:
@@ -190,7 +190,7 @@ class SplitTooLongLine(Formatter):
 
     @skip_if_disabled
     def visit_Variable(self, node):  # noqa: N802
-        if not self.should_transform_node(node):
+        if not self.should_format_node(node):
             return node
         return self.split_variable_def(node)
 
@@ -215,7 +215,7 @@ class SplitTooLongLine(Formatter):
     visit_DefaultTags = visit_TestTags = visit_ForceTags  # noqa: N815
 
     def split_setting_with_args(self, node, settings_section):
-        if not self.should_transform_node(node):
+        if not self.should_format_node(node):
             return node
         if self.disablers.is_node_disabled("SplitTooLongLine", node, full_match=False):
             return node

@@ -4,7 +4,7 @@ from tests.formatter import FormatterAcceptanceTest
 class TestAddMissingEnd(FormatterAcceptanceTest):
     FORMATTER_NAME = "AddMissingEnd"
 
-    def test_transformer(self):
+    def test_formatter(self):
         self.compare(source="test.robot", expected="test.robot")
 
     def test_selected(self):

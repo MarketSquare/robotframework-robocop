@@ -1,11 +1,11 @@
 """
-Formatters are classes used to transform passed Robot Framework code model.
+Formatters are classes used to format passed Robot Framework code model.
 
 To create your own formatter you need to create file with the same name as your formatter class. Your class
 need to inherit from ``ModelTransformer`` or ``ast.NodeTransformer`` class. Finally put name of your formatter in
 ``FORMATTERS`` variable in this file.
 
-If you don't want to run your formatter by default and only when calling robocop format with --transform YourFormatter
+If you don't want to run your formatter by default and only when calling robocop format with --select YourFormatter
 then add ``ENABLED = False`` class attribute inside.
 """
 
@@ -15,7 +15,6 @@ import copy
 import inspect
 import pathlib
 import textwrap
-from itertools import chain
 from typing import TYPE_CHECKING
 
 try:
@@ -113,76 +112,6 @@ class FormatConfig:
 
     def join_args(self, formatter_config: FormatConfig):
         self.args.update(formatter_config.args)
-
-
-class FormatConfigMap:
-    """Collection of all formatters and their configs."""
-
-    def __init__(
-        self,
-        transform: list[FormatConfig],
-        custom_formatters: list[FormatConfig],
-        config: list[FormatConfig],
-    ):
-        self.force_included_only = False
-        self.formatters: dict[str, FormatConfig] = {}
-        for tr in chain(transform, custom_formatters, config):
-            self.add_formatter(tr)
-
-    def add_formatter(self, tr):
-        if tr.force_include:
-            self.force_included_only = True
-        if tr.name in self.formatters:
-            self.formatters[tr.name].join_formatter_configs(tr)
-        else:
-            self.formatters[tr.name] = tr
-
-    def get_args(self, *names) -> dict:
-        for name in names:
-            name = str(name)
-            if name in self.formatters:
-                return self.formatters[name].args
-        return {}
-
-    def formatter_should_be_included(self, name: str) -> bool:
-        """Check whether --transform option was used. If it was, check if formatter name was used with --transform."""
-        if not self.force_included_only:
-            return True
-        return self.formatter_is_force_included(name)
-
-    def formatter_is_force_included(self, name: str) -> bool:
-        return name in self.formatters and self.formatters[name].force_include
-
-    def formatter_was_forcefully_enabled(self, name: str) -> bool:
-        if name not in self.formatters:
-            return False
-        return self.formatters[name].force_include or self.formatters[name].args.get("enabled", False)
-
-    def update_with_defaults(self, defaults: list[str]):
-        for default in defaults:
-            if default in self.formatters:
-                self.formatters[default].is_config_only = False
-            else:
-                self.formatters[default] = FormatConfig(
-                    default, force_include=False, custom_formatter=False, is_config=False
-                )
-
-    def order_using_list(self, order: list[str]):
-        temp_formatters: dict[str, FormatConfig] = {}
-        for name in order:
-            if name in self.formatters:
-                temp_formatters[name] = self.formatters[name]
-        for name, formatter in self.formatters.items():
-            if name not in temp_formatters:
-                temp_formatters[name] = formatter
-        self.formatters = temp_formatters
-
-
-def convert_transform_config(value: str, param_name: str) -> FormatConfig:
-    force_included = param_name == "transform"
-    custom_formatter = param_name == "custom_formatters"
-    is_config = param_name == "configure"
-    return FormatConfig(value, force_include=force_included, custom_formatter=custom_formatter, is_config=is_config)
 
 
 class FormatterParameter:
@@ -428,7 +357,7 @@ def can_run_in_robot_version(formatter, overwritten, target_version):
     if target_version >= formatter.MIN_VERSION:
         return True
     if overwritten:
-        # --transform FormatterDisabledInVersion or --configure FormatterDisabledInVersion:enabled=True
+        # --select FormatterDisabledInVersion or --configure FormatterDisabledInVersion.enabled=True
         if target_version == misc.ROBOT_VERSION.major:
             click.echo(
                 f"{formatter.__class__.__name__} formatter requires Robot Framework {formatter.MIN_VERSION}.* "
@@ -440,47 +369,8 @@ def can_run_in_robot_version(formatter, overwritten, target_version):
             click.echo(
                 f"{formatter.__class__.__name__} formatter requires Robot Framework {formatter.MIN_VERSION}.* "
                 f"version but you set --target-version rf{target_version}. "
-                f"Set --target-version to rf{formatter.MIN_VERSION} or do not forcefully enable this formatter "
-                f"with --transform / enable parameter.",
+                f"Set --target-version to {formatter.MIN_VERSION} or do not forcefully enable this formatter "
+                f"with --select / enable parameter.",
                 err=True,
             )
     return False
-
-
-def load_formatters(
-    formatters_config: FormatConfigMap,
-    target_version,
-    skip=None,
-    allow_disabled=False,
-    force_order=False,
-    allow_version_mismatch=True,
-):
-    """Dynamically load all classes from this file with attribute `name` defined in selected_formatters"""
-    loaded_formatters = []
-    formatters_config.update_with_defaults(FORMATTERS)
-    if not force_order:
-        formatters_config.order_using_list(FORMATTERS)
-    for name in formatters_config.formatters:
-        if not allow_disabled and not formatters_config.formatter_should_be_included(name):
-            continue
-        for container in import_formatter(name, formatters_config, skip):
-            if formatters_config.force_included_only:
-                enabled = container.args.get("enabled", True)
-            elif "enabled" in container.args:
-                enabled = container.args["enabled"]
-            else:
-                enabled = getattr(container.instance, "ENABLED", True)
-            if not (enabled or allow_disabled):
-                continue
-            if can_run_in_robot_version(
-                container.instance,
-                overwritten=formatters_config.formatter_was_forcefully_enabled(name),
-                target_version=target_version,
-            ):
-                container.enabled_by_default = enabled
-                loaded_formatters.append(container)
-            elif allow_version_mismatch and allow_disabled:
-                container.instance.ENABLED = False
-                container.enabled_by_default = False
-                loaded_formatters.append(container)
-    return loaded_formatters

@@ -11,13 +11,13 @@ def get_relative_path(abs_path: Path) -> Path:
 class TestGenerateDocumentation(FormatterAcceptanceTest):
     FORMATTER_NAME = "GenerateDocumentation"
 
-    def test_transformer(self):
+    def test_formatter(self):
         self.compare(source="test.robot", test_on_version=">=5")
 
-    def test_transformer_rf4(self):
+    def test_formatter_rf4(self):
         self.compare(source="test.robot", expected="test_rf4.robot", test_on_version="<=4")
 
-    def test_transformer_overwrite(self):
+    def test_formatter_overwrite(self):
         self.compare(
             source="test.robot",
             expected="overwrite.robot",

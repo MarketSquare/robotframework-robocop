@@ -12,7 +12,7 @@ def skip_if_disabled(func):
     """
     Skip node if it is disabled.
 
-    Do not transform node if it's not within passed ``start_line`` and ``end_line`` or
+    Do not format node if it's not within passed ``start_line`` and ``end_line`` or
     it does match any ``# robotidy: off`` disabler
     """
 

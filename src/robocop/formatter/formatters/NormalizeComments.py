@@ -24,7 +24,7 @@ class NormalizeComments(Formatter):
         Step  #comment
     ```
 
-    will be transformed to:
+    will be formatted to:
 
     ```robotframework
     *** Settings ***

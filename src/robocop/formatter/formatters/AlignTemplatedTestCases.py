@@ -31,7 +31,7 @@ class AlignTemplatedTestCases(Formatter):
     test2 long test name    asdfasdf    asdsdfgsdfg
     ```
 
-    will be transformed to:
+    will be formatted to:
 
     ```robotframework
     *** Test Cases ***      baz         qux

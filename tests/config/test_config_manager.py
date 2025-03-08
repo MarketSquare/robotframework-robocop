@@ -106,6 +106,7 @@ class TestConfigFinder:
         config.file_filters.default_exclude = {"archived/"}
         config.file_filters.include = {"custom.txt"}
         config.file_filters.default_include = {"*.robot"}
+        config.target_version = 6
         config.linter.select = ["rulename", "ruleid"]
         config.linter.ignore = ["ruleid"]
         config.linter.include_rules = {"rulename", "ruleid"}
@@ -128,7 +129,6 @@ class TestConfigFinder:
         config.formatter.check = True
         config.formatter.start_line = 10
         config.formatter.end_line = 12
-        config.formatter.target_version = 6
         config.formatter.whitespace_config.space_count = 2
         config.formatter.whitespace_config.indent = 3
         config.formatter.whitespace_config.continuation_indent = 5
@@ -340,3 +340,12 @@ class TestConfigFinder:
         # Assert
         assert test_dir / "file.robot" in actual_results
         assert len(actual_results) == 1
+
+    def test_invalid_option_value(self, test_data):
+        # Arrange
+        config_path = test_data / "invalid_option_values" / "invalid_target_version.toml"
+        configuration = files.read_toml_config(config_path)
+
+        # Act & Assert
+        with pytest.raises(typer.BadParameter, match="Invalid target Robot Framework version: '100' is not one of"):
+            Config.from_toml(configuration, config_path)

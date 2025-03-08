@@ -1,0 +1,2 @@
+[tool.robocop]
+target_version = 100

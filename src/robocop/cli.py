@@ -129,6 +129,14 @@ def check_files(
         list[str],
         typer.Option("--ignore", "-i", help="Ignore rules", show_default=False, rich_help_panel="Selecting rules"),
     ] = None,
+    target_version: Annotated[
+        config.TargetVersion,
+        typer.Option(
+            case_sensitive=False,
+            help="Enable only rules supported by configured version",
+            rich_help_panel="Selecting rules",
+        ),
+    ] = None,
     threshold: Annotated[
         RuleSeverity,
         typer.Option(
@@ -223,7 +231,12 @@ def check_files(
         include=include, default_include=default_include, exclude=exclude, default_exclude=default_exclude
     )
     overwrite_config = config.Config(
-        linter=linter_config, formatter=None, file_filters=file_filters, language=language, verbose=verbose
+        linter=linter_config,
+        formatter=None,
+        file_filters=file_filters,
+        language=language,
+        verbose=verbose,
+        target_version=target_version,
     )
     config_manager = config.ConfigManager(
         sources=sources,
@@ -426,14 +439,18 @@ def format_files(
         check=check,
         start_line=start_line,
         end_line=end_line,
-        target_version=target_version,
         reruns=reruns,
     )
     file_filters = config.FileFiltersOptions(
         include=include, default_include=default_include, exclude=exclude, default_exclude=default_exclude
     )
     overwrite_config = config.Config(
-        formatter=formatter_config, linter=None, language=language, file_filters=file_filters, verbose=verbose
+        formatter=formatter_config,
+        linter=None,
+        language=language,
+        file_filters=file_filters,
+        verbose=verbose,
+        target_version=target_version,
     )
     config_manager = config.ConfigManager(
         sources=sources,
@@ -454,6 +471,13 @@ def list_rules(
         RuleFilter, typer.Option("--filter", case_sensitive=False, help="Filter rules by category.")
     ] = RuleFilter.ALL,
     filter_pattern: Annotated[Optional[str], typer.Option("--pattern", help="Filter rules by pattern")] = None,
+    target_version: Annotated[
+        config.TargetVersion,
+        typer.Option(
+            case_sensitive=False,
+            help="Enable only rules supported by configured version",
+        ),
+    ] = None,
 ) -> None:
     """
     List available rules.
@@ -471,25 +495,45 @@ def list_rules(
     """
     # TODO: rich support (colorized enabled, severity etc)
     console = Console(soft_wrap=True)
-    config_manager = config.ConfigManager()
+    linter_config = config.LinterConfig(  # set to None's to not override
+        configure=None,
+        select=None,
+        ignore=None,
+        issue_format=None,
+        threshold=None,
+        custom_rules=None,
+        reports=None,
+        persistent=None,
+        compare=None,
+        exit_zero=None,
+    )
+    overwrite_config = config.Config(
+        linter=linter_config,
+        formatter=None,
+        file_filters=None,
+        language=None,
+        verbose=None,
+        target_version=target_version,
+    )
+    config_manager = config.ConfigManager(overwrite_config=overwrite_config)
     runner = RobocopLinter(config_manager)
     if filter_pattern:
         filter_pattern = compile_rule_pattern(filter_pattern)
         rules = filter_rules_by_pattern(runner.config.linter.rules, filter_pattern)
     else:
-        rules = filter_rules_by_category(runner.config.linter.rules, filter_category)
+        rules = filter_rules_by_category(
+            runner.config.linter.rules, filter_category, runner.config.linter.target_version
+        )
     severity_counter = {"E": 0, "W": 0, "I": 0}
+    enabled = 0
     for rule in rules:
-        console.print(str(rule))
+        is_enabled = rule.enabled and not rule.is_disabled(runner.config.linter.target_version)
+        enabled += int(is_enabled)
+        console.print(rule.rule_short_description(runner.config.linter.target_version))
         severity_counter[rule.severity.value] += 1
     configurable_rules_sum = sum(severity_counter.values())
     plural = get_plural_form(configurable_rules_sum)
-    console.print(
-        f"\nAltogether {configurable_rules_sum} rule{plural} with following severity:\n"
-        f"    {severity_counter['E']} error rule{get_plural_form(severity_counter['E'])},\n"
-        f"    {severity_counter['W']} warning rule{get_plural_form(severity_counter['W'])},\n"
-        f"    {severity_counter['I']} info rule{get_plural_form(severity_counter['I'])}.\n"
-    )
+    console.print(f"\nAltogether {configurable_rules_sum} rule{plural} ({enabled} enabled).\n")
     print(f"Visit {ROBOCOP_RULES_URL.format(version='stable')} page for detailed documentation.")
 
 
@@ -527,11 +571,19 @@ def list_reports(
 def list_formatters(
     filter_category: Annotated[
         RuleFilter, typer.Option("--filter", case_sensitive=False, help="Filter formatters by category.")
-    ] = RuleFilter.DEFAULT,
+    ] = RuleFilter.ALL,
     filter_pattern: Annotated[Optional[str], typer.Option("--pattern", help="Filter formatters by pattern")] = None,
+    target_version: Annotated[
+        config.TargetVersion,
+        typer.Option(
+            case_sensitive=False,
+            help="Enable only rules supported by configured version",
+        ),
+    ] = None,
 ) -> None:
     """List available formatters."""
     # We will need ConfigManager later for listing based on configuration
+    # FIXME
     raise NotImplementedError("Command not yet implemented.")
 
 

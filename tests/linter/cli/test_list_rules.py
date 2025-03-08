@@ -1,64 +1,19 @@
+import textwrap
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
 import pytest
 
 from robocop.cli import list_rules
+from robocop.config import TargetVersion
 from robocop.linter.rules import Rule, RuleFilter, RuleSeverity, VisitorChecker
 from robocop.linter.utils.misc import ROBOT_VERSION
 
 TEST_DATA = Path(__file__).parent.parent / "test_data" / "custom_rules"
 
 
-# @pytest.fixture
-# def msg_0101_config():
-#     return {
-#         "0101": Rule(
-#             RuleParam(name="conf_param", converter=int, default=0, desc=""),
-#             rule_id="0101",
-#             name="some-message",
-#             msg="Some description",
-#             severity=RuleSeverity.WARNING,
-#         )
-#     }
-
-
 def example_parser(value):
     return value
-
-
-# @pytest.fixture
-# def msg_0101_config_meta():
-#     return {
-#         "0101": Rule(
-#             RuleParam(name="conf_param", converter=int, default=0, desc=""),
-#             RuleParam(name="conf_param2", converter=example_parser, default=0, desc="meta information"),
-#             rule_id="0101",
-#             name="some-message",
-#             msg="Some description",
-#             severity=RuleSeverity.WARNING,
-#         )
-#     }
-
-
-# @pytest.fixture
-# def msg_0102_0204_checker_config():
-#     return {
-#         "0102": Rule(
-#             RuleParam(name="conf_param1", converter=int, default=0, desc=""),
-#             rule_id="0102",
-#             name="other-message",
-#             msg="""this is description""",
-#             severity=RuleSeverity.ERROR,
-#         ),
-#         "0204": Rule(
-#             RuleParam(name="conf_param2", converter=int, default=0, desc=""),
-#             rule_id="0204",
-#             name="another-message",
-#             msg=f"Message with meaning {4}",
-#             severity=RuleSeverity.INFO,
-#         ),
-#     }
 
 
 @pytest.fixture
@@ -176,6 +131,25 @@ def deprecated_rules_checker():
     return checker
 
 
+@pytest.fixture
+def future_checker():
+    class FutureRule(Rule):
+        rule_id = "FUT01"
+        name = "enabled-in-future"
+        message = "This is desc"
+        severity = RuleSeverity.WARNING
+        version = ">=20"
+
+    class FutureChecker(VisitorChecker):
+        future_rule: FutureRule
+
+    checker = FutureChecker()
+    rule = FutureRule()
+    checker.rules[rule.name] = rule
+    checker.rules[rule.rule_id] = rule
+    return checker
+
+
 class TestListingRules:
     def test_list_rule(
         self, empty_linter, msg_0101_checker, non_default_rule_checker, deprecated_rules_checker, capsys
@@ -189,22 +163,20 @@ class TestListingRules:
         assert (
             out == "Rule - 0101 [W]: some-message: Some description (enabled)\n"
             "Rule - 19999 [W]: non-default-rule: Some description (disabled)\n\n"
-            "Altogether 2 rules with following severity:\n"
-            "    0 error rules,\n"
-            "    2 warning rules,\n"
-            "    0 info rules.\n\n"
+            "Altogether 2 rules (1 enabled).\n\n"
             "Visit https://robocop.readthedocs.io/en/stable/rules_list.html page for detailed documentation.\n"
         )
 
-    # should first load config (with excludes), then set enable/disable inside rule
     def test_list_disabled_rule(self, empty_linter, msg_0101_checker, disabled_for_4_checker, capsys):
         empty_linter.config.linter.register_checker(msg_0101_checker)
         empty_linter.config.linter.register_checker(disabled_for_4_checker)
         empty_linter.config.linter.exclude_rules = {"0101"}
         empty_linter.config.linter.check_for_disabled_rules()
         if ROBOT_VERSION.major >= 4:
+            enabled_count = 0
             enabled_for = "disabled - supported only for RF version <4.0"
         else:
+            enabled_count = 1
             enabled_for = "enabled"
         with patch("robocop.cli.RobocopLinter", MagicMock(return_value=empty_linter)):
             list_rules(filter_pattern="*")
@@ -212,10 +184,7 @@ class TestListingRules:
         assert (
             out == "Rule - 0101 [W]: some-message: Some description (disabled)\n"
             f"Rule - 9999 [W]: disabled-in-four: This is desc ({enabled_for})\n\n"
-            "Altogether 2 rules with following severity:\n"
-            "    0 error rules,\n"
-            "    2 warning rules,\n"
-            "    0 info rules.\n\n"
+            f"Altogether 2 rules ({enabled_count} enabled).\n\n"
             "Visit https://robocop.readthedocs.io/en/stable/rules_list.html page for detailed documentation.\n"
         )
 
@@ -230,10 +199,7 @@ class TestListingRules:
         out, _ = capsys.readouterr()
         assert (
             out == "Rule - 0101 [W]: some-message: Some description (enabled)\n\n"
-            "Altogether 1 rule with following severity:\n"
-            "    0 error rules,\n"
-            "    1 warning rule,\n"
-            "    0 info rules.\n\n"
+            "Altogether 1 rule (1 enabled).\n\n"
             "Visit https://robocop.readthedocs.io/en/stable/rules_list.html page for detailed documentation.\n"
         )
 
@@ -251,10 +217,7 @@ class TestListingRules:
         assert (
             out == "Rule - 0102 [E]: other-message: this is description (disabled)\n"
             "Rule - 0204 [I]: another-message: Message with meaning 4 (disabled)\n\n"
-            "Altogether 2 rules with following severity:\n"
-            "    1 error rule,\n"
-            "    0 warning rules,\n"
-            "    1 info rule.\n\n"
+            "Altogether 2 rules (0 enabled).\n\n"
             "Visit https://robocop.readthedocs.io/en/stable/rules_list.html page for detailed documentation.\n"
         )
 
@@ -271,10 +234,7 @@ class TestListingRules:
         assert (
             out == "Rule - 9991 [E]: deprecated-rule: Deprecated rule (deprecated)\n"
             "Rule - 9992 [I]: deprecated-disabled-rule: Deprecated and disabled rule (deprecated)\n\n"
-            "Altogether 2 rules with following severity:\n"
-            "    1 error rule,\n"
-            "    0 warning rules,\n"
-            "    1 info rule.\n\n"
+            "Altogether 2 rules (0 enabled).\n\n"
             "Visit https://robocop.readthedocs.io/en/stable/rules_list.html page for detailed documentation.\n"
         )
 
@@ -324,81 +284,26 @@ class TestListingRules:
         assert (
             out == "Rule - 0101 [W]: some-message: Some description (enabled)\n"
             "Rule - 19999 [W]: non-default-rule: Some description (disabled)\n\n"
-            "Altogether 2 rules with following severity:\n"
-            "    0 error rules,\n"
-            "    2 warning rules,\n"
-            "    0 info rules.\n\n"
+            "Altogether 2 rules (1 enabled).\n\n"
             "Visit https://robocop.readthedocs.io/en/stable/rules_list.html page for detailed documentation.\n"
         )
 
-    # def test_list_configurables(self, empty_linter, msg_0101_checker_config_meta, capsys):  # TODO
-    #     empty_linter.config.list_configurables = robocop.config.translate_pattern("*")
-    #     add_empty_checker(empty_linter, msg_0101_checker_config_meta, conf_param=1001)
-    #     with patch("robocop.cli.RobocopLinter", MagicMock(return_value=empty_linter)):
-    #         list_rules(filter_pattern="*")
-    #     out, _ = capsys.readouterr()
-    #     assert (
-    #         out == "All rules have configurable parameter 'severity'. "
-    #         "Allowed values are:\n    E / error\n    W / warning\n    I / info\n\n"
-    #         "Rule - 0101 [W]: some-message: Some description (enabled)\n"
-    #         "    conf_param = 0\n"
-    #         "        type: int\n"
-    #         "    conf_param2 = 0\n"
-    #         "        type: example_parser\n"
-    #         "        info: meta information\n\n"
-    #         "Altogether 1 rule with following severity:\n"
-    #         "    0 error rules,\n"
-    #         "    1 warning rule,\n"
-    #         "    0 info rules.\n\n"
-    #         "Visit https://robocop.readthedocs.io/en/stable/rules_list.html page for detailed documentation.\n"
-    #     )
+    def test_list_with_target_version(self, empty_linter, msg_0101_checker, future_checker, capsys):
+        # list_rules(target_version=TargetVersion.RF4)
+        empty_linter.config.linter.register_checker(msg_0101_checker)
+        empty_linter.config.linter.register_checker(future_checker)
+        with patch("robocop.cli.RobocopLinter", MagicMock(return_value=empty_linter)):
+            list_rules(target_version=TargetVersion.RF7)
+        out, _ = capsys.readouterr()
+        expected = textwrap.dedent("""
+        Rule - 0101 [W]: some-message: Some description (enabled)
+        Rule - FUT01 [W]: enabled-in-future: This is desc (disabled - supported only for RF version >=20)
 
-    # def test_list_configurables_filtered(self, empty_linter, msg_0101_checker_config, msg_0102_0204_checker_config,
-    # capsys):  # TODO
-    #     empty_linter.config.list_configurables = "another-message"
-    #     add_empty_checker(empty_linter, msg_0102_0204_checker_config, exclude=True)
-    #     add_empty_checker(empty_linter, msg_0101_checker_config)
-    #     with patch("robocop.cli.RobocopLinter", MagicMock(return_value=empty_linter)):
-    #         list_rules(filter_category=RuleFilter.DISABLED)
-    #     out, _ = capsys.readouterr()
-    #     not_exp_msg = (
-    #         "Rule - 0101 [W]: some-message: Some description (enabled)\n",
-    #         "Rule - 0102 [E]: other-message: this is description (disabled)\n",
-    #     )
-    #     exp_msg = "Rule - 0204 [I]: another-message: Message with meaning 4 (disabled)\n"
-    #     assert all(msg not in out for msg in not_exp_msg)
-    #     assert exp_msg in out
+        Altogether 2 rules (1 enabled).
 
-    # def test_list_configurables_mixed(self, empty_linter, msg_0101_checker, msg_0102_0204_checker_config,
-    # capsys):  # TODO
-    #     empty_linter.config.list_configurables = robocop.config.translate_pattern("*")
-    #     add_empty_checker(empty_linter, msg_0102_0204_checker_config, exclude=True)
-    #     add_empty_checker(empty_linter, msg_0101_checker)
-    #     with patch("robocop.cli.RobocopLinter", MagicMock(return_value=empty_linter)):
-    #         list_rules(filter_category=RuleFilter.DISABLED)
-    #     out, _ = capsys.readouterr()
-    #     not_exp_msg = "Rule - 0101 [W]: some-message: Some description (enabled)\n"
-    #     exp_msg = (
-    #         "Rule - 0102 [E]: other-message: this is description (disabled)\n",
-    #         "Rule - 0204 [I]: another-message: Message with meaning 4 (disabled)\n",
-    #     )
-    #     assert not_exp_msg not in out
-    #     assert all(msg in out for msg in exp_msg)
-
-    # def test_list_configurables_no_config(self, empty_linter, msg_0101_checker_config, msg_0102_0204_checker_config,
-    # capsys):  # TODO
-    #     empty_linter.config.list_configurables = robocop.config.translate_pattern("*")
-    #     add_empty_checker(empty_linter, msg_0102_0204_checker_config, exclude=True)
-    #     add_empty_checker(empty_linter, msg_0101_checker_config)
-    #     with patch("robocop.cli.RobocopLinter", MagicMock(return_value=empty_linter)):
-    #         list_rules(filter_category=RuleFilter.DISABLED)
-    #     out, _ = capsys.readouterr()
-    #     exp_msg = (
-    #         "Rule - 0102 [E]: other-message: this is description (disabled)\n",
-    #         "Rule - 0204 [I]: another-message: Message with meaning 4 (disabled)\n",
-    #         "Rule - 0101 [W]: some-message: Some description (enabled)\n",
-    #     )
-    #     assert all(msg in out for msg in exp_msg)
+        Visit https://robocop.readthedocs.io/en/stable/rules_list.html page for detailed documentation.
+        """).lstrip()
+        assert out == expected
 
     # def test_list_custom_rules_disabled_by_default(self, empty_linter, capsys):  # TODO
     #     empty_linter.config.custom_rules = {

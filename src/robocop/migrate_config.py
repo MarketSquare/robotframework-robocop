@@ -225,6 +225,14 @@ def convert_skips(old_config: dict) -> list[str]:
     return [name for name in old_skips if old_config.get(f"skip_{name}", False)]
 
 
+def convert_target_version(old_value: str) -> int | str:
+    """Convert target_version from rf4 to 4."""
+    try:
+        return int(old_value.lower().replace("rf", ""))
+    except ValueError:
+        return old_value
+
+
 def copy_keys(src_dict: dict, keys: dict[str, str | tuple[str, Callable]]) -> dict:
     """
     Copy values from one dict to another.
@@ -333,6 +341,8 @@ def migrate_deprecated_configs(config_path: Path) -> None:
         )
     if skips := convert_skips(robotidy_config):
         migrated["format"]["skip"] = skips
+    if "target_version" in robotidy_config:
+        migrated["target_version"] = convert_target_version(robotidy_config["target_version"])
     if not migrated["lint"]:
         migrated.pop("lint")
     if not migrated["format"]:

@@ -642,6 +642,26 @@ You can now use shell autocompletion by installing it for the current shell::
 
     robocop --install-completion
 
+Filter rules by target version (#1296)
+--------------------------------------
+
+You can now filter out rules using ``--target-version`` same as formatter (robotidy) previously.
+
+With following command::
+
+    robocop check --target-version 5
+
+Only rules compatible with Robot Framework 5 or lower will be enabled.
+
+Since target version is now shared option, it needs to be configured in common section::
+
+    [tool.robocop]
+    target_version = 5
+
+    [tool.robocop.lint]
+    [tool.robocop.format]
+    # previously it could be only configured in format
+
 New rules and rule updates
 ===========================
 

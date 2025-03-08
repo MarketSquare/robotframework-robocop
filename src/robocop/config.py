@@ -6,6 +6,8 @@ from enum import Enum
 from pathlib import Path
 from typing import TYPE_CHECKING
 
+from robocop.linter.utils import ROBOT_VERSION
+
 try:
     from robot.api import Languages  # RF 6.0
 except ImportError:
@@ -21,6 +23,7 @@ from robocop.formatter.utils import misc  # TODO merge with linter misc
 from robocop.linter import exceptions, rules
 from robocop.linter.rules import BaseChecker, RuleSeverity
 from robocop.linter.utils.misc import compile_rule_pattern
+from robocop.linter.utils.version_matching import Version
 
 CONFIG_NAMES = frozenset(("robocop.toml", "pyproject.toml", "robot.toml"))
 DEFAULT_INCLUDE = frozenset(("*.robot", "*.resource"))
@@ -54,7 +57,7 @@ class RuleMatcher:
         return rule.enabled
 
     def is_rule_disabled(self, rule: Rule) -> bool:
-        if rule.deprecated or not rule.enabled_in_version:
+        if rule.is_disabled(self.config.target_version):
             return True
         if rule.severity < self.config.threshold and not rule.config.get("severity_threshold"):
             return True
@@ -73,6 +76,8 @@ class ConfigContainer:
 
         If other has value set to None, it was never set and can be ignored.
         """
+        if not other:
+            return
         for config_field in fields(other):
             value = getattr(other, config_field.name)
             if value is not None:
@@ -127,18 +132,19 @@ class TargetVersion(Enum):
     RF7 = "7"
 
 
-def validate_target_version(value: str | None) -> int | None:
-    if isinstance(value, int):
-        return value
+def validate_target_version(value: str | TargetVersion | None) -> int | None:
     if value is None:
         return misc.ROBOT_VERSION.major
-    try:
-        target_version = int(TargetVersion[f"RF{value}"].value)
-    except KeyError:
-        versions = ", ".join(ver.value for ver in TargetVersion)
-        raise typer.BadParameter(
-            f"Invalid target Robot Framework version: '{value}' is not one of {versions}"
-        ) from None
+    if isinstance(value, TargetVersion):
+        target_version = int(value.value)
+    else:
+        try:
+            target_version = int(TargetVersion[f"RF{value}"].value)
+        except KeyError:
+            versions = ", ".join(ver.value for ver in TargetVersion)
+            raise typer.BadParameter(
+                f"Invalid target Robot Framework version: '{value}' is not one of {versions}"
+            ) from None
     if target_version > misc.ROBOT_VERSION.major:
         raise typer.BadParameter(
             f"Target Robot Framework version ({target_version}) should not be higher than "
@@ -170,6 +176,7 @@ class LinterConfig:
     select: list[str] | None = field(default_factory=list)
     ignore: list[str] | None = field(default_factory=list)
     issue_format: str | None = DEFAULT_ISSUE_FORMAT
+    target_version: Version | None = field(default=None, compare=False)
     threshold: RuleSeverity | None = RuleSeverity.INFO
     custom_rules: list[str] | None = field(default_factory=list)
     include_rules: set[str] | None = field(default_factory=set, compare=False)
@@ -182,6 +189,10 @@ class LinterConfig:
     exit_zero: bool | None = False
     _checkers: list[BaseChecker] | None = field(default=None, compare=False)
     _rules: dict[str, Rule] | None = field(default=None, compare=False)
+
+    def __post_init__(self):
+        if not self.target_version:
+            self.target_version = ROBOT_VERSION
 
     @property
     def checkers(self):
@@ -304,7 +315,7 @@ class FormatterConfig:
     configure: list[str] | None = field(default_factory=list)
     force_order: bool | None = False
     allow_disabled: bool | None = False
-    target_version: int | str | None = misc.ROBOT_VERSION.major
+    target_version: int | str | None = field(default=misc.ROBOT_VERSION.major, compare=False)
     skip_config: SkipConfig = field(default_factory=SkipConfig)
     overwrite: bool | None = False
     diff: bool | None = False
@@ -324,8 +335,6 @@ class FormatterConfig:
         config_fields = {config_field.name for config_field in fields(cls) if config_field.compare}
         # TODO assert type (list vs list etc)
         override = {param: value for param, value in config.items() if param in config_fields}
-        if "target_version" in config:
-            override["target_version"] = validate_target_version(config["target_version"])
         override["whitespace_config"] = WhitespaceConfig.from_toml(config)
         override["skip_config"] = SkipConfig.from_toml(config)
         if "custom_formatters" in override:
@@ -349,7 +358,6 @@ class FormatterConfig:
     def formatters(self) -> dict[str, ...]:
         if self._formatters is None:
             self.whitespace_config.process_config()
-            self.target_version = validate_target_version(self.target_version)
             self.load_formatters()
         return self._formatters
 
@@ -478,7 +486,15 @@ class Config:
     formatter: FormatterConfig = field(default_factory=FormatterConfig)
     language: list[str] | None = field(default_factory=list)
     verbose: bool | None = field(default_factory=bool)
+    target_version: int | str | None = misc.ROBOT_VERSION.major
     config_source: str = "default configuration"
+
+    def __post_init__(self) -> None:
+        self.target_version = validate_target_version(self.target_version)
+        if self.formatter:
+            self.formatter.target_version = self.target_version
+        if self.linter:
+            self.linter.target_version = Version(f"{self.target_version}.0")
 
     @classmethod
     def from_toml(cls, config: dict, config_path: Path) -> Config:
@@ -494,6 +510,8 @@ class Config:
         parsed_config["file_filters"] = FileFiltersOptions.from_toml(config)
         parsed_config["language"] = config.pop("language", [])
         parsed_config["verbose"] = config.pop("verbose", False)
+        if "target_version" in config:
+            parsed_config["target_version"] = validate_target_version(config["target_version"])
         parsed_config["formatter"] = FormatterConfig.from_toml(config.pop("format", {}), config_path.parent)
         parsed_config = {key: value for key, value in parsed_config.items() if value is not None}
         return cls(**parsed_config)
@@ -529,6 +547,7 @@ class Config:
             "default_include",
             "exclude",
             "default_exclude",
+            "target_version",
         }
         for key in config:
             if key not in known_keys:

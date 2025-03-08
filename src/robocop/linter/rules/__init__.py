@@ -41,8 +41,7 @@ from robocop.linter.diagnostics import Diagnostic
 from robocop.linter.exceptions import (
     InvalidExternalCheckerError,
 )
-from robocop.linter.utils import ROBOT_VERSION
-from robocop.linter.utils.version_matching import VersionSpecifier
+from robocop.linter.utils.version_matching import Version, VersionSpecifier
 
 try:
     from robot.api.parsing import ModelVisitor
@@ -154,7 +153,6 @@ def rules_sorted_by_id(rules: dict[str, Rule]) -> list[Rule]:
 
 
 class RuleFilter(str, Enum):
-    DEFAULT = "DEFAULT"
     ALL = "ALL"
     ENABLED = "ENABLED"
     DISABLED = "DISABLED"
@@ -168,17 +166,19 @@ def filter_rules_by_pattern(rules: dict[str, Rule], pattern: str) -> list[Rule]:
     )
 
 
-def filter_rules_by_category(rules: dict[str, Rule], category: RuleFilter) -> list[Rule]:
+def filter_rules_by_category(rules: dict[str, Rule], category: RuleFilter, target_version: Version) -> list[Rule]:
     """Return sorted list of Rules from rules dictionary, filtered by rule category."""
-    if category == RuleFilter.DEFAULT:
-        rules_by_id = {rule.rule_id: rule for rule in rules.values() if rule.enabled and not rule.deprecated}
-    elif category == RuleFilter.ALL:
+    if category == RuleFilter.ALL:
         rules_by_id = {rule.rule_id: rule for rule in rules.values() if not rule.deprecated}
-    elif category in (RuleFilter.ENABLED, RuleFilter.DISABLED):
+    elif category == RuleFilter.ENABLED:
+        rules_by_id = {
+            rule.rule_id: rule for rule in rules.values() if rule.enabled and not rule.is_disabled(target_version)
+        }
+    elif category == RuleFilter.DISABLED:
         rules_by_id = {
             rule.rule_id: rule
             for rule in rules.values()
-            if category.value.lower() in rule.get_enabled_status_desc() and not rule.deprecated
+            if not rule.deprecated and (not rule.enabled or rule.is_disabled(target_version))
         }
     elif category == RuleFilter.DEPRECATED:
         rules_by_id = {rule.rule_id: rule for rule in rules.values() if rule.deprecated}
@@ -359,6 +359,7 @@ class Rule:
     severity: RuleSeverity
     severity_threshold: SeverityThreshold | None = None
     version: str | None = None
+    version_spec: VersionSpecifier | None = None
     added_in_version: str | None = None
     enabled: bool = True
     deprecated: bool = False
@@ -366,18 +367,10 @@ class Rule:
     parameters: list[RuleParam] | None = None
 
     def __init__(self):
-        self.enabled = not self.deprecated and self.enabled
-        self.enabled_in_version = self.supported_in_rf_version(self.version)
+        self.version_spec = VersionSpecifier(self.version) if self.version else None
         self.default_severity = self.severity  # used for defaultConfiguration in Sarif report
         self.config = self._parse_parameters()
         self.supported_version = self.version if self.version else "All"
-
-    #     self.docs = dedent(docs)
-
-    # TODO: Maybe when config is loaded, visit Rule and RuleParams and convert values
-    # if self.my_rule.my_param
-    # first check if my_param was defined in params, if so then if it's in config (then take parsed value)
-    # otherwise take param default
 
     def _parse_parameters(self) -> dict[str, RuleParam]:
         """
@@ -402,15 +395,10 @@ class Rule:
             config[param.name] = param
         return config
 
-    # @property
-    # def severity(self):  # TODO first return overriden severity, otherwise this (optionally handle dynamic here)
-    #     return self.config["severity"].value
-
     def __getattr__(self, name: str):
-        if name in self.config:  # TODO: handle configuration files
+        if name in self.config:
             return self.config[name].value
-        raise ValueError
-        # TODO handle missing
+        raise AttributeError(f"Rule {self.name} does not have {name} attribute")
 
     @property
     def docs(self) -> str:
@@ -422,7 +410,7 @@ class Rule:
         description = f"Rule: [bold]{self.name}[/bold] ({self.rule_id})\n"
         description += f"Message: {self.message}\n"
         description += f"Severity: {self.severity}\n"
-        description += dedent(self.__doc__) if self.__doc__ else ""  # FIXME
+        description += self.docs
         return description
 
     @property
@@ -448,27 +436,28 @@ class Rule:
             return self.severity
         return severity
 
-    def supported_in_rf_version(self, version: str | None) -> bool:
-        if not version:
+    def supported_in_target_version(self, target_version: Version) -> bool:
+        """Validate if rule is enabled for installed Robot Framework or matches configured target version."""
+        if not self.version_spec:
             return True
-        enabled = all(ROBOT_VERSION in VersionSpecifier(condition) for condition in version.split(";"))
-        if not enabled:
-            self.enabled = False
-        return enabled
+        return target_version in self.version_spec
+
+    def is_disabled(self, target_version: Version) -> bool:
+        return self.deprecated or not self.supported_in_target_version(target_version)
+
+    def rule_short_description(self, target_version: Version) -> str:
+        if self.deprecated:
+            enable_desc = "deprecated"
+        elif self.version and not self.supported_in_target_version(target_version):
+            enable_desc = f"disabled - supported only for RF version {self.version}"
+        elif self.enabled:
+            enable_desc = "enabled"
+        else:
+            enable_desc = "disabled"
+        return f"Rule - {self.rule_id} [{self.severity}]: {self.name}: {self.message} ({enable_desc})"
 
     def __str__(self):
-        return (
-            f"Rule - {self.rule_id} [{self.severity}]: {self.name}: {self.message} ({self.get_enabled_status_desc()})"
-        )
-
-    def get_enabled_status_desc(self) -> str:
-        if self.deprecated:
-            return "deprecated"
-        if self.enabled:
-            return "enabled"
-        if self.version is not None:
-            return f"disabled - supported only for RF version {self.version}"
-        return "disabled"
+        return f"Rule [{self.rule_id}]: {self.name} {self.message}"
 
     def configure(self, param: str, value: str) -> None:
         if param not in self.config:

@@ -3,6 +3,7 @@ exclude = ["deprecated.robot"]
 default_exclude = ["archived/"]
 include = ["custom.txt"]
 default_include = ["*.robot"]
+target_version = 6
 language = ["eng", "pl"]
 # config = "other_config.toml"  # ignored, --config can be only passed via cli
 # ignore_git_dir = true  # ignored, only from cli
@@ -47,7 +48,6 @@ separator = "tab"
 line_ending = "windows"
 start_line = 10
 end_line = 12
-target_version = 6
 skip = [
     "comments",
     "documentation"

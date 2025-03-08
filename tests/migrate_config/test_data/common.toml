@@ -48,6 +48,7 @@ line_length = 120
 lineseparator = "native"
 skip_gitignore = false
 ignore_git_dir = false
+target_version = "rf4"
 configure = [
     "OrderSettings:keyword_before=documentation,tags,timeout,arguments:keyword_after=return",
     "OrderSettingsSection:group_order=documentation,imports,settings,tags",

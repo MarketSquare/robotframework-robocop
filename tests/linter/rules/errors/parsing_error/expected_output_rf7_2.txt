@@ -26,8 +26,8 @@ invalid_try_except.robot:159:5 [E] ERR01 Robot Framework syntax error: Only one 
 invalid_try_except.robot:171:5 [E] ERR01 Robot Framework syntax error: EXCEPT not allowed after ELSE.
 invalid_try_except.robot:185:5 [E] ERR01 Robot Framework syntax error: EXCEPT not allowed after FINALLY.
 invalid_try_except.robot:197:5 [E] ERR01 Robot Framework syntax error: ELSE not allowed after FINALLY.
-invalid_try_except.robot:210:1 [E] ERR01 Robot Framework syntax error: TRY does not support templates.
-invalid_try_except.robot:220:1 [E] ERR01 Robot Framework syntax error: TRY does not support templates.
+invalid_try_except.robot:210:5 [E] ERR01 Robot Framework syntax error: TRY does not support templates.
+invalid_try_except.robot:220:9 [E] ERR01 Robot Framework syntax error: TRY does not support templates.
 invalid_try_except.robot:233:5 [E] ERR01 Robot Framework syntax error: TRY does not support templates.
 invalid_try_except.robot:233:5 [E] ERR01 Robot Framework syntax error: TRY must have closing END.
 invalid_try_except.robot:246:13 [E] ERR01 Robot Framework syntax error: BREAK cannot be used in FINALLY branch.

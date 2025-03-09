@@ -237,7 +237,7 @@ invalid_try_except.robot:233:5 ERR01 Robot Framework syntax error: TRY does not 
  235 |             Fail    Should not be executed
      |
 
-invalid_try_except.robot:246:53 ERR01 Robot Framework syntax error: BREAK cannot be used in FINALLY branch.
+invalid_try_except.robot:246:13 ERR01 Robot Framework syntax error: BREAK cannot be used in FINALLY branch.
      |
  244 |             No Operation
  245 |         FINALLY
@@ -247,7 +247,7 @@ invalid_try_except.robot:246:53 ERR01 Robot Framework syntax error: BREAK cannot
  248 |     END
      |
 
-invalid_try_except.robot:256:53 ERR01 Robot Framework syntax error: CONTINUE cannot be used in FINALLY branch.
+invalid_try_except.robot:256:13 ERR01 Robot Framework syntax error: CONTINUE cannot be used in FINALLY branch.
      |
  254 |             No Operation
  255 |         FINALLY

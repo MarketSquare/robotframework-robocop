@@ -6,9 +6,8 @@ from typing import TYPE_CHECKING, Optional, Union
 
 from robot.api import Token
 from robot.errors import DataError
-from robot.parsing.model import Block
 from robot.parsing.model.blocks import File, Keyword, Section
-from robot.parsing.model.statements import Node, Tags
+from robot.parsing.model.statements import Tags
 from robot.running.arguments import EmbeddedArguments
 
 from robocop.linter.rules import ProjectChecker, Rule, RuleSeverity
@@ -162,7 +161,7 @@ class UnusedKeywords(ProjectChecker):
         self.current_file.is_suite = True
         self.generic_visit(node)
 
-    def mark_used_keywords(self, node: type[Node], name_token_type: str) -> None:
+    def mark_used_keywords(self, node, name_token_type: str) -> None:
         for keyword in iterate_keyword_names(node, name_token_type):
             self.mark_used_keyword(keyword.value)
 
@@ -175,12 +174,12 @@ class UnusedKeywords(ProjectChecker):
         self.current_file.used_keywords[normalized_name].update(name)
         # what about possible library names? searching removes, but for sake of collecting
 
-    def visit_Setup(self, node: type[Node]) -> None:  # noqa: N802
+    def visit_Setup(self, node) -> None:  # noqa: N802
         self.mark_used_keywords(node, Token.NAME)
 
     visit_TestTeardown = visit_SuiteTeardown = visit_Teardown = visit_TestSetup = visit_SuiteSetup = visit_Setup  # noqa: N815
 
-    def visit_Template(self, node: type[Node]) -> None:  # noqa: N802
+    def visit_Template(self, node) -> None:  # noqa: N802
         # allow / disallow param
         if node.value:
             self.mark_used_keyword(node.value)
@@ -188,10 +187,10 @@ class UnusedKeywords(ProjectChecker):
 
     visit_TestTemplate = visit_Template  # noqa: N815
 
-    def visit_KeywordCall(self, node: type[Block]) -> None:  # noqa: N802
+    def visit_KeywordCall(self, node) -> None:  # noqa: N802
         self.mark_used_keywords(node, Token.KEYWORD)
 
-    def visit_Keyword(self, node: type[Block]) -> None:  # noqa: N802
+    def visit_Keyword(self, node) -> None:  # noqa: N802
         try:
             embedded = KeywordEmbedded(node.name)
             if embedded and embedded.args:
@@ -208,7 +207,7 @@ class UnusedKeywords(ProjectChecker):
         self.generic_visit(node)
 
     @staticmethod
-    def is_keyword_private(node: type[Block]) -> bool:
+    def is_keyword_private(node) -> bool:
         for statement in node.body:
             if isinstance(statement, Tags):
                 for tag in statement.get_tokens(Token.ARGUMENT):

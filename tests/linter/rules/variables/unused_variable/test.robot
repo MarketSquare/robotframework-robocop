@@ -37,8 +37,8 @@ Used In IF
     ${used_in_if}    Keyword
     IF    True
         ${not_used}    Keyword
-        # TODO even if branch used it, it should be mark as unused. Could be achieved by making
-        # add_variables_from_if_to_scope temporarily saving popped variables
+        Not Relevant Keyword
+        Not Relevant Keyword
         ${used_in_branch}    Keyword
     ELSE IF    False
         ${not_used_from_branch}    Keyword    ${used_in_branch}
@@ -157,3 +157,47 @@ Unused With VAR
 Unused In Setup
     [Setup]    Keyword Setup    ${used_in_setup}
     Step
+
+ELIF use same name variable
+    IF    condition
+        ${var}    Keyword
+    ELSE IF    ${var}
+        Log    Should be raised for var.
+    END
+
+Used in one branch
+    IF    condition
+        ${var}    Keyword
+    ELSE IF    condition2
+        ${var}    Keyword
+        Log    ${var}
+    END
+    IF    condition
+        ${var2}    Keyword
+        Log    ${var2}
+    ELSE IF    condition2
+        ${var2}    Keyword
+    END
+
+Used in one branch and header
+    IF    condition
+        ${var}    Keyword
+    ELSE IF    ${var}
+        ${var}    Keyword
+        Log    ${var}
+    END
+    IF    condition
+        ${var2}    Keyword
+        Log    ${var2}
+    ELSE IF    ${var2}
+        ${var2}    Keyword  # declared, but used only in one branch
+    END
+
+Used in one branch and after IF
+    IF    condition
+        ${var}    Keyword
+    ELSE IF    ${var}
+        ${var}    Keyword
+        Log    ${var}
+    END
+    Log    ${var}

@@ -28,6 +28,8 @@ from robocop.linter.utils.variable_matcher import VariableMatches
 from robocop.linter.utils.version_matching import Version
 
 if TYPE_CHECKING:
+    from collections.abc import Generator
+
     from robot.parsing.model import File, Keyword, Section, VariableSection
     from robot.parsing.model.statements import KeywordCall, Node, TestTemplate, Var
 
@@ -379,6 +381,20 @@ def find_escaped_variables(string: str) -> list[str]:
     except tokenize.TokenError:
         pass
     return variables
+
+
+def get_variables_from_string(string: str) -> Generator[str, None, None]:
+    """
+    Tokenize string and find base variable names.
+
+    For example 'arg1 * 3' will yield arg1, 'arg2[3] + arg3' will yield arg2 and arg3.
+    """
+    try:
+        for toknum, tokval, _, _, _ in generate_tokens(StringIO(string).readline):
+            if tokval and toknum == python_token.NAME:
+                yield tokval
+    except tokenize.TokenError:
+        return
 
 
 def get_robocop_cache_directory(ensure_exists: bool) -> Path:

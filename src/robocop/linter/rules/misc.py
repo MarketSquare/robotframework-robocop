@@ -3,7 +3,6 @@
 import ast
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Optional
 
 from robot.api import Token
 from robot.errors import VariableError
@@ -40,7 +39,12 @@ from robocop.linter.utils import (  # FIXME: import as module
     normalize_robot_var_name,
     parse_assignment_sign_type,
 )
-from robocop.linter.utils.misc import RETURN_CLASSES, _is_var_scope_local, find_escaped_variables
+from robocop.linter.utils.misc import (
+    RETURN_CLASSES,
+    _is_var_scope_local,
+    find_escaped_variables,
+    get_variables_from_string,
+)
 from robocop.linter.utils.variable_matcher import VariableMatches
 
 
@@ -1084,6 +1088,7 @@ class UnusedVariablesChecker(VisitorChecker):
         self.variables: list[dict[str, CachedVariable]] = [
             {}
         ]  # variables are list of scope-dictionaries, to support IF branches
+        self.current_if_variables: list[dict[str, CachedVariable]] = []
         self.section_variables: dict[str, CachedVariable] = {}
         self.used_in_scope = set()  # variables that were used in current FOR/WHILE loop
         self.ignore_overwriting = False  # temporarily ignore overwriting, e.g. in FOR loops
@@ -1192,23 +1197,42 @@ class UnusedVariablesChecker(VisitorChecker):
         self.variables.append({})
         for item in node.body:
             self.visit(item)
-        self.add_variables_from_if_to_scope()
+        if_variables = self.variables.pop()
         if node.orelse:
-            self.visit(node.orelse)
+            self.visit_IfBranch(node.orelse)
         for token in node.header.get_tokens(Token.ASSIGN):
             self.handle_assign_variable(token)
         self.branch_level -= 1
+        for scope in self.current_if_variables:
+            for name, variable in scope.items():
+                if name in if_variables:
+                    if_variables[name].is_used = if_variables[name].is_used and variable.is_used
+                    if not variable.is_used:
+                        if_variables[name].token = variable.token
+                else:
+                    if_variables[name] = variable
+        self.add_variables_from_if_to_scope(if_variables)
+        self.current_if_variables = []
 
-    def add_variables_from_if_to_scope(self) -> None:
+    def visit_IfBranch(self, node) -> None:  # noqa: N802
+        for token in node.header.get_tokens(Token.ARGUMENT):
+            self.find_not_nested_variable(token.value, is_var=False)
+        self.variables.append({})
+        for child in node.body:
+            self.visit(child)
+        self.current_if_variables.append(self.variables.pop())
+        if node.orelse:
+            self.visit_IfBranch(node.orelse)
+
+    def add_variables_from_if_to_scope(self, if_variables: dict[str, CachedVariable]) -> None:
         """
         Add all variables in given IF branch to common scope. If variable is used already in the branch, if it will
         also be mark as used.
         """
-        variables = self.variables.pop()
         if not self.variables:
-            self.variables.append(variables)
+            self.variables.append(if_variables)
             return
-        for var_name, cached_var in variables.items():
+        for var_name, cached_var in if_variables.items():
             if var_name in self.variables[-1]:
                 if cached_var.is_used:
                     self.variables[-1][var_name].is_used = True
@@ -1352,9 +1376,9 @@ class UnusedVariablesChecker(VisitorChecker):
                     )
             else:  # check for attribute access like .lower() or .x
                 for variable_scope in self.variables[::-1]:
-                    base_name = self.search_by_removing_attr_access(normalized, variable_scope)
-                    if base_name is not None:
-                        variable_scope[base_name].is_used = True
+                    base_name = self.search_by_tokenize(normalized, variable_scope)
+                    if base_name:
+                        variable_scope[base_name[0]].is_used = True
                         self.variables[-1][normalized] = CachedVariable(variable_match.name, token, is_used=True)
                         return
         if self.in_loop:
@@ -1432,19 +1456,19 @@ class UnusedVariablesChecker(VisitorChecker):
         if normalized_name in variable_scope:
             variable_scope[normalized_name].is_used = True
         else:
-            self.search_by_removing_attr_access(normalized_name, variable_scope)
+            self.search_by_tokenize(normalized_name, variable_scope)
 
     @staticmethod
-    def search_by_removing_attr_access(variable_name, variable_scope) -> Optional[str]:
-        """Search and remove variables from variable_scope by removing attribute access elements from the name."""
-        for attr_access in (".", "[", "(", "%", "+", "-", "*", "/"):  # ${arg.attr}
-            if attr_access in variable_name:
-                name, _ = variable_name.split(attr_access, maxsplit=1)
-                name = name.strip()
-                if name in variable_scope:
-                    variable_scope[name].is_used = True
-                    return name
-        return None
+    def search_by_tokenize(variable_name, variable_scope) -> list[str]:
+        """Search variables in string by tokenizing variable name using Python ast."""
+        if not variable_scope:
+            return []
+        found = []
+        for name in get_variables_from_string(variable_name):
+            if name in variable_scope:
+                variable_scope[name].is_used = True
+                found.append(name)
+        return found
 
 
 class ExpressionsChecker(VisitorChecker):

@@ -736,3 +736,51 @@ Following code will now not report ARG02 ``argument-overwritten-before-usage``::
             VAR    ${to_print}    "overwrite"
         END
         Log To Console    ${to_print}
+
+Unused arguments / variable rules not detecting extended variable syntax (#1111)
+--------------------------------------------------------------------------------
+
+ARG01 ``unused-argument`` and VAR02 ``unused-variable`` rules will now properly detect usage of variables in following
+cases::
+
+    *** Keywords ***
+    Extended Variable Syntax
+        [Arguments]    ${arg1}    ${arg2}    ${arg3}    ${arg4}    ${arg5}    ${arg6}
+        Log    ${arg1 + "test"}
+        Log    ${arg2 * 3}
+        Log    ${arg3[1]}
+        Log    ${arg4 == "test"}
+        Log    ${arg5 == arg6}
+        ${var1}    ${var2}    ${var3}    ${var4}    ${var5}    ${var6}    ${var7}    ${vaR8}    ${var9}    Keyword Call
+        Log    ${var1 + "test"}
+        Log    ${var2 * 3}
+        Log    ${var3[1]}
+        Log    ${var4 == "test"}
+        Log    ${var5 == var6}
+        Log    ${VAR7[1]}
+        Log    ${var5 == var8}
+        Log    ${var9.attribute}
+
+Variable usage falsely marked for IF headers and other branches (#1304)
+-----------------------------------------------------------------------
+
+If the variable was declared inside IF branch and the same variable name was used as the IF header, it would be marked
+as used. Similarly if any of the IF branches used variable, all instances of this variable inside IF were marked as
+used.
+
+Following code will now properly raise issues::
+
+    *** Keywords ***
+    Used in one branch and header
+        IF    condition
+            ${var}    Keyword  # not used
+        ELSE IF    ${var}
+            ${var}    Keyword
+            Log    ${var}
+        END
+        IF    condition
+            ${var2}    Keyword
+            Log    ${var2}
+        ELSE IF    ${var2}
+            ${var2}    Keyword  # not used
+        END

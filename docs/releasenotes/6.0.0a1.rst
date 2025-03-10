@@ -718,3 +718,8 @@ Following code will now report ``invalid-setting`` instead off ``not-enough-whit
     *** Test Cases ***
     Keyword
         [Doc Umentation]
+
+Hyphen in variable name rule not reported for Variables section (#1086)
+-----------------------------------------------------------------------
+
+VAR09 ``hyphen-in-variable-name`` is now reported also inside ``*** Variables ***`` sections and settings.

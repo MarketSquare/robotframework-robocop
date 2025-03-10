@@ -26,7 +26,7 @@ from robot.api.parsing import ModelTransformer
 from robot.errors import DataError
 from robot.utils.importer import Importer
 
-from robocop.formatter.exceptions import ImportFormatterError, InvalidParameterError, InvalidParameterFormatError
+from robocop.formatter.exceptions import ImportFormatterError, InvalidParameterError
 from robocop.formatter.skip import SKIP_OPTIONS, Skip, SkipConfig
 from robocop.formatter.utils import misc
 
@@ -70,48 +70,6 @@ FORMATTERS = [
 ]
 
 IMPORTER = Importer()
-
-
-class FormatConfig:
-    def __init__(self, config, force_include, custom_formatter, is_config):
-        name, args = misc.split_args_from_name_or_path(config)
-        self.name = name.strip()
-        self.args = self.convert_args(args)
-        self.force_include = force_include
-        self.custom_formatter = custom_formatter
-        self.is_config_only = is_config
-        self.duplicate_reported = False
-
-    def convert_args(self, args):
-        """Convert list of param=value arguments to dictionary."""
-        converted = {}
-        for arg in args:
-            try:
-                param, value = arg.split("=", maxsplit=1)
-                param, value = param.strip(), value.strip()
-            except ValueError:
-                raise InvalidParameterFormatError(self.name) from None
-            if param == "enabled":
-                converted[param] = value.lower() == "true"
-            else:
-                converted[param] = value
-        return converted
-
-    def join_formatter_configs(self, formatter_config: FormatConfig):
-        """Join 2 configurations i.e. from --transform, --load-formatters or --config."""
-        if self.force_include and formatter_config.force_include and not self.duplicate_reported:
-            click.echo(
-                f"Duplicated formatter '{self.name}' in the transform option. "
-                f"It will be run only once with the configuration from the last transform."
-            )
-            self.duplicate_reported = True
-        self.is_config_only = self.is_config_only and formatter_config.is_config_only
-        self.force_include = self.force_include or formatter_config.force_include
-        self.custom_formatter = self.custom_formatter or formatter_config.custom_formatter
-        self.join_args(formatter_config)
-
-    def join_args(self, formatter_config: FormatConfig):
-        self.args.update(formatter_config.args)
 
 
 class FormatterParameter:

@@ -1,0 +1,2 @@
+[tool.robocop.lint]
+select = ["X"]

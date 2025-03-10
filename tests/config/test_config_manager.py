@@ -1,5 +1,3 @@
-import contextlib
-import os
 import shutil
 from pathlib import Path
 
@@ -9,6 +7,7 @@ import typer
 from robocop import files
 from robocop.config import Config, ConfigManager, FileFiltersOptions, FormatterConfig, LinterConfig
 from robocop.linter.rules import RuleSeverity
+from tests import working_directory
 
 
 @pytest.fixture(scope="module")
@@ -19,17 +18,6 @@ def test_data() -> Path:
 @pytest.fixture(scope="module")
 def cli_config_path(test_data) -> Path:
     return test_data / "cli_config" / "pyproject.toml"
-
-
-@contextlib.contextmanager
-def working_directory(path: Path):
-    """Change working directory and return to previous on exit"""
-    prev_cwd = Path.cwd()
-    os.chdir(path)
-    try:
-        yield
-    finally:
-        os.chdir(prev_cwd)
 
 
 @pytest.fixture(scope="module")

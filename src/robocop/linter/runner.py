@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, NoReturn
 
 import typer
 from robot.api import get_init_model, get_model, get_resource_model
@@ -26,6 +26,7 @@ class RobocopLinter:
         self.config: Config = self.config_manager.default_config
         self.current_model: File = None
         self.reports: dict[str, reports.Report] = reports.get_reports(self.config)
+        self.diagnostics: list[Diagnostic] = []
         self.configure_reports()
 
     def get_model_for_file_type(self, source: Path) -> File:
@@ -38,7 +39,7 @@ class RobocopLinter:
             return get_resource_model(source)
         return get_model(source)
 
-    def run(self) -> None:
+    def run(self) -> list[Diagnostic]:
         issues_no = 0
         files = 0
         for source, config in self.config_manager.paths:
@@ -57,10 +58,15 @@ class RobocopLinter:
             issues_no += len(diagnostics)
             for diagnostic in diagnostics:
                 self.report(diagnostic)
+            self.diagnostics.extend(diagnostics)
+        if not files:
+            print("No Robot files were found with the existing configuration.")
         if "file_stats" in self.reports:
             self.reports["file_stats"].files_count = files
         self.make_reports()
-        self.return_with_exit_code(issues_no)
+        if self.config_manager.default_config.linter.return_result:
+            return self.diagnostics
+        return self.return_with_exit_code(issues_no)
 
     def run_check(self, filename: str, source: str | None = None) -> list[Diagnostic]:
         disablers = DisablersFinder(self.current_model)
@@ -78,7 +84,7 @@ class RobocopLinter:
             ]
         return found_diagnostics
 
-    def return_with_exit_code(self, issues_count: int) -> None:
+    def return_with_exit_code(self, issues_count: int) -> NoReturn:
         """
         Exit the Robocop with exit code.
 

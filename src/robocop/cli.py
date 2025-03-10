@@ -9,6 +9,7 @@ from rich.console import Console
 from robocop import __version__, config
 from robocop.formatter.runner import RobocopFormatter
 from robocop.formatter.skip import SkipConfig
+from robocop.linter.diagnostics import Diagnostic
 from robocop.linter.reports import load_reports, print_reports
 from robocop.linter.rules import RuleFilter, RuleSeverity, filter_rules_by_category, filter_rules_by_pattern
 from robocop.linter.runner import RobocopLinter
@@ -110,6 +111,24 @@ verbose_option = Annotated[
         rich_help_panel="Other",
     ),
 ]
+separator_help = """
+Token separator to use in the outputs:
+
+- [bold]space[/bold]:   use --space-count spaces to separate tokens
+
+- tab:     use a single tabulation to separate tokens
+"""
+line_ending_help = """
+Line separator to use in the outputs:
+
+    - [bold]native[/bold]:  use operating system's native line endings
+
+    - windows: use Windows line endings (CRLF)
+
+    - unix:    use Unix line endings (LF)
+
+    - auto:    maintain existing line endings (uses what's used in the first line)
+"""
 
 
 @app.command(name="check")
@@ -211,9 +230,16 @@ def check_files(
             rich_help_panel="Other",
         ),
     ] = None,
+    return_result: Annotated[
+        bool,
+        typer.Option(
+            help="Return check results as list of Diagnostic messages instead of exiting from the application.",
+            hidden=True,
+        ),
+    ] = False,
     root: project_root_option = None,
     verbose: verbose_option = None,
-) -> None:
+) -> list[Diagnostic]:
     """Lint Robot Framework files."""
     linter_config = config.LinterConfig(
         configure=configure,
@@ -226,6 +252,7 @@ def check_files(
         persistent=persistent,
         compare=compare,
         exit_zero=exit_zero,
+        return_result=return_result,
     )
     file_filters = config.FileFiltersOptions(
         include=include, default_include=default_include, exclude=exclude, default_exclude=default_exclude
@@ -248,7 +275,7 @@ def check_files(
         overwrite_config=overwrite_config,
     )
     runner = RobocopLinter(config_manager)
-    runner.run()
+    return runner.run()
 
 
 @app.command(name="format")
@@ -330,10 +357,10 @@ def format_files(
         typer.Option(show_default="120", help="Number of spaces between cells", rich_help_panel="Formatting settings"),
     ] = None,
     separator: Annotated[
-        str, typer.Option(show_default="space", help="# TODO", rich_help_panel="Formatting settings")
+        str, typer.Option(show_default="space", help=separator_help, rich_help_panel="Formatting settings")
     ] = None,
     line_ending: Annotated[
-        str, typer.Option(show_default="native", help="# TODO", rich_help_panel="Formatting settings")
+        str, typer.Option(show_default="native", help=line_ending_help, rich_help_panel="Formatting settings")
     ] = None,
     start_line: Annotated[
         int,
@@ -620,8 +647,16 @@ def migrate_config(
         Path, typer.Argument(help="Path to the configuration file to be migrated.", show_default=False)
     ],
 ) -> None:
-    """Migrate Robocop and Robotidy old configuration files to new format."""
-    # TODO: ask user to proceed, list warning with possible issues
+    """
+    Migrate Robocop and Robotidy old configuration files to the new format supported by the Robocop 6.0.
+
+    All the comments and formatting is not preserved. Robocop will take original file and create new, with the suffix
+    ``_migrated``. Original configuration file should have ``tool.robocop`` or/and ``tool.robotidy`` section.
+    If there are both sections, and they contain common option (such as include/exclude paths), option from
+    ``tool.robocop`` section will take precedence.
+
+    If you have separate configuration files for Robocop and Robotidy, run the command twice and merge it manually.
+    """
     migrate_deprecated_configs(config_path)
 
 

@@ -1,21 +1,10 @@
-import contextlib
 import os
 import textwrap
 from pathlib import Path
 
 from robocop.linter.reports.text_file import TextFile
+from tests import working_directory
 from tests.linter.reports import generate_issues
-
-
-@contextlib.contextmanager
-def working_directory(path: Path):
-    """Change working directory and return to previous on exit"""
-    prev_cwd = Path.cwd()
-    os.chdir(path)
-    try:
-        yield
-    finally:
-        os.chdir(prev_cwd)
 
 
 class TestJSONReport:

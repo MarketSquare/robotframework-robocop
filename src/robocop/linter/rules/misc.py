@@ -1089,6 +1089,7 @@ class UnusedVariablesChecker(VisitorChecker):
         self.ignore_overwriting = False  # temporarily ignore overwriting, e.g. in FOR loops
         self.in_loop = False  # if we're in the loop we need to check whole scope for unused-variable
         self.test_or_task_section = False
+        self.branch_level = 0  # if we're inside any if branch, it will be > 0
         super().__init__()
 
     def visit_File(self, node) -> None:  # noqa: N802
@@ -1185,6 +1186,7 @@ class UnusedVariablesChecker(VisitorChecker):
     def visit_If(self, node):  # noqa: N802
         if node.header.errors:
             return
+        self.branch_level += 1
         for token in node.header.get_tokens(Token.ARGUMENT):
             self.find_not_nested_variable(token.value, is_var=False)
         self.variables.append({})
@@ -1195,6 +1197,7 @@ class UnusedVariablesChecker(VisitorChecker):
             self.visit(node.orelse)
         for token in node.header.get_tokens(Token.ASSIGN):
             self.handle_assign_variable(token)
+        self.branch_level -= 1
 
     def add_variables_from_if_to_scope(self) -> None:
         """
@@ -1334,7 +1337,7 @@ class UnusedVariablesChecker(VisitorChecker):
             return
         arg = self.arguments.get(normalized, None)
         if arg is not None:
-            if not arg.is_used:
+            if not arg.is_used and self.branch_level == 0:
                 self.report_arg_or_var_rule(self.argument_overwritten_before_usage, arg.token)
             arg.is_used = is_used = True
         else:

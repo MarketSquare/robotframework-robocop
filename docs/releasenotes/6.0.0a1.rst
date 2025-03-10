@@ -30,7 +30,10 @@ The basic usage is::
     robocop check
     robocop format
 
-See detailed description for command changes.
+There are several breaking changes to the configurations. You can migrate old toml configuration files with the
+following command::
+
+    robocop migrate <config_path>
 
 .. contents::
    :depth: 2

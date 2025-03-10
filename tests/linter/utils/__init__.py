@@ -17,6 +17,7 @@ from rich.console import Console
 from robocop.cli import check_files
 from robocop.linter.utils.misc import ROBOT_VERSION
 from robocop.linter.utils.version_matching import VersionSpecifier
+from tests import working_directory
 
 if TYPE_CHECKING:
     from robocop.linter.rules import RuleSeverity
@@ -34,17 +35,6 @@ def isolated_output():
         yield bytes_output
     sys.stdout = old_stdout
     sys.stderr = old_stderr
-
-
-@contextlib.contextmanager
-def working_directory(path: Path):
-    """Change working directory and return to previous on exit"""
-    prev_cwd = Path.cwd()
-    os.chdir(path)
-    try:
-        yield
-    finally:
-        os.chdir(prev_cwd)
 
 
 def convert_to_output(stdout_bytes):
@@ -105,7 +95,7 @@ class RuleAcceptance:
         issue_format: str = "default",
         language: list[str] | None = None,
         output_format: str = "simple",
-        # deprecated: bool = False, TODO
+        deprecated: bool = False,
         **kwargs,
     ):
         if not self.enabled_in_version(test_on_version):
@@ -141,10 +131,10 @@ class RuleAcceptance:
                 result = get_result(output)
                 parsed_results = result.splitlines()
         actual = normalize_result(parsed_results, test_data, sort_lines=sort_lines)
-        # if deprecated:  # TODO:
-        #     assert runner.rules[self.rule_name].deprecation_warning in actual
-        # elif
-        if actual != expected:
+        if deprecated:
+            assert actual
+            assert "No rule selected" in actual[0]
+        elif actual != expected:
             error = "Actual issues are different than expected.\n"
             if sort_lines:
                 missing_expected = sorted(set(actual) - set(expected))

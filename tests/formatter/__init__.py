@@ -94,6 +94,7 @@ class FormatterAcceptanceTest:
             overwrite=True,
             check=not_modified,
             output=output_path,
+            line_ending="unix",
             **kwargs,
         )
         # if result.exit_code != exit_code:

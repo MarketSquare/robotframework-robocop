@@ -159,7 +159,7 @@ class RuleFilter(str, Enum):
     DEPRECATED = "DEPRECATED"
 
 
-def filter_rules_by_pattern(rules: dict[str, Rule], pattern: str) -> list[Rule]:
+def filter_rules_by_pattern(rules: dict[str, Rule], pattern: Pattern) -> list[Rule]:
     """Return sorted list of Rules from rules dictionary, filtered out by pattern."""
     return rules_sorted_by_id(
         {rule.rule_id: rule for rule in rules.values() if rule.matches_pattern(pattern) and not rule.deprecated}

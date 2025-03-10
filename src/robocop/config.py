@@ -187,6 +187,8 @@ class LinterConfig:
     persistent: bool | None = False
     compare: bool | None = False
     exit_zero: bool | None = False
+    return_result: bool = False
+    config_source: str = field(default="cli", compare=False)
     _checkers: list[BaseChecker] | None = field(default=None, compare=False)
     _rules: dict[str, Rule] | None = field(default=None, compare=False)
 
@@ -210,15 +212,16 @@ class LinterConfig:
         """Load rules, checkers and their configuration."""
         self.split_inclusions_exclusions_into_patterns()
         self.load_checkers()
-        self.configure_checkers_or_reports()
+        self.configure_rules()
         self.check_for_disabled_rules()
+        self.validate_any_rule_enabled()
 
     def load_checkers(self) -> None:
         """
         Initialize checkers and rules containers and start rules discovery.
 
         Instance of this class is passed over since it will be used to populate checkers/rules containers.
-        Additionally rules can also refer to instance of this class to access config class.
+        Additionally, rules can also refer to instance of this class to access config class.
         """
         self._checkers = []
         self._rules = {}
@@ -236,7 +239,8 @@ class LinterConfig:
             if not self.any_rule_enabled(checker, rule_matcher):
                 checker.disabled = True
 
-    def any_rule_enabled(self, checker: type[BaseChecker], rule_matcher: RuleMatcher) -> bool:
+    @staticmethod
+    def any_rule_enabled(checker: type[BaseChecker], rule_matcher: RuleMatcher) -> bool:
         any_enabled = False
         for rule in checker.rules.values():
             rule.enabled = rule_matcher.is_rule_enabled(rule)
@@ -244,7 +248,15 @@ class LinterConfig:
                 any_enabled = True
         return any_enabled
 
-    def configure_checkers_or_reports(self) -> None:
+    def validate_any_rule_enabled(self) -> None:
+        """Validate and print warning if no rule is selected."""
+        if not any(not checker.disabled for checker in self._checkers):
+            print(
+                f"No rule selected with the existing configuration from the {self.config_source} . "
+                f"Please check if all rules from --select exist and there is no conflicting filter option."
+            )
+
+    def configure_rules(self) -> None:
         """
         Iterate over configuration for rules and reports and apply it.
 
@@ -291,7 +303,7 @@ class LinterConfig:
     #                 print(rule_def.deprecation_warning)
 
     @classmethod
-    def from_toml(cls, config: dict, config_parent: Path) -> LinterConfig:
+    def from_toml(cls, config: dict, config_path: Path) -> LinterConfig:
         config_fields = {config_field.name for config_field in fields(cls) if config_field.compare}
         # TODO assert type (list vs list etc)
         if unknown_fields := {param: value for param, value in config.items() if param not in config_fields}:
@@ -302,8 +314,9 @@ class LinterConfig:
             override["threshold"] = parse_rule_severity(config["threshold"])
         if "custom_rules" in config:
             override["custom_rules"] = [
-                resolve_relative_path(path, config_parent, ensure_exists=True) for path in config["custom_rules"]
+                resolve_relative_path(path, config_path.parent, ensure_exists=True) for path in config["custom_rules"]
             ]
+        override["config_source"] = str(config_path)
         return cls(**override)
 
 
@@ -481,13 +494,13 @@ class FileFiltersOptions(ConfigContainer):
 @dataclass
 class Config:
     sources: list[str] | None = field(default_factory=lambda: ["."])
-    file_filters: FileFiltersOptions = field(default_factory=FileFiltersOptions)
-    linter: LinterConfig = field(default_factory=LinterConfig)
-    formatter: FormatterConfig = field(default_factory=FormatterConfig)
+    file_filters: FileFiltersOptions | None = field(default_factory=FileFiltersOptions)
+    linter: LinterConfig | None = field(default_factory=LinterConfig)
+    formatter: FormatterConfig | None = field(default_factory=FormatterConfig)
     language: list[str] | None = field(default_factory=list)
     verbose: bool | None = field(default_factory=bool)
     target_version: int | str | None = misc.ROBOT_VERSION.major
-    config_source: str = "default configuration"
+    config_source: str = "cli"
 
     def __post_init__(self) -> None:
         self.target_version = validate_target_version(self.target_version)
@@ -505,11 +518,13 @@ class Config:
         """
         # TODO: validate all key and types
         Config.validate_config(config, config_path)
-        parsed_config = {"config_source": str(config_path)}
-        parsed_config["linter"] = LinterConfig.from_toml(config.pop("lint", {}), config_path.parent)
-        parsed_config["file_filters"] = FileFiltersOptions.from_toml(config)
-        parsed_config["language"] = config.pop("language", [])
-        parsed_config["verbose"] = config.pop("verbose", False)
+        parsed_config = {
+            "config_source": str(config_path),
+            "linter": LinterConfig.from_toml(config.pop("lint", {}), config_path),
+            "file_filters": FileFiltersOptions.from_toml(config),
+            "language": config.pop("language", []),
+            "verbose": config.pop("verbose", False),
+        }
         if "target_version" in config:
             parsed_config["target_version"] = validate_target_version(config["target_version"])
         parsed_config["formatter"] = FormatterConfig.from_toml(config.pop("format", {}), config_path.parent)
@@ -563,16 +578,20 @@ class Config:
                 "formatter",
                 "file_filters",
                 "config_source",
-            ):  # TODO Use field metadata maybe
+            ):  # TODO Use field metadata
                 continue
             value = getattr(overwrite_config, config_field.name)
             if value:
                 setattr(self, config_field.name, value)
         if overwrite_config.linter:
             for config_field in fields(overwrite_config.linter):
+                if config_field.name == "config_source":
+                    continue
                 value = getattr(overwrite_config.linter, config_field.name)
                 if value:
                     setattr(self.linter, config_field.name, value)
+                    if config_field.name in {"select", "ignore"}:
+                        self.linter.config_source = "cli"
         if overwrite_config.formatter:
             for config_field in fields(overwrite_config.formatter):
                 if config_field.name in ("whitespace_config", "skip_config") or config_field.name.startswith("_"):
@@ -797,13 +816,13 @@ class ConfigManager:
             else:
                 source_gitignore = gitignores
             config = self.get_config_for_source_file(source)
-            if self.gitignore_resolver.path_excluded(source, source_gitignore):
-                continue
             if not ignore_file_filters:
                 if config.file_filters.path_excluded(source):
                     continue
                 if source.is_file() and not config.file_filters.path_included(source):
                     continue
+            if self.gitignore_resolver.path_excluded(source, source_gitignore):
+                continue
             if source.is_dir():
                 self.resolve_paths(source.iterdir(), gitignores)
             elif source.is_file():

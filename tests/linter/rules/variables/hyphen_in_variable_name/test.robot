@@ -1,3 +1,8 @@
+*** Variables ***
+${A}    correct
+${A-B}    incorrect
+
+
 *** Test Cases ***
 My Test Case
     ${r}    Set Variable  ${2-1}  # this is fine
@@ -31,3 +36,6 @@ Keyword With Dict And List Item Assignments
 
 Invalid Item Assignment
     ${DICTIONARY    Create Dictionary    first_name=John
+
+In Arguments
+    [Arguments]    ${correct}    ${in-correct}

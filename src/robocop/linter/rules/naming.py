@@ -940,7 +940,7 @@ class VariableNamingChecker(VisitorChecker):
 
     def visit_KeywordCall(self, node) -> None:  # noqa: N802
         for token in node.get_tokens(Token.ASSIGN):
-            self.check_for_reserved_naming_or_hyphen(token, "Variable", is_assign=True)
+            self.check_for_reserved_naming_or_hyphen(token, "Variable")
         if not node.keyword:
             return
         if normalize_robot_name(node.keyword, remove_prefix="builtin.") in SET_VARIABLE_VARIANTS:
@@ -975,7 +975,7 @@ class VariableNamingChecker(VisitorChecker):
         variable = node.get_token(Token.VARIABLE)
         if not variable:
             return
-        self.check_for_reserved_naming_or_hyphen(variable, "Variable", is_assign=True)
+        self.check_for_reserved_naming_or_hyphen(variable, "Variable")
         # TODO: Check supported syntax for variable, ie ${{var}}?
         if not _is_var_scope_local(node):
             self.check_non_local_variable(search_variable(variable.value).base, node, variable)
@@ -998,13 +998,13 @@ class VariableNamingChecker(VisitorChecker):
         except VariableError:
             pass
 
-    def check_for_reserved_naming_or_hyphen(self, token, var_or_arg, has_pattern=False, is_assign=False) -> None:
+    def check_for_reserved_naming_or_hyphen(self, token, var_or_arg, has_pattern=False) -> None:
         """Check if variable name is a reserved Robot Framework name or uses hyphen in the name."""
         variable_match = search_variable(token.value, ignore_errors=True)
         name = variable_match.base
         if has_pattern:
             name, *_ = name.split(":", maxsplit=1)  # var:pattern -> var
-        if is_assign and "-" in variable_match.base:
+        if "-" in variable_match.base:
             self.report(
                 self.hyphen_in_variable_name,
                 variable_name=token.value,

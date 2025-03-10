@@ -361,6 +361,8 @@ class HyphenInVariableNameRule(Rule):
         Test case
             ${var2}  Set Variable  ${${var}_${var2}}
 
+    Hyphens in ``*** Variables ***`` section or in ``[Arguments]`` are also reported for consistency reason.
+
     """
 
     name = "hyphen-in-variable-name"

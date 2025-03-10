@@ -655,6 +655,8 @@ def migrate_config(
     If there are both sections, and they contain common option (such as include/exclude paths), option from
     ``tool.robocop`` section will take precedence.
 
+    Rule ids and names will be also migrated. Patterns (such as ``*docs*``) will be however ignored.
+
     If you have separate configuration files for Robocop and Robotidy, run the command twice and merge it manually.
     """
     migrate_deprecated_configs(config_path)

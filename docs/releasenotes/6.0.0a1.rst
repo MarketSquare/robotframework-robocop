@@ -723,3 +723,16 @@ Hyphen in variable name rule not reported for Variables section (#1086)
 -----------------------------------------------------------------------
 
 VAR09 ``hyphen-in-variable-name`` is now reported also inside ``*** Variables ***`` sections and settings.
+
+Arguments overwritten in a conditional statement raised argument-overwritten-before-usage (#1109)
+-------------------------------------------------------------------------------------------------
+
+Following code will now not report ARG02 ``argument-overwritten-before-usage``::
+
+    Argument Conditionally Overwritten
+        [Documentation]    It should be ignored as it's not always overwritten.
+        [Arguments]    ${to_print}    ${another_arg}
+        IF    ${another_arg} != "KEEP"
+            VAR    ${to_print}    "overwrite"
+        END
+        Log To Console    ${to_print}

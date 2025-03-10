@@ -73,3 +73,11 @@ Overwritten in VAR
     VAR    ${overwritten_but_used}    String with ${overwritten_but_used}
     Keyword Call    ${overwritten1}  # used, but overwritten before
     Keyword Call    ${overwritten2}  # used, but overwritten before
+
+Argument Conditionally Overwritten
+    [Documentation]    It should be ignored as it's not always overwritten.
+    [Arguments]    ${to print}    ${another arg}
+    IF    ${another arg} != "KEEP"
+        VAR    ${to print}    "overwrite"
+    END
+    Log To Console    ${to print}

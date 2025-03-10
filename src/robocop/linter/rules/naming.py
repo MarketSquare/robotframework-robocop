@@ -1004,7 +1004,9 @@ class VariableNamingChecker(VisitorChecker):
         name = variable_match.base
         if has_pattern:
             name, *_ = name.split(":", maxsplit=1)  # var:pattern -> var
-        if "-" in variable_match.base:
+        if not name:
+            return
+        if "-" in name:
             self.report(
                 self.hyphen_in_variable_name,
                 variable_name=token.value,

@@ -39,8 +39,18 @@ test.robot:39:9 VAR02 Variable '${not_used}' is assigned but not used
  38 |     IF    True
  39 |         ${not_used}    Keyword
     |         ^^^^^^^^^^^ VAR02
- 40 |         # TODO even if branch used it, it should be mark as unused. Could be achieved by making
- 41 |         # add_variables_from_if_to_scope temporarily saving popped variables
+ 40 |         Not Relevant Keyword
+ 41 |         Not Relevant Keyword
+    |
+
+test.robot:42:9 VAR02 Variable '${used_in_branch}' is assigned but not used
+    |
+ 40 |         Not Relevant Keyword
+ 41 |         Not Relevant Keyword
+ 42 |         ${used_in_branch}    Keyword
+    |         ^^^^^^^^^^^^^^^^^ VAR02
+ 43 |     ELSE IF    False
+ 44 |         ${not_used_from_branch}    Keyword    ${used_in_branch}
     |
 
 test.robot:44:9 VAR02 Variable '${not_used_from_branch}' is assigned but not used
@@ -53,14 +63,14 @@ test.robot:44:9 VAR02 Variable '${not_used_from_branch}' is assigned but not use
  46 |         Keyword    ${used_in_if}
     |
 
-test.robot:52:13 VAR02 Variable '${nested_define3}' is assigned but not used
+test.robot:56:13 VAR02 Variable '${nested_define3}' is assigned but not used
     |
- 50 |             ${nested_define}    Keyword
- 51 |             ${nested_define2}    Keyword
- 52 |             ${nested_define3}    Keyword
-    |             ^^^^^^^^^^^^^^^^^ VAR02
- 53 |         ELSE
  54 |             ${nested_define}    Keyword
+ 55 |             ${nested_define2}    Keyword
+ 56 |             ${nested_define3}    Keyword
+    |             ^^^^^^^^^^^^^^^^^ VAR02
+ 57 |         END
+ 58 |         Keyword    ${nested_define}
     |
 
 test.robot:66:12 VAR02 Variable '${var}' is assigned but not used
@@ -116,6 +126,54 @@ test.robot:154:12 VAR02 Variable '${variable}' is assigned but not used
  154 |     VAR    ${variable}  # missing value
      |            ^^^^^^^^^^^ VAR02
  155 |     VAR    $variable  # ignored for invalid variable name
+     |
+
+test.robot:163:9 VAR02 Variable '${var}' is assigned but not used
+     |
+ 161 | ELIF use same name variable
+ 162 |     IF    condition
+ 163 |         ${var}    Keyword
+     |         ^^^^^^ VAR02
+ 164 |     ELSE IF    ${var}
+ 165 |         Log    Should be raised for var.
+     |
+
+test.robot:170:9 VAR02 Variable '${var}' is assigned but not used
+     |
+ 168 | Used in one branch
+ 169 |     IF    condition
+ 170 |         ${var}    Keyword
+     |         ^^^^^^ VAR02
+ 171 |     ELSE IF    condition2
+ 172 |         ${var}    Keyword
+     |
+
+test.robot:179:9 VAR02 Variable '${var2}' is assigned but not used
+     |
+ 177 |         Log    ${var2}
+ 178 |     ELSE IF    condition2
+ 179 |         ${var2}    Keyword
+     |         ^^^^^^^ VAR02
+ 180 |     END
+     |
+
+test.robot:184:9 VAR02 Variable '${var}' is assigned but not used
+     |
+ 182 | Used in one branch and header
+ 183 |     IF    condition
+ 184 |         ${var}    Keyword
+     |         ^^^^^^ VAR02
+ 185 |     ELSE IF    ${var}
+ 186 |         ${var}    Keyword
+     |
+
+test.robot:193:9 VAR02 Variable '${var2}' is assigned but not used
+     |
+ 191 |         Log    ${var2}
+ 192 |     ELSE IF    ${var2}
+ 193 |         ${var2}    Keyword  # declared, but used only in one branch
+     |         ^^^^^^^ VAR02
+ 194 |     END
      |
 
 unused_section_vars.robot:21:1 VAR02 Variable '${GLOBAL_NOT_USED}' is assigned but not used

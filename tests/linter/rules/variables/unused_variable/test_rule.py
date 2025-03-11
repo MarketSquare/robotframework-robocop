@@ -26,14 +26,6 @@ class TestRuleAcceptance(RuleAcceptance):
             test_on_version=">=4;<7",
         )
 
-    def test_rule_rf3(self):
-        self.check_rule(
-            src_files=["test.robot", "unused_section_vars.robot"],
-            expected_file="expected_output_rf3.txt",
-            issue_format="end_col",
-            test_on_version="==3.*",
-        )
-
     def test_rule_on_loops(self):
         self.check_rule(
             src_files=["loops.robot"],
@@ -44,3 +36,9 @@ class TestRuleAcceptance(RuleAcceptance):
 
     def test_groups(self):
         self.check_rule(src_files=["groups.robot"], expected_file="expected_output_groups.txt", test_on_version=">=7.2")
+
+    def test_extended_variable_syntax(self):
+        self.check_rule(
+            src_files=["extended_variable_syntax.robot"],
+            expected_file=None,
+        )

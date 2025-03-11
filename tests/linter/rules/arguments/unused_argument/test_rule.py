@@ -27,3 +27,9 @@ class TestRuleAcceptance(RuleAcceptance):
             test_on_version=">=5",
             output_format="extended",
         )
+
+    def test_extended_variable_syntax(self):
+        self.check_rule(
+            src_files=["extended_variable_syntax.robot"],
+            expected_file=None,
+        )

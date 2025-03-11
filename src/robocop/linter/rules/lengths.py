@@ -175,6 +175,7 @@ class TooManyArgumentsRule(Rule):
     parameters = [RuleParam(name="max_args", default=5, converter=int, desc="number of lines allowed in a file")]
     severity_threshold = SeverityThreshold("max_args", compare_method="greater", substitute_value="max_allowed_count")
     added_in_version = "1.0.0"
+    style_guide_ref = ["#arguments"]
 
 
 class LineTooLongRule(Rule):
@@ -205,6 +206,7 @@ class LineTooLongRule(Rule):
     ]
     severity_threshold = SeverityThreshold("line_length", substitute_value="allowed_length")
     added_in_version = "1.0.0"
+    style_guide_ref = ["#line-length"]
 
 
 class EmptySectionRule(Rule):

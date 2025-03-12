@@ -126,7 +126,7 @@ section for such lines:
         .. code:: robotframework
 
             i am comment
-            # robocop: disable
+            # robocop: off
             *** Settings ***
 
     .. tab-item:: After
@@ -135,7 +135,7 @@ section for such lines:
 
             *** Comments ***
             i am comment
-            # robocop: disable
+            # robocop: off
             *** Settings ***
 
 You can disable this behaviour by setting ``create_comment_section`` to False::

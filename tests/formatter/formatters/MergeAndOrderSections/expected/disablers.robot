@@ -25,13 +25,13 @@ Test 2
 Test 3
     Log  3
 
-# robotidy: off
+# robocop: fmt: off
 *** Keywords ***
 Keyword
     No Operation
 
 Keyword2
-    # robotidy: off
+    # robocop: fmt: off
     Log  2
     FOR  ${i}  IN RANGE  10
         Log  ${i}

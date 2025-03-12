@@ -1,7 +1,7 @@
 *** Settings ***
 Documentation       OrderTags acceptance tests
-Force Tags    forced_tag_1    forced_tag_aa     forced_tag_2    forced_tag_Ab    forced_tag_Bb    forced_tag_ba  # robotidy: off
-# robotidy: off
+Force Tags    forced_tag_1    forced_tag_aa     forced_tag_2    forced_tag_Ab    forced_tag_Bb    forced_tag_ba  # robocop: fmt: off
+# robocop: fmt: off
 Default Tags    default_tag_1    default_tag_aa    default_tag_2    default_tag_Ab    default_tag_Bb    default_tag_ba  # comment
 
 *** Test Cases ***
@@ -9,7 +9,7 @@ No tags
     No Operation
 
 Tags Upper Lower
-    [Tags]    ba    Ab    Bb    Ca    Cb    aa  # robotidy: off
+    [Tags]    ba    Ab    Bb    Ca    Cb    aa  # robocop: fmt: off
     My Keyword
 
 One Tag
@@ -19,7 +19,7 @@ One Tag
 Multiline tags
     [Tags]    tag1
     ...    Tag2
-    ...    TAG5  # robotidy: off
+    ...    TAG5  # robocop: fmt: off
     ...    tag4  # comment
     ...    tag4
     ...    tag3
@@ -27,7 +27,7 @@ Multiline tags
     No Operation
 
 *** Keywords ***
-# robotidy: off
+# robocop: fmt: off
 My Keyword
     [Tags]    ba    Ab    Bb    Ca    Cb    aa  # comment
     No Operation

@@ -3,8 +3,8 @@
 # comment
 #  comment
 #    comment
-# robotidy: off
-# robotidy: on
+# robocop: fmt: off
+# robocop: fmt: on
 
 
 *** Settings ***
@@ -12,8 +12,8 @@
 # comment
 #  comment
 #    comment
-# robotidy: off
-# robotidy:  on
+# robocop: fmt: off
+# robocop: fmt:  on
 Suite Setup    Keyword  # comment
 Suite Teardown  Keyword  # comment
 Default Tags    tag
@@ -25,8 +25,8 @@ Default Tags    tag
 # comment
 #  comment
 #    comment
-# robotidy: off
-# robotidy:  on
+# robocop: fmt: off
+# robocop: fmt:  on
 
 ${VARIABLE}  # comment
 @{LIST
@@ -37,8 +37,8 @@ ${VARIABLE}  # comment
 # comment
 #  comment
 #    comment
-# robotidy: off
-# robotidy:  on
+# robocop: fmt: off
+# robocop: fmt:  on
 
 Test Case
     # comment
@@ -53,8 +53,8 @@ Test Case
 # comment
 #  comment
 #    comment
-# robotidy: off
-# robotidy:  on
+# robocop: fmt: off
+# robocop: fmt:  on
 
 Keyword
     # comment

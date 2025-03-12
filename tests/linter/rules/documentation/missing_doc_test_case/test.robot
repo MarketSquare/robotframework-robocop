@@ -14,7 +14,7 @@ Test With Doc
     My Keyword
 
 Disabled Rule
-    # robocop: disable=missing-doc-test-case
+    # robocop: off=missing-doc-test-case
     Disablers Should Check Inside Node For Disabler
 
 

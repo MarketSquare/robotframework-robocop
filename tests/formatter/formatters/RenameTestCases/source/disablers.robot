@@ -1,11 +1,11 @@
 *** Test Cases ***
-starting with small case  # robotidy: off
+starting with small case  # robocop: fmt: off
     log  1
-# robotidy: off
+# robocop: fmt: off
 Ending with dot.
     No Operation
-# robotidy: on
-Ending with dot and containing variables .    column name    another column  # robotidy: off
+# robocop: fmt: on
+Ending with dot and containing variables .    column name    another column  # robocop: fmt: off
     No Operation
 
 Containing replace pattern JIRA-1234

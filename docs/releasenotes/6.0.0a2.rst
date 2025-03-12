@@ -567,10 +567,33 @@ Order related rules (except imports) are now grouped under 'ORD' group:
 - ``0927`` became ``ORD01`` (``test-case-section-out-of-order``)
 - ``0928`` became ``ORD02`` (``keyword-section-out-of-order``)
 
-# TODO:
+New disabler syntax (#1313)
+---------------------------
 
-deprecate # robocop: disable
-deprecate # robotidy: (maybe denote formatter only with robocop: format off?
+We have normalized Robocop and Robotidy disablers several releases ago, but old syntax was still allowed. We are now
+deprecating it for good. Due to merge and deprecation of Robotidy, we also deprecate ``robotidy`` directive.
+
+Currently supported syntax for linter::
+
+    # noqa
+    # robocop: off
+    # robocop: on
+
+And formatter::
+
+    # fmt: off
+    # fmt: on
+    # robocop: fmt: off
+    # robocop: fmt: on
+
+Deprecated syntax:
+
+    # robotidy: on
+    # robotidy: off
+    # robocop: enable
+    # robocop: disable
+
+New syntax still supports disabling selected rules or formatters (``# robocop: off=rule_name``).
 
 New features & other changes
 ============================

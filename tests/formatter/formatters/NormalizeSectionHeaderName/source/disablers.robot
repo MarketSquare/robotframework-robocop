@@ -1,7 +1,7 @@
-** settings ***  # robotidy: off
+** settings ***  # robocop: fmt: off
 
-*** test cASE ***  # robotidy: off
+*** test cASE ***  # robocop: fmt: off
 
-*KEYWORDs    data driven  columns  for col names  # robotidy: off
+*KEYWORDs    data driven  columns  for col names  # robocop: fmt: off
 
-*** coMment ***  # robotidy: off
+*** coMment ***  # robocop: fmt: off

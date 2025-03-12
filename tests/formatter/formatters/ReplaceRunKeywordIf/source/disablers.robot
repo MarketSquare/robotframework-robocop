@@ -9,17 +9,17 @@ Leave existing if blocks
     END
 
 Single Return Value
-    ${var}  Run Keyword If  ${condition}  Keyword With ${var}  ${arg}  # robotidy: off
+    ${var}  Run Keyword If  ${condition}  Keyword With ${var}  ${arg}  # robocop: fmt: off
 
 Multiple Return Values
-    # robotidy: off
+    # robocop: fmt: off
     ${var}  ${var2}  Run Keyword If  ${condition}  Keyword With ${var}  ${arg}
 
 Run keyword if with else if
     Run Keyword If  ${condition}    Keyword
-    ...  ELSE IF  ${other_condition}    Other Keyword  # robotidy: off
+    ...  ELSE IF  ${other_condition}    Other Keyword  # robocop: fmt: off
     ...  ELSE  Final Keyword
-# robotidy: off
+# robocop: fmt: off
 Run keyword if with else if and args
     Run Keyword If  ${condition}    Keyword  a  b  c
     ...  ELSE IF  ${other_condition}    Other Keyword
@@ -34,14 +34,14 @@ Run keyword if with else if and run keywords
     Run Keyword If  "${var}"=="a"    Run Keywords  First Keyword  AND  Second Keyword  1  2
     ...  ELSE IF  ${var}==1  Run Keywords  Single Keyword  ${argument}
     ...  ELSE  Normal Keyword  abc
-# robotidy: on
+# robocop: fmt: on
 Run keyword if inside FOR loop
     FOR  ${var}  IN  @{elems}
         Run Keyword If  ${condition}    Keyword
-        ...  ELSE IF  ${other_condition}    Other Keyword  # robotidy: off
+        ...  ELSE IF  ${other_condition}    Other Keyword  # robocop: fmt: off
         ...  ELSE  Final Keyword
     END
-# robotidy: off
+# robocop: fmt: off
 Run keyword if inside IF
     IF  ${condition}
         Run Keyword If  ${condition}    Keyword
@@ -50,7 +50,7 @@ Run keyword if inside IF
     END
 
 *** Keywords ***
-# robotidy: off
+# robocop: fmt: off
 Test Content Merged Into One Keyword
     IF    condition
         Keyword
@@ -78,6 +78,6 @@ Test Content Merged Into One Keyword
 
 Empty
     Run Keyword If
-# robotidy: on
+# robocop: fmt: on
 With BuiltIn
-    ${var}    BuiltIn.Run Keyword If    ${condition}    Keyword    ELSE    Set Variable  ${1}  # robotidy: off
+    ${var}    BuiltIn.Run Keyword If    ${condition}    Keyword    ELSE    Set Variable  ${1}  # robocop: fmt: off

@@ -11,7 +11,7 @@ Inline IF
     ${var}    IF    $condition1    Keyword    argument
 
 Simple IF
-    IF    $condition1  # robotidy: off
+    IF    $condition1  # robocop: fmt: off
         Keyword    argument
     END
     IF    $condition2    RETURN
@@ -19,7 +19,7 @@ Simple IF
 Branched IF
     IF    $condition1
         Keyword    1
-    ELSE  # robotidy: off
+    ELSE  # robocop: fmt: off
         Keyword    2
     END
 
@@ -61,13 +61,13 @@ Assign vars IF
        ${var}    Keyword
    END
 
-    # robotidy: off
+    # robocop: fmt: off
    IF  $condition1
        ${var}    ${var2}    Keyword
    ELSE
        ${var}    ${var2}    Keyword2
    END
-   # robotidy: on
+   # robocop: fmt: on
 
    IF  $condition1
        ${var}    Keyword

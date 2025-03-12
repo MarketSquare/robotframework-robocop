@@ -42,7 +42,7 @@ class MergeAndOrderSections(Formatter):
 
     ```robotframework
     i am comment
-    # robocop: disable
+    # robocop: off
     *** Settings ***
     ```
 
@@ -51,7 +51,7 @@ class MergeAndOrderSections(Formatter):
     ```robotframework
     *** Comments ***
     i am comment
-    # robocop: disable
+    # robocop: off
     *** Settings ***
     ```
 

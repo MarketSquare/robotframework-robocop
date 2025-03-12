@@ -1,6 +1,6 @@
 *** Settings ***
-Documentation  # robotidy: off
-# robotidy: off
+Documentation  # robocop: fmt: off
+# robocop: fmt: off
 Suite Setup
 Metadata
 Metadata    doc=1
@@ -17,11 +17,11 @@ Variables
 
 *** Test Cases ***
 Test
-    [Setup]  # robotidy: off
-    [Template]    #  comment    and    comment  # robotidy: off
+    [Setup]  # robocop: fmt: off
+    [Template]    #  comment    and    comment  # robocop: fmt: off
     [Tags]    tag
     Keyword
-# robotidy: off
+# robocop: fmt: off
 Test 2
     [Setup]    Keyword
     [Template]    Keyword
@@ -40,8 +40,8 @@ Test 3
 Keyword
     [Arguments]    ${arg}
     Keyword
-    [Return]  # robotidy: off
-# robotidy: off
+    [Return]  # robocop: fmt: off
+# robocop: fmt: off
 Keyword 2
     [Arguments]
     Keyword

@@ -74,7 +74,7 @@ Arguments With Defaults
     Log    ${var2}
 
 Ignored Error
-    [Arguments]    ${not_used}  # robocop: disable=unused-argument
+    [Arguments]    ${not_used}  # robocop: off=unused-argument
     Log    It shall not be reported.
 
 Escaped In Keyword

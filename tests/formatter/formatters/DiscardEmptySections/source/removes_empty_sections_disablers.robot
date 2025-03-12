@@ -1,8 +1,8 @@
-# robotidy: off
+# robocop: fmt: off
 *** Settings ***
 
 
-# robotidy: on
+# robocop: fmt: on
 *** Test Cases ***
 Test
     [Documentation]  doc
@@ -10,15 +10,15 @@ Test
     Pass
     Keyword
     One More
-    # robotidy: off
+    # robocop: fmt: off
 
 
 *** Keywords ***
 # This section is considered to be empty.
-# robotidy: off
+# robocop: fmt: off
 
 
-*** Variables ***  # robotidy: off
+*** Variables ***  # robocop: fmt: off
 
 *** Comments ***
-# robocop: disable=all
+# robocop: off=all

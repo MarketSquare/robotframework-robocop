@@ -1,36 +1,36 @@
 *** Test Cases ***
 test
-    keyword  # robotidy: off
+    keyword  # robocop: fmt: off
 
 Rename Me
     No Operation
 
 *** Keywords ***
-rename Me  # robotidy: off
-   Also rename this  # robotidy: off
+rename Me  # robocop: fmt: off
+   Also rename this  # robocop: fmt: off
 
 Rename Me 2
     No Operation
-# robotidy: off
+# robocop: fmt: off
 I Am Fine
     but i am not
-# robotidy: on
-Underscores_are_bad  # robotidy: off
-    looks_like_python  # robotidy: off
-    library_with_underscore.looks_like_python  # robotidy: off
+# robocop: fmt: on
+Underscores_are_bad  # robocop: fmt: off
+    looks_like_python  # robocop: fmt: off
+    library_with_underscore.looks_like_python  # robocop: fmt: off
 
 Keyword With Unicode And Non Latin
     Eäi Saa Peittää
     日本語
     _
     __
-# robotidy: off
+# robocop: fmt: off
 Ignore ${var} embedded
     Also Ignore ${variable}['key'] syntax
-# robotidy: on
+# robocop: fmt: on
 Structures
     FOR  ${var}  IN  1  2  3
-        # robotidy: off
+        # robocop: fmt: off
         IF  condition
             keyword
         ELSE IF
@@ -40,7 +40,7 @@ Structures
         END
             keyword
     END
-# robotidy: off
+# robocop: fmt: off
 Double__underscores
     No Operation
 

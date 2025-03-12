@@ -261,8 +261,7 @@ class IgnoredDataChecker(RawFileChecker):
 
     BOM = [BOM_UTF32_BE, BOM_UTF32_LE, BOM_UTF8, BOM_UTF16_LE, BOM_UTF16_BE]
     SECTION_HEADER = "***"
-    ROBOCOP_HEADER = "# robocop:"
-    ROBOTIDY_HEADER = "# robotidy:"  # TODO
+    IGNORE_DIRECTIVES = ("# robocop:", "# fmt:")
     LANGUAGE_HEADER = "language:"
 
     def __init__(self):
@@ -287,7 +286,7 @@ class IgnoredDataChecker(RawFileChecker):
     def check_line(self, line: str, lineno: int) -> bool:
         if line.startswith(self.SECTION_HEADER):
             return True
-        if line.startswith((self.ROBOCOP_HEADER, self.ROBOTIDY_HEADER)):
+        if line.startswith(self.IGNORE_DIRECTIVES):
             self.ignore_empty_lines = True
             return False
         if lineno == 1:

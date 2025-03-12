@@ -1,28 +1,28 @@
 
 
 *** Settings ***
-Library  library.py  WITH NAME          alias  # robotidy: off
+Library  library.py  WITH NAME          alias  # robocop: fmt: off
 
 Force Tags           tag
-...   tag  # robotidy: off
-# robotidy: off
+...   tag  # robocop: fmt: off
+# robocop: fmt: off
 Documentation  doc
 ...      multi
 ...  line
 
 *** Variables ***
-${var}     3  # robotidy: off
-# robotidy: off
+${var}     3  # robocop: fmt: off
+# robocop: fmt: off
  ${var2}  4
 
 *** Test Cases ***
 Test case
-  # robotidy: off
+  # robocop: fmt: off
   [Setup]  Keyword
    Keyword  with  arg
    ...  and  multi  lines
      [Teardown]          Keyword
-# robotidy: off
+# robocop: fmt: off
 Test case with structures
     FOR  ${variable}  IN  1  2
     Keyword
@@ -31,13 +31,13 @@ Test case with structures
   END
    END
 
-*** Keywords ***  # robotidy: off
+*** Keywords ***  # robocop: fmt: off
 Keyword
 Another Keyword
-          [Arguments]  ${arg}  # robotidy: off
-       Should Be Equal  1  # robotidy: off
+          [Arguments]  ${arg}  # robocop: fmt: off
+       Should Be Equal  1  # robocop: fmt: off
        ...  ${arg}
-   # robotidy: off
+   # robocop: fmt: off
    IF  ${condition}
         FOR  ${v}  IN RANGE  10
    Keyword

@@ -1,5 +1,5 @@
 *** Variables ***
-# robotidy: off
+# robocop: fmt: off
 ${var} =  ${1}
 @{list}=  a
 ...  b
@@ -12,4 +12,4 @@ ${variable}  10
 Keyword
     ${var} =  Keyword1
     ${var} =   Keyword2
-    ${var}    Keyword  # robotidy: off
+    ${var}    Keyword  # robocop: fmt: off

@@ -1,5 +1,5 @@
 *** Test Cases ***
-# robotidy: off
+# robocop: fmt: off
 Test case 1
     [Documentation]  this is
     ...    doc
@@ -24,7 +24,7 @@ Test case with comment at the end
 
 Test case 3
     Golden Keyword
-# robotidy: off
+# robocop: fmt: off
 Test case 4
    [Teardown]  teardown
    Keyword1
@@ -43,7 +43,7 @@ Test case 5  # comment1
    Keyword3
 
 *** Keywords ***
-# robotidy: off
+# robocop: fmt: off
 Keyword
   
     [Teardown]  Keyword
@@ -85,7 +85,7 @@ Comment Before setting
     Keyword
     # I want to be here
     [Return]    ${value}
-# robotidy: off
+# robocop: fmt: off
 Return first and comment last
     [Return]  stuff
     Keyword

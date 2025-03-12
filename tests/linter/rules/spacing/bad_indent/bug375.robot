@@ -35,11 +35,11 @@ My templated test4
 
 
 *** Keywords ***
-My Keyword  # robocop: disable
+My Keyword  # robocop: off
     [Documentation]  Some doc
     No Operation
 
 
-My Keyword    # robocop: disable
+My Keyword    # robocop: off
     [Documentation]  Some doc
     No Operation

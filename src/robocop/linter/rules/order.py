@@ -123,6 +123,7 @@ class TestCaseSectionOutOfOrderRule(Rule):
         ),
     ]
     added_in_version = "5.3.0"
+    style_guide_ref = ["#test-cases-or-tasks"]
 
 
 class KeywordSectionOutOfOrderRule(Rule):
@@ -176,19 +177,21 @@ class KeywordSectionOutOfOrderRule(Rule):
         ),
     ]
     added_in_version = "5.3.0"
+    style_guide_ref = ["#keyword"]
 
 
-class SectionOutOfOrderRule(Rule):  # FIXME it is not dup, more like ORD
+class SectionOutOfOrderRule(Rule):
     """
-    # TODO explain why
-    Sections should be defined in order set by ``sections_order``
-    parameter (default: ``settings,variables,testcases,keywords``).
+    Section does not follow recommended order.
+
+    It's advised to use consistent section orders for readability.
+
+    Default order: ``comments,settings,variables,testcases,keywords``.
 
     To change the default order use following option::
 
-        robocop check configure section-out-of-order:sections_order:comma,separated,list,of,sections
+        robocop check --configure section-out-of-order.sections_order=comma,separated,list,of,sections
 
-    where section should be case-insensitive name from the list: comments, settings, variables, testcases, keywords.
     Order of not configured sections is ignored.
 
     Incorrect code example::
@@ -223,6 +226,7 @@ class SectionOutOfOrderRule(Rule):  # FIXME it is not dup, more like ORD
             desc="order of sections in comma-separated list",
         )
     ]
+    style_guide_ref = ["#sections"]
 
 
 class TestAndKeywordOrderChecker(VisitorChecker):

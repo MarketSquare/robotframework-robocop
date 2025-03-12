@@ -105,6 +105,7 @@ def get_checker_docs() -> tuple[list[tuple], int]:
                     if not isinstance(param, SeverityThreshold)
                 ],
                 "severity_threshold": severity_threshold,
+                "style_guide": rule.style_guide_ref
             }
         )
     sorted_groups = []

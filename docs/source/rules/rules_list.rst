@@ -35,7 +35,7 @@ Below is the list of all built-in Robocop rules.
       Rule is deprecated.
 {% endif %}
 
-*Added in* ``v{{ rule_doc.robocop_version }}`` ⦁ *Supported RF versions*: ``{{ rule_doc.version }}``
+Added in ``v{{ rule_doc.robocop_version }}`` ⦁ Supported RF versions: ``{{ rule_doc.version }}``
 
 **Message**:
 
@@ -51,6 +51,13 @@ Below is the list of all built-in Robocop rules.
 {{ rule_doc.docs }}
 
 {% endif %}
+
+{%- if rule_doc.style_guide is not none %}
+**Style guide**:
+{% for ref in rule_doc.style_guide %}
+- `{{ ref }} <https://docs.robotframework.org/docs/style_guide{{ ref }}>`_
+{% endfor %}
+{%- endif %}
 
 {%- if rule_doc.severity_threshold is not none %}
 

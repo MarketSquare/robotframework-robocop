@@ -105,6 +105,7 @@ class MissingSpaceAfterCommentRule(Rule):
     severity = RuleSeverity.INFO  # TODO: changed severity from warning to info
     added_in_version = "1.0.0"
     parameters = [RuleParam(name="block", default="^###", converter=regex, desc="Block comment regex pattern.")]
+    style_guide_ref = ["#comments"]
 
 
 class InvalidCommentRule(Rule):

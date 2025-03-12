@@ -638,6 +638,20 @@ You can change output format by configuring ``print_issues`` report::
 
     robocop check --configure print_issues.output_format=grouped
 
+Official style guide support
+----------------------------
+
+Support for Robot Framework official style guide: https://docs.robotframework.org/docs/style_guide .
+
+It includes updating our rules and formatters to align with recommendations from the style guide, cross referencing
+between Robocop and Style Guide documentation and adding missing rules.
+
+You can list all rules that refer to official style guide rule::
+
+    robocop list rules --filter STYLE_GUIDE
+
+It is ongoing process and there will be more updates in upcoming versions of Robocop.
+
 Shell autocompletion
 ---------------------
 

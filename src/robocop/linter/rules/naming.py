@@ -275,6 +275,7 @@ class SectionVariableNotUppercaseRule(Rule):
     message = "Section variable '{variable_name}' name is not uppercase"
     severity = RuleSeverity.WARNING
     added_in_version = "1.4.0"
+    style_guide_ref = ["#variables-section", "#variable-scope-and-casing"]
 
 
 class ElseNotUpperCaseRule(Rule):

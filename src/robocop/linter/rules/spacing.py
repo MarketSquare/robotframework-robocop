@@ -58,6 +58,7 @@ class TrailingWhitespaceRule(Rule):
     message = "Trailing whitespace at the end of line"
     severity = RuleSeverity.WARNING
     added_in_version = "1.0.0"
+    style_guide_ref = ["#trailing-whitespaces"]
 
 
 class MissingTrailingBlankLineRule(Rule):
@@ -68,6 +69,7 @@ class MissingTrailingBlankLineRule(Rule):
     message = "Missing trailing blank line at the end of file"
     severity = RuleSeverity.WARNING
     added_in_version = "1.0.0"
+    style_guide_ref = ["#spacing-after-sections"]
 
 
 class EmptyLinesBetweenSectionsRule(Rule):
@@ -110,6 +112,7 @@ class EmptyLinesBetweenSectionsRule(Rule):
         )
     ]
     added_in_version = "1.0.0"
+    style_guide_ref = ["#spacing-after-sections"]
 
 
 class EmptyLinesBetweenTestCasesRule(Rule):
@@ -152,6 +155,7 @@ class EmptyLinesBetweenTestCasesRule(Rule):
         )
     ]
     added_in_version = "1.0.0"
+    style_guide_ref = ["#spacing-after-test-cases-or-tasks"]
 
 
 class EmptyLinesBetweenKeywordsRule(Rule):
@@ -194,6 +198,7 @@ class EmptyLinesBetweenKeywordsRule(Rule):
         )
     ]
     added_in_version = "1.0.0"
+    style_guide_ref = ["#spacing-after-keywords"]
 
 
 class MixedTabsAndSpacesRule(Rule):
@@ -252,6 +257,11 @@ class BadIndentRule(Rule):
         )
     ]
     added_in_version = "3.0.0"
+    style_guide_ref = [
+        "#indentation",
+        "#block-indentation",
+        "#indentation-within-test-cases-tasks-and-keywords-section",
+    ]
 
 
 class EmptyLineAfterSectionRule(Rule):
@@ -287,6 +297,7 @@ class EmptyLineAfterSectionRule(Rule):
     ]
     severity_threshold = SeverityThreshold("empty_lines", substitute_value="allowed_empty_lines")
     added_in_version = "1.2.0"
+    style_guide_ref = ["#spacing-after-the-section-header-line"]
 
 
 class TooManyTrailingBlankLinesRule(Rule):
@@ -302,6 +313,7 @@ class TooManyTrailingBlankLinesRule(Rule):
     file_wide_rule = True  # TODO: improve checking to report on trailing lines
     severity = RuleSeverity.WARNING
     added_in_version = "1.4.0"
+    style_guide_ref = ["#spacing-after-sections"]
 
 
 class MisalignedContinuationRule(Rule):
@@ -337,6 +349,7 @@ class MisalignedContinuationRule(Rule):
     message = "Continuation marker is not aligned with starting row"
     severity = RuleSeverity.WARNING
     added_in_version = "1.6.0"
+    style_guide_ref = ["#variables-section-line-continuation"]
 
 
 class ConsecutiveEmptyLinesRule(Rule):
@@ -389,6 +402,11 @@ class ConsecutiveEmptyLinesRule(Rule):
         "empty_lines", compare_method="greater", substitute_value="allowed_empty_lines"
     )
     added_in_version = "1.8.0"
+    style_guide_ref = [
+        "#settings-1",
+        "#spacing-between-code-blocks-within-test-cases-or-tasks",
+        "#spacing-between-code-blocks-within-keyword-calls",
+    ]
 
 
 class EmptyLinesInStatementRule(Rule):
@@ -424,6 +442,7 @@ class EmptyLinesInStatementRule(Rule):
     message = "Multi-line statement with empty lines"
     severity = RuleSeverity.WARNING
     added_in_version = "1.8.0"
+    style_guide_ref = ["#spacing-of-line-continuations"]
 
 
 class VariableNotLeftAlignedRule(Rule):
@@ -450,6 +469,7 @@ class VariableNotLeftAlignedRule(Rule):
     severity = RuleSeverity.ERROR
     version = ">=4.0"
     added_in_version = "1.8.0"
+    style_guide_ref = ["#indentation-within-variables-section"]
 
 
 class MisalignedContinuationRowRule(Rule):
@@ -523,6 +543,7 @@ class SuiteSettingNotLeftAlignedRule(Rule):
     severity = RuleSeverity.ERROR
     version = ">=4.0"
     added_in_version = "2.4.0"
+    style_guide_ref = ["#indentation-within-settings-section"]
 
 
 class BadBlockIndentRule(Rule):
@@ -559,6 +580,7 @@ class BadBlockIndentRule(Rule):
     message = "Not enough indentation inside block"
     severity = RuleSeverity.ERROR
     added_in_version = "3.0.0"
+    style_guide_ref = ["#indentation"]
 
 
 class FirstArgumentInNewLineRule(Rule):

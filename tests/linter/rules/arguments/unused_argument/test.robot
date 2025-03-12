@@ -221,3 +221,22 @@ Used In For While Option
     WHILE    ${condition}    limit=${limit}
         No Operation
     END
+
+Used in EXCEPT branch
+    [Arguments]    ${arg1}    ${arg2}    ${arg3}    ${arg4}    ${arg5}    ${arg6}    ${arg7}
+    TRY
+        May Fail    ${arg1}
+    EXCEPT    ${arg2}
+        No Operation
+    EXCEPT    ${arg3}    ${arg4}
+        No Operation
+    EXCEPT    Error    AS    ${arg5}  # used variable, overwrites, should raise overwrite of unused
+        Use    ${arg5}
+    EXCEPT    Error    AS    ${arg6}  # unused variable, overwrites, should raise overwrite of unused
+        No Operation
+    END
+    TRY
+        Some Keyword
+    EXCEPT    ValueError: .*    type=${arg7}
+        No Operation
+    END

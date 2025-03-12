@@ -46,3 +46,5 @@ Keyword With Nested Variables
     Set Test Variable  ${CAPITAL_&{VAR}}  1
     Set Global Variable  ${${Var} MY VAR}  1
     Set Global Variable  ${${Var} TWO VARS${var}}  1
+    Set Global Variable  ${${Var} TWO VARS${var} AFTER}  1
+    Set Global Variable     ${${name}}      "My variable value"

@@ -89,8 +89,7 @@ def normalize_robot_var_name(name: str) -> str:
 def remove_nested_variables(var_name: str) -> str:
     for match in VariableMatches(var_name, ignore_errors=True):
         # take what surrounds it and run the check again
-        var_name = remove_nested_variables(match.before + match.after)
-        break
+        return remove_nested_variables(match.before + match.after)
     return var_name.strip()
 
 

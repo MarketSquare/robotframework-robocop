@@ -816,3 +816,18 @@ Following code will now not raise an issue::
             END
             VAR    ${continuation_token}    ${response}[continuationToken]
         END
+
+non-local-variables-should-be-uppercase with variable in name (#1139)
+---------------------------------------------------------------------
+
+If non-local variable used another variable as name, it was incorrectly reported as non-local.
+
+Following code will now not raise an issue::
+
+    *** Keywords ***
+    ${name}    "MY UPPERCASE VARIABLE NAME"
+    Set Global Variable     ${${name}}      "My variable value"
+    Set Global Variable     ${${name}_VAR}      "My variable value"  # non variable parts still needs to be upper case
+
+Since we don't track variable values in linting, we do not check if ``${name}`` use upper case or not - such cases
+are ignored.

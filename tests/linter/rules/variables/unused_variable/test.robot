@@ -201,3 +201,31 @@ Used in one branch and after IF
         Log    ${var}
     END
     Log    ${var}
+
+Double FOR loops
+    [Arguments]    ${initial_token}
+    ...    ${retries}=5
+    # Bug: 1148
+    VAR    ${continuation_token}    ${initial_token}
+
+    FOR    ${i}    IN RANGE    ${{ int($retries)+1 }}
+        ${response} =    Get Events    ${continuation_token}
+        FOR    ${_}    IN    @{response}[events]
+            # Do stuff
+            No Operation
+        END
+
+        IF    $i < int($retries)
+            VAR    ${continuation_token}    ${response}[continuationToken]
+        END
+    END
+
+Use variable inside second FOR
+    FOR    ${x}    IN RANGE    10
+        ${calculation1}    Perform Calculation
+        FOR    ${y}    IN RANGE    5
+             Increment    ${calculation1}    ${x}   ${y}
+             Increment    ${calculation2}    ${x}   ${y}
+        END
+        ${calculation2}    Perform Calculation
+    END

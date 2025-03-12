@@ -1090,7 +1090,7 @@ class UnusedVariablesChecker(VisitorChecker):
         ]  # variables are list of scope-dictionaries, to support IF branches
         self.current_if_variables: list[dict[str, CachedVariable]] = []
         self.section_variables: dict[str, CachedVariable] = {}
-        self.used_in_scope = set()  # variables that were used in current FOR/WHILE loop
+        self.used_in_scope: list[set] = []  # variables that were used in current FOR/WHILE loop
         self.ignore_overwriting = False  # temporarily ignore overwriting, e.g. in FOR loops
         self.in_loop = False  # if we're in the loop we need to check whole scope for unused-variable
         self.test_or_task_section = False
@@ -1261,6 +1261,9 @@ class UnusedVariablesChecker(VisitorChecker):
         Due to recursive nature of the loops, we need to revisit variables used in the loop again in case
         variable defined in the further part of the loop was used.
 
+        In case of nested FOR/WHILE loops we're storing variables in separate stacks, that are merged until we reach
+        outer END.
+
         For example::
 
             *** Keywords ***
@@ -1269,14 +1272,18 @@ class UnusedVariablesChecker(VisitorChecker):
                     ${counter}    Update Counter    ${counter}
                 END
         """
-        for name in self.used_in_scope:
-            self._set_variable_as_used(name, self.variables[-1])
+        top_stack = self.used_in_scope.pop()
+        if self.used_in_scope:
+            self.used_in_scope[-1] = self.used_in_scope[-1].union(top_stack)
+        else:
+            for name in top_stack:
+                self._set_variable_as_used(name, self.variables[-1])
 
     def visit_While(self, node):  # noqa: N802
         if node.header.errors:
             return
         self.in_loop = True
-        self.used_in_scope = set()
+        self.used_in_scope.append(set())
         for token in node.header.get_tokens(Token.ARGUMENT):
             self.find_not_nested_variable(token.value, is_var=False)
         if node.limit:
@@ -1290,7 +1297,7 @@ class UnusedVariablesChecker(VisitorChecker):
         if getattr(node.header, "errors", None):
             return
         self.in_loop = True
-        self.used_in_scope = set()
+        self.used_in_scope.append(set())
         self.ignore_overwriting = True
         for token in node.header.get_tokens(Token.ARGUMENT, "OPTION"):  # Token.Option does not exist for RF3 and RF4
             self.find_not_nested_variable(token.value, is_var=False)
@@ -1442,7 +1449,8 @@ class UnusedVariablesChecker(VisitorChecker):
           arg["value"] -> arg
         """
         normalized = normalize_robot_name(variable_name)
-        self.used_in_scope.add(normalized)
+        if self.used_in_scope:
+            self.used_in_scope[-1].add(normalized)
         for variable_scope in self.variable_namespaces():
             self._set_variable_as_used(normalized, variable_scope)
 

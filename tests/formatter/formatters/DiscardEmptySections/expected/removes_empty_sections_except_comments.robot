@@ -12,4 +12,4 @@ Test
 
 
 *** Comments ***
-# robocop: disable=all
+# robocop: off=all

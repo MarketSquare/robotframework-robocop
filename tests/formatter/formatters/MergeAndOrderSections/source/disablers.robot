@@ -18,7 +18,7 @@ Test Template    Template
 
 *** Keyword ***
 Keyword2
-    # robotidy: off
+    # robocop: fmt: off
     Log  2
     FOR  ${i}  IN RANGE  10
         Log  ${i}
@@ -28,7 +28,7 @@ Keyword2
 Test 3
     Log  3
 
-# robotidy: off
+# robocop: fmt: off
 *** Variables ***  this should be left  alone
 ${var}  1
 @{var2}  1

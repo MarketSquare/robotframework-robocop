@@ -1,15 +1,15 @@
 *** Test Cases ***
 Outside of loop
-    BREAK  # robotidy: off
-    CONTINUE  # robotidy: off
-    Exit For Loop  # robotidy: off
-    Exit For Loop If  # robotidy: off
-    Continue For Loop  # robotidy: off
-    Continue For Loop If    $condition  # robotidy: off
+    BREAK  # robocop: fmt: off
+    CONTINUE  # robocop: fmt: off
+    Exit For Loop  # robocop: fmt: off
+    Exit For Loop If  # robocop: fmt: off
+    Continue For Loop  # robocop: fmt: off
+    Continue For Loop If    $condition  # robocop: fmt: off
 
 In FOR
     FOR    ${var}    IN  1  2
-        # robotidy: off
+        # robocop: fmt: off
         BREAK
         CONTINUE
         Exit For Loop
@@ -19,7 +19,7 @@ In FOR
     END
 
 In While
-    # robotidy: off
+    # robocop: fmt: off
     WHILE    $condition
         BREAK
         CONTINUE
@@ -30,7 +30,7 @@ In While
     END
 
 *** Keywords ***
-# robotidy: off
+# robocop: fmt: off
 Outside of loop
     BREAK
     CONTINUE

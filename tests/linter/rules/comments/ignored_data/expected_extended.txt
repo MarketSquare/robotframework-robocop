@@ -30,7 +30,7 @@ with_ignored_data.robot:1:1 COM04 Ignored data found in file
 
 with_ignored_rule_and_data.robot:2:1 COM04 Ignored data found in file
    |
- 1 | # robocop: disable=1001
+ 1 | # robocop: off=1001
  2 | ${var}    10    # This should throw a warning.
    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ COM04
  3 | ${var}    20    # This is not good but one warning is enough.

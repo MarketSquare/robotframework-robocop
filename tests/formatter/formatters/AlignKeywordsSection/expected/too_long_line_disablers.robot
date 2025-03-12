@@ -12,7 +12,7 @@ Many arguments
     ...                     argument8
 
     # does not fit before alignment
-    Longer Keyword Name That Could Happen In Real Life Too    argument value with sentence that goes over the characters limit  # robotidy: off=SplitTooLongLine,AlignKeywordsSection
+    Longer Keyword Name That Could Happen In Real Life Too    argument value with sentence that goes over the characters limit  # robocop: fmt: off=SplitTooLongLine,AlignKeywordsSection
 
     # multiline but fits without alignment
     Keyword
@@ -27,6 +27,6 @@ Many arguments
     ...                     argument8
 
 Many assignments
-    # robotidy: off=AlignKeywordsSection,all
+    # robocop: fmt: off=AlignKeywordsSection,all
     ${longer_argument}    ${longer_argument2}    ${longer_argument3}    ${longer_argument4}    ${longer_argument5}    ${longer_argument6}    Keyword
     ...    argument1    argument2

@@ -20,30 +20,6 @@ class InvalidExternalCheckerError(RobocopFatalError):
         super().__init__(msg)
 
 
-class FileError(RobocopFatalError):
-    def __init__(self, source):
-        msg = f'File "{source}" does not exist'
-        super().__init__(msg)
-
-
-class TomlFileNotFoundError(RobocopFatalError):
-    def __init__(self, source):
-        msg = f'TOML configuration file "{source}" does not exist'
-        super().__init__(msg)
-
-
-class ArgumentFileNotFoundError(RobocopFatalError):
-    def __init__(self, source):
-        msg = f'Argument file "{source}" does not exist'
-        super().__init__(msg)
-
-
-class CircularArgumentFileError(RobocopFatalError):
-    def __init__(self, source):
-        msg = f'Circular argument file import in "{source}"'
-        super().__init__(msg)
-
-
 class InvalidArgumentError(RobocopFatalError):
     def __init__(self, msg):
         super().__init__(f"Invalid configuration for Robocop:\n{msg}")
@@ -57,7 +33,7 @@ class RuleNotFoundError(RobocopFatalError):
         )
 
 
-class RuleParamNotFoundError(RobocopFatalError):
+class RuleParamNotFoundError(RobocopFatalError):  # TODO
     def __init__(self, rule, param, checker):
         super().__init__(
             f"Rule `{rule.name}` in `{checker.__class__.__name__}` checker does not contain `{param}` param. "
@@ -65,18 +41,13 @@ class RuleParamNotFoundError(RobocopFatalError):
         )
 
 
-class RuleParamFailedInitError(RobocopFatalError):
+class RuleParamFailedInitError(RobocopFatalError):  # TODO
     def __init__(self, param, value, err):
         desc = f"    Parameter info: {param.desc}" if param.desc else ""
         super().__init__(
             f"Failed to configure param `{param.name}` with value `{value}`. Received error `{err}`.\n"
             f"    Parameter type: {param.converter}\n" + desc
         )
-
-
-class RuleReportsNotFoundError(RobocopFatalError):
-    def __init__(self, rule, checker):
-        super().__init__(f"{checker.__class__.__name__} checker `reports` attribute contains unknown rule `{rule}`")
 
 
 class InvalidReportName(ConfigGeneralError):

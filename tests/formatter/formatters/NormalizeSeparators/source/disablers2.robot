@@ -1,7 +1,7 @@
 *** Settings ***
 Documentation    Disablers with NormalizeTags acceptance tests
 
-Test Tags  # robotidy: off
+Test Tags  # robocop: fmt: off
 ...    UPPERCASE_TAG
 ...    tag2
 ...    tag3

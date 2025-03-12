@@ -1,4 +1,4 @@
-"""Collection of classes for detecting checker disablers (like # robocop: disable) in robot files"""
+"""Collection of classes for detecting checker disablers (like # robocop: off) in robot files"""
 
 from __future__ import annotations
 
@@ -37,9 +37,6 @@ class DisablersInFile:  # pylint: disable=too-few-public-methods
 
 
 class DisablersVisitor(ModelVisitor):
-    ENABLERS = {"enable", "on"}
-    DISABLERS = {"disable", "off"}
-
     def __init__(self, model: File):
         self.file_disabled = False
         self.file_end = 1
@@ -47,7 +44,7 @@ class DisablersVisitor(ModelVisitor):
         self.keyword_or_test_section = False
         self.last_name_header_line = 0
         self.disablers_in_scope = []
-        self.disabler_pattern = re.compile(r"robocop: ?(?P<disabler>disable|off|enable|on)=?(?P<rules>[\w\-,]*)")
+        self.disabler_pattern = re.compile(r"robocop: ?(?P<disabler>off|on) ?=?(?P<rules>[\w\-,]*)")
         self.rules = defaultdict(DisablersInFile().copy)
         self.visit(model)
 
@@ -116,15 +113,15 @@ class DisablersVisitor(ModelVisitor):
         if not disabler.group("rules"):
             rules = ["all"]
         else:
-            rules = disabler.group("rules").split(",")
-        if disabler.group("disabler") in self.DISABLERS:
+            rules = [rule.strip() for rule in disabler.group("rules").split(",") if rule.strip()]
+        if disabler.group("disabler") == "off":
             for rule in rules:
                 if is_inline:
                     self._add_inline_disabler(rule, token.lineno)
                 else:
                     scope = self.get_scope_for_disabler(token)
                     self._start_block(scope, rule, token.lineno)
-        elif disabler.group("disabler") in self.ENABLERS and not is_inline:
+        elif disabler.group("disabler") == "on" and not is_inline:
             scope = self.get_scope_for_disabler(token)
             for rule in rules:
                 self._end_block(scope, rule, token.lineno)
@@ -160,9 +157,6 @@ class DisablersVisitor(ModelVisitor):
 
 class DisablersFinder(ModelVisitor):
     """Visit and find robocop disablers in Robot Framework file."""
-
-    ENABLERS = {"enable", "on"}
-    DISABLERS = {"disable", "off"}
 
     def __init__(self, model: File):
         self.disabled = DisablersVisitor(model)

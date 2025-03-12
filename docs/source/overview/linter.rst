@@ -68,12 +68,12 @@ Disabling rules from source code
 --------------------------------
 
 It is also possible to disable rule(s) from Robot Framework source code.
-Use ``# robocop: disable`` and optionally a rule that is going to be disabled, e.g.::
+Use ``# robocop: off`` and optionally a rule that is going to be disabled, e.g.::
 
     *** Keywords ***
     Display Sentence
         [Arguments]      ${sentence}
-        ${one-liner}     Parse Sentence  ${sentence}  # robocop: disable=hyphen-in-variable-name
+        ${one-liner}     Parse Sentence  ${sentence}  # robocop: off=hyphen-in-variable-name
         Print To Welcome Page   ${one-liner}
 
 Learn more about disablers here - :ref:`disablers`.

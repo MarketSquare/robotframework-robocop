@@ -4,15 +4,15 @@ Inline IF
     IF    $cond    Keyword    ELSE    Keyword2    ${var}
 
 WHILE
-    # robotidy: off
+    # robocop: fmt: off
     WHILE    $cond
         Keyword
         # comment
     Keyword 2
-    # robotidy: on
+    # robocop: fmt: on
 
 TRY EXCEPT
-    # robotidy: off
+    # robocop: fmt: off
     TRY
         Some Keyword
     EXCEPT    Error message    # Try matching this first.

@@ -709,8 +709,8 @@ class LineLengthChecker(RawFileChecker):
     """Checker for maximum length of a line."""
 
     line_too_long: LineTooLongRule
-    # replace `noqa` or `# robocop`, `# robocop: enable`, `# robocop: disable=optional,rule,names`
-    disabler_pattern = re.compile(r"(# )+(noqa|robocop: ?(?P<disabler>disable|enable)=?(?P<rules>[\w\-,]*))")
+    # replace `noqa` or `# robocop`, `# robocop: on`, `# robocop: off=optional,rule,names`
+    disabler_pattern = re.compile(r"(# )+(noqa|robocop: ?(?P<disabler>off|on) ?=?(?P<rules>[\w\-,]*))")
 
     def check_line(self, line, lineno) -> None:
         if self.line_too_long.ignore_pattern and self.line_too_long.ignore_pattern.search(line):

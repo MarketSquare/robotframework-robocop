@@ -14,10 +14,10 @@ Set Variable
     ${multiple_values}    Set Variable   value1    value2
 
 Set Variable with disablers
-    ${local_variable}    Set Variable    value  # robotidy: off
+    ${local_variable}    Set Variable    value  # robocop: fmt: off
     ${list}    Create List
     ...  item
-    ...  second item  # robotidy: off
+    ...  second item  # robocop: fmt: off
     ...  third item
 
 Set Variable with scope

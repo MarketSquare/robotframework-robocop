@@ -1,4 +1,4 @@
-# robocop: disable=MISC06
+# robocop: off=MISC06
 *** Keywords ***
 Keyword
     Some Keyword

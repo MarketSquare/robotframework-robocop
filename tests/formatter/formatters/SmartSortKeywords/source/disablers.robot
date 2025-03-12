@@ -1,7 +1,7 @@
 *** Variables ***
 ${MY_VAR}    123
 
-*** Keywords ***  # robotidy: off
+*** Keywords ***  # robocop: fmt: off
 
 My Keyword
     Kw1

@@ -1,4 +1,4 @@
-# robocop: disable=1001
+# robocop: off=1001
 ${var}    10    # This should throw a warning.
 ${var}    20    # This is not good but one warning is enough.
 *** Settings ***

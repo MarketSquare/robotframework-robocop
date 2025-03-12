@@ -236,7 +236,7 @@ FAQ
   Example:
 
   ```
-  Keyword with lowercased name  # robocop: disable
+  Keyword with lowercased name  # robocop: off
   ```
 
   More about it in  TODO check docs urls

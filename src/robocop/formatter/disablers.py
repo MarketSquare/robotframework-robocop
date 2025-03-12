@@ -13,7 +13,7 @@ def skip_if_disabled(func):
     Skip node if it is disabled.
 
     Do not format node if it's not within passed ``start_line`` and ``end_line`` or
-    it does match any ``# robotidy: off`` disabler
+    it does match any ``# robocop: fmt: off`` disabler
     """
 
     @functools.wraps(func)
@@ -173,17 +173,17 @@ class RegisterDisablers(ModelVisitor):
         self.start_line = start_line
         self.end_line = end_line
         self.disablers = DisablersInFile(start_line, end_line)
-        self.disabler_pattern = re.compile(r"\s*#\s?robotidy:\s?(?P<disabler>on|off) ?=?(?P<formatters>[\w,\s]*)")
+        self.disabler_pattern = re.compile(r"#\s(?:robocop:\s)?fmt: (?P<disabler>on|off) ?=?(?P<formatters>[\w,\s]+)?")
         self.disablers_in_scope: list[dict[str, int]] = []
         self.file_level_disablers = False
 
-    def is_disabled_in_file(self, formatter_name: str = ALL_FORMATTERS):
+    def is_disabled_in_file(self, formatter_name: str = ALL_FORMATTERS) -> bool:
         return self.disablers.is_disabled_in_file(formatter_name)
 
-    def get_disabler(self, comment):
+    def get_disabler(self, comment: Token) -> re.Match | None:
         if not comment.value:
             return None
-        return self.disabler_pattern.match(comment.value)
+        return self.disabler_pattern.search(comment.value)
 
     def close_disabler(self, end_line):
         disabler = self.disablers_in_scope.pop()
@@ -204,9 +204,9 @@ class RegisterDisablers(ModelVisitor):
 
     @staticmethod
     def get_disabler_formatters(match) -> list[str]:
-        if not match.group("formatters") or "=" not in match.group(0):  # robotidy: off or robotidy: off comment
+        if not match.group("formatters") or "=" not in match.group(0):  # robocop: fmt: off or fmt: off comment
             return [ALL_FORMATTERS]
-        # robotidy: off=Formatter1, Formatter2
+        # fmt: off=Formatter1, Formatter2
         return [formatter.strip() for formatter in match.group("formatters").split(",") if formatter.strip()]
 
     def visit_SectionHeader(self, node):  # noqa: N802

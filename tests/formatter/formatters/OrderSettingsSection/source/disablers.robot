@@ -1,4 +1,4 @@
-*** Settings ***  # robotidy: off
+*** Settings ***  # robocop: fmt: off
 Metadata  value  param
 
 Force Tags  tag

@@ -4,15 +4,22 @@
 Disablers
 *********
 
-Rules and formatters can be disabled directly from Robot Framework code.
+Rules and formatters can be disabled directly from Robot Framework code. You can use special directives as a comment.
 
-Use following comment for disabling::
+Use following directives to disable linting::
 
     # robocop: off
+    # noqa
+
+To disable formatting, use following directives::
+
+    # fmt: off
+    # robocop: fmt: off
 
 The keyword may optionally have specified rules or formatters, separated by comma::
 
-    # robocop: off=rule1,rule2,FormatterName
+    # robocop: off=rule1, rule2
+    # robocop: fmt: off=FormatterName
 
 The disablers are also context-aware, meaning that they turn off the Robocop rules for the related code block,
 e.g. keyword, test case, or even for loops and if statements.
@@ -24,9 +31,10 @@ e.g. keyword, test case, or even for loops and if statements.
 Disabling lines
 ---------------
 
-It is possible to disable rule for particular line or lines::
+It is possible to disable rule or formatter for particular line or lines::
 
-    Some Keyword  # robocop: off=rule1,FormatterName
+    Some Keyword  # robocop: off=rule1
+    Some Keyword  # robocop: fmt: off=FormatterName
 
 In this example no message will be printed for this line for rule named ``rule1`` and no formatting changes
 will be applied by FormatterName formatter.

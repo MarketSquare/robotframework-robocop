@@ -83,7 +83,7 @@ section with only comments is always considered as non-empty::
             # This section is considered to be empty.
 
             *** Comments ***
-            # robocop: disable=all
+            # robocop: off=all
 
     .. tab-item:: alloow_only_comments=False
 
@@ -98,7 +98,7 @@ section with only comments is always considered as non-empty::
                 One More
 
             *** Comments ***
-            # robocop: disable=all
+            # robocop: off=all
 
 Skip formatting
 ----------------

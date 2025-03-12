@@ -17,8 +17,8 @@ Test
     Keyword With Looooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooong Name And  ${args}
 
 Test with disabler
-    Keyword That Is Quite Long But Under The Limit     ${arg}    ${arg}    ${arg}    ${arg}    ${arg}    ${arg}  # robocop: disable=0101
-    Keyword That Is Quite Long But Under The Limit     ${arg}    ${arg}    ${arg}    ${arg}    ${arg}    ${arg}              # robocop:enable
+    Keyword That Is Quite Long But Under The Limit     ${arg}    ${arg}    ${arg}    ${arg}    ${arg}    ${arg}  # robocop: off=0101
+    Keyword That Is Quite Long But Under The Limit     ${arg}    ${arg}    ${arg}    ${arg}    ${arg}    ${arg}              # robocop: on
     Keyword That Is Quite Long But Under The Limit     ${arg}    ${arg}    ${arg}    ${arg}    ${arg}    ${arg}              # noqa
 
 

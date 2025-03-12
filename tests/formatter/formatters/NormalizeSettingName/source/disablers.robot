@@ -1,20 +1,20 @@
 *** Settings ***
-library  # robotidy: off
+library  # robocop: fmt: off
 documentation    This is example documentation
-...              which is also multiline  # robotidy: off
-# robotidy: off
+...              which is also multiline  # robocop: fmt: off
+# robocop: fmt: off
 FORCE TAGS  tag1     tag2
 test Template  Keyword
 
 
 *** Test Cases ***
 Test
-    [setup]    Keyword2    # robotidy: off
+    [setup]    Keyword2    # robocop: fmt: off
     No Operation
-    [ TEARDOWN ]    # robotidy: off
+    [ TEARDOWN ]    # robocop: fmt: off
 
 
-*** Keywords ***  # robotidy: off
+*** Keywords ***  # robocop: fmt: off
 Keyword
     [arguments]    ${arg}
     Pass

@@ -798,3 +798,21 @@ Following code will now properly raise issues::
         ELSE IF    ${var2}
             ${var2}    Keyword  # not used
         END
+
+Variable usage in nested FOR loops (#1148)
+------------------------------------------
+
+If FOR/WHILE loop contained another loop, variables used before it were not marked as used.
+
+Following code will now not raise an issue::
+
+    *** Keywords ***
+    Double FOR loops
+        VAR    ${continuation_token}    value
+        FOR    ${i}    IN RANGE    ${{ int($retries)+1 }}
+            ${response}    Get Events    ${continuation_token}
+            FOR    ${_}    IN    @{response}[events]
+                No Operation
+            END
+            VAR    ${continuation_token}    ${response}[continuationToken]
+        END

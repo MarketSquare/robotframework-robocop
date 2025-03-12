@@ -960,6 +960,8 @@ class VariableNamingChecker(VisitorChecker):
 
     def check_non_local_variable(self, variable_name: str, node, token) -> None:
         normalized_var_name = remove_nested_variables(variable_name)
+        if not normalized_var_name:
+            return
         # a variable as a keyword argument can contain lowercase nested variable
         # because the actual value of it may be uppercase
         if not normalized_var_name.isupper():

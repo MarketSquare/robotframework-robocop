@@ -1320,6 +1320,8 @@ class UnusedVariablesChecker(VisitorChecker):
     def visit_Try(self, node):  # noqa: N802
         if node.errors or node.header.errors:
             return
+        for token in node.header.get_tokens(Token.ARGUMENT, Token.OPTION):
+            self.find_not_nested_variable(token.value, is_var=False)
         self.variables.append({})
         if self.try_assign(node) is not None:
             error_var = node.header.get_token(Token.VARIABLE)

@@ -229,3 +229,11 @@ Use variable inside second FOR
         END
         ${calculation2}    Perform Calculation
     END
+
+Used in EXCEPT branch
+    ${var1}    ${var2}    Get Variables
+    TRY
+        May Fail    ${var1}
+    EXCEPT    ${var2}
+        No Operation
+    END

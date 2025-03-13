@@ -248,3 +248,13 @@ SARIF export
 ------------
 
 .. automodule:: robocop.linter.reports.sarif_report.SarifReport
+
+
+----
+
+.. _gitlab:
+
+Gitlab
+------
+
+.. automodule:: robocop.linter.reports.gitlab.GitlabReport

@@ -13,7 +13,7 @@ class TextFile(robocop.linter.reports.Report):
 
     You can configure output path::
 
-        robocop linter --configure text_file.output_path=output/robocop.txt
+        robocop check --configure text_file.output_path=output/robocop.txt
 
     ``text_file`` report supports only ``simple`` issue output format.
     """

@@ -33,7 +33,7 @@ Example usage:
 
 .. code:: shell
 
-    robocop format -c NormalizeSeparators:skip=documentation
+    robocop format -c NormalizeSeparators.skip=documentation
 
 It is possible to use global option to skip formatting for every formatter that supports it:
 
@@ -61,7 +61,7 @@ normalized before search (spaces and underscores removed, lowercase).
 
 With this configuration::
 
-    robotidy -c AlignTestCasesSection:skip_keyword_call=ExecuteJavascript,catenate
+    robotidy -c AlignTestCasesSection.skip_keyword_call=ExecuteJavascript,catenate
 
 All instances of ``Execute Javascript`` and ``Catenate`` keywords will not be formatted.
 
@@ -82,7 +82,7 @@ Both options are configurable using configuration file (:ref:`config-file`).
         "supports spaces too"
     ]
     configure = [
-        "AlignKeywordsSection : skip_keyword_call = Name,othername"
+        "AlignKeywordsSection.skip_keyword_call=Name,othername"
     ]
 
 .. _skip keyword call pattern:
@@ -96,7 +96,7 @@ recommended to use proper regex flags to match it properly.
 
 With this configuration::
 
-    robotidy -c AlignKeywordsSection:skip_keyword_call_pattern=^First,(i?)contains\s?words src
+    robotidy -c AlignKeywordsSection.skip_keyword_call_pattern=^First,(i?)contains\s?words src
 
 All instances of keywords that start with "First" or contain "contains words" (case insensitive, space optional) will
 not be formatted.
@@ -120,7 +120,7 @@ Both options are configurable using configuration file (:ref:`config-file`).
         "(i?)contains\s?words"
     ]
     configure = [
-        "AlignKeywordsSection : skip_keyword_call_pattern = first,secondname"
+        "AlignKeywordsSection.skip_keyword_call_pattern=first,secondname"
     ]
 
 .. _skip sections:
@@ -130,7 +130,7 @@ Skip sections
 
 Option that disables formatting of the selected sections. Example usage::
 
-    robotidy -c NormalizeSeparators:skip_sections=variables src
+    robotidy -c NormalizeSeparators.skip_sections=variables src
 
 It is possible to use global option to skip formatting for every transformer that supports it::
 
@@ -147,5 +147,5 @@ Both options are configurable using configuration file (:ref:`config-file`).
     [tool.robocop.format]
     skip-sections = "comments"
     configure = [
-        "NormalizeSeparators : skip_sections = tasks,keywords"
+        "NormalizeSeparators.skip_sections=tasks,keywords"
     ]

@@ -222,6 +222,13 @@ def check_files(
             help="Compare reports results with previous results (saved with --persistent)", rich_help_panel="Reports"
         ),
     ] = None,
+    gitlab: Annotated[
+        bool,
+        typer.Option(
+            help="Generate Gitlab Code Quality report. Equivalent of --reports gitlab",
+            rich_help_panel="Reports",
+        ),
+    ] = False,
     exit_zero: Annotated[
         bool,
         typer.Option(
@@ -241,6 +248,10 @@ def check_files(
     verbose: verbose_option = None,
 ) -> list[Diagnostic]:
     """Lint Robot Framework files."""
+    if gitlab:
+        if not reports:
+            reports = []
+        reports.append("gitlab")
     linter_config = config.LinterConfig(
         configure=configure,
         select=select,

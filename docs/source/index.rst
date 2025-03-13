@@ -34,6 +34,11 @@ Table of contents
     formatters/skip_formatting.rst
 
 .. toctree::
+    :caption: Integrations
+
+    integrations
+
+.. toctree::
     :maxdepth: 2
     :caption: Other features
 

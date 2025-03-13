@@ -8,9 +8,8 @@ class ReturnStatusReport(robocop.linter.reports.Report):
     """
     **Report name**: ``return_status``
 
-    This report is always enabled.
     Report that checks if number of returned rules messages for given severity value does not exceed preset threshold.
-    That information is later used as a return status from Robocop.
+    If the report is enabled, it will be used as a return status from Robocop.
     """
 
     NO_ALL = False

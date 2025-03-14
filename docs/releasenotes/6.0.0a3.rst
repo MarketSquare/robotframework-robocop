@@ -687,6 +687,7 @@ Documentation is available at X # TODO .
 We are now supporting following integrations:
 
 - Gitlab Code Quality (with ``gitlab`` report) (#1116)
+- pre-commit
 - ... and more - see the `Integrations` documentation
 
 Shell autocompletion

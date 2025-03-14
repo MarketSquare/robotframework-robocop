@@ -93,6 +93,15 @@ default_exclude_option = Annotated[
     list[str],
     typer.Option("--default-exclude", show_default=str(config.DEFAULT_EXCLUDE), rich_help_panel="File discovery"),
 ]
+force_exclude_option = Annotated[
+    bool,
+    typer.Option(
+        "--force-exclude",
+        help="Enforce exclusions, even for paths passed directly in the command-line.",
+        show_default=False,
+        rich_help_panel="File discovery",
+    ),
+]
 language_option = Annotated[
     list[str],
     typer.Option(
@@ -138,6 +147,7 @@ def check_files(
     default_include: default_include_option = None,
     exclude: exclude_option = None,
     default_exclude: default_exclude_option = None,
+    force_exclude: force_exclude_option = False,
     select: Annotated[
         list[str],
         typer.Option(
@@ -283,6 +293,7 @@ def check_files(
         ignore_git_dir=ignore_git_dir,
         ignore_file_config=ignore_file_config,
         skip_gitignore=skip_gitignore,
+        force_exclude=force_exclude,
         overwrite_config=overwrite_config,
     )
     runner = RobocopLinter(config_manager)
@@ -318,6 +329,7 @@ def format_files(
     default_include: default_include_option = None,
     exclude: exclude_option = None,
     default_exclude: default_exclude_option = None,
+    force_exclude: force_exclude_option = False,
     configure: Annotated[
         list[str],
         typer.Option(
@@ -497,6 +509,7 @@ def format_files(
         ignore_git_dir=ignore_git_dir,
         ignore_file_config=ignore_file_config,
         skip_gitignore=skip_gitignore,
+        force_exclude=force_exclude,
         overwrite_config=overwrite_config,
     )
     runner = RobocopFormatter(config_manager)

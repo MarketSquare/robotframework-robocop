@@ -4,6 +4,23 @@
 Integrations
 ************
 
+pre-commit
+----------
+
+To use Robocop as `pre-commit <https://pre-commit.com/>`_ hook, you need following ``.pre-commit-config.yaml`` file::
+
+    - repo: https://github.com/MarketSquare/robotframework-robocop
+      # Robocop version.
+      rev: 6.0
+      hooks:
+        # Run the linter.
+        - id: robocop
+        # Run the formatter.
+        - id: robocop-format
+
+It will run both linter and formatter on your modified files when trying to commit changes. If any linter issue is
+found or file is modified, it will stop the commit.
+
 Gitlab
 ------
 

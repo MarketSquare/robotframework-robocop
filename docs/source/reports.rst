@@ -181,6 +181,8 @@ Reports list
 
 .. automodule:: robocop.linter.reports
 
+.. _print_issues:
+
 Print issues
 ------------
 

@@ -34,6 +34,11 @@ Table of contents
     formatters/skip_formatting.rst
 
 .. toctree::
+    :caption: Configuration
+
+    configuration
+
+.. toctree::
     :caption: Integrations
 
     integrations

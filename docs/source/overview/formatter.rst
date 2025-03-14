@@ -180,7 +180,7 @@ Most formatters support running `Robocop` only on selected lines. Use ``--start-
 
     robocop format --start-line 5 --end-line 10 file.robot
 
-If you want to disable formatting in particular files see disablers section in :ref:`configuration`.
+If you want to disable formatting in particular files see disablers section in :ref:`configuration`.  # TODO
 
 Format code from standard input
 --------------------------------

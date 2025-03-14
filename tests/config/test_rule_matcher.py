@@ -94,3 +94,11 @@ class TestIncludingExcluding:
         msg = get_message_with_id("0101")
         assert rule_matcher.is_rule_disabled(msg)
         assert not rule_matcher.is_rule_enabled(msg)
+
+    def test_select_all(self):
+        linter_config = LinterConfig(select=["ALL", "0101"], ignore=["0103"])
+        linter_config.load_configuration()
+        rule_matcher = RuleMatcher(linter_config)
+        assert rule_matcher.is_rule_enabled(get_message_with_id("0101"))
+        assert rule_matcher.is_rule_enabled(get_message_with_id("0102"))
+        assert not rule_matcher.is_rule_enabled(get_message_with_id("0103"))

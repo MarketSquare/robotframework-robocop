@@ -13,7 +13,7 @@ There are over a {{ rules_length_in_10 }} rules available in Robocop and they ar
 * {{ group.group_id }}: :ref:`{{ group.group_name }}`
 {%- endfor %}
 
-Below is the list of all built-in Robocop rules.
+Below is the list of all Robocop rules.
 
 {% for group in builtin_checkers %}
 .. _{{ group.group_name }}:

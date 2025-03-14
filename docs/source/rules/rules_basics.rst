@@ -4,12 +4,17 @@
 Rule basics
 ***********
 
-Checkers
-========
+Robocop uses rules as a basic building block of the linter. They can define what message will be printed in the report,
+which Robot Framework versions it supports or provide additional configuration for the rule. Rules are internally
+used by checkers - classes that scan code for related issues and report then as Diagnostic issues.
 
-# TODO: cli / configuration files examples
+Each rule has a unique rule id (for example ``DOC01``) consisting of:
 
-.. automodule:: robocop.linter.rules
+- a alphanumeric group name (for example ``DOC``)
+- a 2-digit rule number (for example ``01``)
+
+Rule ID as well as rule name can be used to refer to the rule (e.g. in select/ignore statements, configurations etc.).
+You can optionally configure rule severity or other parameters.
 
 .. _list-rules:
 
@@ -56,94 +61,12 @@ Available list filters::
     ENABLED - print only enabled rules
     DISABLED - print only disabled rules
     DEPRECATED - print only deprecated rules
-
-Rule message
-============
-
-# .. automodule:: robocop.rules
-
-# .. module:: robocop
-
-.. _rule-severity:
-
-Rule severity
-=============
-
-.. automodule:: robocop.linter.rules.RuleSeverity
-
-.. _severity-threshold:
-
-Severity threshold
--------------------
-
-Selected rules can be configured to have different severity depending on the parameter value.
-
-Using ``line-too-long`` as an example - this rule issues a warning when line length exceeds configured value
-(default ``120``).
-It is possible to configure this rule to issue a warning for line length above 120 but an error for line length
-above 200.
-We can use ``severity_threshold`` for this purpose:
-
-.. tab-set::
-
-    .. tab-item:: Cli
-
-        .. code:: shell
-
-            robocop check -c line-too-long.severity_threshold=warning=120:error=200
-
-    .. tab-item:: Configuration file
-
-        .. code:: toml
-
-            [robocop.lint]
-            configure = [
-                "line-too-long.severity_threshold=warning=120:error=200"
-            ]
-
-It supports all default severity values:
-
-- error, e
-- warning, w
-- info, i
-
-The issue needs to be raised in order for severity thresholds to be evaluated. That's why the parameter value needs to
-be configured to raise an issue for at least one of our threshold ranges. In previous example, if we want to issue
-info message if the line is longer than 80 characters, we need to configure ``line_length`` parameter
-(default ``120``) to 80 to trigger the rule:
-
-.. tab-set::
-
-    .. tab-item:: Cli
-
-        .. code:: shell
-
-            robocop check -c line-too-long.line_length=80 -c line-too-long.severity_threshold=info=80:warning=120:error=200
-
-    .. tab-item:: Configuration file
-
-        .. code:: toml
-
-            [robocop.lint]
-            configure = [
-                "line-too-long.line_length=80",
-                "line-too-long.severity_threshold=info=80:warning=120:error=200"
-            ]
-
-Following rules support ``severity_threshold``:
-
-{% for checker_group in checker_groups %}
-{% for rule_doc in checker_group[1] %}
-{%- if rule_doc.severity_threshold is not none %}
-- :ref:`{{ rule_doc.name }}`
-{% endif %}
-{% endfor %}
-{% endfor %}
+    STYLE_GUIDE - print only rules directly connected to official Robot Framework style guide
 
 .. _selecting-rules:
 
 Selecting and ignoring rules
-=============================
+----------------------------
 
 You can select or ignore particular rules using rule name or id.
 
@@ -229,3 +152,107 @@ To configure multiple rules you can repeat option / or add more to array (config
             ignore = [
                 "rule2"
             ]
+
+Select all rules
+================
+
+If you want to always enable all rules and chose what to disable (rather than selecting all rules that
+you want to enable one by one) you can use special keyword ``ALL``:
+
+.. tab-set::
+
+    .. tab-item:: Cli
+
+        .. code:: shell
+
+            robocop check --select ALL
+
+    .. tab-item:: Configuration file
+
+        .. code:: toml
+
+            [tool.robocop.lint]
+            select = [
+                "ALL"
+            ]
+            ignore = [
+                "rules-you-want-to-disable"
+            ]
+
+.. _rule-severity:
+
+Rule severity
+-------------
+
+Robocop rules can have one of the following severities: info, warning or error.
+
+.. automodule:: robocop.linter.rules.RuleSeverity
+
+.. _severity-threshold:
+
+Severity threshold
+==================
+
+Selected rules can be configured to have different severity depending on the parameter value.
+
+Using ``line-too-long`` as an example - this rule issues a warning when line length exceeds configured value
+(default ``120``).
+It is possible to configure this rule to issue a warning for line length above 120 but an error for line length
+above 200.
+We can use ``severity_threshold`` for this purpose:
+
+.. tab-set::
+
+    .. tab-item:: Cli
+
+        .. code:: shell
+
+            robocop check -c line-too-long.severity_threshold=warning=120:error=200
+
+    .. tab-item:: Configuration file
+
+        .. code:: toml
+
+            [robocop.lint]
+            configure = [
+                "line-too-long.severity_threshold=warning=120:error=200"
+            ]
+
+It supports all default severity values:
+
+- error, e
+- warning, w
+- info, i
+
+The issue needs to be raised in order for severity thresholds to be evaluated. That's why the parameter value needs to
+be configured to raise an issue for at least one of our threshold ranges. In previous example, if we want to issue
+info message if the line is longer than 80 characters, we need to configure ``line_length`` parameter
+(default ``120``) to 80 to trigger the rule:
+
+.. tab-set::
+
+    .. tab-item:: Cli
+
+        .. code:: shell
+
+            robocop check -c line-too-long.line_length=80 -c line-too-long.severity_threshold=info=80:warning=120:error=200
+
+    .. tab-item:: Configuration file
+
+        .. code:: toml
+
+            [robocop.lint]
+            configure = [
+                "line-too-long.line_length=80",
+                "line-too-long.severity_threshold=info=80:warning=120:error=200"
+            ]
+
+Following rules support ``severity_threshold``:
+
+{% for group in builtin_checkers %}
+{% for rule_doc in group.rules %}
+{%- if rule_doc.severity_threshold is not none %}
+- :ref:`{{ rule_doc.name }}`
+{% endif %}
+{% endfor %}
+{% endfor %}

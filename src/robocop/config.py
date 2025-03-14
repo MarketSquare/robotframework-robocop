@@ -45,6 +45,8 @@ class RuleMatcher:
     def is_rule_enabled(self, rule: Rule) -> bool:
         if self.is_rule_disabled(rule):
             return False
+        if "ALL" in self.config.include_rules:
+            return True
         if (
             self.config.include_rules or self.config.include_rules_patterns
         ):  # if any include pattern, it must match with something

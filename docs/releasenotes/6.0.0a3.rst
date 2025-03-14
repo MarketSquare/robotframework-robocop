@@ -35,6 +35,9 @@ following command::
 
     robocop migrate <config_path>
 
+It will create new file named <config_path>_migrated.toml with translated option names and their structure.
+Rule ids are also converted to new format, but patterns are not migrated (such as ``02*``).
+
 .. contents::
    :depth: 2
    :local:
@@ -703,6 +706,26 @@ We are now supporting following integrations:
 - Gitlab Code Quality (with ``gitlab`` report) (#1116)
 - pre-commit
 - ... and more - see the `Integrations` documentation
+
+Select all rules with ALL (#1316)
+---------------------------------
+
+We have growing number of non-default (disabled by default) rules. This requires period checking of the release
+notes if there is new rule that may be worth to be enabled.
+If you want instead to always enable all rules and chose what to disable (rather than selecting all rules that
+you want to enable one by one) you can now use special keyword ``ALL``::
+
+    robocop check --select ALL
+
+::
+
+    [tool.robocop.lint]
+    select = [
+        "ALL"
+    ]
+    ignore = [
+        "rules-you-want-to-disable"
+    ]
 
 Shell autocompletion
 ---------------------

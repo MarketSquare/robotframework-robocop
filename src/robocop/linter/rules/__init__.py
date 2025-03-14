@@ -60,7 +60,7 @@ if TYPE_CHECKING:
 @total_ordering
 class RuleSeverity(Enum):
     """
-    It can be configured with::
+    You can override rule default severity::
 
         robocop check --configure id_or_msg_name.severity=value
 

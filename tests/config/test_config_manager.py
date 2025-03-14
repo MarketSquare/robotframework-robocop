@@ -337,3 +337,50 @@ class TestConfigFinder:
         # Act & Assert
         with pytest.raises(typer.BadParameter, match="Invalid target Robot Framework version: '100' is not one of"):
             Config.from_toml(configuration, config_path)
+
+    @pytest.mark.parametrize(
+        ("force_exclude", "skip_gitignore", "should_exclude_file"),
+        [
+            (False, False, False),  # file filter or skip gitignore would exclude file
+            (True, False, True),  # file filter or/and gitignore excludes file
+            (False, True, False),  # file filter excludes file
+            (True, True, True),  # file filter is ignored and file is not excluded
+        ],
+    )
+    def test_force_exclude_and_skip_gitignore(self, test_data, force_exclude, skip_gitignore, should_exclude_file):
+        """
+        When source is passed directly, it is not checked against file filter and skip gitignore.
+
+        --force-exclude flag disables this behaviour.
+        """
+        # Arrange
+        non_robot_file = test_data / "non_robot_files" / "log.html"
+        expected_paths = [] if should_exclude_file else [non_robot_file]
+
+        # Act
+        actual_results = get_sources_and_configs(
+            non_robot_file.parent,
+            sources=[str(non_robot_file)],
+            force_exclude=force_exclude,
+            skip_gitignore=skip_gitignore,
+        )
+
+        # Assert
+        assert list(actual_results.keys()) == expected_paths
+
+    @pytest.mark.parametrize("skip_gitignore", [True, False])
+    def test_skip_gitignore(self, test_data, skip_gitignore):
+        # Arrange
+        test_dir = test_data / "non_robot_files"
+        non_robot_file = test_dir / "log.html"
+        expected_paths = [non_robot_file] if skip_gitignore else []
+        config = Config()
+        config.file_filters.default_include = {"*.html"}
+
+        # Act
+        actual_results = get_sources_and_configs(
+            non_robot_file.parent, sources=[str(test_dir)], overwrite_config=config, skip_gitignore=skip_gitignore
+        )
+
+        # Assert
+        assert list(actual_results.keys()) == expected_paths

@@ -671,10 +671,11 @@ class ConfigManager:
         self,
         sources: list[str] | None = None,
         config: Path | None = None,
-        root: str | None = None,  # noqa: ARG002  TODO
+        root: str | None = None,
         ignore_git_dir: bool = False,
         ignore_file_config: bool = False,
-        skip_gitignore: bool = False,  # noqa: ARG002  TODO
+        skip_gitignore: bool = False,
+        force_exclude: bool = False,
         overwrite_config: Config | None = None,
     ):
         """
@@ -688,6 +689,7 @@ class ConfigManager:
             ignore_git_dir: Flag for project root discovery to decide if directories with `.git` should be ignored.
             ignore_file_config: If set to True, Robocop will not load found configuration files
             skip_gitignore: Do not load .gitignore files when looking for the files to parse
+            force_exclude: Enforce exclusions, even for paths passed directly in the command-line
             overwrite_config: Overwrite existing configuration file with the Config class
 
         """
@@ -695,11 +697,13 @@ class ConfigManager:
         self.overwrite_config = overwrite_config
         self.ignore_git_dir = ignore_git_dir
         self.ignore_file_config = ignore_file_config
+        self.force_exclude = force_exclude
+        self.skip_gitignore = skip_gitignore
         self.gitignore_resolver = GitIgnoreResolver()
         self.overridden_config = (
             config is not None
         )  # TODO: what if both cli and --config? should take --config then apply cli
-        self.root = Path.cwd()  # FIXME or just check if its fine
+        self.root = root or Path.cwd()
         self.default_config: Config = self.get_default_config(config)
         self.sources = sources
         self._paths: dict[Path, Config] | None = None
@@ -710,7 +714,7 @@ class ConfigManager:
         if self._paths is None:
             self._paths = {}
             sources = self.sources if self.sources else self.default_config.sources
-            ignore_file_filters = bool(sources)
+            ignore_file_filters = not self.force_exclude and bool(sources)
             self.resolve_paths(sources, gitignores=None, ignore_file_filters=ignore_file_filters)
             self.find_default_config()
         yield from self._paths.items()
@@ -814,18 +818,19 @@ class ConfigManager:
                 continue
             if not source.exists():  # TODO only for passed sources
                 raise errors.FileError(source)
-            if gitignores is None:
-                source_gitignore = self.gitignore_resolver.resolve_path_ignores(source)
-            else:
-                source_gitignore = gitignores
             config = self.get_config_for_source_file(source)
             if not ignore_file_filters:
                 if config.file_filters.path_excluded(source):
                     continue
                 if source.is_file() and not config.file_filters.path_included(source):
                     continue
-            if self.gitignore_resolver.path_excluded(source, source_gitignore):
-                continue
+                if not self.skip_gitignore:
+                    if gitignores is None:
+                        source_gitignore = self.gitignore_resolver.resolve_path_ignores(source)
+                    else:
+                        source_gitignore = gitignores
+                    if self.gitignore_resolver.path_excluded(source, source_gitignore):
+                        continue
             if source.is_dir():
                 self.resolve_paths(source.iterdir(), gitignores)
             elif source.is_file():

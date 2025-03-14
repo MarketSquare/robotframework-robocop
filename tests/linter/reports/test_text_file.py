@@ -2,6 +2,7 @@ import os
 import textwrap
 from pathlib import Path
 
+from robocop.linter.diagnostics import Diagnostics
 from robocop.linter.reports.text_file import TextFile
 from tests import working_directory
 from tests.linter.reports import generate_issues
@@ -37,10 +38,8 @@ class TestJSONReport:
 
         # act
         report = TextFile(config)
-        for issue in issues:
-            report.add_message(issue)
         with working_directory(tmp_path):
-            report.get_report()
+            report.generate_report(Diagnostics(issues))
 
         # assert
         actual_report = (tmp_path / "robocop.txt").read_text()

@@ -14,7 +14,7 @@ if TYPE_CHECKING:
     from robot.parsing import File
 
     from robocop.config import Config
-    from robocop.linter.diagnostics import Diagnostic
+    from robocop.linter.diagnostics import Diagnostic, Diagnostics
 
 
 class OutputFormat(Enum):
@@ -53,17 +53,11 @@ class PrintIssuesReport(robocop.linter.reports.Report):
         else:
             super().configure(name, value)
 
-    def add_message(self, message: Diagnostic) -> None:
-        if message.source not in self.diagn_by_source:
-            self.diagn_by_source[message.source] = []
-        self.diagn_by_source[message.source].append(message)
-
-    def print_diagnostics_simple(self) -> None:
+    def print_diagnostics_simple(self, diagnostics: Diagnostics) -> None:
         cwd = Path.cwd()
-        for source, diagnostics in self.diagn_by_source.items():
-            diagnostics.sort()
+        for source, diag_by_source in diagnostics.diag_by_source.items():
             source_rel = Path(source).relative_to(cwd)
-            for diagnostic in diagnostics:
+            for diagnostic in diag_by_source:
                 print(
                     self.config.linter.issue_format.format(
                         source=source_rel,
@@ -79,7 +73,7 @@ class PrintIssuesReport(robocop.linter.reports.Report):
                     )
                 )
 
-    def print_diagnostics_grouped(self) -> None:
+    def print_diagnostics_grouped(self, diagnostics: Diagnostics) -> None:
         """
         Print diagnostics in grouped format.
 
@@ -91,11 +85,10 @@ class PrintIssuesReport(robocop.linter.reports.Report):
         """
         cwd = Path.cwd()
         grouped_format = "  {line}:{col} {rule_id} {desc} ({name})"
-        for source, diagnostics in self.diagn_by_source.items():
-            diagnostics.sort()
+        for source, diag_by_source in diagnostics.diag_by_source.items():
             source_rel = Path(source).relative_to(cwd)
             print(f"{source_rel}:")
-            for diagnostic in diagnostics:
+            for diagnostic in diag_by_source:
                 print(
                     grouped_format.format(
                         line=diagnostic.range.start.line,
@@ -179,23 +172,22 @@ class PrintIssuesReport(robocop.linter.reports.Report):
         self._print_lines(print_lines)
         print()
 
-    def print_diagnostics_extended(self) -> None:
+    def print_diagnostics_extended(self, diagnostics: Diagnostics) -> None:
         cwd = Path.cwd()
-        for source, diagnostics in self.diagn_by_source.items():
-            diagnostics.sort()
+        for source, diag_by_source in diagnostics.diag_by_source.items():
             source_rel = Path(source).relative_to(cwd)
             source_lines = None
-            for diagnostic in diagnostics:
+            for diagnostic in diag_by_source:
                 if not source_lines:  # TODO: model should be coming from source, not diagnostics
                     source_lines = self._get_source_lines(diagnostic.model)
                 self._print_issue_with_lines(source_lines, source_rel, diagnostic)
 
-    def get_report(self) -> None:
+    def generate_report(self, diagnostics: Diagnostics, **kwargs) -> None:  # noqa: ARG002
         if self.output_format == OutputFormat.SIMPLE:
-            self.print_diagnostics_simple()
+            self.print_diagnostics_simple(diagnostics)
         elif self.output_format == OutputFormat.GROUPED:
-            self.print_diagnostics_grouped()
+            self.print_diagnostics_grouped(diagnostics)
         elif self.output_format == OutputFormat.EXTENDED:
-            self.print_diagnostics_extended()
+            self.print_diagnostics_extended(diagnostics)
         else:
             raise NotImplementedError(f"Output format {self.output_format} is not implemented")

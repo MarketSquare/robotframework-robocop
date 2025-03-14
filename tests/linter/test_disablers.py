@@ -12,7 +12,9 @@ from robocop.linter.utils.version_matching import Version
 
 @pytest.fixture
 def diagnostic() -> Diagnostic:
-    return Diagnostic(rule=LineTooLongRule(), source="", lineno=0, col=0, end_lineno=None, end_col=None, node=None)
+    return Diagnostic(
+        rule=LineTooLongRule(), source="", lineno=0, col=0, end_lineno=None, end_col=None, node=None, model=None
+    )
 
 
 DISABLED_TEST_DIR = Path(__file__).parent / "test_data" / "disablers"

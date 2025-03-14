@@ -3,8 +3,9 @@ from pathlib import Path
 
 import robocop.linter.reports
 from robocop import __version__
-from robocop.config import Config
-from robocop.linter.diagnostics import Diagnostic
+from robocop.config import Config, ConfigManager
+from robocop.linter.diagnostics import Diagnostics
+from robocop.linter.rules import Rule
 from robocop.linter.utils.misc import ROBOCOP_RULES_URL
 
 
@@ -35,7 +36,6 @@ class SarifReport(robocop.linter.reports.Report):
         self.description = "Generate SARIF output file"
         self.output_dir = None
         self.report_filename = ".sarif.json"
-        self.issues: list[Diagnostic] = []
         super().__init__(config)
 
     def configure(self, name, value) -> None:
@@ -62,12 +62,9 @@ class SarifReport(robocop.linter.reports.Report):
             "help": {"text": rule.__doc__, "markdown": rule.__doc__},
         }
 
-    def add_message(self, message: Diagnostic) -> None:
-        self.issues.append(message)
-
-    def generate_sarif_issues(self, root: Path):
+    def generate_sarif_issues(self, diagnostics: Diagnostics, root: Path):
         sarif_issues = []
-        for diagnostic in self.issues:
+        for diagnostic in diagnostics:
             relative_uri = Path(diagnostic.source).relative_to(root)
             sarif_issue = {
                 "ruleId": diagnostic.rule.rule_id,
@@ -90,12 +87,12 @@ class SarifReport(robocop.linter.reports.Report):
             sarif_issues.append(sarif_issue)
         return sarif_issues
 
-    def generate_rules_config(self, rules):
+    def generate_rules_config(self, rules: dict[str, Rule]):
         unique_enabled_rules = {rule.rule_id: rule for rule in rules.values() if rule.enabled}
         sorted_rules = sorted(unique_enabled_rules.values(), key=lambda x: x.rule_id)
         return [self.get_rule_desc(rule) for rule in sorted_rules]
 
-    def generate_sarif_report(self, root: Path, rules):
+    def generate_sarif_report(self, diagnostics: Diagnostics, root: Path, rules: dict[str, Rule]):
         return {
             "$schema": self.SCHEMA,
             "version": self.SCHEMA_VERSION,
@@ -110,13 +107,17 @@ class SarifReport(robocop.linter.reports.Report):
                         }
                     },
                     "automationDetails": {"id": "robocop/"},
-                    "results": self.generate_sarif_issues(root),
+                    "results": self.generate_sarif_issues(diagnostics, root),
                 }
             ],
         }
 
-    def get_report(self, root: Path, rules) -> str:
-        report = self.generate_sarif_report(root, rules)
+    def generate_report(self, diagnostics: Diagnostics, config_manager: ConfigManager, **kwargs) -> str:  # noqa: ARG002
+        # TODO: In case of several configs we may not have all rules in default config
+        # instead, we could use diagnostic.rule and aggregate them
+        report = self.generate_sarif_report(
+            diagnostics, config_manager.root, config_manager.default_config.linter.rules
+        )
         if self.output_dir is not None:
             output_path = self.output_dir / self.report_filename
         else:

@@ -72,8 +72,8 @@ class TimestampReport(robocop.linter.reports.Report):
         else:
             super().configure(name, value)
 
-    def get_report(self) -> str:
-        return f"\nReported: {self._get_timestamp()}"
+    def generate_report(self, **kwargs) -> None:  # noqa: ARG002
+        print(f"\nReported: {self._get_timestamp()}")
 
     def _get_timestamp(self) -> str:
         try:

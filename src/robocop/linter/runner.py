@@ -7,6 +7,7 @@ from robot.api import get_init_model, get_model, get_resource_model
 from robot.errors import DataError
 
 from robocop.linter import exceptions, reports
+from robocop.linter.diagnostics import Diagnostics
 from robocop.linter.reports import save_reports_result_to_cache
 from robocop.linter.utils.disablers import DisablersFinder
 from robocop.linter.utils.misc import is_suite_templated
@@ -56,8 +57,6 @@ class RobocopLinter:
             files += 1
             diagnostics = self.run_check(str(source))
             issues_no += len(diagnostics)
-            for diagnostic in diagnostics:
-                self.report(diagnostic)
             self.diagnostics.extend(diagnostics)
         if not files:
             print("No Robot files were found with the existing configuration.")
@@ -117,26 +116,17 @@ class RobocopLinter:
             if name in self.reports:
                 self.reports[name].configure(param, value)
 
-    def report(self, diagnostic: Diagnostic) -> None:
-        diagnostic.model = self.current_model  # TODO: Embed it into diagnostic where the report is raised
-        for report in self.reports.values():
-            report.add_message(diagnostic)
-
     def make_reports(self) -> None:
         report_results = {}
         prev_results = reports.load_reports_result_from_cache()
         prev_results = prev_results.get(str(self.config_manager.root)) if prev_results is not None else None
         is_persistent = self.config_manager.default_config.linter.persistent
+        diagnostics = Diagnostics(self.diagnostics)
         for report in self.reports.values():
-            if report.name == "sarif":
-                output = report.get_report(self.config_manager.root, self.rules)
-            elif isinstance(report, reports.ComparableReport):  # TODO:
-                prev_result = prev_results.get(report.name) if prev_results is not None else None
-                output = report.get_report(prev_result)
-            else:
-                output = report.get_report()
-            if output is not None:
-                print(output)
+            prev_result = prev_results.get(report.name) if prev_results is not None else None
+            report.generate_report(
+                diagnostics=diagnostics, config_manager=self.config_manager, prev_results=prev_result
+            )
             if is_persistent and isinstance(report, reports.ComparableReport):
                 result = report.persist_result()
                 if result is not None:

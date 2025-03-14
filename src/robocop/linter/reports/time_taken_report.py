@@ -25,7 +25,7 @@ class TimeTakenReport(robocop.linter.reports.ComparableReport):
     def persist_result(self):
         return {"time_taken": self.time_taken}
 
-    def get_report(self, prev_results) -> str:
+    def generate_report(self, prev_results: dict, **kwargs) -> None:  # noqa: ARG002
         time_taken = timer() - self.start_time
         if self.compare_runs and prev_results:
             rerun_diff = time_taken - float(prev_results["time_taken"])
@@ -34,4 +34,4 @@ class TimeTakenReport(robocop.linter.reports.ComparableReport):
         else:
             diff = ""
         self.time_taken = f"{time_taken:.3f}"
-        return f"\nScan finished in {self.time_taken}s{diff}."
+        print(f"\nScan finished in {self.time_taken}s{diff}.")

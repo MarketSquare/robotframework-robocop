@@ -1,36 +1,12 @@
 import json
 from pathlib import Path
 
-from robocop.linter.diagnostics import Diagnostic
+from robocop.linter.diagnostics import Diagnostics
 from robocop.linter.reports.json_report import JsonReport
 from tests.linter.reports import generate_issues
 
 
 class TestJSONReport:
-    def test_json_report(self, rule, config):
-        report = JsonReport(config)
-        issue = Diagnostic(
-            rule=rule,
-            source="some/path/file.robot",
-            node=None,
-            lineno=50,
-            col=10,
-            end_lineno=None,
-            end_col=None,
-        )
-        report.add_message(issue)
-        assert report.issues[0] == {
-            "source": "some/path/file.robot",
-            "line": 50,
-            "end_line": 50,
-            "column": 10,
-            "end_column": 10,
-            "rule_id": "0101",
-            "rule_name": "some-message",
-            "severity": "W",
-            "description": "Some description",
-        }
-
     def test_configure_output_dir(self, config):
         output_dir = "path/to/dir"
         report = JsonReport(config)
@@ -48,11 +24,54 @@ class TestJSONReport:
         report = JsonReport(config)
         report.configure("output_dir", tmp_path)
 
-        expected_report = [JsonReport.message_to_json(issue) for issue in issues]
-        for issue in issues:
-            report.add_message(issue)
-        report.get_report()
+        expected_report = [
+            {
+                "column": 10,
+                "description": "Some description",
+                "end_column": 10,
+                "end_line": 50,
+                "line": 50,
+                "rule_id": "0101",
+                "rule_name": "some-message",
+                "severity": "W",
+                "source": "tests/atest/rules/comments/ignored-data/test.robot",
+            },
+            {
+                "column": 10,
+                "description": "Some description. Example",
+                "end_column": 10,
+                "end_line": 51,
+                "line": 50,
+                "rule_id": "0902",
+                "rule_name": "other-message",
+                "severity": "E",
+                "source": "tests/atest/rules/comments/ignored-data/test.robot",
+            },
+            {
+                "column": 10,
+                "description": "Some description",
+                "end_column": 12,
+                "end_line": 50,
+                "line": 50,
+                "rule_id": "0101",
+                "rule_name": "some-message",
+                "severity": "W",
+                "source": "tests/atest/rules/misc/empty-return/test.robot",
+            },
+            {
+                "column": 10,
+                "description": "Some description. Example",
+                "end_column": 15,
+                "end_line": 15,
+                "line": 11,
+                "rule_id": "0902",
+                "rule_name": "other-message",
+                "severity": "E",
+                "source": "tests/atest/rules/misc/empty-return/test.robot",
+            },
+        ]
+        report.generate_report(Diagnostics(issues))
         json_path = report.output_dir / "robocop.json"
         with open(json_path) as fp:
             json_report = json.load(fp)
-        assert expected_report == json_report
+        assert json_report == expected_report

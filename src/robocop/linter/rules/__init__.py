@@ -498,6 +498,7 @@ class BaseChecker:
     def __init__(self):
         self.disabled = False
         self.source = None
+        self.ast_model = None
         self.lines = None
         self.issues = []
         self.rules: dict[str, Rule] = {}
@@ -528,6 +529,7 @@ class BaseChecker:
         diagnostic = Diagnostic(
             rule=rule,
             node=node,
+            model=self.ast_model,
             lineno=lineno,
             col=col,
             end_lineno=end_lineno,
@@ -546,6 +548,7 @@ class VisitorChecker(BaseChecker, ModelVisitor):
     ) -> list[Diagnostic]:
         self.issues: list[Diagnostic] = []
         self.source = filename
+        self.ast_model = ast_model
         self.templated_suite = templated
         if in_memory_content is not None:
             self.lines = in_memory_content.splitlines(keepends=True)
@@ -571,9 +574,10 @@ class ProjectChecker(VisitorChecker):
 
 
 class RawFileChecker(BaseChecker):
-    def scan_file(self, ast_model, filename, in_memory_content, templated=False) -> list[Diagnostic]:  # noqa: ARG002
+    def scan_file(self, ast_model, filename, in_memory_content, templated=False) -> list[Diagnostic]:
         self.issues: list[Diagnostic] = []
         self.source = filename
+        self.ast_model = ast_model
         self.templated_suite = templated
         if in_memory_content is not None:
             self.lines = in_memory_content.splitlines(keepends=True)

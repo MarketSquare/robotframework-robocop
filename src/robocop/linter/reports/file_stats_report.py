@@ -1,6 +1,6 @@
 import robocop.linter.reports
 from robocop.config import Config
-from robocop.linter.diagnostics import Diagnostic
+from robocop.linter.diagnostics import Diagnostics
 from robocop.linter.utils.misc import get_plural_form, get_string_diff
 
 
@@ -22,16 +22,16 @@ class FileStatsReport(robocop.linter.reports.ComparableReport):
         self.files_with_issues = set()
         super().__init__(config)
 
-    def add_message(self, message: Diagnostic) -> None:
-        self.files_with_issues.add(message.source)
-
     def persist_result(self):
         return {"files_count": self.files_count, "files_with_issues": len(self.files_with_issues)}
 
-    def get_report(self, prev_results: dict) -> str:
+    def generate_report(self, diagnostics: Diagnostics, prev_results: dict, **kwargs) -> None:  # noqa: ARG002
+        self.files_with_issues = diagnostics.diag_by_source
         if self.compare_runs and prev_results:
-            return self.get_report_with_compare(prev_results)
-        return self.get_report_without_compare()
+            output = self.get_report_with_compare(prev_results)
+        else:
+            output = self.get_report_without_compare()
+        print(output)
 
     def get_report_with_compare(self, prev_results: dict) -> str:
         plural_files = get_plural_form(self.files_count)

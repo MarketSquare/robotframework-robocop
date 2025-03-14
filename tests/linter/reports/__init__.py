@@ -16,6 +16,7 @@ def generate_issues(rule, rule2, root_path: Path | None = None) -> list[Diagnost
             rule=r,
             source=source,
             node=None,
+            model=None,
             lineno=line,
             col=col,
             end_lineno=end_line,

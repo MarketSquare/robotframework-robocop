@@ -1,7 +1,8 @@
+from collections import defaultdict
+
 import robocop.linter.reports
 from robocop.config import Config
-from robocop.linter.diagnostics import Diagnostic
-from robocop.linter.reports.rules_by_severity_report import RulesBySeverityReport
+from robocop.linter.diagnostics import Diagnostics
 
 
 class ReturnStatusReport(robocop.linter.reports.Report):
@@ -18,7 +19,6 @@ class ReturnStatusReport(robocop.linter.reports.Report):
         self.name = "return_status"
         self.description = "Checks if number of specific issues exceed quality gate limits"
         self.return_status = 0
-        self.counter = RulesBySeverityReport(config)
         self.quality_gate = {"E": 0, "W": 0, "I": -1}
         super().__init__(config)
 
@@ -33,11 +33,11 @@ class ReturnStatusReport(robocop.linter.reports.Report):
             except ValueError:
                 continue
 
-    def add_message(self, message: Diagnostic) -> None:
-        self.counter.add_message(message)
-
-    def get_report(self) -> None:
-        for severity, count in self.counter.severity_counter.items():
+    def generate_report(self, diagnostics: Diagnostics, **kwargs) -> None:  # noqa: ARG002
+        severity_counter = defaultdict(int)
+        for diagnostic in diagnostics:
+            severity_counter[diagnostic.severity] += 1
+        for severity, count in severity_counter.items():
             threshold = self.quality_gate.get(severity.value, 0)
             if -1 < threshold < count:
                 self.return_status += count - threshold

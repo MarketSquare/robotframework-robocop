@@ -3,7 +3,7 @@ from operator import itemgetter
 
 import robocop.linter.reports
 from robocop.config import Config
-from robocop.linter.diagnostics import Diagnostic
+from robocop.linter.diagnostics import Diagnostics
 
 
 class RulesByIdReport(robocop.linter.reports.ComparableReport):
@@ -27,10 +27,6 @@ class RulesByIdReport(robocop.linter.reports.ComparableReport):
         self.message_counter = defaultdict(int)
         super().__init__(config)
 
-    def add_message(self, message: Diagnostic) -> None:
-        rule_name = f"{message.rule.rule_id} [{message.severity.value}] ({message.rule.name})"
-        self.message_counter[rule_name] += 1
-
     def persist_result(self) -> dict:
         return dict(self.message_counter.items())
 
@@ -43,10 +39,15 @@ class RulesByIdReport(robocop.linter.reports.ComparableReport):
             result[issue_code] = -old_count
         return result
 
-    def get_report(self, prev_results) -> str:
+    def generate_report(self, diagnostics: Diagnostics, prev_results, **kwargs) -> None:  # noqa: ARG002
+        for diagnostic in diagnostics:
+            rule_name = f"{diagnostic.rule.rule_id} [{diagnostic.severity.value}] ({diagnostic.rule.name})"
+            self.message_counter[rule_name] += 1
         if self.compare_runs and prev_results:
-            return self.get_report_with_compare(prev_results)
-        return self.get_report_without_compare()
+            output = self.get_report_with_compare(prev_results)
+        else:
+            output = self.get_report_without_compare()
+        print(output)
 
     def get_report_with_compare(self, prev_results: dict) -> str:
         diff_counter = self.get_diff_counter(prev_results)

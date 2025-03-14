@@ -4,7 +4,7 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from robot.parsing.model import Block
+    from robot.parsing.model import Block, File
     from robot.parsing.model.statements import Statement
 
     from robocop.linter.rules import Rule
@@ -22,11 +22,31 @@ class Range:
     end: Position
 
 
+class Diagnostics:
+    def __init__(self, diagnostics: list[Diagnostic]) -> None:
+        self.diagnostics = diagnostics
+        self.diag_by_source = self.group_diag_by_source()
+
+    def group_diag_by_source(self) -> dict[str, list[Diagnostic]]:
+        diag_by_source = {}
+        for diagnostic in self.diagnostics:
+            if diagnostic.source not in diag_by_source:
+                diag_by_source[diagnostic.source] = []
+            diag_by_source[diagnostic.source].append(diagnostic)
+        for source, diags in diag_by_source.items():
+            diag_by_source[source] = sorted(diags)
+        return diag_by_source
+
+    def __iter__(self):
+        yield from self.diagnostics
+
+
 class Diagnostic:
     def __init__(
         self,
         rule: Rule,
         source: str,
+        model: File | None,
         lineno: int,
         col: int,
         end_lineno: int | None,
@@ -43,7 +63,7 @@ class Diagnostic:
         self.extended_disablers = extended_disablers if extended_disablers else []
         self.reported_arguments = kwargs
         self.severity = rule.get_severity_with_threshold(sev_threshold_value)
-        self.model = None
+        self.model = model
         self._message = None
 
     @property

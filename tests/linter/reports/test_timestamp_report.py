@@ -4,22 +4,14 @@ import pytest
 
 from robocop.linter.exceptions import ConfigGeneralError
 from robocop.linter.reports.timestamp_report import TimestampReport
-from robocop.linter.rules import Diagnostic
 
 
 class TestTimestampReport:
-    def test_timestamp_report(self, rule, config):
+    def test_timestamp_report(self, config, capsys):
         report = TimestampReport(config)
-        issue = Diagnostic(
-            rule=rule,
-            source="some/path/file.robot",
-            lineno=50,
-            col=10,
-            end_lineno=None,
-            end_col=None,
-        )
-        report.add_message(issue)
-        assert "Reported: " in report.get_report()
+        report.generate_report()
+        out, _ = capsys.readouterr()
+        assert "Reported: " in out
 
     @pytest.mark.parametrize(
         ("name", "value", "expected"),
@@ -29,8 +21,10 @@ class TestTimestampReport:
             ("format", "%Y-%m-%dT%H:%M:%S", r".*([0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2})"),
         ],
     )
-    def test_timestamp_report_configure(self, name, value, expected, config):
-        self._configure_and_run(name, value, expected, config)
+    def test_timestamp_report_configure(self, name, value, expected, config, capsys):
+        self._configure_and_run(name, value, config)
+        out, _ = capsys.readouterr()
+        assert re.search(expected, out)
 
     @pytest.mark.parametrize(
         ("name", "value", "expected"),
@@ -49,7 +43,7 @@ class TestTimestampReport:
         report = TimestampReport(config)
         report.configure("timezone", "BAD")
         with pytest.raises(ConfigGeneralError) as err:
-            report.get_report()
+            report.generate_report()
         assert "Provided timezone 'BAD' for report 'timestamp' is not valid." in str(err)
 
     @pytest.mark.parametrize(
@@ -58,12 +52,14 @@ class TestTimestampReport:
             ("format", "", r".*([0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2})"),
         ],
     )
-    def test_timestamp_default_warning(self, name, value, expected, config):
+    def test_timestamp_default_warning(self, name, value, expected, config, capsys):
         with pytest.warns(UserWarning):
-            self._configure_and_run(name, value, expected, config)
+            self._configure_and_run(name, value, config)
+        out, _ = capsys.readouterr()
+        assert re.search(expected, out)
 
     @staticmethod
-    def _configure_and_run(name, value, expected, config):
+    def _configure_and_run(name, value, config):
         report = TimestampReport(config)
         report.configure(name, value)
-        assert re.search(expected, report.get_report())
+        report.generate_report()

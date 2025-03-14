@@ -18,7 +18,6 @@ class Report:
     Base class for report class.
 
     Override `configure` method if you want to allow report configuration.
-    Override `add_message`` if your report processes the Robocop issues.
 
     Set class attribute `NO_ALL` to `False` if you don't want your report to be included in `all` reports.
     """
@@ -35,11 +34,8 @@ class Report:
             f"Provided param '{name}' for report '{self.name}' does not exist"
         )
 
-    def add_message(self, *args) -> None:
-        pass
-
-    def get_report(self, *args) -> None:  # noqa: ARG002
-        return None
+    def generate_report(self, **kwargs) -> NoReturn:
+        raise NotImplementedError
 
 
 class ComparableReport(Report):
@@ -47,7 +43,7 @@ class ComparableReport(Report):
         self.compare_runs = config.linter.compare
         super().__init__(config)
 
-    def get_report(self, prev_results) -> NoReturn:
+    def generate_report(self, **kwargs) -> NoReturn:
         raise NotImplementedError
 
     def persist_result(self) -> NoReturn:

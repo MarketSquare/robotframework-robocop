@@ -595,6 +595,20 @@ Deprecated syntax:
 
 New syntax still supports disabling selected rules or formatters (``# robocop: off=rule_name``).
 
+Dropped support for Jinja templates in rule message
+---------------------------------------------------
+
+Rule messages used Jinja templates::
+
+    "Keyword argument '{{ name }}' is not used"
+
+It was unnecessary complex as we only used it for value substitution - there is no need for using any other Jinja
+features. It is now replaced with Python format syntax::
+
+    "Keyword argument '{name}' is not used"
+
+It's important only for users who have custom rules using templates in messages.
+
 New features & other changes
 ============================
 

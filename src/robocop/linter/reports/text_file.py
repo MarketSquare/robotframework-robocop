@@ -2,7 +2,7 @@ from pathlib import Path
 
 import robocop.linter.reports
 from robocop.config import Config
-from robocop.linter.diagnostics import Diagnostic
+from robocop.linter.diagnostics import Diagnostic, Diagnostics
 
 
 class TextFile(robocop.linter.reports.Report):
@@ -27,16 +27,10 @@ class TextFile(robocop.linter.reports.Report):
         self.diagn_by_source: dict[str, list[Diagnostic]] = {}
         super().__init__(config)
 
-    def add_message(self, message: Diagnostic) -> None:
-        if message.source not in self.diagn_by_source:
-            self.diagn_by_source[message.source] = []
-        self.diagn_by_source[message.source].append(message)
-
-    def get_report(self) -> str:
+    def generate_report(self, diagnostics: Diagnostics, **kwargs) -> None:  # noqa: ARG002
         cwd = Path.cwd()
         messages = []
-        for source, diagnostics in self.diagn_by_source.items():
-            diagnostics.sort()
+        for source, diag_by_source in diagnostics.diag_by_source.items():
             source_rel = Path(source).relative_to(cwd)
             messages.extend(
                 self.config.linter.issue_format.format(
@@ -51,11 +45,11 @@ class TextFile(robocop.linter.reports.Report):
                     desc=diagnostic.message,
                     name=diagnostic.rule.name,
                 )
-                for diagnostic in diagnostics
+                for diagnostic in diag_by_source
             )
         with open(self.output_path, "w") as text_file:
             text_file.write("\n".join(messages))
-        return f"\nGenerated text file report at {self.output_path}"
+        print(f"\nGenerated text file report at {self.output_path}")
 
     def configure(self, name: str, value: str) -> None:
         if name == "output_path":

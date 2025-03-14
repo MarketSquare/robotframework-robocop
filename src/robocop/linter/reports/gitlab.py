@@ -15,7 +15,7 @@ if TYPE_CHECKING:
     from robot.parsing import File
 
     from robocop.config import Config
-    from robocop.linter.diagnostics import Diagnostic
+    from robocop.linter.diagnostics import Diagnostic, Diagnostics
 
 
 class GitlabReport(robocop.linter.reports.Report):
@@ -41,13 +41,7 @@ class GitlabReport(robocop.linter.reports.Report):
         self.name = "gitlab"
         self.description = "Generate Gitlab Code Quality output file"
         self.output_path = "robocop-code-quality.json"
-        self.diagn_by_source: dict[str, list[Diagnostic]] = {}
         super().__init__(config)
-
-    def add_message(self, message: Diagnostic) -> None:
-        if message.source not in self.diagn_by_source:
-            self.diagn_by_source[message.source] = []
-        self.diagn_by_source[message.source].append(message)
 
     def configure(self, name, value) -> None:
         if name == "output_path":
@@ -55,8 +49,8 @@ class GitlabReport(robocop.linter.reports.Report):
         else:
             super().configure(name, value)
 
-    def get_report(self) -> str:
-        report = self.generate_gitlab_report()
+    def generate_report(self, diagnostics: Diagnostics, **kwargs) -> None:  # noqa: ARG002
+        report = self.generate_gitlab_report(diagnostics)
         output_path = Path(self.output_path)
         try:
             output_path.parent.mkdir(exist_ok=True, parents=True)
@@ -65,17 +59,16 @@ class GitlabReport(robocop.linter.reports.Report):
         except OSError as err:
             print(f"Failed to write Gitlab report to {output_path}: {err}")
             raise typer.Exit(code=1) from None
-        return f"Generated Gitlab Code Quality report at {self.output_path}"
+        print(f"Generated Gitlab Code Quality report at {self.output_path}")
 
-    def generate_gitlab_report(self) -> list[dict]:
+    def generate_gitlab_report(self, diagnostics: Diagnostics) -> list[dict]:
         report = []
         cwd = Path.cwd()
-        for source, diagnostics in self.diagn_by_source.items():
-            diagnostics.sort()
+        for source, diag_by_source in diagnostics.diag_by_source.items():
             source_rel = Path(source).relative_to(cwd).as_posix()
             source_lines = None
             fingerprints = set()
-            for diagnostic in diagnostics:
+            for diagnostic in diag_by_source:
                 if not source_lines:  # TODO: model should be coming from source, not diagnostics
                     source_lines = self._get_source_lines(diagnostic.model)
                 content = self._get_line_content(diagnostic, source_lines)

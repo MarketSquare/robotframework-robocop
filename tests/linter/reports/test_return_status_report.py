@@ -1,5 +1,6 @@
 import pytest
 
+from robocop.linter.diagnostics import Diagnostic, Diagnostics
 from robocop.linter.reports.return_status_report import ReturnStatusReport
 
 
@@ -41,9 +42,16 @@ class TestReturnStatus:
     ):
         report = ReturnStatusReport(config)
         report.configure("quality_gates", quality_gates)
+        issues = []
         for _ in range(10):
-            report.add_message(error_msg)
-            report.add_message(warning_msg)
-            report.add_message(info_msg)
-        report.get_report()
+            issues.append(
+                Diagnostic(rule=error_msg, source="", model=None, lineno=1, col=1, end_lineno=None, end_col=None)
+            )
+            issues.append(
+                Diagnostic(rule=warning_msg, source="", model=None, lineno=1, col=1, end_lineno=None, end_col=None)
+            )
+            issues.append(
+                Diagnostic(rule=info_msg, source="", model=None, lineno=1, col=1, end_lineno=None, end_col=None)
+            )
+        report.generate_report(Diagnostics(issues))
         assert report.return_status == return_status

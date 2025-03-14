@@ -3,7 +3,7 @@ from pathlib import Path
 
 import robocop.linter.reports
 from robocop.config import Config
-from robocop.linter.diagnostics import Diagnostic
+from robocop.linter.diagnostics import Diagnostic, Diagnostics
 
 
 class JsonReport(robocop.linter.reports.Report):
@@ -57,21 +57,18 @@ class JsonReport(robocop.linter.reports.Report):
         self.description = "Produces JSON file with found issues"
         self.output_dir = None
         self.report_filename = "robocop.json"
-        self.issues = []
         super().__init__(config)
 
-    def add_message(self, message: Diagnostic) -> None:
-        self.issues.append(self.message_to_json(message))
-
-    def get_report(self) -> str:
+    def generate_report(self, diagnostics: Diagnostics, **kwargs) -> None:  # noqa: ARG002
+        issues = [self.message_to_json(diagnostic) for diagnostic in diagnostics]
         if self.output_dir is not None:
             output_path = self.output_dir / self.report_filename
         else:
             output_path = Path(self.report_filename)
         with open(output_path, "w") as fp:
-            json_string = json.dumps(self.issues, indent=4)
+            json_string = json.dumps(issues, indent=4)
             fp.write(json_string)
-        return f"\nGenerated JSON report at {output_path}"
+        print(f"\nGenerated JSON report at {output_path}")
 
     def configure(self, name: str, value: str) -> None:
         if name == "output_dir":
@@ -84,8 +81,9 @@ class JsonReport(robocop.linter.reports.Report):
 
     @staticmethod
     def message_to_json(message: Diagnostic) -> dict:
+        source_rel = Path(message.source).relative_to(Path.cwd()).as_posix()
         return {
-            "source": message.source,
+            "source": str(source_rel),
             "line": message.range.start.line,
             "end_line": message.range.end.line,
             "column": message.range.start.character,

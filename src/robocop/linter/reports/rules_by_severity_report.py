@@ -2,7 +2,7 @@ from collections import defaultdict
 
 import robocop.linter.reports
 from robocop.config import Config
-from robocop.linter.diagnostics import Diagnostic
+from robocop.linter.diagnostics import Diagnostics
 from robocop.linter.rules import RuleSeverity
 from robocop.linter.utils.misc import get_plural_form, get_string_diff
 
@@ -24,10 +24,7 @@ class RulesBySeverityReport(robocop.linter.reports.ComparableReport):
         self.severity_counter = defaultdict(int)
         super().__init__(config)
 
-    def add_message(self, message: Diagnostic) -> None:
-        self.severity_counter[message.severity] += 1
-
-    def persist_result(self):
+    def persist_result(self) -> dict[str, int]:
         return {
             "all_issues": sum(self.severity_counter.values()),
             "error": self.severity_counter[RuleSeverity.ERROR],
@@ -35,12 +32,16 @@ class RulesBySeverityReport(robocop.linter.reports.ComparableReport):
             "info": self.severity_counter[RuleSeverity.INFO],
         }
 
-    def get_report(self, prev_results) -> str:
+    def generate_report(self, prev_results: dict, diagnostics: Diagnostics, **kwargs) -> None:  # noqa: ARG002
+        for diagnostic in diagnostics:
+            self.severity_counter[diagnostic.severity] += 1
         if self.compare_runs and prev_results:
-            return self.get_report_with_compare(prev_results)
-        return self.get_report_without_compare()
+            output = self.get_report_with_compare(prev_results)
+        else:
+            output = self.get_report_without_compare()
+        print(output)
 
-    def get_report_without_compare(self):
+    def get_report_without_compare(self) -> str:
         issues_count = sum(self.severity_counter.values())
         if not issues_count:
             return "\nFound 0 issues."
@@ -52,7 +53,7 @@ class RulesBySeverityReport(robocop.linter.reports.ComparableReport):
         report += "."
         return report
 
-    def get_report_with_compare(self, prev_results):
+    def get_report_with_compare(self, prev_results: dict) -> str:
         issues_count = sum(self.severity_counter.values())
         if not issues_count:
             prev_issues = prev_results["all_issues"]

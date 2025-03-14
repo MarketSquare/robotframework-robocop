@@ -4,35 +4,38 @@ from pathlib import Path
 
 import pytest
 
-from robocop.linter.diagnostics import Diagnostic
+from robocop.linter.diagnostics import Diagnostic, Diagnostics
 from robocop.linter.reports.print_issues import PrintIssuesReport
 
 
 @pytest.fixture
-def issues(rule, rule2) -> list[Diagnostic]:
+def issues(rule, rule2) -> Diagnostics:
     root = Path.cwd()
     source1_rel = "tests/atest/rules/comments/ignored-data/test.robot"
     source2_rel = "tests/atest/rules/misc/empty-return/test.robot"
     source1 = str(root / source1_rel)
     source2 = str(root / source2_rel)
 
-    return [
-        Diagnostic(
-            rule=r,
-            source=source,
-            node=None,
-            lineno=line,
-            col=col,
-            end_lineno=end_line,
-            end_col=end_col,
-        )
-        for r, source, line, end_line, col, end_col in [
-            (rule, source1, 50, None, 10, None),
-            (rule2, source1, 50, 51, 10, None),
-            (rule, source2, 50, None, 10, 12),
-            (rule2, source2, 11, 15, 10, 15),
+    return Diagnostics(
+        [
+            Diagnostic(
+                rule=r,
+                source=source,
+                node=None,
+                model=None,
+                lineno=line,
+                col=col,
+                end_lineno=end_line,
+                end_col=end_col,
+            )
+            for r, source, line, end_line, col, end_col in [
+                (rule, source1, 50, None, 10, None),
+                (rule2, source1, 50, 51, 10, None),
+                (rule, source2, 50, None, 10, 12),
+                (rule2, source2, 11, 15, 10, 15),
+            ]
         ]
-    ]
+    )
 
 
 class TestPrintIssuesReport:
@@ -54,11 +57,9 @@ class TestPrintIssuesReport:
         )
         report = PrintIssuesReport(config)
         report.configure("output_format", "grouped")
-        for issue in issues:
-            report.add_message(issue)
 
         # act
-        report.get_report()
+        report.generate_report(issues)
 
         # assert
         out, _ = capsys.readouterr()

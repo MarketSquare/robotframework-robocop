@@ -1,6 +1,7 @@
 import json
 from unittest import mock
 
+from robocop.linter.diagnostics import Diagnostics
 from robocop.linter.reports.gitlab import GitlabReport
 from tests.linter.reports import generate_issues
 
@@ -59,12 +60,11 @@ class TestGitlabReport:
         ]
         report = GitlabReport(config)
         report.configure("output_path", output_file)
-        for issue in issues:
-            report.add_message(issue)
+        diagnostics = Diagnostics(issues)
         # content of 1 and 2 file. 2 file use the same lines to check if fingerprint will be different
         content = [["line1", "line2"], ["line1", "line1"]]
         with mock.patch.object(report, "_get_source_lines", side_effect=content):
-            report.get_report()
+            report.generate_report(diagnostics)
         with open(output_file) as fp:
             json_report = json.load(fp)
         assert json_report == expected_report

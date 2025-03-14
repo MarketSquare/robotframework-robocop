@@ -1,8 +1,9 @@
 import json
 from pathlib import Path
+from unittest.mock import Mock
 
 from robocop import __version__
-from robocop.linter.diagnostics import Diagnostic
+from robocop.linter.diagnostics import Diagnostic, Diagnostics
 from robocop.linter.reports.sarif_report import SarifReport
 from tests.linter.reports import generate_issues
 
@@ -84,9 +85,10 @@ class TestSarifReport:
                 }
             ],
         }
-        for issue in issues:
-            report.add_message(issue)
-        report.get_report(root, rules)
+        config_manager = Mock()
+        config_manager.root = root
+        config_manager.default_config.linter.rules = rules
+        report.generate_report(Diagnostics(issues), config_manager)
         sarif_path = report.output_dir / report.report_filename
         with open(sarif_path) as fp:
             sarif_report = json.load(fp)

@@ -24,6 +24,7 @@ def get_diag_with_sev_value(rule: Rule, sev_value) -> Diagnostic:
         rule,
         source="",
         node=None,
+        model=None,
         lineno=1,
         end_lineno=1,
         col=1,

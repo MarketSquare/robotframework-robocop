@@ -10,8 +10,8 @@ from packaging.specifiers import SpecifierSet
 from rich.console import Console
 from robot.version import VERSION as RF_VERSION
 
-from robocop.cli import format_files
 from robocop.formatter.utils.misc import decorate_diff_with_color
+from robocop.run import format_files
 
 VERSION_MATRIX = {"ReplaceReturns": 5, "InlineIf": 5, "ReplaceBreakContinue": 5, "Translate": 6, "ReplaceWithVAR": 7}
 ROBOT_VERSION = version.parse(RF_VERSION)

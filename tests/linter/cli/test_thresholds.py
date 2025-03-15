@@ -45,8 +45,8 @@ class TestThresholds:
         ],
     )
     def test_disable_rules_below_threshold(self, empty_linter, threshold, included, excluded):
-        empty_linter.config.linter.threshold = RuleSeverity(threshold)
-        matcher = RuleMatcher(empty_linter.config.linter)
+        empty_linter.config_manager.default_config.linter.threshold = RuleSeverity(threshold)
+        matcher = RuleMatcher(empty_linter.config_manager.default_config.linter)
         for severity in included:
             rule = get_rule_with_id_sev("0101", severity)
             assert matcher.is_rule_enabled(rule)

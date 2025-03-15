@@ -14,9 +14,9 @@ import click.exceptions
 import pytest
 from rich.console import Console
 
-from robocop.cli import check_files
 from robocop.linter.utils.misc import ROBOT_VERSION
 from robocop.linter.utils.version_matching import VersionSpecifier
+from robocop.run import check_files
 from tests import working_directory
 
 if TYPE_CHECKING:

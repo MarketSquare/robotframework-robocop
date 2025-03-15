@@ -51,19 +51,14 @@ class RobocopFormatter:
                     print(f"Formatting {source} file")
                 self.config = config
                 all_files += 1
-                disabler_finder = disablers.RegisterDisablers(
-                    self.config.formatter.start_line, self.config.formatter.end_line
-                )
+
                 previous_changed_files = changed_files
                 model = self.get_model(source)
-                model_path = model.source or source
-                disabler_finder.visit(model)
-                if disabler_finder.is_disabled_in_file(disablers.ALL_FORMATTERS):
-                    continue
-                diff, old_model, new_model, model = self.format_until_stable(model, disabler_finder)
+                diff, old_model, new_model, model = self.format_until_stable(model)
                 # if stdin:
                 #     self.print_to_stdout(new_model)
                 if diff:
+                    model_path = model.source or source
                     self.save_model(model_path, model)
                     self.log_formatted_source(source, stdin)
                     self.output_diff(model_path, old_model, new_model)
@@ -92,7 +87,11 @@ class RobocopFormatter:
             return 0
         return 1  # FIXME: ensure proper exit status is returned
 
-    def format_until_stable(self, model: File, disabler_finder: disablers.RegisterDisablers):
+    def format_until_stable(self, model: File):
+        disabler_finder = disablers.RegisterDisablers(self.config.formatter.start_line, self.config.formatter.end_line)
+        disabler_finder.visit(model)
+        if disabler_finder.is_disabled_in_file(disablers.ALL_FORMATTERS):
+            return False, None, None, model
         diff, old_model, new_model = self.format(model, disabler_finder.disablers)
         reruns = self.config.formatter.reruns
         while diff and reruns:

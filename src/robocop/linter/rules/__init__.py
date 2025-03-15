@@ -497,8 +497,8 @@ class BaseChecker:
 
     def __init__(self):
         self.disabled = False
-        self.source = None
-        self.ast_model = None
+        self.source: Path = None
+        self.ast_model: File = None
         self.lines = None
         self.issues = []
         self.rules: dict[str, Rule] = {}
@@ -544,7 +544,7 @@ class BaseChecker:
 
 class VisitorChecker(BaseChecker, ModelVisitor):
     def scan_file(
-        self, ast_model: File, filename: str, in_memory_content: str | None, templated: bool = False
+        self, ast_model: File, filename: Path, in_memory_content: str | None, templated: bool = False
     ) -> list[Diagnostic]:
         self.issues: list[Diagnostic] = []
         self.source = filename
@@ -574,7 +574,9 @@ class ProjectChecker(VisitorChecker):
 
 
 class RawFileChecker(BaseChecker):
-    def scan_file(self, ast_model, filename, in_memory_content, templated=False) -> list[Diagnostic]:
+    def scan_file(
+        self, ast_model: File, filename: Path, in_memory_content: str | None, templated: bool = False
+    ) -> list[Diagnostic]:
         self.issues: list[Diagnostic] = []
         self.source = filename
         self.ast_model = ast_model

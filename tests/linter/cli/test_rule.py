@@ -1,12 +1,12 @@
 import textwrap
 from unittest.mock import MagicMock, patch
 
-from robocop.cli import print_resource_documentation
+from robocop.run import print_resource_documentation
 
 
 class TestDescribeRule:
     def test_describe_rule(self, loaded_linter, capsys):
-        with patch("robocop.cli.RobocopLinter", MagicMock(return_value=loaded_linter)):
+        with patch("robocop.run.RobocopLinter", MagicMock(return_value=loaded_linter)):
             print_resource_documentation("duplicated-keyword")
         out, _ = capsys.readouterr()
         expected = textwrap.dedent("""
@@ -36,7 +36,7 @@ class TestDescribeRule:
         assert expected == out
 
     def test_describe_rule_with_configurables(self, loaded_linter, capsys):
-        with patch("robocop.cli.RobocopLinter", MagicMock(return_value=loaded_linter)):
+        with patch("robocop.run.RobocopLinter", MagicMock(return_value=loaded_linter)):
             print_resource_documentation("line-too-long")
         out, _ = capsys.readouterr()
         expected = textwrap.dedent(r"""

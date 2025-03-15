@@ -2,8 +2,8 @@ from pathlib import Path
 
 import pytest
 
-from robocop.cli import check_files
 from robocop.linter.rules import RuleSeverity
+from robocop.run import check_files
 from tests import working_directory
 
 TEST_DIR = Path(__file__).parent / "test_data" / "example_test"

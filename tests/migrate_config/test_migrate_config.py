@@ -6,8 +6,8 @@ from pathlib import Path
 import pytest
 from rich.console import Console
 
-from robocop.cli import migrate_config
 from robocop.formatter.utils.misc import decorate_diff_with_color
+from robocop.run import migrate_config
 
 TEST_DATA = Path(__file__).parent / "test_data"
 

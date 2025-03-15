@@ -3,7 +3,7 @@
 from typer.testing import CliRunner
 
 from robocop import __version__
-from robocop.cli import app
+from robocop.run import app
 
 
 def test_version():

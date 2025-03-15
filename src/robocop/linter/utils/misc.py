@@ -136,7 +136,7 @@ def issues_to_lsp_diagnostic(issues: list[Diagnostic]) -> list[dict]:
     ]
 
 
-def str2bool(v: bool | str) -> str:
+def str2bool(v: bool | str) -> bool:
     if isinstance(v, bool):
         return v
     return v.lower() in ("yes", "true", "1")

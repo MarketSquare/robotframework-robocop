@@ -1,11 +1,11 @@
 from unittest.mock import MagicMock, patch
 
-from robocop.cli import list_reports
+from robocop.run import list_reports
 
 
 class TestListReports:
     def test_list_reports(self, empty_linter, capsys):
-        with patch("robocop.cli.RobocopLinter", MagicMock(return_value=empty_linter)):
+        with patch("robocop.run.RobocopLinter", MagicMock(return_value=empty_linter)):
             list_reports()
         out, _ = capsys.readouterr()
         first_line = out.split("\n")[0]
@@ -13,7 +13,7 @@ class TestListReports:
         assert "version              - Returns Robocop version (disabled)" in out
 
     def test_list_reports_enabled_not_configured(self, empty_linter, capsys):
-        with patch("robocop.cli.RobocopLinter", MagicMock(return_value=empty_linter)):
+        with patch("robocop.run.RobocopLinter", MagicMock(return_value=empty_linter)):
             list_reports(enabled=True)
         out, _ = capsys.readouterr()
         first_line = out.split("\n")[0]

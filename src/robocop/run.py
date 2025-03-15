@@ -568,19 +568,20 @@ def list_rules(
     )
     config_manager = config.ConfigManager(overwrite_config=overwrite_config)
     runner = RobocopLinter(config_manager)
+    default_config = runner.config_manager.default_config
     if filter_pattern:
         filter_pattern = compile_rule_pattern(filter_pattern)
-        rules = filter_rules_by_pattern(runner.config.linter.rules, filter_pattern)
+        rules = filter_rules_by_pattern(default_config.linter.rules, filter_pattern)
     else:
         rules = filter_rules_by_category(
-            runner.config.linter.rules, filter_category, runner.config.linter.target_version
+            default_config.linter.rules, filter_category, default_config.linter.target_version
         )
     severity_counter = {"E": 0, "W": 0, "I": 0}
     enabled = 0
     for rule in rules:
-        is_enabled = rule.enabled and not rule.is_disabled(runner.config.linter.target_version)
+        is_enabled = rule.enabled and not rule.is_disabled(default_config.linter.target_version)
         enabled += int(is_enabled)
-        console.print(rule.rule_short_description(runner.config.linter.target_version))
+        console.print(rule.rule_short_description(default_config.linter.target_version))
         severity_counter[rule.severity.value] += 1
     configurable_rules_sum = sum(severity_counter.values())
     plural = get_plural_form(configurable_rules_sum)
@@ -646,8 +647,9 @@ def print_resource_documentation(name: Annotated[str, typer.Argument(help="Rule 
     config_manager = config.ConfigManager()
 
     runner = RobocopLinter(config_manager)
-    if name in runner.config.linter.rules:
-        console.print(runner.config.linter.rules[name].description_with_configurables)
+    default_config = runner.config_manager.default_config
+    if name in default_config.linter.rules:
+        console.print(default_config.linter.rules[name].description_with_configurables)
         return
 
     reports = load_reports(config_manager.default_config)

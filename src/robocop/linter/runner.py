@@ -24,9 +24,8 @@ if TYPE_CHECKING:
 class RobocopLinter:
     def __init__(self, config_manager: ConfigManager):
         self.config_manager = config_manager
-        self.config: Config = self.config_manager.default_config
         self.current_model: File = None
-        self.reports: dict[str, reports.Report] = reports.get_reports(self.config)
+        self.reports: dict[str, reports.Report] = reports.get_reports(self.config_manager.default_config)
         self.diagnostics: list[Diagnostic] = []
         self.configure_reports()
 
@@ -44,18 +43,17 @@ class RobocopLinter:
         issues_no = 0
         files = 0
         for source, config in self.config_manager.paths:
-            self.config = config
-            if self.config.verbose:
+            if config.verbose:
                 print(f"Scanning file: {source}")
             try:
-                self.current_model = self.get_model_for_file_type(source)
+                model = self.get_model_for_file_type(source)
             except DataError:
                 print(
                     f"Failed to decode {source}. Default supported encoding by Robot Framework is UTF-8. Skipping file"
                 )
                 continue
             files += 1
-            diagnostics = self.run_check(str(source))
+            diagnostics = self.run_check(model, source, config)
             issues_no += len(diagnostics)
             self.diagnostics.extend(diagnostics)
         if not files:
@@ -67,19 +65,31 @@ class RobocopLinter:
             return self.diagnostics
         return self.return_with_exit_code(issues_no)
 
-    def run_check(self, filename: str, source: str | None = None) -> list[Diagnostic]:
-        disablers = DisablersFinder(self.current_model)
+    def run_check(
+        self, model: File, file_path: Path, config: Config, in_memory_content: str | None = None
+    ) -> list[Diagnostic]:
+        """
+        Run all rules on file model and return list of diagnostics.
+
+        Args:
+            model: ast model of analyzed file
+            file_path: Path to analyzed file
+            config: configuration closest to analyzed file
+            in_memory_content: Used only if we are consuming stdin directly
+
+        """
+        disablers = DisablersFinder(model)
         if disablers.file_disabled:
             return []
         found_diagnostics = []
-        templated = is_suite_templated(self.current_model)
-        for checker in self.config.linter.checkers:
+        templated = is_suite_templated(model)
+        for checker in config.linter.checkers:
             if checker.disabled:
                 continue
             found_diagnostics += [
                 diagnostic
-                for diagnostic in checker.scan_file(self.current_model, filename, source, templated)
-                if not disablers.is_rule_disabled(diagnostic) and not diagnostic.severity < self.config.linter.threshold
+                for diagnostic in checker.scan_file(model, file_path, in_memory_content, templated)
+                if not disablers.is_rule_disabled(diagnostic) and not diagnostic.severity < config.linter.threshold
             ]
         return found_diagnostics
 

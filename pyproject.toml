@@ -43,7 +43,7 @@ classifiers = [
 dynamic = ["version"]
 
 [project.scripts]
-robocop = "robocop.cli:main"
+robocop = "robocop.run:main"
 
 [project.urls]
 "Bug tracker" = "https://github.com/MarketSquare/robotframework-robocop/issues"
@@ -167,7 +167,7 @@ extend-exclude = [
 # temporary because of the rules description
 "src/robocop/linter/rules/*" = ["D205"]
 # bug in typer where | None can't be used
-"src/robocop/cli.py" = ["RUF013"]
+"src/robocop/run.py" = ["RUF013"]
 
 [tool.coverage.run]
 omit = ["*tests*"]

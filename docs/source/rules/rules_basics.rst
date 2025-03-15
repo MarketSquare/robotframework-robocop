@@ -179,6 +179,17 @@ you want to enable one by one) you can use special keyword ``ALL``:
                 "rules-you-want-to-disable"
             ]
 
+Disable rules not supported in target version
+---------------------------------------------
+
+You can configure which Robot Framework version you want to target::
+
+    robocop check --target-version 4
+
+This option accepts major version of Robot Framework (4, 5, .. ). When configured, it will automatically disable
+all rules that require more recent version of Robot Framework. It is useful if you have legacy codebase you don't
+want to migrate yet, but environment where you run Robocop use more recent version of Robot Framework.
+
 .. _rule-severity:
 
 Rule severity

@@ -62,7 +62,7 @@ Use ``--select`` and ``--ignore`` to select only rules to run or run all default
 In this example we are selecting ``rule1``, ``rule2`` and ``rule3``. Additionally ``rule2`` is ignored so Robocop
 will only report ``rule1`` and ``rule3``.
 
-More in :ref:`including-rules`.
+More in :ref:`selecting-rules`.
 
 Disabling rules from source code
 --------------------------------
@@ -99,31 +99,19 @@ Read more about how to list the rules in :ref:`list-rules`.
 Handling output
 ===============
 
-Format output message
----------------------
+Robocop generates Diagnostic objects for each reported issue. Those objects are handled by reports - special classes
+that can print issue information, output statistics or generate report file. Read more about reports at :ref:`reports`.
 
-Format of rules output messages can be redefined. More in messages documentation: :ref:`output-message-format`.
-
-Save output to file
--------------------
-
-# TODO
-You can redirect output of Robocop to a file by using pipes (``>`` in unix) or by ``-o`` / ``--output`` argument::
-
-  robocop --output robocop.log
-
-Generating reports
-------------------
-
-You can generate reports after run. Available reports are described in :ref:`reports`.
-
-.. _return_status:
+Default report that handles printing issues to standard output is ``print_issues`` report. You can use it to change
+output from extended (print issues with source code) to grouped (group issues by file) or simple. There are also
+options to configure output format. Read more at :ref:`print_issues` .
 
 Language support
 ================
 
-Robot Framework 6.0 added support for Robot settings and headers translation. Robocop will not recognize translated names unless
-it is properly configured. You can supply language code or name in the configuration using ``--language / -l`` option:
+Robot Framework 6.0 added support for Robot settings and headers translation. Robocop will not recognize translated
+names unless it is properly configured. You can supply language code or name in the configuration using
+``--language / -l`` option:
 
 .. tab-set::
 
@@ -131,7 +119,7 @@ it is properly configured. You can supply language code or name in the configura
 
         .. code:: shell
 
-             robocop check --language fi
+             robocop check --language fi --language pl
 
     .. tab-item:: Configuration file
 
@@ -139,28 +127,8 @@ it is properly configured. You can supply language code or name in the configura
 
             [robocop.lint]
             language = [
-                "fi"
-            ]
-
-Support multiple languages by either using ``language`` option multiple times:
-
-
-.. tab-set::
-
-    .. tab-item:: Cli
-
-        .. code:: shell
-
-            robocop check -l pl -l pt
-
-    .. tab-item:: Configuration file
-
-        .. code:: toml
-
-            [robocop.lint]
-            language = [
-                "pl",
-                "pt"
+                "fi",
+                "pl"
             ]
 
 Custom language file is currently not supported.

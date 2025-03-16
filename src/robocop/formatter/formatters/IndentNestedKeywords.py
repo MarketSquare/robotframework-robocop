@@ -3,9 +3,9 @@ from robot.api.parsing import Token
 from robocop.formatter.disablers import skip_if_disabled
 from robocop.formatter.exceptions import InvalidParameterValueError
 from robocop.formatter.formatters import Formatter
-from robocop.formatter.formatters.run_keywords import get_run_keywords
 from robocop.formatter.skip import Skip
 from robocop.formatter.utils import misc
+from robocop.parsing.run_keywords import RUN_KEYWORDS
 
 
 class IndentNestedKeywords(Formatter):
@@ -46,7 +46,6 @@ class IndentNestedKeywords(Formatter):
         super().__init__(skip=skip)
         self.indent_and = indent_and
         self.validate_indent_and()
-        self.run_keywords = get_run_keywords()
 
     def validate_indent_and(self):
         modes = {"keep_in_line", "split", "split_and_indent"}
@@ -58,14 +57,10 @@ class IndentNestedKeywords(Formatter):
                 f"Select one of: {','.join(modes)}",
             )
 
-    def get_run_keyword(self, kw_name):
-        kw_norm = misc.normalize_name(kw_name)
-        return self.run_keywords.get(kw_norm, None)
-
     def get_setting_lines(self, node, indent):
         if self.skip.setting("any") or node.errors or not len(node.data_tokens) > 1:
             return None
-        run_keyword = self.get_run_keyword(node.data_tokens[1].value)
+        run_keyword = RUN_KEYWORDS.get(node.data_tokens[1].value)
         if not run_keyword:
             return None
         lines = self.parse_sub_kw(node.data_tokens[1:])
@@ -156,7 +151,7 @@ class IndentNestedKeywords(Formatter):
     def visit_KeywordCall(self, node):  # noqa: N802
         if node.errors or not node.keyword:
             return node
-        run_keyword = self.get_run_keyword(node.keyword)
+        run_keyword = RUN_KEYWORDS.get(node.keyword)
         if not run_keyword:
             return node
 
@@ -218,7 +213,7 @@ class IndentNestedKeywords(Formatter):
     def parse_sub_kw(self, tokens, column=0):
         if not tokens:
             return []
-        run_keyword = self.get_run_keyword(tokens[0].value)
+        run_keyword = RUN_KEYWORDS.get(tokens[0].value)
         if not run_keyword:
             return [(column, list(tokens))]
         lines = [(column, tokens[: run_keyword.resolve])]

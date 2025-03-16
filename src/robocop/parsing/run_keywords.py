@@ -13,15 +13,11 @@ if TYPE_CHECKING:
 
 class RunKeywordVariant:
     def __init__(
-        self,
-        name: str,
-        resolve: int = 1,
-        branches: list | None = None,
-        split_on_and: bool = False,
-        prefix: str = "builtin",
+        self, lib_name: str, name: str, resolve: int = 1, branches: list | None = None, split_on_and: bool = False
     ):
+        self.lib_name = lib_name
         self.name = normalize_robot_name(name)
-        self.prefix = prefix
+        self.full_name = f"{self.lib_name}.{self.name}"
         self.resolve = resolve
         self.branches = branches
         self.split_on_and = split_on_and
@@ -31,21 +27,25 @@ class RunKeywords(dict):
     def __init__(self, keywords: list[RunKeywordVariant]):
         normalized_keywords = {}
         for keyword_variant in keywords:
-            normalized_name = normalize_robot_name(keyword_variant.name)
-            name_with_lib = f"{keyword_variant.prefix}.{normalized_name}"
-            normalized_keywords[normalized_name] = keyword_variant
-            normalized_keywords[name_with_lib] = keyword_variant
+            normalized_keywords[keyword_variant.name] = keyword_variant
+            normalized_keywords[keyword_variant.full_name] = keyword_variant
         super().__init__(normalized_keywords)
 
     def __setitem__(self, keyword_name: str, kw_variant: RunKeywordVariant):
-        normalized_name = normalize_robot_name(keyword_name)
-        name_with_lib = f"builtin.{normalized_name}"
-        super().__setitem__(normalized_name, kw_variant)
-        super().__setitem__(name_with_lib, kw_variant)
+        super().__setitem__(kw_variant.name, kw_variant)
+        super().__setitem__(kw_variant.full_name, kw_variant)
 
     def __getitem__(self, keyword_name: str) -> RunKeywordVariant:
         normalized_name = normalize_robot_name(keyword_name)
         return super().__getitem__(normalized_name)
+
+    def __contains__(self, keyword_name: str) -> bool:
+        normalized_name = normalize_robot_name(keyword_name)
+        return super().__contains__(normalized_name)
+
+    def get(self, keyword_name: str) -> RunKeywordVariant | None:
+        normalized_name = normalize_robot_name(keyword_name)
+        return super().get(normalized_name, None)
 
     def __missing__(self, keyword_name: str):
         return None
@@ -53,28 +53,28 @@ class RunKeywords(dict):
 
 RUN_KEYWORDS = RunKeywords(
     [
-        RunKeywordVariant("Run Keyword"),
-        RunKeywordVariant("Run Keyword And Continue On Failure"),
-        RunKeywordVariant("Run Keyword And Expect Error", resolve=2),
-        RunKeywordVariant("Run Keyword And Ignore Error"),
-        RunKeywordVariant("Run Keyword And Return"),
-        RunKeywordVariant("Run Keyword And Return If", resolve=2),
-        RunKeywordVariant("Run Keyword And Return Status"),
-        RunKeywordVariant("Run Keyword And Warn On Failure"),
-        RunKeywordVariant("Run Keyword If", resolve=2, branches=["ELSE IF", "ELSE"]),
-        RunKeywordVariant("Run Keyword If All Tests Passed"),
-        RunKeywordVariant("Run Keyword If Any Tests Failed"),
-        RunKeywordVariant("Run Keyword If Test Failed"),
-        RunKeywordVariant("Run Keyword If Test Passed"),
-        RunKeywordVariant("Run Keyword If Timeout Occurred"),
-        RunKeywordVariant("Run Keyword Unless", resolve=2),
-        RunKeywordVariant("Run Keywords", split_on_and=True),
-        RunKeywordVariant("Repeat Keyword", resolve=2),
-        RunKeywordVariant("Wait Until Keyword Succeeds", resolve=3),
-        RunKeywordVariant("Run Setup Only Once", prefix="pabotlib"),
-        RunKeywordVariant("Run Teardown Only Once", prefix="pabotlib"),
-        RunKeywordVariant("Run Only Once", prefix="pabotlib"),
-        RunKeywordVariant("Run On Last Process", prefix="pabotlib"),
+        RunKeywordVariant("builtin", "Run Keyword"),
+        RunKeywordVariant("builtin", "Run Keyword And Continue On Failure"),
+        RunKeywordVariant("builtin", "Run Keyword And Expect Error", resolve=2),
+        RunKeywordVariant("builtin", "Run Keyword And Ignore Error"),
+        RunKeywordVariant("builtin", "Run Keyword And Return"),
+        RunKeywordVariant("builtin", "Run Keyword And Return If", resolve=2),
+        RunKeywordVariant("builtin", "Run Keyword And Return Status"),
+        RunKeywordVariant("builtin", "Run Keyword And Warn On Failure"),
+        RunKeywordVariant("builtin", "Run Keyword If", resolve=2, branches=["ELSE IF", "ELSE"]),
+        RunKeywordVariant("builtin", "Run Keyword If All Tests Passed"),
+        RunKeywordVariant("builtin", "Run Keyword If Any Tests Failed"),
+        RunKeywordVariant("builtin", "Run Keyword If Test Failed"),
+        RunKeywordVariant("builtin", "Run Keyword If Test Passed"),
+        RunKeywordVariant("builtin", "Run Keyword If Timeout Occurred"),
+        RunKeywordVariant("builtin", "Run Keyword Unless", resolve=2),
+        RunKeywordVariant("builtin", "Run Keywords", split_on_and=True),
+        RunKeywordVariant("builtin", "Repeat Keyword", resolve=2),
+        RunKeywordVariant("builtin", "Wait Until Keyword Succeeds", resolve=3),
+        RunKeywordVariant("pabotlib", "Run Setup Only Once"),
+        RunKeywordVariant("pabotlib", "Run Teardown Only Once"),
+        RunKeywordVariant("pabotlib", "Run Only Once"),
+        RunKeywordVariant("pabotlib", "Run On Last Process"),
     ]
 )
 

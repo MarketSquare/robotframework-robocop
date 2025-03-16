@@ -12,7 +12,7 @@ from robot.running.arguments import EmbeddedArguments
 
 from robocop.linter.rules import ProjectChecker, Rule, RuleSeverity
 from robocop.linter.utils.misc import ROBOT_VERSION, normalize_robot_name
-from robocop.linter.utils.run_keywords import iterate_keyword_names
+from robocop.parsing.run_keywords import iterate_keyword_names
 
 if TYPE_CHECKING:
     from robocop.linter.diagnostics import Diagnostic

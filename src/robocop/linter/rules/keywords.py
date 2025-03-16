@@ -4,7 +4,7 @@ from robot.utils.robottime import timestr_to_secs
 
 from robocop.linter.rules import Rule, RuleParam, RuleSeverity, VisitorChecker
 from robocop.linter.utils.misc import normalize_robot_name
-from robocop.linter.utils.run_keywords import iterate_keyword_names
+from robocop.parsing.run_keywords import iterate_keyword_names
 
 
 def comma_separated_list(value: str) -> set[str]:

@@ -26,8 +26,8 @@ from robocop.linter.utils import (
     token_col,
 )
 from robocop.linter.utils.misc import _is_var_scope_local, remove_nested_variables
-from robocop.linter.utils.run_keywords import iterate_keyword_names
 from robocop.linter.utils.variable_matcher import VariableMatches
+from robocop.parsing.run_keywords import iterate_keyword_names
 
 if TYPE_CHECKING:
     from collections.abc import Iterable

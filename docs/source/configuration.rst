@@ -14,7 +14,7 @@ To list Robocop command line options run::
     robocop check --help
     robocop format --help
 
-.. _config-file
+.. _config-file:
 
 Configuration file
 ==================
@@ -38,39 +38,44 @@ This behaviour can be disabled with ``--ignore-git-dir``, which will make Roboco
 Valid configuration file should contain ``tool.robocop`` section (which can be only omitted for ``robocop.toml`` file)
 and options in TOML format.
 
-Example configuration file::
+.. dropdown:: Example configuration file
 
-    [tool.robocop]
-    exclude = ["deprecated.robot"]
-    include = ["custom.txt"]
-    language = ["eng", "pl"]
+    ::
 
-    [tool.robocop.lint]
-    select = [
-        "rulename",
-        "ruleid"
-    ]
-    ignore = [
-        "ruleid"
-    ]
-    reports = ["all", "sarif"]
-    persistent = true
-    compare = true
-    configure = [
-        "line-too-long.line_length=110"
-    ]
+        [tool.robocop]
+        exclude = ["deprecated.robot"]
+        include = ["custom.txt"]
+        language = ["eng", "pl"]
 
-    [tool.robocop.format]
-    select = ["NormalizeNewLines"]
-    custom_formatters = ["CustomFormatter.py"]
-    configure = [
-        "NormalizeNewLines.flatten_lines=True"
-    ]
-    diff = true
-    line_length = 110
-    skip = [
-        "documentation"
-    ]
-    reruns = 3
+        [tool.robocop.lint]
+        select = [
+            "rulename",
+            "ruleid"
+        ]
+        ignore = [
+            "ruleid"
+        ]
+        reports = ["all", "sarif"]
+        persistent = true
+        compare = true
+        configure = [
+            "line-too-long.line_length=110"
+        ]
 
-# TODO: --config
+        [tool.robocop.format]
+        select = ["NormalizeNewLines"]
+        custom_formatters = ["CustomFormatter.py"]
+        configure = [
+            "NormalizeNewLines.flatten_lines=True"
+        ]
+        diff = true
+        line_length = 110
+        skip = [
+            "documentation"
+        ]
+        reruns = 3
+
+You can manually point to location of config file with ``--config``::
+
+    robocop check --config path/to/config.toml
+    robocop format --config path/to/config.toml

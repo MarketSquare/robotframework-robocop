@@ -12,8 +12,8 @@ from typing import TYPE_CHECKING
 
 from robocop.formatter.disablers import skip_if_disabled, skip_section_if_disabled
 from robocop.formatter.formatters import Formatter
-from robocop.formatter.formatters.run_keywords import get_run_keywords
-from robocop.formatter.utils.misc import ROBOT_VERSION, normalize_name
+from robocop.formatter.utils.misc import ROBOT_VERSION
+from robocop.parsing.run_keywords import RUN_KEYWORDS
 
 if TYPE_CHECKING:
     from robocop.formatter.skip import Skip
@@ -103,13 +103,12 @@ class SplitTooLongLine(Formatter):
         self.robocop_disabler_pattern = re.compile(
             r"(# )+(noqa|robocop: ?(?P<disabler>disable|enable)=?(?P<rules>[\w\-,]*))"
         )
-        self.run_keywords = get_run_keywords()
 
     @property
     def line_length(self):
         return self.formatting_config.line_length if self._line_length is None else self._line_length
 
-    def is_run_keyword(self, kw_name):
+    def is_run_keyword(self, kw_name: str) -> bool:
         """
         Skip formatting if the keyword is already handled by IndentNestedKeywords formatter.
 
@@ -117,8 +116,7 @@ class SplitTooLongLine(Formatter):
         """
         if "IndentNestedKeywords" not in self.formatters:
             return False
-        kw_norm = normalize_name(kw_name)
-        return kw_norm in self.run_keywords
+        return kw_name in RUN_KEYWORDS
 
     @skip_section_if_disabled
     def visit_Section(self, node):  # noqa: N802

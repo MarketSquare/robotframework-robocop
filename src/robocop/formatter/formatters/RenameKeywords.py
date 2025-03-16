@@ -7,8 +7,8 @@ from robot.api.parsing import Token
 from robocop.formatter.disablers import skip_if_disabled, skip_section_if_disabled
 from robocop.formatter.exceptions import InvalidParameterValueError
 from robocop.formatter.formatters import Formatter
-from robocop.formatter.formatters.run_keywords import get_run_keywords
 from robocop.formatter.utils import misc, variable_matcher
+from robocop.parsing.run_keywords import RUN_KEYWORDS
 
 
 class RenameKeywords(Formatter):
@@ -68,7 +68,6 @@ class RenameKeywords(Formatter):
         self.keyword_case = keyword_case
         self.replace_pattern = self.parse_pattern(replace_pattern)
         self.replace_to = "" if replace_to is None else replace_to
-        self.run_keywords = get_run_keywords()
 
     def parse_keyword_case(self, value: str) -> str:
         conventions = ("capitalize_words", "capitalize_first", "ignore")
@@ -93,10 +92,6 @@ class RenameKeywords(Formatter):
                 replace_pattern,
                 f"It should be a valid regex expression. Regex error: '{err.msg}'",
             ) from None
-
-    def get_run_keyword(self, kw_name):
-        kw_norm = misc.normalize_name(kw_name)
-        return self.run_keywords.get(kw_norm, None)
 
     @skip_section_if_disabled
     def visit_Section(self, node):  # noqa: N802
@@ -198,7 +193,7 @@ class RenameKeywords(Formatter):
         if not tokens:
             return None
         self.rename_node(tokens[0], is_keyword_call=True)
-        run_keyword = self.get_run_keyword(tokens[0].value)
+        run_keyword = RUN_KEYWORDS.get(tokens[0].value)
         if not run_keyword:
             return None
         tokens = tokens[run_keyword.resolve :]

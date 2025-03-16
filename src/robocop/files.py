@@ -18,9 +18,7 @@ def load_toml_file(config_path: Path) -> dict[str, Any]:
         with config_path.open("rb") as tf:
             return toml.load(tf)
     except (toml.TOMLDecodeError, OSError) as e:
-        raise click.FileError(
-            filename=str(config_path), hint=f"Error reading configuration file: {e}"
-        ) from None  # TODO: check typer errors
+        raise click.FileError(filename=str(config_path), hint=f"Error reading configuration file: {e}") from None
 
 
 def read_toml_config(config_path: Path) -> dict[str, Any] | None:

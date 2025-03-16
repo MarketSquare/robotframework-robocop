@@ -1,3 +1,6 @@
+import os
+from unittest import mock
+
 import pytest
 
 from robocop.config import RuleMatcher
@@ -79,15 +82,23 @@ class TestRuleSeverityThreshold:
             RuleSeverity.ERROR,
         ]
 
-    # # TODO
-    def test_invalid_threshold_config(self):
-        thresholds = SeverityThreshold("line_length")
-        exp_error = (
-            "Invalid configuration for Robocop:\n"
-            "Invalid severity value 'error'. It should be list of `severity=param_value` pairs, separated by `:`."
-        )
-        with pytest.raises(exceptions.InvalidArgumentError, match=exp_error):
-            thresholds.value = "error"
-        exp_error = "Invalid severity value 'invalid'. Choose one from: I, W, E"
-        with pytest.raises(exceptions.InvalidArgumentError, match=exp_error):
-            thresholds.value = "invalid=100"
+    def test_invalid_threshold_config(self, capsys):
+        # By default, pytest uses 80-chars long terminal which depends on COLUMNS env variable
+        with mock.patch.dict(os.environ, {"COLUMNS": "200"}, clear=True):
+            thresholds = SeverityThreshold("line_length")
+            exp_error = (
+                "InvalidArgumentError: Invalid configuration for Robocop:\n"
+                "Invalid severity value 'error'. It should be list of `severity=param_value` pairs, separated by `:`.\n"
+            )
+            with pytest.raises(exceptions.InvalidArgumentError):
+                thresholds.value = "error"
+            _, err = capsys.readouterr()
+            assert err == exp_error
+            exp_error = (
+                "InvalidArgumentError: Invalid configuration for Robocop:\n"
+                "Invalid severity value 'invalid'. Choose one from: I, W, E.\n"
+            )
+            with pytest.raises(exceptions.InvalidArgumentError):
+                thresholds.value = "invalid=100"
+            _, err = capsys.readouterr()
+            assert err == exp_error

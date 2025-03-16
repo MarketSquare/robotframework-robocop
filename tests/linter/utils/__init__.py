@@ -96,6 +96,7 @@ class RuleAcceptance:
         language: list[str] | None = None,
         output_format: str = "simple",
         deprecated: bool = False,
+        exit_code: int | None = None,
         **kwargs,
     ):
         if not self.enabled_in_version(test_on_version):
@@ -115,7 +116,7 @@ class RuleAcceptance:
         configure.append(f"print_issues.output_format={output_format}")
         with isolated_output() as output, working_directory(test_data):
             try:
-                with pytest.raises(click.exceptions.Exit):
+                with pytest.raises(click.exceptions.Exit) as excinfo:
                     check_files(
                         sources=paths,
                         select=select,
@@ -130,6 +131,8 @@ class RuleAcceptance:
                 sys.stdout.flush()
                 result = get_result(output)
                 parsed_results = result.splitlines()
+        if exit_code is not None:
+            assert excinfo.value.exit_code == exit_code
         actual = normalize_result(parsed_results, test_data, sort_lines=sort_lines)
         if deprecated:
             assert actual

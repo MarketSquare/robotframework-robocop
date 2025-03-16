@@ -19,6 +19,7 @@ try:
 except ImportError:
     InlineIfHeader = None
 
+from robocop.linter import sonar_qube
 from robocop.linter.rules import RawFileChecker, Rule, RuleParam, RuleSeverity, SeverityThreshold, VisitorChecker
 from robocop.linter.utils import get_errors, get_section_name, str2bool, token_col
 from robocop.parsing.run_keywords import is_run_keyword
@@ -59,6 +60,9 @@ class TrailingWhitespaceRule(Rule):
     severity = RuleSeverity.WARNING
     added_in_version = "1.0.0"
     style_guide_ref = ["#trailing-whitespaces"]
+    sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
+        clean_code=sonar_qube.CleanCodeAttribute.FORMATTED, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
+    )
 
 
 class MissingTrailingBlankLineRule(Rule):
@@ -70,6 +74,9 @@ class MissingTrailingBlankLineRule(Rule):
     severity = RuleSeverity.WARNING
     added_in_version = "1.0.0"
     style_guide_ref = ["#spacing-after-sections"]
+    sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
+        clean_code=sonar_qube.CleanCodeAttribute.FORMATTED, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
+    )
 
 
 class EmptyLinesBetweenSectionsRule(Rule):
@@ -113,6 +120,9 @@ class EmptyLinesBetweenSectionsRule(Rule):
     ]
     added_in_version = "1.0.0"
     style_guide_ref = ["#spacing-after-sections"]
+    sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
+        clean_code=sonar_qube.CleanCodeAttribute.FORMATTED, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
+    )
 
 
 class EmptyLinesBetweenTestCasesRule(Rule):
@@ -156,6 +166,9 @@ class EmptyLinesBetweenTestCasesRule(Rule):
     ]
     added_in_version = "1.0.0"
     style_guide_ref = ["#spacing-after-test-cases-or-tasks"]
+    sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
+        clean_code=sonar_qube.CleanCodeAttribute.FORMATTED, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
+    )
 
 
 class EmptyLinesBetweenKeywordsRule(Rule):
@@ -199,6 +212,9 @@ class EmptyLinesBetweenKeywordsRule(Rule):
     ]
     added_in_version = "1.0.0"
     style_guide_ref = ["#spacing-after-keywords"]
+    sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
+        clean_code=sonar_qube.CleanCodeAttribute.FORMATTED, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
+    )
 
 
 class MixedTabsAndSpacesRule(Rule):
@@ -214,6 +230,9 @@ class MixedTabsAndSpacesRule(Rule):
     file_wide_rule = True
     severity = RuleSeverity.WARNING
     added_in_version = "1.1.0"
+    sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
+        clean_code=sonar_qube.CleanCodeAttribute.FORMATTED, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
+    )
 
 
 class BadIndentRule(Rule):
@@ -262,6 +281,9 @@ class BadIndentRule(Rule):
         "#block-indentation",
         "#indentation-within-test-cases-tasks-and-keywords-section",
     ]
+    sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
+        clean_code=sonar_qube.CleanCodeAttribute.FORMATTED, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
+    )
 
 
 class EmptyLineAfterSectionRule(Rule):
@@ -298,6 +320,9 @@ class EmptyLineAfterSectionRule(Rule):
     severity_threshold = SeverityThreshold("empty_lines", substitute_value="allowed_empty_lines")
     added_in_version = "1.2.0"
     style_guide_ref = ["#spacing-after-the-section-header-line"]
+    sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
+        clean_code=sonar_qube.CleanCodeAttribute.FORMATTED, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
+    )
 
 
 class TooManyTrailingBlankLinesRule(Rule):
@@ -314,6 +339,9 @@ class TooManyTrailingBlankLinesRule(Rule):
     severity = RuleSeverity.WARNING
     added_in_version = "1.4.0"
     style_guide_ref = ["#spacing-after-sections"]
+    sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
+        clean_code=sonar_qube.CleanCodeAttribute.FORMATTED, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
+    )
 
 
 class MisalignedContinuationRule(Rule):
@@ -350,6 +378,9 @@ class MisalignedContinuationRule(Rule):
     severity = RuleSeverity.WARNING
     added_in_version = "1.6.0"
     style_guide_ref = ["#variables-section-line-continuation"]
+    sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
+        clean_code=sonar_qube.CleanCodeAttribute.FORMATTED, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
+    )
 
 
 class ConsecutiveEmptyLinesRule(Rule):
@@ -407,6 +438,9 @@ class ConsecutiveEmptyLinesRule(Rule):
         "#spacing-between-code-blocks-within-test-cases-or-tasks",
         "#spacing-between-code-blocks-within-keyword-calls",
     ]
+    sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
+        clean_code=sonar_qube.CleanCodeAttribute.FORMATTED, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
+    )
 
 
 class EmptyLinesInStatementRule(Rule):
@@ -443,6 +477,9 @@ class EmptyLinesInStatementRule(Rule):
     severity = RuleSeverity.WARNING
     added_in_version = "1.8.0"
     style_guide_ref = ["#spacing-of-line-continuations"]
+    sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
+        clean_code=sonar_qube.CleanCodeAttribute.FORMATTED, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
+    )
 
 
 class VariableNotLeftAlignedRule(Rule):
@@ -470,6 +507,9 @@ class VariableNotLeftAlignedRule(Rule):
     version = ">=4.0"
     added_in_version = "1.8.0"
     style_guide_ref = ["#indentation-within-variables-section"]
+    sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
+        clean_code=sonar_qube.CleanCodeAttribute.FORMATTED, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
+    )
 
 
 class MisalignedContinuationRowRule(Rule):
@@ -515,6 +555,9 @@ class MisalignedContinuationRowRule(Rule):
         ),
     ]
     added_in_version = "1.11.0"
+    sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
+        clean_code=sonar_qube.CleanCodeAttribute.FORMATTED, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
+    )
 
 
 class SuiteSettingNotLeftAlignedRule(Rule):
@@ -544,6 +587,9 @@ class SuiteSettingNotLeftAlignedRule(Rule):
     version = ">=4.0"
     added_in_version = "2.4.0"
     style_guide_ref = ["#indentation-within-settings-section"]
+    sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
+        clean_code=sonar_qube.CleanCodeAttribute.FORMATTED, issue_type=sonar_qube.SonarQubeIssueType.BUG
+    )
 
 
 class BadBlockIndentRule(Rule):
@@ -581,6 +627,9 @@ class BadBlockIndentRule(Rule):
     severity = RuleSeverity.ERROR
     added_in_version = "3.0.0"
     style_guide_ref = ["#indentation"]
+    sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
+        clean_code=sonar_qube.CleanCodeAttribute.FORMATTED, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
+    )
 
 
 class FirstArgumentInNewLineRule(Rule):
@@ -609,6 +658,9 @@ class FirstArgumentInNewLineRule(Rule):
     message = "First argument: '{argument_name}' is not placed on the same line as [Arguments] setting"
     severity = RuleSeverity.WARNING
     added_in_version = "5.3.0"
+    sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
+        clean_code=sonar_qube.CleanCodeAttribute.CONVENTIONAL, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
+    )
 
 
 class InvalidSpacingChecker(RawFileChecker):  # TODO merge, we can just use single RawFileChecker

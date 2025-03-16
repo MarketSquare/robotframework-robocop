@@ -7,6 +7,7 @@ from typing import TYPE_CHECKING
 
 from robot.parsing.model.statements import Documentation
 
+from robocop.linter import sonar_qube
 from robocop.linter.rules import Rule, RuleParam, RuleSeverity, VisitorChecker
 from robocop.linter.utils.misc import str2bool
 
@@ -36,6 +37,9 @@ class MissingDocKeywordRule(Rule):
     message = "Missing documentation in '{name}' keyword"
     severity = RuleSeverity.WARNING
     added_in_version = "1.0.0"
+    sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
+        clean_code=sonar_qube.CleanCodeAttribute.CONVENTIONAL, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
+    )
 
 
 class MissingDocTestCaseRule(Rule):
@@ -63,7 +67,6 @@ class MissingDocTestCaseRule(Rule):
     message = "Missing documentation in '{name}' test case"
     severity = RuleSeverity.WARNING
     added_in_version = "1.0.0"
-
     parameters = [
         RuleParam(
             name="ignore_templated",
@@ -73,6 +76,9 @@ class MissingDocTestCaseRule(Rule):
             desc="whether templated tests should be documented or not",
         )
     ]
+    sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
+        clean_code=sonar_qube.CleanCodeAttribute.CONVENTIONAL, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
+    )
 
 
 class MissingDocTestSuiteRule(Rule):
@@ -92,6 +98,9 @@ class MissingDocTestSuiteRule(Rule):
     severity = RuleSeverity.WARNING
     file_wide_rule = True
     added_in_version = "1.0.0"
+    sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
+        clean_code=sonar_qube.CleanCodeAttribute.CONVENTIONAL, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
+    )
 
 
 class MissingDocResourceFileRule(Rule):
@@ -111,6 +120,9 @@ class MissingDocResourceFileRule(Rule):
     severity = RuleSeverity.WARNING
     file_wide_rule = True
     added_in_version = "2.8.0"
+    sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
+        clean_code=sonar_qube.CleanCodeAttribute.CONVENTIONAL, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
+    )
 
 
 class MissingDocumentationChecker(VisitorChecker):

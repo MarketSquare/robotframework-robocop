@@ -51,4 +51,18 @@ You will need to attach this file to Gitlab artifacts::
         reports:
           codequality: robocop-code-quality.json
 
-See :ref:`gitlab` for more information about report and how to configure it.
+See :ref:`gitlab` for more information about the report and how to configure it.
+
+Sonar Qube
+----------
+
+Robocop results can be imported into Sonar Qube with `generic formatted result <https://docs.sonarsource.com/sonarqube-server/latest/analyzing-source-code/importing-external-issues/generic-issue-import-format/>`_ .
+
+Such report can be generated with ``sonarqube`` report::
+
+    robocop check --reports sonarqube
+
+By default it will produce ``robocop_sonar_qube.json`` file in the directory where Robocop was executed.
+You will need to attach this file in the CI/CD by defining analysis parameter ``sonar.externalIssuesReportPaths``.
+
+See :ref:`sonarqube` for more information about the report and how to configure it.

@@ -57,9 +57,9 @@ class SarifReport(robocop.linter.reports.Report):
             "name": rule.name,
             "helpUri": f"{ROBOCOP_RULES_URL.format(version=__version__)}#{rule.name}",
             "shortDescription": {"text": rule.message},
-            "fullDescription": {"text": rule.__doc__},
+            "fullDescription": {"text": rule.docs},
             "defaultConfiguration": {"level": self.map_severity_to_level(rule.default_severity)},
-            "help": {"text": rule.__doc__, "markdown": rule.__doc__},
+            "help": {"text": rule.docs, "markdown": rule.docs},
         }
 
     def generate_sarif_issues(self, diagnostics: Diagnostics, root: Path):

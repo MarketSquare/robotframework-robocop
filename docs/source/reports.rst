@@ -260,3 +260,12 @@ Gitlab
 ------
 
 .. automodule:: robocop.linter.reports.gitlab.GitlabReport
+
+----
+
+.. _sonarqube:
+
+Sonar Qube
+----------
+
+.. automodule:: robocop.linter.reports.sonarqube.SonarQubeReport

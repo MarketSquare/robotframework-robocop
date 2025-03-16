@@ -9,6 +9,7 @@ from typing import TYPE_CHECKING
 from robot.api import Token
 from robot.utils import FileReader
 
+from robocop.linter import sonar_qube
 from robocop.linter.rules import RawFileChecker, Rule, RuleParam, RuleSeverity, VisitorChecker
 from robocop.linter.utils import ROBOT_VERSION
 
@@ -59,6 +60,9 @@ class ToDoInCommentRule(Rule):
             desc="List of case-insensitive markers that violate the rule in comments.",
         )
     ]
+    sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
+        clean_code=sonar_qube.CleanCodeAttribute.COMPLETE, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
+    )
 
 
 class MissingSpaceAfterCommentRule(Rule):
@@ -106,6 +110,9 @@ class MissingSpaceAfterCommentRule(Rule):
     added_in_version = "1.0.0"
     parameters = [RuleParam(name="block", default="^###", converter=regex, desc="Block comment regex pattern.")]
     style_guide_ref = ["#comments"]
+    sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
+        clean_code=sonar_qube.CleanCodeAttribute.FORMATTED, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
+    )
 
 
 class InvalidCommentRule(Rule):
@@ -130,6 +137,9 @@ class InvalidCommentRule(Rule):
     severity = RuleSeverity.ERROR
     version = "<4.0"
     added_in_version = "1.0.0"
+    sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
+        clean_code=sonar_qube.CleanCodeAttribute.COMPLETE, issue_type=sonar_qube.SonarQubeIssueType.BUG
+    )
 
 
 class IgnoredDataRule(Rule):
@@ -163,6 +173,9 @@ class IgnoredDataRule(Rule):
     message = "Ignored data found in file"
     severity = RuleSeverity.WARNING
     added_in_version = "1.3.0"
+    sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
+        clean_code=sonar_qube.CleanCodeAttribute.CLEAR, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
+    )
 
 
 class BomEncodingRule(Rule):
@@ -180,6 +193,9 @@ class BomEncodingRule(Rule):
     file_wide_rule = True
     severity = RuleSeverity.WARNING
     added_in_version = "1.7.0"
+    sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
+        clean_code=sonar_qube.CleanCodeAttribute.CLEAR, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
+    )
 
 
 class CommentChecker(VisitorChecker):

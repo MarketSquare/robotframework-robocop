@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING
 from robot.api import Token
 from robot.libraries import STDLIBS
 
+from robocop.linter import sonar_qube
 from robocop.linter.rules import Rule, RuleSeverity, VisitorChecker
 
 if TYPE_CHECKING:
@@ -32,6 +33,9 @@ class WrongImportOrderRule(Rule):
     message = "BuiltIn library import '{builtin_import}' should be placed before '{custom_import}'"
     severity = RuleSeverity.WARNING
     added_in_version = "1.7.0"
+    sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
+        clean_code=sonar_qube.CleanCodeAttribute.CONVENTIONAL, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
+    )
 
 
 class BuiltinImportsNotSortedRule(Rule):
@@ -53,6 +57,9 @@ class BuiltinImportsNotSortedRule(Rule):
     message = "BuiltIn library import '{builtin_import}' should be placed before '{previous_builtin_import}'"
     severity = RuleSeverity.WARNING
     added_in_version = "5.2.0"
+    sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
+        clean_code=sonar_qube.CleanCodeAttribute.CONVENTIONAL, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
+    )
 
 
 class NonBuiltinImportsNotSortedRule(Rule):
@@ -77,6 +84,9 @@ class NonBuiltinImportsNotSortedRule(Rule):
     severity = RuleSeverity.WARNING
     enabled = False
     added_in_version = "5.2.0"
+    sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
+        clean_code=sonar_qube.CleanCodeAttribute.CONVENTIONAL, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
+    )
 
 
 class ResourcesImportsNotSortedRule(Rule):
@@ -100,6 +110,9 @@ class ResourcesImportsNotSortedRule(Rule):
     severity = RuleSeverity.WARNING
     enabled = False
     added_in_version = "5.2.0"
+    sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
+        clean_code=sonar_qube.CleanCodeAttribute.CONVENTIONAL, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
+    )
 
 
 class SettingsOrderChecker(VisitorChecker):

@@ -14,6 +14,7 @@ from robot.parsing.model.blocks import TestCaseSection
 from robot.parsing.model.statements import Arguments
 from robot.variables.search import search_variable
 
+from robocop.linter import sonar_qube
 from robocop.linter.rules import Rule, RuleParam, RuleSeverity, VisitorChecker, deprecated, variables
 from robocop.linter.utils import (
     ROBOT_VERSION,
@@ -61,6 +62,9 @@ class NotAllowedCharInNameRule(Rule):
         )
     ]
     added_in_version = "1.0.0"
+    sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
+        clean_code=sonar_qube.CleanCodeAttribute.IDENTIFIABLE, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
+    )
 
 
 class WrongCaseInKeywordNameRule(Rule):
@@ -120,6 +124,9 @@ class WrongCaseInKeywordNameRule(Rule):
         ),
     ]
     added_in_version = "1.0.0"
+    sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
+        clean_code=sonar_qube.CleanCodeAttribute.IDENTIFIABLE, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
+    )
 
 
 class KeywordNameIsReservedWordRule(Rule):
@@ -147,6 +154,9 @@ class KeywordNameIsReservedWordRule(Rule):
     message = "'{keyword_name}' is a reserved keyword{error_msg}"
     severity = RuleSeverity.ERROR
     added_in_version = "1.0.0"
+    sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
+        clean_code=sonar_qube.CleanCodeAttribute.IDENTIFIABLE, issue_type=sonar_qube.SonarQubeIssueType.BUG
+    )
 
 
 class UnderscoreInKeywordNameRule(Rule):
@@ -170,6 +180,9 @@ class UnderscoreInKeywordNameRule(Rule):
     message = "Underscores in keyword name '{keyword_name}'"
     severity = RuleSeverity.WARNING
     added_in_version = "1.0.0"
+    sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
+        clean_code=sonar_qube.CleanCodeAttribute.IDENTIFIABLE, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
+    )
 
 
 class SettingNameNotInTitleCaseRule(Rule):
@@ -204,6 +217,9 @@ class SettingNameNotInTitleCaseRule(Rule):
     message = "Setting name '{setting_name}' not in title or uppercase"
     severity = RuleSeverity.WARNING
     added_in_version = "1.0.0"
+    sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
+        clean_code=sonar_qube.CleanCodeAttribute.IDENTIFIABLE, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
+    )
 
 
 class SectionNameInvalidRule(Rule):
@@ -229,6 +245,9 @@ class SectionNameInvalidRule(Rule):
     message = "Section name should be in format '{section_title_case}' or '{section_upper_case}'"  # TODO: rename
     severity = RuleSeverity.WARNING
     added_in_version = "1.0.0"
+    sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
+        clean_code=sonar_qube.CleanCodeAttribute.IDENTIFIABLE, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
+    )
 
 
 class NotCapitalizedTestCaseTitleRule(Rule):
@@ -252,6 +271,9 @@ class NotCapitalizedTestCaseTitleRule(Rule):
     message = "Test case '{test_name}' title does not start with capital letter"
     severity = RuleSeverity.WARNING
     added_in_version = "1.4.0"
+    sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
+        clean_code=sonar_qube.CleanCodeAttribute.IDENTIFIABLE, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
+    )
 
 
 class SectionVariableNotUppercaseRule(Rule):
@@ -276,6 +298,9 @@ class SectionVariableNotUppercaseRule(Rule):
     severity = RuleSeverity.WARNING
     added_in_version = "1.4.0"
     style_guide_ref = ["#variables-section", "#variable-scope-and-casing"]
+    sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
+        clean_code=sonar_qube.CleanCodeAttribute.IDENTIFIABLE, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
+    )
 
 
 class ElseNotUpperCaseRule(Rule):
@@ -313,6 +338,9 @@ class ElseNotUpperCaseRule(Rule):
     message = "ELSE and ELSE IF is not uppercase"
     severity = RuleSeverity.ERROR
     added_in_version = "1.5.0"
+    sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
+        clean_code=sonar_qube.CleanCodeAttribute.IDENTIFIABLE, issue_type=sonar_qube.SonarQubeIssueType.BUG
+    )
 
 
 class KeywordNameIsEmptyRule(Rule):
@@ -332,6 +360,9 @@ class KeywordNameIsEmptyRule(Rule):
     message = "Keyword name is empty"
     severity = RuleSeverity.ERROR
     added_in_version = "1.8.0"
+    sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
+        clean_code=sonar_qube.CleanCodeAttribute.IDENTIFIABLE, issue_type=sonar_qube.SonarQubeIssueType.BUG
+    )
 
 
 class TestCaseNameIsEmptyRule(Rule):
@@ -351,6 +382,9 @@ class TestCaseNameIsEmptyRule(Rule):
     message = "Test case name is empty"
     severity = RuleSeverity.ERROR
     added_in_version = "1.8.0"
+    sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
+        clean_code=sonar_qube.CleanCodeAttribute.IDENTIFIABLE, issue_type=sonar_qube.SonarQubeIssueType.BUG
+    )
 
 
 class EmptyLibraryAliasRule(Rule):
@@ -376,6 +410,9 @@ class EmptyLibraryAliasRule(Rule):
     message = "Library alias is empty"
     severity = RuleSeverity.ERROR
     added_in_version = "1.10.0"
+    sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
+        clean_code=sonar_qube.CleanCodeAttribute.COMPLETE, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
+    )
 
 
 class DuplicatedLibraryAliasRule(Rule):
@@ -395,6 +432,9 @@ class DuplicatedLibraryAliasRule(Rule):
     message = "Library alias is the same as original name"
     severity = RuleSeverity.WARNING
     added_in_version = "1.10.0"
+    sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
+        clean_code=sonar_qube.CleanCodeAttribute.DISTINCT, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
+    )
 
 
 class BddWithoutKeywordCallRule(Rule):
@@ -429,6 +469,9 @@ class BddWithoutKeywordCallRule(Rule):
     message = "BDD reserved keyword '{keyword_name}' not followed by any keyword{error_msg}"
     severity = RuleSeverity.WARNING
     added_in_version = "1.11.0"
+    sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
+        clean_code=sonar_qube.CleanCodeAttribute.COMPLETE, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
+    )
 
 
 class NotAllowedCharInFilenameRule(Rule):
@@ -459,6 +502,9 @@ class NotAllowedCharInFilenameRule(Rule):
         ),
     ]
     added_in_version = "2.1.0"
+    sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
+        clean_code=sonar_qube.CleanCodeAttribute.IDENTIFIABLE, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
+    )
 
 
 class InvalidSectionRule(Rule):
@@ -484,6 +530,9 @@ class InvalidSectionRule(Rule):
     severity = RuleSeverity.ERROR
     version = ">=6.1"
     added_in_version = "3.2.0"
+    sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
+        clean_code=sonar_qube.CleanCodeAttribute.IDENTIFIABLE, issue_type=sonar_qube.SonarQubeIssueType.BUG
+    )
 
 
 class MixedTaskTestSettingsRule(Rule):
@@ -502,6 +551,9 @@ class MixedTaskTestSettingsRule(Rule):
     message = "Use {task_or_test}-related setting '{setting}' if {tasks_or_tests} section is used"  # TODO: Rename
     severity = RuleSeverity.WARNING
     added_in_version = "3.3.0"
+    sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
+        clean_code=sonar_qube.CleanCodeAttribute.CONVENTIONAL, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
+    )
 
 
 SET_VARIABLE_VARIANTS = {

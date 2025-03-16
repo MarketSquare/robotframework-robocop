@@ -1,3 +1,4 @@
+from robocop.linter import sonar_qube
 from robocop.linter.rules import Rule, RuleSeverity
 
 
@@ -35,6 +36,9 @@ class IfCanBeUsedRule(Rule):
     severity = RuleSeverity.INFO
     version = "==4.*"
     added_in_version = "1.4.0"
+    sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
+        clean_code=sonar_qube.CleanCodeAttribute.CONVENTIONAL, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
+    )
 
 
 class DeprecatedStatementRule(Rule):  # TODO: Split rule
@@ -52,6 +56,9 @@ class DeprecatedStatementRule(Rule):  # TODO: Split rule
     message = "'{statement_name}' is deprecated since Robot Framework version {version}, use '{alternative}' instead"
     severity = RuleSeverity.WARNING
     added_in_version = "2.0.0"
+    sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
+        clean_code=sonar_qube.CleanCodeAttribute.CONVENTIONAL, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
+    )
 
 
 class DeprecatedWithNameRule(Rule):
@@ -79,6 +86,9 @@ class DeprecatedWithNameRule(Rule):
     severity = RuleSeverity.WARNING
     version = ">=6.0"
     added_in_version = "2.5.0"
+    sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
+        clean_code=sonar_qube.CleanCodeAttribute.CONVENTIONAL, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
+    )
 
 
 class DeprecatedSingularHeaderRule(Rule):
@@ -106,6 +116,9 @@ class DeprecatedSingularHeaderRule(Rule):
     severity = RuleSeverity.WARNING
     version = ">=6.0"
     added_in_version = "2.6.0"
+    sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
+        clean_code=sonar_qube.CleanCodeAttribute.CONVENTIONAL, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
+    )
 
 
 class ReplaceSetVariableWithVarRule(Rule):
@@ -143,6 +156,9 @@ class ReplaceSetVariableWithVarRule(Rule):
     severity = RuleSeverity.INFO
     version = ">=7.0"
     added_in_version = "5.0.0"
+    sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
+        clean_code=sonar_qube.CleanCodeAttribute.CONVENTIONAL, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
+    )
 
 
 class ReplaceCreateWithVarRule(Rule):
@@ -174,3 +190,6 @@ class ReplaceCreateWithVarRule(Rule):
     severity = RuleSeverity.INFO
     version = ">=7.0"
     added_in_version = "5.0.0"
+    sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
+        clean_code=sonar_qube.CleanCodeAttribute.CONVENTIONAL, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
+    )

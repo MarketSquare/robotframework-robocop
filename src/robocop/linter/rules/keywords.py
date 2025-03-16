@@ -2,6 +2,7 @@ from robot.api import Token
 from robot.model import Keyword
 from robot.utils.robottime import timestr_to_secs
 
+from robocop.linter import sonar_qube
 from robocop.linter.rules import Rule, RuleParam, RuleSeverity, VisitorChecker
 from robocop.linter.utils.misc import normalize_robot_name
 from robocop.parsing.run_keywords import iterate_keyword_names
@@ -51,6 +52,9 @@ class SleepKeywordUsedRule(Rule):
         RuleParam(name="max_time", default=0, converter=timestr_to_secs, desc="Maximum amount of time allowed in Sleep")
     ]
     added_in_version = "5.0.0"
+    sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
+        clean_code=sonar_qube.CleanCodeAttribute.CONVENTIONAL, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
+    )
 
 
 class NotAllowedKeywordRule(Rule):
@@ -91,6 +95,9 @@ class NotAllowedKeywordRule(Rule):
         )
     ]
     added_in_version = "5.1.0"
+    sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
+        clean_code=sonar_qube.CleanCodeAttribute.CONVENTIONAL, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
+    )
 
 
 class NoEmbeddedKeywordArgumentsRule(Rule):
@@ -142,6 +149,9 @@ class NoEmbeddedKeywordArgumentsRule(Rule):
     severity = RuleSeverity.WARNING
     enabled = False
     added_in_version = "5.5.0"
+    sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
+        clean_code=sonar_qube.CleanCodeAttribute.CONVENTIONAL, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
+    )
 
 
 class SleepKeywordUsedChecker(VisitorChecker):  # TODO: merge with a checker for keyword calls

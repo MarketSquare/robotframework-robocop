@@ -5,27 +5,25 @@ if TYPE_CHECKING:
 
 import robot.errors
 
+from robocop.errors import FatalError
 
-class RobocopFatalError(ValueError):
+
+class ConfigGeneralError(FatalError):
     pass
 
 
-class ConfigGeneralError(RobocopFatalError):
-    pass
-
-
-class InvalidExternalCheckerError(RobocopFatalError):
+class InvalidExternalCheckerError(FatalError):
     def __init__(self, path):
         msg = f'Fatal error: Failed to load external rules from file "{path}". Verify if the file exists'
         super().__init__(msg)
 
 
-class InvalidArgumentError(RobocopFatalError):
+class InvalidArgumentError(FatalError):
     def __init__(self, msg):
         super().__init__(f"Invalid configuration for Robocop:\n{msg}")
 
 
-class RuleNotFoundError(RobocopFatalError):
+class RuleNotFoundError(FatalError):
     def __init__(self, rule, checker):
         super().__init__(
             f"{checker.__class__.__name__} checker does not contain rule `{rule}`. "
@@ -33,7 +31,7 @@ class RuleNotFoundError(RobocopFatalError):
         )
 
 
-class RuleParamNotFoundError(RobocopFatalError):  # TODO
+class RuleParamNotFoundError(FatalError):  # TODO
     def __init__(self, rule, param, checker):
         super().__init__(
             f"Rule `{rule.name}` in `{checker.__class__.__name__}` checker does not contain `{param}` param. "
@@ -41,7 +39,7 @@ class RuleParamNotFoundError(RobocopFatalError):  # TODO
         )
 
 
-class RuleParamFailedInitError(RobocopFatalError):  # TODO
+class RuleParamFailedInitError(FatalError):  # TODO
     def __init__(self, param, value, err):
         desc = f"    Parameter info: {param.desc}" if param.desc else ""
         super().__init__(

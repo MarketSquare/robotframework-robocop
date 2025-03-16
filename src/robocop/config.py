@@ -819,7 +819,7 @@ class ConfigManager:
             if source in self._paths:
                 continue
             if not source.exists():  # TODO only for passed sources
-                raise errors.FileError(source)
+                raise errors.FatalError(f"File '{source}' does not exist")
             config = self.get_config_for_source_file(source)
             if not ignore_file_filters:
                 if config.file_filters.path_excluded(source):

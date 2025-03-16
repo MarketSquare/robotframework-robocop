@@ -1,0 +1,3 @@
+RuleParamFailedInitError: Failed to configure param `line_length` with value `string`. Received error `invalid literal for int() with base 10: 'string'`.
+    Parameter type: <class 'int'>
+    Parameter info: number of characters allowed in line

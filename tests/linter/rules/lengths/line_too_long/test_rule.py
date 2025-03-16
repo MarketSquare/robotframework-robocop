@@ -15,5 +15,7 @@ class TestRuleAcceptance(RuleAcceptance):
             expected_file="expected_output_severity_threshold.txt",
         )
 
-
-# TODO: test with line length
+    def test_configure_invalid_line_length(self):
+        self.check_rule(
+            configure=["line-too-long.line_length=string"], expected_file="expected_exception.txt", exit_code=2
+        )

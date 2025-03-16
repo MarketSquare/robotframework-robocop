@@ -43,10 +43,12 @@ def test_get_reports_all(config):
     assert reports_list.index("version") < reports_list.index("timestamp") < reports_list.index("sarif")
 
 
-def test_get_unknown_report(config):
+def test_get_unknown_report(config, capsys):
     config.linter.reports = ["all", "unknown"]
-    with pytest.raises(robocop.linter.exceptions.InvalidReportName, match="Provided report 'unknown' does not exist."):
+    with pytest.raises(robocop.linter.exceptions.InvalidReportName):
         get_reports(config)
+    _, err = capsys.readouterr()
+    assert err == "InvalidReportName: Provided report 'unknown' does not exist. \n"
 
 
 def clear_cache():

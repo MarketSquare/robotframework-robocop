@@ -59,7 +59,7 @@ class TestGitlabReport:
             },
         ]
         report = GitlabReport(config)
-        report.configure("output_path", output_file)
+        report.configure("output_path", str(output_file))
         diagnostics = Diagnostics(issues)
         # content of 1 and 2 file. 2 file use the same lines to check if fingerprint will be different
         content = [["line1", "line2"], ["line1", "line1"]]

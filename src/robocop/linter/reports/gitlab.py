@@ -1,12 +1,10 @@
 from __future__ import annotations
 
 import hashlib
-import json
 from pathlib import Path
 from typing import TYPE_CHECKING
 
 import robocop.linter.reports
-from robocop.errors import FatalError
 from robocop.formatter.utils.misc import StatementLinesCollector
 from robocop.linter.rules import RuleSeverity
 
@@ -17,7 +15,7 @@ if TYPE_CHECKING:
     from robocop.linter.diagnostics import Diagnostic, Diagnostics
 
 
-class GitlabReport(robocop.linter.reports.Report):
+class GitlabReport(robocop.linter.reports.JsonFileReport):
     """
     **Report name**: ``gitlab``
 
@@ -42,25 +40,11 @@ class GitlabReport(robocop.linter.reports.Report):
     def __init__(self, config: Config):
         self.name = "gitlab"
         self.description = "Generate Gitlab Code Quality output file"
-        self.output_path = "robocop-code-quality.json"
-        super().__init__(config)
-
-    def configure(self, name, value) -> None:
-        if name == "output_path":
-            self.output_path = value
-        else:
-            super().configure(name, value)
+        super().__init__(output_path="robocop-code-quality.json", config=config)
 
     def generate_report(self, diagnostics: Diagnostics, **kwargs) -> None:  # noqa: ARG002
         report = self.generate_gitlab_report(diagnostics)
-        output_path = Path(self.output_path)
-        try:
-            output_path.parent.mkdir(exist_ok=True, parents=True)
-            with open(output_path, "w") as fp:
-                json.dump(report, fp, indent=4)
-        except OSError as err:
-            raise FatalError(f"Failed to write Gitlab report to {output_path}: {err}") from None
-        print(f"Generated Gitlab Code Quality report at {self.output_path}")
+        super().generate_report(report, "Gitlab Code Quality")
 
     def generate_gitlab_report(self, diagnostics: Diagnostics) -> list[dict]:
         report = []

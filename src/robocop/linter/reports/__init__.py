@@ -7,6 +7,7 @@ from typing import NoReturn
 
 import robocop.linter.exceptions
 from robocop.config import Config
+from robocop.errors import FatalError
 from robocop.linter.rules import RobocopImporter
 from robocop.linter.utils.misc import get_robocop_cache_directory
 
@@ -36,6 +37,30 @@ class Report:
 
     def generate_report(self, **kwargs) -> NoReturn:
         raise NotImplementedError
+
+
+class JsonFileReport(Report):
+    """Base class for report that generates json-based file."""
+
+    def __init__(self, output_path: str, config: Config) -> None:
+        self.output_path = output_path
+        super().__init__(config)
+
+    def configure(self, name: str, value: str) -> None:
+        if name == "output_path":
+            self.output_path = value
+        else:
+            super().configure(name, value)
+
+    def generate_report(self, report: list[dict] | dict, report_type: str) -> None:
+        output_path = Path(self.output_path)
+        try:
+            output_path.parent.mkdir(exist_ok=True, parents=True)
+            with open(output_path, "w") as fp:
+                json.dump(report, fp, indent=4)
+        except OSError as err:
+            raise FatalError(f"Failed to write {report_type} report to {output_path}: {err}") from None
+        print(f"Generated {report_type} report at {self.output_path}")
 
 
 class ComparableReport(Report):

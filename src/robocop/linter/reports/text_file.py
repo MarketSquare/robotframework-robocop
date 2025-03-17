@@ -2,6 +2,7 @@ from pathlib import Path
 
 import robocop.linter.reports
 from robocop.config import Config
+from robocop.errors import FatalError
 from robocop.linter.diagnostics import Diagnostic, Diagnostics
 
 
@@ -47,9 +48,13 @@ class TextFile(robocop.linter.reports.Report):
                 )
                 for diagnostic in diag_by_source
             )
-        with open(self.output_path, "w") as text_file:
-            text_file.write("\n".join(messages))
-        print(f"\nGenerated text file report at {self.output_path}")
+        output_path = Path(self.output_path)
+        try:
+            output_path.parent.mkdir(exist_ok=True, parents=True)
+            with open(output_path, "w") as text_file:
+                text_file.write("\n".join(messages))
+        except OSError as err:
+            raise FatalError(f"Failed to write TextFile report to {output_path}: {err}") from None
 
     def configure(self, name: str, value: str) -> None:
         if name == "output_path":

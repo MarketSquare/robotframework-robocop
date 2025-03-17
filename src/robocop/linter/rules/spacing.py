@@ -999,7 +999,7 @@ def block_indent(checker: type[BaseChecker], node: type[Node]):
 def index_of_first_standalone_comment(node: type[Node]) -> int:
     """
     Get index of first standalone comment.
-    Comment can be standalone only if there are not other data statements in the node.
+    Comment can be standalone only if there are not the other data statements in the node.
     """
     last_standalone_comment = len(node.body)
     for index, child in enumerate(node.body[::-1], start=-(len(node.body) - 1)):
@@ -1043,6 +1043,8 @@ class UnevenIndentChecker(VisitorChecker):
     visit_Keyword = visit_TestCase  # noqa: N815
 
     def visit_TestCaseSection(self, node) -> None:  # noqa: N802
+        if self.templated_suite:
+            return
         self.check_standalone_comments_indent(node)
 
     def visit_KeywordSection(self, node) -> None:  # noqa: N802

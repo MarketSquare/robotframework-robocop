@@ -4,6 +4,9 @@ from tests.linter.utils import RuleAcceptance
 
 
 class TestRuleAcceptance(RuleAcceptance):
+    def test_template_suite_with_settings(self):
+        self.check_rule(src_files=["template_suite_with_settings.robot"], expected_file=None)
+
     @pytest.mark.parametrize("config", [None, ["bad-indent.indent=3"]])
     def test_templated_suite(self, config):
         self.check_rule(configure=config, src_files=["templated_suite.robot"], expected_file=None)
@@ -38,7 +41,7 @@ class TestRuleAcceptance(RuleAcceptance):
         self.check_rule(
             configure=["bad-indent.indent=-1"],
             src_files=["bug758/templated_suite.robot"],
-            expected_file="bug758/expected_output.txt",
+            expected_file=None,
         )
 
     def test_groups(self):

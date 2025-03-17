@@ -955,3 +955,10 @@ Project-level rules were previous reported after other runs. Sorting them by lin
 files to mix up.
 
 Now project-level rules are grouped and sorted together with other rules which fixes this issue.
+
+bad-indent raised for templates suites (#808)
+---------------------------------------------
+
+Templated suites (with the use of ``Test Template`` setting) allows to use different styles of alignment. It doesn't
+work well with ``bad-indent`` rule and caused false positive warnings. It is now disabled for templated suites.
+Instead we will implement separate rule for templated suites alignment.

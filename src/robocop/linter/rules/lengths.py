@@ -25,6 +25,7 @@ try:  # RF7+
 except ImportError:
     Var = None
 
+from robocop.linter import sonar_qube
 from robocop.linter.rules import (
     RawFileChecker,
     Rule,
@@ -55,6 +56,9 @@ class TooLongKeywordRule(Rule):
     ]
     severity_threshold = SeverityThreshold("max_len", compare_method="greater", substitute_value="allowed_length")
     added_in_version = "1.0.0"
+    sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
+        clean_code=sonar_qube.CleanCodeAttribute.FOCUSED, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
+    )
 
 
 class TooFewCallsInKeywordRule(Rule):
@@ -90,6 +94,9 @@ class TooFewCallsInKeywordRule(Rule):
     ]
     severity_threshold = SeverityThreshold("min_calls", compare_method="less", substitute_value="min_allowed_count")
     added_in_version = "1.0.0"
+    sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
+        clean_code=sonar_qube.CleanCodeAttribute.MODULAR, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
+    )
 
 
 class TooManyCallsInKeywordRule(Rule):
@@ -108,6 +115,9 @@ class TooManyCallsInKeywordRule(Rule):
     ]
     severity_threshold = SeverityThreshold("max_calls", compare_method="greater", substitute_value="max_allowed_count")
     added_in_version = "1.0.0"
+    sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
+        clean_code=sonar_qube.CleanCodeAttribute.FOCUSED, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
+    )
 
 
 class TooLongTestCaseRule(Rule):
@@ -127,6 +137,9 @@ class TooLongTestCaseRule(Rule):
     ]
     severity_threshold = SeverityThreshold("max_len", compare_method="greater", substitute_value="allowed_length")
     added_in_version = "1.0.0"
+    sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
+        clean_code=sonar_qube.CleanCodeAttribute.MODULAR, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
+    )
 
 
 class TooManyCallsInTestCaseRule(Rule):
@@ -148,6 +161,9 @@ class TooManyCallsInTestCaseRule(Rule):
     ]
     severity_threshold = SeverityThreshold("max_calls", compare_method="greater", substitute_value="max_allowed_count")
     added_in_version = "1.0.0"
+    sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
+        clean_code=sonar_qube.CleanCodeAttribute.MODULAR, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
+    )
 
 
 class FileTooLongRule(Rule):
@@ -163,6 +179,9 @@ class FileTooLongRule(Rule):
     ]
     severity_threshold = SeverityThreshold("max_lines", compare_method="greater", substitute_value="max_allowed_count")
     added_in_version = "1.0.0"
+    sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
+        clean_code=sonar_qube.CleanCodeAttribute.FOCUSED, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
+    )
 
 
 class TooManyArgumentsRule(Rule):
@@ -176,6 +195,9 @@ class TooManyArgumentsRule(Rule):
     severity_threshold = SeverityThreshold("max_args", compare_method="greater", substitute_value="max_allowed_count")
     added_in_version = "1.0.0"
     style_guide_ref = ["#arguments"]
+    sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
+        clean_code=sonar_qube.CleanCodeAttribute.FOCUSED, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
+    )
 
 
 class LineTooLongRule(Rule):
@@ -207,6 +229,9 @@ class LineTooLongRule(Rule):
     severity_threshold = SeverityThreshold("line_length", substitute_value="allowed_length")
     added_in_version = "1.0.0"
     style_guide_ref = ["#line-length"]
+    sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
+        clean_code=sonar_qube.CleanCodeAttribute.FORMATTED, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
+    )
 
 
 class EmptySectionRule(Rule):
@@ -217,6 +242,9 @@ class EmptySectionRule(Rule):
     message = "Section '{section_name}' is empty"
     severity = RuleSeverity.WARNING
     added_in_version = "1.0.0"
+    sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
+        clean_code=sonar_qube.CleanCodeAttribute.COMPLETE, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
+    )
 
 
 class NumberOfReturnedValuesRule(Rule):
@@ -233,6 +261,9 @@ class NumberOfReturnedValuesRule(Rule):
         "max_returns", compare_method="greater", substitute_value="max_allowed_count"
     )
     added_in_version = "1.0.0"
+    sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
+        clean_code=sonar_qube.CleanCodeAttribute.FOCUSED, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
+    )
 
 
 class EmptyMetadataRule(Rule):
@@ -256,6 +287,9 @@ class EmptyMetadataRule(Rule):
     message = "Metadata settings does not have any value set"
     severity = RuleSeverity.WARNING
     added_in_version = "1.0.0"
+    sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
+        clean_code=sonar_qube.CleanCodeAttribute.COMPLETE, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
+    )
 
 
 class EmptyDocumentationRule(Rule):
@@ -266,6 +300,9 @@ class EmptyDocumentationRule(Rule):
     message = "Documentation of {block_name} is empty"
     severity = RuleSeverity.WARNING
     added_in_version = "1.0.0"
+    sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
+        clean_code=sonar_qube.CleanCodeAttribute.COMPLETE, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
+    )
 
 
 class EmptyForceTagsRule(Rule):  # TODO: Rename/deprecate and replace with Test Tags
@@ -276,6 +313,9 @@ class EmptyForceTagsRule(Rule):  # TODO: Rename/deprecate and replace with Test 
     message = "Force Tags are empty"
     severity = RuleSeverity.WARNING
     added_in_version = "1.0.0"  # TODO: check for new settings, such as Keyword Tags
+    sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
+        clean_code=sonar_qube.CleanCodeAttribute.COMPLETE, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
+    )
 
 
 class EmptyDefaultTagsRule(Rule):
@@ -286,6 +326,9 @@ class EmptyDefaultTagsRule(Rule):
     message = "Default Tags are empty"
     severity = RuleSeverity.WARNING
     added_in_version = "1.0.0"
+    sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
+        clean_code=sonar_qube.CleanCodeAttribute.COMPLETE, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
+    )
 
 
 class EmptyVariablesImport(Rule):
@@ -296,6 +339,9 @@ class EmptyVariablesImport(Rule):
     message = "Import variables path is empty"
     severity = RuleSeverity.ERROR
     added_in_version = "1.0.0"
+    sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
+        clean_code=sonar_qube.CleanCodeAttribute.COMPLETE, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
+    )
 
 
 class EmptyResourceImport(Rule):
@@ -306,6 +352,9 @@ class EmptyResourceImport(Rule):
     message = "Import resource path is empty"
     severity = RuleSeverity.ERROR
     added_in_version = "1.0.0"
+    sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
+        clean_code=sonar_qube.CleanCodeAttribute.COMPLETE, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
+    )
 
 
 class EmptyLibraryImport(Rule):
@@ -316,6 +365,9 @@ class EmptyLibraryImport(Rule):
     message = "Import library path is empty"
     severity = RuleSeverity.ERROR
     added_in_version = "1.0.0"
+    sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
+        clean_code=sonar_qube.CleanCodeAttribute.COMPLETE, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
+    )
 
 
 class EmptySetupRule(Rule):
@@ -326,6 +378,9 @@ class EmptySetupRule(Rule):
     message = "Setup of {block_name} does not have any keywords"
     severity = RuleSeverity.ERROR
     added_in_version = "1.0.0"
+    sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
+        clean_code=sonar_qube.CleanCodeAttribute.COMPLETE, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
+    )
 
 
 class EmptySuiteSetupRule(Rule):
@@ -336,6 +391,9 @@ class EmptySuiteSetupRule(Rule):
     message = "Suite Setup does not have any keywords"
     severity = RuleSeverity.ERROR
     added_in_version = "1.0.0"
+    sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
+        clean_code=sonar_qube.CleanCodeAttribute.COMPLETE, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
+    )
 
 
 class EmptyTestSetupRule(Rule):
@@ -346,6 +404,9 @@ class EmptyTestSetupRule(Rule):
     message = "Test Setup does not have any keywords"
     severity = RuleSeverity.ERROR
     added_in_version = "1.0.0"
+    sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
+        clean_code=sonar_qube.CleanCodeAttribute.COMPLETE, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
+    )
 
 
 class EmptyTeardownRule(Rule):
@@ -356,6 +417,9 @@ class EmptyTeardownRule(Rule):
     message = "Teardown of {block_name} does not have any keywords"
     severity = RuleSeverity.ERROR
     added_in_version = "1.0.0"
+    sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
+        clean_code=sonar_qube.CleanCodeAttribute.COMPLETE, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
+    )
 
 
 class EmptySuiteTeardownRule(Rule):
@@ -366,6 +430,9 @@ class EmptySuiteTeardownRule(Rule):
     message = "Suite Teardown does not have any keywords"
     severity = RuleSeverity.ERROR
     added_in_version = "1.0.0"
+    sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
+        clean_code=sonar_qube.CleanCodeAttribute.COMPLETE, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
+    )
 
 
 class EmptyTestTeardownRule(Rule):
@@ -376,6 +443,9 @@ class EmptyTestTeardownRule(Rule):
     message = "Test Teardown does not have any keywords"
     severity = RuleSeverity.ERROR
     added_in_version = "1.0.0"
+    sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
+        clean_code=sonar_qube.CleanCodeAttribute.COMPLETE, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
+    )
 
 
 class EmptyTimeoutRule(Rule):
@@ -386,6 +456,9 @@ class EmptyTimeoutRule(Rule):
     message = "Timeout of {block_name} is empty"
     severity = RuleSeverity.WARNING
     added_in_version = "1.0.0"
+    sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
+        clean_code=sonar_qube.CleanCodeAttribute.COMPLETE, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
+    )
 
 
 class EmptyTestTimeoutRule(Rule):
@@ -396,6 +469,9 @@ class EmptyTestTimeoutRule(Rule):
     message = "Test Timeout is empty"
     severity = RuleSeverity.WARNING
     added_in_version = "1.0.0"
+    sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
+        clean_code=sonar_qube.CleanCodeAttribute.COMPLETE, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
+    )
 
 
 class EmptyArgumentsRule(Rule):
@@ -406,6 +482,9 @@ class EmptyArgumentsRule(Rule):
     message = "Arguments of {block_name} are empty"
     severity = RuleSeverity.ERROR
     added_in_version = "1.0.0"
+    sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
+        clean_code=sonar_qube.CleanCodeAttribute.COMPLETE, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
+    )
 
 
 class TooManyTestCasesRule(Rule):
@@ -428,6 +507,9 @@ class TooManyTestCasesRule(Rule):
         "max_testcases or max_templated_testcases", substitute_value="max_allowed_count"
     )
     added_in_version = "1.10.0"
+    sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
+        clean_code=sonar_qube.CleanCodeAttribute.MODULAR, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
+    )
 
 
 class TooFewCallsInTestCaseRule(Rule):
@@ -455,6 +537,9 @@ class TooFewCallsInTestCaseRule(Rule):
         ),
     ]
     added_in_version = "2.4.0"
+    sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
+        clean_code=sonar_qube.CleanCodeAttribute.MODULAR, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
+    )
 
 
 class EmptyTestTemplateRule(Rule):
@@ -471,6 +556,9 @@ class EmptyTestTemplateRule(Rule):
     message = "Test Template is empty"
     severity = RuleSeverity.ERROR
     added_in_version = "3.1.0"
+    sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
+        clean_code=sonar_qube.CleanCodeAttribute.COMPLETE, issue_type=sonar_qube.SonarQubeIssueType.BUG
+    )
 
 
 class EmptyTemplateRule(Rule):
@@ -500,6 +588,9 @@ class EmptyTemplateRule(Rule):
     message = "Template of {block_name} is empty. To overwrite suite Test Template use more explicit [Template]  NONE"
     severity = RuleSeverity.WARNING
     added_in_version = "3.1.0"
+    sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
+        clean_code=sonar_qube.CleanCodeAttribute.CONVENTIONAL, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
+    )
 
 
 class EmptyKeywordTagsRule(Rule):
@@ -511,6 +602,9 @@ class EmptyKeywordTagsRule(Rule):
     severity = RuleSeverity.WARNING
     version = ">=6"
     added_in_version = "3.3.0"
+    sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
+        clean_code=sonar_qube.CleanCodeAttribute.COMPLETE, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
+    )
 
 
 def is_data_statement(node) -> bool:

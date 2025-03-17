@@ -36,7 +36,7 @@ from typing import TYPE_CHECKING, Any, Callable, NoReturn
 
 from robot.utils import FileReader
 
-from robocop.linter import exceptions
+from robocop.linter import exceptions, sonar_qube
 from robocop.linter.diagnostics import Diagnostic
 from robocop.linter.exceptions import (
     InvalidExternalCheckerError,
@@ -353,6 +353,10 @@ class Rule:
         enabled (bool): (class attribute) enable/disable rule by default using this parameter
         deprecated (bool): (class attribute) deprecated rule. If rule is used in configuration, it will issue a warning
         file_wide_rule (bool): (class attribute) If set, rule is reported for whole file
+        parameters: (class attribute) optional rule parameters
+        style_guide_ref (list of str): (class attribute) reference to Robot Framework Style Guide in form of
+        '#paragraph' strings
+        sonar_qube_attrs: (class attribute) optional SonarQube attributes used for SonarQube report
 
     """
 
@@ -369,6 +373,7 @@ class Rule:
     file_wide_rule: bool = False
     parameters: list[RuleParam] | None = None
     style_guide_ref: list[str] | None = None
+    sonar_qube_attrs: sonar_qube.SonarQubeAttributes | None = None
 
     def __init__(self):
         self.version_spec = VersionSpecifier(self.version) if self.version else None

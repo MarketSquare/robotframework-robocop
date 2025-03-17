@@ -9,6 +9,7 @@ try:
 except ImportError:
     If = None
 
+from robocop.linter import sonar_qube
 from robocop.linter.rules import Rule, RuleSeverity, VisitorChecker, arguments, whitespace
 from robocop.linter.utils import ROBOT_VERSION, find_robot_vars
 
@@ -19,6 +20,9 @@ class ParsingErrorRule(Rule):  # TODO docs
     message = "Robot Framework syntax error: {error_msg}"
     severity = RuleSeverity.ERROR
     added_in_version = "1.0.0"
+    sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
+        clean_code=sonar_qube.CleanCodeAttribute.COMPLETE, issue_type=sonar_qube.SonarQubeIssueType.BUG
+    )
 
 
 class MissingKeywordNameRule(Rule):
@@ -39,6 +43,9 @@ class MissingKeywordNameRule(Rule):
     message = "Missing keyword name when calling some values"
     severity = RuleSeverity.ERROR
     added_in_version = "1.8.0"
+    sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
+        clean_code=sonar_qube.CleanCodeAttribute.COMPLETE, issue_type=sonar_qube.SonarQubeIssueType.BUG
+    )
 
 
 class VariablesImportWithArgsRule(Rule):
@@ -59,6 +66,9 @@ class VariablesImportWithArgsRule(Rule):
     message = "YAML variable files do not take arguments"
     severity = RuleSeverity.ERROR
     added_in_version = "1.11.0"
+    sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
+        clean_code=sonar_qube.CleanCodeAttribute.COMPLETE, issue_type=sonar_qube.SonarQubeIssueType.BUG
+    )
 
 
 class InvalidContinuationMarkRule(Rule):
@@ -79,6 +89,9 @@ class InvalidContinuationMarkRule(Rule):
     message = "Invalid continuation mark '{mark}'. It should be '...'"
     severity = RuleSeverity.ERROR
     added_in_version = "1.11.0"
+    sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
+        clean_code=sonar_qube.CleanCodeAttribute.COMPLETE, issue_type=sonar_qube.SonarQubeIssueType.BUG
+    )
 
 
 class NonExistingSettingRule(Rule):
@@ -99,6 +112,9 @@ class NonExistingSettingRule(Rule):
     message = "{error_msg}"
     severity = RuleSeverity.ERROR
     added_in_version = "1.11.0"
+    sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
+        clean_code=sonar_qube.CleanCodeAttribute.COMPLETE, issue_type=sonar_qube.SonarQubeIssueType.BUG
+    )
 
 
 class SettingNotSupportedRule(Rule):
@@ -134,6 +150,9 @@ class SettingNotSupportedRule(Rule):
     message = "Setting '[{setting_name}]' is not supported in {test_or_keyword}. Allowed are: {allowed_settings}"
     severity = RuleSeverity.ERROR
     added_in_version = "1.11.0"
+    sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
+        clean_code=sonar_qube.CleanCodeAttribute.LOGICAL, issue_type=sonar_qube.SonarQubeIssueType.BUG
+    )
 
 
 class InvalidForLoopRule(Rule):
@@ -145,6 +164,9 @@ class InvalidForLoopRule(Rule):
     severity = RuleSeverity.ERROR
     version = ">=4.0"
     added_in_version = "1.0.0"
+    sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
+        clean_code=sonar_qube.CleanCodeAttribute.COMPLETE, issue_type=sonar_qube.SonarQubeIssueType.BUG
+    )
 
 
 class InvalidIfRule(Rule):
@@ -156,6 +178,9 @@ class InvalidIfRule(Rule):
     severity = RuleSeverity.ERROR
     version = ">=4.0"
     added_in_version = "1.0.0"
+    sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
+        clean_code=sonar_qube.CleanCodeAttribute.COMPLETE, issue_type=sonar_qube.SonarQubeIssueType.BUG
+    )
 
 
 class ReturnInTestCaseRule(Rule):
@@ -167,6 +192,9 @@ class ReturnInTestCaseRule(Rule):
     severity = RuleSeverity.ERROR
     version = ">=5.0"
     added_in_version = "2.0.0"
+    sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
+        clean_code=sonar_qube.CleanCodeAttribute.COMPLETE, issue_type=sonar_qube.SonarQubeIssueType.BUG
+    )
 
 
 class InvalidSectionInResourceRule(Rule):
@@ -183,6 +211,9 @@ class InvalidSectionInResourceRule(Rule):
     message = "Resource file can't contain '{section_name}' section"
     severity = RuleSeverity.ERROR
     added_in_version = "3.1.0"
+    sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
+        clean_code=sonar_qube.CleanCodeAttribute.COMPLETE, issue_type=sonar_qube.SonarQubeIssueType.BUG
+    )
 
 
 class InvalidSettingInResourceRule(Rule):
@@ -198,6 +229,9 @@ class InvalidSettingInResourceRule(Rule):
     message = "Settings section in resource file can't contain '{section_name}' setting"
     severity = RuleSeverity.ERROR
     added_in_version = "3.3.0"
+    sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
+        clean_code=sonar_qube.CleanCodeAttribute.COMPLETE, issue_type=sonar_qube.SonarQubeIssueType.BUG
+    )
 
 
 class UnsupportedSettingInIniFileRule(Rule):
@@ -212,6 +246,9 @@ class UnsupportedSettingInIniFileRule(Rule):
     message = "Setting '{setting}' is not supported in initialization files"
     severity = RuleSeverity.ERROR
     added_in_version = "3.3.0"
+    sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
+        clean_code=sonar_qube.CleanCodeAttribute.COMPLETE, issue_type=sonar_qube.SonarQubeIssueType.BUG
+    )
 
 
 class ParsingErrorChecker(VisitorChecker):

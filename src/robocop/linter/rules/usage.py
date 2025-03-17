@@ -10,6 +10,7 @@ from robot.parsing.model.blocks import File, Keyword, Section
 from robot.parsing.model.statements import Tags
 from robot.running.arguments import EmbeddedArguments
 
+from robocop.linter import sonar_qube
 from robocop.linter.rules import ProjectChecker, Rule, RuleSeverity
 from robocop.linter.utils.misc import ROBOT_VERSION, normalize_robot_name
 from robocop.parsing.run_keywords import iterate_keyword_names
@@ -47,6 +48,9 @@ class UnusedKeywordRule(Rule):
     severity = RuleSeverity.INFO
     enabled = False
     added_in_version = "5.3.0"
+    sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
+        clean_code=sonar_qube.CleanCodeAttribute.COMPLETE, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
+    )
 
 
 if ROBOT_VERSION.major < 6:

@@ -7,6 +7,7 @@ from typing import TYPE_CHECKING
 
 from robot.api import Token
 
+from robocop.linter import sonar_qube
 from robocop.linter.rules import Rule, RuleSeverity, VisitorChecker
 from robocop.linter.utils import variable_matcher
 
@@ -19,7 +20,7 @@ class TagWithSpaceRule(Rule):
     """
     Tag with space.
 
-    When including or excluding tags, it may leads to unexpected behavior. It's recommended to use short tag names
+    When including or excluding tags, it may lead to unexpected behavior. It's recommended to use short tag names
     without spaces.
 
     Example of rule violation::
@@ -35,6 +36,9 @@ class TagWithSpaceRule(Rule):
     message = "Tag '{tag}' contains spaces"
     severity = RuleSeverity.WARNING
     added_in_version = "1.0.0"
+    sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
+        clean_code=sonar_qube.CleanCodeAttribute.CONVENTIONAL, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
+    )
 
 
 class TagWithOrAndRule(Rule):
@@ -61,6 +65,9 @@ class TagWithOrAndRule(Rule):
     message = "Tag '{tag}' with reserved word OR/AND"
     severity = RuleSeverity.INFO
     added_in_version = "1.0.0"
+    sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
+        clean_code=sonar_qube.CleanCodeAttribute.CONVENTIONAL, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
+    )
 
 
 class TagWithReservedWordRule(Rule):
@@ -91,6 +98,9 @@ class TagWithReservedWordRule(Rule):
     message = "Tag '{tag}' prefixed with reserved word `robot:`"
     severity = RuleSeverity.WARNING
     added_in_version = "1.0.0"
+    sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
+        clean_code=sonar_qube.CleanCodeAttribute.CONVENTIONAL, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
+    )
 
 
 class CouldBeTestTagsRule(Rule):
@@ -121,6 +131,9 @@ class CouldBeTestTagsRule(Rule):
     file_wide_rule = True
     severity = RuleSeverity.INFO
     added_in_version = "1.0.0"
+    sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
+        clean_code=sonar_qube.CleanCodeAttribute.CONVENTIONAL, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
+    )
 
 
 class TagAlreadySetInTestTagsRule(Rule):
@@ -148,6 +161,9 @@ class TagAlreadySetInTestTagsRule(Rule):
     message = "Tag '{tag}' is already set by {test_force_tags} in suite settings"
     severity = RuleSeverity.INFO
     added_in_version = "1.0.0"
+    sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
+        clean_code=sonar_qube.CleanCodeAttribute.DISTINCT, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
+    )
 
 
 class UnnecessaryDefaultTagsRule(Rule):
@@ -177,6 +193,9 @@ class UnnecessaryDefaultTagsRule(Rule):
     message = "Tags defined in Default Tags are always overwritten"
     severity = RuleSeverity.INFO
     added_in_version = "1.0.0"
+    sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
+        clean_code=sonar_qube.CleanCodeAttribute.CONVENTIONAL, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
+    )
 
 
 class EmptyTagsRule(Rule):
@@ -193,6 +212,9 @@ class EmptyTagsRule(Rule):
     message = "[Tags] setting without values{optional_warning}"
     severity = RuleSeverity.WARNING
     added_in_version = "2.0.0"
+    sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
+        clean_code=sonar_qube.CleanCodeAttribute.COMPLETE, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
+    )
 
 
 class DuplicatedTagsRule(Rule):
@@ -215,6 +237,9 @@ class DuplicatedTagsRule(Rule):
     message = "Multiple tags with name '{name}' (first occurrence at line {line} column {column})"
     severity = RuleSeverity.WARNING
     added_in_version = "2.0.0"
+    sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
+        clean_code=sonar_qube.CleanCodeAttribute.DISTINCT, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
+    )
 
 
 class CouldBeKeywordTagsRule(Rule):
@@ -245,6 +270,9 @@ class CouldBeKeywordTagsRule(Rule):
     severity = RuleSeverity.INFO
     version = ">=6"
     added_in_version = "3.3.0"
+    sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
+        clean_code=sonar_qube.CleanCodeAttribute.CONVENTIONAL, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
+    )
 
 
 class TagAlreadySetInKeywordTagsRule(Rule):
@@ -269,6 +297,9 @@ class TagAlreadySetInKeywordTagsRule(Rule):
     severity = RuleSeverity.INFO
     version = ">=6"
     added_in_version = "3.3.0"
+    sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
+        clean_code=sonar_qube.CleanCodeAttribute.DISTINCT, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
+    )
 
 
 class TagNameChecker(VisitorChecker):

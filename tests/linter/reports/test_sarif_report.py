@@ -67,9 +67,9 @@ class TestSarifReport:
                                     "name": r.name,
                                     "helpUri": f"https://robocop.readthedocs.io/en/{__version__}/rules_list.html#{r.name}",
                                     "shortDescription": {"text": r.message},
-                                    "fullDescription": {"text": r.__doc__},
+                                    "fullDescription": {"text": r.docs},
                                     "defaultConfiguration": {"level": r.default_severity.name.lower()},
-                                    "help": {"text": r.__doc__, "markdown": r.__doc__},
+                                    "help": {"text": r.docs, "markdown": r.docs},
                                 }
                                 for r in (rule, rule2)
                             ],

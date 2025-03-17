@@ -1,3 +1,4 @@
+from robocop.linter import sonar_qube
 from robocop.linter.rules import Rule, RuleParam, RuleSeverity
 
 
@@ -23,6 +24,9 @@ class UnusedArgumentRule(Rule):
     message = "Keyword argument '{name}' is not used"
     severity = RuleSeverity.WARNING
     added_in_version = "3.2.0"
+    sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
+        clean_code=sonar_qube.CleanCodeAttribute.CLEAR, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
+    )
 
 
 class ArgumentOverwrittenBeforeUsageRule(Rule):
@@ -42,6 +46,9 @@ class ArgumentOverwrittenBeforeUsageRule(Rule):
     message = "Keyword argument '{name}' is overwritten before usage"
     severity = RuleSeverity.WARNING
     added_in_version = "3.2.0"
+    sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
+        clean_code=sonar_qube.CleanCodeAttribute.CLEAR, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
+    )
 
 
 class UndefinedArgumentDefaultRule(Rule):
@@ -68,6 +75,9 @@ class UndefinedArgumentDefaultRule(Rule):
     message = "Undefined argument default, use {arg_name}=${{EMPTY}} instead"
     severity = RuleSeverity.ERROR
     added_in_version = "5.7.0"
+    sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
+        clean_code=sonar_qube.CleanCodeAttribute.CLEAR, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
+    )
 
 
 class UndefinedArgumentValueRule(Rule):
@@ -96,6 +106,9 @@ class UndefinedArgumentValueRule(Rule):
     message = "Undefined argument value, use {arg_name}=${{EMPTY}} instead"
     severity = RuleSeverity.ERROR
     added_in_version = "5.7.0"
+    sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
+        clean_code=sonar_qube.CleanCodeAttribute.CLEAR, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
+    )
 
 
 class InvalidArgumentsRule(Rule):
@@ -125,6 +138,9 @@ class InvalidArgumentsRule(Rule):
     severity = RuleSeverity.ERROR
     version = ">=4.0"
     added_in_version = "1.11.0"
+    sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
+        clean_code=sonar_qube.CleanCodeAttribute.COMPLETE, issue_type=sonar_qube.SonarQubeIssueType.BUG
+    )
 
 
 class DuplicatedArgumentRule(Rule):
@@ -146,6 +162,9 @@ class DuplicatedArgumentRule(Rule):
     message = "Argument name '{argument_name}' is already used"
     severity = RuleSeverity.ERROR
     added_in_version = "1.11.0"
+    sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
+        clean_code=sonar_qube.CleanCodeAttribute.DISTINCT, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
+    )
 
 
 class ArgumentsPerLineRule(Rule):
@@ -184,4 +203,7 @@ class ArgumentsPerLineRule(Rule):
             desc="maximum number of arguments allowed in the continuation line",
         ),
     ]
+    sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
+        clean_code=sonar_qube.CleanCodeAttribute.FORMATTED, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
+    )
     # TODO flag to allow for [Arguments] multiple args ine one line, just not in other ...

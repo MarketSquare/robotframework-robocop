@@ -5,9 +5,8 @@ import json
 from pathlib import Path
 from typing import TYPE_CHECKING
 
-import typer
-
 import robocop.linter.reports
+from robocop.errors import FatalError
 from robocop.formatter.utils.misc import StatementLinesCollector
 from robocop.linter.rules import RuleSeverity
 
@@ -23,6 +22,9 @@ class GitlabReport(robocop.linter.reports.Report):
     **Report name**: ``gitlab``
 
     Report that generates Gitlab Code Quality output file.
+
+    This report is not included in the default reports. The ``--reports all`` option will not enable this report.
+    You can still enable it using report name directly: ``--reports gitlab`` or ``--reports all,gitlab``.
 
     It allows to display issue information in the Gitlab, for example in the PR view.
     More information at https://docs.gitlab.com/ci/testing/code_quality/#code-quality-report-format .
@@ -57,15 +59,14 @@ class GitlabReport(robocop.linter.reports.Report):
             with open(output_path, "w") as fp:
                 json.dump(report, fp, indent=4)
         except OSError as err:
-            print(f"Failed to write Gitlab report to {output_path}: {err}")
-            raise typer.Exit(code=1) from None
+            raise FatalError(f"Failed to write Gitlab report to {output_path}: {err}") from None
         print(f"Generated Gitlab Code Quality report at {self.output_path}")
 
     def generate_gitlab_report(self, diagnostics: Diagnostics) -> list[dict]:
         report = []
         cwd = Path.cwd()
         for source, diag_by_source in diagnostics.diag_by_source.items():
-            source_rel = Path(source).relative_to(cwd).as_posix()
+            source_rel = str(Path(source).relative_to(cwd).as_posix())
             source_lines = None
             fingerprints = set()
             for diagnostic in diag_by_source:
@@ -74,7 +75,7 @@ class GitlabReport(robocop.linter.reports.Report):
                 content = self._get_line_content(diagnostic, source_lines)
                 unique_id = 0
                 while True:
-                    fingerprint = self.get_fingerprint(diagnostic, str(source_rel), content, unique_id)
+                    fingerprint = self.get_fingerprint(diagnostic, source_rel, content, unique_id)
                     if fingerprint not in fingerprints:
                         fingerprints.add(fingerprint)
                         break
@@ -85,7 +86,7 @@ class GitlabReport(robocop.linter.reports.Report):
                         "check_name": diagnostic.rule.name,
                         "fingerprint": fingerprint,
                         "severity": self.get_severity(diagnostic),
-                        "location": {"path": str(source_rel), "lines": {"begin": diagnostic.range.start.line}},
+                        "location": {"path": source_rel, "lines": {"begin": diagnostic.range.start.line}},
                     }
                 )
         return report

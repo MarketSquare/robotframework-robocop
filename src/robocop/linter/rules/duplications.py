@@ -4,6 +4,7 @@ from collections import defaultdict
 
 from robot.api import Token
 
+from robocop.linter import sonar_qube
 from robocop.linter.rules import Rule, RuleSeverity, VisitorChecker, arguments, order, variables
 from robocop.linter.utils import get_errors, normalize_robot_name, normalize_robot_var_name
 
@@ -31,6 +32,9 @@ class DuplicatedTestCaseRule(Rule):
     message = "Multiple test cases with name '{name}' (first occurrence in line {first_occurrence_line})"
     severity = RuleSeverity.ERROR
     added_in_version = "1.0.0"
+    sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
+        clean_code=sonar_qube.CleanCodeAttribute.DISTINCT, issue_type=sonar_qube.SonarQubeIssueType.BUG
+    )
 
 
 class DuplicatedKeywordRule(Rule):
@@ -59,6 +63,9 @@ class DuplicatedKeywordRule(Rule):
     message = "Multiple keywords with name '{name}' (first occurrence in line {first_occurrence_line})"
     severity = RuleSeverity.ERROR
     added_in_version = "1.0.0"
+    sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
+        clean_code=sonar_qube.CleanCodeAttribute.DISTINCT, issue_type=sonar_qube.SonarQubeIssueType.BUG
+    )
 
 
 class DuplicatedVariableRule(Rule):
@@ -84,6 +91,9 @@ class DuplicatedVariableRule(Rule):
     )
     severity = RuleSeverity.ERROR
     added_in_version = "1.0.0"
+    sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
+        clean_code=sonar_qube.CleanCodeAttribute.DISTINCT, issue_type=sonar_qube.SonarQubeIssueType.BUG
+    )
 
 
 class DuplicatedResourceRule(Rule):
@@ -106,6 +116,9 @@ class DuplicatedResourceRule(Rule):
     message = "Multiple resource imports with path '{name}' (first occurrence in line {first_occurrence_line})"
     severity = RuleSeverity.WARNING
     added_in_version = "1.0.0"
+    sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
+        clean_code=sonar_qube.CleanCodeAttribute.DISTINCT, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
+    )
 
 
 class DuplicatedLibraryRule(Rule):
@@ -128,6 +141,9 @@ class DuplicatedLibraryRule(Rule):
     )
     severity = RuleSeverity.WARNING
     added_in_version = "1.0.0"
+    sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
+        clean_code=sonar_qube.CleanCodeAttribute.DISTINCT, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
+    )
 
 
 class DuplicatedMetadataRule(Rule):
@@ -138,6 +154,9 @@ class DuplicatedMetadataRule(Rule):
     message = "Duplicated metadata '{name}' (first occurrence in line {first_occurrence_line})"
     severity = RuleSeverity.WARNING
     added_in_version = "1.0.0"
+    sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
+        clean_code=sonar_qube.CleanCodeAttribute.DISTINCT, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
+    )
 
 
 class DuplicatedVariablesImportRule(Rule):
@@ -148,6 +167,9 @@ class DuplicatedVariablesImportRule(Rule):
     message = "Duplicated variables import with path '{name}' (first occurrence in line {first_occurrence_line})"
     severity = RuleSeverity.WARNING
     added_in_version = "1.0.0"
+    sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
+        clean_code=sonar_qube.CleanCodeAttribute.DISTINCT, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
+    )
 
 
 class SectionAlreadyDefinedRule(Rule):
@@ -180,6 +202,9 @@ class SectionAlreadyDefinedRule(Rule):
     )
     severity = RuleSeverity.WARNING
     added_in_version = "1.0.0"
+    sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
+        clean_code=sonar_qube.CleanCodeAttribute.DISTINCT, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
+    )
 
 
 class BothTestsAndTasksRule(Rule):
@@ -199,6 +224,9 @@ class BothTestsAndTasksRule(Rule):
     message = "Both Task(s) and Test Case(s) section headers defined in file"
     severity = RuleSeverity.ERROR
     added_in_version = "1.0.0"
+    sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
+        clean_code=sonar_qube.CleanCodeAttribute.DISTINCT, issue_type=sonar_qube.SonarQubeIssueType.BUG
+    )
 
 
 class DuplicatedSettingRule(Rule):
@@ -219,6 +247,9 @@ class DuplicatedSettingRule(Rule):
     message = "{error_msg}"
     severity = RuleSeverity.WARNING
     added_in_version = "2.0"
+    sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
+        clean_code=sonar_qube.CleanCodeAttribute.DISTINCT, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
+    )
 
 
 class DuplicationsChecker(VisitorChecker):

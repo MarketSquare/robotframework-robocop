@@ -5,6 +5,7 @@ Holds rules that are used outside spacing module for now - after redesign to sep
 can be moved here.
 """
 
+from robocop.linter import sonar_qube
 from robocop.linter.rules import Rule, RuleSeverity
 
 
@@ -47,6 +48,9 @@ class NotEnoughWhitespaceAfterSettingRule(Rule):
     message = "Not enough whitespace after '{setting_name}' setting"
     severity = RuleSeverity.ERROR
     added_in_version = "1.0.0"
+    sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
+        clean_code=sonar_qube.CleanCodeAttribute.COMPLETE, issue_type=sonar_qube.SonarQubeIssueType.BUG
+    )
 
 
 class NotEnoughWhitespaceAfterNewlineMarkerRule(Rule):
@@ -76,6 +80,9 @@ class NotEnoughWhitespaceAfterNewlineMarkerRule(Rule):
     message = "Not enough whitespace after '...' marker"
     severity = RuleSeverity.ERROR
     added_in_version = "1.11.0"
+    sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
+        clean_code=sonar_qube.CleanCodeAttribute.COMPLETE, issue_type=sonar_qube.SonarQubeIssueType.BUG
+    )
 
 
 class NotEnoughWhitespaceAfterVariableRule(Rule):
@@ -104,6 +111,9 @@ class NotEnoughWhitespaceAfterVariableRule(Rule):
     severity = RuleSeverity.ERROR
     version = ">=4.0"
     added_in_version = "1.11.0"
+    sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
+        clean_code=sonar_qube.CleanCodeAttribute.COMPLETE, issue_type=sonar_qube.SonarQubeIssueType.BUG
+    )
 
 
 class NotEnoughWhitespaceAfterSuiteSettingRule(Rule):
@@ -135,3 +145,6 @@ class NotEnoughWhitespaceAfterSuiteSettingRule(Rule):
     message = "Not enough whitespace after '{setting_name}' setting"
     severity = RuleSeverity.ERROR
     added_in_version = "1.11.0"
+    sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
+        clean_code=sonar_qube.CleanCodeAttribute.COMPLETE, issue_type=sonar_qube.SonarQubeIssueType.BUG
+    )

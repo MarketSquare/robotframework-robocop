@@ -1,3 +1,4 @@
+from robocop.linter import sonar_qube
 from robocop.linter.rules import Rule, RuleParam, RuleSeverity
 
 
@@ -63,6 +64,9 @@ class EmptyVariableRule(Rule):
         )
     ]
     added_in_version = "1.10.0"
+    sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
+        clean_code=sonar_qube.CleanCodeAttribute.COMPLETE, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
+    )
 
 
 class UnusedVariableRule(Rule):
@@ -98,6 +102,9 @@ class UnusedVariableRule(Rule):
     message = "Variable '{name}' is assigned but not used"
     severity = RuleSeverity.INFO
     added_in_version = "3.2.0"
+    sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
+        clean_code=sonar_qube.CleanCodeAttribute.CLEAR, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
+    )
 
 
 class VariableOverwrittenBeforeUsageRule(Rule):
@@ -127,6 +134,9 @@ class VariableOverwrittenBeforeUsageRule(Rule):
     message = "Local variable '{name}' is overwritten before usage"
     severity = RuleSeverity.WARNING
     added_in_version = "3.2.0"
+    sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
+        clean_code=sonar_qube.CleanCodeAttribute.CLEAR, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
+    )
 
 
 class NoGlobalVariableRule(Rule):
@@ -182,6 +192,9 @@ class NoGlobalVariableRule(Rule):
     message = "Variable with global scope defined outside variables section"
     severity = RuleSeverity.WARNING
     added_in_version = "5.6.0"
+    sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
+        clean_code=sonar_qube.CleanCodeAttribute.CONVENTIONAL, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
+    )
 
 
 class NoSuiteVariableRule(Rule):
@@ -231,6 +244,9 @@ class NoSuiteVariableRule(Rule):
     message = "Variable defined with suite scope"
     severity = RuleSeverity.WARNING
     added_in_version = "5.6.0"
+    sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
+        clean_code=sonar_qube.CleanCodeAttribute.CONVENTIONAL, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
+    )
 
 
 class NoTestVariableRule(Rule):
@@ -280,6 +296,9 @@ class NoTestVariableRule(Rule):
     message = "Variable defined with test/task scope"
     severity = RuleSeverity.WARNING
     added_in_version = "5.6.0"
+    sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
+        clean_code=sonar_qube.CleanCodeAttribute.CONVENTIONAL, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
+    )
 
 
 class NonLocalVariablesShouldBeUppercaseRule(Rule):
@@ -313,6 +332,9 @@ class NonLocalVariablesShouldBeUppercaseRule(Rule):
     message = "Non local variable is not uppercase"
     severity = RuleSeverity.WARNING
     added_in_version = "1.4.0"
+    sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
+        clean_code=sonar_qube.CleanCodeAttribute.CONVENTIONAL, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
+    )
 
 
 class PossibleVariableOverwritingRule(Rule):
@@ -337,6 +359,9 @@ class PossibleVariableOverwritingRule(Rule):
     message = "Variable '{variable_name}' may overwrite similar variable inside '{block_name}' {block_type}"
     severity = RuleSeverity.INFO
     added_in_version = "1.10.0"
+    sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
+        clean_code=sonar_qube.CleanCodeAttribute.CONVENTIONAL, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
+    )
 
 
 class HyphenInVariableNameRule(Rule):
@@ -370,6 +395,9 @@ class HyphenInVariableNameRule(Rule):
     message = "Hyphen in variable name '{variable_name}'"
     severity = RuleSeverity.INFO
     added_in_version = "1.10.0"
+    sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
+        clean_code=sonar_qube.CleanCodeAttribute.CONVENTIONAL, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
+    )
 
 
 class InconsistentVariableNameRule(Rule):
@@ -411,6 +439,9 @@ class InconsistentVariableNameRule(Rule):
     message = "Variable '{name}' has inconsistent naming. First used as '{first_use}'"
     severity = RuleSeverity.WARNING
     added_in_version = "3.2.0"
+    sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
+        clean_code=sonar_qube.CleanCodeAttribute.CONVENTIONAL, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
+    )
 
 
 class OverwritingReservedVariableRule(Rule):
@@ -429,6 +460,9 @@ class OverwritingReservedVariableRule(Rule):
     message = "{var_or_arg} '{variable_name}' overwrites reserved variable '{reserved_variable}'"
     severity = RuleSeverity.WARNING
     added_in_version = "3.2.0"
+    sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
+        clean_code=sonar_qube.CleanCodeAttribute.CONVENTIONAL, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
+    )
 
 
 class DuplicatedAssignedVarNameRule(Rule):
@@ -455,3 +489,6 @@ class DuplicatedAssignedVarNameRule(Rule):
     message = "Assigned variable name '{variable_name}' is already used"
     severity = RuleSeverity.INFO
     added_in_version = "1.12.0"
+    sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
+        clean_code=sonar_qube.CleanCodeAttribute.DISTINCT, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
+    )

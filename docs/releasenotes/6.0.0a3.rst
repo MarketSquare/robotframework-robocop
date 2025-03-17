@@ -695,15 +695,15 @@ It is ongoing process and there will be more updates in upcoming versions of Rob
 Integrations with other platforms
 ---------------------------------
 
-Robocop could be already integrated with different CI/CD platforms. It wasn't fully documented and sometimes it could
-require parsing output file. That's why we have decided to focus on improving how Robocop linting results can be
-integrated with other tools.
+Robocop could be already integrated with some CI/CD platforms. We made an active effort of documenting existing
+integrations and implementing it for missing, popular platforms such as Gitlab or Sonar Qube.
 
 Documentation is available at X # TODO .
 
 We are now supporting following integrations:
 
 - Gitlab Code Quality (with ``gitlab`` report) (#1116)
+- SonarQube (with ``sonarqube`` report) (#759)
 - pre-commit
 - ... and more - see the `Integrations` documentation
 

@@ -20,6 +20,7 @@ try:
 except ImportError:
     InlineIfHeader, Break, Continue = None, None, None
 
+from robocop.linter import sonar_qube
 from robocop.linter.rules import (
     Rule,
     RuleParam,
@@ -79,6 +80,9 @@ class KeywordAfterReturnRule(Rule):
     message = "{error_msg}"
     severity = RuleSeverity.WARNING
     added_in_version = "1.0.0"
+    sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
+        clean_code=sonar_qube.CleanCodeAttribute.CONVENTIONAL, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
+    )
 
 
 class EmptyReturnRule(Rule):
@@ -110,6 +114,9 @@ class EmptyReturnRule(Rule):
     message = "[Return] is empty"
     severity = RuleSeverity.WARNING
     added_in_version = "1.0.0"
+    sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
+        clean_code=sonar_qube.CleanCodeAttribute.COMPLETE, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
+    )
 
 
 class NestedForLoopRule(Rule):
@@ -134,6 +141,9 @@ class NestedForLoopRule(Rule):
     severity = RuleSeverity.ERROR
     version = "<4.0"
     added_in_version = "1.0.0"
+    sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
+        clean_code=sonar_qube.CleanCodeAttribute.CONVENTIONAL, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
+    )
 
 
 class InconsistentAssignmentRule(Rule):
@@ -211,6 +221,9 @@ class InconsistentAssignmentRule(Rule):
         ),
     ]
     added_in_version = "1.7.0"
+    sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
+        clean_code=sonar_qube.CleanCodeAttribute.CONVENTIONAL, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
+    )
 
 
 class InconsistentAssignmentInVariablesRule(Rule):
@@ -269,6 +282,9 @@ class InconsistentAssignmentInVariablesRule(Rule):
         )
     ]
     added_in_version = "1.7.0"
+    sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
+        clean_code=sonar_qube.CleanCodeAttribute.CONVENTIONAL, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
+    )
 
 
 class CanBeResourceFileRule(Rule):
@@ -284,6 +300,9 @@ class CanBeResourceFileRule(Rule):
     severity = RuleSeverity.INFO
     file_wide_rule = True
     added_in_version = "1.10.0"
+    sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
+        clean_code=sonar_qube.CleanCodeAttribute.CONVENTIONAL, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
+    )
 
 
 class IfCanBeMergedRule(Rule):
@@ -327,6 +346,9 @@ class IfCanBeMergedRule(Rule):
     severity = RuleSeverity.INFO
     version = ">=4.0"
     added_in_version = "2.0.0"
+    sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
+        clean_code=sonar_qube.CleanCodeAttribute.CONVENTIONAL, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
+    )
 
 
 class StatementOutsideLoopRule(Rule):
@@ -349,6 +371,9 @@ class StatementOutsideLoopRule(Rule):
     severity = RuleSeverity.ERROR
     version = ">=5.0"
     added_in_version = "2.0.0"
+    sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
+        clean_code=sonar_qube.CleanCodeAttribute.CONVENTIONAL, issue_type=sonar_qube.SonarQubeIssueType.BUG
+    )
 
 
 class InlineIfCanBeUsedRule(Rule):
@@ -385,6 +410,9 @@ class InlineIfCanBeUsedRule(Rule):
     ]
     severity_threshold = SeverityThreshold("max_width", compare_method="less")
     added_in_version = "2.0.0"
+    sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
+        clean_code=sonar_qube.CleanCodeAttribute.CONVENTIONAL, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
+    )
 
 
 class UnreachableCodeRule(Rule):
@@ -416,6 +444,9 @@ class UnreachableCodeRule(Rule):
     severity = RuleSeverity.WARNING
     version = ">=5.0"
     added_in_version = "3.1.0"
+    sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
+        clean_code=sonar_qube.CleanCodeAttribute.LOGICAL, issue_type=sonar_qube.SonarQubeIssueType.BUG
+    )
 
 
 class MultilineInlineIfRule(Rule):
@@ -456,6 +487,9 @@ class MultilineInlineIfRule(Rule):
     severity = RuleSeverity.WARNING
     version = ">=5.0"
     added_in_version = "3.1.0"
+    sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
+        clean_code=sonar_qube.CleanCodeAttribute.FORMATTED, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
+    )
 
 
 class UnnecessaryStringConversionRule(Rule):
@@ -555,6 +589,9 @@ class ExpressionCanBeSimplifiedRule(Rule):
     severity = RuleSeverity.INFO
     version = ">=4.0"
     added_in_version = "4.0.0"
+    sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
+        clean_code=sonar_qube.CleanCodeAttribute.CONVENTIONAL, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
+    )
 
 
 class MisplacedNegativeConditionRule(Rule):
@@ -595,6 +632,9 @@ class MisplacedNegativeConditionRule(Rule):
     severity = RuleSeverity.INFO
     version = ">=4.0"
     added_in_version = "4.0.0"
+    sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
+        clean_code=sonar_qube.CleanCodeAttribute.CONVENTIONAL, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
+    )
 
 
 class ReturnChecker(VisitorChecker):

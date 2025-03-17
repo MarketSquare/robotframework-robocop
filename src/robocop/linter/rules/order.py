@@ -3,6 +3,7 @@ from __future__ import annotations
 from robot.api import Token
 from robot.parsing.model.blocks import Keyword, TestCase
 
+from robocop.linter import sonar_qube
 from robocop.linter.rules import Rule, RuleParam, RuleSeverity, VisitorChecker
 
 
@@ -124,6 +125,9 @@ class TestCaseSectionOutOfOrderRule(Rule):
     ]
     added_in_version = "5.3.0"
     style_guide_ref = ["#test-cases-or-tasks"]
+    sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
+        clean_code=sonar_qube.CleanCodeAttribute.CONVENTIONAL, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
+    )
 
 
 class KeywordSectionOutOfOrderRule(Rule):
@@ -178,6 +182,9 @@ class KeywordSectionOutOfOrderRule(Rule):
     ]
     added_in_version = "5.3.0"
     style_guide_ref = ["#keyword"]
+    sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
+        clean_code=sonar_qube.CleanCodeAttribute.CONVENTIONAL, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
+    )
 
 
 class SectionOutOfOrderRule(Rule):
@@ -227,6 +234,9 @@ class SectionOutOfOrderRule(Rule):
         )
     ]
     style_guide_ref = ["#sections"]
+    sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
+        clean_code=sonar_qube.CleanCodeAttribute.CONVENTIONAL, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
+    )
 
 
 class TestAndKeywordOrderChecker(VisitorChecker):

@@ -1,0 +1,29 @@
+resource.robot:10:1 KW04 Keyword 'Private Not Used Keyword' is not used
+    |
+ 10 | Private Not Used Keyword
+    | ^^^^^^^^^^^^^^^^^^^^^^^^ KW04
+ 11 |     [Tags]    robot:private
+ 12 |     No Operation
+    |
+
+suite.robot:19:1 KW04 Keyword 'Not Used Keyword' is not used
+    |
+ 19 | Not Used Keyword
+    | ^^^^^^^^^^^^^^^^ KW04
+ 20 |     Nested Not Used Keyword
+    |
+
+suite.robot:34:1 KW04 Keyword 'Embedded ${not} Used' is not used
+    |
+ 34 | Embedded ${not} Used
+    | ^^^^^^^^^^^^^^^^^^^^ KW04
+ 35 |     No Operation
+    |
+
+tasks.robot:16:1 KW04 Keyword 'Not Used Keyword' is not used
+    |
+ 16 | Not Used Keyword
+    | ^^^^^^^^^^^^^^^^ KW04
+ 17 |     Nested Not Used Keyword
+    |
+

@@ -947,3 +947,11 @@ Following code will now not raise an issue::
 
 Since we don't track variable values in linting, we do not check if ``${name}`` use upper case or not - such cases
 are ignored.
+
+ProjectChecker rules sorted by line number (#1121)
+--------------------------------------------------
+
+Project-level rules were previous reported after other runs. Sorting them by line numbers caused issues from several
+files to mix up.
+
+Now project-level rules are grouped and sorted together with other rules which fixes this issue.

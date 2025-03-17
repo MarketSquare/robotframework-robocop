@@ -520,6 +520,7 @@ class BaseChecker:
         extended_disablers: tuple[int, int] | None = None,
         sev_threshold_value: int | None = None,
         source: str | None = None,
+        ast_model: File | None = None,
         **kwargs,
     ) -> None:
         if not rule.enabled:
@@ -534,7 +535,7 @@ class BaseChecker:
         diagnostic = Diagnostic(
             rule=rule,
             node=node,
-            model=self.ast_model,
+            model=ast_model or self.ast_model,
             lineno=lineno,
             col=col,
             end_lineno=end_lineno,

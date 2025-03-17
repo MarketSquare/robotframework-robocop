@@ -87,6 +87,7 @@ class KeywordDefinition:
 @dataclass
 class RobotFile:
     path: str
+    ast_model: File
     is_suite: bool = False
     normal_keywords: dict[str, KeywordDefinition] = field(default_factory=dict)
     embedded_keywords: dict[str, KeywordDefinition] = field(default_factory=dict)
@@ -150,6 +151,7 @@ class UnusedKeywords(ProjectChecker):
                 self.report(
                     self.unused_keyword,
                     source=robot_file.path,
+                    ast_model=robot_file.ast_model,
                     node=keyword.keyword_node,
                     keyword_name=name,
                     end_col=len(name) + 1,
@@ -157,7 +159,7 @@ class UnusedKeywords(ProjectChecker):
         return self.issues
 
     def visit_File(self, node: File) -> None:  # noqa: N802
-        self.current_file = RobotFile(node.source)  # TODO: handle "-"
+        self.current_file = RobotFile(str(node.source), node)  # TODO: handle "-"
         self.generic_visit(node)
         self.files[self.current_file.path] = self.current_file
 

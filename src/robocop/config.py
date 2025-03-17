@@ -21,7 +21,7 @@ from robocop.formatter import formatters
 from robocop.formatter.skip import SkipConfig
 from robocop.formatter.utils import misc  # TODO merge with linter misc
 from robocop.linter import exceptions, rules
-from robocop.linter.rules import BaseChecker, RuleSeverity
+from robocop.linter.rules import BaseChecker, ProjectChecker, RuleSeverity
 from robocop.linter.utils.misc import compile_rule_pattern
 from robocop.linter.utils.version_matching import Version
 
@@ -192,6 +192,7 @@ class LinterConfig:
     return_result: bool = False
     config_source: str = field(default="cli", compare=False)
     _checkers: list[BaseChecker] | None = field(default=None, compare=False)
+    _project_checkers: list[BaseChecker] | None = field(default=None, compare=False)
     _rules: dict[str, Rule] | None = field(default=None, compare=False)
 
     def __post_init__(self):
@@ -199,10 +200,18 @@ class LinterConfig:
             self.target_version = ROBOT_VERSION
 
     @property
-    def checkers(self):
+    def checkers(self) -> list[BaseChecker]:
         if self._checkers is None:
             self.load_configuration()
         return self._checkers
+
+    @property
+    def project_checkers(self) -> list[ProjectChecker]:
+        if self._project_checkers is None:
+            self._project_checkers = [
+                checker for checker in self.checkers if not checker.disabled and isinstance(checker, ProjectChecker)
+            ]
+        return self._project_checkers
 
     @property
     def rules(self):

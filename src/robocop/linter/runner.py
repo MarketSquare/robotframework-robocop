@@ -56,6 +56,9 @@ class RobocopLinter:
             diagnostics = self.run_check(model, source, config)
             issues_no += len(diagnostics)
             self.diagnostics.extend(diagnostics)
+        # several configs, each can have or have not project checkers..
+        # so we would need to first gather info, and then "mamy
+        self.diagnostics.extend(self.run_project_checks())
         if not files:
             print("No Robot files were found with the existing configuration.")
         if "file_stats" in self.reports:
@@ -91,6 +94,18 @@ class RobocopLinter:
                 for diagnostic in checker.scan_file(model, file_path, in_memory_content, templated)
                 if not disablers.is_rule_disabled(diagnostic) and not diagnostic.severity < config.linter.threshold
             ]
+        return found_diagnostics
+
+    def run_project_checks(self) -> list[Diagnostic]:
+        found_diagnostics = []
+        for checker in self.config_manager.default_config.linter.project_checkers:
+            found_diagnostics.extend(
+                [
+                    diagnostic
+                    for diagnostic in checker.scan_project()
+                    if not diagnostic.severity < self.config_manager.default_config.linter.threshold
+                ]
+            )
         return found_diagnostics
 
     def return_with_exit_code(self, issues_count: int) -> NoReturn:

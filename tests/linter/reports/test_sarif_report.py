@@ -4,30 +4,25 @@ from unittest.mock import Mock
 
 from robocop import __version__
 from robocop.linter.diagnostics import Diagnostic, Diagnostics
-from robocop.linter.reports.sarif_report import SarifReport
+from robocop.linter.reports.sarif import SarifReport
 from tests.linter.reports import generate_issues
 
 
 class TestSarifReport:
-    def test_configure_output_dir(self, config):
-        output_dir = "path/to/dir"
+    def test_configure_output_path(self, config):
+        output_path = "path/to/dir/.sarif.json"
         report = SarifReport(config)
-        report.configure("output_dir", output_dir)
-        assert report.output_dir == Path(output_dir)
-
-    def test_configure_filename(self, config):
-        filename = ".sarif"
-        report = SarifReport(config)
-        report.configure("report_filename", filename)
-        assert report.report_filename == filename
+        report.configure("output_path", output_path)
+        assert report.output_path == output_path
 
     def test_sarif_report(self, rule, rule2, tmp_path, config):
         root = Path.cwd()
+        output_file = tmp_path / "sarif.json"
         rules = {m.rule_id: m for m in (rule, rule2)}
         source1_rel = "tests/atest/rules/comments/ignored-data/test.robot"
         source2_rel = "tests/atest/rules/misc/empty-return/test.robot"
         report = SarifReport(config)
-        report.configure("output_dir", tmp_path)
+        report.configure("output_path", str(output_file))
 
         issues = generate_issues(rule, rule2)
 
@@ -89,7 +84,6 @@ class TestSarifReport:
         config_manager.root = root
         config_manager.default_config.linter.rules = rules
         report.generate_report(Diagnostics(issues), config_manager)
-        sarif_path = report.output_dir / report.report_filename
-        with open(sarif_path) as fp:
+        with open(output_file) as fp:
             sarif_report = json.load(fp)
         assert expected_report == sarif_report

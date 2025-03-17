@@ -1,4 +1,3 @@
-import json
 from pathlib import Path
 
 import robocop.linter.reports
@@ -9,7 +8,7 @@ from robocop.linter.rules import Rule
 from robocop.linter.utils.misc import ROBOCOP_RULES_URL
 
 
-class SarifReport(robocop.linter.reports.Report):
+class SarifReport(robocop.linter.reports.JsonFileReport):
     """
     **Report name**: ``sarif``
 
@@ -21,9 +20,11 @@ class SarifReport(robocop.linter.reports.Report):
     All fields required by GitHub Code Scanning are supported. The output file will be generated
     in the current working directory with the ``.sarif.json`` name.
 
-    You can configure output directory and report filename::
+    You can configure output path. It's relative path to file that will be produced by the report::
 
-        robocop check --configure sarif.output_dir=C:/sarif_reports --configure sarif.report_filename=.sarif
+        robocop check --configure sarif.output_path=output/robocop_sarif.json
+
+    Default path is ``.sarif.json`` .
 
     """
 
@@ -34,18 +35,7 @@ class SarifReport(robocop.linter.reports.Report):
     def __init__(self, config: Config):
         self.name = "sarif"
         self.description = "Generate SARIF output file"
-        self.output_dir = None
-        self.report_filename = ".sarif.json"
-        super().__init__(config)
-
-    def configure(self, name, value) -> None:
-        if name == "output_dir":
-            self.output_dir = Path(value)
-            self.output_dir.mkdir(parents=True, exist_ok=True)
-        elif name == "report_filename":
-            self.report_filename = value
-        else:
-            super().configure(name, value)
+        super().__init__(output_path=".sarif.json", config=config)
 
     @staticmethod
     def map_severity_to_level(severity):
@@ -118,11 +108,4 @@ class SarifReport(robocop.linter.reports.Report):
         report = self.generate_sarif_report(
             diagnostics, config_manager.root, config_manager.default_config.linter.rules
         )
-        if self.output_dir is not None:
-            output_path = self.output_dir / self.report_filename
-        else:
-            output_path = Path(self.report_filename)
-        with open(output_path, "w") as fp:
-            json_string = json.dumps(report, indent=4)
-            fp.write(json_string)
-        return f"Generated SARIF report in {output_path}"
+        super().generate_report(report, "SARIF")

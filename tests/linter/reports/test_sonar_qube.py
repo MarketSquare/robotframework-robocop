@@ -11,7 +11,7 @@ class TestSonarQubeReport:
     def test_sonarqube_report(self, rule, rule2, tmp_path, config):
         output_file = tmp_path / "reports" / "sonarqube.json"
         report = SonarQubeReport(config)
-        report.configure("output_path", output_file)
+        report.configure("output_path", str(output_file))
 
         issues = generate_issues(rule, rule2)
 

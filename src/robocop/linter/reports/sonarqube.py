@@ -1,15 +1,13 @@
-import json
 from pathlib import Path
 
 import robocop.linter.reports
 from robocop.config import Config, ConfigManager
-from robocop.errors import FatalError
 from robocop.linter import sonar_qube
 from robocop.linter.diagnostics import Diagnostic, Diagnostics
 from robocop.linter.rules import Rule, RuleSeverity
 
 
-class SonarQubeReport(robocop.linter.reports.Report):
+class SonarQubeReport(robocop.linter.reports.JsonFileReport):
     """
     **Report name**: ``sonarqube``
 
@@ -41,14 +39,7 @@ class SonarQubeReport(robocop.linter.reports.Report):
     def __init__(self, config: Config):
         self.name = "sonarqube"
         self.description = "Generate SonarQube report"
-        self.output_path = "robocop_sonar_qube.json"
-        super().__init__(config)
-
-    def configure(self, name, value) -> None:
-        if name == "output_path":
-            self.output_path = value
-        else:
-            super().configure(name, value)
+        super().__init__(output_path="robocop_sonar_qube.json", config=config)
 
     def get_rule_description(self, diagnostic: Diagnostic) -> dict:
         return {
@@ -110,11 +101,4 @@ class SonarQubeReport(robocop.linter.reports.Report):
 
     def generate_report(self, diagnostics: Diagnostics, config_manager: ConfigManager, **kwargs) -> None:  # noqa: ARG002
         report = self.generate_sonarqube_report(diagnostics, config_manager.root)
-        output_path = Path(self.output_path)
-        try:
-            output_path.parent.mkdir(exist_ok=True, parents=True)
-            with open(output_path, "w") as fp:
-                json.dump(report, fp, indent=4)
-        except OSError as err:
-            raise FatalError(f"Failed to write SonarQube report to {output_path}: {err}") from None
-        print(f"Generated SonarQube report in {self.output_path}")
+        super().generate_report(report, "SonarQube")

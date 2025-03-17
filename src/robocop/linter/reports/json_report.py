@@ -1,4 +1,3 @@
-import json
 from pathlib import Path
 
 import robocop.linter.reports
@@ -6,7 +5,7 @@ from robocop.config import Config
 from robocop.linter.diagnostics import Diagnostic, Diagnostics
 
 
-class JsonReport(robocop.linter.reports.Report):
+class JsonReport(robocop.linter.reports.JsonFileReport):
     r"""
     **Report name**: ``json_report``
 
@@ -16,10 +15,11 @@ class JsonReport(robocop.linter.reports.Report):
     This report is not included in the default reports. The ``--reports all`` option will not enable this report.
     You can still enable it using report name directly: ``--reports json_report`` or ``--reports all,json_report``.
 
-    You can configure output directory and report filename::
+    You can configure output path. It's relative path to file that will be produced by the report::
 
-        robocop check --configure json_report.output_dir=C:/json_reports
-        robocop check --configure json_report.report_filename=robocop_output.json
+        robocop check --configure json_report.output_path=C:/json_reports/report.json
+
+    Default path is ``robocop.json`` .
 
     Example content of the file::
 
@@ -55,29 +55,11 @@ class JsonReport(robocop.linter.reports.Report):
     def __init__(self, config: Config):
         self.name = "json_report"
         self.description = "Produces JSON file with found issues"
-        self.output_dir = None
-        self.report_filename = "robocop.json"
-        super().__init__(config)
+        super().__init__(output_path="robocop.json", config=config)
 
     def generate_report(self, diagnostics: Diagnostics, **kwargs) -> None:  # noqa: ARG002
         issues = [self.message_to_json(diagnostic) for diagnostic in diagnostics]
-        if self.output_dir is not None:
-            output_path = self.output_dir / self.report_filename
-        else:
-            output_path = Path(self.report_filename)
-        with open(output_path, "w") as fp:
-            json_string = json.dumps(issues, indent=4)
-            fp.write(json_string)
-        print(f"\nGenerated JSON report at {output_path}")
-
-    def configure(self, name: str, value: str) -> None:
-        if name == "output_dir":
-            self.output_dir = Path(value)
-            self.output_dir.mkdir(parents=True, exist_ok=True)
-        elif name == "report_filename":
-            self.report_filename = value
-        else:
-            super().configure(name, value)
+        super().generate_report(issues, "JSON")
 
     @staticmethod
     def message_to_json(message: Diagnostic) -> dict:

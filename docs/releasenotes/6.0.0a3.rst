@@ -612,6 +612,22 @@ features. It is now replaced with Python format syntax::
 
 It's important only for users who have custom rules using templates in messages.
 
+Normalized output path configuration in json and sarif reports
+--------------------------------------------------------------
+
+In this release we have added several new reports, that are file-based (such as gitlab, sonarqube etc reports).
+To make it simpler and more logical, I have standardized  how the output path can be configured for such reports.
+
+Following configuration parameters are now deprecated in json and sarif reports:
+
+- output_dir
+- report_filename
+
+Instead, we can use ``output_path`` to configure both directory and filename::
+
+    robocop check --reports sarif --configure sarif.output_path=reports/sarif.json
+    robocop check --reports gitlab --configure gitlab.output_path=reports/gitlab.json
+
 New features & other changes
 ============================
 

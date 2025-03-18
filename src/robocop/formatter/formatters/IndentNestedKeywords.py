@@ -1,7 +1,7 @@
 from robot.api.parsing import Token
 
+from robocop.errors import InvalidParameterValueError
 from robocop.formatter.disablers import skip_if_disabled
-from robocop.formatter.exceptions import InvalidParameterValueError
 from robocop.formatter.formatters import Formatter
 from robocop.formatter.skip import Skip
 from robocop.formatter.utils import misc

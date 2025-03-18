@@ -6,7 +6,8 @@ import typer
 from robot.api import get_init_model, get_model, get_resource_model
 from robot.errors import DataError
 
-from robocop.linter import exceptions, reports
+from robocop import errors
+from robocop.linter import reports
 from robocop.linter.diagnostics import Diagnostics
 from robocop.linter.reports import save_reports_result_to_cache
 from robocop.linter.utils.disablers import DisablersFinder
@@ -133,9 +134,7 @@ class RobocopLinter:
                 name, param_and_value = config.split(".", maxsplit=1)
                 param, value = param_and_value.split("=", maxsplit=1)
             except ValueError:
-                raise exceptions.ConfigGeneralError(
-                    f"Provided invalid config: '{config}' (general pattern: <rule/report>.<param>=<value>)"
-                ) from None
+                raise errors.InvalidConfigurationFormatError(config) from None
             if name in self.reports:
                 self.reports[name].configure(param, value)
 

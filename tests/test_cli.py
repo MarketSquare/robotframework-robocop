@@ -35,3 +35,10 @@ def test_print_docs_invalid():
     result = runner.invoke(app, ["docs", "idontexist"])
     assert result.exit_code == 2
     assert result.stdout == "There is no rule, formatter or a report with a 'idontexist' name.\n"
+
+
+def test_invalid_threshold():
+    runner = CliRunner()
+    result = runner.invoke(app, ["check", "--threshold", "unknown"])
+    assert result.exit_code == 2
+    assert result.stdout == "ConfigurationError: Invalid severity value 'unknown'. Choose one from: I, W, E.\n"

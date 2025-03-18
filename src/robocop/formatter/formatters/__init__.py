@@ -26,7 +26,7 @@ from robot.api.parsing import ModelTransformer
 from robot.errors import DataError
 from robot.utils.importer import Importer
 
-from robocop.formatter.exceptions import ImportFormatterError, InvalidParameterError
+from robocop.errors import ImportFormatterError, InvalidParameterError
 from robocop.formatter.skip import SKIP_OPTIONS, Skip, SkipConfig
 from robocop.formatter.utils import misc
 
@@ -166,8 +166,7 @@ def order_formatters(formatters, module):
     for name in formatters_list:
         if name not in formatters:
             raise ImportFormatterError(
-                f"Importing formatter '{name}' declared in TRANSFORMERS list failed. "
-                "Verify if correct name was provided."
+                f"Importing formatter '{name}' declared in FORMATTERS list failed. Verify if correct name was provided."
             ) from None
         ordered_formatters[name] = formatters[name]
     return ordered_formatters

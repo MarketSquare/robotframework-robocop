@@ -5,8 +5,8 @@ from collections import defaultdict
 from robot.api.parsing import Comment, EmptyLine, LibraryImport, Token
 from robot.libraries import STDLIBS
 
+from robocop.errors import InvalidParameterValueError
 from robocop.formatter.disablers import skip_section_if_disabled
-from robocop.formatter.exceptions import InvalidParameterValueError
 from robocop.formatter.formatters import Formatter
 
 

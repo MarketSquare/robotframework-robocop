@@ -12,7 +12,7 @@ from robot.api import get_init_model, get_model, get_resource_model
 from robot.errors import DataError
 from robot.utils.robotpath import find_file
 
-import robocop.linter.exceptions
+from robocop import errors
 from robocop.linter.utils.misc import rf_supports_lang
 
 if TYPE_CHECKING:
@@ -20,7 +20,7 @@ if TYPE_CHECKING:
     from robot.parsing.model.statements import ResourceImport
 
 
-@robocop.linter.exceptions.handle_robot_errors
+@errors.handle_robot_errors
 def get_resource_with_lang(get_resource_method: Callable, source: Path, lang: str | None) -> File:
     if rf_supports_lang():
         return get_resource_method(source, lang=lang)

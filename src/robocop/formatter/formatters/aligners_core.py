@@ -12,8 +12,8 @@ except ImportError:
 
 from typing import TYPE_CHECKING
 
+from robocop.errors import InvalidParameterValueError
 from robocop.formatter.disablers import skip_if_disabled
-from robocop.formatter.exceptions import InvalidParameterValueError
 from robocop.formatter.formatters import Formatter
 from robocop.formatter.utils import misc
 

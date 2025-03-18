@@ -3,8 +3,8 @@ from unittest import mock
 
 import pytest
 
+from robocop import errors
 from robocop.config import RuleMatcher
-from robocop.linter import exceptions
 from robocop.linter.rules import Diagnostic, Rule, RuleParam, RuleSeverity, SeverityThreshold
 
 
@@ -87,18 +87,15 @@ class TestRuleSeverityThreshold:
         with mock.patch.dict(os.environ, {"COLUMNS": "200"}, clear=True):
             thresholds = SeverityThreshold("line_length")
             exp_error = (
-                "InvalidArgumentError: Invalid configuration for Robocop:\n"
-                "Invalid severity value 'error'. It should be list of `severity=param_value` pairs, separated by `:`.\n"
+                "ConfigurationError: Invalid severity value 'error'. "
+                "It should be list of `severity=param_value` pairs, separated by `:`.\n"
             )
-            with pytest.raises(exceptions.InvalidArgumentError):
+            with pytest.raises(errors.ConfigurationError):
                 thresholds.value = "error"
             _, err = capsys.readouterr()
             assert err == exp_error
-            exp_error = (
-                "InvalidArgumentError: Invalid configuration for Robocop:\n"
-                "Invalid severity value 'invalid'. Choose one from: I, W, E.\n"
-            )
-            with pytest.raises(exceptions.InvalidArgumentError):
+            exp_error = "ConfigurationError: Invalid severity value 'invalid'. Choose one from: I, W, E.\n"
+            with pytest.raises(errors.ConfigurationError):
                 thresholds.value = "invalid=100"
             _, err = capsys.readouterr()
             assert err == exp_error

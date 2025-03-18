@@ -20,7 +20,7 @@ from robocop import errors, files
 from robocop.formatter import formatters
 from robocop.formatter.skip import SkipConfig
 from robocop.formatter.utils import misc  # TODO merge with linter misc
-from robocop.linter import exceptions, rules
+from robocop.linter import rules
 from robocop.linter.rules import BaseChecker, ProjectChecker, RuleSeverity
 from robocop.linter.utils.misc import compile_rule_pattern
 from robocop.linter.utils.version_matching import Version
@@ -279,9 +279,7 @@ class LinterConfig:
                 name, param_and_value = config.split(".", maxsplit=1)
                 param, value = param_and_value.split("=", maxsplit=1)
             except ValueError:
-                raise exceptions.ConfigGeneralError(
-                    f"Provided invalid config: '{config}' (general pattern: <rule/report>.<param>=<value>)"
-                ) from None
+                raise errors.InvalidConfigurationFormatError(config) from None
             if name in self._rules:
                 rule = self._rules[name]
                 if rule.deprecated:
@@ -289,7 +287,7 @@ class LinterConfig:
                 else:
                     rule.configure(param, value)
             # else:  TODO
-            #     raise exceptions.RuleOrReportDoesNotExist(name, self._rules)
+            #     raise errors.RuleOrReportDoesNotExist(name, self._rules)
 
     def split_inclusions_exclusions_into_patterns(self):
         if self.select:
@@ -308,7 +306,7 @@ class LinterConfig:
     #     def validate_rules_exists_and_not_deprecated(self, rules: dict[str, "Rule"]):
     #         for rule in chain(self.include, self.exclude):
     #             if rule not in rules:
-    #                 raise exceptions.RuleDoesNotExist(rule, rules) from None
+    #                 raise errors.RuleDoesNotExist(rule, rules) from None
     #             rule_def = rules[rule]
     #             if rule_def.deprecated:
     #                 print(rule_def.deprecation_warning)
@@ -442,7 +440,7 @@ class FormatterConfig:
             param, value = param_value.split("=", maxsplit=1)
             name, param, value = name.strip(), param.strip(), value.strip()
         except ValueError:
-            raise errors.InvalidParameterFormatError(configure) from None
+            raise errors.InvalidConfigurationFormatError(configure) from None
         return name, param, value
 
     @property

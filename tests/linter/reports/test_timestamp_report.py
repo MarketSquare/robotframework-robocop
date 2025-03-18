@@ -2,7 +2,7 @@ import re
 
 import pytest
 
-from robocop.linter.exceptions import ConfigGeneralError
+from robocop.errors import ConfigurationError
 from robocop.linter.reports.timestamp_report import TimestampReport
 
 
@@ -35,14 +35,14 @@ class TestTimestampReport:
     )
     def test_timestamp_configure_invalid(self, name, value, expected, config):
         report = TimestampReport(config)
-        with pytest.raises(ConfigGeneralError) as err:
+        with pytest.raises(ConfigurationError) as err:
             report.configure(name, value)
         assert expected in str(err)
 
     def test_invalid_timestamp_report(self, config):
         report = TimestampReport(config)
         report.configure("timezone", "BAD")
-        with pytest.raises(ConfigGeneralError) as err:
+        with pytest.raises(ConfigurationError) as err:
             report.generate_report()
         assert "Provided timezone 'BAD' for report 'timestamp' is not valid." in str(err)
 

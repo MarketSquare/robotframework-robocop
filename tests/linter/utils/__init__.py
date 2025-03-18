@@ -97,13 +97,13 @@ class RuleAcceptance:
         output_format: str = "simple",
         deprecated: bool = False,
         exit_code: int | None = None,
+        compare_output: bool = True,
         **kwargs,
-    ):
+    ) -> str | None:
         if not self.enabled_in_version(test_on_version):
             pytest.skip(f"Test enabled only for RF {test_on_version}")
         test_data = self.test_class_dir
         sort_lines = output_format == "simple"
-        expected = load_expected_file(test_data, expected_file, sort_lines=sort_lines)
         issue_format = self.get_issue_format(issue_format)
         if select is None:
             select = [self.rule_name]
@@ -116,7 +116,7 @@ class RuleAcceptance:
         configure.append(f"print_issues.output_format={output_format}")
         with isolated_output() as output, working_directory(test_data):
             try:
-                with pytest.raises(click.exceptions.Exit) as excinfo:
+                with pytest.raises(click.exceptions.Exit) as exc_info:
                     check_files(
                         sources=paths,
                         select=select,
@@ -130,14 +130,18 @@ class RuleAcceptance:
             finally:
                 sys.stdout.flush()
                 result = get_result(output)
-                parsed_results = result.splitlines()
         if exit_code is not None:
-            assert excinfo.value.exit_code == exit_code
+            assert exc_info.value.exit_code == exit_code
+        if not compare_output:
+            return result
+        parsed_results = result.splitlines()
+        expected = load_expected_file(test_data, expected_file, sort_lines=sort_lines)
         actual = normalize_result(parsed_results, test_data, sort_lines=sort_lines)
         if deprecated:
             assert actual
             assert "No rule selected" in actual[0]
-        elif actual != expected:
+            return None
+        if actual != expected:
             error = "Actual issues are different than expected.\n"
             if sort_lines:
                 missing_expected = sorted(set(actual) - set(expected))
@@ -150,11 +154,12 @@ class RuleAcceptance:
                     present_in_expected = "\n    ".join(missing_actual)
                     error += f"Expected issues not found in actual:\n    {present_in_expected}"
             else:
-                # false alarm (rare occurence if OS have random file order), we don't sort at first to save time
+                # false alarm (rare occurrence if OS have random file order), we don't sort at first to save time
                 if sorted(actual) == sorted(expected):
-                    return
+                    return None
                 display_lines_diff(expected, actual)
             pytest.fail(error, pytrace=False)
+        return None
 
     def get_issue_format(self, issue_format):
         if issue_format == "default":

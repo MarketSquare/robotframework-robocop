@@ -1,3 +1,5 @@
+import textwrap
+
 from tests.linter.utils import RuleAcceptance
 
 
@@ -36,3 +38,17 @@ class TestRuleAcceptance(RuleAcceptance):
             test_on_version=">=7",
             output_format="extended",
         )
+
+    def test_configuring_non_existing_param(self):
+        expected = textwrap.dedent(
+            """
+            ConfigurationError: Provided param 'unknown' for rule 'argument-overwritten-before-usage' does not exist. Available configurable for this rule:
+                severity = W
+                    type: parser
+                    info: Rule severity (E = Error, W = Warning, I = Info)
+            """  # noqa: E501
+        ).lstrip()
+        output = self.check_rule(
+            configure=["argument-overwritten-before-usage.unknown=value"], exit_code=2, compare_output=False
+        )
+        assert output == expected

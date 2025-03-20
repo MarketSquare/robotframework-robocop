@@ -1,3 +1,3 @@
-from .some_rules import CustomRuleChecker2, rules
+from .some_rules import CustomRuleChecker2
 
-all = ["CustomRuleChecker2", "rules"]
+__all__ = ["CustomRuleChecker2"]

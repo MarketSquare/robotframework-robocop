@@ -4,7 +4,7 @@ Custom rules
 =============
 
 You can include your own custom rules with ``--custom-rules`` arguments.
-It accepts comma-separated list of paths to files, directories or name of the Python module. Example:
+It accepts list of paths to files, directories or name of the Python module. Example:
 
 .. tab-set::
 
@@ -239,29 +239,12 @@ You can enable (or disable) your rule for particular Robot Framework version. Ad
 
 In this case rule "external-rule" will be enabled only for Robot Framework versions equal to 5.0 or higher.
 
-To enable rule only for given range of versions, use ``;`` as a delimiter:
-
-..  code-block:: python
-
-    class ExampleRule(Rule):
-    """
-    Rule description and documentation.
-
-    Supports rst.
-    """
-
-    name = "range-5-and-6"
-    rule_id = "GOG01"
-    message = "Rule that is only enabled for RF version higher than 5 and lower or equal to 6"
-    severity = RuleSeverity.INFO
-    version = ">5;<=6"
-
 It is also possible to adjust behavior of your checker depending on the Robot Framework version:
 
 ..  code-block:: python
     :caption: some_checker.py
 
-    from robocop.utils import ROBOT_VERSION
+    from robocop.linter.utils import ROBOT_VERSION
 
     (...)
     if ROBOT_VERSION.major == 3:

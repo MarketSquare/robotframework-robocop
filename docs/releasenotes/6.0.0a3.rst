@@ -570,6 +570,80 @@ Order related rules (except imports) are now grouped under 'ORD' group:
 - ``0927`` became ``ORD01`` (``test-case-section-out-of-order``)
 - ``0928`` became ``ORD02`` (``keyword-section-out-of-order``)
 
+New syntax for custom rules
+---------------------------
+
+Previous rule design is deprecated in favour of new, more OOP-like design.
+
+Example of the old syntax::
+
+    from robocop.checkers import VisitorChecker
+    from robocop.rules import Rule, RuleSeverity
+
+    rules = {
+        "1101": Rule(rule_id="1101", name="smth", msg="Keyword call after [Return] statement", severity=RuleSeverity.ERROR)
+    }
+
+
+    class SmthChecker(VisitorChecker):
+        """Checker for keyword calls after [Return] statement."""
+
+        reports = ("smth",)
+
+        def visit_Keyword(self, node):  # noqa: N802
+            (...)
+            self.report("smth", node=node)
+
+Rules are no longer defined in a global dictionaries. Each rule should be defined in their own class::
+
+    from robocop.linter.rules import Rule, RuleSeverity, VisitorChecker
+
+
+    class ExternalRule(Rule):
+        """
+        Keyword call after ``[Return]`` statement.
+
+        ``[Return]`` setting does not return from keyword and only set which variables will be returned.
+        To avoid confusion it is better to define it at the end of keyword.
+        """
+        name = "smth"
+        rule_id = "EXT01"
+        message = "Keyword call after [Return] statement"
+        severity = RuleSeverity.ERROR
+
+
+    class SmthChecker(VisitorChecker):
+        """Checker for keyword calls after [Return] statement."""
+
+        smth: ExternalRule
+
+        def visit_Keyword(self, node):  # noqa: N802
+            (...)
+            self.report(self.smth, node=node)
+
+Rules can be 'attached' to checkers that will be using them by using class attribute together with type hint::
+
+    smth: ExternalRule
+
+Robocop will find and instantiate such attributes.
+
+Rule params should use now refer directly to such attribute instead of previous
+``self.param("rule_name", "param_name")`` calls::
+
+    self.rule_name.param_name
+
+Thanks for this design it's also possible to move part of the implementation inside rule class, with less rule-specific
+code in the visitor.
+
+Note that various import paths also changed - for example from::
+
+    from robocop.checkers import VisitorChecker
+    from robocop.rules import Rule, RuleSeverity
+
+to::
+
+    from robocop.linter.rules import Rule, RuleSeverity, VisitorChecker
+
 New disabler syntax (#1313)
 ---------------------------
 

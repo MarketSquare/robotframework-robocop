@@ -111,3 +111,6 @@ report.html
 
 # Formatters temporary files
 actual/
+
+# To avoid unnecessary updates - need to update with -f
+uv.lock

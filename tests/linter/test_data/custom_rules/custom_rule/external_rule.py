@@ -3,6 +3,12 @@ from robocop.linter.rules import Rule, RuleSeverity
 
 
 class ExternalRule(Rule):
+    """
+    Keyword call after ``[Return]`` statement.
+
+    ``[Return]`` setting does not return from keyword and only set which variables will be returned.
+    To avoid confusion it is better to define it at the end of keyword.
+    """
     name = "smth"
     rule_id = "EXT01"
     message = "Keyword call after [Return] statement"

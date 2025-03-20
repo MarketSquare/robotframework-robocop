@@ -57,7 +57,6 @@ class RobocopLinter:
             diagnostics = self.run_check(model, source, config)
             issues_no += len(diagnostics)
             self.diagnostics.extend(diagnostics)
-        self.diagnostics.extend(self.run_project_checks())
         if not files:
             print("No Robot files were found with the existing configuration.")
         if "file_stats" in self.reports:
@@ -96,6 +95,7 @@ class RobocopLinter:
         return found_diagnostics
 
     def run_project_checks(self) -> list[Diagnostic]:
+        # TODO: use in a separate command
         found_diagnostics = []
         for checker in self.config_manager.default_config.linter.project_checkers:
             found_diagnostics.extend(

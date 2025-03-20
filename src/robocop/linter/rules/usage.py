@@ -46,6 +46,7 @@ class UnusedKeywordRule(Rule):
     rule_id = "KW04"
     message = "Keyword '{keyword_name}' is not used"
     severity = RuleSeverity.INFO
+    deprecated = True  # TODO: temporary deprecation
     enabled = False
     added_in_version = "5.3.0"
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(

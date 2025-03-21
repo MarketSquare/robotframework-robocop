@@ -249,7 +249,7 @@ JSON export
 SARIF export
 ------------
 
-.. automodule:: robocop.linter.reports.sarif_report.SarifReport
+.. automodule:: robocop.linter.reports.sarif.SarifReport
 
 
 ----

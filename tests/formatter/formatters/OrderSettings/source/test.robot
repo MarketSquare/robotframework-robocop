@@ -41,6 +41,12 @@ Test case 5  # comment1
    # comment3
    Keyword3
 
+Setup And Template
+    Keyword
+    [Template]
+    [Setup]
+
+
 *** Keywords ***
 Keyword
     [Teardown]  Keyword

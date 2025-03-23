@@ -19,7 +19,7 @@ To use Robocop as `pre-commit <https://pre-commit.com/>`_ hook, you need followi
 
     - repo: https://github.com/MarketSquare/robotframework-robocop
       # Robocop version.
-      rev: 6.0
+      rev: v6.0
       hooks:
         # Run the linter.
         - id: robocop

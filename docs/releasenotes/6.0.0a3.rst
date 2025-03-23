@@ -686,6 +686,18 @@ features. It is now replaced with Python format syntax::
 
 It's important only for users who have custom rules using templates in messages.
 
+Dropped support for Robot Framework 3.2
+---------------------------------------
+
+Since Robocop supported Robot Framework >=3.2.2 and Robotidy >=4.0 we had to use 4.0 as baseline version.
+However Robocop can still be used to lint code written for RF 3 - but you need environment with at least RF 4 to run
+Robocop.
+
+Dropped support for Python 3.8
+------------------------------
+
+Python 3.8 is no longer supported by Python foundation - we are also dropping support for it.
+
 Normalized output path configuration in json and sarif reports
 --------------------------------------------------------------
 
@@ -843,6 +855,37 @@ Since target version is now shared option, it needs to be configured in common s
     [tool.robocop.lint]
     [tool.robocop.format]
     # previously it could be only configured in format
+
+Adjusted order of settings in OrderSettings formatter to match Robocop rules
+----------------------------------------------------------------------------
+
+Robocop and Robotidy followed different recommended order of keyword and test case settings. Adjusted formatted
+to follow Robocop order, which is also recommended order by the Robot Framework Style Guide::
+
+    *** Test Cases ***
+    Test Case
+        [Documentation]
+        [Tags]
+        [Timeout]
+        [Setup]
+        [Template]
+        Static Variable Assignments
+        Keyword Calls
+        Verification Keyword Call
+        [Teardown]
+
+
+    *** Keywords ***
+    Keyword
+        [Documentation]
+        [Tags]
+        [Arguments]
+        [Timeout]
+        [Setup]
+        Static Variable Assignments
+        Keyword Calls
+        [Teardown]
+
 
 New rules and rule updates
 ===========================

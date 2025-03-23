@@ -10,8 +10,8 @@ Test case 1
     [Teardown]  Teardown
 
 Test case 2
-    [Template]  Template
     [Timeout]  timeout
+    [Template]  Template
     Keyword
     [Timeout]  timeout2  # this is error because it is duplicate
 
@@ -40,6 +40,12 @@ Test case 5  # comment1
    # comment3
    Keyword3
    [Teardown]  teardown
+
+Setup And Template
+    [Setup]
+    [Template]
+    Keyword
+
 
 *** Keywords ***
 Keyword

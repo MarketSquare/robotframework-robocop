@@ -41,6 +41,12 @@ Test case 5  # comment1
    [Documentation]  this is
    [Teardown]  teardown
 
+Setup And Template
+    Keyword
+    [Template]
+    [Setup]
+
+
 *** Keywords ***
 Keyword
     Keyword

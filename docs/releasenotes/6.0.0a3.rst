@@ -203,7 +203,7 @@ Linter or formatter specific settings are avaiable under ``lint`` or ``format`` 
     [tool.robocop.format]
     skip = ["documentation"]
     configure = [
-        "NormalizeSeparators.skip=documentation"
+        "NormalizeSeparators.skip_documentation=False"
     ]
 
 Documentation describes with examples where particular options should be configured.
@@ -243,8 +243,8 @@ Instead, ``text_file`` report can be used::
 
 ``text_file`` report supports only ``simple`` issue output format.
 
-Deprecated singular skip options in formatter (Robotidy)
---------------------------------------------------------
+Deprecated singular global skip options in formatter (Robotidy)
+---------------------------------------------------------------
 
 Robotidy offered multiple options to skip formatting of different statement types, if the formatter allows it::
 
@@ -283,7 +283,10 @@ Several options were combined under single option named ``skip``::
     --skip-keyword-call-pattern
 
 ``skip`` accept multiple values from the cli or the configuration files.
-When configuring skip options for the particular formatter, you can also use comma separated list.
+
+Overriding skip on the formatter level still uses previous syntax::
+
+    robocop format --configure AlignKeywordsSection.skip_arguments=True
 
 return_status report is now optional
 -------------------------------------

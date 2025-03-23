@@ -75,12 +75,9 @@ Using the same example with ``reverse=True`` param we will get tags in descendin
                 [Tags]    Cb    Ca    Bb    ba    Ab    aa
                 My Keyword
 
-
-# TODO: configuring via select?
-
 Tags can be also order in case-sensitive way::
 
-    robocop format --select OrderTags.case_sensitive=True -c OrderTags.reverse=False
+    robocop format --configure OrderTags.case_sensitive=True -c OrderTags.reverse=False
 
 .. tab-set::
 

@@ -19,7 +19,7 @@ You can also use path specific path or paths:
     robocop format file.robot resources/etc test.robot
 
 Robocop will also find and skip paths from `.gitignore` files. It is possible to configure how Robocop discover
-files using various options - see X # TODO.
+files using various options - see :ref:`file_discovery`.
 
 Displaying the difference
 --------------------------
@@ -182,22 +182,13 @@ Most formatters support running `Robocop` only on selected lines. Use ``--start-
 
 If you want to disable formatting in particular files see disablers section in :ref:`configuration`.  # TODO
 
-Format code from standard input
---------------------------------
-
-Use ``-`` to load code from input:
-
-..  code-block:: none
-
-    cat file.robot | robocop format -
-
 Line endings
 ----------------
 
 When working on multiple platforms the file can contain different line endings (``CRLF``, ``LF``). By default
 Robocop will replace all line endings with system native line ending. It may be problematic if you're using
 different platforms. You can force specific line ending or autodetect line ending used in the file and use it by
-configuring ``lineseparator`` option:
+configuring ``--line-ending`` option:
 
 - native:  use operating system's native line endings (default)
 - windows: use Windows line endings (CRLF)
@@ -214,7 +205,7 @@ whitespace. If there is transformer that aligns this whitespace according to spe
 (like ``AlignKeywordsSection``) we need to run Robocop again to format this whitespace.
 
 This could be inconvenient in some cases where user had to rerun Robocop without knowing why. That's why Robocop
-now has option ``reruns`` that allows to define limit of how many extra reruns Robocop can perform if the
+now has option ``--reruns`` that allows to define limit of how many extra reruns Robocop can perform if the
 file keeps changing after the transformation. The default is ``0``. Recommended value is ``3``
 although in vast majority of cases one extra run should suffice (and only in cases described above).
 

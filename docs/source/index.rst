@@ -36,7 +36,8 @@ Table of contents
 .. toctree::
     :caption: Configuration
 
-    configuration
+    configuration/configuration
+    configuration/file_discovery
 
 .. toctree::
     :caption: Integrations

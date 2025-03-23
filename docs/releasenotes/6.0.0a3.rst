@@ -73,7 +73,9 @@ directory. List of new or deprecated options:
 - ``-g/--ignore`` became ``-e/--exclude`` (additionally excluded paths)
 - ``-gd/--ignore-default`` became ``--default-exclude`` (paths excluded by default)
 
-More on how to configure file paths in the X section in the documentation. # TODO
+More on how to configure file paths in the
+`file discovery <https://robocop.readthedocs.io/en/stable/configuration/file_discovery.html>`_ section in
+the documentation.
 
 ---
 
@@ -147,7 +149,8 @@ All other ``transform`` mentions were also deprecated, for example:
 Linter alternative configuration file format - ``--argumentfile`` / ``.robocop`` file is now deprecated.
 From now on we will only support one configuration file format (``toml`` based).
 
-More information on current configuration file syntax at X. TODO
+More information on current configuration file syntax at
+`file discovery <https://robocop.readthedocs.io/en/stable/configuration/configuration.html>`_.
 
 Linter and formatter configuration syntax change
 ------------------------------------------------
@@ -551,15 +554,15 @@ Other rules are now grouped under 'MISC' group:
 - ``0907`` became ``MISC03`` (``nested-for-loop``)
 - ``0909`` became ``MISC04`` (``inconsistent-assignment``)
 - ``0910`` became ``MISC05`` (``inconsistent-assignment-in-variables``)
-- ``0913`` became ``MISC06`` (``can-be-resource-file``)  # TODO: NAM?
+- ``0913`` became ``MISC06`` (``can-be-resource-file``)
 - ``0914`` became ``MISC07`` (``if-can-be-merged``)
 - ``0915`` became ``MISC08`` (``statement-outside-loop``)
 - ``0916`` became ``MISC09`` (``inline-if-can-be-used``)
 - ``0917`` became ``MISC10`` (``unreachable-code``)
 - ``0918`` became ``MISC11`` (``multiline-inline-if``)
-- ``0923`` became ``MISC12`` (``unnecessary-string-conversion``)  # TODO: COND?
-- ``0924`` became ``MISC13`` (``expression-can-be-simplified``)  # TODO: COND?
-- ``0925`` became ``MISC14`` (``misplaced-negative-condition``)  # TODO: COND?
+- ``0923`` became ``MISC12`` (``unnecessary-string-conversion``)
+- ``0924`` became ``MISC13`` (``expression-can-be-simplified``)
+- ``0925`` became ``MISC14`` (``misplaced-negative-condition``)
 
 Miscellaneous keyword related rules are now grouped under 'KW' group:
 
@@ -917,6 +920,12 @@ Project-level checks
 
 Project-level checks are temporarily disabled. It will be later migrated to separate command that will scan whole
 project.
+
+Linting and formatting stdin
+----------------------------
+
+Using stdin (``robocop check -``) is temporarily disabled for linting and formating. It will be enabled again in the
+future releases.
 
 Fixes
 =====

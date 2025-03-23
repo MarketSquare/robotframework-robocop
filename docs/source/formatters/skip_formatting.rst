@@ -59,13 +59,13 @@ normalized before search (spaces and underscores removed, lowercase).
 
 With this configuration::
 
-    robotidy -c AlignTestCasesSection.skip_keyword_call=ExecuteJavascript,catenate
+    robocop format -c AlignTestCasesSection.skip_keyword_call=ExecuteJavascript,catenate
 
 All instances of ``Execute Javascript`` and ``Catenate`` keywords will not be formatted.
 
 It is possible to use global option to skip formatting for every transformer that supports it::
 
-    robotidy --skip-keyword-call Name --skip-keyword-call othername src
+    robocop format --skip-keyword-call Name --skip-keyword-call othername src
 
 Configuration file
 ~~~~~~~~~~~~~~~~~~~~
@@ -94,7 +94,7 @@ recommended to use proper regex flags to match it properly.
 
 With this configuration::
 
-    robotidy -c AlignKeywordsSection.skip_keyword_call_pattern=^First,(i?)contains\s?words src
+    robocop format -c AlignKeywordsSection.skip_keyword_call_pattern=^First,(i?)contains\s?words src
 
 All instances of keywords that start with "First" or contain "contains words" (case insensitive, space optional) will
 not be formatted.
@@ -103,7 +103,7 @@ not be formatted.
 
 It is possible to use global option to skip formatting for every transformer that supports it::
 
-    robotidy --skip-keyword-call-pattern ^Second --skip-keyword-call-pattern (i?)contains\s?words src
+    robocop format --skip-keyword-call-pattern ^Second --skip-keyword-call-pattern (i?)contains\s?words src
 
 Configuration file
 ~~~~~~~~~~~~~~~~~~~~
@@ -128,11 +128,11 @@ Skip sections
 
 Option that disables formatting of the selected sections. Example usage::
 
-    robotidy -c NormalizeSeparators.skip_sections=variables src
+    robocop format -c NormalizeSeparators.skip_sections=variables src
 
 It is possible to use global option to skip formatting for every transformer that supports it::
 
-    robotidy --skip-sections=keywords,testcases src
+    robocop format --skip-sections=keywords,testcases src
 
 Section names can be provided using comma separated list: settings,variables,testcases,keywords,comments.
 

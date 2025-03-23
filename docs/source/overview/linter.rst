@@ -15,18 +15,29 @@ You can also use path specific path or paths::
     robocop check file.robot resources/etc test.robot
 
 Robocop will also find and skip paths from `.gitignore` files. It is possible to configure how Robocop discover
-files using various options - see X # TODO.
+files using various options - see :ref:`file_discovery`.
 
 An example of the output the tool can produce::
 
-    # TODO: Update output after extended is introduced
-    \Users\OCP\test.robot:7:1 [W] 0509 Section '*** Variables ***' is empty (empty-section)
-    \Users\OCP\test.robot:22:1 [E] 0801 Multiple test cases with name "Simple Test" (first occurrence in line 17) (duplicated-test-case)
-    \Users\OCP\test.robot:42:1 [E] 0810 Both Task(s) and Test Case(s) section headers defined in file (both-tests-and-tasks)
-    \Users\OCP\test.robot:48:1 [W] 0302 Keyword 'my keyword' does not follow case convention (wrong-case-in-keyword-name)
-    \Users\OCP\test.robot:51:13 [I] 0606 Tag 'mytag' is already set by Test Tags in suite settings (tag-already-set-in-test-tags)
+    src\robot\htmldata\testdata\dir.suite\__init__.robot:16:1 SPC13 Multi-line statement with empty lines
+        |
+     14 | ...            === Title Level 3 ===
+     15 | ...            Text for level 3
+     16 |
+        | ^ SPC13
+     17 | ...            - *URL:*    http://robotframework.org
+     18 | ...            - _Image:_  http://icons.iconarchive.com/icons/martin-berube/character/48/Robot-icon.png
+        |
 
-    Found 5 issues: 2 ERRORs, 2 WARNINGs, 1 INFO.
+    src\robot\htmldata\testdata\dir.suite\__init__.robot:38:1 DEPR02 'Force Tags' is deprecated since Robot Framework version 6.0, use 'Test Tags' instead
+        |
+     36 | Metadata       </script>     < &lt; </script>
+     37 | Suite Setup    Log    higher level suite setup
+     38 | Force Tags     i1    i2
+        | ^^^^^^^^^^ DEPR02
+        |
+
+It is also possible to produce simple or grouped output - see :ref:`print_issues`.
 
 Rules management
 ================
@@ -104,7 +115,7 @@ that can print issue information, output statistics or generate report file. Rea
 
 Default report that handles printing issues to standard output is ``print_issues`` report. You can use it to change
 output from extended (print issues with source code) to grouped (group issues by file) or simple. There are also
-options to configure output format. Read more at :ref:`print_issues` .
+options to configure output format. Read more at :ref:`print_issues`.
 
 Language support
 ================

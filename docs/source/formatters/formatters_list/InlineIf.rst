@@ -178,6 +178,6 @@ Too long inline IFs (over ``line_length`` character limit) will be replaced with
                     ${var}    ${var2}    Set Variable    ${None}    ${None}    # ELSE branch added to replicate missing ELSE in inline if
                 END
 
-Since in above example ``${var}`` and ``${var2}`` variables were used in assignment `Robotidy` added missing ``ELSE`` branch
+Since in above example ``${var}`` and ``${var2}`` variables were used in assignment `Robocop` added missing ``ELSE`` branch
 to set variable values to ``None`` if no other condition matches. If there is ``ELSE`` branch, or there is no assignments
-in transformed inline IF, `Robotidy` will not add it.
+in transformed inline IF, `Robocop` will not add it.

@@ -116,7 +116,7 @@ language_option = Annotated[
 verbose_option = Annotated[
     bool,
     typer.Option(
-        help="More verose output.",
+        help="More verbose output.",
         rich_help_panel="Other",
     ),
 ]

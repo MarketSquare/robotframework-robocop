@@ -56,9 +56,9 @@ Since the translation is from one or many languages to one, only one language ca
 Source language
 ----------------
 
-Robotidy will translate only markers that can be recognized. If your source file is written in different language
-you need to configure Robotidy to recognize given language. See :ref:`language_support` for more details.
-Following example configure Robotidy to read English, Polish and German languages and translate Robot Framework
+Robocop will translate only markers that can be recognized. If your source file is written in different language
+you need to configure Robocop to recognize given language. See :ref:`language_support` for more details.
+Following example configure Robocop to read English, Polish and German languages and translate Robot Framework
 markers to Ukrainian::
 
     robocop format  -c Translate.enabled=True -c Translate.language=uk --language pl,de source_in_pl_and_de.robot
@@ -95,7 +95,7 @@ BDD keywords are not translated by default. Set ``translate_bdd`` parameter to `
                 Dann welcome page should be open
 
 Some language have more than one alternative to BDD keyword. For example Polish can use "Kiedy" or "Gdy" when
-translating "When" keyword. In this situation Robotidy will chose the first one (sorted alphabetically). It can
+translating "When" keyword. In this situation Robocop will chose the first one (sorted alphabetically). It can
 be overwritten using  ``<bdd_keyword>_alternative`` parameters::
 
     robocop format -c Translateenabled=True -c Translate.language=pl -c Translate.translate_bdd=True -c Translate.when_alternative=Gdy files/
@@ -103,7 +103,7 @@ be overwritten using  ``<bdd_keyword>_alternative`` parameters::
 Language headers
 -----------------
 
-Robotidy can add or replace existing language header in the files. For example, if you're translating file
+Robocop can add or replace existing language header in the files. For example, if you're translating file
 written in German to Swedish, the language header will change from ``language: de`` to ``language: se``.
 Translation to English will remove language header since it's not necessary.
 To do this configure ``add_language_header`` parameter to ``True``::

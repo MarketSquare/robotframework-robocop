@@ -188,7 +188,7 @@ Path to template can be absolute or relative (to working directory or configurat
                     [Arguments]    ${arguments}    ${arg}    ${arg2}
                     Step
 
-    Robotidy provides also ``formatting`` class that contains two variables:
+    Robocop provides also ``formatting`` class that contains two variables:
 
     - ``separator`` (default 4 spaces) - spacing between tokens
     - ``cont_indent`` (default 4 spaces) - spacing after ``...`` signs
@@ -200,7 +200,7 @@ Path to template can be absolute or relative (to working directory or configurat
 
 .. dropdown:: Arguments data
 
-    Robotidy provides arguments as a list of variables in ``keyword.arguments`` variable. Every argument contains the following
+    Robocop provides arguments as a list of variables in ``keyword.arguments`` variable. Every argument contains the following
     variables:
 
      - ``name`` - name of the argument without default value (ie. ``${arg}``)

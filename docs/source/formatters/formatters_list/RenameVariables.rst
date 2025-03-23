@@ -80,7 +80,7 @@ Conventions can be configured or switched off using parameters - read more in th
       - variable evaluation with ``${variable * 2}`` (following will be replaced to ``${variable_*_2}``
       - variables passed by variable, not value (``$var``) are ignored
 
-    Robotidy can be locally disabled with ``# robocop format: off`` if you want to ignore specific cases.
+    Robocop can be locally disabled with ``# robocop format: off`` if you want to ignore specific cases.
 
 Variable case in Settings section
 ---------------------------------

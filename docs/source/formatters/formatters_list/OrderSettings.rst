@@ -158,7 +158,7 @@ We need to overwrite both orders::
 Splitting configuration
 -----------------------
 
-Robotidy combines split configuration. It is possible to configure the same transformer in multiple CLI commands or
+Robocop combines split configuration. It is possible to configure the same transformer in multiple CLI commands or
 configuration entries::
 
     robocop format -c OrderSettings.keyword_before=documentation,tags,timeout,arguments,setup -c OrderSettings.keyword_after=teardown,return

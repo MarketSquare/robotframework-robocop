@@ -11,7 +11,7 @@ nox.options.default_venv_backend = "uv"
 
 def install_doc_deps(session, robot_version):
     session.install(f"robotframework=={robot_version}")
-    session.run("uv", "sync", "--group", "doc")
+    session.run(*"uv sync --group doc".split())
 
 
 @nox.session()

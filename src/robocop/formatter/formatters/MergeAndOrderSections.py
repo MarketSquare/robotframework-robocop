@@ -133,6 +133,10 @@ class MergeAndOrderSections(Formatter):
                         f"{node.source}: Merged duplicated section has section header comments. "
                         "Only header comments from first section header of the same type are preserved."
                     )
+                if not sections[section_type].header:
+                    # when merging 2+ comments sections, all but first are required to have header
+                    # so if there is more than one comments section, always add header to original
+                    sections[section_type].header = SectionHeader.from_params(section_type, "*** Comments ***")
                 sections[section_type].body += section.body
         node.sections = [sections[order] for order in self.sections_order if order in sections]
         return node

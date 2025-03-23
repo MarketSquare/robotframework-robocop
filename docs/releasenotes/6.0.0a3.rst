@@ -1095,6 +1095,25 @@ RenameVariables capitalized arguments in [Template]
         value1
         value2
 
+RenameVariables ignores variables in EXCEPT and WHILE
+-----------------------------------------------------
+
+``RenameVariables`` will no longer ignore variables in TRY EXCEPT header and WHILE limit option::
+
+    EXCEPT With Dynamic Error
+    [Arguments]  ${expected_error}
+    TRY
+        No Operation
+    EXCEPT  ${expected_error}
+        No Operation
+    END
+
+    WHILE With Limit
+        [Arguments]    ${limit}
+        WHILE    ${CONDITION}    limit=${limit}
+            No Operation
+        END
+
 Comments section header is preserved when merging multiple sections
 -------------------------------------------------------------------
 

@@ -61,13 +61,13 @@ class OrderSettings(Formatter):
         [Return]  ${value}
     ```
 
-    Test case settings ``[Documentation]``, ``[Tags]``, ``[Template]``, ``[Timeout]``, ``[Setup]`` are put before
+    Test case settings ``[Documentation]``, ``[Tags]``, ``[Timeout]``, ``[Setup]``, ``[Template]`` are put before
     test case body and ``[Teardown]`` is moved to the end of test case.
 
     Default order can be changed using following parameters:
-      - ``keyword_before = documentation,tags,timeout,arguments``
+      - ``keyword_before = documentation,tags,arguments,timeout,setup``
       - ``keyword_after = teardown,return``
-      - ``test_before = documentation,tags,template,timeout,setup``
+      - ``test_before = documentation,tags,timeout,setup,template``
       - ``test_after = teardown``
 
     Not all settings names need to be passed to given parameter. Missing setting names are not ordered. Example::
@@ -99,7 +99,7 @@ class OrderSettings(Formatter):
         self,
         keyword_before: str = "documentation,tags,arguments,timeout,setup",
         keyword_after: str = "teardown,return",
-        test_before: str = "documentation,tags,template,timeout,setup",
+        test_before: str = "documentation,tags,timeout,setup,template",
         test_after: str = "teardown",
     ):
         super().__init__()

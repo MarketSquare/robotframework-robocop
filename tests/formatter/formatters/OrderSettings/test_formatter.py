@@ -19,7 +19,7 @@ class TestOrderSettings(FormatterAcceptanceTest):
             (
                 "documentation,tags,arguments,timeout,setup",
                 "teardown,return",
-                "documentation,tags,template,timeout,setup",
+                "documentation,tags,timeout,setup,template",
                 "teardown",
                 "custom_order_default",
             ),

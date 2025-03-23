@@ -1083,3 +1083,13 @@ bad-indent raised for templates suites (#808)
 Templated suites (with the use of ``Test Template`` setting) allows to use different styles of alignment. It doesn't
 work well with ``bad-indent`` rule and caused false positive warnings. It is now disabled for templated suites.
 Instead we will implement separate rule for templated suites alignment.
+
+RenameVariables capitalized arguments in [Template]
+---------------------------------------------------
+
+``RenameVariables`` formatter from now on will rename arguments in ``[Template]`` to lower-case instead of upper-case::
+
+    Template arguments are local scope
+        [Template]    My Keyword ${embedded_arg}
+        value1
+        value2

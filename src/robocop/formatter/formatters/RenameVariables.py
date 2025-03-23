@@ -291,9 +291,15 @@ class RenameVariables(Formatter):
             data_token.value = self.rename_value(data_token.value, variable_case=VariableCase.AUTO, is_var=False)
         return self.generic_visit(node)
 
-    visit_Teardown = visit_Timeout = visit_Template = visit_Return = visit_ReturnStatement = visit_ReturnSetting = (  # noqa: N815
+    visit_Teardown = visit_Timeout = visit_Return = visit_ReturnStatement = visit_ReturnSetting = (  # noqa: N815
         visit_Setup
     )
+
+    @skip_if_disabled
+    def visit_Template(self, node):  # noqa: N802
+        for data_token in node.data_tokens[1:]:
+            data_token.value = self.rename_value(data_token.value, variable_case=VariableCase.LOWER, is_var=False)
+        return self.generic_visit(node)
 
     @skip_if_disabled
     def visit_Variable(self, node):  # noqa: N802

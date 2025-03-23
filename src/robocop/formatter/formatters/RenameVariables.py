@@ -420,15 +420,11 @@ class RenameVariables(Formatter):
 
     @skip_if_disabled
     def visit_Try(self, node):  # noqa: N802
-        if misc.ROBOT_VERSION.major < 7:
-            try_variable = node.variable
-        else:
-            try_variable = node.assign
-        if try_variable is not None:
-            error_var = node.header.get_token(Token.VARIABLE)
-            if error_var is not None:
-                self.variables_scope.add_local(error_var.value)
-                error_var.value = self.rename_value(error_var.value, variable_case=VariableCase.LOWER, is_var=True)
+        for token in node.header.get_tokens(Token.ARGUMENT):
+            token.value = self.rename_value(token.value, variable_case=VariableCase.AUTO, is_var=False)
+        for token in node.header.get_tokens(Token.VARIABLE):
+            self.variables_scope.add_local(token.value)
+            token.value = self.rename_value(token.value, variable_case=VariableCase.AUTO, is_var=True)
         return self.generic_visit(node)
 
     @skip_if_disabled
@@ -445,7 +441,7 @@ class RenameVariables(Formatter):
 
     @skip_if_disabled
     def visit_While(self, node):  # noqa: N802
-        for arg in node.header.get_tokens(Token.ARGUMENT):
+        for arg in node.header.get_tokens(Token.ARGUMENT, Token.OPTION):
             arg.value = self.rename_value(arg.value, variable_case=VariableCase.AUTO, is_var=False)
         return self.generic_visit(node)
 

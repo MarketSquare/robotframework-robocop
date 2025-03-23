@@ -138,3 +138,6 @@ class TestRenameVariables(FormatterAcceptanceTest):
 
     def test_equal_sign_in_section(self):
         self.compare(source="equal_sign_in_section.robot")
+
+    def test_template_arguments(self):
+        self.compare(source="template_arguments.robot")

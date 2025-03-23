@@ -33,13 +33,11 @@ Example usage:
 
 .. code:: shell
 
-    robocop format -c NormalizeSeparators.skip=documentation
-
-It is possible to use global option to skip formatting for every formatter that supports it:
-
-.. code:: shell
-
     robocop format --skip documentation
+
+To configure it on formatter level, or overwrite global setting use ``skip_<name>=True/False`` syntax:
+
+    robocop format --skip documentation --configure NormalizeSeparators.skip_documentation=False
 
 Both options are configurable using configuration file (:ref:`config-file`).
 
@@ -48,7 +46,7 @@ Both options are configurable using configuration file (:ref:`config-file`).
     [tool.robocop.format]
     skip = ["documentation"]
     configure = [
-        "NormalizeSeparators.skip=documentation"
+        "NormalizeSeparators.skip_documentation=False"
     ]
 
 .. _skip keyword call:

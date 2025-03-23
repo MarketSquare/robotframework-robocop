@@ -803,14 +803,15 @@ Integrations with other platforms
 Robocop could be already integrated with some CI/CD platforms. We made an active effort of documenting existing
 integrations and implementing it for missing, popular platforms such as Gitlab or Sonar Qube.
 
-Documentation is available at X # TODO .
-
 We are now supporting following integrations:
 
 - Gitlab Code Quality (with ``gitlab`` report) (#1116)
 - SonarQube (with ``sonarqube`` report) (#759)
 - pre-commit
 - ... and more - see the `Integrations` documentation
+
+Note that due to changes to how Robocop is used, previous ``pre-commit`` configuration will not work. For Robocop 6.0+
+use configuration proposed in the documentation.
 
 Select all rules with ALL (#1316)
 ---------------------------------
@@ -1093,3 +1094,9 @@ RenameVariables capitalized arguments in [Template]
         [Template]    My Keyword ${embedded_arg}
         value1
         value2
+
+Comments section header is preserved when merging multiple sections
+-------------------------------------------------------------------
+
+When merging duplicated sections, formatter uses header of the first encountered header. In case of comments section
+it led to removing header from sections that had it. It should be fixed now.

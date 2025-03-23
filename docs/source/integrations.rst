@@ -29,6 +29,9 @@ To use Robocop as `pre-commit <https://pre-commit.com/>`_ hook, you need followi
 It will run both linter and formatter on your modified files when trying to commit changes. If any linter issue is
 found or file is modified, it will stop the commit.
 
+``rev`` is version of the Robocop, prefixed with ``v``. It matches the release tag created in our repository on each
+release.
+
 .. _github_integration:
 
 GitHub

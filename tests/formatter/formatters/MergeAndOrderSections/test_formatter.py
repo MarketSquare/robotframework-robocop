@@ -84,3 +84,6 @@ class TestMergeAndOrderSections(FormatterAcceptanceTest):
 
     def test_invalid(self):
         self.compare(source="invalid.robot", not_modified=True, test_on_version=">=6.1")
+
+    def test_do_not_remove_comments_header(self):
+        self.compare(source="comments_section.robot", configure=["MergeAndOrderSections.create_comment_section=False"])

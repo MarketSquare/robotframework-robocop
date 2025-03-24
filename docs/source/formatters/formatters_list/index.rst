@@ -16,16 +16,15 @@ To see list of all formatters currently implemented in `robocop format` run:
 
 .. code:: shell
 
-    robocop format --list
+    robocop list formatters
 
 Formatters are sorted in the order they are run by default.
 
-# TODO
 To see description of the transformer run:
 
 .. code:: shell
 
-    robocop format --desc TRANSFORMER_NAME
+    robocop docs formatter_name
 
 See :ref:`configuring-formatters` to learn how formatters can be configured (including disabling and enabling formatters).
 
@@ -49,10 +48,10 @@ or:
 
    robocop format --select SplitTooLongLine --select ReplaceRunKeywordIf
 
-It will transform files according to internal order (in this example ``ReplaceRunKeywordIf`` is before
-``SplitTooLongLine``). To see order of the formatters run ``robocop format --list``.
+It will format files according to internal order (in this example ``ReplaceRunKeywordIf`` is before
+``SplitTooLongLine``). To see order of the formatters run ``robocop list formatters``.
 
-If you want to transform files using different transformer order you need to run formatters separately:
+If you want to format files using different formatter order you need to run formatters separately:
 
 .. code:: shell
 

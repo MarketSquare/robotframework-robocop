@@ -77,12 +77,10 @@ See :ref:`configuration` for information how to configure `Robocop`.
 List of formatters
 -------------------
 
-# TODO
-
-To see list of formatters included with `Robocop` use ``list formatters``::
+To see list of formatters included with `Robocop` use ``robocop list formatters``::
 
     > robocop list formatters
-                  Transformers
+                   Formatters
     ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━┓
     ┃ Name                       ┃ Enabled ┃
     ┡━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━┩
@@ -91,11 +89,15 @@ To see list of formatters included with `Robocop` use ``list formatters``::
     │ DiscardEmptySections       │ Yes     │
     │ MergeAndOrderSections      │ Yes     │
     │ RemoveEmptySettings        │ Yes     │
+    │ ReplaceEmptyValues         │ Yes     │
+    │ ReplaceWithVAR             │ No      │
     │ NormalizeAssignments       │ Yes     │
+    │ GenerateDocumentation      │ No      │
     │ OrderSettings              │ Yes     │
     │ OrderSettingsSection       │ Yes     │
     │ NormalizeTags              │ Yes     │
     │ OrderTags                  │ No      │
+    │ RenameVariables            │ No      │
     │ IndentNestedKeywords       │ No      │
     │ AlignSettingsSection       │ Yes     │
     │ AlignVariablesSection      │ Yes     │
@@ -114,17 +116,13 @@ To see list of formatters included with `Robocop` use ``list formatters``::
     │ ReplaceBreakContinue       │ Yes     │
     │ InlineIf                   │ Yes     │
     │ Translate                  │ No      │
+    │ NormalizeComments          │ Yes     │
     └────────────────────────────┴─────────┘
-
-    Formatters are listed in the order they are run by default. The status of the formatter will be displayed in the
-    different color if it is changed by the configuration.
     To see detailed docs run:
-        robotidy --desc formatter_nameF
-    or
-        robotidy --desc all
-
+        robocop docs formatter_name
     Non-default formatters needs to be selected explicitly with --select or configured with param `enabled=True`.
 
+FIXME
 Pass optional value ``enabled`` or ``disabled`` to filter out output by the status of the formatter::
 
     > robocop list formatters --filter disabled
@@ -144,34 +142,22 @@ Pass optional value ``enabled`` or ``disabled`` to filter out output by the stat
     └─────────────────────────┴─────────┘
     (...)
 
-The configuration is reflected in the output. For example combining ``--select`` (which only runs selected
-formatters) and ``enabled`` gives us::
 
-    > robocop list formatters --filter enabled --select DiscardEmptySections
-               Transformers
-    ┏━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━┓
-    ┃ Name                 ┃ Enabled ┃
-    ┡━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━┩
-    │ DiscardEmptySections │ Yes     │
-    └──────────────────────┴─────────┘
-    (...)
+You can display short documentation on particular transformer with ``docs formatter``::
 
-# TODO: replacement
-You can display short documentation on particular transformer with ``--desc``::
+    > robocop docs DiscardEmptySections
+    Formatter DiscardEmptySections:
 
-    > robotidy --desc DiscardEmptySections
-    Transformer DiscardEmptySections:
+    Remove empty sections.
+    Sections are considered empty if there are only empty lines inside.
+    You can remove sections with only comments by setting 'allow_only_comments' parameter to False:
 
-        Remove empty sections.
-        Sections are considered empty if there are only empty lines inside.
-        You can remove sections with only comments by setting 'allow_only_comments' parameter to False:
+        *** Variables ***
+        # this section will be removed with'alow_only_comments' parameter set to False
 
-            *** Variables ***
-            # this section will be removed with'alow_only_comments' parameter set to False
+    Supports global formatting params: '--start-line' and '--end-line'.
 
-        Supports global formatting params: '--start-line' and '--end-line'.
-
-        See https://robocop.readthedocs.io/en/stable/formatters/formatters_list/DiscardEmptySections.html for more examples.
+    See https://robocop.readthedocs.io/en/stable/formatters/formatters_list/DiscardEmptySections.html for more examples.
 
 Format selected lines
 ---------------------

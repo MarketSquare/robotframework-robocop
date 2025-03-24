@@ -42,3 +42,34 @@ def test_invalid_threshold():
     result = runner.invoke(app, ["check", "--threshold", "unknown"])
     assert result.exit_code == 2
     assert result.stdout == "ConfigurationError: Invalid severity value 'unknown'. Choose one from: I, W, E.\n"
+
+
+class TestListFormatters:
+    def test_list_formatters_default(self):
+        runner = CliRunner()
+        result = runner.invoke(app, ["list", "formatters"])
+        assert result.exit_code == 0
+        assert "NormalizeNewLines" in result.stdout
+        assert "Translate" in result.stdout
+
+    def test_list_enabled(self):
+        runner = CliRunner()
+        result = runner.invoke(app, ["list", "formatters", "--filter", "ENABLED"])
+        assert result.exit_code == 0
+        assert "NormalizeNewLines" in result.stdout
+        assert "ReplaceReturns" in result.stdout
+        assert "Translate" not in result.stdout
+
+    def test_list_disabled(self):
+        runner = CliRunner()
+        result = runner.invoke(app, ["list", "formatters", "--filter", "DISABLED"])
+        assert result.exit_code == 0
+        assert "NormalizeNewLines" not in result.stdout
+        assert "Translate" in result.stdout
+
+    def test_target_version(self):
+        runner = CliRunner()
+        result = runner.invoke(app, ["list", "formatters", "--filter", "ENABLED", "--target-version", "4"])
+        assert result.exit_code == 0
+        assert "NormalizeNewLines" in result.stdout
+        assert "ReplaceReturns" not in result.stdout

@@ -11,8 +11,6 @@ Order settings like ``[Arguments]``, ``[Setup]``, ``[Tags]`` inside Keywords and
 Test case settings ``[Documentation]``, ``[Tags]``, ``[Template]``, ``[Timeout]``, ``[Setup]`` are put before test case
 body and ``[Teardown]`` is moved to the end of test case.
 
-# FIXME: Does keyword actually support [Setup]?
-
 Keyword settings ``[Documentation]``, ``[Tags]``, ``[Timeout]``, ``[Arguments]``, ``[Setup]`` are put before keyword
 body and settings like ``[Teardown]``, ``[Return]`` are moved to the end of keyword.
 

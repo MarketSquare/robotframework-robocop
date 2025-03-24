@@ -9,7 +9,7 @@ Normalize separators and indents.
 .. include:: enabled_hint.txt
 
 All separators (pipes included) are converted to fixed length of 4 spaces (configurable via global option
-``--spacecount``). To separately configure the indentation, use ``--indent`` global option.
+``--space-count``). To separately configure the indentation, use ``--indent`` global option.
 
 .. note::
     There are formatters that also affect separator lengths - for example ``AlignSettingsSection``. ``NormalizeSeparators``
@@ -79,9 +79,9 @@ All separators (pipes included) are converted to fixed length of 4 spaces (confi
 Configure separator
 --------------------
 
-By configuring a global option ``spacecount``, you can change the default separator length::
+By configuring a global option ``space-count``, you can change the default separator length::
 
-    robocop format --spacecount 8
+    robocop format --space-count 8
 
 .. tab-set::
 
@@ -108,13 +108,13 @@ By configuring a global option ``spacecount``, you can change the default separa
 Indentation
 ------------
 
-By default, indentation is the same as ``spacecount`` value (default ``4`` spaces). To configure it, use ``--indent``::
+By default, indentation is the same as ``space-count`` value (default ``4`` spaces). To configure it, use ``--indent``::
 
     robocop format --indent 4
 
-Combine it with ``spacecount`` to set whitespace separately for indent and separators::
+Combine it with ``space-count`` to set whitespace separately for indent and separators::
 
-    robocop format --indent 4 --spacecount 2
+    robocop format --indent 4 --space-count 2
 
 .. tab-set::
 

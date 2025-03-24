@@ -385,7 +385,6 @@ class FormatterConfig:
 
     def load_formatters(self):
         self._formatters = {}
-        allow_version_mismatch = False
         self.load_languages()
         for formatter in self.selected_formatters():
             for container in formatters.import_formatter(formatter, self.combined_configure, self.skip_config):
@@ -402,11 +401,10 @@ class FormatterConfig:
                     overwritten=container.name in self.select,
                     target_version=self.target_version,
                 ):
-                    container.enabled_by_default = enabled
+                    container.instance.ENABLED = enabled
                     self._formatters[container.name] = container.instance
-                elif allow_version_mismatch and self.allow_disabled:
+                elif self.allow_disabled:
                     container.instance.ENABLED = False
-                    container.enabled_by_default = False
                     self._formatters[container.name] = container.instance
                 container.instance.formatting_config = self.whitespace_config
                 container.instance.formatters = self.formatters

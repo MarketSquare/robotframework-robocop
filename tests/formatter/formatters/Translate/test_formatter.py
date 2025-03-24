@@ -1,33 +1,33 @@
+import pytest
+
 from tests.formatter import FormatterAcceptanceTest
 
 
 class TestTranslate(FormatterAcceptanceTest):
     FORMATTER_NAME = "Translate"
 
-    # FIXME After integrating, test is unstable - something wrong with language settings
-    # @pytest.mark.parametrize("source_lang", [["pl"], ["pl", "de"]])  # ["en"],
-    # @pytest.mark.parametrize("dest_lang", ["de", "en"])  # , "pl"
-    # def test_translation(self, source_lang, dest_lang):
-    #     configure = []
-    #     language = None
-    #     if dest_lang != "en":
-    #         configure.append(f"{self.FORMATTER_NAME}.language={dest_lang}")
-    #     if source_lang != ["en"]:
-    #         language = source_lang
-    #     source_file = "_and_".join(source_lang) + ".robot"
-    #     not_modified = source_lang == [dest_lang]
-    #     self.compare(
-    #         configure=configure,
-    #         language=language,
-    #         source=source_file,
-    #         expected=f"{dest_lang}.robot",
-    #         not_modified=not_modified,
-    #     )
+    @pytest.mark.parametrize("source_lang", [["en"], ["pl"], ["pl", "de"]])
+    @pytest.mark.parametrize("dest_lang", ["de", "en", "pl"])
+    def test_translation(self, source_lang, dest_lang):
+        configure = []
+        language = None
+        if dest_lang != "en":
+            configure.append(f"{self.FORMATTER_NAME}.language={dest_lang}")
+        if source_lang != ["en"]:
+            language = source_lang
+        source_file = "_and_".join(source_lang) + ".robot"
+        not_modified = source_lang == [dest_lang]
+        self.compare(
+            configure=configure,
+            language=language,
+            source=source_file,
+            expected=f"{dest_lang}.robot",
+            not_modified=not_modified,
+        )
 
-    def test_recognize_language_header(self):  # FIXME language header not recognized
+    def test_recognize_language_header(self):
         self.compare(
             configure=[f"{self.FORMATTER_NAME}.language=en"],
-            language=["pl"],
             source="pl_language_header.robot",
             expected="en_with_pl_header.robot",
         )

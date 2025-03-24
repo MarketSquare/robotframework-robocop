@@ -689,4 +689,4 @@ def migrate_config(
 
 
 def main() -> None:
-    app()
+    app(windows_expand_args=False)

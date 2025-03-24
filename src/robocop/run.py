@@ -79,19 +79,31 @@ sources_argument = Annotated[
 ]
 include_option = Annotated[
     list[str],
-    typer.Option("--include", show_default=False, rich_help_panel="File discovery"),
+    typer.Option("--include", help="Include additional paths", show_default=False, rich_help_panel="File discovery"),
 ]
 default_include_option = Annotated[
     list[str],
-    typer.Option("--default-include", show_default=str(config.DEFAULT_INCLUDE), rich_help_panel="File discovery"),
+    typer.Option(
+        "--default-include",
+        help="Override to change default includes",
+        show_default=str(config.DEFAULT_INCLUDE),
+        rich_help_panel="File discovery",
+    ),
 ]
 exclude_option = Annotated[
     list[str],
-    typer.Option("--exclude", "-e", show_default=False, rich_help_panel="File discovery"),
+    typer.Option(
+        "--exclude", "-e", help="Exclude additional paths", show_default=False, rich_help_panel="File discovery"
+    ),
 ]
 default_exclude_option = Annotated[
     list[str],
-    typer.Option("--default-exclude", show_default=str(config.DEFAULT_EXCLUDE), rich_help_panel="File discovery"),
+    typer.Option(
+        "--default-exclude",
+        help="Override to change default excludes",
+        show_default=str(config.DEFAULT_EXCLUDE),
+        rich_help_panel="File discovery",
+    ),
 ]
 force_exclude_option = Annotated[
     bool,
@@ -218,7 +230,9 @@ def check_files(
     ignore_file_config: Annotated[
         bool, typer.Option(rich_help_panel="Configuration", help="Do not load configuration files.")
     ] = False,
-    skip_gitignore: Annotated[bool, typer.Option(rich_help_panel="File discovery")] = False,
+    skip_gitignore: Annotated[
+        bool, typer.Option(help="Do not skip files listed in .gitignore files", rich_help_panel="File discovery")
+    ] = False,
     persistent: Annotated[
         bool,
         typer.Option(

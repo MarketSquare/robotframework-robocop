@@ -385,7 +385,6 @@ class FormatterConfig:
 
     def load_formatters(self):
         self._formatters = {}
-        self.load_languages()
         for formatter in self.selected_formatters():
             for container in formatters.import_formatter(formatter, self.combined_configure, self.skip_config):
                 if container.name in self.select or formatter in self.select:
@@ -612,6 +611,7 @@ class Config:
             self.formatter.whitespace_config.overwrite(overwrite_config.formatter.whitespace_config)
             self.formatter.skip_config.overwrite(overwrite_config.formatter.skip_config)
             self.formatter.language = self.language  # TODO
+            self.formatter.load_languages()
         self.file_filters.overwrite(overwrite_config.file_filters)
 
     def __str__(self):

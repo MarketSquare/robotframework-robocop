@@ -159,10 +159,16 @@ class RuleFilter(str, Enum):
     STYLE_GUIDE = "STYLE_GUIDE"
 
 
+def rule_matches_pattern(rule: Rule, pattern: str | Pattern) -> bool:
+    if isinstance(pattern, str):
+        return pattern in (rule.name, rule.rule_id)
+    return pattern.match(rule.name) or pattern.match(rule.rule_id)
+
+
 def filter_rules_by_pattern(rules: dict[str, Rule], pattern: Pattern) -> list[Rule]:
     """Return sorted list of Rules from rules dictionary, filtered out by pattern."""
     return rules_sorted_by_id(
-        {rule.rule_id: rule for rule in rules.values() if rule.matches_pattern(pattern) and not rule.deprecated}
+        {rule.rule_id: rule for rule in rules.values() if rule_matches_pattern(rule, pattern) and not rule.deprecated}
     )
 
 

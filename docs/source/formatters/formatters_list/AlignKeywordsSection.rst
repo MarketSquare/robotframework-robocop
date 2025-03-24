@@ -174,7 +174,6 @@ misaligned in a row, the ``overflow`` mode is used instead of ``compact_overflow
 This behaviour helps in avoiding the situation, where ``compact_overflow`` misaligned whole line if most of the tokens
 does not fit in the column.
 
-# TODO: check chained configs with :
 Below example was run with config::
 
     robocop format -c AlignKeywordsSection.enabled=True -c AlignKeywordsSection.handle_too_long=compact_overflow -c AlignKeywordsSection.widths=24,28,20

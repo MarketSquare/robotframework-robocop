@@ -546,7 +546,7 @@ def list_rules(
     """
     # TODO: rich support (colorized enabled, severity etc)
     console = Console(soft_wrap=True)
-    linter_config = config.LinterConfig(  # set to None's to not override
+    linter_config = config.LinterConfig(  # set to None to not override
         configure=None,
         select=None,
         ignore=None,
@@ -624,7 +624,6 @@ def list_formatters(
     filter_category: Annotated[
         RuleFilter, typer.Option("--filter", case_sensitive=False, help="Filter formatters by category.")
     ] = RuleFilter.ALL,
-    filter_pattern: Annotated[Optional[str], typer.Option("--pattern", help="Filter formatters by pattern")] = None,
     target_version: Annotated[
         config.TargetVersion,
         typer.Option(
@@ -634,9 +633,56 @@ def list_formatters(
     ] = None,
 ) -> None:
     """List available formatters."""
-    # We will need ConfigManager later for listing based on configuration
-    # FIXME
-    raise NotImplementedError("Command not yet implemented.")
+    from rich.table import Table
+
+    console = Console(soft_wrap=True)
+    formatter_config = config.FormatterConfig(
+        select=None,
+        custom_formatters=None,
+        force_order=None,
+        whitespace_config=config.WhitespaceConfig(),
+        skip_config=config.SkipConfig(),
+        configure=None,
+        overwrite=None,
+        output=None,
+        diff=None,
+        check=None,
+        start_line=None,
+        end_line=None,
+        reruns=None,
+        allow_disabled=True,
+    )
+    overwrite_config = config.Config(
+        linter=None,
+        formatter=formatter_config,
+        file_filters=None,
+        language=None,
+        verbose=None,
+        target_version=target_version,
+    )
+    config_manager = config.ConfigManager(overwrite_config=overwrite_config)
+    default_config = config_manager.default_config
+    if filter_category == filter_category.ALL:
+        formatters = list(default_config.formatter.formatters.values())
+    elif filter_category == filter_category.ENABLED:
+        formatters = [formatter for formatter in default_config.formatter.formatters.values() if formatter.ENABLED]
+    elif filter_category == filter_category.DISABLED:
+        formatters = [formatter for formatter in default_config.formatter.formatters.values() if not formatter.ENABLED]
+    else:
+        raise ValueError(f"Unrecognized rule category '{filter_category}'")
+    table = Table(title="Formatters", header_style="bold red")
+    table.add_column("Name", justify="left", no_wrap=True)
+    table.add_column("Enabled")
+    for formatter in formatters:
+        decorated_enable = "Yes" if formatter.ENABLED else "No"
+        table.add_row(formatter.__class__.__name__, decorated_enable)
+    console.print(table)
+    console.print(
+        "To see detailed docs run:\n"
+        "    [bold]robocop docs [blue]formatter_name[/][/]\n"
+        "Non-default formatters needs to be selected explicitly with [bold cyan]--select[/] or "
+        "configured with param `enabled=True`.\n"
+    )
 
 
 @app.command("docs")
@@ -661,7 +707,11 @@ def print_resource_documentation(name: Annotated[str, typer.Argument(help="Rule 
     formatter_config = config.FormatterConfig()
     if name in formatter_config.formatters:
         docs = textwrap.dedent(formatter_config.formatters[name].__doc__)
+        console.print(f"Formatter [bold]{name}[/bold]:")
         console.print(docs)
+        console.print(
+            f"See https://robocop.readthedocs.io/en/stable/formatters/formatters_list/{name}.html for more information."
+        )
     else:
         console.print(f"There is no rule, formatter or a report with a '{name}' name.")
         raise typer.Exit(code=2)

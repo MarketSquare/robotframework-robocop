@@ -34,7 +34,7 @@ Align up to columns
 -------------------
 
 You can configure how many columns should be aligned to longest token in given column. The remaining columns
-will use fixed length separator length ``--spacecount``. By default only first two columns are aligned.
+will use fixed length separator length ``--space-count``. By default only first two columns are aligned.
 
 Example of how AlignVariablesSection transformer behaves with default configuration and multiple columns:
 

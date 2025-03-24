@@ -11,6 +11,7 @@ from robocop.linter import reports
 from robocop.linter.diagnostics import Diagnostics
 from robocop.linter.reports import save_reports_result_to_cache
 from robocop.linter.utils.disablers import DisablersFinder
+from robocop.linter.utils.file_types import get_resource_with_lang
 from robocop.linter.utils.misc import is_suite_templated
 
 if TYPE_CHECKING:
@@ -30,15 +31,14 @@ class RobocopLinter:
         self.diagnostics: list[Diagnostic] = []
         self.configure_reports()
 
-    def get_model_for_file_type(self, source: Path) -> File:
+    def get_model_for_file_type(self, source: Path, language: list[str] | None) -> File:
         """Recognize model type of the file and load the model."""
         # TODO: decide to migrate file type recognition based on imports from robocop
-        # TODO: language
         if "__init__" in source.name:
-            return get_init_model(source)
+            return get_resource_with_lang(get_init_model, source, language)
         if source.suffix == ".resource":
-            return get_resource_model(source)
-        return get_model(source)
+            return get_resource_with_lang(get_resource_model, source, language)
+        return get_resource_with_lang(get_model, source, language)
 
     def run(self) -> list[Diagnostic]:
         issues_no = 0
@@ -47,7 +47,7 @@ class RobocopLinter:
             if config.verbose:
                 print(f"Scanning file: {source}")
             try:
-                model = self.get_model_for_file_type(source)
+                model = self.get_model_for_file_type(source, config.language)
             except DataError:
                 print(
                     f"Failed to decode {source}. Default supported encoding by Robot Framework is UTF-8. Skipping file"

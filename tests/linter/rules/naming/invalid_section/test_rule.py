@@ -14,3 +14,8 @@ class TestRuleAcceptance(RuleAcceptance):
             output_format="extended",
             test_on_version=">=6.1",
         )
+
+    def test_rule_lang_no_header(self):
+        self.check_rule(
+            src_files=["test_lang_no_header.resource"], language=["pl"], expected_file=None, test_on_version=">=6.1"
+        )

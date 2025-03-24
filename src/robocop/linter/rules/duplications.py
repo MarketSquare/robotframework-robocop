@@ -6,7 +6,7 @@ from robot.api import Token
 
 from robocop.linter import sonar_qube
 from robocop.linter.rules import Rule, RuleSeverity, VisitorChecker, arguments, order, variables
-from robocop.linter.utils import get_errors, normalize_robot_name, normalize_robot_var_name
+from robocop.linter.utils.misc import get_errors, normalize_robot_name, normalize_robot_var_name
 
 
 class DuplicatedTestCaseRule(Rule):

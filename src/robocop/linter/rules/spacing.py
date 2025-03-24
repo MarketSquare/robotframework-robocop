@@ -21,7 +21,7 @@ except ImportError:
 
 from robocop.linter import sonar_qube
 from robocop.linter.rules import RawFileChecker, Rule, RuleParam, RuleSeverity, SeverityThreshold, VisitorChecker
-from robocop.linter.utils import get_errors, get_section_name, str2bool, token_col
+from robocop.linter.utils.misc import get_errors, get_section_name, str2bool, token_col
 from robocop.parsing.run_keywords import is_run_keyword
 
 if TYPE_CHECKING:

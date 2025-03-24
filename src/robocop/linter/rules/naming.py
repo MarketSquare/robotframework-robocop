@@ -16,17 +16,18 @@ from robot.variables.search import search_variable
 
 from robocop.linter import sonar_qube
 from robocop.linter.rules import Rule, RuleParam, RuleSeverity, VisitorChecker, deprecated, variables
-from robocop.linter.utils import (
+from robocop.linter.utils.misc import (
     ROBOT_VERSION,
     find_robot_vars,
+    is_var_scope_local,
     keyword_col,
     normalize_robot_name,
     normalize_robot_var_name,
     pattern_type,
+    remove_nested_variables,
     remove_robot_vars,
     token_col,
 )
-from robocop.linter.utils.misc import _is_var_scope_local, remove_nested_variables
 from robocop.linter.utils.variable_matcher import VariableMatches
 from robocop.parsing.run_keywords import iterate_keyword_names
 
@@ -1032,7 +1033,7 @@ class VariableNamingChecker(VisitorChecker):
             return
         self.check_for_reserved_naming_or_hyphen(variable, "Variable")
         # TODO: Check supported syntax for variable, ie ${{var}}?
-        if not _is_var_scope_local(node):
+        if not is_var_scope_local(node):
             self.check_non_local_variable(search_variable(variable.value).base, node, variable)
 
     def visit_If(self, node) -> None:  # noqa: N802
@@ -1136,7 +1137,7 @@ class SimilarVariableChecker(VisitorChecker):
             self.find_not_nested_variable(arg, arg.value, is_var=False)
         variable = node.get_token(Token.VARIABLE)
         if variable:
-            self.find_similar_variables([variable], node, ignore_overwriting=not _is_var_scope_local(node))
+            self.find_similar_variables([variable], node, ignore_overwriting=not is_var_scope_local(node))
 
     def visit_If(self, node) -> None:  # noqa: N802
         for token in node.header.get_tokens(Token.ARGUMENT):

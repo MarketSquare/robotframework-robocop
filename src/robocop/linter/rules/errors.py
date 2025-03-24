@@ -11,7 +11,7 @@ except ImportError:
 
 from robocop.linter import sonar_qube
 from robocop.linter.rules import Rule, RuleSeverity, VisitorChecker, arguments, whitespace
-from robocop.linter.utils import ROBOT_VERSION, find_robot_vars
+from robocop.linter.utils.misc import ROBOT_VERSION, find_robot_vars
 
 
 class ParsingErrorRule(Rule):  # TODO docs

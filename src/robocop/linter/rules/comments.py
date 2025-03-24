@@ -11,7 +11,7 @@ from robot.utils import FileReader
 
 from robocop.linter import sonar_qube
 from robocop.linter.rules import RawFileChecker, Rule, RuleParam, RuleSeverity, VisitorChecker
-from robocop.linter.utils import ROBOT_VERSION
+from robocop.linter.utils.misc import ROBOT_VERSION
 
 if TYPE_CHECKING:
     from robot.parsing.model import Keyword, Statement, TestCase

@@ -6,7 +6,7 @@ from enum import Enum
 from pathlib import Path
 from typing import TYPE_CHECKING
 
-from robocop.linter.utils import ROBOT_VERSION
+from robocop.linter.utils.misc import ROBOT_VERSION
 
 try:
     from robot.api import Languages  # RF 6.0

@@ -31,21 +31,7 @@ from robocop.linter.rules import (
     deprecated,
     variables,
 )
-from robocop.linter.utils import (  # FIXME: import as module
-    ROBOT_VERSION,
-    AssignmentTypeDetector,
-    get_errors,
-    keyword_col,
-    normalize_robot_name,
-    normalize_robot_var_name,
-    parse_assignment_sign_type,
-)
-from robocop.linter.utils.misc import (
-    RETURN_CLASSES,
-    _is_var_scope_local,
-    find_escaped_variables,
-    get_variables_from_string,
-)
+from robocop.linter.utils import misc as utils
 from robocop.linter.utils.variable_matcher import VariableMatches
 
 
@@ -214,7 +200,7 @@ class InconsistentAssignmentRule(Rule):
         RuleParam(
             name="assignment_sign_type",
             default="autodetect",
-            converter=parse_assignment_sign_type,
+            converter=utils.parse_assignment_sign_type,
             show_type="assignment sign type",
             desc="possible values: 'autodetect' (default), 'none' (''), "
             "'equal_sign' ('=') or space_and_equal_sign (' =')",
@@ -275,7 +261,7 @@ class InconsistentAssignmentInVariablesRule(Rule):
         RuleParam(
             name="assignment_sign_type",
             default="autodetect",
-            converter=parse_assignment_sign_type,
+            converter=utils.parse_assignment_sign_type,
             show_type="assignment sign type",
             desc="possible values: 'autodetect' (default), 'none' (''), "
             "'equal_sign' ('=') or space_and_equal_sign (' =')",
@@ -649,7 +635,7 @@ class ReturnChecker(VisitorChecker):
         return_from = False
         error = ""
         for child in node.body:
-            if isinstance(child, RETURN_CLASSES.return_setting_class):
+            if isinstance(child, utils.RETURN_CLASSES.return_setting_class):
                 return_setting_node = child
                 error = (
                     "[Return] is not defined at the end of keyword. "
@@ -672,7 +658,7 @@ class ReturnChecker(VisitorChecker):
                     keyword_after_return = True
                     return_setting_node = child
                     error = "Keyword call after 'Return From Keyword'"
-                elif normalize_robot_name(child.keyword, remove_prefix="builtin.") == "returnfromkeyword":
+                elif utils.normalize_robot_name(child.keyword, remove_prefix="builtin.") == "returnfromkeyword":
                     return_from = True
         if keyword_after_return:
             token = return_setting_node.data_tokens[0]
@@ -697,7 +683,7 @@ class UnreachableCodeChecker(VisitorChecker):
         statement_node = None
 
         for child in node.body:
-            if isinstance(child, (RETURN_CLASSES.return_class, Break, Continue)):
+            if isinstance(child, (utils.RETURN_CLASSES.return_class, Break, Continue)):
                 statement_node = child
             elif not isinstance(child, (EmptyLine, Comment, Teardown)) and statement_node is not None:
                 token = statement_node.data_tokens[0]
@@ -750,8 +736,8 @@ class IfBlockCanBeUsed(VisitorChecker):
     def visit_KeywordCall(self, node) -> None:  # noqa: N802
         if not node.keyword:
             return
-        if normalize_robot_name(node.keyword, remove_prefix="builtin.") in self.run_keyword_variants:
-            col = keyword_col(node)
+        if utils.normalize_robot_name(node.keyword, remove_prefix="builtin.") in self.run_keyword_variants:
+            col = utils.keyword_col(node)
             self.report(
                 self.if_can_be_used, run_keyword=node.keyword, node=node, col=col, end_col=col + len(node.keyword)
             )
@@ -814,7 +800,7 @@ class ConsistentAssignmentSignChecker(VisitorChecker):
         if self.variables_expected_sign_type is None:
             return None
         for child in node.body:
-            if not isinstance(child, Variable) or get_errors(child):
+            if not isinstance(child, Variable) or utils.get_errors(child):
                 continue
             var_token = child.get_token(Token.VARIABLE)
             self.check_assign_type(
@@ -823,7 +809,7 @@ class ConsistentAssignmentSignChecker(VisitorChecker):
         return node
 
     def check_assign_type(self, token, expected, issue_name) -> None:
-        sign = AssignmentTypeDetector.get_assignment_sign(token.value)
+        sign = utils.AssignmentTypeDetector.get_assignment_sign(token.value)
         if sign != expected:
             self.report(
                 issue_name,
@@ -836,7 +822,7 @@ class ConsistentAssignmentSignChecker(VisitorChecker):
 
     @staticmethod
     def auto_detect_assignment_sign(node):
-        auto_detector = AssignmentTypeDetector()
+        auto_detector = utils.AssignmentTypeDetector()
         auto_detector.visit(node)
         return auto_detector
 
@@ -868,7 +854,7 @@ class EmptyVariableChecker(VisitorChecker):
     visit_TestCaseSection = visit_KeywordSection  # noqa: N815
 
     def visit_Variable(self, node) -> None:  # noqa: N802
-        if get_errors(node):
+        if utils.get_errors(node):
             return
         if not node.value:  # catch variable declaration without any value
             self.report(self.empty_variable, node=node, end_col=node.end_col_offset)
@@ -931,7 +917,7 @@ class IfChecker(VisitorChecker):
     multiline_inline_if: MultilineInlineIfRule
 
     def visit_TestCase(self, node) -> None:  # noqa: N802
-        if get_errors(node):
+        if utils.get_errors(node):
             return
         self.check_adjacent_ifs(node)
 
@@ -993,7 +979,7 @@ class IfChecker(VisitorChecker):
         return sum(len(token.value) for token in tokens)
 
     def check_whether_if_should_be_inline(self, node) -> None:
-        if ROBOT_VERSION.major < 5:
+        if utils.ROBOT_VERSION.major < 5:
             return
         if self.is_inline_if(node):
             if node.lineno != node.end_lineno:
@@ -1011,7 +997,7 @@ class IfChecker(VisitorChecker):
             or node.orelse  # TODO: it could still report with orelse? if short enough
             # IF with one branch and assign require ELSE to be valid, better to ignore it
             or getattr(node.body[0], "assign", None)
-            or not isinstance(node.body[0], (KeywordCall, RETURN_CLASSES.return_class, Break, Continue))  # type: ignore[arg-type]
+            or not isinstance(node.body[0], (KeywordCall, utils.RETURN_CLASSES.return_class, Break, Continue))  # type: ignore[arg-type]
         ):
             return
         min_possible = self.tokens_length(node.header.tokens) + self.tokens_length(node.body[0].tokens[1:]) + 2
@@ -1051,8 +1037,8 @@ class LoopStatementsChecker(VisitorChecker):
     def visit_KeywordCall(self, node) -> None:  # noqa: N802
         if node.errors or self.loops:
             return
-        if normalize_robot_name(node.keyword, remove_prefix="builtin.") in self.for_keyword:
-            col = keyword_col(node)
+        if utils.normalize_robot_name(node.keyword, remove_prefix="builtin.") in self.for_keyword:
+            col = utils.keyword_col(node)
             self.report(
                 self.statement_outside_loop,
                 name=f"'{node.keyword}'",
@@ -1109,11 +1095,11 @@ class SectionVariablesCollector(ast.NodeVisitor):
         self.section_variables: dict[str, CachedVariable] = {}
 
     def visit_Variable(self, node) -> None:  # noqa: N802
-        if get_errors(node):
+        if utils.get_errors(node):
             return
         var_token = node.get_token(Token.VARIABLE)
         variable_match = search_variable(var_token.value, ignore_errors=True)
-        normalized = normalize_robot_name(variable_match.base)
+        normalized = utils.normalize_robot_name(variable_match.base)
         self.section_variables[normalized] = CachedVariable(variable_match.name, var_token, is_used=False)
 
 
@@ -1204,7 +1190,7 @@ class UnusedVariablesChecker(VisitorChecker):
 
     def parse_arguments(self, node) -> None:
         """Store arguments from [Arguments]. Ignore @{args} and &{kwargs}, strip default values."""
-        if get_errors(node):
+        if utils.get_errors(node):
             return
         for arg in node.get_tokens(Token.ARGUMENT):
             if arg.value[0] in ("@", "&"):  # ignore *args and &kwargs
@@ -1214,7 +1200,7 @@ class UnusedVariablesChecker(VisitorChecker):
                 self.find_not_nested_variable(default_value, is_var=False)
             else:
                 arg_name = arg.value
-            normalized_name = normalize_robot_var_name(arg_name)
+            normalized_name = utils.normalize_robot_var_name(arg_name)
             self.add_argument(arg_name, normalized_name, token=arg)
 
     def parse_embedded_arguments(self, name_token) -> None:
@@ -1222,7 +1208,7 @@ class UnusedVariablesChecker(VisitorChecker):
         try:
             for token in name_token.tokenize_variables():
                 if token.type == Token.VARIABLE:
-                    normalized_name = normalize_robot_var_name(token.value)
+                    normalized_name = utils.normalize_robot_var_name(token.value)
                     name, *_ = normalized_name.split(":", maxsplit=1)
                     self.add_argument(token.value, name, token=token)
         except VariableError:
@@ -1353,7 +1339,7 @@ class UnusedVariablesChecker(VisitorChecker):
 
     @staticmethod
     def try_assign(try_node) -> str:
-        if ROBOT_VERSION.major < 7:
+        if utils.ROBOT_VERSION.major < 7:
             return try_node.variable
         return try_node.assign
 
@@ -1390,7 +1376,7 @@ class UnusedVariablesChecker(VisitorChecker):
         for arg in node.get_tokens(Token.ARGUMENT):
             self.find_not_nested_variable(arg.value, is_var=False)
         variable = node.get_token(Token.VARIABLE)
-        if variable and _is_var_scope_local(node):
+        if variable and utils.is_var_scope_local(node):
             self.handle_assign_variable(variable)
 
     def visit_TemplateArguments(self, node) -> None:  # noqa: N802
@@ -1405,7 +1391,7 @@ class UnusedVariablesChecker(VisitorChecker):
         """
         value = token.value
         variable_match = search_variable(value, ignore_errors=True)
-        normalized = normalize_robot_name(variable_match.base)
+        normalized = utils.normalize_robot_name(variable_match.base)
         if not normalized:  # ie. "${_}" -> ""
             return
         arg = self.arguments.get(normalized, None)
@@ -1476,7 +1462,7 @@ class UnusedVariablesChecker(VisitorChecker):
 
     def find_escaped_variables(self, value) -> None:
         """Find all $var escaped variables in the value string and process them."""
-        for var in find_escaped_variables(value):
+        for var in utils.find_escaped_variables(value):
             self.update_used_variables(var)
 
     def update_used_variables(self, variable_name) -> None:
@@ -1490,7 +1476,7 @@ class UnusedVariablesChecker(VisitorChecker):
           arg.attr -> arg
           arg["value"] -> arg
         """
-        normalized = normalize_robot_name(variable_name)
+        normalized = utils.normalize_robot_name(variable_name)
         if self.used_in_scope:
             self.used_in_scope[-1].add(normalized)
         for variable_scope in self.variable_namespaces():
@@ -1514,7 +1500,7 @@ class UnusedVariablesChecker(VisitorChecker):
         if not variable_scope:
             return []
         found = []
-        for name in get_variables_from_string(variable_name):
+        for name in utils.get_variables_from_string(variable_name):
             if name in variable_scope:
                 variable_scope[name].is_used = True
                 found.append(name)
@@ -1538,7 +1524,7 @@ class ExpressionsChecker(VisitorChecker):
     visit_While = visit_If  # noqa: N815
 
     def visit_KeywordCall(self, node) -> None:  # noqa: N802
-        normalized_name = normalize_robot_name(node.keyword, remove_prefix="builtin.")
+        normalized_name = utils.normalize_robot_name(node.keyword, remove_prefix="builtin.")
         if normalized_name not in self.CONDITION_KEYWORDS:
             return
         condition_token = node.get_token(Token.ARGUMENT)
@@ -1637,7 +1623,7 @@ class NonLocalVariableChecker(VisitorChecker):
         if not keyword_token:
             return
 
-        keyword_name = normalize_robot_name(keyword_token.value, remove_prefix="builtin.")
+        keyword_name = utils.normalize_robot_name(keyword_token.value, remove_prefix="builtin.")
         if keyword_name not in self.non_local_variable_keywords:
             return
 

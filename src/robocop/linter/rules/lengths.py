@@ -35,8 +35,7 @@ from robocop.linter.rules import (
     VisitorChecker,
     arguments,
 )
-from robocop.linter.utils import get_section_name, normalize_robot_name, pattern_type, str2bool
-from robocop.linter.utils.misc import RETURN_CLASSES
+from robocop.linter.utils.misc import RETURN_CLASSES, get_section_name, normalize_robot_name, pattern_type, str2bool
 
 
 class TooLongKeywordRule(Rule):

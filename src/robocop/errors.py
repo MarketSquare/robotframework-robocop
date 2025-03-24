@@ -72,7 +72,7 @@ class RuleParamFailedInitError(FatalError):
 
 class InvalidReportName(FatalError):
     def __init__(self, report, reports):
-        from robocop.linter.utils import RecommendationFinder
+        from robocop.linter.utils.misc import RecommendationFinder
 
         report_names = sorted([*list(reports.keys()), "all"])
         similar = RecommendationFinder().find_similar(report, report_names)
@@ -82,7 +82,7 @@ class InvalidReportName(FatalError):
 
 class RuleDoesNotExist(FatalError):  # not used atm
     def __init__(self, rule: str, rules: dict[str, Rule]):
-        from robocop.linter.utils import RecommendationFinder
+        from robocop.linter.utils.misc import RecommendationFinder
 
         similar = RecommendationFinder().find_similar(rule, rules)
         msg = f"Provided rule '{rule}' does not exist. {similar}"
@@ -91,7 +91,7 @@ class RuleDoesNotExist(FatalError):  # not used atm
 
 class RuleOrReportDoesNotExist(FatalError):  # not used atm
     def __init__(self, rule: str, rules: dict[str, Rule]):
-        from robocop.linter.utils import RecommendationFinder
+        from robocop.linter.utils.misc import RecommendationFinder
 
         similar = RecommendationFinder().find_similar(rule, rules)
         msg = f"Provided rule or report '{rule}' does not exist. {similar}"

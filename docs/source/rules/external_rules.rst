@@ -244,7 +244,7 @@ It is also possible to adjust behavior of your checker depending on the Robot Fr
 ..  code-block:: python
     :caption: some_checker.py
 
-    from robocop.linter.utils import ROBOT_VERSION
+    from robocop.linter.utils.misc import ROBOT_VERSION
 
     (...)
     if ROBOT_VERSION.major == 3:

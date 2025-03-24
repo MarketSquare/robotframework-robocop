@@ -411,7 +411,7 @@ def get_plural_form(container: int) -> str:
     return "" if container == 1 else "s"
 
 
-def _is_var_scope_local(node: Var) -> bool:
+def is_var_scope_local(node: Var) -> bool:
     is_local = True
     for option in node.get_tokens(Token.OPTION):
         if "scope=" in option.value:

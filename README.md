@@ -1,4 +1,4 @@
-[![Unit tests](https://github.com/MarketSquare/robotframework-robocop/actions/workflows/unit-tests.yml/badge.svg)](https://github.com/MarketSquare/robotframework-robocop/actions/workflows/unit-tests.yml "GitHub Workflow Unit Tests Status")
+[![Unit tests](https://github.com/MarketSquare/robotframework-robocop/actions/workflows/tests.yml/badge.svg)](https://github.com/MarketSquare/robotframework-robocop/actions/workflows/unit-tests.yml "GitHub Workflow Unit Tests Status")
 ![Codecov](https://img.shields.io/codecov/c/github/MarketSquare/robotframework-robocop/master "Code coverage on master branch")
 ![PyPI](https://img.shields.io/pypi/v/robotframework-robocop?label=version "PyPI package version")
 ![Python versions](https://img.shields.io/pypi/pyversions/robotframework-robocop "Supported Python versions")
@@ -7,7 +7,7 @@
 
 ---
 
-<img style="float:right" src="https://raw.githubusercontent.com/MarketSquare/robotframework-robocop/master/docs/images/robocop_logo_small.png">
+<img style="float:right" src="https://raw.githubusercontent.com/MarketSquare/robotframework-robocop/main/docs/source/images/robocop_logo_small.png">
 
 Robocop
 ===============
@@ -137,27 +137,10 @@ FAQ
 <details>
   <summary>Can I integrate Robocop with my code editor (IDE)?</summary>
 
-  TODO: Update with dbhiel plugin.
   **Yes**, Robocop integrates nicely with popular IDEs like PyCharm or VSCode
-  thanks to [Robot Framework Language Server](https://github.com/robocorp/robotframework-lsp).
+  thanks to [RobotCode](https://github.com/robotcodedev/robotcode) plugin.
   Read simple manual (README) in that project to figure out how to install & use it.
 
-  TODO: update screenshot
-  You can also use Robocop in PyCharm easily as an external tool.
-  To configure it, go to: `File` → `Settings` → `Tools` → `External Tools`
-  and click `+` icon. Then put values based on
-  [official instructions](https://www.jetbrains.com/help/pycharm/configuring-third-party-tools.html)
-  or this screenshot:
-
-  ![Robocop](docs/images/robocop_external_tool.jpg)
-
-  If you're using Python virtual environment in your project,
-  make sure to provide correct path to robocop.exe located in `venv\Scripts\robocop.exe`.
-  Now, you can run Robocop by right-clicking on a file or directory and choosing
-  `External tools` → `Robocop`.
-
-  We suggest also to add a keyboard shortcut (e.g. `Ctrl + , (comma)`)
-  to quickly run Robocop on selected files. You can map the shortcut in `Settings` → `Keymap`.
 </details>
 
 <details>
@@ -165,11 +148,9 @@ FAQ
 
   **Yes**, you can use toml-based configuration files:
 
-  **`.robocop` file**
   **`pyproject.toml` file**
-
-  The difference between two is that ``pyproject.toml`` file does require ``[tool.robocop]`` sections while ``.robocop``
-  do not.
+  **`robocop.toml` file**
+  **`robot.toml` file**
 
   Example configuration file:
 
@@ -194,7 +175,8 @@ FAQ
   ```
 
   Multiple configuration files are supported. However, global-like options such as ``--verbose`` or ``--reports`` are
-  only loaded from top configuration file.
+  only loaded from top configuration file. Read more in
+  [configuration](https://robocop.readthedocs.io/en/stable/configuration/configuration.html).
 
 </details>
 
@@ -239,8 +221,8 @@ FAQ
   Keyword with lowercased name  # robocop: off
   ```
 
-  More about it in  TODO check docs urls
-  [our documentation](https://robocop.readthedocs.io/en/stable/including_rules.html#ignore-rule-from-source-code).
+  More about it in
+  [our documentation](https://robocop.readthedocs.io/en/stable/rules/rules_basics.html#selecting-and-ignoring-rules).
 
 </details>
 
@@ -259,16 +241,15 @@ FAQ
   You can also share your idea by
   [creating an issue](https://github.com/MarketSquare/robotframework-robocop/issues/new/choose).
 
-  More about external rules with code examples in
-  [our documentation](https://robocop.readthedocs.io/en/stable/external_rules.html).
+  More about custom rules with code examples in
+  [our documentation](https://robocop.readthedocs.io/en/stable/rules/external_rules.html).
 </details>
 
 <details>
   <summary>Can I use Robocop in continuous integration (CI) tools?</summary>
 
-  TODO: docs urls
-  **Yes**, it is easy to integrate Robocop with CI and other tools.
-  For more details read [our documentation](https://robocop.readthedocs.io/en/stable/ci.html).
+  **Yes**, Robocop is able to produce different kinds of reports that are supported by most popular platforms such as
+  GitHub, Gitlab, Sonar Qube etc. Read more in [reports](https://robocop.readthedocs.io/en/stable/integrations.html).
 
 </details>
 

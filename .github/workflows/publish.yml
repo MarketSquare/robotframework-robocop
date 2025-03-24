@@ -1,0 +1,25 @@
+name: Publish Robocop
+
+on:
+  release:
+    types: [created]
+  workflow_dispatch:
+
+jobs:
+  pypi:
+    name: Publish to PyPI
+    runs-on: ubuntu-latest
+    environment:
+      name: release
+    permissions:
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v3
+      - run: uv build
+      # Check that basic features work and we didn't miss to include crucial files
+      #      - name: Smoke test (wheel) TODO: See in the future
+      #        run: uv run --isolated --no-project -p 3.13 --with dist/*.whl tests/smoke_test.py
+      #      - name: Smoke test (source distribution)
+      #        run: uv run --isolated --no-project -p 3.13 --with dist/*.tar.gz tests/smoke_test.py
+      - run: uv publish --trusted-publishing always

@@ -28,6 +28,13 @@ class OutputFormat(Enum):
         raise ValueError(f"{value} is not a valid {cls.__name__}, please choose from {choices}") from None
 
 
+def get_relative_path(path: str, cwd: Path) -> Path | str:
+    try:
+        return Path(path).relative_to(cwd)
+    except ValueError:  # symlink etc
+        return path
+
+
 class PrintIssuesReport(robocop.linter.reports.Report):
     """
     **Report name**: ``print_issues``
@@ -92,12 +99,12 @@ class PrintIssuesReport(robocop.linter.reports.Report):
     def print_diagnostics_simple(self, diagnostics: Diagnostics) -> None:
         cwd = Path.cwd()
         for source, diag_by_source in diagnostics.diag_by_source.items():
-            source_rel = Path(source).relative_to(cwd)
+            source_rel = get_relative_path(source, cwd)
             for diagnostic in diag_by_source:
                 print(
                     self.config.linter.issue_format.format(
                         source=source_rel,
-                        source_abs=diagnostic.source,
+                        source_abs=str(Path(source).resolve()),
                         line=diagnostic.range.start.line,
                         col=diagnostic.range.start.character,
                         end_line=diagnostic.range.end.line,
@@ -122,7 +129,7 @@ class PrintIssuesReport(robocop.linter.reports.Report):
         cwd = Path.cwd()
         grouped_format = "  {line}:{col} {rule_id} {desc} ({name})"
         for source, diag_by_source in diagnostics.diag_by_source.items():
-            source_rel = Path(source).relative_to(cwd)
+            source_rel = get_relative_path(source, cwd)
             print(f"{source_rel}:")
             for diagnostic in diag_by_source:
                 print(
@@ -211,7 +218,7 @@ class PrintIssuesReport(robocop.linter.reports.Report):
     def print_diagnostics_extended(self, diagnostics: Diagnostics) -> None:
         cwd = Path.cwd()
         for source, diag_by_source in diagnostics.diag_by_source.items():
-            source_rel = Path(source).relative_to(cwd)
+            source_rel = get_relative_path(source, cwd)
             source_lines = None
             for diagnostic in diag_by_source:
                 if not source_lines:  # TODO: model should be coming from source, not diagnostics

@@ -32,11 +32,14 @@ class TextFile(robocop.linter.reports.Report):
         cwd = Path.cwd()
         messages = []
         for source, diag_by_source in diagnostics.diag_by_source.items():
-            source_rel = Path(source).relative_to(cwd)
+            try:
+                source_rel = Path(source).relative_to(cwd)
+            except ValueError:  # symlink etc
+                source_rel = source
             messages.extend(
                 self.config.linter.issue_format.format(
                     source=source_rel,
-                    source_abs=diagnostic.source,
+                    source_abs=Path(source).resolve(),
                     line=diagnostic.range.start.line,
                     col=diagnostic.range.start.character,
                     end_line=diagnostic.range.end.line,

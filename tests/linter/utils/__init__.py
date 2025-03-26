@@ -98,11 +98,12 @@ class RuleAcceptance:
         deprecated: bool = False,
         exit_code: int | None = None,
         compare_output: bool = True,
+        test_dir: Path | None = None,
         **kwargs,
     ) -> str | None:
         if not self.enabled_in_version(test_on_version):
             pytest.skip(f"Test enabled only for RF {test_on_version}")
-        test_data = self.test_class_dir
+        test_data = test_dir or self.test_class_dir
         sort_lines = output_format == "simple"
         issue_format = self.get_issue_format(issue_format)
         if select is None:
@@ -135,7 +136,7 @@ class RuleAcceptance:
         if not compare_output:
             return result
         parsed_results = result.splitlines()
-        expected = load_expected_file(test_data, expected_file, sort_lines=sort_lines)
+        expected = load_expected_file(self.test_class_dir, expected_file, sort_lines=sort_lines)
         actual = normalize_result(parsed_results, test_data, sort_lines=sort_lines)
         if deprecated:
             assert actual

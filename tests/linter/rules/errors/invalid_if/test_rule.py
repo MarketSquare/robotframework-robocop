@@ -1,3 +1,9 @@
+import sys
+from pathlib import Path
+
+import pytest
+
+from tests import working_directory
 from tests.linter.utils import RuleAcceptance
 
 
@@ -21,3 +27,15 @@ class TestRuleAcceptance(RuleAcceptance):
             output_format="extended",
             test_on_version=">=6.1",
         )
+
+    @pytest.mark.skipif(sys.platform != "linux", reason="Test only runs on Linux")
+    def test_with_symlink(self, tmp_path):
+        absolute_path = Path(__file__).parent / "test.robot"
+        (tmp_path / "test.robot").symlink_to(absolute_path)
+        with working_directory(tmp_path):
+            self.check_rule(
+                src_files=["test.robot"],
+                expected_file="expected_output_rf6.1.txt",
+                test_on_version=">=6.1",
+                test_dir=tmp_path,
+            )

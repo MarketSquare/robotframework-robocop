@@ -1,4 +1,5 @@
 import shutil
+import sys
 from pathlib import Path
 
 import pytest
@@ -73,9 +74,9 @@ class TestConfigFinder:
         config.linter.configure = ["line-too-long.line_length=110"]
 
         expected_results = {
-            config_dir / "file1.robot": config,
-            config_dir / "subdir" / "file2.robot": config,
-            config_dir / "subdir" / "file3.resource": config,
+            Path("file1.robot"): config,
+            Path("subdir") / "file2.robot": config,
+            Path("subdir") / "file3.resource": config,
         }
 
         # Act
@@ -129,7 +130,7 @@ class TestConfigFinder:
         config.formatter.skip_config.keyword_call_pattern = {"DeprecatedKeyword$"}
         config.formatter.reruns = 5
 
-        expected_results = {config_dir / "test.robot": config}
+        expected_results = {Path("test.robot"): config}
 
         # Act
         actual_results = get_sources_and_configs(config_dir)
@@ -151,8 +152,8 @@ class TestConfigFinder:
         subdir_config.linter.configure = ["line-too-long.line_length=110"]
         subdir_config.file_filters.default_exclude = {"file3.resource"}
         expected_results = {
-            config_dir / "file1.robot": default_config,
-            config_dir / "subdir" / "file2.robot": subdir_config,
+            Path("file1.robot"): default_config,
+            Path("subdir") / "file2.robot": subdir_config,
             # file3.resource is excluded in the subdir config
         }
 
@@ -169,10 +170,10 @@ class TestConfigFinder:
         # Arrange
         config_dir = test_data / "one_config_subdir"
         expected_results = {
-            config_dir / "file1.robot": cli_config,
-            config_dir / "subdir" / "file2.robot": cli_config,
+            Path("file1.robot"): cli_config,
+            Path("subdir") / "file2.robot": cli_config,
             # file3.resource would be excluded by config, but cli config overwrites it
-            config_dir / "subdir" / "file3.resource": cli_config,
+            Path("subdir") / "file3.resource": cli_config,
         }
 
         # Act
@@ -198,11 +199,11 @@ class TestConfigFinder:
         subdir_config.linter.configure = ["line-too-long.line_length=110"]
         subdir_config.file_filters.default_exclude = overwrite_option
         expected_results = {
-            config_dir / "file1.robot": default_config,
+            Path("file1.robot"): default_config,
             # file2.robot should be included, but cli option overwrites it
-            # config_dir / "subdir" / "file2.robot": subdir_config,
+            # "subdir" / "file2.robot": subdir_config,
             # file3.resource would be excluded by config, but cli config overwrites it
-            config_dir / "subdir" / "file3.resource": subdir_config,
+            Path("subdir") / "file3.resource": subdir_config,
         }
 
         # Act
@@ -224,9 +225,9 @@ class TestConfigFinder:
             # excluded by cli option
             # config_dir / "file1.robot": cli_config,
             # file2.robot is excluded by cli config, but cli option overwrites it
-            config_dir / "subdir" / "file2.robot": cli_config,
+            Path("subdir") / "file2.robot": cli_config,
             # file3.resource would be excluded by config, but cli option overwrites it
-            config_dir / "subdir" / "file3.resource": cli_config,
+            Path("subdir") / "file3.resource": cli_config,
         }
 
         # Act
@@ -255,9 +256,9 @@ class TestConfigFinder:
         second_config.file_filters.default_exclude = {"file1.robot"}
         second_config.linter.configure = ["line-too-long.line_length=140"]
         expected_results = {
-            config_dir / "file1.robot": first_config,
-            config_dir / "subdir" / "file2.robot": second_config,
-            config_dir / "subdir" / "file3.resource": second_config,
+            Path("file1.robot"): first_config,
+            Path("subdir") / "file2.robot": second_config,
+            Path("subdir") / "file3.resource": second_config,
         }
 
         # Act
@@ -315,7 +316,7 @@ class TestConfigFinder:
         actual_results = get_sources_and_configs(tmp_test_files)
 
         # Assert
-        assert tmp_test_files / "file.robot" in actual_results
+        assert Path("file.robot") in actual_results
         assert len(actual_results) == 1
 
     def test_filter_paths_from_gitignore(self, test_data):
@@ -326,7 +327,7 @@ class TestConfigFinder:
         actual_results = get_sources_and_configs(test_dir)
 
         # Assert
-        assert test_dir / "file.robot" in actual_results
+        assert Path("file.robot") in actual_results
         assert len(actual_results) == 1
 
     def test_invalid_option_value(self, test_data):
@@ -384,3 +385,37 @@ class TestConfigFinder:
 
         # Assert
         assert list(actual_results.keys()) == expected_paths
+
+    @pytest.mark.skipif(sys.platform != "linux", reason="Test only runs on Linux")
+    def test_symlink_path(self, test_data, tmp_path):
+        # Arrange
+        absolute_path = tmp_path / "test.robot"
+        absolute_path2 = test_data / "simple" / "test.robot"
+        absolute_path.write_text("*** Settings ***")
+        (tmp_path / "test2.robot").symlink_to(absolute_path2)
+        (tmp_path / "test3.robot").symlink_to(absolute_path2)
+        expected_paths = [Path("test.robot"), Path("test2.robot"), Path("test3.robot")]
+
+        # Act
+        actual_results = get_sources_and_configs(tmp_path)
+
+        # Assert
+        assert sorted(actual_results.keys()) == expected_paths
+
+    @pytest.mark.skipif(sys.platform != "linux", reason="Test only runs on Linux")
+    def test_exclude_symlink_path(self, test_data, tmp_path, overwrite_config):
+        # Arrange
+        absolute_path = tmp_path / "test.robot"
+        absolute_path2 = test_data / "simple" / "test.robot"
+        absolute_path3 = test_data / "simple" / "test2.robot"
+        absolute_path.write_text("*** Settings ***")
+        (tmp_path / "test2.robot").symlink_to(absolute_path2)
+        (tmp_path / "test3.robot").symlink_to(absolute_path3)
+        expected_paths = [Path("test.robot"), Path("test2.robot")]
+        overwrite_config.file_filters.exclude = {"test3.robot"}
+
+        # Act
+        actual_results = get_sources_and_configs(tmp_path, overwrite_config=overwrite_config)
+
+        # Assert
+        assert sorted(actual_results.keys()) == expected_paths

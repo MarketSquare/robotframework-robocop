@@ -1,0 +1,32 @@
+[tool.robocop]
+
+
+[tool.robocop.lint]
+reports = ["version", "all", "text_file", "return_status"]
+ignore = [
+    "wrong-case-in-keyword-name",
+    "variable-overwritten-before-usage",
+    "no-suite-variable",
+    "no-global-variable",
+    "MISC06",
+]
+configure = [
+    "line-too-long.line_length=200",
+    "line-too-long.ignore_pattern=\"*{\\\"cards\\\":\\[\\],\\\"customers\\\":\\[\\],[\\S+\\s+]*\"",
+    "line-too-long.ignore_pattern=\"*\\$\\.\\.addresses\\[\\?\\([\\S+\\s+]*\"",
+    "too-many-calls-in-test-case.max_calls=30",
+    "too-many-calls-in-keyword.max_calls=30",
+    "too-long-test-case.max_len=60",
+    "too-many-arguments.max_args=10",
+    "too-long-keyword.max_len=90",
+    "file-too-long.max_lines=1000",
+    "inconsistent-assignment.assignment_sign_type=equal_sign",
+    "inconsistent-assignment-in-variables.assignment_sign_type=none",
+    "text_file.output_path=\"output/robocop.log\"",
+    "return_status.quality_gate.E=0",
+    "return_status.quality_gate.W=0",
+    "return_status.quality_gate.I=-1",
+]
+
+[tool.robocop.format]
+line_length = 200

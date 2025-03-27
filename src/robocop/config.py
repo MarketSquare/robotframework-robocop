@@ -723,10 +723,10 @@ class ConfigManager:
             sources = self.sources if self.sources else self.default_config.sources
             ignore_file_filters = not self.force_exclude and bool(sources)
             self.resolve_paths(sources, gitignores=None, ignore_file_filters=ignore_file_filters)
-            self.find_default_config()
+            self.set_default_config()
         yield from self._paths.items()
 
-    def find_default_config(self):
+    def set_default_config(self) -> None:
         """
         Find default config from all loaded configs and set it.
 
@@ -735,15 +735,16 @@ class ConfigManager:
 
         """
         if not self.cached_configs:
-            return self.default_config
+            return
         # look for path as cwd or any of parents of cwd
         cwd = Path.cwd()
         if cwd in self.cached_configs:
-            return self.cached_configs[cwd]
+            self.default_config = self.cached_configs[cwd]
+            return
         for parent in cwd.parents:
             if parent in self.cached_configs:
-                return self.cached_configs[parent]
-        return self.default_config
+                self.default_config = self.cached_configs[parent]
+                return
 
     def get_default_config(self, config_path: Path | None) -> Config:
         """Get default config either from --config option or from the cli."""
@@ -771,7 +772,7 @@ class ConfigManager:
         for check_dir in check_dirs:
             if check_dir in self.cached_configs:
                 return self.cached_configs[check_dir]
-            seen.append(check_dir)
+            seen.append(check_dir.resolve())
             for config_filename in CONFIG_NAMES:
                 if (config_path := (check_dir / config_filename)).is_file():
                     configuration = files.read_toml_config(config_path)

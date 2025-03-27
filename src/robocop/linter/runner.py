@@ -122,7 +122,7 @@ class RobocopLinter:
         if self.config_manager.default_config.linter.exit_zero:
             exit_code = 0
         elif "return_status" in self.reports:
-            exit_code = self.reports["return_status"].exit_code
+            exit_code = self.reports["return_status"].return_status
         else:
             exit_code = 1 if issues_count else 0
         raise typer.Exit(code=exit_code)

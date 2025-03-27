@@ -4,6 +4,7 @@ from typer.testing import CliRunner
 
 from robocop import __version__
 from robocop.run import app
+from tests import working_directory
 
 
 def test_version():
@@ -73,3 +74,9 @@ class TestListFormatters:
         assert result.exit_code == 0
         assert "NormalizeNewLines" in result.stdout
         assert "ReplaceReturns" not in result.stdout
+
+    def test_return_status(self, tmp_path):
+        runner = CliRunner()
+        with working_directory(tmp_path):
+            result = runner.invoke(app, ["check", "--reports", "return_status"])
+        assert result.exit_code == 0

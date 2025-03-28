@@ -423,6 +423,7 @@ class TestConfigFinder:
     def test_reports_loaded_from_top_config(self, test_data):
         # Arrange
         test_dir = test_data / "robot_toml_with_reports"
+        expected_reports = ["version", "all", "text_file", "return_status"]
 
         # Act
         with working_directory(test_dir):
@@ -430,4 +431,16 @@ class TestConfigFinder:
             _ = dict(config_manager.paths)
 
         # Assert
-        assert config_manager.default_config.linter.reports == ["version", "all", "text_file", "return_status"]
+        assert config_manager.default_config.linter.reports == expected_reports
+
+    def test_combine_configure(self, test_data, overwrite_config):
+        # Arrange
+        test_dir = test_data / "robot_toml_with_reports"
+        overwrite_config.linter.configure = ["line-too-long.line_length=140"]
+
+        # Act
+        actual_results = get_sources_and_configs(test_dir, overwrite_config=overwrite_config)
+
+        # Assert
+        assert "line-too-long.line_length=140" in actual_results[Path("test.robot")].linter.configure
+        assert "line-too-long.line_length=200" in actual_results[Path("test.robot")].linter.configure

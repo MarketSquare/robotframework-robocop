@@ -28,6 +28,15 @@ configure from cli overwriting configuration file setting (#1360)
 will result in Robocop using both configurations for ``line-too-long`` and ``too-long-test-case`` rules instead of only
 using value from cli.
 
+severity of the rule is not configurable (#1362)
+------------------------------------------------
+
+Rule severity can be now configured::
+
+    robocop check --configure line-too-long.severity=e
+
+Because of the attribute name clash for ``severity``, configuration for it was ignored before.
+
 Acknowledgements
 ================
 

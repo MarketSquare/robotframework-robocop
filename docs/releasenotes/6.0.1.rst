@@ -15,6 +15,19 @@ reports setting is ignored in the configuration file (#1358)
 Reports settings was not read correctly from the configuration file. It should now work as expected and reports
 can be enabled from the configuration file.
 
+configure from cli overwriting configuration file setting (#1360)
+-----------------------------------------------------------------
+
+``--configure`` can be now used in combination with the configuration file. Following configuration::
+
+    > robocop check --configure line-too-long.line_length=140
+
+    [tool.robocop.lint]
+    configure = ["too-long-test-case.max_len=60"]
+
+will result in Robocop using both configurations for ``line-too-long`` and ``too-long-test-case`` rules instead of only
+using value from cli.
+
 Acknowledgements
 ================
 

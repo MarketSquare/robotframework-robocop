@@ -597,6 +597,8 @@ class Config:
                 if value:
                     if config_field.name == "reports":  # allows to combine cli and config for reports
                         self.linter.reports.extend(value)
+                    elif config_field.name == "configure":
+                        self.linter.configure.extend(value)
                     else:
                         setattr(self.linter, config_field.name, value)
                         if config_field.name in {"select", "ignore"}:
@@ -607,7 +609,10 @@ class Config:
                     continue
                 value = getattr(overwrite_config.formatter, config_field.name)
                 if value:
-                    setattr(self.formatter, config_field.name, value)
+                    if config_field.name == "configure":
+                        self.formatter.configure.extend(value)
+                    else:
+                        setattr(self.formatter, config_field.name, value)
             self.formatter.whitespace_config.overwrite(overwrite_config.formatter.whitespace_config)
             self.formatter.skip_config.overwrite(overwrite_config.formatter.skip_config)
             self.formatter.language = self.language  # TODO

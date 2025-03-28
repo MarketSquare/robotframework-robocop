@@ -37,6 +37,14 @@ Rule severity can be now configured::
 
 Because of the attribute name clash for ``severity``, configuration for it was ignored before.
 
+Robocop dependencies are stricter than 5.8.1 release (#1294)
+------------------------------------------------------------
+
+Some of the Robocop dependencies used older upper version than 5.8.1 release. I have decided to not limit upper level
+of dependency with exception of Robot Framework version. Read following article to understand pros and cons of it:
+https://iscinumpy.dev/post/bound-version-constraints/ . For our users it means more flexibility and better backward
+compatibility. If the latest version of any of our dependency is breaking, we can always release fix version for it.
+
 Acknowledgements
 ================
 

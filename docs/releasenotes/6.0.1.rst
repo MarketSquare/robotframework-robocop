@@ -9,6 +9,11 @@ return_status report fails with no attribute exception (#1357)
 
 ``return_status`` report should no longer fail with `has no exit_code` attribute error.
 
+reports setting is ignored in the configuration file (#1358)
+------------------------------------------------------------
+
+Reports settings was not read correctly from the configuration file. It should now work as expected and reports
+can be enabled from the configuration file.
 
 Acknowledgements
 ================

@@ -419,3 +419,15 @@ class TestConfigFinder:
 
         # Assert
         assert sorted(actual_results.keys()) == expected_paths
+
+    def test_reports_loaded_from_top_config(self, test_data):
+        # Arrange
+        test_dir = test_data / "robot_toml_with_reports"
+
+        # Act
+        with working_directory(test_dir):
+            config_manager = ConfigManager()
+            _ = dict(config_manager.paths)
+
+        # Assert
+        assert config_manager.default_config.linter.reports == ["version", "all", "text_file", "return_status"]

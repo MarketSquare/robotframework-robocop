@@ -16,3 +16,11 @@ class TestRuleAcceptance(RuleAcceptance):
             output_format="extended",
             test_on_version=">=5.0",
         )
+
+    def test_with_error_severity(self):
+        self.check_rule(
+            src_files=["test.robot"],
+            expected_file="expected_output_error.txt",
+            configure=["unreachable-code.severity=e"],
+            test_on_version=">=5.0",
+        )

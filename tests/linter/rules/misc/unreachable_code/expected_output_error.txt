@@ -1,0 +1,14 @@
+test.robot:14:9 [E] MISC10 Unreachable code after RETURN statement
+test.robot:62:9 [E] MISC10 Unreachable code after RETURN statement
+test.robot:66:9 [E] MISC10 Unreachable code after RETURN statement
+test.robot:70:9 [E] MISC10 Unreachable code after RETURN statement
+test.robot:74:9 [E] MISC10 Unreachable code after RETURN statement
+test.robot:77:9 [E] MISC10 Unreachable code after RETURN statement
+test.robot:80:9 [E] MISC10 Unreachable code after RETURN statement
+test.robot:83:5 [E] MISC10 Unreachable code after RETURN statement
+test.robot:86:9 [E] MISC10 Unreachable code after RETURN statement
+test.robot:106:13 [E] MISC10 Unreachable code after CONTINUE statement
+test.robot:109:9 [E] MISC10 Unreachable code after BREAK statement
+test.robot:112:5 [E] MISC10 Unreachable code after RETURN statement
+test.robot:118:13 [E] MISC10 Unreachable code after BREAK statement
+test.robot:123:5 [E] MISC10 Unreachable code after RETURN statement

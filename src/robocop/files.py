@@ -1,11 +1,9 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any
+from pathlib import Path
+from typing import Any
 
 import click
-
-if TYPE_CHECKING:
-    from pathlib import Path
 
 try:
     import tomllib as toml
@@ -39,8 +37,8 @@ def read_toml_config(config_path: Path) -> dict[str, Any] | None:
     return {k.replace("-", "_"): v for k, v in config.items()}
 
 
-def get_path_relative_to_path(path: Path, root_parent: Path) -> Path:
+def get_relative_path(path: str | Path, parent_path: Path) -> Path:
     try:
-        return path.relative_to(root_parent)
-    except ValueError:
+        return Path(path).relative_to(parent_path)
+    except ValueError:  # symlink etc
         return path

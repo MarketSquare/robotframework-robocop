@@ -5,6 +5,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 
 import robocop.linter.reports
+from robocop.files import get_relative_path
 from robocop.formatter.utils.misc import StatementLinesCollector
 from robocop.linter.rules import RuleSeverity
 
@@ -50,7 +51,7 @@ class GitlabReport(robocop.linter.reports.JsonFileReport):
         report = []
         cwd = Path.cwd()
         for source, diag_by_source in diagnostics.diag_by_source.items():
-            source_rel = str(Path(source).relative_to(cwd).as_posix())
+            source_rel = str(get_relative_path(source, cwd).as_posix())
             source_lines = None
             fingerprints = set()
             for diagnostic in diag_by_source:

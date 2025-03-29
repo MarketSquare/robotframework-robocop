@@ -2,6 +2,7 @@ from pathlib import Path
 
 import robocop.linter.reports
 from robocop.config import Config, ConfigManager
+from robocop.files import get_relative_path
 from robocop.linter import sonar_qube
 from robocop.linter.diagnostics import Diagnostic, Diagnostics
 from robocop.linter.rules import Rule, RuleSeverity
@@ -91,7 +92,7 @@ class SonarQubeReport(robocop.linter.reports.JsonFileReport):
         report = {"rules": [], "issues": []}
         seen_rules = set()
         for source, diag_by_source in diagnostics.diag_by_source.items():
-            source_rel = str(Path(source).relative_to(root).as_posix())
+            source_rel = str(get_relative_path(source, root).as_posix())
             for diagnostic in diag_by_source:
                 if diagnostic.rule.rule_id not in seen_rules:
                     seen_rules.add(diagnostic.rule.rule_id)

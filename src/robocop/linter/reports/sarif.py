@@ -3,6 +3,7 @@ from pathlib import Path
 import robocop.linter.reports
 from robocop import __version__
 from robocop.config import Config, ConfigManager
+from robocop.files import get_relative_path
 from robocop.linter.diagnostics import Diagnostics
 from robocop.linter.rules import Rule
 from robocop.linter.utils.misc import ROBOCOP_RULES_URL
@@ -55,7 +56,7 @@ class SarifReport(robocop.linter.reports.JsonFileReport):
     def generate_sarif_issues(self, diagnostics: Diagnostics, root: Path):
         sarif_issues = []
         for diagnostic in diagnostics:
-            relative_uri = Path(diagnostic.source).relative_to(root)
+            relative_uri = get_relative_path(diagnostic.source, root).as_posix()
             sarif_issue = {
                 "ruleId": diagnostic.rule.rule_id,
                 "level": self.map_severity_to_level(diagnostic.severity),
@@ -63,7 +64,7 @@ class SarifReport(robocop.linter.reports.JsonFileReport):
                 "locations": [
                     {
                         "physicalLocation": {
-                            "artifactLocation": {"uri": relative_uri.as_posix(), "uriBaseId": "%SRCROOT%"},
+                            "artifactLocation": {"uri": relative_uri, "uriBaseId": "%SRCROOT%"},
                             "region": {
                                 "startLine": diagnostic.range.start.line,
                                 "endLine": diagnostic.range.end.line,

@@ -2,6 +2,7 @@ from pathlib import Path
 
 import robocop.linter.reports
 from robocop.config import Config
+from robocop.files import get_relative_path
 from robocop.linter.diagnostics import Diagnostic, Diagnostics
 
 
@@ -63,7 +64,7 @@ class JsonReport(robocop.linter.reports.JsonFileReport):
 
     @staticmethod
     def message_to_json(message: Diagnostic) -> dict:
-        source_rel = Path(message.source).relative_to(Path.cwd()).as_posix()
+        source_rel = get_relative_path(message.source, Path.cwd()).as_posix()
         return {
             "source": str(source_rel),
             "line": message.range.start.line,

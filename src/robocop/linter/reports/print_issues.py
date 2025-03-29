@@ -8,6 +8,7 @@ from rich.console import Console
 from rich.markup import escape
 
 import robocop.linter.reports
+from robocop.files import get_relative_path
 from robocop.formatter.utils.misc import StatementLinesCollector
 
 if TYPE_CHECKING:
@@ -26,13 +27,6 @@ class OutputFormat(Enum):
     def _missing_(cls, value) -> NoReturn:
         choices = [choice.value for choice in cls.__members__.values()]
         raise ValueError(f"{value} is not a valid {cls.__name__}, please choose from {choices}") from None
-
-
-def get_relative_path(path: str, cwd: Path) -> Path | str:
-    try:
-        return Path(path).relative_to(cwd)
-    except ValueError:  # symlink etc
-        return path
 
 
 class PrintIssuesReport(robocop.linter.reports.Report):

@@ -3,6 +3,7 @@ from pathlib import Path
 import robocop.linter.reports
 from robocop.config import Config
 from robocop.errors import FatalError
+from robocop.files import get_relative_path
 from robocop.linter.diagnostics import Diagnostic, Diagnostics
 
 
@@ -32,10 +33,7 @@ class TextFile(robocop.linter.reports.Report):
         cwd = Path.cwd()
         messages = []
         for source, diag_by_source in diagnostics.diag_by_source.items():
-            try:
-                source_rel = Path(source).relative_to(cwd)
-            except ValueError:  # symlink etc
-                source_rel = source
+            source_rel = get_relative_path(source, cwd)
             messages.extend(
                 self.config.linter.issue_format.format(
                     source=source_rel,

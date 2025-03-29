@@ -80,3 +80,14 @@ class TestListFormatters:
         with working_directory(tmp_path):
             result = runner.invoke(app, ["check", "--reports", "return_status"])
         assert result.exit_code == 0
+
+    def test_file_reports(self, tmp_path):
+        (tmp_path / "test.robot").write_text("*** Settings ***")
+        runner = CliRunner()
+        with working_directory(tmp_path):
+            result = runner.invoke(app, ["check", "--reports", "gitlab,sarif,json_report,sonarqube,text_file"])
+        assert result.exit_code == 1
+        assert "Generated Gitlab Code Quality report at robocop-code-quality.json" in result.stdout
+        assert "Generated SARIF report at .sarif.json" in result.stdout
+        assert "Generated JSON report at robocop.json" in result.stdout
+        assert "Generated SonarQube report at robocop_sonar_qube.json" in result.stdout

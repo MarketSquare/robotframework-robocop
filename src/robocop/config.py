@@ -632,7 +632,7 @@ class GitIgnoreResolver:
         if not gitignores:
             return False
         for gitignore_path, gitignore in gitignores:
-            relative_path = files.get_path_relative_to_path(path, gitignore_path)
+            relative_path = files.get_relative_path(path, gitignore_path)
             if gitignore.match_file(relative_path):
                 return True
         return False

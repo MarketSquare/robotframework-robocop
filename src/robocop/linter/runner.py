@@ -27,7 +27,6 @@ class RobocopLinter:
     def __init__(self, config_manager: ConfigManager):
         self.config_manager = config_manager
         self.current_model: File = None
-        self.sources = self.config_manager.paths
         self.reports: dict[str, reports.Report] = reports.get_reports(self.config_manager.default_config)
         self.diagnostics: list[Diagnostic] = []
         self.configure_reports()
@@ -44,7 +43,7 @@ class RobocopLinter:
     def run(self) -> list[Diagnostic]:
         issues_no = 0
         files = 0
-        for source, config in self.sources:
+        for source, config in self.config_manager.paths:
             if config.verbose:
                 print(f"Scanning file: {source}")
             try:

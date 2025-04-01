@@ -8,6 +8,7 @@ from robocop.config import TargetVersion
 from robocop.linter.rules import Rule, RuleFilter, RuleSeverity, VisitorChecker
 from robocop.linter.utils.misc import ROBOT_VERSION
 from robocop.run import list_rules
+from tests import working_directory
 
 TEST_DATA = Path(__file__).parent.parent / "test_data" / "custom_rules"
 
@@ -152,12 +153,12 @@ def future_checker():
 
 class TestListingRules:
     def test_list_rule(
-        self, empty_linter, msg_0101_checker, non_default_rule_checker, deprecated_rules_checker, capsys
+        self, empty_linter, msg_0101_checker, non_default_rule_checker, deprecated_rules_checker, capsys, tmp_path
     ):
         """List rules with default options."""
         for checker in (msg_0101_checker, non_default_rule_checker, deprecated_rules_checker):
             empty_linter.config_manager.default_config.linter.register_checker(checker)
-        with patch("robocop.run.RobocopLinter", MagicMock(return_value=empty_linter)):
+        with working_directory(tmp_path), patch("robocop.run.RobocopLinter", MagicMock(return_value=empty_linter)):
             list_rules()
         out, _ = capsys.readouterr()
         assert (

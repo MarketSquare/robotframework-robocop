@@ -9,6 +9,15 @@ Enabling reports in configuration does not work (#1369)
 
 Options common for whole run (such as reports) should be now loaded correctly from the configuration file.
 
+robocop format --check always return 0 (#1371)
+----------------------------------------------
+
+``--check`` should now return correct exit code:
+
+- 1 if ``--check`` is used and there are modified files
+- 0 otherwise
+- 2 on invalid configuration, robocop exceptions
+
 Acknowledgements
 ================
 

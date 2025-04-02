@@ -8,6 +8,7 @@ import typer
 from robocop import files
 from robocop.config import Config, ConfigManager, FileFiltersOptions, FormatterConfig, LinterConfig
 from robocop.linter.rules import RuleSeverity
+from robocop.linter.runner import RobocopLinter
 from tests import working_directory
 
 
@@ -74,9 +75,9 @@ class TestConfigFinder:
         config.linter.configure = ["line-too-long.line_length=110"]
 
         expected_results = {
-            Path("file1.robot"): config,
-            Path("subdir") / "file2.robot": config,
-            Path("subdir") / "file3.resource": config,
+            config_dir / "file1.robot": config,
+            config_dir / "subdir" / "file2.robot": config,
+            config_dir / "subdir" / "file3.resource": config,
         }
 
         # Act
@@ -103,7 +104,7 @@ class TestConfigFinder:
         config.linter.threshold = RuleSeverity.WARNING
         config.linter.reports = ["all", "sarif"]
         config.linter.issue_format = "{source_abs}:{line}:{col} [{severity}] {rule_id} {desc} ({name})"
-        config.language = ["eng", "pl"]
+        config.language = ["en", "pl"]
         config.linter.custom_rules = ["CustomRules.py"]
         config.linter.persistent = True
         config.linter.compare = True
@@ -130,7 +131,7 @@ class TestConfigFinder:
         config.formatter.skip_config.keyword_call_pattern = {"DeprecatedKeyword$"}
         config.formatter.reruns = 5
 
-        expected_results = {Path("test.robot"): config}
+        expected_results = {config_dir / "test.robot": config}
 
         # Act
         actual_results = get_sources_and_configs(config_dir)
@@ -152,8 +153,8 @@ class TestConfigFinder:
         subdir_config.linter.configure = ["line-too-long.line_length=110"]
         subdir_config.file_filters.default_exclude = {"file3.resource"}
         expected_results = {
-            Path("file1.robot"): default_config,
-            Path("subdir") / "file2.robot": subdir_config,
+            config_dir / "file1.robot": default_config,
+            config_dir / "subdir" / "file2.robot": subdir_config,
             # file3.resource is excluded in the subdir config
         }
 
@@ -170,10 +171,10 @@ class TestConfigFinder:
         # Arrange
         config_dir = test_data / "one_config_subdir"
         expected_results = {
-            Path("file1.robot"): cli_config,
-            Path("subdir") / "file2.robot": cli_config,
+            config_dir / "file1.robot": cli_config,
+            config_dir / "subdir" / "file2.robot": cli_config,
             # file3.resource would be excluded by config, but cli config overwrites it
-            Path("subdir") / "file3.resource": cli_config,
+            config_dir / "subdir" / "file3.resource": cli_config,
         }
 
         # Act
@@ -199,11 +200,11 @@ class TestConfigFinder:
         subdir_config.linter.configure = ["line-too-long.line_length=110"]
         subdir_config.file_filters.default_exclude = overwrite_option
         expected_results = {
-            Path("file1.robot"): default_config,
+            config_dir / "file1.robot": default_config,
             # file2.robot should be included, but cli option overwrites it
             # "subdir" / "file2.robot": subdir_config,
             # file3.resource would be excluded by config, but cli config overwrites it
-            Path("subdir") / "file3.resource": subdir_config,
+            config_dir / "subdir" / "file3.resource": subdir_config,
         }
 
         # Act
@@ -225,9 +226,9 @@ class TestConfigFinder:
             # excluded by cli option
             # config_dir / "file1.robot": cli_config,
             # file2.robot is excluded by cli config, but cli option overwrites it
-            Path("subdir") / "file2.robot": cli_config,
+            config_dir / "subdir" / "file2.robot": cli_config,
             # file3.resource would be excluded by config, but cli option overwrites it
-            Path("subdir") / "file3.resource": cli_config,
+            config_dir / "subdir" / "file3.resource": cli_config,
         }
 
         # Act
@@ -256,9 +257,9 @@ class TestConfigFinder:
         second_config.file_filters.default_exclude = {"file1.robot"}
         second_config.linter.configure = ["line-too-long.line_length=140"]
         expected_results = {
-            Path("file1.robot"): first_config,
-            Path("subdir") / "file2.robot": second_config,
-            Path("subdir") / "file3.resource": second_config,
+            config_dir / "file1.robot": first_config,
+            config_dir / "subdir" / "file2.robot": second_config,
+            config_dir / "subdir" / "file3.resource": second_config,
         }
 
         # Act
@@ -295,7 +296,7 @@ class TestConfigFinder:
 
     def test_fail_on_unknown_config_options(self, test_data, capsys):
         """Unknown or deprecated options in configuration file should raise an error."""
-        config_path = test_data / "invalid_config" / "pyproject.toml"
+        config_path = test_data / "invalid_config" / "invalid.toml"
         configuration = files.read_toml_config(config_path)
         with pytest.raises(typer.Exit):
             Config.from_toml(configuration, config_path)
@@ -316,7 +317,7 @@ class TestConfigFinder:
         actual_results = get_sources_and_configs(tmp_test_files)
 
         # Assert
-        assert Path("file.robot") in actual_results
+        assert tmp_test_files / "file.robot" in actual_results
         assert len(actual_results) == 1
 
     def test_filter_paths_from_gitignore(self, test_data):
@@ -327,7 +328,7 @@ class TestConfigFinder:
         actual_results = get_sources_and_configs(test_dir)
 
         # Assert
-        assert Path("file.robot") in actual_results
+        assert test_dir / "file.robot" in actual_results
         assert len(actual_results) == 1
 
     def test_invalid_option_value(self, test_data):
@@ -394,13 +395,13 @@ class TestConfigFinder:
         absolute_path.write_text("*** Settings ***")
         (tmp_path / "test2.robot").symlink_to(absolute_path2)
         (tmp_path / "test3.robot").symlink_to(absolute_path2)
-        expected_paths = [Path("test.robot"), Path("test2.robot"), Path("test3.robot")]
+        expected_paths = [absolute_path, absolute_path2]
 
         # Act
         actual_results = get_sources_and_configs(tmp_path)
 
         # Assert
-        assert sorted(actual_results.keys()) == expected_paths
+        assert sorted(actual_results.keys()) == sorted(expected_paths)
 
     @pytest.mark.skipif(sys.platform != "linux", reason="Test only runs on Linux")
     def test_exclude_symlink_path(self, test_data, tmp_path, overwrite_config):
@@ -411,14 +412,14 @@ class TestConfigFinder:
         absolute_path.write_text("*** Settings ***")
         (tmp_path / "test2.robot").symlink_to(absolute_path2)
         (tmp_path / "test3.robot").symlink_to(absolute_path3)
-        expected_paths = [Path("test.robot"), Path("test2.robot")]
+        expected_paths = [absolute_path, absolute_path2]
         overwrite_config.file_filters.exclude = {"test3.robot"}
 
         # Act
         actual_results = get_sources_and_configs(tmp_path, overwrite_config=overwrite_config)
 
         # Assert
-        assert sorted(actual_results.keys()) == expected_paths
+        assert sorted(actual_results.keys()) == sorted(expected_paths)
 
     def test_reports_loaded_from_top_config(self, test_data):
         # Arrange
@@ -428,7 +429,6 @@ class TestConfigFinder:
         # Act
         with working_directory(test_dir):
             config_manager = ConfigManager()
-            _ = dict(config_manager.paths)
 
         # Assert
         assert config_manager.default_config.linter.reports == expected_reports
@@ -442,5 +442,20 @@ class TestConfigFinder:
         actual_results = get_sources_and_configs(test_dir, overwrite_config=overwrite_config)
 
         # Assert
-        assert "line-too-long.line_length=140" in actual_results[Path("test.robot")].linter.configure
-        assert "line-too-long.line_length=200" in actual_results[Path("test.robot")].linter.configure
+        assert "line-too-long.line_length=140" in actual_results[test_dir / "test.robot"].linter.configure
+        assert "line-too-long.line_length=200" in actual_results[test_dir / "test.robot"].linter.configure
+
+    def test_multiple_files_with_single_config(self, test_data, overwrite_config, capsys):
+        # Arrange
+        test_dir = test_data / "multiple_files_one_config"
+        overwrite_config.verbose = True
+
+        # Act
+        with working_directory(test_dir):
+            config_manager = ConfigManager(overwrite_config=overwrite_config)
+            linter = RobocopLinter(config_manager)
+        out, _ = capsys.readouterr()
+
+        # Assert
+        assert out == f"Loaded {test_dir / 'robocop.toml'} configuration file.\n"
+        assert len(linter.reports) > 2

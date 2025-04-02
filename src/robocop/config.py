@@ -483,7 +483,7 @@ class FileFiltersOptions(ConfigContainer):
         return cls(**filter_config)
 
     def path_excluded(self, path: Path) -> bool:
-        """Exclude all paths matching exclue patterns."""
+        """Exclude all paths matching exclude patterns."""
         exclude_paths = set(self.default_exclude)
         if self.exclude:
             exclude_paths |= self.exclude
@@ -716,8 +716,8 @@ class ConfigManager:
             config is not None
         )  # TODO: what if both cli and --config? should take --config then apply cli
         self.root = root or Path.cwd()
-        self.default_config: Config = self.get_default_config(config)
         self.sources = sources
+        self.default_config: Config = self.get_default_config(config)
         self._paths: dict[Path, Config] | None = None
 
     @property
@@ -728,28 +728,7 @@ class ConfigManager:
             sources = self.sources if self.sources else self.default_config.sources
             ignore_file_filters = not self.force_exclude and bool(sources)
             self.resolve_paths(sources, gitignores=None, ignore_file_filters=ignore_file_filters)
-            self.set_default_config()
         yield from self._paths.items()
-
-    def set_default_config(self) -> None:
-        """
-        Find default config from all loaded configs and set it.
-
-        Default configuration file is configuration closest to cwd. It's options are used for global-like
-        settings such as reports or exit codes.
-
-        """
-        if not self.cached_configs:
-            return
-        # look for path as cwd or any of parents of cwd
-        cwd = Path.cwd()
-        if cwd in self.cached_configs:
-            self.default_config = self.cached_configs[cwd]
-            return
-        for parent in cwd.parents:
-            if parent in self.cached_configs:
-                self.default_config = self.cached_configs[parent]
-                return
 
     def get_default_config(self, config_path: Path | None) -> Config:
         """Get default config either from --config option or from the cli."""
@@ -757,7 +736,11 @@ class ConfigManager:
             configuration = files.read_toml_config(config_path)
             config = Config.from_toml(configuration, config_path.resolve())
         else:
-            config = Config()
+            sources = [Path(path).resolve() for path in self.sources] if self.sources else [Path.cwd()]
+            directories = files.get_common_parent_dirs(sources)
+            config = self.find_config_in_dirs(directories, default=None)
+            if not config:
+                config = Config()
         config.overwrite_from_config(self.overwrite_config)
         return config
 
@@ -767,14 +750,13 @@ class ConfigManager:
             return False
         return (path / ".git").is_dir()
 
-    def find_closest_config(self, source: Path) -> Config:
+    def find_closest_config(self, source: Path, default: Config | None) -> Config:
         """Look in the directory and its parents for the closest valid configuration file."""
-        # we always look for configuration in parent directory, unless we hit the top already
-        if not self.is_git_project_root(source) and source.parents:
-            source = source.parent
-        check_dirs = [source, *source.parents]
+        return self.find_config_in_dirs(list(source.parents), default)
+
+    def find_config_in_dirs(self, directories: list[Path], default: Config | None) -> Config:
         seen = []  # if we find config, mark all visited directories with resolved config
-        for check_dir in check_dirs:
+        for check_dir in directories:
             if check_dir in self.cached_configs:
                 return self.cached_configs[check_dir]
             seen.append(check_dir.resolve())
@@ -782,7 +764,7 @@ class ConfigManager:
                 if (config_path := (check_dir / config_filename)).is_file():
                     configuration = files.read_toml_config(config_path)
                     if configuration is not None:
-                        config = Config.from_toml(configuration, config_path.resolve())
+                        config = Config.from_toml(configuration, config_path)
                         config.overwrite_from_config(self.overwrite_config)  # TODO those two lines together
                         self.cached_configs.update({sub_dir: config for sub_dir in seen})
                         if config.verbose:
@@ -790,7 +772,7 @@ class ConfigManager:
                         return config
             if self.is_git_project_root(check_dir):
                 break
-        return self.default_config
+        return default
 
     def get_config_for_source_file(self, source_file: Path) -> Config:
         """
@@ -805,7 +787,7 @@ class ConfigManager:
         """
         if self.overridden_config or self.ignore_file_config:
             return self.default_config
-        return self.find_closest_config(source_file)
+        return self.find_closest_config(source_file, self.default_config)
 
     def resolve_paths(
         self,
@@ -826,23 +808,24 @@ class ConfigManager:
 
         """
         for source in sources:
-            source = Path(source)
+            source_not_resolved = Path(source)
+            source = source_not_resolved.resolve()
             if source in self._paths:
                 continue
             if not source.exists():  # TODO only for passed sources
                 raise errors.FatalError(f"File '{source}' does not exist")
             config = self.get_config_for_source_file(source)
             if not ignore_file_filters:
-                if config.file_filters.path_excluded(source):
+                if config.file_filters.path_excluded(source_not_resolved):
                     continue
-                if source.is_file() and not config.file_filters.path_included(source):
+                if source.is_file() and not config.file_filters.path_included(source_not_resolved):
                     continue
                 if not self.skip_gitignore:
                     if gitignores is None:
-                        source_gitignore = self.gitignore_resolver.resolve_path_ignores(source)
+                        source_gitignore = self.gitignore_resolver.resolve_path_ignores(source_not_resolved)
                     else:
                         source_gitignore = gitignores
-                    if self.gitignore_resolver.path_excluded(source, source_gitignore):
+                    if self.gitignore_resolver.path_excluded(source_not_resolved, source_gitignore):
                         continue
             if source.is_dir():
                 self.resolve_paths(source.iterdir(), gitignores)

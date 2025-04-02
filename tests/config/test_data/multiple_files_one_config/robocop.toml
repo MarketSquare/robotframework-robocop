@@ -1,0 +1,38 @@
+[tool.robocop]
+
+
+[tool.robocop.lint]
+reports = [
+    "all",
+    "return_status"
+]
+ignore = [
+    "missing-doc-keyword",
+    "missing-doc-test-case",
+    "missing-doc-suite",
+    "file-too-long",
+    "too-many-arguments",
+    "non-local-variables-should-be-uppercase",
+    "section-variable-not-uppercase",
+    "could-be-test-tags",
+]
+configure = [
+    "too-many-calls-in-test-case.max_calls=20",
+    "too-many-calls-in-keyword.max_calls=30",
+    "too-long-test-case.max_len=45",
+    "line-too-long.line_length=120",
+    "test-case-section-out-of-order.sections_order=documentation,tags,timeout,template,setup,keyword,teardown",
+    "todo-in-comment.severity=i",
+    "can-be-resource-file.severity=i",
+    "if-can-be-used.severity=i",
+    "inline-if-can-be-used.severity=i",
+    "deprecated-statement.severity=i",
+    "wrong-case-in-keyword-name.severity=w",
+    "empty-lines-between-sections.severity=w",
+    "missing-space-after-comment.severity=w",
+    "line-too-long.severity=w",
+    "hyphen-in-variable-name.severity=w",
+#    "return_status.quality_gate.E=0",
+#    "return_status.quality_gate.W=8",
+#    "return_status.quality_gate.I=-1",
+]

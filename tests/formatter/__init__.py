@@ -4,6 +4,7 @@ import filecmp
 from difflib import unified_diff
 from pathlib import Path
 
+import click
 import pytest
 from packaging import version
 from packaging.specifiers import SpecifierSet
@@ -75,7 +76,7 @@ class FormatterAcceptanceTest:
         select: list[str] | None = None,
         configure: list[str] | None = None,
         source: str | None = None,
-        # exit_code: int = 0, TODO
+        exit_code: int = 0,
         not_modified: bool = False,
         test_on_version: str | None = None,
         **kwargs,
@@ -87,22 +88,20 @@ class FormatterAcceptanceTest:
             source_path = self.FORMATTERS_DIR / self.FORMATTER_NAME / "source"
         else:
             source_path = self.FORMATTERS_DIR / self.FORMATTER_NAME / "source" / source
-        format_files(
-            sources=[source_path],
-            select=select,
-            configure=configure,
-            overwrite=True,
-            check=not_modified,
-            output=output_path,
-            line_ending="unix",
-            **kwargs,
-        )
-        # if result.exit_code != exit_code:
-        #     raise AssertionError(
-        #         f"robotidy exit code: {result.exit_code} does not match expected: {exit_code}. "
-        #         f"Exception description: {result.exception}"
-        #     )
-        # return result
+        with pytest.raises(click.exceptions.Exit) as exc_info:
+            format_files(
+                sources=[source_path],
+                select=select,
+                configure=configure,
+                overwrite=True,
+                check=not_modified,
+                output=output_path,
+                line_ending="unix",
+                **kwargs,
+            )
+        if exit_code is not None:
+            assert exc_info.value.exit_code == exit_code
+        return exc_info
 
     def compare_file(self, actual_name: str, expected_name: str | None = None):
         if expected_name is None:

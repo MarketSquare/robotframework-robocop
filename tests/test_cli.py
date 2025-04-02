@@ -1,5 +1,8 @@
 """Test CLI commands / options common for linter and formatter."""
 
+from pathlib import Path
+
+import pytest
 from typer.testing import CliRunner
 
 from robocop import __version__
@@ -91,3 +94,25 @@ class TestListFormatters:
         assert "Generated SARIF report at .sarif.json" in result.stdout
         assert "Generated JSON report at robocop.json" in result.stdout
         assert "Generated SonarQube report at robocop_sonar_qube.json" in result.stdout
+
+    @pytest.mark.parametrize(
+        ("check", "will_format", "expected_exit_code"),
+        [
+            (False, True, 0),
+            (False, False, 0),
+            (True, True, 1),
+            (True, False, 0),
+        ],
+    )
+    def test_exit_code(self, check, will_format, expected_exit_code):
+        test_data = Path(__file__).parent / "formatter" / "formatters" / "NormalizeSeparators"
+        if will_format:
+            test_data = test_data / "source"
+        else:
+            test_data = test_data / "expected"
+        command = ["format", "--select", "NormalizeSeparators", "--no-overwrite"]
+        if check:
+            command += ["--check"]
+        with working_directory(test_data):
+            result = CliRunner().invoke(app, [*command, "test.robot"])
+        assert result.exit_code == expected_exit_code

@@ -3,8 +3,9 @@ from __future__ import annotations
 import os
 import sys
 from difflib import unified_diff
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, NoReturn
 
+import typer
 from rich import console
 from robot.api import get_model
 from robot.errors import DataError
@@ -69,7 +70,7 @@ class RobocopFormatter:
                 skipped_files += 1
         return self.formatting_result(all_files, changed_files, skipped_files, stdin)
 
-    def formatting_result(self, all_files: int, changed_files: int, skipped_files: int, stdin: bool) -> int:
+    def formatting_result(self, all_files: int, changed_files: int, skipped_files: int, stdin: bool) -> NoReturn:
         """Print formatting summary and return status code."""
         if not stdin:
             all_files = all_files - changed_files - skipped_files
@@ -83,9 +84,11 @@ class RobocopFormatter:
                 f"{all_files} file{all_files_plurar}{future_tense} left unchanged."
                 + (f" {skipped_files} file{skipped_files_plurar}{future_tense} skipped." if skipped_files else "")
             )
-        if not self.config_manager.default_config.formatter.check or not changed_files:
-            return 0
-        return 1  # FIXME: ensure proper exit status is returned
+        if changed_files and self.config_manager.default_config.formatter.check:
+            exit_code = 1
+        else:
+            exit_code = 0
+        raise typer.Exit(code=exit_code)
 
     def format_until_stable(self, model: File):
         disabler_finder = disablers.RegisterDisablers(self.config.formatter.start_line, self.config.formatter.end_line)

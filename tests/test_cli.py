@@ -116,3 +116,33 @@ class TestListFormatters:
         with working_directory(test_data):
             result = CliRunner().invoke(app, [*command, "test.robot"])
         assert result.exit_code == expected_exit_code
+
+    @pytest.mark.parametrize("option_name", ["-e", "--exclude", "--default-exclude"])
+    def test_exclude_paths_linter(self, option_name):
+        test_data = Path(__file__).parent / "linter" / "rules" / "arguments" / "invalid_argument"
+        with working_directory(test_data):
+            result = CliRunner().invoke(app, ["check", option_name, "test.robot"])
+        assert result.exit_code == 0
+
+    @pytest.mark.parametrize("option_name", ["--include", "--default-include"])
+    def test_include_empty_path_linter(self, option_name):
+        test_data = Path(__file__).parent / "linter" / "rules" / "arguments" / "invalid_argument"
+        with working_directory(test_data):
+            result = CliRunner().invoke(app, ["check", option_name, "test2.robot", "-e", "test.robot"])
+        assert result.exit_code == 0
+
+    @pytest.mark.parametrize("option_name", ["-e", "--exclude", "--default-exclude"])
+    def test_exclude_paths_formatter(self, option_name):
+        test_data = Path(__file__).parent / "formatter" / "test_data" / "good_bad_files"
+        with working_directory(test_data):
+            result = CliRunner().invoke(app, ["format", "--no-overwrite", "--check", option_name, "bad.robot"])
+        assert result.exit_code == 0
+
+    @pytest.mark.parametrize("option_name", ["--include", "--default-include"])
+    def test_include_empty_path_formatter(self, option_name):
+        test_data = Path(__file__).parent / "formatter" / "test_data" / "good_bad_files"
+        with working_directory(test_data):
+            result = CliRunner().invoke(
+                app, ["format", "--no-overwrite", "--check", option_name, "good.robot", "-e", "bad.robot"]
+            )
+        assert result.exit_code == 0

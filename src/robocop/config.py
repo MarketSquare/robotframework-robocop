@@ -469,10 +469,24 @@ class FormatterConfig:
 
 @dataclass
 class FileFiltersOptions(ConfigContainer):
-    include: set[str] | None = None
+    include: set[str] | None = field(default_factory=set)
     default_include: set[str] | None = field(default_factory=lambda: DEFAULT_INCLUDE)
-    exclude: set[str] | None = None
+    exclude: set[str] | None = field(default_factory=set)
     default_exclude: set[str] | None = field(default_factory=lambda: DEFAULT_EXCLUDE)
+    _included_paths: set[str] | None = field(default=None, compare=False)
+    _excluded_paths: set[str] | None = field(default=None, compare=False)
+
+    @property
+    def included_paths(self) -> set[str]:
+        if self._included_paths is None:
+            self._included_paths = set(self.default_include).union(set(self.include))
+        return self._included_paths
+
+    @property
+    def excluded_paths(self) -> set[str]:
+        if self._excluded_paths is None:
+            self._excluded_paths = set(self.default_exclude).union(set(self.exclude))
+        return self._excluded_paths
 
     @classmethod
     def from_toml(cls, config: dict) -> FileFiltersOptions:
@@ -484,17 +498,11 @@ class FileFiltersOptions(ConfigContainer):
 
     def path_excluded(self, path: Path) -> bool:
         """Exclude all paths matching exclude patterns."""
-        exclude_paths = set(self.default_exclude)
-        if self.exclude:
-            exclude_paths |= self.exclude
-        return any(path.match(pattern) for pattern in exclude_paths)
+        return any(path.match(pattern) for pattern in self.excluded_paths)
 
     def path_included(self, path: Path) -> bool:
         """Only allow paths matching include patterns."""
-        include_paths = set(self.default_include)
-        if self.include:
-            include_paths |= self.include
-        return any(path.match(pattern) for pattern in include_paths)
+        return any(path.match(pattern) for pattern in self.included_paths)
 
 
 @dataclass

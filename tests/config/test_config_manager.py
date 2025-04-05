@@ -86,9 +86,10 @@ class TestConfigFinder:
         # Assert
         assert actual_results == expected_results
 
-    def test_single_config_all_options(self, test_data):
+    @pytest.mark.parametrize("config_dir_name", ["config_with_all_options", "config_with_all_options_hyphens"])
+    def test_single_config_all_options(self, test_data, config_dir_name):
         # Arrange
-        config_dir = test_data / "config_with_all_options"
+        config_dir = test_data / config_dir_name
         config = Config()
         config.config_source = str(config_dir / "pyproject.toml")
         config.linter.configure = ["line-too-long.line_length=110"]

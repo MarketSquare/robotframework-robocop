@@ -274,7 +274,9 @@ def migrate_deprecated_configs(config_path: Path) -> None:
         print("No [tool] section found.")
         return
     robotidy_config = tool_config.get("robotidy", {})
+    robotidy_config = {key.replace("-", "_"): value for key, value in robotidy_config.items()}
     robocop_config = tool_config.get("robocop", {})
+    robocop_config = {key.replace("-", "_"): value for key, value in robocop_config.items()}
     if not robotidy_config and not robocop_config:
         print("No [tool.robocop] or [tool.robotidy] section found.")
         return

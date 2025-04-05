@@ -1,0 +1,65 @@
+[tool.robocop]
+exclude = ["deprecated.robot"]
+default-exclude = ["archived/"]
+include = ["custom.txt"]
+default-include = ["*.robot"]
+target-version = 6
+language = ["en", "pl"]
+# config = "other_config.toml"  # ignored, --config can be only passed via cli
+# ignore_git_dir = true  # ignored, only from cli
+# skip_gitignore = true  # ignored, only from cli, but may change in the future
+
+[tool.robocop.lint]
+select = [
+    "rulename",
+    "ruleid"
+]
+ignore = [
+    "ruleid"
+]
+threshold = "W"
+reports = ["all", "sarif"]
+issue-format = "{source_abs}:{line}:{col} [{severity}] {rule_id} {desc} ({name})"
+custom-rules = [
+    "CustomRules.py"
+]
+persistent = true
+compare = true
+exit-zero = true
+configure = [
+    "line-too-long.line_length=110"
+]
+
+[tool.robocop.format]
+select = ["NormalizeNewLines"]
+custom-formatters = ["CustomFormatter.py"]
+configure = [
+    "NormalizeNewLines.flatten_lines=True"
+]
+force-order = true
+diff = true
+overwrite = false
+check = true
+space-count = 2
+indent = 3
+continuation-indent = 5
+line-length = 110
+separator = "tab"
+line-ending = "windows"
+start-line = 10
+end-line = 12
+skip = [
+    "comments",
+    "documentation"
+]
+skip-sections = [
+    "comments"
+]
+skip-keyword-call = [
+    "DeprecatedKeyword"
+]
+skip-keyword-call-pattern = [
+    "DeprecatedKeyword$"
+]
+reruns = 5
+# TODO output

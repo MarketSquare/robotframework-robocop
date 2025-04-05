@@ -505,6 +505,11 @@ class FileFiltersOptions(ConfigContainer):
         return any(path.match(pattern) for pattern in self.included_paths)
 
 
+def normalize_config_keys(config: dict[str, ...]) -> dict[str, ...]:
+    """Allow to use target_version and target-version alternative names in configuration file."""
+    return {key.replace("-", "_"): value for key, value in config.items()}
+
+
 @dataclass
 class Config:
     sources: list[str] | None = field(default_factory=lambda: ["."])
@@ -531,17 +536,20 @@ class Config:
         If there is parent configuration, use it to overwrite loaded configuration.
         """
         # TODO: validate all key and types
+        config = normalize_config_keys(config)
         Config.validate_config(config, config_path)
         parsed_config = {
             "config_source": str(config_path),
-            "linter": LinterConfig.from_toml(config.pop("lint", {}), config_path),
+            "linter": LinterConfig.from_toml(normalize_config_keys(config.pop("lint", {})), config_path),
             "file_filters": FileFiltersOptions.from_toml(config),
             "language": config.pop("language", []),
             "verbose": config.pop("verbose", False),
         }
         if "target_version" in config:
             parsed_config["target_version"] = validate_target_version(config["target_version"])
-        parsed_config["formatter"] = FormatterConfig.from_toml(config.pop("format", {}), config_path.parent)
+        parsed_config["formatter"] = FormatterConfig.from_toml(
+            normalize_config_keys(config.pop("format", {})), config_path.parent
+        )
         parsed_config = {key: value for key, value in parsed_config.items() if value is not None}
         return cls(**parsed_config)
 

@@ -7,6 +7,12 @@ Robocop 6.1.0
 Fixes
 =====
 
+could-be-test-tags and could-be-keyword-tags are not deterministic (#1377)
+--------------------------------------------------------------------------
+
+Output of TAG5 ``could-be-test-tags`` and TAG10 ``could-be-keyword-tags`` should be now deterministic and print
+tags in alphabetical order.
+
 Some options are not recognized when used with hyphens (#1378)
 ---------------------------------------------------------------
 

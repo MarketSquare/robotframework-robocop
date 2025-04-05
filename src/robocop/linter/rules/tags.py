@@ -484,6 +484,7 @@ class TagScopeChecker(VisitorChecker):
         common_tags = set.intersection(*[set(tags) for tags in self.tags])
         common_tags = common_tags - self.test_tags
         if common_tags:
+            common_tags = sorted(common_tags)
             report_node = node if self.test_tags_node is None else self.test_tags_node
             self.report(
                 self.could_be_test_tags,
@@ -564,6 +565,7 @@ class KeywordTagsChecker(VisitorChecker):
         common_keyword_tags = set.intersection(*[set(tags) for tags in self.tags_in_keywords])
         common_keyword_tags = common_keyword_tags - self.keyword_tags
         if common_keyword_tags:
+            common_keyword_tags = sorted(common_keyword_tags)
             report_node = node if self.keyword_tags_node is None else self.keyword_tags_node
             self.report(
                 self.could_be_keyword_tags,

@@ -1,0 +1,35 @@
+:orphan:
+
+=============
+Robocop 6.1.0
+=============
+
+Fixes
+=====
+
+Some options are not recognized when used with hyphens (#1378)
+---------------------------------------------------------------
+
+It should be possible to use both variants of options in configuration file - with underscores or with hyphens (
+``target_version`` or ``target-version``).
+
+Options with hyphens in name are ignored by migrate command (#1378)
+-------------------------------------------------------------------
+
+Migrate command will now correctly convert option names that uses hyphens. For example ``ext-rules`` will be converted
+to ``custom_rules``.
+
+Acknowledgements
+================
+
+Thanks to the whole community for submitting bug reports and feature requests.
+Without you, Robocop wouldn't be in the place where it is now. All the feedback
+is essential to drive the tool towards higher quality and better user
+experience.
+
+If you want to help us more, consider contributing to the project directly.
+We can offer our constant support to make the work fun and effective. We do
+our best to create a supportive and welcoming environment for everyone.
+Feel free to ping us on our official `#robocop-linter Slack channel`_ anytime.
+
+.. _#robocop-linter Slack channel: https://robotframework.slack.com/archives/C01AWSNKC2H

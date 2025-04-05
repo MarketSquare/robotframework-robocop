@@ -1,0 +1,57 @@
+[tool.other_tool]
+flag = true
+
+[other_section]
+# empty
+
+[tool.robocop]
+paths = [
+    "tests\\atest\\rules\\bad-indent",
+    "tests\\atest\\rules\\duplicated-library"
+]
+include = ['W0504', '*doc*']
+exclude = ["0203", "too-many-arguments"]
+reports = [
+    "rules_by_id",
+    "scan_timer"
+]
+ignore = ["ignore_me.robot"]
+ext-rules = ["path_to_external\\dir"]
+filetypes = [".txt", ".tsv"]
+threshold = "E"
+format = "{source}:{line}:{col} [{severity}] {rule_id} {desc} (name)1{source_rel}"
+output = "robocop.log"
+configure = [
+    "line-too-long:line_length:150",
+    "0201:severity:E"
+]
+persistent = true
+no-recursive = true
+language = [
+    "pt",
+    "fi"
+]
+verbose = false
+
+# comment that will be discarded
+[tool.robotidy]
+transform = ["AlignKeywordsSection", "SplitTooLongLine:split_on_every_arg=False"]
+skip-return-values = true
+skip-tags = false
+diff = false
+overwrite = true
+separator = "space"
+spacecount = 4
+continuation-indent = 2
+exclude = "Regex\\s"
+line-length = 120
+lineseparator = "native"
+skip-gitignore = false
+ignore-git-dir = false
+target-version = "rf4"
+configure = [
+    "OrderSettings:keyword_before=documentation,tags,timeout,arguments:keyword_after=return",
+    "OrderSettingsSection:group_order=documentation,imports,settings,tags",
+    "OrderSettingsSection:imports_order=library,resource,variables",
+    "AlignKeywordsSection : skip_return_values = False"
+]

@@ -27,13 +27,14 @@ def display_file_diff(expected, actual):
         console.print(line, end="", highlight=False)
 
 
-def test_migrate_config(tmp_path):
-    config_path = TEST_DATA / "common.toml"
+@pytest.mark.parametrize("source_config", ["common", "common_hyphens"])
+def test_migrate_config(source_config, tmp_path):
+    config_path = TEST_DATA / f"{source_config}.toml"
     expected = TEST_DATA / "common_migrated.toml"
-    actual = tmp_path / "common_migrated.toml"
+    actual = tmp_path / f"{source_config}_migrated.toml"
     shutil.copy(config_path, tmp_path)
 
-    migrate_config(tmp_path / "common.toml")
+    migrate_config(tmp_path / f"{source_config}.toml")
 
     if not filecmp.cmp(expected, actual):
         display_file_diff(expected, actual)

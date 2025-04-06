@@ -1,8 +1,8 @@
 *** Test Cases ***
 Set Variable
     VAR    ${local_variable}    value    scope=LOCAL
-    VAR    ${local_variable}    value    scope=LOCAL
-    VAR    ${local_variable}    value    scope=LOCAL
+    VAR    ${local_variable} =    value    scope=LOCAL
+    VAR    ${local_variable}=    value    scope=LOCAL
     ${local_variable=    Set Variable    value  # invalid
     ${local_variable}=    ${local_variable}=    Set Variable    value  # invalid
     ${local_variable}    ${local_variable2}    Set Variable  # invalid
@@ -83,7 +83,7 @@ Create Dictionary
         No Operation
     END
     VAR    &{dict}    &{EMPTY}    scope=LOCAL
-    VAR    &{dict}    key=value    key2=value    scope=LOCAL  # comment
+    VAR    &{dict}=    key=value    key2=value    scope=LOCAL  # comment
     ${dict}    Create Dictionary    key=value
     ...
     ...    key2=value
@@ -96,7 +96,7 @@ Create Dictionary
 Catenate
     VAR    ${string}    join    with    spaces    scope=LOCAL    separator=${SPACE}
     VAR    ${string}    join    with    spaces    scope=LOCAL    separator=${SPACE}
-    VAR    ${string}    comma    separated    list    scope=LOCAL    separator=,
+    VAR    ${string}=    comma    separated    list    scope=LOCAL    separator=,
     Catenate    No  Assign
     VAR    ${string}    single ${value}    scope=LOCAL    separator=${SPACE}
     VAR    ${multiline_with_empty}    value    ${EMPTY}    third value    scope=LOCAL    separator=${SPACE}
@@ -110,9 +110,9 @@ Catenate
 
 Set Variable If
     IF    ${rc} == 0
-        VAR    ${var1}    zero    scope=LOCAL
+        VAR    ${var1} =    zero    scope=LOCAL
     ELSE
-        VAR    ${var1}    nonzero    scope=LOCAL
+        VAR    ${var1} =    nonzero    scope=LOCAL
     END
     IF    ${rc} > 0
         VAR    ${var2}    value1    scope=LOCAL
@@ -120,16 +120,16 @@ Set Variable If
         VAR    ${var2}    value2    scope=LOCAL
     END
     IF    ${rc} > 0
-        VAR    ${var3}    whatever    scope=LOCAL
+        VAR    ${var3} =    whatever    scope=LOCAL
     ELSE
-        VAR    ${var3}    ${None}    scope=LOCAL
+        VAR    ${var3} =    ${None}    scope=LOCAL
     END
     IF    ${rc} == 0
-        VAR    ${var}    zero    scope=LOCAL
+        VAR    ${var}=    zero    scope=LOCAL
     ELSE IF    ${rc} > 0
-        VAR    ${var}    greater than zero    scope=LOCAL
+        VAR    ${var}=    greater than zero    scope=LOCAL
     ELSE
-        VAR    ${var}    less then zero    scope=LOCAL
+        VAR    ${var}=    less then zero    scope=LOCAL
     END
     ${var}    Set Variable If    ${condition}    @{items}
     ${var}    Set Variable If

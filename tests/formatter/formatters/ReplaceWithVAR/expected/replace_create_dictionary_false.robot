@@ -1,8 +1,8 @@
 *** Test Cases ***
 Set Variable
     VAR    ${local_variable}    value
-    VAR    ${local_variable}    value
-    VAR    ${local_variable}    value
+    VAR    ${local_variable} =    value
+    VAR    ${local_variable}=    value
     ${local_variable=    Set Variable    value  # invalid
     ${local_variable}=    ${local_variable}=    Set Variable    value  # invalid
     ${local_variable}    ${local_variable2}    Set Variable  # invalid
@@ -97,7 +97,7 @@ Create Dictionary
 Catenate
     VAR    ${string}    join    with    spaces    separator=${SPACE}
     VAR    ${string}    join    with    spaces    separator=${SPACE}
-    VAR    ${string}    comma    separated    list    separator=,
+    VAR    ${string}=    comma    separated    list    separator=,
     Catenate    No  Assign
     VAR    ${string}    single ${value}    separator=${SPACE}
     VAR    ${multiline_with_empty}    value    ${EMPTY}    third value    separator=${SPACE}
@@ -111,9 +111,9 @@ Catenate
 
 Set Variable If
     IF    ${rc} == 0
-        VAR    ${var1}    zero
+        VAR    ${var1} =    zero
     ELSE
-        VAR    ${var1}    nonzero
+        VAR    ${var1} =    nonzero
     END
     IF    ${rc} > 0
         VAR    ${var2}    value1
@@ -121,16 +121,16 @@ Set Variable If
         VAR    ${var2}    value2
     END
     IF    ${rc} > 0
-        VAR    ${var3}    whatever
+        VAR    ${var3} =    whatever
     ELSE
-        VAR    ${var3}    ${None}
+        VAR    ${var3} =    ${None}
     END
     IF    ${rc} == 0
-        VAR    ${var}    zero
+        VAR    ${var}=    zero
     ELSE IF    ${rc} > 0
-        VAR    ${var}    greater than zero
+        VAR    ${var}=    greater than zero
     ELSE
-        VAR    ${var}    less then zero
+        VAR    ${var}=    less then zero
     END
     ${var}    Set Variable If    ${condition}    @{items}
     ${var}    Set Variable If

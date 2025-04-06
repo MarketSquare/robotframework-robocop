@@ -47,3 +47,6 @@ class TestReplaceWithVAR(FormatterAcceptanceTest):
 
     def test_too_long(self):
         self.compare(source="too_long.robot", configure=[f"{self.FORMATTER_NAME}.enabled=True"], run_all=True)
+
+    def test_match_assignment(self):
+        self.compare(source="assignment_char.robot")

@@ -339,7 +339,7 @@ class FormatterConfig:
     allow_disabled: bool | None = False
     target_version: int | str | None = field(default=misc.ROBOT_VERSION.major, compare=False)
     skip_config: SkipConfig = field(default_factory=SkipConfig)
-    overwrite: bool | None = False
+    overwrite: bool | None = True
     diff: bool | None = False
     output: Path | None = None  # TODO
     color: bool | None = False
@@ -610,7 +610,7 @@ class Config:
                 if config_field.name == "config_source":
                     continue
                 value = getattr(overwrite_config.linter, config_field.name)
-                if value:
+                if value is not None:
                     if config_field.name == "reports":  # allows to combine cli and config for reports
                         self.linter.reports.extend(value)
                     elif config_field.name == "configure":
@@ -624,7 +624,7 @@ class Config:
                 if config_field.name in ("whitespace_config", "skip_config") or config_field.name.startswith("_"):
                     continue
                 value = getattr(overwrite_config.formatter, config_field.name)
-                if value:
+                if value is not None:
                     if config_field.name == "configure":
                         self.formatter.configure.extend(value)
                     else:

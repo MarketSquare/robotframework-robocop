@@ -1,0 +1,12 @@
+[tool.robotidy]
+skip_documentation = false
+skip_return_values = false
+skip_arguments = false
+skip_setup = false
+skip_teardown = false
+skip_timeout = false
+skip_template = false
+skip_return_statement = false
+skip_tags = false
+skip_comments = false
+skip_block_comments = false

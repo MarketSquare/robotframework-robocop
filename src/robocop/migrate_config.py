@@ -209,16 +209,17 @@ def convert_robotidy_configure(configure: list[str]) -> list[str]:
 
 def convert_skips(old_config: dict) -> list[str]:
     old_skips = [
+        "arguments",
         "documentation",
+        "tags",
         "return_values",
         "settings",
-        "arguments",
         "setup",
         "teardown",
         "timeout",
         "template",
         "return",
-        "tags",
+        "return_statement",
         "comments",
         "block_comments",
     ]

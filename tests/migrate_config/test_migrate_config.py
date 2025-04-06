@@ -27,15 +27,27 @@ def display_file_diff(expected, actual):
         console.print(line, end="", highlight=False)
 
 
-@pytest.mark.parametrize("source_config", ["common", "common_hyphens"])
-def test_migrate_config(source_config, tmp_path):
+@pytest.mark.parametrize(
+    ("source_config", "expected_config"),
+    [
+        ("common", "common_migrated.toml"),
+        ("common_hyphens", "common_migrated.toml"),
+        ("skip", "skip_migrated.toml"),
+        ("skip_false", None),
+    ],
+)
+def test_migrate_config(source_config, expected_config, tmp_path):
     config_path = TEST_DATA / f"{source_config}.toml"
-    expected = TEST_DATA / "common_migrated.toml"
+    if expected_config is None:
+        expected = None
+    else:
+        expected = TEST_DATA / expected_config
     actual = tmp_path / f"{source_config}_migrated.toml"
     shutil.copy(config_path, tmp_path)
 
     migrate_config(tmp_path / f"{source_config}.toml")
-
-    if not filecmp.cmp(expected, actual):
+    if not expected:
+        assert not actual.exists()
+    elif not filecmp.cmp(expected, actual):
         display_file_diff(expected, actual)
         pytest.fail(f"File {actual} is not same as expected")

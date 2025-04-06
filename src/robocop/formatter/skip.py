@@ -121,7 +121,17 @@ class Skip:
 
     @staticmethod
     def parse_skip_settings(skip_config):
-        settings = {"settings", "arguments", "setup", "teardown", "timeout", "template", "return_statement", "tags"}
+        settings = {
+            "settings",
+            "arguments",
+            "setup",
+            "teardown",
+            "timeout",
+            "template",
+            "return",
+            "return_statement",
+            "tags",
+        }
         skip_settings = set()
         for setting in settings:
             if setting in skip_config.skip:

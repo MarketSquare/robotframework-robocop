@@ -1,0 +1,14 @@
+[tool.robocop.format]
+skip = [
+    "arguments",
+    "documentation",
+    "tags",
+    "return_values",
+    "setup",
+    "teardown",
+    "timeout",
+    "template",
+    "return_statement",
+    "comments",
+    "block_comments",
+]

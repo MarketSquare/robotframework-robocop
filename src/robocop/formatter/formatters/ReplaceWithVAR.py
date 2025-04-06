@@ -103,9 +103,8 @@ class ReplaceWithVAR(Formatter):
         block_indent = indent + self.formatting_config.indent
         block_indent_token = Token(Token.SEPARATOR, block_indent)
         sep_token = Token(Token.SEPARATOR, self.formatting_config.separator)
-        assign = self.get_assign_names(node.assign)
         assign_tokens = misc.join_tokens_with_token(
-            [Token(Token.ASSIGN, assign_val) for assign_val in assign], sep_token
+            [Token(Token.ASSIGN, assign_val) for assign_val in node.assign], sep_token
         )
         modified = False
         head = tail = None
@@ -120,13 +119,13 @@ class ReplaceWithVAR(Formatter):
                 kw_name = misc.after_last_dot(misc.normalize_name(branch_statement.keyword))
                 if kw_name in self.SET_KW:
                     comments = branch_statement.get_tokens(Token.COMMENT)
-                    branch_statement = self.SET_KW[kw_name](branch_statement, kw_name, block_indent, assign)
+                    branch_statement = self.SET_KW[kw_name](branch_statement, kw_name, block_indent, node.assign)
                     if branch_statement is None:
                         return node
                     self.restore_comments(branch_statement, comments, block_indent)
                     modified = True
                 else:
-                    if assign:
+                    if node.assign:
                         kw_tokens = [block_indent_token, *assign_tokens, sep_token, *list(branch_statement.tokens[1:])]
                     else:
                         kw_tokens = [block_indent_token, *list(branch_statement.tokens[1:])]
@@ -191,15 +190,8 @@ class ReplaceWithVAR(Formatter):
             name = f"{name[0]}{{{name[1:]}}}"
         return name
 
-    @staticmethod
-    def resolve_assign_name(name: str) -> str:
-        return name.rstrip("=").rstrip()
-
-    def get_assign_names(self, assign: tuple[str, ...]) -> list[str]:
-        return [self.resolve_assign_name(assign) for assign in assign]
-
     def replace_set_variable(self, node, _kw_name: str, indent: str, assign: list[str] | None = None):
-        assign = assign or self.get_assign_names(node.assign)
+        assign = assign or node.assign
         args = node.get_tokens(Token.ARGUMENT)
         if not assign or (len(assign) != 1 and len(assign) != len(args)):
             return None
@@ -263,7 +255,7 @@ class ReplaceWithVAR(Formatter):
 
         # Set Variable If    @{ITEMS} -> cannot be converted
         """
-        assign = assign or self.get_assign_names(node.assign)
+        assign = assign or node.assign
         if not self.replace_set_variable_if or len(assign) != 1:
             return None
         args = [arg.value for arg in node.get_tokens(Token.ARGUMENT)]
@@ -303,7 +295,7 @@ class ReplaceWithVAR(Formatter):
             args = args[2:]
 
     def replace_catenate_kw(self, node, _kw_name: str, indent: str, assign: list[str] | None = None):
-        assign = assign or self.get_assign_names(node.assign)
+        assign = assign or node.assign
         # not items - VAR with ${EMPTY}
         if not self.replace_catenate or len(assign) != 1:
             return None
@@ -323,7 +315,7 @@ class ReplaceWithVAR(Formatter):
         return Var.from_params(name=var_name, value=values, indent=indent, value_separator=separator, scope=scope)
 
     def replace_create_list_kw(self, node, _kw_name: str, indent: str, assign: list[str] | None = None):
-        assign = assign or self.get_assign_names(node.assign)
+        assign = assign or node.assign
         if not self.replace_create_list or len(assign) != 1:
             return None
         var_name = assign[0]
@@ -357,7 +349,7 @@ class ReplaceWithVAR(Formatter):
         return combined
 
     def replace_create_dictionary_kw(self, node, _kw_name: str, indent: str, assign: list[str] | None = None):
-        assign = assign or self.get_assign_names(node.assign)
+        assign = assign or node.assign
         if not self.replace_create_dictionary or len(assign) != 1:
             return None
         var_name = assign[0]

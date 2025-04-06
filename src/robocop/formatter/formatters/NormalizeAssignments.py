@@ -121,6 +121,12 @@ class NormalizeAssignments(Formatter):
             self.normalize_equal_sign(assign_tokens[-1], self.equal_sign_type, self.file_equal_sign_type)
         return node
 
+    @skip_if_disabled
+    def visit_Var(self, node):  # noqa: N802
+        for variable in node.get_tokens(Token.VARIABLE):
+            self.normalize_equal_sign(variable, self.equal_sign_type, self.file_equal_sign_type)
+        return node
+
     def visit_VariableSection(self, node):  # noqa: N802
         for child in node.body:
             if not isinstance(child, Variable):
@@ -167,6 +173,11 @@ class AssignmentTypeDetector(ast.NodeVisitor):
             sign = self.get_assignment_sign(node.assign[-1])
             self.sign_counter[sign] += 1
 
+    def visit_Var(self, node):  # noqa: N802
+        for token in node.get_tokens(Token.VARIABLE):
+            sign = self.get_assignment_sign(token.value)
+            self.sign_counter[sign] += 1
+
     def visit_VariableSection(self, node):  # noqa: N802
         for child in node.body:
             if not isinstance(child, Variable):
@@ -178,4 +189,5 @@ class AssignmentTypeDetector(ast.NodeVisitor):
 
     @staticmethod
     def get_assignment_sign(token_value):
-        return token_value[token_value.find("}") + 1 :]
+        # rfind is used to handle nested variables:  ${${var}} =
+        return token_value[token_value.rfind("}") + 1 :]

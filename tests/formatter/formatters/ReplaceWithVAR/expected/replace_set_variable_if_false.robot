@@ -1,8 +1,8 @@
 *** Test Cases ***
 Set Variable
     VAR    ${local_variable}    value
-    VAR    ${local_variable}    value
-    VAR    ${local_variable}    value
+    VAR    ${local_variable} =    value
+    VAR    ${local_variable}=    value
     ${local_variable=    Set Variable    value  # invalid
     ${local_variable}=    ${local_variable}=    Set Variable    value  # invalid
     ${local_variable}    ${local_variable2}    Set Variable  # invalid
@@ -83,7 +83,7 @@ Create Dictionary
         No Operation
     END
     VAR    &{dict}    &{EMPTY}
-    VAR    &{dict}    key=value    key2=value  # comment
+    VAR    &{dict}=    key=value    key2=value  # comment
     ${dict}    Create Dictionary    key=value
     ...
     ...    key2=value
@@ -96,7 +96,7 @@ Create Dictionary
 Catenate
     VAR    ${string}    join    with    spaces    separator=${SPACE}
     VAR    ${string}    join    with    spaces    separator=${SPACE}
-    VAR    ${string}    comma    separated    list    separator=,
+    VAR    ${string}=    comma    separated    list    separator=,
     Catenate    No  Assign
     VAR    ${string}    single ${value}    separator=${SPACE}
     VAR    ${multiline_with_empty}    value    ${EMPTY}    third value    separator=${SPACE}

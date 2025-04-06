@@ -4,6 +4,37 @@
 Robocop 6.1.0
 =============
 
+Formatting changes
+==================
+NormalizeAssignments support for VAR (#1382)
+--------------------------------------------
+
+``NormalizeAssignments`` formatter now supports VAR. VAR allows to use assignment character in similar fashion as
+keyword calls. Following code is valid::
+
+    VAR    ${variable} =  value
+    VAR    ${variable}=   value
+    VAR    ${variable}    value=
+
+``NormalizeAssignments`` can now normalize assignments as it was already possible for keyword calls, configurable with
+``equal_sign_type`` parameter:
+
+- autodetect (default) - use most common assignment character in current file
+- remove - do not use ``=`` character
+- equal_sign - use ``=``
+- space_and_equal_sign - use `` =``
+
+ReplaceWithVAR matches original assignment character ``=`` (#1381)
+-----------------------------------------------------------------
+
+``ReplaceWithVAR`` formatter removed assignment chars when converting keywords::
+
+    ${dict}=    Create Dictionary    key=value
+
+    VAR    &{dict}    key=value
+
+Assignment character are now preserved. They can be removed / changed using ``NormalizeAssignments`` formatter.
+
 Fixes
 =====
 

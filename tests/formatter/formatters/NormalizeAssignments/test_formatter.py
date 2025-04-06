@@ -56,3 +56,12 @@ class TestNormalizeAssignments(FormatterAcceptanceTest):
 
     def test_disablers(self):
         self.compare(source="disablers.robot", not_modified=True)
+
+    @pytest.mark.parametrize("equal_sign_type", ["remove", "autodetect", "equal_sign", "space_and_equal_sign"])
+    def test_var_syntax(self, equal_sign_type):
+        self.compare(
+            source="var.robot",
+            expected=f"var_{equal_sign_type}.robot",
+            configure=[f"{self.FORMATTER_NAME}.equal_sign_type={equal_sign_type}"],
+            test_on_version=">=7",
+        )

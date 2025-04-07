@@ -56,6 +56,15 @@ Options with hyphens in name are ignored by migrate command (#1378)
 Migrate command will now correctly convert option names that uses hyphens. For example ``ext-rules`` will be converted
 to ``custom_rules``.
 
+Formatting does not overwrite files by default
+----------------------------------------------
+
+Following command::
+
+    robocop format
+
+did not overwrite files by default and required ``--overwrite`` flag. It was not expected behaviour and is now fixed.
+
 Acknowledgements
 ================
 

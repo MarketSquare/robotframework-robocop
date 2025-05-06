@@ -20,3 +20,12 @@ linter and formatter:
 
 - linter only displayed simplified message
 - formatter displayer error message which could be used to pinpoint what's the issue with the file or configuration
+
+Output is not colorized with --diff option (#1389)
+--------------------------------------------------
+
+Robocop format should now colorize output when displaying differences before and after formatting.
+``--color`` option should be now respected and will allow to disable colorized output:
+
+- ``--no-color`` in the command line
+-- or ``color = false`` in ``tool.robocop.format`` section of the configuration file

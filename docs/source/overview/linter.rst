@@ -60,7 +60,7 @@ Use ``--select`` and ``--ignore`` to select only rules to run or run all default
 
         .. code:: toml
 
-            [robocop.lint]
+            [tool.robocop.lint]
             select = [
                 "rule1",
                 "rule2",
@@ -136,7 +136,7 @@ names unless it is properly configured. You can supply language code or name in 
 
         .. code:: toml
 
-            [robocop.lint]
+            [tool.robocop.lint]
             language = [
                 "fi",
                 "pl"

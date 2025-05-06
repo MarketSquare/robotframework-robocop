@@ -42,6 +42,25 @@ If you want to see which lines are changed by tool add ``--diff`` flag:
     +    IF    $condition1    Keyword    argument
     +    IF    $condition2    RETURN
 
+Difference is colorized by default (green for added and red for removed lines). You can disable this behaviour with
+``color`` option:
+
+.. tab-set::
+
+    .. tab-item:: Cli
+
+        .. code:: shell
+
+             robocop format --diff --no-color
+
+    .. tab-item:: Configuration file
+
+        .. code:: toml
+
+            [tool.robocop.format]
+            diff = true
+            color = false
+
 File write mode
 ---------------
 Pass ``--no-overwrite`` flag to not modify the files when running the `Robocop`. Combine it with ``--diff`` to run a preview

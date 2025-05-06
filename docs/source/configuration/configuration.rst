@@ -47,7 +47,7 @@ and options in TOML format.
         [tool.robocop]
         exclude = ["deprecated.robot"]
         include = ["custom.txt"]
-        language = ["eng", "pl"]
+        language = ["en", "pl"]
 
         [tool.robocop.lint]
         select = [
@@ -68,7 +68,7 @@ and options in TOML format.
         select = ["NormalizeNewLines"]
         custom_formatters = ["CustomFormatter.py"]
         configure = [
-            "NormalizeNewLines.flatten_lines=True"
+            "NormalizeNewLines.section_lines=1"
         ]
         diff = true
         line_length = 110

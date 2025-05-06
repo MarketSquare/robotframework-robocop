@@ -48,10 +48,8 @@ class RobocopLinter:
                 print(f"Scanning file: {source}")
             try:
                 model = self.get_model_for_file_type(source, config.language)
-            except DataError:
-                print(
-                    f"Failed to decode {source}. Default supported encoding by Robot Framework is UTF-8. Skipping file"
-                )
+            except DataError as error:
+                print(f"Failed to decode {source} with an error: {error}. Skipping file")
                 continue
             files += 1
             diagnostics = self.run_check(model, source, config)

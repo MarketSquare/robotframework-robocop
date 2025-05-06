@@ -6,6 +6,8 @@ from enum import Enum
 from pathlib import Path
 from typing import TYPE_CHECKING
 
+from robot.errors import DataError
+
 from robocop.linter.utils.misc import ROBOT_VERSION
 
 try:
@@ -347,7 +349,6 @@ class FormatterConfig:
     reruns: int | None = 0
     start_line: int | None = None
     end_line: int | None = None
-    language: list[str] | None = field(default_factory=list)  # TODO: it is both part of common and formatter
     languages: Languages | None = field(default=None, compare=False)
     _parameters: dict[str, dict[str, str]] | None = field(default=None, compare=False)
     _formatters: dict[str, ...] | None = field(default=None, compare=False)
@@ -415,10 +416,6 @@ class FormatterConfig:
         if not self.force_order:
             return self.ordered_select + self.custom_formatters
         return self.select + self.custom_formatters
-
-    def load_languages(self) -> None:
-        if Languages is not None:
-            self.languages = Languages(self.language)
 
     @property
     def ordered_select(self) -> list[str]:
@@ -517,16 +514,33 @@ class Config:
     linter: LinterConfig | None = field(default_factory=LinterConfig)
     formatter: FormatterConfig | None = field(default_factory=FormatterConfig)
     language: list[str] | None = field(default_factory=list)
+    languages: Languages | None = field(default=None, compare=False)
     verbose: bool | None = field(default_factory=bool)
     target_version: int | str | None = misc.ROBOT_VERSION.major
     config_source: str = "cli"
 
     def __post_init__(self) -> None:
         self.target_version = validate_target_version(self.target_version)
+        self.load_languages()
         if self.formatter:
             self.formatter.target_version = self.target_version
+            self.formatter.languages = self.languages
         if self.linter:
             self.linter.target_version = Version(f"{self.target_version}.0")
+
+    def load_languages(self):
+        if Languages is None:
+            return
+        try:
+            self.languages = Languages(self.language)
+        except DataError:
+            languages = ", ".join(self.language)
+            print(
+                f"Failed to load languages: {languages}. "
+                f"Verify if language is one of the supported languages: "
+                f"https://robotframework.org/robotframework/latest/RobotFrameworkUserGuide.html#translations"
+            )
+            raise typer.Exit(code=1) from None
 
     @classmethod
     def from_toml(cls, config: dict, config_path: Path) -> Config:
@@ -631,8 +645,7 @@ class Config:
                         setattr(self.formatter, config_field.name, value)
             self.formatter.whitespace_config.overwrite(overwrite_config.formatter.whitespace_config)
             self.formatter.skip_config.overwrite(overwrite_config.formatter.skip_config)
-            self.formatter.language = self.language  # TODO
-            self.formatter.load_languages()
+            self.formatter.languages = self.languages
         self.file_filters.overwrite(overwrite_config.file_filters)
 
     def __str__(self):

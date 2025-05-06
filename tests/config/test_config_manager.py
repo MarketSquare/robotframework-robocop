@@ -7,6 +7,7 @@ import typer
 
 from robocop import files
 from robocop.config import Config, ConfigManager, FileFiltersOptions, FormatterConfig, LinterConfig
+from robocop.formatter.utils.misc import ROBOT_VERSION
 from robocop.linter.rules import RuleSeverity
 from robocop.linter.runner import RobocopLinter
 from tests import working_directory
@@ -460,3 +461,16 @@ class TestConfigFinder:
         # Assert
         assert out == f"Loaded {test_dir / 'robocop.toml'} configuration file.\n"
         assert len(linter.reports) > 2
+
+    def test_fail_on_invalid_language(self, capsys):
+        if ROBOT_VERSION.major < 6:
+            pytest.skip("Test enabled only for RF 6.0+")
+        with pytest.raises(typer.Exit):
+            Config(language=["invalid", "en"])
+        out, _ = capsys.readouterr()
+        expected_error = (
+            "Failed to load languages: invalid, en. "
+            "Verify if language is one of the supported languages: "
+            "https://robotframework.org/robotframework/latest/RobotFrameworkUserGuide.html#translations"
+        )
+        assert expected_error in out

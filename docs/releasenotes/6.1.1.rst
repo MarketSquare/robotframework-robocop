@@ -1,0 +1,22 @@
+:orphan:
+
+=============
+Robocop 6.1.1
+=============
+
+Incorrect language setting in formatter was silently ignored (#1387)
+--------------------------------------------------------------------
+
+When configuring Robocop with invalid language (for example ``ple`` instead of ``pl``) Robocop issued decoding error
+for each file instead of failing when reading the configuration file.
+
+Our documentation also contained configuration examples with non-existing languages, which is now fixed.
+
+Decoding errors do not display error message when linting (#1387)
+-----------------------------------------------------------------
+
+Robocop issues decoding error when the Robot Framework fails to read the file. However had different behaviour for the
+linter and formatter:
+
+- linter only displayed simplified message
+- formatter displayer error message which could be used to pinpoint what's the issue with the file or configuration

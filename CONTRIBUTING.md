@@ -23,7 +23,7 @@ Development environment
 To setup your local development environment, use install uv first:
 
 ```commandline
-pip install uv
+pip install uv==0.7.2
 ```
 
 You can now run our tests with:

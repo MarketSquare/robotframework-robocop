@@ -536,7 +536,6 @@ wheels = [
 
 [[package]]
 name = "robotframework-robocop"
-version = "6.0.0"
 source = { editable = "." }
 dependencies = [
     { name = "jinja2" },

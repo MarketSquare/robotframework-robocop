@@ -23,3 +23,4 @@ Keyword With Set Variables
         Set Suite Variable    ${SUITE_VAR}
     END
     VAR    ${var}
+    Set Variable    value

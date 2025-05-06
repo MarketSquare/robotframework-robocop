@@ -4,6 +4,14 @@
 Robocop 6.1.1
 =============
 
+Set Variable ignored by replace-set-variable-with-var rule (#1178)
+------------------------------------------------------------------
+
+``replace-set-variable-with-var`` (DEPR05) rule raise issue when ``Set Variable`` variant is used instead of VAR
+syntax. It did not recognize basic ``Set Variable`` form though (only other forms, such as ``Set Local Variable``,
+``Set Global Variable``..). It should now work properly. Since ``Set Variable`` is one of the most often used
+keywords it may lead to increased amount of issues after upgrading to this version.
+
 Incorrect language setting in formatter was silently ignored (#1387)
 --------------------------------------------------------------------
 
@@ -28,4 +36,4 @@ Robocop format should now colorize output when displaying differences before and
 ``--color`` option should be now respected and will allow to disable colorized output:
 
 - ``--no-color`` in the command line
--- or ``color = false`` in ``tool.robocop.format`` section of the configuration file
+- or ``color = false`` in ``tool.robocop.format`` section of the configuration file

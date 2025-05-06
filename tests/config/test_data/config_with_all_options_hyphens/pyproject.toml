@@ -38,6 +38,7 @@ configure = [
 ]
 force-order = true
 diff = true
+color = false
 overwrite = false
 check = true
 space-count = 2

@@ -318,7 +318,7 @@ class LinterConfig:
         config_fields = {config_field.name for config_field in fields(cls) if config_field.compare}
         # TODO assert type (list vs list etc)
         if unknown_fields := {param: value for param, value in config.items() if param not in config_fields}:
-            print(f"Unknown fields in the [robocop.lint] section: {unknown_fields}")
+            print(f"Unknown fields in the [tool.robocop.lint] section: {unknown_fields}")
             raise typer.Exit(code=1)
         override = {param: value for param, value in config.items() if param in config_fields}
         if "threshold" in config:
@@ -344,7 +344,7 @@ class FormatterConfig:
     overwrite: bool | None = True
     diff: bool | None = False
     output: Path | None = None  # TODO
-    color: bool | None = False
+    color: bool | None = True
     check: bool | None = False
     reruns: int | None = 0
     start_line: int | None = None

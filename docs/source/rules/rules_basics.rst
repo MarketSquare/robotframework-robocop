@@ -84,7 +84,7 @@ To only select and run ``missing-doc-keyword`` rule:
 
         .. code:: toml
 
-            [robocop.lint]
+            [tool.robocop.lint]
             select = [
                 "missing-doc-keyword"
             ]
@@ -103,7 +103,7 @@ To run all rules except ``missing-doc-keyword`` rule:
 
         .. code:: toml
 
-            [robocop.lint]
+            [tool.robocop.lint]
             ignore = [
                 "missing-doc-keyword"
             ]
@@ -122,7 +122,7 @@ Robocop supports glob patterns:
 
         .. code:: toml
 
-            [robocop.lint]
+            [tool.robocop.lint]
             select = [
                 "*doc*"
             ]
@@ -143,7 +143,7 @@ To configure multiple rules you can repeat option / or add more to array (config
 
         .. code:: toml
 
-            [robocop.lint]
+            [tool.robocop.lint]
             select = [
                 "rule1",
                 "rule2",
@@ -224,7 +224,7 @@ We can use ``severity_threshold`` for this purpose:
 
         .. code:: toml
 
-            [robocop.lint]
+            [tool.robocop.lint]
             configure = [
                 "line-too-long.severity_threshold=warning=120:error=200"
             ]
@@ -252,7 +252,7 @@ info message if the line is longer than 80 characters, we need to configure ``li
 
         .. code:: toml
 
-            [robocop.lint]
+            [tool.robocop.lint]
             configure = [
                 "line-too-long.line_length=80",
                 "line-too-long.severity_threshold=info=80:warning=120:error=200"

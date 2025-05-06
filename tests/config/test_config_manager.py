@@ -117,6 +117,7 @@ class TestConfigFinder:
         config.formatter.configure = ["NormalizeNewLines.flatten_lines=True"]
         config.formatter.force_order = True
         config.formatter.diff = True
+        config.formatter.color = False
         config.formatter.overwrite = False
         config.formatter.check = True
         config.formatter.start_line = 10

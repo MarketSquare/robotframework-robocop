@@ -360,6 +360,9 @@ def format_files(
     diff: Annotated[
         bool, typer.Option(help="Show difference after formatting the file", rich_help_panel="Work modes")
     ] = None,
+    color: Annotated[
+        bool, typer.Option(help="Colorized difference", show_default=True, rich_help_panel="Work modes")
+    ] = None,
     check: Annotated[
         bool,
         typer.Option(
@@ -500,6 +503,7 @@ def format_files(
         overwrite=overwrite,
         output=output,
         diff=diff,
+        color=color,
         check=check,
         start_line=start_line,
         end_line=end_line,
@@ -660,6 +664,7 @@ def list_formatters(
         overwrite=None,
         output=None,
         diff=None,
+        color=None,
         check=None,
         start_line=None,
         end_line=None,

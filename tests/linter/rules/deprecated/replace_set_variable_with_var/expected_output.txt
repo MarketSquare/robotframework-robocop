@@ -8,3 +8,4 @@ test.robot:18:5:18:23 [I] DEPR05 Setglobal Variable used instead of VAR
 test.robot:19:5:19:22 [I] DEPR05 Set Test Variable used instead of VAR
 test.robot:21:9:21:26 [I] DEPR05 Set_Task Variable used instead of VAR
 test.robot:23:9:23:27 [I] DEPR05 Set Suite Variable used instead of VAR
+test.robot:26:5:26:17 [I] DEPR05 Set Variable used instead of VAR

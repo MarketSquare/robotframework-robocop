@@ -1319,6 +1319,7 @@ class DeprecatedStatementChecker(VisitorChecker):
         "Keywords",
     }
     set_variable_keywords = {
+        "setvariable",
         "setlocalvariable",
         "settestvariable",
         "settaskvariable",

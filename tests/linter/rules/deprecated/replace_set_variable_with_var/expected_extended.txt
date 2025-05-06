@@ -98,3 +98,11 @@ test.robot:23:9 DEPR05 Set Suite Variable used instead of VAR
  25 |     VAR    ${var}
     |
 
+test.robot:26:5 DEPR05 Set Variable used instead of VAR
+    |
+ 24 |     END
+ 25 |     VAR    ${var}
+ 26 |     Set Variable    value
+    |     ^^^^^^^^^^^^ DEPR05
+    |
+

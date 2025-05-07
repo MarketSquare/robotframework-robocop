@@ -41,7 +41,7 @@ class TestSonarQubeReport:
                     "primaryLocation": {
                         "filePath": "tests/atest/rules/comments/ignored-data/test.robot",
                         "message": "Some description",
-                        "textRange": {"endColumn": 10, "endLine": 50, "startColumn": 10, "startLine": 50},
+                        "textRange": {"startLine": 50},
                     },
                     "ruleId": "0101",
                 },
@@ -49,7 +49,7 @@ class TestSonarQubeReport:
                     "primaryLocation": {
                         "filePath": "tests/atest/rules/comments/ignored-data/test.robot",
                         "message": "Some description. Example",
-                        "textRange": {"endColumn": 10, "endLine": 51, "startColumn": 10, "startLine": 50},
+                        "textRange": {"endColumn": 9, "endLine": 51, "startColumn": 9, "startLine": 50},
                     },
                     "ruleId": "0902",
                 },
@@ -57,7 +57,7 @@ class TestSonarQubeReport:
                     "primaryLocation": {
                         "filePath": "tests/atest/rules/misc/empty-return/test.robot",
                         "message": "Some description. Example",
-                        "textRange": {"endColumn": 15, "endLine": 15, "startColumn": 10, "startLine": 11},
+                        "textRange": {"endColumn": 14, "endLine": 15, "startColumn": 9, "startLine": 11},
                     },
                     "ruleId": "0902",
                 },
@@ -65,7 +65,7 @@ class TestSonarQubeReport:
                     "primaryLocation": {
                         "filePath": "tests/atest/rules/misc/empty-return/test.robot",
                         "message": "Some description",
-                        "textRange": {"endColumn": 12, "endLine": 50, "startColumn": 10, "startLine": 50},
+                        "textRange": {"endColumn": 11, "endLine": 50, "startColumn": 9, "startLine": 50},
                     },
                     "ruleId": "0101",
                 },

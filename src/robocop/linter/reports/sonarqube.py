@@ -4,7 +4,7 @@ import robocop.linter.reports
 from robocop.config import Config, ConfigManager
 from robocop.files import get_relative_path
 from robocop.linter import sonar_qube
-from robocop.linter.diagnostics import Diagnostic, Diagnostics
+from robocop.linter.diagnostics import Diagnostic, Diagnostics, Range
 from robocop.linter.rules import Rule, RuleSeverity
 
 
@@ -51,18 +51,24 @@ class SonarQubeReport(robocop.linter.reports.JsonFileReport):
             **self.get_code_attributes(diagnostic.rule),
         }
 
+    @staticmethod
+    def get_sonar_qube_range(text_range: Range) -> dict:
+        if text_range.start == text_range.end:
+            return {"startLine": text_range.start.line}
+        return {
+            "startLine": text_range.start.line,
+            "startColumn": max(text_range.start.character - 1, 0),
+            "endLine": text_range.end.line,
+            "endColumn": max(text_range.end.character - 1, 0),
+        }
+
     def get_issue_description(self, diagnostic: Diagnostic, source_rel: str) -> dict:
         return {
             "ruleId": diagnostic.rule.rule_id,
             "primaryLocation": {
                 "message": diagnostic.message,
                 "filePath": source_rel,
-                "textRange": {
-                    "startLine": diagnostic.range.start.line,
-                    "startColumn": diagnostic.range.start.character,
-                    "endLine": diagnostic.range.end.line,
-                    "endColumn": diagnostic.range.end.character,
-                },
+                "textRange": self.get_sonar_qube_range(diagnostic.range),
             },
         }
 

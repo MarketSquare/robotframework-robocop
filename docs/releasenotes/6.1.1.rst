@@ -37,3 +37,12 @@ Robocop format should now colorize output when displaying differences before and
 
 - ``--no-color`` in the command line
 - or ``color = false`` in ``tool.robocop.format`` section of the configuration file
+
+Invalid issue positions in SonarQube report (#1391)
+---------------------------------------------------
+
+Fixed issues with issue positions in SonarQube:
+
+- SonarQube doesn't accept identical start and end position. It was usually issue reported for whole file (
+  for example missing suite documentation). In such cases we are now only reporting startLine
+- column position was offset by 1 (Robocop use 1 as start position, where SonarQube uses 0)

@@ -542,10 +542,11 @@ dependencies = [
     { name = "pathspec" },
     { name = "platformdirs" },
     { name = "pytz" },
+    { name = "rich" },
     { name = "robotframework" },
     { name = "tomli", marker = "python_full_version < '3.11'" },
     { name = "tomli-w" },
-    { name = "typer" },
+    { name = "typer-slim" },
 ]
 
 [package.dev-dependencies]
@@ -572,10 +573,11 @@ requires-dist = [
     { name = "pathspec", specifier = ">=0.12" },
     { name = "platformdirs", specifier = ">=4.3" },
     { name = "pytz", specifier = ">=2022.7" },
+    { name = "rich", specifier = ">=10.11.0" },
     { name = "robotframework", specifier = ">=4.0,<7.3" },
     { name = "tomli", marker = "python_full_version < '3.11'", specifier = "==2.0.2" },
     { name = "tomli-w", specifier = ">=1.0" },
-    { name = "typer", specifier = ">=0.12.5" },
+    { name = "typer-slim", specifier = ">=0.12.5" },
 ]
 
 [package.metadata.requires-dev]
@@ -626,15 +628,6 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/49/79/acbc1edd03ac0e2a04ae2593555dbc9990b34090a9729a0c4c0cf20fb595/ruff-0.9.7-py3-none-win32.whl", hash = "sha256:e9ece95b7de5923cbf38893f066ed2872be2f2f477ba94f826c8defdd6ec6b7d", size = 9988751 },
     { url = "https://files.pythonhosted.org/packages/6d/95/67153a838c6b6ba7a2401241fd8a00cd8c627a8e4a0491b8d853dedeffe0/ruff-0.9.7-py3-none-win_amd64.whl", hash = "sha256:3770fe52b9d691a15f0b87ada29c45324b2ace8f01200fb0c14845e499eb0c2c", size = 11002987 },
     { url = "https://files.pythonhosted.org/packages/63/6a/aca01554949f3a401991dc32fe22837baeaccb8a0d868256cbb26a029778/ruff-0.9.7-py3-none-win_arm64.whl", hash = "sha256:b075a700b2533feb7a01130ff656a4ec0d5f340bb540ad98759b8401c32c2037", size = 10177763 },
-]
-
-[[package]]
-name = "shellingham"
-version = "1.5.4"
-source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/58/15/8b3609fd3830ef7b27b655beb4b4e9c62313a4e8da8c676e142cc210d58e/shellingham-1.5.4.tar.gz", hash = "sha256:8dbca0739d487e5bd35ab3ca4b36e11c4078f3a234bfce294b0a0291363404de", size = 10310 }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/e0/f9/0595336914c5619e5f28a1fb793285925a8cd4b432c9da0a987836c7f822/shellingham-1.5.4-py2.py3-none-any.whl", hash = "sha256:7ecfff8f2fd72616f7481040475a65b2bf8af90a56c89140852d1120324e8686", size = 9755 },
 ]
 
 [[package]]
@@ -878,18 +871,16 @@ wheels = [
 ]
 
 [[package]]
-name = "typer"
-version = "0.15.2"
+name = "typer-slim"
+version = "0.15.3"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "click" },
-    { name = "rich" },
-    { name = "shellingham" },
     { name = "typing-extensions" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/8b/6f/3991f0f1c7fcb2df31aef28e0594d8d54b05393a0e4e34c65e475c2a5d41/typer-0.15.2.tar.gz", hash = "sha256:ab2fab47533a813c49fe1f16b1a370fd5819099c00b119e0633df65f22144ba5", size = 100711 }
+sdist = { url = "https://files.pythonhosted.org/packages/4a/62/b569dc0bdaf733250afb4693f00a88ef16232b19f8b6b6c3ef1c245e33a7/typer_slim-0.15.3.tar.gz", hash = "sha256:c134ae789afe8957c3f5f420eed07df53621271aca192b8e497d43a29b94c878", size = 101634 }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/7f/fc/5b29fea8cee020515ca82cc68e3b8e1e34bb19a3535ad854cac9257b414c/typer-0.15.2-py3-none-any.whl", hash = "sha256:46a499c6107d645a9c13f7ee46c5d5096cae6f5fc57dd11eccbbb9ae3e44ddfc", size = 45061 },
+    { url = "https://files.pythonhosted.org/packages/92/b1/0f3d4f3e35fd82248ed5bcb70c6249baebb39f0ab3faf7f9818101eec991/typer_slim-0.15.3-py3-none-any.whl", hash = "sha256:626c125b1b01eebafdc2bb12326b401863d1c4752342e3f9c1d9f829939fe300", size = 45310 },
 ]
 
 [[package]]

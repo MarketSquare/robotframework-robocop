@@ -1,0 +1,3 @@
+variable_type_conversion.robot:3:1 [W] NAME08 Section variable '${version: float}' name is not uppercase
+variable_type_conversion.robot:8:1 [W] NAME08 Section variable '@{HIGH low: int}' name is not uppercase
+variable_type_conversion.robot:10:1 [W] NAME08 Section variable '&{DATes: date}' name is not uppercase

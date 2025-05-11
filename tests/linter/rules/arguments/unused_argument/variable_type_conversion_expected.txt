@@ -1,0 +1,4 @@
+variable_type_conversion.robot:3:20 [W] ARG01 Keyword argument '${distance: int}' is not used
+variable_type_conversion.robot:3:40 [W] ARG01 Keyword argument '${direction: Literal["UP", "DOWN"]}' is not used
+variable_type_conversion.robot:3:79 [W] ARG01 Keyword argument '${slow: bool}' is not used
+variable_type_conversion.robot:6:6 [W] ARG01 Keyword argument '${distance: int | float}' is not used

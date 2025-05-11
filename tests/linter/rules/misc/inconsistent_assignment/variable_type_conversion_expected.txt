@@ -1,0 +1,1 @@
+variable_type_conversion.robot:17:17 [W] MISC04 The assignment sign is not consistent within the file. Expected '' but got ' =' instead

@@ -52,3 +52,10 @@ class TestRuleAcceptance(RuleAcceptance):
             configure=["argument-overwritten-before-usage.unknown=value"], exit_code=2, compare_output=False
         )
         assert output == expected
+
+    def test_variable_type_conversion(self):
+        self.check_rule(
+            src_files=["variable_type_conversion.robot"],
+            expected_file="variable_type_conversion_expected.txt",
+            # test_on_version=">=7.3" FIXME
+        )

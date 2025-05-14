@@ -51,13 +51,13 @@ setup(
     python_requires=">=3.9",
     include_package_data=True,
     install_requires=[
-        "jinja2>=3.0,<4.0",
-        "robotframework>=3.2.2,<7.3",
-        "pathspec>=0.9,<0.13",
+        "jinja2>=3.0",
+        "robotframework>=3.2.2",
+        "pathspec>=0.9",
         "tomli>=2.0.0",
         "pytz>=2022.7",
         "python-dateutil>=2.8.2",
-        "platformdirs>=3.2.0,<4.4.0",
+        "platformdirs>=3.2.0",
     ],
     extras_require={
         "dev": [

@@ -1,0 +1,4 @@
+variable_type_conversion.robot:3:20 [W] ARG02 Keyword argument '${distance: int}' is overwritten before usage
+variable_type_conversion.robot:3:40 [W] ARG02 Keyword argument '${direction: Literal["UP", "DOWN"]}' is overwritten before usage
+variable_type_conversion.robot:3:79 [W] ARG02 Keyword argument '${slow: bool}=True' is overwritten before usage
+variable_type_conversion.robot:8:6 [W] ARG02 Keyword argument '${distance: int | float}' is overwritten before usage

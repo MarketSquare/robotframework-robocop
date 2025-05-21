@@ -141,3 +141,6 @@ class TestRenameVariables(FormatterAcceptanceTest):
 
     def test_template_arguments(self):
         self.compare(source="template_arguments.robot")
+
+    def test_variable_type_conversion(self):
+        self.compare(source="variable_type_conversion.robot", test_on_version=">7.2")

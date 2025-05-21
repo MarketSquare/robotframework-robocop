@@ -75,6 +75,11 @@ def rf_supports_lang() -> bool:
     return ROBOT_VERSION >= ROBOT_WITH_LANG
 
 
+def remove_variable_type_conversion(name: str) -> str:
+    name, *_ = name.split(": ", maxsplit=1)
+    return name
+
+
 def normalize_robot_name(name: str, remove_prefix: str | None = None) -> str:
     name = name.replace(" ", "").replace("_", "").lower() if name else ""
     if remove_prefix:

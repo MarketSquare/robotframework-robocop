@@ -1,0 +1,3 @@
+variable_type_conversion.robot:18:12 [W] VAR03 Local variable '${number: int}' is overwritten before usage
+variable_type_conversion.robot:27:5 [W] VAR03 Local variable '${number: int}' is overwritten before usage
+variable_type_conversion.robot:28:5 [W] VAR03 Local variable '${number: str}' is overwritten before usage

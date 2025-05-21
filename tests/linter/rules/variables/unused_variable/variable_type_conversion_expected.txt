@@ -1,0 +1,2 @@
+variable_type_conversion.robot:8:1 [I] VAR02 Variable '@{HIGH low: int}' is assigned but not used
+variable_type_conversion.robot:78:12 [I] VAR02 Variable '${var: int}' is assigned but not used

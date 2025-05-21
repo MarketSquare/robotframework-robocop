@@ -1099,7 +1099,8 @@ class SectionVariablesCollector(ast.NodeVisitor):
             return
         var_token = node.get_token(Token.VARIABLE)
         variable_match = search_variable(var_token.value, ignore_errors=True)
-        normalized = utils.normalize_robot_name(variable_match.base)
+        name = utils.remove_variable_type_conversion(variable_match.base)
+        normalized = utils.normalize_robot_name(name)
         self.section_variables[normalized] = CachedVariable(variable_match.name, var_token, is_used=False)
 
 
@@ -1195,13 +1196,12 @@ class UnusedVariablesChecker(VisitorChecker):
         for arg in node.get_tokens(Token.ARGUMENT):
             if arg.value[0] in ("@", "&"):  # ignore *args and &kwargs
                 continue
-            if "=" in arg.value:
-                arg_name, default_value = arg.value.split("=", maxsplit=1)
-                self.find_not_nested_variable(default_value, is_var=False)
-            else:
-                arg_name = arg.value
-            normalized_name = utils.normalize_robot_var_name(arg_name)
-            self.add_argument(arg_name, normalized_name, token=arg)
+            variable_match = search_variable(arg.value, ignore_errors=True)
+            if variable_match.after:
+                self.find_not_nested_variable(variable_match.after, is_var=False)
+            name = utils.remove_variable_type_conversion(variable_match.base)
+            normalized_name = utils.normalize_robot_name(name)
+            self.add_argument(variable_match.base, normalized_name, token=arg)
 
     def parse_embedded_arguments(self, name_token) -> None:
         """Store embedded arguments from keyword name. Ignore embedded variables patterns (${var:pattern})."""
@@ -1328,7 +1328,7 @@ class UnusedVariablesChecker(VisitorChecker):
         for token in node.header.get_tokens(Token.ARGUMENT, "OPTION"):  # Token.Option does not exist for RF3 and RF4
             self.find_not_nested_variable(token.value, is_var=False)
         for token in node.header.get_tokens(Token.VARIABLE):
-            self.handle_assign_variable(token)
+            self.handle_assign_variable(token, ignore_var_conversion=False)
         self.generic_visit(node)
         self.ignore_overwriting = False
         self.in_loop = False
@@ -1352,7 +1352,7 @@ class UnusedVariablesChecker(VisitorChecker):
         if self.try_assign(node) is not None:
             error_var = node.header.get_token(Token.VARIABLE)
             if error_var is not None:
-                self.handle_assign_variable(error_var)
+                self.handle_assign_variable(error_var, ignore_var_conversion=False)
         for item in node.body:
             self.visit(item)
         self.variables.pop()
@@ -1383,7 +1383,7 @@ class UnusedVariablesChecker(VisitorChecker):
         for argument in node.data_tokens:
             self.find_not_nested_variable(argument.value, is_var=False)
 
-    def handle_assign_variable(self, token) -> None:
+    def handle_assign_variable(self, token, ignore_var_conversion: bool = True) -> None:
         """
         Check if assign does not overwrite arguments or variables.
 
@@ -1391,7 +1391,10 @@ class UnusedVariablesChecker(VisitorChecker):
         """
         value = token.value
         variable_match = search_variable(value, ignore_errors=True)
-        normalized = utils.normalize_robot_name(variable_match.base)
+        name = variable_match.base
+        if ignore_var_conversion:
+            name = utils.remove_variable_type_conversion(name)
+        normalized = utils.normalize_robot_name(name)
         if not normalized:  # ie. "${_}" -> ""
             return
         arg = self.arguments.get(normalized, None)
@@ -1407,7 +1410,9 @@ class UnusedVariablesChecker(VisitorChecker):
                 is_used = variable_scope[normalized].is_used
                 if not variable_scope[normalized].is_used and not self.ignore_overwriting:
                     self.report_arg_or_var_rule(
-                        self.variable_overwritten_before_usage, variable_scope[normalized].token, variable_match.name
+                        self.variable_overwritten_before_usage,
+                        variable_scope[normalized].token,
+                        variable_scope[normalized].name,
                     )
             else:  # check for attribute access like .lower() or .x
                 for variable_scope in self.variables[::-1]:

@@ -27,3 +27,10 @@ class TestRuleAcceptance(RuleAcceptance):
 
     def test_item_assignment(self):
         self.check_rule(src_files=["item_assignment.robot"], expected_file=None)
+
+    def test_variable_type_conversion(self):
+        self.check_rule(
+            src_files=["variable_type_conversion.robot"],
+            expected_file="variable_type_conversion_expected.txt",
+            test_on_version=">7.2.1",
+        )

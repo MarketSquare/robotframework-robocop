@@ -13,6 +13,7 @@ from robocop.errors import InvalidParameterValueError
 from robocop.formatter.disablers import skip_if_disabled, skip_section_if_disabled
 from robocop.formatter.formatters import Formatter
 from robocop.formatter.utils import misc, variable_matcher
+from robocop.linter.utils.misc import remove_variable_type_conversion
 
 if TYPE_CHECKING:
     from robocop.formatter.skip import Skip
@@ -107,7 +108,7 @@ class VariablesScope:
         if len(variable) > 1 and variable[0] in "$@&" and variable[1] != "{":
             variable = f"{variable[0]}{{{variable[1:]}}}"
         match = search_variable(variable, ignore_errors=True)
-        return match.base
+        return remove_variable_type_conversion(match.base)
 
     def add_global(self, variable: str):
         var_name = self._get_var_name(variable)

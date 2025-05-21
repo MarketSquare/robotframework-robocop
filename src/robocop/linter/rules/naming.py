@@ -16,18 +16,7 @@ from robot.variables.search import search_variable
 
 from robocop.linter import sonar_qube
 from robocop.linter.rules import Rule, RuleParam, RuleSeverity, VisitorChecker, deprecated, variables
-from robocop.linter.utils.misc import (
-    ROBOT_VERSION,
-    find_robot_vars,
-    is_var_scope_local,
-    keyword_col,
-    normalize_robot_name,
-    normalize_robot_var_name,
-    pattern_type,
-    remove_nested_variables,
-    remove_robot_vars,
-    token_col,
-)
+from robocop.linter.utils import misc as utils
 from robocop.linter.utils.variable_matcher import VariableMatches
 from robocop.parsing.run_keywords import iterate_keyword_names
 
@@ -57,7 +46,7 @@ class NotAllowedCharInNameRule(Rule):
         RuleParam(
             name="pattern",
             default=re.compile(r"[\.\?]"),
-            converter=pattern_type,
+            converter=utils.pattern_type,
             show_type="regex",
             desc="pattern defining characters (not) allowed in a name",
         )
@@ -119,7 +108,7 @@ class WrongCaseInKeywordNameRule(Rule):
         RuleParam(
             name="pattern",
             default=re.compile(r""),
-            converter=pattern_type,
+            converter=utils.pattern_type,
             show_type="regex",
             desc="pattern for accepted words in keyword",
         ),
@@ -497,7 +486,7 @@ class NotAllowedCharInFilenameRule(Rule):
         RuleParam(
             name="pattern",
             default=re.compile(r"[\.\?]"),
-            converter=pattern_type,
+            converter=utils.pattern_type,
             show_type="regex",
             desc="pattern defining characters (not) allowed in a name",
         ),
@@ -593,7 +582,7 @@ class InvalidCharactersInNameChecker(VisitorChecker):
         Skips embedded variables from keyword name
         """
         node_name = node.name
-        robot_vars = find_robot_vars(node_name) if is_keyword else []
+        robot_vars = utils.find_robot_vars(node_name) if is_keyword else []
         start_pos = 0
         for variable in robot_vars:
             # Loop and skip variables:
@@ -696,7 +685,7 @@ class KeywordNamingChecker(VisitorChecker):
 
     def visit_KeywordCall(self, node) -> None:  # noqa: N802
         if self.inside_if_block and node.keyword and node.keyword.lower() in self.else_statements:
-            col = keyword_col(node)
+            col = utils.keyword_col(node)
             end_col = col + len(node.keyword)
             self.report(self.else_not_upper_case, node=node, col=col, end_col=end_col)
         self.check_keyword_naming_with_subkeywords(node, Token.KEYWORD)
@@ -714,7 +703,7 @@ class KeywordNamingChecker(VisitorChecker):
             return
         if self.check_if_keyword_is_reserved(keyword_name, node):
             return
-        normalized = remove_robot_vars(keyword_name)
+        normalized = utils.remove_robot_vars(keyword_name)
         normalized = self.wrong_case_in_keyword_name.pattern.sub("", normalized)
         normalized = normalized.split(".")[-1]  # remove any imports ie ExternalLib.SubLib.Log -> Log
         normalized = normalized.replace("'", "")  # replace ' apostrophes
@@ -743,7 +732,7 @@ class KeywordNamingChecker(VisitorChecker):
             return
         arg = node.get_token(Token.ARGUMENT)
         suffix = f". Use one space between: '{keyword_name.title()} {arg.value}'" if arg else ""
-        col = token_col(node, Token.NAME, Token.KEYWORD)
+        col = utils.token_col(node, Token.NAME, Token.KEYWORD)
         end_col = col + len(keyword_name)
         self.report(
             self.bdd_without_keyword_call,
@@ -762,7 +751,7 @@ class KeywordNamingChecker(VisitorChecker):
         if lower_name in self.else_statements and self.inside_if_block:
             return False  # handled by else-not-upper-case
         min_ver = self.reserved_words[lower_name]
-        if ROBOT_VERSION.major < min_ver:
+        if utils.ROBOT_VERSION.major < min_ver:
             return False
         error_msg = uppercase_error_msg(lower_name)
         self.report(
@@ -786,9 +775,9 @@ class SettingsNamingChecker(VisitorChecker):
     invalid_section: InvalidSectionRule
     mixed_task_test_settings: MixedTaskTestSettingsRule
 
-    ALIAS_TOKENS = [Token.WITH_NAME] if ROBOT_VERSION.major < 5 else ["WITH NAME", "AS"]
+    ALIAS_TOKENS = [Token.WITH_NAME] if utils.ROBOT_VERSION.major < 5 else ["WITH NAME", "AS"]
     # Separating alias values since RF 3 uses WITH_NAME instead of WITH NAME
-    ALIAS_TOKENS_VALUES = ["WITH NAME"] if ROBOT_VERSION.major < 5 else ["WITH NAME", "AS"]
+    ALIAS_TOKENS_VALUES = ["WITH NAME"] if utils.ROBOT_VERSION.major < 5 else ["WITH NAME", "AS"]
 
     def __init__(self):
         self.section_name_pattern = re.compile(r"\*\*\*\s.+\s\*\*\*")
@@ -825,8 +814,8 @@ class SettingsNamingChecker(VisitorChecker):
         self.task_section = None
         for section in node.sections:
             if isinstance(section, TestCaseSection):
-                if (ROBOT_VERSION.major < 6 and "task" in section.header.name.lower()) or (
-                    ROBOT_VERSION.major >= 6 and section.header.type == Token.TASK_HEADER
+                if (utils.ROBOT_VERSION.major < 6 and "task" in section.header.name.lower()) or (
+                    utils.ROBOT_VERSION.major >= 6 and section.header.type == Token.TASK_HEADER
                 ):
                     self.task_section = True
                 else:
@@ -848,7 +837,7 @@ class SettingsNamingChecker(VisitorChecker):
 
     def visit_LibraryImport(self, node) -> None:  # noqa: N802
         self.check_setting_name(node.data_tokens[0].value, node)
-        if ROBOT_VERSION.major < 6:
+        if utils.ROBOT_VERSION.major < 6:
             arg_nodes = node.get_tokens(Token.ARGUMENT)
             # ignore cases where 'AS' is used to provide library alias for RF < 5
             if arg_nodes and any(arg.value == "AS" for arg in arg_nodes):
@@ -980,6 +969,7 @@ class VariableNamingChecker(VisitorChecker):
             return  # TODO: Ignore for now, for example ${not  closed in variables will throw it
         if var_name is None:
             return  # in RF<=5, a continuation mark ` ...` is wrongly considered a variable
+        var_name = utils.remove_variable_type_conversion(var_name)
         # in Variables section, everything needs to be in uppercase
         # because even when the variable is nested, it needs to be global
         if not var_name.isupper():
@@ -997,7 +987,7 @@ class VariableNamingChecker(VisitorChecker):
             self.check_for_reserved_naming_or_hyphen(token, "Variable")
         if not node.keyword:
             return
-        if normalize_robot_name(node.keyword, remove_prefix="builtin.") in SET_VARIABLE_VARIANTS:
+        if utils.normalize_robot_name(node.keyword, remove_prefix="builtin.") in SET_VARIABLE_VARIANTS:
             if len(node.data_tokens) < 2:
                 return
             token = node.data_tokens[1]
@@ -1012,7 +1002,7 @@ class VariableNamingChecker(VisitorChecker):
             self.check_non_local_variable(var_name, node, token)
 
     def check_non_local_variable(self, variable_name: str, node, token) -> None:
-        normalized_var_name = remove_nested_variables(variable_name)
+        normalized_var_name = utils.remove_nested_variables(variable_name)
         if not normalized_var_name:
             return
         # a variable as a keyword argument can contain lowercase nested variable
@@ -1033,7 +1023,7 @@ class VariableNamingChecker(VisitorChecker):
             return
         self.check_for_reserved_naming_or_hyphen(variable, "Variable")
         # TODO: Check supported syntax for variable, ie ${{var}}?
-        if not is_var_scope_local(node):
+        if not utils.is_var_scope_local(node):
             self.check_non_local_variable(search_variable(variable.value).base, node, variable)
 
     def visit_If(self, node) -> None:  # noqa: N802
@@ -1072,7 +1062,7 @@ class VariableNamingChecker(VisitorChecker):
             )
         if variable_match.items:  # item assignments ${dict}[key] =
             return
-        normalized_name = normalize_robot_name(name)
+        normalized_name = utils.normalize_robot_name(name)
         if normalized_name in self.RESERVED_VARIABLES:
             reserved_variable = self.RESERVED_VARIABLES[normalized_name]
             self.report(
@@ -1115,11 +1105,11 @@ class SimilarVariableChecker(VisitorChecker):
         self.generic_visit(node)
 
     def visit_KeywordCall(self, node) -> None:  # noqa: N802
-        if normalize_robot_name(node.keyword, remove_prefix="builtin.") in SET_VARIABLE_VARIANTS:
+        if utils.normalize_robot_name(node.keyword, remove_prefix="builtin.") in SET_VARIABLE_VARIANTS:
             normalized, assign_value = "", ""
             for index, token in enumerate(node.data_tokens[1:]):
                 if index == 0:  # First argument is assign-like
-                    normalized = normalize_robot_var_name(token.value)
+                    normalized = utils.normalize_robot_var_name(token.value)
                     assign_value = token.value  # process assign last, cache for now
                 else:
                     self.find_not_nested_variable(token, token.value, is_var=False)
@@ -1137,7 +1127,7 @@ class SimilarVariableChecker(VisitorChecker):
             self.find_not_nested_variable(arg, arg.value, is_var=False)
         variable = node.get_token(Token.VARIABLE)
         if variable:
-            self.find_similar_variables([variable], node, ignore_overwriting=not is_var_scope_local(node))
+            self.find_similar_variables([variable], node, ignore_overwriting=not utils.is_var_scope_local(node))
 
     def visit_If(self, node) -> None:  # noqa: N802
         for token in node.header.get_tokens(Token.ARGUMENT):
@@ -1153,7 +1143,7 @@ class SimilarVariableChecker(VisitorChecker):
 
     @staticmethod
     def for_assign_vars(for_node) -> Iterable[str]:
-        if ROBOT_VERSION.major < 7:
+        if utils.ROBOT_VERSION.major < 7:
             yield from for_node.variables
         else:
             yield from for_node.assign
@@ -1162,7 +1152,7 @@ class SimilarVariableChecker(VisitorChecker):
         for token in node.header.get_tokens(Token.ARGUMENT):
             self.find_not_nested_variable(token, token.value, is_var=False)
         for var in self.for_assign_vars(node):
-            self.assigned_variables[normalize_robot_var_name(var)].append(var)
+            self.assigned_variables[utils.normalize_robot_var_name(var)].append(var)
         self.generic_visit(node)
 
     visit_ForLoop = visit_For  # noqa: N815
@@ -1181,7 +1171,7 @@ class SimilarVariableChecker(VisitorChecker):
                     var_name, *pattern = token.value.split(":", maxsplit=1)
                     if pattern:
                         var_name = var_name + "}"  # recreate, so it handles ${variable:pattern} -> ${variable} matching
-                    normalized_name = normalize_robot_var_name(var_name)
+                    normalized_name = utils.normalize_robot_var_name(var_name)
                     self.assigned_variables[normalized_name].append(var_name)
         except VariableError:
             pass
@@ -1193,7 +1183,7 @@ class SimilarVariableChecker(VisitorChecker):
         :param value: name of variable found in token value string
         :param offset: starting position of variable in token value string
         """
-        normalized = normalize_robot_name(value)
+        normalized = utils.normalize_robot_name(value)
         if normalized not in self.assigned_variables:
             return  # we could handle attr access here, ignoring now
         latest_assign = self.assigned_variables[normalized][-1]
@@ -1254,14 +1244,14 @@ class SimilarVariableChecker(VisitorChecker):
                 for token in child.get_tokens(Token.ARGUMENT):
                     variable_match = search_variable(token.value, ignore_errors=True)
                     name = variable_match.name
-                    normalized = normalize_robot_name(variable_match.base)
+                    normalized = utils.normalize_robot_name(variable_match.base)
                     self.assigned_variables[normalized].append(name)
 
     def find_similar_variables(self, tokens, node, ignore_overwriting: bool = False) -> None:
         for token in tokens:
             variable_match = search_variable(token.value, ignore_errors=True)
             name = variable_match.name
-            normalized = normalize_robot_name(variable_match.base)
+            normalized = utils.normalize_robot_name(variable_match.base)
             if (
                 not ignore_overwriting
                 and normalized in self.assigned_variables
@@ -1346,7 +1336,7 @@ class DeprecatedStatementChecker(VisitorChecker):
 
     def visit_Return(self, node) -> None:  # noqa: N802
         """For RETURN use visit_ReturnStatement - visit_Return will most likely visit RETURN in the future"""
-        if ROBOT_VERSION.major not in (5, 6):
+        if utils.ROBOT_VERSION.major not in (5, 6):
             return
         self.check_deprecated_return(node)
 
@@ -1359,13 +1349,13 @@ class DeprecatedStatementChecker(VisitorChecker):
             statement_name="[Return]",
             alternative="RETURN",
             node=node,
-            col=token_col(node, Token.RETURN),
+            col=utils.token_col(node, Token.RETURN),
             end_col=node.end_col_offset,
             version="5.*",
         )
 
     def visit_ForceTags(self, node) -> None:  # noqa: N802
-        if ROBOT_VERSION.major < 6:
+        if utils.ROBOT_VERSION.major < 6:
             return
         setting_name = node.data_tokens[0].value.lower()
         if setting_name == "force tags":
@@ -1374,19 +1364,19 @@ class DeprecatedStatementChecker(VisitorChecker):
                 statement_name="Force Tags",
                 alternative="Test Tags",
                 node=node,
-                col=token_col(node, Token.FORCE_TAGS),
+                col=utils.token_col(node, Token.FORCE_TAGS),
                 end_col=node.col_offset + len(setting_name) + 1,
                 version="6.0",
             )
 
     def check_if_keyword_is_deprecated(self, keyword_name, node) -> None:
-        normalized_keyword_name = normalize_robot_name(keyword_name, remove_prefix="builtin.")
+        normalized_keyword_name = utils.normalize_robot_name(keyword_name, remove_prefix="builtin.")
         if normalized_keyword_name not in self.deprecated_keywords:
             return
         version, alternative = self.deprecated_keywords[normalized_keyword_name]
-        if version > ROBOT_VERSION.major:
+        if version > utils.ROBOT_VERSION.major:
             return
-        col = token_col(node, Token.NAME, Token.KEYWORD)
+        col = utils.token_col(node, Token.NAME, Token.KEYWORD)
         self.report(
             self.deprecated_statement,
             statement_name=keyword_name,
@@ -1398,10 +1388,10 @@ class DeprecatedStatementChecker(VisitorChecker):
         )
 
     def check_keyword_can_be_replaced_with_var(self, keyword_name, node) -> None:
-        if ROBOT_VERSION.major < 7:
+        if utils.ROBOT_VERSION.major < 7:
             return
-        normalized = normalize_robot_name(keyword_name, remove_prefix="builtin.")
-        col = token_col(node, Token.NAME, Token.KEYWORD)
+        normalized = utils.normalize_robot_name(keyword_name, remove_prefix="builtin.")
+        col = utils.token_col(node, Token.NAME, Token.KEYWORD)
         if normalized in self.set_variable_keywords:
             self.report(
                 self.replace_set_variable_with_var,
@@ -1420,7 +1410,7 @@ class DeprecatedStatementChecker(VisitorChecker):
             )
 
     def visit_LibraryImport(self, node) -> None:  # noqa: N802
-        if ROBOT_VERSION.major < 5 or (ROBOT_VERSION.major == 5 and ROBOT_VERSION.minor == 0):
+        if utils.ROBOT_VERSION.major < 5 or (utils.ROBOT_VERSION.major == 5 and utils.ROBOT_VERSION.minor == 0):
             return
         with_name_token = node.get_token(Token.WITH_NAME)
         if not with_name_token or with_name_token.value == "AS":

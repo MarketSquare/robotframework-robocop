@@ -1,0 +1,19 @@
+:orphan:
+
+=============
+Robocop 6.3.0
+=============
+
+SonarQube 10.3+ support (#1405)
+--------------------------------
+
+There are two major SonarQube versions supported with different report syntax. I have added option to configure used
+Sonar Qube version (minimal supported) to adjust Robocop report syntax::
+
+    robocop check --configure sonarqube.sonar_version=9.9
+
+Allowed values:
+
+- 10.3 (default)
+- 9.9
+

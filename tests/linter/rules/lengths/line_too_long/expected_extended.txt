@@ -10,7 +10,7 @@ test.robot:27:120 LEN08 Line is too long (159/120)
     |
  25 | *** Keywords ***
  26 | Keyword
- 27 |   [Documentation]  this is looooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooong doc
+ 27 |     [Documentation]  this is looooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooong doc
     |                                                                                                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ LEN08
  28 |     No Operation
  29 |     Pass

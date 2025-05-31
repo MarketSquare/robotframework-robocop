@@ -17,3 +17,11 @@ Allowed values:
 - 10.3 (default)
 - 9.9
 
+SonarQube issue position fixes (#1400, #1404)
+---------------------------------------------
+
+SonarQube requires to follow its own set of rules when parsing the issue positions. Some rules need to be additionally
+handled:
+
+- SPC03, SPC04, SPC05, SPC09 rule positions will not have column position anymore
+- LEN07, LEN08, LEN26, DUP rules will have adjusted end col

@@ -855,13 +855,14 @@ class EmptyLinesChecker(VisitorChecker):
                 else:
                     break
             if empty_lines != self.empty_lines_between_sections.empty_lines:
+                extra_lines = empty_lines - self.empty_lines_between_sections.empty_lines - 1
                 self.report(
                     self.empty_lines_between_sections,
                     empty_lines=empty_lines,
                     allowed_empty_lines=self.empty_lines_between_sections.empty_lines,
-                    lineno=section.end_lineno,
+                    lineno=section.end_lineno - (extra_lines + 1 if extra_lines > 0 else 0),
+                    end_lineno=section.end_lineno,
                     col=1,
-                    end_col=child.end_col_offset,
                 )
         super().visit_File(node)
 

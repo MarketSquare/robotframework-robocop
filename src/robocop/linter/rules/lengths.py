@@ -692,7 +692,7 @@ class LengthChecker(VisitorChecker):
                         max_allowed_count=self.too_many_arguments.max_args,
                         node=name_token,
                         end_lineno=child.end_lineno,
-                        end_col=child.end_col_offset + 1,
+                        end_col=child.end_col_offset,
                         extended_disablers=(node.lineno, node.end_lineno),
                         sev_threshold_value=args_number,
                     )
@@ -802,6 +802,7 @@ class LineLengthChecker(RawFileChecker):
     """Checker for maximum length of a line."""
 
     line_too_long: LineTooLongRule
+    # TODO: handle new robocop format disablers
     # replace `noqa` or `# robocop`, `# robocop: on`, `# robocop: off=optional,rule,names`
     disabler_pattern = re.compile(r"(# )+(noqa|robocop: ?(?P<disabler>off|on) ?=?(?P<rules>[\w\-,]*))")
 
@@ -1031,7 +1032,7 @@ class EmptySettingsChecker(VisitorChecker):
                 block_name=self.parent_node_name,
                 node=node,
                 col=node.data_tokens[0].col_offset + 1,
-                end_col=node.end_col_offset + 1,
+                end_col=node.end_col_offset,
             )
 
 

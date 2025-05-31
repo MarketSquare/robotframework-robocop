@@ -5,7 +5,7 @@ from robocop.config import Config, ConfigManager
 from robocop.errors import ConfigurationError
 from robocop.files import get_relative_path
 from robocop.linter import sonar_qube
-from robocop.linter.diagnostics import Diagnostic, Diagnostics, Range
+from robocop.linter.diagnostics import Diagnostic, Diagnostics
 from robocop.linter.rules import Rule, RuleSeverity
 
 
@@ -82,7 +82,11 @@ class SonarQubeGenerator:
         raise NotImplementedError
 
     @staticmethod
-    def get_sonar_qube_range(text_range: Range) -> dict:
+    def get_sonar_qube_range(diagnostic: Diagnostic) -> dict:
+        text_range = diagnostic.range
+        # reports on empty lines
+        if diagnostic.rule.rule_id in {"SPC03", "SPC04", "SPC05", "SPC09"}:
+            return {"startLine": text_range.start.line, "endLine": text_range.end.line}
         if text_range.start == text_range.end:
             return {"startLine": text_range.start.line}
         return {
@@ -98,7 +102,7 @@ class SonarQubeGenerator:
             "primaryLocation": {
                 "message": diagnostic.message,
                 "filePath": source_rel,
-                "textRange": self.get_sonar_qube_range(diagnostic.range),
+                "textRange": self.get_sonar_qube_range(diagnostic),
             },
         }
 

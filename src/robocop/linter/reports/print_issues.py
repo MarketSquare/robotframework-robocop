@@ -146,7 +146,10 @@ class PrintIssuesReport(robocop.linter.reports.Report):
         return f"[cyan]{line_no:>{gutter_width}} |[/cyan]{indent}"
 
     def _print_lines(self, lines: list[str]) -> None:
-        self.console.print("\n".join(line.rstrip() for line in lines))
+        self.console.print("\n".join(line.expandtabs(4).rstrip() for line in lines))
+
+    def _code_string(self, line: str) -> str:
+        return escape(line.expandtabs(4))
 
     def _print_issue_with_lines(self, lines: list[str], source_rel_path: Path, diagnostic: Diagnostic) -> None:
         """
@@ -185,10 +188,14 @@ class PrintIssuesReport(robocop.linter.reports.Report):
             for line_no in range(start_line - 2, start_line):
                 if line_no < 1:
                     continue
-                print_lines.append(f"{self._gutter(line_no, gutter_width, indent)} {escape(lines[line_no - 1])}")
+                print_lines.append(
+                    f"{self._gutter(line_no, gutter_width, indent)} {self._code_string(lines[line_no - 1])}"
+                )
         # issue
         if start_line == end_line:  # error in one line (most cases)
-            print_lines.append(f"{self._gutter(start_line, gutter_width, indent)} {escape(lines[start_line - 1])}")
+            print_lines.append(
+                f"{self._gutter(start_line, gutter_width, indent)} {self._code_string(lines[start_line - 1])}"
+            )
             print_lines.append(
                 f"{self._gutter(' ', gutter_width, indent)} "
                 f"[red]{' ' * (start_col - 1)}{'^' * max(end_col - start_col, 1)} {diagnostic.rule.rule_id}[/red]"
@@ -197,14 +204,15 @@ class PrintIssuesReport(robocop.linter.reports.Report):
             for line in range(start_line, end_line + 1):
                 sep = "/" if line == start_line else "|"
                 print_lines.append(
-                    f"{self._gutter(line, gutter_width, indent='')} [red]{sep}[/red] {escape(lines[line - 1])}"
+                    f"{self._gutter(line, gutter_width, indent='')} [red]{sep}[/red] "
+                    f"{self._code_string(lines[line - 1])}"
                 )
             print_lines.append(f"{self._gutter(' ', gutter_width, indent='')} [red]|_^ {diagnostic.rule.rule_id}[/red]")
         # code after issue
         for line_no in range(end_line + 1, end_line + 3):
             if line_no > len(lines) or not lines[line_no - 1].strip():
                 break
-            print_lines.append(f"{self._gutter(line_no, gutter_width, indent)} {escape(lines[line_no - 1])}")
+            print_lines.append(f"{self._gutter(line_no, gutter_width, indent)} {self._code_string(lines[line_no - 1])}")
         print_lines.append(self._gutter(" ", gutter_width, ""))
         self._print_lines(print_lines)
         print()

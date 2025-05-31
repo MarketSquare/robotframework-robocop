@@ -3,7 +3,7 @@ test.robot:17:5 LEN07 Keyword 'Keyword With Too Many Arguments' has too many arg
  15 | Keyword With Too Many Arguments
  16 |     [Documentation]  this is doc
  17 |     [Arguments]  ${var1}  @{var2}  ${var3}  ${var4}  ${var5}  ${var6}
-    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ LEN07
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ LEN07
  18 |     No Operation
  19 |     Pass
     |

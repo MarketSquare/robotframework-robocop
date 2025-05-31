@@ -297,7 +297,7 @@ class DuplicationsChecker(VisitorChecker):
         for nodes in container.values():
             for duplicate in nodes[1:]:
                 if underline_whole_line:
-                    end_col = duplicate.end_col_offset + 1
+                    end_col = duplicate.end_col_offset
                 else:
                     end_col = duplicate.col_offset + len(duplicate.name) + 1
                 self.report(
@@ -409,7 +409,7 @@ class DuplicationsChecker(VisitorChecker):
                     error_msg=error,
                     node=node,
                     col=node.data_tokens[0].col_offset + 1,
-                    end_col=node.data_tokens[0].end_col_offset,
+                    end_col=node.data_tokens[0].end_col_offset + 1,
                 )
 
 

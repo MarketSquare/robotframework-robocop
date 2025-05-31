@@ -65,3 +65,6 @@ class TestNormalizeAssignments(FormatterAcceptanceTest):
             configure=[f"{self.FORMATTER_NAME}.equal_sign_type={equal_sign_type}"],
             test_on_version=">=7",
         )
+
+    def test_bug_1407(self):
+        self.compare(source="most_common_attr.robot", not_modified=True)

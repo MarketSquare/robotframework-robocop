@@ -17,6 +17,9 @@ Allowed values:
 - 10.3 (default)
 - 9.9
 
+Fixes
+=====
+
 SonarQube issue position fixes (#1400, #1404)
 ---------------------------------------------
 
@@ -25,3 +28,13 @@ handled:
 
 - SPC03, SPC04, SPC05, SPC09 rule positions will not have column position anymore
 - LEN07, LEN08, LEN26, DUP rules will have adjusted end col
+
+Variables attribute access recognized as variable sign (#1407)
+--------------------------------------------------------------
+
+Fixed issue where variables with attribute access were incorrectly recognized as assignment sign by
+``NormalizeAssignments`` formatter::
+
+    ${variable}[attribute]    Save Value To Attribute
+
+This could lead to either removal or duplication of variable attributes.

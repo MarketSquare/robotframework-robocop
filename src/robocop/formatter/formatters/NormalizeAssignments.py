@@ -3,6 +3,7 @@ import re
 from collections import Counter
 
 from robot.api.parsing import Token, Variable
+from robot.variables.search import search_variable
 
 from robocop.errors import InvalidParameterValueError
 from robocop.formatter.disablers import skip_if_disabled, skip_section_if_disabled
@@ -189,5 +190,5 @@ class AssignmentTypeDetector(ast.NodeVisitor):
 
     @staticmethod
     def get_assignment_sign(token_value):
-        # rfind is used to handle nested variables:  ${${var}} =
-        return token_value[token_value.rfind("}") + 1 :]
+        variable_match = search_variable(token_value, ignore_errors=True)
+        return variable_match.after

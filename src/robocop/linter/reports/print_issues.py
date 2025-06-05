@@ -71,6 +71,10 @@ class PrintIssuesReport(robocop.linter.reports.Report):
 
         robocop check --issue-format "{source}:{line}:{col} [{severity}] {rule_id} {desc} ({name})"
 
+    Format of extended output type can be configured with ``issue_format`` parameter::
+
+        robocop check --configure print_issues.issue_format="{source}"
+
     """  # noqa: E501
 
     NO_ALL = False
@@ -81,12 +85,15 @@ class PrintIssuesReport(robocop.linter.reports.Report):
         self.description = "Collect and print rules messages"
         self.diagn_by_source: dict[str, list[Diagnostic]] = {}
         self.output_format = OutputFormat.EXTENDED
+        self.issue_format = None
         self.console = Console(highlight=False, soft_wrap=True)
         super().__init__(config)
 
     def configure(self, name: str, value: str) -> None:
         if name == "output_format":
             self.output_format = OutputFormat(value)
+        elif name == "issue_format":
+            self.issue_format = value
         else:
             super().configure(name, value)
 
@@ -168,10 +175,17 @@ class PrintIssuesReport(robocop.linter.reports.Report):
         """
         start_line, end_line = diagnostic.range.start.line, diagnostic.range.end.line
         start_col, end_col = diagnostic.range.start.character, diagnostic.range.end.character
-        self.console.print(
-            f"{source_rel_path}:{start_line}:{start_col} "
-            f"[red]{diagnostic.rule.rule_id}[/red] {escape(diagnostic.message)}"
+        issue_format = (
+            self.issue_format if self.issue_format is not None else "{source}:{line}:{col} [red]{rule_id}[/red] {desc}"
         )
+        issue_msg = issue_format.format(
+            source=source_rel_path,
+            line=start_line,
+            col=start_col,
+            rule_id=diagnostic.rule.rule_id,
+            desc=escape(diagnostic.message),
+        )
+        self.console.print(issue_msg)
         if diagnostic.rule.file_wide_rule or start_line > len(lines):
             return
         start_line = max(start_line, 1)

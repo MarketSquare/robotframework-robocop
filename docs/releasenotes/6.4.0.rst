@@ -1,0 +1,23 @@
+:orphan:
+
+=============
+Robocop 6.4.0
+=============
+
+Configurable issue format in extended print_issues report (#1410)
+-----------------------------------------------------------------
+
+Robocop 6.0 introduced ``print_issues`` format with new output formats (including now default ``extended``).
+Old parameter for configuring format of the line was renamed to ``--issue-format`` but only affects ``simple``
+output format.
+
+As partial solution for it, this release adds ``issue_format`` parameter to ``print_issues`` report that allows
+to change format of the line::
+
+    > robocop check -c print_issues.issue_format="{source}
+
+    set_variable.robot
+        |
+     17 | Set Variables For Dev
+        | ^^^^^^^^^^^^^^^^^^^^^ DOC01
+     18 |     No Operation

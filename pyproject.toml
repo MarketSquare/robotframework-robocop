@@ -15,7 +15,7 @@ dependencies = [
     "robotframework>=4.0,<7.4",
     "typer-slim>=0.12.5",
     "rich>=10.11.0",
-    "tomli==2.0.2; python_version < '3.11'",
+    "tomli==2.2.1; python_version < '3.11'",
     "tomli-w>=1.0",
     "pathspec>=0.12",
     "platformdirs>=4.3",

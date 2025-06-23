@@ -1,0 +1,10 @@
+:orphan:
+
+=============
+Robocop 6.5.0
+=============
+
+Updated fixed tomli version for Python <3.11
+---------------------------------------------
+
+From tomli==2.0.2 to 2.2.1.

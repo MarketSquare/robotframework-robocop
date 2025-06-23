@@ -54,6 +54,7 @@ jobs:
           uv pip install robotframework==${{ matrix.rf-version }}
 
       - name: Run tests
-        run: |
-          uv run coverage run --source src/robocop -m pytest
-          uv run coverage report
+        run: uv run coverage run --source src/robocop -m pytest
+
+      - name: Calculate coverage
+        run: uv run coverage report

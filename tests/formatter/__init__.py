@@ -96,7 +96,7 @@ class FormatterAcceptanceTest:
                 overwrite=True,
                 check=not_modified,
                 output=output_path,
-                line_ending="unix",
+                # line_ending="unix",
                 **kwargs,
             )
         if exit_code is not None:

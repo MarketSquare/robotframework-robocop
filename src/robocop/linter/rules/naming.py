@@ -713,7 +713,7 @@ class KeywordNamingChecker(VisitorChecker):
                 keyword_name=keyword_name,
                 node=node,
                 col=node.col_offset + 1,
-                end_col=node.end_col_offset + 1,
+                end_col=node.col_offset + len(keyword_name.rstrip()) + 1,
             )
         words = self.letter_pattern.sub(" ", normalized).split(" ")
         if self.wrong_case_in_keyword_name.convention == "first_word_capitalized":

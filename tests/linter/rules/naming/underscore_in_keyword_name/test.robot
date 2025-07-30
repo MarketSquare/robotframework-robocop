@@ -34,3 +34,7 @@ Run Keywords
     ...        Name    ${arg}    AND
     ...        _Underscore    1    AND
     ...        Under_sc ore
+
+Short Keyword With_Underscores
+    [Documentation]    BUG:GITHUB-1417
+    Line Longer Than Keyword Name

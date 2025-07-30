@@ -69,7 +69,7 @@ class RenameKeywords(Formatter):
         self.replace_pattern = self.parse_pattern(replace_pattern)
         self.replace_to = "" if replace_to is None else replace_to
 
-    def parse_keyword_case(self, value: str) -> str:
+    def parse_keyword_case(self, value: str) -> str:  # FIXME: not used
         conventions = ("capitalize_words", "capitalize_first", "ignore")
         if value not in conventions:
             raise InvalidParameterValueError(

@@ -7,4 +7,5 @@ Rule location fixes (#1417)
 
 Additional fixes to our rule locations. Following rule(s) have their location adjusted to real location:
 
-- NAME04 ``underscore-in-keyword-name``
+- NAME04 ``underscore-in-keyword-name`` (which used last line in keyword for end column instead of keyword name)
+- ARG07 ``arguments-per-line`` (which was offset by 1)

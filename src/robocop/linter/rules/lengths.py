@@ -1077,7 +1077,7 @@ class TooManyArgumentsInLineChecker(VisitorChecker):
                         self.arguments_per_line,
                         node=data_token,
                         col=data_token.col_offset + 1,
-                        end_col=last_token.end_col_offset + 1,
+                        end_col=last_token.end_col_offset,
                         arguments_count=args_count,
                         max_arguments_count=max_args,
                     )

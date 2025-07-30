@@ -41,3 +41,11 @@ test.robot:36:16 NAME04 Underscores in keyword name 'Under_sc ore'
     |                ^^^^^^^^^^^^ NAME04
     |
 
+test.robot:38:1 NAME04 Underscores in keyword name 'Short Keyword With_Underscores'
+    |
+ 38 | Short Keyword With_Underscores
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ NAME04
+ 39 |     [Documentation]    BUG:GITHUB-1417
+ 40 |     Line Longer Than Keyword Name
+    |
+

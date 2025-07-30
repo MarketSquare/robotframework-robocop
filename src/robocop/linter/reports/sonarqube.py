@@ -85,7 +85,7 @@ class SonarQubeGenerator:
     def get_sonar_qube_range(diagnostic: Diagnostic) -> dict:
         text_range = diagnostic.range
         # reports on empty lines
-        if diagnostic.rule.rule_id in {"SPC03", "SPC04", "SPC05", "SPC09"}:
+        if diagnostic.rule.rule_id in {"SPC03", "SPC04", "SPC05", "SPC09", "SPC12"}:
             return {"startLine": text_range.start.line, "endLine": text_range.end.line}
         if text_range.start == text_range.end:
             return {"startLine": text_range.start.line}

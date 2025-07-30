@@ -9,3 +9,4 @@ Additional fixes to our rule locations. Following rule(s) have their location ad
 
 - NAME04 ``underscore-in-keyword-name`` (which used last line in keyword for end column instead of keyword name)
 - ARG07 ``arguments-per-line`` (which was offset by 1)
+- SPC12 ``consecutive-empty-lines`` (which reported start/end column positions in SonarQube report)

@@ -18,18 +18,21 @@ VERSION_MATRIX = {"ReplaceReturns": 5, "InlineIf": 5, "ReplaceBreakContinue": 5,
 ROBOT_VERSION = version.parse(RF_VERSION)
 
 
-def display_file_diff(expected, actual):
-    print("\nExpected file after formatting does not match actual")
+def display_file_diff(expected, actual) -> bool:
     with open(expected, encoding="utf-8") as f, open(actual, encoding="utf-8") as f2:
         expected_lines = f.readlines()
         actual_lines = f2.readlines()
+    if expected_lines == actual_lines:
+        return False
     lines = list(
         unified_diff(expected_lines, actual_lines, fromfile=f"expected: {expected}\t", tofile=f"actual: {actual}\t")
     )
     colorized_output = decorate_diff_with_color(lines)
+    print("\nExpected file after formatting does not match actual")
     console = Console(color_system="windows", width=400)
     for line in colorized_output:
         console.print(line, end="", highlight=False)
+    return True
 
 
 class FormatterAcceptanceTest:
@@ -107,8 +110,7 @@ class FormatterAcceptanceTest:
             expected_name = actual_name
         expected = self.FORMATTERS_DIR / self.FORMATTER_NAME / "expected" / expected_name
         actual = self.FORMATTERS_DIR / self.FORMATTER_NAME / "actual" / actual_name
-        if not filecmp.cmp(expected, actual):
-            display_file_diff(expected, actual)
+        if not filecmp.cmp(expected, actual) and display_file_diff(expected, actual):
             pytest.fail(f"File {actual_name} is not same as expected")
 
     def enabled_in_version(self, target_version: str | None) -> bool:

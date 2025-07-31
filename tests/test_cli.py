@@ -1,6 +1,7 @@
 """Test CLI commands / options common for linter and formatter."""
 
 from pathlib import Path
+from unittest.mock import patch
 
 import pytest
 from typer.testing import CliRunner
@@ -104,7 +105,7 @@ class TestListFormatters:
             (True, False, 0),
         ],
     )
-    def test_exit_code(self, check, will_format, expected_exit_code):
+    def test_check_exit_code(self, check, will_format, expected_exit_code):
         test_data = Path(__file__).parent / "formatter" / "formatters" / "NormalizeSeparators"
         if will_format:
             test_data = test_data / "source"
@@ -116,6 +117,25 @@ class TestListFormatters:
         with working_directory(test_data):
             result = CliRunner().invoke(app, [*command, "test.robot"])
         assert result.exit_code == expected_exit_code
+
+    @pytest.mark.parametrize(
+        ("check", "overwrite", "will_write"),
+        [(True, False, False), (False, False, True), (True, True, True), (False, True, True)],
+    )
+    def test_check_overwrite_mode(self, check, overwrite, will_write):
+        test_data = Path(__file__).parent / "formatter" / "formatters" / "NormalizeNewLines" / "source"
+        command = ["format", "--select", "NormalizeNewLines"]
+        if check:
+            command.append("--check")
+        if overwrite:
+            command.append("--overwrite")
+        with patch("robocop.formatter.utils.misc.ModelWriter") as mock_writer, working_directory(test_data):
+            result = CliRunner().invoke(app, [*command, "tests.robot"])
+            if will_write:
+                mock_writer.assert_called()
+            else:
+                mock_writer.assert_not_called()
+            assert result.exit_code == int(check)
 
     @pytest.mark.parametrize("option_name", ["-e", "--exclude", "--default-exclude"])
     def test_exclude_paths_linter(self, option_name):

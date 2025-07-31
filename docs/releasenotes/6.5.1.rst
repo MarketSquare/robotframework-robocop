@@ -10,3 +10,9 @@ Additional fixes to our rule locations. Following rule(s) have their location ad
 - NAME04 ``underscore-in-keyword-name`` (which used last line in keyword for end column instead of keyword name)
 - ARG07 ``arguments-per-line`` (which was offset by 1)
 - SPC12 ``consecutive-empty-lines`` (which reported start/end column positions in SonarQube report)
+
+--check overwriting files (#1415)
+---------------------------------
+
+``--check`` flag functionality was not ported correctly. Now Robocop with ``--check`` flag set will only modify files
+if additional ``--overwrite`` flag is set (retaining behaviour before 6.0 release).

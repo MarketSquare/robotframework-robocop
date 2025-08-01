@@ -119,7 +119,7 @@ class NormalizeNewLines(Formatter):
         self.trim_empty_lines(node)
         return self.generic_visit(node)
 
-    visit_For = visit_While = visit_Try = visit_If  # noqa: N815
+    visit_For = visit_While = visit_Group = visit_Try = visit_If  # noqa: N815
 
     def visit_Statement(self, node):  # noqa: N802
         tokens = []

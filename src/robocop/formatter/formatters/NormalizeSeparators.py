@@ -76,6 +76,8 @@ class NormalizeSeparators(Formatter):
         self.visit_Statement(node.end)
         return node
 
+    visit_Group = visit_For  # noqa: N815
+
     def visit_Try(self, node):  # noqa: N802
         node = self.indented_block(node)
         if node.next:

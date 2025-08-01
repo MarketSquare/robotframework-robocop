@@ -187,3 +187,6 @@ class TestAlignTestCasesSection(FormatterAcceptanceTest):
             configure=configure,
             select=["NormalizeSeparators", "NormalizeComments"],
         )
+
+    def test_groups(self):
+        self.compare(source="groups.robot", test_on_version=">7.1.1")

@@ -446,6 +446,8 @@ class RenameVariables(Formatter):
             arg.value = self.rename_value(arg.value, variable_case=VariableCase.AUTO, is_var=False)
         return self.generic_visit(node)
 
+    visit_Group = visit_While  # noqa: N815
+
     @skip_if_disabled
     def visit_Var(self, node):  # noqa: N802
         if node.errors:

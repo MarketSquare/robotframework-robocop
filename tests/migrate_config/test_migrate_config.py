@@ -22,7 +22,7 @@ def display_file_diff(expected, actual) -> bool:
     print("\nExpected file after formatting does not match actual")
     with open(expected, encoding="utf-8") as f, open(actual, encoding="utf-8") as f2:
         expected_lines = f.readlines()
-        actual_lines = [line.replace("\r\n", "\n") for line in f2.readlines()]
+        actual_lines = [line.replace("\r\n", "\n") for line in f2]
     lines = list(
         unified_diff(expected_lines, actual_lines, fromfile=f"expected: {expected}\t", tofile=f"actual: {actual}\t")
     )

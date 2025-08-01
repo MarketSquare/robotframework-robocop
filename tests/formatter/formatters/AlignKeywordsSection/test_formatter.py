@@ -146,3 +146,6 @@ class TestAlignKeywordsSection(FormatterAcceptanceTest):
             f"{self.FORMATTER_NAME}.align_settings_separately=True",
         ]
         self.compare(source="align_settings_separately.robot", configure=configure)
+
+    def test_groups(self):
+        self.compare(source="groups.robot", test_on_version=">7.1.1")

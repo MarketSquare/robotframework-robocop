@@ -160,7 +160,7 @@ class AlignKeywordsTestsSection(Formatter):
         self.remove_auto_widths_for_context()
         return node
 
-    visit_While = visit_For  # noqa: N815
+    visit_While = visit_Group = visit_For  # noqa: N815
 
     def get_width(self, col: int, is_setting: bool, override_default_zero: bool = False) -> int:
         # If auto mode is enabled, use auto widths for current context (last defined widths)
@@ -239,7 +239,7 @@ class AlignKeywordsTestsSection(Formatter):
         node.tokens = [indent, *list(node.tokens[1:])]
         return node
 
-    visit_End = visit_ForHeader  # noqa: N815  # TODO add other headers
+    visit_End = visit_GroupHeader = visit_ForHeader  # noqa: N815  # TODO add other headers
 
     @skip_if_disabled
     def visit_KeywordCall(self, node):  # noqa: N802

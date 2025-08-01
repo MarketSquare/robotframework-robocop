@@ -1,0 +1,8 @@
+=============
+Robocop 6.5.2
+=============
+
+GROUP support (#1424)
+---------------------
+
+Add missing support for GROUP syntax in formatter. It was already added in old robotidy, but omitted during migration.

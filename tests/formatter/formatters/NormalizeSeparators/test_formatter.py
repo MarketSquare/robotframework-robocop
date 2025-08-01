@@ -120,3 +120,6 @@ class TestNormalizeSeparators(FormatterAcceptanceTest):
             expected="cont_indent_align_new_line.robot",
             configure=[f"{self.FORMATTER_NAME}.align_new_line=True"],
         )
+
+    def test_groups(self):
+        self.compare(source="groups.robot", test_on_version=">7.1.1")

@@ -743,8 +743,7 @@ class LengthChecker(VisitorChecker):
         return any(isinstance(statement, Template) for statement in node.body)
 
     def visit_TestCase(self, node) -> None:  # noqa: N802
-        # LEN04: skip if ignore_templated is set and test is templated
-        if self.too_long_test_case.ignore_templated and self. h(node):
+        if self.too_long_test_case.ignore_templated and self.test_is_templated(node):
             return
         length, node_end_line = check_node_length(node, ignore_docs=self.too_long_test_case.ignore_docs)
         if length > self.too_long_test_case.max_len:

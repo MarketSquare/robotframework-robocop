@@ -8,6 +8,13 @@ class TestRuleAcceptance(RuleAcceptance):
     def test_extended(self):
         self.check_rule(src_files=["test.robot"], expected_file="expected_extended.txt", output_format="extended")
 
+    def test_ignore_templated(self):
+        self.check_rule(
+            configure=["too-long-test-case.ignore_templated=True"],
+            src_files=["ignore_templated"],
+            expected_file="ignore_templated/expected_output.txt",
+        )
+
     def test_ignore_docs(self):
         self.check_rule(
             configure=["too-long-test-case.ignore_docs=True"],

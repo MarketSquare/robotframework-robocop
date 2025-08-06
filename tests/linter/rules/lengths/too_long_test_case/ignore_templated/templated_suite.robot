@@ -28,6 +28,7 @@ Template Case
     ${EMPTY}     ${EMPTY}
     ${EMPTY}     ${EMPTY}
     ${EMPTY}     ${EMPTY}
+    ${EMPTY}     ${EMPTY}
 
 
 *** Keywords ***

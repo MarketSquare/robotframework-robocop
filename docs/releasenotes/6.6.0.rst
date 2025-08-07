@@ -1,0 +1,9 @@
+=============
+Robocop 6.6.0
+=============
+
+New parameter ignore_templated for too-long-test-case rule (#1429)
+------------------------------------------------------------------
+
+LEN04 ``too-long-test-case`` can be now configured with ``ignore_templated=True`` if you want to ignore long,
+templated test cases.

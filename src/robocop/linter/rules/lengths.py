@@ -133,7 +133,9 @@ class TooLongTestCaseRule(Rule):
     parameters = [
         RuleParam(name="max_len", default=20, converter=int, desc="number of lines allowed in a test case"),
         RuleParam(name="ignore_docs", default=False, converter=str2bool, show_type="bool", desc="Ignore documentation"),
-        RuleParam(name="ignore_templated", default=False, converter=str2bool, show_type="bool", desc="Ignore templated tests"),
+        RuleParam(
+            name="ignore_templated", default=False, converter=str2bool, show_type="bool", desc="Ignore templated tests"
+        ),
     ]
     severity_threshold = SeverityThreshold("max_len", compare_method="greater", substitute_value="allowed_length")
     added_in_version = "1.0.0"

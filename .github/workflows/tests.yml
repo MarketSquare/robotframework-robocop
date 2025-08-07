@@ -29,7 +29,7 @@ jobs:
             rf-version: '7.2.2'
           - os: 'windows-latest'
             python-version: '3.13'
-            rf-version: '7.2.2'
+            rf-version: '7.3.*'
     runs-on: ${{ matrix.os }}
 
     steps:

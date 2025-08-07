@@ -1,0 +1,1 @@
+ignore_templated${/}test.robot:6:1 [W] LEN04 Test case 'Test' is too long (24/20)

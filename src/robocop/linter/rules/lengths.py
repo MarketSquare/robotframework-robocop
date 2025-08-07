@@ -133,6 +133,9 @@ class TooLongTestCaseRule(Rule):
     parameters = [
         RuleParam(name="max_len", default=20, converter=int, desc="number of lines allowed in a test case"),
         RuleParam(name="ignore_docs", default=False, converter=str2bool, show_type="bool", desc="Ignore documentation"),
+        RuleParam(
+            name="ignore_templated", default=False, converter=str2bool, show_type="bool", desc="Ignore templated tests"
+        ),
     ]
     severity_threshold = SeverityThreshold("max_len", compare_method="greater", substitute_value="allowed_length")
     added_in_version = "1.0.0"
@@ -742,6 +745,8 @@ class LengthChecker(VisitorChecker):
         return any(isinstance(statement, Template) for statement in node.body)
 
     def visit_TestCase(self, node) -> None:  # noqa: N802
+        if self.too_long_test_case.ignore_templated and self.test_is_templated(node):
+            return
         length, node_end_line = check_node_length(node, ignore_docs=self.too_long_test_case.ignore_docs)
         if length > self.too_long_test_case.max_len:
             self.report(

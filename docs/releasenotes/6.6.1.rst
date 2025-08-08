@@ -1,0 +1,18 @@
+=============
+Robocop 6.6.1
+=============
+
+False positive possible-variable-overwriting on dictionary access (#1431)
+-------------------------------------------------------------------------
+
+Following code will no longer trigger VAR08 ``possible-variable-overwriting``:
+
+```
+Dictionary item
+    VAR    &{data} =    &{EMPTY}
+    ${data}[key] =    Browser.Get Text    ${LABEL.contentItem('${content}')}
+
+```
+
+From now on variable type should also be ignored by ``possible-variable-overwriting`` and ``inconsistent-variable-name``
+rules. For example ``${variable}`` and ``&{variable}`` are considered as the same name.

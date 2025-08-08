@@ -1113,7 +1113,9 @@ class SimilarVariableChecker(VisitorChecker):
                     assign_value = token.value  # process assign last, cache for now
                 else:
                     self.find_not_nested_variable(token, token.value, is_var=False)
-            self.assigned_variables[normalized].append(assign_value)
+            if assign_value:
+                variable = search_variable(assign_value, ignore_errors=True)
+                self.assigned_variables[normalized].append(variable.base)
         else:
             for token in node.get_tokens(Token.ARGUMENT, Token.KEYWORD):  # argument can be used in keyword name
                 self.find_not_nested_variable(token, token.value, is_var=False)
@@ -1152,7 +1154,8 @@ class SimilarVariableChecker(VisitorChecker):
         for token in node.header.get_tokens(Token.ARGUMENT):
             self.find_not_nested_variable(token, token.value, is_var=False)
         for var in self.for_assign_vars(node):
-            self.assigned_variables[utils.normalize_robot_var_name(var)].append(var)
+            variable = search_variable(var, ignore_errors=True)
+            self.assigned_variables[utils.normalize_robot_var_name(var)].append(variable.base)
         self.generic_visit(node)
 
     visit_ForLoop = visit_For  # noqa: N815
@@ -1172,7 +1175,8 @@ class SimilarVariableChecker(VisitorChecker):
                     if pattern:
                         var_name = var_name + "}"  # recreate, so it handles ${variable:pattern} -> ${variable} matching
                     normalized_name = utils.normalize_robot_var_name(var_name)
-                    self.assigned_variables[normalized_name].append(var_name)
+                    variable = search_variable(var_name, ignore_errors=True)
+                    self.assigned_variables[normalized_name].append(variable.base)
         except VariableError:
             pass
 
@@ -1187,13 +1191,12 @@ class SimilarVariableChecker(VisitorChecker):
         if normalized not in self.assigned_variables:
             return  # we could handle attr access here, ignoring now
         latest_assign = self.assigned_variables[normalized][-1]
-        assign_normalized = latest_assign.lstrip("$@%&").lstrip("{").rstrip("}")
-        if value != assign_normalized:
+        if value != latest_assign:
             name = "${" + value + "}"
             self.report(
                 self.inconsistent_variable_name,
                 name=name,
-                first_use=latest_assign,
+                first_use=f"${{{latest_assign}}}",
                 node=token,
                 lineno=token.lineno,
                 col=token.col_offset + offset + 1,
@@ -1243,14 +1246,13 @@ class SimilarVariableChecker(VisitorChecker):
             if isinstance(child, Arguments):
                 for token in child.get_tokens(Token.ARGUMENT):
                     variable_match = search_variable(token.value, ignore_errors=True)
-                    name = variable_match.name
                     normalized = utils.normalize_robot_name(variable_match.base)
-                    self.assigned_variables[normalized].append(name)
+                    self.assigned_variables[normalized].append(variable_match.base)
 
     def find_similar_variables(self, tokens, node, ignore_overwriting: bool = False) -> None:
         for token in tokens:
             variable_match = search_variable(token.value, ignore_errors=True)
-            name = variable_match.name
+            name = variable_match.base
             normalized = utils.normalize_robot_name(variable_match.base)
             if (
                 not ignore_overwriting
@@ -1259,7 +1261,7 @@ class SimilarVariableChecker(VisitorChecker):
             ):
                 self.report(
                     self.possible_variable_overwriting,
-                    variable_name=name,
+                    variable_name=variable_match.name,
                     block_name=self.parent_name,
                     block_type=self.parent_type,
                     node=node,

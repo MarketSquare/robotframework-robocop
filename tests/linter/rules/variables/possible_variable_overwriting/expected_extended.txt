@@ -160,14 +160,6 @@ test.robot:66:5 VAR08 Variable '@{SIMPLE_VAR}' may overwrite similar variable in
  67 |     &{SIMPLE_VAR}   Create Dictionary   a=1  b=2  c=3
     |
 
-test.robot:67:5 VAR08 Variable '&{SIMPLE_VAR}' may overwrite similar variable inside 'Keyword With Different Types Of Variables' Keyword
-    |
- 65 |     ${simpleVar}    Set Variable        2
- 66 |     @{SIMPLE_VAR}   Create List         1    2    3
- 67 |     &{SIMPLE_VAR}   Create Dictionary   a=1  b=2  c=3
-    |     ^^^^^^^^^^^^^ VAR08
-    |
-
 test.robot:71:5 VAR08 Variable '${VARIABLE}' may overwrite similar variable inside 'Argument With Default Value' Keyword
     |
  69 | Argument With Default Value
@@ -207,14 +199,6 @@ test.robot:84:5 VAR08 Variable '${VARiable}' may overwrite similar variable insi
  83 |     ${variable}    Keyword
  84 |     ${VARiable} =    Keyword
     |     ^^^^^^^^^^^^^ VAR08
-    |
-
-test.robot:88:5 VAR08 Variable '${keyword_args}' may overwrite similar variable inside 'Keyword With Kwargs' Keyword
-    |
- 86 | Keyword With Kwargs
- 87 |     [Arguments]    ${argument}    &{keyword_args}
- 88 |     ${keyword_args}    Create Dictionary   key=${FLAG}    &{keyword_args}
-    |     ^^^^^^^^^^^^^^^ VAR08
     |
 
 test.robot:92:5 VAR08 Variable '${keywordArgs}' may overwrite similar variable inside 'Keyword With Possible Overwritten Kwargs' Keyword

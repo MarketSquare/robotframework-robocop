@@ -107,3 +107,7 @@ VAR Syntax
     VAR    ${variable name}    value    scope=GLOBAL
     VAR    ${variable namE}=    value    scope=local
     VAR    ${variable_name}    Value with ${Variable_Name}    scope=SUITE
+
+Dictionary item
+    VAR    &{data} =    &{EMPTY}
+    ${data}[key] =    Browser.Get Text    ${LABEL.contentItem('${content}')}

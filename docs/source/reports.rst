@@ -89,7 +89,7 @@ For example:
 
         .. code:: shell
 
-            robocop check --configure sarif.report_filename=robocop_sarif.json --reports sarif
+            robocop check --configure sarif.output_path=robocop_sarif.json --reports sarif
 
     .. tab-item:: Configuration file
 
@@ -100,10 +100,10 @@ For example:
                 "sarif"
             ]
             configure = [
-                "sarif.report_filename=robocop_sarif.json"
+                "sarif.output_path=robocop_sarif.json"
             ]
 
-configures ``report_filename`` parameter to ``robocop_sarif.json`` for ``sarif`` report.
+configures ``output_path`` parameter to ``robocop_sarif.json`` for ``sarif`` report.
 
 Disable all reports
 -------------------
@@ -116,7 +116,8 @@ use. Use special keyword ``None`` to not run any reports even if configured::
 Comparing results
 ------------------
 
-Several reports allows to compare current run with the previous run. Use ``compare_runs`` report name to enable it. # TODO: make it an option
+Several reports allows to compare current run with the previous run. ``--persistent`` and ``--compare`` options can
+be used to display comparison report.
 
 Example output::
 
@@ -130,14 +131,7 @@ Example output::
     TAG05 [I] (could-be-test-tags)                : 1 (+0)
     VAR11 [W] (overwriting-reserved-variable)     : 1 (+0)
 
-Robocop stores previous result in cache directory.
-Cache directory is stored in the different location depending on the platform:
-
-- Linux: ``"~/.cache/robocop"``
-- macOS: ``"~/Library/Caches/robocop"``
-- Windows: ``"C:\\Users\\<username>\\AppData\\Local\\robocop"``
-
-Saving the results is disabled by default and can be enabled with ``--persistent`` flag:
+At first you need to store result of current run using ``--persistent`` flag:
 
 .. tab-set::
 
@@ -154,9 +148,16 @@ Saving the results is disabled by default and can be enabled with ``--persistent
             [tool.robocop.lint]
             persistent = true
 
+Robocop stores previous result in cache directory.
+Cache directory is stored in the different location depending on the platform:
+
+- Linux: ``"~/.cache/robocop"``
+- macOS: ``"~/Library/Caches/robocop"``
+- Windows: ``"C:\\Users\\<username>\\AppData\\Local\\robocop"``
+
 Only the previous run for the current working directory is saved.
 
-To used stored results to compare with current run, enable ``compare_runs`` report:
+Now use ``--compare`` flag to enhance reports with previous run comparison:
 
 .. tab-set::
 
@@ -164,17 +165,19 @@ To used stored results to compare with current run, enable ``compare_runs`` repo
 
         .. code:: shell
 
-            robocop check --reports all,compare_runs
+            robocop check --reports all --compare
 
     .. tab-item:: Configuration file
 
         .. code:: toml
 
             [tool.robocop.lint]
+            compare = true
             reports = [
-                "all",
-                "compare_runs"
+                "all"
             ]
+
+Combine both flags to always store current run and display difference with the previous one.
 
 Reports list
 ============

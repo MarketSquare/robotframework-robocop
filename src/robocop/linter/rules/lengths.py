@@ -609,6 +609,27 @@ class EmptyKeywordTagsRule(Rule):
     )
 
 
+class TooLongVariableNameRule(Rule):
+    """
+    Variable name is too long.
+
+    Avoid too long variable names for readability and maintainability.
+    """
+
+    name = "too-long-variable-name"
+    rule_id = "LEN32"
+    message = "Variable name '{variable_name}' is too long ({variable_name_length}/{allowed_length})"
+    severity = RuleSeverity.WARNING
+    parameters = [
+        RuleParam(name="max_len", default=40, converter=int, desc="allowed length of a variable name"),
+    ]
+    severity_threshold = SeverityThreshold("max_len", compare_method="greater", substitute_value="allowed_length")
+    added_in_version = "6.6.x"
+    sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
+        clean_code=sonar_qube.CleanCodeAttribute.FOCUSED, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
+    )
+
+
 def is_data_statement(node) -> bool:
     return not isinstance(node, (EmptyLine, Comment))
 
@@ -638,8 +659,9 @@ def get_documentation_length(node):
 
 class LengthChecker(VisitorChecker):
     """
-    Checker for max and min length of keyword or test case. It analyses number of lines and also number of
-    keyword calls (as you can have just few keywords but very long ones or vice versa).
+    Checker for max and min length of keyword, test case and variable names. It analyses number of lines, number of
+    keyword calls (as you can have just few keywords but very long ones or vice versa) and also the length of variable
+    names.
     """
 
     too_few_calls_in_keyword: TooFewCallsInKeywordRule
@@ -648,6 +670,7 @@ class LengthChecker(VisitorChecker):
     too_many_calls_in_test_case: TooManyCallsInTestCaseRule
     too_long_keyword: TooLongKeywordRule
     too_long_test_case: TooLongTestCaseRule
+    too_long_variable_name: TooLongVariableNameRule
     file_too_long: FileTooLongRule
     too_many_arguments: TooManyArgumentsRule
 
@@ -683,6 +706,7 @@ class LengthChecker(VisitorChecker):
     def visit_Keyword(self, node) -> None:  # noqa: N802
         if node.name.lstrip().startswith("#"):
             return
+        self.generic_visit(node)
         for child in node.body:
             if isinstance(child, Arguments):
                 args_number = len(child.values)
@@ -745,6 +769,7 @@ class LengthChecker(VisitorChecker):
         return any(isinstance(statement, Template) for statement in node.body)
 
     def visit_TestCase(self, node) -> None:  # noqa: N802
+        self.generic_visit(node)
         if self.too_long_test_case.ignore_templated and self.test_is_templated(node):
             return
         length, node_end_line = check_node_length(node, ignore_docs=self.too_long_test_case.ignore_docs)
@@ -801,6 +826,39 @@ class LengthChecker(VisitorChecker):
             node = node.next
             calls += sum(self.count_keyword_calls(child) for child in node.body)
         return calls
+
+    def check_variable_name(self, node):
+        if hasattr(node, "name"):
+            var_name, *_ = node.name.split("=", maxsplit=1)
+        else:
+            var_name = node.value
+        name = var_name[2:-1]  # misc.normalize_robot_var_name would remove spaces and underscores
+        if (length := len(name)) > self.too_long_variable_name.max_len:
+            self.report(
+                self.too_long_variable_name,
+                variable_name=name,
+                variable_name_length=length,
+                allowed_length=self.too_long_variable_name.max_len,
+                node=node,
+                end_col=node.col_offset + len(var_name) + 1,
+                sev_threshold_value=length,
+            )
+
+    visit_Variable = check_variable_name  # noqa: N815
+
+    def visit_KeywordCall(self, node) -> None:  # noqa: N802
+        for variable in node.get_tokens(Token.ASSIGN):
+            self.check_variable_name(variable)
+
+    def visit_Var(self, node):  # noqa: N802
+        if node.errors:  # for example invalid variable definition like $var}
+            return
+        if variable := node.get_token(Token.VARIABLE):
+            self.check_variable_name(variable)
+
+    def visit_Arguments(self, node):  # noqa: N802
+        for argument in node.get_tokens(Token.ARGUMENT):
+            self.check_variable_name(argument)
 
 
 class LineLengthChecker(RawFileChecker):

@@ -1,0 +1,39 @@
+test.robot:7:1 LEN32 Variable name 'SOME_EVEN_LOOOOOONGER_SUITE_VARIABLE_NAME' is too long (41/40)
+   |
+ 5 | *** Variables ***
+ 6 | ${SOME_LOOOOOOOOOOOONG_SUITE_VARIABLE_NAME}      value
+ 7 | ${SOME_EVEN_LOOOOOONGER_SUITE_VARIABLE_NAME}     value
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ LEN32
+   |
+
+test.robot:13:12 LEN32 Variable name 'some_even_loooooonger_local_variable_name' is too long (41/40)
+    |
+ 11 | Test
+ 12 |     VAR    ${some_loooooooooooong_local_variable_name}    value
+ 13 |     VAR    ${some_even_loooooonger_local_variable_name}    value
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ LEN32
+    |
+
+test.robot:16:5 LEN32 Variable name 'different_even_longer_local_variable_name' is too long (41/40)
+    |
+ 14 |
+ 15 |     ${different_loooooong_local_variable_name}    Some Keyword
+ 16 |     ${different_even_longer_local_variable_name}    Some Keyword
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ LEN32
+    |
+
+test.robot:18:51 LEN32 Variable name 'another_even_looonger_local_variable_name' is too long (41/40)
+    |
+ 18 |     ${another_loooooooong_local_variable_name}    ${another_even_looonger_local_variable_name}    Some Other Keyword
+    |                                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ LEN32
+    |
+
+test.robot:23:67 LEN32 Variable name 'some_even_loooooooooooonger_argument_name' is too long (41/40)
+    |
+ 21 | *** Keywords ***
+ 22 | Some Keyword
+ 23 |     [Arguments]    ${some_loooooooooooooooooong_argument_name}    ${some_even_loooooooooooonger_argument_name}
+    |                                                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ LEN32
+ 24 |     RETURN    value
+    |
+

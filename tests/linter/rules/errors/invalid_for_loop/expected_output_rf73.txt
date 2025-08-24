@@ -1,0 +1,12 @@
+test.robot:37:5 [E] ERR12 Invalid for loop syntax: FOR loop has no variables
+test.robot:40:5 [E] ERR12 Invalid for loop syntax: FOR loop cannot be empty
+test.robot:42:5 [E] ERR12 Invalid for loop syntax: FOR loop has no values
+test.robot:45:5 [E] ERR12 Invalid for loop syntax: FOR loop must have closing END
+test.robot:47:5 [E] ERR12 Invalid for loop syntax: FOR loop has no 'IN' or other valid separator
+test.robot:50:5 [E] ERR12 Invalid for loop syntax: FOR loop must have closing END
+test.robot:51:9 [E] ERR12 Invalid for loop syntax: FOR loop cannot be empty
+test.robot:51:9 [E] ERR12 Invalid for loop syntax: FOR loop has no 'IN' or other valid separator
+test.robot:51:9 [E] ERR12 Invalid for loop syntax: FOR loop has no variables
+test.robot:56:9 [E] ERR12 Invalid for loop syntax: FOR loop has no variables
+test.robot:64:9 [E] ERR12 Invalid for loop syntax: FOR loop has no variables
+test.robot:69:9 [E] ERR12 Invalid for loop syntax: FOR loop has no variables

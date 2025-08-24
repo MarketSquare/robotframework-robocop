@@ -1,0 +1,30 @@
+test_except.robot:13:32 LEN32 Variable name 'too_loong_name_for_captured_error_message' is too long (41/40)
+    |
+ 11 |     EXCEPT    *err*    AS    ${still_acceptable_name_for_captured_error}
+ 12 |         No Operation
+ 13 |     EXCEPT    *fatal*    AS    ${too_loong_name_for_captured_error_message}
+    |                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ LEN32
+ 14 |         No Operation
+ 15 |     EXCEPT    *****    AS    ${another_too_long_name_for_captured_error_message}
+    |
+
+test_except.robot:15:30 LEN32 Variable name 'another_too_long_name_for_captured_error_message' is too long (48/40)
+    |
+ 13 |     EXCEPT    *fatal*    AS    ${too_loong_name_for_captured_error_message}
+ 14 |         No Operation
+ 15 |     EXCEPT    *****    AS    ${another_too_long_name_for_captured_error_message}
+    |                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ LEN32
+ 16 |         No Operation
+ 17 |     EXCEPT
+    |
+
+test_except.robot:30:21 LEN32 Variable name 'too_loong_name_for_captured_error_message' is too long (41/40)
+    |
+ 28 |     TRY
+ 29 |         No Operation
+ 30 |     EXCEPT    AS    ${too_loong_name_for_captured_error_message}
+    |                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ LEN32
+ 31 |         No Operation
+ 32 |     END
+    |
+

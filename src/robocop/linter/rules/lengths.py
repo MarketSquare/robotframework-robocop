@@ -35,7 +35,16 @@ from robocop.linter.rules import (
     VisitorChecker,
     arguments,
 )
-from robocop.linter.utils.misc import RETURN_CLASSES, get_section_name, normalize_robot_name, pattern_type, str2bool
+from robocop.linter.utils.misc import (
+    RETURN_CLASSES,
+    get_section_name,
+    normalize_robot_name,
+    pattern_type,
+    remove_variable_type_conversion,
+    split_argument_default_value,
+    str2bool,
+    strip_equals_from_assignment,
+)
 
 
 class TooLongKeywordRule(Rule):
@@ -674,6 +683,14 @@ class LengthChecker(VisitorChecker):
     file_too_long: FileTooLongRule
     too_many_arguments: TooManyArgumentsRule
 
+    set_variable_keywords = {
+        "setlocalvariable",
+        "settestvariable",
+        "settaskvariable",
+        "setsuitevariable",
+        "setglobalvariable",
+    }
+
     def __init__(self):
         self.keyword_call_alike = tuple(
             klass
@@ -827,12 +844,10 @@ class LengthChecker(VisitorChecker):
             calls += sum(self.count_keyword_calls(child) for child in node.body)
         return calls
 
-    def check_variable_name(self, node):
-        if hasattr(node, "name"):
-            var_name, *_ = node.name.split("=", maxsplit=1)
-        else:
-            var_name = node.value
-        name = var_name[2:-1]  # misc.normalize_robot_var_name would remove spaces and underscores
+    def check_variable_name(self, node, var_name=None):  # var_name optional to better handle argument default values
+        if not var_name:
+            var_name = node.name if hasattr(node, "name") else node.value
+        name = remove_variable_type_conversion(var_name[2:-1])  # TODO: Add test data for this
         if (length := len(name)) > self.too_long_variable_name.max_len:
             self.report(
                 self.too_long_variable_name,
@@ -847,18 +862,39 @@ class LengthChecker(VisitorChecker):
     visit_Variable = check_variable_name  # noqa: N815
 
     def visit_KeywordCall(self, node) -> None:  # noqa: N802
+        if node.errors or not node.keyword:
+            return
         for variable in node.get_tokens(Token.ASSIGN):
-            self.check_variable_name(variable)
+            self.check_variable_name(variable, strip_equals_from_assignment(variable.value))
+        if normalize_robot_name(node.keyword) in self.set_variable_keywords:
+            self.check_variable_name(node.get_token(Token.ARGUMENT))  # TODO: Add test data for this
 
     def visit_Var(self, node):  # noqa: N802
-        if node.errors:  # for example invalid variable definition like $var}
+        if node.errors:
             return
         if variable := node.get_token(Token.VARIABLE):
-            self.check_variable_name(variable)
+            self.check_variable_name(variable, strip_equals_from_assignment(variable.value))
 
     def visit_Arguments(self, node):  # noqa: N802
+        if node.errors:
+            return
         for argument in node.get_tokens(Token.ARGUMENT):
-            self.check_variable_name(argument)
+            name, _ = split_argument_default_value(argument.value)
+            self.check_variable_name(argument, name)
+
+    def visit_For(self, node):  # noqa: N802
+        if node.errors:
+            return
+        for variable in node.header.get_tokens(Token.VARIABLE):
+            self.check_variable_name(variable)
+        self.generic_visit(node)
+
+    def visit_Try(self, node):  # noqa: N802
+        if node.errors:
+            return
+        if (node.type is Token.EXCEPT) and (variable := node.header.get_token(Token.VARIABLE)):
+            self.check_variable_name(variable)
+        self.generic_visit(node)
 
 
 class LineLengthChecker(RawFileChecker):

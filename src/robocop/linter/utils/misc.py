@@ -98,6 +98,22 @@ def remove_nested_variables(var_name: str) -> str:
     return var_name.strip()
 
 
+def strip_equals_from_assignment(name: str) -> str:
+    return name[:-1].rstrip() if name.endswith("=") else name
+
+
+def split_argument_default_value(arg: str):
+    # From the Robot User Guide:
+    # "The syntax for default values is space sensitive. Spaces before
+    # the `=` sign are not allowed."
+    if "}=" not in arg:
+        # has no default
+        return arg, ""
+
+    arg_name, default_val = arg.split("}=", maxsplit=1)
+    return arg_name + "}", default_val
+
+
 def keyword_col(node: Keyword) -> int:
     return token_col(node, Token.KEYWORD)
 

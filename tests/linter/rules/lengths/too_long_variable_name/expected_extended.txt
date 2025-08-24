@@ -1,39 +1,70 @@
 test.robot:7:1 LEN32 Variable name 'SOME_EVEN_LOOOOOONGER_SUITE_VARIABLE_NAME' is too long (41/40)
    |
  5 | *** Variables ***
- 6 | ${SOME_LOOOOOOOOOOOONG_SUITE_VARIABLE_NAME}      value
- 7 | ${SOME_EVEN_LOOOOOONGER_SUITE_VARIABLE_NAME}     value
+ 6 | ${SHORT_SUITE_VARIABLE_NAME}      value
+ 7 | ${SOME_EVEN_LOOOOOONGER_SUITE_VARIABLE_NAME}=    value
    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ LEN32
    |
 
-test.robot:13:12 LEN32 Variable name 'some_even_loooooonger_local_variable_name' is too long (41/40)
+test.robot:14:41 LEN32 Variable name 'different_even_longer_local_variable_name' is too long (41/40)
     |
- 11 | Test
- 12 |     VAR    ${some_loooooooooooong_local_variable_name}    value
- 13 |     VAR    ${some_even_loooooonger_local_variable_name}    value
+ 14 |     ${different_short_variable_name}    ${different_even_longer_local_variable_name} =    Some Keyword
+    |                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ LEN32
+    |
+
+test.robot:16:12 LEN32 Variable name 'too_loooooooooong_iteration_variable_name' is too long (41/40)
+    |
+ 16 |     FOR    ${too_loooooooooong_iteration_variable_name}    IN RANGE    ${10}
     |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ LEN32
+ 17 |         ${some_even_loooooonger_local_variable_name}    ${different_even_longer_local_variable_name}    Some Other Keyword    # reassign existing variables
+ 18 |     END
     |
 
-test.robot:16:5 LEN32 Variable name 'different_even_longer_local_variable_name' is too long (41/40)
+test.robot:17:9 LEN32 Variable name 'some_even_loooooonger_local_variable_name' is too long (41/40)
     |
- 14 |
- 15 |     ${different_loooooong_local_variable_name}    Some Keyword
- 16 |     ${different_even_longer_local_variable_name}    Some Keyword
-    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ LEN32
-    |
-
-test.robot:18:51 LEN32 Variable name 'another_even_looonger_local_variable_name' is too long (41/40)
-    |
- 18 |     ${another_loooooooong_local_variable_name}    ${another_even_looonger_local_variable_name}    Some Other Keyword
-    |                                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ LEN32
+ 15 |
+ 16 |     FOR    ${too_loooooooooong_iteration_variable_name}    IN RANGE    ${10}
+ 17 |         ${some_even_loooooonger_local_variable_name}    ${different_even_longer_local_variable_name}    Some Other Keyword    # reassign existing variables
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ LEN32
+ 18 |     END
     |
 
-test.robot:23:67 LEN32 Variable name 'some_even_loooooooooooonger_argument_name' is too long (41/40)
+test.robot:17:57 LEN32 Variable name 'different_even_longer_local_variable_name' is too long (41/40)
     |
- 21 | *** Keywords ***
- 22 | Some Keyword
- 23 |     [Arguments]    ${some_loooooooooooooooooong_argument_name}    ${some_even_loooooooooooonger_argument_name}
-    |                                                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ LEN32
- 24 |     RETURN    value
+ 15 |
+ 16 |     FOR    ${too_loooooooooong_iteration_variable_name}    IN RANGE    ${10}
+ 17 |         ${some_even_loooooonger_local_variable_name}    ${different_even_longer_local_variable_name}    Some Other Keyword    # reassign existing variables
+    |                                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ LEN32
+ 18 |     END
+    |
+
+test.robot:22:93 LEN32 Variable name 'some_even_loooooooooooonger_argument_name' is too long (41/40)
+    |
+ 20 | *** Keywords ***
+ 21 | Some Keyword
+ 22 |     [Arguments]    ${short_argument_name}    ${some_loooooooooooooooooong_argument_name}    ${some_even_loooooooooooonger_argument_name}=default
+    |                                                                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ LEN32
+ 23 |     FOR    ${too_looooooooooooong_iteration_index_name}    ${too_looooooooooooong_iteration_value_name}    IN ENUMERATE    @{list}
+ 24 |         No Operation
+    |
+
+test.robot:23:12 LEN32 Variable name 'too_looooooooooooong_iteration_index_name' is too long (41/40)
+    |
+ 21 | Some Keyword
+ 22 |     [Arguments]    ${short_argument_name}    ${some_loooooooooooooooooong_argument_name}    ${some_even_loooooooooooonger_argument_name}=default
+ 23 |     FOR    ${too_looooooooooooong_iteration_index_name}    ${too_looooooooooooong_iteration_value_name}    IN ENUMERATE    @{list}
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ LEN32
+ 24 |         No Operation
+ 25 |     END
+    |
+
+test.robot:23:60 LEN32 Variable name 'too_looooooooooooong_iteration_value_name' is too long (41/40)
+    |
+ 21 | Some Keyword
+ 22 |     [Arguments]    ${short_argument_name}    ${some_loooooooooooooooooong_argument_name}    ${some_even_loooooooooooonger_argument_name}=default
+ 23 |     FOR    ${too_looooooooooooong_iteration_index_name}    ${too_looooooooooooong_iteration_value_name}    IN ENUMERATE    @{list}
+    |                                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ LEN32
+ 24 |         No Operation
+ 25 |     END
     |
 

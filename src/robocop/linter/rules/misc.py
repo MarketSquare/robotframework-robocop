@@ -1686,15 +1686,11 @@ class UndefinedArgumentDefaultChecker(VisitorChecker):
     def visit_Arguments(self, node: Arguments):  # noqa: N802
         for token in node.get_tokens(Token.ARGUMENT):
             arg = token.value
+            arg_name, default_val = utils.split_argument_default_value(arg)
 
-            # From the Robot User Guide:
-            # "The syntax for default values is space sensitive. Spaces before
-            # the `=` sign are not allowed."
-            if "}=" not in arg:
+            if arg_name == arg:
                 # has no default
                 continue
-
-            arg_name, default_val = arg.split("}=", maxsplit=1)
 
             if default_val == "":
                 self.report(
@@ -1703,7 +1699,7 @@ class UndefinedArgumentDefaultChecker(VisitorChecker):
                     lineno=token.lineno,
                     col=token.col_offset + 1,
                     end_col=token.col_offset + len(token.value) + 1,
-                    arg_name=arg_name + "}",
+                    arg_name=arg_name,
                 )
 
     def visit_KeywordCall(self, node: KeywordCall):  # noqa: N802

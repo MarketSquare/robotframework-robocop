@@ -1,0 +1,35 @@
+test_var.robot:9:12 LEN32 Variable name 'some_even_loooooonger_local_variable_name' is too long (41/40)
+   |
+ 7 |     VAR    ${short_variable_name}    value
+ 8 |     VAR    ${loong_but_still_acceptable_variable_name}    value
+ 9 |     VAR    ${some_even_loooooonger_local_variable_name}    value
+   |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ LEN32
+   |
+
+test_var.robot:12:16 LEN32 Variable name 'some_even_loooooonger_local_variable_name' is too long (41/40)
+    |
+ 10 |
+ 11 |     FOR    ${i}    IN RANGE    ${10}
+ 12 |         VAR    ${some_even_loooooonger_local_variable_name}    value
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ LEN32
+ 13 |     END
+    |
+
+test_var.robot:17:16 LEN32 Variable name 'some_even_loooooonger_local_variable_name' is too long (41/40)
+    |
+ 15 |     TRY
+ 16 |         Something
+ 17 |         VAR    ${some_even_loooooonger_local_variable_name}    value
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ LEN32
+ 18 |     FINALLY
+ 19 |         No Operation
+    |
+
+test_var.robot:26:12 LEN32 Variable name 'some_even_loooooonger_local_variable_name' is too long (41/40)
+    |
+ 24 |     VAR    ${short_variable_name}    value
+ 25 |     VAR    ${loong_but_still_acceptable_variable_name}    value
+ 26 |     VAR    ${some_even_loooooonger_local_variable_name}    value
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ LEN32
+    |
+

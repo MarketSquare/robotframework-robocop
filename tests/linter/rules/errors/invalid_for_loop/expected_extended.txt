@@ -1,4 +1,4 @@
-test.robot:37:5 ERR12 Invalid for loop syntax: FOR loop has no loop variables
+test.robot:37:5 ERR12 Invalid for loop syntax: FOR loop has no variables
     |
  35 |
  36 | For Loop
@@ -18,7 +18,7 @@ test.robot:40:5 ERR12 Invalid for loop syntax: FOR loop cannot be empty
  42 |     FOR  ${var}  IN RANGE
     |
 
-test.robot:42:5 ERR12 Invalid for loop syntax: FOR loop has no loop values
+test.robot:42:5 ERR12 Invalid for loop syntax: FOR loop has no values
     |
  40 |     FOR  ${var}  IN  @{list}
  41 |     END
@@ -67,7 +67,7 @@ test.robot:51:9 ERR12 Invalid for loop syntax: FOR loop cannot be empty
  52 |     END
     |
 
-test.robot:51:9 ERR12 Invalid for loop syntax: FOR loop has no loop variables
+test.robot:51:9 ERR12 Invalid for loop syntax: FOR loop has no variables
     |
  49 |     END
  50 |     FOR  ${var}  IN  1  2  3
@@ -85,7 +85,7 @@ test.robot:51:9 ERR12 Invalid for loop syntax: FOR loop has no 'IN' or other val
  52 |     END
     |
 
-test.robot:56:9 ERR12 Invalid for loop syntax: FOR loop has no loop variables
+test.robot:56:9 ERR12 Invalid for loop syntax: FOR loop has no variables
     |
  54 | RF 5.0 syntax
  55 |     TRY
@@ -95,7 +95,7 @@ test.robot:56:9 ERR12 Invalid for loop syntax: FOR loop has no loop variables
  58 |         END
     |
 
-test.robot:64:9 ERR12 Invalid for loop syntax: FOR loop has no loop variables
+test.robot:64:9 ERR12 Invalid for loop syntax: FOR loop has no variables
     |
  62 |         Keyword
  63 |     FINALLY
@@ -105,7 +105,7 @@ test.robot:64:9 ERR12 Invalid for loop syntax: FOR loop has no loop variables
  66 |         END
     |
 
-test.robot:69:9 ERR12 Invalid for loop syntax: FOR loop has no loop variables
+test.robot:69:9 ERR12 Invalid for loop syntax: FOR loop has no variables
     |
  67 |     END
  68 |     WHILE    ${condition}

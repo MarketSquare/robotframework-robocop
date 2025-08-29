@@ -59,3 +59,10 @@ test.robot:23:60 LEN32 Variable name 'too_looooooooooooong_iteration_value_name'
  25 |     END
     |
 
+test.robot:27:42 LEN32 Variable name 'another_too_looong_embedded_argument_name' is too long (41/40)
+    |
+ 27 | Keyword With ${an_embedded_argument} And ${another_too_looong_embedded_argument_name} To Do Something With
+    |                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ LEN32
+ 28 |     No Operation
+    |
+

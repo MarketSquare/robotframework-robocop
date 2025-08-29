@@ -8,3 +8,4 @@ test.robot:22:46 [E] LEN32 Variable name 'some_loooooooooooooooooong_argument_na
 test.robot:22:93 [E] LEN32 Variable name 'some_even_loooooooooooonger_argument_name' is too long (41/40)
 test.robot:23:12 [E] LEN32 Variable name 'too_looooooooooooong_iteration_index_name' is too long (41/40)
 test.robot:23:60 [E] LEN32 Variable name 'too_looooooooooooong_iteration_value_name' is too long (41/40)
+test.robot:27:42 [E] LEN32 Variable name 'another_too_looong_embedded_argument_name' is too long (41/40)

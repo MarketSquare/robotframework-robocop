@@ -3,25 +3,25 @@
 from __future__ import annotations
 
 import re
+from dataclasses import dataclass
 
 from robot.api import Token
+from robot.errors import VariableError
 from robot.parsing.model.blocks import CommentSection, TestCase
 from robot.parsing.model.statements import (
     Arguments,
-    Comment,  # Node
+    Comment,
     Documentation,
     EmptyLine,
     KeywordCall,
+    Node,
     Template,
     TemplateArguments,
 )
 from robot.variables.search import search_variable
 
-# from dataclasses import dataclass
-
-
 try:
-    from robot.api.parsing import Break, Continue
+    from robot.api.parsing import Break, Continue, Keyword, VariableSection
 except ImportError:
     Break, Continue = None, None
 try:  # RF7+
@@ -39,11 +39,12 @@ from robocop.linter.rules import (
     VisitorChecker,
     arguments,
 )
-from robocop.linter.utils.misc import (  # remove_variable_type_conversion,
+from robocop.linter.utils.misc import (
     RETURN_CLASSES,
     get_section_name,
     normalize_robot_name,
     pattern_type,
+    rf_supports_type,
     split_argument_default_value,
     str2bool,
     strip_equals_from_assignment,
@@ -669,6 +670,13 @@ def get_documentation_length(node):
     return doc_len
 
 
+@dataclass
+class CachedVariable:
+    name: str
+    node: Node
+    end_col: int
+
+
 class LengthChecker(VisitorChecker):
     """
     Checker for max and min length of keyword or test case. It analyses number of lines and also number of
@@ -836,13 +844,6 @@ class LengthChecker(VisitorChecker):
         return calls
 
 
-# @dataclass
-# class CachedVariable:
-#     name: str
-#     node: Node
-#     end_col: int
-
-
 class VariableNameLengthChecker(VisitorChecker):
     """Checker for max length variable names."""
 
@@ -864,37 +865,50 @@ class VariableNameLengthChecker(VisitorChecker):
         if not node.errors:
             self.generic_visit(node)
 
-    def visit_Scope(self, node):  # noqa: N802
-        """Handle new scope by resetting list if known variables"""
+    def visit_Scope(self, node: Keyword | TestCase | VariableSection):  # noqa: N802
+        """Handle new scope by resetting list of known variables."""
         self.variables.clear()
-        # TODO: Check embedded arguments
+        if isinstance(node, Keyword):
+            self.parse_embedded_arguments(node.header.get_token(Token.KEYWORD_NAME))
         self.generic_visit(node)
         self.check_variable_names_and_report()
 
     visit_TestCase = visit_VariableSection = visit_Keyword = visit_Scope  # noqa: N815
 
+    def parse_embedded_arguments(self, name_token) -> None:
+        """Store embedded arguments from keyword name. Ignore embedded variables patterns (${var:pattern})."""
+        try:
+            for token in name_token.tokenize_variables():
+                if token.type == Token.VARIABLE:
+                    self.add_variable_to_scope(token)
+        except VariableError:
+            pass
+
     def add_variable_to_scope(self, node, var_name=None):  # var_name optional to better handle argument default values
-        """Determine name of variable by stripping"""
+        """
+        Determine name of variable by stripping item accessors and type conversions
+        and add it to known variables if not already present.
+        """
         if not var_name:
             var_name = node.name if hasattr(node, "name") else node.value
         # name = remove_variable_type_conversion(var_name[2:-1])  # TODO: Add test data for this
-        try:
-            name = search_variable(var_name, parse_type=True).base  # TODO: Add test data for this
-        except TypeError:
+        if rf_supports_type():
+            name = search_variable(var_name, parse_type=True).base  # pylint: disable=unexpected-keyword-arg
+        else:
             name = search_variable(var_name).base
         if (norm_name := normalize_robot_name(name)) not in self.variables:
-            self.variables[norm_name] = (name, node, len(var_name) + 1)  # TODO: Use dataclass
+            self.variables[norm_name] = CachedVariable(name, node, len(var_name) + 1)
 
     def check_variable_names_and_report(self):
-        for name, node, end_col in self.variables.values():
-            if (length := len(name)) > self.too_long_variable_name.max_len:
+        for var in self.variables.values():
+            if (length := len(var.name)) > self.too_long_variable_name.max_len:
                 self.report(
                     self.too_long_variable_name,
-                    variable_name=name,
+                    variable_name=var.name,
                     variable_name_length=length,
                     allowed_length=self.too_long_variable_name.max_len,
-                    node=node,
-                    end_col=node.col_offset + end_col,
+                    node=var.node,
+                    end_col=var.node.col_offset + var.end_col,
                     sev_threshold_value=length,
                 )
 

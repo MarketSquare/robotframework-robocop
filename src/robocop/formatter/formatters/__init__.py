@@ -133,7 +133,9 @@ def get_formatter_short_name(name: str):
        C://path/to/formatter.py -> formatter
 
     """
-    return pathlib.Path(name).stem
+    if name.endswith(".py"):
+        return pathlib.Path(name).stem
+    return name.rsplit(".")[-1]
 
 
 def get_absolute_path_to_formatter(name):

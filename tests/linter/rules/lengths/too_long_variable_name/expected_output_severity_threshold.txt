@@ -4,7 +4,6 @@ test.robot:14:5 [W] LEN32 Variable name 'different_short_variable_name' is too l
 test.robot:14:41 [E] LEN32 Variable name 'different_even_longer_local_variable_name' is too long (41/40)
 test.robot:16:12 [E] LEN32 Variable name 'too_loooooooooong_iteration_variable_name' is too long (41/40)
 test.robot:17:9 [E] LEN32 Variable name 'some_even_loooooonger_local_variable_name' is too long (41/40)
-test.robot:17:57 [E] LEN32 Variable name 'different_even_longer_local_variable_name' is too long (41/40)
 test.robot:22:46 [E] LEN32 Variable name 'some_loooooooooooooooooong_argument_name' is too long (40/40)
 test.robot:22:93 [E] LEN32 Variable name 'some_even_loooooooooooonger_argument_name' is too long (41/40)
 test.robot:23:12 [E] LEN32 Variable name 'too_looooooooooooong_iteration_index_name' is too long (41/40)

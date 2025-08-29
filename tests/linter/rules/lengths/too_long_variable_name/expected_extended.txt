@@ -29,15 +29,6 @@ test.robot:17:9 LEN32 Variable name 'some_even_loooooonger_local_variable_name' 
  18 |     END
     |
 
-test.robot:17:57 LEN32 Variable name 'different_even_longer_local_variable_name' is too long (41/40)
-    |
- 15 |
- 16 |     FOR    ${too_loooooooooong_iteration_variable_name}    IN RANGE    ${10}
- 17 |         ${some_even_loooooonger_local_variable_name}    ${different_even_longer_local_variable_name}    Some Other Keyword    # reassign existing variables
-    |                                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ LEN32
- 18 |     END
-    |
-
 test.robot:22:93 LEN32 Variable name 'some_even_loooooooooooonger_argument_name' is too long (41/40)
     |
  20 | *** Keywords ***

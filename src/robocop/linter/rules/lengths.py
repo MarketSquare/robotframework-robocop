@@ -8,13 +8,17 @@ from robot.api import Token
 from robot.parsing.model.blocks import CommentSection, TestCase
 from robot.parsing.model.statements import (
     Arguments,
-    Comment,
+    Comment,  # Node
     Documentation,
     EmptyLine,
     KeywordCall,
     Template,
     TemplateArguments,
 )
+from robot.variables.search import search_variable
+
+# from dataclasses import dataclass
+
 
 try:
     from robot.api.parsing import Break, Continue
@@ -35,12 +39,11 @@ from robocop.linter.rules import (
     VisitorChecker,
     arguments,
 )
-from robocop.linter.utils.misc import (
+from robocop.linter.utils.misc import (  # remove_variable_type_conversion,
     RETURN_CLASSES,
     get_section_name,
     normalize_robot_name,
     pattern_type,
-    remove_variable_type_conversion,
     split_argument_default_value,
     str2bool,
     strip_equals_from_assignment,
@@ -668,9 +671,8 @@ def get_documentation_length(node):
 
 class LengthChecker(VisitorChecker):
     """
-    Checker for max and min length of keyword, test case and variable names. It analyses number of lines, number of
-    keyword calls (as you can have just few keywords but very long ones or vice versa) and also the length of variable
-    names.
+    Checker for max and min length of keyword or test case. It analyses number of lines and also number of
+    keyword calls (as you can have just few keywords but very long ones or vice versa).
     """
 
     too_few_calls_in_keyword: TooFewCallsInKeywordRule
@@ -679,17 +681,8 @@ class LengthChecker(VisitorChecker):
     too_many_calls_in_test_case: TooManyCallsInTestCaseRule
     too_long_keyword: TooLongKeywordRule
     too_long_test_case: TooLongTestCaseRule
-    too_long_variable_name: TooLongVariableNameRule
     file_too_long: FileTooLongRule
     too_many_arguments: TooManyArgumentsRule
-
-    set_variable_keywords = {
-        "setlocalvariable",
-        "settestvariable",
-        "settaskvariable",
-        "setsuitevariable",
-        "setglobalvariable",
-    }
 
     def __init__(self):
         self.keyword_call_alike = tuple(
@@ -723,7 +716,6 @@ class LengthChecker(VisitorChecker):
     def visit_Keyword(self, node) -> None:  # noqa: N802
         if node.name.lstrip().startswith("#"):
             return
-        self.generic_visit(node)
         for child in node.body:
             if isinstance(child, Arguments):
                 args_number = len(child.values)
@@ -786,7 +778,6 @@ class LengthChecker(VisitorChecker):
         return any(isinstance(statement, Template) for statement in node.body)
 
     def visit_TestCase(self, node) -> None:  # noqa: N802
-        self.generic_visit(node)
         if self.too_long_test_case.ignore_templated and self.test_is_templated(node):
             return
         length, node_end_line = check_node_length(node, ignore_docs=self.too_long_test_case.ignore_docs)
@@ -844,57 +835,97 @@ class LengthChecker(VisitorChecker):
             calls += sum(self.count_keyword_calls(child) for child in node.body)
         return calls
 
-    def check_variable_name(self, node, var_name=None):  # var_name optional to better handle argument default values
+
+# @dataclass
+# class CachedVariable:
+#     name: str
+#     node: Node
+#     end_col: int
+
+
+class VariableNameLengthChecker(VisitorChecker):
+    """Checker for max length variable names."""
+
+    too_long_variable_name: TooLongVariableNameRule
+
+    set_variable_keywords = {
+        "setlocalvariable",
+        "settestvariable",
+        "settaskvariable",
+        "setsuitevariable",
+        "setglobalvariable",
+    }
+
+    def __init__(self) -> None:
+        super().__init__()
+        self.variables: dict[str, tuple] = {}
+
+    def visit_Node(self, node) -> None:  # noqa: N802
+        if not node.errors:
+            self.generic_visit(node)
+
+    def visit_Scope(self, node):  # noqa: N802
+        """Handle new scope by resetting list if known variables"""
+        self.variables.clear()
+        # TODO: Check embedded arguments
+        self.generic_visit(node)
+        self.check_variable_names_and_report()
+
+    visit_TestCase = visit_VariableSection = visit_Keyword = visit_Scope  # noqa: N815
+
+    def add_variable_to_scope(self, node, var_name=None):  # var_name optional to better handle argument default values
+        """Determine name of variable by stripping"""
         if not var_name:
             var_name = node.name if hasattr(node, "name") else node.value
-        name = remove_variable_type_conversion(var_name[2:-1])  # TODO: Add test data for this
-        if (length := len(name)) > self.too_long_variable_name.max_len:
-            self.report(
-                self.too_long_variable_name,
-                variable_name=name,
-                variable_name_length=length,
-                allowed_length=self.too_long_variable_name.max_len,
-                node=node,
-                end_col=node.col_offset + len(var_name) + 1,
-                sev_threshold_value=length,
-            )
+        # name = remove_variable_type_conversion(var_name[2:-1])  # TODO: Add test data for this
+        try:
+            name = search_variable(var_name, parse_type=True).base  # TODO: Add test data for this
+        except TypeError:
+            name = search_variable(var_name).base
+        if (norm_name := normalize_robot_name(name)) not in self.variables:
+            self.variables[norm_name] = (name, node, len(var_name) + 1)  # TODO: Use dataclass
 
-    visit_Variable = check_variable_name  # noqa: N815
+    def check_variable_names_and_report(self):
+        for name, node, end_col in self.variables.values():
+            if (length := len(name)) > self.too_long_variable_name.max_len:
+                self.report(
+                    self.too_long_variable_name,
+                    variable_name=name,
+                    variable_name_length=length,
+                    allowed_length=self.too_long_variable_name.max_len,
+                    node=node,
+                    end_col=node.col_offset + end_col,
+                    sev_threshold_value=length,
+                )
+
+    visit_Variable = add_variable_to_scope  # noqa: N815
 
     def visit_KeywordCall(self, node) -> None:  # noqa: N802
-        if node.errors or not node.keyword:
+        if not node.keyword:
             return
         for variable in node.get_tokens(Token.ASSIGN):
-            self.check_variable_name(variable, strip_equals_from_assignment(variable.value))
-        if normalize_robot_name(node.keyword) in self.set_variable_keywords:
-            self.check_variable_name(node.get_token(Token.ARGUMENT))  # TODO: Add test data for this
+            self.add_variable_to_scope(variable, strip_equals_from_assignment(variable.value))
+        if normalize_robot_name(node.keyword) in self.set_variable_keywords:  # Only check 'Set ... Variable' variants
+            self.add_variable_to_scope(node.get_token(Token.ARGUMENT))  # TODO: Add test data for this
 
     def visit_Var(self, node):  # noqa: N802
-        if node.errors:
-            return
         if variable := node.get_token(Token.VARIABLE):
-            self.check_variable_name(variable, strip_equals_from_assignment(variable.value))
+            self.add_variable_to_scope(variable, strip_equals_from_assignment(variable.value))
 
     def visit_Arguments(self, node):  # noqa: N802
-        if node.errors:
-            return
         for argument in node.get_tokens(Token.ARGUMENT):
             name, _ = split_argument_default_value(argument.value)
-            self.check_variable_name(argument, name)
+            self.add_variable_to_scope(argument, name)
 
     def visit_For(self, node):  # noqa: N802
-        if node.errors:
-            return
         for variable in node.header.get_tokens(Token.VARIABLE):
-            self.check_variable_name(variable)
-        self.generic_visit(node)
+            self.add_variable_to_scope(variable)
+        self.generic_visit(node)  # continue to nested loops
 
     def visit_Try(self, node):  # noqa: N802
-        if node.errors:
-            return
         if (node.type is Token.EXCEPT) and (variable := node.header.get_token(Token.VARIABLE)):
-            self.check_variable_name(variable)
-        self.generic_visit(node)
+            self.add_variable_to_scope(variable)
+        self.generic_visit(node)  # continue to all branches
 
 
 class LineLengthChecker(RawFileChecker):

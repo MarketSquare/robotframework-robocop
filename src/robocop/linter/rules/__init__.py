@@ -708,6 +708,7 @@ class RobocopImporter:
         """
         spec = importlib.util.spec_from_file_location(file_path.stem, file_path)
         mod = importlib.util.module_from_spec(spec)
+        sys.modules[spec.name] = mod
         spec.loader.exec_module(mod)
         return mod
 

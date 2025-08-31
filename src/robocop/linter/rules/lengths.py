@@ -865,7 +865,7 @@ class VariableNameLengthChecker(VisitorChecker):
         if not node.errors:
             self.generic_visit(node)
 
-    def visit_Scope(self, node: Keyword | TestCase | VariableSection):  # noqa: N802
+    def new_variable_scope(self, node: Keyword | TestCase | VariableSection):
         """Handle new scope by resetting list of known variables."""
         self.variables.clear()
         if isinstance(node, Keyword):
@@ -873,31 +873,45 @@ class VariableNameLengthChecker(VisitorChecker):
         self.generic_visit(node)
         self.check_variable_names_and_report()
 
-    visit_TestCase = visit_VariableSection = visit_Keyword = visit_Scope  # noqa: N815
+    visit_TestCase = visit_VariableSection = visit_Keyword = new_variable_scope  # noqa: N815
 
     def parse_embedded_arguments(self, name_token) -> None:
         """Store embedded arguments from keyword name. Ignore embedded variables patterns (${var:pattern})."""
         try:
             for token in name_token.tokenize_variables():
                 if token.type == Token.VARIABLE:
-                    self.add_variable_to_scope(token)
+                    self.add_variable_to_scope(token, has_pattern=True)
         except VariableError:
             pass
 
-    def add_variable_to_scope(self, node, var_name=None):  # var_name optional to better handle argument default values
+    def add_variable_to_scope(self, node, var_name=None, has_pattern=False):
         """
         Determine name of variable by stripping item accessors and type conversions
         and add it to known variables if not already present.
         """
+        end_col_offset = 1
         if not var_name:
             var_name = node.name if hasattr(node, "name") else node.value
-        # name = remove_variable_type_conversion(var_name[2:-1])  # TODO: Add test data for this
-        if rf_supports_type():
-            name = search_variable(var_name, parse_type=True).base  # pylint: disable=unexpected-keyword-arg
-        else:
-            name = search_variable(var_name).base
+        # Escaped variable name handling : \${var}
+        escaped_var, var_name = var_name.startswith("\\"), var_name.lstrip("\\")
+        if escaped_var:
+            end_col_offset += 1  # leading backslash
+        # Strip all item and possible type conversions : ${list}[0] , ${var: int}
+        search = search_variable(var_name, parse_type=True) if rf_supports_type() else search_variable(var_name)  # pylint: disable=unexpected-keyword-arg
+        for i in search.items:
+            end_col_offset -= len(i) + 2  # highlight variable only, not item accessors
+        # Handle var name without brackets passed to Set Local/Global/Suite/Test Variable : $var
+        name = search.base if search.base else search.string.lstrip("$@&")
+        # Item assignment using extended variable syntax : ${dict.key}
+        name, *_ = name.split(".", maxsplit=1)  # re.split(r"(?<!\\)\.", name, maxsplit=1)  # unescaped dots only
+        # Strip pattern from variable name and determine col offset
+        if has_pattern:
+            name, *_ = name.split(":", maxsplit=1)  # re.split(r"(?<!\\):", name, 1)  # unescaped colon only
+        # Finally cache variable in current scope for checking, if not already present
         if (norm_name := normalize_robot_name(name)) not in self.variables:
-            self.variables[norm_name] = CachedVariable(name, node, len(var_name) + 1)
+            if len(var_name) + end_col_offset <= 0:
+                return  # sanity check
+            self.variables[norm_name] = CachedVariable(name, node, len(var_name) + end_col_offset)
 
     def check_variable_names_and_report(self):
         for var in self.variables.values():
@@ -919,8 +933,8 @@ class VariableNameLengthChecker(VisitorChecker):
             return
         for variable in node.get_tokens(Token.ASSIGN):
             self.add_variable_to_scope(variable, strip_equals_from_assignment(variable.value))
-        if normalize_robot_name(node.keyword) in self.set_variable_keywords:  # Only check 'Set ... Variable' variants
-            self.add_variable_to_scope(node.get_token(Token.ARGUMENT))  # TODO: Add test data for this
+        if normalize_robot_name(node.keyword) in self.set_variable_keywords:  # Only check args of 'Set ... Variable'
+            self.add_variable_to_scope(node.get_token(Token.ARGUMENT))
 
     def visit_Var(self, node):  # noqa: N802
         if variable := node.get_token(Token.VARIABLE):

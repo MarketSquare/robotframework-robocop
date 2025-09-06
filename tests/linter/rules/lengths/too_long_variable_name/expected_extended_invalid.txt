@@ -1,0 +1,58 @@
+test_invalid.robot:14:5 LEN32 Variable name 'local_variable_name_that_is_way_tooo_long' is too long (41/40)
+    |
+ 12 | Test
+ 13 |     ${short_variable_name}    Set Variable    value
+ 14 |     ${local_variable_name_that_is_way_tooo_long}    Set Variable    value    # 41
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ LEN32
+ 15 |     ${different_local_variable_name_that_is_too_long    Set Variable    value
+    |
+
+test_invalid.robot:55:12 LEN32 Variable name 'iteration_variable_name_that_is_way_too_long' is too long (44/40)
+    |
+ 55 |     FOR    ${iteration_variable_name_that_is_way_too_long}    IN    apple    banana    # 44
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ LEN32
+ 56 |         No Operation
+ 57 |     END
+    |
+
+test_invalid.robot:65:30 LEN32 Variable name 'inbetween_argument_with_too_long_arg_name' is too long (41/40)
+    |
+ 63 |
+ 64 | Invalid Keyword Argument
+ 65 |     [Arguments]    ${arg1    ${inbetween_argument_with_too_long_arg_name}    $arg3}    $arg4    \arg5    # 41
+    |                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ LEN32
+ 66 |     Commnent    Checking continues with remaining arguments after invalid argument
+    |
+
+test_invalid.robot:69:36 LEN32 Variable name 'inbetween_argument_with_too_long_arg_name' is too long (41/40)
+    |
+ 67 |
+ 68 | Invalid Keyword Arguments With Default Values
+ 69 |     [Arguments]    ${arg1=value    ${inbetween_argument_with_too_long_arg_name}=value    $args3}=value    # 41
+    |                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ LEN32
+ 70 |     No Operation
+    |
+
+test_invalid.robot:72:14 LEN32 Variable name '{short_embedded_argument_name} And ${embedded_argument_name_that_is_way_too_long}' is too long (81/40)
+    |
+ 72 | Keyword With ${{short_embedded_argument_name} And ${embedded_argument_name_that_is_way_too_long}} To Do Something With    # 81
+    |              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ LEN32
+ 73 |     [Arguments]    ${short_argument_name=${None}    $another_short_argument_name}=default
+ 74 |     Comment    Even keywords with embedded arguments can have additional arguments
+    |
+
+test_invalid.robot:75:5 LEN32 Variable name 'local_dict_variable_name_that_is_too_long' is too long (41/40)
+    |
+ 73 |     [Arguments]    ${short_argument_name=${None}    $another_short_argument_name}=default
+ 74 |     Comment    Even keywords with embedded arguments can have additional arguments
+ 75 |     &{local_dict_variable_name_that_is_too_long}    Set Variable    ${existing_dict}    # 41
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ LEN32
+    |
+
+test_invalid.robot:77:9 LEN32 Variable name 'embedded_arg_with_invalid_pattern_setting' is too long (41/40)
+    |
+ 77 | Keyword ${embedded_arg_with_invalid_pattern_setting:pattern:pattern}    # 41; everything after first ':' is ignored
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ LEN32
+ 78 |     No Operation
+    |
+

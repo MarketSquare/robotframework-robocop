@@ -28,14 +28,19 @@ Test Dynamic Names
     # Some extended variable sytnax
     VAR    ${another_var_name_${short_variable_name}}    value
     VAR    ${different_var_${short_variable_name*2}}    value
-    VAR    ${other_var_${short_variable_name.key_name}}   value    # 41    # TODO: Not reported because of item access
+    VAR    ${other_var_${short_variable_name.key_name}}   value    # 41
 
+    #Using recommended syntax
     Set Test Variable    ${TEST_VARIABLE_NAME_THAT_CONTAINS_DYN_${short_variable_name}}    value    # 59
     Set Task Variable    \${TASK_VARIABLE_NAME_THAT_CONTAINS_DYN_${short_variable_name}}    value    # 59
-    Set Suite Variable    $SUITE_VARIABLE_NAME_THAT_CONTAINS_DYN_${short_variable_name}    value    # Not reported currently
+    Set Suite Variable    $SUITE_VARIABLE_NAME_THAT_CONTAINS_DYN_${short_variable_name}    value    # 60
+    Set Local Variable    $variable_name_with_${var_a}_and_${var_b}    value
+    Set Local Variable    $long_variable_name_with_@{var_a}[0]_and_${var_b}    value    # 48
 
+    ${another_variable_name_with_@{var_a}[0]_and_${var_b}}    Keyword    # 51
+    
 
 *** Keywords ***
 Something
-    # Currently re-reported because 'scope' is not respected
+    # Currently re-reported because 'scope' is not evaluated
     VAR    ${SETTING_GLOBAL_VARIABLE_WITH_TOO_LONG_NAME}    value    scope=GLOBAL    # 42

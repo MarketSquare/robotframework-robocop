@@ -1,0 +1,72 @@
+test_type.robot:8:1 LEN32 Variable name 'SOME_EVEN_LOOOOOONGER_SUITE_VARIABLE_NAME' is too long (41/40)
+   |
+ 6 | ${OTHER_SUITE_VARIABLE_NAME: dict[int, str]}    {3278: 'Critical', 4173: 'High', 5334: 'High'}
+ 7 | ${YET_ANOTHER_SUITE_VARIABLE_NAME: int | float}    ${{math.pi}}
+ 8 | ${SOME_EVEN_LOOOOOONGER_SUITE_VARIABLE_NAME: int}     value    # 41
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ LEN32
+ 9 | &{OTHER_EVEN_LOOOOONGER_SUITE_VARIABLE_NAME: int=str}    3278=Critical    4173=High    5334=High    # 41
+   |
+
+test_type.robot:9:1 LEN32 Variable name 'OTHER_EVEN_LOOOOONGER_SUITE_VARIABLE_NAME' is too long (41/40)
+   |
+ 7 | ${YET_ANOTHER_SUITE_VARIABLE_NAME: int | float}    ${{math.pi}}
+ 8 | ${SOME_EVEN_LOOOOOONGER_SUITE_VARIABLE_NAME: int}     value    # 41
+ 9 | &{OTHER_EVEN_LOOOOONGER_SUITE_VARIABLE_NAME: int=str}    3278=Critical    4173=High    5334=High    # 41
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ LEN32
+   |
+
+test_type.robot:15:57 LEN32 Variable name 'different_even_longer_local_variable_name' is too long (41/40)
+    |
+ 15 |     ${different_short_variable_name: dict[int, str]}    ${different_even_longer_local_variable_name: float}    Some Keyword    # 41
+    |                                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ LEN32
+    |
+
+test_type.robot:17:12 LEN32 Variable name 'too_loooooooooong_iteration_variable_name' is too long (41/40)
+    |
+ 17 |     FOR    ${too_loooooooooong_iteration_variable_name: int}    IN RANGE    ${10}    # 41
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ LEN32
+ 18 |         ${short_enough_variable_name_with_type: int}    ${yet_another_even_longer_local_variable_name: dict[int, str]}    Some Other Keyword    # 43
+ 19 |     END
+    |
+
+test_type.robot:18:57 LEN32 Variable name 'yet_another_even_longer_local_variable_name' is too long (43/40)
+    |
+ 16 |
+ 17 |     FOR    ${too_loooooooooong_iteration_variable_name: int}    IN RANGE    ${10}    # 41
+ 18 |         ${short_enough_variable_name_with_type: int}    ${yet_another_even_longer_local_variable_name: dict[int, str]}    Some Other Keyword    # 43
+    |                                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ LEN32
+ 19 |     END
+    |
+
+test_type.robot:23:77 LEN32 Variable name 'keyword_argument_name_that_is_too_long_with_type' is too long (48/40)
+    |
+ 21 | *** Keywords ***
+ 22 | Some Keyword
+ 23 |     [Arguments]    ${short_argument_name_with_long_type: dict[int, str]}    ${keyword_argument_name_that_is_too_long_with_type: int}    # 48
+    |                                                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ LEN32
+ 24 |     FOR    ${short_enough_iteration_variable_name: tuple[str, date]}    IN ENUMERATE   2023-06-15    2025-05-30    today
+ 25 |         No Operation
+    |
+
+test_type.robot:28:68 LEN32 Variable name 'another_too_looong_embedded_argument_name' is too long (41/40)
+    |
+ 28 | Keyword With ${a_short_embedded_argument_name: dict[int, str]} And ${another_too_looong_embedded_argument_name: float} To Do Something With    # 41
+    |                                                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ LEN32
+ 29 |     VAR    ${some_even_loooooonger_local_variable_name: int}    value    # 41
+    |
+
+test_type.robot:29:12 LEN32 Variable name 'some_even_loooooonger_local_variable_name' is too long (41/40)
+    |
+ 27 |
+ 28 | Keyword With ${a_short_embedded_argument_name: dict[int, str]} And ${another_too_looong_embedded_argument_name: float} To Do Something With    # 41
+ 29 |     VAR    ${some_even_loooooonger_local_variable_name: int}    value    # 41
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ LEN32
+    |
+
+test_type.robot:31:67 LEN32 Variable name 'this_other_date_argument_is_way_too_loong' is too long (41/40)
+    |
+ 31 | Deadline Is ${given_by_this_argument: date:\d{4}-\d{2}-\d{2}} But ${this_other_date_argument_is_way_too_loong: date:\d{4}-\d{2}-\d{2}}    # 41
+    |                                                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ LEN32
+ 32 |     Comment    Embedded keyword arguments containing type and pattern
+    |
+

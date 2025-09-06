@@ -12,16 +12,17 @@ class TestRule(RuleAcceptance):
             output_format="extended",
         )
 
-    # def test_invalid_data(self):
-    #     self.check_rule(
-    #         src_files=["test_invalid.robot"],
-    #         expected_file="expected_invalid_data.txt",
-    #     )
-
-    def test_var(self):
+    def test_invalid_data(self):
         self.check_rule(
-            src_files=["test_var.robot"],
-            expected_file="expected_extended_var.txt",
+            src_files=["test_invalid.robot"],
+            expected_file="expected_extended_invalid.txt",
+            output_format="extended",
+        )
+
+    def test_var_dyn(self):
+        self.check_rule(
+            src_files=["test_var_dyn.robot"],
+            expected_file="expected_extended_var_dyn.txt",
             output_format="extended",
             test_on_version=">=7.0",
         )
@@ -34,13 +35,13 @@ class TestRule(RuleAcceptance):
             test_on_version=">=5.0",
         )
 
-    # def test_type(self):
-    #     self.check_rule(
-    #         src_files=["test_type.robot"],
-    #         expected_file="expected_extended_type.txt",
-    #         output_format="extended",
-    #         test_on_version=">=7.3",
-    #     )
+    def test_type(self):
+        self.check_rule(
+            src_files=["test_type.robot"],
+            expected_file="expected_extended_type.txt",
+            output_format="extended",
+            test_on_version=">=7.3",
+        )
 
     def test_severity_threshold(self):
         self.check_rule(

@@ -6,7 +6,12 @@ from robot.api import Token
 
 from robocop.linter import sonar_qube
 from robocop.linter.rules import Rule, RuleSeverity, VisitorChecker, arguments, order, variables
-from robocop.linter.utils.misc import get_errors, normalize_robot_name, normalize_robot_var_name
+from robocop.linter.utils.misc import (
+    get_errors,
+    normalize_robot_name,
+    normalize_robot_var_name,
+    strip_equals_from_assignment,
+)
 
 
 class DuplicatedTestCaseRule(Rule):
@@ -331,7 +336,7 @@ class DuplicationsChecker(VisitorChecker):
         assign = node.get_tokens(Token.ASSIGN)
         seen = set()
         for var in assign:
-            var_name, *_ = var.value.split("=", maxsplit=1)
+            var_name = strip_equals_from_assignment(var.value)
             name = normalize_robot_var_name(var_name)
             if not name:  # ie. "${_}" -> ""
                 return

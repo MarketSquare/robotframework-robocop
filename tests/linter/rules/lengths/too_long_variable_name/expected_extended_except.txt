@@ -1,0 +1,70 @@
+test_except.robot:9:9 LEN32 Variable name 'local_variable_name_that_is_way_tooo_long' is too long (41/40)
+   |
+ 7 |     TRY
+ 8 |         # Making sure that try branch is visited:
+ 9 |         ${local_variable_name_that_is_way_tooo_long}    Set Variable    value    # 41
+   |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ LEN32
+10 |     EXCEPT    *warn*    AS    ${short_name}
+11 |         No Operation
+   |
+
+test_except.robot:14:45 LEN32 Variable name 'another_local_variable_name_that_is_too_long' is too long (44/40)
+    |
+ 12 |     EXCEPT    *err*    AS    ${still_acceptable_name_for_captured_error}
+ 13 |         # Making sure that except branch is visited:
+ 14 |         ${different_short_variable_name}    ${another_local_variable_name_that_is_too_long}    Set Variable    value    # 44
+    |                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ LEN32
+ 15 |     EXCEPT    *fatal*    AS    ${too_loong_name_for_captured_error_message}    # 41
+ 16 |         No Operation
+    |
+
+test_except.robot:15:32 LEN32 Variable name 'too_loong_name_for_captured_error_message' is too long (41/40)
+    |
+ 13 |         # Making sure that except branch is visited:
+ 14 |         ${different_short_variable_name}    ${another_local_variable_name_that_is_too_long}    Set Variable    value    # 44
+ 15 |     EXCEPT    *fatal*    AS    ${too_loong_name_for_captured_error_message}    # 41
+    |                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ LEN32
+ 16 |         No Operation
+ 17 |     EXCEPT    *****    AS    ${another_too_long_name_for_captured_error_message}    # 48
+    |
+
+test_except.robot:17:30 LEN32 Variable name 'another_too_long_name_for_captured_error_message' is too long (48/40)
+    |
+ 15 |     EXCEPT    *fatal*    AS    ${too_loong_name_for_captured_error_message}    # 41
+ 16 |         No Operation
+ 17 |     EXCEPT    *****    AS    ${another_too_long_name_for_captured_error_message}    # 48
+    |                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ LEN32
+ 18 |         # Making sure that except branch is visited:
+ 19 |         Set Local Variable    ${different_local_variable_name_that_is_too_long}    value    # 46
+    |
+
+test_except.robot:19:31 LEN32 Variable name 'different_local_variable_name_that_is_too_long' is too long (46/40)
+    |
+ 17 |     EXCEPT    *****    AS    ${another_too_long_name_for_captured_error_message}    # 48
+ 18 |         # Making sure that except branch is visited:
+ 19 |         Set Local Variable    ${different_local_variable_name_that_is_too_long}    value    # 46
+    |                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ LEN32
+ 20 |         # Below is not re-reported: Variables from TRY branch still in scope:
+ 21 |         ${local_variable_name_that_is_way_tooo_long}    Set Variable    value
+    |
+
+test_except.robot:25:30 LEN32 Variable name 'different_suite_variable_name_that_is_too_long' is too long (46/40)
+    |
+ 23 |         No Operation
+ 24 |     ELSE
+ 25 |         Set Task Variable    $different_suite_variable_name_that_is_too_long    value    # 46
+    |                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ LEN32
+ 26 |     FINALLY
+ 27 |         No Operation
+    |
+
+test_except.robot:35:21 LEN32 Variable name 'too_loong_name_for_captured_error_message' is too long (41/40)
+    |
+ 33 |     TRY
+ 34 |         No Operation
+ 35 |     EXCEPT    AS    ${too_loong_name_for_captured_error_message}    # 41
+    |                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ LEN32
+ 36 |         No Operation
+ 37 |     END
+    |
+

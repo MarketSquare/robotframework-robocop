@@ -37,6 +37,7 @@ if TYPE_CHECKING:
 
 ROBOT_VERSION = Version(RF_VERSION)
 ROBOT_WITH_LANG = Version("6.0")
+ROBOT_WITH_TYPE = Version("7.3")
 ROBOCOP_RULES_URL = "https://robocop.readthedocs.io/en/{version}/rules_list.html"
 
 
@@ -75,6 +76,10 @@ def rf_supports_lang() -> bool:
     return ROBOT_VERSION >= ROBOT_WITH_LANG
 
 
+def rf_supports_type() -> bool:
+    return ROBOT_VERSION >= ROBOT_WITH_TYPE
+
+
 def remove_variable_type_conversion(name: str) -> str:
     name, *_ = name.split(": ", maxsplit=1)
     return name
@@ -96,6 +101,22 @@ def remove_nested_variables(var_name: str) -> str:
         # take what surrounds it and run the check again
         return remove_nested_variables(match.before + match.after)
     return var_name.strip()
+
+
+def strip_equals_from_assignment(name: str) -> str:
+    return name[:-1].rstrip() if name.endswith("=") else name
+
+
+def split_argument_default_value(arg: str):
+    # From the Robot User Guide:
+    # "The syntax for default values is space sensitive. Spaces before
+    # the `=` sign are not allowed."
+    if "}=" not in arg:
+        # has no default
+        return arg, ""
+
+    arg_name, default_val = arg.split("}=", maxsplit=1)
+    return arg_name + "}", default_val
 
 
 def keyword_col(node: Keyword) -> int:

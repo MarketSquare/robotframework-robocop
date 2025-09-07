@@ -52,7 +52,7 @@ jobs:
         run: uv sync --all-extras --dev
 
       - name: Run tests
-        run: uv run --with=robotframework==${{ matrix.rf-version }} coverage run --source src/robocop -m pytest
+        run: uv run --with=robotframework==${{ matrix.rf-version }} coverage run --source src/robocop -m pytest -v
 
       - name: Calculate coverage
         run: uv run coverage report

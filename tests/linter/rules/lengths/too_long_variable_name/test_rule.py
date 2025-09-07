@@ -17,6 +17,7 @@ class TestRule(RuleAcceptance):
             src_files=["test_invalid.robot"],
             expected_file="expected_extended_invalid.txt",
             output_format="extended",
+            test_on_version=">=4.1.2",  # RF decode error prevents testing with earlier versions
         )
 
     def test_var_dyn(self):

@@ -4,24 +4,24 @@ from __future__ import annotations
 
 import re
 from dataclasses import dataclass
+from typing import TYPE_CHECKING
 
 from robot.api import Token
 from robot.errors import VariableError
-from robot.parsing.model.blocks import CommentSection, TestCase
+from robot.parsing.model.blocks import CommentSection, Keyword, TestCase
 from robot.parsing.model.statements import (
     Arguments,
     Comment,
     Documentation,
     EmptyLine,
     KeywordCall,
-    Node,
     Template,
     TemplateArguments,
 )
 from robot.variables.search import search_variable
 
 try:
-    from robot.api.parsing import Break, Continue, Keyword, VariableSection
+    from robot.api.parsing import Break, Continue
 except ImportError:
     Break, Continue = None, None
 try:  # RF7+
@@ -50,6 +50,10 @@ from robocop.linter.utils.misc import (
     str2bool,
     strip_equals_from_assignment,
 )
+
+if TYPE_CHECKING:
+    from robot.parsing.model import VariableSection
+    from robot.parsing.model.statements import Node
 
 
 class TooLongKeywordRule(Rule):

@@ -1,5 +1,5 @@
 *** Settings ***
-Documentation       doc
+Documentation       This tests ignoring of type conversions added in RF 7.3
 
 *** Variables ***
 ${SHORT_SUITE_VARIABLE_NAME: int}      10

@@ -1,5 +1,5 @@
 *** Settings ***
-Documentation       Test variable creation with VAR syntax and dynamic variable names (added in same release)
+Documentation       Test variable creation with VAR syntax and dynamic variable names (both added in 7.0). Item access moved here, because it was only added in 6.1
 
 
 *** Variables ***
@@ -39,6 +39,16 @@ Test Dynamic Names
 
     ${another_variable_name_with_@{var_a}[0]_and_${var_b}}    Keyword    # 51
     
+Test Item Access
+    Comment    Added in RF 6.1
+    # list variables and item access; Accessing items of existing list should not be reported
+    ${local_list_name_just_shy_of_max_len_a}[${1}]    Set Variable    second
+    ${local_list_name_just_shy_of_max_len_b}[2:3] =     Create List      third
+    ${local_list_variable_name_that_is_too_long}[0]    Set Variable    first    # 41
+
+    # items access shouldn't count towards length
+    ${local_dict_var_just_shy_of_max_len_b}[first_name] =    Set Variable         John
+    ${local_dict_variable_name_that_is_too_long_b}[last_name][0] =     Set Variable         Doe    # 43
 
 *** Keywords ***
 Something

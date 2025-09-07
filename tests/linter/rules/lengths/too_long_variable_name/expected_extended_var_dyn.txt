@@ -110,11 +110,27 @@ test_var_dyn.robot:40:5 LEN32 Variable name 'another_variable_name_with_@{var_a}
     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ LEN32
     |
 
-test_var_dyn.robot:46:12 LEN32 Variable name 'SETTING_GLOBAL_VARIABLE_WITH_TOO_LONG_NAME' is too long (42/40)
+test_var_dyn.robot:47:5 LEN32 Variable name 'local_list_variable_name_that_is_too_long' is too long (41/40)
     |
- 44 | Something
- 45 |     # Currently re-reported because 'scope' is not evaluated
- 46 |     VAR    ${SETTING_GLOBAL_VARIABLE_WITH_TOO_LONG_NAME}    value    scope=GLOBAL    # 42
+ 45 |     ${local_list_name_just_shy_of_max_len_a}[${1}]    Set Variable    second
+ 46 |     ${local_list_name_just_shy_of_max_len_b}[2:3] =     Create List      third
+ 47 |     ${local_list_variable_name_that_is_too_long}[0]    Set Variable    first    # 41
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ LEN32
+    |
+
+test_var_dyn.robot:51:5 LEN32 Variable name 'local_dict_variable_name_that_is_too_long_b' is too long (43/40)
+    |
+ 49 |     # items access shouldn't count towards length
+ 50 |     ${local_dict_var_just_shy_of_max_len_b}[first_name] =    Set Variable         John
+ 51 |     ${local_dict_variable_name_that_is_too_long_b}[last_name][0] =     Set Variable         Doe    # 43
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ LEN32
+    |
+
+test_var_dyn.robot:56:12 LEN32 Variable name 'SETTING_GLOBAL_VARIABLE_WITH_TOO_LONG_NAME' is too long (42/40)
+    |
+ 54 | Something
+ 55 |     # Currently re-reported because 'scope' is not evaluated
+ 56 |     VAR    ${SETTING_GLOBAL_VARIABLE_WITH_TOO_LONG_NAME}    value    scope=GLOBAL    # 42
     |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ LEN32
     |
 

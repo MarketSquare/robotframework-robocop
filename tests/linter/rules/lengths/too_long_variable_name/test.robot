@@ -22,19 +22,12 @@ Test
     ${yet another local variable name that is too long}    Set Variable    value    # 48
     ${a\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ b}    Set Variable    value    # 42
 
-    # list variables and item access; Accessing items of existing list should not be reported
-    ${local_list_name_just_shy_of_max_len_a}[${1}]    Set Variable    second
-    ${local_list_name_just_shy_of_max_len_b}[2:3] =     Create List      third
-    ${local_list_variable_name_that_is_too_long}[0]    Set Variable    first    # 41
-
-    # dict variables and item access; items access shouldn't count towards length
+    # item access by extended syntax
     &{local_dict_var_just_shy_of_max_len_a} =    Create Dictionary    first_name=unknown
-    ${local_dict_var_just_shy_of_max_len_b}[first_name] =    Set Variable         John
     ${local_dict_var_just_shy_of_max_len_c.first_name}    Set Variable         John
     &{local_dict_variable_name_that_is_too_long_a}    Set Variable    ${existing_dict}    # 43
-    ${local_dict_variable_name_that_is_too_long_b}[last_name][0] =     Set Variable         Doe    # 43
     ${local_dict_variable_name_that_is_too_long_c.last_name}    Set Variable         Doe    # 43
-    ${local_dict_var_just_shy_of_max_len_d\.last_name}    Set Variable         Doe    # 47
+    ${local_dict_var_just_shy_of_max_len_d\.last_name}    Set Variable         Doe
 
 Test Variants
     Set Local Variable    ${short_local_variable_name}    value
@@ -67,9 +60,9 @@ Test Variants
     Set Local Variable    @{local_list_variable_name_that_is_too_long}    @{EMPTY}    # 41
     Set Local Variable    \@different_local_list_variable_name_that_is_too_long    @{EMPTY}    # 51
     Set Local Variable    @another_local_list_variable_name_that_is_too_long    @{EMPTY}    # 49
-    Set Local Variable     &{local_dict_variable_name_that_is_too_long}    &{EMPTY}    # 41
-    Set Local Variable     \&{different_local_dict_variable_name_that_is_too_long}    &{EMPTY}    # 51
-    Set Local Variable     &another_local_dict_variable_name_that_is_too_long    &{EMPTY}    # 49
+    Set Local Variable    &{local_dict_variable_name_that_is_too_long}    &{EMPTY}    # 41
+    Set Local Variable    \&{different_local_dict_variable_name_that_is_too_long}    &{EMPTY}    # 51
+    Set Local Variable    &another_local_dict_variable_name_that_is_too_long    &{EMPTY}    # 49
 
 Test Return Values
     ${short_variable_name}    Set Variable    value
@@ -96,7 +89,7 @@ Test For
     END
     
     # Reusing existing variable; Not reported because variable in still in same scope
-    FOR    ${iteration_variable_name_that_is_way_too_long}    IN    apple    banana    # 44
+    FOR    ${iteration_variable_name_that_is_way_too_long}    IN    apple    banana
         No Operation
     END
 
@@ -108,8 +101,8 @@ Some Keyword
     ...    ${keyword_argument_name_that_is_way_too_long}    # 42
     ...    ${short_argument_name_with_default_value}=default
     ...    ${keyword_argument_just_shy_of_max_len:invalid}=default    # 44
-    # Making sure that body is visited:
-    ${local_list_variable_name_that_is_too_long}[0]    Set Variable    first    # 41
+    # Making sure that body is visited and scope works
+    ${local_variable_name_that_is_way_tooo_long}    Set Variable    value    # 41
     ${keyword_argument_name_that_is_way_too_long}    Set Variable    value
 
 Keyword With ${short_embedded_argument_name} And ${embedded_argument_name_that_is_way_too_long} To Do Something With    # 43

@@ -51,10 +51,12 @@ jobs:
       - name: Install the project
         run: |
           uv sync --all-extras --dev
-          uv pip install robotframework==${{ matrix.rf-version }}
+          uv add robotframework==${{ matrix.rf-version }}
 
       - name: Run tests
-        run: uv run coverage run --source src/robocop -m pytest
+        run: |
+          uv run robot --version || true
+          uv run coverage run --source src/robocop -m pytest -v
 
       - name: Calculate coverage
         run: uv run coverage report

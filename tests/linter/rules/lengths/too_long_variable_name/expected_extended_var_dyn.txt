@@ -1,0 +1,136 @@
+test_var_dyn.robot:7:1 LEN32 Variable name 'SUITE_VARIABLE_NAME_THAT_IS_WAY_TOOO_LONG' is too long (41/40)
+   |
+ 5 | *** Variables ***
+ 6 | ${SHORT_SUITE_VARIABLE_NAME}                                            name
+ 7 | ${SUITE_VARIABLE_NAME_THAT_IS_WAY_TOOO_LONG}        value    # 41
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ LEN32
+ 8 | ${SUITE_VARIABLE_NAME_THAT_CONTAINS_${SHORT_SUITE_VARIABLE_NAME}}       value    # 62
+   |
+
+test_var_dyn.robot:8:1 LEN32 Variable name 'SUITE_VARIABLE_NAME_THAT_CONTAINS_${SHORT_SUITE_VARIABLE_NAME}' is too long (62/40)
+   |
+ 6 | ${SHORT_SUITE_VARIABLE_NAME}                                            name
+ 7 | ${SUITE_VARIABLE_NAME_THAT_IS_WAY_TOOO_LONG}        value    # 41
+ 8 | ${SUITE_VARIABLE_NAME_THAT_CONTAINS_${SHORT_SUITE_VARIABLE_NAME}}       value    # 62
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ LEN32
+   |
+
+test_var_dyn.robot:17:12 LEN32 Variable name 'SUITE_VARIABLE_NAME_THAT_IS_WAY_TOOO_LONG' is too long (41/40)
+    |
+ 15 |
+ 16 |     # Currently re-reported because 'scope' is not respected
+ 17 |     VAR    ${SUITE_VARIABLE_NAME_THAT_IS_WAY_TOOO_LONG}    value    scope=SUITE    # 41
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ LEN32
+ 18 |     VAR    ${SETTING_GLOBAL_VARIABLE_WITH_TOO_LONG_NAME}    value    scope=GLOBAL    # 42
+    |
+
+test_var_dyn.robot:18:12 LEN32 Variable name 'SETTING_GLOBAL_VARIABLE_WITH_TOO_LONG_NAME' is too long (42/40)
+    |
+ 16 |     # Currently re-reported because 'scope' is not respected
+ 17 |     VAR    ${SUITE_VARIABLE_NAME_THAT_IS_WAY_TOOO_LONG}    value    scope=SUITE    # 41
+ 18 |     VAR    ${SETTING_GLOBAL_VARIABLE_WITH_TOO_LONG_NAME}    value    scope=GLOBAL    # 42
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ LEN32
+    |
+
+test_var_dyn.robot:21:5 LEN32 Variable name 'a${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}b' is too long (42/40)
+    |
+ 19 |
+ 20 | Test Dynamic Names
+ 21 |     ${a${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}b}    Set Variable    value    # 42
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ LEN32
+ 22 |     ${short_variable_name}    Set Variable    name
+ 23 |     ${local_variable_name_that_contains_dyn_${short_variable_name}}    Set Variable    value    # 60
+    |
+
+test_var_dyn.robot:23:5 LEN32 Variable name 'local_variable_name_that_contains_dyn_${short_variable_name}' is too long (60/40)
+    |
+ 21 |     ${a${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}b}    Set Variable    value    # 42
+ 22 |     ${short_variable_name}    Set Variable    name
+ 23 |     ${local_variable_name_that_contains_dyn_${short_variable_name}}    Set Variable    value    # 60
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ LEN32
+    |
+
+test_var_dyn.robot:26:5 LEN32 Variable name 'local_variable_name_that_contains_dyn_name' is too long (42/40)
+    |
+ 24 |
+ 25 |     # Usage of literal name of existing variable; Will be reported again with new length
+ 26 |     ${local_variable_name_that_contains_dyn_name}    Set Variable    value    # 42
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ LEN32
+    |
+
+test_var_dyn.robot:31:12 LEN32 Variable name 'other_var_${short_variable_name.key_name}' is too long (41/40)
+    |
+ 29 |     VAR    ${another_var_name_${short_variable_name}}    value
+ 30 |     VAR    ${different_var_${short_variable_name*2}}    value
+ 31 |     VAR    ${other_var_${short_variable_name.key_name}}   value    # 41
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ LEN32
+    |
+
+test_var_dyn.robot:34:26 LEN32 Variable name 'TEST_VARIABLE_NAME_THAT_CONTAINS_DYN_${short_variable_name}' is too long (59/40)
+    |
+ 32 |
+ 33 |     #Using recommended syntax
+ 34 |     Set Test Variable    ${TEST_VARIABLE_NAME_THAT_CONTAINS_DYN_${short_variable_name}}    value    # 59
+    |                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ LEN32
+ 35 |     Set Task Variable    \${TASK_VARIABLE_NAME_THAT_CONTAINS_DYN_${short_variable_name}}    value    # 59
+ 36 |     Set Suite Variable    $SUITE_VARIABLE_NAME_THAT_CONTAINS_DYN_${short_variable_name}    value    # 60
+    |
+
+test_var_dyn.robot:35:26 LEN32 Variable name 'TASK_VARIABLE_NAME_THAT_CONTAINS_DYN_${short_variable_name}' is too long (59/40)
+    |
+ 33 |     #Using recommended syntax
+ 34 |     Set Test Variable    ${TEST_VARIABLE_NAME_THAT_CONTAINS_DYN_${short_variable_name}}    value    # 59
+ 35 |     Set Task Variable    \${TASK_VARIABLE_NAME_THAT_CONTAINS_DYN_${short_variable_name}}    value    # 59
+    |                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ LEN32
+ 36 |     Set Suite Variable    $SUITE_VARIABLE_NAME_THAT_CONTAINS_DYN_${short_variable_name}    value    # 60
+ 37 |     Set Local Variable    $variable_name_with_${var_a}_and_${var_b}    value
+    |
+
+test_var_dyn.robot:36:27 LEN32 Variable name 'SUITE_VARIABLE_NAME_THAT_CONTAINS_DYN_${short_variable_name}' is too long (60/40)
+    |
+ 34 |     Set Test Variable    ${TEST_VARIABLE_NAME_THAT_CONTAINS_DYN_${short_variable_name}}    value    # 59
+ 35 |     Set Task Variable    \${TASK_VARIABLE_NAME_THAT_CONTAINS_DYN_${short_variable_name}}    value    # 59
+ 36 |     Set Suite Variable    $SUITE_VARIABLE_NAME_THAT_CONTAINS_DYN_${short_variable_name}    value    # 60
+    |                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ LEN32
+ 37 |     Set Local Variable    $variable_name_with_${var_a}_and_${var_b}    value
+ 38 |     Set Local Variable    $long_variable_name_with_@{var_a}[0]_and_${var_b}    value    # 48
+    |
+
+test_var_dyn.robot:38:27 LEN32 Variable name 'long_variable_name_with_@{var_a}[0]_and_${var_b}' is too long (48/40)
+    |
+ 36 |     Set Suite Variable    $SUITE_VARIABLE_NAME_THAT_CONTAINS_DYN_${short_variable_name}    value    # 60
+ 37 |     Set Local Variable    $variable_name_with_${var_a}_and_${var_b}    value
+ 38 |     Set Local Variable    $long_variable_name_with_@{var_a}[0]_and_${var_b}    value    # 48
+    |                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ LEN32
+    |
+
+test_var_dyn.robot:40:5 LEN32 Variable name 'another_variable_name_with_@{var_a}[0]_and_${var_b}' is too long (51/40)
+    |
+ 40 |     ${another_variable_name_with_@{var_a}[0]_and_${var_b}}    Keyword    # 51
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ LEN32
+    |
+
+test_var_dyn.robot:47:5 LEN32 Variable name 'local_list_variable_name_that_is_too_long' is too long (41/40)
+    |
+ 45 |     ${local_list_name_just_shy_of_max_len_a}[${1}]    Set Variable    second
+ 46 |     ${local_list_name_just_shy_of_max_len_b}[2:3] =     Create List      third
+ 47 |     ${local_list_variable_name_that_is_too_long}[0]    Set Variable    first    # 41
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ LEN32
+    |
+
+test_var_dyn.robot:51:5 LEN32 Variable name 'local_dict_variable_name_that_is_too_long_b' is too long (43/40)
+    |
+ 49 |     # items access shouldn't count towards length
+ 50 |     ${local_dict_var_just_shy_of_max_len_b}[first_name] =    Set Variable         John
+ 51 |     ${local_dict_variable_name_that_is_too_long_b}[last_name][0] =     Set Variable         Doe    # 43
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ LEN32
+    |
+
+test_var_dyn.robot:56:12 LEN32 Variable name 'SETTING_GLOBAL_VARIABLE_WITH_TOO_LONG_NAME' is too long (42/40)
+    |
+ 54 | Something
+ 55 |     # Currently re-reported because 'scope' is not evaluated
+ 56 |     VAR    ${SETTING_GLOBAL_VARIABLE_WITH_TOO_LONG_NAME}    value    scope=GLOBAL    # 42
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ LEN32
+    |
+

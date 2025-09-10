@@ -1,0 +1,359 @@
+test.robot:7:1 LEN32 Variable name 'SUITE_VARIABLE_NAME_THAT_IS_WAY_TOOO_LONG' is too long (41/40)
+   |
+ 5 | *** Variables ***
+ 6 | ${SHORT_SUITE_VARIABLE_NAME}                        value
+ 7 | ${SUITE_VARIABLE_NAME_THAT_IS_WAY_TOOO_LONG}        value    # 41
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ LEN32
+ 8 | @{SUITE_VARIABLE_NAME_FOR_LIST_THAT_IS_TOO_LONG}    item1    item2    # 45
+ 9 | &{SUITE_VARIABLE_NAME_FOR_DICT_THAT_IS_TOO_LONG}    key=value    # 45
+   |
+
+test.robot:8:1 LEN32 Variable name 'SUITE_VARIABLE_NAME_FOR_LIST_THAT_IS_TOO_LONG' is too long (45/40)
+   |
+ 6 | ${SHORT_SUITE_VARIABLE_NAME}                        value
+ 7 | ${SUITE_VARIABLE_NAME_THAT_IS_WAY_TOOO_LONG}        value    # 41
+ 8 | @{SUITE_VARIABLE_NAME_FOR_LIST_THAT_IS_TOO_LONG}    item1    item2    # 45
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ LEN32
+ 9 | &{SUITE_VARIABLE_NAME_FOR_DICT_THAT_IS_TOO_LONG}    key=value    # 45
+   |
+
+test.robot:9:1 LEN32 Variable name 'SUITE_VARIABLE_NAME_FOR_DICT_THAT_IS_TOO_LONG' is too long (45/40)
+   |
+ 7 | ${SUITE_VARIABLE_NAME_THAT_IS_WAY_TOOO_LONG}        value    # 41
+ 8 | @{SUITE_VARIABLE_NAME_FOR_LIST_THAT_IS_TOO_LONG}    item1    item2    # 45
+ 9 | &{SUITE_VARIABLE_NAME_FOR_DICT_THAT_IS_TOO_LONG}    key=value    # 45
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ LEN32
+   |
+
+test.robot:16:5 LEN32 Variable name 'local_variable_name_that_is_way_tooo_long' is too long (41/40)
+    |
+ 14 |     ${short_variable_name}    Set Variable    value
+ 15 |     ${variable_name_fits_exactly_into_max_len_}    Set Variable    value    # Not reported
+ 16 |     ${local_variable_name_that_is_way_tooo_long}    Set Variable    value    # 41
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ LEN32
+ 17 |     ${different_local_variable_name_that_is_too_long}    Set Variable    value    # 46
+    |
+
+test.robot:17:5 LEN32 Variable name 'different_local_variable_name_that_is_too_long' is too long (46/40)
+    |
+ 15 |     ${variable_name_fits_exactly_into_max_len_}    Set Variable    value    # Not reported
+ 16 |     ${local_variable_name_that_is_way_tooo_long}    Set Variable    value    # 41
+ 17 |     ${different_local_variable_name_that_is_too_long}    Set Variable    value    # 46
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ LEN32
+    |
+
+test.robot:19:41 LEN32 Variable name 'another_local_variable_name_that_is_too_long' is too long (44/40)
+    |
+ 19 |     ${different_short_variable_name}    ${another_local_variable_name_that_is_too_long}    Set Variable    value    # 44
+    |                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ LEN32
+    |
+
+test.robot:22:5 LEN32 Variable name 'yet another local variable name that is too long' is too long (48/40)
+    |
+ 20 |
+ 21 |     # Variable names are judged by length of visual apperance, not evaluated/escaped length
+ 22 |     ${yet another local variable name that is too long}    Set Variable    value    # 48
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ LEN32
+ 23 |     ${a\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ b}    Set Variable    value    # 42
+    |
+
+test.robot:23:5 LEN32 Variable name 'a\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ b' is too long (42/40)
+    |
+ 21 |     # Variable names are judged by length of visual apperance, not evaluated/escaped length
+ 22 |     ${yet another local variable name that is too long}    Set Variable    value    # 48
+ 23 |     ${a\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ b}    Set Variable    value    # 42
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ LEN32
+    |
+
+test.robot:28:5 LEN32 Variable name 'local_dict_variable_name_that_is_too_long_a' is too long (43/40)
+    |
+ 26 |     &{local_dict_var_just_shy_of_max_len_a} =    Create Dictionary    first_name=unknown
+ 27 |     ${local_dict_var_just_shy_of_max_len_c.first_name}    Set Variable         John
+ 28 |     &{local_dict_variable_name_that_is_too_long_a}    Set Variable    ${existing_dict}    # 43
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ LEN32
+ 29 |     ${local_dict_variable_name_that_is_too_long_c.last_name}    Set Variable         Doe    # 43
+ 30 |     ${local_dict_var_just_shy_of_max_len_d\.last_name}    Set Variable         Doe
+    |
+
+test.robot:29:5 LEN32 Variable name 'local_dict_variable_name_that_is_too_long_c' is too long (43/40)
+    |
+ 27 |     ${local_dict_var_just_shy_of_max_len_c.first_name}    Set Variable         John
+ 28 |     &{local_dict_variable_name_that_is_too_long_a}    Set Variable    ${existing_dict}    # 43
+ 29 |     ${local_dict_variable_name_that_is_too_long_c.last_name}    Set Variable         Doe    # 43
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ LEN32
+ 30 |     ${local_dict_var_just_shy_of_max_len_d\.last_name}    Set Variable         Doe
+    |
+
+test.robot:34:27 LEN32 Variable name 'local_variable_name_that_is_way_tooo_long' is too long (41/40)
+    |
+ 32 | Test Variants
+ 33 |     Set Local Variable    ${short_local_variable_name}    value
+ 34 |     Set Local Variable    ${local_variable_name_that_is_way_tooo_long}    value    # 41
+    |                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ LEN32
+ 35 |     Set Suite Variable    ${DIFFERENT_SUITE_VARIABLE_NAME_THAT_IS_WAY_TOOO_LONG}    value    # 51
+ 36 |     Set Test Variable    ${TEST_VARIABLE_NAME_THAT_IS_WAY_TOOOO_LONG}    value    # 41
+    |
+
+test.robot:35:27 LEN32 Variable name 'DIFFERENT_SUITE_VARIABLE_NAME_THAT_IS_WAY_TOOO_LONG' is too long (51/40)
+    |
+ 33 |     Set Local Variable    ${short_local_variable_name}    value
+ 34 |     Set Local Variable    ${local_variable_name_that_is_way_tooo_long}    value    # 41
+ 35 |     Set Suite Variable    ${DIFFERENT_SUITE_VARIABLE_NAME_THAT_IS_WAY_TOOO_LONG}    value    # 51
+    |                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ LEN32
+ 36 |     Set Test Variable    ${TEST_VARIABLE_NAME_THAT_IS_WAY_TOOOO_LONG}    value    # 41
+ 37 |     Set Task Variable    ${TASK_VARIABLE_NAME_THAT_IS_WAY_TOOOO_LONG}    value    # 41
+    |
+
+test.robot:36:26 LEN32 Variable name 'TEST_VARIABLE_NAME_THAT_IS_WAY_TOOOO_LONG' is too long (41/40)
+    |
+ 34 |     Set Local Variable    ${local_variable_name_that_is_way_tooo_long}    value    # 41
+ 35 |     Set Suite Variable    ${DIFFERENT_SUITE_VARIABLE_NAME_THAT_IS_WAY_TOOO_LONG}    value    # 51
+ 36 |     Set Test Variable    ${TEST_VARIABLE_NAME_THAT_IS_WAY_TOOOO_LONG}    value    # 41
+    |                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ LEN32
+ 37 |     Set Task Variable    ${TASK_VARIABLE_NAME_THAT_IS_WAY_TOOOO_LONG}    value    # 41
+ 38 |     Set Global Variable    ${GLOBAL_VARIABLE_NAME_THAT_IS_WAY_TOO_LONG}    value    # 41
+    |
+
+test.robot:37:26 LEN32 Variable name 'TASK_VARIABLE_NAME_THAT_IS_WAY_TOOOO_LONG' is too long (41/40)
+    |
+ 35 |     Set Suite Variable    ${DIFFERENT_SUITE_VARIABLE_NAME_THAT_IS_WAY_TOOO_LONG}    value    # 51
+ 36 |     Set Test Variable    ${TEST_VARIABLE_NAME_THAT_IS_WAY_TOOOO_LONG}    value    # 41
+ 37 |     Set Task Variable    ${TASK_VARIABLE_NAME_THAT_IS_WAY_TOOOO_LONG}    value    # 41
+    |                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ LEN32
+ 38 |     Set Global Variable    ${GLOBAL_VARIABLE_NAME_THAT_IS_WAY_TOO_LONG}    value    # 41
+    |
+
+test.robot:38:28 LEN32 Variable name 'GLOBAL_VARIABLE_NAME_THAT_IS_WAY_TOO_LONG' is too long (41/40)
+    |
+ 36 |     Set Test Variable    ${TEST_VARIABLE_NAME_THAT_IS_WAY_TOOOO_LONG}    value    # 41
+ 37 |     Set Task Variable    ${TASK_VARIABLE_NAME_THAT_IS_WAY_TOOOO_LONG}    value    # 41
+ 38 |     Set Global Variable    ${GLOBAL_VARIABLE_NAME_THAT_IS_WAY_TOO_LONG}    value    # 41
+    |                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ LEN32
+    |
+
+test.robot:41:26 LEN32 Variable name 'different_task_variable_name_that_is_too_long' is too long (45/40)
+    |
+ 39 |
+ 40 |     # Usign recommended formats
+ 41 |     Set Task Variable    $different_task_variable_name_that_is_too_long    value    # 45
+    |                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ LEN32
+ 42 |     Set Global Variable    \${different_global_variable_name_that_is_too_long}    value    # 47
+    |
+
+test.robot:42:28 LEN32 Variable name 'different_global_variable_name_that_is_too_long' is too long (47/40)
+    |
+ 40 |     # Usign recommended formats
+ 41 |     Set Task Variable    $different_task_variable_name_that_is_too_long    value    # 45
+ 42 |     Set Global Variable    \${different_global_variable_name_that_is_too_long}    value    # 47
+    |                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ LEN32
+    |
+
+test.robot:46:5 LEN32 Variable name 'different_local_variable_name_that_is_too_long' is too long (46/40)
+    |
+ 44 |     # Reassigning existing variables already used in current scope
+ 45 |     ${local_variable_name_that_is_way_tooo_long}    Set Variable    value
+ 46 |     ${different_local_variable_name_that_is_too_long}    Set Variable    value    # 46
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ LEN32
+ 47 |     Set Local Variable    ${different_local_variable_name_that_is_too_long}    value
+ 48 |     Set Test Variable    ${TEST_VARIABLE_NAME_THAT_IS_WAY_TOOOO_LONG}    value
+    |
+
+test.robot:52:27 LEN32 Variable name 'SUITE_VARIABLE_NAME_THAT_IS_WAY_TOOO_LONG' is too long (41/40)
+    |
+ 50 |     # Reassigning existing variables outside of current scope; Will be re-reported
+ 51 |     Set Suite Variable    ${SHORT_SUITE_VARIABLE_NAME}    value
+ 52 |     Set Suite Variable    ${SUITE_VARIABLE_NAME_THAT_IS_WAY_TOOO_LONG}    value    # 41
+    |                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ LEN32
+    |
+
+test.robot:57:5 LEN32 Variable name 'another_local_variable_name_that_is_too_long' is too long (44/40)
+    |
+ 55 |
+ 56 |     # Reassign usign recommended formats
+ 57 |     ${another_local_variable_name_that_is_too_long}    Set Variable    value    # 44
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ LEN32
+ 58 |     Set Local Variable    $another_local_variable_name_that_is_too_long    value
+ 59 |     Set Suite Variable    \${SUITE_VARIABLE_NAME_THAT_IS_WAY_TOOO_LONG}    value    # 41
+    |
+
+test.robot:60:27 LEN32 Variable name 'local_list_variable_name_that_is_too_long' is too long (41/40)
+    |
+ 58 |     Set Local Variable    $another_local_variable_name_that_is_too_long    value
+ 59 |     Set Suite Variable    \${SUITE_VARIABLE_NAME_THAT_IS_WAY_TOOO_LONG}    value    # 41
+ 60 |     Set Local Variable    @{local_list_variable_name_that_is_too_long}    @{EMPTY}    # 41
+    |                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ LEN32
+ 61 |     Set Local Variable    \@different_local_list_variable_name_that_is_too_long    @{EMPTY}    # 51
+ 62 |     Set Local Variable    @another_local_list_variable_name_that_is_too_long    @{EMPTY}    # 49
+    |
+
+test.robot:61:27 LEN32 Variable name 'different_local_list_variable_name_that_is_too_long' is too long (51/40)
+    |
+ 59 |     Set Suite Variable    \${SUITE_VARIABLE_NAME_THAT_IS_WAY_TOOO_LONG}    value    # 41
+ 60 |     Set Local Variable    @{local_list_variable_name_that_is_too_long}    @{EMPTY}    # 41
+ 61 |     Set Local Variable    \@different_local_list_variable_name_that_is_too_long    @{EMPTY}    # 51
+    |                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ LEN32
+ 62 |     Set Local Variable    @another_local_list_variable_name_that_is_too_long    @{EMPTY}    # 49
+ 63 |     Set Local Variable    &{local_dict_variable_name_that_is_too_long}    &{EMPTY}    # 41
+    |
+
+test.robot:62:27 LEN32 Variable name 'another_local_list_variable_name_that_is_too_long' is too long (49/40)
+    |
+ 60 |     Set Local Variable    @{local_list_variable_name_that_is_too_long}    @{EMPTY}    # 41
+ 61 |     Set Local Variable    \@different_local_list_variable_name_that_is_too_long    @{EMPTY}    # 51
+ 62 |     Set Local Variable    @another_local_list_variable_name_that_is_too_long    @{EMPTY}    # 49
+    |                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ LEN32
+ 63 |     Set Local Variable    &{local_dict_variable_name_that_is_too_long}    &{EMPTY}    # 41
+ 64 |     Set Local Variable    \&{different_local_dict_variable_name_that_is_too_long}    &{EMPTY}    # 51
+    |
+
+test.robot:63:27 LEN32 Variable name 'local_dict_variable_name_that_is_too_long' is too long (41/40)
+    |
+ 61 |     Set Local Variable    \@different_local_list_variable_name_that_is_too_long    @{EMPTY}    # 51
+ 62 |     Set Local Variable    @another_local_list_variable_name_that_is_too_long    @{EMPTY}    # 49
+ 63 |     Set Local Variable    &{local_dict_variable_name_that_is_too_long}    &{EMPTY}    # 41
+    |                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ LEN32
+ 64 |     Set Local Variable    \&{different_local_dict_variable_name_that_is_too_long}    &{EMPTY}    # 51
+ 65 |     Set Local Variable    &another_local_dict_variable_name_that_is_too_long    &{EMPTY}    # 49
+    |
+
+test.robot:64:27 LEN32 Variable name 'different_local_dict_variable_name_that_is_too_long' is too long (51/40)
+    |
+ 62 |     Set Local Variable    @another_local_list_variable_name_that_is_too_long    @{EMPTY}    # 49
+ 63 |     Set Local Variable    &{local_dict_variable_name_that_is_too_long}    &{EMPTY}    # 41
+ 64 |     Set Local Variable    \&{different_local_dict_variable_name_that_is_too_long}    &{EMPTY}    # 51
+    |                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ LEN32
+ 65 |     Set Local Variable    &another_local_dict_variable_name_that_is_too_long    &{EMPTY}    # 49
+    |
+
+test.robot:65:27 LEN32 Variable name 'another_local_dict_variable_name_that_is_too_long' is too long (49/40)
+    |
+ 63 |     Set Local Variable    &{local_dict_variable_name_that_is_too_long}    &{EMPTY}    # 41
+ 64 |     Set Local Variable    \&{different_local_dict_variable_name_that_is_too_long}    &{EMPTY}    # 51
+ 65 |     Set Local Variable    &another_local_dict_variable_name_that_is_too_long    &{EMPTY}    # 49
+    |                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ LEN32
+    |
+
+test.robot:69:5 LEN32 Variable name 'variable_set_from_return_that_is_too_long' is too long (41/40)
+    |
+ 67 | Test Return Values
+ 68 |     ${short_variable_name}    Set Variable    value
+ 69 |     ${variable_set_from_return_that_is_too_long}    Set Variable    value    # 41
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ LEN32
+ 70 |     ${different_short_variable_name}    ${different_variable_set_from_return_that_is_too_long} =    Some Keyword    # 51
+    |
+
+test.robot:70:41 LEN32 Variable name 'different_variable_set_from_return_that_is_too_long' is too long (51/40)
+    |
+ 68 |     ${short_variable_name}    Set Variable    value
+ 69 |     ${variable_set_from_return_that_is_too_long}    Set Variable    value    # 41
+ 70 |     ${different_short_variable_name}    ${different_variable_set_from_return_that_is_too_long} =    Some Keyword    # 51
+    |                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ LEN32
+    |
+
+test.robot:78:9 LEN32 Variable name 'local_variable_name_that_is_way_tooo_long' is too long (41/40)
+    |
+ 76 |     FOR    ${short_iteration_variable_name}    IN RANGE    ${10}
+ 77 |         # Making sure that body is visited:
+ 78 |         ${local_variable_name_that_is_way_tooo_long}    Set Variable    value    # 41
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ LEN32
+ 79 |     END
+    |
+
+test.robot:81:12 LEN32 Variable name 'iteration_variable_name_that_is_way_too_long' is too long (44/40)
+    |
+ 81 |     FOR    ${iteration_variable_name_that_is_way_too_long}    IN    apple    banana    # 44
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ LEN32
+ 82 |         None Shall Pass    ${None}
+ 83 |     END
+    |
+
+test.robot:85:56 LEN32 Variable name 'different_iteration_variable_that_is_too_long' is too long (45/40)
+    |
+ 85 |     FOR    ${another_short_iteration_variable_name}    ${different_iteration_variable_that_is_too_long}    IN ENUMERATE    @{list}    # 45
+    |                                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ LEN32
+ 86 |         FOR    ${another_iteration_variable_that_is_too_long}    ${yet_another_iteration_variable_that_is_too_long}    IN ZIP    @{list}    @{list}    # 43, 47
+ 87 |             Comment    Even nested for loops are checked
+    |
+
+test.robot:86:16 LEN32 Variable name 'another_iteration_variable_that_is_too_long' is too long (43/40)
+    |
+ 84 |
+ 85 |     FOR    ${another_short_iteration_variable_name}    ${different_iteration_variable_that_is_too_long}    IN ENUMERATE    @{list}    # 45
+ 86 |         FOR    ${another_iteration_variable_that_is_too_long}    ${yet_another_iteration_variable_that_is_too_long}    IN ZIP    @{list}    @{list}    # 43, 47
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ LEN32
+ 87 |             Comment    Even nested for loops are checked
+ 88 |         END
+    |
+
+test.robot:86:66 LEN32 Variable name 'yet_another_iteration_variable_that_is_too_long' is too long (47/40)
+    |
+ 84 |
+ 85 |     FOR    ${another_short_iteration_variable_name}    ${different_iteration_variable_that_is_too_long}    IN ENUMERATE    @{list}    # 45
+ 86 |         FOR    ${another_iteration_variable_that_is_too_long}    ${yet_another_iteration_variable_that_is_too_long}    IN ZIP    @{list}    @{list}    # 43, 47
+    |                                                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ LEN32
+ 87 |             Comment    Even nested for loops are checked
+ 88 |         END
+    |
+
+test.robot:101:12 LEN32 Variable name 'keyword_argument_name_that_is_way_too_long' is too long (42/40)
+     |
+  99 |     [Arguments]
+ 100 |     ...    ${short_argument_name}
+ 101 |     ...    ${keyword_argument_name_that_is_way_too_long}    # 42
+     |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ LEN32
+ 102 |     ...    ${short_argument_name_with_default_value}=default
+ 103 |     ...    ${keyword_argument_just_shy_of_max_len:invalid}=default    # 44
+     |
+
+test.robot:103:12 LEN32 Variable name 'keyword_argument_just_shy_of_max_len:invalid' is too long (44/40)
+     |
+ 101 |     ...    ${keyword_argument_name_that_is_way_too_long}    # 42
+ 102 |     ...    ${short_argument_name_with_default_value}=default
+ 103 |     ...    ${keyword_argument_just_shy_of_max_len:invalid}=default    # 44
+     |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ LEN32
+ 104 |     # Making sure that body is visited and scope works
+ 105 |     ${local_variable_name_that_is_way_tooo_long}    Set Variable    value    # 41
+     |
+
+test.robot:105:5 LEN32 Variable name 'local_variable_name_that_is_way_tooo_long' is too long (41/40)
+     |
+ 103 |     ...    ${keyword_argument_just_shy_of_max_len:invalid}=default    # 44
+ 104 |     # Making sure that body is visited and scope works
+ 105 |     ${local_variable_name_that_is_way_tooo_long}    Set Variable    value    # 41
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ LEN32
+ 106 |     ${keyword_argument_name_that_is_way_too_long}    Set Variable    value
+     |
+
+test.robot:108:50 LEN32 Variable name 'embedded_argument_name_that_is_way_too_long' is too long (43/40)
+     |
+ 108 | Keyword With ${short_embedded_argument_name} And ${embedded_argument_name_that_is_way_too_long} To Do Something With    # 43
+     |                                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ LEN32
+ 109 |     [Arguments]    ${short_argument_name}=${None}    ${argument_name_with_default_value_that_it_too_long}=default    # 49
+ 110 |     Comment    Even keywords with embedded arguments can have additional arguments
+     |
+
+test.robot:109:54 LEN32 Variable name 'argument_name_with_default_value_that_it_too_long' is too long (49/40)
+     |
+ 107 |
+ 108 | Keyword With ${short_embedded_argument_name} And ${embedded_argument_name_that_is_way_too_long} To Do Something With    # 43
+ 109 |     [Arguments]    ${short_argument_name}=${None}    ${argument_name_with_default_value_that_it_too_long}=default    # 49
+     |                                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ LEN32
+ 110 |     Comment    Even keywords with embedded arguments can have additional arguments
+ 111 |     &{local_dict_variable_name_that_is_too_long}    Set Variable    ${existing_dict}    # 41
+     |
+
+test.robot:111:5 LEN32 Variable name 'local_dict_variable_name_that_is_too_long' is too long (41/40)
+     |
+ 109 |     [Arguments]    ${short_argument_name}=${None}    ${argument_name_with_default_value_that_it_too_long}=default    # 49
+ 110 |     Comment    Even keywords with embedded arguments can have additional arguments
+ 111 |     &{local_dict_variable_name_that_is_too_long}    Set Variable    ${existing_dict}    # 41
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ LEN32
+     |
+
+test.robot:113:62 LEN32 Variable name 'embedded_name_that_is_too_long_that_contains' is too long (44/40)
+     |
+ 113 | Keyword ${embedded_just_shy_of_max_len_contains:pattern} And ${embedded_name_that_is_too_long_that_contains:pattern}    # 44
+     |                                                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ LEN32
+ 114 |     Log    ${embedded_just_shy_of_max_len_contains}
+     |
+

@@ -642,7 +642,7 @@ class TooLongVariableNameRule(Rule):
         RuleParam(name="max_len", default=40, converter=int, desc="allowed length of a variable name"),
     ]
     severity_threshold = SeverityThreshold("max_len", compare_method="greater", substitute_value="allowed_length")
-    added_in_version = "6.6.x"
+    added_in_version = "6.7.0"
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.FOCUSED, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )

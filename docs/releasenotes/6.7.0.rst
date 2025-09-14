@@ -1,0 +1,24 @@
+=============
+Robocop 6.7.0
+=============
+
+This release was entirely community driven, huge thanks for @p-zander, @pavezzo & others for discussing and implementing
+new changes and fixes.
+
+New too-long-variable-name rule (#1443)
+---------------------------------------
+
+New LEN32 ``too-long-variable-name`` rule which reports variables with names longer than 40 characters. Allowed length
+can be configured with ``max_len`` parameter.
+
+Fix importing custom formatters (#1446)
+---------------------------------------
+
+Using Robocop with custom formatter will no longer throw an error when importing from inside Python module::
+
+    robocop --custom-formatters formatpath.to.my.CustomFormatter --configure CustomFormatter.enabled=True
+
+Fix AttributeError when importing dataclass with Python 3.12 (#1449)
+--------------------------------------------------------------------
+
+Robocop should no longer throw AttributeError when using dataclasses in custom rules with Python 3.12.

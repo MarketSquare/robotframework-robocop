@@ -23,7 +23,7 @@ Development environment
 To setup your local development environment, use install uv first:
 
 ```commandline
-pip install uv==0.7.2
+pip install uv
 ```
 
 You can now run our tests with:
@@ -35,10 +35,30 @@ uv run pytest tests
 uv will create local environment for you. You can use it in your IDE for type hinting or to run selected tests
 from the UI.
 
-You can install Robocop with editable flag so it is easier to test changes locally:
+To test Robocop on multiple Python and Robot versions, you need to create multiple environments and run tests
+through nox. You will need nox:
 
 ```commandline
-pip install -e .[dev]
+pip install nox
+```
+
+And multiple Python versions:
+
+```commandline
+uv python install 3.9 3.10 3.11 3.12 3.13
+```
+
+To run all nox sessions (defined in noxfile.py) run in the root of the project:
+
+```commandline
+nox -s tests
+```
+
+Running all combinations may take a while. Instead, you can run all major supported Robot versions using
+selected Python version with:
+
+```commandline
+nox -s --python 3.13 tests
 ```
 
 Coding conventions

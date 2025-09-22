@@ -1,0 +1,19 @@
+=============
+Robocop 6.7.1
+=============
+
+Configuring formatters with integer based parameters crashes Robocop (#1441)
+----------------------------------------------------------------------------
+
+Running Robocop with older Robot Framework versions than 7.0 no longer crashes when trying to configure with
+integer based parameter::
+
+    robocop format AlignSettingsSection.fixed_width=30
+
+The issue was coming from not supporting the Python extended typing in formatter definition::
+
+    min_width: int | None = None
+
+``|`` is not supported for Robot Framework < 7.0 and needs to be removed if you're using it in custom formatter::
+
+    min_width: int = None

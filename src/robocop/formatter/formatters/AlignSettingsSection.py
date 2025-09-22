@@ -81,8 +81,8 @@ class AlignSettingsSection(Formatter):
         self,
         up_to_column: int = 2,
         argument_indent: int = 4,
-        min_width: int | None = None,
-        fixed_width: int | None = None,
+        min_width: int = None,  # noqa: RUF013 | None requires Robot 7+
+        fixed_width: int = None,  # noqa: RUF013
         skip: Skip | None = None,
     ):
         super().__init__(skip=skip)

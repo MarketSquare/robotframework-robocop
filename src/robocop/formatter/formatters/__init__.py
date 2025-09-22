@@ -300,7 +300,8 @@ def resolve_args(formatter, spec, args, global_skip: SkipConfig, handles_skip):
     argument_names = resolve_argument_names(spec_args, handles_skip)
     assert_handled_arguments(formatter, args, argument_names)
     try:
-        positional, named = spec.resolve([f"{arg}={value}" for arg, value in args.items()])
+        args = [f"{arg}={value}" for arg, value in args.items()]
+        positional, named = spec.resolve(args)
         named = dict(named)
         if "skip" in spec_args:
             named["skip"] = get_skip_class(spec, skip_args, global_skip)

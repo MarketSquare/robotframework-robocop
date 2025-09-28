@@ -17,3 +17,9 @@ The issue was coming from not supporting the Python extended typing in formatter
 ``|`` is not supported for Robot Framework < 7.0 and needs to be removed if you're using it in custom formatter::
 
     min_width: int = None
+
+Rules that use more granular version matching are ignored if target version is not set (#1466)
+----------------------------------------------------------------------------------------------
+
+Rules that require more granular version of Robot Framework (such as > 6.1) will no longer be silently ignored if
+Robocop is executed on the same major version (6.1.1 for example) without target version set.

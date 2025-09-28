@@ -2,7 +2,7 @@ import re
 
 import pytest
 
-from robocop.errors import ConfigurationError
+from robocop.exceptions import ConfigurationError
 from robocop.linter.reports.timestamp_report import TimestampReport
 
 

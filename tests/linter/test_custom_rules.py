@@ -10,6 +10,7 @@ EXT_MODULE = str(TEST_DATA / "custom_rule_module")
 EXT_MODULE_SIMPLE = str(TEST_DATA / "custom_rule_module_simple_import")
 EXT_MODULE_ROBOCOP_IMPORT = str(TEST_DATA / "custom_rule_module_import_robocop")
 EXT_MODULE_WITH_RELATIVE_IMPORT = str(TEST_DATA / "custom_rule_module_with_relative_import")
+EXT_MODULE_WITH_CONFLICT = str(TEST_DATA / "rule_with_name_conflict")
 
 
 @contextmanager
@@ -93,3 +94,12 @@ def test_loading_custom_rule_including_relative_import():
         linter_config = LinterConfig(custom_rules=[EXT_MODULE_WITH_RELATIVE_IMPORT])
         linter_config.load_configuration()
     assert "EXT05" in linter_config.rules
+
+
+def test_loading_custom_rule_with_name_conflict():
+    """Import another module inside custom rule that uses the same name as robocop module (like deprecated.py)."""
+    clear_imported_module("RobocopRules")
+    with add_sys_path(EXT_MODULE_WITH_CONFLICT):
+        linter_config = LinterConfig(custom_rules=[EXT_MODULE_WITH_CONFLICT])
+        linter_config.load_configuration()
+    assert "CUS01" in linter_config.rules

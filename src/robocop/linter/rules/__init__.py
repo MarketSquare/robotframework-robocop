@@ -37,7 +37,7 @@ from typing import TYPE_CHECKING, Any, Callable, NoReturn
 
 from robot.utils import FileReader
 
-from robocop import errors
+from robocop import exceptions
 from robocop.linter.diagnostics import Diagnostic
 from robocop.linter.utils.version_matching import Version, VersionSpecifier
 
@@ -132,7 +132,7 @@ class RuleSeverity(Enum):
                 # it will be reraised as RuleParamFailedInitError
                 raise ValueError(hint)
             # invalid severity threshold
-            raise errors.ConfigurationError(f"Invalid severity value '{value}'. {hint}") from None
+            raise exceptions.ConfigurationError(f"Invalid severity value '{value}'. {hint}") from None
         return severity
 
     def __str__(self):
@@ -234,7 +234,7 @@ class RuleParam:
         try:
             self._value = self.converter(value)
         except ValueError as err:
-            raise errors.RuleParamFailedInitError(self, value, str(err)) from None
+            raise exceptions.RuleParamFailedInitError(self, value, str(err)) from None
 
     @property
     def param_type(self):
@@ -291,7 +291,7 @@ class SeverityThreshold:
         if severity is None:
             severity_values = ", ".join(sev.value for sev in RuleSeverity)
             hint = f"Choose one from: {severity_values}."
-            raise errors.ConfigurationError(f"Invalid severity value '{value}'. {hint}") from None
+            raise exceptions.ConfigurationError(f"Invalid severity value '{value}'. {hint}") from None
         return severity
 
     def set_thresholds(self, value) -> None:
@@ -301,7 +301,7 @@ class SeverityThreshold:
             try:
                 sev, param_value = pair.split("=")
             except ValueError:
-                raise errors.ConfigurationError(
+                raise exceptions.ConfigurationError(
                     f"Invalid severity value '{value}'. "
                     f"It should be list of `severity=param_value` pairs, separated by `:`."
                 ) from None
@@ -476,7 +476,7 @@ class Rule:
     def configure(self, param: str, value: str) -> None:
         if param not in self.config:
             count, configurables_text = self.available_configurables()
-            raise errors.ConfigurationError(
+            raise exceptions.ConfigurationError(
                 f"Provided param '{param}' for rule '{self.name}' does not exist. "
                 f"Available configurable{'' if count == 1 else 's'} for this rule:\n"
                 f"    {configurables_text}"
@@ -697,7 +697,7 @@ class RobocopImporter:
                     yield from self._iter_imports(Path(mod.__file__))
                     yield mod
                 except ImportError:
-                    raise errors.InvalidExternalCheckerError(path) from None
+                    raise exceptions.InvalidExternalCheckerError(path) from None
 
     @staticmethod
     def _import_module_from_file(file_path):

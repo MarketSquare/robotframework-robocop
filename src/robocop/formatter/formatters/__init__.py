@@ -26,7 +26,7 @@ from robot.api.parsing import ModelTransformer
 from robot.errors import DataError
 from robot.utils.importer import Importer
 
-from robocop.errors import ImportFormatterError, InvalidParameterError
+from robocop.exceptions import ImportFormatterError, InvalidParameterError
 from robocop.formatter.skip import SKIP_OPTIONS, Skip, SkipConfig
 from robocop.formatter.utils import misc
 

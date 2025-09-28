@@ -89,6 +89,7 @@ class ReplaceReturns(Formatter):
     def visit_Return(self, node):  # noqa: N802
         if misc.ROBOT_VERSION.major < 7:  # In RF 7, RETURN was class was renamed to Return
             self.return_statement = node
+            return None
         return node
 
     @skip_if_disabled

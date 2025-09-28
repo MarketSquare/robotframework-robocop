@@ -5,7 +5,7 @@ import json
 from pathlib import Path
 from typing import NoReturn
 
-from robocop import errors
+from robocop import exceptions
 from robocop.config import Config
 from robocop.linter.rules import RobocopImporter
 from robocop.linter.utils.misc import get_robocop_cache_directory
@@ -30,7 +30,7 @@ class Report:
         self.config = config
 
     def configure(self, name: str, value: str) -> None:  # noqa: ARG002
-        raise errors.ConfigurationError(f"Provided param '{name}' for report '{self.name}' does not exist")
+        raise exceptions.ConfigurationError(f"Provided param '{name}' for report '{self.name}' does not exist")
 
     def generate_report(self, **kwargs) -> NoReturn:
         raise NotImplementedError
@@ -56,7 +56,7 @@ class JsonFileReport(Report):
             with open(output_path, "w") as fp:
                 json.dump(report, fp, indent=4)
         except OSError as err:
-            raise errors.FatalError(f"Failed to write {report_type} report to {output_path}: {err}") from None
+            raise exceptions.FatalError(f"Failed to write {report_type} report to {output_path}: {err}") from None
         print(f"Generated {report_type} report at {self.output_path}")
 
 
@@ -111,7 +111,7 @@ def get_reports(config: Config):
                 if report_class.NO_ALL and name not in enabled_reports:
                     enabled_reports[name] = report_class
         elif report not in reports:
-            raise errors.InvalidReportName(report, reports)
+            raise exceptions.InvalidReportName(report, reports)
         elif report not in enabled_reports:
             enabled_reports[report] = reports[report]
     for report, report_class in reports.items():

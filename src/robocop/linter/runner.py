@@ -6,7 +6,7 @@ import typer
 from robot.api import get_init_model, get_model, get_resource_model
 from robot.errors import DataError
 
-from robocop import errors
+from robocop import exceptions
 from robocop.linter import reports
 from robocop.linter.diagnostics import Diagnostics
 from robocop.linter.reports import save_reports_result_to_cache
@@ -132,7 +132,7 @@ class RobocopLinter:
                 name, param_and_value = config.split(".", maxsplit=1)
                 param, value = param_and_value.split("=", maxsplit=1)
             except ValueError:
-                raise errors.InvalidConfigurationFormatError(config) from None
+                raise exceptions.InvalidConfigurationFormatError(config) from None
             if name in self.reports:
                 self.reports[name].configure(param, value)
 

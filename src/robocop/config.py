@@ -18,7 +18,7 @@ import pathspec
 import typer
 from typing_extensions import Self
 
-from robocop import errors, files
+from robocop import exceptions, files
 from robocop.formatter import formatters
 from robocop.formatter.skip import SkipConfig
 from robocop.formatter.utils import misc  # TODO merge with linter misc
@@ -138,7 +138,7 @@ class TargetVersion(Enum):
 
 def validate_target_version(value: str | TargetVersion | None) -> int | None:
     if value is None:
-        return misc.ROBOT_VERSION.major
+        return None
     if isinstance(value, TargetVersion):
         target_version = int(value.value)
     else:
@@ -281,7 +281,7 @@ class LinterConfig:
                 name, param_and_value = config.split(".", maxsplit=1)
                 param, value = param_and_value.split("=", maxsplit=1)
             except ValueError:
-                raise errors.InvalidConfigurationFormatError(config) from None
+                raise exceptions.InvalidConfigurationFormatError(config) from None
             if name in self._rules:
                 rule = self._rules[name]
                 if rule.deprecated:
@@ -289,7 +289,7 @@ class LinterConfig:
                 else:
                     rule.configure(param, value)
             # else:  TODO
-            #     raise errors.RuleOrReportDoesNotExist(name, self._rules)
+            #     raise exceptions.RuleOrReportDoesNotExist(name, self._rules)
 
     def split_inclusions_exclusions_into_patterns(self):
         if self.select:
@@ -308,7 +308,7 @@ class LinterConfig:
     #     def validate_rules_exists_and_not_deprecated(self, rules: dict[str, "Rule"]):
     #         for rule in chain(self.include, self.exclude):
     #             if rule not in rules:
-    #                 raise errors.RuleDoesNotExist(rule, rules) from None
+    #                 raise exceptions.RuleDoesNotExist(rule, rules) from None
     #             rule_def = rules[rule]
     #             if rule_def.deprecated:
     #                 print(rule_def.deprecation_warning)
@@ -447,7 +447,7 @@ class FormatterConfig:
             param, value = param_value.split("=", maxsplit=1)
             name, param, value = name.strip(), param.strip(), value.strip()
         except ValueError:
-            raise errors.InvalidConfigurationFormatError(configure) from None
+            raise exceptions.InvalidConfigurationFormatError(configure) from None
         return name, param, value
 
     @property
@@ -536,10 +536,10 @@ class Config:
         self.target_version = validate_target_version(self.target_version)
         self.load_languages()
         if self.formatter:
-            self.formatter.target_version = self.target_version
+            self.formatter.target_version = self.target_version or ROBOT_VERSION.major
             self.formatter.languages = self.languages
         if self.linter:
-            self.linter.target_version = Version(f"{self.target_version}.0")
+            self.linter.target_version = Version(f"{self.target_version}.0") if self.target_version else ROBOT_VERSION
 
     def load_languages(self):
         if Languages is None:
@@ -855,7 +855,7 @@ class ConfigManager:
             if source in self._paths:
                 continue
             if not source.exists():  # TODO only for passed sources
-                raise errors.FatalError(f"File '{source}' does not exist")
+                raise exceptions.FatalError(f"File '{source}' does not exist")
             config = self.get_config_for_source_file(source)
             if not ignore_file_filters:
                 if config.file_filters.path_excluded(source_not_resolved):

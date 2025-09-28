@@ -2,7 +2,7 @@ from pathlib import Path
 
 import robocop.linter.reports
 from robocop.config import Config
-from robocop.errors import FatalError
+from robocop.exceptions import FatalError
 from robocop.files import get_relative_path
 from robocop.linter.diagnostics import Diagnostic, Diagnostics
 

@@ -71,10 +71,8 @@ def setup(app):
 
 def get_checker_docs() -> tuple[list[tuple], int]:
     """Load rules for dynamic docs generation"""
-    rules = robocop.linter.rules.get_builtin_rules()
-    rules_count = 0
-    for _, rule in rules:
-        rules_count += 1
+    doc_importer = robocop.linter.rules.DocumentationImporter()
+    for rules_count, (_, rule) in enumerate(doc_importer.get_builtin_rules()):
         severity_threshold = rule.config.get("severity_threshold", None)
         robocop_version = rule.added_in_version if rule.added_in_version else "\\-"
         match = re.match("(?P<group>.+)(?P<rule_no>[0-9]{2,})", rule.rule_id)

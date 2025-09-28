@@ -9,4 +9,4 @@ class TestRuleAcceptance(RuleAcceptance):
         self.check_rule(expected_file="expected_output_pre6.txt", test_on_version="<6")
 
     def test_extended(self):
-        self.check_rule(expected_file="expected_extended.txt", output_format="extended")
+        self.check_rule(expected_file="expected_extended.txt", output_format="extended", test_on_version=">=6")

@@ -47,7 +47,11 @@ class AlignVariablesSection(Formatter):
     """
 
     def __init__(
-        self, up_to_column: int = 2, skip_types: str = "", min_width: int | None = None, fixed_width: int | None = None
+        self,
+        up_to_column: int = 2,
+        skip_types: str = "",
+        min_width: int = None,  # noqa: RUF013
+        fixed_width: int = None,  # noqa: RUF013
     ):
         super().__init__()
         self.up_to_column = up_to_column - 1

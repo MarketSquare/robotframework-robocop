@@ -17,4 +17,4 @@ class TestRuleAcceptance(RuleAcceptance):
         self.check_rule(src_files=["language.robot"], expected_file=None, test_on_version=">=6.0", language=["pl"])
 
     def test_pre_rf5(self):
-        self.check_rule(src_files=["test.robot"], expected_file=None, test_on_version="<5.0")
+        self.check_rule(src_files=["test.robot"], expected_file="not_enabled", test_on_version="<=5")

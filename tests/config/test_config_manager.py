@@ -98,7 +98,7 @@ class TestConfigFinder:
         config.file_filters.default_exclude = {"archived/"}
         config.file_filters.include = {"custom.txt"}
         config.file_filters.default_include = {"*.robot"}
-        config.target_version = 6
+        config.target_version = 4
         config.linter.select = ["rulename", "ruleid"]
         config.linter.ignore = ["ruleid"]
         config.linter.include_rules = {"rulename", "ruleid"}

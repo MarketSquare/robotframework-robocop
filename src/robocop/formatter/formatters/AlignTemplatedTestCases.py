@@ -53,7 +53,7 @@ class AlignTemplatedTestCases(Formatter):
 
     ENABLED = False
 
-    def __init__(self, only_with_headers: bool = False, min_width: int | None = None):
+    def __init__(self, only_with_headers: bool = False, min_width: int = None):  # noqa: RUF013
         super().__init__()
         self.only_with_headers = only_with_headers
         self.min_width = min_width

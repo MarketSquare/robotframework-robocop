@@ -4,4 +4,4 @@ test.robot:28:5 [E] ERR13 Invalid IF syntax: IF branch cannot be empty
 test.robot:53:9 [E] ERR13 Invalid IF syntax: IF must have a condition
 test.robot:58:13 [E] ERR13 Invalid IF syntax: IF must have a condition
 test.robot:63:9 [E] ERR13 Invalid IF syntax: IF must have a condition
-test.robot:72:9 [E] ERR13 Invalid IF syntax: IF has no condition
+test.robot:72:9 [E] ERR13 Invalid IF syntax: IF must have a condition

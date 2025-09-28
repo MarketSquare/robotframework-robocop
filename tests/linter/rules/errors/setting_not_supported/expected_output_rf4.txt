@@ -1,0 +1,4 @@
+test.robot:12:5 [E] ERR09 Setting '[Arguments]' is not supported in Test Case or Task. Allowed are: [Documentation], [Tags], [Setup], [Teardown], [Template], [Timeout]
+test.robot:13:5 [E] ERR09 Setting '[Return]' is not supported in Test Case or Task. Allowed are: [Documentation], [Tags], [Setup], [Teardown], [Template], [Timeout]
+test.robot:17:5 [E] ERR09 Setting '[Setup]' is not supported in Keyword. Allowed are: [Documentation], [Tags], [Arguments], [Return], [Teardown], [Timeout]
+test.robot:18:5 [E] ERR09 Setting '[Template]' is not supported in Keyword. Allowed are: [Documentation], [Tags], [Arguments], [Return], [Teardown], [Timeout]

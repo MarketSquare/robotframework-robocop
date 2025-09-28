@@ -1,7 +1,7 @@
 from robot.api.parsing import EmptyLine, SectionHeader, Token
 from robot.parsing.model.statements import Statement
 
-from robocop.errors import InvalidParameterValueError
+from robocop.exceptions import InvalidParameterValueError
 
 try:
     from robot.api.parsing import InlineIfHeader

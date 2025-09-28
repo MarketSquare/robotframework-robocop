@@ -4,7 +4,7 @@ from pathlib import Path
 import platformdirs
 import pytest
 
-from robocop import errors
+from robocop import exceptions
 from robocop.linter.reports import (
     ROBOCOP_CACHE_FILE,
     get_reports,
@@ -45,7 +45,7 @@ def test_get_reports_all(config):
 
 def test_get_unknown_report(config, capsys):
     config.linter.reports = ["all", "unknown"]
-    with pytest.raises(errors.InvalidReportName):
+    with pytest.raises(exceptions.InvalidReportName):
         get_reports(config)
     _, err = capsys.readouterr()
     assert err == "InvalidReportName: Provided report 'unknown' does not exist. \n"

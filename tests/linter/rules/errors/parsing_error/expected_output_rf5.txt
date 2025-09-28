@@ -30,7 +30,7 @@ invalid_try_except.robot:233:5 [E] ERR01 Robot Framework syntax error: TRY must 
 invalid_try_except.robot:246:13 [E] ERR01 Robot Framework syntax error: BREAK cannot be used in FINALLY branch.
 invalid_try_except.robot:256:13 [E] ERR01 Robot Framework syntax error: CONTINUE cannot be used in FINALLY branch.
 invalid_try_except.robot:269:9 [E] ERR01 Robot Framework syntax error: RETURN cannot be used in FINALLY branch.
-invalid_while.robot:4:1 [E] ERR01 Robot Framework syntax error: WHILE must have a condition.
+invalid_while.robot:4:5 [E] ERR01 Robot Framework syntax error: WHILE must have a condition.
 invalid_while.robot:10:5 [E] ERR01 Robot Framework syntax error: WHILE cannot have more than one condition.
 invalid_while.robot:16:5 [E] ERR01 Robot Framework syntax error: WHILE loop cannot be empty.
 invalid_while.robot:21:5 [E] ERR01 Robot Framework syntax error: WHILE loop must have closing END.

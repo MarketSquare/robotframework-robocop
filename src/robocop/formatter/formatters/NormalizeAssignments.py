@@ -5,7 +5,7 @@ from collections import Counter
 from robot.api.parsing import Token, Variable
 from robot.variables.search import search_variable
 
-from robocop.errors import InvalidParameterValueError
+from robocop.exceptions import InvalidParameterValueError
 from robocop.formatter.disablers import skip_if_disabled, skip_section_if_disabled
 from robocop.formatter.formatters import Formatter
 from robocop.formatter.skip import Skip

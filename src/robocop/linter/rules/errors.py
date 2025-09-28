@@ -459,7 +459,7 @@ class ParsingErrorChecker(VisitorChecker):
             self.report(
                 self.setting_not_suported,
                 setting_name=setting_error,
-                test_or_keyword="Test Case",  # TODO: Recognize if it is inside Task
+                test_or_keyword="Test Case or Task",  # TODO: Recognize if it is inside Task
                 allowed_settings=", ".join(self.test_case_settings),
                 node=node,
                 col=token.col_offset + 1,
@@ -542,6 +542,8 @@ class ParsingErrorChecker(VisitorChecker):
                 )
 
     def handle_unsupported_settings_in_init_file(self, node) -> None:
+        if ROBOT_VERSION.major < 6 and "__init__" not in self.source.name:
+            return  # handle bug where Robot reports invalid setting as not allowed in suite init file
         setting_node = node.data_tokens[0]
         setting_name = setting_node.value
         self.report(
@@ -655,6 +657,7 @@ class MissingKeywordName(VisitorChecker):  # TODO should be part of other checke
                 node=node,
                 lineno=node.lineno,
                 col=assign_token.col_offset + 1,
+                end_col=node.data_tokens[0].end_col_offset + 1,
             )
 
     def visit_KeywordCall(self, node) -> None:  # noqa: N802

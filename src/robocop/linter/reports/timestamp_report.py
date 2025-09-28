@@ -4,7 +4,7 @@ from warnings import warn
 import pytz
 
 import robocop.linter.reports
-from robocop import errors
+from robocop import exceptions
 from robocop.config import Config
 
 
@@ -83,7 +83,7 @@ class TimestampReport(robocop.linter.reports.Report):
                 timezone_code = pytz.timezone(self.timezone)
             return datetime.now(timezone_code).strftime(self.format)
         except pytz.exceptions.UnknownTimeZoneError:
-            raise errors.ConfigurationError(
+            raise exceptions.ConfigurationError(
                 f"Provided timezone '{self.timezone}' for report '{self.name}' is not valid. "
                 "Use timezone names like `Europe\\Helsinki`."
                 "See: https://en.wikipedia.org/wiki/List_of_tz_database_time_zone"

@@ -1,0 +1,36 @@
+=============
+Robocop 6.7.1
+=============
+
+Configuring formatters with integer based parameters crashes Robocop (#1441)
+----------------------------------------------------------------------------
+
+Running Robocop with older Robot Framework versions than 7.0 no longer crashes when trying to configure with
+integer based parameter::
+
+    robocop format AlignSettingsSection.fixed_width=30
+
+The issue was coming from not supporting the Python extended typing in formatter definition::
+
+    min_width: int | None = None
+
+``|`` is not supported for Robot Framework < 7.0 and needs to be removed if you're using it in custom formatter::
+
+    min_width: int = None
+
+Rules that use more granular version matching are ignored if target version is not set (#1466)
+----------------------------------------------------------------------------------------------
+
+Rules that require more granular version of Robot Framework (such as > 6.1) will no longer be silently ignored if
+Robocop is executed on the same major version (6.1.1 for example) without target version set.
+
+Importing external modules in custom rules with the same name as Robocop rules fails (#1467)
+--------------------------------------------------------------------------------------------
+
+If custom rule used external module with the same name as one of Robocop rules categories, it failed on import:
+
+```
+from deprecated import deprecated  # duplicates with robocop.linter.rules.deprecated.py
+```
+
+It was resolved by redesigning our rules importing logic to follow the same behaviour as formatter importer.

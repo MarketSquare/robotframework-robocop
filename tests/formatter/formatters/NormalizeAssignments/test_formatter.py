@@ -30,6 +30,16 @@ class TestNormalizeAssignments(FormatterAcceptanceTest):
             source="tests.robot",
             expected="equal_sign.robot",
             configure=[f"{self.FORMATTER_NAME}.equal_sign_type=equal_sign"],
+            test_on_version=">=6",
+        )
+
+    def test_add_equal_sign_v4(self):
+        """Robot Framework <6 does not support assigning to attributes yet."""
+        self.compare(
+            source="tests.robot",
+            expected="equal_sign_v4.robot",
+            configure=[f"{self.FORMATTER_NAME}.equal_sign_type=equal_sign"],
+            test_on_version="<6",
         )
 
     def test_add_space_and_equal_sign(self):
@@ -37,6 +47,7 @@ class TestNormalizeAssignments(FormatterAcceptanceTest):
             source="tests.robot",
             expected="space_and_equal_sign.robot",
             configure=[f"{self.FORMATTER_NAME}.equal_sign_type=space_and_equal_sign"],
+            test_on_version=">=6",
         )
 
     # TODO check test error output

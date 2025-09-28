@@ -290,11 +290,10 @@ class TestListingRules:
         )
 
     def test_list_with_target_version(self, empty_linter, msg_0101_checker, future_checker, capsys):
-        # list_rules(target_version=TargetVersion.RF4)
         empty_linter.config_manager.default_config.linter.register_checker(msg_0101_checker)
         empty_linter.config_manager.default_config.linter.register_checker(future_checker)
         with patch("robocop.run.RobocopLinter", MagicMock(return_value=empty_linter)):
-            list_rules(target_version=TargetVersion.RF7)
+            list_rules(target_version=TargetVersion(str(ROBOT_VERSION.major)))
         out, _ = capsys.readouterr()
         expected = textwrap.dedent("""
         Rule - 0101 [W]: some-message: Some description (enabled)

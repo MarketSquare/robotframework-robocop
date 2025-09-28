@@ -57,5 +57,5 @@ class TestRuleAcceptance(RuleAcceptance):
         self.check_rule(
             src_files=["variable_type_conversion.robot"],
             expected_file="variable_type_conversion_expected.txt",
-            # test_on_version=">=7.3" FIXME
+            test_on_version=">=7.3",
         )

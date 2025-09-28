@@ -2,7 +2,7 @@ import ast
 
 from robot.api.parsing import Token
 
-from robocop.errors import InvalidParameterValueError
+from robocop.exceptions import InvalidParameterValueError
 from robocop.formatter.disablers import skip_section_if_disabled
 from robocop.formatter.formatters import Formatter
 

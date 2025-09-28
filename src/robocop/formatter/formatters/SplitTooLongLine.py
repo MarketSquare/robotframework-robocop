@@ -85,7 +85,7 @@ class SplitTooLongLine(Formatter):
 
     def __init__(
         self,
-        line_length: int | None = None,
+        line_length: int = None,  # noqa: RUF013
         split_on_every_arg: bool = True,
         split_on_every_value: bool = True,
         split_on_every_setting_arg: bool = True,

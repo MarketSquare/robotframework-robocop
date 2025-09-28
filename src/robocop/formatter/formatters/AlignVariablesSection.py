@@ -5,7 +5,7 @@ from collections import defaultdict
 from robot.api.parsing import Token
 from robot.parsing.model import Statement
 
-from robocop.errors import InvalidParameterValueError
+from robocop.exceptions import InvalidParameterValueError
 from robocop.formatter.disablers import skip_section_if_disabled
 from robocop.formatter.formatters import Formatter
 from robocop.formatter.utils import misc
@@ -47,7 +47,11 @@ class AlignVariablesSection(Formatter):
     """
 
     def __init__(
-        self, up_to_column: int = 2, skip_types: str = "", min_width: int | None = None, fixed_width: int | None = None
+        self,
+        up_to_column: int = 2,
+        skip_types: str = "",
+        min_width: int = None,  # noqa: RUF013
+        fixed_width: int = None,  # noqa: RUF013
     ):
         super().__init__()
         self.up_to_column = up_to_column - 1

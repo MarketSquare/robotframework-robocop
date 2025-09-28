@@ -9,4 +9,9 @@ class TestRuleAcceptance(RuleAcceptance):
         self.check_rule(expected_file="expected_output_pre_rf6.txt", test_on_version="<=5")
 
     def test_extended(self):
-        self.check_rule(src_files=["test.resource"], expected_file="expected_extended.txt", output_format="extended")
+        self.check_rule(
+            src_files=["test.resource"],
+            expected_file="expected_extended.txt",
+            output_format="extended",
+            test_on_version=">=6",
+        )

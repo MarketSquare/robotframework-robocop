@@ -7,7 +7,7 @@ from jinja2 import Template
 from jinja2.exceptions import TemplateError
 from robot.api.parsing import Documentation, ModelVisitor, Token
 
-from robocop.errors import InvalidParameterValueError
+from robocop.exceptions import InvalidParameterValueError
 from robocop.formatter.formatters import Formatter
 
 GOOGLE_TEMPLATE = """    Short description.

@@ -1,6 +1,6 @@
 from robot.api.parsing import Comment, EmptyLine, Token
 
-from robocop.errors import InvalidConfigurationError, InvalidParameterValueError
+from robocop.exceptions import InvalidConfigurationError, InvalidParameterValueError
 from robocop.formatter.disablers import skip_if_disabled, skip_section_if_disabled
 from robocop.formatter.formatters import Formatter
 

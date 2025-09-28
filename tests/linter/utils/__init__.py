@@ -57,6 +57,11 @@ def normalize_result(result, test_data, sort_lines: bool):
 def load_expected_file(test_data, expected_file, sort_lines: bool):
     if expected_file is None:
         return []
+    if expected_file == "not_enabled":
+        return [
+            "No rule selected with the existing configuration from the cli . "
+            "Please check if all rules from --select exist and there is no conflicting filter option."
+        ]
     expected = test_data / expected_file
     with open(expected, encoding="utf-8") as f:
         lines = [

@@ -2,7 +2,7 @@ from pathlib import Path
 
 import robocop.linter.reports
 from robocop.config import Config, ConfigManager
-from robocop.errors import ConfigurationError
+from robocop.exceptions import ConfigurationError
 from robocop.files import get_relative_path
 from robocop.linter import sonar_qube
 from robocop.linter.diagnostics import Diagnostic, Diagnostics

@@ -43,7 +43,7 @@ def tests(session, robot_ver):
 
 def install_doc_deps(session, robot_version):
     session.install(f"robotframework=={robot_version}")
-    session.run(*"uv sync --group doc".split())
+    session.run(*"uv sync --frozen --group doc".split())
 
 
 @nox.session()

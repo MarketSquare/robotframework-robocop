@@ -23,8 +23,10 @@ You can optionally configure rule severity or other parameters.
 from __future__ import annotations
 
 import ast
+import importlib
 import importlib.util
 import inspect
+import pkgutil
 import sys
 from collections import defaultdict
 from enum import Enum
@@ -37,7 +39,7 @@ from typing import TYPE_CHECKING, Any, Callable, NoReturn
 
 from robot.utils import FileReader
 
-from robocop import errors
+from robocop import exceptions
 from robocop.linter.diagnostics import Diagnostic
 from robocop.linter.utils.version_matching import Version, VersionSpecifier
 
@@ -132,7 +134,7 @@ class RuleSeverity(Enum):
                 # it will be reraised as RuleParamFailedInitError
                 raise ValueError(hint)
             # invalid severity threshold
-            raise errors.ConfigurationError(f"Invalid severity value '{value}'. {hint}") from None
+            raise exceptions.ConfigurationError(f"Invalid severity value '{value}'. {hint}") from None
         return severity
 
     def __str__(self):
@@ -234,7 +236,7 @@ class RuleParam:
         try:
             self._value = self.converter(value)
         except ValueError as err:
-            raise errors.RuleParamFailedInitError(self, value, str(err)) from None
+            raise exceptions.RuleParamFailedInitError(self, value, str(err)) from None
 
     @property
     def param_type(self):
@@ -291,7 +293,7 @@ class SeverityThreshold:
         if severity is None:
             severity_values = ", ".join(sev.value for sev in RuleSeverity)
             hint = f"Choose one from: {severity_values}."
-            raise errors.ConfigurationError(f"Invalid severity value '{value}'. {hint}") from None
+            raise exceptions.ConfigurationError(f"Invalid severity value '{value}'. {hint}") from None
         return severity
 
     def set_thresholds(self, value) -> None:
@@ -301,7 +303,7 @@ class SeverityThreshold:
             try:
                 sev, param_value = pair.split("=")
             except ValueError:
-                raise errors.ConfigurationError(
+                raise exceptions.ConfigurationError(
                     f"Invalid severity value '{value}'. "
                     f"It should be list of `severity=param_value` pairs, separated by `:`."
                 ) from None
@@ -476,7 +478,7 @@ class Rule:
     def configure(self, param: str, value: str) -> None:
         if param not in self.config:
             count, configurables_text = self.available_configurables()
-            raise errors.ConfigurationError(
+            raise exceptions.ConfigurationError(
                 f"Provided param '{param}' for rule '{self.name}' does not exist. "
                 f"Available configurable{'' if count == 1 else 's'} for this rule:\n"
                 f"    {configurables_text}"
@@ -639,18 +641,25 @@ class RobocopImporter:
         self.deprecated_rules = {}
 
     def get_initialized_checkers(self):
-        # TODO: simplify. internal checkers can be static
-        yield from self._get_checkers_from_modules(self.get_internal_modules())
+        for module in self.get_internal_modules():
+            yield from self._get_initialized_checkers_from_module(module)
         yield from self._get_checkers_from_modules(self.get_external_modules())
 
     def get_internal_modules(self):
-        return self.modules_from_paths(list(self.internal_checkers_dir.iterdir()), recursive=False)
+        rules_package_name = "robocop.linter.rules."
+        # when robocop is used as module (in pytest or in IDE tools) we need to clear previously imported rules
+        for mod in list(sys.modules.keys()):
+            if mod.startswith(rules_package_name):
+                del sys.modules[mod]
+        for _, module_name, _ in pkgutil.iter_modules([str(self.internal_checkers_dir)]):
+            yield importlib.import_module(f"{rules_package_name}{module_name}")
 
     def get_external_modules(self):
         for ext_rule_path in self.external_rules_paths:
             # Allow relative imports in external rules folder
             sys.path.append(ext_rule_path)
             sys.path.append(str(Path(ext_rule_path).parent))
+            # TODO: we can remove those paths from sys.path after importing
         return self.modules_from_paths([*self.external_rules_paths], recursive=True)
 
     def _get_checkers_from_modules(self, modules):  # noqa: ANN202
@@ -697,10 +706,9 @@ class RobocopImporter:
                     yield from self._iter_imports(Path(mod.__file__))
                     yield mod
                 except ImportError:
-                    raise errors.InvalidExternalCheckerError(path) from None
+                    raise exceptions.InvalidExternalCheckerError(path) from None
 
-    @staticmethod
-    def _import_module_from_file(file_path):
+    def _import_module_from_file(self, file_path):  # noqa: ANN202
         """
         Import Python file as module.
 
@@ -737,15 +745,6 @@ class RobocopImporter:
                 yield import_module(import_name)
             except ImportError:
                 pass
-
-    @staticmethod
-    def get_imported_rules(rule_modules):
-        for module in rule_modules:
-            module_name = module.__name__.split(".")[-1]
-            classes = inspect.getmembers(module, inspect.isclass)
-            rules = [rule[1]() for rule in classes if is_rule(rule)]
-            for rule in rules:
-                yield module_name, rule
 
     def register_deprecated_rules(self, module_rules: dict[str, Rule]) -> None:
         # FIXME: currently deprecated, not used rules are hidden (we could just mentioned them in doc. or create
@@ -810,13 +809,13 @@ def init(config: LinterConfig) -> None:
     # linter.rules.update(robocop_importer.deprecated_rules)
 
 
-def get_builtin_rules() -> Generator[tuple[str, Rule], None, None]:
-    """Get only rules definitions for documentation generation."""
-    # TODO: refactor
-    robocop_importer = RobocopImporter()
-    rule_modules = robocop_importer.get_internal_modules()
-    yield from robocop_importer.get_imported_rules(rule_modules)
+class DocumentationImporter(RobocopImporter):
+    """Import Robocop internal classes for documentation generation."""
 
-
-if __name__ == "__main__":
-    rules = list(get_builtin_rules())
+    def get_builtin_rules(self) -> Generator[tuple[str, Rule], None, None]:
+        for module in self.get_internal_modules():
+            module_name = module.__name__.split(".")[-1]
+            classes = inspect.getmembers(module, inspect.isclass)
+            rules = [rule[1]() for rule in classes if is_rule(rule)]
+            for rule in rules:
+                yield module_name, rule

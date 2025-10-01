@@ -458,7 +458,10 @@ class RenameVariables(Formatter):
         if variable:
             if self._is_var_scope_local(node):
                 self.variables_scope.add_local(variable.value)
-            variable.value = self.rename_value(variable.value, variable_case=VariableCase.AUTO, is_var=False)
+                variable.value = self.rename_value(variable.value, variable_case=VariableCase.LOWER, is_var=False)
+            else:
+                self.variables_scope.change_scope_from_local_to_global(variable.value)
+                variable.value = self.rename_value(variable.value, variable_case=VariableCase.UPPER, is_var=False)
         return node
 
     @staticmethod

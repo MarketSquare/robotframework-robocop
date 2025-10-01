@@ -27,10 +27,8 @@ Robocop is executed on the same major version (6.1.1 for example) without target
 Importing external modules in custom rules with the same name as Robocop rules fails (#1467)
 --------------------------------------------------------------------------------------------
 
-If custom rule used external module with the same name as one of Robocop rules categories, it failed on import:
+If custom rule used external module with the same name as one of Robocop rules categories, it failed on import::
 
-```
-from deprecated import deprecated  # duplicates with robocop.linter.rules.deprecated.py
-```
+    from deprecated import deprecated  # duplicates with robocop.linter.rules.deprecated.py
 
 It was resolved by redesigning our rules importing logic to follow the same behaviour as formatter importer.

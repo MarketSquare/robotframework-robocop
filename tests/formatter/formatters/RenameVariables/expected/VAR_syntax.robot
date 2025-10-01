@@ -21,6 +21,8 @@ Change scope
     VAR    ${SUITE}    value    scope=SUITE
     VAR    ${GLOBAL}    value    scope=GLOBAL
     VAR    ${TEST}    value    scope=TEST
+    &{some_dict}    Some Keyword With Local Return
+    VAR    &{SOME_DICT}    &{some_dict}    scope=TEST
     VAR    ${TASK}    value    scope=TASK
     VAR    ${local_default}    value    scope=local
 
@@ -40,6 +42,14 @@ Change scope
     # if the scope is dynamic, make it global anyway
     VAR    ${VARIABLE}    value    scope=${dynamic_scope}
     Log    ${VARIABLE}
+
+    # change scope again
+    Log    ${TEST}
+    VAR    ${test}    value    scope=local
+    Log    ${test}
+    VAR    ${TEST}    value    scope=TEST
+    Log    ${TEST}
+    VAR    &{some_dict}    &{SOME_DICT}
 
 List
     # Creates a list with three items.

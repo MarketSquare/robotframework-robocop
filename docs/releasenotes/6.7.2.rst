@@ -5,12 +5,10 @@ Robocop 6.7.2
 Assertion keywords reported as undefined-argument-value (#1390)
 ---------------------------------------------------------------
 
-Assertion keywords used by popular ``AssertionEngine`` library were reported as ``undefined-argument-value`` errors:
+Assertion keywords used by popular ``AssertionEngine`` library were reported as ``undefined-argument-value`` errors::
 
-```
- 785 |   Get Text   ${selector}   *=   ${alv_check}
-     |                            ^^ ARG04
-```
+     785 |   Get Text   ${selector}   *=   ${alv_check}
+         |                            ^^ ARG04
 
 Robocop should now ignore arguments that match following list: "==", "!=", "<", ">", "<=", ">=", "*=", "^=", "$=", "$".
 
@@ -19,3 +17,50 @@ SonarQube import issues with diagnostic outside physical locations (#1417)
 
 Fixed issues when reporting SPC10 ``too-many-trailing-blank-lines`` and LEN08 ``line-too-long`` outside physical
 locations. Now it should only report start/end lines.
+
+RenameVariables lower-casing VAR variables with global scope (#1425)
+--------------------------------------------------------------------
+
+Following code::
+
+    *** Keywords ***
+    Some keyword
+        &{SOME_DICT}    Some keyword that returns a dict
+        VAR    &{SOME_DICT}    &{SOME_DICT}   scope=TEST
+
+was incorrectly converted to::
+
+    *** Keywords ***
+    Some keyword
+        &{some_dict}    Some keyword that returns a dict
+        VAR    &{some_dict}    &{some_dict}   scope=TEST
+
+It should now correctly detect new (global) case of variable and convert it to::
+
+    *** Keywords ***
+    Some keyword
+        &{some_dict}    Some keyword that returns a dict
+        VAR    &{SOME_DICT}    &{some_dict}   scope=TEST
+
+RenameVariables VAR variables stuck forever with local scope (#1425)
+--------------------------------------------------------------------
+
+When using VAR with local scope, VAR did not change back to global scope after switching scope again.
+
+Following code::
+
+    *** Keywords ***
+    Some keyword
+        VAR    ${local_variable}    scope=local
+        Log    ${local_variable}
+        VAR    ${local_variable}    scope=SUITE
+        Log    ${local_variable}
+
+will now be formatted to::
+
+    *** Keywords ***
+    Some keyword
+        VAR    ${local_variable}    scope=local
+        Log    ${local_variable}
+        VAR    ${LOCAL_VARIABLE}    scope=SUITE
+        Log    ${LOCAL_VARIABLE}

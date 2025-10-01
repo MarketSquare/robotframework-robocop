@@ -1,5 +1,5 @@
 =============
-Robocop 6.7.1
+Robocop 6.7.2
 =============
 
 Assertion keywords reported as undefined-argument-value (#1390)
@@ -13,3 +13,9 @@ Assertion keywords used by popular ``AssertionEngine`` library were reported as 
 ```
 
 Robocop should now ignore arguments that match following list: "==", "!=", "<", ">", "<=", ">=", "*=", "^=", "$=", "$".
+
+SonarQube import issues with diagnostic outside physical locations (#1417)
+--------------------------------------------------------------------------
+
+Fixed issues when reporting SPC10 ``too-many-trailing-blank-lines`` and LEN08 ``line-too-long`` outside physical
+locations. Now it should only report start/end lines.

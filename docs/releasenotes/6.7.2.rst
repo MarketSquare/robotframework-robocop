@@ -1,0 +1,15 @@
+=============
+Robocop 6.7.1
+=============
+
+Assertion keywords reported as undefined-argument-value (#1390)
+---------------------------------------------------------------
+
+Assertion keywords used by popular ``AssertionEngine`` library were reported as ``undefined-argument-value`` errors:
+
+```
+ 785 |   Get Text   ${selector}   *=   ${alv_check}
+     |                            ^^ ARG04
+```
+
+Robocop should now ignore arguments that match following list: "==", "!=", "<", ">", "<=", ">=", "*=", "^=", "$=", "$".

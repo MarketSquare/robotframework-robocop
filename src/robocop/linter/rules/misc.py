@@ -1682,6 +1682,8 @@ class NonLocalVariableChecker(VisitorChecker):
 class UndefinedArgumentDefaultChecker(VisitorChecker):
     undefined_argument_default: arguments.UndefinedArgumentDefaultRule
     undefined_argument_value: arguments.UndefinedArgumentValueRule
+    # used by AssertionEngine library
+    assertion_operators = {"==", "!=", "<", ">", "<=", ">=", "*=", "^=", "$=", "$"}
 
     def visit_Arguments(self, node: Arguments):  # noqa: N802
         for token in node.get_tokens(Token.ARGUMENT):
@@ -1706,6 +1708,8 @@ class UndefinedArgumentDefaultChecker(VisitorChecker):
         for token in node.get_tokens(Token.ARGUMENT):
             arg = token.value
 
+            if arg in self.assertion_operators:
+                continue
             if "=" not in arg or arg.startswith("="):
                 # Is a positional arg
                 continue

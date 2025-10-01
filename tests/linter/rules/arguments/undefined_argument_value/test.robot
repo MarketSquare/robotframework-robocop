@@ -18,3 +18,11 @@ With defined values
     Log    message==
     Log    =
     Log    = amazing!
+
+Assertion engine keywords
+    TRY
+        Get Url   *=   ${url}
+    EXCEPT
+        ${current}=   Get Url
+    END
+    Get Text   ${selector}   *=   ${alv_check}

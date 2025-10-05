@@ -7,3 +7,6 @@ class TestRuleAcceptance(RuleAcceptance):
 
     def test_extended(self):
         self.check_rule(src_files=["test.robot"], expected_file="expected_extended.txt", output_format="extended")
+
+    def test_rule_var(self):
+        self.check_rule(src_files=["VAR_syntax.robot"], expected_file=None, test_on_version=">=7")

@@ -1,0 +1,14 @@
+=============
+Robocop 6.8.0
+=============
+
+Fixes
+======
+
+Overwrite mode not taken into account from the configuration file (#1444)
+-------------------------------------------------------------------------
+
+``overwrite`` mode should now work properly when used from the configuration file::
+
+    [tool.robocop.format]
+    overwrite = false

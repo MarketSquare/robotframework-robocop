@@ -78,7 +78,7 @@ class RobocopFormatter:
             changed_files_plurar = "" if changed_files == 1 else "s"
             skipped_files_plurar = "" if skipped_files == 1 else "s"
 
-            future_tense = "" if self.config.formatter.overwrite else " would be"
+            future_tense = "" if self.config.formatter.overwrite_files else " would be"
             print(
                 f"\n{changed_files} file{changed_files_plurar}{future_tense} reformatted, "
                 f"{all_files} file{all_files_plurar}{future_tense} left unchanged."
@@ -121,7 +121,7 @@ class RobocopFormatter:
     def log_formatted_source(self, source: Path, stdin: bool):
         if stdin:
             return
-        if not self.config.formatter.overwrite:
+        if not self.config.formatter.overwrite_files:
             print(f"Would reformat {source}")  # TODO: replace prints with typer equivalent (if needed)
         else:
             print(f"Reformatted {source}")
@@ -135,7 +135,7 @@ class RobocopFormatter:
             print(collected_lines.text)
 
     def save_model(self, source, model):
-        if self.config.formatter.overwrite:
+        if self.config.formatter.overwrite_files:
             output = self.config.formatter.output or source
             misc.ModelWriter(output=output, newline=self.get_line_ending(source)).write(model)
 

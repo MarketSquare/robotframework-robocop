@@ -7,6 +7,8 @@ from robot.api import get_model
 from robocop.formatter.disablers import DisabledLines, RegisterDisablers
 from robocop.formatter.utils.misc import ROBOT_VERSION
 
+TEST_DATA = Path(__file__).parent / "test_data" / "disablers"
+
 
 @pytest.mark.parametrize(
     ("check_start", "check_end", "start_line", "end_line", "lines", "full_match", "expected"),
@@ -67,10 +69,33 @@ def test_is_node_disabled(check_start, check_end, start_line, end_line, lines, f
 def test_register_disablers(test_file, expected_lines, file_disabled, rf_version, check_transformer):
     if ROBOT_VERSION.major < rf_version:
         pytest.skip(f"Test enabled only for RF {rf_version}.*")
-    test_file_path = Path(__file__).parent / "test_data" / "disablers" / test_file
+    # Arrange
+    test_file_path = TEST_DATA / test_file
     model = get_model(test_file_path)
+
+    # Act
     register_disablers = RegisterDisablers(None, None)
     register_disablers.visit(model)
+
+    # Assert
     if check_transformer in register_disablers.disablers.disablers:
         assert register_disablers.disablers.disablers[check_transformer].lines == expected_lines
     assert register_disablers.is_disabled_in_file(check_transformer) == file_disabled
+
+
+def test_register_disablers_mixed():
+    # Arrange
+    test_file_path = TEST_DATA / "mixed_disablers.robot"
+    model = get_model(test_file_path)
+    all_disablers = [(5, 5), (8, 8)]
+    formatter_disablers = [(3, 3), (4, 4), (6, 6), (7, 7), (11, 11), (12, 12), (13, 13)]
+    formatter2_disablers = [(11, 11), (12, 12), (13, 13)]
+
+    # Act
+    register_disablers = RegisterDisablers(None, None)
+    register_disablers.visit(model)
+
+    # Assert
+    assert register_disablers.disablers.disablers["all"].lines == all_disablers
+    assert register_disablers.disablers.disablers["Formatter"].lines == formatter_disablers
+    assert register_disablers.disablers.disablers["Formatter2"].lines == formatter2_disablers

@@ -2,6 +2,20 @@
 Robocop 6.8.0
 =============
 
+Disablers discoverable from the middle of comment
+-------------------------------------------------
+
+To disable linting or formatting you need to use ``# robocop: off`` or ``# robocop: fmt: off`` (or noqa) syntax.
+This causes limitation where following comment only registered first disabler because every disabler was required to
+start with ``#``::
+
+    Keyword Call  # robocop: off=some-rule robocop: fmt: off
+    Keyword Call  # noqa fmt: off
+
+Now it's not required and above example will find all disablers. It also means that following will also work::
+
+    Keyword Call  # some text robocop: off
+
 Fixes
 ======
 

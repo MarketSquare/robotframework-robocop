@@ -44,7 +44,9 @@ class DisablersVisitor(ModelVisitor):
         self.keyword_or_test_section = False
         self.last_name_header_line = 0
         self.disablers_in_scope = []
-        self.disabler_pattern = re.compile(r"robocop: ?(?P<disabler>off|on) ?=?(?P<rules>[\w\-,]*)")
+        self.disabler_pattern = re.compile(
+            r"robocop: ?(?P<disabler>off|on)(?:\s?=\s?(?P<rules>[\w\-]+(?:,\s?[\w\-]+)*))?"
+        )
         self.rules = defaultdict(DisablersInFile().copy)
         self.visit(model)
 
@@ -107,24 +109,22 @@ class DisablersVisitor(ModelVisitor):
             return
         if "# noqa" in token.value:
             self._add_inline_disabler("all", token.lineno)
-        disabler = self.disabler_pattern.search(token.value)
-        if not disabler:
-            return
-        if not disabler.group("rules"):
-            rules = ["all"]
-        else:
-            rules = [rule.strip() for rule in disabler.group("rules").split(",") if rule.strip()]
-        if disabler.group("disabler") == "off":
-            for rule in rules:
-                if is_inline:
-                    self._add_inline_disabler(rule, token.lineno)
-                else:
-                    scope = self.get_scope_for_disabler(token)
-                    self._start_block(scope, rule, token.lineno)
-        elif disabler.group("disabler") == "on" and not is_inline:
-            scope = self.get_scope_for_disabler(token)
-            for rule in rules:
-                self._end_block(scope, rule, token.lineno)
+        for disabler in self.disabler_pattern.finditer(token.value):
+            if not disabler.group("rules"):
+                rules = ["all"]
+            else:
+                rules = [rule.strip() for rule in disabler.group("rules").split(",") if rule.strip()]
+            if disabler.group("disabler") == "off":
+                for rule in rules:
+                    if is_inline:
+                        self._add_inline_disabler(rule, token.lineno)
+                    else:
+                        scope = self.get_scope_for_disabler(token)
+                        self._start_block(scope, rule, token.lineno)
+            elif disabler.group("disabler") == "on" and not is_inline:
+                scope = self.get_scope_for_disabler(token)
+                for rule in rules:
+                    self._end_block(scope, rule, token.lineno)
 
     def get_scope_for_disabler(self, token: Token) -> defaultdict[DisablersInFile]:
         if token.col_offset == 0 and self.keyword_or_test_section:

@@ -43,7 +43,11 @@ in a comment would be recognized, for example::
 
 This limitation has been removed.
 Disablers are now discoverable anywhere within a comment, so all directives in the examples above will be correctly
-registered.
+registered. Disabler syntax is now more flexible - for example, when disabling multiple rules,
+you can separate them with spaces.::
+
+    # robocop: off=rule1,rule2
+    # robocop: off=rule1, rule2
 
 Fixes
 ======
@@ -55,3 +59,10 @@ Overwrite mode not taken into account from the configuration file (#1478)
 
     [tool.robocop.format]
     overwrite = false
+
+Rules url pointed to non-existing location (#1481)
+--------------------------------------------------
+
+Rules urls (such as SARIF helpUri, or diagnostic message urls) were not updated after documentation refactor and
+pointed to wrong location. It should now point correctly to
+https://robocop.readthedocs.io/en/v{version}/rules/rules_list.html#{rule-name} .

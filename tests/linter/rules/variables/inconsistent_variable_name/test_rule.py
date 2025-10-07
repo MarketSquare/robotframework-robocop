@@ -22,3 +22,6 @@ class TestRuleAcceptance(RuleAcceptance):
             issue_format="end_col",
             test_on_version="<7",
         )
+
+    def test_var_syntax(self):
+        self.check_rule(src_files=["VAR_syntax.robot"], expected_file=None, test_on_version=">=7")

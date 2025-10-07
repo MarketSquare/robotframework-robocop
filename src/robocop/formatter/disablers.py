@@ -173,17 +173,14 @@ class RegisterDisablers(ModelVisitor):
         self.start_line = start_line
         self.end_line = end_line
         self.disablers = DisablersInFile(start_line, end_line)
-        self.disabler_pattern = re.compile(r"#\s(?:robocop:\s)?fmt: (?P<disabler>on|off) ?=?(?P<formatters>[\w,\s]+)?")
+        self.disabler_pattern = re.compile(
+            r"\s(?:robocop:\s)?fmt:\s(?P<disabler>on|off)(?:\s?=\s?(?P<formatters>\w+(?:,\s?\w+)*))?"
+        )
         self.disablers_in_scope: list[dict[str, int]] = []
         self.file_level_disablers = False
 
     def is_disabled_in_file(self, formatter_name: str = ALL_FORMATTERS) -> bool:
         return self.disablers.is_disabled_in_file(formatter_name)
-
-    def get_disabler(self, comment: Token) -> re.Match | None:
-        if not comment.value:
-            return None
-        return self.disabler_pattern.search(comment.value)
 
     def close_disabler(self, end_line):
         disabler = self.disablers_in_scope.pop()
@@ -204,20 +201,21 @@ class RegisterDisablers(ModelVisitor):
 
     @staticmethod
     def get_disabler_formatters(match) -> list[str]:
-        if not match.group("formatters") or "=" not in match.group(0):  # robocop: fmt: off or fmt: off comment
+        if not match.group("formatters") or "=" not in match.group(0):  #  robocop: fmt: off or fmt: off comment
             return [ALL_FORMATTERS]
         # fmt: off=Formatter1, Formatter2
         return [formatter.strip() for formatter in match.group("formatters").split(",") if formatter.strip()]
 
     def visit_SectionHeader(self, node):  # noqa: N802
         for comment in node.get_tokens(Token.COMMENT):
-            disabler = self.get_disabler(comment)
-            if not disabler or disabler.group("disabler") != "off":
+            if not str(comment.value).strip():
                 continue
-            formatters = self.get_disabler_formatters(disabler)
-            for formatter in formatters:
-                self.disablers.add_disabled_header(formatter, node.lineno)
-            break
+            for disabler in self.disabler_pattern.finditer(comment.value):
+                if disabler.group("disabler") != "off":
+                    continue
+                formatters = self.get_disabler_formatters(disabler)
+                for formatter in formatters:
+                    self.disablers.add_disabled_header(formatter, node.lineno)
         return self.generic_visit(node)
 
     def visit_TestCase(self, node):  # noqa: N802
@@ -246,28 +244,28 @@ class RegisterDisablers(ModelVisitor):
     def visit_Statement(self, node):  # noqa: N802
         if isinstance(node, Comment):
             comment = node.get_token(Token.COMMENT)
-            disabler = self.get_disabler(comment)
-            if not disabler:
+            if not str(comment.value).strip():
                 return
-            formatters = self.get_disabler_formatters(disabler)
-            index = 0 if is_line_start(node) else -1
-            disabler_start = disabler.group("disabler") == "on"
-            for formatter in formatters:
-                if disabler_start:
-                    start_line = self.disablers_in_scope[index].get(formatter)
-                    if not start_line:  # no disabler open
-                        continue
-                    self.disablers.add_disabler(formatter, start_line, node.lineno)
-                    self.disablers_in_scope[index][formatter] = 0
-                elif not self.disablers_in_scope[index].get(formatter):
-                    self.disablers_in_scope[index][formatter] = node.lineno
+            for disabler in self.disabler_pattern.finditer(comment.value):
+                formatters = self.get_disabler_formatters(disabler)
+                index = 0 if is_line_start(node) else -1
+                disabler_start = disabler.group("disabler") == "on"
+                for formatter in formatters:
+                    if disabler_start:
+                        start_line = self.disablers_in_scope[index].get(formatter)
+                        if not start_line:  # no disabler open
+                            continue
+                        self.disablers.add_disabler(formatter, start_line, node.lineno)
+                        self.disablers_in_scope[index][formatter] = 0
+                    elif not self.disablers_in_scope[index].get(formatter):
+                        self.disablers_in_scope[index][formatter] = node.lineno
         else:
             # inline disabler
             for comment in node.get_tokens(Token.COMMENT):
-                disabler = self.get_disabler(comment)
-                if not disabler:
+                if not str(comment.value).strip():
                     continue
-                formatters = self.get_disabler_formatters(disabler)
-                if disabler.group("disabler") == "off":
-                    for formatter in formatters:
-                        self.disablers.add_disabler(formatter, node.lineno, node.end_lineno)
+                for disabler in self.disabler_pattern.finditer(comment.value):
+                    formatters = self.get_disabler_formatters(disabler)
+                    if disabler.group("disabler") == "off":
+                        for formatter in formatters:
+                            self.disablers.add_disabler(formatter, node.lineno, node.end_lineno)

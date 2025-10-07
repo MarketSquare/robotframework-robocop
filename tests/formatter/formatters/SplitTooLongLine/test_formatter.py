@@ -19,8 +19,8 @@ class TestSplitTooLongLine(FormatterAcceptanceTest):
         self.compare(
             source="tests.robot",
             expected="feed_until_line_length_4.robot",
-            config=configure,
-            test_on_version="==4",
+            configure=configure,
+            test_on_version="==4.*",
         )
 
     def test_split_too_long_lines_split_on_every_arg(self):
@@ -36,7 +36,7 @@ class TestSplitTooLongLine(FormatterAcceptanceTest):
             source="tests.robot",
             expected="split_on_every_arg_4.robot",
             configure=[f"{self.FORMATTER_NAME}.line_length=80"],
-            test_on_version="==5",
+            test_on_version="==5.*",
         )
 
     def test_split_lines_with_multiple_assignments(self):
@@ -225,3 +225,6 @@ class TestSplitTooLongLine(FormatterAcceptanceTest):
 
     def test_var_syntax(self):
         self.compare(source="VAR_syntax.robot", test_on_version=">=7")
+
+    def test_keep_disablers(self):
+        self.compare(source="keep_disablers.robot", test_on_version=">=7")

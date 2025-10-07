@@ -71,3 +71,20 @@ class TestDisablers:
         }
         disabled_rules = {rule_name: sorted(rule.blocks) for rule_name, rule in disabler.disabled.rules.items()}
         assert disabled_rules == exp_disabled_rules
+
+    def test_mixed_disablers(self):
+        # Arrange
+        model = get_model(DISABLED_TEST_DIR / "mixed_disablers.robot")
+        disabler = DisablersFinder(model)
+        exp_disabled_rules = {
+            "all": [4, 5, 7, 8, 11, 12, 13, 15],
+            "rule": [3, 6, 14],
+            "rule1": [15, 16, 17, 18],
+            "rule2": [14, 15, 16, 17],
+        }
+
+        # Act
+        disabled_rules = {rule_name: sorted(rule.lines) for rule_name, rule in disabler.disabled.rules.items()}
+
+        # Assert
+        assert disabled_rules == exp_disabled_rules

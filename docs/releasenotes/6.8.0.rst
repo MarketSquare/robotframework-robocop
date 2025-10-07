@@ -1,0 +1,57 @@
+=============
+Robocop 6.8.0
+=============
+
+Improved comment handling in SplitTooLongLine formatter (#1444)
+---------------------------------------------------------------
+
+When formatting keyword call or ``VAR`` by ``SplitTooLongLine`` formatter, comments were moved above the statement,
+for example::
+
+    Long Keyword That Will Be Split    multiple   args  # comment
+
+was formatted to::
+
+    # comment
+    Long Keyword That Will Be Split
+    ...    multiple
+    ...    args
+
+This caused unindented effect where robocop disabler directives (e.g. ``# robocop: off``) were also moved above the
+statement and no longer applied correctly.
+To fix this, the comment-handling behavior has been updated. When a keyword call or VAR is formatted by the
+``SplitTooLongLine`` formatter, all comments found within the statement are now kept together and attached to the
+first line, for example:
+
+    Long Keyword That Will Be Split  # comment
+    ...    multiple
+    ...    args
+
+Disablers discoverable from the middle of comment
+-------------------------------------------------
+
+Previously, disabling linting or formatting required the disabler directive (e.g. ``# robocop: off`` or
+``# robocop: fmt: off`` or ``noqa``) to appear at the beginning of a comment. Because of this, only the first disabler
+in a comment would be recognized, for example::
+
+    # only robocop: off=some-rule is recognized
+    Keyword Call  # robocop: off=some-rule robocop: fmt: off
+    # only noqa is recognized
+    Keyword Call  # noqa fmt: off
+    # nothing is recognized
+    Keyword Call  # TODO: robocop: off
+
+This limitation has been removed.
+Disablers are now discoverable anywhere within a comment, so all directives in the examples above will be correctly
+registered.
+
+Fixes
+======
+
+Overwrite mode not taken into account from the configuration file (#1478)
+-------------------------------------------------------------------------
+
+``overwrite`` mode should now work properly when used from the configuration file::
+
+    [tool.robocop.format]
+    overwrite = false

@@ -353,18 +353,11 @@ class FormatterConfig:
     _parameters: dict[str, dict[str, str]] | None = field(default=None, compare=False)
     _formatters: dict[str, ...] | None = field(default=None, compare=False)
 
-    def __post_init__(self) -> None:
-        self.set_overwrite_mode()
-
-    def set_overwrite_mode(self) -> None:
-        """
-        Define overwrite mode used.
-
-        If --overwrite/--no-overwrite is used, take the flag value directly.
-        Otherwise, base it on existence of --check flag (by default, with --check overwrite mode is disabled).
-        """
-        if self.overwrite is None:
-            self.overwrite = not self.check
+    @property
+    def overwrite_files(self) -> bool:
+        if self.overwrite is not None:
+            return self.overwrite
+        return not self.check
 
     @classmethod
     def from_toml(cls, config: dict, config_parent: Path) -> FormatterConfig:

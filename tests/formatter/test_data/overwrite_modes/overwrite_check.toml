@@ -1,0 +1,3 @@
+[tool.robocop.format]
+overwrite = true
+check = true

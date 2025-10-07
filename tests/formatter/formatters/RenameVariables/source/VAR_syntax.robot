@@ -81,7 +81,7 @@ Escaped
 *** Keywords ***
 Assignment signs
     VAR    ${variable} =    value
-    VAR    ${variable2}=    value
+    VAR    ${VARIABLE2}=    value
     Log    ${variable}
     Log    ${variable2}
 

@@ -1,16 +1,12 @@
 *** Keywords ***
 Keyword
-    # Edge case here →→→→→→→→→→→→→→→→                                    HERE
-    This is a keyword  these  args  have  an  interesting  ${EMPTY}
+    This is a keyword  these  args  have  an  interesting  ${EMPTY}  # Edge case here →→→→→→→→→→→→→→→→                                    HERE
     ...    More arguments here
 
-    # Comment 1
-    # Comment 2
-    This is a keyword  and  these  are  its  arg  here  are  some  more  args
+    This is a keyword  and  these  are  its  arg  here  are  some  more  args  # Comment 1 Comment 2
     ...    with  irregular  spacing # Not really a comment
 
-    # Comment
-    ${assignment}=  This keyword sets the variable  using  these  args  here
+    ${assignment}=  This keyword sets the variable  using  these  args  here  # Comment
     ...    are  some  more  args  to  split  with  irregular  spacing
 
     ${assign}

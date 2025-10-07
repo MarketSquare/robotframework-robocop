@@ -14,4 +14,5 @@ Multiple disablers
     Test  # robocop: off=rule some text robocop: off=rule2
     Test  # robocop: off=rule1,rule2 robocop: off
     Test  # robocop: off=rule1,rule2
+    Test  # robocop: off=rule1, rule2
     Test  # robocop: off=rule1

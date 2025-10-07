@@ -1,7 +1,6 @@
 *** Keywords ***
 Keyword
-    # Edge case here →→→→→→→→→→→→→→→→                                    HERE
-    This is a keyword
+    This is a keyword  # Edge case here →→→→→→→→→→→→→→→→                                    HERE
     ...    these
     ...    args
     ...    have
@@ -10,9 +9,7 @@ Keyword
     ...    ${EMPTY}
     ...    More arguments here
 
-    # Comment 1
-    # Comment 2
-    This is a keyword
+    This is a keyword  # Comment 1 Comment 2
     ...    and
     ...    these
     ...    are
@@ -27,8 +24,7 @@ Keyword
     ...    irregular
     ...    spacing # Not really a comment
 
-    # Comment
-    ${assignment}=  This keyword sets the variable
+    ${assignment}=  This keyword sets the variable  # Comment
     ...    using
     ...    these
     ...    args

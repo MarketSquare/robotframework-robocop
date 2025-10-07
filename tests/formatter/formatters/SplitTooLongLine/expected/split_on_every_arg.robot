@@ -5,8 +5,7 @@
 Different keyword calls
     This is a keyword     fits even with its    # comment
 
-    # comment, but has bad spacing
-    This is a keyword
+    This is a keyword  # comment, but has bad spacing
     ...    fits with its
 
     This is a keyword
@@ -27,8 +26,7 @@ Different keyword calls
     ...    really
     ...    a # comment
 
-    # comment
-    This is a keyword
+    This is a keyword  # comment
     ...    these
     ...    arguments
     ...    won't
@@ -36,8 +34,7 @@ Different keyword calls
     ...    with
     ...    that
 
-    # comment
-    This is a keyword
+    This is a keyword  # comment
     ...    these
     ...    arguments
     ...    won't
@@ -47,8 +44,7 @@ Different keyword calls
     ...    without
     ...    that
 
-    # Edge case here →→→→→→→→→→→→→→→→                                    HERE
-    This is a keyword
+    This is a keyword  # Edge case here →→→→→→→→→→→→→→→→                                    HERE
     ...    these
     ...    args
     ...    have
@@ -74,9 +70,7 @@ Different keyword calls
     ...    here   are   some    more    args
     ...    with                irregular                       spacing
 
-    # Comment 1
-    # Comment 2
-    This is a keyword
+    This is a keyword  # Comment 1 Comment 2
     ...    and
     ...    these
     ...    are
@@ -92,14 +86,12 @@ Different keyword calls
     ...    spacing # Not really a comment
 
 
-    # Comment
-    ${assignment}=    This keyword sets the variable
+    ${assignment}=    This keyword sets the variable  # Comment
     ...    using
     ...    these
     ...    args
 
-    # Comment
-    ${assignment}=    This keyword sets the variable
+    ${assignment}=    This keyword sets the variable  # Comment
     ...    using
     ...    these
     ...    args
@@ -129,8 +121,7 @@ For loop
     FOR   ${i}   IN    1  2  3  4  5  6  7  8  9  10  11  12  13  14  15  16  17  18  20
         This is a keyword     fits even with its    # comment
 
-        # comment, but has bad spacing
-        This is a keyword
+        This is a keyword  # comment, but has bad spacing
         ...    fits with its
 
         This is a keyword
@@ -150,8 +141,7 @@ For loop
         ...    really
         ...    a # comment
 
-        # comment
-        This is a keyword
+        This is a keyword  # comment
         ...    these
         ...    arguments
         ...    won't
@@ -159,8 +149,7 @@ For loop
         ...    with
         ...    that
 
-        # comment
-        This is a keyword
+        This is a keyword  # comment
         ...    these
         ...    arguments
         ...    won't
@@ -170,8 +159,7 @@ For loop
         ...    without
         ...    that
 
-        # Edge case here →→→→→→→→→→→→→→→→                                    HERE
-        This is a keyword
+        This is a keyword  # Edge case here →→→→→→→→→→→→→→→→                                    HERE
         ...    these
         ...    args
         ...    have
@@ -205,16 +193,14 @@ For loop
         ...    spacing
 
 
-        # Comment
-        This is a keyword
+        This is a keyword  # Comment
         ...    and
         ...    these
         ...    are
         ...    its
         ...    args
 
-        # Comment
-        This is a keyword
+        This is a keyword  # Comment
         ...    and
         ...    these
         ...    are
@@ -229,9 +215,7 @@ For loop
         ...    irregular
         ...    spacing
 
-        # Comment 1
-        # Comment 2
-        This is a keyword
+        This is a keyword  # Comment 1 Comment 2
         ...    and
         ...    these
         ...    are
@@ -247,14 +231,12 @@ For loop
         ...    spacing # Not really a comment
 
 
-        # Comment
-        ${assignment}=    This keyword sets the variable
+        ${assignment}=    This keyword sets the variable  # Comment
         ...    using
         ...    these
         ...    args
 
-        # Comment
-        ${assignment}=    This keyword sets the variable
+        ${assignment}=    This keyword sets the variable  # Comment
         ...    using
         ...    these
         ...    args
@@ -273,8 +255,7 @@ For loop
 
 If - else if - else clause
     IF    ${some variable with a very long name} == ${some other variable with a long name}
-        # Comment
-        ${assignment}=    This keyword sets the variable
+        ${assignment}=    This keyword sets the variable  # Comment
         ...    using
         ...    these
         ...    args
@@ -289,8 +270,7 @@ If - else if - else clause
         ...    irregular
         ...    spacing
     ELSE IF    ${random} > ${NUMBER_TO_PASS_ON}
-        # Comment
-        ${assignment}=    This keyword sets the variable
+        ${assignment}=    This keyword sets the variable  # Comment
         ...    using
         ...    these
         ...    args
@@ -305,8 +285,7 @@ If - else if - else clause
         ...    irregular
         ...    spacing
     ELSE
-        # Comment
-        ${assignment}=    This keyword sets the variable
+        ${assignment}=    This keyword sets the variable  # Comment
         ...    using
         ...    these
         ...    args

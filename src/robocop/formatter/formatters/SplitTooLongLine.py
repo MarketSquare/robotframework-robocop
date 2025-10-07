@@ -181,10 +181,19 @@ class SplitTooLongLine(Formatter):
         tokens, comments = self.split_tokens(
             node.tokens, line, self.split_on_every_value, indent=indent, split_types=(Token.ARGUMENT, Token.OPTION)
         )
-        comments = [Comment([comment, EOL]) for comment in comments]
-        node.tokens = tokens
-        # FIXME test comments
+        node.tokens = self.insert_comments_in_first_line(tokens, comments)
         return (*comments, node)
+
+    @staticmethod
+    def insert_comments_in_first_line(tokens, comments):
+        if not comments:
+            return tokens
+        comment = Token(Token.COMMENT, "# " + " ".join([token.value.strip("# ") for token in comments]))
+        eol_index = next((i for i, token in enumerate(tokens) if token.type == Token.EOL), None)
+        if not eol_index:
+            return tokens
+        separator = Token(Token.SEPARATOR, "  ")
+        return tokens[:eol_index] + [separator, comment] + tokens[eol_index:]
 
     @skip_if_disabled
     def visit_Variable(self, node):  # noqa: N802
@@ -346,11 +355,7 @@ class SplitTooLongLine(Formatter):
             node.tokens[node.tokens.index(keyword) + 1 :], line, self.split_on_every_arg, indent
         )
         head.extend(tokens)
-        comment_tokens = []
-        for comment in comments:
-            comment_tokens.extend([indent, comment, EOL])
-
-        node.tokens = comment_tokens + head
+        node.tokens = self.insert_comments_in_first_line(head, comments)
         return node
 
     def col_fit_in_line(self, tokens):

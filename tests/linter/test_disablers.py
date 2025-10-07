@@ -79,8 +79,8 @@ class TestDisablers:
         exp_disabled_rules = {
             "all": [4, 5, 7, 8, 11, 12, 13, 15],
             "rule": [3, 6, 14],
-            "rule1": [15, 16, 17],
-            "rule2": [14, 15, 16],
+            "rule1": [15, 16, 17, 18],
+            "rule2": [14, 15, 16, 17],
         }
 
         # Act

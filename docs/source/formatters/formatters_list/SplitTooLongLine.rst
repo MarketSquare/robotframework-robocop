@@ -281,7 +281,7 @@ Ignore comments
 
 To not count length of the comment to line length use :ref:`skip option` option::
 
-    robocop format --configure SplitTooLongLine.skip=comments
+    robocop format --configure SplitTooLongLine.skip_comments=True
 
 This allows to accept and do not format lines that are longer than allowed length because of the added comment.
 

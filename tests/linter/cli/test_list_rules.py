@@ -165,7 +165,7 @@ class TestListingRules:
             out == "Rule - 0101 [W]: some-message: Some description (enabled)\n"
             "Rule - 19999 [W]: non-default-rule: Some description (disabled)\n\n"
             "Altogether 2 rules (1 enabled).\n\n"
-            "Visit https://robocop.readthedocs.io/en/stable/rules_list.html page for detailed documentation.\n"
+            "Visit https://robocop.readthedocs.io/en/stable/rules/rules_list.html page for detailed documentation.\n"
         )
 
     def test_list_disabled_rule(self, empty_linter, msg_0101_checker, disabled_for_4_checker, capsys):
@@ -186,7 +186,7 @@ class TestListingRules:
             out == "Rule - 0101 [W]: some-message: Some description (disabled)\n"
             f"Rule - 9999 [W]: disabled-in-four: This is desc ({enabled_for})\n\n"
             f"Altogether 2 rules ({enabled_count} enabled).\n\n"
-            "Visit https://robocop.readthedocs.io/en/stable/rules_list.html page for detailed documentation.\n"
+            "Visit https://robocop.readthedocs.io/en/stable/rules/rules_list.html page for detailed documentation.\n"
         )
 
     def test_list_filter_enabled(self, empty_linter, msg_0101_checker, msg_0102_0204_checker, capsys):
@@ -201,7 +201,7 @@ class TestListingRules:
         assert (
             out == "Rule - 0101 [W]: some-message: Some description (enabled)\n\n"
             "Altogether 1 rule (1 enabled).\n\n"
-            "Visit https://robocop.readthedocs.io/en/stable/rules_list.html page for detailed documentation.\n"
+            "Visit https://robocop.readthedocs.io/en/stable/rules/rules_list.html page for detailed documentation.\n"
         )
 
     def test_list_filter_disabled(
@@ -219,7 +219,7 @@ class TestListingRules:
             out == "Rule - 0102 [E]: other-message: this is description (disabled)\n"
             "Rule - 0204 [I]: another-message: Message with meaning 4 (disabled)\n\n"
             "Altogether 2 rules (0 enabled).\n\n"
-            "Visit https://robocop.readthedocs.io/en/stable/rules_list.html page for detailed documentation.\n"
+            "Visit https://robocop.readthedocs.io/en/stable/rules/rules_list.html page for detailed documentation.\n"
         )
 
     def test_list_filter_deprecated(
@@ -236,7 +236,7 @@ class TestListingRules:
             out == "Rule - 9991 [E]: deprecated-rule: Deprecated rule (deprecated)\n"
             "Rule - 9992 [I]: deprecated-disabled-rule: Deprecated and disabled rule (deprecated)\n\n"
             "Altogether 2 rules (0 enabled).\n\n"
-            "Visit https://robocop.readthedocs.io/en/stable/rules_list.html page for detailed documentation.\n"
+            "Visit https://robocop.readthedocs.io/en/stable/rules/rules_list.html page for detailed documentation.\n"
         )
 
     def test_multiple_checkers(self, empty_linter, msg_0101_checker, msg_0102_0204_checker, capsys):
@@ -286,7 +286,7 @@ class TestListingRules:
             out == "Rule - 0101 [W]: some-message: Some description (enabled)\n"
             "Rule - 19999 [W]: non-default-rule: Some description (disabled)\n\n"
             "Altogether 2 rules (1 enabled).\n\n"
-            "Visit https://robocop.readthedocs.io/en/stable/rules_list.html page for detailed documentation.\n"
+            "Visit https://robocop.readthedocs.io/en/stable/rules/rules_list.html page for detailed documentation.\n"
         )
 
     def test_list_with_target_version(self, empty_linter, msg_0101_checker, future_checker, capsys):
@@ -301,7 +301,7 @@ class TestListingRules:
 
         Altogether 2 rules (1 enabled).
 
-        Visit https://robocop.readthedocs.io/en/stable/rules_list.html page for detailed documentation.
+        Visit https://robocop.readthedocs.io/en/stable/rules/rules_list.html page for detailed documentation.
         """).lstrip()
         assert out == expected
 

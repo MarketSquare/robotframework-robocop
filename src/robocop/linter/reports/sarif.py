@@ -43,10 +43,11 @@ class SarifReport(robocop.linter.reports.JsonFileReport):
         return {"WARNING": "warning", "ERROR": "error", "INFO": "note"}[severity.name]
 
     def get_rule_desc(self, rule):
+        version = f"v{__version__}"
         return {
             "id": rule.rule_id,
             "name": rule.name,
-            "helpUri": f"{ROBOCOP_RULES_URL.format(version=__version__)}#{rule.name}",
+            "helpUri": f"{ROBOCOP_RULES_URL.format(version=version)}#{rule.name}",
             "shortDescription": {"text": rule.message},
             "fullDescription": {"text": rule.docs},
             "defaultConfiguration": {"level": self.map_severity_to_level(rule.default_severity)},

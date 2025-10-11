@@ -33,7 +33,7 @@ class TestRuleAcceptance(RuleAcceptance):
                 line_length = 120
                     type: int
                     info: number of characters allowed in line
-                ignore_pattern = re.compile('https?://\\\\S+')
+                ignore_pattern = None
                     type: pattern_type
                     info: ignore lines that contain configured pattern
             """  # noqa: E501

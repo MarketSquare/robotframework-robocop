@@ -10,7 +10,6 @@ from typing import TYPE_CHECKING
 from robot.api import Token
 from robot.parsing.model.blocks import Keyword, TestCase
 from robot.parsing.model.statements import Comment, EmptyLine, KeywordCall
-from robot.parsing.model.visitor import ModelVisitor
 
 from robocop.linter.utils.misc import ROBOT_VERSION
 
@@ -1146,7 +1145,7 @@ class UnevenIndentChecker(VisitorChecker):
     def visit_Statement(self, statement) -> None:  # noqa: N802
         if statement is None or isinstance(statement, EmptyLine) or not self.indents:
             return
-        # Ignore indent if current line is on the same line as parent, i.e. test case header or inline IFs
+        # Ignore indent if the current line is on the same line as a parent, i.e. test case header or inline IFs
         if self.parent_line == statement.lineno:
             return
         indent = get_indent(statement)
@@ -1171,7 +1170,7 @@ class UnevenIndentChecker(VisitorChecker):
         )
 
 
-class MisalignedContinuation(VisitorChecker, ModelVisitor):
+class MisalignedContinuation(VisitorChecker):
     """Checker for misaligned continuation line markers."""
 
     misaligned_continuation: MisalignedContinuationRule

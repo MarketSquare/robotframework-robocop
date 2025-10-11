@@ -356,7 +356,9 @@ def find_robot_vars(name: str) -> list[tuple[int, int]]:
     return variables
 
 
-def pattern_type(value: str) -> re.Pattern:
+def pattern_type(value: str | None) -> re.Pattern | None:
+    if value is None:
+        return None
     try:
         pattern = re.compile(value)
     except re.error as err:

@@ -44,13 +44,14 @@ class TestDescribeRule:
         Message: Line is too long ({line_length}/{allowed_length})
         Severity: W
 
-        Line is too long.
+        The line is too long.
 
-        It is possible to ignore lines that match regex pattern. Configure it using following option::
+        Comments with disabler directives (such as ``# robocop: off``) are ignored. Lines that contain URLs are also
+        ignored.
+
+        It is possible to ignore lines that match the regex pattern. Configure it using the following option::
 
             robocop check --configure line-too-long.ignore_pattern=pattern
-
-        The default pattern is ``https?://\\S+`` that ignores the lines that look like an URL.
 
 
         Configurables:
@@ -58,7 +59,7 @@ class TestDescribeRule:
             line_length = 120
                 type: int
                 info: number of characters allowed in line
-            ignore_pattern = re.compile('https?://\\S+')
+            ignore_pattern = None
                 type: pattern_type
                 info: ignore lines that contain configured pattern
 

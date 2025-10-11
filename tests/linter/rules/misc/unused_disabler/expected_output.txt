@@ -1,0 +1,19 @@
+test.robot:3:21 [I] MISC15 Disabler directive found for 'NAME01' rule(s) but no violation found
+test.robot:4:21 [I] MISC15 Disabler directive found for 'wrong-case-in-keyword-name' rule(s) but no violation found
+test.robot:5:41 [I] MISC15 Disabler directive found for 'unused-variable' rule(s) but no violation found
+test.robot:8:21 [I] MISC15 Disabler directive found for 'all' rule(s) but no violation found
+test.robot:17:21 [I] MISC15 Disabler directive found for 'NAME01' rule(s) but no violation found
+test.robot:17:21 [I] MISC15 Disabler directive found for 'unused-variable' rule(s) but no violation found
+test.robot:20:40 [I] MISC15 Disabler directive found for 'some-rule' rule(s) but no violation found
+test.robot:23:7 [I] MISC15 Disabler directive found for 'unused-variable' rule(s) but no violation found
+test.robot:29:11 [I] MISC15 Disabler directive found for 'SPC10' rule(s) but no violation found
+test.robot:45:7 [I] MISC15 Disabler directive found for 'some-rule' rule(s) but no violation found
+test.robot:51:38 [I] MISC15 Disabler directive found for 'all' rule(s) but no violation found
+test.robot:58:86 [I] MISC15 Disabler directive found for 'too-many-arguments' rule(s) but no violation found
+test.robot:62:7 [I] MISC15 Disabler directive found for 'unused-variable' rule(s) but no violation found
+test.robot:66:6 [I] MISC15 Disabler directive found for 'all' rule(s) but no violation found
+test.robot:27:5 [I] VAR02 Variable '${var2}' is assigned but not used
+test.robot:37:5 [I] VAR02 Variable '${var2}' is assigned but not used
+test.robot:48:5 [I] VAR02 Variable '${var2}' is assigned but not used
+disabled_whole_no_violation.robot:1:2 [I] MISC15 Disabler directive found for 'all' rule(s) but no violation found
+disabled_whole_rule.robot:1:3 [I] MISC15 Disabler directive found for 'some-rule' rule(s) but no violation found

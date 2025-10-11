@@ -618,6 +618,17 @@ class RawFileChecker(BaseChecker):
         raise NotImplementedError
 
 
+class AfterRunChecker(BaseChecker):
+    def scan_file(self, ast_model: File, filename: Path, in_memory_content: str | None, **kwargs) -> list[Diagnostic]:  # noqa: ARG002
+        self.issues: list[Diagnostic] = []
+        self.source = filename
+        self.ast_model = ast_model
+        if in_memory_content is not None:
+            self.lines = in_memory_content.splitlines(keepends=True)
+        else:
+            self.lines = None
+
+
 def is_checker(checker_class_def: tuple) -> bool:
     return issubclass(checker_class_def[1], BaseChecker)
 

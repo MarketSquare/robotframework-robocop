@@ -69,7 +69,10 @@ class TestDisablers:
             "rule3": [(22, 29), (55, 62)],
             "rule4": [(24, 25), (57, 58)],
         }
-        disabled_rules = {rule_name: sorted(rule.blocks) for rule_name, rule in disabler.disabled.rules.items()}
+        disabled_rules = {
+            rule_name: sorted([(block.start_line, block.end_line) for block in rule.blocks])
+            for rule_name, rule in disabler.visitor.rules.items()
+        }
         assert disabled_rules == exp_disabled_rules
 
     def test_mixed_disablers(self):
@@ -84,7 +87,7 @@ class TestDisablers:
         }
 
         # Act
-        disabled_rules = {rule_name: sorted(rule.lines) for rule_name, rule in disabler.disabled.rules.items()}
+        disabled_rules = {rule_name: sorted(rule.lines) for rule_name, rule in disabler.visitor.rules.items()}
 
         # Assert
         assert disabled_rules == exp_disabled_rules

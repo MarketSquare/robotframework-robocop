@@ -23,7 +23,7 @@ from robocop.formatter import formatters
 from robocop.formatter.skip import SkipConfig
 from robocop.formatter.utils import misc  # TODO merge with linter misc
 from robocop.linter import rules
-from robocop.linter.rules import BaseChecker, ProjectChecker, RuleSeverity
+from robocop.linter.rules import AfterRunChecker, BaseChecker, ProjectChecker, RuleSeverity
 from robocop.linter.utils.misc import compile_rule_pattern
 from robocop.linter.utils.version_matching import Version
 
@@ -194,7 +194,8 @@ class LinterConfig:
     return_result: bool = False
     config_source: str = field(default="cli", compare=False)
     _checkers: list[BaseChecker] | None = field(default=None, compare=False)
-    _project_checkers: list[BaseChecker] | None = field(default=None, compare=False)
+    after_run_checkers: list[AfterRunChecker] | None = field(default=None, compare=False)
+    project_checkers: list[BaseChecker] | None = field(default=None, compare=False)
     _rules: dict[str, Rule] | None = field(default=None, compare=False)
 
     def __post_init__(self):
@@ -206,14 +207,6 @@ class LinterConfig:
         if self._checkers is None:
             self.load_configuration()
         return self._checkers
-
-    @property
-    def project_checkers(self) -> list[ProjectChecker]:
-        if self._project_checkers is None:
-            self._project_checkers = [
-                checker for checker in self.checkers if not checker.disabled and isinstance(checker, ProjectChecker)
-            ]
-        return self._project_checkers
 
     @property
     def rules(self):
@@ -228,6 +221,7 @@ class LinterConfig:
         self.configure_rules()
         self.check_for_disabled_rules()
         self.validate_any_rule_enabled()
+        self.split_checkers_by_type()
 
     def load_checkers(self) -> None:
         """
@@ -244,6 +238,26 @@ class LinterConfig:
         for rule_name_or_id, rule in checker.rules.items():
             self._rules[rule_name_or_id] = rule
         self._checkers.append(checker)
+
+    def split_checkers_by_type(self) -> None:
+        """
+        Split checkers by type.
+
+        Prepare checkers containers so they can be iterated separately depending on the type.
+        Most checkers (VisitorChecker, RawFileChecker) are used when scanning the file. Some may be used after
+        all other checkers finish scanning (AfterRunChecker) or after all files finish scanning (ProjectChecker).
+        """
+        base_checkers, after_checkers, project_checkers = [], [], []
+        for checker in self._checkers:
+            if isinstance(checker, AfterRunChecker):
+                after_checkers.append(checker)
+            elif isinstance(checker, ProjectChecker):
+                project_checkers.append(checker)
+            else:
+                base_checkers.append(checker)
+        self._checkers = base_checkers
+        self.after_run_checkers = after_checkers
+        self.project_checkers = project_checkers
 
     def check_for_disabled_rules(self) -> None:
         """Check checker configuration to disable rules."""

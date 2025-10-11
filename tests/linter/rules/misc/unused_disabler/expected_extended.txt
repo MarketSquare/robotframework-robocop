@@ -1,0 +1,168 @@
+disabled_whole_no_violation.robot:1:2 MISC15 Disabler directive found for 'all' rule(s) but no violation found
+   |
+ 1 | # robocop: off
+   |  ^^^^^^^^^^^^^ MISC15
+   |
+
+disabled_whole_rule.robot:1:3 MISC15 Disabler directive found for 'some-rule' rule(s) but no violation found
+   |
+ 1 | # robocop: off=some-rule,duplicated-variable
+   |   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ MISC15
+   |
+
+test.robot:3:21 MISC15 Disabler directive found for 'NAME01' rule(s) but no violation found
+   |
+ 1 | *** Test Cases ***
+ 2 | Inline disablers - not used
+ 3 |     No Operation  # robocop: off=NAME01
+   |                     ^^^^^^^^^^^^^^^^^^^ MISC15
+ 4 |     No Operation  # robocop: off=wrong-case-in-keyword-name
+ 5 |     FOR    ${var}    IN    @{LIST}    # robocop: off=unused-variable
+   |
+
+test.robot:4:21 MISC15 Disabler directive found for 'wrong-case-in-keyword-name' rule(s) but no violation found
+   |
+ 2 | Inline disablers - not used
+ 3 |     No Operation  # robocop: off=NAME01
+ 4 |     No Operation  # robocop: off=wrong-case-in-keyword-name
+   |                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ MISC15
+ 5 |     FOR    ${var}    IN    @{LIST}    # robocop: off=unused-variable
+ 6 |         Log    ${var}
+   |
+
+test.robot:5:41 MISC15 Disabler directive found for 'unused-variable' rule(s) but no violation found
+   |
+ 3 |     No Operation  # robocop: off=NAME01
+ 4 |     No Operation  # robocop: off=wrong-case-in-keyword-name
+ 5 |     FOR    ${var}    IN    @{LIST}    # robocop: off=unused-variable
+   |                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ MISC15
+ 6 |         Log    ${var}
+ 7 |     END
+   |
+
+test.robot:8:21 MISC15 Disabler directive found for 'all' rule(s) but no violation found
+   |
+ 6 |         Log    ${var}
+ 7 |     END
+ 8 |     Log    ${var}  # robocop: off
+   |                     ^^^^^^^^^^^^^ MISC15
+   |
+
+test.robot:17:21 MISC15 Disabler directive found for 'NAME01' rule(s) but no violation found
+    |
+ 15 |
+ 16 | Multiple disablers - not used
+ 17 |     No Operation  # robocop: off=NAME01,unused-variable  some-text robocop: off=some-rule
+    |                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ MISC15
+    |
+
+test.robot:17:21 MISC15 Disabler directive found for 'unused-variable' rule(s) but no violation found
+    |
+ 15 |
+ 16 | Multiple disablers - not used
+ 17 |     No Operation  # robocop: off=NAME01,unused-variable  some-text robocop: off=some-rule
+    |                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ MISC15
+    |
+
+test.robot:20:40 MISC15 Disabler directive found for 'some-rule' rule(s) but no violation found
+    |
+ 18 |
+ 19 | Multiple disablers - partly used
+ 20 |     ${var}    Set Variable    value  # robocop: off=some-rule,unused-variable
+    |                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ MISC15
+    |
+
+test.robot:23:7 MISC15 Disabler directive found for 'unused-variable' rule(s) but no violation found
+    |
+ 21 |
+ 22 | Multiline disablers - not used
+ 23 |     # robocop: off=unused-variable
+    |       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ MISC15
+ 24 |     ${var}    Set Variable    value
+ 25 |     Log    ${var}
+    |
+
+test.robot:27:5 VAR02 Variable '${var2}' is assigned but not used
+    |
+ 25 |     Log    ${var}
+ 26 |     # robocop: on=unused-variable
+ 27 |     ${var2}    Set Variable    value
+    |     ^^^^^^^ VAR02
+ 28 |     IF    $condition
+ 29 |         # robocop: off=SPC10
+    |
+
+test.robot:29:11 MISC15 Disabler directive found for 'SPC10' rule(s) but no violation found
+    |
+ 27 |     ${var2}    Set Variable    value
+ 28 |     IF    $condition
+ 29 |         # robocop: off=SPC10
+    |           ^^^^^^^^^^^^^^^^^^ MISC15
+ 30 |         No Operation
+ 31 |     END
+    |
+
+test.robot:37:5 VAR02 Variable '${var2}' is assigned but not used
+    |
+ 35 |     ${var}    Set Variable    value
+ 36 |     # robocop: on=unused-variable
+ 37 |     ${var2}    Set Variable    value
+    |     ^^^^^^^ VAR02
+ 38 |     IF    $condition
+ 39 |         # robocop: off=multiline-inline-if
+    |
+
+test.robot:45:7 MISC15 Disabler directive found for 'some-rule' rule(s) but no violation found
+    |
+ 43 |
+ 44 | Multiline disablers - partly used
+ 45 |     # robocop: off=unused-variable,some-rule
+    |       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ MISC15
+ 46 |     ${var}    Set Variable    value
+ 47 |     # robocop: on
+    |
+
+test.robot:48:5 VAR02 Variable '${var2}' is assigned but not used
+    |
+ 46 |     ${var}    Set Variable    value
+ 47 |     # robocop: on
+ 48 |     ${var2}    Set Variable    value
+    |     ^^^^^^^ VAR02
+    |
+
+test.robot:51:38 MISC15 Disabler directive found for 'all' rule(s) but no violation found
+    |
+ 49 |
+ 50 | Noqa
+ 51 |     ${var}    Set Variable    value  # noqa
+    |                                      ^^^^^^ MISC15
+ 52 |     ${var2}    Set Variable    value  # noqa
+ 53 |     Log    ${var}
+    |
+
+test.robot:58:86 MISC15 Disabler directive found for 'too-many-arguments' rule(s) but no violation found
+    |
+ 56 | *** Keywords ***
+ 57 | Used But Excluded Globally
+ 58 |     [Arguments]    ${arg1}    ${arg2}    ${arg3}    ${arg4}    ${arg5}    ${arg6}  # robocop: off=too-many-arguments
+    |                                                                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ MISC15
+    |
+
+test.robot:62:7 MISC15 Disabler directive found for 'unused-variable' rule(s) but no violation found
+    |
+ 60 | Disabled With All And Selected Rule
+ 61 |     # robocop: off
+ 62 |     # robocop: off=unused-variable
+    |       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ MISC15
+ 63 |     ${var}    Set Variable    value
+    |
+
+test.robot:66:6 MISC15 Disabler directive found for 'all' rule(s) but no violation found
+    |
+ 64 |
+ 65 | Disabled All Unused
+ 66 |     # robocop: off
+    |      ^^^^^^^^^^^^^ MISC15
+ 67 |     No Operation
+    |
+

@@ -3,6 +3,7 @@
 import ast
 from dataclasses import dataclass
 from pathlib import Path
+from typing import TYPE_CHECKING, Optional
 
 from robot.api import Token
 from robot.errors import VariableError
@@ -10,6 +11,8 @@ from robot.parsing.model.blocks import TestCaseSection
 from robot.parsing.model.statements import Arguments, KeywordCall, Teardown
 from robot.utils import unescape
 from robot.variables.search import search_variable
+
+from robocop.linter.diagnostics import Diagnostic
 
 try:
     from robot.api.parsing import Comment, EmptyLine, If, Variable
@@ -22,6 +25,7 @@ except ImportError:
 
 from robocop.linter import sonar_qube
 from robocop.linter.rules import (
+    AfterRunChecker,
     Rule,
     RuleParam,
     RuleSeverity,
@@ -33,6 +37,9 @@ from robocop.linter.rules import (
 )
 from robocop.linter.utils import misc as utils
 from robocop.linter.utils.variable_matcher import VariableMatches
+
+if TYPE_CHECKING:
+    from robocop.linter.utils.disablers import DisablersFinder
 
 
 class KeywordAfterReturnRule(Rule):
@@ -618,6 +625,40 @@ class MisplacedNegativeConditionRule(Rule):
     severity = RuleSeverity.INFO
     version = ">=4.0"
     added_in_version = "4.0.0"
+    sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
+        clean_code=sonar_qube.CleanCodeAttribute.CONVENTIONAL, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
+    )
+
+
+class DisablerNotUsedRule(Rule):
+    """
+    Robocop disabler directive is not used.
+
+    Overlapping disablers, code that was already fixed or rules that are disabled globally do not need rule disablers.
+
+    Rule violation examples::
+
+        *** Keywords ***
+        Log To Page
+            ${email}    Get Email  # robocop: off=unused-variable
+            Log    ${email}
+            FOR    ${locator}    IN    @{email_locators}
+                # robocop: off
+                # robocop: off=some-rule
+                Fill Text    ${locator}
+            END
+
+    In above examples we disable unused-variable rule, but no violation is raised for this line.
+    Also, we define disablers for all rules and some-rule in FOR loop, and all rules disabler overlaps second disabler
+    which is never used.
+
+    """
+
+    name = "unused-disabler"
+    rule_id = "MISC15"
+    message = "Disabler directive found for '{rule_name}' rule(s) but no violation found"
+    severity = RuleSeverity.INFO
+    added_in_version = "6.8.0"
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.CONVENTIONAL, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
@@ -1732,4 +1773,31 @@ class UndefinedArgumentDefaultChecker(VisitorChecker):
                 col=token.col_offset + 1,
                 end_col=token.col_offset + len(token.value) + 1,
                 arg_name=arg_name,
+            )
+
+
+class UnusedDiagnosticChecker(AfterRunChecker):
+    unused_disabler: DisablerNotUsedRule
+
+    def scan_file(
+        self,
+        ast_model,
+        filename: Path,
+        in_memory_content: Optional[str],
+        **kwargs,  # ast_model: File, need RF6+
+    ) -> list[Diagnostic]:
+        disablers = kwargs["disablers"]
+        super().scan_file(ast_model, filename, in_memory_content, **kwargs)
+        self.check_unused_disablers(disablers)
+        return self.issues
+
+    def check_unused_disablers(self, disablers: "DisablersFinder"):
+        for rule, disabler in disablers.not_used_disablers:
+            self.report(
+                self.unused_disabler,
+                rule_name=rule,
+                lineno=disabler.start_line,
+                end_lineno=disabler.start_line,
+                col=disabler.directive_col_start,
+                end_col=disabler.directive_col_end,
             )

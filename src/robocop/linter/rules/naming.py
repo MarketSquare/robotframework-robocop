@@ -28,7 +28,7 @@ class NotAllowedCharInNameRule(Rule):
     r"""
     Not allowed character found.
 
-    Reports not allowed characters found in Test Case or Keyword names. By default it's a dot (``.``). You can
+    Reports not allowed characters found in Test Case or Keyword names. By default, it's a dot (``.``). You can
     configure what patterns are reported by calling::
 
         robocop check --configure not-allowed-char-in-name.pattern=regex_pattern

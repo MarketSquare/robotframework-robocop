@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import re
 from collections import defaultdict
-from copy import deepcopy
 from typing import TYPE_CHECKING
 
 from robot.api import Token
@@ -17,6 +16,8 @@ except ImportError:
 
 
 if TYPE_CHECKING:
+    from collections.abc import Generator
+
     from robot.parsing import File
     from robot.parsing.model import KeywordSection, Statement, TestCaseSection
     from robot.parsing.model.statements import Comment, KeywordName, Node, TestCaseName
@@ -24,16 +25,69 @@ if TYPE_CHECKING:
     from robocop.linter.diagnostics import Diagnostic
 
 
-class DisablersInFile:  # pylint: disable=too-few-public-methods
+class Disabler:
+    def __init__(self, start_line: int, end_line: int | None, directive_col_start: int, directive_col_end: int) -> None:
+        self.start_line = start_line
+        self.end_line = end_line
+        self.directive_col_start = directive_col_start
+        self.directive_col_end = directive_col_end
+        self.used = False
+
+    def __contains__(self, line: int) -> bool:
+        return self.start_line <= line <= self.end_line
+
+
+class RuleDisablers:
     """Container for file disablers"""
 
-    def __init__(self, blocks: list | None = None):
-        self.lastblock = -1
-        self.lines = set()
-        self.blocks = blocks if blocks else []
+    def __init__(self, blocks: list | None = None) -> None:
+        self.current_block = None
+        self.lines: dict[int, Disabler] = {}
+        self.blocks: list[Disabler] = blocks if blocks else []
 
-    def copy(self) -> DisablersInFile:
-        return deepcopy(self)
+    def start_block(self, start_line: int, directive_col_start: int, directive_col_end: int) -> None:
+        if self.current_block is not None:
+            return
+        self.current_block = Disabler(
+            start_line=start_line,
+            end_line=None,
+            directive_col_start=directive_col_start,
+            directive_col_end=directive_col_end,
+        )
+
+    def end_block(self, end_line: int) -> None:
+        if self.current_block is None:
+            return
+        self.current_block.end_line = end_line
+        self.blocks.append(self.current_block)
+        self.current_block = None
+
+    def add_inline_disabler(self, start_line: int, directive_col_start: int, directive_col_end: int) -> None:
+        self.lines[start_line] = Disabler(
+            start_line=start_line,
+            end_line=start_line,
+            directive_col_start=directive_col_start,
+            directive_col_end=directive_col_end,
+        )
+
+    @property
+    def not_used_disablers(self) -> Generator[Disabler, None, None]:
+        for disabler in self.lines.values():
+            if not disabler.used:
+                yield disabler
+        for disabler in self.blocks:
+            if not disabler.used:
+                yield disabler
+
+    def __contains__(self, line: int) -> bool:
+        if disabled_line := self.lines.get(line):
+            disabled_line.used = True
+            return True
+        for block in self.blocks:
+            if line in block:
+                block.used = True
+                return True
+        return False
 
 
 class DisablersVisitor(ModelVisitor):
@@ -47,7 +101,7 @@ class DisablersVisitor(ModelVisitor):
         self.disabler_pattern = re.compile(
             r"robocop: ?(?P<disabler>off|on)(?:\s?=\s?(?P<rules>[\w\-]+(?:,\s?[\w\-]+)*))?"
         )
-        self.rules = defaultdict(DisablersInFile().copy)
+        self.rules = defaultdict(lambda: RuleDisablers())
         self.visit(model)
 
     def visit_File(self, node: File) -> None:  # noqa: N802
@@ -55,16 +109,17 @@ class DisablersVisitor(ModelVisitor):
         self.generic_visit(node)
 
     def parse_disablers_in_node(self, node: type[Node], last_line: int | None = None) -> None:
-        self.disablers_in_scope.append(defaultdict(DisablersInFile().copy))
+        self.disablers_in_scope.append(defaultdict(lambda: RuleDisablers()))
         self.generic_visit(node)
         for rule_name, rule_disabler in self.disablers_in_scope[-1].items():
             if self.is_first_comment_section:
                 if rule_name == "all":
                     self.file_disabled = True
-                self.rules[rule_name] = DisablersInFile(blocks=[(1, self.file_end)])
+                rule_disabler.end_block(end_line=self.file_end)
+                self.rules[rule_name] = rule_disabler
             else:
                 last_line = node.end_lineno if last_line is None else last_line
-                self._end_block(self.disablers_in_scope[-1], rule_name, last_line)
+                self.disablers_in_scope[-1][rule_name].end_block(last_line)
                 self.rules[rule_name].blocks.extend(rule_disabler.blocks)
                 self.rules[rule_name].lines.update(rule_disabler.lines)
         self.disablers_in_scope.pop()
@@ -108,8 +163,16 @@ class DisablersVisitor(ModelVisitor):
         if "#" not in token.value:
             return
         if "# noqa" in token.value:
-            self._add_inline_disabler("all", token.lineno)
+            col_start = token.col_offset + token.value.index("# noqa") + 1
+            col_end = col_start + 6
+            self.rules["all"].add_inline_disabler(
+                start_line=token.lineno, directive_col_start=col_start, directive_col_end=col_end
+            )
         for disabler in self.disabler_pattern.finditer(token.value):
+            col_start = token.col_offset + disabler.lastindex + 1
+            col_end = token.col_offset + disabler.endpos + 1
+            if col_end > token.end_col_offset + 1:
+                raise AssertionError
             if not disabler.group("rules"):
                 rules = ["all"]
             else:
@@ -117,57 +180,44 @@ class DisablersVisitor(ModelVisitor):
             if disabler.group("disabler") == "off":
                 for rule in rules:
                     if is_inline:
-                        self._add_inline_disabler(rule, token.lineno)
+                        self.rules[rule].add_inline_disabler(
+                            start_line=token.lineno, directive_col_start=col_start, directive_col_end=col_end
+                        )
                     else:
                         scope = self.get_scope_for_disabler(token)
-                        self._start_block(scope, rule, token.lineno)
+                        scope[rule].start_block(
+                            start_line=token.lineno, directive_col_start=col_start, directive_col_end=col_end
+                        )
             elif disabler.group("disabler") == "on" and not is_inline:
                 scope = self.get_scope_for_disabler(token)
-                for rule in rules:
-                    self._end_block(scope, rule, token.lineno)
+                self.end_blocks(scope, rules, end_line=token.lineno)
 
-    def get_scope_for_disabler(self, token: Token) -> defaultdict[DisablersInFile]:
+    def get_scope_for_disabler(self, token: Token) -> defaultdict[str, RuleDisablers]:
         if token.col_offset == 0 and self.keyword_or_test_section:
             return self.disablers_in_scope[0]
         return self.disablers_in_scope[-1]
 
-    def _add_inline_disabler(self, rule: str, lineno: int) -> None:
-        self.rules[rule].lines.add(lineno)
-
-    def _start_block(self, scope: defaultdict[DisablersInFile], rule: str, lineno: int) -> None:
-        if scope[rule].lastblock == -1:
-            scope[rule].lastblock = lineno
-
-    def _end_block(self, scope: defaultdict[DisablersInFile], rule: str, lineno: int) -> None:
-        if rule == "all":
-            self._end_all_blocks(scope, lineno)
-        if rule not in scope:
-            return
-        if scope[rule].lastblock != -1:
-            block = (scope[rule].lastblock, lineno)
-            scope[rule].lastblock = -1
-            scope[rule].blocks.append(block)
-
-    def _end_all_blocks(self, scope: defaultdict[DisablersInFile], lineno: int) -> None:
-        for rule in scope:
-            if rule == "all":
-                continue  # to avoid recursion
-            self._end_block(scope, rule, lineno)
+    @staticmethod
+    def end_blocks(scope: defaultdict[str, RuleDisablers], rules: list[str], end_line: int) -> None:
+        if "all" in rules:
+            rules = list(scope.keys())
+        for rule in rules:
+            scope[rule].end_block(end_line)
 
 
-class DisablersFinder(ModelVisitor):
+class DisablersFinder:
     """Visit and find robocop disablers in Robot Framework file."""
 
     def __init__(self, model: File):
-        self.disabled = DisablersVisitor(model)
+        self.visitor = DisablersVisitor(model)
 
     @property
     def any_disabler(self) -> bool:
-        return len(self.disabled.rules) != 0
+        return len(self.visitor.rules) != 0
 
     @property
     def file_disabled(self) -> bool:
-        return self.disabled.file_disabled
+        return self.visitor.file_disabled
 
     def is_rule_disabled(self, diagnostic: Diagnostic) -> bool:
         """
@@ -176,7 +226,8 @@ class DisablersFinder(ModelVisitor):
         'All' takes precedence, then line disablers, then block disablers.
         We're checking for both message id and name.
         """
-        if not self.any_disabler:
+        # special case for unused-disabler to not disable it with `# robocop: off` etc
+        if not self.any_disabler or diagnostic.rule.name == "unused-disabler":
             return False
         return any(
             self.is_line_disabled(line, rule)
@@ -186,8 +237,12 @@ class DisablersFinder(ModelVisitor):
 
     def is_line_disabled(self, line: int, rule: str) -> bool:
         """Check if given line is in range of any disabled block"""
-        if rule not in self.disabled.rules:
+        if rule not in self.visitor.rules:
             return False
-        if line in self.disabled.rules[rule].lines:
-            return True
-        return any(block[0] <= line <= block[1] for block in self.disabled.rules[rule].blocks)
+        return line in self.visitor.rules[rule]
+
+    @property
+    def not_used_disablers(self) -> Generator[tuple[str, Disabler], None, None]:
+        for rule, rule_disabler in self.visitor.rules.items():
+            for disabler in rule_disabler.not_used_disablers:
+                yield rule, disabler

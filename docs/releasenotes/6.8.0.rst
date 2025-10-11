@@ -2,8 +2,22 @@
 Robocop 6.8.0
 =============
 
+Unused disabler rule (#1312)
+----------------------------
+
+A new rule ``unused-disabler`` (MISC15) has been added to detect Robocop disabler directives (such as ``# noqa`` or
+``# robocop: off``) that are not being used. This typically occurs when:
+
+- A code violation is fixed but the disabler is not removed
+- A rule is disabled globally, making local disablers redundant
+- Multiple overlapping disablers are present
+
 Improved comment handling in SplitTooLongLine formatter (#1444)
 ---------------------------------------------------------------
+
+The ``SplitTooLongLine`` formatter now has better comment handling.
+
+**Previous behavior:**
 
 When formatting keyword call or ``VAR`` by ``SplitTooLongLine`` formatter, comments were moved above the statement,
 for example::
@@ -19,43 +33,53 @@ was formatted to::
 
 This caused unindented effect where robocop disabler directives (e.g. ``# robocop: off``) were also moved above the
 statement and no longer applied correctly.
-To fix this, the comment-handling behavior has been updated. When a keyword call or VAR is formatted by the
-``SplitTooLongLine`` formatter, all comments found within the statement are now kept together and attached to the
-first line, for example:
+
+**New behavior:**
+
+Comments are now kept on the first line of the split statement::
 
     Long Keyword That Will Be Split  # comment
     ...    multiple
     ...    args
 
-Disablers discoverable from the middle of comment
--------------------------------------------------
+This ensures that disablers and other comments remain associated with the correct statement.
 
-Previously, disabling linting or formatting required the disabler directive (e.g. ``# robocop: off`` or
-``# robocop: fmt: off`` or ``noqa``) to appear at the beginning of a comment. Because of this, only the first disabler
-in a comment would be recognized, for example::
+Disablers discoverable anywhere in comments
+-------------------------------------------
+
+Disabler directives can now be placed anywhere within a comment, not just at the beginning.
+
+**Previous behavior:**
+
+Only the first disabler at the start of a comment was recognized::
 
     # only robocop: off=some-rule is recognized
     Keyword Call  # robocop: off=some-rule robocop: fmt: off
+
     # only noqa is recognized
-    Keyword Call  # noqa fmt: off
+    Keyword Call  # noqa robocop fmt: off
+
     # nothing is recognized
     Keyword Call  # TODO: robocop: off
 
-This limitation has been removed.
-Disablers are now discoverable anywhere within a comment, so all directives in the examples above will be correctly
-registered. Disabler syntax is now more flexible - for example, when disabling multiple rules,
-you can separate them with spaces.::
+**New behavior:**
 
+All disablers are now recognized regardless of their position in the comment. Additionally, the syntax is more
+flexible - rules can be separated by commas with or without spaces::
+
+    # Both formats are now valid:
     # robocop: off=rule1,rule2
     # robocop: off=rule1, rule2
+
 
 Fixes
 ======
 
-Overwrite mode not taken into account from the configuration file (#1478)
--------------------------------------------------------------------------
+Overwrite mode not working from configuration file (#1478)
+----------------------------------------------------------
 
-``overwrite`` mode should now work properly when used from the configuration file::
+Fixed an issue where the ``overwrite`` mode was not being applied when specified in the configuration file. The
+following configuration now works correctly::
 
     [tool.robocop.format]
     overwrite = false
@@ -63,6 +87,7 @@ Overwrite mode not taken into account from the configuration file (#1478)
 Rules url pointed to non-existing location (#1481)
 --------------------------------------------------
 
-Rules urls (such as SARIF helpUri, or diagnostic message urls) were not updated after documentation refactor and
-pointed to wrong location. It should now point correctly to
+Rules urls (such as SARIF helpUri, or diagnostic message urls) were pointing to non-existent locations after a
+documentation refactor. URLs now correctly point to:
+
 https://robocop.readthedocs.io/en/v{version}/rules/rules_list.html#{rule-name} .

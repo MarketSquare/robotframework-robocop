@@ -41,6 +41,26 @@ class RobocopLinter:
         return get_resource_with_lang(get_model, source, language)
 
     def run(self) -> list[Diagnostic]:
+        """
+        Run the diagnostic checks on the configured files and returns detected issues.
+
+        This method iterates through the configured file paths and attempts to check
+        each file for diagnostics. It processes files based on their types and uses
+        the configuration provided for each file. The diagnostics for each file are
+        aggregated, and a final report is generated. If configured, the diagnostics
+        are returned; otherwise, the process exits with a suitable code based on the
+        number of issues found.
+
+        Returns:
+            list[Diagnostic]: A list of detected issues in the analyzed files if the
+            linter is configured to return results; otherwise, the function returns
+            with an exit code based on the number of issues detected.
+
+        Raises:
+            DataError: Raised when a file cannot be decoded appropriately based on its
+            configuration language.
+
+        """
         issues_no = 0
         files = 0
         for source, config in self.config_manager.paths:
@@ -78,8 +98,6 @@ class RobocopLinter:
 
         """
         disablers = DisablersFinder(model)
-        if disablers.file_disabled:
-            return []
         found_diagnostics = []
         templated = is_suite_templated(model)
         for checker in config.linter.checkers:
@@ -88,7 +106,17 @@ class RobocopLinter:
             found_diagnostics += [
                 diagnostic
                 for diagnostic in checker.scan_file(model, file_path, in_memory_content, templated)
-                if not disablers.is_rule_disabled(diagnostic) and not diagnostic.severity < config.linter.threshold
+                if not (diagnostic.severity < config.linter.threshold or disablers.is_rule_disabled(diagnostic))
+            ]
+            if disablers.file_disabled and found_diagnostics:  # special case to not report disabler as not used
+                return []
+        for checker in config.linter.after_run_checkers:
+            if checker.disabled:
+                continue
+            found_diagnostics += [
+                diagnostic
+                for diagnostic in checker.scan_file(model, file_path, in_memory_content, disablers=disablers)
+                if not (diagnostic.severity < config.linter.threshold or disablers.is_rule_disabled(diagnostic))
             ]
         return found_diagnostics
 

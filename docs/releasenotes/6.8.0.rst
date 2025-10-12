@@ -91,3 +91,10 @@ Rules urls (such as SARIF helpUri, or diagnostic message urls) were pointing to 
 documentation refactor. URLs now correctly point to:
 
 https://robocop.readthedocs.io/en/v{version}/rules/rules_list.html#{rule-name} .
+
+Line too long rule reporting lines with new disablers
+-----------------------------------------------------
+
+New disabler directives (``robocop: fmt: off`` and ``fmt: off``) were not ignored by ``line-too-long`` rule.
+
+From now on, together with other disablers, comments with disablers will be ignored when checking line length.

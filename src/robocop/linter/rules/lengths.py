@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import re
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
@@ -222,13 +221,14 @@ class TooManyArgumentsRule(Rule):
 
 class LineTooLongRule(Rule):
     r"""
-    Line is too long.
+    The line is too long.
 
-    It is possible to ignore lines that match regex pattern. Configure it using following option::
+    Comments with disabler directives (such as ``# robocop: off``) are ignored. Lines that contain URLs are also
+    ignored.
+
+    It is possible to ignore lines that match the regex pattern. Configure it using the following option::
 
         robocop check --configure line-too-long.ignore_pattern=pattern
-
-    The default pattern is ``https?://\\S+`` that ignores the lines that look like an URL.
 
     """
 
@@ -240,7 +240,7 @@ class LineTooLongRule(Rule):
         RuleParam(name="line_length", default=120, converter=int, desc="number of characters allowed in line"),
         RuleParam(
             name="ignore_pattern",
-            default=re.compile(r"https?://\S+"),
+            default=None,
             converter=pattern_type,
             show_type="regex",
             desc="ignore lines that contain configured pattern",
@@ -981,18 +981,22 @@ class VariableNameLengthChecker(VisitorChecker):
 
 
 class LineLengthChecker(RawFileChecker):
-    """Checker for maximum length of a line."""
+    """Checker for the maximum length of a line."""
 
     line_too_long: LineTooLongRule
-    # TODO: handle new robocop format disablers
-    # replace `noqa` or `# robocop`, `# robocop: on`, `# robocop: off=optional,rule,names`
-    disabler_pattern = re.compile(r"(# )+(noqa|robocop: ?(?P<disabler>off|on) ?=?(?P<rules>[\w\-,]*))")
 
     def check_line(self, line, lineno) -> None:
+        line = line.rstrip().expandtabs(4)
+        if len(line) <= self.line_too_long.line_length:
+            return
+        # the line is potentially too long, so we need to check if it can be false positive
+        if self.line_is_ignored(line):
+            return
+        if self.url_in_line(line):
+            return
         if self.line_too_long.ignore_pattern and self.line_too_long.ignore_pattern.search(line):
             return
-        line = self.disabler_pattern.sub("", line)
-        line = line.rstrip().expandtabs(4)
+        line = self.strip_disablers(line)
         if len(line) > self.line_too_long.line_length:
             self.report(
                 self.line_too_long,
@@ -1003,6 +1007,22 @@ class LineLengthChecker(RawFileChecker):
                 end_col=len(line) + 1,
                 sev_threshold_value=len(line),
             )
+
+    @staticmethod
+    def strip_disablers(line: str) -> str:
+        """Strip whole comments if it contains disabler."""
+        if "#" not in line:
+            return line
+        if "noqa" in line or "robocop:" in line or "fmt: " in line:
+            return line.split("# ", 1)[0].rstrip()
+        return line
+
+    def url_in_line(self, line: str) -> bool:
+        """Check if a line contains URL starting before the maximum line length."""
+        return 0 < line.find("://") < self.line_too_long.line_length
+
+    def line_is_ignored(self, line: str) -> bool:
+        return self.line_too_long.ignore_pattern and self.line_too_long.ignore_pattern.search(line)
 
 
 class EmptySectionChecker(VisitorChecker):

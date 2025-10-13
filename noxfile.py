@@ -8,9 +8,15 @@ import nox
 
 nox.options.default_venv_backend = "uv"
 
-PYTHON_VERSIONS = ["3.9", "3.10", "3.11", "3.12", "3.13"]
+PYTHON_VERSIONS = ["3.9", "3.10", "3.11", "3.12", "3.13", "3.14"]
 
-ROBOT_VERSIONS = ["robotframework==4.*", "robotframework==5.*", "robotframework==6.*", "robotframework==7.*"]
+ROBOT_VERSIONS = [
+    "robotframework==4.*",
+    "robotframework==5.*",
+    "robotframework==6.*",
+    "robotframework==7.*",
+    "robotframework==7.4b1",
+]
 
 
 @nox.session(python=PYTHON_VERSIONS)  # , reuse_venv=False
@@ -19,7 +25,7 @@ def tests(session, robot_ver):
     """
     Run tests with a given Python version and dependency version.
 
-    To run single session use following format:
+    To run single session use the following format:
 
     > nox -s "tests-3.9(robot_ver='robotframework==4.*')"
     """

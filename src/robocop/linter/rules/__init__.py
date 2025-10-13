@@ -44,6 +44,11 @@ from robocop.linter.diagnostics import Diagnostic
 from robocop.linter.utils.version_matching import Version, VersionSpecifier
 
 try:
+    import annotationlib
+except ImportError:  # Python < 3.14
+    annotationlib = None
+
+try:
     from robot.api.parsing import ModelVisitor
 except ImportError:
     from robot.parsing.model.visitor import ModelVisitor
@@ -509,6 +514,7 @@ class Rule:
 
 class BaseChecker:
     rules = None
+    robocop_rule_types = None
 
     def __init__(self):
         self.disabled = False
@@ -518,6 +524,15 @@ class BaseChecker:
         self.issues = []
         self.rules: dict[str, Rule] = {}
         self.templated_suite = False
+
+    def __new__(cls):
+        if annotationlib:
+            types = annotationlib.get_annotations(cls)
+        else:
+            types = getattr(cls, "__annotations__", None)
+        instance = super().__new__(cls)
+        instance.robocop_rule_types = types
+        return instance
 
     def report(
         self,
@@ -782,12 +797,11 @@ class RobocopImporter:
 
     def get_checker_rules(self, checker_class: type[BaseChecker], module) -> dict[str, Rule]:
         # TODO if other checker uses the same rule, return it instead of creating new instance
-        rule_types = getattr(checker_class, "__annotations__", None)
-        if rule_types is None:
+        if not checker_class.robocop_rule_types:
             return {}
         rules = {}
-        for name, rule_class in rule_types.items():
-            if isinstance(rule_class, str):  # if from future import annotations was used
+        for name, rule_class in checker_class.robocop_rule_types.items():
+            if isinstance(rule_class, str):  # if from future import annotations was used, or lazy annotation
                 rule_class = self._import_rule_class(module, rule_class)
             if not rule_class or not (isclass(rule_class) and issubclass(rule_class, Rule)):
                 continue

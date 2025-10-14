@@ -76,6 +76,7 @@ class KeywordAfterReturnRule(Rule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.CONVENTIONAL, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
+    deprecated_names = ("0901",)
 
 
 class EmptyReturnRule(Rule):
@@ -110,6 +111,7 @@ class EmptyReturnRule(Rule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.COMPLETE, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
+    deprecated_names = ("0903",)
 
 
 class NestedForLoopRule(Rule):
@@ -137,6 +139,7 @@ class NestedForLoopRule(Rule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.CONVENTIONAL, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
+    deprecated_names = ("0907",)
 
 
 class InconsistentAssignmentRule(Rule):
@@ -217,6 +220,7 @@ class InconsistentAssignmentRule(Rule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.CONVENTIONAL, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
+    deprecated_names = ("0909",)
 
 
 class InconsistentAssignmentInVariablesRule(Rule):
@@ -278,6 +282,7 @@ class InconsistentAssignmentInVariablesRule(Rule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.CONVENTIONAL, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
+    deprecated_names = ("0910",)
 
 
 class CanBeResourceFileRule(Rule):
@@ -296,6 +301,7 @@ class CanBeResourceFileRule(Rule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.CONVENTIONAL, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
+    deprecated_names = ("0913",)
 
 
 class IfCanBeMergedRule(Rule):
@@ -342,6 +348,7 @@ class IfCanBeMergedRule(Rule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.CONVENTIONAL, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
+    deprecated_names = ("0914",)
 
 
 class StatementOutsideLoopRule(Rule):
@@ -367,6 +374,7 @@ class StatementOutsideLoopRule(Rule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.CONVENTIONAL, issue_type=sonar_qube.SonarQubeIssueType.BUG
     )
+    deprecated_names = ("0915",)
 
 
 class InlineIfCanBeUsedRule(Rule):
@@ -406,6 +414,7 @@ class InlineIfCanBeUsedRule(Rule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.CONVENTIONAL, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
+    deprecated_names = ("0916",)
 
 
 class UnreachableCodeRule(Rule):
@@ -440,6 +449,7 @@ class UnreachableCodeRule(Rule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.LOGICAL, issue_type=sonar_qube.SonarQubeIssueType.BUG
     )
+    deprecated_names = ("0917",)
 
 
 class MultilineInlineIfRule(Rule):
@@ -483,6 +493,7 @@ class MultilineInlineIfRule(Rule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.FORMATTED, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
+    deprecated_names = ("0918",)
 
 
 class UnnecessaryStringConversionRule(Rule):
@@ -532,8 +543,10 @@ class UnnecessaryStringConversionRule(Rule):
     rule_id = "MISC12"
     message = "Variable '{name}' in '{block_name}' condition has unnecessary string conversion"
     severity = RuleSeverity.INFO
+    deprecated = True
     version = ">=4.0"
     added_in_version = "4.0.0"
+    deprecated_names = ("0923",)
 
 
 class ExpressionCanBeSimplifiedRule(Rule):
@@ -585,6 +598,7 @@ class ExpressionCanBeSimplifiedRule(Rule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.CONVENTIONAL, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
+    deprecated_names = ("0924",)
 
 
 class MisplacedNegativeConditionRule(Rule):
@@ -628,6 +642,7 @@ class MisplacedNegativeConditionRule(Rule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.CONVENTIONAL, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
+    deprecated_names = ("0925",)
 
 
 class DisablerNotUsedRule(Rule):

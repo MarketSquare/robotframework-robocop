@@ -128,6 +128,7 @@ class TestCaseSectionOutOfOrderRule(Rule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.CONVENTIONAL, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
+    deprecated_names = ("0927",)
 
 
 class KeywordSectionOutOfOrderRule(Rule):
@@ -185,6 +186,7 @@ class KeywordSectionOutOfOrderRule(Rule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.CONVENTIONAL, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
+    deprecated_names = ("0928",)
 
 
 class SectionOutOfOrderRule(Rule):
@@ -237,6 +239,7 @@ class SectionOutOfOrderRule(Rule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.CONVENTIONAL, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
+    deprecated_names = ("0809",)
 
 
 class TestAndKeywordOrderChecker(VisitorChecker):

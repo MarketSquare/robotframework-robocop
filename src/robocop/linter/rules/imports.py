@@ -36,6 +36,7 @@ class WrongImportOrderRule(Rule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.CONVENTIONAL, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
+    deprecated_names = ("0911",)
 
 
 class BuiltinImportsNotSortedRule(Rule):
@@ -60,6 +61,7 @@ class BuiltinImportsNotSortedRule(Rule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.CONVENTIONAL, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
+    deprecated_names = ("0926",)
 
 
 class NonBuiltinImportsNotSortedRule(Rule):
@@ -87,6 +89,7 @@ class NonBuiltinImportsNotSortedRule(Rule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.CONVENTIONAL, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
+    deprecated_names = ("10101",)
 
 
 class ResourcesImportsNotSortedRule(Rule):
@@ -113,6 +116,7 @@ class ResourcesImportsNotSortedRule(Rule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.CONVENTIONAL, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
+    deprecated_names = ("10102",)
 
 
 class SettingsOrderChecker(VisitorChecker):

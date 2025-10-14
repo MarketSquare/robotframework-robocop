@@ -51,6 +51,7 @@ class UnusedKeywordRule(Rule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.COMPLETE, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
+    deprecated_names = ("10101",)
 
 
 if ROBOT_VERSION.major < 6:

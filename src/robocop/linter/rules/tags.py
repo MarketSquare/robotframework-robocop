@@ -39,6 +39,7 @@ class TagWithSpaceRule(Rule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.CONVENTIONAL, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
+    deprecated_names = ("0601",)
 
 
 class TagWithOrAndRule(Rule):
@@ -68,6 +69,7 @@ class TagWithOrAndRule(Rule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.CONVENTIONAL, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
+    deprecated_names = ("0602",)
 
 
 class TagWithReservedWordRule(Rule):
@@ -101,6 +103,7 @@ class TagWithReservedWordRule(Rule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.CONVENTIONAL, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
+    deprecated_names = ("0603",)
 
 
 class CouldBeTestTagsRule(Rule):
@@ -134,6 +137,7 @@ class CouldBeTestTagsRule(Rule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.CONVENTIONAL, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
+    deprecated_names = ("0605",)
 
 
 class TagAlreadySetInTestTagsRule(Rule):
@@ -164,6 +168,7 @@ class TagAlreadySetInTestTagsRule(Rule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.DISTINCT, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
+    deprecated_names = ("0606",)
 
 
 class UnnecessaryDefaultTagsRule(Rule):
@@ -196,6 +201,7 @@ class UnnecessaryDefaultTagsRule(Rule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.CONVENTIONAL, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
+    deprecated_names = ("0607",)
 
 
 class EmptyTagsRule(Rule):
@@ -215,6 +221,7 @@ class EmptyTagsRule(Rule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.COMPLETE, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
+    deprecated_names = ("0608",)
 
 
 class DuplicatedTagsRule(Rule):
@@ -240,6 +247,7 @@ class DuplicatedTagsRule(Rule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.DISTINCT, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
+    deprecated_names = ("0609",)
 
 
 class CouldBeKeywordTagsRule(Rule):
@@ -273,6 +281,7 @@ class CouldBeKeywordTagsRule(Rule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.CONVENTIONAL, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
+    deprecated_names = ("0610",)
 
 
 class TagAlreadySetInKeywordTagsRule(Rule):
@@ -300,6 +309,7 @@ class TagAlreadySetInKeywordTagsRule(Rule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.DISTINCT, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
+    deprecated_names = ("0611",)
 
 
 class TagNameChecker(VisitorChecker):

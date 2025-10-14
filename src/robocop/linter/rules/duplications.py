@@ -40,6 +40,7 @@ class DuplicatedTestCaseRule(Rule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.DISTINCT, issue_type=sonar_qube.SonarQubeIssueType.BUG
     )
+    deprecated_names = ("0801",)
 
 
 class DuplicatedKeywordRule(Rule):
@@ -71,6 +72,7 @@ class DuplicatedKeywordRule(Rule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.DISTINCT, issue_type=sonar_qube.SonarQubeIssueType.BUG
     )
+    deprecated_names = ("0802",)
 
 
 class DuplicatedVariableRule(Rule):
@@ -99,6 +101,7 @@ class DuplicatedVariableRule(Rule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.DISTINCT, issue_type=sonar_qube.SonarQubeIssueType.BUG
     )
+    deprecated_names = ("0803",)
 
 
 class DuplicatedResourceRule(Rule):
@@ -124,6 +127,7 @@ class DuplicatedResourceRule(Rule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.DISTINCT, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
+    deprecated_names = ("0804",)
 
 
 class DuplicatedLibraryRule(Rule):
@@ -149,6 +153,7 @@ class DuplicatedLibraryRule(Rule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.DISTINCT, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
+    deprecated_names = ("0805",)
 
 
 class DuplicatedMetadataRule(Rule):
@@ -162,6 +167,7 @@ class DuplicatedMetadataRule(Rule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.DISTINCT, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
+    deprecated_names = ("0806",)
 
 
 class DuplicatedVariablesImportRule(Rule):
@@ -175,6 +181,7 @@ class DuplicatedVariablesImportRule(Rule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.DISTINCT, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
+    deprecated_names = ("0807",)
 
 
 class SectionAlreadyDefinedRule(Rule):
@@ -210,6 +217,7 @@ class SectionAlreadyDefinedRule(Rule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.DISTINCT, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
+    deprecated_names = ("0808",)
 
 
 class BothTestsAndTasksRule(Rule):
@@ -232,6 +240,7 @@ class BothTestsAndTasksRule(Rule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.DISTINCT, issue_type=sonar_qube.SonarQubeIssueType.BUG
     )
+    deprecated_names = ("0810",)
 
 
 class DuplicatedSettingRule(Rule):
@@ -255,6 +264,7 @@ class DuplicatedSettingRule(Rule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.DISTINCT, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
+    deprecated_names = ("0813",)
 
 
 class DuplicationsChecker(VisitorChecker):

@@ -75,6 +75,7 @@ class TooLongKeywordRule(Rule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.FOCUSED, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
+    deprecated_names = ("0501",)
 
 
 class TooFewCallsInKeywordRule(Rule):
@@ -113,6 +114,7 @@ class TooFewCallsInKeywordRule(Rule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.MODULAR, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
+    deprecated_names = ("0502",)
 
 
 class TooManyCallsInKeywordRule(Rule):
@@ -134,6 +136,7 @@ class TooManyCallsInKeywordRule(Rule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.FOCUSED, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
+    deprecated_names = ("0503",)
 
 
 class TooLongTestCaseRule(Rule):
@@ -159,6 +162,38 @@ class TooLongTestCaseRule(Rule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.MODULAR, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
+    deprecated_names = ("0504",)
+
+
+class TooFewCallsInTestCaseRule(Rule):
+    """
+    Too few keyword calls in test cases.
+
+    Test without keywords will fail. Add more keywords or set results using ``Fail``, ``Pass Execution`` or
+    ``Skip`` keywords:
+
+        *** Test Cases ***
+        Test case
+            [Tags]    smoke
+            Skip    Test case draft
+
+    """
+
+    name = "too-few-calls-in-test-case"
+    rule_id = "LEN05"
+    message = "Test case '{test_name}' has too few keywords inside ({keyword_count}/{min_allowed_count})"
+    severity = RuleSeverity.ERROR
+    parameters = [
+        RuleParam(name="min_calls", default=1, converter=int, desc="number of keyword calls required in a test case"),
+        RuleParam(
+            name="ignore_templated", default=False, converter=str2bool, show_type="bool", desc="Ignore templated tests"
+        ),
+    ]
+    added_in_version = "2.4.0"
+    sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
+        clean_code=sonar_qube.CleanCodeAttribute.MODULAR, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
+    )
+    deprecated_names = ("0528",)
 
 
 class TooManyCallsInTestCaseRule(Rule):
@@ -201,6 +236,7 @@ class FileTooLongRule(Rule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.FOCUSED, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
+    deprecated_names = ("0506",)
 
 
 class TooManyArgumentsRule(Rule):
@@ -217,6 +253,7 @@ class TooManyArgumentsRule(Rule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.FOCUSED, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
+    deprecated_names = ("0507",)
 
 
 class LineTooLongRule(Rule):
@@ -252,6 +289,7 @@ class LineTooLongRule(Rule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.FORMATTED, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
+    deprecated_names = ("0508",)
 
 
 class EmptySectionRule(Rule):
@@ -265,6 +303,7 @@ class EmptySectionRule(Rule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.COMPLETE, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
+    deprecated_names = ("0509",)
 
 
 class NumberOfReturnedValuesRule(Rule):
@@ -284,6 +323,7 @@ class NumberOfReturnedValuesRule(Rule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.FOCUSED, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
+    deprecated_names = ("0510",)
 
 
 class EmptyMetadataRule(Rule):
@@ -310,6 +350,7 @@ class EmptyMetadataRule(Rule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.COMPLETE, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
+    deprecated_names = ("0511",)
 
 
 class EmptyDocumentationRule(Rule):
@@ -323,6 +364,7 @@ class EmptyDocumentationRule(Rule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.COMPLETE, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
+    deprecated_names = ("0512",)
 
 
 class EmptyForceTagsRule(Rule):  # TODO: Rename/deprecate and replace with Test Tags
@@ -336,6 +378,7 @@ class EmptyForceTagsRule(Rule):  # TODO: Rename/deprecate and replace with Test 
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.COMPLETE, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
+    deprecated_names = ("0513",)
 
 
 class EmptyDefaultTagsRule(Rule):
@@ -349,6 +392,7 @@ class EmptyDefaultTagsRule(Rule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.COMPLETE, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
+    deprecated_names = ("0514",)
 
 
 class EmptyVariablesImport(Rule):
@@ -362,6 +406,7 @@ class EmptyVariablesImport(Rule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.COMPLETE, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
+    deprecated_names = ("0515",)
 
 
 class EmptyResourceImport(Rule):
@@ -375,6 +420,7 @@ class EmptyResourceImport(Rule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.COMPLETE, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
+    deprecated_names = ("0516",)
 
 
 class EmptyLibraryImport(Rule):
@@ -388,6 +434,7 @@ class EmptyLibraryImport(Rule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.COMPLETE, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
+    deprecated_names = ("0517",)
 
 
 class EmptySetupRule(Rule):
@@ -401,6 +448,7 @@ class EmptySetupRule(Rule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.COMPLETE, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
+    deprecated_names = ("0518",)
 
 
 class EmptySuiteSetupRule(Rule):
@@ -414,6 +462,7 @@ class EmptySuiteSetupRule(Rule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.COMPLETE, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
+    deprecated_names = ("0519",)
 
 
 class EmptyTestSetupRule(Rule):
@@ -427,6 +476,7 @@ class EmptyTestSetupRule(Rule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.COMPLETE, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
+    deprecated_names = ("0520",)
 
 
 class EmptyTeardownRule(Rule):
@@ -440,6 +490,7 @@ class EmptyTeardownRule(Rule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.COMPLETE, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
+    deprecated_names = ("0521",)
 
 
 class EmptySuiteTeardownRule(Rule):
@@ -453,6 +504,7 @@ class EmptySuiteTeardownRule(Rule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.COMPLETE, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
+    deprecated_names = ("0522",)
 
 
 class EmptyTestTeardownRule(Rule):
@@ -466,6 +518,7 @@ class EmptyTestTeardownRule(Rule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.COMPLETE, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
+    deprecated_names = ("0523",)
 
 
 class EmptyTimeoutRule(Rule):
@@ -479,6 +532,7 @@ class EmptyTimeoutRule(Rule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.COMPLETE, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
+    deprecated_names = ("0524",)
 
 
 class EmptyTestTimeoutRule(Rule):
@@ -492,6 +546,7 @@ class EmptyTestTimeoutRule(Rule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.COMPLETE, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
+    deprecated_names = ("0525",)
 
 
 class EmptyArgumentsRule(Rule):
@@ -505,6 +560,7 @@ class EmptyArgumentsRule(Rule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.COMPLETE, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
+    deprecated_names = ("0526",)
 
 
 class TooManyTestCasesRule(Rule):
@@ -530,36 +586,7 @@ class TooManyTestCasesRule(Rule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.MODULAR, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
-
-
-class TooFewCallsInTestCaseRule(Rule):
-    """
-    Too few keyword calls in test cases.
-
-    Test without keywords will fail. Add more keywords or set results using ``Fail``, ``Pass Execution`` or
-    ``Skip`` keywords:
-
-        *** Test Cases ***
-        Test case
-            [Tags]    smoke
-            Skip    Test case draft
-
-    """
-
-    name = "too-few-calls-in-test-case"
-    rule_id = "LEN05"
-    message = "Test case '{test_name}' has too few keywords inside ({keyword_count}/{min_allowed_count})"
-    severity = RuleSeverity.ERROR
-    parameters = [
-        RuleParam(name="min_calls", default=1, converter=int, desc="number of keyword calls required in a test case"),
-        RuleParam(
-            name="ignore_templated", default=False, converter=str2bool, show_type="bool", desc="Ignore templated tests"
-        ),
-    ]
-    added_in_version = "2.4.0"
-    sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
-        clean_code=sonar_qube.CleanCodeAttribute.MODULAR, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
-    )
+    deprecated_names = ("0527",)
 
 
 class EmptyTestTemplateRule(Rule):
@@ -588,7 +615,7 @@ class EmptyTemplateRule(Rule):
     The ``[Template]`` setting overrides the possible template set in the Setting section, and an empty value for
     ``[Template]`` means that the test has no template even when Test Template is used.
 
-    If it is intended behaviour, use more explicit ``NONE`` value to indicate that you want to overwrite suite
+    If it is intended behavior, use a more explicit `` NONE `` value to indicate that you want to overwrite suite
     Test Template:
 
         *** Settings ***
@@ -611,6 +638,7 @@ class EmptyTemplateRule(Rule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.CONVENTIONAL, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
+    deprecated_names = ("0530",)
 
 
 class EmptyKeywordTagsRule(Rule):
@@ -625,6 +653,7 @@ class EmptyKeywordTagsRule(Rule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.COMPLETE, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
+    deprecated_names = ("0531",)
 
 
 class TooLongVariableNameRule(Rule):

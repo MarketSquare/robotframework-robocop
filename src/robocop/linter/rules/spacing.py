@@ -62,6 +62,7 @@ class TrailingWhitespaceRule(Rule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.FORMATTED, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
+    deprecated_names = ("1001",)
 
 
 class MissingTrailingBlankLineRule(Rule):
@@ -76,6 +77,7 @@ class MissingTrailingBlankLineRule(Rule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.FORMATTED, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
+    deprecated_names = ("1002",)
 
 
 class EmptyLinesBetweenSectionsRule(Rule):
@@ -122,6 +124,7 @@ class EmptyLinesBetweenSectionsRule(Rule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.FORMATTED, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
+    deprecated_names = ("1003",)
 
 
 class EmptyLinesBetweenTestCasesRule(Rule):
@@ -168,6 +171,7 @@ class EmptyLinesBetweenTestCasesRule(Rule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.FORMATTED, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
+    deprecated_names = ("1004",)
 
 
 class EmptyLinesBetweenKeywordsRule(Rule):
@@ -214,6 +218,7 @@ class EmptyLinesBetweenKeywordsRule(Rule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.FORMATTED, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
+    deprecated_names = ("1005",)
 
 
 class MixedTabsAndSpacesRule(Rule):
@@ -232,6 +237,7 @@ class MixedTabsAndSpacesRule(Rule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.FORMATTED, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
+    deprecated_names = ("1006",)
 
 
 class BadIndentRule(Rule):
@@ -283,6 +289,7 @@ class BadIndentRule(Rule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.FORMATTED, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
+    deprecated_names = ("1008",)
 
 
 class EmptyLineAfterSectionRule(Rule):
@@ -322,6 +329,7 @@ class EmptyLineAfterSectionRule(Rule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.FORMATTED, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
+    deprecated_names = ("1009",)
 
 
 class TooManyTrailingBlankLinesRule(Rule):
@@ -341,6 +349,7 @@ class TooManyTrailingBlankLinesRule(Rule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.FORMATTED, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
+    deprecated_names = ("1010",)
 
 
 class MisalignedContinuationRule(Rule):
@@ -380,6 +389,7 @@ class MisalignedContinuationRule(Rule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.FORMATTED, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
+    deprecated_names = ("1011",)
 
 
 class ConsecutiveEmptyLinesRule(Rule):
@@ -440,6 +450,7 @@ class ConsecutiveEmptyLinesRule(Rule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.FORMATTED, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
+    deprecated_names = ("1012",)
 
 
 class EmptyLinesInStatementRule(Rule):
@@ -479,6 +490,7 @@ class EmptyLinesInStatementRule(Rule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.FORMATTED, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
+    deprecated_names = ("1013",)
 
 
 class VariableNotLeftAlignedRule(Rule):
@@ -509,6 +521,7 @@ class VariableNotLeftAlignedRule(Rule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.FORMATTED, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
+    deprecated_names = ("1014", "variable-should-be-left-aligned")
 
 
 class MisalignedContinuationRowRule(Rule):
@@ -557,6 +570,7 @@ class MisalignedContinuationRowRule(Rule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.FORMATTED, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
+    deprecated_names = ("1015",)
 
 
 class SuiteSettingNotLeftAlignedRule(Rule):
@@ -589,6 +603,7 @@ class SuiteSettingNotLeftAlignedRule(Rule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.FORMATTED, issue_type=sonar_qube.SonarQubeIssueType.BUG
     )
+    deprecated_names = ("1016", "suite-setting-should-be-left-aligned")
 
 
 class BadBlockIndentRule(Rule):
@@ -629,6 +644,7 @@ class BadBlockIndentRule(Rule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.FORMATTED, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
+    deprecated_names = ("1017",)
 
 
 class FirstArgumentInNewLineRule(Rule):
@@ -660,6 +676,7 @@ class FirstArgumentInNewLineRule(Rule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.CONVENTIONAL, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
+    deprecated_names = ("1018",)
 
 
 class InvalidSpacingChecker(RawFileChecker):  # TODO merge, we can just use single RawFileChecker

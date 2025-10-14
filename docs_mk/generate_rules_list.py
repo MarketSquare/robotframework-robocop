@@ -38,15 +38,9 @@ Below is the list of all Robocop rules.
 > Rule is deprecated.
 {% endif %}
 
-<div class="grid" markdown>
-
 Added: `v{{ rule_doc.robocop_version }}`
-{ .card }
 
 Supported RF version `{{ rule_doc.version }}`
-{ .card }
-
-</div>
 
 **Message**:
 

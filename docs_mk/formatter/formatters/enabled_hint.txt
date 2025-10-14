@@ -1,0 +1,13 @@
+.. dropdown:: Formatter configuration
+
+    |FORMATTERNAME| is included in the default formatters, but it can be also run separately with:
+
+    .. parsed-literal::
+
+       robocop format --select |FORMATTERNAME|
+
+    You can also disable |FORMATTERNAME|:
+
+    .. parsed-literal::
+
+       robocop format --configure |FORMATTERNAME|.enabled=False

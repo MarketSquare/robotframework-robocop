@@ -1,0 +1,13 @@
+.. dropdown:: Enabling the formatter
+
+    |FORMATTERNAME| is not included in default formatters, that's why you need to call it with ``--select`` explicitly:
+
+    .. parsed-literal::
+
+        robocop format --select |FORMATTERNAME|
+
+    Or configure ``enabled`` parameter:
+
+    .. parsed-literal::
+
+        robocop format --configure |FORMATTERNAME|.enabled=True

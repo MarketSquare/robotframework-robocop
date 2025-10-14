@@ -24,6 +24,7 @@ theme:
         name: Switch to light mode
   features:
     - navigation.tabs
+    - navigation.tabs.sticky
     #- toc.follow
 
 nav:
@@ -34,20 +35,38 @@ nav:
       - "Rules": rules_list.md
   - Formatter:
       - Formatters:
-          - AddMissingEnd: formatter/formatters/1.md
-          - OtherFormatter: formatter/formatters/2.md
+          - AddMissingEnd: formatter/formatters/AddMissingEnd.md
+          - AlignKeywordsSection: formatter/formatters/AlignKeywordsSection.md
       #- "Formatters" formatter/formatters.md
 
 plugins:
   - search
+  - git-authors
   - gen-files:
       scripts:
         - docs_mk/generate_rules_list.py
 
 markdown_extensions:
+    - admonition
     - toc:
         permalink: true
     - attr_list
     - md_in_html
+    - pymdownx.details
+    - pymdownx.highlight:
+        default_lang: robotframework
+        guess_lang: false
+        use_pygments: true
+        anchor_linenums: true
+        line_spans: __span
+        pygments_lang_class: true
+    - pymdownx.inlinehilite
+    - pymdownx.snippets
+    - pymdownx.superfences
+    - pymdownx.tabbed:
+        alternate_style: true
+    - pymdownx.emoji:
+        emoji_index: !!python/name:material.extensions.emoji.twemoji
+        emoji_generator: !!python/name:material.extensions.emoji.to_svg
 #extra:
 #  - # any extra settings

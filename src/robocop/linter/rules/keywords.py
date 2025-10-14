@@ -55,6 +55,7 @@ class SleepKeywordUsedRule(Rule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.CONVENTIONAL, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
+    deprecated_names = ("10001",)
 
 
 class NotAllowedKeywordRule(Rule):
@@ -98,6 +99,7 @@ class NotAllowedKeywordRule(Rule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.CONVENTIONAL, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
+    deprecated_names = ("10002",)
 
 
 class NoEmbeddedKeywordArgumentsRule(Rule):
@@ -152,6 +154,7 @@ class NoEmbeddedKeywordArgumentsRule(Rule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.CONVENTIONAL, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
+    deprecated_names = ("10003",)
 
 
 class SleepKeywordUsedChecker(VisitorChecker):  # TODO: merge with a checker for keyword calls

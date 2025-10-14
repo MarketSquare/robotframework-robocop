@@ -1,0 +1,9 @@
+=============
+Robocop 6.9.0
+=============
+
+Documentation improvements
+--------------------------
+
+Rule documentation now contains information about deprecated names. It is especially helpfull during migration to
+Robocop 6.0 or comparing results between old and new Robocop reports.

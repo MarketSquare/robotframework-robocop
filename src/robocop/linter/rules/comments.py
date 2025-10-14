@@ -62,6 +62,7 @@ class ToDoInCommentRule(Rule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.COMPLETE, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
+    deprecated_names = ("0701",)
 
 
 class MissingSpaceAfterCommentRule(Rule):
@@ -111,6 +112,7 @@ class MissingSpaceAfterCommentRule(Rule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.FORMATTED, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
+    deprecated_names = ("0702",)
 
 
 class InvalidCommentRule(Rule):
@@ -137,6 +139,7 @@ class InvalidCommentRule(Rule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.COMPLETE, issue_type=sonar_qube.SonarQubeIssueType.BUG
     )
+    deprecated_names = ("0703",)
 
 
 class IgnoredDataRule(Rule):
@@ -173,6 +176,7 @@ class IgnoredDataRule(Rule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.CLEAR, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
+    deprecated_names = ("0704",)
 
 
 class BomEncodingRule(Rule):
@@ -193,6 +197,7 @@ class BomEncodingRule(Rule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.CLEAR, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
+    deprecated_names = ("0705",)
 
 
 class CommentChecker(VisitorChecker):

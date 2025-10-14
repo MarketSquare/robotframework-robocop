@@ -55,6 +55,7 @@ class NotAllowedCharInNameRule(Rule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.IDENTIFIABLE, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
+    deprecated_names = ("0301",)
 
 
 class WrongCaseInKeywordNameRule(Rule):
@@ -117,6 +118,7 @@ class WrongCaseInKeywordNameRule(Rule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.IDENTIFIABLE, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
+    deprecated_names = ("0302",)
 
 
 class KeywordNameIsReservedWordRule(Rule):
@@ -147,6 +149,7 @@ class KeywordNameIsReservedWordRule(Rule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.IDENTIFIABLE, issue_type=sonar_qube.SonarQubeIssueType.BUG
     )
+    deprecated_names = ("0303",)
 
 
 class UnderscoreInKeywordNameRule(Rule):
@@ -173,6 +176,7 @@ class UnderscoreInKeywordNameRule(Rule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.IDENTIFIABLE, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
+    deprecated_names = ("0305",)
 
 
 class SettingNameNotInTitleCaseRule(Rule):
@@ -210,6 +214,7 @@ class SettingNameNotInTitleCaseRule(Rule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.IDENTIFIABLE, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
+    deprecated_names = ("0306",)
 
 
 class SectionNameInvalidRule(Rule):
@@ -238,6 +243,7 @@ class SectionNameInvalidRule(Rule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.IDENTIFIABLE, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
+    deprecated_names = ("0307",)
 
 
 class NotCapitalizedTestCaseTitleRule(Rule):
@@ -264,6 +270,7 @@ class NotCapitalizedTestCaseTitleRule(Rule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.IDENTIFIABLE, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
+    deprecated_names = ("0308",)
 
 
 class SectionVariableNotUppercaseRule(Rule):
@@ -291,6 +298,7 @@ class SectionVariableNotUppercaseRule(Rule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.IDENTIFIABLE, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
+    deprecated_names = ("0309",)
 
 
 class ElseNotUpperCaseRule(Rule):
@@ -331,6 +339,7 @@ class ElseNotUpperCaseRule(Rule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.IDENTIFIABLE, issue_type=sonar_qube.SonarQubeIssueType.BUG
     )
+    deprecated_names = ("0311",)
 
 
 class KeywordNameIsEmptyRule(Rule):
@@ -353,6 +362,7 @@ class KeywordNameIsEmptyRule(Rule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.IDENTIFIABLE, issue_type=sonar_qube.SonarQubeIssueType.BUG
     )
+    deprecated_names = ("0312",)
 
 
 class TestCaseNameIsEmptyRule(Rule):
@@ -375,6 +385,7 @@ class TestCaseNameIsEmptyRule(Rule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.IDENTIFIABLE, issue_type=sonar_qube.SonarQubeIssueType.BUG
     )
+    deprecated_names = ("0313",)
 
 
 class EmptyLibraryAliasRule(Rule):
@@ -403,6 +414,7 @@ class EmptyLibraryAliasRule(Rule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.COMPLETE, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
+    deprecated_names = ("0314",)
 
 
 class DuplicatedLibraryAliasRule(Rule):
@@ -425,6 +437,7 @@ class DuplicatedLibraryAliasRule(Rule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.DISTINCT, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
+    deprecated_names = ("0315",)
 
 
 class BddWithoutKeywordCallRule(Rule):
@@ -462,6 +475,7 @@ class BddWithoutKeywordCallRule(Rule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.COMPLETE, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
+    deprecated_names = ("0318",)
 
 
 class NotAllowedCharInFilenameRule(Rule):
@@ -495,6 +509,7 @@ class NotAllowedCharInFilenameRule(Rule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.IDENTIFIABLE, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
+    deprecated_names = ("0320",)
 
 
 class InvalidSectionRule(Rule):
@@ -523,6 +538,7 @@ class InvalidSectionRule(Rule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.IDENTIFIABLE, issue_type=sonar_qube.SonarQubeIssueType.BUG
     )
+    deprecated_names = ("0325",)
 
 
 class MixedTaskTestSettingsRule(Rule):
@@ -544,6 +560,7 @@ class MixedTaskTestSettingsRule(Rule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.CONVENTIONAL, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
+    deprecated_names = ("0326",)
 
 
 SET_VARIABLE_VARIANTS = {

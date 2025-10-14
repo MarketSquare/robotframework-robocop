@@ -51,6 +51,7 @@ class NotEnoughWhitespaceAfterSettingRule(Rule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.COMPLETE, issue_type=sonar_qube.SonarQubeIssueType.BUG
     )
+    deprecated_names = ("0402",)
 
 
 class NotEnoughWhitespaceAfterNewlineMarkerRule(Rule):
@@ -83,6 +84,7 @@ class NotEnoughWhitespaceAfterNewlineMarkerRule(Rule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.COMPLETE, issue_type=sonar_qube.SonarQubeIssueType.BUG
     )
+    deprecated_names = ("0406",)
 
 
 class NotEnoughWhitespaceAfterVariableRule(Rule):
@@ -114,6 +116,7 @@ class NotEnoughWhitespaceAfterVariableRule(Rule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.COMPLETE, issue_type=sonar_qube.SonarQubeIssueType.BUG
     )
+    deprecated_names = ("0410",)
 
 
 class NotEnoughWhitespaceAfterSuiteSettingRule(Rule):
@@ -148,3 +151,4 @@ class NotEnoughWhitespaceAfterSuiteSettingRule(Rule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.COMPLETE, issue_type=sonar_qube.SonarQubeIssueType.BUG
     )
+    deprecated_names = ("0411",)

@@ -67,6 +67,7 @@ class EmptyVariableRule(Rule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.COMPLETE, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
+    deprecated_names = ("0912",)
 
 
 class UnusedVariableRule(Rule):
@@ -105,6 +106,7 @@ class UnusedVariableRule(Rule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.CLEAR, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
+    deprecated_names = ("0920",)
 
 
 class VariableOverwrittenBeforeUsageRule(Rule):
@@ -137,6 +139,7 @@ class VariableOverwrittenBeforeUsageRule(Rule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.CLEAR, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
+    deprecated_names = ("0922",)
 
 
 class NoGlobalVariableRule(Rule):
@@ -195,6 +198,7 @@ class NoGlobalVariableRule(Rule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.CONVENTIONAL, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
+    deprecated_names = ("0929",)
 
 
 class NoSuiteVariableRule(Rule):
@@ -247,6 +251,7 @@ class NoSuiteVariableRule(Rule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.CONVENTIONAL, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
+    deprecated_names = ("0930",)
 
 
 class NoTestVariableRule(Rule):
@@ -299,6 +304,7 @@ class NoTestVariableRule(Rule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.CONVENTIONAL, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
+    deprecated_names = ("0931",)
 
 
 class NonLocalVariablesShouldBeUppercaseRule(Rule):
@@ -335,6 +341,7 @@ class NonLocalVariablesShouldBeUppercaseRule(Rule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.CONVENTIONAL, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
+    deprecated_names = ("0310",)
 
 
 class PossibleVariableOverwritingRule(Rule):
@@ -362,6 +369,7 @@ class PossibleVariableOverwritingRule(Rule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.CONVENTIONAL, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
+    deprecated_names = ("0316",)
 
 
 class HyphenInVariableNameRule(Rule):
@@ -398,6 +406,7 @@ class HyphenInVariableNameRule(Rule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.CONVENTIONAL, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
+    deprecated_names = ("0317",)
 
 
 class InconsistentVariableNameRule(Rule):
@@ -442,6 +451,7 @@ class InconsistentVariableNameRule(Rule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.CONVENTIONAL, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
+    deprecated_names = ("0323",)
 
 
 class OverwritingReservedVariableRule(Rule):
@@ -463,6 +473,7 @@ class OverwritingReservedVariableRule(Rule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.CONVENTIONAL, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
+    deprecated_names = ("0324",)
 
 
 class DuplicatedAssignedVarNameRule(Rule):
@@ -492,3 +503,4 @@ class DuplicatedAssignedVarNameRule(Rule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.DISTINCT, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
+    deprecated_names = ("0812",)

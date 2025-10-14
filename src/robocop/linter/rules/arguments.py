@@ -27,6 +27,7 @@ class UnusedArgumentRule(Rule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.CLEAR, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
+    deprecated_names = ("0919",)
 
 
 class ArgumentOverwrittenBeforeUsageRule(Rule):
@@ -49,6 +50,7 @@ class ArgumentOverwrittenBeforeUsageRule(Rule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.CLEAR, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
+    deprecated_names = ("0921",)
 
 
 class UndefinedArgumentDefaultRule(Rule):
@@ -78,6 +80,7 @@ class UndefinedArgumentDefaultRule(Rule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.CLEAR, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
+    deprecated_names = ("0932",)
 
 
 class UndefinedArgumentValueRule(Rule):
@@ -109,6 +112,7 @@ class UndefinedArgumentValueRule(Rule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.CLEAR, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
+    deprecated_names = ("0933",)
 
 
 class InvalidArgumentsRule(Rule):
@@ -141,6 +145,7 @@ class InvalidArgumentsRule(Rule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.COMPLETE, issue_type=sonar_qube.SonarQubeIssueType.BUG
     )
+    deprecated_names = ("0407",)
 
 
 class DuplicatedArgumentRule(Rule):
@@ -165,6 +170,7 @@ class DuplicatedArgumentRule(Rule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.DISTINCT, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
+    deprecated_names = ("0811",)
 
 
 class ArgumentsPerLineRule(Rule):
@@ -206,4 +212,5 @@ class ArgumentsPerLineRule(Rule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.FORMATTED, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
+    deprecated_names = ("0532",)
     # TODO flag to allow for [Arguments] multiple args ine one line, just not in other ...

@@ -20,7 +20,7 @@ class SleepKeywordUsedRule(Rule):
 
     Avoid using Sleep keyword in favour of polling.
 
-    For example::
+    For example:
 
         *** Keywords ***
         Add To Cart
@@ -29,7 +29,7 @@ class SleepKeywordUsedRule(Rule):
             Element Should Be Visible    ${MAIN_HEADER}
             Click Element    //div[@name='${item_name}']/div[@id='add_to_cart']
 
-    Can be rewritten to::
+    Can be rewritten to:
 
         *** Keywords ***
         Add To Cart
@@ -37,7 +37,7 @@ class SleepKeywordUsedRule(Rule):
             Wait Until Element Is Visible    ${MAIN_HEADER}
             Click Element    //div[@name='${item_name}']/div[@id='add_to_cart']
 
-    It is also possible to report only if ``Sleep`` exceeds given time limit using ``max_time`` parameter::
+    It is also possible to report only if ``Sleep`` exceeds given time limit using ``max_time`` parameter:
 
         robocop check -c sleep-keyword-used.max_time=1min .
 
@@ -65,11 +65,11 @@ class NotAllowedKeywordRule(Rule):
     Keyword names are normalized to match Robot Framework search behaviour (lower case, removed whitespace and
     underscores).
 
-    For example::
+    For example:
 
         > robocop check --select not-allowed-keyword -c not-allowed-keyword.keywords=click_using_javascript
 
-    ::
+    : # TODO
 
         *** Keywords ***
         Keyword With Obsolete Implementation
@@ -118,7 +118,7 @@ class NoEmbeddedKeywordArgumentsRule(Rule):
 
     Example:
     Using a keyword with one embedded argument. Buying the drink and the size of the drink are
-    jumbled together::
+    jumbled together:
 
         *** Test Cases ***
         Prepare for an amazing movie
@@ -130,7 +130,7 @@ class NoEmbeddedKeywordArgumentsRule(Rule):
 
     Change the embedded argument to a normal argument. Now buying the drink is separate from the
     size of the drink. In this approach, it's easier to see that you can change the size of your
-    drink::
+    drink:
 
         *** Test Cases ***
         Prepare for an amazing movie

@@ -50,7 +50,7 @@ class KeywordAfterReturnRule(Rule):
     from the keyword, use ``RETURN`` statement instead. ``[Return]`` does not return from the keyword but only
     sets the values that will be returned at the end of the keyword.
 
-    Incorrect code example::
+    Incorrect code example:
 
         *** Keywords ***
         Keyword
@@ -58,7 +58,7 @@ class KeywordAfterReturnRule(Rule):
             [Return]    ${variable}
             ${variable}    Other Step
 
-    Correct code::
+    Correct code:
 
         *** Keywords ***
         Keyword
@@ -85,7 +85,7 @@ class EmptyReturnRule(Rule):
     ``[Return]`` statement is used to define variables returned from keyword. If you don't return anything from
     keyword,  don't use ``[Return]``.
 
-    Incorrect code example::
+    Incorrect code example:
 
         *** Keywords ***
         Keyword
@@ -93,7 +93,7 @@ class EmptyReturnRule(Rule):
             Assert Results
             [Return]
 
-    Correct code::
+    Correct code:
 
         *** Keywords ***
         Keyword
@@ -116,7 +116,7 @@ class NestedForLoopRule(Rule):
     """
     Not supported nested for loop.
 
-    Older versions of Robot Framework did not support nested for loops::
+    Older versions of Robot Framework did not support nested for loops:
 
         *** Test Cases
         Test case
@@ -145,7 +145,7 @@ class InconsistentAssignmentRule(Rule):
 
     Use only one type of assignment sign in a file.
 
-    Incorrect code example::
+    Incorrect code example:
 
         *** Keywords ***
         Keyword
@@ -156,7 +156,7 @@ class InconsistentAssignmentRule(Rule):
             No Operation
             ${var}  ${var2}    Some Keyword
 
-    Correct code::
+    Correct code:
 
         *** Keywords ***
         Keyword
@@ -187,7 +187,7 @@ class InconsistentAssignmentRule(Rule):
                     "inconsistent-assignment.assignment_sign_type=none"
                 ]
 
-    You can choose between following assignment signs:
+    You can choose between the following assignment signs:
 
     - 'autodetect' (default),
     - 'none',
@@ -225,7 +225,7 @@ class InconsistentAssignmentInVariablesRule(Rule):
 
     Use one type of assignment sign in Variables section.
 
-    Incorrect code example::
+    Incorrect code example:
 
         *** Variables ***
         ${var} =    1
@@ -234,7 +234,7 @@ class InconsistentAssignmentInVariablesRule(Rule):
         ${var4}     a
         ${var5}     b
 
-    Correct code::
+    Correct code:
 
         *** Variables ***
         ${var}      1
@@ -244,7 +244,7 @@ class InconsistentAssignmentInVariablesRule(Rule):
         ${var5}     b
 
     By default, Robocop looks for the most popular assignment sign in the file. It is possible to define expected
-    assignment sign by running::
+    assignment sign by running:
 
         robocop check --configure inconsistent-assignment-in-variables.assignment_sign_type=equal_sign
 
@@ -304,7 +304,7 @@ class IfCanBeMergedRule(Rule):
 
     ``IF`` statement follows another ``IF`` with identical conditions. It can be possibly merged into one.
 
-    Example of rule violation::
+    Example of rule violation:
 
         *** Test Cases ***
         Test case
@@ -318,7 +318,7 @@ class IfCanBeMergedRule(Rule):
 
     ``IF`` statement is considered identical only if all branches have identical conditions.
 
-    Similar but not identical ``IF``::
+    Similar but not identical ``IF``:
 
         *** Test Cases ***
         Test case
@@ -375,13 +375,13 @@ class InlineIfCanBeUsedRule(Rule):
 
     Short and simple ``IF`` statements can be replaced with ``inline IF``.
 
-    Following ``IF``::
+    Following ``IF``:
 
         IF    $condition
             BREAK
         END
 
-    can be replaced with::
+    can be replaced with:
 
         IF    $condition    BREAK
 
@@ -414,7 +414,7 @@ class UnreachableCodeRule(Rule):
 
     Detects the unreachable code after ``RETURN``, ``BREAK`` or ``CONTINUE`` statements.
 
-    For example::
+    For example:
 
         *** Keywords ***
         Example Keyword
@@ -449,20 +449,20 @@ class MultilineInlineIfRule(Rule):
     It's allowed to create ``inline IF`` that spans multiple lines, but it should be avoided,
     since it decreases readability. Try to use normal ``IF``/``ELSE`` instead.
 
-    Incorrect code example::
+    Incorrect code example:
 
         *** Keywords ***
         Keyword
             IF  ${condition}  Log  hello
             ...    ELSE       Log  hi!
 
-    Correct code::
+    Correct code:
 
         *** Keywords ***
         Keyword
             IF  ${condition}    Log  hello     ELSE    Log  hi!
 
-    or IF block can be used::
+    or IF block can be used:
 
         *** Keywords ***
         Keyword
@@ -492,7 +492,7 @@ class UnnecessaryStringConversionRule(Rule):
 
     Expressions in Robot Framework are evaluated using Python's eval function. When a variable is used
     in the expression using the normal ``${variable}`` syntax, its value is replaced before the expression
-    is evaluated. For example, with the following expression::
+    is evaluated. For example, with the following expression:
 
         *** Test Cases ***
         Check if schema was uploaded
@@ -507,20 +507,20 @@ class UnnecessaryStringConversionRule(Rule):
             END
             Send File To SFTP Root   ${filename}
 
-    "${filename}" will be replaced by "schema.avsc"::
+    "${filename}" will be replaced by "schema.avsc":
 
         IF    schema.avsc == 'default'
 
-    "schema.avsc" will not be recognized as Python variable. That's why you need to quote it::
+    "schema.avsc" will not be recognized as Python variable. That's why you need to quote it:
 
         IF    '${filename}' == 'default'
 
-    However it introduces unnecessary string conversion and can mask difference in the type. For example::
+    However it introduces unnecessary string conversion and can mask difference in the type. For example:
 
         ${numerical}    Set Variable    10  # ${numerical} is actually string 10, not integer 10
         IF    "${numerical}" == "10"
 
-    You can use  ``$variable`` syntax instead::
+    You can use  ``$variable`` syntax instead:
 
         IF    $numerical == 10
 
@@ -542,7 +542,7 @@ class ExpressionCanBeSimplifiedRule(Rule):
 
     Evaluated expression can be simplified.
 
-    Incorrect code example::
+    Incorrect code example:
 
         *** Keywords ***
         Click On Element
@@ -554,7 +554,7 @@ class ExpressionCanBeSimplifiedRule(Rule):
             END
             Click    ${locator}
 
-    Correct code::
+    Correct code:
 
         *** Keywords ***
         Click On Element
@@ -566,7 +566,7 @@ class ExpressionCanBeSimplifiedRule(Rule):
             END
             Click    ${locator}
 
-    Comparisons to empty sequences (lists, dicts, sets), empty string or ``0`` can be also simplified::
+    Comparisons to empty sequences (lists, dicts, sets), empty string or ``0`` can be also simplified:
 
         *** Test Cases ***
         Check conditions
@@ -591,7 +591,7 @@ class MisplacedNegativeConditionRule(Rule):
     """
     Position of not operator can be changed for better readability.
 
-    Incorrect code example::
+    Incorrect code example:
 
         *** Keywords ***
         Check Unmapped Codes
@@ -604,7 +604,7 @@ class MisplacedNegativeConditionRule(Rule):
                 Fail    Did not receive codes from API.
             END
 
-    Correct code::
+    Correct code:
 
         *** Keywords ***
         Check Unmapped Codes
@@ -636,7 +636,7 @@ class DisablerNotUsedRule(Rule):
 
     Overlapping disablers, code that was already fixed or rules that are disabled globally do not need rule disablers.
 
-    Rule violation examples::
+    Rule violation examples:
 
         *** Keywords ***
         Log To Page
@@ -792,7 +792,7 @@ class ConsistentAssignmentSignChecker(VisitorChecker):
     section and ``*** Test Cases ***``, ``*** Keywords ***`` sections) and report any inconsistent type of sign in
     particular file.
 
-    To force one type of sign type you can configure two rules::
+    To force one type of sign type you can configure two rules:
 
         robocop check --configure inconsistent-assignment.assignment_sign_type={sign_type}
         robocop check --configure inconsistent-assignment-in-variables.assignment_sign_type={sign_type}
@@ -1331,7 +1331,7 @@ class UnusedVariablesChecker(VisitorChecker):
         In case of nested FOR/WHILE loops we're storing variables in separate stacks, that are merged until we reach
         outer END.
 
-        For example::
+        For example:
 
             *** Keywords ***
             Use loop variable

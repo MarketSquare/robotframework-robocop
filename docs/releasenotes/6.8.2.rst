@@ -1,0 +1,8 @@
+=============
+Robocop 6.8.2
+=============
+
+Fix comment handling in Set Variable If with ReplaceWithVAR formatter (#1495)
+-----------------------------------------------------------------------------
+
+``ReplaceWithVAR`` no longer abruptly stops when converting ``Set Variable If`` with comments to ``VAR``.

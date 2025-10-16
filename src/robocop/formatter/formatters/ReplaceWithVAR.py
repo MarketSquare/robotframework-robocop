@@ -176,7 +176,15 @@ class ReplaceWithVAR(Formatter):
             return node
         if len(comments) == 1:
             # insert comment between last data token and EOL
-            node.tokens = [*node.tokens[:-1], Token(Token.SEPARATOR, "  "), comments[0], node.tokens[-1]]
+            if hasattr(node, "header"):  # i.e. from Set Variable If -> IF
+                node.header.tokens = [
+                    *node.header.tokens[:-1],
+                    Token(Token.SEPARATOR, "  "),
+                    comments[0],
+                    node.header.tokens[-1],
+                ]
+            else:
+                node.tokens = [*node.tokens[:-1], Token(Token.SEPARATOR, "  "), comments[0], node.tokens[-1]]
             return node
         comment_nodes = [Comment.from_params(comment=comment.value, indent=indent) for comment in comments]
         return *comment_nodes, node

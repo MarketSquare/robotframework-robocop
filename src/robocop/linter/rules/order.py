@@ -71,7 +71,7 @@ class TestCaseSectionOutOfOrderRule(Rule):
     Sections should be defined in order set by ``sections_order`` parameter.
     Default order: ``documentation,tags,timeout,setup,template,keyword,teardown``.
 
-    To change the default order use following option::
+    To change the default order use following option:
 
         robocop check --configure test-case-section-out-of-order.sections_order=comma,separated,list,of,sections
 
@@ -87,7 +87,7 @@ class TestCaseSectionOutOfOrderRule(Rule):
 
     Order of not configured sections is ignored.
 
-    Incorrect code example::
+    Incorrect code example:
 
         *** Test Cases ***
         Keyword After Teardown
@@ -96,7 +96,7 @@ class TestCaseSectionOutOfOrderRule(Rule):
             [Teardown]    Log    abc
             Keyword1
 
-    Correct code::
+    Correct code:
 
         *** Test Cases ***
         Keyword After Teardown
@@ -137,7 +137,7 @@ class KeywordSectionOutOfOrderRule(Rule):
     Sections should be defined in order set by ``sections_order`` parameter.
     Default order: ``documentation,tags,arguments,timeout,setup,keyword,teardown``.
 
-    To change the default order use following option::
+    To change the default order use following option:
 
         robocop check --configure keyword-section-out-of-order.sections_order=comma,separated,list,of,sections
 
@@ -145,7 +145,7 @@ class KeywordSectionOutOfOrderRule(Rule):
     documentation, tags, arguments, timeout, setup, keyword, teardown.
     Order of not configured sections is ignored.
 
-    Incorrect code example::
+    Incorrect code example:
 
         *** Keywords ***
         Keyword After Teardown
@@ -154,7 +154,7 @@ class KeywordSectionOutOfOrderRule(Rule):
             Keyword1
             [Documentation]    This is keyword Documentation
 
-    Correct code example::
+    Correct code example:
 
         *** Keywords ***
         Keyword After Teardown
@@ -195,13 +195,13 @@ class SectionOutOfOrderRule(Rule):
 
     Default order: ``comments,settings,variables,testcases,keywords``.
 
-    To change the default order use following option::
+    To change the default order use following option:
 
         robocop check --configure section-out-of-order.sections_order=comma,separated,list,of,sections
 
     Order of not configured sections is ignored.
 
-    Incorrect code example::
+    Incorrect code example:
 
         *** Settings ***
 
@@ -209,7 +209,7 @@ class SectionOutOfOrderRule(Rule):
 
         *** Test Cases ***
 
-    Correct code::
+    Correct code:
 
         *** Settings ***
 

@@ -23,7 +23,7 @@ class TagWithSpaceRule(Rule):
     When including or excluding tags, it may lead to unexpected behavior. It's recommended to use short tag names
     without spaces.
 
-    Example of rule violation::
+    Example of rule violation:
 
         *** Test Cases ***
         Test
@@ -46,7 +46,7 @@ class TagWithOrAndRule(Rule):
     ``OR`` or ``AND`` keyword found in the tag.
 
     ``OR`` and ``AND`` words are used to combine tags when selecting tests to be run in Robot Framework. Using
-    following configuration::
+    following configuration:
 
         robocop check --include tagANDtag2
 
@@ -107,8 +107,7 @@ class CouldBeTestTagsRule(Rule):
     """
     All tests share the same tags which can be moved to ``Test Tags`` setting.
 
-    Example::
-
+    Example:
         *** Test Cases ***
         Test
             [Tags]  featureX  smoke
@@ -123,6 +122,7 @@ class CouldBeTestTagsRule(Rule):
     This rule was renamed from ``could-be-force-tags`` to ``could-be-test-tags`` in Robocop 2.6.0.
 
     Will ignore `robot:*` tags.
+
     """
 
     name = "could-be-test-tags"
@@ -141,7 +141,7 @@ class TagAlreadySetInTestTagsRule(Rule):
     Tag is already set in the ``Test Tags`` setting.
 
     Avoid repeating the same tags in tests when the tag is already declared in ``Test Tags`` or ``Force Tags``.
-    Example of rule violation::
+    Example of rule violation:
 
         *** Settings ***
         Test Tags  common_tag
@@ -170,7 +170,7 @@ class UnnecessaryDefaultTagsRule(Rule):
     """
     ``Default Tags`` setting is always overwritten and is unnecessary.
 
-    Example of rule violation::
+    Example of rule violation:
 
         *** Settings ***
         Default Tags  tag1  tag2
@@ -224,7 +224,7 @@ class DuplicatedTagsRule(Rule):
     Tags are free text, but they are normalized so that they are converted to lowercase and all spaces are removed.
     Only first tag is used, other occurrences are ignored.
 
-    Example of duplicated tags::
+    Example of duplicated tags:
 
         *** Test Cases ***
         Test
@@ -246,8 +246,7 @@ class CouldBeKeywordTagsRule(Rule):
     """
     All keywords share the same tags which can be moved to ``Keyword Tags`` setting.
 
-    Example::
-
+    Example:
         *** Keywords ***
         Keyword
             [Tags]  featureX  smoke
@@ -261,6 +260,7 @@ class CouldBeKeywordTagsRule(Rule):
     ``Keyword Tags``.
 
     Will ignore `robot:*` tags.
+
     """
 
     name = "could-be-keyword-tags"
@@ -280,7 +280,7 @@ class TagAlreadySetInKeywordTagsRule(Rule):
     Tag is already set in the ``Test Keyword`` setting.
 
     Avoid repeating the same tags in keywords when the tag is already declared in ``Keyword Tags``.
-    Example of rule violation::
+    Example of rule violation:
 
         *** Settings ***
         Keyword Tags  common_tag

@@ -66,7 +66,7 @@ if TYPE_CHECKING:
 @total_ordering
 class RuleSeverity(Enum):
     """
-    You can override rule default severity::
+    You can override rule default severity:
 
         robocop check --configure id_or_msg_name.severity=value
 
@@ -93,7 +93,7 @@ class RuleSeverity(Enum):
 
     will change `line-too-long` rule severity to error.
 
-    You can filter out all rules below given severity value by using ``-t/--threshold`` option::
+    You can filter out all rules below given severity value by using ``-t/--threshold`` option:
 
         robocop check -t <severity value>
 
@@ -254,7 +254,7 @@ class SeverityThreshold:
     """
     Set issue severity depending on threshold values of configured rule param.
 
-    Rules that support ``SeverityThreshold`` allow you to set thresholds::
+    Rules that support ``SeverityThreshold`` allow you to set thresholds:
 
         robocop -c line-too-long:severity_threshold:warning=140:error=200
 

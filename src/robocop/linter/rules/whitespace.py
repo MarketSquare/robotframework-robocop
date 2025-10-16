@@ -15,7 +15,7 @@ class NotEnoughWhitespaceAfterSettingRule(Rule):
 
     Provide at least two spaces after setting.
 
-    Incorrect code example::
+    Incorrect code example:
 
         *** Test Cases ***
         Test
@@ -28,7 +28,7 @@ class NotEnoughWhitespaceAfterSettingRule(Rule):
             [Arguments] ${var}
             Should Be True  ${var}
 
-    Correct code::
+    Correct code:
 
         *** Test Cases ***
         Test
@@ -59,14 +59,14 @@ class NotEnoughWhitespaceAfterNewlineMarkerRule(Rule):
 
     Provide at least two spaces after newline marker.
 
-    Incorrect code example::
+    Incorrect code example:
 
         *** Variables ***
         @{LIST}  1
         ... 2
         ...  3
 
-    Correct code::
+    Correct code:
 
         *** Variables ***
         @{LIST}  1
@@ -91,13 +91,13 @@ class NotEnoughWhitespaceAfterVariableRule(Rule):
 
     Provide at least two spaces after variable name.
 
-    Incorrect code example::
+    Incorrect code example:
 
         *** Variables ***
         ${variable} 1
         ${other_var}  2
 
-    Correct code::
+    Correct code:
 
         *** Variables ***
         ${variable}  1
@@ -122,7 +122,7 @@ class NotEnoughWhitespaceAfterSuiteSettingRule(Rule):
 
     Provide at least two spaces after suite setting.
 
-    Incorrect code example::
+    Incorrect code example:
 
         *** Settings ***
         Library Collections
@@ -130,7 +130,7 @@ class NotEnoughWhitespaceAfterSuiteSettingRule(Rule):
         ...  tag2
         Suite Setup Keyword
 
-    Correct code::
+    Correct code:
 
         *** Settings ***
         Library    Collections

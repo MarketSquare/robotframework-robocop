@@ -21,7 +21,7 @@ class DuplicatedTestCaseRule(Rule):
     It is not allowed to reuse the same name of the test case within the same suite in Robot Framework.
     Name matching is case-insensitive and ignores spaces and underscore characters.
 
-    Incorrect code example::
+    Incorrect code example:
 
         *** Test Cases ***
         Test with name
@@ -49,7 +49,7 @@ class DuplicatedKeywordRule(Rule):
     Do not define keywords with the same name inside the same file. Name matching is case-insensitive and
     ignores spaces and underscore characters.
 
-    Incorrect code example::
+    Incorrect code example:
 
         *** Keywords ***
         Keyword
@@ -78,7 +78,7 @@ class DuplicatedVariableRule(Rule):
     Multiple variables with the same name in the file.
 
     Variable names in Robot Framework are case-insensitive and ignore spaces and underscores. Following variables
-    are duplicates::
+    are duplicates:
 
         *** Variables ***
         ${variable}    1
@@ -107,7 +107,7 @@ class DuplicatedResourceRule(Rule):
 
     Avoid re-importing the same imports.
 
-    Incorrect code example::
+    Incorrect code example:
 
         *** Settings ***
         Resource    path.resource
@@ -130,7 +130,7 @@ class DuplicatedLibraryRule(Rule):
     """
     Duplicated library imports.
 
-    If you need to reimport library use alias::
+    If you need to reimport library use alias:
 
         *** Settings ***
         Library  RobotLibrary
@@ -184,7 +184,7 @@ class SectionAlreadyDefinedRule(Rule):
     Duplicated section in the file. Robot Framework will handle repeated sections but it is recommended to not
     duplicate them.
 
-    Incorrect code example::
+    Incorrect code example:
 
         *** Test Cases ***
         My Test
@@ -216,7 +216,7 @@ class BothTestsAndTasksRule(Rule):
     """
     Both Task(s) and Test Case(s) section headers defined in file.
 
-    The file contains both ``*** Test Cases ***`` and ``*** Tasks ***`` sections. Use only one of them. ::
+    The file contains both ``*** Test Cases ***`` and ``*** Tasks ***`` sections. Use only one of them. :
 
         *** Test Cases ***
 
@@ -239,8 +239,8 @@ class DuplicatedSettingRule(Rule):
     Duplicated setting.
 
     Some settings can be used only once in a file. Only the first value is used.
-    Example::
 
+    Example:
         *** Settings ***
         Test Tags        F1
         Test Tags        F2  # this setting will be ignored

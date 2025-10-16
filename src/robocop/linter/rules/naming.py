@@ -29,7 +29,7 @@ class NotAllowedCharInNameRule(Rule):
     Not allowed character found.
 
     Reports not allowed characters found in Test Case or Keyword names. By default, it's a dot (``.``). You can
-    configure what patterns are reported by calling::
+    configure what patterns are reported by calling:
 
         robocop check --configure not-allowed-char-in-name.pattern=regex_pattern
 
@@ -66,7 +66,7 @@ class WrongCaseInKeywordNameRule(Rule):
     one of the 2 values: ``each_word_capitalized`` or ``first_word_capitalized``.
 
     By default, it's configured to ``each_word_capitalized``, which requires each keyword to follow such
-    convention::
+    convention:
 
         *** Keywords ***
         Fill Out The Form
@@ -75,7 +75,7 @@ class WrongCaseInKeywordNameRule(Rule):
             Click 'Next' Button
             [Teardown]  Log Form Data
 
-    You can also set it to ``first_word_capitalized`` which requires first word to have first letter capital::
+    You can also set it to ``first_word_capitalized`` which requires first word to have first letter capital:
 
         *** Keywords ***
         Fill out the form
@@ -88,7 +88,7 @@ class WrongCaseInKeywordNameRule(Rule):
     that are accepted in the keyword name, even though they violate the case convention.
 
     ``pattern`` parameter accepts a regex pattern. For example, configuring it to ``robocop\.readthedocs\.io``
-    would make such keyword legal::
+    would make such keyword legal:
 
         Go To robocop.readthedocs.io Page
 
@@ -155,11 +155,11 @@ class UnderscoreInKeywordNameRule(Rule):
 
     You can replace underscores with spaces.
 
-    Incorrect code example::
+    Incorrect code example:
 
         keyword_with_underscores
 
-    Correct code::
+    Correct code:
 
         Keyword Without Underscores
 
@@ -179,7 +179,7 @@ class SettingNameNotInTitleCaseRule(Rule):
     """
     Setting name not in title or upper case.
 
-    Incorrect code example::
+    Incorrect code example:
 
         *** Settings ***
         resource    file.resource
@@ -189,7 +189,7 @@ class SettingNameNotInTitleCaseRule(Rule):
             [documentation]  Some documentation
             Step
 
-    Correct code::
+    Correct code:
 
         *** Settings ***
         Resource    file.resource
@@ -218,12 +218,12 @@ class SectionNameInvalidRule(Rule):
 
     Section name should use Title Case or CAP CASE case convention.
 
-    Incorrect code example::
+    Incorrect code example:
 
         *** settings ***
         *** KEYwords ***
 
-    Correct code::
+    Correct code:
 
         *** SETTINGS ***
         *** Keywords ***
@@ -244,12 +244,12 @@ class NotCapitalizedTestCaseTitleRule(Rule):
     """
     Test case title does not start with capital letter.
 
-    Incorrect code example::
+    Incorrect code example:
 
         *** Test Cases ***
         validate user details
 
-    Correct code example::
+    Correct code example:
 
         *** Test Cases ***
         Validate user details
@@ -270,12 +270,12 @@ class SectionVariableNotUppercaseRule(Rule):
     """
     Section variable name is not uppercase.
 
-    Incorrect code example::
+    Incorrect code example:
 
         *** Variables ***
         ${section_variable}    value
 
-    Correct code::
+    Correct code:
 
         *** Variables ***
         ${SECTION_VARIABLE}    value
@@ -297,7 +297,7 @@ class ElseNotUpperCaseRule(Rule):
     """
     ELSE and ELSE IF is not uppercase.
 
-    Incorrect code example::
+    Incorrect code example:
 
         *** Keywords ***
         Describe Temperature
@@ -309,7 +309,7 @@ class ElseNotUpperCaseRule(Rule):
             Else
                 RETURN  Cold
 
-    Correct code::
+    Correct code:
 
         *** Keywords ***
         Describe Temperature
@@ -337,7 +337,7 @@ class KeywordNameIsEmptyRule(Rule):
     """
     Keyword name is empty.
 
-    Remember to always add a keyword name and avoid such code::
+    Remember to always add a keyword name and avoid such code:
 
         *** Keywords ***
         # no keyword name here!!!
@@ -359,7 +359,7 @@ class TestCaseNameIsEmptyRule(Rule):
     """
     Test case name is empty.
 
-    Remember to always add a test case name and avoid such code::
+    Remember to always add a test case name and avoid such code:
 
         *** Test Cases ***
         # no test case name here!!!
@@ -383,12 +383,12 @@ class EmptyLibraryAliasRule(Rule):
 
     Use non-empty name when using library import with alias.
 
-    Incorrect code example::
+    Incorrect code example:
 
          *** Settings ***
          Library  CustomLibrary  AS
 
-    Correct code::
+    Correct code:
 
         *** Settings ***
         Library  CustomLibrary  AS  AnotherName
@@ -409,7 +409,7 @@ class DuplicatedLibraryAliasRule(Rule):
     """
     Library alias is the same as original name.
 
-    Examples of rule violation::
+    Examples of rule violation:
 
          *** Settings ***
          Library  CustomLibrary  AS  CustomLibrary   # same as library name
@@ -434,7 +434,7 @@ class BddWithoutKeywordCallRule(Rule):
     When using BDD reserved keywords (such as `GIVEN`, `WHEN`, `AND`, `BUT` or `THEN`) use them together with
     name of the keyword to run.
 
-    Incorrect code example::
+    Incorrect code example:
 
         *** Test Cases ***
         Test case
@@ -442,7 +442,7 @@ class BddWithoutKeywordCallRule(Rule):
             When User Log In
             Then User Should See Welcome Page
 
-    Correct code::
+    Correct code:
 
         *** Test Cases ***
         Test case
@@ -469,7 +469,7 @@ class NotAllowedCharInFilenameRule(Rule):
     Not allowed character found in filename.
 
     Reports not allowed pattern found in Suite names. By default, it's a dot (`.`).
-    You can configure what characters are reported by running::
+    You can configure what characters are reported by running:
 
          robocop check --configure not-allowed-char-in-filename.pattern=regex_pattern .
 
@@ -504,7 +504,7 @@ class InvalidSectionRule(Rule):
     Robot Framework 6.1 detects unrecognized sections based on the language defined for the specific files.
     Consider using ``--language`` parameter if the file is defined with different language.
 
-    It is also possible to configure language in the file::
+    It is also possible to configure language in the file:
 
         language: pl
 

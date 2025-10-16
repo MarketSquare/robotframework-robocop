@@ -35,12 +35,11 @@ class ToDoInCommentRule(Rule):
 
     By default, it reports ``TODO`` and ``FIXME`` markers.
 
-    Example::
-
+    Example:
         # TODO: Refactor this code
         # fixme
 
-    Configuration example::
+    Configuration example:
 
         robocop check --configure "todo-in-comment.markers=todo,Remove me,Fix this!"
 
@@ -70,7 +69,7 @@ class MissingSpaceAfterCommentRule(Rule):
     No space after the ``#`` character and comment body.
 
     Comments usually starts from the new line, or after 2 spaces in the same line. '#' characters denotes start of the
-    comment, followed by the space and comment body::
+    comment, followed by the space and comment body:
 
         # stand-alone comment
         Keyword Call  # inline comment
@@ -81,17 +80,16 @@ class MissingSpaceAfterCommentRule(Rule):
     It is possible to configure block comments syntax that should be ignored.
     Configured regex for block comment should take into account the first character is ``#``.
 
-    Example::
-
+    Example:
         #bad
         # good
         ### good block
 
-    Configuration example::
+    Configuration example:
 
         robocop check --configure missing-space-after-comment.block=^#[*]+
 
-    Allows commenting like::
+    Allows commenting like:
 
         #*****
         #
@@ -123,8 +121,7 @@ class InvalidCommentRule(Rule):
     comments. '#' characters needs to be in first or any other than second character in the line to be recognized
     as a comment.
 
-    Example::
-
+    Example:
         # good
          # bad
           # third cell so it's good
@@ -150,7 +147,7 @@ class IgnoredDataRule(Rule):
     (`ref <https://robotframework.org/robotframework/latest/RobotFrameworkUserGuide.html#test-data-sections>`_)
     are ignored. It's recommended to add ``*** Comments ***`` section header for lines that should be ignored.
 
-    Missing section header::
+    Missing section header:
 
         Resource   file.resource  # it looks like *** Settings *** but section header is missing - line is ignored
 
@@ -158,7 +155,7 @@ class IgnoredDataRule(Rule):
         Keyword Name
            No Operation
 
-    Comment lines that should be inside ``*** Comments ***``::
+    Comment lines that should be inside ``*** Comments ***``:
 
         Deprecated Test
             Keyword

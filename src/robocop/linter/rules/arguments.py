@@ -4,7 +4,7 @@ from robocop.linter.rules import Rule, RuleParam, RuleSeverity
 
 class UnusedArgumentRule(Rule):
     """
-    Keyword argument was defined but not used::
+    Keyword argument was defined but not used:
 
         *** Keywords ***
         Keyword
@@ -32,7 +32,7 @@ class UnusedArgumentRule(Rule):
 class ArgumentOverwrittenBeforeUsageRule(Rule):
     """
 
-    Keyword argument was overwritten before it is used::
+    Keyword argument was overwritten before it is used:
 
         *** Keywords ***
         Overwritten Argument
@@ -62,7 +62,7 @@ class UndefinedArgumentDefaultRule(Rule):
     misreading your keyword arguments, explicitly state that the value is empty using the
     built-in ``${EMPTY}`` variable.
 
-    Example of a rule violation::
+    Example of a rule violation:
 
         *** Keywords ***
         My Amazing Keyword
@@ -93,7 +93,7 @@ class UndefinedArgumentValueRule(Rule):
     If your argument is falsely flagged by this rule, escape the ``=`` character in your argument
     value by like so: ``\=``.
 
-    Example of a rule violation::
+    Example of a rule violation:
 
         *** Test Cases ***
         Test case
@@ -116,14 +116,14 @@ class InvalidArgumentsRule(Rule):
     Argument names should follow variable naming syntax: start with identifier (``$``, ``@`` or ``&``) and enclosed
     in curly brackets (``{}``).
 
-    Valid names::
+    Valid names:
 
         *** Test Cases ***
         Test case
             Keyword
                 [Arguments]    ${var}    @{args}    &{config}    ${var}=default
 
-    Invalid names::
+    Invalid names:
 
         *** Test Cases ***
         Test case
@@ -148,7 +148,7 @@ class DuplicatedArgumentRule(Rule):
     Argument name is already used.
 
     Variable names in Robot Framework are case-insensitive and ignores spaces and underscores. Following arguments
-    are duplicates::
+    are duplicates:
 
         *** Keywords ***
         Keyword
@@ -174,14 +174,14 @@ class ArgumentsPerLineRule(Rule):
     If the keyword's ``[Arguments]`` are split into multiple lines, it is recommended to put only one argument
     per every line.
 
-    Incorrect code example::
+    Incorrect code example:
 
         *** Keywords ***
         Keyword With Multiple Arguments
         [Arguments]    ${first_arg}
         ...    ${second_arg}    ${third_arg}=default
 
-    Correct code::
+    Correct code:
 
         *** Keywords ***
         Keyword With Multiple Arguments

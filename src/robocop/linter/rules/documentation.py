@@ -22,7 +22,7 @@ class MissingDocKeywordRule(Rule):
     Keyword documentation is displayed in a tooltip in most code editors,
     so it is recommended to write it for each keyword.
 
-    You can add documentation to keyword using following syntax::
+    You can add documentation to keyword using following syntax:
 
         *** Keywords ***
         Keyword
@@ -46,7 +46,7 @@ class MissingDocTestCaseRule(Rule):
     """
     Test case without documentation.
 
-    You can add documentation to test case using following syntax::
+    You can add documentation to test case using following syntax:
 
         *** Test Cases ***
         Test
@@ -54,7 +54,7 @@ class MissingDocTestCaseRule(Rule):
             Keyword Step
             Other Step
 
-    The rule by default ignores templated test cases but it can be configured with::
+    The rule by default ignores templated test cases but it can be configured with:
 
         robocop check --configure missing-doc-test-case.ignore_templated=False
 
@@ -85,7 +85,7 @@ class MissingDocTestSuiteRule(Rule):
     """
     Test suite without documentation.
 
-    You can add documentation to suite using following syntax::
+    You can add documentation to suite using following syntax:
 
         *** Settings ***
         Documentation    Suite documentation
@@ -107,7 +107,7 @@ class MissingDocResourceFileRule(Rule):
     """
     Resource file without documentation.
 
-    You can add documentation to resource file using following syntax::
+    You can add documentation to resource file using following syntax:
 
         *** Settings ***
         Documentation    Resource file documentation

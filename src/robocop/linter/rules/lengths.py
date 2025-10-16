@@ -83,7 +83,7 @@ class TooFewCallsInKeywordRule(Rule):
 
     Consider if the custom keyword is required at all.
 
-    Incorrect code example::
+    Incorrect code example:
 
         *** Test Cases ***
         Test
@@ -93,7 +93,7 @@ class TooFewCallsInKeywordRule(Rule):
         Thin Wrapper
             Other Keyword    ${arg}
 
-    Correct code example::
+    Correct code example:
 
         *** Test Cases ***
         Test
@@ -226,7 +226,7 @@ class LineTooLongRule(Rule):
     Comments with disabler directives (such as ``# robocop: off``) are ignored. Lines that contain URLs are also
     ignored.
 
-    It is possible to ignore lines that match the regex pattern. Configure it using the following option::
+    It is possible to ignore lines that match the regex pattern. Configure it using the following option:
 
         robocop check --configure line-too-long.ignore_pattern=pattern
 
@@ -290,12 +290,12 @@ class EmptyMetadataRule(Rule):
     """
     Metadata settings does not have any value set.
 
-    Incorrect code example::
+    Incorrect code example:
 
         *** Settings ***
         Metadata
 
-    Correct code example::
+    Correct code example:
 
         *** Settings ***
         Metadata    Platform    ${PLATFORM}
@@ -537,7 +537,7 @@ class TooFewCallsInTestCaseRule(Rule):
     Too few keyword calls in test cases.
 
     Test without keywords will fail. Add more keywords or set results using ``Fail``, ``Pass Execution`` or
-    ``Skip`` keywords::
+    ``Skip`` keywords:
 
         *** Test Cases ***
         Test case
@@ -589,7 +589,7 @@ class EmptyTemplateRule(Rule):
     ``[Template]`` means that the test has no template even when Test Template is used.
 
     If it is intended behaviour, use more explicit ``NONE`` value to indicate that you want to overwrite suite
-    Test Template::
+    Test Template:
 
         *** Settings ***
         Test Template    Template Keyword

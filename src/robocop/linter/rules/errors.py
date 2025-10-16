@@ -29,7 +29,7 @@ class MissingKeywordNameRule(Rule):
     """
     Missing keyword name.
 
-    Example of rule violation::
+    Example of rule violation:
 
         *** Keywords ***
         Keyword
@@ -52,7 +52,7 @@ class VariablesImportWithArgsRule(Rule):
     """
     YAML variables file import with arguments.
 
-    Example of rule violation::
+    Example of rule violation:
 
         *** Settings ***
         Variables    vars.yaml        arg1
@@ -75,7 +75,7 @@ class InvalidContinuationMarkRule(Rule):
     """
     Invalid continuation mark.
 
-    Example of rule violation::
+    Example of rule violation:
 
         Keyword
         ..  ${var}  # .. instead of ...
@@ -98,7 +98,7 @@ class NonExistingSettingRule(Rule):
     """
     Non-existing setting used in the code.
 
-    Example of rule violation::
+    Example of rule violation:
 
        *** Test Cases ***
        Test case
@@ -121,7 +121,7 @@ class SettingNotSupportedRule(Rule):
     """
     Not supported setting.
 
-    Following settings are supported in Test Case or Task::
+    Following settings are supported in Test Case or Task:
 
         *** Test Cases ***
         Test case
@@ -132,7 +132,7 @@ class SettingNotSupportedRule(Rule):
             [Template]	     Used for specifying a template keyword.
             [Timeout]	     Used for specifying a test case timeout.
 
-    Following settings are supported in Keyword::
+    Following settings are supported in Keyword:
 
         *** Keywords ***
         Keyword

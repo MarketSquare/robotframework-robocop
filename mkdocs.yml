@@ -1,0 +1,53 @@
+site_name: RoboCop Docs
+# site_url: https://docs.robocop.io   # optional (used by some plugins)
+docs_dir: docs_mk
+repo_url: https://github.com/MarketSquare/robotframework-robocop
+repo_name: robocop
+
+theme:
+  name: material
+  logo: images/robocop_logo_small.png
+  icon:
+    repo: fontawesome/brands/github
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: white
+      toggle:
+        icon: material/toggle-switch
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: black
+      toggle:
+        icon: material/toggle-switch-off-outline
+        name: Switch to light mode
+  features:
+    - navigation.tabs
+    #- toc.follow
+
+nav:
+  - Home: index.md
+  - User Guide:
+      - "Getting started": user_guide/intro.md
+  - Linter:
+      - "Rules": rules_list.md
+  - Formatter:
+      - Formatters:
+          - AddMissingEnd: formatter/formatters/1.md
+          - OtherFormatter: formatter/formatters/2.md
+      #- "Formatters" formatter/formatters.md
+
+plugins:
+  - search
+  - gen-files:
+      scripts:
+        - docs_mk/generate_rules_list.py
+
+markdown_extensions:
+    - toc:
+        permalink: true
+    - attr_list
+    - md_in_html
+#extra:
+#  - # any extra settings

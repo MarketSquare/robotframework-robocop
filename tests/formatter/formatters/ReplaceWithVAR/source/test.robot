@@ -172,3 +172,9 @@ VAR
 Other keywords
     No Operation
     ${var}    Set Custom Variable
+
+Comment in Set Variable If
+    [Documentation]    Bug #1495
+    VAR    ${no_of_expected_records} =    1
+    ${gar} =  Set Variable If    ${no_of_expected_records} > 1    1     # this is a comment
+    ...    0

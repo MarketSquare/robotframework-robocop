@@ -1,0 +1,8 @@
+=============
+Robocop 6.8.3
+=============
+
+Fix Robocop failing to scan directory with dangling symlink (#1494)
+-------------------------------------------------------------------
+
+Robocop should be able to scan directory with dangling (pointing to non-existing path) symlink.

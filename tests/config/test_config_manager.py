@@ -398,6 +398,7 @@ class TestConfigFinder:
         absolute_path.write_text("*** Settings ***")
         (tmp_path / "test2.robot").symlink_to(absolute_path2)
         (tmp_path / "test3.robot").symlink_to(absolute_path2)
+        (tmp_path / "test4.robot").symlink_to("idontexist")
         expected_paths = [absolute_path, absolute_path2]
 
         # Act

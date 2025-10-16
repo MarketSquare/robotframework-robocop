@@ -861,7 +861,9 @@ class ConfigManager:
             source = source_not_resolved.resolve()
             if source in self._paths:
                 continue
-            if not source.exists():  # TODO only for passed sources
+            if not source.exists():
+                if source_not_resolved.is_symlink():  # i.e. dangling symlink
+                    continue
                 raise exceptions.FatalError(f"File '{source}' does not exist")
             config = self.get_config_for_source_file(source)
             if not ignore_file_filters:

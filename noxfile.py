@@ -10,13 +10,7 @@ nox.options.default_venv_backend = "uv"
 
 PYTHON_VERSIONS = ["3.9", "3.10", "3.11", "3.12", "3.13", "3.14"]
 
-ROBOT_VERSIONS = [
-    "robotframework==4.*",
-    "robotframework==5.*",
-    "robotframework==6.*",
-    "robotframework==7.*",
-    "robotframework==7.4b1",
-]
+ROBOT_VERSIONS = ["robotframework==4.*", "robotframework==5.*", "robotframework==6.*", "robotframework==7.*"]
 
 
 @nox.session(python=PYTHON_VERSIONS)  # , reuse_venv=False

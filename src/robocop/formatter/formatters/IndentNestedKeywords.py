@@ -204,7 +204,7 @@ class IndentNestedKeywords(Formatter):
         """
         Calculate with of the continuation indent.
 
-        For example following line will have 4 + 3 + 2x column x 4 indent with:
+        For example the following line will have 4 + 3 + 2x column x 4 indent with:
 
             ...        argument
         """

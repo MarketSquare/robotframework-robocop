@@ -10,11 +10,11 @@ class DiscardEmptySections(Formatter):
     Remove empty sections.
 
     Sections are considered empty if there are only empty lines inside.
-    You can remove sections with only comments by setting ``allow_only_comments`` parameter to False:
+    You can remove sections with only comments by setting the `` allow_only_comments `` parameter to False:
 
     ```robotframework
     *** Variables ***
-    # this section will be removed with ``alow_only_comments`` parameter set to False
+    # this section will be removed with the `` alow_only_comments `` parameter set to False
     ```
     """
 

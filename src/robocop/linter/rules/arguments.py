@@ -93,7 +93,7 @@ class UndefinedArgumentValueRule(Rule):
     misreading your keyword arguments, explicitly state that the value is empty using the
     built-in ``${EMPTY}`` variable.
 
-    If your argument is falsely flagged by this rule, escape the ``=`` character in your argument
+    If this rule falsely flags your argument, escape the ``=`` character in your argument
     value by like so: ``\=``.
 
     Example of a rule violation:
@@ -122,17 +122,15 @@ class InvalidArgumentsRule(Rule):
 
     Valid names:
 
-        *** Test Cases ***
-        Test case
-            Keyword
-                [Arguments]    ${var}    @{args}    &{config}    ${var}=default
+        *** Keywords ***
+        Keyword
+            [Arguments]    ${var}    @{args}    &{config}    ${var}=default
 
     Invalid names:
 
-        *** Test Cases ***
-        Test case
-            Keyword
-                [Arguments]    {var}    @args}    var=default
+        *** Keywords ***
+        Keyword
+            [Arguments]    {var}    @args}    var=default
 
     """
 

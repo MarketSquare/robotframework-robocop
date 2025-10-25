@@ -74,22 +74,20 @@ class RuleSeverity(Enum):
 
     For example:
 
-    .. tab-set::
+    === ":octicons-command-palette-24: cli"
 
-        .. tab-item:: Cli
+        ```bash
+        robocop check -c line-too-long.severity=e
+        ```
 
-            .. code:: shell
+    === ":material-file-cog-outline: toml"
 
-                robocop check -c line-too-long.severity=e
-
-        .. tab-item:: Configuration file
-
-            .. code:: toml
-
-                [tool.robocop.lint]
-                configure = [
-                    "line-too-long.severity=e"
-                ]
+        ```toml
+        [tool.robocop.lint]
+        configure = [
+            "line-too-long.severity=e"
+        ]
+        ```
 
     will change `line-too-long` rule severity to error.
 
@@ -99,20 +97,18 @@ class RuleSeverity(Enum):
 
     To only report rules with severity W and above:
 
-    .. tab-set::
+    === ":octicons-command-palette-24: cli"
 
-        .. tab-item:: Cli
+        ```bash
+        robocop check --threshold W
+        ```
 
-            .. code:: shell
+    === ":material-file-cog-outline: toml"
 
-                robocop check --threshold W
-
-        .. tab-item:: Configuration file
-
-            .. code:: toml
-
-                [tool.robocop.lint]
-                threshold = "W"
+        ```toml
+        [tool.robocop.lint]
+        threshold = "W"
+        ```
 
     """
 

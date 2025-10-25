@@ -12,9 +12,9 @@ from robocop.formatter.skip import Skip
 
 class AddMissingEnd(Formatter):
     """
-    Add missing END token to FOR loops and IF statements.
+    Add a missing END token to FOR loops and IF statements.
 
-    Following code:
+    The following code:
 
     ```robotframework
     *** Keywords ***

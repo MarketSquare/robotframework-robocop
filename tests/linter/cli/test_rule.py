@@ -19,7 +19,7 @@ class TestDescribeRule:
         Do not define keywords with the same name inside the same file. Name matching is case-insensitive and
         ignores spaces and underscore characters.
 
-        Incorrect code example::
+        Incorrect code example:
 
             *** Keywords ***
             Keyword
@@ -49,7 +49,7 @@ class TestDescribeRule:
         Comments with disabler directives (such as ``# robocop: off``) are ignored. Lines that contain URLs are also
         ignored.
 
-        It is possible to ignore lines that match the regex pattern. Configure it using the following option::
+        It is possible to ignore lines that match the regex pattern. Configure it using the following option:
 
             robocop check --configure line-too-long.ignore_pattern=pattern
 

@@ -1,8 +1,8 @@
 ---
 version: 2
 
-sphinx:
-  configuration: docs/source/conf.py
+mkdocs:
+  configuration: mkdocs.yml
 
 build:
    os: ubuntu-24.04
@@ -18,4 +18,4 @@ build:
          - uv sync --group doc
       build:
          html:
-            - uv run sphinx-build -T -b html docs/source $READTHEDOCS_OUTPUT/html
+           - uv run mkdocs build --clean --site-dir $READTHEDOCS_OUTPUT/html --config-file mkdocs.yml

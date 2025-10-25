@@ -155,11 +155,6 @@ Line separator to use in the outputs:
 @app.command(name="check")
 def check_files(
     sources: sources_argument = None,
-    include: include_option = None,
-    default_include: default_include_option = None,
-    exclude: exclude_option = None,
-    default_exclude: default_exclude_option = None,
-    force_exclude: force_exclude_option = False,
     select: Annotated[
         list[str],
         typer.Option(
@@ -190,6 +185,11 @@ def check_files(
             rich_help_panel="Selecting rules",
         ),
     ] = None,
+    include: include_option = None,
+    default_include: default_include_option = None,
+    exclude: exclude_option = None,
+    default_exclude: default_exclude_option = None,
+    force_exclude: force_exclude_option = False,
     configuration_file: config_option = None,
     configure: Annotated[
         list[str],
@@ -361,7 +361,7 @@ def format_files(
         bool, typer.Option(help="Show difference after formatting the file", rich_help_panel="Work modes")
     ] = None,
     color: Annotated[
-        bool, typer.Option(help="Colorized difference", show_default=True, rich_help_panel="Work modes")
+        bool, typer.Option(help="Colorized difference", show_default="--color", rich_help_panel="Work modes")
     ] = None,
     check: Annotated[
         bool,
@@ -370,8 +370,6 @@ def format_files(
             rich_help_panel="Work modes",
         ),
     ] = None,
-    output: Annotated[Path, typer.Option(rich_help_panel="Other")] = None,
-    language: language_option = None,
     space_count: Annotated[
         int,
         typer.Option(show_default="4", help="Number of spaces between cells", rich_help_panel="Formatting settings"),
@@ -475,6 +473,8 @@ def format_files(
             rich_help_panel="Work modes",
         ),
     ] = None,
+    output: Annotated[Path, typer.Option(rich_help_panel="Other")] = None,
+    language: language_option = None,
     root: project_root_option = None,
     verbose: verbose_option = None,
 ) -> None:
@@ -560,7 +560,7 @@ def list_rules(
     > robocop list rules --pattern *var*
 
     Use `robocop rule rule_name` for more detailed information on the rule.
-    The output list is affected by default configuration file (if it is found).
+    The output list is affected by a default configuration file (if it is found).
     """
     # TODO: rich support (colorized enabled, severity etc)
     console = Console(soft_wrap=True)

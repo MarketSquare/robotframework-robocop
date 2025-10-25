@@ -170,25 +170,23 @@ class InconsistentAssignmentRule(Rule):
             No Operation
             ${var}  ${var2}    Some Keyword
 
-    By default, Robocop looks for most popular assignment sign in the file. It is possible to define expected
-    assignment sign by running:
+    By default, Robocop looks for the most popular assignment sign in the file. It is possible to define the expected
+    assignment sign:
 
-    .. tab-set::
+    === ":octicons-command-palette-24: cli"
 
-        .. tab-item:: Cli
+    ```bash
+    robocop check --configure inconsistent-assignment.assignment_sign_type=none
+    ```
 
-            .. code:: shell
+    === ":material-file-cog-outline: toml"
 
-                robocop check --configure inconsistent-assignment.assignment_sign_type=none
-
-        .. tab-item:: Configuration file
-
-            .. code:: toml
-
-                [tool.robocop.lint]
-                configure = [
-                    "inconsistent-assignment.assignment_sign_type=none"
-                ]
+        ```toml
+        [tool.robocop.lint]
+        configure = [
+            "inconsistent-assignment.assignment_sign_type=none"
+        ]
+        ```
 
     You can choose between the following assignment signs:
 
@@ -1451,7 +1449,7 @@ class UnusedVariablesChecker(VisitorChecker):
         if ignore_var_conversion:
             name = utils.remove_variable_type_conversion(name)
         normalized = utils.normalize_robot_name(name)
-        if not normalized:  # ie. "${_}" -> ""
+        if not normalized:  # i.e. "${_}" -> ""
             return
         arg = self.arguments.get(normalized, None)
         if arg is not None:

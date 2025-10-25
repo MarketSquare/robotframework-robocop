@@ -14,15 +14,15 @@ class JsonReport(robocop.linter.reports.JsonFileReport):
     in the current working directory with the ``robocop.json`` name.
 
     This report is not included in the default reports. The ``--reports all`` option will not enable this report.
-    You can still enable it using report name directly: ``--reports json_report`` or ``--reports all,json_report``.
+    You can still enable it using the report name directly: ``--reports json_report`` or ``--reports all,json_report``.
 
-    You can configure output path. It's relative path to file that will be produced by the report::
+    You can configure an output path. It's a relative path to the file that will be produced by the report:
 
         robocop check --configure json_report.output_path=C:/json_reports/report.json
 
-    Default path is ``robocop.json`` .
+    The default path is ``robocop.json``.
 
-    Example content of the file::
+    Example content of the file:
 
         [
             {

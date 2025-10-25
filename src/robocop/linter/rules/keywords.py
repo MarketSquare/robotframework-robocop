@@ -77,7 +77,7 @@ class NotAllowedKeywordRule(Rule):
             [Arguments]    ${locator}
             Click Using Javascript    ${locator}  # Robocop will report not allowed keyword
 
-    If keyword call contains possible library name (ie. Library.Keyword Name), Robocop checks if it matches
+    If keyword call contains possible library name (i.e. Library.Keyword Name), Robocop checks if it matches
     the not allowed keywords and if not, it will remove library part and check again.
 
     """

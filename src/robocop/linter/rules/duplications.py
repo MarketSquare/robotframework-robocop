@@ -348,7 +348,7 @@ class DuplicationsChecker(VisitorChecker):
         for var in assign:
             var_name = strip_equals_from_assignment(var.value)
             name = normalize_robot_var_name(var_name)
-            if not name:  # ie. "${_}" -> ""
+            if not name:  # i.e. "${_}" -> ""
                 return
             if name in seen:
                 self.report(

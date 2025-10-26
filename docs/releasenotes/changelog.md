@@ -5,9 +5,13 @@
 ### Features
 
 - Add ``--silent`` option to disable all output when running Robocop ([issue #1512](https://github.com/MarketSquare/robotframework-robocop/issues/1512))
+- Improve startup performance of the Robocop (using a Robocop repository as a benchmark: from 5s to 0.3s). It was done
+  by fixing issues in handling ignored files and by properly caching configuration files (to avoid multiple lookups).
+  The difference may be noticeable only for the large, complex projects ([issue #1503](https://github.com/MarketSquare/robotframework-robocop/issues/1503))
 
 ### Fixes
 
+- Fix directories from the ``.gitignore`` file not ignored ([issue #1503](https://github.com/MarketSquare/robotframework-robocop/issues/1503)
 - Fix multiline inline IF splitting. To avoid issues when formatting such code, **all inline IFs are now flattened to a single line** ([issue #1506](https://github.com/MarketSquare/robotframework-robocop/issues/1506)):
 
 ```robotframework
@@ -23,7 +27,7 @@ becomes:
 *** Test Cases ***
 Multiline inline IF
     IF    True    Something
-````
+```
 
 ### Documentation
 

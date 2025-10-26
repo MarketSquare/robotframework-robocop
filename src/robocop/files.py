@@ -41,7 +41,7 @@ def get_relative_path(path: str | Path, parent_path: Path) -> Path:
     try:
         return Path(path).relative_to(parent_path)
     except ValueError:  # symlink etc
-        return path
+        return Path(path)
 
 
 def get_common_parent_dirs(sources: list[Path]) -> list[Path]:

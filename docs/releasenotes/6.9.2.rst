@@ -1,0 +1,5 @@
+=============
+Robocop 6.9.2
+=============
+
+Fixed invalid Robot Framework dependency version range.

@@ -95,7 +95,7 @@ test.robot:30:9 NAME03 'Return' is a reserved keyword. It must be in uppercase (
 test.robot:34:1 NAME03 'While' is a reserved keyword. It must be in uppercase (WHILE) when used as a statement
     |
  34 | While
-    | ^ NAME03
+    | ^^^^^ NAME03
  35 |     While
  36 |     Continue
     |

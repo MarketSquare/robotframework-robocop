@@ -736,7 +736,7 @@ class UnreachableCodeChecker(VisitorChecker):
                     statement=token.value,
                     node=child,
                     col=code_after_statement.col_offset + 1,
-                    end_col=child.end_col_offset + 1,
+                    end_col=child.end_col_offset,
                 )
                 statement_node = None
 
@@ -1030,7 +1030,7 @@ class IfChecker(VisitorChecker):
                     node=node,
                     col=if_header.col_offset + 1,
                     end_lineno=node.end_lineno,
-                    end_col=node.end_col_offset + 1,
+                    end_col=node.end_col_offset,
                 )
             return
         if (

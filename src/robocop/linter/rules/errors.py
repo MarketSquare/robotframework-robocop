@@ -599,7 +599,7 @@ class ParsingErrorChecker(VisitorChecker):
             section_name=setting_error.group(1),
             node=node,
             lineno=node.lineno,
-            end_col=node.end_col_offset + 1,
+            end_col=node.end_col_offset,
         )
 
 

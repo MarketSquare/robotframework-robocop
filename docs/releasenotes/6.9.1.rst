@@ -1,5 +1,5 @@
 =============
-Robocop 6.8.3
+Robocop 6.9.1
 =============
 
 Fix invalid rule positions stopping Sonar Qube import (#1417)

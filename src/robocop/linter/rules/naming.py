@@ -760,7 +760,7 @@ class KeywordNamingChecker(VisitorChecker):
             error_msg=error_msg,
             node=node,
             col=node.col_offset + 1,
-            end_col=node.end_col_offset + 1,
+            end_col=node.col_offset + 1 + len(keyword_name),
         )
         return True
 
@@ -795,7 +795,7 @@ class SettingsNamingChecker(VisitorChecker):
                 invalid_section=name,
                 node=node,
                 col=node.header.col_offset + 1,
-                end_col=node.header.end_col_offset + 1,
+                end_col=node.header.end_col_offset,
             )
 
     def visit_SectionHeader(self, node) -> None:  # noqa: N802

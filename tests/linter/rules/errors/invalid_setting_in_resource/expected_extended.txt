@@ -1,7 +1,7 @@
 test.resource:9:1 ERR16 Settings section in resource file can't contain 'Name' setting
    |
  9 | Name                Some name
-   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ ERR16
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ ERR16
 10 | Metadata            something
 11 | Suite Setup         Keyword
    |
@@ -11,7 +11,7 @@ test.resource:10:1 ERR16 Settings section in resource file can't contain 'Metada
   8 |
   9 | Name                Some name
  10 | Metadata            something
-    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ ERR16
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ ERR16
  11 | Suite Setup         Keyword
  12 | Suite Teardown      Keyword
     |
@@ -21,7 +21,7 @@ test.resource:11:1 ERR16 Settings section in resource file can't contain 'Suite 
   9 | Name                Some name
  10 | Metadata            something
  11 | Suite Setup         Keyword
-    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ ERR16
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^ ERR16
  12 | Suite Teardown      Keyword
  13 | Test Tags           one    two
     |
@@ -31,7 +31,7 @@ test.resource:12:1 ERR16 Settings section in resource file can't contain 'Suite 
  10 | Metadata            something
  11 | Suite Setup         Keyword
  12 | Suite Teardown      Keyword
-    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ ERR16
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^ ERR16
  13 | Test Tags           one    two
  14 | Test Setup          Keyword
     |
@@ -41,7 +41,7 @@ test.resource:13:1 ERR16 Settings section in resource file can't contain 'Test T
  11 | Suite Setup         Keyword
  12 | Suite Teardown      Keyword
  13 | Test Tags           one    two
-    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ ERR16
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ ERR16
  14 | Test Setup          Keyword
  15 | Test Teardown       Keyword
     |
@@ -51,7 +51,7 @@ test.resource:14:1 ERR16 Settings section in resource file can't contain 'Test S
  12 | Suite Teardown      Keyword
  13 | Test Tags           one    two
  14 | Test Setup          Keyword
-    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ ERR16
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^ ERR16
  15 | Test Teardown       Keyword
  16 | Test Template       Template
     |
@@ -61,7 +61,7 @@ test.resource:15:1 ERR16 Settings section in resource file can't contain 'Test T
  13 | Test Tags           one    two
  14 | Test Setup          Keyword
  15 | Test Teardown       Keyword
-    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ ERR16
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^ ERR16
  16 | Test Template       Template
  17 | Test Timeout        1000
     |
@@ -71,7 +71,7 @@ test.resource:16:1 ERR16 Settings section in resource file can't contain 'Test T
  14 | Test Setup          Keyword
  15 | Test Teardown       Keyword
  16 | Test Template       Template
-    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ ERR16
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ ERR16
  17 | Test Timeout        1000
  18 | Force Tags          tag
     |
@@ -81,7 +81,7 @@ test.resource:17:1 ERR16 Settings section in resource file can't contain 'Test T
  15 | Test Teardown       Keyword
  16 | Test Template       Template
  17 | Test Timeout        1000
-    | ^^^^^^^^^^^^^^^^^^^^^^^^^ ERR16
+    | ^^^^^^^^^^^^^^^^^^^^^^^^ ERR16
  18 | Force Tags          tag
  19 | Default Tags        tag
     |
@@ -91,7 +91,7 @@ test.resource:18:1 ERR16 Settings section in resource file can't contain 'Force 
  16 | Test Template       Template
  17 | Test Timeout        1000
  18 | Force Tags          tag
-    | ^^^^^^^^^^^^^^^^^^^^^^^^ ERR16
+    | ^^^^^^^^^^^^^^^^^^^^^^^ ERR16
  19 | Default Tags        tag
     |
 
@@ -100,6 +100,6 @@ test.resource:19:1 ERR16 Settings section in resource file can't contain 'Defaul
  17 | Test Timeout        1000
  18 | Force Tags          tag
  19 | Default Tags        tag
-    | ^^^^^^^^^^^^^^^^^^^^^^^^ ERR16
+    | ^^^^^^^^^^^^^^^^^^^^^^^ ERR16
     |
 

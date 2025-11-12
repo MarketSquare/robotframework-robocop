@@ -38,7 +38,7 @@ if TYPE_CHECKING:
 ROBOT_VERSION = Version(RF_VERSION)
 ROBOT_WITH_LANG = Version("6.0")
 ROBOT_WITH_TYPE = Version("7.3")
-ROBOCOP_RULES_URL = "https://robocop.readthedocs.io/en/{version}/rules/rules_list.html"
+ROBOCOP_RULES_URL = "https://robocop.dev/{version}/rules_list/"
 
 
 ReturnClasses = namedtuple("ReturnClasses", ["return_class", "return_setting_class"])  # noqa: PYI024

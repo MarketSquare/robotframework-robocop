@@ -66,7 +66,7 @@ if TYPE_CHECKING:
 @total_ordering
 class RuleSeverity(Enum):
     """
-    You can override rule default severity::
+    You can override rule default severity:
 
         robocop check --configure id_or_msg_name.severity=value
 
@@ -74,45 +74,41 @@ class RuleSeverity(Enum):
 
     For example:
 
-    .. tab-set::
+    === ":octicons-command-palette-24: cli"
 
-        .. tab-item:: Cli
+        ```bash
+        robocop check -c line-too-long.severity=e
+        ```
 
-            .. code:: shell
+    === ":material-file-cog-outline: toml"
 
-                robocop check -c line-too-long.severity=e
-
-        .. tab-item:: Configuration file
-
-            .. code:: toml
-
-                [tool.robocop.lint]
-                configure = [
-                    "line-too-long.severity=e"
-                ]
+        ```toml
+        [tool.robocop.lint]
+        configure = [
+            "line-too-long.severity=e"
+        ]
+        ```
 
     will change `line-too-long` rule severity to error.
 
-    You can filter out all rules below given severity value by using ``-t/--threshold`` option::
+    You can filter out all rules below given severity value by using ``-t/--threshold`` option:
 
         robocop check -t <severity value>
 
     To only report rules with severity W and above:
 
-    .. tab-set::
+    === ":octicons-command-palette-24: cli"
 
-        .. tab-item:: Cli
+        ```bash
+        robocop check --threshold W
+        ```
 
-            .. code:: shell
+    === ":material-file-cog-outline: toml"
 
-                robocop check --threshold W
-
-        .. tab-item:: Configuration file
-
-            .. code:: toml
-
-                [tool.robocop.lint]
-                threshold = "W"
+        ```toml
+        [tool.robocop.lint]
+        threshold = "W"
+        ```
 
     """
 
@@ -254,7 +250,7 @@ class SeverityThreshold:
     """
     Set issue severity depending on threshold values of configured rule param.
 
-    Rules that support ``SeverityThreshold`` allow you to set thresholds::
+    Rules that support ``SeverityThreshold`` allow you to set thresholds:
 
         robocop -c line-too-long:severity_threshold:warning=140:error=200
 
@@ -369,6 +365,7 @@ class Rule:
         style_guide_ref (list of str): (class attribute) reference to Robot Framework Style Guide in form of
         '#paragraph' strings
         sonar_qube_attrs: (class attribute) optional SonarQube attributes used for SonarQube report
+        deprecated_names: (class attribute) optional tuple of deprecated names for the rule
 
     """
 
@@ -386,6 +383,7 @@ class Rule:
     parameters: list[RuleParam] | None = None
     style_guide_ref: list[str] | None = None
     sonar_qube_attrs: sonar_qube.SonarQubeAttributes | None = None
+    deprecated_names: tuple[str,] | None = None
 
     def __init__(self):
         self.version_spec = VersionSpecifier(self.version) if self.version else None

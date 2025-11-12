@@ -12,7 +12,7 @@ class EmptyVariableRule(Rule):
 
     Variables with placeholder ${EMPTY} values are more explicit.
 
-    Incorrect code example::
+    Incorrect code example:
 
         *** Variables ***
         ${VAR_NO_VALUE}
@@ -22,14 +22,14 @@ class EmptyVariableRule(Rule):
         ...    value
         ${EMPTY_WITH_BACKSLASH}  \
 
-    Correct code::
+    Correct code:
 
         *** Keywords ***
         Create Variables
             VAR    @{var_no_value}
             VAR    ${var_with_empty}    ${EMPTY}
 
-        Incorrect code example::
+        Incorrect code example:
 
         *** Variables ***
         ${VAR_NO_VALUE}    ${EMPTY}
@@ -67,13 +67,14 @@ class EmptyVariableRule(Rule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.COMPLETE, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
+    deprecated_names = ("0912",)
 
 
 class UnusedVariableRule(Rule):
     """
     Unused variable.
 
-    Incorrect code example::
+    Incorrect code example:
 
         *** Keywords ***
         Get Triangle Base Points
@@ -82,7 +83,7 @@ class UnusedVariableRule(Rule):
             Log      Triangle base points are: ${p1} and ${p2}.
             RETURN   ${p1}    ${p2}  # ${p3} is never used
 
-    Use ``${_}`` variable name if you purposefully do not use variable::
+    Use ``${_}`` variable name if you purposefully do not use variable:
 
         *** Keywords ***
         Process Value 10 Times
@@ -105,20 +106,21 @@ class UnusedVariableRule(Rule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.CLEAR, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
+    deprecated_names = ("0920",)
 
 
 class VariableOverwrittenBeforeUsageRule(Rule):
     """
     Local variable is overwritten before usage.
 
-    Local variable in Keyword, Test Case or Task is overwritten before it is used::
+    Local variable in Keyword, Test Case or Task is overwritten before it is used:
 
         *** Keywords ***
         Overwritten Variable
             ${value}    Keyword
             ${value}    Keyword
 
-    In case the value of the variable is not important, it is possible to use ``${_}`` name::
+    In case the value of the variable is not important, it is possible to use ``${_}`` name:
 
         *** Test Cases ***
         Call keyword and ignore some return values
@@ -137,6 +139,7 @@ class VariableOverwrittenBeforeUsageRule(Rule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.CLEAR, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
+    deprecated_names = ("0922",)
 
 
 class NoGlobalVariableRule(Rule):
@@ -155,7 +158,7 @@ class NoGlobalVariableRule(Rule):
 
     In this example, the keyword changes the global variable. This will cause the test to fail.
     Looking at just the test, it's unclear why the test fails. It only becomes clear if you also
-    remember the seemingly unrelated keyword::
+    remember the seemingly unrelated keyword:
 
         *** Variables ***
         ${hello}    Hello, world!
@@ -169,7 +172,7 @@ class NoGlobalVariableRule(Rule):
         Do A Thing
             Set Global Variable    ${hello}    Goodnight, moon!
 
-    Using the VAR-syntax::
+    Using the VAR-syntax:
 
         *** Variables ***
         ${hello}    Hello, world!
@@ -195,6 +198,7 @@ class NoGlobalVariableRule(Rule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.CONVENTIONAL, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
+    deprecated_names = ("0929",)
 
 
 class NoSuiteVariableRule(Rule):
@@ -211,7 +215,7 @@ class NoSuiteVariableRule(Rule):
 
     In this example, the keyword changes the suite variable. This will cause the test to fail.
     Looking at just the test, it's unclear why the test fails. It only becomes clear if you also
-    remember the seemingly unrelated keyword::
+    remember the seemingly unrelated keyword:
 
         *** Test Cases ***
         My Amazing Test
@@ -223,7 +227,7 @@ class NoSuiteVariableRule(Rule):
         Do A Thing
             Set Suite Variable    ${hello}    Goodnight, moon!
 
-    Using the VAR-syntax::
+    Using the VAR-syntax:
 
         *** Test Cases ***
         My Amazing Test
@@ -247,6 +251,7 @@ class NoSuiteVariableRule(Rule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.CONVENTIONAL, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
+    deprecated_names = ("0930",)
 
 
 class NoTestVariableRule(Rule):
@@ -263,7 +268,7 @@ class NoTestVariableRule(Rule):
 
     In this example, the keyword changes the test/task variable. This will cause the test to fail.
     Looking at just the test, it's unclear why the test fails. It only becomes clear if you also
-    remember the seemingly unrelated keyword::
+    remember the seemingly unrelated keyword:
 
         *** Test Cases ***
         My Amazing Test
@@ -275,7 +280,7 @@ class NoTestVariableRule(Rule):
         Do A Thing
             Set Test Variable    ${hello}    Goodnight, moon!
 
-    Using the VAR-syntax::
+    Using the VAR-syntax:
 
         *** Test Cases ***
         My Amazing Test
@@ -299,6 +304,7 @@ class NoTestVariableRule(Rule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.CONVENTIONAL, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
+    deprecated_names = ("0931",)
 
 
 class NonLocalVariablesShouldBeUppercaseRule(Rule):
@@ -307,7 +313,7 @@ class NonLocalVariablesShouldBeUppercaseRule(Rule):
 
     Non-local variable is not uppercase to easily identify scope of the variable.
 
-    Incorrect code example::
+    Incorrect code example:
 
         *** Test Cases ***
         Test case
@@ -316,7 +322,7 @@ class NonLocalVariablesShouldBeUppercaseRule(Rule):
             Set Test Variable    ${myvar}            1
             Set Global Variable  ${my_var${NESTED}}  1
 
-    Correct code::
+    Correct code:
 
         *** Test Cases ***
         Test case
@@ -335,6 +341,7 @@ class NonLocalVariablesShouldBeUppercaseRule(Rule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.CONVENTIONAL, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
+    deprecated_names = ("0310",)
 
 
 class PossibleVariableOverwritingRule(Rule):
@@ -342,7 +349,7 @@ class PossibleVariableOverwritingRule(Rule):
     Variable may overwrite similar variable inside code block.
 
     Variable names are case-insensitive, and also spaces and underscores are ignored.
-    Following assignments overwrite the same variable::
+    Following assignments overwrite the same variable:
 
         *** Keywords ***
         Retrieve Usernames
@@ -362,6 +369,7 @@ class PossibleVariableOverwritingRule(Rule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.CONVENTIONAL, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
+    deprecated_names = ("0316",)
 
 
 class HyphenInVariableNameRule(Rule):
@@ -371,7 +379,7 @@ class HyphenInVariableNameRule(Rule):
     Hyphens can be treated as minus sign by Robot Framework. If it is not intended, avoid using hyphen (``-``)
     character in variable name.
 
-    Incorrect code example::
+    Incorrect code example:
 
         *** Test Cases ***
         Test case
@@ -380,7 +388,7 @@ class HyphenInVariableNameRule(Rule):
     That's why there is a possibility that hyphen in name is not recognized as part of the name but as a minus sign.
     Better to use underscore instead:
 
-    Correct code::
+    Correct code:
 
         *** Test Cases ***
         Test case
@@ -398,6 +406,7 @@ class HyphenInVariableNameRule(Rule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.CONVENTIONAL, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
+    deprecated_names = ("0317",)
 
 
 class InconsistentVariableNameRule(Rule):
@@ -408,7 +417,7 @@ class InconsistentVariableNameRule(Rule):
     write the variable in multiple ways, and it will be a valid Robot Framework code. However,
     it makes it harder to maintain the code that does not follow the consistent naming.
 
-    Incorrect code example::
+    Incorrect code example:
 
         *** Keywords ***
         Check If User Is Admin
@@ -420,7 +429,7 @@ class InconsistentVariableNameRule(Rule):
                 Log    ${user name} is not an admin  # inconsistent name
             END
 
-    Correct code::
+    Correct code:
 
         *** Keywords ***
         Check If User Is Admin
@@ -442,6 +451,7 @@ class InconsistentVariableNameRule(Rule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.CONVENTIONAL, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
+    deprecated_names = ("0323",)
 
 
 class OverwritingReservedVariableRule(Rule):
@@ -463,18 +473,19 @@ class OverwritingReservedVariableRule(Rule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.CONVENTIONAL, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
+    deprecated_names = ("0324",)
 
 
 class DuplicatedAssignedVarNameRule(Rule):
     """
     Variable names in Robot Framework are case-insensitive and ignores spaces and underscores. Following variables
-    are duplicates::
+    are duplicates:
 
         *** Test Cases ***
         Test
             ${var}  ${VAR}  ${v_ar}  ${v ar}  Keyword
 
-    It is possible to use `${_}` to note that variable name is not important and will not be used::
+    It is possible to use `${_}` to note that variable name is not important and will not be used:
 
         *** Keywords ***
         Get Middle Element
@@ -492,3 +503,4 @@ class DuplicatedAssignedVarNameRule(Rule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.DISTINCT, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
+    deprecated_names = ("0812",)

@@ -13,35 +13,31 @@ class TimestampReport(robocop.linter.reports.Report):
     **Report name**: ``timestamp``
 
     Report that returns Robocop execution timestamp.
-    Timestamp follows local time in format of
+    Timestamp follows local time in the format of
     ``Year-Month-Day Hours(24-hour clock):Minutes:Seconds ±hh:mm UTC offset`` as default.
 
-    Example::
-
+    Example:
         Reported: 2022-07-10 21:25:00 +0300
 
-    Both of default values, ``timezone`` and ``format`` can be configured by
-    ``-c/--configure`` and ``timestamp:timezone:"<timezone name>"`` and/or ``timestamp:format:"<format string>"``::
+    You can configure a timezone and timestamp format with ``timezone`` and ``format`` parameters:
 
         robocop check -c timestamp.timezone="Europe/Paris" -c timestamp.format="%Y-%m-%d %H:%M:%S %Z %z"
 
-    This yields following timestamp report::
+    This yields the following timestamp report::
 
          Reported: 2022-07-10 20:38:10 CEST +0200
 
-    For timezone names,
-    see `here <https://en.wikipedia.org/wiki/List_of_tz_database_time_zones>`_.
+    For timezone names, see https://en.wikipedia.org/wiki/List_of_tz_database_time_zones .
 
-    For timestamp formats,
-    see `datetime format codes <https://docs.python.org/3/library/datetime.html#strftime-and-strptime-format-codes>`_.
+    For timestamp formats, see https://docs.python.org/3/library/datetime.html#strftime-and-strptime-format-codes .
 
-    Useful configurations::
+    Useful configurations:
 
         Local time to ISO 8601 format:
         robocop check --configure timestamp.format="%Y-%m-%dT%H:%M:%S%z"
 
         UTC time:
-        robocop check --configure timestamp:timezone:"UTC" --configure timestamp.format="%Y-%m-%dT%H:%M:%S %Z %z"
+        robocop check --configure timestamp.timezone:"UTC" --configure timestamp.format="%Y-%m-%dT%H:%M:%S %Z %z"
 
         Timestamp with high precision:
         robocop check --configure timestamp.format="%Y-%m-%dT%H:%M:%S.%f %z"

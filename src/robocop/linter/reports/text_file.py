@@ -11,13 +11,13 @@ class TextFile(robocop.linter.reports.Report):
     """
     **Report name**: ``text_file``
 
-    Report that output issues in the file. Issues format follow PrintIssues simple report format.
+    Report that output issues in the file. Issues format follows PrintIssues simple report format.
 
-    You can configure output path::
+    You can configure output path:
 
         robocop check --configure text_file.output_path=output/robocop.txt
 
-    ``text_file`` report supports only ``simple`` issue output format.
+    ``text_file`` report supports only the `` simple `` issue output format.
     """
 
     NO_ALL = False

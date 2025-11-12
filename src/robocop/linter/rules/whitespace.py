@@ -15,7 +15,7 @@ class NotEnoughWhitespaceAfterSettingRule(Rule):
 
     Provide at least two spaces after setting.
 
-    Incorrect code example::
+    Incorrect code example:
 
         *** Test Cases ***
         Test
@@ -28,7 +28,7 @@ class NotEnoughWhitespaceAfterSettingRule(Rule):
             [Arguments] ${var}
             Should Be True  ${var}
 
-    Correct code::
+    Correct code:
 
         *** Test Cases ***
         Test
@@ -51,6 +51,7 @@ class NotEnoughWhitespaceAfterSettingRule(Rule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.COMPLETE, issue_type=sonar_qube.SonarQubeIssueType.BUG
     )
+    deprecated_names = ("0402",)
 
 
 class NotEnoughWhitespaceAfterNewlineMarkerRule(Rule):
@@ -59,14 +60,14 @@ class NotEnoughWhitespaceAfterNewlineMarkerRule(Rule):
 
     Provide at least two spaces after newline marker.
 
-    Incorrect code example::
+    Incorrect code example:
 
         *** Variables ***
         @{LIST}  1
         ... 2
         ...  3
 
-    Correct code::
+    Correct code:
 
         *** Variables ***
         @{LIST}  1
@@ -83,6 +84,7 @@ class NotEnoughWhitespaceAfterNewlineMarkerRule(Rule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.COMPLETE, issue_type=sonar_qube.SonarQubeIssueType.BUG
     )
+    deprecated_names = ("0406",)
 
 
 class NotEnoughWhitespaceAfterVariableRule(Rule):
@@ -91,13 +93,13 @@ class NotEnoughWhitespaceAfterVariableRule(Rule):
 
     Provide at least two spaces after variable name.
 
-    Incorrect code example::
+    Incorrect code example:
 
         *** Variables ***
         ${variable} 1
         ${other_var}  2
 
-    Correct code::
+    Correct code:
 
         *** Variables ***
         ${variable}  1
@@ -114,6 +116,7 @@ class NotEnoughWhitespaceAfterVariableRule(Rule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.COMPLETE, issue_type=sonar_qube.SonarQubeIssueType.BUG
     )
+    deprecated_names = ("0410",)
 
 
 class NotEnoughWhitespaceAfterSuiteSettingRule(Rule):
@@ -122,7 +125,7 @@ class NotEnoughWhitespaceAfterSuiteSettingRule(Rule):
 
     Provide at least two spaces after suite setting.
 
-    Incorrect code example::
+    Incorrect code example:
 
         *** Settings ***
         Library Collections
@@ -130,7 +133,7 @@ class NotEnoughWhitespaceAfterSuiteSettingRule(Rule):
         ...  tag2
         Suite Setup Keyword
 
-    Correct code::
+    Correct code:
 
         *** Settings ***
         Library    Collections
@@ -148,3 +151,4 @@ class NotEnoughWhitespaceAfterSuiteSettingRule(Rule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.COMPLETE, issue_type=sonar_qube.SonarQubeIssueType.BUG
     )
+    deprecated_names = ("0411",)

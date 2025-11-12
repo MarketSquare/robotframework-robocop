@@ -55,12 +55,12 @@ class TestSarifReport:
                         "driver": {
                             "name": "Robocop",
                             "semanticVersion": __version__,
-                            "informationUri": "https://robocop.readthedocs.io/",
+                            "informationUri": "https://robocop.dev/",
                             "rules": [
                                 {
                                     "id": r.rule_id,
                                     "name": r.name,
-                                    "helpUri": f"https://robocop.readthedocs.io/en/v{__version__}/rules/rules_list.html#{r.name}",
+                                    "helpUri": f"https://robocop.dev/v{__version__}/rules_list/#{r.name}",
                                     "shortDescription": {"text": r.message},
                                     "fullDescription": {"text": r.docs},
                                     "defaultConfiguration": {"level": r.default_severity.name.lower()},

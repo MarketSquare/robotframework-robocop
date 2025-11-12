@@ -16,16 +16,16 @@ class SarifReport(robocop.linter.reports.JsonFileReport):
     Report that generates SARIF output file.
 
     This report is not included in the default reports. The ``--reports all`` option will not enable this report.
-    You can still enable it using report name directly: ``--reports sarif`` or ``--reports all,sarif``.
+    You can still enable it using the report name directly: ``--reports sarif`` or ``--reports all,sarif``.
 
     All fields required by GitHub Code Scanning are supported. The output file will be generated
     in the current working directory with the ``.sarif.json`` name.
 
-    You can configure output path. It's relative path to file that will be produced by the report::
+    You can configure an output path. It's a relative path to the file that will be produced by the report:
 
         robocop check --configure sarif.output_path=output/robocop_sarif.json
 
-    Default path is ``.sarif.json`` .
+    The default path is ``.sarif.json``.
 
     """
 
@@ -94,7 +94,7 @@ class SarifReport(robocop.linter.reports.JsonFileReport):
                         "driver": {
                             "name": "Robocop",
                             "semanticVersion": __version__,
-                            "informationUri": "https://robocop.readthedocs.io/",
+                            "informationUri": "https://robocop.dev/",
                             "rules": self.generate_rules_config(rules),
                         }
                     },

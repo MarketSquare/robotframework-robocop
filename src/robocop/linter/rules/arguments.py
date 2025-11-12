@@ -4,7 +4,7 @@ from robocop.linter.rules import Rule, RuleParam, RuleSeverity
 
 class UnusedArgumentRule(Rule):
     """
-    Keyword argument was defined but not used::
+    Keyword argument was defined but not used:
 
         *** Keywords ***
         Keyword
@@ -27,12 +27,13 @@ class UnusedArgumentRule(Rule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.CLEAR, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
+    deprecated_names = ("0919",)
 
 
 class ArgumentOverwrittenBeforeUsageRule(Rule):
     """
 
-    Keyword argument was overwritten before it is used::
+    Keyword argument was overwritten before it is used:
 
         *** Keywords ***
         Overwritten Argument
@@ -49,6 +50,7 @@ class ArgumentOverwrittenBeforeUsageRule(Rule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.CLEAR, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
+    deprecated_names = ("0921",)
 
 
 class UndefinedArgumentDefaultRule(Rule):
@@ -62,7 +64,7 @@ class UndefinedArgumentDefaultRule(Rule):
     misreading your keyword arguments, explicitly state that the value is empty using the
     built-in ``${EMPTY}`` variable.
 
-    Example of a rule violation::
+    Example of a rule violation:
 
         *** Keywords ***
         My Amazing Keyword
@@ -78,6 +80,7 @@ class UndefinedArgumentDefaultRule(Rule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.CLEAR, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
+    deprecated_names = ("0932",)
 
 
 class UndefinedArgumentValueRule(Rule):
@@ -90,10 +93,10 @@ class UndefinedArgumentValueRule(Rule):
     misreading your keyword arguments, explicitly state that the value is empty using the
     built-in ``${EMPTY}`` variable.
 
-    If your argument is falsely flagged by this rule, escape the ``=`` character in your argument
+    If this rule falsely flags your argument, escape the ``=`` character in your argument
     value by like so: ``\=``.
 
-    Example of a rule violation::
+    Example of a rule violation:
 
         *** Test Cases ***
         Test case
@@ -109,6 +112,7 @@ class UndefinedArgumentValueRule(Rule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.CLEAR, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
+    deprecated_names = ("0933",)
 
 
 class InvalidArgumentsRule(Rule):
@@ -116,19 +120,17 @@ class InvalidArgumentsRule(Rule):
     Argument names should follow variable naming syntax: start with identifier (``$``, ``@`` or ``&``) and enclosed
     in curly brackets (``{}``).
 
-    Valid names::
+    Valid names:
 
-        *** Test Cases ***
-        Test case
-            Keyword
-                [Arguments]    ${var}    @{args}    &{config}    ${var}=default
+        *** Keywords ***
+        Keyword
+            [Arguments]    ${var}    @{args}    &{config}    ${var}=default
 
-    Invalid names::
+    Invalid names:
 
-        *** Test Cases ***
-        Test case
-            Keyword
-                [Arguments]    {var}    @args}    var=default
+        *** Keywords ***
+        Keyword
+            [Arguments]    {var}    @args}    var=default
 
     """
 
@@ -141,6 +143,7 @@ class InvalidArgumentsRule(Rule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.COMPLETE, issue_type=sonar_qube.SonarQubeIssueType.BUG
     )
+    deprecated_names = ("0407",)
 
 
 class DuplicatedArgumentRule(Rule):
@@ -148,7 +151,7 @@ class DuplicatedArgumentRule(Rule):
     Argument name is already used.
 
     Variable names in Robot Framework are case-insensitive and ignores spaces and underscores. Following arguments
-    are duplicates::
+    are duplicates:
 
         *** Keywords ***
         Keyword
@@ -165,6 +168,7 @@ class DuplicatedArgumentRule(Rule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.DISTINCT, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
+    deprecated_names = ("0811",)
 
 
 class ArgumentsPerLineRule(Rule):
@@ -174,14 +178,14 @@ class ArgumentsPerLineRule(Rule):
     If the keyword's ``[Arguments]`` are split into multiple lines, it is recommended to put only one argument
     per every line.
 
-    Incorrect code example::
+    Incorrect code example:
 
         *** Keywords ***
         Keyword With Multiple Arguments
         [Arguments]    ${first_arg}
         ...    ${second_arg}    ${third_arg}=default
 
-    Correct code::
+    Correct code:
 
         *** Keywords ***
         Keyword With Multiple Arguments
@@ -206,4 +210,5 @@ class ArgumentsPerLineRule(Rule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.FORMATTED, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
+    deprecated_names = ("0532",)
     # TODO flag to allow for [Arguments] multiple args ine one line, just not in other ...

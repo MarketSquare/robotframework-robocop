@@ -16,25 +16,24 @@ class SonarQubeReport(robocop.linter.reports.JsonFileReport):
     Report that generates SonarQube report.
 
     This report is not included in the default reports. The ``--reports all`` option will not enable this report.
-    You can still enable it using report name directly: ``--reports sonarqube`` or ``--reports all,sonarqube``.
+    You can still enable it using the report name directly: ``--reports sonarqube`` or ``--reports all,sonarqube``.
 
-    Implements all mandatory field of Sonar Qube `Generic formatted issue report`.
+    Implements all mandatory fields of Sonar Qube `Generic formatted issue report`.
 
     Currently, Robocop supports 2 major minimal Sonar Qube versions:
 
     - up to 9.9
     - 10.3 onwards (default)
 
-    If your SonarQube instance requires 9.9 format (which for example doesn't have impacts field), you can configure it
-    using ``sonar_version`` parameter::
+    If your SonarQube instance requires 9.9 format, you can configure it using ``sonar_version`` parameter:
 
         robocop check --configure sonarqube.sonar_version=9.9
 
-    You can configure output path. It's relative path to file that will be produced by the report::
+    You can configure an output path. It's a relative path to the file that will be produced by the report:
 
         robocop check --configure sonarqube.output_path=output/robocop_sonar_qube.json
 
-    Default path is ``robocop_sonar_qube.json`` .
+    The default path is ``robocop_sonar_qube.json``.
 
     """
 
@@ -62,15 +61,6 @@ class SonarQubeReport(robocop.linter.reports.JsonFileReport):
             self.sonar_version = value
         else:
             super().configure(name, value)
-
-    def get_rule_description(self, diagnostic: Diagnostic) -> dict:
-        return {
-            "id": diagnostic.rule.rule_id,
-            "name": diagnostic.rule.name,
-            "description": diagnostic.rule.docs,
-            "engineId": "robocop",
-            **self.get_code_attributes(diagnostic.rule),
-        }
 
     def generate_report(self, diagnostics: Diagnostics, config_manager: ConfigManager, **kwargs) -> None:  # noqa: ARG002
         report = self.report_generator().generate_sonarqube_report(diagnostics, config_manager.root)

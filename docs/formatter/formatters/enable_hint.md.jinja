@@ -1,0 +1,14 @@
+??? info "Enabling the formatter"
+
+    {{ formatter }} is not included in default formatters. To enabled it, you need to call it with ``--select``
+    explicitly:
+
+    ```bash
+    robocop format --select {{ formatter }}
+    ```
+
+    Or configure ``enabled`` parameter:
+
+    ```bash
+    robocop format --configure {{ formatter }}.enabled=True
+    ```

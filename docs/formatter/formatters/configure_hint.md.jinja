@@ -1,0 +1,13 @@
+??? info "Disabling the formatter"
+
+    {{ formatter }}  is included in the default formatters, but it can be also run separately with:
+
+    ```bash
+    robocop format --select {{ formatter }}
+    ```
+
+    You can also disable it:
+
+    ```bash
+    robocop format --configure {{ formatter }}.enabled=False
+    ```

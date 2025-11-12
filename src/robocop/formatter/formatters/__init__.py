@@ -139,7 +139,7 @@ def get_formatter_short_name(name: str):
 
 
 def get_absolute_path_to_formatter(name):
-    """If the formatter is not default one, try to get absolute path to formatter to make it easier to import it."""
+    """Return an absolute path to the formatter if it's not a default formatter."""
     if pathlib.Path(name).exists():
         return pathlib.Path(name).resolve()
     return name

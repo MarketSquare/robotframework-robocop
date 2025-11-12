@@ -19,7 +19,7 @@ class WrongImportOrderRule(Rule):
     To make code more readable it needs to be more consistent. That's why it is recommended to group known, built-in
     import before custom imports.
 
-    Example of rule violation::
+    Example of rule violation:
 
         *** Settings ***
         Library    Collections
@@ -36,6 +36,7 @@ class WrongImportOrderRule(Rule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.CONVENTIONAL, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
+    deprecated_names = ("0911",)
 
 
 class BuiltinImportsNotSortedRule(Rule):
@@ -44,7 +45,7 @@ class BuiltinImportsNotSortedRule(Rule):
 
     To increase readability sort the imports in a alphabetical order.
 
-    Example of rule violation::
+    Example of rule violation:
 
         *** Settings ***
         Library    OperatingSystem
@@ -60,6 +61,7 @@ class BuiltinImportsNotSortedRule(Rule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.CONVENTIONAL, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
+    deprecated_names = ("0926",)
 
 
 class NonBuiltinImportsNotSortedRule(Rule):
@@ -69,7 +71,7 @@ class NonBuiltinImportsNotSortedRule(Rule):
     To increase readability sort the imports in alphabetical order. Beware that depending on your code, some of the
     custom imports may be depending on each other and the order of the imports.
 
-    Example of rule violation::
+    Example of rule violation:
 
         *** Settings ***
         Library    Collections
@@ -87,6 +89,7 @@ class NonBuiltinImportsNotSortedRule(Rule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.CONVENTIONAL, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
+    deprecated_names = ("10101",)
 
 
 class ResourcesImportsNotSortedRule(Rule):
@@ -96,7 +99,7 @@ class ResourcesImportsNotSortedRule(Rule):
     To increase readability sort the resources imports in a alphabetical order. Beware that depending on your code,
     some of the imports may be depending on each other and the order of the imports.
 
-    Example of rule violation::
+    Example of rule violation:
 
         *** Settings ***
         Resource   CustomResource.resource
@@ -113,6 +116,7 @@ class ResourcesImportsNotSortedRule(Rule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.CONVENTIONAL, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
+    deprecated_names = ("10102",)
 
 
 class SettingsOrderChecker(VisitorChecker):

@@ -1,0 +1,13 @@
+.md-main__inner {
+  max-width: 100% !important;
+  padding-left: 1rem !important;
+  padding-right: 1rem !important;
+}
+hr {
+  border: none !important;
+  box-shadow: none !important;
+  height: 1px;
+  background: var(--md-default-fg-color--lighter); /* uses theme primary color */
+  margin: 2rem 0;
+  opacity: 1;
+}

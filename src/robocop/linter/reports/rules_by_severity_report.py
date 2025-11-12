@@ -13,9 +13,9 @@ class RulesBySeverityReport(robocop.linter.reports.ComparableReport):
 
     Report that groups linter rules messages by severity and prints total of issues per every severity level.
 
-    Example::
-
+    Example:
         Found 15 issues: 4 ERRORs, 11 WARNINGs.
+
     """
 
     def __init__(self, config: Config):

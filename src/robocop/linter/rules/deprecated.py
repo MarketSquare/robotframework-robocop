@@ -8,14 +8,14 @@ class IfCanBeUsedRule(Rule):
 
     Starting from Robot Framework 4.0 IF block can be used instead of those keywords.
 
-    Incorrect code example::
+    Incorrect code example:
 
         *** Test Cases ***
         Test case
             Run Keyword If    ${condition}    Keyword Call    ELSE    Log    Condition did not match.
             Run Keyword Unless    ${something_happened}    Assert Results
 
-    Correct code::
+    Correct code:
 
         *** Test Cases ***
         Test case
@@ -39,6 +39,7 @@ class IfCanBeUsedRule(Rule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.CONVENTIONAL, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
+    deprecated_names = ("0908",)
 
 
 class DeprecatedStatementRule(Rule):  # TODO: Split rule
@@ -59,6 +60,7 @@ class DeprecatedStatementRule(Rule):  # TODO: Split rule
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.CONVENTIONAL, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
+    deprecated_names = ("0319",)
 
 
 class DeprecatedWithNameRule(Rule):
@@ -68,12 +70,12 @@ class DeprecatedWithNameRule(Rule):
     ``WITH NAME`` marker that is used when giving an alias to an imported library is going to be renamed to ``AS``.
     The motivation is to be consistent with Python that uses ``as`` for similar purpose.
 
-    Incorrect code example::
+    Incorrect code example:
 
         *** Settings ***
         Library    Collections    WITH NAME    AliasedName
 
-    Correct code::
+    Correct code:
 
         *** Settings ***
         Library    Collections    AS    AliasedName
@@ -89,6 +91,7 @@ class DeprecatedWithNameRule(Rule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.CONVENTIONAL, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
+    deprecated_names = ("0321",)
 
 
 class DeprecatedSingularHeaderRule(Rule):
@@ -98,12 +101,12 @@ class DeprecatedSingularHeaderRule(Rule):
     Robot Framework 6.0 starts deprecation period for singular headers forms. The rationale behind this change
     is available at https://github.com/robotframework/robotframework/issues/4431
 
-    Incorrect code example::
+    Incorrect code example:
 
         *** Setting ***
         *** Keyword ***
 
-    Correct code::
+    Correct code:
 
         *** Settings ***
         *** Keywords ***
@@ -119,6 +122,7 @@ class DeprecatedSingularHeaderRule(Rule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.CONVENTIONAL, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
+    deprecated_names = ("0322",)
 
 
 class ReplaceSetVariableWithVarRule(Rule):
@@ -128,7 +132,7 @@ class ReplaceSetVariableWithVarRule(Rule):
     Starting from Robot Framework 7.0, it is possible to create variables inside tests and user keywords using the
     VAR syntax. The VAR syntax is recommended over previously existing keywords.
 
-    Incorrect code example::
+    Incorrect code example:
 
       *** Keywords ***
       Set Variables To Different Scopes
@@ -138,7 +142,7 @@ class ReplaceSetVariableWithVarRule(Rule):
           Set Suite Variable    ${SUITE_VAR}    value
           Set Global Variable    ${GLOBAL_VAR}    value
 
-    Correct code::
+    Correct code:
 
       *** Keywords ***
       Set Variables To Different Scopes
@@ -159,6 +163,7 @@ class ReplaceSetVariableWithVarRule(Rule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.CONVENTIONAL, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
+    deprecated_names = ("0327",)
 
 
 class ReplaceCreateWithVarRule(Rule):
@@ -168,14 +173,14 @@ class ReplaceCreateWithVarRule(Rule):
     Starting from Robot Framework 7.0, it is possible to create variables inside tests and user keywords using the
     VAR syntax. The VAR syntax is recommended over previously existing keywords.
 
-    Incorrect code example::
+    Incorrect code example:
 
       *** Keywords ***
       Create Variables
           @{list}    Create List    a  b
           &{dict}    Create Dictionary    key=value
 
-    Correct code::
+    Correct code:
 
       *** Keywords ***
       Create Variables
@@ -193,3 +198,4 @@ class ReplaceCreateWithVarRule(Rule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.CONVENTIONAL, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
+    deprecated_names = ("0328",)

@@ -14,7 +14,7 @@ class OrderSettingsSection(Formatter):
     """
     Order settings inside ``*** Settings ***`` section.
 
-    Settings are grouped in following groups:
+    Settings are grouped in the following groups:
       - documentation (Documentation, Metadata),
       - imports (Library, Resource, Variables),
       - settings (Suite Setup and Teardown, Test Setup and Teardown, Test Timeout, Test Template),

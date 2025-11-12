@@ -21,7 +21,7 @@ class DuplicatedTestCaseRule(Rule):
     It is not allowed to reuse the same name of the test case within the same suite in Robot Framework.
     Name matching is case-insensitive and ignores spaces and underscore characters.
 
-    Incorrect code example::
+    Incorrect code example:
 
         *** Test Cases ***
         Test with name
@@ -40,6 +40,7 @@ class DuplicatedTestCaseRule(Rule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.DISTINCT, issue_type=sonar_qube.SonarQubeIssueType.BUG
     )
+    deprecated_names = ("0801",)
 
 
 class DuplicatedKeywordRule(Rule):
@@ -49,7 +50,7 @@ class DuplicatedKeywordRule(Rule):
     Do not define keywords with the same name inside the same file. Name matching is case-insensitive and
     ignores spaces and underscore characters.
 
-    Incorrect code example::
+    Incorrect code example:
 
         *** Keywords ***
         Keyword
@@ -71,6 +72,7 @@ class DuplicatedKeywordRule(Rule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.DISTINCT, issue_type=sonar_qube.SonarQubeIssueType.BUG
     )
+    deprecated_names = ("0802",)
 
 
 class DuplicatedVariableRule(Rule):
@@ -78,7 +80,7 @@ class DuplicatedVariableRule(Rule):
     Multiple variables with the same name in the file.
 
     Variable names in Robot Framework are case-insensitive and ignore spaces and underscores. Following variables
-    are duplicates::
+    are duplicates:
 
         *** Variables ***
         ${variable}    1
@@ -99,6 +101,7 @@ class DuplicatedVariableRule(Rule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.DISTINCT, issue_type=sonar_qube.SonarQubeIssueType.BUG
     )
+    deprecated_names = ("0803",)
 
 
 class DuplicatedResourceRule(Rule):
@@ -107,7 +110,7 @@ class DuplicatedResourceRule(Rule):
 
     Avoid re-importing the same imports.
 
-    Incorrect code example::
+    Incorrect code example:
 
         *** Settings ***
         Resource    path.resource
@@ -124,13 +127,14 @@ class DuplicatedResourceRule(Rule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.DISTINCT, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
+    deprecated_names = ("0804",)
 
 
 class DuplicatedLibraryRule(Rule):
     """
     Duplicated library imports.
 
-    If you need to reimport library use alias::
+    If you need to reimport library use alias:
 
         *** Settings ***
         Library  RobotLibrary
@@ -149,6 +153,7 @@ class DuplicatedLibraryRule(Rule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.DISTINCT, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
+    deprecated_names = ("0805",)
 
 
 class DuplicatedMetadataRule(Rule):
@@ -162,6 +167,7 @@ class DuplicatedMetadataRule(Rule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.DISTINCT, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
+    deprecated_names = ("0806",)
 
 
 class DuplicatedVariablesImportRule(Rule):
@@ -175,6 +181,7 @@ class DuplicatedVariablesImportRule(Rule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.DISTINCT, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
+    deprecated_names = ("0807",)
 
 
 class SectionAlreadyDefinedRule(Rule):
@@ -184,7 +191,7 @@ class SectionAlreadyDefinedRule(Rule):
     Duplicated section in the file. Robot Framework will handle repeated sections but it is recommended to not
     duplicate them.
 
-    Incorrect code example::
+    Incorrect code example:
 
         *** Test Cases ***
         My Test
@@ -210,13 +217,14 @@ class SectionAlreadyDefinedRule(Rule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.DISTINCT, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
+    deprecated_names = ("0808",)
 
 
 class BothTestsAndTasksRule(Rule):
     """
     Both Task(s) and Test Case(s) section headers defined in file.
 
-    The file contains both ``*** Test Cases ***`` and ``*** Tasks ***`` sections. Use only one of them. ::
+    The file contains both ``*** Test Cases ***`` and ``*** Tasks ***`` sections. Use only one of them. :
 
         *** Test Cases ***
 
@@ -232,6 +240,7 @@ class BothTestsAndTasksRule(Rule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.DISTINCT, issue_type=sonar_qube.SonarQubeIssueType.BUG
     )
+    deprecated_names = ("0810",)
 
 
 class DuplicatedSettingRule(Rule):
@@ -239,8 +248,8 @@ class DuplicatedSettingRule(Rule):
     Duplicated setting.
 
     Some settings can be used only once in a file. Only the first value is used.
-    Example::
 
+    Example:
         *** Settings ***
         Test Tags        F1
         Test Tags        F2  # this setting will be ignored
@@ -255,6 +264,7 @@ class DuplicatedSettingRule(Rule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.DISTINCT, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
+    deprecated_names = ("0813",)
 
 
 class DuplicationsChecker(VisitorChecker):
@@ -338,7 +348,7 @@ class DuplicationsChecker(VisitorChecker):
         for var in assign:
             var_name = strip_equals_from_assignment(var.value)
             name = normalize_robot_var_name(var_name)
-            if not name:  # ie. "${_}" -> ""
+            if not name:  # i.e. "${_}" -> ""
                 return
             if name in seen:
                 self.report(

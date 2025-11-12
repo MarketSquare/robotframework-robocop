@@ -10,9 +10,9 @@ class TimeTakenReport(robocop.linter.reports.ComparableReport):
 
     Report that returns Robocop execution time
 
-    Example::
-
+    Example:
         Scan finished in 0.054s.
+
     """
 
     def __init__(self, config: Config):

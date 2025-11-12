@@ -23,7 +23,7 @@ class TagWithSpaceRule(Rule):
     When including or excluding tags, it may lead to unexpected behavior. It's recommended to use short tag names
     without spaces.
 
-    Example of rule violation::
+    Example of rule violation:
 
         *** Test Cases ***
         Test
@@ -39,6 +39,7 @@ class TagWithSpaceRule(Rule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.CONVENTIONAL, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
+    deprecated_names = ("0601",)
 
 
 class TagWithOrAndRule(Rule):
@@ -46,7 +47,7 @@ class TagWithOrAndRule(Rule):
     ``OR`` or ``AND`` keyword found in the tag.
 
     ``OR`` and ``AND`` words are used to combine tags when selecting tests to be run in Robot Framework. Using
-    following configuration::
+    following configuration:
 
         robocop check --include tagANDtag2
 
@@ -68,6 +69,7 @@ class TagWithOrAndRule(Rule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.CONVENTIONAL, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
+    deprecated_names = ("0602",)
 
 
 class TagWithReservedWordRule(Rule):
@@ -101,14 +103,14 @@ class TagWithReservedWordRule(Rule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.CONVENTIONAL, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
+    deprecated_names = ("0603",)
 
 
 class CouldBeTestTagsRule(Rule):
     """
     All tests share the same tags which can be moved to ``Test Tags`` setting.
 
-    Example::
-
+    Example:
         *** Test Cases ***
         Test
             [Tags]  featureX  smoke
@@ -123,6 +125,7 @@ class CouldBeTestTagsRule(Rule):
     This rule was renamed from ``could-be-force-tags`` to ``could-be-test-tags`` in Robocop 2.6.0.
 
     Will ignore `robot:*` tags.
+
     """
 
     name = "could-be-test-tags"
@@ -134,6 +137,7 @@ class CouldBeTestTagsRule(Rule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.CONVENTIONAL, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
+    deprecated_names = ("0605",)
 
 
 class TagAlreadySetInTestTagsRule(Rule):
@@ -141,7 +145,7 @@ class TagAlreadySetInTestTagsRule(Rule):
     Tag is already set in the ``Test Tags`` setting.
 
     Avoid repeating the same tags in tests when the tag is already declared in ``Test Tags`` or ``Force Tags``.
-    Example of rule violation::
+    Example of rule violation:
 
         *** Settings ***
         Test Tags  common_tag
@@ -164,13 +168,14 @@ class TagAlreadySetInTestTagsRule(Rule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.DISTINCT, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
+    deprecated_names = ("0606",)
 
 
 class UnnecessaryDefaultTagsRule(Rule):
     """
     ``Default Tags`` setting is always overwritten and is unnecessary.
 
-    Example of rule violation::
+    Example of rule violation:
 
         *** Settings ***
         Default Tags  tag1  tag2
@@ -196,6 +201,7 @@ class UnnecessaryDefaultTagsRule(Rule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.CONVENTIONAL, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
+    deprecated_names = ("0607",)
 
 
 class EmptyTagsRule(Rule):
@@ -215,6 +221,7 @@ class EmptyTagsRule(Rule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.COMPLETE, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
+    deprecated_names = ("0608",)
 
 
 class DuplicatedTagsRule(Rule):
@@ -224,7 +231,7 @@ class DuplicatedTagsRule(Rule):
     Tags are free text, but they are normalized so that they are converted to lowercase and all spaces are removed.
     Only first tag is used, other occurrences are ignored.
 
-    Example of duplicated tags::
+    Example of duplicated tags:
 
         *** Test Cases ***
         Test
@@ -240,14 +247,14 @@ class DuplicatedTagsRule(Rule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.DISTINCT, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
+    deprecated_names = ("0609",)
 
 
 class CouldBeKeywordTagsRule(Rule):
     """
     All keywords share the same tags which can be moved to ``Keyword Tags`` setting.
 
-    Example::
-
+    Example:
         *** Keywords ***
         Keyword
             [Tags]  featureX  smoke
@@ -261,6 +268,7 @@ class CouldBeKeywordTagsRule(Rule):
     ``Keyword Tags``.
 
     Will ignore `robot:*` tags.
+
     """
 
     name = "could-be-keyword-tags"
@@ -273,6 +281,7 @@ class CouldBeKeywordTagsRule(Rule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.CONVENTIONAL, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
+    deprecated_names = ("0610",)
 
 
 class TagAlreadySetInKeywordTagsRule(Rule):
@@ -280,7 +289,7 @@ class TagAlreadySetInKeywordTagsRule(Rule):
     Tag is already set in the ``Test Keyword`` setting.
 
     Avoid repeating the same tags in keywords when the tag is already declared in ``Keyword Tags``.
-    Example of rule violation::
+    Example of rule violation:
 
         *** Settings ***
         Keyword Tags  common_tag
@@ -300,6 +309,7 @@ class TagAlreadySetInKeywordTagsRule(Rule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.DISTINCT, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
+    deprecated_names = ("0611",)
 
 
 class TagNameChecker(VisitorChecker):

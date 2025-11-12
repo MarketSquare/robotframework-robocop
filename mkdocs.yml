@@ -1,0 +1,155 @@
+site_name: RoboCop Docs
+site_url: !ENV READTHEDOCS_CANONICAL_URL
+docs_dir: docs
+repo_url: https://github.com/MarketSquare/robotframework-robocop
+repo_name: robocop
+
+use_directory_urls: true
+
+theme:
+  name: material
+  logo: images/robocop_logo_small.png
+  favicon: images/robocop.ico
+  icon:
+    repo: fontawesome/brands/github
+  highlightjs: false
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: white
+      toggle:
+        icon: material/toggle-switch
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: black
+      toggle:
+        icon: material/toggle-switch-off-outline
+        name: Switch to light mode
+  features:
+    - navigation.tabs
+    - navigation.tabs.sticky
+    - navigation.top
+    - content.code.copy
+    - navigation.footer
+
+nav:
+  - Robocop: index.md
+  - User Guide:
+      - "Getting started": user_guide/intro.md
+      - "Migrate to Robocop 6.0": user_guide/migrate_to_robocop6.md
+  - Linter:
+      - Linter: linter/linter.md
+      - Rules: linter/rules.md
+      - "Rules list": rules_list.md
+      - "Custom rules": linter/custom_rules.md
+      - "Reports":
+          - linter/reports/reports.md
+          - linter/reports/print_issues.md
+          - linter/reports/file_stats.md
+          - linter/reports/rules_by_severity.md
+          - linter/reports/rules_by_id.md
+          - linter/reports/time_taken.md
+          - linter/reports/timestamp.md
+          - linter/reports/robocop_version.md
+          - linter/reports/sonarqube.md
+          - linter/reports/sarif.md
+          - linter/reports/gitlab.md
+          - linter/reports/json.md
+          - linter/reports/textfile.md
+          - linter/reports/return_status.md
+
+  - Formatter:
+      - Formatter: formatter/formatter.md
+      - Formatters:
+          - AddMissingEnd: formatter/formatters/AddMissingEnd.md
+          - AlignKeywordsSection: formatter/formatters/AlignKeywordsSection.md
+          - AlignSettingsSection: formatter/formatters/AlignSettingsSection.md
+          - AlignTemplatedTestCases: formatter/formatters/AlignTemplatedTestCases.md
+          - AlignTestCasesSection: formatter/formatters/AlignTestCasesSection.md
+          - AlignVariablesSection: formatter/formatters/AlignVariablesSection.md
+          - DiscardEmptySections: formatter/formatters/DiscardEmptySections.md
+          - GenerateDocumentation: formatter/formatters/GenerateDocumentation.md
+          - IndentNestedKeywords: formatter/formatters/IndentNestedKeywords.md
+          - InlineIf: formatter/formatters/InlineIf.md
+          - MergeAndOrderSections: formatter/formatters/MergeAndOrderSections.md
+          - NormalizeAssignments: formatter/formatters/NormalizeAssignments.md
+          - NormalizeComments: formatter/formatters/NormalizeComments.md
+          - NormalizeNewLines: formatter/formatters/NormalizeNewLines.md
+          - NormalizeSectionHeaderName: formatter/formatters/NormalizeSectionHeaderName.md
+          - NormalizeSeparators: formatter/formatters/NormalizeSeparators.md
+          - NormalizeSettingName: formatter/formatters/NormalizeSettingName.md
+          - NormalizeTags: formatter/formatters/NormalizeTags.md
+          - OrderSettings: formatter/formatters/OrderSettings.md
+          - OrderSettingsSection: formatter/formatters/OrderSettingsSection.md
+          - OrderTags: formatter/formatters/OrderTags.md
+          - RemoveEmptySettings: formatter/formatters/RemoveEmptySettings.md
+          - RenameKeywords: formatter/formatters/RenameKeywords.md
+          - RenameTestCases: formatter/formatters/RenameTestCases.md
+          - RenameVariables: formatter/formatters/RenameVariables.md
+          - ReplaceBreakContinue: formatter/formatters/ReplaceBreakContinue.md
+          - ReplaceEmptyValues: formatter/formatters/ReplaceEmptyValues.md
+          - ReplaceReturns: formatter/formatters/ReplaceReturns.md
+          - ReplaceRunKeywordIf: formatter/formatters/ReplaceRunKeywordIf.md
+          - ReplaceWithVAR: formatter/formatters/ReplaceWithVAR.md
+          - SmartSortKeywords: formatter/formatters/SmartSortKeywords.md
+          - SplitTooLongLine: formatter/formatters/SplitTooLongLine.md
+          - Translate: formatter/formatters/Translate.md
+      - Custom formatters: formatter/custom_formatters.md
+      - Skip formatting: formatter/skip_formatting.md
+  - Configuration:
+    - configuration/index.md
+    - Reference: configuration/configuration_reference.md
+    - Disablers: configuration/disablers.md
+  - Integrations:
+      - Pre-commit: integrations/precommit.md
+      - SonarQube: integrations/sonarqube.md
+      - VSCode: integrations/vscode.md
+      - Pycharm: integrations/pycharm.md
+      - Gitlab: integrations/gitlab.md
+      - Github: integrations/github.md
+      - Jenkins: integrations/jenkins.md
+  - Release Notes: releasenotes/changelog.md
+
+plugins:
+  - search
+  - git-authors
+  - gen-files:
+      scripts:
+        -  docs/generate_rules_list.py
+  - macros:
+      include_dir: docs
+      module_name: docs/read_macros
+  - redirects:
+      redirect_maps:
+        'rules/rules_list.md': 'rules_list.md'
+
+markdown_extensions:
+    - admonition
+    - toc:
+        permalink: true
+    - attr_list
+    - md_in_html
+    - pymdownx.details
+    - pymdownx.highlight:
+        default_lang: robotframework
+#        pygments_style: default
+#        noclasses: true
+        guess_lang: false
+        use_pygments: true
+        anchor_linenums: true
+        line_spans: __span
+        pygments_lang_class: true
+    - pymdownx.inlinehilite
+    - pymdownx.snippets
+    - pymdownx.superfences
+    - pymdownx.blocks.caption
+    - pymdownx.tabbed:
+        alternate_style: true
+    - pymdownx.emoji:
+        emoji_index: !!python/name:material.extensions.emoji.twemoji
+        emoji_generator: !!python/name:material.extensions.emoji.to_svg
+
+extra_css:
+  - css/extra.css
+        # TODO: link author at bottom to github page

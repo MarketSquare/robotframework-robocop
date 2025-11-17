@@ -35,9 +35,8 @@ It is also possible to use ``--gitlab``  alias:
 
 === ":material-file-cog-outline: toml"
 
-    ```toml
-    [tool.robocop.lint]
-    gitlab = true
+    ```text
+    --gitlab is only supported in CLI.
     ```
 
 It will create ``robocop-code-quality.json`` file in the current directory.

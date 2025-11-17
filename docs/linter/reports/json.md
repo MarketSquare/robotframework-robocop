@@ -60,7 +60,7 @@ by the report:
 === ":octicons-command-palette-24: cli"
 
     ```bash
-    robocop check --reports json --configure json_report.output_path=C:/json_reports/report.json
+    robocop check --reports json_report --configure json_report.output_path=C:/json_reports/report.json
     ```
 
 === ":material-file-cog-outline: toml"
@@ -68,7 +68,7 @@ by the report:
     ```toml
     [tool.robocop.lint]
     reports = [
-        "json"
+        "json_report"
     ]
     configure = [
         "json_report.output_path=C:/json_reports/report.json"

@@ -15,6 +15,7 @@ Use ``output_format`` parameter to configure an output format. Supported output 
 - **extended** (default), which print issue together with source code:
 
     ```bash
+    > robocop check
     test.robot:2:14 DEPR02 'Run Keyword If' is deprecated since Robot Framework version 5.*, use 'IF' instead
        |
      1 | *** Settings ***
@@ -29,6 +30,7 @@ Use ``output_format`` parameter to configure an output format. Supported output 
 - **grouped**, which prints issues grouped by source files:
 
     ```bash
+    > robocop check --configure print_issues.output_format=grouped
     templated_suite.robot:
       1:1 MISC06 No tests in 'templated_suite.robot' file, consider renaming to 'templated_suite.resource' (can-be-resource-file)
       2:18 DEPR02 'Run Keyword Unless' is deprecated since Robot Framework version 5.*, use 'IF' instead (deprecated-statement)
@@ -42,6 +44,7 @@ Use ``output_format`` parameter to configure an output format. Supported output 
 - **simple**, which print issue in one line. It also allows configuring the format of a message:
 
     ```bash
+    > robocop check --configure print_issues.output_format=simple
     variable_errors.robot:7:1 [E] ERR01 Robot Framework syntax error: Invalid dictionary variable item '1'. Items must use 'name=value' syntax or be dictionary variables themselves.
     positional_args.robot:3:32 [E] ERR01 Robot Framework syntax error: Positional argument '${arg2}' follows named argument
     ```

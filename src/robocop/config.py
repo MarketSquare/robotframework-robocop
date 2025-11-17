@@ -599,7 +599,6 @@ class Config:
             "ext_rules",
             "configure",
             "output",
-            "verbose",
             "paths",
             "robotidy",
         }
@@ -618,7 +617,9 @@ class Config:
             "default_include",
             "exclude",
             "default_exclude",
+            "force_exclude",
             "target_version",
+            "skip_gitignore",
         }
         for key in config:
             if key not in known_keys:

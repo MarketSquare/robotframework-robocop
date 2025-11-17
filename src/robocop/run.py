@@ -34,7 +34,7 @@ class CliWithVersion(typer.core.TyperGroup):
 app = typer.Typer(
     name="robocop",
     help="Static code analysis tool (linter) and code formatter for Robot Framework. "
-    "Full documentation available at https://robocop.readthedocs.io .",
+    "Full documentation available at https://robocop.dev.",
     context_settings={"help_option_names": ["-h", "--help"]},
     rich_markup_mode="rich",
     cls=CliWithVersion,
@@ -728,9 +728,7 @@ def print_resource_documentation(name: Annotated[str, typer.Argument(help="Rule 
         docs = textwrap.dedent(formatter_config.formatters[name].__doc__)
         console.print(f"Formatter [bold]{name}[/bold]:")
         console.print(docs)
-        console.print(
-            f"See https://robocop.readthedocs.io/en/stable/formatters/formatters_list/{name}.html for more information."
-        )
+        console.print(f"See https://robocop.dev/stable/formatter/formatters/{name}/ for more information.")
     else:
         console.print(f"There is no rule, formatter or a report with a '{name}' name.")
         raise typer.Exit(code=2)
@@ -745,12 +743,13 @@ def migrate_config(
     """
     Migrate Robocop and Robotidy old configuration files to the new format supported by the Robocop 6.0.
 
-    All the comments and formatting is not preserved. Robocop will take original file and create new, with the suffix
-    ``_migrated``. Original configuration file should have ``tool.robocop`` or/and ``tool.robotidy`` section.
-    If there are both sections, and they contain common option (such as include/exclude paths), option from
-    ``tool.robocop`` section will take precedence.
+    All the comments and formatting are not preserved. Robocop will take the original file and create a new, with the
+    suffix ``_migrated``. The original configuration file should have the ``[tool.robocop]`` or / and
+    ``[tool.robotidy]`` section.
+    If there are both sections, and they contain a common option (such as include/exclude paths), the option from
+    ``tool.robocop`` a section will take precedence.
 
-    Rule ids and names will be also migrated. Patterns (such as ``*docs*``) will be however ignored.
+    Rule ids and names will be also migrated. Patterns (such as ``*docs*``) will be, however, ignored.
 
     If you have separate configuration files for Robocop and Robotidy, run the command twice and merge it manually.
     """

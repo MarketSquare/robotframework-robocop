@@ -17,7 +17,7 @@ It accepts a list of paths to files, directories or name of the Python module. E
     [tool.robocop.lint]
     custom_rules = [
         "my/own/rule.py",
-        "external_rules.py"
+        "custom_rules.py"
     ]
     ```
 

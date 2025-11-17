@@ -22,7 +22,7 @@ to set a replacement value. This configuration:
         "RenameTestCases"
     ]
     configure = [
-        "RenameTestCases.replace_pattern=[A-Z]{3,}-\d{2,}",
+        "RenameTestCases.replace_pattern=[A-Z]{3,}-\\d{2,}",
         "RenameTestCases.replace_to=foo"
     ]
     ```

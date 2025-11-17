@@ -37,7 +37,7 @@ class TimestampReport(robocop.linter.reports.Report):
         robocop check --configure timestamp.format="%Y-%m-%dT%H:%M:%S%z"
 
         UTC time:
-        robocop check --configure timestamp.timezone:"UTC" --configure timestamp.format="%Y-%m-%dT%H:%M:%S %Z %z"
+        robocop check --configure timestamp.timezone="UTC" --configure timestamp.format="%Y-%m-%dT%H:%M:%S %Z %z"
 
         Timestamp with high precision:
         robocop check --configure timestamp.format="%Y-%m-%dT%H:%M:%S.%f %z"

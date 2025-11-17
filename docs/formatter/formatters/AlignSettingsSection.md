@@ -179,7 +179,7 @@ It's possible to set the fixed width of the column. To configure it use ``fixed_
     ```toml
     [tool.robocop.format]
     configure = [
-        "AlignSettingsSection.fixed_width=30
+        "AlignSettingsSection.fixed_width=30"
     ]
     ```
 

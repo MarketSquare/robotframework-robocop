@@ -22,7 +22,7 @@ class Translate(Formatter):
     """
     Translate Robot Framework source files from one or many languages to different one.
 
-    Following code:
+    The following code:
 
     ```robotframework
     *** Test Cases ***
@@ -40,16 +40,16 @@ class Translate(Formatter):
         Step
     ```
 
-    You can configure destination language with ``language`` parameter (default ``en``). If your file is not written
-    in english you also need to configure source language - either using cli option or language header in the
-    source files:
+    You can configure the destination language with the `` language `` parameter (default ``en``). If your file is
+    not written in English you also need to configure source language - either using the cli option or language header
+    in the source files:
 
     ```
-    robocop format -c Translate.enabled=True -c Translate.language=uk --language pl,de source_in_pl_and_de.robot
+    robocop format -c Translate.enabled=True -c Translate.language=uk --language pl source_in_pl.robot
     ```
 
-    BDD keywords are not translated by default. Set ``translate_bdd`` parameter to ``True`` to enable it.
-    If there is more than one alternative to BDD keyword the first one (sorted alphabetically) will be chosen.
+    BDD keywords are not translated by default. Set the `` translate_bdd `` parameter to ``True`` to enable it.
+    If there is more than one alternative to BDD keyword, the first one (sorted alphabetically) will be chosen.
     It can be overwritten using ``<bdd_keyword>_alternative`` parameters.
     """
 

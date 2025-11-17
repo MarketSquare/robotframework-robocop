@@ -1,5 +1,15 @@
 # Release notes
 
+## 6.10.1
+
+### Fixes
+
+- Fix ``verbose``, ``force_exclude`` and ``skip_gitignore`` options not supported in the configuration file
+
+### Documentation
+
+- Fix incorrect code examples in the documentation.
+
 ## 6.10.0
 
 ### Documentation

@@ -307,7 +307,7 @@ Using this configuration (``SplitTooLongLine`` is enabled by default):
 === ":octicons-command-palette-24: cli"
 
     ```bash
-    robocop format --select AlignTestCasesSection -c AlignTestCasesSection --line-length 80
+    robocop format --select AlignTestCasesSection --line-length 80
     ```
 
 === ":material-file-cog-outline: toml"
@@ -317,9 +317,6 @@ Using this configuration (``SplitTooLongLine`` is enabled by default):
     line-length = 80
     select = [
         "AlignTestCasesSection"
-    ]
-    configure = [
-        "AlignTestCasesSection.widths=14,24"
     ]
     ```
 

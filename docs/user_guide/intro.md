@@ -102,7 +102,7 @@ Combine it with ``--help`` to get more information on additional filter options.
 
 Print rule, report or formatter documentation with ``docs`` command:
 
-```bash
+```text
 robocop docs <name>
 ```
 

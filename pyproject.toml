@@ -50,8 +50,8 @@ robocop = "robocop.run:main"
 [project.urls]
 "Bug tracker" = "https://github.com/MarketSquare/robotframework-robocop/issues"
 "Source code" = "https://github.com/MarketSquare/robotframework-robocop"
-Documentation = "https://robocop.readthedocs.io/"
-Homepage = "https://robocop.readthedocs.io/"
+Documentation = "https://robocop.dev/"
+Homepage = "https://robocop.dev/"
 
 [build-system]
 requires = ["hatchling>=1.26.1"]

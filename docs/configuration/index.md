@@ -14,7 +14,6 @@ Run `robocop --help` to see all available options. Each command has its own help
 robocop --help
 robocop check --help
 robocop format --help
-... and so on
 ```
 
 # Configuration file

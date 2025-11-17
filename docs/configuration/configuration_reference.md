@@ -168,6 +168,26 @@ Custom language files are currently not supported.
 
 ---
 
+#### ``verbose``
+
+Enable more verbose output with ``--verbose`` flag.
+
+=== ":octicons-command-palette-24: cli"
+
+    ```bash
+    robocop check --verbose
+    robocop format --verbose
+    ```
+
+=== ":material-file-cog-outline: toml"
+
+    ```toml
+    [tool.robocop]
+    verbose = true
+    ```
+
+---
+
 ### Configuration options
 
 #### ``config``
@@ -228,9 +248,8 @@ By default, Robocop will stop searching for configuration files when encounterin
 
 === ":material-file-cog-outline: toml"
 
-    ```toml
-    [tool.robocop]
-    ignore-git-dir = true
+    ```text
+    --ignore-git-dir is only supported in CLI.
     ```
 
 ---
@@ -249,9 +268,8 @@ with ``--ignore-file-config`` flag.
 
 === ":material-file-cog-outline: toml"
 
-    ```toml
-    [tool.robocop]
-    ignore-file-config = true
+    ```text
+    --ignore-file-config is only supported in CLI.
     ```
 
 ---
@@ -472,7 +490,7 @@ Read more about custom rules on the [Custom rules](../linter/custom_rules.md) pa
     [tool.robocop.lint]
     custom_rules = [
         "my/own/rule.py",
-        "external_rules.py"
+        "custom_rules.py"
     ]
     ```
 
@@ -583,9 +601,8 @@ See [the GitLab](../linter/reports/gitlab.md) page for more information.
 
 === ":material-file-cog-outline: toml"
 
-    ```toml
-    [tool.robocop.lint]
-    gitlab = true
+    ```text
+    --gitlab is only supported in CLI.
     ```
 
 ---
@@ -669,27 +686,8 @@ Use ``--root`` to point to the project root directory. By default, Robocop finds
 directory. Root is used to find a default configuration file.
 
 ```bash
-robocop check root /path/to/project/root
+robocop check --root path/to/project/root
 ```
-
----
-
-#### ``verbose``
-
-Enable more verbose output with ``--verbose`` flag.
-
-=== ":octicons-command-palette-24: cli"
-
-    ```bash
-    robocop check --verbose
-    ```
-
-=== ":material-file-cog-outline: toml"
-
-    ```toml
-    [tool.robocop.lint]
-    verbose = true
-    ```
 
 ---
 
@@ -752,13 +750,13 @@ Read more about custom formatters on the [Custom formatters](../formatter/custom
 === ":octicons-command-palette-24: cli"
 
     ```bash
-    robocop check --custom-formatters my/own/Formatter.py --custom-formatters CustomFormatter.py
+    robocop format --custom-formatters my/own/Formatter.py --custom-formatters CustomFormatter.py
     ```
 
 === ":material-file-cog-outline: toml"
 
     ```toml
-    [tool.robocop.lint]
+    [tool.robocop.format]
     custom_formatters = [
         "my/own/Formatter.py",
         "CustomFormatter.py"
@@ -1239,7 +1237,7 @@ pattern.
     [tool.robocop.format]
     skip-keyword-call-pattern = [
         "^Second",
-        "(i?)contains\s?words"
+        "(i?)contains\\s?words"
     ]
     ```
 

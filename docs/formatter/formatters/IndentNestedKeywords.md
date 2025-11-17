@@ -31,14 +31,14 @@ Keywords inside run keywords variants are detected and whitespace is formatted t
 
 ## Handle AND inside Run Keywords
 
-``AND`` argument inside ``Run Keywords`` can be handled in different ways. It is controlled via ``indent_and``
-parameter.
+``AND`` argument inside ``Run Keywords`` can be handled in different ways.
+
 You can configure it using ``indent_and``:
 
 === ":octicons-command-palette-24: cli"
 
     ```bash
-    robocop format --select IndentNestedKeywords -c IndentNestedKeywords.indent_and=keep_and_indent
+    robocop format --select IndentNestedKeywords -c IndentNestedKeywords.indent_and=split_and_indent
     ```
 
 === ":material-file-cog-outline: toml"
@@ -49,7 +49,7 @@ You can configure it using ``indent_and``:
         "IndentNestedKeywords"
     ]
     configure = [
-        "IndentNestedKeywords.indent_and=keep_and_indent"
+        "IndentNestedKeywords.indent_and=split_and_indent"
     ]
     ```
 

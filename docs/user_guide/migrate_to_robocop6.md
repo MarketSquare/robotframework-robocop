@@ -19,7 +19,7 @@ robocop format
 
 To migrate your configuration to the new version, use ``migrate`` command:
 
-```bash
+```text
 robocop migrate <config_path>
 ```
 
@@ -125,13 +125,13 @@ to the dedicated ``--configure`` option.
 
 Previous command:
 
-```bash
+```text
 robotidy --transform YourTransformer:parameter=value --configure DefaultTransformer:other_parameter=value
 ```
 
 Can be now achieved by:
 
-```bash
+```text
 robocop format --select YourTransformer --configure YourTransformer.parameter=value --configure DefaultTransformer.other_parameter=value
 ```
 
@@ -152,14 +152,14 @@ More information on the current configuration file syntax at [configuration](../
 Robocop used two ``:`` to separate param and value in ``--config`` option. Robotidy used ``:`` and ``=``.
 New Robocop now uses ``.`` and ``=``. Previous configuration changed from:
 
-```bash
+```text
 robocop --configure rule_or_report:param:value
 robotidy --configure transformer:param=value
 ```
 
 to:
 
-```bash
+```text
 robocop check --configure rule_or_report.param=value
 robocop format --configure formatter.param=value
 ```
@@ -168,27 +168,27 @@ robocop format --configure formatter.param=value
 
 It is also no longer possible to chain multiple configurations in one ``configure`` call. The following example:
 
-```bash
+```text
 robotidy --configure formatter:param=value:param2=value
 ```
 
 For readability reasons it can be now done only using separate options:
 
-```bash
-robocop format --configure formatter:param=value --configure formatter:param2=value
+```text
+robocop format --configure formatter.param=value --configure formatter.param2=value
 ```
 
 ---
 
 Passing configuration through file names that contain formatter is also deprecated:
 
-```bash
+```text
 robotidy --configure MyFormatter.py:param=2
 ```
 
 Use the implicit name of the formatter instead:
 
-```bash
+```text
 robocop format --configure MyFormatter.param=2
 ```
 
@@ -231,13 +231,13 @@ Relative path to source is now used by default when printing the linter issues.
 
 Previous output, if run from ``robot_project`` directory:
 
-```bash
+```text
 D:/code/robot_project/tests/test.robot:19:59 [W] 0601 Tag '${var} space' should not contain spaces (tag-with-space)
 ```
 
 New output:
 
-```bash
+```text
 robot_project/tests/test.robot:19:59 [W] 0601 Tag '${var} space' should not contain spaces (tag-with-space)
 ```
 

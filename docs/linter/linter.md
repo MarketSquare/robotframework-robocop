@@ -11,7 +11,7 @@ It will recursively discover all ``*.robot`` and ``*.resource`` files in the cur
 You can also use a specific path or paths:
 
 ```bash
-robocop check file.robot resources/etc test.robot
+robocop check resources/etc test.robot
 ```
 
 Robocop will also find and skip paths from `.gitignore` files. It is possible to configure how Robocop discovers
@@ -19,7 +19,7 @@ files using various options (see [file discovery](../user_guide/intro.md#file-di
 
 An example of the output the tool can produce:
 
-```bash
+```text
 resources\operations.resource:15:5 VAR02 Variable '${var}' is assigned but not used
     |
  13 |

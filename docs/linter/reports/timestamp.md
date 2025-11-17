@@ -108,7 +108,7 @@ For timestamp formats, see [datetime format codes](https://docs.python.org/3/lib
 
     UTC time:
     ```bash
-    robocop check --configure timestamp.timezone:"UTC" --configure timestamp.format="%Y-%m-%dT%H:%M:%S %Z %z"
+    robocop check --configure timestamp.timezone="UTC" --configure timestamp.format="%Y-%m-%dT%H:%M:%S %Z %z"
     ```
 
     Timestamp with high precision:

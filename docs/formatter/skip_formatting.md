@@ -123,7 +123,7 @@ With this configuration:
         "AlignKeywordsSection"
     ]
     configure = [
-        "AlignKeywordsSection.skip_keyword_call_pattern=^First,(i?)contains\s?words"
+        "AlignKeywordsSection.skip_keyword_call_pattern=^First,(i?)contains\\s?words"
     ]
     ```
 
@@ -146,7 +146,7 @@ It is possible to use a global option to skip formatting for every formatter tha
     [tool.robocop.format]
     skip-keyword-call-pattern = [
         "^Second",
-        "(i?)contains\s?words"
+        "(i?)contains\\s?words"
     ]
     ```
 

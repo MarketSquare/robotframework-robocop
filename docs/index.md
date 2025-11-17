@@ -60,7 +60,7 @@ robocop check
 Example output:
 
 ```bash
-> robocop check --report rules_by_error_type test.robot
+> robocop check --reports rules_by_error_type test.robot
 
 test.robot:26:13 DEPR02 'Continue For Loop' is deprecated since Robot Framework version 5.*, use 'CONTINUE' instead
     |

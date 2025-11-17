@@ -11,7 +11,7 @@ It will recursively discover all ``*.robot`` and ``*.resource`` files in the cur
 You can also use a specific path or paths:
 
 ```bash
-robocop format file.robot resources/etc test.robot
+robocop format resources/etc test.robot
 ```
 
 Robocop will also find and skip paths from `.gitignore` files. It is possible to configure how Robocop discovers
@@ -39,7 +39,7 @@ Rules can be also disabled in the code using [disablers](../configuration/disabl
 If you want to see which lines are changed by tool add ``--diff`` flag:
 
 ```bash
-robocop format --diff test.robot
+> robocop format --diff test.robot
 --- test.robot before
 +++ test.robot after
 @@ -1,23 +1,15 @@
@@ -88,16 +88,16 @@ exit ``1`` if any file would be formatted by passing ``--check``. By default, fi
 running with ``--no-overwrite``):
 
 ```bash
-robocop format --check golden.robot
+> robocop format --check golden.robot
 0
-robocop format --check ugly.robot
+> robocop format --check ugly.robot
 1
 ```
 
 If you want `Robocop` to format the files while using ``--check`` flag, add ``--overwrite``:
 
 ```bash
-robocop format --check --overwrite file.robot
+robocop format --check --overwrite test.robot
 ```
 
 ## Formatter configuration
@@ -168,7 +168,7 @@ You can remove sections with only comments by setting the `` allow_only_comments
 *** Variables ***
 # this section will be removed with the `` allow_only_comments `` parameter set to False
 
-See https://robocop.dev/stable/formatters/formatters_list/DiscardEmptySections.html for more examples.
+See https://robocop.dev/stable/formatter/formatters/DiscardEmptySections/ for more examples.
 ```
 
 ## Line endings

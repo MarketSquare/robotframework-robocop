@@ -13,7 +13,7 @@ You can use multiple reports with separate arguments (``-r report1 -r report2``)
 === ":octicons-command-palette-24: cli"
 
     ```bash
-    robocop check --reports rules_by_id,some_other_report
+    robocop check --reports rules_by_id,version
     ```
 
 === ":material-file-cog-outline: toml"
@@ -22,7 +22,7 @@ You can use multiple reports with separate arguments (``-r report1 -r report2``)
     [tool.robocop.lint]
     reports = [
         "rules_by_id",
-        "some_other_report"
+        "version"
     ]
     ```
 

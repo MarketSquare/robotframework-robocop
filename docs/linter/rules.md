@@ -103,21 +103,6 @@ You can filter out all rules below given severity value by using ``-t/--threshol
 === ":octicons-command-palette-24: cli"
 
     ```bash
-    robocop check -t <severity value>
-    ```
-
-=== ":material-file-cog-outline: toml"
-
-    ```toml
-    [tool.robocop.lint]
-    threshold = "<severity value>"
-    ```
-
-To only report rules with severity W and above:
-
-=== ":octicons-command-palette-24: cli"
-
-    ```bash
     robocop check -t W
     ```
 
@@ -127,6 +112,8 @@ To only report rules with severity W and above:
     [tool.robocop.lint]
     threshold = "W"
     ```
+
+Replace ``W`` with severity value you want to filter with.
 
 ## Severity threshold
 

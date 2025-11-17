@@ -114,7 +114,7 @@ to set replacement value. This configuration (underscores are used instead of sp
         "RenameKeywords"
     ]
     configure = [
-        "RenameKeywords.replace_pattern=(?i)^rename\s?me$",
+        "RenameKeywords.replace_pattern=(?i)^rename\\s?me$",
         "RenameKeywords.replace_to=New_Shining_Name"
     ]
     ```

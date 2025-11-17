@@ -44,7 +44,7 @@ The language can be configured using ``language`` parameter with the language co
 === ":octicons-command-palette-24: cli"
 
     ```bash
-    robocop format --select Translate --configure Translate.language=se
+    robocop format --select Translate --configure Translate.language=sv
     ```
 
 === ":material-file-cog-outline: toml"
@@ -55,7 +55,7 @@ The language can be configured using ``language`` parameter with the language co
         "Translate"
     ]
     configure = [
-        "Translate.language=se"
+        "Translate.language=sv"
     ]
     ```
 
@@ -71,14 +71,15 @@ markers to Ukrainian:
 === ":octicons-command-palette-24: cli"
 
     ```bash
-    robocop format --select Translate -c Translate.language=uk --language pl,de
+    robocop format --select Translate -c Translate.language=uk --language pl --language de
     ```
 
 === ":material-file-cog-outline: toml"
 
     ```toml
-    [tool.robocop.format]
+    [tool.robocop]
     language = ["pl", "de"]
+    [tool.robocop.format]
     select = [
         "Translate"
     ]
@@ -168,19 +169,20 @@ To do this configure ``add_language_header`` parameter to ``True``:
 === ":octicons-command-palette-24: cli"
 
     ```bash
-    robocop format --select Translate --language de -c Translate.language=se -c Translate.add_language_header=True
+    robocop format --select Translate --language de -c Translate.language=sv -c Translate.add_language_header=True
     ```
 
 === ":material-file-cog-outline: toml"
 
     ```toml
+    [tool.robocop]
+    language = ["de"]
     [tool.robocop.format]
-    language = "de"
     select = [
         "Translate"
     ]
     configure = [
-        "Translate.language=se",
+        "Translate.language=sv",
         "Translate.add_language_header=True"
     ]
     ```

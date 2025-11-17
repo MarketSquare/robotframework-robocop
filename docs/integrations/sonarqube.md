@@ -41,7 +41,7 @@ organisation. If you have already established a project, you can find the token 
 
 After you install ``pysonar``, run the following command to upload the report:
 
-```bash
+```text
 pysonar --sonar-sources=tests --sonar-token=<token> --sonar-project-key=<project_key> --sonar-organization=<organization> --sonar-external-issues-report-path=<project_path>
 ```
 

@@ -107,9 +107,7 @@ class FormatterContainer:
         s = f"## Formatter {self.name}\n" + textwrap.dedent(self.instance.__doc__)
         if self.parameters:
             s += "\nSupported parameters:\n  - " + "\n - ".join(str(param) for param in self.parameters) + "\n"
-        s += (
-            f"\nSee <https://robotidy.readthedocs.io/en/latest/formatters/{self.name}.html> for more examples."  # FIXME
-        )
+        s += f"\nSee <https://robocop.dev/stable/formatter/formatters/{self.name}/> for more examples."
         return s
 
 
@@ -288,12 +286,11 @@ def get_skip_class(spec, skip_args, global_skip: SkipConfig):
 
 def resolve_args(formatter, spec, args, global_skip: SkipConfig, handles_skip):
     """
-    Use class definition to identify which arguments from configuration should be used to invoke it.
+    Use class definition to identify which arguments from the configuration should be used to invoke it.
 
-    First we're splitting arguments into class arguments and skip arguments
-    (those that are handled by Skip class).
-    Class arguments are resolved with their definition and if class accepts
-    "skip" parameter the Skip class will be also added to class arguments.
+    First, we're splitting arguments into class arguments and skip arguments (those that are handled by Skip class).
+    Class arguments are resolved with their definition, and if a class accepts the "skip" parameter, the Skip class
+    will be also added to class arguments.
     """
     args, skip_args = split_args_to_class_and_skip(args)
     spec_args = list(spec.argument_names)

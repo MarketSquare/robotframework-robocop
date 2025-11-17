@@ -9,13 +9,13 @@ the formatter class) or to a module containing multiple formatters. Each formatt
 === ":octicons-command-palette-24: cli"
 
     ```bash
-    robocop check --custom-formatters CustomFormatters --custom-formatters CustomFormatter.py
+    robocop format --custom-formatters CustomFormatters --custom-formatters CustomFormatter.py
     ```
 
 === ":material-file-cog-outline: toml"
 
     ```toml
-    [tool.robocop.lint]
+    [tool.robocop.format]
     custom_formatters = [
         "CustomFormatters",
         "CustomFormatter.py"

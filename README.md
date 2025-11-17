@@ -29,17 +29,18 @@ Introduction
 
 Robocop is a tool that performs static code analysis and formatting of [Robot Framework](https://github.com/robotframework/robotframework) code.
 
-It uses official [Robot Framework parsing API](https://robot-framework.readthedocs.io/en/stable/) to parse files and runs number of checks,
-looking for potential errors or violations to code quality standards (commonly referred as *linting issues*).
+It uses official [Robot Framework parsing API](https://robot-framework.readthedocs.io/en/stable/) to parse files and
+runs a number of checks, looking for potential errors or violations to code quality standards (commonly referred to as
+*linting issues*).
 
 > Hosted on [GitHub](https://github.com/MarketSquare/robotframework-robocop).
 
 Documentation
 -------------
 
-Full documentation is available [here](https://robocop.readthedocs.io). :open_book:
+Full documentation is available [here](https://robocop.dev). :open_book:
 
-Most common questions with answers can be found at the bottom ⬇ of this README file.
+The most common questions with answers can be found at the bottom ⬇ of this README file.
 
 Requirements
 ------------
@@ -60,19 +61,19 @@ Usage
 -----
 
 Robocop runs by default from the current directory, and it discovers supported files recursively.
-To lint the files you can run:
+To lint the files, you can run:
 
 ```
 robocop check
 ```
 
-To format the files you can run:
+To format the files, you can run:
 
 ```commandline
 robocop format
 ```
 
-All command line options can be displayed in help message by executing:
+All command line options can be displayed in a help message by executing:
 
 ```
 robocop -h
@@ -84,7 +85,7 @@ Example Output
 Executing command:
 
 ```
-robocop check --report rules_by_error_type test.robot
+robocop check --reports rules_by_error_type test.robot
 ```
 
 
@@ -114,23 +115,24 @@ Found 2 issues: 2 ERRORs, 0 WARNINGs, 0 INFO.
 ```
 
 Values
--------
-Original *RoboCop* - a fictional cybernetic police officer :policeman: - was following 3 prime directives
+------
+
+Original *RoboCop* - a fictional cybernetic police officer - was the following three prime directives 
 which also drive the progress of Robocop linter:
 
-> First Directive: **Serve the public trust** :family_man_woman_girl_boy:
+First Directive: **Serve the public trust**
 
 Which lies behind the creation of the project - to **serve** developers and testers as a tool to build applications they can **trust**.
 
-> Second Directive: **Protect the innocent** :baby:
+Second Directive: **Protect the innocent**
 
-**The innocent** testers and developers have no intention to produce ugly code but sometimes, you know, it just happens,
+**The innocent** testers and developers have no intention of producing ugly code, but sometimes, you know, it just happens,
 so Robocop is there to **protect** them.
 
-> Third Directive: **Uphold the law** :classical_building:
+Third Directive: **Uphold the law**
 
-Following the coding guidelines established in the project are something very important to keep the code clean,
-readable and understandable by others and Robocop can help to **uphold the law**.
+Following the coding guidelines established in the project are something crucial to keep the code clean,
+readable and understandable by others, and Robocop can help to **uphold the law**.
 
 FAQ
 ---
@@ -138,13 +140,13 @@ FAQ
   <summary>Can I integrate Robocop with my code editor (IDE)?</summary>
 
   **Yes**, Robocop integrates nicely with popular IDEs like PyCharm or VSCode
-  thanks to [RobotCode](https://github.com/robotcodedev/robotcode) plugin.
-  Read simple manual (README) in that project to figure out how to install & use it.
+  thanks to [the RobotCode](https://robotcode.io/) plugin.
+  Read a simple manual (README) in that project to figure out how to install and use it.
 
 </details>
 
 <details>
-  <summary>Can I load configuration from file?</summary>
+  <summary>Can I load configuration from a file?</summary>
 
   **Yes**, you can use toml-based configuration files:
 
@@ -175,8 +177,8 @@ FAQ
   ```
 
   Multiple configuration files are supported. However, global-like options such as ``--verbose`` or ``--reports`` are
-  only loaded from top configuration file. Read more in
-  [configuration](https://robocop.readthedocs.io/en/stable/configuration/configuration.html).
+  only loaded from a top configuration file. Read more in
+  [configuration](https://robocop.dev/stable/configuration/).
 
 </details>
 
@@ -222,7 +224,7 @@ FAQ
   ```
 
   More about it in
-  [our documentation](https://robocop.readthedocs.io/en/stable/rules/rules_basics.html#selecting-and-ignoring-rules).
+  [our documentation](https://robocop.dev/stable/configuration/configuration_reference/#selecting-rules).
 
 </details>
 
@@ -232,7 +234,7 @@ FAQ
   **Yes**, you can define and include custom rules using `--custom-rules` command line option
   by providing a path to a file containing your rule(s):
   ```
-  robocop --custom-rules my/own/rule.py --custom-rules rules.py,external_rules.py
+  robocop --custom-rules my/own/rule.py --custom-rules external_rules.py
   ```
 
   If you feel that your rule is very helpful and should be included in Robocop permanently,
@@ -242,14 +244,14 @@ FAQ
   [creating an issue](https://github.com/MarketSquare/robotframework-robocop/issues/new/choose).
 
   More about custom rules with code examples in
-  [our documentation](https://robocop.readthedocs.io/en/stable/rules/external_rules.html).
+  [our documentation](https://robocop.dev/stable/linter/custom_rules/).
 </details>
 
 <details>
   <summary>Can I use Robocop in continuous integration (CI) tools?</summary>
 
   **Yes**, Robocop is able to produce different kinds of reports that are supported by most popular platforms such as
-  GitHub, Gitlab, Sonar Qube etc. Read more in [reports](https://robocop.readthedocs.io/en/stable/integrations.html).
+  GitHub, Gitlab, Sonar Qube, etc. Read more in [integrations](https://robocop.dev/stable/integrations/precommit/).
 
 </details>
 

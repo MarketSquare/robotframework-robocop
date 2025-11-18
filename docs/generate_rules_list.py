@@ -35,6 +35,8 @@ Below is the list of all Robocop rules.
 > **Warning**
 >
 > Rule is deprecated.
+{% elif not rule_doc.enabled %}
+> Rule is disabled by default. Enable it by using ``--select {{ rule_doc.name }}`` option.
 {% endif %}
 
 Added: `v{{ rule_doc.robocop_version }}`
@@ -134,6 +136,7 @@ def get_checker_docs() -> tuple[list[tuple], int]:
                 "robocop_version": robocop_version,
                 "msg": rule.message,
                 "docs": rule.docs,
+                "enabled": rule.enabled,
                 "deprecated": rule.deprecated,
                 "params": [
                     {

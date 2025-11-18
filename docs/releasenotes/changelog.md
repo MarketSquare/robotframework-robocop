@@ -4,7 +4,11 @@
 
 ### Features
 
-- Added ``--silent`` option to disable all output when running Robocop ([issue #1512](https://github.com/MarketSquare/robotframework-robocop/issues/1512))
+- Add ``--silent`` option to disable all output when running Robocop ([issue #1512](https://github.com/MarketSquare/robotframework-robocop/issues/1512))
+
+### Documentation
+
+- Mark disabled rules in the documentation (previously they were not distinguishable from the enabled rules) ([issue #1518](https://github.com/MarketSquare/robotframework-robocop/issues/1518))
 
 ## 6.10.1
 

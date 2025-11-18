@@ -119,14 +119,16 @@ class InvalidCommentRule(Rule):
     """
     Invalid comment.
 
-    In Robot Framework 3.2.2 comments that started from second character in the line were not recognized as
-    comments. '#' characters needs to be in first or any other than second character in the line to be recognized
+    In Robot Framework 3.2.2, comments that started from the second character in the line were not recognised as
+    comments. '#' characters need to be in first or any other than the second character in the line to be recognised
     as a comment.
 
     Example:
-        # good
-         # bad
-          # third cell so it's good
+    ```text
+    # good
+     # bad
+      # third cell so it's good
+    ```
 
     """
 

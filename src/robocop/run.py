@@ -132,6 +132,9 @@ verbose_option = Annotated[
         rich_help_panel="Other",
     ),
 ]
+silent_option = Annotated[
+    bool, typer.Option(help="Disable all logging.", show_default="--no-silent", rich_help_panel="Other")
+]
 separator_help = """
 Token separator to use in the outputs:
 
@@ -270,6 +273,7 @@ def check_files(
     ] = False,
     root: project_root_option = None,
     verbose: verbose_option = None,
+    silent: silent_option = None,
 ) -> list[Diagnostic]:
     """Lint Robot Framework files."""
     if gitlab:
@@ -298,6 +302,7 @@ def check_files(
         file_filters=file_filters,
         language=language,
         verbose=verbose,
+        silent=silent,
         target_version=target_version,
     )
     config_manager = config.ConfigManager(
@@ -477,6 +482,7 @@ def format_files(
     language: language_option = None,
     root: project_root_option = None,
     verbose: verbose_option = None,
+    silent: silent_option = None,
 ) -> None:
     """Format Robot Framework files."""
     whitespace_config = config.WhitespaceConfig(
@@ -518,6 +524,7 @@ def format_files(
         language=language,
         file_filters=file_filters,
         verbose=verbose,
+        silent=silent,
         target_version=target_version,
     )
     config_manager = config.ConfigManager(
@@ -547,11 +554,12 @@ def list_rules(
             help="Enable only rules supported by configured version",
         ),
     ] = None,
+    silent: silent_option = None,
 ) -> None:
     """
     List available rules.
 
-    Use `--filter`` option to list only selected rules:
+    Use the ` -- filter `` option to list only selected rules:
 
     > robocop list rules --filter DISABLED
 
@@ -582,6 +590,7 @@ def list_rules(
         file_filters=None,
         language=None,
         verbose=None,
+        silent=silent,
         target_version=target_version,
     )
     config_manager = config.ConfigManager(overwrite_config=overwrite_config)
@@ -599,12 +608,14 @@ def list_rules(
     for rule in rules:
         is_enabled = rule.enabled and not rule.is_disabled(default_config.linter.target_version)
         enabled += int(is_enabled)
-        console.print(rule.rule_short_description(default_config.linter.target_version))
+        if not silent:
+            console.print(rule.rule_short_description(default_config.linter.target_version))
         severity_counter[rule.severity.value] += 1
     configurable_rules_sum = sum(severity_counter.values())
     plural = get_plural_form(configurable_rules_sum)
-    console.print(f"\nAltogether {configurable_rules_sum} rule{plural} ({enabled} enabled).\n")
-    print(f"Visit {ROBOCOP_RULES_URL.format(version='stable')} page for detailed documentation.")
+    if not silent:
+        console.print(f"\nAltogether {configurable_rules_sum} rule{plural} ({enabled} enabled).\n")
+        print(f"Visit {ROBOCOP_RULES_URL.format(version='stable')} page for detailed documentation.")
 
 
 @list_app.command(name="reports")
@@ -627,14 +638,16 @@ def list_reports(
             help="Enable selected reports.",
         ),
     ] = None,
+    silent: silent_option = None,
 ) -> None:
     """List available reports."""
     console = Console(soft_wrap=True)
     linter_config = config.LinterConfig(reports=reports)
-    overwrite_config = config.Config(linter=linter_config)
+    overwrite_config = config.Config(linter=linter_config, silent=silent)
     config_manager = config.ConfigManager(overwrite_config=overwrite_config)
     runner = RobocopLinter(config_manager)
-    console.print(print_reports(runner.reports, enabled))  # TODO: color etc
+    if not silent:
+        console.print(print_reports(runner.reports, enabled))  # TODO: color etc
 
 
 @list_app.command(name="formatters")
@@ -649,6 +662,7 @@ def list_formatters(
             help="Enable only rules supported by configured version",
         ),
     ] = None,
+    silent: silent_option = None,
 ) -> None:
     """List available formatters."""
     from rich.table import Table
@@ -677,6 +691,7 @@ def list_formatters(
         file_filters=None,
         language=None,
         verbose=None,
+        silent=silent,
         target_version=target_version,
     )
     config_manager = config.ConfigManager(overwrite_config=overwrite_config)
@@ -689,19 +704,20 @@ def list_formatters(
         formatters = [formatter for formatter in default_config.formatter.formatters.values() if not formatter.ENABLED]
     else:
         raise ValueError(f"Unrecognized rule category '{filter_category}'")
-    table = Table(title="Formatters", header_style="bold red")
-    table.add_column("Name", justify="left", no_wrap=True)
-    table.add_column("Enabled")
-    for formatter in formatters:
-        decorated_enable = "Yes" if formatter.ENABLED else "No"
-        table.add_row(formatter.__class__.__name__, decorated_enable)
-    console.print(table)
-    console.print(
-        "To see detailed docs run:\n"
-        "    [bold]robocop docs [blue]formatter_name[/][/]\n"
-        "Non-default formatters needs to be selected explicitly with [bold cyan]--select[/] or "
-        "configured with param `enabled=True`.\n"
-    )
+    if not silent:
+        table = Table(title="Formatters", header_style="bold red")
+        table.add_column("Name", justify="left", no_wrap=True)
+        table.add_column("Enabled")
+        for formatter in formatters:
+            decorated_enable = "Yes" if formatter.ENABLED else "No"
+            table.add_row(formatter.__class__.__name__, decorated_enable)
+        console.print(table)
+        console.print(
+            "To see detailed docs run:\n"
+            "    [bold]robocop docs [blue]formatter_name[/][/]\n"
+            "Non-default formatters needs to be selected explicitly with [bold cyan]--select[/] or "
+            "configured with param `enabled=True`.\n"
+        )
 
 
 @app.command("docs")

@@ -242,6 +242,8 @@ class PrintIssuesReport(robocop.linter.reports.Report):
                 self._print_issue_with_lines(source_lines, source_rel, diagnostic)
 
     def generate_report(self, diagnostics: Diagnostics, **kwargs) -> None:  # noqa: ARG002
+        if self.config.silent:
+            return
         if self.output_format == OutputFormat.SIMPLE:
             self.print_diagnostics_simple(diagnostics)
         elif self.output_format == OutputFormat.GROUPED:

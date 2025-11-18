@@ -34,4 +34,6 @@ class TimeTakenReport(robocop.linter.reports.ComparableReport):
         else:
             diff = ""
         self.time_taken = f"{time_taken:.3f}"
+        if self.config.silent:
+            return
         print(f"\nScan finished in {self.time_taken}s{diff}.")

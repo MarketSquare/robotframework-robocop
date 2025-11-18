@@ -18,6 +18,14 @@ def test_no_files_selected(tmp_path, capsys):
     assert out == expected
 
 
+def test_no_files_selected_silent(tmp_path, capsys):
+    with working_directory(tmp_path):
+        ret = check_files(ignore_file_config=True, return_result=True, silent=True)
+    out, _ = capsys.readouterr()
+    assert not ret
+    assert out == ""
+
+
 @pytest.mark.parametrize(
     "config",
     [

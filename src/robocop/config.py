@@ -197,6 +197,7 @@ class LinterConfig:
     after_run_checkers: list[AfterRunChecker] | None = field(default=None, compare=False)
     project_checkers: list[BaseChecker] | None = field(default=None, compare=False)
     _rules: dict[str, Rule] | None = field(default=None, compare=False)
+    silent: bool | None = False
 
     def __post_init__(self):
         if not self.target_version:
@@ -277,6 +278,8 @@ class LinterConfig:
 
     def validate_any_rule_enabled(self) -> None:
         """Validate and print warning if no rule is selected."""
+        if self.silent:
+            return
         if not any(not checker.disabled for checker in self._checkers):
             print(
                 f"No rule selected with the existing configuration from the {self.config_source} . "
@@ -299,7 +302,8 @@ class LinterConfig:
             if name in self._rules:
                 rule = self._rules[name]
                 if rule.deprecated:
-                    print(rule.deprecation_warning)
+                    if not self.silent:
+                        print(rule.deprecation_warning)
                 else:
                     rule.configure(param, value)
             # else:  TODO
@@ -364,6 +368,7 @@ class FormatterConfig:
     start_line: int | None = None
     end_line: int | None = None
     languages: Languages | None = field(default=None, compare=False)
+    silent: bool | None = False
     _parameters: dict[str, dict[str, str]] | None = field(default=None, compare=False)
     _formatters: dict[str, ...] | None = field(default=None, compare=False)
 
@@ -536,6 +541,7 @@ class Config:
     language: list[str] | None = field(default_factory=list)
     languages: Languages | None = field(default=None, compare=False)
     verbose: bool | None = field(default_factory=bool)
+    silent: bool | None = field(default_factory=bool)
     target_version: int | str | None = misc.ROBOT_VERSION.major
     config_source: str = "cli"
 
@@ -545,8 +551,10 @@ class Config:
         if self.formatter:
             self.formatter.target_version = self.target_version or ROBOT_VERSION.major
             self.formatter.languages = self.languages
+            self.formatter.silent = self.silent
         if self.linter:
             self.linter.target_version = Version(f"{self.target_version}.0") if self.target_version else ROBOT_VERSION
+            self.linter.silent = self.silent
 
     def load_languages(self):
         if Languages is None:
@@ -578,6 +586,7 @@ class Config:
             "file_filters": FileFiltersOptions.from_toml(config),
             "language": config.pop("language", []),
             "verbose": config.pop("verbose", False),
+            "silent": config.pop("silent", False),
         }
         if "target_version" in config:
             parsed_config["target_version"] = validate_target_version(config["target_version"])
@@ -613,6 +622,7 @@ class Config:
             "format",
             "language",
             "verbose",
+            "silent",
             "include",
             "default_include",
             "exclude",

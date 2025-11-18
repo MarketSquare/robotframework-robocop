@@ -69,13 +69,14 @@ class RobocopLinter:
             try:
                 model = self.get_model_for_file_type(source, config.language)
             except DataError as error:
-                print(f"Failed to decode {source} with an error: {error}. Skipping file")
+                if not config.silent:
+                    print(f"Failed to decode {source} with an error: {error}. Skipping file")
                 continue
             files += 1
             diagnostics = self.run_check(model, source, config)
             issues_no += len(diagnostics)
             self.diagnostics.extend(diagnostics)
-        if not files:
+        if not files and not self.config_manager.default_config.silent:
             print("No Robot files were found with the existing configuration.")
         if "file_stats" in self.reports:
             self.reports["file_stats"].files_count = files

@@ -6,6 +6,25 @@
 
 - Add ``--silent`` option to disable all output when running Robocop ([issue #1512](https://github.com/MarketSquare/robotframework-robocop/issues/1512))
 
+### Fixes
+
+- Fix multiline inline IF splitting. To avoid issues when formatting such code, **all inline IFs are now flattened to a single line** ([issue #1506](https://github.com/MarketSquare/robotframework-robocop/issues/1506)):
+
+```robotframework
+*** Test Cases ***
+Multiline inline IF
+    IF    True
+    ...    Something
+```
+
+becomes:
+
+```robotframework
+*** Test Cases ***
+Multiline inline IF
+    IF    True    Something
+````
+
 ### Documentation
 
 - Mark disabled rules in the documentation (previously they were not distinguishable from the enabled rules) ([issue #1518](https://github.com/MarketSquare/robotframework-robocop/issues/1518))

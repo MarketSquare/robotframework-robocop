@@ -9,8 +9,7 @@ Inline IF
         IF    $cond    Keyword
     END
 
-    ${var}    IF    $cond    Keyword
-    ...    ${arg}
+    ${var}    IF    $cond    Keyword    ${arg}
 
     FOR    ${var}    IN RANGE    10
         FOR    ${var2}    1    2

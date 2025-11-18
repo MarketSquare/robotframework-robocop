@@ -75,6 +75,13 @@ class TestListFormatters:
         assert "NormalizeNewLines" not in result.stdout
         assert "Translate" in result.stdout
 
+    @pytest.mark.parametrize("list_command", ["rules", "formatters", "reports"])
+    def test_list_with_silent(self, list_command):
+        runner = CliRunner()
+        result = runner.invoke(app, ["list", list_command, "--silent"])
+        assert result.exit_code == 0
+        assert result.stdout == ""
+
     def test_target_version(self):
         runner = CliRunner()
         result = runner.invoke(app, ["list", "formatters", "--filter", "ENABLED", "--target-version", "4"])
@@ -98,6 +105,14 @@ class TestListFormatters:
         assert "Generated SARIF report at .sarif.json" in result.stdout
         assert "Generated JSON report at robocop.json" in result.stdout
         assert "Generated SonarQube report at robocop_sonar_qube.json" in result.stdout
+
+    def test_reports_with_silent(self, tmp_path):
+        (tmp_path / "test.robot").write_text("*** Settings ***")
+        runner = CliRunner()
+        with working_directory(tmp_path):
+            result = runner.invoke(app, ["check", "--reports", "all", "--silent"])
+        assert result.exit_code == 1
+        assert result.stdout == ""
 
     @pytest.mark.parametrize(
         ("check", "will_format", "expected_exit_code"),

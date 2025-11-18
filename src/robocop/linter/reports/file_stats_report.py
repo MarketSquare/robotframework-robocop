@@ -31,6 +31,8 @@ class FileStatsReport(robocop.linter.reports.ComparableReport):
             output = self.get_report_with_compare(prev_results)
         else:
             output = self.get_report_without_compare()
+        if self.config.silent:
+            return
         print(output)
 
     def get_report_with_compare(self, prev_results: dict) -> str:

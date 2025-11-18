@@ -17,7 +17,7 @@ class Report:
     """
     Base class for report class.
 
-    Override `configure` method if you want to allow report configuration.
+    Override the ` configure ` method if you want to allow report configuration.
 
     Set class attribute `NO_ALL` to `False` if you don't want your report to be included in `all` reports.
     """

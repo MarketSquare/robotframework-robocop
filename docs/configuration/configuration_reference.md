@@ -188,6 +188,26 @@ Enable more verbose output with ``--verbose`` flag.
 
 ---
 
+#### ``silent``
+
+Disable logging with ``--silent`` flag.
+
+=== ":octicons-command-palette-24: cli"
+
+    ```bash
+    robocop check --silent
+    robocop format --silent
+    ```
+
+=== ":material-file-cog-outline: toml"
+
+    ```toml
+    [tool.robocop]
+    silent = true
+    ```
+
+---
+
 ### Configuration options
 
 #### ``config``

@@ -23,6 +23,7 @@ def prepare_files(temporary_directory: Path, config_name: str):
 
 
 class TestOverwriteModes:
+    @pytest.mark.parametrize("silent", [False, True])
     @pytest.mark.parametrize(
         ("modes", "overwrite_args", "file_modified", "exit_code"),
         [
@@ -38,10 +39,13 @@ class TestOverwriteModes:
             ("overwrite", {"check": True}, True, 1),
         ],
     )
-    def test_check_from_config(self, modes, overwrite_args, file_modified, exit_code, tmp_path, capsys):
+    def test_check_from_config(self, modes, overwrite_args, file_modified, exit_code, silent, tmp_path, capsys):
         # Arrange
         prepare_files(tmp_path, config_name=f"{modes}.toml")
-        if file_modified:
+        if silent:
+            msg = ""
+            overwrite_args["silent"] = silent
+        elif file_modified:
             msg = "\n1 file reformatted, 0 files left unchanged.\n"
         else:
             msg = "\n1 file would be reformatted, 0 files would be left unchanged.\n"
@@ -52,5 +56,8 @@ class TestOverwriteModes:
         out, _ = capsys.readouterr()
 
         # Assert
-        assert msg in out
+        if msg:
+            assert msg in out
+        else:
+            assert out == ""
         assert exit_status.value.exit_code == exit_code

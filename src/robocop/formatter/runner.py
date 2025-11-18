@@ -65,14 +65,15 @@ class RobocopFormatter:
                     self.output_diff(model_path, old_model, new_model)
                     changed_files += 1
             except DataError as err:
-                print(f"Failed to decode {source} with an error: {err}\nSkipping file")  # TODO stderr
+                if not config.silent:
+                    print(f"Failed to decode {source} with an error: {err}\nSkipping file")  # TODO stderr
                 changed_files = previous_changed_files
                 skipped_files += 1
         return self.formatting_result(all_files, changed_files, skipped_files, stdin)
 
     def formatting_result(self, all_files: int, changed_files: int, skipped_files: int, stdin: bool) -> NoReturn:
         """Print formatting summary and return status code."""
-        if not stdin:
+        if not stdin and not self.config_manager.default_config.silent:
             all_files = all_files - changed_files - skipped_files
             all_files_plurar = "" if all_files == 1 else "s"
             changed_files_plurar = "" if changed_files == 1 else "s"
@@ -119,7 +120,7 @@ class RobocopFormatter:
         return new_model != old_model, old_model, new_model
 
     def log_formatted_source(self, source: Path, stdin: bool):
-        if stdin:
+        if stdin or self.config.silent:
             return
         if not self.config.formatter.overwrite_files:
             print(f"Would reformat {source}")  # TODO: replace prints with typer equivalent (if needed)

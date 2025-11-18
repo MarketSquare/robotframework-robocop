@@ -1,5 +1,11 @@
 # Release notes
 
+## 6.11.0
+
+### Features
+
+- Added ``--silent`` option to disable all output when running Robocop ([issue #1512](https://github.com/MarketSquare/robotframework-robocop/issues/1512))
+
 ## 6.10.1
 
 ### Fixes

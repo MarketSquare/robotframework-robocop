@@ -130,3 +130,8 @@ Run Keyword If Test Passed
 
 Run Keyword If Timeout Occurred
     Run Keyword If Timeout Occurred    Keyword    argument
+
+Run Keyword Inside IF
+    IF    ${True}
+        Run Keywords    Something    AND    Other    AND    Other
+    END

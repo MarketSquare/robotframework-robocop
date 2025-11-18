@@ -128,7 +128,7 @@ class NormalizeSeparators(Formatter):
         if statement is None:
             return None
         has_pipes = statement.tokens[0].value.startswith("|")
-        if has_pipes or not self.flatten_lines:
+        if not self.is_inline and (has_pipes or not self.flatten_lines):
             return self.handle_spaces(statement, has_pipes)
         return self.handle_spaces_and_flatten_lines(statement)
 

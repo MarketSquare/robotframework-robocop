@@ -685,7 +685,8 @@ class Config:
 
 class GitIgnoreResolver:
     def __init__(self):
-        self.cached_ignores: dict[Path, pathspec.PathSpec] = {}
+        self.cached_ignores: dict[Path, list[pathspec.PathSpec] | None] = {}
+        self.ignore_dirs: set[Path] = set()
 
     def path_excluded(self, path: Path, gitignores: list[tuple[Path, pathspec.PathSpec]]) -> bool:
         """Find path gitignores and check if file is excluded."""
@@ -693,7 +694,11 @@ class GitIgnoreResolver:
             return False
         for gitignore_path, gitignore in gitignores:
             relative_path = files.get_relative_path(path, gitignore_path)
-            if gitignore.match_file(relative_path):
+            path = str(relative_path)
+            # fixes a bug in pathspec where directory needs to end with / to be ignored by pattern
+            if relative_path.is_dir() and path != ".":
+                path = f"{path}{os.sep}"
+            if gitignore.match_file(path):
                 return True
         return False
 
@@ -720,13 +725,22 @@ class GitIgnoreResolver:
         if path.is_file():
             path = path.parent
         gitignores = []
-        for parent_path in [path, *path.parents]:
+        search_paths = (parent for parent in [path, *path.parents])
+        for parent_path in search_paths:
+            if parent_path in self.ignore_dirs:  # dir that does not have .gitignore (marked as such)
+                gitignores.extend([self.cached_ignores[path] for path in search_paths if path in self.cached_ignores])
+                break
             if parent_path in self.cached_ignores:
                 gitignores.append(self.cached_ignores[parent_path])
-            elif (gitignore_path := parent_path / ".gitignore").is_file():
+                # if any parent is cached, we can retrieve any parent with gitignore from cache and return early
+                gitignores.extend([self.cached_ignores[path] for path in search_paths if path in self.cached_ignores])
+                break
+            if (gitignore_path := parent_path / ".gitignore").is_file():
                 gitignore = self.read_gitignore(gitignore_path)
                 self.cached_ignores[parent_path] = (parent_path, gitignore)
                 gitignores.append((parent_path, gitignore))
+            else:
+                self.ignore_dirs.add(parent_path)
             if (parent_path / ".git").is_dir():
                 break
         return gitignores
@@ -787,7 +801,7 @@ class ConfigManager:
             self._paths = {}
             sources = self.sources if self.sources else self.default_config.sources
             ignore_file_filters = not self.force_exclude and bool(sources)
-            self.resolve_paths(sources, gitignores=None, ignore_file_filters=ignore_file_filters)
+            self.resolve_paths(sources, ignore_file_filters=ignore_file_filters)
         yield from self._paths.items()
 
     def get_default_config(self, config_path: Path | None) -> Config:
@@ -801,6 +815,7 @@ class ConfigManager:
             config = self.find_config_in_dirs(directories, default=None)
             if not config:
                 config = Config()
+                self.cached_configs.update({sub_dir: config for sub_dir in directories})
         config.overwrite_from_config(self.overwrite_config)
         return config
 
@@ -812,14 +827,14 @@ class ConfigManager:
 
     def find_closest_config(self, source: Path, default: Config | None) -> Config:
         """Look in the directory and its parents for the closest valid configuration file."""
-        return self.find_config_in_dirs(list(source.parents), default)
+        return self.find_config_in_dirs(source.parents, default)
 
     def find_config_in_dirs(self, directories: list[Path], default: Config | None) -> Config:
         seen = []  # if we find config, mark all visited directories with resolved config
         for check_dir in directories:
             if check_dir in self.cached_configs:
                 return self.cached_configs[check_dir]
-            seen.append(check_dir.resolve())
+            seen.append(check_dir)
             for config_filename in CONFIG_NAMES:
                 if (config_path := (check_dir / config_filename)).is_file():
                     configuration = files.read_toml_config(config_path)
@@ -832,6 +847,9 @@ class ConfigManager:
                         return config
             if self.is_git_project_root(check_dir):
                 break
+
+        if default:
+            self.cached_configs.update({sub_dir: default for sub_dir in seen})
         return default
 
     def get_config_for_source_file(self, source_file: Path) -> Config:
@@ -852,7 +870,6 @@ class ConfigManager:
     def resolve_paths(
         self,
         sources: list[str | Path],
-        gitignores: list[tuple[Path, pathspec.PathSpec]] | None,
         ignore_file_filters: bool = False,
     ) -> None:
         """
@@ -867,6 +884,8 @@ class ConfigManager:
             ignore_file_filters: force robocop to parse file even if it's excluded in the configuration
 
         """
+        source_gitignore = None
+        config = None
         for source in sources:
             source_not_resolved = Path(source)
             source = source_not_resolved.resolve()
@@ -876,20 +895,18 @@ class ConfigManager:
                 if source_not_resolved.is_symlink():  # i.e. dangling symlink
                     continue
                 raise exceptions.FatalError(f"File '{source}' does not exist")
-            config = self.get_config_for_source_file(source)
+            if config is None:  # first file in the directory
+                config = self.get_config_for_source_file(source)
             if not ignore_file_filters:
                 if config.file_filters.path_excluded(source_not_resolved):
                     continue
                 if source.is_file() and not config.file_filters.path_included(source_not_resolved):
                     continue
                 if not self.skip_gitignore:
-                    if gitignores is None:
-                        source_gitignore = self.gitignore_resolver.resolve_path_ignores(source_not_resolved)
-                    else:
-                        source_gitignore = gitignores
+                    source_gitignore = self.gitignore_resolver.resolve_path_ignores(source_not_resolved)
                     if self.gitignore_resolver.path_excluded(source_not_resolved, source_gitignore):
                         continue
             if source.is_dir():
-                self.resolve_paths(source.iterdir(), gitignores)
+                self.resolve_paths(source.iterdir())
             elif source.is_file():
                 self._paths[source] = config

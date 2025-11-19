@@ -1,0 +1,5 @@
+[tool.robocop.format]
+configure = [
+"NormalizeNewLines.enabled=False :section_lines=2",
+"OrderSettingsSection.enabled=True :new_lines_between_groups=2",
+]

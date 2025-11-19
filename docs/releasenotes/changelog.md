@@ -30,6 +30,7 @@ becomes:
 Multiline inline IF
     IF    True    Something
 ```
+- Fix ``enabled`` formatter parameter not validating as a boolean ([issue #1476](https://github.com/MarketSquare/robotframework-robocop/issues/1476))
 
 ### Documentation
 

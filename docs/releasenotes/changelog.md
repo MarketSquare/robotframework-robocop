@@ -35,6 +35,9 @@ Multiline inline IF
 ### Documentation
 
 - Mark disabled rules in the documentation (previously they were not distinguishable from the enabled rules) ([issue #1518](https://github.com/MarketSquare/robotframework-robocop/issues/1518))
+- Add two new sections to the documentation:
+  - [Python API Reference](https://robocop.dev/stable/user_guide/python_api/)
+  - [AI integration](https://robocop.dev/stable//integrations/ai/)
 
 ## 6.10.1
 

@@ -38,6 +38,7 @@ nav:
   - User Guide:
       - "Getting started": user_guide/intro.md
       - "Migrate to Robocop 6.0": user_guide/migrate_to_robocop6.md
+      - "Python API Reference": user_guide/python_api.md
   - Linter:
       - Linter: linter/linter.md
       - Rules: linter/rules.md
@@ -109,6 +110,7 @@ nav:
       - Gitlab: integrations/gitlab.md
       - Github: integrations/github.md
       - Jenkins: integrations/jenkins.md
+      - AI integration: integrations/ai.md
   - Release Notes: releasenotes/changelog.md
 
 plugins:

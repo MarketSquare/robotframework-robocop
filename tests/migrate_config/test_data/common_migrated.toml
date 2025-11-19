@@ -55,7 +55,8 @@ space_count = 4
 continuation_indent = 2
 line_separator = "native"
 configure = [
-    "OrderSettings.keyword_before=documentation,tags,timeout,arguments:keyword_after=return",
+    "OrderSettings.keyword_before=documentation,tags,timeout,arguments",
+    "OrderSettings.keyword_after=return",
     "OrderSettingsSection.group_order=documentation,imports,settings,tags",
     "OrderSettingsSection.imports_order=library,resource,variables",
     "AlignKeywordsSection.skip_return_values=False",

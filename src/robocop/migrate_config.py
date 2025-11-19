@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import re
+import shlex
 from typing import TYPE_CHECKING
 
 import tomli_w
@@ -289,6 +290,33 @@ def drop_formatters_with_enabled_config(robotidy_config: dict) -> dict:
     return robotidy_config
 
 
+def split_params(s):
+    lexer = shlex.shlex(s, posix=True)
+    lexer.whitespace = ":"  # treat ':' as a separator
+    lexer.whitespace_split = True  # actually split on whitespace chars
+    return [item.strip() for item in list(lexer) if item.strip()]
+
+
+def split_multiline_config(configuration: dict) -> None:
+    """Split a multiline configuration to multiple lines."""
+    if "configure" not in configuration["format"]:
+        return
+    new_configure = []
+    for config in configuration["format"]["configure"]:
+        if ":" not in config:
+            new_configure.append(config)
+        else:
+            name, params = config.split(".", maxsplit=1)
+            params = split_params(params)
+            if len(params) == 1:  # only escaped :
+                new_configure.append(config)
+                continue
+            for param in params:
+                param, value = param.split("=", maxsplit=1)
+                new_configure.append(f"{name.strip()}.{param.strip()}={value.strip()}")
+    configuration["format"]["configure"] = new_configure
+
+
 def migrate_deprecated_configs(config_path: Path) -> None:
     # TODO: Warn that file should have [tool.robocop] and [tool.robotidy] sections
     config = load_toml_file(config_path)
@@ -369,6 +397,7 @@ def migrate_deprecated_configs(config_path: Path) -> None:
             migrated["format"]["configure"] = new_configure
     if skips := convert_skips(robotidy_config):
         migrated["format"]["skip"] = skips
+    split_multiline_config(migrated)
     if "target_version" in robotidy_config:
         migrated["target_version"] = convert_target_version(robotidy_config["target_version"])
     if not migrated["lint"]:

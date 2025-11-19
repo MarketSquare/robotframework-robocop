@@ -1,0 +1,11 @@
+[tool.robocop.format]
+configure = [
+    "IndentNestedKeywords.indent_and=keep_in_line",
+    "IndentNestedKeywords.skip_settings=True",
+    "SomeFormatter.param1=value1",
+    "SomeFormatter.param2=value2",
+    "SomeFormatter.param3=value3",
+    "OtherFormatter.param1=value:2",
+    "OtherFormatter.param2=value2",
+    "OtherFormatter2.param1='value:2'",
+]

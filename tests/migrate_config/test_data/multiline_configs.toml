@@ -1,0 +1,7 @@
+[tool.robotidy]
+configure = [
+    "IndentNestedKeywords: indent_and=keep_in_line: skip_settings=True",
+    "SomeFormatter:param1=value1:param2=value2 : param3=value3",
+    "OtherFormatter:param1='value:2':param2=value2",
+    "OtherFormatter2:param1='value:2'"
+]

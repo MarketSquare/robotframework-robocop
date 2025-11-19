@@ -1,0 +1,4 @@
+[tool.robocop.format]
+select = [
+    "ReplaceRunKeywordIf",
+]

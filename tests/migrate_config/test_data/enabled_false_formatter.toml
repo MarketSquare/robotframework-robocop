@@ -1,0 +1,5 @@
+[tool.robotidy]
+transform = [
+    "ReplaceRunKeywordIf: enabled = True",
+    "SmartSortKeywords: enabled = False",
+]

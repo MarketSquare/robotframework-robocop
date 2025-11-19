@@ -11,7 +11,8 @@
 
 ### Fixes
 
-- Fix directories from the ``.gitignore`` file not ignored ([issue #1503](https://github.com/MarketSquare/robotframework-robocop/issues/1503)
+- Fix directories from the ``.gitignore`` file not ignored ([issue #1503](https://github.com/MarketSquare/robotframework-robocop/issues/1503))
+- Fix ``migrate`` command migrating formatters with ``enabled=False`` from the old transform to select option ([issue #1492](https://github.com/MarketSquare/robotframework-robocop/issues/1492))
 - Fix multiline inline IF splitting. To avoid issues when formatting such code, **all inline IFs are now flattened to a single line** ([issue #1506](https://github.com/MarketSquare/robotframework-robocop/issues/1506)):
 
 ```robotframework

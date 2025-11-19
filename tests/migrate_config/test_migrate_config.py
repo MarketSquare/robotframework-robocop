@@ -14,7 +14,7 @@ TEST_DATA = Path(__file__).parent / "test_data"
 
 def display_file_diff(expected, actual) -> bool:
     """
-    Display difference between files.
+    Display the difference between files.
 
     If files are only different with EOLs, return False. Return True otherwise.
     """
@@ -42,6 +42,7 @@ def display_file_diff(expected, actual) -> bool:
         ("common_hyphens", "common_migrated.toml"),
         ("skip", "skip_migrated.toml"),
         ("skip_false", None),
+        ("enabled_false_formatter", "enabled_false_formatter_migrated.toml"),
     ],
 )
 def test_migrate_config(source_config, expected_config, tmp_path):

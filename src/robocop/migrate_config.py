@@ -267,6 +267,28 @@ def split_config_from_select(select: list[str], configure: list[str]) -> tuple[l
     return new_select, configure
 
 
+def drop_formatters_with_enabled_config(robotidy_config: dict) -> dict:
+    """Drop formatters that are configured with enabled=False."""
+    # TODO: if someone already uses both transform and configure to enable additional transformers, it will not work
+    formatters = robotidy_config.get("transform", [])
+    if not formatters:
+        return robotidy_config
+    without_enabled = []
+    for formatter in formatters:
+        if ":" not in formatter:
+            without_enabled.append(formatter)
+        else:
+            name, param_and_value = formatter.split(":", maxsplit=1)
+            param, value = param_and_value.split("=", maxsplit=1)
+            if param.strip() == "enabled":
+                if value.lower().strip() == "true":
+                    without_enabled.append(name.strip())
+            else:
+                without_enabled.append(formatter)
+    robotidy_config["transform"] = without_enabled
+    return robotidy_config
+
+
 def migrate_deprecated_configs(config_path: Path) -> None:
     # TODO: Warn that file should have [tool.robocop] and [tool.robotidy] sections
     config = load_toml_file(config_path)
@@ -316,6 +338,7 @@ def migrate_deprecated_configs(config_path: Path) -> None:
             migrated["lint"]["configure"].append(f"text_file.output_path={robocop_config['output']}")
         else:
             migrated["lint"]["configure"] = [f"text_file.output_path={robocop_config['output']}"]
+    robotidy_config = drop_formatters_with_enabled_config(robotidy_config)
     migrated["format"] = copy_keys(
         robotidy_config,  # load-transformers / --custom-transformers
         {
@@ -339,9 +362,11 @@ def migrate_deprecated_configs(config_path: Path) -> None:
         },
     )
     if "select" in migrated["format"]:
-        migrated["format"]["select"], migrated["format"]["configure"] = split_config_from_select(
+        migrated["format"]["select"], new_configure = split_config_from_select(
             migrated["format"]["select"], migrated["format"].get("configure", [])
         )
+        if new_configure:
+            migrated["format"]["configure"] = new_configure
     if skips := convert_skips(robotidy_config):
         migrated["format"]["skip"] = skips
     if "target_version" in robotidy_config:

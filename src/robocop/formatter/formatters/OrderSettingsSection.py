@@ -27,17 +27,17 @@ class OrderSettingsSection(Formatter):
       - ``imports_order = preserved``
       - ``settings_order = suite_setup,suite_teardown,test_setup,test_teardown,test_timeout,test_template``
 
-    By default, order of imports is preserved. Read more on configuring this behaviour in the documentation in
-    ``Imports order`` section.
+    By default, the order of imports is preserved. Read more on configuring this behaviour in the documentation in
+    ``Imports order`` a section.
 
-    Setting names omitted from custom order will be removed from the file. In following example we are missing metadata
-    therefore all metadata will be removed:
+    Setting names omitted from custom order will be removed from the file. In the following example we are missing
+    metadata; therefore, all metadata will be removed:
 
     ```
     robocop format --configure OrderSettingsSection.documentation_order=documentation
     ```
 
-    Parsing errors (such as Resources instead of Resource, duplicated settings) are moved to the end of section.
+    Parsing errors (such as Resources instead of Resource, duplicated settings) are moved to the end of a section.
     """
 
     def __init__(

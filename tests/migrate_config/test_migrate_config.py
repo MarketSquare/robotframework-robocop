@@ -43,6 +43,7 @@ def display_file_diff(expected, actual) -> bool:
         ("skip", "skip_migrated.toml"),
         ("skip_false", None),
         ("enabled_false_formatter", "enabled_false_formatter_migrated.toml"),
+        ("multiline_configs", "multiline_configs_migrated.toml"),
     ],
 )
 def test_migrate_config(source_config, expected_config, tmp_path):

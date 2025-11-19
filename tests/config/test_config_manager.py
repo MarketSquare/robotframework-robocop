@@ -5,7 +5,7 @@ from pathlib import Path
 import pytest
 import typer
 
-from robocop import files
+from robocop import exceptions, files
 from robocop.config import Config, ConfigManager, FileFiltersOptions, FormatterConfig, LinterConfig
 from robocop.formatter.utils.misc import ROBOT_VERSION
 from robocop.linter.rules import RuleSeverity
@@ -476,3 +476,21 @@ class TestConfigFinder:
             "https://robotframework.org/robotframework/latest/RobotFrameworkUserGuide.html#translations"
         )
         assert expected_error in out
+
+    def test_incorrect_enabled(self, test_data, capsys):
+        # Arrange
+        test_dir = test_data / "config_with_enabled"
+
+        # Act
+        with working_directory(test_dir):
+            config_manager = ConfigManager(config=Path("enabled.toml"))
+        with pytest.raises(exceptions.InvalidParameterValueError):
+            _ = config_manager.default_config.formatter.formatters
+        _, err = capsys.readouterr()
+        normalized_error = " ".join(err.split())
+
+        # Assert
+        assert (
+            "NormalizeNewLines: Invalid 'enabled' parameter value: 'False :section_lines=2'. "
+            "It should be 'true' or 'false'" in normalized_error
+        )

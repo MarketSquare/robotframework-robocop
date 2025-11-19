@@ -483,6 +483,11 @@ class FormatterConfig:
             self._parameters = {}
             for config in self.configure:
                 name, param, value = self._parse_configure(config)
+                # since enabled is not part of formatter args we need to validate it here
+                if param == "enabled" and value.lower() not in ("false", "true"):
+                    raise exceptions.InvalidParameterValueError(
+                        name, "enabled", value, "It should be 'true' or 'false'."
+                    ) from None
                 if name not in self._parameters:
                     self._parameters[name] = {}
                 self._parameters[name][param] = value

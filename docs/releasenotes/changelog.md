@@ -1,5 +1,11 @@
 # Release notes
 
+## 6.12.0
+
+### Documentation
+
+- Add ``deprecated names`` section to all the rules that list previous names and ids of the rule
+
 ## 6.11.0
 
 ### Features

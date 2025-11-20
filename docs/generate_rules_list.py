@@ -43,6 +43,8 @@ Added: `v{{ rule_doc.robocop_version }}`
 
 Supported RF version `{{ rule_doc.version }}`
 
+{% if rule_doc.deprecated_names %}Deprecated names: {{ rule_doc.deprecated_names|join(", ") }}{% endif %}
+
 **Message**:
 
 `{{ rule_doc.msg }}`
@@ -138,6 +140,7 @@ def get_checker_docs() -> tuple[list[tuple], int]:
                 "docs": rule.docs,
                 "enabled": rule.enabled,
                 "deprecated": rule.deprecated,
+                "deprecated_names": rule.deprecated_names,
                 "params": [
                     {
                         "name": param.name,

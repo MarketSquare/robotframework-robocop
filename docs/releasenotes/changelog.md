@@ -2,6 +2,10 @@
 
 ## 6.12.0
 
+### Features
+
+- Change ``mixed-tabs-and-spaces`` (SPC06) rule behaviour to report all occurrences of mixed tabs and spaces in a file ([issue #848](https://github.com/MarketSquare/robotframework-robocop/issues/848))
+
 ### Documentation
 
 - Add ``deprecated names`` section to all the rules that list previous names and ids of the rule

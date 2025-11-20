@@ -191,7 +191,7 @@ class PrintIssuesReport(robocop.linter.reports.Report):
         start_line = max(start_line, 1)
         end_line = min(end_line, len(lines))
         gutter_width = len(str(end_line)) + 1
-        # multi-line non-empty error lines will require indenting code before/after to match error block
+        # multi-line non-empty error lines will require indenting code before/after to match the error block
         if start_line == end_line or all(not lines[line_no].strip() for line_no in range(start_line, end_line + 1)):
             indent = ""
         else:
@@ -214,7 +214,7 @@ class PrintIssuesReport(robocop.linter.reports.Report):
                 f"{self._gutter(' ', gutter_width, indent)} "
                 f"[red]{' ' * (start_col - 1)}{'^' * max(end_col - start_col, 1)} {diagnostic.rule.rule_id}[/red]"
             )
-        else:  # multi line errors, such as SPC05
+        else:  # multi-line errors, such as SPC05
             for line in range(start_line, end_line + 1):
                 sep = "/" if line == start_line else "|"
                 print_lines.append(

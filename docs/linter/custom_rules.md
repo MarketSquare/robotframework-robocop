@@ -246,3 +246,8 @@ if ROBOT_VERSION.major == 3:
 else:
     # execute this code for RF != 3.x
 ```
+
+## File-wide rules
+
+If you want to report a rule violation for a whole file and do not show any specific line in the ``extended`` view, use
+``file_wide_rule = True`` attribute in the rule class.

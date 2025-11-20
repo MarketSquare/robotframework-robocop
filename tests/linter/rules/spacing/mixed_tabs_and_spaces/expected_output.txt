@@ -1,1 +1,6 @@
-test.robot:1:1 [W] SPC06 Inconsistent use of tabs and spaces in file
+test.robot:2:14 [W] SPC06 Inconsistent use of tabs and spaces in file
+test.robot:7:32 [W] SPC06 Inconsistent use of tabs and spaces in file
+test.robot:18:20 [W] SPC06 Inconsistent use of tabs and spaces in file
+test.robot:20:39 [W] SPC06 Inconsistent use of tabs and spaces in file
+test.robot:21:19 [W] SPC06 Inconsistent use of tabs and spaces in file
+test.robot:21:41 [W] SPC06 Inconsistent use of tabs and spaces in file

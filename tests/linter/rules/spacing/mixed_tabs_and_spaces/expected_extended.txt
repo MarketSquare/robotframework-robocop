@@ -1,1 +1,51 @@
-test.robot:1:1 SPC06 Inconsistent use of tabs and spaces in file
+test.robot:2:14 SPC06 Inconsistent use of tabs and spaces in file
+   |
+ 1 | *** Settings ***
+ 2 | Documentation   Suite documentation.
+   |              ^ SPC06
+ 3 | Force Tags    logging
+   |
+
+test.robot:7:32 SPC06 Inconsistent use of tabs and spaces in file
+   |
+ 5 |
+ 6 | *** Variables ***
+ 7 | @{RANDOM_LIST}    first_element second_element
+   |                                ^ SPC06
+   |
+
+test.robot:18:20 SPC06 Inconsistent use of tabs and spaces in file
+    |
+ 16 | *** Keywords ***
+ 17 | Log Two Elements To Console
+ 18 |     [Documentation] Keyword documentation.
+    |                    ^ SPC06
+ 19 |     [Arguments]    ${first_element}    ${second_element}
+ 20 |     Log To Console    ${first_element}  ${second_element}
+    |
+
+test.robot:20:39 SPC06 Inconsistent use of tabs and spaces in file
+    |
+ 18 |     [Documentation] Keyword documentation.
+ 19 |     [Arguments]    ${first_element}    ${second_element}
+ 20 |     Log To Console    ${first_element}  ${second_element}
+    |                                       ^ SPC06
+ 21 |     Log To Console      ${second_element}       ${first_element}
+    |
+
+test.robot:21:19 SPC06 Inconsistent use of tabs and spaces in file
+    |
+ 19 |     [Arguments]    ${first_element}    ${second_element}
+ 20 |     Log To Console    ${first_element}  ${second_element}
+ 21 |     Log To Console      ${second_element}       ${first_element}
+    |                   ^^^^ SPC06
+    |
+
+test.robot:21:41 SPC06 Inconsistent use of tabs and spaces in file
+    |
+ 19 |     [Arguments]    ${first_element}    ${second_element}
+ 20 |     Log To Console    ${first_element}  ${second_element}
+ 21 |     Log To Console      ${second_element}       ${first_element}
+    |                                         ^^^^ SPC06
+    |
+

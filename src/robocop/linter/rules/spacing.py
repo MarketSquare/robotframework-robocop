@@ -231,7 +231,6 @@ class MixedTabsAndSpacesRule(Rule):
     name = "mixed-tabs-and-spaces"
     rule_id = "SPC06"
     message = "Inconsistent use of tabs and spaces in file"
-    file_wide_rule = True
     severity = RuleSeverity.WARNING
     added_in_version = "1.1.0"
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
@@ -909,29 +908,36 @@ class InconsistentUseOfTabsAndSpacesChecker(VisitorChecker):  # TODO: add found 
     mixed_tabs_and_spaces: MixedTabsAndSpacesRule
 
     def __init__(self):
-        self.found, self.tabs, self.spaces = False, False, False
+        self.tabs = []
+        self.spaces = []
         super().__init__()
 
     def visit_File(self, node: File) -> None:  # noqa: N802
-        self.found, self.tabs, self.spaces = False, False, False
+        self.tabs = []
+        self.spaces = []
         super().visit_File(node)
+        if self.tabs and self.spaces:
+            less_popular = self.tabs if len(self.tabs) < len(self.spaces) else self.spaces
+            for token in less_popular:
+                self.report(
+                    self.mixed_tabs_and_spaces,
+                    node=token,
+                    lineno=token.lineno,
+                    col=token.col_offset + 1,
+                    end_col=token.end_col_offset,
+                )
 
     def visit_Statement(self, node: Statement) -> None:  # noqa: N802
-        if self.found:
-            return
         for token in node.get_tokens(Token.SEPARATOR):
-            self.tabs = "\t" in token.value or self.tabs
-            self.spaces = " " in token.value or self.spaces
-
-            if self.tabs and self.spaces:
-                self.report(self.mixed_tabs_and_spaces, node=node, lineno=1)
-                self.found = True
-                break
+            if "\t" in token.value:
+                self.tabs.append(token)
+            elif " " in token.value:
+                self.spaces.append(token)
 
 
 def get_indent(node: type[Node]) -> int:
     """
-    Calculate the indentation length for given node
+    Calculate the indentation length for a given node.
 
     Returns:
         int: Indentation length
@@ -948,10 +954,10 @@ def get_indent(node: type[Node]) -> int:
 
 def count_indents(node: type[Node]) -> Counter:
     """
-    Count number of occurrences for unique indent values
+    Count the number of occurrences for unique indent values
 
     Returns:
-        Counter: A counter of unique indent values with associated number of occurrences in given node
+        Counter: A counter of unique indent values with an associated number of occurrences in the given node
 
     """
     indents = Counter()

@@ -223,7 +223,7 @@ class EmptyLinesBetweenKeywordsRule(Rule):
 
 class MixedTabsAndSpacesRule(Rule):
     """
-    Mixed tabs and spaces in file.
+    Mixed tabs and spaces in the file.
 
     File contains both spaces and tabs. Use only one type of separators - preferably spaces.
     """
@@ -244,9 +244,9 @@ class BadIndentRule(Rule):
     """
     Line is misaligned or indent is invalid.
 
-    This rule reports warning if the line is misaligned in the current block.
+    This rule reports a warning if the line is misaligned in the current block.
     The correct indentation is determined by the most common indentation in the current block.
-    It is possible to switch for more strict mode using ``indent`` parameter (default ``-1``).
+    It is possible to switch for stricter mode using the `` indent `` parameter (default ``-1``).
 
     Incorrect code example:
 

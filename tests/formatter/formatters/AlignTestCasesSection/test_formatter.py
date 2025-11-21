@@ -190,3 +190,30 @@ class TestAlignTestCasesSection(FormatterAcceptanceTest):
 
     def test_groups(self):
         self.compare(source="groups.robot", test_on_version=">7.1.1")
+
+    def test_var_syntax(self):
+        self.compare(source="var_syntax.robot", test_on_version=">=7")
+
+    def test_var_syntax_auto(self):
+        self.compare(
+            source="var_syntax.robot",
+            expected="var_syntax_auto.robot",
+            configure=[f"{self.FORMATTER_NAME}.alignment_type=auto"],
+            test_on_version=">=7",
+        )
+
+    def test_var_syntax_configure_widths_12(self):
+        self.compare(
+            source="var_syntax.robot",
+            expected="var_syntax_12.robot",
+            configure=[f"{self.FORMATTER_NAME}.widths=12,24,16"],
+            test_on_version=">=7",
+        )
+
+    def test_var_syntax_configure_widths_24(self):
+        self.compare(
+            source="var_syntax.robot",
+            expected="var_syntax_24.robot",
+            configure=[f"{self.FORMATTER_NAME}.widths=24,24,16"],
+            test_on_version=">=7",
+        )

@@ -6,6 +6,11 @@
 
 - Change ``mixed-tabs-and-spaces`` (SPC06) rule behaviour to report all occurrences of mixed tabs and spaces in a file ([issue #848](https://github.com/MarketSquare/robotframework-robocop/issues/848))
 
+
+### Fixes
+
+- Fix ``AlignKeywordsSection`` and ``AlignTestCasesSection`` not aligning VAR variables ([issue #1493](https://github.com/MarketSquare/robotframework-robocop/issues/1493))
+
 ### Documentation
 
 - Add ``deprecated names`` section to all the rules that list previous names and ids of the rule

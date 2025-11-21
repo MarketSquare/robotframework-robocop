@@ -483,7 +483,14 @@ def format_files(
     root: project_root_option = None,
     verbose: verbose_option = None,
     silent: silent_option = None,
-) -> None:
+    return_result: Annotated[
+        bool,
+        typer.Option(
+            help="Do not exit from the application and return exit code instead.",
+            hidden=True,
+        ),
+    ] = False,
+) -> int:
     """Format Robot Framework files."""
     whitespace_config = config.WhitespaceConfig(
         space_count=space_count,
@@ -514,6 +521,7 @@ def format_files(
         start_line=start_line,
         end_line=end_line,
         reruns=reruns,
+        return_result=return_result,
     )
     file_filters = config.FileFiltersOptions(
         include=include, default_include=default_include, exclude=exclude, default_exclude=default_exclude
@@ -538,7 +546,7 @@ def format_files(
         overwrite_config=overwrite_config,
     )
     runner = RobocopFormatter(config_manager)
-    runner.run()
+    return runner.run()
 
 
 @list_app.command(name="rules")

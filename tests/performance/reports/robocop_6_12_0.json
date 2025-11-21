@@ -1,0 +1,140 @@
+{
+    "formatter_report": {
+        "AddMissingEnd": {
+            "avg_time": 0.008333814999059542,
+            "counter": 3
+        },
+        "NormalizeSeparators": {
+            "avg_time": 0.01506218375034223,
+            "counter": 13
+        },
+        "DiscardEmptySections": {
+            "avg_time": 0.0029950962511065883,
+            "counter": 2
+        },
+        "MergeAndOrderSections": {
+            "avg_time": 0.010500902498824871,
+            "counter": 14
+        },
+        "RemoveEmptySettings": {
+            "avg_time": 0.004654049999408017,
+            "counter": 3
+        },
+        "ReplaceEmptyValues": {
+            "avg_time": 0.002375233751081396,
+            "counter": 1
+        },
+        "ReplaceWithVAR": {
+            "avg_time": 0.014524597499985248,
+            "counter": 4
+        },
+        "NormalizeAssignments": {
+            "avg_time": 0.005700041249292553,
+            "counter": 7
+        },
+        "GenerateDocumentation": {
+            "avg_time": 0.0052125462505500765,
+            "counter": 3
+        },
+        "OrderSettings": {
+            "avg_time": 0.006444727500092995,
+            "counter": 4
+        },
+        "OrderSettingsSection": {
+            "avg_time": 0.005398141250771005,
+            "counter": 8
+        },
+        "NormalizeTags": {
+            "avg_time": 0.007895717499741295,
+            "counter": 10
+        },
+        "OrderTags": {
+            "avg_time": 0.00384268375019019,
+            "counter": 3
+        },
+        "RenameVariables": {
+            "avg_time": 0.020893334999891523,
+            "counter": 14
+        },
+        "IndentNestedKeywords": {
+            "avg_time": 0.006905608749730163,
+            "counter": 4
+        },
+        "AlignSettingsSection": {
+            "avg_time": 0.005576473750625155,
+            "counter": 7
+        },
+        "AlignVariablesSection": {
+            "avg_time": 0.005853148750247783,
+            "counter": 8
+        },
+        "AlignTemplatedTestCases": {
+            "avg_time": 0.009495710000192049,
+            "counter": 11
+        },
+        "AlignTestCasesSection": {
+            "avg_time": 0.017925317499430094,
+            "counter": 19
+        },
+        "AlignKeywordsSection": {
+            "avg_time": 0.014695496250351426,
+            "counter": 17
+        },
+        "NormalizeNewLines": {
+            "avg_time": 0.012054541249381146,
+            "counter": 16
+        },
+        "NormalizeSectionHeaderName": {
+            "avg_time": 0.0039231399994605455,
+            "counter": 5
+        },
+        "NormalizeSettingName": {
+            "avg_time": 0.004366988749461597,
+            "counter": 4
+        },
+        "ReplaceRunKeywordIf": {
+            "avg_time": 0.01073032750027778,
+            "counter": 7
+        },
+        "SplitTooLongLine": {
+            "avg_time": 0.01310411250051402,
+            "counter": 10
+        },
+        "SmartSortKeywords": {
+            "avg_time": 0.004035252499306807,
+            "counter": 4
+        },
+        "RenameTestCases": {
+            "avg_time": 0.0036367137492561595,
+            "counter": 3
+        },
+        "RenameKeywords": {
+            "avg_time": 0.007904580000467832,
+            "counter": 8
+        },
+        "ReplaceReturns": {
+            "avg_time": 0.006269956249161624,
+            "counter": 7
+        },
+        "ReplaceBreakContinue": {
+            "avg_time": 0.005300309999984165,
+            "counter": 3
+        },
+        "InlineIf": {
+            "avg_time": 0.020787597500566336,
+            "counter": 5
+        },
+        "Translate": {
+            "avg_time": 0.007978404999630585,
+            "counter": 6
+        },
+        "NormalizeComments": {
+            "avg_time": 0.002959494999231538,
+            "counter": 1
+        }
+    },
+    "project_traversing_report": {
+        "avg_time": 0.32308016874976603,
+        "counter": 381
+    }
+}

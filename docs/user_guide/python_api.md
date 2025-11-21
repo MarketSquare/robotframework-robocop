@@ -42,5 +42,5 @@ the configuration to adjust its behaviour:
 from robocop.run import format_files
 
 
-format_files(ignore_file_config=True, silent=True)
+format_files(ignore_file_config=True, return_result=True, silent=True)
 ```

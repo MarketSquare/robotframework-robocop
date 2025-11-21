@@ -3,7 +3,7 @@ from __future__ import annotations
 import os
 import sys
 from difflib import unified_diff
-from typing import TYPE_CHECKING, NoReturn
+from typing import TYPE_CHECKING
 
 import typer
 from rich import console
@@ -34,7 +34,7 @@ class RobocopFormatter:
             return get_model(source, lang=self.config.formatter.languages)
         return get_model(source)
 
-    def run(self):
+    def run(self) -> int:
         changed_files = 0
         skipped_files = 0
         all_files = 0
@@ -71,7 +71,7 @@ class RobocopFormatter:
                 skipped_files += 1
         return self.formatting_result(all_files, changed_files, skipped_files, stdin)
 
-    def formatting_result(self, all_files: int, changed_files: int, skipped_files: int, stdin: bool) -> NoReturn:
+    def formatting_result(self, all_files: int, changed_files: int, skipped_files: int, stdin: bool) -> int:
         """Print formatting summary and return status code."""
         if not stdin and not self.config_manager.default_config.silent:
             all_files = all_files - changed_files - skipped_files
@@ -89,6 +89,8 @@ class RobocopFormatter:
             exit_code = 1
         else:
             exit_code = 0
+        if self.config_manager.default_config.formatter.return_result:
+            return exit_code
         raise typer.Exit(code=exit_code)
 
     def format_until_stable(self, model: File):

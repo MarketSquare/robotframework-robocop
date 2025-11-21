@@ -5,7 +5,7 @@
 ### Features
 
 - Change ``mixed-tabs-and-spaces`` (SPC06) rule behaviour to report all occurrences of mixed tabs and spaces in a file ([issue #848](https://github.com/MarketSquare/robotframework-robocop/issues/848))
-
+-  ``format_files`` (robocop API entrypoint for formatting files) now accepts ``return_result`` parameter for returning exit code instead of raising SystemExit
 
 ### Fixes
 

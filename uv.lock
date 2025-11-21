@@ -1159,7 +1159,7 @@ requires-dist = [
     { name = "platformdirs", specifier = ">=4.3" },
     { name = "pytz", specifier = ">=2022.7" },
     { name = "rich", specifier = ">=10.11.0" },
-    { name = "robotframework", specifier = "==6.*" },
+    { name = "robotframework", specifier = ">=4.0,<7.5" },
     { name = "tomli", marker = "python_full_version < '3.11'", specifier = "==2.2.1" },
     { name = "tomli-w", specifier = ">=1.0" },
     { name = "typer-slim", specifier = ">=0.12.5" },

@@ -217,6 +217,7 @@ class RenameVariables(Formatter):
     ENABLED = False
     HANDLES_SKIP = frozenset({"skip_sections"})
     MORE_THAN_2_SPACES: Pattern = re.compile(r"\s{2,}")
+    REPLACE_SPACES: Pattern = re.compile(r"(?<![+\-*|/%=!><&^]) (?![+\-*|/%=!><&^])]")
     CAMEL_CASE: Pattern = re.compile(r"((?<=[a-z0-9])[A-Z]|(?!^)[A-Z](?=[a-z]))")
     EXTENDED_SYNTAX: Pattern = re.compile(r"(.+?)([^\s\w].+)", re.UNICODE)
     DEFAULT_IGNORE_CASE = {"\\n", "None", "True", "False"}
@@ -554,14 +555,14 @@ class RenameVariables(Formatter):
         # to handle cases like ${var_${variable}_} we need to only strip whitespace at start/end depending on the type
         variable_name = getattr(variable_name, strip_fn)()
         if self.variable_separator == VariableSeparator.UNDERSCORE:
-            variable_name = variable_name.replace(" ", "_")
+            variable_name = self.REPLACE_SPACES.sub("_", variable_name)
         variable_name = self.set_name_case(variable_name, case)
         return variable_name + item_access
 
 
 def split_string_on_delimiter(string: str) -> tuple[str, str]:
     """
-    Split string on first occurrence of the delimiters.
+    Split string on the first occurrence of the delimiters.
 
     Return string before and after split, retaining delimiter.
 

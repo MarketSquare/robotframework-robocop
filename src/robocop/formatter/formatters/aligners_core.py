@@ -163,7 +163,7 @@ class AlignKeywordsTestsSection(Formatter):
     visit_While = visit_Group = visit_For  # noqa: N815
 
     def get_width(self, col: int, is_setting: bool, override_default_zero: bool = False) -> int:
-        # If auto mode is enabled, use auto widths for current context (last defined widths)
+        # If auto mode is enabled, use auto widths for the current context (last defined widths)
         if self.auto_widths:
             widths = self.auto_widths[-1] if not is_setting else self.settings_widths
         else:
@@ -172,8 +172,8 @@ class AlignKeywordsTestsSection(Formatter):
             return self.DEFAULT_WIDTH
         if col in widths:
             return widths[col]
-        width = widths[len(widths) - 1]  # if there is no such column, use last column width
-        if override_default_zero and width == 0:  # edge case where 0 is last of widths and we're overflowing
+        width = widths[len(widths) - 1]  # if there is no such column, use the last column width
+        if override_default_zero and width == 0:  # edge case where 0 is the last of widths, and we're overflowing
             return self.formatting_config.space_count
         return width
 
@@ -257,16 +257,32 @@ class AlignKeywordsTestsSection(Formatter):
         aligned_lines = []
         for line in node.lines:
             assign, tokens, skip_width = self.split_assign(line, possible_assign)
+            var_tokens, tokens, skip_width2 = self.split_var(tokens, possible_var=not is_setting)
+            skip_width += skip_width2
             aligned_line = self.align_line(tokens, skip_width, is_setting=is_setting)
             if aligned_line is None:
                 aligned_lines.extend(line)
                 continue
-            aligned_line = [indent, *assign, *aligned_line]
+            aligned_line = [indent, *assign, *var_tokens, *aligned_line]
             if check_length and self.is_line_too_long(aligned_line):
                 split_node = self.split_too_long_node(node)
                 return self.align_node(split_node, check_length=False)
             aligned_lines.extend(aligned_line)
         return Statement.from_tokens(aligned_lines)
+
+    def split_var(self, tokens: list, possible_var: bool) -> tuple[list, list, int]:
+        """
+        Try to fit the VAR token together with the variable name.
+
+        If it does fit, split it so the algorithm does not align them later.
+        """
+        if not possible_var or len(tokens) < 3 or tokens[0].type != "VAR":
+            return [], tokens, 0
+        var_tokens = [tokens[0], get_separator(self.formatting_config.space_count), tokens[1]]
+        skip_width = sum(len(token.value) for token in var_tokens)
+        if skip_width > self.get_width(0, is_setting=False):
+            return [], tokens, 0
+        return var_tokens, tokens[2:], skip_width
 
     def split_assign(self, line: list, possible_assign: bool) -> tuple[list, list, int]:
         """
@@ -276,7 +292,7 @@ class AlignKeywordsTestsSection(Formatter):
             A tuple, containing:
             - return values,
             - remaining tokens,
-            - widths of the return values (used to determine next alignment column)
+            - widths of the return values (used to determine the next alignment column)
 
         """
         if not self.should_skip_return_values(line, possible_assign):
@@ -351,22 +367,27 @@ class AlignKeywordsTestsSection(Formatter):
             return node
         return self.align_node(node, check_length=False, is_setting=True)
 
+    def visit_Var(self, node) -> None:  # noqa: N802
+        if node.errors:
+            return node
+        return self.align_node(node, check_length=False, possible_assign=False)
+
     def align_line(self, line: list, skip_width: int, is_setting: bool):
         """
-        Align single line of the node.
+        Align a single line of the node.
 
         New, aligned line consist of the indent and tokens separated by separator. The separator width is calculated
         depending on the configured particular column width and the alignment mode.
 
-        The alignment mode could be auto or fixed - it's calculated before running this method and self.widths already
+        The alignment mode could be auto or fixed - it's calculated before running this method, and self.widths already
         returns width of the column according to the selected mode.
 
         First, empty multiline is return as it can't be aligned.
         Then comments are removed from the line - they will be added at the end of the alignment.
         Afterwards we start to align the tokens.
-        If the configured width is set to 0 it means we don't need to calculate width of the separator - we should use
-        length of the token with minimal separator rounded to the closest multiply of 4.
-        Otherwise, we are calculating if line will fit in width of the column. In case it will not fit there are
+        If the configured width is set to 0 it means we don't need to calculate the width of the separator - we should
+        use the length of the token with a minimal separator rounded to the closest multiply of 4.
+        Otherwise, we are calculating if a line fits in the width of the column. In case it will not fit there are
         several options (configurable via ``handle_too_long):
             - ignore_line - the whole line will be separated using fixed, minimal width of the separator
             - ignore_rest - all tokens before too long token will be aligned to the columns, but remaining tokens will
@@ -375,7 +396,7 @@ class AlignKeywordsTestsSection(Formatter):
               together with next token (in second column)
             - overflow - we are looking for next column width that will fit our token
 
-        At the end comments are appended at the end of the line and line is returned.
+        At the end comments are appended at the end of the line, and the line is returned.
         """
         if misc.is_blank_multiline(line):  # ...\n edge case
             line[-1].value = line[-1].value.lstrip(" \t")  # normalize eol from '  \n' to '\n'
@@ -384,7 +405,7 @@ class AlignKeywordsTestsSection(Formatter):
             tokens, comments = line, []
         else:
             tokens, comments = separate_comments(line)
-        if len(tokens) < 2:  # only happens with weird encoding, better to skip
+        if len(tokens) < 2:  # only happens with the weird encoding, better to skip
             return None
         # skip_tokens, tokens = self.skip_return_values_if_needed(tokens)
         aligned = self.align_tokens(tokens[:-2], skip_width, is_setting=is_setting)
@@ -396,7 +417,7 @@ class AlignKeywordsTestsSection(Formatter):
         return misaligned_cols >= self.compact_overflow_limit and prev_overflow_len and index < len(tokens) - 1
 
     def find_starting_column(self, skip_width: int, is_setting: bool):
-        """If we're skipping values at the beginning of the line, we need to find next column for remaining tokens."""
+        """Find the next column for the remaining tokens if we are skipping values at the beginning of the line."""
         column = 0
         while skip_width > 0:
             width = self.get_width(column, override_default_zero=True, is_setting=is_setting)
@@ -557,7 +578,7 @@ class ColumnWidthCounter(ModelVisitor):
             return self.default_width
         if col in self.max_widths:
             return self.max_widths[col]
-        return self.max_widths[len(self.max_widths) - 1]  # if there is no such column, use last column width
+        return self.max_widths[len(self.max_widths) - 1]  # if there is no such column, use the last column width
 
     def calculate_column_widths(self):
         if self.max_widths:
@@ -587,7 +608,7 @@ class ColumnWidthCounter(ModelVisitor):
         self, node, widths: defaultdict, up_to: int = 0, filter_tokens: frozenset | None = None
     ):
         """
-        Save columns widths to use them later to find the longest token in column.
+        Save column widths to use them later to find the longest token in column.
 
         Args:
             node: Analyzed node
@@ -624,6 +645,18 @@ class ColumnWidthCounter(ModelVisitor):
         self.get_and_store_columns_widths(node, self.raw_widths)
 
     visit_TemplateArguments = visit_KeywordCall  # noqa: N815
+
+    @skip_if_disabled
+    def visit_Var(self, node):  # noqa: N802
+        self.get_and_store_columns_widths(node, self.settings_raw_widths)
+        for line in node.lines:
+            data_tokens = [token for token in line if token.type not in self.NON_DATA_TOKENS]
+            if len(data_tokens) > 1:
+                potential_col = len(data_tokens[0].value) + 2 * self.min_separator + len(data_tokens[1].value)
+                max_width = self.get_width(0)
+                if max_width == 0 or potential_col <= max_width:
+                    self.raw_widths[0].append(potential_col)
+            return
 
     def visit_Comment(self, node):  # noqa: N802
         if self.align_comments:

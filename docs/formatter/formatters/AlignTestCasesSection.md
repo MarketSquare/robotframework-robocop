@@ -451,6 +451,33 @@ See example:
         Perform Action And Wait     ${argument_name}
     ```
 
+## Alignment of VAR variables
+
+VAR variables are aligned with the rest of the code. By default, ``VAR`` and variable name is fit into the same
+column:
+
+=== "Before"
+
+    ```robotframework
+    *** Test Cases ***
+    Test navigation
+        VAR    ${var_1}    My value 1
+        VAR    ${var_2}    My value 2
+        Navigate    ${URL}
+        Click    Cancel
+    ```
+
+=== "After (default settings)"
+
+    ```robotframework
+    *** Test Cases ***
+    Test navigation
+        VAR    ${var_1}       My value 1
+        VAR    ${var_2}       My value 2
+        Navigate              ${URL}
+        Click                 Cancel
+    ```
+
 ## Skip formatting
 
 It is possible to use the following arguments to skip formatting of the code:

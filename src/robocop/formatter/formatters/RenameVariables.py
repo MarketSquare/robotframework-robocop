@@ -217,7 +217,7 @@ class RenameVariables(Formatter):
     ENABLED = False
     HANDLES_SKIP = frozenset({"skip_sections"})
     MORE_THAN_2_SPACES: Pattern = re.compile(r"\s{2,}")
-    REPLACE_SPACES: Pattern = re.compile(r"(?<![+\-*|/%=!><&^]) (?![+\-*|/%=!><&^])]")
+    REPLACE_SPACES: Pattern = re.compile(r"(?<![+\-*|/%=!><&^~]) (?![+\-*|/%=!><&^~])")
     CAMEL_CASE: Pattern = re.compile(r"((?<=[a-z0-9])[A-Z]|(?!^)[A-Z](?=[a-z]))")
     EXTENDED_SYNTAX: Pattern = re.compile(r"(.+?)([^\s\w].+)", re.UNICODE)
     DEFAULT_IGNORE_CASE = {"\\n", "None", "True", "False"}

@@ -58,3 +58,6 @@ One-sided spaces
     Log    ${number +-2}
     Log    ${number+- 2}
     Log    ${number +-2}
+
+Variable with spaces
+    ${var with spaces} =    Set Variable    ${1}

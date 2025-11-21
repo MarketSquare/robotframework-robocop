@@ -369,6 +369,7 @@ class FormatterConfig:
     end_line: int | None = None
     languages: Languages | None = field(default=None, compare=False)
     silent: bool | None = False
+    return_result: bool = False
     _parameters: dict[str, dict[str, str]] | None = field(default=None, compare=False)
     _formatters: dict[str, ...] | None = field(default=None, compare=False)
 

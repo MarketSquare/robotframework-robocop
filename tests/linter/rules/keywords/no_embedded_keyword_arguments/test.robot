@@ -21,3 +21,9 @@ Keyword with both ${embedded} and normal arguments
 
 Keyword with embedded ${regex:(\d{4}-\d{2}-\d{2}|today)} argument
     No Operation
+
+Embedded \${?} error
+    No Operation
+
+Embedded${? error
+    No Operation

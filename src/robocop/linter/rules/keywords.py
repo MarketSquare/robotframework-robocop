@@ -1,4 +1,5 @@
 from robot.api import Token
+from robot.errors import VariableError
 from robot.model import Keyword
 from robot.utils.robottime import timestr_to_secs
 
@@ -159,7 +160,7 @@ class NoEmbeddedKeywordArgumentsRule(Rule):
 
 class SleepKeywordUsedChecker(VisitorChecker):  # TODO: merge with a checker for keyword calls
     """
-    Find and report use of the Sleep keyword in tests and keywords.
+    Find and report the use of the Sleep keyword in tests and keywords.
 
     If max_time is configured, it can be used to only report Sleep with time higher than configured value.
 
@@ -171,7 +172,7 @@ class SleepKeywordUsedChecker(VisitorChecker):  # TODO: merge with a checker for
     def visit_KeywordCall(self, node) -> None:  # noqa: N802
         if not node.keyword:  # Keyword name can be empty if the syntax is invalid
             return
-        # Robot Framework ignores case, underscores and whitespace when searching for keywords
+        # Robot Framework ignores a case, underscores and whitespace when searching for keywords
         # It will match sleep, Sleep, BuiltIn.Sleep or S_leep. That's why we need to normalize name first
         normalized_name = normalize_robot_name(node.keyword, remove_prefix="builtin.")
         if normalized_name != "sleep":
@@ -187,9 +188,9 @@ class SleepKeywordUsedChecker(VisitorChecker):  # TODO: merge with a checker for
             except ValueError:
                 # ignore invalid or not recognized time string
                 return
-            if allowed_time >= time_from_sleep:  # if Sleep time is less than allowed maximum, we can ignore issue
+            if allowed_time >= time_from_sleep:  # if Sleep time is less than an allowed maximum, we can ignore issue
                 return
-        # node can be multiline, ie Sleep ...  1 min -> report either just Sleep, or multi-line report
+        # node can be multiline, ie Sleep ...  1 min -> report either just Sleep or multi-line report
         duration_time = time_token.value if time_token else ""
         name_token = node.get_token(Token.KEYWORD)
         self.report(
@@ -251,7 +252,10 @@ class NoEmbeddedKeywordArgumentsChecker(VisitorChecker):  # TODO merge
 
     def visit_Keyword(self, node: Keyword) -> None:  # noqa: N802
         name_token: Token = node.header.get_token(Token.KEYWORD_NAME)
-        variable_tokens = [t for t in name_token.tokenize_variables() if t.type == Token.VARIABLE]
+        try:
+            variable_tokens = [t for t in name_token.tokenize_variables() if t.type == Token.VARIABLE]
+        except VariableError:
+            return
 
         if not variable_tokens:
             return

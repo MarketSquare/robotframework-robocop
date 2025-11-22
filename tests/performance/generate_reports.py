@@ -13,7 +13,7 @@ from pathlib import Path
 
 from robocop import __version__, config
 from robocop.formatter.formatters import FORMATTERS
-from robocop.run import format_files
+from robocop.run import check_files, format_files
 from tests import working_directory
 
 LINTER_TESTS_DIR = Path(__file__).parent.parent / "linter"
@@ -92,6 +92,16 @@ def formatter_report(report_name: str):
     return len(list(source_dir.iterdir()))
 
 
+@performance_report(runs=10)
+def linter_report(report_name: str, **kwargs):
+    print(report_name)
+    main_dir = Path(__file__).parent.parent.parent
+    linter_dir = main_dir / "tests" / "linter"
+    with working_directory(linter_dir):
+        check_files(return_result=True, select=["ALL"], **kwargs)
+    return len(list(linter_dir.glob("**/*.robot")))
+
+
 def merge_dictionaries(d1: dict, d2: dict) -> dict:
     for key, value in d2.items():
         if key in d1 and isinstance(d1[key], dict) and isinstance(value, dict):
@@ -102,6 +112,8 @@ def merge_dictionaries(d1: dict, d2: dict) -> dict:
 
 
 if __name__ == "__main__":
+    linter_report(report_name="with_print")
+    linter_report(report_name="without_print", silent=True)
     for formatter in FORMATTERS:
         formatter_report(report_name=formatter)
     project_traversing_report()

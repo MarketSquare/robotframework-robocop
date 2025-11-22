@@ -136,5 +136,15 @@
     "project_traversing_report": {
         "avg_time": 0.32308016874976603,
         "counter": 381
+    },
+    "linter_report": {
+        "with_print": {
+            "avg_time": 3.1536050000031537,
+            "counter": 366
+        },
+        "without_print": {
+            "avg_time": 1.597787499998958,
+            "counter": 366
+        }
     }
 }

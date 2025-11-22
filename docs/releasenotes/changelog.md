@@ -11,6 +11,7 @@
 ### Fixes
 
 - Fix ``AlignKeywordsSection`` and ``AlignTestCasesSection`` not aligning VAR variables ([issue #1493](https://github.com/MarketSquare/robotframework-robocop/issues/1493))
+- Fix optional ``no-embedded-keyword-arguments`` rule fatal exception when reading a file with invalid syntax
 
 ### Documentation
 

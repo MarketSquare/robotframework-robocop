@@ -92,11 +92,25 @@ def formatter_report(report_name: str):
     return len(list(source_dir.iterdir()))
 
 
+def merge_dictionaries(d1: dict, d2: dict) -> dict:
+    for key, value in d2.items():
+        if key in d1 and isinstance(d1[key], dict) and isinstance(value, dict):
+            merge_dictionaries(d1[key], value)
+        else:
+            d1[key] = value
+    return d1
+
+
 if __name__ == "__main__":
     for formatter in FORMATTERS:
         formatter_report(report_name=formatter)
     project_traversing_report()
 
     report_path = Path(__file__).parent / "reports" / f"robocop_{__version__.replace('.', '_')}.json"
+    if report_path.exists():
+        with open(report_path) as fp:
+            prev_report = json.load(fp)
+            REPORTS = merge_dictionaries(prev_report, REPORTS)
+
     with open(report_path, "w") as fp:
         json.dump(REPORTS, fp, indent=4)

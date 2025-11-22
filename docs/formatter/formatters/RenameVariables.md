@@ -71,7 +71,6 @@ Conventions can be configured or switched off using parameters.
 
     RenameVariables is still under development and is not considered a complete feature. The following syntax is not yet supported:
 
-      - variable evaluation with ``${variable * 2}`` (following will be replaced to ``${variable_*_2}``
       - variables passed by variable, not value (``$var``) are ignored
 
     Robocop can be locally disabled with ``# robocop format: off`` if you want to ignore specific cases.
@@ -393,6 +392,36 @@ Allowed values are:
     Keyword
         ${variable_name}    Set Variable    value
         Keyword Call    ${variable name}
+    ```
+
+### Variable separator with math operators
+
+Variable separator is not replaced when it is used in math expression:
+
+=== "Before"
+
+    ```robotframework
+    Example
+        VAR    ${number}    ${2}
+        VAR    ${var with spaces}    ${1}
+
+        Log    ${number + 1}
+        Log    ${number - 2}
+        Log    ${number * 2}
+        Log    ${var with spaces}
+    ```
+
+=== "After - default (variable_separator = underscore)"
+
+    ```robotframework
+    Example
+        VAR    ${number}    ${2}
+        VAR    ${var_with_spaces}    ${1}
+
+        Log    ${number + 1}
+        Log    ${number - 2}
+        Log    ${number * 2}
+        Log    ${var_with_spaces}
     ```
 
 ## Skip formatting

@@ -1,0 +1,12 @@
+[tool.robocop]
+extends = ["../extend_relative_path/base_with_linter.toml"]
+silent = false
+
+[tool.robocop.lint]
+exit_zero = true
+select = [
+    "line-too-long"
+]
+configure = [
+    "line-too-long.line_length=150",
+]

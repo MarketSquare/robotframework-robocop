@@ -1,0 +1,3 @@
+[tool.robocop]
+exclude = ["deprecated.robot"]
+extends = ["empty.toml"]

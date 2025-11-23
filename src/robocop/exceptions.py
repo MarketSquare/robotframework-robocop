@@ -107,12 +107,17 @@ class RobotFrameworkParsingError(Exception):
         super().__init__(msg)
 
 
+class CircularExtendsReferenceError(FatalError):
+    def __init__(self, config_path: str):
+        super().__init__(f"Circular reference found in 'extends' parameter in the configuration file: {config_path}")
+
+
 def handle_robot_errors(func):
     """
     Handle bugs in Robot Framework.
 
-    If the user uses older version of Robot Framework, it may fail while parsing the
-    source code due to bug that is already fixed in the more recent version.
+    If the user uses an older version of Robot Framework, it may fail while parsing the
+    source code due to a bug that is already fixed in the more recent version.
     """
 
     def wrap_errors(*args, **kwargs):  # noqa: ANN202

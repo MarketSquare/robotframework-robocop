@@ -1,0 +1,3 @@
+[tool.robocop]
+extends = ["extend_physical.toml"]
+silent = true

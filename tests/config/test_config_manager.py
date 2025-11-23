@@ -144,9 +144,9 @@ class TestConfigFinder:
 
     def test_one_config_subdir(self, test_data):
         """
-        Directory with configuration file in the subdirectory.
+        Directory with a configuration file in the subdirectory.
 
-        Files found earlier should use default configuration.
+        Files found earlier should use the default configuration.
         """
         # Arrange
         config_dir = test_data / "one_config_subdir"
@@ -194,7 +194,7 @@ class TestConfigFinder:
         """
         # Arrange
         config_dir = test_data / "one_config_subdir"
-        overwrite_option = ["file2.robot"]
+        overwrite_option = {"file2.robot"}
         overwrite_config.file_filters.default_exclude = overwrite_option
         default_config = Config()
         default_config.file_filters.default_exclude = overwrite_option
@@ -286,7 +286,7 @@ class TestConfigFinder:
         )
 
     def test_fail_on_deprecated_config_options(self, test_data, capsys):
-        """Unknown or deprecated options in configuration file should raise an error."""
+        """Unknown or deprecated options in the configuration file should raise an error."""
         config_path = test_data / "old_config" / "pyproject.toml"
         configuration = files.read_toml_config(config_path)
         with pytest.raises(typer.Exit):
@@ -298,7 +298,7 @@ class TestConfigFinder:
         )
 
     def test_fail_on_unknown_config_options(self, test_data, capsys):
-        """Unknown or deprecated options in configuration file should raise an error."""
+        """Unknown or deprecated options in the configuration file should raise an error."""
         config_path = test_data / "invalid_config" / "invalid.toml"
         configuration = files.read_toml_config(config_path)
         with pytest.raises(typer.Exit):

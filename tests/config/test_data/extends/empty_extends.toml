@@ -1,0 +1,7 @@
+[tool.robocop]
+extends = []
+
+[tool.robocop.lint]
+select = [
+    "line-too-long"
+]

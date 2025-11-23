@@ -636,6 +636,7 @@ class Config:
             "force_exclude",
             "target_version",
             "skip_gitignore",
+            "extends",
         }
         for key in config:
             if key not in known_keys:
@@ -844,7 +845,7 @@ class ConfigManager:
             for config_filename in CONFIG_NAMES:
                 if (config_path := (check_dir / config_filename)).is_file():
                     configuration = files.read_toml_config(config_path)
-                    if configuration is not None:
+                    if configuration:
                         config = Config.from_toml(configuration, config_path)
                         config.overwrite_from_config(self.overwrite_config)  # TODO those two lines together
                         self.cached_configs.update({sub_dir: config for sub_dir in seen})

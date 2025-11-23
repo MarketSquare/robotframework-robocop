@@ -16,7 +16,7 @@ robocop check --help
 robocop format --help
 ```
 
-# Configuration file
+## Configuration file
 
 Robocop supports configuration files in TOML format. Settings from the command line will override settings from the
 configuration file.
@@ -82,3 +82,16 @@ You can manually point to location of the config file with the ``--config`` opti
 robocop check --config path/to/config.toml
 robocop format --config path/to/config.toml
 ```
+
+## Inherit configuration file
+
+Inherit configuration from another configuration file using ``extends`` option:
+
+```toml
+[tool.robocop]
+extends = ["../relative/path.toml", "C:/absolute/path.toml"]
+```
+
+``extends`` accept both relative and absolute paths. Configuration is loaded in the order they are specified.
+List-like options (``select, ``ignore`` etc.) are merged. String and boolean options are overwritten by the most recent
+value.

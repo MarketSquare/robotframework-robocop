@@ -4,6 +4,7 @@
 
 ### Features
 
+- Add ``extends`` configuration parameter which allows to inherit configuration from another file ([issue #1453](https://github.com/MarketSquare/robotframework-robocop/issues/1453))
 - Change ``mixed-tabs-and-spaces`` (SPC06) rule behaviour to report all occurrences of mixed tabs and spaces in a file ([issue #848](https://github.com/MarketSquare/robotframework-robocop/issues/848))
 -  ``format_files`` (robocop API entrypoint for formatting files) now accepts ``return_result`` parameter for returning exit code instead of raising SystemExit
 - ``RenameVariables`` not longer replaces spaces in variable names with the math operators ([issue #1428](https://github.com/MarketSquare/robotframework-robocop/issues/1428))
@@ -12,6 +13,7 @@
 
 - Fix ``AlignKeywordsSection`` and ``AlignTestCasesSection`` not aligning VAR variables ([issue #1493](https://github.com/MarketSquare/robotframework-robocop/issues/1493))
 - Fix optional ``no-embedded-keyword-arguments`` rule fatal exception when reading a file with invalid syntax
+- Fix the empty configuration file causing Robocop to fail ([issue #1536](https://github.com/MarketSquare/robotframework-robocop/issues/1536))
 
 ### Documentation
 

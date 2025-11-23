@@ -1,0 +1,9 @@
+[tool.robocop.lint]
+persistent = true
+silent = true
+select = [
+    "ARG05"
+]
+configure = [
+    "empty-line-after-section.empty_lines=1"
+]

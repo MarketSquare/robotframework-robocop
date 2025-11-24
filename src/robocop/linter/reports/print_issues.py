@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import sys
 from enum import Enum
 from pathlib import Path
 from typing import TYPE_CHECKING, NoReturn
@@ -86,7 +87,7 @@ class PrintIssuesReport(robocop.linter.reports.Report):
         self.diagn_by_source: dict[str, list[Diagnostic]] = {}
         self.output_format = OutputFormat.EXTENDED
         self.issue_format = None
-        self.console = Console(highlight=False, soft_wrap=True)
+        self.console = Console(highlight=False, soft_wrap=True, emoji=False)
         super().__init__(config)
 
     def configure(self, name: str, value: str) -> None:
@@ -244,6 +245,9 @@ class PrintIssuesReport(robocop.linter.reports.Report):
     def generate_report(self, diagnostics: Diagnostics, **kwargs) -> None:  # noqa: ARG002
         if self.config.silent:
             return
+        if hasattr(sys.stdout, "reconfigure"):
+            sys.stdout.reconfigure(encoding="utf-8")
+            sys.stderr.reconfigure(encoding="utf-8")
         if self.output_format == OutputFormat.SIMPLE:
             self.print_diagnostics_simple(diagnostics)
         elif self.output_format == OutputFormat.GROUPED:

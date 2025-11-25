@@ -151,3 +151,19 @@ class TestSonarQubeReport:
         report = SonarQubeReport(config)
         report.configure("output_path", output_path)
         assert report.output_path == output_path
+
+    def test_empty_results(self, config, tmp_path):
+        # Arrange
+        output_file = tmp_path / "report.json"
+        report = SonarQubeReport(config)
+        report.configure("output_path", str(output_file))
+        diagnostics = Diagnostics([])
+        config_manager = Mock()
+        config_manager.root = Path.cwd()
+
+        # Act
+        report.generate_report(diagnostics, config_manager)
+
+        # Assert
+        assert output_file.exists()
+        assert json.loads(output_file.read_text()) == {"rules": [], "issues": []}

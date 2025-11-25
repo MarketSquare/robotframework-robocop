@@ -44,3 +44,17 @@ class TestJSONReport:
         # assert
         actual_report = (tmp_path / "robocop.txt").read_text()
         assert actual_report == expected_report
+
+    def test_empty_results(self, config, tmp_path):
+        # Arrange
+        output_file = tmp_path / "report.txt"
+        report = TextFile(config)
+        report.configure("output_path", str(output_file))
+        diagnostics = Diagnostics([])
+
+        # Act
+        report.generate_report(diagnostics)
+
+        # Assert
+        assert output_file.exists()
+        assert output_file.read_text() == ""

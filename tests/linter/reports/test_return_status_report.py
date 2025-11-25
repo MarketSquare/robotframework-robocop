@@ -55,3 +55,14 @@ class TestReturnStatus:
             )
         report.generate_report(Diagnostics(issues))
         assert report.return_status == return_status
+
+    def test_empty_results(self, config):
+        # Arrange
+        report = ReturnStatusReport(config)
+        diagnostics = Diagnostics([])
+
+        # Act
+        report.generate_report(diagnostics)
+
+        # Assert
+        assert report.return_status == 0

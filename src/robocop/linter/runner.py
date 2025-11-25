@@ -170,7 +170,12 @@ class RobocopLinter:
                 param, value = param_and_value.split("=", maxsplit=1)
             except ValueError:
                 raise exceptions.InvalidConfigurationFormatError(config) from None
-            if name in self.reports:
+            if name not in self.reports:
+                continue
+            if param == "enabled":
+                if value.lower() == "false":
+                    del self.reports[name]
+            else:
                 self.reports[name].configure(param, value)
 
     def make_reports(self) -> None:

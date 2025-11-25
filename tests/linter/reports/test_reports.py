@@ -11,6 +11,8 @@ from robocop.linter.reports import (
     load_reports_result_from_cache,
     save_reports_result_to_cache,
 )
+from robocop.run import check_files
+from tests import working_directory
 
 
 @pytest.mark.parametrize(
@@ -108,3 +110,16 @@ def test_load_save_with_invalid_file(prepare_file_fn):
     save_reports_result_to_cache(root_1, root_1_content)
     result = load_reports_result_from_cache()
     assert result == expected_result
+
+
+def test_disabled_report_manually(tmp_path, capsys):
+    # Arrange
+    (tmp_path / "test.robot").write_text("*** Settings ***\n\n")
+    # Act
+    with working_directory(tmp_path):
+        check_files(
+            ignore_file_config=True, return_result=True, reports=["all"], configure=["print_issues.enabled=False"]
+        )
+    out, _ = capsys.readouterr()
+    # Assert
+    assert "test.robot:1:1 DOC03 Missing documentation in suite" not in out

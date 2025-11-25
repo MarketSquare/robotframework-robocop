@@ -1,10 +1,16 @@
 # Release notes
 
+## 6.13.0
+
+### Fixes
+
+- Fix piping output (``robocop check > output.txt``) not working on Windows because of code lines converted to emojis ([issue #1539](https://github.com/MarketSquare/robotframework-robocop/issues/1539))
+
 ## 6.12.0
 
 ### Features
 
-- Add ``extends`` configuration parameter which allows to inherit configuration from another file ([issue #1453](https://github.com/MarketSquare/robotframework-robocop/issues/1453))
+- Add ``extends`` configuration parameter which allows inheriting configuration from another file ([issue #1453](https://github.com/MarketSquare/robotframework-robocop/issues/1453))
 - Change ``mixed-tabs-and-spaces`` (SPC06) rule behaviour to report all occurrences of mixed tabs and spaces in a file ([issue #848](https://github.com/MarketSquare/robotframework-robocop/issues/848))
 -  ``format_files`` (robocop API entrypoint for formatting files) now accepts ``return_result`` parameter for returning exit code instead of raising SystemExit
 - ``RenameVariables`` not longer replaces spaces in variable names with the math operators ([issue #1428](https://github.com/MarketSquare/robotframework-robocop/issues/1428))

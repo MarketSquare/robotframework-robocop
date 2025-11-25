@@ -171,3 +171,25 @@ use. Use special keyword ``None`` to not run any reports even if configured:
 ```bash
 robocop check --reports sarif,all,None
 ```
+
+## Disable specific report
+
+To turn off a specific report, even if it’s enabled by configuration or by default (``print_issues``), set enabled to
+``False``:
+
+=== ":octicons-command-palette-24: cli"
+
+    ```bash
+    robocop check --configure print_issues.enabled=False
+    ```
+
+=== ":material-file-cog-outline: toml"
+
+    ```toml
+    [tool.robocop.lint]
+    configure = [
+        "print_issues.enabled=False"
+    ]
+    ```
+
+``enabled`` cannot be used to enable a report - use ``reports`` option instead.

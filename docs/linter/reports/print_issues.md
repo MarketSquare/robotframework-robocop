@@ -99,3 +99,24 @@ Format of the **simple** output type can be configured with the global ``--issue
         "print_issues.issue_format={source}"
     ]
     ```
+
+## Disable print_issues report
+
+To turn off a ``print_issues`` report, set enabled to``False``:
+
+=== ":octicons-command-palette-24: cli"
+
+    ```bash
+    robocop check --configure print_issues.enabled=False
+    ```
+
+=== ":material-file-cog-outline: toml"
+
+    ```toml
+    [tool.robocop.lint]
+    configure = [
+        "print_issues.enabled=False"
+    ]
+    ```
+
+If the goal is to disable all output, use [``--silent``](../../configuration/configuration_reference.md#silent)  instead.

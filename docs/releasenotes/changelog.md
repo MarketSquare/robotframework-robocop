@@ -15,6 +15,8 @@ Example configuration:
 "ignore_file_in_subpath/test2.robot" = ["SPC10"]
 ```
 
+- Allow manually disabling reports with ``enabled=False``. It can be used to disable default ``print_issues`` report ([issue #1540](https://github.com/MarketSquare/robotframework-robocop/issues/1540))
+
 ### Fixes
 
 - Fix piping output (``robocop check > output.txt``) not working on Windows because of code lines converted to emojis ([issue #1539](https://github.com/MarketSquare/robotframework-robocop/issues/1539))

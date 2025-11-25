@@ -87,3 +87,37 @@ class TestSarifReport:
         with open(output_file) as fp:
             sarif_report = json.load(fp)
         assert expected_report == sarif_report
+
+    def test_empty_results(self, config, tmp_path):
+        # Arrange
+        output_file = tmp_path / "report.json"
+        report = SarifReport(config)
+        report.configure("output_path", str(output_file))
+        diagnostics = Diagnostics([])
+        config_manager = Mock()
+        config_manager.root = Path.cwd()
+        config_manager.default_config.linter.rules = {}
+
+        # Act
+        report.generate_report(diagnostics, config_manager)
+
+        # Assert
+        assert output_file.exists()
+        assert json.loads(output_file.read_text()) == {
+            "$schema": "https://json.schemastore.org/sarif-2.1.0.json",
+            "runs": [
+                {
+                    "automationDetails": {"id": "robocop/"},
+                    "results": [],
+                    "tool": {
+                        "driver": {
+                            "informationUri": "https://robocop.dev/",
+                            "name": "Robocop",
+                            "rules": [],
+                            "semanticVersion": __version__,
+                        }
+                    },
+                }
+            ],
+            "version": "2.1.0",
+        }

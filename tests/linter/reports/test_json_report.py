@@ -68,3 +68,17 @@ class TestJSONReport:
         with open(output_file) as fp:
             json_report = json.load(fp)
         assert json_report == expected_report
+
+    def test_empty_results(self, config, tmp_path):
+        # Arrange
+        output_file = tmp_path / "report.json"
+        report = JsonReport(config)
+        report.configure("output_path", str(output_file))
+        diagnostics = Diagnostics([])
+
+        # Act
+        report.generate_report(diagnostics)
+
+        # Assert
+        assert output_file.exists()
+        assert output_file.read_text() == "[]"

@@ -2,9 +2,23 @@
 
 ## 6.13.0
 
+### Features
+
+- Add ``per_file_ignores`` option to ignore rules matching file patterns ([issue #1134](https://github.com/MarketSquare/robotframework-robocop/issues/1134))
+
+Example configuration:
+
+```toml
+[tool.robocop.lint.per_file_ignores]
+"test.robot" = ["VAR02"]
+"ignore_subdir/*" = ["empty-line-after-section", "DOC01"]
+"ignore_file_in_subpath/test2.robot" = ["SPC10"]
+```
+
 ### Fixes
 
 - Fix piping output (``robocop check > output.txt``) not working on Windows because of code lines converted to emojis ([issue #1539](https://github.com/MarketSquare/robotframework-robocop/issues/1539))
+- Fix configuration file loaded from the root directory with ``--ignore-file-config`` option enabled (other configuration files were correctly ignored)
 
 ## 6.12.0
 

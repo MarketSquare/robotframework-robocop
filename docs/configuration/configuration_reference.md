@@ -507,6 +507,17 @@ To filter our rules with severity ``info``:
 
 ---
 
+### ``per_file_ignores``
+
+A mapping of file patterns and rule ids or names to exclude from the results.
+
+```toml
+[tool.robocop.lint.per_file_ignores]
+"test.robot" = ["VAR02"]
+"ignore_subdir/*" = ["empty-line-after-section", "DOC01"]
+"ignore_file_in_subpath/test2.robot" = ["SPC10"]
+```
+
 #### ``custom rules``
 
 Read more about custom rules on the [Custom rules](../linter/custom_rules.md) page.

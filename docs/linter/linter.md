@@ -58,6 +58,9 @@ It is also possible to disable rules not available in the selected Robot Framewo
 
 Rules can be also disabled in the code using [disablers](../configuration/disablers.md) directives.
 
+It is also possible to disable rules for specific file paths using [the per_file_ignores](../configuration/configuration_reference.md#per_file_ignores)
+option.
+
 ## Reports
 
 Robocop can generate reports in various formats, both as printed output and formatted files. By default, it uses

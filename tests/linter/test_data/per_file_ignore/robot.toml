@@ -1,0 +1,4 @@
+[tool.robocop.lint.per_file_ignores]
+"test.robot" = ["VAR02"]
+"ignore_subdir/*" = ["SPC09", "DOC01"]
+"ignore_only_here/test2.robot" = ["SPC10"]

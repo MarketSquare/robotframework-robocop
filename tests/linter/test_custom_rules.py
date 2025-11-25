@@ -2,6 +2,7 @@ import sys
 from contextlib import contextmanager
 from pathlib import Path
 
+from robocop import __version__
 from robocop.config import LinterConfig
 from tests import working_directory
 
@@ -78,6 +79,11 @@ def test_loading_custom_rule_from_module_simple_import():
     assert "EXT03" in linter_config.rules
     assert "EXT04" in linter_config.rules
     assert_no_duplicated_checker(linter_config.checkers)
+    # assert default and overriden docs url
+    assert linter_config.rules["EXT03"].docs_url == "https://your.company.com/robocop/rules/external-rule"
+    assert (
+        linter_config.rules["EXT04"].docs_url == f"https://robocop.dev/v{__version__}/rules_list/#ext04-external-rule2"
+    )
 
 
 def test_loading_custom_rule_with_robocop_import():
@@ -97,7 +103,7 @@ def test_loading_custom_rule_including_relative_import():
 
 
 def test_loading_custom_rule_with_name_conflict():
-    """Import another module inside custom rule that uses the same name as robocop module (like deprecated.py)."""
+    """Import another module inside a custom rule that uses the same name as robocop module (like deprecated.py)."""
     clear_imported_module("RobocopRules")
     with add_sys_path(EXT_MODULE_WITH_CONFLICT):
         linter_config = LinterConfig(custom_rules=[EXT_MODULE_WITH_CONFLICT])

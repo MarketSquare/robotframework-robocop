@@ -6,7 +6,6 @@ from robocop.config import Config, ConfigManager
 from robocop.files import get_relative_path
 from robocop.linter.diagnostics import Diagnostics
 from robocop.linter.rules import Rule
-from robocop.linter.utils.misc import ROBOCOP_RULES_URL
 
 
 class SarifReport(robocop.linter.reports.JsonFileReport):
@@ -43,11 +42,10 @@ class SarifReport(robocop.linter.reports.JsonFileReport):
         return {"WARNING": "warning", "ERROR": "error", "INFO": "note"}[severity.name]
 
     def get_rule_desc(self, rule):
-        version = f"v{__version__}"
         return {
             "id": rule.rule_id,
             "name": rule.name,
-            "helpUri": f"{ROBOCOP_RULES_URL.format(version=version)}#{rule.name}",
+            "helpUri": f"{rule.docs_url}",
             "shortDescription": {"text": rule.message},
             "fullDescription": {"text": rule.docs},
             "defaultConfiguration": {"level": self.map_severity_to_level(rule.default_severity)},

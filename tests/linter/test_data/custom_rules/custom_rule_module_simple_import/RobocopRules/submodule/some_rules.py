@@ -3,7 +3,7 @@ from robocop.linter.rules import Rule, RuleSeverity
 
 
 class ExternalRule(Rule):
-    name = "external-rule"
+    name = "external-rule2"
     rule_id = "EXT04"
     message = "This is external rule"
     severity = RuleSeverity.INFO

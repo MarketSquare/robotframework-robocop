@@ -179,6 +179,7 @@ class LinterConfig:
     configure: list[str] | None = field(default_factory=list)
     select: list[str] | None = field(default_factory=list)
     ignore: list[str] | None = field(default_factory=list)
+    per_file_ignores: dict[str, list[str]] | None = field(default=None)
     issue_format: str | None = DEFAULT_ISSUE_FORMAT
     target_version: Version | None = field(default=None, compare=False)
     threshold: RuleSeverity | None = RuleSeverity.INFO
@@ -816,13 +817,15 @@ class ConfigManager:
         if config_path:
             configuration = files.read_toml_config(config_path)
             config = Config.from_toml(configuration, config_path.resolve())
-        else:
+        elif not self.ignore_file_config:
             sources = [Path(path).resolve() for path in self.sources] if self.sources else [Path.cwd()]
             directories = files.get_common_parent_dirs(sources)
             config = self.find_config_in_dirs(directories, default=None)
             if not config:
                 config = Config()
                 self.cached_configs.update({sub_dir: config for sub_dir in directories})
+        else:
+            config = Config()
         config.overwrite_from_config(self.overwrite_config)
         return config
 

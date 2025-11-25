@@ -119,6 +119,14 @@ class RobocopLinter:
                 for diagnostic in checker.scan_file(model, file_path, in_memory_content, disablers=disablers)
                 if not (diagnostic.severity < config.linter.threshold or disablers.is_rule_disabled(diagnostic))
             ]
+        if found_diagnostics and config.linter.per_file_ignores:
+            for ignored_file, ignored_rules in config.linter.per_file_ignores.items():
+                if file_path.match(ignored_file):
+                    found_diagnostics = [
+                        diagnostic
+                        for diagnostic in found_diagnostics
+                        if diagnostic.rule.rule_id not in ignored_rules and diagnostic.rule.name not in ignored_rules
+                    ]
         return found_diagnostics
 
     def run_project_checks(self) -> list[Diagnostic]:

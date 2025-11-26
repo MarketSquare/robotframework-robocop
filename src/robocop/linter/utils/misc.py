@@ -23,7 +23,6 @@ except ImportError:
 from robot.variables.search import search_variable
 from robot.version import VERSION as RF_VERSION
 
-from robocop import __version__
 from robocop.linter.utils.variable_matcher import VariableMatches
 from robocop.linter.utils.version_matching import Version
 
@@ -140,7 +139,6 @@ def token_col(node: type[Node], *token_type) -> int:
 
 
 def issues_to_lsp_diagnostic(issues: list[Diagnostic]) -> list[dict]:
-    version = f"v{__version__}"
     return [
         {
             "range": {
@@ -157,7 +155,7 @@ def issues_to_lsp_diagnostic(issues: list[Diagnostic]) -> list[dict]:
             "code": issue.rule.rule_id,
             "source": "robocop",
             "message": issue.rule.message,
-            "codeDescription": {"href": f"{ROBOCOP_RULES_URL.format(version=version)}#{issue.rule.name}"},
+            "codeDescription": {"href": f"{issue.rule.docs_url}"},
         }
         for issue in issues
     ]

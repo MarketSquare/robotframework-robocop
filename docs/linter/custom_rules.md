@@ -251,3 +251,30 @@ else:
 
 If you want to report a rule violation for a whole file and do not show any specific line in the ``extended`` view, use
 ``file_wide_rule = True`` attribute in the rule class.
+
+## Change Rule class behaviour
+
+It is possible to change the behaviour or attributes of the Rule class. You can define your own class, which inherits
+from ``Rule`` and adjust the code.
+
+For example, if you want to change the rule documentation URL (which is part of some reports),
+you can do it in the following way:
+
+```python
+from robocop.linter.rules import Rule, RuleSeverity
+
+class CustomParentRule(Rule):
+    @property
+    def docs_url(self):
+        return f"https://your.company.com/robocop/rules/{self.name}"
+
+    
+class ExternalRule(CustomParentRule):
+    name = "external-rule"
+    rule_id = "CUS01"
+    message = "Your own rule."
+    severity = RuleSeverity.INFO
+
+```
+
+You may override other attributes and methods as well.

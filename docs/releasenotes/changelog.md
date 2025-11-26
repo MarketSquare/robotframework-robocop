@@ -16,11 +16,16 @@ Example configuration:
 ```
 
 - Allow manually disabling reports with ``enabled=False``. It can be used to disable default ``print_issues`` report ([issue #1540](https://github.com/MarketSquare/robotframework-robocop/issues/1540))
+- Add ``docs_url`` property to rule class which points to rule documentation URL ([issue #1432](https://github.com/MarketSquare/robotframework-robocop/issues/1432))
 
 ### Fixes
 
 - Fix piping output (``robocop check > output.txt``) not working on Windows because of code lines converted to emojis ([issue #1539](https://github.com/MarketSquare/robotframework-robocop/issues/1539))
 - Fix configuration file loaded from the root directory with ``--ignore-file-config`` option enabled (other configuration files were correctly ignored)
+
+### Documentation
+
+- Describe how to extend the Robocop Rule class using ``docs_url`` as an example ([here](https://robocop.dev/stable/linter/custom_rules/#change-rule-class-behaviour)).
 
 ## 6.12.0
 

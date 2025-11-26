@@ -2,7 +2,13 @@ from robocop.linter.rules import VisitorChecker
 from robocop.linter.rules import Rule, RuleSeverity
 
 
-class ExternalRule(Rule):
+class CustomRule(Rule):
+    @property
+    def docs_url(self):
+        return f"https://your.company.com/robocop/rules/{self.name}"
+
+
+class ExternalRule(CustomRule):
     name = "external-rule"
     rule_id = "EXT03"
     message = "This is external rule with {parameter} in msg"

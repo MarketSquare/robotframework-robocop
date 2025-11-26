@@ -39,7 +39,7 @@ from typing import TYPE_CHECKING, Any, Callable, NoReturn
 
 from robot.utils import FileReader
 
-from robocop import exceptions
+from robocop import __version__, exceptions
 from robocop.linter.diagnostics import Diagnostic
 from robocop.linter.utils.version_matching import Version, VersionSpecifier
 
@@ -422,6 +422,10 @@ class Rule:
     @property
     def docs(self) -> str:
         return dedent(self.__doc__) if self.__doc__ else ""
+
+    @property
+    def docs_url(self) -> str:
+        return f"https://robocop.dev/v{__version__}/rules_list/#{self.rule_id.lower()}-{self.name}"
 
     @property
     def description(self) -> str:

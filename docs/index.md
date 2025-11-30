@@ -1,6 +1,6 @@
 # Robocop
 
-Robocop is a tool that performs static code analysis and formatting of [Robot Framework](https://github.com/robotframework/robotframework>)
+Robocop is a tool that performs static code analysis and formatting of [Robot Framework](https://github.com/robotframework/robotframework)
 code.
 
 It uses official [Robot Framework parsing API](https://robot-framework.readthedocs.io/en/stable) to parse files and runs
@@ -89,3 +89,4 @@ Format the Robot Framework files with:
 ```bash
 robocop format
 ```
+

@@ -151,7 +151,7 @@ def test_cli_config(tmp_robot_dir):
                         continue
                     if "--install-completion" in conf:  # TODO: not supported in subprocess
                         continue
-                    if "--custom-formatters CustomFormatters" in conf:  # TODO: need to prepare the whole test module
+                    if "--extend-select CustomFormatters" in conf:  # TODO: need to prepare the whole test module
                         continue
                     if "GenerateDocumentation.doc_template" in conf:
                         continue

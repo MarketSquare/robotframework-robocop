@@ -2,29 +2,28 @@
 
 ## How to include custom formatters
 
-``--custom-formatters`` option allows including custom formatters. It can point to a single file (named the same as
-the formatter class) or to a module containing multiple formatters. Each formatter must be a class that inherits from
-`robocop.formatter.formatters.Formatter` class.
+Both [``--select``](../configuration/configuration_reference.md#select_1) and [``--extend-select``](../configuration/configuration_reference.md#extend-select_1)
+options allow including custom rules. Use the ``select`` option to only run custom formatter and ``extend-select``
+to run both default and custom formatters.
+
+You can point to a single file (named the same as the formatter class) or to a module containing multiple formatters.
+Each formatter must be a class that inherits from `robocop.formatter.formatters.Formatter` class.
 
 === ":octicons-command-palette-24: cli"
 
     ```bash
-    robocop format --custom-formatters CustomFormatters --custom-formatters CustomFormatter.py
+    robocop format --extend-select CustomFormatters --extend-select CustomFormatter.py
     ```
 
 === ":material-file-cog-outline: toml"
 
     ```toml
     [tool.robocop.format]
-    custom_formatters = [
+    extend-select = [
         "CustomFormatters",
         "CustomFormatter.py"
     ]
     ```
-
-It is also possible to include custom formatters using [select](../configuration/configuration_reference.md#select_1)
-option. Select loads only selected formatters, while ``--custom-formatters`` load custom formatters after loading
-default formatters.
 
 ## How to write custom formatters
 
@@ -56,7 +55,7 @@ Importing formatters from a module works similarly to how custom libraries are i
 If the file has the same name as the formatter, it will be auto-imported. For example, the following import:
 
 ```bash
-robocop format --custom-formatters CustomFormatter.py
+robocop format --extend-select CustomFormatter.py
 ```
 
 will auto import class ``CustomFormatter`` from the file.

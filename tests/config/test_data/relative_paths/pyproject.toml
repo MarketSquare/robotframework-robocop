@@ -2,4 +2,4 @@
 custom_rules = ["custom_rules/CustomRules.py"]
 
 [tool.robocop.format]
-custom_formatters = ["custom_formatters/"]
+extend-select = ["custom_formatters/"]

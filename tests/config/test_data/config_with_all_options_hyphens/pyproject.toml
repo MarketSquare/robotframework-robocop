@@ -32,7 +32,7 @@ configure = [
 
 [tool.robocop.format]
 select = ["NormalizeNewLines"]
-custom-formatters = ["CustomFormatter.py"]
+extend-select = ["CustomFormatter.py"]
 configure = [
     "NormalizeNewLines.flatten_lines=True"
 ]

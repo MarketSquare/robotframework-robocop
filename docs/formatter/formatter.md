@@ -28,7 +28,7 @@ robocop list formatters
 The following options can be used to select rules:
 
 - ``--select`` (see [configuration reference](../configuration/configuration_reference.md#select_1)) to only run selected formatters
-- ``--custom-formatters`` (see [configuration reference](../configuration/configuration_reference.md#custom-formatters)) to load custom formatters
+- ``--extend-select`` (see [configuration reference](../configuration/configuration_reference.md#extend-select_1)) to load default and selected formatters
 
 It is also possible to disable rules not available in the selected Robot Framework version using [target version](../configuration/configuration_reference.md#target-version).
 

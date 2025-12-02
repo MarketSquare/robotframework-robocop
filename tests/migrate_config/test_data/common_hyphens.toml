@@ -36,6 +36,9 @@ verbose = false
 # comment that will be discarded
 [tool.robotidy]
 transform = ["AlignKeywordsSection", "SplitTooLongLine:split_on_every_arg=False"]
+custom-formatters = [
+    "CustomFormatter",
+]
 skip-return-values = true
 skip-tags = false
 diff = false

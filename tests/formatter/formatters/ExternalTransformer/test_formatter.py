@@ -33,7 +33,7 @@ class TestExternalTransformer(FormatterAcceptanceTest):
     @pytest.mark.parametrize("external_transformer", [EXTERNAL_TRANSFORMER, EXTERNAL_TRANSFORMER_REL])
     def test_load_external_transformer(self, external_transformer):
         self.run_tidy(
-            custom_formatters=[str(external_transformer)],
+            extend_select=[str(external_transformer)],
             configure=[f"{self.FORMATTER_NAME}.param=2"],
             source="tests.robot",
         )
@@ -46,12 +46,12 @@ class TestExternalTransformer(FormatterAcceptanceTest):
 
     @pytest.mark.parametrize("disabled_transformer", [DISABLED_TRANSFORMER, DISABLED_TRANSFORMER_REL])
     def test_load_disabled(self, disabled_transformer):
-        self.run_tidy(custom_formatters=[str(disabled_transformer)], source="tests.robot")
+        self.run_tidy(extend_select=[str(disabled_transformer)], source="tests.robot")
         self.compare_file("tests.robot", expected_name="tests_only_defaults.robot")
 
     @pytest.mark.parametrize("module_path", [MODULE_TRANSFORMERS, MODULE_TRANSFORMERS_REL])
     def test_load_from_module(self, module_path):
-        self.run_tidy(custom_formatters=[str(module_path)], source="tests.robot")
+        self.run_tidy(extend_select=[str(module_path)], source="tests.robot")
         self.compare_file("tests.robot", expected_name="tests_module_load.robot")
 
     @pytest.mark.parametrize("module_path", [MODULE_TRANSFORMERS, MODULE_TRANSFORMERS_REL])
@@ -63,7 +63,7 @@ class TestExternalTransformer(FormatterAcceptanceTest):
     # @pytest.mark.parametrize("module_path", [MODULE_TRANSFORMERS, MODULE_TRANSFORMERS_REL])
     # def test_load_from_module_and_configure(self, module_path):
     #     self.run_tidy(
-    #         custom_formatters=[str(module_path)], configure=["CustomClass2.extra_param=True"], source="tests.robot"
+    #         extend_select=[str(module_path)], configure=["CustomClass2.extra_param=True"], source="tests.robot"
     #     )
     #     self.compare_file("tests.robot", expected_name="tests_module_load_configure.robot")
 
@@ -77,5 +77,5 @@ class TestExternalTransformer(FormatterAcceptanceTest):
         self.compare_file("tests.robot", expected_name="tests_module_transform.robot")
 
     def test_load_ordered(self):
-        self.run_tidy(custom_formatters=[str(MODULE_ORDERED_TRANFORMERS)], source="tests.robot")
+        self.run_tidy(extend_select=[str(MODULE_ORDERED_TRANFORMERS)], source="tests.robot")
         self.compare_file("tests.robot", expected_name="tests_module_load.robot")

@@ -4,6 +4,21 @@
 
 ### Features
 
+- **Breaking change** Add option ``--extend-select`` for linter and formatter ([issue #1546](https://github.com/MarketSquare/robotframework-robocop/issues/1546))
+
+``extend--select`` allows to enable rules and formatters on top of the ``select`` configuration. It can be used to
+retain all default rules or formatters and only add additional ones:
+
+```
+robocop check --extend-select no-embedded-keyword-arguments
+robocop check --extend-select AlignKeywordsSection --extend-select CustomFormatter
+```
+
+Because previous ``--custom-formatters`` formatter option already behaved like a ``--extend-select`` option (which was
+not documented), it is now deprecated and renamed to ``--extend-select`` instead.
+
+It is also recommended to use ``--extend-select`` over ``--configue name.enabled=True``.
+
 - **Breaking change** Split ``wrong-case-in-keyword-name`` rule into two separate rules ([issue #1471](https://github.com/MarketSquare/robotframework-robocop/issues/1471)):
 
 ``wrong-case-in-keyword-name`` which checks case convention in keyword definition name

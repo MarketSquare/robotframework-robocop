@@ -15,4 +15,7 @@ test.robot:170:9:170:15 [I] VAR02 Variable '${var}' is assigned but not used
 test.robot:179:9:179:16 [I] VAR02 Variable '${var2}' is assigned but not used
 test.robot:184:9:184:15 [I] VAR02 Variable '${var}' is assigned but not used
 test.robot:193:9:193:16 [I] VAR02 Variable '${var2}' is assigned but not used
+test.robot:244:9:244:16 [I] VAR02 Variable '${var1}' is assigned but not used
+test.robot:246:9:246:32 [I] VAR02 Variable '${var_used_only_before}' is assigned but not used
+test.robot:248:9:248:16 [I] VAR02 Variable '${var3}' is assigned but not used
 unused_section_vars.robot:21:1:21:19 [I] VAR02 Variable '${GLOBAL_NOT_USED}' is assigned but not used

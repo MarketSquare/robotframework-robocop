@@ -176,6 +176,46 @@ test.robot:193:9 VAR02 Variable '${var2}' is assigned but not used
  194 |     END
      |
 
+test.robot:244:9 VAR02 Variable '${var1}' is assigned but not used
+     |
+ 242 |     Log    ${var_used_only_before}    Keyword
+ 243 |     TRY
+ 244 |         ${var1}    Keyword
+     |         ^^^^^^^ VAR02
+ 245 |         ${var_used_outside1}    Keyword
+ 246 |         ${var_used_only_before}    Keyword
+     |
+
+test.robot:246:9 VAR02 Variable '${var_used_only_before}' is assigned but not used
+     |
+ 244 |         ${var1}    Keyword
+ 245 |         ${var_used_outside1}    Keyword
+ 246 |         ${var_used_only_before}    Keyword
+     |         ^^^^^^^^^^^^^^^^^^^^^^^ VAR02
+ 247 |     EXCEPT     Error message*  AS  ${var2}
+ 248 |         ${var3}    Keyword
+     |
+
+test.robot:247:36 VAR02 Variable '${var2}' is assigned but not used
+     |
+ 245 |         ${var_used_outside1}    Keyword
+ 246 |         ${var_used_only_before}    Keyword
+ 247 |     EXCEPT     Error message*  AS  ${var2}
+     |                                    ^^^^^^^ VAR02
+ 248 |         ${var3}    Keyword
+ 249 |         ${var_used_outside2}    Keyword
+     |
+
+test.robot:248:9 VAR02 Variable '${var3}' is assigned but not used
+     |
+ 246 |         ${var_used_only_before}    Keyword
+ 247 |     EXCEPT     Error message*  AS  ${var2}
+ 248 |         ${var3}    Keyword
+     |         ^^^^^^^ VAR02
+ 249 |         ${var_used_outside2}    Keyword
+ 250 |     END
+     |
+
 unused_section_vars.robot:21:1 VAR02 Variable '${GLOBAL_NOT_USED}' is assigned but not used
     |
  19 | *** Variables ***

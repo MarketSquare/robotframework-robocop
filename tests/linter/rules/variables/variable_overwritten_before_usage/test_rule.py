@@ -36,3 +36,6 @@ class TestRuleAcceptance(RuleAcceptance):
             expected_file="variable_type_conversion_expected.txt",
             test_on_version=">=7.3",
         )
+
+    def test_try_except(self):
+        self.check_rule(src_files=["try_except.robot"], expected_file=None, test_on_version=">=5")

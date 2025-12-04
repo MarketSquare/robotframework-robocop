@@ -1,5 +1,11 @@
 # Release notes
 
+## 7.0.0
+
+### Fixes
+
+- Fix ``unused-variable`` and ``variable-overwritten-before-usage`` rules not reporting violations in ``TRY`` blocks ([issue #1548](https://github.com/MarketSquare/robotframework-robocop/issues/1548))
+
 ## 6.13.0
 
 ### Features

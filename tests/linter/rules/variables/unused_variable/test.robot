@@ -237,3 +237,21 @@ Used in EXCEPT branch
     EXCEPT    ${var2}
         No Operation
     END
+
+Except with AS
+    Log    ${var_used_only_before}    Keyword
+    TRY
+        ${var1}    Keyword
+        ${var_used_outside1}    Keyword
+        ${var_used_only_before}    Keyword
+    EXCEPT     Error message*  AS  ${var2}
+        ${var3}    Keyword
+        ${var_used_outside2}    Keyword
+    END
+    Log    ${var_used_outside1}    Keyword
+    Log    ${var_used_outside2}    Keyword
+    TRY
+        No Operation
+    EXCEPT    Error message*  AS  ${var2}
+        Log    ${var2}
+    END

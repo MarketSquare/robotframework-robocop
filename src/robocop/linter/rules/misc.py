@@ -1140,6 +1140,7 @@ class CachedVariable:
     name: str
     token: Token
     is_used: bool
+    current_scopy_only: bool = False
 
 
 class SectionVariablesCollector(ast.NodeVisitor):
@@ -1306,8 +1307,8 @@ class UnusedVariablesChecker(VisitorChecker):
 
     def add_variables_from_if_to_scope(self, if_variables: dict[str, CachedVariable]) -> None:
         """
-        Add all variables in given IF branch to common scope. If variable is used already in the branch, if it will
-        also be mark as used.
+        Add all variables in the given IF branch to a common scope. If a variable is used already in the branch, it
+        will also be marked as used.
         """
         if not self.variables:
             self.variables.append(if_variables)
@@ -1338,11 +1339,11 @@ class UnusedVariablesChecker(VisitorChecker):
 
     def revisit_variables_used_in_loop(self) -> None:
         """
-        Due to recursive nature of the loops, we need to revisit variables used in the loop again in case
-        variable defined in the further part of the loop was used.
+        Due to the recursive nature of the loops, we need to revisit variables used in the loop again in case
+        the variable defined in the further part of the loop was used.
 
-        In case of nested FOR/WHILE loops we're storing variables in separate stacks, that are merged until we reach
-        outer END.
+        In case of nested FOR/WHILE loops, we're storing variables in separate stacks that are merged until we reach
+        the outer END.
 
         For example:
 
@@ -1400,18 +1401,42 @@ class UnusedVariablesChecker(VisitorChecker):
     def visit_Try(self, node):  # noqa: N802
         if node.errors or node.header.errors:
             return
-        for token in node.header.get_tokens(Token.ARGUMENT, Token.OPTION):
-            self.find_not_nested_variable(token.value, is_var=False)
+        # first gather variables from the TRY node
         self.variables.append({})
-        if self.try_assign(node) is not None:
-            error_var = node.header.get_token(Token.VARIABLE)
-            if error_var is not None:
-                self.handle_assign_variable(error_var, ignore_var_conversion=False)
         for item in node.body:
             self.visit(item)
-        self.variables.pop()
-        if node.next:
-            self.visit_Try(node.next)
+        try_variables = self.variables.pop()
+        branch_variables = []
+        try_branch = node.next
+        while try_branch:
+            self.variables.append({})
+            # variables in EXCEPT  ${error_pattern}
+            for token in try_branch.header.get_tokens(Token.ARGUMENT, Token.OPTION):
+                self.find_not_nested_variable(token.value, is_var=False)
+            # except AS ${err}
+            if self.try_assign(try_branch) is not None:
+                error_var = try_branch.header.get_token(Token.VARIABLE)
+                if error_var is not None:
+                    self.handle_assign_variable(error_var, ignore_var_conversion=False)
+                    for variable in self.variables[-1].values():
+                        variable.current_scopy_only = True
+            # visit body of branch
+            for item in try_branch.body:
+                self.visit(item)
+            branch_variables.append(self.variables.pop())
+            try_branch = try_branch.next
+        for branch in branch_variables:
+            for name, variable in branch.items():
+                if variable.current_scopy_only:
+                    if not variable.is_used:
+                        self.report_arg_or_var_rule(self.unused_variable, variable.token, variable.name)
+                elif name not in try_variables:
+                    try_variables[name] = variable
+                else:
+                    try_variables[name].is_used = try_variables[name].is_used and variable.is_used
+                    if not variable.is_used:
+                        try_variables[name].token = variable.token
+        self.add_variables_from_if_to_scope(try_variables)
 
     def visit_Group(self, node):  # noqa: N802
         for token in node.header.get_tokens(Token.ARGUMENT):
@@ -1419,7 +1444,7 @@ class UnusedVariablesChecker(VisitorChecker):
         self.generic_visit(node)
 
     def visit_KeywordCall(self, node) -> None:  # noqa: N802
-        for token in node.get_tokens(Token.ARGUMENT, Token.KEYWORD):  # argument can be used in keyword name
+        for token in node.get_tokens(Token.ARGUMENT, Token.KEYWORD):  # argument can be used in the keyword name
             self.find_not_nested_variable(token.value, is_var=False)
         for token in node.get_tokens(Token.ASSIGN):  # we first check args, then assign for used and then overwritten
             self.handle_assign_variable(token)
@@ -1462,7 +1487,7 @@ class UnusedVariablesChecker(VisitorChecker):
             variable_scope = self.variables[-1]
             if normalized in variable_scope:
                 is_used = variable_scope[normalized].is_used
-                if not variable_scope[normalized].is_used and not self.ignore_overwriting:
+                if not is_used and not self.ignore_overwriting:
                     self.report_arg_or_var_rule(
                         self.variable_overwritten_before_usage,
                         variable_scope[normalized].token,
@@ -1486,12 +1511,12 @@ class UnusedVariablesChecker(VisitorChecker):
         Find and process not nested variable.
 
         Search `value` string until there is ${variable} without other variables inside. Unescaped escaped syntax
-        ($var or \\${var}). If variable does exist in assign variables or arguments, it is removed to denote it was
+        ($var or \\${var}). If a variable does exist in assign variables or arguments, it is removed to denote it was
         used.
         """
         try:
             variables = list(VariableMatches(value))
-        except VariableError:  # for example ${variable which wasn't closed properly
+        except VariableError:  # for example, ${variable which wasn't closed properly
             return
         if not variables:
             if is_var:

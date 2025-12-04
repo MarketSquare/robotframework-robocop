@@ -21,9 +21,17 @@ class TestRuleAcceptance(RuleAcceptance):
     def test_rule_pre_var(self):
         self.check_rule(
             src_files=["test.robot", "unused_section_vars.robot"],
-            expected_file="expected_output_pre_var.txt",
+            expected_file="expected_output_after_rf4.txt",
             issue_format="end_col",
-            test_on_version=">=4;<7",
+            test_on_version=">=5;<7",
+        )
+
+    def test_rule_pre_var_pre_try(self):
+        self.check_rule(
+            src_files=["test.robot", "unused_section_vars.robot"],
+            expected_file="expected_output_rf4.txt",
+            issue_format="end_col",
+            test_on_version="==4.*",
         )
 
     def test_rule_on_loops(self):

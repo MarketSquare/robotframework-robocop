@@ -83,7 +83,8 @@ class UnusedVariableRule(Rule):
             Log      Triangle base points are: ${p1} and ${p2}.
             RETURN   ${p1}    ${p2}  # ${p3} is never used
 
-    Use ``${_}`` variable name if you purposefully do not use variable:
+    You can use ``${_}`` variable name or start variable name with ``_`` underscore if you purposefully do not
+    use variable:
 
         *** Keywords ***
         Process Value 10 Times
@@ -91,10 +92,11 @@ class UnusedVariableRule(Rule):
             FOR    ${_}   IN RANGE    10
                 Process Value    ${value}
             END
+            ${_first}    ${second}    Unpack List    @{LIST}
 
-    Note that some keywords may use your local variables even if you don't pass them directly. For example
-    BuiltIn ``Replace Variables`` or any custom keyword that retrieves variables from local scope. In such case
-    Robocop will still raise ``unused-variable`` even if variable is used.
+    Note that some keywords may use your local variables even if you don't pass them directly. For example,
+    BuiltIn ``Replace Variables`` or any custom keyword that retrieves variables from a local scope. In this case,
+    Robocop will still raise an ``unused-variable`` even if the variable is actually used.
 
     """
 

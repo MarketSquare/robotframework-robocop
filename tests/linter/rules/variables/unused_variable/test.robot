@@ -255,3 +255,20 @@ Except with AS
     EXCEPT    Error message*  AS  ${var2}
         Log    ${var2}
     END
+
+Not used starting with _
+    [Documentation]    Should be ignored.
+    FOR    ${_var}    IN    1  2  3
+        Keyword
+    END
+    TRY
+        May Fail    ${var1}
+    EXCEPT     Error message*  AS  ${_var2}
+        No Operation
+        ${_branch_assign}    Keyword
+    END
+    IF    condition
+        ${_var3}    Keyword
+    END
+    ${var4}    ${_var5}    Keyword
+    Log    ${var4}

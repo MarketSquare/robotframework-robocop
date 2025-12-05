@@ -1333,7 +1333,7 @@ class UnusedVariablesChecker(VisitorChecker):
     )
 
     def clear_variables_after_loop(self) -> None:
-        """Remove used variables after loop finishes."""
+        """Remove used variables after the loop finishes."""
         for index, scope in enumerate(self.variables):
             self.variables[index] = {name: variable for name, variable in scope.items() if not variable.is_used}
 
@@ -1474,7 +1474,7 @@ class UnusedVariablesChecker(VisitorChecker):
         if ignore_var_conversion:
             name = utils.remove_variable_type_conversion(name)
         normalized = utils.normalize_robot_name(name)
-        if not normalized:  # i.e. "${_}" -> ""
+        if not normalized or name.startswith("_"):  # i.e. "${_}" -> "", or ${_ignore}
             return
         arg = self.arguments.get(normalized, None)
         if arg is not None:

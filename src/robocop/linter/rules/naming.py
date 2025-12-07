@@ -63,7 +63,7 @@ class WrongCaseInKeywordNameRule(Rule):
     Keyword name does not follow case convention.
 
     Keyword names need to follow a specific case convention.
-    The convention can be set using ``convention`` parameter and accepts
+    The convention can be set using the `` convention `` parameter and accepts
     one of the 2 values: ``each_word_capitalized`` or ``first_word_capitalized``.
 
     By default, it's configured to ``each_word_capitalized``, which requires each keyword to follow such
@@ -76,7 +76,7 @@ class WrongCaseInKeywordNameRule(Rule):
             Click 'Next' Button
             [Teardown]  Log Form Data
 
-    You can also set it to ``first_word_capitalized`` which requires first word to have first letter capital:
+    You can also set it to ``first_word_capitalized`` which requires capitalising the first word of the keyword:
 
         *** Keywords ***
         Fill out the form
@@ -89,10 +89,12 @@ class WrongCaseInKeywordNameRule(Rule):
     that are accepted in the keyword name, even though they violate the case convention.
 
     ``pattern`` parameter accepts a regex pattern. For example, configuring it to ``robocop\.readthedocs\.io``
-    would make such keyword legal:
+    would make the following keyword legal:
 
         Go To robocop.readthedocs.io Page
 
+    See the sibling rule [wrong-case-in-keyword-call](#wrong-case-in-keyword-call) that checks keyword definition
+    naming convention.
     """
 
     name = "wrong-case-in-keyword-name"
@@ -563,6 +565,70 @@ class MixedTaskTestSettingsRule(Rule):
     deprecated_names = ("0326",)
 
 
+class WrongCaseInKeywordCallRule(Rule):
+    r"""
+    Keyword call name does not follow case convention.
+
+    Keyword names need to follow a specific case convention.
+    The convention can be set using the `` convention `` parameter and accepts
+    one of the 2 values: ``each_word_capitalized`` or ``first_word_capitalized``.
+
+    By default, it's configured to ``each_word_capitalized``, which requires each keyword to follow such
+    convention:
+
+        *** Keywords ***
+        Fill out the form
+            Provide Shipping Address
+            Provide Payment Method
+            Click 'Next' Button
+            [Teardown]  Log Form Data
+
+    You can also set it to ``first_word_capitalized`` which requires capitalising the first word of the keyword:
+
+        *** Keywords ***
+        Fill out the form
+            Provide shipping address
+            Provide payment method
+            Click 'Next' button
+            [Teardown]  Log form data
+
+    The rule also accepts another parameter ``pattern`` which can be used to configure words
+    that are accepted in the keyword name, even though they violate the case convention.
+
+    ``pattern`` parameter accepts a regex pattern. For example, configuring it to ``robocop\.readthedocs\.io``
+    would make the following keyword legal:
+
+        Go To robocop.readthedocs.io Page
+
+    See the sibling rule [wrong-case-in-keyword-name](#wrong-case-in-keyword-name) that checks keyword definition
+    naming convention.
+    """
+
+    name = "wrong-case-in-keyword-call"
+    rule_id = "NAME18"
+    message = "Keyword name '{keyword_name}' does not follow case convention"
+    severity = RuleSeverity.WARNING
+    parameters = [
+        RuleParam(
+            name="convention",
+            default="each_word_capitalized",
+            converter=str,
+            desc="possible values: 'each_word_capitalized' (default) or 'first_word_capitalized'",
+        ),
+        RuleParam(
+            name="pattern",
+            default=re.compile(r""),
+            converter=utils.pattern_type,
+            show_type="regex",
+            desc="pattern for accepted words in keyword",
+        ),
+    ]
+    added_in_version = "7.0.0"
+    sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
+        clean_code=sonar_qube.CleanCodeAttribute.IDENTIFIABLE, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
+    )
+
+
 SET_VARIABLE_VARIANTS = {
     "settaskvariable",
     "settestvariable",
@@ -647,6 +713,7 @@ class KeywordNamingChecker(VisitorChecker):
     """Checker for keyword naming violations."""
 
     wrong_case_in_keyword_name: WrongCaseInKeywordNameRule
+    wrong_case_in_keyword_call: WrongCaseInKeywordCallRule
     keyword_name_is_reserved_word: KeywordNameIsReservedWordRule
     underscore_in_keyword_name: UnderscoreInKeywordNameRule
     else_not_upper_case: ElseNotUpperCaseRule
@@ -697,7 +764,7 @@ class KeywordNamingChecker(VisitorChecker):
         if not node.name:
             self.report(self.keyword_name_is_empty, node=node)
         else:
-            self.check_keyword_naming(node.name, node)
+            self.check_keyword_naming(node.name, node, is_keyword_definition=True)
         self.generic_visit(node)
 
     def visit_KeywordCall(self, node) -> None:  # noqa: N802
@@ -713,15 +780,19 @@ class KeywordNamingChecker(VisitorChecker):
         self.generic_visit(node)
         self.inside_if_block = False
 
-    def check_keyword_naming(self, keyword_name, node) -> None:
+    def check_keyword_naming(self, keyword_name, node, is_keyword_definition: bool = False) -> None:
         if not keyword_name or keyword_name.lstrip().startswith("#"):
             return
         if keyword_name == r"/":  # old for loop, / are interpreted as keywords
             return
         if self.check_if_keyword_is_reserved(keyword_name, node):
             return
+        if is_keyword_definition:
+            case_naming_rule = self.wrong_case_in_keyword_name
+        else:
+            case_naming_rule = self.wrong_case_in_keyword_call
         normalized = utils.remove_robot_vars(keyword_name)
-        normalized = self.wrong_case_in_keyword_name.pattern.sub("", normalized)
+        normalized = case_naming_rule.pattern.sub("", normalized)
         normalized = normalized.split(".")[-1]  # remove any imports ie ExternalLib.SubLib.Log -> Log
         normalized = normalized.replace("'", "")  # replace ' apostrophes
         if "_" in normalized:
@@ -733,11 +804,11 @@ class KeywordNamingChecker(VisitorChecker):
                 end_col=node.col_offset + len(keyword_name.rstrip()) + 1,
             )
         words = self.letter_pattern.sub(" ", normalized).split(" ")
-        if self.wrong_case_in_keyword_name.convention == "first_word_capitalized":
+        if case_naming_rule.convention == "first_word_capitalized":
             words = words[:1]
         if any(word[0].islower() for word in words if word):
             self.report(
-                self.wrong_case_in_keyword_name,
+                case_naming_rule,
                 keyword_name=keyword_name,
                 node=node,
                 col=node.col_offset + 1,

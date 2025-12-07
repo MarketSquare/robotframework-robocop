@@ -4,6 +4,15 @@
 
 ### Features
 
+- **Breaking change** Split ``wrong-case-in-keyword-name`` rule into two separate rules ([issue #1471](https://github.com/MarketSquare/robotframework-robocop/issues/1471)):
+
+``wrong-case-in-keyword-name`` which checks case convention in keyword definition name
+``wrong-case-in-keyword-call`` which checks case convention in keyword call name
+
+It allows configuring different conventions for keyword definition and keyword call names. If you have existing
+configuration for ``wrong-case-in-keyword-name`` (you are ignoring it or configuring) you need to apply the same
+config to ``wrong-case-in-keyword-call`` to retain old behaviour.
+
 - Extend robocop disablers to the whole node ([issue #1515](https://github.com/MarketSquare/robotframework-robocop/issues/1515)
 
 Robocop will now ignore issues in the whole node (keyword, test case, for loop, keyword call, etc.) when the disabler

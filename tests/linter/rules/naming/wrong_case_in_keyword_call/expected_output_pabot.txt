@@ -1,0 +1,4 @@
+pabot_run_keywords.robot:2:39 [W] NAME18 Keyword name 'some keyword' does not follow case convention
+pabot_run_keywords.robot:3:54 [W] NAME18 Keyword name 'some keyword' does not follow case convention
+pabot_run_keywords.robot:7:22 [W] NAME18 Keyword name 'keyword' does not follow case convention
+pabot_run_keywords.robot:8:37 [W] NAME18 Keyword name 'keyword' does not follow case convention

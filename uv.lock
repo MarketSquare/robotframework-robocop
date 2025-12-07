@@ -1111,11 +1111,11 @@ wheels = [
 
 [[package]]
 name = "robotframework"
-version = "6.1.1"
+version = "7.3.2"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/c6/37/fc94979077241a09f31f347cbae401c9f62705eadd441a392285537e603c/robotframework-6.1.1.zip", hash = "sha256:3fa18f2596a4df2418c4b59abf43248327c15ed38ad8665f6a9a9c75c95d7789", size = 729685 }
+sdist = { url = "https://files.pythonhosted.org/packages/d9/bb/b8309699b0c6aaf492df11085635e7afa00fd9a3f5dd54b04b804056cc31/robotframework-7.3.2.tar.gz", hash = "sha256:3bb3e299831ecb1664f3d5082f6ff9f08ba82d61a745bef2227328ef3049e93a", size = 644178 }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/b5/f0/3338803e955926c7826cfe6738ed99db1f76c3a86defca2c33228b12119a/robotframework-6.1.1-py3-none-any.whl", hash = "sha256:ee0d512d557e72ed760dd075525f6226baaab309010a48f9c9bf1f416ca434f7", size = 699067 },
+    { url = "https://files.pythonhosted.org/packages/a0/91/f58cbb1e26119d68316bc7c306ca9b3e336d9053f432bc1876447592e4b8/robotframework-7.3.2-py3-none-any.whl", hash = "sha256:14ef2afa905285cc073df6ce06d0cd3af4a113df6f815532718079e00c98cca4", size = 795066 },
 ]
 
 [[package]]
@@ -1159,7 +1159,7 @@ requires-dist = [
     { name = "platformdirs", specifier = ">=4.3" },
     { name = "pytz", specifier = ">=2022.7" },
     { name = "rich", specifier = ">=10.11.0" },
-    { name = "robotframework", specifier = ">=4.0,<7.5" },
+    { name = "robotframework", specifier = "==7.*" },
     { name = "tomli", marker = "python_full_version < '3.11'", specifier = "==2.2.1" },
     { name = "tomli-w", specifier = ">=1.0" },
     { name = "typer-slim", specifier = ">=0.12.5" },

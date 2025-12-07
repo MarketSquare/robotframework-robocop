@@ -33,3 +33,10 @@ Keyword
 Keyword With Unicode
     This Is ąęłżź ąęłżź ąęłżź ąęłżź ąęłżź ąęłżź ąęłżź ąęłżź ąęłżź ąęłżź ąęłżź ąęłżź ąęłżź
     日本語 日本語 日本語 日本語 日本語 日本語 日本語 日本語 日本語 日本語 日本語 日本語 日本語 日本語
+
+Multiline with disabler
+    [Documentation]    Issue
+    VAR    ${test}  # robocop: off=line-too-long
+    ...    verylonglinelonglinglonglinelineverylonglinelonglinglonglinelineverylonglinelonglinglonglinelineverylonglinelonglinglonglineline
+    Append To List    ${test}  # robocop: off=line-too-long
+    ...    verylonglinelonglinglonglinelineverylonglinelonglinglonglinelineverylonglinelonglinglonglinelineverylonglinelonglinglonglineline

@@ -4,6 +4,26 @@
 
 ### Features
 
+- Extend robocop disablers to the whole node ([issue #1515](https://github.com/MarketSquare/robotframework-robocop/issues/1515)
+
+Robocop will now ignore issues in the whole node (keyword, test case, for loop, keyword call, etc.) when the disabler
+is set in the header / keyword call body. For example:
+
+```robotframework
+*** Keywords ***
+My Keyword  
+    FOR    ${var}    IN    1  2  3  # robocop: off=unused-variable
+         Log    1
+    END
+    Keyword    # robocop: off=bad-indent
+    ...    ${var}
+    ...    ${var2}
+```
+
+Previously, Robocop would ignore ``unused-variable`` only when reported on the ``FOR`` header and ``bad-indent`` only
+when reported on the first line of the ``Keyword`` call. After this change, those issues will be ignored in the whole
+FOR loop and the whole ``Keyword`` call respectively.
+
 - Ignore unused variables starting with ``_`` (``${_variable}``) ([issue #1457](https://github.com/MarketSquare/robotframework-robocop/issues/1457)
 
 ### Fixes

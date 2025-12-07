@@ -35,6 +35,12 @@ class TestDisablers:
         assert disabler.any_disabler
         assert disabler.is_line_disabled(10, "line-too-long")
         assert disabler.is_line_disabled(12, "all")  # from noqa
+        assert disabler.is_line_disabled(15, "disable-whole-keyword")
+        assert disabler.is_line_disabled(16, "disable-whole-keyword")
+        assert not disabler.is_line_disabled(17, "disable-whole-keyword")
+        assert disabler.is_line_disabled(19, "whole-section")
+        assert disabler.is_line_disabled(20, "whole-section")
+        assert disabler.is_line_disabled(21, "whole-section")
         assert not disabler.is_line_disabled(10, "otherule")
         model = get_model(DISABLED_TEST_DIR / "disabled_whole.robot")
         disabler = DisablersFinder(model)
@@ -43,7 +49,7 @@ class TestDisablers:
 
     def test_is_rule_disabled(self, diagnostic):
         # check if rule 1010 is disabled in selected lines
-        exp_disabled_lines = {6, 10, 12}
+        exp_disabled_lines = {6, 7, 8, 10, 11, 12, 13}
         model = get_model(DISABLED_TEST_DIR / "disabled.robot")
         disabler = DisablersFinder(model)
         disabled_lines = set()

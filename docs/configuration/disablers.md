@@ -54,11 +54,16 @@ Ignore whole blocks of code by defining a disabler in the new line:
 
 ```text
 # robocop: off=rule1
+Statement 1
+Statement 2
 ```
 
 Enable it again with ``on`` command:
 
 ```text
+# robocop: off=rule1
+Statement 1
+Statement 2
 # robocop: on=rule1
 ```
 
@@ -88,6 +93,15 @@ Compare Table With CSV Files
     Should Be Equal    ${erorrs}    @{EMPTY}
 ```
 
+``# robocop: off=wrong-case-in-keyword-name`` disabler can be also used in the FOR loop header and it will be applied
+for the whole loop:
+
+```robotframework
+    FOR    ${file}    IN    @{files}  # robocop: off=wrong-case-in-keyword-name
+        Table data should be in file     ${data}    ${file}
+    END
+```
+
 ## Disabling files
 
 It is possible to ignore a whole file if you put Robocop disabler in the first comment section, at the beginning of the
@@ -103,8 +117,7 @@ Some Test
     Keyword 3
 
 *** Keywords ***
-Keyword 1
-    # robocop: off
+Keyword 1  # robocop: off
     Log  1
 
 Keyword 2

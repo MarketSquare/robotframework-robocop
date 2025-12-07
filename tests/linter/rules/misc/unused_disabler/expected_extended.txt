@@ -16,15 +16,15 @@ test.robot:3:21 MISC15 Disabler directive found for 'NAME01' rule(s) but no viol
  2 | Inline disablers - not used
  3 |     No Operation  # robocop: off=NAME01
    |                     ^^^^^^^^^^^^^^^^^^^ MISC15
- 4 |     No Operation  # robocop: off=wrong-case-in-keyword-name
+ 4 |     No Operation  # robocop: off=wrong-case-in-keyword-call
  5 |     FOR    ${var}    IN    @{LIST}    # robocop: off=unused-variable
    |
 
-test.robot:4:21 MISC15 Disabler directive found for 'wrong-case-in-keyword-name' rule(s) but no violation found
+test.robot:4:21 MISC15 Disabler directive found for 'wrong-case-in-keyword-call' rule(s) but no violation found
    |
  2 | Inline disablers - not used
  3 |     No Operation  # robocop: off=NAME01
- 4 |     No Operation  # robocop: off=wrong-case-in-keyword-name
+ 4 |     No Operation  # robocop: off=wrong-case-in-keyword-call
    |                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ MISC15
  5 |     FOR    ${var}    IN    @{LIST}    # robocop: off=unused-variable
  6 |         Log    ${var}
@@ -33,7 +33,7 @@ test.robot:4:21 MISC15 Disabler directive found for 'wrong-case-in-keyword-name'
 test.robot:5:41 MISC15 Disabler directive found for 'unused-variable' rule(s) but no violation found
    |
  3 |     No Operation  # robocop: off=NAME01
- 4 |     No Operation  # robocop: off=wrong-case-in-keyword-name
+ 4 |     No Operation  # robocop: off=wrong-case-in-keyword-call
  5 |     FOR    ${var}    IN    @{LIST}    # robocop: off=unused-variable
    |                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ MISC15
  6 |         Log    ${var}

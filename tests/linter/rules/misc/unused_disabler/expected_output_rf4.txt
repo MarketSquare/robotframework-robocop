@@ -1,5 +1,5 @@
 test.robot:3:21 [I] MISC15 Disabler directive found for 'NAME01' rule(s) but no violation found
-test.robot:4:21 [I] MISC15 Disabler directive found for 'wrong-case-in-keyword-name' rule(s) but no violation found
+test.robot:4:21 [I] MISC15 Disabler directive found for 'wrong-case-in-keyword-call' rule(s) but no violation found
 test.robot:5:41 [I] MISC15 Disabler directive found for 'unused-variable' rule(s) but no violation found
 test.robot:8:21 [I] MISC15 Disabler directive found for 'all' rule(s) but no violation found
 test.robot:17:21 [I] MISC15 Disabler directive found for 'NAME01' rule(s) but no violation found

@@ -1,0 +1,7 @@
+first_word${/}test.robot:3:14 [W] NAME18 Keyword name 'keyword' does not follow case convention
+first_word${/}test.robot:4:17 [W] NAME18 Keyword name 'keyword' does not follow case convention
+first_word${/}test.robot:5:13 [W] NAME18 Keyword name 'keyword' does not follow case convention
+first_word${/}test.robot:6:16 [W] NAME18 Keyword name 'keyword' does not follow case convention
+first_word${/}test.robot:14:14 [W] NAME18 Keyword name 'keyword' does not follow case convention
+first_word${/}test.robot:15:5 [W] NAME18 Keyword name 'pass' does not follow case convention
+first_word${/}test.robot:18:17 [W] NAME18 Keyword name 'keyword' does not follow case convention

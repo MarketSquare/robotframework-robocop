@@ -5,7 +5,7 @@ SELECT = [
     "multiline-inline-if",
     "duplicated-variable",
     "NAME01",
-    "NAME02",
+    "NAME18",
     "VAR02",
 ]
 

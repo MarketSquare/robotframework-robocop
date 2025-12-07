@@ -93,7 +93,7 @@ class WrongCaseInKeywordNameRule(Rule):
 
         Go To robocop.readthedocs.io Page
 
-    See the sibling rule [wrong-case-in-keyword-call](#wrong-case-in-keyword-call) that checks keyword definition
+    See the sibling rule [wrong-case-in-keyword-call](#wrong-case-in-keyword-call) that checks keyword call
     naming convention.
     """
 

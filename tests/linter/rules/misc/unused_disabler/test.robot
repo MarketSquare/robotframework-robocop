@@ -1,14 +1,14 @@
 *** Test Cases ***
 Inline disablers - not used
     No Operation  # robocop: off=NAME01
-    No Operation  # robocop: off=wrong-case-in-keyword-name
+    No Operation  # robocop: off=wrong-case-in-keyword-call
     FOR    ${var}    IN    @{LIST}    # robocop: off=unused-variable
         Log    ${var}
     END
     Log    ${var}  # robocop: off
 
 Inline disablers - .used  # robocop: off=NAME01
-    No operation  # robocop: off=wrong-case-in-keyword-name
+    No operation  # robocop: off=wrong-case-in-keyword-call
     FOR    ${var}    IN    @{LIST}    # robocop: off=unused-variable
         Log    I dont use var
     END

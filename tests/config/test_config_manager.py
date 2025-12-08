@@ -113,7 +113,7 @@ class TestConfigFinder:
         config.linter.exit_zero = True
 
         config.formatter.select = ["NormalizeNewLines"]
-        config.formatter.custom_formatters = ["CustomFormatter.py"]
+        config.formatter.extend_select = ["CustomFormatter.py"]
         config.formatter.configure = ["NormalizeNewLines.flatten_lines=True"]
         config.formatter.force_order = True
         config.formatter.diff = True
@@ -281,7 +281,7 @@ class TestConfigFinder:
             == (relative_parent / "custom_rules/CustomRules.py").resolve()
         )
         assert (
-            Path(config_manager.default_config.formatter.custom_formatters[0]).resolve()
+            Path(config_manager.default_config.formatter.extend_select[0]).resolve()
             == (relative_parent / "custom_formatters").resolve()
         )
 

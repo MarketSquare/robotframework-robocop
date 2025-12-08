@@ -354,7 +354,7 @@ class LinterConfig:
 class FormatterConfig:
     whitespace_config: WhitespaceConfig = field(default_factory=WhitespaceConfig)
     select: list[str] | None = field(default_factory=list)
-    custom_formatters: list[str] | None = field(default_factory=list)
+    extend_select: list[str] | None = field(default_factory=list)
     configure: list[str] | None = field(default_factory=list)
     force_order: bool | None = False
     allow_disabled: bool | None = False
@@ -387,9 +387,9 @@ class FormatterConfig:
         override = {param: value for param, value in config.items() if param in config_fields}
         override["whitespace_config"] = WhitespaceConfig.from_toml(config)
         override["skip_config"] = SkipConfig.from_toml(config)
-        if "custom_formatters" in override:
-            override["custom_formatters"] = [
-                resolve_relative_path(path, config_parent, ensure_exists=True) for path in config["custom_formatters"]
+        if "extend_select" in override:
+            override["extend_select"] = [
+                resolve_relative_path(path, config_parent, ensure_exists=True) for path in config["extend_select"]
             ]
         known_fields = (
             config_fields
@@ -411,11 +411,16 @@ class FormatterConfig:
             self.load_formatters()
         return self._formatters
 
+    def is_formatter_selected(self, name: str, formatter: str):
+        # TODO: have name and formatter name are different?
+        return name in self.select or formatter in self.select
+
     def load_formatters(self):
         self._formatters = {}
         for formatter in self.selected_formatters():
             for container in formatters.import_formatter(formatter, self.combined_configure, self.skip_config):
-                if container.name in self.select or formatter in self.select:
+                overwritten = self.is_formatter_selected(container.name, formatter)
+                if overwritten:
                     enabled = True
                 elif "enabled" in container.args:
                     enabled = container.args["enabled"].lower() == "true"
@@ -425,7 +430,7 @@ class FormatterConfig:
                     continue
                 if formatters.can_run_in_robot_version(
                     container.instance,
-                    overwritten=container.name in self.select,
+                    overwritten=overwritten,
                     target_version=self.target_version,
                 ):
                     container.instance.ENABLED = enabled
@@ -439,10 +444,12 @@ class FormatterConfig:
 
     def selected_formatters(self) -> list[str]:
         if not self.select:
-            return formatters.FORMATTERS + self.custom_formatters
-        if not self.force_order:
-            return self.ordered_select + self.custom_formatters
-        return self.select + self.custom_formatters
+            selected = formatters.FORMATTERS + self.extend_select
+        elif not self.force_order:
+            selected = self.ordered_select + self.extend_select
+        else:
+            selected = self.select + self.extend_select
+        return list(dict.fromkeys(selected))  # remove duplicates
 
     @property
     def ordered_select(self) -> list[str]:

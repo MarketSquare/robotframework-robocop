@@ -331,12 +331,12 @@ def format_files(
             rich_help_panel="Selecting formatters",
         ),
     ] = None,
-    custom_formatters: Annotated[
+    extend_select: Annotated[
         list[str],
         typer.Option(
             show_default=False,
             metavar="FORMATTER",
-            help="Run custom formatters.",
+            help="Select additional formatters to run.",
             rich_help_panel="Selecting formatters",
         ),
     ] = None,
@@ -508,7 +508,7 @@ def format_files(
     )
     formatter_config = config.FormatterConfig(
         select=select,
-        custom_formatters=custom_formatters,
+        extend_select=extend_select,
         force_order=force_order,
         whitespace_config=whitespace_config,
         skip_config=skip_config,
@@ -678,7 +678,7 @@ def list_formatters(
     console = Console(soft_wrap=True)
     formatter_config = config.FormatterConfig(
         select=None,
-        custom_formatters=None,
+        extend_select=None,
         force_order=None,
         whitespace_config=config.WhitespaceConfig(),
         skip_config=config.SkipConfig(),

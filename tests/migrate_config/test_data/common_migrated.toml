@@ -47,6 +47,9 @@ select = [
     "AlignKeywordsSection",
     "SplitTooLongLine",
 ]
+extend-select = [
+    "CustomFormatter",
+]
 diff = false
 overwrite = true
 line_length = 120

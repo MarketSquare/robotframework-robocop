@@ -64,7 +64,7 @@ and options in TOML format.
 
     [tool.robocop.format]
     select = ["NormalizeNewLines"]
-    custom_formatters = ["CustomFormatter.py"]
+    extend-select = ["CustomFormatter.py"]
     configure = [
         "NormalizeNewLines.section_lines=1"
     ]

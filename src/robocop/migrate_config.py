@@ -368,14 +368,15 @@ def migrate_deprecated_configs(config_path: Path) -> None:
             migrated["lint"]["configure"] = [f"text_file.output_path={robocop_config['output']}"]
     robotidy_config = drop_formatters_with_enabled_config(robotidy_config)
     migrated["format"] = copy_keys(
-        robotidy_config,  # load-transformers / --custom-transformers
+        robotidy_config,
         {
             "transform": "select",
+            "load_transformers": "extend-select",
+            "custom_transformers": "extend-select",
+            "custom_formatters": "extend-select",
             "check": "check",
             "diff": "diff",
             "overwrite": "overwrite",
-            "load_transformers": "custom_formatters",
-            "custom_transformers": "custom_formatters",
             "line_length": "line_length",
             "separator": "separator",
             "spacecount": "space_count",
@@ -389,12 +390,13 @@ def migrate_deprecated_configs(config_path: Path) -> None:
             "configure": ("configure", convert_robotidy_configure),
         },
     )
-    if "select" in migrated["format"]:
-        migrated["format"]["select"], new_configure = split_config_from_select(
-            migrated["format"]["select"], migrated["format"].get("configure", [])
-        )
-        if new_configure:
-            migrated["format"]["configure"] = new_configure
+    for select_option in ("select", "extend-select"):
+        if select_option in migrated["format"]:
+            migrated["format"][select_option], new_configure = split_config_from_select(
+                migrated["format"][select_option], migrated["format"].get("configure", [])
+            )
+            if new_configure:
+                migrated["format"]["configure"] = new_configure
     if skips := convert_skips(robotidy_config):
         migrated["format"]["skip"] = skips
     split_multiline_config(migrated)

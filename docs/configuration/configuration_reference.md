@@ -422,6 +422,12 @@ option to select all rules except those you want to ignore:
 
 ---
 
+#### ``extend select``
+
+Fill it with linter feature.
+
+---
+
 #### ``ignore``
 
 Use ``--ignore`` option to ignore rules. You can use rule id or rule name. Glob patterns are supported.
@@ -748,7 +754,7 @@ Use ``--select`` option to select formatters to run. When this option is used, a
 ???+ note
 
     If you want to only enable additional formatters and do not disable default ones, use
-    ``--configure <formatter>.enabled=True`` configuration parameter instead.
+    ``--extend-select`` option instead.
 
 To only select and run ``NormalizeSeparators`` formatter:
 
@@ -787,23 +793,25 @@ You can select multiple formatters:
 
 ---
 
-#### ``custom formatters``
+#### ``extend select``
+
+``--extend-select`` option allows including formatters in addition to the ``--select`` ones. Since ``--select`` option
+by default enables all default formatters, this option is useful to run all default and selected non-default or custom
+formatters.
 
 Read more about custom formatters on the [Custom formatters](../formatter/custom_formatters.md) page.
-
-``--custom-formatters`` option allows including custom formatters.
 
 === ":octicons-command-palette-24: cli"
 
     ```bash
-    robocop format --custom-formatters my/own/Formatter.py --custom-formatters CustomFormatter.py
+    robocop format --extend-select my/own/Formatter.py --extend-select CustomFormatter.py
     ```
 
 === ":material-file-cog-outline: toml"
 
     ```toml
     [tool.robocop.format]
-    custom_formatters = [
+    extend-select = [
         "my/own/Formatter.py",
         "CustomFormatter.py"
     ]

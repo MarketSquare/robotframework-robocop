@@ -110,10 +110,11 @@ Formatting options from Robotidy:
 
 ``-rules / --ext-rules`` can be now only used under ``--custom-rules`` name.
 
-``--load-transformers / --custom-transformers`` is now renamed to ``--custom-formatters``.
+``--load-transformers / --custom-transformers`` is now renamed to ``--custom-formatters``. In Robocop 7.0 it is
+renamed to ``--extend-select``.
 
 ---
-
+ 
 ``-nr / --no-recursive`` is now deprecated. Similar behaviour can be reached by passing file paths to robocop or
 configuring ``--exclude`` option.
 

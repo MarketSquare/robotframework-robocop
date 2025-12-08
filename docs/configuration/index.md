@@ -52,6 +52,9 @@ and options in TOML format.
         "rulename",
         "ruleid"
     ]
+    extend-select = [
+        "additional-rule"
+    ]
     ignore = [
         "ruleid"
     ]

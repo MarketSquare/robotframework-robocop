@@ -424,7 +424,46 @@ option to select all rules except those you want to ignore:
 
 #### ``extend select``
 
-Fill it with linter feature.
+Use ``--extend-select`` option to select additional rules to run on top of the ``--select``. If ``--select`` is not
+used, all default rules plus ``--extend-select`` rules are run.
+You can use rule id or rule name. Glob patterns are supported.
+
+To run all default rules plus ``not-allowed-keyword`` (non-default rule):
+
+=== ":octicons-command-palette-24: cli"
+
+    ```bash
+    robocop check --extend-select not-allowed-keyword
+    ```
+
+=== ":material-file-cog-outline: toml"
+
+    ```toml
+    [tool.robocop.lint]
+    extend-select = [
+        "not-allowed-keyword"
+    ]
+    ```
+
+To run selected spacing rules plus custom rule:
+
+=== ":octicons-command-palette-24: cli"
+
+    ```bash
+    robocop check --select SPC* --extend-select custom-rule
+    ```
+
+=== ":material-file-cog-outline: toml"
+
+    ```toml
+    [tool.robocop.lint]
+    select = [
+        "SPC*",
+    ]
+    extend-select = [
+        "custom-rule"
+    ]
+    ```
 
 ---
 

@@ -14,6 +14,9 @@ select = [
     "rulename",
     "ruleid"
 ]
+extend-select = [
+    "customrule"
+]
 ignore = [
     "ruleid"
 ]

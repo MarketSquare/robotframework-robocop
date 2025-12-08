@@ -35,6 +35,27 @@ class TestIncludingExcluding:
         assert all(not rule_matcher.is_rule_enabled(get_message_with_id(msg)) for msg in ignored)
 
     @pytest.mark.parametrize(
+        ("select", "extend_select", "enabled", "not_enabled"),
+        [
+            # with nothing configured, default rules are enabled and non-defaults are not
+            (None, None, ["SPC01", "SPC02"], ["KW02"]),
+            # select only enabled selected
+            (["SPC01"], None, ["SPC01"], ["SPC02", "KW02"]),
+            # defaults + extend select
+            (None, ["KW02"], ["SPC01", "SPC02", "KW02"], []),
+            # extend allows adding on top of selected rules
+            (["SPC01"], ["SPC02"], ["SPC01", "SPC02"], ["KW02"]),
+            (["SPC01"], ["SPC02", "KW02"], ["SPC01", "SPC02", "KW02"], []),
+        ],
+    )
+    def test_select_and_extend_select(self, select, extend_select, enabled, not_enabled):
+        linter_config = LinterConfig(select=select, extend_select=extend_select)
+        linter_config.load_configuration()
+        rule_matcher = RuleMatcher(linter_config)
+        assert all(rule_matcher.is_rule_enabled(linter_config.rules[rule]) for rule in enabled)
+        assert all(not rule_matcher.is_rule_enabled(linter_config.rules[rule]) for rule in not_enabled)
+
+    @pytest.mark.parametrize(
         ("patterns", "selected", "ignored"),
         [
             (["01*"], [], ["0202", "0501", "0403"]),

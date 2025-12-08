@@ -44,11 +44,22 @@ class RuleMatcher:
     def __init__(self, config: LinterConfig):
         self.config = config
 
-    def is_rule_enabled(self, rule: Rule) -> bool:
+    def is_rule_enabled(self, rule: Rule) -> bool:  # noqa: PLR0911
         if self.is_rule_disabled(rule):
             return False
         if "ALL" in self.config.include_rules:
             return True
+        if self.config.extend_include_rules or self.config.extend_include_rules_patterns:
+            if (
+                rule.rule_id in self.config.extend_include_rules
+                or rule.name in self.config.extend_include_rules_patterns
+            ):
+                return True
+            if any(
+                pattern.match(rule.rule_id) or pattern.match(rule.name)
+                for pattern in self.config.include_rules_patterns
+            ):
+                return True
         if (
             self.config.include_rules or self.config.include_rules_patterns
         ):  # if any include pattern, it must match with something
@@ -178,6 +189,7 @@ def resolve_relative_path(orig_path: str, config_dir: Path, ensure_exists: bool)
 class LinterConfig:
     configure: list[str] | None = field(default_factory=list)
     select: list[str] | None = field(default_factory=list)
+    extend_select: list[str] | None = field(default_factory=list)
     ignore: list[str] | None = field(default_factory=list)
     per_file_ignores: dict[str, list[str]] | None = field(default=None)
     issue_format: str | None = DEFAULT_ISSUE_FORMAT
@@ -185,8 +197,10 @@ class LinterConfig:
     threshold: RuleSeverity | None = RuleSeverity.INFO
     custom_rules: list[str] | None = field(default_factory=list)
     include_rules: set[str] | None = field(default_factory=set, compare=False)
+    extend_include_rules: set[str] | None = field(default_factory=set, compare=False)
     exclude_rules: set[str] | None = field(default_factory=set, compare=False)
     include_rules_patterns: set[re.Pattern] | None = field(default_factory=set, compare=False)
+    extend_include_rules_patterns: set[re.Pattern] | None = field(default_factory=set, compare=False)
     exclude_rules_patterns: set[re.Pattern] | None = field(default_factory=set, compare=False)
     reports: list[str] | None = field(default_factory=list)
     persistent: bool | None = False
@@ -317,6 +331,12 @@ class LinterConfig:
                     self.include_rules_patterns.add(compile_rule_pattern(rule))
                 else:
                     self.include_rules.add(rule)
+        if self.extend_select:
+            for rule in self.extend_select:
+                if "*" in rule:
+                    self.extend_include_rules_patterns.add(compile_rule_pattern(rule))
+                else:
+                    self.extend_include_rules.add(rule)
         if self.ignore:
             for rule in self.ignore:
                 if "*" in rule:

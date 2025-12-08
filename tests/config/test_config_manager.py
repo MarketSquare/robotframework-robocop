@@ -100,8 +100,10 @@ class TestConfigFinder:
         config.file_filters.default_include = {"*.robot"}
         config.target_version = 4
         config.linter.select = ["rulename", "ruleid"]
+        config.linter.extend_select = ["customrule"]
         config.linter.ignore = ["ruleid"]
         config.linter.include_rules = {"rulename", "ruleid"}
+        config.linter.extend_include_rules = {"customrule"}
         config.linter.exclude_rules = {"ruleid"}
         config.linter.threshold = RuleSeverity.WARNING
         config.linter.reports = ["all", "sarif"]

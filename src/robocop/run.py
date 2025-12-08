@@ -164,6 +164,14 @@ def check_files(
             "--select", "-s", help="Select rules to run", show_default=False, rich_help_panel="Selecting rules"
         ),
     ] = None,
+    extend_select: Annotated[
+        list[str],
+        typer.Option(
+            show_default=False,
+            help="Select additional rules to run.",
+            rich_help_panel="Selecting rules",
+        ),
+    ] = None,
     ignore: Annotated[
         list[str],
         typer.Option("--ignore", "-i", help="Ignore rules", show_default=False, rich_help_panel="Selecting rules"),
@@ -283,6 +291,7 @@ def check_files(
     linter_config = config.LinterConfig(
         configure=configure,
         select=select,
+        extend_select=extend_select,
         ignore=ignore,
         issue_format=issue_format,
         threshold=threshold,

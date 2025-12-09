@@ -109,7 +109,7 @@ Found 2 issues: 2 ERRORs, 0 WARNINGs, 0 INFO.
 
 ## Values
 
-Original *RoboCop* - a fictional cybernetic police officer - was the following three prime directives 
+Original *RoboCop* - a fictional cybernetic police officer - was the following three prime directives
 which also drive the progress of Robocop linter:
 
 First Directive: **Serve the public trust**
@@ -247,6 +247,6 @@ readable and understandable by others, and Robocop can help to **uphold the law*
 
 </details>
 
-----
+---
 
 > Excuse me, I have to go. Somewhere there is a crime happening. - Robocop

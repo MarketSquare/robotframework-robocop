@@ -200,10 +200,10 @@ class RenameKeywords(Formatter):
         if run_keyword.branches:
             if "ELSE IF" in run_keyword.branches:
                 while misc.is_token_value_in_tokens("ELSE IF", tokens):
-                    prefix, branch, tokens = misc.split_on_token_value(tokens, "ELSE IF", 2)
+                    prefix, _branch, tokens = misc.split_on_token_value(tokens, "ELSE IF", 2)
                     self.parse_run_keyword(prefix)
             if "ELSE" in run_keyword.branches and misc.is_token_value_in_tokens("ELSE", tokens):
-                prefix, branch, tokens = misc.split_on_token_value(tokens, "ELSE", 1)
+                prefix, _branch, tokens = misc.split_on_token_value(tokens, "ELSE", 1)
                 self.parse_run_keyword(prefix)
                 self.parse_run_keyword(tokens)
                 return None
@@ -218,7 +218,7 @@ class RenameKeywords(Formatter):
                 self.rename_node(token, is_keyword_call=True)
             return
         while misc.is_token_value_in_tokens("AND", tokens):
-            prefix, branch, tokens = misc.split_on_token_value(tokens, "AND", 1)
+            prefix, _branch, tokens = misc.split_on_token_value(tokens, "AND", 1)
             self.parse_run_keyword(prefix)
         self.parse_run_keyword(tokens)
 

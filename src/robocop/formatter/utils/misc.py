@@ -49,6 +49,9 @@ class Version:
             return self.minor < other.minor
         return self.fix < other.fix
 
+    def __hash__(self):
+        return hash((self.major, self.minor, self.fix))
+
     def __str__(self):
         return f"{self.major}.{self.minor}.{self.fix}"
 
@@ -61,7 +64,7 @@ def rf_supports_lang():
 
 
 class StatementLinesCollector(ModelVisitor):
-    """Used to get writeable presentation of Robot Framework model."""
+    """Used to get a writeable presentation of a Robot Framework model."""
 
     def __init__(self, model):
         self.text = ""
@@ -73,6 +76,9 @@ class StatementLinesCollector(ModelVisitor):
 
     def __eq__(self, other):
         return other.text == self.text
+
+    def __hash__(self):
+        return hash(self.text)
 
 
 def validate_regex(value: str | None) -> Pattern | None:
@@ -225,7 +231,7 @@ class TestTemplateFinder(ast.NodeVisitor):
     def __init__(self):
         self.templated = False
 
-    def visit_TestTemplate(self, node):  # noqa: N802
+    def visit_TestTemplate(self, node):
         if node.value:
             self.templated = True
 

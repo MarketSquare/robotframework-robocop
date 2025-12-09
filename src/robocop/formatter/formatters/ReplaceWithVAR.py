@@ -341,7 +341,7 @@ class ReplaceWithVAR(Formatter):
     def _split_dict_items(self, items: list[str]) -> tuple[list[str], list[str]]:
         separate = []
         for item in items:
-            name, value = split_from_equals(item)
+            _name, value = split_from_equals(item)
             if value is not None or is_dict_variable(item):
                 break
             separate.append(item)

@@ -1149,7 +1149,7 @@ class SectionVariablesCollector(ast.NodeVisitor):
     def __init__(self):
         self.section_variables: dict[str, CachedVariable] = {}
 
-    def visit_Variable(self, node) -> None:  # noqa: N802
+    def visit_Variable(self, node) -> None:
         if utils.get_errors(node):
             return
         var_token = node.get_token(Token.VARIABLE)

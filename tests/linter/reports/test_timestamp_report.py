@@ -53,7 +53,7 @@ class TestTimestampReport:
         ],
     )
     def test_timestamp_default_warning(self, name, value, expected, config, capsys):
-        with pytest.warns(UserWarning):
+        with pytest.warns(UserWarning):  # noqa: PT030
             self._configure_and_run(name, value, config)
         out, _ = capsys.readouterr()
         assert re.search(expected, out)

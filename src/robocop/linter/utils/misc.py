@@ -50,18 +50,18 @@ def get_return_classes() -> ReturnClasses:
     Robot Framework change model names for [Return] and RETURN depending on the RF version. To achieve backward
     compatibility we need to define mapping.
     """
-    from robot.parsing.model.statements import Return
+    from robot.parsing.model.statements import Return  # noqa: PLC0415
 
     if ROBOT_VERSION.major < 5:
         return_class = Return  # it does not exist, but we define it for backward compatibility
         return_setting_class = Return
     elif ROBOT_VERSION.major < 7:
-        from robot.api.parsing import ReturnStatement
+        from robot.api.parsing import ReturnStatement  # noqa: PLC0415
 
         return_class = ReturnStatement
         return_setting_class = Return
     else:
-        from robot.api.parsing import ReturnSetting
+        from robot.api.parsing import ReturnSetting  # noqa: PLC0415
 
         return_class = Return
         return_setting_class = ReturnSetting
@@ -176,19 +176,19 @@ class AssignmentTypeDetector(ast.NodeVisitor):
         self.variables_sign_counter = Counter()
         self.variables_most_common = None
 
-    def visit_File(self, node: File) -> None:  # noqa: N802
+    def visit_File(self, node: File) -> None:
         self.generic_visit(node)
         if len(self.keyword_sign_counter) >= 2:
             self.keyword_most_common = self.keyword_sign_counter.most_common(1)[0][0]
         if len(self.variables_sign_counter) >= 2:
             self.variables_most_common = self.variables_sign_counter.most_common(1)[0][0]
 
-    def visit_KeywordCall(self, node: KeywordCall) -> None:  # noqa: N802
+    def visit_KeywordCall(self, node: KeywordCall) -> None:
         if node.assign:  # if keyword returns any value
             sign = self.get_assignment_sign(node.assign[-1])
             self.keyword_sign_counter[sign] += 1
 
-    def visit_VariableSection(self, node: VariableSection) -> VariableSection:  # noqa: N802
+    def visit_VariableSection(self, node: VariableSection) -> VariableSection:
         for child in node.body:
             if not isinstance(child, Variable):
                 continue
@@ -285,7 +285,7 @@ class TestTemplateFinder(ast.NodeVisitor):
     def __init__(self):
         self.templated = False
 
-    def visit_TestTemplate(self, node: TestTemplate) -> None:  # noqa: N802
+    def visit_TestTemplate(self, node: TestTemplate) -> None:
         self.templated = bool(node.value)
 
 

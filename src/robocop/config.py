@@ -850,7 +850,7 @@ class ConfigManager:
             config = self.find_config_in_dirs(directories, default=None)
             if not config:
                 config = Config()
-                self.cached_configs.update({sub_dir: config for sub_dir in directories})
+                self.cached_configs.update(dict.fromkeys(directories, config))
         else:
             config = Config()
         config.overwrite_from_config(self.overwrite_config)
@@ -878,7 +878,7 @@ class ConfigManager:
                     if configuration:
                         config = Config.from_toml(configuration, config_path)
                         config.overwrite_from_config(self.overwrite_config)  # TODO those two lines together
-                        self.cached_configs.update({sub_dir: config for sub_dir in seen})
+                        self.cached_configs.update(dict.fromkeys(seen, config))
                         if config.verbose:
                             print(f"Loaded {config_path} configuration file.")
                         return config
@@ -886,7 +886,7 @@ class ConfigManager:
                 break
 
         if default:
-            self.cached_configs.update({sub_dir: default for sub_dir in seen})
+            self.cached_configs.update(dict.fromkeys(seen, default))
         return default
 
     def get_config_for_source_file(self, source_file: Path) -> Config:

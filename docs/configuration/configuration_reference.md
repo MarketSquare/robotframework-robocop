@@ -78,7 +78,7 @@ Glob patterns are supported.
 
 #### ``default exclude``
 
-Use ``--default-exclude`` option to override default exclude patterns. 
+Use ``--default-exclude`` option to override default exclude patterns.
 By default, Robocop ignores ``.direnv, .eggs, .git, .svn, .hg, .nox, .tox, .venv, venv, dist`` directories.
 Glob patterns are supported.
 
@@ -232,7 +232,7 @@ extends = ["../relative/path.toml", "C:/absolute/path.toml"]
 ```
 
 ``extends`` accept both relative and absolute paths. Configuration is loaded in the order they are specified.
-List-like options (``select, ``ignore`` etc.) are merged. String and boolean options are overwritten by the most recent
+List-like options (``select``, ``ignore`` etc.) are merged. String and boolean options are overwritten by the most recent
 value.
 
 ---
@@ -343,7 +343,7 @@ This option accepts a major version of Robot Framework (4, 5, .. ):
 
 ## Linter
 
-#### Selecting rules
+### Selecting rules
 
 #### ``select``
 
@@ -552,7 +552,7 @@ To filter our rules with severity ``info``:
 
 ---
 
-### ``per_file_ignores``
+#### ``per_file_ignores``
 
 A mapping of file patterns and rule ids or names to exclude from the results.
 

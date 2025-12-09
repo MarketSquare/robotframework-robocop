@@ -162,24 +162,24 @@ class AssignmentTypeDetector(ast.NodeVisitor):
         self.most_common = None
         self.most_common_variables = None
 
-    def visit_File(self, node):  # noqa: N802
+    def visit_File(self, node):
         self.generic_visit(node)
         if len(self.sign_counter) >= 2:
             self.most_common = self.sign_counter.most_common(1)[0][0]
         if len(self.sign_counter_variables) >= 2:
             self.most_common_variables = self.sign_counter_variables.most_common(1)[0][0]
 
-    def visit_KeywordCall(self, node):  # noqa: N802
+    def visit_KeywordCall(self, node):
         if node.assign:  # if keyword returns any value
             sign = self.get_assignment_sign(node.assign[-1])
             self.sign_counter[sign] += 1
 
-    def visit_Var(self, node):  # noqa: N802
+    def visit_Var(self, node):
         for token in node.get_tokens(Token.VARIABLE):
             sign = self.get_assignment_sign(token.value)
             self.sign_counter[sign] += 1
 
-    def visit_VariableSection(self, node):  # noqa: N802
+    def visit_VariableSection(self, node):
         for child in node.body:
             if not isinstance(child, Variable):
                 continue

@@ -73,6 +73,9 @@ class Version:
     def __eq__(self, other: Version) -> bool:
         return self._key == other._key
 
+    def __hash__(self):
+        return hash(self._key)
+
     def __str__(self) -> str:
         return ".".join(str(x) for x in self.release)
 

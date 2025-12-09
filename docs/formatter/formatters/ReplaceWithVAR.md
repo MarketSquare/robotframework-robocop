@@ -31,11 +31,11 @@ Replace ``Set Variable``, ``Create Dictionary``, ``Create List`` and ``Catenate`
 ``VAR`` syntax supports setting the scope of the variable with ``scope=`` parameter. It's equivalent of the following
 keywords:
 
- - Set Local Variable
- - Set Task Variable
- - Set Test Variable
- - Set Suite Variable
- - Set Global Variable
+- Set Local Variable
+- Set Task Variable
+- Set Test Variable
+- Set Suite Variable
+- Set Global Variable
 
 Other keywords such as ``Set Variable``, ``Catenate``, ``Create Dictionary`` and ``Create List`` create variable in the
 local scope. Local scope is omitted by default but can be explicitly set by using ``explicit_local`` parameter.

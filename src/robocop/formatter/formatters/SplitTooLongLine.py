@@ -193,7 +193,7 @@ class SplitTooLongLine(Formatter):
         if not eol_index:
             return tokens
         separator = Token(Token.SEPARATOR, "  ")
-        return tokens[:eol_index] + [separator, comment] + tokens[eol_index:]
+        return [*tokens[:eol_index], separator, comment, *tokens[eol_index:]]
 
     @skip_if_disabled
     def visit_Variable(self, node):  # noqa: N802

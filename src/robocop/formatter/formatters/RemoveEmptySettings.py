@@ -106,17 +106,17 @@ class FindSuiteSettings(ast.NodeVisitor):
         if len(node.data_tokens) != 1:
             self.suite_settings.add(overwritten_type)
 
-    def visit_TestSetup(self, node):  # noqa: N802
+    def visit_TestSetup(self, node):
         self.check_setting(node, Token.SETUP)
 
-    def visit_TestTeardown(self, node):  # noqa: N802
+    def visit_TestTeardown(self, node):
         self.check_setting(node, Token.TEARDOWN)
 
-    def visit_TestTemplate(self, node):  # noqa: N802
+    def visit_TestTemplate(self, node):
         self.check_setting(node, Token.TEMPLATE)
 
-    def visit_TestTimeout(self, node):  # noqa: N802
+    def visit_TestTimeout(self, node):
         self.check_setting(node, Token.TIMEOUT)
 
-    def visit_DefaultTags(self, node):  # noqa: N802
+    def visit_DefaultTags(self, node):
         self.check_setting(node, Token.TAGS)

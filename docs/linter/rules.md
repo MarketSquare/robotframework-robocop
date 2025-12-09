@@ -58,7 +58,6 @@ STYLE_GUIDE - print only rules directly connected to official Robot Framework st
 ```
 
 ## Rule severity
--------------
 
 Robocop rules can have one of the following severities: ``info``, ``warning`` or ``error``.
 

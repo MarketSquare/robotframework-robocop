@@ -54,6 +54,10 @@ FOR loop and the whole ``Keyword`` call respectively.
 
 - Fix ``unused-variable`` and ``variable-overwritten-before-usage`` rules not reporting violations in ``TRY`` blocks ([issue #1548](https://github.com/MarketSquare/robotframework-robocop/issues/1548))
 
+### Documentation
+
+- Added documentation linters (with MegaLinter) and fixed several issues in our documentation.
+
 ## 6.13.0
 
 ### Features

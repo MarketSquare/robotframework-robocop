@@ -682,7 +682,7 @@ def list_formatters(
     silent: silent_option = None,
 ) -> None:
     """List available formatters."""
-    from rich.table import Table
+    from rich.table import Table  # noqa: PLC0415
 
     console = Console(soft_wrap=True)
     formatter_config = config.FormatterConfig(

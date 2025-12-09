@@ -124,7 +124,7 @@ based on the keyword data. Here is the default template:
 {% endraw %}
 ```
 
-The Jinja syntax is described [here](https://jinja.palletsprojects.com/en/3.1.x/templates/). You can use it as
+The Jinja syntax is described in [Jinja documentation](https://jinja.palletsprojects.com/en/3.1.x/templates/). You can use it as
 a reference to create your own template. The following subsections explain in detail possible features.
 
 Path to template can be absolute or relative (to working directory or configuration file directory):
@@ -248,9 +248,9 @@ When used in the template, these variables will reflect the values defined in yo
 Robocop provides arguments as a list of variables in ``keyword.arguments`` variable. Every argument contains the following
 variables:
 
- - ``name`` - name of the argument without default value (i.e. ``${arg}``)
- - ``default`` - default value (i.e. ``value``)
- - ``full_name`` - name with default value (i.e. ``${arg} = value``)
+- ``name`` - name of the argument without default value (i.e. ``${arg}``)
+- ``default`` - default value (i.e. ``value``)
+- ``full_name`` - name with default value (i.e. ``${arg} = value``)
 
 You can use them in the template:
 

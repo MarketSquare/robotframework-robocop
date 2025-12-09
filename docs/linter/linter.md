@@ -65,7 +65,7 @@ option.
 
 Robocop can generate reports in various formats, both as printed output and formatted files. By default, it uses
 ``print_issues`` default report to output found issues. You can configure it or enable more reports using
-[ the reports](../linter/reports/reports.md) option.
+[the reports](../linter/reports/reports.md) option.
 
 ## Rule configuration
 
@@ -74,7 +74,7 @@ option.
 
 ## Language support
 
-Robot Framework 6.0 added support for Robot settings and headers translation. 
+Robot Framework 6.0 added support for Robot settings and headers translation.
 
 Robocop will automatically detect the language of the source code if it contains a language header:
 

@@ -5,7 +5,7 @@ Report name: **sonarqube**
 Available in ``all``: No
 
 Report that generates a Sonarqube generic formatter format output file. Read more about the integration with SonarQube
-[here](../../integrations/sonarqube.md).
+at [SonarQube integration](../../integrations/sonarqube.md).
 
 Enable with:
 

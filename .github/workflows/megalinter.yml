@@ -1,0 +1,23 @@
+name: MegaLinter
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+
+jobs:
+  megalinter:
+    name: MegaLinter
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Run MegaLinter
+        id: ml
+        uses: oxsecurity/megalinter/flavors/python@v9.2.0

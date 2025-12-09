@@ -6,7 +6,7 @@ Report that generates a Gitlab Code Quality output file.
 
 It allows displaying issue information in the Gitlab, for example, in the PR view.
 More information at [GitHub Code Quality Report](https://docs.gitlab.com/ci/testing/code_quality/#code-quality-report-format).
-Read more about the integration of Robocop with Gitlab [here](../../integrations/gitlab.md).
+Read more about the integration of Robocop with Gitlab at [Gitlab report](../../integrations/gitlab.md).
 
 Enable with:
 

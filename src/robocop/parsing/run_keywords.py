@@ -121,10 +121,10 @@ def parse_run_keyword(tokens: list[Token]) -> Generator[Token, None, None]:
     if run_keyword.branches:
         if "ELSE IF" in run_keyword.branches:
             while is_token_value_in_tokens("ELSE IF", tokens):
-                prefix, branch, tokens = split_on_token_value(tokens, "ELSE IF", 2)
+                prefix, _branch, tokens = split_on_token_value(tokens, "ELSE IF", 2)
                 yield from parse_run_keyword(prefix)
         if "ELSE" in run_keyword.branches and is_token_value_in_tokens("ELSE", tokens):
-            prefix, branch, tokens = split_on_token_value(tokens, "ELSE", 1)
+            prefix, _branch, tokens = split_on_token_value(tokens, "ELSE", 1)
             yield from parse_run_keyword(prefix)
             yield from parse_run_keyword(tokens)
             return
@@ -139,7 +139,7 @@ def split_on_and(tokens: list[Token]) -> Generator[Token, None, None]:
         yield from (token for token in tokens)
         return
     while is_token_value_in_tokens("AND", tokens):
-        prefix, branch, tokens = split_on_token_value(tokens, "AND", 1)
+        prefix, _branch, tokens = split_on_token_value(tokens, "AND", 1)
         yield from parse_run_keyword(prefix)
     yield from parse_run_keyword(tokens)
 

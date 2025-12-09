@@ -20,4 +20,4 @@ jobs:
 
       - name: Run MegaLinter
         id: ml
-        uses: oxsecurity/megalinter@v9
+        uses: oxsecurity/megalinter/flavors/python@v9.2.0

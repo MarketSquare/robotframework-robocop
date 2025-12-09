@@ -71,7 +71,7 @@ dev = [
     "coverage>=7.6.4",
     "pytest>=8.3.3",
     "pytest-xdist>=3.6.1",
-    "ruff==0.9.7",
+    "ruff==0.14.8",
     "pysonar",
 ]
 doc = [

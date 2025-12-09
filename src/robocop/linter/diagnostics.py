@@ -75,7 +75,7 @@ class Diagnostic:
         lineno: int, col: int, end_lineno: int | None, end_col: int | None, node: type[Statement | Block] | None
     ) -> Range:
         """
-        Return Range describing position of the issue.
+        Return Range describing the position of the issue.
 
         Args:
             lineno: start line of the issue

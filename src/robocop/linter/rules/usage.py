@@ -16,6 +16,7 @@ from robocop.linter.utils.misc import ROBOT_VERSION, normalize_robot_name
 from robocop.parsing.run_keywords import iterate_keyword_names
 
 if TYPE_CHECKING:
+    from robocop.config import ConfigManager
     from robocop.linter.diagnostics import Diagnostic
 
 
@@ -141,7 +142,7 @@ class UnusedKeywords(ProjectChecker):
         self.current_file: Optional[RobotFile] = None
         super().__init__()
 
-    def scan_project(self) -> list["Diagnostic"]:
+    def scan_project(self, config_manager: "ConfigManager") -> list["Diagnostic"]:  # noqa: ARG002
         self.issues = []
         for robot_file in self.files.values():
             if not (robot_file.is_suite or robot_file.any_private):

@@ -59,7 +59,7 @@ if TYPE_CHECKING:
 
     from robot.parsing import File
 
-    from robocop.config import LinterConfig
+    from robocop.config import ConfigManager, LinterConfig
     from robocop.linter import sonar_qube
 
 
@@ -595,13 +595,14 @@ class VisitorChecker(BaseChecker, ModelVisitor):
         self.generic_visit(node)
 
 
-class ProjectChecker(VisitorChecker):
-    def scan_project(self) -> list[Diagnostic]:
+class ProjectChecker(BaseChecker):
+    def scan_project(self, config_manager: ConfigManager) -> list[Diagnostic]:
         """
         Perform checks on the whole project.
 
-        This method is called after visiting all files. Accumulating any necessary data for check depends on
-        the checker.
+        This method is called after other checks are finished. Define the main logic of the check here.
+        Robocop will access ``self.issues`` list to retrieve list of issues found during the check. Issues are
+        reported using ``self.report()`` method.
         """
         raise NotImplementedError
 

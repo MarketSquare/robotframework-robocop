@@ -285,6 +285,7 @@ class LinterConfig:
     @staticmethod
     def any_rule_enabled(checker: type[BaseChecker], rule_matcher: RuleMatcher) -> bool:
         any_enabled = False
+        # TODO: rules contain rule_id: rule and rule_name: rule so we are checking the same rule twice
         for rule in checker.rules.values():
             rule.enabled = rule_matcher.is_rule_enabled(rule)
             if rule.enabled:

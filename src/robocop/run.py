@@ -23,8 +23,8 @@ class CliWithVersion(typer.core.TyperGroup):
         click.version_option(version=__version__)(self)
 
     def list_commands(self, ctx: typer.Context) -> list[str]:  # noqa: ARG002
-        """Return list of commands in the set order."""
-        commands = ["check", "format", "list", "docs"]
+        """Return the list of commands in the set order."""
+        commands = ["check", "check-project", "format", "list", "docs"]
         for command in self.commands:
             if command not in commands:
                 commands.append(command)
@@ -135,6 +135,73 @@ verbose_option = Annotated[
 silent_option = Annotated[
     bool, typer.Option(help="Disable all logging.", show_default="--no-silent", rich_help_panel="Other")
 ]
+ignore_git_dir_option = Annotated[
+    bool,
+    typer.Option(
+        rich_help_panel="Configuration", help="Do not stop searching for config file when .git directory is found."
+    ),
+]
+ignore_file_config_option = Annotated[
+    bool, typer.Option(rich_help_panel="Configuration", help="Do not load configuration files.")
+]
+select_rules_option = Annotated[
+    list[str],
+    typer.Option("--select", "-s", help="Select rules to run", show_default=False, rich_help_panel="Selecting rules"),
+]
+extend_select_rules_option = Annotated[
+    list[str],
+    typer.Option(
+        show_default=False,
+        help="Select additional rules to run.",
+        rich_help_panel="Selecting rules",
+    ),
+]
+ignore_rules_option = Annotated[
+    list[str],
+    typer.Option("--ignore", "-i", help="Ignore rules", show_default=False, rich_help_panel="Selecting rules"),
+]
+linter_target_version_option = Annotated[
+    config.TargetVersion,
+    typer.Option(
+        case_sensitive=False,
+        help="Enable only rules supported by configured version",
+        rich_help_panel="Selecting rules",
+    ),
+]
+linter_threshold_option = Annotated[
+    RuleSeverity,
+    typer.Option(
+        "--threshold",
+        "-t",
+        help="Disable rules below given threshold",
+        show_default=RuleSeverity.INFO.value,
+        parser=config.parse_rule_severity,
+        metavar="I/W/E",
+        rich_help_panel="Selecting rules",
+    ),
+]
+linter_configure_option = Annotated[
+    list[str],
+    typer.Option(
+        "--configure",
+        "-c",
+        help="Configure checker or report with parameter value",
+        metavar="rule.param=value",
+        show_default=False,
+        rich_help_panel="Configuration",
+    ),
+]
+reports_option = Annotated[
+    list[str],
+    typer.Option(
+        "--reports",
+        "-r",
+        show_default=False,
+        help="Generate reports from reported issues. To list available reports use `list reports` command. "
+        "Use `all` to enable all reports.",
+        rich_help_panel="Reports",
+    ),
+]
 separator_help = """
 Token separator to use in the outputs:
 
@@ -158,72 +225,19 @@ Line separator to use in the outputs:
 @app.command(name="check")
 def check_files(
     sources: sources_argument = None,
-    select: Annotated[
-        list[str],
-        typer.Option(
-            "--select", "-s", help="Select rules to run", show_default=False, rich_help_panel="Selecting rules"
-        ),
-    ] = None,
-    extend_select: Annotated[
-        list[str],
-        typer.Option(
-            show_default=False,
-            help="Select additional rules to run.",
-            rich_help_panel="Selecting rules",
-        ),
-    ] = None,
-    ignore: Annotated[
-        list[str],
-        typer.Option("--ignore", "-i", help="Ignore rules", show_default=False, rich_help_panel="Selecting rules"),
-    ] = None,
-    target_version: Annotated[
-        config.TargetVersion,
-        typer.Option(
-            case_sensitive=False,
-            help="Enable only rules supported by configured version",
-            rich_help_panel="Selecting rules",
-        ),
-    ] = None,
-    threshold: Annotated[
-        RuleSeverity,
-        typer.Option(
-            "--threshold",
-            "-t",
-            help="Disable rules below given threshold",
-            show_default=RuleSeverity.INFO.value,
-            parser=config.parse_rule_severity,
-            metavar="I/W/E",
-            rich_help_panel="Selecting rules",
-        ),
-    ] = None,
+    select: select_rules_option = None,
+    extend_select: extend_select_rules_option = None,
+    ignore: ignore_rules_option = None,
+    target_version: linter_target_version_option = None,
+    threshold: linter_threshold_option = None,
     include: include_option = None,
     default_include: default_include_option = None,
     exclude: exclude_option = None,
     default_exclude: default_exclude_option = None,
     force_exclude: force_exclude_option = False,
     configuration_file: config_option = None,
-    configure: Annotated[
-        list[str],
-        typer.Option(
-            "--configure",
-            "-c",
-            help="Configure checker or report with parameter value",
-            metavar="rule.param=value",
-            show_default=False,
-            rich_help_panel="Configuration",
-        ),
-    ] = None,
-    reports: Annotated[
-        list[str],
-        typer.Option(
-            "--reports",
-            "-r",
-            show_default=False,
-            help="Generate reports from reported issues. To list available reports use `list reports` command. "
-            "Use `all` to enable all reports.",
-            rich_help_panel="Reports",
-        ),
-    ] = None,
+    configure: linter_configure_option = None,
+    reports: reports_option = None,
     issue_format: Annotated[
         str, typer.Option("--issue-format", show_default=config.DEFAULT_ISSUE_FORMAT, rich_help_panel="Other")
     ] = None,
@@ -232,15 +246,8 @@ def check_files(
         list[str],
         typer.Option("--custom-rules", help="Load custom rules", show_default=False, rich_help_panel="Selecting rules"),
     ] = None,
-    ignore_git_dir: Annotated[
-        bool,
-        typer.Option(
-            rich_help_panel="Configuration", help="Do not stop searching for config file when .git directory is found."
-        ),
-    ] = False,
-    ignore_file_config: Annotated[
-        bool, typer.Option(rich_help_panel="Configuration", help="Do not load configuration files.")
-    ] = False,
+    ignore_git_dir: ignore_git_dir_option = False,
+    ignore_file_config: ignore_file_config_option = False,
     skip_gitignore: Annotated[
         bool, typer.Option(help="Do not skip files listed in .gitignore files", rich_help_panel="File discovery")
     ] = False,
@@ -326,6 +333,119 @@ def check_files(
     )
     runner = RobocopLinter(config_manager)
     return runner.run()
+
+
+@app.command(name="check-project")
+def check_project(
+    sources: sources_argument = None,
+    select: select_rules_option = None,
+    extend_select: extend_select_rules_option = None,
+    ignore: ignore_rules_option = None,
+    target_version: linter_target_version_option = None,
+    threshold: linter_threshold_option = None,
+    include: include_option = None,
+    default_include: default_include_option = None,
+    exclude: exclude_option = None,
+    default_exclude: default_exclude_option = None,
+    force_exclude: force_exclude_option = False,
+    configuration_file: config_option = None,
+    configure: linter_configure_option = None,
+    reports: reports_option = None,
+    issue_format: Annotated[
+        str, typer.Option("--issue-format", show_default=config.DEFAULT_ISSUE_FORMAT, rich_help_panel="Other")
+    ] = None,
+    language: language_option = None,
+    custom_rules: Annotated[
+        list[str],
+        typer.Option("--custom-rules", help="Load custom rules", show_default=False, rich_help_panel="Selecting rules"),
+    ] = None,
+    ignore_git_dir: ignore_git_dir_option = False,
+    ignore_file_config: ignore_file_config_option = False,
+    skip_gitignore: Annotated[
+        bool, typer.Option(help="Do not skip files listed in .gitignore files", rich_help_panel="File discovery")
+    ] = False,
+    persistent: Annotated[
+        bool,
+        typer.Option(
+            help="Use this flag to save Robocop reports in cache directory for later comparison.",
+            rich_help_panel="Reports",
+        ),
+    ] = None,
+    compare: Annotated[
+        bool,
+        typer.Option(
+            help="Compare reports results with previous results (saved with --persistent)", rich_help_panel="Reports"
+        ),
+    ] = None,
+    gitlab: Annotated[
+        bool,
+        typer.Option(
+            help="Generate Gitlab Code Quality report. Equivalent of --reports gitlab",
+            rich_help_panel="Reports",
+        ),
+    ] = False,
+    exit_zero: Annotated[
+        bool,
+        typer.Option(
+            help="Always exit with 0 unless Robocop terminates abnormally.",
+            show_default="--no-exit-zero",
+            rich_help_panel="Other",
+        ),
+    ] = None,
+    return_result: Annotated[
+        bool,
+        typer.Option(
+            help="Return check results as list of Diagnostic messages instead of exiting from the application.",
+            hidden=True,
+        ),
+    ] = False,
+    root: project_root_option = None,
+    verbose: verbose_option = None,
+    silent: silent_option = None,
+) -> list[Diagnostic]:
+    """Analyse the whole project using project level checkers."""
+    if gitlab:
+        if not reports:
+            reports = []
+        reports.append("gitlab")
+    linter_config = config.LinterConfig(
+        configure=configure,
+        select=select,
+        extend_select=extend_select,
+        ignore=ignore,
+        issue_format=issue_format,
+        threshold=threshold,
+        custom_rules=custom_rules,
+        reports=reports,
+        persistent=persistent,
+        compare=compare,
+        exit_zero=exit_zero,
+        return_result=return_result,
+    )
+    file_filters = config.FileFiltersOptions(
+        include=include, default_include=default_include, exclude=exclude, default_exclude=default_exclude
+    )
+    overwrite_config = config.Config(
+        linter=linter_config,
+        formatter=None,
+        file_filters=file_filters,
+        language=language,
+        verbose=verbose,
+        silent=silent,
+        target_version=target_version,
+    )
+    config_manager = config.ConfigManager(
+        sources=sources,
+        config=configuration_file,
+        root=root,
+        ignore_git_dir=ignore_git_dir,
+        ignore_file_config=ignore_file_config,
+        skip_gitignore=skip_gitignore,
+        force_exclude=force_exclude,
+        overwrite_config=overwrite_config,
+    )
+    runner = RobocopLinter(config_manager)
+    return runner.run_project_checks()
 
 
 @app.command(name="format")
@@ -467,15 +587,8 @@ def format_files(
             rich_help_panel="Skip formatting",
         ),
     ] = None,
-    ignore_git_dir: Annotated[
-        bool,
-        typer.Option(
-            rich_help_panel="Configuration", help="Do not stop searching for config file when .git directory is found."
-        ),
-    ] = False,
-    ignore_file_config: Annotated[
-        bool, typer.Option(rich_help_panel="Configuration", help="Do not load configuration files.")
-    ] = False,
+    ignore_git_dir: ignore_git_dir_option = False,
+    ignore_file_config: ignore_file_config_option = False,
     skip_gitignore: Annotated[bool, typer.Option(rich_help_panel="File discovery")] = False,
     reruns: Annotated[
         int,

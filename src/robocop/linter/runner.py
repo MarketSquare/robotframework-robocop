@@ -61,7 +61,7 @@ class RobocopLinter:
             configuration language.
 
         """
-        issues_no = 0
+        self.diagnostics: list[Diagnostic] = []
         files = 0
         for source, config in self.config_manager.paths:
             if config.verbose:
@@ -74,7 +74,6 @@ class RobocopLinter:
                 continue
             files += 1
             diagnostics = self.run_check(model, source, config)
-            issues_no += len(diagnostics)
             self.diagnostics.extend(diagnostics)
         if not files and not self.config_manager.default_config.silent:
             print("No Robot files were found with the existing configuration.")
@@ -83,7 +82,7 @@ class RobocopLinter:
         self.make_reports()
         if self.config_manager.default_config.linter.return_result:
             return self.diagnostics
-        return self.return_with_exit_code(issues_no)
+        return self.return_with_exit_code(len(self.diagnostics))
 
     def run_check(
         self, model: File, file_path: Path, config: Config, in_memory_content: str | None = None
@@ -130,17 +129,20 @@ class RobocopLinter:
         return found_diagnostics
 
     def run_project_checks(self) -> list[Diagnostic]:
-        # TODO: use in a separate command
-        found_diagnostics = []
-        for checker in self.config_manager.default_config.linter.project_checkers:
-            found_diagnostics.extend(
-                [
-                    diagnostic
-                    for diagnostic in checker.scan_project()
-                    if not diagnostic.severity < self.config_manager.default_config.linter.threshold
-                ]
+        self.diagnostics: list[Diagnostic] = []
+        config = self.config_manager.default_config
+        if config.linter.project_checkers is None:
+            config.linter.load_configuration()
+        for checker in config.linter.project_checkers:
+            checker.issues = []
+            checker.scan_project(self.config_manager)
+            self.diagnostics.extend(
+                [diagnostic for diagnostic in checker.issues if not (diagnostic.severity < config.linter.threshold)]
             )
-        return found_diagnostics
+        self.make_reports()
+        if config.linter.return_result:
+            return self.diagnostics
+        return self.return_with_exit_code(len(self.diagnostics))
 
     def return_with_exit_code(self, issues_count: int) -> NoReturn:
         """

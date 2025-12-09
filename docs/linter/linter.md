@@ -72,6 +72,19 @@ Robocop can generate reports in various formats, both as printed output and form
 Rules and reports that support configuration can be configured using [``--configure``](../configuration/configuration_reference.md#configure)
 option.
 
+## Project checks
+
+Robocop contains also project level checks that can be used to check the whole project. Use the following command to run
+them:
+
+```bash
+robocop check-project
+```
+
+``check-project`` behaves the same as ``check`` command, but it only runs project level checks.
+
+Project checks can be added as custom rules. See [custom rules](custom_rules.md/#project-checks) for more details.
+
 ## Language support
 
 Robot Framework 6.0 added support for Robot settings and headers translation.

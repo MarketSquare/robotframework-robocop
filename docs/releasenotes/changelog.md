@@ -6,47 +6,61 @@
 
 - **Breaking change** Add option ``--extend-select`` for linter and formatter ([issue #1546](https://github.com/MarketSquare/robotframework-robocop/issues/1546))
 
-``extend--select`` allows to enable rules and formatters on top of the ``select`` configuration. It can be used to
-retain all default rules or formatters and only add additional ones:
+    ``extend--select`` allows to enable rules and formatters on top of the ``select`` configuration. It can be used to
+    retain all default rules or formatters and only add additional ones:
+    
+    ```
+    robocop check --extend-select no-embedded-keyword-arguments
+    robocop check --extend-select AlignKeywordsSection --extend-select CustomFormatter
+    ```
 
-```
-robocop check --extend-select no-embedded-keyword-arguments
-robocop check --extend-select AlignKeywordsSection --extend-select CustomFormatter
-```
-
-Because previous ``--custom-formatters`` formatter option already behaved like a ``--extend-select`` option (which was
-not documented), it is now deprecated and renamed to ``--extend-select`` instead.
-
-It is also recommended to use ``--extend-select`` over ``--configue name.enabled=True``.
+    Because previous ``--custom-formatters`` formatter option already behaved like a ``--extend-select`` option (which was
+    not documented), it is now deprecated and renamed to ``--extend-select`` instead.
+    
+    It is also recommended to use ``--extend-select`` over ``--configue name.enabled=True``.
 
 - **Breaking change** Split ``wrong-case-in-keyword-name`` rule into two separate rules ([issue #1471](https://github.com/MarketSquare/robotframework-robocop/issues/1471)):
 
-``wrong-case-in-keyword-name`` which checks case convention in keyword definition name
-``wrong-case-in-keyword-call`` which checks case convention in keyword call name
+    ``wrong-case-in-keyword-name`` which checks case convention in keyword definition name
+    ``wrong-case-in-keyword-call`` which checks case convention in keyword call name
+    
+    It allows configuring different conventions for keyword definition and keyword call names. If you have existing
+    configuration for ``wrong-case-in-keyword-name`` (you are ignoring it or configuring) you need to apply the same
+    config to ``wrong-case-in-keyword-call`` to retain old behaviour.
 
-It allows configuring different conventions for keyword definition and keyword call names. If you have existing
-configuration for ``wrong-case-in-keyword-name`` (you are ignoring it or configuring) you need to apply the same
-config to ``wrong-case-in-keyword-call`` to retain old behaviour.
+- Restore project checkers ([issue #1108](https://github.com/MarketSquare/robotframework-robocop/issues/1108))
+
+    Project checkers were temporarily removed in the Robocop 6.0. There are now brought back in a new form, as a separate
+    command:
+    
+    ```
+    robocop project-check
+    ```
+    
+    This command behaves similarly to the ``check`` command, but it only runs project rules.
+    
+    The project checks itself were also refactored to be more flexible. See [project checker](https://robocop.dev/stable/linter/linter/#project-checks)
+    and [custom rules project checker](https://robocop.dev/stable/linter/custom_rules/#project-checks) for reference.
 
 - Extend robocop disablers to the whole node ([issue #1515](https://github.com/MarketSquare/robotframework-robocop/issues/1515)
 
-Robocop will now ignore issues in the whole node (keyword, test case, for loop, keyword call, etc.) when the disabler
-is set in the header / keyword call body. For example:
-
-```robotframework
-*** Keywords ***
-My Keyword  
-    FOR    ${var}    IN    1  2  3  # robocop: off=unused-variable
-         Log    1
-    END
-    Keyword    # robocop: off=bad-indent
-    ...    ${var}
-    ...    ${var2}
-```
-
-Previously, Robocop would ignore ``unused-variable`` only when reported on the ``FOR`` header and ``bad-indent`` only
-when reported on the first line of the ``Keyword`` call. After this change, those issues will be ignored in the whole
-FOR loop and the whole ``Keyword`` call respectively.
+    Robocop will now ignore issues in the whole node (keyword, test case, for loop, keyword call, etc.) when the disabler
+    is set in the header / keyword call body. For example:
+    
+    ```robotframework
+    *** Keywords ***
+    My Keyword  
+        FOR    ${var}    IN    1  2  3  # robocop: off=unused-variable
+             Log    1
+        END
+        Keyword    # robocop: off=bad-indent
+        ...    ${var}
+        ...    ${var2}
+    ```
+    
+    Previously, Robocop would ignore ``unused-variable`` only when reported on the ``FOR`` header and ``bad-indent`` only
+    when reported on the first line of the ``Keyword`` call. After this change, those issues will be ignored in the whole
+    FOR loop and the whole ``Keyword`` call respectively.
 
 - Ignore unused variables starting with ``_`` (``${_variable}``) ([issue #1457](https://github.com/MarketSquare/robotframework-robocop/issues/1457)
 

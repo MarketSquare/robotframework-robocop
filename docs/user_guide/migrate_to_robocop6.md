@@ -114,7 +114,7 @@ Formatting options from Robotidy:
 renamed to ``--extend-select``.
 
 ---
- 
+
 ``-nr / --no-recursive`` is now deprecated. Similar behaviour can be reached by passing file paths to robocop or
 configuring ``--exclude`` option.
 

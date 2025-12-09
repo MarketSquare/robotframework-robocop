@@ -1,3 +1,5 @@
+# Robocop
+
 [![Unit tests](https://github.com/MarketSquare/robotframework-robocop/actions/workflows/tests.yml/badge.svg)](https://github.com/MarketSquare/robotframework-robocop/actions/workflows/unit-tests.yml "GitHub Workflow Unit Tests Status")
 ![Codecov](https://img.shields.io/codecov/c/github/MarketSquare/robotframework-robocop/master "Code coverage on master branch")
 ![PyPI](https://img.shields.io/pypi/v/robotframework-robocop?label=version "PyPI package version")
@@ -9,8 +11,6 @@
 
 <img style="float:right" src="https://raw.githubusercontent.com/MarketSquare/robotframework-robocop/main/docs/source/images/robocop_logo_small.png">
 
-Robocop
-===============
 
 - [Introduction](#introduction)
 - [Documentation](#documentation)
@@ -19,13 +19,11 @@ Robocop
 - [Usage](#usage)
 - [Example Output](#example-output)
 - [Values](#values)
-- [Fixing issues](#fixing-issues)
 - [FAQ](#faq)
 
 ---
 
-Introduction
-------------
+## Introduction
 
 Robocop is a tool that performs static code analysis and formatting of [Robot Framework](https://github.com/robotframework/robotframework) code.
 
@@ -35,20 +33,17 @@ runs a number of checks, looking for potential errors or violations to code qual
 
 > Hosted on [GitHub](https://github.com/MarketSquare/robotframework-robocop).
 
-Documentation
--------------
+## Documentation
 
-Full documentation is available [here](https://robocop.dev). :open_book:
+Full documentation is available at [https://robocop.dev](https://robocop.dev). :open_book:
 
 The most common questions with answers can be found at the bottom ⬇ of this README file.
 
-Requirements
-------------
+## Requirements
 
 Python 3.9+ :snake: and Robot Framework 4.0+ :robot:.
 
-Installation
-------------
+## Installation
 
 You can install the latest version of Robocop simply by running:
 
@@ -57,8 +52,7 @@ pip install -U robotframework-robocop
 ```
 
 
-Usage
------
+## Usage
 
 Robocop runs by default from the current directory, and it discovers supported files recursively.
 To lint the files, you can run:
@@ -79,8 +73,7 @@ All command line options can be displayed in a help message by executing:
 robocop -h
 ```
 
-Example Output
---------------
+## Example Output
 
 Executing command:
 
@@ -114,8 +107,7 @@ test.robot:28:1 SPC14 Variable in Variables section is not left aligned
 Found 2 issues: 2 ERRORs, 0 WARNINGs, 0 INFO.
 ```
 
-Values
-------
+## Values
 
 Original *RoboCop* - a fictional cybernetic police officer - was the following three prime directives 
 which also drive the progress of Robocop linter:
@@ -134,8 +126,8 @@ Third Directive: **Uphold the law**
 Following the coding guidelines established in the project are something crucial to keep the code clean,
 readable and understandable by others, and Robocop can help to **uphold the law**.
 
-FAQ
----
+## FAQ
+
 <details>
   <summary>Can I integrate Robocop with my code editor (IDE)?</summary>
 

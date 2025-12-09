@@ -119,7 +119,7 @@ to set replacement value. This configuration (underscores are used instead of sp
     ]
     ```
 
-replaces all occurrences of name ``Rename Me``` (case insensitive thanks to ``(?i)`` flag) to ``New Shining Name``:
+replaces all occurrences of name ``Rename Me`` (case-insensitive thanks to ``(?i)`` flag) to ``New Shining Name``:
 
 === "Before"
 

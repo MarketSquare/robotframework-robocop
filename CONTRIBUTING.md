@@ -1,3 +1,5 @@
+# CONTRIBUTING
+
 All contributions are welcome.
 
 Contributing may be anything starting from an idea or bug reported in our issues, discussion on our Slack channel
@@ -5,7 +7,7 @@ Contributing may be anything starting from an idea or bug reported in our issues
 [Robot Framework workspace](https://robotframework.slack.com/>) or finally code change directly in the Robocop
 repository.
 
-# Submitting issues
+## Submitting issues
 
 Bugs and enhancements are tracked in the [issue tracker](https://github.com/MarketSquare/robotframework-robocop/issues).
 
@@ -13,9 +15,9 @@ Before submitting a new issue, it is always a good idea to check if the
 same bug or enhancement is already reported. If it is, please add your comments
 to the existing issue instead of creating a new one.
 
-# Code contributions
+## Code contributions
 
-## Development environment
+### Development environment
 
 To set up your local development environment, use install uv first:
 
@@ -58,7 +60,7 @@ a selected Python version with:
 nox -s --python 3.13 tests
 ```
 
-# Coding conventions
+## Coding conventions
 
 Robocop uses ruff as a basic tool for formatting and linting code. Run it using pre-commit to ensure that
 every commit follows our code conventions:
@@ -101,13 +103,13 @@ We will cover how to approach testing for each category.
 ## Adding / updating existing rules
 
 After you update or add new rule, or even better before you do it, you need to create tests for it under
-``tests/linter/rules/<rule_category>/<rule_name>``. Rule name has replaced ``-` characters with ``_`` so it's
+``tests/linter/rules/<rule_category>/<rule_name>``. Rule name has replaced ``-`` characters with ``_`` so it's
 recognised by default by pytest.
 
 For example, rule ``invalid-argument`` has tests placed under ``tests/linter/rules/arguments/invalid_argument``
 directory.
 
-Each such directory has at least the following files: 
+Each such directory has at least the following files:
 
 - empty ``__init__.py`` file (for tests discovery)
 - ``test_rule.py`` file that describes tests
@@ -134,7 +136,7 @@ class TestRuleAcceptance(RuleAcceptance):
 It will select and run only one rule (name will be taken from the directory name) on ``test.robot`` file, compare
 output with ``expected_output.txt``. Tests will only run on versions ``>=4``.
 
-Default output format in Robocop is ``extended`` view. Most tests use ``simple`` view by default (for simplicity). 
+Default output format in Robocop is ``extended`` view. Most tests use ``simple`` view by default (for simplicity).
 It's highly recommended to check how the rule behaves with both views. You can configure to run on different view
 using ``configure``:
 
@@ -147,11 +149,11 @@ def test_rule(self):
 
 ## Documentation
 
-Robocop uses both dynamically and statically loaded documentation. 
+Robocop uses both dynamically and statically loaded documentation.
 
 For documentation backend we are using mkdocs with the material theme. Documentation source files are stored in ``docs``.
 
-After merging the changes, documentation is rebuilt and deployed at https://robocop.dev/. It is advised to build
+After merging the changes, documentation is rebuilt and deployed at [https://robocop.dev/](https://robocop.dev/). It is advised to build
 documentation locally to check it.
 
 If you are adding or updating new features, you may need to update relevant sections in the documentation. For example,
@@ -160,12 +162,12 @@ if you're changing how external rules works, you may need to update ``docs/linte
 If you are adding or updating formatter, you need to add or modify a file at ``docs/formatter/formatters/<formatter_name>.md``.
 
 If you are adding or updating a rule, you need to update the rule docstring and check how the rule documentation
-generates at https://robocop.dev/stable/rules_list/.
+generates at [https://robocop.dev/stable/rules_list/](https://robocop.dev/stable/rules_list/).
 
 ### Build documentation locally
 
 If you have a Robocop development environment ready (with uv installed), run:
 
-```
+```bash
 uv run mkdocs serve
 ```

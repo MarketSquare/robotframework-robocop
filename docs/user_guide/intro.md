@@ -120,7 +120,7 @@ robocop docs sonarqube
 
 ## Values
 
-Original *RoboCop* - a fictional cybernetic police officer - was the following three prime directives 
+Original *RoboCop* - a fictional cybernetic police officer - was the following three prime directives
 which also drive the progress of Robocop linter:
 
 First Directive: **Serve the public trust**

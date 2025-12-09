@@ -7,7 +7,7 @@ format.
 ## Generic formatted result
 
 Robocop generates a Sonar Qube generic formatted result with the SonarQube report. SonarQube report documentation
-can be found [here](../linter/reports/sonarqube.md).
+can be found at [SonarQube report](../linter/reports/sonarqube.md).
 
 You can enable it by adding ``sonarqube`` to a report list:
 

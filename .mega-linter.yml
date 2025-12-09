@@ -1,10 +1,6 @@
 ENABLE_LINTERS:
+  - PYTHON_RUFF
   - MARKDOWN_MARKDOWNLINT
-  - YAML_YAMLLINT
-DISABLE_ERRORS_LINTERS:
-  - RST_RSTCHECK
-EXCLUDED_DIRECTORIES:
-  - build
-PRE_COMMANDS:
-  - command: pip install robotframework-robocop[dev]
-    venv: rstcheck
+
+VALIDATE_ALL_CODEBASE: true
+PYTHON_RUFF_CONFIG_FILE: pyproject.toml

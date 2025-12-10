@@ -278,3 +278,52 @@ class ExternalRule(CustomParentRule):
 ```
 
 You may override other attributes and methods as well.
+
+## Project checks
+
+Project checkers are special kind of checker that can be only run using ``check-project`` command:
+
+```bash
+robocop check-project
+```
+
+They are only run once per whole project and accept configuration manager as input to the entrypoint method. It can
+be used to run any code, for example, analysis of the project dependencies and architecture.
+
+Example project checker:
+
+```python title="project_checker.py"
+from robocop.config import ConfigManager
+from robocop.linter.rules import Rule, ProjectChecker, RuleSeverity
+
+
+class ProjectCheckerRule(Rule):
+    rule_id = "PROJ01"
+    name = "project-checker-rule"
+    message = "This check will be called after visiting all files"
+    severity = RuleSeverity.INFO
+
+
+class TestTotalCountRule(Rule):
+    rule_id = "PROJ02"
+    name = "test-total-count"
+    message = "There is total of {files} files in the project."
+    severity = RuleSeverity.INFO
+
+
+class MyProjectChecker(ProjectChecker):
+    """Project checker."""
+
+    project_checker: ProjectCheckerRule
+    test_total_count: TestTotalCountRule
+
+    def scan_project(self, config_manager: ConfigManager) -> None:
+        files_count = 0
+        for robot_file in config_manager.root.rglob("*.robot"):
+            files_count += 1
+            self.report(self.project_checker, source=robot_file)
+        # files can be also parsed (with get_model) and checked here
+        self.report(self.test_total_count, source="Project-name", files=files_count)
+```
+
+Each project checker must inherit from ``ProjectChecker`` class and implement ``scan_project()`` method.

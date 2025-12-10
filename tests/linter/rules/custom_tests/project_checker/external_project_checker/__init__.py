@@ -1,41 +1,31 @@
-from robocop.linter.rules import Message, ProjectChecker, Rule, RuleSeverity
+from robocop.config import ConfigManager
+from robocop.linter.rules import ProjectChecker, Rule, RuleSeverity
 
-rules = {
-    "9901": Rule(
-        rule_id="9901",
-        name="project-checker",
-        msg="This check will be called after visiting all files",
-        severity=RuleSeverity.INFO,
-    ),
-    "9902": Rule(
-        rule_id="9902",
-        name="test-total-count",
-        msg="There is total of {{ tests_count }} tests in the project.",
-        severity=RuleSeverity.INFO,
-    ),
-}
+
+class ProjectCheckerRule(Rule):
+    rule_id = "9901"
+    name = "project-checker-rule"
+    message = "This check will be called after visiting all files"
+    severity = RuleSeverity.INFO
+
+
+class TestTotalCountRule(Rule):
+    rule_id = "9902"
+    name = "test-total-count"
+    message = "There is total of {files} files in the project."
+    severity = RuleSeverity.INFO
 
 
 class MyProjectChecker(ProjectChecker):
     """Project checker."""
 
-    reports = ("project-checker", "test-total-count")
+    project_checker: ProjectCheckerRule
+    test_total_count: TestTotalCountRule
 
-    def __init__(self):
-        self.sources = []
-        self.test_count = 0
-        super().__init__()
-
-    def visit_File(self, node):  # noqa: N802
-        self.sources.append(node.source)
-        self.generic_visit(node)
-
-    def visit_TestCase(self, _node):  # noqa: N802
-        self.test_count += 1
-
-    def scan_project(self) -> list[Message]:
-        self.issues = []
-        for source in self.sources:
-            self.report("project-checker", source=source)
-        self.report("test-total-count", source="Project-name", tests_count=self.test_count)
-        return self.issues
+    def scan_project(self, config_manager: ConfigManager) -> None:
+        files_count = 0
+        for robot_file in config_manager.root.rglob("*.robot"):
+            files_count += 1
+            self.report(self.project_checker, source=robot_file)
+        # files can be also parsed (with get_model) and checked here
+        self.report(self.test_total_count, source="Project-name", files=files_count)

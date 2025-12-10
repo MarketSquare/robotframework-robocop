@@ -110,6 +110,7 @@ nav:
       - Gitlab: integrations/gitlab.md
       - Github: integrations/github.md
       - Jenkins: integrations/jenkins.md
+      - MegaLinter: integrations/megalinter.md
       - AI integration: integrations/ai.md
   - Release Notes: releasenotes/changelog.md
 

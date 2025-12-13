@@ -100,3 +100,6 @@ Recognize Figure(s) (Math) From Picture
 
 Click 'Next' button
     No Operation
+
+Dot.in name
+    Should Be Ignored

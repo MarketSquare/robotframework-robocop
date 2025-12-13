@@ -793,7 +793,15 @@ class KeywordNamingChecker(VisitorChecker):
             case_naming_rule = self.wrong_case_in_keyword_call
         normalized = utils.remove_robot_vars(keyword_name)
         normalized = case_naming_rule.pattern.sub("", normalized)
-        normalized = normalized.split(".")[-1]  # remove any imports ie ExternalLib.SubLib.Log -> Log
+        if not is_keyword_definition and "." in normalized:
+            # remove potential library import
+            # Library.Keyword -> Keyword, Library.SubLibrary.Keyword -> Keyword
+            # Library Space.Keyword -> Library Space.Keyword
+            parts = normalized.split(".")
+            for i, part in enumerate(parts):
+                if " " in part:
+                    normalized = ".".join(parts[i:])
+                    break
         normalized = normalized.replace("'", "")  # replace ' apostrophes
         if "_" in normalized:
             self.report(

@@ -82,6 +82,8 @@
 ### Fixes
 
 - Fix ``unused-variable`` and ``variable-overwritten-before-usage`` rules not reporting violations in ``TRY`` blocks ([issue #1548](https://github.com/MarketSquare/robotframework-robocop/issues/1548))
+- Fix ``wrong-case-in-keyword-call`` rule false positive report on names with ``.`` character with first_word_capitalized = True ([issue #1555](https://github.com/MarketSquare/robotframework-robocop/issues/1555))
+- Fix ``wrong-case-in-keyword-name`` rule incorrectly handling names with ``.`` character ([issue #1555](https://github.com/MarketSquare/robotframework-robocop/issues/1555))
 
 ### Documentation
 

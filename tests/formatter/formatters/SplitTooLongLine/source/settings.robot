@@ -1,5 +1,17 @@
 *** Settings ***
-Force Tags    PS_CSMON_15838    PR_PPD    PR_B450    PR_B650    PR_B850    PR_CS1000    PR_CS1000L    PAR_ECG    PAR_IP_1    PAR_SPO2
+Documentation    Test documentation for suite with logs of long lines. Test documentation for suite with logs of long lines.
+
+Library                                            ShortButSpaced                                     ${1}                        ${2}                      ${3}
+Library    CustomLibraryWithLongerNameAndSeveralArguments    first_argument    second_argument=${longer_variable_name}    third_argument=${longer_variable_name}
+Library    CustomLibraryWithLongerNameAndSeveralArguments    first_argument    second_argument=${longer_variable_name}    WITH NAME    name
+Library    CustomLibraryWithLongerNameAndSeveralArguments    first_argument    second_argument=${longer_variable_name}    AS    name
+Library
+
+# there is also resource but it rarely goes over, variable imports, suite setup/suite teardown (but indentnested should take care of that)
+Metadata      Name of metadata variable  For more information about *Robot Framework* see http://robotframework.org or visit dedicated documentation site.
+
+Keyword Tags    PS_CSMON_15838    PR_PPD    PR_B450    PR_B650    PR_B850    PR_CS1000    PR_CS1000L    PAR_ECG    PAR_IP_1    PAR_SPO2
+Test Tags    PS_CSMON_15838    PR_PPD    PR_B450    PR_B650    PR_B850    PR_CS1000    PR_CS1000L    PAR_ECG    PAR_IP_1    PAR_SPO2
 Default Tags    PS_CSMON_15838    PR_PPD    PR_B450    PR_B650    PR_B850    PR_CS1000    PR_CS1000L    PAR_ECG    PAR_IP_1    PAR_SPO2    # comment
 
 

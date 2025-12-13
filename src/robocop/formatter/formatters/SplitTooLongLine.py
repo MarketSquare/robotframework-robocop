@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-import re
-
 from robot.api.parsing import Comment, Token
 
 try:
@@ -13,6 +11,7 @@ from typing import TYPE_CHECKING
 from robocop.formatter.disablers import skip_if_disabled, skip_section_if_disabled
 from robocop.formatter.formatters import Formatter
 from robocop.formatter.utils.misc import ROBOT_VERSION
+from robocop.linter.utils.disablers import DISABLER_PATTERN
 from robocop.parsing.run_keywords import RUN_KEYWORDS
 
 if TYPE_CHECKING:
@@ -26,7 +25,7 @@ class SplitTooLongLine(Formatter):
     """
     Split too long lines.
 
-    If line exceeds given length limit (120 by default) it will be split:
+    If a line exceeds the given length limit (default 120), it will be split:
 
     ```robotframework
     *** Keywords ***
@@ -59,7 +58,7 @@ class SplitTooLongLine(Formatter):
     ```
 
     ``split_on_every_arg``, `split_on_every_value`` and ``split_on_every_setting_arg`` flags (``True`` by default)
-    controls whether arguments and values are split or fills the line until character limit:
+    control whether arguments and values are split or fills the line until character limit:
 
     ```robotframework
     *** Test Cases ***
@@ -82,6 +81,7 @@ class SplitTooLongLine(Formatter):
 
     IGNORED_WHITESPACE = {Token.EOL, Token.CONTINUATION}
     HANDLES_SKIP = frozenset({"skip_comments", "skip_keyword_call", "skip_keyword_call_pattern", "skip_sections"})
+    ARGUMENTS_ONLY = frozenset({Token.ARGUMENT})
 
     def __init__(
         self,
@@ -100,9 +100,6 @@ class SplitTooLongLine(Formatter):
         self.split_on_every_setting_arg = split_on_every_setting_arg
         self.split_single_value = split_single_value
         self.align_new_line = align_new_line
-        self.robocop_disabler_pattern = re.compile(
-            r"(# )+(noqa|robocop: ?(?P<disabler>disable|enable)=?(?P<rules>[\w\-,]*))"
-        )
 
     @property
     def line_length(self):
@@ -150,7 +147,7 @@ class SplitTooLongLine(Formatter):
                 line = "".join(token.value for token in line if token.type != Token.COMMENT)
             else:
                 line = "".join(token.value for token in line)
-            line = self.robocop_disabler_pattern.sub("", line)
+            line = DISABLER_PATTERN.sub("", line)
             line = line.rstrip().expandtabs(4)
             if len(line) >= self.line_length:
                 return True
@@ -179,7 +176,7 @@ class SplitTooLongLine(Formatter):
         separator = Token(Token.SEPARATOR, self.formatting_config.separator)
         line = [indent, node.data_tokens[0], separator, var_name]
         tokens, comments = self.split_tokens(
-            node.tokens, line, self.split_on_every_value, indent=indent, split_types=(Token.ARGUMENT, Token.OPTION)
+            node.tokens, line, self.split_on_every_value, indent=indent, split_types={Token.ARGUMENT, Token.OPTION}
         )
         node.tokens = self.insert_comments_in_first_line(tokens, comments)
         return (*comments, node)
@@ -219,9 +216,19 @@ class SplitTooLongLine(Formatter):
             return node
         return self.split_setting_with_args(node, settings_section=True)
 
-    visit_DefaultTags = visit_TestTags = visit_ForceTags  # noqa: N815
+    visit_DefaultTags = visit_KeywordTags = visit_TestTags = visit_ForceTags  # noqa: N815
 
-    def split_setting_with_args(self, node, settings_section):
+    @skip_if_disabled
+    def visit_LibraryImport(self, node):  # noqa: N802
+        # if self.skip.setting("library"):  # TODO: skip library not available yet
+        #     return node
+        return self.split_setting_with_args(
+            node, settings_section=True, split_types={Token.ARGUMENT, "AS", "WITH NAME"}, keep_types={Token.NAME}
+        )
+
+    def split_setting_with_args(
+        self, node, settings_section, split_types: set = ARGUMENTS_ONLY, keep_types: set | None = None
+    ):
         if not self.should_format_node(node):
             return node
         if self.disablers.is_node_disabled("SplitTooLongLine", node, full_match=False):
@@ -233,7 +240,9 @@ class SplitTooLongLine(Formatter):
             indent = node.tokens[0]
             token_index = 2
         line = list(node.tokens[:token_index])
-        tokens, comments = self.split_tokens(node.tokens, line, self.split_on_every_setting_arg, indent)
+        tokens, comments = self.split_tokens(
+            node.tokens, line, self.split_on_every_setting_arg, indent, split_types=split_types, keep_types=keep_types
+        )
         if indent:
             comments = [Comment([indent, comment, EOL]) for comment in comments]
         else:
@@ -259,7 +268,11 @@ class SplitTooLongLine(Formatter):
             yield EOL
             first = False
 
-    def split_tokens(self, tokens, line, split_on, indent=None, split_types: tuple = (Token.ARGUMENT,)):
+    def split_tokens(
+        self, tokens, line, split_on, indent=None, split_types: set = ARGUMENTS_ONLY, keep_types: set | None = None
+    ):
+        if not keep_types:
+            keep_types = {}
         separator = Token(Token.SEPARATOR, self.formatting_config.separator)
         align_new_line = self.align_new_line and not split_on
         if align_new_line:
@@ -268,8 +281,8 @@ class SplitTooLongLine(Formatter):
             cont_indent = Token(Token.SEPARATOR, self.formatting_config.continuation_indent)
         split_tokens, comments = [], []
         # Comments with separators inside them are split into
-        # [COMMENT, SEPARATOR, COMMENT] tokens in the AST, so in order to preserve the
-        # original comment, we need a lookback on the separator tokens.
+        # [COMMENT, SEPARATOR, COMMENT] tokens in the AST, so to preserve the
+        # original comment, we need a lookback at the separator tokens.
         last_separator = None
         for token in tokens:
             if token.type in self.IGNORED_WHITESPACE:
@@ -292,6 +305,8 @@ class SplitTooLongLine(Formatter):
                         line = [CONTINUATION, cont_indent, token]
                 else:
                     line.extend([separator, token])
+            elif token.type in keep_types:
+                line.extend([separator, token])
         split_tokens.extend(line)
         split_tokens.append(EOL)
         return split_tokens, comments

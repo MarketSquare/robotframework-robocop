@@ -36,12 +36,6 @@ If a line exceeds the given length limit (120 by default), it will be split:
         ...    ${arg3}
     ```
 
-???+ example "Missing functionality"
-
-    ``SplitTooLongLine`` does not support splitting all Robot Framework types. Currently it will only work on too
-    long keyword calls, variables and selected settings (tags and arguments). Missing types will be covered in the future
-    updates.
-
 ## Allowed line length
 
 Allowed line length is configurable using global parameter ``--line-length``:
@@ -351,7 +345,7 @@ will result in:
 
 ## Ignore comments
 
-To not count the length of the comment to line length, use [skip option](../skip_formatting.md#skip-option) option:
+To not count the length of the comment to line length, use [skip option](../skip_formatting.md#skip-option):
 
 === ":octicons-command-palette-24: cli"
 
@@ -368,7 +362,7 @@ To not count the length of the comment to line length, use [skip option](../skip
     ]
     ```
 
-This allows to ignore lines that are longer than allowed length because of the added comment.
+This allows ignoring lines that are longer than allowed length because of the added comment.
 
 ## Skip formatting
 

@@ -25,6 +25,9 @@ if TYPE_CHECKING:
     from robocop.linter.diagnostics import Diagnostic
 
 
+DISABLER_PATTERN = re.compile(r"robocop: ?(?P<disabler>off|on)(?:\s?=\s?(?P<rules>[\w\-]+(?:,\s?[\w\-]+)*))?")
+
+
 class Disabler:
     def __init__(self, start_line: int, end_line: int | None, directive_col_start: int, directive_col_end: int) -> None:
         self.start_line = start_line
@@ -101,9 +104,6 @@ class DisablersVisitor(ModelVisitor):
         self.header_line_numer = 0
         self.header_last_line = 0
         self.disablers_in_scope = []
-        self.disabler_pattern = re.compile(
-            r"robocop: ?(?P<disabler>off|on)(?:\s?=\s?(?P<rules>[\w\-]+(?:,\s?[\w\-]+)*))?"
-        )
         self.rules = defaultdict(lambda: RuleDisablers())
         self.visit(model)
 
@@ -176,7 +176,7 @@ class DisablersVisitor(ModelVisitor):
             col_end = col_start + 6
             disablers.append(("all", col_start, col_end))
 
-        for disabler in self.disabler_pattern.finditer(token.value):
+        for disabler in DISABLER_PATTERN.finditer(token.value):
             col_start = token.col_offset + disabler.lastindex + 1
             col_end = token.col_offset + disabler.endpos + 1
             col_end = min(col_end, token.end_col_offset + 1)

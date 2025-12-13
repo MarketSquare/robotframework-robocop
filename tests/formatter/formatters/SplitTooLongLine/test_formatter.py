@@ -149,6 +149,7 @@ class TestSplitTooLongLine(FormatterAcceptanceTest):
             source="settings.robot",
             expected="settings_on_every_arg.robot",
             configure=[f"{self.FORMATTER_NAME}.split_on_every_setting_arg=True"],
+            test_on_version=">=6",
         )
 
     def test_split_settings_feed_until_line_length(self):
@@ -156,6 +157,7 @@ class TestSplitTooLongLine(FormatterAcceptanceTest):
             source="settings.robot",
             expected="settings_until_line_length.robot",
             configure=[f"{self.FORMATTER_NAME}.split_on_every_setting_arg=False"],
+            test_on_version=">=6",
         )
 
     def test_split_settings_feed_until_line_length_skip_comments(self):
@@ -167,6 +169,7 @@ class TestSplitTooLongLine(FormatterAcceptanceTest):
             source="settings.robot",
             expected="settings_until_line_length_skip_comments.robot",
             configure=configure,
+            test_on_version=">=6",
         )
 
     def test_skip_sections(self):

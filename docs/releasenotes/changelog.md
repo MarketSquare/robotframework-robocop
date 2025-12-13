@@ -28,6 +28,21 @@
     configuration for ``wrong-case-in-keyword-name`` (you are ignoring it or configuring) you need to apply the same
     config to ``wrong-case-in-keyword-call`` to retain old behaviour.
 
+- ``SplitTooLongLine`` can now split more settings types: Library imports, Test Tags and Keyword Tags ([issue #1454](https://github.com/MarketSquare/robotframework-robocop/issues/1454))
+
+    Example code before and after the change:
+    
+    ```robotframework
+    Library    CustomLibraryWithLongerNameAndSeveralArguments    first_argument    second_argument=${longer_variable_name}    WITH NAME    name
+    ```
+    
+    ```robotframework
+    Library             CustomLibraryWithLongerNameAndSeveralArguments
+    ...                     first_argument
+    ...                     second_argument=${longer_variable_name}
+    ...                 WITH NAME    name
+    ```
+
 - Restore project checkers ([issue #1108](https://github.com/MarketSquare/robotframework-robocop/issues/1108))
 
     Project checkers were temporarily removed in the Robocop 6.0. There are now brought back in a new form, as a separate

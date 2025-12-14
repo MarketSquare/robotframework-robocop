@@ -6,16 +6,16 @@
 
 - **Breaking change** Add option ``--extend-select`` for linter and formatter ([issue #1546](https://github.com/MarketSquare/robotframework-robocop/issues/1546))
 
-    ``extend--select`` allows to enable rules and formatters on top of the ``select`` configuration. It can be used to
+    ``--extend-select`` allows to enable rules and formatters on top of the ``select`` configuration. It can be used to
     retain all default rules or formatters and only add additional ones:
     
     ```
     robocop check --extend-select no-embedded-keyword-arguments
-    robocop check --extend-select AlignKeywordsSection --extend-select CustomFormatter
+    robocop format --extend-select AlignKeywordsSection --extend-select CustomFormatter
     ```
 
-    Because previous ``--custom-formatters`` formatter option already behaved like a ``--extend-select`` option (which was
-    not documented), it is now deprecated and renamed to ``--extend-select`` instead.
+    Since previous ``--custom-formatters`` formatter option already behaved like a ``--extend-select`` option (which was
+    not documented), it is now **deprecated and renamed** to ``--extend-select`` instead.
     
     It is also recommended to use ``--extend-select`` over ``--configue name.enabled=True``.
 
@@ -49,7 +49,7 @@
     command:
     
     ```
-    robocop project-check
+    robocop check-project
     ```
     
     This command behaves similarly to the ``check`` command, but it only runs project rules.
@@ -74,7 +74,7 @@
     ```
     
     Previously, Robocop would ignore ``unused-variable`` only when reported on the ``FOR`` header and ``bad-indent`` only
-    when reported on the first line of the ``Keyword`` call. After this change, those issues will be ignored in the whole
+    when reported on the same line as disabler comment. After this change, those issues will be ignored in the whole
     FOR loop and the whole ``Keyword`` call respectively.
 
 - Ignore unused variables starting with ``_`` (``${_variable}``) ([issue #1457](https://github.com/MarketSquare/robotframework-robocop/issues/1457)

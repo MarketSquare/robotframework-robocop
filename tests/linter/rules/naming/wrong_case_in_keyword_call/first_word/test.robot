@@ -100,3 +100,15 @@ Recognize Figure(s) (Math) From Picture
 
 Click 'Next' button
     No Operation
+
+Dot in keyword call
+    [Documentation]  Bug #1555
+    Process file test with keyword          # No warning
+    Process.txt with keyword                # Warning
+    Process file test.txt with keyword      # No warning
+    Process.file test.txt with keyword      # Warning
+    Process.File test.txt with keyword      # No warning
+    Process file test.Txt with keyword      # No warning
+    Process file ${TEST_FILE} with keyword  # No warning
+    ${VAR WITH SPACE}.txt with keyword      # Warning
+    ${VAR WITH SPACE}.Txt with keyword      # No warning

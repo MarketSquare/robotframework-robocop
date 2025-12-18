@@ -10,7 +10,9 @@ from rich import console
 from robot.api import get_model
 from robot.errors import DataError
 
-from robocop.formatter import disablers  # TODO compare robocop vs robotidy disablers, if we can merge something
+from robocop.formatter import (
+    disablers,  # TODO compare robocop vs robotidy disablers, if we can merge something
+)
 from robocop.formatter.utils import misc
 
 if TYPE_CHECKING:
@@ -34,12 +36,26 @@ class RobocopFormatter:
             return get_model(source, lang=self.config.formatter.languages)
         return get_model(source)
 
+    @staticmethod
+    def _compute_cache_key(config: Config) -> str:
+        """
+        Compute cache key combining formatter config hash with language.
+
+        Returns:
+            A string representing the cache key.
+
+        """
+        lang_hash = hash(tuple(sorted(config.language or [])))
+        return f"{hash(config.formatter)}:{lang_hash}"
+
     def run(self) -> int:
         changed_files = 0
         skipped_files = 0
         all_files = 0
+        cached_files = 0
         previous_changed_files = 0  # TODO: hold in one container
         stdin = False
+
         for source, config in self.config_manager.paths:
             try:
                 # stdin = False
@@ -51,8 +67,17 @@ class RobocopFormatter:
                 if self.config.verbose:
                     print(f"Formatting {source} file")
                 self.config = config
+
                 all_files += 1
 
+                # Check cache - if file hasn't changed and didn't need formatting before, skip it
+                config_hash = self._compute_cache_key(config)
+                cached_entry = self.config_manager.cache.get_formatter_entry(source, config_hash)
+
+                if cached_entry is not None and not cached_entry.needs_formatting:
+                    # File hasn't changed and didn't need formatting - skip it
+                    cached_files += 1
+                    continue
                 previous_changed_files = changed_files
                 model = self.get_model(source)
                 diff, old_model, new_model, model = self.format_until_stable(model)
@@ -64,11 +89,20 @@ class RobocopFormatter:
                     self.log_formatted_source(source, stdin)
                     self.output_diff(model_path, old_model, new_model)
                     changed_files += 1
+                # Cache result - after formatting (or if no changes needed), file is now clean
+                self.config_manager.cache.set_formatter_entry(source, config_hash, needs_formatting=False)
             except DataError as err:
                 if not config.silent:
                     print(f"Failed to decode {source} with an error: {err}\nSkipping file")  # TODO stderr
                 changed_files = previous_changed_files
                 skipped_files += 1
+
+        # Save cache at the end
+        self.config_manager.cache.save()
+
+        if self.config_manager.default_config.verbose and cached_files > 0:
+            print(f"Skipped {cached_files} unchanged files from cache.")
+
         return self.formatting_result(all_files, changed_files, skipped_files, stdin)
 
     def formatting_result(self, all_files: int, changed_files: int, skipped_files: int, stdin: bool) -> int:
@@ -153,7 +187,12 @@ class RobocopFormatter:
                 return f.newlines[0]
         return self.config.formatter.whitespace_config.line_ending
 
-    def output_diff(self, path: Path, old_model: misc.StatementLinesCollector, new_model: misc.StatementLinesCollector):
+    def output_diff(
+        self,
+        path: Path,
+        old_model: misc.StatementLinesCollector,
+        new_model: misc.StatementLinesCollector,
+    ):
         if not self.config.formatter.diff:
             return
         old = [line + "\n" for line in old_model.text.splitlines()]

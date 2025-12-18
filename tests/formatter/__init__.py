@@ -99,6 +99,7 @@ class FormatterAcceptanceTest:
                 overwrite=True,
                 check=not_modified,
                 output=output_path,
+                no_cache=True,
                 **kwargs,
             )
         if exit_code is not None:

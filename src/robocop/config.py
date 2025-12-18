@@ -19,11 +19,17 @@ import typer
 from typing_extensions import Self
 
 from robocop import exceptions, files
+from robocop.cache import RobocopCache
 from robocop.formatter import formatters
 from robocop.formatter.skip import SkipConfig
 from robocop.formatter.utils import misc  # TODO merge with linter misc
 from robocop.linter import rules
-from robocop.linter.rules import AfterRunChecker, BaseChecker, ProjectChecker, RuleSeverity
+from robocop.linter.rules import (
+    AfterRunChecker,
+    BaseChecker,
+    ProjectChecker,
+    RuleSeverity,
+)
 from robocop.linter.utils.misc import compile_rule_pattern
 from robocop.linter.utils.version_matching import Version
 
@@ -370,6 +376,53 @@ class LinterConfig:
         override["config_source"] = str(config_path)
         return cls(**override)
 
+    def __hash__(self) -> int:
+        """
+        Hash of configuration options that affect linting results.
+
+        Used for cache invalidation - if configuration changes, cached results are invalidated.
+        Note: This makes LinterConfig usable as dict key, but only hash config-affecting fields.
+
+        Returns:
+            Hash value of the configuration options.
+
+        """
+
+        def _sorted_tuple(items: list[str] | None) -> tuple[str, ...]:
+            """
+            Convert list to sorted tuple, handling None.
+
+            Returns:
+                A sorted tuple representation of the input list.
+
+            """
+            return tuple(sorted(items or []))
+
+        def _per_file_ignores_hash() -> tuple | None:
+            """
+            Create hashable representation of per_file_ignores.
+
+            Returns:
+                A hashable representation of per_file_ignores or None if it is empty.
+
+            """
+            if not self.per_file_ignores:
+                return None
+            return tuple(sorted((key, tuple(sorted(values))) for key, values in self.per_file_ignores.items()))
+
+        return hash(
+            (
+                _sorted_tuple(self.select),
+                _sorted_tuple(self.extend_select),
+                _sorted_tuple(self.ignore),
+                _sorted_tuple(self.configure),
+                _sorted_tuple(self.custom_rules),
+                str(self.threshold),
+                str(self.target_version),
+                _per_file_ignores_hash(),
+            )
+        )
+
 
 @dataclass
 class FormatterConfig:
@@ -416,7 +469,7 @@ class FormatterConfig:
             config_fields
             | {config_field.name for config_field in fields(WhitespaceConfig)}
             | {
-                f"skip_{config_field.name}" if not config_field.name.startswith("skip") else config_field.name
+                (f"skip_{config_field.name}" if not config_field.name.startswith("skip") else config_field.name)
                 for config_field in fields(SkipConfig)
             }
         )
@@ -523,6 +576,69 @@ class FormatterConfig:
                 self._parameters[name][param] = value
         return self._parameters
 
+    def __hash__(self) -> int:
+        """
+        Hash of configuration options that affect formatting results.
+
+        Used for cache invalidation - if configuration changes, cached results are invalidated.
+        Note: This makes FormatterConfig usable as dict key, but only hash config-affecting fields.
+
+        Returns:
+            Hash value of the configuration options.
+
+        """
+
+        def _sorted_tuple(items: list[str] | None) -> tuple[str, ...]:
+            """
+            Convert list to sorted tuple, handling None.
+
+            Returns:
+                tuple: A sorted tuple representation of the input list.
+
+            """
+            return tuple(sorted(items or []))
+
+        wc = self.whitespace_config
+        return hash(
+            (
+                _sorted_tuple(self.select),
+                _sorted_tuple(self.extend_select),
+                _sorted_tuple(self.configure),
+                str(self.target_version),
+                wc.space_count,
+                wc.indent,
+                wc.continuation_indent,
+                wc.separator,
+                wc.line_ending,
+                wc.line_length,
+            )
+        )
+
+
+@dataclass(frozen=True)
+class CacheConfig:
+    """Configuration for file-level caching."""
+
+    enabled: bool = True
+    cache_dir: Path | None = None
+
+    @classmethod
+    def from_toml(cls, config: dict, config_parent: Path) -> CacheConfig:
+        """
+        Create CacheConfig from TOML dictionary.
+
+        Returns:
+            CacheConfig: An instance of CacheConfig created from the provided TOML dictionary.
+
+        """
+        enabled = config.pop("cache", True)
+        cache_dir = config.pop("cache_dir", None)
+        if cache_dir is not None:
+            cache_dir = Path(cache_dir)
+            if not cache_dir.is_absolute():
+                cache_dir = config_parent / cache_dir
+        return cls(enabled=enabled, cache_dir=cache_dir)
+
 
 @dataclass
 class FileFiltersOptions(ConfigContainer):
@@ -573,6 +689,7 @@ class Config:
     file_filters: FileFiltersOptions | None = field(default_factory=FileFiltersOptions)
     linter: LinterConfig | None = field(default_factory=LinterConfig)
     formatter: FormatterConfig | None = field(default_factory=FormatterConfig)
+    cache: CacheConfig | None = field(default_factory=CacheConfig)
     language: list[str] | None = field(default_factory=list)
     languages: Languages | None = field(default=None, compare=False)
     verbose: bool | None = field(default_factory=bool)
@@ -619,6 +736,7 @@ class Config:
             "config_source": str(config_path),
             "linter": LinterConfig.from_toml(normalize_config_keys(config.pop("lint", {})), config_path),
             "file_filters": FileFiltersOptions.from_toml(config),
+            "cache": CacheConfig.from_toml(config, config_path.parent),
             "language": config.pop("language", []),
             "verbose": config.pop("verbose", False),
             "silent": config.pop("silent", False),
@@ -666,6 +784,8 @@ class Config:
             "target_version",
             "skip_gitignore",
             "extends",
+            "cache",
+            "cache_dir",
         }
         for key in config:
             if key not in known_keys:
@@ -680,12 +800,18 @@ class Config:
                 "linter",
                 "formatter",
                 "file_filters",
+                "cache",
                 "config_source",
             ):  # TODO Use field metadata
                 continue
             value = getattr(overwrite_config, config_field.name)
             if value:
                 setattr(self, config_field.name, value)
+        # Handle cache config - CLI cache settings override file config
+        if overwrite_config.cache is not None and (
+            overwrite_config.cache.enabled is False or overwrite_config.cache.cache_dir is not None
+        ):
+            self.cache = overwrite_config.cache
         if overwrite_config.linter:
             for config_field in fields(overwrite_config.linter):
                 if config_field.name == "config_source":
@@ -702,7 +828,10 @@ class Config:
                             self.linter.config_source = "cli"
         if overwrite_config.formatter:
             for config_field in fields(overwrite_config.formatter):
-                if config_field.name in ("whitespace_config", "skip_config") or config_field.name.startswith("_"):
+                if config_field.name in (
+                    "whitespace_config",
+                    "skip_config",
+                ) or config_field.name.startswith("_"):
                     continue
                 value = getattr(overwrite_config.formatter, config_field.name)
                 if value is not None:
@@ -829,6 +958,19 @@ class ConfigManager:
         self.sources = sources
         self.default_config: Config = self.get_default_config(config)
         self._paths: dict[Path, Config] | None = None
+        self._cache: RobocopCache | None = None
+
+    @property
+    def cache(self) -> RobocopCache:
+        """Get the file cache, initializing it lazily if needed."""
+        if self._cache is None:
+            cache_config = self.default_config.cache
+            self._cache = RobocopCache(
+                cache_dir=cache_config.cache_dir if cache_config else None,
+                enabled=cache_config.enabled if cache_config else True,
+                verbose=self.default_config.verbose or False,
+            )
+        return self._cache
 
     @property
     def paths(self) -> Generator[tuple[Path, Config], None, None]:

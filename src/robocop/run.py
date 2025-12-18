@@ -144,6 +144,33 @@ ignore_git_dir_option = Annotated[
 ignore_file_config_option = Annotated[
     bool, typer.Option(rich_help_panel="Configuration", help="Do not load configuration files.")
 ]
+no_cache_option = Annotated[
+    bool,
+    typer.Option(
+        "--no-cache",
+        help="Disable file caching. All files will be processed regardless of modifications.",
+        rich_help_panel="Caching",
+    ),
+]
+clear_cache_option = Annotated[
+    bool,
+    typer.Option(
+        "--clear-cache",
+        help="Clear the cache before running. Use this to force reprocessing of all files.",
+        rich_help_panel="Caching",
+    ),
+]
+cache_dir_option = Annotated[
+    Path,
+    typer.Option(
+        "--cache-dir",
+        help="Directory to store cache files.",
+        show_default=".robocop_cache in current directory",
+        file_okay=False,
+        dir_okay=True,
+        rich_help_panel="Caching",
+    ),
+]
 select_rules_option = Annotated[
     list[str],
     typer.Option("--select", "-s", help="Select rules to run", show_default=False, rich_help_panel="Selecting rules"),
@@ -289,6 +316,9 @@ def check_files(
     root: project_root_option = None,
     verbose: verbose_option = None,
     silent: silent_option = None,
+    no_cache: no_cache_option = False,
+    clear_cache: clear_cache_option = False,
+    cache_dir: cache_dir_option = None,
 ) -> list[Diagnostic]:
     """Lint Robot Framework files."""
     if gitlab:
@@ -312,10 +342,12 @@ def check_files(
     file_filters = config.FileFiltersOptions(
         include=include, default_include=default_include, exclude=exclude, default_exclude=default_exclude
     )
+    cache_config = config.CacheConfig(enabled=not no_cache, cache_dir=cache_dir)
     overwrite_config = config.Config(
         linter=linter_config,
         formatter=None,
         file_filters=file_filters,
+        cache=cache_config,
         language=language,
         verbose=verbose,
         silent=silent,
@@ -331,6 +363,8 @@ def check_files(
         force_exclude=force_exclude,
         overwrite_config=overwrite_config,
     )
+    if clear_cache:
+        config_manager.cache.invalidate_all()
     runner = RobocopLinter(config_manager)
     return runner.run()
 
@@ -605,6 +639,9 @@ def format_files(
     root: project_root_option = None,
     verbose: verbose_option = None,
     silent: silent_option = None,
+    no_cache: no_cache_option = False,
+    clear_cache: clear_cache_option = False,
+    cache_dir: cache_dir_option = None,
     return_result: Annotated[
         bool,
         typer.Option(
@@ -648,11 +685,13 @@ def format_files(
     file_filters = config.FileFiltersOptions(
         include=include, default_include=default_include, exclude=exclude, default_exclude=default_exclude
     )
+    cache_config = config.CacheConfig(enabled=not no_cache, cache_dir=cache_dir)
     overwrite_config = config.Config(
         formatter=formatter_config,
         linter=None,
         language=language,
         file_filters=file_filters,
+        cache=cache_config,
         verbose=verbose,
         silent=silent,
         target_version=target_version,
@@ -667,6 +706,8 @@ def format_files(
         force_exclude=force_exclude,
         overwrite_config=overwrite_config,
     )
+    if clear_cache:
+        config_manager.cache.invalidate_all()
     runner = RobocopFormatter(config_manager)
     return runner.run()
 

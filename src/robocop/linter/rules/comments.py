@@ -486,14 +486,11 @@ class CommentChecker(VisitorChecker):
 
         # Skip if comment starts with ignore markers (TODO, FIXME, etc.)
         low_body = comment_body.lower()
-        for marker in self.commented_out_code.markers:
-            if low_body.startswith(marker):
-                return
+        if any(low_body.startswith(marker) for marker in self.commented_out_code.markers):
+            return
 
         # Check for RF code patterns using the tokenizer
-        is_rf_code = self._is_rf_code(comment_body)
-
-        if is_rf_code:
+        if self._is_rf_code(comment_body):
             # Extract a snippet for the message (first ~80 chars)
             snippet = comment_body[:80] + ("..." if len(comment_body) > 80 else "")
             self.report(

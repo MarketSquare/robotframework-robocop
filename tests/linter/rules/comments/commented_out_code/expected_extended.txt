@@ -1,0 +1,828 @@
+test.robot:16:1 COM06 Commented out code: 'Library    SeleniumLibrary'
+    |
+ 14 | *** Settings ***
+ 15 | Documentation    Test file for commented-out-code rule
+ 16 | # Library    SeleniumLibrary
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ COM06
+ 17 | # Resource    keywords.resource
+ 18 | # Variables    config.py
+    |
+
+test.robot:17:1 COM06 Commented out code: 'Resource    keywords.resource'
+    |
+ 15 | Documentation    Test file for commented-out-code rule
+ 16 | # Library    SeleniumLibrary
+ 17 | # Resource    keywords.resource
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ COM06
+ 18 | # Variables    config.py
+ 19 | # Suite Setup    Open Browser    ${URL}    chrome
+    |
+
+test.robot:18:1 COM06 Commented out code: 'Variables    config.py'
+    |
+ 16 | # Library    SeleniumLibrary
+ 17 | # Resource    keywords.resource
+ 18 | # Variables    config.py
+    | ^^^^^^^^^^^^^^^^^^^^^^^^ COM06
+ 19 | # Suite Setup    Open Browser    ${URL}    chrome
+ 20 | # Suite Teardown    Close All Browsers
+    |
+
+test.robot:19:1 COM06 Commented out code: 'Suite Setup    Open Browser    ${URL}    chrome'
+    |
+ 17 | # Resource    keywords.resource
+ 18 | # Variables    config.py
+ 19 | # Suite Setup    Open Browser    ${URL}    chrome
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ COM06
+ 20 | # Suite Teardown    Close All Browsers
+ 21 | # Test Setup    Reset State
+    |
+
+test.robot:20:1 COM06 Commented out code: 'Suite Teardown    Close All Browsers'
+    |
+ 18 | # Variables    config.py
+ 19 | # Suite Setup    Open Browser    ${URL}    chrome
+ 20 | # Suite Teardown    Close All Browsers
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ COM06
+ 21 | # Test Setup    Reset State
+ 22 | # Metadata    Version    1.0
+    |
+
+test.robot:21:1 COM06 Commented out code: 'Test Setup    Reset State'
+    |
+ 19 | # Suite Setup    Open Browser    ${URL}    chrome
+ 20 | # Suite Teardown    Close All Browsers
+ 21 | # Test Setup    Reset State
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^ COM06
+ 22 | # Metadata    Version    1.0
+    |
+
+test.robot:22:1 COM06 Commented out code: 'Metadata    Version    1.0'
+    |
+ 20 | # Suite Teardown    Close All Browsers
+ 21 | # Test Setup    Reset State
+ 22 | # Metadata    Version    1.0
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ COM06
+    |
+
+test.robot:26:1 COM06 Commented out code: '${COMMENTED_VAR}=    commented value'
+    |
+ 24 | *** Variables ***
+ 25 | ${VALID_VAR}    value
+ 26 | # ${COMMENTED_VAR}=    commented value
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ COM06
+ 27 | # @{COMMENTED_LIST}=    a    b    c
+ 28 | # &{COMMENTED_DICT}=    key=value
+    |
+
+test.robot:27:1 COM06 Commented out code: '@{COMMENTED_LIST}=    a    b    c'
+    |
+ 25 | ${VALID_VAR}    value
+ 26 | # ${COMMENTED_VAR}=    commented value
+ 27 | # @{COMMENTED_LIST}=    a    b    c
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ COM06
+ 28 | # &{COMMENTED_DICT}=    key=value
+    |
+
+test.robot:28:1 COM06 Commented out code: '&{COMMENTED_DICT}=    key=value'
+    |
+ 26 | # ${COMMENTED_VAR}=    commented value
+ 27 | # @{COMMENTED_LIST}=    a    b    c
+ 28 | # &{COMMENTED_DICT}=    key=value
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ COM06
+    |
+
+test.robot:50:5 COM06 Commented out code: '${var}=    Get Value'
+    |
+ 48 | Keyword With Assignment Pattern
+ 49 |     [Documentation]    Variable assignment detection
+ 50 |     # ${var}=    Get Value
+    |     ^^^^^^^^^^^^^^^^^^^^^^ COM06
+ 51 |     # ${result}=  Keyword Call
+ 52 |     # @{list}=    Create List    1    2    3
+    |
+
+test.robot:51:5 COM06 Commented out code: '${result}=  Keyword Call'
+    |
+ 49 |     [Documentation]    Variable assignment detection
+ 50 |     # ${var}=    Get Value
+ 51 |     # ${result}=  Keyword Call
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^ COM06
+ 52 |     # @{list}=    Create List    1    2    3
+ 53 |     # &{dict}=    Create Dictionary    key=value
+    |
+
+test.robot:52:5 COM06 Commented out code: '@{list}=    Create List    1    2    3'
+    |
+ 50 |     # ${var}=    Get Value
+ 51 |     # ${result}=  Keyword Call
+ 52 |     # @{list}=    Create List    1    2    3
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ COM06
+ 53 |     # &{dict}=    Create Dictionary    key=value
+ 54 |     Log    Done
+    |
+
+test.robot:53:5 COM06 Commented out code: '&{dict}=    Create Dictionary    key=value'
+    |
+ 51 |     # ${result}=  Keyword Call
+ 52 |     # @{list}=    Create List    1    2    3
+ 53 |     # &{dict}=    Create Dictionary    key=value
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ COM06
+ 54 |     Log    Done
+    |
+
+test.robot:58:5 COM06 Commented out code: '[Tags]    smoke    regression'
+    |
+ 56 | Keyword With Setting Brackets
+ 57 |     [Documentation]    Setting bracket detection
+ 58 |     # [Tags]    smoke    regression
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ COM06
+ 59 |     # [Arguments]    ${arg1}    ${arg2}
+ 60 |     # [Documentation]    Commented out docs
+    |
+
+test.robot:59:5 COM06 Commented out code: '[Arguments]    ${arg1}    ${arg2}'
+    |
+ 57 |     [Documentation]    Setting bracket detection
+ 58 |     # [Tags]    smoke    regression
+ 59 |     # [Arguments]    ${arg1}    ${arg2}
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ COM06
+ 60 |     # [Documentation]    Commented out docs
+ 61 |     # [Setup]    Initialize
+    |
+
+test.robot:60:5 COM06 Commented out code: '[Documentation]    Commented out docs'
+    |
+ 58 |     # [Tags]    smoke    regression
+ 59 |     # [Arguments]    ${arg1}    ${arg2}
+ 60 |     # [Documentation]    Commented out docs
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ COM06
+ 61 |     # [Setup]    Initialize
+ 62 |     # [Teardown]    Cleanup
+    |
+
+test.robot:61:5 COM06 Commented out code: '[Setup]    Initialize'
+    |
+ 59 |     # [Arguments]    ${arg1}    ${arg2}
+ 60 |     # [Documentation]    Commented out docs
+ 61 |     # [Setup]    Initialize
+    |     ^^^^^^^^^^^^^^^^^^^^^^^ COM06
+ 62 |     # [Teardown]    Cleanup
+ 63 |     # [Template]    My Template
+    |
+
+test.robot:62:5 COM06 Commented out code: '[Teardown]    Cleanup'
+    |
+ 60 |     # [Documentation]    Commented out docs
+ 61 |     # [Setup]    Initialize
+ 62 |     # [Teardown]    Cleanup
+    |     ^^^^^^^^^^^^^^^^^^^^^^^ COM06
+ 63 |     # [Template]    My Template
+ 64 |     # [Timeout]    5s
+    |
+
+test.robot:63:5 COM06 Commented out code: '[Template]    My Template'
+    |
+ 61 |     # [Setup]    Initialize
+ 62 |     # [Teardown]    Cleanup
+ 63 |     # [Template]    My Template
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^ COM06
+ 64 |     # [Timeout]    5s
+ 65 |     # [Return]    ${value}
+    |
+
+test.robot:64:5 COM06 Commented out code: '[Timeout]    5s'
+    |
+ 62 |     # [Teardown]    Cleanup
+ 63 |     # [Template]    My Template
+ 64 |     # [Timeout]    5s
+    |     ^^^^^^^^^^^^^^^^^ COM06
+ 65 |     # [Return]    ${value}
+ 66 |     Log    Done
+    |
+
+test.robot:65:5 COM06 Commented out code: '[Return]    ${value}'
+    |
+ 63 |     # [Template]    My Template
+ 64 |     # [Timeout]    5s
+ 65 |     # [Return]    ${value}
+    |     ^^^^^^^^^^^^^^^^^^^^^^ COM06
+ 66 |     Log    Done
+    |
+
+test.robot:70:5 COM06 Commented out code: 'IF    ${condition}'
+    |
+ 68 | Keyword With Control Structures
+ 69 |     [Documentation]    Control structure detection (uppercase only)
+ 70 |     # IF    ${condition}
+    |     ^^^^^^^^^^^^^^^^^^^^ COM06
+ 71 |     # ELSE IF    ${other}
+ 72 |     # ELSE
+    |
+
+test.robot:71:5 COM06 Commented out code: 'ELSE IF    ${other}'
+    |
+ 69 |     [Documentation]    Control structure detection (uppercase only)
+ 70 |     # IF    ${condition}
+ 71 |     # ELSE IF    ${other}
+    |     ^^^^^^^^^^^^^^^^^^^^^ COM06
+ 72 |     # ELSE
+ 73 |     # END
+    |
+
+test.robot:72:5 COM06 Commented out code: 'ELSE'
+    |
+ 70 |     # IF    ${condition}
+ 71 |     # ELSE IF    ${other}
+ 72 |     # ELSE
+    |     ^^^^^^ COM06
+ 73 |     # END
+ 74 |     # FOR    ${item}    IN    @{items}
+    |
+
+test.robot:73:5 COM06 Commented out code: 'END'
+    |
+ 71 |     # ELSE IF    ${other}
+ 72 |     # ELSE
+ 73 |     # END
+    |     ^^^^^ COM06
+ 74 |     # FOR    ${item}    IN    @{items}
+ 75 |     # WHILE    ${condition}
+    |
+
+test.robot:74:5 COM06 Commented out code: 'FOR    ${item}    IN    @{items}'
+    |
+ 72 |     # ELSE
+ 73 |     # END
+ 74 |     # FOR    ${item}    IN    @{items}
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ COM06
+ 75 |     # WHILE    ${condition}
+ 76 |     # TRY
+    |
+
+test.robot:75:5 COM06 Commented out code: 'WHILE    ${condition}'
+    |
+ 73 |     # END
+ 74 |     # FOR    ${item}    IN    @{items}
+ 75 |     # WHILE    ${condition}
+    |     ^^^^^^^^^^^^^^^^^^^^^^^ COM06
+ 76 |     # TRY
+ 77 |     # EXCEPT
+    |
+
+test.robot:76:5 COM06 Commented out code: 'TRY'
+    |
+ 74 |     # FOR    ${item}    IN    @{items}
+ 75 |     # WHILE    ${condition}
+ 76 |     # TRY
+    |     ^^^^^ COM06
+ 77 |     # EXCEPT
+ 78 |     # FINALLY
+    |
+
+test.robot:77:5 COM06 Commented out code: 'EXCEPT'
+    |
+ 75 |     # WHILE    ${condition}
+ 76 |     # TRY
+ 77 |     # EXCEPT
+    |     ^^^^^^^^ COM06
+ 78 |     # FINALLY
+ 79 |     # BREAK
+    |
+
+test.robot:78:5 COM06 Commented out code: 'FINALLY'
+    |
+ 76 |     # TRY
+ 77 |     # EXCEPT
+ 78 |     # FINALLY
+    |     ^^^^^^^^^ COM06
+ 79 |     # BREAK
+ 80 |     # CONTINUE
+    |
+
+test.robot:79:5 COM06 Commented out code: 'BREAK'
+    |
+ 77 |     # EXCEPT
+ 78 |     # FINALLY
+ 79 |     # BREAK
+    |     ^^^^^^^ COM06
+ 80 |     # CONTINUE
+ 81 |     # RETURN
+    |
+
+test.robot:80:5 COM06 Commented out code: 'CONTINUE'
+    |
+ 78 |     # FINALLY
+ 79 |     # BREAK
+ 80 |     # CONTINUE
+    |     ^^^^^^^^^^ COM06
+ 81 |     # RETURN
+ 82 |     # GROUP    name
+    |
+
+test.robot:81:5 COM06 Commented out code: 'RETURN'
+    |
+ 79 |     # BREAK
+ 80 |     # CONTINUE
+ 81 |     # RETURN
+    |     ^^^^^^^^ COM06
+ 82 |     # GROUP    name
+ 83 |     Log    Done
+    |
+
+test.robot:82:5 COM06 Commented out code: 'GROUP    name'
+    |
+ 80 |     # CONTINUE
+ 81 |     # RETURN
+ 82 |     # GROUP    name
+    |     ^^^^^^^^^^^^^^^ COM06
+ 83 |     Log    Done
+    |
+
+test.robot:103:5 COM06 Commented out code: '${result}=    Some Keyword'
+     |
+ 101 |     # Normal comment without code
+ 102 |     Log    Action
+ 103 |     # ${result}=    Some Keyword
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ COM06
+ 104 |     # TODO: remember to check this
+ 105 |     Log    Done
+     |
+
+test.robot:108:19 COM06 Commented out code: '${var}=    inline assignment'
+     |
+ 106 |
+ 107 | Keyword With Inline Comment
+ 108 |     Log    Hello  # ${var}=    inline assignment
+     |                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ COM06
+ 109 |     Log    World  # normal inline comment
+ 110 |     Log    Test   # IF    ${x}
+     |
+
+test.robot:110:19 COM06 Commented out code: 'IF    ${x}'
+     |
+ 108 |     Log    Hello  # ${var}=    inline assignment
+ 109 |     Log    World  # normal inline comment
+ 110 |     Log    Test   # IF    ${x}
+     |                   ^^^^^^^^^^^^ COM06
+     |
+
+test.robot:113:5 COM06 Commented out code: '${VERY_LONG_VARIABLE_NAME}=    This is a very long value that exceeds forty char...'
+     |
+ 111 |
+ 112 | Keyword With Long Comment
+ 113 |     # ${VERY_LONG_VARIABLE_NAME}=    This is a very long value that exceeds forty chars
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ COM06
+ 114 |     Log    Done
+     |
+
+test.robot:127:5 COM06 Commented out code: '${var}=    Get Value'
+     |
+ 125 | Keyword With Multiple Hashes
+ 126 |     [Documentation]    Block comments with patterns inside
+ 127 |     ### ${var}=    Get Value
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^ COM06
+ 128 |     ## [Tags]    smoke
+ 129 |     ### IF    ${condition}
+     |
+
+test.robot:128:5 COM06 Commented out code: '[Tags]    smoke'
+     |
+ 126 |     [Documentation]    Block comments with patterns inside
+ 127 |     ### ${var}=    Get Value
+ 128 |     ## [Tags]    smoke
+     |     ^^^^^^^^^^^^^^^^^^ COM06
+ 129 |     ### IF    ${condition}
+ 130 |     Log    Done
+     |
+
+test.robot:129:5 COM06 Commented out code: 'IF    ${condition}'
+     |
+ 127 |     ### ${var}=    Get Value
+ 128 |     ## [Tags]    smoke
+ 129 |     ### IF    ${condition}
+     |     ^^^^^^^^^^^^^^^^^^^^^^ COM06
+ 130 |     Log    Done
+     |
+
+test.robot:161:5 COM06 Commented out code: 'Library    Collections'
+     |
+ 159 | Keyword With Settings Section Statements
+ 160 |     [Documentation]    Settings section statements like Library, Resource, Variables
+ 161 |     # Library    Collections
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^ COM06
+ 162 |     # Library    String
+ 163 |     # Resource    common.resource
+     |
+
+test.robot:162:5 COM06 Commented out code: 'Library    String'
+     |
+ 160 |     [Documentation]    Settings section statements like Library, Resource, Variables
+ 161 |     # Library    Collections
+ 162 |     # Library    String
+     |     ^^^^^^^^^^^^^^^^^^^ COM06
+ 163 |     # Resource    common.resource
+ 164 |     # Resource    ../resources/utils.resource
+     |
+
+test.robot:163:5 COM06 Commented out code: 'Resource    common.resource'
+     |
+ 161 |     # Library    Collections
+ 162 |     # Library    String
+ 163 |     # Resource    common.resource
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ COM06
+ 164 |     # Resource    ../resources/utils.resource
+ 165 |     # Variables    vars.py
+     |
+
+test.robot:164:5 COM06 Commented out code: 'Resource    ../resources/utils.resource'
+     |
+ 162 |     # Library    String
+ 163 |     # Resource    common.resource
+ 164 |     # Resource    ../resources/utils.resource
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ COM06
+ 165 |     # Variables    vars.py
+ 166 |     # Suite Setup    Initialize
+     |
+
+test.robot:165:5 COM06 Commented out code: 'Variables    vars.py'
+     |
+ 163 |     # Resource    common.resource
+ 164 |     # Resource    ../resources/utils.resource
+ 165 |     # Variables    vars.py
+     |     ^^^^^^^^^^^^^^^^^^^^^^ COM06
+ 166 |     # Suite Setup    Initialize
+ 167 |     # Suite Teardown    Cleanup
+     |
+
+test.robot:166:5 COM06 Commented out code: 'Suite Setup    Initialize'
+     |
+ 164 |     # Resource    ../resources/utils.resource
+ 165 |     # Variables    vars.py
+ 166 |     # Suite Setup    Initialize
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^ COM06
+ 167 |     # Suite Teardown    Cleanup
+ 168 |     # Test Setup    Prepare Test
+     |
+
+test.robot:167:5 COM06 Commented out code: 'Suite Teardown    Cleanup'
+     |
+ 165 |     # Variables    vars.py
+ 166 |     # Suite Setup    Initialize
+ 167 |     # Suite Teardown    Cleanup
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^ COM06
+ 168 |     # Test Setup    Prepare Test
+ 169 |     # Test Teardown    Finish Test
+     |
+
+test.robot:168:5 COM06 Commented out code: 'Test Setup    Prepare Test'
+     |
+ 166 |     # Suite Setup    Initialize
+ 167 |     # Suite Teardown    Cleanup
+ 168 |     # Test Setup    Prepare Test
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ COM06
+ 169 |     # Test Teardown    Finish Test
+ 170 |     # Metadata    Author    John
+     |
+
+test.robot:169:5 COM06 Commented out code: 'Test Teardown    Finish Test'
+     |
+ 167 |     # Suite Teardown    Cleanup
+ 168 |     # Test Setup    Prepare Test
+ 169 |     # Test Teardown    Finish Test
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ COM06
+ 170 |     # Metadata    Author    John
+ 171 |     # Force Tags    smoke
+     |
+
+test.robot:170:5 COM06 Commented out code: 'Metadata    Author    John'
+     |
+ 168 |     # Test Setup    Prepare Test
+ 169 |     # Test Teardown    Finish Test
+ 170 |     # Metadata    Author    John
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ COM06
+ 171 |     # Force Tags    smoke
+ 172 |     # Default Tags    regression
+     |
+
+test.robot:171:5 COM06 Commented out code: 'Force Tags    smoke'
+     |
+ 169 |     # Test Teardown    Finish Test
+ 170 |     # Metadata    Author    John
+ 171 |     # Force Tags    smoke
+     |     ^^^^^^^^^^^^^^^^^^^^^ COM06
+ 172 |     # Default Tags    regression
+ 173 |     Log    Done
+     |
+
+test.robot:172:5 COM06 Commented out code: 'Default Tags    regression'
+     |
+ 170 |     # Metadata    Author    John
+ 171 |     # Force Tags    smoke
+ 172 |     # Default Tags    regression
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ COM06
+ 173 |     Log    Done
+     |
+
+test.robot:187:5 COM06 Commented out code: 'FOR    ${item}    IN RANGE    10'
+     |
+ 185 | Keyword With Complete FOR Loop Block
+ 186 |     [Documentation]    Complete FOR loop block commented out
+ 187 |     # FOR    ${item}    IN RANGE    10
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ COM06
+ 188 |     #     Log    ${item}
+ 189 |     #     ${result}=    Process Item    ${item}
+     |
+
+test.robot:189:5 COM06 Commented out code: '${result}=    Process Item    ${item}'
+     |
+ 187 |     # FOR    ${item}    IN RANGE    10
+ 188 |     #     Log    ${item}
+ 189 |     #     ${result}=    Process Item    ${item}
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ COM06
+ 190 |     # END
+ 191 |     Log    Done
+     |
+
+test.robot:190:5 COM06 Commented out code: 'END'
+     |
+ 188 |     #     Log    ${item}
+ 189 |     #     ${result}=    Process Item    ${item}
+ 190 |     # END
+     |     ^^^^^ COM06
+ 191 |     Log    Done
+     |
+
+test.robot:195:5 COM06 Commented out code: 'IF    ${condition}'
+     |
+ 193 | Keyword With Complete IF Block
+ 194 |     [Documentation]    Complete IF/ELSE block commented out
+ 195 |     # IF    ${condition}
+     |     ^^^^^^^^^^^^^^^^^^^^ COM06
+ 196 |     #     Log    Condition is true
+ 197 |     #     ${value}=    Get True Value
+     |
+
+test.robot:197:5 COM06 Commented out code: '${value}=    Get True Value'
+     |
+ 195 |     # IF    ${condition}
+ 196 |     #     Log    Condition is true
+ 197 |     #     ${value}=    Get True Value
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ COM06
+ 198 |     # ELSE
+ 199 |     #     Log    Condition is false
+     |
+
+test.robot:198:5 COM06 Commented out code: 'ELSE'
+     |
+ 196 |     #     Log    Condition is true
+ 197 |     #     ${value}=    Get True Value
+ 198 |     # ELSE
+     |     ^^^^^^ COM06
+ 199 |     #     Log    Condition is false
+ 200 |     #     ${value}=    Get False Value
+     |
+
+test.robot:200:5 COM06 Commented out code: '${value}=    Get False Value'
+     |
+ 198 |     # ELSE
+ 199 |     #     Log    Condition is false
+ 200 |     #     ${value}=    Get False Value
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ COM06
+ 201 |     # END
+ 202 |     Log    Done
+     |
+
+test.robot:201:5 COM06 Commented out code: 'END'
+     |
+ 199 |     #     Log    Condition is false
+ 200 |     #     ${value}=    Get False Value
+ 201 |     # END
+     |     ^^^^^ COM06
+ 202 |     Log    Done
+     |
+
+test.robot:206:5 COM06 Commented out code: 'TRY'
+     |
+ 204 | Keyword With TRY EXCEPT Block
+ 205 |     [Documentation]    Complete TRY/EXCEPT block commented out
+ 206 |     # TRY
+     |     ^^^^^ COM06
+ 207 |     #     ${result}=    Risky Operation
+ 208 |     # EXCEPT    Error message
+     |
+
+test.robot:207:5 COM06 Commented out code: '${result}=    Risky Operation'
+     |
+ 205 |     [Documentation]    Complete TRY/EXCEPT block commented out
+ 206 |     # TRY
+ 207 |     #     ${result}=    Risky Operation
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ COM06
+ 208 |     # EXCEPT    Error message
+ 209 |     #     Log    Error occurred
+     |
+
+test.robot:208:5 COM06 Commented out code: 'EXCEPT    Error message'
+     |
+ 206 |     # TRY
+ 207 |     #     ${result}=    Risky Operation
+ 208 |     # EXCEPT    Error message
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^ COM06
+ 209 |     #     Log    Error occurred
+ 210 |     # FINALLY
+     |
+
+test.robot:210:5 COM06 Commented out code: 'FINALLY'
+     |
+ 208 |     # EXCEPT    Error message
+ 209 |     #     Log    Error occurred
+ 210 |     # FINALLY
+     |     ^^^^^^^^^ COM06
+ 211 |     #     Cleanup Resources
+ 212 |     # END
+     |
+
+test.robot:212:5 COM06 Commented out code: 'END'
+     |
+ 210 |     # FINALLY
+ 211 |     #     Cleanup Resources
+ 212 |     # END
+     |     ^^^^^ COM06
+ 213 |     Log    Done
+     |
+
+test.robot:217:5 COM06 Commented out code: 'VAR    ${local}    value'
+     |
+ 215 | Keyword With VAR Syntax
+ 216 |     [Documentation]    RF 7.0+ VAR syntax
+ 217 |     # VAR    ${local}    value
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^ COM06
+ 218 |     # VAR    @{list}    a    b    c
+ 219 |     # VAR    &{dict}    key=value
+     |
+
+test.robot:218:5 COM06 Commented out code: 'VAR    @{list}    a    b    c'
+     |
+ 216 |     [Documentation]    RF 7.0+ VAR syntax
+ 217 |     # VAR    ${local}    value
+ 218 |     # VAR    @{list}    a    b    c
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ COM06
+ 219 |     # VAR    &{dict}    key=value
+ 220 |     # VAR    ${global}    value    scope=GLOBAL
+     |
+
+test.robot:219:5 COM06 Commented out code: 'VAR    &{dict}    key=value'
+     |
+ 217 |     # VAR    ${local}    value
+ 218 |     # VAR    @{list}    a    b    c
+ 219 |     # VAR    &{dict}    key=value
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ COM06
+ 220 |     # VAR    ${global}    value    scope=GLOBAL
+ 221 |     Log    Done
+     |
+
+test.robot:220:5 COM06 Commented out code: 'VAR    ${global}    value    scope=GLOBAL'
+     |
+ 218 |     # VAR    @{list}    a    b    c
+ 219 |     # VAR    &{dict}    key=value
+ 220 |     # VAR    ${global}    value    scope=GLOBAL
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ COM06
+ 221 |     Log    Done
+     |
+
+test.robot:225:5 COM06 Commented out code: 'RETURN'
+     |
+ 223 | Keyword With RETURN Statement
+ 224 |     [Documentation]    RETURN with and without values
+ 225 |     # RETURN
+     |     ^^^^^^^^ COM06
+ 226 |     # RETURN    ${value}
+ 227 |     # RETURN    ${a}    ${b}    ${c}
+     |
+
+test.robot:226:5 COM06 Commented out code: 'RETURN    ${value}'
+     |
+ 224 |     [Documentation]    RETURN with and without values
+ 225 |     # RETURN
+ 226 |     # RETURN    ${value}
+     |     ^^^^^^^^^^^^^^^^^^^^ COM06
+ 227 |     # RETURN    ${a}    ${b}    ${c}
+ 228 |     Log    Done
+     |
+
+test.robot:227:5 COM06 Commented out code: 'RETURN    ${a}    ${b}    ${c}'
+     |
+ 225 |     # RETURN
+ 226 |     # RETURN    ${value}
+ 227 |     # RETURN    ${a}    ${b}    ${c}
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ COM06
+ 228 |     Log    Done
+     |
+
+test.robot:232:5 COM06 Commented out code: 'FOR    ${item}    IN    @{items}'
+     |
+ 230 | Keyword With Nested Control Structures
+ 231 |     [Documentation]    Nested IF inside FOR
+ 232 |     # FOR    ${item}    IN    @{items}
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ COM06
+ 233 |     #     IF    ${item} > 0
+ 234 |     #         Log    Positive
+     |
+
+test.robot:233:5 COM06 Commented out code: 'IF    ${item} > 0'
+     |
+ 231 |     [Documentation]    Nested IF inside FOR
+ 232 |     # FOR    ${item}    IN    @{items}
+ 233 |     #     IF    ${item} > 0
+     |     ^^^^^^^^^^^^^^^^^^^^^^^ COM06
+ 234 |     #         Log    Positive
+ 235 |     #     ELSE
+     |
+
+test.robot:235:5 COM06 Commented out code: 'ELSE'
+     |
+ 233 |     #     IF    ${item} > 0
+ 234 |     #         Log    Positive
+ 235 |     #     ELSE
+     |     ^^^^^^^^^^ COM06
+ 236 |     #         Log    Non-positive
+ 237 |     #     END
+     |
+
+test.robot:237:5 COM06 Commented out code: 'END'
+     |
+ 235 |     #     ELSE
+ 236 |     #         Log    Non-positive
+ 237 |     #     END
+     |     ^^^^^^^^^ COM06
+ 238 |     # END
+ 239 |     Log    Done
+     |
+
+test.robot:238:5 COM06 Commented out code: 'END'
+     |
+ 236 |     #         Log    Non-positive
+ 237 |     #     END
+ 238 |     # END
+     |     ^^^^^ COM06
+ 239 |     Log    Done
+     |
+
+test.robot:243:5 COM06 Commented out code: 'WHILE    ${counter} < 10'
+     |
+ 241 | Keyword With WHILE Loop
+ 242 |     [Documentation]    Complete WHILE loop block
+ 243 |     # WHILE    ${counter} < 10
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^ COM06
+ 244 |     #     ${counter}=    Evaluate    ${counter} + 1
+ 245 |     #     BREAK
+     |
+
+test.robot:244:5 COM06 Commented out code: '${counter}=    Evaluate    ${counter} + 1'
+     |
+ 242 |     [Documentation]    Complete WHILE loop block
+ 243 |     # WHILE    ${counter} < 10
+ 244 |     #     ${counter}=    Evaluate    ${counter} + 1
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ COM06
+ 245 |     #     BREAK
+ 246 |     # END
+     |
+
+test.robot:245:5 COM06 Commented out code: 'BREAK'
+     |
+ 243 |     # WHILE    ${counter} < 10
+ 244 |     #     ${counter}=    Evaluate    ${counter} + 1
+ 245 |     #     BREAK
+     |     ^^^^^^^^^^^ COM06
+ 246 |     # END
+ 247 |     Log    Done
+     |
+
+test.robot:246:5 COM06 Commented out code: 'END'
+     |
+ 244 |     #     ${counter}=    Evaluate    ${counter} + 1
+ 245 |     #     BREAK
+ 246 |     # END
+     |     ^^^^^ COM06
+ 247 |     Log    Done
+     |
+
+test.robot:251:5 COM06 Commented out code: 'GROUP    Setup Phase'
+     |
+ 249 | Keyword With GROUP Block
+ 250 |     [Documentation]    GROUP block for organizing code
+ 251 |     # GROUP    Setup Phase
+     |     ^^^^^^^^^^^^^^^^^^^^^^ COM06
+ 252 |     #     Initialize System
+ 253 |     #     Configure Settings
+     |
+
+test.robot:254:5 COM06 Commented out code: 'END'
+     |
+ 252 |     #     Initialize System
+ 253 |     #     Configure Settings
+ 254 |     # END
+     |     ^^^^^ COM06
+ 255 |     Log    Done
+     |
+

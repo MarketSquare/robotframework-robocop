@@ -893,7 +893,7 @@ class TestCacheEdgeCases:
         entry = cache.get_linter_entry(test_file, "hash123")
         assert entry is None
 
-    def test_cache_save_failure_keeps_dirty_flag(self, tmp_path: Path):
+    def test_cache_save_failure_keeps_dirty_flag(self, tmp_path: Path, monkeypatch):
         """Test that if save fails, dirty flag remains True for retry."""
         cache_dir = tmp_path / "cache"
         cache = RobocopCache(cache_dir=cache_dir, verbose=True)
@@ -904,18 +904,16 @@ class TestCacheEdgeCases:
         cache.set_linter_entry(test_file, "hash", [])
         assert cache._dirty is True  # noqa: SLF001
 
-        # Make cache_dir read-only to cause save failure
-        cache_dir.mkdir()
-        cache_dir.chmod(0o444)
+        # Monkeypatch write_bytes to simulate write failure
+        def mock_write_bytes(_self, _data):
+            raise OSError("Permission denied")
 
-        try:
-            # Attempt save - should fail but not crash
-            cache.save()
-            # Dirty flag should remain True
-            assert cache._dirty is True  # noqa: SLF001
-        finally:
-            # Cleanup - restore permissions
-            cache_dir.chmod(0o755)
+        monkeypatch.setattr(Path, "write_bytes", mock_write_bytes)
+
+        # Attempt save - should fail but not crash
+        cache.save()
+        # Dirty flag should remain True
+        assert cache._dirty is True  # noqa: SLF001
 
     def test_relative_vs_absolute_path_consistency(self, tmp_path: Path):
         """Test that same file accessed via relative and absolute paths uses same cache entry."""

@@ -1,0 +1,1 @@
+custom_markers${/}test.robot:5:5 [W] COM06 Commented out code: '${result}=    this should be reported'

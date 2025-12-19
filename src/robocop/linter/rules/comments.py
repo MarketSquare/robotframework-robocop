@@ -568,7 +568,9 @@ class CommentChecker(VisitorChecker):
             if self.setting_pattern.match(value):
                 return True
 
-        return False
+        # Check KEYWORD tokens - in older RF versions (4.x, 5.x), standalone control keywords
+        # like ELSE, END, etc. are tokenized as KEYWORD instead of ERROR
+        return bool(first_token.type == "KEYWORD" and first_token.value in self.control_keywords)
 
     def is_block_comment(self, comment: str) -> bool:
         return comment == "#" or self.missing_space_after_comment.block.match(comment) is not None

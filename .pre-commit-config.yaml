@@ -19,3 +19,6 @@ repos:
           - tomli-w>=1.0
           - pathspec>=0.12
           - platformdirs>=4.3
+          - pytz>=2022.7
+          - types-jinja2
+          - types-pytz

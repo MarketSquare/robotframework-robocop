@@ -8,19 +8,21 @@ from re import Pattern
 from typing import TYPE_CHECKING
 
 import click
-
-if TYPE_CHECKING:
-    from collections.abc import Generator, Iterable
-
-try:
-    from rich.markup import escape
-except ImportError:  # Fails on vendored-in LSP plugin
-    escape = None  # type: ignore[assignment]
-
 from robot.api.parsing import Comment, End, If, IfHeader, ModelVisitor, Token
 from robot.parsing.model import Statement
 from robot.utils.robotio import file_writer
 from robot.version import VERSION as RF_VERSION
+
+if TYPE_CHECKING:
+    from collections.abc import Callable, Generator, Iterable
+
+escape: Callable[[str], str] | None
+try:
+    from rich.markup import escape as _escape
+
+    escape = _escape
+except ImportError:  # Fails on vendored-in LSP plugin
+    escape = None
 
 
 @total_ordering
@@ -117,7 +119,7 @@ def decorate_diff_with_color(contents: list[str]) -> list[str]:
 def escape_rich_markup(lines: list[str]) -> list[str]:
     if escape is not None:
         return [escape(line) for line in lines]
-    return lines  # type: ignore[unreachable]
+    return lines
 
 
 def normalize_name(name: str) -> str:
@@ -185,7 +187,12 @@ class RecommendationFinder:
         return difflib.get_close_matches(name, candidates, n=max_matches, cutoff=cutoff)
 
     @staticmethod
-    def _calculate_cutoff(string: str, min_cutoff: float = 0.5, max_cutoff: float = 0.85, step: float = 0.03) -> float:
+    def _calculate_cutoff(
+        string: str,
+        min_cutoff: float = 0.5,
+        max_cutoff: float = 0.85,
+        step: float = 0.03,
+    ) -> float:
         """
         Calculate cutoff.
 

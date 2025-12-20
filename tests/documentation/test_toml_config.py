@@ -3,8 +3,8 @@ import re
 import shlex
 import subprocess
 import textwrap
+from collections.abc import Callable
 from pathlib import Path
-from typing import Callable
 
 import pytest
 from typer import Exit

@@ -4,6 +4,9 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
+    from collections.abc import Iterator
+    from pathlib import Path
+
     from robot.parsing.model import Block, File
     from robot.parsing.model.statements import Statement
 
@@ -28,16 +31,17 @@ class Diagnostics:
         self.diag_by_source = self.group_diag_by_source()
 
     def group_diag_by_source(self) -> dict[str, list[Diagnostic]]:
-        diag_by_source = {}
+        diag_by_source: dict[str, list[Diagnostic]] = {}
         for diagnostic in self.diagnostics:
-            if diagnostic.source not in diag_by_source:
-                diag_by_source[diagnostic.source] = []
-            diag_by_source[diagnostic.source].append(diagnostic)
+            source_str = str(diagnostic.source)
+            if source_str not in diag_by_source:
+                diag_by_source[source_str] = []
+            diag_by_source[source_str].append(diagnostic)
         for source, diags in diag_by_source.items():
             diag_by_source[source] = sorted(diags)
         return diag_by_source
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator[Diagnostic]:
         yield from self.diagnostics
 
 
@@ -45,16 +49,16 @@ class Diagnostic:
     def __init__(
         self,
         rule: Rule,
-        source: str,
+        source: str | Path,
         model: File | None,
-        lineno: int,
-        col: int,
+        lineno: int | None,
+        col: int | None,
         end_lineno: int | None,
         end_col: int | None,
-        node=None,
+        node: Statement | Block | None = None,
         extended_disablers: tuple[int, int] | None = None,
         sev_threshold_value: int | None = None,
-        **kwargs,
+        **kwargs: object,
     ) -> None:
         self.rule = rule
         self.source = source
@@ -72,7 +76,7 @@ class Diagnostic:
 
     @staticmethod
     def get_range(
-        lineno: int, col: int, end_lineno: int | None, end_col: int | None, node: type[Statement | Block] | None
+        lineno: int | None, col: int | None, end_lineno: int | None, end_col: int | None, node: Statement | Block | None
     ) -> Range:
         """
         Return Range describing the position of the issue.

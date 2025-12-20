@@ -1,11 +1,19 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Any
+
 from robot.api.parsing import Token
 
 from robocop.exceptions import InvalidParameterValueError
 from robocop.formatter.disablers import skip_if_disabled
 from robocop.formatter.formatters import Formatter
-from robocop.formatter.skip import Skip
 from robocop.formatter.utils import misc
 from robocop.parsing.run_keywords import RUN_KEYWORDS
+
+if TYPE_CHECKING:
+    from robot.parsing.model.statements import KeywordCall, Setup, SuiteSetup
+
+    from robocop.formatter.skip import Skip
 
 
 class IndentNestedKeywords(Formatter):
@@ -42,12 +50,12 @@ class IndentNestedKeywords(Formatter):
     ENABLED = False
     HANDLES_SKIP = frozenset({"skip_settings"})
 
-    def __init__(self, indent_and: str = "split", skip: Skip = None):
+    def __init__(self, indent_and: str = "split", skip: Skip | None = None):
         super().__init__(skip=skip)
         self.indent_and = indent_and
         self.validate_indent_and()
 
-    def validate_indent_and(self):
+    def validate_indent_and(self) -> None:
         modes = {"keep_in_line", "split", "split_and_indent"}
         if self.indent_and not in modes:
             raise InvalidParameterValueError(
@@ -57,8 +65,8 @@ class IndentNestedKeywords(Formatter):
                 f"Select one of: {','.join(modes)}",
             )
 
-    def get_setting_lines(self, node, indent):
-        if self.skip.setting("any") or node.errors or not len(node.data_tokens) > 1:
+    def get_setting_lines(self, node: SuiteSetup | Setup, indent: int) -> list[tuple[int, list[Token]]] | None:
+        if self.skip.setting("any") or node.errors or not len(node.data_tokens) > 1:  # type: ignore[union-attr]
             return None
         run_keyword = RUN_KEYWORDS.get(node.data_tokens[1].value)
         if not run_keyword:
@@ -68,14 +76,16 @@ class IndentNestedKeywords(Formatter):
             return None
         return self.split_too_long_lines(lines, indent)
 
-    def get_separator(self, column=1, continuation=False):
+    def get_separator(self, column: int = 1, continuation: bool = False) -> Token:
         if continuation:
-            separator = self.formatting_config.continuation_indent * column
+            separator = self.formatting_config.continuation_indent * column  # type: ignore[union-attr,operator]
         else:
-            separator = self.formatting_config.separator * column
+            separator = self.formatting_config.separator * column  # type: ignore[union-attr,operator]
         return Token(Token.SEPARATOR, separator)
 
-    def parse_keyword_lines(self, lines, tokens, new_line, eol):
+    def parse_keyword_lines(
+        self, lines: list[tuple[int, list[Token]]], tokens: list[Token], new_line: list[Token], eol: Token
+    ) -> list[Token]:
         separator = self.get_separator()
         for column, line in lines[1:]:
             tokens.extend(new_line)
@@ -85,11 +95,11 @@ class IndentNestedKeywords(Formatter):
         return tokens
 
     @staticmethod
-    def node_was_formatted(old_tokens, new_tokens) -> bool:
+    def node_was_formatted(old_tokens: list[Token], new_tokens: list[Token]) -> bool:
         """Compare code before and after formatting while ignoring comments to check if code was formatted."""
         if len(new_tokens) > len(old_tokens):
             return True
-        old_tokens_no_comm = []
+        old_tokens_no_comm: list[Token] = []
         data_in_line = False
         for token in old_tokens:
             if token.type == Token.EOL:
@@ -105,13 +115,13 @@ class IndentNestedKeywords(Formatter):
             old_tokens_no_comm.append(token)
         if len(new_tokens) != len(old_tokens_no_comm):
             return True
-        for new_token, old_token in zip(new_tokens, old_tokens_no_comm):
+        for new_token, old_token in zip(new_tokens, old_tokens_no_comm, strict=False):
             if new_token.type != old_token.type or new_token.value != old_token.value:
                 return True
         return False
 
     @skip_if_disabled
-    def visit_SuiteSetup(self, node):  # noqa: N802
+    def visit_SuiteSetup(self, node: SuiteSetup) -> SuiteSetup | tuple[Any, ...]:  # noqa: N802
         lines = self.get_setting_lines(node, 0)
         if not lines:
             return node
@@ -128,7 +138,7 @@ class IndentNestedKeywords(Formatter):
     visit_SuiteTeardown = visit_TestSetup = visit_TestTeardown = visit_SuiteSetup  # noqa: N815
 
     @skip_if_disabled
-    def visit_Setup(self, node):  # noqa: N802
+    def visit_Setup(self, node: Setup) -> Setup:  # noqa: N802
         indent = len(node.tokens[0].value)
         lines = self.get_setting_lines(node, indent)
         if not lines:
@@ -148,7 +158,7 @@ class IndentNestedKeywords(Formatter):
     visit_Teardown = visit_Setup  # noqa: N815
 
     @skip_if_disabled
-    def visit_KeywordCall(self, node):  # noqa: N802
+    def visit_KeywordCall(self, node: KeywordCall) -> KeywordCall | tuple[Any, ...]:  # noqa: N802
         if node.errors or not node.keyword:
             return node
         run_keyword = RUN_KEYWORDS.get(node.keyword)
@@ -161,7 +171,7 @@ class IndentNestedKeywords(Formatter):
         lines = self.parse_sub_kw(kw_tokens)
         if not lines:
             return node
-        lines = self.split_too_long_lines(lines, len(self.formatting_config.separator))
+        lines = self.split_too_long_lines(lines, len(self.formatting_config.separator))  # type: ignore[union-attr,arg-type]
 
         separator = self.get_separator()
         tokens = [indent]
@@ -175,13 +185,13 @@ class IndentNestedKeywords(Formatter):
             return (*comments, node)
         return node
 
-    def split_too_long_lines(self, lines, indent):
+    def split_too_long_lines(self, lines: list[tuple[int, list[Token]]], indent: int) -> list[tuple[int, list[Token]]]:
         """Parse indented lines to split too long lines"""
         # TODO: Keep things like ELSE IF <condition>, Run Keyword If <> together no matter what
         if "SplitTooLongLine" not in self.formatters:
             return lines
         allowed_length = self.formatters["SplitTooLongLine"].line_length
-        sep_len = len(self.formatting_config.separator)
+        sep_len = len(self.formatting_config.separator)  # type: ignore[union-attr,arg-type]
         new_lines = []
         for column, line in lines:
             pre_indent = self.calculate_line_indent(column, indent)
@@ -200,7 +210,7 @@ class IndentNestedKeywords(Formatter):
             new_lines.extend([(column + 1, [arg]) for arg in line[first_line_end:]])
         return new_lines
 
-    def calculate_line_indent(self, column, starting_indent):
+    def calculate_line_indent(self, column: int, starting_indent: int) -> int:
         """
         Calculate with of the continuation indent.
 
@@ -208,9 +218,9 @@ class IndentNestedKeywords(Formatter):
 
             ...        argument
         """
-        return starting_indent + len(self.formatting_config.continuation_indent) * column + 3
+        return starting_indent + len(self.formatting_config.continuation_indent) * column + 3  # type: ignore[union-attr,arg-type]
 
-    def parse_sub_kw(self, tokens, column=0):
+    def parse_sub_kw(self, tokens: list[Token], column: int = 0) -> list[tuple[int, list[Token]]]:
         if not tokens:
             return []
         run_keyword = RUN_KEYWORDS.get(tokens[0].value)
@@ -231,7 +241,9 @@ class IndentNestedKeywords(Formatter):
             return self.split_on_and(tokens, lines, column)
         return lines + self.parse_sub_kw(tokens, column + 1)
 
-    def split_on_else(self, tokens, lines, column):
+    def split_on_else(
+        self, tokens: list[Token], lines: list[tuple[int, list[Token]]], column: int
+    ) -> list[tuple[int, list[Token]]]:
         column = max(column, 1)
         prefix, branch, tokens = misc.split_on_token_value(tokens, "ELSE", 1)
         lines.extend(self.parse_sub_kw(prefix, column + 1))
@@ -239,7 +251,9 @@ class IndentNestedKeywords(Formatter):
         lines.extend(self.parse_sub_kw(tokens, column + 1))
         return lines
 
-    def split_on_and(self, tokens, lines, column):
+    def split_on_and(
+        self, tokens: list[Token], lines: list[tuple[int, list[Token]]], column: int
+    ) -> list[tuple[int, list[Token]]]:
         if misc.is_token_value_in_tokens("AND", tokens):
             while misc.is_token_value_in_tokens("AND", tokens):
                 prefix, branch, tokens = misc.split_on_token_value(tokens, "AND", 1)

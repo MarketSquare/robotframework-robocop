@@ -1,4 +1,4 @@
-from typing import Optional
+from __future__ import annotations
 
 from robot.api.parsing import CommentSection, EmptyLine, Token
 
@@ -7,10 +7,28 @@ try:
 except ImportError:
     Config = None
 
+from typing import TYPE_CHECKING
+
 from robocop.formatter.disablers import skip_section_if_disabled
 from robocop.formatter.formatters import Formatter
-from robocop.formatter.skip import Skip
 from robocop.formatter.utils.misc import is_suite_templated
+
+if TYPE_CHECKING:
+    from robot.parsing.model.blocks import (
+        File,
+        For,
+        If,
+        Keyword,
+        KeywordSection,
+        Section,
+        TestCase,
+        TestCaseSection,
+        Try,
+        While,
+    )
+    from robot.parsing.model.statements import Statement
+
+    from robocop.formatter.skip import Skip
 
 
 class NormalizeNewLines(Formatter):
@@ -36,32 +54,30 @@ class NormalizeNewLines(Formatter):
 
     def __init__(
         self,
-        test_case_lines: int = 1,
-        # | was added in Python 3.10. We can't use it with from __future__ import annotations because of RF
-        # auto conversion - future annotations replaces everything to string
-        keyword_lines: Optional[int] = None,
-        section_lines: int = 2,
+        test_case_lines: int | str = 1,
+        keyword_lines: int | str | None = None,
+        section_lines: int | str = 2,
         separate_templated_tests: bool = False,
-        consecutive_lines: int = 1,
-        skip: Skip = None,
+        consecutive_lines: int | str = 1,
+        skip: Skip | None = None,
     ):
         super().__init__(skip)
-        self.test_case_lines = test_case_lines
-        self.keyword_lines = keyword_lines if keyword_lines is not None else test_case_lines
-        self.section_lines = section_lines
+        self.test_case_lines = int(test_case_lines)
+        self.keyword_lines: int = int(keyword_lines) if keyword_lines is not None else self.test_case_lines
+        self.section_lines = int(section_lines)
         self.separate_templated_tests = separate_templated_tests
-        self.consecutive_lines = consecutive_lines
-        self.last_section = None
-        self.last_test = None
-        self.last_keyword = None
+        self.consecutive_lines = int(consecutive_lines)
+        self.last_section: Section | None = None
+        self.last_test: TestCase | None = None
+        self.last_keyword: Keyword | None = None
         self.templated = False
 
-    def visit_File(self, node):  # noqa: N802
+    def visit_File(self, node: File) -> File:  # noqa: N802
         self.templated = not self.separate_templated_tests and is_suite_templated(node)
         self.last_section = node.sections[-1] if node.sections else None
         return self.generic_visit(node)
 
-    def should_be_trimmed(self, node):
+    def should_be_trimmed(self, node: Section) -> bool:
         """
         Check whether given section should have empty lines trimmed.
 
@@ -84,7 +100,7 @@ class NormalizeNewLines(Formatter):
         return not language_marker_only
 
     @skip_section_if_disabled
-    def visit_Section(self, node):  # noqa: N802
+    def visit_Section(self, node: Section) -> Section:  # noqa: N802
         should_be_trimmed = self.should_be_trimmed(node)
         if should_be_trimmed:
             self.trim_empty_lines(node)
@@ -95,34 +111,34 @@ class NormalizeNewLines(Formatter):
             node.body.extend([empty_line] * self.section_lines)
         return self.generic_visit(node)
 
-    def visit_TestCaseSection(self, node):  # noqa: N802
+    def visit_TestCaseSection(self, node: TestCaseSection) -> TestCaseSection:  # noqa: N802
         self.last_test = node.body[-1] if node.body else None
         return self.visit_Section(node)
 
-    def visit_KeywordSection(self, node):  # noqa: N802
+    def visit_KeywordSection(self, node: KeywordSection) -> KeywordSection:  # noqa: N802
         self.last_keyword = node.body[-1] if node.body else None
         return self.visit_Section(node)
 
-    def visit_TestCase(self, node):  # noqa: N802
+    def visit_TestCase(self, node: TestCase) -> TestCase:  # noqa: N802
         self.trim_empty_lines(node)
         if node is not self.last_test and not self.templated:
             node.body.extend([EmptyLine.from_params()] * self.test_case_lines)
         return self.generic_visit(node)
 
-    def visit_Keyword(self, node):  # noqa: N802
+    def visit_Keyword(self, node: Keyword) -> Keyword:  # noqa: N802
         self.trim_empty_lines(node)
         if node is not self.last_keyword:
             node.body.extend([EmptyLine.from_params()] * self.keyword_lines)
         return self.generic_visit(node)
 
-    def visit_If(self, node):  # noqa: N802
+    def visit_If(self, node: If) -> If:  # noqa: N802
         self.trim_empty_lines(node)
         return self.generic_visit(node)
 
     visit_For = visit_While = visit_Group = visit_Try = visit_If  # noqa: N815
 
-    def visit_Statement(self, node):  # noqa: N802
-        tokens = []
+    def visit_Statement(self, node: Statement) -> Statement:  # noqa: N802
+        tokens: list[Token] = []
         cont = node.get_token(Token.CONTINUATION)
         for line in node.lines:
             if cont and all(token.type in self.WHITESPACE_TOKENS for token in line):
@@ -133,26 +149,26 @@ class NormalizeNewLines(Formatter):
         node.tokens = tokens
         return node
 
-    def trim_empty_lines(self, node):
+    def trim_empty_lines(self, node: Section | TestCase | Keyword | If | For | While | Try) -> None:
         self.trim_leading_empty_lines(node)
         self.trim_trailing_empty_lines(node)
         self.trim_consecutive_empty_lines(node)
 
     @staticmethod
-    def trim_trailing_empty_lines(node):
+    def trim_trailing_empty_lines(node: Section | TestCase | Keyword | If | For | While | Try) -> None:
         if not hasattr(node, "body"):
             return
         while node.body and isinstance(node.body[-1], EmptyLine):
             node.body.pop()
 
     @staticmethod
-    def trim_leading_empty_lines(node):
+    def trim_leading_empty_lines(node: Section | TestCase | Keyword | If | For | While | Try) -> None:
         while node.body and isinstance(node.body[0], EmptyLine):
             node.body.pop(0)
 
-    def trim_consecutive_empty_lines(self, node):
+    def trim_consecutive_empty_lines(self, node: Section | TestCase | Keyword | If | For | While | Try) -> None:
         empty_count = 0
-        nodes = []
+        nodes: list[TestCase | Keyword | Statement | EmptyLine] = []
         for child in node.body:
             if isinstance(child, EmptyLine):
                 empty_count += 1

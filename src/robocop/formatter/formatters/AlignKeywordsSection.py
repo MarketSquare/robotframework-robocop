@@ -1,6 +1,14 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 from robocop.formatter.disablers import skip_if_disabled
 from robocop.formatter.formatters.aligners_core import AlignKeywordsTestsSection
-from robocop.formatter.skip import Skip
+
+if TYPE_CHECKING:
+    from robot.parsing.model.blocks import Keyword, TestCase
+
+    from robocop.formatter.skip import Skip
 
 
 class AlignKeywordsSection(AlignKeywordsTestsSection):
@@ -45,7 +53,7 @@ class AlignKeywordsSection(AlignKeywordsTestsSection):
         align_comments: bool = False,
         align_settings_separately: bool = False,
         skip_documentation: str = "True",  # noqa: ARG002 - override skip_documentation from Skip
-        skip: Skip = None,
+        skip: Skip | None = None,
     ):
         super().__init__(
             widths,
@@ -58,11 +66,11 @@ class AlignKeywordsSection(AlignKeywordsTestsSection):
         )
 
     @skip_if_disabled
-    def visit_Keyword(self, node):  # noqa: N802
+    def visit_Keyword(self, node: Keyword) -> Keyword:  # noqa: N802
         self.create_auto_widths_for_context(node)
         self.generic_visit(node)
         self.remove_auto_widths_for_context()
         return node
 
-    def visit_TestCase(self, node):  # noqa: N802
+    def visit_TestCase(self, node: TestCase) -> TestCase:  # noqa: N802
         return node

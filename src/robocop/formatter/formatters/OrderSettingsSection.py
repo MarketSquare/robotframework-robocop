@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from collections import defaultdict
+from typing import TYPE_CHECKING
 
 from robot.api.parsing import Comment, EmptyLine, LibraryImport, Token
 from robot.libraries import STDLIBS
@@ -8,6 +9,10 @@ from robot.libraries import STDLIBS
 from robocop.exceptions import InvalidParameterValueError
 from robocop.formatter.disablers import skip_section_if_disabled
 from robocop.formatter.formatters import Formatter
+
+if TYPE_CHECKING:
+    from robot.parsing.model.blocks import File, SettingSection
+    from robot.parsing.model.statements import Statement
 
 
 class OrderSettingsSection(Formatter):
@@ -50,8 +55,8 @@ class OrderSettingsSection(Formatter):
         tags_order: str | None = None,
     ):
         super().__init__()
-        self.last_section = None
-        self.disabled_group = set()
+        self.last_section: SettingSection | None = None
+        self.disabled_group: set[str] = set()
         self.new_lines_between_groups = new_lines_between_groups
         self.group_order = self.parse_group_order(group_order)
         self.documentation_order = self.parse_order_in_group(
@@ -97,7 +102,7 @@ class OrderSettingsSection(Formatter):
             {"force_tags": Token.FORCE_TAGS, "test_tags": Token.FORCE_TAGS, "default_tags": Token.DEFAULT_TAGS},
         )
 
-    def parse_group_order(self, order):
+    def parse_group_order(self, order: str | None) -> tuple[str, ...] | list[str]:
         default = ("documentation", "imports", "settings", "tags")
         if order is None:
             return default
@@ -113,7 +118,9 @@ class OrderSettingsSection(Formatter):
             )
         return parts
 
-    def parse_order_in_group(self, name, order, default, mapping):
+    def parse_order_in_group(
+        self, name: str, order: str | None, default: tuple[str, ...], mapping: dict[str, str]
+    ) -> tuple[str, ...] | list[str]:
         if order is None:
             return default
         if not order:
@@ -133,18 +140,19 @@ class OrderSettingsSection(Formatter):
                 f"{sorted(mapping.keys())}",
             ) from None
 
-    def visit_File(self, node):  # noqa: N802
+    def visit_File(self, node: File) -> File:  # noqa: N802
         self.last_section = node.sections[-1] if node.sections else None
         return self.generic_visit(node)
 
     @skip_section_if_disabled
-    def visit_SettingSection(self, node):  # noqa: N802
+    def visit_SettingSection(self, node: SettingSection) -> SettingSection | None:  # noqa: N802
         if not node.body:
             return None
         if node is self.last_section and not isinstance(node.body[-1], EmptyLine):
             node.body[-1] = self.fix_eol(node.body[-1])
-        comments, errors = [], []
-        groups = defaultdict(list)
+        comments: list[Comment] = []
+        errors: list[Statement] = []
+        groups: dict[str, list[tuple[list[Comment], Statement]]] = defaultdict(list)
         for child in node.body:
             child_type = getattr(child, "type", None)
             if isinstance(child, Comment):
@@ -171,7 +179,7 @@ class OrderSettingsSection(Formatter):
             "tags": self.tags_order,
         }
 
-        new_body = []
+        new_body: list[Comment | Statement | EmptyLine] = []
         empty_line = EmptyLine.from_params(eol="\n")
         order_of_groups = [group for group in self.group_order if group in groups]
         last_index = len(order_of_groups) - 1
@@ -204,7 +212,7 @@ class OrderSettingsSection(Formatter):
         return node
 
     @staticmethod
-    def fix_eol(node):
+    def fix_eol(node: Statement) -> Statement:
         if not getattr(node, "tokens", None):
             return node
         if getattr(node.tokens[-1], "type", None) != Token.EOL:
@@ -213,8 +221,9 @@ class OrderSettingsSection(Formatter):
         return node
 
     @staticmethod
-    def sort_builtin_libs(statements):
-        before, after = [], []
+    def sort_builtin_libs(statements: list[tuple[list[Comment], Statement]]) -> list[tuple[list[Comment], Statement]]:
+        before: list[tuple[list[Comment], Statement]] = []
+        after: list[tuple[list[Comment], Statement]] = []
         for comments, statement in statements:
             if (
                 isinstance(statement, LibraryImport)

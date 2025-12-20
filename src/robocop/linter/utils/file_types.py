@@ -2,19 +2,20 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Callable
-
-from robocop import exceptions
-from robocop.linter.utils.misc import rf_supports_lang
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
+    from collections.abc import Callable
     from pathlib import Path
 
     from robot.parsing.model import File
 
+from robocop import exceptions
+from robocop.linter.utils.misc import rf_supports_lang
+
 
 @exceptions.handle_robot_errors
-def get_resource_with_lang(get_resource_method: Callable, source: Path, lang: str | None) -> File:
+def get_resource_with_lang(get_resource_method: Callable[..., File], source: Path, lang: list[str] | None) -> File:
     if rf_supports_lang():
         return get_resource_method(source, lang=lang)
     return get_resource_method(source)

@@ -1,7 +1,15 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 from robot.api.parsing import Token
 
 from robocop.formatter.formatters import Formatter
-from robocop.formatter.skip import Skip
+
+if TYPE_CHECKING:
+    from robot.parsing.model.statements import Comment, Statement
+
+    from robocop.formatter.skip import Skip
 
 
 class NormalizeComments(Formatter):
@@ -45,17 +53,17 @@ class NormalizeComments(Formatter):
         }
     )
 
-    def __init__(self, skip: Skip = None):
+    def __init__(self, skip: Skip | None = None):
         super().__init__(skip=skip)
 
-    def visit_Comment(self, node):  # noqa: N802
+    def visit_Comment(self, node: Comment) -> Comment:  # noqa: N802
         return self.handle_comments(node)
 
-    def visit_Statement(self, node):  # noqa: N802
+    def visit_Statement(self, node: Statement) -> Statement:  # noqa: N802
         return self.handle_comments(node)
 
-    def handle_comments(self, node):
-        if self.skip.comment(node):
+    def handle_comments(self, node: Comment | Statement) -> Comment | Statement:
+        if self.skip.comment(node):  # type: ignore[union-attr]
             return node
         for line in node.lines:
             for token in line:
@@ -65,7 +73,7 @@ class NormalizeComments(Formatter):
         return node
 
     @staticmethod
-    def fix_comment_spacing(comment):
+    def fix_comment_spacing(comment: Token) -> None:
         # for example content of whole *** Comments *** does not require #
         if len(comment.value) == 1 or not comment.value.startswith("#"):
             return

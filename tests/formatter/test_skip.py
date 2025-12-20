@@ -45,7 +45,7 @@ class TestSkip:
         skip_config = SkipConfig()
         skip_config.update_with_str_config(keyword_call=skip_keyword)
         skip = Skip(skip_config=skip_config)
-        for name, disable in zip(names, disabled):
+        for name, disable in zip(names, disabled, strict=True):
             mock_node.keyword = name
             assert disable == skip.keyword_call(mock_node)
 
@@ -75,7 +75,7 @@ class TestSkip:
         skip_config = SkipConfig()
         skip_config.update_with_str_config(keyword_call_pattern=skip_keyword)
         skip = Skip(skip_config=skip_config)
-        for name, disable in zip(names, disabled):
+        for name, disable in zip(names, disabled, strict=True):
             mock_node.keyword = name
             assert disable == skip.keyword_call(mock_node)
 

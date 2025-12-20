@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import re
 import shlex
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 import tomli_w
 
@@ -208,7 +208,7 @@ def convert_robotidy_configure(configure: list[str]) -> list[str]:
     return new_configure
 
 
-def convert_skips(old_config: dict) -> list[str]:
+def convert_skips(old_config: dict[str, Any]) -> list[str]:
     old_skips = [
         "arguments",
         "documentation",
@@ -235,7 +235,7 @@ def convert_target_version(old_value: str) -> int | str:
         return old_value
 
 
-def copy_keys(src_dict: dict, keys: dict[str, str | tuple[str, Callable]]) -> dict:
+def copy_keys(src_dict: dict[str, Any], keys: dict[str, str | tuple[str, Callable[[Any], Any]]]) -> dict[str, Any]:
     """
     Copy values from one dict to another.
 
@@ -268,7 +268,7 @@ def split_config_from_select(select: list[str], configure: list[str]) -> tuple[l
     return new_select, configure
 
 
-def drop_formatters_with_enabled_config(robotidy_config: dict) -> dict:
+def drop_formatters_with_enabled_config(robotidy_config: dict[str, Any]) -> dict[str, Any]:
     """Drop formatters that are configured with enabled=False."""
     # TODO: if someone already uses both transform and configure to enable additional transformers, it will not work
     formatters = robotidy_config.get("transform", [])
@@ -290,14 +290,14 @@ def drop_formatters_with_enabled_config(robotidy_config: dict) -> dict:
     return robotidy_config
 
 
-def split_params(s):
+def split_params(s: str) -> list[str]:
     lexer = shlex.shlex(s, posix=True)
     lexer.whitespace = ":"  # treat ':' as a separator
     lexer.whitespace_split = True  # actually split on whitespace chars
     return [item.strip() for item in list(lexer) if item.strip()]
 
 
-def split_multiline_config(configuration: dict) -> None:
+def split_multiline_config(configuration: dict[str, Any]) -> None:
     """Split a multiline configuration to multiple lines."""
     if "configure" not in configuration["format"]:
         return

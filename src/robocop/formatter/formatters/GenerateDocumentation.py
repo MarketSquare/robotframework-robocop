@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import re
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 from jinja2 import Template
 from jinja2.exceptions import TemplateError
@@ -9,6 +10,10 @@ from robot.api.parsing import Documentation, ModelVisitor, Token
 
 from robocop.exceptions import InvalidParameterValueError
 from robocop.formatter.formatters import Formatter
+
+if TYPE_CHECKING:
+    from robot.parsing.model.blocks import Keyword, TestCaseSection
+    from robot.parsing.model.statements import Arguments, Return, ReturnSetting, ReturnStatement
 
 GOOGLE_TEMPLATE = """    Short description.
 {% if keyword.arguments|length > 0 %}
@@ -25,38 +30,40 @@ GOOGLE_TEMPLATE = """    Short description.
 
 
 class Argument:
-    def __init__(self, arg):
+    def __init__(self, arg: str):
         if "=" in arg:
+            self.name: str
+            self.default: str | None
             self.name, self.default = arg.split("=", 1)
         else:
             self.name = arg
             self.default = None
-        self.full_name = arg
+        self.full_name: str = arg
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.full_name
 
 
 class KeywordData:
-    def __init__(self, name, arguments, returns):
+    def __init__(self, name: str, arguments: list[Argument], returns: list[str]):
         self.name = name
         self.arguments = arguments
         self.returns = returns
 
 
 class FormattingData:
-    def __init__(self, cont_indent, separator):
+    def __init__(self, cont_indent: str, separator: str):
         self.cont_indent = cont_indent
         self.separator = separator
 
 
-class ArgumentsAndReturnsVisitor(ModelVisitor):
-    def __init__(self):
-        self.arguments = []
-        self.returns = []
-        self.doc_exists = False
+class ArgumentsAndReturnsVisitor(ModelVisitor):  # type: ignore[misc]
+    def __init__(self) -> None:
+        self.arguments: list[Argument] = []
+        self.returns: list[str] = []
+        self.doc_exists: bool = False
 
-    def visit_Keyword(self, node):  # noqa: N802
+    def visit_Keyword(self, node: Keyword) -> None:  # noqa: N802
         self.arguments = []
         self.returns = []
         # embedded variables
@@ -66,15 +73,15 @@ class ArgumentsAndReturnsVisitor(ModelVisitor):
         self.doc_exists = False
         self.generic_visit(node)
 
-    def visit_Documentation(self, _node):  # noqa: N802
+    def visit_Documentation(self, _node: Documentation) -> None:  # noqa: N802
         self.doc_exists = True
 
-    def visit_Arguments(self, node):  # noqa: N802
+    def visit_Arguments(self, node: Arguments) -> None:  # noqa: N802
         if node.errors:
             return
         self.arguments = [Argument(arg) for arg in node.values]
 
-    def visit_ReturnStatement(self, node):  # noqa: N802
+    def visit_ReturnStatement(self, node: ReturnStatement | Return | ReturnSetting) -> None:  # noqa: N802
         if node.errors:
             return
         self.returns = list(node.values)
@@ -137,7 +144,7 @@ class GenerateDocumentation(Formatter):
         self.args_returns_finder = ArgumentsAndReturnsVisitor()
         super().__init__()
 
-    def visit_TestCaseSection(self, node):  # noqa: N802
+    def visit_TestCaseSection(self, node: TestCaseSection) -> TestCaseSection:  # noqa: N802
         return node
 
     visit_SettingSection = visit_TestCaseSection  # noqa: N815
@@ -170,11 +177,14 @@ class GenerateDocumentation(Formatter):
         with open(template_path) as fp:
             return fp.read()
 
-    def visit_Keyword(self, node):  # noqa: N802
+    def visit_Keyword(self, node: Keyword) -> Keyword:  # noqa: N802
         self.args_returns_finder.visit(node)
         if not self.overwrite and self.args_returns_finder.doc_exists:
             return node
-        formatting = FormattingData(self.formatting_config.continuation_indent, self.formatting_config.separator)
+        formatting = FormattingData(
+            str(self.formatting_config.continuation_indent),  # type: ignore[union-attr]
+            str(self.formatting_config.separator),  # type: ignore[union-attr]
+        )
         kw_data = KeywordData(node.name, self.args_returns_finder.arguments, self.args_returns_finder.returns)
         generated = self.doc_template.render(keyword=kw_data, formatting=formatting)
         doc_node = self.create_documentation_from_string(generated)
@@ -183,13 +193,17 @@ class GenerateDocumentation(Formatter):
         node.body.insert(0, doc_node)
         return node
 
-    def visit_Documentation(self, _node):  # noqa: N802
+    def visit_Documentation(self, _node: Documentation) -> None:  # noqa: N802
         return None
 
-    def create_documentation_from_string(self, doc_string):
-        new_line = [Token(Token.EOL), Token(Token.SEPARATOR, self.formatting_config.indent), Token(Token.CONTINUATION)]
+    def create_documentation_from_string(self, doc_string: str) -> Documentation:
+        new_line = [
+            Token(Token.EOL),
+            Token(Token.SEPARATOR, self.formatting_config.indent),  # type: ignore[union-attr]
+            Token(Token.CONTINUATION),
+        ]
         tokens = [
-            Token(Token.SEPARATOR, self.formatting_config.indent),
+            Token(Token.SEPARATOR, self.formatting_config.indent),  # type: ignore[union-attr]
             Token(Token.DOCUMENTATION, "[Documentation]"),
         ]
         for index, line in enumerate(doc_string.splitlines()):

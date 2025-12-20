@@ -106,7 +106,7 @@ def strip_equals_from_assignment(name: str) -> str:
     return name[:-1].rstrip() if name.endswith("=") else name
 
 
-def split_argument_default_value(arg: str):
+def split_argument_default_value(arg: str) -> tuple[str, str]:
     # From the Robot User Guide:
     # "The syntax for default values is space sensitive. Spaces before
     # the `=` sign are not allowed."
@@ -122,7 +122,7 @@ def keyword_col(node: Keyword) -> int:
     return token_col(node, Token.KEYWORD)
 
 
-def token_col(node: type[Node], *token_type) -> int:
+def token_col(node: Node, *token_type: str) -> int:
     if ROBOT_VERSION.major == 3:
         for tok_type in token_type:
             token = node.get_token(tok_type)
@@ -135,10 +135,10 @@ def token_col(node: type[Node], *token_type) -> int:
 
     if token is None:
         return 1
-    return token.col_offset + 1
+    return int(token.col_offset) + 1
 
 
-def issues_to_lsp_diagnostic(issues: list[Diagnostic]) -> list[dict]:
+def issues_to_lsp_diagnostic(issues: list[Diagnostic]) -> list[dict[str, object]]:
     return [
         {
             "range": {
@@ -170,11 +170,11 @@ def str2bool(v: bool | str) -> bool:
 class AssignmentTypeDetector(ast.NodeVisitor):
     """Visitor for counting number and type of assignments"""
 
-    def __init__(self):
-        self.keyword_sign_counter = Counter()
-        self.keyword_most_common = None
-        self.variables_sign_counter = Counter()
-        self.variables_most_common = None
+    def __init__(self) -> None:
+        self.keyword_sign_counter: Counter[str] = Counter()
+        self.keyword_most_common: str | None = None
+        self.variables_sign_counter: Counter[str] = Counter()
+        self.variables_most_common: str | None = None
 
     def visit_File(self, node: File) -> None:
         self.generic_visit(node)
@@ -200,7 +200,7 @@ class AssignmentTypeDetector(ast.NodeVisitor):
     @staticmethod
     def get_assignment_sign(token_value: str) -> str:
         variable = search_variable(token_value, ignore_errors=True)
-        return variable.after
+        return str(variable.after) if variable.after else ""
 
 
 def parse_assignment_sign_type(value: str) -> str:
@@ -218,12 +218,12 @@ def parse_assignment_sign_type(value: str) -> str:
 
 
 class RecommendationFinder:
-    def find_similar(self, name: str, candidates: list[str] | dict) -> str:
+    def find_similar(self, name: str, candidates: list[str] | dict[str, object]) -> str:
         norm_name = self.normalize(name)
         norm_cand = self.get_normalized_candidates(candidates)
-        matches = []
+        matches: list[str] = []
         for norm in norm_name:
-            matches += self.find(norm, norm_cand.keys())
+            matches += self.find(norm, list(norm_cand.keys()))
         if not matches:
             return ""
         matches = self.get_original_candidates(matches, norm_cand)
@@ -231,7 +231,7 @@ class RecommendationFinder:
         suggestion += "\n".join(f"    {match}" for match in matches)
         return suggestion
 
-    def find(self, name: str, candidates: list[str] | dict, max_matches: int = 5) -> list[str]:
+    def find(self, name: str, candidates: list[str] | dict[str, object], max_matches: int = 5) -> list[str]:
         """Return a list of close matches to `name` from `candidates`."""
         if not name or not candidates:
             return []
@@ -249,7 +249,7 @@ class RecommendationFinder:
         return min(cutoff, max_cutoff)
 
     @staticmethod
-    def normalize(name: str) -> str:
+    def normalize(name: str) -> tuple[str, str]:
         """
         Normalize name.
 
@@ -260,11 +260,13 @@ class RecommendationFinder:
         return " ".join(sorted(norm)), name.replace("-", "").replace("_", "")
 
     @staticmethod
-    def get_original_candidates(candidates: list[str] | dict, norm_candidates: defaultdict[str, list]) -> list[str]:
+    def get_original_candidates(
+        candidates: list[str] | dict[str, object], norm_candidates: defaultdict[str, list[str]]
+    ) -> list[str]:
         """Map found normalized candidates to unique original candidates."""
         return sorted({c for cand in candidates for c in norm_candidates[cand]})
 
-    def get_normalized_candidates(self, candidates: list[str] | dict) -> defaultdict[str, list]:
+    def get_normalized_candidates(self, candidates: list[str] | dict[str, object]) -> defaultdict[str, list[str]]:
         """
         Find all possible variations of the name after normalization.
 
@@ -274,7 +276,7 @@ class RecommendationFinder:
         Different normalization methods try to imitate possible mistakes done when typing name - different order,
         missing `-` etc.
         """
-        norm = defaultdict(list)
+        norm: defaultdict[str, list[str]] = defaultdict(list)
         for cand in candidates:
             for norm_cand in self.normalize(cand):
                 norm[norm_cand].append(cand)
@@ -282,7 +284,7 @@ class RecommendationFinder:
 
 
 class TestTemplateFinder(ast.NodeVisitor):
-    def __init__(self):
+    def __init__(self) -> None:
         self.templated = False
 
     def visit_TestTemplate(self, node: TestTemplate) -> None:
@@ -354,7 +356,7 @@ def find_robot_vars(name: str) -> list[tuple[int, int]]:
     return variables
 
 
-def pattern_type(value: str | None) -> re.Pattern | None:
+def pattern_type(value: str | None) -> re.Pattern[str] | None:
     if value is None:
         return None
     try:
@@ -364,7 +366,7 @@ def pattern_type(value: str | None) -> re.Pattern | None:
     return pattern
 
 
-def compile_rule_pattern(rule_pattern: str) -> re.Pattern:
+def compile_rule_pattern(rule_pattern: str) -> re.Pattern[str]:
     return re.compile(fnmatch.translate(rule_pattern))
 
 
@@ -375,16 +377,17 @@ def get_section_name(node: Section) -> str:
     for token in node.header.data_tokens:
         if ROBOT_VERSION.major > 3:
             if token.type in node.header.handles_types:
-                return token.value
+                return str(token.value)
         elif "HEADER" in token.type:
-            return token.value
+            return str(token.value)
     return ""
 
 
-def get_errors(node: type[Node]) -> tuple[str, ...] | list[str]:
+def get_errors(node: Node) -> tuple[str, ...] | list[str]:
     if ROBOT_VERSION.major == 3:
         return [node.error] if node.error else []
-    return node.errors
+    errors: tuple[str, ...] | list[str] = node.errors
+    return errors
 
 
 def find_escaped_variables(string: str) -> list[str]:

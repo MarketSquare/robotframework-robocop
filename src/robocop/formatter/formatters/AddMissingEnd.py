@@ -1,3 +1,7 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 from robot.api.parsing import Comment, EmptyLine, End, Token
 
 try:
@@ -7,7 +11,12 @@ except ImportError:
 
 from robocop.formatter.disablers import skip_if_disabled, skip_section_if_disabled
 from robocop.formatter.formatters import Formatter
-from robocop.formatter.skip import Skip
+
+if TYPE_CHECKING:
+    from robot.parsing.model.blocks import For, If, Section, Try, While
+    from robot.parsing.model.statements import Statement
+
+    from robocop.formatter.skip import Skip
 
 
 class AddMissingEnd(Formatter):
@@ -36,10 +45,10 @@ class AddMissingEnd(Formatter):
 
     HANDLES_SKIP = frozenset({"skip_sections"})
 
-    def __init__(self, skip: Skip = None):
+    def __init__(self, skip: Skip | None = None):
         super().__init__(skip)
 
-    def fix_block(self, node, expected_type):
+    def fix_block(self, node: For | While, expected_type: str) -> tuple[For | While, ...]:
         self.generic_visit(node)
         self.fix_header_name(node, expected_type)
         outside = []
@@ -49,22 +58,22 @@ class AddMissingEnd(Formatter):
         return (node, *outside)
 
     @skip_section_if_disabled
-    def visit_Section(self, node):  # noqa: N802
+    def visit_Section(self, node: Section) -> Section:  # noqa: N802
         return self.generic_visit(node)
 
     @skip_if_disabled
-    def visit_For(self, node):  # noqa: N802
+    def visit_For(self, node: For) -> tuple[For, ...]:  # noqa: N802
         return self.fix_block(node, Token.FOR)
 
     @skip_if_disabled
-    def visit_While(self, node):  # noqa: N802
+    def visit_While(self, node: While) -> tuple[While, ...]:  # noqa: N802
         return self.fix_block(node, Token.WHILE)
 
     @skip_if_disabled
-    def visit_Try(self, node):  # noqa: N802
+    def visit_Try(self, node: Try) -> tuple[Try, ...]:  # noqa: N802
         self.generic_visit(node)
         if node.type != Token.TRY:
-            return node
+            return node  # type: ignore[no-any-return]
         self.fix_header_name(node, node.type)
         outside = []
         if not node.end:  # fix statement position only if END was missing
@@ -78,7 +87,7 @@ class AddMissingEnd(Formatter):
         return (node, *outside)
 
     @skip_if_disabled
-    def visit_If(self, node):  # noqa: N802
+    def visit_If(self, node: If) -> If | tuple[If, ...]:  # noqa: N802
         self.generic_visit(node)
         if node.type != Token.IF:
             return node
@@ -97,19 +106,19 @@ class AddMissingEnd(Formatter):
         self.fix_end(node)
         return (node, *outside)
 
-    def fix_end(self, node):
+    def fix_end(self, node: For | While | Try | If) -> None:
         """Fix END (missing END, End -> END, END position should be the same as FOR etc)."""
         if node.header.tokens[0].type == Token.SEPARATOR:
             indent = node.header.tokens[0]
         else:
-            indent = Token(Token.SEPARATOR, self.formatting_config.separator)
+            indent = Token(Token.SEPARATOR, self.formatting_config.separator)  # type: ignore[union-attr]
         node.end = End([indent, Token(Token.END, Token.END), Token(Token.EOL)])
 
     @staticmethod
-    def fix_header_name(node, header_name):
+    def fix_header_name(node: For | While | Try | If, header_name: str) -> None:
         node.header.data_tokens[0].value = header_name
 
-    def collect_inside_statements(self, node):
+    def collect_inside_statements(self, node: For | While | Try | If) -> list[list[Statement]]:
         """
         Split statements from node for those that belong to it and outside nodes.
 
@@ -120,7 +129,7 @@ class AddMissingEnd(Formatter):
 
         RF will store 'Other Keyword' inside FOR block even if it should be outside.
         """
-        new_body = [[], []]
+        new_body: list[list[Statement]] = [[], []]
         is_outside = False
         starting_col = self.get_column(node)
         for child in node.body:
@@ -132,18 +141,18 @@ class AddMissingEnd(Formatter):
         return new_body
 
     @staticmethod
-    def get_column(node):
+    def get_column(node: Statement | For | While | Try | If) -> int:
         if hasattr(node, "header"):
-            return node.header.data_tokens[0].col_offset
+            return node.header.data_tokens[0].col_offset  # type: ignore[no-any-return]
         if isinstance(node, Comment):
             token = node.get_token(Token.COMMENT)
-            return token.col_offset
+            return token.col_offset  # type: ignore[no-any-return]
         if not node.data_tokens:
-            return node.col_offset
-        return node.data_tokens[0].col_offset
+            return node.col_offset  # type: ignore[no-any-return]
+        return node.data_tokens[0].col_offset  # type: ignore[no-any-return]
 
     @staticmethod
-    def get_last_or_else(node):
+    def get_last_or_else(node: If) -> If | None:
         if not node.orelse:
             return None
         or_else = node.orelse
@@ -152,7 +161,7 @@ class AddMissingEnd(Formatter):
         return or_else
 
     @staticmethod
-    def get_last_except(node):
+    def get_last_except(node: Try) -> Try | None:
         if not node.next:
             return None
         try_branch = node.next

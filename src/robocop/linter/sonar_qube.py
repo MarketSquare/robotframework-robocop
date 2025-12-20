@@ -1,5 +1,7 @@
 """SonarQube own attributes used in their reporting and dashboards."""
 
+from __future__ import annotations
+
 from dataclasses import dataclass
 from enum import Enum
 

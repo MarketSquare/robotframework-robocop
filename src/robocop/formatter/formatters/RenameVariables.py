@@ -16,6 +16,20 @@ from robocop.formatter.utils import misc, variable_matcher
 from robocop.linter.utils.misc import remove_variable_type_conversion
 
 if TYPE_CHECKING:
+    from robot.parsing.model.blocks import For, Keyword, Section, TestCase, Try, While
+    from robot.parsing.model.statements import (
+        If,
+        KeywordCall,
+        KeywordName,
+        LibraryImport,
+        Setup,
+        Template,
+        TemplateArguments,
+        TestCaseName,
+        Var,
+        Variable,
+    )
+
     from robocop.formatter.skip import Skip
 
 SET_GLOBAL_VARIABLES = {"settestvariable", "settaskvariable", "setsuitevariable", "setglobalvariable"}
@@ -23,8 +37,8 @@ SET_LOCAL_VARIABLE = "setlocalvariable"
 
 
 class RobocopEnumParam(Enum):
-    def __str__(self):
-        return self.value
+    def __str__(self) -> str:
+        return str(self.value)
 
 
 class VariableCase(RobocopEnumParam):
@@ -34,7 +48,7 @@ class VariableCase(RobocopEnumParam):
     AUTO = "auto"
 
     @staticmethod
-    def configurable_value():
+    def configurable_value() -> str:
         return "upper, lower, ignore"
 
 
@@ -44,7 +58,7 @@ class VariableSeparator(RobocopEnumParam):
     IGNORE = "ignore"
 
     @staticmethod
-    def configurable_value():
+    def configurable_value() -> str:
         return ", ".join(field.value for field in VariableSeparator)
 
 
@@ -99,9 +113,9 @@ def resolve_var_name(name: str) -> str:
 
 
 class VariablesScope:
-    def __init__(self):
-        self._local = set()
-        self._global = set()
+    def __init__(self) -> None:
+        self._local: set[str] = set()
+        self._global: set[str] = set()
 
     @staticmethod
     def _get_var_name(variable: str) -> str | None:
@@ -110,13 +124,13 @@ class VariablesScope:
         match = search_variable(variable, ignore_errors=True)
         return remove_variable_type_conversion(match.base)
 
-    def add_global(self, variable: str):
+    def add_global(self, variable: str) -> None:
         var_name = self._get_var_name(variable)
         if not var_name:
             return
         self._global.add(misc.normalize_name(var_name))
 
-    def add_local(self, variable: str, split_pattern: bool = False):
+    def add_local(self, variable: str, split_pattern: bool = False) -> None:
         """
         Add variable name to local cache.
 
@@ -129,7 +143,7 @@ class VariablesScope:
             var_name = var_name.split(":", maxsplit=1)[0]
         self._local.add(misc.normalize_name(var_name))
 
-    def change_scope_from_local_to_global(self, variable: str):
+    def change_scope_from_local_to_global(self, variable: str) -> None:
         """Change the variable scope from local to global by removing it from local cache and adding to global one."""
         var_name = self._get_var_name(variable)
         if not var_name:
@@ -137,10 +151,10 @@ class VariablesScope:
         self._local.discard(misc.normalize_name(var_name))
         self._global.add(misc.normalize_name(var_name))
 
-    def is_local(self, variable: str):
+    def is_local(self, variable: str) -> bool:
         return misc.normalize_name(variable) in self._local
 
-    def is_global(self, variable: str):
+    def is_global(self, variable: str) -> bool:
         return misc.normalize_name(variable) in self._global
 
 
@@ -216,18 +230,18 @@ class RenameVariables(Formatter):
 
     ENABLED = False
     HANDLES_SKIP = frozenset({"skip_sections"})
-    MORE_THAN_2_SPACES: Pattern = re.compile(r"\s{2,}")
-    REPLACE_SPACES: Pattern = re.compile(r"(?<![+\-*|/%=!><&^~]) (?![+\-*|/%=!><&^~])")
-    CAMEL_CASE: Pattern = re.compile(r"((?<=[a-z0-9])[A-Z]|(?!^)[A-Z](?=[a-z]))")
-    EXTENDED_SYNTAX: Pattern = re.compile(r"(.+?)([^\s\w].+)", re.UNICODE)
-    DEFAULT_IGNORE_CASE = {"\\n", "None", "True", "False"}
+    MORE_THAN_2_SPACES: Pattern[str] = re.compile(r"\s{2,}")
+    REPLACE_SPACES: Pattern[str] = re.compile(r"(?<![+\-*|/%=!><&^~]) (?![+\-*|/%=!><&^~])")
+    CAMEL_CASE: Pattern[str] = re.compile(r"((?<=[a-z0-9])[A-Z]|(?!^)[A-Z](?=[a-z]))")
+    EXTENDED_SYNTAX: Pattern[str] = re.compile(r"(.+?)([^\s\w].+)", re.UNICODE)
+    DEFAULT_IGNORE_CASE: set[str] = {"\\n", "None", "True", "False"}
 
     def __init__(
         self,
-        settings_section_case: str = VariableCase.UPPER,
-        variables_section_case: str = VariableCase.UPPER,
-        unknown_variables_case: str = VariableCase.UPPER,
-        variable_separator: str = VariableSeparator.UNDERSCORE,
+        settings_section_case: str | VariableCase = VariableCase.UPPER,
+        variables_section_case: str | VariableCase = VariableCase.UPPER,
+        unknown_variables_case: str | VariableCase = VariableCase.UPPER,
+        variable_separator: str | VariableSeparator = VariableSeparator.UNDERSCORE,
         convert_camel_case: bool = True,
         ignore_case: str | None = None,
         skip: Skip | None = None,
@@ -241,7 +255,7 @@ class RenameVariables(Formatter):
         self.ignore_case = self.get_ignored_variables_case(ignore_case)
         self.variables_scope = VariablesScope()
 
-    def parse_variable_case(self, param_name: str, case: str) -> VariableCase:
+    def parse_variable_case(self, param_name: str, case: str | VariableCase) -> VariableCase:
         try:
             return VariableCase(case)
         except ValueError:
@@ -252,7 +266,7 @@ class RenameVariables(Formatter):
                 f"Invalid case type. Allowed case types are: {VariableCase.configurable_value()}",
             ) from None
 
-    def parse_variable_separator(self, variable_separator: str) -> VariableSeparator:
+    def parse_variable_separator(self, variable_separator: str | VariableSeparator) -> VariableSeparator:
         try:
             return VariableSeparator(variable_separator)
         except ValueError:
@@ -263,18 +277,18 @@ class RenameVariables(Formatter):
                 f"Allowed values are: {VariableSeparator.configurable_value()}",
             ) from None
 
-    def get_ignored_variables_case(self, ignore_vars):
+    def get_ignored_variables_case(self, ignore_vars: str | None) -> set[str]:
         if ignore_vars is None:
             return self.DEFAULT_IGNORE_CASE
         ignored_vars = set(ignore_vars.split(","))
         return ignored_vars.union(self.DEFAULT_IGNORE_CASE)
 
     @skip_section_if_disabled
-    def visit_Section(self, node):  # noqa: N802
+    def visit_Section(self, node: Section) -> Section:  # noqa: N802
         return self.generic_visit(node)
 
     @skip_if_disabled
-    def visit_LibraryImport(self, node):  # noqa: N802
+    def visit_LibraryImport(self, node: LibraryImport) -> LibraryImport:  # noqa: N802
         for data_token in node.data_tokens[1:]:
             data_token.value = self.rename_value(
                 data_token.value, variable_case=self.settings_section_case, is_var=False
@@ -288,7 +302,7 @@ class RenameVariables(Formatter):
     ) = visit_LibraryImport
 
     @skip_if_disabled
-    def visit_Setup(self, node):  # noqa: N802
+    def visit_Setup(self, node: Setup) -> Setup:  # noqa: N802
         for data_token in node.data_tokens[1:]:
             data_token.value = self.rename_value(data_token.value, variable_case=VariableCase.AUTO, is_var=False)
         return self.generic_visit(node)
@@ -298,13 +312,13 @@ class RenameVariables(Formatter):
     )
 
     @skip_if_disabled
-    def visit_Template(self, node):  # noqa: N802
+    def visit_Template(self, node: Template) -> Template:  # noqa: N802
         for data_token in node.data_tokens[1:]:
             data_token.value = self.rename_value(data_token.value, variable_case=VariableCase.LOWER, is_var=False)
         return self.generic_visit(node)
 
     @skip_if_disabled
-    def visit_Variable(self, node):  # noqa: N802
+    def visit_Variable(self, node: Variable) -> Variable:  # noqa: N802
         if node.errors:
             return node
         for data_token in node.data_tokens:
@@ -319,18 +333,18 @@ class RenameVariables(Formatter):
         return node
 
     @skip_if_disabled
-    def visit_TestCase(self, node):  # noqa: N802
+    def visit_TestCase(self, node: TestCase) -> TestCase:  # noqa: N802
         self.variables_scope = VariablesScope()
         return self.generic_visit(node)
 
     @skip_if_disabled
-    def visit_TemplateArguments(self, node):  # noqa: N802
+    def visit_TemplateArguments(self, node: TemplateArguments) -> TemplateArguments:  # noqa: N802
         for arg_template in node.get_tokens(Token.ARGUMENT):
             arg_template.value = self.rename_value(arg_template.value, variable_case=VariableCase.AUTO, is_var=False)
         return self.generic_visit(node)
 
     @skip_if_disabled
-    def visit_TestCaseName(self, node):  # noqa: N802
+    def visit_TestCaseName(self, node: TestCaseName) -> TestCaseName:  # noqa: N802
         for token in node.data_tokens:
             name = ""
             for name_token in token.tokenize_variables():
@@ -343,7 +357,7 @@ class RenameVariables(Formatter):
         return self.generic_visit(node)
 
     @skip_if_disabled
-    def visit_KeywordName(self, node):  # noqa: N802
+    def visit_KeywordName(self, node: KeywordName) -> KeywordName:  # noqa: N802
         for token in node.data_tokens:
             name = ""
             for name_token in token.tokenize_variables():
@@ -357,7 +371,7 @@ class RenameVariables(Formatter):
         return self.generic_visit(node)
 
     @skip_if_disabled
-    def visit_Keyword(self, node):  # noqa: N802
+    def visit_Keyword(self, node: Keyword) -> Keyword:  # noqa: N802
         self.variables_scope = VariablesScope()
         # we need to find arguments before visiting body
         for statement in node.body:
@@ -376,9 +390,9 @@ class RenameVariables(Formatter):
                         arg.value = self.rename_value(arg.value, variable_case=VariableCase.LOWER, is_var=True)
         return self.generic_visit(node)
 
-    def visit_KeywordCall(self, node):  # noqa: N802
+    def visit_KeywordCall(self, node: KeywordCall) -> KeywordCall:  # noqa: N802
         self.handle_set_local_variable(node)
-        if not self.disablers.is_node_disabled("RenameVariables", node):
+        if not self.disablers.is_node_disabled("RenameVariables", node):  # type: ignore[union-attr]
             for token in node.data_tokens:
                 if token.type == Token.ASSIGN:
                     token.value = self.rename_value(token.value, variable_case=VariableCase.LOWER, is_var=False)
@@ -391,7 +405,7 @@ class RenameVariables(Formatter):
         self.uppercase_global_name_in_set_variable(node)
         return node
 
-    def handle_set_local_variable(self, node) -> None:
+    def handle_set_local_variable(self, node: KeywordCall) -> None:
         """Define local variable or reset scope of existing one to local."""
         if not is_set_local_variable(node.keyword):
             return
@@ -399,7 +413,7 @@ class RenameVariables(Formatter):
         if first_arg:
             self.variables_scope.add_local(first_arg.value)
 
-    def uppercase_global_name_in_set_variable(self, node):
+    def uppercase_global_name_in_set_variable(self, node: KeywordCall) -> None:
         if not is_set_global_variable(node.keyword):
             return
         args = node.get_tokens(Token.ARGUMENT)
@@ -411,7 +425,7 @@ class RenameVariables(Formatter):
             self.variables_scope.change_scope_from_local_to_global(resolved_var)
 
     @skip_if_disabled
-    def visit_For(self, node):  # noqa: N802
+    def visit_For(self, node: For) -> For:  # noqa: N802
         for token in node.header:
             if token.type == Token.VARIABLE:
                 self.variables_scope.add_local(token.value)
@@ -421,7 +435,7 @@ class RenameVariables(Formatter):
         return self.generic_visit(node)
 
     @skip_if_disabled
-    def visit_Try(self, node):  # noqa: N802
+    def visit_Try(self, node: Try) -> Try:  # noqa: N802
         for token in node.header.get_tokens(Token.ARGUMENT):
             token.value = self.rename_value(token.value, variable_case=VariableCase.AUTO, is_var=False)
         for token in node.header.get_tokens(Token.VARIABLE):
@@ -430,7 +444,7 @@ class RenameVariables(Formatter):
         return self.generic_visit(node)
 
     @skip_if_disabled
-    def visit_If(self, node):  # noqa: N802
+    def visit_If(self, node: If) -> If:  # noqa: N802
         if node.errors:
             return node
         for token in node.header.data_tokens:
@@ -442,7 +456,7 @@ class RenameVariables(Formatter):
         return self.generic_visit(node)
 
     @skip_if_disabled
-    def visit_While(self, node):  # noqa: N802
+    def visit_While(self, node: While) -> While:  # noqa: N802
         for arg in node.header.get_tokens(Token.ARGUMENT, Token.OPTION):
             arg.value = self.rename_value(arg.value, variable_case=VariableCase.AUTO, is_var=False)
         return self.generic_visit(node)
@@ -450,7 +464,7 @@ class RenameVariables(Formatter):
     visit_Group = visit_While  # noqa: N815
 
     @skip_if_disabled
-    def visit_Var(self, node):  # noqa: N802
+    def visit_Var(self, node: Var) -> Var:  # noqa: N802
         if node.errors:
             return node
         for argument in node.get_tokens(Token.ARGUMENT):
@@ -466,16 +480,16 @@ class RenameVariables(Formatter):
         return node
 
     @staticmethod
-    def _is_var_scope_local(node):
+    def _is_var_scope_local(node: Var) -> bool:
         is_local = True
         for option in node.get_tokens(Token.OPTION):
             if "scope=" in option.value:
                 is_local = option.value.lower() == "scope=local"
         return is_local
 
-    def rename_value(self, value: str, variable_case: VariableCase, is_var: bool = False):
+    def rename_value(self, value: str, variable_case: VariableCase, is_var: bool = False) -> str:
         try:
-            variables = list(variable_matcher.VariableMatches(value))
+            variables = list(variable_matcher.VariableMatches(value))  # type: ignore[attr-defined]
         except VariableError:  # for example ${variable which wasn't closed properly
             variables = []
         if not variables:
@@ -515,7 +529,7 @@ class RenameVariables(Formatter):
                 name += self.rename(after, case=variable_case, strip_fn="rstrip")
         return name
 
-    def set_name_case(self, name: str, case: VariableCase):
+    def set_name_case(self, name: str, case: VariableCase) -> str:
         if name in self.ignore_case:
             return name
         if case == VariableCase.UPPER:
@@ -526,7 +540,7 @@ class RenameVariables(Formatter):
             return self.set_case_for_local_and_global(name)
         return name
 
-    def set_case_for_local_and_global(self, name):
+    def set_case_for_local_and_global(self, name: str) -> str:
         if self.variables_scope.is_local(name):
             return name.lower()
         if self.variables_scope.is_global(name):
@@ -537,7 +551,7 @@ class RenameVariables(Formatter):
         base_name, extended = extended_syntax.groups()
         return self.set_case_for_local_and_global(base_name) + extended
 
-    def rename(self, variable_value: str, case: VariableCase, strip_fn: str = "strip"):
+    def rename(self, variable_value: str, case: VariableCase, strip_fn: str = "strip") -> str:
         if not variable_value:
             return variable_value
         if is_name_hex_or_binary(variable_value):

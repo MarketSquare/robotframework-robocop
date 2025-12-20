@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import re
+from typing import TYPE_CHECKING
 
 from robot.api.parsing import Token
 
@@ -8,10 +9,16 @@ from robocop.exceptions import InvalidParameterValueError
 from robocop.formatter.disablers import skip_if_disabled, skip_section_if_disabled
 from robocop.formatter.formatters import Formatter
 
+if TYPE_CHECKING:
+    from collections.abc import Generator
+
+    from robot.parsing.model.blocks import TestCaseSection
+    from robot.parsing.model.statements import TestCaseName
+
 IGNORE_CHARS = {"(", "[", "{", "!", "?"}
 
 
-def cap_string_until_succeed(word: str):
+def cap_string_until_succeed(word: str) -> Generator[str, None, None]:
     """Yield characters from the word and capitalize character until we are able to make char uppercase."""
     capitalize = True
     for char in word:
@@ -25,7 +32,7 @@ def cap_string_until_succeed(word: str):
         yield char
 
 
-def cap_word(word: str):
+def cap_word(word: str) -> str:
     """
     Capitalize the word. The word can start with ( or contain ':
 
@@ -101,10 +108,12 @@ class RenameTestCases(Formatter):
         replace_pattern: str | None = None,
         replace_to: str | None = None,
         capitalize_each_word: bool = False,
-    ):
+    ) -> None:
         super().__init__()
         try:
-            self.replace_pattern = re.compile(replace_pattern) if replace_pattern is not None else None
+            self.replace_pattern: re.Pattern[str] | None = (
+                re.compile(replace_pattern) if replace_pattern is not None else None
+            )
         except re.error as err:
             raise InvalidParameterValueError(
                 self.__class__.__name__,
@@ -116,11 +125,11 @@ class RenameTestCases(Formatter):
         self.capitalize_each_word = capitalize_each_word
 
     @skip_section_if_disabled
-    def visit_TestCaseSection(self, node):  # noqa: N802
+    def visit_TestCaseSection(self, node: TestCaseSection) -> TestCaseSection:  # noqa: N802
         return self.generic_visit(node)
 
     @skip_if_disabled
-    def visit_TestCaseName(self, node):  # noqa: N802
+    def visit_TestCaseName(self, node: TestCaseName) -> TestCaseName:  # noqa: N802
         token = node.get_token(Token.TESTCASE_NAME)
         if token.value:
             if self.capitalize_each_word:

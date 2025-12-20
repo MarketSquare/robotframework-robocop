@@ -1,11 +1,19 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 from robot.variables.search import VariableMatch, search_variable
+
+if TYPE_CHECKING:
+    from collections.abc import Iterator, Sequence
+
+__all__ = ["VariableMatches"]
 
 try:
     from robot.variables import VariableMatches
 except ImportError:
-    from collections.abc import Iterator, Sequence
 
-    class VariableMatches:
+    class VariableMatches:  # type: ignore[no-redef]
         def __init__(self, string: str, identifiers: Sequence[str] = "$@&%", ignore_errors: bool = False):
             self.string = string
             self.identifiers = identifiers

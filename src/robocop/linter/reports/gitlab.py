@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import hashlib
 from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 import robocop.linter.reports
 from robocop.files import get_relative_path
@@ -43,11 +43,11 @@ class GitlabReport(robocop.linter.reports.JsonFileReport):
         self.description = "Generate Gitlab Code Quality output file"
         super().__init__(output_path="robocop-code-quality.json", config=config)
 
-    def generate_report(self, diagnostics: Diagnostics, **kwargs) -> None:  # noqa: ARG002
+    def generate_report(self, diagnostics: Diagnostics, **kwargs: object) -> None:  # type: ignore[override]  # noqa: ARG002
         report = self.generate_gitlab_report(diagnostics)
         super().generate_report(report, "Gitlab Code Quality")
 
-    def generate_gitlab_report(self, diagnostics: Diagnostics) -> list[dict]:
+    def generate_gitlab_report(self, diagnostics: Diagnostics) -> list[dict[str, Any]]:
         report = []
         cwd = Path.cwd()
         for source, diag_by_source in diagnostics.diag_by_source.items():

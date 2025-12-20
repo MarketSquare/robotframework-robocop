@@ -1,11 +1,14 @@
+from __future__ import annotations
+
 from pathlib import Path
+from typing import Any
 
 import robocop.linter.reports
-from robocop.config import Config, ConfigManager
+from robocop.config import Config, ConfigManager  # noqa: TC001
 from robocop.exceptions import ConfigurationError
 from robocop.files import get_relative_path
 from robocop.linter import sonar_qube
-from robocop.linter.diagnostics import Diagnostic, Diagnostics
+from robocop.linter.diagnostics import Diagnostic, Diagnostics  # noqa: TC001
 from robocop.linter.rules import Rule, RuleSeverity
 
 
@@ -47,7 +50,7 @@ class SonarQubeReport(robocop.linter.reports.JsonFileReport):
         super().__init__(output_path="robocop_sonar_qube.json", config=config)
 
     @property
-    def report_generator(self):
+    def report_generator(self) -> type[SonarQubeGenerator]:
         return {
             "9.9": SonarQubeDescriptor99,
             "10.3": SonarQubeDescriptor103,
@@ -62,17 +65,22 @@ class SonarQubeReport(robocop.linter.reports.JsonFileReport):
         else:
             super().configure(name, value)
 
-    def generate_report(self, diagnostics: Diagnostics, config_manager: ConfigManager, **kwargs) -> None:  # noqa: ARG002
-        report = self.report_generator().generate_sonarqube_report(diagnostics, config_manager.root)
+    def generate_report(  # type: ignore[override]
+        self,
+        diagnostics: Diagnostics,
+        config_manager: ConfigManager,
+        **kwargs: object,  # noqa: ARG002
+    ) -> None:
+        report = self.report_generator().generate_sonarqube_report(diagnostics, Path(config_manager.root))
         super().generate_report(report, "SonarQube")
 
 
 class SonarQubeGenerator:
-    def get_code_attributes(self, rule: Rule) -> dict:
+    def get_code_attributes(self, rule: Rule) -> dict[str, Any]:
         raise NotImplementedError
 
     @staticmethod
-    def get_sonar_qube_range(diagnostic: Diagnostic) -> dict:
+    def get_sonar_qube_range(diagnostic: Diagnostic) -> dict[str, int]:
         text_range = diagnostic.range
         # reports on empty lines for SPC, reports outside end col for LEN08
         if diagnostic.rule.rule_id in {"SPC03", "SPC04", "SPC05", "SPC09", "SPC10", "SPC12", "LEN08"}:
@@ -86,7 +94,7 @@ class SonarQubeGenerator:
             "endColumn": max(text_range.end.character - 1, 0),
         }
 
-    def get_issue_description(self, diagnostic: Diagnostic, source_rel: str) -> dict:
+    def get_issue_description(self, diagnostic: Diagnostic, source_rel: str) -> dict[str, Any]:
         return {
             "ruleId": diagnostic.rule.rule_id,
             "primaryLocation": {
@@ -96,7 +104,7 @@ class SonarQubeGenerator:
             },
         }
 
-    def get_rule_description(self, diagnostic: Diagnostic) -> dict:
+    def get_rule_description(self, diagnostic: Diagnostic) -> dict[str, Any]:
         return {
             "id": diagnostic.rule.rule_id,
             "name": diagnostic.rule.name,
@@ -105,9 +113,9 @@ class SonarQubeGenerator:
             **self.get_code_attributes(diagnostic.rule),
         }
 
-    def generate_sonarqube_report(self, diagnostics: Diagnostics, root: Path) -> dict:
-        report = {"rules": [], "issues": []}
-        seen_rules = set()
+    def generate_sonarqube_report(self, diagnostics: Diagnostics, root: Path) -> dict[str, Any]:
+        report: dict[str, Any] = {"rules": [], "issues": []}
+        seen_rules: set[str] = set()
         for source, diag_by_source in diagnostics.diag_by_source.items():
             source_rel = str(get_relative_path(source, root).as_posix())
             for diagnostic in diag_by_source:
@@ -127,11 +135,11 @@ class SonarQubeDescriptor99(SonarQubeGenerator):
             RuleSeverity.ERROR: "MAJOR",
         }[rule_severity]
 
-    def get_code_attributes(self, rule: Rule) -> dict:
+    def get_code_attributes(self, rule: Rule) -> dict[str, Any]:
         if rule.sonar_qube_attrs:
             issue_type = rule.sonar_qube_attrs.issue_type.value
             clean_code_attr = rule.sonar_qube_attrs.clean_code.value
-            if issue_type == sonar_qube.SonarQubeIssueType.BUG:
+            if rule.sonar_qube_attrs.issue_type == sonar_qube.SonarQubeIssueType.BUG:
                 severity = "BLOCKER"
             else:
                 severity = self.map_severity(rule.severity)
@@ -151,7 +159,7 @@ class SonarQubeDescriptor103(SonarQubeGenerator):
             RuleSeverity.ERROR: "HIGH",
         }[rule_severity]
 
-    def get_code_attributes(self, rule: Rule) -> dict:
+    def get_code_attributes(self, rule: Rule) -> dict[str, Any]:
         if rule.sonar_qube_attrs:
             clean_code_attr = rule.sonar_qube_attrs.clean_code.value
         else:

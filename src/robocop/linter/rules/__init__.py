@@ -35,18 +35,19 @@ from importlib import import_module
 from inspect import isclass
 from pathlib import Path
 from textwrap import dedent
-from typing import TYPE_CHECKING, Any, Callable, NoReturn
+from typing import TYPE_CHECKING, Any
 
 from robot.utils import FileReader
+from typing_extensions import Self
 
 from robocop import __version__, exceptions
 from robocop.linter.diagnostics import Diagnostic
 from robocop.linter.utils.version_matching import Version, VersionSpecifier
 
 try:
-    import annotationlib
+    import annotationlib  # type: ignore[import-not-found]
 except ImportError:  # Python < 3.14
-    annotationlib = None
+    annotationlib = None  # type: ignore[assignment,unused-ignore]
 
 try:
     from robot.api.parsing import ModelVisitor
@@ -54,10 +55,12 @@ except ImportError:
     from robot.parsing.model.visitor import ModelVisitor
 
 if TYPE_CHECKING:
-    from collections.abc import Generator
+    import types
+    from collections.abc import Callable, Generator
     from re import Pattern
 
     from robot.parsing import File
+    from robot.parsing.model.statements import Node
 
     from robocop.config import ConfigManager, LinterConfig
     from robocop.linter import sonar_qube
@@ -117,7 +120,7 @@ class RuleSeverity(Enum):
     ERROR = "E"
 
     @classmethod
-    def parser(cls, value: str | RuleSeverity, rule_severity=True) -> RuleSeverity:
+    def parser(cls, value: str | RuleSeverity, rule_severity: bool = True) -> RuleSeverity:
         # parser can be invoked from Rule() with severity=RuleSeverity.WARNING (enum directly) or
         # from configuration with severity:W (string representation)
         severity = {
@@ -138,10 +141,12 @@ class RuleSeverity(Enum):
             raise exceptions.ConfigurationError(f"Invalid severity value '{value}'. {hint}") from None
         return severity
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.value
 
-    def __lt__(self, other):
+    def __lt__(self, other: object) -> bool:
+        if not isinstance(other, RuleSeverity):
+            return NotImplemented
         look_up = [sev.value for sev in RuleSeverity]
         return look_up.index(self.value) < look_up.index(other.value)
 
@@ -162,13 +167,13 @@ class RuleFilter(str, Enum):
     STYLE_GUIDE = "STYLE_GUIDE"
 
 
-def rule_matches_pattern(rule: Rule, pattern: str | Pattern) -> bool:
+def rule_matches_pattern(rule: Rule, pattern: str | Pattern[str]) -> bool:
     if isinstance(pattern, str):
         return pattern in (rule.name, rule.rule_id)
-    return pattern.match(rule.name) or pattern.match(rule.rule_id)
+    return bool(pattern.match(rule.name) or pattern.match(rule.rule_id))
 
 
-def filter_rules_by_pattern(rules: dict[str, Rule], pattern: Pattern) -> list[Rule]:
+def filter_rules_by_pattern(rules: dict[str, Rule], pattern: Pattern[str]) -> list[Rule]:
     """Return sorted list of Rules from rules dictionary, filtered out by pattern."""
     return rules_sorted_by_id(
         {rule.rule_id: rule for rule in rules.values() if rule_matches_pattern(rule, pattern) and not rule.deprecated}
@@ -204,7 +209,9 @@ class RuleParam:
     Each rule can have number of parameters (default one is severity).
     """
 
-    def __init__(self, name: str, default: Any, converter: Callable, desc: str, show_type: str | None = None):
+    def __init__(
+        self, name: str, default: Any, converter: Callable[[Any], Any], desc: str, show_type: str | None = None
+    ):
         """
         :param name: Name of the parameter used when configuring rule (also displayed in the docs)
         :param default: Default value of the parameter
@@ -221,26 +228,26 @@ class RuleParam:
         self._value = None
         self.value = default
 
-    def __str__(self):
+    def __str__(self) -> str:
         s = f"{self.name} = {self.raw_value}\n        type: {self.converter.__name__}"
         if self.desc:
             s += f"\n        info: {self.desc}"
         return s
 
     @property
-    def value(self):
+    def value(self) -> Any:
         return self._value
 
     @value.setter
-    def value(self, value) -> None:
+    def value(self, value: Any) -> None:
         self.raw_value = value  # useful for docs/printing
         try:
             self._value = self.converter(value)
         except ValueError as err:
-            raise exceptions.RuleParamFailedInitError(self, value, str(err)) from None
+            raise exceptions.RuleParamFailedInitError(self, value, Exception(str(err))) from None
 
     @property
-    def param_type(self):
+    def param_type(self) -> str:
         if self.show_type is None:
             return self.converter.__name__
         return self.show_type
@@ -264,24 +271,24 @@ class SeverityThreshold:
     with threshold ranges.
     """
 
-    def __init__(self, param_name, compare_method="greater", substitute_value=None):
+    def __init__(self, param_name: str, compare_method: str = "greater", substitute_value: str | None = None):
         self.name = "severity_threshold"
         self.param_name = param_name
-        self.thresholds = None
+        self.thresholds: list[tuple[RuleSeverity, int]] | None = None
         self.compare_method = compare_method
         self.substitute_value = substitute_value
 
     @property
-    def value(self):
+    def value(self) -> list[tuple[RuleSeverity, int]] | None:
         """Property syntax is used to match with RuleParam converting logic."""
         return self.thresholds
 
     @value.setter
-    def value(self, value) -> None:
+    def value(self, value: str) -> None:
         self.set_thresholds(value)
 
     @staticmethod
-    def parse_severity(value):
+    def parse_severity(value: str) -> RuleSeverity:
         # TODO can be replaced with RuleSeverity.parse with False flag
         severity = {
             "error": RuleSeverity.ERROR,
@@ -297,7 +304,7 @@ class SeverityThreshold:
             raise exceptions.ConfigurationError(f"Invalid severity value '{value}'. {hint}") from None
         return severity
 
-    def set_thresholds(self, value) -> None:
+    def set_thresholds(self, value: str) -> None:
         severity_pairs = value.split(":")
         thresholds = []
         for pair in severity_pairs:
@@ -319,7 +326,7 @@ class SeverityThreshold:
             return value <= threshold
         return False
 
-    def get_severity(self, value: int):
+    def get_severity(self, value: int) -> RuleSeverity | None:
         if self.thresholds is None:
             return None
         for severity, threshold in self.thresholds:
@@ -335,12 +342,14 @@ class SeverityThreshold:
         """
         if value is None:
             return None
+        if self.thresholds is None:
+            return None
         for _, threshold in self.thresholds:
             if self.check_condition(value, threshold):
                 return threshold
         return None
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.name
 
 
@@ -385,19 +394,19 @@ class Rule:
     sonar_qube_attrs: sonar_qube.SonarQubeAttributes | None = None
     deprecated_names: tuple[str,] | None = None
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.version_spec = VersionSpecifier(self.version) if self.version else None
         self.default_severity = self.severity  # used for defaultConfiguration in Sarif report
         self.config = self._parse_parameters()
         self.supported_version = self.version if self.version else "All"
 
-    def _parse_parameters(self) -> dict[str, RuleParam]:
+    def _parse_parameters(self) -> dict[str, RuleParam | SeverityThreshold]:
         """
         Create internal config of the rule.
 
         By default, each rule contains severity parameter.
         """
-        config = {
+        config: dict[str, RuleParam | SeverityThreshold] = {
             "severity": RuleParam(
                 name="severity",
                 default=self.severity,
@@ -414,7 +423,7 @@ class Rule:
             config[param.name] = param
         return config
 
-    def __getattr__(self, name: str):
+    def __getattr__(self, name: str) -> Any:
         if name in self.config:
             return self.config[name].value
         raise AttributeError(f"Rule {self.name} does not have {name} attribute")
@@ -437,7 +446,7 @@ class Rule:
         return description
 
     @property
-    def description_with_configurables(self):
+    def description_with_configurables(self) -> str:
         description = self.description
         count, configurables = self.available_configurables(include_severity=False)
         if not count:
@@ -449,7 +458,7 @@ class Rule:
         """Used when rule is deprecated and used in configuration."""
         return f"Rule {self.severity}{self.rule_id} {self.name} is deprecated. Remove it from your configuration."
 
-    def get_severity_with_threshold(self, threshold_value):
+    def get_severity_with_threshold(self, threshold_value: int | None) -> RuleSeverity:
         if threshold_value is None:
             return self.severity
         if self.severity_threshold is None:
@@ -479,7 +488,7 @@ class Rule:
             enable_desc = "disabled"
         return f"Rule - {self.rule_id} [{self.severity}]: {self.name}: {self.message} ({enable_desc})"
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"Rule [{self.rule_id}]: {self.name} {self.message}"
 
     def configure(self, param: str, value: str) -> None:
@@ -493,9 +502,9 @@ class Rule:
         self.config[param].value = value
         # If you want to use the same parameter name as Rule attribute (for example severity), you need to skip getattr
         if param == "severity":
-            self.severity = self.config[param].value
+            self.severity = self.config[param].value  # type: ignore[assignment]
 
-    def available_configurables(self, include_severity: bool = True):
+    def available_configurables(self, include_severity: bool = True) -> tuple[int, str]:
         params = []
         for param in self.config.values():
             if (param.name == "severity" and not include_severity) or param.name == "enabled":
@@ -507,29 +516,29 @@ class Rule:
         text = "\n    ".join(params)
         return count, text
 
-    def matches_pattern(self, pattern: str | Pattern):  # TODO: move outside, used by one place
+    def matches_pattern(self, pattern: str | Pattern[str]) -> bool:  # TODO: move outside, used by one place
         """Check if this rule matches given pattern"""
         if isinstance(pattern, str):
             return pattern in (self.name, self.rule_id)
-        return pattern.match(self.name) or pattern.match(self.rule_id)
+        return bool(pattern.match(self.name) or pattern.match(self.rule_id))
 
 
 class BaseChecker:
-    rules = None
-    robocop_rule_types = None
+    rules: dict[str, Rule] | None = None
+    robocop_rule_types: dict[str, Any] | None = None
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.disabled = False
-        self.source: Path = None
-        self.ast_model: File = None
-        self.lines = None
-        self.issues = []
+        self.source: Path | None = None
+        self.ast_model: File | None = None
+        self.lines: list[str] | None = None
+        self.issues: list[Diagnostic] = []
         self.rules: dict[str, Rule] = {}
         self.templated_suite = False
 
-    def __new__(cls):
+    def __new__(cls) -> Self:
         if annotationlib:
-            types = annotationlib.get_annotations(cls)
+            types = annotationlib.get_annotations(cls)  # type: ignore[attr-defined,unused-ignore]
         else:
             types = getattr(cls, "__annotations__", None)
         instance = super().__new__(cls)
@@ -543,12 +552,12 @@ class BaseChecker:
         col: int | None = None,
         end_lineno: int | None = None,
         end_col: int | None = None,
-        node=None,
+        node: Node | None = None,
         extended_disablers: tuple[int, int] | None = None,
         sev_threshold_value: int | None = None,
         source: str | None = None,
         ast_model: File | None = None,
-        **kwargs,
+        **kwargs: object,
     ) -> None:
         if not rule.enabled:
             return
@@ -567,7 +576,7 @@ class BaseChecker:
             col=col,
             end_lineno=end_lineno,
             end_col=end_col,
-            source=source or self.source,
+            source=source or self.source,  # type: ignore[arg-type]  # source or self.source can be None
             extended_disablers=extended_disablers,
             sev_threshold_value=sev_threshold_value,
             **kwargs,
@@ -575,7 +584,7 @@ class BaseChecker:
         self.issues.append(diagnostic)
 
 
-class VisitorChecker(BaseChecker, ModelVisitor):
+class VisitorChecker(BaseChecker, ModelVisitor):  # type: ignore[misc]
     def scan_file(
         self, ast_model: File, filename: Path, in_memory_content: str | None, templated: bool = False
     ) -> list[Diagnostic]:
@@ -632,12 +641,18 @@ class RawFileChecker(BaseChecker):
                 for lineno, line in enumerate(file_reader.readlines()):
                     self.check_line(line, lineno + 1)
 
-    def check_line(self, line, lineno) -> NoReturn:
+    def check_line(self, line: str, lineno: int) -> None:
         raise NotImplementedError
 
 
 class AfterRunChecker(BaseChecker):
-    def scan_file(self, ast_model: File, filename: Path, in_memory_content: str | None, **kwargs) -> list[Diagnostic]:  # noqa: ARG002
+    def scan_file(
+        self,
+        ast_model: File,
+        filename: Path,
+        in_memory_content: str | None,
+        **kwargs: object,  # noqa: ARG002
+    ) -> list[Diagnostic]:
         self.issues: list[Diagnostic] = []
         self.source = filename
         self.ast_model = ast_model
@@ -645,36 +660,37 @@ class AfterRunChecker(BaseChecker):
             self.lines = in_memory_content.splitlines(keepends=True)
         else:
             self.lines = None
+        return self.issues
 
 
-def is_checker(checker_class_def: tuple) -> bool:
+def is_checker(checker_class_def: tuple[str, type]) -> bool:
     return issubclass(checker_class_def[1], BaseChecker)
 
 
-def inherits_from(child, parent_name: str) -> bool:
+def inherits_from(child: type, parent_name: str) -> bool:
     return parent_name in [c.__name__ for c in inspect.getmro(child)[1:-1]]
 
 
-def is_rule(rule_class_def: tuple) -> bool:
+def is_rule(rule_class_def: tuple[str, type]) -> bool:
     return inherits_from(rule_class_def[1], "Rule")
     # return issubclass(rule_class_def[1], Rule) TODO does not work as is_checker for some reason
 
 
 class RobocopImporter:
-    def __init__(self, external_rules_paths=None):
+    def __init__(self, external_rules_paths: list[str] | None = None) -> None:
         self.internal_checkers_dir = Path(__file__).parent
-        self.external_rules_paths = external_rules_paths
-        self.imported_modules = set()
-        self.seen_modules = set()
-        self.seen_checkers = defaultdict(list)
-        self.deprecated_rules = {}
+        self.external_rules_paths = external_rules_paths if external_rules_paths else []
+        self.imported_modules: set[str] = set()
+        self.seen_modules: set[types.ModuleType] = set()
+        self.seen_checkers: defaultdict[str, list[list[str]]] = defaultdict(list)
+        self.deprecated_rules: dict[str, Rule] = {}
 
-    def get_initialized_checkers(self):
+    def get_initialized_checkers(self) -> Generator[BaseChecker, None, None]:
         for module in self.get_internal_modules():
             yield from self._get_initialized_checkers_from_module(module)
         yield from self._get_checkers_from_modules(self.get_external_modules())
 
-    def get_internal_modules(self):
+    def get_internal_modules(self) -> Generator[types.ModuleType, None, None]:
         rules_package_name = "robocop.linter.rules."
         # when robocop is used as module (in pytest or in IDE tools) we need to clear previously imported rules
         for mod in list(sys.modules.keys()):
@@ -683,7 +699,7 @@ class RobocopImporter:
         for _, module_name, _ in pkgutil.iter_modules([str(self.internal_checkers_dir)]):
             yield importlib.import_module(f"{rules_package_name}{module_name}")
 
-    def get_external_modules(self):
+    def get_external_modules(self) -> Generator[types.ModuleType, None, None]:
         for ext_rule_path in self.external_rules_paths:
             # Allow relative imports in external rules folder
             sys.path.append(ext_rule_path)
@@ -691,7 +707,9 @@ class RobocopImporter:
             # TODO: we can remove those paths from sys.path after importing
         return self.modules_from_paths([*self.external_rules_paths], recursive=True)
 
-    def _get_checkers_from_modules(self, modules):  # noqa: ANN202
+    def _get_checkers_from_modules(
+        self, modules: Generator[types.ModuleType, None, None]
+    ) -> Generator[BaseChecker, None, None]:
         for module in modules:
             if module in self.seen_modules:
                 continue
@@ -700,25 +718,29 @@ class RobocopImporter:
                     yield from self._get_initialized_checkers_from_module(submodule)
             yield from self._get_initialized_checkers_from_module(module)
 
-    def _get_initialized_checkers_from_module(self, module):  # noqa: ANN202
+    def _get_initialized_checkers_from_module(self, module: types.ModuleType) -> Generator[BaseChecker, None, None]:
         self.seen_modules.add(module)
         for checker_instance in self.get_checkers_from_module(module):
             if not self.is_checker_already_imported(checker_instance):
                 yield checker_instance
 
-    def is_checker_already_imported(self, checker) -> bool:
+    def is_checker_already_imported(self, checker: BaseChecker) -> bool:
         """
         Check if checker was already imported.
 
         Checker name does not have to be unique, but it should use different rules.
         """
         checker_name = checker.__class__.__name__
+        if not checker.rules:
+            return False
         if checker_name in self.seen_checkers and sorted(checker.rules.keys()) in self.seen_checkers[checker_name]:
             return True
         self.seen_checkers[checker_name].append(sorted(checker.rules.keys()))
         return False
 
-    def modules_from_paths(self, paths, recursive=True):
+    def modules_from_paths(
+        self, paths: list[str | Path], recursive: bool = True
+    ) -> Generator[types.ModuleType, None, None]:
         for path in paths:
             path_object = Path(path)
             if path_object.exists():
@@ -731,26 +753,29 @@ class RobocopImporter:
             else:
                 # if it's not physical path, try to import from installed modules
                 try:
-                    mod = import_module(path)
-                    yield from self._iter_imports(Path(mod.__file__))
+                    mod = import_module(str(path))
+                    if mod.__file__:
+                        yield from self._iter_imports(Path(mod.__file__))
                     yield mod
                 except ImportError:
-                    raise exceptions.InvalidExternalCheckerError(path) from None
+                    raise exceptions.InvalidExternalCheckerError(str(path)) from None
 
-    def _import_module_from_file(self, file_path):  # noqa: ANN202
+    def _import_module_from_file(self, file_path: Path) -> types.ModuleType:
         """
         Import Python file as module.
 
         importlib does not support importing Python files directly, and we need to create module specification first.
         """
         spec = importlib.util.spec_from_file_location(file_path.stem, file_path)
+        if spec is None or spec.loader is None:
+            raise ImportError(f"Cannot import module from {file_path}")
         mod = importlib.util.module_from_spec(spec)
         sys.modules[spec.name] = mod
         spec.loader.exec_module(mod)
         return mod
 
     @staticmethod
-    def _find_imported_modules(module: ast.Module):
+    def _find_imported_modules(module: ast.Module) -> Generator[str, None, None]:
         """
         Return modules imported using `import module.dot.submodule` syntax.
 
@@ -761,7 +786,7 @@ class RobocopImporter:
                 for n in st.names:
                     yield n.name
 
-    def _iter_imports(self, file_path: Path):  # noqa: ANN202
+    def _iter_imports(self, file_path: Path) -> Generator[types.ModuleType, None, None]:
         """Discover Python imports in the file using ast module."""
         try:
             parsed = ast.parse(file_path.read_bytes())
@@ -783,7 +808,7 @@ class RobocopImporter:
                 self.deprecated_rules[rule_name] = rule_def
                 self.deprecated_rules[rule_def.rule_id] = rule_def
 
-    def _import_rule_class(self, module: ast.Module, rule_class: str) -> Rule | None:
+    def _import_rule_class(self, module: types.ModuleType, rule_class: str) -> type[Rule] | None:
         """
         Import class definition using typing information.
 
@@ -794,15 +819,15 @@ class RobocopImporter:
             other_module, rule_class = rule_class.rsplit(".", maxsplit=1)
             module = getattr(module, other_module)
         try:
-            return getattr(module, rule_class)
+            return getattr(module, rule_class)  # type: ignore[no-any-return]
         except AttributeError:  # TODO: for example dict[type[Node] typing instead of rule def
             return None
 
-    def get_checker_rules(self, checker_class: type[BaseChecker], module) -> dict[str, Rule]:
+    def get_checker_rules(self, checker_class: type[BaseChecker], module: types.ModuleType) -> dict[str, Rule]:
         # TODO if other checker uses the same rule, return it instead of creating new instance
         if not checker_class.robocop_rule_types:
             return {}
-        rules = {}
+        rules: dict[str, Rule] = {}
         for name, rule_class in checker_class.robocop_rule_types.items():
             if isinstance(rule_class, str):  # if from future import annotations was used, or lazy annotation
                 rule_class = self._import_rule_class(module, rule_class)
@@ -812,7 +837,7 @@ class RobocopImporter:
             rules[name] = rule_instance
         return rules
 
-    def get_checkers_from_module(self, module) -> list:
+    def get_checkers_from_module(self, module: types.ModuleType) -> list[BaseChecker]:
         # FIXME do not inspect / enter external libs such as re..
         classes = inspect.getmembers(module, inspect.isclass)
         checkers = [checker[1]() for checker in classes if is_checker(checker)]

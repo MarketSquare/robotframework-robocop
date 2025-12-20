@@ -1,13 +1,18 @@
 from __future__ import annotations
 
+from typing import TYPE_CHECKING, Any
+
 from robot.api import Token
 from robot.parsing.model.blocks import Keyword, TestCase
 
 from robocop.linter import sonar_qube
 from robocop.linter.rules import Rule, RuleParam, RuleSeverity, VisitorChecker
 
+if TYPE_CHECKING:
+    from robot.parsing import File
 
-def parse_order_comma_sep_list(value: str, mapping: dict) -> list:
+
+def parse_order_comma_sep_list(value: str, mapping: dict[str, Any]) -> list[str]:
     ordered = []
     for item in value.split(","):
         item_lower = item.lower()
@@ -17,7 +22,7 @@ def parse_order_comma_sep_list(value: str, mapping: dict) -> list:
     return ordered
 
 
-def parse_keyword_order_param(value: str) -> list:
+def parse_keyword_order_param(value: str) -> list[str]:
     mapping = {
         "documentation": Token.DOCUMENTATION,
         "tags": Token.TAGS,
@@ -30,7 +35,7 @@ def parse_keyword_order_param(value: str) -> list:
     return parse_order_comma_sep_list(value, mapping)
 
 
-def parse_test_case_order_param(value: str) -> list:
+def parse_test_case_order_param(value: str) -> list[str]:
     mapping = {
         "documentation": Token.DOCUMENTATION,
         "tags": Token.TAGS,
@@ -43,8 +48,8 @@ def parse_test_case_order_param(value: str) -> list:
     return parse_order_comma_sep_list(value, mapping)
 
 
-def configure_sections_order(value):
-    section_map = {
+def configure_sections_order(value: str) -> dict[str, int]:
+    section_map: dict[str, str] = {
         "settings": Token.SETTING_HEADER,
         "variables": Token.VARIABLE_HEADER,
         "testcase": Token.TESTCASE_HEADER,
@@ -54,7 +59,7 @@ def configure_sections_order(value):
         "keyword": Token.KEYWORD_HEADER,
         "keywords": Token.KEYWORD_HEADER,
     }
-    sections_order = {}
+    sections_order: dict[str, int] = {}
     for index, name in enumerate(value.split(",")):
         if name.lower() not in section_map or section_map[name.lower()] in sections_order:
             raise ValueError(f"Invalid section name: `{name}`")
@@ -246,12 +251,12 @@ class TestAndKeywordOrderChecker(VisitorChecker):
     test_case_section_out_of_order: TestCaseSectionOutOfOrderRule
     keyword_section_out_of_order: KeywordSectionOutOfOrderRule
 
-    def __init__(self):
-        self.rules_by_node_type = {}
-        self.expected_order = {}
+    def __init__(self) -> None:
+        self.rules_by_node_type: dict[type[Keyword | TestCase], Rule] = {}
+        self.expected_order: dict[type[Keyword | TestCase], list[str]] = {}
         super().__init__()
 
-    def visit_File(self, node) -> None:  # noqa: N802
+    def visit_File(self, node: File) -> None:  # noqa: N802
         self.rules_by_node_type = {
             Keyword: self.keyword_section_out_of_order,
             TestCase: self.test_case_section_out_of_order,
@@ -262,7 +267,7 @@ class TestAndKeywordOrderChecker(VisitorChecker):
         }
         self.generic_visit(node)
 
-    def check_order(self, node) -> None:
+    def check_order(self, node: Keyword | TestCase) -> None:
         max_order_indicator = -1
         for subnode in node.body:
             try:

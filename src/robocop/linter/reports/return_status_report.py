@@ -1,8 +1,14 @@
+from __future__ import annotations
+
 from collections import defaultdict
+from typing import TYPE_CHECKING
 
 import robocop.linter.reports
-from robocop.config import Config
-from robocop.linter.diagnostics import Diagnostics
+
+if TYPE_CHECKING:
+    from robocop.config import Config
+    from robocop.linter.diagnostics import Diagnostics
+    from robocop.linter.rules import RuleSeverity
 
 
 class ReturnStatusReport(robocop.linter.reports.Report):
@@ -33,8 +39,8 @@ class ReturnStatusReport(robocop.linter.reports.Report):
             except ValueError:
                 continue
 
-    def generate_report(self, diagnostics: Diagnostics, **kwargs) -> None:  # noqa: ARG002
-        severity_counter = defaultdict(int)
+    def generate_report(self, diagnostics: Diagnostics, **kwargs: object) -> None:  # type: ignore[override]  # noqa: ARG002
+        severity_counter: defaultdict[RuleSeverity, int] = defaultdict(int)
         for diagnostic in diagnostics:
             severity_counter[diagnostic.severity] += 1
         for severity, count in severity_counter.items():

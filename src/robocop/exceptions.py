@@ -16,7 +16,7 @@ _P = ParamSpec("_P")
 _R = TypeVar("_R")
 
 
-class FatalError(typer.Exit):
+class FatalError(typer.Exit):  # type: ignore[misc, unused-ignore]
     def __init__(self, msg: str):
         console = Console(stderr=True)
         console.print(f"[red]{self.__class__.__name__}[/red]: {msg}")

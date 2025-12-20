@@ -157,7 +157,7 @@ class PrintIssuesReport(robocop.linter.reports.Report):
         self.console.print("\n".join(line.expandtabs(4).rstrip() for line in lines))
 
     def _code_string(self, line: str) -> str:
-        return escape(line.expandtabs(4))
+        return escape(line.expandtabs(4))  # type: ignore[no-any-return, unused-ignore]
 
     def _print_issue_with_lines(self, lines: list[str], source_rel_path: Path, diagnostic: Diagnostic) -> None:
         """

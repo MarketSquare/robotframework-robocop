@@ -1,8 +1,16 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 from robot.api.parsing import Comment, CommentSection, EmptyLine
 
 from robocop.formatter.disablers import skip_section_if_disabled
 from robocop.formatter.formatters import Formatter
-from robocop.formatter.skip import Skip
+
+if TYPE_CHECKING:
+    from robot.parsing.model.blocks import Section
+
+    from robocop.formatter.skip import Skip
 
 
 class DiscardEmptySections(Formatter):
@@ -20,13 +28,13 @@ class DiscardEmptySections(Formatter):
 
     HANDLES_SKIP = frozenset({"skip_sections"})
 
-    def __init__(self, allow_only_comments: bool = True, skip: Skip = None):
+    def __init__(self, allow_only_comments: bool = True, skip: Skip | None = None):
         super().__init__(skip)
         # If False then sections with only comments are considered to be empty
         self.allow_only_comments = allow_only_comments
 
     @skip_section_if_disabled
-    def visit_Section(self, node):  # noqa: N802
+    def visit_Section(self, node: Section) -> Section | None:  # noqa: N802
         anything_but = (
             EmptyLine if self.allow_only_comments or isinstance(node, CommentSection) else (Comment, EmptyLine)
         )

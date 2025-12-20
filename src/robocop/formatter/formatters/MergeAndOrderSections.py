@@ -1,3 +1,7 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 from robot.api.parsing import EmptyLine, SectionHeader, Token
 from robot.parsing.model.statements import Statement
 
@@ -16,6 +20,9 @@ try:
 except ImportError:
     InvalidSection = None
 from robocop.formatter.formatters import Formatter
+
+if TYPE_CHECKING:
+    from robot.parsing.model.blocks import File, Section
 
 
 class MergeAndOrderSections(Formatter):
@@ -65,8 +72,8 @@ class MergeAndOrderSections(Formatter):
         self.sections_order = self.parse_order(order)
         self.create_comment_section = create_comment_section
 
-    def parse_order(self, order):
-        default_order = (
+    def parse_order(self, order: str) -> tuple[str | int, ...]:
+        default_order: tuple[str | int, ...] = (
             self.LANGUAGE_MARKER_SECTION,
             Token.COMMENT_HEADER,
             Token.SETTING_HEADER,
@@ -92,8 +99,11 @@ class MergeAndOrderSections(Formatter):
             "keywords": Token.KEYWORD_HEADER,
             "keyword": Token.KEYWORD_HEADER,
         }
-        parsed_order = [self.LANGUAGE_MARKER_SECTION]
-        parsed_order.extend([map_names.get(part) for part in parts])
+        parsed_order: list[str | int] = [self.LANGUAGE_MARKER_SECTION]
+        for part in parts:
+            mapped_value = map_names.get(part)
+            if mapped_value is not None:
+                parsed_order.append(mapped_value)
         # all sections need to be here, and either tasks or test cases or both of them
         any_of_sections = [Token.TESTCASE_HEADER, "TASK HEADER"]
         required_sections = [section for section in default_order if section not in any_of_sections]
@@ -112,12 +122,12 @@ class MergeAndOrderSections(Formatter):
                 "Custom order should be provided in comma separated list with all section names:\n"
                 "order=comments,settings,variables,testcases,tasks,variables",
             )
-        return parsed_order
+        return tuple(parsed_order)
 
-    def visit_File(self, node):  # noqa: N802
+    def visit_File(self, node: File) -> File:  # noqa: N802
         if len(node.sections) < 2:
             return node
-        sections = {}
+        sections: dict[str | int, Section] = {}
         last = len(node.sections) - 1
         for index, section in enumerate(node.sections):
             if index == last:
@@ -142,15 +152,15 @@ class MergeAndOrderSections(Formatter):
         return node
 
     @staticmethod
-    def normalize_eol(tokens):
-        new_tokens = []
+    def normalize_eol(tokens: list[Token]) -> list[Token]:
+        new_tokens: list[Token] = []
         for tok in tokens:
             if tok.type == Token.EOL:
                 tok.value = "\n"
             new_tokens.append(tok)
         return new_tokens
 
-    def from_last_section(self, node):
+    def from_last_section(self, node: Section) -> Section:
         """
         Preserve empty lines for last section.
 
@@ -195,7 +205,7 @@ class MergeAndOrderSections(Formatter):
             node.body[-1].body[-1] = Statement.from_tokens(self.normalize_eol(last_statement.tokens))
         return node
 
-    def get_section_type(self, section):
+    def get_section_type(self, section: Section) -> str | int:
         header_tokens = (
             Token.COMMENT_HEADER,
             Token.TESTCASE_HEADER,
@@ -206,10 +216,10 @@ class MergeAndOrderSections(Formatter):
         )
         if section.header:
             name_token = section.header.get_token(*header_tokens)
-            return name_token.type
+            return name_token.type  # type: ignore[no-any-return]
         if Config and any(isinstance(child, Config) for child in section.body):
             return self.LANGUAGE_MARKER_SECTION
         section_type = Token.COMMENT_HEADER
         if self.create_comment_section:
             section.header = SectionHeader.from_params(section_type, "*** Comments ***")
-        return section_type
+        return section_type  # type: ignore[no-any-return]

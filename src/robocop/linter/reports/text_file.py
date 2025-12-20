@@ -1,10 +1,15 @@
+from __future__ import annotations
+
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 import robocop.linter.reports
-from robocop.config import Config
 from robocop.exceptions import FatalError
 from robocop.files import get_relative_path
-from robocop.linter.diagnostics import Diagnostic, Diagnostics
+
+if TYPE_CHECKING:
+    from robocop.config import Config
+    from robocop.linter.diagnostics import Diagnostic, Diagnostics
 
 
 class TextFile(robocop.linter.reports.Report):
@@ -29,9 +34,9 @@ class TextFile(robocop.linter.reports.Report):
         self.diagn_by_source: dict[str, list[Diagnostic]] = {}
         super().__init__(config)
 
-    def generate_report(self, diagnostics: Diagnostics, **kwargs) -> None:  # noqa: ARG002
+    def generate_report(self, diagnostics: Diagnostics, **kwargs: object) -> None:  # type: ignore[override]  # noqa: ARG002
         cwd = Path.cwd()
-        messages = []
+        messages: list[str] = []
         for source, diag_by_source in diagnostics.diag_by_source.items():
             source_rel = get_relative_path(source, cwd)
             messages.extend(

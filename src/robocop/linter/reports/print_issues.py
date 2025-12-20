@@ -25,7 +25,7 @@ class OutputFormat(Enum):
     GROUPED = "grouped"
 
     @classmethod
-    def _missing_(cls, value) -> NoReturn:
+    def _missing_(cls, value: object) -> NoReturn:
         choices = [choice.value for choice in cls.__members__.values()]
         raise ValueError(f"{value} is not a valid {cls.__name__}, please choose from {choices}") from None
 
@@ -86,7 +86,7 @@ class PrintIssuesReport(robocop.linter.reports.Report):
         self.description = "Collect and print rules messages"
         self.diagn_by_source: dict[str, list[Diagnostic]] = {}
         self.output_format = OutputFormat.EXTENDED
-        self.issue_format = None
+        self.issue_format: str | None = None
         self.console = Console(highlight=False, soft_wrap=True, emoji=False)
         super().__init__(config)
 
@@ -150,7 +150,7 @@ class PrintIssuesReport(robocop.linter.reports.Report):
         return StatementLinesCollector(model).text.splitlines()
 
     @staticmethod
-    def _gutter(line_no: int | str, gutter_width: int, indent: str):
+    def _gutter(line_no: int | str, gutter_width: int, indent: str) -> str:
         return f"[cyan]{line_no:>{gutter_width}} |[/cyan]{indent}"
 
     def _print_lines(self, lines: list[str]) -> None:
@@ -242,10 +242,11 @@ class PrintIssuesReport(robocop.linter.reports.Report):
                     source_lines = self._get_source_lines(diagnostic.model)
                 self._print_issue_with_lines(source_lines, source_rel, diagnostic)
 
-    def generate_report(self, diagnostics: Diagnostics, **kwargs) -> None:  # noqa: ARG002
+    def generate_report(self, diagnostics: Diagnostics, **kwargs: object) -> None:  # type: ignore[override]  # noqa: ARG002
         if self.config.silent:
             return
-        if hasattr(sys.stdout, "reconfigure"):
+        # reconfigure is available from Python 3.7+
+        if hasattr(sys.stdout, "reconfigure") and hasattr(sys.stderr, "reconfigure"):
             sys.stdout.reconfigure(encoding="utf-8")
             sys.stderr.reconfigure(encoding="utf-8")
         if self.output_format == OutputFormat.SIMPLE:

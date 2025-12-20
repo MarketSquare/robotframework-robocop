@@ -1,13 +1,19 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, ParamSpec, TypeVar
 
 import typer
 from rich.console import Console
 from robot.errors import DataError
 
 if TYPE_CHECKING:
-    from robocop.linter.rules import Rule
+    from collections.abc import Callable
+
+    from robocop.linter.reports import Report
+    from robocop.linter.rules import Rule, RuleParam
+
+_P = ParamSpec("_P")
+_R = TypeVar("_R")
 
 
 class FatalError(typer.Exit):
@@ -22,13 +28,13 @@ class InvalidConfigurationError(FatalError):
 
 
 class InvalidParameterValueError(InvalidConfigurationError):
-    def __init__(self, formatter, param, value, msg):
+    def __init__(self, formatter: str, param: str, value: object, msg: str) -> None:
         exc_msg = f"{formatter}: Invalid '{param}' parameter value: '{value}'. {msg}"
         super().__init__(exc_msg)
 
 
 class InvalidParameterError(InvalidConfigurationError):
-    def __init__(self, formatter, similar):
+    def __init__(self, formatter: str, similar: str) -> None:
         super().__init__(
             f"{formatter}: Failed to import. Verify if correct name or configuration was provided.{similar}"
         )
@@ -48,13 +54,13 @@ class ConfigurationError(FatalError):
 
 
 class InvalidExternalCheckerError(FatalError):
-    def __init__(self, path):
+    def __init__(self, path: str) -> None:
         msg = f'Fatal error: Failed to load external rules from file "{path}". Verify if the file exists'
         super().__init__(msg)
 
 
 class RuleParamNotFoundError(FatalError):  # TODO, not used
-    def __init__(self, rule, param, checker):
+    def __init__(self, rule: Rule, param: str, checker: object) -> None:
         super().__init__(
             f"Rule `{rule.name}` in `{checker.__class__.__name__}` checker does not contain `{param}` param. "
             f"Available params:\n    {rule.available_configurables()[1]}"
@@ -62,7 +68,7 @@ class RuleParamNotFoundError(FatalError):  # TODO, not used
 
 
 class RuleParamFailedInitError(FatalError):
-    def __init__(self, param, value, err):
+    def __init__(self, param: RuleParam, value: Any, err: Exception) -> None:
         desc = f"    Parameter info: {param.desc}" if param.desc else ""
         super().__init__(
             f"Failed to configure param `{param.name}` with value `{value}`. Received error `{err}`.\n"
@@ -71,7 +77,7 @@ class RuleParamFailedInitError(FatalError):
 
 
 class InvalidReportName(FatalError):
-    def __init__(self, report, reports):
+    def __init__(self, report: str, reports: dict[str, Report]) -> None:
         from robocop.linter.utils.misc import RecommendationFinder  # noqa: PLC0415
 
         report_names = sorted([*list(reports.keys()), "all"])
@@ -82,15 +88,18 @@ class InvalidReportName(FatalError):
 
 class RuleDoesNotExist(FatalError):  # not used atm
     def __init__(self, rule: str, rules: dict[str, Rule]):
+        from typing import cast  # noqa: PLC0415
+
         from robocop.linter.utils.misc import RecommendationFinder  # noqa: PLC0415
 
-        similar = RecommendationFinder().find_similar(rule, rules)
+        rules_dict: dict[str, object] = cast("dict[str, object]", rules)
+        similar = RecommendationFinder().find_similar(rule, rules_dict)
         msg = f"Provided rule '{rule}' does not exist. {similar}"
         super().__init__(msg)
 
 
 class RobotFrameworkParsingError(Exception):
-    def __init__(self):
+    def __init__(self) -> None:
         msg = (
             "Fatal exception occurred when using Robot Framework parsing module. "
             "Consider updating Robot Framework to recent stable version."
@@ -103,7 +112,7 @@ class CircularExtendsReferenceError(FatalError):
         super().__init__(f"Circular reference found in 'extends' parameter in the configuration file: {config_path}")
 
 
-def handle_robot_errors(func):
+def handle_robot_errors(func: Callable[_P, _R]) -> Callable[_P, _R]:
     """
     Handle bugs in Robot Framework.
 
@@ -111,7 +120,7 @@ def handle_robot_errors(func):
     source code due to a bug that is already fixed in the more recent version.
     """
 
-    def wrap_errors(*args, **kwargs):  # noqa: ANN202
+    def wrap_errors(*args: _P.args, **kwargs: _P.kwargs) -> _R:
         try:
             return func(*args, **kwargs)
         except DataError:

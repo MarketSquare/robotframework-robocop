@@ -1,6 +1,9 @@
+from __future__ import annotations
+
 import ast
 import re
 from collections import Counter
+from typing import TYPE_CHECKING
 
 from robot.api.parsing import Token, Variable
 from robot.variables.search import search_variable
@@ -8,7 +11,12 @@ from robot.variables.search import search_variable
 from robocop.exceptions import InvalidParameterValueError
 from robocop.formatter.disablers import skip_if_disabled, skip_section_if_disabled
 from robocop.formatter.formatters import Formatter
-from robocop.formatter.skip import Skip
+
+if TYPE_CHECKING:
+    from robot.parsing.model.blocks import File, Section, VariableSection
+    from robot.parsing.model.statements import KeywordCall, Var
+
+    from robocop.formatter.skip import Skip
 
 
 class NormalizeAssignments(Formatter):
@@ -65,18 +73,18 @@ class NormalizeAssignments(Formatter):
     HANDLES_SKIP = frozenset({"skip_sections"})
 
     def __init__(
-        self, equal_sign_type: str = "autodetect", equal_sign_type_variables: str = "remove", skip: Skip = None
+        self, equal_sign_type: str = "autodetect", equal_sign_type_variables: str = "remove", skip: Skip | None = None
     ):
         super().__init__(skip)
         self.remove_equal_sign = re.compile(r"\s?=$")
-        self.file_equal_sign_type = None
-        self.file_equal_sign_type_variables = None
+        self.file_equal_sign_type: str | None = None
+        self.file_equal_sign_type_variables: str | None = None
         self.equal_sign_type = self.parse_equal_sign_type(equal_sign_type, "equal_sign_type")
         self.equal_sign_type_variables = self.parse_equal_sign_type(
             equal_sign_type_variables, "equal_sign_type_variables"
         )
 
-    def parse_equal_sign_type(self, value, name):
+    def parse_equal_sign_type(self, value: str, name: str) -> str | None:
         types = {
             "remove": "",
             "equal_sign": "=",
@@ -92,7 +100,7 @@ class NormalizeAssignments(Formatter):
             )
         return types[value]
 
-    def visit_File(self, node):  # noqa: N802
+    def visit_File(self, node: File) -> File:  # noqa: N802
         """
         If no assignment sign was set the file will be scanned to find most common assignment sign.
 
@@ -112,27 +120,27 @@ class NormalizeAssignments(Formatter):
         return node
 
     @skip_section_if_disabled
-    def visit_Section(self, node):  # noqa: N802
+    def visit_Section(self, node: Section) -> Section:  # noqa: N802
         return self.generic_visit(node)
 
     @skip_if_disabled
-    def visit_KeywordCall(self, node):  # noqa: N802
+    def visit_KeywordCall(self, node: KeywordCall) -> KeywordCall:  # noqa: N802
         if node.assign:  # if keyword returns any value
             assign_tokens = node.get_tokens(Token.ASSIGN)
             self.normalize_equal_sign(assign_tokens[-1], self.equal_sign_type, self.file_equal_sign_type)
         return node
 
     @skip_if_disabled
-    def visit_Var(self, node):  # noqa: N802
+    def visit_Var(self, node: Var) -> Var:  # noqa: N802
         for variable in node.get_tokens(Token.VARIABLE):
             self.normalize_equal_sign(variable, self.equal_sign_type, self.file_equal_sign_type)
         return node
 
-    def visit_VariableSection(self, node):  # noqa: N802
+    def visit_VariableSection(self, node: VariableSection) -> VariableSection:  # noqa: N802
         for child in node.body:
             if not isinstance(child, Variable):
                 continue
-            if self.disablers.is_node_disabled("NormalizeAssignments", child):
+            if self.disablers.is_node_disabled("NormalizeAssignments", child):  # type: ignore[union-attr]
                 continue
             var_token = child.get_token(Token.VARIABLE)
             self.normalize_equal_sign(
@@ -142,7 +150,7 @@ class NormalizeAssignments(Formatter):
             )
         return node
 
-    def normalize_equal_sign(self, token, overwrite, local_normalize):
+    def normalize_equal_sign(self, token: Token, overwrite: str | None, local_normalize: str | None) -> None:
         token.value = re.sub(self.remove_equal_sign, "", token.value)
         if overwrite:
             token.value += overwrite
@@ -150,36 +158,37 @@ class NormalizeAssignments(Formatter):
             token.value += local_normalize
 
     @staticmethod
-    def auto_detect_equal_sign(node):
+    def auto_detect_equal_sign(node: File) -> tuple[str | None, str | None]:
         auto_detector = AssignmentTypeDetector()
         auto_detector.visit(node)
         return auto_detector.most_common, auto_detector.most_common_variables
 
 
 class AssignmentTypeDetector(ast.NodeVisitor):
-    def __init__(self):
-        self.sign_counter, self.sign_counter_variables = Counter(), Counter()
-        self.most_common = None
-        self.most_common_variables = None
+    def __init__(self) -> None:
+        self.sign_counter: Counter[str] = Counter()
+        self.sign_counter_variables: Counter[str] = Counter()
+        self.most_common: str | None = None
+        self.most_common_variables: str | None = None
 
-    def visit_File(self, node):
+    def visit_File(self, node: File) -> None:
         self.generic_visit(node)
         if len(self.sign_counter) >= 2:
             self.most_common = self.sign_counter.most_common(1)[0][0]
         if len(self.sign_counter_variables) >= 2:
             self.most_common_variables = self.sign_counter_variables.most_common(1)[0][0]
 
-    def visit_KeywordCall(self, node):
+    def visit_KeywordCall(self, node: KeywordCall) -> None:
         if node.assign:  # if keyword returns any value
             sign = self.get_assignment_sign(node.assign[-1])
             self.sign_counter[sign] += 1
 
-    def visit_Var(self, node):
+    def visit_Var(self, node: Var) -> None:
         for token in node.get_tokens(Token.VARIABLE):
             sign = self.get_assignment_sign(token.value)
             self.sign_counter[sign] += 1
 
-    def visit_VariableSection(self, node):
+    def visit_VariableSection(self, node: VariableSection) -> VariableSection:
         for child in node.body:
             if not isinstance(child, Variable):
                 continue
@@ -189,6 +198,6 @@ class AssignmentTypeDetector(ast.NodeVisitor):
         return node
 
     @staticmethod
-    def get_assignment_sign(token_value):
+    def get_assignment_sign(token_value: str) -> str:
         variable_match = search_variable(token_value, ignore_errors=True)
-        return variable_match.after
+        return variable_match.after  # type: ignore[no-any-return]

@@ -1,11 +1,16 @@
+from __future__ import annotations
+
 from datetime import datetime, timezone
+from typing import TYPE_CHECKING
 from warnings import warn
 
 import pytz
 
 import robocop.linter.reports
 from robocop import exceptions
-from robocop.config import Config
+
+if TYPE_CHECKING:
+    from robocop.config import Config
 
 
 class TimestampReport(robocop.linter.reports.Report):
@@ -57,7 +62,7 @@ class TimestampReport(robocop.linter.reports.Report):
         self.format = "%Y-%m-%d %H:%M:%S %z"
         super().__init__(config)
 
-    def configure(self, name, value) -> None:
+    def configure(self, name: str, value: str) -> None:
         if name == "timezone":
             self.timezone = value
         elif name == "format":
@@ -68,7 +73,7 @@ class TimestampReport(robocop.linter.reports.Report):
         else:
             super().configure(name, value)
 
-    def generate_report(self, **kwargs) -> None:  # noqa: ARG002
+    def generate_report(self, **kwargs: object) -> None:  # noqa: ARG002
         if self.config.silent:
             return
         print(f"\nReported: {self._get_timestamp()}")

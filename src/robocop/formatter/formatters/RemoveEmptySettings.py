@@ -1,10 +1,17 @@
+from __future__ import annotations
+
 import ast
+from typing import TYPE_CHECKING
 
 from robot.api.parsing import Token
 
 from robocop.exceptions import InvalidParameterValueError
 from robocop.formatter.disablers import skip_section_if_disabled
 from robocop.formatter.formatters import Formatter
+
+if TYPE_CHECKING:
+    from robot.parsing.model.blocks import File, Section
+    from robot.parsing.model.statements import Statement
 
 
 # TODO: preserve comments?
@@ -47,7 +54,7 @@ class RemoveEmptySettings(Formatter):
             )
         self.work_mode = work_mode
         self.more_explicit = more_explicit
-        self.overwritten_settings = set()
+        self.overwritten_settings: set[str] = set()
         self.child_types = {
             Token.SETUP,
             Token.TEARDOWN,
@@ -57,14 +64,14 @@ class RemoveEmptySettings(Formatter):
         }
 
     @skip_section_if_disabled
-    def visit_Section(self, node):  # noqa: N802
+    def visit_Section(self, node: Section) -> Section:  # noqa: N802
         return self.generic_visit(node)
 
-    def visit_Statement(self, node):  # noqa: N802
+    def visit_Statement(self, node: Statement) -> Statement | None:  # noqa: N802
         # when not setting type or setting type but not empty
         if node.type not in Token.SETTING_TOKENS or len(node.data_tokens) != 1:
             return node
-        if self.disablers.is_node_disabled("RemoveEmptySettings", node):
+        if self.disablers.is_node_disabled("RemoveEmptySettings", node):  # type: ignore[union-attr]
             return node
         # when empty and not overwriting anything - remove
         if (
@@ -79,44 +86,44 @@ class RemoveEmptySettings(Formatter):
             node.tokens = [
                 Token(Token.SEPARATOR, indent),
                 setting_token,
-                Token(Token.SEPARATOR, self.formatting_config.separator),
+                Token(Token.SEPARATOR, self.formatting_config.separator),  # type: ignore[union-attr]
                 Token(Token.ARGUMENT, "NONE"),
                 Token(Token.EOL, "\n"),
             ]
         return node
 
-    def visit_File(self, node):  # noqa: N802
+    def visit_File(self, node: File) -> None:  # noqa: N802
         if self.work_mode == "overwrite_ok":
             self.overwritten_settings = self.find_overwritten_settings(node)
         self.generic_visit(node)
         self.overwritten_settings = set()
 
     @staticmethod
-    def find_overwritten_settings(node):
+    def find_overwritten_settings(node: File) -> set[str]:
         auto_detector = FindSuiteSettings()
         auto_detector.visit(node)
         return auto_detector.suite_settings
 
 
 class FindSuiteSettings(ast.NodeVisitor):
-    def __init__(self):
-        self.suite_settings = set()
+    def __init__(self) -> None:
+        self.suite_settings: set[str] = set()
 
-    def check_setting(self, node, overwritten_type):
+    def check_setting(self, node: Statement, overwritten_type: str) -> None:
         if len(node.data_tokens) != 1:
             self.suite_settings.add(overwritten_type)
 
-    def visit_TestSetup(self, node):
+    def visit_TestSetup(self, node: Statement) -> None:
         self.check_setting(node, Token.SETUP)
 
-    def visit_TestTeardown(self, node):
+    def visit_TestTeardown(self, node: Statement) -> None:
         self.check_setting(node, Token.TEARDOWN)
 
-    def visit_TestTemplate(self, node):
+    def visit_TestTemplate(self, node: Statement) -> None:
         self.check_setting(node, Token.TEMPLATE)
 
-    def visit_TestTimeout(self, node):
+    def visit_TestTimeout(self, node: Statement) -> None:
         self.check_setting(node, Token.TIMEOUT)
 
-    def visit_DefaultTags(self, node):
+    def visit_DefaultTags(self, node: Statement) -> None:
         self.check_setting(node, Token.TAGS)

@@ -1,8 +1,16 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 from robot.api.parsing import Token
 from robot.utils.normalizing import normalize_whitespace
 
 from robocop.formatter.disablers import skip_if_disabled, skip_section_if_disabled
 from robocop.formatter.formatters import Formatter
+
+if TYPE_CHECKING:
+    from robot.parsing.model.blocks import Section
+    from robot.parsing.model.statements import Statement
 
 
 class NormalizeSettingName(Formatter):
@@ -39,11 +47,11 @@ class NormalizeSettingName(Formatter):
     """
 
     @skip_section_if_disabled
-    def visit_Section(self, node):  # noqa: N802
+    def visit_Section(self, node: Section) -> Section:  # noqa: N802
         return self.generic_visit(node)
 
     @skip_if_disabled
-    def visit_Statement(self, node):  # noqa: N802
+    def visit_Statement(self, node: Statement) -> Statement:  # noqa: N802
         if node.type not in Token.SETTING_TOKENS:
             return node
         name = node.data_tokens[0].value
@@ -55,5 +63,5 @@ class NormalizeSettingName(Formatter):
         return node
 
     @staticmethod
-    def normalize_name(name):
-        return normalize_whitespace(name).strip().title()
+    def normalize_name(name: str) -> str:
+        return normalize_whitespace(name).strip().title()  # type: ignore[no-any-return]

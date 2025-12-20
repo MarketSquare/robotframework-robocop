@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, NoReturn
+from typing import TYPE_CHECKING, Any, NoReturn
 
 import typer
 from robot.api import get_init_model, get_model, get_resource_model
@@ -21,13 +21,14 @@ if TYPE_CHECKING:
 
     from robocop.config import Config, ConfigManager
     from robocop.linter.diagnostics import Diagnostic
+    from robocop.linter.reports import Report
 
 
 class RobocopLinter:
-    def __init__(self, config_manager: ConfigManager):
+    def __init__(self, config_manager: ConfigManager) -> None:
         self.config_manager = config_manager
-        self.current_model: File = None
-        self.reports: dict[str, reports.Report] = reports.get_reports(self.config_manager.default_config)
+        self.current_model: File | None = None
+        self.reports: dict[str, Report] = reports.get_reports(self.config_manager.default_config)
         self.diagnostics: list[Diagnostic] = []
         self.configure_reports()
 
@@ -61,7 +62,7 @@ class RobocopLinter:
             configuration language.
 
         """
-        self.diagnostics: list[Diagnostic] = []
+        self.diagnostics = []
         files = 0
         for source, config in self.config_manager.paths:
             if config.verbose:
@@ -78,7 +79,7 @@ class RobocopLinter:
         if not files and not self.config_manager.default_config.silent:
             print("No Robot files were found with the existing configuration.")
         if "file_stats" in self.reports:
-            self.reports["file_stats"].files_count = files
+            self.reports["file_stats"].files_count = files  # type: ignore[attr-defined]
         self.make_reports()
         if self.config_manager.default_config.linter.return_result:
             return self.diagnostics
@@ -105,12 +106,12 @@ class RobocopLinter:
                 continue
             found_diagnostics += [
                 diagnostic
-                for diagnostic in checker.scan_file(model, file_path, in_memory_content, templated)
+                for diagnostic in checker.scan_file(model, file_path, in_memory_content, templated)  # type: ignore[attr-defined]
                 if not (diagnostic.severity < config.linter.threshold or disablers.is_rule_disabled(diagnostic))
             ]
             if disablers.file_disabled and found_diagnostics:  # special case to not report disabler as not used
                 return []
-        for checker in config.linter.after_run_checkers:
+        for checker in config.linter.after_run_checkers or []:
             if checker.disabled:
                 continue
             found_diagnostics += [
@@ -129,13 +130,13 @@ class RobocopLinter:
         return found_diagnostics
 
     def run_project_checks(self) -> list[Diagnostic]:
-        self.diagnostics: list[Diagnostic] = []
+        self.diagnostics = []
         config = self.config_manager.default_config
         if config.linter.project_checkers is None:
             config.linter.load_configuration()
-        for checker in config.linter.project_checkers:
+        for checker in config.linter.project_checkers or []:
             checker.issues = []
-            checker.scan_project(self.config_manager)
+            checker.scan_project(self.config_manager)  # type: ignore[attr-defined]
             self.diagnostics.extend(
                 [diagnostic for diagnostic in checker.issues if not (diagnostic.severity < config.linter.threshold)]
             )
@@ -159,12 +160,12 @@ class RobocopLinter:
         if self.config_manager.default_config.linter.exit_zero:
             exit_code = 0
         elif "return_status" in self.reports:
-            exit_code = self.reports["return_status"].return_status
+            exit_code = self.reports["return_status"].return_status  # type: ignore[attr-defined]
         else:
             exit_code = 1 if issues_count else 0
         raise typer.Exit(code=exit_code)
 
-    def configure_reports(self):
+    def configure_reports(self) -> None:
         """Configure reports using default configuration only."""
         for config in self.config_manager.default_config.linter.configure:
             try:  # TODO custom parser to apply in linter/formatter/here
@@ -181,7 +182,7 @@ class RobocopLinter:
                 self.reports[name].configure(param, value)
 
     def make_reports(self) -> None:
-        report_results = {}
+        report_results: dict[str, Any] = {}
         prev_results = reports.load_reports_result_from_cache()
         prev_results = prev_results.get(str(self.config_manager.root)) if prev_results is not None else None
         is_persistent = self.config_manager.default_config.linter.persistent

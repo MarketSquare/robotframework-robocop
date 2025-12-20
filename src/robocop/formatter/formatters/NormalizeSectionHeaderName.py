@@ -1,8 +1,16 @@
+from __future__ import annotations
+
 import string
+from typing import TYPE_CHECKING
 
 from robocop.formatter.disablers import skip_section_if_disabled
 from robocop.formatter.formatters import Formatter
-from robocop.formatter.skip import Skip
+
+if TYPE_CHECKING:
+    from robot.parsing.model.blocks import Section
+    from robot.parsing.model.statements import SectionHeader
+
+    from robocop.formatter.skip import Skip
 
 
 class NormalizeSectionHeaderName(Formatter):
@@ -36,17 +44,24 @@ class NormalizeSectionHeaderName(Formatter):
     """
 
     HANDLES_SKIP = frozenset({"skip_sections"})
-    EN_SINGULAR_HEADERS = {"comment", "setting", "variable", "task", "test case", "keyword"}
+    EN_SINGULAR_HEADERS = {
+        "comment",
+        "setting",
+        "variable",
+        "task",
+        "test case",
+        "keyword",
+    }
 
-    def __init__(self, uppercase: bool = False, skip: Skip = None):
+    def __init__(self, uppercase: bool = False, skip: Skip | None = None) -> None:
         super().__init__(skip)
         self.uppercase = uppercase
 
     @skip_section_if_disabled
-    def visit_Section(self, node):  # noqa: N802
+    def visit_Section(self, node: Section) -> Section:  # noqa: N802
         return self.generic_visit(node)
 
-    def visit_SectionHeader(self, node):  # noqa: N802
+    def visit_SectionHeader(self, node: SectionHeader) -> SectionHeader:  # noqa: N802
         if not node.name:
             return node
         # only normalize, and if found in english ones then add plural

@@ -3,16 +3,14 @@ name = "robotframework-robocop"
 description = "Static code analysis tool (linter) and code formatter for Robot Framework"
 readme = "README.md"
 authors = [
-  { name = "Bartlomiej Hirsz", email = "bartek.hirsz@gmail.com" },
-  { name = "Mateusz Nojek", email = "matnojek@gmail.com" },
-]
-maintainers = [
     { name = "Bartlomiej Hirsz", email = "bartek.hirsz@gmail.com" },
+    { name = "Mateusz Nojek", email = "matnojek@gmail.com" },
 ]
-requires-python = ">=3.9"
+maintainers = [{ name = "Bartlomiej Hirsz", email = "bartek.hirsz@gmail.com" }]
+requires-python = ">=3.10"
 dependencies = [
     "jinja2>=3.1.4",
-    "robotframework>=4.0,<7.5",
+    "robotframework>=5.0,<7.5",
     "typer-slim>=0.12.5",
     "rich>=10.11.0",
     "tomli==2.2.1; python_version < '3.11'",
@@ -22,13 +20,21 @@ dependencies = [
     "pytz>=2022.7",
 ]
 
-keywords = ["robotframework", "automation", "testautomation", "testing", "linter", "qa", "formatting", "formatter"]
+keywords = [
+    "robotframework",
+    "automation",
+    "testautomation",
+    "testing",
+    "linter",
+    "qa",
+    "formatting",
+    "formatter",
+]
 classifiers = [
     "Development Status :: 5 - Production/Stable",
     "License :: OSI Approved :: Apache Software License",
     "Operating System :: OS Independent",
     "Programming Language :: Python",
-    "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
@@ -39,7 +45,7 @@ classifiers = [
     "Topic :: Software Development :: Testing",
     "Topic :: Software Development :: Quality Assurance",
     "Topic :: Utilities",
-    "Intended Audience :: Developers"
+    "Intended Audience :: Developers",
 ]
 
 dynamic = ["version"]
@@ -73,6 +79,7 @@ dev = [
     "pytest-xdist>=3.6.1",
     "ruff==0.14.8",
     "pysonar",
+    "mypy>=1.19.1",
 ]
 doc = [
     "mkdocs",
@@ -86,13 +93,13 @@ doc = [
 [tool.ruff]
 line-length = 120
 show-fixes = true
-target-version = "py39"
+target-version = "py310"
 lint.select = [
     "ALL", # include all the rules, including new ones
 ]
 lint.ignore = [
     #### modules
-    "DJ",  # django
+    "DJ", # django
     "PD", # pandas
     #"C90", # mccabe complexity
 
@@ -100,58 +107,58 @@ lint.ignore = [
     "PTH", # flake8-use-pathlib
     #"TID", # flake8-tidy-imports
     #### specific rules
-    "D100", # missing docstring in public module
-    "D101", # missing docstring in public class
-    "D102", # missing docstring in public method
-    "D103", # missing docstring in public function
-    "D104", # missing docstring in public package
-    "D105", # missing docstring in magic method
-    "D107", # missing docstring in __init__
-    "D203", # blank line before class
-    "D212", # multi-line docstring summary should start at the first line
-    "D400", # first line should end with a period
-    "D415", # first line should end with period, question mark or exlamation point
-    "ANN204", # missing type annotation for __init__
-    "EM102", # exception with fstring
-    "TD002", # 'to do' without author
-    "PT011", # pytest.raises is too broad
-    "S101", # use of assert
-    "COM812", # trailing commas
-    "FIX002", # code with to do - check all of them later
+    "D100",    # missing docstring in public module
+    "D101",    # missing docstring in public class
+    "D102",    # missing docstring in public method
+    "D103",    # missing docstring in public function
+    "D104",    # missing docstring in public package
+    "D105",    # missing docstring in magic method
+    "D107",    # missing docstring in __init__
+    "D203",    # blank line before class
+    "D212",    # multi-line docstring summary should start at the first line
+    "D400",    # first line should end with a period
+    "D415",    # first line should end with period, question mark or exlamation point
+    "ANN204",  # missing type annotation for __init__
+    "EM102",   # exception with fstring
+    "TD002",   # 'to do' without author
+    "PT011",   # pytest.raises is too broad
+    "S101",    # use of assert
+    "COM812",  # trailing commas
+    "FIX002",  # code with to do - check all of them later
     "PERF203", # try except in for loop - check all of them for possible refactors
-    "C901", # code too complex (duplicate with other rules)
-    "EM101", # exception with string literal
-    "SIM108", # ternary operator - reconsider, sometimes the code readability is lower with ternary
-    "ISC001", # potential conflict with formatter
-    "TD003", # missing issue link with TODO
-    "FBT001", # Boolean-typed positional argument in function definition
-    "FBT002", # Boolean-typed positional argument in function definition
+    "C901",    # code too complex (duplicate with other rules)
+    "EM101",   # exception with string literal
+    "SIM108",  # ternary operator - reconsider, sometimes the code readability is lower with ternary
+    "ISC001",  # potential conflict with formatter
+    "TD003",   # missing issue link with TODO
+    "FBT001",  # Boolean-typed positional argument in function definition
+    "FBT002",  # Boolean-typed positional argument in function definition
     "PLR2004", # magic value in comparison
-    "TRY003", # long message outside the exception class
-    "A005", # formatter shadows a Python standard-library module
+    "TRY003",  # long message outside the exception class
+    "A005",    # formatter shadows a Python standard-library module
     # Temporarily ignored
     "ERA001",  # commented-out code
-    "TD005",  # empty TODO
+    "TD005",   # empty TODO
     "FIX001",  # line with fixme
-    "TD001",  # invalid todo tag fixme
+    "TD001",   # invalid todo tag fixme
     "ANN001",  # annotations in method
     "ANN002",  # annotations in return type
     "ANN201",  # annotations in return type
     "ANN205",  # annotations in return type
     "RUF012",  # mutable class attributes should be annotated with `typing.ClassVar`
-    "TD004",  # missing colon in TODO
-    "N999",  # invalid module names (CamelCase instead of snake_case) - Robot compatibility
-    "T201",  # print in code
-    "PLR0913",  # too many arguments in function definition
-    "PLW2901",  # for loop variable overwritten
+    "TD004",   # missing colon in TODO
+    "N999",    # invalid module names (CamelCase instead of snake_case) - Robot compatibility
+    "T201",    # print in code
+    "PLR0913", # too many arguments in function definition
+    "PLW2901", # for loop variable overwritten
     "INP001",  # part of namespace package
-    "PLR0912",  # too many branches TODO
+    "PLR0912", # too many branches TODO
     "ANN003",  # missing type kwargs
-    "FA100",  # replace Optional -> not yet possible because of the issue with robot framework
+    "FA100",   # replace Optional -> not yet possible because of the issue with robot framework
     "SIM105",  # contexlib.supress
     "ANN401",  # typing.Any
-    "B028",  # no implicit stacklevel
-    "N818",  # exception with Error suffix
+    "B028",    # no implicit stacklevel
+    "N818",    # exception with Error suffix
     "TRY301",  # abstract raise to an inner function
 ]
 lint.unfixable = [
@@ -159,14 +166,11 @@ lint.unfixable = [
     # In addition, it can't do anything with invalid typing annotations, protected by mypy.
     "PT022",
 ]
-extend-exclude = [
-    "tests/linter/test_data/",
-    "docs/"
-]
+extend-exclude = ["tests/linter/test_data/", "docs/"]
 [tool.ruff.lint.extend-per-file-ignores]
 "tests/*" = [
-    "ANN",  # no typing for tests for now
-    "PLR0913"  # too many arguments in function definition
+    "ANN",     # no typing for tests for now
+    "PLR0913", # too many arguments in function definition
 ]
 # html code embedded
 "docs/conf.py" = ["E501"]
@@ -181,8 +185,53 @@ source = ["robocop"]
 
 [tool.coverage.report]
 exclude_lines = [
-        "pragma: no cover",
-        "if __name__ == .__main__.:",
-        "raise NotImplementedError"
+    "pragma: no cover",
+    "if __name__ == .__main__.:",
+    "raise NotImplementedError",
 ]
 fail_under = 5
+
+[tool.mypy]
+# Target oldest supported Python version
+python_version = "3.10"
+
+# Strict mode - enable all strict checks
+strict = true
+
+# Additional warnings
+warn_return_any = true
+warn_unused_configs = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+warn_unreachable = true
+
+# Error output formatting
+show_error_codes = true
+show_column_numbers = true
+pretty = true
+color_output = true
+
+# Module discovery
+mypy_path = "src"
+packages = ["robocop"]
+exclude = ["tests/", "docs/"]
+
+# Robot Framework - no type stubs available for all supported versions
+[[tool.mypy.overrides]]
+module = "robot.*"
+ignore_missing_imports = true
+
+# External libraries that may have incomplete stubs
+[[tool.mypy.overrides]]
+module = ["pytz", "rich_click"]
+ignore_missing_imports = true
+
+# CLI module - intentionally passes None values to dataclasses which are handled by overwrite()
+[[tool.mypy.overrides]]
+module = "robocop.run"
+disable_error_code = ["arg-type", "attr-defined", "unused-ignore"]
+
+# Formatter __init__ module - uses rich_click which may not have stubs
+[[tool.mypy.overrides]]
+module = "robocop.formatter.formatters"
+disable_error_code = ["import-not-found"]

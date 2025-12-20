@@ -1,7 +1,12 @@
+from __future__ import annotations
+
 from timeit import default_timer as timer
+from typing import TYPE_CHECKING
 
 import robocop.linter.reports
-from robocop.config import Config
+
+if TYPE_CHECKING:
+    from robocop.config import Config
 
 
 class TimeTakenReport(robocop.linter.reports.ComparableReport):
@@ -22,10 +27,10 @@ class TimeTakenReport(robocop.linter.reports.ComparableReport):
         self.time_taken = "0.000"
         super().__init__(config)
 
-    def persist_result(self):
+    def persist_result(self) -> dict[str, str]:
         return {"time_taken": self.time_taken}
 
-    def generate_report(self, prev_results: dict, **kwargs) -> None:  # noqa: ARG002
+    def generate_report(self, prev_results: dict[str, str] | None = None, **kwargs: object) -> None:  # noqa: ARG002
         time_taken = timer() - self.start_time
         if self.compare_runs and prev_results:
             rerun_diff = time_taken - float(prev_results["time_taken"])

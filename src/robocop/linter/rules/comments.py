@@ -26,7 +26,7 @@ if TYPE_CHECKING:
     from robot.parsing.model.statements import Comment
 
 
-def regex(value: str) -> re.Pattern:
+def regex(value: str) -> re.Pattern[str]:
     try:
         return re.compile(value)
     except re.error as regex_err:
@@ -587,7 +587,7 @@ class IgnoredDataChecker(RawFileChecker):
     IGNORE_DIRECTIVES = ("# robocop:", "# fmt:")
     LANGUAGE_HEADER = "language:"
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.is_bom = False
         self.ignore_empty_lines = False  # ignore empty lines if language header or robocop disabler is present
         super().__init__()
@@ -600,13 +600,14 @@ class IgnoredDataChecker(RawFileChecker):
                 if self.check_line(line, lineno):
                     break
         else:
-            self.detect_bom(self.source)
+            if self.source:
+                self.detect_bom(str(self.source))
             with FileReader(self.source) as file_reader:
                 for lineno, line in enumerate(file_reader.readlines(), start=1):
                     if self.check_line(line, lineno):
                         break
 
-    def check_line(self, line: str, lineno: int) -> bool:
+    def check_line(self, line: str, lineno: int) -> bool:  # type: ignore[override]
         if line.startswith(self.SECTION_HEADER):
             return True
         if line.startswith(self.IGNORE_DIRECTIVES):
@@ -624,7 +625,7 @@ class IgnoredDataChecker(RawFileChecker):
         self.report(self.ignored_data, lineno=lineno, col=1, end_col=len(line))
         return True
 
-    def detect_bom(self, source: str):
+    def detect_bom(self, source: str) -> None:
         with open(source, "rb") as raw_file:
             first_four = raw_file.read(4)
             self.is_bom = any(first_four.startswith(bom_marker) for bom_marker in IgnoredDataChecker.BOM)

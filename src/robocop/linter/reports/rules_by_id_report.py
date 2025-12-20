@@ -1,9 +1,11 @@
+from __future__ import annotations
+
 from collections import defaultdict
 from operator import itemgetter
 
 import robocop.linter.reports
-from robocop.config import Config
-from robocop.linter.diagnostics import Diagnostics
+from robocop.config import Config  # noqa: TC001
+from robocop.linter.diagnostics import Diagnostics  # noqa: TC001
 
 
 class RulesByIdReport(robocop.linter.reports.ComparableReport):
@@ -25,14 +27,14 @@ class RulesByIdReport(robocop.linter.reports.ComparableReport):
     def __init__(self, config: Config):
         self.name = "rules_by_id"
         self.description = "Groups detected issues by rule id and prints it ordered by most common"
-        self.message_counter = defaultdict(int)
+        self.message_counter: defaultdict[str, int] = defaultdict(int)
         super().__init__(config)
 
-    def persist_result(self) -> dict:
+    def persist_result(self) -> dict[str, int]:
         return dict(self.message_counter.items())
 
-    def get_diff_counter(self, prev_results: dict) -> dict:
-        result = {}
+    def get_diff_counter(self, prev_results: dict[str, int]) -> dict[str, int]:
+        result: dict[str, int] = {}
         for issue_code, count in self.message_counter.items():
             old_count = prev_results.pop(issue_code, 0)
             result[issue_code] = count - old_count
@@ -40,7 +42,14 @@ class RulesByIdReport(robocop.linter.reports.ComparableReport):
             result[issue_code] = -old_count
         return result
 
-    def generate_report(self, diagnostics: Diagnostics, prev_results, **kwargs) -> None:  # noqa: ARG002
+    def generate_report(
+        self,
+        diagnostics: Diagnostics | None = None,
+        prev_results: dict[str, int] | None = None,
+        **kwargs: object,  # noqa: ARG002
+    ) -> None:
+        if diagnostics is None:
+            return
         for diagnostic in diagnostics:
             rule_name = f"{diagnostic.rule.rule_id} [{diagnostic.severity.value}] ({diagnostic.rule.name})"
             self.message_counter[rule_name] += 1
@@ -52,7 +61,7 @@ class RulesByIdReport(robocop.linter.reports.ComparableReport):
             return
         print(output)
 
-    def get_report_with_compare(self, prev_results: dict) -> str:
+    def get_report_with_compare(self, prev_results: dict[str, int]) -> str:
         diff_counter = self.get_diff_counter(prev_results)
         message_counter_ordered = sorted(self.message_counter.items(), key=itemgetter(1), reverse=True)
         report = "\nIssues by ID:"

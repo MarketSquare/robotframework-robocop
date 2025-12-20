@@ -1,3 +1,7 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 from robot.api.parsing import Comment, EmptyLine
 
 try:
@@ -8,6 +12,10 @@ except ImportError:
 from robocop.formatter.disablers import skip_if_disabled, skip_section_if_disabled
 from robocop.formatter.formatters import Formatter
 from robocop.formatter.utils import misc
+
+if TYPE_CHECKING:
+    from robot.parsing.model.blocks import Keyword, Section
+    from robot.parsing.model.statements import Error, KeywordCall, Return, ReturnSetting
 
 
 class ReplaceReturns(Formatter):
@@ -45,19 +53,19 @@ class ReplaceReturns(Formatter):
 
     MIN_VERSION = 5
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
-        self.return_statement = None
+        self.return_statement: ReturnSetting | Return | None = None
 
     @skip_section_if_disabled
-    def visit_Section(self, node):  # noqa: N802
+    def visit_Section(self, node: Section) -> Section:  # noqa: N802
         return self.generic_visit(node)
 
-    def visit_Keyword(self, node):  # noqa: N802
+    def visit_Keyword(self, node: Keyword) -> Keyword:  # noqa: N802
         self.return_statement = None
         node = self.generic_visit(node)
         if self.return_statement:
-            skip_lines = []
+            skip_lines: list[EmptyLine | Comment] = []  # type: ignore[unreachable]
             indent = self.return_statement.tokens[0]
             while node.body and isinstance(node.body[-1], (EmptyLine, Comment)):
                 skip_lines.append(node.body.pop())
@@ -69,7 +77,7 @@ class ReplaceReturns(Formatter):
         return node
 
     @skip_if_disabled
-    def visit_KeywordCall(self, node):  # noqa: N802
+    def visit_KeywordCall(self, node: KeywordCall) -> KeywordCall:  # noqa: N802
         if not node.keyword or node.errors:
             return node
         normalized_name = misc.after_last_dot(misc.normalize_name(node.keyword))
@@ -78,22 +86,22 @@ class ReplaceReturns(Formatter):
                 statement=ReturnStatement, tokens=node.tokens[2:], indent=node.tokens[0]
             )
         if normalized_name == "returnfromkeywordif":
-            return misc.wrap_in_if_and_replace_statement(node, ReturnStatement, self.formatting_config.separator)
+            return misc.wrap_in_if_and_replace_statement(node, ReturnStatement, self.formatting_config.separator)  # type: ignore[union-attr,arg-type]
         return node
 
     @skip_if_disabled
-    def visit_ReturnSetting(self, node):  # noqa: N802
+    def visit_ReturnSetting(self, node: ReturnSetting) -> None:  # noqa: N802
         self.return_statement = node
 
     @skip_if_disabled
-    def visit_Return(self, node):  # noqa: N802
+    def visit_Return(self, node: Return) -> Return | None:  # noqa: N802
         if misc.ROBOT_VERSION.major < 7:  # In RF 7, RETURN was class was renamed to Return
             self.return_statement = node
             return None
         return node
 
     @skip_if_disabled
-    def visit_Error(self, node):  # noqa: N802
+    def visit_Error(self, node: Error) -> Error | None:  # noqa: N802
         """Remove duplicate [Return]"""
         for error in node.errors:
             if "Setting 'Return' is allowed only once" in error:

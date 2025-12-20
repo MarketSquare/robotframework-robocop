@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from collections import defaultdict
+from typing import TYPE_CHECKING
 
 from robot.api.parsing import Token
 from robot.parsing.model import Statement
@@ -9,6 +10,9 @@ from robocop.exceptions import InvalidParameterValueError
 from robocop.formatter.disablers import skip_section_if_disabled
 from robocop.formatter.formatters import Formatter
 from robocop.formatter.utils import misc
+
+if TYPE_CHECKING:
+    from robot.parsing.model.blocks import VariableSection
 
 
 class AlignVariablesSection(Formatter):
@@ -50,8 +54,8 @@ class AlignVariablesSection(Formatter):
         self,
         up_to_column: int = 2,
         skip_types: str = "",
-        min_width: int = None,  # noqa: RUF013
-        fixed_width: int = None,  # noqa: RUF013
+        min_width: int | None = None,
+        fixed_width: int | None = None,
     ):
         super().__init__()
         self.up_to_column = up_to_column - 1
@@ -59,9 +63,9 @@ class AlignVariablesSection(Formatter):
         self.fixed_width = fixed_width
         self.skip_types = self.parse_skip_types(skip_types)
 
-    def parse_skip_types(self, skip_types):
+    def parse_skip_types(self, skip_types: str) -> set[str]:
         allow_types = {"dict": "&", "list": "@", "scalar": "$"}
-        ret = set()
+        ret: set[str] = set()
         if not skip_types:
             return ret
         for skip_type in skip_types.split(","):
@@ -75,16 +79,16 @@ class AlignVariablesSection(Formatter):
             ret.add(allow_types[skip_type])
         return ret
 
-    def should_parse(self, node):
+    def should_parse(self, node: Statement) -> bool:
         if not node.name:
             return True
         return node.name[0] not in self.skip_types
 
     @skip_section_if_disabled
-    def visit_VariableSection(self, node):  # noqa: N802
+    def visit_VariableSection(self, node: VariableSection) -> VariableSection:  # noqa: N802
         statements = []
         for child in node.body:
-            if self.disablers.is_node_disabled("AlignVariablesSection", child):
+            if self.disablers.is_node_disabled("AlignVariablesSection", child):  # type: ignore[union-attr]
                 statements.append(child)
             elif child.type in (Token.EOL, Token.COMMENT):
                 statements.append(misc.left_align(child))
@@ -99,13 +103,13 @@ class AlignVariablesSection(Formatter):
         node.body = self.align_rows(statements, look_up)
         return node
 
-    def align_rows(self, statements, look_up):
+    def align_rows(self, statements: list[Statement | list[list[Token]]], look_up: dict[int, int]) -> list[Statement]:
         aligned_statements = []
         for st in statements:
             if not isinstance(st, list):
                 aligned_statements.append(st)
                 continue
-            aligned_statement = []
+            aligned_statement: list[Token] = []
             for line in st:
                 if misc.is_blank_multiline(line):
                     line[-1].value = line[-1].value.lstrip(" \t")  # normalize eol from '  \n' to '\n'
@@ -124,22 +128,22 @@ class AlignVariablesSection(Formatter):
             aligned_statements.append(Statement.from_tokens(aligned_statement))
         return aligned_statements
 
-    def get_separator(self, index: int, up_to: int, token, look_up: dict[int, int]) -> str:
+    def get_separator(self, index: int, up_to: int, token: Token, look_up: dict[int, int]) -> str:
         if index < up_to:
             if self.fixed_width:
-                return max(self.fixed_width - len(token.value), self.formatting_config.space_count) * " "
+                return max(self.fixed_width - len(token.value), self.formatting_config.space_count) * " "  # type: ignore[union-attr,operator,type-var]
             return (look_up[index] - len(token.value)) * " "
-        return self.formatting_config.separator
+        return self.formatting_config.separator  # type: ignore[union-attr,return-value]
 
-    def create_look_up(self, statements) -> dict[int, int]:
-        look_up = defaultdict(int)
+    def create_look_up(self, statements: list[list[list[Token]]]) -> dict[int, int]:
+        look_up: dict[int, int] = defaultdict(int)
         for st in statements:
             for line in st:
                 up_to = self.up_to_column if self.up_to_column != -1 else len(line)
                 for index, token in enumerate(line[:up_to]):
                     look_up[index] = max(look_up[index], len(token.value))
         for index, length in look_up.items():
-            min_for_token = length + self.formatting_config.space_count
+            min_for_token = length + self.formatting_config.space_count  # type: ignore[union-attr,operator]
             if self.min_width:
                 min_for_token = max(min_for_token, self.min_width)
             look_up[index] = misc.round_to_four(min_for_token)

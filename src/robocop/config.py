@@ -4,7 +4,7 @@ import os
 from dataclasses import dataclass, field, fields
 from enum import Enum
 from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from robot.errors import DataError
 
@@ -28,8 +28,10 @@ from robocop.linter.utils.misc import compile_rule_pattern
 from robocop.linter.utils.version_matching import Version
 
 CONFIG_NAMES = frozenset(("robocop.toml", "pyproject.toml", "robot.toml"))
-DEFAULT_INCLUDE = frozenset(("*.robot", "*.resource"))
-DEFAULT_EXCLUDE = frozenset((".direnv", ".eggs", ".git", ".svn", ".hg", ".nox", ".tox", ".venv", "venv", "dist"))
+DEFAULT_INCLUDE: frozenset[str] = frozenset(("*.robot", "*.resource"))
+DEFAULT_EXCLUDE: frozenset[str] = frozenset(
+    (".direnv", ".eggs", ".git", ".svn", ".hg", ".nox", ".tox", ".venv", "venv", "dist")
+)
 
 DEFAULT_ISSUE_FORMAT = "{source}:{line}:{col} [{severity}] {rule_id} {desc} ({name})"
 
@@ -109,21 +111,24 @@ class WhitespaceConfig(ConfigContainer):
     line_length: int | None = 120
 
     @classmethod
-    def from_toml(cls, config: dict) -> WhitespaceConfig:
+    def from_toml(cls, config: dict[str, Any]) -> WhitespaceConfig:
         config_fields = {config_field.name for config_field in fields(cls)}
         override = {param: value for param, value in config.items() if param in config_fields}
         return cls(**override)
 
-    def process_config(self):
+    def process_config(self) -> None:
         """Prepare config with processed values. If value is missing, use related config as a default."""
         if self.indent is None:
             self.indent = self.space_count
         if self.continuation_indent is None:
             self.continuation_indent = self.space_count
         if self.separator == "space":
-            self.separator = " " * self.space_count
-            self.indent = " " * self.indent
-            self.continuation_indent = " " * self.continuation_indent
+            space_count = int(self.space_count) if self.space_count else 4
+            indent = int(self.indent) if self.indent else space_count
+            cont_indent = int(self.continuation_indent) if self.continuation_indent else space_count
+            self.separator = " " * space_count
+            self.indent = " " * indent
+            self.continuation_indent = " " * cont_indent
         elif self.separator == "tab":
             self.separator = "\t"
             self.indent = "\t"
@@ -136,7 +141,7 @@ class WhitespaceConfig(ConfigContainer):
             self.line_ending = "\n"
 
 
-def parse_rule_severity(value: str):
+def parse_rule_severity(value: str) -> RuleSeverity:
     return RuleSeverity.parser(value, rule_severity=False)
 
 
@@ -147,7 +152,7 @@ class TargetVersion(Enum):
     RF7 = "7"
 
 
-def validate_target_version(value: str | TargetVersion | None) -> int | None:
+def validate_target_version(value: int | str | TargetVersion | None) -> int | None:
     if value is None:
         return None
     if isinstance(value, TargetVersion):
@@ -187,50 +192,48 @@ def resolve_relative_path(orig_path: str, config_dir: Path, ensure_exists: bool)
 
 @dataclass
 class LinterConfig:
-    configure: list[str] | None = field(default_factory=list)
-    select: list[str] | None = field(default_factory=list)
-    extend_select: list[str] | None = field(default_factory=list)
-    ignore: list[str] | None = field(default_factory=list)
+    configure: list[str] = field(default_factory=list)
+    select: list[str] = field(default_factory=list)
+    extend_select: list[str] = field(default_factory=list)
+    ignore: list[str] = field(default_factory=list)
     per_file_ignores: dict[str, list[str]] | None = field(default=None)
-    issue_format: str | None = DEFAULT_ISSUE_FORMAT
-    target_version: Version | None = field(default=None, compare=False)
-    threshold: RuleSeverity | None = RuleSeverity.INFO
-    custom_rules: list[str] | None = field(default_factory=list)
-    include_rules: set[str] | None = field(default_factory=set, compare=False)
-    extend_include_rules: set[str] | None = field(default_factory=set, compare=False)
-    exclude_rules: set[str] | None = field(default_factory=set, compare=False)
-    include_rules_patterns: set[re.Pattern] | None = field(default_factory=set, compare=False)
-    extend_include_rules_patterns: set[re.Pattern] | None = field(default_factory=set, compare=False)
-    exclude_rules_patterns: set[re.Pattern] | None = field(default_factory=set, compare=False)
-    reports: list[str] | None = field(default_factory=list)
-    persistent: bool | None = False
-    compare: bool | None = False
-    exit_zero: bool | None = False
+    issue_format: str = DEFAULT_ISSUE_FORMAT
+    target_version: Version = field(default_factory=lambda: ROBOT_VERSION, compare=False)
+    threshold: RuleSeverity = RuleSeverity.INFO
+    custom_rules: list[str] = field(default_factory=list)
+    include_rules: set[str] = field(default_factory=set, compare=False)
+    extend_include_rules: set[str] = field(default_factory=set, compare=False)
+    exclude_rules: set[str] = field(default_factory=set, compare=False)
+    include_rules_patterns: set[re.Pattern[str]] = field(default_factory=set, compare=False)
+    extend_include_rules_patterns: set[re.Pattern[str]] = field(default_factory=set, compare=False)
+    exclude_rules_patterns: set[re.Pattern[str]] = field(default_factory=set, compare=False)
+    reports: list[str] = field(default_factory=list)
+    persistent: bool = False
+    compare: bool = False
+    exit_zero: bool = False
     return_result: bool = False
     config_source: str = field(default="cli", compare=False)
     _checkers: list[BaseChecker] | None = field(default=None, compare=False)
     after_run_checkers: list[AfterRunChecker] | None = field(default=None, compare=False)
     project_checkers: list[BaseChecker] | None = field(default=None, compare=False)
     _rules: dict[str, Rule] | None = field(default=None, compare=False)
-    silent: bool | None = False
-
-    def __post_init__(self):
-        if not self.target_version:
-            self.target_version = ROBOT_VERSION
+    silent: bool = False
 
     @property
     def checkers(self) -> list[BaseChecker]:
         if self._checkers is None:
             self.load_configuration()
+        assert self._checkers is not None
         return self._checkers
 
     @property
-    def rules(self):
+    def rules(self) -> dict[str, Rule]:
         if self._rules is None:
             self.load_configuration()
+        assert self._rules is not None
         return self._rules
 
-    def load_configuration(self):
+    def load_configuration(self) -> None:
         """Load rules, checkers and their configuration."""
         self.split_inclusions_exclusions_into_patterns()
         self.load_checkers()
@@ -250,10 +253,14 @@ class LinterConfig:
         self._rules = {}
         rules.init(self)
 
-    def register_checker(self, checker: type[BaseChecker]) -> None:  # [type[BaseChecker]]
-        for rule_name_or_id, rule in checker.rules.items():
-            self._rules[rule_name_or_id] = rule
-        self._checkers.append(checker)
+    def register_checker(self, checker: BaseChecker) -> None:
+        checker_rules = checker.rules
+        if checker_rules is not None and checker_rules:
+            for rule_name_or_id, rule in checker_rules.items():
+                if self._rules is not None:
+                    self._rules[rule_name_or_id] = rule
+        if self._checkers is not None:
+            self._checkers.append(checker)
 
     def split_checkers_by_type(self) -> None:
         """
@@ -263,8 +270,10 @@ class LinterConfig:
         Most checkers (VisitorChecker, RawFileChecker) are used when scanning the file. Some may be used after
         all other checkers finish scanning (AfterRunChecker) or after all files finish scanning (ProjectChecker).
         """
-        base_checkers, after_checkers, project_checkers = [], [], []
-        for checker in self._checkers:
+        base_checkers: list[BaseChecker] = []
+        after_checkers: list[AfterRunChecker] = []
+        project_checkers: list[BaseChecker] = []
+        for checker in self._checkers or []:
             if isinstance(checker, AfterRunChecker):
                 after_checkers.append(checker)
             elif isinstance(checker, ProjectChecker):
@@ -278,15 +287,18 @@ class LinterConfig:
     def check_for_disabled_rules(self) -> None:
         """Check checker configuration to disable rules."""
         rule_matcher = RuleMatcher(self)
-        for checker in self._checkers:
+        for checker in self._checkers or []:
             if not self.any_rule_enabled(checker, rule_matcher):
                 checker.disabled = True
 
     @staticmethod
-    def any_rule_enabled(checker: type[BaseChecker], rule_matcher: RuleMatcher) -> bool:
+    def any_rule_enabled(checker: BaseChecker, rule_matcher: RuleMatcher) -> bool:
         any_enabled = False
         # TODO: rules contain rule_id: rule and rule_name: rule so we are checking the same rule twice
-        for rule in checker.rules.values():
+        checker_rules = checker.rules
+        if checker_rules is None or not checker_rules:
+            return False
+        for rule in checker_rules.values():
             rule.enabled = rule_matcher.is_rule_enabled(rule)
             if rule.enabled:
                 any_enabled = True
@@ -296,7 +308,7 @@ class LinterConfig:
         """Validate and print warning if no rule is selected."""
         if self.silent:
             return
-        if not any(not checker.disabled for checker in self._checkers):
+        if not any(not checker.disabled for checker in self._checkers or []):
             print(
                 f"No rule selected with the existing configuration from the {self.config_source} . "
                 f"Please check if all rules from --select exist and there is no conflicting filter option."
@@ -309,6 +321,8 @@ class LinterConfig:
         Accepted format is rule_name.param=value or report_name.param=value . ``rule_id`` can be used instead of
         ``rule_name``.
         """
+        if self._rules is None:
+            return
         for config in self.configure:
             try:
                 name, param_and_value = config.split(".", maxsplit=1)
@@ -325,7 +339,7 @@ class LinterConfig:
             # else:  TODO
             #     raise exceptions.RuleOrReportDoesNotExist(name, self._rules)
 
-    def split_inclusions_exclusions_into_patterns(self):
+    def split_inclusions_exclusions_into_patterns(self) -> None:
         if self.select:
             for rule in self.select:
                 if "*" in rule:
@@ -354,13 +368,13 @@ class LinterConfig:
     #                 print(rule_def.deprecation_warning)
 
     @classmethod
-    def from_toml(cls, config: dict, config_path: Path) -> LinterConfig:
+    def from_toml(cls, config: dict[str, Any], config_path: Path) -> LinterConfig:
         config_fields = {config_field.name for config_field in fields(cls) if config_field.compare}
         # TODO assert type (list vs list etc)
         if unknown_fields := {param: value for param, value in config.items() if param not in config_fields}:
             print(f"Unknown fields in the [tool.robocop.lint] section: {unknown_fields}")
             raise typer.Exit(code=1)
-        override = {param: value for param, value in config.items() if param in config_fields}
+        override: dict[str, Any] = {param: value for param, value in config.items() if param in config_fields}
         if "threshold" in config:
             override["threshold"] = parse_rule_severity(config["threshold"])
         if "custom_rules" in config:
@@ -374,26 +388,26 @@ class LinterConfig:
 @dataclass
 class FormatterConfig:
     whitespace_config: WhitespaceConfig = field(default_factory=WhitespaceConfig)
-    select: list[str] | None = field(default_factory=list)
-    extend_select: list[str] | None = field(default_factory=list)
-    configure: list[str] | None = field(default_factory=list)
-    force_order: bool | None = False
-    allow_disabled: bool | None = False
-    target_version: int | str | None = field(default=misc.ROBOT_VERSION.major, compare=False)
+    select: list[str] = field(default_factory=list)
+    extend_select: list[str] = field(default_factory=list)
+    configure: list[str] = field(default_factory=list)
+    force_order: bool = False
+    allow_disabled: bool = False
+    target_version: int = field(default_factory=lambda: misc.ROBOT_VERSION.major, compare=False)
     skip_config: SkipConfig = field(default_factory=SkipConfig)
     overwrite: bool | None = None
-    diff: bool | None = False
+    diff: bool = False
     output: Path | None = None  # TODO
-    color: bool | None = True
-    check: bool | None = False
-    reruns: int | None = 0
+    color: bool = True
+    check: bool = False
+    reruns: int = 0
     start_line: int | None = None
     end_line: int | None = None
     languages: Languages | None = field(default=None, compare=False)
-    silent: bool | None = False
+    silent: bool = False
     return_result: bool = False
     _parameters: dict[str, dict[str, str]] | None = field(default=None, compare=False)
-    _formatters: dict[str, ...] | None = field(default=None, compare=False)
+    _formatters: dict[str, Any] | None = field(default=None, compare=False)
 
     @property
     def overwrite_files(self) -> bool:
@@ -402,10 +416,10 @@ class FormatterConfig:
         return not self.check
 
     @classmethod
-    def from_toml(cls, config: dict, config_parent: Path) -> FormatterConfig:
+    def from_toml(cls, config: dict[str, Any], config_parent: Path) -> FormatterConfig:
         config_fields = {config_field.name for config_field in fields(cls) if config_field.compare}
         # TODO assert type (list vs list etc)
-        override = {param: value for param, value in config.items() if param in config_fields}
+        override: dict[str, Any] = {param: value for param, value in config.items() if param in config_fields}
         override["whitespace_config"] = WhitespaceConfig.from_toml(config)
         override["skip_config"] = SkipConfig.from_toml(config)
         if "extend_select" in override:
@@ -426,17 +440,18 @@ class FormatterConfig:
         return cls(**override)
 
     @property
-    def formatters(self) -> dict[str, ...]:
+    def formatters(self) -> dict[str, Any]:
         if self._formatters is None:
             self.whitespace_config.process_config()
             self.load_formatters()
+        assert self._formatters is not None
         return self._formatters
 
-    def is_formatter_selected(self, name: str, formatter: str):
+    def is_formatter_selected(self, name: str, formatter: str) -> bool:
         # TODO: have name and formatter name are different?
         return name in self.select or formatter in self.select
 
-    def load_formatters(self):
+    def load_formatters(self) -> None:
         self._formatters = {}
         for formatter in self.selected_formatters():
             for container in formatters.import_formatter(formatter, self.combined_configure, self.skip_config):
@@ -526,10 +541,10 @@ class FormatterConfig:
 
 @dataclass
 class FileFiltersOptions(ConfigContainer):
-    include: set[str] | None = field(default_factory=set)
-    default_include: set[str] | None = field(default_factory=lambda: DEFAULT_INCLUDE)
-    exclude: set[str] | None = field(default_factory=set)
-    default_exclude: set[str] | None = field(default_factory=lambda: DEFAULT_EXCLUDE)
+    include: set[str] = field(default_factory=set)
+    default_include: set[str] = field(default_factory=lambda: set(DEFAULT_INCLUDE))
+    exclude: set[str] = field(default_factory=set)
+    default_exclude: set[str] = field(default_factory=lambda: set(DEFAULT_EXCLUDE))
     _included_paths: set[str] | None = field(default=None, compare=False)
     _excluded_paths: set[str] | None = field(default=None, compare=False)
 
@@ -546,8 +561,8 @@ class FileFiltersOptions(ConfigContainer):
         return self._excluded_paths
 
     @classmethod
-    def from_toml(cls, config: dict) -> FileFiltersOptions:
-        filter_config = {}
+    def from_toml(cls, config: dict[str, Any]) -> FileFiltersOptions:
+        filter_config: dict[str, Any] = {}
         for key in ("include", "default_include", "exclude", "default_exclude"):
             if key in config:
                 filter_config[key] = set(config.pop(key))
@@ -562,36 +577,38 @@ class FileFiltersOptions(ConfigContainer):
         return any(path.match(pattern) for pattern in self.included_paths)
 
 
-def normalize_config_keys(config: dict[str, ...]) -> dict[str, ...]:
+def normalize_config_keys(config: dict[str, Any]) -> dict[str, Any]:
     """Allow to use target_version and target-version alternative names in configuration file."""
     return {key.replace("-", "_"): value for key, value in config.items()}
 
 
 @dataclass
 class Config:
-    sources: list[str] | None = field(default_factory=lambda: ["."])
-    file_filters: FileFiltersOptions | None = field(default_factory=FileFiltersOptions)
-    linter: LinterConfig | None = field(default_factory=LinterConfig)
-    formatter: FormatterConfig | None = field(default_factory=FormatterConfig)
-    language: list[str] | None = field(default_factory=list)
+    sources: list[str] = field(default_factory=lambda: ["."])
+    file_filters: FileFiltersOptions = field(default_factory=FileFiltersOptions)
+    linter: LinterConfig = field(default_factory=LinterConfig)
+    formatter: FormatterConfig = field(default_factory=FormatterConfig)
+    language: list[str] = field(default_factory=list)
     languages: Languages | None = field(default=None, compare=False)
-    verbose: bool | None = field(default_factory=bool)
-    silent: bool | None = field(default_factory=bool)
-    target_version: int | str | None = misc.ROBOT_VERSION.major
+    verbose: bool = False
+    silent: bool = False
+    target_version: int | str | TargetVersion | None = field(
+        default_factory=lambda: misc.ROBOT_VERSION.major, compare=False
+    )
     config_source: str = "cli"
 
     def __post_init__(self) -> None:
-        self.target_version = validate_target_version(self.target_version)
+        validated_version = validate_target_version(self.target_version)
         self.load_languages()
         if self.formatter:
-            self.formatter.target_version = self.target_version or ROBOT_VERSION.major
+            self.formatter.target_version = validated_version or ROBOT_VERSION.major
             self.formatter.languages = self.languages
             self.formatter.silent = self.silent
         if self.linter:
-            self.linter.target_version = Version(f"{self.target_version}.0") if self.target_version else ROBOT_VERSION
+            self.linter.target_version = Version(f"{validated_version}.0") if validated_version else ROBOT_VERSION
             self.linter.silent = self.silent
 
-    def load_languages(self):
+    def load_languages(self) -> None:
         if Languages is None:
             return
         try:
@@ -606,7 +623,7 @@ class Config:
             raise typer.Exit(code=1) from None
 
     @classmethod
-    def from_toml(cls, config: dict, config_path: Path) -> Config:
+    def from_toml(cls, config: dict[str, Any], config_path: Path) -> Config:
         """
         Load configuration from toml dict.
 
@@ -632,7 +649,7 @@ class Config:
         return cls(**parsed_config)
 
     @staticmethod
-    def validate_config(config: dict, config_path: Path) -> None:
+    def validate_config(config: dict[str, Any], config_path: Path) -> None:
         old_options = {  # some options were deprecated, but most were moved into subdict (lint)
             "reports",
             "filetypesignore",
@@ -715,13 +732,13 @@ class Config:
             self.formatter.languages = self.languages
         self.file_filters.overwrite(overwrite_config.file_filters)
 
-    def __str__(self):
+    def __str__(self) -> str:
         return str(self.config_source)
 
 
 class GitIgnoreResolver:
-    def __init__(self):
-        self.cached_ignores: dict[Path, list[pathspec.PathSpec] | None] = {}
+    def __init__(self) -> None:
+        self.cached_ignores: dict[Path, tuple[Path, pathspec.PathSpec]] = {}
         self.ignore_dirs: set[Path] = set()
 
     def path_excluded(self, path: Path, gitignores: list[tuple[Path, pathspec.PathSpec]]) -> bool:
@@ -730,11 +747,11 @@ class GitIgnoreResolver:
             return False
         for gitignore_path, gitignore in gitignores:
             relative_path = files.get_relative_path(path, gitignore_path)
-            path = str(relative_path)
+            path_str = str(relative_path)
             # fixes a bug in pathspec where directory needs to end with / to be ignored by pattern
-            if relative_path.is_dir() and path != ".":
-                path = f"{path}{os.sep}"
-            if gitignore.match_file(path):
+            if relative_path.is_dir() and path_str != ".":
+                path_str = f"{path_str}{os.sep}"
+            if gitignore.match_file(path_str):
                 return True
         return False
 
@@ -742,7 +759,7 @@ class GitIgnoreResolver:
         """Return a PathSpec loaded from the file."""
         with path.open(encoding="utf-8") as gf:
             lines = gf.readlines()
-        return pathspec.PathSpec.from_lines(pathspec.patterns.GitWildMatchPattern, lines)
+        return pathspec.PathSpec.from_lines(pathspec.patterns.GitWildMatchPattern, lines)  # type: ignore[attr-defined]
 
     def resolve_path_ignores(self, path: Path) -> list[tuple[Path, pathspec.PathSpec]]:
         """
@@ -760,16 +777,16 @@ class GitIgnoreResolver:
         # TODO: respect nogitignore flag
         if path.is_file():
             path = path.parent
-        gitignores = []
-        search_paths = (parent for parent in [path, *path.parents])
+        gitignores: list[tuple[Path, pathspec.PathSpec]] = []
+        search_paths = [path, *path.parents]
         for parent_path in search_paths:
             if parent_path in self.ignore_dirs:  # dir that does not have .gitignore (marked as such)
-                gitignores.extend([self.cached_ignores[path] for path in search_paths if path in self.cached_ignores])
+                gitignores.extend([self.cached_ignores[p] for p in search_paths if p in self.cached_ignores])
                 break
             if parent_path in self.cached_ignores:
                 gitignores.append(self.cached_ignores[parent_path])
                 # if any parent is cached, we can retrieve any parent with gitignore from cache and return early
-                gitignores.extend([self.cached_ignores[path] for path in search_paths if path in self.cached_ignores])
+                gitignores.extend([self.cached_ignores[p] for p in search_paths if p in self.cached_ignores])
                 break
             if (gitignore_path := parent_path / ".gitignore").is_file():
                 gitignore = self.read_gitignore(gitignore_path)
@@ -835,7 +852,7 @@ class ConfigManager:
         # TODO: what if we provide the same path twice - tests
         if self._paths is None:
             self._paths = {}
-            sources = self.sources if self.sources else self.default_config.sources
+            sources: list[str | Path] = list(self.sources) if self.sources else list(self.default_config.sources)
             ignore_file_filters = not self.force_exclude and bool(sources)
             self.resolve_paths(sources, ignore_file_filters=ignore_file_filters)
         yield from self._paths.items()
@@ -844,12 +861,16 @@ class ConfigManager:
         """Get default config either from --config option or from the cli."""
         if config_path:
             configuration = files.read_toml_config(config_path)
+            if configuration is None:
+                return Config()
             config = Config.from_toml(configuration, config_path.resolve())
         elif not self.ignore_file_config:
             sources = [Path(path).resolve() for path in self.sources] if self.sources else [Path.cwd()]
             directories = files.get_common_parent_dirs(sources)
-            config = self.find_config_in_dirs(directories, default=None)
-            if not config:
+            found_config = self.find_config_in_dirs(list(directories), default=None)
+            if found_config:
+                config = found_config
+            else:
                 config = Config()
                 self.cached_configs.update(dict.fromkeys(directories, config))
         else:
@@ -863,12 +884,12 @@ class ConfigManager:
             return False
         return (path / ".git").is_dir()
 
-    def find_closest_config(self, source: Path, default: Config | None) -> Config:
+    def find_closest_config(self, source: Path, default: Config | None) -> Config | None:
         """Look in the directory and its parents for the closest valid configuration file."""
-        return self.find_config_in_dirs(source.parents, default)
+        return self.find_config_in_dirs(list(source.parents), default)
 
-    def find_config_in_dirs(self, directories: list[Path], default: Config | None) -> Config:
-        seen = []  # if we find config, mark all visited directories with resolved config
+    def find_config_in_dirs(self, directories: list[Path], default: Config | None) -> Config | None:
+        seen: list[Path] = []  # if we find config, mark all visited directories with resolved config
         for check_dir in directories:
             if check_dir in self.cached_configs:
                 return self.cached_configs[check_dir]
@@ -890,7 +911,7 @@ class ConfigManager:
             self.cached_configs.update(dict.fromkeys(seen, default))
         return default
 
-    def get_config_for_source_file(self, source_file: Path) -> Config:
+    def get_config_for_source_file(self, source_file: Path) -> Config | None:
         """
         Find the closest config to the source file or directory.
 
@@ -907,7 +928,7 @@ class ConfigManager:
 
     def resolve_paths(
         self,
-        sources: list[str | Path],
+        sources: list[str | Path] | Generator[Path, None, None],
         ignore_file_filters: bool = False,
     ) -> None:
         """
@@ -922,29 +943,28 @@ class ConfigManager:
             ignore_file_filters: force robocop to parse file even if it's excluded in the configuration
 
         """
-        source_gitignore = None
-        config = None
+        config: Config | None = None
         for source in sources:
             source_not_resolved = Path(source)
-            source = source_not_resolved.resolve()
-            if source in self._paths:
+            source_path = source_not_resolved.resolve()
+            if self._paths is not None and source_path in self._paths:
                 continue
-            if not source.exists():
+            if not source_path.exists():
                 if source_not_resolved.is_symlink():  # i.e. dangling symlink
                     continue
-                raise exceptions.FatalError(f"File '{source}' does not exist")
+                raise exceptions.FatalError(f"File '{source_path}' does not exist")
             if config is None:  # first file in the directory
-                config = self.get_config_for_source_file(source)
+                config = self.get_config_for_source_file(source_path) or self.default_config
             if not ignore_file_filters:
                 if config.file_filters.path_excluded(source_not_resolved):
                     continue
-                if source.is_file() and not config.file_filters.path_included(source_not_resolved):
+                if source_path.is_file() and not config.file_filters.path_included(source_not_resolved):
                     continue
                 if not self.skip_gitignore:
                     source_gitignore = self.gitignore_resolver.resolve_path_ignores(source_not_resolved)
                     if self.gitignore_resolver.path_excluded(source_not_resolved, source_gitignore):
                         continue
-            if source.is_dir():
-                self.resolve_paths(source.iterdir())
-            elif source.is_file():
-                self._paths[source] = config
+            if source_path.is_dir():
+                self.resolve_paths(source_path.iterdir())
+            elif source_path.is_file() and self._paths is not None:
+                self._paths[source_path] = config

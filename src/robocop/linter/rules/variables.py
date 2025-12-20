@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from robocop.linter import sonar_qube
 from robocop.linter.rules import Rule, RuleParam, RuleSeverity
 

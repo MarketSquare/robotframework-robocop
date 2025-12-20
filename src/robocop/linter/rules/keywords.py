@@ -1,6 +1,9 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 from robot.api import Token
 from robot.errors import VariableError
-from robot.model import Keyword
 from robot.utils.robottime import timestr_to_secs
 
 from robocop.linter import sonar_qube
@@ -8,8 +11,12 @@ from robocop.linter.rules import Rule, RuleParam, RuleSeverity, VisitorChecker
 from robocop.linter.utils.misc import normalize_robot_name
 from robocop.parsing.run_keywords import iterate_keyword_names
 
+if TYPE_CHECKING:
+    from robot.model import Keyword
+    from robot.parsing.model.statements import KeywordCall, Setup, Template
 
-def comma_separated_list(value: str) -> set[str]:
+
+def comma_separated_list(value: str | None) -> set[str]:
     if value is None:
         return set()
     return {normalize_robot_name(kw) for kw in value.split(",")}
@@ -169,7 +176,7 @@ class SleepKeywordUsedChecker(VisitorChecker):  # TODO: merge with a checker for
 
     sleep_keyword_used: SleepKeywordUsedRule
 
-    def visit_KeywordCall(self, node) -> None:  # noqa: N802
+    def visit_KeywordCall(self, node: KeywordCall) -> None:  # noqa: N802
         if not node.keyword:  # Keyword name can be empty if the syntax is invalid
             return
         # Robot Framework ignores a case, underscores and whitespace when searching for keywords
@@ -205,11 +212,11 @@ class SleepKeywordUsedChecker(VisitorChecker):  # TODO: merge with a checker for
 class NotAllowedKeyword(VisitorChecker):
     not_allowed_keyword: NotAllowedKeywordRule
 
-    def check_keyword_naming_with_subkeywords(self, node, name_token_type) -> None:
+    def check_keyword_naming_with_subkeywords(self, node: KeywordCall | Setup, name_token_type: str) -> None:
         for keyword in iterate_keyword_names(node, name_token_type):
             self.check_keyword_naming(keyword.value, keyword)
 
-    def check_keyword_naming(self, name: str, keyword) -> None:
+    def check_keyword_naming(self, name: str, keyword: Token) -> None:
         if not name:
             return
         not_allowed = self.not_allowed_keyword.keywords  # TODO: handle not set not allowed
@@ -229,12 +236,12 @@ class NotAllowedKeyword(VisitorChecker):
             end_col=keyword.end_col_offset + 1,
         )
 
-    def visit_Setup(self, node) -> None:  # noqa: N802
+    def visit_Setup(self, node: Setup) -> None:  # noqa: N802
         self.check_keyword_naming_with_subkeywords(node, Token.NAME)
 
     visit_TestTeardown = visit_SuiteTeardown = visit_Teardown = visit_TestSetup = visit_SuiteSetup = visit_Setup  # noqa: N815
 
-    def visit_Template(self, node) -> None:  # noqa: N802
+    def visit_Template(self, node: Template) -> None:  # noqa: N802
         # allow / disallow param
         if node.value:
             name_token = node.get_token(Token.NAME)
@@ -243,7 +250,7 @@ class NotAllowedKeyword(VisitorChecker):
 
     visit_TestTemplate = visit_Template  # noqa: N815
 
-    def visit_KeywordCall(self, node) -> None:  # noqa: N802
+    def visit_KeywordCall(self, node: KeywordCall) -> None:  # noqa: N802
         self.check_keyword_naming_with_subkeywords(node, Token.KEYWORD)
 
 

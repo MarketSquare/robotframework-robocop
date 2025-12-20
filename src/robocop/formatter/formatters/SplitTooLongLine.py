@@ -1,12 +1,13 @@
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 from robot.api.parsing import Comment, Token
 
 try:
     from robot.api.parsing import InlineIfHeader
 except ImportError:
     InlineIfHeader = None
-from typing import TYPE_CHECKING
 
 from robocop.formatter.disablers import skip_if_disabled, skip_section_if_disabled
 from robocop.formatter.formatters import Formatter
@@ -15,6 +16,20 @@ from robocop.linter.utils.disablers import DISABLER_PATTERN
 from robocop.parsing.run_keywords import RUN_KEYWORDS
 
 if TYPE_CHECKING:
+    from collections.abc import Generator
+
+    from robot.parsing.model.blocks import If, Section
+    from robot.parsing.model.statements import (
+        Arguments,
+        ForceTags,
+        KeywordCall,
+        LibraryImport,
+        Statement,
+        Tags,
+        Var,
+        Variable,
+    )
+
     from robocop.formatter.skip import Skip
 
 EOL = Token(Token.EOL)
@@ -85,7 +100,7 @@ class SplitTooLongLine(Formatter):
 
     def __init__(
         self,
-        line_length: int = None,  # noqa: RUF013
+        line_length: int | str | None = None,
         split_on_every_arg: bool = True,
         split_on_every_value: bool = True,
         split_on_every_setting_arg: bool = True,
@@ -94,7 +109,8 @@ class SplitTooLongLine(Formatter):
         skip: Skip | None = None,
     ):
         super().__init__(skip)
-        self._line_length = line_length
+        # Convert line_length to int if it's a string (from CLI config)
+        self._line_length: int | None = int(line_length) if line_length is not None else None
         self.split_on_every_arg = split_on_every_arg
         self.split_on_every_value = split_on_every_value
         self.split_on_every_setting_arg = split_on_every_setting_arg
@@ -102,8 +118,12 @@ class SplitTooLongLine(Formatter):
         self.align_new_line = align_new_line
 
     @property
-    def line_length(self):
-        return self.formatting_config.line_length if self._line_length is None else self._line_length
+    def line_length(self) -> int:
+        if self._line_length is not None:
+            return self._line_length
+        # Ensure it's an int (could be string from config in RF 5)
+        line_length = self.formatting_config.line_length  # type: ignore[union-attr]
+        return int(line_length) if line_length is not None else 120
 
     def is_run_keyword(self, kw_name: str) -> bool:
         """
@@ -116,19 +136,19 @@ class SplitTooLongLine(Formatter):
         return kw_name in RUN_KEYWORDS
 
     @skip_section_if_disabled
-    def visit_Section(self, node):  # noqa: N802
+    def visit_Section(self, node: Section) -> Section:  # noqa: N802
         return self.generic_visit(node)
 
-    def visit_If(self, node):  # noqa: N802
+    def visit_If(self, node: If) -> If:  # noqa: N802
         if self.is_inline(node):
             return node
         return self.generic_visit(node)
 
     @staticmethod
-    def is_inline(node):
+    def is_inline(node: If) -> bool:
         return ROBOT_VERSION.major > 4 and isinstance(node.header, InlineIfHeader)
 
-    def should_format_node(self, node):
+    def should_format_node(self, node: Statement) -> bool:
         if not self.any_line_too_long(node):
             return False
         # find if any line contains more than one data tokens - so we have something to split
@@ -141,31 +161,31 @@ class SplitTooLongLine(Formatter):
                     return True
         return False
 
-    def any_line_too_long(self, node):
+    def any_line_too_long(self, node: Statement) -> bool:
         for line in node.lines:
-            if self.skip.comments:
-                line = "".join(token.value for token in line if token.type != Token.COMMENT)
+            if self.skip.comments:  # type: ignore[union-attr]
+                line_str = "".join(token.value for token in line if token.type != Token.COMMENT)
             else:
-                line = "".join(token.value for token in line)
-            line = DISABLER_PATTERN.sub("", line)
-            line = line.rstrip().expandtabs(4)
-            if len(line) >= self.line_length:
+                line_str = "".join(token.value for token in line)
+            line_str = DISABLER_PATTERN.sub("", line_str)
+            line_str = line_str.rstrip().expandtabs(4)
+            if len(line_str) >= self.line_length:
                 return True
         return False
 
-    def visit_KeywordCall(self, node):  # noqa: N802
-        if self.skip.keyword_call(node):
+    def visit_KeywordCall(self, node: KeywordCall) -> KeywordCall:  # noqa: N802
+        if self.skip.keyword_call(node):  # type: ignore[union-attr]
             return node
         if not self.should_format_node(node):
             return node
-        if self.disablers.is_node_disabled("SplitTooLongLine", node, full_match=False):
+        if self.disablers.is_node_disabled("SplitTooLongLine", node, full_match=False):  # type: ignore[union-attr]
             return node
         if self.is_run_keyword(node.keyword):
             return node
         return self.split_keyword_call(node)
 
-    def visit_Var(self, node):  # noqa: N802
-        if self.disablers.is_node_disabled("SplitTooLongLine", node, full_match=False) or not self.should_format_node(
+    def visit_Var(self, node: Var) -> Var | tuple[Comment, ...]:  # noqa: N802
+        if self.disablers.is_node_disabled("SplitTooLongLine", node, full_match=False) or not self.should_format_node(  # type: ignore[union-attr]
             node
         ):
             return node
@@ -173,8 +193,8 @@ class SplitTooLongLine(Formatter):
         if not var_name:
             return node
         indent = node.tokens[0]
-        separator = Token(Token.SEPARATOR, self.formatting_config.separator)
-        line = [indent, node.data_tokens[0], separator, var_name]
+        separator = Token(Token.SEPARATOR, self.formatting_config.separator)  # type: ignore[union-attr]
+        line: list[Token] = [indent, node.data_tokens[0], separator, var_name]
         tokens, comments = self.split_tokens(
             node.tokens, line, self.split_on_every_value, indent=indent, split_types={Token.ARGUMENT, Token.OPTION}
         )
@@ -182,7 +202,7 @@ class SplitTooLongLine(Formatter):
         return (*comments, node)
 
     @staticmethod
-    def insert_comments_in_first_line(tokens, comments):
+    def insert_comments_in_first_line(tokens: list[Token], comments: list[Token]) -> list[Token]:
         if not comments:
             return tokens
         comment = Token(Token.COMMENT, "# " + " ".join([token.value.strip("# ") for token in comments]))
@@ -193,33 +213,33 @@ class SplitTooLongLine(Formatter):
         return [*tokens[:eol_index], separator, comment, *tokens[eol_index:]]
 
     @skip_if_disabled
-    def visit_Variable(self, node):  # noqa: N802
+    def visit_Variable(self, node: Variable) -> Variable | tuple[Comment, ...]:  # noqa: N802
         if not self.should_format_node(node):
             return node
         return self.split_variable_def(node)
 
     @skip_if_disabled
-    def visit_Tags(self, node):  # noqa: N802
-        if self.skip.setting("tags"):  # TODO test
+    def visit_Tags(self, node: Tags) -> Tags | tuple[Tags, Comment]:  # noqa: N802
+        if self.skip.setting("tags"):  # type: ignore[union-attr]  # TODO test
             return node
         return self.split_setting_with_args(node, settings_section=False)
 
     @skip_if_disabled
-    def visit_Arguments(self, node):  # noqa: N802
-        if self.skip.setting("arguments"):
+    def visit_Arguments(self, node: Arguments) -> Arguments | tuple[Arguments, Comment]:  # noqa: N802
+        if self.skip.setting("arguments"):  # type: ignore[union-attr]
             return node
         return self.split_setting_with_args(node, settings_section=False)
 
     @skip_if_disabled
-    def visit_ForceTags(self, node):  # noqa: N802
-        if self.skip.setting("tags"):
+    def visit_ForceTags(self, node: ForceTags) -> ForceTags | tuple[ForceTags, Comment]:  # noqa: N802
+        if self.skip.setting("tags"):  # type: ignore[union-attr]
             return node
         return self.split_setting_with_args(node, settings_section=True)
 
     visit_DefaultTags = visit_KeywordTags = visit_TestTags = visit_ForceTags  # noqa: N815
 
     @skip_if_disabled
-    def visit_LibraryImport(self, node):  # noqa: N802
+    def visit_LibraryImport(self, node: LibraryImport) -> LibraryImport | tuple[LibraryImport, Comment]:  # noqa: N802
         # if self.skip.setting("library"):  # TODO: skip library not available yet
         #     return node
         return self.split_setting_with_args(
@@ -227,19 +247,23 @@ class SplitTooLongLine(Formatter):
         )
 
     def split_setting_with_args(
-        self, node, settings_section, split_types: set = ARGUMENTS_ONLY, keep_types: set | None = None
-    ):
+        self,
+        node: Statement,
+        settings_section: bool,
+        split_types: set[str] = ARGUMENTS_ONLY,  # type: ignore[assignment]
+        keep_types: set[str] | None = None,
+    ) -> Statement | tuple[Statement, Comment]:
         if not self.should_format_node(node):
             return node
-        if self.disablers.is_node_disabled("SplitTooLongLine", node, full_match=False):
+        if self.disablers.is_node_disabled("SplitTooLongLine", node, full_match=False):  # type: ignore[union-attr]
             return node
         if settings_section:
-            indent = 0
+            indent: Token | int = 0
             token_index = 1
         else:
             indent = node.tokens[0]
             token_index = 2
-        line = list(node.tokens[:token_index])
+        line: list[Token] = list(node.tokens[:token_index])
         tokens, comments = self.split_tokens(
             node.tokens, line, self.split_on_every_setting_arg, indent, split_types=split_types, keep_types=keep_types
         )
@@ -251,13 +275,13 @@ class SplitTooLongLine(Formatter):
         return (node, *comments)
 
     @staticmethod
-    def join_on_separator(tokens, separator):
+    def join_on_separator(tokens: list[Token], separator: Token) -> Generator[Token, None, None]:
         for token in tokens:
             yield token
             yield separator
 
     @staticmethod
-    def split_to_multiple_lines(tokens, indent, separator):
+    def split_to_multiple_lines(tokens: list[Token], indent: Token, separator: Token) -> Generator[Token, None, None]:
         first = True
         for token in tokens:
             yield indent
@@ -269,21 +293,28 @@ class SplitTooLongLine(Formatter):
             first = False
 
     def split_tokens(
-        self, tokens, line, split_on, indent=None, split_types: set = ARGUMENTS_ONLY, keep_types: set | None = None
-    ):
+        self,
+        tokens: list[Token],
+        line: list[Token],
+        split_on: bool,
+        indent: Token | int | None = None,
+        split_types: set[str] = ARGUMENTS_ONLY,  # type: ignore[assignment]
+        keep_types: set[str] | None = None,
+    ) -> tuple[list[Token], list[Token]]:
         if not keep_types:
-            keep_types = {}
-        separator = Token(Token.SEPARATOR, self.formatting_config.separator)
+            keep_types = set()
+        separator = Token(Token.SEPARATOR, self.formatting_config.separator)  # type: ignore[union-attr]
         align_new_line = self.align_new_line and not split_on
         if align_new_line:
-            cont_indent = None
+            cont_indent: Token | None = None
         else:
-            cont_indent = Token(Token.SEPARATOR, self.formatting_config.continuation_indent)
-        split_tokens, comments = [], []
+            cont_indent = Token(Token.SEPARATOR, self.formatting_config.continuation_indent)  # type: ignore[union-attr]
+        split_tokens: list[Token] = []
+        comments: list[Token] = []
         # Comments with separators inside them are split into
         # [COMMENT, SEPARATOR, COMMENT] tokens in the AST, so to preserve the
         # original comment, we need a lookback at the separator tokens.
-        last_separator = None
+        last_separator: Token | None = None
         for token in tokens:
             if token.type in self.IGNORED_WHITESPACE:
                 continue
@@ -312,7 +343,7 @@ class SplitTooLongLine(Formatter):
         return split_tokens, comments
 
     @staticmethod
-    def join_split_comments(comments: list, token: Token, last_separator: Token):
+    def join_split_comments(comments: list[Token], token: Token, last_separator: Token | None) -> None:
         """
         Join split comments when splitting line.
 
@@ -321,32 +352,32 @@ class SplitTooLongLine(Formatter):
         Notice the third value not starting with a hash - we need to join such comment with previous comment.
         """
         if comments and not token.value.startswith("#"):
-            comments[-1].value += last_separator.value + token.value
+            comments[-1].value += last_separator.value + token.value  # type: ignore[union-attr]
         else:
             comments.append(token)
 
-    def calculate_align_separator(self, line: list) -> str:
+    def calculate_align_separator(self, line: list[Token]) -> str:
         """Calculate width of the separator required to align new line to previous line."""
         if len(line) <= 2:
             # line only fits one column, so we don't have anything to align it for
-            return self.formatting_config.continuation_indent
+            return self.formatting_config.continuation_indent  # type: ignore[union-attr,return-value]
         first_data_token = next((token.value for token in line if token.type != Token.SEPARATOR), "")
         # Decrease by 3 for ... token
-        align_width = len(first_data_token) + len(self.formatting_config.separator) - 3
+        align_width = len(first_data_token) + len(self.formatting_config.separator) - 3  # type: ignore[union-attr,arg-type]
         return align_width * " "
 
-    def split_variable_def(self, node):
+    def split_variable_def(self, node: Variable) -> Variable | tuple[Comment, ...]:
         if len(node.value) < 2 and not self.split_single_value:
             return node
-        line = [node.data_tokens[0]]
+        line: list[Token] = [node.data_tokens[0]]
         tokens, comments = self.split_tokens(node.tokens, line, self.split_on_every_value)
         comments = [Comment([comment, EOL]) for comment in comments]
         node.tokens = tokens
         return (*comments, node)
 
-    def split_keyword_call(self, node):
-        separator = Token(Token.SEPARATOR, self.formatting_config.separator)
-        cont_indent = Token(Token.SEPARATOR, self.formatting_config.continuation_indent)
+    def split_keyword_call(self, node: KeywordCall) -> KeywordCall:
+        separator = Token(Token.SEPARATOR, self.formatting_config.separator)  # type: ignore[union-attr]
+        cont_indent = Token(Token.SEPARATOR, self.formatting_config.continuation_indent)  # type: ignore[union-attr]
         indent = node.tokens[0]
 
         keyword = node.get_token(Token.KEYWORD)
@@ -354,9 +385,9 @@ class SplitTooLongLine(Formatter):
             return node
         # check if assign tokens needs to be split too
         assign = node.get_tokens(Token.ASSIGN)
-        line = [indent, *self.join_on_separator(assign, separator), keyword]
+        line: list[Token] = [indent, *self.join_on_separator(assign, separator), keyword]
         if assign and not self.col_fit_in_line(line):
-            head = [
+            head: list[Token] = [
                 *self.split_to_multiple_lines(assign, indent=indent, separator=cont_indent),
                 indent,
                 CONTINUATION,
@@ -373,9 +404,9 @@ class SplitTooLongLine(Formatter):
         node.tokens = self.insert_comments_in_first_line(head, comments)
         return node
 
-    def col_fit_in_line(self, tokens):
+    def col_fit_in_line(self, tokens: list[Token]) -> bool:
         return self.len_token_text(tokens) < self.line_length
 
     @staticmethod
-    def len_token_text(tokens):
+    def len_token_text(tokens: list[Token]) -> int:
         return sum(len(token.value) for token in tokens)

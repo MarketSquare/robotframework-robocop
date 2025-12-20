@@ -8,7 +8,6 @@ significantly improving performance on subsequent runs.
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from functools import lru_cache
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
@@ -266,6 +265,7 @@ class RobocopCache:
         self.verbose = verbose
         self._data: CacheData | None = None
         self._dirty = False
+        self._path_cache: dict[Path, str] = {}  # Instance-bound path normalization cache
 
     @property
     def data(self) -> CacheData:
@@ -338,17 +338,21 @@ class RobocopCache:
         self._data = CacheData()
         self._dirty = True
 
-    @staticmethod
-    @lru_cache(maxsize=1024)
-    def _normalize_path(path: Path) -> str:
+    def _normalize_path(self, path: Path) -> str:
         """
         Normalize path to string for consistent cache keys.
+
+        Uses instance-bound cache to avoid repeated filesystem I/O from path.resolve().
+        The cache is cleared when the RobocopCache instance is garbage collected,
+        preventing memory leaks in long-running processes.
 
         Returns:
             Normalized absolute path as string.
 
         """
-        return str(path.resolve())
+        if path not in self._path_cache:
+            self._path_cache[path] = str(path.resolve())
+        return self._path_cache[path]
 
     @staticmethod
     def _is_entry_valid(

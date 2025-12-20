@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 import os
 from dataclasses import dataclass, field, fields
 from enum import Enum
@@ -383,6 +384,9 @@ class LinterConfig:
         Used for cache invalidation - if configuration changes, cached results are invalidated.
         Note: This makes LinterConfig usable as dict key, but only hash config-affecting fields.
 
+        Uses stable hashing (SHA256) to ensure consistent hashes across Python process restarts,
+        avoiding issues with Python's hash randomization (PEP 456).
+
         Returns:
             Hash value of the configuration options.
 
@@ -398,30 +402,36 @@ class LinterConfig:
             """
             return tuple(sorted(items or []))
 
-        def _per_file_ignores_hash() -> tuple | None:
+        def _per_file_ignores_str() -> str:
             """
-            Create hashable representation of per_file_ignores.
+            Create string representation of per_file_ignores.
 
             Returns:
-                A hashable representation of per_file_ignores or None if it is empty.
+                A string representation of per_file_ignores or empty string if None.
 
             """
             if not self.per_file_ignores:
-                return None
-            return tuple(sorted((key, tuple(sorted(values))) for key, values in self.per_file_ignores.items()))
+                return ""
+            items = sorted((key, ":".join(sorted(values))) for key, values in self.per_file_ignores.items())
+            return ";".join(f"{key}={values}" for key, values in items)
 
-        return hash(
-            (
-                _sorted_tuple(self.select),
-                _sorted_tuple(self.extend_select),
-                _sorted_tuple(self.ignore),
-                _sorted_tuple(self.configure),
-                _sorted_tuple(self.custom_rules),
-                str(self.threshold),
-                str(self.target_version),
-                _per_file_ignores_hash(),
-            )
-        )
+        # Build a stable string representation of the config
+        config_parts = [
+            ":".join(_sorted_tuple(self.select)),
+            ":".join(_sorted_tuple(self.extend_select)),
+            ":".join(_sorted_tuple(self.ignore)),
+            ":".join(_sorted_tuple(self.configure)),
+            ":".join(_sorted_tuple(self.custom_rules)),
+            str(self.threshold),
+            str(self.target_version),
+            _per_file_ignores_str(),
+        ]
+        config_str = "|".join(config_parts)
+
+        # Use SHA256 for stable hashing, then convert to int for __hash__ return type
+        hash_bytes = hashlib.sha256(config_str.encode("utf-8")).digest()
+        # Convert first 8 bytes to int for hash compatibility
+        return int.from_bytes(hash_bytes[:8], byteorder="big", signed=True)
 
 
 @dataclass
@@ -583,6 +593,9 @@ class FormatterConfig:
         Used for cache invalidation - if configuration changes, cached results are invalidated.
         Note: This makes FormatterConfig usable as dict key, but only hash config-affecting fields.
 
+        Uses stable hashing (SHA256) to ensure consistent hashes across Python process restarts,
+        avoiding issues with Python's hash randomization (PEP 456).
+
         Returns:
             Hash value of the configuration options.
 
@@ -599,20 +612,25 @@ class FormatterConfig:
             return tuple(sorted(items or []))
 
         wc = self.whitespace_config
-        return hash(
-            (
-                _sorted_tuple(self.select),
-                _sorted_tuple(self.extend_select),
-                _sorted_tuple(self.configure),
-                str(self.target_version),
-                wc.space_count,
-                wc.indent,
-                wc.continuation_indent,
-                wc.separator,
-                wc.line_ending,
-                wc.line_length,
-            )
-        )
+        # Build a stable string representation of the config
+        config_parts = [
+            ":".join(_sorted_tuple(self.select)),
+            ":".join(_sorted_tuple(self.extend_select)),
+            ":".join(_sorted_tuple(self.configure)),
+            str(self.target_version),
+            str(wc.space_count),
+            str(wc.indent),
+            str(wc.continuation_indent),
+            str(wc.separator),
+            str(wc.line_ending),
+            str(wc.line_length),
+        ]
+        config_str = "|".join(config_parts)
+
+        # Use SHA256 for stable hashing, then convert to int for __hash__ return type
+        hash_bytes = hashlib.sha256(config_str.encode("utf-8")).digest()
+        # Convert first 8 bytes to int for hash compatibility
+        return int.from_bytes(hash_bytes[:8], byteorder="big", signed=True)
 
 
 @dataclass(frozen=True)

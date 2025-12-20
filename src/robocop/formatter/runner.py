@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 import os
 import sys
 from difflib import unified_diff
@@ -41,12 +42,20 @@ class RobocopFormatter:
         """
         Compute cache key combining formatter config hash with language.
 
+        Uses SHA256 for stable hashing across Python processes, unlike the built-in
+        hash() which can vary due to hash randomization (PEP 456).
+
         Returns:
-            A string representing the cache key.
+            A string representing the cache key as a hexadecimal digest.
 
         """
-        lang_hash = hash(tuple(sorted(config.language or [])))
-        return f"{hash(config.formatter)}:{lang_hash}"
+        hasher = hashlib.sha256()
+        # Hash the formatter config
+        hasher.update(str(hash(config.formatter)).encode("utf-8"))
+        # Hash the language configuration (affects parsing)
+        language_str = ":".join(sorted(config.language or []))
+        hasher.update(language_str.encode("utf-8"))
+        return hasher.hexdigest()
 
     def run(self) -> int:
         changed_files = 0

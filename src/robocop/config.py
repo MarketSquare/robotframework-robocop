@@ -808,9 +808,7 @@ class Config:
             if value:
                 setattr(self, config_field.name, value)
         # Handle cache config - CLI cache settings override file config
-        if overwrite_config.cache is not None and (
-            overwrite_config.cache.enabled is False or overwrite_config.cache.cache_dir is not None
-        ):
+        if overwrite_config.cache is not None:
             self.cache = overwrite_config.cache
         if overwrite_config.linter:
             for config_field in fields(overwrite_config.linter):

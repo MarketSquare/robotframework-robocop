@@ -350,3 +350,57 @@ class TestCacheIntegration:
 
             # Assert - should rescan (cache invalidated due to size change)
             assert "Scanning file:" in out2
+
+    def test_cli_cache_dir_overrides_config_file_disabled(self, tmp_path):
+        """Test CLI --cache-dir enables cache and overrides config file with cache=false."""
+        # Arrange - create config file with cache disabled
+        config_file = tmp_path / "pyproject.toml"
+        config_file.write_text("[tool.robocop]\ncache = false\n", encoding="utf-8")
+        test_file = tmp_path / "test.robot"
+        test_file.write_text("*** Test Cases ***\nTest\n    Log    Hello\n", encoding="utf-8")
+
+        custom_cache_dir = tmp_path / "my_cache"
+
+        with working_directory(tmp_path):
+            # Act - run with custom cache_dir via CLI
+            # When cache_dir is explicitly set, it should enable cache and override config file's cache=false
+            check_files(cache_dir=custom_cache_dir, return_result=True)
+
+            # Assert - cache should be enabled with custom directory
+            assert custom_cache_dir.exists(), "Custom cache directory should be created"
+            assert (custom_cache_dir / "cache.msgpack").exists(), "Cache file should be created in custom directory"
+
+            # Verify the file was cached
+            cache_data = get_cache_data(tmp_path)
+            # Check if file is in linter cache (cache is stored in custom_cache_dir, so we need to check there)
+            cache_file = custom_cache_dir / "cache.msgpack"
+
+            cache_data = msgpack.unpackb(cache_file.read_bytes(), raw=False, strict_map_key=False)
+            assert str(test_file.resolve()) in cache_data.get("linter", {}), (
+                "File should be cached despite config having cache=false"
+            )
+
+    def test_cli_no_cache_flag_overrides_config_file_enabled(self, tmp_path, capsys):
+        """Test CLI --no-cache disables cache when config file enables it."""
+        # Arrange - create config file with cache enabled
+        config_file = tmp_path / "pyproject.toml"
+        config_file.write_text("[tool.robocop]\ncache = true\n", encoding="utf-8")
+        test_file = tmp_path / "test.robot"
+        test_file.write_text("*** Test Cases ***\nTest\n    Log    Hello\n", encoding="utf-8")
+
+        with working_directory(tmp_path):
+            # First run with default (cache enabled from config)
+            check_files(return_result=True, verbose=True)
+            _out1, _ = capsys.readouterr()
+
+            # Verify cache was created
+            assert is_file_in_cache(tmp_path, test_file)
+
+            # Act - run with no_cache=True via CLI (simulating --no-cache flag)
+            # This overrides the config file's cache=true
+            check_files(no_cache=True, return_result=True, verbose=True)
+            out2, _ = capsys.readouterr()
+
+            # Assert - should NOT use cache (rescans file)
+            assert "Scanning file:" in out2
+            assert "Used cached results" not in out2

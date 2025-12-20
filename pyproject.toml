@@ -225,7 +225,7 @@ ignore_missing_imports = true
 
 # External libraries that may have incomplete stubs or no stubs at all
 [[tool.mypy.overrides]]
-module = ["typer.*", "click.*", "rich.*", "platformdirs.*", "tomli.*", "tomli_w.*"]
+module = ["typer.*", "click.*", "rich.*", "rich_click.*", "platformdirs.*", "tomli.*", "tomli_w.*", "jinja2.*"]
 ignore_missing_imports = true
 
 # CLI module - intentionally passes None values to dataclasses which are handled by overwrite()
@@ -233,18 +233,3 @@ ignore_missing_imports = true
 [[tool.mypy.overrides]]
 module = "robocop.run"
 disable_error_code = ["arg-type", "attr-defined", "unused-ignore", "misc"]
-
-# Formatter __init__ module - uses rich_click which may not have stubs
-[[tool.mypy.overrides]]
-module = "robocop.formatter.formatters"
-disable_error_code = ["import-not-found"]
-
-# Modules that subclass from untyped library classes
-[[tool.mypy.overrides]]
-module = "robocop.exceptions"
-disable_error_code = ["misc"]
-
-# Rich escape returns Any when ignore_missing_imports is true
-[[tool.mypy.overrides]]
-module = "robocop.linter.reports.print_issues"
-disable_error_code = ["no-any-return"]

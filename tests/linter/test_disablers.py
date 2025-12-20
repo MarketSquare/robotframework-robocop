@@ -38,10 +38,12 @@ class TestDisablers:
         assert disabler.is_line_disabled(15, "disable-whole-keyword")
         assert disabler.is_line_disabled(16, "disable-whole-keyword")
         assert not disabler.is_line_disabled(17, "disable-whole-keyword")
-        assert disabler.is_line_disabled(19, "whole-section")
-        assert disabler.is_line_disabled(20, "whole-section")
-        assert disabler.is_line_disabled(21, "whole-section")
-        assert not disabler.is_line_disabled(10, "otherule")
+        assert disabler.is_line_disabled(23, "whole-section")
+        assert disabler.is_line_disabled(24, "whole-section")
+        assert disabler.is_line_disabled(25, "whole-section")
+        assert not disabler.is_line_disabled(19, "all")
+        assert not disabler.is_line_disabled(19, "some-rule")
+        assert not disabler.is_line_disabled(20, "all")
         model = get_model(DISABLED_TEST_DIR / "disabled_whole.robot")
         disabler = DisablersFinder(model)
         for i in range(1, 11):
@@ -71,7 +73,7 @@ class TestDisablers:
         exp_disabled_rules = {
             "all": [(8, 9)],
             "rule1": [(4, 9), (39, 39), (72, 72)],
-            "rule2": [(14, 42), (32, 41), (47, 74), (65, 74)],
+            "rule2": [(14, 42), (32, 41), (47, 78), (65, 74)],
             "rule3": [(22, 29), (55, 62)],
             "rule4": [(24, 25), (57, 58)],
         }

@@ -25,7 +25,7 @@ if TYPE_CHECKING:
     from robocop.linter.diagnostics import Diagnostic
 
 
-DISABLER_PATTERN = re.compile(r"robocop: ?(?P<disabler>off|on)(?:\s?=\s?(?P<rules>[\w\-]+(?:,\s?[\w\-]+)*))?")
+DISABLER_PATTERN = re.compile(r"robocop: ?(?P<disabler>off|on)(\s?=\s?(?P<rules>[\w\-]+(?:,\s?[\w\-]+)*)|(?:$|\s))")
 
 
 class Disabler:
@@ -46,6 +46,8 @@ class RuleDisablers:
     def __init__(self, blocks: list | None = None) -> None:
         self.current_block = None
         self.lines: dict[int, Disabler] = {}
+        # line disablers are a list of unique disablers. Each disabler may be connected to multiple lines
+        self.line_disablers: list[Disabler] = []
         self.blocks: list[Disabler] = blocks if blocks else []
 
     def start_block(self, start_line: int, directive_col_start: int, directive_col_end: int) -> None:
@@ -74,10 +76,11 @@ class RuleDisablers:
         )
         for line in range(start_line, end_line + 1):
             self.lines[line] = disabler
+        self.line_disablers.append(disabler)
 
     @property
     def not_used_disablers(self) -> Generator[Disabler, None, None]:
-        for disabler in self.lines.values():
+        for disabler in self.line_disablers:
             if not disabler.used:
                 yield disabler
         for disabler in self.blocks:

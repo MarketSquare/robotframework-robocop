@@ -56,7 +56,7 @@ class GitlabReport(robocop.linter.reports.JsonFileReport):
             fingerprints = set()
             for diagnostic in diag_by_source:
                 if not source_lines:  # TODO: model should be coming from source, not diagnostics
-                    source_lines = self._get_source_lines(diagnostic.model)
+                    source_lines = self._get_source_lines(diagnostic.model, source)
                 content = self._get_line_content(diagnostic, source_lines)
                 unique_id = 0
                 while True:
@@ -77,8 +77,15 @@ class GitlabReport(robocop.linter.reports.JsonFileReport):
         return report
 
     @staticmethod
-    def _get_source_lines(model: File) -> list[str]:
-        return StatementLinesCollector(model).text.splitlines()
+    def _get_source_lines(model: File | None, source: str | None = None) -> list[str]:
+        if model is not None:
+            return StatementLinesCollector(model).text.splitlines()
+        if source is not None:
+            try:
+                return Path(source).read_text(encoding="utf-8").splitlines()
+            except OSError:
+                return []
+        return []
 
     @staticmethod
     def _get_line_content(diagnostic: Diagnostic, lines: list[str]) -> str:

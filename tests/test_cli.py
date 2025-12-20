@@ -129,7 +129,7 @@ class TestListFormatters:
             test_data = test_data / "source"
         else:
             test_data = test_data / "expected"
-        command = ["format", "--select", "NormalizeSeparators", "--no-overwrite"]
+        command = ["format", "--select", "NormalizeSeparators", "--no-overwrite", "--no-cache"]
         if check:
             command += ["--check"]
         with working_directory(test_data):
@@ -142,7 +142,7 @@ class TestListFormatters:
     )
     def test_check_overwrite_mode(self, check, overwrite, will_write):
         test_data = Path(__file__).parent / "formatter" / "formatters" / "NormalizeNewLines" / "source"
-        command = ["format", "--select", "NormalizeNewLines"]
+        command = ["format", "--select", "NormalizeNewLines", "--no-cache"]
         if check:
             command.append("--check")
         if overwrite:

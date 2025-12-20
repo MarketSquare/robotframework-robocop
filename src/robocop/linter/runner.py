@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 from typing import TYPE_CHECKING, NoReturn
 
 import typer
@@ -7,6 +8,7 @@ from robot.api import get_init_model, get_model, get_resource_model
 from robot.errors import DataError
 
 from robocop import exceptions
+from robocop.cache import restore_diagnostics
 from robocop.linter import reports
 from robocop.linter.diagnostics import Diagnostics
 from robocop.linter.reports import save_reports_result_to_cache
@@ -40,6 +42,26 @@ class RobocopLinter:
             return get_resource_with_lang(get_resource_model, source, language)
         return get_resource_with_lang(get_model, source, language)
 
+    @staticmethod
+    def _compute_cache_key(config: Config) -> str:
+        """
+        Compute cache key combining linter config hash with language.
+
+        Uses SHA256 for stable hashing across Python processes, unlike the built-in
+        hash() which can vary due to hash randomization (PEP 456).
+
+        Returns:
+            str: The computed cache key as a hexadecimal digest.
+
+        """
+        hasher = hashlib.sha256()
+        # Hash the linter config
+        hasher.update(str(hash(config.linter)).encode("utf-8"))
+        # Hash the language configuration (affects parsing)
+        language_str = ":".join(sorted(config.language or []))
+        hasher.update(language_str.encode("utf-8"))
+        return hasher.hexdigest()
+
     def run(self) -> list[Diagnostic]:
         """
         Run the diagnostic checks on the configured files and returns detected issues.
@@ -63,20 +85,46 @@ class RobocopLinter:
         """
         self.diagnostics: list[Diagnostic] = []
         files = 0
+        cached_files = 0
         for source, config in self.config_manager.paths:
             if config.verbose:
                 print(f"Scanning file: {source}")
+
+            # Try to get cached diagnostics
+            config_hash = self._compute_cache_key(config)
+            cached_entry = self.config_manager.cache.get_linter_entry(source, config_hash)
+
+            if cached_entry is not None:
+                # Restore diagnostics from cache
+                restored = restore_diagnostics(cached_entry, source, config.linter.rules)
+                if restored is not None:
+                    self.diagnostics.extend(restored)
+                    files += 1
+                    cached_files += 1
+                    continue
+                # If restoration failed (e.g., rule removed), fall through to reprocess
+
             try:
                 model = self.get_model_for_file_type(source, config.language)
             except DataError as error:
                 if not config.silent:
                     print(f"Failed to decode {source} with an error: {error}. Skipping file")
                 continue
+
             files += 1
             diagnostics = self.run_check(model, source, config)
             self.diagnostics.extend(diagnostics)
+
+            # Cache the results (config_hash already includes language)
+            self.config_manager.cache.set_linter_entry(source, config_hash, diagnostics)
+
+        # Save cache at the end
+        self.config_manager.cache.save()
+
         if not files and not self.config_manager.default_config.silent:
             print("No Robot files were found with the existing configuration.")
+        if self.config_manager.default_config.verbose and cached_files > 0:
+            print(f"Used cached results for {cached_files} of {files} files.")
         if "file_stats" in self.reports:
             self.reports["file_stats"].files_count = files
         self.make_reports()
@@ -85,7 +133,11 @@ class RobocopLinter:
         return self.return_with_exit_code(len(self.diagnostics))
 
     def run_check(
-        self, model: File, file_path: Path, config: Config, in_memory_content: str | None = None
+        self,
+        model: File,
+        file_path: Path,
+        config: Config,
+        in_memory_content: str | None = None,
     ) -> list[Diagnostic]:
         """
         Run all rules on file model and return list of diagnostics.
@@ -189,7 +241,9 @@ class RobocopLinter:
         for report in self.reports.values():
             prev_result = prev_results.get(report.name) if prev_results is not None else None
             report.generate_report(
-                diagnostics=diagnostics, config_manager=self.config_manager, prev_results=prev_result
+                diagnostics=diagnostics,
+                config_manager=self.config_manager,
+                prev_results=prev_result,
             )
             if is_persistent and isinstance(report, reports.ComparableReport):
                 result = report.persist_result()

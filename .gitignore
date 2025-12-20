@@ -101,6 +101,9 @@ interactive_console_output.xml
 # Robocop log produced by some unit tests
 robocop.log
 
+# Robocop cache directory
+.robocop_cache/
+
 # OS-related files
 .DS_Store
 

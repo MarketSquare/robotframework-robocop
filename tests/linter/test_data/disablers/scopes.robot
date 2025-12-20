@@ -72,3 +72,7 @@ Disablers in blocks
             # robocop: off=rule1
         END
     END
+
+Invalid disabler
+    # robocop: off:rule1
+    Log    Invalid disabler

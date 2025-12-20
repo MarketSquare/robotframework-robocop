@@ -2,6 +2,7 @@ from tests.linter.utils import RuleAcceptance
 
 SELECT = [
     "unused-disabler",
+    "line-too-long",
     "multiline-inline-if",
     "duplicated-variable",
     "NAME01",

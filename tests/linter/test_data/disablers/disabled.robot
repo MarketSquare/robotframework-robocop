@@ -16,6 +16,10 @@ Multiline
     ...    ${ARG}    # robocop: off=disable-whole-keyword
     No Operation
 
+Invalid disabler  # robocop: off:some-rule
+    Keyword
+
+
 *** Keywords ***  # robocop: off=whole-section
 Keyword
     No Operation

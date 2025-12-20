@@ -1,7 +1,7 @@
-disabled_whole_no_violation.robot:1:2 MISC15 Disabler directive found for 'all' rule(s) but no violation found
+disabled_whole_no_violation.robot:1:3 MISC15 Disabler directive found for 'all' rule(s) but no violation found
    |
  1 | # robocop: off
-   |  ^^^^^^^^^^^^^ MISC15
+   |   ^^^^^^^^^^^^ MISC15
    |
 
 disabled_whole_rule.robot:1:3 MISC15 Disabler directive found for 'some-rule' rule(s) but no violation found
@@ -40,12 +40,12 @@ test.robot:5:41 MISC15 Disabler directive found for 'unused-variable' rule(s) bu
  7 |     END
    |
 
-test.robot:8:21 MISC15 Disabler directive found for 'all' rule(s) but no violation found
+test.robot:8:22 MISC15 Disabler directive found for 'all' rule(s) but no violation found
    |
  6 |         Log    ${var}
  7 |     END
  8 |     Log    ${var}  # robocop: off
-   |                     ^^^^^^^^^^^^^ MISC15
+   |                      ^^^^^^^^^^^^ MISC15
    |
 
 test.robot:17:21 MISC15 Disabler directive found for 'NAME01' rule(s) but no violation found
@@ -157,12 +157,50 @@ test.robot:62:7 MISC15 Disabler directive found for 'unused-variable' rule(s) bu
  63 |     ${var}    Set Variable    value
     |
 
-test.robot:66:6 MISC15 Disabler directive found for 'all' rule(s) but no violation found
+test.robot:66:7 MISC15 Disabler directive found for 'all' rule(s) but no violation found
     |
  64 |
  65 | Disabled All Unused
  66 |     # robocop: off
-    |      ^^^^^^^^^^^^^ MISC15
+    |       ^^^^^^^^^^^^ MISC15
  67 |     No Operation
+    |
+
+test.robot:75:28 MISC15 Disabler directive found for 'unused-variable' rule(s) but no violation found
+    |
+ 75 | Scoped disablers Unused  # robocop: off=unused-variable
+    |                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ MISC15
+ 76 |     ${var}    Set Variable    value
+ 77 |     VAR    ${name}    # robocop: off=line-too-long
+    |
+
+test.robot:77:25 MISC15 Disabler directive found for 'line-too-long' rule(s) but no violation found
+    |
+ 75 | Scoped disablers Unused  # robocop: off=unused-variable
+ 76 |     ${var}    Set Variable    value
+ 77 |     VAR    ${name}    # robocop: off=line-too-long
+    |                         ^^^^^^^^^^^^^^^^^^^^^^^^^^ MISC15
+ 78 |     ...    A value that is longer than configured minimal length of the line and will trigger the line-too-long rule
+ 79 |     Log    ${var}
+    |
+
+test.robot:83:7 MISC15 Disabler directive found for 'unused-variable' rule(s) but no violation found
+    |
+ 81 |
+ 82 | Block disablers Used
+ 83 |     # robocop: off=unused-variable
+    |       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ MISC15
+ 84 |     ${var}    Set Variable    value
+ 85 |     # robocop: off=line-too-long
+    |
+
+test.robot:85:7 MISC15 Disabler directive found for 'line-too-long' rule(s) but no violation found
+    |
+ 83 |     # robocop: off=unused-variable
+ 84 |     ${var}    Set Variable    value
+ 85 |     # robocop: off=line-too-long
+    |       ^^^^^^^^^^^^^^^^^^^^^^^^^^ MISC15
+ 86 |     VAR    ${name}
+ 87 |     ...    A value that is longer than configured minimal length of the line and will trigger the line-too-long rule
     |
 

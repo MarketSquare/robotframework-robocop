@@ -65,3 +65,35 @@ Disabled With All And Selected Rule
 Disabled All Unused
     # robocop: off
     No Operation
+
+Scoped disablers Used  # robocop: off=unused-variable
+    ${var}    Set Variable    value
+    VAR    ${name}    # robocop: off=line-too-long
+    ...    A value that is longer than configured minimal length of the line and will trigger the line-too-long rule and we don't want that
+    Log    ${name}
+
+Scoped disablers Unused  # robocop: off=unused-variable
+    ${var}    Set Variable    value
+    VAR    ${name}    # robocop: off=line-too-long
+    ...    A value that is longer than configured minimal length of the line and will trigger the line-too-long rule
+    Log    ${var}
+    Log    ${name}
+
+Block disablers Used
+    # robocop: off=unused-variable
+    ${var}    Set Variable    value
+    # robocop: off=line-too-long
+    VAR    ${name}
+    ...    A value that is longer than configured minimal length of the line and will trigger the line-too-long rule
+    Log    ${var}
+    Log    ${name}
+    # robocop: on=line-too-long
+
+Block disablers Unused
+    # robocop: off=unused-variable
+    ${var}    Set Variable    value
+    # robocop: off=line-too-long
+    VAR    ${name}
+    ...    A value that is longer than configured minimal length of the line and will trigger the line-too-long rule and we don't want that
+    Log    ${name}
+    # robocop: on=line-too-long

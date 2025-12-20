@@ -404,3 +404,18 @@ class TestCacheIntegration:
             # Assert - should NOT use cache (rescans file)
             assert "Scanning file:" in out2
             assert "Used cached results" not in out2
+
+    def test_gitignore_created_in_cache_directory(self, tmp_path):
+        """Test that .gitignore file is created in cache directory."""
+        # Arrange
+        prepare_test_files(tmp_path)
+
+        with working_directory(tmp_path):
+            # Act - run check which creates cache
+            check_files(return_result=True)
+
+            # Assert - .gitignore should be created
+            cache_dir = tmp_path / ".robocop_cache"
+            gitignore_file = cache_dir / ".gitignore"
+            assert gitignore_file.exists(), ".gitignore should be created in cache directory"
+            assert gitignore_file.read_text(encoding="utf-8") == "*\n", ".gitignore should contain '*'"

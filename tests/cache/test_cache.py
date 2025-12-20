@@ -1073,3 +1073,85 @@ class TestCacheEdgeCases:
         # Second access should use cached data
         data2 = cache.data
         assert data2 is data  # Same object
+
+
+class TestGitignoreCreation:
+    """Test that .gitignore file is created in cache directory."""
+
+    def test_gitignore_created_on_cache_save(self, tmp_path: Path):
+        """Test that .gitignore file is created when cache is saved."""
+        cache_dir = tmp_path / CACHE_DIR_NAME
+        cache = RobocopCache(cache_dir=cache_dir)
+        test_file = tmp_path / "test.robot"
+        test_file.write_text("*** Test Cases ***\nTest\n    Log    Hello\n", encoding="utf-8")
+
+        # Add an entry to make cache dirty
+        cache.set_linter_entry(test_file, "config_hash", [])
+        cache.save()
+
+        # Assert .gitignore was created
+        gitignore_file = cache_dir / ".gitignore"
+        assert gitignore_file.exists(), ".gitignore should be created in cache directory"
+        assert gitignore_file.read_text(encoding="utf-8") == "*\n", ".gitignore should contain '*'"
+
+    def test_gitignore_not_overwritten_if_exists(self, tmp_path: Path):
+        """Test that existing .gitignore file is not overwritten."""
+        cache_dir = tmp_path / CACHE_DIR_NAME
+        cache_dir.mkdir()
+        gitignore_file = cache_dir / ".gitignore"
+
+        # Create custom .gitignore with different content
+        custom_content = "# Custom gitignore\ncache.msgpack\n"
+        gitignore_file.write_text(custom_content, encoding="utf-8")
+
+        cache = RobocopCache(cache_dir=cache_dir)
+        test_file = tmp_path / "test.robot"
+        test_file.write_text("*** Test Cases ***\nTest\n    Log    Hello\n", encoding="utf-8")
+
+        # Save cache
+        cache.set_linter_entry(test_file, "config_hash", [])
+        cache.save()
+
+        # Assert .gitignore was not overwritten
+        assert gitignore_file.read_text(encoding="utf-8") == custom_content
+
+    def test_gitignore_created_in_custom_cache_dir(self, tmp_path: Path):
+        """Test that .gitignore is created in custom cache directory."""
+        custom_cache_dir = tmp_path / "my_custom_cache"
+        cache = RobocopCache(cache_dir=custom_cache_dir)
+        test_file = tmp_path / "test.robot"
+        test_file.write_text("*** Test Cases ***\nTest\n    Log    Hello\n", encoding="utf-8")
+
+        # Save cache
+        cache.set_linter_entry(test_file, "config_hash", [])
+        cache.save()
+
+        # Assert .gitignore was created in custom directory
+        gitignore_file = custom_cache_dir / ".gitignore"
+        assert gitignore_file.exists(), ".gitignore should be created in custom cache directory"
+        assert gitignore_file.read_text(encoding="utf-8") == "*\n"
+
+    def test_cache_works_if_gitignore_creation_fails(self, tmp_path: Path, monkeypatch):
+        """Test that cache still works if .gitignore creation fails."""
+        cache_dir = tmp_path / CACHE_DIR_NAME
+        cache = RobocopCache(cache_dir=cache_dir)
+        test_file = tmp_path / "test.robot"
+        test_file.write_text("*** Test Cases ***\nTest\n    Log    Hello\n", encoding="utf-8")
+
+        # Mock write_text to raise OSError
+        original_write_text = Path.write_text
+
+        def mock_write_text(self, *args, **kwargs):
+            if self.name == ".gitignore":
+                raise OSError("Permission denied")
+            return original_write_text(self, *args, **kwargs)
+
+        monkeypatch.setattr(Path, "write_text", mock_write_text)
+
+        # Save cache - should not raise even though .gitignore creation fails
+        cache.set_linter_entry(test_file, "config_hash", [])
+        cache.save()
+
+        # Cache should still be saved
+        cache_file = cache_dir / CACHE_FILE_NAME
+        assert cache_file.exists(), "Cache should be saved even if .gitignore creation fails"

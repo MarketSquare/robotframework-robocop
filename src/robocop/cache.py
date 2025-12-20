@@ -313,6 +313,7 @@ class RobocopCache:
             return
 
         self.cache_dir.mkdir(parents=True, exist_ok=True)
+        self._create_gitignore()
         cache_file = self.cache_dir / CACHE_FILE_NAME
 
         try:
@@ -321,6 +322,16 @@ class RobocopCache:
         except OSError as err:
             if self.verbose:
                 print(f"Warning: Failed to save cache to {cache_file}: {err}")
+
+    def _create_gitignore(self) -> None:
+        """Create .gitignore file in cache directory to prevent committing cache files."""
+        gitignore_file = self.cache_dir / ".gitignore"
+        if not gitignore_file.exists():
+            try:
+                gitignore_file.write_text("*\n", encoding="utf-8")
+            except OSError:
+                # Silently ignore if we can't create .gitignore
+                pass
 
     def invalidate_all(self) -> None:
         """Clear the entire cache."""

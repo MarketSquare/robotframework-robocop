@@ -118,6 +118,15 @@ robocop docs NormalizeNewLines
 robocop docs sonarqube
 ```
 
+## Caching
+
+Robocop caches results of analysis and formatting to speed up execution.
+
+The cache is stored in ``.robocop_cache`` directory (configurable via [``--cache-dir``](../configuration/configuration_reference.md#cache-dir)).
+If the file was not modified since the last run and Robocop configuration did not change, Robocop will use cached
+results. Previous diagnostic messages are retained, and formatting of not modified files is skipped.
+Use [``--no-cache``](../configuration/configuration_reference.md#cache-dir) to disable caching.
+
 ## Values
 
 Original *RoboCop* - a fictional cybernetic police officer - was the following three prime directives

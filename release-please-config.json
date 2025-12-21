@@ -16,5 +16,6 @@
     {"type": "chore", "section": "Miscellaneous", "hidden": true},
     {"type": "test", "section": "Tests", "hidden": true}
   ],
-  "include-component-in-tag": false
+  "include-component-in-tag": false,
+  "include-v-in-tag": true
 }

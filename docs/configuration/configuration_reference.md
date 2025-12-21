@@ -1335,3 +1335,53 @@ pattern.
     ```
 
 See [skip keyword call pattern](../formatter/skip_formatting.md#skip-the-keyword-call-pattern) for more details.
+
+## Caching
+
+#### ``cache``
+
+Use ``--cache / --no-cache`` option to enable/disable caching of the files. By default, Robocop caches the results of
+linting and formatting. Read more about caching one the ... page.
+
+=== ":octicons-command-palette-24: cli"
+
+    ```bash
+    robocop lint --no-cache
+    robocop format --no-cache
+    ```
+
+=== ":material-file-cog-outline: toml"
+
+    ```toml
+    [tool.robocop]
+    cache = false
+    ```
+
+#### ``cache-dir``
+
+Change the cache directory (default ``.robocop_cache``) using ``--cache-dir`` option.
+
+=== ":octicons-command-palette-24: cli"
+
+    ```bash
+    robocop lint --cache-dir cache_directory
+    robocop format --cache-dir cache_directory
+    ```
+
+=== ":material-file-cog-outline: toml"
+
+    ```toml
+    [tool.robocop]
+    cache-dir = cache_directory
+    ```
+
+#### ``clear-cache``
+
+Clear cache directory with ``--clear-cache`` option. It will force reprocessing of all the files.
+
+=== ":octicons-command-palette-24: cli"
+
+    ```bash
+    robocop lint --clear-cache
+    robocop format --clear-cache
+    ```

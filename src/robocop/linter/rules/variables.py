@@ -100,7 +100,7 @@ class UnusedVariableRule(Rule):
 
     You can configure the rule to ignore specific variable names in the ``*** Variables ***`` section using
     the ``ignore`` parameter. This is useful for variables that are used by external listeners, libraries,
-    or variable files::
+    or variable files:
 
         robocop check --configure unused-variable.ignore=suite_param,other_var
 

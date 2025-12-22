@@ -43,7 +43,11 @@ class TestRuleAcceptance(RuleAcceptance):
         )
 
     def test_groups(self):
-        self.check_rule(src_files=["groups.robot"], expected_file="expected_output_groups.txt", test_on_version=">=7.2")
+        self.check_rule(
+            src_files=["groups.robot"],
+            expected_file="expected_output_groups.txt",
+            test_on_version=">=7.2",
+        )
 
     def test_extended_variable_syntax(self):
         self.check_rule(
@@ -63,7 +67,7 @@ class TestRuleAcceptance(RuleAcceptance):
         self.check_rule(
             configure=["unused-variable.ignore=global_not_used"],
             src_files=["unused_section_vars.robot"],
-            expected_file="expected_output_ignore.txt",
+            expected_file=None,
             issue_format="end_col",
             test_on_version=">=7",
         )

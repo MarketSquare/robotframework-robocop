@@ -98,12 +98,29 @@ class UnusedVariableRule(Rule):
     BuiltIn ``Replace Variables`` or any custom keyword that retrieves variables from a local scope. In this case,
     Robocop will still raise an ``unused-variable`` even if the variable is actually used.
 
+    You can configure the rule to ignore specific variable names in the ``*** Variables ***`` section using
+    the ``ignore`` parameter. This is useful for variables that are used by external listeners, libraries,
+    or variable files:
+
+        robocop check --configure unused-variable.ignore=suite_param,other_var
+
+    Variable names are matched case-insensitively following Robot Framework conventions.
+
     """
 
     name = "unused-variable"
     rule_id = "VAR02"
     message = "Variable '{name}' is assigned but not used"
     severity = RuleSeverity.INFO
+    parameters = [
+        RuleParam(
+            name="ignore",
+            default="",
+            converter=str,
+            show_type="comma separated list",
+            desc="Comma-separated list of variable names to ignore in *** Variables *** section (case-insensitive)",
+        )
+    ]
     added_in_version = "3.2.0"
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.CLEAR, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL

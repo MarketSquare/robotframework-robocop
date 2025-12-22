@@ -8,7 +8,7 @@ jobs:
   build-docs:
     runs-on: ubuntu-latest
     # Only run on release PRs (release-please labels them with 'autorelease: pending')
-    if: contains(github.event.pull_request.labels.*.name, 'autorelease: pending')
+    if: "contains(github.event.pull_request.labels.*.name, 'autorelease: pending')"
     steps:
       - uses: actions/checkout@v4
       - uses: astral-sh/setup-uv@v4

@@ -57,3 +57,23 @@ class TestRuleAcceptance(RuleAcceptance):
             expected_file="variable_type_conversion_expected.txt",
             # test_on_version=">=7.3" FIXME
         )
+
+    def test_ignore_section_variable(self):
+        """Test that ignore parameter excludes section variables (case-insensitive)."""
+        self.check_rule(
+            configure=["unused-variable.ignore=global_not_used"],
+            src_files=["unused_section_vars.robot"],
+            expected_file="expected_output_ignore.txt",
+            issue_format="end_col",
+            test_on_version=">=7",
+        )
+
+    def test_ignore_does_not_affect_local_variables(self):
+        """Test that ignore parameter only applies to section variables, not local ones."""
+        self.check_rule(
+            configure=["unused-variable.ignore=var"],
+            src_files=["test.robot"],
+            expected_file="expected_output_ignore_local.txt",
+            issue_format="end_col",
+            test_on_version=">=7",
+        )

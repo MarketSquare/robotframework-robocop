@@ -1190,7 +1190,18 @@ class UnusedVariablesChecker(VisitorChecker):
     def report_not_used_section_variables(self) -> None:
         if not self.test_or_task_section:
             return
-        self.check_unused_variables_in_scope(self.section_variables)
+        ignored = self.get_ignored_variable_names()
+        for variable in self.section_variables.values():
+            should_ignore = variable.is_used or utils.normalize_robot_var_name(variable.name) in ignored
+            if not should_ignore:
+                self.report_arg_or_var_rule(self.unused_variable, variable.token, variable.name)
+
+    def get_ignored_variable_names(self) -> set[str]:
+        """Get normalized set of variable names to ignore from the ignore parameter."""
+        ignore_config = self.unused_variable.ignore
+        if not ignore_config:
+            return set()
+        return {utils.normalize_robot_name(name.strip()) for name in ignore_config.split(",")}
 
     def visit_TestCaseSection(self, node) -> None:  # noqa: N802
         self.test_or_task_section = True

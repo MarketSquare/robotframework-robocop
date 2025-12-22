@@ -36,3 +36,15 @@ Test With Nested FOR Loops
             Log    ${x} ${y}
         END
     END
+
+# Negative tests - should NOT report and not throw exceptions
+
+Test With Invalid FOR Syntax
+    # Missing variable - should be ignored (node.header.errors)
+    FOR    IN RANGE    3
+        Log    Invalid
+    END
+    # Missing dollar sign - should be ignored
+    FOR    {missing_dollar}    IN RANGE    3
+        Log    Invalid
+    END

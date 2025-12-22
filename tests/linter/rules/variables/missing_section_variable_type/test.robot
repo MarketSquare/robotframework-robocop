@@ -16,6 +16,19 @@ ${NO_SPACE:pattern}    value
 ${_}         ignored
 ${_unused}   ignored
 
+# Negative tests - invalid syntax, should NOT report and not throw exceptions
+${var}
+...    val
+ ....    val
+value
+
+&{dict}    1
+
+# Multiline variable
+${MULTILINE}
+...    line1
+...    line2
+
 
 *** Keywords ***
 Keyword With VAR
@@ -23,6 +36,15 @@ Keyword With VAR
     VAR    ${typed_local: str}    value
     VAR    ${_ignored}    value
     Log    ${local} ${typed_local}
+
+Keyword With Multiline VAR
+    VAR
+    ...    ${multiline_var}
+    ...    value
+    VAR
+    ...    ${typed_multiline: str}
+    ...    value
+    Log    ${multiline_var} ${typed_multiline}
 
 Keyword With Assignment
     ${result} =    Set Variable    value

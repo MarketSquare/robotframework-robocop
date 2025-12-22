@@ -1,0 +1,50 @@
+test.robot:4:12 VAR15 FOR loop variable '${index}' is missing type annotation
+   |
+ 2 | Test With FOR Loop
+ 3 |     # Should report - no type
+ 4 |     FOR    ${index}    IN RANGE    10
+   |            ^^^^^^^^ VAR15
+ 5 |         Log    ${index}
+ 6 |     END
+   |
+
+test.robot:12:12 VAR15 FOR loop variable '${idx}' is missing type annotation
+    |
+ 10 |     END
+ 11 |     # Multiple variables - mixed
+ 12 |     FOR    ${idx}    ${date: date}    IN ENUMERATE    2023-06-15    2025-05-30
+    |            ^^^^^^ VAR15
+ 13 |         Log    ${idx} ${date}
+ 14 |     END
+    |
+
+test.robot:22:12 VAR15 FOR loop variable '${i}' is missing type annotation
+    |
+ 20 | Test With Nested FOR Loops
+ 21 |     # Outer loop - should report
+ 22 |     FOR    ${i}    IN RANGE    3
+    |            ^^^^ VAR15
+ 23 |         # Inner loop - should report
+ 24 |         FOR    ${j}    IN RANGE    2
+    |
+
+test.robot:24:16 VAR15 FOR loop variable '${j}' is missing type annotation
+    |
+ 22 |     FOR    ${i}    IN RANGE    3
+ 23 |         # Inner loop - should report
+ 24 |         FOR    ${j}    IN RANGE    2
+    |                ^^^^ VAR15
+ 25 |             Log    ${i} ${j}
+ 26 |         END
+    |
+
+test.robot:35:16 VAR15 FOR loop variable '${y}' is missing type annotation
+    |
+ 33 |     FOR    ${x: int}    IN RANGE    3
+ 34 |         # Inner loop - should report
+ 35 |         FOR    ${y}    IN RANGE    2
+    |                ^^^^ VAR15
+ 36 |             Log    ${x} ${y}
+ 37 |         END
+    |
+

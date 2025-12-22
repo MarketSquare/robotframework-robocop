@@ -2,5 +2,8 @@ test.robot:3:1 [I] VAR13 Variable '${NUMBER}' is missing type annotation
 test.robot:4:1 [I] VAR13 Variable '@{LIST}' is missing type annotation
 test.robot:5:1 [I] VAR13 Variable '&{DICT}' is missing type annotation
 test.robot:13:1 [I] VAR13 Variable '${NO_SPACE:pattern}' is missing type annotation
-test.robot:22:12 [I] VAR13 Variable '${local}' is missing type annotation
-test.robot:28:5 [I] VAR13 Variable '${result}' is missing type annotation
+test.robot:20:1 [I] VAR13 Variable '${var}' is missing type annotation
+test.robot:28:1 [I] VAR13 Variable '${MULTILINE}' is missing type annotation
+test.robot:35:12 [I] VAR13 Variable '${local}' is missing type annotation
+test.robot:42:12 [I] VAR13 Variable '${multiline_var}' is missing type annotation
+test.robot:50:5 [I] VAR13 Variable '${result}' is missing type annotation

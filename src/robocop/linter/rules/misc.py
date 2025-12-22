@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING, Optional
 
 from robot.api import Token
 from robot.errors import VariableError
-from robot.parsing.model.blocks import TestCaseSection
+from robot.parsing.model.blocks import For, TestCaseSection
 from robot.parsing.model.statements import Arguments, KeywordCall, Teardown
 from robot.utils import unescape
 from robot.variables.search import search_variable
@@ -22,6 +22,10 @@ try:
     from robot.api.parsing import Break, Continue, InlineIfHeader
 except ImportError:
     InlineIfHeader, Break, Continue = None, None, None
+try:  # RF 7+
+    from robot.api.parsing import Var
+except ImportError:
+    Var = None  # type: ignore[assignment, misc]
 
 from robocop.linter import sonar_qube
 from robocop.linter.rules import (
@@ -74,7 +78,8 @@ class KeywordAfterReturnRule(Rule):
     severity = RuleSeverity.WARNING
     added_in_version = "1.0.0"
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
-        clean_code=sonar_qube.CleanCodeAttribute.CONVENTIONAL, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
+        clean_code=sonar_qube.CleanCodeAttribute.CONVENTIONAL,
+        issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL,
     )
     deprecated_names = ("0901",)
 
@@ -109,7 +114,8 @@ class EmptyReturnRule(Rule):
     severity = RuleSeverity.WARNING
     added_in_version = "1.0.0"
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
-        clean_code=sonar_qube.CleanCodeAttribute.COMPLETE, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
+        clean_code=sonar_qube.CleanCodeAttribute.COMPLETE,
+        issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL,
     )
     deprecated_names = ("0903",)
 
@@ -137,7 +143,8 @@ class NestedForLoopRule(Rule):
     version = "<4.0"
     added_in_version = "1.0.0"
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
-        clean_code=sonar_qube.CleanCodeAttribute.CONVENTIONAL, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
+        clean_code=sonar_qube.CleanCodeAttribute.CONVENTIONAL,
+        issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL,
     )
     deprecated_names = ("0907",)
 
@@ -216,7 +223,8 @@ class InconsistentAssignmentRule(Rule):
     ]
     added_in_version = "1.7.0"
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
-        clean_code=sonar_qube.CleanCodeAttribute.CONVENTIONAL, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
+        clean_code=sonar_qube.CleanCodeAttribute.CONVENTIONAL,
+        issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL,
     )
     deprecated_names = ("0909",)
 
@@ -278,7 +286,8 @@ class InconsistentAssignmentInVariablesRule(Rule):
     ]
     added_in_version = "1.7.0"
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
-        clean_code=sonar_qube.CleanCodeAttribute.CONVENTIONAL, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
+        clean_code=sonar_qube.CleanCodeAttribute.CONVENTIONAL,
+        issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL,
     )
     deprecated_names = ("0910",)
 
@@ -297,7 +306,8 @@ class CanBeResourceFileRule(Rule):
     file_wide_rule = True
     added_in_version = "1.10.0"
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
-        clean_code=sonar_qube.CleanCodeAttribute.CONVENTIONAL, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
+        clean_code=sonar_qube.CleanCodeAttribute.CONVENTIONAL,
+        issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL,
     )
     deprecated_names = ("0913",)
 
@@ -344,7 +354,8 @@ class IfCanBeMergedRule(Rule):
     version = ">=4.0"
     added_in_version = "2.0.0"
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
-        clean_code=sonar_qube.CleanCodeAttribute.CONVENTIONAL, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
+        clean_code=sonar_qube.CleanCodeAttribute.CONVENTIONAL,
+        issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL,
     )
     deprecated_names = ("0914",)
 
@@ -370,7 +381,8 @@ class StatementOutsideLoopRule(Rule):
     version = ">=5.0"
     added_in_version = "2.0.0"
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
-        clean_code=sonar_qube.CleanCodeAttribute.CONVENTIONAL, issue_type=sonar_qube.SonarQubeIssueType.BUG
+        clean_code=sonar_qube.CleanCodeAttribute.CONVENTIONAL,
+        issue_type=sonar_qube.SonarQubeIssueType.BUG,
     )
     deprecated_names = ("0915",)
 
@@ -410,7 +422,8 @@ class InlineIfCanBeUsedRule(Rule):
     severity_threshold = SeverityThreshold("max_width", compare_method="less")
     added_in_version = "2.0.0"
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
-        clean_code=sonar_qube.CleanCodeAttribute.CONVENTIONAL, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
+        clean_code=sonar_qube.CleanCodeAttribute.CONVENTIONAL,
+        issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL,
     )
     deprecated_names = ("0916",)
 
@@ -445,7 +458,8 @@ class UnreachableCodeRule(Rule):
     version = ">=5.0"
     added_in_version = "3.1.0"
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
-        clean_code=sonar_qube.CleanCodeAttribute.LOGICAL, issue_type=sonar_qube.SonarQubeIssueType.BUG
+        clean_code=sonar_qube.CleanCodeAttribute.LOGICAL,
+        issue_type=sonar_qube.SonarQubeIssueType.BUG,
     )
     deprecated_names = ("0917",)
 
@@ -489,7 +503,8 @@ class MultilineInlineIfRule(Rule):
     version = ">=5.0"
     added_in_version = "3.1.0"
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
-        clean_code=sonar_qube.CleanCodeAttribute.FORMATTED, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
+        clean_code=sonar_qube.CleanCodeAttribute.FORMATTED,
+        issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL,
     )
     deprecated_names = ("0918",)
 
@@ -594,7 +609,8 @@ class ExpressionCanBeSimplifiedRule(Rule):
     version = ">=4.0"
     added_in_version = "4.0.0"
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
-        clean_code=sonar_qube.CleanCodeAttribute.CONVENTIONAL, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
+        clean_code=sonar_qube.CleanCodeAttribute.CONVENTIONAL,
+        issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL,
     )
     deprecated_names = ("0924",)
 
@@ -638,7 +654,8 @@ class MisplacedNegativeConditionRule(Rule):
     version = ">=4.0"
     added_in_version = "4.0.0"
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
-        clean_code=sonar_qube.CleanCodeAttribute.CONVENTIONAL, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
+        clean_code=sonar_qube.CleanCodeAttribute.CONVENTIONAL,
+        issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL,
     )
     deprecated_names = ("0925",)
 
@@ -673,7 +690,8 @@ class DisablerNotUsedRule(Rule):
     severity = RuleSeverity.INFO
     added_in_version = "6.8.0"
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
-        clean_code=sonar_qube.CleanCodeAttribute.CONVENTIONAL, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
+        clean_code=sonar_qube.CleanCodeAttribute.CONVENTIONAL,
+        issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL,
     )
 
 
@@ -773,7 +791,10 @@ class NestedForLoopsChecker(VisitorChecker):  # TODO: merge
             if child.type == "FOR":
                 token = child.get_token(Token.FOR)
                 self.report(
-                    self.nested_for_loop, node=child, col=token.col_offset + 1, end_col=token.end_col_offset + 1
+                    self.nested_for_loop,
+                    node=child,
+                    col=token.col_offset + 1,
+                    end_col=token.end_col_offset + 1,
                 )
 
 
@@ -793,7 +814,11 @@ class IfBlockCanBeUsed(VisitorChecker):
         if utils.normalize_robot_name(node.keyword, remove_prefix="builtin.") in self.run_keyword_variants:
             col = utils.keyword_col(node)
             self.report(
-                self.if_can_be_used, run_keyword=node.keyword, node=node, col=col, end_col=col + len(node.keyword)
+                self.if_can_be_used,
+                run_keyword=node.keyword,
+                node=node,
+                col=col,
+                end_col=col + len(node.keyword),
             )
 
 
@@ -830,7 +855,10 @@ class ConsistentAssignmentSignChecker(VisitorChecker):
     def visit_File(self, node) -> None:  # noqa: N802
         self.keyword_expected_sign_type = self.inconsistent_assignment.assignment_sign_type
         self.variables_expected_sign_type = self.inconsistent_assignment_in_variables.assignment_sign_type
-        if "autodetect" in [self.keyword_expected_sign_type, self.variables_expected_sign_type]:
+        if "autodetect" in [
+            self.keyword_expected_sign_type,
+            self.variables_expected_sign_type,
+        ]:
             auto_detector = self.auto_detect_assignment_sign(node)
             if self.keyword_expected_sign_type == "autodetect":
                 self.keyword_expected_sign_type = auto_detector.keyword_most_common
@@ -858,7 +886,9 @@ class ConsistentAssignmentSignChecker(VisitorChecker):
                 continue
             var_token = child.get_token(Token.VARIABLE)
             self.check_assign_type(
-                var_token, self.variables_expected_sign_type, self.inconsistent_assignment_in_variables
+                var_token,
+                self.variables_expected_sign_type,
+                self.inconsistent_assignment_in_variables,
             )
         return node
 
@@ -960,7 +990,12 @@ class ResourceFileChecker(VisitorChecker):
                 and node.sections
                 and not any(isinstance(section, TestCaseSection) for section in node.sections)
             ):
-                self.report(self.can_be_resource_file, file_name=Path(source).name, file_name_stem=file_name, node=node)
+                self.report(
+                    self.can_be_resource_file,
+                    file_name=Path(source).name,
+                    file_name_stem=file_name,
+                    node=node,
+                )
 
 
 class IfChecker(VisitorChecker):
@@ -975,7 +1010,9 @@ class IfChecker(VisitorChecker):
             return
         self.check_adjacent_ifs(node)
 
-    visit_For = visit_If = visit_Keyword = visit_TestCase  # noqa: N815  # TODO: While, Try Except?
+    visit_For = visit_If = visit_Keyword = (  # noqa: N815
+        visit_TestCase  # TODO: While, Try Except?
+    )
 
     @staticmethod
     def is_inline_if(node):
@@ -1071,7 +1108,12 @@ class LoopStatementsChecker(VisitorChecker):
     """Checker for loop keywords and statements such as CONTINUE or Exit For Loop"""
 
     statement_outside_loop: StatementOutsideLoopRule
-    for_keyword = {"continueforloop", "continueforloopif", "exitforloop", "exitforloopif"}
+    for_keyword = {
+        "continueforloop",
+        "continueforloopif",
+        "exitforloop",
+        "exitforloopif",
+    }
 
     def __init__(self):
         self.loops = 0
@@ -1335,13 +1377,17 @@ class UnusedVariablesChecker(VisitorChecker):
         for token in node.get_tokens(Token.NAME, Token.ARGUMENT):
             self.find_not_nested_variable(token.value, is_var=False)
 
-    visit_TestTags = visit_ForceTags = visit_Metadata = visit_DefaultTags = visit_Variable = visit_ReturnStatement = (  # noqa: N815
-        visit_ReturnSetting  # noqa: N815
-    ) = visit_Teardown = visit_Timeout = visit_Return = visit_SuiteSetup = visit_SuiteTeardown = visit_TestSetup = (  # noqa: N815
-        visit_TestTeardown  # noqa: N815
-    ) = visit_Setup = visit_ResourceImport = visit_VariablesImport = visit_Tags = visit_Documentation = (  # noqa: N815
-        visit_LibraryImport
-    )
+    visit_TestTags = visit_ForceTags = visit_Metadata = visit_DefaultTags = (  # noqa: N815
+        visit_Variable  # noqa: N815
+    ) = visit_ReturnStatement = visit_ReturnSetting = visit_Teardown = (  # noqa: N815
+        visit_Timeout  # noqa: N815
+    ) = visit_Return = visit_SuiteSetup = (  # noqa: N815  # noqa: N815
+        visit_SuiteTeardown  # noqa: N815
+    ) = visit_TestSetup = visit_TestTeardown = visit_Setup = (  # noqa: N815
+        visit_ResourceImport  # noqa: N815
+    ) = visit_VariablesImport = visit_Tags = (  # noqa: N815  # noqa: N815
+        visit_Documentation  # noqa: N815
+    ) = visit_LibraryImport
 
     def clear_variables_after_loop(self) -> None:
         """Remove used variables after the loop finishes."""
@@ -1607,9 +1653,26 @@ class ExpressionsChecker(VisitorChecker):
     misplaced_negative_condition: MisplacedNegativeConditionRule
 
     QUOTE_CHARS = {"'", '"'}
-    CONDITION_KEYWORDS = {"passexecutionif", "setvariableif", "shouldbetrue", "shouldnotbetrue", "skipif"}
+    CONDITION_KEYWORDS = {
+        "passexecutionif",
+        "setvariableif",
+        "shouldbetrue",
+        "shouldnotbetrue",
+        "skipif",
+    }
     COMPARISON_SIGNS = {"==", "!="}
-    EMPTY_COMPARISON = {"${true}", "${false}", "true", "false", "[]", "{}", "set()", "list()", "dict()", "0"}
+    EMPTY_COMPARISON = {
+        "${true}",
+        "${false}",
+        "true",
+        "false",
+        "[]",
+        "{}",
+        "set()",
+        "list()",
+        "dict()",
+        "0",
+    }
 
     def visit_If(self, node) -> None:  # noqa: N802
         condition_token = node.header.get_token(Token.ARGUMENT)
@@ -1645,7 +1708,12 @@ class ExpressionsChecker(VisitorChecker):
             position += len(match.before)
             self.check_for_misplaced_not(condition_token, node_name, match.before, match.match, match.after)
             self.check_for_complex_condition(
-                condition_token, node_name, match.before, match.match, match.after, position
+                condition_token,
+                node_name,
+                match.before,
+                match.match,
+                match.after,
+                position,
             )
 
     def check_for_misplaced_not(self, condition_token, node_name, left_side, variable, right_side) -> None:
@@ -1850,3 +1918,143 @@ class UnusedDiagnosticChecker(AfterRunChecker):
                 col=disabler.directive_col_start,
                 end_col=disabler.directive_col_end,
             )
+
+
+class MissingVariableTypeChecker(VisitorChecker):
+    """Checker for variables without type annotations (RF 7.3+)."""
+
+    missing_section_variable_type: variables.MissingSectionVariableTypeRule
+    missing_argument_type: variables.MissingArgumentTypeRule
+    missing_for_loop_variable_type: variables.MissingForLoopVariableTypeRule
+
+    @staticmethod
+    def has_type_annotation(var_name: str) -> bool:
+        """
+        Check if variable has type annotation (contains ': ' followed by type).
+
+        Returns:
+            True if variable has type annotation
+
+        """
+        # Type conversion syntax: ${var: type} - note the space after colon
+        # vs embedded pattern: ${var:pattern} - no space after colon
+        return ": " in var_name
+
+    @staticmethod
+    def is_ignore_variable(var_name: str) -> bool:
+        """
+        Check if variable is an ignore variable like ${_} or ${_name}.
+
+        Args:
+            var_name: Variable name from search_variable().base
+
+        Returns:
+            True if variable should be ignored (starts with underscore)
+
+        """
+        # Strip variable markers like ${, @{, &{, %}
+        name = var_name.lstrip("$@&%{").rstrip("}")
+        # Remove type annotation if present
+        name = utils.remove_variable_type_conversion(name)
+        return name == "_" or name.startswith("_")
+
+    def should_report_missing_type(self, var_name: str) -> bool:
+        """
+        Check if variable should be reported for missing type annotation.
+
+        Args:
+            var_name: Variable name from search_variable()
+
+        Returns:
+            True if variable is missing type annotation and should be reported
+
+        """
+        try:
+            var_match = search_variable(var_name, ignore_errors=True)
+            return (
+                var_match.base
+                and not self.has_type_annotation(var_match.base)
+                and not self.is_ignore_variable(var_match.base)
+            )
+        except VariableError:
+            return False
+
+    def visit_Variable(self, node: Variable) -> None:  # noqa: N802
+        """Check variables in *** Variables *** section."""
+        if utils.get_errors(node):
+            return
+        token = node.data_tokens[0]
+        if self.should_report_missing_type(token.value):
+            var_match = search_variable(token.value, ignore_errors=True)
+            self.report(
+                self.missing_section_variable_type,
+                variable_name=var_match.match,
+                node=node,
+                lineno=token.lineno,
+                col=token.col_offset + 1,
+                end_col=token.end_col_offset + 1,
+            )
+
+    def visit_Var(self, node: Var) -> None:  # noqa: N802
+        """Check VAR statements."""
+        if node.errors:
+            return
+        variable = node.get_token(Token.VARIABLE)
+        if not variable:
+            return
+        if self.should_report_missing_type(variable.value):
+            var_match = search_variable(variable.value, ignore_errors=True)
+            self.report(
+                self.missing_section_variable_type,
+                variable_name=var_match.match,
+                node=node,
+                lineno=variable.lineno,
+                col=variable.col_offset + 1,
+                end_col=variable.end_col_offset + 1,
+            )
+
+    def visit_KeywordCall(self, node: KeywordCall) -> None:  # noqa: N802
+        """Check assignment expressions (${var} = Keyword)."""
+        for token in node.get_tokens(Token.ASSIGN):
+            if self.should_report_missing_type(token.value):
+                var_match = search_variable(token.value, ignore_errors=True)
+                self.report(
+                    self.missing_section_variable_type,
+                    variable_name=var_match.match,
+                    node=node,
+                    lineno=token.lineno,
+                    col=token.col_offset + 1,
+                    end_col=token.end_col_offset + 1,
+                )
+
+    def visit_Arguments(self, node: Arguments) -> None:  # noqa: N802
+        """Check keyword arguments ([Arguments])."""
+        for arg in node.get_tokens(Token.ARGUMENT):
+            # Handle default values: ${arg: type}=default
+            arg_name, _ = utils.split_argument_default_value(arg.value)
+            if self.should_report_missing_type(arg_name):
+                var_match = search_variable(arg_name, ignore_errors=True)
+                self.report(
+                    self.missing_argument_type,
+                    variable_name=var_match.match,
+                    node=node,
+                    lineno=arg.lineno,
+                    col=arg.col_offset + 1,
+                    end_col=arg.col_offset + len(arg_name) + 1,
+                )
+
+    def visit_For(self, node: For) -> None:  # noqa: N802
+        """Check FOR loop variables."""
+        if not node.header.errors:
+            for variable in node.header.get_tokens(Token.VARIABLE):
+                if self.should_report_missing_type(variable.value):
+                    var_match = search_variable(variable.value, ignore_errors=True)
+                    self.report(
+                        self.missing_for_loop_variable_type,
+                        variable_name=var_match.match,
+                        node=node,
+                        lineno=variable.lineno,
+                        col=variable.col_offset + 1,
+                        end_col=variable.end_col_offset + 1,
+                    )
+        self.generic_visit(node)  # Continue to nested loops

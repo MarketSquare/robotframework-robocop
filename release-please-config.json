@@ -6,7 +6,7 @@
       "package-name": "robotframework-robocop",
       "changelog-path": "docs/releasenotes/changelog.md",
       "extra-files": ["src/robocop/__init__.py"]
-    },
+    }
   },
   "changelog-sections": [
     {"type": "feat", "section": "Features"},

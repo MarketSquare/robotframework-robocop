@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING, Optional
 
 from robot.api import Token
 from robot.errors import VariableError
-from robot.parsing.model.blocks import TestCaseSection
+from robot.parsing.model.blocks import For, TestCaseSection
 from robot.parsing.model.statements import Arguments, KeywordCall, Teardown
 from robot.utils import unescape
 from robot.variables.search import search_variable
@@ -22,6 +22,10 @@ try:
     from robot.api.parsing import Break, Continue, InlineIfHeader
 except ImportError:
     InlineIfHeader, Break, Continue = None, None, None
+try:  # RF 7+
+    from robot.api.parsing import Var
+except ImportError:
+    Var = None  # type: ignore[assignment, misc]
 
 from robocop.linter import sonar_qube
 from robocop.linter.rules import (
@@ -1850,3 +1854,143 @@ class UnusedDiagnosticChecker(AfterRunChecker):
                 col=disabler.directive_col_start,
                 end_col=disabler.directive_col_end,
             )
+
+
+class MissingVariableTypeChecker(VisitorChecker):
+    """Checker for variables without type annotations (RF 7.3+)."""
+
+    missing_section_variable_type: variables.MissingSectionVariableTypeRule
+    missing_argument_type: variables.MissingArgumentTypeRule
+    missing_for_loop_variable_type: variables.MissingForLoopVariableTypeRule
+
+    @staticmethod
+    def has_type_annotation(var_name: str) -> bool:
+        """
+        Check if variable has type annotation (contains ': ' followed by type).
+
+        Returns:
+            True if variable has type annotation
+
+        """
+        # Type conversion syntax: ${var: type} - note the space after colon
+        # vs embedded pattern: ${var:pattern} - no space after colon
+        return ": " in var_name
+
+    @staticmethod
+    def is_ignore_variable(var_name: str) -> bool:
+        """
+        Check if variable is an ignore variable like ${_} or ${_name}.
+
+        Args:
+            var_name: Variable name from search_variable().base
+
+        Returns:
+            True if variable should be ignored (starts with underscore)
+
+        """
+        # Strip variable markers like ${, @{, &{, %}
+        name = var_name.lstrip("$@&%{").rstrip("}")
+        # Remove type annotation if present
+        name = utils.remove_variable_type_conversion(name)
+        return name == "_" or name.startswith("_")
+
+    def should_report_missing_type(self, var_name: str) -> bool:
+        """
+        Check if variable should be reported for missing type annotation.
+
+        Args:
+            var_name: Variable name from search_variable()
+
+        Returns:
+            True if variable is missing type annotation and should be reported
+
+        """
+        try:
+            var_match = search_variable(var_name, ignore_errors=True)
+            return (
+                var_match.base
+                and not self.is_ignore_variable(var_match.base)
+                and not self.has_type_annotation(var_match.base)
+            )
+        except VariableError:
+            return False
+
+    def visit_Variable(self, node: Variable) -> None:  # noqa: N802
+        """Check variables in *** Variables *** section."""
+        if utils.get_errors(node):
+            return
+        token = node.data_tokens[0]
+        if self.should_report_missing_type(token.value):
+            var_match = search_variable(token.value, ignore_errors=True)
+            self.report(
+                self.missing_section_variable_type,
+                variable_name=var_match.match,
+                node=node,
+                lineno=token.lineno,
+                col=token.col_offset + 1,
+                end_col=token.end_col_offset + 1,
+            )
+
+    def visit_Var(self, node: Var) -> None:  # noqa: N802
+        """Check VAR statements."""
+        if node.errors:
+            return
+        variable = node.get_token(Token.VARIABLE)
+        if not variable:
+            return
+        if self.should_report_missing_type(variable.value):
+            var_match = search_variable(variable.value, ignore_errors=True)
+            self.report(
+                self.missing_section_variable_type,
+                variable_name=var_match.match,
+                node=node,
+                lineno=variable.lineno,
+                col=variable.col_offset + 1,
+                end_col=variable.end_col_offset + 1,
+            )
+
+    def visit_KeywordCall(self, node: KeywordCall) -> None:  # noqa: N802
+        """Check assignment expressions (${var} = Keyword)."""
+        for token in node.get_tokens(Token.ASSIGN):
+            if self.should_report_missing_type(token.value):
+                var_match = search_variable(token.value, ignore_errors=True)
+                self.report(
+                    self.missing_section_variable_type,
+                    variable_name=var_match.match,
+                    node=node,
+                    lineno=token.lineno,
+                    col=token.col_offset + 1,
+                    end_col=token.end_col_offset + 1,
+                )
+
+    def visit_Arguments(self, node: Arguments) -> None:  # noqa: N802
+        """Check keyword arguments ([Arguments])."""
+        for arg in node.get_tokens(Token.ARGUMENT):
+            # Handle default values: ${arg: type}=default
+            arg_name, _ = utils.split_argument_default_value(arg.value)
+            if self.should_report_missing_type(arg_name):
+                var_match = search_variable(arg_name, ignore_errors=True)
+                self.report(
+                    self.missing_argument_type,
+                    variable_name=var_match.match,
+                    node=node,
+                    lineno=arg.lineno,
+                    col=arg.col_offset + 1,
+                    end_col=arg.col_offset + len(arg_name) + 1,
+                )
+
+    def visit_For(self, node: For) -> None:  # noqa: N802
+        """Check FOR loop variables."""
+        if not node.header.errors:
+            for variable in node.header.get_tokens(Token.VARIABLE):
+                if self.should_report_missing_type(variable.value):
+                    var_match = search_variable(variable.value, ignore_errors=True)
+                    self.report(
+                        self.missing_for_loop_variable_type,
+                        variable_name=var_match.match,
+                        node=node,
+                        lineno=variable.lineno,
+                        col=variable.col_offset + 1,
+                        end_col=variable.end_col_offset + 1,
+                    )
+        self.generic_visit(node)  # Continue to nested loops

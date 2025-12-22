@@ -1,0 +1,5 @@
+test.robot:3:20 [I] VAR14 Argument '${arg}' is missing type annotation
+test.robot:7:20 [I] VAR14 Argument '${arg}' is missing type annotation
+test.robot:11:20 [I] VAR14 Argument '${positional}' is missing type annotation
+test.robot:11:37 [I] VAR14 Argument '@{varargs}' is missing type annotation
+test.robot:11:51 [I] VAR14 Argument '&{kwargs}' is missing type annotation

@@ -1,0 +1,6 @@
+test.robot:3:1 [I] VAR13 Variable '${NUMBER}' is missing type annotation
+test.robot:4:1 [I] VAR13 Variable '@{LIST}' is missing type annotation
+test.robot:5:1 [I] VAR13 Variable '&{DICT}' is missing type annotation
+test.robot:13:1 [I] VAR13 Variable '${NO_SPACE:pattern}' is missing type annotation
+test.robot:22:12 [I] VAR13 Variable '${local}' is missing type annotation
+test.robot:28:5 [I] VAR13 Variable '${result}' is missing type annotation

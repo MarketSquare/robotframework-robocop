@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import inspect
 import tempfile
 from contextlib import contextmanager
 from difflib import unified_diff
@@ -169,11 +170,13 @@ def _create_linter_config(
     select: list[str] | None = None,
     ignore: list[str] | None = None,
     threshold: str = "I",
+    configure: list[str] | None = None,
 ) -> LinterConfig:
     """Create a LinterConfig with the given options."""
     return LinterConfig(
         select=select or [],
         ignore=ignore or [],
+        configure=configure or [],
         threshold=_parse_threshold(threshold),
         return_result=True,
         silent=True,
@@ -187,6 +190,7 @@ def _lint_content_impl(
     ignore: list[str] | None = None,
     threshold: str = "I",
     limit: int | None = None,
+    configure: list[str] | None = None,
 ) -> list[dict[str, Any]]:
     """
     Lint content and return diagnostics.
@@ -198,6 +202,7 @@ def _lint_content_impl(
         ignore: A list of rule IDs to ignore.
         threshold: The severity threshold for diagnostics.
         limit: Maximum number of issues to return. None means no limit.
+        configure: A list of rule configurations (e.g., ["rule-name.param=value"]).
 
     Returns:
         A list of dictionaries representing the diagnostics.
@@ -212,7 +217,7 @@ def _lint_content_impl(
 
     with _temp_robot_file(content, suffix) as tmp_path:
         try:
-            linter_config = _create_linter_config(select, ignore, threshold)
+            linter_config = _create_linter_config(select, ignore, threshold, configure)
             config = Config(sources=[str(tmp_path)], linter=linter_config, silent=True)
             config_manager = ConfigManager(
                 sources=[str(tmp_path)],
@@ -238,6 +243,7 @@ def _lint_file_impl(
     threshold: str = "I",
     include_file_in_result: bool = False,
     limit: int | None = None,
+    configure: list[str] | None = None,
 ) -> list[dict[str, Any]]:
     """
     Lint a file and return diagnostics.
@@ -249,6 +255,7 @@ def _lint_file_impl(
         threshold: The severity threshold for diagnostics.
         include_file_in_result: Whether to include the file path in the result.
         limit: Maximum number of issues to return. None means no limit.
+        configure: A list of rule configurations (e.g., ["rule-name.param=value"]).
 
     Returns:
         A list of dictionaries representing the diagnostics.
@@ -268,7 +275,7 @@ def _lint_file_impl(
         raise ToolError(f"Invalid file type: {path.suffix}. Expected .robot or .resource file.")
 
     try:
-        linter_config = _create_linter_config(select, ignore, threshold)
+        linter_config = _create_linter_config(select, ignore, threshold, configure)
         config = Config(sources=[str(path)], linter=linter_config, silent=True)
         config_manager = ConfigManager(
             sources=[str(path)],
@@ -418,12 +425,67 @@ def _get_rule_info_impl(rule_name_or_id: str) -> dict[str, Any]:
     return _rule_to_dict(linter_config.rules[rule_name_or_id])
 
 
+def _get_formatter_parameters(formatter_class: type) -> list[dict[str, Any]]:
+    """
+    Extract configurable parameters from a formatter class's __init__ signature.
+
+    Args:
+        formatter_class: The formatter class to extract parameters from.
+
+    Returns:
+        A list of parameter dictionaries with name, default, and type.
+
+    """
+    try:
+        spec = inspect.getfullargspec(formatter_class.__init__)
+    except TypeError:
+        return []
+
+    params = []
+    args = spec.args[1:]  # Skip 'self'
+    defaults = spec.defaults or ()
+    annotations = spec.annotations or {}
+
+    # Calculate where defaults start
+    defaults_start = len(args) - len(defaults)
+
+    for i, arg in enumerate(args):
+        # Skip the 'skip' parameter as it's internal
+        if arg == "skip":
+            continue
+
+        default = None
+        if i >= defaults_start:
+            default = defaults[i - defaults_start]
+
+        # Get type from annotation or infer from default
+        param_type = "str"
+        if arg in annotations:
+            type_hint = annotations[arg]
+            if hasattr(type_hint, "__name__"):
+                param_type = type_hint.__name__
+            elif hasattr(type_hint, "_name"):
+                param_type = getattr(type_hint, "_name", None) or "str"
+        elif default is not None:
+            param_type = type(default).__name__
+
+        params.append(
+            {
+                "name": arg,
+                "default": default,
+                "type": param_type,
+            }
+        )
+
+    return params
+
+
 def _get_formatter_info_impl(formatter_name: str) -> dict[str, Any]:
     """
     Look up formatter information by name.
 
     Args:
-        formatter_name: Formatter name (e.g., "NormalizeSeparators", "AlignKeywordsSection
+        formatter_name: Formatter name (e.g., "NormalizeSeparators", "AlignKeywordsSection")
 
     Returns:
         Dictionary containing:
@@ -431,6 +493,8 @@ def _get_formatter_info_impl(formatter_name: str) -> dict[str, Any]:
         - enabled: Whether enabled by default
         - docs: Full documentation
         - min_version: Minimum Robot Framework version (if any)
+        - parameters: List of configurable parameters
+        - skip_options: List of skip options the formatter handles
 
     Raises:
         ToolError: If the formatter is not found.
@@ -446,11 +510,18 @@ def _get_formatter_info_impl(formatter_name: str) -> dict[str, Any]:
         raise ToolError(f"Formatter '{formatter_name}' not found. Available formatters: {available}")
 
     formatter = formatters[formatter_name]
+    formatter_class = formatter.__class__
+
+    # Get skip options handled by this formatter
+    handles_skip = getattr(formatter_class, "HANDLES_SKIP", frozenset())
+
     return {
         "name": formatter_name,
-        "enabled": getattr(formatter, "ENABLED", True),
+        "enabled": getattr(formatter_class, "ENABLED", True),
         "docs": formatter.__doc__ or "No documentation available.",
-        "min_version": getattr(formatter, "MIN_VERSION", None),
+        "min_version": getattr(formatter_class, "MIN_VERSION", None),
+        "parameters": _get_formatter_parameters(formatter_class),
+        "skip_options": sorted(handles_skip) if handles_skip else [],
     }
 
 
@@ -468,6 +539,7 @@ def register_tools(mcp: FastMCP) -> None:
         ignore: list[str] | None = None,
         threshold: str = "I",
         limit: int | None = None,
+        configure: list[str] | None = None,
         ctx: Context | None = None,
     ) -> list[dict]:
         """
@@ -480,6 +552,7 @@ def register_tools(mcp: FastMCP) -> None:
             ignore: List of rule IDs/names to ignore
             threshold: Minimum severity to report (I=Info, W=Warning, E=Error)
             limit: Maximum number of issues to return (None = no limit)
+            configure: List of rule configurations (e.g., ["line-too-long.line_length=140"])
 
         Returns:
             List of diagnostic issues found, each containing:
@@ -496,7 +569,7 @@ def register_tools(mcp: FastMCP) -> None:
         if ctx:
             await ctx.info(f"Linting content ({len(content)} bytes)...")
 
-        result = _lint_content_impl(content, filename, select, ignore, threshold, limit)
+        result = _lint_content_impl(content, filename, select, ignore, threshold, limit, configure)
 
         if ctx:
             await ctx.info(f"Found {len(result)} issue(s)")
@@ -513,6 +586,7 @@ def register_tools(mcp: FastMCP) -> None:
         ignore: list[str] | None = None,
         threshold: str = "I",
         limit: int | None = None,
+        configure: list[str] | None = None,
         ctx: Context | None = None,
     ) -> list[dict]:
         """
@@ -524,6 +598,7 @@ def register_tools(mcp: FastMCP) -> None:
             ignore: List of rule IDs/names to ignore
             threshold: Minimum severity to report (I=Info, W=Warning, E=Error)
             limit: Maximum number of issues to return (None = no limit)
+            configure: List of rule configurations (e.g., ["line-too-long.line_length=140"])
 
         Returns:
             List of diagnostic issues found (same format as lint_content)
@@ -532,7 +607,7 @@ def register_tools(mcp: FastMCP) -> None:
         if ctx:
             await ctx.info(f"Linting file: {file_path}")
 
-        result = _lint_file_impl(file_path, select, ignore, threshold, limit=limit)
+        result = _lint_file_impl(file_path, select, ignore, threshold, limit=limit, configure=configure)
 
         if ctx:
             await ctx.info(f"Found {len(result)} issue(s)")
@@ -550,6 +625,7 @@ def register_tools(mcp: FastMCP) -> None:
         ignore: list[str] | None = None,
         threshold: str = "I",
         limit: int | None = None,
+        configure: list[str] | None = None,
         ctx: Context | None = None,
     ) -> dict:
         """
@@ -562,11 +638,12 @@ def register_tools(mcp: FastMCP) -> None:
             ignore: List of rule IDs/names to ignore
             threshold: Minimum severity to report (I=Info, W=Warning, E=Error)
             limit: Maximum total number of issues to return across all files (None = no limit)
+            configure: List of rule configurations (e.g., ["line-too-long.line_length=140"])
 
         Returns:
             Dictionary containing:
             - total_files: Number of files linted
-            - total_issues: Total number of issues found (may be less than actual if limited)
+            - total_issues: Total number of issues found
             - files_with_issues: Number of files that have issues
             - issues: List of all issues (each includes 'file' field)
             - summary: Issues grouped by severity {E: count, W: count, I: count}
@@ -595,16 +672,10 @@ def register_tools(mcp: FastMCP) -> None:
         all_issues: list[dict] = []
         files_with_issues = 0
         summary = {"E": 0, "W": 0, "I": 0}
-        limited = False
 
         for i, file in enumerate(files):
             if ctx:
                 await ctx.report_progress(progress=i, total=len(files))
-
-            # Check if we've hit the limit
-            if limit and len(all_issues) >= limit:
-                limited = True
-                break
 
             try:
                 issues = _lint_file_impl(
@@ -613,6 +684,7 @@ def register_tools(mcp: FastMCP) -> None:
                     ignore,
                     threshold,
                     include_file_in_result=True,
+                    configure=configure,
                 )
                 if issues:
                     files_with_issues += 1
@@ -626,21 +698,22 @@ def register_tools(mcp: FastMCP) -> None:
                 if ctx:
                     await ctx.warning(f"Failed to parse: {file}")
 
-        # Apply limit to final results
-        if limit and len(all_issues) > limit:
+        # Apply limit only to the returned issues list, not to the summary statistics
+        total_issues = len(all_issues)
+        limited = limit is not None and total_issues > limit
+        if limited:
             all_issues = all_issues[:limit]
-            limited = True
 
         if ctx:
             await ctx.report_progress(progress=len(files), total=len(files))
-            msg = f"Completed: {len(all_issues)} issue(s) in {files_with_issues} file(s)"
+            msg = f"Completed: {total_issues} issue(s) in {files_with_issues} file(s)"
             if limited:
-                msg += f" (limited to {limit})"
+                msg += f" (showing first {limit})"
             await ctx.info(msg)
 
         return {
             "total_files": len(files),
-            "total_issues": len(all_issues),
+            "total_issues": total_issues,
             "files_with_issues": files_with_issues,
             "issues": all_issues,
             "summary": summary,
@@ -701,6 +774,7 @@ def register_tools(mcp: FastMCP) -> None:
         space_count: int = 4,
         line_length: int = 120,
         limit: int | None = None,
+        configure: list[str] | None = None,
         ctx: Context | None = None,
     ) -> dict:
         """
@@ -720,6 +794,7 @@ def register_tools(mcp: FastMCP) -> None:
             space_count: Number of spaces for indentation (default: 4)
             line_length: Maximum line length (default: 120)
             limit: Maximum number of issues to return (None = no limit)
+            configure: List of rule configurations (e.g., ["line-too-long.line_length=140"])
 
         Returns:
             Dictionary containing:
@@ -736,7 +811,7 @@ def register_tools(mcp: FastMCP) -> None:
             await ctx.info(f"Processing content ({len(content)} bytes)...")
 
         # First, count issues in original code
-        issues_before = _lint_content_impl(content, filename, lint_select, lint_ignore, threshold)
+        issues_before = _lint_content_impl(content, filename, lint_select, lint_ignore, threshold, configure=configure)
 
         if ctx:
             await ctx.info(f"Found {len(issues_before)} issue(s) before formatting")
@@ -750,14 +825,18 @@ def register_tools(mcp: FastMCP) -> None:
             else:
                 await ctx.info("No formatting changes needed")
 
-        # Lint the formatted code (apply limit here)
-        issues_after = _lint_content_impl(
-            format_result["formatted"], filename, lint_select, lint_ignore, threshold, limit
+        # Lint the formatted code without limit first for accurate counts
+        issues_after_full = _lint_content_impl(
+            format_result["formatted"], filename, lint_select, lint_ignore, threshold, configure=configure
         )
+        issues_after_count = len(issues_after_full)
+
+        # Apply limit only to the returned issues list
+        issues_after = issues_after_full[:limit] if limit else issues_after_full
 
         if ctx:
-            fixed = len(issues_before) - len(issues_after)
-            await ctx.info(f"Remaining issues: {len(issues_after)} ({fixed} fixed by formatting)")
+            fixed = len(issues_before) - issues_after_count
+            await ctx.info(f"Remaining issues: {issues_after_count} ({fixed} fixed by formatting)")
 
         return {
             "formatted": format_result["formatted"],
@@ -765,8 +844,8 @@ def register_tools(mcp: FastMCP) -> None:
             "diff": format_result["diff"],
             "issues": issues_after,
             "issues_before": len(issues_before),
-            "issues_after": len(issues_after),
-            "issues_fixed": len(issues_before) - len(issues_after),
+            "issues_after": issues_after_count,
+            "issues_fixed": len(issues_before) - issues_after_count,
         }
 
     @mcp.tool(

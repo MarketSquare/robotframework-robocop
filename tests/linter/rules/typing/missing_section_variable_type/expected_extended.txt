@@ -1,84 +1,84 @@
-test.robot:3:1 VAR13 Variable '${NUMBER}' is missing type annotation
+test.robot:3:1 ANN01 Variable '${NUMBER}' is missing type annotation
    |
  1 | *** Variables ***
  2 | # Should report - no type
  3 | ${NUMBER}    42
-   | ^^^^^^^^^ VAR13
+   | ^^^^^^^^^ ANN01
  4 | @{LIST}      one    two
  5 | &{DICT}      key=value
    |
 
-test.robot:4:1 VAR13 Variable '@{LIST}' is missing type annotation
+test.robot:4:1 ANN01 Variable '@{LIST}' is missing type annotation
    |
  2 | # Should report - no type
  3 | ${NUMBER}    42
  4 | @{LIST}      one    two
-   | ^^^^^^^ VAR13
+   | ^^^^^^^ ANN01
  5 | &{DICT}      key=value
    |
 
-test.robot:5:1 VAR13 Variable '&{DICT}' is missing type annotation
+test.robot:5:1 ANN01 Variable '&{DICT}' is missing type annotation
    |
  3 | ${NUMBER}    42
  4 | @{LIST}      one    two
  5 | &{DICT}      key=value
-   | ^^^^^^^ VAR13
+   | ^^^^^^^ ANN01
    |
 
-test.robot:13:1 VAR13 Variable '${NO_SPACE:pattern}' is missing type annotation
+test.robot:13:1 ANN01 Variable '${NO_SPACE:pattern}' is missing type annotation
     |
  11 |
  12 | # Should report - colon without space (embedded pattern, not type annotation)
  13 | ${NO_SPACE:pattern}    value
-    | ^^^^^^^^^^^^^^^^^^^ VAR13
+    | ^^^^^^^^^^^^^^^^^^^ ANN01
     |
 
-test.robot:20:1 VAR13 Variable '${var}' is missing type annotation
+test.robot:20:1 ANN01 Variable '${var}' is missing type annotation
     |
  18 |
  19 | # Negative tests - invalid syntax, should NOT report and not throw exceptions
  20 | ${var}
-    | ^^^^^^ VAR13
+    | ^^^^^^ ANN01
  21 | ...    val
  22 |  ....    val
     |
 
-test.robot:28:1 VAR13 Variable '${MULTILINE}' is missing type annotation
+test.robot:28:1 ANN01 Variable '${MULTILINE}' is missing type annotation
     |
  26 |
  27 | # Multiline variable
  28 | ${MULTILINE}
-    | ^^^^^^^^^^^^ VAR13
+    | ^^^^^^^^^^^^ ANN01
  29 | ...    line1
  30 | ...    line2
     |
 
-test.robot:35:12 VAR13 Variable '${local}' is missing type annotation
+test.robot:35:12 ANN01 Variable '${local}' is missing type annotation
     |
  33 | *** Keywords ***
  34 | Keyword With VAR
  35 |     VAR    ${local}    value
-    |            ^^^^^^^^ VAR13
+    |            ^^^^^^^^ ANN01
  36 |     VAR    ${typed_local: str}    value
  37 |     VAR    ${_ignored}    value
     |
 
-test.robot:42:12 VAR13 Variable '${multiline_var}' is missing type annotation
+test.robot:42:12 ANN01 Variable '${multiline_var}' is missing type annotation
     |
  40 | Keyword With Multiline VAR
  41 |     VAR
  42 |     ...    ${multiline_var}
-    |            ^^^^^^^^^^^^^^^^ VAR13
+    |            ^^^^^^^^^^^^^^^^ ANN01
  43 |     ...    value
  44 |     VAR
     |
 
-test.robot:50:5 VAR13 Variable '${result}' is missing type annotation
+test.robot:50:5 ANN01 Variable '${result}' is missing type annotation
     |
  48 |
  49 | Keyword With Assignment
  50 |     ${result} =    Set Variable    value
-    |     ^^^^^^^^^^^ VAR13
+    |     ^^^^^^^^^^^ ANN01
  51 |     ${typed_result: list} =    Create List    one    two
  52 |     ${_ignored} =    Set Variable    value
     |

@@ -113,6 +113,7 @@ class RuleAcceptance:
             test_fn = check_project
         else:
             test_fn = check_files
+            kwargs["no_cache"] = True
         test_data = test_dir or self.test_class_dir
         sort_lines = output_format == "simple"
         issue_format = self.get_issue_format(issue_format)

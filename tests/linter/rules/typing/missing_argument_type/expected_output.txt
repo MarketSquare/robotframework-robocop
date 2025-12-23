@@ -1,0 +1,10 @@
+test.robot:3:20 [I] ANN02 Argument '${arg}' is missing type annotation
+test.robot:7:20 [I] ANN02 Argument '${arg}' is missing type annotation
+test.robot:11:20 [I] ANN02 Argument '${positional}' is missing type annotation
+test.robot:11:37 [I] ANN02 Argument '@{varargs}' is missing type annotation
+test.robot:11:51 [I] ANN02 Argument '&{kwargs}' is missing type annotation
+test.robot:18:20 [I] ANN02 Argument '${var}' is missing type annotation
+test.robot:28:20 [I] ANN02 Argument '${var}' is missing type annotation
+test.robot:28:30 [I] ANN02 Argument '${var}' is missing type annotation
+test.robot:34:12 [I] ANN02 Argument '${arg2}' is missing type annotation
+test.robot:36:12 [I] ANN02 Argument '${arg4}' is missing type annotation

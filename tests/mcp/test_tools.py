@@ -9,12 +9,19 @@ from fastmcp.exceptions import ToolError
 from robocop.formatter.formatters.NormalizeSeparators import NormalizeSeparators
 from robocop.mcp.tools import (
     _collect_robot_files,
+    _expand_file_patterns,
     _format_content_impl,
     _get_formatter_info_impl,
     _get_formatter_parameters,
     _get_rule_info_impl,
+    _group_issues,
+    _is_glob_pattern,
     _lint_content_impl,
     _lint_file_impl,
+    _lint_files_impl,
+    _list_formatters_impl,
+    _list_rules_impl,
+    _suggest_fixes_impl,
 )
 
 
@@ -466,3 +473,570 @@ class TestLintAndFormatIntegration:
         # The counts should be accurate regardless of any limit
         issues_fixed = len(issues_before_full) - len(issues_after_full)
         assert issues_fixed >= 0  # Formatting shouldn't add issues
+
+
+class TestListRules:
+    """Tests for list_rules tool."""
+
+    def test_list_all_rules(self):
+        """Test listing all rules."""
+        result = _list_rules_impl()
+        assert isinstance(result, list)
+        assert len(result) > 0
+
+        # Check structure
+        for rule in result:
+            assert "rule_id" in rule
+            assert "name" in rule
+            assert "severity" in rule
+            assert "enabled" in rule
+            assert "message" in rule
+
+    def test_list_rules_by_category(self):
+        """Test filtering rules by category."""
+        result = _list_rules_impl(category="LEN")
+        assert len(result) > 0
+        for rule in result:
+            assert rule["rule_id"].startswith("LEN")
+
+    def test_list_rules_by_severity(self):
+        """Test filtering rules by severity."""
+        result = _list_rules_impl(severity="W")
+        assert len(result) > 0
+        for rule in result:
+            assert rule["severity"] == "W"
+
+    def test_list_rules_enabled_only(self):
+        """Test filtering to enabled rules only."""
+        all_rules = _list_rules_impl()
+        enabled_rules = _list_rules_impl(enabled_only=True)
+
+        # Should have fewer or equal rules
+        assert len(enabled_rules) <= len(all_rules)
+
+        # All should be enabled
+        for rule in enabled_rules:
+            assert rule["enabled"] is True
+
+    def test_list_rules_combined_filters(self):
+        """Test combining multiple filters."""
+        result = _list_rules_impl(category="NAME", severity="W", enabled_only=True)
+        for rule in result:
+            assert rule["rule_id"].startswith("NAME")
+            assert rule["severity"] == "W"
+            assert rule["enabled"] is True
+
+    def test_list_rules_sorted_by_id(self):
+        """Test that rules are sorted by ID."""
+        result = _list_rules_impl()
+        rule_ids = [r["rule_id"] for r in result]
+        assert rule_ids == sorted(rule_ids)
+
+
+class TestListFormatters:
+    """Tests for list_formatters tool."""
+
+    def test_list_enabled_formatters(self):
+        """Test listing enabled formatters (default)."""
+        result = _list_formatters_impl()
+        assert isinstance(result, list)
+        assert len(result) > 0
+
+        # Check structure
+        for formatter in result:
+            assert "name" in formatter
+            assert "enabled" in formatter
+            assert "description" in formatter
+
+    def test_list_all_formatters(self):
+        """Test listing all formatters including disabled."""
+        enabled = _list_formatters_impl(enabled_only=True)
+        all_formatters = _list_formatters_impl(enabled_only=False)
+
+        # Should have more or equal formatters
+        assert len(all_formatters) >= len(enabled)
+
+    def test_list_formatters_sorted_by_name(self):
+        """Test that formatters are sorted by name."""
+        result = _list_formatters_impl(enabled_only=False)
+        names = [f["name"] for f in result]
+        assert names == sorted(names)
+
+    def test_list_formatters_has_normalize_separators(self):
+        """Test that NormalizeSeparators is in the list."""
+        result = _list_formatters_impl(enabled_only=False)
+        names = [f["name"] for f in result]
+        assert "NormalizeSeparators" in names
+
+
+class TestSuggestFixes:
+    """Tests for suggest_fixes tool."""
+
+    def test_suggest_fixes_basic(self):
+        """Test basic fix suggestions."""
+        content = dedent(
+            """
+            *** Test Cases ***
+            test without capital
+                log  hello
+        """
+        ).lstrip()
+        result = _suggest_fixes_impl(content)
+
+        assert "fixes" in result
+        assert "total_issues" in result
+        assert "auto_fixable" in result
+        assert "manual_required" in result
+        assert "recommendation" in result
+
+        assert result["total_issues"] == len(result["fixes"])
+        assert result["auto_fixable"] + result["manual_required"] == result["total_issues"]
+
+    def test_suggest_fixes_structure(self):
+        """Test fix suggestion structure."""
+        content = dedent(
+            """
+            *** Test Cases ***
+            test without capital
+                log  hello
+        """
+        ).lstrip()
+        result = _suggest_fixes_impl(content)
+
+        for fix in result["fixes"]:
+            assert "rule_id" in fix
+            assert "name" in fix
+            assert "line" in fix
+            assert "message" in fix
+            assert "suggestion" in fix
+            assert "auto_fixable" in fix
+
+    def test_suggest_fixes_with_rule_filter(self):
+        """Test fix suggestions filtered by rule IDs."""
+        content = dedent(
+            """
+            *** Test Cases ***
+            test without capital
+                log  hello
+        """
+        ).lstrip()
+        # Only get NAME rule suggestions
+        result = _suggest_fixes_impl(content, rule_ids=["NAME*"])
+
+        for fix in result["fixes"]:
+            assert fix["rule_id"].startswith("NAME")
+
+    def test_suggest_fixes_no_issues(self):
+        """Test fix suggestions for clean code."""
+        content = dedent(
+            """
+            *** Test Cases ***
+            Valid Test Case
+                Log    Hello World
+        """
+        ).lstrip()
+        result = _suggest_fixes_impl(content)
+
+        # May still have some minor issues, but structure should be correct
+        assert "fixes" in result
+        assert "total_issues" in result
+
+    def test_suggest_fixes_recommendation(self):
+        """Test that recommendation is appropriate."""
+        # Content with auto-fixable issues (spacing)
+        content = dedent(
+            """
+            *** Test Cases ***
+            Test
+                Log  Hello
+        """
+        ).lstrip()
+        result = _suggest_fixes_impl(content)
+
+        # Recommendation should exist
+        assert isinstance(result["recommendation"], str)
+        assert len(result["recommendation"]) > 0
+
+
+class TestIsGlobPattern:
+    """Tests for _is_glob_pattern helper."""
+
+    def test_glob_patterns(self):
+        """Test that glob patterns are detected."""
+        assert _is_glob_pattern("*.robot") is True
+        assert _is_glob_pattern("tests/**/*.robot") is True
+        assert _is_glob_pattern("test?.robot") is True
+        assert _is_glob_pattern("test[0-9].robot") is True
+
+    def test_non_glob_patterns(self):
+        """Test that non-glob patterns are not detected as globs."""
+        assert _is_glob_pattern("test.robot") is False
+        assert _is_glob_pattern("/path/to/test.robot") is False
+        assert _is_glob_pattern("tests/login.robot") is False
+
+
+class TestExpandFilePatterns:
+    """Tests for _expand_file_patterns helper."""
+
+    def test_explicit_paths(self, tmp_path: Path):
+        """Test expanding explicit file paths."""
+        (tmp_path / "test1.robot").write_text("*** Test Cases ***\nTest\n    Log    Hi\n")
+        (tmp_path / "test2.robot").write_text("*** Test Cases ***\nTest\n    Log    Hi\n")
+
+        files, unmatched = _expand_file_patterns(["test1.robot", "test2.robot"], tmp_path)
+        assert len(files) == 2
+        assert unmatched == []
+
+    def test_glob_patterns(self, tmp_path: Path):
+        """Test expanding glob patterns."""
+        subdir = tmp_path / "tests"
+        subdir.mkdir()
+        (subdir / "test1.robot").write_text("*** Test Cases ***\nTest\n    Log    Hi\n")
+        (subdir / "test2.robot").write_text("*** Test Cases ***\nTest\n    Log    Hi\n")
+
+        files, unmatched = _expand_file_patterns(["tests/*.robot"], tmp_path)
+        assert len(files) == 2
+        assert unmatched == []
+
+    def test_recursive_glob(self, tmp_path: Path):
+        """Test recursive glob patterns."""
+        deep = tmp_path / "a" / "b" / "c"
+        deep.mkdir(parents=True)
+        (deep / "test.robot").write_text("*** Test Cases ***\nTest\n    Log    Hi\n")
+
+        files, unmatched = _expand_file_patterns(["**/*.robot"], tmp_path)
+        assert len(files) == 1
+        assert unmatched == []
+
+    def test_mixed_patterns(self, tmp_path: Path):
+        """Test mixing explicit paths and globs."""
+        (tmp_path / "explicit.robot").write_text("*** Test Cases ***\nTest\n    Log    Hi\n")
+        subdir = tmp_path / "tests"
+        subdir.mkdir()
+        (subdir / "pattern.robot").write_text("*** Test Cases ***\nTest\n    Log    Hi\n")
+
+        files, unmatched = _expand_file_patterns(["explicit.robot", "tests/*.robot"], tmp_path)
+        assert len(files) == 2
+        assert unmatched == []
+
+    def test_deduplication(self, tmp_path: Path):
+        """Test that same file matched multiple times is deduplicated."""
+        (tmp_path / "test.robot").write_text("*** Test Cases ***\nTest\n    Log    Hi\n")
+
+        files, _unmatched = _expand_file_patterns(["test.robot", "*.robot", "test.robot"], tmp_path)
+        assert len(files) == 1
+
+    def test_filters_non_robot_files(self, tmp_path: Path):
+        """Test that non-Robot files are filtered out."""
+        (tmp_path / "test.robot").write_text("*** Test Cases ***\nTest\n    Log    Hi\n")
+        (tmp_path / "test.txt").write_text("not robot")
+        (tmp_path / "test.py").write_text("not robot")
+
+        files, _unmatched = _expand_file_patterns(["*"], tmp_path)
+        assert len(files) == 1
+        assert files[0].suffix == ".robot"
+
+    def test_unmatched_patterns(self, tmp_path: Path):
+        """Test that unmatched patterns are tracked."""
+        (tmp_path / "test.robot").write_text("*** Test Cases ***\nTest\n    Log    Hi\n")
+
+        files, unmatched = _expand_file_patterns(
+            ["test.robot", "nonexistent.robot", "nofiles/*.robot"],
+            tmp_path,
+        )
+        assert len(files) == 1
+        assert "nonexistent.robot" in unmatched
+        assert "nofiles/*.robot" in unmatched
+
+    def test_absolute_paths(self, tmp_path: Path):
+        """Test handling absolute paths."""
+        (tmp_path / "test.robot").write_text("*** Test Cases ***\nTest\n    Log    Hi\n")
+
+        files, _unmatched = _expand_file_patterns(
+            [str(tmp_path / "test.robot")],
+            Path("/different/base"),
+        )
+        assert len(files) == 1
+
+    def test_resource_files_included(self, tmp_path: Path):
+        """Test that .resource files are included."""
+        (tmp_path / "test.robot").write_text("*** Test Cases ***\nTest\n    Log    Hi\n")
+        (tmp_path / "lib.resource").write_text("*** Keywords ***\nKw\n    Log    Hi\n")
+
+        files, _unmatched = _expand_file_patterns(["*"], tmp_path)
+        assert len(files) == 2
+
+    def test_empty_patterns(self, tmp_path: Path):
+        """Test with empty patterns list."""
+        files, unmatched = _expand_file_patterns([], tmp_path)
+        assert files == []
+        assert unmatched == []
+
+
+class TestLintFilesImpl:
+    """Tests for _lint_files_impl function."""
+
+    def test_lint_multiple_files(self, tmp_path: Path):
+        """Test linting multiple specific files."""
+        (tmp_path / "test1.robot").write_text("*** Test Cases ***\ntest a\n    Log    x\n")
+        (tmp_path / "test2.robot").write_text("*** Test Cases ***\ntest b\n    Log    y\n")
+
+        result = _lint_files_impl(["test1.robot", "test2.robot"], str(tmp_path))
+
+        assert result["total_files"] == 2
+        assert result["total_issues"] > 0
+        assert "summary" in result
+        assert result["unmatched_patterns"] == []
+
+    def test_lint_with_glob(self, tmp_path: Path):
+        """Test linting with glob pattern."""
+        subdir = tmp_path / "tests"
+        subdir.mkdir()
+        (subdir / "test1.robot").write_text("*** Test Cases ***\ntest\n    Log    x\n")
+        (subdir / "test2.robot").write_text("*** Test Cases ***\ntest\n    Log    y\n")
+
+        result = _lint_files_impl(["tests/*.robot"], str(tmp_path))
+
+        assert result["total_files"] == 2
+
+    def test_lint_with_limit(self, tmp_path: Path):
+        """Test limiting results."""
+        (tmp_path / "test.robot").write_text("*** Test Cases ***\ntest\n    Log    a\n    Log    b\n")
+
+        # Get all issues first
+        all_result = _lint_files_impl(["test.robot"], str(tmp_path))
+
+        if all_result["total_issues"] > 1:
+            # Limit to 1 issue
+            result = _lint_files_impl(["test.robot"], str(tmp_path), limit=1)
+            assert len(result["issues"]) == 1
+            assert result["total_issues"] > 1
+            assert result["limited"] is True
+
+    def test_lint_with_select(self, tmp_path: Path):
+        """Test selecting specific rules."""
+        (tmp_path / "test.robot").write_text("*** Test Cases ***\ntest lowercase\n    Log    x\n")
+
+        result = _lint_files_impl(["test.robot"], str(tmp_path), select=["NAME*"])
+
+        for issue in result["issues"]:
+            assert issue["rule_id"].startswith("NAME")
+
+    def test_no_files_raises_error(self, tmp_path: Path):
+        """Test that no matching files raises ToolError."""
+        with pytest.raises(ToolError, match=r"No \.robot or \.resource files found"):
+            _lint_files_impl(["nonexistent.robot"], str(tmp_path))
+
+    def test_includes_file_path(self, tmp_path: Path):
+        """Test that issues include file path."""
+        (tmp_path / "test.robot").write_text("*** Test Cases ***\ntest\n    Log    x\n")
+
+        result = _lint_files_impl(["test.robot"], str(tmp_path))
+
+        for issue in result["issues"]:
+            assert "file" in issue
+
+    def test_summary_counts(self, tmp_path: Path):
+        """Test that summary counts are correct."""
+        (tmp_path / "test.robot").write_text("*** Test Cases ***\ntest\n    Log    x\n")
+
+        result = _lint_files_impl(["test.robot"], str(tmp_path))
+
+        assert "summary" in result
+        assert "E" in result["summary"]
+        assert "W" in result["summary"]
+        assert "I" in result["summary"]
+        # Sum of summary should equal total issues
+        summary_total = sum(result["summary"].values())
+        assert summary_total == result["total_issues"]
+
+    def test_files_with_issues_count(self, tmp_path: Path):
+        """Test files_with_issues count."""
+        # File with issues
+        (tmp_path / "bad.robot").write_text("*** Test Cases ***\ntest\n    Log    x\n")
+        # File without issues (proper formatting)
+        (tmp_path / "good.robot").write_text("*** Test Cases ***\nValid Test\n    Log    Hello\n")
+
+        result = _lint_files_impl(["bad.robot", "good.robot"], str(tmp_path))
+
+        assert result["total_files"] == 2
+        # At least one file should have issues
+        assert result["files_with_issues"] >= 1
+
+    def test_unmatched_patterns_in_result(self, tmp_path: Path):
+        """Test that unmatched patterns are included in result."""
+        (tmp_path / "exists.robot").write_text("*** Test Cases ***\ntest\n    Log    x\n")
+
+        result = _lint_files_impl(["exists.robot", "missing.robot"], str(tmp_path))
+
+        assert result["total_files"] == 1
+        assert "missing.robot" in result["unmatched_patterns"]
+
+    def test_with_configure(self, tmp_path: Path):
+        """Test linting with configure parameter."""
+        long_line = "A" * 150
+        (tmp_path / "test.robot").write_text(f"*** Test Cases ***\nTest\n    Log    {long_line}\n")
+
+        # Without configuration, should trigger line-too-long
+        result_default = _lint_files_impl(["test.robot"], str(tmp_path), select=["LEN08"])
+        has_line_too_long = any(d["rule_id"] == "LEN08" for d in result_default["issues"])
+        assert has_line_too_long
+
+        # With configuration to allow longer lines
+        result_configured = _lint_files_impl(
+            ["test.robot"],
+            str(tmp_path),
+            select=["LEN08"],
+            configure=["line-too-long.line_length=200"],
+        )
+        has_line_too_long_configured = any(d["rule_id"] == "LEN08" for d in result_configured["issues"])
+        assert not has_line_too_long_configured
+
+
+class TestGroupIssues:
+    """Tests for _group_issues function."""
+
+    def test_group_by_severity(self):
+        """Test grouping issues by severity."""
+        issues = [
+            {"rule_id": "LEN01", "severity": "W", "file": "a.robot"},
+            {"rule_id": "NAME01", "severity": "E", "file": "b.robot"},
+            {"rule_id": "DOC01", "severity": "I", "file": "a.robot"},
+            {"rule_id": "LEN02", "severity": "W", "file": "c.robot"},
+        ]
+
+        grouped, counts = _group_issues(issues, "severity")
+
+        assert "E" in grouped
+        assert "W" in grouped
+        assert "I" in grouped
+        assert len(grouped["E"]) == 1
+        assert len(grouped["W"]) == 2
+        assert len(grouped["I"]) == 1
+        assert counts == {"E": 1, "W": 2, "I": 1}
+
+    def test_group_by_rule(self):
+        """Test grouping issues by rule ID."""
+        issues = [
+            {"rule_id": "LEN01", "severity": "W", "file": "a.robot"},
+            {"rule_id": "LEN01", "severity": "W", "file": "b.robot"},
+            {"rule_id": "NAME01", "severity": "E", "file": "a.robot"},
+        ]
+
+        grouped, counts = _group_issues(issues, "rule")
+
+        assert "LEN01" in grouped
+        assert "NAME01" in grouped
+        assert len(grouped["LEN01"]) == 2
+        assert len(grouped["NAME01"]) == 1
+        assert counts == {"LEN01": 2, "NAME01": 1}
+
+    def test_group_by_file(self):
+        """Test grouping issues by file path."""
+        issues = [
+            {"rule_id": "LEN01", "severity": "W", "file": "/path/a.robot"},
+            {"rule_id": "NAME01", "severity": "E", "file": "/path/a.robot"},
+            {"rule_id": "DOC01", "severity": "I", "file": "/path/b.robot"},
+        ]
+
+        grouped, counts = _group_issues(issues, "file")
+
+        assert "/path/a.robot" in grouped
+        assert "/path/b.robot" in grouped
+        assert len(grouped["/path/a.robot"]) == 2
+        assert len(grouped["/path/b.robot"]) == 1
+        assert counts == {"/path/a.robot": 2, "/path/b.robot": 1}
+
+    def test_limit_per_group(self):
+        """Test that limit applies per group."""
+        issues = [
+            {"rule_id": "LEN01", "severity": "W", "file": "a.robot"},
+            {"rule_id": "LEN01", "severity": "W", "file": "b.robot"},
+            {"rule_id": "LEN01", "severity": "W", "file": "c.robot"},
+            {"rule_id": "NAME01", "severity": "E", "file": "a.robot"},
+            {"rule_id": "NAME01", "severity": "E", "file": "b.robot"},
+        ]
+
+        grouped, counts = _group_issues(issues, "rule", limit_per_group=2)
+
+        # Should only have 2 issues per rule in grouped
+        assert len(grouped["LEN01"]) == 2
+        assert len(grouped["NAME01"]) == 2
+        # But counts should reflect total
+        assert counts == {"LEN01": 3, "NAME01": 2}
+
+    def test_empty_issues(self):
+        """Test with empty issues list."""
+        grouped, counts = _group_issues([], "severity")
+
+        assert grouped == {}
+        assert counts == {}
+
+    def test_invalid_group_by_raises_error(self):
+        """Test that invalid group_by raises ToolError."""
+        issues = [{"rule_id": "LEN01", "severity": "W", "file": "a.robot"}]
+
+        with pytest.raises(ToolError, match="Invalid group_by"):
+            _group_issues(issues, "invalid")
+
+    def test_missing_field_uses_unknown(self):
+        """Test that missing field uses 'unknown' as key."""
+        issues = [
+            {"rule_id": "LEN01", "severity": "W"},  # missing 'file'
+        ]
+
+        grouped, _counts = _group_issues(issues, "file")
+
+        assert "unknown" in grouped
+        assert len(grouped["unknown"]) == 1
+
+
+class TestLintFilesImplGroupBy:
+    """Tests for _lint_files_impl with group_by parameter."""
+
+    def test_group_by_severity(self, tmp_path: Path):
+        """Test _lint_files_impl with group_by='severity'."""
+        (tmp_path / "test.robot").write_text("*** Test Cases ***\ntest\n    Log    x\n")
+
+        result = _lint_files_impl(["test.robot"], str(tmp_path), group_by="severity")
+
+        assert isinstance(result["issues"], dict)
+        assert "group_counts" in result
+        # Issues should be grouped by severity
+        for key in result["issues"]:
+            assert key in ("E", "W", "I")
+
+    def test_group_by_rule(self, tmp_path: Path):
+        """Test _lint_files_impl with group_by='rule'."""
+        (tmp_path / "test.robot").write_text("*** Test Cases ***\ntest\n    Log    x\n")
+
+        result = _lint_files_impl(["test.robot"], str(tmp_path), group_by="rule")
+
+        assert isinstance(result["issues"], dict)
+        assert "group_counts" in result
+        # All keys should be rule IDs
+        for key in result["issues"]:
+            assert len(key) >= 3  # Rule IDs are at least 3 chars
+
+    def test_group_by_with_limit(self, tmp_path: Path):
+        """Test that limit applies per group when group_by is set."""
+        # Create file with multiple issues
+        (tmp_path / "test.robot").write_text("*** Test Cases ***\ntest\n    Log    x\n    Log    y\n")
+
+        result = _lint_files_impl(["test.robot"], str(tmp_path), group_by="rule", limit=1)
+
+        # Each group should have at most 1 issue
+        for issues in result["issues"].values():
+            assert len(issues) <= 1
+        # Check if limited flag is set when any group was limited
+        if any(result["group_counts"][k] > 1 for k in result["group_counts"]):
+            assert result["limited"] is True
+
+    def test_no_group_by_returns_list(self, tmp_path: Path):
+        """Test that without group_by, issues is a list (not dict)."""
+        (tmp_path / "test.robot").write_text("*** Test Cases ***\ntest\n    Log    x\n")
+
+        result = _lint_files_impl(["test.robot"], str(tmp_path))
+
+        assert isinstance(result["issues"], list)
+        assert "group_counts" not in result

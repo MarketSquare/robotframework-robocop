@@ -186,6 +186,7 @@ def _lint_content_impl(
     select: list[str] | None = None,
     ignore: list[str] | None = None,
     threshold: str = "I",
+    limit: int | None = None,
 ) -> list[dict[str, Any]]:
     """
     Lint content and return diagnostics.
@@ -196,6 +197,7 @@ def _lint_content_impl(
         select: A list of rule IDs to select.
         ignore: A list of rule IDs to ignore.
         threshold: The severity threshold for diagnostics.
+        limit: Maximum number of issues to return. None means no limit.
 
     Returns:
         A list of dictionaries representing the diagnostics.
@@ -222,7 +224,8 @@ def _lint_content_impl(
             model = linter.get_model_for_file_type(tmp_path, language=None)
             diagnostics = linter.run_check(model, tmp_path, config, in_memory_content=content)
 
-            return [_diagnostic_to_dict(d) for d in diagnostics]
+            result = [_diagnostic_to_dict(d) for d in diagnostics]
+            return result[:limit] if limit else result
 
         except DataError as e:
             raise ToolError(f"Failed to parse Robot Framework content: {e}") from e
@@ -234,6 +237,7 @@ def _lint_file_impl(
     ignore: list[str] | None = None,
     threshold: str = "I",
     include_file_in_result: bool = False,
+    limit: int | None = None,
 ) -> list[dict[str, Any]]:
     """
     Lint a file and return diagnostics.
@@ -244,6 +248,7 @@ def _lint_file_impl(
         ignore: A list of rule IDs to ignore.
         threshold: The severity threshold for diagnostics.
         include_file_in_result: Whether to include the file path in the result.
+        limit: Maximum number of issues to return. None means no limit.
 
     Returns:
         A list of dictionaries representing the diagnostics.
@@ -276,7 +281,8 @@ def _lint_file_impl(
         diagnostics = linter.run_check(model, path, config)
 
         file_str = str(path) if include_file_in_result else None
-        return [_diagnostic_to_dict(d, file_str) for d in diagnostics]
+        result = [_diagnostic_to_dict(d, file_str) for d in diagnostics]
+        return result[:limit] if limit else result
 
     except DataError as e:
         raise ToolError(f"Failed to parse Robot Framework file: {e}") from e
@@ -461,6 +467,7 @@ def register_tools(mcp: FastMCP) -> None:
         select: list[str] | None = None,
         ignore: list[str] | None = None,
         threshold: str = "I",
+        limit: int | None = None,
         ctx: Context | None = None,
     ) -> list[dict]:
         """
@@ -472,6 +479,7 @@ def register_tools(mcp: FastMCP) -> None:
             select: List of rule IDs/names to enable (e.g., ["LEN01", "too-long-keyword"])
             ignore: List of rule IDs/names to ignore
             threshold: Minimum severity to report (I=Info, W=Warning, E=Error)
+            limit: Maximum number of issues to return (None = no limit)
 
         Returns:
             List of diagnostic issues found, each containing:
@@ -488,7 +496,7 @@ def register_tools(mcp: FastMCP) -> None:
         if ctx:
             await ctx.info(f"Linting content ({len(content)} bytes)...")
 
-        result = _lint_content_impl(content, filename, select, ignore, threshold)
+        result = _lint_content_impl(content, filename, select, ignore, threshold, limit)
 
         if ctx:
             await ctx.info(f"Found {len(result)} issue(s)")
@@ -504,6 +512,7 @@ def register_tools(mcp: FastMCP) -> None:
         select: list[str] | None = None,
         ignore: list[str] | None = None,
         threshold: str = "I",
+        limit: int | None = None,
         ctx: Context | None = None,
     ) -> list[dict]:
         """
@@ -514,6 +523,7 @@ def register_tools(mcp: FastMCP) -> None:
             select: List of rule IDs/names to enable
             ignore: List of rule IDs/names to ignore
             threshold: Minimum severity to report (I=Info, W=Warning, E=Error)
+            limit: Maximum number of issues to return (None = no limit)
 
         Returns:
             List of diagnostic issues found (same format as lint_content)
@@ -522,7 +532,7 @@ def register_tools(mcp: FastMCP) -> None:
         if ctx:
             await ctx.info(f"Linting file: {file_path}")
 
-        result = _lint_file_impl(file_path, select, ignore, threshold)
+        result = _lint_file_impl(file_path, select, ignore, threshold, limit=limit)
 
         if ctx:
             await ctx.info(f"Found {len(result)} issue(s)")
@@ -539,6 +549,7 @@ def register_tools(mcp: FastMCP) -> None:
         select: list[str] | None = None,
         ignore: list[str] | None = None,
         threshold: str = "I",
+        limit: int | None = None,
         ctx: Context | None = None,
     ) -> dict:
         """
@@ -550,14 +561,16 @@ def register_tools(mcp: FastMCP) -> None:
             select: List of rule IDs/names to enable
             ignore: List of rule IDs/names to ignore
             threshold: Minimum severity to report (I=Info, W=Warning, E=Error)
+            limit: Maximum total number of issues to return across all files (None = no limit)
 
         Returns:
             Dictionary containing:
             - total_files: Number of files linted
-            - total_issues: Total number of issues found
+            - total_issues: Total number of issues found (may be less than actual if limited)
             - files_with_issues: Number of files that have issues
             - issues: List of all issues (each includes 'file' field)
             - summary: Issues grouped by severity {E: count, W: count, I: count}
+            - limited: Boolean indicating if results were truncated due to limit
 
         Raises:
             ToolError: If the directory does not exist or contains no Robot Framework files
@@ -582,10 +595,16 @@ def register_tools(mcp: FastMCP) -> None:
         all_issues: list[dict] = []
         files_with_issues = 0
         summary = {"E": 0, "W": 0, "I": 0}
+        limited = False
 
         for i, file in enumerate(files):
             if ctx:
                 await ctx.report_progress(progress=i, total=len(files))
+
+            # Check if we've hit the limit
+            if limit and len(all_issues) >= limit:
+                limited = True
+                break
 
             try:
                 issues = _lint_file_impl(
@@ -607,9 +626,17 @@ def register_tools(mcp: FastMCP) -> None:
                 if ctx:
                     await ctx.warning(f"Failed to parse: {file}")
 
+        # Apply limit to final results
+        if limit and len(all_issues) > limit:
+            all_issues = all_issues[:limit]
+            limited = True
+
         if ctx:
             await ctx.report_progress(progress=len(files), total=len(files))
-            await ctx.info(f"Completed: {len(all_issues)} issue(s) in {files_with_issues} file(s)")
+            msg = f"Completed: {len(all_issues)} issue(s) in {files_with_issues} file(s)"
+            if limited:
+                msg += f" (limited to {limit})"
+            await ctx.info(msg)
 
         return {
             "total_files": len(files),
@@ -617,6 +644,7 @@ def register_tools(mcp: FastMCP) -> None:
             "files_with_issues": files_with_issues,
             "issues": all_issues,
             "summary": summary,
+            "limited": limited,
         }
 
     @mcp.tool(
@@ -672,6 +700,7 @@ def register_tools(mcp: FastMCP) -> None:
         format_select: list[str] | None = None,
         space_count: int = 4,
         line_length: int = 120,
+        limit: int | None = None,
         ctx: Context | None = None,
     ) -> dict:
         """
@@ -690,6 +719,7 @@ def register_tools(mcp: FastMCP) -> None:
             format_select: List of formatter names to apply (if empty, uses defaults)
             space_count: Number of spaces for indentation (default: 4)
             line_length: Maximum line length (default: 120)
+            limit: Maximum number of issues to return (None = no limit)
 
         Returns:
             Dictionary containing:
@@ -720,8 +750,10 @@ def register_tools(mcp: FastMCP) -> None:
             else:
                 await ctx.info("No formatting changes needed")
 
-        # Lint the formatted code
-        issues_after = _lint_content_impl(format_result["formatted"], filename, lint_select, lint_ignore, threshold)
+        # Lint the formatted code (apply limit here)
+        issues_after = _lint_content_impl(
+            format_result["formatted"], filename, lint_select, lint_ignore, threshold, limit
+        )
 
         if ctx:
             fixed = len(issues_before) - len(issues_after)

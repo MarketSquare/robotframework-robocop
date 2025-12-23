@@ -89,6 +89,30 @@ test without capital
         for diag in errors_only:
             assert diag["severity"] == "E"
 
+    def test_lint_with_limit(self):
+        """Test linting with issue count limit."""
+        content = """*** Test Cases ***
+test without capital
+    log  hello
+    log  world
+    log  foo
+"""
+        # Get all issues
+        all_issues = _lint_content_impl(content)
+        assert len(all_issues) >= 3  # Should have multiple issues
+
+        # Limit to 2 issues
+        limited = _lint_content_impl(content, limit=2)
+        assert len(limited) == 2
+
+        # Limit to 1 issue
+        single = _lint_content_impl(content, limit=1)
+        assert len(single) == 1
+
+        # Limit higher than actual issues should return all
+        high_limit = _lint_content_impl(content, limit=100)
+        assert len(high_limit) == len(all_issues)
+
 
 class TestFormatContent:
     """Tests for format_content tool."""

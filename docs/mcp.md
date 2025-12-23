@@ -80,6 +80,7 @@ Lint Robot Framework code provided as text content.
 | `select` | list[str] | Rule IDs/names to enable |
 | `ignore` | list[str] | Rule IDs/names to ignore |
 | `threshold` | string | Minimum severity: I, W, or E |
+| `limit` | int | Maximum number of issues to return (default: no limit) |
 
 **Returns:** List of diagnostic issues with rule_id, name, message, severity, line, column, end_line, end_column.
 
@@ -97,6 +98,7 @@ Lint a Robot Framework file from disk.
 | `select` | list[str] | Rule IDs/names to enable |
 | `ignore` | list[str] | Rule IDs/names to ignore |
 | `threshold` | string | Minimum severity: I, W, or E |
+| `limit` | int | Maximum number of issues to return (default: no limit) |
 
 **Returns:** List of diagnostic issues (same format as lint_content).
 
@@ -115,8 +117,9 @@ Lint all Robot Framework files in a directory.
 | `select` | list[str] | Rule IDs/names to enable |
 | `ignore` | list[str] | Rule IDs/names to ignore |
 | `threshold` | string | Minimum severity: I, W, or E |
+| `limit` | int | Maximum total issues to return across all files (default: no limit) |
 
-**Returns:** Dictionary with `total_files`, `total_issues`, `files_with_issues`, `issues` (list with file paths), and `summary` (issues by severity).
+**Returns:** Dictionary with `total_files`, `total_issues`, `files_with_issues`, `issues` (list with file paths), `summary` (issues by severity), and `limited` (boolean indicating if results were truncated).
 
 **Tags:** `linting`
 
@@ -154,6 +157,7 @@ Format Robot Framework code and lint the result in one operation. This is the re
 | `format_select` | list[str] | Formatter names to apply |
 | `space_count` | int | Spaces for indentation (default: 4) |
 | `line_length` | int | Maximum line length (default: 120) |
+| `limit` | int | Maximum number of issues to return (default: no limit) |
 
 **Returns:** Dictionary with `formatted`, `changed`, `diff`, `issues` (remaining issues), `issues_before`, `issues_after`, and `issues_fixed`.
 
@@ -245,10 +249,18 @@ When using Claude or another AI assistant with MCP support:
 >     log  hello
 > ```"
 
+**Lint with issue limit:**
+> "Lint this Robot Framework file but only show me the first 5 issues."
+>
+> "Check my tests directory for problems, limit to 10 issues."
+
 **Get rule information:**
 > "What does the LEN01 rule check for?"
 
 **Format code:**
 > "Format this Robot Framework code using Robocop."
+
+**Format and lint:**
+> "Format this code and show me what issues remain that need manual fixes."
 
 The AI assistant will use the MCP tools to perform these operations directly.

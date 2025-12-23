@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import hashlib
+import os
 from typing import TYPE_CHECKING, NoReturn
 
 import typer
@@ -9,9 +10,11 @@ from robot.errors import DataError
 
 from robocop import exceptions
 from robocop.cache import restore_diagnostics
+from robocop.formatter.utils.misc import ModelWriter
 from robocop.linter import reports
 from robocop.linter.diagnostics import Diagnostics
 from robocop.linter.reports import save_reports_result_to_cache
+from robocop.linter.rules import Fixer
 from robocop.linter.utils.disablers import DisablersFinder
 from robocop.linter.utils.file_types import get_resource_with_lang
 from robocop.linter.utils.misc import is_suite_templated
@@ -178,6 +181,22 @@ class RobocopLinter:
                         for diagnostic in found_diagnostics
                         if diagnostic.rule.rule_id not in ignored_rules and diagnostic.rule.name not in ignored_rules
                     ]
+        # ... and --fix is present, and consider fix safety, and consider collisions, and rerun checks after the fix
+        fixable_diagnostics = [diagnostic for diagnostic in found_diagnostics if diagnostic.rule.fixer]
+        if fixable_diagnostics:
+            # quick and dirty example
+            # group by fix types, and for each fixer send diagnostics (so we only run fixer once per multiple issues)
+            fixers: dict[Fixer, list[Diagnostic]] = {}
+            for diagnostic in fixable_diagnostics:
+                if diagnostic.rule.fixer not in fixers:
+                    fixers[diagnostic.rule.fixer] = [diagnostic]
+                else:
+                    fixers[diagnostic.rule.fixer].append(diagnostic)
+            for fixer, diagnostics in fixers.items():
+                fixer_instance: Fixer = fixer(diagnostics)
+                fixer_instance.visit(model)
+                # FIXME: make some performant way of getting newline (use auto approach - take first newline found in file)
+                ModelWriter(output=file_path, newline=os.linesep).write(model)
         return found_diagnostics
 
     def run_project_checks(self) -> list[Diagnostic]:

@@ -1,5 +1,5 @@
 from robocop.linter import sonar_qube
-from robocop.linter.rules import Rule, RuleSeverity
+from robocop.linter.rules import Fixer, Rule, RuleSeverity
 
 
 class IfCanBeUsedRule(Rule):
@@ -199,3 +199,21 @@ class ReplaceCreateWithVarRule(Rule):
         clean_code=sonar_qube.CleanCodeAttribute.CONVENTIONAL, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
     deprecated_names = ("0328",)
+
+
+class ForceTagFixer(Fixer):
+    def visit_ForceTags(self, node) -> None:  # noqa: N802
+        node.data_tokens[0].value = "Test Tags"
+        return node
+
+
+class DeprecatedForceTagsRule(Rule):
+    """ """
+
+    name = "deprecated-force-tags"
+    rule_id = "DEPR07"
+    message = "'Force Tags' is deprecated since Robot Framework 6.0. Use 'Test Tags' instead."
+    severity = RuleSeverity.WARNING
+    version = ">=6.0"
+    added_in_version = "8.0.0"
+    fixer = ForceTagFixer

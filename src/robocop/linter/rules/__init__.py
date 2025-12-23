@@ -50,8 +50,9 @@ except ImportError:  # Python < 3.14
 
 try:
     from robot.api.parsing import ModelVisitor
-except ImportError:
+except ImportError:  # TODO: Check which version fails, maybe we don't support it anymore
     from robot.parsing.model.visitor import ModelVisitor
+from robot.api.parsing import ModelTransformer
 
 if TYPE_CHECKING:
     from collections.abc import Generator
@@ -384,6 +385,7 @@ class Rule:
     style_guide_ref: list[str] | None = None
     sonar_qube_attrs: sonar_qube.SonarQubeAttributes | None = None
     deprecated_names: tuple[str,] | None = None
+    fixer: Fixer | None = None
 
     def __init__(self):
         self.version_spec = VersionSpecifier(self.version) if self.version else None
@@ -645,6 +647,27 @@ class AfterRunChecker(BaseChecker):
             self.lines = in_memory_content.splitlines(keepends=True)
         else:
             self.lines = None
+
+
+class Fixer(ModelTransformer):
+    def __init__(self, diagnostics: list[Diagnostic]) -> None:
+        self.node_lines: list[tuple[int, int]] = []
+        for diagnostic in diagnostics:
+            self.node_lines.append((diagnostic.range.start.line, diagnostic.range.end.line))
+
+    def visit(self, node: Node) -> None | Node | list[Node]:
+        """
+        Find the node visitor and call it.
+
+        Overrides default implementation to visit the node only if there is diagnostic reported for it.
+        """
+        for start_line, end_line in self.node_lines:
+            if node.lineno <= start_line and node.end_lineno >= end_line:
+                break
+        else:
+            return node
+        visitor_method = self._find_visitor(type(node))
+        return visitor_method(self, node)
 
 
 def is_checker(checker_class_def: tuple) -> bool:

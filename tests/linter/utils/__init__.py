@@ -1,9 +1,11 @@
 from __future__ import annotations
 
 import contextlib
+import filecmp
 import io
 import os
 import re
+import shutil
 import sys
 from difflib import unified_diff
 from pathlib import Path
@@ -18,6 +20,7 @@ from robocop.linter.utils.misc import ROBOT_VERSION
 from robocop.linter.utils.version_matching import VersionSpecifier
 from robocop.run import check_files, check_project
 from tests import working_directory
+from tests.formatter import display_file_diff
 
 if TYPE_CHECKING:
     from robocop.linter.rules import RuleSeverity
@@ -173,6 +176,56 @@ class RuleAcceptance:
             pytest.fail(error, pytrace=False)
         return None
 
+    def check_rule_fix(
+        self,
+        source: str,
+        expected: str | None,
+        configure: list[str] | None = None,
+        select: list[str] | None = None,
+        test_on_version: str | list[str] | None = None,
+        fix: bool = True,
+        exit_code: int | None = None,
+        **kwargs,
+    ) -> None:
+        """
+        Validate rule fix.
+
+        Args:
+            source: Source file to check.
+            expected: Expected output file. Pass None if no changes are expected.
+            configure: Optional list of configuration options.
+            select: Optional list of rules to select. Default is the rule under test.
+            test_on_version: Optional target version for the test. You can pass a version specifier (i.e. `>=5.0`) or a
+                             list of versions.
+            exit_code: Expected exit code.
+            fix: boolean flag to enable/disable the fix option.
+
+        """
+        if not self.enabled_in_version(test_on_version):
+            pytest.skip(f"Test enabled only for RF {test_on_version}")
+        # copy data to the 'actual' directory so we can compare it with expected output after the run
+        source_path = self.test_class_dir / source
+        if expected:
+            expected_path = self.test_class_dir / expected
+        else:
+            expected_path = source_path
+        source_path_tmp = self.test_class_dir / "actual" / source
+        source_path_tmp.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy(source_path, source_path_tmp)
+        with isolated_output() as output, working_directory(self.test_class_dir):
+            try:
+                with pytest.raises(click.exceptions.Exit) as exc_info:
+                    check_files(
+                        sources=[source_path_tmp], select=select, ignore_file_config=True, no_cache=True, **kwargs
+                    )  # fix=fix
+            finally:
+                sys.stdout.flush()
+                result = get_result(output)
+        if exit_code is not None:
+            assert exc_info.value.exit_code == exit_code
+        # assert that the fix was applied and no issue is reported
+        self.compare_file(source_path_tmp, expected_path)
+
     def get_issue_format(self, issue_format):
         if issue_format == "default":
             return self.DEFAULT_ISSUE_FORMAT
@@ -209,3 +262,7 @@ class RuleAcceptance:
             must_match_versions = test_on_version.split(";")
             return all(ROBOT_VERSION in VersionSpecifier(version) for version in must_match_versions)
         return ROBOT_VERSION in VersionSpecifier(test_on_version)
+
+    def compare_file(self, actual_path: Path, expected_path: Path):
+        if not filecmp.cmp(actual_path, expected_path) and display_file_diff(actual_path, expected_path):
+            pytest.fail(f"File {actual_path} is not same as expected")

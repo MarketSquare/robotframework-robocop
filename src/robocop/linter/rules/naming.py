@@ -1376,6 +1376,7 @@ class DeprecatedStatementChecker(VisitorChecker):
     deprecated_singular_header: deprecated.DeprecatedSingularHeaderRule
     replace_set_variable_with_var: deprecated.ReplaceSetVariableWithVarRule
     replace_create_with_var: deprecated.ReplaceCreateWithVarRule
+    deprecated_force_tags: deprecated.DeprecatedForceTagsRule
 
     deprecated_keywords = {
         "runkeywordunless": (5, "IF"),
@@ -1465,6 +1466,12 @@ class DeprecatedStatementChecker(VisitorChecker):
                 col=utils.token_col(node, Token.FORCE_TAGS),
                 end_col=node.col_offset + len(setting_name) + 1,
                 version="6.0",
+            )  # TODO: Split from deprecated-statement
+            self.report(
+                self.deprecated_force_tags,
+                node=node,
+                col=utils.token_col(node, Token.FORCE_TAGS),
+                end_col=node.col_offset + len(setting_name) + 1,
             )
 
     def check_if_keyword_is_deprecated(self, keyword_name, node) -> None:

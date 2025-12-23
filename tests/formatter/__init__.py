@@ -53,9 +53,8 @@ class FormatterAcceptanceTest:
         """
         Compare actual (source) and expected files.
 
-        If expected filename is not provided it's assumed to be the same
-        as source.
-        Use not_modified flag if the content of the file shouldn't be modified by transformer.
+        If the expected filename is not provided, it's assumed to be the same as the source.
+        Use the not_modified flag if the formatter shouldn't modify the content of the file.
         """
         if expected is None:
             expected = source

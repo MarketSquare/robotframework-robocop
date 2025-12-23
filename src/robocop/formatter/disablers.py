@@ -10,9 +10,9 @@ ALL_FORMATTERS = "all"
 
 def skip_if_disabled(func):
     """
-    Skip node if it is disabled.
+    Skip the node if it is disabled.
 
-    Do not format node if it's not within passed ``start_line`` and ``end_line`` or
+    Do not format the node if it's not within passed ``start_line`` and ``end_line`` or
     it does match any ``# robocop: fmt: off`` disabler
     """
 
@@ -40,7 +40,7 @@ def get_section_name_from_header_type(node):
 
 def skip_section_if_disabled(func):
     """
-    Skip section if it is disabled.
+    Skip the section if it is disabled.
 
     Does the same checks as ``skip_if_disabled`` and additionally checks if the section header does not contain
     disabler.

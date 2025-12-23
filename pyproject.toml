@@ -47,6 +47,12 @@ dynamic = ["version"]
 
 [project.scripts]
 robocop = "robocop.run:main"
+robocop-mcp = "robocop.mcp.server:main"
+
+[project.optional-dependencies]
+mcp = [
+    "fastmcp>=2.0.0; python_version >= '3.10'",
+]
 
 [project.urls]
 "Bug tracker" = "https://github.com/MarketSquare/robotframework-robocop/issues"
@@ -82,6 +88,9 @@ doc = [
     "mkdocs-git-authors-plugin",
     "mkdocs-macros-plugin",
     "mkdocs-redirects>=1.2.2",
+]
+mcp = [
+    "fastmcp>=2.0.0; python_version >= '3.10'",
 ]
 
 [tool.ruff]
@@ -171,6 +180,16 @@ extend-exclude = [
 ]
 # html code embedded
 "docs/conf.py" = ["E501"]
+# MCP module uses lazy imports for optional dependency isolation
+"src/robocop/mcp/*" = [
+    "PLC0415",  # import at function level for lazy loading
+    "PERF401",  # list comprehension vs for loop is style choice
+    "TRY300",   # return in try block is fine here
+    "C401",     # set comprehension vs generator is style choice
+    "TC002",    # Context must be runtime import for FastMCP dependency injection
+    "D417",     # ctx param is injected by FastMCP, not user-facing
+    "PLR0915",  # register_tools has many statements by design
+]
 # temporary because of the rules description
 "src/robocop/linter/rules/*" = ["D205"]
 # bug in typer where | None can't be used

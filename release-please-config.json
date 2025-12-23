@@ -4,7 +4,13 @@
   "packages": {
     ".": {
       "package-name": "robocop",
-      "changelog-path": "docs/releasenotes/changelog.md"
+      "changelog-path": "docs/releasenotes/changelog.md",
+      "extra-files": [
+        {
+          "path": "src/robocop/__init__.py",
+          "type": "generic"
+        }
+      ]
     }
   },
   "changelog-sections": [

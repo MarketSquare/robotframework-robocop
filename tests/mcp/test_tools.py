@@ -1,7 +1,7 @@
 """Tests for MCP tools."""
 
 from pathlib import Path
-from tempfile import TemporaryDirectory
+from textwrap import dedent
 
 import pytest
 from fastmcp.exceptions import ToolError
@@ -21,19 +21,21 @@ class TestLintContent:
 
     def test_lint_valid_content(self):
         """Test linting valid Robot Framework content."""
-        content = """*** Test Cases ***
-Valid Test
-    Log    Hello World
-"""
+        content = dedent("""
+            *** Test Cases ***
+            Valid Test
+                Log    Hello World
+        """).lstrip()
         result = _lint_content_impl(content)
         assert isinstance(result, list)
 
     def test_lint_content_with_issues(self):
         """Test linting content with issues."""
-        content = """*** Test Cases ***
-test without capital
-    log  hello
-"""
+        content = dedent("""
+            *** Test Cases ***
+            test without capital
+                log  hello
+        """).lstrip()
         result = _lint_content_impl(content)
         assert len(result) > 0
         # Check structure of returned diagnostics
@@ -47,10 +49,11 @@ test without capital
 
     def test_lint_with_select(self):
         """Test linting with specific rules selected."""
-        content = """*** Test Cases ***
-Very Long Test Case Name That Should Trigger Length Rule
-    Log    Hello
-"""
+        content = dedent("""
+            *** Test Cases ***
+            Very Long Test Case Name That Should Trigger Length Rule
+                Log    Hello
+        """).lstrip()
         # Only select length rules
         result = _lint_content_impl(content, select=["LEN*"])
         # Should only get LEN rules
@@ -59,10 +62,11 @@ Very Long Test Case Name That Should Trigger Length Rule
 
     def test_lint_with_ignore(self):
         """Test linting with rules ignored."""
-        content = """*** Test Cases ***
-test without capital
-    log  hello
-"""
+        content = dedent("""
+            *** Test Cases ***
+            test without capital
+                log  hello
+        """).lstrip()
         # Get all issues
         all_issues = _lint_content_impl(content)
 
@@ -76,10 +80,11 @@ test without capital
 
     def test_lint_with_threshold(self):
         """Test linting with severity threshold."""
-        content = """*** Test Cases ***
-test without capital
-    log  hello
-"""
+        content = dedent("""
+            *** Test Cases ***
+            test without capital
+                log  hello
+        """).lstrip()
         # Get all issues
         all_issues = _lint_content_impl(content, threshold="I")
 
@@ -91,12 +96,13 @@ test without capital
 
     def test_lint_with_limit(self):
         """Test linting with issue count limit."""
-        content = """*** Test Cases ***
-test without capital
-    log  hello
-    log  world
-    log  foo
-"""
+        content = dedent("""
+            *** Test Cases ***
+            test without capital
+                log  hello
+                log  world
+                log  foo
+        """).lstrip()
         # Get all issues
         all_issues = _lint_content_impl(content)
         assert len(all_issues) >= 3  # Should have multiple issues
@@ -119,11 +125,12 @@ class TestFormatContent:
 
     def test_format_content_normalizes_separators(self):
         """Test that formatting normalizes separators."""
-        content = """*** Test Cases ***
-Test
-    log  hello
-    log    world
-"""
+        content = dedent("""
+            *** Test Cases ***
+            Test
+                log  hello
+                log    world
+        """).lstrip()
         result = _format_content_impl(content)
         assert "formatted" in result
         assert "changed" in result
@@ -134,10 +141,11 @@ Test
 
     def test_format_unchanged_content(self):
         """Test formatting already formatted content."""
-        content = """*** Test Cases ***
-Test
-    Log    Hello
-"""
+        content = dedent("""
+            *** Test Cases ***
+            Test
+                Log    Hello
+        """).lstrip()
         result = _format_content_impl(content)
         # May or may not change depending on default formatters
         assert "formatted" in result
@@ -188,47 +196,41 @@ class TestGetFormatterInfo:
 class TestLintDirectory:
     """Tests for lint_directory helper functions."""
 
-    def test_collect_robot_files(self):
+    def test_collect_robot_files(self, tmp_path: Path):
         """Test collecting Robot Framework files from directory."""
-        with TemporaryDirectory() as tmpdir:
-            tmppath = Path(tmpdir)
+        # Create test files
+        (tmp_path / "test1.robot").write_text("*** Test Cases ***\nTest\n    Log    Hi\n")
+        (tmp_path / "test2.resource").write_text("*** Keywords ***\nKw\n    Log    Hi\n")
+        (tmp_path / "other.txt").write_text("not a robot file")
 
-            # Create test files
-            (tmppath / "test1.robot").write_text("*** Test Cases ***\nTest\n    Log    Hi\n")
-            (tmppath / "test2.resource").write_text("*** Keywords ***\nKw\n    Log    Hi\n")
-            (tmppath / "other.txt").write_text("not a robot file")
+        # Create subdirectory with files
+        subdir = tmp_path / "subdir"
+        subdir.mkdir()
+        (subdir / "test3.robot").write_text("*** Test Cases ***\nTest\n    Log    Hi\n")
 
-            # Create subdirectory with files
-            subdir = tmppath / "subdir"
-            subdir.mkdir()
-            (subdir / "test3.robot").write_text("*** Test Cases ***\nTest\n    Log    Hi\n")
+        # Test recursive
+        files = _collect_robot_files(tmp_path, recursive=True)
+        assert len(files) == 3
 
-            # Test recursive
-            files = _collect_robot_files(tmppath, recursive=True)
-            assert len(files) == 3
+        # Test non-recursive
+        files = _collect_robot_files(tmp_path, recursive=False)
+        assert len(files) == 2
 
-            # Test non-recursive
-            files = _collect_robot_files(tmppath, recursive=False)
-            assert len(files) == 2
-
-    def test_collect_robot_files_empty(self):
+    def test_collect_robot_files_empty(self, tmp_path: Path):
         """Test collecting files from empty directory."""
-        with TemporaryDirectory() as tmpdir:
-            files = _collect_robot_files(Path(tmpdir))
-            assert files == []
+        files = _collect_robot_files(tmp_path)
+        assert files == []
 
-    def test_lint_file_with_file_in_result(self):
+    def test_lint_file_with_file_in_result(self, tmp_path: Path):
         """Test that lint_file can include file path in results."""
-        with TemporaryDirectory() as tmpdir:
-            tmppath = Path(tmpdir)
-            robot_file = tmppath / "test.robot"
-            robot_file.write_text("*** Test Cases ***\ntest lowercase\n    log  hi\n")
+        robot_file = tmp_path / "test.robot"
+        robot_file.write_text("*** Test Cases ***\ntest lowercase\n    log  hi\n")
 
-            # Without file in result
-            result = _lint_file_impl(str(robot_file), include_file_in_result=False)
-            assert "file" not in result[0]
+        # Without file in result
+        result = _lint_file_impl(str(robot_file), include_file_in_result=False)
+        assert "file" not in result[0]
 
-            # With file in result
-            result = _lint_file_impl(str(robot_file), include_file_in_result=True)
-            assert "file" in result[0]
-            assert result[0]["file"] == str(robot_file)
+        # With file in result
+        result = _lint_file_impl(str(robot_file), include_file_in_result=True)
+        assert "file" in result[0]
+        assert result[0]["file"] == str(robot_file)

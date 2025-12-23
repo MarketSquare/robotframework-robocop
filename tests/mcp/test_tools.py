@@ -6,10 +6,12 @@ from textwrap import dedent
 import pytest
 from fastmcp.exceptions import ToolError
 
+from robocop.formatter.formatters.NormalizeSeparators import NormalizeSeparators
 from robocop.mcp.tools import (
     _collect_robot_files,
     _format_content_impl,
     _get_formatter_info_impl,
+    _get_formatter_parameters,
     _get_rule_info_impl,
     _lint_content_impl,
     _lint_file_impl,
@@ -234,3 +236,72 @@ class TestLintDirectory:
         result = _lint_file_impl(str(robot_file), include_file_in_result=True)
         assert "file" in result[0]
         assert result[0]["file"] == str(robot_file)
+
+
+class TestLintContentConfigure:
+    """Tests for lint_content with configure parameter."""
+
+    def test_lint_with_configure(self):
+        """Test linting with rule configuration."""
+        # Content with a long line that would trigger line-too-long rule (LEN08)
+        # Default limit is 120 chars, so we need a line longer than that
+        long_line = "A" * 150
+        content = dedent(f"""
+            *** Test Cases ***
+            Test With Long Line
+                Log    {long_line}
+        """).lstrip()
+
+        # Without configuration, should trigger line-too-long (LEN08)
+        result_default = _lint_content_impl(content, select=["LEN08"])
+        has_line_too_long = any(d["rule_id"] == "LEN08" for d in result_default)
+        assert has_line_too_long, "Should detect line-too-long with default config (120 chars)"
+
+        # With configuration to allow longer lines, should not trigger
+        result_configured = _lint_content_impl(content, select=["LEN08"], configure=["line-too-long.line_length=200"])
+        has_line_too_long_configured = any(d["rule_id"] == "LEN08" for d in result_configured)
+        assert not has_line_too_long_configured, "Should not detect line-too-long with increased limit"
+
+
+class TestGetFormatterInfoParameters:
+    """Tests for get_formatter_info with parameters."""
+
+    def test_get_formatter_info_includes_parameters(self):
+        """Test that formatter info includes parameters."""
+        result = _get_formatter_info_impl("NormalizeSeparators")
+        assert "parameters" in result
+        assert isinstance(result["parameters"], list)
+
+        # NormalizeSeparators has flatten_lines and align_new_line parameters
+        param_names = [p["name"] for p in result["parameters"]]
+        assert "flatten_lines" in param_names
+        assert "align_new_line" in param_names
+
+    def test_get_formatter_info_includes_skip_options(self):
+        """Test that formatter info includes skip options."""
+        result = _get_formatter_info_impl("NormalizeSeparators")
+        assert "skip_options" in result
+        assert isinstance(result["skip_options"], list)
+        # NormalizeSeparators handles skip_documentation among others
+        assert "skip_documentation" in result["skip_options"]
+
+    def test_formatter_parameter_structure(self):
+        """Test that formatter parameters have correct structure."""
+        result = _get_formatter_info_impl("NormalizeSeparators")
+        for param in result["parameters"]:
+            assert "name" in param
+            assert "default" in param
+            assert "type" in param
+
+    def test_get_formatter_parameters_extracts_types(self):
+        """Test that formatter parameters have correct types."""
+        params = _get_formatter_parameters(NormalizeSeparators)
+        param_dict = {p["name"]: p for p in params}
+
+        # Check flatten_lines is bool with default False
+        assert param_dict["flatten_lines"]["type"] == "bool"
+        assert param_dict["flatten_lines"]["default"] is False
+
+        # Check align_new_line is bool with default False
+        assert param_dict["align_new_line"]["type"] == "bool"
+        assert param_dict["align_new_line"]["default"] is False

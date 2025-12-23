@@ -43,7 +43,7 @@ def create_server() -> FastMCP:
     Create and return the MCP server instance.
 
     Returns:
-        FastMCP: The MCP server instance.'
+        FastMCP: The MCP server instance.
 
     """
     return mcp

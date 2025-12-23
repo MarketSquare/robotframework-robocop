@@ -18,6 +18,7 @@
 - [Installation](#installation)
 - [Usage](#usage)
 - [Example Output](#example-output)
+- [MCP Server](#mcp-server)
 - [Values](#values)
 - [FAQ](#faq)
 
@@ -106,6 +107,24 @@ test.robot:28:1 SPC14 Variable in Variables section is not left aligned
 
 Found 2 issues: 2 ERRORs, 0 WARNINGs, 0 INFO.
 ```
+
+## MCP Server
+
+Robocop provides an [MCP (Model Context Protocol)](https://modelcontextprotocol.io/) server that allows AI assistants like Claude and GitHub Copilot to lint and format Robot Framework code directly.
+
+Install with MCP support:
+
+```bash
+pip install robotframework-robocop[mcp]
+```
+
+Run the server:
+
+```bash
+robocop-mcp
+```
+
+Full documentation: [MCP Server](https://robocop.dev/stable/mcp/)
 
 ## Values
 

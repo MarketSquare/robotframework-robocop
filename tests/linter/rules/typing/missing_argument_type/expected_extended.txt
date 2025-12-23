@@ -1,91 +1,91 @@
-test.robot:3:20 VAR14 Argument '${arg}' is missing type annotation
+test.robot:3:20 ANN02 Argument '${arg}' is missing type annotation
    |
  1 | *** Keywords ***
  2 | Keyword With Arguments
  3 |     [Arguments]    ${arg}    ${typed_arg: int}    ${_ignored}
-   |                    ^^^^^^ VAR14
+   |                    ^^^^^^ ANN02
  4 |     Log    ${arg} ${typed_arg}
    |
 
-test.robot:7:20 VAR14 Argument '${arg}' is missing type annotation
+test.robot:7:20 ANN02 Argument '${arg}' is missing type annotation
    |
  5 |
  6 | Keyword With Default Values
  7 |     [Arguments]    ${arg}=default    ${typed_arg: str}=default
-   |                    ^^^^^^ VAR14
+   |                    ^^^^^^ ANN02
  8 |     Log    ${arg} ${typed_arg}
    |
 
-test.robot:11:20 VAR14 Argument '${positional}' is missing type annotation
+test.robot:11:20 ANN02 Argument '${positional}' is missing type annotation
     |
   9 |
  10 | Keyword With All Types
  11 |     [Arguments]    ${positional}    @{varargs}    &{kwargs}
-    |                    ^^^^^^^^^^^^^ VAR14
+    |                    ^^^^^^^^^^^^^ ANN02
  12 |     Log    ${positional} @{varargs} &{kwargs}
     |
 
-test.robot:11:37 VAR14 Argument '@{varargs}' is missing type annotation
+test.robot:11:37 ANN02 Argument '@{varargs}' is missing type annotation
     |
   9 |
  10 | Keyword With All Types
  11 |     [Arguments]    ${positional}    @{varargs}    &{kwargs}
-    |                                     ^^^^^^^^^^ VAR14
+    |                                     ^^^^^^^^^^ ANN02
  12 |     Log    ${positional} @{varargs} &{kwargs}
     |
 
-test.robot:11:51 VAR14 Argument '&{kwargs}' is missing type annotation
+test.robot:11:51 ANN02 Argument '&{kwargs}' is missing type annotation
     |
   9 |
  10 | Keyword With All Types
  11 |     [Arguments]    ${positional}    @{varargs}    &{kwargs}
-    |                                                   ^^^^^^^^^ VAR14
+    |                                                   ^^^^^^^^^ ANN02
  12 |     Log    ${positional} @{varargs} &{kwargs}
     |
 
-test.robot:18:20 VAR14 Argument '${var}' is missing type annotation
+test.robot:18:20 ANN02 Argument '${var}' is missing type annotation
     |
  16 | Keyword With Non Variable Argument
  17 |     # Not a valid variable syntax, should be ignored
  18 |     [Arguments]    ${var}    value=3
-    |                    ^^^^^^ VAR14
+    |                    ^^^^^^ ANN02
  19 |     Log    ${var}
     |
 
-test.robot:28:20 VAR14 Argument '${var}' is missing type annotation
+test.robot:28:20 ANN02 Argument '${var}' is missing type annotation
     |
  26 | Keyword With Duplicate Arguments
  27 |     # Duplicate arguments - should still report on both if not typed
  28 |     [Arguments]    ${var}    ${var}
-    |                    ^^^^^^ VAR14
+    |                    ^^^^^^ ANN02
  29 |     Log    ${var}
     |
 
-test.robot:28:30 VAR14 Argument '${var}' is missing type annotation
+test.robot:28:30 ANN02 Argument '${var}' is missing type annotation
     |
  26 | Keyword With Duplicate Arguments
  27 |     # Duplicate arguments - should still report on both if not typed
  28 |     [Arguments]    ${var}    ${var}
-    |                              ^^^^^^ VAR14
+    |                              ^^^^^^ ANN02
  29 |     Log    ${var}
     |
 
-test.robot:34:12 VAR14 Argument '${arg2}' is missing type annotation
+test.robot:34:12 ANN02 Argument '${arg2}' is missing type annotation
     |
  32 |     # Should report on correct line for each argument
  33 |     [Arguments]    ${arg1: int}
  34 |     ...    ${arg2}
-    |            ^^^^^^^ VAR14
+    |            ^^^^^^^ ANN02
  35 |     ...    ${arg3: str}
  36 |     ...    ${arg4}
     |
 
-test.robot:36:12 VAR14 Argument '${arg4}' is missing type annotation
+test.robot:36:12 ANN02 Argument '${arg4}' is missing type annotation
     |
  34 |     ...    ${arg2}
  35 |     ...    ${arg3: str}
  36 |     ...    ${arg4}
-    |            ^^^^^^^ VAR14
+    |            ^^^^^^^ ANN02
  37 |     Log    ${arg1} ${arg2} ${arg3} ${arg4}
     |
 

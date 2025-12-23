@@ -37,6 +37,7 @@ from robocop.linter.rules import (
     VisitorChecker,
     arguments,
     deprecated,
+    typing,
     variables,
 )
 from robocop.linter.utils import misc as utils
@@ -1923,9 +1924,9 @@ class UnusedDiagnosticChecker(AfterRunChecker):
 class MissingVariableTypeChecker(VisitorChecker):
     """Checker for variables without type annotations (RF 7.3+)."""
 
-    missing_section_variable_type: variables.MissingSectionVariableTypeRule
-    missing_argument_type: variables.MissingArgumentTypeRule
-    missing_for_loop_variable_type: variables.MissingForLoopVariableTypeRule
+    missing_section_variable_type: typing.MissingSectionVariableTypeRule
+    missing_argument_type: typing.MissingArgumentTypeRule
+    missing_for_loop_variable_type: typing.MissingForLoopVariableTypeRule
 
     @staticmethod
     def has_type_annotation(var_name: str) -> bool:

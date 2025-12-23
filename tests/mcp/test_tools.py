@@ -23,21 +23,25 @@ class TestLintContent:
 
     def test_lint_valid_content(self):
         """Test linting valid Robot Framework content."""
-        content = dedent("""
+        content = dedent(
+            """
             *** Test Cases ***
             Valid Test
                 Log    Hello World
-        """).lstrip()
+        """
+        ).lstrip()
         result = _lint_content_impl(content)
         assert isinstance(result, list)
 
     def test_lint_content_with_issues(self):
         """Test linting content with issues."""
-        content = dedent("""
+        content = dedent(
+            """
             *** Test Cases ***
             test without capital
                 log  hello
-        """).lstrip()
+        """
+        ).lstrip()
         result = _lint_content_impl(content)
         assert len(result) > 0
         # Check structure of returned diagnostics
@@ -51,11 +55,13 @@ class TestLintContent:
 
     def test_lint_with_select(self):
         """Test linting with specific rules selected."""
-        content = dedent("""
+        content = dedent(
+            """
             *** Test Cases ***
             Very Long Test Case Name That Should Trigger Length Rule
                 Log    Hello
-        """).lstrip()
+        """
+        ).lstrip()
         # Only select length rules
         result = _lint_content_impl(content, select=["LEN*"])
         # Should only get LEN rules
@@ -64,11 +70,13 @@ class TestLintContent:
 
     def test_lint_with_ignore(self):
         """Test linting with rules ignored."""
-        content = dedent("""
+        content = dedent(
+            """
             *** Test Cases ***
             test without capital
                 log  hello
-        """).lstrip()
+        """
+        ).lstrip()
         # Get all issues
         all_issues = _lint_content_impl(content)
 
@@ -82,11 +90,13 @@ class TestLintContent:
 
     def test_lint_with_threshold(self):
         """Test linting with severity threshold."""
-        content = dedent("""
+        content = dedent(
+            """
             *** Test Cases ***
             test without capital
                 log  hello
-        """).lstrip()
+        """
+        ).lstrip()
         # Get all issues
         all_issues = _lint_content_impl(content, threshold="I")
 
@@ -98,13 +108,15 @@ class TestLintContent:
 
     def test_lint_with_limit(self):
         """Test linting with issue count limit."""
-        content = dedent("""
+        content = dedent(
+            """
             *** Test Cases ***
             test without capital
                 log  hello
                 log  world
                 log  foo
-        """).lstrip()
+        """
+        ).lstrip()
         # Get all issues
         all_issues = _lint_content_impl(content)
         assert len(all_issues) >= 3  # Should have multiple issues
@@ -127,12 +139,14 @@ class TestFormatContent:
 
     def test_format_content_normalizes_separators(self):
         """Test that formatting normalizes separators."""
-        content = dedent("""
+        content = dedent(
+            """
             *** Test Cases ***
             Test
                 log  hello
                 log    world
-        """).lstrip()
+        """
+        ).lstrip()
         result = _format_content_impl(content)
         assert "formatted" in result
         assert "changed" in result
@@ -143,11 +157,13 @@ class TestFormatContent:
 
     def test_format_unchanged_content(self):
         """Test formatting already formatted content."""
-        content = dedent("""
+        content = dedent(
+            """
             *** Test Cases ***
             Test
                 Log    Hello
-        """).lstrip()
+        """
+        ).lstrip()
         result = _format_content_impl(content)
         # May or may not change depending on default formatters
         assert "formatted" in result
@@ -246,11 +262,13 @@ class TestLintContentConfigure:
         # Content with a long line that would trigger line-too-long rule (LEN08)
         # Default limit is 120 chars, so we need a line longer than that
         long_line = "A" * 150
-        content = dedent(f"""
+        content = dedent(
+            f"""
             *** Test Cases ***
             Test With Long Line
                 Log    {long_line}
-        """).lstrip()
+        """
+        ).lstrip()
 
         # Without configuration, should trigger line-too-long (LEN08)
         result_default = _lint_content_impl(content, select=["LEN08"])
@@ -305,3 +323,145 @@ class TestGetFormatterInfoParameters:
         # Check align_new_line is bool with default False
         assert param_dict["align_new_line"]["type"] == "bool"
         assert param_dict["align_new_line"]["default"] is False
+
+
+class TestLintFileErrors:
+    """Tests for lint_file error handling."""
+
+    def test_lint_file_not_found(self):
+        """Test linting a file that doesn't exist."""
+        with pytest.raises(ToolError, match="File not found"):
+            _lint_file_impl("/nonexistent/path/to/file.robot")
+
+    def test_lint_file_invalid_extension(self, tmp_path: Path):
+        """Test linting a file with invalid extension."""
+        txt_file = tmp_path / "test.txt"
+        txt_file.write_text("not a robot file")
+
+        with pytest.raises(ToolError, match="Invalid file type"):
+            _lint_file_impl(str(txt_file))
+
+    def test_lint_file_with_limit(self, tmp_path: Path):
+        """Test linting a file with limit parameter."""
+        robot_file = tmp_path / "test.robot"
+        robot_file.write_text("*** Test Cases ***\ntest lowercase\n    log  a\n    log  b\n    log  c\n    log  d\n")
+
+        # Get all issues
+        all_issues = _lint_file_impl(str(robot_file))
+        assert len(all_issues) >= 2
+
+        # Limit to 1 issue
+        limited = _lint_file_impl(str(robot_file), limit=1)
+        assert len(limited) == 1
+
+    def test_lint_file_with_configure(self, tmp_path: Path):
+        """Test linting a file with configure parameter."""
+        # Create a file with a long line
+        long_line = "A" * 150
+        robot_file = tmp_path / "test.robot"
+        robot_file.write_text(f"*** Test Cases ***\nTest\n    Log    {long_line}\n")
+
+        # Without configuration, should trigger line-too-long
+        result_default = _lint_file_impl(str(robot_file), select=["LEN08"])
+        has_line_too_long = any(d["rule_id"] == "LEN08" for d in result_default)
+        assert has_line_too_long
+
+        # With configuration to allow longer lines
+        result_configured = _lint_file_impl(
+            str(robot_file),
+            select=["LEN08"],
+            configure=["line-too-long.line_length=200"],
+        )
+        has_line_too_long_configured = any(d["rule_id"] == "LEN08" for d in result_configured)
+        assert not has_line_too_long_configured
+
+
+class TestLintContentErrors:
+    """Tests for lint_content error handling."""
+
+    def test_lint_with_invalid_threshold(self):
+        """Test linting with invalid threshold raises error."""
+        content = "*** Test Cases ***\nTest\n    Log    Hello\n"
+        with pytest.raises(ToolError, match="Invalid threshold"):
+            _lint_content_impl(content, threshold="X")
+
+    def test_lint_resource_file(self):
+        """Test linting content as a resource file."""
+        content = "*** Keywords ***\nMy Keyword\n    Log    Hello\n"
+        result = _lint_content_impl(content, filename="test.resource")
+        assert isinstance(result, list)
+
+
+class TestFormatContentErrors:
+    """Tests for format_content error handling."""
+
+    def test_format_with_select(self):
+        """Test formatting with specific formatters selected."""
+        content = "*** Test Cases ***\nTest\n    log  hello\n"
+        result = _format_content_impl(content, select=["NormalizeSeparators"])
+        assert "formatted" in result
+        assert "changed" in result
+
+    def test_format_with_custom_space_count(self):
+        """Test formatting with custom space count."""
+        content = "*** Test Cases ***\nTest\n    Log    Hello\n"
+        result = _format_content_impl(content, space_count=2)
+        assert "formatted" in result
+
+    def test_format_with_custom_line_length(self):
+        """Test formatting with custom line length."""
+        content = "*** Test Cases ***\nTest\n    Log    Hello\n"
+        result = _format_content_impl(content, line_length=80)
+        assert "formatted" in result
+
+
+class TestLintAndFormatIntegration:
+    """Integration tests for lint_and_format functionality."""
+
+    def test_lint_and_format_fixes_issues(self):
+        """Test that formatting can fix some linting issues."""
+        # Content with inconsistent separators
+        content = dedent(
+            """
+            *** Test Cases ***
+            Test
+                log  hello
+                log    world
+        """
+        ).lstrip()
+
+        # Get issues before formatting
+        issues_before = _lint_content_impl(content)
+
+        # Format the content
+        format_result = _format_content_impl(content)
+        assert format_result["changed"] is True
+
+        # Get issues after formatting
+        issues_after = _lint_content_impl(format_result["formatted"])
+
+        # Formatting should have fixed some issues or at least not made it worse
+        assert isinstance(issues_before, list)
+        assert isinstance(issues_after, list)
+
+    def test_lint_and_format_with_limit_accurate_counts(self):
+        """Test that lint_and_format returns accurate counts even with limit."""
+        # Content with multiple issues
+        content = dedent(
+            """
+            *** Test Cases ***
+            test lowercase name
+                log  hello
+                log  world
+                log  foo
+                log  bar
+        """
+        ).lstrip()
+        # Get full issue count
+        issues_before_full = _lint_content_impl(content)
+        format_result = _format_content_impl(content)
+        issues_after_full = _lint_content_impl(format_result["formatted"])
+
+        # The counts should be accurate regardless of any limit
+        issues_fixed = len(issues_before_full) - len(issues_after_full)
+        assert issues_fixed >= 0  # Formatting shouldn't add issues

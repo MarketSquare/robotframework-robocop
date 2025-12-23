@@ -124,7 +124,7 @@ Run the server:
 robocop-mcp
 ```
 
-Full documentation: [MCP Server](https://robocop.dev/stable/mcp/)
+Full documentation: [MCP Server](https://robocop.dev/stable/integrations/ai/)
 
 ## Values
 

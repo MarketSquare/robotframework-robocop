@@ -27,4 +27,5 @@ GROUPS_LOOKUP = {
     "SPC": RulesGroup("SPC", "Spacing", "Spacing and whitespace related rules."),
     "TAG": RulesGroup("TAG", "Tags", "Rules for  tags."),
     "VAR": RulesGroup("VAR", "Variables", "Rules for variables."),
+    "ANN": RulesGroup("ANN", "Annotations", "Rules for typing and annotations."),
 }

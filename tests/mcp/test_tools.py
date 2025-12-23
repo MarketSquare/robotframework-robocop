@@ -443,6 +443,7 @@ class TestLintAndFormatIntegration:
         # Formatting should have fixed some issues or at least not made it worse
         assert isinstance(issues_before, list)
         assert isinstance(issues_after, list)
+        assert len(issues_after) <= len(issues_before)
 
     def test_lint_and_format_with_limit_accurate_counts(self):
         """Test that lint_and_format returns accurate counts even with limit."""

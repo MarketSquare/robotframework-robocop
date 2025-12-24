@@ -2,7 +2,7 @@ name: Publish Robocop
 
 on:
   release:
-    types: [created]
+    types: [published]
   workflow_dispatch:
 
 jobs:

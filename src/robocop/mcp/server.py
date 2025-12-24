@@ -8,80 +8,87 @@ from fastmcp import FastMCP
 mcp = FastMCP(
     name="robocop",
     instructions="""
-Robocop is a linter and formatter for Robot Framework code. It helps maintain
-code quality by identifying issues and automatically fixing style problems.
+Robocop is a linter and formatter for Robot Framework code. Use it to identify
+issues, auto-fix style problems, and measure code quality.
 
 ## Quick Start
 
-1. **Lint code**: Use `lint_content` for inline code or `lint_file` for files
-2. **Format code**: Use `format_content` to auto-fix style issues
-3. **Combined**: Use `lint_and_format` to format and show remaining issues
+- **Check code**: `lint_content` (inline) or `lint_file` / `lint_files` (from disk)
+- **Format code**: `format_content` (inline) or `format_file` / `format_files` (from disk)
+- **Understand issues**: `explain_issue` for detailed context, `get_rule_info` for rule docs
+- **Assess quality**: `get_statistics` for codebase-wide metrics and quality score
 
-## Available Tools
+## Tools by Category
 
-### Linting Tools
-- `lint_content`: Lint Robot Framework code provided as text
-- `lint_file`: Lint a single .robot or .resource file
-- `lint_files`: Lint multiple files by path or glob pattern
-- `lint_directory`: Lint all Robot Framework files in a directory
-- `suggest_fixes`: Get actionable fix suggestions for issues
+### Linting (identify issues)
+| Tool | Use When |
+|------|----------|
+| `lint_content` | Checking code provided as text |
+| `lint_file` | Checking a single file on disk |
+| `lint_files` | Checking multiple files by path or glob pattern |
+| `lint_directory` | Checking all files in a directory |
+| `suggest_fixes` | Getting actionable fix recommendations |
+| `explain_issue` | Understanding why a specific line is flagged |
 
-### Formatting Tools
-- `format_content`: Auto-format Robot Framework code
-- `lint_and_format`: Format code and report remaining issues
+### Formatting (auto-fix style)
+| Tool | Use When |
+|------|----------|
+| `format_content` | Formatting code provided as text |
+| `format_file` | Formatting a single file (optionally overwrite) |
+| `format_files` | Formatting multiple files by glob pattern |
+| `lint_and_format` | Formatting + showing remaining manual fixes |
 
-### Discovery Tools
-- `list_rules`: List available linting rules (with filtering)
-- `list_formatters`: List available formatters
-- `get_rule_info`: Get detailed documentation for a rule
-- `get_formatter_info`: Get detailed documentation for a formatter
+### Discovery (explore rules/formatters)
+| Tool | Use When |
+|------|----------|
+| `list_rules` | Finding available rules (supports filtering) |
+| `list_formatters` | Finding available formatters |
+| `get_rule_info` | Getting documentation for a specific rule |
+| `get_formatter_info` | Getting documentation for a specific formatter |
+
+### Statistics (measure quality)
+| Tool | Use When |
+|------|----------|
+| `get_statistics` | Getting quality score, common issues, recommendations |
 
 ## Severity Levels
 
-Issues are returned with severity levels:
-- **E (Error)**: Critical issues that likely cause test failures
+- **E (Error)**: Critical issues that may cause test failures
 - **W (Warning)**: Issues that should be fixed but won't break tests
 - **I (Info)**: Style suggestions and best practices
 
 ## Common Workflows
 
-### Review Code Quality
-1. Use `lint_content` or `lint_file` to identify issues
-2. Use `suggest_fixes` to get fix recommendations
-3. Apply fixes and re-lint to verify
+### Quick Code Review
+1. `lint_content` or `lint_file` to identify issues
+2. `explain_issue` for any confusing violations
+3. Apply fixes based on suggestions
 
-### Clean Up Code
-1. Use `lint_and_format` to auto-fix and see remaining issues
-2. Address manual fixes based on suggestions
-3. Verify with final lint
+### Clean Up Files
+1. `format_file` with `overwrite=True` to auto-fix style
+2. `lint_file` to see remaining issues
+3. Fix manually and verify
 
-### Configure for a Project
-1. Use `list_rules` to explore available rules
-2. Use the `configure_robocop` prompt for recommendations
-3. Apply settings to your `.robocop` configuration file
+### Assess Codebase Health
+1. `get_statistics` for quality score and top issues
+2. Focus on errors first, then most common warnings
+3. Use formatter to batch-fix style issues
 
-## Rule Configuration
+### Configure Rules
+Rules accept configuration via `configure` parameter:
+```
+configure=["line-too-long.line_length=140", "too-long-keyword.max_len=50"]
+```
+Use `get_rule_info` to see configurable parameters.
 
-Rules can be configured using the `configure` parameter:
-- `configure=["line-too-long.line_length=140"]` - Set max line length
-- `configure=["too-long-keyword.max_len=50"]` - Set max keyword length
+## Handling Large Result Sets
 
-Use `get_rule_info` to see configurable parameters for any rule.
+Use `group_by` to organize results:
+- `group_by="severity"` - Errors first, then warnings, then info
+- `group_by="rule"` - Same violations grouped together
+- `group_by="file"` - All issues per file
 
-## Managing Large Result Sets
-
-When linting many files, use `group_by` to organize results for easier processing:
-
-- `group_by="severity"` - Prioritize fixes: see all errors first, then warnings, then info
-- `group_by="rule"` - Batch fixes: group same rule violations together
-- `group_by="file"` - File review: see all issues per file
-
-When `group_by` is set, `limit` applies per group (e.g., `limit=5, group_by="rule"`
-shows up to 5 examples per rule).
-
-Example:
-    lint_files(["tests/**/*.robot"], group_by="severity", limit=10)
-    # Returns: {"issues": {"E": [...], "W": [...], "I": [...]}, "group_counts": {...}}
+With `group_by`, `limit` applies per group.
 """,
 )
 

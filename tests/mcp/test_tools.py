@@ -10,10 +10,16 @@ from robocop.formatter.formatters.NormalizeSeparators import NormalizeSeparators
 from robocop.mcp.tools import (
     _collect_robot_files,
     _expand_file_patterns,
+    _explain_issue_impl,
     _format_content_impl,
+    _format_file_impl,
+    _format_files_impl,
+    _generate_recommendations,
     _get_formatter_info_impl,
     _get_formatter_parameters,
+    _get_line_context,
     _get_rule_info_impl,
+    _get_statistics_impl,
     _group_issues,
     _is_glob_pattern,
     _lint_content_impl,
@@ -1040,3 +1046,529 @@ class TestLintFilesImplGroupBy:
 
         assert isinstance(result["issues"], list)
         assert "group_counts" not in result
+
+
+class TestFormatFile:
+    """Tests for format_file tool."""
+
+    def test_format_file_basic(self, tmp_path: Path):
+        """Test formatting a file without overwriting."""
+        robot_file = tmp_path / "test.robot"
+        robot_file.write_text("*** Test Cases ***\nTest\n    log  hello\n")
+
+        result = _format_file_impl(str(robot_file))
+
+        assert "file" in result
+        assert "formatted" in result
+        assert "changed" in result
+        assert "diff" in result
+        assert "written" in result
+        assert result["changed"] is True
+        assert result["written"] is False  # Not overwritten by default
+
+    def test_format_file_overwrite(self, tmp_path: Path):
+        """Test formatting a file with overwrite=True."""
+        robot_file = tmp_path / "test.robot"
+        original_content = "*** Test Cases ***\nTest\n    log  hello\n"
+        robot_file.write_text(original_content)
+
+        result = _format_file_impl(str(robot_file), overwrite=True)
+
+        assert result["changed"] is True
+        assert result["written"] is True
+        # Verify file was actually modified
+        new_content = robot_file.read_text()
+        assert new_content != original_content
+        assert new_content == result["formatted"]
+
+    def test_format_file_unchanged(self, tmp_path: Path):
+        """Test formatting an already formatted file."""
+        robot_file = tmp_path / "test.robot"
+        # Well-formatted content
+        robot_file.write_text("*** Test Cases ***\nTest\n    Log    Hello\n")
+
+        result = _format_file_impl(str(robot_file), overwrite=True)
+
+        # May or may not change depending on default formatters
+        assert "formatted" in result
+        if not result["changed"]:
+            assert result["written"] is False
+
+    def test_format_file_not_found(self):
+        """Test formatting a non-existent file."""
+        with pytest.raises(ToolError, match="File not found"):
+            _format_file_impl("/nonexistent/path/test.robot")
+
+    def test_format_file_invalid_extension(self, tmp_path: Path):
+        """Test formatting a file with invalid extension."""
+        txt_file = tmp_path / "test.txt"
+        txt_file.write_text("some content")
+
+        with pytest.raises(ToolError, match="Invalid file type"):
+            _format_file_impl(str(txt_file))
+
+    def test_format_file_with_select(self, tmp_path: Path):
+        """Test formatting with specific formatters."""
+        robot_file = tmp_path / "test.robot"
+        robot_file.write_text("*** Test Cases ***\nTest\n    log  hello\n")
+
+        result = _format_file_impl(str(robot_file), select=["NormalizeSeparators"])
+
+        assert "formatted" in result
+
+    def test_format_file_custom_space_count(self, tmp_path: Path):
+        """Test formatting with custom space count."""
+        robot_file = tmp_path / "test.robot"
+        robot_file.write_text("*** Test Cases ***\nTest\n    Log    Hello\n")
+
+        result = _format_file_impl(str(robot_file), space_count=2)
+
+        assert "formatted" in result
+
+    def test_format_resource_file(self, tmp_path: Path):
+        """Test formatting a .resource file."""
+        resource_file = tmp_path / "lib.resource"
+        resource_file.write_text("*** Keywords ***\nMy Keyword\n    log  hi\n")
+
+        result = _format_file_impl(str(resource_file))
+
+        assert "formatted" in result
+        assert result["file"] == str(resource_file)
+
+
+class TestFormatFiles:
+    """Tests for format_files tool."""
+
+    def test_format_multiple_files(self, tmp_path: Path):
+        """Test formatting multiple files."""
+        (tmp_path / "test1.robot").write_text("*** Test Cases ***\nTest\n    log  a\n")
+        (tmp_path / "test2.robot").write_text("*** Test Cases ***\nTest\n    log  b\n")
+
+        result = _format_files_impl(["test1.robot", "test2.robot"], str(tmp_path))
+
+        assert result["total_files"] == 2
+        assert "files_changed" in result
+        assert "files_unchanged" in result
+        assert "files_written" in result
+        assert result["files_written"] == 0  # Not overwritten by default
+        assert len(result["results"]) == 2
+
+    def test_format_files_with_overwrite(self, tmp_path: Path):
+        """Test formatting files with overwrite."""
+        (tmp_path / "test1.robot").write_text("*** Test Cases ***\nTest\n    log  a\n")
+        (tmp_path / "test2.robot").write_text("*** Test Cases ***\nTest\n    log  b\n")
+
+        result = _format_files_impl(["test1.robot", "test2.robot"], str(tmp_path), overwrite=True)
+
+        assert result["files_written"] == result["files_changed"]
+
+    def test_format_files_with_glob(self, tmp_path: Path):
+        """Test formatting with glob pattern."""
+        subdir = tmp_path / "tests"
+        subdir.mkdir()
+        (subdir / "test1.robot").write_text("*** Test Cases ***\nTest\n    log  a\n")
+        (subdir / "test2.robot").write_text("*** Test Cases ***\nTest\n    log  b\n")
+
+        result = _format_files_impl(["tests/*.robot"], str(tmp_path))
+
+        assert result["total_files"] == 2
+
+    def test_format_files_recursive_glob(self, tmp_path: Path):
+        """Test formatting with recursive glob pattern."""
+        deep = tmp_path / "a" / "b"
+        deep.mkdir(parents=True)
+        (deep / "test.robot").write_text("*** Test Cases ***\nTest\n    log  hi\n")
+
+        result = _format_files_impl(["**/*.robot"], str(tmp_path))
+
+        assert result["total_files"] == 1
+
+    def test_format_files_no_matches(self, tmp_path: Path):
+        """Test formatting with no matching files."""
+        with pytest.raises(ToolError, match=r"No \.robot or \.resource files found"):
+            _format_files_impl(["nonexistent.robot"], str(tmp_path))
+
+    def test_format_files_unmatched_patterns(self, tmp_path: Path):
+        """Test that unmatched patterns are tracked."""
+        (tmp_path / "exists.robot").write_text("*** Test Cases ***\nTest\n    log  hi\n")
+
+        result = _format_files_impl(["exists.robot", "missing.robot"], str(tmp_path))
+
+        assert result["total_files"] == 1
+        assert "missing.robot" in result["unmatched_patterns"]
+
+    def test_format_files_results_structure(self, tmp_path: Path):
+        """Test the structure of per-file results."""
+        (tmp_path / "test.robot").write_text("*** Test Cases ***\nTest\n    log  hi\n")
+
+        result = _format_files_impl(["test.robot"], str(tmp_path))
+
+        for file_result in result["results"]:
+            assert "file" in file_result
+            assert "changed" in file_result
+            assert "written" in file_result
+
+
+class TestGetStatistics:
+    """Tests for get_statistics tool."""
+
+    def test_get_statistics_basic(self, tmp_path: Path):
+        """Test basic statistics gathering."""
+        (tmp_path / "test1.robot").write_text("*** Test Cases ***\ntest\n    log  hi\n")
+        (tmp_path / "test2.robot").write_text("*** Test Cases ***\nGood Test\n    Log    Hello\n")
+
+        result = _get_statistics_impl(str(tmp_path))
+
+        assert "directory" in result
+        assert "summary" in result
+        assert "severity_breakdown" in result
+        assert "top_issues" in result
+        assert "quality_score" in result
+        assert "recommendations" in result
+
+    def test_get_statistics_summary(self, tmp_path: Path):
+        """Test statistics summary structure."""
+        (tmp_path / "test.robot").write_text("*** Test Cases ***\ntest\n    log  hi\n")
+
+        result = _get_statistics_impl(str(tmp_path))
+
+        summary = result["summary"]
+        assert "total_files" in summary
+        assert "files_with_issues" in summary
+        assert "files_clean" in summary
+        assert "total_issues" in summary
+        assert "avg_issues_per_file" in summary
+        assert "max_issues_in_file" in summary
+
+        assert summary["total_files"] == 1
+
+    def test_get_statistics_severity_breakdown(self, tmp_path: Path):
+        """Test severity breakdown in statistics."""
+        (tmp_path / "test.robot").write_text("*** Test Cases ***\ntest\n    log  hi\n")
+
+        result = _get_statistics_impl(str(tmp_path))
+
+        severity = result["severity_breakdown"]
+        assert "E" in severity
+        assert "W" in severity
+        assert "I" in severity
+        # Sum should equal total issues
+        total = severity["E"] + severity["W"] + severity["I"]
+        assert total == result["summary"]["total_issues"]
+
+    def test_get_statistics_quality_score(self, tmp_path: Path):
+        """Test quality score structure."""
+        (tmp_path / "test.robot").write_text("*** Test Cases ***\nGood Test\n    Log    Hello\n")
+
+        result = _get_statistics_impl(str(tmp_path))
+
+        quality = result["quality_score"]
+        assert "score" in quality
+        assert "grade" in quality
+        assert "label" in quality
+        assert 0 <= quality["score"] <= 100
+        assert quality["grade"] in ("A", "B", "C", "D", "F")
+
+    def test_get_statistics_top_issues(self, tmp_path: Path):
+        """Test top issues list."""
+        (tmp_path / "test.robot").write_text("*** Test Cases ***\ntest\n    log  hi\n")
+
+        result = _get_statistics_impl(str(tmp_path))
+
+        assert isinstance(result["top_issues"], list)
+        for issue in result["top_issues"]:
+            assert "rule_id" in issue
+            assert "count" in issue
+            assert issue["count"] > 0
+
+    def test_get_statistics_recommendations(self, tmp_path: Path):
+        """Test recommendations list."""
+        (tmp_path / "test.robot").write_text("*** Test Cases ***\ntest\n    log  hi\n")
+
+        result = _get_statistics_impl(str(tmp_path))
+
+        assert isinstance(result["recommendations"], list)
+        assert len(result["recommendations"]) > 0
+        for rec in result["recommendations"]:
+            assert isinstance(rec, str)
+
+    def test_get_statistics_recursive(self, tmp_path: Path):
+        """Test recursive directory scanning."""
+        subdir = tmp_path / "subdir"
+        subdir.mkdir()
+        (tmp_path / "test1.robot").write_text("*** Test Cases ***\ntest\n    log  a\n")
+        (subdir / "test2.robot").write_text("*** Test Cases ***\ntest\n    log  b\n")
+
+        # Recursive (default)
+        result_recursive = _get_statistics_impl(str(tmp_path), recursive=True)
+        assert result_recursive["summary"]["total_files"] == 2
+
+        # Non-recursive
+        result_nonrecursive = _get_statistics_impl(str(tmp_path), recursive=False)
+        assert result_nonrecursive["summary"]["total_files"] == 1
+
+    def test_get_statistics_with_select(self, tmp_path: Path):
+        """Test statistics with rule selection."""
+        (tmp_path / "test.robot").write_text("*** Test Cases ***\ntest\n    log  hi\n")
+
+        result = _get_statistics_impl(str(tmp_path), select=["NAME*"])
+
+        # All issues should be NAME rules
+        for issue in result["top_issues"]:
+            assert issue["rule_id"].startswith("NAME")
+
+    def test_get_statistics_directory_not_found(self):
+        """Test statistics for non-existent directory."""
+        with pytest.raises(ToolError, match="Directory not found"):
+            _get_statistics_impl("/nonexistent/path")
+
+    def test_get_statistics_not_directory(self, tmp_path: Path):
+        """Test statistics for a file instead of directory."""
+        robot_file = tmp_path / "test.robot"
+        robot_file.write_text("*** Test Cases ***\nTest\n    Log    Hi\n")
+
+        with pytest.raises(ToolError, match="Not a directory"):
+            _get_statistics_impl(str(robot_file))
+
+    def test_get_statistics_empty_directory(self, tmp_path: Path):
+        """Test statistics for empty directory."""
+        with pytest.raises(ToolError, match=r"No \.robot or \.resource files found"):
+            _get_statistics_impl(str(tmp_path))
+
+
+class TestGenerateRecommendations:
+    """Tests for _generate_recommendations helper."""
+
+    def test_recommendations_for_errors(self):
+        """Test recommendations when errors are present."""
+        severity_counts = {"E": 5, "W": 2, "I": 1}
+        top_rules = [("LEN01", 3), ("NAME01", 2)]
+
+        result = _generate_recommendations(severity_counts, top_rules, 70)
+
+        # Should recommend fixing errors first
+        assert any("error" in rec.lower() for rec in result)
+
+    def test_recommendations_for_common_rule(self):
+        """Test recommendations when a rule appears many times."""
+        severity_counts = {"E": 0, "W": 10, "I": 0}
+        top_rules = [("LEN01", 10)]
+
+        result = _generate_recommendations(severity_counts, top_rules, 50)
+
+        # Should mention the common rule
+        assert any("LEN01" in rec for rec in result)
+
+    def test_recommendations_for_low_quality(self):
+        """Test recommendations for low quality score."""
+        severity_counts = {"E": 0, "W": 5, "I": 5}
+        top_rules = [("DOC01", 3)]
+
+        result = _generate_recommendations(severity_counts, top_rules, 50)
+
+        # Should recommend formatter
+        assert any("formatter" in rec.lower() for rec in result)
+
+    def test_recommendations_for_good_quality(self):
+        """Test recommendations for good quality code."""
+        severity_counts = {"E": 0, "W": 0, "I": 0}
+        top_rules = []
+
+        result = _generate_recommendations(severity_counts, top_rules, 100)
+
+        # Should have positive message
+        assert len(result) > 0
+        assert any("good" in rec.lower() for rec in result)
+
+
+class TestExplainIssue:
+    """Tests for explain_issue tool."""
+
+    def test_explain_issue_basic(self):
+        """Test basic issue explanation."""
+        content = dedent(
+            """
+            *** Test Cases ***
+            test without capital
+                log  hello
+        """
+        ).lstrip()
+
+        result = _explain_issue_impl(content, line=2)
+
+        assert "line" in result
+        assert "issues_found" in result
+        assert "context" in result
+        assert result["line"] == 2
+
+    def test_explain_issue_with_issues(self):
+        """Test explanation when issues are found."""
+        content = dedent(
+            """
+            *** Test Cases ***
+            test without capital
+                log  hello
+        """
+        ).lstrip()
+
+        result = _explain_issue_impl(content, line=2)
+
+        assert result["issues_found"] is True
+        assert "issues" in result
+        assert len(result["issues"]) > 0
+
+    def test_explain_issue_structure(self):
+        """Test issue explanation structure."""
+        content = dedent(
+            """
+            *** Test Cases ***
+            test without capital
+                log  hello
+        """
+        ).lstrip()
+
+        result = _explain_issue_impl(content, line=2)
+
+        for issue in result["issues"]:
+            assert "rule_id" in issue
+            assert "name" in issue
+            assert "message" in issue
+            assert "severity" in issue
+            assert "line" in issue
+            assert "column" in issue
+
+    def test_explain_issue_includes_documentation(self):
+        """Test that explanation includes rule documentation."""
+        content = dedent(
+            """
+            *** Test Cases ***
+            test without capital
+                log  hello
+        """
+        ).lstrip()
+
+        result = _explain_issue_impl(content, line=2)
+
+        if result["issues"]:
+            issue = result["issues"][0]
+            # Should include additional context fields
+            assert "why_it_matters" in issue or "full_documentation" in issue
+
+    def test_explain_issue_no_issues_at_line(self):
+        """Test explanation when no issues at specified line."""
+        content = dedent(
+            """
+            *** Test Cases ***
+            Valid Test Name
+                Log    Hello
+        """
+        ).lstrip()
+
+        # Line 1 is the settings header, no issues there
+        result = _explain_issue_impl(content, line=1)
+
+        # May or may not find issues depending on rules
+        assert "issues_found" in result
+        assert "context" in result
+
+    def test_explain_issue_related_issues(self):
+        """Test that related issues on nearby lines are included."""
+        content = dedent(
+            """
+            *** Test Cases ***
+            test without capital
+                log  hello
+                log  world
+        """
+        ).lstrip()
+
+        result = _explain_issue_impl(content, line=3)
+
+        assert "related_issues" in result
+
+    def test_explain_issue_context_lines(self):
+        """Test custom context lines."""
+        content = dedent(
+            """
+            *** Test Cases ***
+            test without capital
+                log  hello
+                log  world
+                log  foo
+        """
+        ).lstrip()
+
+        result = _explain_issue_impl(content, line=3, context_lines=1)
+
+        context = result["context"]
+        # Should have target line +/- 1 = at most 3 lines
+        assert len(context["lines"]) <= 3
+
+    def test_explain_issue_context_structure(self):
+        """Test context structure."""
+        content = dedent(
+            """
+            *** Test Cases ***
+            Test
+                Log    Hello
+        """
+        ).lstrip()
+
+        result = _explain_issue_impl(content, line=2)
+
+        context = result["context"]
+        assert "lines" in context
+        assert "target_line" in context
+        assert "target_content" in context
+
+        for line_info in context["lines"]:
+            assert "line_number" in line_info
+            assert "content" in line_info
+            assert "is_target" in line_info
+
+
+class TestGetLineContext:
+    """Tests for _get_line_context helper."""
+
+    def test_get_line_context_basic(self):
+        """Test basic context extraction."""
+        content = "line1\nline2\nline3\nline4\nline5"
+
+        result = _get_line_context(content, line=3, context_lines=1)
+
+        assert result["target_line"] == 3
+        assert result["target_content"] == "line3"
+        assert len(result["lines"]) == 3  # line 2, 3, 4
+
+    def test_get_line_context_at_start(self):
+        """Test context at start of file."""
+        content = "line1\nline2\nline3"
+
+        result = _get_line_context(content, line=1, context_lines=2)
+
+        assert result["target_line"] == 1
+        # Should only have lines after, not before
+        assert len(result["lines"]) == 3  # line 1, 2, 3
+
+    def test_get_line_context_at_end(self):
+        """Test context at end of file."""
+        content = "line1\nline2\nline3"
+
+        result = _get_line_context(content, line=3, context_lines=2)
+
+        assert result["target_line"] == 3
+        # Should only have lines before, not after
+        assert len(result["lines"]) == 3  # line 1, 2, 3
+
+    def test_get_line_context_target_marked(self):
+        """Test that target line is marked."""
+        content = "line1\nline2\nline3"
+
+        result = _get_line_context(content, line=2, context_lines=1)
+
+        target_found = False
+        for line_info in result["lines"]:
+            if line_info["is_target"]:
+                target_found = True
+                assert line_info["line_number"] == 2
+        assert target_found

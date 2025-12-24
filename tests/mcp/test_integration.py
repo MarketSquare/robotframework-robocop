@@ -674,3 +674,292 @@ class TestRealWorldWorkflows:
 
         # Formatting should not have added issues
         assert len(remaining_issues) <= len(initial_issues)
+
+
+class TestFormatFileTool:
+    """Acceptance tests for format_file MCP tool."""
+
+    def test_format_file_preview(self, mcp_tools, tmp_path: Path):
+        """User previews formatting changes without modifying file."""
+        format_file = mcp_tools["format_file"]
+
+        robot_file = tmp_path / "test.robot"
+        original_content = "*** Test Cases ***\nTest\n    log  hello\n"
+        robot_file.write_text(original_content)
+
+        result = run_tool(format_file, file_path=str(robot_file))
+
+        assert result["changed"] is True
+        assert result["written"] is False
+        # File should not have been modified
+        assert robot_file.read_text() == original_content
+
+    def test_format_file_overwrite(self, mcp_tools, tmp_path: Path):
+        """User formats file and saves changes."""
+        format_file = mcp_tools["format_file"]
+
+        robot_file = tmp_path / "test.robot"
+        original_content = "*** Test Cases ***\nTest\n    log  hello\n"
+        robot_file.write_text(original_content)
+
+        result = run_tool(format_file, file_path=str(robot_file), overwrite=True)
+
+        assert result["changed"] is True
+        assert result["written"] is True
+        # File should have been modified
+        assert robot_file.read_text() != original_content
+        assert robot_file.read_text() == result["formatted"]
+
+    def test_format_file_not_found(self, mcp_tools):
+        """User tries to format a non-existent file."""
+        format_file = mcp_tools["format_file"]
+
+        with pytest.raises(ToolError, match="File not found"):
+            run_tool(format_file, file_path="/nonexistent/path/test.robot")
+
+
+class TestFormatFilesTool:
+    """Acceptance tests for format_files MCP tool."""
+
+    def test_format_files_with_glob(self, mcp_tools, tmp_path: Path):
+        """User formats multiple files using a glob pattern."""
+        format_files = mcp_tools["format_files"]
+
+        subdir = tmp_path / "tests"
+        subdir.mkdir()
+        (subdir / "test1.robot").write_text("*** Test Cases ***\nTest\n    log  a\n")
+        (subdir / "test2.robot").write_text("*** Test Cases ***\nTest\n    log  b\n")
+
+        result = run_tool(format_files, file_patterns=["tests/*.robot"], base_path=str(tmp_path))
+
+        assert result["total_files"] == 2
+        assert result["files_changed"] >= 0
+        assert result["files_written"] == 0  # Not overwritten by default
+
+    def test_format_files_overwrite(self, mcp_tools, tmp_path: Path):
+        """User formats and saves multiple files."""
+        format_files = mcp_tools["format_files"]
+
+        (tmp_path / "test1.robot").write_text("*** Test Cases ***\nTest\n    log  a\n")
+        (tmp_path / "test2.robot").write_text("*** Test Cases ***\nTest\n    log  b\n")
+
+        result = run_tool(
+            format_files,
+            file_patterns=["*.robot"],
+            base_path=str(tmp_path),
+            overwrite=True,
+        )
+
+        assert result["total_files"] == 2
+        assert result["files_written"] == result["files_changed"]
+
+    def test_format_files_no_matches(self, mcp_tools, tmp_path: Path):
+        """User uses a pattern with no matches."""
+        format_files = mcp_tools["format_files"]
+
+        with pytest.raises(ToolError, match=r"No \.robot or \.resource files found"):
+            run_tool(format_files, file_patterns=["nonexistent/*.robot"], base_path=str(tmp_path))
+
+
+class TestGetStatisticsTool:
+    """Acceptance tests for get_statistics MCP tool."""
+
+    def test_get_statistics_overview(self, mcp_tools, tmp_path: Path):
+        """User gets an overview of code quality for a directory."""
+        get_statistics = mcp_tools["get_statistics"]
+
+        (tmp_path / "test1.robot").write_text("*** Test Cases ***\ntest\n    log  a\n")
+        (tmp_path / "test2.robot").write_text("*** Test Cases ***\nGood Test\n    Log    Hello\n")
+
+        result = run_tool(get_statistics, directory_path=str(tmp_path))
+
+        assert "summary" in result
+        assert "severity_breakdown" in result
+        assert "top_issues" in result
+        assert "quality_score" in result
+        assert "recommendations" in result
+
+        assert result["summary"]["total_files"] == 2
+        assert result["quality_score"]["score"] >= 0
+        assert result["quality_score"]["score"] <= 100
+        assert result["quality_score"]["grade"] in ("A", "B", "C", "D", "F")
+
+    def test_get_statistics_recursive(self, mcp_tools, tmp_path: Path):
+        """User scans a project with subdirectories."""
+        get_statistics = mcp_tools["get_statistics"]
+
+        subdir = tmp_path / "tests"
+        subdir.mkdir()
+        (tmp_path / "root.robot").write_text("*** Test Cases ***\nTest\n    Log    Hi\n")
+        (subdir / "nested.robot").write_text("*** Test Cases ***\nTest\n    Log    Hi\n")
+
+        # Recursive (default)
+        result = run_tool(get_statistics, directory_path=str(tmp_path))
+        assert result["summary"]["total_files"] == 2
+
+        # Non-recursive
+        result_flat = run_tool(get_statistics, directory_path=str(tmp_path), recursive=False)
+        assert result_flat["summary"]["total_files"] == 1
+
+    def test_get_statistics_with_filters(self, mcp_tools, tmp_path: Path):
+        """User filters statistics to specific rules."""
+        get_statistics = mcp_tools["get_statistics"]
+
+        (tmp_path / "test.robot").write_text("*** Test Cases ***\ntest\n    log  hi\n")
+
+        result = run_tool(get_statistics, directory_path=str(tmp_path), select=["NAME*"])
+
+        # All top issues should be NAME rules
+        for issue in result["top_issues"]:
+            assert issue["rule_id"].startswith("NAME")
+
+    def test_get_statistics_empty_directory(self, mcp_tools, tmp_path: Path):
+        """User tries to get statistics for empty directory."""
+        get_statistics = mcp_tools["get_statistics"]
+
+        with pytest.raises(ToolError, match=r"No \.robot or \.resource files found"):
+            run_tool(get_statistics, directory_path=str(tmp_path))
+
+
+class TestExplainIssueTool:
+    """Acceptance tests for explain_issue MCP tool."""
+
+    def test_explain_issue_at_line(self, mcp_tools):
+        """User asks for explanation of issue at specific line."""
+        explain_issue = mcp_tools["explain_issue"]
+
+        content = dedent(
+            """
+            *** Test Cases ***
+            test without capital
+                log  hello
+        """
+        ).lstrip()
+
+        result = run_tool(explain_issue, content=content, line=2)
+
+        assert result["issues_found"] is True
+        assert len(result["issues"]) > 0
+        assert result["line"] == 2
+
+        # Should include documentation
+        issue = result["issues"][0]
+        assert "rule_id" in issue
+        assert "message" in issue
+
+    def test_explain_issue_with_context(self, mcp_tools):
+        """User gets context around the issue."""
+        explain_issue = mcp_tools["explain_issue"]
+
+        content = dedent(
+            """
+            *** Test Cases ***
+            test without capital
+                log  hello
+                log  world
+        """
+        ).lstrip()
+
+        result = run_tool(explain_issue, content=content, line=3, context_lines=2)
+
+        context = result["context"]
+        assert "lines" in context
+        assert "target_line" in context
+        assert context["target_line"] == 3
+
+        # Check that context lines are marked correctly
+        for line_info in context["lines"]:
+            assert "line_number" in line_info
+            assert "content" in line_info
+            assert "is_target" in line_info
+
+    def test_explain_issue_no_issues_at_line(self, mcp_tools):
+        """User asks about a line with no issues."""
+        explain_issue = mcp_tools["explain_issue"]
+
+        content = dedent(
+            """
+            *** Test Cases ***
+            Valid Test Name
+                Log    Hello
+        """
+        ).lstrip()
+
+        result = run_tool(explain_issue, content=content, line=1)
+
+        # Line 1 is the header, likely no issues
+        assert "issues_found" in result
+        assert "context" in result
+
+
+class TestNewToolsWorkflows:
+    """Tests for workflows using the new tools."""
+
+    def test_project_cleanup_workflow(self, mcp_tools, tmp_path: Path):
+        """
+        Simulates cleaning up an entire project:
+
+        1. Get statistics to understand scope
+        2. Format all files
+        3. Check improved statistics
+        """
+        get_statistics = mcp_tools["get_statistics"]
+        format_files = mcp_tools["format_files"]
+
+        # Create messy files
+        (tmp_path / "test1.robot").write_text("*** Test Cases ***\ntest\n    log  a\n")
+        (tmp_path / "test2.robot").write_text("*** Test Cases ***\ntest\n    log  b\n")
+
+        # Step 1: Get initial statistics
+        initial_stats = run_tool(get_statistics, directory_path=str(tmp_path))
+        assert initial_stats["summary"]["total_issues"] > 0
+
+        # Step 2: Format all files
+        format_result = run_tool(
+            format_files,
+            file_patterns=["*.robot"],
+            base_path=str(tmp_path),
+            overwrite=True,
+        )
+        assert format_result["files_changed"] >= 0
+
+        # Step 3: Check improved statistics
+        final_stats = run_tool(get_statistics, directory_path=str(tmp_path))
+        # After formatting, we may have fewer issues
+        assert final_stats["summary"]["total_files"] == initial_stats["summary"]["total_files"]
+
+    def test_issue_investigation_workflow(self, mcp_tools):
+        """
+        Simulates investigating a specific issue:
+
+        1. Lint code to find issues
+        2. Explain specific issue
+        3. Get full rule documentation
+        """
+        lint_content = mcp_tools["lint_content"]
+        explain_issue = mcp_tools["explain_issue"]
+        get_rule_info = mcp_tools["get_rule_info"]
+
+        content = dedent(
+            """
+            *** Test Cases ***
+            test without capital
+                log  hello
+        """
+        ).lstrip()
+
+        # Step 1: Find issues
+        issues = run_tool(lint_content, content=content)
+        assert len(issues) > 0
+
+        first_issue = issues[0]
+        issue_line = first_issue["line"]
+
+        # Step 2: Explain the issue at that line
+        explanation = run_tool(explain_issue, content=content, line=issue_line)
+        assert explanation["issues_found"] is True
+
+        # Step 3: Get full rule documentation
+        rule_docs = run_tool(get_rule_info, rule_name_or_id=first_issue["rule_id"])
+        assert "docs" in rule_docs
+        assert len(rule_docs["docs"]) > 0

@@ -765,6 +765,419 @@ def _suggest_fixes_impl(
     }
 
 
+def _format_file_impl(
+    file_path: str,
+    select: list[str] | None = None,
+    space_count: int = 4,
+    line_length: int = 120,
+    *,
+    overwrite: bool = False,
+) -> dict[str, Any]:
+    """
+    Format a Robot Framework file.
+
+    Args:
+        file_path: Path to the file to format.
+        select: List of formatter names to apply.
+        space_count: Number of spaces for indentation.
+        line_length: Maximum line length.
+        overwrite: Whether to overwrite the file with formatted content.
+
+    Returns:
+        A dictionary containing the formatting result.
+
+    Raises:
+        ToolError: If the file does not exist or is of invalid type.
+
+    """
+    path = Path(file_path)
+
+    if not path.exists():
+        raise ToolError(f"File not found: {file_path}")
+
+    if path.suffix not in VALID_EXTENSIONS:
+        raise ToolError(f"Invalid file type: {path.suffix}. Expected .robot or .resource file.")
+
+    try:
+        # Read the file content
+        content = path.read_text(encoding="utf-8")
+
+        # Format using existing implementation
+        result = _format_content_impl(content, path.name, select, space_count, line_length)
+
+        # Optionally overwrite the file
+        if overwrite and result["changed"]:
+            path.write_text(result["formatted"], encoding="utf-8")
+            result["written"] = True
+        else:
+            result["written"] = False
+
+        result["file"] = str(path)
+        return result
+
+    except OSError as e:
+        raise ToolError(f"Failed to read/write file: {e}") from e
+
+
+def _format_files_impl(
+    file_patterns: list[str],
+    base_path: str | None = None,
+    select: list[str] | None = None,
+    space_count: int = 4,
+    line_length: int = 120,
+    *,
+    overwrite: bool = False,
+) -> dict[str, Any]:
+    """
+    Format multiple Robot Framework files.
+
+    Args:
+        file_patterns: List of file paths or glob patterns.
+        base_path: Base directory for resolving relative paths/patterns.
+        select: List of formatter names to apply.
+        space_count: Number of spaces for indentation.
+        line_length: Maximum line length.
+        overwrite: Whether to overwrite files with formatted content.
+
+    Returns:
+        A dictionary containing the formatting results.
+
+    Raises:
+        ToolError: If no valid files are found.
+
+    """
+    base = Path(base_path) if base_path else None
+    files, unmatched = _expand_file_patterns(file_patterns, base)
+
+    if not files:
+        raise ToolError(
+            f"No .robot or .resource files found matching patterns: {file_patterns}"
+            + (f" (unmatched: {unmatched})" if unmatched else "")
+        )
+
+    results: list[dict[str, Any]] = []
+    files_changed = 0
+    files_unchanged = 0
+    files_written = 0
+    errors: list[dict[str, str]] = []
+
+    for file in files:
+        try:
+            result = _format_file_impl(str(file), select, space_count, line_length, overwrite=overwrite)
+            results.append(
+                {
+                    "file": str(file),
+                    "changed": result["changed"],
+                    "written": result["written"],
+                }
+            )
+            if result["changed"]:
+                files_changed += 1
+                if result["written"]:
+                    files_written += 1
+            else:
+                files_unchanged += 1
+        except ToolError as e:
+            errors.append({"file": str(file), "error": str(e)})
+
+    return {
+        "total_files": len(files),
+        "files_changed": files_changed,
+        "files_unchanged": files_unchanged,
+        "files_written": files_written,
+        "results": results,
+        "errors": errors,
+        "unmatched_patterns": unmatched,
+    }
+
+
+def _get_statistics_impl(
+    directory_path: str,
+    recursive: bool = True,
+    select: list[str] | None = None,
+    ignore: list[str] | None = None,
+    threshold: str = "I",
+    *,
+    configure: list[str] | None = None,
+) -> dict[str, Any]:
+    """
+    Get statistics about code quality in a directory.
+
+    Args:
+        directory_path: Path to the directory to analyze.
+        recursive: Whether to search subdirectories.
+        select: List of rule IDs to enable.
+        ignore: List of rule IDs to ignore.
+        threshold: Minimum severity threshold.
+        configure: List of rule configurations.
+
+    Returns:
+        A dictionary containing statistics about the codebase.
+
+    Raises:
+        ToolError: If the directory does not exist or contains no files.
+
+    """
+    path = Path(directory_path)
+
+    if not path.exists():
+        raise ToolError(f"Directory not found: {directory_path}")
+
+    if not path.is_dir():
+        raise ToolError(f"Not a directory: {directory_path}")
+
+    files = _collect_robot_files(path, recursive)
+
+    if not files:
+        raise ToolError(f"No .robot or .resource files found in {directory_path}")
+
+    # Collect all issues
+    all_issues: list[dict[str, Any]] = []
+    files_with_issues = 0
+    files_clean = 0
+    severity_counts = {"E": 0, "W": 0, "I": 0}
+    rule_counts: dict[str, int] = {}
+    issues_per_file: list[int] = []
+
+    for file in files:
+        try:
+            issues = _lint_file_impl(
+                str(file),
+                select,
+                ignore,
+                threshold,
+                include_file_in_result=True,
+                configure=configure,
+            )
+            issues_per_file.append(len(issues))
+
+            if issues:
+                files_with_issues += 1
+                all_issues.extend(issues)
+                for issue in issues:
+                    severity = issue.get("severity", "W")
+                    if severity in severity_counts:
+                        severity_counts[severity] += 1
+                    rule_id = issue.get("rule_id", "unknown")
+                    rule_counts[rule_id] = rule_counts.get(rule_id, 0) + 1
+            else:
+                files_clean += 1
+        except ToolError:
+            # Skip files that fail to parse
+            pass
+
+    total_files = len(files)
+    total_issues = len(all_issues)
+
+    # Calculate statistics
+    avg_issues_per_file = total_issues / total_files if total_files > 0 else 0
+    max_issues_in_file = max(issues_per_file) if issues_per_file else 0
+
+    # Find top 10 most common rules
+    top_rules = sorted(rule_counts.items(), key=operator.itemgetter(1), reverse=True)[:10]
+
+    # Calculate a simple quality score (0-100)
+    # Score decreases based on issues per file, weighted by severity
+    weighted_issues = severity_counts["E"] * 3 + severity_counts["W"] * 1.5 + severity_counts["I"] * 0.5
+    issues_ratio = weighted_issues / total_files if total_files > 0 else 0
+    quality_score = max(0, min(100, int(100 - issues_ratio * 10)))
+
+    # Determine quality grade
+    if quality_score >= 90:
+        grade = "A"
+        quality_label = "Excellent"
+    elif quality_score >= 80:
+        grade = "B"
+        quality_label = "Good"
+    elif quality_score >= 70:
+        grade = "C"
+        quality_label = "Fair"
+    elif quality_score >= 60:
+        grade = "D"
+        quality_label = "Poor"
+    else:
+        grade = "F"
+        quality_label = "Critical"
+
+    return {
+        "directory": str(path),
+        "summary": {
+            "total_files": total_files,
+            "files_with_issues": files_with_issues,
+            "files_clean": files_clean,
+            "total_issues": total_issues,
+            "avg_issues_per_file": round(avg_issues_per_file, 2),
+            "max_issues_in_file": max_issues_in_file,
+        },
+        "severity_breakdown": severity_counts,
+        "top_issues": [{"rule_id": rule_id, "count": count} for rule_id, count in top_rules],
+        "quality_score": {
+            "score": quality_score,
+            "grade": grade,
+            "label": quality_label,
+        },
+        "recommendations": _generate_recommendations(severity_counts, top_rules, quality_score),
+    }
+
+
+def _generate_recommendations(
+    severity_counts: dict[str, int],
+    top_rules: list[tuple[str, int]],
+    quality_score: int,
+) -> list[str]:
+    """
+    Generate recommendations based on statistics.
+
+    Args:
+        severity_counts: Count of issues by severity level.
+        top_rules: List of (rule_id, count) tuples sorted by count.
+        quality_score: The calculated quality score (0-100).
+
+    Returns:
+        A list of recommendation strings.
+
+    """
+    recommendations = []
+
+    if severity_counts["E"] > 0:
+        recommendations.append(f"Fix {severity_counts['E']} error(s) first - these may cause test failures.")
+
+    if top_rules:
+        top_rule_id, top_count = top_rules[0]
+        if top_count > 5:
+            recommendations.append(
+                f"Address '{top_rule_id}' which appears {top_count} times - "
+                f"fixing this pattern will significantly reduce issues."
+            )
+
+    if quality_score < 70:
+        recommendations.append("Consider running the formatter to auto-fix style issues.")
+
+    if not recommendations:
+        recommendations.append("Code quality is good. Keep up the good work!")
+
+    return recommendations
+
+
+def _explain_issue_impl(
+    content: str,
+    line: int,
+    filename: str = "stdin.robot",
+    context_lines: int = 3,
+) -> dict[str, Any]:
+    """
+    Explain a specific issue at a given line with context.
+
+    Args:
+        content: The Robot Framework source code.
+        line: The line number to explain (1-indexed).
+        filename: The virtual filename.
+        context_lines: Number of context lines to include before and after.
+
+    Returns:
+        A dictionary containing the issue explanation with context.
+
+    """
+    from robocop.mcp.cache import get_linter_config
+
+    # Lint the content to find issues
+    issues = _lint_content_impl(content, filename)
+
+    # Find issues at or near the specified line
+    issues_at_line = [i for i in issues if i["line"] == line]
+    issues_near_line = [i for i in issues if abs(i["line"] - line) <= 2 and i["line"] != line]
+
+    if not issues_at_line and not issues_near_line:
+        return {
+            "line": line,
+            "issues_found": False,
+            "message": f"No issues found at or near line {line}.",
+            "context": _get_line_context(content, line, context_lines),
+        }
+
+    # Get rule documentation for issues
+    linter_config = get_linter_config()
+    rules = linter_config.rules
+
+    explanations = []
+    for issue in issues_at_line:
+        rule_id = issue["rule_id"]
+        rule = rules.get(rule_id)
+
+        explanation = {
+            "rule_id": rule_id,
+            "name": issue["name"],
+            "message": issue["message"],
+            "severity": issue["severity"],
+            "line": issue["line"],
+            "column": issue["column"],
+        }
+
+        if rule:
+            explanation["why_it_matters"] = rule.docs.split("\n")[0] if rule.docs else None
+            explanation["fix_suggestion"] = rule.fix_suggestion
+            explanation["full_documentation"] = rule.docs
+            if rule.parameters:
+                explanation["configurable_parameters"] = [
+                    {"name": p.name, "description": p.desc, "default": str(p.raw_value)} for p in rule.parameters
+                ]
+
+        explanations.append(explanation)
+
+    # Include nearby issues as related
+    related_issues = [
+        {"rule_id": i["rule_id"], "name": i["name"], "line": i["line"], "message": i["message"]}
+        for i in issues_near_line
+    ]
+
+    return {
+        "line": line,
+        "issues_found": True,
+        "issues": explanations,
+        "related_issues": related_issues,
+        "context": _get_line_context(content, line, context_lines),
+    }
+
+
+def _get_line_context(content: str, line: int, context_lines: int) -> dict[str, Any]:
+    """
+    Get surrounding lines for context.
+
+    Args:
+        content: The full source code content.
+        line: The target line number (1-indexed).
+        context_lines: Number of lines to include before and after.
+
+    Returns:
+        A dictionary with context lines and target line information.
+
+    """
+    lines = content.splitlines()
+    total_lines = len(lines)
+
+    # Adjust for 0-indexed list
+    line_idx = line - 1
+
+    start = max(0, line_idx - context_lines)
+    end = min(total_lines, line_idx + context_lines + 1)
+
+    context_content = []
+    for i in range(start, end):
+        context_content.append(
+            {
+                "line_number": i + 1,
+                "content": lines[i] if i < len(lines) else "",
+                "is_target": i == line_idx,
+            }
+        )
+
+    return {
+        "lines": context_content,
+        "target_line": line,
+        "target_content": lines[line_idx] if 0 <= line_idx < len(lines) else None,
+    }
+
+
 def _get_rule_info_impl(rule_name_or_id: str) -> dict[str, Any]:
     """
     Look up rule information by name or ID.
@@ -1643,5 +2056,391 @@ def register_tools(mcp: FastMCP) -> None:
                 f"Found {result['total_issues']} issues: "
                 f"{result['auto_fixable']} auto-fixable, {result['manual_required']} manual"
             )
+
+        return result
+
+    @mcp.tool(
+        tags={"formatting"},
+        annotations={
+            "idempotentHint": True,
+            "title": "Format Robot Framework File",
+        },
+    )
+    async def format_file(
+        file_path: str,
+        select: list[str] | None = None,
+        space_count: int = 4,
+        line_length: int = 120,
+        overwrite: bool = False,
+        ctx: Context | None = None,
+    ) -> dict:
+        """
+        Format a Robot Framework file from disk.
+
+        This tool reads a file, formats it, and optionally writes the formatted
+        content back to disk. Use overwrite=True to modify the file in place.
+
+        Args:
+            file_path: Absolute path to the .robot or .resource file
+            select: List of formatter names to apply (if empty, uses defaults)
+            space_count: Number of spaces for indentation (default: 4)
+            line_length: Maximum line length (default: 120)
+            overwrite: If True, write formatted content back to the file (default: False)
+
+        Returns:
+            Dictionary containing:
+            - file: The file path
+            - formatted: The formatted source code
+            - changed: Boolean indicating if content was modified
+            - diff: Unified diff if content changed, None otherwise
+            - written: Boolean indicating if the file was overwritten
+
+        Example::
+
+            format_file("/path/to/test.robot")  # Preview changes
+            format_file("/path/to/test.robot", overwrite=True)  # Apply changes
+
+        """
+        if ctx:
+            mode = "formatting and overwriting" if overwrite else "formatting (preview)"
+            await ctx.info(f"{mode.capitalize()}: {file_path}")
+
+        result = _format_file_impl(file_path, select, space_count, line_length, overwrite=overwrite)
+
+        if ctx:
+            if result["changed"]:
+                status = "File modified and saved" if result["written"] else "Changes detected (not saved)"
+            else:
+                status = "No changes needed"
+            await ctx.info(status)
+
+        return result
+
+    @mcp.tool(
+        tags={"formatting"},
+        annotations={
+            "idempotentHint": True,
+            "title": "Format Multiple Robot Files",
+        },
+    )
+    async def format_files(
+        file_patterns: list[str],
+        base_path: str | None = None,
+        select: list[str] | None = None,
+        space_count: int = 4,
+        line_length: int = 120,
+        overwrite: bool = False,
+        ctx: Context | None = None,
+    ) -> dict:
+        """
+        Format multiple Robot Framework files specified by paths or glob patterns.
+
+        This tool allows formatting a specific set of files without formatting an
+        entire directory. Use overwrite=True to modify files in place.
+
+        Args:
+            file_patterns: List of file paths or glob patterns to format. Examples:
+                - Explicit paths: ["/path/to/test.robot", "tests/login.robot"]
+                - Glob patterns: ["tests/**/*.robot", "*.resource"]
+                - Mixed: ["specific.robot", "suite/**/*.robot"]
+            base_path: Base directory for resolving relative paths and patterns.
+                Defaults to current working directory.
+            select: List of formatter names to apply (if empty, uses defaults)
+            space_count: Number of spaces for indentation (default: 4)
+            line_length: Maximum line length (default: 120)
+            overwrite: If True, write formatted content back to files (default: False)
+
+        Returns:
+            Dictionary containing:
+            - total_files: Number of files processed
+            - files_changed: Number of files with formatting changes
+            - files_unchanged: Number of files already properly formatted
+            - files_written: Number of files actually written (when overwrite=True)
+            - results: List of per-file results with file, changed, written
+            - errors: List of files that failed to process
+            - unmatched_patterns: List of patterns that didn't match any files
+
+        Example::
+
+            format_files(["tests/**/*.robot"])  # Preview changes
+            format_files(["tests/**/*.robot"], overwrite=True)  # Apply changes
+
+        """
+        if ctx:
+            mode = "formatting and overwriting" if overwrite else "formatting (preview)"
+            await ctx.info(f"{mode.capitalize()} {len(file_patterns)} pattern(s)...")
+
+        base = Path(base_path) if base_path else None
+        files, unmatched = _expand_file_patterns(file_patterns, base)
+
+        if ctx:
+            if unmatched:
+                await ctx.warning(f"Patterns with no matches: {unmatched}")
+            await ctx.info(f"Found {len(files)} Robot Framework file(s) to format")
+
+        if not files:
+            raise ToolError(
+                f"No .robot or .resource files found matching patterns: {file_patterns}"
+                + (f" (unmatched: {unmatched})" if unmatched else "")
+            )
+
+        results: list[dict] = []
+        files_changed = 0
+        files_unchanged = 0
+        files_written = 0
+        errors: list[dict[str, str]] = []
+
+        for i, file in enumerate(files):
+            if ctx:
+                await ctx.report_progress(progress=i, total=len(files))
+
+            try:
+                result = _format_file_impl(str(file), select, space_count, line_length, overwrite=overwrite)
+                results.append(
+                    {
+                        "file": str(file),
+                        "changed": result["changed"],
+                        "written": result["written"],
+                    }
+                )
+                if result["changed"]:
+                    files_changed += 1
+                    if result["written"]:
+                        files_written += 1
+                else:
+                    files_unchanged += 1
+            except ToolError as e:
+                errors.append({"file": str(file), "error": str(e)})
+
+        if ctx:
+            await ctx.report_progress(progress=len(files), total=len(files))
+            msg = f"Completed: {files_changed} file(s) changed"
+            if overwrite:
+                msg += f", {files_written} written"
+            await ctx.info(msg)
+
+        return {
+            "total_files": len(files),
+            "files_changed": files_changed,
+            "files_unchanged": files_unchanged,
+            "files_written": files_written,
+            "results": results,
+            "errors": errors,
+            "unmatched_patterns": unmatched,
+        }
+
+    @mcp.tool(
+        tags={"linting", "statistics"},
+        annotations={"readOnlyHint": True, "title": "Get Codebase Statistics"},
+    )
+    async def get_statistics(
+        directory_path: str,
+        recursive: bool = True,
+        select: list[str] | None = None,
+        ignore: list[str] | None = None,
+        threshold: str = "I",
+        configure: list[str] | None = None,
+        ctx: Context | None = None,
+    ) -> dict:
+        """
+        Get code quality statistics for a Robot Framework codebase.
+
+        This tool provides a high-level overview of code quality including:
+        - Total files and issues count
+        - Issue breakdown by severity
+        - Most common issues (top 10)
+        - Quality score and grade
+        - Actionable recommendations
+
+        Use this to understand the overall health of a test suite before
+        diving into specific issues.
+
+        Args:
+            directory_path: Absolute path to the directory to analyze
+            recursive: Whether to search subdirectories (default: True)
+            select: List of rule IDs/names to enable
+            ignore: List of rule IDs/names to ignore
+            threshold: Minimum severity to report (I=Info, W=Warning, E=Error)
+            configure: List of rule configurations
+
+        Returns:
+            Dictionary containing:
+            - directory: The analyzed directory path
+            - summary: Overview stats (total_files, files_with_issues, files_clean,
+              total_issues, avg_issues_per_file, max_issues_in_file)
+            - severity_breakdown: Issues by severity {E: count, W: count, I: count}
+            - top_issues: List of most common rules with counts
+            - quality_score: Score (0-100), grade (A-F), and label
+            - recommendations: List of actionable suggestions
+
+        Example::
+
+            get_statistics("/path/to/tests")
+            # Returns: {"quality_score": {"score": 85, "grade": "B", ...}, ...}
+
+        """
+        if ctx:
+            await ctx.info(f"Analyzing codebase: {directory_path}")
+
+        path = Path(directory_path)
+
+        if not path.exists():
+            raise ToolError(f"Directory not found: {directory_path}")
+
+        if not path.is_dir():
+            raise ToolError(f"Not a directory: {directory_path}")
+
+        files = _collect_robot_files(path, recursive)
+
+        if not files:
+            raise ToolError(f"No .robot or .resource files found in {directory_path}")
+
+        if ctx:
+            await ctx.info(f"Found {len(files)} Robot Framework file(s) to analyze")
+
+        # Collect statistics
+        all_issues: list[dict] = []
+        files_with_issues = 0
+        files_clean = 0
+        severity_counts = {"E": 0, "W": 0, "I": 0}
+        rule_counts: dict[str, int] = {}
+        issues_per_file: list[int] = []
+
+        for i, file in enumerate(files):
+            if ctx:
+                await ctx.report_progress(progress=i, total=len(files))
+
+            try:
+                issues = _lint_file_impl(
+                    str(file),
+                    select,
+                    ignore,
+                    threshold,
+                    include_file_in_result=True,
+                    configure=configure,
+                )
+                issues_per_file.append(len(issues))
+
+                if issues:
+                    files_with_issues += 1
+                    all_issues.extend(issues)
+                    for issue in issues:
+                        severity = issue.get("severity", "W")
+                        if severity in severity_counts:
+                            severity_counts[severity] += 1
+                        rule_id = issue.get("rule_id", "unknown")
+                        rule_counts[rule_id] = rule_counts.get(rule_id, 0) + 1
+                else:
+                    files_clean += 1
+            except ToolError:
+                pass
+
+        if ctx:
+            await ctx.report_progress(progress=len(files), total=len(files))
+
+        total_files = len(files)
+        total_issues = len(all_issues)
+
+        # Calculate statistics
+        avg_issues_per_file = total_issues / total_files if total_files > 0 else 0
+        max_issues_in_file = max(issues_per_file) if issues_per_file else 0
+
+        # Find top 10 most common rules
+        top_rules = sorted(rule_counts.items(), key=operator.itemgetter(1), reverse=True)[:10]
+
+        # Calculate quality score
+        weighted_issues = severity_counts["E"] * 3 + severity_counts["W"] * 1.5 + severity_counts["I"] * 0.5
+        issues_ratio = weighted_issues / total_files if total_files > 0 else 0
+        quality_score = max(0, min(100, int(100 - issues_ratio * 10)))
+
+        # Determine grade
+        if quality_score >= 90:
+            grade, label = "A", "Excellent"
+        elif quality_score >= 80:
+            grade, label = "B", "Good"
+        elif quality_score >= 70:
+            grade, label = "C", "Fair"
+        elif quality_score >= 60:
+            grade, label = "D", "Poor"
+        else:
+            grade, label = "F", "Critical"
+
+        if ctx:
+            await ctx.info(f"Quality score: {quality_score}/100 (Grade: {grade})")
+
+        return {
+            "directory": str(path),
+            "summary": {
+                "total_files": total_files,
+                "files_with_issues": files_with_issues,
+                "files_clean": files_clean,
+                "total_issues": total_issues,
+                "avg_issues_per_file": round(avg_issues_per_file, 2),
+                "max_issues_in_file": max_issues_in_file,
+            },
+            "severity_breakdown": severity_counts,
+            "top_issues": [{"rule_id": rule_id, "count": count} for rule_id, count in top_rules],
+            "quality_score": {
+                "score": quality_score,
+                "grade": grade,
+                "label": label,
+            },
+            "recommendations": _generate_recommendations(severity_counts, top_rules, quality_score),
+        }
+
+    @mcp.tool(
+        tags={"linting", "documentation"},
+        annotations={"readOnlyHint": True, "title": "Explain Issue at Line"},
+    )
+    async def explain_issue(
+        content: str,
+        line: int,
+        filename: str = "stdin.robot",
+        context_lines: int = 3,
+        ctx: Context | None = None,
+    ) -> dict:
+        """
+        Explain a specific issue at a given line with surrounding context.
+
+        This tool provides detailed explanations for issues at a specific line,
+        including why the issue matters, how to fix it, and configurable parameters.
+        More detailed than get_rule_info because it shows the actual code context.
+
+        Args:
+            content: Robot Framework source code to analyze
+            line: The line number to explain (1-indexed)
+            filename: Virtual filename (affects file type detection)
+            context_lines: Number of lines to show before/after (default: 3)
+
+        Returns:
+            Dictionary containing:
+            - line: The requested line number
+            - issues_found: Boolean indicating if issues were found
+            - issues: List of detailed explanations for issues at this line, each with:
+                - rule_id, name, message, severity
+                - why_it_matters: First line of rule documentation
+                - fix_suggestion: How to fix this issue
+                - full_documentation: Complete rule docs
+                - configurable_parameters: List of parameters that can be adjusted
+            - related_issues: Issues on nearby lines (within 2 lines)
+            - context: The surrounding code with line numbers
+
+        Example::
+
+            explain_issue(robot_code, line=42)
+            # Returns detailed explanation of issues at line 42 with context
+
+        """
+        if ctx:
+            await ctx.info(f"Explaining issues at line {line}...")
+
+        result = _explain_issue_impl(content, line, filename, context_lines)
+
+        if ctx:
+            if result["issues_found"]:
+                count = len(result.get("issues", []))
+                await ctx.info(f"Found {count} issue(s) at line {line}")
+            else:
+                await ctx.info(f"No issues found at or near line {line}")
 
         return result

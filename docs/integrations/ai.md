@@ -238,6 +238,80 @@ Format Robot Framework code and lint the result in one operation. **Recommended 
 
 **Returns:** Dictionary with `formatted`, `changed`, `diff`, `issues` (remaining), `issues_before`, `issues_after`, and `issues_fixed`.
 
+##### format_file
+
+Format a Robot Framework file from disk. Can optionally overwrite the file with formatted content.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `file_path` | string | Absolute path to .robot or .resource file (required) |
+| `select` | list[str] | Formatter names to apply (default: all enabled formatters) |
+| `space_count` | int | Spaces for indentation (default: 4) |
+| `line_length` | int | Maximum line length (default: 120) |
+| `overwrite` | bool | Write formatted content back to file (default: false) |
+
+**Returns:** Dictionary with `file`, `formatted`, `changed`, `diff`, and `written` (whether file was overwritten).
+
+##### format_files
+
+Format multiple Robot Framework files using paths or glob patterns. Can optionally overwrite files with formatted content.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `file_patterns` | list[str] | File paths or glob patterns (required). Examples: `["test.robot"]`, `["tests/**/*.robot"]` |
+| `base_path` | string | Base directory for relative paths/patterns (default: current directory) |
+| `select` | list[str] | Formatter names to apply |
+| `space_count` | int | Spaces for indentation (default: 4) |
+| `line_length` | int | Maximum line length (default: 120) |
+| `overwrite` | bool | Write formatted content back to files (default: false) |
+
+**Returns:** Dictionary with `total_files`, `files_changed`, `files_unchanged`, `files_written`, `results`, `errors`, `unmatched_patterns`.
+
+#### Statistics Tools
+
+##### get_statistics
+
+Get code quality statistics for a Robot Framework codebase. Provides a high-level overview including quality score, most common issues, and recommendations.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `directory_path` | string | Absolute path to directory (required) |
+| `recursive` | bool | Search subdirectories (default: true) |
+| `select` | list[str] | Rule IDs/names to enable |
+| `ignore` | list[str] | Rule IDs/names to ignore |
+| `threshold` | string | Minimum severity: `I`, `W`, or `E` |
+| `configure` | list[str] | Rule configurations |
+
+**Returns:** Dictionary with:
+
+- `directory`: The analyzed path
+- `summary`: Stats including `total_files`, `files_with_issues`, `files_clean`, `total_issues`, `avg_issues_per_file`, `max_issues_in_file`
+- `severity_breakdown`: Issues by severity `{E: count, W: count, I: count}`
+- `top_issues`: List of most common rules with counts
+- `quality_score`: Contains `score` (0-100), `grade` (A-F), and `label`
+- `recommendations`: List of actionable suggestions
+
+#### Explanation Tools
+
+##### explain_issue
+
+Explain a specific issue at a given line with surrounding context. More detailed than `get_rule_info` because it shows the actual code context.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `content` | string | Robot Framework source code to analyze (required) |
+| `line` | int | The line number to explain (1-indexed, required) |
+| `filename` | string | Virtual filename (default: "stdin.robot") |
+| `context_lines` | int | Number of lines to show before/after (default: 3) |
+
+**Returns:** Dictionary with:
+
+- `line`: The requested line number
+- `issues_found`: Boolean indicating if issues were found
+- `issues`: List of detailed explanations with `rule_id`, `name`, `message`, `severity`, `why_it_matters`, `fix_suggestion`, `full_documentation`, `configurable_parameters`
+- `related_issues`: Issues on nearby lines (within 2 lines)
+- `context`: Surrounding code with line numbers
+
 #### Discovery Tools
 
 ##### list_rules
@@ -396,6 +470,30 @@ Once the MCP server is configured, you can use natural language to interact with
 
 **Format and see remaining issues:**
 > "Clean up this code - format it and show me what issues still need manual fixes"
+
+**Format files on disk:**
+> "Format all robot files in my tests folder"
+>
+> "Format `tests/**/*.robot` and save the changes"
+
+#### Codebase Statistics
+
+**Get quality overview:**
+> "Give me an overview of code quality in my test suite"
+>
+> "What's the quality score for my tests directory?"
+
+**Identify problem areas:**
+> "What are the most common issues in my codebase?"
+>
+> "Show me statistics for my robot files"
+
+#### Explaining Issues
+
+**Understand specific issues:**
+> "Why is line 42 flagged? Explain with context"
+>
+> "Explain the issue at line 15 in this code"
 
 #### Understanding Rules
 

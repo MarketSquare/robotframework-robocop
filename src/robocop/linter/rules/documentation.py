@@ -41,6 +41,7 @@ class MissingDocKeywordRule(Rule):
         clean_code=sonar_qube.CleanCodeAttribute.CONVENTIONAL, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
     deprecated_names = ("0201",)
+    fix_suggestion = "Add a [Documentation] setting to the keyword."
 
 
 class MissingDocTestCaseRule(Rule):
@@ -81,6 +82,7 @@ class MissingDocTestCaseRule(Rule):
         clean_code=sonar_qube.CleanCodeAttribute.CONVENTIONAL, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
     deprecated_names = ("0202",)
+    fix_suggestion = "Add a [Documentation] setting to the test case."
 
 
 class MissingDocTestSuiteRule(Rule):

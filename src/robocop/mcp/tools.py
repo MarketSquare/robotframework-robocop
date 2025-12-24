@@ -362,7 +362,7 @@ def _expand_file_patterns(
             if not path.is_absolute():
                 path = base_path / path
 
-            if path.exists() and path.is_file() and path.suffix in VALID_EXTENSIONS:
+            if path.is_file() and path.suffix in VALID_EXTENSIONS:
                 resolved_files.add(path.resolve())
                 matched = True
 
@@ -709,37 +709,14 @@ def _suggest_fixes_impl(
         A dictionary containing fix suggestions.
 
     """
+    from robocop.mcp.cache import get_linter_config
+
     # Get lint issues first
     issues = _lint_content_impl(content, filename, select=rule_ids)
 
-    # Common fix suggestions by rule pattern
-    fix_suggestions = {
-        "NAME": {
-            "NAME01": "Rename the keyword to use Title Case (e.g., 'My Keyword Name').",
-            "NAME02": "Rename the test case to use Title Case (e.g., 'My Test Case Name').",
-            "NAME03": "Use underscores instead of spaces in variable names (e.g., ${my_variable}).",
-            "NAME07": "Remove personal pronouns (my, our, etc.) from names.",
-        },
-        "LEN": {
-            "LEN01": "Split the keyword into smaller, focused keywords.",
-            "LEN02": "Split the test case into smaller tests or use keyword abstractions.",
-            "LEN08": "Break long lines using the '...' continuation syntax.",
-        },
-        "SPACE": {
-            "SPACE02": "Use consistent 4-space indentation.",
-            "SPACE04": "Use exactly 4 spaces (or configured separator) between cells.",
-            "SPACE05": "Remove trailing whitespace from the line.",
-        },
-        "DOC": {
-            "DOC01": "Add a [Documentation] setting to the keyword.",
-            "DOC02": "Add a [Documentation] setting to the test case.",
-            "DOC03": "Add *** Comments *** or metadata to document the suite.",
-        },
-        "MISC": {
-            "MISC08": "Use 'Create Dictionary' instead of empty dict syntax.",
-            "MISC09": "Use 'Create List' instead of empty list syntax.",
-        },
-    }
+    # Get rule objects to look up fix_suggestion attribute
+    linter_config = get_linter_config()
+    rules = linter_config.rules
 
     fixes = []
     auto_fixable = 0
@@ -749,10 +726,10 @@ def _suggest_fixes_impl(
         rule_id = issue["rule_id"]
         category = rule_id[:3] if len(rule_id) >= 3 else rule_id
 
-        # Get suggestion from our mapping or provide a generic one
+        # Get suggestion from rule's fix_suggestion attribute, or provide a generic one
         suggestion = None
-        if category in fix_suggestions and rule_id in fix_suggestions[category]:
-            suggestion = fix_suggestions[category][rule_id]
+        if rule_id in rules and rules[rule_id].fix_suggestion:
+            suggestion = rules[rule_id].fix_suggestion
         else:
             suggestion = f"Review the rule documentation for {rule_id} ({issue['name']})."
 
@@ -932,7 +909,7 @@ def register_tools(mcp: FastMCP) -> None:
 
     @mcp.tool(
         tags={"linting"},
-        annotations={"readOnlyHint": True},
+        annotations={"readOnlyHint": True, "title": "Lint Robot Framework Content"},
     )
     async def lint_content(
         content: str,
@@ -985,7 +962,7 @@ def register_tools(mcp: FastMCP) -> None:
 
     @mcp.tool(
         tags={"linting"},
-        annotations={"readOnlyHint": True},
+        annotations={"readOnlyHint": True, "title": "Lint Robot Framework File"},
     )
     async def lint_file(
         file_path: str,
@@ -1028,7 +1005,7 @@ def register_tools(mcp: FastMCP) -> None:
 
     @mcp.tool(
         tags={"linting"},
-        annotations={"readOnlyHint": True},
+        annotations={"readOnlyHint": True, "title": "Lint Directory"},
     )
     async def lint_directory(
         directory_path: str,
@@ -1171,7 +1148,7 @@ def register_tools(mcp: FastMCP) -> None:
 
     @mcp.tool(
         tags={"linting"},
-        annotations={"readOnlyHint": True},
+        annotations={"readOnlyHint": True, "title": "Lint Multiple Robot Files"},
     )
     async def lint_files(
         file_patterns: list[str],
@@ -1325,7 +1302,11 @@ def register_tools(mcp: FastMCP) -> None:
 
     @mcp.tool(
         tags={"formatting"},
-        annotations={"readOnlyHint": True, "idempotentHint": True},
+        annotations={
+            "readOnlyHint": True,
+            "idempotentHint": True,
+            "title": "Format Robot Framework Code",
+        },
     )
     async def format_content(
         content: str,
@@ -1370,7 +1351,11 @@ def register_tools(mcp: FastMCP) -> None:
 
     @mcp.tool(
         tags={"linting", "formatting"},
-        annotations={"readOnlyHint": True, "idempotentHint": True},
+        annotations={
+            "readOnlyHint": True,
+            "idempotentHint": True,
+            "title": "Format and Lint Code",
+        },
     )
     async def lint_and_format(
         content: str,
@@ -1440,7 +1425,12 @@ def register_tools(mcp: FastMCP) -> None:
 
         # Lint the formatted code without limit first for accurate counts
         issues_after_full = _lint_content_impl(
-            format_result["formatted"], filename, lint_select, lint_ignore, threshold, configure=configure
+            format_result["formatted"],
+            filename,
+            lint_select,
+            lint_ignore,
+            threshold,
+            configure=configure,
         )
         issues_after_count = len(issues_after_full)
 
@@ -1463,7 +1453,7 @@ def register_tools(mcp: FastMCP) -> None:
 
     @mcp.tool(
         tags={"documentation"},
-        annotations={"readOnlyHint": True},
+        annotations={"readOnlyHint": True, "title": "Get Rule Details"},
     )
     async def get_rule_info(rule_name_or_id: str, ctx: Context | None = None) -> dict:
         """
@@ -1498,7 +1488,7 @@ def register_tools(mcp: FastMCP) -> None:
 
     @mcp.tool(
         tags={"documentation"},
-        annotations={"readOnlyHint": True},
+        annotations={"readOnlyHint": True, "title": "Get Formatter Details"},
     )
     async def get_formatter_info(formatter_name: str, ctx: Context | None = None) -> dict:
         """
@@ -1526,7 +1516,7 @@ def register_tools(mcp: FastMCP) -> None:
 
     @mcp.tool(
         tags={"documentation"},
-        annotations={"readOnlyHint": True},
+        annotations={"readOnlyHint": True, "title": "List Linting Rules"},
     )
     async def list_rules(
         category: str | None = None,
@@ -1574,7 +1564,7 @@ def register_tools(mcp: FastMCP) -> None:
 
     @mcp.tool(
         tags={"documentation"},
-        annotations={"readOnlyHint": True},
+        annotations={"readOnlyHint": True, "title": "List Formatters"},
     )
     async def list_formatters(enabled_only: bool = True, ctx: Context | None = None) -> list[dict]:
         """
@@ -1604,7 +1594,7 @@ def register_tools(mcp: FastMCP) -> None:
 
     @mcp.tool(
         tags={"linting"},
-        annotations={"readOnlyHint": True},
+        annotations={"readOnlyHint": True, "title": "Suggest Code Fixes"},
     )
     async def suggest_fixes(
         content: str,

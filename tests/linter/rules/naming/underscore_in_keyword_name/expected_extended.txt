@@ -4,6 +4,7 @@ test.robot:11:5 NAME04 Underscores in keyword name 'No_Operation'
  10 |     Keyword
  11 |     No_Operation
     |     ^^^^^^^^^^^^ NAME04
+    | Suggestion: Replace underscores with spaces (e.g., 'My Keyword' instead of 'My_Keyword').
     |
 
 test.robot:17:19 NAME04 Underscores in keyword name 'With_Underscore'
@@ -12,6 +13,7 @@ test.robot:17:19 NAME04 Underscores in keyword name 'With_Underscore'
  16 | Templated test
  17 |     [Template]    With_Underscore
     |                   ^^^^^^^^^^^^^^^ NAME04
+    | Suggestion: Replace underscores with spaces (e.g., 'My Keyword' instead of 'My_Keyword').
     |
 
 test.robot:33:12 NAME04 Underscores in keyword name 'Run_keywords'
@@ -22,6 +24,7 @@ test.robot:33:12 NAME04 Underscores in keyword name 'Run_keywords'
     |            ^^^^^^^^^^^^ NAME04
  34 |     ...        Name    ${arg}    AND
  35 |     ...        _Underscore    1    AND
+    | Suggestion: Replace underscores with spaces (e.g., 'My Keyword' instead of 'My_Keyword').
     |
 
 test.robot:35:16 NAME04 Underscores in keyword name '_Underscore'
@@ -31,6 +34,7 @@ test.robot:35:16 NAME04 Underscores in keyword name '_Underscore'
  35 |     ...        _Underscore    1    AND
     |                ^^^^^^^^^^^ NAME04
  36 |     ...        Under_sc ore
+    | Suggestion: Replace underscores with spaces (e.g., 'My Keyword' instead of 'My_Keyword').
     |
 
 test.robot:36:16 NAME04 Underscores in keyword name 'Under_sc ore'
@@ -39,6 +43,7 @@ test.robot:36:16 NAME04 Underscores in keyword name 'Under_sc ore'
  35 |     ...        _Underscore    1    AND
  36 |     ...        Under_sc ore
     |                ^^^^^^^^^^^^ NAME04
+    | Suggestion: Replace underscores with spaces (e.g., 'My Keyword' instead of 'My_Keyword').
     |
 
 test.robot:38:1 NAME04 Underscores in keyword name 'Short Keyword With_Underscores'
@@ -47,5 +52,6 @@ test.robot:38:1 NAME04 Underscores in keyword name 'Short Keyword With_Underscor
     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ NAME04
  39 |     [Documentation]    BUG:GITHUB-1417
  40 |     Line Longer Than Keyword Name
+    | Suggestion: Replace underscores with spaces (e.g., 'My Keyword' instead of 'My_Keyword').
     |
 

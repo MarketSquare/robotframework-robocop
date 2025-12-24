@@ -1,5 +1,8 @@
 """Tests for MCP resources."""
 
+import pytest
+from fastmcp.exceptions import ResourceError
+
 from robocop.mcp.resources import (
     _get_formatters_catalog,
     _get_rule_details,
@@ -65,6 +68,6 @@ class TestRuleDetails:
         assert "parameters" in result
 
     def test_get_nonexistent_rule_details(self):
-        """Test getting details for nonexistent rule."""
-        result = _get_rule_details("NONEXISTENT")
-        assert "error" in result
+        """Test getting details for nonexistent rule raises ResourceError."""
+        with pytest.raises(ResourceError, match="Rule 'NONEXISTENT' not found"):
+            _get_rule_details("NONEXISTENT")

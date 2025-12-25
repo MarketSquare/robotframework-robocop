@@ -24,11 +24,16 @@ When linting, issues are returned with severity levels:
 
 
 def _register_all() -> None:
-    """Register all tools, resources, and prompts with the MCP server."""
+    """Register all tools, resources, prompts, and middleware with the MCP server."""
+    from robocop.mcp.middleware import register_middleware
     from robocop.mcp.prompts import register_prompts
     from robocop.mcp.resources import register_resources
     from robocop.mcp.tools import register_tools
 
+    # Register middleware FIRST (order matters for request pipeline)
+    register_middleware(mcp)
+
+    # Then register tools, resources, prompts
     register_tools(mcp)
     register_resources(mcp)
     register_prompts(mcp)

@@ -2332,7 +2332,7 @@ mcp = [
 
 [package.metadata]
 requires-dist = [
-    { name = "fastmcp", marker = "python_full_version >= '3.10' and extra == 'mcp'", specifier = ">=2.0.0" },
+    { name = "fastmcp", marker = "python_full_version >= '3.10' and extra == 'mcp'", specifier = ">=2.13.0" },
     { name = "jinja2", specifier = ">=3.1.4" },
     { name = "msgpack", specifier = ">=1.0.0" },
     { name = "pathspec", specifier = ">=0.12" },
@@ -2362,7 +2362,7 @@ doc = [
     { name = "mkdocs-material" },
     { name = "mkdocs-redirects", specifier = ">=1.2.2" },
 ]
-mcp = [{ name = "fastmcp", marker = "python_full_version >= '3.10'", specifier = ">=2.0.0" }]
+mcp = [{ name = "fastmcp", marker = "python_full_version >= '3.10'", specifier = ">=2.13.0" }]
 
 [[package]]
 name = "rpds-py"

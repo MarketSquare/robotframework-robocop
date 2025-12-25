@@ -21,13 +21,16 @@ from robocop.mcp.tools.diagnostics import (
     _get_line_context,
     _get_statistics_impl,
     _suggest_fixes_impl,
+    _worst_files_impl,
 )
 from robocop.mcp.tools.documentation import (
     _get_formatter_info_impl,
     _get_formatter_parameters,
     _get_rule_info_impl,
     _list_formatters_impl,
+    _list_prompts_impl,
     _list_rules_impl,
+    _search_rules_impl,
 )
 from robocop.mcp.tools.formatting import _format_content_impl, _format_file_impl
 from robocop.mcp.tools.linting import _lint_content_impl, _lint_file_impl
@@ -899,6 +902,41 @@ class TestLintFilesImpl:
         )
         has_line_too_long_configured = any(d["rule_id"] == "LEN08" for d in result_configured["issues"])
         assert not has_line_too_long_configured
+
+    def test_robot_pattern_also_matches_resource(self, tmp_path: Path):
+        """Test that .robot patterns also match .resource files."""
+        (tmp_path / "test.robot").write_text("*** Test Cases ***\ntest\n    Log    x\n")
+        (tmp_path / "keywords.resource").write_text("*** Keywords ***\nmy keyword\n    Log    x\n")
+
+        # Pattern with .robot should also find .resource files
+        result = _lint_files_impl(["**/*.robot"], str(tmp_path))
+
+        assert result["total_files"] == 2
+        files_found = {issue["file"] for issue in result["issues"]}
+        assert any("test.robot" in f for f in files_found)
+        assert any("keywords.resource" in f for f in files_found)
+
+    def test_resource_pattern_also_matches_robot(self, tmp_path: Path):
+        """Test that .resource patterns also match .robot files."""
+        (tmp_path / "test.robot").write_text("*** Test Cases ***\ntest\n    Log    x\n")
+        (tmp_path / "keywords.resource").write_text("*** Keywords ***\nmy keyword\n    Log    x\n")
+
+        # Pattern with .resource should also find .robot files
+        result = _lint_files_impl(["*.resource"], str(tmp_path))
+
+        assert result["total_files"] == 2
+
+    def test_glob_without_extension_matches_both(self, tmp_path: Path):
+        """Test that glob patterns without extension match both .robot and .resource."""
+        subdir = tmp_path / "tests"
+        subdir.mkdir()
+        (subdir / "test.robot").write_text("*** Test Cases ***\ntest\n    Log    x\n")
+        (subdir / "keywords.resource").write_text("*** Keywords ***\nmy keyword\n    Log    x\n")
+
+        # Pattern without extension should find both file types
+        result = _lint_files_impl(["tests/*"], str(tmp_path))
+
+        assert result["total_files"] == 2
 
 
 class TestGroupIssues:
@@ -1827,3 +1865,364 @@ class TestRuleInfoEdgeCases:
         """Test that rule info includes added_in_version field."""
         result = _get_rule_info_impl("LEN01")
         assert "added_in_version" in result
+
+
+class TestOffsetPagination:
+    """Tests for offset parameter in lint_files."""
+
+    def test_offset_skips_issues(self, tmp_path):
+        """Test that offset skips the first N issues."""
+        # Create files with issues
+        (tmp_path / "test1.robot").write_text(
+            dedent(
+                """
+                *** Test Cases ***
+                test one
+                    log  hello
+                test two
+                    log  world
+                """
+            ).lstrip()
+        )
+
+        # Get all issues
+        all_result = _lint_files_impl(["*.robot"], base_path=str(tmp_path))
+        total = all_result["total_issues"]
+
+        # Get with offset
+        offset_result = _lint_files_impl(["*.robot"], base_path=str(tmp_path), offset=2)
+
+        # Should have skipped 2 issues
+        assert len(offset_result["issues"]) == total - 2
+        assert offset_result["offset"] == 2
+        assert offset_result["total_issues"] == total  # Total unchanged
+
+    def test_offset_with_limit(self, tmp_path):
+        """Test offset combined with limit for pagination."""
+        (tmp_path / "test.robot").write_text(
+            dedent(
+                """
+                *** Test Cases ***
+                test one
+                    log  a
+                test two
+                    log  b
+                test three
+                    log  c
+                test four
+                    log  d
+                """
+            ).lstrip()
+        )
+
+        # First page
+        page1 = _lint_files_impl(["*.robot"], base_path=str(tmp_path), limit=2, offset=0)
+        # Second page
+        page2 = _lint_files_impl(["*.robot"], base_path=str(tmp_path), limit=2, offset=2)
+
+        assert len(page1["issues"]) == 2
+        assert len(page2["issues"]) == 2
+        assert page1["has_more"] is True
+        # Pages should have different issues
+        page1_lines = {i["line"] for i in page1["issues"]}
+        page2_lines = {i["line"] for i in page2["issues"]}
+        assert page1_lines.isdisjoint(page2_lines)
+
+    def test_offset_beyond_results(self, tmp_path):
+        """Test offset larger than total issues returns empty."""
+        (tmp_path / "test.robot").write_text(
+            dedent(
+                """
+                *** Test Cases ***
+                test one
+                    log  hello
+                """
+            ).lstrip()
+        )
+
+        result = _lint_files_impl(["*.robot"], base_path=str(tmp_path), offset=100)
+        assert len(result["issues"]) == 0
+        assert result["has_more"] is False
+
+    def test_offset_with_group_by(self, tmp_path):
+        """Test offset works with group_by parameter."""
+        (tmp_path / "test.robot").write_text(
+            dedent(
+                """
+                *** Test Cases ***
+                test one
+                    log  a
+                test two
+                    log  b
+                test three
+                    log  c
+                """
+            ).lstrip()
+        )
+
+        # Group by severity with offset
+        result = _lint_files_impl(["*.robot"], base_path=str(tmp_path), group_by="severity", limit=1, offset=1)
+
+        # Should have offset applied per group
+        assert "group_counts" in result
+        assert result["offset"] == 1
+
+
+class TestSummarizeOnly:
+    """Tests for summarize_only parameter."""
+
+    def test_summarize_only_lint_files(self, tmp_path):
+        """Test summarize_only returns stats without issues list."""
+        (tmp_path / "test.robot").write_text(
+            dedent(
+                """
+                *** Test Cases ***
+                test one
+                    log  hello
+                test two
+                    log  world
+                """
+            ).lstrip()
+        )
+
+        result = _lint_files_impl(["*.robot"], base_path=str(tmp_path), summarize_only=True)
+
+        # Should have summary but not issues
+        assert "total_issues" in result
+        assert "summary" in result
+        assert "top_rules" in result
+        assert "issues" not in result
+
+    def test_summarize_only_includes_top_rules(self, tmp_path):
+        """Test summarize_only includes top rules."""
+        (tmp_path / "test.robot").write_text(
+            dedent(
+                """
+                *** Test Cases ***
+                test one
+                    log  a
+                test two
+                    log  b
+                """
+            ).lstrip()
+        )
+
+        result = _lint_files_impl(["*.robot"], base_path=str(tmp_path), summarize_only=True)
+
+        # Top rules should be a list of dicts
+        assert isinstance(result["top_rules"], list)
+        for rule in result["top_rules"]:
+            assert "rule_id" in rule
+            assert "count" in rule
+
+    def test_summarize_only_format_files(self, tmp_path):
+        """Test summarize_only for format_files."""
+        (tmp_path / "test.robot").write_text(
+            dedent(
+                """
+                *** Test Cases ***
+                Test One
+                    Log  hello
+                """
+            ).lstrip()
+        )
+
+        result = _format_files_impl(["*.robot"], base_path=str(tmp_path), summarize_only=True)
+
+        # Should have summary but not per-file results
+        assert "total_files" in result
+        assert "files_changed" in result
+        assert "results" not in result
+
+
+class TestWorstFiles:
+    """Tests for worst_files tool."""
+
+    def test_worst_files_returns_sorted(self, tmp_path):
+        """Test worst_files returns files sorted by issue count."""
+        # Create file with many issues
+        (tmp_path / "bad.robot").write_text(
+            dedent(
+                """
+                *** Test Cases ***
+                test one
+                    log  a
+                test two
+                    log  b
+                test three
+                    log  c
+                """
+            ).lstrip()
+        )
+        # Create file with fewer issues
+        (tmp_path / "good.robot").write_text(
+            dedent(
+                """
+                *** Test Cases ***
+                Test One
+                    Log    Hello
+                """
+            ).lstrip()
+        )
+
+        result = _worst_files_impl(str(tmp_path))
+
+        assert len(result["files"]) >= 1
+        # First file should have most issues
+        if len(result["files"]) > 1:
+            assert result["files"][0]["issue_count"] >= result["files"][1]["issue_count"]
+
+    def test_worst_files_limit_n(self, tmp_path):
+        """Test worst_files respects n parameter."""
+        for i in range(5):
+            (tmp_path / f"test{i}.robot").write_text(
+                dedent(
+                    f"""
+                    *** Test Cases ***
+                    test {i}
+                        log  hello
+                    """
+                ).lstrip()
+            )
+
+        result = _worst_files_impl(str(tmp_path), n=2)
+        assert len(result["files"]) <= 2
+
+    def test_worst_files_includes_severity_breakdown(self, tmp_path):
+        """Test worst_files includes severity breakdown per file."""
+        (tmp_path / "test.robot").write_text(
+            dedent(
+                """
+                *** Test Cases ***
+                test one
+                    log  hello
+                """
+            ).lstrip()
+        )
+
+        result = _worst_files_impl(str(tmp_path))
+
+        for file_info in result["files"]:
+            assert "severity_breakdown" in file_info
+            assert "E" in file_info["severity_breakdown"]
+            assert "W" in file_info["severity_breakdown"]
+            assert "I" in file_info["severity_breakdown"]
+
+    def test_worst_files_empty_directory(self, tmp_path):
+        """Test worst_files with no robot files."""
+        with pytest.raises(ToolError, match=r"No .robot or .resource files"):
+            _worst_files_impl(str(tmp_path))
+
+    def test_worst_files_directory_not_found(self):
+        """Test worst_files with non-existent directory."""
+        with pytest.raises(ToolError, match="Directory not found"):
+            _worst_files_impl("/nonexistent/path")
+
+
+class TestSearchRules:
+    """Tests for search_rules tool."""
+
+    def test_search_rules_by_name(self):
+        """Test searching rules by name."""
+        result = _search_rules_impl("long")
+        assert len(result) > 0
+        # Should find rules with "long" in name
+        assert any("long" in r["name"].lower() for r in result)
+
+    def test_search_rules_by_message(self):
+        """Test searching rules by message content."""
+        result = _search_rules_impl("keyword", fields=["message"])
+        assert len(result) > 0
+
+    def test_search_rules_with_category_filter(self):
+        """Test searching rules with category filter."""
+        result = _search_rules_impl("too", category="LEN")
+        # All results should be LEN rules
+        for rule in result:
+            assert rule["rule_id"].startswith("LEN")
+
+    def test_search_rules_with_severity_filter(self):
+        """Test searching rules with severity filter."""
+        result = _search_rules_impl("name", severity="W")
+        # All results should be warnings
+        for rule in result:
+            assert rule["severity"] == "W"
+
+    def test_search_rules_includes_match_info(self):
+        """Test search results include match field and snippet."""
+        result = _search_rules_impl("documentation")
+        assert len(result) > 0
+        for rule in result:
+            assert "match_field" in rule
+            assert "match_snippet" in rule
+
+    def test_search_rules_respects_limit(self):
+        """Test search respects limit parameter."""
+        result = _search_rules_impl("", limit=5)  # Empty query matches many
+        assert len(result) <= 5
+
+    def test_search_rules_no_results(self):
+        """Test search with no matching results."""
+        result = _search_rules_impl("xyznonexistent123")
+        assert len(result) == 0
+
+
+class TestListPrompts:
+    """Tests for list_prompts tool."""
+
+    def test_list_prompts_returns_list(self):
+        """Test list_prompts returns a list."""
+        result = _list_prompts_impl()
+        assert isinstance(result, list)
+        assert len(result) > 0
+
+    def test_list_prompts_includes_required_fields(self):
+        """Test each prompt has name, description, arguments."""
+        result = _list_prompts_impl()
+        for prompt in result:
+            assert "name" in prompt
+            assert "description" in prompt
+            assert "arguments" in prompt
+            assert isinstance(prompt["arguments"], list)
+
+    def test_list_prompts_discovers_all_prompts(self):
+        """
+        Test that all prompts from prompts.py are discovered.
+
+        This test ensures that when new prompts are added to prompts.py,
+        the AST introspection picks them up correctly.
+        """
+        result = _list_prompts_impl()
+        prompt_names = {p["name"] for p in result}
+
+        # All prompts that should be discovered from prompts.py
+        expected_prompts = {
+            "analyze_robot_file",
+            "fix_robot_issues",
+            "explain_rule",
+            "review_pull_request",
+            "configure_robocop",
+            "migrate_to_latest",
+        }
+
+        assert prompt_names == expected_prompts, (
+            f"Prompt mismatch. Expected: {expected_prompts}, Got: {prompt_names}. "
+            f"Missing: {expected_prompts - prompt_names}, Extra: {prompt_names - expected_prompts}"
+        )
+
+    def test_list_prompts_argument_required_field(self):
+        """Test that arguments correctly identify required vs optional."""
+        result = _list_prompts_impl()
+        prompts_by_name = {p["name"]: p for p in result}
+
+        # analyze_robot_file: content (required), focus (optional)
+        analyze = prompts_by_name["analyze_robot_file"]
+        args_by_name = {a["name"]: a for a in analyze["arguments"]}
+        assert args_by_name["content"]["required"] is True
+        assert args_by_name["focus"]["required"] is False
+
+        # fix_robot_issues: content (required)
+        fix = prompts_by_name["fix_robot_issues"]
+        assert len(fix["arguments"]) == 1
+        assert fix["arguments"][0]["name"] == "content"
+        assert fix["arguments"][0]["required"] is True

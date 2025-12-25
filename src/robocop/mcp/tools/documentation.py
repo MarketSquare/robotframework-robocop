@@ -190,6 +190,173 @@ def _get_rule_info_impl(rule_name_or_id: str) -> dict[str, Any]:
     return _rule_to_dict(linter_config.rules[rule_name_or_id])
 
 
+def _search_rules_impl(
+    query: str,
+    fields: list[str] | None = None,
+    category: str | None = None,
+    severity: str | None = None,
+    limit: int = 20,
+) -> list[dict[str, Any]]:
+    """
+    Search rules by keyword across specified fields.
+
+    Args:
+        query: The search query (case-insensitive substring match).
+        fields: Fields to search in. Defaults to ["name", "message", "docs"].
+            Valid fields: "name", "message", "docs", "rule_id".
+        category: Optional filter by rule category (e.g., "LEN", "NAME").
+        severity: Optional filter by severity ("I", "W", "E").
+        limit: Maximum number of results to return (default: 20).
+
+    Returns:
+        A list of matching rules with rule_id, name, message, severity,
+        match_field (which field matched), and match_snippet (context around match).
+
+    """
+    from robocop.mcp.cache import get_linter_config
+
+    if fields is None:
+        fields = ["name", "message", "docs"]
+
+    linter_config = get_linter_config()
+    query_lower = query.lower()
+
+    # Get unique rules
+    seen_ids: set[str] = set()
+    results: list[dict[str, Any]] = []
+
+    for rule in linter_config.rules.values():
+        if rule.rule_id in seen_ids:
+            continue
+        seen_ids.add(rule.rule_id)
+
+        # Apply filters first
+        if category and not rule.rule_id.startswith(category.upper()):
+            continue
+        if severity and rule.severity.value != severity.upper():
+            continue
+
+        # Search across specified fields
+        match_field = None
+        match_snippet = None
+
+        for field in fields:
+            field_value = ""
+            if field == "name":
+                field_value = rule.name or ""
+            elif field == "message":
+                field_value = rule.message or ""
+            elif field == "docs":
+                field_value = rule.docs or ""
+            elif field == "rule_id":
+                field_value = rule.rule_id or ""
+
+            if query_lower in field_value.lower():
+                match_field = field
+                # Create a snippet around the match
+                lower_value = field_value.lower()
+                match_pos = lower_value.find(query_lower)
+                start = max(0, match_pos - 30)
+                end = min(len(field_value), match_pos + len(query) + 30)
+                match_snippet = field_value[start:end]
+                if start > 0:
+                    match_snippet = "..." + match_snippet
+                if end < len(field_value):
+                    match_snippet = match_snippet + "..."
+                break
+
+        if match_field:
+            results.append(
+                {
+                    "rule_id": rule.rule_id,
+                    "name": rule.name,
+                    "message": rule.message,
+                    "severity": rule.severity.value,
+                    "enabled": rule.enabled,
+                    "match_field": match_field,
+                    "match_snippet": match_snippet,
+                }
+            )
+
+            if len(results) >= limit:
+                break
+
+    return results
+
+
+def _is_mcp_prompt_decorator(decorator: Any) -> bool:
+    import ast
+
+    if not isinstance(decorator, ast.Call):
+        return False
+    return hasattr(decorator.func, "attr") and decorator.func.attr == "prompt"
+
+
+def _extract_prompt_info(func_node: Any) -> dict[str, Any]:
+    import ast
+
+    # Get docstring - first line only
+    docstring = ast.get_docstring(func_node) or ""
+    description = docstring.split("\n")[0].strip()
+
+    # Get arguments and their defaults
+    args = func_node.args
+    num_defaults = len(args.defaults)
+    num_args = len(args.args)
+
+    arguments = []
+    for i, arg in enumerate(args.args):
+        # Arguments with defaults are at the end
+        has_default = i >= (num_args - num_defaults)
+        arguments.append({"name": arg.arg, "required": not has_default})
+
+    return {
+        "name": func_node.name,
+        "description": description,
+        "arguments": arguments,
+    }
+
+
+def _list_prompts_impl() -> list[dict[str, Any]]:
+    """
+    List all available MCP prompt templates.
+
+    Introspects the prompts module using AST to extract prompt definitions
+    without requiring async execution.
+
+    Returns:
+        A list of prompt dictionaries with name, description, and arguments.
+
+    """
+    import ast
+
+    from robocop.mcp import prompts
+
+    source = inspect.getsource(prompts)
+    tree = ast.parse(source)
+
+    results: list[dict[str, Any]] = []
+
+    # Find the register_prompts function
+    register_func = next(
+        (node for node in ast.walk(tree) if isinstance(node, ast.FunctionDef) and node.name == "register_prompts"),
+        None,
+    )
+    if register_func is None:
+        return results
+
+    # Find decorated functions inside register_prompts
+    for child in ast.walk(register_func):
+        if not isinstance(child, ast.FunctionDef) or child.name == "register_prompts":
+            continue
+
+        # Check if decorated with @mcp.prompt()
+        if any(_is_mcp_prompt_decorator(d) for d in child.decorator_list):
+            results.append(_extract_prompt_info(child))
+
+    return sorted(results, key=operator.itemgetter("name"))
+
+
 def _get_formatter_info_impl(formatter_name: str) -> dict[str, Any]:
     """
     Look up formatter information by name.

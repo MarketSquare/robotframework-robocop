@@ -333,6 +333,99 @@ def _explain_issue_impl(
     }
 
 
+def _worst_files_impl(
+    directory_path: str,
+    n: int = 10,
+    recursive: bool = True,
+    *,
+    select: list[str] | None = None,
+    ignore: list[str] | None = None,
+    threshold: str = "I",
+    configure: list[str] | None = None,
+) -> dict[str, Any]:
+    """
+    Get the N files with the most linting issues.
+
+    This tool helps identify problem areas in large codebases by showing which
+    files need the most attention.
+
+    Args:
+        directory_path: Path to the directory to analyze.
+        n: Number of files to return (default: 10).
+        recursive: Whether to search subdirectories (default: True).
+        select: List of rule IDs to enable.
+        ignore: List of rule IDs to ignore.
+        threshold: Minimum severity threshold (I/W/E).
+        configure: List of rule configurations.
+
+    Returns:
+        A dictionary containing:
+        - files: List of worst files, each with file path, issue_count, and severity_breakdown
+        - total_files_analyzed: Total number of files scanned
+        - files_with_issues: Number of files that have at least one issue
+
+    Raises:
+        ToolError: If the directory does not exist or contains no files.
+
+    """
+    path = Path(directory_path)
+
+    if not path.exists():
+        raise ToolError(f"Directory not found: {directory_path}")
+
+    if not path.is_dir():
+        raise ToolError(f"Not a directory: {directory_path}")
+
+    files = _collect_robot_files(path, recursive)
+
+    if not files:
+        raise ToolError(f"No .robot or .resource files found in {directory_path}")
+
+    # Collect issue counts per file
+    file_stats: list[dict[str, Any]] = []
+    files_with_issues = 0
+
+    for file in files:
+        try:
+            issues = _lint_file_impl(
+                str(file),
+                select,
+                ignore,
+                threshold,
+                include_file_in_result=False,
+                configure=configure,
+            )
+
+            if issues:
+                files_with_issues += 1
+                severity_breakdown = {"E": 0, "W": 0, "I": 0}
+                for issue in issues:
+                    severity = issue.get("severity", "W")
+                    if severity in severity_breakdown:
+                        severity_breakdown[severity] += 1
+
+                file_stats.append(
+                    {
+                        "file": str(file),
+                        "issue_count": len(issues),
+                        "severity_breakdown": severity_breakdown,
+                    }
+                )
+        except ToolError:
+            # Skip files that fail to parse
+            pass
+
+    # Sort by issue count (descending) and take top N
+    file_stats.sort(key=operator.itemgetter("issue_count"), reverse=True)
+    worst_files = file_stats[:n]
+
+    return {
+        "files": worst_files,
+        "total_files_analyzed": len(files),
+        "files_with_issues": files_with_issues,
+    }
+
+
 def _get_line_context(content: str, line: int, context_lines: int) -> dict[str, Any]:
     """
     Get surrounding lines for context.

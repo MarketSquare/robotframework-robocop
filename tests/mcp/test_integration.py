@@ -267,81 +267,6 @@ class TestLintFileTool:
         assert not any(issue["rule_id"] == "LEN08" for issue in configured_result)
 
 
-class TestLintDirectoryTool:
-    """Acceptance tests for lint_directory MCP tool."""
-
-    def test_lint_directory_with_multiple_files(self, mcp_tools, tmp_path: Path):
-        """User lints a directory containing multiple Robot Framework files."""
-        lint_directory = mcp_tools["lint_directory"]
-
-        # Create test files
-        (tmp_path / "test1.robot").write_text("*** Test Cases ***\ntest one\n    log  a\n")
-        (tmp_path / "test2.robot").write_text("*** Test Cases ***\ntest two\n    log  b\n")
-        (tmp_path / "other.txt").write_text("not a robot file")
-
-        result = run_tool(lint_directory, directory_path=str(tmp_path))
-
-        assert result["total_files"] == 2
-        assert result["total_issues"] > 0
-        assert "summary" in result
-        assert "E" in result["summary"]
-        assert "W" in result["summary"]
-        assert "I" in result["summary"]
-
-        # Each issue should include the file path
-        for issue in result["issues"]:
-            assert "file" in issue
-
-    def test_lint_directory_recursive(self, mcp_tools, tmp_path: Path):
-        """User lints a directory recursively."""
-        lint_directory = mcp_tools["lint_directory"]
-
-        # Create files in subdirectory
-        (tmp_path / "test1.robot").write_text("*** Test Cases ***\nTest\n    Log    Hi\n")
-        subdir = tmp_path / "subdir"
-        subdir.mkdir()
-        (subdir / "test2.robot").write_text("*** Test Cases ***\nTest\n    Log    Hi\n")
-
-        # Recursive (default)
-        result = run_tool(lint_directory, directory_path=str(tmp_path), recursive=True)
-        assert result["total_files"] == 2
-
-        # Non-recursive
-        result_non_recursive = run_tool(lint_directory, directory_path=str(tmp_path), recursive=False)
-        assert result_non_recursive["total_files"] == 1
-
-    def test_lint_directory_with_limit(self, mcp_tools, tmp_path: Path):
-        """User limits the total number of issues across all files."""
-        lint_directory = mcp_tools["lint_directory"]
-
-        # Create files with many issues
-        (tmp_path / "test1.robot").write_text("*** Test Cases ***\ntest a\n    log  x\n    log  y\n    log  z\n")
-        (tmp_path / "test2.robot").write_text("*** Test Cases ***\ntest b\n    log  x\n    log  y\n    log  z\n")
-
-        result = run_tool(lint_directory, directory_path=str(tmp_path), limit=3)
-
-        # Issues list should be limited
-        assert len(result["issues"]) == 3
-        # But total_issues should reflect actual count
-        assert result["total_issues"] > 3
-        # Should be marked as limited
-        assert result["limited"] is True
-
-    def test_lint_directory_empty(self, mcp_tools, tmp_path: Path):
-        """User tries to lint a directory with no Robot Framework files."""
-        lint_directory = mcp_tools["lint_directory"]
-
-        with pytest.raises(ToolError, match=r"No .robot or .resource files found"):
-            run_tool(lint_directory, directory_path=str(tmp_path))
-
-    def test_lint_directory_nonexistent(self, mcp_tools):
-        """User tries to lint a directory that doesn't exist."""
-        lint_directory = mcp_tools["lint_directory"]
-
-        with pytest.raises(ToolError, match="Directory not found"):
-            run_tool(lint_directory, directory_path="/nonexistent/directory")
-
-
 class TestFormatContentTool:
     """Acceptance tests for format_content MCP tool."""
 
@@ -596,7 +521,7 @@ class TestRealWorldWorkflows:
         2. AI scans all files
         3. AI reports summary statistics
         """
-        lint_directory = mcp_tools["lint_directory"]
+        lint_files = mcp_tools["lint_files"]
 
         # Create a small project
         (tmp_path / "tests").mkdir()
@@ -611,7 +536,11 @@ class TestRealWorldWorkflows:
             "*** Keywords ***\nSetup Browser\n    Log    Setting up\n"
         )
 
-        result = run_tool(lint_directory, directory_path=str(tmp_path), recursive=True)
+        result = run_tool(
+            lint_files,
+            file_patterns=["**/*.robot", "**/*.resource"],
+            base_path=str(tmp_path),
+        )
 
         # Should have scanned all files
         assert result["total_files"] == 3
@@ -980,7 +909,7 @@ class TestAdvancedWorkflows:
         """
         get_statistics = mcp_tools["get_statistics"]
         format_files = mcp_tools["format_files"]
-        lint_directory = mcp_tools["lint_directory"]
+        lint_files = mcp_tools["lint_files"]
 
         # Create test files with various issues
         (tmp_path / "test1.robot").write_text("*** Test Cases ***\ntest one\n    log  a\n    log   b\n")
@@ -1001,8 +930,12 @@ class TestAdvancedWorkflows:
         )
         assert format_result["total_files"] == 3
 
-        # Step 3: Lint directory to see remaining issues
-        lint_result = run_tool(lint_directory, directory_path=str(tmp_path))
+        # Step 3: Lint files to see remaining issues
+        lint_result = run_tool(
+            lint_files,
+            file_patterns=["**/*.robot", "**/*.resource"],
+            base_path=str(tmp_path),
+        )
         assert lint_result["total_files"] == 3
 
         # Step 4: Get final statistics
@@ -1087,14 +1020,18 @@ class TestEdgeCaseFiles:
 
     def test_lint_deeply_nested_directory(self, mcp_tools, tmp_path: Path):
         """Test linting files in deeply nested directories."""
-        lint_directory = mcp_tools["lint_directory"]
+        lint_files = mcp_tools["lint_files"]
 
         # Create deeply nested structure
         deep_path = tmp_path / "a" / "b" / "c" / "d" / "e"
         deep_path.mkdir(parents=True)
         (deep_path / "test.robot").write_text("*** Test Cases ***\ntest\n    Log    Hi\n")
 
-        result = run_tool(lint_directory, directory_path=str(tmp_path), recursive=True)
+        result = run_tool(
+            lint_files,
+            file_patterns=["**/*.robot"],
+            base_path=str(tmp_path),
+        )
 
         assert result["total_files"] == 1
         # Should find the deeply nested file
@@ -1137,9 +1074,9 @@ class TestEdgeCaseFiles:
 
         assert isinstance(result, list)
 
-    def test_lint_directory_with_mixed_files(self, mcp_tools, tmp_path: Path):
+    def test_lint_files_with_mixed_files(self, mcp_tools, tmp_path: Path):
         """Test linting directory with mixed Robot and non-Robot files."""
-        lint_directory = mcp_tools["lint_directory"]
+        lint_files = mcp_tools["lint_files"]
 
         # Create mixed files
         (tmp_path / "test.robot").write_text("*** Test Cases ***\ntest\n    Log    Hi\n")
@@ -1148,7 +1085,11 @@ class TestEdgeCaseFiles:
         (tmp_path / "script.py").write_text("print('hello')\n")
         (tmp_path / "data.json").write_text('{"key": "value"}\n')
 
-        result = run_tool(lint_directory, directory_path=str(tmp_path))
+        result = run_tool(
+            lint_files,
+            file_patterns=["**/*.robot", "**/*.resource"],
+            base_path=str(tmp_path),
+        )
 
         # Should only find .robot and .resource files
         assert result["total_files"] == 2

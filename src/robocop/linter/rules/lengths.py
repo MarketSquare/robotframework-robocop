@@ -76,6 +76,7 @@ class TooLongKeywordRule(Rule):
         clean_code=sonar_qube.CleanCodeAttribute.FOCUSED, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
     deprecated_names = ("0501",)
+    fix_suggestion = "Split the keyword into smaller, focused keywords."
 
 
 class TooFewCallsInKeywordRule(Rule):
@@ -290,6 +291,7 @@ class LineTooLongRule(Rule):
         clean_code=sonar_qube.CleanCodeAttribute.FORMATTED, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
     deprecated_names = ("0508",)
+    fix_suggestion = "Break long lines using the '...' continuation syntax."
 
 
 class EmptySectionRule(Rule):

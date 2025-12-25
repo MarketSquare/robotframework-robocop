@@ -56,6 +56,7 @@ class NotAllowedCharInNameRule(Rule):
         clean_code=sonar_qube.CleanCodeAttribute.IDENTIFIABLE, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
     deprecated_names = ("0301",)
+    fix_suggestion = "Remove the not allowed character from the name."
 
 
 class WrongCaseInKeywordNameRule(Rule):
@@ -121,6 +122,7 @@ class WrongCaseInKeywordNameRule(Rule):
         clean_code=sonar_qube.CleanCodeAttribute.IDENTIFIABLE, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
     deprecated_names = ("0302",)
+    fix_suggestion = "Rename the keyword to use Title Case (e.g., 'My Keyword Name')."
 
 
 class KeywordNameIsReservedWordRule(Rule):
@@ -152,6 +154,7 @@ class KeywordNameIsReservedWordRule(Rule):
         clean_code=sonar_qube.CleanCodeAttribute.IDENTIFIABLE, issue_type=sonar_qube.SonarQubeIssueType.BUG
     )
     deprecated_names = ("0303",)
+    fix_suggestion = "Rename the keyword to avoid using a reserved word."
 
 
 class UnderscoreInKeywordNameRule(Rule):
@@ -179,6 +182,7 @@ class UnderscoreInKeywordNameRule(Rule):
         clean_code=sonar_qube.CleanCodeAttribute.IDENTIFIABLE, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
     deprecated_names = ("0305",)
+    fix_suggestion = "Replace underscores with spaces (e.g., 'My Keyword' instead of 'My_Keyword')."
 
 
 class SettingNameNotInTitleCaseRule(Rule):

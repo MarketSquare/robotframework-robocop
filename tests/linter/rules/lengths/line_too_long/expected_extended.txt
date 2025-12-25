@@ -4,6 +4,7 @@ test.robot:17:120 LEN08 Line is too long (139/120)
  16 |     Keyword
  17 |     Keyword With Looooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooong Name And  ${args}
     |                                                                                                                        ^^^^^^^^^^^^^^^^^^^^ LEN08
+    | Suggestion: Break long lines using the '...' continuation syntax.
     |
 
 test.robot:27:120 LEN08 Line is too long (159/120)
@@ -14,6 +15,7 @@ test.robot:27:120 LEN08 Line is too long (159/120)
     |                                                                                                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ LEN08
  28 |     No Operation
  29 |     Pass
+    | Suggestion: Break long lines using the '...' continuation syntax.
     |
 
 test.robot:30:120 LEN08 Line is too long (139/120)
@@ -23,5 +25,6 @@ test.robot:30:120 LEN08 Line is too long (139/120)
  30 |     Keyword With Looooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooong Name And  ${args}
     |                                                                                                                        ^^^^^^^^^^^^^^^^^^^^ LEN08
  31 |     Fail
+    | Suggestion: Break long lines using the '...' continuation syntax.
     |
 

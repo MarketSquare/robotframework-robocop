@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import inspect
+import operator
 import tempfile
 from contextlib import contextmanager
 from difflib import unified_diff
@@ -314,6 +315,226 @@ def _collect_robot_files(directory: Path, recursive: bool = True) -> list[Path]:
     return sorted(files)
 
 
+# Characters that indicate a glob pattern
+GLOB_CHARS = frozenset("*?[]")
+
+
+def _is_glob_pattern(pattern: str) -> bool:
+    """Check if a string contains glob pattern characters."""
+    return any(c in GLOB_CHARS for c in pattern)
+
+
+def _expand_file_patterns(
+    patterns: list[str],
+    base_path: Path | None = None,
+) -> tuple[list[Path], list[str]]:
+    """
+    Expand file paths and glob patterns to a deduplicated list of Robot Framework files.
+
+    Args:
+        patterns: List of file paths or glob patterns (e.g., ["test.robot", "tests/**/*.robot"])
+        base_path: Optional base directory for relative paths/globs. Defaults to current directory.
+
+    Returns:
+        A tuple of (resolved_files, unmatched_patterns):
+        - resolved_files: Deduplicated, sorted list of existing .robot/.resource files
+        - unmatched_patterns: List of patterns that didn't match any valid files
+
+    """
+    if base_path is None:
+        base_path = Path.cwd()
+
+    resolved_files: set[Path] = set()
+    unmatched_patterns: list[str] = []
+
+    for pattern in patterns:
+        matched = False
+
+        if _is_glob_pattern(pattern):
+            # Glob pattern - expand using base_path.glob()
+            for match in base_path.glob(pattern):
+                if match.is_file() and match.suffix in VALID_EXTENSIONS:
+                    resolved_files.add(match.resolve())
+                    matched = True
+        else:
+            # Explicit file path
+            path = Path(pattern)
+            if not path.is_absolute():
+                path = base_path / path
+
+            if path.is_file() and path.suffix in VALID_EXTENSIONS:
+                resolved_files.add(path.resolve())
+                matched = True
+
+        if not matched:
+            unmatched_patterns.append(pattern)
+
+    return sorted(resolved_files), unmatched_patterns
+
+
+def _lint_files_impl(
+    file_patterns: list[str],
+    base_path: str | None = None,
+    select: list[str] | None = None,
+    ignore: list[str] | None = None,
+    threshold: str = "I",
+    limit: int | None = None,
+    configure: list[str] | None = None,
+    group_by: str | None = None,
+) -> dict[str, Any]:
+    """
+    Lint multiple files specified by paths or glob patterns.
+
+    Args:
+        file_patterns: List of file paths or glob patterns.
+        base_path: Base directory for resolving relative paths/patterns.
+        select: A list of rule IDs to select.
+        ignore: A list of rule IDs to ignore.
+        threshold: The severity threshold for diagnostics.
+        limit: Maximum number of issues to return. None means no limit.
+            When group_by is set, limit applies per group.
+        configure: A list of rule configurations.
+        group_by: Optional grouping for results ("severity", "rule", "file").
+            When set, issues are grouped and limit applies per group.
+
+    Returns:
+        A dictionary containing:
+        - total_files: Number of files linted
+        - total_issues: Total issues found (before limit)
+        - files_with_issues: Number of files with at least one issue
+        - issues: List of issues (each includes 'file' field), or dict if group_by is set
+        - summary: Issues by severity {E: count, W: count, I: count}
+        - limited: Whether results were truncated
+        - unmatched_patterns: Patterns that didn't match any files
+        - group_counts: (only when group_by is set) Total count per group before limit
+
+    Raises:
+        ToolError: If no valid files are found.
+
+    """
+    base = Path(base_path) if base_path else None
+    files, unmatched = _expand_file_patterns(file_patterns, base)
+
+    if not files:
+        raise ToolError(
+            f"No .robot or .resource files found matching patterns: {file_patterns}"
+            + (f" (unmatched: {unmatched})" if unmatched else "")
+        )
+
+    all_issues: list[dict[str, Any]] = []
+    files_with_issues = 0
+    summary: dict[str, int] = {"E": 0, "W": 0, "I": 0}
+
+    for file in files:
+        try:
+            issues = _lint_file_impl(
+                str(file),
+                select,
+                ignore,
+                threshold,
+                include_file_in_result=True,
+                configure=configure,
+            )
+            if issues:
+                files_with_issues += 1
+                all_issues.extend(issues)
+                for issue in issues:
+                    severity = issue.get("severity", "W")
+                    if severity in summary:
+                        summary[severity] += 1
+        except ToolError:
+            # Skip files that fail to parse
+            pass
+
+    total_issues = len(all_issues)
+
+    # Handle grouping vs flat list
+    if group_by:
+        grouped_issues, group_counts = _group_issues(all_issues, group_by, limit)
+        # Check if any group was limited
+        limited = any(group_counts[k] > len(v) for k, v in grouped_issues.items())
+        return {
+            "total_files": len(files),
+            "total_issues": total_issues,
+            "files_with_issues": files_with_issues,
+            "issues": grouped_issues,
+            "summary": summary,
+            "limited": limited,
+            "unmatched_patterns": unmatched,
+            "group_counts": group_counts,
+        }
+
+    # Flat list mode (original behavior)
+    limited = limit is not None and total_issues > limit
+    if limited:
+        all_issues = all_issues[:limit]
+
+    return {
+        "total_files": len(files),
+        "total_issues": total_issues,
+        "files_with_issues": files_with_issues,
+        "issues": all_issues,
+        "summary": summary,
+        "limited": limited,
+        "unmatched_patterns": unmatched,
+    }
+
+
+# Valid group_by options for batch linting
+VALID_GROUP_BY = frozenset(("severity", "rule", "file"))
+
+
+def _group_issues(
+    issues: list[dict[str, Any]],
+    group_by: str,
+    limit_per_group: int | None = None,
+) -> tuple[dict[str, list[dict[str, Any]]], dict[str, int]]:
+    """
+    Group issues by the specified field.
+
+    Args:
+        issues: Flat list of issues (each must have the grouping field)
+        group_by: Field to group by ("severity", "rule", "file")
+        limit_per_group: Max issues per group (None = no limit)
+
+    Returns:
+        Tuple of (grouped_issues, group_counts) where:
+        - grouped_issues: Dict mapping group key to list of issues
+        - group_counts: Dict mapping group key to total count (before limit)
+
+    Raises:
+        ToolError: If group_by is not a valid option.
+
+    """
+    if group_by not in VALID_GROUP_BY:
+        raise ToolError(f"Invalid group_by '{group_by}'. Use: {', '.join(sorted(VALID_GROUP_BY))}")
+
+    # Map group_by option to the issue field name
+    field_map = {
+        "severity": "severity",
+        "rule": "rule_id",
+        "file": "file",
+    }
+    field = field_map[group_by]
+
+    # Group issues by the specified field
+    groups: dict[str, list[dict[str, Any]]] = {}
+    for issue in issues:
+        key = issue.get(field, "unknown")
+        if key not in groups:
+            groups[key] = []
+        groups[key].append(issue)
+
+    # Calculate counts before applying limit
+    group_counts = {key: len(items) for key, items in groups.items()}
+
+    # Apply limit per group
+    if limit_per_group is not None:
+        groups = {key: items[:limit_per_group] for key, items in groups.items()}
+
+    return groups, group_counts
+
+
 def _format_content_impl(
     content: str,
     filename: str = "stdin.robot",
@@ -384,6 +605,577 @@ def _format_content_impl(
 
         except DataError as e:
             raise ToolError(f"Failed to parse Robot Framework content: {e}") from e
+
+
+def _list_rules_impl(
+    category: str | None = None,
+    severity: str | None = None,
+    enabled_only: bool = False,
+) -> list[dict[str, Any]]:
+    """
+    List all available linting rules with optional filtering.
+
+    Args:
+        category: Filter by rule category/group (e.g., "LEN", "NAME", "DOC")
+        severity: Filter by severity ("I", "W", or "E")
+        enabled_only: If True, only return enabled rules
+
+    Returns:
+        A list of rule summary dictionaries.
+
+    """
+    from robocop.mcp.cache import get_linter_config
+
+    linter_config = get_linter_config()
+
+    # Get unique rules (avoid duplicates from name/id mapping)
+    seen_ids = set()
+    rules = []
+    for rule in linter_config.rules.values():
+        if rule.rule_id in seen_ids:
+            continue
+        seen_ids.add(rule.rule_id)
+
+        # Apply filters
+        if enabled_only and not rule.enabled:
+            continue
+        if category and not rule.rule_id.startswith(category.upper()):
+            continue
+        if severity and rule.severity.value != severity.upper():
+            continue
+
+        rules.append(
+            {
+                "rule_id": rule.rule_id,
+                "name": rule.name,
+                "severity": rule.severity.value,
+                "enabled": rule.enabled,
+                "message": rule.message,
+            }
+        )
+
+    return sorted(rules, key=operator.itemgetter("rule_id"))
+
+
+def _list_formatters_impl(enabled_only: bool = True) -> list[dict[str, Any]]:
+    """
+    List all available formatters.
+
+    Args:
+        enabled_only: If True, only return enabled formatters (default: True)
+
+    Returns:
+        A list of formatter summary dictionaries.
+
+    """
+    from robocop.mcp.cache import get_formatter_config
+
+    formatter_config = get_formatter_config()
+    formatters = formatter_config.formatters
+
+    result = []
+    for name, formatter in formatters.items():
+        formatter_class = formatter.__class__
+        is_enabled = getattr(formatter_class, "ENABLED", True)
+
+        if enabled_only and not is_enabled:
+            continue
+
+        result.append(
+            {
+                "name": name,
+                "enabled": is_enabled,
+                "description": (formatter.__doc__ or "No description.").split("\n")[0].strip(),
+            }
+        )
+
+    return sorted(result, key=operator.itemgetter("name"))
+
+
+def _suggest_fixes_impl(
+    content: str,
+    filename: str = "stdin.robot",
+    rule_ids: list[str] | None = None,
+) -> dict[str, Any]:
+    """
+    Suggest fixes for linting issues in Robot Framework code.
+
+    Args:
+        content: The Robot Framework source code to analyze.
+        filename: The virtual filename (affects parsing).
+        rule_ids: Optional list of rule IDs to get suggestions for.
+
+    Returns:
+        A dictionary containing fix suggestions.
+
+    """
+    from robocop.mcp.cache import get_linter_config
+
+    # Get lint issues first
+    issues = _lint_content_impl(content, filename, select=rule_ids)
+
+    # Get rule objects to look up fix_suggestion attribute
+    linter_config = get_linter_config()
+    rules = linter_config.rules
+
+    fixes = []
+    auto_fixable = 0
+    manual_required = 0
+
+    for issue in issues:
+        rule_id = issue["rule_id"]
+        category = rule_id[:3] if len(rule_id) >= 3 else rule_id
+
+        # Get suggestion from rule's fix_suggestion attribute, or provide a generic one
+        suggestion = None
+        if rule_id in rules and rules[rule_id].fix_suggestion:
+            suggestion = rules[rule_id].fix_suggestion
+        else:
+            suggestion = f"Review the rule documentation for {rule_id} ({issue['name']})."
+
+        # Determine if auto-fixable (formatting issues generally are)
+        is_auto_fixable = category in {"SPACE", "MISC"} or rule_id == "LEN08"
+
+        if is_auto_fixable:
+            auto_fixable += 1
+        else:
+            manual_required += 1
+
+        fixes.append(
+            {
+                "rule_id": rule_id,
+                "name": issue["name"],
+                "line": issue["line"],
+                "message": issue["message"],
+                "suggestion": suggestion,
+                "auto_fixable": is_auto_fixable,
+            }
+        )
+
+    return {
+        "fixes": fixes,
+        "total_issues": len(fixes),
+        "auto_fixable": auto_fixable,
+        "manual_required": manual_required,
+        "recommendation": (
+            "Run format_content to apply automatic fixes, then address manual fixes."
+            if auto_fixable > 0
+            else "All issues require manual fixes."
+        ),
+    }
+
+
+def _format_file_impl(
+    file_path: str,
+    select: list[str] | None = None,
+    space_count: int = 4,
+    line_length: int = 120,
+    *,
+    overwrite: bool = False,
+) -> dict[str, Any]:
+    """
+    Format a Robot Framework file.
+
+    Args:
+        file_path: Path to the file to format.
+        select: List of formatter names to apply.
+        space_count: Number of spaces for indentation.
+        line_length: Maximum line length.
+        overwrite: Whether to overwrite the file with formatted content.
+
+    Returns:
+        A dictionary containing the formatting result.
+
+    Raises:
+        ToolError: If the file does not exist or is of invalid type.
+
+    """
+    path = Path(file_path)
+
+    if not path.exists():
+        raise ToolError(f"File not found: {file_path}")
+
+    if path.suffix not in VALID_EXTENSIONS:
+        raise ToolError(f"Invalid file type: {path.suffix}. Expected .robot or .resource file.")
+
+    try:
+        # Read the file content
+        content = path.read_text(encoding="utf-8")
+
+        # Format using existing implementation
+        result = _format_content_impl(content, path.name, select, space_count, line_length)
+
+        # Optionally overwrite the file
+        if overwrite and result["changed"]:
+            path.write_text(result["formatted"], encoding="utf-8")
+            result["written"] = True
+        else:
+            result["written"] = False
+
+        result["file"] = str(path)
+        return result
+
+    except OSError as e:
+        raise ToolError(f"Failed to read/write file: {e}") from e
+
+
+def _format_files_impl(
+    file_patterns: list[str],
+    base_path: str | None = None,
+    select: list[str] | None = None,
+    space_count: int = 4,
+    line_length: int = 120,
+    *,
+    overwrite: bool = False,
+) -> dict[str, Any]:
+    """
+    Format multiple Robot Framework files.
+
+    Args:
+        file_patterns: List of file paths or glob patterns.
+        base_path: Base directory for resolving relative paths/patterns.
+        select: List of formatter names to apply.
+        space_count: Number of spaces for indentation.
+        line_length: Maximum line length.
+        overwrite: Whether to overwrite files with formatted content.
+
+    Returns:
+        A dictionary containing the formatting results.
+
+    Raises:
+        ToolError: If no valid files are found.
+
+    """
+    base = Path(base_path) if base_path else None
+    files, unmatched = _expand_file_patterns(file_patterns, base)
+
+    if not files:
+        raise ToolError(
+            f"No .robot or .resource files found matching patterns: {file_patterns}"
+            + (f" (unmatched: {unmatched})" if unmatched else "")
+        )
+
+    results: list[dict[str, Any]] = []
+    files_changed = 0
+    files_unchanged = 0
+    files_written = 0
+    errors: list[dict[str, str]] = []
+
+    for file in files:
+        try:
+            result = _format_file_impl(str(file), select, space_count, line_length, overwrite=overwrite)
+            results.append(
+                {
+                    "file": str(file),
+                    "changed": result["changed"],
+                    "written": result["written"],
+                }
+            )
+            if result["changed"]:
+                files_changed += 1
+                if result["written"]:
+                    files_written += 1
+            else:
+                files_unchanged += 1
+        except ToolError as e:
+            errors.append({"file": str(file), "error": str(e)})
+
+    return {
+        "total_files": len(files),
+        "files_changed": files_changed,
+        "files_unchanged": files_unchanged,
+        "files_written": files_written,
+        "results": results,
+        "errors": errors,
+        "unmatched_patterns": unmatched,
+    }
+
+
+def _get_statistics_impl(
+    directory_path: str,
+    recursive: bool = True,
+    select: list[str] | None = None,
+    ignore: list[str] | None = None,
+    threshold: str = "I",
+    *,
+    configure: list[str] | None = None,
+) -> dict[str, Any]:
+    """
+    Get statistics about code quality in a directory.
+
+    Args:
+        directory_path: Path to the directory to analyze.
+        recursive: Whether to search subdirectories.
+        select: List of rule IDs to enable.
+        ignore: List of rule IDs to ignore.
+        threshold: Minimum severity threshold.
+        configure: List of rule configurations.
+
+    Returns:
+        A dictionary containing statistics about the codebase.
+
+    Raises:
+        ToolError: If the directory does not exist or contains no files.
+
+    """
+    path = Path(directory_path)
+
+    if not path.exists():
+        raise ToolError(f"Directory not found: {directory_path}")
+
+    if not path.is_dir():
+        raise ToolError(f"Not a directory: {directory_path}")
+
+    files = _collect_robot_files(path, recursive)
+
+    if not files:
+        raise ToolError(f"No .robot or .resource files found in {directory_path}")
+
+    # Collect all issues
+    all_issues: list[dict[str, Any]] = []
+    files_with_issues = 0
+    files_clean = 0
+    severity_counts = {"E": 0, "W": 0, "I": 0}
+    rule_counts: dict[str, int] = {}
+    issues_per_file: list[int] = []
+
+    for file in files:
+        try:
+            issues = _lint_file_impl(
+                str(file),
+                select,
+                ignore,
+                threshold,
+                include_file_in_result=True,
+                configure=configure,
+            )
+            issues_per_file.append(len(issues))
+
+            if issues:
+                files_with_issues += 1
+                all_issues.extend(issues)
+                for issue in issues:
+                    severity = issue.get("severity", "W")
+                    if severity in severity_counts:
+                        severity_counts[severity] += 1
+                    rule_id = issue.get("rule_id", "unknown")
+                    rule_counts[rule_id] = rule_counts.get(rule_id, 0) + 1
+            else:
+                files_clean += 1
+        except ToolError:
+            # Skip files that fail to parse
+            pass
+
+    total_files = len(files)
+    total_issues = len(all_issues)
+
+    # Calculate statistics
+    avg_issues_per_file = total_issues / total_files if total_files > 0 else 0
+    max_issues_in_file = max(issues_per_file) if issues_per_file else 0
+
+    # Find top 10 most common rules
+    top_rules = sorted(rule_counts.items(), key=operator.itemgetter(1), reverse=True)[:10]
+
+    # Calculate a simple quality score (0-100)
+    # Score decreases based on issues per file, weighted by severity
+    weighted_issues = severity_counts["E"] * 3 + severity_counts["W"] * 1.5 + severity_counts["I"] * 0.5
+    issues_ratio = weighted_issues / total_files if total_files > 0 else 0
+    quality_score = max(0, min(100, int(100 - issues_ratio * 10)))
+
+    # Determine quality grade
+    if quality_score >= 90:
+        grade = "A"
+        quality_label = "Excellent"
+    elif quality_score >= 80:
+        grade = "B"
+        quality_label = "Good"
+    elif quality_score >= 70:
+        grade = "C"
+        quality_label = "Fair"
+    elif quality_score >= 60:
+        grade = "D"
+        quality_label = "Poor"
+    else:
+        grade = "F"
+        quality_label = "Critical"
+
+    return {
+        "directory": str(path),
+        "summary": {
+            "total_files": total_files,
+            "files_with_issues": files_with_issues,
+            "files_clean": files_clean,
+            "total_issues": total_issues,
+            "avg_issues_per_file": round(avg_issues_per_file, 2),
+            "max_issues_in_file": max_issues_in_file,
+        },
+        "severity_breakdown": severity_counts,
+        "top_issues": [{"rule_id": rule_id, "count": count} for rule_id, count in top_rules],
+        "quality_score": {
+            "score": quality_score,
+            "grade": grade,
+            "label": quality_label,
+        },
+        "recommendations": _generate_recommendations(severity_counts, top_rules, quality_score),
+    }
+
+
+def _generate_recommendations(
+    severity_counts: dict[str, int],
+    top_rules: list[tuple[str, int]],
+    quality_score: int,
+) -> list[str]:
+    """
+    Generate recommendations based on statistics.
+
+    Args:
+        severity_counts: Count of issues by severity level.
+        top_rules: List of (rule_id, count) tuples sorted by count.
+        quality_score: The calculated quality score (0-100).
+
+    Returns:
+        A list of recommendation strings.
+
+    """
+    recommendations = []
+
+    if severity_counts["E"] > 0:
+        recommendations.append(f"Fix {severity_counts['E']} error(s) first - these may cause test failures.")
+
+    if top_rules:
+        top_rule_id, top_count = top_rules[0]
+        if top_count > 5:
+            recommendations.append(
+                f"Address '{top_rule_id}' which appears {top_count} times - "
+                f"fixing this pattern will significantly reduce issues."
+            )
+
+    if quality_score < 70:
+        recommendations.append("Consider running the formatter to auto-fix style issues.")
+
+    if not recommendations:
+        recommendations.append("Code quality is good. Keep up the good work!")
+
+    return recommendations
+
+
+def _explain_issue_impl(
+    content: str,
+    line: int,
+    filename: str = "stdin.robot",
+    context_lines: int = 3,
+) -> dict[str, Any]:
+    """
+    Explain a specific issue at a given line with context.
+
+    Args:
+        content: The Robot Framework source code.
+        line: The line number to explain (1-indexed).
+        filename: The virtual filename.
+        context_lines: Number of context lines to include before and after.
+
+    Returns:
+        A dictionary containing the issue explanation with context.
+
+    """
+    from robocop.mcp.cache import get_linter_config
+
+    # Lint the content to find issues
+    issues = _lint_content_impl(content, filename)
+
+    # Find issues at or near the specified line
+    issues_at_line = [i for i in issues if i["line"] == line]
+    issues_near_line = [i for i in issues if abs(i["line"] - line) <= 2 and i["line"] != line]
+
+    if not issues_at_line and not issues_near_line:
+        return {
+            "line": line,
+            "issues_found": False,
+            "message": f"No issues found at or near line {line}.",
+            "context": _get_line_context(content, line, context_lines),
+        }
+
+    # Get rule documentation for issues
+    linter_config = get_linter_config()
+    rules = linter_config.rules
+
+    explanations = []
+    for issue in issues_at_line:
+        rule_id = issue["rule_id"]
+        rule = rules.get(rule_id)
+
+        explanation = {
+            "rule_id": rule_id,
+            "name": issue["name"],
+            "message": issue["message"],
+            "severity": issue["severity"],
+            "line": issue["line"],
+            "column": issue["column"],
+        }
+
+        if rule:
+            explanation["why_it_matters"] = rule.docs.split("\n")[0] if rule.docs else None
+            explanation["fix_suggestion"] = rule.fix_suggestion
+            explanation["full_documentation"] = rule.docs
+            if rule.parameters:
+                explanation["configurable_parameters"] = [
+                    {"name": p.name, "description": p.desc, "default": str(p.raw_value)} for p in rule.parameters
+                ]
+
+        explanations.append(explanation)
+
+    # Include nearby issues as related
+    related_issues = [
+        {"rule_id": i["rule_id"], "name": i["name"], "line": i["line"], "message": i["message"]}
+        for i in issues_near_line
+    ]
+
+    return {
+        "line": line,
+        "issues_found": True,
+        "issues": explanations,
+        "related_issues": related_issues,
+        "context": _get_line_context(content, line, context_lines),
+    }
+
+
+def _get_line_context(content: str, line: int, context_lines: int) -> dict[str, Any]:
+    """
+    Get surrounding lines for context.
+
+    Args:
+        content: The full source code content.
+        line: The target line number (1-indexed).
+        context_lines: Number of lines to include before and after.
+
+    Returns:
+        A dictionary with context lines and target line information.
+
+    """
+    lines = content.splitlines()
+    total_lines = len(lines)
+
+    # Adjust for 0-indexed list
+    line_idx = line - 1
+
+    start = max(0, line_idx - context_lines)
+    end = min(total_lines, line_idx + context_lines + 1)
+
+    context_content = []
+    for i in range(start, end):
+        context_content.append(
+            {
+                "line_number": i + 1,
+                "content": lines[i] if i < len(lines) else "",
+                "is_target": i == line_idx,
+            }
+        )
+
+    return {
+        "lines": context_content,
+        "target_line": line,
+        "target_content": lines[line_idx] if 0 <= line_idx < len(lines) else None,
+    }
 
 
 def _get_rule_info_impl(rule_name_or_id: str) -> dict[str, Any]:
@@ -530,7 +1322,7 @@ def register_tools(mcp: FastMCP) -> None:
 
     @mcp.tool(
         tags={"linting"},
-        annotations={"readOnlyHint": True},
+        annotations={"readOnlyHint": True, "title": "Lint Robot Framework Content"},
     )
     async def lint_content(
         content: str,
@@ -565,6 +1357,11 @@ def register_tools(mcp: FastMCP) -> None:
             - end_line: End line number
             - end_column: End column number
 
+        Example::
+
+            lint_content("*** Test Cases ***...")
+            # Returns: [{"rule_id": "NAME02", "name": "wrong-case-in-test-case-name", ...}]
+
         """
         if ctx:
             await ctx.info(f"Linting content ({len(content)} bytes)...")
@@ -578,7 +1375,7 @@ def register_tools(mcp: FastMCP) -> None:
 
     @mcp.tool(
         tags={"linting"},
-        annotations={"readOnlyHint": True},
+        annotations={"readOnlyHint": True, "title": "Lint Robot Framework File"},
     )
     async def lint_file(
         file_path: str,
@@ -603,6 +1400,11 @@ def register_tools(mcp: FastMCP) -> None:
         Returns:
             List of diagnostic issues found (same format as lint_content)
 
+        Example::
+
+            lint_file("/path/to/test.robot")
+            lint_file("/path/to/test.robot", select=["LEN*"], threshold="W")
+
         """
         if ctx:
             await ctx.info(f"Linting file: {file_path}")
@@ -616,7 +1418,7 @@ def register_tools(mcp: FastMCP) -> None:
 
     @mcp.tool(
         tags={"linting"},
-        annotations={"readOnlyHint": True},
+        annotations={"readOnlyHint": True, "title": "Lint Directory"},
     )
     async def lint_directory(
         directory_path: str,
@@ -626,6 +1428,7 @@ def register_tools(mcp: FastMCP) -> None:
         threshold: str = "I",
         limit: int | None = None,
         configure: list[str] | None = None,
+        group_by: str | None = None,
         ctx: Context | None = None,
     ) -> dict:
         """
@@ -637,20 +1440,32 @@ def register_tools(mcp: FastMCP) -> None:
             select: List of rule IDs/names to enable
             ignore: List of rule IDs/names to ignore
             threshold: Minimum severity to report (I=Info, W=Warning, E=Error)
-            limit: Maximum total number of issues to return across all files (None = no limit)
+            limit: Maximum number of issues to return. When group_by is set,
+                this limit applies per group instead of globally.
             configure: List of rule configurations (e.g., ["line-too-long.line_length=140"])
+            group_by: Group results by "severity", "rule", or "file". When set:
+                - "severity": Group by E/W/I for prioritized fixing
+                - "rule": Group by rule ID for batch fixing same issues
+                - "file": Group by file path for file-by-file review
 
         Returns:
             Dictionary containing:
             - total_files: Number of files linted
             - total_issues: Total number of issues found
             - files_with_issues: Number of files that have issues
-            - issues: List of all issues (each includes 'file' field)
-            - summary: Issues grouped by severity {E: count, W: count, I: count}
-            - limited: Boolean indicating if results were truncated due to limit
+            - issues: List of issues, or dict grouped by key when group_by is set
+            - summary: Issues by severity {E: count, W: count, I: count}
+            - limited: Boolean indicating if results were truncated
+            - group_counts: (only when group_by set) Total count per group before limit
 
         Raises:
             ToolError: If the directory does not exist or contains no Robot Framework files
+
+        Example::
+
+            lint_directory("/path/to/tests")
+            lint_directory("/path/to/tests", recursive=False, threshold="E")
+            lint_directory("/path/to/tests", group_by="severity", limit=10)
 
         """
         path = Path(directory_path)
@@ -698,14 +1513,38 @@ def register_tools(mcp: FastMCP) -> None:
                 if ctx:
                     await ctx.warning(f"Failed to parse: {file}")
 
-        # Apply limit only to the returned issues list, not to the summary statistics
         total_issues = len(all_issues)
+
+        if ctx:
+            await ctx.report_progress(progress=len(files), total=len(files))
+
+        # Handle grouping vs flat list
+        if group_by:
+            grouped_issues, group_counts = _group_issues(all_issues, group_by, limit)
+            limited = any(group_counts[k] > len(v) for k, v in grouped_issues.items())
+
+            if ctx:
+                msg = f"Completed: {total_issues} issue(s) in {files_with_issues} file(s)"
+                if limited:
+                    msg += f" (limited to {limit} per group)"
+                await ctx.info(msg)
+
+            return {
+                "total_files": len(files),
+                "total_issues": total_issues,
+                "files_with_issues": files_with_issues,
+                "issues": grouped_issues,
+                "summary": summary,
+                "limited": limited,
+                "group_counts": group_counts,
+            }
+
+        # Flat list mode (original behavior)
         limited = limit is not None and total_issues > limit
         if limited:
             all_issues = all_issues[:limit]
 
         if ctx:
-            await ctx.report_progress(progress=len(files), total=len(files))
             msg = f"Completed: {total_issues} issue(s) in {files_with_issues} file(s)"
             if limited:
                 msg += f" (showing first {limit})"
@@ -721,8 +1560,166 @@ def register_tools(mcp: FastMCP) -> None:
         }
 
     @mcp.tool(
+        tags={"linting"},
+        annotations={"readOnlyHint": True, "title": "Lint Multiple Robot Files"},
+    )
+    async def lint_files(
+        file_patterns: list[str],
+        base_path: str | None = None,
+        select: list[str] | None = None,
+        ignore: list[str] | None = None,
+        threshold: str = "I",
+        limit: int | None = None,
+        configure: list[str] | None = None,
+        group_by: str | None = None,
+        ctx: Context | None = None,
+    ) -> dict:
+        """
+        Lint multiple Robot Framework files specified by paths or glob patterns.
+
+        This tool allows linting a specific set of files without linting an entire
+        directory. Useful for checking only changed files or a specific subset.
+
+        Args:
+            file_patterns: List of file paths or glob patterns to lint. Examples:
+                - Explicit paths: ["/path/to/test.robot", "tests/login.robot"]
+                - Glob patterns: ["tests/**/*.robot", "*.resource"]
+                - Mixed: ["specific.robot", "suite/**/*.robot"]
+            base_path: Base directory for resolving relative paths and patterns.
+                Defaults to current working directory.
+            select: List of rule IDs/names to enable (e.g., ["LEN01", "too-long-keyword"])
+            ignore: List of rule IDs/names to ignore
+            threshold: Minimum severity to report (I=Info, W=Warning, E=Error)
+            limit: Maximum number of issues to return. When group_by is set,
+                this limit applies per group instead of globally.
+            configure: List of rule configurations (e.g., ["line-too-long.line_length=140"])
+            group_by: Group results by "severity", "rule", or "file". When set:
+                - "severity": Group by E/W/I for prioritized fixing
+                - "rule": Group by rule ID for batch fixing same issues
+                - "file": Group by file path for file-by-file review
+
+        Returns:
+            Dictionary containing:
+            - total_files: Number of files linted
+            - total_issues: Total number of issues found
+            - files_with_issues: Number of files that have issues
+            - issues: List of issues, or dict grouped by key when group_by is set
+            - summary: Issues by severity {E: count, W: count, I: count}
+            - limited: Boolean indicating if results were truncated
+            - unmatched_patterns: List of patterns that didn't match any files
+            - group_counts: (only when group_by set) Total count per group before limit
+
+        Raises:
+            ToolError: If no valid Robot Framework files are found
+
+        Example::
+
+            lint_files(["tests/login.robot", "tests/checkout.robot"])
+            lint_files(["tests/**/*.robot"], threshold="W")
+            lint_files(["*.robot"], group_by="severity", limit=10)
+
+        """
+        if ctx:
+            await ctx.info(f"Processing {len(file_patterns)} file pattern(s)...")
+
+        base = Path(base_path) if base_path else None
+        files, unmatched = _expand_file_patterns(file_patterns, base)
+
+        if ctx:
+            if unmatched:
+                await ctx.warning(f"Patterns with no matches: {unmatched}")
+            await ctx.info(f"Found {len(files)} Robot Framework file(s) to lint")
+
+        if not files:
+            raise ToolError(
+                f"No .robot or .resource files found matching patterns: {file_patterns}"
+                + (f" (unmatched: {unmatched})" if unmatched else "")
+            )
+
+        all_issues: list[dict] = []
+        files_with_issues = 0
+        summary = {"E": 0, "W": 0, "I": 0}
+
+        for i, file in enumerate(files):
+            if ctx:
+                await ctx.report_progress(progress=i, total=len(files))
+
+            try:
+                issues = _lint_file_impl(
+                    str(file),
+                    select,
+                    ignore,
+                    threshold,
+                    include_file_in_result=True,
+                    configure=configure,
+                )
+                if issues:
+                    files_with_issues += 1
+                    all_issues.extend(issues)
+                    for issue in issues:
+                        severity = issue.get("severity", "W")
+                        if severity in summary:
+                            summary[severity] += 1
+            except ToolError:
+                # Skip files that fail to parse
+                if ctx:
+                    await ctx.warning(f"Failed to parse: {file}")
+
+        total_issues = len(all_issues)
+
+        if ctx:
+            await ctx.report_progress(progress=len(files), total=len(files))
+
+        # Handle grouping vs flat list
+        if group_by:
+            grouped_issues, group_counts = _group_issues(all_issues, group_by, limit)
+            limited = any(group_counts[k] > len(v) for k, v in grouped_issues.items())
+
+            if ctx:
+                msg = f"Completed: {total_issues} issue(s) in {files_with_issues} file(s)"
+                if limited:
+                    msg += f" (limited to {limit} per group)"
+                await ctx.info(msg)
+
+            return {
+                "total_files": len(files),
+                "total_issues": total_issues,
+                "files_with_issues": files_with_issues,
+                "issues": grouped_issues,
+                "summary": summary,
+                "limited": limited,
+                "unmatched_patterns": unmatched,
+                "group_counts": group_counts,
+            }
+
+        # Flat list mode (original behavior)
+        limited = limit is not None and total_issues > limit
+        if limited:
+            all_issues = all_issues[:limit]
+
+        if ctx:
+            msg = f"Completed: {total_issues} issue(s) in {files_with_issues} file(s)"
+            if limited:
+                msg += f" (showing first {limit})"
+            await ctx.info(msg)
+
+        return {
+            "total_files": len(files),
+            "total_issues": total_issues,
+            "files_with_issues": files_with_issues,
+            "issues": all_issues,
+            "summary": summary,
+            "limited": limited,
+            "unmatched_patterns": unmatched,
+        }
+
+    @mcp.tool(
         tags={"formatting"},
-        annotations={"readOnlyHint": True, "idempotentHint": True},
+        annotations={
+            "readOnlyHint": True,
+            "idempotentHint": True,
+            "title": "Format Robot Framework Code",
+        },
     )
     async def format_content(
         content: str,
@@ -748,6 +1745,11 @@ def register_tools(mcp: FastMCP) -> None:
             - changed: Boolean indicating if content was modified
             - diff: Unified diff if content changed, None otherwise
 
+        Example::
+
+            format_content(robot_code)
+            # Returns: {"formatted": "...", "changed": True, "diff": "..."}
+
         """
         if ctx:
             await ctx.info(f"Formatting content ({len(content)} bytes)...")
@@ -762,7 +1764,11 @@ def register_tools(mcp: FastMCP) -> None:
 
     @mcp.tool(
         tags={"linting", "formatting"},
-        annotations={"readOnlyHint": True, "idempotentHint": True},
+        annotations={
+            "readOnlyHint": True,
+            "idempotentHint": True,
+            "title": "Format and Lint Code",
+        },
     )
     async def lint_and_format(
         content: str,
@@ -806,6 +1812,11 @@ def register_tools(mcp: FastMCP) -> None:
             - issues_after: Number of issues after formatting
             - issues_fixed: Number of issues fixed by formatting
 
+        Example::
+
+            lint_and_format(robot_code)
+            # Returns: {"formatted": "...", "changed": True, "issues": [...], "issues_fixed": 5}
+
         """
         if ctx:
             await ctx.info(f"Processing content ({len(content)} bytes)...")
@@ -827,7 +1838,12 @@ def register_tools(mcp: FastMCP) -> None:
 
         # Lint the formatted code without limit first for accurate counts
         issues_after_full = _lint_content_impl(
-            format_result["formatted"], filename, lint_select, lint_ignore, threshold, configure=configure
+            format_result["formatted"],
+            filename,
+            lint_select,
+            lint_ignore,
+            threshold,
+            configure=configure,
         )
         issues_after_count = len(issues_after_full)
 
@@ -850,7 +1866,7 @@ def register_tools(mcp: FastMCP) -> None:
 
     @mcp.tool(
         tags={"documentation"},
-        annotations={"readOnlyHint": True},
+        annotations={"readOnlyHint": True, "title": "Get Rule Details"},
     )
     async def get_rule_info(rule_name_or_id: str, ctx: Context | None = None) -> dict:
         """
@@ -872,6 +1888,11 @@ def register_tools(mcp: FastMCP) -> None:
             - added_in_version: Robocop version when rule was added
             - version_requirement: Robot Framework version requirement (if any)
 
+        Example::
+
+            get_rule_info("LEN01")
+            get_rule_info("too-long-keyword")
+
         """
         if ctx:
             await ctx.debug(f"Looking up rule: {rule_name_or_id}")
@@ -880,7 +1901,7 @@ def register_tools(mcp: FastMCP) -> None:
 
     @mcp.tool(
         tags={"documentation"},
-        annotations={"readOnlyHint": True},
+        annotations={"readOnlyHint": True, "title": "Get Formatter Details"},
     )
     async def get_formatter_info(formatter_name: str, ctx: Context | None = None) -> dict:
         """
@@ -896,8 +1917,530 @@ def register_tools(mcp: FastMCP) -> None:
             - docs: Full documentation
             - min_version: Minimum Robot Framework version (if any)
 
+        Example:
+            >>> get_formatter_info("NormalizeSeparators")
+            {"name": "NormalizeSeparators", "enabled": True, "docs": "...", ...}
+
         """
         if ctx:
             await ctx.debug(f"Looking up formatter: {formatter_name}")
 
         return _get_formatter_info_impl(formatter_name)
+
+    @mcp.tool(
+        tags={"documentation"},
+        annotations={"readOnlyHint": True, "title": "List Linting Rules"},
+    )
+    async def list_rules(
+        category: str | None = None,
+        severity: str | None = None,
+        enabled_only: bool = False,
+        ctx: Context | None = None,
+    ) -> list[dict]:
+        """
+        List all available linting rules with optional filtering.
+
+        Use this tool to discover available rules before linting, or to find
+        rules related to a specific category (e.g., naming, length, documentation).
+
+        Args:
+            category: Filter by rule category/group (e.g., "LEN", "NAME", "DOC", "SPACE")
+            severity: Filter by severity ("I"=Info, "W"=Warning, "E"=Error)
+            enabled_only: If True, only return rules that are enabled by default
+
+        Returns:
+            List of rule summaries, each containing:
+            - rule_id: The rule ID (e.g., "LEN01")
+            - name: The rule name (e.g., "too-long-keyword")
+            - severity: Default severity (I/W/E)
+            - enabled: Whether enabled by default
+            - message: The rule message template
+
+        Example:
+            >>> list_rules(category="LEN")  # All length-related rules
+            >>> list_rules(severity="E")  # All error-level rules
+            >>> list_rules(enabled_only=True)  # Only enabled rules
+
+        """
+        if ctx:
+            filters = []
+            if category:
+                filters.append(f"category={category}")
+            if severity:
+                filters.append(f"severity={severity}")
+            if enabled_only:
+                filters.append("enabled_only=True")
+            filter_str = ", ".join(filters) if filters else "none"
+            await ctx.debug(f"Listing rules with filters: {filter_str}")
+
+        return _list_rules_impl(category, severity, enabled_only)
+
+    @mcp.tool(
+        tags={"documentation"},
+        annotations={"readOnlyHint": True, "title": "List Formatters"},
+    )
+    async def list_formatters(enabled_only: bool = True, ctx: Context | None = None) -> list[dict]:
+        """
+        List all available formatters.
+
+        Use this tool to discover available formatters before formatting code.
+        Formatters automatically fix style issues in Robot Framework code.
+
+        Args:
+            enabled_only: If True (default), only return formatters enabled by default
+
+        Returns:
+            List of formatter summaries, each containing:
+            - name: Formatter name
+            - enabled: Whether enabled by default
+            - description: Brief description of what the formatter does
+
+        Example:
+            >>> list_formatters()  # All enabled formatters
+            >>> list_formatters(enabled_only=False)  # All formatters including disabled
+
+        """
+        if ctx:
+            await ctx.debug(f"Listing formatters (enabled_only={enabled_only})")
+
+        return _list_formatters_impl(enabled_only)
+
+    @mcp.tool(
+        tags={"linting"},
+        annotations={"readOnlyHint": True, "title": "Suggest Code Fixes"},
+    )
+    async def suggest_fixes(
+        content: str,
+        filename: str = "stdin.robot",
+        rule_ids: list[str] | None = None,
+        ctx: Context | None = None,
+    ) -> dict:
+        """
+        Analyze Robot Framework code and suggest fixes for linting issues.
+
+        This tool goes beyond just identifying issues - it provides actionable
+        suggestions for how to fix each problem. Use this when you want guidance
+        on resolving linting issues.
+
+        Args:
+            content: Robot Framework source code to analyze
+            filename: Virtual filename (affects file type detection)
+            rule_ids: Optional list of specific rule IDs to get suggestions for
+
+        Returns:
+            Dictionary containing:
+            - fixes: List of fix suggestions, each with:
+                - rule_id: The rule ID
+                - name: The rule name
+                - line: Line number
+                - message: The issue description
+                - suggestion: How to fix this issue
+                - auto_fixable: Whether format_content can fix this automatically
+            - total_issues: Total number of issues found
+            - auto_fixable: Count of issues that can be auto-fixed by formatting
+            - manual_required: Count of issues requiring manual fixes
+            - recommendation: Overall recommendation for fixing
+
+        Example:
+            >>> suggest_fixes(robot_code)
+            {"fixes": [...], "auto_fixable": 3, "manual_required": 2, ...}
+
+        """
+        if ctx:
+            await ctx.info(f"Analyzing content for fix suggestions ({len(content)} bytes)...")
+
+        result = _suggest_fixes_impl(content, filename, rule_ids)
+
+        if ctx:
+            await ctx.info(
+                f"Found {result['total_issues']} issues: "
+                f"{result['auto_fixable']} auto-fixable, {result['manual_required']} manual"
+            )
+
+        return result
+
+    @mcp.tool(
+        tags={"formatting"},
+        annotations={
+            "idempotentHint": True,
+            "title": "Format Robot Framework File",
+        },
+    )
+    async def format_file(
+        file_path: str,
+        select: list[str] | None = None,
+        space_count: int = 4,
+        line_length: int = 120,
+        overwrite: bool = False,
+        ctx: Context | None = None,
+    ) -> dict:
+        """
+        Format a Robot Framework file from disk.
+
+        This tool reads a file, formats it, and optionally writes the formatted
+        content back to disk. Use overwrite=True to modify the file in place.
+
+        Args:
+            file_path: Absolute path to the .robot or .resource file
+            select: List of formatter names to apply (if empty, uses defaults)
+            space_count: Number of spaces for indentation (default: 4)
+            line_length: Maximum line length (default: 120)
+            overwrite: If True, write formatted content back to the file (default: False)
+
+        Returns:
+            Dictionary containing:
+            - file: The file path
+            - formatted: The formatted source code
+            - changed: Boolean indicating if content was modified
+            - diff: Unified diff if content changed, None otherwise
+            - written: Boolean indicating if the file was overwritten
+
+        Example::
+
+            format_file("/path/to/test.robot")  # Preview changes
+            format_file("/path/to/test.robot", overwrite=True)  # Apply changes
+
+        """
+        if ctx:
+            mode = "formatting and overwriting" if overwrite else "formatting (preview)"
+            await ctx.info(f"{mode.capitalize()}: {file_path}")
+
+        result = _format_file_impl(file_path, select, space_count, line_length, overwrite=overwrite)
+
+        if ctx:
+            if result["changed"]:
+                status = "File modified and saved" if result["written"] else "Changes detected (not saved)"
+            else:
+                status = "No changes needed"
+            await ctx.info(status)
+
+        return result
+
+    @mcp.tool(
+        tags={"formatting"},
+        annotations={
+            "idempotentHint": True,
+            "title": "Format Multiple Robot Files",
+        },
+    )
+    async def format_files(
+        file_patterns: list[str],
+        base_path: str | None = None,
+        select: list[str] | None = None,
+        space_count: int = 4,
+        line_length: int = 120,
+        overwrite: bool = False,
+        ctx: Context | None = None,
+    ) -> dict:
+        """
+        Format multiple Robot Framework files specified by paths or glob patterns.
+
+        This tool allows formatting a specific set of files without formatting an
+        entire directory. Use overwrite=True to modify files in place.
+
+        Args:
+            file_patterns: List of file paths or glob patterns to format. Examples:
+                - Explicit paths: ["/path/to/test.robot", "tests/login.robot"]
+                - Glob patterns: ["tests/**/*.robot", "*.resource"]
+                - Mixed: ["specific.robot", "suite/**/*.robot"]
+            base_path: Base directory for resolving relative paths and patterns.
+                Defaults to current working directory.
+            select: List of formatter names to apply (if empty, uses defaults)
+            space_count: Number of spaces for indentation (default: 4)
+            line_length: Maximum line length (default: 120)
+            overwrite: If True, write formatted content back to files (default: False)
+
+        Returns:
+            Dictionary containing:
+            - total_files: Number of files processed
+            - files_changed: Number of files with formatting changes
+            - files_unchanged: Number of files already properly formatted
+            - files_written: Number of files actually written (when overwrite=True)
+            - results: List of per-file results with file, changed, written
+            - errors: List of files that failed to process
+            - unmatched_patterns: List of patterns that didn't match any files
+
+        Example::
+
+            format_files(["tests/**/*.robot"])  # Preview changes
+            format_files(["tests/**/*.robot"], overwrite=True)  # Apply changes
+
+        """
+        if ctx:
+            mode = "formatting and overwriting" if overwrite else "formatting (preview)"
+            await ctx.info(f"{mode.capitalize()} {len(file_patterns)} pattern(s)...")
+
+        base = Path(base_path) if base_path else None
+        files, unmatched = _expand_file_patterns(file_patterns, base)
+
+        if ctx:
+            if unmatched:
+                await ctx.warning(f"Patterns with no matches: {unmatched}")
+            await ctx.info(f"Found {len(files)} Robot Framework file(s) to format")
+
+        if not files:
+            raise ToolError(
+                f"No .robot or .resource files found matching patterns: {file_patterns}"
+                + (f" (unmatched: {unmatched})" if unmatched else "")
+            )
+
+        results: list[dict] = []
+        files_changed = 0
+        files_unchanged = 0
+        files_written = 0
+        errors: list[dict[str, str]] = []
+
+        for i, file in enumerate(files):
+            if ctx:
+                await ctx.report_progress(progress=i, total=len(files))
+
+            try:
+                result = _format_file_impl(str(file), select, space_count, line_length, overwrite=overwrite)
+                results.append(
+                    {
+                        "file": str(file),
+                        "changed": result["changed"],
+                        "written": result["written"],
+                    }
+                )
+                if result["changed"]:
+                    files_changed += 1
+                    if result["written"]:
+                        files_written += 1
+                else:
+                    files_unchanged += 1
+            except ToolError as e:
+                errors.append({"file": str(file), "error": str(e)})
+
+        if ctx:
+            await ctx.report_progress(progress=len(files), total=len(files))
+            msg = f"Completed: {files_changed} file(s) changed"
+            if overwrite:
+                msg += f", {files_written} written"
+            await ctx.info(msg)
+
+        return {
+            "total_files": len(files),
+            "files_changed": files_changed,
+            "files_unchanged": files_unchanged,
+            "files_written": files_written,
+            "results": results,
+            "errors": errors,
+            "unmatched_patterns": unmatched,
+        }
+
+    @mcp.tool(
+        tags={"linting", "statistics"},
+        annotations={"readOnlyHint": True, "title": "Get Codebase Statistics"},
+    )
+    async def get_statistics(
+        directory_path: str,
+        recursive: bool = True,
+        select: list[str] | None = None,
+        ignore: list[str] | None = None,
+        threshold: str = "I",
+        configure: list[str] | None = None,
+        ctx: Context | None = None,
+    ) -> dict:
+        """
+        Get code quality statistics for a Robot Framework codebase.
+
+        This tool provides a high-level overview of code quality including:
+        - Total files and issues count
+        - Issue breakdown by severity
+        - Most common issues (top 10)
+        - Quality score and grade
+        - Actionable recommendations
+
+        Use this to understand the overall health of a test suite before
+        diving into specific issues.
+
+        Args:
+            directory_path: Absolute path to the directory to analyze
+            recursive: Whether to search subdirectories (default: True)
+            select: List of rule IDs/names to enable
+            ignore: List of rule IDs/names to ignore
+            threshold: Minimum severity to report (I=Info, W=Warning, E=Error)
+            configure: List of rule configurations
+
+        Returns:
+            Dictionary containing:
+            - directory: The analyzed directory path
+            - summary: Overview stats (total_files, files_with_issues, files_clean,
+              total_issues, avg_issues_per_file, max_issues_in_file)
+            - severity_breakdown: Issues by severity {E: count, W: count, I: count}
+            - top_issues: List of most common rules with counts
+            - quality_score: Score (0-100), grade (A-F), and label
+            - recommendations: List of actionable suggestions
+
+        Example::
+
+            get_statistics("/path/to/tests")
+            # Returns: {"quality_score": {"score": 85, "grade": "B", ...}, ...}
+
+        """
+        if ctx:
+            await ctx.info(f"Analyzing codebase: {directory_path}")
+
+        path = Path(directory_path)
+
+        if not path.exists():
+            raise ToolError(f"Directory not found: {directory_path}")
+
+        if not path.is_dir():
+            raise ToolError(f"Not a directory: {directory_path}")
+
+        files = _collect_robot_files(path, recursive)
+
+        if not files:
+            raise ToolError(f"No .robot or .resource files found in {directory_path}")
+
+        if ctx:
+            await ctx.info(f"Found {len(files)} Robot Framework file(s) to analyze")
+
+        # Collect statistics
+        all_issues: list[dict] = []
+        files_with_issues = 0
+        files_clean = 0
+        severity_counts = {"E": 0, "W": 0, "I": 0}
+        rule_counts: dict[str, int] = {}
+        issues_per_file: list[int] = []
+
+        for i, file in enumerate(files):
+            if ctx:
+                await ctx.report_progress(progress=i, total=len(files))
+
+            try:
+                issues = _lint_file_impl(
+                    str(file),
+                    select,
+                    ignore,
+                    threshold,
+                    include_file_in_result=True,
+                    configure=configure,
+                )
+                issues_per_file.append(len(issues))
+
+                if issues:
+                    files_with_issues += 1
+                    all_issues.extend(issues)
+                    for issue in issues:
+                        severity = issue.get("severity", "W")
+                        if severity in severity_counts:
+                            severity_counts[severity] += 1
+                        rule_id = issue.get("rule_id", "unknown")
+                        rule_counts[rule_id] = rule_counts.get(rule_id, 0) + 1
+                else:
+                    files_clean += 1
+            except ToolError:
+                pass
+
+        if ctx:
+            await ctx.report_progress(progress=len(files), total=len(files))
+
+        total_files = len(files)
+        total_issues = len(all_issues)
+
+        # Calculate statistics
+        avg_issues_per_file = total_issues / total_files if total_files > 0 else 0
+        max_issues_in_file = max(issues_per_file) if issues_per_file else 0
+
+        # Find top 10 most common rules
+        top_rules = sorted(rule_counts.items(), key=operator.itemgetter(1), reverse=True)[:10]
+
+        # Calculate quality score
+        weighted_issues = severity_counts["E"] * 3 + severity_counts["W"] * 1.5 + severity_counts["I"] * 0.5
+        issues_ratio = weighted_issues / total_files if total_files > 0 else 0
+        quality_score = max(0, min(100, int(100 - issues_ratio * 10)))
+
+        # Determine grade
+        if quality_score >= 90:
+            grade, label = "A", "Excellent"
+        elif quality_score >= 80:
+            grade, label = "B", "Good"
+        elif quality_score >= 70:
+            grade, label = "C", "Fair"
+        elif quality_score >= 60:
+            grade, label = "D", "Poor"
+        else:
+            grade, label = "F", "Critical"
+
+        if ctx:
+            await ctx.info(f"Quality score: {quality_score}/100 (Grade: {grade})")
+
+        return {
+            "directory": str(path),
+            "summary": {
+                "total_files": total_files,
+                "files_with_issues": files_with_issues,
+                "files_clean": files_clean,
+                "total_issues": total_issues,
+                "avg_issues_per_file": round(avg_issues_per_file, 2),
+                "max_issues_in_file": max_issues_in_file,
+            },
+            "severity_breakdown": severity_counts,
+            "top_issues": [{"rule_id": rule_id, "count": count} for rule_id, count in top_rules],
+            "quality_score": {
+                "score": quality_score,
+                "grade": grade,
+                "label": label,
+            },
+            "recommendations": _generate_recommendations(severity_counts, top_rules, quality_score),
+        }
+
+    @mcp.tool(
+        tags={"linting", "documentation"},
+        annotations={"readOnlyHint": True, "title": "Explain Issue at Line"},
+    )
+    async def explain_issue(
+        content: str,
+        line: int,
+        filename: str = "stdin.robot",
+        context_lines: int = 3,
+        ctx: Context | None = None,
+    ) -> dict:
+        """
+        Explain a specific issue at a given line with surrounding context.
+
+        This tool provides detailed explanations for issues at a specific line,
+        including why the issue matters, how to fix it, and configurable parameters.
+        More detailed than get_rule_info because it shows the actual code context.
+
+        Args:
+            content: Robot Framework source code to analyze
+            line: The line number to explain (1-indexed)
+            filename: Virtual filename (affects file type detection)
+            context_lines: Number of lines to show before/after (default: 3)
+
+        Returns:
+            Dictionary containing:
+            - line: The requested line number
+            - issues_found: Boolean indicating if issues were found
+            - issues: List of detailed explanations for issues at this line, each with:
+                - rule_id, name, message, severity
+                - why_it_matters: First line of rule documentation
+                - fix_suggestion: How to fix this issue
+                - full_documentation: Complete rule docs
+                - configurable_parameters: List of parameters that can be adjusted
+            - related_issues: Issues on nearby lines (within 2 lines)
+            - context: The surrounding code with line numbers
+
+        Example::
+
+            explain_issue(robot_code, line=42)
+            # Returns detailed explanation of issues at line 42 with context
+
+        """
+        if ctx:
+            await ctx.info(f"Explaining issues at line {line}...")
+
+        result = _explain_issue_impl(content, line, filename, context_lines)
+
+        if ctx:
+            if result["issues_found"]:
+                count = len(result.get("issues", []))
+                await ctx.info(f"Found {count} issue(s) at line {line}")
+            else:
+                await ctx.info(f"No issues found at or near line {line}")
+
+        return result

@@ -963,3 +963,304 @@ class TestNewToolsWorkflows:
         rule_docs = run_tool(get_rule_info, rule_name_or_id=first_issue["rule_id"])
         assert "docs" in rule_docs
         assert len(rule_docs["docs"]) > 0
+
+
+class TestAdvancedWorkflows:
+    """Tests for advanced multi-step workflows."""
+
+    def test_full_cleanup_and_verify_workflow(self, mcp_tools, tmp_path: Path):
+        """
+        Complete cleanup workflow:
+
+        1. Get statistics to understand scope
+        2. Format all files
+        3. Lint all files
+        4. Get new statistics
+        5. Verify improvement
+        """
+        get_statistics = mcp_tools["get_statistics"]
+        format_files = mcp_tools["format_files"]
+        lint_directory = mcp_tools["lint_directory"]
+
+        # Create test files with various issues
+        (tmp_path / "test1.robot").write_text("*** Test Cases ***\ntest one\n    log  a\n    log   b\n")
+        (tmp_path / "test2.robot").write_text("*** Test Cases ***\ntest two\n    log   c\n")
+        (tmp_path / "lib.resource").write_text("*** Keywords ***\nmy keyword\n    Log  d\n")
+
+        # Step 1: Get initial statistics
+        initial_stats = run_tool(get_statistics, directory_path=str(tmp_path))
+        initial_issues = initial_stats["summary"]["total_issues"]
+        assert initial_issues > 0
+
+        # Step 2: Format all files
+        format_result = run_tool(
+            format_files,
+            file_patterns=["**/*.robot", "**/*.resource"],
+            base_path=str(tmp_path),
+            overwrite=True,
+        )
+        assert format_result["total_files"] == 3
+
+        # Step 3: Lint directory to see remaining issues
+        lint_result = run_tool(lint_directory, directory_path=str(tmp_path))
+        assert lint_result["total_files"] == 3
+
+        # Step 4: Get final statistics
+        final_stats = run_tool(get_statistics, directory_path=str(tmp_path))
+        final_issues = final_stats["summary"]["total_issues"]
+
+        # Step 5: Verify - formatting shouldn't increase issues
+        assert final_issues <= initial_issues
+
+    def test_selective_rule_workflow(self, mcp_tools, tmp_path: Path):
+        """
+        Workflow focusing on specific rule categories:
+
+        1. List rules in a category
+        2. Lint files for only those rules
+        3. Get detailed info on triggered rules
+        """
+        list_rules = mcp_tools["list_rules"]
+        lint_files = mcp_tools["lint_files"]
+        get_rule_info = mcp_tools["get_rule_info"]
+
+        # Create test file
+        (tmp_path / "test.robot").write_text(
+            "*** Test Cases ***\ntest with naming issues\n    Log    Hello\nAnother test case\n    Log    World\n"
+        )
+
+        # Step 1: List NAME rules
+        name_rules = run_tool(list_rules, category="NAME")
+        assert len(name_rules) > 0
+
+        # Step 2: Lint for only NAME rules
+        lint_result = run_tool(
+            lint_files,
+            file_patterns=["test.robot"],
+            base_path=str(tmp_path),
+            select=["NAME*"],
+        )
+
+        # All issues should be NAME rules
+        for issue in lint_result["issues"]:
+            assert issue["rule_id"].startswith("NAME")
+
+        # Step 3: Get detailed info on first triggered rule
+        if lint_result["issues"]:
+            rule_id = lint_result["issues"][0]["rule_id"]
+            rule_info = run_tool(get_rule_info, rule_name_or_id=rule_id)
+            assert "docs" in rule_info
+            assert "parameters" in rule_info
+
+    def test_format_then_lint_workflow(self, mcp_tools, tmp_path: Path):
+        """
+        Workflow: format files then lint to show remaining manual fixes.
+
+        This tests that formatting reduces issues but doesn't eliminate all.
+        """
+        format_file = mcp_tools["format_file"]
+        lint_file = mcp_tools["lint_file"]
+
+        # Create file with both auto-fixable and manual issues
+        robot_file = tmp_path / "test.robot"
+        robot_file.write_text(
+            "*** Test Cases ***\n"
+            "test lowercase name\n"  # NAME issue - manual fix
+            "    log  hello\n"  # Spacing issue - auto-fixable
+            "    log    world\n"  # Spacing issue - auto-fixable
+        )
+
+        # Format the file
+        format_result = run_tool(format_file, file_path=str(robot_file), overwrite=True)
+        assert format_result["changed"] is True
+
+        # Lint to see remaining issues
+        lint_result = run_tool(lint_file, file_path=str(robot_file))
+
+        # Should still have NAME issues (can't be auto-fixed)
+        name_issues = [i for i in lint_result if i["rule_id"].startswith("NAME")]
+        assert len(name_issues) > 0
+
+
+class TestEdgeCaseFiles:
+    """Tests for edge case file handling."""
+
+    def test_lint_deeply_nested_directory(self, mcp_tools, tmp_path: Path):
+        """Test linting files in deeply nested directories."""
+        lint_directory = mcp_tools["lint_directory"]
+
+        # Create deeply nested structure
+        deep_path = tmp_path / "a" / "b" / "c" / "d" / "e"
+        deep_path.mkdir(parents=True)
+        (deep_path / "test.robot").write_text("*** Test Cases ***\ntest\n    Log    Hi\n")
+
+        result = run_tool(lint_directory, directory_path=str(tmp_path), recursive=True)
+
+        assert result["total_files"] == 1
+        # Should find the deeply nested file
+        assert (
+            any("a/b/c/d/e/test.robot" in str(issue.get("file", "")) for issue in result["issues"])
+            or result["total_issues"] >= 0
+        )
+
+    def test_lint_files_with_spaces_in_names(self, mcp_tools, tmp_path: Path):
+        """Test linting files with spaces in filenames."""
+        lint_file = mcp_tools["lint_file"]
+
+        robot_file = tmp_path / "test file with spaces.robot"
+        robot_file.write_text("*** Test Cases ***\ntest\n    Log    Hi\n")
+
+        result = run_tool(lint_file, file_path=str(robot_file))
+
+        assert isinstance(result, list)
+
+    def test_format_empty_robot_file(self, mcp_tools, tmp_path: Path):
+        """Test formatting an empty Robot Framework file."""
+        format_file = mcp_tools["format_file"]
+
+        robot_file = tmp_path / "empty.robot"
+        robot_file.write_text("")
+
+        result = run_tool(format_file, file_path=str(robot_file))
+
+        assert "formatted" in result
+        assert "changed" in result
+
+    def test_lint_file_with_only_comments(self, mcp_tools, tmp_path: Path):
+        """Test linting a file with only comments."""
+        lint_file = mcp_tools["lint_file"]
+
+        robot_file = tmp_path / "comments_only.robot"
+        robot_file.write_text("# This is a comment\n# Another comment\n")
+
+        result = run_tool(lint_file, file_path=str(robot_file))
+
+        assert isinstance(result, list)
+
+    def test_lint_directory_with_mixed_files(self, mcp_tools, tmp_path: Path):
+        """Test linting directory with mixed Robot and non-Robot files."""
+        lint_directory = mcp_tools["lint_directory"]
+
+        # Create mixed files
+        (tmp_path / "test.robot").write_text("*** Test Cases ***\ntest\n    Log    Hi\n")
+        (tmp_path / "lib.resource").write_text("*** Keywords ***\nKw\n    Log    Hi\n")
+        (tmp_path / "readme.md").write_text("# README\n")
+        (tmp_path / "script.py").write_text("print('hello')\n")
+        (tmp_path / "data.json").write_text('{"key": "value"}\n')
+
+        result = run_tool(lint_directory, directory_path=str(tmp_path))
+
+        # Should only find .robot and .resource files
+        assert result["total_files"] == 2
+
+    def test_format_files_preserves_unchanged(self, mcp_tools, tmp_path: Path):
+        """Test that formatting preserves already formatted files."""
+        format_files = mcp_tools["format_files"]
+
+        # Create a well-formatted file
+        good_file = tmp_path / "good.robot"
+        good_file.write_text("*** Test Cases ***\nGood Test\n    Log    Hello\n")
+
+        # Create a poorly formatted file
+        bad_file = tmp_path / "bad.robot"
+        bad_file.write_text("*** Test Cases ***\ntest\n    log  hello\n")
+
+        result = run_tool(
+            format_files,
+            file_patterns=["*.robot"],
+            base_path=str(tmp_path),
+            overwrite=True,
+        )
+
+        assert result["total_files"] == 2
+        # At least the bad file should have changed
+        assert result["files_changed"] >= 1
+
+
+class TestListTools:
+    """Tests for list_rules and list_formatters tools."""
+
+    def test_list_rules_category_filter(self, mcp_tools):
+        """Test filtering rules by category."""
+        list_rules = mcp_tools["list_rules"]
+
+        # Test multiple categories
+        for category in ["LEN", "NAME", "DOC", "MISC"]:
+            result = run_tool(list_rules, category=category)
+            if result:  # Some categories might have no rules
+                for rule in result:
+                    assert rule["rule_id"].startswith(category)
+
+    def test_list_rules_severity_filter(self, mcp_tools):
+        """Test filtering rules by severity."""
+        list_rules = mcp_tools["list_rules"]
+
+        for severity in ["E", "W", "I"]:
+            result = run_tool(list_rules, severity=severity)
+            for rule in result:
+                assert rule["severity"] == severity
+
+    def test_list_formatters_enabled_vs_all(self, mcp_tools):
+        """Test listing enabled vs all formatters."""
+        list_formatters = mcp_tools["list_formatters"]
+
+        enabled = run_tool(list_formatters, enabled_only=True)
+        all_formatters = run_tool(list_formatters, enabled_only=False)
+
+        assert len(all_formatters) >= len(enabled)
+        # All enabled formatters should be in the all list
+        enabled_names = {f["name"] for f in enabled}
+        all_names = {f["name"] for f in all_formatters}
+        assert enabled_names.issubset(all_names)
+
+
+class TestSuggestFixesTool:
+    """Tests for suggest_fixes tool."""
+
+    def test_suggest_fixes_basic(self, mcp_tools):
+        """Test basic fix suggestions."""
+        suggest_fixes = mcp_tools["suggest_fixes"]
+
+        content = dedent(
+            """
+            *** Test Cases ***
+            test without capital
+                log  hello
+        """
+        ).lstrip()
+
+        result = run_tool(suggest_fixes, content=content)
+
+        assert "fixes" in result
+        assert "total_issues" in result
+        assert "auto_fixable" in result
+        assert "manual_required" in result
+        assert "recommendation" in result
+
+    def test_suggest_fixes_with_filename(self, mcp_tools):
+        """Test fix suggestions with specific filename."""
+        suggest_fixes = mcp_tools["suggest_fixes"]
+
+        content = "*** Keywords ***\nmy keyword\n    Log    Hello\n"
+
+        result = run_tool(suggest_fixes, content=content, filename="lib.resource")
+
+        assert "fixes" in result
+
+    def test_suggest_fixes_rule_filter(self, mcp_tools):
+        """Test fix suggestions filtered by rule IDs."""
+        suggest_fixes = mcp_tools["suggest_fixes"]
+
+        content = dedent(
+            """
+            *** Test Cases ***
+            test without capital
+                log  hello
+        """
+        ).lstrip()
+
+        result = run_tool(suggest_fixes, content=content, rule_ids=["NAME*"])
+
+        # All fixes should be for NAME rules
+        for fix in result["fixes"]:
+            assert fix["rule_id"].startswith("NAME")

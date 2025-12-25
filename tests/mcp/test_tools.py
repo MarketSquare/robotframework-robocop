@@ -1572,3 +1572,256 @@ class TestGetLineContext:
                 target_found = True
                 assert line_info["line_number"] == 2
         assert target_found
+
+
+class TestLintContentEdgeCases:
+    """Tests for lint_content edge cases."""
+
+    def test_lint_empty_content(self):
+        """Test linting empty content."""
+        result = _lint_content_impl("")
+        assert isinstance(result, list)
+
+    def test_lint_whitespace_only_content(self):
+        """Test linting whitespace-only content."""
+        result = _lint_content_impl("   \n\n   \n")
+        assert isinstance(result, list)
+
+    def test_lint_with_filename_resource(self):
+        """Test linting content with resource filename."""
+        content = "*** Keywords ***\nMy Keyword\n    Log    Hello\n"
+        result = _lint_content_impl(content, filename="lib.resource")
+        assert isinstance(result, list)
+
+    def test_lint_with_all_parameters(self):
+        """Test linting with all parameters combined."""
+        content = dedent(
+            """
+            *** Test Cases ***
+            test lowercase
+                log  hello
+        """
+        ).lstrip()
+
+        result = _lint_content_impl(
+            content,
+            filename="test.robot",
+            select=["NAME*"],
+            ignore=["NAME03"],
+            threshold="W",
+            limit=5,
+            configure=["not-capitalized-test-case-title.severity=I"],
+        )
+        assert isinstance(result, list)
+
+
+class TestFormatContentEdgeCases:
+    """Tests for format_content edge cases."""
+
+    def test_format_empty_content(self):
+        """Test formatting empty content."""
+        result = _format_content_impl("")
+        assert "formatted" in result
+        assert "changed" in result
+
+    def test_format_with_all_parameters(self):
+        """Test formatting with all parameters combined."""
+        content = "*** Test Cases ***\nTest\n    Log    Hello\n"
+
+        result = _format_content_impl(
+            content,
+            filename="test.robot",
+            select=["NormalizeSeparators"],
+            space_count=2,
+            line_length=80,
+        )
+        assert "formatted" in result
+
+
+class TestLintDirectoryWithGroupBy:
+    """Tests for lint_directory with group_by parameter."""
+
+    def test_lint_directory_group_by_severity(self, tmp_path: Path):
+        """Test lint_files with group_by='severity' (lint_directory uses same logic)."""
+        (tmp_path / "test.robot").write_text("*** Test Cases ***\ntest\n    Log    Hi\n")
+
+        result = _lint_files_impl(["*.robot"], str(tmp_path), group_by="severity")
+
+        assert isinstance(result["issues"], dict)
+        assert "group_counts" in result
+        # Issues should be grouped by severity
+        for key in result["issues"]:
+            assert key in ("E", "W", "I")
+
+    def test_lint_directory_group_by_rule(self, tmp_path: Path):
+        """Test lint_files with group_by='rule'."""
+        (tmp_path / "test.robot").write_text("*** Test Cases ***\ntest\n    Log    Hi\n")
+
+        result = _lint_files_impl(["*.robot"], str(tmp_path), group_by="rule")
+
+        assert isinstance(result["issues"], dict)
+        assert "group_counts" in result
+
+    def test_lint_directory_group_by_file(self, tmp_path: Path):
+        """Test lint_files with group_by='file'."""
+        (tmp_path / "test1.robot").write_text("*** Test Cases ***\ntest\n    Log    a\n")
+        (tmp_path / "test2.robot").write_text("*** Test Cases ***\ntest\n    Log    b\n")
+
+        result = _lint_files_impl(["*.robot"], str(tmp_path), group_by="file")
+
+        assert isinstance(result["issues"], dict)
+        assert "group_counts" in result
+
+
+class TestLintAndFormatParameters:
+    """Tests for lint_and_format combined workflow using format + lint."""
+
+    def test_lint_and_format_with_format_select(self):
+        """Test format then lint workflow with specific formatters."""
+        content = "*** Test Cases ***\nTest\n    log  hello\n"
+
+        # Simulate lint_and_format by formatting then linting
+        format_result = _format_content_impl(content, select=["NormalizeSeparators"])
+        lint_result = _lint_content_impl(format_result["formatted"])
+
+        assert "formatted" in format_result
+        assert isinstance(lint_result, list)
+
+    def test_lint_and_format_with_lint_ignore(self):
+        """Test format then lint workflow with lint ignore."""
+        content = "*** Test Cases ***\ntest\n    log  hello\n"
+
+        # Simulate lint_and_format
+        format_result = _format_content_impl(content)
+        lint_result = _lint_content_impl(format_result["formatted"], ignore=["NAME*"])
+
+        # No NAME issues in result
+        for issue in lint_result:
+            assert not issue["rule_id"].startswith("NAME")
+
+    def test_lint_and_format_with_threshold(self):
+        """Test format then lint workflow with threshold."""
+        content = "*** Test Cases ***\ntest\n    log  hello\n"
+
+        # Simulate lint_and_format
+        format_result = _format_content_impl(content)
+        lint_result = _lint_content_impl(format_result["formatted"], threshold="E")
+
+        # Only errors in result
+        for issue in lint_result:
+            assert issue["severity"] == "E"
+
+
+class TestSuggestFixesParameters:
+    """Tests for suggest_fixes with various parameters."""
+
+    def test_suggest_fixes_with_filename(self):
+        """Test suggest_fixes with filename parameter."""
+        content = "*** Keywords ***\nmy keyword\n    Log    Hello\n"
+
+        result = _suggest_fixes_impl(content, filename="lib.resource")
+
+        assert "fixes" in result
+        assert "total_issues" in result
+
+
+class TestExplainIssueParameters:
+    """Tests for explain_issue with various parameters."""
+
+    def test_explain_issue_with_filename(self):
+        """Test explain_issue with filename parameter."""
+        content = "*** Keywords ***\nmy keyword\n    Log    Hello\n"
+
+        result = _explain_issue_impl(content, line=2, filename="lib.resource")
+
+        assert "line" in result
+        assert "context" in result
+
+    def test_explain_issue_large_context(self):
+        """Test explain_issue with large context_lines."""
+        content = "\n".join([f"Line {i}" for i in range(1, 21)])
+
+        result = _explain_issue_impl(content, line=10, context_lines=5)
+
+        assert result["line"] == 10
+        # Context should include up to 5 lines before and after
+        assert len(result["context"]["lines"]) <= 11
+
+
+class TestGetStatisticsParameters:
+    """Tests for get_statistics with various parameters."""
+
+    def test_get_statistics_with_configure(self, tmp_path: Path):
+        """Test get_statistics with configure parameter."""
+        long_line = "A" * 150
+        (tmp_path / "test.robot").write_text(f"*** Test Cases ***\nTest\n    Log    {long_line}\n")
+
+        # Without configure - should have line-too-long
+        result_default = _get_statistics_impl(str(tmp_path), select=["LEN08"])
+        has_len08 = any(issue["rule_id"] == "LEN08" for issue in result_default["top_issues"])
+
+        # With configure - should not have line-too-long
+        result_configured = _get_statistics_impl(
+            str(tmp_path),
+            select=["LEN08"],
+            configure=["line-too-long.line_length=200"],
+        )
+
+        # The configured version should have same or fewer issues
+        assert (
+            result_configured["summary"]["total_issues"] <= result_default["summary"]["total_issues"] or not has_len08
+        )
+
+    def test_get_statistics_with_ignore(self, tmp_path: Path):
+        """Test get_statistics with ignore parameter."""
+        (tmp_path / "test.robot").write_text("*** Test Cases ***\ntest\n    Log    Hi\n")
+
+        # Get all issues
+        all_stats = _get_statistics_impl(str(tmp_path))
+
+        # Ignore NAME rules
+        filtered_stats = _get_statistics_impl(str(tmp_path), ignore=["NAME*"])
+
+        # Filtered should have equal or fewer issues
+        assert filtered_stats["summary"]["total_issues"] <= all_stats["summary"]["total_issues"]
+
+        # No NAME issues in top_issues
+        for issue in filtered_stats["top_issues"]:
+            assert not issue["rule_id"].startswith("NAME")
+
+
+class TestFormatterInfoEdgeCases:
+    """Tests for get_formatter_info edge cases."""
+
+    def test_get_formatter_info_with_no_parameters(self):
+        """Test formatter info for formatter with no extra parameters."""
+        # Find a formatter and check its info
+        result = _get_formatter_info_impl("NormalizeSeparators")
+        assert "parameters" in result
+        assert isinstance(result["parameters"], list)
+
+    def test_get_formatter_info_min_version(self):
+        """Test that formatter info includes min_version."""
+        result = _get_formatter_info_impl("NormalizeSeparators")
+        # min_version should be present (may be None)
+        assert "min_version" in result
+
+
+class TestRuleInfoEdgeCases:
+    """Tests for get_rule_info edge cases."""
+
+    def test_get_rule_info_includes_version_requirement(self):
+        """Test that rule info includes version_requirement field."""
+        result = _get_rule_info_impl("LEN01")
+        assert "version_requirement" in result
+
+    def test_get_rule_info_includes_deprecated(self):
+        """Test that rule info includes deprecated field."""
+        result = _get_rule_info_impl("LEN01")
+        assert "deprecated" in result
+        assert isinstance(result["deprecated"], bool)
+
+    def test_get_rule_info_includes_added_in_version(self):
+        """Test that rule info includes added_in_version field."""
+        result = _get_rule_info_impl("LEN01")
+        assert "added_in_version" in result

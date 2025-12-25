@@ -28,9 +28,6 @@ logger = logging.getLogger("robocop.mcp")
 
 # === TTL Constants (in seconds) ===
 
-# Discovery/catalog operations - long TTL, data is static during session
-TTL_DISCOVERY = 600  # 10 minutes
-
 # Rule/formatter info - very long TTL, documentation doesn't change
 TTL_INFO = 1800  # 30 minutes
 
@@ -122,9 +119,8 @@ def create_error_handling_middleware() -> ErrorHandlingMiddleware:
     Create ErrorHandlingMiddleware with appropriate settings for Robocop.
 
     Error Handling Strategy:
-    - Log all errors for debugging
+    - Log all errors with full tracebacks for debugging
     - Transform exceptions to MCP-compliant error responses
-    - Don't expose tracebacks to LLMs (security/clarity)
 
     Returns:
         ErrorHandlingMiddleware configured for Robocop.
@@ -132,7 +128,7 @@ def create_error_handling_middleware() -> ErrorHandlingMiddleware:
     """
     return ErrorHandlingMiddleware(
         logger=logger,
-        include_traceback=False,  # Don't expose internals to LLMs
+        include_traceback=True,  # Include full traceback in server logs for debugging
     )
 
 

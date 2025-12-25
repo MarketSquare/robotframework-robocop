@@ -8,6 +8,7 @@ LLM token usage and improve robustness.
 from __future__ import annotations
 
 import logging
+import os
 from typing import TYPE_CHECKING
 
 from fastmcp.server.middleware.caching import (
@@ -25,6 +26,9 @@ if TYPE_CHECKING:
 
 # Logger for MCP middleware
 logger = logging.getLogger("robocop.mcp")
+
+# Environment variable to disable caching (useful for custom rule development)
+CACHING_DISABLED = os.environ.get("ROBOCOP_MCP_NO_CACHE", "").lower() in {"1", "true", "yes"}
 
 # === TTL Constants (in seconds) ===
 
@@ -145,6 +149,10 @@ def register_middleware(mcp: FastMCP) -> None:
     - Error responses are NOT cached (only successful responses)
     - Cache hits bypass error handling (already validated)
 
+    Caching can be disabled by setting the environment variable
+    ROBOCOP_MCP_NO_CACHE=1. This is useful when developing custom rules
+    and you want fresh results on every request.
+
     Args:
         mcp: The FastMCP server instance.
 
@@ -152,5 +160,8 @@ def register_middleware(mcp: FastMCP) -> None:
     # 1. Error handling first - catches errors from all downstream middleware
     mcp.add_middleware(create_error_handling_middleware())
 
-    # 2. Caching second - caches successful responses
-    mcp.add_middleware(create_caching_middleware())
+    # 2. Caching second - caches successful responses (unless disabled)
+    if CACHING_DISABLED:
+        logger.info("Response caching disabled via ROBOCOP_MCP_NO_CACHE environment variable")
+    else:
+        mcp.add_middleware(create_caching_middleware())

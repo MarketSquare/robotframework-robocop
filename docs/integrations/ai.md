@@ -25,6 +25,29 @@ pip install robotframework-robocop[mcp]
 robocop-mcp
 ```
 
+#### Disabling Caching
+
+The MCP server caches responses for discovery and documentation tools (like `list_rules`, `get_rule_info`) to reduce token usage. If you're developing custom rules and want fresh results on every request, disable caching with:
+
+```bash
+ROBOCOP_MCP_NO_CACHE=1 robocop-mcp
+```
+
+For Claude Desktop or other MCP clients, add the environment variable to the configuration:
+
+```json
+{
+  "mcpServers": {
+    "robocop": {
+      "command": "robocop-mcp",
+      "env": {
+        "ROBOCOP_MCP_NO_CACHE": "1"
+      }
+    }
+  }
+}
+```
+
 #### With Claude Desktop
 
 Add to your Claude Desktop configuration (`~/.config/claude-desktop/config.json` on Linux, `~/Library/Application Support/Claude/claude_desktop_config.json` on macOS):

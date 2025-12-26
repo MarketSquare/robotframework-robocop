@@ -8,7 +8,7 @@ from typing import Any
 
 from fastmcp.exceptions import ToolError
 
-from robocop.mcp.tools.utils.helpers import _rule_to_dict
+from robocop.mcp.tools.utils.helpers import _create_match_snippet, _iter_unique_rules, _rule_to_dict
 
 
 def _list_rules_impl(
@@ -28,36 +28,16 @@ def _list_rules_impl(
         A list of rule summary dictionaries.
 
     """
-    from robocop.mcp.cache import get_linter_config
-
-    linter_config = get_linter_config()
-
-    # Get unique rules (avoid duplicates from name/id mapping)
-    seen_ids = set()
-    rules = []
-    for rule in linter_config.rules.values():
-        if rule.rule_id in seen_ids:
-            continue
-        seen_ids.add(rule.rule_id)
-
-        # Apply filters
-        if enabled_only and not rule.enabled:
-            continue
-        if category and not rule.rule_id.startswith(category.upper()):
-            continue
-        if severity and rule.severity.value != severity.upper():
-            continue
-
-        rules.append(
-            {
-                "rule_id": rule.rule_id,
-                "name": rule.name,
-                "severity": rule.severity.value,
-                "enabled": rule.enabled,
-                "message": rule.message,
-            }
-        )
-
+    rules = [
+        {
+            "rule_id": rule.rule_id,
+            "name": rule.name,
+            "severity": rule.severity.value,
+            "enabled": rule.enabled,
+            "message": rule.message,
+        }
+        for rule in _iter_unique_rules(category, severity, enabled_only)
+    ]
     return sorted(rules, key=operator.itemgetter("rule_id"))
 
 
@@ -213,73 +193,31 @@ def _search_rules_impl(
         match_field (which field matched), and match_snippet (context around match).
 
     """
-    from robocop.mcp.cache import get_linter_config
-
     if fields is None:
         fields = ["name", "message", "docs"]
 
-    linter_config = get_linter_config()
     query_lower = query.lower()
-
-    # Get unique rules
-    seen_ids: set[str] = set()
     results: list[dict[str, Any]] = []
 
-    for rule in linter_config.rules.values():
-        if rule.rule_id in seen_ids:
-            continue
-        seen_ids.add(rule.rule_id)
-
-        # Apply filters first
-        if category and not rule.rule_id.startswith(category.upper()):
-            continue
-        if severity and rule.severity.value != severity.upper():
-            continue
-
-        # Search across specified fields
-        match_field = None
-        match_snippet = None
-
+    for rule in _iter_unique_rules(category, severity):
         for field in fields:
-            field_value = ""
-            if field == "name":
-                field_value = rule.name or ""
-            elif field == "message":
-                field_value = rule.message or ""
-            elif field == "docs":
-                field_value = rule.docs or ""
-            elif field == "rule_id":
-                field_value = rule.rule_id or ""
-
+            field_value = getattr(rule, field, "") or ""
             if query_lower in field_value.lower():
-                match_field = field
-                # Create a snippet around the match
-                lower_value = field_value.lower()
-                match_pos = lower_value.find(query_lower)
-                start = max(0, match_pos - 30)
-                end = min(len(field_value), match_pos + len(query) + 30)
-                match_snippet = field_value[start:end]
-                if start > 0:
-                    match_snippet = "..." + match_snippet
-                if end < len(field_value):
-                    match_snippet = match_snippet + "..."
-                break
+                results.append(
+                    {
+                        "rule_id": rule.rule_id,
+                        "name": rule.name,
+                        "message": rule.message,
+                        "severity": rule.severity.value,
+                        "enabled": rule.enabled,
+                        "match_field": field,
+                        "match_snippet": _create_match_snippet(field_value, query),
+                    }
+                )
+                break  # Only match once per rule
 
-        if match_field:
-            results.append(
-                {
-                    "rule_id": rule.rule_id,
-                    "name": rule.name,
-                    "message": rule.message,
-                    "severity": rule.severity.value,
-                    "enabled": rule.enabled,
-                    "match_field": match_field,
-                    "match_snippet": match_snippet,
-                }
-            )
-
-            if len(results) >= limit:
-                break
+        if len(results) >= limit:
+            break
 
     return results
 

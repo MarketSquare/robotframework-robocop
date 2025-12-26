@@ -222,77 +222,27 @@ def _search_rules_impl(
     return results
 
 
-def _is_mcp_prompt_decorator(decorator: Any) -> bool:
-    import ast
-
-    if not isinstance(decorator, ast.Call):
-        return False
-    return hasattr(decorator.func, "attr") and decorator.func.attr == "prompt"
-
-
-def _extract_prompt_info(func_node: Any) -> dict[str, Any]:
-    import ast
-
-    # Get docstring - first line only
-    docstring = ast.get_docstring(func_node) or ""
-    description = docstring.split("\n")[0].strip()
-
-    # Get arguments and their defaults
-    args = func_node.args
-    num_defaults = len(args.defaults)
-    num_args = len(args.args)
-
-    arguments = []
-    for i, arg in enumerate(args.args):
-        # Arguments with defaults are at the end
-        has_default = i >= (num_args - num_defaults)
-        arguments.append({"name": arg.arg, "required": not has_default})
-
-    return {
-        "name": func_node.name,
-        "description": description,
-        "arguments": arguments,
-    }
-
-
 def _list_prompts_impl() -> list[dict[str, Any]]:
     """
     List all available MCP prompt templates.
-
-    Introspects the prompts module using AST to extract prompt definitions
-    without requiring async execution.
 
     Returns:
         A list of prompt dictionaries with name, description, and arguments.
 
     """
-    import ast
+    from robocop.mcp.server import mcp
 
-    from robocop.mcp import prompts
-
-    source = inspect.getsource(prompts)
-    tree = ast.parse(source)
-
-    results: list[dict[str, Any]] = []
-
-    # Find the register_prompts function
-    register_func = next(
-        (node for node in ast.walk(tree) if isinstance(node, ast.FunctionDef) and node.name == "register_prompts"),
-        None,
+    return sorted(
+        [
+            {
+                "name": prompt.name,
+                "description": prompt.description or "",
+                "arguments": [{"name": arg.name, "required": arg.required} for arg in prompt.arguments],
+            }
+            for prompt in mcp._prompt_manager._prompts.values()  # noqa: SLF001
+        ],
+        key=operator.itemgetter("name"),
     )
-    if register_func is None:
-        return results
-
-    # Find decorated functions inside register_prompts
-    for child in ast.walk(register_func):
-        if not isinstance(child, ast.FunctionDef) or child.name == "register_prompts":
-            continue
-
-        # Check if decorated with @mcp.prompt()
-        if any(_is_mcp_prompt_decorator(d) for d in child.decorator_list):
-            results.append(_extract_prompt_info(child))
-
-    return sorted(results, key=operator.itemgetter("name"))
 
 
 def _get_formatter_info_impl(formatter_name: str) -> dict[str, Any]:

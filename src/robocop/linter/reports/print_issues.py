@@ -235,6 +235,11 @@ class PrintIssuesReport(robocop.linter.reports.Report):
             if line_no > len(lines) or not lines[line_no - 1].strip():
                 break
             print_lines.append(f"{self._gutter(line_no, gutter_width, indent)} {self._code_string(lines[line_no - 1])}")
+        # fix suggestion
+        if diagnostic.rule.fix_suggestion:
+            print_lines.append(
+                f"{self._gutter(' ', gutter_width, '')} [yellow]Suggestion:[/yellow] {diagnostic.rule.fix_suggestion}"
+            )
         print_lines.append(self._gutter(" ", gutter_width, ""))
         self._print_lines(print_lines)
         print()

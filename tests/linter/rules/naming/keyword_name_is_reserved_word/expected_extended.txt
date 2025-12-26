@@ -6,6 +6,7 @@ if_blocks.robot:4:5 NAME03 'If' is a reserved keyword. It must be in uppercase (
    |     ^^ NAME03
  5 |     IF    ${condition}    Keyword
  6 |     ELSE if    Keyword2
+   | Suggestion: Rename the keyword to avoid using a reserved word.
    |
 
 if_blocks.robot:6:5 NAME03 'ELSE if' is a reserved keyword. It must be in uppercase (ELSE IF) when used as a statement
@@ -16,6 +17,7 @@ if_blocks.robot:6:5 NAME03 'ELSE if' is a reserved keyword. It must be in upperc
    |     ^^^^^^^ NAME03
  7 |     ELse    Keyword3
  8 |     End
+   | Suggestion: Rename the keyword to avoid using a reserved word.
    |
 
 if_blocks.robot:7:5 NAME03 'ELse' is a reserved keyword. It must be in uppercase (ELSE) when used as a statement
@@ -26,6 +28,7 @@ if_blocks.robot:7:5 NAME03 'ELse' is a reserved keyword. It must be in uppercase
    |     ^^^^ NAME03
  8 |     End
  9 |     IF    ${condition}
+   | Suggestion: Rename the keyword to avoid using a reserved word.
    |
 
 if_blocks.robot:8:5 NAME03 'End' is a reserved keyword. It must be in uppercase (END) when used as a statement
@@ -36,6 +39,7 @@ if_blocks.robot:8:5 NAME03 'End' is a reserved keyword. It must be in uppercase 
    |     ^^^ NAME03
  9 |     IF    ${condition}
 10 |         Keyword
+   | Suggestion: Rename the keyword to avoid using a reserved word.
    |
 
 if_blocks.robot:24:9 NAME03 'End' is a reserved keyword. It must be in uppercase (END) when used as a statement
@@ -45,6 +49,7 @@ if_blocks.robot:24:9 NAME03 'End' is a reserved keyword. It must be in uppercase
  24 |         End
     |         ^^^ NAME03
  25 |     END
+    | Suggestion: Rename the keyword to avoid using a reserved word.
     |
 
 templated_suite.robot:2:18 NAME03 'End' is a reserved keyword. It must be in uppercase (END) when used as a statement
@@ -52,6 +57,7 @@ templated_suite.robot:2:18 NAME03 'End' is a reserved keyword. It must be in upp
  1 | *** Settings ***
  2 | Test Template    End
    |                  ^^^ NAME03
+   | Suggestion: Rename the keyword to avoid using a reserved word.
    |
 
 test.robot:15:19 NAME03 'End' is a reserved keyword. It must be in uppercase (END) when used as a statement
@@ -60,6 +66,7 @@ test.robot:15:19 NAME03 'End' is a reserved keyword. It must be in uppercase (EN
  14 | Templated test
  15 |     [Template]    End
     |                   ^^^ NAME03
+    | Suggestion: Rename the keyword to avoid using a reserved word.
     |
 
 test.robot:24:5 NAME03 'For' is a reserved keyword. It must be in uppercase (FOR) when used as a statement
@@ -70,6 +77,7 @@ test.robot:24:5 NAME03 'For' is a reserved keyword. It must be in uppercase (FOR
     |     ^^^ NAME03
  25 |     End
  26 |     Fail
+    | Suggestion: Rename the keyword to avoid using a reserved word.
     |
 
 test.robot:25:5 NAME03 'End' is a reserved keyword. It must be in uppercase (END) when used as a statement
@@ -80,6 +88,7 @@ test.robot:25:5 NAME03 'End' is a reserved keyword. It must be in uppercase (END
     |     ^^^ NAME03
  26 |     Fail
  27 |     Run Keyword If  ${True}  Keyword
+    | Suggestion: Rename the keyword to avoid using a reserved word.
     |
 
 test.robot:30:9 NAME03 'Return' is a reserved keyword. It must be in uppercase (RETURN) when used as a statement
@@ -90,6 +99,7 @@ test.robot:30:9 NAME03 'Return' is a reserved keyword. It must be in uppercase (
     |         ^^^^^^ NAME03
  31 |     END
  32 |     RETURN
+    | Suggestion: Rename the keyword to avoid using a reserved word.
     |
 
 test.robot:34:1 NAME03 'While' is a reserved keyword. It must be in uppercase (WHILE) when used as a statement
@@ -98,6 +108,7 @@ test.robot:34:1 NAME03 'While' is a reserved keyword. It must be in uppercase (W
     | ^^^^^ NAME03
  35 |     While
  36 |     Continue
+    | Suggestion: Rename the keyword to avoid using a reserved word.
     |
 
 test.robot:35:5 NAME03 'While' is a reserved keyword. It must be in uppercase (WHILE) when used as a statement
@@ -108,6 +119,7 @@ test.robot:35:5 NAME03 'While' is a reserved keyword. It must be in uppercase (W
     |     ^^^^^ NAME03
  36 |     Continue
  37 |     Try
+    | Suggestion: Rename the keyword to avoid using a reserved word.
     |
 
 test.robot:36:5 NAME03 'Continue' is a reserved keyword. It must be in uppercase (CONTINUE) when used as a statement
@@ -118,6 +130,7 @@ test.robot:36:5 NAME03 'Continue' is a reserved keyword. It must be in uppercase
     |     ^^^^^^^^ NAME03
  37 |     Try
  38 |     Except
+    | Suggestion: Rename the keyword to avoid using a reserved word.
     |
 
 test.robot:37:5 NAME03 'Try' is a reserved keyword. It must be in uppercase (TRY) when used as a statement
@@ -128,6 +141,7 @@ test.robot:37:5 NAME03 'Try' is a reserved keyword. It must be in uppercase (TRY
     |     ^^^ NAME03
  38 |     Except
  39 |     finally
+    | Suggestion: Rename the keyword to avoid using a reserved word.
     |
 
 test.robot:38:5 NAME03 'Except' is a reserved keyword. It must be in uppercase (EXCEPT) when used as a statement
@@ -137,6 +151,7 @@ test.robot:38:5 NAME03 'Except' is a reserved keyword. It must be in uppercase (
  38 |     Except
     |     ^^^^^^ NAME03
  39 |     finally
+    | Suggestion: Rename the keyword to avoid using a reserved word.
     |
 
 test.robot:39:5 NAME03 'finally' is a reserved keyword. It must be in uppercase (FINALLY) when used as a statement
@@ -145,5 +160,6 @@ test.robot:39:5 NAME03 'finally' is a reserved keyword. It must be in uppercase 
  38 |     Except
  39 |     finally
     |     ^^^^^^^ NAME03
+    | Suggestion: Rename the keyword to avoid using a reserved word.
     |
 

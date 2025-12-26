@@ -366,6 +366,7 @@ class Rule:
         '#paragraph' strings
         sonar_qube_attrs: (class attribute) optional SonarQube attributes used for SonarQube report
         deprecated_names: (class attribute) optional tuple of deprecated names for the rule
+        fix_suggestion (str): (class attribute) optional suggestion on how to fix the issue
 
     """
 
@@ -384,6 +385,7 @@ class Rule:
     style_guide_ref: list[str] | None = None
     sonar_qube_attrs: sonar_qube.SonarQubeAttributes | None = None
     deprecated_names: tuple[str,] | None = None
+    fix_suggestion: str | None = None
 
     def __init__(self):
         self.version_spec = VersionSpecifier(self.version) if self.version else None

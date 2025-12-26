@@ -6,6 +6,7 @@ test.robot:41:1 NAME02 Keyword name 'keyword' does not follow case convention
     | ^^^^^^^ NAME02
  42 |     [Documentation]  this is doc
  43 |     No Operation
+    | Suggestion: Rename the keyword to use Title Case (e.g., 'My Keyword Name').
     |
 
 test.robot:112:1 NAME02 Keyword name 'Dot in name foo.bar' does not follow case convention
@@ -13,5 +14,6 @@ test.robot:112:1 NAME02 Keyword name 'Dot in name foo.bar' does not follow case 
  112 | Dot in name foo.bar
      | ^^^^^^^^^^^^^^^^^^^ NAME02
  113 |     No Operation
+     | Suggestion: Rename the keyword to use Title Case (e.g., 'My Keyword Name').
      |
 

@@ -117,3 +117,127 @@ Explain why this code triggers the rule and how to fix it.
 5. Explain any configurable parameters and when to adjust them
 {code_section}
 """
+
+    @mcp.prompt()
+    def review_pull_request(file_paths: str) -> str:
+        """
+        Generate a prompt for reviewing Robot Framework files in a pull request.
+
+        Args:
+            file_paths: Comma-separated list of file paths to review
+
+        Returns:
+            str: The prompt for reviewing the pull request.
+
+        """
+        paths = [p.strip() for p in file_paths.split(",")]
+        paths_list = "\n".join(f"- {p}" for p in paths)
+
+        return f"""Review the following Robot Framework files for a pull request.
+
+**Files to review**:
+{paths_list}
+
+**Instructions**:
+1. For each file, use `lint_file` to get linting issues
+2. Categorize issues by severity (Errors, Warnings, Info)
+3. Identify patterns across files that indicate systemic problems
+4. Check for:
+   - Consistent naming conventions
+   - Proper documentation
+   - Code style and formatting
+   - Test structure and organization
+   - Potential maintenance issues
+5. Provide a summary with:
+   - Overall code quality assessment
+   - Must-fix issues (errors and critical warnings)
+   - Suggested improvements (optional fixes)
+   - Positive observations (good practices found)
+
+**Output format**:
+Provide a structured review suitable for a pull request comment.
+"""
+
+    @mcp.prompt()
+    def configure_robocop(project_type: str = "generic") -> str:
+        """
+        Generate a prompt for configuring Robocop for a project.
+
+        Args:
+            project_type: Type of project - "generic", "api-testing", "ui-testing", "data-driven"
+
+        Returns:
+            str: The prompt for configuring Robocop.
+
+        """
+        project_hints = {
+            "generic": "a general-purpose Robot Framework project",
+            "api-testing": "an API testing project (likely uses RequestsLibrary, REST APIs)",
+            "ui-testing": "a UI/browser testing project (likely uses SeleniumLibrary or Browser)",
+            "data-driven": "a data-driven testing project (heavy use of templates and variables)",
+        }
+
+        project_desc = project_hints.get(project_type, project_hints["generic"])
+
+        return f"""Help configure Robocop for {project_desc}.
+
+**Instructions**:
+1. Use `list_rules` to see all available rules
+2. Use `list_formatters` to see all available formatters
+3. Based on the project type, recommend:
+   - Which rules to enable/disable
+   - Rule configuration adjustments (using `configure` parameter)
+   - Which formatters to use
+   - Appropriate thresholds for CI/CD integration
+
+**Provide**:
+1. A sample `.robocop` configuration file with recommended settings
+2. Explanation of why each setting is recommended for this project type
+3. CI/CD integration suggestions (pre-commit hooks, GitHub Actions, etc.)
+4. Common rule customizations for this project type
+
+**Project type context**: {project_type}
+- Consider typical patterns and needs for this type of project
+- Suggest rules that catch common mistakes in this domain
+- Recommend formatters that enforce appropriate style
+"""
+
+    @mcp.prompt()
+    def migrate_to_latest(current_rf_version: str = "4.x") -> str:
+        """
+        Generate a prompt for identifying deprecated patterns during Robot Framework upgrade.
+
+        Args:
+            current_rf_version: Current Robot Framework version (e.g., "4.x", "5.x", "6.x")
+
+        Returns:
+            str: The prompt for identifying deprecated patterns.
+
+        """
+        return f"""Help identify deprecated patterns for upgrading from Robot Framework {current_rf_version}.
+
+**Instructions**:
+1. Use `list_rules` to find rules related to deprecation
+2. Use `lint_directory` or `lint_file` on the project files
+3. Focus on rules that detect:
+   - Deprecated syntax
+   - Removed features
+   - Changed behavior
+   - Best practices for newer versions
+
+**Provide**:
+1. List of deprecated patterns found in the codebase
+2. For each pattern:
+   - What it is and why it's deprecated
+   - The recommended replacement
+   - Code examples showing before/after
+3. Priority order for fixes (breaking changes first)
+4. Estimated effort for migration
+5. Testing recommendations after migration
+
+**Current version**: Robot Framework {current_rf_version}
+**Target version**: Latest Robot Framework (7.x)
+
+Note: Some rules may need version-specific configuration. Use the `configure` parameter
+to adjust version checks as needed.
+"""

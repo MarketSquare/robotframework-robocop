@@ -6,5 +6,6 @@ test.robot:6:1 DOC02 Missing documentation in 'Test' test case
    | ^^^^ DOC02
  7 |     [Tags]  sometag
  8 |     Pass
+   | Suggestion: Add a [Documentation] setting to the test case.
    |
 

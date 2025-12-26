@@ -5,6 +5,8 @@ from __future__ import annotations
 import operator
 from typing import TYPE_CHECKING, Any
 
+from fastmcp.exceptions import ResourceError
+
 from robocop.mcp.cache import get_formatter_config, get_linter_config
 
 if TYPE_CHECKING:
@@ -86,7 +88,7 @@ def _get_rule_details(rule_id: str) -> dict[str, Any]:
     linter_config = get_linter_config()
 
     if rule_id not in linter_config.rules:
-        return {"error": f"Rule '{rule_id}' not found"}
+        raise ResourceError(f"Rule '{rule_id}' not found")
 
     rule = linter_config.rules[rule_id]
 

@@ -13,11 +13,8 @@ from robocop.mcp.middleware import (
     create_caching_middleware,
     create_error_handling_middleware,
 )
-from robocop.mcp.tools import (
-    _get_formatter_info_impl,
-    _get_rule_info_impl,
-    _lint_file_impl,
-)
+from robocop.mcp.tools.documentation import _get_formatter_info_impl, _get_rule_info_impl
+from robocop.mcp.tools.linting import _lint_file_impl
 
 
 class TestMiddlewareRegistration:

@@ -7,28 +7,30 @@ import pytest
 from fastmcp.exceptions import ToolError
 
 from robocop.formatter.formatters.NormalizeSeparators import NormalizeSeparators
-from robocop.mcp.tools import (
+from robocop.mcp.tools.batch_operations import (
     _collect_robot_files,
     _expand_file_patterns,
-    _explain_issue_impl,
-    _format_content_impl,
-    _format_file_impl,
     _format_files_impl,
-    _generate_recommendations,
-    _get_formatter_info_impl,
-    _get_formatter_parameters,
-    _get_line_context,
-    _get_rule_info_impl,
-    _get_statistics_impl,
     _group_issues,
     _is_glob_pattern,
-    _lint_content_impl,
-    _lint_file_impl,
     _lint_files_impl,
-    _list_formatters_impl,
-    _list_rules_impl,
+)
+from robocop.mcp.tools.diagnostics import (
+    _explain_issue_impl,
+    _generate_recommendations,
+    _get_line_context,
+    _get_statistics_impl,
     _suggest_fixes_impl,
 )
+from robocop.mcp.tools.documentation import (
+    _get_formatter_info_impl,
+    _get_formatter_parameters,
+    _get_rule_info_impl,
+    _list_formatters_impl,
+    _list_rules_impl,
+)
+from robocop.mcp.tools.formatting import _format_content_impl, _format_file_impl
+from robocop.mcp.tools.linting import _lint_content_impl, _lint_file_impl
 
 
 class TestLintContent:

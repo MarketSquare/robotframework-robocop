@@ -97,7 +97,7 @@ def _register_all() -> None:
     """Register all tools, resources, prompts, and middleware with the MCP server."""
     from robocop.mcp.prompts import register_prompts
     from robocop.mcp.resources import register_resources
-    from robocop.mcp.tools import register_tools
+    from robocop.mcp.tools.registration import register_tools
 
     register_tools(mcp)
     register_resources(mcp)

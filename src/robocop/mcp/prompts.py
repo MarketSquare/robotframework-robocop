@@ -218,7 +218,7 @@ Provide a structured review suitable for a pull request comment.
 
 **Instructions**:
 1. Use `list_rules` to find rules related to deprecation
-2. Use `lint_directory` or `lint_file` on the project files
+2. Use `lint_files` with pattern `["**/*.robot"]` or `lint_file` on individual files
 3. Focus on rules that detect:
    - Deprecated syntax
    - Removed features

@@ -229,12 +229,13 @@ Format Robot Framework code and return the formatted result.
 
 ##### lint_and_format
 
-Format Robot Framework code and lint the result in one operation. **Recommended for cleaning up code** — it formats first, then shows remaining issues that need manual fixes.
+Format Robot Framework code and lint the result in one operation. **Recommended for cleaning up code** — it formats first, then shows remaining issues that need manual fixes. Can process either inline content or a file from disk.
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `content` | string | Robot Framework source code (required) |
-| `filename` | string | Virtual filename (default: "stdin.robot") |
+| `content` | string | Robot Framework source code (use this OR `file_path`) |
+| `file_path` | string | Absolute path to .robot or .resource file (use this OR `content`) |
+| `filename` | string | Virtual filename when using content (default: "stdin.robot") |
 | `lint_select` | list[str] | Linter rule IDs/names to enable |
 | `lint_ignore` | list[str] | Linter rule IDs/names to ignore |
 | `threshold` | string | Minimum severity: `I`, `W`, or `E` |
@@ -243,8 +244,9 @@ Format Robot Framework code and lint the result in one operation. **Recommended 
 | `line_length` | int | Maximum line length (default: 120) |
 | `limit` | int | Maximum issues to return |
 | `configure` | list[str] | Rule configurations |
+| `overwrite` | bool | If True and `file_path` is used, write formatted content back to file (default: false) |
 
-**Returns:** Dictionary with `formatted`, `changed`, `diff`, `issues` (remaining), `issues_before`, `issues_after`, and `issues_fixed`.
+**Returns:** Dictionary with `formatted`, `changed`, `diff`, `issues` (remaining), `issues_before`, `issues_after`, `issues_fixed`. When `file_path` is used, also includes `file` and `written`.
 
 ##### format_file
 

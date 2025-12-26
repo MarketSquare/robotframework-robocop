@@ -32,7 +32,7 @@ from robocop.mcp.tools.documentation import (
     _list_rules_impl,
     _search_rules_impl,
 )
-from robocop.mcp.tools.formatting import _format_content_impl, _format_file_impl
+from robocop.mcp.tools.formatting import _format_content_impl, _format_file_impl, _lint_and_format_impl
 from robocop.mcp.tools.linting import _lint_content_impl, _lint_file_impl
 
 
@@ -1750,6 +1750,112 @@ class TestLintAndFormatParameters:
         # Only errors in result
         for issue in lint_result:
             assert issue["severity"] == "E"
+
+
+class TestLintAndFormatWithFile:
+    """Tests for lint_and_format with file_path support."""
+
+    def test_lint_and_format_with_content(self):
+        """Test lint_and_format with content parameter."""
+        content = "*** Test Cases ***\ntest\n    log  hello\n"
+
+        result = _lint_and_format_impl(content=content)
+
+        assert "formatted" in result
+        assert "changed" in result
+        assert "issues" in result
+        assert "issues_before" in result
+        assert "issues_after" in result
+        assert "issues_fixed" in result
+        # Should not have file-specific fields when using content
+        assert "file" not in result
+        assert "written" not in result
+
+    def test_lint_and_format_with_file_path(self, tmp_path):
+        """Test lint_and_format with file_path parameter."""
+        # Create a test file with issues
+        test_file = tmp_path / "test.robot"
+        test_file.write_text("*** Test Cases ***\ntest\n    log  hello\n")
+
+        result = _lint_and_format_impl(file_path=str(test_file))
+
+        assert "formatted" in result
+        assert "changed" in result
+        assert "issues" in result
+        assert "issues_before" in result
+        assert "issues_after" in result
+        assert "issues_fixed" in result
+        # Should have file-specific fields
+        assert result["file"] == str(test_file)
+        assert result["written"] is False  # default is no overwrite
+
+    def test_lint_and_format_file_with_overwrite(self, tmp_path):
+        """Test lint_and_format with overwrite=True."""
+        # Create a test file with formatting issues
+        test_file = tmp_path / "test.robot"
+        original_content = "*** Test Cases ***\nTest\n    log  hello\n"
+        test_file.write_text(original_content)
+
+        result = _lint_and_format_impl(file_path=str(test_file), overwrite=True)
+
+        assert result["changed"] is True
+        assert result["written"] is True
+        # Verify file was actually changed
+        new_content = test_file.read_text()
+        assert new_content != original_content
+        assert new_content == result["formatted"]
+
+    def test_lint_and_format_file_unchanged_no_overwrite(self, tmp_path):
+        """Test lint_and_format doesn't write if no changes needed."""
+        # Create a well-formatted file
+        test_file = tmp_path / "test.robot"
+        content = "*** Test Cases ***\nTest\n    Log    Hello\n"
+        test_file.write_text(content)
+
+        result = _lint_and_format_impl(file_path=str(test_file), overwrite=True)
+
+        # If no changes needed, written should be False
+        if not result["changed"]:
+            assert result["written"] is False
+
+    def test_lint_and_format_requires_content_or_file(self):
+        """Test that either content or file_path must be provided."""
+        with pytest.raises(ToolError, match="Either 'content' or 'file_path' must be provided"):
+            _lint_and_format_impl()
+
+    def test_lint_and_format_not_both_content_and_file(self, tmp_path):
+        """Test that content and file_path cannot both be provided."""
+        test_file = tmp_path / "test.robot"
+        test_file.write_text("*** Test Cases ***\nTest\n    Log    Hello\n")
+
+        with pytest.raises(ToolError, match="Provide either 'content' or 'file_path', not both"):
+            _lint_and_format_impl(content="some content", file_path=str(test_file))
+
+    def test_lint_and_format_file_not_found(self):
+        """Test lint_and_format with nonexistent file."""
+        with pytest.raises(ToolError, match="File not found"):
+            _lint_and_format_impl(file_path="/nonexistent/path/test.robot")
+
+    def test_lint_and_format_invalid_file_type(self, tmp_path):
+        """Test lint_and_format with invalid file type."""
+        test_file = tmp_path / "test.txt"
+        test_file.write_text("some content")
+
+        with pytest.raises(ToolError, match="Invalid file type"):
+            _lint_and_format_impl(file_path=str(test_file))
+
+    def test_lint_and_format_file_with_configure(self, tmp_path):
+        """Test lint_and_format with configure parameter on file."""
+        test_file = tmp_path / "test.robot"
+        test_file.write_text("*** Test Cases ***\nTest\n    Log    Hello\n")
+
+        result = _lint_and_format_impl(
+            file_path=str(test_file),
+            configure=["line-too-long.line_length=200"],
+        )
+
+        assert "issues" in result
+        assert isinstance(result["issues"], list)
 
 
 class TestSuggestFixesParameters:

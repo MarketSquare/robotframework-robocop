@@ -24,7 +24,7 @@ from robocop.mcp.tools.documentation import (
     _list_rules_impl,
     _search_rules_impl,
 )
-from robocop.mcp.tools.formatting import _format_content_impl, _format_file_impl
+from robocop.mcp.tools.formatting import _format_content_impl, _format_file_impl, _lint_and_format_impl
 from robocop.mcp.tools.linting import _lint_content_impl, _lint_file_impl
 
 if TYPE_CHECKING:
@@ -398,13 +398,13 @@ def register_tools(mcp: FastMCP) -> None:
     @mcp.tool(
         tags={"linting", "formatting"},
         annotations={
-            "readOnlyHint": True,
             "idempotentHint": True,
             "title": "Format and Lint Code",
         },
     )
     async def lint_and_format(
-        content: str,
+        content: str | None = None,
+        file_path: str | None = None,
         filename: str = "stdin.robot",
         lint_select: list[str] | None = None,
         lint_ignore: list[str] | None = None,
@@ -414,6 +414,7 @@ def register_tools(mcp: FastMCP) -> None:
         line_length: int = 120,
         limit: int | None = None,
         configure: list[str] | None = None,
+        overwrite: bool = False,
         ctx: Context | None = None,
     ) -> dict:
         """
@@ -421,11 +422,12 @@ def register_tools(mcp: FastMCP) -> None:
 
         This is the recommended tool for cleaning up code - it formats first,
         then lints the formatted result to show remaining issues that need
-        manual fixes.
+        manual fixes. Can process either inline content or a file from disk.
 
         Args:
-            content: Robot Framework source code to process
-            filename: Virtual filename (affects parsing)
+            content: Robot Framework source code to process (use this OR file_path)
+            file_path: Absolute path to a .robot or .resource file (use this OR content)
+            filename: Virtual filename when using content (affects parsing)
             lint_select: List of linter rule IDs/names to enable
             lint_ignore: List of linter rule IDs/names to ignore
             threshold: Minimum severity to report (I=Info, W=Warning, E=Error)
@@ -434,6 +436,7 @@ def register_tools(mcp: FastMCP) -> None:
             line_length: Maximum line length (default: 120)
             limit: Maximum number of issues to return (None = no limit)
             configure: List of rule configurations (e.g., ["line-too-long.line_length=140"])
+            overwrite: If True and file_path is used, write formatted content back to file
 
         Returns:
             Dictionary containing:
@@ -444,58 +447,48 @@ def register_tools(mcp: FastMCP) -> None:
             - issues_before: Number of issues before formatting
             - issues_after: Number of issues after formatting
             - issues_fixed: Number of issues fixed by formatting
+            - file: (only when file_path used) The file path
+            - written: (only when file_path used) Whether the file was overwritten
 
         Example::
 
-            lint_and_format(robot_code)
+            lint_and_format(content=robot_code)
             # Returns: {"formatted": "...", "changed": True, "issues": [...], "issues_fixed": 5}
+
+            lint_and_format(file_path="/path/to/test.robot")  # Preview
+            lint_and_format(file_path="/path/to/test.robot", overwrite=True)  # Apply
 
         """
         if ctx:
-            await ctx.info(f"Processing content ({len(content)} bytes)...")
-
-        # First, count issues in original code
-        issues_before = _lint_content_impl(content, filename, lint_select, lint_ignore, threshold, configure=configure)
-
-        if ctx:
-            await ctx.info(f"Found {len(issues_before)} issue(s) before formatting")
-
-        # Format the code
-        format_result = _format_content_impl(content, filename, format_select, space_count, line_length)
-
-        if ctx:
-            if format_result["changed"]:
-                await ctx.info("Formatting applied changes")
+            if file_path:
+                mode = "formatting and overwriting" if overwrite else "processing"
+                await ctx.info(f"{mode.capitalize()}: {file_path}")
             else:
-                await ctx.info("No formatting changes needed")
+                await ctx.info(f"Processing content ({len(content) if content else 0} bytes)...")
 
-        # Lint the formatted code without limit first for accurate counts
-        issues_after_full = _lint_content_impl(
-            format_result["formatted"],
-            filename,
-            lint_select,
-            lint_ignore,
-            threshold,
+        result = _lint_and_format_impl(
+            content=content,
+            file_path=file_path,
+            filename=filename,
+            lint_select=lint_select,
+            lint_ignore=lint_ignore,
+            threshold=threshold,
+            format_select=format_select,
+            space_count=space_count,
+            line_length=line_length,
+            limit=limit,
             configure=configure,
+            overwrite=overwrite,
         )
-        issues_after_count = len(issues_after_full)
-
-        # Apply limit only to the returned issues list
-        issues_after = issues_after_full[:limit] if limit else issues_after_full
 
         if ctx:
-            fixed = len(issues_before) - issues_after_count
-            await ctx.info(f"Remaining issues: {issues_after_count} ({fixed} fixed by formatting)")
+            fixed = result["issues_fixed"]
+            remaining = result["issues_after"]
+            await ctx.info(f"Remaining issues: {remaining} ({fixed} fixed by formatting)")
+            if file_path and result.get("written"):
+                await ctx.info("File overwritten with formatted content")
 
-        return {
-            "formatted": format_result["formatted"],
-            "changed": format_result["changed"],
-            "diff": format_result["diff"],
-            "issues": issues_after,
-            "issues_before": len(issues_before),
-            "issues_after": issues_after_count,
-            "issues_fixed": len(issues_before) - issues_after_count,
-        }
+        return result
 
     @mcp.tool(
         tags={"documentation"},

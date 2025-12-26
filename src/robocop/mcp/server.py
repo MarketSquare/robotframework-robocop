@@ -35,7 +35,7 @@ issues, auto-fix style problems, and measure code quality.
 | `format_content` | Formatting code provided as text |
 | `format_file` | Formatting a single file (optionally overwrite) |
 | `format_files` | Formatting multiple files by glob pattern |
-| `lint_and_format` | Formatting + showing remaining manual fixes |
+| `lint_and_format` | Format + lint in one step (content or file, optionally overwrite) |
 
 ### Discovery (explore rules/formatters)
 | Tool | Use When |
@@ -67,9 +67,9 @@ issues, auto-fix style problems, and measure code quality.
 3. Apply fixes based on suggestions
 
 ### Clean Up Files
-1. `format_file` with `overwrite=True` to auto-fix style
-2. `lint_file` to see remaining issues
-3. Fix manually and verify
+1. `lint_and_format` with `file_path` and `overwrite=True` to format and see remaining issues
+2. Fix manually and verify
+Or use `format_file` + `lint_file` separately for more control
 
 ### Assess Codebase Health
 1. `get_statistics` for quality score and top issues

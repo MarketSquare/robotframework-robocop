@@ -186,9 +186,13 @@ extend-exclude = [
     "PERF401",  # list comprehension vs for loop is style choice
     "TRY300",   # return in try block is fine here
     "C401",     # set comprehension vs generator is style choice
+    "TC001",    # Pydantic models need runtime import for schema generation
     "TC002",    # Context must be runtime import for FastMCP dependency injection
     "D417",     # ctx param is injected by FastMCP, not user-facing
     "PLR0915",  # register_tools has many statements by design
+]
+"src/robocop/mcp/tools/registration.py" = [
+    "FA102",    # can't use future annotations - breaks Pydantic runtime evaluation
 ]
 # temporary because of the rules description
 "src/robocop/linter/rules/*" = ["D205"]

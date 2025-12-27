@@ -3,12 +3,19 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Any
 
 from fastmcp.exceptions import ToolError
 
 from robocop.mcp.tools.formatting import _format_file_impl
 from robocop.mcp.tools.linting import _lint_file_impl
+from robocop.mcp.tools.models import (
+    DiagnosticResult,
+    FormatFileInfo,
+    FormatFilesResult,
+    LintFilesResult,
+    SeveritySummary,
+    TopRule,
+)
 from robocop.mcp.tools.utils.constants import GLOB_CHARS, VALID_EXTENSIONS, VALID_GROUP_BY
 
 
@@ -125,23 +132,23 @@ def _collect_robot_files(directory: Path, recursive: bool = True) -> list[Path]:
 
 
 def _group_issues(
-    issues: list[dict[str, Any]],
+    issues: list[DiagnosticResult],
     group_by: str,
     limit_per_group: int | None = None,
     offset_per_group: int = 0,
-) -> tuple[dict[str, list[dict[str, Any]]], dict[str, int]]:
+) -> tuple[dict[str, list[DiagnosticResult]], dict[str, int]]:
     """
     Group issues by the specified field.
 
     Args:
-        issues: Flat list of issues (each must have the grouping field)
+        issues: Flat list of DiagnosticResult models (each must have the grouping field)
         group_by: Field to group by ("severity", "rule", "file")
         limit_per_group: Max issues per group (None = no limit)
         offset_per_group: Number of issues to skip per group before applying limit
 
     Returns:
         Tuple of (grouped_issues, group_counts) where:
-        - grouped_issues: Dict mapping group key to list of issues
+        - grouped_issues: Dict mapping group key to list of DiagnosticResult models
         - group_counts: Dict mapping group key to total count (before limit/offset)
 
     Raises:
@@ -151,7 +158,7 @@ def _group_issues(
     if group_by not in VALID_GROUP_BY:
         raise ToolError(f"Invalid group_by '{group_by}'. Use: {', '.join(sorted(VALID_GROUP_BY))}")
 
-    # Map group_by option to the issue field name
+    # Map group_by option to the issue attribute name
     field_map = {
         "severity": "severity",
         "rule": "rule_id",
@@ -160,9 +167,9 @@ def _group_issues(
     field = field_map[group_by]
 
     # Group issues by the specified field
-    groups: dict[str, list[dict[str, Any]]] = {}
+    groups: dict[str, list[DiagnosticResult]] = {}
     for issue in issues:
-        key = issue.get(field, "unknown")
+        key = getattr(issue, field, None) or "unknown"
         if key not in groups:
             groups[key] = []
         groups[key].append(issue)
@@ -172,7 +179,7 @@ def _group_issues(
 
     # Apply offset and limit per group
     if offset_per_group > 0 or limit_per_group is not None:
-        result_groups: dict[str, list[dict[str, Any]]] = {}
+        result_groups: dict[str, list[DiagnosticResult]] = {}
         for key, items in groups.items():
             # Apply offset first
             offset_items = items[offset_per_group:] if offset_per_group > 0 else items
@@ -196,7 +203,7 @@ def _lint_files_impl(
     configure: list[str] | None = None,
     group_by: str | None = None,
     summarize_only: bool = False,
-) -> dict[str, Any]:
+) -> LintFilesResult:
     """
     Lint multiple files specified by paths or glob patterns.
 
@@ -217,19 +224,7 @@ def _lint_files_impl(
             Useful for large codebases to reduce response size.
 
     Returns:
-        A dictionary containing:
-        - total_files: Number of files linted
-        - total_issues: Total issues found (before limit/offset)
-        - files_with_issues: Number of files with at least one issue
-        - issues: List of issues (each includes 'file' field), or dict if group_by is set.
-            Omitted when summarize_only=True.
-        - summary: Issues by severity {E: count, W: count, I: count}
-        - limited: Whether results were truncated by limit
-        - offset: The offset applied (for pagination)
-        - has_more: Whether there are more results beyond offset+limit
-        - unmatched_patterns: Patterns that didn't match any files
-        - group_counts: (only when group_by is set) Total count per group before limit
-        - top_rules: (only when summarize_only=True) Top 10 most common rule violations
+        A LintFilesResult model containing linting results.
 
     Raises:
         ToolError: If no valid files are found.
@@ -244,9 +239,9 @@ def _lint_files_impl(
             + (f" (unmatched: {unmatched})" if unmatched else "")
         )
 
-    all_issues: list[dict[str, Any]] = []
+    all_issues: list[DiagnosticResult] = []
     files_with_issues = 0
-    summary: dict[str, int] = {"E": 0, "W": 0, "I": 0}
+    severity_counts = {"E": 0, "W": 0, "I": 0}
 
     for file in files:
         try:
@@ -262,32 +257,33 @@ def _lint_files_impl(
                 files_with_issues += 1
                 all_issues.extend(issues)
                 for issue in issues:
-                    severity = issue.get("severity", "W")
-                    if severity in summary:
-                        summary[severity] += 1
+                    severity = issue.severity
+                    if severity in severity_counts:
+                        severity_counts[severity] += 1
         except ToolError:
             # Skip files that fail to parse
             pass
 
     total_issues = len(all_issues)
+    summary = SeveritySummary(E=severity_counts["E"], W=severity_counts["W"], INFO=severity_counts["I"])
 
     # Calculate top rules for summarize_only mode
-    rule_counts: dict[str, int] = {}
     if summarize_only:
+        rule_counts: dict[str, int] = {}
         for issue in all_issues:
-            rule_id = issue.get("rule_id", "unknown")
+            rule_id = issue.rule_id
             rule_counts[rule_id] = rule_counts.get(rule_id, 0) + 1
         top_rules = sorted(rule_counts.items(), key=lambda x: x[1], reverse=True)[:10]
-        top_rules_list = [{"rule_id": rule_id, "count": count} for rule_id, count in top_rules]
+        top_rules_list = [TopRule(rule_id=rule_id, count=count) for rule_id, count in top_rules]
 
-        return {
-            "total_files": len(files),
-            "total_issues": total_issues,
-            "files_with_issues": files_with_issues,
-            "summary": summary,
-            "top_rules": top_rules_list,
-            "unmatched_patterns": unmatched,
-        }
+        return LintFilesResult(
+            total_files=len(files),
+            total_issues=total_issues,
+            files_with_issues=files_with_issues,
+            summary=summary,
+            top_rules=top_rules_list,
+            unmatched_patterns=unmatched,
+        )
 
     # Handle grouping vs flat list
     if group_by:
@@ -295,18 +291,18 @@ def _lint_files_impl(
         # Check if any group was limited or has more after offset
         limited = limit is not None and any(group_counts[k] > offset + len(v) for k, v in grouped_issues.items())
         has_more = any(group_counts[k] > offset + len(v) for k, v in grouped_issues.items())
-        return {
-            "total_files": len(files),
-            "total_issues": total_issues,
-            "files_with_issues": files_with_issues,
-            "issues": grouped_issues,
-            "summary": summary,
-            "limited": limited,
-            "offset": offset,
-            "has_more": has_more,
-            "unmatched_patterns": unmatched,
-            "group_counts": group_counts,
-        }
+        return LintFilesResult(
+            total_files=len(files),
+            total_issues=total_issues,
+            files_with_issues=files_with_issues,
+            issues=grouped_issues,
+            summary=summary,
+            limited=limited,
+            offset=offset,
+            has_more=has_more,
+            unmatched_patterns=unmatched,
+            group_counts=group_counts,
+        )
 
     # Flat list mode - apply offset and limit
     # Apply offset first
@@ -317,17 +313,17 @@ def _lint_files_impl(
     if limit is not None:
         offset_issues = offset_issues[:limit]
 
-    return {
-        "total_files": len(files),
-        "total_issues": total_issues,
-        "files_with_issues": files_with_issues,
-        "issues": offset_issues,
-        "summary": summary,
-        "limited": limited,
-        "offset": offset,
-        "has_more": has_more,
-        "unmatched_patterns": unmatched,
-    }
+    return LintFilesResult(
+        total_files=len(files),
+        total_issues=total_issues,
+        files_with_issues=files_with_issues,
+        issues=offset_issues,
+        summary=summary,
+        limited=limited,
+        offset=offset,
+        has_more=has_more,
+        unmatched_patterns=unmatched,
+    )
 
 
 def _format_files_impl(
@@ -339,7 +335,7 @@ def _format_files_impl(
     *,
     overwrite: bool = False,
     summarize_only: bool = False,
-) -> dict[str, Any]:
+) -> FormatFilesResult:
     """
     Format multiple Robot Framework files.
 
@@ -354,7 +350,7 @@ def _format_files_impl(
             Useful for large codebases to reduce response size.
 
     Returns:
-        A dictionary containing the formatting results.
+        A FormatFilesResult model containing the formatting results.
         When summarize_only=True, per-file results are omitted.
 
     Raises:
@@ -370,7 +366,7 @@ def _format_files_impl(
             + (f" (unmatched: {unmatched})" if unmatched else "")
         )
 
-    results: list[dict[str, Any]] = []
+    results: list[FormatFileInfo] = []
     files_changed = 0
     files_unchanged = 0
     files_written = 0
@@ -381,31 +377,27 @@ def _format_files_impl(
             result = _format_file_impl(str(file), select, space_count, line_length, overwrite=overwrite)
             if not summarize_only:
                 results.append(
-                    {
-                        "file": str(file),
-                        "changed": result["changed"],
-                        "written": result["written"],
-                    }
+                    FormatFileInfo(
+                        file=str(file),
+                        changed=result.changed,
+                        written=result.written,
+                    )
                 )
-            if result["changed"]:
+            if result.changed:
                 files_changed += 1
-                if result["written"]:
+                if result.written:
                     files_written += 1
             else:
                 files_unchanged += 1
         except ToolError as e:
             errors.append({"file": str(file), "error": str(e)})
 
-    result_dict: dict[str, Any] = {
-        "total_files": len(files),
-        "files_changed": files_changed,
-        "files_unchanged": files_unchanged,
-        "files_written": files_written,
-        "errors": errors,
-        "unmatched_patterns": unmatched,
-    }
-
-    if not summarize_only:
-        result_dict["results"] = results
-
-    return result_dict
+    return FormatFilesResult(
+        total_files=len(files),
+        files_changed=files_changed,
+        files_unchanged=files_unchanged,
+        files_written=files_written,
+        errors=errors,
+        unmatched_patterns=unmatched,
+        results=results if not summarize_only else None,
+    )

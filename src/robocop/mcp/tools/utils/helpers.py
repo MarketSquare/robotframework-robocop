@@ -5,10 +5,12 @@ from __future__ import annotations
 import tempfile
 from contextlib import contextmanager
 from pathlib import Path
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 from fastmcp.exceptions import ToolError
 
+from robocop.mcp.tools.models import DiagnosticResult, RuleDetail
+from robocop.mcp.tools.models import RuleParam as RuleParamModel
 from robocop.mcp.tools.utils.constants import THRESHOLD_MAP, VALID_EXTENSIONS
 
 if TYPE_CHECKING:
@@ -138,72 +140,70 @@ def _temp_robot_file(content: str, suffix: str) -> Generator[Path, None, None]:
         tmp_path.unlink(missing_ok=True)
 
 
-def _diagnostic_to_dict(diagnostic: Diagnostic, file_path: str | None = None) -> dict[str, Any]:
+def _diagnostic_to_dict(diagnostic: Diagnostic, file_path: str | None = None) -> DiagnosticResult:
     """
-    Convert a Diagnostic object to a dictionary for JSON serialization.
+    Convert a Diagnostic object to a DiagnosticResult model.
 
     Args:
         diagnostic: The Diagnostic object to convert.
         file_path: Optional file path to include in the result.
 
     Returns:
-        A dictionary representation of the diagnostic.
+        A DiagnosticResult Pydantic model.
 
     """
-    result = {
-        "rule_id": diagnostic.rule.rule_id,
-        "name": diagnostic.rule.name,
-        "message": diagnostic.message,
-        "severity": diagnostic.severity.value,
-        "line": diagnostic.range.start.line,
-        "column": diagnostic.range.start.character,
-        "end_line": diagnostic.range.end.line,
-        "end_column": diagnostic.range.end.character,
-    }
-    if file_path:
-        result["file"] = file_path
-    return result
+    return DiagnosticResult(
+        rule_id=diagnostic.rule.rule_id,
+        name=diagnostic.rule.name,
+        message=diagnostic.message,
+        severity=diagnostic.severity.value,
+        line=diagnostic.range.start.line,
+        column=diagnostic.range.start.character,
+        end_line=diagnostic.range.end.line,
+        end_column=diagnostic.range.end.character,
+        file=file_path,
+    )
 
 
-def _param_to_dict(param: RuleParam) -> dict[str, Any]:
+def _param_to_dict(param: RuleParam) -> RuleParamModel:
     """
-    Convert a RuleParam to a dictionary.
+    Convert a RuleParam to a RuleParamModel.
 
     Args:
         param: The RuleParam to convert.
 
     Returns:
-        A dictionary representation of the parameter.
+        A RuleParamModel Pydantic model.
 
     """
-    return {
-        "name": param.name,
-        "default": str(param.raw_value) if param.raw_value is not None else None,
-        "description": param.desc,
-        "type": param.param_type,
-    }
+    return RuleParamModel(
+        name=param.name,
+        default=str(param.raw_value) if param.raw_value is not None else None,
+        description=param.desc,
+        type=param.param_type,
+    )
 
 
-def _rule_to_dict(rule: Rule) -> dict[str, Any]:
+def _rule_to_dict(rule: Rule) -> RuleDetail:
     """
-    Convert a Rule to a detailed dictionary.
+    Convert a Rule to a RuleDetail model.
 
     Args:
         rule: The Rule to convert.
 
     Returns:
-        A dictionary representation of the rule.
+        A RuleDetail Pydantic model.
 
     """
-    return {
-        "rule_id": rule.rule_id,
-        "name": rule.name,
-        "message": rule.message,
-        "severity": rule.severity.value,
-        "enabled": rule.enabled,
-        "deprecated": rule.deprecated,
-        "docs": rule.docs,
-        "parameters": ([_param_to_dict(p) for p in rule.parameters] if rule.parameters else []),
-        "added_in_version": rule.added_in_version,
-        "version_requirement": rule.version or None,
-    }
+    return RuleDetail(
+        rule_id=rule.rule_id,
+        name=rule.name,
+        message=rule.message,
+        severity=rule.severity.value,
+        enabled=rule.enabled,
+        deprecated=rule.deprecated,
+        docs=rule.docs,
+        parameters=[_param_to_dict(p) for p in rule.parameters] if rule.parameters else [],
+        added_in_version=rule.added_in_version,
+        version_requirement=rule.version or None,
+    )

@@ -65,17 +65,11 @@ class TestLintContentTool:
 
         assert len(result) > 0
 
-        # Verify each issue has the expected structure
+        # Verify each issue has the expected structure (DiagnosticResult model validates required fields)
         for issue in result:
-            assert "rule_id" in issue
-            assert "name" in issue
-            assert "message" in issue
-            assert "severity" in issue
-            assert issue["severity"] in ("E", "W", "I")
-            assert "line" in issue
-            assert issue["line"] >= 1
-            assert "column" in issue
-            assert issue["column"] >= 1
+            assert issue.severity in ("E", "W", "I")
+            assert issue.line >= 1
+            assert issue.column >= 1
 
     def test_lint_select_specific_rules(self, mcp_tools):
         """User wants to check only naming convention rules."""
@@ -94,7 +88,7 @@ class TestLintContentTool:
         # All returned issues should be NAME rules
         assert len(result) > 0
         for issue in result:
-            assert issue["rule_id"].startswith("NAME")
+            assert issue.rule_id.startswith("NAME")
 
     def test_lint_ignore_specific_rules(self, mcp_tools):
         """User wants to ignore documentation rules."""
@@ -118,7 +112,7 @@ class TestLintContentTool:
         assert len(filtered) <= len(all_issues)
         # No DOC rules in filtered
         for issue in filtered:
-            assert not issue["rule_id"].startswith("DOC")
+            assert not issue.rule_id.startswith("DOC")
 
     def test_lint_only_errors(self, mcp_tools):
         """User only wants to see error-level issues."""
@@ -135,7 +129,7 @@ class TestLintContentTool:
         result = run_tool(lint_content, content=content, threshold="E")
 
         for issue in result:
-            assert issue["severity"] == "E"
+            assert issue.severity == "E"
 
     def test_lint_limit_results(self, mcp_tools):
         """User limits the number of issues returned."""
@@ -172,7 +166,7 @@ class TestLintContentTool:
 
         # Default: should trigger line-too-long
         default_result = run_tool(lint_content, content=content, select=["LEN08"])
-        assert any(issue["rule_id"] == "LEN08" for issue in default_result)
+        assert any(issue.rule_id == "LEN08" for issue in default_result)
 
         # Configured: with increased limit, should not trigger
         configured_result = run_tool(
@@ -181,7 +175,7 @@ class TestLintContentTool:
             select=["LEN08"],
             configure=["line-too-long.line_length=200"],
         )
-        assert not any(issue["rule_id"] == "LEN08" for issue in configured_result)
+        assert not any(issue.rule_id == "LEN08" for issue in configured_result)
 
     def test_lint_resource_file(self, mcp_tools):
         """User lints a resource file (keywords only)."""
@@ -223,10 +217,7 @@ class TestLintFileTool:
 
         assert isinstance(result, list)
         assert len(result) > 0
-
-        for issue in result:
-            assert "rule_id" in issue
-            assert "line" in issue
+        # DiagnosticResult model validates all required fields exist
 
     def test_lint_nonexistent_file(self, mcp_tools):
         """User tries to lint a file that doesn't exist."""
@@ -255,7 +246,7 @@ class TestLintFileTool:
 
         # Default: should trigger
         default_result = run_tool(lint_file, file_path=str(robot_file), select=["LEN08"])
-        assert any(issue["rule_id"] == "LEN08" for issue in default_result)
+        assert any(issue.rule_id == "LEN08" for issue in default_result)
 
         # Configured: should not trigger
         configured_result = run_tool(
@@ -264,7 +255,7 @@ class TestLintFileTool:
             select=["LEN08"],
             configure=["line-too-long.line_length=200"],
         )
-        assert not any(issue["rule_id"] == "LEN08" for issue in configured_result)
+        assert not any(issue.rule_id == "LEN08" for issue in configured_result)
 
 
 class TestFormatContentTool:
@@ -285,10 +276,8 @@ class TestFormatContentTool:
 
         result = run_tool(format_content, content=content)
 
-        assert "formatted" in result
-        assert "changed" in result
-        assert "diff" in result
-        assert result["changed"] is True
+        # FormatContentResult model validates required fields exist
+        assert result.changed is True
 
     def test_format_unchanged_content(self, mcp_tools):
         """User formats already well-formatted code."""
@@ -303,9 +292,7 @@ class TestFormatContentTool:
         ).lstrip()
 
         result = run_tool(format_content, content=content)
-
-        assert "formatted" in result
-        assert "changed" in result
+        assert isinstance(result.changed, bool)
 
     def test_format_with_specific_formatter(self, mcp_tools):
         """User applies only specific formatters."""
@@ -314,9 +301,7 @@ class TestFormatContentTool:
         content = "*** Test Cases ***\nTest\n    log  hello\n"
 
         result = run_tool(format_content, content=content, select=["NormalizeSeparators"])
-
-        assert "formatted" in result
-        assert "changed" in result
+        assert isinstance(result.changed, bool)
 
     def test_format_custom_space_count(self, mcp_tools):
         """User formats with custom indentation."""
@@ -325,8 +310,7 @@ class TestFormatContentTool:
         content = "*** Test Cases ***\nTest\n    Log    Hello\n"
 
         result = run_tool(format_content, content=content, space_count=2)
-
-        assert "formatted" in result
+        assert isinstance(result.formatted, str)
 
 
 class TestLintAndFormatTool:
@@ -347,18 +331,10 @@ class TestLintAndFormatTool:
 
         result = run_tool(lint_and_format, content=content)
 
-        # Should have all expected fields
-        assert "formatted" in result
-        assert "changed" in result
-        assert "diff" in result
-        assert "issues" in result
-        assert "issues_before" in result
-        assert "issues_after" in result
-        assert "issues_fixed" in result
-
+        # LintAndFormatResult model validates all required fields exist
         # Formatting should have fixed some issues
-        assert result["issues_fixed"] >= 0
-        assert len(result["issues"]) <= result["issues_before"]
+        assert result.issues_fixed >= 0
+        assert len(result.issues) <= result.issues_before
 
     def test_lint_and_format_with_limit(self, mcp_tools):
         """User formats code and limits the number of remaining issues shown."""
@@ -378,11 +354,11 @@ class TestLintAndFormatTool:
         result = run_tool(lint_and_format, content=content, limit=2)
 
         # Issues list should be limited
-        assert len(result["issues"]) <= 2
+        assert len(result.issues) <= 2
         # But issues_after should reflect actual count (may be higher)
-        assert result["issues_after"] >= len(result["issues"])
+        assert result.issues_after >= len(result.issues)
         # issues_fixed should be accurate
-        assert result["issues_fixed"] == result["issues_before"] - result["issues_after"]
+        assert result.issues_fixed == result.issues_before - result.issues_after
 
     def test_lint_and_format_with_configure(self, mcp_tools):
         """User configures lint rules when using lint_and_format."""
@@ -393,7 +369,7 @@ class TestLintAndFormatTool:
 
         # Default: should include line-too-long
         default_result = run_tool(lint_and_format, content=content, lint_select=["LEN08"])
-        has_len08 = any(issue["rule_id"] == "LEN08" for issue in default_result["issues"])
+        has_len08 = any(issue.rule_id == "LEN08" for issue in default_result.issues)
         assert has_len08
 
         # Configured: should not include line-too-long
@@ -403,7 +379,7 @@ class TestLintAndFormatTool:
             lint_select=["LEN08"],
             configure=["line-too-long.line_length=200"],
         )
-        has_len08_configured = any(issue["rule_id"] == "LEN08" for issue in configured_result["issues"])
+        has_len08_configured = any(issue.rule_id == "LEN08" for issue in configured_result.issues)
         assert not has_len08_configured
 
 
@@ -416,12 +392,8 @@ class TestGetRuleInfoTool:
 
         result = run_tool(get_rule_info, rule_name_or_id="LEN01")
 
-        assert result["rule_id"] == "LEN01"
-        assert "name" in result
-        assert "message" in result
-        assert "severity" in result
-        assert "docs" in result
-        assert "parameters" in result
+        assert result.rule_id == "LEN01"
+        assert result.docs is not None  # Optional field - verify it exists for this rule
 
     def test_get_rule_by_name(self, mcp_tools):
         """User looks up a rule by name."""
@@ -429,8 +401,8 @@ class TestGetRuleInfoTool:
 
         result = run_tool(get_rule_info, rule_name_or_id="too-long-keyword")
 
-        assert result["name"] == "too-long-keyword"
-        assert result["rule_id"] == "LEN01"
+        assert result.name == "too-long-keyword"
+        assert result.rule_id == "LEN01"
 
     def test_get_nonexistent_rule(self, mcp_tools):
         """User looks up a rule that doesn't exist."""
@@ -449,11 +421,8 @@ class TestGetFormatterInfoTool:
 
         result = run_tool(get_formatter_info, formatter_name="NormalizeSeparators")
 
-        assert result["name"] == "NormalizeSeparators"
-        assert "enabled" in result
-        assert "docs" in result
-        assert "parameters" in result
-        assert "skip_options" in result
+        assert result.name == "NormalizeSeparators"
+        # FormatterDetail model validates all required fields exist
 
     def test_get_formatter_parameters(self, mcp_tools):
         """User looks up formatter parameters."""
@@ -461,14 +430,10 @@ class TestGetFormatterInfoTool:
 
         result = run_tool(get_formatter_info, formatter_name="NormalizeSeparators")
 
-        # Should have parameters with name, default, type
-        for param in result["parameters"]:
-            assert "name" in param
-            assert "default" in param
-            assert "type" in param
-
+        # FormatterParam model validates all required fields (name, type)
+        # default may be None for some params
         # NormalizeSeparators should have flatten_lines parameter
-        param_names = [p["name"] for p in result["parameters"]]
+        param_names = [p.name for p in result.parameters]
         assert "flatten_lines" in param_names
 
     def test_get_nonexistent_formatter(self, mcp_tools):
@@ -507,11 +472,11 @@ class TestRealWorldWorkflows:
         result = run_tool(lint_and_format, content=user_code)
 
         # Provide feedback
-        assert result["changed"] is True, "Code needed formatting"
-        assert result["issues_fixed"] >= 0, "Some issues were automatically fixed"
+        assert result.changed is True, "Code needed formatting"
+        assert result.issues_fixed >= 0, "Some issues were automatically fixed"
 
         # The formatted code should be cleaner
-        assert result["formatted"] != user_code
+        assert result.formatted != user_code
 
     def test_project_audit_workflow(self, mcp_tools, tmp_path: Path):
         """
@@ -543,10 +508,10 @@ class TestRealWorldWorkflows:
         )
 
         # Should have scanned all files
-        assert result["total_files"] == 3
-        # Should have summary by severity
-        assert "summary" in result
-        assert sum(result["summary"].values()) == result["total_issues"]
+        assert result.total_files == 3
+        # Should have summary by severity (LintFilesResult validates required fields)
+        summary_total = result.summary.E + result.summary.W + result.summary.INFO
+        assert summary_total == result.total_issues
 
     def test_rule_lookup_workflow(self, mcp_tools):
         """
@@ -561,14 +526,13 @@ class TestRealWorldWorkflows:
         # User asks about a rule they saw in lint output
         result = run_tool(get_rule_info, rule_name_or_id="not-capitalized-test-case-title")
 
-        assert "docs" in result
-        assert len(result["docs"]) > 0
+        assert result.docs is not None
+        assert len(result.docs) > 0
 
         # If the rule has parameters, user can see how to configure it
-        if result["parameters"]:
-            for param in result["parameters"]:
-                assert "name" in param
-                assert "default" in param
+        # RuleParam model validates all required fields (name, default, description, type)
+        if result.parameters:
+            assert len(result.parameters) > 0
 
     def test_incremental_fix_workflow(self, mcp_tools):
         """
@@ -596,10 +560,10 @@ class TestRealWorldWorkflows:
 
         # Step 2: Format the code
         format_result = run_tool(format_content, content=original_code)
-        assert format_result["changed"] is True
+        assert format_result.changed is True
 
         # Step 3: Check remaining issues
-        remaining_issues = run_tool(lint_content, content=format_result["formatted"])
+        remaining_issues = run_tool(lint_content, content=format_result.formatted)
 
         # Formatting should not have added issues
         assert len(remaining_issues) <= len(initial_issues)
@@ -618,8 +582,8 @@ class TestFormatFileTool:
 
         result = run_tool(format_file, file_path=str(robot_file))
 
-        assert result["changed"] is True
-        assert result["written"] is False
+        assert result.changed is True
+        assert result.written is False
         # File should not have been modified
         assert robot_file.read_text() == original_content
 
@@ -633,11 +597,11 @@ class TestFormatFileTool:
 
         result = run_tool(format_file, file_path=str(robot_file), overwrite=True)
 
-        assert result["changed"] is True
-        assert result["written"] is True
+        assert result.changed is True
+        assert result.written is True
         # File should have been modified
         assert robot_file.read_text() != original_content
-        assert robot_file.read_text() == result["formatted"]
+        assert robot_file.read_text() == result.formatted
 
     def test_format_file_not_found(self, mcp_tools):
         """User tries to format a non-existent file."""
@@ -661,9 +625,9 @@ class TestFormatFilesTool:
 
         result = run_tool(format_files, file_patterns=["tests/*.robot"], base_path=str(tmp_path))
 
-        assert result["total_files"] == 2
-        assert result["files_changed"] >= 0
-        assert result["files_written"] == 0  # Not overwritten by default
+        assert result.total_files == 2
+        assert result.files_changed >= 0
+        assert result.files_written == 0  # Not overwritten by default
 
     def test_format_files_overwrite(self, mcp_tools, tmp_path: Path):
         """User formats and saves multiple files."""
@@ -679,8 +643,8 @@ class TestFormatFilesTool:
             overwrite=True,
         )
 
-        assert result["total_files"] == 2
-        assert result["files_written"] == result["files_changed"]
+        assert result.total_files == 2
+        assert result.files_written == result.files_changed
 
     def test_format_files_no_matches(self, mcp_tools, tmp_path: Path):
         """User uses a pattern with no matches."""
@@ -702,16 +666,11 @@ class TestGetStatisticsTool:
 
         result = run_tool(get_statistics, directory_path=str(tmp_path))
 
-        assert "summary" in result
-        assert "severity_breakdown" in result
-        assert "top_issues" in result
-        assert "quality_score" in result
-        assert "recommendations" in result
-
-        assert result["summary"]["total_files"] == 2
-        assert result["quality_score"]["score"] >= 0
-        assert result["quality_score"]["score"] <= 100
-        assert result["quality_score"]["grade"] in ("A", "B", "C", "D", "F")
+        # GetStatisticsResult model validates all required fields exist
+        assert result.summary.total_files == 2
+        assert result.quality_score.score >= 0
+        assert result.quality_score.score <= 100
+        assert result.quality_score.grade in ("A", "B", "C", "D", "F")
 
     def test_get_statistics_recursive(self, mcp_tools, tmp_path: Path):
         """User scans a project with subdirectories."""
@@ -724,11 +683,11 @@ class TestGetStatisticsTool:
 
         # Recursive (default)
         result = run_tool(get_statistics, directory_path=str(tmp_path))
-        assert result["summary"]["total_files"] == 2
+        assert result.summary.total_files == 2
 
         # Non-recursive
         result_flat = run_tool(get_statistics, directory_path=str(tmp_path), recursive=False)
-        assert result_flat["summary"]["total_files"] == 1
+        assert result_flat.summary.total_files == 1
 
     def test_get_statistics_with_filters(self, mcp_tools, tmp_path: Path):
         """User filters statistics to specific rules."""
@@ -739,8 +698,8 @@ class TestGetStatisticsTool:
         result = run_tool(get_statistics, directory_path=str(tmp_path), select=["NAME*"])
 
         # All top issues should be NAME rules
-        for issue in result["top_issues"]:
-            assert issue["rule_id"].startswith("NAME")
+        for issue in result.top_issues:
+            assert issue.rule_id.startswith("NAME")
 
     def test_get_statistics_empty_directory(self, mcp_tools, tmp_path: Path):
         """User tries to get statistics for empty directory."""
@@ -767,14 +726,11 @@ class TestExplainIssueTool:
 
         result = run_tool(explain_issue, content=content, line=2)
 
-        assert result["issues_found"] is True
-        assert len(result["issues"]) > 0
-        assert result["line"] == 2
+        assert result.issues_found is True
+        assert len(result.issues) > 0
+        assert result.line == 2
 
-        # Should include documentation
-        issue = result["issues"][0]
-        assert "rule_id" in issue
-        assert "message" in issue
+        # IssueExplanation model validates all required fields exist
 
     def test_explain_issue_with_context(self, mcp_tools):
         """User gets context around the issue."""
@@ -791,16 +747,9 @@ class TestExplainIssueTool:
 
         result = run_tool(explain_issue, content=content, line=3, context_lines=2)
 
-        context = result["context"]
-        assert "lines" in context
-        assert "target_line" in context
-        assert context["target_line"] == 3
-
-        # Check that context lines are marked correctly
-        for line_info in context["lines"]:
-            assert "line_number" in line_info
-            assert "content" in line_info
-            assert "is_target" in line_info
+        context = result.context
+        # CodeContext and ContextLine models validate all required fields exist
+        assert context.target_line == 3
 
     def test_explain_issue_no_issues_at_line(self, mcp_tools):
         """User asks about a line with no issues."""
@@ -817,8 +766,8 @@ class TestExplainIssueTool:
         result = run_tool(explain_issue, content=content, line=1)
 
         # Line 1 is the header, likely no issues
-        assert "issues_found" in result
-        assert "context" in result
+        # ExplainIssueResult model validates all required fields exist
+        assert isinstance(result.issues_found, bool)
 
 
 class TestNewToolsWorkflows:
@@ -841,7 +790,7 @@ class TestNewToolsWorkflows:
 
         # Step 1: Get initial statistics
         initial_stats = run_tool(get_statistics, directory_path=str(tmp_path))
-        assert initial_stats["summary"]["total_issues"] > 0
+        assert initial_stats.summary.total_issues > 0
 
         # Step 2: Format all files
         format_result = run_tool(
@@ -850,12 +799,12 @@ class TestNewToolsWorkflows:
             base_path=str(tmp_path),
             overwrite=True,
         )
-        assert format_result["files_changed"] >= 0
+        assert format_result.files_changed >= 0
 
         # Step 3: Check improved statistics
         final_stats = run_tool(get_statistics, directory_path=str(tmp_path))
         # After formatting, we may have fewer issues
-        assert final_stats["summary"]["total_files"] == initial_stats["summary"]["total_files"]
+        assert final_stats.summary.total_files == initial_stats.summary.total_files
 
     def test_issue_investigation_workflow(self, mcp_tools):
         """
@@ -882,16 +831,16 @@ class TestNewToolsWorkflows:
         assert len(issues) > 0
 
         first_issue = issues[0]
-        issue_line = first_issue["line"]
+        issue_line = first_issue.line
 
         # Step 2: Explain the issue at that line
         explanation = run_tool(explain_issue, content=content, line=issue_line)
-        assert explanation["issues_found"] is True
+        assert explanation.issues_found is True
 
         # Step 3: Get full rule documentation
-        rule_docs = run_tool(get_rule_info, rule_name_or_id=first_issue["rule_id"])
-        assert "docs" in rule_docs
-        assert len(rule_docs["docs"]) > 0
+        rule_docs = run_tool(get_rule_info, rule_name_or_id=first_issue.rule_id)
+        assert rule_docs.docs is not None
+        assert len(rule_docs.docs) > 0
 
 
 class TestAdvancedWorkflows:
@@ -918,7 +867,7 @@ class TestAdvancedWorkflows:
 
         # Step 1: Get initial statistics
         initial_stats = run_tool(get_statistics, directory_path=str(tmp_path))
-        initial_issues = initial_stats["summary"]["total_issues"]
+        initial_issues = initial_stats.summary.total_issues
         assert initial_issues > 0
 
         # Step 2: Format all files
@@ -928,7 +877,7 @@ class TestAdvancedWorkflows:
             base_path=str(tmp_path),
             overwrite=True,
         )
-        assert format_result["total_files"] == 3
+        assert format_result.total_files == 3
 
         # Step 3: Lint files to see remaining issues
         lint_result = run_tool(
@@ -936,11 +885,11 @@ class TestAdvancedWorkflows:
             file_patterns=["**/*.robot", "**/*.resource"],
             base_path=str(tmp_path),
         )
-        assert lint_result["total_files"] == 3
+        assert lint_result.total_files == 3
 
         # Step 4: Get final statistics
         final_stats = run_tool(get_statistics, directory_path=str(tmp_path))
-        final_issues = final_stats["summary"]["total_issues"]
+        final_issues = final_stats.summary.total_issues
 
         # Step 5: Verify - formatting shouldn't increase issues
         assert final_issues <= initial_issues
@@ -975,15 +924,15 @@ class TestAdvancedWorkflows:
         )
 
         # All issues should be NAME rules
-        for issue in lint_result["issues"]:
-            assert issue["rule_id"].startswith("NAME")
+        for issue in lint_result.issues:
+            assert issue.rule_id.startswith("NAME")
 
         # Step 3: Get detailed info on first triggered rule
-        if lint_result["issues"]:
-            rule_id = lint_result["issues"][0]["rule_id"]
+        if lint_result.issues:
+            rule_id = lint_result.issues[0].rule_id
             rule_info = run_tool(get_rule_info, rule_name_or_id=rule_id)
-            assert "docs" in rule_info
-            assert "parameters" in rule_info
+            # RuleDetail model validates all required fields; docs is optional but we verify it exists
+            assert rule_info.docs is not None
 
     def test_format_then_lint_workflow(self, mcp_tools, tmp_path: Path):
         """
@@ -1005,13 +954,13 @@ class TestAdvancedWorkflows:
 
         # Format the file
         format_result = run_tool(format_file, file_path=str(robot_file), overwrite=True)
-        assert format_result["changed"] is True
+        assert format_result.changed is True
 
         # Lint to see remaining issues
         lint_result = run_tool(lint_file, file_path=str(robot_file))
 
         # Should still have NAME issues (can't be auto-fixed)
-        name_issues = [i for i in lint_result if i["rule_id"].startswith("NAME")]
+        name_issues = [i for i in lint_result if i.rule_id.startswith("NAME")]
         assert len(name_issues) > 0
 
 
@@ -1033,11 +982,10 @@ class TestEdgeCaseFiles:
             base_path=str(tmp_path),
         )
 
-        assert result["total_files"] == 1
+        assert result.total_files == 1
         # Should find the deeply nested file
         assert (
-            any("a/b/c/d/e/test.robot" in str(issue.get("file", "")) for issue in result["issues"])
-            or result["total_issues"] >= 0
+            any("a/b/c/d/e/test.robot" in str(issue.file or "") for issue in result.issues) or result.total_issues >= 0
         )
 
     def test_lint_files_with_spaces_in_names(self, mcp_tools, tmp_path: Path):
@@ -1058,10 +1006,7 @@ class TestEdgeCaseFiles:
         robot_file = tmp_path / "empty.robot"
         robot_file.write_text("")
 
-        result = run_tool(format_file, file_path=str(robot_file))
-
-        assert "formatted" in result
-        assert "changed" in result
+        run_tool(format_file, file_path=str(robot_file))
 
     def test_lint_file_with_only_comments(self, mcp_tools, tmp_path: Path):
         """Test linting a file with only comments."""
@@ -1092,7 +1037,7 @@ class TestEdgeCaseFiles:
         )
 
         # Should only find .robot and .resource files
-        assert result["total_files"] == 2
+        assert result.total_files == 2
 
     def test_format_files_preserves_unchanged(self, mcp_tools, tmp_path: Path):
         """Test that formatting preserves already formatted files."""
@@ -1113,9 +1058,9 @@ class TestEdgeCaseFiles:
             overwrite=True,
         )
 
-        assert result["total_files"] == 2
+        assert result.total_files == 2
         # At least the bad file should have changed
-        assert result["files_changed"] >= 1
+        assert result.files_changed >= 1
 
 
 class TestListTools:
@@ -1130,7 +1075,7 @@ class TestListTools:
             result = run_tool(list_rules, category=category)
             if result:  # Some categories might have no rules
                 for rule in result:
-                    assert rule["rule_id"].startswith(category)
+                    assert rule.rule_id.startswith(category)
 
     def test_list_rules_severity_filter(self, mcp_tools):
         """Test filtering rules by severity."""
@@ -1139,7 +1084,7 @@ class TestListTools:
         for severity in ["E", "W", "I"]:
             result = run_tool(list_rules, severity=severity)
             for rule in result:
-                assert rule["severity"] == severity
+                assert rule.severity == severity
 
     def test_list_formatters_enabled_vs_all(self, mcp_tools):
         """Test listing enabled vs all formatters."""
@@ -1150,8 +1095,8 @@ class TestListTools:
 
         assert len(all_formatters) >= len(enabled)
         # All enabled formatters should be in the all list
-        enabled_names = {f["name"] for f in enabled}
-        all_names = {f["name"] for f in all_formatters}
+        enabled_names = {f.name for f in enabled}
+        all_names = {f.name for f in all_formatters}
         assert enabled_names.issubset(all_names)
 
 
@@ -1172,11 +1117,8 @@ class TestSuggestFixesTool:
 
         result = run_tool(suggest_fixes, content=content)
 
-        assert "fixes" in result
-        assert "total_issues" in result
-        assert "auto_fixable" in result
-        assert "manual_required" in result
-        assert "recommendation" in result
+        # SuggestFixesResult model validates all required fields exist
+        assert isinstance(result.total_issues, int)
 
     def test_suggest_fixes_with_filename(self, mcp_tools):
         """Test fix suggestions with specific filename."""
@@ -1186,7 +1128,7 @@ class TestSuggestFixesTool:
 
         result = run_tool(suggest_fixes, content=content, filename="lib.resource")
 
-        assert "fixes" in result
+        assert isinstance(result.fixes, list)
 
     def test_suggest_fixes_rule_filter(self, mcp_tools):
         """Test fix suggestions filtered by rule IDs."""
@@ -1203,5 +1145,5 @@ class TestSuggestFixesTool:
         result = run_tool(suggest_fixes, content=content, rule_ids=["NAME*"])
 
         # All fixes should be for NAME rules
-        for fix in result["fixes"]:
-            assert fix["rule_id"].startswith("NAME")
+        for fix in result.fixes:
+            assert fix.rule_id.startswith("NAME")

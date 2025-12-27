@@ -3,12 +3,12 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Any
 
 from fastmcp.exceptions import ToolError
 from robot.errors import DataError
 
 from robocop.config import Config, ConfigManager, LinterConfig
+from robocop.mcp.tools.models import DiagnosticResult
 from robocop.mcp.tools.utils.constants import VALID_EXTENSIONS
 from robocop.mcp.tools.utils.helpers import (
     _diagnostic_to_dict,
@@ -43,7 +43,7 @@ def _lint_content_impl(
     threshold: str = "I",
     limit: int | None = None,
     configure: list[str] | None = None,
-) -> list[dict[str, Any]]:
+) -> list[DiagnosticResult]:
     """
     Lint content and return diagnostics.
 
@@ -57,7 +57,7 @@ def _lint_content_impl(
         configure: A list of rule configurations (e.g., ["rule-name.param=value"]).
 
     Returns:
-        A list of dictionaries representing the diagnostics.
+        A list of DiagnosticResult models.
 
     Raises:
         ToolError: If the content cannot be parsed.
@@ -96,7 +96,7 @@ def _lint_file_impl(
     include_file_in_result: bool = False,
     limit: int | None = None,
     configure: list[str] | None = None,
-) -> list[dict[str, Any]]:
+) -> list[DiagnosticResult]:
     """
     Lint a file and return diagnostics.
 
@@ -110,7 +110,7 @@ def _lint_file_impl(
         configure: A list of rule configurations (e.g., ["rule-name.param=value"]).
 
     Returns:
-        A list of dictionaries representing the diagnostics.
+        A list of DiagnosticResult models.
 
     Raises:
         ToolError: If the file does not exist or is of invalid type.

@@ -4,19 +4,34 @@ from __future__ import annotations
 
 import operator
 from pathlib import Path
-from typing import Any
 
 from fastmcp.exceptions import ToolError
 
 from robocop.mcp.tools.batch_operations import _collect_robot_files
 from robocop.mcp.tools.linting import _lint_content_impl, _lint_file_impl
+from robocop.mcp.tools.models import (
+    CodeContext,
+    ContextLine,
+    ExplainIssueResult,
+    FixSuggestion,
+    GetStatisticsResult,
+    IssueExplanation,
+    QualityScore,
+    RelatedIssue,
+    SeveritySummary,
+    StatisticsSummary,
+    SuggestFixesResult,
+    TopRule,
+    WorstFile,
+    WorstFilesResult,
+)
 
 
 def _suggest_fixes_impl(
     content: str,
     filename: str = "stdin.robot",
     rule_ids: list[str] | None = None,
-) -> dict[str, Any]:
+) -> SuggestFixesResult:
     """
     Suggest fixes for linting issues in Robot Framework code.
 
@@ -26,7 +41,7 @@ def _suggest_fixes_impl(
         rule_ids: Optional list of rule IDs to get suggestions for.
 
     Returns:
-        A dictionary containing fix suggestions.
+        A SuggestFixesResult model containing fix suggestions.
 
     """
     from robocop.mcp.cache import get_linter_config
@@ -38,12 +53,12 @@ def _suggest_fixes_impl(
     linter_config = get_linter_config()
     rules = linter_config.rules
 
-    fixes = []
+    fixes: list[FixSuggestion] = []
     auto_fixable = 0
     manual_required = 0
 
     for issue in issues:
-        rule_id = issue["rule_id"]
+        rule_id = issue.rule_id
         category = rule_id[:3] if len(rule_id) >= 3 else rule_id
 
         # Get suggestion from rule's fix_suggestion attribute, or provide a generic one
@@ -51,7 +66,7 @@ def _suggest_fixes_impl(
         if rule_id in rules and rules[rule_id].fix_suggestion:
             suggestion = rules[rule_id].fix_suggestion
         else:
-            suggestion = f"Review the rule documentation for {rule_id} ({issue['name']})."
+            suggestion = f"Review the rule documentation for {rule_id} ({issue.name})."
 
         # Determine if auto-fixable (formatting issues generally are)
         is_auto_fixable = category in {"SPACE", "MISC"} or rule_id == "LEN08"
@@ -62,27 +77,27 @@ def _suggest_fixes_impl(
             manual_required += 1
 
         fixes.append(
-            {
-                "rule_id": rule_id,
-                "name": issue["name"],
-                "line": issue["line"],
-                "message": issue["message"],
-                "suggestion": suggestion,
-                "auto_fixable": is_auto_fixable,
-            }
+            FixSuggestion(
+                rule_id=rule_id,
+                name=issue.name,
+                line=issue.line,
+                message=issue.message,
+                suggestion=suggestion,
+                auto_fixable=is_auto_fixable,
+            )
         )
 
-    return {
-        "fixes": fixes,
-        "total_issues": len(fixes),
-        "auto_fixable": auto_fixable,
-        "manual_required": manual_required,
-        "recommendation": (
+    return SuggestFixesResult(
+        fixes=fixes,
+        total_issues=len(fixes),
+        auto_fixable=auto_fixable,
+        manual_required=manual_required,
+        recommendation=(
             "Run format_content to apply automatic fixes, then address manual fixes."
             if auto_fixable > 0
             else "All issues require manual fixes."
         ),
-    }
+    )
 
 
 def _get_statistics_impl(
@@ -93,7 +108,7 @@ def _get_statistics_impl(
     threshold: str = "I",
     *,
     configure: list[str] | None = None,
-) -> dict[str, Any]:
+) -> GetStatisticsResult:
     """
     Get statistics about code quality in a directory.
 
@@ -106,7 +121,7 @@ def _get_statistics_impl(
         configure: List of rule configurations.
 
     Returns:
-        A dictionary containing statistics about the codebase.
+        A GetStatisticsResult model containing statistics about the codebase.
 
     Raises:
         ToolError: If the directory does not exist or contains no files.
@@ -126,12 +141,12 @@ def _get_statistics_impl(
         raise ToolError(f"No .robot or .resource files found in {directory_path}")
 
     # Collect all issues
-    all_issues: list[dict[str, Any]] = []
     files_with_issues = 0
     files_clean = 0
     severity_counts = {"E": 0, "W": 0, "I": 0}
     rule_counts: dict[str, int] = {}
     issues_per_file: list[int] = []
+    total_issues = 0
 
     for file in files:
         try:
@@ -147,12 +162,12 @@ def _get_statistics_impl(
 
             if issues:
                 files_with_issues += 1
-                all_issues.extend(issues)
+                total_issues += len(issues)
                 for issue in issues:
-                    severity = issue.get("severity", "W")
+                    severity = issue.severity
                     if severity in severity_counts:
                         severity_counts[severity] += 1
-                    rule_id = issue.get("rule_id", "unknown")
+                    rule_id = issue.rule_id
                     rule_counts[rule_id] = rule_counts.get(rule_id, 0) + 1
             else:
                 files_clean += 1
@@ -161,7 +176,6 @@ def _get_statistics_impl(
             pass
 
     total_files = len(files)
-    total_issues = len(all_issues)
 
     # Calculate statistics
     avg_issues_per_file = total_issues / total_files if total_files > 0 else 0
@@ -193,25 +207,25 @@ def _get_statistics_impl(
         grade = "F"
         quality_label = "Critical"
 
-    return {
-        "directory": str(path),
-        "summary": {
-            "total_files": total_files,
-            "files_with_issues": files_with_issues,
-            "files_clean": files_clean,
-            "total_issues": total_issues,
-            "avg_issues_per_file": round(avg_issues_per_file, 2),
-            "max_issues_in_file": max_issues_in_file,
-        },
-        "severity_breakdown": severity_counts,
-        "top_issues": [{"rule_id": rule_id, "count": count} for rule_id, count in top_rules],
-        "quality_score": {
-            "score": quality_score,
-            "grade": grade,
-            "label": quality_label,
-        },
-        "recommendations": _generate_recommendations(severity_counts, top_rules, quality_score),
-    }
+    return GetStatisticsResult(
+        directory=str(path),
+        summary=StatisticsSummary(
+            total_files=total_files,
+            files_with_issues=files_with_issues,
+            files_clean=files_clean,
+            total_issues=total_issues,
+            avg_issues_per_file=round(avg_issues_per_file, 2),
+            max_issues_in_file=max_issues_in_file,
+        ),
+        severity_breakdown=SeveritySummary(E=severity_counts["E"], W=severity_counts["W"], INFO=severity_counts["I"]),
+        top_issues=[TopRule(rule_id=rule_id, count=count) for rule_id, count in top_rules],
+        quality_score=QualityScore(
+            score=quality_score,
+            grade=grade,
+            label=quality_label,
+        ),
+        recommendations=_generate_recommendations(severity_counts, top_rules, quality_score),
+    )
 
 
 def _generate_recommendations(
@@ -258,7 +272,7 @@ def _explain_issue_impl(
     line: int,
     filename: str = "stdin.robot",
     context_lines: int = 3,
-) -> dict[str, Any]:
+) -> ExplainIssueResult:
     """
     Explain a specific issue at a given line with context.
 
@@ -269,7 +283,7 @@ def _explain_issue_impl(
         context_lines: Number of context lines to include before and after.
 
     Returns:
-        A dictionary containing the issue explanation with context.
+        An ExplainIssueResult model containing the issue explanation with context.
 
     """
     from robocop.mcp.cache import get_linter_config
@@ -278,59 +292,67 @@ def _explain_issue_impl(
     issues = _lint_content_impl(content, filename)
 
     # Find issues at or near the specified line
-    issues_at_line = [i for i in issues if i["line"] == line]
-    issues_near_line = [i for i in issues if abs(i["line"] - line) <= 2 and i["line"] != line]
+    issues_at_line = [i for i in issues if i.line == line]
+    issues_near_line = [i for i in issues if abs(i.line - line) <= 2 and i.line != line]
 
     if not issues_at_line and not issues_near_line:
-        return {
-            "line": line,
-            "issues_found": False,
-            "message": f"No issues found at or near line {line}.",
-            "context": _get_line_context(content, line, context_lines),
-        }
+        return ExplainIssueResult(
+            line=line,
+            issues_found=False,
+            message=f"No issues found at or near line {line}.",
+            context=_get_line_context(content, line, context_lines),
+        )
 
     # Get rule documentation for issues
     linter_config = get_linter_config()
     rules = linter_config.rules
 
-    explanations = []
+    explanations: list[IssueExplanation] = []
     for issue in issues_at_line:
-        rule_id = issue["rule_id"]
+        rule_id = issue.rule_id
         rule = rules.get(rule_id)
 
-        explanation = {
-            "rule_id": rule_id,
-            "name": issue["name"],
-            "message": issue["message"],
-            "severity": issue["severity"],
-            "line": issue["line"],
-            "column": issue["column"],
-        }
+        configurable_parameters = None
+        why_it_matters = None
+        fix_suggestion = None
+        full_documentation = None
 
         if rule:
-            explanation["why_it_matters"] = rule.docs.split("\n")[0] if rule.docs else None
-            explanation["fix_suggestion"] = rule.fix_suggestion
-            explanation["full_documentation"] = rule.docs
+            why_it_matters = rule.docs.split("\n")[0] if rule.docs else None
+            fix_suggestion = rule.fix_suggestion
+            full_documentation = rule.docs
             if rule.parameters:
-                explanation["configurable_parameters"] = [
+                configurable_parameters = [
                     {"name": p.name, "description": p.desc, "default": str(p.raw_value)} for p in rule.parameters
                 ]
 
-        explanations.append(explanation)
+        explanations.append(
+            IssueExplanation(
+                rule_id=rule_id,
+                name=issue.name,
+                message=issue.message,
+                severity=issue.severity,
+                line=issue.line,
+                column=issue.column,
+                why_it_matters=why_it_matters,
+                fix_suggestion=fix_suggestion,
+                full_documentation=full_documentation,
+                configurable_parameters=configurable_parameters,
+            )
+        )
 
     # Include nearby issues as related
     related_issues = [
-        {"rule_id": i["rule_id"], "name": i["name"], "line": i["line"], "message": i["message"]}
-        for i in issues_near_line
+        RelatedIssue(rule_id=i.rule_id, name=i.name, line=i.line, message=i.message) for i in issues_near_line
     ]
 
-    return {
-        "line": line,
-        "issues_found": True,
-        "issues": explanations,
-        "related_issues": related_issues,
-        "context": _get_line_context(content, line, context_lines),
-    }
+    return ExplainIssueResult(
+        line=line,
+        issues_found=True,
+        issues=explanations,
+        related_issues=related_issues,
+        context=_get_line_context(content, line, context_lines),
+    )
 
 
 def _worst_files_impl(
@@ -342,7 +364,7 @@ def _worst_files_impl(
     ignore: list[str] | None = None,
     threshold: str = "I",
     configure: list[str] | None = None,
-) -> dict[str, Any]:
+) -> WorstFilesResult:
     """
     Get the N files with the most linting issues.
 
@@ -359,7 +381,7 @@ def _worst_files_impl(
         configure: List of rule configurations.
 
     Returns:
-        A dictionary containing:
+        A WorstFilesResult model containing:
         - files: List of worst files, each with file path, issue_count, and severity_breakdown
         - total_files_analyzed: Total number of files scanned
         - files_with_issues: Number of files that have at least one issue
@@ -382,7 +404,7 @@ def _worst_files_impl(
         raise ToolError(f"No .robot or .resource files found in {directory_path}")
 
     # Collect issue counts per file
-    file_stats: list[dict[str, Any]] = []
+    file_stats: list[WorstFile] = []
     files_with_issues = 0
 
     for file in files:
@@ -398,35 +420,37 @@ def _worst_files_impl(
 
             if issues:
                 files_with_issues += 1
-                severity_breakdown = {"E": 0, "W": 0, "I": 0}
+                severity_counts = {"E": 0, "W": 0, "I": 0}
                 for issue in issues:
-                    severity = issue.get("severity", "W")
-                    if severity in severity_breakdown:
-                        severity_breakdown[severity] += 1
+                    severity = issue.severity
+                    if severity in severity_counts:
+                        severity_counts[severity] += 1
 
                 file_stats.append(
-                    {
-                        "file": str(file),
-                        "issue_count": len(issues),
-                        "severity_breakdown": severity_breakdown,
-                    }
+                    WorstFile(
+                        file=str(file),
+                        issue_count=len(issues),
+                        severity_breakdown=SeveritySummary(
+                            E=severity_counts["E"], W=severity_counts["W"], INFO=severity_counts["I"]
+                        ),
+                    )
                 )
         except ToolError:
             # Skip files that fail to parse
             pass
 
     # Sort by issue count (descending) and take top N
-    file_stats.sort(key=operator.itemgetter("issue_count"), reverse=True)
+    file_stats.sort(key=lambda x: x.issue_count, reverse=True)
     worst_files = file_stats[:n]
 
-    return {
-        "files": worst_files,
-        "total_files_analyzed": len(files),
-        "files_with_issues": files_with_issues,
-    }
+    return WorstFilesResult(
+        files=worst_files,
+        total_files_analyzed=len(files),
+        files_with_issues=files_with_issues,
+    )
 
 
-def _get_line_context(content: str, line: int, context_lines: int) -> dict[str, Any]:
+def _get_line_context(content: str, line: int, context_lines: int) -> CodeContext:
     """
     Get surrounding lines for context.
 
@@ -436,7 +460,7 @@ def _get_line_context(content: str, line: int, context_lines: int) -> dict[str, 
         context_lines: Number of lines to include before and after.
 
     Returns:
-        A dictionary with context lines and target line information.
+        A CodeContext model with context lines and target line information.
 
     """
     lines = content.splitlines()
@@ -448,18 +472,18 @@ def _get_line_context(content: str, line: int, context_lines: int) -> dict[str, 
     start = max(0, line_idx - context_lines)
     end = min(total_lines, line_idx + context_lines + 1)
 
-    context_content = []
+    context_content: list[ContextLine] = []
     for i in range(start, end):
         context_content.append(
-            {
-                "line_number": i + 1,
-                "content": lines[i] if i < len(lines) else "",
-                "is_target": i == line_idx,
-            }
+            ContextLine(
+                line_number=i + 1,
+                content=lines[i] if i < len(lines) else "",
+                is_target=i == line_idx,
+            )
         )
 
-    return {
-        "lines": context_content,
-        "target_line": line,
-        "target_content": lines[line_idx] if 0 <= line_idx < len(lines) else None,
-    }
+    return CodeContext(
+        lines=context_content,
+        target_line=line,
+        target_content=lines[line_idx] if 0 <= line_idx < len(lines) else None,
+    )

@@ -4,7 +4,6 @@ from __future__ import annotations
 
 from difflib import unified_diff
 from pathlib import Path
-from typing import Any
 
 from fastmcp.exceptions import ToolError
 from robot.api import get_model
@@ -13,6 +12,7 @@ from robot.errors import DataError
 from robocop.config import FormatterConfig, WhitespaceConfig
 from robocop.formatter import disablers
 from robocop.formatter.utils import misc
+from robocop.mcp.tools.models import FormatContentResult, FormatFileResult, LintAndFormatResult
 from robocop.mcp.tools.utils.constants import VALID_EXTENSIONS
 from robocop.mcp.tools.utils.helpers import _normalize_suffix, _temp_robot_file
 
@@ -23,7 +23,7 @@ def _format_content_impl(
     select: list[str] | None = None,
     space_count: int = 4,
     line_length: int = 120,
-) -> dict[str, Any]:
+) -> FormatContentResult:
     """
     Format content and return the result.
 
@@ -35,10 +35,7 @@ def _format_content_impl(
         line_length: Maximum line length.
 
     Returns:
-        A dictionary containing:
-        - formatted: The formatted source code.
-        - changed: Boolean indicating if content was modified.
-        - diff: Unified diff if content changed, None otherwise.
+        A FormatContentResult model containing formatted code, changed flag, and diff.
 
     Raises:
         ToolError: If the content cannot be parsed.
@@ -81,7 +78,7 @@ def _format_content_impl(
                 new_lines = [line + "\n" for line in new_model.text.splitlines()]
                 diff_text = "".join(unified_diff(old_lines, new_lines, fromfile="before", tofile="after"))
 
-            return {"formatted": new_model.text, "changed": changed, "diff": diff_text}
+            return FormatContentResult(formatted=new_model.text, changed=changed, diff=diff_text)
 
         except DataError as e:
             raise ToolError(f"Failed to parse Robot Framework content: {e}") from e
@@ -94,7 +91,7 @@ def _format_file_impl(
     line_length: int = 120,
     *,
     overwrite: bool = False,
-) -> dict[str, Any]:
+) -> FormatFileResult:
     """
     Format a Robot Framework file.
 
@@ -106,7 +103,7 @@ def _format_file_impl(
         overwrite: Whether to overwrite the file with formatted content.
 
     Returns:
-        A dictionary containing the formatting result.
+        A FormatFileResult model containing the formatting result.
 
     Raises:
         ToolError: If the file does not exist or is of invalid type.
@@ -125,17 +122,21 @@ def _format_file_impl(
         content = path.read_text(encoding="utf-8")
 
         # Format using existing implementation
-        result = _format_content_impl(content, path.name, select, space_count, line_length)
+        format_result = _format_content_impl(content, path.name, select, space_count, line_length)
 
         # Optionally overwrite the file
-        if overwrite and result["changed"]:
-            path.write_text(result["formatted"], encoding="utf-8")
-            result["written"] = True
-        else:
-            result["written"] = False
+        written = False
+        if overwrite and format_result.changed:
+            path.write_text(format_result.formatted, encoding="utf-8")
+            written = True
 
-        result["file"] = str(path)
-        return result
+        return FormatFileResult(
+            formatted=format_result.formatted,
+            changed=format_result.changed,
+            diff=format_result.diff,
+            file=str(path),
+            written=written,
+        )
 
     except OSError as e:
         raise ToolError(f"Failed to read/write file: {e}") from e
@@ -155,7 +156,7 @@ def _lint_and_format_impl(
     configure: list[str] | None = None,
     *,
     overwrite: bool = False,
-) -> dict[str, Any]:
+) -> LintAndFormatResult:
     """
     Format Robot Framework code and lint the result in one operation.
 
@@ -174,7 +175,7 @@ def _lint_and_format_impl(
         overwrite: Whether to overwrite the file with formatted content (only when file_path is used).
 
     Returns:
-        A dictionary containing the lint and format results.
+        A LintAndFormatResult model containing the lint and format results.
 
     Raises:
         ToolError: If neither content nor file_path is provided, or if both are provided.
@@ -214,7 +215,7 @@ def _lint_and_format_impl(
 
     # Lint the formatted code without limit first for accurate counts
     issues_after_full = _lint_content_impl(
-        format_result["formatted"],
+        format_result.formatted,
         filename,
         lint_select,
         lint_ignore,
@@ -224,30 +225,29 @@ def _lint_and_format_impl(
     issues_after_count = len(issues_after_full)
 
     # Apply limit only to the returned issues list
-    issues_after = issues_after_full[:limit] if limit else issues_after_full
+    issues_after = list(issues_after_full[:limit]) if limit else list(issues_after_full)
 
-    result = {
-        "formatted": format_result["formatted"],
-        "changed": format_result["changed"],
-        "diff": format_result["diff"],
-        "issues": issues_after,
-        "issues_before": len(issues_before),
-        "issues_after": issues_after_count,
-        "issues_fixed": len(issues_before) - issues_after_count,
-    }
-
-    # Add file-specific fields if processing a file
+    # Handle file-specific fields
+    written = None
     if source_file is not None:
-        result["file"] = source_file
-
         # Optionally overwrite the file
-        if overwrite and format_result["changed"]:
+        if overwrite and format_result.changed:
             try:
-                Path(source_file).write_text(format_result["formatted"], encoding="utf-8")
-                result["written"] = True
+                Path(source_file).write_text(format_result.formatted, encoding="utf-8")
+                written = True
             except OSError as e:
                 raise ToolError(f"Failed to write file: {e}") from e
         else:
-            result["written"] = False
+            written = False
 
-    return result
+    return LintAndFormatResult(
+        formatted=format_result.formatted,
+        changed=format_result.changed,
+        diff=format_result.diff,
+        issues=issues_after,
+        issues_before=len(issues_before),
+        issues_after=issues_after_count,
+        issues_fixed=len(issues_before) - issues_after_count,
+        file=source_file,
+        written=written,
+    )

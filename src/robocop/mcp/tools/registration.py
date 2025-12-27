@@ -1,10 +1,10 @@
 """MCP tool registration - FastMCP server tool registration."""
 
-from __future__ import annotations
+from typing import Annotated, Literal
 
-from typing import TYPE_CHECKING
-
+from fastmcp import FastMCP
 from fastmcp.server.context import Context
+from pydantic import Field
 
 from robocop.mcp.tools.batch_operations import (
     _format_files_impl,
@@ -26,9 +26,24 @@ from robocop.mcp.tools.documentation import (
 )
 from robocop.mcp.tools.formatting import _format_content_impl, _format_file_impl, _lint_and_format_impl
 from robocop.mcp.tools.linting import _lint_content_impl, _lint_file_impl
-
-if TYPE_CHECKING:
-    from fastmcp import FastMCP
+from robocop.mcp.tools.models import (
+    DiagnosticResult,
+    ExplainIssueResult,
+    FormatContentResult,
+    FormatFileResult,
+    FormatFilesResult,
+    FormatterDetail,
+    FormatterSummary,
+    GetStatisticsResult,
+    LintAndFormatResult,
+    LintFilesResult,
+    PromptSummary,
+    RuleDetail,
+    RuleSearchResult,
+    RuleSummary,
+    SuggestFixesResult,
+    WorstFilesResult,
+)
 
 
 def register_tools(mcp: FastMCP) -> None:
@@ -39,42 +54,34 @@ def register_tools(mcp: FastMCP) -> None:
         annotations={"readOnlyHint": True, "title": "Lint Robot Framework Content"},
     )
     async def lint_content(
-        content: str,
-        filename: str = "stdin.robot",
-        select: list[str] | None = None,
-        ignore: list[str] | None = None,
-        threshold: str = "I",
-        limit: int | None = None,
-        configure: list[str] | None = None,
+        content: Annotated[str, Field(description="Robot Framework source code to lint")],
+        filename: Annotated[
+            str, Field(description="Virtual filename (affects file type detection, use .robot or .resource)")
+        ] = "stdin.robot",
+        select: Annotated[
+            list[str] | None,
+            Field(description="List of rule IDs/names to enable (e.g., ['LEN01', 'too-long-keyword'])"),
+        ] = None,
+        ignore: Annotated[list[str] | None, Field(description="List of rule IDs/names to ignore")] = None,
+        threshold: Annotated[
+            Literal["I", "W", "E"], Field(description="Minimum severity to report: I=Info, W=Warning, E=Error")
+        ] = "I",
+        limit: Annotated[int | None, Field(description="Maximum number of issues to return (None = no limit)")] = None,
+        configure: Annotated[
+            list[str] | None, Field(description="Rule configurations (e.g., ['line-too-long.line_length=140'])")
+        ] = None,
         ctx: Context | None = None,
-    ) -> list[dict]:
+    ) -> list[DiagnosticResult]:
         """
         Lint Robot Framework code provided as text content.
 
-        Args:
-            content: Robot Framework source code to lint
-            filename: Virtual filename (affects file type detection, use .robot or .resource)
-            select: List of rule IDs/names to enable (e.g., ["LEN01", "too-long-keyword"])
-            ignore: List of rule IDs/names to ignore
-            threshold: Minimum severity to report (I=Info, W=Warning, E=Error)
-            limit: Maximum number of issues to return (None = no limit)
-            configure: List of rule configurations (e.g., ["line-too-long.line_length=140"])
-
-        Returns:
-            List of diagnostic issues found, each containing:
-            - rule_id: The rule identifier (e.g., "LEN01")
-            - name: The rule name (e.g., "too-long-keyword")
-            - message: Description of the issue
-            - severity: I/W/E
-            - line: Line number (1-indexed)
-            - column: Column number (1-indexed)
-            - end_line: End line number
-            - end_column: End column number
+        Returns a list of diagnostic issues found, each containing rule_id, name, message,
+        severity (I/W/E), line, column, end_line, and end_column.
 
         Example::
 
             lint_content("*** Test Cases ***...")
-            # Returns: [{"rule_id": "NAME02", "name": "wrong-case-in-test-case-name", ...}]
+            # Returns: [DiagnosticResult(rule_id="NAME02", name="wrong-case-in-test-case-name", ...)]
 
         """
         if ctx:
@@ -92,27 +99,22 @@ def register_tools(mcp: FastMCP) -> None:
         annotations={"readOnlyHint": True, "title": "Lint Robot Framework File"},
     )
     async def lint_file(
-        file_path: str,
-        select: list[str] | None = None,
-        ignore: list[str] | None = None,
-        threshold: str = "I",
-        limit: int | None = None,
-        configure: list[str] | None = None,
+        file_path: Annotated[str, Field(description="Absolute path to the .robot or .resource file")],
+        select: Annotated[list[str] | None, Field(description="List of rule IDs/names to enable")] = None,
+        ignore: Annotated[list[str] | None, Field(description="List of rule IDs/names to ignore")] = None,
+        threshold: Annotated[
+            Literal["I", "W", "E"], Field(description="Minimum severity to report: I=Info, W=Warning, E=Error")
+        ] = "I",
+        limit: Annotated[int | None, Field(description="Maximum number of issues to return (None = no limit)")] = None,
+        configure: Annotated[
+            list[str] | None, Field(description="Rule configurations (e.g., ['line-too-long.line_length=140'])")
+        ] = None,
         ctx: Context | None = None,
-    ) -> list[dict]:
+    ) -> list[DiagnosticResult]:
         """
         Lint a Robot Framework file from disk.
 
-        Args:
-            file_path: Absolute path to the .robot or .resource file
-            select: List of rule IDs/names to enable
-            ignore: List of rule IDs/names to ignore
-            threshold: Minimum severity to report (I=Info, W=Warning, E=Error)
-            limit: Maximum number of issues to return (None = no limit)
-            configure: List of rule configurations (e.g., ["line-too-long.line_length=140"])
-
-        Returns:
-            List of diagnostic issues found (same format as lint_content)
+        Returns a list of diagnostic issues found (same format as lint_content).
 
         Example::
 
@@ -135,72 +137,47 @@ def register_tools(mcp: FastMCP) -> None:
         annotations={"readOnlyHint": True, "title": "Lint Multiple Robot Files"},
     )
     async def lint_files(
-        file_patterns: list[str],
-        base_path: str | None = None,
-        select: list[str] | None = None,
-        ignore: list[str] | None = None,
-        threshold: str = "I",
-        limit: int | None = None,
-        offset: int = 0,
-        configure: list[str] | None = None,
-        group_by: str | None = None,
-        summarize_only: bool = False,
+        file_patterns: Annotated[
+            list[str],
+            Field(description="File paths or glob patterns (e.g., ['tests/**/*.robot', '*.resource'])"),
+        ],
+        base_path: Annotated[
+            str | None, Field(description="Base directory for relative paths (defaults to current directory)")
+        ] = None,
+        select: Annotated[
+            list[str] | None, Field(description="Rule IDs/names to enable (e.g., ['LEN01', 'too-long-keyword'])")
+        ] = None,
+        ignore: Annotated[list[str] | None, Field(description="Rule IDs/names to ignore")] = None,
+        threshold: Annotated[
+            Literal["I", "W", "E"], Field(description="Minimum severity: I=Info, W=Warning, E=Error")
+        ] = "I",
+        limit: Annotated[
+            int | None, Field(description="Max issues to return (per group if group_by set, None = no limit)")
+        ] = None,
+        offset: Annotated[int, Field(description="Issues to skip for pagination (per group if group_by set)")] = 0,
+        configure: Annotated[
+            list[str] | None, Field(description="Rule configurations (e.g., ['line-too-long.line_length=140'])")
+        ] = None,
+        group_by: Annotated[
+            Literal["severity", "rule", "file"] | None,
+            Field(description="Group results by severity, rule, or file"),
+        ] = None,
+        summarize_only: Annotated[
+            bool, Field(description="Return only summary stats without individual issues (for large codebases)")
+        ] = False,
         ctx: Context | None = None,
-    ) -> dict:
+    ) -> LintFilesResult:
         """
         Lint multiple Robot Framework files specified by paths or glob patterns.
 
-        This tool allows linting a specific set of files without linting an entire
-        directory. Useful for checking only changed files or a specific subset.
-
-        Args:
-            file_patterns: List of file paths or glob patterns to lint. Examples:
-                - Explicit paths: ["/path/to/test.robot", "tests/login.robot"]
-                - Glob patterns: ["tests/**/*.robot", "*.resource"]
-                - Mixed: ["specific.robot", "suite/**/*.robot"]
-            base_path: Base directory for resolving relative paths and patterns.
-                Defaults to current working directory.
-            select: List of rule IDs/names to enable (e.g., ["LEN01", "too-long-keyword"])
-            ignore: List of rule IDs/names to ignore
-            threshold: Minimum severity to report (I=Info, W=Warning, E=Error)
-            limit: Maximum number of issues to return. When group_by is set,
-                this limit applies per group instead of globally.
-            offset: Number of issues to skip for pagination. When group_by is set,
-                offset applies per group. Use with limit for pagination:
-                - First page: offset=0, limit=20
-                - Second page: offset=20, limit=20
-            configure: List of rule configurations (e.g., ["line-too-long.line_length=140"])
-            group_by: Group results by "severity", "rule", or "file". When set:
-                - "severity": Group by E/W/I for prioritized fixing
-                - "rule": Group by rule ID for batch fixing same issues
-                - "file": Group by file path for file-by-file review
-            summarize_only: If True, return only summary statistics without individual
-                issues. Useful for large codebases to reduce response size. Returns
-                top_rules instead of issues list.
-
-        Returns:
-            Dictionary containing:
-            - total_files: Number of files linted
-            - total_issues: Total number of issues found
-            - files_with_issues: Number of files that have issues
-            - issues: List of issues (omitted when summarize_only=True)
-            - summary: Issues by severity {E: count, W: count, I: count}
-            - limited: Boolean indicating if results were truncated
-            - offset: The offset applied (for pagination tracking)
-            - has_more: Boolean indicating if more results exist beyond offset+limit
-            - unmatched_patterns: List of patterns that didn't match any files
-            - group_counts: (only when group_by set) Total count per group before limit
-            - top_rules: (only when summarize_only=True) Top 10 most common rules
-
-        Raises:
-            ToolError: If no valid Robot Framework files are found
+        Returns total_files, total_issues, files_with_issues, issues (list or grouped dict),
+        summary by severity, pagination info, and optionally top_rules when summarize_only=True.
 
         Example::
 
             lint_files(["tests/login.robot", "tests/checkout.robot"])
             lint_files(["tests/**/*.robot"], threshold="W")
             lint_files(["*.robot"], group_by="severity", limit=10)
-            lint_files(["**/*.robot"], limit=20, offset=20)  # Second page
             lint_files(["**/*.robot"], summarize_only=True)  # Just stats
 
         """
@@ -220,33 +197,24 @@ def register_tools(mcp: FastMCP) -> None:
         },
     )
     async def format_content(
-        content: str,
-        filename: str = "stdin.robot",
-        select: list[str] | None = None,
-        space_count: int = 4,
-        line_length: int = 120,
+        content: Annotated[str, Field(description="Robot Framework source code to format")],
+        filename: Annotated[str, Field(description="Virtual filename (affects parsing)")] = "stdin.robot",
+        select: Annotated[
+            list[str] | None, Field(description="Formatter names to apply (empty = use defaults)")
+        ] = None,
+        space_count: Annotated[int, Field(description="Spaces for indentation")] = 4,
+        line_length: Annotated[int, Field(description="Maximum line length")] = 120,
         ctx: Context | None = None,
-    ) -> dict:
+    ) -> FormatContentResult:
         """
         Format Robot Framework code and return the formatted result.
 
-        Args:
-            content: Robot Framework source code to format
-            filename: Virtual filename (affects parsing)
-            select: List of formatter names to apply (if empty, uses defaults)
-            space_count: Number of spaces for indentation (default: 4)
-            line_length: Maximum line length (default: 120)
-
-        Returns:
-            Dictionary containing:
-            - formatted: The formatted source code
-            - changed: Boolean indicating if content was modified
-            - diff: Unified diff if content changed, None otherwise
+        Returns formatted source code, whether it changed, and a unified diff.
 
         Example::
 
             format_content(robot_code)
-            # Returns: {"formatted": "...", "changed": True, "diff": "..."}
+            # Returns: FormatContentResult(formatted="...", changed=True, diff="...")
 
         """
         if ctx:
@@ -255,7 +223,7 @@ def register_tools(mcp: FastMCP) -> None:
         result = _format_content_impl(content, filename, select, space_count, line_length)
 
         if ctx:
-            status = "Content modified" if result["changed"] else "No changes needed"
+            status = "Content modified" if result.changed else "No changes needed"
             await ctx.info(status)
 
         return result
@@ -268,33 +236,22 @@ def register_tools(mcp: FastMCP) -> None:
         },
     )
     async def format_file(
-        file_path: str,
-        select: list[str] | None = None,
-        space_count: int = 4,
-        line_length: int = 120,
-        overwrite: bool = False,
+        file_path: Annotated[str, Field(description="Absolute path to .robot or .resource file")],
+        select: Annotated[
+            list[str] | None, Field(description="Formatter names to apply (empty = use defaults)")
+        ] = None,
+        space_count: Annotated[int, Field(description="Spaces for indentation")] = 4,
+        line_length: Annotated[int, Field(description="Maximum line length")] = 120,
+        overwrite: Annotated[bool, Field(description="Write formatted content back to file")] = False,
         ctx: Context | None = None,
-    ) -> dict:
+    ) -> FormatFileResult:
         """
         Format a Robot Framework file from disk.
 
-        This tool reads a file, formats it, and optionally writes the formatted
-        content back to disk. Use overwrite=True to modify the file in place.
+        WARNING: When overwrite=True, this tool PERMANENTLY MODIFIES the file on disk.
+        The original content will be replaced. Use overwrite=False (default) to preview.
 
-        Args:
-            file_path: Absolute path to the .robot or .resource file
-            select: List of formatter names to apply (if empty, uses defaults)
-            space_count: Number of spaces for indentation (default: 4)
-            line_length: Maximum line length (default: 120)
-            overwrite: If True, write formatted content back to the file (default: False)
-
-        Returns:
-            Dictionary containing:
-            - file: The file path
-            - formatted: The formatted source code
-            - changed: Boolean indicating if content was modified
-            - diff: Unified diff if content changed, None otherwise
-            - written: Boolean indicating if the file was overwritten
+        Returns file path, formatted content, whether it changed, diff, and whether written.
 
         Example::
 
@@ -309,8 +266,8 @@ def register_tools(mcp: FastMCP) -> None:
         result = _format_file_impl(file_path, select, space_count, line_length, overwrite=overwrite)
 
         if ctx:
-            if result["changed"]:
-                status = "File modified and saved" if result["written"] else "Changes detected (not saved)"
+            if result.changed:
+                status = "File modified and saved" if result.written else "Changes detected (not saved)"
             else:
                 status = "No changes needed"
             await ctx.info(status)
@@ -325,44 +282,31 @@ def register_tools(mcp: FastMCP) -> None:
         },
     )
     async def format_files(
-        file_patterns: list[str],
-        base_path: str | None = None,
-        select: list[str] | None = None,
-        space_count: int = 4,
-        line_length: int = 120,
-        overwrite: bool = False,
-        summarize_only: bool = False,
+        file_patterns: Annotated[
+            list[str],
+            Field(description="File paths or glob patterns (e.g., ['tests/**/*.robot', '*.resource'])"),
+        ],
+        base_path: Annotated[
+            str | None, Field(description="Base directory for relative paths (defaults to current directory)")
+        ] = None,
+        select: Annotated[
+            list[str] | None, Field(description="Formatter names to apply (empty = use defaults)")
+        ] = None,
+        space_count: Annotated[int, Field(description="Spaces for indentation")] = 4,
+        line_length: Annotated[int, Field(description="Maximum line length")] = 120,
+        overwrite: Annotated[bool, Field(description="Write formatted content back to files")] = False,
+        summarize_only: Annotated[
+            bool, Field(description="Return only summary stats without per-file results")
+        ] = False,
         ctx: Context | None = None,
-    ) -> dict:
+    ) -> FormatFilesResult:
         """
         Format multiple Robot Framework files specified by paths or glob patterns.
 
-        This tool allows formatting a specific set of files without formatting an
-        entire directory. Use overwrite=True to modify files in place.
+        WARNING: When overwrite=True, this tool PERMANENTLY MODIFIES files on disk.
+        Use overwrite=False (default) to preview changes before applying.
 
-        Args:
-            file_patterns: List of file paths or glob patterns to format. Examples:
-                - Explicit paths: ["/path/to/test.robot", "tests/login.robot"]
-                - Glob patterns: ["tests/**/*.robot", "*.resource"]
-                - Mixed: ["specific.robot", "suite/**/*.robot"]
-            base_path: Base directory for resolving relative paths and patterns.
-                Defaults to current working directory.
-            select: List of formatter names to apply (if empty, uses defaults)
-            space_count: Number of spaces for indentation (default: 4)
-            line_length: Maximum line length (default: 120)
-            overwrite: If True, write formatted content back to files (default: False)
-            summarize_only: If True, return only summary statistics without per-file
-                results. Useful for large codebases to reduce response size.
-
-        Returns:
-            Dictionary containing:
-            - total_files: Number of files processed
-            - files_changed: Number of files with formatting changes
-            - files_unchanged: Number of files already properly formatted
-            - files_written: Number of files actually written (when overwrite=True)
-            - results: List of per-file results (omitted when summarize_only=True)
-            - errors: List of files that failed to process
-            - unmatched_patterns: List of patterns that didn't match any files
+        Returns total_files, files_changed, files_unchanged, files_written, errors, and results.
 
         Example::
 
@@ -386,8 +330,8 @@ def register_tools(mcp: FastMCP) -> None:
         )
 
         if ctx:
-            files_changed = result["files_changed"]
-            files_written = result["files_written"]
+            files_changed = result.files_changed
+            files_written = result.files_written
             msg = f"Completed: {files_changed} file(s) changed"
             if overwrite:
                 msg += f", {files_written} written"
@@ -403,58 +347,39 @@ def register_tools(mcp: FastMCP) -> None:
         },
     )
     async def lint_and_format(
-        content: str | None = None,
-        file_path: str | None = None,
-        filename: str = "stdin.robot",
-        lint_select: list[str] | None = None,
-        lint_ignore: list[str] | None = None,
-        threshold: str = "I",
-        format_select: list[str] | None = None,
-        space_count: int = 4,
-        line_length: int = 120,
-        limit: int | None = None,
-        configure: list[str] | None = None,
-        overwrite: bool = False,
+        content: Annotated[str | None, Field(description="Robot Framework source code (use this OR file_path)")] = None,
+        file_path: Annotated[
+            str | None, Field(description="Path to .robot/.resource file (use this OR content)")
+        ] = None,
+        filename: Annotated[str, Field(description="Virtual filename when using content")] = "stdin.robot",
+        lint_select: Annotated[list[str] | None, Field(description="Linter rule IDs/names to enable")] = None,
+        lint_ignore: Annotated[list[str] | None, Field(description="Linter rule IDs/names to ignore")] = None,
+        threshold: Annotated[
+            Literal["I", "W", "E"], Field(description="Minimum severity: I=Info, W=Warning, E=Error")
+        ] = "I",
+        format_select: Annotated[
+            list[str] | None, Field(description="Formatter names to apply (empty = use defaults)")
+        ] = None,
+        space_count: Annotated[int, Field(description="Spaces for indentation")] = 4,
+        line_length: Annotated[int, Field(description="Maximum line length")] = 120,
+        limit: Annotated[int | None, Field(description="Max issues to return (None = no limit)")] = None,
+        configure: Annotated[
+            list[str] | None, Field(description="Rule configurations (e.g., ['line-too-long.line_length=140'])")
+        ] = None,
+        overwrite: Annotated[bool, Field(description="Write formatted content back to file (file_path only)")] = False,
         ctx: Context | None = None,
-    ) -> dict:
+    ) -> LintAndFormatResult:
         """
         Format Robot Framework code and lint the result in one operation.
 
-        This is the recommended tool for cleaning up code - it formats first,
-        then lints the formatted result to show remaining issues that need
-        manual fixes. Can process either inline content or a file from disk.
+        WARNING: When file_path is used with overwrite=True, this tool PERMANENTLY
+        MODIFIES the file on disk. Use overwrite=False (default) to preview.
 
-        Args:
-            content: Robot Framework source code to process (use this OR file_path)
-            file_path: Absolute path to a .robot or .resource file (use this OR content)
-            filename: Virtual filename when using content (affects parsing)
-            lint_select: List of linter rule IDs/names to enable
-            lint_ignore: List of linter rule IDs/names to ignore
-            threshold: Minimum severity to report (I=Info, W=Warning, E=Error)
-            format_select: List of formatter names to apply (if empty, uses defaults)
-            space_count: Number of spaces for indentation (default: 4)
-            line_length: Maximum line length (default: 120)
-            limit: Maximum number of issues to return (None = no limit)
-            configure: List of rule configurations (e.g., ["line-too-long.line_length=140"])
-            overwrite: If True and file_path is used, write formatted content back to file
-
-        Returns:
-            Dictionary containing:
-            - formatted: The formatted source code
-            - changed: Boolean indicating if formatting modified the code
-            - diff: Unified diff if formatting changed, None otherwise
-            - issues: List of remaining lint issues in the formatted code
-            - issues_before: Number of issues before formatting
-            - issues_after: Number of issues after formatting
-            - issues_fixed: Number of issues fixed by formatting
-            - file: (only when file_path used) The file path
-            - written: (only when file_path used) Whether the file was overwritten
+        Returns formatted code, whether changed, diff, remaining issues, and fix counts.
 
         Example::
 
             lint_and_format(content=robot_code)
-            # Returns: {"formatted": "...", "changed": True, "issues": [...], "issues_fixed": 5}
-
             lint_and_format(file_path="/path/to/test.robot")  # Preview
             lint_and_format(file_path="/path/to/test.robot", overwrite=True)  # Apply
 
@@ -482,10 +407,10 @@ def register_tools(mcp: FastMCP) -> None:
         )
 
         if ctx:
-            fixed = result["issues_fixed"]
-            remaining = result["issues_after"]
+            fixed = result.issues_fixed
+            remaining = result.issues_after
             await ctx.info(f"Remaining issues: {remaining} ({fixed} fixed by formatting)")
-            if file_path and result.get("written"):
+            if file_path and result.written:
                 await ctx.info("File overwritten with formatted content")
 
         return result
@@ -495,34 +420,25 @@ def register_tools(mcp: FastMCP) -> None:
         annotations={"readOnlyHint": True, "title": "List Linting Rules"},
     )
     async def list_rules(
-        category: str | None = None,
-        severity: str | None = None,
-        enabled_only: bool = False,
+        category: Annotated[
+            str | None, Field(description="Filter by category (e.g., 'LEN', 'NAME', 'DOC', 'SPACE')")
+        ] = None,
+        severity: Annotated[
+            Literal["I", "W", "E"] | None, Field(description="Filter by severity: I=Info, W=Warning, E=Error")
+        ] = None,
+        enabled_only: Annotated[bool, Field(description="Only return rules enabled by default")] = False,
         ctx: Context | None = None,
-    ) -> list[dict]:
+    ) -> list[RuleSummary]:
         """
         List all available linting rules with optional filtering.
 
-        Use this tool to discover available rules before linting, or to find
-        rules related to a specific category (e.g., naming, length, documentation).
+        Returns rule summaries with rule_id, name, severity, enabled status, and message.
 
-        Args:
-            category: Filter by rule category/group (e.g., "LEN", "NAME", "DOC", "SPACE")
-            severity: Filter by severity ("I"=Info, "W"=Warning, "E"=Error)
-            enabled_only: If True, only return rules that are enabled by default
+        Example::
 
-        Returns:
-            List of rule summaries, each containing:
-            - rule_id: The rule ID (e.g., "LEN01")
-            - name: The rule name (e.g., "too-long-keyword")
-            - severity: Default severity (I/W/E)
-            - enabled: Whether enabled by default
-            - message: The rule message template
-
-        Example:
-            >>> list_rules(category="LEN")  # All length-related rules
-            >>> list_rules(severity="E")  # All error-level rules
-            >>> list_rules(enabled_only=True)  # Only enabled rules
+            list_rules(category="LEN")  # All length-related rules
+            list_rules(severity="E")  # All error-level rules
+            list_rules(enabled_only=True)  # Only enabled rules
 
         """
         if ctx:
@@ -542,25 +458,19 @@ def register_tools(mcp: FastMCP) -> None:
         tags={"documentation"},
         annotations={"readOnlyHint": True, "title": "List Formatters"},
     )
-    async def list_formatters(enabled_only: bool = True, ctx: Context | None = None) -> list[dict]:
+    async def list_formatters(
+        enabled_only: Annotated[bool, Field(description="Only return formatters enabled by default")] = True,
+        ctx: Context | None = None,
+    ) -> list[FormatterSummary]:
         """
         List all available formatters.
 
-        Use this tool to discover available formatters before formatting code.
-        Formatters automatically fix style issues in Robot Framework code.
+        Returns formatter summaries with name, enabled status, and description.
 
-        Args:
-            enabled_only: If True (default), only return formatters enabled by default
+        Example::
 
-        Returns:
-            List of formatter summaries, each containing:
-            - name: Formatter name
-            - enabled: Whether enabled by default
-            - description: Brief description of what the formatter does
-
-        Example:
-            >>> list_formatters()  # All enabled formatters
-            >>> list_formatters(enabled_only=False)  # All formatters including disabled
+            list_formatters()  # All enabled formatters
+            list_formatters(enabled_only=False)  # All formatters including disabled
 
         """
         if ctx:
@@ -572,25 +482,17 @@ def register_tools(mcp: FastMCP) -> None:
         tags={"documentation"},
         annotations={"readOnlyHint": True, "title": "Get Rule Details"},
     )
-    async def get_rule_info(rule_name_or_id: str, ctx: Context | None = None) -> dict:
+    async def get_rule_info(
+        rule_name_or_id: Annotated[
+            str, Field(description="Rule name (e.g., 'too-long-keyword') or ID (e.g., 'LEN01')")
+        ],
+        ctx: Context | None = None,
+    ) -> RuleDetail:
         """
         Get detailed documentation for a linting rule.
 
-        Args:
-            rule_name_or_id: Rule name (e.g., "too-long-keyword") or ID (e.g., "LEN01")
-
-        Returns:
-            Dictionary containing:
-            - rule_id: The rule ID
-            - name: The rule name
-            - message: The rule message template
-            - severity: Default severity (I/W/E)
-            - enabled: Whether enabled by default
-            - deprecated: Whether the rule is deprecated
-            - docs: Full documentation
-            - parameters: List of configurable parameters
-            - added_in_version: Robocop version when rule was added
-            - version_requirement: Robot Framework version requirement (if any)
+        Returns rule_id, name, message, severity, enabled, deprecated, docs, parameters,
+        added_in_version, and version_requirement.
 
         Example::
 
@@ -607,23 +509,20 @@ def register_tools(mcp: FastMCP) -> None:
         tags={"documentation"},
         annotations={"readOnlyHint": True, "title": "Get Formatter Details"},
     )
-    async def get_formatter_info(formatter_name: str, ctx: Context | None = None) -> dict:
+    async def get_formatter_info(
+        formatter_name: Annotated[
+            str, Field(description="Formatter name (e.g., 'NormalizeSeparators', 'AlignKeywordsSection')")
+        ],
+        ctx: Context | None = None,
+    ) -> FormatterDetail:
         """
         Get detailed documentation for a formatter.
 
-        Args:
-            formatter_name: Formatter name (e.g., "NormalizeSeparators", "AlignKeywordsSection")
+        Returns name, enabled status, docs, min_version, parameters, and skip_options.
 
-        Returns:
-            Dictionary containing:
-            - name: Formatter name
-            - enabled: Whether enabled by default
-            - docs: Full documentation
-            - min_version: Minimum Robot Framework version (if any)
+        Example::
 
-        Example:
-            >>> get_formatter_info("NormalizeSeparators")
-            {"name": "NormalizeSeparators", "enabled": True, "docs": "...", ...}
+            get_formatter_info("NormalizeSeparators")
 
         """
         if ctx:
@@ -636,40 +535,22 @@ def register_tools(mcp: FastMCP) -> None:
         annotations={"readOnlyHint": True, "title": "Suggest Code Fixes"},
     )
     async def suggest_fixes(
-        content: str,
-        filename: str = "stdin.robot",
-        rule_ids: list[str] | None = None,
+        content: Annotated[str, Field(description="Robot Framework source code to analyze")],
+        filename: Annotated[str, Field(description="Virtual filename (affects file type detection)")] = "stdin.robot",
+        rule_ids: Annotated[
+            list[str] | None, Field(description="Specific rule IDs to get suggestions for (None = all)")
+        ] = None,
         ctx: Context | None = None,
-    ) -> dict:
+    ) -> SuggestFixesResult:
         """
         Analyze Robot Framework code and suggest fixes for linting issues.
 
-        This tool goes beyond just identifying issues - it provides actionable
-        suggestions for how to fix each problem. Use this when you want guidance
-        on resolving linting issues.
+        Returns fixes with suggestions, total_issues, auto_fixable count, manual_required
+        count, and overall recommendation.
 
-        Args:
-            content: Robot Framework source code to analyze
-            filename: Virtual filename (affects file type detection)
-            rule_ids: Optional list of specific rule IDs to get suggestions for
+        Example::
 
-        Returns:
-            Dictionary containing:
-            - fixes: List of fix suggestions, each with:
-                - rule_id: The rule ID
-                - name: The rule name
-                - line: Line number
-                - message: The issue description
-                - suggestion: How to fix this issue
-                - auto_fixable: Whether format_content can fix this automatically
-            - total_issues: Total number of issues found
-            - auto_fixable: Count of issues that can be auto-fixed by formatting
-            - manual_required: Count of issues requiring manual fixes
-            - recommendation: Overall recommendation for fixing
-
-        Example:
-            >>> suggest_fixes(robot_code)
-            {"fixes": [...], "auto_fixable": 3, "manual_required": 2, ...}
+            suggest_fixes(robot_code)
 
         """
         if ctx:
@@ -679,8 +560,8 @@ def register_tools(mcp: FastMCP) -> None:
 
         if ctx:
             await ctx.info(
-                f"Found {result['total_issues']} issues: "
-                f"{result['auto_fixable']} auto-fixable, {result['manual_required']} manual"
+                f"Found {result.total_issues} issues: "
+                f"{result.auto_fixable} auto-fixable, {result.manual_required} manual"
             )
 
         return result
@@ -690,49 +571,27 @@ def register_tools(mcp: FastMCP) -> None:
         annotations={"readOnlyHint": True, "title": "Get Codebase Statistics"},
     )
     async def get_statistics(
-        directory_path: str,
-        recursive: bool = True,
-        select: list[str] | None = None,
-        ignore: list[str] | None = None,
-        threshold: str = "I",
-        configure: list[str] | None = None,
+        directory_path: Annotated[str, Field(description="Absolute path to the directory to analyze")],
+        recursive: Annotated[bool, Field(description="Search subdirectories")] = True,
+        select: Annotated[list[str] | None, Field(description="Rule IDs/names to enable")] = None,
+        ignore: Annotated[list[str] | None, Field(description="Rule IDs/names to ignore")] = None,
+        threshold: Annotated[
+            Literal["I", "W", "E"], Field(description="Minimum severity: I=Info, W=Warning, E=Error")
+        ] = "I",
+        configure: Annotated[
+            list[str] | None, Field(description="Rule configurations (e.g., ['line-too-long.line_length=140'])")
+        ] = None,
         ctx: Context | None = None,
-    ) -> dict:
+    ) -> GetStatisticsResult:
         """
         Get code quality statistics for a Robot Framework codebase.
 
-        This tool provides a high-level overview of code quality including:
-        - Total files and issues count
-        - Issue breakdown by severity
-        - Most common issues (top 10)
-        - Quality score and grade
-        - Actionable recommendations
-
-        Use this to understand the overall health of a test suite before
-        diving into specific issues.
-
-        Args:
-            directory_path: Absolute path to the directory to analyze
-            recursive: Whether to search subdirectories (default: True)
-            select: List of rule IDs/names to enable
-            ignore: List of rule IDs/names to ignore
-            threshold: Minimum severity to report (I=Info, W=Warning, E=Error)
-            configure: List of rule configurations
-
-        Returns:
-            Dictionary containing:
-            - directory: The analyzed directory path
-            - summary: Overview stats (total_files, files_with_issues, files_clean,
-              total_issues, avg_issues_per_file, max_issues_in_file)
-            - severity_breakdown: Issues by severity {E: count, W: count, I: count}
-            - top_issues: List of most common rules with counts
-            - quality_score: Score (0-100), grade (A-F), and label
-            - recommendations: List of actionable suggestions
+        Returns directory, summary stats, severity_breakdown, top_issues, quality_score
+        (with grade A-F), and recommendations.
 
         Example::
 
             get_statistics("/path/to/tests")
-            # Returns: {"quality_score": {"score": 85, "grade": "B", ...}, ...}
 
         """
         if ctx:
@@ -741,8 +600,8 @@ def register_tools(mcp: FastMCP) -> None:
         result = _get_statistics_impl(directory_path, recursive, select, ignore, threshold, configure=configure)
 
         if ctx:
-            score = result["quality_score"]
-            await ctx.info(f"Quality score: {score['score']}/100 (Grade: {score['grade']})")
+            score = result.quality_score
+            await ctx.info(f"Quality score: {score.score}/100 (Grade: {score.grade})")
 
         return result
 
@@ -751,42 +610,21 @@ def register_tools(mcp: FastMCP) -> None:
         annotations={"readOnlyHint": True, "title": "Explain Issue at Line"},
     )
     async def explain_issue(
-        content: str,
-        line: int,
-        filename: str = "stdin.robot",
-        context_lines: int = 3,
+        content: Annotated[str, Field(description="Robot Framework source code to analyze")],
+        line: Annotated[int, Field(description="Line number to explain (1-indexed)")],
+        filename: Annotated[str, Field(description="Virtual filename (affects file type detection)")] = "stdin.robot",
+        context_lines: Annotated[int, Field(description="Lines to show before/after the target line")] = 3,
         ctx: Context | None = None,
-    ) -> dict:
+    ) -> ExplainIssueResult:
         """
-        Explain a specific issue at a given line with surrounding context.
+        Explain issues at a specific line with surrounding context.
 
-        This tool provides detailed explanations for issues at a specific line,
-        including why the issue matters, how to fix it, and configurable parameters.
-        More detailed than get_rule_info because it shows the actual code context.
-
-        Args:
-            content: Robot Framework source code to analyze
-            line: The line number to explain (1-indexed)
-            filename: Virtual filename (affects file type detection)
-            context_lines: Number of lines to show before/after (default: 3)
-
-        Returns:
-            Dictionary containing:
-            - line: The requested line number
-            - issues_found: Boolean indicating if issues were found
-            - issues: List of detailed explanations for issues at this line, each with:
-                - rule_id, name, message, severity
-                - why_it_matters: First line of rule documentation
-                - fix_suggestion: How to fix this issue
-                - full_documentation: Complete rule docs
-                - configurable_parameters: List of parameters that can be adjusted
-            - related_issues: Issues on nearby lines (within 2 lines)
-            - context: The surrounding code with line numbers
+        Returns line, issues_found, detailed issue explanations with fix suggestions,
+        related_issues on nearby lines, and code context.
 
         Example::
 
             explain_issue(robot_code, line=42)
-            # Returns detailed explanation of issues at line 42 with context
 
         """
         if ctx:
@@ -795,8 +633,8 @@ def register_tools(mcp: FastMCP) -> None:
         result = _explain_issue_impl(content, line, filename, context_lines)
 
         if ctx:
-            if result["issues_found"]:
-                count = len(result.get("issues", []))
+            if result.issues_found:
+                count = len(result.issues) if result.issues else 0
                 await ctx.info(f"Found {count} issue(s) at line {line}")
             else:
                 await ctx.info(f"No issues found at or near line {line}")
@@ -808,43 +646,28 @@ def register_tools(mcp: FastMCP) -> None:
         annotations={"readOnlyHint": True, "title": "Find Worst Files"},
     )
     async def worst_files(
-        directory_path: str,
-        n: int = 10,
-        recursive: bool = True,
-        select: list[str] | None = None,
-        ignore: list[str] | None = None,
-        threshold: str = "I",
-        configure: list[str] | None = None,
+        directory_path: Annotated[str, Field(description="Absolute path to the directory to analyze")],
+        n: Annotated[int, Field(description="Number of worst files to return")] = 10,
+        recursive: Annotated[bool, Field(description="Search subdirectories")] = True,
+        select: Annotated[list[str] | None, Field(description="Rule IDs/names to enable")] = None,
+        ignore: Annotated[list[str] | None, Field(description="Rule IDs/names to ignore")] = None,
+        threshold: Annotated[
+            Literal["I", "W", "E"], Field(description="Minimum severity: I=Info, W=Warning, E=Error")
+        ] = "I",
+        configure: Annotated[
+            list[str] | None, Field(description="Rule configurations (e.g., ['line-too-long.line_length=140'])")
+        ] = None,
         ctx: Context | None = None,
-    ) -> dict:
+    ) -> WorstFilesResult:
         """
         Get the N files with the most linting issues.
 
-        This tool helps identify problem areas in large codebases by showing which
-        files need the most attention. Use it to prioritize cleanup efforts.
-
-        Args:
-            directory_path: Absolute path to the directory to analyze
-            n: Number of files to return (default: 10)
-            recursive: Whether to search subdirectories (default: True)
-            select: List of rule IDs/names to enable
-            ignore: List of rule IDs/names to ignore
-            threshold: Minimum severity to report (I=Info, W=Warning, E=Error)
-            configure: List of rule configurations
-
-        Returns:
-            Dictionary containing:
-            - files: List of worst files, each with:
-                - file: File path
-                - issue_count: Total number of issues
-                - severity_breakdown: {E: count, W: count, I: count}
-            - total_files_analyzed: Total number of files scanned
-            - files_with_issues: Number of files that have at least one issue
+        Returns files (sorted by issue count), total_files_analyzed, and files_with_issues.
 
         Example::
 
             worst_files("/path/to/tests")  # Top 10 worst files
-            worst_files("/path/to/tests", n=5, threshold="E")  # Top 5 by errors only
+            worst_files("/path/to/tests", n=5, threshold="E")  # Top 5 by errors
 
         """
         if ctx:
@@ -862,8 +685,7 @@ def register_tools(mcp: FastMCP) -> None:
 
         if ctx:
             await ctx.info(
-                f"Found {result['files_with_issues']} files with issues "
-                f"out of {result['total_files_analyzed']} analyzed"
+                f"Found {result.files_with_issues} files with issues out of {result.total_files_analyzed} analyzed"
             )
 
         return result
@@ -873,42 +695,28 @@ def register_tools(mcp: FastMCP) -> None:
         annotations={"readOnlyHint": True, "title": "Search Rules"},
     )
     async def search_rules(
-        query: str,
-        fields: list[str] | None = None,
-        category: str | None = None,
-        severity: str | None = None,
-        limit: int = 20,
+        query: Annotated[str, Field(description="Search query (case-insensitive substring match)")],
+        fields: Annotated[
+            list[str] | None,
+            Field(description="Fields to search: 'name', 'message', 'docs', 'rule_id' (default: name, message, docs)"),
+        ] = None,
+        category: Annotated[str | None, Field(description="Filter by category (e.g., 'LEN', 'NAME')")] = None,
+        severity: Annotated[
+            Literal["I", "W", "E"] | None, Field(description="Filter by severity: I=Info, W=Warning, E=Error")
+        ] = None,
+        limit: Annotated[int, Field(description="Maximum results to return")] = 20,
         ctx: Context | None = None,
-    ) -> list[dict]:
+    ) -> list[RuleSearchResult]:
         """
         Search for linting rules by keyword.
 
-        Use this tool to find rules related to a specific concept or issue.
-        Searches across rule names, messages, and documentation.
-
-        Args:
-            query: Search query (case-insensitive substring match)
-            fields: Fields to search in. Defaults to ["name", "message", "docs"].
-                Valid fields: "name", "message", "docs", "rule_id"
-            category: Optional filter by rule category (e.g., "LEN", "NAME")
-            severity: Optional filter by severity ("I", "W", "E")
-            limit: Maximum number of results to return (default: 20)
-
-        Returns:
-            List of matching rules, each containing:
-            - rule_id: The rule ID
-            - name: The rule name
-            - message: The rule message template
-            - severity: Default severity
-            - enabled: Whether enabled by default
-            - match_field: Which field matched the query
-            - match_snippet: Context around the match
+        Returns matching rules with rule_id, name, message, severity, enabled,
+        match_field, and match_snippet.
 
         Example::
 
             search_rules("long")  # Find rules about length
             search_rules("keyword", category="NAME")  # Keyword naming rules
-            search_rules("documentation", severity="W")  # Doc warnings
 
         """
         if ctx:
@@ -920,23 +728,15 @@ def register_tools(mcp: FastMCP) -> None:
         tags={"documentation"},
         annotations={"readOnlyHint": True, "title": "List Prompts"},
     )
-    async def list_prompts(ctx: Context | None = None) -> list[dict]:
+    async def list_prompts(ctx: Context | None = None) -> list[PromptSummary]:
         """
         List all available MCP prompt templates.
 
-        Prompts are reusable templates for common Robot Framework analysis tasks.
-        Use this tool to discover available prompts and their arguments.
-
-        Returns:
-            List of prompt summaries, each containing:
-            - name: Prompt name
-            - description: Brief description of what the prompt does
-            - arguments: List of argument names the prompt accepts
+        Returns prompt summaries with name, description, and arguments.
 
         Example::
 
             list_prompts()
-            # Returns: [{"name": "analyze_robot_file", "description": "...", ...}, ...]
 
         """
         if ctx:

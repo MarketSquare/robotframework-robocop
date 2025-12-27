@@ -1,5 +1,19 @@
 # Release notes
 
+## [7.2.0](https://github.com/MarketSquare/robotframework-robocop/compare/v7.1.0...v7.2.0) (2025-12-27)
+
+
+### Features
+
+* **mcp:** add new tools and improve UX for large codebases ([#1601](https://github.com/MarketSquare/robotframework-robocop/issues/1601)) ([9b1d871](https://github.com/MarketSquare/robotframework-robocop/commit/9b1d871a2c40549de1d2f1b707201da47f6c68a6))
+* **mcp:** add response caching and error handling middleware ([#1599](https://github.com/MarketSquare/robotframework-robocop/issues/1599)) ([406cfbe](https://github.com/MarketSquare/robotframework-robocop/commit/406cfbefaa229664fdd39e5265f2f47958aabb64))
+* **mcp:** enhance MCP server with batch operations, quality metrics, and improved LLM guidance ([#1593](https://github.com/MarketSquare/robotframework-robocop/issues/1593)) ([c6a853b](https://github.com/MarketSquare/robotframework-robocop/commit/c6a853bd016eff8f65742c79c511fd8712abc1a3))
+
+
+### Bug Fixes
+
+* **release:** fix triggering Github workflows from automated scripts ([#1594](https://github.com/MarketSquare/robotframework-robocop/issues/1594)) ([72ce0ff](https://github.com/MarketSquare/robotframework-robocop/commit/72ce0ff36aed05eef362aa0aeed80324b2ec7a8e))
+
 ## [7.1.0](https://github.com/MarketSquare/robotframework-robocop/compare/v7.0.0...v7.1.0) (2025-12-23)
 
 

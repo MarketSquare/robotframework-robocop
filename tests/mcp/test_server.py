@@ -45,14 +45,13 @@ class TestToolsRegistration:
     """Tests for MCP tools registration."""
 
     def test_all_tools_registered(self):
-        """Test that all 18 tools are registered."""
+        """Test that all tools are registered."""
         tools = asyncio.run(mcp.get_tools())
 
         expected_tools = [
             "lint_content",
             "lint_file",
             "lint_files",
-            "lint_directory",
             "suggest_fixes",
             "explain_issue",
             "format_content",
@@ -64,6 +63,9 @@ class TestToolsRegistration:
             "get_rule_info",
             "get_formatter_info",
             "get_statistics",
+            "worst_files",
+            "search_rules",
+            "list_prompts",
         ]
 
         for tool_name in expected_tools:

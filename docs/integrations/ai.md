@@ -186,27 +186,12 @@ Lint multiple Robot Framework files using paths or glob patterns. Useful for che
 | `ignore` | list[str] | Rule IDs/names to ignore |
 | `threshold` | string | Minimum severity: `I`, `W`, or `E` |
 | `limit` | int | Maximum issues to return (per group if `group_by` is set) |
+| `offset` | int | Number of issues to skip for pagination (default: 0) |
 | `configure` | list[str] | Rule configurations |
 | `group_by` | string | Group results: `"severity"`, `"rule"`, or `"file"` |
+| `summarize_only` | bool | Return only stats without individual issues (default: false) |
 
-**Returns:** Dictionary with `total_files`, `total_issues`, `files_with_issues`, `issues`, `summary`, `limited`, `unmatched_patterns`, and `group_counts` (when grouped).
-
-##### lint_directory
-
-Lint all Robot Framework files in a directory.
-
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `directory_path` | string | Absolute path to directory (required) |
-| `recursive` | bool | Search subdirectories (default: true) |
-| `select` | list[str] | Rule IDs/names to enable |
-| `ignore` | list[str] | Rule IDs/names to ignore |
-| `threshold` | string | Minimum severity: `I`, `W`, or `E` |
-| `limit` | int | Maximum issues to return (per group if `group_by` is set) |
-| `configure` | list[str] | Rule configurations |
-| `group_by` | string | Group results: `"severity"`, `"rule"`, or `"file"` |
-
-**Returns:** Dictionary with `total_files`, `total_issues`, `files_with_issues`, `issues`, `summary`, `limited`, and `group_counts` (when grouped).
+**Returns:** Dictionary with `total_files`, `total_issues`, `files_with_issues`, `issues` (omitted when `summarize_only`), `summary`, `limited`, `offset`, `has_more`, `unmatched_patterns`, `group_counts` (when grouped), and `top_rules` (when `summarize_only`).
 
 ##### suggest_fixes
 
@@ -244,12 +229,13 @@ Format Robot Framework code and return the formatted result.
 
 ##### lint_and_format
 
-Format Robot Framework code and lint the result in one operation. **Recommended for cleaning up code** — it formats first, then shows remaining issues that need manual fixes.
+Format Robot Framework code and lint the result in one operation. **Recommended for cleaning up code** — it formats first, then shows remaining issues that need manual fixes. Can process either inline content or a file from disk.
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `content` | string | Robot Framework source code (required) |
-| `filename` | string | Virtual filename (default: "stdin.robot") |
+| `content` | string | Robot Framework source code (use this OR `file_path`) |
+| `file_path` | string | Absolute path to .robot or .resource file (use this OR `content`) |
+| `filename` | string | Virtual filename when using content (default: "stdin.robot") |
 | `lint_select` | list[str] | Linter rule IDs/names to enable |
 | `lint_ignore` | list[str] | Linter rule IDs/names to ignore |
 | `threshold` | string | Minimum severity: `I`, `W`, or `E` |
@@ -258,8 +244,9 @@ Format Robot Framework code and lint the result in one operation. **Recommended 
 | `line_length` | int | Maximum line length (default: 120) |
 | `limit` | int | Maximum issues to return |
 | `configure` | list[str] | Rule configurations |
+| `overwrite` | bool | If True and `file_path` is used, write formatted content back to file (default: false) |
 
-**Returns:** Dictionary with `formatted`, `changed`, `diff`, `issues` (remaining), `issues_before`, `issues_after`, and `issues_fixed`.
+**Returns:** Dictionary with `formatted`, `changed`, `diff`, `issues` (remaining), `issues_before`, `issues_after`, `issues_fixed`. When `file_path` is used, also includes `file` and `written`.
 
 ##### format_file
 
@@ -287,8 +274,9 @@ Format multiple Robot Framework files using paths or glob patterns. Can optional
 | `space_count` | int | Spaces for indentation (default: 4) |
 | `line_length` | int | Maximum line length (default: 120) |
 | `overwrite` | bool | Write formatted content back to files (default: false) |
+| `summarize_only` | bool | Return only stats without per-file results (default: false) |
 
-**Returns:** Dictionary with `total_files`, `files_changed`, `files_unchanged`, `files_written`, `results`, `errors`, `unmatched_patterns`.
+**Returns:** Dictionary with `total_files`, `files_changed`, `files_unchanged`, `files_written`, `results` (omitted when `summarize_only`), `errors`, `unmatched_patterns`.
 
 #### Statistics Tools
 
@@ -313,6 +301,26 @@ Get code quality statistics for a Robot Framework codebase. Provides a high-leve
 - `top_issues`: List of most common rules with counts
 - `quality_score`: Contains `score` (0-100), `grade` (A-F), and `label`
 - `recommendations`: List of actionable suggestions
+
+##### worst_files
+
+Find the N files with the most linting issues. Useful for prioritizing cleanup efforts in large codebases.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `directory_path` | string | Absolute path to directory (required) |
+| `n` | int | Number of files to return (default: 10) |
+| `recursive` | bool | Search subdirectories (default: true) |
+| `select` | list[str] | Rule IDs/names to enable |
+| `ignore` | list[str] | Rule IDs/names to ignore |
+| `threshold` | string | Minimum severity: `I`, `W`, or `E` |
+| `configure` | list[str] | Rule configurations |
+
+**Returns:** Dictionary with:
+
+- `files`: List of worst files, each with `file`, `issue_count`, `severity_breakdown`
+- `total_files_analyzed`: Total files scanned
+- `files_with_issues`: Files that have at least one issue
 
 #### Explanation Tools
 
@@ -378,6 +386,26 @@ Get detailed documentation for a specific formatter.
 | `formatter_name` | string | Formatter name (e.g., `"NormalizeSeparators"`) (required) |
 
 **Returns:** Dictionary with `name`, `enabled`, `docs`, `min_version`, `parameters`, `skip_options`.
+
+##### search_rules
+
+Search for linting rules by keyword. Searches across rule names, messages, and documentation.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `query` | string | Search query - case-insensitive substring match (required) |
+| `fields` | list[str] | Fields to search: `"name"`, `"message"`, `"docs"`, `"rule_id"` (default: all except rule_id) |
+| `category` | string | Filter by category: `"LEN"`, `"NAME"`, `"DOC"`, etc. |
+| `severity` | string | Filter by severity: `"I"`, `"W"`, or `"E"` |
+| `limit` | int | Maximum results to return (default: 20) |
+
+**Returns:** List of matching rules with `rule_id`, `name`, `message`, `severity`, `enabled`, `match_field`, `match_snippet`.
+
+##### list_prompts
+
+List all available MCP prompt templates. Use this to discover available prompts and their arguments.
+
+**Returns:** List of prompt summaries with `name`, `description`, `arguments`.
 
 ### Available Resources
 

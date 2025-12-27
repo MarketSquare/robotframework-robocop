@@ -8,7 +8,7 @@ from typing import Any
 
 from fastmcp.exceptions import ToolError
 
-from robocop.mcp.tools.utils.helpers import _rule_to_dict
+from robocop.mcp.tools.utils.helpers import _create_match_snippet, _iter_unique_rules, _rule_to_dict
 
 
 def _list_rules_impl(
@@ -28,36 +28,16 @@ def _list_rules_impl(
         A list of rule summary dictionaries.
 
     """
-    from robocop.mcp.cache import get_linter_config
-
-    linter_config = get_linter_config()
-
-    # Get unique rules (avoid duplicates from name/id mapping)
-    seen_ids = set()
-    rules = []
-    for rule in linter_config.rules.values():
-        if rule.rule_id in seen_ids:
-            continue
-        seen_ids.add(rule.rule_id)
-
-        # Apply filters
-        if enabled_only and not rule.enabled:
-            continue
-        if category and not rule.rule_id.startswith(category.upper()):
-            continue
-        if severity and rule.severity.value != severity.upper():
-            continue
-
-        rules.append(
-            {
-                "rule_id": rule.rule_id,
-                "name": rule.name,
-                "severity": rule.severity.value,
-                "enabled": rule.enabled,
-                "message": rule.message,
-            }
-        )
-
+    rules = [
+        {
+            "rule_id": rule.rule_id,
+            "name": rule.name,
+            "severity": rule.severity.value,
+            "enabled": rule.enabled,
+            "message": rule.message,
+        }
+        for rule in _iter_unique_rules(category, severity, enabled_only)
+    ]
     return sorted(rules, key=operator.itemgetter("rule_id"))
 
 
@@ -188,6 +168,81 @@ def _get_rule_info_impl(rule_name_or_id: str) -> dict[str, Any]:
         )
 
     return _rule_to_dict(linter_config.rules[rule_name_or_id])
+
+
+def _search_rules_impl(
+    query: str,
+    fields: list[str] | None = None,
+    category: str | None = None,
+    severity: str | None = None,
+    limit: int = 20,
+) -> list[dict[str, Any]]:
+    """
+    Search rules by keyword across specified fields.
+
+    Args:
+        query: The search query (case-insensitive substring match).
+        fields: Fields to search in. Defaults to ["name", "message", "docs"].
+            Valid fields: "name", "message", "docs", "rule_id".
+        category: Optional filter by rule category (e.g., "LEN", "NAME").
+        severity: Optional filter by severity ("I", "W", "E").
+        limit: Maximum number of results to return (default: 20).
+
+    Returns:
+        A list of matching rules with rule_id, name, message, severity,
+        match_field (which field matched), and match_snippet (context around match).
+
+    """
+    if fields is None:
+        fields = ["name", "message", "docs"]
+
+    query_lower = query.lower()
+    results: list[dict[str, Any]] = []
+
+    for rule in _iter_unique_rules(category, severity):
+        for field in fields:
+            field_value = getattr(rule, field, "") or ""
+            if query_lower in field_value.lower():
+                results.append(
+                    {
+                        "rule_id": rule.rule_id,
+                        "name": rule.name,
+                        "message": rule.message,
+                        "severity": rule.severity.value,
+                        "enabled": rule.enabled,
+                        "match_field": field,
+                        "match_snippet": _create_match_snippet(field_value, query),
+                    }
+                )
+                break  # Only match once per rule
+
+        if len(results) >= limit:
+            break
+
+    return results
+
+
+def _list_prompts_impl() -> list[dict[str, Any]]:
+    """
+    List all available MCP prompt templates.
+
+    Returns:
+        A list of prompt dictionaries with name, description, and arguments.
+
+    """
+    from robocop.mcp.server import mcp
+
+    return sorted(
+        [
+            {
+                "name": prompt.name,
+                "description": prompt.description or "",
+                "arguments": [{"name": arg.name, "required": arg.required} for arg in prompt.arguments],
+            }
+            for prompt in mcp._prompt_manager._prompts.values()  # noqa: SLF001
+        ],
+        key=operator.itemgetter("name"),
+    )
 
 
 def _get_formatter_info_impl(formatter_name: str) -> dict[str, Any]:

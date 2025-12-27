@@ -139,3 +139,115 @@ def _format_file_impl(
 
     except OSError as e:
         raise ToolError(f"Failed to read/write file: {e}") from e
+
+
+def _lint_and_format_impl(
+    content: str | None = None,
+    file_path: str | None = None,
+    filename: str = "stdin.robot",
+    lint_select: list[str] | None = None,
+    lint_ignore: list[str] | None = None,
+    threshold: str = "I",
+    format_select: list[str] | None = None,
+    space_count: int = 4,
+    line_length: int = 120,
+    limit: int | None = None,
+    configure: list[str] | None = None,
+    *,
+    overwrite: bool = False,
+) -> dict[str, Any]:
+    """
+    Format Robot Framework code and lint the result in one operation.
+
+    Args:
+        content: Robot Framework source code to process (use this OR file_path).
+        file_path: Path to the file to process (use this OR content).
+        filename: Virtual filename when using content (affects parsing).
+        lint_select: List of linter rule IDs/names to enable.
+        lint_ignore: List of linter rule IDs/names to ignore.
+        threshold: Minimum severity to report (I=Info, W=Warning, E=Error).
+        format_select: List of formatter names to apply.
+        space_count: Number of spaces for indentation.
+        line_length: Maximum line length.
+        limit: Maximum number of issues to return.
+        configure: List of rule configurations.
+        overwrite: Whether to overwrite the file with formatted content (only when file_path is used).
+
+    Returns:
+        A dictionary containing the lint and format results.
+
+    Raises:
+        ToolError: If neither content nor file_path is provided, or if both are provided.
+
+    """
+    from robocop.mcp.tools.linting import _lint_content_impl
+
+    # Validate input - must have exactly one of content or file_path
+    if content is None and file_path is None:
+        raise ToolError("Either 'content' or 'file_path' must be provided.")
+    if content is not None and file_path is not None:
+        raise ToolError("Provide either 'content' or 'file_path', not both.")
+
+    # If file_path is provided, read the file and set filename
+    source_file = None
+    if file_path is not None:
+        path = Path(file_path)
+
+        if not path.exists():
+            raise ToolError(f"File not found: {file_path}")
+
+        if path.suffix not in VALID_EXTENSIONS:
+            raise ToolError(f"Invalid file type: {path.suffix}. Expected .robot or .resource file.")
+
+        try:
+            content = path.read_text(encoding="utf-8")
+            filename = path.name
+            source_file = str(path)
+        except OSError as e:
+            raise ToolError(f"Failed to read file: {e}") from e
+
+    # Count issues in original code
+    issues_before = _lint_content_impl(content, filename, lint_select, lint_ignore, threshold, configure=configure)
+
+    # Format the code
+    format_result = _format_content_impl(content, filename, format_select, space_count, line_length)
+
+    # Lint the formatted code without limit first for accurate counts
+    issues_after_full = _lint_content_impl(
+        format_result["formatted"],
+        filename,
+        lint_select,
+        lint_ignore,
+        threshold,
+        configure=configure,
+    )
+    issues_after_count = len(issues_after_full)
+
+    # Apply limit only to the returned issues list
+    issues_after = issues_after_full[:limit] if limit else issues_after_full
+
+    result = {
+        "formatted": format_result["formatted"],
+        "changed": format_result["changed"],
+        "diff": format_result["diff"],
+        "issues": issues_after,
+        "issues_before": len(issues_before),
+        "issues_after": issues_after_count,
+        "issues_fixed": len(issues_before) - issues_after_count,
+    }
+
+    # Add file-specific fields if processing a file
+    if source_file is not None:
+        result["file"] = source_file
+
+        # Optionally overwrite the file
+        if overwrite and format_result["changed"]:
+            try:
+                Path(source_file).write_text(format_result["formatted"], encoding="utf-8")
+                result["written"] = True
+            except OSError as e:
+                raise ToolError(f"Failed to write file: {e}") from e
+        else:
+            result["written"] = False
+
+    return result

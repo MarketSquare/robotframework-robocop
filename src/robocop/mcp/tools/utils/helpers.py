@@ -18,6 +18,69 @@ if TYPE_CHECKING:
     from robocop.linter.rules import Rule, RuleParam, RuleSeverity
 
 
+def _create_match_snippet(text: str, query: str, context: int = 30) -> str:
+    """
+    Create a snippet around the first match with surrounding context.
+
+    Args:
+        text: The text to search in.
+        query: The query string to find.
+        context: Number of characters to include before and after the match.
+
+    Returns:
+        A snippet with ellipsis if truncated, or empty string if no match.
+
+    """
+    match_pos = text.lower().find(query.lower())
+    if match_pos == -1:
+        return ""
+    start = max(0, match_pos - context)
+    end = min(len(text), match_pos + len(query) + context)
+    snippet = text[start:end]
+    if start > 0:
+        snippet = "..." + snippet
+    if end < len(text):
+        snippet += "..."
+    return snippet
+
+
+def _iter_unique_rules(
+    category: str | None = None,
+    severity: str | None = None,
+    enabled_only: bool = False,
+) -> Generator[Rule, None, None]:
+    """
+    Yield unique rules with optional filtering.
+
+    Args:
+        category: Filter by rule category/group (e.g., "LEN", "NAME", "DOC").
+        severity: Filter by severity ("I", "W", or "E").
+        enabled_only: If True, only yield enabled rules.
+
+    Yields:
+        Rule objects matching the filters.
+
+    """
+    from robocop.mcp.cache import get_linter_config
+
+    linter_config = get_linter_config()
+    seen_ids: set[str] = set()
+
+    for rule in linter_config.rules.values():
+        if rule.rule_id in seen_ids:
+            continue
+        seen_ids.add(rule.rule_id)
+
+        if enabled_only and not rule.enabled:
+            continue
+        if category and not rule.rule_id.startswith(category.upper()):
+            continue
+        if severity and rule.severity.value != severity.upper():
+            continue
+
+        yield rule
+
+
 def _parse_threshold(threshold: str) -> RuleSeverity:
     """
     Parse threshold string to RuleSeverity.

@@ -26,7 +26,6 @@ issues, auto-fix style problems, and measure code quality.
 | `lint_content` | Checking code provided as text |
 | `lint_file` | Checking a single file on disk |
 | `lint_files` | Checking multiple files by path or glob pattern |
-| `lint_directory` | Checking all files in a directory |
 | `suggest_fixes` | Getting actionable fix recommendations |
 | `explain_issue` | Understanding why a specific line is flagged |
 
@@ -36,7 +35,7 @@ issues, auto-fix style problems, and measure code quality.
 | `format_content` | Formatting code provided as text |
 | `format_file` | Formatting a single file (optionally overwrite) |
 | `format_files` | Formatting multiple files by glob pattern |
-| `lint_and_format` | Formatting + showing remaining manual fixes |
+| `lint_and_format` | Format + lint in one step (content or file, optionally overwrite) |
 
 ### Discovery (explore rules/formatters)
 | Tool | Use When |
@@ -45,11 +44,14 @@ issues, auto-fix style problems, and measure code quality.
 | `list_formatters` | Finding available formatters |
 | `get_rule_info` | Getting documentation for a specific rule |
 | `get_formatter_info` | Getting documentation for a specific formatter |
+| `search_rules` | Searching rules by keyword across names/messages/docs |
+| `list_prompts` | Discovering available prompt templates |
 
 ### Statistics (measure quality)
 | Tool | Use When |
 |------|----------|
 | `get_statistics` | Getting quality score, common issues, recommendations |
+| `worst_files` | Finding files with the most issues in a directory |
 
 ## Severity Levels
 
@@ -65,9 +67,9 @@ issues, auto-fix style problems, and measure code quality.
 3. Apply fixes based on suggestions
 
 ### Clean Up Files
-1. `format_file` with `overwrite=True` to auto-fix style
-2. `lint_file` to see remaining issues
-3. Fix manually and verify
+1. `lint_and_format` with `file_path` and `overwrite=True` to format and see remaining issues
+2. Fix manually and verify
+Or use `format_file` + `lint_file` separately for more control
 
 ### Assess Codebase Health
 1. `get_statistics` for quality score and top issues
@@ -88,7 +90,17 @@ Use `group_by` to organize results:
 - `group_by="rule"` - Same violations grouped together
 - `group_by="file"` - All issues per file
 
-With `group_by`, `limit` applies per group.
+Use `offset` for pagination:
+- `lint_files(patterns, limit=20, offset=0)` - First 20 issues
+- `lint_files(patterns, limit=20, offset=20)` - Next 20 issues
+
+Use `summarize_only=True` for large codebases:
+- Returns counts and top rules without individual issues
+- Significantly reduces response size
+
+Use `worst_files` to prioritize:
+- Identifies which files need the most attention
+- Great starting point for large cleanup efforts
 """,
 )
 

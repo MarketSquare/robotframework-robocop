@@ -343,6 +343,75 @@ Explain a specific issue at a given line with surrounding context. More detailed
 - `related_issues`: Issues on nearby lines (within 2 lines)
 - `context`: Surrounding code with line numbers
 
+#### LLM-Assisted Fixing Tools
+
+These tools enable AI assistants to generate and apply intelligent fixes for Robot Framework code issues.
+
+##### get_fix_context
+
+Get rich context for LLM-assisted fixing of Robot Framework code issues. This tool provides everything an AI needs to generate a proper fix: the problematic code snippet, detailed issue information, rule documentation, and structured guidance.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `content` | string | Robot Framework source code (use this OR `file_path`) |
+| `file_path` | string | Absolute path to .robot or .resource file (use this OR `content`) |
+| `filename` | string | Virtual filename when using content (default: "stdin.robot") |
+| `line` | int | Specific line to get context for (None = all issues) |
+| `rule_ids` | list[str] | Filter to specific rule IDs (e.g., `["LEN01", "NAME02"]`) |
+| `context_lines` | int | Lines of context before and after target (default: 5) |
+
+**Returns:** Dictionary with:
+
+- `file_path`: File path if from file
+- `full_content`: The complete file/content being analyzed
+- `target_snippet`: The problematic code section with `content`, `start_line`, `end_line`
+- `issues`: List of issues with `rule_id`, `name`, `message`, `severity`, `line`, `column`, `fix_suggestion`, `rule_docs`
+- `llm_guidance`: Structured guidance for the LLM on how to generate the fix
+
+##### apply_fix
+
+Apply an LLM-generated fix to Robot Framework code. Takes a line-based replacement and applies it to the code, then validates the fix by re-linting to ensure issues were actually resolved.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `content` | string | Original Robot Framework source (use this OR `file_path`) |
+| `file_path` | string | Path to the file to fix (use this OR `content`) |
+| `filename` | string | Virtual filename when using content (default: "stdin.robot") |
+| `replacement` | object | The line-based replacement with `start_line`, `end_line`, `new_content` (required) |
+| `overwrite` | bool | Write the fix to disk - only with `file_path` (default: false) |
+| `validate` | bool | Re-lint to validate the fix resolved issues (default: true) |
+| `select` | list[str] | Rule IDs to check in validation |
+| `ignore` | list[str] | Rule IDs to ignore in validation |
+
+**Returns:** Dictionary with:
+
+- `success`: Whether the fix was successfully applied and validated
+- `file_path`: File path if written to disk
+- `written`: Whether the fix was written to disk
+- `new_content`: The content after applying the fix
+- `diff`: Unified diff showing the changes
+- `issues_before`: Number of issues before the fix
+- `issues_after`: Number of issues after the fix
+- `issues_fixed`: Number of issues resolved by the fix
+- `remaining_issues`: Issues that remain after the fix (limited to first 10)
+- `validation_error`: Error message if fix validation failed
+
+**Example workflow:**
+
+```python
+# 1. Get context for an issue at line 42
+context = get_fix_context(file_path="/path/to/test.robot", line=42)
+
+# 2. AI uses context.llm_guidance and context.issues to generate a fix
+
+# 3. Apply the fix
+apply_fix(
+    file_path="/path/to/test.robot",
+    replacement={"start_line": 42, "end_line": 43, "new_content": "    Log    Fixed code"},
+    overwrite=True
+)
+```
+
 #### Discovery Tools
 
 ##### list_rules
@@ -566,6 +635,15 @@ Once the MCP server is configured, you can use natural language to interact with
 > "Analyze this code and tell me how to fix each issue"
 >
 > "What issues in this code can be auto-fixed vs need manual changes?"
+
+#### LLM-Assisted Fixing
+
+**Get context and apply AI-generated fixes:**
+> "Get the context for the issue at line 42 in my test file so you can fix it"
+>
+> "Fix the naming issue at line 15 - get the context first, then generate and apply the fix"
+>
+> "Help me fix all the issues in this file one by one"
 
 #### Configuring Rules
 

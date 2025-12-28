@@ -44,7 +44,6 @@ def _build_llm_guidance(issues: list[IssueForFix], start_line: int, end_line: in
         lines.extend(
             (
                 f"## Issue {i}: {issue.name} ({issue.rule_id})",
-                f"## Issue {i}: {issue.name} ({issue.rule_id})",
                 f"- **Line:** {issue.line}",
                 f"- **Severity:** {issue.severity}",
                 f"- **Message:** {issue.message}",

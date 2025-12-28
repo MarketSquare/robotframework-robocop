@@ -24,16 +24,23 @@ from robocop.mcp.tools.documentation import (
     _list_rules_impl,
     _search_rules_impl,
 )
+from robocop.mcp.tools.fixing import (
+    _apply_fix_impl,
+    _get_fix_context_impl,
+)
 from robocop.mcp.tools.formatting import _format_content_impl, _format_file_impl, _lint_and_format_impl
 from robocop.mcp.tools.linting import _lint_content_impl, _lint_file_impl
 from robocop.mcp.tools.models import (
+    ApplyFixResult,
     DiagnosticResult,
     ExplainIssueResult,
+    FixReplacement,
     FormatContentResult,
     FormatFileResult,
     FormatFilesResult,
     FormatterDetail,
     FormatterSummary,
+    GetFixContextResult,
     GetStatisticsResult,
     LintAndFormatResult,
     LintFilesResult,
@@ -743,3 +750,120 @@ def register_tools(mcp: FastMCP) -> None:
             await ctx.debug("Listing available prompts")
 
         return _list_prompts_impl()
+
+    @mcp.tool(
+        tags={"linting", "fixing"},
+        annotations={"readOnlyHint": True, "title": "Get Fix Context for LLM"},
+    )
+    async def get_fix_context(
+        content: Annotated[str | None, Field(description="Robot Framework source code (use this OR file_path)")] = None,
+        file_path: Annotated[str | None, Field(description="Absolute path to .robot/.resource file")] = None,
+        filename: Annotated[str, Field(description="Virtual filename when using content")] = "stdin.robot",
+        line: Annotated[int | None, Field(description="Specific line to get context for (None = all issues)")] = None,
+        rule_ids: Annotated[
+            list[str] | None, Field(description="Filter to specific rule IDs (e.g., ['LEN01', 'NAME02'])")
+        ] = None,
+        context_lines: Annotated[int, Field(description="Lines of context before and after target")] = 5,
+        ctx: Context | None = None,
+    ) -> GetFixContextResult:
+        """
+        Get rich context for LLM-assisted fixing of Robot Framework code issues.
+
+        Returns the problematic code snippet, issue details with fix suggestions,
+        rule documentation, and structured guidance for generating fixes.
+
+        Use this tool to understand issues before generating a fix, then apply
+        the fix with apply_fix.
+
+        Example workflow::
+
+            # 1. Get context for an issue at line 42
+            context = get_fix_context(file_path="/path/to/test.robot", line=42)
+
+            # 2. Use context.llm_guidance and context.issues to generate fix
+
+            # 3. Apply fix with apply_fix tool
+
+        """
+        if ctx:
+            target = f"line {line}" if line else "all issues"
+            source = file_path or f"content ({len(content) if content else 0} bytes)"
+            await ctx.info(f"Getting fix context for {target} in {source}...")
+
+        result = _get_fix_context_impl(
+            content=content,
+            file_path=file_path,
+            filename=filename,
+            line=line,
+            rule_ids=rule_ids,
+            context_lines=context_lines,
+        )
+
+        if ctx:
+            await ctx.info(f"Found {len(result.issues)} issue(s) in target area")
+
+        return result
+
+    @mcp.tool(
+        tags={"linting", "fixing"},
+        annotations={"idempotentHint": True, "title": "Apply LLM-Generated Fix"},
+    )
+    async def apply_fix(
+        content: Annotated[
+            str | None, Field(description="Original Robot Framework source (use this OR file_path)")
+        ] = None,
+        file_path: Annotated[str | None, Field(description="Path to the file to fix")] = None,
+        filename: Annotated[str, Field(description="Virtual filename when using content")] = "stdin.robot",
+        replacement: Annotated[FixReplacement, Field(description="The line-based replacement to apply")] = None,
+        overwrite: Annotated[bool, Field(description="Write the fix to disk (only with file_path)")] = False,
+        validate: Annotated[bool, Field(description="Re-lint to validate the fix resolved issues")] = True,
+        select: Annotated[list[str] | None, Field(description="Rule IDs to check in validation")] = None,
+        ignore: Annotated[list[str] | None, Field(description="Rule IDs to ignore in validation")] = None,
+        ctx: Context | None = None,
+    ) -> ApplyFixResult:
+        """
+        Apply an LLM-generated fix to Robot Framework code.
+
+        Takes a line-based replacement (start_line, end_line, new_content) and
+        applies it to the code. Validates the fix by re-linting to ensure issues
+        were actually resolved.
+
+        WARNING: When file_path is used with overwrite=True, this PERMANENTLY
+        MODIFIES the file on disk. Use overwrite=False (default) to preview.
+
+        Example::
+
+            # Apply a fix to lines 42-43
+            apply_fix(
+                file_path="/path/to/test.robot",
+                replacement={"start_line": 42, "end_line": 43, "new_content": "Fixed Code"},
+                overwrite=True
+            )
+
+        """
+        if ctx:
+            source = file_path or f"content ({len(content) if content else 0} bytes)"
+            mode = "applying and writing" if overwrite else "previewing fix"
+            await ctx.info(f"{mode.capitalize()} for {source}...")
+
+        result = _apply_fix_impl(
+            content=content,
+            file_path=file_path,
+            filename=filename,
+            replacement=replacement,
+            overwrite=overwrite,
+            validate=validate,
+            select=select,
+            ignore=ignore,
+        )
+
+        if ctx:
+            if result.success:
+                msg = f"Fix applied: {result.issues_fixed} issue(s) resolved"
+                if result.written:
+                    msg += " (file updated)"
+            else:
+                msg = f"Fix failed: {result.validation_error}"
+            await ctx.info(msg)
+
+        return result

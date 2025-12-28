@@ -351,3 +351,64 @@ class PromptSummary(BaseModel):
     name: str = Field(description="Prompt name")
     description: str = Field(description="Brief description of what the prompt does")
     arguments: list[PromptArgument] = Field(description="Arguments the prompt accepts")
+
+
+# --- LLM-Assisted Fixing Models ---
+
+
+class CodeSnippet(BaseModel):
+    """A snippet of code with line information."""
+
+    content: str = Field(description="The code content")
+    start_line: int = Field(description="First line number (1-indexed)")
+    end_line: int = Field(description="Last line number (1-indexed)")
+
+
+class IssueForFix(BaseModel):
+    """Details of an issue to be fixed by an LLM."""
+
+    rule_id: str = Field(description="The rule ID (e.g., 'NAME01')")
+    name: str = Field(description="The rule name (e.g., 'not-allowed-char-in-name')")
+    message: str = Field(description="The specific issue message")
+    severity: Literal["I", "W", "E"] = Field(description="Severity level")
+    line: int = Field(description="Line number where the issue occurs")
+    column: int = Field(description="Column number")
+    end_line: int = Field(description="End line number")
+    end_column: int = Field(description="End column number")
+    fix_suggestion: str | None = Field(default=None, description="Built-in fix suggestion if available")
+    rule_docs: str | None = Field(default=None, description="Full rule documentation")
+
+
+class GetFixContextResult(BaseModel):
+    """Complete context for LLM-assisted fixing."""
+
+    file_path: str | None = Field(default=None, description="File path if from file")
+    full_content: str = Field(description="The complete file/content being analyzed")
+    target_snippet: CodeSnippet = Field(description="The problematic code section with surrounding context")
+    issues: list[IssueForFix] = Field(description="Issues found in the target area")
+    llm_guidance: str = Field(description="Structured guidance for the LLM on how to generate the fix")
+
+
+class FixReplacement(BaseModel):
+    """A line-based replacement for applying a fix."""
+
+    start_line: int = Field(description="First line to replace (1-indexed)")
+    end_line: int = Field(description="Last line to replace (1-indexed, inclusive)")
+    new_content: str = Field(description="The replacement content (lines joined with newlines)")
+
+
+class ApplyFixResult(BaseModel):
+    """Result of applying a fix."""
+
+    success: bool = Field(description="Whether the fix was successfully applied")
+    file_path: str | None = Field(default=None, description="File path if written to disk")
+    written: bool = Field(description="Whether the fix was written to disk")
+    new_content: str = Field(description="The content after applying the fix")
+    diff: str | None = Field(default=None, description="Unified diff showing the changes")
+    issues_before: int = Field(description="Number of issues before the fix")
+    issues_after: int = Field(description="Number of issues after the fix")
+    issues_fixed: int = Field(description="Number of issues resolved by the fix")
+    remaining_issues: list[DiagnosticResult] | None = Field(
+        default=None, description="Issues that remain after the fix (limited to first 10)"
+    )
+    validation_error: str | None = Field(default=None, description="Error message if fix validation failed")

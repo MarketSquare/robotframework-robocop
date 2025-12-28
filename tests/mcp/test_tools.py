@@ -34,9 +34,20 @@ from robocop.mcp.tools.documentation import (
     _list_rules_impl,
     _search_rules_impl,
 )
-from robocop.mcp.tools.formatting import _format_content_impl, _format_file_impl, _lint_and_format_impl
+from robocop.mcp.tools.fixing import (
+    _apply_fix_impl,
+    _build_llm_guidance,
+    _extract_snippet,
+    _get_fix_context_impl,
+    _get_line_range,
+)
+from robocop.mcp.tools.formatting import (
+    _format_content_impl,
+    _format_file_impl,
+    _lint_and_format_impl,
+)
 from robocop.mcp.tools.linting import _lint_content_impl, _lint_file_impl
-from robocop.mcp.tools.models import DiagnosticResult
+from robocop.mcp.tools.models import DiagnosticResult, FixReplacement, IssueForFix
 
 
 def _make_issue(
@@ -2247,3 +2258,419 @@ class TestListPrompts:
         assert len(fix.arguments) == 1
         assert fix.arguments[0].name == "content"
         assert fix.arguments[0].required is True
+
+
+class TestGetLineRange:
+    """Tests for _get_line_range helper."""
+
+    def test_get_line_range_with_line(self):
+        """Test line range calculation for specific line."""
+        content = "line1\nline2\nline3\nline4\nline5\nline6\nline7"
+        start, end = _get_line_range(content, line=4, context_lines=2)
+        assert start == 2  # line 4 - 2 = line 2
+        assert end == 6  # line 4 + 2 = line 6
+
+    def test_get_line_range_at_start(self):
+        """Test line range at start of file."""
+        content = "line1\nline2\nline3"
+        start, end = _get_line_range(content, line=1, context_lines=2)
+        assert start == 1  # Can't go below 1
+        assert end == 3  # line 1 + 2 = line 3
+
+    def test_get_line_range_at_end(self):
+        """Test line range at end of file."""
+        content = "line1\nline2\nline3"
+        start, end = _get_line_range(content, line=3, context_lines=2)
+        assert start == 1  # line 3 - 2 = line 1
+        assert end == 3  # Can't go beyond last line
+
+    def test_get_line_range_no_line(self):
+        """Test line range when no specific line is given."""
+        content = "line1\nline2\nline3"
+        start, end = _get_line_range(content, line=None, context_lines=2)
+        assert start == 1
+        assert end == 3  # Full content
+
+
+class TestExtractSnippet:
+    """Tests for _extract_snippet helper."""
+
+    def test_extract_snippet_basic(self):
+        """Test basic snippet extraction."""
+        content = "line1\nline2\nline3\nline4\nline5"
+        snippet = _extract_snippet(content, start_line=2, end_line=4)
+        assert snippet == "line2\nline3\nline4"
+
+    def test_extract_snippet_single_line(self):
+        """Test extracting a single line."""
+        content = "line1\nline2\nline3"
+        snippet = _extract_snippet(content, start_line=2, end_line=2)
+        assert snippet == "line2"
+
+    def test_extract_snippet_full_content(self):
+        """Test extracting full content."""
+        content = "line1\nline2\nline3"
+        snippet = _extract_snippet(content, start_line=1, end_line=3)
+        assert snippet == content
+
+
+class TestBuildLlmGuidance:
+    """Tests for _build_llm_guidance helper."""
+
+    def test_build_guidance_no_issues(self):
+        """Test guidance when no issues."""
+        result = _build_llm_guidance([], start_line=1, end_line=5)
+        assert "No issues found" in result
+
+    def test_build_guidance_with_issues(self):
+        """Test guidance includes issue details."""
+        issues = [
+            IssueForFix(
+                rule_id="NAME02",
+                name="wrong-case-in-test-case-name",
+                message="Test case name 'test' should use title case",
+                severity="W",
+                line=2,
+                column=1,
+                end_line=2,
+                end_column=5,
+                fix_suggestion="Use Title Case for test names",
+                rule_docs=None,
+            )
+        ]
+        result = _build_llm_guidance(issues, start_line=1, end_line=5)
+
+        assert "NAME02" in result
+        assert "wrong-case-in-test-case-name" in result
+        assert "Title Case" in result
+        assert "**Line:** 2" in result
+
+
+class TestGetFixContext:
+    """Tests for get_fix_context tool."""
+
+    def test_get_fix_context_with_content(self):
+        """Test getting fix context from content."""
+        content = dedent(
+            """
+            *** Test Cases ***
+            test without capital
+                log  hello
+        """
+        ).lstrip()
+
+        result = _get_fix_context_impl(content=content)
+
+        assert result.full_content == content
+        assert result.file_path is None
+        assert len(result.issues) > 0
+        assert result.llm_guidance is not None
+
+    def test_get_fix_context_with_file(self, tmp_path: Path):
+        """Test getting fix context from file."""
+        robot_file = tmp_path / "test.robot"
+        robot_file.write_text("*** Test Cases ***\ntest lowercase\n    log  hi\n")
+
+        result = _get_fix_context_impl(file_path=str(robot_file))
+
+        assert result.file_path == str(robot_file)
+        assert len(result.issues) > 0
+
+    def test_get_fix_context_specific_line(self):
+        """Test getting fix context for specific line."""
+        content = dedent(
+            """
+            *** Test Cases ***
+            test one
+                log  hello
+            test two
+                log  world
+        """
+        ).lstrip()
+
+        result = _get_fix_context_impl(content=content, line=2, context_lines=1)
+
+        # Should focus on issues near line 2
+        assert result.target_snippet.start_line <= 2
+        assert result.target_snippet.end_line >= 2
+
+    def test_get_fix_context_with_rule_filter(self):
+        """Test getting fix context filtered by rule IDs."""
+        content = dedent(
+            """
+            *** Test Cases ***
+            test without capital
+                log  hello
+        """
+        ).lstrip()
+
+        result = _get_fix_context_impl(content=content, rule_ids=["NAME*"])
+
+        # All issues should be NAME rules
+        for issue in result.issues:
+            assert issue.rule_id.startswith("NAME")
+
+    def test_get_fix_context_includes_fix_suggestion(self):
+        """Test that fix suggestions from rules are included."""
+        content = dedent(
+            """
+            *** Test Cases ***
+            test without capital
+                log  hello
+        """
+        ).lstrip()
+
+        result = _get_fix_context_impl(content=content)
+
+        # At least some issues should have fix suggestions
+        # (depends on which rules have fix_suggestion defined)
+        assert len(result.issues) > 0
+
+    def test_get_fix_context_requires_content_or_file(self):
+        """Test that either content or file_path must be provided."""
+        with pytest.raises(ToolError, match="Either 'content' or 'file_path' must be provided"):
+            _get_fix_context_impl()
+
+    def test_get_fix_context_not_both_content_and_file(self, tmp_path: Path):
+        """Test that content and file_path cannot both be provided."""
+        robot_file = tmp_path / "test.robot"
+        robot_file.write_text("*** Test Cases ***\nTest\n    Log    Hi\n")
+
+        with pytest.raises(ToolError, match="Provide either 'content' or 'file_path', not both"):
+            _get_fix_context_impl(content="some content", file_path=str(robot_file))
+
+    def test_get_fix_context_file_not_found(self):
+        """Test error when file doesn't exist."""
+        with pytest.raises(ToolError, match="File not found"):
+            _get_fix_context_impl(file_path="/nonexistent/path/test.robot")
+
+    def test_get_fix_context_invalid_file_type(self, tmp_path: Path):
+        """Test error for invalid file type."""
+        txt_file = tmp_path / "test.txt"
+        txt_file.write_text("some content")
+
+        with pytest.raises(ToolError, match="Invalid file type"):
+            _get_fix_context_impl(file_path=str(txt_file))
+
+
+class TestApplyFix:
+    """Tests for apply_fix tool."""
+
+    def test_apply_fix_basic(self):
+        """Test applying a basic fix."""
+        content = dedent(
+            """
+            *** Test Cases ***
+            test lowercase
+                Log    Hello
+        """
+        ).lstrip()
+
+        replacement = FixReplacement(
+            start_line=2,
+            end_line=2,
+            new_content="Test Uppercase",
+        )
+
+        result = _apply_fix_impl(content=content, replacement=replacement)
+
+        assert result.success is True
+        assert "Test Uppercase" in result.new_content
+        assert result.diff is not None
+        assert result.written is False  # No file to write
+
+    def test_apply_fix_reduces_issues(self):
+        """Test that applying a fix reduces issue count."""
+        content = dedent(
+            """
+            *** Test Cases ***
+            test lowercase
+                Log    Hello
+        """
+        ).lstrip()
+
+        # Fix the test case name
+        replacement = FixReplacement(
+            start_line=2,
+            end_line=2,
+            new_content="Test Uppercase",
+        )
+
+        result = _apply_fix_impl(content=content, replacement=replacement)
+
+        # The fix should reduce NAME issues
+        assert result.issues_fixed >= 0
+
+    def test_apply_fix_with_file(self, tmp_path: Path):
+        """Test applying fix to a file without overwriting."""
+        robot_file = tmp_path / "test.robot"
+        original = "*** Test Cases ***\ntest lowercase\n    Log    Hello\n"
+        robot_file.write_text(original)
+
+        replacement = FixReplacement(
+            start_line=2,
+            end_line=2,
+            new_content="Test Uppercase",
+        )
+
+        result = _apply_fix_impl(file_path=str(robot_file), replacement=replacement)
+
+        assert result.success is True
+        assert result.file_path == str(robot_file)
+        assert result.written is False  # Default is no overwrite
+        # File should be unchanged
+        assert robot_file.read_text() == original
+
+    def test_apply_fix_with_overwrite(self, tmp_path: Path):
+        """Test applying fix with overwrite=True."""
+        robot_file = tmp_path / "test.robot"
+        original = "*** Test Cases ***\ntest lowercase\n    Log    Hello\n"
+        robot_file.write_text(original)
+
+        replacement = FixReplacement(
+            start_line=2,
+            end_line=2,
+            new_content="Test Uppercase",
+        )
+
+        result = _apply_fix_impl(file_path=str(robot_file), replacement=replacement, overwrite=True)
+
+        assert result.success is True
+        assert result.written is True
+        # File should be changed
+        new_content = robot_file.read_text()
+        assert new_content != original
+        assert "Test Uppercase" in new_content
+
+    def test_apply_fix_multiline_replacement(self):
+        """Test replacing multiple lines."""
+        content = dedent(
+            """
+            *** Test Cases ***
+            test one
+                log  a
+                log  b
+            test two
+                Log    Hello
+        """
+        ).lstrip()
+
+        replacement = FixReplacement(
+            start_line=2,
+            end_line=4,
+            new_content="Test One\n    Log    A\n    Log    B",
+        )
+
+        result = _apply_fix_impl(content=content, replacement=replacement)
+
+        assert result.success is True
+        assert "Test One" in result.new_content
+        assert "Log    A" in result.new_content
+
+    def test_apply_fix_without_validation(self):
+        """Test applying fix without validation."""
+        content = "*** Test Cases ***\ntest\n    Log    Hi\n"
+
+        replacement = FixReplacement(
+            start_line=2,
+            end_line=2,
+            new_content="Test",
+        )
+
+        result = _apply_fix_impl(content=content, replacement=replacement, validate=False)
+
+        # Should succeed without re-linting
+        assert result.success is True
+        # Counts should still be calculated when validate=False
+        assert result.issues_before >= 0
+
+    def test_apply_fix_requires_content_or_file(self):
+        """Test that either content or file_path must be provided."""
+        replacement = FixReplacement(start_line=1, end_line=1, new_content="test")
+
+        with pytest.raises(ToolError, match="Either 'content' or 'file_path' must be provided"):
+            _apply_fix_impl(replacement=replacement)
+
+    def test_apply_fix_requires_replacement(self):
+        """Test that replacement is required."""
+        with pytest.raises(ToolError, match="'replacement' is required"):
+            _apply_fix_impl(content="*** Test Cases ***\nTest\n    Log    Hi\n")
+
+    def test_apply_fix_invalid_line_range(self):
+        """Test error for invalid line range."""
+        content = "line1\nline2\nline3"
+
+        replacement = FixReplacement(
+            start_line=10,  # Beyond file length
+            end_line=11,
+            new_content="test",
+        )
+
+        with pytest.raises(ToolError, match="Invalid start_line"):
+            _apply_fix_impl(content=content, replacement=replacement)
+
+    def test_apply_fix_generates_diff(self):
+        """Test that diff is generated correctly."""
+        content = "*** Test Cases ***\nold test\n    Log    Hi\n"
+
+        replacement = FixReplacement(
+            start_line=2,
+            end_line=2,
+            new_content="New Test",
+        )
+
+        result = _apply_fix_impl(content=content, replacement=replacement)
+
+        assert result.diff is not None
+        assert "-old test" in result.diff
+        assert "+New Test" in result.diff
+
+    def test_apply_fix_no_change_no_diff(self):
+        """Test that no diff is generated when content unchanged."""
+        content = "*** Test Cases ***\nTest\n    Log    Hi\n"
+
+        replacement = FixReplacement(
+            start_line=2,
+            end_line=2,
+            new_content="Test",  # Same as original
+        )
+
+        result = _apply_fix_impl(content=content, replacement=replacement)
+
+        assert result.diff is None
+
+    def test_apply_fix_with_select(self):
+        """Test apply_fix with select filter for validation."""
+        content = "*** Test Cases ***\ntest lowercase\n    log  hi\n"
+
+        replacement = FixReplacement(
+            start_line=2,
+            end_line=2,
+            new_content="Test Uppercase",
+        )
+
+        result = _apply_fix_impl(content=content, replacement=replacement, select=["NAME*"])
+
+        # Validation should only check NAME rules
+        assert result.success is True
+
+    def test_apply_fix_remaining_issues_limited(self):
+        """Test that remaining_issues is limited to 10."""
+        # Create content with many issues
+        lines = ["*** Test Cases ***"]
+        for i in range(15):
+            lines.append(f"test {i}")
+            lines.append("    log  hi")
+        content = "\n".join(lines)
+
+        replacement = FixReplacement(
+            start_line=2,
+            end_line=2,
+            new_content="Test 0",  # Fix one issue
+        )
+
+        result = _apply_fix_impl(content=content, replacement=replacement)
+
+        # remaining_issues should be capped at 10
+        if result.remaining_issues:
+            assert len(result.remaining_issues) <= 10

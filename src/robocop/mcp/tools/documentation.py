@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import inspect
+import operator
 
 from fastmcp.exceptions import ToolError
 
@@ -16,7 +17,11 @@ from robocop.mcp.tools.models import (
     RuleSearchResult,
     RuleSummary,
 )
-from robocop.mcp.tools.utils.helpers import _create_match_snippet, _iter_unique_rules, _rule_to_dict
+from robocop.mcp.tools.utils.helpers import (
+    _create_match_snippet,
+    _iter_unique_rules,
+    _rule_to_dict,
+)
 
 
 def _list_rules_impl(
@@ -46,7 +51,7 @@ def _list_rules_impl(
         )
         for rule in _iter_unique_rules(category, severity, enabled_only)
     ]
-    return sorted(rules, key=lambda r: r.rule_id)
+    return sorted(rules, key=operator.attrgetter("rule_id"))
 
 
 def _list_formatters_impl(enabled_only: bool = True) -> list[FormatterSummary]:

@@ -74,8 +74,8 @@ def _format_content_impl(
 
             diff_text = None
             if changed:
-                old_lines = [line + "\n" for line in old_model.text.splitlines()]
-                new_lines = [line + "\n" for line in new_model.text.splitlines()]
+                old_lines = old_model.text.splitlines(keepends=True)
+                new_lines = new_model.text.splitlines(keepends=True)
                 diff_text = "".join(unified_diff(old_lines, new_lines, fromfile="before", tofile="after"))
 
             return FormatContentResult(formatted=new_model.text, changed=changed, diff=diff_text)

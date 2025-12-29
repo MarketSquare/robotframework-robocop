@@ -7,6 +7,7 @@ from typing import TYPE_CHECKING, NoReturn
 
 from rich.console import Console
 from rich.markup import escape
+from rich.text import Text
 
 import robocop.linter.reports
 from robocop.files import get_relative_path
@@ -157,18 +158,15 @@ class PrintIssuesReport(robocop.linter.reports.Report):
         return []
 
     @staticmethod
-    def _gutter(line_no: int | str, gutter_width: int, indent: str):
-        return f"[cyan]{line_no:>{gutter_width}} |[/cyan]{indent}"
+    def _code_string(line: str, prefix: str) -> str:
+        line = line.rstrip()
+        if line:
+            return prefix + line.expandtabs(4) + "\n"
+        return "\n"
 
-    def _print_lines(self, lines: list[str]) -> None:
-        self.console.print("\n".join(line.expandtabs(4).rstrip() for line in lines))
-
-    def _code_string(self, line: str) -> str:
-        return escape(line.expandtabs(4))
-
-    def _print_issue_with_lines(self, lines: list[str], source_rel_path: Path, diagnostic: Diagnostic) -> None:
+    def _print_issue_with_lines(self, lines: list[str], source_rel_path: Path, diagnostic: Diagnostic) -> Text:
         """
-        Print diagnostic information for a specific range of lines in a source file.
+        Return a Rich Text object containing diagnostic information with source code lines.
 
         It highlights the problematic code section, displays the associated diagnostic message, and provides context
         by showing surrounding lines. The output is formatted with line numbers, gutter separators, and colored text
@@ -183,76 +181,88 @@ class PrintIssuesReport(robocop.linter.reports.Report):
         """
         start_line, end_line = diagnostic.range.start.line, diagnostic.range.end.line
         start_col, end_col = diagnostic.range.start.character, diagnostic.range.end.character
-        issue_format = (
-            self.issue_format if self.issue_format is not None else "{source}:{line}:{col} [red]{rule_id}[/red] {desc}"
-        )
-        issue_msg = issue_format.format(
-            source=source_rel_path,
-            line=start_line,
-            col=start_col,
-            rule_id=diagnostic.rule.rule_id,
-            desc=escape(diagnostic.message),
-        )
-        self.console.print(issue_msg)
+        if self.issue_format is not None:
+            text = Text.from_markup(
+                self.issue_format.format(
+                    source=str(source_rel_path),
+                    line=start_line,
+                    col=start_col,
+                    rule_id=diagnostic.rule.rule_id,
+                    desc=escape(diagnostic.message),
+                )
+            )
+            text.append("\n")
+        else:
+            text = Text(f"{source_rel_path}:{start_line}:{start_col} ")
+            text.append(diagnostic.rule.rule_id, style="red")
+            text.append(f" {diagnostic.message}\n")
         if diagnostic.rule.file_wide_rule or start_line > len(lines):
-            return
+            return text
         start_line = max(start_line, 1)
         end_line = min(end_line, len(lines))
         gutter_width = len(str(end_line)) + 1
+        gutter_space = " " * gutter_width
+        text_lines: list[tuple[str, str] | str] = [(f"{gutter_space} |\n", "cyan")]
         # multi-line non-empty error lines will require indenting code before/after to match the error block
         if start_line == end_line or all(not lines[line_no].strip() for line_no in range(start_line, end_line + 1)):
             indent = ""
         else:
             indent = "  "
-        print_lines = [self._gutter(" ", gutter_width, "")]
         # code before issue
         if start_line >= 2 and lines[start_line - 2].strip():  # no empty lines before
-            for line_no in range(start_line - 2, start_line):
-                if line_no < 1:
-                    continue
-                print_lines.append(
-                    f"{self._gutter(line_no, gutter_width, indent)} {self._code_string(lines[line_no - 1])}"
-                )
+            start_line_cut = max(1, start_line - 2)  # take 2 lines before error if the lines exist
+            for line_no in range(start_line_cut, start_line):
+                text_lines.append((f"{line_no:>{gutter_width}} |", "cyan"))
+                text_lines.append(self._code_string(lines[line_no - 1], prefix=f"{indent} "))
         # issue
         if start_line == end_line:  # error in one line (most cases)
-            print_lines.append(
-                f"{self._gutter(start_line, gutter_width, indent)} {self._code_string(lines[start_line - 1])}"
-            )
-            print_lines.append(
-                f"{self._gutter(' ', gutter_width, indent)} "
-                f"[red]{' ' * (start_col - 1)}{'^' * max(end_col - start_col, 1)} {diagnostic.rule.rule_id}[/red]"
+            text_lines.append((f"{start_line:>{gutter_width}} |", "cyan"))
+            text_lines.append(self._code_string(lines[start_line - 1], prefix=f"{indent} "))
+            text_lines.append((f"{gutter_space} |{indent} ", "cyan"))
+            text_lines.append(
+                (
+                    " " * (start_col - 1) + "^" * max(end_col - start_col, 1) + " " + diagnostic.rule.rule_id + "\n",
+                    "red",
+                )
             )
         else:  # multi-line errors, such as SPC05
             for line in range(start_line, end_line + 1):
                 sep = "/" if line == start_line else "|"
-                print_lines.append(
-                    f"{self._gutter(line, gutter_width, indent='')} [red]{sep}[/red] "
-                    f"{self._code_string(lines[line - 1])}"
-                )
-            print_lines.append(f"{self._gutter(' ', gutter_width, indent='')} [red]|_^ {diagnostic.rule.rule_id}[/red]")
+                text_lines.append((f"{line:>{gutter_width}} | ", "cyan"))
+                text_lines.append((f"{sep}", "red"))
+                text_lines.append(self._code_string(lines[line - 1], prefix=" "))
+            text_lines.append((f"{gutter_space} |", "cyan"))
+            text_lines.append((f" |_^ {diagnostic.rule.rule_id}\n", "red"))
         # code after issue
         for line_no in range(end_line + 1, end_line + 3):
             if line_no > len(lines) or not lines[line_no - 1].strip():
                 break
-            print_lines.append(f"{self._gutter(line_no, gutter_width, indent)} {self._code_string(lines[line_no - 1])}")
-        # fix suggestion
+            text_lines.append((f"{line_no:>{gutter_width}} |{indent}", "cyan"))
+            text_lines.append(self._code_string(lines[line_no - 1], prefix=" "))
         if diagnostic.rule.fix_suggestion:
-            print_lines.append(
-                f"{self._gutter(' ', gutter_width, '')} [yellow]Suggestion:[/yellow] {diagnostic.rule.fix_suggestion}"
-            )
-        print_lines.append(self._gutter(" ", gutter_width, ""))
-        self._print_lines(print_lines)
-        print()
+            text_lines.append((f"{gutter_space} | ", "cyan"))
+            text_lines.append(("Suggestion: ", "yellow"))
+            text_lines.append(f"{diagnostic.rule.fix_suggestion}\n")
+        text_lines.append((f"{gutter_space} |\n\n", "cyan"))
+        text.append(Text.assemble(*text_lines))
+        return text
 
     def print_diagnostics_extended(self, diagnostics: Diagnostics) -> None:
+        """
+        Print a diagnostics message with the surrounding source code.
+
+        Messages are aggregated by source file and sent to printing to rich console.
+        """
         cwd = Path.cwd()
         for source, diag_by_source in diagnostics.diag_by_source.items():
             source_rel = get_relative_path(source, cwd)
             source_lines = None
+            text: list[Text] = []
             for diagnostic in diag_by_source:
                 if not source_lines:  # TODO: model should be coming from source, not diagnostics
                     source_lines = self._get_source_lines(diagnostic.model, source)
-                self._print_issue_with_lines(source_lines, source_rel, diagnostic)
+                text.append(self._print_issue_with_lines(source_lines, source_rel, diagnostic))
+            self.console.print(*text, sep="", end="")
 
     def generate_report(self, diagnostics: Diagnostics, **kwargs) -> None:  # noqa: ARG002
         if self.config.silent:

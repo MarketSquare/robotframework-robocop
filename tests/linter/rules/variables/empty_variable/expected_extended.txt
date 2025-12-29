@@ -85,44 +85,44 @@ test.robot:33:1 VAR01 Empty variable value
  33 | ...
     | ^^^ VAR01
  34 | ...  3
- 35 | ${EMPTY_WITH_BACKSLASH}  \\
+ 35 | ${EMPTY_WITH_BACKSLASH}  \
     |
 
 test.robot:35:1 VAR01 Empty variable value
     |
  33 | ...
  34 | ...  3
- 35 | ${EMPTY_WITH_BACKSLASH}  \\
+ 35 | ${EMPTY_WITH_BACKSLASH}  \
     | ^^^^^^^^^^^^^^^^^^^^^^^^^^ VAR01
- 36 | @{MULTILINE_EMPTY_WITH_BACKSLASH}  \\
- 37 | ...  \\
+ 36 | @{MULTILINE_EMPTY_WITH_BACKSLASH}  \
+ 37 | ...  \
     |
 
 test.robot:36:1 VAR01 Empty variable value
     |
  34 | ...  3
- 35 | ${EMPTY_WITH_BACKSLASH}  \\
- 36 | @{MULTILINE_EMPTY_WITH_BACKSLASH}  \\
+ 35 | ${EMPTY_WITH_BACKSLASH}  \
+ 36 | @{MULTILINE_EMPTY_WITH_BACKSLASH}  \
     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ VAR01
- 37 | ...  \\
- 38 | @{MIXED_EMPTY}  \\
+ 37 | ...  \
+ 38 | @{MIXED_EMPTY}  \
     |
 
 test.robot:37:1 VAR01 Empty variable value
     |
- 35 | ${EMPTY_WITH_BACKSLASH}  \\
- 36 | @{MULTILINE_EMPTY_WITH_BACKSLASH}  \\
- 37 | ...  \\
+ 35 | ${EMPTY_WITH_BACKSLASH}  \
+ 36 | @{MULTILINE_EMPTY_WITH_BACKSLASH}  \
+ 37 | ...  \
     | ^^^^^^ VAR01
- 38 | @{MIXED_EMPTY}  \\
+ 38 | @{MIXED_EMPTY}  \
  39 | ...
     |
 
 test.robot:38:1 VAR01 Empty variable value
     |
- 36 | @{MULTILINE_EMPTY_WITH_BACKSLASH}  \\
- 37 | ...  \\
- 38 | @{MIXED_EMPTY}  \\
+ 36 | @{MULTILINE_EMPTY_WITH_BACKSLASH}  \
+ 37 | ...  \
+ 38 | @{MIXED_EMPTY}  \
     | ^^^^^^^^^^^^^^^^^ VAR01
  39 | ...
  40 | ...  ${EMPTY}
@@ -130,8 +130,8 @@ test.robot:38:1 VAR01 Empty variable value
 
 test.robot:39:1 VAR01 Empty variable value
     |
- 37 | ...  \\
- 38 | @{MIXED_EMPTY}  \\
+ 37 | ...  \
+ 38 | @{MIXED_EMPTY}  \
  39 | ...
     | ^^^ VAR01
  40 | ...  ${EMPTY}

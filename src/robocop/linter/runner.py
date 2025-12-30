@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import hashlib
 from typing import TYPE_CHECKING, NoReturn
 
 import typer
@@ -42,25 +41,39 @@ class RobocopLinter:
             return get_resource_with_lang(get_resource_model, source, language)
         return get_resource_with_lang(get_model, source, language)
 
-    @staticmethod
-    def _compute_cache_key(config: Config) -> str:
+    def get_cached_diagnostics(self, config: Config, source: Path) -> list[Diagnostic] | None:
         """
-        Compute cache key combining linter config hash with language.
-
-        Uses SHA256 for stable hashing across Python processes, unlike the built-in
-        hash() which can vary due to hash randomization (PEP 456).
+        Return cached diagnostics if available.
 
         Returns:
-            str: The computed cache key as a hexadecimal digest.
+            List of cached diagnostics or None if no cache is available.
 
         """
-        hasher = hashlib.sha256()
-        # Hash the linter config
-        hasher.update(str(hash(config.linter)).encode("utf-8"))
-        # Hash the language configuration (affects parsing)
-        language_str = ":".join(sorted(config.language or []))
-        hasher.update(language_str.encode("utf-8"))
-        return hasher.hexdigest()
+        if not config.cache.enabled:
+            return None
+        cached_entry = self.config_manager.cache.get_linter_entry(source, config.hash())
+
+        if cached_entry is not None:
+            restored = restore_diagnostics(cached_entry, source, config.linter.rules)
+            if restored is not None:
+                return restored
+        return None
+
+    def get_model_diagnostics(self, config: Config, source: Path) -> list[Diagnostic] | None:
+        """
+        Run all selected rules on the model and return list of diagnostics.
+
+        Returns:
+            List of diagnostics or None if file cannot be decoded.
+
+        """
+        try:
+            model = self.get_model_for_file_type(source, config.language)
+            return self.run_check(model, source, config)
+        except DataError as error:
+            if not config.silent:
+                print(f"Failed to decode {source} with an error: {error}. Skipping file")
+            return None
 
     def run(self) -> list[Diagnostic]:
         """
@@ -89,36 +102,18 @@ class RobocopLinter:
         for source, config in self.config_manager.paths:
             if config.verbose:
                 print(f"Scanning file: {source}")
-
-            # Try to get cached diagnostics
-            config_hash = self._compute_cache_key(config)
-            cached_entry = self.config_manager.cache.get_linter_entry(source, config_hash)
-
-            if cached_entry is not None:
-                # Restore diagnostics from cache
-                restored = restore_diagnostics(cached_entry, source, config.linter.rules)
-                if restored is not None:
-                    self.diagnostics.extend(restored)
-                    files += 1
-                    cached_files += 1
-                    continue
-                # If restoration failed (e.g., rule removed), fall through to reprocess
-
-            try:
-                model = self.get_model_for_file_type(source, config.language)
-            except DataError as error:
-                if not config.silent:
-                    print(f"Failed to decode {source} with an error: {error}. Skipping file")
+            diagnostics = self.get_cached_diagnostics(config, source)
+            if diagnostics is not None:
+                self.diagnostics.extend(diagnostics)
+                files += 1
+                cached_files += 1
                 continue
-
-            files += 1
-            diagnostics = self.run_check(model, source, config)
+            diagnostics = self.get_model_diagnostics(config, source)
+            if diagnostics is None:
+                continue
             self.diagnostics.extend(diagnostics)
-
-            # Cache the results (config_hash already includes language)
-            self.config_manager.cache.set_linter_entry(source, config_hash, diagnostics)
-
-        # Save cache at the end
+            files += 1
+            self.config_manager.cache.set_linter_entry(source, config.hash(), diagnostics)
         self.config_manager.cache.save()
 
         if not files and not self.config_manager.default_config.silent:

@@ -713,6 +713,7 @@ class Config:
     verbose: bool | None = field(default_factory=bool)
     silent: bool | None = field(default_factory=bool)
     target_version: int | str | None = misc.ROBOT_VERSION.major
+    _hash: int | None = None
     config_source: str = "cli"
 
     def __post_init__(self) -> None:
@@ -862,6 +863,27 @@ class Config:
 
     def __str__(self):
         return str(self.config_source)
+
+    def hash(self) -> str:
+        """
+        Compute cache key combining linter config hash with language.
+
+        Uses SHA256 for stable hashing across Python processes, unlike the built-in
+        hash() which can vary due to hash randomization (PEP 456).
+
+        Returns:
+            str: The computed cache key as a hexadecimal digest.
+
+        """
+        if self._hash is None:
+            hasher = hashlib.sha256()
+            # Hash the linter config
+            hasher.update(str(hash(self.linter)).encode("utf-8"))
+            # Hash the language configuration (affects parsing)
+            language_str = ":".join(sorted(self.language or []))
+            hasher.update(language_str.encode("utf-8"))
+            self._hash = hasher.hexdigest()
+        return self._hash
 
 
 class GitIgnoreResolver:

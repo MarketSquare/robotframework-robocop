@@ -1,11 +1,11 @@
 {
     "linter_report": {
         "with_print_cache": {
-            "avg_time": 2.96985698750359,
+            "avg_time": 2.3083314374962356,
             "counter": 388
         },
         "with_print_no_cache": {
-            "avg_time": 4.098235049954383,
+            "avg_time": 3.451982950005913,
             "counter": 388
         },
         "without_print_cache": {
@@ -289,7 +289,7 @@
     },
     "lint_large_file": {
         "large_file_with_print": {
-            "avg_time": 39.73930364998523,
+            "avg_time": 36.81478194985539,
             "counter": 1
         },
         "large_file_without_print": {

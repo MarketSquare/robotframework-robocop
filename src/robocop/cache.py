@@ -368,7 +368,7 @@ class RobocopCache:
             True if the cache entry is valid, False otherwise.
 
         """
-        # Check cheapest condition first (string comparison)
+        # Check the cheapest condition first (string comparison)
         if config_hash != entry_config_hash:
             return False
 
@@ -394,7 +394,7 @@ class RobocopCache:
         Args:
             cache_dict: Dictionary containing cache entries (linter or formatter).
             path: Absolute path to the file.
-            config_hash: Hash of current configuration.
+            config_hash: Hash of the current configuration.
 
         Returns:
             Cached entry if valid, None otherwise.
@@ -470,6 +470,8 @@ class RobocopCache:
             diagnostics: List of diagnostics found.
 
         """
+        if not self.enabled:
+            return
         try:
             metadata = FileMetadata.from_path(path)
         except OSError:

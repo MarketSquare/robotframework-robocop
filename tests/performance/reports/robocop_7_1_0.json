@@ -1,11 +1,11 @@
 {
     "linter_report": {
         "with_print_cache": {
-            "avg_time": 2.3083314374962356,
+            "avg_time": 2.306937637476949,
             "counter": 388
         },
         "with_print_no_cache": {
-            "avg_time": 3.451982950005913,
+            "avg_time": 3.4038116500305478,
             "counter": 388
         },
         "without_print_cache": {
@@ -13,7 +13,7 @@
             "counter": 388
         },
         "without_print_no_cache": {
-            "avg_time": 1.9954930499952752,
+            "avg_time": 1.946089800039772,
             "counter": 388
         }
     },

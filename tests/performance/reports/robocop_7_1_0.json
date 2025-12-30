@@ -1,0 +1,300 @@
+{
+    "linter_report": {
+        "with_print_cache": {
+            "avg_time": 2.96985698750359,
+            "counter": 388
+        },
+        "with_print_no_cache": {
+            "avg_time": 4.098235049954383,
+            "counter": 388
+        },
+        "without_print_cache": {
+            "avg_time": 0.856108075066004,
+            "counter": 388
+        },
+        "without_print_no_cache": {
+            "avg_time": 1.9954930499952752,
+            "counter": 388
+        }
+    },
+    "formatter_report": {
+        "AddMissingEnd": {
+            "avg_time": 0.0025422399980016054,
+            "counter": 3
+        },
+        "AddMissingEnd_no_cache": {
+            "avg_time": 0.008688030007760972,
+            "counter": 3
+        },
+        "NormalizeSeparators": {
+            "avg_time": 0.005260780022945255,
+            "counter": 13
+        },
+        "NormalizeSeparators_no_cache": {
+            "avg_time": 0.015568304993212222,
+            "counter": 13
+        },
+        "DiscardEmptySections": {
+            "avg_time": 0.0022869924956467,
+            "counter": 2
+        },
+        "DiscardEmptySections_no_cache": {
+            "avg_time": 0.0031895949970930813,
+            "counter": 2
+        },
+        "MergeAndOrderSections": {
+            "avg_time": 0.00548124251072295,
+            "counter": 14
+        },
+        "MergeAndOrderSections_no_cache": {
+            "avg_time": 0.011248849995899946,
+            "counter": 14
+        },
+        "RemoveEmptySettings": {
+            "avg_time": 0.002625014999648556,
+            "counter": 3
+        },
+        "RemoveEmptySettings_no_cache": {
+            "avg_time": 0.004889295011525974,
+            "counter": 3
+        },
+        "ReplaceEmptyValues": {
+            "avg_time": 0.0020431125070899726,
+            "counter": 1
+        },
+        "ReplaceEmptyValues_no_cache": {
+            "avg_time": 0.0025288450182415546,
+            "counter": 1
+        },
+        "ReplaceWithVAR": {
+            "avg_time": 0.002859552501467988,
+            "counter": 4
+        },
+        "ReplaceWithVAR_no_cache": {
+            "avg_time": 0.015055382519494741,
+            "counter": 4
+        },
+        "NormalizeAssignments": {
+            "avg_time": 0.003809087473200634,
+            "counter": 7
+        },
+        "NormalizeAssignments_no_cache": {
+            "avg_time": 0.00619702750700526,
+            "counter": 7
+        },
+        "GenerateDocumentation": {
+            "avg_time": 0.0023699625162407756,
+            "counter": 3
+        },
+        "GenerateDocumentation_no_cache": {
+            "avg_time": 0.005489615007536486,
+            "counter": 3
+        },
+        "OrderSettings": {
+            "avg_time": 0.0029902800160925835,
+            "counter": 4
+        },
+        "OrderSettings_no_cache": {
+            "avg_time": 0.006835065002087503,
+            "counter": 4
+        },
+        "OrderSettingsSection": {
+            "avg_time": 0.003953872487181797,
+            "counter": 8
+        },
+        "OrderSettingsSection_no_cache": {
+            "avg_time": 0.005790704995160922,
+            "counter": 8
+        },
+        "NormalizeTags": {
+            "avg_time": 0.0044895200291648505,
+            "counter": 10
+        },
+        "NormalizeTags_no_cache": {
+            "avg_time": 0.008566337503725662,
+            "counter": 10
+        },
+        "OrderTags": {
+            "avg_time": 0.0026960799877997488,
+            "counter": 3
+        },
+        "OrderTags_no_cache": {
+            "avg_time": 0.004152962501393631,
+            "counter": 3
+        },
+        "RenameVariables": {
+            "avg_time": 0.005505839997204021,
+            "counter": 14
+        },
+        "RenameVariables_no_cache": {
+            "avg_time": 0.023607444996014238,
+            "counter": 14
+        },
+        "IndentNestedKeywords": {
+            "avg_time": 0.0029322425019927324,
+            "counter": 4
+        },
+        "IndentNestedKeywords_no_cache": {
+            "avg_time": 0.0072910449875053015,
+            "counter": 4
+        },
+        "AlignSettingsSection": {
+            "avg_time": 0.0037672625039704144,
+            "counter": 7
+        },
+        "AlignSettingsSection_no_cache": {
+            "avg_time": 0.005970677523873746,
+            "counter": 7
+        },
+        "AlignVariablesSection": {
+            "avg_time": 0.003904082515509799,
+            "counter": 8
+        },
+        "AlignVariablesSection_no_cache": {
+            "avg_time": 0.006162447488168255,
+            "counter": 8
+        },
+        "AlignTemplatedTestCases": {
+            "avg_time": 0.004810090007958933,
+            "counter": 11
+        },
+        "AlignTemplatedTestCases_no_cache": {
+            "avg_time": 0.009894734976114705,
+            "counter": 11
+        },
+        "AlignTestCasesSection": {
+            "avg_time": 0.006912297487724572,
+            "counter": 19
+        },
+        "AlignTestCasesSection_no_cache": {
+            "avg_time": 0.018717997503699735,
+            "counter": 19
+        },
+        "AlignKeywordsSection": {
+            "avg_time": 0.006435322499601171,
+            "counter": 17
+        },
+        "AlignKeywordsSection_no_cache": {
+            "avg_time": 0.015787184989312662,
+            "counter": 17
+        },
+        "NormalizeNewLines": {
+            "avg_time": 0.0060056299960706385,
+            "counter": 16
+        },
+        "NormalizeNewLines_no_cache": {
+            "avg_time": 0.013009855011478066,
+            "counter": 16
+        },
+        "NormalizeSectionHeaderName": {
+            "avg_time": 0.0032612950017210096,
+            "counter": 5
+        },
+        "NormalizeSectionHeaderName_no_cache": {
+            "avg_time": 0.004263177519896999,
+            "counter": 5
+        },
+        "NormalizeSettingName": {
+            "avg_time": 0.0028721575101371853,
+            "counter": 4
+        },
+        "NormalizeSettingName_no_cache": {
+            "avg_time": 0.004713697504485026,
+            "counter": 4
+        },
+        "ReplaceRunKeywordIf": {
+            "avg_time": 0.003786032507196069,
+            "counter": 7
+        },
+        "ReplaceRunKeywordIf_no_cache": {
+            "avg_time": 0.01122040250338614,
+            "counter": 7
+        },
+        "SplitTooLongLine": {
+            "avg_time": 0.004489754984388128,
+            "counter": 10
+        },
+        "SplitTooLongLine_no_cache": {
+            "avg_time": 0.013641817501047626,
+            "counter": 10
+        },
+        "SmartSortKeywords": {
+            "avg_time": 0.0029111399839166553,
+            "counter": 4
+        },
+        "SmartSortKeywords_no_cache": {
+            "avg_time": 0.004348337522242218,
+            "counter": 4
+        },
+        "RenameTestCases": {
+            "avg_time": 0.002649882505647838,
+            "counter": 3
+        },
+        "RenameTestCases_no_cache": {
+            "avg_time": 0.0038951999915298073,
+            "counter": 3
+        },
+        "RenameKeywords": {
+            "avg_time": 0.004020485037472099,
+            "counter": 8
+        },
+        "RenameKeywords_no_cache": {
+            "avg_time": 0.008320510003250093,
+            "counter": 8
+        },
+        "ReplaceReturns": {
+            "avg_time": 0.0037000624870415777,
+            "counter": 7
+        },
+        "ReplaceReturns_no_cache": {
+            "avg_time": 0.006773599999723956,
+            "counter": 7
+        },
+        "ReplaceBreakContinue": {
+            "avg_time": 0.002707739995094016,
+            "counter": 3
+        },
+        "ReplaceBreakContinue_no_cache": {
+            "avg_time": 0.0054833325208164755,
+            "counter": 3
+        },
+        "InlineIf": {
+            "avg_time": 0.0031843150209169835,
+            "counter": 5
+        },
+        "InlineIf_no_cache": {
+            "avg_time": 0.02126073998515494,
+            "counter": 5
+        },
+        "Translate": {
+            "avg_time": 0.005078997503733263,
+            "counter": 6
+        },
+        "Translate_no_cache": {
+            "avg_time": 0.008630877465475351,
+            "counter": 6
+        },
+        "NormalizeComments": {
+            "avg_time": 0.0020914200227707624,
+            "counter": 1
+        },
+        "NormalizeComments_no_cache": {
+            "avg_time": 0.003166107484139502,
+            "counter": 1
+        }
+    },
+    "project_traversing_report": {
+        "avg_time": 0.37915756499860437,
+        "counter": 403
+    },
+    "lint_large_file": {
+        "large_file_with_print": {
+            "avg_time": 39.73930364998523,
+            "counter": 1
+        },
+        "large_file_without_print": {
+            "avg_time": 3.1198093499988317,
+            "counter": 1
+        }
+    }
+}

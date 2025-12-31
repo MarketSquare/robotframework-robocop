@@ -144,7 +144,7 @@ class TestCacheIntegration:
             _out1, _ = capsys.readouterr()
 
             # Act - run with --no-cache flag
-            second_result = check_files(no_cache=True, return_result=True, verbose=True)
+            second_result = check_files(cache=False, return_result=True, verbose=True)
             out2, _ = capsys.readouterr()
 
             # Assert - should rescan even though file unchanged
@@ -351,8 +351,29 @@ class TestCacheIntegration:
             # Assert - should rescan (cache invalidated due to size change)
             assert "Scanning file:" in out2
 
+    def test_default_cli_does_not_override_config_file_disabled(self, tmp_path, capsys):
+        """Test CLI without any option set does not override the config file with cache=false."""
+        # Arrange - create config file with cache disabled
+        config_file = tmp_path / "pyproject.toml"
+        config_file.write_text("[tool.robocop]\ncache = false\n", encoding="utf-8")
+        test_file = tmp_path / "test.robot"
+        test_file.write_text("*** Test Cases ***\nTest\n    Log    Hello\n", encoding="utf-8")
+
+        with working_directory(tmp_path):
+            # Act - run with default CLI (cache disabled from config)
+            check_files(verbose=True, return_result=True)
+            out, _ = capsys.readouterr()
+
+            # Assert - should NOT use cache (rescans file)
+            assert "Scanning file:" in out
+            assert "Used cached results" not in out
+
+            # Assert - cache file should not be created
+            cache_dir = tmp_path / ".robocop_cache"
+            assert not cache_dir.exists()
+
     def test_cli_cache_dir_overrides_config_file_disabled(self, tmp_path):
-        """Test CLI --cache-dir enables cache and overrides config file with cache=false."""
+        """Test CLI --cache-dir enables cache and overrides the config file with cache=false."""
         # Arrange - create config file with cache disabled
         config_file = tmp_path / "pyproject.toml"
         config_file.write_text("[tool.robocop]\ncache = false\n", encoding="utf-8")
@@ -396,9 +417,8 @@ class TestCacheIntegration:
             # Verify cache was created
             assert is_file_in_cache(tmp_path, test_file)
 
-            # Act - run with no_cache=True via CLI (simulating --no-cache flag)
-            # This overrides the config file's cache=true
-            check_files(no_cache=True, return_result=True, verbose=True)
+            # Act - Override config file's cache=true with --no-cache flag
+            check_files(cache=False, return_result=True, verbose=True)
             out2, _ = capsys.readouterr()
 
             # Assert - should NOT use cache (rescans file)

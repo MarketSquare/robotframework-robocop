@@ -633,11 +633,11 @@ class FormatterConfig:
         return int.from_bytes(hash_bytes[:8], byteorder="big", signed=True)
 
 
-@dataclass(frozen=True)
+@dataclass
 class CacheConfig:
     """Configuration for file-level caching."""
 
-    enabled: bool = True
+    enabled: bool | None = True
     cache_dir: Path | None = None
 
     @classmethod
@@ -656,6 +656,14 @@ class CacheConfig:
             if not cache_dir.is_absolute():
                 cache_dir = config_parent / cache_dir
         return cls(enabled=enabled, cache_dir=cache_dir)
+
+    def overwrite_from_config(self, overwrite_config: Self) -> None:
+        """Overwrite configuration with optional values from CLI."""
+        if overwrite_config.cache_dir is not None:
+            self.cache_dir = overwrite_config.cache_dir
+            self.enabled = True
+        elif overwrite_config.enabled is not None:
+            self.enabled = overwrite_config.enabled
 
 
 @dataclass
@@ -828,7 +836,7 @@ class Config:
                 setattr(self, config_field.name, value)
         # Handle cache config - CLI cache settings override file config
         if overwrite_config.cache is not None:
-            self.cache = overwrite_config.cache
+            self.cache.overwrite_from_config(overwrite_config.cache)
         if overwrite_config.linter:
             for config_field in fields(overwrite_config.linter):
                 if config_field.name == "config_source":

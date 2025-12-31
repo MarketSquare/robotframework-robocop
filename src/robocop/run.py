@@ -144,10 +144,10 @@ ignore_git_dir_option = Annotated[
 ignore_file_config_option = Annotated[
     bool, typer.Option(rich_help_panel="Configuration", help="Do not load configuration files.")
 ]
-no_cache_option = Annotated[
+cache_option = Annotated[
     bool,
     typer.Option(
-        "--no-cache",
+        "--cache",
         help="Disable file caching. All files will be processed regardless of modifications.",
         rich_help_panel="Caching",
     ),
@@ -316,7 +316,7 @@ def check_files(
     root: project_root_option = None,
     verbose: verbose_option = None,
     silent: silent_option = None,
-    no_cache: no_cache_option = False,
+    cache: cache_option = None,
     clear_cache: clear_cache_option = False,
     cache_dir: cache_dir_option = None,
 ) -> list[Diagnostic]:
@@ -342,7 +342,7 @@ def check_files(
     file_filters = config.FileFiltersOptions(
         include=include, default_include=default_include, exclude=exclude, default_exclude=default_exclude
     )
-    cache_config = config.CacheConfig(enabled=not no_cache, cache_dir=cache_dir)
+    cache_config = config.CacheConfig(enabled=cache, cache_dir=cache_dir)
     overwrite_config = config.Config(
         linter=linter_config,
         formatter=None,
@@ -639,7 +639,7 @@ def format_files(
     root: project_root_option = None,
     verbose: verbose_option = None,
     silent: silent_option = None,
-    no_cache: no_cache_option = False,
+    cache: cache_option = None,
     clear_cache: clear_cache_option = False,
     cache_dir: cache_dir_option = None,
     return_result: Annotated[
@@ -685,7 +685,7 @@ def format_files(
     file_filters = config.FileFiltersOptions(
         include=include, default_include=default_include, exclude=exclude, default_exclude=default_exclude
     )
-    cache_config = config.CacheConfig(enabled=not no_cache, cache_dir=cache_dir)
+    cache_config = config.CacheConfig(enabled=cache, cache_dir=cache_dir)
     overwrite_config = config.Config(
         formatter=formatter_config,
         linter=None,

@@ -4,18 +4,31 @@ from __future__ import annotations
 
 import inspect
 import operator
-from typing import Any
 
 from fastmcp.exceptions import ToolError
 
-from robocop.mcp.tools.utils.helpers import _create_match_snippet, _iter_unique_rules, _rule_to_dict
+from robocop.mcp.tools.models import (
+    FormatterDetail,
+    FormatterParam,
+    FormatterSummary,
+    PromptArgument,
+    PromptSummary,
+    RuleDetail,
+    RuleSearchResult,
+    RuleSummary,
+)
+from robocop.mcp.tools.utils.helpers import (
+    _create_match_snippet,
+    _iter_unique_rules,
+    _rule_to_dict,
+)
 
 
 def _list_rules_impl(
     category: str | None = None,
     severity: str | None = None,
     enabled_only: bool = False,
-) -> list[dict[str, Any]]:
+) -> list[RuleSummary]:
     """
     List all available linting rules with optional filtering.
 
@@ -25,23 +38,23 @@ def _list_rules_impl(
         enabled_only: If True, only return enabled rules
 
     Returns:
-        A list of rule summary dictionaries.
+        A list of RuleSummary models.
 
     """
     rules = [
-        {
-            "rule_id": rule.rule_id,
-            "name": rule.name,
-            "severity": rule.severity.value,
-            "enabled": rule.enabled,
-            "message": rule.message,
-        }
+        RuleSummary(
+            rule_id=rule.rule_id,
+            name=rule.name,
+            severity=rule.severity.value,
+            enabled=rule.enabled,
+            message=rule.message,
+        )
         for rule in _iter_unique_rules(category, severity, enabled_only)
     ]
-    return sorted(rules, key=operator.itemgetter("rule_id"))
+    return sorted(rules, key=operator.attrgetter("rule_id"))
 
 
-def _list_formatters_impl(enabled_only: bool = True) -> list[dict[str, Any]]:
+def _list_formatters_impl(enabled_only: bool = True) -> list[FormatterSummary]:
     """
     List all available formatters.
 
@@ -49,7 +62,7 @@ def _list_formatters_impl(enabled_only: bool = True) -> list[dict[str, Any]]:
         enabled_only: If True, only return enabled formatters (default: True)
 
     Returns:
-        A list of formatter summary dictionaries.
+        A list of FormatterSummary models.
 
     """
     from robocop.mcp.cache import get_formatter_config
@@ -57,7 +70,7 @@ def _list_formatters_impl(enabled_only: bool = True) -> list[dict[str, Any]]:
     formatter_config = get_formatter_config()
     formatters = formatter_config.formatters
 
-    result = []
+    result: list[FormatterSummary] = []
     for name, formatter in formatters.items():
         formatter_class = formatter.__class__
         is_enabled = getattr(formatter_class, "ENABLED", True)
@@ -66,17 +79,17 @@ def _list_formatters_impl(enabled_only: bool = True) -> list[dict[str, Any]]:
             continue
 
         result.append(
-            {
-                "name": name,
-                "enabled": is_enabled,
-                "description": (formatter.__doc__ or "No description.").split("\n")[0].strip(),
-            }
+            FormatterSummary(
+                name=name,
+                enabled=is_enabled,
+                description=(formatter.__doc__ or "No description.").split("\n")[0].strip(),
+            )
         )
 
-    return sorted(result, key=operator.itemgetter("name"))
+    return sorted(result, key=lambda f: f.name)
 
 
-def _get_formatter_parameters(formatter_class: type) -> list[dict[str, Any]]:
+def _get_formatter_parameters(formatter_class: type) -> list[FormatterParam]:
     """
     Extract configurable parameters from a formatter class's __init__ signature.
 
@@ -84,7 +97,7 @@ def _get_formatter_parameters(formatter_class: type) -> list[dict[str, Any]]:
         formatter_class: The formatter class to extract parameters from.
 
     Returns:
-        A list of parameter dictionaries with name, default, and type.
+        A list of FormatterParam models with name, default, and type.
 
     """
     try:
@@ -92,7 +105,7 @@ def _get_formatter_parameters(formatter_class: type) -> list[dict[str, Any]]:
     except TypeError:
         return []
 
-    params = []
+    params: list[FormatterParam] = []
     args = spec.args[1:]  # Skip 'self'
     defaults = spec.defaults or ()
     annotations = spec.annotations or {}
@@ -121,17 +134,17 @@ def _get_formatter_parameters(formatter_class: type) -> list[dict[str, Any]]:
             param_type = type(default).__name__
 
         params.append(
-            {
-                "name": arg,
-                "default": default,
-                "type": param_type,
-            }
+            FormatterParam(
+                name=arg,
+                default=default,
+                type=param_type,
+            )
         )
 
     return params
 
 
-def _get_rule_info_impl(rule_name_or_id: str) -> dict[str, Any]:
+def _get_rule_info_impl(rule_name_or_id: str) -> RuleDetail:
     """
     Look up rule information by name or ID.
 
@@ -139,7 +152,7 @@ def _get_rule_info_impl(rule_name_or_id: str) -> dict[str, Any]:
         rule_name_or_id: Rule name (e.g., "too-long-keyword") or ID (e.g., "LEN01")
 
     Returns:
-        Dictionary containing:
+        A RuleDetail model containing:
         - rule_id: The rule ID
         - name: The rule name
         - message: The rule message template
@@ -176,7 +189,7 @@ def _search_rules_impl(
     category: str | None = None,
     severity: str | None = None,
     limit: int = 20,
-) -> list[dict[str, Any]]:
+) -> list[RuleSearchResult]:
     """
     Search rules by keyword across specified fields.
 
@@ -189,7 +202,7 @@ def _search_rules_impl(
         limit: Maximum number of results to return (default: 20).
 
     Returns:
-        A list of matching rules with rule_id, name, message, severity,
+        A list of RuleSearchResult models with rule_id, name, message, severity,
         match_field (which field matched), and match_snippet (context around match).
 
     """
@@ -197,22 +210,22 @@ def _search_rules_impl(
         fields = ["name", "message", "docs"]
 
     query_lower = query.lower()
-    results: list[dict[str, Any]] = []
+    results: list[RuleSearchResult] = []
 
     for rule in _iter_unique_rules(category, severity):
         for field in fields:
             field_value = getattr(rule, field, "") or ""
             if query_lower in field_value.lower():
                 results.append(
-                    {
-                        "rule_id": rule.rule_id,
-                        "name": rule.name,
-                        "message": rule.message,
-                        "severity": rule.severity.value,
-                        "enabled": rule.enabled,
-                        "match_field": field,
-                        "match_snippet": _create_match_snippet(field_value, query),
-                    }
+                    RuleSearchResult(
+                        rule_id=rule.rule_id,
+                        name=rule.name,
+                        message=rule.message,
+                        severity=rule.severity.value,
+                        enabled=rule.enabled,
+                        match_field=field,
+                        match_snippet=_create_match_snippet(field_value, query),
+                    )
                 )
                 break  # Only match once per rule
 
@@ -222,30 +235,28 @@ def _search_rules_impl(
     return results
 
 
-def _list_prompts_impl() -> list[dict[str, Any]]:
+def _list_prompts_impl() -> list[PromptSummary]:
     """
     List all available MCP prompt templates.
 
     Returns:
-        A list of prompt dictionaries with name, description, and arguments.
+        A list of PromptSummary models with name, description, and arguments.
 
     """
     from robocop.mcp.server import mcp
 
-    return sorted(
-        [
-            {
-                "name": prompt.name,
-                "description": prompt.description or "",
-                "arguments": [{"name": arg.name, "required": arg.required} for arg in prompt.arguments],
-            }
-            for prompt in mcp._prompt_manager._prompts.values()  # noqa: SLF001
-        ],
-        key=operator.itemgetter("name"),
-    )
+    prompts = [
+        PromptSummary(
+            name=prompt.name,
+            description=prompt.description or "",
+            arguments=[PromptArgument(name=arg.name, required=arg.required) for arg in prompt.arguments],
+        )
+        for prompt in mcp._prompt_manager._prompts.values()  # noqa: SLF001
+    ]
+    return sorted(prompts, key=lambda p: p.name)
 
 
-def _get_formatter_info_impl(formatter_name: str) -> dict[str, Any]:
+def _get_formatter_info_impl(formatter_name: str) -> FormatterDetail:
     """
     Look up formatter information by name.
 
@@ -253,7 +264,7 @@ def _get_formatter_info_impl(formatter_name: str) -> dict[str, Any]:
         formatter_name: Formatter name (e.g., "NormalizeSeparators", "AlignKeywordsSection")
 
     Returns:
-        Dictionary containing:
+        A FormatterDetail model containing:
         - name: Formatter name
         - enabled: Whether enabled by default
         - docs: Full documentation
@@ -280,11 +291,11 @@ def _get_formatter_info_impl(formatter_name: str) -> dict[str, Any]:
     # Get skip options handled by this formatter
     handles_skip = getattr(formatter_class, "HANDLES_SKIP", frozenset())
 
-    return {
-        "name": formatter_name,
-        "enabled": getattr(formatter_class, "ENABLED", True),
-        "docs": formatter.__doc__ or "No documentation available.",
-        "min_version": getattr(formatter_class, "MIN_VERSION", None),
-        "parameters": _get_formatter_parameters(formatter_class),
-        "skip_options": sorted(handles_skip) if handles_skip else [],
-    }
+    return FormatterDetail(
+        name=formatter_name,
+        enabled=getattr(formatter_class, "ENABLED", True),
+        docs=formatter.__doc__ or "No documentation available.",
+        min_version=getattr(formatter_class, "MIN_VERSION", None),
+        parameters=_get_formatter_parameters(formatter_class),
+        skip_options=sorted(handles_skip) if handles_skip else [],
+    )

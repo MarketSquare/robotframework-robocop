@@ -43,7 +43,7 @@ class TestCachingMiddlewareBehavior:
         result2 = _get_rule_info_impl("LEN01")
 
         assert result1 == result2
-        assert result1["rule_id"] == "LEN01"
+        assert result1.rule_id == "LEN01"
 
     def test_get_formatter_info_returns_consistent_results(self):
         """Test that get_formatter_info returns same results for same formatter."""
@@ -51,7 +51,7 @@ class TestCachingMiddlewareBehavior:
         result2 = _get_formatter_info_impl("NormalizeSeparators")
 
         assert result1 == result2
-        assert result1["name"] == "NormalizeSeparators"
+        assert result1.name == "NormalizeSeparators"
 
 
 class TestErrorHandlingMiddlewareBehavior:

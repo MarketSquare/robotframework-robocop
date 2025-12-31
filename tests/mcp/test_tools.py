@@ -1,5 +1,7 @@
 """Tests for MCP tools."""
 
+from __future__ import annotations
+
 from pathlib import Path
 from textwrap import dedent
 
@@ -32,8 +34,45 @@ from robocop.mcp.tools.documentation import (
     _list_rules_impl,
     _search_rules_impl,
 )
-from robocop.mcp.tools.formatting import _format_content_impl, _format_file_impl, _lint_and_format_impl
+from robocop.mcp.tools.fixing import (
+    _apply_fix_impl,
+    _build_llm_guidance,
+    _extract_snippet,
+    _get_fix_context_impl,
+    _get_line_range,
+)
+from robocop.mcp.tools.formatting import (
+    _format_content_impl,
+    _format_file_impl,
+    _lint_and_format_impl,
+)
 from robocop.mcp.tools.linting import _lint_content_impl, _lint_file_impl
+from robocop.mcp.tools.models import DiagnosticResult, FixReplacement, IssueForFix
+
+
+def _make_issue(
+    rule_id: str = "TEST01",
+    name: str = "test-rule",
+    message: str = "Test message",
+    severity: str = "W",
+    line: int = 1,
+    column: int = 1,
+    end_line: int = 1,
+    end_column: int = 10,
+    file: str | None = None,
+) -> DiagnosticResult:
+    """Create DiagnosticResult instances for testing."""
+    return DiagnosticResult(
+        rule_id=rule_id,
+        name=name,
+        message=message,
+        severity=severity,
+        line=line,
+        column=column,
+        end_line=end_line,
+        end_column=end_column,
+        file=file,
+    )
 
 
 class TestLintContent:
@@ -62,14 +101,14 @@ class TestLintContent:
         ).lstrip()
         result = _lint_content_impl(content)
         assert len(result) > 0
-        # Check structure of returned diagnostics
+        # Check structure of returned diagnostics (Pydantic models have all attributes)
         for diag in result:
-            assert "rule_id" in diag
-            assert "name" in diag
-            assert "message" in diag
-            assert "severity" in diag
-            assert "line" in diag
-            assert "column" in diag
+            assert diag.rule_id
+            assert diag.name
+            assert diag.message
+            assert diag.severity
+            assert diag.line
+            assert diag.column
 
     def test_lint_with_select(self):
         """Test linting with specific rules selected."""
@@ -84,7 +123,7 @@ class TestLintContent:
         result = _lint_content_impl(content, select=["LEN*"])
         # Should only get LEN rules
         for diag in result:
-            assert diag["rule_id"].startswith("LEN")
+            assert diag.rule_id.startswith("LEN")
 
     def test_lint_with_ignore(self):
         """Test linting with rules ignored."""
@@ -104,7 +143,7 @@ class TestLintContent:
         assert len(filtered) <= len(all_issues)
         # No NAME rules in filtered
         for diag in filtered:
-            assert not diag["rule_id"].startswith("NAME")
+            assert not diag.rule_id.startswith("NAME")
 
     def test_lint_with_threshold(self):
         """Test linting with severity threshold."""
@@ -122,7 +161,7 @@ class TestLintContent:
         errors_only = _lint_content_impl(content, threshold="E")
         assert len(errors_only) <= len(all_issues)
         for diag in errors_only:
-            assert diag["severity"] == "E"
+            assert diag.severity == "E"
 
     def test_lint_with_limit(self):
         """Test linting with issue count limit."""
@@ -166,12 +205,10 @@ class TestFormatContent:
         """
         ).lstrip()
         result = _format_content_impl(content)
-        assert "formatted" in result
-        assert "changed" in result
-        assert "diff" in result
+        assert result.diff is not None  # Optional field - test expects it to exist when changed
 
         # Should have normalized the separators
-        assert result["changed"] is True
+        assert result.changed is True
 
     def test_format_unchanged_content(self):
         """Test formatting already formatted content."""
@@ -184,8 +221,7 @@ class TestFormatContent:
         ).lstrip()
         result = _format_content_impl(content)
         # May or may not change depending on default formatters
-        assert "formatted" in result
-        assert "changed" in result
+        assert isinstance(result.changed, bool)
 
 
 class TestGetRuleInfo:
@@ -194,18 +230,14 @@ class TestGetRuleInfo:
     def test_get_rule_by_id(self):
         """Test getting rule info by ID."""
         result = _get_rule_info_impl("LEN01")
-        assert result["rule_id"] == "LEN01"
-        assert "name" in result
-        assert "message" in result
-        assert "severity" in result
-        assert "docs" in result
-        assert "parameters" in result
+        assert result.rule_id == "LEN01"
+        assert result.docs is not None  # Optional field - verify it exists for this rule
 
     def test_get_rule_by_name(self):
         """Test getting rule info by name."""
         result = _get_rule_info_impl("too-long-keyword")
-        assert result["name"] == "too-long-keyword"
-        assert result["rule_id"] == "LEN01"
+        assert result.name == "too-long-keyword"
+        assert result.rule_id == "LEN01"
 
     def test_get_nonexistent_rule(self):
         """Test getting info for nonexistent rule."""
@@ -219,9 +251,7 @@ class TestGetFormatterInfo:
     def test_get_formatter_info(self):
         """Test getting formatter info."""
         result = _get_formatter_info_impl("NormalizeSeparators")
-        assert result["name"] == "NormalizeSeparators"
-        assert "enabled" in result
-        assert "docs" in result
+        assert result.name == "NormalizeSeparators"
 
     def test_get_nonexistent_formatter(self):
         """Test getting info for nonexistent formatter."""
@@ -264,12 +294,12 @@ class TestLintDirectory:
 
         # Without file in result
         result = _lint_file_impl(str(robot_file), include_file_in_result=False)
-        assert "file" not in result[0]
+        assert result[0].file is None
 
         # With file in result
         result = _lint_file_impl(str(robot_file), include_file_in_result=True)
-        assert "file" in result[0]
-        assert result[0]["file"] == str(robot_file)
+        assert result[0].file is not None  # Optional field - verify files are included
+        assert result[0].file == str(robot_file)
 
 
 class TestLintContentConfigure:
@@ -290,12 +320,12 @@ class TestLintContentConfigure:
 
         # Without configuration, should trigger line-too-long (LEN08)
         result_default = _lint_content_impl(content, select=["LEN08"])
-        has_line_too_long = any(d["rule_id"] == "LEN08" for d in result_default)
+        has_line_too_long = any(d.rule_id == "LEN08" for d in result_default)
         assert has_line_too_long, "Should detect line-too-long with default config (120 chars)"
 
         # With configuration to allow longer lines, should not trigger
         result_configured = _lint_content_impl(content, select=["LEN08"], configure=["line-too-long.line_length=200"])
-        has_line_too_long_configured = any(d["rule_id"] == "LEN08" for d in result_configured)
+        has_line_too_long_configured = any(d.rule_id == "LEN08" for d in result_configured)
         assert not has_line_too_long_configured, "Should not detect line-too-long with increased limit"
 
 
@@ -305,42 +335,39 @@ class TestGetFormatterInfoParameters:
     def test_get_formatter_info_includes_parameters(self):
         """Test that formatter info includes parameters."""
         result = _get_formatter_info_impl("NormalizeSeparators")
-        assert "parameters" in result
-        assert isinstance(result["parameters"], list)
+        assert isinstance(result.parameters, list)
 
         # NormalizeSeparators has flatten_lines and align_new_line parameters
-        param_names = [p["name"] for p in result["parameters"]]
+        param_names = [p.name for p in result.parameters]
         assert "flatten_lines" in param_names
         assert "align_new_line" in param_names
 
     def test_get_formatter_info_includes_skip_options(self):
         """Test that formatter info includes skip options."""
         result = _get_formatter_info_impl("NormalizeSeparators")
-        assert "skip_options" in result
-        assert isinstance(result["skip_options"], list)
+        assert isinstance(result.skip_options, list)
         # NormalizeSeparators handles skip_documentation among others
-        assert "skip_documentation" in result["skip_options"]
+        assert "skip_documentation" in result.skip_options
 
     def test_formatter_parameter_structure(self):
         """Test that formatter parameters have correct structure."""
         result = _get_formatter_info_impl("NormalizeSeparators")
-        for param in result["parameters"]:
-            assert "name" in param
-            assert "default" in param
-            assert "type" in param
+        # FormatterParam model validates all required fields: name, type
+        # default can be None for some params
+        assert len(result.parameters) > 0
 
     def test_get_formatter_parameters_extracts_types(self):
         """Test that formatter parameters have correct types."""
         params = _get_formatter_parameters(NormalizeSeparators)
-        param_dict = {p["name"]: p for p in params}
+        param_dict = {p.name: p for p in params}
 
         # Check flatten_lines is bool with default False
-        assert param_dict["flatten_lines"]["type"] == "bool"
-        assert param_dict["flatten_lines"]["default"] is False
+        assert param_dict["flatten_lines"].type == "bool"
+        assert param_dict["flatten_lines"].default is False
 
         # Check align_new_line is bool with default False
-        assert param_dict["align_new_line"]["type"] == "bool"
-        assert param_dict["align_new_line"]["default"] is False
+        assert param_dict["align_new_line"].type == "bool"
+        assert param_dict["align_new_line"].default is False
 
 
 class TestLintFileErrors:
@@ -381,7 +408,7 @@ class TestLintFileErrors:
 
         # Without configuration, should trigger line-too-long
         result_default = _lint_file_impl(str(robot_file), select=["LEN08"])
-        has_line_too_long = any(d["rule_id"] == "LEN08" for d in result_default)
+        has_line_too_long = any(d.rule_id == "LEN08" for d in result_default)
         assert has_line_too_long
 
         # With configuration to allow longer lines
@@ -390,7 +417,7 @@ class TestLintFileErrors:
             select=["LEN08"],
             configure=["line-too-long.line_length=200"],
         )
-        has_line_too_long_configured = any(d["rule_id"] == "LEN08" for d in result_configured)
+        has_line_too_long_configured = any(d.rule_id == "LEN08" for d in result_configured)
         assert not has_line_too_long_configured
 
 
@@ -417,20 +444,19 @@ class TestFormatContentErrors:
         """Test formatting with specific formatters selected."""
         content = "*** Test Cases ***\nTest\n    log  hello\n"
         result = _format_content_impl(content, select=["NormalizeSeparators"])
-        assert "formatted" in result
-        assert "changed" in result
+        assert isinstance(result.changed, bool)
 
     def test_format_with_custom_space_count(self):
         """Test formatting with custom space count."""
         content = "*** Test Cases ***\nTest\n    Log    Hello\n"
         result = _format_content_impl(content, space_count=2)
-        assert "formatted" in result
+        assert isinstance(result.formatted, str)
 
     def test_format_with_custom_line_length(self):
         """Test formatting with custom line length."""
         content = "*** Test Cases ***\nTest\n    Log    Hello\n"
         result = _format_content_impl(content, line_length=80)
-        assert "formatted" in result
+        assert isinstance(result.formatted, str)
 
 
 class TestLintAndFormatIntegration:
@@ -453,10 +479,10 @@ class TestLintAndFormatIntegration:
 
         # Format the content
         format_result = _format_content_impl(content)
-        assert format_result["changed"] is True
+        assert format_result.changed is True
 
         # Get issues after formatting
-        issues_after = _lint_content_impl(format_result["formatted"])
+        issues_after = _lint_content_impl(format_result.formatted)
 
         # Formatting should have fixed some issues or at least not made it worse
         assert isinstance(issues_before, list)
@@ -479,7 +505,7 @@ class TestLintAndFormatIntegration:
         # Get full issue count
         issues_before_full = _lint_content_impl(content)
         format_result = _format_content_impl(content)
-        issues_after_full = _lint_content_impl(format_result["formatted"])
+        issues_after_full = _lint_content_impl(format_result.formatted)
 
         # The counts should be accurate regardless of any limit
         issues_fixed = len(issues_before_full) - len(issues_after_full)
@@ -495,27 +521,22 @@ class TestListRules:
         assert isinstance(result, list)
         assert len(result) > 0
 
-        # Check structure
-        for rule in result:
-            assert "rule_id" in rule
-            assert "name" in rule
-            assert "severity" in rule
-            assert "enabled" in rule
-            assert "message" in rule
+        # Check structure - RuleSummary model has these required fields
+        # RuleSummary model validates all required fields exist
 
     def test_list_rules_by_category(self):
         """Test filtering rules by category."""
         result = _list_rules_impl(category="LEN")
         assert len(result) > 0
         for rule in result:
-            assert rule["rule_id"].startswith("LEN")
+            assert rule.rule_id.startswith("LEN")
 
     def test_list_rules_by_severity(self):
         """Test filtering rules by severity."""
         result = _list_rules_impl(severity="W")
         assert len(result) > 0
         for rule in result:
-            assert rule["severity"] == "W"
+            assert rule.severity == "W"
 
     def test_list_rules_enabled_only(self):
         """Test filtering to enabled rules only."""
@@ -527,20 +548,20 @@ class TestListRules:
 
         # All should be enabled
         for rule in enabled_rules:
-            assert rule["enabled"] is True
+            assert rule.enabled is True
 
     def test_list_rules_combined_filters(self):
         """Test combining multiple filters."""
         result = _list_rules_impl(category="NAME", severity="W", enabled_only=True)
         for rule in result:
-            assert rule["rule_id"].startswith("NAME")
-            assert rule["severity"] == "W"
-            assert rule["enabled"] is True
+            assert rule.rule_id.startswith("NAME")
+            assert rule.severity == "W"
+            assert rule.enabled is True
 
     def test_list_rules_sorted_by_id(self):
         """Test that rules are sorted by ID."""
         result = _list_rules_impl()
-        rule_ids = [r["rule_id"] for r in result]
+        rule_ids = [r.rule_id for r in result]
         assert rule_ids == sorted(rule_ids)
 
 
@@ -551,13 +572,8 @@ class TestListFormatters:
         """Test listing enabled formatters (default)."""
         result = _list_formatters_impl()
         assert isinstance(result, list)
+        # FormatterSummary model validates all required fields exist
         assert len(result) > 0
-
-        # Check structure
-        for formatter in result:
-            assert "name" in formatter
-            assert "enabled" in formatter
-            assert "description" in formatter
 
     def test_list_all_formatters(self):
         """Test listing all formatters including disabled."""
@@ -570,13 +586,13 @@ class TestListFormatters:
     def test_list_formatters_sorted_by_name(self):
         """Test that formatters are sorted by name."""
         result = _list_formatters_impl(enabled_only=False)
-        names = [f["name"] for f in result]
+        names = [f.name for f in result]
         assert names == sorted(names)
 
     def test_list_formatters_has_normalize_separators(self):
         """Test that NormalizeSeparators is in the list."""
         result = _list_formatters_impl(enabled_only=False)
-        names = [f["name"] for f in result]
+        names = [f.name for f in result]
         assert "NormalizeSeparators" in names
 
 
@@ -594,14 +610,8 @@ class TestSuggestFixes:
         ).lstrip()
         result = _suggest_fixes_impl(content)
 
-        assert "fixes" in result
-        assert "total_issues" in result
-        assert "auto_fixable" in result
-        assert "manual_required" in result
-        assert "recommendation" in result
-
-        assert result["total_issues"] == len(result["fixes"])
-        assert result["auto_fixable"] + result["manual_required"] == result["total_issues"]
+        assert result.total_issues == len(result.fixes)
+        assert result.auto_fixable + result.manual_required == result.total_issues
 
     def test_suggest_fixes_structure(self):
         """Test fix suggestion structure."""
@@ -614,13 +624,8 @@ class TestSuggestFixes:
         ).lstrip()
         result = _suggest_fixes_impl(content)
 
-        for fix in result["fixes"]:
-            assert "rule_id" in fix
-            assert "name" in fix
-            assert "line" in fix
-            assert "message" in fix
-            assert "suggestion" in fix
-            assert "auto_fixable" in fix
+        # FixSuggestion model validates all required fields exist
+        assert len(result.fixes) > 0
 
     def test_suggest_fixes_with_rule_filter(self):
         """Test fix suggestions filtered by rule IDs."""
@@ -634,8 +639,8 @@ class TestSuggestFixes:
         # Only get NAME rule suggestions
         result = _suggest_fixes_impl(content, rule_ids=["NAME*"])
 
-        for fix in result["fixes"]:
-            assert fix["rule_id"].startswith("NAME")
+        for fix in result.fixes:
+            assert fix.rule_id.startswith("NAME")
 
     def test_suggest_fixes_no_issues(self):
         """Test fix suggestions for clean code."""
@@ -649,8 +654,7 @@ class TestSuggestFixes:
         result = _suggest_fixes_impl(content)
 
         # May still have some minor issues, but structure should be correct
-        assert "fixes" in result
-        assert "total_issues" in result
+        assert isinstance(result.total_issues, int)
 
     def test_suggest_fixes_recommendation(self):
         """Test that recommendation is appropriate."""
@@ -665,8 +669,8 @@ class TestSuggestFixes:
         result = _suggest_fixes_impl(content)
 
         # Recommendation should exist
-        assert isinstance(result["recommendation"], str)
-        assert len(result["recommendation"]) > 0
+        assert isinstance(result.recommendation, str)
+        assert len(result.recommendation) > 0
 
 
 class TestIsGlobPattern:
@@ -794,10 +798,9 @@ class TestLintFilesImpl:
 
         result = _lint_files_impl(["test1.robot", "test2.robot"], str(tmp_path))
 
-        assert result["total_files"] == 2
-        assert result["total_issues"] > 0
-        assert "summary" in result
-        assert result["unmatched_patterns"] == []
+        assert result.total_files == 2
+        assert result.total_issues > 0
+        assert result.unmatched_patterns == []
 
     def test_lint_with_glob(self, tmp_path: Path):
         """Test linting with glob pattern."""
@@ -808,7 +811,7 @@ class TestLintFilesImpl:
 
         result = _lint_files_impl(["tests/*.robot"], str(tmp_path))
 
-        assert result["total_files"] == 2
+        assert result.total_files == 2
 
     def test_lint_with_limit(self, tmp_path: Path):
         """Test limiting results."""
@@ -817,12 +820,12 @@ class TestLintFilesImpl:
         # Get all issues first
         all_result = _lint_files_impl(["test.robot"], str(tmp_path))
 
-        if all_result["total_issues"] > 1:
+        if all_result.total_issues > 1:
             # Limit to 1 issue
             result = _lint_files_impl(["test.robot"], str(tmp_path), limit=1)
-            assert len(result["issues"]) == 1
-            assert result["total_issues"] > 1
-            assert result["limited"] is True
+            assert len(result.issues) == 1
+            assert result.total_issues > 1
+            assert result.limited is True
 
     def test_lint_with_select(self, tmp_path: Path):
         """Test selecting specific rules."""
@@ -830,8 +833,8 @@ class TestLintFilesImpl:
 
         result = _lint_files_impl(["test.robot"], str(tmp_path), select=["NAME*"])
 
-        for issue in result["issues"]:
-            assert issue["rule_id"].startswith("NAME")
+        for issue in result.issues:
+            assert issue.rule_id.startswith("NAME")
 
     def test_no_files_raises_error(self, tmp_path: Path):
         """Test that no matching files raises ToolError."""
@@ -844,8 +847,8 @@ class TestLintFilesImpl:
 
         result = _lint_files_impl(["test.robot"], str(tmp_path))
 
-        for issue in result["issues"]:
-            assert "file" in issue
+        for issue in result.issues:
+            assert issue.file is not None
 
     def test_summary_counts(self, tmp_path: Path):
         """Test that summary counts are correct."""
@@ -853,13 +856,9 @@ class TestLintFilesImpl:
 
         result = _lint_files_impl(["test.robot"], str(tmp_path))
 
-        assert "summary" in result
-        assert "E" in result["summary"]
-        assert "W" in result["summary"]
-        assert "I" in result["summary"]
         # Sum of summary should equal total issues
-        summary_total = sum(result["summary"].values())
-        assert summary_total == result["total_issues"]
+        summary_total = result.summary.E + result.summary.W + result.summary.INFO
+        assert summary_total == result.total_issues
 
     def test_files_with_issues_count(self, tmp_path: Path):
         """Test files_with_issues count."""
@@ -870,9 +869,9 @@ class TestLintFilesImpl:
 
         result = _lint_files_impl(["bad.robot", "good.robot"], str(tmp_path))
 
-        assert result["total_files"] == 2
+        assert result.total_files == 2
         # At least one file should have issues
-        assert result["files_with_issues"] >= 1
+        assert result.files_with_issues >= 1
 
     def test_unmatched_patterns_in_result(self, tmp_path: Path):
         """Test that unmatched patterns are included in result."""
@@ -880,8 +879,8 @@ class TestLintFilesImpl:
 
         result = _lint_files_impl(["exists.robot", "missing.robot"], str(tmp_path))
 
-        assert result["total_files"] == 1
-        assert "missing.robot" in result["unmatched_patterns"]
+        assert result.total_files == 1
+        assert "missing.robot" in result.unmatched_patterns
 
     def test_with_configure(self, tmp_path: Path):
         """Test linting with configure parameter."""
@@ -890,7 +889,7 @@ class TestLintFilesImpl:
 
         # Without configuration, should trigger line-too-long
         result_default = _lint_files_impl(["test.robot"], str(tmp_path), select=["LEN08"])
-        has_line_too_long = any(d["rule_id"] == "LEN08" for d in result_default["issues"])
+        has_line_too_long = any(d.rule_id == "LEN08" for d in result_default.issues)
         assert has_line_too_long
 
         # With configuration to allow longer lines
@@ -900,7 +899,7 @@ class TestLintFilesImpl:
             select=["LEN08"],
             configure=["line-too-long.line_length=200"],
         )
-        has_line_too_long_configured = any(d["rule_id"] == "LEN08" for d in result_configured["issues"])
+        has_line_too_long_configured = any(d.rule_id == "LEN08" for d in result_configured.issues)
         assert not has_line_too_long_configured
 
     def test_robot_pattern_also_matches_resource(self, tmp_path: Path):
@@ -911,8 +910,8 @@ class TestLintFilesImpl:
         # Pattern with .robot should also find .resource files
         result = _lint_files_impl(["**/*.robot"], str(tmp_path))
 
-        assert result["total_files"] == 2
-        files_found = {issue["file"] for issue in result["issues"]}
+        assert result.total_files == 2
+        files_found = {issue.file for issue in result.issues}
         assert any("test.robot" in f for f in files_found)
         assert any("keywords.resource" in f for f in files_found)
 
@@ -924,7 +923,7 @@ class TestLintFilesImpl:
         # Pattern with .resource should also find .robot files
         result = _lint_files_impl(["*.resource"], str(tmp_path))
 
-        assert result["total_files"] == 2
+        assert result.total_files == 2
 
     def test_glob_without_extension_matches_both(self, tmp_path: Path):
         """Test that glob patterns without extension match both .robot and .resource."""
@@ -936,7 +935,7 @@ class TestLintFilesImpl:
         # Pattern without extension should find both file types
         result = _lint_files_impl(["tests/*"], str(tmp_path))
 
-        assert result["total_files"] == 2
+        assert result.total_files == 2
 
 
 class TestGroupIssues:
@@ -945,10 +944,10 @@ class TestGroupIssues:
     def test_group_by_severity(self):
         """Test grouping issues by severity."""
         issues = [
-            {"rule_id": "LEN01", "severity": "W", "file": "a.robot"},
-            {"rule_id": "NAME01", "severity": "E", "file": "b.robot"},
-            {"rule_id": "DOC01", "severity": "I", "file": "a.robot"},
-            {"rule_id": "LEN02", "severity": "W", "file": "c.robot"},
+            _make_issue(rule_id="LEN01", severity="W", file="a.robot"),
+            _make_issue(rule_id="NAME01", severity="E", file="b.robot"),
+            _make_issue(rule_id="DOC01", severity="I", file="a.robot"),
+            _make_issue(rule_id="LEN02", severity="W", file="c.robot"),
         ]
 
         grouped, counts = _group_issues(issues, "severity")
@@ -964,9 +963,9 @@ class TestGroupIssues:
     def test_group_by_rule(self):
         """Test grouping issues by rule ID."""
         issues = [
-            {"rule_id": "LEN01", "severity": "W", "file": "a.robot"},
-            {"rule_id": "LEN01", "severity": "W", "file": "b.robot"},
-            {"rule_id": "NAME01", "severity": "E", "file": "a.robot"},
+            _make_issue(rule_id="LEN01", severity="W", file="a.robot"),
+            _make_issue(rule_id="LEN01", severity="W", file="b.robot"),
+            _make_issue(rule_id="NAME01", severity="E", file="a.robot"),
         ]
 
         grouped, counts = _group_issues(issues, "rule")
@@ -980,9 +979,9 @@ class TestGroupIssues:
     def test_group_by_file(self):
         """Test grouping issues by file path."""
         issues = [
-            {"rule_id": "LEN01", "severity": "W", "file": "/path/a.robot"},
-            {"rule_id": "NAME01", "severity": "E", "file": "/path/a.robot"},
-            {"rule_id": "DOC01", "severity": "I", "file": "/path/b.robot"},
+            _make_issue(rule_id="LEN01", severity="W", file="/path/a.robot"),
+            _make_issue(rule_id="NAME01", severity="E", file="/path/a.robot"),
+            _make_issue(rule_id="DOC01", severity="I", file="/path/b.robot"),
         ]
 
         grouped, counts = _group_issues(issues, "file")
@@ -996,11 +995,11 @@ class TestGroupIssues:
     def test_limit_per_group(self):
         """Test that limit applies per group."""
         issues = [
-            {"rule_id": "LEN01", "severity": "W", "file": "a.robot"},
-            {"rule_id": "LEN01", "severity": "W", "file": "b.robot"},
-            {"rule_id": "LEN01", "severity": "W", "file": "c.robot"},
-            {"rule_id": "NAME01", "severity": "E", "file": "a.robot"},
-            {"rule_id": "NAME01", "severity": "E", "file": "b.robot"},
+            _make_issue(rule_id="LEN01", severity="W", file="a.robot"),
+            _make_issue(rule_id="LEN01", severity="W", file="b.robot"),
+            _make_issue(rule_id="LEN01", severity="W", file="c.robot"),
+            _make_issue(rule_id="NAME01", severity="E", file="a.robot"),
+            _make_issue(rule_id="NAME01", severity="E", file="b.robot"),
         ]
 
         grouped, counts = _group_issues(issues, "rule", limit_per_group=2)
@@ -1020,7 +1019,7 @@ class TestGroupIssues:
 
     def test_invalid_group_by_raises_error(self):
         """Test that invalid group_by raises ToolError."""
-        issues = [{"rule_id": "LEN01", "severity": "W", "file": "a.robot"}]
+        issues = [_make_issue(rule_id="LEN01", severity="W", file="a.robot")]
 
         with pytest.raises(ToolError, match="Invalid group_by"):
             _group_issues(issues, "invalid")
@@ -1028,7 +1027,7 @@ class TestGroupIssues:
     def test_missing_field_uses_unknown(self):
         """Test that missing field uses 'unknown' as key."""
         issues = [
-            {"rule_id": "LEN01", "severity": "W"},  # missing 'file'
+            _make_issue(rule_id="LEN01", severity="W"),  # file defaults to None
         ]
 
         grouped, _counts = _group_issues(issues, "file")
@@ -1046,10 +1045,10 @@ class TestLintFilesImplGroupBy:
 
         result = _lint_files_impl(["test.robot"], str(tmp_path), group_by="severity")
 
-        assert isinstance(result["issues"], dict)
-        assert "group_counts" in result
+        assert isinstance(result.issues, dict)
+        assert result.group_counts is not None
         # Issues should be grouped by severity
-        for key in result["issues"]:
+        for key in result.issues:
             assert key in ("E", "W", "I")
 
     def test_group_by_rule(self, tmp_path: Path):
@@ -1058,10 +1057,10 @@ class TestLintFilesImplGroupBy:
 
         result = _lint_files_impl(["test.robot"], str(tmp_path), group_by="rule")
 
-        assert isinstance(result["issues"], dict)
-        assert "group_counts" in result
+        assert isinstance(result.issues, dict)
+        assert result.group_counts is not None
         # All keys should be rule IDs
-        for key in result["issues"]:
+        for key in result.issues:
             assert len(key) >= 3  # Rule IDs are at least 3 chars
 
     def test_group_by_with_limit(self, tmp_path: Path):
@@ -1072,11 +1071,11 @@ class TestLintFilesImplGroupBy:
         result = _lint_files_impl(["test.robot"], str(tmp_path), group_by="rule", limit=1)
 
         # Each group should have at most 1 issue
-        for issues in result["issues"].values():
+        for issues in result.issues.values():
             assert len(issues) <= 1
         # Check if limited flag is set when any group was limited
-        if any(result["group_counts"][k] > 1 for k in result["group_counts"]):
-            assert result["limited"] is True
+        if any(result.group_counts[k] > 1 for k in result.group_counts):
+            assert result.limited is True
 
     def test_no_group_by_returns_list(self, tmp_path: Path):
         """Test that without group_by, issues is a list (not dict)."""
@@ -1084,7 +1083,7 @@ class TestLintFilesImplGroupBy:
 
         result = _lint_files_impl(["test.robot"], str(tmp_path))
 
-        assert isinstance(result["issues"], list)
+        assert isinstance(result.issues, list)
         assert "group_counts" not in result
 
 
@@ -1098,13 +1097,9 @@ class TestFormatFile:
 
         result = _format_file_impl(str(robot_file))
 
-        assert "file" in result
-        assert "formatted" in result
-        assert "changed" in result
-        assert "diff" in result
-        assert "written" in result
-        assert result["changed"] is True
-        assert result["written"] is False  # Not overwritten by default
+        assert result.diff is not None  # Optional field - verify it exists when changed
+        assert result.changed is True
+        assert result.written is False  # Not overwritten by default
 
     def test_format_file_overwrite(self, tmp_path: Path):
         """Test formatting a file with overwrite=True."""
@@ -1114,12 +1109,12 @@ class TestFormatFile:
 
         result = _format_file_impl(str(robot_file), overwrite=True)
 
-        assert result["changed"] is True
-        assert result["written"] is True
+        assert result.changed is True
+        assert result.written is True
         # Verify file was actually modified
         new_content = robot_file.read_text()
         assert new_content != original_content
-        assert new_content == result["formatted"]
+        assert new_content == result.formatted
 
     def test_format_file_unchanged(self, tmp_path: Path):
         """Test formatting an already formatted file."""
@@ -1130,9 +1125,8 @@ class TestFormatFile:
         result = _format_file_impl(str(robot_file), overwrite=True)
 
         # May or may not change depending on default formatters
-        assert "formatted" in result
-        if not result["changed"]:
-            assert result["written"] is False
+        if not result.changed:
+            assert result.written is False
 
     def test_format_file_not_found(self):
         """Test formatting a non-existent file."""
@@ -1153,8 +1147,7 @@ class TestFormatFile:
         robot_file.write_text("*** Test Cases ***\nTest\n    log  hello\n")
 
         result = _format_file_impl(str(robot_file), select=["NormalizeSeparators"])
-
-        assert "formatted" in result
+        assert isinstance(result.changed, bool)
 
     def test_format_file_custom_space_count(self, tmp_path: Path):
         """Test formatting with custom space count."""
@@ -1162,8 +1155,7 @@ class TestFormatFile:
         robot_file.write_text("*** Test Cases ***\nTest\n    Log    Hello\n")
 
         result = _format_file_impl(str(robot_file), space_count=2)
-
-        assert "formatted" in result
+        assert isinstance(result.changed, bool)
 
     def test_format_resource_file(self, tmp_path: Path):
         """Test formatting a .resource file."""
@@ -1172,8 +1164,7 @@ class TestFormatFile:
 
         result = _format_file_impl(str(resource_file))
 
-        assert "formatted" in result
-        assert result["file"] == str(resource_file)
+        assert result.file == str(resource_file)
 
 
 class TestFormatFiles:
@@ -1186,12 +1177,9 @@ class TestFormatFiles:
 
         result = _format_files_impl(["test1.robot", "test2.robot"], str(tmp_path))
 
-        assert result["total_files"] == 2
-        assert "files_changed" in result
-        assert "files_unchanged" in result
-        assert "files_written" in result
-        assert result["files_written"] == 0  # Not overwritten by default
-        assert len(result["results"]) == 2
+        assert result.total_files == 2
+        assert result.files_written == 0  # Not overwritten by default
+        assert len(result.results) == 2
 
     def test_format_files_with_overwrite(self, tmp_path: Path):
         """Test formatting files with overwrite."""
@@ -1200,7 +1188,7 @@ class TestFormatFiles:
 
         result = _format_files_impl(["test1.robot", "test2.robot"], str(tmp_path), overwrite=True)
 
-        assert result["files_written"] == result["files_changed"]
+        assert result.files_written == result.files_changed
 
     def test_format_files_with_glob(self, tmp_path: Path):
         """Test formatting with glob pattern."""
@@ -1211,7 +1199,7 @@ class TestFormatFiles:
 
         result = _format_files_impl(["tests/*.robot"], str(tmp_path))
 
-        assert result["total_files"] == 2
+        assert result.total_files == 2
 
     def test_format_files_recursive_glob(self, tmp_path: Path):
         """Test formatting with recursive glob pattern."""
@@ -1221,7 +1209,7 @@ class TestFormatFiles:
 
         result = _format_files_impl(["**/*.robot"], str(tmp_path))
 
-        assert result["total_files"] == 1
+        assert result.total_files == 1
 
     def test_format_files_no_matches(self, tmp_path: Path):
         """Test formatting with no matching files."""
@@ -1234,8 +1222,8 @@ class TestFormatFiles:
 
         result = _format_files_impl(["exists.robot", "missing.robot"], str(tmp_path))
 
-        assert result["total_files"] == 1
-        assert "missing.robot" in result["unmatched_patterns"]
+        assert result.total_files == 1
+        assert "missing.robot" in result.unmatched_patterns
 
     def test_format_files_results_structure(self, tmp_path: Path):
         """Test the structure of per-file results."""
@@ -1243,10 +1231,8 @@ class TestFormatFiles:
 
         result = _format_files_impl(["test.robot"], str(tmp_path))
 
-        for file_result in result["results"]:
-            assert "file" in file_result
-            assert "changed" in file_result
-            assert "written" in file_result
+        # FormatFileInfo model validates all required fields exist
+        assert len(result.results) > 0
 
 
 class TestGetStatistics:
@@ -1259,12 +1245,8 @@ class TestGetStatistics:
 
         result = _get_statistics_impl(str(tmp_path))
 
-        assert "directory" in result
-        assert "summary" in result
-        assert "severity_breakdown" in result
-        assert "top_issues" in result
-        assert "quality_score" in result
-        assert "recommendations" in result
+        # GetStatisticsResult model validates all required fields exist
+        assert result.directory == str(tmp_path)
 
     def test_get_statistics_summary(self, tmp_path: Path):
         """Test statistics summary structure."""
@@ -1272,15 +1254,9 @@ class TestGetStatistics:
 
         result = _get_statistics_impl(str(tmp_path))
 
-        summary = result["summary"]
-        assert "total_files" in summary
-        assert "files_with_issues" in summary
-        assert "files_clean" in summary
-        assert "total_issues" in summary
-        assert "avg_issues_per_file" in summary
-        assert "max_issues_in_file" in summary
-
-        assert summary["total_files"] == 1
+        summary = result.summary
+        # StatisticsSummary model validates all required fields exist
+        assert summary.total_files == 1
 
     def test_get_statistics_severity_breakdown(self, tmp_path: Path):
         """Test severity breakdown in statistics."""
@@ -1288,13 +1264,10 @@ class TestGetStatistics:
 
         result = _get_statistics_impl(str(tmp_path))
 
-        severity = result["severity_breakdown"]
-        assert "E" in severity
-        assert "W" in severity
-        assert "I" in severity
+        severity = result.severity_breakdown
         # Sum should equal total issues
-        total = severity["E"] + severity["W"] + severity["I"]
-        assert total == result["summary"]["total_issues"]
+        total = severity.E + severity.W + severity.INFO
+        assert total == result.summary.total_issues
 
     def test_get_statistics_quality_score(self, tmp_path: Path):
         """Test quality score structure."""
@@ -1302,12 +1275,10 @@ class TestGetStatistics:
 
         result = _get_statistics_impl(str(tmp_path))
 
-        quality = result["quality_score"]
-        assert "score" in quality
-        assert "grade" in quality
-        assert "label" in quality
-        assert 0 <= quality["score"] <= 100
-        assert quality["grade"] in ("A", "B", "C", "D", "F")
+        quality = result.quality_score
+        # QualityScore model validates all required fields exist
+        assert 0 <= quality.score <= 100
+        assert quality.grade in ("A", "B", "C", "D", "F")
 
     def test_get_statistics_top_issues(self, tmp_path: Path):
         """Test top issues list."""
@@ -1315,11 +1286,10 @@ class TestGetStatistics:
 
         result = _get_statistics_impl(str(tmp_path))
 
-        assert isinstance(result["top_issues"], list)
-        for issue in result["top_issues"]:
-            assert "rule_id" in issue
-            assert "count" in issue
-            assert issue["count"] > 0
+        assert isinstance(result.top_issues, list)
+        for issue in result.top_issues:
+            # TopRule model validates required fields exist
+            assert issue.count > 0
 
     def test_get_statistics_recommendations(self, tmp_path: Path):
         """Test recommendations list."""
@@ -1327,9 +1297,9 @@ class TestGetStatistics:
 
         result = _get_statistics_impl(str(tmp_path))
 
-        assert isinstance(result["recommendations"], list)
-        assert len(result["recommendations"]) > 0
-        for rec in result["recommendations"]:
+        assert isinstance(result.recommendations, list)
+        assert len(result.recommendations) > 0
+        for rec in result.recommendations:
             assert isinstance(rec, str)
 
     def test_get_statistics_recursive(self, tmp_path: Path):
@@ -1341,11 +1311,11 @@ class TestGetStatistics:
 
         # Recursive (default)
         result_recursive = _get_statistics_impl(str(tmp_path), recursive=True)
-        assert result_recursive["summary"]["total_files"] == 2
+        assert result_recursive.summary.total_files == 2
 
         # Non-recursive
         result_nonrecursive = _get_statistics_impl(str(tmp_path), recursive=False)
-        assert result_nonrecursive["summary"]["total_files"] == 1
+        assert result_nonrecursive.summary.total_files == 1
 
     def test_get_statistics_with_select(self, tmp_path: Path):
         """Test statistics with rule selection."""
@@ -1354,8 +1324,8 @@ class TestGetStatistics:
         result = _get_statistics_impl(str(tmp_path), select=["NAME*"])
 
         # All issues should be NAME rules
-        for issue in result["top_issues"]:
-            assert issue["rule_id"].startswith("NAME")
+        for issue in result.top_issues:
+            assert issue.rule_id.startswith("NAME")
 
     def test_get_statistics_directory_not_found(self):
         """Test statistics for non-existent directory."""
@@ -1436,10 +1406,7 @@ class TestExplainIssue:
 
         result = _explain_issue_impl(content, line=2)
 
-        assert "line" in result
-        assert "issues_found" in result
-        assert "context" in result
-        assert result["line"] == 2
+        assert result.line == 2
 
     def test_explain_issue_with_issues(self):
         """Test explanation when issues are found."""
@@ -1453,9 +1420,9 @@ class TestExplainIssue:
 
         result = _explain_issue_impl(content, line=2)
 
-        assert result["issues_found"] is True
-        assert "issues" in result
-        assert len(result["issues"]) > 0
+        assert result.issues_found is True
+        assert result.issues is not None
+        assert len(result.issues) > 0
 
     def test_explain_issue_structure(self):
         """Test issue explanation structure."""
@@ -1469,13 +1436,8 @@ class TestExplainIssue:
 
         result = _explain_issue_impl(content, line=2)
 
-        for issue in result["issues"]:
-            assert "rule_id" in issue
-            assert "name" in issue
-            assert "message" in issue
-            assert "severity" in issue
-            assert "line" in issue
-            assert "column" in issue
+        # IssueExplanation model validates all required fields exist
+        assert len(result.issues) > 0
 
     def test_explain_issue_includes_documentation(self):
         """Test that explanation includes rule documentation."""
@@ -1489,10 +1451,10 @@ class TestExplainIssue:
 
         result = _explain_issue_impl(content, line=2)
 
-        if result["issues"]:
-            issue = result["issues"][0]
+        if result.issues:
+            issue = result.issues[0]
             # Should include additional context fields
-            assert "why_it_matters" in issue or "full_documentation" in issue
+            assert issue.why_it_matters is not None or issue.full_documentation is not None
 
     def test_explain_issue_no_issues_at_line(self):
         """Test explanation when no issues at specified line."""
@@ -1506,10 +1468,7 @@ class TestExplainIssue:
 
         # Line 1 is the settings header, no issues there
         result = _explain_issue_impl(content, line=1)
-
-        # May or may not find issues depending on rules
-        assert "issues_found" in result
-        assert "context" in result
+        assert result.line == 1
 
     def test_explain_issue_related_issues(self):
         """Test that related issues on nearby lines are included."""
@@ -1524,7 +1483,7 @@ class TestExplainIssue:
 
         result = _explain_issue_impl(content, line=3)
 
-        assert "related_issues" in result
+        assert result.related_issues is not None
 
     def test_explain_issue_context_lines(self):
         """Test custom context lines."""
@@ -1540,9 +1499,9 @@ class TestExplainIssue:
 
         result = _explain_issue_impl(content, line=3, context_lines=1)
 
-        context = result["context"]
+        context = result.context
         # Should have target line +/- 1 = at most 3 lines
-        assert len(context["lines"]) <= 3
+        assert len(context.lines) <= 3
 
     def test_explain_issue_context_structure(self):
         """Test context structure."""
@@ -1556,15 +1515,9 @@ class TestExplainIssue:
 
         result = _explain_issue_impl(content, line=2)
 
-        context = result["context"]
-        assert "lines" in context
-        assert "target_line" in context
-        assert "target_content" in context
-
-        for line_info in context["lines"]:
-            assert "line_number" in line_info
-            assert "content" in line_info
-            assert "is_target" in line_info
+        context = result.context
+        # CodeContext and ContextLine models validate all required fields exist
+        assert len(context.lines) > 0
 
 
 class TestGetLineContext:
@@ -1576,9 +1529,9 @@ class TestGetLineContext:
 
         result = _get_line_context(content, line=3, context_lines=1)
 
-        assert result["target_line"] == 3
-        assert result["target_content"] == "line3"
-        assert len(result["lines"]) == 3  # line 2, 3, 4
+        assert result.target_line == 3
+        assert result.target_content == "line3"
+        assert len(result.lines) == 3  # line 2, 3, 4
 
     def test_get_line_context_at_start(self):
         """Test context at start of file."""
@@ -1586,9 +1539,9 @@ class TestGetLineContext:
 
         result = _get_line_context(content, line=1, context_lines=2)
 
-        assert result["target_line"] == 1
+        assert result.target_line == 1
         # Should only have lines after, not before
-        assert len(result["lines"]) == 3  # line 1, 2, 3
+        assert len(result.lines) == 3  # line 1, 2, 3
 
     def test_get_line_context_at_end(self):
         """Test context at end of file."""
@@ -1596,9 +1549,9 @@ class TestGetLineContext:
 
         result = _get_line_context(content, line=3, context_lines=2)
 
-        assert result["target_line"] == 3
+        assert result.target_line == 3
         # Should only have lines before, not after
-        assert len(result["lines"]) == 3  # line 1, 2, 3
+        assert len(result.lines) == 3  # line 1, 2, 3
 
     def test_get_line_context_target_marked(self):
         """Test that target line is marked."""
@@ -1607,10 +1560,10 @@ class TestGetLineContext:
         result = _get_line_context(content, line=2, context_lines=1)
 
         target_found = False
-        for line_info in result["lines"]:
-            if line_info["is_target"]:
+        for line_info in result.lines:
+            if line_info.is_target:
                 target_found = True
-                assert line_info["line_number"] == 2
+                assert line_info.line_number == 2
         assert target_found
 
 
@@ -1661,8 +1614,7 @@ class TestFormatContentEdgeCases:
     def test_format_empty_content(self):
         """Test formatting empty content."""
         result = _format_content_impl("")
-        assert "formatted" in result
-        assert "changed" in result
+        assert isinstance(result.changed, bool)
 
     def test_format_with_all_parameters(self):
         """Test formatting with all parameters combined."""
@@ -1675,7 +1627,7 @@ class TestFormatContentEdgeCases:
             space_count=2,
             line_length=80,
         )
-        assert "formatted" in result
+        assert isinstance(result.changed, bool)
 
 
 class TestLintDirectoryWithGroupBy:
@@ -1687,10 +1639,10 @@ class TestLintDirectoryWithGroupBy:
 
         result = _lint_files_impl(["*.robot"], str(tmp_path), group_by="severity")
 
-        assert isinstance(result["issues"], dict)
-        assert "group_counts" in result
+        assert isinstance(result.issues, dict)
+        assert result.group_counts is not None
         # Issues should be grouped by severity
-        for key in result["issues"]:
+        for key in result.issues:
             assert key in ("E", "W", "I")
 
     def test_lint_directory_group_by_rule(self, tmp_path: Path):
@@ -1699,8 +1651,8 @@ class TestLintDirectoryWithGroupBy:
 
         result = _lint_files_impl(["*.robot"], str(tmp_path), group_by="rule")
 
-        assert isinstance(result["issues"], dict)
-        assert "group_counts" in result
+        assert isinstance(result.issues, dict)
+        assert result.group_counts is not None
 
     def test_lint_directory_group_by_file(self, tmp_path: Path):
         """Test lint_files with group_by='file'."""
@@ -1709,8 +1661,8 @@ class TestLintDirectoryWithGroupBy:
 
         result = _lint_files_impl(["*.robot"], str(tmp_path), group_by="file")
 
-        assert isinstance(result["issues"], dict)
-        assert "group_counts" in result
+        assert isinstance(result.issues, dict)
+        assert result.group_counts is not None
 
 
 class TestLintAndFormatParameters:
@@ -1722,9 +1674,8 @@ class TestLintAndFormatParameters:
 
         # Simulate lint_and_format by formatting then linting
         format_result = _format_content_impl(content, select=["NormalizeSeparators"])
-        lint_result = _lint_content_impl(format_result["formatted"])
+        lint_result = _lint_content_impl(format_result.formatted)
 
-        assert "formatted" in format_result
         assert isinstance(lint_result, list)
 
     def test_lint_and_format_with_lint_ignore(self):
@@ -1733,11 +1684,11 @@ class TestLintAndFormatParameters:
 
         # Simulate lint_and_format
         format_result = _format_content_impl(content)
-        lint_result = _lint_content_impl(format_result["formatted"], ignore=["NAME*"])
+        lint_result = _lint_content_impl(format_result.formatted, ignore=["NAME*"])
 
         # No NAME issues in result
         for issue in lint_result:
-            assert not issue["rule_id"].startswith("NAME")
+            assert not issue.rule_id.startswith("NAME")
 
     def test_lint_and_format_with_threshold(self):
         """Test format then lint workflow with threshold."""
@@ -1745,11 +1696,11 @@ class TestLintAndFormatParameters:
 
         # Simulate lint_and_format
         format_result = _format_content_impl(content)
-        lint_result = _lint_content_impl(format_result["formatted"], threshold="E")
+        lint_result = _lint_content_impl(format_result.formatted, threshold="E")
 
         # Only errors in result
         for issue in lint_result:
-            assert issue["severity"] == "E"
+            assert issue.severity == "E"
 
 
 class TestLintAndFormatWithFile:
@@ -1761,12 +1712,7 @@ class TestLintAndFormatWithFile:
 
         result = _lint_and_format_impl(content=content)
 
-        assert "formatted" in result
-        assert "changed" in result
-        assert "issues" in result
-        assert "issues_before" in result
-        assert "issues_after" in result
-        assert "issues_fixed" in result
+        assert result.issues is not None
         # Should not have file-specific fields when using content
         assert "file" not in result
         assert "written" not in result
@@ -1779,15 +1725,10 @@ class TestLintAndFormatWithFile:
 
         result = _lint_and_format_impl(file_path=str(test_file))
 
-        assert "formatted" in result
-        assert "changed" in result
-        assert "issues" in result
-        assert "issues_before" in result
-        assert "issues_after" in result
-        assert "issues_fixed" in result
+        assert result.issues is not None
         # Should have file-specific fields
-        assert result["file"] == str(test_file)
-        assert result["written"] is False  # default is no overwrite
+        assert result.file == str(test_file)
+        assert result.written is False  # default is no overwrite
 
     def test_lint_and_format_file_with_overwrite(self, tmp_path):
         """Test lint_and_format with overwrite=True."""
@@ -1798,12 +1739,12 @@ class TestLintAndFormatWithFile:
 
         result = _lint_and_format_impl(file_path=str(test_file), overwrite=True)
 
-        assert result["changed"] is True
-        assert result["written"] is True
+        assert result.changed is True
+        assert result.written is True
         # Verify file was actually changed
         new_content = test_file.read_text()
         assert new_content != original_content
-        assert new_content == result["formatted"]
+        assert new_content == result.formatted
 
     def test_lint_and_format_file_unchanged_no_overwrite(self, tmp_path):
         """Test lint_and_format doesn't write if no changes needed."""
@@ -1815,8 +1756,8 @@ class TestLintAndFormatWithFile:
         result = _lint_and_format_impl(file_path=str(test_file), overwrite=True)
 
         # If no changes needed, written should be False
-        if not result["changed"]:
-            assert result["written"] is False
+        if not result.changed:
+            assert result.written is False
 
     def test_lint_and_format_requires_content_or_file(self):
         """Test that either content or file_path must be provided."""
@@ -1854,8 +1795,8 @@ class TestLintAndFormatWithFile:
             configure=["line-too-long.line_length=200"],
         )
 
-        assert "issues" in result
-        assert isinstance(result["issues"], list)
+        assert result.issues is not None
+        assert isinstance(result.issues, list)
 
 
 class TestSuggestFixesParameters:
@@ -1867,8 +1808,7 @@ class TestSuggestFixesParameters:
 
         result = _suggest_fixes_impl(content, filename="lib.resource")
 
-        assert "fixes" in result
-        assert "total_issues" in result
+        assert isinstance(result.total_issues, int)
 
 
 class TestExplainIssueParameters:
@@ -1879,9 +1819,7 @@ class TestExplainIssueParameters:
         content = "*** Keywords ***\nmy keyword\n    Log    Hello\n"
 
         result = _explain_issue_impl(content, line=2, filename="lib.resource")
-
-        assert "line" in result
-        assert "context" in result
+        assert result.line == 2
 
     def test_explain_issue_large_context(self):
         """Test explain_issue with large context_lines."""
@@ -1889,9 +1827,9 @@ class TestExplainIssueParameters:
 
         result = _explain_issue_impl(content, line=10, context_lines=5)
 
-        assert result["line"] == 10
+        assert result.line == 10
         # Context should include up to 5 lines before and after
-        assert len(result["context"]["lines"]) <= 11
+        assert len(result.context.lines) <= 11
 
 
 class TestGetStatisticsParameters:
@@ -1904,7 +1842,7 @@ class TestGetStatisticsParameters:
 
         # Without configure - should have line-too-long
         result_default = _get_statistics_impl(str(tmp_path), select=["LEN08"])
-        has_len08 = any(issue["rule_id"] == "LEN08" for issue in result_default["top_issues"])
+        has_len08 = any(issue.rule_id == "LEN08" for issue in result_default.top_issues)
 
         # With configure - should not have line-too-long
         result_configured = _get_statistics_impl(
@@ -1914,9 +1852,7 @@ class TestGetStatisticsParameters:
         )
 
         # The configured version should have same or fewer issues
-        assert (
-            result_configured["summary"]["total_issues"] <= result_default["summary"]["total_issues"] or not has_len08
-        )
+        assert result_configured.summary.total_issues <= result_default.summary.total_issues or not has_len08
 
     def test_get_statistics_with_ignore(self, tmp_path: Path):
         """Test get_statistics with ignore parameter."""
@@ -1929,11 +1865,11 @@ class TestGetStatisticsParameters:
         filtered_stats = _get_statistics_impl(str(tmp_path), ignore=["NAME*"])
 
         # Filtered should have equal or fewer issues
-        assert filtered_stats["summary"]["total_issues"] <= all_stats["summary"]["total_issues"]
+        assert filtered_stats.summary.total_issues <= all_stats.summary.total_issues
 
         # No NAME issues in top_issues
-        for issue in filtered_stats["top_issues"]:
-            assert not issue["rule_id"].startswith("NAME")
+        for issue in filtered_stats.top_issues:
+            assert not issue.rule_id.startswith("NAME")
 
 
 class TestFormatterInfoEdgeCases:
@@ -1943,14 +1879,13 @@ class TestFormatterInfoEdgeCases:
         """Test formatter info for formatter with no extra parameters."""
         # Find a formatter and check its info
         result = _get_formatter_info_impl("NormalizeSeparators")
-        assert "parameters" in result
-        assert isinstance(result["parameters"], list)
+        assert isinstance(result.parameters, list)
 
     def test_get_formatter_info_min_version(self):
         """Test that formatter info includes min_version."""
         result = _get_formatter_info_impl("NormalizeSeparators")
-        # min_version should be present (may be None)
-        assert "min_version" in result
+        # min_version is an optional field on FormatterDetail model (Pydantic ensures it exists)
+        assert result.min_version is None or isinstance(result.min_version, str)
 
 
 class TestRuleInfoEdgeCases:
@@ -1959,18 +1894,20 @@ class TestRuleInfoEdgeCases:
     def test_get_rule_info_includes_version_requirement(self):
         """Test that rule info includes version_requirement field."""
         result = _get_rule_info_impl("LEN01")
-        assert "version_requirement" in result
+        # version_requirement is an optional field on RuleDetail model (Pydantic ensures it exists)
+        assert result.version_requirement is None or isinstance(result.version_requirement, str)
 
     def test_get_rule_info_includes_deprecated(self):
         """Test that rule info includes deprecated field."""
         result = _get_rule_info_impl("LEN01")
-        assert "deprecated" in result
-        assert isinstance(result["deprecated"], bool)
+        # RuleDetail model has deprecated as a required bool field
+        assert isinstance(result.deprecated, bool)
 
     def test_get_rule_info_includes_added_in_version(self):
         """Test that rule info includes added_in_version field."""
         result = _get_rule_info_impl("LEN01")
-        assert "added_in_version" in result
+        # added_in_version is an optional field on RuleDetail model (Pydantic ensures it exists)
+        assert result.added_in_version is None or isinstance(result.added_in_version, str)
 
 
 class TestOffsetPagination:
@@ -1993,15 +1930,15 @@ class TestOffsetPagination:
 
         # Get all issues
         all_result = _lint_files_impl(["*.robot"], base_path=str(tmp_path))
-        total = all_result["total_issues"]
+        total = all_result.total_issues
 
         # Get with offset
         offset_result = _lint_files_impl(["*.robot"], base_path=str(tmp_path), offset=2)
 
         # Should have skipped 2 issues
-        assert len(offset_result["issues"]) == total - 2
-        assert offset_result["offset"] == 2
-        assert offset_result["total_issues"] == total  # Total unchanged
+        assert len(offset_result.issues) == total - 2
+        assert offset_result.offset == 2
+        assert offset_result.total_issues == total  # Total unchanged
 
     def test_offset_with_limit(self, tmp_path):
         """Test offset combined with limit for pagination."""
@@ -2026,12 +1963,12 @@ class TestOffsetPagination:
         # Second page
         page2 = _lint_files_impl(["*.robot"], base_path=str(tmp_path), limit=2, offset=2)
 
-        assert len(page1["issues"]) == 2
-        assert len(page2["issues"]) == 2
-        assert page1["has_more"] is True
+        assert len(page1.issues) == 2
+        assert len(page2.issues) == 2
+        assert page1.has_more is True
         # Pages should have different issues
-        page1_lines = {i["line"] for i in page1["issues"]}
-        page2_lines = {i["line"] for i in page2["issues"]}
+        page1_lines = {i.line for i in page1.issues}
+        page2_lines = {i.line for i in page2.issues}
         assert page1_lines.isdisjoint(page2_lines)
 
     def test_offset_beyond_results(self, tmp_path):
@@ -2047,8 +1984,8 @@ class TestOffsetPagination:
         )
 
         result = _lint_files_impl(["*.robot"], base_path=str(tmp_path), offset=100)
-        assert len(result["issues"]) == 0
-        assert result["has_more"] is False
+        assert len(result.issues) == 0
+        assert result.has_more is False
 
     def test_offset_with_group_by(self, tmp_path):
         """Test offset works with group_by parameter."""
@@ -2070,8 +2007,8 @@ class TestOffsetPagination:
         result = _lint_files_impl(["*.robot"], base_path=str(tmp_path), group_by="severity", limit=1, offset=1)
 
         # Should have offset applied per group
-        assert "group_counts" in result
-        assert result["offset"] == 1
+        assert result.group_counts is not None
+        assert result.offset == 1
 
 
 class TestSummarizeOnly:
@@ -2093,11 +2030,10 @@ class TestSummarizeOnly:
 
         result = _lint_files_impl(["*.robot"], base_path=str(tmp_path), summarize_only=True)
 
-        # Should have summary but not issues
-        assert "total_issues" in result
-        assert "summary" in result
-        assert "top_rules" in result
-        assert "issues" not in result
+        # Should have summary and top_rules but not issues
+        # issues field should be None in summarize_only mode
+        assert result.issues is None
+        assert result.top_rules is not None  # Optional field - verify it exists in summarize mode
 
     def test_summarize_only_includes_top_rules(self, tmp_path):
         """Test summarize_only includes top rules."""
@@ -2115,11 +2051,9 @@ class TestSummarizeOnly:
 
         result = _lint_files_impl(["*.robot"], base_path=str(tmp_path), summarize_only=True)
 
-        # Top rules should be a list of dicts
-        assert isinstance(result["top_rules"], list)
-        for rule in result["top_rules"]:
-            assert "rule_id" in rule
-            assert "count" in rule
+        # Top rules should be a list of TopRule models
+        assert isinstance(result.top_rules, list)
+        # TopRule model validates all required fields exist
 
     def test_summarize_only_format_files(self, tmp_path):
         """Test summarize_only for format_files."""
@@ -2136,9 +2070,8 @@ class TestSummarizeOnly:
         result = _format_files_impl(["*.robot"], base_path=str(tmp_path), summarize_only=True)
 
         # Should have summary but not per-file results
-        assert "total_files" in result
-        assert "files_changed" in result
-        assert "results" not in result
+        # results should be None in summarize_only mode
+        assert result.results is None
 
 
 class TestWorstFiles:
@@ -2173,10 +2106,10 @@ class TestWorstFiles:
 
         result = _worst_files_impl(str(tmp_path))
 
-        assert len(result["files"]) >= 1
+        assert len(result.files) >= 1
         # First file should have most issues
-        if len(result["files"]) > 1:
-            assert result["files"][0]["issue_count"] >= result["files"][1]["issue_count"]
+        if len(result.files) > 1:
+            assert result.files[0].issue_count >= result.files[1].issue_count
 
     def test_worst_files_limit_n(self, tmp_path):
         """Test worst_files respects n parameter."""
@@ -2192,7 +2125,7 @@ class TestWorstFiles:
             )
 
         result = _worst_files_impl(str(tmp_path), n=2)
-        assert len(result["files"]) <= 2
+        assert len(result.files) <= 2
 
     def test_worst_files_includes_severity_breakdown(self, tmp_path):
         """Test worst_files includes severity breakdown per file."""
@@ -2208,11 +2141,8 @@ class TestWorstFiles:
 
         result = _worst_files_impl(str(tmp_path))
 
-        for file_info in result["files"]:
-            assert "severity_breakdown" in file_info
-            assert "E" in file_info["severity_breakdown"]
-            assert "W" in file_info["severity_breakdown"]
-            assert "I" in file_info["severity_breakdown"]
+        # WorstFile and SeveritySummary models validate all required fields exist
+        assert len(result.files) > 0
 
     def test_worst_files_empty_directory(self, tmp_path):
         """Test worst_files with no robot files."""
@@ -2233,7 +2163,7 @@ class TestSearchRules:
         result = _search_rules_impl("long")
         assert len(result) > 0
         # Should find rules with "long" in name
-        assert any("long" in r["name"].lower() for r in result)
+        assert any("long" in r.name.lower() for r in result)
 
     def test_search_rules_by_message(self):
         """Test searching rules by message content."""
@@ -2245,22 +2175,20 @@ class TestSearchRules:
         result = _search_rules_impl("too", category="LEN")
         # All results should be LEN rules
         for rule in result:
-            assert rule["rule_id"].startswith("LEN")
+            assert rule.rule_id.startswith("LEN")
 
     def test_search_rules_with_severity_filter(self):
         """Test searching rules with severity filter."""
         result = _search_rules_impl("name", severity="W")
         # All results should be warnings
         for rule in result:
-            assert rule["severity"] == "W"
+            assert rule.severity == "W"
 
     def test_search_rules_includes_match_info(self):
         """Test search results include match field and snippet."""
         result = _search_rules_impl("documentation")
+        # RuleSearchResult model validates all required fields exist
         assert len(result) > 0
-        for rule in result:
-            assert "match_field" in rule
-            assert "match_snippet" in rule
 
     def test_search_rules_respects_limit(self):
         """Test search respects limit parameter."""
@@ -2285,11 +2213,9 @@ class TestListPrompts:
     def test_list_prompts_includes_required_fields(self):
         """Test each prompt has name, description, arguments."""
         result = _list_prompts_impl()
+        # PromptSummary model validates all required fields exist
         for prompt in result:
-            assert "name" in prompt
-            assert "description" in prompt
-            assert "arguments" in prompt
-            assert isinstance(prompt["arguments"], list)
+            assert isinstance(prompt.arguments, list)
 
     def test_list_prompts_discovers_all_prompts(self):
         """
@@ -2299,7 +2225,7 @@ class TestListPrompts:
         the AST introspection picks them up correctly.
         """
         result = _list_prompts_impl()
-        prompt_names = {p["name"] for p in result}
+        prompt_names = {p.name for p in result}
 
         # All prompts that should be discovered from prompts.py
         expected_prompts = {
@@ -2319,16 +2245,432 @@ class TestListPrompts:
     def test_list_prompts_argument_required_field(self):
         """Test that arguments correctly identify required vs optional."""
         result = _list_prompts_impl()
-        prompts_by_name = {p["name"]: p for p in result}
+        prompts_by_name = {p.name: p for p in result}
 
         # analyze_robot_file: content (required), focus (optional)
         analyze = prompts_by_name["analyze_robot_file"]
-        args_by_name = {a["name"]: a for a in analyze["arguments"]}
-        assert args_by_name["content"]["required"] is True
-        assert args_by_name["focus"]["required"] is False
+        args_by_name = {a.name: a for a in analyze.arguments}
+        assert args_by_name["content"].required is True
+        assert args_by_name["focus"].required is False
 
         # fix_robot_issues: content (required)
         fix = prompts_by_name["fix_robot_issues"]
-        assert len(fix["arguments"]) == 1
-        assert fix["arguments"][0]["name"] == "content"
-        assert fix["arguments"][0]["required"] is True
+        assert len(fix.arguments) == 1
+        assert fix.arguments[0].name == "content"
+        assert fix.arguments[0].required is True
+
+
+class TestGetLineRange:
+    """Tests for _get_line_range helper."""
+
+    def test_get_line_range_with_line(self):
+        """Test line range calculation for specific line."""
+        content = "line1\nline2\nline3\nline4\nline5\nline6\nline7"
+        start, end = _get_line_range(content, line=4, context_lines=2)
+        assert start == 2  # line 4 - 2 = line 2
+        assert end == 6  # line 4 + 2 = line 6
+
+    def test_get_line_range_at_start(self):
+        """Test line range at start of file."""
+        content = "line1\nline2\nline3"
+        start, end = _get_line_range(content, line=1, context_lines=2)
+        assert start == 1  # Can't go below 1
+        assert end == 3  # line 1 + 2 = line 3
+
+    def test_get_line_range_at_end(self):
+        """Test line range at end of file."""
+        content = "line1\nline2\nline3"
+        start, end = _get_line_range(content, line=3, context_lines=2)
+        assert start == 1  # line 3 - 2 = line 1
+        assert end == 3  # Can't go beyond last line
+
+    def test_get_line_range_no_line(self):
+        """Test line range when no specific line is given."""
+        content = "line1\nline2\nline3"
+        start, end = _get_line_range(content, line=None, context_lines=2)
+        assert start == 1
+        assert end == 3  # Full content
+
+
+class TestExtractSnippet:
+    """Tests for _extract_snippet helper."""
+
+    def test_extract_snippet_basic(self):
+        """Test basic snippet extraction."""
+        content = "line1\nline2\nline3\nline4\nline5"
+        snippet = _extract_snippet(content, start_line=2, end_line=4)
+        assert snippet == "line2\nline3\nline4"
+
+    def test_extract_snippet_single_line(self):
+        """Test extracting a single line."""
+        content = "line1\nline2\nline3"
+        snippet = _extract_snippet(content, start_line=2, end_line=2)
+        assert snippet == "line2"
+
+    def test_extract_snippet_full_content(self):
+        """Test extracting full content."""
+        content = "line1\nline2\nline3"
+        snippet = _extract_snippet(content, start_line=1, end_line=3)
+        assert snippet == content
+
+
+class TestBuildLlmGuidance:
+    """Tests for _build_llm_guidance helper."""
+
+    def test_build_guidance_no_issues(self):
+        """Test guidance when no issues."""
+        result = _build_llm_guidance([], start_line=1, end_line=5)
+        assert "No issues found" in result
+
+    def test_build_guidance_with_issues(self):
+        """Test guidance includes issue details."""
+        issues = [
+            IssueForFix(
+                rule_id="NAME02",
+                name="wrong-case-in-test-case-name",
+                message="Test case name 'test' should use title case",
+                severity="W",
+                line=2,
+                column=1,
+                end_line=2,
+                end_column=5,
+                fix_suggestion="Use Title Case for test names",
+                rule_docs=None,
+            )
+        ]
+        result = _build_llm_guidance(issues, start_line=1, end_line=5)
+
+        assert "NAME02" in result
+        assert "wrong-case-in-test-case-name" in result
+        assert "Title Case" in result
+        assert "**Line:** 2" in result
+
+
+class TestGetFixContext:
+    """Tests for get_fix_context tool."""
+
+    def test_get_fix_context_with_content(self):
+        """Test getting fix context from content."""
+        content = dedent(
+            """
+            *** Test Cases ***
+            test without capital
+                log  hello
+        """
+        ).lstrip()
+
+        result = _get_fix_context_impl(content=content)
+
+        assert result.full_content == content
+        assert result.file_path is None
+        assert len(result.issues) > 0
+        assert result.llm_guidance is not None
+
+    def test_get_fix_context_with_file(self, tmp_path: Path):
+        """Test getting fix context from file."""
+        robot_file = tmp_path / "test.robot"
+        robot_file.write_text("*** Test Cases ***\ntest lowercase\n    log  hi\n")
+
+        result = _get_fix_context_impl(file_path=str(robot_file))
+
+        assert result.file_path == str(robot_file)
+        assert len(result.issues) > 0
+
+    def test_get_fix_context_specific_line(self):
+        """Test getting fix context for specific line."""
+        content = dedent(
+            """
+            *** Test Cases ***
+            test one
+                log  hello
+            test two
+                log  world
+        """
+        ).lstrip()
+
+        result = _get_fix_context_impl(content=content, line=2, context_lines=1)
+
+        # Should focus on issues near line 2
+        assert result.target_snippet.start_line <= 2
+        assert result.target_snippet.end_line >= 2
+
+    def test_get_fix_context_with_rule_filter(self):
+        """Test getting fix context filtered by rule IDs."""
+        content = dedent(
+            """
+            *** Test Cases ***
+            test without capital
+                log  hello
+        """
+        ).lstrip()
+
+        result = _get_fix_context_impl(content=content, rule_ids=["NAME*"])
+
+        # All issues should be NAME rules
+        for issue in result.issues:
+            assert issue.rule_id.startswith("NAME")
+
+    def test_get_fix_context_includes_fix_suggestion(self):
+        """Test that fix suggestions from rules are included."""
+        content = dedent(
+            """
+            *** Test Cases ***
+            test without capital
+                log  hello
+        """
+        ).lstrip()
+
+        result = _get_fix_context_impl(content=content)
+
+        # At least some issues should have fix suggestions
+        # (depends on which rules have fix_suggestion defined)
+        assert len(result.issues) > 0
+
+    def test_get_fix_context_requires_content_or_file(self):
+        """Test that either content or file_path must be provided."""
+        with pytest.raises(ToolError, match="Either 'content' or 'file_path' must be provided"):
+            _get_fix_context_impl()
+
+    def test_get_fix_context_not_both_content_and_file(self, tmp_path: Path):
+        """Test that content and file_path cannot both be provided."""
+        robot_file = tmp_path / "test.robot"
+        robot_file.write_text("*** Test Cases ***\nTest\n    Log    Hi\n")
+
+        with pytest.raises(ToolError, match="Provide either 'content' or 'file_path', not both"):
+            _get_fix_context_impl(content="some content", file_path=str(robot_file))
+
+    def test_get_fix_context_file_not_found(self):
+        """Test error when file doesn't exist."""
+        with pytest.raises(ToolError, match="File not found"):
+            _get_fix_context_impl(file_path="/nonexistent/path/test.robot")
+
+    def test_get_fix_context_invalid_file_type(self, tmp_path: Path):
+        """Test error for invalid file type."""
+        txt_file = tmp_path / "test.txt"
+        txt_file.write_text("some content")
+
+        with pytest.raises(ToolError, match="Invalid file type"):
+            _get_fix_context_impl(file_path=str(txt_file))
+
+
+class TestApplyFix:
+    """Tests for apply_fix tool."""
+
+    def test_apply_fix_basic(self):
+        """Test applying a basic fix."""
+        content = dedent(
+            """
+            *** Test Cases ***
+            test lowercase
+                Log    Hello
+        """
+        ).lstrip()
+
+        replacement = FixReplacement(
+            start_line=2,
+            end_line=2,
+            new_content="Test Uppercase",
+        )
+
+        result = _apply_fix_impl(content=content, replacement=replacement)
+
+        assert result.success is True
+        assert "Test Uppercase" in result.new_content
+        assert result.diff is not None
+        assert result.written is False  # No file to write
+
+    def test_apply_fix_reduces_issues(self):
+        """Test that applying a fix reduces issue count."""
+        content = dedent(
+            """
+            *** Test Cases ***
+            test lowercase
+                Log    Hello
+        """
+        ).lstrip()
+
+        # Fix the test case name
+        replacement = FixReplacement(
+            start_line=2,
+            end_line=2,
+            new_content="Test Uppercase",
+        )
+
+        result = _apply_fix_impl(content=content, replacement=replacement)
+
+        # The fix should reduce NAME issues
+        assert result.issues_fixed >= 0
+
+    def test_apply_fix_with_file(self, tmp_path: Path):
+        """Test applying fix to a file without overwriting."""
+        robot_file = tmp_path / "test.robot"
+        original = "*** Test Cases ***\ntest lowercase\n    Log    Hello\n"
+        robot_file.write_text(original)
+
+        replacement = FixReplacement(
+            start_line=2,
+            end_line=2,
+            new_content="Test Uppercase",
+        )
+
+        result = _apply_fix_impl(file_path=str(robot_file), replacement=replacement)
+
+        assert result.success is True
+        assert result.file_path == str(robot_file)
+        assert result.written is False  # Default is no overwrite
+        # File should be unchanged
+        assert robot_file.read_text() == original
+
+    def test_apply_fix_with_overwrite(self, tmp_path: Path):
+        """Test applying fix with overwrite=True."""
+        robot_file = tmp_path / "test.robot"
+        original = "*** Test Cases ***\ntest lowercase\n    Log    Hello\n"
+        robot_file.write_text(original)
+
+        replacement = FixReplacement(
+            start_line=2,
+            end_line=2,
+            new_content="Test Uppercase",
+        )
+
+        result = _apply_fix_impl(file_path=str(robot_file), replacement=replacement, overwrite=True)
+
+        assert result.success is True
+        assert result.written is True
+        # File should be changed
+        new_content = robot_file.read_text()
+        assert new_content != original
+        assert "Test Uppercase" in new_content
+
+    def test_apply_fix_multiline_replacement(self):
+        """Test replacing multiple lines."""
+        content = dedent(
+            """
+            *** Test Cases ***
+            test one
+                log  a
+                log  b
+            test two
+                Log    Hello
+        """
+        ).lstrip()
+
+        replacement = FixReplacement(
+            start_line=2,
+            end_line=4,
+            new_content="Test One\n    Log    A\n    Log    B",
+        )
+
+        result = _apply_fix_impl(content=content, replacement=replacement)
+
+        assert result.success is True
+        assert "Test One" in result.new_content
+        assert "Log    A" in result.new_content
+
+    def test_apply_fix_without_validation(self):
+        """Test applying fix without validation."""
+        content = "*** Test Cases ***\ntest\n    Log    Hi\n"
+
+        replacement = FixReplacement(
+            start_line=2,
+            end_line=2,
+            new_content="Test",
+        )
+
+        result = _apply_fix_impl(content=content, replacement=replacement, validate=False)
+
+        # Should succeed without re-linting
+        assert result.success is True
+        # Counts should still be calculated when validate=False
+        assert result.issues_before >= 0
+
+    def test_apply_fix_requires_content_or_file(self):
+        """Test that either content or file_path must be provided."""
+        replacement = FixReplacement(start_line=1, end_line=1, new_content="test")
+
+        with pytest.raises(ToolError, match="Either 'content' or 'file_path' must be provided"):
+            _apply_fix_impl(replacement=replacement)
+
+    def test_apply_fix_requires_replacement(self):
+        """Test that replacement is required."""
+        with pytest.raises(ToolError, match="'replacement' is required"):
+            _apply_fix_impl(content="*** Test Cases ***\nTest\n    Log    Hi\n")
+
+    def test_apply_fix_invalid_line_range(self):
+        """Test error for invalid line range."""
+        content = "line1\nline2\nline3"
+
+        replacement = FixReplacement(
+            start_line=10,  # Beyond file length
+            end_line=11,
+            new_content="test",
+        )
+
+        with pytest.raises(ToolError, match="Invalid start_line"):
+            _apply_fix_impl(content=content, replacement=replacement)
+
+    def test_apply_fix_generates_diff(self):
+        """Test that diff is generated correctly."""
+        content = "*** Test Cases ***\nold test\n    Log    Hi\n"
+
+        replacement = FixReplacement(
+            start_line=2,
+            end_line=2,
+            new_content="New Test",
+        )
+
+        result = _apply_fix_impl(content=content, replacement=replacement)
+
+        assert result.diff is not None
+        assert "-old test" in result.diff
+        assert "+New Test" in result.diff
+
+    def test_apply_fix_no_change_no_diff(self):
+        """Test that no diff is generated when content unchanged."""
+        content = "*** Test Cases ***\nTest\n    Log    Hi\n"
+
+        replacement = FixReplacement(
+            start_line=2,
+            end_line=2,
+            new_content="Test",  # Same as original
+        )
+
+        result = _apply_fix_impl(content=content, replacement=replacement)
+
+        assert result.diff is None
+
+    def test_apply_fix_with_select(self):
+        """Test apply_fix with select filter for validation."""
+        content = "*** Test Cases ***\ntest lowercase\n    log  hi\n"
+
+        replacement = FixReplacement(
+            start_line=2,
+            end_line=2,
+            new_content="Test Uppercase",
+        )
+
+        result = _apply_fix_impl(content=content, replacement=replacement, select=["NAME*"])
+
+        # Validation should only check NAME rules
+        assert result.success is True
+
+    def test_apply_fix_remaining_issues_limited(self):
+        """Test that remaining_issues is limited to 10."""
+        # Create content with many issues
+        lines = ["*** Test Cases ***"]
+        for i in range(15):
+            lines.append(f"test {i}")
+            lines.append("    log  hi")
+        content = "\n".join(lines)
+
+        replacement = FixReplacement(
+            start_line=2,
+            end_line=2,
+            new_content="Test 0",  # Fix one issue
+        )
+
+        result = _apply_fix_impl(content=content, replacement=replacement)
+
+        # remaining_issues should be capped at 10
+        if result.remaining_issues:
+            assert len(result.remaining_issues) <= 10

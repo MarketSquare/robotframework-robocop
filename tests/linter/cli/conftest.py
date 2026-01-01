@@ -1,6 +1,6 @@
 import pytest
 
-from robocop.config import ConfigManager
+from robocop.config_manager import ConfigManager
 from robocop.linter.runner import RobocopLinter
 
 

@@ -41,7 +41,8 @@ from robocop.linter.rules import (
     variables,
 )
 from robocop.linter.utils import misc as utils
-from robocop.linter.utils.variable_matcher import VariableMatches
+from robocop.parsing.variables import VariableMatches
+from robocop.version_handling import INLINE_IF_SUPPORTED, ROBOT_VERSION
 
 if TYPE_CHECKING:
     from robocop.linter.utils.disablers import DisablersFinder
@@ -1071,7 +1072,7 @@ class IfChecker(VisitorChecker):
         return sum(len(token.value) for token in tokens)
 
     def check_whether_if_should_be_inline(self, node) -> None:
-        if utils.ROBOT_VERSION.major < 5:
+        if not INLINE_IF_SUPPORTED:
             return
         if self.is_inline_if(node):
             if node.lineno != node.end_lineno:
@@ -1452,7 +1453,7 @@ class UnusedVariablesChecker(VisitorChecker):
 
     @staticmethod
     def try_assign(try_node) -> str:
-        if utils.ROBOT_VERSION.major < 7:
+        if ROBOT_VERSION.major < 7:
             return try_node.variable
         return try_node.assign
 

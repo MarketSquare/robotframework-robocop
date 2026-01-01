@@ -44,11 +44,11 @@ from robocop.linter.utils.misc import (
     get_section_name,
     normalize_robot_name,
     pattern_type,
-    rf_supports_type,
     split_argument_default_value,
     str2bool,
     strip_equals_from_assignment,
 )
+from robocop.version_handling import TYPE_SUPPORTED
 
 if TYPE_CHECKING:
     from robot.parsing.model import VariableSection
@@ -938,7 +938,7 @@ class VariableNameLengthChecker(VisitorChecker):
             end_col_offset += 1  # leading backslash
         # Strip all item and possible type conversions : ${list}[0] , ${var: int}
         try:
-            search = search_variable(var_name, parse_type=True) if rf_supports_type() else search_variable(var_name)  # pylint: disable=unexpected-keyword-arg
+            search = search_variable(var_name, parse_type=True) if TYPE_SUPPORTED else search_variable(var_name)  # pylint: disable=unexpected-keyword-arg
         except VariableError:  # Incomplete data, e.g. `${arg`
             return
         # Handle var name without brackets passed to Set Local/Global/Suite/Test Variable : $var

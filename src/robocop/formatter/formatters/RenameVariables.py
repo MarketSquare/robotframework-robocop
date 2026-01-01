@@ -12,8 +12,9 @@ from robot.variables.search import search_variable
 from robocop.exceptions import InvalidParameterValueError
 from robocop.formatter.disablers import skip_if_disabled, skip_section_if_disabled
 from robocop.formatter.formatters import Formatter
-from robocop.formatter.utils import misc, variable_matcher
+from robocop.formatter.utils import misc
 from robocop.linter.utils.misc import remove_variable_type_conversion
+from robocop.parsing.variables import VariableMatches
 
 if TYPE_CHECKING:
     from robocop.formatter.skip import Skip
@@ -475,7 +476,7 @@ class RenameVariables(Formatter):
 
     def rename_value(self, value: str, variable_case: VariableCase, is_var: bool = False):
         try:
-            variables = list(variable_matcher.VariableMatches(value))
+            variables = list(VariableMatches(value))
         except VariableError:  # for example ${variable which wasn't closed properly
             variables = []
         if not variables:

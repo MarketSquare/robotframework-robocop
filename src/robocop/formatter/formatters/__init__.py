@@ -29,6 +29,7 @@ from robot.utils.importer import Importer
 from robocop.exceptions import ImportFormatterError, InvalidParameterError
 from robocop.formatter.skip import SKIP_OPTIONS, Skip, SkipConfig
 from robocop.formatter.utils import misc
+from robocop.version_handling import ROBOT_VERSION
 
 if TYPE_CHECKING:
     from collections.abc import Generator
@@ -315,10 +316,10 @@ def can_run_in_robot_version(formatter, overwritten, target_version):
         return True
     if overwritten:
         # --select FormatterDisabledInVersion or --configure FormatterDisabledInVersion.enabled=True
-        if target_version == misc.ROBOT_VERSION.major:
+        if target_version == ROBOT_VERSION.major:
             click.echo(
                 f"{formatter.__class__.__name__} formatter requires Robot Framework {formatter.MIN_VERSION}.* "
-                f"version but you have {misc.ROBOT_VERSION} installed. "
+                f"version but you have {ROBOT_VERSION} installed. "
                 f"Upgrade installed Robot Framework if you want to use this formatter.",
                 err=True,
             )

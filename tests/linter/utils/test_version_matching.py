@@ -1,6 +1,6 @@
 import pytest
 
-from robocop.linter.utils.version_matching import Version, VersionSpecifier
+from robocop.version_handling import Version, VersionSpecifier
 
 
 @pytest.mark.parametrize(

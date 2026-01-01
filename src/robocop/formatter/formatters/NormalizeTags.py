@@ -3,7 +3,7 @@ from robot.api.parsing import Token
 from robocop.exceptions import InvalidParameterValueError
 from robocop.formatter.disablers import skip_section_if_disabled
 from robocop.formatter.formatters import Formatter
-from robocop.formatter.utils import variable_matcher
+from robocop.parsing.variables import VariableMatches
 
 
 class NormalizeTags(Formatter):
@@ -76,7 +76,7 @@ class NormalizeTags(Formatter):
             return self.CASE_FUNCTIONS[self.case_function](string)
         tag = ""
         var_found = False
-        for match in variable_matcher.VariableMatches(string, ignore_errors=True):
+        for match in VariableMatches(string, ignore_errors=True):
             var_found = True
             tag += self.CASE_FUNCTIONS[self.case_function](match.before)
             tag += match.match

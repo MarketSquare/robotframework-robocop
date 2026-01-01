@@ -9,7 +9,7 @@ from robot.api import Token
 
 from robocop.linter import sonar_qube
 from robocop.linter.rules import Rule, RuleSeverity, VisitorChecker
-from robocop.linter.utils import variable_matcher
+from robocop.parsing.variables import VariableMatches
 
 if TYPE_CHECKING:
     from robot.parsing import File
@@ -408,7 +408,7 @@ class TagNameChecker(VisitorChecker):
         var_found = False
         substrings = []
         after = tag_token.value
-        for match in variable_matcher.VariableMatches(tag_token.value, ignore_errors=True):
+        for match in VariableMatches(tag_token.value, ignore_errors=True):
             substrings.append(match.before)
             var_found = var_found or bool(match.match)
             after = match.after

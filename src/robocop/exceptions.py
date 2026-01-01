@@ -4,7 +4,6 @@ from typing import TYPE_CHECKING
 
 import typer
 from rich.console import Console
-from robot.errors import DataError
 
 if TYPE_CHECKING:
     from robocop.linter.rules import Rule
@@ -101,22 +100,3 @@ class RobotFrameworkParsingError(Exception):
 class CircularExtendsReferenceError(FatalError):
     def __init__(self, config_path: str):
         super().__init__(f"Circular reference found in 'extends' parameter in the configuration file: {config_path}")
-
-
-def handle_robot_errors(func):
-    """
-    Handle bugs in Robot Framework.
-
-    If the user uses an older version of Robot Framework, it may fail while parsing the
-    source code due to a bug that is already fixed in the more recent version.
-    """
-
-    def wrap_errors(*args, **kwargs):  # noqa: ANN202
-        try:
-            return func(*args, **kwargs)
-        except DataError:
-            raise
-        except Exception as err:
-            raise RobotFrameworkParsingError from err
-
-    return wrap_errors

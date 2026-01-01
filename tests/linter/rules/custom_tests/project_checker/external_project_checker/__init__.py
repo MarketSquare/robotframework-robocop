@@ -1,4 +1,4 @@
-from robocop.config import ConfigManager
+from robocop.config_manager import ConfigManager
 from robocop.linter.rules import ProjectChecker, Rule, RuleSeverity
 
 

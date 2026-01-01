@@ -17,8 +17,9 @@ from robot.variables.search import search_variable
 from robocop.linter import sonar_qube
 from robocop.linter.rules import Rule, RuleParam, RuleSeverity, VisitorChecker, deprecated, variables
 from robocop.linter.utils import misc as utils
-from robocop.linter.utils.variable_matcher import VariableMatches
 from robocop.parsing.run_keywords import iterate_keyword_names
+from robocop.parsing.variables import VariableMatches
+from robocop.version_handling import ROBOT_VERSION
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
@@ -851,7 +852,7 @@ class KeywordNamingChecker(VisitorChecker):
         if lower_name in self.else_statements and self.inside_if_block:
             return False  # handled by else-not-upper-case
         min_ver = self.reserved_words[lower_name]
-        if utils.ROBOT_VERSION.major < min_ver:
+        if ROBOT_VERSION.major < min_ver:
             return False
         error_msg = uppercase_error_msg(lower_name)
         self.report(
@@ -875,9 +876,9 @@ class SettingsNamingChecker(VisitorChecker):
     invalid_section: InvalidSectionRule
     mixed_task_test_settings: MixedTaskTestSettingsRule
 
-    ALIAS_TOKENS = [Token.WITH_NAME] if utils.ROBOT_VERSION.major < 5 else ["WITH NAME", "AS"]
+    ALIAS_TOKENS = [Token.WITH_NAME] if ROBOT_VERSION.major < 5 else ["WITH NAME", "AS"]
     # Separating alias values since RF 3 uses WITH_NAME instead of WITH NAME
-    ALIAS_TOKENS_VALUES = ["WITH NAME"] if utils.ROBOT_VERSION.major < 5 else ["WITH NAME", "AS"]
+    ALIAS_TOKENS_VALUES = ["WITH NAME"] if ROBOT_VERSION.major < 5 else ["WITH NAME", "AS"]
 
     def __init__(self):
         self.section_name_pattern = re.compile(r"\*\*\*\s.+\s\*\*\*")
@@ -914,8 +915,8 @@ class SettingsNamingChecker(VisitorChecker):
         self.task_section = None
         for section in node.sections:
             if isinstance(section, TestCaseSection):
-                if (utils.ROBOT_VERSION.major < 6 and "task" in section.header.name.lower()) or (
-                    utils.ROBOT_VERSION.major >= 6 and section.header.type == Token.TASK_HEADER
+                if (ROBOT_VERSION.major < 6 and "task" in section.header.name.lower()) or (
+                    ROBOT_VERSION.major >= 6 and section.header.type == Token.TASK_HEADER
                 ):
                     self.task_section = True
                 else:
@@ -937,7 +938,7 @@ class SettingsNamingChecker(VisitorChecker):
 
     def visit_LibraryImport(self, node) -> None:  # noqa: N802
         self.check_setting_name(node.data_tokens[0].value, node)
-        if utils.ROBOT_VERSION.major < 6:
+        if ROBOT_VERSION.major < 6:
             arg_nodes = node.get_tokens(Token.ARGUMENT)
             # ignore cases where 'AS' is used to provide library alias for RF < 5
             if arg_nodes and any(arg.value == "AS" for arg in arg_nodes):
@@ -1245,7 +1246,7 @@ class SimilarVariableChecker(VisitorChecker):
 
     @staticmethod
     def for_assign_vars(for_node) -> Iterable[str]:
-        if utils.ROBOT_VERSION.major < 7:
+        if ROBOT_VERSION.major < 7:
             yield from for_node.variables
         else:
             yield from for_node.assign
@@ -1438,8 +1439,9 @@ class DeprecatedStatementChecker(VisitorChecker):
 
     def visit_Return(self, node) -> None:  # noqa: N802
         """For RETURN use visit_ReturnStatement - visit_Return will most likely visit RETURN in the future"""
-        if utils.ROBOT_VERSION.major not in (5, 6):
+        if ROBOT_VERSION.major not in (5, 6):
             return
+        # TODO: check if our code for finding our return visitor would apply here
         self.check_deprecated_return(node)
 
     def visit_ReturnSetting(self, node) -> None:  # noqa: N802
@@ -1457,7 +1459,7 @@ class DeprecatedStatementChecker(VisitorChecker):
         )
 
     def visit_ForceTags(self, node) -> None:  # noqa: N802
-        if utils.ROBOT_VERSION.major < 6:
+        if ROBOT_VERSION.major < 6:
             return
         setting_name = node.data_tokens[0].value.lower()
         if setting_name == "force tags":
@@ -1476,7 +1478,7 @@ class DeprecatedStatementChecker(VisitorChecker):
         if normalized_keyword_name not in self.deprecated_keywords:
             return
         version, alternative = self.deprecated_keywords[normalized_keyword_name]
-        if version > utils.ROBOT_VERSION.major:
+        if version > ROBOT_VERSION.major:
             return
         col = utils.token_col(node, Token.NAME, Token.KEYWORD)
         self.report(
@@ -1490,7 +1492,7 @@ class DeprecatedStatementChecker(VisitorChecker):
         )
 
     def check_keyword_can_be_replaced_with_var(self, keyword_name, node) -> None:
-        if utils.ROBOT_VERSION.major < 7:
+        if ROBOT_VERSION.major < 7:
             return
         normalized = utils.normalize_robot_name(keyword_name, remove_prefix="builtin.")
         col = utils.token_col(node, Token.NAME, Token.KEYWORD)
@@ -1512,7 +1514,7 @@ class DeprecatedStatementChecker(VisitorChecker):
             )
 
     def visit_LibraryImport(self, node) -> None:  # noqa: N802
-        if utils.ROBOT_VERSION.major < 5 or (utils.ROBOT_VERSION.major == 5 and utils.ROBOT_VERSION.minor == 0):
+        if ROBOT_VERSION.major < 5 or (ROBOT_VERSION.major == 5 and ROBOT_VERSION.minor == 0):
             return
         with_name_token = node.get_token(Token.WITH_NAME)
         if not with_name_token or with_name_token.value == "AS":

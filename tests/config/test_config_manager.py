@@ -9,14 +9,14 @@ from robocop import exceptions, files
 from robocop.config import (
     CacheConfig,
     Config,
-    ConfigManager,
     FileFiltersOptions,
     FormatterConfig,
     LinterConfig,
 )
-from robocop.formatter.utils.misc import ROBOT_VERSION
+from robocop.config_manager import ConfigManager
 from robocop.linter.rules import RuleSeverity
 from robocop.linter.runner import RobocopLinter
+from robocop.version_handling import ROBOT_VERSION
 from tests import working_directory
 
 
@@ -77,7 +77,7 @@ def overwrite_config() -> Config:
 def get_sources_and_configs(config_dir: Path, **kwargs) -> dict[Path, Config]:
     with working_directory(config_dir):
         config_manager = ConfigManager(**kwargs)
-        return dict(config_manager.paths)
+        return {source.path: source.config for source in config_manager.paths}
 
 
 class TestConfigFinder:

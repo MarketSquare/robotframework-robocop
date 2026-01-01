@@ -41,7 +41,7 @@ from robot.utils import FileReader
 
 from robocop import __version__, exceptions
 from robocop.linter.diagnostics import Diagnostic
-from robocop.linter.utils.version_matching import Version, VersionSpecifier
+from robocop.version_handling import Version, VersionSpecifier
 
 try:
     import annotationlib
@@ -59,7 +59,8 @@ if TYPE_CHECKING:
 
     from robot.parsing import File
 
-    from robocop.config import ConfigManager, LinterConfig
+    from robocop.config import LinterConfig
+    from robocop.config_manager import ConfigManager
     from robocop.linter import sonar_qube
 
 

@@ -21,10 +21,9 @@ except ImportError:
     from robot.parsing.model.statements import Variable
 
 from robot.variables.search import search_variable
-from robot.version import VERSION as RF_VERSION
 
-from robocop.linter.utils.variable_matcher import VariableMatches
-from robocop.linter.utils.version_matching import Version
+from robocop.parsing.variables import VariableMatches
+from robocop.version_handling import ROBOT_VERSION
 
 if TYPE_CHECKING:
     from collections.abc import Generator
@@ -34,9 +33,6 @@ if TYPE_CHECKING:
 
     from robocop.linter.diagnostics import Diagnostic
 
-ROBOT_VERSION = Version(RF_VERSION)
-ROBOT_WITH_LANG = Version("6.0")
-ROBOT_WITH_TYPE = Version("7.3")
 ROBOCOP_RULES_URL = "https://robocop.dev/{version}/rules_list/"
 
 
@@ -69,14 +65,6 @@ def get_return_classes() -> ReturnClasses:
 
 
 RETURN_CLASSES = get_return_classes()
-
-
-def rf_supports_lang() -> bool:
-    return ROBOT_VERSION >= ROBOT_WITH_LANG
-
-
-def rf_supports_type() -> bool:
-    return ROBOT_VERSION >= ROBOT_WITH_TYPE
 
 
 def remove_variable_type_conversion(name: str) -> str:

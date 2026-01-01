@@ -11,7 +11,8 @@ except ImportError:
 
 from robocop.linter import sonar_qube
 from robocop.linter.rules import Rule, RuleSeverity, VisitorChecker, arguments, whitespace
-from robocop.linter.utils.misc import ROBOT_VERSION, find_robot_vars
+from robocop.linter.utils.misc import find_robot_vars
+from robocop.version_handling import ROBOT_VERSION
 
 
 class ParsingErrorRule(Rule):  # TODO docs
@@ -347,11 +348,8 @@ class ParsingErrorChecker(VisitorChecker):
     def parse_errors(self, node) -> None:
         if node is None:
             return
-        if ROBOT_VERSION.major != 3:
-            for index, error in enumerate(node.errors):
-                self.handle_error(node, error, error_index=index)
-        else:
-            self.handle_error(node, node.error)
+        for index, error in enumerate(node.errors):
+            self.handle_error(node, error, error_index=index)
 
     def handle_error(self, node, error, error_index=0) -> None:
         if not error:

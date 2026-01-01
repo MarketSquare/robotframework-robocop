@@ -2,7 +2,8 @@ from pathlib import Path
 
 import robocop.linter.reports
 from robocop import __version__
-from robocop.config import Config, ConfigManager
+from robocop.config import Config
+from robocop.config_manager import ConfigManager
 from robocop.files import get_relative_path
 from robocop.linter.diagnostics import Diagnostics
 from robocop.linter.rules import Rule

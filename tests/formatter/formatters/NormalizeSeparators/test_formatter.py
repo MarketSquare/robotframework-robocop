@@ -1,6 +1,6 @@
 import pytest
 
-from robocop.formatter.utils.misc import ROBOT_VERSION
+from robocop.version_handling import ROBOT_VERSION
 from tests.formatter import FormatterAcceptanceTest
 
 

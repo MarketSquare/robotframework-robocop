@@ -15,7 +15,8 @@ from pathlib import Path
 
 from jinja2 import Environment, FileSystemLoader
 
-from robocop import __version__, config
+from robocop import __version__
+from robocop.config_manager import ConfigManager
 from robocop.formatter.formatters import FORMATTERS
 from robocop.linter.utils.version_matching import Version
 from robocop.run import check_files, format_files
@@ -79,7 +80,7 @@ def project_traversing_report() -> int:
     """
     main_dir = Path(__file__).parent.parent.parent
     with working_directory(main_dir):
-        config_manager = config.ConfigManager(
+        config_manager = ConfigManager(
             sources=["tests/linter"],
             config=None,
             root=None,
@@ -90,7 +91,7 @@ def project_traversing_report() -> int:
             overwrite_config=None,
         )
         files_count = 0
-        for _source, _config in config_manager.paths:
+        for _source_file in config_manager.paths:
             files_count += 1
     return files_count
 

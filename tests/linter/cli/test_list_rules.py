@@ -6,8 +6,8 @@ import pytest
 
 from robocop.config import TargetVersion
 from robocop.linter.rules import Rule, RuleFilter, RuleSeverity, VisitorChecker
-from robocop.linter.utils.misc import ROBOT_VERSION
 from robocop.run import list_rules
+from robocop.version_handling import ROBOT_VERSION
 from tests import working_directory
 
 TEST_DATA = Path(__file__).parent.parent / "test_data" / "custom_rules"
@@ -158,7 +158,10 @@ class TestListingRules:
         """List rules with default options."""
         for checker in (msg_0101_checker, non_default_rule_checker, deprecated_rules_checker):
             empty_linter.config_manager.default_config.linter.register_checker(checker)
-        with working_directory(tmp_path), patch("robocop.run.RobocopLinter", MagicMock(return_value=empty_linter)):
+        with (
+            working_directory(tmp_path),
+            patch("robocop.config_manager.ConfigManager", MagicMock(return_value=empty_linter.config_manager)),
+        ):
             list_rules()
         out, _ = capsys.readouterr()
         assert (
@@ -179,7 +182,7 @@ class TestListingRules:
         else:
             enabled_count = 1
             enabled_for = "enabled"
-        with patch("robocop.run.RobocopLinter", MagicMock(return_value=empty_linter)):
+        with patch("robocop.config_manager.ConfigManager", MagicMock(return_value=empty_linter.config_manager)):
             list_rules(filter_pattern="*")
         out, _ = capsys.readouterr()
         assert (
@@ -195,7 +198,7 @@ class TestListingRules:
         empty_linter.config_manager.default_config.linter.exclude_rules = {"0102", "0204"}
         empty_linter.config_manager.default_config.linter.check_for_disabled_rules()
 
-        with patch("robocop.run.RobocopLinter", MagicMock(return_value=empty_linter)):
+        with patch("robocop.config_manager.ConfigManager", MagicMock(return_value=empty_linter.config_manager)):
             list_rules(filter_category=RuleFilter.ENABLED)
         out, _ = capsys.readouterr()
         assert (
@@ -212,7 +215,7 @@ class TestListingRules:
         empty_linter.config_manager.default_config.linter.register_checker(deprecated_rules_checker)
         empty_linter.config_manager.default_config.linter.exclude_rules = {"0102", "0204"}
         empty_linter.config_manager.default_config.linter.check_for_disabled_rules()
-        with patch("robocop.run.RobocopLinter", MagicMock(return_value=empty_linter)):
+        with patch("robocop.config_manager.ConfigManager", MagicMock(return_value=empty_linter.config_manager)):
             list_rules(filter_category=RuleFilter.DISABLED)
         out, _ = capsys.readouterr()
         assert (
@@ -229,7 +232,7 @@ class TestListingRules:
         empty_linter.config_manager.default_config.linter.register_checker(msg_0102_0204_checker)
         empty_linter.config_manager.default_config.linter.register_checker(deprecated_rules_checker)
         empty_linter.config_manager.default_config.linter.exclude_rules = {"0102", "0204"}
-        with patch("robocop.run.RobocopLinter", MagicMock(return_value=empty_linter)):
+        with patch("robocop.config_manager.ConfigManager", MagicMock(return_value=empty_linter.config_manager)):
             list_rules(filter_category=RuleFilter.DEPRECATED)
         out, _ = capsys.readouterr()
         assert (
@@ -244,7 +247,7 @@ class TestListingRules:
         empty_linter.config_manager.default_config.linter.register_checker(msg_0102_0204_checker)
         empty_linter.config_manager.default_config.linter.exclude_rules = {"0102", "0204"}
         empty_linter.config_manager.default_config.linter.check_for_disabled_rules()
-        with patch("robocop.run.RobocopLinter", MagicMock(return_value=empty_linter)):
+        with patch("robocop.config_manager.ConfigManager", MagicMock(return_value=empty_linter.config_manager)):
             list_rules(filter_pattern="*")
         out, _ = capsys.readouterr()
         exp_msg = (
@@ -262,7 +265,7 @@ class TestListingRules:
         empty_linter.config_manager.default_config.linter.register_checker(deprecated_rules_checker)
         empty_linter.config_manager.default_config.linter.exclude_rules = {"0102", "0204"}
         empty_linter.config_manager.default_config.linter.check_for_disabled_rules()
-        with patch("robocop.run.RobocopLinter", MagicMock(return_value=empty_linter)):
+        with patch("robocop.config_manager.ConfigManager", MagicMock(return_value=empty_linter.config_manager)):
             list_rules(filter_pattern="01*")
         out, _ = capsys.readouterr()
         exp_msg = (
@@ -279,7 +282,7 @@ class TestListingRules:
     ):
         empty_linter.config_manager.default_config.linter.register_checker(msg_0101_checker)
         empty_linter.config_manager.default_config.linter.register_checker(non_default_rule_checker)
-        with patch("robocop.run.RobocopLinter", MagicMock(return_value=empty_linter)):
+        with patch("robocop.config_manager.ConfigManager", MagicMock(return_value=empty_linter.config_manager)):
             list_rules(**config)
         out, _ = capsys.readouterr()
         assert (
@@ -292,7 +295,7 @@ class TestListingRules:
     def test_list_with_target_version(self, empty_linter, msg_0101_checker, future_checker, capsys):
         empty_linter.config_manager.default_config.linter.register_checker(msg_0101_checker)
         empty_linter.config_manager.default_config.linter.register_checker(future_checker)
-        with patch("robocop.run.RobocopLinter", MagicMock(return_value=empty_linter)):
+        with patch("robocop.config_manager.ConfigManager", MagicMock(return_value=empty_linter.config_manager)):
             list_rules(target_version=TargetVersion(str(ROBOT_VERSION.major)))
         out, _ = capsys.readouterr()
         expected = textwrap.dedent("""
@@ -311,7 +314,7 @@ class TestListingRules:
     #         str(TEST_DATA / "disabled_by_default" / "external_rule2.py"),
     #     }
     #     empty_linter.load_checkers()
-    #     with patch("robocop.run.RobocopLinter", MagicMock(return_value=empty_linter)):
+    #     with patch("robocop.config_manager.ConfigManager", MagicMock(return_value=empty_linter.config_manager)):
     #         list_rules(filter_pattern="*")
     #     out, _ = capsys.readouterr()
     #     exp_msg = (
@@ -328,7 +331,7 @@ class TestListingRules:
     #     empty_linter.config.include = {"1102"}
     #     empty_linter.load_checkers()
     #     empty_linter.check_for_disabled_rules()
-    #     with patch("robocop.run.RobocopLinter", MagicMock(return_value=empty_linter)):
+    #     with patch("robocop.config_manager.ConfigManager", MagicMock(return_value=empty_linter.config_manager)):
     #         list_rules(filter_pattern="*")
     #     out, _ = capsys.readouterr()
     #     exp_msg = (

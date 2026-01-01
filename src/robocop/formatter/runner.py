@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import hashlib
 import os
 import sys
 from difflib import unified_diff
@@ -21,7 +20,8 @@ if TYPE_CHECKING:
 
     from robot.parsing import File
 
-    from robocop.config import Config, ConfigManager
+    from robocop.config import Config
+    from robocop.config_manager import ConfigManager
 
 
 console = console.Console()
@@ -32,31 +32,6 @@ class RobocopFormatter:
         self.config_manager = config_manager
         self.config: Config = self.config_manager.default_config
 
-    def get_model(self, source: Path) -> File:
-        if misc.rf_supports_lang():
-            return get_model(source, lang=self.config.formatter.languages)
-        return get_model(source)
-
-    @staticmethod
-    def _compute_cache_key(config: Config) -> str:
-        """
-        Compute cache key combining formatter config hash with language.
-
-        Uses SHA256 for stable hashing across Python processes, unlike the built-in
-        hash() which can vary due to hash randomization (PEP 456).
-
-        Returns:
-            A string representing the cache key as a hexadecimal digest.
-
-        """
-        hasher = hashlib.sha256()
-        # Hash the formatter config
-        hasher.update(str(hash(config.formatter)).encode("utf-8"))
-        # Hash the language configuration (affects parsing)
-        language_str = ":".join(sorted(config.language or []))
-        hasher.update(language_str.encode("utf-8"))
-        return hasher.hexdigest()
-
     def run(self) -> int:
         changed_files = 0
         skipped_files = 0
@@ -65,7 +40,7 @@ class RobocopFormatter:
         previous_changed_files = 0  # TODO: hold in one container
         stdin = False
 
-        for source, config in self.config_manager.paths:
+        for source_file in self.config_manager.paths:
             try:
                 # stdin = False
                 # if str(source) == "-":
@@ -74,35 +49,37 @@ class RobocopFormatter:
                 #         click.echo("Loading file from stdin")
                 #     source = self.load_from_stdin()
                 if self.config.verbose:
-                    print(f"Formatting {source} file")
-                self.config = config
+                    print(f"Formatting {source_file.path} file")
+                self.config = source_file.config
 
                 all_files += 1
 
-                # Check cache - if file hasn't changed and didn't need formatting before, skip it
-                config_hash = self._compute_cache_key(config)
-                cached_entry = self.config_manager.cache.get_formatter_entry(source, config_hash)
-
-                if cached_entry is not None and not cached_entry.needs_formatting:
-                    # File hasn't changed and didn't need formatting - skip it
-                    cached_files += 1
-                    continue
+                if source_file.config.cache.enabled:
+                    # Check cache - if file hasn't changed and didn't need formatting before, skip it
+                    cached_entry = self.config_manager.cache.get_formatter_entry(
+                        source_file.path, source_file.config.hash()
+                    )
+                    if cached_entry is not None and not cached_entry.needs_formatting:
+                        # File hasn't changed and didn't need formatting - skip it
+                        cached_files += 1
+                        continue
                 previous_changed_files = changed_files
-                model = self.get_model(source)
-                diff, old_model, new_model, model = self.format_until_stable(model)
+                diff, old_model, new_model, model = self.format_until_stable(source_file.model)
                 # if stdin:
                 #     self.print_to_stdout(new_model)
                 if diff:
-                    model_path = model.source or source
+                    model_path = model.source or source_file.path
                     self.save_model(model_path, model)
-                    self.log_formatted_source(source, stdin)
+                    self.log_formatted_source(source_file.path, stdin)
                     self.output_diff(model_path, old_model, new_model)
                     changed_files += 1
                 # Cache result - after formatting (or if no changes needed), file is now clean
-                self.config_manager.cache.set_formatter_entry(source, config_hash, needs_formatting=False)
+                self.config_manager.cache.set_formatter_entry(
+                    source_file.path, source_file.config.hash(), needs_formatting=False
+                )
             except DataError as err:
-                if not config.silent:
-                    print(f"Failed to decode {source} with an error: {err}\nSkipping file")  # TODO stderr
+                if not source_file.config.silent:
+                    print(f"Failed to decode {source_file.path} with an error: {err}\nSkipping file")  # TODO stderr
                 changed_files = previous_changed_files
                 skipped_files += 1
 

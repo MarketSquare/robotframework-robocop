@@ -124,6 +124,7 @@ class TestListFormatters:
         ],
     )
     def test_check_exit_code(self, check, will_format, expected_exit_code):
+        # Arrange
         test_data = Path(__file__).parent / "formatter" / "formatters" / "NormalizeSeparators"
         if will_format:
             test_data = test_data / "source"
@@ -132,8 +133,10 @@ class TestListFormatters:
         command = ["format", "--select", "NormalizeSeparators", "--no-overwrite", "--no-cache"]
         if check:
             command += ["--check"]
+        # Act
         with working_directory(test_data):
             result = CliRunner().invoke(app, [*command, "test.robot"])
+        # Assert
         assert result.exit_code == expected_exit_code
 
     @pytest.mark.parametrize(

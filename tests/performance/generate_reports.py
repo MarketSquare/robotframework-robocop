@@ -95,9 +95,7 @@ def formatter_report(formatter: str, report_name: str, cache: bool = True) -> in
     main_dir = Path(__file__).parent.parent.parent
     formatter_dir = main_dir / "tests" / "formatter" / "formatters" / formatter
     with working_directory(formatter_dir):
-        format_files(
-            ["source"], select=[formatter], overwrite=False, return_result=True, silent=True, no_cache=not cache
-        )
+        format_files(["source"], select=[formatter], overwrite=False, return_result=True, silent=True, cache=cache)
     source_dir = formatter_dir / "source"
     return len(list(source_dir.iterdir()))
 
@@ -114,7 +112,7 @@ def linter_report(report_name: str, **kwargs) -> int:  # noqa: ARG001
 @performance_report(runs=2)
 def lint_large_file(report_name: str, lint_dir: Path, **kwargs) -> int:  # noqa: ARG001
     with working_directory(lint_dir):
-        check_files(return_result=True, select=["ALL"], no_cache=True, **kwargs)
+        check_files(return_result=True, select=["ALL"], cache=False, **kwargs)
     return 1
 
 
@@ -142,10 +140,10 @@ if __name__ == "__main__":
     # So we can generate reports for multiple past versions. It is important since the actual seconds change depending
     # on where we run the script from, but the % change between version should be comparable. Also we can use new tests
     # on old versions
-    linter_report(report_name="with_print_cache", no_cache=False)
-    linter_report(report_name="with_print_no_cache", no_cache=True)
-    linter_report(report_name="without_print_cache", silent=True, no_cache=False)
-    linter_report(report_name="without_print_no_cache", silent=True, no_cache=True)
+    linter_report(report_name="with_print_cache", cache=True)
+    linter_report(report_name="with_print_no_cache", cache=False)
+    linter_report(report_name="without_print_cache", silent=True, cache=True)
+    linter_report(report_name="without_print_no_cache", silent=True, cache=False)
     for formatter in FORMATTERS:
         formatter_report(formatter=formatter, report_name=formatter)
         formatter_report(formatter=formatter, report_name=f"{formatter}_no_cache", cache=False)

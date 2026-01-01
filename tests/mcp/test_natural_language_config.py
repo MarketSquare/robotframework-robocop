@@ -5,8 +5,11 @@ from __future__ import annotations
 import json
 import os
 import stat
+import sys
 import tempfile
 from pathlib import Path
+
+import pytest
 
 from robocop.mcp.tools.natural_language_config import (
     _apply_config_impl,
@@ -1055,6 +1058,7 @@ class TestEdgeCases:
         assert result.suggestions[0].section == "lint"
         assert "[tool.robocop.lint]" in result.toml_config
 
+    @pytest.mark.skipif(sys.platform == "win32", reason="Unix-style permissions don't work on Windows")
     def test_apply_to_read_only_directory(self):
         """Should handle permission errors gracefully."""
         with tempfile.TemporaryDirectory() as tmpdir:

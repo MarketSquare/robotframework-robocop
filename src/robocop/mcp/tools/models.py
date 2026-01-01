@@ -412,3 +412,50 @@ class ApplyFixResult(BaseModel):
         default=None, description="Issues that remain after the fix (limited to first 10)"
     )
     validation_error: str | None = Field(default=None, description="Error message if fix validation failed")
+
+
+# --- Natural Language Configuration Models ---
+
+
+class ConfigSuggestion(BaseModel):
+    """A single suggested configuration option from natural language input."""
+
+    rule_id: str | None = Field(default=None, description="Rule identifier (e.g., 'LEN02') - for rule-related actions")
+    rule_name: str | None = Field(
+        default=None, description="Rule name (e.g., 'line-too-long') - for rule-related actions"
+    )
+    action: Literal["configure", "enable", "disable", "set"] = Field(
+        description="Action: configure (rule param), enable/disable (rule), set (scalar config option)"
+    )
+    parameter: str | None = Field(default=None, description="Parameter name for 'configure' or option name for 'set'")
+    value: str | None = Field(default=None, description="Value for 'configure' or 'set' actions")
+    section: Literal["common", "lint", "format"] = Field(
+        default="lint",
+        description="Config section: common ([tool.robocop]), lint, or format",
+    )
+    interpretation: str = Field(description="What we understood the user meant")
+    explanation: str = Field(description="Why this configuration is appropriate")
+
+
+class NLConfigResult(BaseModel):
+    """Result of parsing natural language into Robocop configuration."""
+
+    success: bool = Field(description="Whether the parsing was successful")
+    suggestions: list[ConfigSuggestion] = Field(description="List of suggested configuration changes")
+    toml_config: str = Field(
+        description="Ready-to-use TOML configuration (may include multiple sections: common, lint, format)"
+    )
+    warnings: list[str] = Field(default_factory=list, description="Ambiguities, conflicts, or unsupported features")
+    explanation: str = Field(description="Summary of what the configuration achieves")
+
+
+class ApplyConfigurationResult(BaseModel):
+    """Result of applying configuration to a file."""
+
+    success: bool = Field(description="Whether the configuration was successfully applied")
+    file_path: str = Field(description="Path to the configuration file")
+    file_created: bool = Field(description="True if a new file was created")
+    diff: str | None = Field(default=None, description="Unified diff showing changes")
+    merged_config: str = Field(description="The full [tool.robocop.lint] section after merging")
+    validation_passed: bool = Field(description="True if Robocop accepts the configuration")
+    validation_error: str | None = Field(default=None, description="Error message if validation failed")

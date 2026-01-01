@@ -6,10 +6,7 @@ from fastmcp import FastMCP
 from fastmcp.server.context import Context
 from pydantic import Field
 
-from robocop.mcp.tools.batch_operations import (
-    _format_files_impl,
-    _lint_files_impl,
-)
+from robocop.mcp.tools.batch_operations import _format_files_impl, _lint_files_impl
 from robocop.mcp.tools.diagnostics import (
     _explain_issue_impl,
     _get_statistics_impl,
@@ -24,13 +21,15 @@ from robocop.mcp.tools.documentation import (
     _list_rules_impl,
     _search_rules_impl,
 )
-from robocop.mcp.tools.fixing import (
-    _apply_fix_impl,
-    _get_fix_context_impl,
+from robocop.mcp.tools.fixing import _apply_fix_impl, _get_fix_context_impl
+from robocop.mcp.tools.formatting import (
+    _format_content_impl,
+    _format_file_impl,
+    _lint_and_format_impl,
 )
-from robocop.mcp.tools.formatting import _format_content_impl, _format_file_impl, _lint_and_format_impl
 from robocop.mcp.tools.linting import _lint_content_impl, _lint_file_impl
 from robocop.mcp.tools.models import (
+    ApplyConfigurationResult,
     ApplyFixResult,
     DiagnosticResult,
     ExplainIssueResult,
@@ -44,12 +43,18 @@ from robocop.mcp.tools.models import (
     GetStatisticsResult,
     LintAndFormatResult,
     LintFilesResult,
+    NLConfigResult,
     PromptSummary,
     RuleDetail,
     RuleSearchResult,
     RuleSummary,
     SuggestFixesResult,
     WorstFilesResult,
+)
+from robocop.mcp.tools.natural_language_config import (
+    _apply_config_impl,
+    get_config_system_message,
+    parse_config_from_llm_response,
 )
 
 
@@ -865,5 +870,160 @@ def register_tools(mcp: FastMCP) -> None:
             else:
                 msg = f"Fix failed: {result.validation_error}"
             await ctx.info(msg)
+
+        return result
+
+    @mcp.tool(
+        tags={"configuration", "natural-language"},
+        annotations={"readOnlyHint": True, "title": "Get Configuration Context for Natural Language"},
+    )
+    async def get_config_context(
+        ctx: Context | None = None,
+    ) -> dict[str, str]:
+        """
+        Get the system message and instructions for natural language configuration.
+
+        This tool provides the context needed to parse natural language descriptions
+        into Robocop configuration. Use this to understand available rules and
+        configuration options before calling parse_config_response.
+
+        Workflow:
+        1. Call get_config_context() to get the system message
+        2. Use the system message to process the user's natural language request
+        3. Call parse_config_response() with the LLM's JSON response
+        4. Review suggestions with the user
+        5. Call apply_configuration() to write to pyproject.toml
+
+        Returns:
+            A dict with 'system_message' containing all rules and instructions.
+
+        """
+        if ctx:
+            await ctx.info("Building rule catalog for configuration context...")
+
+        system_message = get_config_system_message()
+
+        if ctx:
+            await ctx.info("Configuration context ready")
+
+        return {"system_message": system_message}
+
+    @mcp.tool(
+        tags={"configuration", "natural-language"},
+        annotations={"readOnlyHint": True, "title": "Parse Configuration Response"},
+    )
+    async def parse_config_response(
+        llm_response: Annotated[
+            str,
+            Field(
+                description="The JSON response from the LLM after processing a natural language configuration request"
+            ),
+        ],
+        ctx: Context | None = None,
+    ) -> NLConfigResult:
+        """
+        Parse an LLM's JSON response into validated configuration suggestions.
+
+        After getting context from get_config_context() and having the LLM process
+        a user's natural language request, call this tool with the LLM's JSON response
+        to get validated configuration suggestions.
+
+        The LLM response should be JSON with this structure:
+        {
+            "interpretation": "What the user wanted",
+            "suggestions": [
+                {
+                    "rule_id": "LEN02",
+                    "rule_name": "line-too-long",
+                    "action": "configure",  // or "enable" or "disable"
+                    "parameter": "line_length",  // for "configure" action
+                    "value": "140",  // for "configure" action
+                    "interpretation": "Allow 140 char lines",
+                    "explanation": "Default is 120"
+                }
+            ],
+            "warnings": []
+        }
+
+        Returns:
+            Validated suggestions and ready-to-use TOML configuration.
+
+        Example::
+
+            # After LLM processes "allow longer lines up to 140 characters"
+            result = parse_config_response('{"interpretation": "...", "suggestions": [...]}')
+            # result.toml_config contains the TOML to apply
+
+        """
+        if ctx:
+            await ctx.info("Parsing and validating configuration response...")
+
+        result = parse_config_from_llm_response(llm_response)
+
+        if ctx:
+            if result.success:
+                await ctx.info(f"Generated {len(result.suggestions)} configuration suggestion(s)")
+            else:
+                await ctx.info("Failed to parse configuration response")
+            if result.warnings:
+                for warning in result.warnings[:3]:  # Show first 3 warnings
+                    await ctx.debug(f"Warning: {warning}")
+
+        return result
+
+    @mcp.tool(
+        tags={"configuration"},
+        annotations={"title": "Apply Configuration to File"},
+    )
+    async def apply_configuration(
+        toml_config: Annotated[
+            str,
+            Field(description="TOML configuration string (e.g., from parse_config_response().toml_config)"),
+        ],
+        file_path: Annotated[
+            str,
+            Field(description="Path to configuration file (default: pyproject.toml)"),
+        ] = "pyproject.toml",
+        ctx: Context | None = None,
+    ) -> ApplyConfigurationResult:
+        """
+        Apply Robocop configuration to a TOML file.
+
+        WARNING: This tool MODIFIES files on disk. The configuration will be merged
+        with any existing [tool.robocop.lint] section in the target file.
+
+        Use this after reviewing suggestions from parse_config_response().
+
+        Example::
+
+            # After getting config from parse_config_response()
+            result = apply_configuration(
+                toml_config='[tool.robocop.lint]\\nconfigure = ["line-too-long.line_length=140"]',
+                file_path="pyproject.toml"
+            )
+            # Check result.diff to see what changed
+
+        Returns:
+            Result with success status, file path, whether created,
+            validation status, and any errors.
+
+        """  # noqa: D301
+        if ctx:
+            await ctx.info(f"Applying configuration to {file_path}...")
+
+        result = _apply_config_impl(toml_config, file_path)
+
+        if ctx:
+            if result.success:
+                if result.file_created:
+                    await ctx.info(f"Created new file: {result.file_path}")
+                else:
+                    await ctx.info(f"Updated: {result.file_path}")
+                if result.validation_passed:
+                    await ctx.info("Configuration validated successfully")
+                else:
+                    await ctx.info(f"Validation warning: {result.validation_error}")
+            else:
+                await ctx.info(f"Failed to apply configuration: {result.validation_error}")
 
         return result

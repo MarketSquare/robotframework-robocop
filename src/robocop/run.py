@@ -147,7 +147,7 @@ ignore_file_config_option = Annotated[
 cache_option = Annotated[
     bool,
     typer.Option(
-        "--cache",
+        "--cache/--no-cache",
         help="Disable file caching. All files will be processed regardless of modifications.",
         rich_help_panel="Caching",
     ),

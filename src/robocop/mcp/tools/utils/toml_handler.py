@@ -4,6 +4,8 @@ TOML file handler for natural language configuration.
 Provides utilities for reading, merging, and writing TOML configuration files,
 specifically for Robocop's configuration sections.
 
+Uses tomlkit to preserve comments and formatting when modifying existing files.
+
 Robocop supports three configuration file formats:
 - pyproject.toml: Uses [tool.robocop] section
 - robot.toml: Uses [tool.robocop] section
@@ -13,20 +15,17 @@ Robocop supports three configuration file formats:
 from __future__ import annotations
 
 import difflib
-import sys
 from pathlib import Path  # noqa: TC003 - used at runtime
 from typing import Any
 
-import tomli_w
-
-if sys.version_info >= (3, 11):
-    import tomllib
-    from tomllib import TOMLDecodeError
-else:
-    import tomli as tomllib
-    from tomli import TOMLDecodeError
+import tomlkit
+from tomlkit import TOMLDocument
+from tomlkit.exceptions import TOMLKitError
 
 from robocop.mcp.tools.utils.constants import CONFIG_NAMES
+
+# Re-export for backwards compatibility
+TOMLDecodeError = TOMLKitError
 
 __all__ = ["CONFIG_NAMES", "TOMLDecodeError"]
 
@@ -45,44 +44,61 @@ def is_robocop_toml(path: Path) -> bool:
     return path.name == "robocop.toml"
 
 
-def read_toml_file(path: Path) -> dict[str, Any]:
+def read_toml_file(path: Path) -> TOMLDocument:
     """
-    Read and parse a TOML file.
+    Read and parse a TOML file, preserving comments and formatting.
 
     Args:
         path: Path to the TOML file.
 
     Returns:
-        Parsed TOML as a dictionary. Returns empty dict if file doesn't exist.
+        Parsed TOML as a TOMLDocument (dict-like). Returns empty document if file doesn't exist.
 
     """
     if not path.exists():
-        return {}
+        return tomlkit.document()
 
-    with path.open("rb") as f:
-        return tomllib.load(f)
+    with path.open("r", encoding="utf-8") as f:
+        return tomlkit.parse(f.read())
 
 
-def write_toml_file(path: Path, config: dict[str, Any]) -> None:
+def read_toml_file_as_string(path: Path) -> str:
     """
-    Write a dictionary to a TOML file.
+    Read a TOML file as a raw string.
 
     Args:
         path: Path to the TOML file.
-        config: Dictionary to write as TOML.
 
+    Returns:
+        File contents as string, or empty string if file doesn't exist.
+
+    """
+    if not path.exists():
+        return ""
+
+    with path.open("r", encoding="utf-8") as f:
+        return f.read()
+
+
+def write_toml_file(path: Path, config: TOMLDocument | dict[str, Any]) -> None:
+    """
+    Write a TOML document to a file, preserving comments and formatting.
+
+    Args:
+        path: Path to the TOML file.
+        config: TOMLDocument or dictionary to write as TOML.
 
     """
     path.parent.mkdir(parents=True, exist_ok=True)
-    with path.open("wb") as f:
-        tomli_w.dump(config, f)
+    with path.open("w", encoding="utf-8") as f:
+        f.write(tomlkit.dumps(config))
 
 
 def merge_robocop_config(
-    existing: dict[str, Any],
+    existing: TOMLDocument | dict[str, Any],
     new_lint_config: dict[str, Any],
     use_root_level: bool = False,
-) -> dict[str, Any]:
+) -> TOMLDocument | dict[str, Any]:
     """
     Merge new Robocop lint configuration with existing config.
 
@@ -91,7 +107,7 @@ def merge_robocop_config(
     - For robocop.toml: [lint] at root level
 
     Intelligently combines lists (like `configure`, `select`, `ignore`)
-    and overwrites scalar values.
+    and overwrites scalar values. Preserves comments and formatting.
 
     Args:
         existing: The existing full TOML config (may be empty).
@@ -107,17 +123,19 @@ def merge_robocop_config(
 
 
 def merge_robocop_section(
-    existing: dict[str, Any],
+    existing: TOMLDocument | dict[str, Any],
     new_config: dict[str, Any],
     section: str = "lint",
     use_root_level: bool = False,
-) -> dict[str, Any]:
+) -> TOMLDocument | dict[str, Any]:
     """
     Merge new Robocop configuration with existing config for any section.
 
     This function merges configuration at the appropriate level based on file type and section:
     - For pyproject.toml/robot.toml: [tool.robocop], [tool.robocop.lint], [tool.robocop.format]
     - For robocop.toml: root level, [lint], [format]
+
+    Preserves comments and formatting in the existing document.
 
     Args:
         existing: The existing full TOML config (may be empty).
@@ -130,13 +148,13 @@ def merge_robocop_section(
         The merged configuration with the section updated.
 
     """
-    result = dict(existing)
-    existing_section = _get_or_create_section(result, section, use_root_level)
+    # Work with the existing document to preserve comments
+    existing_section = _get_or_create_section(existing, section, use_root_level)
     _merge_section_values(existing_section, new_config)
-    return result
+    return existing
 
 
-def _get_or_create_section(config: dict[str, Any], section: str, use_root_level: bool) -> dict[str, Any]:
+def _get_or_create_section(config: TOMLDocument | dict[str, Any], section: str, use_root_level: bool) -> dict[str, Any]:
     """
     Get or create the appropriate section in the config dict.
 
@@ -154,20 +172,20 @@ def _get_or_create_section(config: dict[str, Any], section: str, use_root_level:
         if section == "common":
             return config
         if section not in config:
-            config[section] = {}
+            config[section] = tomlkit.table()
         return config[section]
 
     # For pyproject.toml/robot.toml: [tool.robocop.*]
     if "tool" not in config:
-        config["tool"] = {}
+        config["tool"] = tomlkit.table()
     if "robocop" not in config["tool"]:
-        config["tool"]["robocop"] = {}
+        config["tool"]["robocop"] = tomlkit.table()
 
     if section == "common":
         return config["tool"]["robocop"]
 
     if section not in config["tool"]["robocop"]:
-        config["tool"]["robocop"][section] = {}
+        config["tool"]["robocop"][section] = tomlkit.table()
     return config["tool"]["robocop"][section]
 
 
@@ -199,6 +217,8 @@ def _merge_section_values(existing: dict[str, Any], new_config: dict[str, Any]) 
             existing_values = existing.get(key, [])
             if not isinstance(existing_values, list):
                 existing_values = [existing_values] if existing_values else []
+            # Convert to regular list for manipulation
+            existing_values = list(existing_values)
 
             # For 'configure', we need smarter merging (same rule.param should be replaced)
             if key == "configure":
@@ -293,32 +313,32 @@ def generate_diff(before: str, after: str, filename: str = "pyproject.toml") -> 
     return "".join(diff_lines)
 
 
-def toml_to_string(config: dict[str, Any]) -> str:
+def toml_to_string(config: TOMLDocument | dict[str, Any]) -> str:
     """
-    Convert a dictionary to a TOML string.
+    Convert a dictionary or TOMLDocument to a TOML string.
 
     Args:
-        config: Dictionary to convert.
+        config: Dictionary or TOMLDocument to convert.
 
     Returns:
         TOML-formatted string.
 
     """
-    return tomli_w.dumps(config)
+    return tomlkit.dumps(config)
 
 
-def parse_toml_string(toml_str: str) -> dict[str, Any]:
+def parse_toml_string(toml_str: str) -> TOMLDocument:
     """
-    Parse a TOML string into a dictionary.
+    Parse a TOML string into a TOMLDocument.
 
     Args:
         toml_str: The TOML string to parse.
 
     Returns:
-        Parsed dictionary. Raises TOMLDecodeError if the string is invalid TOML.
+        Parsed TOMLDocument. Raises TOMLKitError if the string is invalid TOML.
 
     """
-    return tomllib.loads(toml_str)
+    return tomlkit.parse(toml_str)
 
 
 def extract_lint_section_string(lint_config: dict[str, Any], use_root_level: bool = False) -> str:
@@ -379,3 +399,57 @@ def extract_all_sections_string(config_sections: dict[str, dict[str, Any]], use_
         return ""
 
     return toml_to_string({"tool": {"robocop": robocop_section}})
+
+
+def has_robocop_config(config: TOMLDocument | dict[str, Any], use_root_level: bool) -> bool:
+    """
+    Check if Robocop configuration already exists in the config.
+
+    Args:
+        config: The parsed TOML configuration.
+        use_root_level: If True, check for root-level [lint]/[format] (robocop.toml).
+                       If False, check for [tool.robocop] (pyproject.toml/robot.toml).
+
+    Returns:
+        True if Robocop config exists, False otherwise.
+
+    """
+    if use_root_level:
+        # For robocop.toml, check for [lint] or [format] sections
+        return "lint" in config or "format" in config
+
+    # For pyproject.toml/robot.toml, check for [tool.robocop]
+    tool = config.get("tool", {})
+    return "robocop" in tool
+
+
+def append_config_to_file_content(existing_content: str, new_config: str) -> str:
+    """
+    Append new configuration to the end of existing file content.
+
+    Ensures proper formatting with appropriate newlines between sections.
+
+    Args:
+        existing_content: The existing file content (may be empty).
+        new_config: The new TOML configuration to append.
+
+    Returns:
+        The combined content with new config appended at the end.
+
+    """
+    if not existing_content:
+        return new_config
+
+    if not new_config:
+        return existing_content
+
+    # Ensure existing content ends with newline
+    result = existing_content
+    if not result.endswith("\n"):
+        result += "\n"
+
+    # Add blank line before new section for readability (if not already present)
+    if not result.endswith("\n\n"):
+        result += "\n"
+
+    return result + new_config

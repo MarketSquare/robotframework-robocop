@@ -2307,6 +2307,7 @@ dependencies = [
 [package.optional-dependencies]
 mcp = [
     { name = "fastmcp", marker = "python_full_version >= '3.10'" },
+    { name = "tomlkit", marker = "python_full_version >= '3.10'" },
 ]
 
 [package.dev-dependencies]
@@ -2342,6 +2343,7 @@ requires-dist = [
     { name = "robotframework", specifier = ">=4.0,<7.5" },
     { name = "tomli", marker = "python_full_version < '3.11'", specifier = "==2.2.1" },
     { name = "tomli-w", specifier = ">=1.0" },
+    { name = "tomlkit", marker = "python_full_version >= '3.10' and extra == 'mcp'", specifier = ">=0.13.0" },
     { name = "typer-slim", specifier = ">=0.12.5" },
 ]
 provides-extras = ["mcp"]
@@ -2661,6 +2663,15 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/19/75/241269d1da26b624c0d5e110e8149093c759b7a286138f4efd61a60e75fe/tomli_w-1.2.0.tar.gz", hash = "sha256:2dd14fac5a47c27be9cd4c976af5a12d87fb1f0b4512f81d69cce3b35ae25021", size = 7184, upload-time = "2025-01-15T12:07:24.262Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/c7/18/c86eb8e0202e32dd3df50d43d7ff9854f8e0603945ff398974c1d91ac1ef/tomli_w-1.2.0-py3-none-any.whl", hash = "sha256:188306098d013b691fcadc011abd66727d3c414c571bb01b1a174ba8c983cf90", size = 6675, upload-time = "2025-01-15T12:07:22.074Z" },
+]
+
+[[package]]
+name = "tomlkit"
+version = "0.13.3"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/cc/18/0bbf3884e9eaa38819ebe46a7bd25dcd56b67434402b66a58c4b8e552575/tomlkit-0.13.3.tar.gz", hash = "sha256:430cf247ee57df2b94ee3fbe588e71d362a941ebb545dec29b53961d61add2a1", size = 185207, upload-time = "2025-06-05T07:13:44.947Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/bd/75/8539d011f6be8e29f339c42e633aae3cb73bffa95dd0f9adec09b9c58e85/tomlkit-0.13.3-py3-none-any.whl", hash = "sha256:c89c649d79ee40629a9fda55f8ace8c6a1b42deb912b2a8fd8d942ddadb606b0", size = 38901, upload-time = "2025-06-05T07:13:43.546Z" },
 ]
 
 [[package]]

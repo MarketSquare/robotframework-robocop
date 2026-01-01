@@ -369,6 +369,259 @@ class TestTomlHandler:
         assert "configure" in result
 
 
+class TestTomlCommentPreservation:
+    """Tests for TOML comment preservation using tomlkit."""
+
+    def test_preserves_comments_in_existing_file(self):
+        """Should preserve comments when modifying existing TOML file."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            path = Path(tmpdir) / "pyproject.toml"
+
+            # Create file with comments
+            original_content = """# Project configuration file
+[project]
+name = "my-project"  # inline comment
+
+# Tool configurations below
+[tool.ruff]
+line-length = 100  # ruff line length setting
+"""
+            path.write_text(original_content)
+
+            # Apply robocop config
+            toml_config = '[tool.robocop.lint]\nconfigure = ["line-too-long.line_length=140"]'
+            result = _apply_config_impl(toml_config, str(path))
+
+            assert result.success is True
+
+            # Read back and verify comments are preserved
+            final_content = path.read_text()
+
+            # Check that original comments are preserved
+            assert "# Project configuration file" in final_content
+            assert "# inline comment" in final_content
+            assert "# Tool configurations below" in final_content
+            assert "# ruff line length setting" in final_content
+
+            # Check that robocop config was added
+            assert "[tool.robocop.lint]" in final_content or "tool.robocop" in final_content
+            assert "line-too-long.line_length=140" in final_content
+
+    def test_preserves_other_tool_sections(self):
+        """Should preserve other tool sections with their comments."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            path = Path(tmpdir) / "pyproject.toml"
+
+            original_content = """[project]
+name = "test"
+
+# Ruff configuration
+[tool.ruff]
+line-length = 100
+select = ["E", "F"]
+
+# Pytest configuration
+[tool.pytest.ini_options]
+minversion = "6.0"
+"""
+            path.write_text(original_content)
+
+            toml_config = '[tool.robocop.lint]\nignore = ["DOC01"]'
+            result = _apply_config_impl(toml_config, str(path))
+
+            assert result.success is True
+            final_content = path.read_text()
+
+            # Comments preserved
+            assert "# Ruff configuration" in final_content
+            assert "# Pytest configuration" in final_content
+
+            # Other tool sections preserved
+            assert "[tool.ruff]" in final_content
+            assert "[tool.pytest.ini_options]" in final_content
+            assert "line-length = 100" in final_content
+
+    def test_merge_updates_existing_robocop_section_preserving_comments(self):
+        """Should update existing robocop section while preserving surrounding comments."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            path = Path(tmpdir) / "pyproject.toml"
+
+            original_content = """[project]
+name = "test"
+
+# Robocop linting rules
+[tool.robocop.lint]
+ignore = ["DOC01"]  # ignore doc rules
+
+# More config below
+[tool.other]
+key = "value"
+"""
+            path.write_text(original_content)
+
+            toml_config = '[tool.robocop.lint]\nconfigure = ["line-too-long.line_length=140"]'
+            result = _apply_config_impl(toml_config, str(path))
+
+            assert result.success is True
+            final_content = path.read_text()
+
+            # Comments preserved
+            assert "# Robocop linting rules" in final_content
+            assert "# More config below" in final_content
+
+            # Original config preserved and new config added
+            assert "DOC01" in final_content
+            assert "line-too-long.line_length=140" in final_content
+
+    def test_robocop_toml_preserves_comments(self):
+        """Should preserve comments in robocop.toml files."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            path = Path(tmpdir) / "robocop.toml"
+
+            original_content = """# Robocop configuration
+# Main settings
+
+[lint]
+ignore = ["DOC01"]  # skip doc checks
+
+# Format settings below
+[format]
+line_length = 120
+"""
+            path.write_text(original_content)
+
+            toml_config = '[lint]\nconfigure = ["line-too-long.line_length=140"]'
+            result = _apply_config_impl(toml_config, str(path))
+
+            assert result.success is True
+            final_content = path.read_text()
+
+            # Comments preserved
+            assert "# Robocop configuration" in final_content
+            assert "# Main settings" in final_content
+            assert "# skip doc checks" in final_content
+            assert "# Format settings below" in final_content
+
+
+class TestMinimalDiffBehavior:
+    """Tests for minimal diff behavior - append at end vs merge in place."""
+
+    def test_new_config_appended_at_end_of_file(self):
+        """When no robocop config exists, new config should be appended at end."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            path = Path(tmpdir) / "pyproject.toml"
+
+            # Create file with other config but no robocop
+            original_content = """[project]
+name = "test"
+
+[tool.ruff]
+line-length = 100
+"""
+            path.write_text(original_content)
+
+            toml_config = '[tool.robocop.lint]\nignore = ["DOC01"]'
+            result = _apply_config_impl(toml_config, str(path))
+
+            assert result.success is True
+            final_content = path.read_text()
+
+            # Original content should be preserved exactly at the start
+            assert final_content.startswith('[project]\nname = "test"')
+
+            # Robocop config should be at the end
+            assert final_content.endswith('ignore = ["DOC01"]\n') or "DOC01" in final_content
+
+            # [tool.ruff] should come BEFORE [tool.robocop]
+            ruff_pos = final_content.find("[tool.ruff]")
+            robocop_pos = final_content.find("[tool.robocop")
+            assert ruff_pos < robocop_pos, "Robocop config should be appended after existing content"
+
+    def test_existing_robocop_config_updated_in_place(self):
+        """When robocop config exists, it should be updated in place, not moved."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            path = Path(tmpdir) / "pyproject.toml"
+
+            # Create file with robocop config in the middle
+            original_content = """[project]
+name = "test"
+
+[tool.robocop.lint]
+ignore = ["DOC01"]
+
+[tool.ruff]
+line-length = 100
+"""
+            path.write_text(original_content)
+
+            toml_config = '[tool.robocop.lint]\nconfigure = ["line-too-long.line_length=140"]'
+            result = _apply_config_impl(toml_config, str(path))
+
+            assert result.success is True
+            final_content = path.read_text()
+
+            # [tool.robocop] should still come BEFORE [tool.ruff] (in place update)
+            robocop_pos = final_content.find("[tool.robocop")
+            ruff_pos = final_content.find("[tool.ruff]")
+            assert robocop_pos < ruff_pos, "Robocop config should stay in its original position"
+
+            # Both old and new config should be present
+            assert "DOC01" in final_content
+            assert "line-too-long.line_length=140" in final_content
+
+    def test_minimal_diff_for_new_config(self):
+        """Diff should only show additions when adding new robocop config."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            path = Path(tmpdir) / "pyproject.toml"
+
+            original_content = """[project]
+name = "test"
+version = "1.0.0"
+
+[tool.ruff]
+line-length = 100
+"""
+            path.write_text(original_content)
+
+            toml_config = '[tool.robocop.lint]\nignore = ["DOC01"]'
+            result = _apply_config_impl(toml_config, str(path))
+
+            assert result.success is True
+            assert result.diff is not None
+
+            # Diff should only have additions (+ lines), no deletions (- lines) for existing content
+            diff_lines = result.diff.split("\n")
+            deletion_lines = [line for line in diff_lines if line.startswith("-") and not line.startswith("---")]
+            addition_lines = [line for line in diff_lines if line.startswith("+") and not line.startswith("+++")]
+
+            # Should have no deletions of existing content
+            assert len(deletion_lines) == 0, f"Should not delete existing content: {deletion_lines}"
+            # Should have additions for new robocop config
+            assert len(addition_lines) > 0, "Should add new robocop config"
+
+    def test_robocop_toml_new_config_at_end(self):
+        """For robocop.toml, new sections should be appended at end."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            path = Path(tmpdir) / "robocop.toml"
+
+            # Empty file or file without lint/format sections
+            original_content = """# Top-level robocop settings
+threshold = "W"
+"""
+            path.write_text(original_content)
+
+            toml_config = '[lint]\nignore = ["DOC01"]'
+            result = _apply_config_impl(toml_config, str(path))
+
+            assert result.success is True
+            final_content = path.read_text()
+
+            # Original content preserved at start
+            assert "# Top-level robocop settings" in final_content
+            # [lint] section added at end
+            assert "[lint]" in final_content
+
+
 class TestParseLlmResponse:
     """Tests for _parse_llm_response function."""
 

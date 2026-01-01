@@ -945,6 +945,11 @@ def register_tools(mcp: FastMCP) -> None:
             "warnings": []
         }
 
+        IMPORTANT: After calling this tool, you MUST:
+        1. Show the user the generated toml_config and list of suggestions
+        2. Ask the user for explicit confirmation before applying
+        3. Only call apply_configuration() if the user approves
+
         Returns:
             Validated suggestions and ready-to-use TOML configuration.
 
@@ -952,7 +957,8 @@ def register_tools(mcp: FastMCP) -> None:
 
             # After LLM processes "allow longer lines up to 140 characters"
             result = parse_config_response('{"interpretation": "...", "suggestions": [...]}')
-            # result.toml_config contains the TOML to apply
+            # IMPORTANT: Show result.toml_config to user and ask for confirmation
+            # before calling apply_configuration()
 
         """
         if ctx:
@@ -990,24 +996,28 @@ def register_tools(mcp: FastMCP) -> None:
         Apply Robocop configuration to a TOML file.
 
         WARNING: This tool MODIFIES files on disk. The configuration will be merged
-        with any existing [tool.robocop.lint] section in the target file.
+        with any existing [tool.robocop] sections in the target file.
 
-        Use this after reviewing suggestions from parse_config_response().
+        IMPORTANT: Do NOT call this tool without explicit user confirmation!
+        Always show the user the toml_config content first and ask if they want
+        to apply it. Only proceed if the user explicitly confirms.
 
-        Example::
+        Example workflow::
 
-            # After getting config from parse_config_response()
-            result = apply_configuration(
-                toml_config='[tool.robocop.lint]\\nconfigure = ["line-too-long.line_length=140"]',
-                file_path="pyproject.toml"
-            )
-            # Check result.diff to see what changed
+            # 1. Call parse_config_response() to get validated config
+            result = parse_config_response(llm_json)
+
+            # 2. Show result.toml_config to user and ASK FOR CONFIRMATION
+            # "Here's the configuration that will be applied: ... Apply? (yes/no)"
+
+            # 3. Only if user confirms, call apply_configuration()
+            apply_configuration(result.toml_config, "pyproject.toml")
 
         Returns:
             Result with success status, file path, whether created,
             validation status, and any errors.
 
-        """  # noqa: D301
+        """
         if ctx:
             await ctx.info(f"Applying configuration to {file_path}...")
 

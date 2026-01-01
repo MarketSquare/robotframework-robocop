@@ -30,14 +30,16 @@ from robocop.mcp.tools.utils.helpers import (
 )
 from robocop.mcp.tools.utils.toml_handler import (
     TOMLDecodeError,
+    append_config_to_file_content,
     extract_all_sections_string,
     generate_diff,
+    has_robocop_config,
     is_robocop_toml,
     merge_robocop_section,
     parse_toml_string,
     read_toml_file,
+    read_toml_file_as_string,
     toml_to_string,
-    write_toml_file,
 )
 
 # --- Type Definitions ---
@@ -818,22 +820,32 @@ def _apply_config_impl(
         if parse_error:
             return _make_error_result(path, parse_error)
 
-        # Read existing config
+        # Read existing file content
+        existing_toml = read_toml_file_as_string(path)
         existing_config = read_toml_file(path)
-        existing_toml = toml_to_string(existing_config) if existing_config else ""
 
-        # Merge each section
-        merged_config = dict(existing_config)
-        for section_name, section_config in new_sections.items():
-            if section_config:  # Only merge non-empty sections
-                merged_config = merge_robocop_section(merged_config, section_config, section_name, use_root_level)
+        # Check if robocop config already exists
+        robocop_config_exists = has_robocop_config(existing_config, use_root_level)
+
+        if robocop_config_exists:
+            # Robocop config exists: merge in place using tomlkit (preserves location and comments)
+            for section_name, section_config in new_sections.items():
+                if section_config:
+                    merge_robocop_section(existing_config, section_config, section_name, use_root_level)
+            merged_toml = toml_to_string(existing_config)
+        else:
+            # No robocop config: append new config at end of file (minimal diff)
+            new_config_str = extract_all_sections_string(new_sections, use_root_level=use_root_level)
+            merged_toml = append_config_to_file_content(existing_toml, new_config_str)
+            # Re-parse to get the merged config for validation
+            existing_config = parse_toml_string(merged_toml)
 
         # Generate diff and write file
-        diff = generate_diff(existing_toml, toml_to_string(merged_config), path.name)
-        write_toml_file(path, merged_config)
+        diff = generate_diff(existing_toml, merged_toml, path.name)
+        path.write_text(merged_toml, encoding="utf-8")
 
         # Extract all sections for display
-        display_sections = _extract_display_sections(merged_config, use_root_level)
+        display_sections = _extract_display_sections(existing_config, use_root_level)
 
         # Validate configure entries in lint section
         lint_section = display_sections.get("lint", {})

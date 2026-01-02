@@ -1,0 +1,65 @@
+name: Release Check
+
+on:
+  pull_request:
+    types: [opened, synchronize, labeled]
+  workflow_dispatch:
+
+jobs:
+  build-docs:
+    runs-on: ubuntu-latest
+    # Only run on release PRs (release-please labels them with 'autorelease: pending')
+    if: "contains(github.event.pull_request.labels.*.name, 'autorelease: pending')"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v4
+      - name: Install dependencies
+        run: uv sync --group doc
+      - name: Build docs
+        run: uv run mkdocs build --clean
+
+  performance-tests:
+    runs-on: ubuntu-latest
+    if: "contains(github.event.pull_request.labels.*.name, 'autorelease: pending')"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v4
+
+      - name: Set up Python 3.13
+        uses: actions/setup-python@v5
+        with:
+          python-version: 3.13
+
+      - name: Install dependencies
+        run: uv sync --dev
+
+      - name: Resolve app versions
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "ROBOCOP_VERSIONS=$(gh release list --limit 4 --json tagName --jq '.[].tagName' | tr '\n' ',')" >> $GITHUB_ENV
+
+      - name: Run performance tests
+        run: uv run nox -s performance > performance.log 2>&1
+
+      - name: Merge report and prepare for publishing
+        run: uv run tests/performance/merge_reports.py
+
+      - name: Publish to job summary
+        run: cat perf_report.md >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Publish to PR
+        if: github.event_name == 'pull_request'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh pr comment \
+            "${{ github.event.pull_request.number }}" \
+            --body-file perf_report.md
+
+      - name: Upload log artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: performance.log
+          path: performance.log

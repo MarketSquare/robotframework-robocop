@@ -80,6 +80,8 @@ dev = [
     "pytest-xdist>=3.6.1",
     "ruff==0.14.8",
     "pysonar",
+    "nox>=2025.11.12",
+    "packaging>=25.0",
 ]
 doc = [
     "mkdocs",

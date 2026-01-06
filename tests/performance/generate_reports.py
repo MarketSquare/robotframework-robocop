@@ -16,11 +16,17 @@ from pathlib import Path
 from jinja2 import Environment, FileSystemLoader
 
 from robocop import __version__
-from robocop.config_manager import ConfigManager
 from robocop.formatter.formatters import FORMATTERS
-from robocop.linter.utils.version_matching import Version
 from robocop.run import check_files, format_files
 from tests import working_directory
+
+try:
+    from robocop.config_manager import ConfigManager
+    from robocop.version_handling import Version
+except ImportError:  # < 7.3.0
+    from robocop.config import ConfigManager
+    from robocop.linter.utils.misc import Version
+
 
 LINTER_TESTS_DIR = Path(__file__).parent.parent / "linter"
 TEST_DATA = Path(__file__).parent / "test_data"

@@ -20,25 +20,6 @@ if TYPE_CHECKING:
     from robocop.config import Config
 
 
-def _get_model_with_optional_lang(get_model_func: Callable, source: Path, lang: Languages) -> File:
-    """
-    Get Robot file tokenised model with optional language option.
-
-    Language option was added in more recent Robot version and we need this code for backward compatibility.
-    """
-    if LANG_SUPPORTED:
-        return get_model_func(source, lang=lang)
-    return get_model_func(source)
-
-
-def get_model_with_lang(source: Path, lang: Languages | None) -> File:
-    if "__init__" in source.name:
-        return _get_model_with_optional_lang(get_init_model, source, lang)
-    if source.suffix == ".resource":
-        return _get_model_with_optional_lang(get_resource_model, source, lang)
-    return _get_model_with_optional_lang(get_model, source, lang)
-
-
 @dataclass
 class SourceFile:
     """
@@ -55,10 +36,23 @@ class SourceFile:
     path: Path
     config: Config
     _model: File | None = None
-    source_lines: list[str] | None = None
+    _source_lines: list[str] | None = None
 
     @property
     def model(self) -> File:
         if self._model is None:
-            self._model = get_model_with_lang(self.path, self.config.languages)
+            self._model = self._load_model()
         return self._model
+
+    def _load_model(self) -> File:
+        """Determine the correct model loader based on file type and loads it."""
+        if "__init__" in self.path.name:
+            loader: Callable = get_init_model
+        elif self.path.suffix == ".resource":
+            loader: Callable = get_resource_model
+        else:
+            loader: Callable = get_model
+
+        if LANG_SUPPORTED:
+            return loader(self.path, lang=self.config.languages)
+        return loader(self.path)

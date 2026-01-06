@@ -20,7 +20,7 @@ jobs:
 
   performance-tests:
     runs-on: ubuntu-latest
-    if: "contains(github.event.pull_request.labels.*.name, 'autorelease: pending')"
+    if: "contains(github.event.pull_request.labels.*.name, 'autorelease: pending') || contains(github.event.pull_request.labels.*.name, 'performance')"
     steps:
       - uses: actions/checkout@v4
       - uses: astral-sh/setup-uv@v4

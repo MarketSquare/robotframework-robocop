@@ -6,7 +6,7 @@ import click
 import typer
 from rich.console import Console
 
-from robocop import __version__, config
+from robocop import __version__, config, config_manager
 from robocop.formatter.runner import RobocopFormatter
 from robocop.formatter.skip import SkipConfig
 from robocop.linter.diagnostics import Diagnostic
@@ -353,7 +353,7 @@ def check_files(
         silent=silent,
         target_version=target_version,
     )
-    config_manager = config.ConfigManager(
+    manager = config_manager.ConfigManager(
         sources=sources,
         config=configuration_file,
         root=root,
@@ -364,8 +364,8 @@ def check_files(
         overwrite_config=overwrite_config,
     )
     if clear_cache:
-        config_manager.cache.invalidate_all()
-    runner = RobocopLinter(config_manager)
+        manager.cache.invalidate_all()
+    runner = RobocopLinter(manager)
     return runner.run()
 
 
@@ -468,7 +468,7 @@ def check_project(
         silent=silent,
         target_version=target_version,
     )
-    config_manager = config.ConfigManager(
+    manager = config_manager.ConfigManager(
         sources=sources,
         config=configuration_file,
         root=root,
@@ -478,7 +478,7 @@ def check_project(
         force_exclude=force_exclude,
         overwrite_config=overwrite_config,
     )
-    runner = RobocopLinter(config_manager)
+    runner = RobocopLinter(manager)
     return runner.run_project_checks()
 
 
@@ -696,7 +696,7 @@ def format_files(
         silent=silent,
         target_version=target_version,
     )
-    config_manager = config.ConfigManager(
+    manager = config_manager.ConfigManager(
         sources=sources,
         config=configuration_file,
         root=root,
@@ -707,8 +707,8 @@ def format_files(
         overwrite_config=overwrite_config,
     )
     if clear_cache:
-        config_manager.cache.invalidate_all()
-    runner = RobocopFormatter(config_manager)
+        manager.cache.invalidate_all()
+    runner = RobocopFormatter(manager)
     return runner.run()
 
 
@@ -764,23 +764,21 @@ def list_rules(
         silent=silent,
         target_version=target_version,
     )
-    config_manager = config.ConfigManager(overwrite_config=overwrite_config)
-    runner = RobocopLinter(config_manager)
-    default_config = runner.config_manager.default_config
+    manager = config_manager.ConfigManager(overwrite_config=overwrite_config)
     if filter_pattern:
         filter_pattern = compile_rule_pattern(filter_pattern)
-        rules = filter_rules_by_pattern(default_config.linter.rules, filter_pattern)
+        rules = filter_rules_by_pattern(manager.default_config.linter.rules, filter_pattern)
     else:
         rules = filter_rules_by_category(
-            default_config.linter.rules, filter_category, default_config.linter.target_version
+            manager.default_config.linter.rules, filter_category, manager.default_config.linter.target_version
         )
     severity_counter = {"E": 0, "W": 0, "I": 0}
     enabled = 0
     for rule in rules:
-        is_enabled = rule.enabled and not rule.is_disabled(default_config.linter.target_version)
+        is_enabled = rule.enabled and not rule.is_disabled(manager.default_config.linter.target_version)
         enabled += int(is_enabled)
         if not silent:
-            console.print(rule.rule_short_description(default_config.linter.target_version))
+            console.print(rule.rule_short_description(manager.default_config.linter.target_version))
         severity_counter[rule.severity.value] += 1
     configurable_rules_sum = sum(severity_counter.values())
     plural = get_plural_form(configurable_rules_sum)
@@ -815,8 +813,8 @@ def list_reports(
     console = Console(soft_wrap=True)
     linter_config = config.LinterConfig(reports=reports)
     overwrite_config = config.Config(linter=linter_config, silent=silent)
-    config_manager = config.ConfigManager(overwrite_config=overwrite_config)
-    runner = RobocopLinter(config_manager)
+    manager = config_manager.ConfigManager(overwrite_config=overwrite_config)
+    runner = RobocopLinter(manager)
     if not silent:
         console.print(print_reports(runner.reports, enabled))  # TODO: color etc
 
@@ -865,8 +863,8 @@ def list_formatters(
         silent=silent,
         target_version=target_version,
     )
-    config_manager = config.ConfigManager(overwrite_config=overwrite_config)
-    default_config = config_manager.default_config
+    manager = config_manager.ConfigManager(overwrite_config=overwrite_config)
+    default_config = manager.default_config
     if filter_category == filter_category.ALL:
         formatters = list(default_config.formatter.formatters.values())
     elif filter_category == filter_category.ENABLED:
@@ -896,15 +894,13 @@ def print_resource_documentation(name: Annotated[str, typer.Argument(help="Rule 
     """Print formatter, rule or report documentation."""
     # TODO load external from cli
     console = Console(soft_wrap=True)
-    config_manager = config.ConfigManager()
+    manager = config_manager.ConfigManager()
 
-    runner = RobocopLinter(config_manager)
-    default_config = runner.config_manager.default_config
-    if name in default_config.linter.rules:
-        console.print(default_config.linter.rules[name].description_with_configurables)
+    if name in manager.default_config.linter.rules:
+        console.print(manager.default_config.linter.rules[name].description_with_configurables)
         return
 
-    reports = load_reports(config_manager.default_config)
+    reports = load_reports(manager.default_config)
     if name in reports:
         docs = textwrap.dedent(reports[name].__doc__)
         console.print(docs)

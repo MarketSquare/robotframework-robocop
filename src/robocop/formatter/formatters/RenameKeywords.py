@@ -7,8 +7,9 @@ from robot.api.parsing import Token
 from robocop.exceptions import InvalidParameterValueError
 from robocop.formatter.disablers import skip_if_disabled, skip_section_if_disabled
 from robocop.formatter.formatters import Formatter
-from robocop.formatter.utils import misc, variable_matcher
+from robocop.formatter.utils import misc
 from robocop.parsing.run_keywords import RUN_KEYWORDS
+from robocop.parsing.variables import VariableMatches
 
 
 class RenameKeywords(Formatter):
@@ -111,7 +112,7 @@ class RenameKeywords(Formatter):
         var_found = False
         parts = []
         after = ""
-        for match in variable_matcher.VariableMatches(value, ignore_errors=True):
+        for match in VariableMatches(value, ignore_errors=True):
             var_found = True
             # rename strips whitespace, so we need to preserve it if needed
             if not match.before.strip() and parts:
@@ -156,7 +157,7 @@ class RenameKeywords(Formatter):
         if is_keyword_call and "." in value:
             # rename only non lib part
             found_lib = -1
-            for match in variable_matcher.VariableMatches(value):
+            for match in VariableMatches(value):
                 found_lib = match.before.find(".")
                 break
             if found_lib != -1:

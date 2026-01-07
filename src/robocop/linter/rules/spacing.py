@@ -11,8 +11,6 @@ from robot.api import Token
 from robot.parsing.model.blocks import Keyword, TestCase
 from robot.parsing.model.statements import Comment, EmptyLine, KeywordCall
 
-from robocop.linter.utils.misc import ROBOT_VERSION
-
 try:
     from robot.api.parsing import InlineIfHeader
 except ImportError:
@@ -22,6 +20,7 @@ from robocop.linter import sonar_qube
 from robocop.linter.rules import RawFileChecker, Rule, RuleParam, RuleSeverity, SeverityThreshold, VisitorChecker
 from robocop.linter.utils.misc import get_errors, get_section_name, str2bool, token_col
 from robocop.parsing.run_keywords import is_run_keyword
+from robocop.version_handling import INLINE_IF_SUPPORTED
 
 if TYPE_CHECKING:
     from robot.parsing import File
@@ -1206,7 +1205,7 @@ class MisalignedContinuation(VisitorChecker):
 
     def visit_If(self, node) -> None:  # noqa: N802
         # suppress the rules if the multiline-inline-if is already reported
-        if ROBOT_VERSION.major >= 5 and self.is_inline_if(node):
+        if INLINE_IF_SUPPORTED and self.is_inline_if(node):
             return
 
     def is_ignorable_run_keyword(self, node) -> bool:

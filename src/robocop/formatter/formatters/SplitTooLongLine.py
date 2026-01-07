@@ -10,9 +10,9 @@ from typing import TYPE_CHECKING
 
 from robocop.formatter.disablers import skip_if_disabled, skip_section_if_disabled
 from robocop.formatter.formatters import Formatter
-from robocop.formatter.utils.misc import ROBOT_VERSION
 from robocop.linter.utils.disablers import DISABLER_PATTERN
 from robocop.parsing.run_keywords import RUN_KEYWORDS
+from robocop.version_handling import INLINE_IF_SUPPORTED
 
 if TYPE_CHECKING:
     from robocop.formatter.skip import Skip
@@ -126,7 +126,7 @@ class SplitTooLongLine(Formatter):
 
     @staticmethod
     def is_inline(node):
-        return ROBOT_VERSION.major > 4 and isinstance(node.header, InlineIfHeader)
+        return INLINE_IF_SUPPORTED and isinstance(node.header, InlineIfHeader)
 
     def should_format_node(self, node):
         if not self.any_line_too_long(node):

@@ -8,6 +8,7 @@ except ImportError:
 from robocop.formatter.disablers import skip_if_disabled, skip_section_if_disabled
 from robocop.formatter.formatters import Formatter
 from robocop.formatter.utils import misc
+from robocop.version_handling import ROBOT_VERSION
 
 
 class ReplaceReturns(Formatter):
@@ -87,7 +88,7 @@ class ReplaceReturns(Formatter):
 
     @skip_if_disabled
     def visit_Return(self, node):  # noqa: N802
-        if misc.ROBOT_VERSION.major < 7:  # In RF 7, RETURN was class was renamed to Return
+        if ROBOT_VERSION.major < 7:  # In RF 7, RETURN was class was renamed to Return
             self.return_statement = node
             return None
         return node

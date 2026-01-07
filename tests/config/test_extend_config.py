@@ -5,7 +5,7 @@ import click
 import pytest
 import typer
 
-from robocop.config import ConfigManager
+from robocop.config_manager import ConfigManager
 from tests import working_directory
 
 DATA_DIR = Path(__file__).parent / "test_data"

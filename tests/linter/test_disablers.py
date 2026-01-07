@@ -6,8 +6,7 @@ from robot.api import get_model
 from robocop.linter.diagnostics import Diagnostic
 from robocop.linter.rules.lengths import LineTooLongRule
 from robocop.linter.utils.disablers import DisablersFinder
-from robocop.linter.utils.misc import ROBOT_VERSION
-from robocop.linter.utils.version_matching import Version
+from robocop.version_handling import ROBOT_VERSION, Version
 
 
 @pytest.fixture

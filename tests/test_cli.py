@@ -7,8 +7,8 @@ import pytest
 from typer.testing import CliRunner
 
 from robocop import __version__
-from robocop.linter.utils.misc import ROBOT_VERSION
 from robocop.run import app
+from robocop.version_handling import ROBOT_VERSION
 from tests import working_directory
 
 

@@ -7,7 +7,8 @@ from pathlib import Path
 from fastmcp.exceptions import ToolError
 from robot.errors import DataError
 
-from robocop.config import Config, ConfigManager, LinterConfig
+from robocop.config import Config, LinterConfig
+from robocop.config_manager import ConfigManager
 from robocop.mcp.tools.models import DiagnosticResult
 from robocop.mcp.tools.utils.constants import VALID_EXTENSIONS
 from robocop.mcp.tools.utils.helpers import (

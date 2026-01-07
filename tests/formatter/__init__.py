@@ -115,6 +115,7 @@ class FormatterAcceptanceTest:
             pytest.fail(f"File {actual_name} is not same as expected")
 
     def enabled_in_version(self, target_version: str | None) -> bool:
+        # TODO: this can potentially be solved with robocop version handling instead
         if target_version and ROBOT_VERSION not in SpecifierSet(target_version, prereleases=True):
             return False
         if self.FORMATTER_NAME in VERSION_MATRIX:

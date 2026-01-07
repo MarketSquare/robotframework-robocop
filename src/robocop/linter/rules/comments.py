@@ -18,7 +18,7 @@ from robocop.linter.rules import (
     RuleSeverity,
     VisitorChecker,
 )
-from robocop.linter.utils.misc import ROBOT_VERSION
+from robocop.version_handling import ROBOT_VERSION
 
 if TYPE_CHECKING:
     from robot.parsing.model import Keyword, Statement, TestCase
@@ -179,6 +179,7 @@ class InvalidCommentRule(Rule):
         issue_type=sonar_qube.SonarQubeIssueType.BUG,
     )
     deprecated_names = ("0703",)
+    # TODO: deprecate (<4)
 
 
 class IgnoredDataRule(Rule):

@@ -5,7 +5,7 @@ import pytest
 from robot.api import get_model
 
 from robocop.formatter.disablers import DisabledLines, RegisterDisablers
-from robocop.formatter.utils.misc import ROBOT_VERSION
+from robocop.version_handling import ROBOT_VERSION
 
 TEST_DATA = Path(__file__).parent / "test_data" / "disablers"
 

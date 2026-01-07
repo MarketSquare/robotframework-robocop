@@ -20,7 +20,8 @@ if TYPE_CHECKING:
 
     from robot.parsing import File
 
-    from robocop.config import Config, ConfigManager
+    from robocop.config import Config
+    from robocop.config_manager import ConfigManager
     from robocop.linter.diagnostics import Diagnostic
 
 
@@ -99,21 +100,21 @@ class RobocopLinter:
         self.diagnostics: list[Diagnostic] = []
         files = 0
         cached_files = 0
-        for source, config in self.config_manager.paths:
-            if config.verbose:
-                print(f"Scanning file: {source}")
-            diagnostics = self.get_cached_diagnostics(config, source)
+        for source_file in self.config_manager.paths:
+            if source_file.config.verbose:
+                print(f"Scanning file: {source_file.path}")
+            diagnostics = self.get_cached_diagnostics(source_file.config, source_file.path)
             if diagnostics is not None:
                 self.diagnostics.extend(diagnostics)
                 files += 1
                 cached_files += 1
                 continue
-            diagnostics = self.get_model_diagnostics(config, source)
+            diagnostics = self.get_model_diagnostics(source_file.config, source_file.path)
             if diagnostics is None:
                 continue
             self.diagnostics.extend(diagnostics)
             files += 1
-            self.config_manager.cache.set_linter_entry(source, config.hash(), diagnostics)
+            self.config_manager.cache.set_linter_entry(source_file.path, source_file.config.hash(), diagnostics)
         self.config_manager.cache.save()
 
         if not files and not self.config_manager.default_config.silent:

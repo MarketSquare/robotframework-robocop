@@ -743,7 +743,7 @@ class Config:
             raise typer.Exit(code=1) from None
 
     @classmethod
-    def from_toml(cls, config: dict, config_path: Path) -> Config:
+    def from_toml(cls, config: dict, config_path: Path, overwrite_config: Config | None) -> Config:
         """
         Load configuration from toml dict.
 
@@ -767,7 +767,11 @@ class Config:
             normalize_config_keys(config.pop("format", {})), config_path.parent
         )
         parsed_config = {key: value for key, value in parsed_config.items() if value is not None}
-        return cls(**parsed_config)
+        config = cls(**parsed_config)
+        config.overwrite_from_config(overwrite_config)
+        if config.verbose:
+            print(f"Loaded {config_path} configuration file.")
+        return config
 
     @staticmethod
     def validate_config(config: dict, config_path: Path) -> None:

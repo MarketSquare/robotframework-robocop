@@ -33,7 +33,7 @@ def cli_config_path(test_data) -> Path:
 @pytest.fixture(scope="module")
 def cli_config(cli_config_path) -> Config:
     configuration = files.read_toml_config(cli_config_path)
-    return Config.from_toml(configuration, cli_config_path)
+    return Config.from_toml(configuration, cli_config_path, overwrite_config=None)
 
 
 @pytest.fixture(scope="module")
@@ -303,12 +303,39 @@ class TestConfigFinder:
             == (relative_parent / "custom_formatters").resolve()
         )
 
+    def test_multiple_sources_and_configs(self, tmp_path):
+        """Multiple source paths passed to the entry command, with different configuration files."""
+        # Arrange - create two test files with two closest configurations
+        config_file_1 = tmp_path / "pyproject.toml"
+        config_file_1.write_text("[tool.robocop]\nverbose = true\n", encoding="utf-8")
+        first_config = Config()
+        first_config.verbose = True
+        first_config.config_source = str(config_file_1)
+        test_file_1 = tmp_path / "test.robot"
+        test_file_1.write_text("*** Test Cases ***\nTest\n    Log    Hello\n", encoding="utf-8")
+
+        config_file_2 = tmp_path / "subdir" / "pyproject.toml"
+        config_file_2.parent.mkdir(parents=True, exist_ok=True)
+        config_file_2.write_text("[tool.robocop]\nverbose = false\n", encoding="utf-8")
+        second_config = Config()
+        second_config.verbose = False
+        second_config.config_source = str(config_file_2)
+        test_file_2 = tmp_path / "subdir" / "test.robot"
+        test_file_2.write_text("*** Test Cases ***\nTest\n    Log    Hello\n", encoding="utf-8")
+        expected_results = {test_file_1: first_config, test_file_2: second_config}
+
+        # Act
+        actual_results = get_sources_and_configs(tmp_path, sources=[test_file_1, test_file_2])
+
+        # Assert
+        assert actual_results == expected_results
+
     def test_fail_on_deprecated_config_options(self, test_data, capsys):
         """Unknown or deprecated options in the configuration file should raise an error."""
         config_path = test_data / "old_config" / "pyproject.toml"
         configuration = files.read_toml_config(config_path)
         with pytest.raises(typer.Exit):
-            Config.from_toml(configuration, config_path)
+            Config.from_toml(configuration, config_path, overwrite_config=None)
         out, _ = capsys.readouterr()
         assert (
             f"Configuration file seems to use Robocop < 6.0.0 or Robotidy syntax. "
@@ -320,7 +347,7 @@ class TestConfigFinder:
         config_path = test_data / "invalid_config" / "invalid.toml"
         configuration = files.read_toml_config(config_path)
         with pytest.raises(typer.Exit):
-            Config.from_toml(configuration, config_path)
+            Config.from_toml(configuration, config_path, overwrite_config=None)
         out, _ = capsys.readouterr()
         assert f"Unknown configuration key: 'unknown' in {config_path}" in out
 
@@ -362,7 +389,7 @@ class TestConfigFinder:
             typer.BadParameter,
             match="Invalid target Robot Framework version: '100' is not one of",
         ):
-            Config.from_toml(configuration, config_path)
+            Config.from_toml(configuration, config_path, overwrite_config=None)
 
     @pytest.mark.parametrize(
         ("force_exclude", "skip_gitignore", "should_exclude_file"),

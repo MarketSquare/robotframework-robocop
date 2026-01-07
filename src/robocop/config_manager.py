@@ -120,9 +120,7 @@ class ConfigManager:
         self.force_exclude = force_exclude
         self.skip_gitignore = skip_gitignore
         self.gitignore_resolver = GitIgnoreResolver()
-        self.overridden_config = (
-            config is not None
-        )  # TODO: what if both cli and --config? should take --config then apply cli
+        self.overridden_config = config is not None
         self.root = root or Path.cwd()
         self.sources = sources
         self.default_config: Config = self.get_default_config(config)
@@ -155,14 +153,11 @@ class ConfigManager:
         """Get default config either from --config option or from the cli."""
         if config_path:
             configuration = files.read_toml_config(config_path)
-            config = Config.from_toml(configuration, config_path.resolve())
-        elif not self.ignore_file_config:
+            return Config.from_toml(configuration, config_path.resolve(), overwrite_config=self.overwrite_config)
+        if not self.ignore_file_config:
             sources = [Path(path).resolve() for path in self.sources] if self.sources else [Path.cwd()]
             directories = files.get_common_parent_dirs(sources)
             config = self.find_config_in_dirs(directories, default=None)
-            if not config:
-                config = Config()
-                self.cached_configs.update(dict.fromkeys(directories, config))
         else:
             config = Config()
         config.overwrite_from_config(self.overwrite_config)
@@ -174,39 +169,54 @@ class ConfigManager:
             return False
         return (path / ".git").is_dir()
 
-    def find_closest_config(self, source: Path, default: Config | None) -> Config:
-        """Look in the directory and its parents for the closest valid configuration file."""
-        return self.find_config_in_dirs(source.parents, default)
+    def find_config_in_directory(self, directory: Path) -> Config | None:
+        """
+        Search for a configuration file in the specified directory.
+
+        This method iterates through predefined configuration filenames and attempts
+        to locate and load the first matching configuration file found in the given
+        directory. Only configuration files with valid Robocop entry are taken into account.
+
+        Args:
+            directory: The directory path to search for configuration files.
+
+        Returns:
+            A Config object if a configuration file is found and successfully
+            loaded, otherwise None.
+
+        """
+        for config_filename in CONFIG_NAMES:
+            if (config_path := (directory / config_filename)).is_file() and (
+                configuration := files.read_toml_config(config_path)
+            ):
+                return Config.from_toml(configuration, config_path, overwrite_config=self.overwrite_config)
+        return None
 
     def find_config_in_dirs(self, directories: list[Path], default: Config | None) -> Config:
         seen = []  # if we find config, mark all visited directories with resolved config
+        found = default
         for check_dir in directories:
             if check_dir in self.cached_configs:
-                return self.cached_configs[check_dir]
+                found = self.cached_configs[check_dir]
+                break
             seen.append(check_dir)
-            for config_filename in CONFIG_NAMES:
-                if (config_path := (check_dir / config_filename)).is_file():
-                    configuration = files.read_toml_config(config_path)
-                    if configuration:
-                        config = Config.from_toml(configuration, config_path)
-                        config.overwrite_from_config(self.overwrite_config)  # TODO those two lines together
-                        self.cached_configs.update(dict.fromkeys(seen, config))
-                        if config.verbose:
-                            print(f"Loaded {config_path} configuration file.")
-                        return config
+            if (directory_config := self.find_config_in_directory(check_dir)) is not None:
+                found = directory_config
+                break
             if self.is_git_project_root(check_dir):
                 break
 
-        if default:
-            self.cached_configs.update(dict.fromkeys(seen, default))
-        return default
+        if found is None:
+            found = Config()
+        self.cached_configs.update(dict.fromkeys(seen, found))
+        return found
 
     def get_config_for_source_file(self, source_file: Path) -> Config:
         """
         Find the closest config to the source file or directory.
 
-        If it was loaded before it will be returned from the cache. Otherwise, we will load it and save it to cache
-        first.
+        If it was loaded before, it will be returned from the cache. Otherwise, we will
+        load it and save it to the cache first.
 
         Args:
             source_file: Path to Robot Framework source file or directory.
@@ -214,7 +224,7 @@ class ConfigManager:
         """
         if self.overridden_config or self.ignore_file_config:
             return self.default_config
-        return self.find_closest_config(source_file, self.default_config)
+        return self.find_config_in_dirs(source_file.parents, self.default_config)
 
     def resolve_paths(
         self,
@@ -233,7 +243,6 @@ class ConfigManager:
             ignore_file_filters: force robocop to parse file even if it's excluded in the configuration
 
         """
-        source_gitignore = None
         config = None
         for source in sources:
             source_not_resolved = Path(source)
@@ -244,8 +253,7 @@ class ConfigManager:
                 if source_not_resolved.is_symlink():  # i.e. dangling symlink
                     continue
                 raise exceptions.FatalError(f"File '{source}' does not exist")
-            if config is None:  # first file in the directory
-                config = self.get_config_for_source_file(source)
+            config = self.get_config_for_source_file(source)
             if not ignore_file_filters:
                 if config.file_filters.path_excluded(source_not_resolved):
                     continue

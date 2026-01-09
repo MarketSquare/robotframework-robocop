@@ -1,5 +1,27 @@
 # Release notes
 
+## [8.0.0](https://github.com/MarketSquare/robotframework-robocop/compare/v7.2.0...v8.0.0) (2026-01-09)
+
+
+### ⚠ BREAKING CHANGES
+
+* Refactor source files handling with common SourceFile class ([#1615](https://github.com/MarketSquare/robotframework-robocop/issues/1615))
+
+### Features
+
+* add performance tests to benchmark Robocop on release ([#1611](https://github.com/MarketSquare/robotframework-robocop/issues/1611)) ([eea1c56](https://github.com/MarketSquare/robotframework-robocop/commit/eea1c5692dd908ee3d64b82088e532c9e54914f0))
+* refactor source file handling ([#1613](https://github.com/MarketSquare/robotframework-robocop/issues/1613)) ([0e7f04e](https://github.com/MarketSquare/robotframework-robocop/commit/0e7f04ee07ea271610f55fe67af59dfd912292cd))
+
+
+### Bug Fixes
+
+* multiple paths passed to robocop check/format command resolving to the same config ([#1614](https://github.com/MarketSquare/robotframework-robocop/issues/1614)) ([bdcfd48](https://github.com/MarketSquare/robotframework-robocop/commit/bdcfd489f7a0b5e00c190ae8a7fc9a87a22c25f0))
+
+
+### Refactoring
+
+* Refactor source files handling with common SourceFile class ([#1615](https://github.com/MarketSquare/robotframework-robocop/issues/1615)) ([25d30da](https://github.com/MarketSquare/robotframework-robocop/commit/25d30dabfc2840d253da4aa0e692fb75ef188d31))
+
 ## [7.2.0](https://github.com/MarketSquare/robotframework-robocop/compare/v7.1.0...v7.2.0) (2026-01-01)
 
 

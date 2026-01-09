@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from pathlib import Path
 from typing import TYPE_CHECKING, NoReturn
 
 import typer
@@ -14,10 +15,9 @@ from robocop.linter.reports import save_reports_result_to_cache
 from robocop.linter.utils.disablers import DisablersFinder
 from robocop.linter.utils.file_types import get_resource_with_lang
 from robocop.linter.utils.misc import is_suite_templated
+from robocop.source_file import SourceFile, VirtualSourceFile
 
 if TYPE_CHECKING:
-    from pathlib import Path
-
     from robot.parsing import File
 
     from robocop.config import Config
@@ -55,12 +55,12 @@ class RobocopLinter:
         cached_entry = self.config_manager.cache.get_linter_entry(source, config.hash())
 
         if cached_entry is not None:
-            restored = restore_diagnostics(cached_entry, source, config.linter.rules)
+            restored = restore_diagnostics(cached_entry, source, config)
             if restored is not None:
                 return restored
         return None
 
-    def get_model_diagnostics(self, config: Config, source: Path) -> list[Diagnostic] | None:
+    def get_model_diagnostics(self, source_file: SourceFile) -> list[Diagnostic] | None:
         """
         Run all selected rules on the model and return list of diagnostics.
 
@@ -69,11 +69,10 @@ class RobocopLinter:
 
         """
         try:
-            model = self.get_model_for_file_type(source, config.language)
-            return self.run_check(model, source, config)
+            return self.run_check(source_file)
         except DataError as error:
-            if not config.silent:
-                print(f"Failed to decode {source} with an error: {error}. Skipping file")
+            if not source_file.config.silent:
+                print(f"Failed to decode {source_file.path} with an error: {error}. Skipping file")
             return None
 
     def run(self) -> list[Diagnostic]:
@@ -109,7 +108,7 @@ class RobocopLinter:
                 files += 1
                 cached_files += 1
                 continue
-            diagnostics = self.get_model_diagnostics(source_file.config, source_file.path)
+            diagnostics = self.get_model_diagnostics(source_file)
             if diagnostics is None:
                 continue
             self.diagnostics.extend(diagnostics)
@@ -130,45 +129,43 @@ class RobocopLinter:
 
     def run_check(
         self,
-        model: File,
-        file_path: Path,
-        config: Config,
-        in_memory_content: str | None = None,
+        source_file: SourceFile,
     ) -> list[Diagnostic]:
         """
         Run all rules on file model and return list of diagnostics.
 
         Args:
-            model: ast model of analyzed file
-            file_path: Path to analyzed file
-            config: configuration closest to analyzed file
-            in_memory_content: Used only if we are consuming stdin directly
+            source_file: SourceFile representing robot source file under the check.
 
         """
-        disablers = DisablersFinder(model)
+        disablers = DisablersFinder(source_file.model)
         found_diagnostics = []
-        templated = is_suite_templated(model)
-        for checker in config.linter.checkers:
+        templated = is_suite_templated(source_file.model)
+        for checker in source_file.config.linter.checkers:
             if checker.disabled:
                 continue
             found_diagnostics += [
                 diagnostic
-                for diagnostic in checker.scan_file(model, file_path, in_memory_content, templated)
-                if not (diagnostic.severity < config.linter.threshold or disablers.is_rule_disabled(diagnostic))
+                for diagnostic in checker.scan_file(source_file, templated)
+                if not (
+                    diagnostic.severity < source_file.config.linter.threshold or disablers.is_rule_disabled(diagnostic)
+                )
             ]
             if disablers.file_disabled and found_diagnostics:  # special case to not report disabler as not used
                 return []
-        for checker in config.linter.after_run_checkers:
+        for checker in source_file.config.linter.after_run_checkers:
             if checker.disabled:
                 continue
             found_diagnostics += [
                 diagnostic
-                for diagnostic in checker.scan_file(model, file_path, in_memory_content, disablers=disablers)
-                if not (diagnostic.severity < config.linter.threshold or disablers.is_rule_disabled(diagnostic))
+                for diagnostic in checker.scan_file(source_file, disablers=disablers)
+                if not (
+                    diagnostic.severity < source_file.config.linter.threshold or disablers.is_rule_disabled(diagnostic)
+                )
             ]
-        if found_diagnostics and config.linter.per_file_ignores:
-            for ignored_file, ignored_rules in config.linter.per_file_ignores.items():
-                if file_path.match(ignored_file):
+        if found_diagnostics and source_file.config.linter.per_file_ignores:
+            for ignored_file, ignored_rules in source_file.config.linter.per_file_ignores.items():
+                if source_file.path.match(ignored_file):
                     found_diagnostics = [
                         diagnostic
                         for diagnostic in found_diagnostics
@@ -181,9 +178,11 @@ class RobocopLinter:
         config = self.config_manager.default_config
         if config.linter.project_checkers is None:
             config.linter.load_configuration()
+        project_name = self.config_manager.root.name
+        project_source_file = VirtualSourceFile(Path(project_name), self.config_manager.default_config)
         for checker in config.linter.project_checkers:
             checker.issues = []
-            checker.scan_project(self.config_manager)
+            checker.scan_project(project_source_file, self.config_manager)
             self.diagnostics.extend(
                 [diagnostic for diagnostic in checker.issues if not (diagnostic.severity < config.linter.threshold)]
             )

@@ -11,10 +11,10 @@ from robot.errors import DataError
 
 from robocop.config import FormatterConfig, WhitespaceConfig
 from robocop.formatter import disablers
-from robocop.formatter.utils import misc
 from robocop.mcp.tools.models import FormatContentResult, FormatFileResult, LintAndFormatResult
 from robocop.mcp.tools.utils.constants import VALID_EXTENSIONS
 from robocop.mcp.tools.utils.helpers import _normalize_suffix, _temp_robot_file
+from robocop.source_file import StatementLinesCollector
 
 
 def _format_content_impl(
@@ -56,7 +56,7 @@ def _format_content_impl(
                 silent=True,
             )
 
-            old_model = misc.StatementLinesCollector(model)
+            old_model = StatementLinesCollector(model)
 
             disabler_finder = disablers.RegisterDisablers(
                 formatter_config.start_line,
@@ -69,7 +69,7 @@ def _format_content_impl(
                 if not disabler_finder.disablers.is_disabled_in_file(name):
                     formatter.visit(model)
 
-            new_model = misc.StatementLinesCollector(model)
+            new_model = StatementLinesCollector(model)
             changed = new_model != old_model
 
             diff_text = None

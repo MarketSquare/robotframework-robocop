@@ -1,6 +1,7 @@
 from collections.abc import Iterable
 from dataclasses import dataclass, field
 from itertools import chain
+from pathlib import Path
 from re import Pattern
 from typing import TYPE_CHECKING, Optional, Union
 
@@ -14,6 +15,7 @@ from robocop.linter import sonar_qube
 from robocop.linter.rules import ProjectChecker, Rule, RuleSeverity
 from robocop.linter.utils.misc import ROBOT_VERSION, normalize_robot_name
 from robocop.parsing.run_keywords import iterate_keyword_names
+from robocop.source_file import SourceFile, VirtualSourceFile
 
 if TYPE_CHECKING:
     from robocop.config_manager import ConfigManager
@@ -142,18 +144,22 @@ class UnusedKeywords(ProjectChecker):
         self.current_file: Optional[RobotFile] = None
         super().__init__()
 
-    def scan_project(self, config_manager: "ConfigManager") -> list["Diagnostic"]:  # noqa: ARG002
+    def scan_project(
+        self,
+        project_source_file: VirtualSourceFile,
+        config_manager: "ConfigManager",  # noqa: ARG002
+    ) -> list["Diagnostic"]:
         self.issues = []
         for robot_file in self.files.values():
             if not (robot_file.is_suite or robot_file.any_private):
                 continue
             robot_file.search_usage()
+            local_file = SourceFile(path=Path(robot_file.path), config=project_source_file.config)
             for keyword in robot_file.not_used_keywords:
                 name = keyword.keyword_node.name
                 self.report(
                     self.unused_keyword,
-                    source=robot_file.path,
-                    ast_model=robot_file.ast_model,
+                    source=local_file,
                     node=keyword.keyword_node,
                     keyword_name=name,
                     end_col=len(name) + 1,

@@ -8,7 +8,6 @@ from typing import TYPE_CHECKING, ClassVar
 
 from robot.api import Token, get_tokens
 from robot.parsing.model.statements import Documentation
-from robot.utils import FileReader
 
 from robocop.linter import sonar_qube
 from robocop.linter.rules import (
@@ -21,6 +20,8 @@ from robocop.linter.rules import (
 from robocop.version_handling import ROBOT_VERSION
 
 if TYPE_CHECKING:
+    from pathlib import Path
+
     from robot.parsing.model import Keyword, Statement, TestCase
     from robot.parsing.model.blocks import CommentSection
     from robot.parsing.model.statements import Comment
@@ -601,11 +602,10 @@ class IgnoredDataChecker(RawFileChecker):
                 if self.check_line(line, lineno):
                     break
         else:
-            self.detect_bom(self.source)
-            with FileReader(self.source) as file_reader:
-                for lineno, line in enumerate(file_reader.readlines(), start=1):
-                    if self.check_line(line, lineno):
-                        break
+            self.detect_bom(self.source_file.path)
+            for lineno, line in enumerate(self.source_file.source_lines, start=1):
+                if self.check_line(line, lineno):
+                    break
 
     def check_line(self, line: str, lineno: int) -> bool:
         if line.startswith(self.SECTION_HEADER):
@@ -625,7 +625,7 @@ class IgnoredDataChecker(RawFileChecker):
         self.report(self.ignored_data, lineno=lineno, col=1, end_col=len(line))
         return True
 
-    def detect_bom(self, source: str):
+    def detect_bom(self, source: Path):
         with open(source, "rb") as raw_file:
             first_four = raw_file.read(4)
             self.is_bom = any(first_four.startswith(bom_marker) for bom_marker in IgnoredDataChecker.BOM)

@@ -22,24 +22,6 @@ if TYPE_CHECKING:
     from collections.abc import Iterable
 
 
-class StatementLinesCollector(ModelVisitor):
-    """Used to get a writeable presentation of a Robot Framework model."""
-
-    def __init__(self, model):
-        self.text = ""
-        self.visit(model)
-
-    def visit_Statement(self, node):  # noqa: N802
-        for token in node.tokens:
-            self.text += token.value
-
-    def __eq__(self, other):
-        return other.text == self.text
-
-    def __hash__(self):
-        return hash(self.text)
-
-
 def validate_regex(value: str | None) -> Pattern | None:
     try:
         return re.compile(value) if value is not None else None
@@ -169,7 +151,7 @@ class RecommendationFinder:
         return norm_cand
 
 
-class ModelWriter(ModelVisitor):
+class ModelWriter(ModelVisitor):  # TODO: potentially replace with get source_lines -> write to file
     def __init__(self, output, newline):
         self.writer = file_writer(output, newline=newline)
         self.close_writer = True

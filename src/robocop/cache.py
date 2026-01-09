@@ -14,10 +14,11 @@ from typing import TYPE_CHECKING, Any
 import msgpack
 
 from robocop import __version__
+from robocop.source_file import SourceFile
 
 if TYPE_CHECKING:
+    from robocop.config import Config
     from robocop.linter.diagnostics import Diagnostic
-    from robocop.linter.rules import Rule
 
 
 CACHE_VERSION = "1.0"
@@ -533,7 +534,7 @@ class RobocopCache:
 def restore_diagnostics(
     cached_entry: LinterCacheEntry,
     source: Path,
-    rules: dict[str, Rule],
+    config: Config,
 ) -> list[Diagnostic] | None:
     """
     Restore Diagnostic objects from cached data.
@@ -541,11 +542,11 @@ def restore_diagnostics(
     Args:
         cached_entry: The cached linter entry.
         source: The source file path (Path object for consistency with normal diagnostics).
-        rules: Dictionary of available rules keyed by rule_id.
+        config: Configuration associated with the source file.
 
     Returns:
         List of restored diagnostics, or None if restoration failed
-        (e.g., rule no longer exists).
+        (e.g. rule no longer exists).
 
     """
     from robocop.linter.diagnostics import Diagnostic  # noqa: PLC0415
@@ -553,9 +554,9 @@ def restore_diagnostics(
     restored = []
     for cached_diag in cached_entry.diagnostics:
         # Try to find rule by ID first, fall back to name
-        rule = rules.get(cached_diag.rule_id)
+        rule = config.linter.rules.get(cached_diag.rule_id)
         if rule is None:
-            rule = rules.get(cached_diag.rule_name)
+            rule = config.linter.rules.get(cached_diag.rule_name)
 
         if rule is None:
             # Rule no longer exists - invalidate cache entry
@@ -563,8 +564,7 @@ def restore_diagnostics(
 
         diagnostic = Diagnostic(
             rule=rule,
-            source=source,
-            model=None,
+            source=SourceFile(source, config),
             lineno=cached_diag.line,
             col=cached_diag.col,
             end_lineno=cached_diag.end_line,

@@ -5,7 +5,6 @@ from __future__ import annotations
 import re
 import string
 from collections import defaultdict
-from pathlib import Path
 from typing import TYPE_CHECKING
 
 from robot.api import Token
@@ -649,19 +648,17 @@ class InvalidCharactersInNameChecker(VisitorChecker):
     not_allowed_char_in_name: NotAllowedCharInNameRule
 
     def visit_File(self, node) -> None:  # noqa: N802
-        source = node.source if node.source else self.source
-        if source:
-            suite_name = Path(source).stem
-            if "__init__" in suite_name:
-                suite_name = Path(source).parent.name
-            for match in self.not_allowed_char_in_filename.pattern.finditer(suite_name):
-                self.report(
-                    self.not_allowed_char_in_filename,
-                    character=match.group(),
-                    block_name="suite",
-                    node=node,
-                    col=node.col_offset + match.start(0) + 1,
-                )
+        suite_name = self.source_file.path.stem
+        if "__init__" in suite_name:
+            suite_name = self.source_file.path.parent.name
+        for match in self.not_allowed_char_in_filename.pattern.finditer(suite_name):
+            self.report(
+                self.not_allowed_char_in_filename,
+                character=match.group(),
+                block_name="suite",
+                node=node,
+                col=node.col_offset + match.start(0) + 1,
+            )
         super().visit_File(node)
 
     def check_if_pattern_in_node_name(self, node, name_of_node, is_keyword=False) -> None:

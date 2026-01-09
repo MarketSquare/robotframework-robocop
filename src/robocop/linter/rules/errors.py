@@ -540,7 +540,7 @@ class ParsingErrorChecker(VisitorChecker):
                 )
 
     def handle_unsupported_settings_in_init_file(self, node) -> None:
-        if ROBOT_VERSION.major < 6 and "__init__" not in self.source.name:
+        if ROBOT_VERSION.major < 6 and "__init__" not in self.source_file.path.name:
             return  # handle bug where Robot reports invalid setting as not allowed in suite init file
         setting_node = node.data_tokens[0]
         setting_name = setting_node.value

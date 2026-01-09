@@ -14,6 +14,7 @@ from robocop.formatter import (
     disablers,  # TODO compare robocop vs robotidy disablers, if we can merge something
 )
 from robocop.formatter.utils import misc
+from robocop.source_file import StatementLinesCollector
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -131,14 +132,14 @@ class RobocopFormatter:
 
     def format(
         self, model: File, disablers: disablers.DisablersInFile
-    ) -> tuple[bool, misc.StatementLinesCollector, misc.StatementLinesCollector]:
-        old_model = misc.StatementLinesCollector(model)
+    ) -> tuple[bool, StatementLinesCollector, StatementLinesCollector]:
+        old_model = StatementLinesCollector(model)
         for name, formatter in self.config.formatter.formatters.items():
             formatter.disablers = disablers  # set dynamically to allow using external formatters
             if disablers.is_disabled_in_file(name):
                 continue
             formatter.visit(model)
-        new_model = misc.StatementLinesCollector(model)
+        new_model = StatementLinesCollector(model)
         return new_model != old_model, old_model, new_model
 
     def log_formatted_source(self, source: Path, stdin: bool):
@@ -176,8 +177,8 @@ class RobocopFormatter:
     def output_diff(
         self,
         path: Path,
-        old_model: misc.StatementLinesCollector,
-        new_model: misc.StatementLinesCollector,
+        old_model: StatementLinesCollector,
+        new_model: StatementLinesCollector,
     ):
         if not self.config.formatter.diff:
             return

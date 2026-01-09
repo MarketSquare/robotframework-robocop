@@ -37,8 +37,6 @@ from pathlib import Path
 from textwrap import dedent
 from typing import TYPE_CHECKING, Any, Callable, NoReturn
 
-from robot.utils import FileReader
-
 from robocop import __version__, exceptions
 from robocop.linter.diagnostics import Diagnostic
 from robocop.version_handling import Version, VersionSpecifier
@@ -62,6 +60,7 @@ if TYPE_CHECKING:
     from robocop.config import LinterConfig
     from robocop.config_manager import ConfigManager
     from robocop.linter import sonar_qube
+    from robocop.source_file import SourceFile, VirtualSourceFile
 
 
 @total_ordering
@@ -524,7 +523,6 @@ class BaseChecker:
     def __init__(self):
         self.disabled = False
         self.source: Path = None
-        self.ast_model: File = None
         self.lines = None
         self.issues = []
         self.rules: dict[str, Rule] = {}
@@ -549,8 +547,7 @@ class BaseChecker:
         node=None,
         extended_disablers: tuple[int, int] | None = None,
         sev_threshold_value: int | None = None,
-        source: str | None = None,
-        ast_model: File | None = None,
+        source: SourceFile | None = None,
         **kwargs,
     ) -> None:
         if not rule.enabled:
@@ -565,12 +562,11 @@ class BaseChecker:
         diagnostic = Diagnostic(
             rule=rule,
             node=node,
-            model=ast_model or self.ast_model,
             lineno=lineno,
             col=col,
             end_lineno=end_lineno,
             end_col=end_col,
-            source=source or self.source,
+            source=source or self.source_file,
             extended_disablers=extended_disablers,
             sev_threshold_value=sev_threshold_value,
             **kwargs,
@@ -579,18 +575,11 @@ class BaseChecker:
 
 
 class VisitorChecker(BaseChecker, ModelVisitor):
-    def scan_file(
-        self, ast_model: File, filename: Path, in_memory_content: str | None, templated: bool = False
-    ) -> list[Diagnostic]:
+    def scan_file(self, source_file: SourceFile, templated: bool = False) -> list[Diagnostic]:
         self.issues: list[Diagnostic] = []
-        self.source = filename
-        self.ast_model = ast_model
+        self.source_file = source_file
         self.templated_suite = templated
-        if in_memory_content is not None:
-            self.lines = in_memory_content.splitlines(keepends=True)
-        else:
-            self.lines = None
-        self.visit_File(ast_model)
+        self.visit_File(source_file.model)
         return self.issues
 
     def visit_File(self, node: File) -> None:  # noqa: N802
@@ -599,7 +588,9 @@ class VisitorChecker(BaseChecker, ModelVisitor):
 
 
 class ProjectChecker(BaseChecker):
-    def scan_project(self, config_manager: ConfigManager) -> list[Diagnostic]:
+    def scan_project(
+        self, project_source_file: SourceFile | VirtualSourceFile, config_manager: ConfigManager
+    ) -> list[Diagnostic]:
         """
         Perform checks on the whole project.
 
@@ -611,43 +602,27 @@ class ProjectChecker(BaseChecker):
 
 
 class RawFileChecker(BaseChecker):
-    def scan_file(
-        self, ast_model: File, filename: Path, in_memory_content: str | None, templated: bool = False
-    ) -> list[Diagnostic]:
+    def scan_file(self, source_file: SourceFile, templated: bool = False) -> list[Diagnostic]:
         self.issues: list[Diagnostic] = []
-        self.source = filename
-        self.ast_model = ast_model
+        self.source_file = source_file
         self.templated_suite = templated
-        if in_memory_content is not None:
-            self.lines = in_memory_content.splitlines(keepends=True)
-        else:
-            self.lines = None
         self.parse_file()
         return self.issues
 
     def parse_file(self) -> None:
         """Read file line by line and for each call check_line method."""
-        if self.lines is not None:
-            for lineno, line in enumerate(self.lines):
-                self.check_line(line, lineno + 1)
-        else:
-            with FileReader(self.source) as file_reader:
-                for lineno, line in enumerate(file_reader.readlines()):
-                    self.check_line(line, lineno + 1)
+        self.lines = self.source_file.source_lines  # TODO: check if keepends=True was needed
+        for lineno, line in enumerate(self.lines):
+            self.check_line(line, lineno + 1)
 
     def check_line(self, line, lineno) -> NoReturn:
         raise NotImplementedError
 
 
 class AfterRunChecker(BaseChecker):
-    def scan_file(self, ast_model: File, filename: Path, in_memory_content: str | None, **kwargs) -> list[Diagnostic]:  # noqa: ARG002
+    def scan_file(self, source_file: SourceFile, **kwargs) -> list[Diagnostic]:  # noqa: ARG002
         self.issues: list[Diagnostic] = []
-        self.source = filename
-        self.ast_model = ast_model
-        if in_memory_content is not None:
-            self.lines = in_memory_content.splitlines(keepends=True)
-        else:
-            self.lines = None
+        self.source_file = source_file
 
 
 def is_checker(checker_class_def: tuple) -> bool:

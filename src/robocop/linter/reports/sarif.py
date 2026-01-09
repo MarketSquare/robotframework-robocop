@@ -56,7 +56,7 @@ class SarifReport(robocop.linter.reports.JsonFileReport):
     def generate_sarif_issues(self, diagnostics: Diagnostics, root: Path):
         sarif_issues = []
         for diagnostic in diagnostics:
-            relative_uri = get_relative_path(diagnostic.source, root).as_posix()
+            relative_uri = get_relative_path(diagnostic.source.path, root).as_posix()
             sarif_issue = {
                 "ruleId": diagnostic.rule.rule_id,
                 "level": self.map_severity_to_level(diagnostic.severity),

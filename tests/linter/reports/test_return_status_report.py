@@ -1,7 +1,11 @@
+from pathlib import Path
+
 import pytest
 
+from robocop.config import Config
 from robocop.linter.diagnostics import Diagnostic, Diagnostics
 from robocop.linter.reports.return_status_report import ReturnStatusReport
+from robocop.source_file import SourceFile
 
 
 class TestReturnStatus:
@@ -43,15 +47,22 @@ class TestReturnStatus:
         report = ReturnStatusReport(config)
         report.configure("quality_gates", quality_gates)
         issues = []
+        source_file = SourceFile(path=Path(), config=Config())
         for _ in range(10):
             issues.append(
-                Diagnostic(rule=error_msg, source="", model=None, lineno=1, col=1, end_lineno=None, end_col=None)
+                Diagnostic(
+                    rule=error_msg, source=source_file, model=None, lineno=1, col=1, end_lineno=None, end_col=None
+                )
             )
             issues.append(
-                Diagnostic(rule=warning_msg, source="", model=None, lineno=1, col=1, end_lineno=None, end_col=None)
+                Diagnostic(
+                    rule=warning_msg, source=source_file, model=None, lineno=1, col=1, end_lineno=None, end_col=None
+                )
             )
             issues.append(
-                Diagnostic(rule=info_msg, source="", model=None, lineno=1, col=1, end_lineno=None, end_col=None)
+                Diagnostic(
+                    rule=info_msg, source=source_file, model=None, lineno=1, col=1, end_lineno=None, end_col=None
+                )
             )
         report.generate_report(Diagnostics(issues))
         assert report.return_status == return_status

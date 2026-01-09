@@ -15,6 +15,7 @@ Once configured, you can ask your AI assistant things like:
 - "Format this test and show me what issues remain"
 - "What does the LEN01 rule check for?"
 - "Show me all naming-related rules"
+- "Configure Robocop to allow longer lines and disable naming checks"
 
 ### Installation
 
@@ -412,6 +413,125 @@ apply_fix(
 )
 ```
 
+#### Natural Language Configuration Tools
+
+These tools enable AI assistants to configure Robocop through natural language. Users can describe what they want (e.g., "allow longer lines" or "disable naming checks") and the AI generates the appropriate configuration.
+
+The workflow is designed for **safe preview by default**:
+
+1. `get_config_context` - Get rule catalog and instructions for LLM processing
+2. `parse_config_response` - Parse LLM response into validated configuration (preview only)
+3. `apply_configuration` - Write configuration to file (explicit action required)
+
+##### get_config_context
+
+Get the system message and instructions for natural language configuration. This provides all available rules, their parameters, and instructions for generating configuration suggestions.
+
+**Parameters:** None
+
+**Returns:** Dictionary with:
+
+- `system_message`: Complete context including all rules organized by category, configurable parameters, and JSON response format instructions
+
+##### parse_config_response
+
+Parse an LLM's JSON response into validated configuration suggestions. This tool validates rule names, parameters, and values, returning ready-to-use TOML configuration.
+
+!!! note "Preview Only"
+    This tool has `readOnlyHint: True` - it does NOT write any files. The `toml_config` field contains the configuration for preview or manual use.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `llm_response` | string | The JSON response from the LLM after processing a natural language configuration request (required) |
+
+**Expected LLM Response Format:**
+
+```json
+{
+  "interpretation": "Brief summary of what you understood",
+  "suggestions": [
+    {
+      "rule_id": "LEN02",
+      "rule_name": "line-too-long",
+      "action": "configure",
+      "parameter": "line_length",
+      "value": "140",
+      "section": "lint",
+      "interpretation": "Allow lines up to 140 characters",
+      "explanation": "The line-too-long rule defaults to 120 chars"
+    }
+  ],
+  "warnings": ["any ambiguities or issues"]
+}
+```
+
+**Returns:** Dictionary with:
+
+- `success`: Whether parsing was successful
+- `suggestions`: List of validated configuration suggestions, each with:
+  - `rule_id`: Rule identifier (e.g., "LEN02")
+  - `rule_name`: Rule name (e.g., "line-too-long")
+  - `action`: One of "configure", "enable", "disable", or "set"
+  - `parameter`: Parameter name (for configure/set actions)
+  - `value`: Value to set
+  - `section`: Config section ("common", "lint", or "format")
+  - `interpretation`: What we understood the user meant
+  - `explanation`: Why this configuration is appropriate
+- `toml_config`: Ready-to-use TOML configuration string
+- `warnings`: Any ambiguities, conflicts, or issues found
+- `explanation`: Summary of what the configuration achieves
+
+##### apply_configuration
+
+Apply Robocop configuration to a TOML file. This tool merges the new configuration with any existing settings.
+
+!!! warning "File Modification"
+    This tool writes to disk. Review the configuration using `parse_config_response` before applying.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `toml_config` | string | TOML configuration string to apply (required) |
+| `file_path` | string | Path to configuration file (default: "pyproject.toml") |
+
+**Supported file formats:**
+
+- `pyproject.toml` / `robot.toml`: Uses `[tool.robocop.*]` sections
+- `robocop.toml`: Uses root-level sections (`[lint]`, `[format]`)
+
+**Returns:** Dictionary with:
+
+- `success`: Whether the configuration was successfully applied
+- `file_path`: Absolute path to the configuration file
+- `file_created`: True if a new file was created
+- `diff`: Unified diff showing changes made
+- `merged_config`: The full configuration after merging
+- `validation_passed`: True if configuration is valid
+- `validation_error`: Error message if validation failed
+
+**Example workflow:**
+
+```python
+# 1. Get context for LLM processing
+context = get_config_context()
+# context.system_message contains all rules and instructions
+
+# 2. User asks: "Allow lines up to 140 characters and disable the too-many-calls-in-test rule"
+# AI processes the request using the system message and generates JSON
+
+# 3. Parse the AI's response (preview only - no file changes)
+result = parse_config_response(llm_response='{"interpretation": "...", "suggestions": [...]}')
+# result.toml_config contains:
+# [tool.robocop.lint]
+# configure = ["line-too-long.line_length=140"]
+# ignore = ["too-many-calls-in-test"]
+
+# 4. User reviews and approves, then apply to file
+apply_configuration(
+    toml_config=result.toml_config,
+    file_path="pyproject.toml"
+)
+```
+
 #### Discovery Tools
 
 ##### list_rules
@@ -644,6 +764,25 @@ Once the MCP server is configured, you can use natural language to interact with
 > "Fix the naming issue at line 15 - get the context first, then generate and apply the fix"
 >
 > "Help me fix all the issues in this file one by one"
+
+#### Natural Language Configuration
+
+**Configure rules using natural language:**
+> "Allow lines up to 140 characters and set indentation to 2 spaces"
+>
+> "Disable the naming rules for test cases"
+>
+> "I want to ignore the too-many-calls-in-test rule"
+
+**Preview before applying:**
+> "Show me what configuration would allow longer keywords"
+>
+> "Generate config to disable documentation checks, but don't save it yet"
+
+**Apply to specific file:**
+> "Configure Robocop to use 4-space indentation and save to pyproject.toml"
+>
+> "Add these rules to my robocop.toml file"
 
 #### Configuring Rules
 

@@ -1,7 +1,11 @@
+from pathlib import Path
+
 import pytest
 
+from robocop.config import Config
 from robocop.linter.diagnostics import Diagnostic, Diagnostics
 from robocop.linter.reports.file_stats_report import FileStatsReport
+from robocop.source_file import SourceFile
 
 
 class TestFileStatReport:
@@ -118,10 +122,11 @@ class TestFileStatReport:
         report.files_count = files
         report.files_with_issues = files_with_issues
         issues = []
+        config = Config()
         for file_name in files_with_issues:
             issue = Diagnostic(
                 rule=rule,
-                source=file_name,
+                source=SourceFile(Path(file_name), config=config),
                 node=None,
                 model=None,
                 lineno=50,
@@ -141,12 +146,12 @@ class TestFileStatReport:
         report = FileStatsReport(config)
         report.files_count += 1
         issues = []
+        config = Config()
         for source in ("a.robot", "b.robot"):
             issue = Diagnostic(
                 rule=rule,
-                source=source,
+                source=SourceFile(Path(source), config=config),
                 node=None,
-                model=None,
                 lineno=50,
                 col=10,
                 end_lineno=None,

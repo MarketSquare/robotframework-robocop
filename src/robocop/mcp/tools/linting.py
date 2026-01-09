@@ -17,6 +17,7 @@ from robocop.mcp.tools.utils.helpers import (
     _parse_threshold,
     _temp_robot_file,
 )
+from robocop.source_file import SourceFile
 
 
 def _create_linter_config(
@@ -79,8 +80,8 @@ def _lint_content_impl(
             )
 
             linter = RobocopLinter(config_manager)
-            model = linter.get_model_for_file_type(tmp_path, language=None)
-            diagnostics = linter.run_check(model, tmp_path, config, in_memory_content=content)
+            source_file = SourceFile(path=tmp_path, config=config)
+            diagnostics = linter.run_check(source_file)
 
             result = [_diagnostic_to_dict(d) for d in diagnostics]
             return result[:limit] if limit else result
@@ -137,8 +138,8 @@ def _lint_file_impl(
         )
 
         linter = RobocopLinter(config_manager)
-        model = linter.get_model_for_file_type(path, language=None)
-        diagnostics = linter.run_check(model, path, config)
+        source_file = SourceFile(path=path, config=config)
+        diagnostics = linter.run_check(source_file)
 
         file_str = str(path) if include_file_in_result else None
         result = [_diagnostic_to_dict(d, file_str) for d in diagnostics]

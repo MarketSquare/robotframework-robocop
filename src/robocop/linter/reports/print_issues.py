@@ -11,11 +11,8 @@ from rich.text import Text
 
 import robocop.linter.reports
 from robocop.files import get_relative_path
-from robocop.formatter.utils.misc import StatementLinesCollector
 
 if TYPE_CHECKING:
-    from robot.parsing import File
-
     from robocop.config import Config
     from robocop.linter.diagnostics import Diagnostic, Diagnostics
 
@@ -36,7 +33,8 @@ class PrintIssuesReport(robocop.linter.reports.Report):
     **Report name**: ``print_issues``
 
     This report is always enabled.
-    Report that collect diagnostic messages and print them at the end of the execution.
+
+    Report that prints diagnostic messages.
 
     There are available three different types of output:
 
@@ -147,17 +145,6 @@ class PrintIssuesReport(robocop.linter.reports.Report):
             print()
 
     @staticmethod
-    def _get_source_lines(model: File | None, source: str | None = None) -> list[str]:
-        if model is not None:
-            return StatementLinesCollector(model).text.splitlines()
-        if source is not None:
-            try:
-                return Path(source).read_text(encoding="utf-8").splitlines()
-            except OSError:
-                return []
-        return []
-
-    @staticmethod
     def _code_string(line: str, prefix: str) -> str:
         line = line.rstrip()
         if line:
@@ -256,12 +243,10 @@ class PrintIssuesReport(robocop.linter.reports.Report):
         cwd = Path.cwd()
         for source, diag_by_source in diagnostics.diag_by_source.items():
             source_rel = get_relative_path(source, cwd)
-            source_lines = None
-            text: list[Text] = []
-            for diagnostic in diag_by_source:
-                if not source_lines:  # TODO: model should be coming from source, not diagnostics
-                    source_lines = self._get_source_lines(diagnostic.model, source)
-                text.append(self._print_issue_with_lines(source_lines, source_rel, diagnostic))
+            text: list[Text] = [
+                self._print_issue_with_lines(diagnostic.source.source_lines, source_rel, diagnostic)
+                for diagnostic in diag_by_source
+            ]
             self.console.print(*text, sep="", end="")
 
     def generate_report(self, diagnostics: Diagnostics, **kwargs) -> None:  # noqa: ARG002

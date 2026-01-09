@@ -1,6 +1,6 @@
 bom_and_two_ignored_lines.robot:2:1 COM04 Ignored data found in file
    |
- 1 | ignored but prefixed with bom
+ 1 | ﻿ignored but prefixed with bom
  2 | second line
    | ^^^^^^^^^^^ COM04
  3 | *** Settings ***

@@ -164,7 +164,7 @@ class MissingDocumentationChecker(VisitorChecker):
             self.check_if_suite_docs_are_present(node, self.missing_doc_test_suite)
 
     def visit_File(self, node: File) -> None:  # noqa: N802
-        source = node.source if node.source else self.source
+        source = self.source_file.path.name
         self.is_resource = source and ".resource" in Path(source).suffix
         self.settings_section_exists = False
         self.generic_visit(node)

@@ -3,7 +3,7 @@
 import ast
 from dataclasses import dataclass
 from pathlib import Path
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING
 
 from robot.api import Token
 from robot.errors import VariableError
@@ -13,6 +13,7 @@ from robot.utils import unescape
 from robot.variables.search import search_variable
 
 from robocop.linter.diagnostics import Diagnostic
+from robocop.source_file import SourceFile
 
 try:
     from robot.api.parsing import Comment, EmptyLine, If, Variable
@@ -982,7 +983,7 @@ class ResourceFileChecker(VisitorChecker):
     can_be_resource_file: CanBeResourceFileRule
 
     def visit_File(self, node) -> None:  # noqa: N802
-        source = node.source if node.source else self.source
+        source = self.source_file.path.name
         if source:
             extension = Path(source).suffix
             file_name = Path(source).stem
@@ -1898,15 +1899,9 @@ class UndefinedArgumentDefaultChecker(VisitorChecker):
 class UnusedDiagnosticChecker(AfterRunChecker):
     unused_disabler: DisablerNotUsedRule
 
-    def scan_file(
-        self,
-        ast_model,
-        filename: Path,
-        in_memory_content: Optional[str],
-        **kwargs,  # ast_model: File, need RF6+
-    ) -> list[Diagnostic]:
+    def scan_file(self, source_file: SourceFile, **kwargs) -> list[Diagnostic]:
         disablers = kwargs["disablers"]
-        super().scan_file(ast_model, filename, in_memory_content, **kwargs)
+        super().scan_file(source_file, **kwargs)
         self.check_unused_disablers(disablers)
         return self.issues
 

@@ -1,21 +1,23 @@
 import os
 import textwrap
 from pathlib import Path
-from unittest.mock import patch
 
 import pytest
 
+from robocop.config import Config
 from robocop.linter.diagnostics import Diagnostic, Diagnostics
 from robocop.linter.reports.print_issues import PrintIssuesReport
+from robocop.source_file import SourceFile
 
 
 @pytest.fixture
 def issues(rule, rule2) -> Diagnostics:
     root = Path.cwd()
+    config = Config()
     source1_rel = "tests/atest/rules/comments/ignored-data/test.robot"
     source2_rel = "tests/atest/rules/misc/empty-return/test.robot"
-    source1 = str(root / source1_rel)
-    source2 = str(root / source2_rel)
+    source1 = SourceFile(path=root / source1_rel, config=config)
+    source2 = SourceFile(path=root / source2_rel, config=config)
 
     return Diagnostics(
         [
@@ -77,10 +79,11 @@ class TestPrintIssuesReport:
         source_lines = [""] * 200
         report = PrintIssuesReport(config)
         report.configure("output_format", "extended")
+        for diag in issues:
+            diag.source._source_lines = source_lines  # noqa: SLF001
 
         # act
-        with patch.object(report, "_get_source_lines", return_value=source_lines):
-            report.generate_report(issues)
+        report.generate_report(issues)
 
         # assert
         out, _ = capsys.readouterr()

@@ -1,7 +1,10 @@
+from pathlib import Path
+
 import pytest
 
 from robocop.linter.diagnostics import Diagnostic, Diagnostics
 from robocop.linter.reports.rules_by_severity_report import RulesBySeverityReport
+from robocop.source_file import SourceFile
 
 FOUR_ISSUES = ["error-message", "warning-message", "info-message", "warning-message"]
 PREV_SAME_ISSUES = {"all_issues": 4, "error": 1, "info": 1, "warning": 2}
@@ -46,11 +49,12 @@ class TestRulesByIdReport:
         config.linter.compare = compare_results
         report = RulesBySeverityReport(config)
         issues = []
+        source_file = SourceFile(path=Path("some/path/file.robot"), config=config)
         for issue in issues_names:
             issue_def = issues_map[issue]
             msg = Diagnostic(
                 rule=issue_def,
-                source="some/path/file.robot",
+                source=source_file,
                 node=None,
                 model=None,
                 lineno=50,
@@ -68,10 +72,11 @@ class TestRulesByIdReport:
         config.linter.compare = compare_runs
         report = RulesBySeverityReport(config)
         issues = []
+        source_file = SourceFile(path=Path("test.robot"), config=config)
         for issue in (error_msg, warning_msg, info_msg, info_msg):
             msg = Diagnostic(
                 rule=issue,
-                source="test.robot",
+                source=source_file,
                 node=None,
                 model=None,
                 lineno=50,

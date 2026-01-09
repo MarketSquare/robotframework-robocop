@@ -1,9 +1,12 @@
 import copy
+from pathlib import Path
 
 import pytest
 
+from robocop.config import Config
 from robocop.linter.diagnostics import Diagnostic, Diagnostics
 from robocop.linter.reports.rules_by_id_report import RulesByIdReport
+from robocop.source_file import SourceFile
 
 NO_ISSUES = []
 FOUR_ISSUES = ["error-message", "warning-message", "info-message", "warning-message"]
@@ -80,11 +83,12 @@ class TestRulesByIdReport:
         config.linter.compare = compare_results
         report = RulesByIdReport(config)
         issues = []
+        config = Config()
         for issue in issues_names:
             issue_def = issues_map[issue]
             msg = Diagnostic(
                 rule=issue_def,
-                source="some/path/file.robot",
+                source=SourceFile(path=Path("some/path/file.robot"), config=config),
                 node=None,
                 model=None,
                 lineno=50,
@@ -104,10 +108,11 @@ class TestRulesByIdReport:
         expected = {"0103 [I] (info-message)": 2, "0101 [E] (error-message)": 1, "0102 [W] (warning-message)": 1}
         report = RulesByIdReport(config)
         issues = []
+        source_file = SourceFile(path=Path("test.robot"), config=config)
         for issue in (error_msg, warning_msg, info_msg, info_msg):
             msg = Diagnostic(
                 rule=issue,
-                source="test.robot",
+                source=source_file,
                 node=None,
                 model=None,
                 lineno=50,

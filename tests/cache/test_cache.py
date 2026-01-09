@@ -24,6 +24,7 @@ from robocop.cache import (
 )
 from robocop.config import (
     CacheConfig,
+    Config,
     FormatterConfig,
     LinterConfig,
     TargetVersion,
@@ -31,6 +32,7 @@ from robocop.config import (
 )
 from robocop.linter.diagnostics import Diagnostic
 from robocop.linter.rules import RuleSeverity
+from robocop.source_file import SourceFile
 
 
 class TestFileMetadata:
@@ -529,13 +531,14 @@ class TestFormatterConfigHash:
 
 class TestRestoreDiagnostics:
     def test_restore_with_valid_rule(self, tmp_path: Path):
+        config = Config()
         rule = MagicMock()
         rule.rule_id = "DOC01"
         rule.name = "missing-doc-keyword"
         rule.message = "Missing documentation"
         rule.get_severity_with_threshold.return_value = RuleSeverity.WARNING
 
-        rules = {"DOC01": rule, "missing-doc-keyword": rule}
+        config.linter._rules = {"DOC01": rule, "missing-doc-keyword": rule}  # noqa: SLF001
 
         cached_entry = LinterCacheEntry(
             metadata=FileMetadata(mtime=123.0, size=100),
@@ -555,15 +558,16 @@ class TestRestoreDiagnostics:
         )
 
         source = tmp_path / "test.robot"
-        diagnostics = restore_diagnostics(cached_entry, source, rules)
+        diagnostics = restore_diagnostics(cached_entry, source, config)
 
         assert diagnostics is not None
         assert len(diagnostics) == 1
         assert diagnostics[0].rule == rule
-        assert diagnostics[0].source == source
+        assert diagnostics[0].source.path == source
 
     def test_restore_returns_none_when_rule_missing(self, tmp_path: Path):
-        rules = {}  # No rules available
+        config = Config()
+        config.linter._rules = {}  # noqa: SLF001 No rules available
 
         cached_entry = LinterCacheEntry(
             metadata=FileMetadata(mtime=123.0, size=100),
@@ -583,19 +587,20 @@ class TestRestoreDiagnostics:
         )
 
         source = tmp_path / "test.robot"
-        diagnostics = restore_diagnostics(cached_entry, source, rules)
+        diagnostics = restore_diagnostics(cached_entry, source, config)
 
         # Should return None because rule doesn't exist
         assert diagnostics is None
 
     def test_restore_with_arguments(self, tmp_path: Path):
+        config = Config()
         rule = MagicMock()
         rule.rule_id = "LEN01"
         rule.name = "too-long-keyword"
         rule.message = "Keyword is too long"
         rule.get_severity_with_threshold.return_value = RuleSeverity.WARNING
 
-        rules = {"LEN01": rule}
+        config.linter._rules = {"LEN01": rule}  # noqa: SLF001
 
         cached_entry = LinterCacheEntry(
             metadata=FileMetadata(mtime=123.0, size=100),
@@ -615,14 +620,15 @@ class TestRestoreDiagnostics:
         )
 
         source = tmp_path / "test.robot"
-        diagnostics = restore_diagnostics(cached_entry, source, rules)
+        diagnostics = restore_diagnostics(cached_entry, source, config)
 
         assert diagnostics is not None
         assert len(diagnostics) == 1
         assert diagnostics[0].reported_arguments == {"length": 45, "max_length": 40}
 
     def test_restore_with_empty_diagnostics(self, tmp_path: Path):
-        rules = {"DOC01": MagicMock()}
+        config = Config()
+        config.linter._rules = {"DOC01": MagicMock()}  # noqa: SLF001
 
         cached_entry = LinterCacheEntry(
             metadata=FileMetadata(mtime=123.0, size=100),
@@ -631,19 +637,20 @@ class TestRestoreDiagnostics:
         )
 
         source = tmp_path / "test.robot"
-        diagnostics = restore_diagnostics(cached_entry, source, rules)
+        diagnostics = restore_diagnostics(cached_entry, source, config)
 
         assert diagnostics is not None
         assert len(diagnostics) == 0
 
     def test_restore_finds_rule_by_name(self, tmp_path: Path):
+        config = Config()
         rule = MagicMock()
         rule.rule_id = "DOC01"
         rule.name = "missing-doc-keyword"
         rule.get_severity_with_threshold.return_value = RuleSeverity.WARNING
 
         # Only name in rules dict, not ID
-        rules = {"missing-doc-keyword": rule}
+        config.linter._rules = {"missing-doc-keyword": rule}  # noqa: SLF001
 
         cached_entry = LinterCacheEntry(
             metadata=FileMetadata(mtime=123.0, size=100),
@@ -663,7 +670,7 @@ class TestRestoreDiagnostics:
         )
 
         source = tmp_path / "test.robot"
-        diagnostics = restore_diagnostics(cached_entry, source, rules)
+        diagnostics = restore_diagnostics(cached_entry, source, config)
 
         assert diagnostics is not None
         assert len(diagnostics) == 1
@@ -671,17 +678,17 @@ class TestRestoreDiagnostics:
 
 class TestCachedDiagnosticFromDiagnostic:
     def test_from_diagnostic(self, tmp_path: Path):
+        config = Config()
         rule = MagicMock()
         rule.rule_id = "DOC01"
         rule.name = "missing-doc-keyword"
         rule.message = "Missing documentation in '{name}'"
         rule.get_severity_with_threshold.return_value = RuleSeverity.WARNING
 
-        source = tmp_path / "test.robot"
+        source = SourceFile(path=tmp_path / "test.robot", config=config)
         diagnostic = Diagnostic(
             rule=rule,
             source=source,
-            model=None,
             lineno=10,
             col=1,
             end_lineno=10,
@@ -998,12 +1005,13 @@ class TestCacheEdgeCases:
 
     def test_multiple_diagnostics_one_rule_missing(self, tmp_path: Path):
         """Test restore_diagnostics with multiple diagnostics where one rule is missing."""
+        config = Config()
         rule1 = MagicMock()
         rule1.rule_id = "DOC01"
         rule1.name = "missing-doc"
 
         # Only have rule1, not rule2
-        rules = {"DOC01": rule1}
+        config.linter._rules = {"DOC01": rule1}  # noqa: SLF001
 
         cached_entry = LinterCacheEntry(
             metadata=FileMetadata(mtime=123.0, size=100),
@@ -1034,7 +1042,7 @@ class TestCacheEdgeCases:
 
         source = tmp_path / "test.robot"
         # Should return None because one rule is missing (invalidates entire cache entry)
-        diagnostics = restore_diagnostics(cached_entry, source, rules)
+        diagnostics = restore_diagnostics(cached_entry, source, config)
         assert diagnostics is None
 
     def test_cache_data_lazy_loading(self, tmp_path: Path):

@@ -33,3 +33,5 @@ test.robot:58:15 [I] COM02 Missing blank space after comment character
 test.robot:60:14 [I] COM02 Missing blank space after comment character
 test.robot:61:19 [I] COM02 Missing blank space after comment character
 test.robot:62:16 [I] COM02 Missing blank space after comment character
+
+Found 35 issues.

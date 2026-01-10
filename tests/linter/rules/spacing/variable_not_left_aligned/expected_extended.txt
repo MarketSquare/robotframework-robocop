@@ -48,3 +48,4 @@ test.robot:12:1 SPC14 Variable in Variables section is not left aligned
  14 | ${ALIGNED}  1
     |
 
+Found 5 issues.

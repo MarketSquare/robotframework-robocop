@@ -75,3 +75,4 @@ test.robot:42:1 SPC04 Invalid number of empty lines between test cases (0/1)
  44 |     Keyword
     |
 
+Found 8 issues.

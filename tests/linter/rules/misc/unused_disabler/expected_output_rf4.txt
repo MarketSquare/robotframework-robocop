@@ -22,3 +22,5 @@ test.robot:83:7 [I] MISC15 Disabler directive found for 'unused-variable' rule(s
 test.robot:85:7 [I] MISC15 Disabler directive found for 'line-too-long' rule(s) but no violation found
 disabled_whole_no_violation.robot:1:3 [I] MISC15 Disabler directive found for 'all' rule(s) but no violation found
 disabled_whole_rule.robot:1:3 [I] MISC15 Disabler directive found for 'some-rule' rule(s) but no violation found
+
+Found 24 issues.

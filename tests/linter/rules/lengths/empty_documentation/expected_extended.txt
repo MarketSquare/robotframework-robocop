@@ -25,3 +25,4 @@ test.robot:16:5 LEN12 Documentation of 'Keyword' Keyword is empty
  18 |     Pass
     |
 
+Found 3 issues.

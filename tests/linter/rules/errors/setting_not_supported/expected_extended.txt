@@ -34,3 +34,4 @@ test.robot:19:5 ERR09 Setting '[Metadata]' is not supported in Keyword. Allowed 
  20 |     [Doc Umentation]
     |
 
+Found 4 issues.

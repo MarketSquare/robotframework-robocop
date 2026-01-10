@@ -55,3 +55,4 @@ test.robot:38:1 NAME04 Underscores in keyword name 'Short Keyword With_Underscor
     | Suggestion: Replace underscores with spaces (e.g., 'My Keyword' instead of 'My_Keyword').
     |
 
+Found 6 issues.

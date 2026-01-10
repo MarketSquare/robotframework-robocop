@@ -23,3 +23,5 @@ test.robot:53:5 [W] NAME14 BDD reserved keyword 'When' not followed by any keywo
 test.robot:54:5 [W] NAME14 BDD reserved keyword 'and' not followed by any keyword. Use one space between: 'And credentials are submitted'
 test.robot:55:5 [W] NAME14 BDD reserved keyword 'But' not followed by any keyword. Use one space between: 'But still authorized'
 test.robot:56:5 [W] NAME14 BDD reserved keyword 'Then' not followed by any keyword. Use one space between: 'Then welcome page should be open'
+
+Found 25 issues.

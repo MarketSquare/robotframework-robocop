@@ -6,3 +6,4 @@ test.robot:7:1 SPC02 Missing trailing blank line at the end of file
    | ^^^^^^^^^^^^^^^^ SPC02
    |
 
+Found 1 issue.

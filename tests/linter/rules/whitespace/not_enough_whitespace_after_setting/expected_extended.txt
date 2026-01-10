@@ -18,3 +18,4 @@ test.robot:20:5 SPC19 Not enough whitespace after '[Arguments]' setting
  22 |     Pass
     |
 
+Found 2 issues.

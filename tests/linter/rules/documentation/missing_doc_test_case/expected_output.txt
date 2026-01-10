@@ -1,1 +1,3 @@
 test.robot:6:1 [W] DOC02 Missing documentation in 'Test' test case
+
+Found 1 issue.

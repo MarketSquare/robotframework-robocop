@@ -98,3 +98,4 @@ test.robot:21:1 SPC22 Not enough whitespace after 'Metadata' setting
     | ^^^^^^^^^^^^^^^^^^ SPC22
     |
 
+Found 12 issues.

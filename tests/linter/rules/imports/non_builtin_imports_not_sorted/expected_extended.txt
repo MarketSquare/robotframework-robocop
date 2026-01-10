@@ -17,3 +17,4 @@ test.robot:9:12 IMP03 Non builtin library import 'AnotherLibrary' should be plac
 10 | Resource   ..\${/}Libs\${/}MyResource.robot
    |
 
+Found 2 issues.

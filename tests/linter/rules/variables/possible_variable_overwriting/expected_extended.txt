@@ -236,3 +236,4 @@ test.robot:108:12 VAR08 Variable '${variable namE}' may overwrite similar variab
  109 |     VAR    ${variable_name}    Value with ${Variable_Name}    scope=SUITE
      |
 
+Found 26 issues.

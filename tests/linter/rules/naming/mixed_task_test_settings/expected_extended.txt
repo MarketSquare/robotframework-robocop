@@ -142,3 +142,4 @@ mixed_tests.robot:6:1 NAME17 Use test-related setting 'Test Tags' if Test Cases 
  7 | Documentation   some docs
    |
 
+Found 15 issues.

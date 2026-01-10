@@ -61,6 +61,23 @@ Rules can be also disabled in the code using [disablers](../configuration/disabl
 It is also possible to disable rules for specific file paths using [the per_file_ignores](../configuration/configuration_reference.md#per_file_ignores)
 option.
 
+## Auto-fixing Issues
+
+Robocop can automatically fix many linting issues. Use the `--fix` flag to apply corrections:
+
+```bash
+robocop check --fix
+```
+
+By default, only safe fixes are applied. To also apply potentially unsafe fixes, use:
+
+```bash
+robocop check --fix --unsafe-fixes
+```
+
+For more information about auto-fixing, see [Auto-fixing](auto_fix.md).
+```
+
 ## Reports
 
 Robocop can generate reports in various formats, both as printed output and formatted files. By default, it uses

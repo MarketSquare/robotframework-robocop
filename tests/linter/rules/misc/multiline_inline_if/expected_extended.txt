@@ -64,3 +64,4 @@ test.robot:35:5 MISC11 Inline IF split to multiple lines
     | |_^ MISC11
     |
 
+Found 6 issues.

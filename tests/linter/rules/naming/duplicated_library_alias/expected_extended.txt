@@ -35,3 +35,4 @@ test.robot:8:35 NAME13 Library alias is the same as original name
    |                                   ^^^^^^^^^^^^ NAME13
    |
 
+Found 4 issues.

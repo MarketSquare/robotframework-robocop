@@ -114,6 +114,8 @@ report.html
 
 # Formatters temporary files
 actual/
+# Linter temporary files
+actual_fixed/
 
 # To avoid unnecessary updates - need to update with -f
 uv.lock

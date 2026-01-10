@@ -55,3 +55,4 @@ test.robot:12:1 DEPR04 '*** Comment ***' deprecated singular header used instead
  13 | *** Comments ***
     |
 
+Found 6 issues.

@@ -30,3 +30,5 @@ blocks.robot:100:1 [W] SPC12 Too many consecutive empty lines (2/1)
 blocks.robot:103:1 [W] SPC12 Too many consecutive empty lines (2/1)
 blocks.robot:106:1 [W] SPC12 Too many consecutive empty lines (2/1)
 blocks.robot:109:1 [W] SPC12 Too many consecutive empty lines (2/1)
+
+Found 32 issues.

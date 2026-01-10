@@ -36,3 +36,5 @@ invalid_while.robot:16:5 [E] ERR01 Robot Framework syntax error: WHILE loop cann
 invalid_while.robot:21:5 [E] ERR01 Robot Framework syntax error: WHILE loop must have closing END.
 resource_with_test_lang.resource:7:1 [E] ERR01 Robot Framework syntax error: Unrecognized section header '*** Ustawienia ***'. Valid sections: 'Settings', 'Variables', 'Keywords' and 'Comments'.
 resource_with_test_lang.resource:3:1 [E] ERR01 Robot Framework syntax error: Unrecognized section header '*** Przypadki Testowe ***'. Valid sections: 'Settings', 'Variables', 'Keywords' and 'Comments'.
+
+Found 38 issues.

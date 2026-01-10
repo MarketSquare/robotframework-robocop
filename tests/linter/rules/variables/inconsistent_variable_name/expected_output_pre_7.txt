@@ -13,3 +13,5 @@ test.robot:52:50:52:61 [W] VAR10 Variable '${variable}' has inconsistent naming.
 test.robot:57:12:57:23 [W] VAR10 Variable '${VARIABLE}' has inconsistent naming. First used as '${variable}'
 test.robot:57:27:57:38 [W] VAR10 Variable '${VARIABLE}' has inconsistent naming. First used as '${variable}'
 test.robot:62:27:62:38 [W] VAR10 Variable '${VARIABLE}' has inconsistent naming. First used as '${variable}'
+
+Found 15 issues.

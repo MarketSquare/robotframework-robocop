@@ -69,3 +69,4 @@ test.robot:69:8 SPC15 Continuation line is not aligned with the previous one
     |        ^^^^ SPC15
     |
 
+Found 8 issues.

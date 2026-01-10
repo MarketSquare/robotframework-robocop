@@ -1,2 +1,4 @@
 test.robot:11:5 [E] NAME09 ELSE and ELSE IF is not uppercase
 test.robot:18:5 [E] NAME09 ELSE and ELSE IF is not uppercase
+
+Found 2 issues.

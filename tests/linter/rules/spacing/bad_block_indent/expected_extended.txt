@@ -73,3 +73,4 @@ test.robot:123:1 SPC17 Not enough indentation inside block
  124 |     END
      |
 
+Found 8 issues.

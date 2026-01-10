@@ -74,3 +74,4 @@ test.robot:42:21 VAR12 Assigned variable name '${duplicate}' is already used
     |                     ^^^^^^^^^^^^^ VAR12
     |
 
+Found 8 issues.

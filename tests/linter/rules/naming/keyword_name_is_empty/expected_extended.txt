@@ -6,3 +6,4 @@ test.robot:8:1 NAME10 Keyword name is empty
    | ^ NAME10
    |
 
+Found 1 issue.

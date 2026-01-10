@@ -1,1 +1,3 @@
 no_test.robot:1:1 [I] MISC06 No tests in 'no_test.robot' file, consider renaming to 'no_test.resource'
+
+Found 1 issue.

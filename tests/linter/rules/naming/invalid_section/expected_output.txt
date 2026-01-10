@@ -1,3 +1,5 @@
 test.robot:1:1 [E] NAME16 Invalid section '*** Kommentit ***'
 test.robot:9:1 [E] NAME16 Invalid section '*** Testit ***'
 test.robot:14:1 [E] NAME16 Invalid section '*** Bad ***'
+
+Found 3 issues.

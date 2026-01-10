@@ -7,3 +7,4 @@ test.robot:3:22 DEPR03 Deprecated 'WITH NAME' alias marker used instead of 'AS'
  4 | Library   Library    AS    Library2
    |
 
+Found 1 issue.

@@ -25,3 +25,4 @@ test.robot:17:30 ARG05 Invalid argument syntax 'value'
  18 |     No Operation
     |
 
+Found 3 issues.

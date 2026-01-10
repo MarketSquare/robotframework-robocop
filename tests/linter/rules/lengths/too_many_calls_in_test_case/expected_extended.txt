@@ -8,3 +8,4 @@ test.robot:6:1 LEN06 Test case 'Test' has too many keywords inside (13/10)
  8 |     [Tags]  sometag
    |
 
+Found 1 issue.

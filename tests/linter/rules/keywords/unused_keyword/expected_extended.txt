@@ -27,3 +27,4 @@ tasks.robot:16:1 KW04 Keyword 'Not Used Keyword' is not used
  17 |     Nested Not Used Keyword
     |
 
+Found 4 issues.

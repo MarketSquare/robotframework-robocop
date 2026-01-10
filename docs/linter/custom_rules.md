@@ -1,3 +1,5 @@
+from robocop.linter.fix import FixApplicabilityfrom robocop.linter.diagnostics import Diagnosticfrom robocop.linter.rules import FixableRule
+
 # Custom rules
 
 ## How to include custom rules
@@ -278,6 +280,72 @@ class ExternalRule(CustomParentRule):
 ```
 
 You may override other attributes and methods as well.
+
+## Fixable rules
+
+You can define a fix to the issue found by the rule. Use ``FixableRule`` class as a base for your rule:
+
+```python
+from robocop.linter.fix import FixApplicability, FixAvailability, Fix, TextEdit
+from robocop.linter.diagnostics import Diagnostic
+from robocop.linter.rules import FixableRule, RuleSeverity
+
+
+class ExampleRuleWithFix(FixableRule):
+    """
+    Check if there is a parametrised substring in the test case name.
+    """
+
+    name = "rule-name"
+    rule_id = "EX01"
+    message = "Error message"
+    severity = RuleSeverity.WARNING
+    fix_availability = FixAvailability.ALWAYS
+
+    def fix(self, diag: Diagnostic, source_lines: list[str]) -> Fix | None:
+        return Fix(
+            edits=[TextEdit.replace_at_range(self.rule_id, self.name, diag.range, "")],
+            message="Remove unnecessary part of string",
+            applicability=FixApplicability.SAFE,
+        )
+```
+
+Rule fixes are applied using text-based edits rather than a formatter-style approach that modifies a parsed AST model.
+When you create a rule that can apply an automatic fix, you need to:
+
+- inherit from ``FixableRule``
+- specify fix_availability (which can be ``FixAvailability.ALWAYS`` or ``FixAvailability.SOMETIMES``)
+- implement ``fix()`` method and return ``Fix`` instance or ``None`` when no fix can be generated
+
+A ``Fix`` contains a list of ``TextEdit`` entries that describe which lines in the original file should be replaced.
+The source file is processed as a list of lines, preserving newline characters (``\n``). If you replace one or more lines
+with multiple new lines, you must include the newline markers explicitly in the replacement string.
+
+```python
+from robocop.linter.fix import FixApplicability, FixAvailability, Fix, TextEdit
+
+
+def fix(self, diag: Diagnostic, source_lines: list[str]) -> Fix | None:
+    return Fix(
+        edits=[
+            TextEdit(
+                rule_id="MISS01",
+                rule_name="missing-lines",
+                start_line=2,
+                start_col=1,
+                end_line=2,
+                end_col=1,
+                replacement="    Replace line 2 with multiple\n    lines with indentation\n    [Teardown]    Keyword",
+            )],
+        message="Insert multiline string",
+        applicability=FixApplicability.UNSAFE
+    )
+```
+
+The ``fix()`` method gets the diagnostic object. You can also read the contents of  the source file from the
+``source_lines`` list.
+
+If, for a particular case, it is not possible to create a valid fix, the ``fix()`` method should return None.
 
 ## Project checks
 

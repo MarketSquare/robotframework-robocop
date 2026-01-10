@@ -15,3 +15,4 @@ test.robot:20:5 MISC01 [Return] is not defined at the end of keyword. Note that 
  21 |     Fail
     |
 
+Found 2 issues.

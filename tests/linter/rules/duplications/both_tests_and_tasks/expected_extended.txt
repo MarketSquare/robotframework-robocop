@@ -15,3 +15,4 @@ test2.robot:3:1 DUP09 Both Task(s) and Test Case(s) section headers defined in f
  4 | Documentation    some
    |
 
+Found 2 issues.

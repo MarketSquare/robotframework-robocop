@@ -1,1 +1,3 @@
 keyword_tags.robot:2:17 [I] TAG02 Tag 'tagORtag2' with reserved word OR/AND
+
+Found 1 issue.

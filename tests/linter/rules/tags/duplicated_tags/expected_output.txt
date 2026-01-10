@@ -4,3 +4,5 @@ test.robot:8:27 [W] TAG09 Multiple tags with name 'TAG' (first occurrence at lin
 test.robot:21:31 [W] TAG09 Multiple tags with name 'taG' (first occurrence at line 21 column 15)
 test.robot:24:45 [W] TAG09 Multiple tags with name 'tag' (first occurrence at line 24 column 29)
 test.robot:24:51 [W] TAG09 Multiple tags with name 't ag' (first occurrence at line 24 column 29)
+
+Found 6 issues.

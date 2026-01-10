@@ -24,3 +24,4 @@ test.robot:20:1 SPC09 Too many empty lines after '*** Keywords ***' section head
     | ^^^^^^^^^^^^^^^^ SPC09
     |
 
+Found 4 issues.

@@ -1,3 +1,5 @@
 test.robot:6:1 [W] LEN06 Test case 'Test' has too many keywords inside (13/10)
 templated_suite.robot:7:1 [W] LEN06 Test case 'Template Case' has too many keywords inside (12/10)
 templated_test.robot:6:1 [W] LEN06 Test case 'Template Case' has too many keywords inside (12/10)
+
+Found 3 issues.

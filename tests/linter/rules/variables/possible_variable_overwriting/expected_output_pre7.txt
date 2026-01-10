@@ -22,3 +22,5 @@ test.robot:80:5 [I] VAR08 Variable '${_initiaL}' may overwrite similar variable 
 test.robot:84:5 [I] VAR08 Variable '${VARiable}' may overwrite similar variable inside 'Assignment Sign' Keyword
 test.robot:92:5 [I] VAR08 Variable '${keywordArgs}' may overwrite similar variable inside 'Keyword With Possible Overwritten Kwargs' Keyword
 test.robot:102:5 [I] VAR08 Variable '${VARIABLE}' may overwrite similar variable inside 'Item Assignment' Keyword
+
+Found 24 issues.

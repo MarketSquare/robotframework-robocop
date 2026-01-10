@@ -28,6 +28,7 @@ import importlib.util
 import inspect
 import pkgutil
 import sys
+from abc import ABC, abstractmethod
 from collections import defaultdict
 from enum import Enum
 from functools import total_ordering
@@ -39,6 +40,7 @@ from typing import TYPE_CHECKING, Any, Callable, NoReturn
 
 from robocop import __version__, exceptions
 from robocop.linter.diagnostics import Diagnostic
+from robocop.linter.fix import FixAvailability
 from robocop.version_handling import Version, VersionSpecifier
 
 try:
@@ -60,6 +62,7 @@ if TYPE_CHECKING:
     from robocop.config import LinterConfig
     from robocop.config_manager import ConfigManager
     from robocop.linter import sonar_qube
+    from robocop.linter.fix import Fix
     from robocop.source_file import SourceFile, VirtualSourceFile
 
 
@@ -147,55 +150,6 @@ class RuleSeverity(Enum):
 
     def diag_severity(self) -> int:
         return {"I": 3, "W": 2, "E": 1}.get(self.value, 4)
-
-
-def rules_sorted_by_id(rules: dict[str, Rule]) -> list[Rule]:
-    """Return rules list from rules dictionary sorted by rule id."""
-    return sorted(rules.values(), key=lambda x: x.rule_id)
-
-
-class RuleFilter(str, Enum):
-    ALL = "ALL"
-    ENABLED = "ENABLED"
-    DISABLED = "DISABLED"
-    DEPRECATED = "DEPRECATED"
-    STYLE_GUIDE = "STYLE_GUIDE"
-
-
-def rule_matches_pattern(rule: Rule, pattern: str | Pattern) -> bool:
-    if isinstance(pattern, str):
-        return pattern in (rule.name, rule.rule_id)
-    return pattern.match(rule.name) or pattern.match(rule.rule_id)
-
-
-def filter_rules_by_pattern(rules: dict[str, Rule], pattern: Pattern) -> list[Rule]:
-    """Return sorted list of Rules from rules dictionary, filtered out by pattern."""
-    return rules_sorted_by_id(
-        {rule.rule_id: rule for rule in rules.values() if rule_matches_pattern(rule, pattern) and not rule.deprecated}
-    )
-
-
-def filter_rules_by_category(rules: dict[str, Rule], category: RuleFilter, target_version: Version) -> list[Rule]:
-    """Return sorted list of Rules from rules dictionary, filtered by rule category."""
-    if category == RuleFilter.ALL:
-        rules_by_id = {rule.rule_id: rule for rule in rules.values() if not rule.deprecated}
-    elif category == RuleFilter.ENABLED:
-        rules_by_id = {
-            rule.rule_id: rule for rule in rules.values() if rule.enabled and not rule.is_disabled(target_version)
-        }
-    elif category == RuleFilter.DISABLED:
-        rules_by_id = {
-            rule.rule_id: rule
-            for rule in rules.values()
-            if not rule.deprecated and (not rule.enabled or rule.is_disabled(target_version))
-        }
-    elif category == RuleFilter.DEPRECATED:
-        rules_by_id = {rule.rule_id: rule for rule in rules.values() if rule.deprecated}
-    elif category == RuleFilter.STYLE_GUIDE:
-        rules_by_id = {rule.rule_id: rule for rule in rules.values() if not rule.deprecated and rule.style_guide_ref}
-    else:
-        raise ValueError(f"Unrecognized rule category '{category}'")
-    return rules_sorted_by_id(rules_by_id)
 
 
 class RuleParam:
@@ -367,6 +321,7 @@ class Rule:
         sonar_qube_attrs: (class attribute) optional SonarQube attributes used for SonarQube report
         deprecated_names: (class attribute) optional tuple of deprecated names for the rule
         fix_suggestion (str): (class attribute) optional suggestion on how to fix the issue
+        fix_availability (FixAvailability): The availability of automatic fixes for this rule
 
     """
 
@@ -386,6 +341,7 @@ class Rule:
     sonar_qube_attrs: sonar_qube.SonarQubeAttributes | None = None
     deprecated_names: tuple[str,] | None = None
     fix_suggestion: str | None = None
+    fix_availability: FixAvailability = FixAvailability.NONE
 
     def __init__(self):
         self.version_spec = VersionSpecifier(self.version) if self.version else None
@@ -479,7 +435,11 @@ class Rule:
             enable_desc = "enabled"
         else:
             enable_desc = "disabled"
-        return f"Rule - {self.rule_id} [{self.severity}]: {self.name}: {self.message} ({enable_desc})"
+        if self.fix_availability in (FixAvailability.ALWAYS, FixAvailability.SOMETIMES):
+            fix_present = r" \[fixable]"
+        else:
+            fix_present = ""
+        return f"{self.rule_id} [{self.severity}]: {self.name}: {self.message} ({enable_desc}){fix_present}"
 
     def __str__(self):
         return f"Rule [{self.rule_id}]: {self.name} {self.message}"
@@ -514,6 +474,35 @@ class Rule:
         if isinstance(pattern, str):
             return pattern in (self.name, self.rule_id)
         return pattern.match(self.name) or pattern.match(self.rule_id)
+
+    def fix(self, diag: Diagnostic, source_lines: list[str]) -> Fix | None:  # noqa: ARG002
+        """Generate TextEdit to fix the issue or return None if no fix available."""
+        return None
+
+
+class FixableRule(Rule, ABC):
+    """
+    Abstract base class for rules that can automatically fix issues.
+
+    Subclasses must implement the fix() method to provide automatic fixes
+    for the issues they detect.
+    """
+
+    fix_availability: FixAvailability
+
+    @abstractmethod
+    def fix(self, diag: Diagnostic, source_lines: list[str]) -> Fix | None:
+        """
+        Generate TextEdit to fix the issue or return None if no fix available.
+
+        Args:
+            diag: Diagnostic object containing information about the issue
+            source_lines: Source lines from the original file
+
+        Returns:
+            Fix object with the corrections, or None if the issue cannot be fixed
+
+        """
 
 
 class BaseChecker:
@@ -634,6 +623,8 @@ def inherits_from(child, parent_name: str) -> bool:
 
 
 def is_rule(rule_class_def: tuple) -> bool:
+    if rule_class_def[0] in {"Rule", "RuleParam", "RuleSeverity", "FixableRule"}:
+        return False
     return inherits_from(rule_class_def[1], "Rule")
     # return issubclass(rule_class_def[1], Rule) TODO does not work as is_checker for some reason
 

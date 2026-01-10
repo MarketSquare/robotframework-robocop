@@ -46,3 +46,5 @@ test.robot:45:35:45:47 [W] VAR11 Argument '${log_level}' overwrites reserved var
 test.robot:47:5:47:22 [W] VAR11 Variable '${keyword_status}' overwrites reserved variable '${KEYWORD_STATUS}'
 test.robot:49:14:49:26 [W] VAR11 Embedded argument '${log_level}' overwrites reserved variable '${LOG_LEVEL}'
 test.robot:49:31:49:59 [W] VAR11 Embedded argument '${suite_documentation:[a-z]}' overwrites reserved variable '${SUITE_DOCUMENTATION}'
+
+Found 48 issues.

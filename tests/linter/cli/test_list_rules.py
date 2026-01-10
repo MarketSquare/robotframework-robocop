@@ -5,7 +5,8 @@ from unittest.mock import MagicMock, patch
 import pytest
 
 from robocop.config import TargetVersion
-from robocop.linter.rules import Rule, RuleFilter, RuleSeverity, VisitorChecker
+from robocop.linter.rules import Rule, RuleSeverity, VisitorChecker
+from robocop.linter.rules_list import RuleFilter
 from robocop.run import list_rules
 from robocop.version_handling import ROBOT_VERSION
 from tests import working_directory
@@ -165,8 +166,8 @@ class TestListingRules:
             list_rules()
         out, _ = capsys.readouterr()
         assert (
-            out == "Rule - 0101 [W]: some-message: Some description (enabled)\n"
-            "Rule - 19999 [W]: non-default-rule: Some description (disabled)\n\n"
+            out == "0101 [W]: some-message: Some description (enabled)\n"
+            "19999 [W]: non-default-rule: Some description (disabled)\n\n"
             "Altogether 2 rules (1 enabled).\n\n"
             "Visit https://robocop.dev/stable/rules_list/ page for detailed documentation.\n"
         )
@@ -186,8 +187,8 @@ class TestListingRules:
             list_rules(filter_pattern="*")
         out, _ = capsys.readouterr()
         assert (
-            out == "Rule - 0101 [W]: some-message: Some description (disabled)\n"
-            f"Rule - 9999 [W]: disabled-in-four: This is desc ({enabled_for})\n\n"
+            out == "0101 [W]: some-message: Some description (disabled)\n"
+            f"9999 [W]: disabled-in-four: This is desc ({enabled_for})\n\n"
             f"Altogether 2 rules ({enabled_count} enabled).\n\n"
             "Visit https://robocop.dev/stable/rules_list/ page for detailed documentation.\n"
         )
@@ -202,7 +203,7 @@ class TestListingRules:
             list_rules(filter_category=RuleFilter.ENABLED)
         out, _ = capsys.readouterr()
         assert (
-            out == "Rule - 0101 [W]: some-message: Some description (enabled)\n\n"
+            out == "0101 [W]: some-message: Some description (enabled)\n\n"
             "Altogether 1 rule (1 enabled).\n\n"
             "Visit https://robocop.dev/stable/rules_list/ page for detailed documentation.\n"
         )
@@ -219,8 +220,8 @@ class TestListingRules:
             list_rules(filter_category=RuleFilter.DISABLED)
         out, _ = capsys.readouterr()
         assert (
-            out == "Rule - 0102 [E]: other-message: this is description (disabled)\n"
-            "Rule - 0204 [I]: another-message: Message with meaning 4 (disabled)\n\n"
+            out == "0102 [E]: other-message: this is description (disabled)\n"
+            "0204 [I]: another-message: Message with meaning 4 (disabled)\n\n"
             "Altogether 2 rules (0 enabled).\n\n"
             "Visit https://robocop.dev/stable/rules_list/ page for detailed documentation.\n"
         )
@@ -236,8 +237,8 @@ class TestListingRules:
             list_rules(filter_category=RuleFilter.DEPRECATED)
         out, _ = capsys.readouterr()
         assert (
-            out == "Rule - 9991 [E]: deprecated-rule: Deprecated rule (deprecated)\n"
-            "Rule - 9992 [I]: deprecated-disabled-rule: Deprecated and disabled rule (deprecated)\n\n"
+            out == "9991 [E]: deprecated-rule: Deprecated rule (deprecated)\n"
+            "9992 [I]: deprecated-disabled-rule: Deprecated and disabled rule (deprecated)\n\n"
             "Altogether 2 rules (0 enabled).\n\n"
             "Visit https://robocop.dev/stable/rules_list/ page for detailed documentation.\n"
         )
@@ -251,9 +252,9 @@ class TestListingRules:
             list_rules(filter_pattern="*")
         out, _ = capsys.readouterr()
         exp_msg = (
-            "Rule - 0101 [W]: some-message: Some description (enabled)\n",
-            "Rule - 0102 [E]: other-message: this is description (disabled)\n",
-            "Rule - 0204 [I]: another-message: Message with meaning 4 (disabled)\n",
+            "0101 [W]: some-message: Some description (enabled)\n",
+            "0102 [E]: other-message: this is description (disabled)\n",
+            "0204 [I]: another-message: Message with meaning 4 (disabled)\n",
         )
         assert all(msg in out for msg in exp_msg)
 
@@ -269,10 +270,10 @@ class TestListingRules:
             list_rules(filter_pattern="01*")
         out, _ = capsys.readouterr()
         exp_msg = (
-            "Rule - 0101 [W]: some-message: Some description (enabled)\n",
-            "Rule - 0102 [E]: other-message: this is description (disabled)\n",
+            "0101 [W]: some-message: Some description (enabled)\n",
+            "0102 [E]: other-message: this is description (disabled)\n",
         )
-        not_exp_msg = "Rule - 0204 [I]: another-message: Message with meaning 4 (disabled)\n"
+        not_exp_msg = "0204 [I]: another-message: Message with meaning 4 (disabled)\n"
         assert all(msg in out for msg in exp_msg)
         assert not_exp_msg not in out
 
@@ -286,8 +287,8 @@ class TestListingRules:
             list_rules(**config)
         out, _ = capsys.readouterr()
         assert (
-            out == "Rule - 0101 [W]: some-message: Some description (enabled)\n"
-            "Rule - 19999 [W]: non-default-rule: Some description (disabled)\n\n"
+            out == "0101 [W]: some-message: Some description (enabled)\n"
+            "19999 [W]: non-default-rule: Some description (disabled)\n\n"
             "Altogether 2 rules (1 enabled).\n\n"
             "Visit https://robocop.dev/stable/rules_list/ page for detailed documentation.\n"
         )
@@ -299,8 +300,8 @@ class TestListingRules:
             list_rules(target_version=TargetVersion(str(ROBOT_VERSION.major)))
         out, _ = capsys.readouterr()
         expected = textwrap.dedent("""
-        Rule - 0101 [W]: some-message: Some description (enabled)
-        Rule - FUT01 [W]: enabled-in-future: This is desc (disabled - supported only for RF version >=20)
+        0101 [W]: some-message: Some description (enabled)
+        FUT01 [W]: enabled-in-future: This is desc (disabled - supported only for RF version >=20)
 
         Altogether 2 rules (1 enabled).
 
@@ -318,8 +319,8 @@ class TestListingRules:
     #         list_rules(filter_pattern="*")
     #     out, _ = capsys.readouterr()
     #     exp_msg = (
-    #         "Rule - 1101 [E]: smth: Keyword call after [Return] statement (enabled)\n",
-    #         "Rule - 1102 [E]: smth2: Keyword call after [Return] statement (disabled)\n",
+    #         "1101 [E]: smth: Keyword call after [Return] statement (enabled)\n",
+    #         "1102 [E]: smth2: Keyword call after [Return] statement (disabled)\n",
     #     )
     #     assert all(msg in out for msg in exp_msg)
 
@@ -335,7 +336,7 @@ class TestListingRules:
     #         list_rules(filter_pattern="*")
     #     out, _ = capsys.readouterr()
     #     exp_msg = (
-    #         "Rule - 1101 [E]: smth: Keyword call after [Return] statement (disabled)\n",
-    #         "Rule - 1102 [E]: smth2: Keyword call after [Return] statement (enabled)\n",
+    #         "1101 [E]: smth: Keyword call after [Return] statement (disabled)\n",
+    #         "1102 [E]: smth2: Keyword call after [Return] statement (enabled)\n",
     #     )
     #     assert all(msg in out for msg in exp_msg)

@@ -29,3 +29,4 @@ test.robot:31:20 NAME01 Not allowed character '?' found in 'Keyword Escaped \${?
     | Suggestion: Remove the not allowed character from the name.
     |
 
+Found 3 issues.

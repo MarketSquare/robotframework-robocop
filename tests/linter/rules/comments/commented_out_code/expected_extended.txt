@@ -826,3 +826,4 @@ test.robot:254:5 COM06 Commented out code: 'END'
  255 |     Log    Done
      |
 
+Found 85 issues.

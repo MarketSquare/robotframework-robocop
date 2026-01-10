@@ -14,3 +14,5 @@ test.robot:37:5 [E] NAME03 'Try' is a reserved keyword. It must be in uppercase 
 test.robot:38:5 [E] NAME03 'Except' is a reserved keyword. It must be in uppercase (EXCEPT) when used as a statement
 test.robot:39:5 [E] NAME03 'finally' is a reserved keyword. It must be in uppercase (FINALLY) when used as a statement
 templated_suite.robot:2:18 [E] NAME03 'End' is a reserved keyword. It must be in uppercase (END) when used as a statement
+
+Found 16 issues.

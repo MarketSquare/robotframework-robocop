@@ -106,3 +106,4 @@ test.robot:26:5 DEPR05 Set Variable used instead of VAR
     |     ^^^^^^^^^^^^ DEPR05
     |
 
+Found 11 issues.

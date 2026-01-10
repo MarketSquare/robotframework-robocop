@@ -19,3 +19,4 @@ test.robot:14:1 NAME16 Invalid section '*** Bad ***'
     | ^^^^^^^^^^^ NAME16
     |
 
+Found 3 issues.

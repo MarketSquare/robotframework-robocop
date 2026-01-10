@@ -11,3 +11,5 @@ test.robot:34:19:34:30 [W] KW02 Keyword 'Not Allowed' is not allowed
 test.robot:38:5:38:33 [W] KW02 Keyword 'Library.Not Allowed With Lib' is not allowed
 test.robot:39:5:39:32 [W] KW02 Keyword 'Library2.Nested.Not Allowed' is not allowed
 test.robot:44:5:44:16 [W] KW02 Keyword 'Not Allowed' is not allowed
+
+Found 13 issues.

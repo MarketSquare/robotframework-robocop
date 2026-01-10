@@ -133,3 +133,4 @@ test.robot:123:5 MISC10 Unreachable code after RETURN statement
      |     ^^^^^^^^^^^^^^^ MISC10
      |
 
+Found 14 issues.

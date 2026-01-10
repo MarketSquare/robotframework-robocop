@@ -33,3 +33,5 @@ invalid_try_except.robot:269:9 [E] ERR01 Robot Framework syntax error: RETURN ca
 invalid_while.robot:10:5 [E] ERR01 Robot Framework syntax error: WHILE accepts only one condition, got 3 conditions 'Too', 'many' and '!'.
 invalid_while.robot:16:5 [E] ERR01 Robot Framework syntax error: WHILE loop cannot be empty.
 invalid_while.robot:21:5 [E] ERR01 Robot Framework syntax error: WHILE loop must have closing END.
+
+Found 35 issues.

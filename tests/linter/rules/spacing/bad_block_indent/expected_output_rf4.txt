@@ -30,3 +30,5 @@ test.robot:183:1 [E] SPC17 Not enough indentation inside block
 test.robot:184:1 [E] SPC17 Not enough indentation inside block
 test.robot:185:1 [E] SPC17 Not enough indentation inside block
 test.robot:187:1 [E] SPC17 Not enough indentation inside block
+
+Found 32 issues.

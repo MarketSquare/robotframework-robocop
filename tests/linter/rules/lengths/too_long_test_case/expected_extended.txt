@@ -24,3 +24,4 @@ test.robot:54:1 LEN04 Test case 'Test with comments that are not part of the tes
  56 |     Pass
     |
 
+Found 3 issues.

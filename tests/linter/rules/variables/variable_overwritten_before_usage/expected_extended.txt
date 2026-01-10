@@ -56,3 +56,4 @@ test.robot:131:12 VAR03 Local variable '${variable3}' is overwritten before usag
  133 |     VAR    $variable  # ignored for invalid variable name
      |
 
+Found 6 issues.

@@ -5,3 +5,4 @@ test.robot:25:1 DUP02 Multiple keywords with name 'Duplicated Keyword' (first oc
  26 |     No Operation
     |
 
+Found 1 issue.

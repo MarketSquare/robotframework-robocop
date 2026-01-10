@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import sys
+from difflib import unified_diff
 from enum import Enum
 from pathlib import Path
 from typing import TYPE_CHECKING, NoReturn
@@ -11,10 +12,12 @@ from rich.text import Text
 
 import robocop.linter.reports
 from robocop.files import get_relative_path
+from robocop.formatter.utils.misc import decorate_diff_with_color
 
 if TYPE_CHECKING:
     from robocop.config import Config
-    from robocop.linter.diagnostics import Diagnostic, Diagnostics
+    from robocop.linter.diagnostics import Diagnostic, Diagnostics, RunStatistic
+    from robocop.source_file import SourceFile
 
 
 class OutputFormat(Enum):
@@ -83,7 +86,6 @@ class PrintIssuesReport(robocop.linter.reports.Report):
     def __init__(self, config: Config):
         self.name = "print_issues"
         self.description = "Collect and print rules messages"
-        self.diagn_by_source: dict[str, list[Diagnostic]] = {}
         self.output_format = OutputFormat.EXTENDED
         self.issue_format = None
         self.console = Console(highlight=False, soft_wrap=True, emoji=False)
@@ -98,13 +100,11 @@ class PrintIssuesReport(robocop.linter.reports.Report):
             super().configure(name, value)
 
     def print_diagnostics_simple(self, diagnostics: Diagnostics) -> None:
-        cwd = Path.cwd()
         for source, diag_by_source in diagnostics.diag_by_source.items():
-            source_rel = get_relative_path(source, cwd)
             for diagnostic in diag_by_source:
                 print(
                     self.config.linter.issue_format.format(
-                        source=source_rel,
+                        source=diagnostic.source.relative_path,
                         source_abs=str(Path(source).resolve()),
                         line=diagnostic.range.start.line,
                         col=diagnostic.range.start.character,
@@ -240,26 +240,79 @@ class PrintIssuesReport(robocop.linter.reports.Report):
 
         Messages are aggregated by source file and sent to printing to rich console.
         """
-        cwd = Path.cwd()
-        for source, diag_by_source in diagnostics.diag_by_source.items():
-            source_rel = get_relative_path(source, cwd)
+        for diag_by_source in diagnostics.diag_by_source.values():
             text: list[Text] = [
-                self._print_issue_with_lines(diagnostic.source.source_lines, source_rel, diagnostic)
+                self._print_issue_with_lines(
+                    diagnostic.source.source_lines, diagnostic.source.relative_path, diagnostic
+                )
                 for diagnostic in diag_by_source
             ]
             self.console.print(*text, sep="", end="")
 
-    def generate_report(self, diagnostics: Diagnostics, **kwargs) -> None:  # noqa: ARG002
+    def generate_report(self, diagnostics: Diagnostics, **kwargs) -> None:
         if self.config.silent:
+            return
+        run_stats: RunStatistic | None = kwargs.get("run_stats")
+        if run_stats and run_stats.files_count == 0:
             return
         if hasattr(sys.stdout, "reconfigure"):
             sys.stdout.reconfigure(encoding="utf-8")
             sys.stderr.reconfigure(encoding="utf-8")
         if self.output_format == OutputFormat.SIMPLE:
             self.print_diagnostics_simple(diagnostics)
+            self.console.print()
         elif self.output_format == OutputFormat.GROUPED:
             self.print_diagnostics_grouped(diagnostics)
         elif self.output_format == OutputFormat.EXTENDED:
             self.print_diagnostics_extended(diagnostics)
         else:
             raise NotImplementedError(f"Output format {self.output_format} is not implemented")
+
+        self.print_run_summary(diagnostics, run_stats)
+
+    def print_run_summary(self, diagnostics: Diagnostics, run_stats: RunStatistic) -> None:
+        """Print summary of applied fixes."""
+        if run_stats and run_stats.fix_stats and run_stats.fix_stats.total_fixes != 0:
+            self._print_diffs(run_stats.modified_files)
+            summary = run_stats.fix_stats.format_summary()
+            fixed = run_stats.fix_stats.total_fixes
+            remaining = len(diagnostics.diagnostics)
+            total = fixed + remaining
+            suffix = "s" if total != 1 else ""
+            summary += f"\nFound {total} issue{suffix} ({fixed} fixed, {remaining} remaining)."
+        elif len(diagnostics.diagnostics) == 0:
+            summary = "No issues found."
+        else:
+            suffix = "s" if len(diagnostics.diagnostics) != 1 else ""
+            summary = f"Found {len(diagnostics.diagnostics)} issue{suffix}."
+            could_fix = len(diagnostics.fixable_diagnostics())
+            if could_fix > 0:
+                summary += f"\n{could_fix} fixable with the ``--fix`` option."
+        self.console.print(summary)
+
+    def _print_diffs(self, modified_files: list[SourceFile]) -> None:
+        """
+        Print unified diffs for all modified files.
+
+        Args:
+            modified_files: List of source files that have been modified.
+
+        """
+        for source_file in modified_files:
+            if not source_file.config.linter.diff:
+                continue
+            original = source_file.original_source_lines
+            modified = source_file.source_lines
+
+            diff = list(
+                unified_diff(
+                    original,
+                    modified,
+                    fromfile=f"a/{source_file.relative_path}",
+                    tofile=f"b/{source_file.relative_path}",
+                )
+            )
+            decorated_diff = decorate_diff_with_color(diff)
+            for line in decorated_diff:
+                self.console.print(line, end="")
+            self.console.print()

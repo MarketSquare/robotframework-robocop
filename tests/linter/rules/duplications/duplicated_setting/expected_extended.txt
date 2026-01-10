@@ -282,3 +282,4 @@ test.robot:68:5 DUP10 Setting 'Return' is allowed only once. Only the first valu
     |     ^^^^^^^^ DUP10
     |
 
+Found 29 issues.

@@ -197,3 +197,4 @@ test.robot:37:5 DEPR02 '[Return]' is deprecated since Robot Framework version 5.
     |     ^^^^^^^^ DEPR02
     |
 
+Found 22 issues.

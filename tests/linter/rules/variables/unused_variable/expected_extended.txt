@@ -226,3 +226,4 @@ unused_section_vars.robot:21:1 VAR02 Variable '${GLOBAL_NOT_USED}' is assigned b
  23 | ${GLOBAL_USED2}    value with ${GLOBAL_USED_IN_SECTION}
     |
 
+Found 24 issues.

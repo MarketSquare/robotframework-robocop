@@ -4,3 +4,5 @@ test.robot:37:5 [W] ORD02 'ARGUMENTS' is in wrong place of Keyword. Recommended 
 test.robot:44:5 [W] ORD02 'KEYWORD' is in wrong place of Keyword. Recommended order of elements in Keyword: DOCUMENTATION, TAGS, ARGUMENTS, TIMEOUT, SETUP, KEYWORD, TEARDOWN
 test_kw_setup_added_in_rf7.robot:27:5 [W] ORD02 'TIMEOUT' is in wrong place of Keyword. Recommended order of elements in Keyword: DOCUMENTATION, TAGS, ARGUMENTS, TIMEOUT, SETUP, KEYWORD, TEARDOWN
 test_kw_setup_added_in_rf7.robot:33:5 [W] ORD02 'SETUP' is in wrong place of Keyword. Recommended order of elements in Keyword: DOCUMENTATION, TAGS, ARGUMENTS, TIMEOUT, SETUP, KEYWORD, TEARDOWN
+
+Found 6 issues.

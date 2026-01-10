@@ -14,3 +14,4 @@ test.robot:7:1 SPC21 Not enough whitespace after '@{LIST} value' variable name
  8 | ...  value2
    |
 
+Found 2 issues.

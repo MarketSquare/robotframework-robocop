@@ -52,3 +52,5 @@ test.robot:109:54 [E] LEN32 Variable name 'argument_name_with_default_value_that
 test.robot:111:5 [E] LEN32 Variable name 'local_dict_variable_name_that_is_too_long' is too long (41/40)
 test.robot:113:9 [W] LEN32 Variable name 'embedded_just_shy_of_max_len_contains' is too long (37/20)
 test.robot:113:62 [E] LEN32 Variable name 'embedded_name_that_is_too_long_that_contains' is too long (44/40)
+
+Found 54 issues.

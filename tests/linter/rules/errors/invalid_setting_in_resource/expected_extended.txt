@@ -103,3 +103,4 @@ test.resource:19:1 ERR16 Settings section in resource file can't contain 'Defaul
     | ^^^^^^^^^^^^^^^^^^^^^^^ ERR16
     |
 
+Found 11 issues.

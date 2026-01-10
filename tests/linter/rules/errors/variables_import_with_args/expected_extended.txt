@@ -18,3 +18,4 @@ test.robot:12:1 ERR04 YAML variable files do not take arguments
  14 | Variables  vars2.yaml
     |
 
+Found 2 issues.

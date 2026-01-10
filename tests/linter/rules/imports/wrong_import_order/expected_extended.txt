@@ -26,3 +26,4 @@ test.robot:12:12 IMP01 BuiltIn library import 'BuiltIn' should be placed before 
     |            ^^^^^^^ IMP01
     |
 
+Found 3 issues.

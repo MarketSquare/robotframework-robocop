@@ -45,3 +45,4 @@ test.robot:19:29 TAG02 Tag 'tagORtag2' with reserved word OR/AND
  21 |     Pass
     |
 
+Found 5 issues.

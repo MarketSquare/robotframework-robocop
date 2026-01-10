@@ -10,3 +10,5 @@ test.robot:22:5 [I] VAR09 Hyphen in variable name '${-}'
 test.robot:23:5 [I] VAR09 Hyphen in variable name '${a-}'
 test.robot:24:5 [I] VAR09 Hyphen in variable name '${-b}'
 test.robot:41:34 [I] VAR09 Hyphen in variable name '${in-correct}'
+
+Found 12 issues.

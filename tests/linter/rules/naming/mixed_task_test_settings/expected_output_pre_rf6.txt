@@ -10,3 +10,5 @@ mixed_tests.robot:2:1 [W] NAME17 Use test-related setting 'Test Setup' if Test C
 mixed_tests.robot:4:1 [W] NAME17 Use test-related setting 'Test Template' if Test Cases section is used
 mixed_tasks.robot:3:1 [W] NAME17 Use task-related setting 'Task Teardown' if Tasks section is used
 mixed_tasks.robot:5:1 [W] NAME17 Use task-related setting 'Task Timeout' if Tasks section is used
+
+Found 12 issues.

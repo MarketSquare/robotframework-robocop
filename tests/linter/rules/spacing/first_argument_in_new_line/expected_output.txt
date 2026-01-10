@@ -5,3 +5,5 @@ test.robot:43:16 [W] SPC18 First argument: '${required}' is not placed on the sa
 test.robot:50:16 [W] SPC18 First argument: '@{args}' is not placed on the same line as [Arguments] setting
 test.robot:57:16 [W] SPC18 First argument: '@{varargs}' is not placed on the same line as [Arguments] setting
 test.robot:64:16 [W] SPC18 First argument: '@{}' is not placed on the same line as [Arguments] setting
+
+Found 7 issues.

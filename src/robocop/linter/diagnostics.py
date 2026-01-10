@@ -3,10 +3,13 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
+from robocop.linter.fix import FixAvailability
+
 if TYPE_CHECKING:
     from robot.parsing.model import Block
     from robot.parsing.model.statements import Statement
 
+    from robocop.linter.fix import Fix, FixStats
     from robocop.linter.rules import Rule
     from robocop.source_file import SourceFile
 
@@ -21,6 +24,13 @@ class Position:
 class Range:
     start: Position
     end: Position
+
+
+@dataclass
+class RunStatistic:
+    files_count: int
+    fix_stats: FixStats | None
+    modified_files: list[SourceFile]
 
 
 class Diagnostics:
@@ -38,6 +48,10 @@ class Diagnostics:
         for source, diags in diag_by_source.items():
             diag_by_source[source] = sorted(diags)
         return diag_by_source
+
+    def fixable_diagnostics(self) -> list[Diagnostic]:
+        """Return the list of fixable diagnostics. Filter by always fixable to avoid reporting non-existing fixes."""
+        return [diag for diag in self.diagnostics if diag.rule.fix_availability == FixAvailability.ALWAYS]
 
     def __iter__(self):
         yield from self.diagnostics
@@ -69,6 +83,9 @@ class Diagnostic:
     @property
     def message(self) -> str:
         return self.rule.message.format(**self.reported_arguments)
+
+    def fix(self, source_lines: list[str]) -> Fix | None:
+        return self.rule.fix(self, source_lines)
 
     @staticmethod
     def get_range(

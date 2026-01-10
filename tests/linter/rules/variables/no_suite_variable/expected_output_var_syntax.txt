@@ -5,3 +5,5 @@ test_var_syntax.robot:17:12 [W] VAR05 Variable defined with suite scope
 test_var_syntax.robot:19:31 [W] VAR05 Variable defined with suite scope
 test_var_syntax.robot:21:27 [W] VAR05 Variable defined with suite scope
 test_var_syntax.robot:27:44 [W] VAR05 Variable defined with suite scope
+
+Found 7 issues.

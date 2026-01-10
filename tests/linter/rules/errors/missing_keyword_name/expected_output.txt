@@ -6,3 +6,5 @@ test.robot:19:9 [E] ERR03 Missing keyword name when calling some values
 test.robot:22:9 [E] ERR03 Missing keyword name when calling some values
 test.robot:28:9 [E] ERR03 Missing keyword name when calling some values
 test.robot:33:8 [E] ERR03 Missing keyword name when calling some values
+
+Found 8 issues.

@@ -2,3 +2,5 @@ groups${/}groups.robot:5:1 [W] SPC08 Line is over-indented
 groups${/}groups.robot:9:1 [W] SPC08 Line is over-indented
 groups${/}groups.robot:15:1 [W] SPC08 Line is under-indented
 groups${/}groups.robot:17:1 [W] SPC08 Line is over-indented
+
+Found 4 issues.

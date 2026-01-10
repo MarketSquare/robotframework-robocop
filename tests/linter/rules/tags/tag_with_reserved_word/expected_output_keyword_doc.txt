@@ -1,1 +1,3 @@
 keyword_doc.robot:23:105 [W] TAG03 Tag 'robot:my_tag' prefixed with reserved word `robot:`
+
+Found 1 issue.

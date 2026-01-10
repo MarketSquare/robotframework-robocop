@@ -5,3 +5,5 @@ configure1${/}test.robot:13:26 [W] NAME01 Not allowed character '$' found in 'Ke
 configure1${/}test.robot:13:36 [W] NAME01 Not allowed character '{' found in 'Keyword With ${em.bedded}$ Argument{}' keyword name
 configure1${/}test.robot:13:37 [W] NAME01 Not allowed character '}' found in 'Keyword With ${em.bedded}$ Argument{}' keyword name
 configure1${/}test.robot:16:14 [W] NAME01 Not allowed character ':' found in 'Keyword With :' keyword name
+
+Found 7 issues.

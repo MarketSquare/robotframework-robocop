@@ -196,3 +196,4 @@ run_keywords.robot:36:35 NAME18 Keyword name 'keyword' does not follow case conv
     |                                   ^^^^^^^ NAME18
     |
 
+Found 22 issues.

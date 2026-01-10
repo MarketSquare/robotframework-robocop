@@ -38,3 +38,5 @@ test.robot:108:50 [W] LEN32 Variable name 'embedded_argument_name_that_is_way_to
 test.robot:109:54 [W] LEN32 Variable name 'argument_name_with_default_value_that_it_too_long' is too long (49/40)
 test.robot:111:5 [W] LEN32 Variable name 'local_dict_variable_name_that_is_too_long' is too long (41/40)
 test.robot:113:62 [W] LEN32 Variable name 'embedded_name_that_is_too_long_that_contains' is too long (44/40)
+
+Found 40 issues.

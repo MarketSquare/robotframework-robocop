@@ -10,3 +10,5 @@ test.robot:17:1 [E] SPC22 Not enough whitespace after 'Test Teardown' setting
 test.robot:18:1 [E] SPC22 Not enough whitespace after 'Test Timeout' setting
 test.robot:19:1 [E] SPC22 Not enough whitespace after 'Documentation' setting
 test.robot:21:1 [E] SPC22 Not enough whitespace after 'Metadata' setting
+
+Found 12 issues.

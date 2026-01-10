@@ -11,3 +11,4 @@ test.robot:23:1 ORD03 '*** Variables ***' section header is defined in wrong ord
     | ^^^^^^^^^^^^^^^^^ ORD03
     |
 
+Found 2 issues.

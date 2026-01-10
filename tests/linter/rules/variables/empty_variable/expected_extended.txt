@@ -178,3 +178,4 @@ test.robot:62:8 VAR01 Empty variable value
  64 |     VAR
     |
 
+Found 18 issues.

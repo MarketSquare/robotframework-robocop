@@ -1,2 +1,3 @@
 test.resource:1:1 DOC04 Missing documentation in resource file
 with_settings.resource:1:1 DOC04 Missing documentation in resource file
+Found 2 issues.

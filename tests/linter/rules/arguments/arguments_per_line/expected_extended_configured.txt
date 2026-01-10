@@ -45,3 +45,4 @@ test.robot
  39 |     No Operation
     |
 
+Found 5 issues.

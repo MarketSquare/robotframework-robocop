@@ -34,3 +34,4 @@ test.robot:22:1 KW03 Keyword with embedded arguments: ${regex:(\d{4}-\d{2}-\d{2}
  23 |     No Operation
     |
 
+Found 5 issues.

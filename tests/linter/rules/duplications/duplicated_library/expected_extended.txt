@@ -27,3 +27,4 @@ test.robot:12:12 DUP05 Multiple library imports with name 'MyLib' and identical 
  13 | Library    MyLib    argument    AS    MyLib2
     |
 
+Found 3 issues.

@@ -6,3 +6,4 @@ test.robot:21:5 LEN21 Teardown of 'Keyword' Keyword does not have any keywords
     |     ^^^^^^^^^^ LEN21
     |
 
+Found 1 issue.

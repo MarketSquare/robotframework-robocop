@@ -1,1 +1,3 @@
 __init__.robot:4:1 [W] DUP06 Duplicated metadata 'some text' (first occurrence in line 2)
+
+Found 1 issue.

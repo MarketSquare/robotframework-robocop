@@ -25,8 +25,10 @@ class FileStatsReport(robocop.linter.reports.ComparableReport):
     def persist_result(self):
         return {"files_count": self.files_count, "files_with_issues": len(self.files_with_issues)}
 
-    def generate_report(self, diagnostics: Diagnostics, prev_results: dict, **kwargs) -> None:  # noqa: ARG002
+    def generate_report(self, diagnostics: Diagnostics, prev_results: dict, **kwargs) -> None:
         self.files_with_issues = diagnostics.diag_by_source
+        if run_stats := kwargs.get("run_stats"):
+            self.files_count = run_stats.files_count
         if self.compare_runs and prev_results:
             output = self.get_report_with_compare(prev_results)
         else:

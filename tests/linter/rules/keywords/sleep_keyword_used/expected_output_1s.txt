@@ -1,2 +1,4 @@
 test.robot:8:5 [W] KW01 Sleep keyword with '10s' sleep time found
 test.robot:14:9 [W] KW01 Sleep keyword with '1 min' sleep time found
+
+Found 2 issues.

@@ -27,3 +27,5 @@ test.robot:63:5 [W] DUP10 Setting 'Timeout' is allowed only once. Only the first
 test.robot:66:5 [W] DUP10 Setting 'Return' is allowed only once. Only the first value is used.
 test.robot:67:5 [W] DUP10 Setting 'Return' is allowed only once. Only the first value is used.
 test.robot:68:5 [W] DUP10 Setting 'Return' is allowed only once. Only the first value is used.
+
+Found 29 issues.

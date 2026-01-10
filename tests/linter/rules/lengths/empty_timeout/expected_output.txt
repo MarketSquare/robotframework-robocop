@@ -1,1 +1,3 @@
 test.robot:8:5 [W] LEN24 Timeout of 'Test' Test Case is empty
+
+Found 1 issue.

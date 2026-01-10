@@ -45,3 +45,4 @@ test.robot:37:5 ARG07 There is too many arguments per continuation line (2 / 1)
  39 |     No Operation
     |
 
+Found 5 issues.

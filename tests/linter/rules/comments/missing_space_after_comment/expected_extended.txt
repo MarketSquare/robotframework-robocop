@@ -335,3 +335,4 @@ test.robot:62:16 COM02 Missing blank space after comment character
  63 |     END
     |
 
+Found 35 issues.

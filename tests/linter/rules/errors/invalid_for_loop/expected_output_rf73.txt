@@ -10,3 +10,5 @@ test.robot:51:9 [E] ERR12 Invalid for loop syntax: FOR loop has no variables
 test.robot:56:9 [E] ERR12 Invalid for loop syntax: FOR loop has no variables
 test.robot:64:9 [E] ERR12 Invalid for loop syntax: FOR loop has no variables
 test.robot:69:9 [E] ERR12 Invalid for loop syntax: FOR loop has no variables
+
+Found 12 issues.

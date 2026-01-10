@@ -163,3 +163,4 @@ test.robot:39:5 NAME03 'finally' is a reserved keyword. It must be in uppercase 
     | Suggestion: Rename the keyword to avoid using a reserved word.
     |
 
+Found 16 issues.

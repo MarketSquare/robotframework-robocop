@@ -465,3 +465,4 @@ test.robot:49:31 VAR11 Embedded argument '${suite_documentation:[a-z]}' overwrit
  50 |     Log    ${log_level}
     |
 
+Found 48 issues.

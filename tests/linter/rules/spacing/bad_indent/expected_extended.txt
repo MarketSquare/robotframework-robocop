@@ -313,3 +313,4 @@ test.robot:169:1 SPC08 Line is over-indented
      | ^^ SPC08
      |
 
+Found 33 issues.

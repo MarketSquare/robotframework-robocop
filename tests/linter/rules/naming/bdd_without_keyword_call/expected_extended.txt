@@ -230,3 +230,4 @@ test.robot:56:5 NAME14 BDD reserved keyword 'Then' not followed by any keyword. 
     |     ^^^^ NAME14
     |
 
+Found 25 issues.

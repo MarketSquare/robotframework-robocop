@@ -37,3 +37,5 @@ block.robot:68:5 [I] COM02 Missing blank space after comment character
 block.robot:82:5 [I] COM02 Missing blank space after comment character
 block.robot:83:5 [I] COM02 Missing blank space after comment character
 block.robot:84:5 [I] COM02 Missing blank space after comment character
+
+Found 39 issues.

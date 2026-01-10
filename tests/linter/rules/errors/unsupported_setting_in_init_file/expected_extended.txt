@@ -34,3 +34,4 @@ __init__.resource:3:1 ERR17 Setting 'Default Tags' is not supported in initializ
  4 | Documentation       some documentation
    |
 
+Found 4 issues.

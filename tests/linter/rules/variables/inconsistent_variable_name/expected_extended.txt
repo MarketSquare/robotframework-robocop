@@ -122,3 +122,4 @@ test.robot:61:52 VAR10 Variable '${variable2}' has inconsistent naming. First us
  62 |     VAR    ${variable}    ${VARIABLE}  # should not report
     |
 
+Found 14 issues.

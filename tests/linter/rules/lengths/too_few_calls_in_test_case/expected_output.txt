@@ -2,3 +2,5 @@ test.robot:27:1 [E] LEN05 Test case 'Test case with no keyword calls' has too fe
 test.robot:29:1 [E] LEN05 Test case 'Test case with settings and no keyword calls' has too few keywords inside (0/1)
 templated_suite.robot:7:1 [E] LEN05 Test case 'Template Case' has too few keywords inside (0/1)
 templated_test.robot:6:1 [E] LEN05 Test case 'Template Case' has too few keywords inside (0/1)
+
+Found 4 issues.

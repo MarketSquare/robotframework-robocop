@@ -36,3 +36,4 @@ test.robot:20:5 ERR08 Non-existing setting 'Doc Umentation'. Did you mean: Docum
     |     ^^^^^^^^^^^^^^^^ ERR08
     |
 
+Found 4 issues.

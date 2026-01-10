@@ -1,2 +1,4 @@
 test.robot:3:29 [E] NAME12 Library alias is empty
 test.robot:4:34 [E] NAME12 Library alias is empty
+
+Found 2 issues.

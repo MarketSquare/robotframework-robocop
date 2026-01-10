@@ -6,3 +6,4 @@ test.robot:4:1 NAME11 Test case name is empty
    | ^ NAME11
    |
 
+Found 1 issue.

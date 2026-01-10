@@ -1,3 +1,5 @@
 test.robot:27:5 [W] LEN10 Too many return values (5/4)
 test.robot:31:9 [W] LEN10 Too many return values (5/4)
 test.robot:47:5 [W] LEN10 Too many return values (5/4)
+
+Found 3 issues.

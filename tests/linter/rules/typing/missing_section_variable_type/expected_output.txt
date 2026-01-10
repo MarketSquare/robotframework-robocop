@@ -7,3 +7,5 @@ test.robot:28:1 [I] ANN01 Variable '${MULTILINE}' is missing type annotation
 test.robot:35:12 [I] ANN01 Variable '${local}' is missing type annotation
 test.robot:42:12 [I] ANN01 Variable '${multiline_var}' is missing type annotation
 test.robot:50:5 [I] ANN01 Variable '${result}' is missing type annotation
+
+Found 9 issues.

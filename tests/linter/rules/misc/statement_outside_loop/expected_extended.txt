@@ -206,3 +206,4 @@ test.robot:69:9 MISC08 BREAK statement used outside a loop
  70 |     END
     |
 
+Found 22 issues.

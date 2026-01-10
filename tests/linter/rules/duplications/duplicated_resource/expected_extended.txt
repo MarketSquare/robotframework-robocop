@@ -6,3 +6,4 @@ test.robot:5:1 DUP04 Multiple resource imports with path 'resource.robot' (first
    | ^^^^^^^^^^^^^^^^^^^^^^^^ DUP04
    |
 
+Found 1 issue.

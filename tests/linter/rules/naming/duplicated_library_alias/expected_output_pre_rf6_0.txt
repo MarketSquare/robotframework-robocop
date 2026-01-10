@@ -1,2 +1,4 @@
 test.robot:3:40 [W] NAME13 Library alias is the same as original name
 test.robot:7:42 [W] NAME13 Library alias is the same as original name
+
+Found 2 issues.

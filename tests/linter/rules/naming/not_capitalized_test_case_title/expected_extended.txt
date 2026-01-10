@@ -5,3 +5,4 @@ test.robot:5:1 NAME07 Test case 'test not capitalized' title does not start with
  6 |     Pass Execution
    |
 
+Found 1 issue.

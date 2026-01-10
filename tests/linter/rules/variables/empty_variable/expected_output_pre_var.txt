@@ -12,3 +12,5 @@ test.robot:36:1 [I] VAR01 Empty variable value
 test.robot:37:1 [I] VAR01 Empty variable value
 test.robot:38:1 [I] VAR01 Empty variable value
 test.robot:39:1 [I] VAR01 Empty variable value
+
+Found 14 issues.

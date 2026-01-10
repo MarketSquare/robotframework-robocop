@@ -4,3 +4,5 @@ test.robot:121:12 [W] VAR03 Local variable '${variable}' is overwritten before u
 test.robot:123:12 [W] VAR03 Local variable '${variable2}' is overwritten before usage
 test.robot:127:5 [W] VAR03 Local variable '${from_keyword3}' is overwritten before usage
 test.robot:131:12 [W] VAR03 Local variable '${variable3}' is overwritten before usage
+
+Found 6 issues.

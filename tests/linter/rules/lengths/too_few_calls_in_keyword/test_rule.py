@@ -37,7 +37,7 @@ class TestRuleAcceptance(RuleAcceptance):
                 "too-few-calls-in-keyword.min_calls=2",
             ],
             src_files=["bug629.robot"],
-            expected_file="expected_output_bug629.txt",
+            expected_file=None,
             test_on_version=">=5",
         )
 

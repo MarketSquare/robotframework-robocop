@@ -15,3 +15,4 @@ test.robot:8:1 MISC05 The assignment sign is not consistent inside the variables
    | ^^^^^^^ MISC05
    |
 
+Found 2 issues.

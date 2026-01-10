@@ -12,3 +12,5 @@ test.robot:109:9 [E] MISC10 Unreachable code after BREAK statement
 test.robot:112:5 [E] MISC10 Unreachable code after RETURN statement
 test.robot:118:13 [E] MISC10 Unreachable code after BREAK statement
 test.robot:123:5 [E] MISC10 Unreachable code after RETURN statement
+
+Found 14 issues.

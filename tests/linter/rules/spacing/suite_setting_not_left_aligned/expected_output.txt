@@ -24,3 +24,5 @@ four_spaces.robot:15:5 [E] SPC16 Setting in Settings section is not left aligned
 four_spaces.robot:16:5 [E] SPC16 Setting in Settings section is not left aligned
 four_spaces.robot:18:5 [E] SPC16 Setting in Settings section is not left aligned
 four_spaces.robot:19:5 [E] SPC16 Setting in Settings section is not left aligned
+
+Found 26 issues.

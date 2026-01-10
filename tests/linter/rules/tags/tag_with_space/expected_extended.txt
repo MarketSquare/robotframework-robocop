@@ -63,3 +63,4 @@ test.robot:19:59 TAG01 Tag '${var} space' contains spaces
  21 |     Pass
     |
 
+Found 7 issues.

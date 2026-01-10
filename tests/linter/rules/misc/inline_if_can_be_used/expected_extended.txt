@@ -8,3 +8,4 @@ test.robot:3:5 MISC09 IF can be replaced with inline IF
  5 |     END
    |
 
+Found 1 issue.

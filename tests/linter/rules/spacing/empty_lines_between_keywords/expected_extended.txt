@@ -65,3 +65,4 @@ test.robot:52:1 SPC05 Invalid number of empty lines between keywords (0/1)
  54 |     No Operation
     |
 
+Found 7 issues.

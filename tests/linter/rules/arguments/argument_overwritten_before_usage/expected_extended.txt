@@ -58,3 +58,4 @@ test.robot:70:50 ARG02 Keyword argument '${overwritten2}' is overwritten before 
  72 |     VAR    ${overwritten2}    ${arg1}
     |
 
+Found 6 issues.

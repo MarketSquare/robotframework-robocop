@@ -82,6 +82,21 @@ class RuleMatcher:
             pattern.match(rule.rule_id) or pattern.match(rule.name) for pattern in self.config.exclude_rules_patterns
         )
 
+    def is_rule_fixable(self, rule: Rule) -> bool:
+        """
+        Determine if rule is fixable.
+
+        Rule is fixable if it implements FixableRule class and its rule id or name matches
+        with --fixable and --unfixable options.
+        """
+        if not rule.fixable:
+            return False
+        if rule.rule_id in self.config.unfixable or rule.name in self.config.unfixable:
+            return False
+        if self.config.fixable:
+            return rule.rule_id in self.config.fixable or rule.name in self.config.fixable
+        return True
+
 
 @dataclass
 class ConfigContainer:
@@ -191,6 +206,8 @@ class LinterConfig:
     select: list[str] | None = field(default_factory=list)
     extend_select: list[str] | None = field(default_factory=list)
     ignore: list[str] | None = field(default_factory=list)
+    fixable: set[str] | None = field(default_factory=set)
+    unfixable: set[str] | None = field(default_factory=set)
     per_file_ignores: dict[str, list[str]] | None = field(default=None)
     issue_format: str | None = DEFAULT_ISSUE_FORMAT
     target_version: Version | None = field(default=None, compare=False)
@@ -309,6 +326,7 @@ class LinterConfig:
             rule.enabled = rule_matcher.is_rule_enabled(rule)
             if rule.enabled:
                 any_enabled = True
+                rule.fixable = rule_matcher.is_rule_fixable(rule)
         return any_enabled
 
     def validate_any_rule_enabled(self) -> None:
@@ -386,6 +404,9 @@ class LinterConfig:
             override["custom_rules"] = [
                 resolve_relative_path(path, config_path.parent, ensure_exists=True) for path in config["custom_rules"]
             ]
+        for param in ("fixable", "unfixable"):
+            if param in config:
+                override[param] = set(config[param])
         override["config_source"] = str(config_path)
         return cls(**override)
 

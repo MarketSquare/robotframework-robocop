@@ -128,7 +128,7 @@ class AlignTemplatedTestCases(Formatter):
             line_pos = 0
             exp_pos = 0
             widths = self.get_widths(statement)
-            for token, width in zip(strip_line, widths):
+            for token, width in zip(strip_line, widths, strict=False):
                 if self.min_width:
                     exp_pos += max(width + self.formatting_config.space_count, self.min_width)
                 else:

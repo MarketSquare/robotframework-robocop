@@ -181,7 +181,7 @@ class ReplaceRunKeywordIf(Formatter):
     def check_for_useless_set_variable(tokens, assign):
         if not assign or misc.normalize_name(tokens[0].value) != "setvariable" or len(tokens[1:]) != len(assign):
             return False
-        for var, var_assign in zip(tokens[1:], assign):
+        for var, var_assign in zip(tokens[1:], assign, strict=False):
             if misc.normalize_name(var.value) != misc.normalize_name(var_assign.value):
                 return False
         return True

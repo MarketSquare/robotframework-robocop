@@ -2,6 +2,7 @@ from collections.abc import Iterable
 from dataclasses import dataclass, field
 from itertools import chain
 from pathlib import Path
+from re import Pattern
 from typing import TYPE_CHECKING
 
 from robot.api import Token
@@ -17,8 +18,6 @@ from robocop.parsing.run_keywords import iterate_keyword_names
 from robocop.source_file import SourceFile, VirtualSourceFile
 
 if TYPE_CHECKING:
-    from re import Pattern
-
     from robocop.config_manager import ConfigManager
     from robocop.linter.diagnostics import Diagnostic
 

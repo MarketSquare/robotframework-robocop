@@ -36,7 +36,7 @@ from importlib import import_module
 from inspect import isclass
 from pathlib import Path
 from textwrap import dedent
-from typing import TYPE_CHECKING, Any, Callable, NoReturn
+from typing import TYPE_CHECKING, Any, NoReturn
 
 from robocop import __version__, exceptions
 from robocop.linter.diagnostics import Diagnostic
@@ -54,7 +54,7 @@ except ImportError:
     from robot.parsing.model.visitor import ModelVisitor
 
 if TYPE_CHECKING:
-    from collections.abc import Generator
+    from collections.abc import Callable, Generator
     from re import Pattern
 
     from robot.parsing import File
@@ -322,6 +322,7 @@ class Rule:
         deprecated_names: (class attribute) optional tuple of deprecated names for the rule
         fix_suggestion (str): (class attribute) optional suggestion on how to fix the issue
         fix_availability (FixAvailability): The availability of automatic fixes for this rule
+        fixable (bool): internal flag to mark whether rule can be fixed
 
     """
 
@@ -342,6 +343,7 @@ class Rule:
     deprecated_names: tuple[str,] | None = None
     fix_suggestion: str | None = None
     fix_availability: FixAvailability = FixAvailability.NONE
+    fixable: bool = False
 
     def __init__(self) -> None:
         self.version_spec = VersionSpecifier(self.version) if self.version else None
@@ -489,6 +491,7 @@ class FixableRule(Rule, ABC):
     """
 
     fix_availability: FixAvailability
+    fixable: bool = True
 
     @abstractmethod
     def fix(self, diag: Diagnostic, source_lines: list[str]) -> Fix | None:

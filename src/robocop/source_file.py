@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Callable
+from typing import TYPE_CHECKING
 
 from robot.api import get_init_model, get_model, get_resource_model
 from robot.api.parsing import ModelVisitor
@@ -15,6 +15,7 @@ from robocop.files import path_relative_to_cwd
 from robocop.version_handling import LANG_SUPPORTED
 
 if TYPE_CHECKING:
+    from collections.abc import Callable
     from pathlib import Path
 
     from robot.parsing.model import File

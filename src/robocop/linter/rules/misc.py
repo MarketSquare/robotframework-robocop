@@ -1063,7 +1063,7 @@ class IfChecker(VisitorChecker):
             return all(assign is None for assign in (assign_1, assign_2))
         if len(assign_1) != len(assign_2):
             return False
-        for var1, var2 in zip(assign_1, assign_2):
+        for var1, var2 in zip(assign_1, assign_2, strict=False):
             if self.normalize_var_name(var1) != self.normalize_var_name(var2):
                 return False
         return True

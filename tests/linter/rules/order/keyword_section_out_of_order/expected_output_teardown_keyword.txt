@@ -1,2 +1,4 @@
 test.robot:21:5 [W] ORD02 'TEARDOWN' is in wrong place of Keyword. Recommended order of elements in Keyword: TEARDOWN, KEYWORD
 test.robot:43:5 [W] ORD02 'TEARDOWN' is in wrong place of Keyword. Recommended order of elements in Keyword: TEARDOWN, KEYWORD
+
+Found 2 issues.

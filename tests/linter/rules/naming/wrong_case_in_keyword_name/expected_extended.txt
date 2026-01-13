@@ -17,3 +17,4 @@ test.robot:112:1 NAME02 Keyword name 'Dot in name foo.bar' does not follow case 
      | Suggestion: Rename the keyword to use Title Case (e.g., 'My Keyword Name').
      |
 
+Found 2 issues.

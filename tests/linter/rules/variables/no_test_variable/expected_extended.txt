@@ -61,3 +61,4 @@ test_var_syntax.robot:27:44 VAR06 Variable defined with test/task scope
     |                                            ^^^^^^^^^^ VAR06
     |
 
+Found 7 issues.

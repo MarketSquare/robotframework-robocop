@@ -1,2 +1,4 @@
 test.robot:23:1 [W] SPC10 Too many blank lines at the end of file
 test2.robot:22:1 [W] SPC10 Too many blank lines at the end of file
+
+Found 2 issues.

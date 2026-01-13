@@ -6,3 +6,4 @@ test.robot:21:5 MISC02 [Return] is empty
     |     ^^^^^^^ MISC02
     |
 
+Found 1 issue.

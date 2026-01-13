@@ -1,1 +1,3 @@
 loops.robot:43:9:43:20 [W] VAR03 Local variable '${variablE}' is overwritten before usage
+
+Found 1 issue.

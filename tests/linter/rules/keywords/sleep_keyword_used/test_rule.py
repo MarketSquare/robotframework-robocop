@@ -19,5 +19,5 @@ class TestRuleAcceptance(RuleAcceptance):
         self.check_rule(
             configure=["sleep-keyword-used.max_time=1min"],
             src_files=["test.robot"],
-            expected_file="expected_output_1min.txt",
+            expected_file=None,
         )

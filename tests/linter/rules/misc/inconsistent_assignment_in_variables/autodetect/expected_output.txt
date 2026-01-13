@@ -1,1 +1,3 @@
 autodetect${/}test.robot:7:1 [W] MISC05 The assignment sign is not consistent inside the variables section. Expected ' =' but got '=' instead
+
+Found 1 issue.

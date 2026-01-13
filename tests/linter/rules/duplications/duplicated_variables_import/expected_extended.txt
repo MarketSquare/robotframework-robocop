@@ -45,3 +45,4 @@ test.robot:16:1 DUP07 Duplicated variables import with path 'variables.robot' (f
  17 | Variables  variables.robot    arg
     |
 
+Found 5 issues.

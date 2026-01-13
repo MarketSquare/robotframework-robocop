@@ -1,3 +1,5 @@
 test.robot:5:1 [W] NAME06 Section name should be in format '*** Variables ***' or '*** VARIABLES ***'
 test.robot:9:1 [W] NAME06 Section name should be in format '*** Test Cases ***' or '*** TEST CASES ***'
 test.robot:18:1 [W] NAME06 Section name should be in format '*** Keywords ***' or '*** KEYWORDS ***'
+
+Found 3 issues.

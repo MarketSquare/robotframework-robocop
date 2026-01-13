@@ -26,3 +26,4 @@ test2.robot:16:1 DUP01 Multiple test cases with name 'Te s t_1' (first occurrenc
  17 |     No Operation
     |
 
+Found 4 issues.

@@ -6,3 +6,4 @@ test.robot:3:1 LEN17 Import library path is empty
    | ^^^^^^^ LEN17
    |
 
+Found 1 issue.

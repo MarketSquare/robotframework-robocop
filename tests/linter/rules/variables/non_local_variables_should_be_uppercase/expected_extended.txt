@@ -118,3 +118,4 @@ test.robot:43:26 VAR07 Non local variable is not uppercase
  45 |     Set Suite Variable  ${CAPITAL SPACE @{var}}  1
     |
 
+Found 12 issues.

@@ -28,3 +28,4 @@ test_lang.resource:3:1 ERR15 Resource file can't contain '*** Przypadki Testowe 
  5 |     Step
    |
 
+Found 4 issues.

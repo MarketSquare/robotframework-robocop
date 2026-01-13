@@ -60,3 +60,4 @@ test.robot:194:31 ARG01 Keyword argument '${unused}' is not used
  195 |     Log  ${used} unused
      |
 
+Found 7 issues.

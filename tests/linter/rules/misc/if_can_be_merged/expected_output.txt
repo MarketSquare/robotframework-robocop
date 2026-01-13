@@ -9,3 +9,5 @@ test.robot:162:5 [I] MISC07 IF statement can be merged with previous IF (defined
 test.robot:167:5 [I] MISC07 IF statement can be merged with previous IF (defined in line 162)
 inline_if.robot:21:15 [I] MISC07 IF statement can be merged with previous IF (defined in line 20)
 inline_if.robot:26:5 [I] MISC07 IF statement can be merged with previous IF (defined in line 25)
+
+Found 11 issues.

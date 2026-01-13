@@ -95,3 +95,4 @@ test.robot:37:23 MISC13 'Should Be True' condition can be simplified
     |                       ^^^^^^^^^^^^^^^^ MISC13
     |
 
+Found 10 issues.

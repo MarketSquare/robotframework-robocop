@@ -1,1 +1,3 @@
 configure_pattern${/}test.robot:4:3 [W] NAME18 Keyword name 'Not Allowed Dot In Keyword Foo.baz' does not follow case convention
+
+Found 1 issue.

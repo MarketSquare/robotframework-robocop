@@ -31,3 +31,5 @@ test.robot:156:1 [W] SPC08 Line is over-indented
 test.robot:158:1 [W] SPC08 Line is under-indented
 test.robot:162:1 [W] SPC08 Line is over-indented
 test.robot:169:1 [W] SPC08 Line is over-indented
+
+Found 33 issues.

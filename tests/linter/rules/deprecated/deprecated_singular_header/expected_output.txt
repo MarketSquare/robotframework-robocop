@@ -4,3 +4,5 @@ test.robot:6:1 [W] DEPR04 '*** Test Case ***' deprecated singular header used in
 test.robot:8:1 [W] DEPR04 '*** Keyword ***' deprecated singular header used instead of '*** Keywords ***'
 test.robot:9:1 [W] DEPR04 '*** Keyword ***' deprecated singular header used instead of '*** Keywords ***'
 test.robot:12:1 [W] DEPR04 '*** Comment ***' deprecated singular header used instead of '*** Comments ***'
+
+Found 6 issues.

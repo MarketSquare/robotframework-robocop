@@ -44,3 +44,4 @@ test.robot:15:42 ARG06 Argument name '${PARAM}' is already used
  16 |     Log  ${var}
     |
 
+Found 5 issues.

@@ -1,3 +1,5 @@
 test.robot:1:1 [I] TAG05 All tests in suite share these tags: 'sometag'
 tests_with_keywords.robot:1:1 [I] TAG05 All tests in suite share these tags: 'sometag'
 two_tags.robot:1:1 [I] TAG05 All tests in suite share these tags: 'first, second'
+
+Found 3 issues.

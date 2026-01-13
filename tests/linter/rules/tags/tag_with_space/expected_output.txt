@@ -5,3 +5,5 @@ test.robot:10:13 [W] TAG01 Tag 'some tag' contains spaces
 test.robot:10:46 [W] TAG01 Tag '${var} space' contains spaces
 test.robot:19:27 [W] TAG01 Tag 'space tag' contains spaces
 test.robot:19:59 [W] TAG01 Tag '${var} space' contains spaces
+
+Found 7 issues.

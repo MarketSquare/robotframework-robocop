@@ -7,3 +7,4 @@ test.robot:14:5 LEN30 Template of 'Test with empty template' Test Case is empty.
  15 |     No Operation
     |
 
+Found 1 issue.

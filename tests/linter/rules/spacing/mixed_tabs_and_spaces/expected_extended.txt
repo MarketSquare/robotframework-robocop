@@ -49,3 +49,4 @@ test.robot:21:41 SPC06 Inconsistent use of tabs and spaces in file
     |                                         ^^^^ SPC06
     |
 
+Found 6 issues.

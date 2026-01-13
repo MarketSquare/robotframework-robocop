@@ -21,3 +21,4 @@ test.robot:18:1 NAME06 Section name should be in format '*** Keywords ***' or '*
  20 |     [Documentation]  this is doc
     |
 
+Found 3 issues.

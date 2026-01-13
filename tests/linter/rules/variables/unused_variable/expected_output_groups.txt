@@ -1,1 +1,3 @@
 groups.robot:16:9 [I] VAR02 Variable '${variable}' is assigned but not used
+
+Found 1 issue.

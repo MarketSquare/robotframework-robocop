@@ -6,3 +6,4 @@ test.robot:3:1 LEN23 Test Teardown does not have any keywords
    | ^^^^^^^^^^^^^ LEN23
    |
 
+Found 1 issue.

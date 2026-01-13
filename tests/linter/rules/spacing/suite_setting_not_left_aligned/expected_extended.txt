@@ -216,3 +216,4 @@ one_space.robot:19:2 SPC16 Setting in Settings section is not left aligned
     |  ^ SPC16
     |
 
+Found 26 issues.

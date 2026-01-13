@@ -55,3 +55,4 @@ tests.robot:53:7 SPC11 Continuation marker is not aligned with starting row
  55 |     END
     |
 
+Found 6 issues.

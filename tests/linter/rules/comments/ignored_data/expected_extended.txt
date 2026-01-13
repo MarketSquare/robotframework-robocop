@@ -37,3 +37,4 @@ with_ignored_rule_and_data.robot:2:1 COM04 Ignored data found in file
  4 | *** Settings ***
    |
 
+Found 5 issues.

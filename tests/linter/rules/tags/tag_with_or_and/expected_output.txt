@@ -3,3 +3,5 @@ test.robot:4:15 [I] TAG02 Tag 'tagORtag2' with reserved word OR/AND
 test.robot:10:13 [I] TAG02 Tag 'tagORtag2' with reserved word OR/AND
 test.robot:10:41 [I] TAG02 Tag 'tagOR${var}' with reserved word OR/AND
 test.robot:19:29 [I] TAG02 Tag 'tagORtag2' with reserved word OR/AND
+
+Found 5 issues.

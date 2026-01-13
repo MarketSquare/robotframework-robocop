@@ -17,7 +17,16 @@ except ImportError:
     InlineIfHeader = None
 
 from robocop.linter import sonar_qube
-from robocop.linter.rules import RawFileChecker, Rule, RuleParam, RuleSeverity, SeverityThreshold, VisitorChecker
+from robocop.linter.fix import Fix, FixApplicability, FixAvailability, TextEdit
+from robocop.linter.rules import (
+    FixableRule,
+    RawFileChecker,
+    Rule,
+    RuleParam,
+    RuleSeverity,
+    SeverityThreshold,
+    VisitorChecker,
+)
 from robocop.linter.utils.misc import get_errors, get_section_name, str2bool, token_col
 from robocop.parsing.run_keywords import is_run_keyword
 from robocop.version_handling import INLINE_IF_SUPPORTED
@@ -27,12 +36,13 @@ if TYPE_CHECKING:
     from robot.parsing.model import Block, Section
     from robot.parsing.model.statements import Node, Statement
 
+    from robocop.linter.diagnostics import Diagnostic
     from robocop.linter.rules import BaseChecker
 
 
-class TrailingWhitespaceRule(Rule):
+class TrailingWhitespaceRule(FixableRule):
     r"""
-    Trailing whitespace at the end of line.
+    Trailing whitespace at the end of the line.
 
     Invisible, unnecessary whitespace can be confusing.
 
@@ -62,6 +72,14 @@ class TrailingWhitespaceRule(Rule):
         clean_code=sonar_qube.CleanCodeAttribute.FORMATTED, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
     deprecated_names = ("1001",)
+    fix_availability = FixAvailability.ALWAYS
+
+    def fix(self, diag: Diagnostic, source_lines: list[str]) -> Fix | None:  # noqa: ARG002
+        return Fix(
+            edits=[TextEdit.replace_at_range(self.rule_id, self.name, diag.range, "")],
+            message="Strip trailing whitespace",
+            applicability=FixApplicability.SAFE,
+        )
 
 
 class MissingTrailingBlankLineRule(Rule):
@@ -332,7 +350,7 @@ class EmptyLineAfterSectionRule(Rule):
 
 class TooManyTrailingBlankLinesRule(Rule):
     """
-    Too many blank lines at the end of file.
+    Too many blank lines at the end of the file.
 
     There should be exactly one blank line at the end of the file.
     """
@@ -684,37 +702,27 @@ class InvalidSpacingChecker(RawFileChecker):  # TODO merge, we can just use sing
     missing_trailing_blank_line: MissingTrailingBlankLineRule
     too_many_trailing_blank_lines: TooManyTrailingBlankLinesRule
 
-    def __init__(self):
-        self.raw_lines = []
-        super().__init__()
-
     def parse_file(self) -> None:
-        self.raw_lines = []
         super().parse_file()
-        if self.raw_lines:
-            last_line = self.raw_lines[-1]
-            if last_line in ["\n", "\r", "\r\n"]:
-                self.report(
-                    self.too_many_trailing_blank_lines, lineno=len(self.raw_lines) + 1, end_col=len(last_line) + 1
-                )
+        if not self.lines:
+            return
+        last_line = self.lines[-1]
+        if last_line in ["\n", "\r", "\r\n"]:
+            self.report(self.too_many_trailing_blank_lines, lineno=len(self.lines) + 1, end_col=len(last_line) + 1)
+            return
+        empty_lines = 0
+        for line in self.lines[::-1]:
+            if not line.strip():
+                empty_lines += 1
+            else:
+                break
+            if empty_lines > 1:
+                self.report(self.too_many_trailing_blank_lines, lineno=len(self.lines), end_col=len(last_line) + 1)
                 return
-            empty_lines = 0
-            for line in self.raw_lines[::-1]:
-                if not line.strip():
-                    empty_lines += 1
-                else:
-                    break
-                if empty_lines > 1:
-                    self.report(
-                        self.too_many_trailing_blank_lines, lineno=len(self.raw_lines), end_col=len(last_line) + 1
-                    )
-                    return
-            if not empty_lines and not last_line.endswith(("\n", "\r")):
-                self.report(self.missing_trailing_blank_line, lineno=len(self.raw_lines), end_col=len(last_line) + 1)
+        if not empty_lines and not last_line.endswith(("\n", "\r")):
+            self.report(self.missing_trailing_blank_line, lineno=len(self.lines), end_col=len(last_line) + 1)
 
     def check_line(self, line: str, lineno: int) -> None:
-        self.raw_lines.append(line)
-
         stripped_line = line.rstrip("\n\r")
         if stripped_line and stripped_line[-1] in [" ", "\t"]:
             whitespace_length = len(stripped_line) - len(stripped_line.rstrip())

@@ -28,3 +28,4 @@ test.robot:30:120 LEN08 Line is too long (139/120)
     | Suggestion: Break long lines using the '...' continuation syntax.
     |
 
+Found 3 issues.

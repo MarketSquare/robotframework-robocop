@@ -9,3 +9,5 @@ test.robot:64:8 [W] SPC15 Continuation line is not aligned with the previous one
 test.robot:65:8 [W] SPC15 Continuation line is not aligned with the previous one
 test.robot:68:8 [W] SPC15 Continuation line is not aligned with the previous one
 test.robot:69:8 [W] SPC15 Continuation line is not aligned with the previous one
+
+Found 11 issues.

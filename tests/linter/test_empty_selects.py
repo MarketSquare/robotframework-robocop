@@ -38,7 +38,7 @@ def test_select_empty_rule_set_from_cli(tmp_path, test_config, capsys):
     out, _ = capsys.readouterr()
     expected = (
         "No rule selected with the existing configuration from the cli . "
-        "Please check if all rules from --select exist and there is no conflicting filter option.\n"
+        "Please check if all rules from --select exist and there is no conflicting filter option.\nNo issues found.\n"
     )
     assert not ret
     assert out == expected
@@ -52,7 +52,7 @@ def test_select_empty_rule_set_from_config_file(tmp_path, capsys):
     out, _ = capsys.readouterr()
     expected = (
         f"No rule selected with the existing configuration from the {tmp_path / 'pyproject.toml'} . "
-        "Please check if all rules from --select exist and there is no conflicting filter option.\n"
+        "Please check if all rules from --select exist and there is no conflicting filter option.\nNo issues found.\n"
     )
     assert not ret
     assert out == expected

@@ -1,1 +1,3 @@
 first_word${/}test.robot:36:1 [W] NAME02 Keyword name 'keyword' does not follow case convention
+
+Found 1 issue.

@@ -26,3 +26,5 @@ test.robot:24:33 SPC01 Trailing whitespace at the end of line
  26 |     Pass
     |
 
+Found 3 issues.
+3 fixable with the ``--fix`` option.

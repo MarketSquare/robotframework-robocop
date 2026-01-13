@@ -70,3 +70,4 @@ test_type.robot:31:67 LEN32 Variable name 'this_other_date_argument_is_way_too_l
  32 |     Comment    Embedded keyword arguments containing type and pattern
     |
 
+Found 9 issues.

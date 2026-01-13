@@ -17,3 +17,4 @@ with_empty_sections.robot:17:1 LEN09 Section '*** Variables ***' is empty
     | ^^^^^^^^^^^^^^^^^ LEN09
     |
 
+Found 3 issues.

@@ -18,3 +18,5 @@ test.robot:31:1 [W] NAME08 Section variable '${${VAR}my_var}' name is not upperc
 test.robot:32:1 [W] NAME08 Section variable '${${VAR}my_var${var}}' name is not uppercase
 test.robot:33:1 [W] NAME08 Section variable '${@{VAR}[1]my_var}' name is not uppercase
 test.robot:34:1 [W] NAME08 Section variable '${@{VAR}[1]my_var&{var.param}}' name is not uppercase
+
+Found 20 issues.

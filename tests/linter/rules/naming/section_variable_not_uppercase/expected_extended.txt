@@ -193,3 +193,4 @@ test.robot:34:1 NAME08 Section variable '${@{VAR}[1]my_var&{var.param}}' name is
     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ NAME08
     |
 
+Found 20 issues.

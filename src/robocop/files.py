@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from functools import cache
 from pathlib import Path
 from typing import Any
 
@@ -94,6 +95,16 @@ def get_relative_path(path: str | Path, parent_path: Path) -> Path:
         return Path(path).relative_to(parent_path)
     except ValueError:  # symlink etc
         return Path(path)
+
+
+@cache
+def path_relative_to_cwd(path: Path) -> Path:
+    """Return path in relation to cwd path. Results are cached."""
+    cwd = Path.cwd()  # TODO: potentially performance heavy - check
+    try:
+        return path.relative_to(cwd)
+    except ValueError:  # symlink etc
+        return path
 
 
 def get_common_parent_dirs(sources: list[Path]) -> list[Path]:

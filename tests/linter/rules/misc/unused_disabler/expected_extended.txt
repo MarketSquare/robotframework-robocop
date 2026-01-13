@@ -204,3 +204,4 @@ test.robot:85:7 MISC15 Disabler directive found for 'line-too-long' rule(s) but 
  87 |     ...    A value that is longer than configured minimal length of the line and will trigger the line-too-long rule
     |
 
+Found 23 issues.

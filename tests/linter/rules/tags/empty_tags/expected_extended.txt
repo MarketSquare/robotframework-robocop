@@ -17,3 +17,4 @@ default_and_empty_tags.robot:31:5 TAG08 [Tags] setting without values
  32 |     No Operation
     |
 
+Found 2 issues.

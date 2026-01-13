@@ -1,1 +1,3 @@
 test.robot:2:1 [E] LEN29 Test Template is empty
+
+Found 1 issue.

@@ -12,3 +12,4 @@ test.robot:29:1 LEN05 Test case 'Test case with settings and no keyword calls' h
  31 |     [Setup]    Keyword
     |
 
+Found 2 issues.

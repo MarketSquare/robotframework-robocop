@@ -8,3 +8,5 @@ positional_args.robot:12:29 [E] ERR01 Robot Framework syntax error: Positional a
 positional_args.robot:12:38 [E] ERR01 Robot Framework syntax error: Positional argument '${arg}' follows named argument
 resource_with_test_lang.resource:7:1 [E] ERR01 Robot Framework syntax error: Unrecognized section header '*** Ustawienia ***'. Valid sections: 'Settings', 'Variables', 'Keywords' and 'Comments'.
 resource_with_test_lang.resource:3:1 [E] ERR01 Robot Framework syntax error: Unrecognized section header '*** Przypadki Testowe ***'. Valid sections: 'Settings', 'Variables', 'Keywords' and 'Comments'.
+
+Found 10 issues.

@@ -1,1 +1,3 @@
 test.robot:46:1 [E] SPC12 Too many consecutive empty lines (3/3)
+
+Found 1 issue.

@@ -13,3 +13,4 @@ templated_test.robot:5:1 LEN27 Too many test cases (101/100)
  7 | TestCase1      ${arg}    ${arg}
    |
 
+Found 2 issues.

@@ -1,1 +1,3 @@
 test.robot:20:9 [E] MISC03 Nested for loops are not supported. You can use keyword with for loop instead
+
+Found 1 issue.

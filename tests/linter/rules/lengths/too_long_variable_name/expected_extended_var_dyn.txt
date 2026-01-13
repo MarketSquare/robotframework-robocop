@@ -134,3 +134,4 @@ test_var_dyn.robot:56:12 LEN32 Variable name 'SETTING_GLOBAL_VARIABLE_WITH_TOO_L
     |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ LEN32
     |
 
+Found 16 issues.

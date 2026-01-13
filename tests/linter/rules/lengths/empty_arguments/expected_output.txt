@@ -1,1 +1,3 @@
 test.robot:17:5 [E] LEN26 Arguments of 'Keyword Without Arguments' Keyword are empty
+
+Found 1 issue.

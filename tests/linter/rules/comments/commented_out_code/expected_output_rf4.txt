@@ -52,3 +52,5 @@ test_rf4.robot:89:5 [W] COM06 Commented out code: '${result}=    Some Keyword'
 test_rf4.robot:94:19 [W] COM06 Commented out code: '${var}=    inline assignment'
 test_rf4.robot:96:19 [W] COM06 Commented out code: 'IF    ${x}'
 test_rf4.robot:99:5 [W] COM06 Commented out code: '${VERY_LONG_VARIABLE_NAME}=    This is a very long value that exceeds forty char...'
+
+Found 54 issues.

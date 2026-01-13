@@ -16,3 +16,4 @@ keyword_tags.robot:12:13 TAG11 Tag 'tag' is already set by Keyword Tags in suite
  13 |     No Operation
     |
 
+Found 2 issues.

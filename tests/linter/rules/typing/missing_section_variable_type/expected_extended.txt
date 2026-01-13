@@ -83,3 +83,4 @@ test.robot:50:5 ANN01 Variable '${result}' is missing type annotation
  52 |     ${_ignored} =    Set Variable    value
     |
 
+Found 9 issues.

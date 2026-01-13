@@ -16,3 +16,4 @@ test.robot:31:15 MISC04 The assignment sign is not consistent within the file. E
  33 |     ...    ${1}
     |
 
+Found 2 issues.

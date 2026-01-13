@@ -591,21 +591,18 @@ class IgnoredDataChecker(RawFileChecker):
 
     def __init__(self):
         self.is_bom = False
-        self.ignore_empty_lines = False  # ignore empty lines if language header or robocop disabler is present
+        self.ignore_empty_lines = False  # ignore empty lines if the language header or robocop disabler is present
         super().__init__()
 
     def parse_file(self) -> None:
         self.is_bom = False
         self.ignore_empty_lines = False
-        if self.lines is not None:
-            for lineno, line in enumerate(self.lines, start=1):
-                if self.check_line(line, lineno):
-                    break
-        else:
-            self.detect_bom(self.source_file.path)
-            for lineno, line in enumerate(self.source_file.source_lines, start=1):
-                if self.check_line(line, lineno):
-                    break
+        self.detect_bom(self.source_file.path)
+        if not self.ignored_data.enabled:
+            return
+        for lineno, line in enumerate(self.source_file.source_lines, start=1):
+            if self.check_line(line, lineno):
+                break
 
     def check_line(self, line: str, lineno: int) -> bool:
         if line.startswith(self.SECTION_HEADER):
@@ -622,7 +619,7 @@ class IgnoredDataChecker(RawFileChecker):
                 return "***" in line
         if self.ignore_empty_lines and not line.strip():
             return False
-        self.report(self.ignored_data, lineno=lineno, col=1, end_col=len(line))
+        self.report(self.ignored_data, lineno=lineno, col=1, end_col=len(line.rstrip()) + 1)
         return True
 
     def detect_bom(self, source: Path):

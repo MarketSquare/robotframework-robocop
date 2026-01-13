@@ -10,3 +10,4 @@ test.robot:32:1 LEN02 Keyword 'Keyword' has too few keywords inside (0/1)
     | ^^^^^^^ LEN02
     |
 
+Found 2 issues.

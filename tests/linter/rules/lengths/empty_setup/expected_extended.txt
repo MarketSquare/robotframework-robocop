@@ -8,3 +8,4 @@ test.robot:9:5 LEN18 Setup of 'Test' Test Case does not have any keywords
 11 |     Keyword
    |
 
+Found 1 issue.

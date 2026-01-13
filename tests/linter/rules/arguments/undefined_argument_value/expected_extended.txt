@@ -55,3 +55,4 @@ test.robot:7:12 ARG04 Undefined argument value, use A great log message =${EMPTY
    |            ^^^^^^^^^^^^^^^^^^^^^ ARG04
    |
 
+Found 6 issues.

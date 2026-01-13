@@ -1,2 +1,4 @@
 test.robot:14:1 [E] DUP09 Both Task(s) and Test Case(s) section headers defined in file
 test2.robot:3:1 [E] DUP09 Both Task(s) and Test Case(s) section headers defined in file
+
+Found 2 issues.

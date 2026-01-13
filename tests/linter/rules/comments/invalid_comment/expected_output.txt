@@ -1,1 +1,3 @@
 test.robot:12:2 [E] COM03 Comment starts from the second character in the line
+
+Found 1 issue.

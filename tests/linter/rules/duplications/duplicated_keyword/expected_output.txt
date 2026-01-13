@@ -1,1 +1,3 @@
 test.robot:25:1 [E] DUP02 Multiple keywords with name 'Duplicated Keyword' (first occurrence in line 15)
+
+Found 1 issue.

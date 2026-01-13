@@ -42,3 +42,4 @@ variable_errors.robot:13:1 SPC20 Not enough whitespace after '...' marker
     | ^^^ SPC20
     |
 
+Found 5 issues.

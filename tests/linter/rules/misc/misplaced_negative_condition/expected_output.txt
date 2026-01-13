@@ -6,3 +6,5 @@ test.robot:31:12 [I] MISC14 'Set Variable If' condition 'not ${status} is None' 
 test.robot:33:12 [I] MISC14 'Set Variable If' condition 'not ${class.attr['item']} is set()' can be rewritten to '${class.attr['item']} is not set()'
 test.robot:36:16 [I] MISC14 'Skip If' condition 'not ${status} is None' can be rewritten to '${status} is not None'
 test.robot:37:23 [I] MISC14 'Should Be True' condition 'not ${status} is None' can be rewritten to '${status} is not None'
+
+Found 8 issues.

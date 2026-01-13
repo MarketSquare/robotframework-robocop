@@ -8,3 +8,5 @@ test.robot:28:20 [I] ANN02 Argument '${var}' is missing type annotation
 test.robot:28:30 [I] ANN02 Argument '${var}' is missing type annotation
 test.robot:34:12 [I] ANN02 Argument '${arg2}' is missing type annotation
 test.robot:36:12 [I] ANN02 Argument '${arg4}' is missing type annotation
+
+Found 10 issues.

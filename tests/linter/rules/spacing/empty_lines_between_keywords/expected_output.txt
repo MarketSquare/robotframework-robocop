@@ -5,3 +5,5 @@ test.robot:37:1 [W] SPC05 Invalid number of empty lines between keywords (0/1)
 test.robot:41:1 [W] SPC05 Invalid number of empty lines between keywords (0/1)
 test.robot:46:1 [W] SPC05 Invalid number of empty lines between keywords (0/1)
 test.robot:52:1 [W] SPC05 Invalid number of empty lines between keywords (0/1)
+
+Found 7 issues.

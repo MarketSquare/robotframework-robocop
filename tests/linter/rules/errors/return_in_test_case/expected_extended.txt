@@ -88,3 +88,4 @@ test.robot:22:9 ERR14 RETURN can only be used inside a user keyword
  24 |     [Return]
     |
 
+Found 9 issues.

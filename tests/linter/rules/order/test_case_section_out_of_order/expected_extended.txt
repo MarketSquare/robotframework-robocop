@@ -51,3 +51,4 @@ test.robot:43:5 ORD01 'TEMPLATE' is in wrong place of Test Case. Recommended ord
  44 |     a    b
     |
 
+Found 6 issues.

@@ -44,3 +44,4 @@ test.robot:35:27 ARG03 Undefined argument default, use ${bar}=${EMPTY} instead
  36 |     No Operation
     |
 
+Found 5 issues.

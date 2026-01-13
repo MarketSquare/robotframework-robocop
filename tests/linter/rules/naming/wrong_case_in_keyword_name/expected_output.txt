@@ -1,2 +1,4 @@
 test.robot:41:1 [W] NAME02 Keyword name 'keyword' does not follow case convention
 test.robot:112:1 [W] NAME02 Keyword name 'Dot in name foo.bar' does not follow case convention
+
+Found 2 issues.

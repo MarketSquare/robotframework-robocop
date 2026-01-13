@@ -71,3 +71,4 @@ test.robot:47:5 LEN10 Too many return values (5/4)
     |     ^^^^^^^^ LEN10
     |
 
+Found 8 issues.

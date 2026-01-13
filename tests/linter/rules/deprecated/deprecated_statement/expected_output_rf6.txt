@@ -19,3 +19,5 @@ test.robot:34:5 [W] DEPR02 'Return From Keyword If' is deprecated since Robot Fr
 test.robot:35:5 [W] DEPR02 'BuiltIn.Return From Keyword' is deprecated since Robot Framework version 5.*, use 'RETURN' instead
 test.robot:37:5 [W] DEPR02 '[Return]' is deprecated since Robot Framework version 5.*, use 'RETURN' instead
 templated_suite.robot:2:18 [W] DEPR02 'Run Keyword Unless' is deprecated since Robot Framework version 5.*, use 'IF' instead
+
+Found 21 issues.

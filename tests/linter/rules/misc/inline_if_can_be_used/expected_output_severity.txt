@@ -1,2 +1,4 @@
 severity.robot:3:5 [I] MISC09 IF can be replaced with inline IF
 severity.robot:25:5 [W] MISC09 IF can be replaced with inline IF
+
+Found 2 issues.

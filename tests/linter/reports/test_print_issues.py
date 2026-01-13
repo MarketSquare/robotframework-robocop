@@ -1,11 +1,13 @@
 import os
 import textwrap
 from pathlib import Path
+from unittest.mock import MagicMock
 
 import pytest
 
 from robocop.config import Config
-from robocop.linter.diagnostics import Diagnostic, Diagnostics
+from robocop.linter.diagnostics import Diagnostic, Diagnostics, RunStatistic
+from robocop.linter.fix import FixStats
 from robocop.linter.reports.print_issues import PrintIssuesReport
 from robocop.source_file import SourceFile
 
@@ -54,15 +56,17 @@ class TestPrintIssuesReport:
           11:10 0902 Some description. Example (other-message)
           50:10 0101 Some description (some-message)
 
+        Found 4 issues.
         """)
             .lstrip()
             .replace("\\", os.path.sep)
         )
+        run_stats = RunStatistic(files_count=1, fix_stats=FixStats(), modified_files=[])
         report = PrintIssuesReport(config)
         report.configure("output_format", "grouped")
 
         # act
-        report.generate_report(issues)
+        report.generate_report(issues, run_stats=run_stats)
 
         # assert
         out, _ = capsys.readouterr()
@@ -77,13 +81,14 @@ class TestPrintIssuesReport:
         # arrange
         expected_output = r"tests\atest\rules\comments\ignored-data\test.robot:100:10".replace("\\", os.path.sep)
         source_lines = [""] * 200
+        run_stats = RunStatistic(files_count=1, fix_stats=MagicMock(), modified_files=[])
         report = PrintIssuesReport(config)
         report.configure("output_format", "extended")
         for diag in issues:
             diag.source._source_lines = source_lines  # noqa: SLF001
 
         # act
-        report.generate_report(issues)
+        report.generate_report(issues, run_stats=run_stats)
 
         # assert
         out, _ = capsys.readouterr()

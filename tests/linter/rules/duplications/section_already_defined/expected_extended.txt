@@ -36,3 +36,4 @@ test.robot:32:1 DUP08 '*** Tasks ***' section header already defined in file (fi
     | ^^^^^^^^^^^^ DUP08
     |
 
+Found 5 issues.

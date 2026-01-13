@@ -587,6 +587,63 @@ Read more about custom rules on the [Custom rules](../linter/custom_rules.md) pa
 
 ---
 
+#### ``fix``
+
+Apply automatic fixes to detected issues.
+
+=== ":octicons-command-palette-24: cli"
+
+  ```bash
+  robocop check --fix
+  ```
+
+=== ":material-file-cog-outline: toml"
+
+  ```toml
+  [tool.robocop.lint]
+  fix = true
+  ```
+
+---
+
+#### ``unsafe_fixes``
+
+Apply potentially unsafe fixes in addition to safe fixes. Requires `fix = true` to take effect.
+
+=== ":octicons-command-palette-24: cli"
+
+  ```bash
+  robocop check --fix --unsafe-fixes
+  ```
+
+=== ":material-file-cog-outline: toml"
+
+  ```toml
+  [tool.robocop.lint]
+  fix = true
+  unsafe_fixes = true
+  ```
+
+!!! warning
+    Unsafe fixes may alter code behaviour. Always review changes before committing.
+
+#### ``diff``
+
+Show the difference after applying the fixes without modifying files. Implies ``--fix``.
+
+=== ":octicons-command-palette-24: cli"
+
+  ```bash
+  robocop check --diff
+  ```
+
+=== ":material-file-cog-outline: toml"
+
+  ```toml
+  [tool.robocop.lint]
+  diff = true
+  ```
+
 ### Reports
 
 #### ``reports``

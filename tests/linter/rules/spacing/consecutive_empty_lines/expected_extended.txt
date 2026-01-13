@@ -40,3 +40,4 @@ test.robot:46:1 SPC12 Too many consecutive empty lines (3/1)
  49 |       Keyword
     |
 
+Found 4 issues.

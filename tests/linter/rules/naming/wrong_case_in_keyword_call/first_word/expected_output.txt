@@ -8,3 +8,5 @@ first_word${/}test.robot:18:17 [W] NAME18 Keyword name 'keyword' does not follow
 first_word${/}test.robot:107:5 [W] NAME18 Keyword name 'Process.txt with keyword' does not follow case convention
 first_word${/}test.robot:109:5 [W] NAME18 Keyword name 'Process.file test.txt with keyword' does not follow case convention
 first_word${/}test.robot:113:5 [W] NAME18 Keyword name '${VAR WITH SPACE}.txt with keyword' does not follow case convention
+
+Found 10 issues.

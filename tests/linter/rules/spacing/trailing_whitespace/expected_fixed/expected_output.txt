@@ -1,0 +1,5 @@
+Fixed 3 issues:
+- actual_fixed${/}test.robot:
+    3 x SPC01 (trailing-whitespace)
+
+Found 3 issues (3 fixed, 0 remaining).

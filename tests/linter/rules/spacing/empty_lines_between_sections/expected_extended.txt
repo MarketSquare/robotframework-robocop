@@ -70,3 +70,4 @@ bug861.robot:21:1 SPC03 Invalid number of empty lines between sections (1/2)
  23 | Blah Blah
     |
 
+Found 8 issues.

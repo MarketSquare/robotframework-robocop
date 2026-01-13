@@ -22,5 +22,5 @@ class TestRuleAcceptance(RuleAcceptance):
         self.check_rule(
             configure=["too-few-calls-in-test-case.min_calls=2"],
             src_files=["bug629/test.robot"],
-            expected_file="bug629/expected_output.txt",
+            expected_file=None,
         )

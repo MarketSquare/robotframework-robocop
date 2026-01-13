@@ -14,7 +14,7 @@ try:
 except ImportError:
     Languages = None
 import typer
-from typing_extensions import Self
+from typing_extensions import Generator, Self
 
 from robocop import exceptions
 from robocop.formatter import formatters
@@ -206,11 +206,14 @@ class LinterConfig:
     persistent: bool | None = False
     compare: bool | None = False
     exit_zero: bool | None = False
+    fix: bool | None = False
+    unsafe_fixes: bool | None = False
+    diff: bool | None = False
     return_result: bool = False
     config_source: str = field(default="cli", compare=False)
     _checkers: list[BaseChecker] | None = field(default=None, compare=False)
-    after_run_checkers: list[AfterRunChecker] | None = field(default=None, compare=False)
-    project_checkers: list[BaseChecker] | None = field(default=None, compare=False)
+    _after_run_checkers: list[AfterRunChecker] | None = field(default=None, compare=False)
+    _project_checkers: list[BaseChecker] | None = field(default=None, compare=False)
     _rules: dict[str, Rule] | None = field(default=None, compare=False)
     silent: bool | None = False
 
@@ -219,10 +222,26 @@ class LinterConfig:
             self.target_version = ROBOT_VERSION
 
     @property
-    def checkers(self) -> list[BaseChecker]:
+    def checkers(self) -> Generator[BaseChecker]:
         if self._checkers is None:
             self.load_configuration()
-        return self._checkers
+        for checker in self._checkers:
+            if not checker.disabled:
+                yield checker
+
+    @property
+    def after_run_checkers(self) -> Generator[BaseChecker]:
+        for checker in self._after_run_checkers:
+            if not checker.disabled:
+                yield checker
+
+    @property
+    def project_checkers(self) -> Generator[BaseChecker]:
+        if self._project_checkers is None:
+            self.load_configuration()
+        for checker in self._project_checkers:
+            if not checker.disabled:
+                yield checker
 
     @property
     def rules(self):
@@ -272,8 +291,8 @@ class LinterConfig:
             else:
                 base_checkers.append(checker)
         self._checkers = base_checkers
-        self.after_run_checkers = after_checkers
-        self.project_checkers = project_checkers
+        self._after_run_checkers = after_checkers
+        self._project_checkers = project_checkers
 
     def check_for_disabled_rules(self) -> None:
         """Check checker configuration to disable rules."""

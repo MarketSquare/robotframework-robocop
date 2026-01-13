@@ -72,3 +72,4 @@ test.robot:64:16 SPC18 First argument: '@{}' is not placed on the same line as [
  67 |       ...    ${second}
     |
 
+Found 7 issues.

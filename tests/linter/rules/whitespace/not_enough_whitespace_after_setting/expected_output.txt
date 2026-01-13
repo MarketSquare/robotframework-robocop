@@ -1,2 +1,4 @@
 test.robot:7:5 [E] SPC19 Not enough whitespace after '[Documentation]' setting
 test.robot:20:5 [E] SPC19 Not enough whitespace after '[Arguments]' setting
+
+Found 2 issues.

@@ -20,3 +20,5 @@ run_keywords.robot:25:12 [W] NAME18 Keyword name 'log' does not follow case conv
 run_keywords.robot:31:17 [W] NAME18 Keyword name 'keyword' does not follow case convention
 run_keywords.robot:33:16 [W] NAME18 Keyword name 'other_keyword' does not follow case convention
 run_keywords.robot:36:35 [W] NAME18 Keyword name 'keyword' does not follow case convention
+
+Found 22 issues.

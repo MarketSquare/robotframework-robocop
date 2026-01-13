@@ -43,6 +43,7 @@ nav:
       - Linter: linter/linter.md
       - Rules: linter/rules.md
       - "Rules list": rules_list.md
+      - "Auto fixing": linter/auto_fix.md
       - "Custom rules": linter/custom_rules.md
       - "Reports":
           - linter/reports/reports.md

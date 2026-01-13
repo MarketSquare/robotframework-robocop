@@ -48,3 +48,4 @@ test.robot:16:22 DEPR06 BuiltIn.Create Dictionary used instead of VAR
  18 |     VAR    ${var}
     |
 
+Found 5 issues.

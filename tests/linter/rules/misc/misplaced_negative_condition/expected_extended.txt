@@ -75,3 +75,4 @@ test.robot:37:23 MISC14 'Should Be True' condition 'not ${status} is None' can b
     |                       ^^^^^^^^^^^^^^^^^^^^^ MISC14
     |
 
+Found 8 issues.

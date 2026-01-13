@@ -25,3 +25,4 @@ variable_errors.robot:11:1 ERR05 Invalid continuation mark '....'. It should be 
  13 | ...d
     |
 
+Found 3 issues.

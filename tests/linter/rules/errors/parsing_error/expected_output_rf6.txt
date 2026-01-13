@@ -34,3 +34,5 @@ invalid_while.robot:4:1 [E] ERR01 Robot Framework syntax error: WHILE must have 
 invalid_while.robot:10:5 [E] ERR01 Robot Framework syntax error: WHILE cannot have more than one condition.
 invalid_while.robot:16:5 [E] ERR01 Robot Framework syntax error: WHILE loop cannot be empty.
 invalid_while.robot:21:5 [E] ERR01 Robot Framework syntax error: WHILE loop must have closing END.
+
+Found 36 issues.

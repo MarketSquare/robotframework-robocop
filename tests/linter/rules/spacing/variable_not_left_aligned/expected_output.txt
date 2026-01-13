@@ -3,3 +3,5 @@ test.robot:8:1 [E] SPC14 Variable in Variables section is not left aligned
 test.robot:9:1 [E] SPC14 Variable in Variables section is not left aligned
 test.robot:10:1 [E] SPC14 Variable in Variables section is not left aligned
 test.robot:12:1 [E] SPC14 Variable in Variables section is not left aligned
+
+Found 5 issues.

@@ -11,3 +11,5 @@ test.robot:48:26 [W] ARG01 Keyword argument '${argument2}' is not used
 test.robot:51:34 [W] ARG01 Keyword argument '${argument2}' is not used
 test.robot:73:20 [W] ARG01 Keyword argument '${var}' is not used
 test.robot:194:31 [W] ARG01 Keyword argument '${unused}' is not used
+
+Found 13 issues.

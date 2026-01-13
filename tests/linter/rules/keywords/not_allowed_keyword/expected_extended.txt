@@ -125,3 +125,4 @@ test.robot:44:5 KW02 Keyword 'Not Allowed' is not allowed
     |     ^^^^^^^^^^^ KW02
     |
 
+Found 14 issues.

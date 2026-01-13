@@ -3,3 +3,5 @@ test.robot:12:12 [I] ANN03 FOR loop variable '${idx}' is missing type annotation
 test.robot:22:12 [I] ANN03 FOR loop variable '${i}' is missing type annotation
 test.robot:24:16 [I] ANN03 FOR loop variable '${j}' is missing type annotation
 test.robot:35:16 [I] ANN03 FOR loop variable '${y}' is missing type annotation
+
+Found 5 issues.

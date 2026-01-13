@@ -20,3 +20,5 @@ test.robot:52:25 [E] MISC08 'Exit For Loop If' keyword used outside a loop
 test.robot:53:5 [E] MISC08 'Continuefor_loopIf' keyword used outside a loop
 test.robot:67:9 [E] MISC08 'Continue For Loop' keyword used outside a loop
 test.robot:69:9 [E] MISC08 BREAK statement used outside a loop
+
+Found 22 issues.

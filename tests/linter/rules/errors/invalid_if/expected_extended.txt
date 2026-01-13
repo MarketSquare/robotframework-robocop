@@ -68,3 +68,4 @@ test.robot:72:9 ERR13 Invalid IF syntax: IF must have a condition
  74 |         END
     |
 
+Found 7 issues.

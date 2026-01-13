@@ -1,1 +1,3 @@
 test_tags.robot:9:13 [I] TAG06 Tag 'sometag' is already set by Test Tags in suite settings
+
+Found 1 issue.

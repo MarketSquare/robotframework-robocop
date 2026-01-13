@@ -1,1 +1,3 @@
 ignore_docs.robot:15:1 [W] LEN01 Keyword 'Keyword' is too long (44/40)
+
+Found 1 issue.

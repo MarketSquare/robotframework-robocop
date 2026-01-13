@@ -1,1 +1,3 @@
 test.robot:5:1 [W] NAME07 Test case 'test not capitalized' title does not start with capital letter
+
+Found 1 issue.

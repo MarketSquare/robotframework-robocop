@@ -19,3 +19,5 @@ test.robot:53:5 [W] NAME05 Setting name '[arguments]' not in title or uppercase
 test.robot:54:5 [W] NAME05 Setting name '[timeout]' not in title or uppercase
 test.robot:59:5 [W] NAME05 Setting name '[teardown]' not in title or uppercase
 test.robot:60:5 [W] NAME05 Setting name '[return]' not in title or uppercase
+
+Found 21 issues.

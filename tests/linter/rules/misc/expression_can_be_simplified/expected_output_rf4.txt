@@ -6,3 +6,5 @@ test.robot:31:16 [I] MISC13 'Set Variable If' condition can be simplified
 test.robot:33:12 [I] MISC13 'Set Variable If' condition can be simplified
 test.robot:36:16 [I] MISC13 'Skip If' condition can be simplified
 test.robot:37:23 [I] MISC13 'Should Be True' condition can be simplified
+
+Found 8 issues.

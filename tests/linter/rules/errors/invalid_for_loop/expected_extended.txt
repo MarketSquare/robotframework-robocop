@@ -115,3 +115,4 @@ test.robot:69:9 ERR12 Invalid for loop syntax: FOR loop has no variables
  71 |         END
     |
 
+Found 12 issues.

@@ -9,9 +9,10 @@ from rich.console import Console
 from robocop import __version__, config, config_manager
 from robocop.formatter.runner import RobocopFormatter
 from robocop.formatter.skip import SkipConfig
+from robocop.linter import rules_list
 from robocop.linter.diagnostics import Diagnostic
 from robocop.linter.reports import load_reports, print_reports
-from robocop.linter.rules import RuleFilter, RuleSeverity, filter_rules_by_category, filter_rules_by_pattern
+from robocop.linter.rules import RuleSeverity
 from robocop.linter.runner import RobocopLinter
 from robocop.linter.utils.misc import ROBOCOP_RULES_URL, compile_rule_pattern, get_plural_form  # TODO: move higher up
 from robocop.migrate_config import migrate_deprecated_configs
@@ -229,6 +230,12 @@ reports_option = Annotated[
         rich_help_panel="Reports",
     ),
 ]
+fix_option = Annotated[bool, typer.Option(help="Fix lint violations", rich_help_panel="Fix")]
+unsafe_fixes_option = Annotated[bool, typer.Option(help="Apply potentially unsafe fixes", rich_help_panel="Fix")]
+diff_option = Annotated[
+    bool,
+    typer.Option(help="Show diff of fixes without modifying files. Implies --fix", rich_help_panel="Fix"),
+]
 separator_help = """
 Token separator to use in the outputs:
 
@@ -262,6 +269,9 @@ def check_files(
     exclude: exclude_option = None,
     default_exclude: default_exclude_option = None,
     force_exclude: force_exclude_option = False,
+    fix: fix_option = None,
+    unsafe_fixes: unsafe_fixes_option = None,
+    diff: diff_option = False,  # cannot be overridden from the config
     configuration_file: config_option = None,
     configure: linter_configure_option = None,
     reports: reports_option = None,
@@ -338,6 +348,9 @@ def check_files(
         compare=compare,
         exit_zero=exit_zero,
         return_result=return_result,
+        fix=fix,
+        unsafe_fixes=unsafe_fixes,
+        diff=diff,
     )
     file_filters = config.FileFiltersOptions(
         include=include, default_include=default_include, exclude=exclude, default_exclude=default_exclude
@@ -715,8 +728,8 @@ def format_files(
 @list_app.command(name="rules")
 def list_rules(
     filter_category: Annotated[
-        RuleFilter, typer.Option("--filter", case_sensitive=False, help="Filter rules by category.")
-    ] = RuleFilter.ALL,
+        rules_list.RuleFilter, typer.Option("--filter", case_sensitive=False, help="Filter rules by category.")
+    ] = rules_list.RuleFilter.ALL,
     filter_pattern: Annotated[Optional[str], typer.Option("--pattern", help="Filter rules by pattern")] = None,
     target_version: Annotated[
         config.TargetVersion,
@@ -725,6 +738,7 @@ def list_rules(
             help="Enable only rules supported by configured version",
         ),
     ] = None,
+    with_fix: Annotated[bool, typer.Option("--with-fix", help="Show only fixable rules")] = False,
     silent: silent_option = None,
 ) -> None:
     """
@@ -767,11 +781,13 @@ def list_rules(
     manager = config_manager.ConfigManager(overwrite_config=overwrite_config)
     if filter_pattern:
         filter_pattern = compile_rule_pattern(filter_pattern)
-        rules = filter_rules_by_pattern(manager.default_config.linter.rules, filter_pattern)
+        rules = rules_list.filter_rules_by_pattern(manager.default_config.linter.rules, filter_pattern)
     else:
-        rules = filter_rules_by_category(
+        rules = rules_list.filter_rules_by_category(
             manager.default_config.linter.rules, filter_category, manager.default_config.linter.target_version
         )
+    if with_fix:
+        rules = rules_list.filter_rules_by_fixability(rules)
     severity_counter = {"E": 0, "W": 0, "I": 0}
     enabled = 0
     for rule in rules:
@@ -822,8 +838,8 @@ def list_reports(
 @list_app.command(name="formatters")
 def list_formatters(
     filter_category: Annotated[
-        RuleFilter, typer.Option("--filter", case_sensitive=False, help="Filter formatters by category.")
-    ] = RuleFilter.ALL,
+        rules_list.RuleFilter, typer.Option("--filter", case_sensitive=False, help="Filter formatters by category.")
+    ] = rules_list.RuleFilter.ALL,
     target_version: Annotated[
         config.TargetVersion,
         typer.Option(

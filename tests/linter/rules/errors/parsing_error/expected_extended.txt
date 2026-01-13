@@ -364,3 +364,4 @@ variable_errors.robot:7:1 ERR01 Robot Framework syntax error: Invalid dictionary
    | ^^^^^^ ERR01
    |
 
+Found 38 issues.

@@ -102,3 +102,4 @@ test.robot:167:5 MISC07 IF statement can be merged with previous IF (defined in 
  169 |     ELSE IF  ${stuff}
      |
 
+Found 11 issues.

@@ -21,3 +21,5 @@ test.robot:244:9:244:16 [I] VAR02 Variable '${var1}' is assigned but not used
 test.robot:246:9:246:32 [I] VAR02 Variable '${var_used_only_before}' is assigned but not used
 test.robot:247:36:247:43 [I] VAR02 Variable '${var2}' is assigned but not used
 test.robot:248:9:248:16 [I] VAR02 Variable '${var3}' is assigned but not used
+
+Found 23 issues.

@@ -1,3 +1,5 @@
 severity_threshold.robot:17:120 [W] LEN08 Line is too long (139/100)
 severity_threshold.robot:27:120 [E] LEN08 Line is too long (159/150)
 severity_threshold.robot:30:120 [W] LEN08 Line is too long (139/100)
+
+Found 3 issues.

@@ -8,3 +8,4 @@ test.robot:9:13 TAG06 Tag 'sometag' is already set by Force Tags in suite settin
 11 |     Keyword
    |
 
+Found 1 issue.

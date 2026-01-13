@@ -4,3 +4,5 @@ tests.robot:27:3 [W] SPC11 Continuation marker is not aligned with starting row
 tests.robot:35:7 [W] SPC11 Continuation marker is not aligned with starting row
 tests.robot:41:4 [W] SPC11 Continuation marker is not aligned with starting row
 tests.robot:53:7 [W] SPC11 Continuation marker is not aligned with starting row
+
+Found 6 issues.

@@ -68,3 +68,4 @@ test_except.robot:35:21 LEN32 Variable name 'too_loong_name_for_captured_error_m
  37 |     END
     |
 
+Found 7 issues.

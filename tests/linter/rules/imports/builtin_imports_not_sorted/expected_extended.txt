@@ -36,3 +36,4 @@ test.robot:6:12 IMP02 BuiltIn library import 'String' should be placed before 'X
  8 | Resource   ..\${/}Libs\${/}MyResource.robot
    |
 
+Found 4 issues.

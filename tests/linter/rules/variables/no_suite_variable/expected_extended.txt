@@ -30,3 +30,4 @@ test_builtin_syntax.robot:20:5 VAR05 Variable defined with suite scope
     |     ^^^^^^^^^^^^^^^^^^ VAR05
     |
 
+Found 4 issues.

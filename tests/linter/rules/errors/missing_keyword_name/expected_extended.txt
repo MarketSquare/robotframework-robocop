@@ -76,3 +76,4 @@ test.robot:33:8 ERR03 Missing keyword name when calling some values
  34 |     END
     |
 
+Found 8 issues.

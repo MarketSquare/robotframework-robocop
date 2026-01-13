@@ -83,3 +83,5 @@ test.robot:79:5 [W] COM06 Commented out code: 'BREAK'
 test.robot:80:5 [W] COM06 Commented out code: 'CONTINUE'
 test.robot:81:5 [W] COM06 Commented out code: 'RETURN'
 test.robot:82:5 [W] COM06 Commented out code: 'GROUP    name'
+
+Found 85 issues.

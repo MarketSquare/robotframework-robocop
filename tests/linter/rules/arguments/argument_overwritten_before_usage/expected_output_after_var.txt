@@ -4,3 +4,5 @@ test.robot:22:69:22:84 [W] ARG02 Keyword argument '${overwritten3}' is overwritt
 test.robot:39:20:39:28 [W] ARG02 Keyword argument '${error}' is overwritten before usage
 test.robot:70:31:70:46 [W] ARG02 Keyword argument '${overwritten1}' is overwritten before usage
 test.robot:70:50:70:65 [W] ARG02 Keyword argument '${overwritten2}' is overwritten before usage
+
+Found 6 issues.

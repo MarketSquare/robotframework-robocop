@@ -56,3 +56,4 @@ test_invalid.robot:77:9 LEN32 Variable name 'embedded_arg_with_invalid_pattern_s
  78 |     No Operation
     |
 
+Found 7 issues.

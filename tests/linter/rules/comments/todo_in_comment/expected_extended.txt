@@ -43,3 +43,4 @@ test.robot:17:21 COM01 Found a marker 'todo' in the comments
  19 |     No Operation
     |
 
+Found 5 issues.

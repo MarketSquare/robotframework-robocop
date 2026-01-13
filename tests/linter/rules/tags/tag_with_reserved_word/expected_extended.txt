@@ -16,3 +16,4 @@ test.robot:24:84 TAG03 Tag 'robot:my_tag' prefixed with reserved word `robot:`
  26 |     Keyword
     |
 
+Found 2 issues.

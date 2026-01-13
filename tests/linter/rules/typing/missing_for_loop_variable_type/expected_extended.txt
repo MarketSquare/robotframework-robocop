@@ -48,3 +48,4 @@ test.robot:35:16 ANN03 FOR loop variable '${y}' is missing type annotation
  37 |         END
     |
 
+Found 5 issues.

@@ -9,3 +9,4 @@ test.robot:15:1 LEN01 Keyword 'Some Keyword' is too long (46/40)
     | Suggestion: Split the keyword into smaller, focused keywords.
     |
 
+Found 1 issue.

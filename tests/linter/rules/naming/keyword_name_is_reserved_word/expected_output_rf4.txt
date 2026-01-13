@@ -5,3 +5,5 @@ test.robot:15:19 [E] NAME03 'End' is a reserved keyword. It must be in uppercase
 test.robot:24:5 [E] NAME03 'For' is a reserved keyword. It must be in uppercase (FOR) when used as a statement
 test.robot:25:5 [E] NAME03 'End' is a reserved keyword. It must be in uppercase (END) when used as a statement
 templated_suite.robot:2:18 [E] NAME03 'End' is a reserved keyword. It must be in uppercase (END) when used as a statement
+
+Found 7 issues.

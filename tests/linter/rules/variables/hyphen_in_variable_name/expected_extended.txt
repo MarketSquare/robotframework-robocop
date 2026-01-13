@@ -110,3 +110,4 @@ test.robot:41:34 VAR09 Hyphen in variable name '${in-correct}'
     |                                  ^^^^^^^^^^^^^ VAR09
     |
 
+Found 12 issues.

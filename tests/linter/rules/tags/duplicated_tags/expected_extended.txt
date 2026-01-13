@@ -48,3 +48,4 @@ test.robot:24:51 TAG09 Multiple tags with name 't ag' (first occurrence at line 
     |                                                   ^^^^ TAG09
     |
 
+Found 6 issues.

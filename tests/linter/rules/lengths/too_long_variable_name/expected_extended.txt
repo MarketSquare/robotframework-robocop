@@ -357,3 +357,4 @@ test.robot:113:62 LEN32 Variable name 'embedded_name_that_is_too_long_that_conta
  114 |     Log    ${embedded_just_shy_of_max_len_contains}
      |
 
+Found 40 issues.

@@ -4,3 +4,5 @@ test.robot:25:5 [W] ORD01 'TAGS' is in wrong place of Test Case. Recommended ord
 test.robot:31:5 [W] ORD01 'TIMEOUT' is in wrong place of Test Case. Recommended order of elements in Test Cases: DOCUMENTATION, TAGS, TIMEOUT, SETUP, TEMPLATE, KEYWORD, TEARDOWN
 test.robot:37:5 [W] ORD01 'SETUP' is in wrong place of Test Case. Recommended order of elements in Test Cases: DOCUMENTATION, TAGS, TIMEOUT, SETUP, TEMPLATE, KEYWORD, TEARDOWN
 test.robot:43:5 [W] ORD01 'TEMPLATE' is in wrong place of Test Case. Recommended order of elements in Test Cases: DOCUMENTATION, TAGS, TIMEOUT, SETUP, TEMPLATE, KEYWORD, TEARDOWN
+
+Found 6 issues.

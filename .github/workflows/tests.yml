@@ -13,9 +13,6 @@ jobs:
       matrix:
         include:
           - os: 'ubuntu-latest'
-            python-version: '3.9'
-            rf-version: '4.1.3'
-          - os: 'ubuntu-latest'
             python-version: '3.10'
             rf-version: '5.*'
           - os: 'ubuntu-latest'

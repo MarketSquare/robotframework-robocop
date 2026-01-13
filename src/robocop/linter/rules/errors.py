@@ -311,7 +311,7 @@ class ParsingErrorChecker(VisitorChecker):
         "END is not allowed in this context",  # handled by statement-outside-loop
     )
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
         self.in_block = None
 
@@ -606,7 +606,7 @@ class TwoSpacesAfterSettingsChecker(VisitorChecker):
 
     not_enough_whitespace_after_setting: whitespace.NotEnoughWhitespaceAfterSettingRule
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.headers = {
             "arguments",
             "documentation",

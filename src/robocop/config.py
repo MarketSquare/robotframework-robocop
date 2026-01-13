@@ -885,7 +885,7 @@ class Config:
             self.formatter.languages = self.languages
         self.file_filters.overwrite(overwrite_config.file_filters)
 
-    def __str__(self):
+    def __str__(self) -> str:
         return str(self.config_source)
 
     def hash(self) -> str:

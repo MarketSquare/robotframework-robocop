@@ -739,7 +739,7 @@ class KeywordNamingChecker(VisitorChecker):
     else_statements = {"else", "else if"}
     bdd = {"given", "when", "and", "but", "then"}
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.letter_pattern = re.compile(r"[^\w()-]|_", re.UNICODE)
         self.inside_if_block = False
         super().__init__()
@@ -877,7 +877,7 @@ class SettingsNamingChecker(VisitorChecker):
     # Separating alias values since RF 3 uses WITH_NAME instead of WITH NAME
     ALIAS_TOKENS_VALUES = ["WITH NAME"] if ROBOT_VERSION.major < 5 else ["WITH NAME", "AS"]
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.section_name_pattern = re.compile(r"\*\*\*\s.+\s\*\*\*")
         self.task_section: bool | None = None
         super().__init__()
@@ -1181,7 +1181,7 @@ class SimilarVariableChecker(VisitorChecker):
     possible_variable_overwriting: variables.PossibleVariableOverwritingRule
     inconsistent_variable_name: variables.InconsistentVariableNameRule
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.assigned_variables = defaultdict(list)
         self.parent_name = ""
         self.parent_type = ""

@@ -78,7 +78,7 @@ class FormatterParameter:
         self.name = name
         self.value = default_value
 
-    def __str__(self):
+    def __str__(self) -> str:
         if self.value is not None and str(self.value) != "":
             return f"{self.name} : {self.value}"
         return self.name
@@ -104,7 +104,7 @@ class FormatterContainer:
             params.append(FormatterParameter(arg, default))
         return params
 
-    def __str__(self):
+    def __str__(self) -> str:
         s = f"## Formatter {self.name}\n" + textwrap.dedent(self.instance.__doc__)
         if self.parameters:
             s += "\nSupported parameters:\n  - " + "\n - ".join(str(param) for param in self.parameters) + "\n"

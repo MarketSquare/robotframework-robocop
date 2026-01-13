@@ -157,7 +157,7 @@ class NormalizeAssignments(Formatter):
 
 
 class AssignmentTypeDetector(ast.NodeVisitor):
-    def __init__(self):
+    def __init__(self) -> None:
         self.sign_counter, self.sign_counter_variables = Counter(), Counter()
         self.most_common = None
         self.most_common_variables = None

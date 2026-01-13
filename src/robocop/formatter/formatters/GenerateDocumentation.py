@@ -33,7 +33,7 @@ class Argument:
             self.default = None
         self.full_name = arg
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.full_name
 
 
@@ -51,7 +51,7 @@ class FormattingData:
 
 
 class ArgumentsAndReturnsVisitor(ModelVisitor):
-    def __init__(self):
+    def __init__(self) -> None:
         self.arguments = []
         self.returns = []
         self.doc_exists = False

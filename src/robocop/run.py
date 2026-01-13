@@ -1,6 +1,6 @@
 import textwrap
 from pathlib import Path
-from typing import Annotated, Optional
+from typing import Annotated
 
 import click
 import typer
@@ -730,7 +730,7 @@ def list_rules(
     filter_category: Annotated[
         rules_list.RuleFilter, typer.Option("--filter", case_sensitive=False, help="Filter rules by category.")
     ] = rules_list.RuleFilter.ALL,
-    filter_pattern: Annotated[Optional[str], typer.Option("--pattern", help="Filter rules by pattern")] = None,
+    filter_pattern: Annotated[str | None, typer.Option("--pattern", help="Filter rules by pattern")] = None,
     target_version: Annotated[
         config.TargetVersion,
         typer.Option(
@@ -806,7 +806,7 @@ def list_rules(
 @list_app.command(name="reports")
 def list_reports(
     enabled: Annotated[
-        Optional[bool],
+        bool | None,
         typer.Option(
             "--enabled/--disabled",
             help="List enabled or disabled reports. Reports configuration will be loaded from the default "

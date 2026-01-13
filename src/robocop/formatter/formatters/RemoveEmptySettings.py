@@ -99,7 +99,7 @@ class RemoveEmptySettings(Formatter):
 
 
 class FindSuiteSettings(ast.NodeVisitor):
-    def __init__(self):
+    def __init__(self) -> None:
         self.suite_settings = set()
 
     def check_setting(self, node, overwritten_type):

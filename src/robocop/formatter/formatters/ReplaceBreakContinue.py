@@ -49,7 +49,7 @@ class ReplaceBreakContinue(Formatter):
 
     MIN_VERSION = 5
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
         self.in_loop = False
 

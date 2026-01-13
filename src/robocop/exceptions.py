@@ -89,7 +89,7 @@ class RuleDoesNotExist(FatalError):  # not used atm
 
 
 class RobotFrameworkParsingError(Exception):
-    def __init__(self):
+    def __init__(self) -> None:
         msg = (
             "Fatal exception occurred when using Robot Framework parsing module. "
             "Consider updating Robot Framework to recent stable version."

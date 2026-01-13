@@ -2,8 +2,7 @@ from collections.abc import Iterable
 from dataclasses import dataclass, field
 from itertools import chain
 from pathlib import Path
-from re import Pattern
-from typing import TYPE_CHECKING, Optional, Union
+from typing import TYPE_CHECKING
 
 from robot.api import Token
 from robot.errors import DataError
@@ -18,6 +17,8 @@ from robocop.parsing.run_keywords import iterate_keyword_names
 from robocop.source_file import SourceFile, VirtualSourceFile
 
 if TYPE_CHECKING:
+    from re import Pattern
+
     from robocop.config_manager import ConfigManager
     from robocop.linter.diagnostics import Diagnostic
 
@@ -76,7 +77,7 @@ class KeywordUsage:
 
 @dataclass
 class KeywordDefinition:
-    name: Union[str, Pattern]
+    name: str | Pattern
     keyword_node: Keyword
     used: int = 0
     used_names: set[str] = field(default_factory=set)
@@ -139,9 +140,9 @@ class UnusedKeywords(ProjectChecker):
     # TODO: ignore run keywords with variables?
     # TODO: handle BDD
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.files: dict[str, RobotFile] = {}
-        self.current_file: Optional[RobotFile] = None
+        self.current_file: RobotFile | None = None
         super().__init__()
 
     def scan_project(

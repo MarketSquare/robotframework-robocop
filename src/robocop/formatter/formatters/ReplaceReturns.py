@@ -46,7 +46,7 @@ class ReplaceReturns(Formatter):
 
     MIN_VERSION = 5
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
         self.return_statement = None
 

@@ -127,7 +127,7 @@ class SettingsOrderChecker(VisitorChecker):
     non_builtin_imports_not_sorted: NonBuiltinImportsNotSortedRule
     resources_imports_not_sorted: ResourcesImportsNotSortedRule
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.libraries = []
         self.non_builtin_libraries = []
         self.resources = []

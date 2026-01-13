@@ -728,7 +728,7 @@ class LengthChecker(VisitorChecker):
     file_too_long: FileTooLongRule
     too_many_arguments: TooManyArgumentsRule
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.keyword_call_alike = tuple(
             klass
             for klass in (
@@ -1134,7 +1134,7 @@ class EmptySettingsChecker(VisitorChecker):
     empty_arguments: EmptyArgumentsRule
     empty_keyword_tags: EmptyKeywordTagsRule
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.parent_node_name = ""
         super().__init__()
 

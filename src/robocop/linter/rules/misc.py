@@ -850,7 +850,7 @@ class ConsistentAssignmentSignChecker(VisitorChecker):
     inconsistent_assignment: InconsistentAssignmentRule
     inconsistent_assignment_in_variables: InconsistentAssignmentInVariablesRule
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.keyword_expected_sign_type = None
         self.variables_expected_sign_type = None
         super().__init__()
@@ -919,7 +919,7 @@ class EmptyVariableChecker(VisitorChecker):
 
     empty_variable: variables.EmptyVariableRule
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.visit_var_section = False
         self.visit_var = False
         super().__init__()
@@ -1118,7 +1118,7 @@ class LoopStatementsChecker(VisitorChecker):
         "exitforloopif",
     }
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.loops = 0
         super().__init__()
 
@@ -1191,7 +1191,7 @@ class CachedVariable:
 class SectionVariablesCollector(ast.NodeVisitor):
     """Visitor for collecting all variables in the suite"""
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.section_variables: dict[str, CachedVariable] = {}
 
     def visit_Variable(self, node) -> None:
@@ -1210,7 +1210,7 @@ class UnusedVariablesChecker(VisitorChecker):
     argument_overwritten_before_usage: arguments.ArgumentOverwrittenBeforeUsageRule
     variable_overwritten_before_usage: variables.VariableOverwrittenBeforeUsageRule
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.arguments: dict[str, CachedVariable] = {}
         self.variables: list[dict[str, CachedVariable]] = [
             {}

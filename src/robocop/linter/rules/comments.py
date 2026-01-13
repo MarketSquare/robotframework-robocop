@@ -589,7 +589,7 @@ class IgnoredDataChecker(RawFileChecker):
     IGNORE_DIRECTIVES = ("# robocop:", "# fmt:")
     LANGUAGE_HEADER = "language:"
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.is_bom = False
         self.ignore_empty_lines = False  # ignore empty lines if the language header or robocop disabler is present
         super().__init__()

@@ -13,7 +13,6 @@ from robocop.linter import reports
 from robocop.linter.diagnostics import Diagnostics, RunStatistic
 from robocop.linter.fix import FixApplier
 from robocop.linter.reports import save_reports_result_to_cache
-from robocop.linter.rules import FixableRule
 from robocop.linter.utils.disablers import DisablersFinder
 from robocop.linter.utils.file_types import get_resource_with_lang
 from robocop.linter.utils.misc import is_suite_templated
@@ -105,8 +104,8 @@ class RobocopLinter:
                 print(f"Scanning file: {source_file.path}")
             diagnostics = self.get_cached_diagnostics(source_file.config, source_file.path)
             if diagnostics is not None:
-                fixes = [diag.fix(source_file) for diag in diagnostics if isinstance(diag.rule, FixableRule)]
-                if not fix_applier.apply_fixes(source_file, fixes):
+                no_fixables = all(not diag.rule.fixable for diag in diagnostics)
+                if no_fixables or not (source_file.config.linter.fix or source_file.config.linter.diff):
                     self.diagnostics.extend(diagnostics)
                     files += 1
                     cached_files += 1
@@ -116,7 +115,8 @@ class RobocopLinter:
                 continue
             self.diagnostics.extend(diagnostics)
             files += 1
-            self.config_manager.cache.set_linter_entry(source_file.path, source_file.config.hash(), diagnostics)
+            if not source_file.config.linter.diff:  # diff simulate fixes, so it's best to ignore the results
+                self.config_manager.cache.set_linter_entry(source_file.path, source_file.config.hash(), diagnostics)
         self.config_manager.cache.save()
 
         if not files and not self.config_manager.default_config.silent:

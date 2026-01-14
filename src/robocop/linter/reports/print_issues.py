@@ -100,20 +100,11 @@ class PrintIssuesReport(robocop.linter.reports.Report):
             super().configure(name, value)
 
     def print_diagnostics_simple(self, diagnostics: Diagnostics) -> None:
-        for source, diag_by_source in diagnostics.diag_by_source.items():
+        for diag_by_source in diagnostics.diag_by_source.values():
             for diagnostic in diag_by_source:
                 print(
-                    self.config.linter.issue_format.format(
-                        source=diagnostic.source.relative_path,
-                        source_abs=str(Path(source).resolve()),
-                        line=diagnostic.range.start.line,
-                        col=diagnostic.range.start.character,
-                        end_line=diagnostic.range.end.line,
-                        end_col=diagnostic.range.end.character,
-                        severity=diagnostic.severity.value,
-                        rule_id=diagnostic.rule.rule_id,
-                        desc=diagnostic.message,
-                        name=diagnostic.rule.name,
+                    self._get_formated_issue_message(
+                        diagnostic.source.config.linter.issue_format, diagnostic, diagnostic.message
                     )
                 )
 
@@ -151,6 +142,21 @@ class PrintIssuesReport(robocop.linter.reports.Report):
             return prefix + line.expandtabs(4) + "\n"
         return "\n"
 
+    @staticmethod
+    def _get_formated_issue_message(issue_format: str, diagnostic: Diagnostic, message: str) -> str:
+        return issue_format.format(
+            source=diagnostic.source.relative_path,
+            source_abs=diagnostic.source.path,
+            line=diagnostic.range.start.line,
+            col=diagnostic.range.start.character,
+            end_line=diagnostic.range.end.line,
+            end_col=diagnostic.range.end.character,
+            severity=diagnostic.severity.value,
+            rule_id=diagnostic.rule.rule_id,
+            desc=message,
+            name=diagnostic.rule.name,
+        )
+
     def _print_issue_with_lines(self, lines: list[str], source_rel_path: Path, diagnostic: Diagnostic) -> Text:
         """
         Return a Rich Text object containing diagnostic information with source code lines.
@@ -170,13 +176,7 @@ class PrintIssuesReport(robocop.linter.reports.Report):
         start_col, end_col = diagnostic.range.start.character, diagnostic.range.end.character
         if self.issue_format is not None:
             text = Text.from_markup(
-                self.issue_format.format(
-                    source=str(source_rel_path),
-                    line=start_line,
-                    col=start_col,
-                    rule_id=diagnostic.rule.rule_id,
-                    desc=escape(diagnostic.message),
-                )
+                self._get_formated_issue_message(self.issue_format, diagnostic, message=escape(diagnostic.message))
             )
             text.append("\n")
         else:

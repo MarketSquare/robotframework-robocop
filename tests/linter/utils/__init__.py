@@ -221,8 +221,9 @@ class RuleAcceptance:
         # Compare console output (fix summary and other output)
         self._compare_output(result, expected_path / "expected_output.txt", test_data, sort_lines=False)
 
-        for src_file in src_files:
-            self._compare_fixed_file(src_file, expected_path, actual_path)
+        if not kwargs.get("diff", False):
+            for src_file in src_files:
+                self._compare_fixed_file(src_file, expected_path, actual_path)
 
     def _compare_output(
         self, result: str, expected_file: Path | str | None, test_data: Path, sort_lines: bool, deprecated: bool = False

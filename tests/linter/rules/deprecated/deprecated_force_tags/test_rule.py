@@ -18,3 +18,6 @@ class TestRuleAcceptance(RuleAcceptance):
     def test_fix(self):
         """Test that fixes are applied correctly."""
         self.check_rule_fix(src_files=["test.robot"], expected_dir="expected_fixed", test_on_version=">=6")
+
+    def test_dif_mode(self):
+        self.check_rule_fix(src_files=["test.robot"], expected_dir="expected_diff", diff=True, test_on_version=">=6")

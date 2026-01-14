@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import sys
 from difflib import unified_diff
 from enum import Enum
 from pathlib import Path
@@ -255,20 +254,20 @@ class PrintIssuesReport(robocop.linter.reports.Report):
         run_stats: RunStatistic | None = kwargs.get("run_stats")
         if run_stats and run_stats.files_count == 0:
             return
-        if hasattr(sys.stdout, "reconfigure"):
-            sys.stdout.reconfigure(encoding="utf-8")
-            sys.stderr.reconfigure(encoding="utf-8")
-        if self.output_format == OutputFormat.SIMPLE:
-            self.print_diagnostics_simple(diagnostics)
-            self.console.print()
-        elif self.output_format == OutputFormat.GROUPED:
-            self.print_diagnostics_grouped(diagnostics)
-        elif self.output_format == OutputFormat.EXTENDED:
-            self.print_diagnostics_extended(diagnostics)
-        else:
-            raise NotImplementedError(f"Output format {self.output_format} is not implemented")
+        if not self.config.linter.diff:
+            if self.output_format == OutputFormat.SIMPLE:
+                self.print_diagnostics_simple(diagnostics)
+                self.console.print()
+            elif self.output_format == OutputFormat.GROUPED:
+                self.print_diagnostics_grouped(diagnostics)
+            elif self.output_format == OutputFormat.EXTENDED:
+                self.print_diagnostics_extended(diagnostics)
+            else:
+                raise NotImplementedError(f"Output format {self.output_format} is not implemented")
 
         self.print_run_summary(diagnostics, run_stats)
+        if self.config.linter.diff:
+            self.console.print("Diff mode enabled. No files were modified. Run without --diff to apply fixes.")
 
     def print_run_summary(self, diagnostics: Diagnostics, run_stats: RunStatistic) -> None:
         """Print summary of applied fixes."""
@@ -308,8 +307,8 @@ class PrintIssuesReport(robocop.linter.reports.Report):
                 unified_diff(
                     original,
                     modified,
-                    fromfile=f"a/{source_file.relative_path}",
-                    tofile=f"b/{source_file.relative_path}",
+                    fromfile=f"before: {source_file.relative_path}",
+                    tofile=f"after: {source_file.relative_path}",
                 )
             )
             decorated_diff = decorate_diff_with_color(diff)

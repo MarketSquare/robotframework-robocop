@@ -1,0 +1,13 @@
+--- before: actual_fixed${/}test.robot
++++ after: actual_fixed${/}test.robot
+@@ -1,2 +1,2 @@
+ *** Settings ***
+-Force Tags    tag
++Test Tags    tag
+
+Fixed 1 issue:
+- actual_fixed${/}test.robot:
+    1 x DEPR07 (deprecated-force-tags)
+
+Found 1 issue (1 fixed, 0 remaining).
+Diff mode enabled. No files were modified. Run without --diff to apply fixes.

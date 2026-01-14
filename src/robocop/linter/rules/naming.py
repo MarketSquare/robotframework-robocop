@@ -1376,6 +1376,7 @@ class DeprecatedStatementChecker(VisitorChecker):
     deprecated_statement: deprecated.DeprecatedStatementRule
     deprecated_with_name: deprecated.DeprecatedWithNameRule
     deprecated_singular_header: deprecated.DeprecatedSingularHeaderRule
+    deprecated_force_tags: deprecated.DeprecatedForceTagsRule
     replace_set_variable_with_var: deprecated.ReplaceSetVariableWithVarRule
     replace_create_with_var: deprecated.ReplaceCreateWithVarRule
 
@@ -1461,9 +1462,7 @@ class DeprecatedStatementChecker(VisitorChecker):
         setting_name = node.data_tokens[0].value.lower()
         if setting_name == "force tags":
             self.report(
-                self.deprecated_statement,
-                statement_name="Force Tags",
-                alternative="Test Tags",
+                self.deprecated_force_tags,
                 node=node,
                 col=utils.token_col(node, Token.FORCE_TAGS),
                 end_col=node.col_offset + len(setting_name) + 1,

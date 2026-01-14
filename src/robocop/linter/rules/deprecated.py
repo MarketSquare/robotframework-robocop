@@ -1,5 +1,7 @@
 from robocop.linter import sonar_qube
-from robocop.linter.rules import Rule, RuleSeverity
+from robocop.linter.diagnostics import Diagnostic
+from robocop.linter.fix import Fix, FixApplicability, FixAvailability, TextEdit
+from robocop.linter.rules import FixableRule, Rule, RuleSeverity
 
 
 class IfCanBeUsedRule(Rule):
@@ -199,3 +201,38 @@ class ReplaceCreateWithVarRule(Rule):
         clean_code=sonar_qube.CleanCodeAttribute.CONVENTIONAL, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
     deprecated_names = ("0328",)
+
+
+class DeprecatedForceTagsRule(FixableRule):
+    """
+    Force Tags setting is deprecated.
+
+    The following code is deprecated and will be removed in the future:
+
+        *** Settings ***
+        Force Tags      tag
+
+    Use ``Test Tags`` instead:
+
+        *** Settings ***
+        Test Tags      tag
+
+    """
+
+    name = "deprecated-force-tags"
+    rule_id = "DEPR07"
+    message = "'Force Tags' is deprecated, use 'Test Tags' instead"
+    severity = RuleSeverity.WARNING
+    version = ">=6.0"
+    added_in_version = "8.0.0"
+    sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
+        clean_code=sonar_qube.CleanCodeAttribute.CONVENTIONAL, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
+    )
+    fix_availability = FixAvailability.ALWAYS
+
+    def fix(self, diag: Diagnostic, source_lines: list[str]) -> Fix | None:  # noqa: ARG002
+        return Fix(
+            edits=[TextEdit.replace_at_range(self.rule_id, self.name, diag.range, "Test Tags")],
+            message="Replace Force Tags with Test Tags",
+            applicability=FixApplicability.SAFE,
+        )

@@ -5,6 +5,7 @@ from __future__ import annotations
 import shutil
 import time
 from pathlib import Path
+from textwrap import dedent
 
 import msgpack
 
@@ -243,6 +244,66 @@ class TestCacheIntegration:
             # One file from cache, one rescanned
             assert "Used cached results for 1 of 2 files" in out2
             assert len(second_result) == first_count  # Results unchanged (just added comment)
+
+    def test_cache_with_fixable_rule(self, tmp_path, capsys):
+        """Test cache behavior with fixable rules."""
+        # Arrange - create tedt file for fixable rule
+        test_file = tmp_path / "test.robot"
+        content = dedent("""
+        *** Settings ***
+        Suite Setup    With Trailing Whitespace    
+        """).lstrip()  # noqa: W291
+        test_file.write_text(content, encoding="utf-8")
+
+        with working_directory(tmp_path):
+            # Act - first run to populate cache
+            result1 = check_files(return_result=True, verbose=True)
+            out1, _ = capsys.readouterr()
+            # Act - second run to regain fixable rules
+            result2 = check_files(return_result=True, verbose=True)
+            out2, _ = capsys.readouterr()
+            # Act - third run that shows fix diff
+            result3 = check_files(return_result=True, verbose=True, diff=True)
+            out3, _ = capsys.readouterr()
+            # Act - fourth run that has all issues (diff does not change it)
+            result4 = check_files(return_result=True, verbose=True)
+            out4, _ = capsys.readouterr()
+            # Act - fifth run that fixes the issue
+            result5 = check_files(return_result=True, verbose=True, fix=True)
+            out5, _ = capsys.readouterr()
+            # Act - sixth run that has only remaining issues
+            result6 = check_files(return_result=True, verbose=True)
+            out6, _ = capsys.readouterr()
+
+            # Assert - first run not yet cached, all issues
+            assert "Used cached results" not in out1
+            assert len(result1) == 3
+            assert "1 fixable with the ``--fix`` option." in out1
+
+            # Assert - second run cached, all issues
+            assert "Used cached results" in out2
+            assert len(result2) == 3
+            assert "1 fixable with the ``--fix`` option." in out2
+
+            # Assert - third run not cached, only unfixable issues in results (fixable goes to diff)
+            assert "Used cached results" not in out3  # we didn't use cache since we generated diff
+            assert len(result3) == 2
+            assert "Found 3 issues (1 fixed, 2 remaining)." in out3  # it is printed but not applied (diff)
+
+            # Assert - fourth run cached, all issues (no changes from diff)
+            assert "Used cached results" in out4
+            assert len(result4) == 3
+            assert "1 fixable with the ``--fix`` option." in out4
+
+            # Assert - fifth run not cached, only unfixable issues in results (fixable are fixed)
+            assert "Used cached results" not in out5
+            assert len(result5) == 2
+            assert "Found 3 issues (1 fixed, 2 remaining)." in out5
+
+            # Assert - sixth run cached, only unfixable issues (fixable were fixed)
+            assert "Used cached results" in out6
+            assert len(result6) == 2
+            assert "Found 2 issues." in out6
 
     def test_file_with_parse_error_not_cached(self, tmp_path, capsys):
         """Test that files with parse errors are not cached."""

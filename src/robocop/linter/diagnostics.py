@@ -51,7 +51,11 @@ class Diagnostics:
 
     def fixable_diagnostics(self) -> list[Diagnostic]:
         """Return the list of fixable diagnostics. Filter by always fixable to avoid reporting non-existing fixes."""
-        return [diag for diag in self.diagnostics if diag.rule.fix_availability == FixAvailability.ALWAYS]
+        return [
+            diag
+            for diag in self.diagnostics
+            if diag.rule.fix_availability == FixAvailability.ALWAYS and diag.rule.fixable
+        ]
 
     def __iter__(self):
         yield from self.diagnostics

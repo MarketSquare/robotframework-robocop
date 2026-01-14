@@ -105,7 +105,7 @@ class IndentNestedKeywords(Formatter):
             old_tokens_no_comm.append(token)
         if len(new_tokens) != len(old_tokens_no_comm):
             return True
-        for new_token, old_token in zip(new_tokens, old_tokens_no_comm):
+        for new_token, old_token in zip(new_tokens, old_tokens_no_comm, strict=False):
             if new_token.type != old_token.type or new_token.value != old_token.value:
                 return True
         return False

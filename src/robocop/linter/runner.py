@@ -180,7 +180,7 @@ class RobocopLinter:
             if not found_diagnostics or not (source_file.config.linter.fix or source_file.config.linter.diff):
                 fix_applier.fix_stats.total_fixes += prev_fixable
                 break
-            fixable_diagnostics = [diag for diag in found_diagnostics if isinstance(diag.rule, FixableRule)]
+            fixable_diagnostics = [diag for diag in found_diagnostics if diag.rule.fixable]
             fix_applier.fix_stats.total_fixes += max(prev_fixable - len(fixable_diagnostics), 0)
             prev_fixable = len(fixable_diagnostics)
             # Collect fixes from diagnostics

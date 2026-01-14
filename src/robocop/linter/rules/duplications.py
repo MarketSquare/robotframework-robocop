@@ -281,7 +281,7 @@ class DuplicationsChecker(VisitorChecker):
     duplicated_assigned_var_name: variables.DuplicatedAssignedVarNameRule
     duplicated_setting: DuplicatedSettingRule
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.test_cases = defaultdict(list)
         self.keywords = defaultdict(list)
         self.variables = defaultdict(list)
@@ -435,7 +435,7 @@ class SectionHeadersChecker(VisitorChecker):
     section_out_of_order: order.SectionOutOfOrderRule
     both_tests_and_tasks: BothTestsAndTasksRule
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.sections_by_order = []
         self.sections_by_existence = {}
         super().__init__()

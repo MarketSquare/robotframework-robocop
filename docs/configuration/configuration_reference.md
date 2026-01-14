@@ -563,6 +563,8 @@ A mapping of file patterns and rule ids or names to exclude from the results.
 "ignore_file_in_subpath/test2.robot" = ["SPC10"]
 ```
 
+---
+
 #### ``custom rules``
 
 Read more about custom rules on the [Custom rules](../linter/custom_rules.md) page.
@@ -586,6 +588,8 @@ Read more about custom rules on the [Custom rules](../linter/custom_rules.md) pa
     ```
 
 ---
+
+### Fix rules
 
 #### ``fix``
 
@@ -627,6 +631,8 @@ Apply potentially unsafe fixes in addition to safe fixes. Requires `fix = true` 
 !!! warning
     Unsafe fixes may alter code behaviour. Always review changes before committing.
 
+---
+
 #### ``diff``
 
 Show the difference after applying the fixes without modifying files. Implies ``--fix``.
@@ -643,6 +649,55 @@ Show the difference after applying the fixes without modifying files. Implies ``
   [tool.robocop.lint]
   diff = true
   ```
+
+---
+
+#### ``fixable``
+
+Use ``--fixable`` option to select which rules should be fixed with ``--fix``. By default, all applicable fixable rules
+are fixed.
+
+=== ":octicons-command-palette-24: cli"
+
+    ```bash
+    robocop check --fix --fixable rule-name-or-id --fixable other-rule
+    ```
+
+=== ":material-file-cog-outline: toml"
+
+    ```toml
+    [tool.robocop.lint]
+    fix = true
+    fixable = [
+      "rule-name-or-id",
+      "other-rule"
+    ]
+    ```
+
+---
+
+#### ``unfixable``
+
+Use ``--unfixable`` option to select which rules should not be fixed with ``--fix``.
+
+=== ":octicons-command-palette-24: cli"
+
+    ```bash
+    robocop check --fix --unfixable rule-name-or-id --unfixable other-rule
+    ```
+
+=== ":material-file-cog-outline: toml"
+
+    ```toml
+    [tool.robocop.lint]
+    fix = true
+    unfixable = [
+      "rule-name-or-id",
+      "other-rule"
+    ]
+    ```
+
+---
 
 ### Reports
 

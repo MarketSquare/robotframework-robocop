@@ -18,7 +18,7 @@ CONFIG_NAMES = frozenset(("robocop.toml", "pyproject.toml", "robot.toml"))
 
 
 class GitIgnoreResolver:
-    def __init__(self):
+    def __init__(self) -> None:
         self.cached_ignores: dict[Path, list[pathspec.PathSpec] | None] = {}
         self.ignore_dirs: set[Path] = set()
 

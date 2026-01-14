@@ -1,7 +1,9 @@
 import pytest
 
 from robocop.config import LinterConfig, RuleMatcher
-from robocop.linter.rules import Rule, RuleSeverity
+from robocop.linter.diagnostics import Diagnostic
+from robocop.linter.fix import Fix, FixAvailability
+from robocop.linter.rules import FixableRule, Rule, RuleSeverity
 
 
 class CustomRule(Rule):
@@ -11,8 +13,26 @@ class CustomRule(Rule):
     severity = RuleSeverity.WARNING
 
 
+class CustomFixableRule(FixableRule):
+    rule_id = "0102"
+    name = "some-fixable-message"
+    message = "Some description"
+    severity = RuleSeverity.WARNING
+    fix_availability = FixAvailability.ALWAYS
+
+    def fix(self, diag: Diagnostic, source_lines: list[str]) -> Fix | None:  # noqa: ARG002
+        return None
+
+
 def get_message_with_id(rule_id: str) -> CustomRule:
     custom_rule = CustomRule()
+    custom_rule.rule_id = rule_id
+    custom_rule.name = f"some-message-{rule_id}"
+    return custom_rule
+
+
+def get_fixable_message_with_id(rule_id: str) -> CustomFixableRule:
+    custom_rule = CustomFixableRule()
     custom_rule.rule_id = rule_id
     custom_rule.name = f"some-message-{rule_id}"
     return custom_rule
@@ -123,3 +143,32 @@ class TestIncludingExcluding:
         assert rule_matcher.is_rule_enabled(get_message_with_id("0101"))
         assert rule_matcher.is_rule_enabled(get_message_with_id("0102"))
         assert not rule_matcher.is_rule_enabled(get_message_with_id("0103"))
+
+    def test_fixable_unfixable_nothing_selected(self):
+        linter_config = LinterConfig()
+        rule_matcher = RuleMatcher(linter_config)
+        assert rule_matcher.is_rule_fixable(get_message_with_id("0101")) is False
+        assert rule_matcher.is_rule_fixable(get_fixable_message_with_id("0102")) is True
+
+    def test_unfixable_selected(self):
+        linter_config = LinterConfig(unfixable={"0102"})
+        rule_matcher = RuleMatcher(linter_config)
+        assert rule_matcher.is_rule_fixable(get_message_with_id("0101")) is False
+        assert rule_matcher.is_rule_fixable(get_fixable_message_with_id("0102")) is False
+        assert rule_matcher.is_rule_fixable(get_fixable_message_with_id("0103")) is True
+
+    def test_fixable_selected(self):
+        linter_config = LinterConfig(fixable={"0102", "0103"})
+        rule_matcher = RuleMatcher(linter_config)
+        assert rule_matcher.is_rule_fixable(get_message_with_id("0101")) is False
+        assert rule_matcher.is_rule_fixable(get_fixable_message_with_id("0102")) is True
+        assert rule_matcher.is_rule_fixable(get_fixable_message_with_id("0103")) is True
+        assert rule_matcher.is_rule_fixable(get_fixable_message_with_id("0104")) is False
+
+    def test_both_unfixable_fixable(self):
+        linter_config = LinterConfig(unfixable={"0102"}, fixable={"0102", "0103"})
+        rule_matcher = RuleMatcher(linter_config)
+        assert rule_matcher.is_rule_fixable(get_message_with_id("0101")) is False
+        assert rule_matcher.is_rule_fixable(get_fixable_message_with_id("0102")) is False
+        assert rule_matcher.is_rule_fixable(get_fixable_message_with_id("0103")) is True
+        assert rule_matcher.is_rule_fixable(get_fixable_message_with_id("0104")) is False

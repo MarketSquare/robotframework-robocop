@@ -1,6 +1,6 @@
 import textwrap
 from pathlib import Path
-from typing import Annotated, Optional
+from typing import Annotated
 
 import click
 import typer
@@ -188,6 +188,19 @@ ignore_rules_option = Annotated[
     list[str],
     typer.Option("--ignore", "-i", help="Ignore rules", show_default=False, rich_help_panel="Selecting rules"),
 ]
+fixable_rules_option = Annotated[
+    list[str] | None,
+    typer.Option("--fixable", help="Select rules to fix", show_default=False, rich_help_panel="Selecting rules"),
+]
+unfixable_rules_option = Annotated[
+    list[str] | None,
+    typer.Option(
+        "--unfixable",
+        help="Select rules that should not be fixed",
+        show_default=False,
+        rich_help_panel="Selecting rules",
+    ),
+]
 linter_target_version_option = Annotated[
     config.TargetVersion,
     typer.Option(
@@ -262,6 +275,8 @@ def check_files(
     select: select_rules_option = None,
     extend_select: extend_select_rules_option = None,
     ignore: ignore_rules_option = None,
+    fixable: fixable_rules_option = None,
+    unfixable: unfixable_rules_option = None,
     target_version: linter_target_version_option = None,
     threshold: linter_threshold_option = None,
     include: include_option = None,
@@ -340,6 +355,8 @@ def check_files(
         select=select,
         extend_select=extend_select,
         ignore=ignore,
+        fixable=set(fixable) if fixable is not None else None,
+        unfixable=set(unfixable) if unfixable is not None else None,
         issue_format=issue_format,
         threshold=threshold,
         custom_rules=custom_rules,
@@ -730,7 +747,7 @@ def list_rules(
     filter_category: Annotated[
         rules_list.RuleFilter, typer.Option("--filter", case_sensitive=False, help="Filter rules by category.")
     ] = rules_list.RuleFilter.ALL,
-    filter_pattern: Annotated[Optional[str], typer.Option("--pattern", help="Filter rules by pattern")] = None,
+    filter_pattern: Annotated[str | None, typer.Option("--pattern", help="Filter rules by pattern")] = None,
     target_version: Annotated[
         config.TargetVersion,
         typer.Option(
@@ -806,7 +823,7 @@ def list_rules(
 @list_app.command(name="reports")
 def list_reports(
     enabled: Annotated[
-        Optional[bool],
+        bool | None,
         typer.Option(
             "--enabled/--disabled",
             help="List enabled or disabled reports. Reports configuration will be loaded from the default "

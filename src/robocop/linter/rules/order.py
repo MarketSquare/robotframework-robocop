@@ -246,7 +246,7 @@ class TestAndKeywordOrderChecker(VisitorChecker):
     test_case_section_out_of_order: TestCaseSectionOutOfOrderRule
     keyword_section_out_of_order: KeywordSectionOutOfOrderRule
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.rules_by_node_type = {}
         self.expected_order = {}
         super().__init__()

@@ -14,5 +14,5 @@ class CustomRule(Rule):  # TODO docs
 class CustomChecker(VisitorChecker):
     custom_rule: CustomRule
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()

@@ -460,7 +460,7 @@ class TagScopeChecker(VisitorChecker):
     unnecessary_default_tags: UnnecessaryDefaultTagsRule
     empty_tags: EmptyTagsRule
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.tags = []
         self.test_tags = set()
         self.default_tags = set()
@@ -552,7 +552,7 @@ class KeywordTagsChecker(VisitorChecker):
     could_be_keyword_tags: CouldBeKeywordTagsRule
     tag_already_set_in_keyword_tags: TagAlreadySetInKeywordTagsRule
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.tags_in_keywords = []
         self.keyword_tags = set()
         self.keyword_tags_node = None

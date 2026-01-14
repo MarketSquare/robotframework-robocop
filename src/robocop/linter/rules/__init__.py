@@ -36,7 +36,7 @@ from importlib import import_module
 from inspect import isclass
 from pathlib import Path
 from textwrap import dedent
-from typing import TYPE_CHECKING, Any, Callable, NoReturn
+from typing import TYPE_CHECKING, Any, NoReturn
 
 from robocop import __version__, exceptions
 from robocop.linter.diagnostics import Diagnostic
@@ -54,7 +54,7 @@ except ImportError:
     from robot.parsing.model.visitor import ModelVisitor
 
 if TYPE_CHECKING:
-    from collections.abc import Generator
+    from collections.abc import Callable, Generator
     from re import Pattern
 
     from robot.parsing import File
@@ -141,7 +141,7 @@ class RuleSeverity(Enum):
             raise exceptions.ConfigurationError(f"Invalid severity value '{value}'. {hint}") from None
         return severity
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.value
 
     def __lt__(self, other):
@@ -175,7 +175,7 @@ class RuleParam:
         self._value = None
         self.value = default
 
-    def __str__(self):
+    def __str__(self) -> str:
         s = f"{self.name} = {self.raw_value}\n        type: {self.converter.__name__}"
         if self.desc:
             s += f"\n        info: {self.desc}"
@@ -294,7 +294,7 @@ class SeverityThreshold:
                 return threshold
         return None
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.name
 
 
@@ -322,6 +322,7 @@ class Rule:
         deprecated_names: (class attribute) optional tuple of deprecated names for the rule
         fix_suggestion (str): (class attribute) optional suggestion on how to fix the issue
         fix_availability (FixAvailability): The availability of automatic fixes for this rule
+        fixable (bool): internal flag to mark whether rule can be fixed
 
     """
 
@@ -342,8 +343,9 @@ class Rule:
     deprecated_names: tuple[str,] | None = None
     fix_suggestion: str | None = None
     fix_availability: FixAvailability = FixAvailability.NONE
+    fixable: bool = False
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.version_spec = VersionSpecifier(self.version) if self.version else None
         self.default_severity = self.severity  # used for defaultConfiguration in Sarif report
         self.config = self._parse_parameters()
@@ -441,7 +443,7 @@ class Rule:
             fix_present = ""
         return f"{self.rule_id} [{self.severity}]: {self.name}: {self.message} ({enable_desc}){fix_present}"
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"Rule [{self.rule_id}]: {self.name} {self.message}"
 
     def configure(self, param: str, value: str) -> None:
@@ -489,6 +491,7 @@ class FixableRule(Rule, ABC):
     """
 
     fix_availability: FixAvailability
+    fixable: bool = True
 
     @abstractmethod
     def fix(self, diag: Diagnostic, source_lines: list[str]) -> Fix | None:
@@ -509,7 +512,7 @@ class BaseChecker:
     rules = None
     robocop_rule_types = None
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.disabled = False
         self.source: Path = None
         self.lines = None

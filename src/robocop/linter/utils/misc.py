@@ -158,7 +158,7 @@ def str2bool(v: bool | str) -> bool:
 class AssignmentTypeDetector(ast.NodeVisitor):
     """Visitor for counting number and type of assignments"""
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.keyword_sign_counter = Counter()
         self.keyword_most_common = None
         self.variables_sign_counter = Counter()
@@ -270,7 +270,7 @@ class RecommendationFinder:
 
 
 class TestTemplateFinder(ast.NodeVisitor):
-    def __init__(self):
+    def __init__(self) -> None:
         self.templated = False
 
     def visit_TestTemplate(self, node: TestTemplate) -> None:

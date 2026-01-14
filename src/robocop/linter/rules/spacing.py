@@ -914,7 +914,7 @@ class InconsistentUseOfTabsAndSpacesChecker(VisitorChecker):  # TODO: add found 
 
     mixed_tabs_and_spaces: MixedTabsAndSpacesRule
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.tabs = []
         self.spaces = []
         super().__init__()
@@ -1046,7 +1046,7 @@ class UnevenIndentChecker(VisitorChecker):
     bad_indent: BadIndentRule
     bad_block_indent: BadBlockIndentRule
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.indents = []
         self.parent_indent = 0
         # used to ignore indents from statements in the same line as parent, i.e. Inline IFs

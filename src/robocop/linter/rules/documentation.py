@@ -139,7 +139,7 @@ class MissingDocumentationChecker(VisitorChecker):
     missing_doc_test_suite: MissingDocTestSuiteRule
     missing_doc_resource_file: MissingDocResourceFileRule
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.is_resource = False
         self.settings_section_exists = False
         super().__init__()

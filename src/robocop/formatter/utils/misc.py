@@ -169,7 +169,7 @@ class ModelWriter(ModelVisitor):  # TODO: potentially replace with get source_li
 
 
 class TestTemplateFinder(ast.NodeVisitor):
-    def __init__(self):
+    def __init__(self) -> None:
         self.templated = False
 
     def visit_TestTemplate(self, node):

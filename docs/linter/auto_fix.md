@@ -60,6 +60,18 @@ Use the `--diff` mode to see what would change:
 robocop check --diff
 ```
 
+## Select fixes
+
+Use ``--fixable`` and ``--unfixable`` options if you wish to select which fixes should apply.
+
+```bash
+robocop check --fix --fixable fix-only-me --fixable and-me
+```
+
+```bash
+robocop check --fix --unfixable fix-all-except-me
+```
+
 ## Fix Statistics
 
 After applying fixes, Robocop displays a summary showing:

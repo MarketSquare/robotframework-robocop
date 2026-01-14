@@ -24,7 +24,7 @@ SET_LOCAL_VARIABLE = "setlocalvariable"
 
 
 class RobocopEnumParam(Enum):
-    def __str__(self):
+    def __str__(self) -> str:
         return self.value
 
 
@@ -100,7 +100,7 @@ def resolve_var_name(name: str) -> str:
 
 
 class VariablesScope:
-    def __init__(self):
+    def __init__(self) -> None:
         self._local = set()
         self._global = set()
 

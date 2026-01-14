@@ -219,7 +219,7 @@ class ReplaceWithVAR(Formatter):
             Var.from_params(
                 name=var_assign, value=value, separator=self.formatting_config.separator, indent=indent, scope=scope
             )
-            for var_assign, value in zip(assign, values)
+            for var_assign, value in zip(assign, values, strict=False)
         ]
 
     def replace_set_variable_scope(self, node, kw_name: str, indent: str, assign: list[str] | None = None):
@@ -351,7 +351,7 @@ class ReplaceWithVAR(Formatter):
     def _combine_separated_items(items: list[str]):
         if not items:
             return items
-        combined = [f"{key}={value}" for key, value in zip(items[::2], items[1::2])]
+        combined = [f"{key}={value}" for key, value in zip(items[::2], items[1::2], strict=False)]
         if len(items) % 2 != 0:
             combined.append(items[-1])
         return combined

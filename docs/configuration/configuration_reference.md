@@ -635,7 +635,7 @@ Apply potentially unsafe fixes in addition to safe fixes. Requires `fix = true` 
 
 #### ``diff``
 
-Show the difference after applying the fixes without modifying files. Implies ``--fix``.
+Show the difference after applying the fixes without modifying files.
 
 === ":octicons-command-palette-24: cli"
 
@@ -645,10 +645,7 @@ Show the difference after applying the fixes without modifying files. Implies ``
 
 === ":material-file-cog-outline: toml"
 
-  ```toml
-  [tool.robocop.lint]
-  diff = true
-  ```
+  --diff is only supported in the cli.
 
 ---
 

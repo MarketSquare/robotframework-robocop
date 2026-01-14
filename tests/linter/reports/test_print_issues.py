@@ -93,3 +93,34 @@ class TestPrintIssuesReport:
         # assert
         out, _ = capsys.readouterr()
         assert expected_output in out
+
+    def test_extended_with_issue_format_configured(self, issues, config, capsys):
+        # Arrange - configure issue_format
+        # - {source} - source file name | default
+        # - {source_abs} - absolute path to a source file
+        # - {line} - line number
+        # - {end_line} - end line number
+        # - {col} - column number
+        # - {end_col} - end column number
+        # - {severity} - severity level (info, warning, error)
+        # - {rule_id} - rule id
+        # - {desc} - rule description
+        # - {name} - rule name
+        issue_format = "{source} {source_abs} {line} {end_line} {col} {end_col} {severity} {rule_id} {desc} {name}"
+        root = Path.cwd()
+        source_path = "tests/atest/rules/comments/ignored-data/test.robot".replace("/", os.path.sep)
+        expected_output = f"{source_path} {root / source_path} 50 50 10 10 W 0101 Some description some-message"
+        source_lines = [""] * 200
+        run_stats = RunStatistic(files_count=1, fix_stats=MagicMock(), modified_files=[])
+        report = PrintIssuesReport(config)
+        report.configure("output_format", "extended")
+        report.configure("issue_format", issue_format)
+        for diag in issues:
+            diag.source._source_lines = source_lines  # noqa: SLF001
+
+        # act
+        report.generate_report(issues, run_stats=run_stats)
+
+        # assert
+        out, _ = capsys.readouterr()
+        assert expected_output in out

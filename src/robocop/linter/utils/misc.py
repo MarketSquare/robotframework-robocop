@@ -29,7 +29,7 @@ if TYPE_CHECKING:
     from collections.abc import Generator
 
     from robot.parsing.model import File, Keyword, Section, VariableSection
-    from robot.parsing.model.statements import KeywordCall, Node, TestTemplate, Var
+    from robot.parsing.model.statements import KeywordCall, Node, Statement, TestTemplate, Var
 
     from robocop.linter.diagnostics import Diagnostic
 
@@ -110,16 +110,8 @@ def keyword_col(node: Keyword) -> int:
     return token_col(node, Token.KEYWORD)
 
 
-def token_col(node: type[Node], *token_type) -> int:
-    if ROBOT_VERSION.major == 3:
-        for tok_type in token_type:
-            token = node.get_token(tok_type)
-            if token is not None:
-                break
-        else:
-            return 1
-    else:
-        token = node.get_token(*token_type)
+def token_col(node: Statement, *token_type) -> int:
+    token = node.get_token(*token_type)
 
     if token is None:
         return 1

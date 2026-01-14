@@ -1,11 +1,3 @@
-force_tags.robot:2:1 DEPR02 'Force Tags' is deprecated since Robot Framework version 6.0, use 'Test Tags' instead
-   |
- 1 | *** Settings ***
- 2 | Force Tags    tag
-   | ^^^^^^^^^^ DEPR02
- 3 | Test Tags    other tag
-   |
-
 templated_suite.robot:2:18 DEPR02 'Run Keyword Unless' is deprecated since Robot Framework version 5.*, use 'IF' instead
    |
  1 | *** Settings ***
@@ -29,14 +21,6 @@ test.robot:3:17 DEPR02 'Run Keyword If' is deprecated since Robot Framework vers
  3 | Suite Teardown  Run Keyword If
    |                 ^^^^^^^^^^^^^^ DEPR02
  4 | Force Tags         tag
-   |
-
-test.robot:4:1 DEPR02 'Force Tags' is deprecated since Robot Framework version 6.0, use 'Test Tags' instead
-   |
- 2 | Suite Setup  Run Keyword If
- 3 | Suite Teardown  Run Keyword If
- 4 | Force Tags         tag
-   | ^^^^^^^^^^ DEPR02
    |
 
 test.robot:6:13 DEPR02 'Run Keyword If' is deprecated since Robot Framework version 5.*, use 'IF' instead
@@ -197,4 +181,4 @@ test.robot:37:5 DEPR02 '[Return]' is deprecated since Robot Framework version 5.
     |     ^^^^^^^^ DEPR02
     |
 
-Found 22 issues.
+Found 20 issues.

@@ -225,8 +225,11 @@ class BomEncodingRule(Rule):
     """
     BOM (Byte Order Mark) found in the file.
 
-    Some code editors can save Robot file using BOM encoding. It is not supported by the Robot Framework.
-    Ensure that file is saved in UTF-8 encoding.
+    Some code editors can save Robot file using BOM encoding.
+    It is not supported by older versions of the Robot Framework.
+    Ensure that the file is saved in UTF-8 encoding.
+
+    Changes in 8.0.0: Rule is now optional since Robot Framework now supports BOM encoding.
 
     """
 
@@ -236,6 +239,7 @@ class BomEncodingRule(Rule):
     file_wide_rule = True
     severity = RuleSeverity.WARNING
     added_in_version = "1.7.0"
+    enabled = False
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.CLEAR,
         issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL,
@@ -269,7 +273,7 @@ class CommentedOutCodeRule(Rule):
     This rule is disabled by default. Enable it to detect forgotten or accidentally
     commented-out code.
 
-    Example of violations::
+    Example of violations:
 
         Keyword
             # ${result}=    Get Value
@@ -277,15 +281,11 @@ class CommentedOutCodeRule(Rule):
             # IF    ${condition}
             Other Keyword
 
-    Example of valid comments::
+    Example of valid comments:
 
         # This is a normal comment
         # TODO: implement this feature
         # If you need help, ask
-
-    Configuration example::
-
-        robocop check --configure commented-out-code.markers=todo,fixme,note
 
     """
 

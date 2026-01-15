@@ -12,7 +12,7 @@ from robocop.formatter.skip import SkipConfig
 from robocop.linter import rules_list
 from robocop.linter.diagnostics import Diagnostic
 from robocop.linter.reports import load_reports, print_reports
-from robocop.linter.rules import RuleSeverity
+from robocop.linter.rules import Rule, RuleSeverity
 from robocop.linter.runner import RobocopLinter
 from robocop.linter.utils.misc import ROBOCOP_RULES_URL, compile_rule_pattern, get_plural_form  # TODO: move higher up
 from robocop.migrate_config import migrate_deprecated_configs
@@ -757,7 +757,14 @@ def list_rules(
     ] = None,
     with_fix: Annotated[bool, typer.Option("--with-fix", help="Show only fixable rules")] = False,
     silent: silent_option = None,
-) -> None:
+    return_result: Annotated[
+        bool,
+        typer.Option(
+            help="Return list of available rules instead of exiting from the application.",
+            hidden=True,
+        ),
+    ] = False,
+) -> list[Rule] | None:
     """
     List available rules.
 
@@ -808,8 +815,8 @@ def list_rules(
     severity_counter = {"E": 0, "W": 0, "I": 0}
     enabled = 0
     for rule in rules:
-        is_enabled = rule.enabled and not rule.is_disabled(manager.default_config.linter.target_version)
-        enabled += int(is_enabled)
+        rule.enabled = rule.enabled and not rule.is_disabled(manager.default_config.linter.target_version)
+        enabled += int(rule.enabled)
         if not silent:
             console.print(rule.rule_short_description(manager.default_config.linter.target_version))
         severity_counter[rule.severity.value] += 1
@@ -818,6 +825,9 @@ def list_rules(
     if not silent:
         console.print(f"\nAltogether {configurable_rules_sum} rule{plural} ({enabled} enabled).\n")
         print(f"Visit {ROBOCOP_RULES_URL.format(version='stable')} page for detailed documentation.")
+    if return_result:
+        return rules
+    return None
 
 
 @list_app.command(name="reports")

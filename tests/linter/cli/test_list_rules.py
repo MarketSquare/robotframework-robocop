@@ -309,6 +309,27 @@ class TestListingRules:
         """).lstrip()
         assert out == expected
 
+    def test_list_with_return_result(
+        self, empty_linter, msg_0101_checker, non_default_rule_checker, deprecated_rules_checker, tmp_path
+    ):
+        # arrange
+        for checker in (msg_0101_checker, non_default_rule_checker, deprecated_rules_checker):
+            empty_linter.config_manager.default_config.linter.register_checker(checker)
+        # act
+        with (
+            working_directory(tmp_path),
+            patch("robocop.config_manager.ConfigManager", MagicMock(return_value=empty_linter.config_manager)),
+        ):
+            result_no_return = list_rules()
+            result_with_return = list_rules(return_result=True)
+        # assert
+        assert result_no_return is None
+        assert len(result_with_return) == 2
+        assert result_with_return[0].rule_id == "0101"
+        assert result_with_return[0].enabled is True
+        assert result_with_return[1].rule_id == "19999"
+        assert result_with_return[1].enabled is False
+
     # def test_list_custom_rules_disabled_by_default(self, empty_linter, capsys):  # TODO
     #     empty_linter.config.custom_rules = {
     #         str(TEST_DATA / "disabled_by_default" / "external_rule.py"),

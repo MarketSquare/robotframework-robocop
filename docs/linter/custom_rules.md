@@ -316,6 +316,7 @@ When you create a rule that can apply an automatic fix, you need to:
 - inherit from ``FixableRule``
 - specify fix_availability (which can be ``FixAvailability.ALWAYS`` or ``FixAvailability.SOMETIMES``)
 - implement ``fix()`` method and return ``Fix`` instance or ``None`` when no fix can be generated
+- or instead of implementing ``fix()`` method create ``Fix`` instance and pass it when reporting the issue
 
 A ``Fix`` contains a list of ``TextEdit`` entries that describe which lines in the original file should be replaced.
 The source file is processed as a list of lines, preserving newline characters (``\n``). If you replace one or more lines
@@ -342,10 +343,62 @@ def fix(self, diag: Diagnostic, source_lines: list[str]) -> Fix | None:
     )
 ```
 
-The ``fix()`` method gets the diagnostic object. You can also read the contents of  the source file from the
+The ``fix()`` method gets the diagnostic object. You can also read the contents of the source file from the
 ``source_lines`` list.
 
-If, for a particular case, it is not possible to create a valid fix, the ``fix()`` method should return None.
+If, for a particular case, it is not possible to create a valid fix, the  ``fix()`` method should return None.
+
+It is also possible to create ``Fix`` when reporting the issue. The main benefit is that ``fix()`` method only
+receives diagnostic range and raw source lines, and you may have access to more data on how to fix the issue in place
+where you found the issue.
+
+The following custom rule checks if the file contains the ``PLACEHOLD`` string at the end of file.
+The issue is reported at the the end of the first section, so ``fix()`` method can't fix the issue. That's why
+we can create ``Fix`` and pass it to ``report()`` method instead:
+
+```python
+from robot.parsing.model.statements import Error
+
+from robocop.linter.fix import Fix, FixAvailability, FixApplicability, TextEdit
+from robocop.linter.rules import FixableRule, RuleSeverity, VisitorChecker
+
+
+class CustomWithFix(FixableRule):
+    """
+    Custom rule that does have a fix.
+
+    The fix is available only when reporting the issue.
+    """
+    name = "fixable-rule"
+    rule_id = "FIX01"
+    message = "Custom rule message"
+    severity = RuleSeverity.INFO
+    added_in_version = "8.0.0"
+    fix_availability = FixAvailability.ALWAYS
+
+
+class CustomChecker(VisitorChecker):
+    fixable_rule: CustomWithFix
+
+    def visit_File(self, node):
+        if isinstance(node.sections[0].body[-1], Error):  # placeholder is not recognized as valid statement
+            return
+        fix = Fix(
+            edits=[
+                TextEdit(rule_id=self.fixable_rule.rule_id,
+                         rule_name=self.fixable_rule.name,
+                         start_line=node.end_lineno,
+                         end_line=node.end_lineno,
+                         start_col=node.end_col_offset + 1,
+                         end_col=node.end_col_offset + 1,
+                         replacement="PLACEHOLDER"
+                         )
+            ],
+            message="Replace last character of file with 'PLACEHOLDER'",
+            applicability=FixApplicability.SAFE
+        )
+        self.report(self.fixable_rule, lineno=node.lineno, col=node.col_offset + 1, fix=fix)
+```
 
 ## Project checks
 
@@ -361,7 +414,7 @@ be used to run any code, for example, analysis of the project dependencies and a
 Example project checker:
 
 ```python title="project_checker.py"
-from robocop.config import ConfigManager
+from robocop.config_manager import ConfigManager
 from robocop.linter.rules import Rule, ProjectChecker, RuleSeverity
 
 

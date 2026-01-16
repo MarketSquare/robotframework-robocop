@@ -1,0 +1,5 @@
+Fixed 1 issue:
+- actual_fixed${/}test.robot:
+    1 x FIX01 (fixable-rule)
+
+Found 1 issue (1 fixed, 0 remaining).

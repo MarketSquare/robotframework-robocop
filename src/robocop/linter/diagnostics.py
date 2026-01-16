@@ -73,6 +73,7 @@ class Diagnostic:
         node=None,
         extended_disablers: tuple[int, int] | None = None,
         sev_threshold_value: int | None = None,
+        fix: Fix | None = None,
         **kwargs,
     ) -> None:
         self.rule = rule
@@ -82,14 +83,12 @@ class Diagnostic:
         self.extended_disablers = extended_disablers if extended_disablers else []
         self.reported_arguments = kwargs
         self.severity = rule.get_severity_with_threshold(sev_threshold_value)
+        self.fix = fix
         self._message = None
 
     @property
     def message(self) -> str:
         return self.rule.message.format(**self.reported_arguments)
-
-    def fix(self, source_lines: list[str]) -> Fix | None:
-        return self.rule.fix(self, source_lines)
 
     @staticmethod
     def get_range(

@@ -69,6 +69,7 @@ class SourceFile:
             list[str]: A list of source code lines.
 
         """
+        # TODO: potential issue: robotcode send model with the updated code, but the file is not saved to disk yet
         if self._source_lines is None:
             try:
                 self._source_lines = self._read_lines()

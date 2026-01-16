@@ -28,7 +28,6 @@ import importlib.util
 import inspect
 import pkgutil
 import sys
-from abc import ABC, abstractmethod
 from collections import defaultdict
 from enum import Enum
 from functools import total_ordering
@@ -40,7 +39,7 @@ from typing import TYPE_CHECKING, Any, NoReturn
 
 from robocop import __version__, exceptions
 from robocop.linter.diagnostics import Diagnostic
-from robocop.linter.fix import FixAvailability
+from robocop.linter.fix import Fix, FixAvailability
 from robocop.version_handling import Version, VersionSpecifier
 
 try:
@@ -482,7 +481,7 @@ class Rule:
         return None
 
 
-class FixableRule(Rule, ABC):
+class FixableRule(Rule):
     """
     Abstract base class for rules that can automatically fix issues.
 
@@ -493,7 +492,6 @@ class FixableRule(Rule, ABC):
     fix_availability: FixAvailability
     fixable: bool = True
 
-    @abstractmethod
     def fix(self, diag: Diagnostic, source_lines: list[str]) -> Fix | None:
         """
         Generate TextEdit to fix the issue or return None if no fix available.
@@ -540,6 +538,7 @@ class BaseChecker:
         extended_disablers: tuple[int, int] | None = None,
         sev_threshold_value: int | None = None,
         source: SourceFile | None = None,
+        fix: Fix | None = None,
         **kwargs,
     ) -> None:
         if not rule.enabled:
@@ -561,6 +560,7 @@ class BaseChecker:
             source=source or self.source_file,
             extended_disablers=extended_disablers,
             sev_threshold_value=sev_threshold_value,
+            fix=fix,
             **kwargs,
         )
         self.issues.append(diagnostic)

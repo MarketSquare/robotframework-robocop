@@ -184,7 +184,7 @@ class RobocopLinter:
             fix_applier.fix_stats.total_fixes += max(prev_fixable - len(fixable_diagnostics), 0)
             prev_fixable = len(fixable_diagnostics)
             # Collect fixes from diagnostics
-            fixes = [diag.fix(source_file) for diag in fixable_diagnostics]
+            fixes = [diag.fix or diag.rule.fix(diag, source_file) for diag in fixable_diagnostics]
             if not fix_applier.apply_fixes(source_file, fixes):
                 break
         if source_file.config.linter.fix and not source_file.config.linter.diff:

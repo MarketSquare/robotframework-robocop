@@ -1,69 +1,29 @@
-test.robot:5:13 DEPR02 'Continue For Loop' is deprecated since Robot Framework version 5.*, use 'CONTINUE' instead
+test.robot:3:5 DEPR02 'Return From Keyword If' is deprecated since Robot Framework version 5.*, use 'IF and RETURN' instead
    |
- 3 |     FOR    ${var}  IN RANGE  10
- 4 |         WHILE    $var
- 5 |             Continue For Loop
-   |             ^^^^^^^^^^^^^^^^^ DEPR02
- 6 |             Continue For Loop If  $var > 10
- 7 |             Exit For Loop If  $var < 0
-   |
-
-test.robot:6:13 DEPR02 'Continue For Loop If' is deprecated since Robot Framework version 5.*, use 'IF and CONTINUE' instead
-   |
- 4 |         WHILE    $var
- 5 |             Continue For Loop
- 6 |             Continue For Loop If  $var > 10
-   |             ^^^^^^^^^^^^^^^^^^^^ DEPR02
- 7 |             Exit For Loop If  $var < 0
- 8 |             BuiltIn.Exit For Loop
+ 1 | *** Keywords ***
+ 2 | RETURN
+ 3 |     Return From Keyword If  $GLOBAL > 10
+   |     ^^^^^^^^^^^^^^^^^^^^^^ DEPR02
+ 4 |     BuiltIn.Return From Keyword
+ 5 |     RETURN
    |
 
-test.robot:7:13 DEPR02 'Exit For Loop If' is deprecated since Robot Framework version 5.*, use 'IF and BREAK' instead
+test.robot:4:5 DEPR02 'BuiltIn.Return From Keyword' is deprecated since Robot Framework version 5.*, use 'RETURN' instead
    |
- 5 |             Continue For Loop
- 6 |             Continue For Loop If  $var > 10
- 7 |             Exit For Loop If  $var < 0
-   |             ^^^^^^^^^^^^^^^^ DEPR02
- 8 |             BuiltIn.Exit For Loop
- 9 |         END
-   |
-
-test.robot:8:13 DEPR02 'BuiltIn.Exit For Loop' is deprecated since Robot Framework version 5.*, use 'BREAK' instead
-   |
- 6 |             Continue For Loop If  $var > 10
- 7 |             Exit For Loop If  $var < 0
- 8 |             BuiltIn.Exit For Loop
-   |             ^^^^^^^^^^^^^^^^^^^^^ DEPR02
- 9 |         END
-10 |     END
+ 2 | RETURN
+ 3 |     Return From Keyword If  $GLOBAL > 10
+ 4 |     BuiltIn.Return From Keyword
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^ DEPR02
+ 5 |     RETURN
+ 6 |     [Return]
    |
 
-test.robot:13:5 DEPR02 'Return From Keyword If' is deprecated since Robot Framework version 5.*, use 'IF and RETURN' instead
-    |
- 11 |
- 12 | RETURN
- 13 |     Return From Keyword If  $GLOBAL > 10
-    |     ^^^^^^^^^^^^^^^^^^^^^^ DEPR02
- 14 |     BuiltIn.Return From Keyword
- 15 |     RETURN
-    |
+test.robot:6:5 DEPR02 '[Return]' is deprecated since Robot Framework version 5.*, use 'RETURN' instead
+   |
+ 4 |     BuiltIn.Return From Keyword
+ 5 |     RETURN
+ 6 |     [Return]
+   |     ^^^^^^^^ DEPR02
+   |
 
-test.robot:14:5 DEPR02 'BuiltIn.Return From Keyword' is deprecated since Robot Framework version 5.*, use 'RETURN' instead
-    |
- 12 | RETURN
- 13 |     Return From Keyword If  $GLOBAL > 10
- 14 |     BuiltIn.Return From Keyword
-    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^ DEPR02
- 15 |     RETURN
- 16 |     [Return]
-    |
-
-test.robot:16:5 DEPR02 '[Return]' is deprecated since Robot Framework version 5.*, use 'RETURN' instead
-    |
- 14 |     BuiltIn.Return From Keyword
- 15 |     RETURN
- 16 |     [Return]
-    |     ^^^^^^^^ DEPR02
-    |
-
-Found 7 issues.
+Found 3 issues.

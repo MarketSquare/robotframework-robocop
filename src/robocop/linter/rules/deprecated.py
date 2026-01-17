@@ -240,7 +240,7 @@ class DeprecatedForceTagsRule(FixableRule):
 
 class DeprecatedRunKeywordIfRule(Rule):
     """
-    Run Keyword If and Run Keyword Unless are deprecated.
+    ``Run Keyword If`` and ``Run Keyword Unless`` keywords are deprecated.
 
     The following code is deprecated and will be removed in the future:
 
@@ -280,3 +280,63 @@ class DeprecatedRunKeywordIfRule(Rule):
         clean_code=sonar_qube.CleanCodeAttribute.CONVENTIONAL, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
     run_keyword_if_names = {"runkeywordif", "runkeywordunless"}
+
+
+class DeprecatedLoopKeywordRule(Rule):
+    """
+    Loop keywords are deprecated.
+
+    The following loop keywords are deprecated:
+
+    - ``Continue For Loop``
+    - ``Continue For Loop If``
+    - ``Exit For Loop``
+    - ``Exit For Loop If``
+
+    Use ``CONTINUE`` and ``BREAK`` instead.
+
+    Incorrect code example:
+
+        *** Test Cases ***
+        Test with loops
+            WHILE    ${condition}
+                Continue For Loop If    ${second_condition}
+                Continue For Loop
+            END
+            FOR    ${var}    IN RANGE    10
+                Exit For Loop If    ${var} = 5
+                Exit For Loop
+            END
+
+    Correct code:
+
+        *** Test Cases ***
+        Test with loops
+            WHILE    ${condition}
+                First Keyword
+                IF    ${second_condition}    CONTINUE
+                CONTINUE
+            END
+            FOR    ${var}    IN RANGE    10
+                IF    ${var} = 0    BREAK
+                BREAK
+            END
+
+    """
+
+    name = "deprecated-loop-keyword"
+    rule_id = "DEPR08"
+    message = "'{statement_name}' is deprecated, use '{alternative}' instead"
+    severity = RuleSeverity.WARNING
+    version = ">=5.0"
+    added_in_version = "8.0.0"
+    sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
+        clean_code=sonar_qube.CleanCodeAttribute.CONVENTIONAL, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
+    )
+
+    deprecated_keywords = {
+        "exitforloop": "BREAK",
+        "exitforloopif": "IF and BREAK",
+        "continueforloop": "CONTINUE",
+        "continueforloopif": "IF and CONTINUE",
+    }

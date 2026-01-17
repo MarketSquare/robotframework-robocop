@@ -66,16 +66,16 @@ def configure_sections_order(value):
 
 class TestCaseSectionOutOfOrderRule(Rule):
     """
-    Settings or body in test case are out of order.
+    Settings or body in the test case are out of order.
 
-    Sections should be defined in order set by ``sections_order`` parameter.
+    Sections should be defined in order set by the ``sections_order`` parameter.
     Default order: ``documentation,tags,timeout,setup,template,keyword,teardown``.
 
-    To change the default order use following option:
+    To change the default order, use the following option:
 
         robocop check --configure test-case-section-out-of-order.sections_order=comma,separated,list,of,sections
 
-    where section should be case-insensitive name from the list:
+    where section should be a case-insensitive name from the list:
 
     - documentation
     - tags
@@ -135,7 +135,7 @@ class KeywordSectionOutOfOrderRule(Rule):
     """
     Settings or body in keyword are out of order.
 
-    Sections should be defined in order set by ``sections_order`` parameter.
+    Sections should be defined in order set by the ``sections_order`` parameter.
     Default order: ``documentation,tags,arguments,timeout,setup,keyword,teardown``.
 
     To change the default order use following option:
@@ -191,17 +191,17 @@ class KeywordSectionOutOfOrderRule(Rule):
 
 class SectionOutOfOrderRule(Rule):
     """
-    Section does not follow recommended order.
+    Section does not follow the recommended order.
 
     It's advised to use consistent section orders for readability.
 
     Default order: ``comments,settings,variables,testcases,keywords``.
 
-    To change the default order use following option:
+    To change the default order, use the following option:
 
         robocop check --configure section-out-of-order.sections_order=comma,separated,list,of,sections
 
-    Order of not configured sections is ignored.
+    The order of not configured sections is ignored.
 
     Incorrect code example:
 

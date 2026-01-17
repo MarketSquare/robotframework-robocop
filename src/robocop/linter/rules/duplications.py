@@ -250,6 +250,7 @@ class DuplicatedSettingRule(Rule):
     Some settings can be used only once in a file. Only the first value is used.
 
     Example:
+
         *** Settings ***
         Test Tags        F1
         Test Tags        F2  # this setting will be ignored

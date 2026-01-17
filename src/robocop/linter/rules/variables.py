@@ -163,7 +163,7 @@ class VariableOverwrittenBeforeUsageRule(Rule):
 
 class NoGlobalVariableRule(Rule):
     """
-    Global variable defined outside ``*** Variables ***`` section.
+    Global variable defined outside the ``*** Variables ***`` section.
 
     Setting or updating global variables in a test/keyword often leads to hard-to-understand
     code. In most cases, you're better off using local variables.

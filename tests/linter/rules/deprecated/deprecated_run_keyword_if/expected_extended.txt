@@ -1,0 +1,114 @@
+templated_suite.robot:2:18 DEPR07 'Run Keyword Unless' is deprecated, use 'IF' instead
+   |
+ 1 | *** Settings ***
+ 2 | Test Template    Run Keyword Unless
+   |                  ^^^^^^^^^^^^^^^^^^ DEPR07
+   |
+
+test.robot:2:14 DEPR07 'Run Keyword If' is deprecated, use 'IF' instead
+   |
+ 1 | *** Settings ***
+ 2 | Suite Setup  Run Keyword If
+   |              ^^^^^^^^^^^^^^ DEPR07
+ 3 | Suite Teardown  Run Keyword If
+   |
+
+test.robot:3:17 DEPR07 'Run Keyword If' is deprecated, use 'IF' instead
+   |
+ 1 | *** Settings ***
+ 2 | Suite Setup  Run Keyword If
+ 3 | Suite Teardown  Run Keyword If
+   |                 ^^^^^^^^^^^^^^ DEPR07
+   |
+
+test.robot:5:13 DEPR07 'Run Keyword If' is deprecated, use 'IF' instead
+   |
+ 5 | Test Setup  Run Keyword If
+   |             ^^^^^^^^^^^^^^ DEPR07
+ 6 | Test Teardown  Run Keyword If
+   |
+
+test.robot:6:16 DEPR07 'Run Keyword If' is deprecated, use 'IF' instead
+   |
+ 4 |
+ 5 | Test Setup  Run Keyword If
+ 6 | Test Teardown  Run Keyword If
+   |                ^^^^^^^^^^^^^^ DEPR07
+   |
+
+test.robot:10:14 DEPR07 'Run Keyword Unless' is deprecated, use 'IF' instead
+    |
+  8 | *** Test Cases ***
+  9 | Test
+ 10 |     [Setup]  Run Keyword Unless
+    |              ^^^^^^^^^^^^^^^^^^ DEPR07
+ 11 |     [Teardown]  Run Keyword Unless
+ 12 |     Run Keyword Unless   True   Hello World
+    |
+
+test.robot:11:17 DEPR07 'Run Keyword Unless' is deprecated, use 'IF' instead
+    |
+  9 | Test
+ 10 |     [Setup]  Run Keyword Unless
+ 11 |     [Teardown]  Run Keyword Unless
+    |                 ^^^^^^^^^^^^^^^^^^ DEPR07
+ 12 |     Run Keyword Unless   True   Hello World
+ 13 |     Run Keyword If   True   Hello World
+    |
+
+test.robot:12:5 DEPR07 'Run Keyword Unless' is deprecated, use 'IF' instead
+    |
+ 10 |     [Setup]  Run Keyword Unless
+ 11 |     [Teardown]  Run Keyword Unless
+ 12 |     Run Keyword Unless   True   Hello World
+    |     ^^^^^^^^^^^^^^^^^^ DEPR07
+ 13 |     Run Keyword If   True   Hello World
+ 14 |     run_keyword_unless   True   Hello World
+    |
+
+test.robot:13:5 DEPR07 'Run Keyword If' is deprecated, use 'IF' instead
+    |
+ 11 |     [Teardown]  Run Keyword Unless
+ 12 |     Run Keyword Unless   True   Hello World
+ 13 |     Run Keyword If   True   Hello World
+    |     ^^^^^^^^^^^^^^ DEPR07
+ 14 |     run_keyword_unless   True   Hello World
+ 15 |     builtin.run_KeywoRD_UNLESS   True   Hello World
+    |
+
+test.robot:14:5 DEPR07 'run_keyword_unless' is deprecated, use 'IF' instead
+    |
+ 12 |     Run Keyword Unless   True   Hello World
+ 13 |     Run Keyword If   True   Hello World
+ 14 |     run_keyword_unless   True   Hello World
+    |     ^^^^^^^^^^^^^^^^^^ DEPR07
+ 15 |     builtin.run_KeywoRD_UNLESS   True   Hello World
+ 16 |     BuiltIn.Run Keyword Unless   True   Hello World
+    |
+
+test.robot:15:5 DEPR07 'builtin.run_KeywoRD_UNLESS' is deprecated, use 'IF' instead
+    |
+ 13 |     Run Keyword If   True   Hello World
+ 14 |     run_keyword_unless   True   Hello World
+ 15 |     builtin.run_KeywoRD_UNLESS   True   Hello World
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^ DEPR07
+ 16 |     BuiltIn.Run Keyword Unless   True   Hello World
+    |
+
+test.robot:16:5 DEPR07 'BuiltIn.Run Keyword Unless' is deprecated, use 'IF' instead
+    |
+ 14 |     run_keyword_unless   True   Hello World
+ 15 |     builtin.run_KeywoRD_UNLESS   True   Hello World
+ 16 |     BuiltIn.Run Keyword Unless   True   Hello World
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^ DEPR07
+    |
+
+test.robot:19:19 DEPR07 'Run Keyword Unless' is deprecated, use 'IF' instead
+    |
+ 17 |
+ 18 | Templated test
+ 19 |     [Template]    Run Keyword Unless
+    |                   ^^^^^^^^^^^^^^^^^^ DEPR07
+    |
+
+Found 13 issues.

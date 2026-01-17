@@ -330,7 +330,7 @@ class NumberOfReturnedValuesRule(Rule):
 
 class EmptyMetadataRule(Rule):
     """
-    Metadata settings does not have any value set.
+    Metadata settings do not have any value set.
 
     Incorrect code example:
 

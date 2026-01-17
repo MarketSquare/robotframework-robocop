@@ -122,7 +122,7 @@ class SettingNotSupportedRule(Rule):
     """
     Not supported setting.
 
-    Following settings are supported in Test Case or Task:
+    The following settings are supported in Test Case or Task:
 
         *** Test Cases ***
         Test case
@@ -133,7 +133,7 @@ class SettingNotSupportedRule(Rule):
             [Template]	     Used for specifying a template keyword.
             [Timeout]	     Used for specifying a test case timeout.
 
-    Following settings are supported in Keyword:
+    The following settings are supported in Keyword:
 
         *** Keywords ***
         Keyword
@@ -185,7 +185,7 @@ class InvalidIfRule(Rule):
 
 
 class ReturnInTestCaseRule(Rule):
-    """RETURN used outside user keyword."""
+    """RETURN used outside the user keyword."""
 
     name = "return-in-test-case"
     rule_id = "ERR14"
@@ -200,7 +200,7 @@ class ReturnInTestCaseRule(Rule):
 
 class InvalidSectionInResourceRule(Rule):
     """
-    Resource file with not supported section.
+    Resource file with a not supported section.
 
     The higher-level structure of resource files is the same as that of test case files,
     but they can't contain Test Cases or Tasks sections.
@@ -219,7 +219,7 @@ class InvalidSectionInResourceRule(Rule):
 
 class InvalidSettingInResourceRule(Rule):
     """
-    Not supported setting in ``*** Settings ***`` section in a resource file.
+    Not supported setting in the `` *** Settings ***`` section in a resource file.
 
     The Setting section in resource files can contain only import settings (``Library``,
     ``Resource``, ``Variables``), ``Documentation`` and ``Keyword Tags``.

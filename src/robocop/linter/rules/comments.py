@@ -40,7 +40,7 @@ def lower_csv(value: str) -> list[str]:
 
 def get_line_tokens(robot_code: str, lineno: int) -> list[Token] | None:
     """
-    Tokenize RF code and return tokens from specified line, excluding structural tokens.
+    Tokenize RF code and return tokens from the specified line, excluding structural tokens.
 
     Args:
         robot_code: Robot Framework code to tokenize.
@@ -64,6 +64,7 @@ class ToDoInCommentRule(Rule):
     By default, it reports ``TODO`` and ``FIXME`` markers.
 
     Example:
+
         # TODO: Refactor this code
         # fixme
 
@@ -98,7 +99,7 @@ class MissingSpaceAfterCommentRule(Rule):
     """
     No space after the ``#`` character and comment body.
 
-    Comments usually starts from the new line, or after 2 spaces in the same line. '#' characters denotes start of the
+    Comments usually start from the new line, or after 2 spaces in the same line. '#' characters denote the start of the
     comment, followed by the space and comment body:
 
         # stand-alone comment
@@ -111,6 +112,7 @@ class MissingSpaceAfterCommentRule(Rule):
     Configured regex for block comment should take into account the first character is ``#``.
 
     Example:
+
         #bad
         # good
         ### good block
@@ -161,6 +163,7 @@ class InvalidCommentRule(Rule):
     as a comment.
 
     Example:
+
     ```text
     # good
      # bad
@@ -185,11 +188,11 @@ class InvalidCommentRule(Rule):
 
 class IgnoredDataRule(Rule):
     """
-    Ignored data found in file.
+    Ignored data found in the file.
 
-    All lines before first test data section
+    All lines before the first test data section
     (`ref <https://robotframework.org/robotframework/latest/RobotFrameworkUserGuide.html#test-data-sections>`_)
-    are ignored. It's recommended to add ``*** Comments ***`` section header for lines that should be ignored.
+    are ignored. It's recommended to add a `` *** Comments *** `` section header for lines that should be ignored.
 
     Missing section header:
 

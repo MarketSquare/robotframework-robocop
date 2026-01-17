@@ -119,7 +119,6 @@ class NoEmbeddedKeywordArgumentsRule(Rule):
 
     To prevent these issues, use normal arguments instead.
 
-    Example:
     Using a keyword with one embedded argument. Buying the drink and the size of the drink are
     jumbled together:
 

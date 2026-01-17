@@ -105,12 +105,9 @@ lint.ignore = [
     #### modules
     "DJ",  # django
     "PD", # pandas
-    #"C90", # mccabe complexity
-
-    #"EXE", # flake8-executable
     "PTH", # flake8-use-pathlib
-    #"TID", # flake8-tidy-imports
     #### specific rules
+    ##### Will not fix - style choice
     "D100", # missing docstring in public module
     "D101", # missing docstring in public class
     "D102", # missing docstring in public method
@@ -121,45 +118,39 @@ lint.ignore = [
     "D203", # blank line before class
     "D212", # multi-line docstring summary should start at the first line
     "D400", # first line should end with a period
-    "D412", # no black lines after a section header - it is messing up our docs when enabled
     "D415", # first line should end with period, question mark or exlamation point
-    "ANN204", # missing type annotation for __init__
     "EM102", # exception with fstring
     "TD002", # 'to do' without author
-    "PT011", # pytest.raises is too broad
-    "S101", # use of assert
-    "COM812", # trailing commas
-    "FIX002", # code with to do - check all of them later
-    "PERF203", # try except in for loop - check all of them for possible refactors
-    "C901", # code too complex (duplicate with other rules)
-    "EM101", # exception with string literal
-    "SIM108", # ternary operator - reconsider, sometimes the code readability is lower with ternary
-    "ISC001", # potential conflict with formatter
     "TD003", # missing issue link with TODO
+    "COM812", # trailing commas - if we add, it will not split anymore
+    "EM101", # exception with string literal
     "FBT001", # Boolean-typed positional argument in function definition
     "FBT002", # Boolean-typed positional argument in function definition
     "PLR2004", # magic value in comparison
     "TRY003", # long message outside the exception class
-    "A005", # formatter shadows a Python standard-library module
-    # Temporarily ignored
+    "N999",  # invalid module names (CamelCase instead of snake_case) - Robot compatibility
+    "T201",  # print in code
+    #### Fix or decrease
     "ERA001",  # commented-out code
+    "ANN204", # missing type annotation for __init__
+    "FIX002", # code with to do - check all of them later
+    "PERF203", # try except in for loop - check all of them for possible refactors
+    "C901", # code too complex (duplicate with other rules)
+    "SIM108", # ternary operator - reconsider, sometimes the code readability is lower with ternary
     "TD005",  # empty TODO
     "FIX001",  # line with fixme
     "TD001",  # invalid todo tag fixme
+    "TD004",  # missing colon in TODO
     "ANN001",  # annotations in method
     "ANN002",  # annotations in return type
     "ANN201",  # annotations in return type
     "ANN205",  # annotations in return type
     "RUF012",  # mutable class attributes should be annotated with `typing.ClassVar`
-    "TD004",  # missing colon in TODO
-    "N999",  # invalid module names (CamelCase instead of snake_case) - Robot compatibility
-    "T201",  # print in code
     "PLR0913",  # too many arguments in function definition
     "PLW2901",  # for loop variable overwritten
     "INP001",  # part of namespace package
     "PLR0912",  # too many branches TODO
     "ANN003",  # missing type kwargs
-    "FA100",  # replace Optional -> not yet possible because of the issue with robot framework
     "SIM105",  # contexlib.supress
     "ANN401",  # typing.Any
     "B028",  # no implicit stacklevel
@@ -178,26 +169,22 @@ extend-exclude = [
 [tool.ruff.lint.extend-per-file-ignores]
 "tests/*" = [
     "ANN",  # no typing for tests for now
-    "PLR0913"  # too many arguments in function definition
+    "PLR0913" ,  # too many arguments in function definition
+    "S101"  # asserts
 ]
-# html code embedded
-"docs/conf.py" = ["E501"]
 # MCP module uses lazy imports for optional dependency isolation
 "src/robocop/mcp/*" = [
     "PLC0415",  # import at function level for lazy loading
     "PERF401",  # list comprehension vs for loop is style choice
     "TRY300",   # return in try block is fine here
-    "C401",     # set comprehension vs generator is style choice
     "TC001",    # Pydantic models need runtime import for schema generation
-    "TC002",    # Context must be runtime import for FastMCP dependency injection
-    "D417",     # ctx param is injected by FastMCP, not user-facing
     "PLR0915",  # register_tools has many statements by design
 ]
-"src/robocop/mcp/tools/registration.py" = [
-    "FA102",    # can't use future annotations - breaks Pydantic runtime evaluation
-]
 # temporary because of the rules description
-"src/robocop/linter/rules/*" = ["D205"]
+"src/robocop/linter/rules/*" = [
+    "D205",
+    "D412", # no black lines after a section header - it is messing up our docs when enabled
+]
 # bug in typer where | None can't be used
 "src/robocop/run.py" = ["RUF013"]
 

@@ -310,7 +310,7 @@ class BadIndentRule(Rule):
 
 class EmptyLineAfterSectionRule(Rule):
     """
-    Too many empty lines after section header.
+    Too many empty lines after the section header.
 
     Empty lines after the section header are not allowed by default.
 
@@ -471,7 +471,7 @@ class ConsecutiveEmptyLinesRule(Rule):
 
 class EmptyLinesInStatementRule(Rule):
     """
-    Multi line statement with empty lines.
+    Multi-line statement with empty lines.
 
     Avoid using empty lines between continuation markers in multi line statement.
 
@@ -542,7 +542,7 @@ class VariableNotLeftAlignedRule(Rule):
 
 class MisalignedContinuationRowRule(Rule):
     """
-    Continuation marker should be aligned with the previous one.
+    The continuation marker should be aligned with the previous one.
 
     Incorrect code example:
 
@@ -591,7 +591,7 @@ class MisalignedContinuationRowRule(Rule):
 
 class SuiteSettingNotLeftAlignedRule(Rule):
     """
-    Settings in ``*** Settings ***`` section should be left aligned.
+    Settings in the ``*** Settings ***`` section should be left aligned.
 
     Incorrect code example:
 
@@ -665,7 +665,7 @@ class BadBlockIndentRule(Rule):
 
 class FirstArgumentInNewLineRule(Rule):
     """
-    First argument is not in the same level as ``[Arguments]`` setting.
+    The first argument is not in the same level as the ``[Arguments]`` setting.
 
     Incorrect code example:
 

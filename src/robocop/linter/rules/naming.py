@@ -33,7 +33,7 @@ class NotAllowedCharInNameRule(Rule):
 
         robocop check --configure not-allowed-char-in-name.pattern=regex_pattern
 
-    ``regex_pattern`` should define regex pattern not allowed in names. For example ``[@\[]`` pattern
+    ``regex_pattern`` should define a regex pattern not allowed in names. For example, ``[@\[]`` pattern
     would report any occurrence of ``@[`` characters.
 
     """
@@ -129,7 +129,7 @@ class KeywordNameIsReservedWordRule(Rule):
     """
     Keyword name is a reserved word.
 
-    Do not use reserved names for keyword names. Following names are reserved:
+    Do not use reserved names for keyword names. The following names are reserved:
 
       - IF
       - ELSE IF
@@ -187,7 +187,7 @@ class UnderscoreInKeywordNameRule(Rule):
 
 class SettingNameNotInTitleCaseRule(Rule):
     """
-    Setting name not in title or upper case.
+    Setting name not in the title or upper case.
 
     Incorrect code example:
 
@@ -254,7 +254,7 @@ class SectionNameInvalidRule(Rule):
 
 class NotCapitalizedTestCaseTitleRule(Rule):
     """
-    Test case title does not start with capital letter.
+    Test case title does not start with a capital letter.
 
     Incorrect code example:
 
@@ -398,7 +398,7 @@ class EmptyLibraryAliasRule(Rule):
     """
     Library alias is empty.
 
-    Use non-empty name when using library import with alias.
+    Use a non-empty name when using library import with alias.
 
     Incorrect code example:
 
@@ -425,7 +425,7 @@ class EmptyLibraryAliasRule(Rule):
 
 class DuplicatedLibraryAliasRule(Rule):
     """
-    Library alias is the same as original name.
+    Library alias is the same as the original name.
 
     Examples of rule violation:
 
@@ -448,10 +448,10 @@ class DuplicatedLibraryAliasRule(Rule):
 
 class BddWithoutKeywordCallRule(Rule):
     """
-    BDD keyword not followed by any keyword.
+    BDD keyword isn't followed by any keyword.
 
     When using BDD reserved keywords (such as `GIVEN`, `WHEN`, `AND`, `BUT` or `THEN`) use them together with
-    name of the keyword to run.
+    the name of the keyword to run.
 
     Incorrect code example:
 
@@ -523,7 +523,7 @@ class InvalidSectionRule(Rule):
     Invalid section found.
 
     Robot Framework 6.1 detects unrecognized sections based on the language defined for the specific files.
-    Consider using ``--language`` parameter if the file is defined with different language.
+    Consider using the `` -- language `` parameter if the file is defined with a different language.
 
     It is also possible to configure language in the file:
 
@@ -549,12 +549,13 @@ class InvalidSectionRule(Rule):
 
 class MixedTaskTestSettingsRule(Rule):
     """
-    Task related setting used with ``*** Test Cases ***`` or Test related setting used with ``*** Tasks ***`` section.
+    Task related setting used with ``*** Test Cases ***`` or Test related setting used with the `` *** Tasks ***``
+    section.
 
-    If ``*** Tasks ***`` section is present in the file, use task-related settings like ``Task Setup``,
+    If the `` *** Tasks ***`` section is present in the file, use task-related settings like ``Task Setup``,
     ``Task Teardown``, ``Task Template``, ``Task Tags`` and ``Task Timeout`` instead of their `Test` variants.
 
-    Similarly, use test-related settings when using ``*** Test Cases ***`` section.
+    Similarly, use test-related settings when using the `` *** Test Cases ***`` section.
 
     """
 
@@ -1377,12 +1378,11 @@ class DeprecatedStatementChecker(VisitorChecker):
     deprecated_with_name: deprecated.DeprecatedWithNameRule
     deprecated_singular_header: deprecated.DeprecatedSingularHeaderRule
     deprecated_force_tags: deprecated.DeprecatedForceTagsRule
+    deprecated_run_keyword_if: deprecated.DeprecatedRunKeywordIfRule
     replace_set_variable_with_var: deprecated.ReplaceSetVariableWithVarRule
     replace_create_with_var: deprecated.ReplaceCreateWithVarRule
 
     deprecated_keywords = {
-        "runkeywordunless": (5, "IF"),
-        "runkeywordif": (5, "IF"),
         "exitforloop": (5, "BREAK"),
         "exitforloopif": (5, "IF and BREAK"),
         "continueforloop": (5, "CONTINUE"),
@@ -1471,6 +1471,16 @@ class DeprecatedStatementChecker(VisitorChecker):
 
     def check_if_keyword_is_deprecated(self, keyword_name, node) -> None:
         normalized_keyword_name = utils.normalize_robot_name(keyword_name, remove_prefix="builtin.")
+        if normalized_keyword_name in self.deprecated_run_keyword_if.run_keyword_if_names:
+            col = utils.token_col(node, Token.NAME, Token.KEYWORD)
+            self.report(
+                self.deprecated_run_keyword_if,
+                statement_name=keyword_name,
+                node=node,
+                col=col,
+                end_col=col + len(keyword_name),
+            )
+            return
         if normalized_keyword_name not in self.deprecated_keywords:
             return
         version, alternative = self.deprecated_keywords[normalized_keyword_name]

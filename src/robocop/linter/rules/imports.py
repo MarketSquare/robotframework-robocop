@@ -16,7 +16,7 @@ class WrongImportOrderRule(Rule):
     """
     Built-in imports placed after custom imports.
 
-    To make code more readable it needs to be more consistent. That's why it is recommended to group known, built-in
+    To make code more readable, it needs to be more consistent. That's why it is recommended to group known, built-in
     import before custom imports.
 
     Example of rule violation:
@@ -41,9 +41,9 @@ class WrongImportOrderRule(Rule):
 
 class BuiltinImportsNotSortedRule(Rule):
     """
-    Built-in imports are not sorted in a alphabetical order.
+    Built-in imports are not sorted in alphabetical order.
 
-    To increase readability sort the imports in a alphabetical order.
+    To increase readability, sort the imports in alphabetical order.
 
     Example of rule violation:
 
@@ -68,7 +68,7 @@ class NonBuiltinImportsNotSortedRule(Rule):
     """
     Custom imports are not sorted in alphabetical order.
 
-    To increase readability sort the imports in alphabetical order. Beware that depending on your code, some of the
+    To increase readability, sort the imports in alphabetical order. Beware that depending on your code, some of the
     custom imports may be depending on each other and the order of the imports.
 
     Example of rule violation:
@@ -94,10 +94,10 @@ class NonBuiltinImportsNotSortedRule(Rule):
 
 class ResourcesImportsNotSortedRule(Rule):
     """
-    Resources imports are not sorted in a alphabetical order.
+    Resources imports are not sorted in alphabetical order.
 
-    To increase readability sort the resources imports in a alphabetical order. Beware that depending on your code,
-    some of the imports may be depending on each other and the order of the imports.
+    To increase readability, sort the resources imports in a alphabetical order. Beware that depending on your code,
+    some imports may depend on each other and the order of the imports.
 
     Example of rule violation:
 

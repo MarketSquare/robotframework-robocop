@@ -51,10 +51,10 @@ if TYPE_CHECKING:
 
 class KeywordAfterReturnRule(Rule):
     """
-    Keyword call after ``[Return]`` setting.
+    Keyword call after the `` [Return]`` setting.
 
-    To improve readability use ``[Return]`` setting at the end of the keyword. If you want to return immediately
-    from the keyword, use ``RETURN`` statement instead. ``[Return]`` does not return from the keyword but only
+    To improve readability, use ``[Return]`` setting at the end of the keyword. If you want to return immediately
+    from the keyword, use the ``RETURN`` statement instead. ``[Return]`` does not return from the keyword but only
     sets the values that will be returned at the end of the keyword.
 
     Incorrect code example:
@@ -92,7 +92,7 @@ class EmptyReturnRule(Rule):
     ``[Return]`` is empty.
 
     ``[Return]`` statement is used to define variables returned from keyword. If you don't return anything from
-    keyword,  don't use ``[Return]``.
+    a keyword, don't use ``[Return]``.
 
     Incorrect code example:
 
@@ -236,7 +236,7 @@ class InconsistentAssignmentInVariablesRule(Rule):
     """
     Not consistent assignment sign in the ``*** Variables ***`` section.
 
-    Use one type of assignment sign in Variables section.
+    Use one type of assignment sign in the Variables section.
 
     Incorrect code example:
 
@@ -256,12 +256,12 @@ class InconsistentAssignmentInVariablesRule(Rule):
         ${var4}     a
         ${var5}     b
 
-    By default, Robocop looks for the most popular assignment sign in the file. It is possible to define expected
+    By default, Robocop looks for the most popular assignment sign in the file. It is possible to define the expected
     assignment sign by running:
 
         robocop check --configure inconsistent-assignment-in-variables.assignment_sign_type=equal_sign
 
-    You can choose between following signs:
+    You can choose between the following signs:
 
     - 'autodetect' (default),
     - 'none',
@@ -297,7 +297,7 @@ class InconsistentAssignmentInVariablesRule(Rule):
 
 class CanBeResourceFileRule(Rule):
     """
-    No tests in the file, consider renaming file extension to ``.resource``.
+    No tests in the file, consider renaming the file extension to ``.resource``.
 
     If the Robot file contains only keywords or variables, it's a good practice to use ``.resource`` extension.
     """
@@ -317,7 +317,7 @@ class CanBeResourceFileRule(Rule):
 
 class IfCanBeMergedRule(Rule):
     """
-    IF statement can be merged with previous IF.
+    IF statement can be merged with the previous IF.
 
     ``IF`` statement follows another ``IF`` with identical conditions. It can be possibly merged into one.
 
@@ -512,10 +512,9 @@ class MultilineInlineIfRule(Rule):
     deprecated_names = ("0918",)
 
 
-class UnnecessaryStringConversionRule(Rule):
+class UnnecessaryStringConversionRule(Rule):  # TODO: Not used atm, see if it was deprecated before
     """
-    # TODO: Not used atm, see if it was deprecated before
-    Variable in condition has unnecessary string conversion.
+    Variable in the condition has unnecessary string conversion.
 
     Expressions in Robot Framework are evaluated using Python's eval function. When a variable is used
     in the expression using the normal ``${variable}`` syntax, its value is replaced before the expression
@@ -542,7 +541,7 @@ class UnnecessaryStringConversionRule(Rule):
 
         IF    '${filename}' == 'default'
 
-    However it introduces unnecessary string conversion and can mask difference in the type. For example:
+    However, it introduces unnecessary string conversion and can mask difference in the type. For example:
 
         ${numerical}    Set Variable    10  # ${numerical} is actually string 10, not integer 10
         IF    "${numerical}" == "10"
@@ -620,7 +619,7 @@ class ExpressionCanBeSimplifiedRule(Rule):
 
 class MisplacedNegativeConditionRule(Rule):
     """
-    Position of not operator can be changed for better readability.
+    The position of not operator can be changed for better readability.
 
     Incorrect code example:
 
@@ -681,7 +680,7 @@ class DisablerNotUsedRule(Rule):
                 Fill Text    ${locator}
             END
 
-    In above examples we disable unused-variable rule, but no violation is raised for this line.
+    In the above examples we disable unused-variable rule, but no violation is raised for this line.
     Also, we define disablers for all rules and some-rule in FOR loop, and all rules disabler overlaps second disabler
     which is never used.
 

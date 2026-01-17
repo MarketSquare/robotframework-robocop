@@ -62,7 +62,7 @@ class AlignSettingsSection(Formatter):
     Suite Teardown      Close Session
     ```
 
-    To disable it configure ``argument_indent`` with ``0``.
+    To disable it, configure ``argument_indent`` with ``0``.
 
     Supports global formatting param ``--space-count`` (for columns with fixed length).
     """

@@ -47,7 +47,7 @@ class TagWithOrAndRule(Rule):
     ``OR`` or ``AND`` keyword found in the tag.
 
     ``OR`` and ``AND`` words are used to combine tags when selecting tests to be run in Robot Framework. Using
-    following configuration:
+    the following configuration:
 
         robocop check --include tagANDtag2
 
@@ -108,9 +108,10 @@ class TagWithReservedWordRule(Rule):
 
 class CouldBeTestTagsRule(Rule):
     """
-    All tests share the same tags which can be moved to ``Test Tags`` setting.
+    All tests share the same tags which can be moved to the ``Test Tags`` setting.
 
     Example:
+
         *** Test Cases ***
         Test
             [Tags]  featureX  smoke
@@ -140,7 +141,7 @@ class CouldBeTestTagsRule(Rule):
     deprecated_names = ("0605",)
 
 
-class TagAlreadySetInTestTagsRule(Rule):
+class TagAlreadySetInTestTagsRule(Rule):  # TODO: support -tag
     """
     Tag is already set in the ``Test Tags`` setting.
 
@@ -189,7 +190,7 @@ class UnnecessaryDefaultTagsRule(Rule):
             [Tags]  tag4
             Step
 
-    Since ``Test`` and ``Test 2`` have ``[Tags]`` section, ``Default Tags`` setting is never used.
+    Since ``Test`` and ``Test 2`` have the ``[Tags]`` section, the ``Default Tags`` setting is never used.
 
     """
 
@@ -208,7 +209,7 @@ class EmptyTagsRule(Rule):
     """
     ``[Tags]`` setting without any value.
 
-    If you want to use empty ``[Tags]`` (for example to overwrite ``Default Tags``) then use ``NONE`` value
+    If you want to use empty ``[Tags]`` (for example, to overwrite ``Default Tags``), then use the ``NONE`` value
     to be explicit.
 
     """
@@ -229,7 +230,7 @@ class DuplicatedTagsRule(Rule):
     Duplicated tags found.
 
     Tags are free text, but they are normalized so that they are converted to lowercase and all spaces are removed.
-    Only first tag is used, other occurrences are ignored.
+    Only the first tag is used, other occurrences are ignored.
 
     Example of duplicated tags:
 
@@ -252,9 +253,10 @@ class DuplicatedTagsRule(Rule):
 
 class CouldBeKeywordTagsRule(Rule):
     """
-    All keywords share the same tags which can be moved to ``Keyword Tags`` setting.
+    All keywords share the same tags which can be moved to the ``Keyword Tags`` setting.
 
     Example:
+
         *** Keywords ***
         Keyword
             [Tags]  featureX  smoke

@@ -56,9 +56,9 @@ class NotEnoughWhitespaceAfterSettingRule(Rule):
 
 class NotEnoughWhitespaceAfterNewlineMarkerRule(Rule):
     """
-    Not enough whitespace after newline marker.
+    Not enough whitespace after a newline marker.
 
-    Provide at least two spaces after newline marker.
+    Provide at least two spaces after a newline marker.
 
     Incorrect code example:
 
@@ -91,7 +91,7 @@ class NotEnoughWhitespaceAfterVariableRule(Rule):
     """
     Not enough whitespace after variable.
 
-    Provide at least two spaces after variable name.
+    Provide at least two spaces after the variable name.
 
     Incorrect code example:
 
@@ -123,7 +123,7 @@ class NotEnoughWhitespaceAfterSuiteSettingRule(Rule):
     """
     Not enough whitespace after suite setting.
 
-    Provide at least two spaces after suite setting.
+    Provide at least two spaces after the suite setting.
 
     Incorrect code example:
 

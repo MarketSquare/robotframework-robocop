@@ -29,6 +29,7 @@ class UnusedKeywordRule(Rule):
     Reports not used keywords.
 
     Example:
+
         *** Test Cases ***
         Test that only non used keywords are reported
             Used Keyword

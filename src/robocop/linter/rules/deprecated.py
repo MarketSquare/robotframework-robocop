@@ -6,7 +6,7 @@ from robocop.linter.rules import FixableRule, Rule, RuleSeverity
 
 class IfCanBeUsedRule(Rule):
     """
-    ``Run Keyword If`` or ``Run Keyword Unless`` used instead IF.
+    ``Run Keyword If`` or ``Run Keyword Unless`` used instead of IF.
 
     Starting from Robot Framework 4.0 IF block can be used instead of those keywords.
 
@@ -69,8 +69,8 @@ class DeprecatedWithNameRule(Rule):
     """
     Deprecated 'WITH NAME' alias marker used instead of 'AS'.
 
-    ``WITH NAME`` marker that is used when giving an alias to an imported library is going to be renamed to ``AS``.
-    The motivation is to be consistent with Python that uses ``as`` for similar purpose.
+    ``WITH NAME`` marker used when giving an alias to an imported library is going to be renamed to ``AS``.
+    The motivation is to be consistent with Python that uses ``as`` for a similar purpose.
 
     Incorrect code example:
 
@@ -98,9 +98,9 @@ class DeprecatedWithNameRule(Rule):
 
 class DeprecatedSingularHeaderRule(Rule):
     """
-    Deprecated singlar header used instead of plurar form.
+    Deprecated singular header used instead of plural form.
 
-    Robot Framework 6.0 starts deprecation period for singular headers forms. The rationale behind this change
+    Robot Framework 6.0 starts a deprecation period for singular headers forms. The rationale behind this change
     is available at https://github.com/robotframework/robotframework/issues/4431
 
     Incorrect code example:
@@ -136,23 +136,23 @@ class ReplaceSetVariableWithVarRule(Rule):
 
     Incorrect code example:
 
-      *** Keywords ***
-      Set Variables To Different Scopes
-          Set Local Variable    ${local}    value
-          Set Test Variable    ${TEST_VAR}    value
-          Set Task Variable    ${TASK_VAR}    value
-          Set Suite Variable    ${SUITE_VAR}    value
-          Set Global Variable    ${GLOBAL_VAR}    value
+        *** Keywords ***
+        Set Variables To Different Scopes
+            Set Local Variable    ${local}    value
+            Set Test Variable    ${TEST_VAR}    value
+            Set Task Variable    ${TASK_VAR}    value
+            Set Suite Variable    ${SUITE_VAR}    value
+            Set Global Variable    ${GLOBAL_VAR}    value
 
     Correct code:
 
-      *** Keywords ***
-      Set Variables To Different Scopes
-          VAR    ${local}    value
-          VAR    ${TEST_VAR}    value    scope=TEST
-          VAR    ${TASK_VAR}    value    scope=TASK
-          VAR    ${SUITE_VAR}    value    scope=SUITE
-          VAR    ${GLOBAL_VAR}    value    scope=GLOBAL
+        *** Keywords ***
+        Set Variables To Different Scopes
+            VAR    ${local}    value
+            VAR    ${TEST_VAR}    value    scope=TEST
+            VAR    ${TASK_VAR}    value    scope=TASK
+            VAR    ${SUITE_VAR}    value    scope=SUITE
+            VAR    ${GLOBAL_VAR}    value    scope=GLOBAL
 
     """
 
@@ -177,17 +177,17 @@ class ReplaceCreateWithVarRule(Rule):
 
     Incorrect code example:
 
-      *** Keywords ***
-      Create Variables
-          @{list}    Create List    a  b
-          &{dict}    Create Dictionary    key=value
+        *** Keywords ***
+        Create Variables
+            @{list}    Create List    a  b
+            &{dict}    Create Dictionary    key=value
 
     Correct code:
 
-      *** Keywords ***
-      Create Variables
-          VAR    @{list}    a  b
-          VAR    &{dict}    key=value
+        *** Keywords ***
+        Create Variables
+            VAR    @{list}    a  b
+            VAR    &{dict}    key=value
 
     """
 
@@ -236,3 +236,47 @@ class DeprecatedForceTagsRule(FixableRule):
             message="Replace Force Tags with Test Tags",
             applicability=FixApplicability.SAFE,
         )
+
+
+class DeprecatedRunKeywordIfRule(Rule):
+    """
+    Run Keyword If and Run Keyword Unless are deprecated.
+
+    The following code is deprecated and will be removed in the future:
+
+        *** Test Cases ***
+        Test with conditions
+            Run Keyword If    ${GLOBAL_FLAG}    Conditional Keyword
+            Run Keyword Unless    ${local_value} == "true"    Conditional Keyword
+            Run Keyword If  ${condition}
+                ...  Keyword  ${arg}
+                ...  ELSE IF  ${condition2}  Keyword2
+                ...  ELSE  Keyword3
+
+    Use ``IF`` instead:
+
+        *** Test Cases ***
+        Test with conditions
+            IF    ${GLOBAL_FLAG}    Conditional Keyword
+            IF    not (${local_value} == "true")    Conditional Keyword
+            Keyword
+                IF    ${condition}
+                    Keyword    ${arg}
+                ELSE IF    ${condition2}
+                    Keyword2
+                ELSE
+                    Keyword3
+                END
+
+    """
+
+    name = "deprecated-run-keyword-if"
+    rule_id = "DEPR07"
+    message = "'{statement_name}' is deprecated, use 'IF' instead"
+    severity = RuleSeverity.WARNING
+    version = ">=4.0"
+    added_in_version = "8.0.0"
+    sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
+        clean_code=sonar_qube.CleanCodeAttribute.CONVENTIONAL, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
+    )
+    run_keyword_if_names = {"runkeywordif", "runkeywordunless"}

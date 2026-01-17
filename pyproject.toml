@@ -121,6 +121,7 @@ lint.ignore = [
     "D203", # blank line before class
     "D212", # multi-line docstring summary should start at the first line
     "D400", # first line should end with a period
+    "D412", # no black lines after a section header - it is messing up our docs when enabled
     "D415", # first line should end with period, question mark or exlamation point
     "ANN204", # missing type annotation for __init__
     "EM102", # exception with fstring

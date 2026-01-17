@@ -1379,14 +1379,11 @@ class DeprecatedStatementChecker(VisitorChecker):
     deprecated_singular_header: deprecated.DeprecatedSingularHeaderRule
     deprecated_force_tags: deprecated.DeprecatedForceTagsRule
     deprecated_run_keyword_if: deprecated.DeprecatedRunKeywordIfRule
+    deprecated_loop_keyword: deprecated.DeprecatedLoopKeywordRule
     replace_set_variable_with_var: deprecated.ReplaceSetVariableWithVarRule
     replace_create_with_var: deprecated.ReplaceCreateWithVarRule
 
     deprecated_keywords = {
-        "exitforloop": (5, "BREAK"),
-        "exitforloopif": (5, "IF and BREAK"),
-        "continueforloop": (5, "CONTINUE"),
-        "continueforloopif": (5, "IF and CONTINUE"),
         "returnfromkeyword": (5, "RETURN"),
         "returnfromkeywordif": (5, "IF and RETURN"),
     }
@@ -1476,6 +1473,18 @@ class DeprecatedStatementChecker(VisitorChecker):
             self.report(
                 self.deprecated_run_keyword_if,
                 statement_name=keyword_name,
+                node=node,
+                col=col,
+                end_col=col + len(keyword_name),
+            )
+            return
+        if normalized_keyword_name in self.deprecated_loop_keyword.deprecated_keywords:
+            col = utils.token_col(node, Token.NAME, Token.KEYWORD)
+            alternative = self.deprecated_loop_keyword.deprecated_keywords[normalized_keyword_name]
+            self.report(
+                self.deprecated_loop_keyword,
+                statement_name=keyword_name,
+                alternative=alternative,
                 node=node,
                 col=col,
                 end_col=col + len(keyword_name),

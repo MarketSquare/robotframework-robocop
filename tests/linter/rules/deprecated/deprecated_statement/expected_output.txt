@@ -1,9 +1,5 @@
-test.robot:5:13 [W] DEPR02 'Continue For Loop' is deprecated since Robot Framework version 5.*, use 'CONTINUE' instead
-test.robot:6:13 [W] DEPR02 'Continue For Loop If' is deprecated since Robot Framework version 5.*, use 'IF and CONTINUE' instead
-test.robot:7:13 [W] DEPR02 'Exit For Loop If' is deprecated since Robot Framework version 5.*, use 'IF and BREAK' instead
-test.robot:8:13 [W] DEPR02 'BuiltIn.Exit For Loop' is deprecated since Robot Framework version 5.*, use 'BREAK' instead
-test.robot:13:5 [W] DEPR02 'Return From Keyword If' is deprecated since Robot Framework version 5.*, use 'IF and RETURN' instead
-test.robot:14:5 [W] DEPR02 'BuiltIn.Return From Keyword' is deprecated since Robot Framework version 5.*, use 'RETURN' instead
-test.robot:16:5 [W] DEPR02 '[Return]' is deprecated since Robot Framework version 5.*, use 'RETURN' instead
+test.robot:3:5 [W] DEPR02 'Return From Keyword If' is deprecated since Robot Framework version 5.*, use 'IF and RETURN' instead
+test.robot:4:5 [W] DEPR02 'BuiltIn.Return From Keyword' is deprecated since Robot Framework version 5.*, use 'RETURN' instead
+test.robot:6:5 [W] DEPR02 '[Return]' is deprecated since Robot Framework version 5.*, use 'RETURN' instead
 
-Found 7 issues.
+Found 3 issues.

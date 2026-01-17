@@ -334,9 +334,29 @@ class DeprecatedLoopKeywordRule(Rule):
         clean_code=sonar_qube.CleanCodeAttribute.CONVENTIONAL, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
 
-    deprecated_keywords = {
+    deprecated_names = {
         "exitforloop": "BREAK",
         "exitforloopif": "IF and BREAK",
         "continueforloop": "CONTINUE",
         "continueforloopif": "IF and CONTINUE",
     }
+
+
+class DeprecatedReturnKeyword(Rule):
+    """
+    ``Return From Keyword`` and ``Return From Keyword If`` keywords are deprecated.
+
+    Use ``RETURN`` or ``IF  <condition>  RETURN`` instead.
+    """
+
+    name = "deprecated-return-keyword"
+    rule_id = "DEPR09"
+    message = "'{statement_name}' is deprecated, use '{alternative}' instead"
+    severity = RuleSeverity.WARNING
+    version = ">=5.0"
+    added_in_version = "8.0.0"
+    sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
+        clean_code=sonar_qube.CleanCodeAttribute.CONVENTIONAL, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
+    )
+
+    deprecated_names = {"returnfromkeyword": "RETURN", "returnfromkeywordif": "IF and RETURN"}

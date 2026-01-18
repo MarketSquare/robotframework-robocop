@@ -52,8 +52,7 @@ class TagWithOrAndRule(Rule):
         robocop check --include tagANDtag2
 
     Robot Framework will only execute tests that contain ``tag`` and ``tag2``. That's why it's best to avoid ``AND``
-    and ``OR`` in tag names. See
-    `docs <https://robotframework.org/robotframework/latest/RobotFrameworkUserGuide.html#tag-patterns>`_
+    and ``OR`` in tag names. See [docs](https://robotframework.org/robotframework/latest/RobotFrameworkUserGuide.html#tag-patterns)
     for more information.
 
     Tag matching is case-insensitive. If your tag contains ``OR`` or ``AND`` you can use lowercase to match it.
@@ -76,9 +75,9 @@ class TagWithReservedWordRule(Rule):
     """
     Tag is prefixed with reserved work ``robot:``.
 
-    ``robot:`` prefix is used by Robot Framework special tags. More details
-    `here <https://robotframework.org/robotframework/latest/RobotFrameworkUserGuide.html#reserved-tags>`_.
-    Special tags currently in use:
+    ``robot:`` prefix is used by Robot Framework special tags. More details in
+    [RF User Guide](https://robotframework.org/robotframework/latest/RobotFrameworkUserGuide.html#reserved-tags).
+    Special tags that are currently in use:
 
         - robot:exit
         - robot:flatten

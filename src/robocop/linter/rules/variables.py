@@ -478,9 +478,9 @@ class OverwritingReservedVariableRule(Rule):
     Variable overwrites reserved variable.
 
     Overwriting reserved variables may bring unexpected results.
-    For example, overwriting variable with name ``${LOG_LEVEL}`` can break Robot Framework logging.
+    For example, overwriting a variable with the name ``${LOG_LEVEL}`` can break Robot Framework logging.
     See the full list of reserved variables at
-    `Robot Framework User Guide <https://robotframework.org/robotframework/latest/RobotFrameworkUserGuide.html#automatic-variables>`_
+    [Robot Framework User Guide](https://robotframework.org/robotframework/latest/RobotFrameworkUserGuide.html#automatic-variables).
 
     """
 

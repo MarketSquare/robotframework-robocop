@@ -13,6 +13,22 @@ if TYPE_CHECKING:
     from robocop.source_file import SourceFile
 
 
+class TextEditKind(Enum):
+    """
+    Enumeration of edit operation types.
+
+    Attributes:
+        REPLACEMENT (str): Replace an existing line or part of it with the new content.
+        INSERTION (str): Insert a new line or lines without changing existing lines.
+        DELETION (str): Delete line or lines.
+
+    """
+
+    REPLACEMENT = "replace"
+    INSERTION = "insert"
+    DELETION = "delete"
+
+
 @dataclass
 class TextEdit:
     """
@@ -38,11 +54,18 @@ class TextEdit:
     rule_id: str
     rule_name: str
     start_line: int
-    start_col: int
-    end_line: int
-    start_line: int
-    end_col: int
-    replacement: str
+    start_col: int | None
+    end_line: int | None
+    end_col: int | None
+    replacement: str | None
+
+    @property
+    def kind(self) -> TextEditKind:
+        if self.replacement is None:
+            return TextEditKind.DELETION
+        if self.end_line is None:
+            return TextEditKind.INSERTION
+        return TextEditKind.REPLACEMENT
 
     @classmethod
     def replace_at_range(cls, rule_id: str, rule_name: str, diag_range: Range, replacement: str) -> TextEdit:
@@ -53,6 +76,32 @@ class TextEdit:
             start_col=diag_range.start.character,
             end_line=diag_range.end.line,
             end_col=diag_range.end.character,
+            replacement=replacement,
+        )
+
+    @classmethod
+    def remove_at_range(cls, rule_id: str, rule_name: str, diag_range: Range) -> TextEdit:
+        """Remove lines between start_line and end_line from the edit range."""
+        return cls(
+            rule_id=rule_id,
+            rule_name=rule_name,
+            start_line=diag_range.start.line,
+            start_col=None,
+            end_line=diag_range.end.line,
+            end_col=None,
+            replacement=None,
+        )
+
+    @classmethod
+    def insert_at_range(cls, rule_id: str, rule_name: str, diag_range: Range, replacement: str) -> TextEdit:
+        """Insert new content at start_line."""
+        return cls(
+            rule_id=rule_id,
+            rule_name=rule_name,
+            start_line=diag_range.start.line,
+            start_col=None,
+            end_line=None,
+            end_col=None,
             replacement=replacement,
         )
 
@@ -220,17 +269,24 @@ class FixApplier:
             edit: The edit to apply (uses 1-indexed line/col numbers).
 
         """
-        if edit.end_line > len(lines) or edit.start_line < 1:
-            return
-        start_line_idx = edit.start_line - 1
-        end_line_idx = edit.end_line - 1
-        start_col_idx = edit.start_col - 1
-        end_col_idx = edit.end_col - 1
+        if edit.kind == TextEditKind.REPLACEMENT:
+            if edit.end_line > len(lines) or edit.start_line < 1:
+                return
+            start_line_idx = edit.start_line - 1
+            end_line_idx = edit.end_line - 1
+            start_col_idx = edit.start_col - 1
+            end_col_idx = edit.end_col - 1
 
-        if start_line_idx == end_line_idx:  # single line
-            line = lines[edit.start_line - 1]  # TODO: store for diff view, + surrounding lines
-            new_line = line[:start_col_idx] + edit.replacement + line[end_col_idx:]
-            lines[start_line_idx] = new_line
-        else:  # Multi-line edit
-            # When edit is multiline, we replace the lines fully
-            lines[start_line_idx : end_line_idx + 2] = [edit.replacement]
+            if start_line_idx == end_line_idx:  # single line
+                line = lines[edit.start_line - 1]
+                new_line = line[:start_col_idx] + edit.replacement + line[end_col_idx:]
+                lines[start_line_idx] = new_line
+            else:  # Multi-line edit
+                # When edit is multiline, we replace the lines fully
+                lines[start_line_idx : end_line_idx + 2] = [edit.replacement]
+        elif edit.kind == TextEditKind.INSERTION:
+            start_line_idx = edit.start_line - 1
+            lines.insert(start_line_idx, edit.replacement)
+        else:  # edit.kind == TextEditKind.DELETION
+            start_line_idx = edit.start_line - 1
+            del lines[start_line_idx : edit.end_line]

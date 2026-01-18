@@ -4,6 +4,7 @@ from unittest.mock import Mock
 
 import pytest
 
+from robocop.linter.diagnostics import Position, Range
 from robocop.linter.fix import Fix, FixApplicability, FixApplier, FixStats, TextEdit
 from robocop.source_file import SourceFile
 
@@ -686,3 +687,40 @@ def test_diff_mode_does_not_modify_file(sample_source_file):
     # But original should be preserved
     assert "Hello World" in sample_source_file.original_source_lines[7]
     assert sample_source_file.original_source_lines == original_content
+
+
+def test_edit_kind(sample_source_file):
+    applier = FixApplier()
+
+    replace_range = Range(start=Position(line=3, character=12), end=Position(line=3, character=23))
+    remove_range = Range(start=Position(line=4, character=1), end=Position(line=4, character=1000))
+    insert_range = Range(start=Position(line=5, character=1), end=Position(line=5, character=1))
+    fixes = [
+        Fix(
+            edits=[
+                TextEdit.replace_at_range(
+                    rule_id="W001", rule_name="update-library", diag_range=replace_range, replacement="Replaced"
+                ),
+                TextEdit.remove_at_range(rule_id="W001", rule_name="update-library", diag_range=remove_range),
+            ],
+            message="Range helpers",
+            applicability=FixApplicability.SAFE,
+        ),
+        Fix(
+            edits=[
+                TextEdit.insert_at_range(
+                    rule_id="W001", rule_name="update-library", diag_range=insert_range, replacement="Library    Name\n"
+                )
+            ],
+            message="Range helpers",
+            applicability=FixApplicability.SAFE,
+        ),
+    ]
+
+    applier.apply_fixes(sample_source_file, fixes)
+
+    assert applier.fix_stats.total_fixes == 0
+    assert "Replaced" in sample_source_file.source_lines[2]
+    assert "String" not in sample_source_file.source_lines[3]
+    assert "Name" in sample_source_file.source_lines[3]
+    assert applier.fix_stats.by_file[sample_source_file.path][("W001", "update-library")] == 3

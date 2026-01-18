@@ -1,0 +1,9 @@
+test.robot:6:5 DEPR10 '[Return]' is deprecated, use 'RETURN' instead
+   |
+ 4 |     BuiltIn.Return From Keyword
+ 5 |     RETURN
+ 6 |     [Return]
+   |     ^^^^^^^^ DEPR10
+   |
+
+Found 1 issue.

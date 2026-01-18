@@ -44,13 +44,15 @@ class IfCanBeUsedRule(Rule):
     deprecated_names = ("0908",)
 
 
-class DeprecatedStatementRule(Rule):  # TODO: Split rule
+class DeprecatedStatementRule(Rule):
     """
     Statement is deprecated.
 
     Detects any piece of code that is marked as deprecated but still works in RF.
 
     For example, ``Run Keyword`` and ``Continue For Loop`` keywords or ``[Return]`` setting.
+
+    Changes in 8.0.0: Rule is now split into separate deprecated-* rules and the original rule is deprecated.
 
     """
 
@@ -63,6 +65,7 @@ class DeprecatedStatementRule(Rule):  # TODO: Split rule
         clean_code=sonar_qube.CleanCodeAttribute.CONVENTIONAL, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
     deprecated_names = ("0319",)
+    deprecated = True
 
 
 class DeprecatedWithNameRule(Rule):
@@ -360,3 +363,38 @@ class DeprecatedReturnKeyword(Rule):
     )
 
     deprecated_names = {"returnfromkeyword": "RETURN", "returnfromkeywordif": "IF and RETURN"}
+
+
+class DeprecatedReturnSetting(Rule):
+    """
+    ``[Return]`` settings is deprecated.
+
+    Use ``RETURN`` instead.
+
+    Incorrect code example:
+
+        *** Keywords ***
+        Return One Value
+            [Arguments]    ${arg}
+            ${value}    Convert To Upper Case    ${arg}
+            [Return]    ${value}
+
+    Correct code:
+
+        *** Keywords ***
+        Return One Value
+            [Arguments]    ${arg}
+            ${value}    Convert To Upper Case    ${arg}
+            RETURN    ${value}
+
+    """
+
+    name = "deprecated-return-setting"
+    rule_id = "DEPR10"
+    message = "'[Return]' is deprecated, use 'RETURN' instead"
+    severity = RuleSeverity.WARNING
+    version = ">=5.0"
+    added_in_version = "8.0.0"
+    sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
+        clean_code=sonar_qube.CleanCodeAttribute.CONVENTIONAL, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
+    )

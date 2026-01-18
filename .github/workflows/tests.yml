@@ -31,6 +31,10 @@ jobs:
             python-version: '3.14'
             rf-version: '7.*'
     runs-on: ${{ matrix.os }}
+    # Skip for documentation-only builds
+    if: >
+      github.event_name != 'pull_request' ||
+      !contains(github.event.pull_request.labels.*.name, 'docs-only')
 
     steps:
       - name: Checkout

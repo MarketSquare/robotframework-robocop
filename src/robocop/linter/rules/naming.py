@@ -1374,13 +1374,13 @@ class SimilarVariableChecker(VisitorChecker):
 class DeprecatedStatementChecker(VisitorChecker):
     """Checker for deprecated statements."""
 
-    deprecated_statement: deprecated.DeprecatedStatementRule
     deprecated_with_name: deprecated.DeprecatedWithNameRule
     deprecated_singular_header: deprecated.DeprecatedSingularHeaderRule
     deprecated_force_tags: deprecated.DeprecatedForceTagsRule
     deprecated_run_keyword_if: deprecated.DeprecatedRunKeywordIfRule
     deprecated_loop_keyword: deprecated.DeprecatedLoopKeywordRule
     deprecated_return_keyword: deprecated.DeprecatedReturnKeyword
+    deprecated_return_setting: deprecated.DeprecatedReturnSetting
     replace_set_variable_with_var: deprecated.ReplaceSetVariableWithVarRule
     replace_create_with_var: deprecated.ReplaceCreateWithVarRule
 
@@ -1434,20 +1434,17 @@ class DeprecatedStatementChecker(VisitorChecker):
         if ROBOT_VERSION.major not in (5, 6):
             return
         # TODO: check if our code for finding our return visitor would apply here
-        self.check_deprecated_return(node)
+        self.report_deprecated_return(node)
 
     def visit_ReturnSetting(self, node) -> None:  # noqa: N802
-        self.check_deprecated_return(node)
+        self.report_deprecated_return(node)
 
-    def check_deprecated_return(self, node) -> None:
+    def report_deprecated_return(self, node) -> None:
         self.report(
-            self.deprecated_statement,
-            statement_name="[Return]",
-            alternative="RETURN",
+            self.deprecated_return_setting,
             node=node,
             col=utils.token_col(node, Token.RETURN),
             end_col=node.end_col_offset,
-            version="5.*",
         )
 
     def visit_ForceTags(self, node) -> None:  # noqa: N802

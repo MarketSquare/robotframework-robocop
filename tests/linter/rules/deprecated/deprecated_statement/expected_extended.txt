@@ -1,9 +1,0 @@
-test.robot:6:5 DEPR02 '[Return]' is deprecated since Robot Framework version 5.*, use 'RETURN' instead
-   |
- 4 |     BuiltIn.Return From Keyword
- 5 |     RETURN
- 6 |     [Return]
-   |     ^^^^^^^^ DEPR02
-   |
-
-Found 1 issue.

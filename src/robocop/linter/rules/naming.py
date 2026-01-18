@@ -1380,13 +1380,10 @@ class DeprecatedStatementChecker(VisitorChecker):
     deprecated_force_tags: deprecated.DeprecatedForceTagsRule
     deprecated_run_keyword_if: deprecated.DeprecatedRunKeywordIfRule
     deprecated_loop_keyword: deprecated.DeprecatedLoopKeywordRule
+    deprecated_return_keyword: deprecated.DeprecatedReturnKeyword
     replace_set_variable_with_var: deprecated.ReplaceSetVariableWithVarRule
     replace_create_with_var: deprecated.ReplaceCreateWithVarRule
 
-    deprecated_keywords = {
-        "returnfromkeyword": (5, "RETURN"),
-        "returnfromkeywordif": (5, "IF and RETURN"),
-    }
     english_headers_singular = {
         "Comment",
         "Setting",
@@ -1478,9 +1475,9 @@ class DeprecatedStatementChecker(VisitorChecker):
                 end_col=col + len(keyword_name),
             )
             return
-        if normalized_keyword_name in self.deprecated_loop_keyword.deprecated_keywords:
+        if normalized_keyword_name in self.deprecated_loop_keyword.deprecated_names:
             col = utils.token_col(node, Token.NAME, Token.KEYWORD)
-            alternative = self.deprecated_loop_keyword.deprecated_keywords[normalized_keyword_name]
+            alternative = self.deprecated_loop_keyword.deprecated_names[normalized_keyword_name]
             self.report(
                 self.deprecated_loop_keyword,
                 statement_name=keyword_name,
@@ -1490,21 +1487,17 @@ class DeprecatedStatementChecker(VisitorChecker):
                 end_col=col + len(keyword_name),
             )
             return
-        if normalized_keyword_name not in self.deprecated_keywords:
-            return
-        version, alternative = self.deprecated_keywords[normalized_keyword_name]
-        if version > ROBOT_VERSION.major:
-            return
-        col = utils.token_col(node, Token.NAME, Token.KEYWORD)
-        self.report(
-            self.deprecated_statement,
-            statement_name=keyword_name,
-            alternative=alternative,
-            node=node,
-            col=col,
-            end_col=col + len(keyword_name),
-            version=f"{version}.*",
-        )
+        if normalized_keyword_name in self.deprecated_return_keyword.deprecated_names:
+            col = utils.token_col(node, Token.NAME, Token.KEYWORD)
+            alternative = self.deprecated_return_keyword.deprecated_names[normalized_keyword_name]
+            self.report(
+                self.deprecated_return_keyword,
+                statement_name=keyword_name,
+                alternative=alternative,
+                node=node,
+                col=col,
+                end_col=col + len(keyword_name),
+            )
 
     def check_keyword_can_be_replaced_with_var(self, keyword_name, node) -> None:
         if ROBOT_VERSION.major < 7:

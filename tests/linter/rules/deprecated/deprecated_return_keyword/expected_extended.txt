@@ -1,0 +1,20 @@
+test.robot:3:5 DEPR09 'Return From Keyword If' is deprecated, use 'IF and RETURN' instead
+   |
+ 1 | *** Keywords ***
+ 2 | RETURN
+ 3 |     Return From Keyword If  $GLOBAL > 10
+   |     ^^^^^^^^^^^^^^^^^^^^^^ DEPR09
+ 4 |     BuiltIn.Return From Keyword
+ 5 |     RETURN
+   |
+
+test.robot:4:5 DEPR09 'BuiltIn.Return From Keyword' is deprecated, use 'RETURN' instead
+   |
+ 2 | RETURN
+ 3 |     Return From Keyword If  $GLOBAL > 10
+ 4 |     BuiltIn.Return From Keyword
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^ DEPR09
+ 5 |     RETURN
+   |
+
+Found 2 issues.

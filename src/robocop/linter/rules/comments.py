@@ -190,8 +190,7 @@ class IgnoredDataRule(Rule):
     """
     Ignored data found in the file.
 
-    All lines before the first test data section
-    (`ref <https://robotframework.org/robotframework/latest/RobotFrameworkUserGuide.html#test-data-sections>`_)
+    All lines before the first test data section ([ref](https://robotframework.org/robotframework/latest/RobotFrameworkUserGuide.html#test-data-sections))
     are ignored. It's recommended to add a `` *** Comments *** `` section header for lines that should be ignored.
 
     Missing section header:

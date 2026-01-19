@@ -142,7 +142,6 @@ To see the list of formatters included with `Robocop` use ``robocop list formatt
 │ SmartSortKeywords          │ No      │
 │ RenameTestCases            │ No      │
 │ RenameKeywords             │ No      │
-│ ReplaceReturns             │ Yes     │
 │ ReplaceBreakContinue       │ Yes     │
 │ InlineIf                   │ Yes     │
 │ Translate                  │ No      │

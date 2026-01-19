@@ -63,7 +63,6 @@ FORMATTERS = [
     "SmartSortKeywords",
     "RenameTestCases",
     "RenameKeywords",
-    "ReplaceReturns",
     "ReplaceBreakContinue",
     "InlineIf",
     "Translate",

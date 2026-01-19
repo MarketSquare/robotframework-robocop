@@ -288,7 +288,7 @@ class FixApplier:
             start_line_idx = edit.start_line - 1
             end_line_idx = edit.end_line - 1
             if edit.start_col is None or edit.end_col is None:  # replace_lines
-                lines[start_line_idx : end_line_idx + 1] = [edit.replacement]
+                lines[start_line_idx : end_line_idx + 1] = edit.replacement.splitlines(keepends=True)
                 return
             start_col_idx = edit.start_col - 1
             end_col_idx = edit.end_col - 1
@@ -296,13 +296,13 @@ class FixApplier:
             if start_line_idx == end_line_idx:  # single line
                 line = lines[edit.start_line - 1]
                 new_line = line[:start_col_idx] + edit.replacement + line[end_col_idx:]
-                lines[start_line_idx] = new_line
+                lines[start_line_idx : start_line_idx + 1] = new_line.splitlines(keepends=True)
             else:  # Multi-line edit
                 # When edit is multiline, we replace the lines fully
-                lines[start_line_idx : end_line_idx + 2] = [edit.replacement]
+                lines[start_line_idx : end_line_idx + 2] = edit.replacement.splitlines(keepends=True)
         elif edit.kind == TextEditKind.INSERTION:
             start_line_idx = edit.start_line - 1
-            lines.insert(start_line_idx, edit.replacement)
+            lines[start_line_idx:start_line_idx] = edit.replacement.splitlines(keepends=True)
         else:  # edit.kind == TextEditKind.DELETION
             start_line_idx = edit.start_line - 1
             del lines[start_line_idx : edit.end_line]

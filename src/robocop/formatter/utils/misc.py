@@ -196,7 +196,7 @@ def create_statement_from_tokens(statement, tokens: Iterable, indent: Token):
     return statement([indent, Token(statement.type), *tokens])
 
 
-def wrap_in_if_and_replace_statement(node, statement, default_separator):
+def wrap_in_if_and_replace_statement(node, statement, default_separator: str):
     if len(node.data_tokens) < 2:
         return node
     condition = node.data_tokens[1]

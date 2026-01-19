@@ -65,7 +65,7 @@ class TestListFormatters:
         assert result.exit_code == 0
         assert "NormalizeNewLines" in result.stdout
         if ROBOT_VERSION.major > 4:
-            assert "ReplaceReturns" in result.stdout
+            assert "InlineIf" in result.stdout
         assert "Translate" not in result.stdout
 
     def test_list_disabled(self):
@@ -87,7 +87,7 @@ class TestListFormatters:
         result = runner.invoke(app, ["list", "formatters", "--filter", "ENABLED", "--target-version", "4"])
         assert result.exit_code == 0
         assert "NormalizeNewLines" in result.stdout
-        assert "ReplaceReturns" not in result.stdout
+        assert "InlineIf" not in result.stdout
 
     def test_return_status(self, tmp_path):
         runner = CliRunner()

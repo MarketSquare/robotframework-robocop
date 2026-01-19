@@ -14,10 +14,12 @@ from robot.parsing.model.statements import Arguments
 from robot.variables.search import search_variable
 
 from robocop.linter import sonar_qube
+from robocop.linter.fix import Fix, FixApplicability, TextEdit
 from robocop.linter.rules import Rule, RuleParam, RuleSeverity, VisitorChecker, deprecated, variables
 from robocop.linter.utils import misc as utils
 from robocop.parsing.run_keywords import iterate_keyword_names
 from robocop.parsing.variables import VariableMatches
+from robocop.source_file import StatementLinesCollector
 from robocop.version_handling import ROBOT_VERSION
 
 if TYPE_CHECKING:
@@ -1413,6 +1415,11 @@ class DeprecatedStatementChecker(VisitorChecker):
     }
     create_keywords = {"createdictionary", "createlist"}
 
+    def visit_Keyword(self, node) -> None:  # noqa: N802
+        self.context.keyword = node
+        self.generic_visit(node)
+        self.context.keyword = None
+
     def visit_KeywordCall(self, node) -> None:  # noqa: N802
         self.check_if_keyword_is_deprecated(node.keyword, node)
         self.check_keyword_can_be_replaced_with_var(node.keyword, node)
@@ -1433,18 +1440,49 @@ class DeprecatedStatementChecker(VisitorChecker):
         """For RETURN use visit_ReturnStatement - visit_Return will most likely visit RETURN in the future"""
         if ROBOT_VERSION.major not in (5, 6):
             return
-        # TODO: check if our code for finding our return visitor would apply here
         self.report_deprecated_return(node)
 
     def visit_ReturnSetting(self, node) -> None:  # noqa: N802
         self.report_deprecated_return(node)
 
     def report_deprecated_return(self, node) -> None:
+        """
+        Report the deprecated [Return] setting and implement a fix.
+
+        Since [Return] may be defined in any place of the keyword,
+        we can't simply replace it with RETURN.
+        The following code takes lines between [Return] and the last statement in keyword
+        as lines under the fix (to avoid conflicts).
+        Removes [Return] and add RETURN after the last statement.
+        The formatting is preserved.
+
+        """
+        return_statement = StatementLinesCollector(node).text
+        last_statement = self.context.last_data_statement_in_keyword
+        if last_statement and last_statement.type in ("RETURN STATEMENT", "RETURN SETTING"):
+            # ignore duplicate [Return] or keywords with RETURN, it should be handled by duplicate-return issue
+            return
+        replacement = self.source_file.source_lines[node.end_lineno : last_statement.end_lineno]
+        replacement = "".join(replacement) + return_statement.replace(node.data_tokens[0].value, "RETURN", 1)
+        fix = Fix(
+            edits=[
+                TextEdit.replace_lines(
+                    rule_id=self.deprecated_return_setting.rule_id,
+                    rule_name=self.deprecated_return_setting.name,
+                    start_line=node.lineno,
+                    end_line=last_statement.end_lineno,
+                    replacement=replacement,
+                )
+            ],
+            message="Replace [Return] with RETURN",
+            applicability=FixApplicability.SAFE,
+        )
         self.report(
             self.deprecated_return_setting,
             node=node,
             col=utils.token_col(node, Token.RETURN),
             end_col=node.end_col_offset,
+            fix=fix,
         )
 
     def visit_ForceTags(self, node) -> None:  # noqa: N802

@@ -1,0 +1,5 @@
+Fixed 7 issues:
+- actual_fixed${/}test_fix.robot:
+    7 x DEPR10 (deprecated-return-setting)
+
+Found 7 issues (7 fixed, 0 remaining).

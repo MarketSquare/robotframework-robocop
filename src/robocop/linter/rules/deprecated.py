@@ -365,7 +365,7 @@ class DeprecatedReturnKeyword(Rule):
     deprecated_names = {"returnfromkeyword": "RETURN", "returnfromkeywordif": "IF and RETURN"}
 
 
-class DeprecatedReturnSetting(Rule):
+class DeprecatedReturnSetting(FixableRule):
     """
     ``[Return]`` settings is deprecated.
 
@@ -398,3 +398,4 @@ class DeprecatedReturnSetting(Rule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.CONVENTIONAL, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
+    fix_availability = FixAvailability.ALWAYS

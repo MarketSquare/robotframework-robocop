@@ -40,6 +40,7 @@ from typing import TYPE_CHECKING, Any, NoReturn
 from robocop import __version__, exceptions
 from robocop.linter.diagnostics import Diagnostic
 from robocop.linter.fix import Fix, FixAvailability
+from robocop.parsing.context import Context
 from robocop.version_handling import Version, VersionSpecifier
 
 try:
@@ -567,10 +568,13 @@ class BaseChecker:
 
 
 class VisitorChecker(BaseChecker, ModelVisitor):
+    context: Context
+
     def scan_file(self, source_file: SourceFile, templated: bool = False) -> list[Diagnostic]:
         self.issues: list[Diagnostic] = []
         self.source_file = source_file
         self.templated_suite = templated
+        self.context = Context()
         self.visit_File(source_file.model)
         return self.issues
 

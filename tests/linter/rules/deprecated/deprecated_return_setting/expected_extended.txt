@@ -6,4 +6,70 @@ test.robot:6:5 DEPR10 '[Return]' is deprecated, use 'RETURN' instead
    |     ^^^^^^^^ DEPR10
    |
 
-Found 1 issue.
+test_fix.robot:3:5 DEPR10 '[Return]' is deprecated, use 'RETURN' instead
+   |
+ 1 | *** Keywords ***
+ 2 | Keyword with [Return]
+ 3 |     [Return]    1  # it can be first
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ DEPR10
+   |
+
+test_fix.robot:9:5 DEPR10 '[Return]' is deprecated, use 'RETURN' instead
+   |
+ 7 | Keyword with Multiple [Return] And Empty Lines
+ 8 |     [Documentation]    First one will be changed to RETURN, second ignored (handled by different rule).
+ 9 |     [Return]    1
+   |     ^^^^^^^^^^^^^ DEPR10
+10 |     Step 1
+11 |     [Return]    2
+   |
+
+test_fix.robot:27:5 DEPR10 '[Return]' is deprecated, use 'RETURN' instead
+    |
+ 25 | Keyword With Multiline Return Setting
+ 26 |     Keyword
+ 27 |     [Return]    1
+    |     ^^^^^^^^ DEPR10
+ 28 |     ...    2
+    |
+
+test_fix.robot:31:5 DEPR10 '[Return]' is deprecated, use 'RETURN' instead
+    |
+ 29 |
+ 30 | Keyword With Mixed RETURN
+ 31 |     [Return]    1  # sets default return
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ DEPR10
+ 32 |     IF    ${condition}
+ 33 |         RETURN    2  # conditional return
+    |
+
+test_fix.robot:43:5 DEPR10 '[Return]' is deprecated, use 'RETURN' instead
+    |
+ 41 | Two Keywords Without New Lines
+ 42 |     Keyword
+ 43 |     [Return]    ${value}
+    |     ^^^^^^^^^^^^^^^^^^^^ DEPR10
+ 44 | Two Keywords Without New Lines
+ 45 |     Keyword
+    |
+
+test_fix.robot:46:5 DEPR10 '[Return]' is deprecated, use 'RETURN' instead
+    |
+ 44 | Two Keywords Without New Lines
+ 45 |     Keyword
+ 46 |     [Return]    ${value}
+    |     ^^^^^^^^^^^^^^^^^^^^ DEPR10
+    |
+
+test_fix.robot:60:5 DEPR10 '[Return]' is deprecated, use 'RETURN' instead
+    |
+ 58 |     [Timeout]    2s
+ 59 |     No Operation
+ 60 |     [Return]    R0
+    |     ^^^^^^^^^^^^^^ DEPR10
+ 61 |     [Return]    R1
+ 62 |     [Return]    R2
+    |
+
+Found 8 issues.
+8 fixable with the ``--fix`` option.

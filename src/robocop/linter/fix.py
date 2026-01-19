@@ -80,6 +80,19 @@ class TextEdit:
         )
 
     @classmethod
+    def replace_lines(cls, rule_id: str, rule_name: str, start_line: int, end_line: int, replacement: str) -> TextEdit:
+        """Replace multiple lines between start_line and end_line."""
+        return cls(
+            rule_id=rule_id,
+            rule_name=rule_name,
+            start_line=start_line,
+            start_col=None,
+            end_line=end_line,
+            end_col=None,
+            replacement=replacement,
+        )
+
+    @classmethod
     def remove_at_range(cls, rule_id: str, rule_name: str, diag_range: Range) -> TextEdit:
         """Remove lines between start_line and end_line from the edit range."""
         return cls(
@@ -274,6 +287,9 @@ class FixApplier:
                 return
             start_line_idx = edit.start_line - 1
             end_line_idx = edit.end_line - 1
+            if edit.start_col is None or edit.end_col is None:  # replace_lines
+                lines[start_line_idx : end_line_idx + 1] = [edit.replacement]
+                return
             start_col_idx = edit.start_col - 1
             end_col_idx = edit.end_col - 1
 

@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import re
-import string
 from collections import defaultdict
 from typing import TYPE_CHECKING
 
@@ -14,12 +13,10 @@ from robot.parsing.model.statements import Arguments
 from robot.variables.search import search_variable
 
 from robocop.linter import sonar_qube
-from robocop.linter.fix import Fix, FixApplicability, TextEdit
 from robocop.linter.rules import Rule, RuleParam, RuleSeverity, VisitorChecker, deprecated, variables
 from robocop.linter.utils import misc as utils
 from robocop.parsing.run_keywords import iterate_keyword_names
 from robocop.parsing.variables import VariableMatches
-from robocop.source_file import StatementLinesCollector
 from robocop.version_handling import ROBOT_VERSION
 
 if TYPE_CHECKING:
@@ -1386,35 +1383,6 @@ class DeprecatedStatementChecker(VisitorChecker):
     replace_set_variable_with_var: deprecated.ReplaceSetVariableWithVarRule
     replace_create_with_var: deprecated.ReplaceCreateWithVarRule
 
-    english_headers_singular = {
-        "Comment",
-        "Setting",
-        "Variable",
-        "Test Case",
-        "Keyword",
-    }
-    english_headers_all = {
-        "Comment",
-        "Setting",
-        "Variable",
-        "Test Case",
-        "Keyword",
-        "Comments",
-        "Settings",
-        "Variables",
-        "Test Cases",
-        "Keywords",
-    }
-    set_variable_keywords = {
-        "setvariable",
-        "setlocalvariable",
-        "settestvariable",
-        "settaskvariable",
-        "setsuitevariable",
-        "setglobalvariable",
-    }
-    create_keywords = {"createdictionary", "createlist"}
-
     def visit_Keyword(self, node) -> None:  # noqa: N802
         self.context.keyword = node
         self.generic_visit(node)
@@ -1440,150 +1408,34 @@ class DeprecatedStatementChecker(VisitorChecker):
         """For RETURN use visit_ReturnStatement - visit_Return will most likely visit RETURN in the future"""
         if ROBOT_VERSION.major not in (5, 6):
             return
-        self.report_deprecated_return(node)
+        self.deprecated_return_setting.check(node)
 
     def visit_ReturnSetting(self, node) -> None:  # noqa: N802
-        self.report_deprecated_return(node)
-
-    def report_deprecated_return(self, node) -> None:
-        """
-        Report the deprecated [Return] setting and implement a fix.
-
-        Since [Return] may be defined in any place of the keyword,
-        we can't simply replace it with RETURN.
-        The following code takes lines between [Return] and the last statement in keyword
-        as lines under the fix (to avoid conflicts).
-        Removes [Return] and add RETURN after the last statement.
-        The formatting is preserved.
-
-        """
-        return_statement = StatementLinesCollector(node).text
-        last_statement = self.context.last_data_statement_in_keyword
-        if last_statement and last_statement.type in ("RETURN STATEMENT", "RETURN SETTING"):
-            # ignore duplicate [Return] or keywords with RETURN, it should be handled by duplicate-return issue
-            return
-        replacement = self.source_file.source_lines[node.end_lineno : last_statement.end_lineno]
-        replacement = "".join(replacement) + return_statement.replace(node.data_tokens[0].value, "RETURN", 1)
-        fix = Fix(
-            edits=[
-                TextEdit.replace_lines(
-                    rule_id=self.deprecated_return_setting.rule_id,
-                    rule_name=self.deprecated_return_setting.name,
-                    start_line=node.lineno,
-                    end_line=last_statement.end_lineno,
-                    replacement=replacement,
-                )
-            ],
-            message="Replace [Return] with RETURN",
-            applicability=FixApplicability.SAFE,
-        )
-        self.report(
-            self.deprecated_return_setting,
-            node=node,
-            col=utils.token_col(node, Token.RETURN),
-            end_col=node.end_col_offset,
-            fix=fix,
-        )
+        self.deprecated_return_setting.check(node)
 
     def visit_ForceTags(self, node) -> None:  # noqa: N802
-        if ROBOT_VERSION.major < 6:
-            return
-        setting_name = node.data_tokens[0].value.lower()
-        if setting_name == "force tags":
-            self.report(
-                self.deprecated_force_tags,
-                node=node,
-                col=utils.token_col(node, Token.FORCE_TAGS),
-                end_col=node.col_offset + len(setting_name) + 1,
-                version="6.0",
-            )
+        self.deprecated_force_tags.check(node)
 
     def check_if_keyword_is_deprecated(self, keyword_name, node) -> None:
         normalized_keyword_name = utils.normalize_robot_name(keyword_name, remove_prefix="builtin.")
-        if normalized_keyword_name in self.deprecated_run_keyword_if.run_keyword_if_names:
-            col = utils.token_col(node, Token.NAME, Token.KEYWORD)
-            self.report(
-                self.deprecated_run_keyword_if,
-                statement_name=keyword_name,
-                node=node,
-                col=col,
-                end_col=col + len(keyword_name),
-            )
+        if not self.deprecated_run_keyword_if.check(node, keyword_name, normalized_keyword_name):
             return
-        if normalized_keyword_name in self.deprecated_loop_keyword.deprecated_names:
-            col = utils.token_col(node, Token.NAME, Token.KEYWORD)
-            alternative = self.deprecated_loop_keyword.deprecated_names[normalized_keyword_name]
-            self.report(
-                self.deprecated_loop_keyword,
-                statement_name=keyword_name,
-                alternative=alternative,
-                node=node,
-                col=col,
-                end_col=col + len(keyword_name),
-            )
+        if not self.deprecated_loop_keyword.check(node, keyword_name, normalized_keyword_name):
             return
-        if normalized_keyword_name in self.deprecated_return_keyword.deprecated_names:
-            col = utils.token_col(node, Token.NAME, Token.KEYWORD)
-            alternative = self.deprecated_return_keyword.deprecated_names[normalized_keyword_name]
-            self.report(
-                self.deprecated_return_keyword,
-                statement_name=keyword_name,
-                alternative=alternative,
-                node=node,
-                col=col,
-                end_col=col + len(keyword_name),
-            )
+        if not self.deprecated_return_keyword.check(node, keyword_name, normalized_keyword_name):
+            return
 
     def check_keyword_can_be_replaced_with_var(self, keyword_name, node) -> None:
         if ROBOT_VERSION.major < 7:
             return
         normalized = utils.normalize_robot_name(keyword_name, remove_prefix="builtin.")
-        col = utils.token_col(node, Token.NAME, Token.KEYWORD)
-        if normalized in self.set_variable_keywords:
-            self.report(
-                self.replace_set_variable_with_var,
-                set_variable_keyword=keyword_name,
-                node=node,
-                col=col,
-                end_col=col + len(keyword_name),
-            )
-        elif normalized in self.create_keywords:
-            self.report(
-                self.replace_create_with_var,
-                create_keyword=keyword_name,
-                node=node,
-                col=col,
-                end_col=col + len(keyword_name),
-            )
+        if not self.replace_set_variable_with_var.check(node, keyword_name, normalized):
+            return
+        if not self.replace_create_with_var.check(node, keyword_name, normalized):
+            return
 
     def visit_LibraryImport(self, node) -> None:  # noqa: N802
-        if ROBOT_VERSION.major < 5 or (ROBOT_VERSION.major == 5 and ROBOT_VERSION.minor == 0):
-            return
-        with_name_token = node.get_token(Token.WITH_NAME)
-        if not with_name_token or with_name_token.value == "AS":
-            return
-        self.report(
-            self.deprecated_with_name,
-            node=with_name_token,
-            col=with_name_token.col_offset + 1,
-            end_col=with_name_token.end_col_offset + 1,
-        )
+        self.deprecated_with_name.check(node)
 
     def visit_SectionHeader(self, node) -> None:  # noqa: N802
-        if not node.name:
-            return
-        normalized_name = string.capwords(node.name)
-        # handle translated headers
-        if normalized_name not in self.english_headers_all:
-            return
-        if normalized_name not in self.english_headers_singular:
-            return
-        header_node = node.data_tokens[0]
-        self.report(
-            self.deprecated_singular_header,
-            singular_header=f"*** {node.name} ***",
-            plural_header=f"*** {node.name}s ***",
-            node=header_node,
-            col=header_node.col_offset + 1,
-            end_col=header_node.end_col_offset + 1,
-        )
+        self.deprecated_singular_header.check(node)

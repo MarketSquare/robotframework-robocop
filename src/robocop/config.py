@@ -289,6 +289,7 @@ class LinterConfig:
     def register_checker(self, checker: type[BaseChecker]) -> None:  # [type[BaseChecker]]
         for rule_name_or_id, rule in checker.rules.items():
             self._rules[rule_name_or_id] = rule
+            rule.checker = checker
         self._checkers.append(checker)
 
     def split_checkers_by_type(self) -> None:

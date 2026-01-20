@@ -383,7 +383,7 @@ class DeprecatedRunKeywordIfRule(Rule):
     """
 
     name = "deprecated-run-keyword-if"
-    rule_id = "DEPR07"
+    rule_id = "DEPR08"
     message = "'{statement_name}' is deprecated, use 'IF' instead"
     severity = RuleSeverity.WARNING
     version = ">=4.0"
@@ -398,10 +398,10 @@ class DeprecatedRunKeywordIfRule(Rule):
         if normalized_keyword_name in self.run_keyword_if_names:
             col = utils.token_col(node, Token.NAME, Token.KEYWORD)
             self.report(
-                statement_name=keyword_name,
                 node=node,
                 col=col,
                 end_col=col + len(keyword_name),
+                statement_name=keyword_name,
             )
             return False
         return True
@@ -450,7 +450,7 @@ class DeprecatedLoopKeywordRule(Rule):
     """
 
     name = "deprecated-loop-keyword"
-    rule_id = "DEPR08"
+    rule_id = "DEPR09"
     message = "'{statement_name}' is deprecated, use '{alternative}' instead"
     severity = RuleSeverity.WARNING
     version = ">=5.0"
@@ -490,7 +490,7 @@ class DeprecatedReturnKeyword(FixableRule):
     """
 
     name = "deprecated-return-keyword"
-    rule_id = "DEPR09"
+    rule_id = "DEPR10"
     message = "'{statement_name}' is deprecated, use '{alternative}' instead"
     severity = RuleSeverity.WARNING
     version = ">=5.0"
@@ -570,7 +570,7 @@ class DeprecatedReturnSetting(FixableRule):
     """
 
     name = "deprecated-return-setting"
-    rule_id = "DEPR10"
+    rule_id = "DEPR11"
     message = "'[Return]' is deprecated, use 'RETURN' instead"
     severity = RuleSeverity.WARNING
     version = ">=5.0"

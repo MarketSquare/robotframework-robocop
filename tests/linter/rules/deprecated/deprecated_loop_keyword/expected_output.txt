@@ -1,6 +1,6 @@
-test.robot:5:13 [W] DEPR08 'Continue For Loop' is deprecated, use 'CONTINUE' instead
-test.robot:6:13 [W] DEPR08 'Continue For Loop If' is deprecated, use 'IF and CONTINUE' instead
-test.robot:7:13 [W] DEPR08 'Exit For Loop If' is deprecated, use 'IF and BREAK' instead
-test.robot:8:13 [W] DEPR08 'BuiltIn.Exit For Loop' is deprecated, use 'BREAK' instead
+test.robot:5:13 [W] DEPR09 'Continue For Loop' is deprecated, use 'CONTINUE' instead
+test.robot:6:13 [W] DEPR09 'Continue For Loop If' is deprecated, use 'IF and CONTINUE' instead
+test.robot:7:13 [W] DEPR09 'Exit For Loop If' is deprecated, use 'IF and BREAK' instead
+test.robot:8:13 [W] DEPR09 'BuiltIn.Exit For Loop' is deprecated, use 'BREAK' instead
 
 Found 4 issues.

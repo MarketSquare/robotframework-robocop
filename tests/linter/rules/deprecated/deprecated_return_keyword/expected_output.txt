@@ -1,5 +1,5 @@
-test.robot:3:5 [W] DEPR09 'Return From Keyword If' is deprecated, use 'IF and RETURN' instead
-test.robot:4:5 [W] DEPR09 'BuiltIn.Return From Keyword' is deprecated, use 'RETURN' instead
+test.robot:3:5 [W] DEPR10 'Return From Keyword If' is deprecated, use 'IF and RETURN' instead
+test.robot:4:5 [W] DEPR10 'BuiltIn.Return From Keyword' is deprecated, use 'RETURN' instead
 
 Found 2 issues.
 2 fixable with the ``--fix`` option.

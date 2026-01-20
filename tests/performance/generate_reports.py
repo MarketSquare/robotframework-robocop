@@ -107,9 +107,11 @@ def formatter_report(formatter: str, report_name: str, **kwargs) -> int:  # noqa
     """Measure how long it takes to format test files using a specific formatter."""
     main_dir = Path(__file__).parent.parent.parent
     formatter_dir = main_dir / "tests" / "formatter" / "formatters" / formatter
-    with working_directory(formatter_dir):
-        format_files(["source"], select=[formatter], overwrite=False, return_result=True, silent=True, **kwargs)
+    if not formatter_dir.exists():
+        return 0
     source_dir = formatter_dir / "source"
+    with working_directory(formatter_dir):
+        format_files([source_dir], select=[formatter], overwrite=False, return_result=True, silent=True, **kwargs)
     return len(list(source_dir.iterdir()))
 
 

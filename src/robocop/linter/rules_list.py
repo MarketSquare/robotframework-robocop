@@ -28,14 +28,20 @@ def rules_sorted_by_id(rules: dict[str, Rule]) -> list[Rule]:
 
 
 def filter_rules_by_pattern(rules: dict[str, Rule], pattern: Pattern) -> list[Rule]:
-    """Return sorted list of Rules from rules dictionary, filtered out by pattern."""
+    """Return a sorted list of Rules from the rules dictionary, filtered out by pattern."""
+
+    def matches_pattern(rule: Rule, pattern: str | Pattern) -> bool:
+        if isinstance(pattern, str):
+            return pattern in (rule.name, rule.rule_id)
+        return bool(pattern.match(rule.name) or pattern.match(rule.rule_id))
+
     return rules_sorted_by_id(
-        {rule.rule_id: rule for rule in rules.values() if rule.matches_pattern(pattern) and not rule.deprecated}
+        {rule.rule_id: rule for rule in rules.values() if matches_pattern(rule, pattern) and not rule.deprecated}
     )
 
 
 def filter_rules_by_category(rules: dict[str, Rule], category: RuleFilter, target_version: Version) -> list[Rule]:
-    """Return sorted list of Rules from rules dictionary, filtered by rule category."""
+    """Return a sorted list of Rules from the rules dictionary, filtered by rule category."""
     if category == RuleFilter.ALL:
         rules_by_id = {rule.rule_id: rule for rule in rules.values() if not rule.deprecated}
     elif category == RuleFilter.ENABLED:

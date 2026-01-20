@@ -1,39 +1,39 @@
-test.robot:5:13 DEPR08 'Continue For Loop' is deprecated, use 'CONTINUE' instead
+test.robot:5:13 DEPR09 'Continue For Loop' is deprecated, use 'CONTINUE' instead
    |
  3 |     FOR    ${var}  IN RANGE  10
  4 |         WHILE    $var
  5 |             Continue For Loop
-   |             ^^^^^^^^^^^^^^^^^ DEPR08
+   |             ^^^^^^^^^^^^^^^^^ DEPR09
  6 |             Continue For Loop If  $var > 10
  7 |             Exit For Loop If  $var < 0
    |
 
-test.robot:6:13 DEPR08 'Continue For Loop If' is deprecated, use 'IF and CONTINUE' instead
+test.robot:6:13 DEPR09 'Continue For Loop If' is deprecated, use 'IF and CONTINUE' instead
    |
  4 |         WHILE    $var
  5 |             Continue For Loop
  6 |             Continue For Loop If  $var > 10
-   |             ^^^^^^^^^^^^^^^^^^^^ DEPR08
+   |             ^^^^^^^^^^^^^^^^^^^^ DEPR09
  7 |             Exit For Loop If  $var < 0
  8 |             BuiltIn.Exit For Loop
    |
 
-test.robot:7:13 DEPR08 'Exit For Loop If' is deprecated, use 'IF and BREAK' instead
+test.robot:7:13 DEPR09 'Exit For Loop If' is deprecated, use 'IF and BREAK' instead
    |
  5 |             Continue For Loop
  6 |             Continue For Loop If  $var > 10
  7 |             Exit For Loop If  $var < 0
-   |             ^^^^^^^^^^^^^^^^ DEPR08
+   |             ^^^^^^^^^^^^^^^^ DEPR09
  8 |             BuiltIn.Exit For Loop
  9 |         END
    |
 
-test.robot:8:13 DEPR08 'BuiltIn.Exit For Loop' is deprecated, use 'BREAK' instead
+test.robot:8:13 DEPR09 'BuiltIn.Exit For Loop' is deprecated, use 'BREAK' instead
    |
  6 |             Continue For Loop If  $var > 10
  7 |             Exit For Loop If  $var < 0
  8 |             BuiltIn.Exit For Loop
-   |             ^^^^^^^^^^^^^^^^^^^^^ DEPR08
+   |             ^^^^^^^^^^^^^^^^^^^^^ DEPR09
  9 |         END
 10 |     END
    |

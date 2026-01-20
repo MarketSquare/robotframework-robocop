@@ -1,4 +1,4 @@
-test.robot:6:5 [W] DEPR10 '[Return]' is deprecated, use 'RETURN' instead
+test.robot:6:5 [W] DEPR11 '[Return]' is deprecated, use 'RETURN' instead
 
 Found 1 issue.
 1 fixable with the ``--fix`` option.

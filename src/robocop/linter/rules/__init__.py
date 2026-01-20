@@ -55,7 +55,6 @@ except ImportError:
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Generator
-    from re import Pattern
 
     from robot.parsing import File
 
@@ -338,9 +337,9 @@ class Rule:
     deprecated: bool = False
     file_wide_rule: bool = False
     parameters: list[RuleParam] | None = None
-    style_guide_ref: list[str] | None = None
+    style_guide_ref: list[str] | None = None  # docs only
     sonar_qube_attrs: sonar_qube.SonarQubeAttributes | None = None
-    deprecated_names: tuple[str,] | None = None
+    deprecated_names: tuple[str,] | None = None  # docs only
     fix_suggestion: str | None = None
     fix_availability: FixAvailability = FixAvailability.NONE
     fixable: bool = False
@@ -350,6 +349,7 @@ class Rule:
         self.default_severity = self.severity  # used for defaultConfiguration in Sarif report
         self.config = self._parse_parameters()
         self.supported_version = self.version if self.version else "All"
+        self.checker: BaseChecker | None = None
 
     def _parse_parameters(self) -> dict[str, RuleParam]:
         """
@@ -471,11 +471,33 @@ class Rule:
         text = "\n    ".join(params)
         return count, text
 
-    def matches_pattern(self, pattern: str | Pattern):  # TODO: move outside, used by one place
-        """Check if this rule matches given pattern"""
-        if isinstance(pattern, str):
-            return pattern in (self.name, self.rule_id)
-        return pattern.match(self.name) or pattern.match(self.rule_id)
+    def report(
+        self,
+        lineno: int | None = None,
+        col: int | None = None,
+        end_lineno: int | None = None,
+        end_col: int | None = None,
+        node=None,
+        extended_disablers: tuple[int, int] | None = None,
+        sev_threshold_value: int | None = None,
+        source: SourceFile | None = None,
+        fix: Fix | None = None,
+        **kwargs,
+    ) -> None:
+        """Delegate diagnostic message creation to checker class."""
+        self.checker.report(
+            self,
+            lineno=lineno,
+            col=col,
+            end_lineno=end_lineno,
+            end_col=end_col,
+            node=node,
+            extended_disablers=extended_disablers,
+            sev_threshold_value=sev_threshold_value,
+            source=source,
+            fix=fix,
+            **kwargs,
+        )
 
     def fix(self, diag: Diagnostic, source_lines: list[str]) -> Fix | None:  # noqa: ARG002
         """Generate TextEdit to fix the issue or return None if no fix available."""
@@ -510,6 +532,8 @@ class FixableRule(Rule):
 class BaseChecker:
     rules = None
     robocop_rule_types = None
+    context: Context
+    source_file: SourceFile
 
     def __init__(self) -> None:
         self.disabled = False
@@ -568,8 +592,6 @@ class BaseChecker:
 
 
 class VisitorChecker(BaseChecker, ModelVisitor):
-    context: Context
-
     def scan_file(self, source_file: SourceFile, templated: bool = False) -> list[Diagnostic]:
         self.issues: list[Diagnostic] = []
         self.source_file = source_file

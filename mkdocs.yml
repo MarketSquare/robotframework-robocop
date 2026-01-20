@@ -91,7 +91,6 @@ nav:
           - RenameVariables: formatter/formatters/RenameVariables.md
           - ReplaceBreakContinue: formatter/formatters/ReplaceBreakContinue.md
           - ReplaceEmptyValues: formatter/formatters/ReplaceEmptyValues.md
-          - ReplaceReturns: formatter/formatters/ReplaceReturns.md
           - ReplaceRunKeywordIf: formatter/formatters/ReplaceRunKeywordIf.md
           - ReplaceWithVAR: formatter/formatters/ReplaceWithVAR.md
           - SmartSortKeywords: formatter/formatters/SmartSortKeywords.md

@@ -18,3 +18,4 @@ test.robot:4:5 DEPR09 'BuiltIn.Return From Keyword' is deprecated, use 'RETURN' 
    |
 
 Found 2 issues.
+2 fixable with the ``--fix`` option.

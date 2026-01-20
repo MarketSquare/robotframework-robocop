@@ -1,0 +1,13 @@
+actual_fixed${/}test_fix.robot:41:5 DEPR09 'Return From Keyword If' is deprecated, use 'IF and RETURN' instead
+    |
+ 39 |
+ 40 | Missing condition
+ 41 |     Return From Keyword If
+    |     ^^^^^^^^^^^^^^^^^^^^^^ DEPR09
+    |
+
+Fixed 9 issues:
+- actual_fixed${/}test_fix.robot:
+    9 x DEPR09 (deprecated-return-keyword)
+
+Found 10 issues (9 fixed, 1 remaining).

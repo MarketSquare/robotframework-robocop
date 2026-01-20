@@ -1,7 +1,14 @@
+try:
+    from robot.api.parsing import ReturnStatement
+except ImportError:
+    ReturnStatement = None
+
+from robocop.formatter.utils import misc as format_utils
 from robocop.linter import sonar_qube
 from robocop.linter.diagnostics import Diagnostic
 from robocop.linter.fix import Fix, FixApplicability, FixAvailability, TextEdit
 from robocop.linter.rules import FixableRule, Rule, RuleSeverity
+from robocop.source_file import StatementLinesCollector
 
 
 class IfCanBeUsedRule(Rule):
@@ -345,7 +352,7 @@ class DeprecatedLoopKeywordRule(Rule):
     }
 
 
-class DeprecatedReturnKeyword(Rule):
+class DeprecatedReturnKeyword(FixableRule):
     """
     ``Return From Keyword`` and ``Return From Keyword If`` keywords are deprecated.
 
@@ -361,8 +368,36 @@ class DeprecatedReturnKeyword(Rule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.CONVENTIONAL, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
-
     deprecated_names = {"returnfromkeyword": "RETURN", "returnfromkeywordif": "IF and RETURN"}
+    fix_availability = FixAvailability.ALWAYS
+
+    def fix(self, diag: Diagnostic, source_lines: list[str]) -> Fix | None:  # noqa: ARG002
+        """Fix Return From Keyword. Return From Keyword If is handled inside a rule check."""
+        if "if" in diag.reported_arguments["statement_name"].lower():
+            if diag.node is None or not ReturnStatement:
+                return None
+            replacement_node = format_utils.wrap_in_if_and_replace_statement(diag.node, ReturnStatement, "    ")
+            if replacement_node is diag.node:  # no changes
+                return None
+            replacement_text = StatementLinesCollector(replacement_node).text
+            return Fix(
+                edits=[
+                    TextEdit.replace_lines(
+                        rule_id=self.rule_id,
+                        rule_name=self.name,
+                        start_line=diag.node.lineno,
+                        end_line=diag.node.end_lineno,
+                        replacement=replacement_text,
+                    )
+                ],
+                message="Replace Return From Keyword If keyword with IF and RETURN",
+                applicability=FixApplicability.SAFE,
+            )
+        return Fix(
+            edits=[TextEdit.replace_at_range(self.rule_id, self.name, diag.range, "RETURN")],
+            message="Replace Return From Keyword keyword with RETURN",
+            applicability=FixApplicability.SAFE,
+        )
 
 
 class DeprecatedReturnSetting(FixableRule):

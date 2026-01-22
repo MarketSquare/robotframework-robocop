@@ -145,8 +145,6 @@ class MissingDocumentationChecker(VisitorChecker):
         super().__init__()
 
     def visit_Keyword(self, node: Keyword) -> None:  # noqa: N802
-        if node.name.lstrip().startswith("#"):  # TODO: edge case for parsing with RF3?
-            return
         self.check_if_docs_are_present(
             node, self.missing_doc_keyword, extend_disablers=True
         )  # TODO: could be self.missing_doc_keyword.check_docs(node)

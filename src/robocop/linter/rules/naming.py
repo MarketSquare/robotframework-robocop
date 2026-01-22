@@ -16,7 +16,6 @@ from robocop.linter import sonar_qube
 from robocop.linter.rules import Rule, RuleParam, RuleSeverity, VisitorChecker, deprecated, variables
 from robocop.linter.utils import misc as utils
 from robocop.parsing.run_keywords import iterate_keyword_names
-from robocop.parsing.variables import VariableMatches
 from robocop.version_handling import ROBOT_VERSION
 
 if TYPE_CHECKING:
@@ -1181,6 +1180,8 @@ class SimilarVariableChecker(VisitorChecker):
     possible_variable_overwriting: variables.PossibleVariableOverwritingRule
     inconsistent_variable_name: variables.InconsistentVariableNameRule
 
+    _VAR_PATTERN = re.compile(r"[$@%&]\{([^{}]+)}")
+
     def __init__(self) -> None:
         self.assigned_variables = defaultdict(list)
         self.parent_name = ""
@@ -1210,13 +1211,13 @@ class SimilarVariableChecker(VisitorChecker):
                     normalized = utils.normalize_robot_var_name(token.value)
                     assign_value = token.value  # process assign last, cache for now
                 else:
-                    self.find_not_nested_variable(token, token.value, is_var=False)
+                    self.find_not_nested_variable(token)
             if assign_value:
                 variable = search_variable(assign_value, ignore_errors=True)
                 self.assigned_variables[normalized].append(variable.base)
         else:
             for token in node.get_tokens(Token.ARGUMENT, Token.KEYWORD):  # argument can be used in keyword name
-                self.find_not_nested_variable(token, token.value, is_var=False)
+                self.find_not_nested_variable(token)
         tokens = node.get_tokens(Token.ASSIGN)
         self.find_similar_variables(tokens, node)
 
@@ -1224,21 +1225,21 @@ class SimilarVariableChecker(VisitorChecker):
         if node.errors:  # for example invalid variable definition like $var}
             return
         for arg in node.get_tokens(Token.ARGUMENT):
-            self.find_not_nested_variable(arg, arg.value, is_var=False)
+            self.find_not_nested_variable(arg)
         variable = node.get_token(Token.VARIABLE)
         if variable:
             self.find_similar_variables([variable], node, ignore_overwriting=not utils.is_var_scope_local(node))
 
     def visit_If(self, node) -> None:  # noqa: N802
         for token in node.header.get_tokens(Token.ARGUMENT):
-            self.find_not_nested_variable(token, token.value, is_var=False)
+            self.find_not_nested_variable(token)
         tokens = node.header.get_tokens(Token.ASSIGN)
         self.find_similar_variables(tokens, node)
         self.generic_visit(node)
 
     def visit_While(self, node):  # noqa: N802
         for token in node.header.get_tokens(Token.ARGUMENT):
-            self.find_not_nested_variable(token, token.value, is_var=False)
+            self.find_not_nested_variable(token)
         return self.generic_visit(node)
 
     @staticmethod
@@ -1250,7 +1251,7 @@ class SimilarVariableChecker(VisitorChecker):
 
     def visit_For(self, node) -> None:  # noqa: N802
         for token in node.header.get_tokens(Token.ARGUMENT):
-            self.find_not_nested_variable(token, token.value, is_var=False)
+            self.find_not_nested_variable(token)
         for var in self.for_assign_vars(node):
             variable = search_variable(var, ignore_errors=True)
             self.assigned_variables[utils.normalize_robot_var_name(var)].append(variable.base)
@@ -1260,12 +1261,14 @@ class SimilarVariableChecker(VisitorChecker):
 
     def visit_Return(self, node) -> None:  # noqa: N802
         for token in node.get_tokens(Token.ARGUMENT):
-            self.find_not_nested_variable(token, token.value, is_var=False)
+            self.find_not_nested_variable(token)
 
     visit_ReturnStatement = visit_Teardown = visit_Timeout = visit_Return  # noqa: N815
 
     def parse_embedded_arguments(self, name_token) -> None:
         """Store embedded arguments from keyword name. Ignore embedded variables patterns (${var:pattern})."""
+        if "$" not in name_token.value:
+            return
         try:
             for token in name_token.tokenize_variables():
                 if token.type == Token.VARIABLE:
@@ -1301,37 +1304,15 @@ class SimilarVariableChecker(VisitorChecker):
                 end_col=token.col_offset + offset + len(name) + 1,
             )
 
-    def find_not_nested_variable(self, token, value, is_var: bool, offset: int = 0) -> None:
+    def find_not_nested_variable(self, token) -> None:
         r"""
         Find and process not nested variable.
 
         Search `value` string until there is ${variable} without other variables inside.
         Unescaped escaped syntax ($var or \\${var}) is ignored.
-        Offset is to determine position of the variable in the string.
-        For example 'This is ${var}' contains ${var} at 8th position.
         """
-        try:
-            variables = list(VariableMatches(value))
-        except VariableError:  # for example ${variable which wasn't closed properly
-            return
-        if not variables:
-            if is_var:
-                self.check_inconsistent_naming(token, value, offset)
-            return
-        if is_var:
-            offset += 2  # handle ${var_${var}} case
-        for match in variables:
-            if match.before:
-                offset += len(match.before)
-            # match = search_variable(variable, ignore_errors=True)
-            if match.base and match.base.startswith("{") and match.base.endswith("}"):  # inline val
-                self.find_not_nested_variable(token, match.base[1:-1].strip(), is_var=False, offset=offset + 1)
-            else:
-                self.find_not_nested_variable(token, match.base, is_var=True, offset=offset)
-            offset += len(match.match)
-            for item in match.items:
-                self.find_not_nested_variable(token, item, is_var=False, offset=offset)
-                offset += len(item)
+        for match in self._VAR_PATTERN.finditer(token.value):
+            self.check_inconsistent_naming(token, match.group(1), match.start(1) - 2)
 
     def visit_vars_and_find_similar(self, node) -> None:
         """

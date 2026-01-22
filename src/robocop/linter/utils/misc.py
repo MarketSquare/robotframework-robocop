@@ -29,7 +29,7 @@ if TYPE_CHECKING:
     from collections.abc import Generator
 
     from robot.parsing.model import File, Keyword, Section, VariableSection
-    from robot.parsing.model.statements import KeywordCall, Node, Statement, TestTemplate, Var
+    from robot.parsing.model.statements import KeywordCall, Statement, TestTemplate, Var
 
     from robocop.linter.diagnostics import Diagnostic
 
@@ -352,19 +352,10 @@ def get_section_name(node: Section) -> str:
     if not node.header:
         #  Lines before first section are considered to be in `*** Comments ***` section even if header name is missing
         return "*** Comments ***"
-    for token in node.header.data_tokens:
-        if ROBOT_VERSION.major > 3:
-            if token.type in node.header.handles_types:
-                return token.value
-        elif "HEADER" in token.type:
-            return token.value
-    return ""
-
-
-def get_errors(node: type[Node]) -> tuple[str, ...] | list[str]:
-    if ROBOT_VERSION.major == 3:
-        return [node.error] if node.error else []
-    return node.errors
+    try:
+        return node.header.data_tokens[0].value
+    except IndexError:
+        return ""
 
 
 def find_escaped_variables(string: str) -> list[str]:

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import sys
 from difflib import unified_diff
 from enum import Enum
 from pathlib import Path
@@ -254,6 +255,10 @@ class PrintIssuesReport(robocop.linter.reports.Report):
         run_stats: RunStatistic | None = kwargs.get("run_stats")
         if run_stats and run_stats.files_count == 0:
             return
+        if hasattr(sys.stdout, "reconfigure"):
+            # Even if recent Python has it, it doesn't work for all the encoding without it
+            sys.stdout.reconfigure(encoding="utf-8")
+            sys.stderr.reconfigure(encoding="utf-8")
         if not self.config.linter.diff:
             if self.output_format == OutputFormat.SIMPLE:
                 self.print_diagnostics_simple(diagnostics)

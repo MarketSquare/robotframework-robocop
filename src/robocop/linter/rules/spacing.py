@@ -27,7 +27,7 @@ from robocop.linter.rules import (
     SeverityThreshold,
     VisitorChecker,
 )
-from robocop.linter.utils.misc import get_errors, get_section_name, str2bool, token_col
+from robocop.linter.utils.misc import get_section_name, str2bool, token_col
 from robocop.parsing.run_keywords import is_run_keyword
 from robocop.version_handling import INLINE_IF_SUPPORTED
 
@@ -1340,7 +1340,7 @@ class LeftAlignedChecker(VisitorChecker):
 
     def visit_SettingSection(self, node) -> None:  # noqa: N802
         for child in node.body:
-            for error in get_errors(child):
+            for error in child.errors:
                 if "Non-existing setting" in error:
                     self.parse_error(child, error)
 

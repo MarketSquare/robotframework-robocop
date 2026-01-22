@@ -272,3 +272,9 @@ Not used starting with _
     END
     ${var4}    ${_var5}    Keyword
     Log    ${var4}
+
+Not used mixed
+    ${var}    ${var2}    Set Variable    1
+    ${var3}    ${var4}    Set Variable    2
+    IF    "${var}" == $var2    No Operation
+    IF    "${var4}" == $var3    No Operation

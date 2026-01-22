@@ -278,3 +278,7 @@ Not used mixed
     ${var3}    ${var4}    Set Variable    2
     IF    "${var}" == $var2    No Operation
     IF    "${var4}" == $var3    No Operation
+
+Nested used
+    ${var}    Set Variable    1
+    Log    ${some_${var}}  # even if variable unnesting fails, we use tokenizer

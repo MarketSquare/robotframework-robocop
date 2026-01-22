@@ -1209,6 +1209,7 @@ class UnusedVariablesChecker(VisitorChecker):
     argument_overwritten_before_usage: arguments.ArgumentOverwrittenBeforeUsageRule
     variable_overwritten_before_usage: variables.VariableOverwrittenBeforeUsageRule
 
+    _VARIABLE_START = set("$@&%")
     _ESCAPED_VAR_PATTERN = re.compile(r"\$([A-Za-z_]\w*)")
     _VARIABLE_NAME_PATTERN = re.compile(r"\w+")
 
@@ -1596,7 +1597,7 @@ class UnusedVariablesChecker(VisitorChecker):
             if pos == -1:
                 break
             # must be preceded by an identifier char
-            if pos == 0 or value[pos - 1] not in identifiers:
+            if pos == 0 or value[pos - 1] not in self._VARIABLE_START:
                 i = pos + 1
                 continue
             # found an identifier + '{' opening

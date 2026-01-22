@@ -64,7 +64,6 @@ nav:
   - Formatter:
       - Formatter: formatter/formatter.md
       - Formatters:
-          - AddMissingEnd: formatter/formatters/AddMissingEnd.md
           - AlignKeywordsSection: formatter/formatters/AlignKeywordsSection.md
           - AlignSettingsSection: formatter/formatters/AlignSettingsSection.md
           - AlignTemplatedTestCases: formatter/formatters/AlignTemplatedTestCases.md

@@ -35,7 +35,6 @@ if TYPE_CHECKING:
     from collections.abc import Generator
 
 FORMATTERS = [
-    "AddMissingEnd",
     "NormalizeSeparators",
     "DiscardEmptySections",
     "MergeAndOrderSections",

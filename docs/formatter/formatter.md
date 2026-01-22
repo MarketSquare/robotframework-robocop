@@ -114,7 +114,6 @@ To see the list of formatters included with `Robocop` use ``robocop list formatt
 ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━┓
 ┃ Name                       ┃ Enabled ┃
 ┡━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━┩
-│ AddMissingEnd              │ Yes     │
 │ NormalizeSeparators        │ Yes     │
 │ DiscardEmptySections       │ Yes     │
 │ MergeAndOrderSections      │ Yes     │

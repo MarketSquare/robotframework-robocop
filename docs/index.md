@@ -39,7 +39,7 @@ a number of checks, looking for potential errors or violations to code quality s
 
     View the list of available formatters
 
-    [:octicons-arrow-right-24: Formatters list](formatter/formatters/AddMissingEnd.md)
+    [:octicons-arrow-right-24: Formatters list](formatter/formatters/AlignKeywordsSection.md)
 
 </div>
 

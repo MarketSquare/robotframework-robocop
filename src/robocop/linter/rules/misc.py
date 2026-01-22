@@ -1,6 +1,7 @@
 """Miscellaneous checkers"""
 
 import ast
+import re
 from dataclasses import dataclass
 from pathlib import Path
 from typing import TYPE_CHECKING
@@ -9,7 +10,6 @@ from robot.api import Token
 from robot.errors import VariableError
 from robot.parsing.model.blocks import For, TestCaseSection
 from robot.parsing.model.statements import Arguments, KeywordCall, Teardown
-from robot.utils import unescape
 from robot.variables.search import search_variable
 
 from robocop.linter.diagnostics import Diagnostic
@@ -884,7 +884,7 @@ class ConsistentAssignmentSignChecker(VisitorChecker):
         if self.variables_expected_sign_type is None:
             return None
         for child in node.body:
-            if not isinstance(child, Variable) or utils.get_errors(child):
+            if not isinstance(child, Variable) or child.errors:
                 continue
             var_token = child.get_token(Token.VARIABLE)
             self.check_assign_type(
@@ -940,7 +940,7 @@ class EmptyVariableChecker(VisitorChecker):
     visit_TestCaseSection = visit_KeywordSection  # noqa: N815
 
     def visit_Variable(self, node) -> None:  # noqa: N802
-        if utils.get_errors(node):
+        if node.errors:
             return
         if not node.value:  # catch variable declaration without any value
             self.report(self.empty_variable, node=node, end_col=node.end_col_offset)
@@ -1008,7 +1008,7 @@ class IfChecker(VisitorChecker):
     multiline_inline_if: MultilineInlineIfRule
 
     def visit_TestCase(self, node) -> None:  # noqa: N802
-        if utils.get_errors(node):
+        if node.errors:
             return
         self.check_adjacent_ifs(node)
 
@@ -1194,7 +1194,7 @@ class SectionVariablesCollector(ast.NodeVisitor):
         self.section_variables: dict[str, CachedVariable] = {}
 
     def visit_Variable(self, node) -> None:
-        if utils.get_errors(node):
+        if node.errors:
             return
         var_token = node.get_token(Token.VARIABLE)
         variable_match = search_variable(var_token.value, ignore_errors=True)
@@ -1208,6 +1208,9 @@ class UnusedVariablesChecker(VisitorChecker):
     unused_variable: variables.UnusedVariableRule
     argument_overwritten_before_usage: arguments.ArgumentOverwrittenBeforeUsageRule
     variable_overwritten_before_usage: variables.VariableOverwrittenBeforeUsageRule
+
+    _ESCAPED_VAR_PATTERN = re.compile(r"\$([A-Za-z_]\w*)")
+    _VARIABLE_NAME_PATTERN = re.compile(r"\w+")
 
     def __init__(self) -> None:
         self.arguments: dict[str, CachedVariable] = {}
@@ -1301,20 +1304,24 @@ class UnusedVariablesChecker(VisitorChecker):
 
     def parse_arguments(self, node) -> None:
         """Store arguments from [Arguments]. Ignore @{args} and &{kwargs}, strip default values."""
-        if utils.get_errors(node):
+        if node.errors:
             return
         for arg in node.get_tokens(Token.ARGUMENT):
             if arg.value[0] in ("@", "&"):  # ignore *args and &kwargs
                 continue
-            variable_match = search_variable(arg.value, ignore_errors=True)
-            if variable_match.after:
-                self.find_not_nested_variable(variable_match.after, is_var=False)
-            name = utils.remove_variable_type_conversion(variable_match.base)
-            normalized_name = utils.normalize_robot_name(name)
-            self.add_argument(variable_match.base, normalized_name, token=arg)
+            arg_name, default_value = utils.split_argument_default_value(arg.value)
+            if default_value:
+                self.find_not_nested_variable(default_value, can_be_escaped=False)
+            base_name = arg_name[2:-1]
+            name = utils.remove_variable_type_conversion(base_name)
+            name = utils.normalize_robot_name(name)
+            self.add_argument(base_name, name, token=arg)
+            # ${test.kws[0].msgs[${index}]} FIXME
 
     def parse_embedded_arguments(self, name_token) -> None:
         """Store embedded arguments from keyword name. Ignore embedded variables patterns (${var:pattern})."""
+        if "$" not in name_token.value:
+            return
         try:
             for token in name_token.tokenize_variables():
                 if token.type == Token.VARIABLE:
@@ -1329,7 +1336,7 @@ class UnusedVariablesChecker(VisitorChecker):
             return
         self.branch_level += 1
         for token in node.header.get_tokens(Token.ARGUMENT):
-            self.find_not_nested_variable(token.value, is_var=False)
+            self.find_not_nested_variable(token.value, can_be_escaped=True)
         self.variables.append({})
         for item in node.body:
             self.visit(item)
@@ -1352,7 +1359,7 @@ class UnusedVariablesChecker(VisitorChecker):
 
     def visit_IfBranch(self, node) -> None:  # noqa: N802
         for token in node.header.get_tokens(Token.ARGUMENT):
-            self.find_not_nested_variable(token.value, is_var=False)
+            self.find_not_nested_variable(token.value, can_be_escaped=True)
         self.variables.append({})
         for child in node.body:
             self.visit(child)
@@ -1377,7 +1384,7 @@ class UnusedVariablesChecker(VisitorChecker):
 
     def visit_LibraryImport(self, node) -> None:  # noqa: N802
         for token in node.get_tokens(Token.NAME, Token.ARGUMENT):
-            self.find_not_nested_variable(token.value, is_var=False)
+            self.find_not_nested_variable(token.value, can_be_escaped=False)
 
     visit_TestTags = visit_ForceTags = visit_Metadata = visit_DefaultTags = (  # noqa: N815
         visit_Variable  # noqa: N815
@@ -1425,9 +1432,9 @@ class UnusedVariablesChecker(VisitorChecker):
         self.in_loop = True
         self.used_in_scope.append(set())
         for token in node.header.get_tokens(Token.ARGUMENT):
-            self.find_not_nested_variable(token.value, is_var=False)
+            self.find_not_nested_variable(token.value, can_be_escaped=True)
         if node.limit:
-            self.find_not_nested_variable(node.limit, is_var=False)
+            self.find_not_nested_variable(node.limit, can_be_escaped=False)
         self.generic_visit(node)
         self.in_loop = False
         self.revisit_variables_used_in_loop()
@@ -1440,7 +1447,7 @@ class UnusedVariablesChecker(VisitorChecker):
         self.used_in_scope.append(set())
         self.ignore_overwriting = True
         for token in node.header.get_tokens(Token.ARGUMENT, "OPTION"):  # Token.Option does not exist for RF3 and RF4
-            self.find_not_nested_variable(token.value, is_var=False)
+            self.find_not_nested_variable(token.value, can_be_escaped=False)
         for token in node.header.get_tokens(Token.VARIABLE):
             self.handle_assign_variable(token, ignore_var_conversion=False)
         self.generic_visit(node)
@@ -1471,7 +1478,7 @@ class UnusedVariablesChecker(VisitorChecker):
             self.variables.append({})
             # variables in EXCEPT  ${error_pattern}
             for token in try_branch.header.get_tokens(Token.ARGUMENT, Token.OPTION):
-                self.find_not_nested_variable(token.value, is_var=False)
+                self.find_not_nested_variable(token.value, can_be_escaped=True)
             # except AS ${err}
             if self.try_assign(try_branch) is not None:
                 error_var = try_branch.header.get_token(Token.VARIABLE)
@@ -1499,12 +1506,14 @@ class UnusedVariablesChecker(VisitorChecker):
 
     def visit_Group(self, node):  # noqa: N802
         for token in node.header.get_tokens(Token.ARGUMENT):
-            self.find_not_nested_variable(token.value, is_var=False)
+            self.find_not_nested_variable(token.value, can_be_escaped=True)
         self.generic_visit(node)
 
     def visit_KeywordCall(self, node) -> None:  # noqa: N802
-        for token in node.get_tokens(Token.ARGUMENT, Token.KEYWORD):  # argument can be used in the keyword name
-            self.find_not_nested_variable(token.value, is_var=False)
+        for token in node.get_tokens(Token.KEYWORD):  # argument can be used in the keyword name
+            self.find_not_nested_variable(token.value, can_be_escaped=False)
+        for token in node.get_tokens(Token.ARGUMENT):
+            self.find_not_nested_variable(token.value, can_be_escaped=True)
         for token in node.get_tokens(Token.ASSIGN):  # we first check args, then assign for used and then overwritten
             self.handle_assign_variable(token)
 
@@ -1512,14 +1521,14 @@ class UnusedVariablesChecker(VisitorChecker):
         if node.errors:  # for example invalid variable definition like $var}
             return
         for arg in node.get_tokens(Token.ARGUMENT):
-            self.find_not_nested_variable(arg.value, is_var=False)
+            self.find_not_nested_variable(arg.value, can_be_escaped=True)
         variable = node.get_token(Token.VARIABLE)
         if variable and utils.is_var_scope_local(node):
             self.handle_assign_variable(variable)
 
     def visit_TemplateArguments(self, node) -> None:  # noqa: N802
         for argument in node.data_tokens:
-            self.find_not_nested_variable(argument.value, is_var=False)
+            self.find_not_nested_variable(argument.value, can_be_escaped=False)
 
     def handle_assign_variable(self, token, ignore_var_conversion: bool = True) -> None:
         """
@@ -1565,48 +1574,69 @@ class UnusedVariablesChecker(VisitorChecker):
             variable = CachedVariable(variable_match.name, token, is_used=False)
         self.variables[-1][normalized] = variable
 
-    def find_not_nested_variable(self, value, is_var) -> None:
+    def find_not_nested_variable(self, value: str, can_be_escaped: bool) -> None:
         r"""
         Find and process not nested variable.
 
-        Search `value` string until there is ${variable} without other variables inside. Unescaped escaped syntax
-        ($var or \\${var}). If a variable does exist in assign variables or arguments, it is removed to denote it was
-        used.
+        Examples:
+            '${value}' -> value
+            ${value_${nested}} -> nested
+            'String with ${var} and $escaped' -> var, escaped
+
+        Found variables are added to the scope.
+
         """
-        try:
-            variables = list(VariableMatches(value))
-        except VariableError:  # for example, ${variable which wasn't closed properly
-            return
-        if not variables:
-            if is_var:
-                self.update_used_variables(value)
-            elif "$" in value:
-                self.find_escaped_variables(value)  # $var
-                if r"\${" in value:  # \\${var}
-                    unescaped = unescape(value)
-                    self.find_not_nested_variable(unescaped, is_var=False)
-            return
-        replaced, after = "", ""
-        for match in variables:
-            replaced += f"{match.before}placeholder{match.after}"
-            if match.before and "$" not in match.before and is_var:  # ${test.kws[0].msgs[${index}]}
-                self.update_used_variables(match.before)
-            # handle ${variable}[item][${syntax}]
-            if match.base and match.base.startswith("{") and match.base.endswith("}"):  # inline val
-                self.find_not_nested_variable(match.base[1:-1].strip(), is_var=False)
+        identifiers = set("$@&%")
+        n = len(value)
+        i = 0
+        full_match = False  # whether string is a variable only
+        while True:
+            # find the next '{'
+            pos = value.find("{", i)
+            if pos == -1:
+                break
+            # must be preceded by an identifier char
+            if pos == 0 or value[pos - 1] not in identifiers:
+                i = pos + 1
+                continue
+            # found an identifier + '{' opening
+            start = pos + 1  # first char inside braces
+            depth = 1
+            j = start
+
+            while j < n:
+                # detect nested identifier + '{' (counts as increased nesting)
+                if value[j] in identifiers and j + 1 < n and value[j + 1] == "{":
+                    depth += 1
+                    j += 2
+                    continue
+
+                if value[j] == "}":
+                    depth -= 1
+                    if depth == 0:
+                        # call with the content inside the outermost braces
+                        self.update_used_variables(value[start:j])
+                        full_match = start == 2 and j == n - 1
+                        i = j + 1
+                        break
+                j += 1
             else:
-                self.find_not_nested_variable(match.base, is_var=True)
-            for item in match.items:
-                self.find_not_nested_variable(item, is_var=False)
-            after = match.after
-        self.find_escaped_variables(replaced)
-        if after and "$" not in after and is_var:  # ${test.kws[0].msgs[${index}]}
-            self.update_used_variables(after)
+                # no matching closing brace found
+                break
+        # no need to search further if we matched fully ('${var}')
+        if not can_be_escaped or full_match:
+            return
+        self.find_escaped_variables(value)
 
     def find_escaped_variables(self, value) -> None:
         """Find all $var escaped variables in the value string and process them."""
-        for var in utils.find_escaped_variables(value):
-            self.update_used_variables(var)
+        # TODO: create iter_escaped_variables function
+        if "$" not in value:
+            return
+        for match in self._ESCAPED_VAR_PATTERN.finditer(value):
+            variable_name = match.group(1)
+            if variable_name.isidentifier():
+                self.update_used_variables(variable_name)
 
     def update_used_variables(self, variable_name) -> None:
         """
@@ -1637,10 +1667,15 @@ class UnusedVariablesChecker(VisitorChecker):
         else:
             self.search_by_tokenize(normalized_name, variable_scope)
 
-    @staticmethod
-    def search_by_tokenize(variable_name, variable_scope) -> list[str]:
+    def search_by_tokenize(self, variable_name, variable_scope) -> list[str]:
         """Search variables in string by tokenizing variable name using Python ast."""
         if not variable_scope:
+            return []
+        # there is no syntax like ${var * 2}
+        if self._VARIABLE_NAME_PATTERN.fullmatch(variable_name):
+            if variable_name in variable_scope:
+                variable_scope[variable_name].is_used = True
+                return [variable_name]
             return []
         found = []
         for name in utils.get_variables_from_string(variable_name):
@@ -1977,7 +2012,7 @@ class MissingVariableTypeChecker(VisitorChecker):
 
     def visit_Variable(self, node: Variable) -> None:  # noqa: N802
         """Check variables in *** Variables *** section."""
-        if utils.get_errors(node):
+        if node.errors:
             return
         token = node.data_tokens[0]
         if self.should_report_missing_type(token.value):
@@ -2011,6 +2046,7 @@ class MissingVariableTypeChecker(VisitorChecker):
 
     def visit_KeywordCall(self, node: KeywordCall) -> None:  # noqa: N802
         """Check assignment expressions (${var} = Keyword)."""
+        # TODO: we already search for variable in unused var checker - we can combine
         for token in node.get_tokens(Token.ASSIGN):
             if self.should_report_missing_type(token.value):
                 var_match = search_variable(token.value, ignore_errors=True)

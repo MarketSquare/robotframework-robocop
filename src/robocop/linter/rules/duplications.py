@@ -7,7 +7,6 @@ from robot.api import Token
 from robocop.linter import sonar_qube
 from robocop.linter.rules import Rule, RuleSeverity, VisitorChecker, arguments, order, variables
 from robocop.linter.utils.misc import (
-    get_errors,
     normalize_robot_name,
     normalize_robot_var_name,
     strip_equals_from_assignment,
@@ -367,7 +366,7 @@ class DuplicationsChecker(VisitorChecker):
         self.generic_visit(node)
 
     def visit_Variable(self, node) -> None:  # noqa: N802
-        if not node.name or get_errors(node):
+        if not node.name or node.errors:
             return
         var_name = normalize_robot_name(self.replace_chars(node.name, "${}@&"))
         self.variables[var_name].append(node)
@@ -418,7 +417,7 @@ class DuplicationsChecker(VisitorChecker):
                 args.add(name)
 
     def visit_Error(self, node) -> None:  # noqa: N802
-        for error in get_errors(node):
+        for error in node.errors:
             if "is allowed only once" in error:
                 self.report(
                     self.duplicated_setting,

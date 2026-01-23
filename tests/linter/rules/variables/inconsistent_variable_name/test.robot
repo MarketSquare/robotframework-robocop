@@ -60,3 +60,11 @@ VAR Syntax
     VAR    ${VARIABLE2}    Value with ${VARIABLE2}    scope=GLOBAL  # should not report
     VAR    ${VARIABLE3}    Value with inconsistent ${variable2}
     VAR    ${variable}    ${VARIABLE}  # should not report
+
+Variable Type Conversion
+    ${variable}    Set Variable    value
+    VAR    ${variable2}    value    scope=local
+    Log    ${variablE: int}  # should report in 7.3
+    Log    ${variablE2: int}  # should report in 7.3
+    Log    ${variable: int}  # should not report
+    Log    ${variable2: int}  # should not report

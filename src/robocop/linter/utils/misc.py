@@ -79,8 +79,13 @@ def normalize_robot_name(name: str, remove_prefix: str | None = None) -> str:
     return name
 
 
-def normalize_robot_var_name(name: str) -> str:
-    return normalize_robot_name(name)[2:-1] if name else ""
+def normalize_robot_var_name(name: str, strip_type: bool = False) -> str:
+    if not name:
+        return ""
+    no_braces = name[2:-1]
+    if strip_type:
+        no_braces, *_ = no_braces.split(": ", 1)
+    return normalize_robot_name(no_braces)
 
 
 def remove_nested_variables(var_name: str) -> str:

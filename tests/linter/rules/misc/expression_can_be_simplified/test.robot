@@ -42,3 +42,9 @@ Empty Set Variable If
 Empty IF
     IF
     END
+
+Equal To 0
+    VAR    ${VAR}    0
+    Should Be True    ${VAR}==0
+    Should Be True    ${VAR} == 0
+    Should Be True    ${VAR}

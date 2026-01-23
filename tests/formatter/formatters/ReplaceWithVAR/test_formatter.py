@@ -50,3 +50,6 @@ class TestReplaceWithVAR(FormatterAcceptanceTest):
 
     def test_match_assignment(self):
         self.compare(source="assignment_char.robot")
+
+    def test_item_access(self):
+        self.compare(source="item_access.robot", not_modified=True)

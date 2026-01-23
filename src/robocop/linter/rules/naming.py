@@ -16,7 +16,7 @@ from robocop.linter import sonar_qube
 from robocop.linter.rules import Rule, RuleParam, RuleSeverity, VisitorChecker, deprecated, variables
 from robocop.linter.utils import misc as utils
 from robocop.parsing.run_keywords import iterate_keyword_names
-from robocop.version_handling import ROBOT_VERSION
+from robocop.version_handling import ROBOT_VERSION, TYPE_SUPPORTED
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
@@ -1283,16 +1283,21 @@ class SimilarVariableChecker(VisitorChecker):
 
     def check_inconsistent_naming(self, token, value: str, offset: int) -> None:
         """
-        Check if variable name ``value`` was already defined under matching but not the same name.
+        Check if the variable name ``value`` was already defined under a matching but different name.
         :param token: ast token representing the string with variable
         :param value: name of variable found in token value string
         :param offset: starting position of variable in token value string
         """
-        normalized = utils.normalize_robot_name(value)
+        # TODO: Does not support item access, combine with other rules
+        if TYPE_SUPPORTED:
+            value_no_type, *_ = value.split(": ", maxsplit=1)
+        else:
+            value_no_type = value
+        normalized = utils.normalize_robot_name(value_no_type)
         if normalized not in self.assigned_variables:
             return  # we could handle attr access here, ignoring now
         latest_assign = self.assigned_variables[normalized][-1]
-        if value != latest_assign:
+        if value_no_type != latest_assign:
             name = "${" + value + "}"
             self.report(
                 self.inconsistent_variable_name,

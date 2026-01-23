@@ -1339,7 +1339,9 @@ class SimilarVariableChecker(VisitorChecker):
         for token in tokens:
             variable_match = search_variable(token.value, ignore_errors=True)
             name = variable_match.base
-            normalized = utils.normalize_robot_name(variable_match.base)
+            if TYPE_SUPPORTED:
+                name, *_ = name.split(": ", maxsplit=1)
+            normalized = utils.normalize_robot_name(name)
             if (
                 not ignore_overwriting
                 and normalized in self.assigned_variables

@@ -44,3 +44,7 @@ Duplicated With Equal Sign
 Non Important Variable
     ${_}    ${middle}    ${_}    Unpack Tuple
     ${_}    ${middle}    ${_}=    Unpack Tuple
+
+Variable Type Conversion
+    ${var}    ${var: int}    My Keyword  # should be reported in 7.3
+    ${var}    ${var:int}    My Keyword  # ignore

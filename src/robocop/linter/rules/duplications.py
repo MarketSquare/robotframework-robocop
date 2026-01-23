@@ -11,6 +11,7 @@ from robocop.linter.utils.misc import (
     normalize_robot_var_name,
     strip_equals_from_assignment,
 )
+from robocop.version_handling import TYPE_SUPPORTED
 
 
 class DuplicatedTestCaseRule(Rule):
@@ -347,7 +348,7 @@ class DuplicationsChecker(VisitorChecker):
         seen = set()
         for var in assign:
             var_name = strip_equals_from_assignment(var.value)
-            name = normalize_robot_var_name(var_name)
+            name = normalize_robot_var_name(var_name, strip_type=TYPE_SUPPORTED)
             if not name:  # i.e. "${_}" -> ""
                 return
             if name in seen:

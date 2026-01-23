@@ -111,3 +111,13 @@ VAR Syntax
 Dictionary item
     VAR    &{data} =    &{EMPTY}
     ${data}[key] =    Browser.Get Text    ${LABEL.contentItem('${content}')}
+
+Variable type conversion
+    ${variable}    Keyword
+    ${variable2: list[str]}    Keyword
+    VAR    ${variable3}    value
+    VAR    ${variable4: int}    value
+    ${variablE: int}    Keyword
+    ${Variable2}    Keyword
+    VAR    ${Variable3: int}    value
+    VAR    ${varI_able4}    value

@@ -1699,18 +1699,7 @@ class ExpressionsChecker(VisitorChecker):
         "skipif",
     }
     COMPARISON_SIGNS = {"==", "!="}
-    EMPTY_COMPARISON = {
-        "${true}",
-        "${false}",
-        "true",
-        "false",
-        "[]",
-        "{}",
-        "set()",
-        "list()",
-        "dict()",
-        "0",
-    }
+    EMPTY_COMPARISON = {"${true}", "${false}", "true", "false", "[]", "{}", "set()", "list()", "dict()"}
 
     def visit_If(self, node) -> None:  # noqa: N802
         condition_token = node.header.get_token(Token.ARGUMENT)
@@ -1758,7 +1747,7 @@ class ExpressionsChecker(VisitorChecker):
         """
         Check if the condition contains misplaced not.
 
-        An example of misplaced condition would be 'not ${variable} is None'.
+        An example of a misplaced condition would be 'not ${variable} is None'.
         """
         if not (left_side.endswith("not ") and right_side.startswith(" is ")):
             return

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from robot.api.parsing import Comment, ElseHeader, ElseIfHeader, End, If, IfHeader, KeywordCall, Token
 from robot.utils.escaping import split_from_equals
-from robot.variables.search import is_dict_variable, is_list_variable
+from robot.variables.search import is_dict_variable, is_list_variable, search_variable
 
 try:
     from robot.api.parsing import InlineIfHeader, Var
@@ -90,7 +90,9 @@ class ReplaceWithVAR(Formatter):
             return node
         comments = node.get_tokens(Token.COMMENT)
         indent = node.get_token(Token.SEPARATOR)
-        converted_node = self.SET_KW[kw_name](node, kw_name, indent.value)
+        if self.assign_is_item_access(node.assign):
+            return node
+        converted_node = self.SET_KW[kw_name](node, kw_name, indent.value, node.assign)
         if converted_node is None:
             return node
         return self.restore_comments(converted_node, comments, indent.value)
@@ -198,8 +200,16 @@ class ReplaceWithVAR(Formatter):
             name = f"{name[0]}{{{name[1:]}}}"
         return name
 
-    def replace_set_variable(self, node, _kw_name: str, indent: str, assign: list[str] | None = None):
-        assign = assign or node.assign
+    @staticmethod
+    def assign_is_item_access(assign: list[str]) -> bool:
+        """Check whether the assignment is item access like ${var.item} or ${var}[item]."""
+        for var_name in assign:
+            var_parsed = search_variable(var_name)
+            if var_parsed.items or "." in var_parsed.base:
+                return True
+        return False
+
+    def replace_set_variable(self, node, _kw_name: str, indent: str, assign: list[str]):
         args = node.get_tokens(Token.ARGUMENT)
         if not assign or (len(assign) != 1 and len(assign) != len(args)):
             return None
@@ -222,8 +232,7 @@ class ReplaceWithVAR(Formatter):
             for var_assign, value in zip(assign, values, strict=False)
         ]
 
-    def replace_set_variable_scope(self, node, kw_name: str, indent: str, assign: list[str] | None = None):
-        assign = assign or node.assign
+    def replace_set_variable_scope(self, node, kw_name: str, indent: str, assign: list[str]):
         args = node.get_tokens(Token.ARGUMENT)
         if not args or assign:
             return None
@@ -248,7 +257,7 @@ class ReplaceWithVAR(Formatter):
             name=var_name, value=values, separator=self.formatting_config.separator, indent=indent, scope=scope
         )
 
-    def replace_set_variable_if_kw(self, node, _kw_name: str, indent: str, assign: list[str] | None = None):
+    def replace_set_variable_if_kw(self, node, _kw_name: str, indent: str, assign: list[str]):
         """
         Replace Set Variable If keyword with IF.
 
@@ -263,7 +272,6 @@ class ReplaceWithVAR(Formatter):
 
         # Set Variable If    @{ITEMS} -> cannot be converted
         """
-        assign = assign or node.assign
         if not self.replace_set_variable_if or len(assign) != 1:
             return None
         args = [arg.value for arg in node.get_tokens(Token.ARGUMENT)]
@@ -302,8 +310,7 @@ class ReplaceWithVAR(Formatter):
                 return head
             args = args[2:]
 
-    def replace_catenate_kw(self, node, _kw_name: str, indent: str, assign: list[str] | None = None):
-        assign = assign or node.assign
+    def replace_catenate_kw(self, node, _kw_name: str, indent: str, assign: list[str]):
         # not items - VAR with ${EMPTY}
         if not self.replace_catenate or len(assign) != 1:
             return None
@@ -322,8 +329,7 @@ class ReplaceWithVAR(Formatter):
         scope = "LOCAL" if self.explicit_local else None
         return Var.from_params(name=var_name, value=values, indent=indent, value_separator=separator, scope=scope)
 
-    def replace_create_list_kw(self, node, _kw_name: str, indent: str, assign: list[str] | None = None):
-        assign = assign or node.assign
+    def replace_create_list_kw(self, node, _kw_name: str, indent: str, assign: list[str]):
         if not self.replace_create_list or len(assign) != 1:
             return None
         var_name = assign[0]
@@ -356,8 +362,7 @@ class ReplaceWithVAR(Formatter):
             combined.append(items[-1])
         return combined
 
-    def replace_create_dictionary_kw(self, node, _kw_name: str, indent: str, assign: list[str] | None = None):
-        assign = assign or node.assign
+    def replace_create_dictionary_kw(self, node, _kw_name: str, indent: str, assign: list[str]):
         if not self.replace_create_dictionary or len(assign) != 1:
             return None
         var_name = assign[0]

@@ -1102,6 +1102,8 @@ class VariableNamingChecker(VisitorChecker):
         normalized_var_name = utils.remove_nested_variables(variable_name)
         if not normalized_var_name:
             return
+        if TYPE_SUPPORTED:
+            normalized_var_name, *_ = normalized_var_name.split(": ", 1)
         # a variable as a keyword argument can contain lowercase nested variable
         # because the actual value of it may be uppercase
         if not normalized_var_name.isupper():

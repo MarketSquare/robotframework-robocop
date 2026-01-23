@@ -10,3 +10,11 @@ class TestRuleAcceptance(RuleAcceptance):
 
     def test_var(self):
         self.check_rule(src_files=["VAR_syntax.robot"], expected_file="expected_output_var.txt", test_on_version=">=7")
+
+    def test_var_typing(self):
+        self.check_rule(
+            src_files=["var_typing.robot"],
+            expected_file="expected_extended_var_typing.txt",
+            output_format="extended",
+            test_on_version=">=7.3",
+        )

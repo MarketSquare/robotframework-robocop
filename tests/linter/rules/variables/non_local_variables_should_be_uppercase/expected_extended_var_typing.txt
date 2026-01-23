@@ -1,0 +1,66 @@
+var_typing.robot:3:24 VAR07 Non local variable is not uppercase
+   |
+ 1 | *** Test Cases ***
+ 2 | Set report
+ 3 |     Set Task Variable  ${my_var: int}  0
+   |                        ^^^^^^^^^^^^^^ VAR07
+ 4 |     Set Suite Variable  ${my var: list[str]}  0
+ 5 |     Set Test Variable  ${My Var: Enum}  0
+   |
+
+var_typing.robot:4:25 VAR07 Non local variable is not uppercase
+   |
+ 2 | Set report
+ 3 |     Set Task Variable  ${my_var: int}  0
+ 4 |     Set Suite Variable  ${my var: list[str]}  0
+   |                         ^^^^^^^^^^^^^^^^^^^^ VAR07
+ 5 |     Set Test Variable  ${My Var: Enum}  0
+ 6 |     Set Global Variable  ${My_Var: str}  0
+   |
+
+var_typing.robot:5:24 VAR07 Non local variable is not uppercase
+   |
+ 3 |     Set Task Variable  ${my_var: int}  0
+ 4 |     Set Suite Variable  ${my var: list[str]}  0
+ 5 |     Set Test Variable  ${My Var: Enum}  0
+   |                        ^^^^^^^^^^^^^^^ VAR07
+ 6 |     Set Global Variable  ${My_Var: str}  0
+   |
+
+var_typing.robot:6:26 VAR07 Non local variable is not uppercase
+   |
+ 4 |     Set Suite Variable  ${my var: list[str]}  0
+ 5 |     Set Test Variable  ${My Var: Enum}  0
+ 6 |     Set Global Variable  ${My_Var: str}  0
+   |                          ^^^^^^^^^^^^^^ VAR07
+   |
+
+var_typing.robot:15:12 VAR07 Non local variable is not uppercase
+    |
+ 13 |
+ 14 | VAR report
+ 15 |     VAR    ${suite: int}    value    scope=SUITE
+    |            ^^^^^^^^^^^^^ VAR07
+ 16 |     VAR    ${global: list[str]}    value    scope=GLOBAL
+ 17 |     VAR    ${test: Enum}    value    scope=TEST
+    |
+
+var_typing.robot:16:12 VAR07 Non local variable is not uppercase
+    |
+ 14 | VAR report
+ 15 |     VAR    ${suite: int}    value    scope=SUITE
+ 16 |     VAR    ${global: list[str]}    value    scope=GLOBAL
+    |            ^^^^^^^^^^^^^^^^^^^^ VAR07
+ 17 |     VAR    ${test: Enum}    value    scope=TEST
+ 18 |     VAR    ${task: str}    value    scope=TASK
+    |
+
+var_typing.robot:18:12 VAR07 Non local variable is not uppercase
+    |
+ 16 |     VAR    ${global: list[str]}    value    scope=GLOBAL
+ 17 |     VAR    ${test: Enum}    value    scope=TEST
+ 18 |     VAR    ${task: str}    value    scope=TASK
+    |            ^^^^^^^^^^^^ VAR07
+    |
+
+Found 7 issues.

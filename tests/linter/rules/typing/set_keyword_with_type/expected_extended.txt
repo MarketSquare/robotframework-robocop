@@ -1,0 +1,53 @@
+test.robot:10:5 ANN04 Set variable keyword with variable type
+    |
+  8 |
+  9 | Set with typing
+ 10 |     Set Local Variable    ${variable: int}    value
+    |     ^^^^^^^^^^^^^^^^^^ ANN04
+ 11 |     Set Suite Variable    ${variable: str}    value
+ 12 |     Set Test Variable    ${variable: list[str]}    value
+    | Suggestion: Use VAR instead.
+    |
+
+test.robot:11:5 ANN04 Set variable keyword with variable type
+    |
+  9 | Set with typing
+ 10 |     Set Local Variable    ${variable: int}    value
+ 11 |     Set Suite Variable    ${variable: str}    value
+    |     ^^^^^^^^^^^^^^^^^^ ANN04
+ 12 |     Set Test Variable    ${variable: list[str]}    value
+ 13 |     Set Task Variable    ${variable: int}    value
+    | Suggestion: Use VAR instead.
+    |
+
+test.robot:12:5 ANN04 Set variable keyword with variable type
+    |
+ 10 |     Set Local Variable    ${variable: int}    value
+ 11 |     Set Suite Variable    ${variable: str}    value
+ 12 |     Set Test Variable    ${variable: list[str]}    value
+    |     ^^^^^^^^^^^^^^^^^ ANN04
+ 13 |     Set Task Variable    ${variable: int}    value
+ 14 |     Set Global Variable    ${variable: int}    value
+    | Suggestion: Use VAR instead.
+    |
+
+test.robot:13:5 ANN04 Set variable keyword with variable type
+    |
+ 11 |     Set Suite Variable    ${variable: str}    value
+ 12 |     Set Test Variable    ${variable: list[str]}    value
+ 13 |     Set Task Variable    ${variable: int}    value
+    |     ^^^^^^^^^^^^^^^^^ ANN04
+ 14 |     Set Global Variable    ${variable: int}    value
+    | Suggestion: Use VAR instead.
+    |
+
+test.robot:14:5 ANN04 Set variable keyword with variable type
+    |
+ 12 |     Set Test Variable    ${variable: list[str]}    value
+ 13 |     Set Task Variable    ${variable: int}    value
+ 14 |     Set Global Variable    ${variable: int}    value
+    |     ^^^^^^^^^^^^^^^^^^^ ANN04
+    | Suggestion: Use VAR instead.
+    |
+
+Found 5 issues.

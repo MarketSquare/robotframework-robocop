@@ -1,0 +1,7 @@
+test.robot:10:5 [E] ANN04 Set variable keyword with variable type
+test.robot:11:5 [E] ANN04 Set variable keyword with variable type
+test.robot:12:5 [E] ANN04 Set variable keyword with variable type
+test.robot:13:5 [E] ANN04 Set variable keyword with variable type
+test.robot:14:5 [E] ANN04 Set variable keyword with variable type
+
+Found 5 issues.

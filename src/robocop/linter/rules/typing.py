@@ -1,3 +1,6 @@
+from robot.api import Token
+from robot.variables.search import search_variable
+
 from robocop.linter import sonar_qube
 from robocop.linter.rules import Rule, RuleSeverity
 
@@ -125,3 +128,58 @@ class MissingForLoopVariableTypeRule(Rule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.CLEAR, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
+
+
+class SetKeywordWithTypeRule(Rule):
+    """
+    Set Test/Suite/Global Variable keyword with variable type.
+
+    Variable type conversion does not work with Set Test/Suite/Global Variable keywords:
+
+        *** Keywords ***
+        Set Variables
+            Set Local Variable    ${variable: int}    1
+            Set Suite Variable    ${variable: str}    value
+            Set Test Variable    ${variable: list[str]}    value    value
+            Set Task Variable    ${variable: int}    2
+            Set Global Variable    ${variable: int}    3
+
+    The VAR syntax needs to be used instead:
+
+        *** Keywords ***
+        Set Variables
+            VAR    ${variable: int}    1
+            VAR    ${variable: str}    value
+            VAR    ${variable: list[str]}    value    value
+            VAR    ${variable: int}    2
+            VAR    ${variable: int}    3
+
+    """
+
+    name = "set-keyword-with-type"
+    rule_id = "ANN04"
+    message = "Set variable keyword with variable type"
+    severity = RuleSeverity.ERROR
+    version = ">=7.3"
+    added_in_version = "8.0.0"
+    sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
+        clean_code=sonar_qube.CleanCodeAttribute.DISTINCT, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
+    )
+    fix_suggestion = "Use VAR instead."
+
+    def check(self, node) -> None:
+        if not self.enabled:
+            return
+        name_token = node.get_token(Token.ARGUMENT)
+        if not name_token or not name_token.value:
+            return
+        var_match = search_variable(name_token.value, ignore_errors=True)
+        if ": " not in var_match.base:
+            return
+        keyword_token = node.get_token(Token.KEYWORD)
+        self.report(
+            node=keyword_token,
+            lineno=keyword_token.lineno,
+            col=keyword_token.col_offset + 1,
+            end_col=keyword_token.col_offset + len(keyword_token.value) + 1,
+        )

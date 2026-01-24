@@ -15,6 +15,7 @@ from robot.variables.search import search_variable
 from robocop.linter.diagnostics import Diagnostic
 from robocop.source_file import SourceFile
 
+# TODO: Validate which ImportError we can drop now (with 5+)
 try:
     from robot.api.parsing import Comment, EmptyLine, If, Variable
 except ImportError:
@@ -1800,12 +1801,14 @@ class NonLocalVariableChecker(VisitorChecker):
     no_global_variable: variables.NoGlobalVariableRule
     no_suite_variable: variables.NoSuiteVariableRule
     no_test_variable: variables.NoTestVariableRule
+    set_keyword_with_type: typing.SetKeywordWithTypeRule
 
-    non_local_variable_keywords = {
+    set_variable_keywords = {
         "setglobalvariable",
         "setsuitevariable",
         "settestvariable",
         "settaskvariable",
+        "setlocalvariable",
     }
 
     def visit_KeywordCall(self, node: KeywordCall):  # noqa: N802
@@ -1814,8 +1817,10 @@ class NonLocalVariableChecker(VisitorChecker):
             return
 
         keyword_name = utils.normalize_robot_name(keyword_token.value, remove_prefix="builtin.")
-        if keyword_name not in self.non_local_variable_keywords:
+        if keyword_name not in self.set_variable_keywords:
             return
+
+        self.set_keyword_with_type.check(node)
 
         if keyword_name == "setglobalvariable":
             self._report(self.no_global_variable, keyword_token)

@@ -1,9 +1,9 @@
 name: Release Please
 
-on:
-  push:
-    branches:
-      - main
+#on:  # temporarily disable before 8.0
+#  push:
+#    branches:
+#      - main
 
 permissions:
   contents: write

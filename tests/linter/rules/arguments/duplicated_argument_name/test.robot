@@ -18,3 +18,7 @@ Keyword4
 Keyword5
     [Arguments]    var
     Log  ${var}
+
+Argument typing
+    [Arguments]    ${var}    ${var: int}
+    Log    ${var}

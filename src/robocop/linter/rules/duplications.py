@@ -404,7 +404,7 @@ class DuplicationsChecker(VisitorChecker):
         args = set()
         for arg in node.get_tokens(Token.ARGUMENT):
             orig, *_ = arg.value.split("=", maxsplit=1)
-            name = normalize_robot_var_name(orig)
+            name = normalize_robot_var_name(orig, strip_type=TYPE_SUPPORTED)
             if name in args:  # TODO could be handled with other variables rules
                 self.report(
                     self.duplicated_argument_name,

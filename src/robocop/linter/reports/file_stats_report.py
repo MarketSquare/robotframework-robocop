@@ -1,7 +1,13 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 import robocop.linter.reports
-from robocop.config import Config
-from robocop.linter.diagnostics import Diagnostics
 from robocop.linter.utils.misc import get_plural_form, get_string_diff
+
+if TYPE_CHECKING:
+    from robocop.config import Config
+    from robocop.linter.diagnostics import Diagnostic, Diagnostics
 
 
 class FileStatsReport(robocop.linter.reports.ComparableReport):
@@ -15,20 +21,25 @@ class FileStatsReport(robocop.linter.reports.ComparableReport):
 
     """
 
-    def __init__(self, config: Config):
+    def __init__(self, config: Config) -> None:
         self.name = "file_stats"
         self.description = "Prints overall statistics about number of processed files"
         self.files_count = 0
-        self.files_with_issues = set()
+        self.files_with_issues: dict[str, list[Diagnostic]] = {}
         super().__init__(config)
 
-    def persist_result(self):
+    def persist_result(self) -> dict[str, int]:
         return {"files_count": self.files_count, "files_with_issues": len(self.files_with_issues)}
 
-    def generate_report(self, diagnostics: Diagnostics, prev_results: dict, **kwargs) -> None:
+    def generate_report(  # type: ignore[override]
+        self,
+        diagnostics: Diagnostics,
+        prev_results: dict[str, int] | None = None,
+        **kwargs: object,
+    ) -> None:
         self.files_with_issues = diagnostics.diag_by_source
         if run_stats := kwargs.get("run_stats"):
-            self.files_count = run_stats.files_count
+            self.files_count = run_stats.files_count  # type: ignore[attr-defined]
         if self.compare_runs and prev_results:
             output = self.get_report_with_compare(prev_results)
         else:
@@ -37,7 +48,7 @@ class FileStatsReport(robocop.linter.reports.ComparableReport):
             return
         print(output)
 
-    def get_report_with_compare(self, prev_results: dict) -> str:
+    def get_report_with_compare(self, prev_results: dict[str, int]) -> str:
         plural_files = get_plural_form(self.files_count)
         prev_files_count = prev_results["files_count"]
         prev_files_with_issues = prev_results["files_with_issues"]

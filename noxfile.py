@@ -22,7 +22,7 @@ ROBOCOP_VERSIONS = (
 
 @nox.session(python=PYTHON_VERSIONS)  # , reuse_venv=False
 @nox.parametrize("robot_ver", ROBOT_VERSIONS)
-def tests(session, robot_ver):
+def tests(session: nox.Session, robot_ver: str) -> None:
     """
     Run tests with a given Python version and dependency version.
 
@@ -48,13 +48,13 @@ def tests(session, robot_ver):
     session.run("pytest", "-v")
 
 
-def install_doc_deps(session, robot_version):
+def install_doc_deps(session: nox.Session, robot_version: str) -> None:
     session.install(f"robotframework=={robot_version}")
     session.run(*["uv", "sync", "--frozen", "--group", "doc"])
 
 
 @nox.session()
-def docs(session):
+def docs(session: nox.Session) -> None:
     install_doc_deps(session, "7.2.2")
     # session.run("sphinx-build", "-a", "-E", "-b", "html", "docs", "docs/_build/")
     command = ["sphinx-build", "-a", "-E", "--verbose", "-b", "html", "docs/source", "docs/_build/"]

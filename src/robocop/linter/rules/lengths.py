@@ -51,8 +51,9 @@ from robocop.linter.utils.misc import (
 from robocop.version_handling import TYPE_SUPPORTED
 
 if TYPE_CHECKING:
-    from robot.parsing.model import VariableSection
-    from robot.parsing.model.statements import Node
+    from robot.parsing import File
+    from robot.parsing.model.blocks import For, Section, Try, VariableSection
+    from robot.parsing.model.statements import Node, Return, Statement
 
 
 class TooLongKeywordRule(Rule):
@@ -679,15 +680,15 @@ class TooLongVariableNameRule(Rule):
     )
 
 
-def is_data_statement(node) -> bool:
+def is_data_statement(node: Node) -> bool:
     return not isinstance(node, (EmptyLine, Comment))
 
 
-def is_not_standalone_comment(node):
+def is_not_standalone_comment(node: Node) -> bool:
     return isinstance(node, Comment) and node.tokens[0].type == Token.SEPARATOR
 
 
-def check_node_length(node, ignore_docs):
+def check_node_length(node: Node, ignore_docs: bool) -> tuple[int, int]:
     last_node = node
     for child in node.body[::-1]:
         if is_data_statement(child) or is_not_standalone_comment(child):
@@ -698,7 +699,7 @@ def check_node_length(node, ignore_docs):
     return (last_node.end_lineno - node.lineno), last_node.end_lineno
 
 
-def get_documentation_length(node):
+def get_documentation_length(node: Node) -> int:
     doc_len = 0
     for child in node.body:
         if isinstance(child, Documentation):
@@ -744,7 +745,7 @@ class LengthChecker(VisitorChecker):
         )
         super().__init__()
 
-    def visit_File(self, node) -> None:  # noqa: N802
+    def visit_File(self, node: File) -> None:  # noqa: N802
         if node.end_lineno > self.file_too_long.max_lines:
             self.report(
                 self.file_too_long,
@@ -757,7 +758,7 @@ class LengthChecker(VisitorChecker):
             )
         super().visit_File(node)
 
-    def visit_Keyword(self, node) -> None:  # noqa: N802
+    def visit_Keyword(self, node: Keyword) -> None:  # noqa: N802
         if node.name.lstrip().startswith("#"):
             return
         for child in node.body:
@@ -814,14 +815,14 @@ class LengthChecker(VisitorChecker):
                 sev_threshold_value=key_calls,
             )
 
-    def test_is_templated(self, node):
+    def test_is_templated(self, node: TestCase) -> bool:
         if self.templated_suite:
             return True
         if not node.body:
             return False
         return any(isinstance(statement, Template) for statement in node.body)
 
-    def visit_TestCase(self, node) -> None:  # noqa: N802
+    def visit_TestCase(self, node: TestCase) -> None:  # noqa: N802
         if self.too_long_test_case.ignore_templated and self.test_is_templated(node):
             return
         length, node_end_line = check_node_length(node, ignore_docs=self.too_long_test_case.ignore_docs)
@@ -865,7 +866,7 @@ class LengthChecker(VisitorChecker):
                 end_col=node.col_offset + len(node.name) + 1,
             )
 
-    def count_keyword_calls(self, node):
+    def count_keyword_calls(self, node: Node) -> int:
         if isinstance(node, self.keyword_call_alike):
             return 1
         if not hasattr(node, "body"):
@@ -895,14 +896,14 @@ class VariableNameLengthChecker(VisitorChecker):
 
     def __init__(self) -> None:
         super().__init__()
-        self.variables: dict[str, tuple] = {}
+        self.variables: dict[str, CachedVariable] = {}
         self.var_identifiers = "$@&"
 
-    def visit_Node(self, node) -> None:  # noqa: N802
+    def visit_Node(self, node: Node) -> None:  # noqa: N802
         if not node.errors:
             self.generic_visit(node)
 
-    def new_variable_scope(self, node: Keyword | TestCase | VariableSection):
+    def new_variable_scope(self, node: Keyword | TestCase | VariableSection) -> None:
         """Handle new scope by resetting list of known variables."""
         self.variables.clear()
         if isinstance(node, Keyword):
@@ -912,7 +913,7 @@ class VariableNameLengthChecker(VisitorChecker):
 
     visit_TestCase = visit_VariableSection = visit_Keyword = new_variable_scope  # noqa: N815
 
-    def parse_embedded_arguments(self, name_token) -> None:
+    def parse_embedded_arguments(self, name_token: Token) -> None:
         """Store embedded arguments from keyword name. Ignore embedded variables patterns (${var:pattern})."""
         try:
             for token in name_token.tokenize_variables():
@@ -921,7 +922,7 @@ class VariableNameLengthChecker(VisitorChecker):
         except VariableError:
             pass
 
-    def add_variable_to_scope(self, node, var_name=None, has_pattern=False):
+    def add_variable_to_scope(self, node: Statement, var_name: str | None = None, has_pattern: bool = False) -> None:
         """
         Determine name of variable by stripping item accessors and type conversions
         and add it to known variables if not already present.
@@ -964,7 +965,7 @@ class VariableNameLengthChecker(VisitorChecker):
                 return  # sanity check
             self.variables[norm_name] = CachedVariable(name, node, len(var_name) + end_col_offset)
 
-    def check_variable_names_and_report(self):
+    def check_variable_names_and_report(self) -> None:
         for var in self.variables.values():
             if (length := len(var.name)) > self.too_long_variable_name.max_len:
                 self.report(
@@ -979,7 +980,7 @@ class VariableNameLengthChecker(VisitorChecker):
 
     visit_Variable = add_variable_to_scope  # noqa: N815
 
-    def visit_KeywordCall(self, node) -> None:  # noqa: N802
+    def visit_KeywordCall(self, node: KeywordCall) -> None:  # noqa: N802
         if not node.keyword:
             return
         for variable in node.get_tokens(Token.ASSIGN):
@@ -989,23 +990,23 @@ class VariableNameLengthChecker(VisitorChecker):
             if argument.value.startswith(tuple(self.var_identifiers + "\\")):  # Otherwise this is invalid RF syntax
                 self.add_variable_to_scope(argument)
 
-    def visit_Var(self, node):  # noqa: N802
+    def visit_Var(self, node: Statement) -> None:  # noqa: N802
         if variable := node.get_token(Token.VARIABLE):
             self.add_variable_to_scope(variable, strip_equals_from_assignment(variable.value))
 
-    def visit_Arguments(self, node):  # noqa: N802
+    def visit_Arguments(self, node: Arguments) -> None:  # noqa: N802
         for argument in node.get_tokens(Token.ARGUMENT):
             name, _ = split_argument_default_value(argument.value)
             self.add_variable_to_scope(argument, name)
 
-    def visit_For(self, node):  # noqa: N802
+    def visit_For(self, node: For) -> None:  # noqa: N802
         if node.header.errors:
             return
         for variable in node.header.get_tokens(Token.VARIABLE):
             self.add_variable_to_scope(variable)
         self.generic_visit(node)  # continue to nested loops
 
-    def visit_Try(self, node):  # noqa: N802
+    def visit_Try(self, node: Try) -> None:  # noqa: N802
         if (node.type is Token.EXCEPT) and (variable := node.header.get_token(Token.VARIABLE)):
             self.add_variable_to_scope(variable)
         self.generic_visit(node)  # continue to all branches
@@ -1016,7 +1017,7 @@ class LineLengthChecker(RawFileChecker):
 
     line_too_long: LineTooLongRule
 
-    def check_line(self, line, lineno) -> None:
+    def check_line(self, line: str, lineno: int) -> None:
         line = line.rstrip().expandtabs(4)
         if len(line) <= self.line_too_long.line_length:
             return
@@ -1050,10 +1051,10 @@ class LineLengthChecker(RawFileChecker):
 
     def url_in_line(self, line: str) -> bool:
         """Check if a line contains URL starting before the maximum line length."""
-        return 0 < line.find("://") < self.line_too_long.line_length
+        return bool(0 < line.find("://") < self.line_too_long.line_length)
 
     def line_is_ignored(self, line: str) -> bool:
-        return self.line_too_long.ignore_pattern and self.line_too_long.ignore_pattern.search(line)
+        return bool(self.line_too_long.ignore_pattern) and self.line_too_long.ignore_pattern.search(line)
 
 
 class EmptySectionChecker(VisitorChecker):
@@ -1061,7 +1062,7 @@ class EmptySectionChecker(VisitorChecker):
 
     empty_section: EmptySectionRule
 
-    def check_if_empty(self, node) -> None:
+    def check_if_empty(self, node: Section) -> None:
         if not node.header:
             return
         anything_but = EmptyLine if isinstance(node, CommentSection) else (Comment, EmptyLine)
@@ -1074,7 +1075,7 @@ class EmptySectionChecker(VisitorChecker):
                 end_col=node.header.end_col_offset,
             )
 
-    def visit_Section(self, node) -> None:  # noqa: N802
+    def visit_Section(self, node: Section) -> None:  # noqa: N802
         self.check_if_empty(node)
 
 
@@ -1083,12 +1084,12 @@ class NumberOfReturnedArgsChecker(VisitorChecker):
 
     number_of_returned_values: NumberOfReturnedValuesRule
 
-    def visit_Return(self, node) -> None:  # noqa: N802
+    def visit_Return(self, node: Return) -> None:  # noqa: N802
         self.check_node_returns(len(node.values), node)
 
     visit_ReturnStatement = visit_ReturnSetting = visit_Return  # noqa: N815
 
-    def visit_KeywordCall(self, node) -> None:  # noqa: N802
+    def visit_KeywordCall(self, node: KeywordCall) -> None:  # noqa: N802
         if not node.keyword:
             return
 
@@ -1098,7 +1099,7 @@ class NumberOfReturnedArgsChecker(VisitorChecker):
         elif normalized_name == "returnfromkeywordif":
             self.check_node_returns(len(node.args) - 1, node)
 
-    def check_node_returns(self, return_count, node) -> None:
+    def check_node_returns(self, return_count: int, node: Node) -> None:
         if return_count > self.number_of_returned_values.max_returns:
             self.report(
                 self.number_of_returned_values,
@@ -1138,29 +1139,29 @@ class EmptySettingsChecker(VisitorChecker):
         self.parent_node_name = ""
         super().__init__()
 
-    def visit_SettingSection(self, node) -> None:  # noqa: N802
+    def visit_SettingSection(self, node: Statement) -> None:  # noqa: N802
         self.parent_node_name = "Test Suite"
         self.generic_visit(node)
 
-    def visit_TestCaseName(self, node) -> None:  # noqa: N802
+    def visit_TestCaseName(self, node: Statement) -> None:  # noqa: N802
         if node.name:
             self.parent_node_name = f"'{node.name}' Test Case"
         else:
             self.parent_node_name = ""
         self.generic_visit(node)
 
-    def visit_Keyword(self, node) -> None:  # noqa: N802
+    def visit_Keyword(self, node: Keyword) -> None:  # noqa: N802
         if node.name:
             self.parent_node_name = f"'{node.name}' Keyword"
         else:
             self.parent_node_name = ""
         self.generic_visit(node)
 
-    def visit_Metadata(self, node) -> None:  # noqa: N802
+    def visit_Metadata(self, node: Statement) -> None:  # noqa: N802
         if not node.name:
             self.report(self.empty_metadata, node=node, col=node.col_offset + 1)
 
-    def visit_Documentation(self, node) -> None:  # noqa: N802
+    def visit_Documentation(self, node: Documentation) -> None:  # noqa: N802
         if not node.value:
             self.report(
                 self.empty_documentation,
@@ -1170,31 +1171,31 @@ class EmptySettingsChecker(VisitorChecker):
                 end_col=node.end_col_offset,
             )
 
-    def visit_ForceTags(self, node) -> None:  # noqa: N802
+    def visit_ForceTags(self, node: Statement) -> None:  # noqa: N802
         if not node.values:
             self.report(self.empty_force_tags, node=node, col=node.col_offset + 1, end_col=node.end_col_offset)
 
-    def visit_DefaultTags(self, node) -> None:  # noqa: N802
+    def visit_DefaultTags(self, node: Statement) -> None:  # noqa: N802
         if not node.values:
             self.report(self.empty_default_tags, node=node, col=node.col_offset + 1, end_col=node.end_col_offset)
 
-    def visit_KeywordTags(self, node) -> None:  # noqa: N802
+    def visit_KeywordTags(self, node: Statement) -> None:  # noqa: N802
         if not node.values:
             self.report(self.empty_keyword_tags, node=node, col=node.col_offset + 1, end_col=node.end_col_offset)
 
-    def visit_VariablesImport(self, node) -> None:  # noqa: N802
+    def visit_VariablesImport(self, node: Statement) -> None:  # noqa: N802
         if not node.name:
             self.report(self.empty_variables_import, node=node, col=node.col_offset + 1, end_col=node.end_col_offset)
 
-    def visit_ResourceImport(self, node) -> None:  # noqa: N802
+    def visit_ResourceImport(self, node: Statement) -> None:  # noqa: N802
         if not node.name:
             self.report(self.empty_resource_import, node=node, col=node.col_offset + 1, end_col=node.end_col_offset)
 
-    def visit_LibraryImport(self, node) -> None:  # noqa: N802
+    def visit_LibraryImport(self, node: Statement) -> None:  # noqa: N802
         if not node.name:
             self.report(self.empty_library_import, node=node, col=node.col_offset + 1, end_col=node.end_col_offset)
 
-    def visit_Setup(self, node) -> None:  # noqa: N802
+    def visit_Setup(self, node: Statement) -> None:  # noqa: N802
         if not node.name:
             self.report(
                 self.empty_setup,
@@ -1204,15 +1205,15 @@ class EmptySettingsChecker(VisitorChecker):
                 end_col=node.end_col_offset,
             )
 
-    def visit_SuiteSetup(self, node) -> None:  # noqa: N802
+    def visit_SuiteSetup(self, node: Statement) -> None:  # noqa: N802
         if not node.name:
             self.report(self.empty_suite_setup, node=node, col=node.col_offset + 1, end_col=node.end_col_offset)
 
-    def visit_TestSetup(self, node) -> None:  # noqa: N802
+    def visit_TestSetup(self, node: Statement) -> None:  # noqa: N802
         if not node.name:
             self.report(self.empty_test_setup, node=node, col=node.col_offset + 1, end_col=node.end_col_offset)
 
-    def visit_Teardown(self, node) -> None:  # noqa: N802
+    def visit_Teardown(self, node: Statement) -> None:  # noqa: N802
         if not node.name:
             self.report(
                 self.empty_teardown,
@@ -1222,19 +1223,19 @@ class EmptySettingsChecker(VisitorChecker):
                 end_col=node.end_col_offset,
             )
 
-    def visit_SuiteTeardown(self, node) -> None:  # noqa: N802
+    def visit_SuiteTeardown(self, node: Statement) -> None:  # noqa: N802
         if not node.name:
             self.report(self.empty_suite_teardown, node=node, col=node.col_offset + 1, end_col=node.end_col_offset)
 
-    def visit_TestTeardown(self, node) -> None:  # noqa: N802
+    def visit_TestTeardown(self, node: Statement) -> None:  # noqa: N802
         if not node.name:
             self.report(self.empty_test_teardown, node=node, col=node.col_offset + 1, end_col=node.end_col_offset)
 
-    def visit_TestTemplate(self, node) -> None:  # noqa: N802
+    def visit_TestTemplate(self, node: Statement) -> None:  # noqa: N802
         if not node.value:
             self.report(self.empty_test_template, node=node, col=node.col_offset + 1, end_col=node.end_col_offset)
 
-    def visit_Template(self, node) -> None:  # noqa: N802
+    def visit_Template(self, node: Template) -> None:  # noqa: N802
         if len(node.data_tokens) < 2:
             self.report(
                 self.empty_template,
@@ -1244,7 +1245,7 @@ class EmptySettingsChecker(VisitorChecker):
                 end_col=node.end_col_offset,
             )
 
-    def visit_Timeout(self, node) -> None:  # noqa: N802
+    def visit_Timeout(self, node: Statement) -> None:  # noqa: N802
         if not node.value:
             self.report(
                 self.empty_timeout,
@@ -1254,11 +1255,11 @@ class EmptySettingsChecker(VisitorChecker):
                 end_col=node.end_col_offset,
             )
 
-    def visit_TestTimeout(self, node) -> None:  # noqa: N802
+    def visit_TestTimeout(self, node: Statement) -> None:  # noqa: N802
         if not node.value:
             self.report(self.empty_test_timeout, node=node, col=node.col_offset + 1, end_col=node.end_col_offset)
 
-    def visit_Arguments(self, node) -> None:  # noqa: N802
+    def visit_Arguments(self, node: Arguments) -> None:  # noqa: N802
         if not node.values:
             self.report(
                 self.empty_arguments,
@@ -1274,7 +1275,7 @@ class TestCaseNumberChecker(VisitorChecker):  # TODO: good example of checker th
 
     too_many_test_cases: TooManyTestCasesRule
 
-    def visit_TestCaseSection(self, node) -> None:  # noqa: N802
+    def visit_TestCaseSection(self, node: Statement) -> None:  # noqa: N802
         max_testcases = (
             self.too_many_test_cases.max_templated_testcases
             if self.templated_suite
@@ -1295,7 +1296,7 @@ class TestCaseNumberChecker(VisitorChecker):  # TODO: good example of checker th
 class TooManyArgumentsInLineChecker(VisitorChecker):
     arguments_per_line: arguments.ArgumentsPerLineRule
 
-    def visit_Arguments(self, node) -> None:  # noqa: N802
+    def visit_Arguments(self, node: Arguments) -> None:  # noqa: N802
         any_cont_token = node.get_token(Token.CONTINUATION)
         if not any_cont_token:  # only one line, ignoring
             return

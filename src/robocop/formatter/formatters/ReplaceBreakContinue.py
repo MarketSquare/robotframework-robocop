@@ -1,4 +1,6 @@
-from collections.abc import Iterable
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
 
 from robot.api.parsing import Token
 
@@ -10,6 +12,12 @@ except ImportError:
 from robocop.formatter.disablers import skip_if_disabled, skip_section_if_disabled
 from robocop.formatter.formatters import Formatter
 from robocop.formatter.utils import misc
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable
+
+    from robot.parsing.model.blocks import File, For, Section
+    from robot.parsing.model.statements import KeywordCall, Statement
 
 
 class ReplaceBreakContinue(Formatter):
@@ -53,20 +61,20 @@ class ReplaceBreakContinue(Formatter):
         super().__init__()
         self.in_loop = False
 
-    def visit_File(self, node):  # noqa: N802
+    def visit_File(self, node: File) -> File:  # noqa: N802
         self.in_loop = False
         return self.generic_visit(node)
 
     @skip_section_if_disabled
-    def visit_Section(self, node):  # noqa: N802
+    def visit_Section(self, node: Section) -> Section:  # noqa: N802
         return self.generic_visit(node)
 
     @staticmethod
-    def create_statement_from_tokens(statement, tokens: Iterable, indent: Token):
+    def create_statement_from_tokens(statement: type[Statement], tokens: Iterable[Token], indent: Token) -> Statement:
         return statement([indent, Token(statement.type), *tokens])
 
     @skip_if_disabled
-    def visit_KeywordCall(self, node):  # noqa: N802,PLR0911
+    def visit_KeywordCall(self, node: KeywordCall) -> KeywordCall:  # noqa: N802,PLR0911
         if not self.in_loop or not node.keyword or node.errors:
             return node
         normalized_name = misc.after_last_dot(misc.normalize_name(node.keyword))
@@ -82,7 +90,7 @@ class ReplaceBreakContinue(Formatter):
             return misc.wrap_in_if_and_replace_statement(node, Break, self.formatting_config.separator)
         return node
 
-    def visit_For(self, node):  # noqa: N802
+    def visit_For(self, node: For) -> For:  # noqa: N802
         self.in_loop = True
         node = self.generic_visit(node)
         self.in_loop = False

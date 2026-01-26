@@ -814,7 +814,7 @@ def register_tools(mcp: FastMCP) -> None:
         ] = None,
         file_path: Annotated[str | None, Field(description="Path to the file to fix")] = None,
         filename: Annotated[str, Field(description="Virtual filename when using content")] = "stdin.robot",
-        replacement: Annotated[FixReplacement, Field(description="The line-based replacement to apply")] = None,
+        replacement: Annotated[FixReplacement | None, Field(description="The line-based replacement to apply")] = None,
         overwrite: Annotated[bool, Field(description="Write the fix to disk (only with file_path)")] = False,
         validate: Annotated[bool, Field(description="Re-lint to validate the fix resolved issues")] = True,
         select: Annotated[list[str] | None, Field(description="Rule IDs to check in validation")] = None,

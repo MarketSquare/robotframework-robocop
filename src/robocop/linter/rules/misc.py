@@ -1,5 +1,7 @@
 """Miscellaneous checkers"""
 
+from __future__ import annotations
+
 import ast
 import re
 from dataclasses import dataclass
@@ -8,12 +10,9 @@ from typing import TYPE_CHECKING
 
 from robot.api import Token
 from robot.errors import VariableError
-from robot.parsing.model.blocks import For, TestCaseSection
+from robot.parsing.model.blocks import TestCaseSection
 from robot.parsing.model.statements import Arguments, KeywordCall, Teardown
 from robot.variables.search import search_variable
-
-from robocop.linter.diagnostics import Diagnostic
-from robocop.source_file import SourceFile
 
 # TODO: Validate which ImportError we can drop now (with 5+)
 try:
@@ -27,7 +26,7 @@ except ImportError:
 try:  # RF 7+
     from robot.api.parsing import Var
 except ImportError:
-    Var = None  # type: ignore[assignment, misc]
+    Var = None
 
 from robocop.linter import sonar_qube
 from robocop.linter.rules import (
@@ -43,11 +42,19 @@ from robocop.linter.rules import (
     variables,
 )
 from robocop.linter.utils import misc as utils
-from robocop.parsing.variables import VariableMatches
+from robocop.parsing.variables import VariableMatches  # type: ignore[attr-defined]
 from robocop.version_handling import INLINE_IF_SUPPORTED, ROBOT_VERSION
 
 if TYPE_CHECKING:
+    from collections.abc import Generator
+
+    from robot.parsing.model import File, Keyword, TestCase
+    from robot.parsing.model.blocks import For, KeywordSection, Try, VariableSection, While
+    from robot.parsing.model.statements import Error, LibraryImport, Node, Var
+
+    from robocop.linter.diagnostics import Diagnostic
     from robocop.linter.utils.disablers import DisablersFinder
+    from robocop.source_file import SourceFile
 
 
 class KeywordAfterReturnRule(Rule):
@@ -704,8 +711,8 @@ class ReturnChecker(VisitorChecker):
     keyword_after_return: KeywordAfterReturnRule
     empty_return: EmptyReturnRule
 
-    def visit_Keyword(self, node) -> None:  # noqa: N802
-        return_setting_node = None
+    def visit_Keyword(self, node: Keyword) -> None:  # noqa: N802
+        return_setting_node: Node = None
         keyword_after_return = False
         return_from = False
         error = ""
@@ -735,7 +742,7 @@ class ReturnChecker(VisitorChecker):
                     error = "Keyword call after 'Return From Keyword'"
                 elif utils.normalize_robot_name(child.keyword, remove_prefix="builtin.") == "returnfromkeyword":
                     return_from = True
-        if keyword_after_return:
+        if keyword_after_return and return_setting_node is not None:
             token = return_setting_node.data_tokens[0]
             self.report(
                 self.keyword_after_return,
@@ -754,7 +761,7 @@ class UnreachableCodeChecker(VisitorChecker):
 
     unreachable_code: UnreachableCodeRule
 
-    def visit_Keyword(self, node) -> None:  # noqa: N802
+    def visit_Keyword(self, node: Keyword) -> None:  # noqa: N802
         statement_node = None
 
         for child in node.body:
@@ -788,7 +795,7 @@ class NestedForLoopsChecker(VisitorChecker):  # TODO: merge
 
     nested_for_loop: NestedForLoopRule
 
-    def visit_ForLoop(self, node) -> None:  # noqa: N802
+    def visit_ForLoop(self, node: Node) -> None:  # noqa: N802
         # For RF 4.0 node is "For" but we purposely don't visit it because nested for loop is allowed in 4.0
         for child in node.body:
             if child.type == "FOR":
@@ -811,7 +818,7 @@ class IfBlockCanBeUsed(VisitorChecker):
     if_can_be_used: deprecated.IfCanBeUsedRule
     run_keyword_variants = {"runkeywordif", "runkeywordunless"}
 
-    def visit_KeywordCall(self, node) -> None:  # noqa: N802
+    def visit_KeywordCall(self, node: KeywordCall) -> None:  # noqa: N802
         if not node.keyword:
             return
         if utils.normalize_robot_name(node.keyword, remove_prefix="builtin.") in self.run_keyword_variants:
@@ -851,11 +858,11 @@ class ConsistentAssignmentSignChecker(VisitorChecker):
     inconsistent_assignment_in_variables: InconsistentAssignmentInVariablesRule
 
     def __init__(self) -> None:
-        self.keyword_expected_sign_type = None
-        self.variables_expected_sign_type = None
+        self.keyword_expected_sign_type: str | None = None
+        self.variables_expected_sign_type: str | None = None
         super().__init__()
 
-    def visit_File(self, node) -> None:  # noqa: N802
+    def visit_File(self, node: File) -> None:  # noqa: N802
         self.keyword_expected_sign_type = self.inconsistent_assignment.assignment_sign_type
         self.variables_expected_sign_type = self.inconsistent_assignment_in_variables.assignment_sign_type
         if "autodetect" in [
@@ -869,7 +876,7 @@ class ConsistentAssignmentSignChecker(VisitorChecker):
                 self.variables_expected_sign_type = auto_detector.variables_most_common
         self.generic_visit(node)
 
-    def visit_KeywordCall(self, node):  # noqa: N802
+    def visit_KeywordCall(self, node: KeywordCall) -> KeywordCall | None:  # noqa: N802
         if self.keyword_expected_sign_type is None or not node.keyword:
             return None
         if node.assign:  # if keyword returns any value
@@ -881,7 +888,7 @@ class ConsistentAssignmentSignChecker(VisitorChecker):
             )
         return node
 
-    def visit_VariableSection(self, node):  # noqa: N802
+    def visit_VariableSection(self, node: VariableSection) -> VariableSection | None:  # noqa: N802
         if self.variables_expected_sign_type is None:
             return None
         for child in node.body:
@@ -895,7 +902,7 @@ class ConsistentAssignmentSignChecker(VisitorChecker):
             )
         return node
 
-    def check_assign_type(self, token, expected, issue_name) -> None:
+    def check_assign_type(self, token: Token, expected: str, issue_name: Rule) -> None:
         sign = utils.AssignmentTypeDetector.get_assignment_sign(token.value)
         if sign != expected:
             self.report(
@@ -908,7 +915,7 @@ class ConsistentAssignmentSignChecker(VisitorChecker):
             )
 
     @staticmethod
-    def auto_detect_assignment_sign(node):
+    def auto_detect_assignment_sign(node: File) -> utils.AssignmentTypeDetector:
         auto_detector = utils.AssignmentTypeDetector()
         auto_detector.visit(node)
         return auto_detector
@@ -924,23 +931,23 @@ class EmptyVariableChecker(VisitorChecker):
         self.visit_var = False
         super().__init__()
 
-    def visit_File(self, node) -> None:  # noqa: N802
+    def visit_File(self, node: File) -> None:  # noqa: N802
         variable_source = self.empty_variable.variable_source
         self.visit_var_section = "section" in variable_source
         self.visit_var = "var" in variable_source
         self.generic_visit(node)
 
-    def visit_VariableSection(self, node) -> None:  # noqa: N802
+    def visit_VariableSection(self, node: VariableSection) -> None:  # noqa: N802
         if self.visit_var_section:
             self.generic_visit(node)
 
-    def visit_KeywordSection(self, node) -> None:  # noqa: N802
+    def visit_KeywordSection(self, node: KeywordSection) -> None:  # noqa: N802
         if self.visit_var:
             self.generic_visit(node)
 
     visit_TestCaseSection = visit_KeywordSection  # noqa: N815
 
-    def visit_Variable(self, node) -> None:  # noqa: N802
+    def visit_Variable(self, node: Variable) -> None:  # noqa: N802
         if node.errors:
             return
         if not node.value:  # catch variable declaration without any value
@@ -955,7 +962,7 @@ class EmptyVariableChecker(VisitorChecker):
                     end_col=token.end_col_offset + 1,
                 )
 
-    def visit_Var(self, node) -> None:  # noqa: N802
+    def visit_Var(self, node: Var) -> None:  # noqa: N802
         if node.errors:
             return
         if not node.value:  # catch variable declaration without any value
@@ -982,7 +989,7 @@ class ResourceFileChecker(VisitorChecker):
 
     can_be_resource_file: CanBeResourceFileRule
 
-    def visit_File(self, node) -> None:  # noqa: N802
+    def visit_File(self, node: File) -> None:  # noqa: N802
         source = self.source_file.path.name
         if source:
             extension = Path(source).suffix
@@ -1008,7 +1015,7 @@ class IfChecker(VisitorChecker):
     inline_if_can_be_used: InlineIfCanBeUsedRule
     multiline_inline_if: MultilineInlineIfRule
 
-    def visit_TestCase(self, node) -> None:  # noqa: N802
+    def visit_TestCase(self, node: TestCase) -> None:  # noqa: N802
         if node.errors:
             return
         self.check_adjacent_ifs(node)
@@ -1018,10 +1025,10 @@ class IfChecker(VisitorChecker):
     )
 
     @staticmethod
-    def is_inline_if(node):
+    def is_inline_if(node: Node) -> bool:
         return isinstance(node.header, InlineIfHeader)
 
-    def check_adjacent_ifs(self, node) -> None:
+    def check_adjacent_ifs(self, node: Node) -> None:
         previous_if = None
         for child in node.body:
             if isinstance(child, If):
@@ -1042,7 +1049,7 @@ class IfChecker(VisitorChecker):
                 previous_if = None
         self.generic_visit(node)
 
-    def compare_conditions(self, if_node, other_if_node):
+    def compare_conditions(self, if_node: Node, other_if_node: Node) -> bool:
         if not self.compare_assign_tokens(if_node, other_if_node):
             return False
         while if_node is not None and other_if_node is not None:
@@ -1053,10 +1060,10 @@ class IfChecker(VisitorChecker):
         return if_node is None and other_if_node is None
 
     @staticmethod
-    def normalize_var_name(name):
+    def normalize_var_name(name: str) -> str:
         return name.lower().replace("_", "").replace(" ", "").replace("=", "")
 
-    def compare_assign_tokens(self, if_node, other_if_node):
+    def compare_assign_tokens(self, if_node: Node, other_if_node: Node) -> bool:
         assign_1 = getattr(if_node, "assign", None)
         assign_2 = getattr(other_if_node, "assign", None)
         if assign_1 is None or assign_2 is None:
@@ -1069,10 +1076,10 @@ class IfChecker(VisitorChecker):
         return True
 
     @staticmethod
-    def tokens_length(tokens):
+    def tokens_length(tokens: list[Token]) -> int:
         return sum(len(token.value) for token in tokens)
 
-    def check_whether_if_should_be_inline(self, node) -> None:
+    def check_whether_if_should_be_inline(self, node: Node) -> None:
         if not INLINE_IF_SUPPORTED:
             return
         if self.is_inline_if(node):
@@ -1091,7 +1098,7 @@ class IfChecker(VisitorChecker):
             or node.orelse  # TODO: it could still report with orelse? if short enough
             # IF with one branch and assign require ELSE to be valid, better to ignore it
             or getattr(node.body[0], "assign", None)
-            or not isinstance(node.body[0], (KeywordCall, utils.RETURN_CLASSES.return_class, Break, Continue))  # type: ignore[arg-type]
+            or not isinstance(node.body[0], (KeywordCall, utils.RETURN_CLASSES.return_class, Break, Continue))
         ):
             return
         min_possible = self.tokens_length(node.header.tokens) + self.tokens_length(node.body[0].tokens[1:]) + 2
@@ -1122,18 +1129,18 @@ class LoopStatementsChecker(VisitorChecker):
         self.loops = 0
         super().__init__()
 
-    def visit_File(self, node) -> None:  # noqa: N802
+    def visit_File(self, node: File) -> None:  # noqa: N802
         self.loops = 0
         self.generic_visit(node)
 
-    def visit_For(self, node) -> None:  # noqa: N802
+    def visit_For(self, node: Node) -> None:  # noqa: N802
         self.loops += 1
         self.generic_visit(node)
         self.loops -= 1
 
     visit_While = visit_For  # noqa: N815
 
-    def visit_KeywordCall(self, node) -> None:  # noqa: N802
+    def visit_KeywordCall(self, node: KeywordCall) -> None:  # noqa: N802
         if node.errors or self.loops:
             return
         if utils.normalize_robot_name(node.keyword, remove_prefix="builtin.") in self.for_keyword:
@@ -1147,13 +1154,13 @@ class LoopStatementsChecker(VisitorChecker):
                 end_col=col + len(node.keyword),
             )
 
-    def visit_Continue(self, node) -> None:  # noqa: N802
-        self.check_statement_in_loop(node, "CONTINUE")  # type: ignore[arg-type]
+    def visit_Continue(self, node: Node) -> None:  # noqa: N802
+        self.check_statement_in_loop(node, "CONTINUE")
 
-    def visit_Break(self, node) -> None:  # noqa: N802
-        self.check_statement_in_loop(node, "BREAK")  # type: ignore[arg-type]
+    def visit_Break(self, node: Node) -> None:  # noqa: N802
+        self.check_statement_in_loop(node, "BREAK")
 
-    def visit_Error(self, node) -> None:  # noqa: N802
+    def visit_Error(self, node: Error) -> None:  # noqa: N802
         """Support for RF >= 6.1"""
         for error_token in node.get_tokens(Token.ERROR):
             if "is not allowed in this context" in error_token.error:
@@ -1166,7 +1173,7 @@ class LoopStatementsChecker(VisitorChecker):
                     end_col=error_token.end_col_offset + 1,
                 )
 
-    def check_statement_in_loop(self, node, token_type) -> None:
+    def check_statement_in_loop(self, node: Node, token_type: str) -> None:
         if self.loops or (node.errors and f"{token_type} can only be used inside a loop." not in node.errors):
             return
         error_token = node.get_token(token_type)
@@ -1194,7 +1201,7 @@ class SectionVariablesCollector(ast.NodeVisitor):
     def __init__(self) -> None:
         self.section_variables: dict[str, CachedVariable] = {}
 
-    def visit_Variable(self, node) -> None:
+    def visit_Variable(self, node: Variable) -> None:
         if node.errors:
             return
         var_token = node.get_token(Token.VARIABLE)
@@ -1221,14 +1228,14 @@ class UnusedVariablesChecker(VisitorChecker):
         ]  # variables are list of scope-dictionaries, to support IF branches
         self.current_if_variables: list[dict[str, CachedVariable]] = []
         self.section_variables: dict[str, CachedVariable] = {}
-        self.used_in_scope: list[set] = []  # variables that were used in current FOR/WHILE loop
+        self.used_in_scope: list[set[str]] = []  # variables that were used in current FOR/WHILE loop
         self.ignore_overwriting = False  # temporarily ignore overwriting, e.g. in FOR loops
         self.in_loop = False  # if we're in the loop we need to check whole scope for unused-variable
         self.test_or_task_section = False
         self.branch_level = 0  # if we're inside any if branch, it will be > 0
         super().__init__()
 
-    def visit_File(self, node) -> None:  # noqa: N802
+    def visit_File(self, node: File) -> None:  # noqa: N802
         self.test_or_task_section = False
         section_variables = SectionVariablesCollector()
         section_variables.visit(node)
@@ -1252,18 +1259,18 @@ class UnusedVariablesChecker(VisitorChecker):
             return set()
         return {utils.normalize_robot_name(name.strip()) for name in ignore_config.split(",")}
 
-    def visit_TestCaseSection(self, node) -> None:  # noqa: N802
+    def visit_TestCaseSection(self, node: TestCaseSection) -> None:  # noqa: N802
         self.test_or_task_section = True
         self.generic_visit(node)
 
     visit_TaskSection = visit_TestCaseSection  # noqa: N815
 
-    def visit_TestCase(self, node) -> None:  # noqa: N802
+    def visit_TestCase(self, node: TestCase) -> None:  # noqa: N802
         self.variables = [{}]
         self.generic_visit(node)
         self.check_unused_variables()
 
-    def visit_Keyword(self, node) -> None:  # noqa: N802
+    def visit_Keyword(self, node: Keyword) -> None:  # noqa: N802
         self.arguments = {}
         self.variables = [{}]
         name_token = node.header.get_token(Token.KEYWORD_NAME)
@@ -1284,12 +1291,12 @@ class UnusedVariablesChecker(VisitorChecker):
         for scope in self.variables:
             self.check_unused_variables_in_scope(scope)
 
-    def check_unused_variables_in_scope(self, scope) -> None:
+    def check_unused_variables_in_scope(self, scope: dict[str, CachedVariable]) -> None:
         for variable in scope.values():
             if not variable.is_used:
                 self.report_arg_or_var_rule(self.unused_variable, variable.token, variable.name)
 
-    def report_arg_or_var_rule(self, rule, token, value=None) -> None:
+    def report_arg_or_var_rule(self, rule: Rule, token: Token, value: str | None = None) -> None:
         if value is None:
             value = token.value
         self.report(
@@ -1301,10 +1308,10 @@ class UnusedVariablesChecker(VisitorChecker):
             end_col=token.col_offset + len(value) + 1,
         )
 
-    def add_argument(self, argument, normalized_name, token) -> None:
+    def add_argument(self, argument: str, normalized_name: str, token: Token) -> None:
         self.arguments[normalized_name] = CachedVariable(argument, token, is_used=False)
 
-    def parse_arguments(self, node) -> None:
+    def parse_arguments(self, node: Arguments) -> None:
         """Store arguments from [Arguments]. Ignore @{args} and &{kwargs}, strip default values."""
         if node.errors:
             return
@@ -1320,7 +1327,7 @@ class UnusedVariablesChecker(VisitorChecker):
             self.add_argument(base_name, name, token=arg)
             # ${test.kws[0].msgs[${index}]} FIXME
 
-    def parse_embedded_arguments(self, name_token) -> None:
+    def parse_embedded_arguments(self, name_token: Token) -> None:
         """Store embedded arguments from keyword name. Ignore embedded variables patterns (${var:pattern})."""
         if "$" not in name_token.value:
             return
@@ -1333,7 +1340,7 @@ class UnusedVariablesChecker(VisitorChecker):
         except VariableError:
             pass
 
-    def visit_If(self, node):  # noqa: N802
+    def visit_If(self, node: If) -> None:  # noqa: N802
         if node.header.errors:
             return
         self.branch_level += 1
@@ -1359,7 +1366,7 @@ class UnusedVariablesChecker(VisitorChecker):
         self.add_variables_from_if_to_scope(if_variables)
         self.current_if_variables = []
 
-    def visit_IfBranch(self, node) -> None:  # noqa: N802
+    def visit_IfBranch(self, node: Node) -> None:  # noqa: N802
         for token in node.header.get_tokens(Token.ARGUMENT):
             self.find_not_nested_variable(token.value, can_be_escaped=True)
         self.variables.append({})
@@ -1384,7 +1391,7 @@ class UnusedVariablesChecker(VisitorChecker):
             else:
                 self.variables[-1][var_name] = cached_var
 
-    def visit_LibraryImport(self, node) -> None:  # noqa: N802
+    def visit_LibraryImport(self, node: LibraryImport) -> None:  # noqa: N802
         for token in node.get_tokens(Token.NAME, Token.ARGUMENT):
             self.find_not_nested_variable(token.value, can_be_escaped=False)
 
@@ -1421,6 +1428,7 @@ class UnusedVariablesChecker(VisitorChecker):
                     ${counter}    Update Counter    ${counter}
                 END
         """
+        # TODO: Instead of revisiting, we could mark all variables added in loop as used
         top_stack = self.used_in_scope.pop()
         if self.used_in_scope:
             self.used_in_scope[-1] = self.used_in_scope[-1].union(top_stack)
@@ -1428,7 +1436,7 @@ class UnusedVariablesChecker(VisitorChecker):
             for name in top_stack:
                 self._set_variable_as_used(name, self.variables[-1])
 
-    def visit_While(self, node):  # noqa: N802
+    def visit_While(self, node: While) -> None:  # noqa: N802
         if node.header.errors:
             return
         self.in_loop = True
@@ -1442,7 +1450,7 @@ class UnusedVariablesChecker(VisitorChecker):
         self.revisit_variables_used_in_loop()
         self.clear_variables_after_loop()
 
-    def visit_For(self, node):  # noqa: N802
+    def visit_For(self, node: For) -> None:  # noqa: N802
         if getattr(node.header, "errors", None):
             return
         self.in_loop = True
@@ -1461,12 +1469,12 @@ class UnusedVariablesChecker(VisitorChecker):
     visit_ForLoop = visit_For  # noqa: N815
 
     @staticmethod
-    def try_assign(try_node) -> str:
+    def try_assign(try_node: Node) -> str | None:
         if ROBOT_VERSION.major < 7:
-            return try_node.variable
-        return try_node.assign
+            return try_node.variable  # type: ignore[no-any-return]
+        return try_node.assign  # type: ignore[no-any-return]
 
-    def visit_Try(self, node):  # noqa: N802
+    def visit_Try(self, node: Try) -> None:  # noqa: N802
         if node.errors or node.header.errors:
             return
         # first gather variables from the TRY node
@@ -1506,12 +1514,12 @@ class UnusedVariablesChecker(VisitorChecker):
                         try_variables[name].token = variable.token
         self.add_variables_from_if_to_scope(try_variables)
 
-    def visit_Group(self, node):  # noqa: N802
+    def visit_Group(self, node: Node) -> None:  # noqa: N802
         for token in node.header.get_tokens(Token.ARGUMENT):
             self.find_not_nested_variable(token.value, can_be_escaped=True)
         self.generic_visit(node)
 
-    def visit_KeywordCall(self, node) -> None:  # noqa: N802
+    def visit_KeywordCall(self, node: KeywordCall) -> None:  # noqa: N802
         for token in node.get_tokens(Token.KEYWORD):  # argument can be used in the keyword name
             self.find_not_nested_variable(token.value, can_be_escaped=False)
         for token in node.get_tokens(Token.ARGUMENT):
@@ -1519,7 +1527,7 @@ class UnusedVariablesChecker(VisitorChecker):
         for token in node.get_tokens(Token.ASSIGN):  # we first check args, then assign for used and then overwritten
             self.handle_assign_variable(token)
 
-    def visit_Var(self, node) -> None:  # noqa: N802
+    def visit_Var(self, node: Node) -> None:  # noqa: N802
         if node.errors:  # for example invalid variable definition like $var}
             return
         for arg in node.get_tokens(Token.ARGUMENT):
@@ -1528,11 +1536,11 @@ class UnusedVariablesChecker(VisitorChecker):
         if variable and utils.is_var_scope_local(node):
             self.handle_assign_variable(variable)
 
-    def visit_TemplateArguments(self, node) -> None:  # noqa: N802
+    def visit_TemplateArguments(self, node: Node) -> None:  # noqa: N802
         for argument in node.data_tokens:
             self.find_not_nested_variable(argument.value, can_be_escaped=False)
 
-    def handle_assign_variable(self, token, ignore_var_conversion: bool = True) -> None:
+    def handle_assign_variable(self, token: Token, ignore_var_conversion: bool = True) -> None:
         """
         Check if assign does not overwrite arguments or variables.
 
@@ -1630,7 +1638,7 @@ class UnusedVariablesChecker(VisitorChecker):
             return
         self.find_escaped_variables(value)
 
-    def find_escaped_variables(self, value) -> None:
+    def find_escaped_variables(self, value: str) -> None:
         """Find all $var escaped variables in the value string and process them."""
         # TODO: create iter_escaped_variables function
         if "$" not in value:
@@ -1640,7 +1648,7 @@ class UnusedVariablesChecker(VisitorChecker):
             if variable_name.isidentifier():
                 self.update_used_variables(variable_name)
 
-    def update_used_variables(self, variable_name) -> None:
+    def update_used_variables(self, variable_name: str) -> None:
         """
         Remove used variable from the arguments and variables store.
 
@@ -1657,7 +1665,7 @@ class UnusedVariablesChecker(VisitorChecker):
         for variable_scope in self.variable_namespaces():
             self._set_variable_as_used(normalized, variable_scope)
 
-    def variable_namespaces(self):
+    def variable_namespaces(self) -> Generator[dict[str, CachedVariable], None, None]:
         yield self.arguments
         yield self.section_variables
         yield from self.variables[::-1]
@@ -1669,7 +1677,7 @@ class UnusedVariablesChecker(VisitorChecker):
         else:
             self.search_by_tokenize(normalized_name, variable_scope)
 
-    def search_by_tokenize(self, variable_name, variable_scope) -> list[str]:
+    def search_by_tokenize(self, variable_name: str, variable_scope: dict[str, CachedVariable]) -> list[str]:
         """Search variables in string by tokenizing variable name using Python ast."""
         if not variable_scope:
             return []
@@ -1702,14 +1710,14 @@ class ExpressionsChecker(VisitorChecker):
     COMPARISON_SIGNS = {"==", "!="}
     EMPTY_COMPARISON = {"${true}", "${false}", "true", "false", "[]", "{}", "set()", "list()", "dict()"}
 
-    def visit_If(self, node) -> None:  # noqa: N802
+    def visit_If(self, node: If) -> None:  # noqa: N802
         condition_token = node.header.get_token(Token.ARGUMENT)
         self.check_condition(node.header.type, condition_token, node.condition)
         self.generic_visit(node)
 
     visit_While = visit_If  # noqa: N815
 
-    def visit_KeywordCall(self, node) -> None:  # noqa: N802
+    def visit_KeywordCall(self, node: KeywordCall) -> None:  # noqa: N802
         normalized_name = utils.normalize_robot_name(node.keyword, remove_prefix="builtin.")
         if normalized_name not in self.CONDITION_KEYWORDS:
             return
@@ -1724,7 +1732,7 @@ class ExpressionsChecker(VisitorChecker):
             for condition_token in arguments[2::2]:
                 self.check_condition(node.keyword, condition_token, condition_token.value)
 
-    def check_condition(self, node_name, condition_token, condition) -> None:
+    def check_condition(self, node_name: str, condition_token: Token, condition: str) -> None:
         if not condition:
             return
         try:
@@ -1744,7 +1752,9 @@ class ExpressionsChecker(VisitorChecker):
                 position,
             )
 
-    def check_for_misplaced_not(self, condition_token, node_name, left_side, variable, right_side) -> None:
+    def check_for_misplaced_not(
+        self, condition_token: Token, node_name: str, left_side: str, variable: str, right_side: str
+    ) -> None:
         """
         Check if the condition contains misplaced not.
 
@@ -1767,7 +1777,7 @@ class ExpressionsChecker(VisitorChecker):
         )
 
     def check_for_complex_condition(
-        self, condition_token, node_name, left_side, variable, right_side, position
+        self, condition_token: Token, node_name: str, left_side: str, variable: str, right_side: str, position: int
     ) -> None:
         """Check if right side of the equation can be simplified."""
         if not right_side:
@@ -1811,7 +1821,7 @@ class NonLocalVariableChecker(VisitorChecker):
         "setlocalvariable",
     }
 
-    def visit_KeywordCall(self, node: KeywordCall):  # noqa: N802
+    def visit_KeywordCall(self, node: KeywordCall) -> None:  # noqa: N802
         keyword_token = node.get_token(Token.KEYWORD)
         if not keyword_token:
             return
@@ -1834,7 +1844,7 @@ class NonLocalVariableChecker(VisitorChecker):
             self._report(self.no_test_variable, keyword_token)
             return
 
-    def visit_Var(self, node):  # noqa: N802
+    def visit_Var(self, node: Var) -> None:  # noqa: N802
         """Visit VAR syntax introduced in Robot Framework 7. Is ignored in Robot < 7"""
         if not node.scope:
             return
@@ -1859,7 +1869,7 @@ class NonLocalVariableChecker(VisitorChecker):
 
         # Unexpected scope, or variable-defined scope
 
-    def _report(self, rule: Rule, node) -> None:
+    def _report(self, rule: Rule, node: Node) -> None:
         self.report(
             rule,
             node=node,
@@ -1875,7 +1885,7 @@ class UndefinedArgumentDefaultChecker(VisitorChecker):
     # used by AssertionEngine library
     assertion_operators = {"==", "!=", "<", ">", "<=", ">=", "*=", "^=", "$=", "$"}
 
-    def visit_Arguments(self, node: Arguments):  # noqa: N802
+    def visit_Arguments(self, node: Arguments) -> None:  # noqa: N802
         for token in node.get_tokens(Token.ARGUMENT):
             arg = token.value
             arg_name, default_val = utils.split_argument_default_value(arg)
@@ -1894,7 +1904,7 @@ class UndefinedArgumentDefaultChecker(VisitorChecker):
                     arg_name=arg_name,
                 )
 
-    def visit_KeywordCall(self, node: KeywordCall):  # noqa: N802
+    def visit_KeywordCall(self, node: KeywordCall) -> None:  # noqa: N802
         for token in node.get_tokens(Token.ARGUMENT):
             arg = token.value
 
@@ -1928,13 +1938,13 @@ class UndefinedArgumentDefaultChecker(VisitorChecker):
 class UnusedDiagnosticChecker(AfterRunChecker):
     unused_disabler: DisablerNotUsedRule
 
-    def scan_file(self, source_file: SourceFile, **kwargs) -> list[Diagnostic]:
-        disablers = kwargs["disablers"]
+    def scan_file(self, source_file: SourceFile, **kwargs: object) -> list[Diagnostic]:
+        disablers: DisablersFinder = kwargs["disablers"]  # type: ignore[assignment]
         super().scan_file(source_file, **kwargs)
         self.check_unused_disablers(disablers)
         return self.issues
 
-    def check_unused_disablers(self, disablers: "DisablersFinder"):
+    def check_unused_disablers(self, disablers: DisablersFinder) -> None:
         for rule, disabler in disablers.not_used_disablers:
             self.report(
                 self.unused_disabler,

@@ -267,7 +267,12 @@ class FixApplier:
 
         for edit in sorted_edits[1:]:
             # Check if this edit starts after the previous edit ends
-            if edit.start_line > non_overlapping[-1].end_line:
+            end_line = (
+                non_overlapping[-1].end_line
+                if non_overlapping[-1].end_line is not None
+                else non_overlapping[-1].start_line
+            )
+            if edit.start_line > end_line:
                 non_overlapping.append(edit)
 
         return non_overlapping

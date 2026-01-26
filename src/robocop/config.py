@@ -5,7 +5,7 @@ import os
 from dataclasses import dataclass, field, fields
 from enum import Enum
 from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from robot.errors import DataError
 
@@ -29,19 +29,22 @@ from robocop.linter.rules import (
 from robocop.linter.utils.misc import compile_rule_pattern
 from robocop.version_handling import ROBOT_VERSION, Version
 
-DEFAULT_INCLUDE = frozenset(("*.robot", "*.resource"))
-DEFAULT_EXCLUDE = frozenset((".direnv", ".eggs", ".git", ".svn", ".hg", ".nox", ".tox", ".venv", "venv", "dist"))
+DEFAULT_INCLUDE: frozenset[str] = frozenset(("*.robot", "*.resource"))
+DEFAULT_EXCLUDE: frozenset[str] = frozenset(
+    (".direnv", ".eggs", ".git", ".svn", ".hg", ".nox", ".tox", ".venv", "venv", "dist")
+)
 
 DEFAULT_ISSUE_FORMAT = "{source}:{line}:{col} [{severity}] {rule_id} {desc} ({name})"
 
 if TYPE_CHECKING:
     import re
 
+    from robocop.formatter.formatters import Formatter
     from robocop.linter.rules import Rule
 
 
 class RuleMatcher:
-    def __init__(self, config: LinterConfig):
+    def __init__(self, config: LinterConfig) -> None:
         self.config = config
 
     def is_rule_enabled(self, rule: Rule) -> bool:  # noqa: PLR0911
@@ -116,20 +119,20 @@ class ConfigContainer:
 
 @dataclass
 class WhitespaceConfig(ConfigContainer):
-    space_count: int | str | None = 4
-    indent: int | str | None = None
-    continuation_indent: int | str | None = None
-    line_ending: str | None = "native"
-    separator: str | None = "space"
-    line_length: int | None = 120
+    space_count: int = 4
+    indent: str = None  # int | None
+    continuation_indent: str = None  #  int | None
+    line_ending: str = "native"
+    separator: str = "space"
+    line_length: int = 120
 
     @classmethod
-    def from_toml(cls, config: dict) -> WhitespaceConfig:
+    def from_toml(cls, config: dict[str, Any]) -> WhitespaceConfig:
         config_fields = {config_field.name for config_field in fields(cls)}
         override = {param: value for param, value in config.items() if param in config_fields}
         return cls(**override)
 
-    def process_config(self):
+    def process_config(self) -> None:
         """Prepare config with processed values. If value is missing, use related config as a default."""
         if self.indent is None:
             self.indent = self.space_count
@@ -151,7 +154,7 @@ class WhitespaceConfig(ConfigContainer):
             self.line_ending = "\n"
 
 
-def parse_rule_severity(value: str):
+def parse_rule_severity(value: str) -> RuleSeverity:
     return RuleSeverity.parser(value, rule_severity=False)
 
 
@@ -162,7 +165,7 @@ class TargetVersion(Enum):
     RF7 = "7"
 
 
-def validate_target_version(value: str | TargetVersion | None) -> int | None:
+def validate_target_version(value: int | str | TargetVersion | None) -> int | None:
     if value is None:
         return None
     if isinstance(value, TargetVersion):
@@ -202,72 +205,75 @@ def resolve_relative_path(orig_path: str, config_dir: Path, ensure_exists: bool)
 
 @dataclass
 class LinterConfig:
-    configure: list[str] | None = field(default_factory=list)
-    select: list[str] | None = field(default_factory=list)
-    extend_select: list[str] | None = field(default_factory=list)
-    ignore: list[str] | None = field(default_factory=list)
-    fixable: set[str] | None = field(default_factory=set)
-    unfixable: set[str] | None = field(default_factory=set)
-    per_file_ignores: dict[str, list[str]] | None = field(default=None)
-    issue_format: str | None = DEFAULT_ISSUE_FORMAT
-    target_version: Version | None = field(default=None, compare=False)
-    threshold: RuleSeverity | None = RuleSeverity.INFO
-    custom_rules: list[str] | None = field(default_factory=list)
-    include_rules: set[str] | None = field(default_factory=set, compare=False)
-    extend_include_rules: set[str] | None = field(default_factory=set, compare=False)
-    exclude_rules: set[str] | None = field(default_factory=set, compare=False)
-    include_rules_patterns: set[re.Pattern] | None = field(default_factory=set, compare=False)
-    extend_include_rules_patterns: set[re.Pattern] | None = field(default_factory=set, compare=False)
-    exclude_rules_patterns: set[re.Pattern] | None = field(default_factory=set, compare=False)
-    reports: list[str] | None = field(default_factory=list)
-    persistent: bool | None = False
-    compare: bool | None = False
-    exit_zero: bool | None = False
-    fix: bool | None = False
-    unsafe_fixes: bool | None = False
-    diff: bool | None = False
+    configure: list[str] = field(default_factory=list)
+    select: list[str] = field(default_factory=list)
+    extend_select: list[str] = field(default_factory=list)
+    ignore: list[str] = field(default_factory=list)
+    fixable: set[str] = field(default_factory=set)
+    unfixable: set[str] = field(default_factory=set)
+    per_file_ignores: dict[str, list[str]] = field(default=None)
+    issue_format: str = DEFAULT_ISSUE_FORMAT
+    target_version: Version = field(default_factory=lambda: ROBOT_VERSION, compare=False)
+    threshold: RuleSeverity = RuleSeverity.INFO
+    custom_rules: list[str] = field(default_factory=list)
+    include_rules: set[str] = field(default_factory=set, compare=False)
+    extend_include_rules: set[str] = field(default_factory=set, compare=False)
+    exclude_rules: set[str] = field(default_factory=set, compare=False)
+    include_rules_patterns: set[re.Pattern[str]] = field(default_factory=set, compare=False)
+    extend_include_rules_patterns: set[re.Pattern[str]] = field(default_factory=set, compare=False)
+    exclude_rules_patterns: set[re.Pattern[str]] = field(default_factory=set, compare=False)
+    reports: list[str] = field(default_factory=list)
+    persistent: bool = False
+    compare: bool = False
+    exit_zero: bool = False
+    fix: bool = False
+    unsafe_fixes: bool = False
+    diff: bool = False
     return_result: bool = False
     config_source: str = field(default="cli", compare=False)
-    _checkers: list[BaseChecker] | None = field(default=None, compare=False)
-    _after_run_checkers: list[AfterRunChecker] | None = field(default=None, compare=False)
-    _project_checkers: list[BaseChecker] | None = field(default=None, compare=False)
-    _rules: dict[str, Rule] | None = field(default=None, compare=False)
-    silent: bool | None = False
+    # TODO: Checkers should be loaded to checker class
+    _checkers_loaded: bool = field(default=False, compare=False)
+    _checkers: list[BaseChecker] = field(default_factory=list, compare=False)
+    _after_run_checkers: list[AfterRunChecker] = field(default_factory=list, compare=False)
+    _project_checkers: list[ProjectChecker] = field(default_factory=list, compare=False)
+    _rules: dict[str, Rule] = field(default_factory=list, compare=False)
+    silent: bool = False
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         if not self.target_version:
             self.target_version = ROBOT_VERSION
 
     @property
     def checkers(self) -> Generator[BaseChecker]:
-        if self._checkers is None:
+        if not self._checkers_loaded:
             self.load_configuration()
         for checker in self._checkers:
             if not checker.disabled:
                 yield checker
 
     @property
-    def after_run_checkers(self) -> Generator[BaseChecker]:
+    def after_run_checkers(self) -> Generator[AfterRunChecker]:
         for checker in self._after_run_checkers:
             if not checker.disabled:
                 yield checker
 
     @property
-    def project_checkers(self) -> Generator[BaseChecker]:
-        if self._project_checkers is None:
+    def project_checkers(self) -> Generator[ProjectChecker]:
+        if not self._checkers_loaded:
             self.load_configuration()
         for checker in self._project_checkers:
             if not checker.disabled:
                 yield checker
 
     @property
-    def rules(self):
-        if self._rules is None:
+    def rules(self) -> dict[str, Rule]:
+        if not self._checkers_loaded:
             self.load_configuration()
         return self._rules
 
-    def load_configuration(self):
+    def load_configuration(self) -> None:
         """Load rules, checkers and their configuration."""
+        self._checkers_loaded = True
         self.split_inclusions_exclusions_into_patterns()
         self.load_checkers()
         self.configure_rules()
@@ -286,7 +292,7 @@ class LinterConfig:
         self._rules = {}
         rules.init(self)
 
-    def register_checker(self, checker: type[BaseChecker]) -> None:  # [type[BaseChecker]]
+    def register_checker(self, checker: BaseChecker) -> None:
         for rule_name_or_id, rule in checker.rules.items():
             self._rules[rule_name_or_id] = rule
             rule.checker = checker
@@ -300,7 +306,9 @@ class LinterConfig:
         Most checkers (VisitorChecker, RawFileChecker) are used when scanning the file. Some may be used after
         all other checkers finish scanning (AfterRunChecker) or after all files finish scanning (ProjectChecker).
         """
-        base_checkers, after_checkers, project_checkers = [], [], []
+        base_checkers: list[BaseChecker] = []
+        after_checkers: list[AfterRunChecker] = []
+        project_checkers: list[BaseChecker] = []
         for checker in self._checkers:
             if isinstance(checker, AfterRunChecker):
                 after_checkers.append(checker)
@@ -320,7 +328,7 @@ class LinterConfig:
                 checker.disabled = True
 
     @staticmethod
-    def any_rule_enabled(checker: type[BaseChecker], rule_matcher: RuleMatcher) -> bool:
+    def any_rule_enabled(checker: BaseChecker, rule_matcher: RuleMatcher) -> bool:
         any_enabled = False
         # TODO: rules contain rule_id: rule and rule_name: rule so we are checking the same rule twice
         for rule in checker.rules.values():
@@ -363,7 +371,7 @@ class LinterConfig:
             # else:  TODO
             #     raise exceptions.RuleOrReportDoesNotExist(name, self._rules)
 
-    def split_inclusions_exclusions_into_patterns(self):
+    def split_inclusions_exclusions_into_patterns(self) -> None:
         if self.select:
             for rule in self.select:
                 if "*" in rule:
@@ -392,13 +400,13 @@ class LinterConfig:
     #                 print(rule_def.deprecation_warning)
 
     @classmethod
-    def from_toml(cls, config: dict, config_path: Path) -> LinterConfig:
+    def from_toml(cls, config: dict[str, Any], config_path: Path) -> LinterConfig:
         config_fields = {config_field.name for config_field in fields(cls) if config_field.compare}
         # TODO assert type (list vs list etc)
         if unknown_fields := {param: value for param, value in config.items() if param not in config_fields}:
             print(f"Unknown fields in the [tool.robocop.lint] section: {unknown_fields}")
             raise typer.Exit(code=1)
-        override = {param: value for param, value in config.items() if param in config_fields}
+        override: dict[str, Any] = {param: value for param, value in config.items() if param in config_fields}
         if "threshold" in config:
             override["threshold"] = parse_rule_severity(config["threshold"])
         if "custom_rules" in config:
@@ -471,26 +479,26 @@ class LinterConfig:
 @dataclass
 class FormatterConfig:
     whitespace_config: WhitespaceConfig = field(default_factory=WhitespaceConfig)
-    select: list[str] | None = field(default_factory=list)
-    extend_select: list[str] | None = field(default_factory=list)
-    configure: list[str] | None = field(default_factory=list)
-    force_order: bool | None = False
-    allow_disabled: bool | None = False
-    target_version: int | str | None = field(default=ROBOT_VERSION.major, compare=False)
+    select: list[str] = field(default_factory=list)
+    extend_select: list[str] = field(default_factory=list)
+    configure: list[str] = field(default_factory=list)
+    force_order: bool = False
+    allow_disabled: bool = False
+    target_version: int | str = field(default=ROBOT_VERSION.major, compare=False)
     skip_config: SkipConfig = field(default_factory=SkipConfig)
     overwrite: bool | None = None
-    diff: bool | None = False
+    diff: bool = False
     output: Path | None = None  # TODO
-    color: bool | None = True
-    check: bool | None = False
-    reruns: int | None = 0
-    start_line: int | None = None
-    end_line: int | None = None
-    languages: Languages | None = field(default=None, compare=False)
-    silent: bool | None = False
+    color: bool = True
+    check: bool = False
+    reruns: int = 0
+    start_line: int = None
+    end_line: int = None
+    languages: Languages = field(default=None, compare=False)
+    silent: bool = False
     return_result: bool = False
     _parameters: dict[str, dict[str, str]] | None = field(default=None, compare=False)
-    _formatters: dict[str, ...] | None = field(default=None, compare=False)
+    _formatters: dict[str, Formatter] | None = field(default=None, compare=False)
 
     @property
     def overwrite_files(self) -> bool:
@@ -499,7 +507,7 @@ class FormatterConfig:
         return not self.check
 
     @classmethod
-    def from_toml(cls, config: dict, config_parent: Path) -> FormatterConfig:
+    def from_toml(cls, config: dict[str, Any], config_parent: Path) -> FormatterConfig:
         config_fields = {config_field.name for config_field in fields(cls) if config_field.compare}
         # TODO assert type (list vs list etc)
         override = {param: value for param, value in config.items() if param in config_fields}
@@ -523,17 +531,17 @@ class FormatterConfig:
         return cls(**override)
 
     @property
-    def formatters(self) -> dict[str, ...]:
+    def formatters(self) -> dict[str, Any]:
         if self._formatters is None:
             self.whitespace_config.process_config()
             self.load_formatters()
         return self._formatters
 
-    def is_formatter_selected(self, name: str, formatter: str):
+    def is_formatter_selected(self, name: str, formatter: str) -> bool:
         # TODO: have name and formatter name are different?
         return name in self.select or formatter in self.select
 
-    def load_formatters(self):
+    def load_formatters(self) -> None:
         self._formatters = {}
         for formatter in self.selected_formatters():
             for container in formatters.import_formatter(formatter, self.combined_configure, self.skip_config):
@@ -675,7 +683,7 @@ class CacheConfig:
     cache_dir: Path | None = None
 
     @classmethod
-    def from_toml(cls, config: dict, config_parent: Path) -> CacheConfig:
+    def from_toml(cls, config: dict[str, Any], config_parent: Path) -> CacheConfig:
         """
         Create CacheConfig from TOML dictionary.
 
@@ -702,10 +710,10 @@ class CacheConfig:
 
 @dataclass
 class FileFiltersOptions(ConfigContainer):
-    include: set[str] | None = field(default_factory=set)
-    default_include: set[str] | None = field(default_factory=lambda: DEFAULT_INCLUDE)
-    exclude: set[str] | None = field(default_factory=set)
-    default_exclude: set[str] | None = field(default_factory=lambda: DEFAULT_EXCLUDE)
+    include: set[str] = field(default_factory=set)
+    default_include: set[str] = field(default_factory=lambda: set(DEFAULT_INCLUDE))
+    exclude: set[str] = field(default_factory=set)
+    default_exclude: set[str] = field(default_factory=lambda: set(DEFAULT_EXCLUDE))
     _included_paths: set[str] | None = field(default=None, compare=False)
     _excluded_paths: set[str] | None = field(default=None, compare=False)
 
@@ -722,7 +730,7 @@ class FileFiltersOptions(ConfigContainer):
         return self._excluded_paths
 
     @classmethod
-    def from_toml(cls, config: dict) -> FileFiltersOptions:
+    def from_toml(cls, config: dict[str, Any]) -> FileFiltersOptions:
         filter_config = {}
         for key in ("include", "default_include", "exclude", "default_exclude"):
             if key in config:
@@ -738,38 +746,38 @@ class FileFiltersOptions(ConfigContainer):
         return any(path.match(pattern) for pattern in self.included_paths)
 
 
-def normalize_config_keys(config: dict[str, ...]) -> dict[str, ...]:
+def normalize_config_keys(config: dict[str, Any]) -> dict[str, Any]:
     """Allow to use target_version and target-version alternative names in configuration file."""
     return {key.replace("-", "_"): value for key, value in config.items()}
 
 
 @dataclass
 class Config:
-    sources: list[str] | None = field(default_factory=lambda: ["."])
-    file_filters: FileFiltersOptions | None = field(default_factory=FileFiltersOptions)
-    linter: LinterConfig | None = field(default_factory=LinterConfig)
-    formatter: FormatterConfig | None = field(default_factory=FormatterConfig)
-    cache: CacheConfig | None = field(default_factory=CacheConfig)
-    language: list[str] | None = field(default_factory=list)
-    languages: Languages | None = field(default=None, compare=False)
-    verbose: bool | None = field(default_factory=bool)
-    silent: bool | None = field(default_factory=bool)
-    target_version: int | str | None = ROBOT_VERSION.major
-    _hash: int | None = None
+    sources: list[str] = field(default_factory=lambda: ["."])
+    file_filters: FileFiltersOptions = field(default_factory=FileFiltersOptions)
+    linter: LinterConfig = field(default_factory=LinterConfig)
+    formatter: FormatterConfig = field(default_factory=FormatterConfig)
+    cache: CacheConfig = field(default_factory=CacheConfig)
+    language: list[str] = field(default_factory=list)
+    languages: Languages = field(default=None, compare=False)
+    verbose: bool = field(default_factory=bool)
+    silent: bool = field(default_factory=bool)
+    target_version: int | str | TargetVersion = ROBOT_VERSION.major
+    _hash: str | None = None
     config_source: str = "cli"
 
     def __post_init__(self) -> None:
-        self.target_version = validate_target_version(self.target_version)
+        validated_version = validate_target_version(self.target_version)
         self.load_languages()
         if self.formatter:
-            self.formatter.target_version = self.target_version or ROBOT_VERSION.major
+            self.formatter.target_version = validated_version or ROBOT_VERSION.major
             self.formatter.languages = self.languages
             self.formatter.silent = self.silent
         if self.linter:
-            self.linter.target_version = Version(f"{self.target_version}.0") if self.target_version else ROBOT_VERSION
+            self.linter.target_version = Version(f"{validated_version}.0") if validated_version else ROBOT_VERSION
             self.linter.silent = self.silent
 
-    def load_languages(self):
+    def load_languages(self) -> None:
         if Languages is None:
             return
         try:
@@ -784,7 +792,7 @@ class Config:
             raise typer.Exit(code=1) from None
 
     @classmethod
-    def from_toml(cls, config: dict, config_path: Path, overwrite_config: Config | None) -> Config:
+    def from_toml(cls, config: dict[str, Any], config_path: Path, overwrite_config: Config | None) -> Config:
         """
         Load configuration from toml dict.
 
@@ -808,14 +816,14 @@ class Config:
             normalize_config_keys(config.pop("format", {})), config_path.parent
         )
         parsed_config = {key: value for key, value in parsed_config.items() if value is not None}
-        config = cls(**parsed_config)
-        config.overwrite_from_config(overwrite_config)
-        if config.verbose:
+        config_class = cls(**parsed_config)
+        config_class.overwrite_from_config(overwrite_config)
+        if config_class.verbose:
             print(f"Loaded {config_path} configuration file.")
-        return config
+        return config_class
 
     @staticmethod
-    def validate_config(config: dict, config_path: Path) -> None:
+    def validate_config(config: dict[str, Any], config_path: Path) -> None:
         old_options = {  # some options were deprecated, but most were moved into subdict (lint)
             "reports",
             "filetypesignore",

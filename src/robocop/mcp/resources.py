@@ -92,15 +92,19 @@ def _get_rule_details(rule_id: str) -> dict[str, Any]:
 
     rule = linter_config.rules[rule_id]
 
-    parameters = [
-        {
-            "name": param.name,
-            "default": str(param.raw_value) if param.raw_value is not None else None,
-            "description": param.desc,
-            "type": param.param_type,
-        }
-        for param in rule.parameters
-    ]
+    parameters = (
+        [
+            {
+                "name": param.name,
+                "default": str(param.raw_value) if param.raw_value is not None else None,
+                "description": param.desc,
+                "type": param.param_type,
+            }
+            for param in rule.parameters
+        ]
+        if rule.parameters
+        else []
+    )
 
     return {
         "rule_id": rule.rule_id,
@@ -120,7 +124,7 @@ def register_resources(mcp: FastMCP) -> None:
     """Register all MCP resources with the server."""
 
     @mcp.resource("robocop://rules")
-    def get_rules_catalog() -> list[dict]:
+    def get_rules_catalog() -> list[dict[str, Any]]:
         """
         Get catalog of all available linting rules.
 
@@ -140,7 +144,7 @@ def register_resources(mcp: FastMCP) -> None:
         return _get_rules_catalog()
 
     @mcp.resource("robocop://formatters")
-    def get_formatters_catalog() -> list[dict]:
+    def get_formatters_catalog() -> list[dict[str, Any]]:
         """
         Get catalog of all available formatters.
 
@@ -156,7 +160,7 @@ def register_resources(mcp: FastMCP) -> None:
         return _get_formatters_catalog()
 
     @mcp.resource("robocop://rules/{rule_id}")
-    def get_rule_details(rule_id: str) -> dict:
+    def get_rule_details(rule_id: str) -> dict[str, Any]:
         """
         Get detailed information about a specific rule.
 

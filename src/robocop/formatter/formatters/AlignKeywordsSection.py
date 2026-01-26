@@ -1,6 +1,12 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 from robocop.formatter.disablers import skip_if_disabled
 from robocop.formatter.formatters.aligners_core import AlignKeywordsTestsSection
-from robocop.formatter.skip import Skip
+
+if TYPE_CHECKING:
+    from robot.parsing.model.blocks import Keyword, TestCaseSection
 
 
 class AlignKeywordsSection(AlignKeywordsTestsSection):
@@ -45,24 +51,20 @@ class AlignKeywordsSection(AlignKeywordsTestsSection):
         align_comments: bool = False,
         align_settings_separately: bool = False,
         skip_documentation: str = "True",  # noqa: ARG002 - override skip_documentation from Skip
-        skip: Skip = None,
-    ):
+    ) -> None:
         super().__init__(
-            widths,
-            alignment_type,
-            handle_too_long,
-            compact_overflow_limit,
-            align_comments,
-            align_settings_separately,
-            skip,
+            widths, alignment_type, handle_too_long, compact_overflow_limit, align_comments, align_settings_separately
         )
 
     @skip_if_disabled
-    def visit_Keyword(self, node):  # noqa: N802
+    def visit_Keyword(self, node: Keyword) -> Keyword:  # noqa: N802
         self.create_auto_widths_for_context(node)
         self.generic_visit(node)
         self.remove_auto_widths_for_context()
         return node
 
-    def visit_TestCase(self, node):  # noqa: N802
+    def visit_TestCaseSection(self, node: TestCaseSection) -> TestCaseSection:  # noqa: N802
+        # do nothing -> stop a visitor from visiting other sections for performance
         return node
+
+    visit_SettingSection = visit_TestCaseSection  # noqa: N815

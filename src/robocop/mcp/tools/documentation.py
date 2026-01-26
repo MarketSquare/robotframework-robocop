@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import inspect
 import operator
+from typing import TYPE_CHECKING
 
 from fastmcp.exceptions import ToolError
 
@@ -22,6 +23,9 @@ from robocop.mcp.tools.utils.helpers import (
     _iter_unique_rules,
     _rule_to_dict,
 )
+
+if TYPE_CHECKING:
+    from robocop.formatter.formatters import Formatter
 
 
 def _list_rules_impl(
@@ -89,7 +93,7 @@ def _list_formatters_impl(enabled_only: bool = True) -> list[FormatterSummary]:
     return sorted(result, key=lambda f: f.name)
 
 
-def _get_formatter_parameters(formatter_class: type) -> list[FormatterParam]:
+def _get_formatter_parameters(formatter_class: type[Formatter]) -> list[FormatterParam]:
     """
     Extract configurable parameters from a formatter class's __init__ signature.
 
@@ -114,10 +118,6 @@ def _get_formatter_parameters(formatter_class: type) -> list[FormatterParam]:
     defaults_start = len(args) - len(defaults)
 
     for i, arg in enumerate(args):
-        # Skip the 'skip' parameter as it's internal
-        if arg == "skip":
-            continue
-
         default = None
         if i >= defaults_start:
             default = defaults[i - defaults_start]
@@ -130,6 +130,8 @@ def _get_formatter_parameters(formatter_class: type) -> list[FormatterParam]:
                 param_type = type_hint.__name__
             elif hasattr(type_hint, "_name"):
                 param_type = getattr(type_hint, "_name", None) or "str"
+            else:
+                param_type = type_hint
         elif default is not None:
             param_type = type(default).__name__
 
@@ -249,7 +251,9 @@ def _list_prompts_impl() -> list[PromptSummary]:
         PromptSummary(
             name=prompt.name,
             description=prompt.description or "",
-            arguments=[PromptArgument(name=arg.name, required=arg.required) for arg in prompt.arguments],
+            arguments=[PromptArgument(name=arg.name, required=arg.required) for arg in prompt.arguments]
+            if prompt.arguments
+            else [],
         )
         for prompt in mcp._prompt_manager._prompts.values()  # noqa: SLF001
     ]
@@ -289,7 +293,7 @@ def _get_formatter_info_impl(formatter_name: str) -> FormatterDetail:
     formatter_class = formatter.__class__
 
     # Get skip options handled by this formatter
-    handles_skip = getattr(formatter_class, "HANDLES_SKIP", frozenset())
+    handles_skip: frozenset[str] = getattr(formatter_class, "HANDLES_SKIP", frozenset())
 
     return FormatterDetail(
         name=formatter_name,

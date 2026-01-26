@@ -21,6 +21,24 @@ from robocop.version_handling import ROBOT_VERSION, TYPE_SUPPORTED
 if TYPE_CHECKING:
     from collections.abc import Iterable
 
+    from robot.parsing import File
+    from robot.parsing.model.blocks import For, If, InvalidSection, Keyword, TestCase, While
+    from robot.parsing.model.statements import (
+        ForceTags,
+        KeywordCall,
+        KeywordName,
+        LibraryImport,
+        Node,
+        Return,
+        ReturnSetting,
+        SectionHeader,
+        Setup,
+        Template,
+        TestCaseName,
+        Var,
+        Variable,
+    )
+
 
 class NotAllowedCharInNameRule(Rule):
     r"""
@@ -646,7 +664,7 @@ class InvalidCharactersInNameChecker(VisitorChecker):
     not_allowed_char_in_filename: NotAllowedCharInFilenameRule
     not_allowed_char_in_name: NotAllowedCharInNameRule
 
-    def visit_File(self, node) -> None:  # noqa: N802
+    def visit_File(self, node: File) -> None:  # noqa: N802
         suite_name = self.source_file.path.stem
         if "__init__" in suite_name:
             suite_name = self.source_file.path.parent.name
@@ -660,7 +678,9 @@ class InvalidCharactersInNameChecker(VisitorChecker):
             )
         super().visit_File(node)
 
-    def check_if_pattern_in_node_name(self, node, name_of_node, is_keyword=False) -> None:
+    def check_if_pattern_in_node_name(
+        self, node: TestCaseName | KeywordName, name_of_node: str, is_keyword: bool = False
+    ) -> None:
         """
         Search if regex pattern found from node name.
         Skips embedded variables from keyword name
@@ -699,14 +719,14 @@ class InvalidCharactersInNameChecker(VisitorChecker):
                 end_col=node.col_offset + not_allowed_char.end(0) + 1,
             )
 
-    def visit_TestCaseName(self, node) -> None:  # noqa: N802
+    def visit_TestCaseName(self, node: TestCaseName) -> None:  # noqa: N802
         self.check_if_pattern_in_node_name(node, "test case")
 
-    def visit_KeywordName(self, node) -> None:  # noqa: N802
+    def visit_KeywordName(self, node: KeywordName) -> None:  # noqa: N802
         self.check_if_pattern_in_node_name(node, "keyword", is_keyword=True)
 
 
-def uppercase_error_msg(name) -> str:
+def uppercase_error_msg(name: str) -> str:
     return f". It must be in uppercase ({name.upper()}) when used as a statement"
 
 
@@ -743,17 +763,17 @@ class KeywordNamingChecker(VisitorChecker):
         self.inside_if_block = False
         super().__init__()
 
-    def check_keyword_naming_with_subkeywords(self, node, name_token_type) -> None:
+    def check_keyword_naming_with_subkeywords(self, node: Setup | KeywordCall, name_token_type: str) -> None:
         for keyword in iterate_keyword_names(node, name_token_type):
             self.check_keyword_naming(keyword.value, keyword)
 
-    def visit_Setup(self, node) -> None:  # noqa: N802
+    def visit_Setup(self, node: Setup) -> None:  # noqa: N802
         self.check_bdd_keywords(node.name, node)
         self.check_keyword_naming_with_subkeywords(node, Token.NAME)
 
     visit_TestTeardown = visit_SuiteTeardown = visit_Teardown = visit_TestSetup = visit_SuiteSetup = visit_Setup  # noqa: N815
 
-    def visit_Template(self, node) -> None:  # noqa: N802
+    def visit_Template(self, node: Template) -> None:  # noqa: N802
         if node.value:
             name_token = node.get_token(Token.NAME)
             self.check_keyword_naming(node.value, name_token)
@@ -761,14 +781,14 @@ class KeywordNamingChecker(VisitorChecker):
 
     visit_TestTemplate = visit_Template  # noqa: N815
 
-    def visit_Keyword(self, node) -> None:  # noqa: N802
+    def visit_Keyword(self, node: Keyword) -> None:  # noqa: N802
         if not node.name:
             self.report(self.keyword_name_is_empty, node=node)
         else:
             self.check_keyword_naming(node.name, node, is_keyword_definition=True)
         self.generic_visit(node)
 
-    def visit_KeywordCall(self, node) -> None:  # noqa: N802
+    def visit_KeywordCall(self, node: KeywordCall) -> None:  # noqa: N802
         if self.inside_if_block and node.keyword and node.keyword.lower() in self.else_statements:
             col = utils.keyword_col(node)
             end_col = col + len(node.keyword)
@@ -776,18 +796,19 @@ class KeywordNamingChecker(VisitorChecker):
         self.check_keyword_naming_with_subkeywords(node, Token.KEYWORD)
         self.check_bdd_keywords(node.keyword, node)
 
-    def visit_If(self, node) -> None:  # noqa: N802
+    def visit_If(self, node: If) -> None:  # noqa: N802
         self.inside_if_block = True
         self.generic_visit(node)
         self.inside_if_block = False
 
-    def check_keyword_naming(self, keyword_name, node, is_keyword_definition: bool = False) -> None:
+    def check_keyword_naming(self, keyword_name: str, node: Node, is_keyword_definition: bool = False) -> None:
         if not keyword_name or keyword_name.lstrip().startswith("#"):
             return
         if keyword_name == r"/":  # old for loop, / are interpreted as keywords
             return
         if self.check_if_keyword_is_reserved(keyword_name, node):
             return
+        case_naming_rule: WrongCaseInKeywordNameRule | WrongCaseInKeywordCallRule
         if is_keyword_definition:
             case_naming_rule = self.wrong_case_in_keyword_name
         else:
@@ -824,7 +845,7 @@ class KeywordNamingChecker(VisitorChecker):
                 end_col=node.col_offset + len(keyword_name) + 1,
             )
 
-    def check_bdd_keywords(self, keyword_name, node) -> None:
+    def check_bdd_keywords(self, keyword_name: str | None, node: Node) -> None:
         if not keyword_name or keyword_name.lower() not in self.bdd:
             return
         arg = node.get_token(Token.ARGUMENT)
@@ -840,7 +861,7 @@ class KeywordNamingChecker(VisitorChecker):
             end_col=end_col,
         )
 
-    def check_if_keyword_is_reserved(self, keyword_name, node) -> bool:
+    def check_if_keyword_is_reserved(self, keyword_name: str, node: Node) -> bool:
         # if there is typo in syntax, it is interpreted as keyword
         lower_name = keyword_name.lower()
         if lower_name not in self.reserved_words:
@@ -881,7 +902,7 @@ class SettingsNamingChecker(VisitorChecker):
         self.task_section: bool | None = None
         super().__init__()
 
-    def visit_InvalidSection(self, node) -> None:  # noqa: N802
+    def visit_InvalidSection(self, node: InvalidSection) -> None:  # noqa: N802
         name = node.header.data_tokens[0].value
         invalid_header = node.header.get_token(Token.INVALID_HEADER)
         if "Resource file with" in invalid_header.error:
@@ -895,7 +916,7 @@ class SettingsNamingChecker(VisitorChecker):
                 end_col=node.header.end_col_offset,
             )
 
-    def visit_SectionHeader(self, node) -> None:  # noqa: N802
+    def visit_SectionHeader(self, node: SectionHeader) -> None:  # noqa: N802
         name = node.data_tokens[0].value
         if not self.section_name_pattern.match(name) or not (name.istitle() or name.isupper()):
             valid_name = f"*** {node.name.title()} ***"
@@ -907,7 +928,7 @@ class SettingsNamingChecker(VisitorChecker):
                 end_col=node.col_offset + len(name) + 1,
             )
 
-    def visit_File(self, node) -> None:  # noqa: N802
+    def visit_File(self, node: File) -> None:  # noqa: N802
         self.task_section = None
         for section in node.sections:
             if isinstance(section, TestCaseSection):
@@ -920,7 +941,7 @@ class SettingsNamingChecker(VisitorChecker):
                 break
         super().visit_File(node)
 
-    def visit_Setup(self, node) -> None:  # noqa: N802
+    def visit_Setup(self, node: Setup) -> None:  # noqa: N802
         self.check_setting_name(node.data_tokens[0].value, node)
         self.check_settings_consistency(node.data_tokens[0].value, node)
 
@@ -932,7 +953,7 @@ class SettingsNamingChecker(VisitorChecker):
         visit_Return  # noqa: N815
     ) = visit_Setup
 
-    def visit_LibraryImport(self, node) -> None:  # noqa: N802
+    def visit_LibraryImport(self, node: LibraryImport) -> None:  # noqa: N802
         self.check_setting_name(node.data_tokens[0].value, node)
         if ROBOT_VERSION.major < 6:
             arg_nodes = node.get_tokens(Token.ARGUMENT)
@@ -958,7 +979,7 @@ class SettingsNamingChecker(VisitorChecker):
                 end_col=name_token.end_col_offset + 1,
             )
 
-    def check_setting_name(self, name, node) -> None:
+    def check_setting_name(self, name: str, node: Node) -> None:
         if not (name.istitle() or name.isupper()):
             col = node.tokens[0].end_col_offset if node.tokens[0].type == "SEPARATOR" else node.col_offset
             self.report(
@@ -969,7 +990,7 @@ class SettingsNamingChecker(VisitorChecker):
                 end_col=col + len(name) + 1,
             )
 
-    def check_settings_consistency(self, name: str, node) -> None:
+    def check_settings_consistency(self, name: str, node: Node) -> None:
         name_normalized = name.lower()
         # if there is no task/test section, determine by first setting in the file
         if self.task_section is None and ("test" in name_normalized or "task" in name_normalized):
@@ -1002,7 +1023,7 @@ class TestCaseNamingChecker(VisitorChecker):
     not_capitalized_test_case_title: NotCapitalizedTestCaseTitleRule
     test_case_name_is_empty: TestCaseNameIsEmptyRule
 
-    def visit_TestCase(self, node) -> None:  # noqa: N802
+    def visit_TestCase(self, node: TestCase) -> None:  # noqa: N802
         if not node.name:
             self.report(self.test_case_name_is_empty, node=node)
         else:
@@ -1053,12 +1074,12 @@ class VariableNamingChecker(VisitorChecker):
         # "options": "&{OPTIONS}", This variable is widely used and is relatively safe to overwrite
     }
 
-    def visit_Keyword(self, node) -> None:  # noqa: N802
+    def visit_Keyword(self, node: Keyword) -> None:  # noqa: N802
         name_token = node.header.get_token(Token.KEYWORD_NAME)
         self.parse_embedded_arguments(name_token)
         self.generic_visit(node)
 
-    def visit_Variable(self, node) -> None:  # noqa: N802
+    def visit_Variable(self, node: Variable) -> None:  # noqa: N802
         token = node.data_tokens[0]
         try:
             var_name = search_variable(token.value).base
@@ -1079,7 +1100,7 @@ class VariableNamingChecker(VisitorChecker):
             )
         self.check_for_reserved_naming_or_hyphen(token, "Variable")
 
-    def visit_KeywordCall(self, node) -> None:  # noqa: N802
+    def visit_KeywordCall(self, node: KeywordCall) -> None:  # noqa: N802
         for token in node.get_tokens(Token.ASSIGN):
             self.check_for_reserved_naming_or_hyphen(token, "Variable")
         if not node.keyword:
@@ -1098,7 +1119,7 @@ class VariableNamingChecker(VisitorChecker):
                 return
             self.check_non_local_variable(var_name, node, token)
 
-    def check_non_local_variable(self, variable_name: str, node, token) -> None:
+    def check_non_local_variable(self, variable_name: str, node: Node, token: Token) -> None:
         normalized_var_name = utils.remove_nested_variables(variable_name)
         if not normalized_var_name:
             return
@@ -1114,7 +1135,7 @@ class VariableNamingChecker(VisitorChecker):
                 end_col=token.end_col_offset + 1,
             )
 
-    def visit_Var(self, node) -> None:  # noqa: N802
+    def visit_Var(self, node: Var) -> None:  # noqa: N802
         if node.errors:  # for example invalid variable definition like $var}
             return
         variable = node.get_token(Token.VARIABLE)
@@ -1125,16 +1146,16 @@ class VariableNamingChecker(VisitorChecker):
         if not utils.is_var_scope_local(node):
             self.check_non_local_variable(search_variable(variable.value).base, node, variable)
 
-    def visit_If(self, node) -> None:  # noqa: N802
+    def visit_If(self, node: If) -> None:  # noqa: N802
         for token in node.header.get_tokens(Token.ASSIGN):
             self.check_for_reserved_naming_or_hyphen(token, "Variable")
         self.generic_visit(node)
 
-    def visit_Arguments(self, node) -> None:  # noqa: N802
+    def visit_Arguments(self, node: Arguments) -> None:  # noqa: N802
         for arg in node.get_tokens(Token.ARGUMENT):
             self.check_for_reserved_naming_or_hyphen(arg, "Argument")
 
-    def parse_embedded_arguments(self, name_token) -> None:
+    def parse_embedded_arguments(self, name_token: Token) -> None:
         """Store embedded arguments from keyword name. Ignore embedded variables patterns like (${var:pattern})."""
         try:
             for token in name_token.tokenize_variables():
@@ -1143,7 +1164,7 @@ class VariableNamingChecker(VisitorChecker):
         except VariableError:
             pass
 
-    def check_for_reserved_naming_or_hyphen(self, token, var_or_arg, has_pattern=False) -> None:
+    def check_for_reserved_naming_or_hyphen(self, token: Token, var_or_arg: str, has_pattern: bool = False) -> None:
         """Check if variable name is a reserved Robot Framework name or uses hyphen in the name."""
         variable_match = search_variable(token.value, ignore_errors=True)
         name = variable_match.base
@@ -1185,12 +1206,12 @@ class SimilarVariableChecker(VisitorChecker):
     _VAR_PATTERN = re.compile(r"[$@%&]\{([^{}]+)}")
 
     def __init__(self) -> None:
-        self.assigned_variables = defaultdict(list)
+        self.assigned_variables: defaultdict[str, list[str]] = defaultdict(list)
         self.parent_name = ""
         self.parent_type = ""
         super().__init__()
 
-    def visit_Keyword(self, node) -> None:  # noqa: N802
+    def visit_Keyword(self, node: Keyword) -> None:  # noqa: N802
         self.assigned_variables = defaultdict(list)
         self.parent_name = node.name
         self.parent_type = type(node).__name__
@@ -1199,13 +1220,13 @@ class SimilarVariableChecker(VisitorChecker):
         self.visit_vars_and_find_similar(node)
         self.generic_visit(node)
 
-    def visit_TestCase(self, node) -> None:  # noqa: N802
+    def visit_TestCase(self, node: TestCase) -> None:  # noqa: N802
         self.assigned_variables = defaultdict(list)
         self.parent_name = node.name
         self.parent_type = type(node).__name__
         self.generic_visit(node)
 
-    def visit_KeywordCall(self, node) -> None:  # noqa: N802
+    def visit_KeywordCall(self, node: KeywordCall) -> None:  # noqa: N802
         if utils.normalize_robot_name(node.keyword, remove_prefix="builtin.") in SET_VARIABLE_VARIANTS:
             normalized, assign_value = "", ""
             for index, token in enumerate(node.data_tokens[1:]):
@@ -1223,7 +1244,7 @@ class SimilarVariableChecker(VisitorChecker):
         tokens = node.get_tokens(Token.ASSIGN)
         self.find_similar_variables(tokens, node)
 
-    def visit_Var(self, node) -> None:  # noqa: N802
+    def visit_Var(self, node: Var) -> None:  # noqa: N802
         if node.errors:  # for example invalid variable definition like $var}
             return
         for arg in node.get_tokens(Token.ARGUMENT):
@@ -1232,26 +1253,26 @@ class SimilarVariableChecker(VisitorChecker):
         if variable:
             self.find_similar_variables([variable], node, ignore_overwriting=not utils.is_var_scope_local(node))
 
-    def visit_If(self, node) -> None:  # noqa: N802
+    def visit_If(self, node: If) -> None:  # noqa: N802
         for token in node.header.get_tokens(Token.ARGUMENT):
             self.find_not_nested_variable(token)
         tokens = node.header.get_tokens(Token.ASSIGN)
         self.find_similar_variables(tokens, node)
         self.generic_visit(node)
 
-    def visit_While(self, node):  # noqa: N802
+    def visit_While(self, node: While) -> While:  # noqa: N802
         for token in node.header.get_tokens(Token.ARGUMENT):
             self.find_not_nested_variable(token)
         return self.generic_visit(node)
 
     @staticmethod
-    def for_assign_vars(for_node) -> Iterable[str]:
+    def for_assign_vars(for_node: For) -> Iterable[str]:
         if ROBOT_VERSION.major < 7:
             yield from for_node.variables
         else:
             yield from for_node.assign
 
-    def visit_For(self, node) -> None:  # noqa: N802
+    def visit_For(self, node: For) -> None:  # noqa: N802
         for token in node.header.get_tokens(Token.ARGUMENT):
             self.find_not_nested_variable(token)
         for var in self.for_assign_vars(node):
@@ -1261,13 +1282,13 @@ class SimilarVariableChecker(VisitorChecker):
 
     visit_ForLoop = visit_For  # noqa: N815
 
-    def visit_Return(self, node) -> None:  # noqa: N802
+    def visit_Return(self, node: Return) -> None:  # noqa: N802
         for token in node.get_tokens(Token.ARGUMENT):
             self.find_not_nested_variable(token)
 
     visit_ReturnStatement = visit_Teardown = visit_Timeout = visit_Return  # noqa: N815
 
-    def parse_embedded_arguments(self, name_token) -> None:
+    def parse_embedded_arguments(self, name_token: Token) -> None:
         """Store embedded arguments from keyword name. Ignore embedded variables patterns (${var:pattern})."""
         if "$" not in name_token.value:
             return
@@ -1283,7 +1304,7 @@ class SimilarVariableChecker(VisitorChecker):
         except VariableError:
             pass
 
-    def check_inconsistent_naming(self, token, value: str, offset: int) -> None:
+    def check_inconsistent_naming(self, token: Token, value: str, offset: int) -> None:
         """
         Check if the variable name ``value`` was already defined under a matching but different name.
         :param token: ast token representing the string with variable
@@ -1311,7 +1332,7 @@ class SimilarVariableChecker(VisitorChecker):
                 end_col=token.col_offset + offset + len(name) + 1,
             )
 
-    def find_not_nested_variable(self, token) -> None:
+    def find_not_nested_variable(self, token: Token) -> None:
         r"""
         Find and process not nested variable.
 
@@ -1321,7 +1342,7 @@ class SimilarVariableChecker(VisitorChecker):
         for match in self._VAR_PATTERN.finditer(token.value):
             self.check_inconsistent_naming(token, match.group(1), match.start(1) - 2)
 
-    def visit_vars_and_find_similar(self, node) -> None:
+    def visit_vars_and_find_similar(self, node: Node) -> None:
         """
         Update a dictionary `assign_variables` with normalized variable name as a key
         and ads a list of all detected variations of this variable in the node as a value,
@@ -1335,7 +1356,7 @@ class SimilarVariableChecker(VisitorChecker):
                     normalized = utils.normalize_robot_name(variable_match.base)
                     self.assigned_variables[normalized].append(variable_match.base)
 
-    def find_similar_variables(self, tokens, node, ignore_overwriting: bool = False) -> None:
+    def find_similar_variables(self, tokens: list[Token], node: Node, ignore_overwriting: bool = False) -> None:
         for token in tokens:
             variable_match = search_variable(token.value, ignore_errors=True)
             name = variable_match.base
@@ -1373,40 +1394,40 @@ class DeprecatedStatementChecker(VisitorChecker):
     replace_set_variable_with_var: deprecated.ReplaceSetVariableWithVarRule
     replace_create_with_var: deprecated.ReplaceCreateWithVarRule
 
-    def visit_Keyword(self, node) -> None:  # noqa: N802
+    def visit_Keyword(self, node: Keyword) -> None:  # noqa: N802
         self.context.keyword = node
         self.generic_visit(node)
         self.context.keyword = None
 
-    def visit_KeywordCall(self, node) -> None:  # noqa: N802
+    def visit_KeywordCall(self, node: KeywordCall) -> None:  # noqa: N802
         self.check_if_keyword_is_deprecated(node.keyword, node)
         self.check_keyword_can_be_replaced_with_var(node.keyword, node)
 
-    def visit_SuiteSetup(self, node) -> None:  # noqa: N802
+    def visit_SuiteSetup(self, node: Setup) -> None:  # noqa: N802
         self.check_if_keyword_is_deprecated(node.name, node)
 
     visit_TestSetup = visit_Setup = visit_SuiteTeardown = visit_TestTeardown = visit_Teardown = visit_SuiteSetup  # noqa: N815
 
-    def visit_Template(self, node) -> None:  # noqa: N802
-        if not node.value:
-            return
+    def visit_Template(self, node: Template) -> None:  # noqa: N802
         self.check_if_keyword_is_deprecated(node.value, node)
 
     visit_TestTemplate = visit_Template  # noqa: N815
 
-    def visit_Return(self, node) -> None:  # noqa: N802
+    def visit_Return(self, node: Return) -> None:  # noqa: N802
         """For RETURN use visit_ReturnStatement - visit_Return will most likely visit RETURN in the future"""
         if ROBOT_VERSION.major not in (5, 6):
             return
         self.deprecated_return_setting.check(node)
 
-    def visit_ReturnSetting(self, node) -> None:  # noqa: N802
+    def visit_ReturnSetting(self, node: ReturnSetting) -> None:  # noqa: N802
         self.deprecated_return_setting.check(node)
 
-    def visit_ForceTags(self, node) -> None:  # noqa: N802
+    def visit_ForceTags(self, node: ForceTags) -> None:  # noqa: N802
         self.deprecated_force_tags.check(node)
 
-    def check_if_keyword_is_deprecated(self, keyword_name, node) -> None:
+    def check_if_keyword_is_deprecated(self, keyword_name: str | None, node: Node) -> None:
+        if not keyword_name:
+            return
         normalized_keyword_name = utils.normalize_robot_name(keyword_name, remove_prefix="builtin.")
         if not self.deprecated_run_keyword_if.check(node, keyword_name, normalized_keyword_name):
             return
@@ -1415,8 +1436,8 @@ class DeprecatedStatementChecker(VisitorChecker):
         if not self.deprecated_return_keyword.check(node, keyword_name, normalized_keyword_name):
             return
 
-    def check_keyword_can_be_replaced_with_var(self, keyword_name, node) -> None:
-        if ROBOT_VERSION.major < 7:
+    def check_keyword_can_be_replaced_with_var(self, keyword_name: str | None, node: Node) -> None:
+        if ROBOT_VERSION.major < 7 or not keyword_name:
             return
         normalized = utils.normalize_robot_name(keyword_name, remove_prefix="builtin.")
         if not self.replace_set_variable_with_var.check(node, keyword_name, normalized):
@@ -1424,8 +1445,8 @@ class DeprecatedStatementChecker(VisitorChecker):
         if not self.replace_create_with_var.check(node, keyword_name, normalized):
             return
 
-    def visit_LibraryImport(self, node) -> None:  # noqa: N802
+    def visit_LibraryImport(self, node: LibraryImport) -> None:  # noqa: N802
         self.deprecated_with_name.check(node)
 
-    def visit_SectionHeader(self, node) -> None:  # noqa: N802
+    def visit_SectionHeader(self, node: SectionHeader) -> None:  # noqa: N802
         self.deprecated_singular_header.check(node)

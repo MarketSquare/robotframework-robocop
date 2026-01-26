@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from difflib import unified_diff
 from pathlib import Path
+from typing import cast
 
 from fastmcp.exceptions import ToolError
 
@@ -164,6 +165,7 @@ def _get_fix_context_impl(
         content = path.read_text(encoding="utf-8")
         resolved_file_path = str(path)
         filename = path.name
+    content = cast("str", content)
 
     # Lint to find issues
     issues = _lint_content_impl(content, filename, select=rule_ids)
@@ -355,6 +357,7 @@ def _apply_fix_impl(
         content = path.read_text(encoding="utf-8")
         resolved_file_path = str(path)
         filename = path.name
+    content = cast("str", content)
 
     # Count issues before fix
     issues_before_list = _lint_content_impl(content, filename, select=select, ignore=ignore)

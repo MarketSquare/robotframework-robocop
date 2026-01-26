@@ -10,6 +10,7 @@ def empty_linter() -> RobocopLinter:
     runner = RobocopLinter(config_manager)
     runner.config_manager.default_config.linter._checkers = []  # noqa: SLF001
     runner.config_manager.default_config.linter._rules = {}  # noqa: SLF001
+    runner.config_manager.default_config.linter._checkers_loaded = True  # noqa: SLF001
     return runner
 
 

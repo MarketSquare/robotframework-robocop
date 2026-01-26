@@ -1,3 +1,5 @@
+from robot.parsing.model.blocks import Keyword
+
 from robocop.linter.rules import VisitorChecker
 from robocop.linter.rules import Rule, RuleSeverity
 
@@ -15,5 +17,5 @@ class SmthChecker(VisitorChecker):
 
     smth2: ExternalRule
 
-    def visit_Keyword(self, node):  # noqa: N802
+    def visit_Keyword(self, node: Keyword) -> Keyword:  # noqa: N802
         self.report(self.smth2, node=node)

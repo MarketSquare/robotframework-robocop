@@ -418,28 +418,6 @@ class RobocopCache:
 
         return entry
 
-    def _set_entry(
-        self,
-        cache_dict: dict[str, LinterCacheEntry] | dict[str, FormatterCacheEntry],
-        path: Path,
-        entry: LinterCacheEntry | FormatterCacheEntry,
-    ) -> None:
-        """
-        Store a cache entry.
-
-        Args:
-            cache_dict: Dictionary to store cache entries (linter or formatter).
-            path: Absolute path to the file.
-            entry: Cache entry to store.
-
-        """
-        if not self.enabled:
-            return
-
-        str_path = self._normalize_path(path)
-        cache_dict[str_path] = entry
-        self._dirty = True
-
     # Linter cache methods
 
     def get_linter_entry(self, path: Path, config_hash: str) -> LinterCacheEntry | None:
@@ -483,8 +461,9 @@ class RobocopCache:
             config_hash=config_hash,
             diagnostics=tuple(CachedDiagnostic.from_diagnostic(d) for d in diagnostics),
         )
-
-        self._set_entry(self.data.linter, path, entry)
+        str_path = self._normalize_path(path)
+        self.data.linter[str_path] = entry
+        self._dirty = True
 
     # Formatter cache methods
 
@@ -517,6 +496,8 @@ class RobocopCache:
             needs_formatting: Whether the file needed formatting.
 
         """
+        if not self.enabled:
+            return
         try:
             metadata = FileMetadata.from_path(path)
         except OSError:
@@ -527,8 +508,9 @@ class RobocopCache:
             config_hash=config_hash,
             needs_formatting=needs_formatting,
         )
-
-        self._set_entry(self.data.formatter, path, entry)
+        str_path = self._normalize_path(path)
+        self.data.formatter[str_path] = entry
+        self._dirty = True
 
 
 def restore_diagnostics(

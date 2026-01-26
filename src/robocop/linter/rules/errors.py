@@ -1,6 +1,9 @@
 """Errors checkers"""
 
+from __future__ import annotations
+
 import re
+from typing import TYPE_CHECKING
 
 from robot.api import Token
 
@@ -13,6 +16,11 @@ from robocop.linter import sonar_qube
 from robocop.linter.rules import Rule, RuleSeverity, VisitorChecker, arguments, whitespace
 from robocop.linter.utils.misc import find_robot_vars
 from robocop.version_handling import ROBOT_VERSION
+
+if TYPE_CHECKING:
+    from robot.parsing import File
+    from robot.parsing.model.blocks import InvalidSection, NestedBlock
+    from robot.parsing.model.statements import EmptyLine, KeywordCall, Node, Statement, VariablesImport
 
 
 class ParsingErrorRule(Rule):  # TODO docs
@@ -315,26 +323,26 @@ class ParsingErrorChecker(VisitorChecker):
         super().__init__()
         self.in_block = None
 
-    def visit_File(self, node) -> None:  # noqa: N802
+    def visit_File(self, node: File) -> None:  # noqa: N802
         self.generic_visit(node)
 
-    def visit_If(self, node) -> None:  # noqa: N802
+    def visit_If(self, node: NestedBlock) -> None:  # noqa: N802
         self.in_block = node  # to ensure we're in IF for `invalid-if` rule
         self.parse_errors(node)
         self.generic_visit(node)
 
     visit_For = visit_While = visit_Try = visit_If  # noqa: N815
 
-    def visit_KeywordCall(self, node) -> None:  # noqa: N802
+    def visit_KeywordCall(self, node: KeywordCall) -> None:  # noqa: N802
         if node.keyword and node.keyword.startswith("..."):
             col = node.data_tokens[0].col_offset + 1
             self.report(self.not_enough_whitespace_after_newline_marker, node=node, col=col, end_col=col + 3)
         self.generic_visit(node)
 
-    def visit_Statement(self, node) -> None:  # noqa: N802
+    def visit_Statement(self, node: Statement) -> None:  # noqa: N802
         self.parse_errors(node)
 
-    def visit_InvalidSection(self, node) -> None:  # noqa: N802
+    def visit_InvalidSection(self, node: InvalidSection) -> None:  # noqa: N802
         invalid_header = node.header.get_token(Token.INVALID_HEADER)
         if "Resource file with" in invalid_header.error:
             section_name = invalid_header.value
@@ -345,13 +353,13 @@ class ParsingErrorChecker(VisitorChecker):
                 end_col=node.col_offset + len(section_name) + 1,
             )
 
-    def parse_errors(self, node) -> None:
+    def parse_errors(self, node: Node) -> None:
         if node is None:
             return
         for index, error in enumerate(node.errors):
             self.handle_error(node, error, error_index=index)
 
-    def handle_error(self, node, error, error_index=0) -> None:
+    def handle_error(self, node: Node, error: str, error_index: int = 0) -> None:
         if not error:
             return
         if any(should_ignore in error for should_ignore in self.ignore_errors):
@@ -386,7 +394,7 @@ class ParsingErrorChecker(VisitorChecker):
             end_col = error_node.col_offset + len(node.name) if hasattr(node, "name") else error_node.end_col_offset
             self.report(self.parsing_error, error_msg=error, node=node, col=start_col, end_col=end_col)
 
-    def handle_invalid_block(self, node, error, block_name) -> None:
+    def handle_invalid_block(self, node: Node, error: str, block_name: Rule) -> None:
         if hasattr(node, "header"):
             token = node.header.get_token(node.header.type)
         else:
@@ -399,7 +407,7 @@ class ParsingErrorChecker(VisitorChecker):
             end_col=token.end_col_offset + 1,
         )
 
-    def handle_invalid_syntax(self, node, error) -> None:
+    def handle_invalid_syntax(self, node: Node, error: str) -> None:
         # robot doesn't report on exact token, so we need to find it
         match = re.search("'(.+)'", error)
         if not match:
@@ -413,15 +421,15 @@ class ParsingErrorChecker(VisitorChecker):
                 return
         self.report(self.parsing_error, error_msg=error, node=node)
 
-    def handle_not_allowed_setting(self, node, error) -> None:
+    def handle_not_allowed_setting(self, node: Node, error: str) -> None:
         """
         Since Robot Framework 6 settings that are not allowed in Test/Keyword are reported with separate error
         message rather than with 'Non-existing setting'.
         """
-        setting_error = re.search("Setting '(.*)' is not allowed", error)
-        if not setting_error:
+        error_match = re.search("Setting '(.*)' is not allowed", error)
+        if not error_match:
             return
-        setting_error = setting_error.group(1)
+        setting_error = error_match.group(1)
         if not setting_error:
             return
         token = node.data_tokens[0]
@@ -443,11 +451,11 @@ class ParsingErrorChecker(VisitorChecker):
             end_col=token.end_col_offset + 1,
         )
 
-    def handle_invalid_setting(self, node, error) -> None:
-        setting_error = re.search("Non-existing setting '(.*)'.", error)
-        if not setting_error:
+    def handle_invalid_setting(self, node: Node, error: str) -> None:
+        error_match = re.search("Non-existing setting '(.*)'.", error)
+        if not error_match:
             return
-        setting_error = setting_error.group(1)
+        setting_error = error_match.group(1)
         if not setting_error:
             return
         token = node.data_tokens[0]
@@ -496,7 +504,7 @@ class ParsingErrorChecker(VisitorChecker):
                 end_col=token.end_col_offset + 1,
             )
 
-    def handle_invalid_variable(self, node, error) -> None:
+    def handle_invalid_variable(self, node: Node, error: str) -> None:
         var_error = re.search("Invalid variable name '(.*)'.", error)
         if not var_error or not var_error.group(1):  # empty variable name due to invalid parsing
             return
@@ -519,7 +527,7 @@ class ParsingErrorChecker(VisitorChecker):
                 error = error.replace("\n   ", "")
                 self.report(self.parsing_error, error_msg=error, node=node)
 
-    def handle_invalid_continuation_mark(self, node, name) -> None:
+    def handle_invalid_continuation_mark(self, node: Node, name: str) -> None:
         stripped = name.lstrip()
         if len(stripped) == 2 or not stripped[2].strip():
             first_dot = name.find(".") + 1
@@ -539,7 +547,7 @@ class ParsingErrorChecker(VisitorChecker):
                     end_col=col + 3,
                 )
 
-    def handle_unsupported_settings_in_init_file(self, node) -> None:
+    def handle_unsupported_settings_in_init_file(self, node: Node) -> None:
         if ROBOT_VERSION.major < 6 and "__init__" not in self.source_file.path.name:
             return  # handle bug where Robot reports invalid setting as not allowed in suite init file
         setting_node = node.data_tokens[0]
@@ -554,10 +562,10 @@ class ParsingErrorChecker(VisitorChecker):
         )
 
     @staticmethod
-    def is_var_positional(value):
-        return value and (value.startswith("&") or "=" in value)
+    def is_var_positional(value: str) -> bool:
+        return bool(value) and (value.startswith("&") or "=" in value)
 
-    def handle_positional_after_named(self, node, error_index) -> None:
+    def handle_positional_after_named(self, node: Node, error_index: int) -> None:
         """
         Robot Framework reports all errors on parent node.
         That's why we need to find which token is invalid - and in
@@ -580,7 +588,7 @@ class ParsingErrorChecker(VisitorChecker):
             end_col=token.end_col_offset + 1,
         )
 
-    def handle_invalid_section_in_resource(self, node) -> None:
+    def handle_invalid_section_in_resource(self, node: Node) -> None:
         error_token = node.tokens[0]
         section_name = error_token.value
         self.report(
@@ -590,15 +598,16 @@ class ParsingErrorChecker(VisitorChecker):
             end_col=node.col_offset + len(section_name) + 1,
         )
 
-    def handle_invalid_setting_in_resource_file(self, node, error) -> None:
+    def handle_invalid_setting_in_resource_file(self, node: Node, error: str) -> None:
         setting_error = re.search("Setting '(.*)' is not allowed in resource file", error)
-        self.report(
-            self.invalid_setting_in_resource,
-            section_name=setting_error.group(1),
-            node=node,
-            lineno=node.lineno,
-            end_col=node.end_col_offset,
-        )
+        if setting_error:
+            self.report(
+                self.invalid_setting_in_resource,
+                section_name=setting_error.group(1),
+                node=node,
+                lineno=node.lineno,
+                end_col=node.end_col_offset,
+            )
 
 
 class TwoSpacesAfterSettingsChecker(VisitorChecker):
@@ -619,7 +628,7 @@ class TwoSpacesAfterSettingsChecker(VisitorChecker):
         self.setting_pattern = re.compile(r"\[\s?(\w+)\s?\]")
         super().__init__()
 
-    def visit_KeywordCall(self, node) -> None:  # noqa: N802
+    def visit_KeywordCall(self, node: KeywordCall) -> None:  # noqa: N802
         """Invalid settings like '[Arguments] ${var}' will be parsed as keyword call"""
         if not node.keyword:
             return
@@ -642,10 +651,10 @@ class MissingKeywordName(VisitorChecker):  # TODO should be part of other checke
 
     missing_keyword_name: MissingKeywordNameRule
 
-    def visit_File(self, node) -> None:  # noqa: N802
+    def visit_File(self, node: File) -> None:  # noqa: N802
         self.generic_visit(node)
 
-    def visit_EmptyLine(self, node) -> None:  # noqa: N802
+    def visit_EmptyLine(self, node: EmptyLine) -> None:  # noqa: N802
         if ROBOT_VERSION.major < 5:
             return
         assign_token = node.get_token(Token.ASSIGN)
@@ -658,7 +667,7 @@ class MissingKeywordName(VisitorChecker):  # TODO should be part of other checke
                 end_col=node.data_tokens[0].end_col_offset + 1,
             )
 
-    def visit_KeywordCall(self, node) -> None:  # noqa: N802
+    def visit_KeywordCall(self, node: KeywordCall) -> None:  # noqa: N802
         if not node.keyword:
             self.report(
                 self.missing_keyword_name,
@@ -674,7 +683,7 @@ class VariablesImportErrorChecker(VisitorChecker):  # TODO merge such visitors i
 
     variables_import_with_args: VariablesImportWithArgsRule
 
-    def visit_VariablesImport(self, node) -> None:  # noqa: N802
+    def visit_VariablesImport(self, node: VariablesImport) -> None:  # noqa: N802
         if node.name and node.name.endswith((".yaml", ".yml")) and node.get_token(Token.ARGUMENT):
             eol = node.get_token(Token.EOL) or node
             self.report(self.variables_import_with_args, node=node, end_col=eol.end_col_offset)

@@ -1,10 +1,15 @@
+from __future__ import annotations
+
 from collections import defaultdict
+from typing import TYPE_CHECKING
 
 import robocop.linter.reports
-from robocop.config import Config
-from robocop.linter.diagnostics import Diagnostics
 from robocop.linter.rules import RuleSeverity
 from robocop.linter.utils.misc import get_plural_form, get_string_diff
+
+if TYPE_CHECKING:
+    from robocop.config import Config
+    from robocop.linter.diagnostics import Diagnostics
 
 
 class RulesBySeverityReport(robocop.linter.reports.ComparableReport):
@@ -18,10 +23,10 @@ class RulesBySeverityReport(robocop.linter.reports.ComparableReport):
 
     """
 
-    def __init__(self, config: Config):
+    def __init__(self, config: Config) -> None:
         self.name = "rules_by_error_type"
         self.description = "Prints total number of issues grouped by severity"
-        self.severity_counter = defaultdict(int)
+        self.severity_counter: defaultdict[RuleSeverity, int] = defaultdict(int)
         super().__init__(config)
 
     def persist_result(self) -> dict[str, int]:
@@ -32,7 +37,12 @@ class RulesBySeverityReport(robocop.linter.reports.ComparableReport):
             "info": self.severity_counter[RuleSeverity.INFO],
         }
 
-    def generate_report(self, prev_results: dict, diagnostics: Diagnostics, **kwargs) -> None:  # noqa: ARG002
+    def generate_report(  # type: ignore[override]
+        self,
+        diagnostics: Diagnostics,
+        prev_results: dict[str, int] | None = None,
+        **kwargs: object,  # noqa: ARG002
+    ) -> None:
         for diagnostic in diagnostics:
             self.severity_counter[diagnostic.severity] += 1
         if self.compare_runs and prev_results:
@@ -55,7 +65,7 @@ class RulesBySeverityReport(robocop.linter.reports.ComparableReport):
         report += "."
         return report
 
-    def get_report_with_compare(self, prev_results: dict) -> str:
+    def get_report_with_compare(self, prev_results: dict[str, int]) -> str:
         issues_count = sum(self.severity_counter.values())
         if not issues_count:
             prev_issues = prev_results["all_issues"]

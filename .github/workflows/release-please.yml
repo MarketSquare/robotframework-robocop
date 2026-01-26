@@ -1,9 +1,10 @@
 name: Release Please
 
-#on:  # temporarily disable before 8.0
-#  push:
+on:
+#  push: temporarily disable before 8.0
 #    branches:
 #      - main
+  workflow_dispatch:
 
 permissions:
   contents: write

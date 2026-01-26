@@ -26,7 +26,7 @@ class OutputFormat(Enum):
     GROUPED = "grouped"
 
     @classmethod
-    def _missing_(cls, value) -> NoReturn:
+    def _missing_(cls, value: object) -> NoReturn:
         choices = [choice.value for choice in cls.__members__.values()]
         raise ValueError(f"{value} is not a valid {cls.__name__}, please choose from {choices}") from None
 
@@ -83,11 +83,11 @@ class PrintIssuesReport(robocop.linter.reports.Report):
     NO_ALL = False
     ENABLED = True
 
-    def __init__(self, config: Config):
+    def __init__(self, config: Config) -> None:
         self.name = "print_issues"
         self.description = "Collect and print rules messages"
         self.output_format = OutputFormat.EXTENDED
-        self.issue_format = None
+        self.issue_format: str | None = None
         self.console = Console(highlight=False, soft_wrap=True, emoji=False)
         super().__init__(config)
 
@@ -249,13 +249,13 @@ class PrintIssuesReport(robocop.linter.reports.Report):
             ]
             self.console.print(*text, sep="", end="")
 
-    def generate_report(self, diagnostics: Diagnostics, **kwargs) -> None:
+    def generate_report(self, diagnostics: Diagnostics, **kwargs: object) -> None:  # type: ignore[override]
         if self.config.silent:
             return
-        run_stats: RunStatistic | None = kwargs.get("run_stats")
+        run_stats: RunStatistic = kwargs["run_stats"]  # type: ignore[assignment]
         if run_stats and run_stats.files_count == 0:
             return
-        if hasattr(sys.stdout, "reconfigure"):
+        if hasattr(sys.stdout, "reconfigure") and hasattr(sys.stderr, "reconfigure"):
             # Even if recent Python has it, it doesn't work for all the encoding without it
             sys.stdout.reconfigure(encoding="utf-8")
             sys.stderr.reconfigure(encoding="utf-8")

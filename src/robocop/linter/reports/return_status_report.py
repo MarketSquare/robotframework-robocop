@@ -1,8 +1,14 @@
+from __future__ import annotations
+
 from collections import defaultdict
+from typing import TYPE_CHECKING
 
 import robocop.linter.reports
-from robocop.config import Config
-from robocop.linter.diagnostics import Diagnostics
+
+if TYPE_CHECKING:
+    from robocop.config import Config
+    from robocop.linter.diagnostics import Diagnostics
+    from robocop.linter.rules import RuleSeverity
 
 
 class ReturnStatusReport(robocop.linter.reports.Report):
@@ -15,7 +21,7 @@ class ReturnStatusReport(robocop.linter.reports.Report):
 
     NO_ALL = False
 
-    def __init__(self, config: Config):
+    def __init__(self, config: Config) -> None:
         self.name = "return_status"
         self.description = "Checks if number of specific issues exceed quality gate limits"
         self.return_status = 0
@@ -33,8 +39,8 @@ class ReturnStatusReport(robocop.linter.reports.Report):
             except ValueError:
                 continue
 
-    def generate_report(self, diagnostics: Diagnostics, **kwargs) -> None:  # noqa: ARG002
-        severity_counter = defaultdict(int)
+    def generate_report(self, diagnostics: Diagnostics, **kwargs: object) -> None:  # type: ignore[override]  # noqa: ARG002
+        severity_counter: defaultdict[RuleSeverity, int] = defaultdict(int)
         for diagnostic in diagnostics:
             severity_counter[diagnostic.severity] += 1
         for severity, count in severity_counter.items():

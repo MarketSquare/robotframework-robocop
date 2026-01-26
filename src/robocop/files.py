@@ -7,7 +7,7 @@ from typing import Any
 import click
 
 try:
-    import tomllib as toml
+    import tomllib as toml  # type: ignore[import-not-found]
 except ImportError:  # Python < 3.11
     import tomli as toml
 
@@ -17,7 +17,8 @@ from robocop import exceptions
 def load_toml_file(config_path: Path) -> dict[str, Any]:
     try:
         with config_path.open("rb") as tf:
-            return toml.load(tf)
+            config: dict[str, Any] = toml.load(tf)
+            return config
     except (toml.TOMLDecodeError, OSError) as e:
         raise click.FileError(filename=str(config_path), hint=f"Error reading configuration file: {e}") from None
 
@@ -40,11 +41,11 @@ def merge_dicts(dict1: dict[str, Any], dict2: dict[str, Any]) -> dict[str, Any]:
     return dict1
 
 
-def extend_configs(config: dict[str, Any], config_path: Path, seen: set) -> dict[str, Any]:
+def extend_configs(config: dict[str, Any], config_path: Path, seen: set[Path]) -> dict[str, Any]:
     """Extend configuration files with the configs from the extends option."""
     if "extends" not in config:
         return config
-    merged_config = {}
+    merged_config: dict[str, Any] = {}
     for base_config in config["extends"]:
         if not isinstance(base_config, str):
             raise exceptions.ConfigurationError(

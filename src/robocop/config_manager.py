@@ -12,14 +12,14 @@ from robocop.config import Config
 from robocop.source_file import SourceFile
 
 if TYPE_CHECKING:
-    from collections.abc import Generator
+    from collections.abc import Generator, Sequence
 
 CONFIG_NAMES = frozenset(("robocop.toml", "pyproject.toml", "robot.toml"))
 
 
 class GitIgnoreResolver:
     def __init__(self) -> None:
-        self.cached_ignores: dict[Path, list[pathspec.PathSpec] | None] = {}
+        self.cached_ignores: dict[Path, tuple[Path, pathspec.PathSpec]] = {}
         self.ignore_dirs: set[Path] = set()
 
     def path_excluded(self, path: Path, gitignores: list[tuple[Path, pathspec.PathSpec]]) -> bool:
@@ -28,11 +28,11 @@ class GitIgnoreResolver:
             return False
         for gitignore_path, gitignore in gitignores:
             relative_path = files.get_relative_path(path, gitignore_path)
-            path = str(relative_path)
+            path_str = str(relative_path)
             # fixes a bug in pathspec where directory needs to end with / to be ignored by pattern
-            if relative_path.is_dir() and path != ".":
-                path = f"{path}{os.sep}"
-            if gitignore.match_file(path):
+            if relative_path.is_dir() and path_str != ".":
+                path_str = f"{path_str}{os.sep}"
+            if gitignore.match_file(path_str):
                 return True
         return False
 
@@ -40,7 +40,7 @@ class GitIgnoreResolver:
         """Return a PathSpec loaded from the file."""
         with path.open(encoding="utf-8") as gf:
             lines = gf.readlines()
-        return pathspec.PathSpec.from_lines(pathspec.patterns.GitWildMatchPattern, lines)
+        return pathspec.PathSpec.from_lines(pathspec.patterns.GitWildMatchPattern, lines)  # type: ignore[attr-defined]
 
     def resolve_path_ignores(self, path: Path) -> list[tuple[Path, pathspec.PathSpec]]:
         """
@@ -58,7 +58,7 @@ class GitIgnoreResolver:
         # TODO: respect nogitignore flag
         if path.is_file():
             path = path.parent
-        gitignores = []
+        gitignores: list[tuple[Path, pathspec.PathSpec]] = []
         search_paths = (parent for parent in [path, *path.parents])
         for parent_path in search_paths:
             if parent_path in self.ignore_dirs:  # dir that does not have .gitignore (marked as such)
@@ -91,13 +91,13 @@ class ConfigManager:
         self,
         sources: list[str] | None = None,
         config: Path | None = None,
-        root: str | None = None,
+        root: Path | None = None,
         ignore_git_dir: bool = False,
         ignore_file_config: bool = False,
         skip_gitignore: bool = False,
         force_exclude: bool = False,
         overwrite_config: Config | None = None,
-    ):
+    ) -> None:
         """
         Initialize ConfigManager.
 
@@ -134,7 +134,7 @@ class ConfigManager:
             cache_config = self.default_config.cache
             self._cache = RobocopCache(
                 cache_dir=cache_config.cache_dir if cache_config else None,
-                enabled=cache_config.enabled if cache_config else True,
+                enabled=bool(cache_config.enabled) if cache_config else True,
                 verbose=self.default_config.verbose or False,
             )
         return self._cache
@@ -144,7 +144,7 @@ class ConfigManager:
         # TODO: what if we provide the same path twice - tests
         if self._paths is None:
             self._paths = {}
-            sources = self.sources if self.sources else self.default_config.sources
+            sources: list[str | Path] = list(self.sources) if self.sources else list(self.default_config.sources)
             ignore_file_filters = not self.force_exclude and bool(sources)
             self.resolve_paths(sources, ignore_file_filters=ignore_file_filters)
         yield from self._paths.values()
@@ -153,7 +153,8 @@ class ConfigManager:
         """Get default config either from --config option or from the cli."""
         if config_path:
             configuration = files.read_toml_config(config_path)
-            return Config.from_toml(configuration, config_path.resolve(), overwrite_config=self.overwrite_config)
+            if configuration is not None:  # TODO: should raise
+                return Config.from_toml(configuration, config_path.resolve(), overwrite_config=self.overwrite_config)
         if not self.ignore_file_config:
             sources = [Path(path).resolve() for path in self.sources] if self.sources else [Path.cwd()]
             directories = files.get_common_parent_dirs(sources)
@@ -192,8 +193,8 @@ class ConfigManager:
                 return Config.from_toml(configuration, config_path, overwrite_config=self.overwrite_config)
         return None
 
-    def find_config_in_dirs(self, directories: list[Path], default: Config | None) -> Config:
-        seen = []  # if we find config, mark all visited directories with resolved config
+    def find_config_in_dirs(self, directories: list[Path] | Sequence[Path], default: Config | None) -> Config:
+        seen: list[Path] = []  # if we find config, mark all visited directories with resolved config
         found = default
         for check_dir in directories:
             if check_dir in self.cached_configs:
@@ -228,7 +229,7 @@ class ConfigManager:
 
     def resolve_paths(
         self,
-        sources: list[str | Path],
+        sources: list[str | Path] | Generator[Path, None, None],
         ignore_file_filters: bool = False,
     ) -> None:
         """
@@ -243,7 +244,7 @@ class ConfigManager:
             ignore_file_filters: force robocop to parse file even if it's excluded in the configuration
 
         """
-        config = None
+        config: Config | None = None
         for source in sources:
             source_not_resolved = Path(source)
             source = source_not_resolved.resolve()

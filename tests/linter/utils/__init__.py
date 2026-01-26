@@ -109,7 +109,7 @@ class RuleAcceptance:
         compare_output: bool = True,
         test_dir: Path | None = None,
         project_check: bool = False,
-        **kwargs,
+        **kwargs: object,
     ) -> str | None:
         if not self.enabled_in_version(test_on_version):
             pytest.skip(f"Test enabled only for RF {test_on_version}")
@@ -163,7 +163,7 @@ class RuleAcceptance:
         test_on_version: str | list[str] | None = None,
         language: list[str] | None = None,
         test_dir: Path | None = None,
-        **kwargs,
+        **kwargs: object,
     ):
         """
         Test rule fixes by applying them to source files and comparing with expected output.

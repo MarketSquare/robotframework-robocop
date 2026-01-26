@@ -5,8 +5,8 @@ except ImportError:
 
     from robot.variables.search import VariableMatch, search_variable
 
-    class VariableMatches:
-        def __init__(self, string: str, identifiers: Sequence[str] = "$@&%", ignore_errors: bool = False):
+    class VariableMatches:  # type: ignore[no-redef]
+        def __init__(self, string: str, identifiers: Sequence[str] = "$@&%", ignore_errors: bool = False) -> None:
             self.string = string
             self.identifiers = identifiers
             self.ignore_errors = ignore_errors

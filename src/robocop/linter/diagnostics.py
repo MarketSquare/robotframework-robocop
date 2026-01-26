@@ -6,6 +6,8 @@ from typing import TYPE_CHECKING
 from robocop.linter.fix import FixAvailability
 
 if TYPE_CHECKING:
+    from collections.abc import Iterator
+
     from robot.parsing.model import Block
     from robot.parsing.model.statements import Statement
 
@@ -39,7 +41,7 @@ class Diagnostics:
         self.diag_by_source = self.group_diag_by_source()
 
     def group_diag_by_source(self) -> dict[str, list[Diagnostic]]:
-        diag_by_source = {}
+        diag_by_source: dict[str, list[Diagnostic]] = {}
         for diagnostic in self.diagnostics:
             key = str(diagnostic.source.path)
             if key not in diag_by_source:
@@ -57,7 +59,7 @@ class Diagnostics:
             if diag.rule.fix_availability == FixAvailability.ALWAYS and diag.rule.fixable
         ]
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator[Diagnostic]:
         yield from self.diagnostics
 
 
@@ -70,11 +72,11 @@ class Diagnostic:
         col: int,
         end_lineno: int | None,
         end_col: int | None,
-        node=None,
+        node: Statement | Block | None = None,
         extended_disablers: tuple[int, int] | None = None,
         sev_threshold_value: int | None = None,
         fix: Fix | None = None,
-        **kwargs,
+        **kwargs: object,
     ) -> None:
         self.rule = rule
         self.source = source
@@ -92,7 +94,7 @@ class Diagnostic:
 
     @staticmethod
     def get_range(
-        lineno: int, col: int, end_lineno: int | None, end_col: int | None, node: type[Statement | Block] | None
+        lineno: int | None, col: int | None, end_lineno: int | None, end_col: int | None, node: Statement | Block | None
     ) -> Range:
         """
         Return Range describing the position of the issue.

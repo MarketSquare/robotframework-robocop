@@ -27,10 +27,10 @@ def rules_sorted_by_id(rules: dict[str, Rule]) -> list[Rule]:
     return sorted(rules.values(), key=lambda x: x.rule_id)
 
 
-def filter_rules_by_pattern(rules: dict[str, Rule], pattern: Pattern) -> list[Rule]:
+def filter_rules_by_pattern(rules: dict[str, Rule], pattern: Pattern[str]) -> list[Rule]:
     """Return a sorted list of Rules from the rules dictionary, filtered out by pattern."""
 
-    def matches_pattern(rule: Rule, pattern: str | Pattern) -> bool:
+    def matches_pattern(rule: Rule, pattern: str | Pattern[str]) -> bool:
         if isinstance(pattern, str):
             return pattern in (rule.name, rule.rule_id)
         return bool(pattern.match(rule.name) or pattern.match(rule.rule_id))

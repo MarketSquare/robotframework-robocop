@@ -163,7 +163,7 @@ class MissingDocumentationChecker(VisitorChecker):
 
     def visit_File(self, node: File) -> None:  # noqa: N802
         source = self.source_file.path.name
-        self.is_resource = source and ".resource" in Path(source).suffix
+        self.is_resource = bool(source) and ".resource" in Path(source).suffix
         self.settings_section_exists = False
         self.generic_visit(node)
         if not self.settings_section_exists:
@@ -193,7 +193,7 @@ class MissingDocumentationChecker(VisitorChecker):
             else:
                 self.report(rule, node=node, end_col=node.end_col_offset, extended_disablers=extended_disablers)
 
-    def check_if_suite_docs_are_present(self, node: SettingSection, rule: Rule):
+    def check_if_suite_docs_are_present(self, node: SettingSection, rule: Rule) -> None:
         for statement in node.body:
             if isinstance(statement, Documentation):
                 return

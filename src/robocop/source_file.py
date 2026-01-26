@@ -19,6 +19,7 @@ if TYPE_CHECKING:
     from pathlib import Path
 
     from robot.parsing.model import File
+    from robot.parsing.model.statements import Statement
 
     from robocop.config import Config
 
@@ -92,11 +93,13 @@ class SourceFile:
         if self._original_source_lines is None:
             # Trigger loading of source_lines which will also set the original lines
             _ = self.source_lines
+        if self._original_source_lines is None:  # failed to load
+            return []
         return self._original_source_lines
 
     def _read_lines(self) -> list[str]:
         """
-        Read the physical file lines while keeping original EOL.
+        Read the physical file lines while keeping the original EOL.
 
         Returns:
             list[str]: A list of source code lines.
@@ -153,17 +156,19 @@ class VirtualSourceFile(SourceFile):
 class StatementLinesCollector(ModelVisitor):
     """Used to get a writeable presentation of a Robot Framework model."""
 
-    def __init__(self, model):
+    def __init__(self, model: File) -> None:
         self.tokens: list[str] = []
         self.visit(model)
         self.text = "".join(self.tokens)
 
-    def visit_Statement(self, node):  # noqa: N802
+    def visit_Statement(self, node: Statement) -> None:  # noqa: N802
         for token in node.tokens:
             self.tokens.append(token.value)
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, StatementLinesCollector):
+            raise NotImplementedError
         return other.text == self.text
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         return hash(self.text)

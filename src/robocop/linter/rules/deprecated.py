@@ -1,4 +1,7 @@
+from __future__ import annotations
+
 import string
+from typing import TYPE_CHECKING
 
 from robot.api import Token
 
@@ -9,12 +12,17 @@ except ImportError:
 
 from robocop.formatter.utils import misc as format_utils
 from robocop.linter import sonar_qube
-from robocop.linter.diagnostics import Diagnostic
 from robocop.linter.fix import Fix, FixApplicability, FixAvailability, TextEdit
 from robocop.linter.rules import FixableRule, Rule, RuleSeverity
 from robocop.linter.utils import misc as utils
 from robocop.source_file import StatementLinesCollector
 from robocop.version_handling import ROBOT_VERSION
+
+if TYPE_CHECKING:
+    from robot.parsing.model.blocks import KeywordCall, Section
+    from robot.parsing.model.statements import LibraryImport, Statement
+
+    from robocop.linter.diagnostics import Diagnostic
 
 
 class IfCanBeUsedRule(Rule):
@@ -111,7 +119,7 @@ class DeprecatedWithNameRule(Rule):
     )
     deprecated_names = ("0321",)
 
-    def check(self, node) -> None:
+    def check(self, node: LibraryImport) -> None:
         if not self.enabled:
             return
         with_name_token = node.get_token(Token.WITH_NAME)
@@ -174,7 +182,7 @@ class DeprecatedSingularHeaderRule(Rule):
         "Keywords",
     }
 
-    def check(self, node) -> None:
+    def check(self, node: Section) -> None:
         if not node.name:
             return
         normalized_name = string.capwords(node.name)
@@ -242,7 +250,7 @@ class ReplaceSetVariableWithVarRule(Rule):
         "setglobalvariable",
     }
 
-    def check(self, node, keyword_name: str, normalized_keyword_name: str) -> bool:
+    def check(self, node: KeywordCall, keyword_name: str, normalized_keyword_name: str) -> bool:
         """Check and return True if issue not found, otherwise return False."""
         if normalized_keyword_name in self.set_variable_keywords:
             col = utils.token_col(node, Token.NAME, Token.KEYWORD)
@@ -292,7 +300,7 @@ class ReplaceCreateWithVarRule(Rule):
 
     create_keywords = {"createdictionary", "createlist"}
 
-    def check(self, node, keyword_name: str, normalized_keyword_name: str) -> bool:
+    def check(self, node: KeywordCall, keyword_name: str, normalized_keyword_name: str) -> bool:
         """Check and return True if issue not found, otherwise return False."""
         if normalized_keyword_name in self.create_keywords:
             col = utils.token_col(node, Token.NAME, Token.KEYWORD)
@@ -333,7 +341,7 @@ class DeprecatedForceTagsRule(FixableRule):
     )
     fix_availability = FixAvailability.ALWAYS
 
-    def check(self, node) -> None:
+    def check(self, node: Statement) -> None:
         if ROBOT_VERSION.major < 6:
             return
         setting_name = node.data_tokens[0].value.lower()
@@ -393,7 +401,7 @@ class DeprecatedRunKeywordIfRule(Rule):
     )
     run_keyword_if_names = {"runkeywordif", "runkeywordunless"}
 
-    def check(self, node, keyword_name: str, normalized_keyword_name: str) -> bool:
+    def check(self, node: KeywordCall, keyword_name: str, normalized_keyword_name: str) -> bool:
         """Check and return True if issue not found, otherwise return False."""
         if normalized_keyword_name in self.run_keyword_if_names:
             col = utils.token_col(node, Token.NAME, Token.KEYWORD)
@@ -459,18 +467,18 @@ class DeprecatedLoopKeywordRule(Rule):
         clean_code=sonar_qube.CleanCodeAttribute.CONVENTIONAL, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
 
-    deprecated_names = {
+    deprecated_keywords: dict[str, str] = {
         "exitforloop": "BREAK",
         "exitforloopif": "IF and BREAK",
         "continueforloop": "CONTINUE",
         "continueforloopif": "IF and CONTINUE",
     }
 
-    def check(self, node, keyword_name: str, normalized_keyword_name: str) -> bool:
+    def check(self, node: KeywordCall, keyword_name: str, normalized_keyword_name: str) -> bool:
         """Check and return True if issue not found, otherwise return False."""
-        if normalized_keyword_name in self.deprecated_names:
+        if normalized_keyword_name in self.deprecated_keywords:
             col = utils.token_col(node, Token.NAME, Token.KEYWORD)
-            alternative = self.deprecated_names[normalized_keyword_name]
+            alternative = self.deprecated_keywords[normalized_keyword_name]
             self.report(
                 statement_name=keyword_name,
                 alternative=alternative,
@@ -498,14 +506,14 @@ class DeprecatedReturnKeyword(FixableRule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.CONVENTIONAL, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
-    deprecated_names = {"returnfromkeyword": "RETURN", "returnfromkeywordif": "IF and RETURN"}
+    deprecated_keywords = {"returnfromkeyword": "RETURN", "returnfromkeywordif": "IF and RETURN"}
     fix_availability = FixAvailability.ALWAYS
 
-    def check(self, node, keyword_name: str, normalized_keyword_name: str) -> bool:
+    def check(self, node: KeywordCall, keyword_name: str, normalized_keyword_name: str) -> bool:
         """Check and return True if issue not found, otherwise return False."""
-        if normalized_keyword_name in self.deprecated_names:
+        if normalized_keyword_name in self.deprecated_keywords:
             col = utils.token_col(node, Token.NAME, Token.KEYWORD)
-            alternative = self.deprecated_names[normalized_keyword_name]
+            alternative = self.deprecated_keywords[normalized_keyword_name]
             self.report(
                 statement_name=keyword_name,
                 alternative=alternative,
@@ -518,7 +526,7 @@ class DeprecatedReturnKeyword(FixableRule):
 
     def fix(self, diag: Diagnostic, source_lines: list[str]) -> Fix | None:  # noqa: ARG002
         """Fix Return From Keyword. Return From Keyword If is handled inside a rule check."""
-        if "if" in diag.reported_arguments["statement_name"].lower():
+        if "if" in str(diag.reported_arguments["statement_name"]).lower():
             if diag.node is None or not ReturnStatement:
                 return None
             replacement_node = format_utils.wrap_in_if_and_replace_statement(diag.node, ReturnStatement, "    ")
@@ -580,7 +588,7 @@ class DeprecatedReturnSetting(FixableRule):
     )
     fix_availability = FixAvailability.ALWAYS
 
-    def check(self, node) -> None:
+    def check(self, node: ReturnStatement) -> None:
         """
         Check and report the deprecated [Return] setting and implement a fix.
 
@@ -594,11 +602,11 @@ class DeprecatedReturnSetting(FixableRule):
         """
         return_statement = StatementLinesCollector(node).text
         last_statement = self.checker.context.last_data_statement_in_keyword
-        if last_statement and last_statement.type in ("RETURN STATEMENT", "RETURN SETTING"):
+        if last_statement is None or last_statement.type in ("RETURN STATEMENT", "RETURN SETTING"):
             # ignore duplicate [Return] or keywords with RETURN, it should be handled by a duplicate-return issue
             return
-        replacement = self.checker.source_file.source_lines[node.end_lineno : last_statement.end_lineno]
-        replacement = "".join(replacement) + return_statement.replace(node.data_tokens[0].value, "RETURN", 1)
+        replacement_lines = self.checker.source_file.source_lines[node.end_lineno : last_statement.end_lineno]
+        replacement = "".join(replacement_lines) + return_statement.replace(node.data_tokens[0].value, "RETURN", 1)
         fix = Fix(
             edits=[
                 TextEdit.replace_lines(

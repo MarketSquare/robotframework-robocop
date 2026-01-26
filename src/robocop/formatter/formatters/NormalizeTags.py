@@ -1,9 +1,17 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 from robot.api.parsing import Token
 
 from robocop.exceptions import InvalidParameterValueError
 from robocop.formatter.disablers import skip_section_if_disabled
 from robocop.formatter.formatters import Formatter
-from robocop.parsing.variables import VariableMatches
+from robocop.parsing.variables import VariableMatches  # type: ignore[attr-defined]
+
+if TYPE_CHECKING:
+    from robot.parsing.model.blocks import Section
+    from robot.parsing.model.statements import Statement
 
 
 class NormalizeTags(Formatter):
@@ -39,32 +47,32 @@ class NormalizeTags(Formatter):
         "titlecase": str.title,
     }
 
-    def __init__(self, case: str = "lowercase", normalize_case: bool = True, preserve_format: bool = False):
+    def __init__(self, case: str = "lowercase", normalize_case: bool = True, preserve_format: bool = False) -> None:
         super().__init__()
         self.case_function = case.lower()
         self.normalize_case = normalize_case
         self.preserve_format = preserve_format
         self.validate_case_function()
 
-    def validate_case_function(self):
+    def validate_case_function(self) -> None:
         if self.case_function not in self.CASE_FUNCTIONS:
             raise InvalidParameterValueError(
                 self.__class__.__name__, "case", self.case_function, "Supported cases: lowercase, uppercase, titlecase."
             )
 
     @skip_section_if_disabled
-    def visit_Section(self, node):  # noqa: N802
+    def visit_Section(self, node: Section) -> Section:  # noqa: N802
         return self.generic_visit(node)
 
-    def visit_Tags(self, node):  # noqa: N802
+    def visit_Tags(self, node: Statement) -> Statement:  # noqa: N802
         return self.normalize_tags(node, indent=True)
 
-    def visit_DefaultTags(self, node):  # noqa: N802
+    def visit_DefaultTags(self, node: Statement) -> Statement:  # noqa: N802
         return self.normalize_tags(node)
 
     visit_TestTags = visit_ForceTags = visit_DefaultTags  # noqa: N815
 
-    def normalize_tags(self, node, indent=False):
+    def normalize_tags(self, node: Statement, indent: bool = False) -> Statement:
         if self.disablers.is_node_disabled("NormalizeTags", node, full_match=False):
             return node
         if self.preserve_format:
@@ -85,7 +93,7 @@ class NormalizeTags(Formatter):
             return tag
         return self.CASE_FUNCTIONS[self.case_function](string)
 
-    def normalize_tags_tokens_preserve_formatting(self, node):
+    def normalize_tags_tokens_preserve_formatting(self, node: Statement) -> Statement:
         if not self.normalize_case:
             return node
         for token in node.tokens:
@@ -94,7 +102,7 @@ class NormalizeTags(Formatter):
             token.value = self.format_with_case_function(token.value)
         return node
 
-    def normalize_tags_tokens_ignore_formatting(self, node, indent):
+    def normalize_tags_tokens_ignore_formatting(self, node: Statement, indent: bool) -> Statement:
         separator = Token(Token.SEPARATOR, self.formatting_config.separator)
         setting_name = node.data_tokens[0]
         tags = [tag.value for tag in node.data_tokens[1:]]
@@ -114,14 +122,14 @@ class NormalizeTags(Formatter):
         node.tokens = tuple(tokens)
         return node
 
-    def convert_case(self, tags):
+    def convert_case(self, tags: list[str]) -> list[str]:
         return [self.format_with_case_function(item) for item in tags]
 
     @staticmethod
-    def remove_duplicates(tags):
+    def remove_duplicates(tags: list[str]) -> list[str]:
         return list(dict.fromkeys(tags))
 
-    def join_tokens(self, tokens):
+    def join_tokens(self, tokens: list[Token]) -> list[Token]:
         joined_tokens = []
         separator = Token(Token.SEPARATOR, self.formatting_config.separator)
         for token in tokens:

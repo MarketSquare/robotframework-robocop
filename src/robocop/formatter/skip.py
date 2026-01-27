@@ -2,13 +2,17 @@ from __future__ import annotations
 
 import re
 from dataclasses import dataclass, field, fields
+from typing import TYPE_CHECKING
 
 from robot.api import Token
 
 from robocop.formatter.utils.misc import normalize_name
 
+if TYPE_CHECKING:
+    from robot.parsing.model.statements import Comment, KeywordCall
 
-def validate_regex(value: str) -> re.Pattern | None:
+
+def validate_regex(value: str) -> re.Pattern[str]:
     try:
         return re.compile(value)
     except re.error:
@@ -38,17 +42,17 @@ SKIP_OPTIONS = frozenset(
 
 @dataclass
 class SkipConfig:
-    skip: set[str] | None = field(default_factory=set)
-    sections: set[str] | None = field(default_factory=set)
-    keyword_call: set[str] | None = field(default_factory=set)
-    keyword_call_pattern: set[str] | None = field(default_factory=set)
+    skip: set[str] = field(default_factory=set)
+    sections: set[str] = field(default_factory=set)
+    keyword_call: set[str] = field(default_factory=set)
+    keyword_call_pattern: set[str] = field(default_factory=set)
 
     @property
     def config_fields(self) -> set[str]:
         return {"skip", "skip_sections", "skip_keyword_call", "skip_keyword_call_pattern"}
 
     @classmethod
-    def from_toml(cls, config: dict) -> SkipConfig:
+    def from_toml(cls, config: dict[str, list[str]]) -> SkipConfig:
         override = {
             "skip": config.get("skip", []),
             "sections": config.get("skip_sections", []),
@@ -60,25 +64,26 @@ class SkipConfig:
     @classmethod
     def from_lists(
         cls,
-        skip: list[list] | None,
-        sections: list[list] | None,
-        keyword_call: list[list] | None,
-        keyword_call_pattern: list[list] | None,
+        skip: list[str] | None,
+        sections: list[str] | None,
+        keyword_call: list[str] | None,
+        keyword_call_pattern: list[str] | None,
     ) -> SkipConfig:
         """
         Create instance of class from list-type arguments.
 
         Typer does not support sets yet, so we need to convert lists.
         """
-        if skip is not None:
-            skip = set(skip)
-        if sections is not None:
-            sections = set(sections)
-        if keyword_call is not None:
-            keyword_call = set(keyword_call)
-        if keyword_call_pattern is not None:
-            keyword_call_pattern = set(keyword_call_pattern)
-        return cls(skip=skip, sections=sections, keyword_call=keyword_call, keyword_call_pattern=keyword_call_pattern)
+        skip_set = set(skip) if skip is not None else set()
+        sections_set = set(sections) if sections is not None else set()
+        keyword_call_set = set(keyword_call) if keyword_call is not None else set()
+        keyword_call_pattern_set = set(keyword_call_pattern) if keyword_call_pattern is not None else set()
+        return cls(
+            skip=skip_set,
+            sections=sections_set,
+            keyword_call=keyword_call_set,
+            keyword_call_pattern=keyword_call_pattern_set,
+        )
 
     def overwrite(self, other: SkipConfig) -> None:  # TODO refactor with config to not duplicate overwrite
         """
@@ -91,7 +96,7 @@ class SkipConfig:
             if value is not None:
                 setattr(self, skip_field.name, value)
 
-    def update_with_str_config(self, **kwargs):
+    def update_with_str_config(self, **kwargs: str) -> None:
         for name, value in kwargs.items():
             if name == "keyword_call":
                 self.keyword_call.update(value.split(","))
@@ -108,7 +113,7 @@ class SkipConfig:
 class Skip:
     """Defines global skip conditions for each formatter."""
 
-    def __init__(self, skip_config: SkipConfig):
+    def __init__(self, skip_config: SkipConfig) -> None:
         self.return_values = "return_values" in skip_config.skip
         self.documentation = "documentation" in skip_config.skip
         self.comments = "comments" in skip_config.skip
@@ -120,7 +125,7 @@ class Skip:
         self.skip_sections = set(skip_config.sections)
 
     @staticmethod
-    def parse_skip_settings(skip_config):
+    def parse_skip_settings(skip_config: SkipConfig) -> set[str]:
         settings = {
             "settings",
             "arguments",
@@ -138,10 +143,10 @@ class Skip:
                 skip_settings.add(setting)
         return skip_settings
 
-    def check_any_keyword_call(self):
+    def check_any_keyword_call(self) -> bool:
         return self.keyword_call_names or self.keyword_call_pattern
 
-    def keyword_call(self, node):
+    def keyword_call(self, node: KeywordCall) -> bool:
         if not getattr(node, "keyword", None) or not self.any_keword_call:
             return False
         normalized = normalize_name(node.keyword)
@@ -149,19 +154,19 @@ class Skip:
             return True
         return any(pattern.search(node.keyword) for pattern in self.keyword_call_pattern)
 
-    def setting(self, name):
+    def setting(self, name: str) -> bool:
         if not self.skip_settings:
             return False
         if "settings" in self.skip_settings:
             return True
         return name.lower() in self.skip_settings
 
-    def comment(self, comment):
+    def comment(self, comment: Comment) -> bool:
         if self.comments:
             return True
         if not self.block_comments:
             return False
-        return comment.tokens and comment.tokens[0].type == Token.COMMENT
+        return bool(comment.tokens) and comment.tokens[0].type == Token.COMMENT
 
-    def section(self, name):
+    def section(self, name: str) -> bool:
         return name in self.skip_sections

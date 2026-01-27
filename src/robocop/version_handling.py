@@ -37,7 +37,7 @@ def _get_comparison_key(release: tuple[int, ...]) -> tuple[int, ...]:
     return tuple(reversed(list(itertools.dropwhile(lambda x: x == 0, reversed(release)))))
 
 
-def _parse_letter_version(letter: str, number: str | bytes | SupportsInt) -> tuple[str, int] | None:
+def _parse_letter_version(letter: str | None, number: str | bytes | SupportsInt | None) -> tuple[str, int] | None:
     if letter:
         # We consider there to be an implicit 0 in a pre-release if there is
         # not a numeral associated with it.
@@ -58,7 +58,7 @@ def _parse_letter_version(letter: str, number: str | bytes | SupportsInt) -> tup
     return None
 
 
-def _pad_version(left: list[str], right: list[str]) -> tuple[list, list]:
+def _pad_version(left: list[str], right: list[str]) -> tuple[list[str], list[str]]:
     left_split, right_split = [], []
 
     # Get the release segment of our versions
@@ -164,7 +164,7 @@ class VersionSpecifier:
             match.group("version").strip(),
         )
 
-    def __contains__(self, item: str) -> bool:
+    def __contains__(self, item: str | Version) -> bool:
         normalized_item = self._coerce_version(item)
         return self._operators[self.operator](normalized_item, self.version)
 
@@ -246,6 +246,8 @@ class Version:
 
     def __init__(self, version: str) -> None:
         match = self._version_pattern.search(version)
+        if not match:
+            raise ValueError(f"Invalid version: '{version}'")
         self.release = tuple(int(i) for i in match.group("release").split("."))
         self.pre = _parse_letter_version(match.group("pre_l"), match.group("pre_n"))
         self._dev = _parse_letter_version(match.group("dev_l"), match.group("dev_n"))
@@ -254,10 +256,12 @@ class Version:
     def __lt__(self, other: Version) -> bool:
         return self._key < other._key
 
-    def __eq__(self, other: Version) -> bool:
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, Version):
+            return False
         return self._key == other._key
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         return hash(self._key)
 
     def __str__(self) -> str:

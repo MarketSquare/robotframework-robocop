@@ -13,7 +13,7 @@ if TYPE_CHECKING:
     from robot.parsing.model import File
 
 
-def get_resource_with_lang(get_resource_method: Callable, source: Path, lang: str | None) -> File:
+def get_resource_with_lang(get_resource_method: Callable[..., File], source: Path, lang: list[str] | None) -> File:
     if LANG_SUPPORTED:
         return get_resource_method(source, lang=lang)
     return get_resource_method(source)

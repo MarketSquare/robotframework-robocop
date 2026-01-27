@@ -1,4 +1,5 @@
 from robot.api import Token
+from robot.parsing.model.statements import TestCaseName
 
 from robocop.formatter.formatters import Formatter
 
@@ -10,11 +11,11 @@ class CustomClass1(Formatter):
 
 
 class CustomClass2(Formatter):
-    def __init__(self, extra_param: bool = False):
+    def __init__(self, extra_param: bool = False) -> None:
         self.extra_param = extra_param
         super().__init__()
 
-    def visit_TestCaseName(self, node):  # noqa: N802
+    def visit_TestCaseName(self, node: TestCaseName) -> TestCaseName:  # noqa: N802
         """If extra_param is set to True, lower case the test case name."""
         if not self.extra_param:
             return node

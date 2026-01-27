@@ -1,9 +1,14 @@
+from __future__ import annotations
+
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 import robocop.linter.reports
-from robocop.config import Config
 from robocop.files import get_relative_path
-from robocop.linter.diagnostics import Diagnostic, Diagnostics
+
+if TYPE_CHECKING:
+    from robocop.config import Config
+    from robocop.linter.diagnostics import Diagnostic, Diagnostics
 
 
 class JsonReport(robocop.linter.reports.JsonFileReport):
@@ -53,17 +58,17 @@ class JsonReport(robocop.linter.reports.JsonFileReport):
 
     NO_ALL = False
 
-    def __init__(self, config: Config):
+    def __init__(self, config: Config) -> None:
         self.name = "json_report"
         self.description = "Produces JSON file with found issues"
         super().__init__(output_path="robocop.json", config=config)
 
-    def generate_report(self, diagnostics: Diagnostics, **kwargs) -> None:  # noqa: ARG002
+    def generate_report(self, diagnostics: Diagnostics, **kwargs: object) -> None:  # type: ignore[override]  # noqa: ARG002
         issues = [self.message_to_json(diagnostic) for diagnostic in diagnostics]
         super().generate_report(issues, "JSON")
 
     @staticmethod
-    def message_to_json(message: Diagnostic) -> dict:
+    def message_to_json(message: Diagnostic) -> dict[str, str | int]:
         source_rel = get_relative_path(message.source.path, Path.cwd()).as_posix()
         return {
             "source": str(source_rel),

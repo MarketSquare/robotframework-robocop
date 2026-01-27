@@ -1,8 +1,15 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 from robot.api import Token
 from robot.variables.search import search_variable
 
 from robocop.linter import sonar_qube
 from robocop.linter.rules import Rule, RuleSeverity
+
+if TYPE_CHECKING:
+    from robot.parsing.model.blocks import KeywordCall
 
 
 class MissingSectionVariableTypeRule(Rule):
@@ -167,7 +174,7 @@ class SetKeywordWithTypeRule(Rule):
     )
     fix_suggestion = "Use VAR instead."
 
-    def check(self, node) -> None:
+    def check(self, node: KeywordCall) -> None:
         if not self.enabled:
             return
         name_token = node.get_token(Token.ARGUMENT)

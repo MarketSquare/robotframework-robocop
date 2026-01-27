@@ -1,16 +1,17 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 import typer
 from rich.console import Console
 
 if TYPE_CHECKING:
-    from robocop.linter.rules import Rule
+    from robocop.linter.reports import Report
+    from robocop.linter.rules import Rule, RuleParam
 
 
-class FatalError(typer.Exit):
-    def __init__(self, msg: str):
+class FatalError(typer.Exit):  # type: ignore[misc, unused-ignore]
+    def __init__(self, msg: str) -> None:
         console = Console(stderr=True)
         console.print(f"[red]{self.__class__.__name__}[/red]: {msg}")
         super().__init__(code=2)
@@ -21,13 +22,13 @@ class InvalidConfigurationError(FatalError):
 
 
 class InvalidParameterValueError(InvalidConfigurationError):
-    def __init__(self, formatter, param, value, msg):
+    def __init__(self, formatter: str, param: str, value: object, msg: str) -> None:
         exc_msg = f"{formatter}: Invalid '{param}' parameter value: '{value}'. {msg}"
         super().__init__(exc_msg)
 
 
 class InvalidParameterError(InvalidConfigurationError):
-    def __init__(self, formatter, similar):
+    def __init__(self, formatter: str, similar: str) -> None:
         super().__init__(
             f"{formatter}: Failed to import. Verify if correct name or configuration was provided.{similar}"
         )
@@ -38,7 +39,7 @@ class ImportFormatterError(InvalidConfigurationError):
 
 
 class InvalidConfigurationFormatError(InvalidConfigurationError):
-    def __init__(self, name: str):
+    def __init__(self, name: str) -> None:
         super().__init__(f"'{name}': Invalid configuration format. Pass parameters using name.param_name=value syntax.")
 
 
@@ -47,13 +48,13 @@ class ConfigurationError(FatalError):
 
 
 class InvalidExternalCheckerError(FatalError):
-    def __init__(self, path):
+    def __init__(self, path: str) -> None:
         msg = f'Fatal error: Failed to load external rules from file "{path}". Verify if the file exists'
         super().__init__(msg)
 
 
 class RuleParamNotFoundError(FatalError):  # TODO, not used
-    def __init__(self, rule, param, checker):
+    def __init__(self, rule: Rule, param: str, checker: object) -> None:
         super().__init__(
             f"Rule `{rule.name}` in `{checker.__class__.__name__}` checker does not contain `{param}` param. "
             f"Available params:\n    {rule.available_configurables()[1]}"
@@ -61,7 +62,7 @@ class RuleParamNotFoundError(FatalError):  # TODO, not used
 
 
 class RuleParamFailedInitError(FatalError):
-    def __init__(self, param, value, err):
+    def __init__(self, param: RuleParam, value: Any, err: Exception) -> None:
         desc = f"    Parameter info: {param.desc}" if param.desc else ""
         super().__init__(
             f"Failed to configure param `{param.name}` with value `{value}`. Received error `{err}`.\n"
@@ -70,7 +71,7 @@ class RuleParamFailedInitError(FatalError):
 
 
 class InvalidReportName(FatalError):
-    def __init__(self, report, reports):
+    def __init__(self, report: str, reports: dict[str, Report]) -> None:
         from robocop.linter.utils.misc import RecommendationFinder  # noqa: PLC0415
 
         report_names = sorted([*list(reports.keys()), "all"])
@@ -80,10 +81,13 @@ class InvalidReportName(FatalError):
 
 
 class RuleDoesNotExist(FatalError):  # not used atm
-    def __init__(self, rule: str, rules: dict[str, Rule]):
+    def __init__(self, rule: str, rules: dict[str, Rule]) -> None:
+        from typing import cast  # noqa: PLC0415
+
         from robocop.linter.utils.misc import RecommendationFinder  # noqa: PLC0415
 
-        similar = RecommendationFinder().find_similar(rule, rules)
+        rules_dict: dict[str, object] = cast("dict[str, object]", rules)
+        similar = RecommendationFinder().find_similar(rule, rules_dict)
         msg = f"Provided rule '{rule}' does not exist. {similar}"
         super().__init__(msg)
 
@@ -98,5 +102,5 @@ class RobotFrameworkParsingError(Exception):
 
 
 class CircularExtendsReferenceError(FatalError):
-    def __init__(self, config_path: str):
+    def __init__(self, config_path: str) -> None:
         super().__init__(f"Circular reference found in 'extends' parameter in the configuration file: {config_path}")

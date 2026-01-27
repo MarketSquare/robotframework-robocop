@@ -6,7 +6,7 @@ from difflib import unified_diff
 from typing import TYPE_CHECKING
 
 import typer
-from rich import console
+from rich.console import Console
 from robot.api import get_model
 from robot.errors import DataError
 
@@ -25,11 +25,11 @@ if TYPE_CHECKING:
     from robocop.config_manager import ConfigManager
 
 
-console = console.Console()
+console = Console()
 
 
 class RobocopFormatter:
-    def __init__(self, config_manager: ConfigManager):
+    def __init__(self, config_manager: ConfigManager) -> None:
         self.config_manager = config_manager
         self.config: Config = self.config_manager.default_config
 
@@ -68,7 +68,7 @@ class RobocopFormatter:
                 diff, old_model, new_model, model = self.format_until_stable(source_file.model)
                 # if stdin:
                 #     self.print_to_stdout(new_model)
-                if diff:
+                if diff and old_model and new_model:
                     model_path = model.source or source_file.path
                     self.save_model(model_path, model)
                     self.log_formatted_source(source_file.path, stdin)
@@ -114,7 +114,9 @@ class RobocopFormatter:
             return exit_code
         raise typer.Exit(code=exit_code)
 
-    def format_until_stable(self, model: File):
+    def format_until_stable(
+        self, model: File
+    ) -> tuple[bool, StatementLinesCollector | None, StatementLinesCollector | None, File]:
         disabler_finder = disablers.RegisterDisablers(self.config.formatter.start_line, self.config.formatter.end_line)
         disabler_finder.visit(model)
         if disabler_finder.is_disabled_in_file(disablers.ALL_FORMATTERS):
@@ -142,7 +144,7 @@ class RobocopFormatter:
         new_model = StatementLinesCollector(model)
         return new_model != old_model, old_model, new_model
 
-    def log_formatted_source(self, source: Path, stdin: bool):
+    def log_formatted_source(self, source: Path, stdin: bool) -> None:
         if stdin or self.config.silent:
             return
         if not self.config.formatter.overwrite_files:
@@ -154,16 +156,16 @@ class RobocopFormatter:
     def load_from_stdin() -> str:
         return sys.stdin.read()
 
-    def print_to_stdout(self, collected_lines):
+    def print_to_stdout(self, collected_lines: StatementLinesCollector) -> None:
         if not self.config.formatter.diff:
             print(collected_lines.text)
 
-    def save_model(self, source, model):
+    def save_model(self, source: Path, model: File) -> None:
         if self.config.formatter.overwrite_files:
             output = self.config.formatter.output or source
-            misc.ModelWriter(output=output, newline=self.get_line_ending(source)).write(model)
+            misc.ModelWriter(output=str(output), newline=self.get_line_ending(str(source))).write(model)
 
-    def get_line_ending(self, path: str):
+    def get_line_ending(self, path: str) -> str:
         if self.config.formatter.whitespace_config.line_ending == "auto":
             with open(path) as f:
                 f.readline()
@@ -179,9 +181,10 @@ class RobocopFormatter:
         path: Path,
         old_model: StatementLinesCollector,
         new_model: StatementLinesCollector,
-    ):
+    ) -> None:
         if not self.config.formatter.diff:
             return
+        # TODO: handle printing with rich console, with markup disabled
         old = [line + "\n" for line in old_model.text.splitlines()]
         new = [line + "\n" for line in new_model.text.splitlines()]
         lines = list(unified_diff(old, new, fromfile=f"{path}\tbefore", tofile=f"{path}\tafter"))

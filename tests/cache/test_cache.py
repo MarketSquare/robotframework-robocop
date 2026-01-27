@@ -538,6 +538,7 @@ class TestRestoreDiagnostics:
         rule.message = "Missing documentation"
         rule.get_severity_with_threshold.return_value = RuleSeverity.WARNING
 
+        config.linter._checkers_loaded = True  # noqa: SLF001
         config.linter._rules = {"DOC01": rule, "missing-doc-keyword": rule}  # noqa: SLF001
 
         cached_entry = LinterCacheEntry(
@@ -567,6 +568,7 @@ class TestRestoreDiagnostics:
 
     def test_restore_returns_none_when_rule_missing(self, tmp_path: Path):
         config = Config()
+        config.linter._checkers_loaded = True  # noqa: SLF001
         config.linter._rules = {}  # noqa: SLF001 No rules available
 
         cached_entry = LinterCacheEntry(
@@ -600,6 +602,7 @@ class TestRestoreDiagnostics:
         rule.message = "Keyword is too long"
         rule.get_severity_with_threshold.return_value = RuleSeverity.WARNING
 
+        config.linter._checkers_loaded = True  # noqa: SLF001
         config.linter._rules = {"LEN01": rule}  # noqa: SLF001
 
         cached_entry = LinterCacheEntry(
@@ -628,6 +631,7 @@ class TestRestoreDiagnostics:
 
     def test_restore_with_empty_diagnostics(self, tmp_path: Path):
         config = Config()
+        config.linter._checkers_loaded = True  # noqa: SLF001
         config.linter._rules = {"DOC01": MagicMock()}  # noqa: SLF001
 
         cached_entry = LinterCacheEntry(
@@ -650,6 +654,7 @@ class TestRestoreDiagnostics:
         rule.get_severity_with_threshold.return_value = RuleSeverity.WARNING
 
         # Only name in rules dict, not ID
+        config.linter._checkers_loaded = True  # noqa: SLF001
         config.linter._rules = {"missing-doc-keyword": rule}  # noqa: SLF001
 
         cached_entry = LinterCacheEntry(
@@ -1011,6 +1016,7 @@ class TestCacheEdgeCases:
         rule1.name = "missing-doc"
 
         # Only have rule1, not rule2
+        config.linter._checkers_loaded = True  # noqa: SLF001
         config.linter._rules = {"DOC01": rule1}  # noqa: SLF001
 
         cached_entry = LinterCacheEntry(

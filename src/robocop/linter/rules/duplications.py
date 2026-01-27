@@ -1,6 +1,9 @@
 """Duplications checkers"""
 
+from __future__ import annotations
+
 from collections import defaultdict
+from typing import TYPE_CHECKING, TypeVar
 
 from robot.api import Token
 
@@ -12,6 +15,24 @@ from robocop.linter.utils.misc import (
     strip_equals_from_assignment,
 )
 from robocop.version_handling import TYPE_SUPPORTED
+
+if TYPE_CHECKING:
+    from robot.parsing import File
+    from robot.parsing.model.blocks import Keyword, TestCase, VariableSection
+    from robot.parsing.model.statements import (
+        Arguments,
+        Error,
+        KeywordCall,
+        LibraryImport,
+        Metadata,
+        Node,
+        ResourceImport,
+        SectionHeader,
+        Variable,
+        VariablesImport,
+    )
+
+NodeT = TypeVar("NodeT", bound="Node")
 
 
 class DuplicatedTestCaseRule(Rule):
@@ -283,16 +304,16 @@ class DuplicationsChecker(VisitorChecker):
     duplicated_setting: DuplicatedSettingRule
 
     def __init__(self) -> None:
-        self.test_cases = defaultdict(list)
-        self.keywords = defaultdict(list)
-        self.variables = defaultdict(list)
-        self.resources = defaultdict(list)
-        self.libraries = defaultdict(list)
-        self.metadata = defaultdict(list)
-        self.variable_imports = defaultdict(list)
+        self.test_cases: defaultdict[str, list[TestCase]] = defaultdict(list)
+        self.keywords: defaultdict[str, list[Keyword]] = defaultdict(list)
+        self.variables: defaultdict[str, list[Variable]] = defaultdict(list)
+        self.resources: defaultdict[str, list[ResourceImport]] = defaultdict(list)
+        self.libraries: defaultdict[str, list[LibraryImport]] = defaultdict(list)
+        self.metadata: defaultdict[str, list[Metadata]] = defaultdict(list)
+        self.variable_imports: defaultdict[str, list[VariablesImport]] = defaultdict(list)
         super().__init__()
 
-    def visit_File(self, node) -> None:  # noqa: N802
+    def visit_File(self, node: File) -> None:  # noqa: N802
         self.test_cases = defaultdict(list)
         self.keywords = defaultdict(list)
         self.variables = defaultdict(list)
@@ -309,7 +330,9 @@ class DuplicationsChecker(VisitorChecker):
         self.check_duplicates(self.variable_imports, self.duplicated_variables_import, underline_whole_line=True)
         self.check_library_duplicates(self.libraries, self.duplicated_library)
 
-    def check_duplicates(self, container, rule, underline_whole_line=False) -> None:
+    def check_duplicates(
+        self, container: defaultdict[str, list[NodeT]], rule: Rule, underline_whole_line: bool = False
+    ) -> None:
         for nodes in container.values():
             for duplicate in nodes[1:]:
                 if underline_whole_line:
@@ -320,7 +343,7 @@ class DuplicationsChecker(VisitorChecker):
                     rule, name=duplicate.name, first_occurrence_line=nodes[0].lineno, node=duplicate, end_col=end_col
                 )
 
-    def check_library_duplicates(self, container, rule) -> None:
+    def check_library_duplicates(self, container: defaultdict[str, list[LibraryImport]], rule: Rule) -> None:
         for nodes in container.values():
             for duplicate in nodes[1:]:
                 lib_token = duplicate.get_token(Token.NAME)
@@ -333,17 +356,17 @@ class DuplicationsChecker(VisitorChecker):
                     end_col=lib_token.end_col_offset + 1,
                 )
 
-    def visit_TestCase(self, node) -> None:  # noqa: N802
+    def visit_TestCase(self, node: TestCase) -> None:  # noqa: N802
         testcase_name = normalize_robot_name(node.name)
         self.test_cases[testcase_name].append(node)
         self.generic_visit(node)
 
-    def visit_Keyword(self, node) -> None:  # noqa: N802
+    def visit_Keyword(self, node: Keyword) -> None:  # noqa: N802
         keyword_name = normalize_robot_name(node.name)
         self.keywords[keyword_name].append(node)
         self.generic_visit(node)
 
-    def visit_KeywordCall(self, node) -> None:  # noqa: N802
+    def visit_KeywordCall(self, node: KeywordCall) -> None:  # noqa: N802
         assign = node.get_tokens(Token.ASSIGN)
         seen = set()
         for var in assign:
@@ -363,35 +386,35 @@ class DuplicationsChecker(VisitorChecker):
             else:
                 seen.add(name)
 
-    def visit_VariableSection(self, node) -> None:  # noqa: N802
+    def visit_VariableSection(self, node: VariableSection) -> None:  # noqa: N802
         self.generic_visit(node)
 
-    def visit_Variable(self, node) -> None:  # noqa: N802
+    def visit_Variable(self, node: Variable) -> None:  # noqa: N802
         if not node.name or node.errors:
             return
         var_name = normalize_robot_name(self.replace_chars(node.name, "${}@&"))
         self.variables[var_name].append(node)
 
     @staticmethod
-    def replace_chars(name, chars):
+    def replace_chars(name: str, chars: str) -> str:
         return "".join(c for c in name if c not in chars)
 
-    def visit_ResourceImport(self, node) -> None:  # noqa: N802
+    def visit_ResourceImport(self, node: ResourceImport) -> None:  # noqa: N802
         if node.name:
             self.resources[node.name].append(node)
 
-    def visit_LibraryImport(self, node) -> None:  # noqa: N802
+    def visit_LibraryImport(self, node: LibraryImport) -> None:  # noqa: N802
         if not node.name:
             return
         lib_name = node.alias if node.alias else node.name
         name_with_args = lib_name + "".join(token.value for token in node.get_tokens(Token.ARGUMENT))
         self.libraries[name_with_args].append(node)
 
-    def visit_Metadata(self, node) -> None:  # noqa: N802
+    def visit_Metadata(self, node: Metadata) -> None:  # noqa: N802
         if node.name is not None:
             self.metadata[node.name + node.value].append(node)
 
-    def visit_VariablesImport(self, node) -> None:  # noqa: N802
+    def visit_VariablesImport(self, node: VariablesImport) -> None:  # noqa: N802
         if not node.name:
             return
         # only YAML files can't have arguments - covered in E0404 variables-import-with-args
@@ -400,7 +423,7 @@ class DuplicationsChecker(VisitorChecker):
         name_with_args = node.name + "".join(token.value for token in node.data_tokens[2:])
         self.variable_imports[name_with_args].append(node)
 
-    def visit_Arguments(self, node) -> None:  # noqa: N802
+    def visit_Arguments(self, node: Arguments) -> None:  # noqa: N802
         args = set()
         for arg in node.get_tokens(Token.ARGUMENT):
             orig, *_ = arg.value.split("=", maxsplit=1)
@@ -417,7 +440,7 @@ class DuplicationsChecker(VisitorChecker):
             else:
                 args.add(name)
 
-    def visit_Error(self, node) -> None:  # noqa: N802
+    def visit_Error(self, node: Error) -> None:  # noqa: N802
         for error in node.errors:
             if "is allowed only once" in error:
                 self.report(
@@ -437,12 +460,12 @@ class SectionHeadersChecker(VisitorChecker):
     both_tests_and_tasks: BothTestsAndTasksRule
 
     def __init__(self) -> None:
-        self.sections_by_order = []
-        self.sections_by_existence = {}
+        self.sections_by_order: list[int] = []
+        self.sections_by_existence: dict[str, int] = {}
         super().__init__()
 
     @staticmethod
-    def section_order_to_str(order):
+    def section_order_to_str(order: dict[str, int]) -> str:
         by_index = sorted(order.items(), key=lambda x: x[1])
         name_map = {
             Token.SETTING_HEADER: "Settings",
@@ -458,12 +481,12 @@ class SectionHeadersChecker(VisitorChecker):
                 order_str.append(mapped_name)
         return " > ".join(order_str)
 
-    def visit_File(self, node) -> None:  # noqa: N802
+    def visit_File(self, node: File) -> None:  # noqa: N802
         self.sections_by_order = []
         self.sections_by_existence = {}
         super().visit_File(node)
 
-    def visit_SectionHeader(self, node) -> None:  # noqa: N802
+    def visit_SectionHeader(self, node: SectionHeader) -> None:  # noqa: N802
         section_name = node.type
         if section_name not in self.section_out_of_order.sections_order:
             return

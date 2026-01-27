@@ -1,8 +1,15 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 from robot.api.parsing import Token
 
 from robocop.formatter.disablers import skip_if_disabled, skip_section_if_disabled
 from robocop.formatter.formatters import Formatter
-from robocop.formatter.skip import Skip
+
+if TYPE_CHECKING:
+    from robot.parsing.model.blocks import VariableSection
+    from robot.parsing.model.statements import Variable
 
 
 class ReplaceEmptyValues(Formatter):
@@ -38,15 +45,12 @@ class ReplaceEmptyValues(Formatter):
 
     HANDLES_SKIP = frozenset({"skip_sections"})
 
-    def __init__(self, skip: Skip = None):
-        super().__init__(skip)
-
     @skip_section_if_disabled
-    def visit_VariableSection(self, node):  # noqa: N802
+    def visit_VariableSection(self, node: VariableSection) -> VariableSection:  # noqa: N802
         return self.generic_visit(node)
 
     @skip_if_disabled
-    def visit_Variable(self, node):  # noqa: N802
+    def visit_Variable(self, node: Variable) -> Variable:  # noqa: N802
         if node.errors or not node.name:
             return node
         args = node.get_tokens(Token.ARGUMENT)

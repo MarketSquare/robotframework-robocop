@@ -27,7 +27,7 @@ if TYPE_CHECKING:
 
 
 class RobocopLinter:
-    def __init__(self, config_manager: ConfigManager):
+    def __init__(self, config_manager: ConfigManager) -> None:
         self.config_manager = config_manager
         self.current_model: File = None
         self.reports: dict[str, reports.Report] = reports.get_reports(self.config_manager.default_config)
@@ -95,7 +95,7 @@ class RobocopLinter:
             configuration language.
 
         """
-        self.diagnostics: list[Diagnostic] = []
+        self.diagnostics = []
         files = 0
         cached_files = 0
         fix_applier = FixApplier()
@@ -131,7 +131,7 @@ class RobocopLinter:
             return self.diagnostics
         return self.return_with_exit_code(len(self.diagnostics))
 
-    def run_check(self, source_file: SourceFile, fix_applier: FixApplier = None) -> list[Diagnostic]:
+    def run_check(self, source_file: SourceFile, fix_applier: FixApplier | None = None) -> list[Diagnostic]:
         """
         Run all rules on file model and return list of diagnostics.
 
@@ -151,7 +151,7 @@ class RobocopLinter:
             for checker in source_file.config.linter.checkers:
                 found_diagnostics += [
                     diagnostic
-                    for diagnostic in checker.scan_file(source_file, templated)
+                    for diagnostic in checker.scan_file(source_file, templated)  # type: ignore[attr-defined]
                     if not (
                         diagnostic.severity < source_file.config.linter.threshold
                         or disablers.is_rule_disabled(diagnostic)
@@ -192,7 +192,7 @@ class RobocopLinter:
         return found_diagnostics
 
     def run_project_checks(self) -> list[Diagnostic]:
-        self.diagnostics: list[Diagnostic] = []
+        self.diagnostics = []
         config = self.config_manager.default_config
         project_name = self.config_manager.root.name
         project_source_file = VirtualSourceFile(Path(project_name), self.config_manager.default_config)
@@ -222,12 +222,12 @@ class RobocopLinter:
         if self.config_manager.default_config.linter.exit_zero:
             exit_code = 0
         elif "return_status" in self.reports:
-            exit_code = self.reports["return_status"].return_status
+            exit_code = self.reports["return_status"].return_status  # type: ignore[attr-defined]
         else:
             exit_code = 1 if issues_count else 0
         raise typer.Exit(code=exit_code)
 
-    def configure_reports(self):
+    def configure_reports(self) -> None:
         """Configure reports using default configuration only."""
         for config in self.config_manager.default_config.linter.configure:
             try:  # TODO custom parser to apply in linter/formatter/here

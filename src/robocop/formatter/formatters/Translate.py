@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 from robot.api import Token
 from robot.api.parsing import CommentSection, EmptyLine
 
@@ -16,6 +18,20 @@ except ImportError:  # RF < 6.1
 from robocop.exceptions import InvalidParameterValueError
 from robocop.formatter.disablers import skip_if_disabled, skip_section_if_disabled
 from robocop.formatter.formatters import Formatter
+
+if TYPE_CHECKING:
+    from robot.parsing.model.blocks import (
+        File,
+        KeywordSection,
+        SettingSection,
+        TestCaseSection,
+        VariableSection,
+    )
+    from robot.parsing.model.statements import (
+        KeywordCall,
+        Setup,
+        Statement,
+    )
 
 
 class Translate(Formatter):
@@ -66,7 +82,7 @@ class Translate(Formatter):
         and_alternative: str | None = None,
         then_alternative: str | None = None,
         when_alternative: str | None = None,
-    ):
+    ) -> None:
         super().__init__()
         self.in_settings = False
         self.translate_bdd = translate_bdd
@@ -74,16 +90,17 @@ class Translate(Formatter):
         if Language is not None:
             self.language = Language.from_name(language)
             # reverse mapping, in core it's other_lang: en and we need en: other_lang name
-            self.settings = {value: key.title() for key, value in self.language.settings.items() if key}
+            self.settings: dict[str, str] = {value: key.title() for key, value in self.language.settings.items() if key}
         else:
-            self.language, self.settings = None, None
-        self._bdd_mapping = None
+            self.language = None
+            self.settings = {}
+        self._bdd_mapping: dict[str, str] | None = None
         self.bdd = self.get_translated_bdd(
             but_alternative, given_alternative, and_alternative, then_alternative, when_alternative
         )
 
     @property
-    def bdd_mapping(self):
+    def bdd_mapping(self) -> dict[str, str]:
         if self._bdd_mapping is None:
             self._bdd_mapping = {}
             for language in self.languages:
@@ -94,7 +111,7 @@ class Translate(Formatter):
                 self._bdd_mapping.update({name.title(): "When" for name in language.when_prefixes})
         return self._bdd_mapping
 
-    def get_bdd_keyword(self, container: set, alternative: str | None, param_name: str) -> str:
+    def get_bdd_keyword(self, container: set[str], alternative: str | None, param_name: str) -> str:
         if alternative is not None:
             names = ",".join(sorted(container))
             if alternative not in container:
@@ -115,7 +132,7 @@ class Translate(Formatter):
         and_alternative: str | None,
         then_alternative: str | None,
         when_alternative: str | None,
-    ):
+    ) -> dict[str, str]:
         if not self.translate_bdd:
             return {}
         return {
@@ -126,7 +143,7 @@ class Translate(Formatter):
             "When": self.get_bdd_keyword(self.language.when_prefixes, when_alternative, "when_alternative"),
         }
 
-    def add_replace_language_header(self, node):
+    def add_replace_language_header(self, node: File) -> File:
         """
         Add or replaces language headers in formatted files.
 
@@ -153,13 +170,13 @@ class Translate(Formatter):
             node.sections.insert(0, section)
         return node
 
-    def visit_File(self, node):  # noqa: N802
+    def visit_File(self, node: File) -> File:  # noqa: N802
         self.in_settings = False
         self.add_replace_language_header(node)
         return self.generic_visit(node)
 
     @skip_if_disabled
-    def visit_KeywordCall(self, node):  # noqa: N802
+    def visit_KeywordCall(self, node: KeywordCall) -> KeywordCall:  # noqa: N802
         """
         Translate BDD keyword in Keyword Call.
 
@@ -183,36 +200,44 @@ class Translate(Formatter):
         name_token.value = f"{translated_bdd} {name[0]}"
         return node
 
-    @skip_section_if_disabled
-    def translate_section_header(self, node, eng_name):
+    def translate_section_header(
+        self,
+        node: TestCaseSection | KeywordSection | VariableSection | SettingSection | CommentSection,
+        eng_name: str,
+    ) -> TestCaseSection | KeywordSection | VariableSection | SettingSection | CommentSection:
         translated_value = getattr(self.language, eng_name)
         translated_value = translated_value.title()
         name_token = node.header.data_tokens[0]
         name_token.value = f"*** {translated_value} ***"
         return self.generic_visit(node)
 
-    def visit_SettingSection(self, node):  # noqa: N802
+    @skip_section_if_disabled
+    def visit_SettingSection(self, node: SettingSection) -> SettingSection:  # noqa: N802
         self.in_settings = True
         node = self.translate_section_header(node, "settings_header")
         self.in_settings = False
         return node
 
-    def visit_TestCaseSection(self, node):  # noqa: N802
+    @skip_section_if_disabled
+    def visit_TestCaseSection(self, node: TestCaseSection) -> TestCaseSection:  # noqa: N802
         return self.translate_section_header(node, "test_cases_header")
 
-    def visit_KeywordSection(self, node):  # noqa: N802
+    @skip_section_if_disabled
+    def visit_KeywordSection(self, node: KeywordSection) -> KeywordSection:  # noqa: N802
         return self.translate_section_header(node, "keywords_header")
 
-    def visit_VariableSection(self, node):  # noqa: N802
+    @skip_section_if_disabled
+    def visit_VariableSection(self, node: VariableSection) -> VariableSection:  # noqa: N802
         return self.translate_section_header(node, "variables_header")
 
-    def visit_CommentSection(self, node):  # noqa: N802
+    @skip_section_if_disabled
+    def visit_CommentSection(self, node: CommentSection) -> CommentSection:  # noqa: N802
         if node.header is None:
             return node
         return self.translate_section_header(node, "comments_header")
 
     @skip_if_disabled
-    def visit_ForceTags(self, node):  # noqa: N802
+    def visit_ForceTags(self, node: Statement) -> Statement:  # noqa: N802
         node_type = node.data_tokens[0].value.title()
         # special handling because it's renamed in 6.0
         if node_type == "Force Tags":
@@ -229,7 +254,7 @@ class Translate(Formatter):
     visit_TestTags = visit_TaskTags = visit_ForceTags  # noqa: N815
 
     @skip_if_disabled
-    def visit_Setup(self, node):  # noqa: N802
+    def visit_Setup(self, node: Setup) -> Setup:  # noqa: N802
         node_type = node.type.title()
         translated_value = self.settings.get(node_type, None)
         if translated_value is None:

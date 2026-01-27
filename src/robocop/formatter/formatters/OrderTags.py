@@ -1,7 +1,17 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 from robot.api.parsing import Token
 
 from robocop.formatter.disablers import skip_section_if_disabled
 from robocop.formatter.formatters import Formatter
+
+if TYPE_CHECKING:
+    from collections.abc import Callable, Iterable
+
+    from robot.parsing.model.blocks import Section
+    from robot.parsing.model.statements import Statement
 
 
 class OrderTags(Formatter):
@@ -49,7 +59,7 @@ class OrderTags(Formatter):
         reverse: bool = False,
         default_tags: bool = True,
         force_tags: bool = True,
-    ):
+    ) -> None:
         super().__init__()
         self.key = self.get_key(case_sensitive)
         self.reverse = reverse
@@ -57,19 +67,19 @@ class OrderTags(Formatter):
         self.force_tags = force_tags
 
     @skip_section_if_disabled
-    def visit_Section(self, node):  # noqa: N802
+    def visit_Section(self, node: Section) -> Section:  # noqa: N802
         return self.generic_visit(node)
 
-    def visit_Tags(self, node):  # noqa: N802
+    def visit_Tags(self, node: Statement) -> Statement:  # noqa: N802
         return self.order_tags(node, indent=True)
 
-    def visit_DefaultTags(self, node):  # noqa: N802
+    def visit_DefaultTags(self, node: Statement) -> Statement:  # noqa: N802
         return self.order_tags(node) if self.default_tags else node
 
-    def visit_ForceTags(self, node):  # noqa: N802
+    def visit_ForceTags(self, node: Statement) -> Statement:  # noqa: N802
         return self.order_tags(node) if self.force_tags else node
 
-    def order_tags(self, node, indent=False):
+    def order_tags(self, node: Statement, indent: bool = False) -> Statement:
         if self.disablers.is_node_disabled("OrderTags", node):
             return node
         ordered_tags = sorted(
@@ -91,7 +101,7 @@ class OrderTags(Formatter):
         node.tokens = tokens
         return node
 
-    def join_tokens(self, tokens):
+    def join_tokens(self, tokens: Iterable[Token]) -> list[Token]:
         joined_tokens = []
         separator = Token(Token.SEPARATOR, self.formatting_config.separator)
         for token in tokens:
@@ -100,5 +110,5 @@ class OrderTags(Formatter):
         return joined_tokens
 
     @staticmethod
-    def get_key(case_sensitive):
+    def get_key(case_sensitive: bool) -> Callable[[str], str]:
         return str if case_sensitive else str.casefold

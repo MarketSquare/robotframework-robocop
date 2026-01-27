@@ -510,7 +510,7 @@ class TestRealWorldWorkflows:
         # Should have scanned all files
         assert result.total_files == 3
         # Should have summary by severity (LintFilesResult validates required fields)
-        summary_total = result.summary.E + result.summary.W + result.summary.INFO
+        summary_total = result.summary.E + result.summary.W + result.summary.I
         assert summary_total == result.total_issues
 
     def test_rule_lookup_workflow(self, mcp_tools):

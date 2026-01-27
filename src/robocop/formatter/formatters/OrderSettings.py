@@ -1,26 +1,34 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 from robot.api.parsing import Comment, EmptyLine, Token
 
 from robocop.exceptions import InvalidConfigurationError, InvalidParameterValueError
 from robocop.formatter.disablers import skip_if_disabled, skip_section_if_disabled
 from robocop.formatter.formatters import Formatter
 
+if TYPE_CHECKING:
+    from robot.parsing.model.blocks import Keyword, Section, TestCase
+    from robot.parsing.model.statements import Statement
+
 
 class InvalidSettingsOrderError(InvalidParameterValueError):
-    def __init__(self, formatter, param_name, param_value, valid_values):
+    def __init__(self, formatter: str, param_name: str, param_value: str, valid_values: dict[str, str]) -> None:
         valid_names = ",".join(sorted(valid_values.keys()))
         msg = f"Custom order should be provided in comma separated list with valid setting names: {valid_names}"
         super().__init__(formatter, param_name, param_value, msg)
 
 
 class DuplicateInSettingsOrderError(InvalidParameterValueError):
-    def __init__(self, formatter, param_name, param_value):
+    def __init__(self, formatter: str, param_name: str, param_value: list[str]) -> None:
         provided_order = ",".join(param.lower() for param in param_value)
         msg = "Custom order cannot contain duplicated setting names."
         super().__init__(formatter, param_name, provided_order, msg)
 
 
 class SettingInBothOrdersError(InvalidConfigurationError):
-    def __init__(self, formatter, first_order, second_order, duplicates):
+    def __init__(self, formatter: str, first_order: str, second_order: str, duplicates: set[str]) -> None:
         names = ",".join(setting.lower() for setting in duplicates)
         msg = (
             f"{formatter}: Invalid '{first_order}' and '{second_order}' order values. "
@@ -101,7 +109,7 @@ class OrderSettings(Formatter):
         keyword_after: str = "teardown,return",
         test_before: str = "documentation,tags,timeout,setup,template",
         test_after: str = "teardown",
-    ):
+    ) -> None:
         super().__init__()
         self.keyword_before = self.get_order(keyword_before, "keyword_before", self.KEYWORD_SETTINGS)
         self.keyword_after = self.get_order(keyword_after, "keyword_after", self.KEYWORD_SETTINGS)
@@ -111,7 +119,7 @@ class OrderSettings(Formatter):
         self.all_test_settings = {*self.test_before, *self.test_after}
         self.assert_no_duplicates_in_orders()
 
-    def get_order(self, order, param_name, name_map):
+    def get_order(self, order: str, param_name: str, name_map: dict[str, str]) -> list[str]:
         if not order:
             return []
         parts = order.lower().split(",")
@@ -120,7 +128,7 @@ class OrderSettings(Formatter):
         except KeyError:
             raise InvalidSettingsOrderError(self.__class__.__name__, param_name, order, name_map) from None
 
-    def assert_no_duplicates_in_orders(self):
+    def assert_no_duplicates_in_orders(self) -> None:
         """Check if settings are not duplicated in after/before section and in the same section itself."""
         orders = {
             "keyword_before": set(self.keyword_before),
@@ -141,26 +149,30 @@ class OrderSettings(Formatter):
             raise SettingInBothOrdersError(self.__class__.__name__, "test_before", "test_after", shared_test)
 
     @skip_section_if_disabled
-    def visit_Section(self, node):  # noqa: N802
+    def visit_Section(self, node: Section) -> Section:  # noqa: N802
         return self.generic_visit(node)
 
     @skip_if_disabled
-    def visit_Keyword(self, node):  # noqa: N802
+    def visit_Keyword(self, node: Keyword) -> Keyword:  # noqa: N802
         return self.order_settings(node, self.all_keyword_settings, self.keyword_before, self.keyword_after)
 
     @skip_if_disabled
-    def visit_TestCase(self, node):  # noqa: N802
+    def visit_TestCase(self, node: TestCase) -> TestCase:  # noqa: N802
         return self.order_settings(node, self.all_test_settings, self.test_before, self.test_after)
 
-    def order_settings(self, node, setting_types, before, after):
+    def order_settings(
+        self, node: Keyword | TestCase, setting_types: set[str], before: list[str], after: list[str]
+    ) -> Keyword | TestCase:
         if not node.body:
             return node
-        settings = {}
-        not_settings, trailing_after = [], []
+        settings: dict[str, tuple[list[Comment], Statement]] = {}
+        not_settings: list[Statement | Comment | EmptyLine] = []
+        trailing_after: list[Statement | Comment | EmptyLine] = []
         after_seen = False
         # when after_seen is set to True then all statements go to trailing_after and last non data
         # will be appended after tokens defined in `after` set (like [Return])
-        comments, header_line = [], []
+        comments: list[Comment] = []
+        header_line: list[Comment] = []
         for child in node.body:
             if isinstance(child, Comment):
                 if child.lineno == node.lineno:  # comment in the same line as test/kw name
@@ -181,7 +193,7 @@ class OrderSettings(Formatter):
                 not_settings.append(child)
         trailing_after.extend(comments)
         # comments after last data statement are considered as comment outside body
-        trailing_non_data = []
+        trailing_non_data: list[Statement | Comment | EmptyLine] = []
         while trailing_after and isinstance(trailing_after[-1], (EmptyLine, Comment)):
             trailing_non_data.insert(0, trailing_after.pop())
         not_settings += trailing_after
@@ -195,7 +207,9 @@ class OrderSettings(Formatter):
         return node
 
     @staticmethod
-    def add_in_order(order, settings_in_node):
+    def add_in_order(
+        order: list[str], settings_in_node: dict[str, tuple[list[Comment], Statement]]
+    ) -> list[Comment | Statement]:
         nodes = []
         for token_type in order:
             if token_type not in settings_in_node:

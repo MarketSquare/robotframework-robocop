@@ -99,6 +99,7 @@ def test_loading_custom_rule_including_relative_import():
     with add_sys_path(EXT_MODULE_WITH_RELATIVE_IMPORT):
         linter_config = LinterConfig(custom_rules=[EXT_MODULE_WITH_RELATIVE_IMPORT])
         linter_config.load_configuration()
+    assert "EXT03" not in linter_config.rules
     assert "EXT05" in linter_config.rules
 
 

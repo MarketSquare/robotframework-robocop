@@ -1,7 +1,14 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 from robot.parsing.model.statements import Error
 
 from robocop.linter.fix import Fix, FixApplicability, FixAvailability, TextEdit
 from robocop.linter.rules import FixableRule, RuleSeverity, VisitorChecker
+
+if TYPE_CHECKING:
+    from robot.parsing.model.blocks import File
 
 
 class CustomWithFix(FixableRule):
@@ -22,7 +29,7 @@ class CustomWithFix(FixableRule):
 class CustomChecker(VisitorChecker):
     fixable_rule: CustomWithFix
 
-    def visit_File(self, node):  # noqa: N802
+    def visit_File(self, node: File) -> None:  # noqa: N802
         if isinstance(node.sections[0].body[-1], Error):  # placeholder added in first run
             return
         fix = Fix(

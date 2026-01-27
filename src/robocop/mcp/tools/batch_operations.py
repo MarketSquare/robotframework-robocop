@@ -124,7 +124,7 @@ def _collect_robot_files(directory: Path, recursive: bool = True) -> list[Path]:
         A list of Path objects for all Robot Framework files in the directory.
 
     """
-    files = []
+    files: list[Path] = []
     pattern = "**/*" if recursive else "*"
     for ext in VALID_EXTENSIONS:
         files.extend(directory.glob(f"{pattern}{ext}"))

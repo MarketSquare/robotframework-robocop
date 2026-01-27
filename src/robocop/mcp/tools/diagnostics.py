@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import operator
 from pathlib import Path
+from typing import Literal
 
 from fastmcp.exceptions import ToolError
 
@@ -62,9 +63,9 @@ def _suggest_fixes_impl(
         category = rule_id[:3] if len(rule_id) >= 3 else rule_id
 
         # Get suggestion from rule's fix_suggestion attribute, or provide a generic one
-        suggestion = None
+        suggestion: str
         if rule_id in rules and rules[rule_id].fix_suggestion:
-            suggestion = rules[rule_id].fix_suggestion
+            suggestion = str(rules[rule_id].fix_suggestion)
         else:
             suggestion = f"Review the rule documentation for {rule_id} ({issue.name})."
 
@@ -191,6 +192,7 @@ def _get_statistics_impl(
     quality_score = max(0, min(100, int(100 - issues_ratio * 10)))
 
     # Determine quality grade
+    grade: Literal["A", "B", "C", "D", "F"]
     if quality_score >= 90:
         grade = "A"
         quality_label = "Excellent"

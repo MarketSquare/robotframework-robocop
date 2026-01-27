@@ -11,7 +11,7 @@ from robocop.formatter.formatters import Formatter
 from robocop.formatter.utils import misc
 
 if TYPE_CHECKING:
-    from robocop.formatter.skip import Skip
+    from robot.parsing.model.blocks import SettingSection
 
 
 class AlignSettingsSection(Formatter):
@@ -81,18 +81,17 @@ class AlignSettingsSection(Formatter):
         self,
         up_to_column: int = 2,
         argument_indent: int = 4,
-        min_width: int = None,  # noqa: RUF013 | None requires Robot 7+
-        fixed_width: int = None,  # noqa: RUF013
-        skip: Skip | None = None,
-    ):
-        super().__init__(skip=skip)
+        min_width: int | str | None = None,
+        fixed_width: int | str | None = None,
+    ) -> None:
+        super().__init__()
         self.up_to_column = up_to_column - 1
         self.argument_indent = argument_indent
-        self.min_width = min_width
-        self.fixed_width = fixed_width
+        self.min_width = int(min_width) if min_width is not None else None
+        self.fixed_width = int(fixed_width) if fixed_width is not None else None
 
     @skip_section_if_disabled
-    def visit_SettingSection(self, node):  # noqa: N802
+    def visit_SettingSection(self, node: SettingSection) -> SettingSection:  # noqa: N802
         statements = []
         for child in node.body:
             if self.disablers.is_node_disabled("AlignSettingsSection", child) or self.is_node_skip(child):
@@ -108,24 +107,24 @@ class AlignSettingsSection(Formatter):
         node.body = self.align_rows(statements, look_up)
         return node
 
-    def is_node_skip(self, node) -> bool:
+    def is_node_skip(self, node: Statement) -> bool:
         return isinstance(node, Documentation) and self.skip.documentation
 
-    def should_indent_arguments(self, statement):
+    def should_indent_arguments(self, statement: list[list[Token]]) -> tuple[bool, bool]:
         statement_type = statement[0][0].type
         is_library = statement_type == Token.LIBRARY
         if is_library:
             return is_library, True
         return is_library, statement_type in self.TOKENS_WITH_ARGUMENTS
 
-    def align_rows(self, statements, look_up):
+    def align_rows(self, statements: list[Statement | list[list[Token]]], look_up: dict[int, int]) -> list[Statement]:
         aligned_statements = []
         for st in statements:
             if not isinstance(st, list):
                 aligned_statements.append(st)
                 continue
             is_library, indent_args = self.should_indent_arguments(st)
-            aligned_statement = []
+            aligned_statement: list[Token] = []
             for line in st:
                 if misc.is_blank_multiline(line):
                     line[-1].value = line[-1].value.lstrip(" \t")  # normalize eol from '  \n' to '\n'
@@ -147,7 +146,7 @@ class AlignSettingsSection(Formatter):
             aligned_statements.append(Statement.from_tokens(aligned_statement))
         return aligned_statements
 
-    def calc_separator(self, index, up_to, indent_arg, token, look_up):
+    def calc_separator(self, index: int, up_to: int, indent_arg: bool, token: Token, look_up: dict[int, int]) -> str:
         if index < up_to:
             if self.fixed_width:
                 return max(self.fixed_width - len(token.value), self.formatting_config.space_count) * " "
@@ -163,8 +162,8 @@ class AlignSettingsSection(Formatter):
             return (look_up[index] - len(token.value) + arg_indent + 4) * " "
         return self.formatting_config.space_count * " "
 
-    def create_look_up(self, statements):
-        look_up = defaultdict(int)
+    def create_look_up(self, statements: list[list[list[Token]]]) -> dict[int, int]:
+        look_up: dict[int, int] = defaultdict(int)
         for st in statements:
             is_doc = st[0][0].type == Token.DOCUMENTATION
             for line in st:

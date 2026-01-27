@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import re
+from typing import TYPE_CHECKING
 
 from robot.api.parsing import Token
 
@@ -9,7 +10,13 @@ from robocop.formatter.disablers import skip_if_disabled, skip_section_if_disabl
 from robocop.formatter.formatters import Formatter
 from robocop.formatter.utils import misc
 from robocop.parsing.run_keywords import RUN_KEYWORDS
-from robocop.parsing.variables import VariableMatches
+from robocop.parsing.variables import VariableMatches  # type: ignore[attr-defined]
+
+if TYPE_CHECKING:
+    from re import Pattern
+
+    from robot.parsing.model.blocks import Section
+    from robot.parsing.model.statements import KeywordCall, KeywordName, Setup, SuiteSetup
 
 
 class RenameKeywords(Formatter):
@@ -62,13 +69,13 @@ class RenameKeywords(Formatter):
         remove_underscores: bool = True,
         ignore_library: bool = True,
         keyword_case: str = "capitalize_words",
-    ):
+    ) -> None:
         super().__init__()
-        self.ignore_library = ignore_library
-        self.remove_underscores = remove_underscores
-        self.keyword_case = keyword_case
-        self.replace_pattern = self.parse_pattern(replace_pattern)
-        self.replace_to = "" if replace_to is None else replace_to
+        self.ignore_library: bool = ignore_library
+        self.remove_underscores: bool = remove_underscores
+        self.keyword_case: str = keyword_case
+        self.replace_pattern: Pattern[str] | None = self.parse_pattern(replace_pattern)
+        self.replace_to: str = "" if replace_to is None else replace_to
 
     def parse_keyword_case(self, value: str) -> str:  # FIXME: not used
         conventions = ("capitalize_words", "capitalize_first", "ignore")
@@ -81,7 +88,7 @@ class RenameKeywords(Formatter):
             )
         return value
 
-    def parse_pattern(self, replace_pattern):
+    def parse_pattern(self, replace_pattern: str | None) -> Pattern[str] | None:
         if replace_pattern is None:
             return None
         try:
@@ -95,10 +102,10 @@ class RenameKeywords(Formatter):
             ) from None
 
     @skip_section_if_disabled
-    def visit_Section(self, node):  # noqa: N802
+    def visit_Section(self, node: Section) -> Section:  # noqa: N802
         return self.generic_visit(node)
 
-    def rename_node(self, token, is_keyword_call):
+    def rename_node(self, token: Token, is_keyword_call: bool) -> None:
         if self.replace_pattern is not None:
             new_value = self.rename_with_pattern(token.value, is_keyword_call=is_keyword_call)
         else:
@@ -108,9 +115,9 @@ class RenameKeywords(Formatter):
             return
         token.value = new_value
 
-    def normalize_name(self, value, is_keyword_call):
+    def normalize_name(self, value: str, is_keyword_call: bool) -> str:
         var_found = False
-        parts = []
+        parts: list[str] = []
         after = ""
         for match in VariableMatches(value, ignore_errors=True):
             var_found = True
@@ -125,7 +132,7 @@ class RenameKeywords(Formatter):
             return "".join(parts).strip()
         return self.rename_part(value, is_keyword_call)
 
-    def rename_part(self, part: str, is_keyword_call: bool):
+    def rename_part(self, part: str, is_keyword_call: bool) -> str:
         if is_keyword_call and self.ignore_library:
             lib_name, *kw_name = part.rsplit(".", maxsplit=1)
             if not kw_name:
@@ -152,7 +159,7 @@ class RenameKeywords(Formatter):
                 words.append(word[0].upper() + word[1:])
         return " ".join(words)
 
-    def rename_with_pattern(self, value: str, is_keyword_call: bool):
+    def rename_with_pattern(self, value: str, is_keyword_call: bool) -> str:
         lib_name = ""
         if is_keyword_call and "." in value:
             # rename only non lib part
@@ -169,11 +176,11 @@ class RenameKeywords(Formatter):
         if lib_name and not self.ignore_library:
             lib_name = self.remove_underscores_and_capitalize(lib_name)
         return lib_name + self.remove_underscores_and_capitalize(
-            self.replace_pattern.sub(repl=self.replace_to, string=value)
+            self.replace_pattern.sub(repl=self.replace_to, string=value)  # type: ignore[union-attr]
         )
 
     @skip_if_disabled
-    def visit_KeywordName(self, node):  # noqa: N802
+    def visit_KeywordName(self, node: KeywordName) -> KeywordName:  # noqa: N802
         name_token = node.get_token(Token.KEYWORD_NAME)
         if not name_token or not name_token.value:
             return node
@@ -181,7 +188,7 @@ class RenameKeywords(Formatter):
         return node
 
     @skip_if_disabled
-    def visit_KeywordCall(self, node):  # noqa: N802
+    def visit_KeywordCall(self, node: KeywordCall) -> KeywordCall:  # noqa: N802
         name_token = node.get_token(Token.KEYWORD)
         if not name_token or not name_token.value:
             return node
@@ -190,7 +197,7 @@ class RenameKeywords(Formatter):
         self.parse_run_keyword(tokens)
         return node
 
-    def parse_run_keyword(self, tokens):
+    def parse_run_keyword(self, tokens: list[Token]) -> None:
         if not tokens:
             return None
         self.rename_node(tokens[0], is_keyword_call=True)
@@ -213,7 +220,7 @@ class RenameKeywords(Formatter):
         self.parse_run_keyword(tokens)
         return None
 
-    def split_on_and(self, tokens):
+    def split_on_and(self, tokens: list[Token]) -> None:
         if not misc.is_token_value_in_tokens("AND", tokens):
             for token in tokens:
                 self.rename_node(token, is_keyword_call=True)
@@ -224,7 +231,7 @@ class RenameKeywords(Formatter):
         self.parse_run_keyword(tokens)
 
     @skip_if_disabled
-    def visit_SuiteSetup(self, node):  # noqa: N802
+    def visit_SuiteSetup(self, node: SuiteSetup) -> SuiteSetup:  # noqa: N802
         if node.errors:
             return node
         self.parse_run_keyword(node.data_tokens[1:])
@@ -233,7 +240,7 @@ class RenameKeywords(Formatter):
     visit_SuiteTeardown = visit_TestSetup = visit_TestTeardown = visit_SuiteSetup  # noqa: N815
 
     @skip_if_disabled
-    def visit_Setup(self, node):  # noqa: N802
+    def visit_Setup(self, node: Setup) -> Setup:  # noqa: N802
         if node.errors:
             return node
         self.parse_run_keyword(node.data_tokens[1:])

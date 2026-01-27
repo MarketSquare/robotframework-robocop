@@ -1,4 +1,7 @@
+from __future__ import annotations
+
 from itertools import chain
+from typing import TYPE_CHECKING
 
 from robot.api.parsing import Comment, ElseHeader, ElseIfHeader, End, If, IfHeader, KeywordCall, Token
 
@@ -10,6 +13,11 @@ except ImportError:
 from robocop.formatter.disablers import skip_section_if_disabled
 from robocop.formatter.formatters import Formatter
 from robocop.formatter.utils import misc
+
+if TYPE_CHECKING:
+    from collections.abc import Generator
+
+    from robot.parsing.model.blocks import Section
 
 
 class InlineIf(Formatter):
@@ -58,16 +66,16 @@ class InlineIf(Formatter):
 
     MIN_VERSION = 5
 
-    def __init__(self, line_length: int = 80, skip_else: bool = False):
+    def __init__(self, line_length: int = 80, skip_else: bool = False) -> None:
         super().__init__()
         self.line_length = line_length
         self.skip_else = skip_else
 
     @skip_section_if_disabled
-    def visit_Section(self, node):  # noqa: N802
+    def visit_Section(self, node: Section) -> Section:  # noqa: N802
         return self.generic_visit(node)
 
-    def visit_If(self, node: If):  # noqa: N802
+    def visit_If(self, node: If) -> If | tuple[Comment | If, ...]:  # noqa: N802
         if node.errors or getattr(node.end, "errors", None):
             return node
         if self.disablers.is_node_disabled("InlineIf", node, full_match=False):
@@ -82,7 +90,7 @@ class InlineIf(Formatter):
             return node
         return self.to_inline(node, indent.value)
 
-    def should_format(self, node):
+    def should_format(self, node: If) -> bool:
         if node.header.errors:
             return False
         if (
@@ -96,14 +104,14 @@ class InlineIf(Formatter):
         return True
 
     @staticmethod
-    def if_to_branches(if_block):
+    def if_to_branches(if_block: If | None) -> Generator[If, None, None]:
         while if_block:
             yield if_block
             if_block = if_block.orelse
 
-    def assignment_identical(self, node):
+    def assignment_identical(self, node: If) -> bool:
         else_found = False
-        assigned = []
+        assigned: list[list[str]] = []
         for branch in self.if_to_branches(node):
             if isinstance(branch.header, ElseHeader):
                 else_found = True
@@ -117,12 +125,12 @@ class InlineIf(Formatter):
             return else_found
         return True
 
-    def is_shorter_than_limit(self, inline_if):
+    def is_shorter_than_limit(self, inline_if: If) -> bool:
         line_len = sum(self.if_len(branch) for branch in self.if_to_branches(inline_if))
         return line_len <= self.line_length
 
     @staticmethod
-    def no_end(node):
+    def no_end(node: If) -> bool:
         if not node.end:
             return True
         if len(node.end.tokens) != 1:
@@ -130,18 +138,18 @@ class InlineIf(Formatter):
         return not node.end.tokens[0].value
 
     @staticmethod
-    def is_inline(node):
+    def is_inline(node: If) -> bool:
         return isinstance(node.header, InlineIfHeader)
 
     @staticmethod
-    def if_len(if_st):
+    def if_len(if_st: If) -> int:
         return sum(
             len(tok.value)
             for tok in chain(if_st.body[0].tokens if if_st.body else [], if_st.header.tokens)
             if tok.value != "\n"
         )
 
-    def to_inline(self, node, indent):
+    def to_inline(self, node: If, indent: str) -> If | tuple[Comment | If, ...]:
         tail = node
         comments = self.collect_comments_from_if(indent, node)
         if_block = head = self.inline_if_from_branch(node, indent)
@@ -150,13 +158,13 @@ class InlineIf(Formatter):
                 return node
             tail = tail.orelse
             comments += self.collect_comments_from_if(indent, tail)
-            head.orelse = self.inline_if_from_branch(tail, self.formatting_config.separator)
-            head = head.orelse
+            head.orelse = self.inline_if_from_branch(tail, self.formatting_config.separator)  # type: ignore[union-attr]
+            head = head.orelse  # type: ignore[union-attr]
         if self.is_shorter_than_limit(if_block):
             return (*comments, if_block)
         return node
 
-    def inline_if_from_branch(self, node, indent):
+    def inline_if_from_branch(self, node: If, indent: str) -> If | None:
         if not node:
             return None
         separator = self.formatting_config.separator
@@ -200,7 +208,7 @@ class InlineIf(Formatter):
         return If(header=header, body=[keyword])
 
     @staticmethod
-    def to_inline_keyword(keyword, separator, last_token):
+    def to_inline_keyword(keyword: KeywordCall, separator: str, last_token: Token) -> KeywordCall:
         tokens = [Token(Token.SEPARATOR, separator), Token(Token.KEYWORD, keyword.keyword)]
         for arg in keyword.get_tokens(Token.ARGUMENT):
             tokens.extend([Token(Token.SEPARATOR, separator), arg])
@@ -208,7 +216,7 @@ class InlineIf(Formatter):
         return KeywordCall(tokens)
 
     @staticmethod
-    def to_inline_return(node, separator, last_token):
+    def to_inline_return(node: ReturnStatement, separator: str, last_token: Token) -> ReturnStatement:
         tokens = [Token(Token.SEPARATOR, separator), Token(Token.RETURN_STATEMENT)]
         for value in node.values:
             tokens.extend([Token(Token.SEPARATOR, separator), Token(Token.ARGUMENT, value)])
@@ -216,17 +224,17 @@ class InlineIf(Formatter):
         return ReturnStatement(tokens)
 
     @staticmethod
-    def to_inline_break_continue_tokens(token, separator, last_token):
+    def to_inline_break_continue_tokens(token: int, separator: str, last_token: Token) -> list[Token]:
         return [Token(Token.SEPARATOR, separator), Token(token), last_token]
 
     @staticmethod
-    def join_on_separator(tokens, separator):
+    def join_on_separator(tokens: list[Token], separator: Token) -> Generator[Token, None, None]:
         for token in tokens:
             yield token
             yield separator
 
     @staticmethod
-    def collect_comments_from_if(indent, node):
+    def collect_comments_from_if(indent: str, node: If) -> list[Comment]:
         comments = misc.get_comments(node.header.tokens)
         for statement in node.body:
             comments += misc.get_comments(statement.tokens)
@@ -234,8 +242,8 @@ class InlineIf(Formatter):
             comments += misc.get_comments(node.end)
         return [Comment.from_params(comment=comment.value, indent=indent) for comment in comments]
 
-    def create_keyword_for_inline(self, kw_tokens, indent, assign):
-        keyword_tokens = []
+    def create_keyword_for_inline(self, kw_tokens: list[Token], indent: str, assign: list[Token]) -> KeywordCall:
+        keyword_tokens: list[Token] = []
         for token in kw_tokens:
             keyword_tokens.append(Token(Token.SEPARATOR, self.formatting_config.separator))
             keyword_tokens.append(token)
@@ -248,7 +256,7 @@ class InlineIf(Formatter):
             ]
         )
 
-    def flatten_if_block(self, node):
+    def flatten_if_block(self, node: If) -> If:
         node.header.tokens = misc.flatten_multiline(
             node.header.tokens, self.formatting_config.separator, remove_comments=True
         )
@@ -258,7 +266,7 @@ class InlineIf(Formatter):
             )
         return node
 
-    def is_if_multiline(self, node):
+    def is_if_multiline(self, node: If) -> bool:
         for branch in self.if_to_branches(node):
             if branch.header.get_token(Token.CONTINUATION):
                 return True
@@ -266,7 +274,7 @@ class InlineIf(Formatter):
                 return True
         return False
 
-    def flatten_inline_if(self, node):
+    def flatten_inline_if(self, node: If) -> tuple[list[Comment], If]:
         indent = node.header.tokens[0].value
         comments = self.collect_comments_from_if(indent, node)
         node = self.flatten_if_block(node)
@@ -277,7 +285,8 @@ class InlineIf(Formatter):
             head = self.flatten_if_block(head)
         return comments, node
 
-    def handle_inline(self, node):
+    def handle_inline(self, node: If) -> tuple[Comment | If, ...]:
+        comments: list[Comment]
         if self.is_if_multiline(node):
             comments, node = self.flatten_inline_if(node)
         else:
@@ -289,7 +298,7 @@ class InlineIf(Formatter):
         assign_tokens = node.header.get_tokens(Token.ASSIGN)
         assign = [*self.join_on_separator(assign_tokens, Token(Token.SEPARATOR, separator))]
         else_present = False
-        branches = []
+        branches: list[If] = []
         while node:
             new_comments, if_block, else_found = self.handle_inline_if_create(node, indent.value, assign)
             else_present = else_present or else_found
@@ -314,7 +323,7 @@ class InlineIf(Formatter):
         if_block.end = End([indent, Token(Token.END), Token(Token.EOL)])
         return (*comments, if_block)
 
-    def handle_inline_if_create(self, node, indent, assign):
+    def handle_inline_if_create(self, node: If, indent: str, assign: list[Token]) -> tuple[list[Comment], If, bool]:
         comments = self.collect_comments_from_if(indent, node)
         body = [self.create_keyword_for_inline(node.body[0].data_tokens, indent, assign)]
         else_found = False

@@ -1,8 +1,15 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 from robot.api.parsing import EmptyLine
 from robot.parsing.model.blocks import Keyword
 
 from robocop.formatter.disablers import skip_section_if_disabled
 from robocop.formatter.formatters import Formatter
+
+if TYPE_CHECKING:
+    from robot.parsing.model.blocks import KeywordSection
 
 
 class SmartSortKeywords(Formatter):
@@ -51,14 +58,19 @@ class SmartSortKeywords(Formatter):
 
     ENABLED = False
 
-    def __init__(self, case_insensitive=True, ignore_leading_underscore=False, ignore_other_underscore=True):
+    def __init__(
+        self,
+        case_insensitive: bool = True,
+        ignore_leading_underscore: bool = False,
+        ignore_other_underscore: bool = True,
+    ) -> None:
         super().__init__()
         self.ci = case_insensitive
         self.ilu = ignore_leading_underscore
         self.iou = ignore_other_underscore
 
     @skip_section_if_disabled
-    def visit_KeywordSection(self, node):  # noqa: N802
+    def visit_KeywordSection(self, node: KeywordSection) -> KeywordSection:  # noqa: N802
         before, after = self.leave_only_keywords(node)
         empty_lines = self.pop_empty_lines(node)
         node.body.sort(key=self.sort_function)
@@ -67,26 +79,26 @@ class SmartSortKeywords(Formatter):
         return node
 
     @staticmethod
-    def pop_empty_lines(node):
-        all_empty = []
+    def pop_empty_lines(node: KeywordSection) -> list[list[EmptyLine]]:
+        all_empty: list[list[EmptyLine]] = []
         for kw in node.body:
-            kw_empty = []
+            kw_empty: list[EmptyLine] = []
             while kw.body and isinstance(kw.body[-1], EmptyLine):
                 kw_empty.insert(0, kw.body.pop())
             all_empty.append(kw_empty)
         return all_empty
 
     @staticmethod
-    def leave_only_keywords(node):
-        before = []
-        after = []
+    def leave_only_keywords(node: KeywordSection) -> tuple[list, list]:  # type: ignore[type-arg]
+        before: list = []  # type: ignore[type-arg]
+        after: list = []  # type: ignore[type-arg]
         while node.body and not isinstance(node.body[0], Keyword):
             before.append(node.body.pop(0))
         while node.body and not isinstance(node.body[-1], Keyword):
             after.append(node.body.pop(-1))
         return before, after
 
-    def sort_function(self, kw):
+    def sort_function(self, kw: Keyword) -> str:
         name = kw.name
         if self.ci:
             name = name.casefold().upper()  # to make sure that letters go before underscore
@@ -95,9 +107,9 @@ class SmartSortKeywords(Formatter):
         if self.iou:
             index = len(name) - len(name.lstrip("_"))
             name = name[:index] + name[index:].replace("_", " ")
-        return name
+        return name  # type: ignore[no-any-return]
 
     @staticmethod
-    def append_empty_lines(node, empty_lines):
+    def append_empty_lines(node: KeywordSection, empty_lines: list[list[EmptyLine]]) -> None:
         for kw, lines in zip(node.body, empty_lines, strict=False):
             kw.body.extend(lines)

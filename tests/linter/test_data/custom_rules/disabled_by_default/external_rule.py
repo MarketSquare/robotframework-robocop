@@ -1,3 +1,5 @@
+from robot.parsing.model.blocks import Keyword
+
 from robocop.linter.rules import VisitorChecker
 from robocop.linter.rules import Rule, RuleSeverity
 
@@ -11,5 +13,5 @@ class SmthChecker(VisitorChecker):
 
     reports = ("smth",)
 
-    def visit_Keyword(self, node):  # noqa: N802
+    def visit_Keyword(self, node: Keyword) -> None:  # noqa: N802
         self.report("smth", node=node)

@@ -5,6 +5,8 @@ Holds rules that are used outside spacing module for now - after redesign to sep
 can be moved here.
 """
 
+from __future__ import annotations
+
 from robocop.linter import sonar_qube
 from robocop.linter.rules import Rule, RuleSeverity
 

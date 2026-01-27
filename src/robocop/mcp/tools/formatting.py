@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from difflib import unified_diff
 from pathlib import Path
+from typing import cast
 
 from fastmcp.exceptions import ToolError
 from robot.api import get_model
@@ -206,6 +207,7 @@ def _lint_and_format_impl(
             source_file = str(path)
         except OSError as e:
             raise ToolError(f"Failed to read file: {e}") from e
+    content = cast("str", content)
 
     # Count issues in original code
     issues_before = _lint_content_impl(content, filename, lint_select, lint_ignore, threshold, configure=configure)

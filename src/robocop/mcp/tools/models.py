@@ -95,7 +95,7 @@ class SeveritySummary(BaseModel):
 
     E: int = Field(description="Count of Error-level issues")
     W: int = Field(description="Count of Warning-level issues")
-    INFO: int = Field(description="Count of Info-level issues", alias="I")
+    I: int = Field(description="Count of Info-level issues", alias="INFO")  # noqa: E741
 
 
 class TopRule(BaseModel):

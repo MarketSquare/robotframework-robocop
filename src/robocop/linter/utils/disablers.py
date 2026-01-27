@@ -37,14 +37,16 @@ class Disabler:
         self.used = False
 
     def __contains__(self, line: int) -> bool:
+        if self.end_line is None:
+            return False
         return self.start_line <= line <= self.end_line
 
 
 class RuleDisablers:
     """Container for file disablers"""
 
-    def __init__(self, blocks: list | None = None) -> None:
-        self.current_block = None
+    def __init__(self, blocks: list[Disabler] | None = None) -> None:
+        self.current_block: Disabler | None = None
         self.lines: dict[int, Disabler] = {}
         # line disablers are a list of unique disablers. Each disabler may be connected to multiple lines
         self.line_disablers: list[Disabler] = []
@@ -98,16 +100,16 @@ class RuleDisablers:
         return False
 
 
-class DisablersVisitor(ModelVisitor):
-    def __init__(self, model: File):
+class DisablersVisitor(ModelVisitor):  # type: ignore[misc]
+    def __init__(self, model: File) -> None:
         self.file_disabled = False
         self.file_end = 1
         self.is_first_comment_section = True
         self.keyword_or_test_section = False
         self.header_line_numer = 0
         self.header_last_line = 0
-        self.disablers_in_scope = []
-        self.rules = defaultdict(lambda: RuleDisablers())
+        self.disablers_in_scope: list[defaultdict[str, RuleDisablers]] = []
+        self.rules: defaultdict[str, RuleDisablers] = defaultdict(RuleDisablers)
         self.visit(model)
 
     def visit_File(self, node: File) -> None:  # noqa: N802
@@ -117,7 +119,7 @@ class DisablersVisitor(ModelVisitor):
     def parse_disablers_in_node(self, node: type[Node], last_line: int | None = None) -> None:
         self.header_line_numer = node.lineno
         self.header_last_line = node.end_lineno
-        self.disablers_in_scope.append(defaultdict(lambda: RuleDisablers()))
+        self.disablers_in_scope.append(defaultdict(RuleDisablers))
         self.generic_visit(node)
         for rule_name, rule_disabler in self.disablers_in_scope[-1].items():
             if self.is_first_comment_section:
@@ -169,7 +171,7 @@ class DisablersVisitor(ModelVisitor):
         for comment in node.get_tokens(Token.COMMENT):
             self.parse_comment_token(comment, is_inline=True)
 
-    def parse_comment_token(self, token: Token, is_inline: bool, parent_node=None) -> None:
+    def parse_comment_token(self, token: Token, is_inline: bool, parent_node: Statement | None = None) -> None:
         if "#" not in token.value:
             return
         disablers = []
@@ -226,7 +228,7 @@ class DisablersVisitor(ModelVisitor):
 class DisablersFinder:
     """Visit and find robocop disablers in Robot Framework file."""
 
-    def __init__(self, model: File):
+    def __init__(self, model: File) -> None:
         self.visitor = DisablersVisitor(model)
 
     @property

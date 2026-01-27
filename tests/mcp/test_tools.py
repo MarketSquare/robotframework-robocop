@@ -857,7 +857,7 @@ class TestLintFilesImpl:
         result = _lint_files_impl(["test.robot"], str(tmp_path))
 
         # Sum of summary should equal total issues
-        summary_total = result.summary.E + result.summary.W + result.summary.INFO
+        summary_total = result.summary.E + result.summary.W + result.summary.I
         assert summary_total == result.total_issues
 
     def test_files_with_issues_count(self, tmp_path: Path):
@@ -1266,7 +1266,7 @@ class TestGetStatistics:
 
         severity = result.severity_breakdown
         # Sum should equal total issues
-        total = severity.E + severity.W + severity.INFO
+        total = severity.E + severity.W + severity.I
         assert total == result.summary.total_issues
 
     def test_get_statistics_quality_score(self, tmp_path: Path):

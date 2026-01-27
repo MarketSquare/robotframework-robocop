@@ -50,7 +50,7 @@ robocop-mcp = "robocop.mcp.server:main"
 
 [project.optional-dependencies]
 mcp = [
-    "fastmcp>=2.13.0; python_version >= '3.10'",
+    "fastmcp>=2.13.0"
 ]
 
 [project.urls]
@@ -74,6 +74,7 @@ default-groups = ["dev", "doc"]
 
 [dependency-groups]
 dev = [
+    "robotframework-robocop[mcp]",
     "coverage>=7.6.4",
     "pytest>=8.3.3",
     "pytest-xdist>=3.6.1",
@@ -81,6 +82,10 @@ dev = [
     "pysonar",
     "nox>=2025.11.12",
     "packaging>=25.0",
+    "mypy>=1.19.1",
+    "types-jinja2",
+    "types-pytz",
+    "msgpack-types"
 ]
 doc = [
     "mkdocs",
@@ -132,7 +137,7 @@ lint.ignore = [
     "T201",  # print in code
     #### Fix or decrease
     "ERA001",  # commented-out code
-    "ANN204", # missing type annotation for __init__
+    #"ANN204", # missing type annotation for __init__
     "FIX002", # code with to do - check all of them later
     "PERF203", # try except in for loop - check all of them for possible refactors
     "C901", # code too complex (duplicate with other rules)
@@ -141,16 +146,16 @@ lint.ignore = [
     "FIX001",  # line with fixme
     "TD001",  # invalid todo tag fixme
     "TD004",  # missing colon in TODO
-    "ANN001",  # annotations in method
-    "ANN002",  # annotations in return type
-    "ANN201",  # annotations in return type
-    "ANN205",  # annotations in return type
+    #"ANN001",  # annotations in method
+    #"ANN002",  # annotations in return type
+    #"ANN201",  # annotations in return type
+    #"ANN205",  # annotations in return type
     "RUF012",  # mutable class attributes should be annotated with `typing.ClassVar`
     "PLR0913",  # too many arguments in function definition
     "PLW2901",  # for loop variable overwritten
     "INP001",  # part of namespace package
     "PLR0912",  # too many branches TODO
-    "ANN003",  # missing type kwargs
+    #"ANN003",  # missing type kwargs
     "SIM105",  # contexlib.supress
     "ANN401",  # typing.Any
     "B028",  # no implicit stacklevel
@@ -188,6 +193,9 @@ extend-exclude = [
 # bug in typer where | None can't be used
 "src/robocop/run.py" = ["RUF013"]
 
+[tool.ty.src]
+include = ["src"]
+
 [tool.coverage.run]
 omit = ["*tests*"]
 source = ["robocop"]
@@ -199,3 +207,41 @@ exclude_lines = [
         "raise NotImplementedError"
 ]
 fail_under = 5
+
+[tool.mypy]
+python_version = "3.10"
+
+strict = true
+
+warn_return_any = true
+warn_unused_configs = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+warn_unreachable = true
+
+# Error output formatting
+show_error_codes = true
+show_column_numbers = true
+pretty = true
+color_output = true
+
+# Module discovery
+mypy_path = "src"
+packages = ["robocop"]
+exclude = ["tests/", "docs/"]
+
+# Robot Framework - no type stubs available for all supported versions
+[[tool.mypy.overrides]]
+module = "robot.*"
+ignore_missing_imports = true
+
+# External libraries that may have incomplete stubs or no stubs at all
+[[tool.mypy.overrides]]
+module = ["typer.*", "click.*", "rich.*", "rich_click.*", "platformdirs.*", "tomli.*", "tomli_w.*", "jinja2.*"]
+ignore_missing_imports = true
+
+# CLI module - intentionally passes None values to dataclasses which are handled by overwrite()
+# Also uses untyped decorators from typer/click and subclasses from Any-typed base classes
+[[tool.mypy.overrides]]
+module = "robocop.run"
+disable_error_code = ["arg-type", "attr-defined", "unused-ignore", "misc"]

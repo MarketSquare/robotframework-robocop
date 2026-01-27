@@ -1,6 +1,4 @@
-from robocop.linter.rules import VisitorChecker
-from robocop.linter.rules import Rule, RuleSeverity
-
+from robocop.linter.rules import VisitorChecker, Rule, RuleSeverity
 
 class ExternalRule(Rule):
     name = "external-rule2"
@@ -14,6 +12,6 @@ class CustomRuleChecker2(VisitorChecker):
 
     external_rule2: ExternalRule
 
-    def visit_KeywordCall(self, node):  # noqa: N802
+    def visit_KeywordCall(self, node) -> None:  # noqa: N802
         if node.keyword and "Example" not in node.keyword:
             self.report(self.external_rule2, node=node)

@@ -3,26 +3,19 @@ from __future__ import annotations
 import ast
 import difflib
 import re
-from re import Pattern
-
-import click
-
-try:
-    from rich.markup import escape
-except ImportError:  # Fails on vendored-in LSP plugin
-    escape = None
-
 from typing import TYPE_CHECKING
 
+import click
+from rich.markup import escape
 from robot.api.parsing import Comment, End, If, IfHeader, ModelVisitor, Token
 from robot.parsing.model import Statement
 from robot.utils.robotio import file_writer
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable
+    from collections.abc import Generator, Iterable
 
 
-def validate_regex(value: str | None) -> Pattern | None:
+def validate_regex(value: str | None) -> re.Pattern[str] | None:
     try:
         return re.compile(value) if value is not None else None
     except re.error:
@@ -49,30 +42,30 @@ def decorate_diff_with_color(contents: list[str]) -> list[str]:
     return lines
 
 
-def escape_rich_markup(lines):
+def escape_rich_markup(lines: list[str]) -> list[str]:
     return [escape(line) for line in lines]
 
 
-def normalize_name(name):
+def normalize_name(name: str) -> str:
     return name.lower().replace("_", "").replace(" ", "")
 
 
-def after_last_dot(name):
+def after_last_dot(name: str) -> str:
     return name.split(".")[-1]
 
 
-def round_to_four(number):
+def round_to_four(number: int) -> int:
     div = number % 4
     if div:
         return number + 4 - div
     return number
 
 
-def any_non_sep(tokens):
+def any_non_sep(tokens: list[Token]) -> bool:
     return any(token.type not in (Token.EOL, Token.SEPARATOR, Token.EOS) for token in tokens)
 
 
-def tokens_by_lines(node):
+def tokens_by_lines(node: Statement) -> Generator[list[Token], None, None]:
     for line in node.lines:
         if not any_non_sep(line):
             continue
@@ -88,7 +81,7 @@ def tokens_by_lines(node):
         yield [token for token in line if token.type not in (Token.SEPARATOR, Token.EOS)]
 
 
-def left_align(node):
+def left_align(node: Statement) -> Statement:
     """Remove leading separator token"""
     tokens = list(node.tokens)
     if tokens:
@@ -97,10 +90,10 @@ def left_align(node):
 
 
 class RecommendationFinder:
-    def find_similar(self, name, candidates):
+    def find_similar(self, name: str, candidates: list[str]) -> str:
         norm_name = name.lower()
         norm_cand = self.get_normalized_candidates(candidates)
-        matches = self.find(norm_name, norm_cand.keys())
+        matches = self.find(norm_name, list(norm_cand.keys()))
         if not matches:
             return ""
         matches = self.get_original_candidates(matches, norm_cand)
@@ -110,7 +103,7 @@ class RecommendationFinder:
         suggestion += "\n".join(f"    {match}" for match in matches)
         return suggestion
 
-    def find(self, name, candidates, max_matches=2):
+    def find(self, name: str, candidates: list[str], max_matches: int = 2) -> list[str]:
         """Return a list of close matches to `name` from `candidates`."""
         if not name or not candidates:
             return []
@@ -118,7 +111,7 @@ class RecommendationFinder:
         return difflib.get_close_matches(name, candidates, n=max_matches, cutoff=cutoff)
 
     @staticmethod
-    def _calculate_cutoff(string, min_cutoff=0.5, max_cutoff=0.85, step=0.03):
+    def _calculate_cutoff(string: str, min_cutoff: float = 0.5, max_cutoff: float = 0.85, step: float = 0.03) -> float:
         """
         Calculate cutoff.
 
@@ -128,12 +121,12 @@ class RecommendationFinder:
         return min(cutoff, max_cutoff)
 
     @staticmethod
-    def get_original_candidates(candidates, norm_candidates):
+    def get_original_candidates(candidates: list[str], norm_candidates: dict[str, list[str]]) -> list[str]:
         """Map found normalized candidates to unique original candidates."""
         return sorted({c for cand in candidates for c in norm_candidates[cand]})
 
     @staticmethod
-    def get_normalized_candidates(candidates):
+    def get_normalized_candidates(candidates: list[str]) -> dict[str, list[str]]:
         norm_cand = {cand.lower(): [cand] for cand in candidates}
         # most popular typos
         norm_cand["align"] = ["AlignSettingsSection", "AlignVariablesSection"]
@@ -151,19 +144,19 @@ class RecommendationFinder:
         return norm_cand
 
 
-class ModelWriter(ModelVisitor):  # TODO: potentially replace with get source_lines -> write to file
-    def __init__(self, output, newline):
+class ModelWriter(ModelVisitor):  # type: ignore[misc] # TODO: potentially replace with get source_lines -> write to file
+    def __init__(self, output: str, newline: str) -> None:
         self.writer = file_writer(output, newline=newline)
         self.close_writer = True
 
-    def write(self, model):
+    def write(self, model: Statement) -> None:
         try:
             self.visit(model)
         finally:
             if self.close_writer:
                 self.writer.close()
 
-    def visit_Statement(self, statement):  # noqa: N802
+    def visit_Statement(self, statement: Statement) -> None:  # noqa: N802
         for token in statement.tokens:
             self.writer.write(token.value)
 
@@ -172,18 +165,18 @@ class TestTemplateFinder(ast.NodeVisitor):
     def __init__(self) -> None:
         self.templated = False
 
-    def visit_TestTemplate(self, node):
-        if node.value:
+    def visit_TestTemplate(self, node: ast.AST) -> None:
+        if hasattr(node, "value") and node.value:
             self.templated = True
 
 
-def is_suite_templated(node):
+def is_suite_templated(node: Statement) -> bool:
     template_finder = TestTemplateFinder()
     template_finder.visit(node)
     return template_finder.templated
 
 
-def is_blank_multiline(statements):
+def is_blank_multiline(statements: list[Token]) -> bool:
     return (
         statements[0].type == Token.CONTINUATION
         and len(statements) == 3
@@ -192,11 +185,11 @@ def is_blank_multiline(statements):
     )
 
 
-def create_statement_from_tokens(statement, tokens: Iterable, indent: Token):
+def create_statement_from_tokens(statement: type[Statement], tokens: Iterable[Token], indent: Token) -> Statement:
     return statement([indent, Token(statement.type), *tokens])
 
 
-def wrap_in_if_and_replace_statement(node, statement, default_separator: str):
+def wrap_in_if_and_replace_statement(node: Statement, statement: type[Statement], default_separator: str) -> Statement:
     if len(node.data_tokens) < 2:
         return node
     condition = node.data_tokens[1]
@@ -224,7 +217,7 @@ def wrap_in_if_and_replace_statement(node, statement, default_separator: str):
     return If(header=header, body=[body], orelse=None, end=end)
 
 
-def get_comments(tokens):
+def get_comments(tokens: list[Token]) -> list[Token]:
     prev_sep = ""
     comments = []
     for token in tokens:
@@ -240,7 +233,7 @@ def get_comments(tokens):
     return comments
 
 
-def merge_comments_into_one(tokens) -> Token | None:
+def merge_comments_into_one(tokens: list[Token]) -> Token | None:
     comments = [token.value.lstrip("#").strip() for token in tokens if token.type == Token.COMMENT]
     if not comments:
         return None
@@ -248,7 +241,7 @@ def merge_comments_into_one(tokens) -> Token | None:
     return Token(Token.COMMENT, f"# {comment}")
 
 
-def collect_comments_from_tokens(tokens, indent):
+def collect_comments_from_tokens(tokens: list[Token], indent: Token | None) -> list[Comment]:
     comments = get_comments(tokens)
     eol = Token(Token.EOL)
     if indent:
@@ -256,7 +249,7 @@ def collect_comments_from_tokens(tokens, indent):
     return [Comment([comment, eol]) for comment in comments]
 
 
-def flatten_multiline(tokens, separator, remove_comments: bool = False):
+def flatten_multiline(tokens: list[Token], separator: str, remove_comments: bool = False) -> list[Token]:
     flattened = []
     skip_start = False
     for tok in tokens[:-1]:
@@ -278,7 +271,7 @@ def flatten_multiline(tokens, separator, remove_comments: bool = False):
     return flattened
 
 
-def split_on_token_type(tokens, token_type) -> tuple[list[Token], list[Token]]:
+def split_on_token_type(tokens: list[Token], token_type: str) -> tuple[list[Token], list[Token]]:
     """Split list of tokens into two lists on token with token_type type."""
     for index, token in enumerate(tokens):
         if token.type == token_type:
@@ -286,7 +279,7 @@ def split_on_token_type(tokens, token_type) -> tuple[list[Token], list[Token]]:
     return tokens, []
 
 
-def split_on_token_value(tokens, value, resolve: int):
+def split_on_token_value(tokens: list[Token], value: str, resolve: int) -> tuple[list[Token], list[Token], list[Token]]:
     """
     Split list of tokens into three lists based on token value.
 
@@ -301,37 +294,37 @@ def split_on_token_value(tokens, value, resolve: int):
     return [], [], tokens
 
 
-def join_tokens_with_token(tokens, token):
+def join_tokens_with_token(tokens: list[Token], token: Token) -> list[Token]:
     """Insert token between every token in tokens list."""
     joined = [token] * (len(tokens) * 2 - 1)
     joined[0::2] = tokens
     return joined
 
 
-def is_token_value_in_tokens(value, tokens):
+def is_token_value_in_tokens(value: str, tokens: list[Token]) -> bool:
     return any(value == token.value for token in tokens)
 
 
-def get_new_line(indent=None):
+def get_new_line(indent: Token | None = None) -> list[Token]:
     if indent:
         return [Token(Token.EOL), indent, Token(Token.CONTINUATION)]
     return [Token(Token.EOL), Token(Token.CONTINUATION)]
 
 
-def is_var(value: str):
+def is_var(value: str) -> bool:
     return len(value) > 3 and value.startswith("${") and value.endswith("}")
 
 
-def get_line_length(tokens):
+def get_line_length(tokens: list[Token]) -> int:
     return sum(len(token.value) for token in tokens)
 
 
-def get_line_length_with_sep(tokens, sep_len: int):
+def get_line_length_with_sep(tokens: list[Token], sep_len: int) -> int:
     return get_line_length(tokens) + ((len(tokens) - 1) * sep_len)
 
 
-def join_comments(comments) -> list:
-    tokens = []
+def join_comments(comments: list[Token]) -> list[Token]:
+    tokens: list[Token] = []
     separator = Token(Token.SEPARATOR, "  ")
     for token in comments:
         tokens.append(separator)

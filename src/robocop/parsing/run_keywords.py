@@ -13,8 +13,8 @@ if TYPE_CHECKING:
 
 class RunKeywordVariant:
     def __init__(
-        self, lib_name: str, name: str, resolve: int = 1, branches: list | None = None, split_on_and: bool = False
-    ):
+        self, lib_name: str, name: str, resolve: int = 1, branches: list[str] | None = None, split_on_and: bool = False
+    ) -> None:
         self.lib_name = lib_name
         self.name = normalize_robot_name(name)
         self.full_name = f"{self.lib_name}.{self.name}"
@@ -23,15 +23,15 @@ class RunKeywordVariant:
         self.split_on_and = split_on_and
 
 
-class RunKeywords(dict):
-    def __init__(self, keywords: list[RunKeywordVariant]):
-        normalized_keywords = {}
+class RunKeywords(dict[str, RunKeywordVariant]):
+    def __init__(self, keywords: list[RunKeywordVariant]) -> None:
+        normalized_keywords: dict[str, RunKeywordVariant] = {}
         for keyword_variant in keywords:
             normalized_keywords[keyword_variant.name] = keyword_variant
             normalized_keywords[keyword_variant.full_name] = keyword_variant
         super().__init__(normalized_keywords)
 
-    def __setitem__(self, keyword_name: str, kw_variant: RunKeywordVariant):
+    def __setitem__(self, keyword_name: str, kw_variant: RunKeywordVariant) -> None:
         super().__setitem__(kw_variant.name, kw_variant)
         super().__setitem__(kw_variant.full_name, kw_variant)
 
@@ -39,15 +39,17 @@ class RunKeywords(dict):
         normalized_name = normalize_robot_name(keyword_name)
         return super().__getitem__(normalized_name)
 
-    def __contains__(self, keyword_name: str) -> bool:
+    def __contains__(self, keyword_name: object) -> bool:
+        if not isinstance(keyword_name, str):
+            return False
         normalized_name = normalize_robot_name(keyword_name)
         return super().__contains__(normalized_name)
 
-    def get(self, keyword_name: str) -> RunKeywordVariant | None:
+    def get(self, keyword_name: str, default: RunKeywordVariant | None = None) -> RunKeywordVariant | None:  # type: ignore[override]
         normalized_name = normalize_robot_name(keyword_name)
-        return super().get(normalized_name, None)
+        return super().get(normalized_name, default)
 
-    def __missing__(self, keyword_name: str):
+    def __missing__(self, keyword_name: str) -> None:
         return None
 
 

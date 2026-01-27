@@ -15,7 +15,7 @@ import copy
 import inspect
 import pathlib
 import textwrap
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 try:
     import rich_click as click
@@ -33,6 +33,19 @@ from robocop.version_handling import ROBOT_VERSION
 
 if TYPE_CHECKING:
     from collections.abc import Generator
+    from pathlib import Path
+
+    from robocop.config import WhitespaceConfig
+    from robocop.formatter.disablers import DisablersInFile
+
+    try:
+        from robot.api import Languages  # RF 6.0+
+    except ImportError:
+        Languages = type(None)  # Fallback for RF < 6.0
+
+# Type aliases for complicated types
+FormatterArgs = dict[str, dict[str, Any]]  # Maps formatter name to its configuration parameters
+
 
 FORMATTERS = [
     "NormalizeSeparators",
@@ -72,7 +85,7 @@ IMPORTER = Importer()
 
 
 class FormatterParameter:
-    def __init__(self, name, default_value):
+    def __init__(self, name: str, default_value: Any) -> None:
         self.name = name
         self.value = default_value
 
@@ -83,16 +96,16 @@ class FormatterParameter:
 
 
 class FormatterContainer:
-    """Stub for formatter container class that holds the formatter instance and its metadata."""
+    """Stub for a formatter container class that holds the formatter instance and its metadata."""
 
-    def __init__(self, instance, argument_names, spec, args):
+    def __init__(self, instance: ModelTransformer, argument_names: list[str], spec: Any, args: dict[str, Any]) -> None:
         self.instance = instance
         self.name = instance.__class__.__name__
         self.enabled_by_default = getattr(instance, "ENABLED", True)
         self.parameters = self.get_parameters(argument_names, spec)
         self.args = args
 
-    def get_parameters(self, argument_names, spec):
+    def get_parameters(self, argument_names: list[str], spec: Any) -> list[FormatterParameter]:
         params = []
         for arg in argument_names:
             if arg == "enabled":
@@ -111,16 +124,18 @@ class FormatterContainer:
 
 
 class Formatter(ModelTransformer):
-    def __init__(self, skip: Skip | None = None):
-        self.formatting_config = None  # to make lint happy (we're injecting the configs)
-        self.languages = None
-        self.formatters: dict = {}
-        self.disablers = None
-        self.config_directory = None
-        self.skip = skip
+    # Injected at runtime
+    skip: Skip
+    formatting_config: WhitespaceConfig
+    disablers: DisablersInFile
+    languages: Languages
+    config_directory: Path
+
+    def __init__(self) -> None:
+        self.formatters: dict[str, ModelTransformer] = {}
 
 
-def get_formatter_short_name(name: str):
+def get_formatter_short_name(name: str) -> str:
     """
     Remove module path or file extension for better printing the errors.
 
@@ -135,14 +150,14 @@ def get_formatter_short_name(name: str):
     return name.rsplit(".")[-1]
 
 
-def get_absolute_path_to_formatter(name):
+def get_absolute_path_to_formatter(name: str) -> str | pathlib.Path:
     """Return an absolute path to the formatter if it's not a default formatter."""
     if pathlib.Path(name).exists():
         return pathlib.Path(name).resolve()
     return name
 
 
-def load_formatters_from_module(module):
+def load_formatters_from_module(module: Any) -> dict[str, type[ModelTransformer]]:
     classes = inspect.getmembers(module, inspect.isclass)
     return {
         name: formatter_class
@@ -156,7 +171,7 @@ def load_formatters_from_module(module):
     }
 
 
-def order_formatters(formatters, module):
+def order_formatters(formatters: dict[str, type[ModelTransformer]], module: Any) -> dict[str, type[ModelTransformer]]:
     """If the module contains FORMATTERS list, order formatters using this list."""
     formatters_list = getattr(module, "FORMATTERS", [])
     if not (formatters_list and isinstance(formatters_list, list)):
@@ -172,7 +187,7 @@ def order_formatters(formatters, module):
 
 
 def import_formatter(
-    name: str, formatter_args: dict[str, dict], skip_config: SkipConfig
+    name: str, formatter_args: FormatterArgs, skip_config: SkipConfig
 ) -> Generator[FormatterContainer, None, None]:
     if name in FORMATTERS:
         yield from import_default_formatter(name, formatter_args, skip_config)
@@ -181,7 +196,7 @@ def import_formatter(
 
 
 def import_default_formatter(
-    name: str, formatter_args: dict[str, dict], skip_config: SkipConfig
+    name: str, formatter_args: FormatterArgs, skip_config: SkipConfig
 ) -> Generator[FormatterContainer, None, None]:
     import_path = f"robocop.formatter.formatters.{name}"
     imported = IMPORTER.import_class_or_module(import_path)
@@ -189,7 +204,7 @@ def import_default_formatter(
 
 
 def import_custom_formatter(
-    name: str, formatter_args: dict[str, dict], skip_config: SkipConfig
+    name: str, formatter_args: FormatterArgs, skip_config: SkipConfig
 ) -> Generator[FormatterContainer, None, None]:
     try:
         short_name = get_formatter_short_name(name)
@@ -212,15 +227,20 @@ def import_custom_formatter(
         ) from None
 
 
-def create_formatter_instance(imported_class, short_name, args, skip_config: SkipConfig):
+def create_formatter_instance(
+    imported_class: type[ModelTransformer], short_name: str, args: dict[str, Any], skip_config: SkipConfig
+) -> FormatterContainer:
     spec = IMPORTER._get_arg_spec(imported_class)  # noqa: SLF001
-    handles_skip = getattr(imported_class, "HANDLES_SKIP", {})
-    positional, named, argument_names = resolve_args(short_name, spec, args, skip_config, handles_skip=handles_skip)
+    handles_skip: frozenset[str] = getattr(imported_class, "HANDLES_SKIP", frozenset())
+    positional, named, argument_names, skip = resolve_args(
+        short_name, spec, args, skip_config, handles_skip=handles_skip
+    )
     instance = imported_class(*positional, **named)
+    instance.skip = skip
     return FormatterContainer(instance, argument_names, spec, args)
 
 
-def split_args_to_class_and_skip(args) -> tuple[dict, dict]:
+def split_args_to_class_and_skip(args: dict[str, Any]) -> tuple[dict[str, Any], dict[str, Any]]:
     filtered_args = {}
     skip_args = {}
     for arg, value in args.items():
@@ -233,7 +253,7 @@ def split_args_to_class_and_skip(args) -> tuple[dict, dict]:
     return filtered_args, skip_args
 
 
-def resolve_argument_names(argument_names: list[str], handles_skip):
+def resolve_argument_names(argument_names: list[str], handles_skip: frozenset[str]) -> list[str]:
     """Get formatter argument names with resolved skip parameters."""
     new_args = ["enabled"]
     if "skip" not in argument_names:
@@ -243,7 +263,7 @@ def resolve_argument_names(argument_names: list[str], handles_skip):
     return new_args
 
 
-def assert_handled_arguments(formatter, args: dict, argument_names):
+def assert_handled_arguments(formatter: str, args: dict[str, Any], argument_names: list[str]) -> None:
     """
     Check if provided arguments are handled by given formatter.
 
@@ -260,7 +280,7 @@ def assert_handled_arguments(formatter, args: dict, argument_names):
             raise InvalidParameterError(formatter, similar) from None
 
 
-def get_skip_args_from_spec(spec):
+def get_skip_args_from_spec(spec: Any) -> dict[str, Any]:
     """
     Retrieve skip-like options from the class signature.
 
@@ -275,7 +295,7 @@ def get_skip_args_from_spec(spec):
     return defaults
 
 
-def get_skip_class(spec, skip_args, global_skip: SkipConfig):
+def get_skip_class(spec: Any, skip_args: dict[str, Any], global_skip: SkipConfig) -> Skip:
     defaults = get_skip_args_from_spec(spec)
     defaults.update(skip_args)
     skip_config = copy.deepcopy(global_skip)
@@ -283,7 +303,9 @@ def get_skip_class(spec, skip_args, global_skip: SkipConfig):
     return Skip(skip_config)
 
 
-def resolve_args(formatter, spec, args, global_skip: SkipConfig, handles_skip):
+def resolve_args(
+    formatter: str, spec: Any, args: dict[str, Any], global_skip: SkipConfig, handles_skip: frozenset[str]
+) -> tuple[list[Any], dict[str, Any], list[str], Skip]:
     """
     Use class definition to identify which arguments from the configuration should be used to invoke it.
 
@@ -291,23 +313,22 @@ def resolve_args(formatter, spec, args, global_skip: SkipConfig, handles_skip):
     Class arguments are resolved with their definition, and if a class accepts the "skip" parameter, the Skip class
     will be also added to class arguments.
     """
-    args, skip_args = split_args_to_class_and_skip(args)
+    class_args, skip_args = split_args_to_class_and_skip(args)
     spec_args = list(spec.argument_names)
     argument_names = resolve_argument_names(spec_args, handles_skip)
-    assert_handled_arguments(formatter, args, argument_names)
+    assert_handled_arguments(formatter, class_args, argument_names)
     try:
-        args = [f"{arg}={value}" for arg, value in args.items()]
-        positional, named = spec.resolve(args)
+        args_list = [f"{arg}={value}" for arg, value in class_args.items()]
+        positional, named = spec.resolve(args_list)
         named = dict(named)
-        if "skip" in spec_args:
-            named["skip"] = get_skip_class(spec, skip_args, global_skip)
+        skip = get_skip_class(spec, skip_args, global_skip)
     except ValueError as err:
         raise InvalidParameterError(formatter, f" {err}") from None
     else:
-        return positional, named, argument_names
+        return positional, named, argument_names, skip
 
 
-def can_run_in_robot_version(formatter, overwritten, target_version):
+def can_run_in_robot_version(formatter: ModelTransformer, overwritten: bool, target_version: int) -> bool:
     if not hasattr(formatter, "MIN_VERSION"):
         return True
     if target_version >= formatter.MIN_VERSION:

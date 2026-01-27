@@ -48,7 +48,7 @@ class FormatterAcceptanceTest:
         test_on_version: str | None = None,
         run_all: bool = False,
         select: list[str] | None = None,
-        **kwargs,
+        **kwargs: object,
     ):
         """
         Compare actual (source) and expected files.
@@ -82,7 +82,7 @@ class FormatterAcceptanceTest:
         exit_code: int = 0,
         not_modified: bool = False,
         test_on_version: str | None = None,
-        **kwargs,
+        **kwargs: object,
     ):
         if not self.enabled_in_version(test_on_version):
             pytest.skip(f"Test enabled only for RF {test_on_version}")

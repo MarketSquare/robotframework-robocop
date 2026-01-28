@@ -1,5 +1,63 @@
 # Release notes
 
+## [8.0.0](https://github.com/MarketSquare/robotframework-robocop/compare/v7.2.0...v8.0.0) (2026-01-24)
+
+
+### ⚠ BREAKING CHANGES
+
+* add deprecated-return-keyword rule fix and deprecate ReplaceReturns formatter ([#1643](https://github.com/MarketSquare/robotframework-robocop/issues/1643))
+* deprecate deprecated-statement rule and split into deprecated-return-setting ([#1639](https://github.com/MarketSquare/robotframework-robocop/issues/1639))
+* Drop support for Python 3.9 and Robot Framework 4.* ([#1619](https://github.com/MarketSquare/robotframework-robocop/issues/1619))
+* Add fixable rules ([#1617](https://github.com/MarketSquare/robotframework-robocop/issues/1617))w
+* Refactor source files handling with common SourceFile class ([#1615](https://github.com/MarketSquare/robotframework-robocop/issues/1615))
+
+### Features
+
+* add deprecated-return-keyword rule fix and deprecate ReplaceReturns formatter ([#1643](https://github.com/MarketSquare/robotframework-robocop/issues/1643)) ([48e747c](https://github.com/MarketSquare/robotframework-robocop/commit/48e747c9dbbfce3edd30add4120bcec30d03bf62))
+* Add different kind of TextEdit for convenience ([#1641](https://github.com/MarketSquare/robotframework-robocop/issues/1641)) ([95bd99f](https://github.com/MarketSquare/robotframework-robocop/commit/95bd99f558c19c3c76b970e704a73193f03db08b))
+* Add fix to deprecate-return-setting rule ([#1642](https://github.com/MarketSquare/robotframework-robocop/issues/1642)) ([113c011](https://github.com/MarketSquare/robotframework-robocop/commit/113c011cbaa04cbc349abf13b6c09146d0f4d3b7))
+* Add fixable rules ([#1617](https://github.com/MarketSquare/robotframework-robocop/issues/1617))w ([128c849](https://github.com/MarketSquare/robotframework-robocop/commit/128c849f320d392fa267653c737a0616fb62b620))
+* add performance tests to benchmark Robocop on release ([#1611](https://github.com/MarketSquare/robotframework-robocop/issues/1611)) ([eea1c56](https://github.com/MarketSquare/robotframework-robocop/commit/eea1c5692dd908ee3d64b82088e532c9e54914f0))
+* allow to check and report issue from the rule class ([#1644](https://github.com/MarketSquare/robotframework-robocop/issues/1644)) ([8aff795](https://github.com/MarketSquare/robotframework-robocop/commit/8aff795642436c1e39dd5d37ab31acd4ec6f3704))
+* Deprecate AddMissingEnd formatter ([#1647](https://github.com/MarketSquare/robotframework-robocop/issues/1647)) ([b97368c](https://github.com/MarketSquare/robotframework-robocop/commit/b97368ce2d96b092ead145c29d8e201361690d63))
+* deprecate deprecated-statement rule and split into deprecated-return-setting ([#1639](https://github.com/MarketSquare/robotframework-robocop/issues/1639)) ([2f9010a](https://github.com/MarketSquare/robotframework-robocop/commit/2f9010ae3c1d3d0793086d8ccf5f74e85e3a7e3f))
+* do not print diagnostic messages in diff mode, only file changes ([#1625](https://github.com/MarketSquare/robotframework-robocop/issues/1625)) ([41f4ff0](https://github.com/MarketSquare/robotframework-robocop/commit/41f4ff0784ec5cadb4687a6ed2615db9680e36ee))
+* Drop support for Python 3.9 and Robot Framework 4.* ([#1619](https://github.com/MarketSquare/robotframework-robocop/issues/1619)) ([2e73142](https://github.com/MarketSquare/robotframework-robocop/commit/2e731420ccc210bbfc2519a639b2618a1e486ed1))
+* Filter fixable rules with --fixable and --unfixable ([#1620](https://github.com/MarketSquare/robotframework-robocop/issues/1620)) ([ed91630](https://github.com/MarketSquare/robotframework-robocop/commit/ed916307e5696483616eadaff68c8481759e69b3))
+* Fix rule where it is being report ([#1630](https://github.com/MarketSquare/robotframework-robocop/issues/1630)) ([443d59b](https://github.com/MarketSquare/robotframework-robocop/commit/443d59b71211c60aea549415f837541e9d641da7))
+* Improve performance of inconsistent-variable-name and possible-overwriting rules ([#1646](https://github.com/MarketSquare/robotframework-robocop/issues/1646)) ([581ec82](https://github.com/MarketSquare/robotframework-robocop/commit/581ec828bec3a38c41c71fab4e72d71ed6e6b350))
+* Improve performance of unused-variable and unused-argument rules ([#1645](https://github.com/MarketSquare/robotframework-robocop/issues/1645)) ([4bb29c4](https://github.com/MarketSquare/robotframework-robocop/commit/4bb29c43c78bcb6cc74b8c96f8da5a3d61279234))
+* list rules can now return result programatically ([#1629](https://github.com/MarketSquare/robotframework-robocop/issues/1629)) ([457d135](https://github.com/MarketSquare/robotframework-robocop/commit/457d135c053be6dd5c0f8727d7ac6c07ee23e918))
+* refactor source file handling ([#1613](https://github.com/MarketSquare/robotframework-robocop/issues/1613)) ([0e7f04e](https://github.com/MarketSquare/robotframework-robocop/commit/0e7f04ee07ea271610f55fe67af59dfd912292cd))
+* split deprecated-statement to deprecated-force-tags and add fix for it ([#1622](https://github.com/MarketSquare/robotframework-robocop/issues/1622)) ([0316605](https://github.com/MarketSquare/robotframework-robocop/commit/03166058f8d76e8476e8166741793eb3f07aa089))
+* split deprecated-statement to deprecated-loop-keyword rule ([#1637](https://github.com/MarketSquare/robotframework-robocop/issues/1637)) ([9342c67](https://github.com/MarketSquare/robotframework-robocop/commit/9342c677068ed058f23dbc7165870ba3ec9ee380))
+* split deprecated-statement to deprecated-return-keyword ([#1638](https://github.com/MarketSquare/robotframework-robocop/issues/1638)) ([a0fcd14](https://github.com/MarketSquare/robotframework-robocop/commit/a0fcd14aaf254cebb2a5f98378ef061f217da8d7))
+* split deprecated-statement to deprecated-run-keyword-if rule ([#1632](https://github.com/MarketSquare/robotframework-robocop/issues/1632)) ([a974abd](https://github.com/MarketSquare/robotframework-robocop/commit/a974abd29c45ed25c3753ec56210b4d423786e42))
+* Variable type conversion - support duplicate-argument rule ([#1654](https://github.com/MarketSquare/robotframework-robocop/issues/1654)) ([af8d35a](https://github.com/MarketSquare/robotframework-robocop/commit/af8d35a72b6a3e33d94a5f3127369156f80366c2))
+* Variable type conversion - support duplicated-assigned-var-name rule ([#1650](https://github.com/MarketSquare/robotframework-robocop/issues/1650)) ([3f304e5](https://github.com/MarketSquare/robotframework-robocop/commit/3f304e5c8fe8136a23fc0a7adeb8eccd24b1ba66))
+* Variable type conversion - support inconsistent-variable-name rule ([#1651](https://github.com/MarketSquare/robotframework-robocop/issues/1651)) ([9a0f525](https://github.com/MarketSquare/robotframework-robocop/commit/9a0f525b51e1e89baa54e87ee41ade37715e5277))
+* Variable type conversion - support non-local-variables-should-be-uppercase ([#1652](https://github.com/MarketSquare/robotframework-robocop/issues/1652)) ([97f4725](https://github.com/MarketSquare/robotframework-robocop/commit/97f47250dc9685d830ab1c3c460f8c217d86ca43))
+* Variable type conversion - support possible-variable-overwriting' rule ([#1653](https://github.com/MarketSquare/robotframework-robocop/issues/1653)) ([322cd95](https://github.com/MarketSquare/robotframework-robocop/commit/322cd95ac352a23d75797f9d19d61add0d3101be))
+
+
+### Bug Fixes
+
+* Fix [#1174](https://github.com/MarketSquare/robotframework-robocop/issues/1174) expression-can-be-simplified raised for == 0 ([#1649](https://github.com/MarketSquare/robotframework-robocop/issues/1649)) ([d0f4985](https://github.com/MarketSquare/robotframework-robocop/commit/d0f49857c07bf14696acde6531497ed88447bee7))
+* Fix [#1422](https://github.com/MarketSquare/robotframework-robocop/issues/1422) - ReplaceWithVAR formatter replacing variables with item access ([#1648](https://github.com/MarketSquare/robotframework-robocop/issues/1648)) ([a9c3377](https://github.com/MarketSquare/robotframework-robocop/commit/a9c3377bb1b7b40b798d68f7b59f5903f06477bc))
+* Fix caching the issues with fixes ([#1623](https://github.com/MarketSquare/robotframework-robocop/issues/1623)) ([256874b](https://github.com/MarketSquare/robotframework-robocop/commit/256874b096e6fcf9e3bbb7e6ed501e19fc61c1b0))
+* Fix not all issue format parameters supported by extended output ([#1624](https://github.com/MarketSquare/robotframework-robocop/issues/1624)) ([727c38d](https://github.com/MarketSquare/robotframework-robocop/commit/727c38d9d39d63c0b4fc4563bf40a9e0f2680222))
+* multiple paths passed to robocop check/format command resolving to the same config ([#1614](https://github.com/MarketSquare/robotframework-robocop/issues/1614)) ([bdcfd48](https://github.com/MarketSquare/robotframework-robocop/commit/bdcfd489f7a0b5e00c190ae8a7fc9a87a22c25f0))
+
+
+### Documentation
+
+* Fix rst-style urls in the documentation ([#1640](https://github.com/MarketSquare/robotframework-robocop/issues/1640)) ([eb1dcab](https://github.com/MarketSquare/robotframework-robocop/commit/eb1dcababfa81b5d47af59066d952c22a844247d))
+
+
+### Refactoring
+
+* Refactor source files handling with common SourceFile class ([#1615](https://github.com/MarketSquare/robotframework-robocop/issues/1615)) ([25d30da](https://github.com/MarketSquare/robotframework-robocop/commit/25d30dabfc2840d253da4aa0e692fb75ef188d31))
+
 ## [7.2.0](https://github.com/MarketSquare/robotframework-robocop/compare/v7.1.0...v7.2.0) (2026-01-01)
 
 

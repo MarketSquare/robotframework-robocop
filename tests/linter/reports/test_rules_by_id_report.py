@@ -3,7 +3,6 @@ from pathlib import Path
 
 import pytest
 
-from robocop.config import Config
 from robocop.linter.diagnostics import Diagnostic, Diagnostics
 from robocop.linter.reports.rules_by_id_report import RulesByIdReport
 from robocop.source_file import SourceFile
@@ -69,6 +68,7 @@ class TestRulesByIdReport:
     )
     def test_rules_by_id_report(
         self,
+        empty_config,
         previous_results,
         compare_results,
         issues_names,
@@ -76,19 +76,17 @@ class TestRulesByIdReport:
         error_msg,
         warning_msg,
         info_msg,
-        config,
         capsys,
     ):
         issues_map = {"error-message": error_msg, "warning-message": warning_msg, "info-message": info_msg}
-        config.linter.compare = compare_results
-        report = RulesByIdReport(config)
+        empty_config.linter.compare = compare_results
+        report = RulesByIdReport(empty_config)
         issues = []
-        config = Config()
         for issue in issues_names:
             issue_def = issues_map[issue]
             msg = Diagnostic(
                 rule=issue_def,
-                source=SourceFile(path=Path("some/path/file.robot"), config=config),
+                source=SourceFile(path=Path("some/path/file.robot"), config=empty_config),
                 node=None,
                 model=None,
                 lineno=50,
@@ -103,12 +101,12 @@ class TestRulesByIdReport:
         assert out == expected
 
     @pytest.mark.parametrize("compare_runs", [True, False])
-    def test_persistent_save(self, compare_runs, error_msg, warning_msg, info_msg, config):
-        config.linter.compare = compare_runs
+    def test_persistent_save(self, compare_runs, error_msg, warning_msg, info_msg, empty_config):
+        empty_config.linter.compare = compare_runs
         expected = {"0103 [I] (info-message)": 2, "0101 [E] (error-message)": 1, "0102 [W] (warning-message)": 1}
-        report = RulesByIdReport(config)
+        report = RulesByIdReport(empty_config)
         issues = []
-        source_file = SourceFile(path=Path("test.robot"), config=config)
+        source_file = SourceFile(path=Path("test.robot"), config=empty_config)
         for issue in (error_msg, warning_msg, info_msg, info_msg):
             msg = Diagnostic(
                 rule=issue,

@@ -414,7 +414,7 @@ be used to run any code, for example, analysis of the project dependencies and a
 Example project checker:
 
 ```python title="project_checker.py"
-from robocop.config_manager import ConfigManager
+from robocop.config.manager import ConfigManager
 from robocop.linter.rules import Rule, ProjectChecker, RuleSeverity
 
 

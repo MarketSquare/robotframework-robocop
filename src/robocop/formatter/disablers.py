@@ -82,7 +82,7 @@ def is_line_start(node: Node) -> bool:
 
 
 class DisablersInFile:
-    def __init__(self, start_line: int | None, end_line: int | None, file_end: int | None = None) -> None:
+    def __init__(self, start_line: int | None, end_line: int | None, file_end: int) -> None:
         self.start_line = start_line
         self.end_line = end_line
         self.file_end = file_end
@@ -134,7 +134,7 @@ class DisablersInFile:
 
 
 class DisabledLines:
-    def __init__(self, start_line: int | None, end_line: int | None, file_end: int | None) -> None:
+    def __init__(self, start_line: int | None, end_line: int | None, file_end: int) -> None:
         self.start_line = start_line
         self.end_line = end_line
         self.file_end = file_end
@@ -160,7 +160,7 @@ class DisabledLines:
     def sort_disablers(self) -> None:
         self.lines = sorted(self.lines, key=lambda x: x[0])
 
-    def is_header_disabled(self, line: str) -> bool:
+    def is_header_disabled(self, line: int) -> bool:
         return line in self.disabled_headers
 
     def is_node_disabled(self, node: Node, full_match: bool = True) -> bool:
@@ -183,7 +183,7 @@ class RegisterDisablers(ModelVisitor):  # type: ignore[misc]
     def __init__(self, start_line: int | None, end_line: int | None) -> None:
         self.start_line = start_line
         self.end_line = end_line
-        self.disablers = DisablersInFile(start_line, end_line)
+        self.disablers = DisablersInFile(start_line, end_line, 0)
         self.disabler_pattern = re.compile(
             r"\s(?:robocop:\s)?fmt:\s(?P<disabler>on|off)(?:\s?=\s?(?P<formatters>\w+(?:,\s?\w+)*))?"
         )

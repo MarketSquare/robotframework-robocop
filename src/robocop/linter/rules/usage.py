@@ -24,7 +24,7 @@ if TYPE_CHECKING:
     from robot.parsing.model.blocks import File, Keyword, Section
     from robot.parsing.model.statements import KeywordCall, Setup, Statement, Template
 
-    from robocop.config_manager import ConfigManager
+    from robocop.config.manager import ConfigManager
     from robocop.linter.diagnostics import Diagnostic
 
 

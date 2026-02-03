@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import ast
 import difflib
-import fnmatch
 import re
 import token as python_token
 import tokenize
@@ -350,10 +349,6 @@ def pattern_type(value: str | None) -> re.Pattern[str] | None:
     except re.error as err:
         raise ValueError(f"Invalid regex pattern: {err}") from err
     return pattern
-
-
-def compile_rule_pattern(rule_pattern: str) -> re.Pattern[str]:
-    return re.compile(fnmatch.translate(rule_pattern))
 
 
 def get_section_name(node: Section) -> str:

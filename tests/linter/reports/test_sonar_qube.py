@@ -131,13 +131,13 @@ class TestSonarQubeReport:
             ),
         ],
     )
-    def test_sonarqube_report(self, rule, rule2, tmp_path, config, sonar_version, expected):
+    def test_sonarqube_report(self, empty_config, rule, rule2, tmp_path, sonar_version, expected):
         output_file = tmp_path / "reports" / "sonarqube.json"
-        report = SonarQubeReport(config)
+        report = SonarQubeReport(empty_config)
         report.configure("output_path", str(output_file))
         report.configure("sonar_version", sonar_version)
 
-        issues = generate_issues(rule, rule2)
+        issues = generate_issues(empty_config, rule, rule2)
 
         config_manager = Mock()
         config_manager.root = Path.cwd()
@@ -146,16 +146,16 @@ class TestSonarQubeReport:
             sonarqube_report = json.load(fp)
         assert expected == sonarqube_report
 
-    def test_configure_output_path(self, config):
+    def test_configure_output_path(self, empty_config):
         output_path = "path/to/dir/file.json"
-        report = SonarQubeReport(config)
+        report = SonarQubeReport(empty_config)
         report.configure("output_path", output_path)
         assert report.output_path == output_path
 
-    def test_empty_results(self, config, tmp_path):
+    def test_empty_results(self, empty_config, tmp_path):
         # Arrange
         output_file = tmp_path / "report.json"
-        report = SonarQubeReport(config)
+        report = SonarQubeReport(empty_config)
         report.configure("output_path", str(output_file))
         diagnostics = Diagnostics([])
         config_manager = Mock()

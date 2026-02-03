@@ -3,16 +3,24 @@ from unittest.mock import Mock
 
 import pytest
 
-from robocop.formatter.skip import Skip, SkipConfig
+from robocop.config.builder import ConfigBuilder
+from robocop.config.schema import SkipConfig
+from robocop.formatter.skip import Skip
+
+
+@pytest.fixture
+def skip_config() -> SkipConfig:
+    return ConfigBuilder().skip_config_from_raw(None, None)
 
 
 class TestSkip:
     @pytest.mark.parametrize(("keyword_call", "str_keyword_call"), [({"test", "keyword"}, "test,keyword")])
     @pytest.mark.parametrize(("return_values", "str_return_values"), [(True, "True"), (False, "False")])
     @pytest.mark.parametrize(("doc", "str_doc"), [(True, "True"), (False, "False")])
-    def test_from_str_cfg(self, doc, str_doc, return_values, str_return_values, keyword_call, str_keyword_call):
-        skip_config_from_str = SkipConfig()
-        skip_config_from_str.update_with_str_config(
+    def test_from_str_cfg(
+        self, doc, str_doc, return_values, str_return_values, keyword_call, str_keyword_call, skip_config
+    ):
+        skip_config.update_with_str_config(
             documentation=str_doc,
             return_values=str_return_values,
             keyword_call=str_keyword_call,
@@ -22,8 +30,8 @@ class TestSkip:
             skip.add("documentation")
         if return_values:
             skip.add("return_values")
-        skip_config = SkipConfig(skip=skip, keyword_call=keyword_call)
-        assert skip_config_from_str == skip_config
+        skip_config2 = SkipConfig(skip=skip, keyword_call=keyword_call, sections=set(), keyword_call_pattern=set())
+        assert skip_config == skip_config2
 
     @pytest.mark.parametrize(
         ("skip_keyword", "names", "disabled"),
@@ -40,9 +48,8 @@ class TestSkip:
             ),
         ],
     )
-    def test_skip_keyword_call(self, skip_keyword, names, disabled):
+    def test_skip_keyword_call(self, skip_keyword, names, disabled, skip_config):
         mock_node = Mock()
-        skip_config = SkipConfig()
         skip_config.update_with_str_config(keyword_call=skip_keyword)
         skip = Skip(skip_config=skip_config)
         for name, disable in zip(names, disabled, strict=False):
@@ -70,9 +77,8 @@ class TestSkip:
             ("executejavascript", [None], [False]),
         ],
     )
-    def test_skip_keyword_call_pattern(self, skip_keyword, names, disabled):
+    def test_skip_keyword_call_pattern(self, skip_keyword, names, disabled, skip_config):
         mock_node = Mock()
-        skip_config = SkipConfig()
         skip_config.update_with_str_config(keyword_call_pattern=skip_keyword)
         skip = Skip(skip_config=skip_config)
         for name, disable in zip(names, disabled, strict=False):
@@ -81,25 +87,24 @@ class TestSkip:
 
     def test_keyword_call_pattern_invalid(self):
         invalid_regex = "[0-9++"
-        skip_config = SkipConfig(keyword_call_pattern={invalid_regex})
+        skip_config = SkipConfig(keyword_call_pattern={invalid_regex}, sections=set(), skip=set(), keyword_call=set())
         msg_error = re.escape(f"'{invalid_regex}' is not a valid regular expression.")
         with pytest.raises(ValueError, match=msg_error):
             Skip(skip_config=skip_config)
 
-    def test_global_local_skip_documentation(self):
+    def test_global_local_skip_documentation(self, skip_config):
         # local overrides global
-        skip_config = SkipConfig()
         skip_config.update_with_str_config(documentation="True")
         assert "documentation" in skip_config.skip
 
     def test_global_local_keyword_call(self):
         # list are joined
-        skip_config = SkipConfig(keyword_call={"name", "name2"})
+        skip_config = SkipConfig(keyword_call={"name", "name2"}, keyword_call_pattern=set(), sections=set(), skip=set())
         skip_config.update_with_str_config(keyword_call="name,name3")
         assert skip_config.keyword_call == {"name", "name2", "name3"}
 
     def test_only_global_return_values(self):
         # global takes precedence
-        skip_config = SkipConfig(skip={"return_values"})
+        skip_config = SkipConfig(skip={"return_values"}, keyword_call=set(), keyword_call_pattern=set(), sections=set())
         skip_config.update_with_str_config()
         assert "return_values" in skip_config.skip

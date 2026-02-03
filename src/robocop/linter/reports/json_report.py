@@ -65,7 +65,7 @@ class JsonReport(robocop.linter.reports.JsonFileReport):
 
     def generate_report(self, diagnostics: Diagnostics, **kwargs: object) -> None:  # type: ignore[override]  # noqa: ARG002
         issues = [self.message_to_json(diagnostic) for diagnostic in diagnostics]
-        super().generate_report(issues, "JSON")
+        super().generate_report_with_type(issues, "JSON")
 
     @staticmethod
     def message_to_json(message: Diagnostic) -> dict[str, str | int]:

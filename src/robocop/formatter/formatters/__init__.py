@@ -17,25 +17,20 @@ import pathlib
 import textwrap
 from typing import TYPE_CHECKING, Any
 
-try:
-    import rich_click as click
-except ImportError:
-    import click
-
 from robot.api.parsing import ModelTransformer
 from robot.errors import DataError
 from robot.utils.importer import Importer
 
+from robocop.config.defaults import SKIP_OPTIONS
 from robocop.exceptions import ImportFormatterError, InvalidParameterError
-from robocop.formatter.skip import SKIP_OPTIONS, Skip, SkipConfig
+from robocop.formatter.skip import Skip
 from robocop.formatter.utils import misc
-from robocop.version_handling import ROBOT_VERSION
 
 if TYPE_CHECKING:
     from collections.abc import Generator
     from pathlib import Path
 
-    from robocop.config import WhitespaceConfig
+    from robocop.config.schema import SkipConfig, WhitespaceConfig
     from robocop.formatter.disablers import DisablersInFile
 
     try:
@@ -98,7 +93,7 @@ class FormatterParameter:
 class FormatterContainer:
     """Stub for a formatter container class that holds the formatter instance and its metadata."""
 
-    def __init__(self, instance: ModelTransformer, argument_names: list[str], spec: Any, args: dict[str, Any]) -> None:
+    def __init__(self, instance: Formatter, argument_names: list[str], spec: Any, args: dict[str, Any]) -> None:
         self.instance = instance
         self.name = instance.__class__.__name__
         self.enabled_by_default = getattr(instance, "ENABLED", True)
@@ -116,20 +111,22 @@ class FormatterContainer:
         return params
 
     def __str__(self) -> str:
-        s = f"## Formatter {self.name}\n" + textwrap.dedent(self.instance.__doc__)
+        doc = self.instance.__doc__ if self.instance.__doc__ else ""
+        s = f"## Formatter {self.name}\n" + textwrap.dedent(doc)
         if self.parameters:
             s += "\nSupported parameters:\n  - " + "\n - ".join(str(param) for param in self.parameters) + "\n"
         s += f"\nSee <https://robocop.dev/stable/formatter/formatters/{self.name}/> for more examples."
         return s
 
 
-class Formatter(ModelTransformer):
+class Formatter(ModelTransformer):  # type: ignore[misc]
     # Injected at runtime
     skip: Skip
     formatting_config: WhitespaceConfig
     disablers: DisablersInFile
     languages: Languages
     config_directory: Path
+    MIN_VERSION: int | None = None
 
     def __init__(self) -> None:
         self.formatters: dict[str, ModelTransformer] = {}
@@ -326,28 +323,3 @@ def resolve_args(
         raise InvalidParameterError(formatter, f" {err}") from None
     else:
         return positional, named, argument_names, skip
-
-
-def can_run_in_robot_version(formatter: ModelTransformer, overwritten: bool, target_version: int) -> bool:
-    if not hasattr(formatter, "MIN_VERSION"):
-        return True
-    if target_version >= formatter.MIN_VERSION:
-        return True
-    if overwritten:
-        # --select FormatterDisabledInVersion or --configure FormatterDisabledInVersion.enabled=True
-        if target_version == ROBOT_VERSION.major:
-            click.echo(
-                f"{formatter.__class__.__name__} formatter requires Robot Framework {formatter.MIN_VERSION}.* "
-                f"version but you have {ROBOT_VERSION} installed. "
-                f"Upgrade installed Robot Framework if you want to use this formatter.",
-                err=True,
-            )
-        else:
-            click.echo(
-                f"{formatter.__class__.__name__} formatter requires Robot Framework {formatter.MIN_VERSION}.* "
-                f"version but you set --target-version rf{target_version}. "
-                f"Set --target-version to {formatter.MIN_VERSION} or do not forcefully enable this formatter "
-                f"with --select / enable parameter.",
-                err=True,
-            )
-    return False

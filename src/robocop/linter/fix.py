@@ -287,6 +287,7 @@ class FixApplier:
             edit: The edit to apply (uses 1-indexed line/col numbers).
 
         """
+        # TODO: different kind of edits should have different apply_edit
         if edit.kind == TextEditKind.REPLACEMENT:
             if edit.end_line > len(lines) or edit.start_line < 1:
                 return

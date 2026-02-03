@@ -2,7 +2,6 @@ from pathlib import Path
 
 import pytest
 
-from robocop.config import Config
 from robocop.linter.diagnostics import Diagnostic, Diagnostics
 from robocop.linter.reports.file_stats_report import FileStatsReport
 from robocop.source_file import SourceFile
@@ -115,18 +114,17 @@ class TestFileStatReport:
         ],
     )
     def test_file_stats_report(
-        self, previous_results, files, files_with_issues, compare_runs, output, rule, config, capsys
+        self, empty_config, previous_results, files, files_with_issues, compare_runs, output, rule, capsys
     ):
-        config.linter.compare = compare_runs
-        report = FileStatsReport(config)
+        empty_config.linter.compare = compare_runs
+        report = FileStatsReport(empty_config)
         report.files_count = files
         report.files_with_issues = files_with_issues
         issues = []
-        config = Config()
         for file_name in files_with_issues:
             issue = Diagnostic(
                 rule=rule,
-                source=SourceFile(Path(file_name), config=config),
+                source=SourceFile(Path(file_name), config=empty_config),
                 node=None,
                 model=None,
                 lineno=50,
@@ -141,16 +139,15 @@ class TestFileStatReport:
         assert out == output
 
     @pytest.mark.parametrize("compare_runs", [True, False])
-    def test_persistent_save(self, compare_runs, rule, config):
-        config.linter.compare = compare_runs
-        report = FileStatsReport(config)
+    def test_persistent_save(self, compare_runs, rule, empty_config):
+        empty_config.linter.compare = compare_runs
+        report = FileStatsReport(empty_config)
         report.files_count += 1
         issues = []
-        config = Config()
         for source in ("a.robot", "b.robot"):
             issue = Diagnostic(
                 rule=rule,
-                source=SourceFile(Path(source), config=config),
+                source=SourceFile(Path(source), config=empty_config),
                 node=None,
                 lineno=50,
                 col=10,

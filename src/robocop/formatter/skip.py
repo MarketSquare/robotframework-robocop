@@ -1,113 +1,16 @@
 from __future__ import annotations
 
-import re
-from dataclasses import dataclass, field, fields
 from typing import TYPE_CHECKING
 
 from robot.api import Token
 
+from robocop.config.parser import validate_regex
 from robocop.formatter.utils.misc import normalize_name
 
 if TYPE_CHECKING:
     from robot.parsing.model.statements import Comment, KeywordCall
 
-
-def validate_regex(value: str) -> re.Pattern[str]:
-    try:
-        return re.compile(value)
-    except re.error:
-        raise ValueError(f"'{value}' is not a valid regular expression.") from None
-
-
-SKIP_OPTIONS = frozenset(
-    {
-        "skip_documentation",
-        "skip_return_values",
-        "skip_keyword_call",
-        "skip_keyword_call_pattern",
-        "skip_settings",
-        "skip_arguments",
-        "skip_setup",
-        "skip_teardown",
-        "skip_timeout",
-        "skip_template",
-        "skip_return_statement",
-        "skip_tags",
-        "skip_comments",
-        "skip_block_comments",
-        "skip_sections",
-    }
-)
-
-
-@dataclass
-class SkipConfig:
-    skip: set[str] = field(default_factory=set)
-    sections: set[str] = field(default_factory=set)
-    keyword_call: set[str] = field(default_factory=set)
-    keyword_call_pattern: set[str] = field(default_factory=set)
-
-    @property
-    def config_fields(self) -> set[str]:
-        return {"skip", "skip_sections", "skip_keyword_call", "skip_keyword_call_pattern"}
-
-    @classmethod
-    def from_toml(cls, config: dict[str, list[str]]) -> SkipConfig:
-        override = {
-            "skip": config.get("skip", []),
-            "sections": config.get("skip_sections", []),
-            "keyword_call": config.get("skip_keyword_call", []),
-            "keyword_call_pattern": config.get("skip_keyword_call_pattern", []),
-        }
-        return cls.from_lists(**override)
-
-    @classmethod
-    def from_lists(
-        cls,
-        skip: list[str] | None,
-        sections: list[str] | None,
-        keyword_call: list[str] | None,
-        keyword_call_pattern: list[str] | None,
-    ) -> SkipConfig:
-        """
-        Create instance of class from list-type arguments.
-
-        Typer does not support sets yet, so we need to convert lists.
-        """
-        skip_set = set(skip) if skip is not None else set()
-        sections_set = set(sections) if sections is not None else set()
-        keyword_call_set = set(keyword_call) if keyword_call is not None else set()
-        keyword_call_pattern_set = set(keyword_call_pattern) if keyword_call_pattern is not None else set()
-        return cls(
-            skip=skip_set,
-            sections=sections_set,
-            keyword_call=keyword_call_set,
-            keyword_call_pattern=keyword_call_pattern_set,
-        )
-
-    def overwrite(self, other: SkipConfig) -> None:  # TODO refactor with config to not duplicate overwrite
-        """
-        Overwrite options loaded from configuration or default options with config from cli.
-
-        If other has value set to None, it was never set and can be ignored.
-        """
-        for skip_field in fields(other):
-            value = getattr(other, skip_field.name)
-            if value is not None:
-                setattr(self, skip_field.name, value)
-
-    def update_with_str_config(self, **kwargs: str) -> None:
-        for name, value in kwargs.items():
-            if name == "keyword_call":
-                self.keyword_call.update(value.split(","))
-            elif name == "keyword_call_pattern":
-                self.keyword_call_pattern.update(value.split(","))
-            elif name == "sections":
-                self.sections.update(value.split(","))
-            elif value.lower() == "true":
-                self.skip.add(name)
-            else:
-                self.skip.discard(name)
+    from robocop.config.schema import SkipConfig
 
 
 class Skip:
@@ -144,7 +47,7 @@ class Skip:
         return skip_settings
 
     def check_any_keyword_call(self) -> bool:
-        return self.keyword_call_names or self.keyword_call_pattern
+        return bool(self.keyword_call_names or self.keyword_call_pattern)
 
     def keyword_call(self, node: KeywordCall) -> bool:
         if not getattr(node, "keyword", None) or not self.any_keword_call:

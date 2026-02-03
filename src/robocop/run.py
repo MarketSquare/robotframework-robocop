@@ -6,16 +6,18 @@ import click
 import typer
 from rich.console import Console
 
-from robocop import __version__, config, config_manager
+from robocop import __version__, config
+from robocop.config import defaults
+from robocop.config.parser import compile_rule_pattern
 from robocop.formatter.runner import RobocopFormatter
-from robocop.formatter.skip import SkipConfig
 from robocop.linter import rules_list
 from robocop.linter.diagnostics import Diagnostic
 from robocop.linter.reports import load_reports, print_reports
 from robocop.linter.rules import Rule, RuleSeverity
 from robocop.linter.runner import RobocopLinter
-from robocop.linter.utils.misc import ROBOCOP_RULES_URL, compile_rule_pattern, get_plural_form  # TODO: move higher up
+from robocop.linter.utils.misc import ROBOCOP_RULES_URL, get_plural_form  # TODO: move higher up
 from robocop.migrate_config import migrate_deprecated_configs
+from robocop.runtime.resolver import ConfigResolver
 
 
 class CliWithVersion(typer.core.TyperGroup):
@@ -44,7 +46,6 @@ list_app = typer.Typer(help="List available rules, reports or formatters.")
 app.add_typer(list_app, name="list")
 
 
-# TODO: force-order
 config_option = Annotated[
     Path | None,
     typer.Option(
@@ -87,7 +88,7 @@ default_include_option = Annotated[
     typer.Option(
         "--default-include",
         help="Override to change default includes",
-        show_default=str(config.DEFAULT_INCLUDE),
+        show_default=str(defaults.DEFAULT_INCLUDE),
         rich_help_panel="File discovery",
     ),
 ]
@@ -102,7 +103,7 @@ default_exclude_option = Annotated[
     typer.Option(
         "--default-exclude",
         help="Override to change default excludes",
-        show_default=str(config.DEFAULT_EXCLUDE),
+        show_default=str(defaults.DEFAULT_EXCLUDE),
         rich_help_panel="File discovery",
     ),
 ]
@@ -202,7 +203,7 @@ unfixable_rules_option = Annotated[
     ),
 ]
 linter_target_version_option = Annotated[
-    config.TargetVersion | None,
+    config.parser.TargetVersion | None,
     typer.Option(
         case_sensitive=False,
         help="Enable only rules supported by configured version",
@@ -210,7 +211,7 @@ linter_target_version_option = Annotated[
     ),
 ]
 formatter_target_version = Annotated[
-    config.TargetVersion | None,
+    config.parser.TargetVersion | None,
     typer.Option(
         case_sensitive=False,
         help="Enable only formatters supported by configured version",
@@ -224,7 +225,7 @@ linter_threshold_option = Annotated[
         "-t",
         help="Disable rules below given threshold",
         show_default=RuleSeverity.INFO.value,
-        parser=config.parse_rule_severity,
+        parser=config.parser.parse_rule_severity,
         metavar="I/W/E",
         rich_help_panel="Selecting rules",
     ),
@@ -299,7 +300,8 @@ def check_files(
     configure: linter_configure_option = None,
     reports: reports_option = None,
     issue_format: Annotated[
-        str | None, typer.Option("--issue-format", show_default=config.DEFAULT_ISSUE_FORMAT, rich_help_panel="Other")
+        str | None,
+        typer.Option("--issue-format", show_default=defaults.DEFAULT_ISSUE_FORMAT, rich_help_panel="Other"),
     ] = None,
     language: language_option = None,
     custom_rules: Annotated[
@@ -358,13 +360,16 @@ def check_files(
         if not reports:
             reports = []
         reports.append("gitlab")
-    linter_config = config.LinterConfig(
+    file_filters = config.schema.RawFileFiltersOptions(
+        include=include, default_include=default_include, exclude=exclude, default_exclude=default_exclude
+    )
+    linter_config = config.schema.RawLinterConfig(
         configure=configure,
         select=select,
         extend_select=extend_select,
         ignore=ignore,
-        fixable=set(fixable) if fixable is not None else None,
-        unfixable=set(unfixable) if unfixable is not None else None,
+        fixable=fixable,
+        unfixable=unfixable,
         issue_format=issue_format,
         threshold=threshold,
         custom_rules=custom_rules,
@@ -377,21 +382,18 @@ def check_files(
         unsafe_fixes=unsafe_fixes,
         diff=diff,
     )
-    file_filters = config.FileFiltersOptions(
-        include=include, default_include=default_include, exclude=exclude, default_exclude=default_exclude
-    )
-    cache_config = config.CacheConfig(enabled=cache, cache_dir=cache_dir)
-    overwrite_config = config.Config(
+    cache_config = config.schema.RawCacheConfig(enabled=cache, cache_dir=cache_dir)
+    overwrite_config = config.schema.RawConfig(
         linter=linter_config,
         formatter=None,
         file_filters=file_filters,
         cache=cache_config,
         language=language,
-        verbose=verbose,
         silent=silent,
+        verbose=verbose,
         target_version=target_version,
     )
-    manager = config_manager.ConfigManager(
+    manager = config.ConfigManager(
         sources=sources,
         config=configuration_file,
         root=root,
@@ -424,7 +426,8 @@ def check_project(
     configure: linter_configure_option = None,
     reports: reports_option = None,
     issue_format: Annotated[
-        str | None, typer.Option("--issue-format", show_default=config.DEFAULT_ISSUE_FORMAT, rich_help_panel="Other")
+        str | None,
+        typer.Option("--issue-format", show_default=defaults.DEFAULT_ISSUE_FORMAT, rich_help_panel="Other"),
     ] = None,
     language: language_option = None,
     custom_rules: Annotated[
@@ -480,7 +483,7 @@ def check_project(
         if not reports:
             reports = []
         reports.append("gitlab")
-    linter_config = config.LinterConfig(
+    linter_config = config.schema.RawLinterConfig(
         configure=configure,
         select=select,
         extend_select=extend_select,
@@ -494,10 +497,10 @@ def check_project(
         exit_zero=exit_zero,
         return_result=return_result,
     )
-    file_filters = config.FileFiltersOptions(
+    file_filters = config.schema.RawFileFiltersOptions(
         include=include, default_include=default_include, exclude=exclude, default_exclude=default_exclude
     )
-    overwrite_config = config.Config(
+    overwrite_config = config.schema.RawConfig(
         linter=linter_config,
         formatter=None,
         file_filters=file_filters,
@@ -506,7 +509,7 @@ def check_project(
         silent=silent,
         target_version=target_version,
     )
-    manager = config_manager.ConfigManager(
+    manager = config.ConfigManager(
         sources=sources,
         config=configuration_file,
         root=root,
@@ -684,7 +687,7 @@ def format_files(
     ] = False,
 ) -> int:
     """Format Robot Framework files."""
-    whitespace_config = config.WhitespaceConfig(
+    whitespace_config = config.schema.RawWhitespaceConfig(
         space_count=space_count,
         indent=indent,
         continuation_indent=continuation_indent,
@@ -692,13 +695,13 @@ def format_files(
         separator=separator,
         line_length=line_length,
     )
-    skip_config = SkipConfig.from_lists(
-        skip=skip,
-        keyword_call=skip_keyword_call,
-        keyword_call_pattern=skip_keyword_call_pattern,
-        sections=skip_sections,
+    skip_config = config.schema.RawSkipConfig(
+        skip=set(skip) if skip else None,
+        keyword_call=set(skip_keyword_call) if skip_keyword_call else None,
+        keyword_call_pattern=set(skip_keyword_call_pattern) if skip_keyword_call_pattern else None,
+        sections=set(skip_sections) if skip_sections else None,
     )
-    formatter_config = config.FormatterConfig(
+    formatter_config = config.schema.RawFormatterConfig(
         select=select,
         extend_select=extend_select,
         force_order=force_order,
@@ -715,13 +718,12 @@ def format_files(
         reruns=reruns,
         return_result=return_result,
     )
-    file_filters = config.FileFiltersOptions(
+    file_filters = config.schema.RawFileFiltersOptions(
         include=include, default_include=default_include, exclude=exclude, default_exclude=default_exclude
     )
-    cache_config = config.CacheConfig(enabled=cache, cache_dir=cache_dir)
-    overwrite_config = config.Config(
+    cache_config = config.schema.RawCacheConfig(enabled=cache, cache_dir=cache_dir)
+    overwrite_config = config.schema.RawConfig(
         formatter=formatter_config,
-        linter=None,
         language=language,
         file_filters=file_filters,
         cache=cache_config,
@@ -729,7 +731,7 @@ def format_files(
         silent=silent,
         target_version=target_version,
     )
-    manager = config_manager.ConfigManager(
+    manager = config.ConfigManager(
         sources=sources,
         config=configuration_file,
         root=root,
@@ -778,34 +780,19 @@ def list_rules(
     """
     # TODO: rich support (colorized enabled, severity etc)
     console = Console(soft_wrap=True)
-    linter_config = config.LinterConfig(  # set to None to not override
-        configure=None,
-        select=None,
-        ignore=None,
-        issue_format=None,
-        threshold=None,
-        custom_rules=None,
-        reports=None,
-        persistent=None,
-        compare=None,
-        exit_zero=None,
-    )
-    overwrite_config = config.Config(
-        linter=linter_config,
-        formatter=None,
-        file_filters=None,
-        language=None,
-        verbose=None,
+    overwrite_config = config.schema.RawConfig(
         silent=silent,
         target_version=target_version,
     )
-    manager = config_manager.ConfigManager(overwrite_config=overwrite_config)
+    manager = config.ConfigManager(overwrite_config=overwrite_config)
+    resolver = ConfigResolver(load_rules=True)
+    resolved_config = resolver.resolve_config(manager.default_config)
     if filter_pattern:
         compiled_pattern = compile_rule_pattern(filter_pattern)
-        rules = rules_list.filter_rules_by_pattern(manager.default_config.linter.rules, compiled_pattern)
+        rules = rules_list.filter_rules_by_pattern(resolved_config.rules, compiled_pattern)
     else:
         rules = rules_list.filter_rules_by_category(
-            manager.default_config.linter.rules, filter_category, manager.default_config.linter.target_version
+            resolved_config.rules, filter_category, manager.default_config.linter.target_version
         )
     if with_fix:
         rules = rules_list.filter_rules_by_fixability(rules)
@@ -851,9 +838,9 @@ def list_reports(
 ) -> None:
     """List available reports."""
     console = Console(soft_wrap=True)
-    linter_config = config.LinterConfig(reports=reports)
-    overwrite_config = config.Config(linter=linter_config, silent=silent)
-    manager = config_manager.ConfigManager(overwrite_config=overwrite_config)
+    linter_config = config.schema.RawLinterConfig(reports=reports)
+    overwrite_config = config.schema.RawConfig(linter=linter_config, silent=silent)
+    manager = config.ConfigManager(overwrite_config=overwrite_config)
     runner = RobocopLinter(manager)
     if not silent:
         console.print(print_reports(runner.reports, enabled))  # TODO: color etc
@@ -871,40 +858,19 @@ def list_formatters(
     from rich.table import Table  # noqa: PLC0415
 
     console = Console(soft_wrap=True)
-    formatter_config = config.FormatterConfig(
-        select=None,
-        extend_select=None,
-        force_order=None,
-        whitespace_config=config.WhitespaceConfig(),
-        skip_config=config.SkipConfig(),
-        configure=None,
-        overwrite=None,
-        output=None,
-        diff=None,
-        color=None,
-        check=None,
-        start_line=None,
-        end_line=None,
-        reruns=None,
-        allow_disabled=True,
+    overwrite_config = config.schema.RawConfig(
+        silent=silent, target_version=target_version, formatter=config.schema.RawFormatterConfig(allow_disabled=True)
     )
-    overwrite_config = config.Config(
-        linter=None,
-        formatter=formatter_config,
-        file_filters=None,
-        language=None,
-        verbose=None,
-        silent=silent,
-        target_version=target_version,
-    )
-    manager = config_manager.ConfigManager(overwrite_config=overwrite_config)
-    default_config = manager.default_config
+    manager = config.ConfigManager(overwrite_config=overwrite_config)
+    resolver = ConfigResolver(load_rules=True, load_formatters=True)
+    resolved_config = resolver.resolve_config(manager.default_config)
+
     if filter_category == filter_category.ALL:
-        formatters = list(default_config.formatter.formatters.values())
+        formatters = list(resolved_config.formatters.values())
     elif filter_category == filter_category.ENABLED:
-        formatters = [formatter for formatter in default_config.formatter.formatters.values() if formatter.ENABLED]
+        formatters = [formatter for formatter in resolved_config.formatters.values() if formatter.ENABLED]
     elif filter_category == filter_category.DISABLED:
-        formatters = [formatter for formatter in default_config.formatter.formatters.values() if not formatter.ENABLED]
+        formatters = [formatter for formatter in resolved_config.formatters.values() if not formatter.ENABLED]
     else:
         raise ValueError(f"Unrecognized rule category '{filter_category}'")
     if not silent:
@@ -928,10 +894,12 @@ def print_resource_documentation(name: Annotated[str, typer.Argument(help="Rule 
     """Print formatter, rule or report documentation."""
     # TODO load external from cli
     console = Console(soft_wrap=True)
-    manager = config_manager.ConfigManager()
+    manager = config.ConfigManager()
+    resolver = ConfigResolver(load_rules=True, load_formatters=True)
+    resolved_config = resolver.resolve_config(manager.default_config)
 
-    if name in manager.default_config.linter.rules:
-        console.print(manager.default_config.linter.rules[name].description_with_configurables)
+    if name in resolved_config.rules:
+        console.print(resolved_config.rules[name].description_with_configurables)
         return
 
     reports = load_reports(manager.default_config)
@@ -940,9 +908,8 @@ def print_resource_documentation(name: Annotated[str, typer.Argument(help="Rule 
         console.print(docs)
         return
 
-    formatter_config = config.FormatterConfig()
-    if name in formatter_config.formatters:
-        docs = textwrap.dedent(formatter_config.formatters[name].__doc__)
+    if name in resolved_config.formatters:
+        docs = textwrap.dedent(resolved_config.formatters[name].__doc__)
         console.print(f"Formatter [bold]{name}[/bold]:")
         console.print(docs)
         console.print(f"See https://robocop.dev/stable/formatter/formatters/{name}/ for more information.")

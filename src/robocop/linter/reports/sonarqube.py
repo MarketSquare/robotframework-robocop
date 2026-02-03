@@ -12,7 +12,7 @@ if TYPE_CHECKING:
     from pathlib import Path
 
     from robocop.config import Config
-    from robocop.config_manager import ConfigManager
+    from robocop.config.manager import ConfigManager
     from robocop.linter.diagnostics import Diagnostic, Diagnostics
     from robocop.linter.rules import Rule
 
@@ -77,7 +77,7 @@ class SonarQubeReport(robocop.linter.reports.JsonFileReport):
         **kwargs: object,  # noqa: ARG002
     ) -> None:
         report = self.report_generator().generate_sonarqube_report(diagnostics, config_manager.root)
-        super().generate_report(report, "SonarQube")
+        super().generate_report_with_type(report, "SonarQube")
 
 
 class SonarQubeGenerator:

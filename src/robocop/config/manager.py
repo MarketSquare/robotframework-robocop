@@ -8,7 +8,9 @@ import pathspec
 
 from robocop import exceptions, files
 from robocop.cache import RobocopCache
-from robocop.config import Config
+from robocop.config.builder import ConfigBuilder
+from robocop.config.parser import read_toml_config
+from robocop.config.schema import Config, RawConfig
 from robocop.source_file import SourceFile
 
 if TYPE_CHECKING:
@@ -96,7 +98,7 @@ class ConfigManager:
         ignore_file_config: bool = False,
         skip_gitignore: bool = False,
         force_exclude: bool = False,
-        overwrite_config: Config | None = None,
+        overwrite_config: RawConfig | None = None,
     ) -> None:
         """
         Initialize ConfigManager.
@@ -113,6 +115,7 @@ class ConfigManager:
             overwrite_config: Overwrite existing configuration file with the Config class
 
         """
+        self.config_builder = ConfigBuilder()
         self.cached_configs: dict[Path, Config] = {}
         self.overwrite_config = overwrite_config
         self.ignore_git_dir = ignore_git_dir
@@ -133,9 +136,9 @@ class ConfigManager:
         if self._cache is None:
             cache_config = self.default_config.cache
             self._cache = RobocopCache(
-                cache_dir=cache_config.cache_dir if cache_config else None,
-                enabled=bool(cache_config.enabled) if cache_config else True,
-                verbose=self.default_config.verbose or False,
+                cache_dir=cache_config.cache_dir,
+                enabled=cache_config.enabled,
+                verbose=self.default_config.verbose,
             )
         return self._cache
 
@@ -150,19 +153,17 @@ class ConfigManager:
         yield from self._paths.values()
 
     def get_default_config(self, config_path: Path | None) -> Config:
-        """Get default config either from --config option or from the cli."""
+        """Get the default config either from --config option or from the cli."""
         if config_path:
-            configuration = files.read_toml_config(config_path)
+            configuration = read_toml_config(config_path)
             if configuration is not None:  # TODO: should raise
-                return Config.from_toml(configuration, config_path.resolve(), overwrite_config=self.overwrite_config)
+                config_file_raw = RawConfig.from_dict(configuration, config_path.resolve())
+                return self.config_builder.from_raw(self.overwrite_config, config_file_raw)
         if not self.ignore_file_config:
             sources = [Path(path).resolve() for path in self.sources] if self.sources else [Path.cwd()]
             directories = files.get_common_parent_dirs(sources)
-            config = self.find_config_in_dirs(directories, default=None)
-        else:
-            config = Config()
-        config.overwrite_from_config(self.overwrite_config)
-        return config
+            return self.find_config_in_dirs(directories, default=None)
+        return self.config_builder.from_raw(self.overwrite_config, None)
 
     def is_git_project_root(self, path: Path) -> bool:
         """Check if current directory contains .git directory and might be a project root."""
@@ -188,9 +189,10 @@ class ConfigManager:
         """
         for config_filename in CONFIG_NAMES:
             if (config_path := (directory / config_filename)).is_file() and (
-                configuration := files.read_toml_config(config_path)
+                configuration := read_toml_config(config_path)
             ):
-                return Config.from_toml(configuration, config_path, overwrite_config=self.overwrite_config)
+                config_file_raw = RawConfig.from_dict(configuration, config_path)
+                return self.config_builder.from_raw(self.overwrite_config, config_file_raw)
         return None
 
     def find_config_in_dirs(self, directories: list[Path] | Sequence[Path], default: Config | None) -> Config:
@@ -208,7 +210,7 @@ class ConfigManager:
                 break
 
         if found is None:
-            found = Config()
+            found = self.config_builder.from_raw(self.overwrite_config, None)
         self.cached_configs.update(dict.fromkeys(seen, found))
         return found
 
@@ -235,12 +237,11 @@ class ConfigManager:
         """
         Find all files to parse and their corresponding configs.
 
-        Initially sources can be ["."] (if not path provided, assume current working directory).
+        Initially, sources can be ["."] (if not path provided, assume the current working directory).
         It can be also any list of paths, for example ["tests/", "file.robot"].
 
         Args:
             sources: list of sources from CLI or configuration file.
-            gitignores: list of gitignore pathspec and their locations for path resolution.
             ignore_file_filters: force robocop to parse file even if it's excluded in the configuration
 
         """

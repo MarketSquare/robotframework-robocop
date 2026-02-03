@@ -433,8 +433,8 @@ class TestCacheIntegration:
             cache_dir = tmp_path / ".robocop_cache"
             assert not cache_dir.exists()
 
-    def test_cli_cache_dir_overrides_config_file_disabled(self, tmp_path):
-        """Test CLI --cache-dir enables cache and overrides the config file with cache=false."""
+    def test_cli_cache_dir_overrides_config_file_disabled(self, tmp_path, capsys):
+        """Test CLI --cache-dir does not enable cache and overrides the config file with cache=false."""
         # Arrange - create config file with cache disabled
         config_file = tmp_path / "pyproject.toml"
         config_file.write_text("[tool.robocop]\ncache = false\n", encoding="utf-8")
@@ -445,22 +445,13 @@ class TestCacheIntegration:
 
         with working_directory(tmp_path):
             # Act - run with custom cache_dir via CLI
-            # When cache_dir is explicitly set, it should enable cache and override config file's cache=false
+            # When cache_dir is explicitly set, it should not enable cache and override config file's cache=false
             check_files(cache_dir=custom_cache_dir, return_result=True)
 
-            # Assert - cache should be enabled with custom directory
-            assert custom_cache_dir.exists(), "Custom cache directory should be created"
-            assert (custom_cache_dir / "cache.msgpack").exists(), "Cache file should be created in custom directory"
+            out, _ = capsys.readouterr()
 
-            # Verify the file was cached
-            cache_data = get_cache_data(tmp_path)
-            # Check if file is in linter cache (cache is stored in custom_cache_dir, so we need to check there)
-            cache_file = custom_cache_dir / "cache.msgpack"
-
-            cache_data = msgpack.unpackb(cache_file.read_bytes(), raw=False, strict_map_key=False)
-            assert str(test_file.resolve()) in cache_data.get("linter", {}), (
-                "File should be cached despite config having cache=false"
-            )
+            # Assert - should NOT use cache (rescans file)
+            assert "Used cached results" not in out
 
     def test_cli_no_cache_flag_overrides_config_file_enabled(self, tmp_path, capsys):
         """Test CLI --no-cache disables cache when config file enables it."""

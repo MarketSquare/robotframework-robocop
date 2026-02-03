@@ -5,26 +5,27 @@ from unittest.mock import Mock
 from robocop import __version__
 from robocop.linter.diagnostics import Diagnostic, Diagnostics
 from robocop.linter.reports.sarif import SarifReport
+from robocop.runtime.resolved_config import ResolvedConfig
 from tests.linter.reports import generate_issues
 
 
 class TestSarifReport:
-    def test_configure_output_path(self, config):
+    def test_configure_output_path(self, empty_config):
         output_path = "path/to/dir/.sarif.json"
-        report = SarifReport(config)
+        report = SarifReport(empty_config)
         report.configure("output_path", output_path)
         assert report.output_path == output_path
 
-    def test_sarif_report(self, rule, rule2, tmp_path, config):
+    def test_sarif_report(self, empty_config, rule, rule2, tmp_path):
         root = Path.cwd()
         output_file = tmp_path / "sarif.json"
         rules = {m.rule_id: m for m in (rule, rule2)}
         source1_rel = "tests/atest/rules/comments/ignored-data/test.robot"
         source2_rel = "tests/atest/rules/misc/empty-return/test.robot"
-        report = SarifReport(config)
+        report = SarifReport(empty_config)
         report.configure("output_path", str(output_file))
 
-        issues = generate_issues(rule, rule2)
+        issues = generate_issues(empty_config, rule, rule2)
 
         def get_expected_result(diagnostic: Diagnostic, level, source):
             return {
@@ -82,24 +83,26 @@ class TestSarifReport:
         }
         config_manager = Mock()
         config_manager.root = root
-        config_manager.default_config.linter.rules = rules
-        report.generate_report(Diagnostics(issues), config_manager)
+        resolved_config = Mock(spec=ResolvedConfig)
+        resolved_config.rules = rules
+        report.generate_report(Diagnostics(issues), config_manager, resolved_config)
         with open(output_file) as fp:
             sarif_report = json.load(fp)
         assert expected_report == sarif_report
 
-    def test_empty_results(self, config, tmp_path):
+    def test_empty_results(self, empty_config, tmp_path):
         # Arrange
         output_file = tmp_path / "report.json"
-        report = SarifReport(config)
+        report = SarifReport(empty_config)
         report.configure("output_path", str(output_file))
         diagnostics = Diagnostics([])
         config_manager = Mock()
         config_manager.root = Path.cwd()
-        config_manager.default_config.linter.rules = {}
+        resolved_config = Mock(spec=ResolvedConfig)
+        resolved_config.rules = {}
 
         # Act
-        report.generate_report(diagnostics, config_manager)
+        report.generate_report(diagnostics, config_manager, resolved_config)
 
         # Assert
         assert output_file.exists()

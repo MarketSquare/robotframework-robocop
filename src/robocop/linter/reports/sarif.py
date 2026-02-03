@@ -10,9 +10,10 @@ if TYPE_CHECKING:
     from pathlib import Path
 
     from robocop.config import Config
-    from robocop.config_manager import ConfigManager
+    from robocop.config.manager import ConfigManager
     from robocop.linter.diagnostics import Diagnostics
     from robocop.linter.rules import Rule, RuleSeverity
+    from robocop.runtime.resolved_config import ResolvedConfig
 
 
 class SarifReport(robocop.linter.reports.JsonFileReport):
@@ -113,11 +114,10 @@ class SarifReport(robocop.linter.reports.JsonFileReport):
         self,
         diagnostics: Diagnostics,
         config_manager: ConfigManager,
+        resolved_config: ResolvedConfig,
         **kwargs: object,  # noqa: ARG002
     ) -> None:
         # TODO: In case of several configs we may not have all rules in default config
         # instead, we could use diagnostic.rule and aggregate them
-        report = self.generate_sarif_report(
-            diagnostics, config_manager.root, config_manager.default_config.linter.rules
-        )
-        super().generate_report(report, "SARIF")
+        report = self.generate_sarif_report(diagnostics, config_manager.root, resolved_config.rules)
+        super().generate_report_with_type(report, "SARIF")

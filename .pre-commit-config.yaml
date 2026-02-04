@@ -4,3 +4,21 @@ repos:
     hooks:
       - id: ruff
       - id: ruff-format
+
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.19.1
+    hooks:
+      - id: mypy
+        args: ["--config-file=pyproject.toml", "src/robocop"]
+        pass_filenames: false
+        additional_dependencies:
+          - typer-slim>=0.12.5
+          - jinja2>=3.1.4
+          - rich>=10.11.0
+          - tomli>=2.0.0
+          - tomli-w>=1.0
+          - pathspec>=0.12
+          - platformdirs>=4.3
+          - pytz>=2022.7
+          - types-jinja2
+          - types-pytz

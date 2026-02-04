@@ -455,9 +455,9 @@ class Rule:
                 f"    {configurables_text}"
             )
         self.config[param].value = value
-        # If you want to use the same parameter name as Rule attribute (for example severity), you need to skip getattr
         if param == "severity":
-            self.severity = self.config[param].value
+            # To use parameter also as rule attribute (for example severity), you need to skip getattr
+            self.severity = RuleSeverity.parser(value)
 
     def available_configurables(self, include_severity: bool = True) -> tuple[int, str]:
         params = []

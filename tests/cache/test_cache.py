@@ -850,8 +850,6 @@ class TestCacheEdgeCases:
         )
 
         cache = RobocopCache(cache_dir=cache_dir, enabled=True, verbose=False)
-        # Data should not be loaded yet
-        assert cache._data is None  # noqa: SLF001
 
         # Accessing .data triggers load
         data = cache.data

@@ -114,24 +114,23 @@ def is_rule(rule_class_def: tuple[str, type]) -> bool:
 
 
 def can_run_in_robot_version(formatter: Formatter, overwritten: bool, target_version: int) -> bool:
-    if getattr(formatter, "MIN_VERSION", None) is None:
-        return True
-    if target_version >= formatter.MIN_VERSION:
+    min_version = getattr(formatter, "MIN_VERSION", None)
+    if not min_version or target_version >= min_version:
         return True
     if overwritten:
         # --select FormatterDisabledInVersion or --configure FormatterDisabledInVersion.enabled=True
         if target_version == ROBOT_VERSION.major:
             click.echo(
-                f"{formatter.__class__.__name__} formatter requires Robot Framework {formatter.MIN_VERSION}.* "
+                f"{formatter.__class__.__name__} formatter requires Robot Framework {min_version}.* "
                 f"version but you have {ROBOT_VERSION} installed. "
                 f"Upgrade installed Robot Framework if you want to use this formatter.",
                 err=True,
             )
         else:
             click.echo(
-                f"{formatter.__class__.__name__} formatter requires Robot Framework {formatter.MIN_VERSION}.* "
+                f"{formatter.__class__.__name__} formatter requires Robot Framework {min_version}.* "
                 f"version but you set --target-version rf{target_version}. "
-                f"Set --target-version to {formatter.MIN_VERSION} or do not forcefully enable this formatter "
+                f"Set --target-version to {min_version} or do not forcefully enable this formatter "
                 f"with --select / enable parameter.",
                 err=True,
             )

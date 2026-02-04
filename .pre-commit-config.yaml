@@ -22,3 +22,5 @@ repos:
           - pytz>=2022.7
           - types-jinja2
           - types-pytz
+          - fastmcp>=2.13.0
+          - msgpack-types

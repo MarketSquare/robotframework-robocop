@@ -8,6 +8,7 @@ significantly improving performance on subsequent runs.
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+from functools import cached_property
 from typing import TYPE_CHECKING, Any
 
 import msgpack
@@ -259,39 +260,33 @@ class RobocopCache:
         self.enabled = enabled
         self.cache_dir = cache_dir
         self.verbose = verbose
-        self._data: CacheData | None = None
         self._dirty = False
         self._path_cache: dict[Path, str] = {}  # Instance-bound path normalization cache
 
-    @property
+    @cached_property
     def data(self) -> CacheData:
         """Get cache data, loading from disk if needed."""
-        if self._data is None:
-            self._load()
-        return self._data
+        return self._load()
 
-    def _load(self) -> None:
+    def _load(self) -> CacheData:
         """Load cache from disk."""
         # Handle missing cache directory (first run)
         if not self.cache_dir.exists():
-            self._data = CacheData()
-            return
+            return CacheData()
 
         cache_file = self.cache_dir / defaults.CACHE_FILE_NAME
 
         if not cache_file.is_file():
-            self._data = CacheData()
-            return
+            return CacheData()
 
         try:
             raw_data = msgpack.unpackb(cache_file.read_bytes(), raw=False, strict_map_key=False)
 
             # Invalidate if version changed
             if raw_data.get("robocop_version") != __version__:
-                self._data = CacheData()
-                return
+                return CacheData()
 
-            self._data = CacheData.from_dict(raw_data)
+            return CacheData.from_dict(raw_data)
         except (
             msgpack.exceptions.UnpackException,
             msgpack.exceptions.ExtraData,
@@ -300,11 +295,11 @@ class RobocopCache:
             OSError,
         ):
             # Corrupted cache - start fresh
-            self._data = CacheData()
+            return CacheData()
 
     def save(self) -> None:
         """Save cache to disk if modified."""
-        should_skip = not self.enabled or not self._dirty or self._data is None
+        should_skip = not self.enabled or not self._dirty
         if should_skip:
             return
 
@@ -313,7 +308,7 @@ class RobocopCache:
         cache_file = self.cache_dir / defaults.CACHE_FILE_NAME
 
         try:
-            cache_file.write_bytes(msgpack.packb(self._data.to_dict(), use_bin_type=True))
+            cache_file.write_bytes(msgpack.packb(self.data.to_dict(), use_bin_type=True))
             self._dirty = False
         except OSError as err:
             if self.verbose:
@@ -331,7 +326,7 @@ class RobocopCache:
 
     def invalidate_all(self) -> None:
         """Clear the entire cache."""
-        self._data = CacheData()
+        self.data = CacheData()
         self._dirty = True
 
     def _normalize_path(self, path: Path) -> str:

@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING, Any
 
 import tomli_w
 
-from robocop.files import load_toml_file
+from robocop.config.parser import load_toml_file
 
 if TYPE_CHECKING:
     from collections.abc import Callable

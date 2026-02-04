@@ -56,8 +56,7 @@ def install_doc_deps(session: nox.Session, robot_version: str) -> None:
 @nox.session()
 def docs(session: nox.Session) -> None:
     install_doc_deps(session, "7.2.2")
-    # session.run("sphinx-build", "-a", "-E", "-b", "html", "docs", "docs/_build/")
-    command = ["sphinx-build", "-a", "-E", "--verbose", "-b", "html", "docs/source", "docs/_build/"]
+    command = ["mkdocs", "build", "--clean", "--verbose", "--config-file", "mkdocs.yml"]
     session.run(*command)
 
 
@@ -95,4 +94,4 @@ def performance(session: nox.Session, robocop_version: str) -> None:
             f"--python={session.virtualenv.location}",
             env={"UV_PROJECT_ENVIRONMENT": session.virtualenv.location},
         )
-    session.run("python", "-m", "tests.performance.generate_reports", external=True, silent=False)
+    session.run("python", "-m", "tests.performance.generate_reports", robocop_version, external=True, silent=False)

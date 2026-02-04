@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from robocop.config_manager import ConfigManager
+from robocop.config.manager import ConfigManager
 from robocop.linter.rules import ProjectChecker, Rule, RuleSeverity
 from robocop.source_file import SourceFile, VirtualSourceFile
 

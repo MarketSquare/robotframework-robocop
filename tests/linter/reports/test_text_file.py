@@ -9,21 +9,21 @@ from tests.linter.reports import generate_issues
 
 
 class TestJSONReport:
-    def test_configure_output_path(self, config, tmp_path):
+    def test_configure_output_path(self, empty_config, tmp_path):
         # arrange
         output_path = "path/to/file.txt"
         expected_path = tmp_path / output_path
 
         # act
         with working_directory(tmp_path):
-            report = TextFile(config)
+            report = TextFile(empty_config)
             report.configure("output_path", output_path)
 
         # assert
         assert report.output_path == Path(output_path)
         assert expected_path.parent.exists()
 
-    def test_text_file_report(self, rule, rule2, tmp_path, config):
+    def test_text_file_report(self, empty_config, rule, rule2, tmp_path):
         # arrange
         expected_report = (
             textwrap.dedent("""
@@ -34,10 +34,10 @@ class TestJSONReport:
             .replace("/", os.path.sep)
             .lstrip()
         )
-        issues = generate_issues(rule, rule2, tmp_path)
+        issues = generate_issues(empty_config, rule, rule2, tmp_path)
 
         # act
-        report = TextFile(config)
+        report = TextFile(empty_config)
         with working_directory(tmp_path):
             report.generate_report(Diagnostics(issues))
 
@@ -45,10 +45,10 @@ class TestJSONReport:
         actual_report = (tmp_path / "robocop.txt").read_text()
         assert actual_report == expected_report
 
-    def test_empty_results(self, config, tmp_path):
+    def test_empty_results(self, empty_config, tmp_path):
         # Arrange
         output_file = tmp_path / "report.txt"
-        report = TextFile(config)
+        report = TextFile(empty_config)
         report.configure("output_path", str(output_file))
         diagnostics = Diagnostics([])
 

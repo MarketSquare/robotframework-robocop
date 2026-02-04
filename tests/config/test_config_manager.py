@@ -5,17 +5,14 @@ from pathlib import Path
 import pytest
 import typer
 
-from robocop import exceptions, files
-from robocop.config import (
-    CacheConfig,
-    Config,
-    FileFiltersOptions,
-    FormatterConfig,
-    LinterConfig,
-)
-from robocop.config_manager import ConfigManager
+from robocop import exceptions
+from robocop.config import schema as config_model
+from robocop.config.builder import ConfigBuilder
+from robocop.config.manager import ConfigManager
+from robocop.config.parser import TargetVersion, read_toml_config
 from robocop.linter.rules import RuleSeverity
 from robocop.linter.runner import RobocopLinter
+from robocop.runtime.resolver import ConfigResolver
 from robocop.version_handling import ROBOT_VERSION
 from tests import working_directory
 
@@ -31,50 +28,32 @@ def cli_config_path(test_data) -> Path:
 
 
 @pytest.fixture(scope="module")
-def cli_config(cli_config_path) -> Config:
-    configuration = files.read_toml_config(cli_config_path)
-    return Config.from_toml(configuration, cli_config_path, overwrite_config=None)
+def cli_config(cli_config_path) -> config_model.Config:
+    configuration = read_toml_config(cli_config_path)
+    raw_config = config_model.RawConfig.from_dict(configuration, cli_config_path)
+    return ConfigBuilder().from_raw(cli_raw=None, file_raw=raw_config)
 
 
-@pytest.fixture(scope="module")
-def overwrite_config() -> Config:
+@pytest.fixture
+def overwrite_config() -> config_model.RawConfig:
     """
     Overwrite config is by default a config with everything set to None.
 
     Such values are ignored when merging cli config with file configs.
     """
-    file_filters = FileFiltersOptions(None, None, None, None)
-    linter = LinterConfig(
-        configure=None,
-        select=None,
-        ignore=None,
-        issue_format=None,
-        threshold=None,
-        custom_rules=None,
-        reports=None,
-        persistent=None,
-        compare=None,
-        exit_zero=None,
-    )
-    formatter = FormatterConfig(
-        overwrite=None,
-        diff=None,
-        color=None,
-        check=None,
-        reruns=None,
-        start_line=None,
-        end_line=None,
-    )
-    return Config(
-        sources=None,
+    file_filters = config_model.RawFileFiltersOptions()
+    linter = config_model.RawLinterConfig()
+    formatter = config_model.RawFormatterConfig()
+    cache = config_model.RawCacheConfig()
+    return config_model.RawConfig(
         file_filters=file_filters,
         linter=linter,
         formatter=formatter,
-        language=None,
+        cache=cache,
     )
 
 
-def get_sources_and_configs(config_dir: Path, **kwargs) -> dict[Path, Config]:
+def get_sources_and_configs(config_dir: Path, **kwargs) -> dict[Path, config_model.Config]:
     with working_directory(config_dir):
         config_manager = ConfigManager(**kwargs)
         return {source.path: source.config for source in config_manager.paths}
@@ -84,9 +63,13 @@ class TestConfigFinder:
     def test_single_config(self, test_data):
         # Arrange
         config_dir = test_data / "one_config_root"
-        config = Config()
-        config.config_source = str(config_dir / "pyproject.toml")
+        config_path = config_dir / "pyproject.toml"
+        config_file_raw = config_model.RawConfig.from_dict(
+            config_dict=read_toml_config(config_path), config_path=config_path
+        )
+        config = ConfigBuilder().from_raw(cli_raw=None, file_raw=config_file_raw)
         config.linter.configure = ["line-too-long.line_length=110"]
+        config.cache.cache_dir = config_dir / ".robocop_cache"
 
         expected_results = {
             config_dir / "file1.robot": config,
@@ -107,50 +90,58 @@ class TestConfigFinder:
     def test_single_config_all_options(self, test_data, config_dir_name):
         # Arrange
         config_dir = test_data / config_dir_name
-        config = Config()
-        config.config_source = str(config_dir / "pyproject.toml")
-        config.linter.configure = ["line-too-long.line_length=110"]
-        config.file_filters.exclude = {"deprecated.robot"}
-        config.file_filters.default_exclude = {"archived/"}
-        config.file_filters.include = {"custom.txt"}
-        config.file_filters.default_include = {"*.robot"}
-        config.target_version = 4
-        config.linter.select = ["rulename", "ruleid"]
-        config.linter.extend_select = ["customrule"]
-        config.linter.ignore = ["ruleid"]
-        config.linter.include_rules = {"rulename", "ruleid"}
-        config.linter.extend_include_rules = {"customrule"}
-        config.linter.exclude_rules = {"ruleid"}
-        config.linter.threshold = RuleSeverity.WARNING
-        config.linter.reports = ["all", "sarif"]
-        config.linter.issue_format = "{source_abs}:{line}:{col} [{severity}] {rule_id} {desc} ({name})"
-        config.language = ["en", "pl"]
-        config.linter.custom_rules = ["CustomRules.py"]
-        config.linter.persistent = True
-        config.linter.compare = True
-        config.linter.exit_zero = True
-
-        config.formatter.select = ["NormalizeNewLines"]
-        config.formatter.extend_select = ["CustomFormatter.py"]
-        config.formatter.configure = ["NormalizeNewLines.flatten_lines=True"]
-        config.formatter.force_order = True
-        config.formatter.diff = True
-        config.formatter.color = False
-        config.formatter.overwrite = False
-        config.formatter.check = True
-        config.formatter.start_line = 10
-        config.formatter.end_line = 12
-        config.formatter.whitespace_config.space_count = 2
-        config.formatter.whitespace_config.indent = 3
-        config.formatter.whitespace_config.continuation_indent = 5
-        config.formatter.whitespace_config.line_length = 110
-        config.formatter.whitespace_config.separator = "tab"
-        config.formatter.whitespace_config.line_ending = "windows"
-        config.formatter.skip_config.skip = {"comments", "documentation"}
-        config.formatter.skip_config.sections = {"comments"}
-        config.formatter.skip_config.keyword_call = {"DeprecatedKeyword"}
-        config.formatter.skip_config.keyword_call_pattern = {"DeprecatedKeyword$"}
-        config.formatter.reruns = 5
+        raw_linter = config_model.RawLinterConfig(
+            configure=["line-too-long.line_length=110"],
+            select=["rulename", "ruleid"],
+            extend_select=["customrule"],
+            ignore=["ruleid"],
+            custom_rules=["CustomRules.py"],
+            threshold=RuleSeverity.WARNING,
+            reports=["all", "sarif"],
+            issue_format="{source_abs}:{line}:{col} [{severity}] {rule_id} {desc} ({name})",
+            persistent=True,
+            compare=True,
+            exit_zero=True,
+        )
+        file_filter = config_model.RawFileFiltersOptions(
+            exclude=["deprecated.robot"],
+            default_exclude=["archived/"],
+            include=["custom.txt"],
+            default_include=["*.robot"],
+        )
+        whitespace_config = config_model.RawWhitespaceConfig(
+            space_count=2, indent=3, continuation_indent=5, line_length=110, separator="tab", line_ending="windows"
+        )
+        skip_config = config_model.RawSkipConfig(
+            skip={"comments", "documentation"},
+            sections={"comments"},
+            keyword_call={"DeprecatedKeyword"},
+            keyword_call_pattern={"DeprecatedKeyword$"},
+        )
+        formatter_config = config_model.RawFormatterConfig(
+            select=["NormalizeNewLines"],
+            extend_select=["CustomFormatter.py"],
+            configure=["NormalizeNewLines.flatten_lines=True"],
+            force_order=True,
+            diff=True,
+            color=False,
+            overwrite=False,
+            check=True,
+            start_line=10,
+            end_line=12,
+            reruns=5,
+            whitespace_config=whitespace_config,
+            skip_config=skip_config,
+        )
+        config_raw = config_model.RawConfig(
+            file_filters=file_filter,
+            linter=raw_linter,
+            formatter=formatter_config,
+            target_version=TargetVersion.RF4,
+            language=["en", "pl"],
+        )
+        config = ConfigBuilder().from_raw(cli_raw=None, file_raw=config_raw)
+        config.cache.cache_dir = config_dir / ".robocop_cache"
 
         expected_results = {config_dir / "test.robot": config}
 
@@ -167,12 +158,16 @@ class TestConfigFinder:
         Files found earlier should use the default configuration.
         """
         # Arrange
+        builder = ConfigBuilder()
         config_dir = test_data / "one_config_subdir"
-        default_config = Config()
-        subdir_config = Config()
-        subdir_config.config_source = str(config_dir / "subdir" / "pyproject.toml")
-        subdir_config.linter.configure = ["line-too-long.line_length=110"]
-        subdir_config.file_filters.default_exclude = {"file3.resource"}
+        default_config = builder.from_raw(cli_raw=None, file_raw=None)
+        default_config.cache.cache_dir = config_dir / ".robocop_cache"
+
+        linter_config = config_model.RawLinterConfig(configure=["line-too-long.line_length=110"])
+        file_filters = config_model.RawFileFiltersOptions(default_exclude=["file3.resource"])
+        raw_config = config_model.RawConfig(linter=linter_config, file_filters=file_filters)
+        raw_config.config_source = str(config_dir / "subdir" / "pyproject.toml")
+        subdir_config = builder.from_raw(cli_raw=None, file_raw=raw_config)
         expected_results = {
             config_dir / "file1.robot": default_config,
             config_dir / "subdir" / "file2.robot": subdir_config,
@@ -211,15 +206,18 @@ class TestConfigFinder:
         CLI options are passed as `overwrite_config` to ConfigManager.
         """
         # Arrange
+        builder = ConfigBuilder()
         config_dir = test_data / "one_config_subdir"
-        overwrite_option = {"file2.robot"}
+        overwrite_option = ["file2.robot"]
         overwrite_config.file_filters.default_exclude = overwrite_option
-        default_config = Config()
-        default_config.file_filters.default_exclude = overwrite_option
-        subdir_config = Config()
-        subdir_config.config_source = str(config_dir / "subdir" / "pyproject.toml")
-        subdir_config.linter.configure = ["line-too-long.line_length=110"]
-        subdir_config.file_filters.default_exclude = overwrite_option
+        cli_raw = config_model.RawConfig()
+        cli_raw.file_filters = config_model.RawFileFiltersOptions(default_exclude=overwrite_option)
+        default_config = builder.from_raw(cli_raw=cli_raw, file_raw=None)
+        cli_sub_raw = config_model.RawConfig()
+        cli_sub_raw.file_filters = config_model.RawFileFiltersOptions(default_exclude=overwrite_option)
+        cli_sub_raw.linter = config_model.RawLinterConfig(configure=["line-too-long.line_length=110"])
+        cli_sub_raw.config_source = str(config_dir / "subdir" / "pyproject.toml")
+        subdir_config = builder.from_raw(cli_raw=cli_sub_raw, file_raw=None)
         expected_results = {
             config_dir / "file1.robot": default_config,
             # file2.robot should be included, but cli option overwrites it
@@ -234,15 +232,19 @@ class TestConfigFinder:
         # Assert
         assert actual_results == expected_results
 
-    def test_one_config_subdir_with_overwrite_config_and_option(
-        self, test_data, overwrite_config, cli_config, cli_config_path
-    ):
+    def test_one_config_subdir_with_overwrite_config_and_option(self, test_data, overwrite_config, cli_config_path):
         """Both overridden config and cli option will be used (cli option takes precedence)."""
         # Arrange
         config_dir = test_data / "one_config_subdir"
         overwrite_option = ["file1.robot"]
         overwrite_config.file_filters.default_exclude = overwrite_option
-        cli_config.file_filters.default_exclude = overwrite_option
+
+        # Arrange - expected config
+        configuration = read_toml_config(cli_config_path)
+        raw_config = config_model.RawConfig.from_dict(configuration, cli_config_path)
+        raw_config.file_filters.default_exclude = overwrite_option
+        cli_config = ConfigBuilder().from_raw(cli_raw=None, file_raw=raw_config)
+        cli_config.cache.cache_dir = config_dir / ".robocop_cache"
         expected_results = {
             # excluded by cli option
             # config_dir / "file1.robot": cli_config,
@@ -268,15 +270,23 @@ class TestConfigFinder:
 
         """
         # Arrange
+        builder = ConfigBuilder()
         config_dir = test_data / "two_config"
-        first_config = Config()
-        first_config.config_source = str(config_dir / "pyproject.toml")
-        first_config.file_filters.default_exclude = {"excluded_dir/"}
-        first_config.linter.configure = ["line-too-long.line_length=110"]
-        second_config = Config()
-        second_config.config_source = str(config_dir / "subdir" / "pyproject.toml")
-        second_config.file_filters.default_exclude = {"file1.robot"}
-        second_config.linter.configure = ["line-too-long.line_length=140"]
+
+        first_config_raw = config_model.RawConfig(
+            linter=config_model.RawLinterConfig(configure=["line-too-long.line_length=110"]),
+            file_filters=config_model.RawFileFiltersOptions(default_exclude=["excluded_dir/"]),
+        )
+        first_config_raw.config_source = str(config_dir / "subdir" / "pyproject.toml")
+        first_config = builder.from_raw(None, file_raw=first_config_raw)
+
+        second_config_raw = config_model.RawConfig(
+            linter=config_model.RawLinterConfig(configure=["line-too-long.line_length=140"]),
+            file_filters=config_model.RawFileFiltersOptions(default_exclude=["file1.robot"]),
+        )
+        second_config_raw.config_source = str(config_dir / "subdir" / "pyproject.toml")
+        second_config = builder.from_raw(None, file_raw=second_config_raw)
+
         expected_results = {
             config_dir / "file1.robot": first_config,
             config_dir / "subdir" / "file2.robot": second_config,
@@ -306,20 +316,19 @@ class TestConfigFinder:
     def test_multiple_sources_and_configs(self, tmp_path):
         """Multiple source paths passed to the entry command, with different configuration files."""
         # Arrange - create two test files with two closest configurations
+        builder = ConfigBuilder()
         config_file_1 = tmp_path / "pyproject.toml"
         config_file_1.write_text("[tool.robocop]\nverbose = true\n", encoding="utf-8")
-        first_config = Config()
-        first_config.verbose = True
-        first_config.config_source = str(config_file_1)
+        first_config_raw = config_model.RawConfig(verbose=True, config_source=str(config_file_1))
+        first_config = builder.from_raw(None, file_raw=first_config_raw)
         test_file_1 = tmp_path / "test.robot"
         test_file_1.write_text("*** Test Cases ***\nTest\n    Log    Hello\n", encoding="utf-8")
 
         config_file_2 = tmp_path / "subdir" / "pyproject.toml"
         config_file_2.parent.mkdir(parents=True, exist_ok=True)
         config_file_2.write_text("[tool.robocop]\nverbose = false\n", encoding="utf-8")
-        second_config = Config()
-        second_config.verbose = False
-        second_config.config_source = str(config_file_2)
+        second_config_raw = config_model.RawConfig(verbose=False, config_source=str(config_file_2))
+        second_config = builder.from_raw(None, file_raw=second_config_raw)
         test_file_2 = tmp_path / "subdir" / "test.robot"
         test_file_2.write_text("*** Test Cases ***\nTest\n    Log    Hello\n", encoding="utf-8")
         expected_results = {test_file_1: first_config, test_file_2: second_config}
@@ -333,9 +342,9 @@ class TestConfigFinder:
     def test_fail_on_deprecated_config_options(self, test_data, capsys):
         """Unknown or deprecated options in the configuration file should raise an error."""
         config_path = test_data / "old_config" / "pyproject.toml"
-        configuration = files.read_toml_config(config_path)
+        configuration = read_toml_config(config_path)
         with pytest.raises(typer.Exit):
-            Config.from_toml(configuration, config_path, overwrite_config=None)
+            config_model.RawConfig.from_dict(configuration, config_path)
         out, _ = capsys.readouterr()
         assert (
             f"Configuration file seems to use Robocop < 6.0.0 or Robotidy syntax. "
@@ -345,9 +354,9 @@ class TestConfigFinder:
     def test_fail_on_unknown_config_options(self, test_data, capsys):
         """Unknown or deprecated options in the configuration file should raise an error."""
         config_path = test_data / "invalid_config" / "invalid.toml"
-        configuration = files.read_toml_config(config_path)
+        configuration = read_toml_config(config_path)
         with pytest.raises(typer.Exit):
-            Config.from_toml(configuration, config_path, overwrite_config=None)
+            config_model.RawConfig.from_dict(configuration, config_path)
         out, _ = capsys.readouterr()
         assert f"Unknown configuration key: 'unknown' in {config_path}" in out
 
@@ -382,14 +391,14 @@ class TestConfigFinder:
     def test_invalid_option_value(self, test_data):
         # Arrange
         config_path = test_data / "invalid_option_values" / "invalid_target_version.toml"
-        configuration = files.read_toml_config(config_path)
+        configuration = read_toml_config(config_path)
 
         # Act & Assert
         with pytest.raises(
             typer.BadParameter,
             match="Invalid target Robot Framework version: '100' is not one of",
         ):
-            Config.from_toml(configuration, config_path, overwrite_config=None)
+            config_model.RawConfig.from_dict(configuration, config_path)
 
     @pytest.mark.parametrize(
         ("force_exclude", "skip_gitignore", "should_exclude_file"),
@@ -427,14 +436,13 @@ class TestConfigFinder:
         test_dir = test_data / "non_robot_files"
         non_robot_file = test_dir / "log.html"
         expected_paths = [non_robot_file] if skip_gitignore else []
-        config = Config()
-        config.file_filters.default_include = {"*.html"}
+        raw_config = config_model.RawConfig(file_filters=config_model.RawFileFiltersOptions(default_include=["*.html"]))
 
         # Act
         actual_results = get_sources_and_configs(
             non_robot_file.parent,
             sources=[str(test_dir)],
-            overwrite_config=config,
+            overwrite_config=raw_config,
             skip_gitignore=skip_gitignore,
         )
 
@@ -459,7 +467,7 @@ class TestConfigFinder:
         assert sorted(actual_results.keys()) == sorted(expected_paths)
 
     @pytest.mark.skipif(sys.platform != "linux", reason="Test only runs on Linux")
-    def test_exclude_symlink_path(self, test_data, tmp_path, overwrite_config):
+    def test_exclude_symlink_path(self, test_data, tmp_path):
         # Arrange
         absolute_path = tmp_path / "test.robot"
         absolute_path2 = test_data / "simple" / "test.robot"
@@ -468,7 +476,9 @@ class TestConfigFinder:
         (tmp_path / "test2.robot").symlink_to(absolute_path2)
         (tmp_path / "test3.robot").symlink_to(absolute_path3)
         expected_paths = [absolute_path, absolute_path2]
-        overwrite_config.file_filters.exclude = {"test3.robot"}
+        overwrite_config = config_model.RawConfig(
+            file_filters=config_model.RawFileFiltersOptions(exclude=["test3.robot"])
+        )
 
         # Act
         actual_results = get_sources_and_configs(tmp_path, overwrite_config=overwrite_config)
@@ -518,8 +528,9 @@ class TestConfigFinder:
     def test_fail_on_invalid_language(self, capsys):
         if ROBOT_VERSION.major < 6:
             pytest.skip("Test enabled only for RF 6.0+")
+        raw_config = config_model.RawConfig(language=["invalid", "en"])
         with pytest.raises(typer.Exit):
-            Config(language=["invalid", "en"])
+            ConfigBuilder().from_raw(raw_config, None)
         out, _ = capsys.readouterr()
         expected_error = (
             "Failed to load languages: invalid, en. "
@@ -531,18 +542,19 @@ class TestConfigFinder:
     def test_incorrect_enabled(self, test_data, capsys):
         # Arrange
         test_dir = test_data / "config_with_enabled"
+        resolver = ConfigResolver(load_formatters=True)
 
         # Act
         with working_directory(test_dir):
             config_manager = ConfigManager(config=Path("enabled.toml"))
         with pytest.raises(exceptions.InvalidParameterValueError):
-            _ = config_manager.default_config.formatter.formatters
+            resolver.resolve_config(config_manager.default_config)
         _, err = capsys.readouterr()
         normalized_error = " ".join(err.split())
 
         # Assert
         assert (
-            "NormalizeNewLines: Invalid 'enabled' parameter value: 'False :section_lines=2'. "
+            "OrderSettingsSection: Invalid 'enabled' parameter value: 'True :new_lines_between_groups=2'. "
             "It should be 'true' or 'false'" in normalized_error
         )
 
@@ -550,7 +562,7 @@ class TestConfigFinder:
 class TestCacheConfigOverride:
     """Test that CLI cache options properly override config file cache settings."""
 
-    def test_cli_cache_enabled_overrides_config_disabled(self, tmp_path):
+    def test_cli_cache_enabled_overrides_config_disabled(self, tmp_path, overwrite_config):
         """Test CLI --cache enables cache when config file has cache=false."""
         # Arrange - create config file with cache disabled
         config_file = tmp_path / "pyproject.toml"
@@ -559,8 +571,7 @@ class TestCacheConfigOverride:
         test_file.write_text("*** Test Cases ***\nTest\n    Log    Hello\n", encoding="utf-8")
 
         # Create CLI overwrite config with cache enabled
-        overwrite_config = Config()
-        overwrite_config.cache = CacheConfig(enabled=True, cache_dir=None)
+        overwrite_config.cache.enabled = True
 
         # Act
         with working_directory(tmp_path):
@@ -569,7 +580,7 @@ class TestCacheConfigOverride:
         # Assert - CLI should override file config
         assert config_manager.default_config.cache.enabled is True
 
-    def test_cli_no_cache_overrides_config_enabled(self, tmp_path):
+    def test_cli_no_cache_overrides_config_enabled(self, tmp_path, overwrite_config):
         """Test CLI --no-cache disables cache when config file has cache=true."""
         # Arrange - create config file with cache enabled
         config_file = tmp_path / "pyproject.toml"
@@ -578,8 +589,7 @@ class TestCacheConfigOverride:
         test_file.write_text("*** Test Cases ***\nTest\n    Log    Hello\n", encoding="utf-8")
 
         # Create CLI overwrite config with cache disabled
-        overwrite_config = Config()
-        overwrite_config.cache = CacheConfig(enabled=False, cache_dir=None)
+        overwrite_config.cache.enabled = False
 
         # Act
         with working_directory(tmp_path):
@@ -588,7 +598,7 @@ class TestCacheConfigOverride:
         # Assert - CLI should override file config
         assert config_manager.default_config.cache.enabled is False
 
-    def test_cli_cache_dir_overrides_config(self, tmp_path):
+    def test_cli_cache_dir_overrides_config(self, tmp_path, overwrite_config):
         """Test CLI --cache-dir overrides config file cache_dir."""
         # Arrange - create config file with cache_dir set
         config_file = tmp_path / "pyproject.toml"
@@ -598,8 +608,8 @@ class TestCacheConfigOverride:
 
         # Create CLI overwrite config with different cache_dir
         cli_cache_dir = tmp_path / "cli_cache_dir"
-        overwrite_config = Config()
-        overwrite_config.cache = CacheConfig(enabled=True, cache_dir=cli_cache_dir)
+        overwrite_config.cache.enabled = True
+        overwrite_config.cache.cache_dir = cli_cache_dir
 
         # Act
         with working_directory(tmp_path):
@@ -608,7 +618,7 @@ class TestCacheConfigOverride:
         # Assert - CLI should override file config
         assert config_manager.default_config.cache.cache_dir == cli_cache_dir
 
-    def test_cli_cache_enabled_with_cache_dir_overrides_config(self, tmp_path):
+    def test_cli_cache_enabled_with_cache_dir_overrides_config(self, tmp_path, overwrite_config):
         """Test CLI --cache --cache-dir overrides config file with cache disabled."""
         # Arrange - create config file with cache disabled
         config_file = tmp_path / "pyproject.toml"
@@ -618,8 +628,8 @@ class TestCacheConfigOverride:
 
         # Create CLI overwrite config with cache enabled and custom cache_dir
         cli_cache_dir = tmp_path / "custom_cache"
-        overwrite_config = Config()
-        overwrite_config.cache = CacheConfig(enabled=True, cache_dir=cli_cache_dir)
+        overwrite_config.cache.enabled = True
+        overwrite_config.cache.cache_dir = cli_cache_dir
 
         # Act
         with working_directory(tmp_path):
@@ -629,7 +639,7 @@ class TestCacheConfigOverride:
         assert config_manager.default_config.cache.enabled is True
         assert config_manager.default_config.cache.cache_dir == cli_cache_dir
 
-    def test_no_cli_cache_option_uses_config_file_defaults(self, tmp_path):
+    def test_no_cli_cache_option_uses_config_file_defaults(self, tmp_path, overwrite_config):
         """Test that when no CLI cache option is provided, config file settings are used."""
         # Arrange - create config file with cache disabled
         config_file = tmp_path / "pyproject.toml"
@@ -638,8 +648,7 @@ class TestCacheConfigOverride:
         test_file.write_text("*** Test Cases ***\nTest\n    Log    Hello\n", encoding="utf-8")
 
         # Create CLI overwrite config with cache=None (no CLI option provided)
-        overwrite_config = Config()
-        overwrite_config.cache = None
+        # provided in overwrite_config fixture already
 
         # Act
         with working_directory(tmp_path):

@@ -22,18 +22,8 @@ You can optionally configure rule severity or other parameters.
 
 from __future__ import annotations
 
-import ast
-import importlib
-import importlib.util
-import inspect
-import pkgutil
-import sys
-from collections import defaultdict
 from enum import Enum
 from functools import total_ordering
-from importlib import import_module
-from inspect import isclass
-from pathlib import Path
 from textwrap import dedent
 from typing import TYPE_CHECKING, Any
 
@@ -56,14 +46,13 @@ except ImportError:
     from robot.parsing.model.visitor import ModelVisitor
 
 if TYPE_CHECKING:
-    import types
-    from collections.abc import Callable, Generator
+    from collections.abc import Callable
+    from pathlib import Path
 
     from robot.parsing import File
     from robot.parsing.model.statements import Node
 
-    from robocop.config import LinterConfig
-    from robocop.config_manager import ConfigManager
+    from robocop.config.manager import ConfigManager
     from robocop.linter import sonar_qube
     from robocop.linter.fix import Fix
     from robocop.source_file import SourceFile, VirtualSourceFile
@@ -354,6 +343,9 @@ class Rule:
     checker: BaseChecker  # injected in runtime
 
     def __init__(self) -> None:
+        self.load_config()
+
+    def load_config(self) -> None:
         self.version_spec = VersionSpecifier(self.version) if self.version else None
         self.default_severity = self.severity  # used for defaultConfiguration in Sarif report
         self.config = self._parse_parameters()
@@ -538,15 +530,15 @@ class FixableRule(Rule):
 
 
 class BaseChecker:
-    rules: dict[str, Rule] | None = None
+    rules: dict[str, Rule]
     robocop_rule_types: dict[str, Any] | None = None
     context: Context
     source_file: SourceFile
 
     def __init__(self) -> None:
         self.disabled = False
-        self.source: Path = None
-        self.lines: list[str] | None = None
+        self.source: Path
+        self.lines: list[str]
         self.issues: list[Diagnostic] = []
         self.rules: dict[str, Rule] = {}
         self.templated_suite = False
@@ -649,214 +641,4 @@ class AfterRunChecker(BaseChecker):
     def scan_file(self, source_file: SourceFile, **kwargs: object) -> list[Diagnostic]:  # noqa: ARG002
         self.issues: list[Diagnostic] = []
         self.source_file = source_file
-
-
-def is_checker(checker_class_def: tuple[str, type]) -> bool:
-    return issubclass(checker_class_def[1], BaseChecker)
-
-
-def inherits_from(child: type, parent_name: str) -> bool:
-    return parent_name in [c.__name__ for c in inspect.getmro(child)[1:-1]]
-
-
-def is_rule(rule_class_def: tuple[str, type]) -> bool:
-    if rule_class_def[0] in {"Rule", "RuleParam", "RuleSeverity", "FixableRule"}:
-        return False
-    return inherits_from(rule_class_def[1], "Rule")
-    # return issubclass(rule_class_def[1], Rule) TODO does not work as is_checker for some reason
-
-
-class RobocopImporter:
-    def __init__(self, external_rules_paths: list[str] | None = None) -> None:
-        self.internal_checkers_dir = Path(__file__).parent
-        self.external_rules_paths = external_rules_paths if external_rules_paths else []
-        self.imported_modules: set[str] = set()
-        self.seen_modules: set[types.ModuleType] = set()
-        self.seen_checkers: defaultdict[str, list[list[str]]] = defaultdict(list)
-        self.deprecated_rules: dict[str, Rule] = {}
-
-    def get_initialized_checkers(self) -> Generator[BaseChecker, None, None]:
-        for module in self.get_internal_modules():
-            yield from self._get_initialized_checkers_from_module(module)
-        yield from self._get_checkers_from_modules(self.get_external_modules())
-
-    def get_internal_modules(self) -> Generator[types.ModuleType, None, None]:
-        rules_package_name = "robocop.linter.rules."
-        # when robocop is used as module (in pytest or in IDE tools) we need to clear previously imported rules
-        for mod in list(sys.modules.keys()):
-            if mod.startswith(rules_package_name):
-                del sys.modules[mod]
-        for _, module_name, _ in pkgutil.iter_modules([str(self.internal_checkers_dir)]):
-            yield importlib.import_module(f"{rules_package_name}{module_name}")
-
-    def get_external_modules(self) -> Generator[types.ModuleType, None, None]:
-        for ext_rule_path in self.external_rules_paths:
-            # Allow relative imports in external rules folder
-            sys.path.append(ext_rule_path)
-            sys.path.append(str(Path(ext_rule_path).parent))
-            # TODO: we can remove those paths from sys.path after importing
-        return self.modules_from_paths([*self.external_rules_paths])
-
-    def _get_checkers_from_modules(
-        self, modules: Generator[types.ModuleType, None, None]
-    ) -> Generator[BaseChecker, None, None]:
-        for module in modules:
-            if module in self.seen_modules:
-                continue
-            for _, submodule in inspect.getmembers(module, inspect.ismodule):
-                if submodule not in self.seen_modules:
-                    yield from self._get_initialized_checkers_from_module(submodule)
-            yield from self._get_initialized_checkers_from_module(module)
-
-    def _get_initialized_checkers_from_module(self, module: types.ModuleType) -> Generator[BaseChecker, None, None]:
-        self.seen_modules.add(module)
-        for checker_instance in self.get_checkers_from_module(module):
-            if not self.is_checker_already_imported(checker_instance):
-                yield checker_instance
-
-    def is_checker_already_imported(self, checker: BaseChecker) -> bool:
-        """
-        Check if checker was already imported.
-
-        Checker name does not have to be unique, but it should use different rules.
-        """
-        checker_name = checker.__class__.__name__
-        if not checker.rules:
-            return False
-        if checker_name in self.seen_checkers and sorted(checker.rules.keys()) in self.seen_checkers[checker_name]:
-            return True
-        self.seen_checkers[checker_name].append(sorted(checker.rules.keys()))
-        return False
-
-    def modules_from_paths(self, paths: list[str | Path]) -> Generator[types.ModuleType, None, None]:
-        for path in paths:
-            path_object = Path(path)
-            if path_object.exists():
-                if path_object.is_dir():
-                    if path_object.name in {".git", "__pycache__"}:
-                        continue
-                    yield from self.modules_from_paths(list(path_object.iterdir()))
-                elif path_object.suffix == ".py":
-                    yield self._import_module_from_file(path_object)
-            else:
-                # if it's not physical path, try to import from installed modules
-                try:
-                    mod = import_module(str(path))
-                    if mod.__file__:
-                        yield from self._iter_imports(Path(mod.__file__))
-                    yield mod
-                except ImportError:
-                    raise exceptions.InvalidExternalCheckerError(str(path)) from None
-
-    def _import_module_from_file(self, file_path: Path) -> types.ModuleType:
-        """
-        Import Python file as module.
-
-        importlib does not support importing Python files directly, and we need to create module specification first.
-        """
-        spec = importlib.util.spec_from_file_location(file_path.stem, file_path)
-        if spec is None or spec.loader is None:
-            raise ImportError(f"Cannot import module from {file_path}")
-        mod = importlib.util.module_from_spec(spec)
-        sys.modules[spec.name] = mod
-        spec.loader.exec_module(mod)
-        return mod
-
-    @staticmethod
-    def _find_imported_modules(module: ast.Module) -> Generator[str, None, None]:
-        """
-        Return modules imported using `import module.dot.submodule` syntax.
-
-        `from . import` are ignored - they are later covered by exploring submodules in the same namespace.
-        """
-        for st in module.body:
-            if isinstance(st, ast.Import):
-                for n in st.names:
-                    yield n.name
-
-    def _iter_imports(self, file_path: Path) -> Generator[types.ModuleType, None, None]:
-        """Discover Python imports in the file using ast module."""
-        try:
-            parsed = ast.parse(file_path.read_bytes())
-        except:  # noqa: E722
-            return
-        for import_name in self._find_imported_modules(parsed):
-            if import_name not in self.imported_modules:
-                self.imported_modules.add(import_name)
-            try:
-                yield import_module(import_name)
-            except ImportError:
-                pass
-
-    def register_deprecated_rules(self, module_rules: dict[str, Rule]) -> None:
-        # FIXME: currently deprecated, not used rules are hidden (we could just mentioned them in doc. or create
-        # empty checker just for deprecated stuff
-        for rule_name, rule_def in module_rules.items():
-            if rule_def.deprecated:
-                self.deprecated_rules[rule_name] = rule_def
-                self.deprecated_rules[rule_def.rule_id] = rule_def
-
-    def _import_rule_class(self, module: types.ModuleType, rule_class: str) -> type[Rule] | None:
-        """
-        Import class definition using typing information.
-
-        rule_object: RobocopRule -> imports RobocopRule from current namespace
-        rule_object2: other_module.RobocopRule -> imports RobocopRule from other_module namespace
-        """
-        if "." in rule_class:
-            other_module, rule_class = rule_class.rsplit(".", maxsplit=1)
-            module = getattr(module, other_module)
-        try:
-            return getattr(module, rule_class)  # type: ignore[no-any-return]
-        except AttributeError:  # TODO: for example dict[type[Node] typing instead of rule def
-            return None
-
-    def get_checker_rules(self, checker_class: type[BaseChecker], module: types.ModuleType) -> dict[str, Rule]:
-        # TODO if other checker uses the same rule, return it instead of creating new instance
-        if not checker_class.robocop_rule_types:
-            return {}
-        rules: dict[str, Rule] = {}
-        for name, rule_class in checker_class.robocop_rule_types.items():
-            if isinstance(rule_class, str):  # if from future import annotations was used, or lazy annotation
-                rule_class = self._import_rule_class(module, rule_class)
-            if not rule_class or not (isclass(rule_class) and issubclass(rule_class, Rule)):
-                continue
-            rule_instance = rule_class()
-            rules[name] = rule_instance
-        return rules
-
-    def get_checkers_from_module(self, module: types.ModuleType) -> list[BaseChecker]:
-        # FIXME do not inspect / enter external libs such as re..
-        classes = inspect.getmembers(module, inspect.isclass)
-        checkers = [checker[1]() for checker in classes if is_checker(checker)]
-        # self.register_deprecated_rules(module_rules) # FIXME
-        checker_instances = []
-        for checker in checkers:
-            rules = self.get_checker_rules(checker, module)
-            if not rules:
-                continue
-            for attr_name, rule in rules.items():
-                checker.rules[rule.name] = rule
-                checker.rules[rule.rule_id] = rule
-                setattr(checker, attr_name, rule)  # from rule_name: Rule to rule_name = Rule()
-            checker_instances.append(checker)
-        return checker_instances
-
-
-def init(config: LinterConfig) -> None:
-    robocop_importer = RobocopImporter(external_rules_paths=config.custom_rules)
-    for checker in robocop_importer.get_initialized_checkers():
-        config.register_checker(checker)
-    # linter.rules.update(robocop_importer.deprecated_rules)
-
-
-class DocumentationImporter(RobocopImporter):
-    """Import Robocop internal classes for documentation generation."""
-
-    def get_builtin_rules(self) -> Generator[tuple[str, Rule], None, None]:
-        for module in self.get_internal_modules():
-            module_name = module.__name__.split(".")[-1]
-            classes = inspect.getmembers(module, inspect.isclass)
-            rules = [rule[1]() for rule in classes if is_rule(rule)]
-            for rule in rules:
-                yield module_name, rule
+        return self.issues

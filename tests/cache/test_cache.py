@@ -11,9 +11,6 @@ import pytest
 
 from robocop import __version__
 from robocop.cache import (
-    CACHE_DIR_NAME,
-    CACHE_FILE_NAME,
-    CACHE_VERSION,
     CacheData,
     CachedDiagnostic,
     FileMetadata,
@@ -22,16 +19,11 @@ from robocop.cache import (
     RobocopCache,
     restore_diagnostics,
 )
-from robocop.config import (
-    CacheConfig,
-    Config,
-    FormatterConfig,
-    LinterConfig,
-    TargetVersion,
-    WhitespaceConfig,
-)
+from robocop.config.defaults import CACHE_DIR_NAME, CACHE_FILE_NAME
+from robocop.config.schema import RawCacheConfig
 from robocop.linter.diagnostics import Diagnostic
 from robocop.linter.rules import RuleSeverity
+from robocop.runtime.resolved_config import ResolvedConfig
 from robocop.source_file import SourceFile
 
 
@@ -168,14 +160,13 @@ class TestCacheData:
 
         result = cache_data.to_dict()
 
-        assert result["version"] == CACHE_VERSION
         assert result["robocop_version"] == __version__
         assert result["linter"] == {}
         assert result["formatter"] == {}
 
     def test_from_dict(self):
         data = {
-            "version": "1.0",
+            "version": "1.0",  # deprecated, left for backward compatibility test
             "robocop_version": "7.0.0",
             "linter": {},
             "formatter": {},
@@ -183,36 +174,10 @@ class TestCacheData:
 
         cache_data = CacheData.from_dict(data)
 
-        assert cache_data.version == "1.0"
         assert cache_data.robocop_version == "7.0.0"
 
 
 class TestRobocopCache:
-    def test_init_default(self):
-        cache = RobocopCache()
-
-        assert cache.enabled is True
-        assert cache.cache_dir == Path.cwd() / CACHE_DIR_NAME
-
-    def test_init_custom_dir(self, tmp_path: Path):
-        cache_dir = tmp_path / "custom_cache"
-
-        cache = RobocopCache(cache_dir=cache_dir)
-
-        assert cache.cache_dir == cache_dir
-
-    def test_init_disabled(self):
-        cache = RobocopCache(enabled=False)
-
-        assert cache.enabled is False
-
-    def test_load_creates_empty_cache_when_no_file(self, tmp_path: Path):
-        cache = RobocopCache(cache_dir=tmp_path / "nonexistent")
-
-        # Accessing data triggers load
-        assert cache.data.linter == {}
-        assert cache.data.formatter == {}
-
     def test_load_from_existing_file(self, tmp_path: Path):
         cache_dir = tmp_path / CACHE_DIR_NAME
         cache_dir.mkdir()
@@ -220,7 +185,6 @@ class TestRobocopCache:
         cache_file.write_bytes(
             msgpack.packb(
                 {
-                    "version": CACHE_VERSION,
                     "robocop_version": __version__,
                     "linter": {
                         "/path/to/file.robot": {
@@ -236,7 +200,7 @@ class TestRobocopCache:
             )
         )
 
-        cache = RobocopCache(cache_dir=cache_dir)
+        cache = RobocopCache(cache_dir=cache_dir, enabled=True, verbose=False)
 
         assert "/path/to/file.robot" in cache.data.linter
 
@@ -247,7 +211,6 @@ class TestRobocopCache:
         cache_file.write_bytes(
             msgpack.packb(
                 {
-                    "version": CACHE_VERSION,
                     "robocop_version": "0.0.0",  # Different version
                     "linter": {
                         "/path/to/file.robot": {
@@ -263,7 +226,7 @@ class TestRobocopCache:
             )
         )
 
-        cache = RobocopCache(cache_dir=cache_dir)
+        cache = RobocopCache(cache_dir=cache_dir, enabled=True, verbose=False)
 
         # Cache should be cleared due to version mismatch
         assert cache.data.linter == {}
@@ -274,7 +237,7 @@ class TestRobocopCache:
         cache_file = cache_dir / CACHE_FILE_NAME
         cache_file.write_bytes(b"not valid msgpack data")
 
-        cache = RobocopCache(cache_dir=cache_dir)
+        cache = RobocopCache(cache_dir=cache_dir, enabled=True, verbose=False)
 
         # Should create empty cache
         assert cache.data.linter == {}
@@ -282,7 +245,7 @@ class TestRobocopCache:
 
     def test_save(self, tmp_path: Path):
         cache_dir = tmp_path / CACHE_DIR_NAME
-        cache = RobocopCache(cache_dir=cache_dir)
+        cache = RobocopCache(cache_dir=cache_dir, enabled=True, verbose=False)
 
         # Create a test file
         test_file = tmp_path / "test.robot"
@@ -298,12 +261,11 @@ class TestRobocopCache:
 
         # Verify content
         data = msgpack.unpackb(cache_file.read_bytes(), raw=False, strict_map_key=False)
-        assert data["version"] == CACHE_VERSION
         assert str(test_file.resolve()) in data["linter"]
 
     def test_save_does_nothing_when_disabled(self, tmp_path: Path):
         cache_dir = tmp_path / CACHE_DIR_NAME
-        cache = RobocopCache(cache_dir=cache_dir, enabled=False)
+        cache = RobocopCache(cache_dir=cache_dir, enabled=False, verbose=False)
 
         test_file = tmp_path / "test.robot"
         test_file.write_text("content")
@@ -314,7 +276,7 @@ class TestRobocopCache:
         assert not cache_dir.exists()
 
     def test_get_linter_entry_valid(self, tmp_path: Path):
-        cache = RobocopCache(cache_dir=tmp_path)
+        cache = RobocopCache(cache_dir=tmp_path, enabled=True, verbose=False)
         test_file = tmp_path / "test.robot"
         test_file.write_text("content")
 
@@ -325,7 +287,7 @@ class TestRobocopCache:
         assert entry.config_hash == "hash123"
 
     def test_get_linter_entry_invalid_mtime(self, tmp_path: Path):
-        cache = RobocopCache(cache_dir=tmp_path)
+        cache = RobocopCache(cache_dir=tmp_path, enabled=True, verbose=False)
         test_file = tmp_path / "test.robot"
         test_file.write_text("content")
 
@@ -340,7 +302,7 @@ class TestRobocopCache:
         assert entry is None
 
     def test_get_linter_entry_invalid_config_hash(self, tmp_path: Path):
-        cache = RobocopCache(cache_dir=tmp_path)
+        cache = RobocopCache(cache_dir=tmp_path, enabled=True, verbose=False)
         test_file = tmp_path / "test.robot"
         test_file.write_text("content")
 
@@ -351,7 +313,7 @@ class TestRobocopCache:
         assert entry is None
 
     def test_get_linter_entry_returns_none_when_disabled(self, tmp_path: Path):
-        cache = RobocopCache(cache_dir=tmp_path, enabled=False)
+        cache = RobocopCache(cache_dir=tmp_path, enabled=False, verbose=False)
         test_file = tmp_path / "test.robot"
         test_file.write_text("content")
 
@@ -360,7 +322,7 @@ class TestRobocopCache:
         assert entry is None
 
     def test_get_formatter_entry_valid(self, tmp_path: Path):
-        cache = RobocopCache(cache_dir=tmp_path)
+        cache = RobocopCache(cache_dir=tmp_path, enabled=True, verbose=False)
         test_file = tmp_path / "test.robot"
         test_file.write_text("content")
 
@@ -371,7 +333,7 @@ class TestRobocopCache:
         assert entry.needs_formatting is False
 
     def test_invalidate_all(self, tmp_path: Path):
-        cache = RobocopCache(cache_dir=tmp_path)
+        cache = RobocopCache(cache_dir=tmp_path, enabled=True, verbose=False)
         test_file = tmp_path / "test.robot"
         test_file.write_text("content")
 
@@ -384,162 +346,16 @@ class TestRobocopCache:
         assert cache.data.formatter == {}
 
 
-class TestLinterConfigHash:
-    """Test __hash__ on LinterConfig for cache invalidation."""
-
-    def test_linter_config_hash_consistency(self):
-        config = LinterConfig()
-        config.select = ["DOC01", "DOC02"]
-
-        hash1 = hash(config)
-        hash2 = hash(config)
-
-        assert hash1 == hash2
-
-    def test_linter_config_hash_changes_on_select(self):
-        config1 = LinterConfig()
-        config1.select = ["DOC01"]
-
-        config2 = LinterConfig()
-        config2.select = ["DOC02"]  # Different
-
-        assert hash(config1) != hash(config2)
-
-    def test_linter_config_hash_changes_on_ignore(self):
-        config1 = LinterConfig()
-        config1.ignore = ["DOC01"]
-
-        config2 = LinterConfig()
-        config2.ignore = ["DOC02"]  # Different
-
-        assert hash(config1) != hash(config2)
-
-    def test_linter_config_hash_changes_on_extend_select(self):
-        config1 = LinterConfig()
-        config1.extend_select = ["DOC01"]
-
-        config2 = LinterConfig()
-        config2.extend_select = ["DOC02"]  # Different
-
-        assert hash(config1) != hash(config2)
-
-    def test_linter_config_hash_changes_on_threshold(self):
-        config1 = LinterConfig()
-        config1.threshold = RuleSeverity.WARNING
-
-        config2 = LinterConfig()
-        config2.threshold = RuleSeverity.ERROR  # Different
-
-        assert hash(config1) != hash(config2)
-
-    def test_linter_config_hash_changes_on_configure(self):
-        config1 = LinterConfig()
-        config1.configure = ["rule.param=value1"]
-
-        config2 = LinterConfig()
-        config2.configure = ["rule.param=value2"]  # Different
-
-        assert hash(config1) != hash(config2)
-
-    def test_linter_config_hash_changes_on_per_file_ignores(self):
-        config1 = LinterConfig()
-        config1.per_file_ignores = {"*.robot": ["DOC01"]}
-
-        config2 = LinterConfig()
-        config2.per_file_ignores = {"*.robot": ["DOC02"]}  # Different
-
-        assert hash(config1) != hash(config2)
-
-    def test_linter_config_hash_select_order_independent(self):
-        config1 = LinterConfig()
-        config1.select = ["DOC01", "DOC02"]
-
-        config2 = LinterConfig()
-        config2.select = ["DOC02", "DOC01"]  # Different order
-
-        assert hash(config1) == hash(config2)  # Order should not matter
-
-    def test_linter_config_hash_changes_on_target_version(self):
-        config1 = LinterConfig()
-        config1.target_version = TargetVersion.RF6
-
-        config2 = LinterConfig()
-        config2.target_version = TargetVersion.RF7  # Different
-
-        assert hash(config1) != hash(config2)
-
-    def test_linter_config_hash_changes_on_custom_rules(self):
-        config1 = LinterConfig()
-        config1.custom_rules = ["/path/to/rules1.py"]
-
-        config2 = LinterConfig()
-        config2.custom_rules = ["/path/to/rules2.py"]  # Different
-
-        assert hash(config1) != hash(config2)
-
-
-class TestFormatterConfigHash:
-    """Test __hash__ on FormatterConfig for cache invalidation."""
-
-    def test_formatter_config_hash_consistency(self):
-        config = FormatterConfig()
-
-        hash1 = hash(config)
-        hash2 = hash(config)
-
-        assert hash1 == hash2
-
-    def test_formatter_config_hash_changes_on_select(self):
-        config1 = FormatterConfig()
-        config1.select = ["NormalizeSeparators"]
-
-        config2 = FormatterConfig()
-        config2.select = ["AlignSettingsSection"]  # Different
-
-        assert hash(config1) != hash(config2)
-
-    def test_formatter_config_hash_changes_on_whitespace(self):
-        config1 = FormatterConfig()
-        config1.whitespace_config = WhitespaceConfig(space_count=4)
-
-        config2 = FormatterConfig()
-        config2.whitespace_config = WhitespaceConfig(space_count=2)  # Different
-
-        assert hash(config1) != hash(config2)
-
-    def test_formatter_config_hash_changes_on_target_version(self):
-        config1 = FormatterConfig()
-        config1.target_version = TargetVersion.RF6
-
-        config2 = FormatterConfig()
-        config2.target_version = TargetVersion.RF7  # Different
-
-        assert hash(config1) != hash(config2)
-
-    def test_formatter_config_hash_select_order_independent(self):
-        config1 = FormatterConfig()
-        config1.select = ["NormalizeSeparators", "AlignSettingsSection"]
-
-        config2 = FormatterConfig()
-        config2.select = [
-            "AlignSettingsSection",
-            "NormalizeSeparators",
-        ]  # Different order
-
-        assert hash(config1) == hash(config2)  # Order should not matter
-
-
 class TestRestoreDiagnostics:
-    def test_restore_with_valid_rule(self, tmp_path: Path):
-        config = Config()
+    def test_restore_with_valid_rule(self, empty_config, tmp_path: Path):
         rule = MagicMock()
         rule.rule_id = "DOC01"
         rule.name = "missing-doc-keyword"
         rule.message = "Missing documentation"
         rule.get_severity_with_threshold.return_value = RuleSeverity.WARNING
 
-        config.linter._checkers_loaded = True  # noqa: SLF001
-        config.linter._rules = {"DOC01": rule, "missing-doc-keyword": rule}  # noqa: SLF001
+        resolved_config = MagicMock(spec=ResolvedConfig)
+        resolved_config.rules = {"DOC01": rule, "missing-doc-keyword": rule}
 
         cached_entry = LinterCacheEntry(
             metadata=FileMetadata(mtime=123.0, size=100),
@@ -559,17 +375,16 @@ class TestRestoreDiagnostics:
         )
 
         source = tmp_path / "test.robot"
-        diagnostics = restore_diagnostics(cached_entry, source, config)
+        diagnostics = restore_diagnostics(cached_entry, source, empty_config, resolved_config)
 
         assert diagnostics is not None
         assert len(diagnostics) == 1
         assert diagnostics[0].rule == rule
         assert diagnostics[0].source.path == source
 
-    def test_restore_returns_none_when_rule_missing(self, tmp_path: Path):
-        config = Config()
-        config.linter._checkers_loaded = True  # noqa: SLF001
-        config.linter._rules = {}  # noqa: SLF001 No rules available
+    def test_restore_returns_none_when_rule_missing(self, empty_config, tmp_path: Path):
+        resolved_config = MagicMock(spec=ResolvedConfig)
+        resolved_config.rules = {}  # No rules available
 
         cached_entry = LinterCacheEntry(
             metadata=FileMetadata(mtime=123.0, size=100),
@@ -589,21 +404,20 @@ class TestRestoreDiagnostics:
         )
 
         source = tmp_path / "test.robot"
-        diagnostics = restore_diagnostics(cached_entry, source, config)
+        diagnostics = restore_diagnostics(cached_entry, source, empty_config, resolved_config)
 
         # Should return None because rule doesn't exist
         assert diagnostics is None
 
-    def test_restore_with_arguments(self, tmp_path: Path):
-        config = Config()
+    def test_restore_with_arguments(self, empty_config, tmp_path: Path):
         rule = MagicMock()
         rule.rule_id = "LEN01"
         rule.name = "too-long-keyword"
         rule.message = "Keyword is too long"
         rule.get_severity_with_threshold.return_value = RuleSeverity.WARNING
 
-        config.linter._checkers_loaded = True  # noqa: SLF001
-        config.linter._rules = {"LEN01": rule}  # noqa: SLF001
+        resolved_config = MagicMock(spec=ResolvedConfig)
+        resolved_config.rules = {"LEN01": rule}
 
         cached_entry = LinterCacheEntry(
             metadata=FileMetadata(mtime=123.0, size=100),
@@ -623,16 +437,15 @@ class TestRestoreDiagnostics:
         )
 
         source = tmp_path / "test.robot"
-        diagnostics = restore_diagnostics(cached_entry, source, config)
+        diagnostics = restore_diagnostics(cached_entry, source, empty_config, resolved_config)
 
         assert diagnostics is not None
         assert len(diagnostics) == 1
         assert diagnostics[0].reported_arguments == {"length": 45, "max_length": 40}
 
-    def test_restore_with_empty_diagnostics(self, tmp_path: Path):
-        config = Config()
-        config.linter._checkers_loaded = True  # noqa: SLF001
-        config.linter._rules = {"DOC01": MagicMock()}  # noqa: SLF001
+    def test_restore_with_empty_diagnostics(self, empty_config, tmp_path: Path):
+        resolved_config = MagicMock(spec=ResolvedConfig)
+        resolved_config.rules = {"DOC01": MagicMock()}
 
         cached_entry = LinterCacheEntry(
             metadata=FileMetadata(mtime=123.0, size=100),
@@ -641,21 +454,20 @@ class TestRestoreDiagnostics:
         )
 
         source = tmp_path / "test.robot"
-        diagnostics = restore_diagnostics(cached_entry, source, config)
+        diagnostics = restore_diagnostics(cached_entry, source, empty_config, resolved_config)
 
         assert diagnostics is not None
         assert len(diagnostics) == 0
 
-    def test_restore_finds_rule_by_name(self, tmp_path: Path):
-        config = Config()
+    def test_restore_finds_rule_by_name(self, empty_config, tmp_path: Path):
         rule = MagicMock()
         rule.rule_id = "DOC01"
         rule.name = "missing-doc-keyword"
         rule.get_severity_with_threshold.return_value = RuleSeverity.WARNING
 
         # Only name in rules dict, not ID
-        config.linter._checkers_loaded = True  # noqa: SLF001
-        config.linter._rules = {"missing-doc-keyword": rule}  # noqa: SLF001
+        resolved_config = MagicMock(spec=ResolvedConfig)
+        resolved_config.rules = {"missing-doc-keyword": rule}
 
         cached_entry = LinterCacheEntry(
             metadata=FileMetadata(mtime=123.0, size=100),
@@ -675,22 +487,21 @@ class TestRestoreDiagnostics:
         )
 
         source = tmp_path / "test.robot"
-        diagnostics = restore_diagnostics(cached_entry, source, config)
+        diagnostics = restore_diagnostics(cached_entry, source, empty_config, resolved_config)
 
         assert diagnostics is not None
         assert len(diagnostics) == 1
 
 
 class TestCachedDiagnosticFromDiagnostic:
-    def test_from_diagnostic(self, tmp_path: Path):
-        config = Config()
+    def test_from_diagnostic(self, empty_config, tmp_path: Path):
         rule = MagicMock()
         rule.rule_id = "DOC01"
         rule.name = "missing-doc-keyword"
         rule.message = "Missing documentation in '{name}'"
         rule.get_severity_with_threshold.return_value = RuleSeverity.WARNING
 
-        source = SourceFile(path=tmp_path / "test.robot", config=config)
+        source = SourceFile(path=tmp_path / "test.robot", config=empty_config)
         diagnostic = Diagnostic(
             rule=rule,
             source=source,
@@ -715,7 +526,7 @@ class TestCachedDiagnosticFromDiagnostic:
 
 class TestRobocopCacheEdgeCases:
     def test_set_linter_entry_with_deleted_file(self, tmp_path: Path):
-        cache = RobocopCache(cache_dir=tmp_path)
+        cache = RobocopCache(cache_dir=tmp_path, enabled=True, verbose=False)
         test_file = tmp_path / "test.robot"
         # File doesn't exist - should handle gracefully
 
@@ -725,7 +536,7 @@ class TestRobocopCacheEdgeCases:
         assert str(test_file.resolve()) not in cache.data.linter
 
     def test_set_formatter_entry_with_deleted_file(self, tmp_path: Path):
-        cache = RobocopCache(cache_dir=tmp_path)
+        cache = RobocopCache(cache_dir=tmp_path, enabled=True, verbose=False)
         test_file = tmp_path / "test.robot"
         # File doesn't exist
 
@@ -735,7 +546,7 @@ class TestRobocopCacheEdgeCases:
         assert str(test_file.resolve()) not in cache.data.formatter
 
     def test_get_linter_entry_file_deleted_after_cache(self, tmp_path: Path):
-        cache = RobocopCache(cache_dir=tmp_path)
+        cache = RobocopCache(cache_dir=tmp_path, enabled=True, verbose=False)
         test_file = tmp_path / "test.robot"
         test_file.write_text("content")
 
@@ -749,7 +560,7 @@ class TestRobocopCacheEdgeCases:
         assert entry is None
 
     def test_get_formatter_entry_invalid_mtime(self, tmp_path: Path):
-        cache = RobocopCache(cache_dir=tmp_path)
+        cache = RobocopCache(cache_dir=tmp_path, enabled=True, verbose=False)
         test_file = tmp_path / "test.robot"
         test_file.write_text("content")
 
@@ -762,7 +573,7 @@ class TestRobocopCacheEdgeCases:
         assert entry is None
 
     def test_get_formatter_entry_invalid_config_hash(self, tmp_path: Path):
-        cache = RobocopCache(cache_dir=tmp_path)
+        cache = RobocopCache(cache_dir=tmp_path, enabled=True, verbose=False)
         test_file = tmp_path / "test.robot"
         test_file.write_text("content")
 
@@ -772,7 +583,7 @@ class TestRobocopCacheEdgeCases:
         assert entry is None
 
     def test_get_formatter_entry_returns_none_when_disabled(self, tmp_path: Path):
-        cache = RobocopCache(cache_dir=tmp_path, enabled=False)
+        cache = RobocopCache(cache_dir=tmp_path, enabled=False, verbose=False)
         test_file = tmp_path / "test.robot"
         test_file.write_text("content")
 
@@ -781,7 +592,7 @@ class TestRobocopCacheEdgeCases:
 
     def test_save_does_nothing_when_not_dirty(self, tmp_path: Path):
         cache_dir = tmp_path / CACHE_DIR_NAME
-        cache = RobocopCache(cache_dir=cache_dir)
+        cache = RobocopCache(cache_dir=cache_dir, enabled=True, verbose=False)
 
         # Access data to trigger load (creates empty cache)
         _ = cache.data
@@ -798,12 +609,12 @@ class TestRobocopCacheEdgeCases:
         test_file.write_text("content")
 
         # First instance - add entry and save
-        cache1 = RobocopCache(cache_dir=cache_dir)
+        cache1 = RobocopCache(cache_dir=cache_dir, enabled=True, verbose=False)
         cache1.set_linter_entry(test_file, "hash123", [])
         cache1.save()
 
         # Second instance - should load the saved data
-        cache2 = RobocopCache(cache_dir=cache_dir)
+        cache2 = RobocopCache(cache_dir=cache_dir, enabled=True, verbose=False)
         entry = cache2.get_linter_entry(test_file, "hash123")
 
         assert entry is not None
@@ -814,7 +625,7 @@ class TestRobocopCacheEdgeCases:
         test_file = tmp_path / "test.robot"
         test_file.write_text("content")
 
-        cache = RobocopCache(cache_dir=cache_dir)
+        cache = RobocopCache(cache_dir=cache_dir, enabled=True, verbose=False)
         cache.set_linter_entry(test_file, "hash", [])
         cache.set_formatter_entry(test_file, "hash", needs_formatting=True)
         cache.save()
@@ -824,42 +635,35 @@ class TestRobocopCacheEdgeCases:
         cache.save()
 
         # Load in new instance - should be empty
-        cache2 = RobocopCache(cache_dir=cache_dir)
+        cache2 = RobocopCache(cache_dir=cache_dir, enabled=True, verbose=False)
         assert cache2.data.linter == {}
         assert cache2.data.formatter == {}
 
     def test_verbose_flag_stored(self, tmp_path: Path):
-        cache = RobocopCache(cache_dir=tmp_path, verbose=True)
+        cache = RobocopCache(cache_dir=tmp_path, enabled=True, verbose=True)
         assert cache.verbose is True
 
-        cache2 = RobocopCache(cache_dir=tmp_path, verbose=False)
+        cache2 = RobocopCache(cache_dir=tmp_path, enabled=True, verbose=False)
         assert cache2.verbose is False
 
 
 class TestCacheConfigFromToml:
-    def test_from_toml_defaults(self, tmp_path: Path):
-        config = {}
-        cache_config = CacheConfig.from_toml(config, tmp_path)
-
-        assert cache_config.enabled is True
-        assert cache_config.cache_dir is None
-
     def test_from_toml_disabled(self, tmp_path: Path):
         config = {"cache": False}
-        cache_config = CacheConfig.from_toml(config, tmp_path)
+        cache_config = RawCacheConfig.from_dict(config, tmp_path)
 
         assert cache_config.enabled is False
 
     def test_from_toml_custom_dir_relative(self, tmp_path: Path):
         config = {"cache_dir": "custom_cache"}
-        cache_config = CacheConfig.from_toml(config, tmp_path)
+        cache_config = RawCacheConfig.from_dict(config, tmp_path)
 
         assert cache_config.cache_dir == tmp_path / "custom_cache"
 
     def test_from_toml_custom_dir_absolute(self, tmp_path: Path):
         absolute_path = tmp_path / "absolute_cache"
         config = {"cache_dir": str(absolute_path)}
-        cache_config = CacheConfig.from_toml(config, tmp_path)
+        cache_config = RawCacheConfig.from_dict(config, tmp_path)
 
         assert cache_config.cache_dir == absolute_path
 
@@ -869,7 +673,7 @@ class TestCacheEdgeCases:
 
     def test_empty_file_cached_then_modified(self, tmp_path: Path):
         """Test that empty file is cached and invalidated when content added."""
-        cache = RobocopCache(cache_dir=tmp_path)
+        cache = RobocopCache(cache_dir=tmp_path, enabled=True, verbose=False)
         test_file = tmp_path / "empty.robot"
         test_file.write_text("", encoding="utf-8")
 
@@ -888,7 +692,7 @@ class TestCacheEdgeCases:
 
     def test_file_with_content_then_emptied(self, tmp_path: Path):
         """Test that file is invalidated when emptied."""
-        cache = RobocopCache(cache_dir=tmp_path)
+        cache = RobocopCache(cache_dir=tmp_path, enabled=True, verbose=False)
         test_file = tmp_path / "test.robot"
         test_file.write_text("*** Test Cases ***\nTest\n    Log    Hello\n", encoding="utf-8")
 
@@ -908,7 +712,7 @@ class TestCacheEdgeCases:
     def test_cache_save_failure_keeps_dirty_flag(self, tmp_path: Path, monkeypatch):
         """Test that if save fails, dirty flag remains True for retry."""
         cache_dir = tmp_path / "cache"
-        cache = RobocopCache(cache_dir=cache_dir, verbose=True)
+        cache = RobocopCache(cache_dir=cache_dir, enabled=True, verbose=False)
         test_file = tmp_path / "test.robot"
         test_file.write_text("content", encoding="utf-8")
 
@@ -929,7 +733,7 @@ class TestCacheEdgeCases:
 
     def test_relative_vs_absolute_path_consistency(self, tmp_path: Path):
         """Test that same file accessed via relative and absolute paths uses same cache entry."""
-        cache = RobocopCache(cache_dir=tmp_path / "cache")
+        cache = RobocopCache(cache_dir=tmp_path / "cache", enabled=True, verbose=False)
         test_file = tmp_path / "test.robot"
         test_file.write_text("content", encoding="utf-8")
 
@@ -949,7 +753,7 @@ class TestCacheEdgeCases:
 
     def test_cache_with_unicode_filename(self, tmp_path: Path):
         """Test cache handles unicode filenames correctly."""
-        cache = RobocopCache(cache_dir=tmp_path)
+        cache = RobocopCache(cache_dir=tmp_path, enabled=True, verbose=False)
         test_file = tmp_path / "tëst_файл_测试.robot"
         test_file.write_text("*** Test Cases ***\n", encoding="utf-8")
 
@@ -960,41 +764,13 @@ class TestCacheEdgeCases:
 
         # Verify cache persistence
         cache.save()
-        cache2 = RobocopCache(cache_dir=tmp_path)
+        cache2 = RobocopCache(cache_dir=tmp_path, enabled=True, verbose=False)
         entry2 = cache2.get_linter_entry(test_file, "hash123")
         assert entry2 is not None
 
-    def test_cache_version_field_mismatch(self, tmp_path: Path):
-        """Test that CACHE_VERSION mismatch invalidates cache."""
-        cache_dir = tmp_path / CACHE_DIR_NAME
-        cache_dir.mkdir()
-        cache_file = cache_dir / CACHE_FILE_NAME
-
-        # Write cache with different version
-        cache_data = {
-            "version": "0.9",  # Different from CACHE_VERSION
-            "robocop_version": __version__,
-            "linter": {
-                "test": {
-                    "mtime": 123,
-                    "size": 100,
-                    "config_hash": "hash",
-                    "diagnostics": [],
-                }
-            },
-            "formatter": {},
-        }
-        cache_file.write_bytes(msgpack.packb(cache_data, use_bin_type=True))
-
-        # Load cache - should handle version mismatch gracefully
-        cache = RobocopCache(cache_dir=cache_dir)
-        # Current implementation doesn't check CACHE_VERSION, only robocop_version
-        # This test documents current behavior
-        assert len(cache.data.linter) >= 0  # Should load without crashing
-
     def test_formatter_entry_with_needs_formatting_true(self, tmp_path: Path):
         """Test formatter cache behavior when needs_formatting=True."""
-        cache = RobocopCache(cache_dir=tmp_path)
+        cache = RobocopCache(cache_dir=tmp_path, enabled=True, verbose=False)
         test_file = tmp_path / "test.robot"
         test_file.write_text("*** Test Cases ***\n", encoding="utf-8")
 
@@ -1008,16 +784,15 @@ class TestCacheEdgeCases:
         # Verify it's cached but formatter should still process it
         # (formatter logic skips only when needs_formatting=False)
 
-    def test_multiple_diagnostics_one_rule_missing(self, tmp_path: Path):
+    def test_multiple_diagnostics_one_rule_missing(self, empty_config, tmp_path: Path):
         """Test restore_diagnostics with multiple diagnostics where one rule is missing."""
-        config = Config()
         rule1 = MagicMock()
         rule1.rule_id = "DOC01"
         rule1.name = "missing-doc"
 
         # Only have rule1, not rule2
-        config.linter._checkers_loaded = True  # noqa: SLF001
-        config.linter._rules = {"DOC01": rule1}  # noqa: SLF001
+        resolved_config = MagicMock(spec=ResolvedConfig)
+        resolved_config.rules = {"DOC01": rule1}
 
         cached_entry = LinterCacheEntry(
             metadata=FileMetadata(mtime=123.0, size=100),
@@ -1048,7 +823,7 @@ class TestCacheEdgeCases:
 
         source = tmp_path / "test.robot"
         # Should return None because one rule is missing (invalidates entire cache entry)
-        diagnostics = restore_diagnostics(cached_entry, source, config)
+        diagnostics = restore_diagnostics(cached_entry, source, empty_config, resolved_config)
         assert diagnostics is None
 
     def test_cache_data_lazy_loading(self, tmp_path: Path):
@@ -1059,7 +834,6 @@ class TestCacheEdgeCases:
         cache_file.write_bytes(
             msgpack.packb(
                 {
-                    "version": CACHE_VERSION,
                     "robocop_version": __version__,
                     "linter": {
                         "test": {
@@ -1075,7 +849,7 @@ class TestCacheEdgeCases:
             )
         )
 
-        cache = RobocopCache(cache_dir=cache_dir)
+        cache = RobocopCache(cache_dir=cache_dir, enabled=True, verbose=False)
         # Data should not be loaded yet
         assert cache._data is None  # noqa: SLF001
 
@@ -1095,7 +869,7 @@ class TestGitignoreCreation:
     def test_gitignore_created_on_cache_save(self, tmp_path: Path):
         """Test that .gitignore file is created when cache is saved."""
         cache_dir = tmp_path / CACHE_DIR_NAME
-        cache = RobocopCache(cache_dir=cache_dir)
+        cache = RobocopCache(cache_dir=cache_dir, enabled=True, verbose=False)
         test_file = tmp_path / "test.robot"
         test_file.write_text("*** Test Cases ***\nTest\n    Log    Hello\n", encoding="utf-8")
 
@@ -1118,7 +892,7 @@ class TestGitignoreCreation:
         custom_content = "# Custom gitignore\ncache.msgpack\n"
         gitignore_file.write_text(custom_content, encoding="utf-8")
 
-        cache = RobocopCache(cache_dir=cache_dir)
+        cache = RobocopCache(cache_dir=cache_dir, enabled=True, verbose=False)
         test_file = tmp_path / "test.robot"
         test_file.write_text("*** Test Cases ***\nTest\n    Log    Hello\n", encoding="utf-8")
 
@@ -1132,7 +906,7 @@ class TestGitignoreCreation:
     def test_gitignore_created_in_custom_cache_dir(self, tmp_path: Path):
         """Test that .gitignore is created in custom cache directory."""
         custom_cache_dir = tmp_path / "my_custom_cache"
-        cache = RobocopCache(cache_dir=custom_cache_dir)
+        cache = RobocopCache(cache_dir=custom_cache_dir, enabled=True, verbose=False)
         test_file = tmp_path / "test.robot"
         test_file.write_text("*** Test Cases ***\nTest\n    Log    Hello\n", encoding="utf-8")
 
@@ -1148,7 +922,7 @@ class TestGitignoreCreation:
     def test_cache_works_if_gitignore_creation_fails(self, tmp_path: Path, monkeypatch):
         """Test that cache still works if .gitignore creation fails."""
         cache_dir = tmp_path / CACHE_DIR_NAME
-        cache = RobocopCache(cache_dir=cache_dir)
+        cache = RobocopCache(cache_dir=cache_dir, enabled=True, verbose=False)
         test_file = tmp_path / "test.robot"
         test_file.write_text("*** Test Cases ***\nTest\n    Log    Hello\n", encoding="utf-8")
 

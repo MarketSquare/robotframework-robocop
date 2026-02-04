@@ -2,7 +2,6 @@ from pathlib import Path
 
 import pytest
 
-from robocop.config import Config
 from robocop.linter.diagnostics import Diagnostic, Diagnostics
 from robocop.linter.reports.return_status_report import ReturnStatusReport
 from robocop.source_file import SourceFile
@@ -20,8 +19,8 @@ class TestReturnStatus:
             ("quality_gates", "E=100:W=100:I=100", {"E": 100, "W": 100, "I": 100}),
         ],
     )
-    def test_quality_gates_configuration(self, param, configuration, quality_gates, config):
-        report = ReturnStatusReport(config)
+    def test_quality_gates_configuration(self, param, configuration, quality_gates, empty_config):
+        report = ReturnStatusReport(empty_config)
         report.configure(param, configuration)
         assert report.quality_gate == quality_gates
 
@@ -42,12 +41,12 @@ class TestReturnStatus:
         ],
     )
     def test_return_status_with_quality_gates(
-        self, error_msg, warning_msg, info_msg, quality_gates, return_status, config
+        self, empty_config, error_msg, warning_msg, info_msg, quality_gates, return_status
     ):
-        report = ReturnStatusReport(config)
+        report = ReturnStatusReport(empty_config)
         report.configure("quality_gates", quality_gates)
         issues = []
-        source_file = SourceFile(path=Path(), config=Config())
+        source_file = SourceFile(path=Path(), config=empty_config)
         for _ in range(10):
             issues.append(
                 Diagnostic(
@@ -67,9 +66,9 @@ class TestReturnStatus:
         report.generate_report(Diagnostics(issues))
         assert report.return_status == return_status
 
-    def test_empty_results(self, config):
+    def test_empty_results(self, empty_config):
         # Arrange
-        report = ReturnStatusReport(config)
+        report = ReturnStatusReport(empty_config)
         diagnostics = Diagnostics([])
 
         # Act

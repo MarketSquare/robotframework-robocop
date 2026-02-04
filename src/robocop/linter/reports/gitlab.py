@@ -42,7 +42,7 @@ class GitlabReport(robocop.linter.reports.JsonFileReport):
 
     def generate_report(self, diagnostics: Diagnostics, **kwargs: object) -> None:  # type: ignore[override]  # noqa: ARG002
         report = self.generate_gitlab_report(diagnostics)
-        super().generate_report(report, "Gitlab Code Quality")
+        super().generate_report_with_type(report, "Gitlab Code Quality")
 
     def generate_gitlab_report(self, diagnostics: Diagnostics) -> list[dict[str, Any]]:
         report = []

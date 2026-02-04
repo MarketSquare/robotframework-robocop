@@ -1,6 +1,6 @@
 import pytest
 
-from robocop.config import FormatterConfig
+from robocop.runtime.resolver import FormattersLoader
 
 
 @pytest.mark.parametrize(
@@ -12,10 +12,20 @@ from robocop.config import FormatterConfig
         ["CustomFormatter", "NormalizeNewLines", "NormalizeSeparators"],
     ],
 )
-def test_unordered_select(select: list[str]):
+def test_unordered_select(select: list[str], empty_config):
     expected_order = ["NormalizeSeparators", "NormalizeNewLines", "CustomFormatter"]
-    config = FormatterConfig(select=select)
-    assert expected_order == config.selected_formatters()
+    loader = FormattersLoader(
+        select=select,
+        extend_select=[],
+        configure=[],
+        force_order=False,
+        allow_disabled=False,
+        target_version=empty_config.target_version,
+        skip_config=empty_config.formatter.skip_config,
+        whitespace_config=empty_config.formatter.whitespace_config,
+        languages=empty_config.languages,
+    )
+    assert expected_order == loader.selected_formatters()
 
 
 @pytest.mark.parametrize(
@@ -27,9 +37,19 @@ def test_unordered_select(select: list[str]):
         ["CustomFormatter", "NormalizeNewLines", "NormalizeSeparators"],
     ],
 )
-def test_ordered_select(select: list[str]):
-    config = FormatterConfig(select=select, force_order=True)
-    assert select == config.selected_formatters()
+def test_ordered_select(select: list[str], empty_config):
+    loader = FormattersLoader(
+        select=select,
+        extend_select=[],
+        configure=[],
+        force_order=True,
+        allow_disabled=False,
+        target_version=empty_config.target_version,
+        skip_config=empty_config.formatter.skip_config,
+        whitespace_config=empty_config.formatter.whitespace_config,
+        languages=empty_config.languages,
+    )
+    assert select == loader.selected_formatters()
 
 
 @pytest.mark.parametrize(
@@ -53,8 +73,20 @@ def test_ordered_select(select: list[str]):
         ([], ["CustomFormatter"], ["NormalizeSeparators", "CustomFormatter", "AlignVariablesSection"], []),
     ],
 )
-def test_extend_select(select: list[str], extend_select: list[str], expected: list[str], not_expected: list[str]):
-    config = FormatterConfig(select=select, extend_select=extend_select)
-    selected_formatters = config.selected_formatters()
+def test_extend_select(
+    select: list[str], extend_select: list[str], expected: list[str], not_expected: list[str], empty_config
+):
+    loader = FormattersLoader(
+        select=select,
+        extend_select=extend_select,
+        configure=[],
+        force_order=True,
+        allow_disabled=False,
+        target_version=empty_config.target_version,
+        skip_config=empty_config.formatter.skip_config,
+        whitespace_config=empty_config.formatter.whitespace_config,
+        languages=empty_config.languages,
+    )
+    selected_formatters = loader.selected_formatters()
     assert all(item in selected_formatters for item in expected)
     assert all(item not in selected_formatters for item in not_expected)

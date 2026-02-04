@@ -8,6 +8,7 @@ cut_off parameter).
 """
 
 import json
+import sys
 import tempfile
 import time
 from functools import wraps
@@ -21,7 +22,7 @@ from robocop.run import check_files, format_files
 from tests import working_directory
 
 try:
-    from robocop.config_manager import ConfigManager
+    from robocop.config.manager import ConfigManager
     from robocop.version_handling import Version
 except ImportError:  # < 7.3.0
     from robocop.config import ConfigManager
@@ -189,8 +190,12 @@ def generate_reports() -> None:
 
 
 if __name__ == "__main__":
+    if len(sys.argv) > 1:
+        report_name = sys.argv[1].replace(".", "_")
+    else:
+        report_name = __version__.replace(".", "_")
     whole_run_start = time.perf_counter()
-    report_path = Path(__file__).parent / "reports" / f"robocop_{__version__.replace('.', '_')}.json"
+    report_path = Path(__file__).parent / "reports" / f"robocop_{report_name}.json"
     if not report_path.exists():  # additional safe guard in case we run on the same version (there was no version bump)
         generate_reports()
         print(f"Generating report in {report_path}")

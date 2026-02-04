@@ -7,8 +7,8 @@ from pathlib import Path
 from fastmcp.exceptions import ToolError
 from robot.errors import DataError
 
-from robocop.config import Config, LinterConfig
-from robocop.config_manager import ConfigManager
+from robocop.config.manager import ConfigManager
+from robocop.config.schema import RawConfig, RawLinterConfig
 from robocop.mcp.tools.models import DiagnosticResult
 from robocop.mcp.tools.utils.constants import VALID_EXTENSIONS
 from robocop.mcp.tools.utils.helpers import (
@@ -25,15 +25,14 @@ def _create_linter_config(
     ignore: list[str] | None = None,
     threshold: str = "I",
     configure: list[str] | None = None,
-) -> LinterConfig:
-    """Create a LinterConfig with the given options."""
-    return LinterConfig(
+) -> RawLinterConfig:
+    """Create a RawConfig with the given options."""
+    return RawLinterConfig(
         select=select or [],
         ignore=ignore or [],
         configure=configure or [],
         threshold=_parse_threshold(threshold),
         return_result=True,
-        silent=True,
     )
 
 
@@ -72,7 +71,7 @@ def _lint_content_impl(
     with _temp_robot_file(content, suffix) as tmp_path:
         try:
             linter_config = _create_linter_config(select, ignore, threshold, configure)
-            config = Config(sources=[str(tmp_path)], linter=linter_config, silent=True)
+            config = RawConfig(sources=[str(tmp_path)], linter=linter_config, silent=True)
             config_manager = ConfigManager(
                 sources=[str(tmp_path)],
                 ignore_file_config=True,
@@ -80,7 +79,9 @@ def _lint_content_impl(
             )
 
             linter = RobocopLinter(config_manager)
-            source_file = SourceFile(path=tmp_path, config=config)
+            # FIXME it should find config for specific file, not just some random. and those overwrites
+            # for now config -> default_config
+            source_file = SourceFile(path=tmp_path, config=config_manager.default_config)
             diagnostics = linter.run_check(source_file)
 
             result = [_diagnostic_to_dict(d) for d in diagnostics]
@@ -130,7 +131,7 @@ def _lint_file_impl(
 
     try:
         linter_config = _create_linter_config(select, ignore, threshold, configure)
-        config = Config(sources=[str(path)], linter=linter_config, silent=True)
+        config = RawConfig(sources=[str(path)], linter=linter_config, silent=True)
         config_manager = ConfigManager(
             sources=[str(path)],
             ignore_file_config=True,
@@ -138,7 +139,8 @@ def _lint_file_impl(
         )
 
         linter = RobocopLinter(config_manager)
-        source_file = SourceFile(path=path, config=config)
+        # FIXME, and what's the diff from _lint_content_impl -> could be merged
+        source_file = SourceFile(path=path, config=config_manager.default_config)
         diagnostics = linter.run_check(source_file)
 
         file_str = str(path) if include_file_in_result else None

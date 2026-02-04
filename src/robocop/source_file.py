@@ -113,9 +113,9 @@ class SourceFile:
         if "__init__" in self.path.name:
             loader: Callable = get_init_model
         elif self.path.suffix == ".resource":
-            loader: Callable = get_resource_model
+            loader = get_resource_model
         else:
-            loader: Callable = get_model
+            loader = get_model
 
         if LANG_SUPPORTED:
             return loader(path_or_text, lang=self.config.languages)
@@ -153,7 +153,7 @@ class VirtualSourceFile(SourceFile):
         return []
 
 
-class StatementLinesCollector(ModelVisitor):
+class StatementLinesCollector(ModelVisitor):  # type: ignore[misc]
     """Used to get a writeable presentation of a Robot Framework model."""
 
     def __init__(self, model: File) -> None:

@@ -181,7 +181,7 @@ class SetKeywordWithTypeRule(Rule):
         if not name_token or not name_token.value:
             return
         var_match = search_variable(name_token.value, ignore_errors=True)
-        if ": " not in var_match.base:
+        if not var_match.base or ": " not in var_match.base:
             return
         keyword_token = node.get_token(Token.KEYWORD)
         self.report(

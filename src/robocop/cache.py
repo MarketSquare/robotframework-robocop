@@ -8,22 +8,20 @@ significantly improving performance on subsequent runs.
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
 import msgpack
 
 from robocop import __version__
+from robocop.config import defaults
 from robocop.source_file import SourceFile
 
 if TYPE_CHECKING:
+    from pathlib import Path
+
     from robocop.config import Config
     from robocop.linter.diagnostics import Diagnostic
-
-
-CACHE_VERSION = "1.0"
-CACHE_DIR_NAME = ".robocop_cache"
-CACHE_FILE_NAME = "cache.msgpack"
+    from robocop.runtime.resolved_config import ResolvedConfig
 
 
 @dataclass(frozen=True)
@@ -201,7 +199,6 @@ class FormatterCacheEntry:
 class CacheData:
     """Mutable container for cache data."""
 
-    version: str = CACHE_VERSION
     robocop_version: str = field(default_factory=lambda: __version__)
     linter: dict[str, LinterCacheEntry] = field(default_factory=dict)
     formatter: dict[str, FormatterCacheEntry] = field(default_factory=dict)
@@ -215,7 +212,6 @@ class CacheData:
 
         """
         return {
-            "version": self.version,
             "robocop_version": self.robocop_version,
             "linter": {path: entry.to_dict() for path, entry in self.linter.items()},
             "formatter": {path: entry.to_dict() for path, entry in self.formatter.items()},
@@ -231,7 +227,6 @@ class CacheData:
 
         """
         return cls(
-            version=data.get("version", CACHE_VERSION),
             robocop_version=data.get("robocop_version", ""),
             linter={path: LinterCacheEntry.from_dict(entry) for path, entry in data.get("linter", {}).items()},
             formatter={path: FormatterCacheEntry.from_dict(entry) for path, entry in data.get("formatter", {}).items()},
@@ -248,9 +243,9 @@ class RobocopCache:
 
     def __init__(
         self,
-        cache_dir: Path | None = None,
-        enabled: bool = True,
-        verbose: bool = False,
+        cache_dir: Path,
+        enabled: bool,
+        verbose: bool,
     ) -> None:
         """
         Initialize the cache.
@@ -262,7 +257,7 @@ class RobocopCache:
 
         """
         self.enabled = enabled
-        self.cache_dir = cache_dir or Path.cwd() / CACHE_DIR_NAME
+        self.cache_dir = cache_dir
         self.verbose = verbose
         self._data: CacheData | None = None
         self._dirty = False
@@ -282,7 +277,7 @@ class RobocopCache:
             self._data = CacheData()
             return
 
-        cache_file = self.cache_dir / CACHE_FILE_NAME
+        cache_file = self.cache_dir / defaults.CACHE_FILE_NAME
 
         if not cache_file.is_file():
             self._data = CacheData()
@@ -315,7 +310,7 @@ class RobocopCache:
 
         self.cache_dir.mkdir(parents=True, exist_ok=True)
         self._create_gitignore()
-        cache_file = self.cache_dir / CACHE_FILE_NAME
+        cache_file = self.cache_dir / defaults.CACHE_FILE_NAME
 
         try:
             cache_file.write_bytes(msgpack.packb(self._data.to_dict(), use_bin_type=True))
@@ -517,6 +512,7 @@ def restore_diagnostics(
     cached_entry: LinterCacheEntry,
     source: Path,
     config: Config,
+    resolved_config: ResolvedConfig,
 ) -> list[Diagnostic] | None:
     """
     Restore Diagnostic objects from cached data.
@@ -525,6 +521,7 @@ def restore_diagnostics(
         cached_entry: The cached linter entry.
         source: The source file path (Path object for consistency with normal diagnostics).
         config: Configuration associated with the source file.
+        resolved_config: ResolvedConfig with loaded runtime objects such as rules.
 
     Returns:
         List of restored diagnostics, or None if restoration failed
@@ -536,9 +533,9 @@ def restore_diagnostics(
     restored = []
     for cached_diag in cached_entry.diagnostics:
         # Try to find rule by ID first, fall back to name
-        rule = config.linter.rules.get(cached_diag.rule_id)
+        rule = resolved_config.rules.get(cached_diag.rule_id)
         if rule is None:
-            rule = config.linter.rules.get(cached_diag.rule_name)
+            rule = resolved_config.rules.get(cached_diag.rule_name)
 
         if rule is None:
             # Rule no longer exists - invalidate cache entry

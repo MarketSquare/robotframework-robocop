@@ -3,14 +3,16 @@ from __future__ import annotations
 import inspect
 import json
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from robocop import exceptions
-from robocop.config import Config
-from robocop.linter.rules import RobocopImporter
+from robocop.config import defaults
+from robocop.config.builder import ConfigBuilder
 from robocop.linter.utils.misc import get_robocop_cache_directory
+from robocop.runtime.resolver import LinterImporter
 
-ROBOCOP_CACHE_FILE = ".robocop_cache"
+if TYPE_CHECKING:
+    from robocop.config import Config
 
 
 class Report:
@@ -51,12 +53,7 @@ class JsonFileReport(Report):
         else:
             super().configure(name, value)
 
-    def generate_report(  # type: ignore[override]
-        self,
-        report: list[dict[str, Any]] | dict[str, Any],
-        report_type: str,
-        **kwargs: Any,  # noqa: ARG002
-    ) -> None:
+    def generate_report_with_type(self, report: list[dict[str, Any]] | dict[str, Any], report_type: str) -> None:
         output_path = Path(self.output_path)
         try:
             output_path.parent.mkdir(exist_ok=True, parents=True)
@@ -87,7 +84,8 @@ def load_reports(config: Config) -> dict[str, Report]:
     and contains both `name` and `description` attributes.
     """
     loaded_reports: dict[str, Report] = {}
-    robocop_importer = RobocopImporter()
+    # TODO: Move report loading to resolver
+    robocop_importer = LinterImporter()
     for module in robocop_importer.modules_from_paths([Path(__file__).parent]):
         classes = inspect.getmembers(module, inspect.isclass)
         for report_class in classes:
@@ -139,7 +137,7 @@ def print_reports(reports: dict[str, Report], only_enabled: bool | None) -> str:
         only_enabled: if set to True/False, it will filter reports by enabled/disabled status
 
     """
-    config = Config()
+    config = ConfigBuilder().from_raw(None, None)
     all_public_reports = [report for report in load_reports(config).values() if not report.INTERNAL]
     all_public_reports = sorted(all_public_reports, key=lambda x: x.name)
     configured_reports = {x.name for x in reports.values()}
@@ -166,7 +164,7 @@ def print_reports(reports: dict[str, Report], only_enabled: bool | None) -> str:
 
 def load_reports_result_from_cache() -> dict[str, Any] | None:
     cache_dir = get_robocop_cache_directory(ensure_exists=False)
-    cache_file = cache_dir / ROBOCOP_CACHE_FILE
+    cache_file = cache_dir / defaults.ROBOCOP_CACHE_FILE
     if not cache_file.is_file():
         return None
     with open(cache_file) as fp:
@@ -187,7 +185,7 @@ def save_reports_result_to_cache(working_dir: str, report_results: dict[str, Any
     the results for the current working directory.
     """
     cache_dir = get_robocop_cache_directory(ensure_exists=True)
-    cache_file = cache_dir / ROBOCOP_CACHE_FILE
+    cache_file = cache_dir / defaults.ROBOCOP_CACHE_FILE
     prev_results = load_reports_result_from_cache()
     if prev_results is None:
         prev_results = {}

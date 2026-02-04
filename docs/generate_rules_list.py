@@ -11,6 +11,7 @@ sys.path.append(str(Path(__file__).parent.parent))
 import robocop
 from docs.rules_metadata import GROUPS_LOOKUP
 from robocop.linter.rules import SeverityThreshold
+from robocop.runtime.resolver import DocumentationImporter
 
 RULES_LIST_TEMPLATE = """
 # Rules list
@@ -120,7 +121,7 @@ Fix availability: {{ rule_doc.fix_availability }}
 
 def get_checker_docs() -> tuple[list[tuple], int]:
     """Load rules for dynamic docs generation"""
-    doc_importer = robocop.linter.rules.DocumentationImporter()
+    doc_importer = DocumentationImporter()
     rules_count = 0
     for _, rule in doc_importer.get_builtin_rules():
         rules_count += 1

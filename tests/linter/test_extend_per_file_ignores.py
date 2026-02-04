@@ -21,7 +21,7 @@ def test_per_file_ignores():
 def test_per_file_ignores_disable_config():
     # it also tests that ignore_file_config=True disables config file parsing
     with working_directory(TEST_DATA):
-        diagnostics = check_files(return_result=True, silent=True, ignore_file_config=True)
+        diagnostics = check_files(return_result=True, silent=True, ignore_file_config=True, cache=False)
     assert any(diag.rule.rule_id == "VAR02" for diag in diagnostics if diag.source.path.match("test.robot"))
     assert any(
         diag.rule.rule_id in {"DOC01", "SPC09"} for diag in diagnostics if diag.source.path.match("ignore_subdir/*")

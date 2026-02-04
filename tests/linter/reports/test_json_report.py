@@ -6,16 +6,16 @@ from tests.linter.reports import generate_issues
 
 
 class TestJSONReport:
-    def test_configure_output_path(self, config):
+    def test_configure_output_path(self, empty_config):
         output_path = "path/to/dir/file.json"
-        report = JsonReport(config)
+        report = JsonReport(empty_config)
         report.configure("output_path", output_path)
         assert report.output_path == output_path
 
-    def test_json_reports_saved_to_file(self, rule, rule2, tmp_path, config):
-        issues = generate_issues(rule, rule2)
+    def test_json_reports_saved_to_file(self, empty_config, rule, rule2, tmp_path):
+        issues = generate_issues(empty_config, rule, rule2)
         output_file = tmp_path / "robocop.json"
-        report = JsonReport(config)
+        report = JsonReport(empty_config)
         report.configure("output_path", str(output_file))
 
         expected_report = [
@@ -69,10 +69,10 @@ class TestJSONReport:
             json_report = json.load(fp)
         assert json_report == expected_report
 
-    def test_empty_results(self, config, tmp_path):
+    def test_empty_results(self, empty_config, tmp_path):
         # Arrange
         output_file = tmp_path / "report.json"
-        report = JsonReport(config)
+        report = JsonReport(empty_config)
         report.configure("output_path", str(output_file))
         diagnostics = Diagnostics([])
 

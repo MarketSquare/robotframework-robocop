@@ -5,8 +5,8 @@ import platformdirs
 import pytest
 
 from robocop import exceptions
+from robocop.config.defaults import ROBOCOP_CACHE_FILE
 from robocop.linter.reports import (
-    ROBOCOP_CACHE_FILE,
     get_reports,
     load_reports_result_from_cache,
     save_reports_result_to_cache,
@@ -23,32 +23,32 @@ from tests import working_directory
         (["version", "timestamp", "version"], ["print_issues", "version", "timestamp"]),
     ],
 )
-def test_get_reports(configured, expected, config):
-    config.linter.reports = configured
-    reports = get_reports(config)
+def test_get_reports(configured, expected, empty_config):
+    empty_config.linter.reports = configured
+    reports = get_reports(empty_config)
     assert list(reports.keys()) == expected
 
 
-def test_get_reports_all(config):
-    config.linter.reports = ["all"]
-    reports = get_reports(config)
+def test_get_reports_all(empty_config):
+    empty_config.linter.reports = ["all"]
+    reports = get_reports(empty_config)
     assert "timestamp" in reports
     assert "sarif" not in reports
-    config.linter.reports = ["all", "sarif"]
-    reports = get_reports(config)
+    empty_config.linter.reports = ["all", "sarif"]
+    reports = get_reports(empty_config)
     assert "timestamp" in reports
     assert "sarif" in reports
     # Check order with all
-    config.linter.reports = ["version", "all", "sarif"]
-    reports = get_reports(config)
+    empty_config.linter.reports = ["version", "all", "sarif"]
+    reports = get_reports(empty_config)
     reports_list = list(reports.keys())
     assert reports_list.index("version") < reports_list.index("timestamp") < reports_list.index("sarif")
 
 
-def test_get_unknown_report(config, capsys):
-    config.linter.reports = ["all", "unknown"]
+def test_get_unknown_report(empty_config, capsys):
+    empty_config.linter.reports = ["all", "unknown"]
     with pytest.raises(exceptions.InvalidReportName):
-        get_reports(config)
+        get_reports(empty_config)
     _, err = capsys.readouterr()
     assert err == "InvalidReportName: Provided report 'unknown' does not exist. \n"
 

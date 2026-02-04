@@ -4,7 +4,6 @@ from unittest import mock
 import pytest
 
 from robocop import exceptions
-from robocop.config import RuleMatcher
 from robocop.linter.rules import Diagnostic, Rule, RuleParam, RuleSeverity, SeverityThreshold
 
 
@@ -36,26 +35,6 @@ def get_diag_with_sev_value(rule: Rule, sev_value) -> Diagnostic:
         extended_disablers=None,
         severity=None,
     )
-
-
-class TestThresholds:
-    @pytest.mark.parametrize(
-        ("threshold", "included", "excluded"),
-        [
-            ("E", ["E"], ["I", "W"]),
-            ("W", ["E", "W"], ["I"]),
-            ("I", ["E", "W", "I"], []),
-        ],
-    )
-    def test_disable_rules_below_threshold(self, empty_linter, threshold, included, excluded):
-        empty_linter.config_manager.default_config.linter.threshold = RuleSeverity(threshold)
-        matcher = RuleMatcher(empty_linter.config_manager.default_config.linter)
-        for severity in included:
-            rule = get_rule_with_id_sev("0101", severity)
-            assert matcher.is_rule_enabled(rule)
-        for severity in excluded:
-            rule = get_rule_with_id_sev("0101", severity)
-            assert not matcher.is_rule_enabled(rule)
 
 
 class TestRuleSeverityThreshold:

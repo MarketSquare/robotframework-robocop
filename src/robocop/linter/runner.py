@@ -16,20 +16,23 @@ from robocop.linter.reports import save_reports_result_to_cache
 from robocop.linter.utils.disablers import DisablersFinder
 from robocop.linter.utils.file_types import get_resource_with_lang
 from robocop.linter.utils.misc import is_suite_templated
+from robocop.runtime.resolver import ConfigResolver
 from robocop.source_file import SourceFile, VirtualSourceFile
 
 if TYPE_CHECKING:
     from robot.parsing import File
 
     from robocop.config import Config
-    from robocop.config_manager import ConfigManager
+    from robocop.config.manager import ConfigManager
     from robocop.linter.diagnostics import Diagnostic
 
 
 class RobocopLinter:
     def __init__(self, config_manager: ConfigManager) -> None:
         self.config_manager = config_manager
+        self.config_resolver = ConfigResolver(load_rules=True)
         self.current_model: File = None
+        # TODO: we can move reports to config resolver
         self.reports: dict[str, reports.Report] = reports.get_reports(self.config_manager.default_config)
         self.diagnostics: list[Diagnostic] = []
         self.configure_reports()
@@ -53,10 +56,11 @@ class RobocopLinter:
         """
         if not config.cache.enabled:
             return None
-        cached_entry = self.config_manager.cache.get_linter_entry(source, config.hash())
+        cached_entry = self.config_manager.cache.get_linter_entry(source, config.hash)
 
         if cached_entry is not None:
-            return restore_diagnostics(cached_entry, source, config)
+            resolved_config = self.config_resolver.resolve_config(config)
+            return restore_diagnostics(cached_entry, source, config, resolved_config)
         return None
 
     def get_model_diagnostics(self, source_file: SourceFile, fix_applier: FixApplier) -> list[Diagnostic] | None:
@@ -116,7 +120,7 @@ class RobocopLinter:
             self.diagnostics.extend(diagnostics)
             files += 1
             if not source_file.config.linter.diff:  # diff simulate fixes, so it's best to ignore the results
-                self.config_manager.cache.set_linter_entry(source_file.path, source_file.config.hash(), diagnostics)
+                self.config_manager.cache.set_linter_entry(source_file.path, source_file.config.hash, diagnostics)
         self.config_manager.cache.save()
 
         if not files and not self.config_manager.default_config.silent:
@@ -140,6 +144,7 @@ class RobocopLinter:
             fix_applier: The applier responsible for applying fixes to the source file.
 
         """
+        resolved_config = self.config_resolver.resolve_config(source_file.config)
         if fix_applier is None:
             fix_applier = FixApplier()
         templated = is_suite_templated(source_file.model)
@@ -148,7 +153,7 @@ class RobocopLinter:
         for _ in range(20):
             found_diagnostics = []
             disablers = DisablersFinder(source_file.model)
-            for checker in source_file.config.linter.checkers:
+            for checker in resolved_config.checkers:
                 found_diagnostics += [
                     diagnostic
                     for diagnostic in checker.scan_file(source_file, templated)  # type: ignore[attr-defined]
@@ -159,7 +164,7 @@ class RobocopLinter:
                 ]
                 if disablers.file_disabled and found_diagnostics:  # special case to not report disabler as not used
                     return []
-            for checker in source_file.config.linter.after_run_checkers:
+            for checker in resolved_config.after_run_checkers:
                 found_diagnostics += [
                     diagnostic
                     for diagnostic in checker.scan_file(source_file, disablers=disablers)
@@ -194,9 +199,10 @@ class RobocopLinter:
     def run_project_checks(self) -> list[Diagnostic]:
         self.diagnostics = []
         config = self.config_manager.default_config
+        resolved_config = self.config_resolver.resolve_config(config)
         project_name = self.config_manager.root.name
         project_source_file = VirtualSourceFile(Path(project_name), self.config_manager.default_config)
-        for checker in config.linter.project_checkers:
+        for checker in resolved_config.project_checkers:
             checker.issues = []
             checker.scan_project(project_source_file, self.config_manager)
             self.diagnostics.extend(
@@ -256,6 +262,7 @@ class RobocopLinter:
                 config_manager=self.config_manager,
                 prev_results=prev_result,
                 run_stats=run_stats,
+                resolved_config=self.config_resolver.resolve_config(self.config_manager.default_config),
             )
             if is_persistent and isinstance(report, reports.ComparableReport):
                 result = report.persist_result()

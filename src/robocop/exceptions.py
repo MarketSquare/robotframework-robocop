@@ -62,7 +62,7 @@ class RuleParamNotFoundError(FatalError):  # TODO, not used
 
 
 class RuleParamFailedInitError(FatalError):
-    def __init__(self, param: RuleParam, value: Any, err: Exception) -> None:
+    def __init__(self, param: RuleParam, value: Any, err: str) -> None:
         desc = f"    Parameter info: {param.desc}" if param.desc else ""
         super().__init__(
             f"Failed to configure param `{param.name}` with value `{value}`. Received error `{err}`.\n"

@@ -6,9 +6,9 @@ from tests.linter.reports import generate_issues
 
 
 class TestGitlabReport:
-    def test_gitlab_report(self, rule, rule2, config, tmp_path):
+    def test_gitlab_report(self, rule, rule2, tmp_path, empty_config):
         output_file = tmp_path / "reports" / "report.json"
-        issues = generate_issues(rule, rule2)
+        issues = generate_issues(empty_config, rule, rule2)
         issues[0].range.start.line = 1
         issues[0].range.end.line = 1
         issues[1].range.start.line = 2
@@ -57,7 +57,7 @@ class TestGitlabReport:
                 "severity": "major",
             },
         ]
-        report = GitlabReport(config)
+        report = GitlabReport(empty_config)
         report.configure("output_path", str(output_file))
         diagnostics = Diagnostics(issues)
         report.generate_report(diagnostics)
@@ -65,16 +65,16 @@ class TestGitlabReport:
             json_report = json.load(fp)
         assert json_report == expected_report
 
-    def test_configure_output_path(self, config):
+    def test_configure_output_path(self, empty_config):
         output_path = "path/to/dir/file.json"
-        report = GitlabReport(config)
+        report = GitlabReport(empty_config)
         report.configure("output_path", output_path)
         assert report.output_path == output_path
 
-    def test_empty_results(self, config, tmp_path):
+    def test_empty_results(self, empty_config, tmp_path):
         # Arrange
         output_file = tmp_path / "report.json"
-        report = GitlabReport(config)
+        report = GitlabReport(empty_config)
         report.configure("output_path", str(output_file))
         diagnostics = Diagnostics([])
 

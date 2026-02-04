@@ -5,7 +5,8 @@ import click
 import pytest
 import typer
 
-from robocop.config_manager import ConfigManager
+from robocop.config.parser import read_toml_config
+from robocop.config.schema import RawConfig
 from tests import working_directory
 
 DATA_DIR = Path(__file__).parent / "test_data"
@@ -22,34 +23,34 @@ class TestExtendConfig:
         # Arrange
         config_path = DATA_DIR / "extends" / "extend_physical.toml"
         # Act
-        config = ConfigManager(config=config_path)
+        raw_config = RawConfig.from_dict(config_dict=read_toml_config(config_path), config_path=config_path)
         # Assert
-        assert config.default_config.config_source == str(config_path)
-        assert config.default_config.linter.persistent  # set in the base
-        assert not config.default_config.linter.silent  # overridden in the final config
-        assert config.default_config.linter.exit_zero  # only set in the final config
-        assert config.default_config.linter.select == ["ARG05", "line-too-long"]
+        assert raw_config.config_source == str(config_path)
+        assert raw_config.linter.persistent  # set in the base
+        assert not raw_config.linter.silent  # overridden in the final config
+        assert raw_config.linter.exit_zero  # only set in the final config
+        assert raw_config.linter.select == ["ARG05", "line-too-long"]
 
     def test_extend_config_nested(self):
         # Arrange
         config_path = DATA_DIR / "extends" / "nested_extends.toml"
         # Act
-        config = ConfigManager(config=config_path)
+        raw_config = RawConfig.from_dict(config_dict=read_toml_config(config_path), config_path=config_path)
         # Assert
-        assert config.default_config.config_source == str(config_path)
-        assert config.default_config.linter.persistent  # set in the base
-        assert config.default_config.linter.silent  # overridden in the final config
-        assert config.default_config.linter.exit_zero  # only set in the 2nd config
-        assert config.default_config.linter.select == ["ARG05", "line-too-long"]
+        assert raw_config.config_source == str(config_path)
+        assert raw_config.linter.persistent is True  # set in the base
+        assert raw_config.linter.silent is True  # overridden in the final config
+        assert raw_config.linter.exit_zero is True  # only set in the 2nd config
+        assert raw_config.linter.select == ["ARG05", "line-too-long"]
 
     def test_empty_extends(self):
         # Arrange
         config_path = DATA_DIR / "extends" / "empty_extends.toml"
         # Act
-        config = ConfigManager(config=config_path)
+        raw_config = RawConfig.from_dict(config_dict=read_toml_config(config_path), config_path=config_path)
         # Assert
-        assert config.default_config.config_source == str(config_path)
-        assert config.default_config.linter.select == ["line-too-long"]
+        assert raw_config.config_source == str(config_path)
+        assert raw_config.linter.select == ["line-too-long"]
 
     def test_generated_with_absolute_path(self, tmp_path):
         # Arrange
@@ -78,18 +79,20 @@ class TestExtendConfig:
             """,
         )
         # Act
-        config = ConfigManager(config=starting_config_path)
+        raw_config = RawConfig.from_dict(
+            config_dict=read_toml_config(starting_config_path), config_path=starting_config_path
+        )
         # Assert
-        assert config.default_config.config_source == str(starting_config_path)
-        assert config.default_config.linter.select == ["VAR01", "VAR02"]
-        assert config.default_config.linter.configure == ["rule.param=value"]
+        assert raw_config.config_source == str(starting_config_path)
+        assert raw_config.linter.select == ["VAR01", "VAR02"]
+        assert raw_config.linter.configure == ["rule.param=value"]
 
     def test_circular_extends(self, capsys):
         # Arrange
         config_path = DATA_DIR / "extends" / "circular.toml"
         # Act
         with pytest.raises(typer.Exit) as exit_status:
-            ConfigManager(config=config_path)
+            read_toml_config(config_path)
         _, err = capsys.readouterr()
         normalized_err = "".join(err.splitlines())
         # Assert
@@ -104,16 +107,16 @@ class TestExtendConfig:
         # Arrange
         config_path = DATA_DIR / "extends" / config_name
         # Act
-        config = ConfigManager(config=config_path)
+        raw_config = RawConfig.from_dict(config_dict=read_toml_config(config_path), config_path=config_path)
         # Assert
-        assert config.default_config.config_source == str(config_path)
+        assert raw_config.config_source == str(config_path)
 
     def test_invalid_toml_file(self):
         # Arrange
         config_path = DATA_DIR / "extends" / "invalid.toml"
         # Act
         with pytest.raises(click.FileError) as exc_info:
-            ConfigManager(config=config_path)
+            read_toml_config(config_path)
         # Assert
         assert (
             "Error reading configuration file: Expected '=' after a key in a key/value pair" in exc_info.value.message
@@ -131,7 +134,7 @@ class TestExtendConfig:
         )
         # Act
         with pytest.raises(typer.Exit) as exit_status:
-            ConfigManager(config=config_path)
+            read_toml_config(config_path)
         _, err = capsys.readouterr()
         normalized_err = "".join(err.splitlines())
         # Assert
@@ -139,33 +142,6 @@ class TestExtendConfig:
         assert "Invalid 'extends' parameter value in the configuration file:" in normalized_err
         assert str(config_path) in normalized_err
         assert f"{invalid_extend} is not a string." in normalized_err
-
-    def test_config_discovery(self, tmp_path):
-        # Arrange
-        base_config = generate_config(
-            tmp_path / "base.toml",
-            """
-            [tool.robocop.lint]
-            select = ["VAR11"]
-            """,
-        )
-        default_config = generate_config(
-            tmp_path / "pyproject.toml",
-            f"""
-            [tool.robocop]
-            extends = ["{base_config.as_posix()}"]
-
-            [tool.robocop.format]
-            select = ["Name"]
-            """,
-        )
-        # Act
-        with working_directory(tmp_path):
-            config = ConfigManager()
-        # Assert
-        assert config.default_config.config_source == str(default_config)
-        assert config.default_config.linter.select == ["VAR11"]
-        assert config.default_config.formatter.select == ["Name"]
 
     def test_inheritance_mro(self, tmp_path):
         # Arrange
@@ -199,19 +175,19 @@ class TestExtendConfig:
         )
         # Act
         with working_directory(tmp_path):
-            config = ConfigManager(config=final_config)
+            raw_config = RawConfig.from_dict(config_dict=read_toml_config(final_config), config_path=final_config)
         # Assert
-        assert config.default_config.config_source == str(final_config)
-        assert config.default_config.linter.select == ["DOC01", "DOC01"]
+        assert raw_config.config_source == str(final_config)
+        assert raw_config.linter.select == ["DOC01", "DOC01"]
 
     def test_not_toml_are_ignored(self):
         # Arrange
         config_path = DATA_DIR / "extends" / "extends_with_name.toml"
         # Act
-        config = ConfigManager(config=config_path)
+        raw_config = RawConfig.from_dict(config_dict=read_toml_config(config_path), config_path=config_path)
         # Assert
-        assert config.default_config.config_source == str(config_path)
-        assert config.default_config.linter.select == []
+        assert raw_config.config_source == str(config_path)
+        assert raw_config.linter is None
 
     def test_extend_does_not_exist(self, tmp_path):
         # Arrange
@@ -224,6 +200,6 @@ class TestExtendConfig:
         )
         # Act
         with pytest.raises(click.FileError) as exc_info:
-            ConfigManager(config=config_path)
+            read_toml_config(config_path)
         # Assert
         assert "Error reading configuration file: [Errno 2] No such file or directory:" in exc_info.value.message

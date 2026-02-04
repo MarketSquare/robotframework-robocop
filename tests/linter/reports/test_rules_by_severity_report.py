@@ -42,14 +42,14 @@ class TestRulesByIdReport:
         error_msg,
         warning_msg,
         info_msg,
-        config,
+        empty_config,
         capsys,
     ):
         issues_map = {"error-message": error_msg, "warning-message": warning_msg, "info-message": info_msg}
-        config.linter.compare = compare_results
-        report = RulesBySeverityReport(config)
+        empty_config.linter.compare = compare_results
+        report = RulesBySeverityReport(empty_config)
         issues = []
-        source_file = SourceFile(path=Path("some/path/file.robot"), config=config)
+        source_file = SourceFile(path=Path("some/path/file.robot"), config=empty_config)
         for issue in issues_names:
             issue_def = issues_map[issue]
             msg = Diagnostic(
@@ -68,11 +68,11 @@ class TestRulesByIdReport:
         assert out == expected
 
     @pytest.mark.parametrize("compare_runs", [True, False])
-    def test_persistent_save(self, compare_runs, error_msg, warning_msg, info_msg, config):
-        config.linter.compare = compare_runs
-        report = RulesBySeverityReport(config)
+    def test_persistent_save(self, compare_runs, error_msg, warning_msg, info_msg, empty_config):
+        empty_config.linter.compare = compare_runs
+        report = RulesBySeverityReport(empty_config)
         issues = []
-        source_file = SourceFile(path=Path("test.robot"), config=config)
+        source_file = SourceFile(path=Path("test.robot"), config=empty_config)
         for issue in (error_msg, warning_msg, info_msg, info_msg):
             msg = Diagnostic(
                 rule=issue,

@@ -58,7 +58,7 @@ def resolve(
     if file is not None:
         value = getattr(file, attr, None)
         if value is not None:
-            return value
+            return value  # type: ignore[no-any-return]
 
     return default
 
@@ -67,7 +67,7 @@ def merge_lists(
     file: object | None,
     cli: object | None,
     attr: str,
-) -> list:
+) -> list[str]:
     """
     Resolve and merge configuration values.
 

@@ -111,7 +111,7 @@ class SourceFile:
     def _load_model(self, path_or_text: Path | str) -> File:
         """Determine the correct model loader based on the file type and loads it."""
         if "__init__" in self.path.name:
-            loader: Callable = get_init_model
+            loader: Callable[..., File] = get_init_model
         elif self.path.suffix == ".resource":
             loader = get_resource_model
         else:

@@ -25,6 +25,7 @@ class TextEditKind(Enum):
     """
 
     REPLACEMENT = "replace"
+    REPLACEMENT_LINES = "replace_lines"
     INSERTION = "insert"
     DELETION = "delete"
 
@@ -54,18 +55,11 @@ class TextEdit:
     rule_id: str
     rule_name: str
     start_line: int
-    start_col: int | None
-    end_line: int | None
-    end_col: int | None
-    replacement: str | None
-
-    @property
-    def kind(self) -> TextEditKind:
-        if self.replacement is None:
-            return TextEditKind.DELETION
-        if self.end_line is None:
-            return TextEditKind.INSERTION
-        return TextEditKind.REPLACEMENT
+    start_col: int
+    end_line: int
+    end_col: int
+    replacement: str
+    kind: TextEditKind = TextEditKind.REPLACEMENT
 
     @classmethod
     def replace_at_range(cls, rule_id: str, rule_name: str, diag_range: Range, replacement: str) -> TextEdit:
@@ -77,6 +71,7 @@ class TextEdit:
             end_line=diag_range.end.line,
             end_col=diag_range.end.character,
             replacement=replacement,
+            kind=TextEditKind.REPLACEMENT,
         )
 
     @classmethod
@@ -86,10 +81,11 @@ class TextEdit:
             rule_id=rule_id,
             rule_name=rule_name,
             start_line=start_line,
-            start_col=None,
+            start_col=1,
             end_line=end_line,
-            end_col=None,
+            end_col=1,
             replacement=replacement,
+            kind=TextEditKind.REPLACEMENT_LINES,
         )
 
     @classmethod
@@ -99,10 +95,11 @@ class TextEdit:
             rule_id=rule_id,
             rule_name=rule_name,
             start_line=diag_range.start.line,
-            start_col=None,
+            start_col=1,
             end_line=diag_range.end.line,
-            end_col=None,
-            replacement=None,
+            end_col=1,
+            replacement="",
+            kind=TextEditKind.DELETION,
         )
 
     @classmethod
@@ -112,10 +109,11 @@ class TextEdit:
             rule_id=rule_id,
             rule_name=rule_name,
             start_line=diag_range.start.line,
-            start_col=None,
-            end_line=None,
-            end_col=None,
+            start_col=1,
+            end_line=1,
+            end_col=1,
             replacement=replacement,
+            kind=TextEditKind.INSERTION,
         )
 
 
@@ -288,17 +286,17 @@ class FixApplier:
 
         """
         # TODO: different kind of edits should have different apply_edit
-        if edit.kind == TextEditKind.REPLACEMENT:
-            if edit.end_line > len(lines) or edit.start_line < 1:
-                return
-            start_line_idx = edit.start_line - 1
-            end_line_idx = edit.end_line - 1
-            if edit.start_col is None or edit.end_col is None:  # replace_lines
-                lines[start_line_idx : end_line_idx + 1] = edit.replacement.splitlines(keepends=True)
-                return
+        if edit.end_line > len(lines) or edit.start_line < 1:
+            return
+
+        start_line_idx = edit.start_line - 1
+        end_line_idx = edit.end_line - 1
+
+        if edit.kind == TextEditKind.REPLACEMENT_LINES:
+            lines[start_line_idx : end_line_idx + 1] = edit.replacement.splitlines(keepends=True)
+        elif edit.kind == TextEditKind.REPLACEMENT:
             start_col_idx = edit.start_col - 1
             end_col_idx = edit.end_col - 1
-
             if start_line_idx == end_line_idx:  # single line
                 line = lines[edit.start_line - 1]
                 new_line = line[:start_col_idx] + edit.replacement + line[end_col_idx:]
@@ -307,8 +305,6 @@ class FixApplier:
                 # When edit is multiline, we replace the lines fully
                 lines[start_line_idx : end_line_idx + 2] = edit.replacement.splitlines(keepends=True)
         elif edit.kind == TextEditKind.INSERTION:
-            start_line_idx = edit.start_line - 1
             lines[start_line_idx:start_line_idx] = edit.replacement.splitlines(keepends=True)
-        else:  # edit.kind == TextEditKind.DELETION
-            start_line_idx = edit.start_line - 1
+        elif edit.kind == TextEditKind.DELETION:
             del lines[start_line_idx : edit.end_line]

@@ -120,14 +120,16 @@ class ConfigManager:
         self.overwrite_config = overwrite_config
         self.ignore_git_dir = ignore_git_dir
         self.ignore_file_config = ignore_file_config
-        self.force_exclude = force_exclude
         self.skip_gitignore = skip_gitignore
         self.gitignore_resolver = GitIgnoreResolver()
         self.overridden_config = config is not None
         self.root = root or Path.cwd()
-        self.sources = sources
-        self.default_config: Config = self.get_default_config(config)
-        self._paths: dict[Path, SourceFile] | None = None
+        self.default_config: Config = self.get_default_config(config, sources)
+        self.sources = sources if sources else self.default_config.sources
+        # ignore file filters on paths passed directly
+        self.ignore_file_filters = not force_exclude and bool(sources)
+        self._paths: dict[Path, SourceFile] = {}
+        self.resolved_paths = False
         self._cache: RobocopCache | None = None
 
     @property
@@ -145,14 +147,11 @@ class ConfigManager:
     @property
     def paths(self) -> Generator[SourceFile, None, None]:
         # TODO: what if we provide the same path twice - tests
-        if self._paths is None:
-            self._paths = {}
-            sources: list[str | Path] = list(self.sources) if self.sources else list(self.default_config.sources)
-            ignore_file_filters = not self.force_exclude and bool(sources)
-            self.resolve_paths(sources, ignore_file_filters=ignore_file_filters)
+        if not self.resolved_paths:
+            self.resolve_paths(self.sources, ignore_file_filters=self.ignore_file_filters)
         yield from self._paths.values()
 
-    def get_default_config(self, config_path: Path | None) -> Config:
+    def get_default_config(self, config_path: Path | None, sources: list[str] | None) -> Config:
         """Get the default config either from --config option or from the cli."""
         if config_path:
             configuration = read_toml_config(config_path)
@@ -160,8 +159,12 @@ class ConfigManager:
                 config_file_raw = RawConfig.from_dict(configuration, config_path.resolve())
                 return self.config_builder.from_raw(self.overwrite_config, config_file_raw)
         if not self.ignore_file_config:
-            sources = [Path(path).resolve() for path in self.sources] if self.sources else [Path.cwd()]
-            directories = files.get_common_parent_dirs(sources)
+            if sources:
+                sources_paths: list[Path] = [Path(path) for path in sources]
+                paths = [path.resolve() for path in sources_paths if not path.is_symlink()]
+            else:
+                paths = [Path.cwd().resolve()]
+            directories = files.get_common_parent_dirs(paths)
             return self.find_config_in_dirs(directories, default=None)
         return self.config_builder.from_raw(self.overwrite_config, None)
 
@@ -231,7 +234,7 @@ class ConfigManager:
 
     def resolve_paths(
         self,
-        sources: list[str | Path] | Generator[Path, None, None],
+        sources: list[Path] | list[str],
         ignore_file_filters: bool = False,
     ) -> None:
         """
@@ -266,6 +269,6 @@ class ConfigManager:
                     if self.gitignore_resolver.path_excluded(source_not_resolved, source_gitignore):
                         continue
             if source.is_dir():
-                self.resolve_paths(source.iterdir())
+                self.resolve_paths(list(source.iterdir()))
             elif source.is_file():
                 self._paths[source] = SourceFile(path=source, config=config)

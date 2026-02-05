@@ -43,6 +43,7 @@ ${camel_case_name}    ${camel_case_name}
 ${camel_case_name}    ${camel_case_name}
 ${camel_case_name}    ${camel_case_name}
 ${camel_case_name_word_camel_case}    ${camel_case_name_word_camel_case}
+${p2p_resource}    /myResourcePathHere
 
 
 *** Test Cases ***

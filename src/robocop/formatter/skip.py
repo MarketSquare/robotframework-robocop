@@ -50,12 +50,17 @@ class Skip:
         return bool(self.keyword_call_names or self.keyword_call_pattern)
 
     def keyword_call(self, node: KeywordCall) -> bool:
-        if not getattr(node, "keyword", None) or not self.any_keword_call:
+        if not getattr(node, "keyword", None):
             return False
-        normalized = normalize_name(node.keyword)
+        return self.keyword_call_name(node.keyword)
+
+    def keyword_call_name(self, name: str) -> bool:
+        if not self.any_keword_call:
+            return False
+        normalized = normalize_name(name)
         if normalized in self.keyword_call_names:
             return True
-        return any(pattern.search(node.keyword) for pattern in self.keyword_call_pattern)
+        return any(pattern.search(name) for pattern in self.keyword_call_pattern)
 
     def setting(self, name: str) -> bool:
         if not self.skip_settings:

@@ -92,3 +92,23 @@ class TestRenameKeywords(FormatterAcceptanceTest):
             expected="capitalize_first.robot",
             configure=[f"{self.FORMATTER_NAME}.keyword_case=capitalize_first"],
         )
+
+    def test_normalize_case_full(self):
+        self.compare(
+            source="test.robot",
+            expected="case_normalization_full.robot",
+            configure=[
+                f"{self.FORMATTER_NAME}.case_normalization=full",
+                f"{self.FORMATTER_NAME}.skip_keyword_call=CreateProductDFG",
+            ],
+        )
+
+    def test_normalize_case_full_first_letter(self):
+        self.compare(
+            source="test.robot",
+            expected="case_normalization_full_first_letter.robot",
+            configure=[
+                f"{self.FORMATTER_NAME}.case_normalization=full",
+                f"{self.FORMATTER_NAME}.keyword_case=capitalize_first",
+            ],
+        )

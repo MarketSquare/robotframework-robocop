@@ -65,6 +65,49 @@ By default, each word in the keyword case is capitalized. It can be configured u
         perform Action
     ```
 
+## Case normalization
+
+When converting the case, only the affected letter (first in sentence or first of each word) is affect. This is
+controled by ``case_normalization`` parameter (default "first_letter"):
+
+=== "Before"
+
+    ```robotframework
+    *** Keywords ***
+    keyword name
+        Keyword Call
+        EXECUTE actioN
+    ```
+
+=== "case_normalization = first_letter (default) | keyword_case = capitalize_words (default)"
+
+    ```robotframework
+    *** Keywords ***
+    Keyword Name
+        Keyword Call
+        EXECUTE ActioN
+    ```
+
+=== "case_normalization = full | keyword_case = capitalize_words (default)"
+
+    ```robotframework
+    *** Keywords ***
+    Keyword Name
+        Keyword Call
+        Execute Action
+    ```
+
+=== "case_normalization = full | keyword_case = capitalize_first"
+
+    ```robotframework
+    *** Keywords ***
+    Keyword name
+        Keyword call
+        Execute action
+    ```
+
+Use ``skip_keyword_call`` to ignore case normalization on selected keyword calls.
+
 ## Library name
 
 By default, the library name in the keyword name is ignored. Anything before the last dot in the name is considered as

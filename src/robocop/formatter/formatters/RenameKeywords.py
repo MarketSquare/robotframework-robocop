@@ -19,6 +19,17 @@ if TYPE_CHECKING:
     from robot.parsing.model.statements import KeywordCall, KeywordName, Setup, SuiteSetup
 
 
+def validate_choice(formatter: Formatter, choices: list[str], param_name: str, value: str) -> str:
+    if value not in choices:
+        raise InvalidParameterValueError(
+            formatter.__class__.__name__,
+            param_name,
+            value,
+            f"Supported values: {', '.join(choices)}",
+        )
+    return value
+
+
 class RenameKeywords(Formatter):
     r"""
     Enforce keyword naming.
@@ -69,24 +80,19 @@ class RenameKeywords(Formatter):
         remove_underscores: bool = True,
         ignore_library: bool = True,
         keyword_case: str = "capitalize_words",
+        case_normalization: str = "first_letter",
     ) -> None:
         super().__init__()
         self.ignore_library: bool = ignore_library
         self.remove_underscores: bool = remove_underscores
-        self.keyword_case: str = keyword_case
+        self.keyword_case: str = validate_choice(
+            self, ["capitalize_words", "capitalize_first", "ignore"], "keyword_case", keyword_case
+        )
+        self.case_normalization: str = validate_choice(
+            self, ["first_letter", "full"], "case_normalization", case_normalization
+        )
         self.replace_pattern: Pattern[str] | None = self.parse_pattern(replace_pattern)
         self.replace_to: str = "" if replace_to is None else replace_to
-
-    def parse_keyword_case(self, value: str) -> str:  # FIXME: not used
-        conventions = ("capitalize_words", "capitalize_first", "ignore")
-        if value not in conventions:
-            raise InvalidParameterValueError(
-                self.__class__.__name__,
-                "keyword_case",
-                value,
-                f"Supported values: {', '.join(conventions)}",
-            )
-        return value
 
     def parse_pattern(self, replace_pattern: str | None) -> Pattern[str] | None:
         if replace_pattern is None:
@@ -106,6 +112,8 @@ class RenameKeywords(Formatter):
         return self.generic_visit(node)
 
     def rename_node(self, token: Token, is_keyword_call: bool) -> None:
+        if self.skip.keyword_call_name(token.value):
+            return
         if self.replace_pattern is not None:
             new_value = self.rename_with_pattern(token.value, is_keyword_call=is_keyword_call)
         else:
@@ -147,17 +155,21 @@ class RenameKeywords(Formatter):
         if self.keyword_case == "ignore":
             return value
         if self.keyword_case == "capitalize_first":
-            return value[0].upper() + value[1:] if value else value
+            return value[0].upper() + self.normalize_case_of_word(value[1:]) if value else value
         words = []
         split_words = value.split(" ")
-        # capitalize first letter of every word, leave rest untouched
         for index, word in enumerate(split_words):
             if not word:
                 if index in (0, len(split_words) - 1):  # leading and trailing whitespace
                     words.append("")
             else:
-                words.append(word[0].upper() + word[1:])
+                words.append(word[0].upper() + self.normalize_case_of_word(word[1:]))
         return " ".join(words)
+
+    def normalize_case_of_word(self, word: str) -> str:
+        if self.case_normalization == "first_letter":  # better mode switch, maybe boolean flag
+            return word
+        return word.lower()
 
     def rename_with_pattern(self, value: str, is_keyword_call: bool) -> str:
         lib_name = ""

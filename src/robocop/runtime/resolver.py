@@ -473,10 +473,11 @@ class FormattersLoader:
         return list(dict.fromkeys(selected))  # remove duplicates, order is preserved
 
     def load_formatters(self) -> None:
+        explicit_select: set[str] = set(self.select + self.extend_select)
         for formatter in self.selected_formatters():
             # formatter may be a single class or whole file / directory, so we need additional iterate
             for container in import_formatter(formatter, self.configurables, self.skip_config):
-                overwritten = container.name in self.select or formatter in self.select
+                overwritten = container.name in explicit_select or formatter in explicit_select
                 if overwritten:
                     enabled = True
                 elif "enabled" in container.args:

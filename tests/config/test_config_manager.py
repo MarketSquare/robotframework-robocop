@@ -558,6 +558,20 @@ class TestConfigFinder:
             "It should be 'true' or 'false'" in normalized_error
         )
 
+    def test_extend_select_formatter(self, tmp_path, overwrite_config):
+        # Arrange
+        config_file = tmp_path / "pyproject.toml"
+        config_file.write_text("[tool.robocop.format]\nextend-select = ['IndentNestedKeywords']\n", encoding="utf-8")
+        resolver = ConfigResolver(load_formatters=True)
+
+        # Act
+        with working_directory(tmp_path):
+            config_manager = ConfigManager(overwrite_config=overwrite_config)
+            resolved_config = resolver.resolve_config(config_manager.default_config)
+
+        # Assert
+        assert "IndentNestedKeywords" in resolved_config.formatters
+
 
 class TestCacheConfigOverride:
     """Test that CLI cache options properly override config file cache settings."""

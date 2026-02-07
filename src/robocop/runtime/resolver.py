@@ -61,9 +61,12 @@ class RuleMatcher:
         if "ALL" in self.include_rules:
             return True
         if self.extend_include_rules or self.extend_include_rules_patterns:
-            if rule.rule_id in self.extend_include_rules or rule.name in self.extend_include_rules_patterns:
+            if rule.rule_id in self.extend_include_rules or rule.name in self.extend_include_rules:
                 return True
-            if any(pattern.match(rule.rule_id) or pattern.match(rule.name) for pattern in self.include_rules_patterns):
+            if any(
+                pattern.match(rule.rule_id) or pattern.match(rule.name)
+                for pattern in self.extend_include_rules_patterns
+            ):
                 return True
         if self.include_rules or self.include_rules_patterns:  # if any include pattern, it must match with something
             if rule.rule_id in self.include_rules or rule.name in self.include_rules:

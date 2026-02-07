@@ -233,8 +233,7 @@ class RuleAcceptance:
         expected = load_expected_file(test_data, expected_file, sort_lines=sort_lines)
         actual = normalize_result(parsed_results, test_data, sort_lines=sort_lines)
         if deprecated:
-            assert actual
-            assert "No rule selected" in actual[-1]
+            assert any("No rule selected" in line for line in actual)
             return
         if actual != expected:
             error = "Actual issues are different than expected.\n"

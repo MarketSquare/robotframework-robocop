@@ -47,7 +47,7 @@ class TestExternalTransformer(FormatterAcceptanceTest):
     @pytest.mark.parametrize("disabled_transformer", [DISABLED_TRANSFORMER, DISABLED_TRANSFORMER_REL])
     def test_load_disabled(self, disabled_transformer):
         self.run_tidy(extend_select=[str(disabled_transformer)], source="tests.robot")
-        self.compare_file("tests.robot", expected_name="tests_only_defaults.robot")
+        self.compare_file("tests.robot", expected_name="tests_with_defaults_lowercase.robot")
 
     @pytest.mark.parametrize("module_path", [MODULE_TRANSFORMERS, MODULE_TRANSFORMERS_REL])
     def test_load_from_module(self, module_path):

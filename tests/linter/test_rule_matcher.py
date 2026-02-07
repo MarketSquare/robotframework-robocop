@@ -210,7 +210,7 @@ class TestRuleMatcher:
         )
 
         msg = get_enabled_rule("0101")
-        assert rule_matcher.is_rule_disabled(msg)
+        assert rule_matcher._is_rule_disabled(msg)  # noqa: SLF001
         assert not rule_matcher.is_rule_enabled(msg)
 
     def test_select_all(self):
@@ -314,3 +314,144 @@ class TestRuleMatcher:
         for severity in excluded:
             rule = get_enabled_rule("0101", severity=RuleSeverity(severity))
             assert not rule_matcher.is_rule_enabled(rule)
+
+    def test_check_matched_rules_rule_ids(self, capsys):
+        select = ["0101"]
+        extend_select = ["0102"]
+        ignore = ["0103"]
+        fixable = ["0104"]
+        unfixable = ["0105"]
+        rule_matcher = RuleMatcher(
+            select=select,
+            extend_select=extend_select,
+            ignore=ignore,
+            target_version=ROBOT_VERSION,
+            threshold=RuleSeverity.INFO,
+            fixable=fixable,
+            unfixable=unfixable,
+        )
+
+        # Check without checking any rule - so nothing should be matched
+        rule_matcher.check_unmatched_filters()
+        _, err = capsys.readouterr()
+        assert "Option value '0101' from '--select' did not match with any rule name or id" in err
+        assert "Option value '0102' from '--extend-select' did not match with any rule name or id" in err
+        assert "Option value '0103' from '--ignore' did not match with any rule name or id" in err
+        assert "Option value '0104' from '--fixable' did not match with any rule name or id" not in err
+        assert "Option value '0105' from '--unfixable' did not match with any rule name or id" not in err
+
+        # Match --select and --ignore. It should not be present anymore in the error message
+        rule_matcher.is_rule_enabled(get_enabled_rule("0101"))
+        rule_matcher.is_rule_enabled(get_enabled_rule("0103"))
+
+        rule_matcher.check_unmatched_filters()
+        _, err = capsys.readouterr()
+        assert "Option value '0101' from '--select' did not match with any rule name or id" not in err
+        assert "Option value '0102' from '--extend-select' did not match with any rule name or id" in err
+        assert "Option value '0103' from '--ignore' did not match with any rule name or id" not in err
+        assert "Option value '0104' from '--fixable' did not match with any rule name or id" not in err
+        assert "Option value '0105' from '--unfixable' did not match with any rule name or id" not in err
+
+        # Match with remaining rules - nothing should be printed
+        rule_matcher.is_rule_enabled(get_enabled_rule("0102"))
+        rule_matcher.is_rule_fixable(get_fixable_message_with_id("0104"))
+        rule_matcher.is_rule_fixable(get_fixable_message_with_id("0105"))
+        rule_matcher.is_rule_enabled(get_enabled_rule("0106"))  # extra, not in filters
+
+        rule_matcher.check_unmatched_filters()
+        _, err = capsys.readouterr()
+        assert not err
+
+    def test_check_matched_rules_rule_names(self, capsys):
+        select = ["some-message-0101"]
+        extend_select = ["some-message-0102"]
+        ignore = ["some-message-0103"]
+        fixable = ["some-message-0104"]
+        unfixable = ["some-message-0105"]
+        rule_matcher = RuleMatcher(
+            select=select,
+            extend_select=extend_select,
+            ignore=ignore,
+            target_version=ROBOT_VERSION,
+            threshold=RuleSeverity.INFO,
+            fixable=fixable,
+            unfixable=unfixable,
+        )
+
+        # Check without checking any rule - so nothing should be matched
+        rule_matcher.check_unmatched_filters()
+        _, err = capsys.readouterr()
+        assert "Option value 'some-message-0101' from '--select' did not match with any rule name or id" in err
+        assert "Option value 'some-message-0102' from '--extend-select' did not match with any rule name or id" in err
+        assert "Option value 'some-message-0103' from '--ignore' did not match with any rule name or id" in err
+        assert "Option value 'some-message-0104' from '--fixable' did not match with any rule name or id" not in err
+        assert "Option value 'some-message-0105' from '--unfixable' did not match with any rule name or id" not in err
+
+        # Match --select, --fixable and --ignore. It should not be present anymore in the error message
+        rule_matcher.is_rule_enabled(get_enabled_rule("some-message-0101"))
+        rule_matcher.is_rule_enabled(get_enabled_rule("some-message-0103"))
+        rule_matcher.is_rule_fixable(get_fixable_message_with_id("some-message-0104"))
+
+        rule_matcher.check_unmatched_filters()
+        _, err = capsys.readouterr()
+        assert "Option value 'some-message-0101' from '--select' did not match with any rule name or id" not in err
+        assert "Option value 'some-message-0102' from '--extend-select' did not match with any rule name or id" in err
+        assert "Option value 'some-message-0103' from '--ignore' did not match with any rule name or id" not in err
+        assert "Option value 'some-message-0104' from '--fixable' did not match with any rule name or id" not in err
+        assert "Option value 'some-message-0105' from '--unfixable' did not match with any rule name or id" not in err
+
+        # Match with remaining rules - nothing should be printed
+        rule_matcher.is_rule_enabled(get_enabled_rule("0102"))
+        rule_matcher.is_rule_fixable(get_fixable_message_with_id("0105"))
+        rule_matcher.is_rule_enabled(get_enabled_rule("0106"))  # extra, not in filters
+
+        rule_matcher.check_unmatched_filters()
+        _, err = capsys.readouterr()
+        assert not err
+
+    def test_check_matched_rules_rule_patterns(self, capsys):
+        select = ["some-message-0*01"]
+        extend_select = ["some-*essage-0102"]
+        ignore = ["some-message-0103"]
+        fixable = ["some-message-*104"]
+        unfixable = ["010*"]
+        rule_matcher = RuleMatcher(
+            select=select,
+            extend_select=extend_select,
+            ignore=ignore,
+            target_version=ROBOT_VERSION,
+            threshold=RuleSeverity.INFO,
+            fixable=fixable,
+            unfixable=unfixable,
+        )
+
+        # Check without checking any rule - so nothing should be matched
+        rule_matcher.check_unmatched_filters()
+        _, err = capsys.readouterr()
+        assert "Option value 'some-message-0*01' from '--select' did not match with any rule name or id" in err
+        assert "Option value 'some-*essage-0102' from '--extend-select' did not match with any rule name or id" in err
+        assert "Option value 'some-message-0103' from '--ignore' did not match with any rule name or id" in err
+        assert "Option value 'some-message-*104' from '--fixable' did not match with any rule name or id" not in err
+        assert "Option value '010*' from '--unfixable' did not match with any rule name or id" not in err
+
+        # Match --select and --ignore. It should not be present anymore in the error message
+        rule_matcher.is_rule_enabled(get_enabled_rule("some-message-0*01"))
+        rule_matcher.is_rule_enabled(get_enabled_rule("some-message-0103"))
+
+        rule_matcher.check_unmatched_filters()
+        _, err = capsys.readouterr()
+        assert "Option value 'some-message-0*01' from '--select' did not match with any rule name or id" not in err
+        assert "Option value 'some-*essage-0102' from '--extend-select' did not match with any rule name or id" in err
+        assert "Option value 'some-message-0103' from '--ignore' did not match with any rule name or id" not in err
+        assert "Option value 'some-message-*104' from '--fixable' did not match with any rule name or id" not in err
+        assert "Option value '010*' from '--unfixable' did not match with any rule name or id" not in err
+
+        # Match with remaining rules - nothing should be printed
+        rule_matcher.is_rule_enabled(get_enabled_rule("0102"))
+        rule_matcher.is_rule_fixable(get_fixable_message_with_id("0104"))
+        rule_matcher.is_rule_fixable(get_fixable_message_with_id("0105"))
+        rule_matcher.is_rule_enabled(get_enabled_rule("0106"))  # extra, not in filters
+
+        rule_matcher.check_unmatched_filters()
+        _, err = capsys.readouterr()
+        assert err == ""

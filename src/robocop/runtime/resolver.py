@@ -7,9 +7,10 @@ import inspect
 import pkgutil
 import sys
 from collections import defaultdict
+from dataclasses import dataclass, field
 from importlib import import_module
 from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, NamedTuple
 
 import click
 
@@ -26,6 +27,7 @@ from robocop.runtime.resolved_config import ResolvedConfig
 from robocop.version_handling import ROBOT_VERSION, Version
 
 if TYPE_CHECKING:
+    import re
     import types
     from collections.abc import Generator
 
@@ -33,7 +35,54 @@ if TYPE_CHECKING:
     from robocop.formatter.formatters import Formatter
 
 
+class RulePattern(NamedTuple):
+    pattern: re.Pattern[str]
+    name: str
+
+
+@dataclass
+class RuleFilter:
+    """Encapsulates a set of rules with both exact matches and patterns."""
+
+    exact_matches: set[str] = field(default_factory=set)
+    patterns: list[RulePattern] = field(default_factory=list)
+    matched: set[str] = field(default_factory=set)
+
+    @classmethod
+    def from_rules(cls, rules: list[str]) -> RuleFilter:
+        return cls(
+            exact_matches={rule for rule in rules if "*" not in rule},
+            patterns=[RulePattern(compile_rule_pattern(rule), rule) for rule in rules if "*" in rule],
+        )
+
+    def matches(self, rule: Rule) -> bool:
+        """Check if the rule matches any filter and track the match."""
+        # Check exact matches
+        if rule.rule_id in self.exact_matches:
+            self.matched.add(rule.rule_id)
+            return True
+        if rule.name in self.exact_matches:
+            self.matched.add(rule.name)
+            return True
+
+        # Check patterns
+        for pattern, name in self.patterns:
+            if pattern.match(rule.rule_id) or pattern.match(rule.name):
+                self.matched.add(name)
+                return True
+
+        return False
+
+    def is_empty(self) -> bool:
+        return not self.exact_matches and not self.patterns
+
+    def has_all(self) -> bool:
+        return "ALL" in self.exact_matches
+
+
 class RuleMatcher:
+    """Determines which rules are enabled and fixable based on user configuration."""
+
     def __init__(
         self,
         select: list[str],
@@ -44,61 +93,78 @@ class RuleMatcher:
         fixable: list[str],
         unfixable: list[str],
     ) -> None:
-        self.include_rules = {rule for rule in select if "*" not in rule}
-        self.include_rules_patterns = {compile_rule_pattern(rule) for rule in select if "*" in rule}
-        self.extend_include_rules = {rule for rule in extend_select if "*" not in rule}
-        self.extend_include_rules_patterns = {compile_rule_pattern(rule) for rule in extend_select if "*" in rule}
-        self.exclude_rules = {rule for rule in ignore if "*" not in rule}
-        self.exclude_rules_patterns = {compile_rule_pattern(rule) for rule in ignore if "*" in rule}
         self.target_version = target_version
         self.threshold = threshold
-        self.fixable = fixable
-        self.unfixable = unfixable
 
-    def is_rule_enabled(self, rule: Rule) -> bool:  # noqa: PLR0911
-        if self.is_rule_disabled(rule):
+        # Store original values for unmatched filter checking
+        self._original_select = select
+        self._original_extend_select = extend_select
+        self._original_ignore = ignore
+
+        # Build filters
+        self.select_filter = RuleFilter.from_rules(select)
+        self.extend_select_filter = RuleFilter.from_rules(extend_select)
+        self.ignore_filter = RuleFilter.from_rules(ignore)
+        self.fixable_filter = RuleFilter(exact_matches=set(fixable))
+        self.unfixable_filter = RuleFilter(exact_matches=set(unfixable))
+
+    def is_rule_enabled(self, rule: Rule) -> bool:
+        if self._is_rule_disabled(rule):
             return False
-        if "ALL" in self.include_rules:
-            return True
-        if self.extend_include_rules or self.extend_include_rules_patterns:
-            if rule.rule_id in self.extend_include_rules or rule.name in self.extend_include_rules:
-                return True
-            if any(
-                pattern.match(rule.rule_id) or pattern.match(rule.name)
-                for pattern in self.extend_include_rules_patterns
-            ):
-                return True
-        if self.include_rules or self.include_rules_patterns:  # if any include pattern, it must match with something
-            if rule.rule_id in self.include_rules or rule.name in self.include_rules:
-                return True
-            return any(
-                pattern.match(rule.rule_id) or pattern.match(rule.name) for pattern in self.include_rules_patterns
-            )
-        return rule.enabled
 
-    def is_rule_disabled(self, rule: Rule) -> bool:
+        if self.select_filter.has_all():
+            self.select_filter.matched.add("ALL")
+            return True
+
+        # extend-select takes priority
+        if self.extend_select_filter.matches(rule):
+            return True
+
+        # Fall back to default if no select filters configured
+        if self.select_filter.is_empty():
+            return rule.enabled
+
+        return self.select_filter.matches(rule)
+
+    def _is_rule_disabled(self, rule: Rule) -> bool:
         if rule.is_disabled(self.target_version):
             return True
         if rule.severity < self.threshold and not rule.config.get("severity_threshold"):
             return True
-        if rule.rule_id in self.exclude_rules or rule.name in self.exclude_rules:
-            return True
-        return any(pattern.match(rule.rule_id) or pattern.match(rule.name) for pattern in self.exclude_rules_patterns)
+        return self.ignore_filter.matches(rule)
 
     def is_rule_fixable(self, rule: Rule) -> bool:
-        """
-        Determine if rule is fixable.
-
-        Rule is fixable if it implements FixableRule class and its rule id or name matches
-        with --fixable and --unfixable options.
-        """
+        """Determine if rule is fixable based on --fixable and --unfixable options."""
         if not rule.fixable:
             return False
-        if rule.rule_id in self.unfixable or rule.name in self.unfixable:
+
+        if self.unfixable_filter.matches(rule):
             return False
-        if self.fixable:
-            return rule.rule_id in self.fixable or rule.name in self.fixable
-        return True
+
+        if self.fixable_filter.is_empty():
+            return True
+
+        return self.fixable_filter.matches(rule)
+
+    def check_unmatched_filters(self) -> None:
+        unmatched = [
+            (self._original_select, self.select_filter.matched, "--select"),
+            (self._original_extend_select, self.extend_select_filter.matched, "--extend-select"),
+            (self._original_ignore, self.ignore_filter.matched, "--ignore"),
+            # Disabled for fixable and unfixable - if no fixes, it will trigger positive.
+            # May use cross-check with select in the future
+            # (self.fixable_filter.exact_matches, self.fixable_filter.matched, "--fixable"),
+            # (self.unfixable_filter.exact_matches, self.unfixable_filter.matched, "--unfixable"),
+        ]
+
+        errors = [
+            f"Option value '{rule}' from '{option}' did not match with any rule name or id."
+            for original, matched, option in unmatched
+            for rule in set(original) - matched
+        ]
+
+        if errors:
+            click.echo("\n".join(errors), err=True)
 
 
 def is_checker(checker_class_def: tuple[str, type]) -> bool:
@@ -436,6 +502,7 @@ class RulesLoader:
                 f"No rule selected with the existing configuration from the {self.config_source} . "
                 f"Please check if all rules from --select exist and there is no conflicting filter option."
             )
+        self.rule_matcher.check_unmatched_filters()
 
 
 class FormattersLoader:

@@ -36,7 +36,7 @@ def get_enabled_rule(rule_id: str, severity: RuleSeverity = RuleSeverity.INFO) -
 def get_disabled_rule(rule_id: str) -> CustomRule:
     custom_rule = CustomRule()
     custom_rule.rule_id = rule_id
-    custom_rule.name = f"disabled-message-{rule_id}"
+    custom_rule.name = f"some-message-{rule_id}"
     custom_rule.enabled = False
     return custom_rule
 
@@ -81,6 +81,8 @@ class TestRuleMatcher:
             ([], ["KW02"], ["SPC01", "SPC02", "KW02"], []),
             # extend allows adding on top of selected rules
             (["SPC01"], ["SPC02"], ["SPC01", "SPC02"], ["KW02"]),
+            # test with rule names
+            (["some-message-SPC01"], ["some-message-SPC02"], ["SPC01", "SPC02"], ["KW02"]),
             (["SPC01"], ["SPC02", "KW02"], ["SPC01", "SPC02", "KW02"], []),
         ],
     )
@@ -119,6 +121,30 @@ class TestRuleMatcher:
         )
 
         assert all(rule_matcher.is_rule_enabled(get_enabled_rule(msg)) for msg in selected)
+        assert all(not rule_matcher.is_rule_enabled(get_enabled_rule(msg)) for msg in ignored)
+
+    @pytest.mark.parametrize(
+        ("patterns", "selected", "ignored"),
+        [
+            (["01*"], [], ["0202", "0501", "0403"]),
+            (["01*", "*5"], ["0101", "0105", "0405"], ["0204", "0402"]),
+            (["some-message-04*"], ["0401"], ["0101", "0502"]),
+            (["*"], ["0101", "0105", "0204", "0405", "0405"], []),
+        ],
+    )
+    def test_only_extend_select_patterns(self, patterns, selected, ignored):
+        rule_matcher = RuleMatcher(
+            select=[],
+            extend_select=patterns,
+            ignore=ignored,
+            target_version=ROBOT_VERSION,
+            threshold=RuleSeverity.INFO,
+            fixable=[],
+            unfixable=[],
+        )
+
+        assert all(rule_matcher.is_rule_enabled(get_enabled_rule(msg)) for msg in selected)
+        assert all(rule_matcher.is_rule_enabled(get_disabled_rule(msg)) for msg in selected)
         assert all(not rule_matcher.is_rule_enabled(get_enabled_rule(msg)) for msg in ignored)
 
     @pytest.mark.parametrize(

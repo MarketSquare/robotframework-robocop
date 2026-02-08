@@ -16,6 +16,7 @@ from robocop.linter import sonar_qube
 from robocop.linter.rules import Rule, RuleParam, RuleSeverity, VisitorChecker, deprecated, variables
 from robocop.linter.utils import misc as utils
 from robocop.parsing.run_keywords import iterate_keyword_names
+from robocop.parsing.string_operations import get_unmasked_string
 from robocop.version_handling import ROBOT_VERSION, TYPE_SUPPORTED
 
 if TYPE_CHECKING:
@@ -813,7 +814,7 @@ class KeywordNamingChecker(VisitorChecker):
             case_naming_rule = self.wrong_case_in_keyword_name
         else:
             case_naming_rule = self.wrong_case_in_keyword_call
-        normalized = utils.remove_robot_vars(keyword_name)
+        normalized = get_unmasked_string(keyword_name)
         normalized = case_naming_rule.pattern.sub("", normalized)
         if not is_keyword_definition and "." in normalized:
             # remove potential library import

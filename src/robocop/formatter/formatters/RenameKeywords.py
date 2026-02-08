@@ -10,7 +10,7 @@ from robocop.formatter.disablers import skip_if_disabled, skip_section_if_disabl
 from robocop.formatter.formatters import Formatter
 from robocop.formatter.utils import misc
 from robocop.parsing.run_keywords import RUN_KEYWORDS
-from robocop.parsing.variables import VariableMatches  # type: ignore[attr-defined]
+from robocop.parsing.string_operations import StringPart, map_string_to_mask
 
 if TYPE_CHECKING:
     from re import Pattern
@@ -114,47 +114,47 @@ class RenameKeywords(Formatter):
     def rename_node(self, token: Token, is_keyword_call: bool) -> None:
         if self.skip.keyword_call_name(token.value):
             return
+        new_value = self.normalize_name(token.value, is_keyword_call=is_keyword_call)
         if self.replace_pattern is not None:
-            new_value = self.rename_with_pattern(token.value, is_keyword_call=is_keyword_call)
-        else:
-            new_value = self.normalize_name(token.value, is_keyword_call=is_keyword_call)
+            normalized_replace = self.normalize_name(self.replace_to, is_keyword_call=False)
+            new_value = self.replace_pattern.sub(repl=normalized_replace, string=new_value)
         new_value = new_value.strip()
         if not new_value:  # do not allow renaming that removes keywords altogether
             return
         token.value = new_value
 
     def normalize_name(self, value: str, is_keyword_call: bool) -> str:
-        var_found = False
-        parts: list[str] = []
-        after = ""
-        for match in VariableMatches(value, ignore_errors=True):
-            var_found = True
-            # rename strips whitespace, so we need to preserve it if needed
-            if not match.before.strip() and parts:
-                parts.extend([" ", match.match])
+        result = []
+        for i, (part, part_type) in enumerate(map_string_to_mask(value)):
+            string_start = i == 0
+            if part_type == StringPart.MASKED:
+                result.append(part)
+            elif string_start and is_keyword_call and self.ignore_library:
+                lib_name, *kw_name = part.rsplit(".", maxsplit=1)
+                if kw_name:
+                    result.append(f"{lib_name}.{self.remove_underscores_and_capitalize(kw_name[0], string_start)}")
+                else:
+                    result.append(self.remove_underscores_and_capitalize(part, string_start))
             else:
-                parts.extend([self.rename_part(match.before, is_keyword_call), match.match])
-            after = match.after
-        if var_found:
-            parts.append(self.rename_part(after, is_keyword_call))
-            return "".join(parts).strip()
-        return self.rename_part(value, is_keyword_call)
+                result.append(
+                    ".".join(
+                        [
+                            self.remove_underscores_and_capitalize(name_part, string_start)
+                            for name_part in part.split(".")
+                        ]
+                    )
+                )
+        return "".join(result)
 
-    def rename_part(self, part: str, is_keyword_call: bool) -> str:
-        if is_keyword_call and self.ignore_library:
-            lib_name, *kw_name = part.rsplit(".", maxsplit=1)
-            if not kw_name:
-                return self.remove_underscores_and_capitalize(part)
-            return f"{lib_name}.{self.remove_underscores_and_capitalize(kw_name[0])}"
-        return ".".join([self.remove_underscores_and_capitalize(name_part) for name_part in part.split(".")])
-
-    def remove_underscores_and_capitalize(self, value: str) -> str:
+    def remove_underscores_and_capitalize(self, value: str, string_start: bool = True) -> str:
         if self.remove_underscores:
             value = value.replace("_", " ")
             value = re.sub(r" +", " ", value)  # replace one or more spaces by one
         if self.keyword_case == "ignore":
             return value
         if self.keyword_case == "capitalize_first":
+            if not string_start:
+                return self.normalize_case_of_word(value)
             return value[0].upper() + self.normalize_case_of_word(value[1:]) if value else value
         words = []
         split_words = value.split(" ")
@@ -170,26 +170,6 @@ class RenameKeywords(Formatter):
         if self.case_normalization == "first_letter":  # better mode switch, maybe boolean flag
             return word
         return word.lower()
-
-    def rename_with_pattern(self, value: str, is_keyword_call: bool) -> str:
-        lib_name = ""
-        if is_keyword_call and "." in value:
-            # rename only non lib part
-            found_lib = -1
-            for match in VariableMatches(value):
-                found_lib = match.before.find(".")
-                break
-            if found_lib != -1:
-                lib_name = value[: found_lib + 1]
-                value = value[found_lib + 1 :]
-            else:
-                lib_name, value = value.split(".", maxsplit=1)
-                lib_name += "."
-        if lib_name and not self.ignore_library:
-            lib_name = self.remove_underscores_and_capitalize(lib_name)
-        return lib_name + self.remove_underscores_and_capitalize(
-            self.replace_pattern.sub(repl=self.replace_to, string=value)  # type: ignore[union-attr]
-        )
 
     @skip_if_disabled
     def visit_KeywordName(self, node: KeywordName) -> KeywordName:  # noqa: N802

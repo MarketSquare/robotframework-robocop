@@ -50,3 +50,11 @@ All Upper Case
 Underscores and. dots
     Foo. BAR Baz A b C
     _Foo bar BAZ
+
+Quoted "${values_and_words}"
+    Values IN quotes "should REMAIN fully UNaffected"
+    Values IN quotes 'should REMAIN fully UNaffected'
+    'Even if whole keyword is quote'
+    I'll need to test partial quotes
+    And "${variables}" and "some other ${variables}" "shall work"
+    And "nested quotation "should not be" considered " and single "

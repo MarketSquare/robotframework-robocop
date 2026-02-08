@@ -288,35 +288,6 @@ def next_char_is(string: str, i: int, char: str) -> bool:
     return string[i + 1] == char
 
 
-def remove_robot_vars(name: str) -> str:
-    var_start = set("$@%&")
-    brackets = 0
-    open_bracket, close_bracket = "", ""
-    replaced = ""
-    index = 0
-    while index < len(name):
-        if brackets:
-            if name[index] == open_bracket:
-                brackets += 1
-            elif name[index] == close_bracket:
-                brackets -= 1
-            # check if next chars are not ['key']
-            if not brackets and next_char_is(name, index, "["):
-                brackets += 1
-                index += 1
-                open_bracket, close_bracket = "[", "]"
-        # it looks for $ (or other var starter) and then check if next char is { and previous is not escape \
-        elif name[index] in var_start and next_char_is(name, index, "{") and not (index and name[index - 1] == "\\"):
-            open_bracket = "{"
-            close_bracket = "}"
-            brackets += 1
-            index += 1
-        else:
-            replaced += name[index]
-        index += 1
-    return replaced
-
-
 def find_robot_vars(name: str) -> list[tuple[int, int]]:
     """Return list of tuples with (start, end) pos of vars in name"""
     var_start = set("$@%&")

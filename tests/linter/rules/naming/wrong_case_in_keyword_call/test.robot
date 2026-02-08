@@ -111,3 +111,11 @@ Recognize Figure(s) (Math) From Picture
 
 Dot in name foo.bar
     No Operation
+
+Quoted "${values_and_words}"
+    Values IN Quotes "should REMAIN fully UNaffected"
+    Values IN Quotes 'should REMAIN fully UNaffected'
+    'Even if whole keyword is quote'
+    I'll Need To Test Partial Quotes
+    And "${variables}" And "some other ${variables}" "shall work"
+    And "nested quotation "Should Not Be" considered " And Single "

@@ -16,8 +16,8 @@ MyVar    val1    val2    val3    val4    val5    val6    val7
 *** Test Cases ***
 # A comment before first test
 My Test Case
-    [Documentation]    This is a documentation
-    ...    in two lines
+    [Documentation] | This is a documentation |
+    ... | in two lines |
     My TC Step 1    my step arg    # step 1 comment
     My TC Step 2    my step 2 arg    second \ arg    # step 2 comment
     ...    third arg split to own row
@@ -29,7 +29,7 @@ Another Test
 
 *** Keyword ***
 My Keyword
-    [Documentation]    Documentation    # Comment for doc
+    [Documentation] | Documentation | # Comment for doc |
     [Tags]    keyword    tags
     # Comment row
     # Comment row 2

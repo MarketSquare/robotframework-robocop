@@ -72,3 +72,6 @@ class TestNormalizeNewLines(FormatterAcceptanceTest):
             source="language_header_5empty.robot", expected="language_header_2empty.robot", test_on_version=">=6"
         )
         self.compare(source="language_header_and_comments.robot", test_on_version=">=6")
+
+    def test_ignore_docs(self):
+        self.compare(source="multiline_docs.robot", not_modified=True)

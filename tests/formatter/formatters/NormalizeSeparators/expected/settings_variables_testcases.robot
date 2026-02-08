@@ -34,8 +34,8 @@ Test case with structures
 Keyword
 Another Keyword
     [Arguments]    ${arg}
-    [Documentation]    First word    Second word
-    ...    Third.
+    [Documentation]  First word   Second word
+    ...  Third.
     Should Be Equal    1
     ...    ${arg}
     IF    ${condition}

@@ -26,7 +26,7 @@ class NormalizeSeparators(Formatter):
     All separators (pipes included) are converted to fixed length of 4 spaces (configurable via global argument
     ``--space-count``).
 
-    To not format documentation configure ``skip_documentation`` to ``True``.
+    Documentation is ignored by default. Set ``skip_documentation`` to ``False`` to format documentation.
     """
 
     HANDLES_SKIP = frozenset(
@@ -40,7 +40,12 @@ class NormalizeSeparators(Formatter):
         }
     )
 
-    def __init__(self, flatten_lines: bool = False, align_new_line: bool = False) -> None:
+    def __init__(
+        self,
+        flatten_lines: bool = False,
+        align_new_line: bool = False,
+        skip_documentation: str = "True",  # noqa: ARG002 - override skip_documentation from Skip
+    ) -> None:
         super().__init__()
         self.indent = 0
         self.flatten_lines = flatten_lines

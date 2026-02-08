@@ -305,13 +305,13 @@ It is possible to use the following arguments to skip formatting of the code:
 - [skip skip keyword call pattern](../skip_formatting.md#skip-the-keyword-call-pattern)
 - [skip sections](../skip_formatting.md#skip-sections)
 
-Documentation is formatted by default. To disable formatting the separators inside documentation, and to only format
-indentation, set ``skip_documentation`` to ``True``:
+Documentation is not formatted by default. To enable formatting the separators inside documentation,
+set ``skip_documentation`` to ``False``:
 
 === ":octicons-command-palette-24: cli"
 
     ```bash
-    robocop format --configure NormalizeSeparators.skip_documentation=True
+    robocop format --configure NormalizeSeparators.skip_documentation=False
     ```
 
 === ":material-file-cog-outline: toml"
@@ -319,7 +319,7 @@ indentation, set ``skip_documentation`` to ``True``:
     ```toml
     [tool.robocop.format]
     configure = [
-        "NormalizeSeparators.skip_documentation=True"
+        "NormalizeSeparators.skip_documentation=False"
     ]
     ```
 
@@ -338,20 +338,7 @@ will result in:
        Test Case Body
     ```
 
-=== "skip_documentation=False (default)"
-
-    ```robotframework
-    TEST_TC
-        [Argument]    ${a}    ${long_arg}
-        [Documentation]     Test Doc.
-        ...
-        ...    Arguments:
-        ...    a:    Argument A
-        ...    long_arg:    Argument long_arg.
-       Test Case Body
-    ```
-
-=== "skip_documentation=True"
+=== "skip_documentation=True (default)"
 
     ```robotframework
     TEST_TC
@@ -361,6 +348,19 @@ will result in:
         ...    Arguments:
         ...    a:               Argument A
         ...    long_arg:        Argument long_arg.
+       Test Case Body
+    ```
+
+=== "skip_documentation=False"
+
+    ```robotframework
+    TEST_TC
+        [Argument]    ${a}    ${long_arg}
+        [Documentation]     Test Doc.
+        ...
+        ...    Arguments:
+        ...    a:    Argument A
+        ...    long_arg:    Argument long_arg.
        Test Case Body
     ```
 

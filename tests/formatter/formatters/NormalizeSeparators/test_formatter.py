@@ -45,16 +45,6 @@ class TestNormalizeSeparators(FormatterAcceptanceTest):
     def test_disablers(self, disablers):
         self.compare(source=disablers, not_modified=True)
 
-    def test_skip_documentation_default(self):
-        self.compare(source="test.robot", configure=[f"{self.FORMATTER_NAME}.skip_documentation=False"])
-
-    def test_skip_documentation(self):
-        self.compare(
-            source="test.robot",
-            expected="skip_documentation.robot",
-            configure=[f"{self.FORMATTER_NAME}.skip_documentation=True"],
-        )
-
     def test_continuation_indent(self):
         self.compare(source="continuation_indent.robot", space_count=2, indent=4, continuation_indent=4)
 
@@ -121,5 +111,18 @@ class TestNormalizeSeparators(FormatterAcceptanceTest):
             configure=[f"{self.FORMATTER_NAME}.align_new_line=True"],
         )
 
+    def test_align_new_line_with_docs(self):
+        self.compare(
+            source="continuation_indent.robot",
+            expected="cont_indent_align_new_line_with_docs.robot",
+            configure=[f"{self.FORMATTER_NAME}.align_new_line=True", f"{self.FORMATTER_NAME}.skip_documentation=False"],
+        )
+
     def test_groups(self):
         self.compare(source="groups.robot", test_on_version=">7.1.1")
+
+    def test_multiline_docs(self):
+        self.compare(source="multiline_docs.robot", configure=[f"{self.FORMATTER_NAME}.skip_documentation=False"])
+
+    def test_multiline_docs_ignored(self):
+        self.compare(source="multiline_docs.robot", not_modified=True)

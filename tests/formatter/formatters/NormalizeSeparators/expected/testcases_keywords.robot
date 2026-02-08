@@ -6,9 +6,9 @@ Library    library.py    WITH NAME    alias
 Force Tags    tag
 ...    tag
 
-Documentation    doc
-...    multi
-...    line
+Documentation  doc
+...      multi
+...  line
 
 *** Variables ***
 ${var}    3

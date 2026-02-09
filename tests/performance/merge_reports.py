@@ -13,8 +13,6 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from packaging.version import Version
-
 ROOT = Path(__file__).parent.parent.parent
 REPORTS_DIR = Path(__file__).parent / "reports"
 REPORT_TEST = {
@@ -36,7 +34,7 @@ def load_reports(directory: Path) -> dict[str, dict]:
         reports[version_str] = json.loads(report_path.read_text())
 
     # Sort reports by version
-    return dict(sorted(reports.items(), key=lambda item: Version(item[0])))
+    return dict(sorted(reports.items(), key=lambda item: item[0]))
 
 
 def calculate_total_time(data: dict, report_key: str) -> float | None:

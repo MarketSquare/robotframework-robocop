@@ -121,8 +121,9 @@ def linter_report(report_name: str, **kwargs) -> int:  # noqa: ARG001
     """Measure how long it takes to lint all linter test files."""
     main_dir = Path(__file__).parent.parent.parent
     linter_dir = main_dir / "tests" / "linter"
+    invalid_rules = ["too-long-variable-name"]  # rules that may not work for older versions
     with working_directory(linter_dir):
-        check_files(return_result=True, select=["ALL"], **kwargs)
+        check_files(return_result=True, select=["ALL"], ignore=invalid_rules, **kwargs)
     return len(list(linter_dir.glob("**/*.robot")))
 
 

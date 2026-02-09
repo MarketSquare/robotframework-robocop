@@ -2,6 +2,8 @@ import contextlib
 import os
 from pathlib import Path
 
+TEST_DATA_LINTER_DIR = Path(__file__).parent / "linter" / "test_data"
+
 
 @contextlib.contextmanager
 def working_directory(path: Path):

@@ -10,7 +10,7 @@ from fastmcp.exceptions import ToolError
 from robot.api import get_model
 from robot.errors import DataError
 
-from robocop.config.builder import ConfigBuilder
+from robocop.config.manager import ConfigManager
 from robocop.config.schema import RawConfig, RawFormatterConfig, RawWhitespaceConfig
 from robocop.formatter import disablers
 from robocop.mcp.tools.models import FormatContentResult, FormatFileResult, LintAndFormatResult
@@ -24,8 +24,8 @@ def _format_content_impl(
     content: str,
     filename: str = "stdin.robot",
     select: list[str] | None = None,
-    space_count: int = 4,
-    line_length: int = 120,
+    space_count: int | None = None,
+    line_length: int | None = None,
 ) -> FormatContentResult:
     """
     Format content and return the result.
@@ -54,10 +54,15 @@ def _format_content_impl(
             # and keeping it here means we have to maintain 2 places - can we create common for it?
             whitespace_config = RawWhitespaceConfig(space_count=space_count, line_length=line_length)
             formatter_config = RawFormatterConfig(
-                select=select or [], whitespace_config=whitespace_config, overwrite=False, return_result=True
+                select=select, whitespace_config=whitespace_config, overwrite=False, return_result=True
             )
             raw_config = RawConfig(formatter=formatter_config, silent=True)
-            config = ConfigBuilder().from_raw(cli_raw=raw_config, file_raw=None)
+
+            config_manager = ConfigManager(
+                sources=[str(tmp_path)],
+                overwrite_config=raw_config,
+            )
+            config = config_manager.default_config
             resolved_config = ConfigResolver(load_formatters=True).resolve_config(config)
 
             old_model = StatementLinesCollector(model)
@@ -91,8 +96,8 @@ def _format_content_impl(
 def _format_file_impl(
     file_path: str,
     select: list[str] | None = None,
-    space_count: int = 4,
-    line_length: int = 120,
+    space_count: int | None = None,
+    line_length: int | None = None,
     *,
     overwrite: bool = False,
 ) -> FormatFileResult:

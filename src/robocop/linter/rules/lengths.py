@@ -985,10 +985,13 @@ class VariableNameLengthChecker(VisitorChecker):
             return
         for variable in node.get_tokens(Token.ASSIGN):
             self.add_variable_to_scope(variable, strip_equals_from_assignment(variable.value))
-        if normalize_robot_name(node.keyword) in self.set_variable_keywords:  # Only check args of 'Set ... Variable'
-            argument = node.get_token(Token.ARGUMENT)
-            if argument.value.startswith(tuple(self.var_identifiers + "\\")):  # Otherwise this is invalid RF syntax
-                self.add_variable_to_scope(argument)
+        # Only check args of 'Set ... Variable' and check for invalid RF syntax
+        if (
+            normalize_robot_name(node.keyword) in self.set_variable_keywords
+            and (argument := node.get_token(Token.ARGUMENT))
+            and argument.value.startswith(tuple(self.var_identifiers + "\\"))
+        ):
+            self.add_variable_to_scope(argument)
 
     def visit_Var(self, node: Statement) -> None:  # noqa: N802
         if variable := node.get_token(Token.VARIABLE):

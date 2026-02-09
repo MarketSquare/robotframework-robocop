@@ -113,3 +113,5 @@ Keyword With ${short_embedded_argument_name} And ${embedded_argument_name_that_i
 Keyword ${embedded_just_shy_of_max_len_contains:pattern} And ${embedded_name_that_is_too_long_that_contains:pattern}    # 44
     Log    ${embedded_just_shy_of_max_len_contains}
 
+Test Invalid Syntax
+    Set Suite Variable  # no argument

@@ -28,9 +28,9 @@ def _create_linter_config(
 ) -> RawLinterConfig:
     """Create a RawConfig with the given options."""
     return RawLinterConfig(
-        select=select or [],
-        ignore=ignore or [],
-        configure=configure or [],
+        select=select,
+        ignore=ignore,
+        configure=configure,
         threshold=_parse_threshold(threshold),
         return_result=True,
     )
@@ -74,13 +74,11 @@ def _lint_content_impl(
             config = RawConfig(sources=[str(tmp_path)], linter=linter_config, silent=True)
             config_manager = ConfigManager(
                 sources=[str(tmp_path)],
-                ignore_file_config=True,
                 overwrite_config=config,
             )
 
             linter = RobocopLinter(config_manager)
-            # FIXME it should find config for specific file, not just some random. and those overwrites
-            # for now config -> default_config
+            # Since it's content, not file - we are using the default project configuration instead of a specific one.
             source_file = SourceFile(path=tmp_path, config=config_manager.default_config)
             diagnostics = linter.run_check(source_file)
 
@@ -134,7 +132,6 @@ def _lint_file_impl(
         config = RawConfig(sources=[str(path)], linter=linter_config, silent=True)
         config_manager = ConfigManager(
             sources=[str(path)],
-            ignore_file_config=True,
             overwrite_config=config,
         )
 

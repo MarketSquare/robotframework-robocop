@@ -21,14 +21,13 @@ def get_linter_config() -> ResolvedConfig:
         LinterConfig: The cached linter configuration with rules loaded.
 
     """
-    from robocop.config.builder import ConfigBuilder
-    from robocop.config.schema import RawConfig
+    from robocop.config.manager import ConfigManager
     from robocop.runtime.resolver import ConfigResolver
 
-    # TODO: It will not load configuration files. We should probably cache configuration manager instead
-    config = ConfigBuilder().from_raw(cli_raw=RawConfig(silent=True), file_raw=None)
+    manager = ConfigManager()
     resolver = ConfigResolver(load_rules=True)
-    return resolver.resolve_config(config)
+
+    return resolver.resolve_config(manager.default_config)
 
 
 @lru_cache(maxsize=1)
@@ -43,14 +42,13 @@ def get_formatter_config() -> ResolvedConfig:
         FormatterConfig: The cached formatter configuration with formatters loaded.
 
     """
-    from robocop.config.builder import ConfigBuilder
-    from robocop.config.schema import RawConfig
+    from robocop.config.manager import ConfigManager
     from robocop.runtime.resolver import ConfigResolver
 
-    # TODO: It will not load configuration files. We should probably cache configuration manager instead
-    config = ConfigBuilder().from_raw(cli_raw=RawConfig(silent=True), file_raw=None)
+    manager = ConfigManager()
     resolver = ConfigResolver(load_formatters=True)
-    return resolver.resolve_config(config)
+
+    return resolver.resolve_config(manager.default_config)
 
 
 def clear_cache() -> None:

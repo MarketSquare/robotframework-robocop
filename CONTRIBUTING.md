@@ -75,6 +75,13 @@ Run from the root of the project:
 pre-commit install
 ```
 
+You can run tools used in pre-commit manually:
+
+- ruff check (``uv run ruff check``)
+- ruff format (``uv run ruff format``)
+- mypy (``uv run mypy --config-file=pyproject.toml .\src\robocop\``)
+
+
 ## Testing
 
 We are using pytest for our test framework. While it would be possible to use Robot Framework, it's easier for us

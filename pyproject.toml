@@ -21,6 +21,7 @@ dependencies = [
     "platformdirs>=4.3",
     "pytz>=2022.7",
     "msgpack>=1.0.0",
+    "typing-extensions>=4.15.0",
 ]
 
 keywords = ["robotframework", "automation", "testautomation", "testing", "linter", "qa", "formatting", "formatter"]

@@ -2,7 +2,7 @@
 
 # [8.0.0](https://github.com/MarketSquare/robotframework-robocop/compare/v7.2.0...v8.0.0) (2026-02-11)
 
-More personal notes regarding 8.0.0 [here](8.0.0.md).
+More detailed notes regarding 8.0.0 [here](8.0.0.md).
 
 ### Breaking changes
 

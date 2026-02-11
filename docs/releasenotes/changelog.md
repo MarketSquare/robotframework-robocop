@@ -1,5 +1,53 @@
 # Release notes
 
+# [8.0.0](https://github.com/MarketSquare/robotframework-robocop/compare/v7.2.0...v8.0.0) (2026-02-11)
+
+More personal notes regarding 8.0.0 [here](8.0.0.md).
+
+### Breaking changes
+
+* dropped support for Python 3.9
+* dropped support for Robot Framework 4
+* Deprecated ``deprecated-statement`` rule
+* Deprecated ``ReplaceReturns`` formatter
+* Deprecated ``AddMissingEnd`` formatter
+* refactored source files handling with common ``SourceFile`` class
+* redesigned configuration layer for typing safety and OOP friendliness
+
+### Features
+
+* Fixable rules (#1617) (128c849)
+* deprecate ``deprecated-statement`` rule and split into new rules
+* new rule DEPR08 ``deprecated-run-keyword-if``
+* new rule DEPR09 ``deprecated-loop-keyword``
+* new rule DEPR10 ``deprecated-return-keyword`` (with a fix)
+* new rule DEPR11 ``deprecated-return-setting`` (with a fix)
+* Robocop is now more verbose
+* Keyword naming rules and formatters quotation handling
+* performance improvements (#1611) (eea1c56)
+* ``report()`` can be now used from the rule class (#1644) (8aff795)
+* Robocop is now fully typed (#1661) (42045dc)
+* list rules can now return the result when used from the Python (#1629) (457d135)
+* MCP is now aware of local config (#1673) (55e18b6)
+* Skip documentation by default in NormalizeSeparators (#1672) (5b1ae35)
+* Added or improved support for variable type conversion (#1654) (#1650) (#1651) (#1652) #1653)
+* New rule ANN04 ``set-keyword-with-type``
+* Add ``case_normalization`` parameter to enforce case by RenameKeywords (#1667) (49a0b02)
+
+### Bug fixes
+
+* add explicit typing-extensions dependency (#1680) (b406f25)
+* Fix #1174 expression-can-be-simplified raised for == 0 (#1649) (d0f4985)
+* Fix #1422 - ReplaceWithVAR formatter replacing variables with item access (#1648) (a9c3377)
+* Fix caching the issues with fixes (#1623) (256874b)
+* Fix extend-select matching only on rule id, not on rule name (#1669) (403ff7d)
+* Fix format --extend-select not enabling formatters (#1668) (3c76c50)
+* Fix not all issue format parameters supported by extended output (#1624) (727c38d)
+* Fix too-long-variable-name throwing exception on Set X Variable without arguments (#1675) (3a55663)
+* multiple paths passed to robocop check/format command resolving to the same config (#1614) (bdcfd48)
+* Fix rst-style urls in the documentation (#1640) (eb1dcab)
+* Update RenameVariables formatter so it treats numbers as part of word and does not split on it (#1663) (eddfd96)
+
 ## [7.2.0](https://github.com/MarketSquare/robotframework-robocop/compare/v7.1.0...v7.2.0) (2026-01-01)
 
 

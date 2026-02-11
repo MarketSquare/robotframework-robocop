@@ -2212,6 +2212,7 @@ dependencies = [
     { name = "tomli", marker = "python_full_version < '3.11'" },
     { name = "tomli-w" },
     { name = "typer-slim" },
+    { name = "typing-extensions" },
 ]
 
 [package.optional-dependencies]
@@ -2259,6 +2260,7 @@ requires-dist = [
     { name = "tomli", marker = "python_full_version < '3.11'", specifier = "==2.2.1" },
     { name = "tomli-w", specifier = ">=1.0" },
     { name = "typer-slim", specifier = ">=0.12.5" },
+    { name = "typing-extensions", specifier = ">=4.15.0" },
 ]
 provides-extras = ["mcp"]
 

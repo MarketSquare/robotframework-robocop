@@ -240,3 +240,26 @@ Used in EXCEPT branch
     EXCEPT    ValueError: .*    type=${arg7}
         No Operation
     END
+
+Embedded ${attribute} And Item Access
+    Should Not Be Empty    ${LOGS['${attribute}']}
+
+Embedded Mixed ${attribute}
+    [Arguments]    ${logs}
+    Should Not Be Empty    ${logs['${attribute}']}
+
+Embedded Filters ${type} Select Value ${value}
+    Click    ${FILTER_DROPDOWN_VALUE.replace("%FILTER_VALUE%", "${value}")}
+    Log    ${type}
+
+Item Access
+    [Arguments]    ${attribute}
+    Should Not Be Empty    ${LOGS['${attribute}']}
+
+Filters Select Value
+    [Arguments]    ${value}
+    Click    ${FILTER_DROPDOWN_VALUE.replace("%FILTER_VALUE%", "${value}")}
+
+Inline Evaluation ${something} To Console
+    VAR    ${log}    ${{ "argument: ${something}" }}
+    Log To Console    ${log}

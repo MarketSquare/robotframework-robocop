@@ -1218,6 +1218,7 @@ class UnusedVariablesChecker(VisitorChecker):
     variable_overwritten_before_usage: variables.VariableOverwrittenBeforeUsageRule
 
     _VARIABLE_START = set("$@&%")
+    _VARIABLE_START_PATTERN = re.compile(r"[$@&%]\{")
     _ESCAPED_VAR_PATTERN = re.compile(r"\$([A-Za-z_]\w*)")
     _VARIABLE_NAME_PATTERN = re.compile(r"\w+")
 
@@ -1596,43 +1597,23 @@ class UnusedVariablesChecker(VisitorChecker):
         Found variables are added to the scope.
 
         """
-        identifiers = set("$@&%")
-        n = len(value)
-        i = 0
         full_match = False  # whether string is a variable only
-        while True:
-            # find the next '{'
-            pos = value.find("{", i)
-            if pos == -1:
-                break
-            # must be preceded by an identifier char
-            if pos == 0 or value[pos - 1] not in self._VARIABLE_START:
-                i = pos + 1
-                continue
-            # found an identifier + '{' opening
-            start = pos + 1  # first char inside braces
-            depth = 1
-            j = start
 
-            while j < n:
-                # detect nested identifier + '{' (counts as increased nesting)
-                if value[j] in identifiers and j + 1 < n and value[j + 1] == "{":
+        # Find all starting positions
+        for match in self._VARIABLE_START_PATTERN.finditer(value):
+            start_pos = match.start()
+            # Now find the matching closing brace
+            depth = 0
+            for i in range(start_pos, len(value)):
+                if value[i] == "{" and i > 0 and value[i - 1] in self._VARIABLE_START:
                     depth += 1
-                    j += 2
-                    continue
-
-                if value[j] == "}":
+                elif value[i] == "}":
                     depth -= 1
                     if depth == 0:
-                        # call with the content inside the outermost braces
-                        self.update_used_variables(value[start:j])
-                        full_match = start == 2 and j == n - 1
-                        i = j + 1
+                        self.update_used_variables(value[start_pos : i + 1])
+                        full_match = start_pos == 0 and i + 1 == len(value)
                         break
-                j += 1
-            else:
-                # no matching closing brace found
-                break
+
         # no need to search further if we matched fully ('${var}')
         if not can_be_escaped or full_match:
             return

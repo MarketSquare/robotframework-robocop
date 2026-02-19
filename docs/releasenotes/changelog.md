@@ -48,6 +48,18 @@ More detailed notes regarding 8.0.0 [here](8.0.0.md).
 * Fix rst-style urls in the documentation (#1640) (eb1dcab)
 * Update RenameVariables formatter so it treats numbers as part of word and does not split on it (#1663) (eddfd96)
 
+## [8.1.0](https://github.com/MarketSquare/robotframework-robocop/compare/v8.0.0...v8.1.0) (2026-02-19)
+
+
+### Features
+
+* Replace `typer-slim` with `typer` ([#1685](https://github.com/MarketSquare/robotframework-robocop/issues/1685)) ([b83400f](https://github.com/MarketSquare/robotframework-robocop/commit/b83400f5727d4a4b82092319401abdf7fba699e8))
+
+
+### Bug Fixes
+
+* unused-argument rule raised when argument is used in item access or inline eval ([#1687](https://github.com/MarketSquare/robotframework-robocop/issues/1687)) ([d014a53](https://github.com/MarketSquare/robotframework-robocop/commit/d014a53d32b9effe696fccc993f675efb3724941))
+
 ## [7.2.0](https://github.com/MarketSquare/robotframework-robocop/compare/v7.1.0...v7.2.0) (2026-01-01)
 
 

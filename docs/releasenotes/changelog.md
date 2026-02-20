@@ -48,6 +48,13 @@ More detailed notes regarding 8.0.0 [here](8.0.0.md).
 * Fix rst-style urls in the documentation (#1640) (eb1dcab)
 * Update RenameVariables formatter so it treats numbers as part of word and does not split on it (#1663) (eddfd96)
 
+## [8.1.1](https://github.com/MarketSquare/robotframework-robocop/compare/v8.1.0...v8.1.1) (2026-02-20)
+
+
+### Bug Fixes
+
+* Fix unused-variable reported on variable names starting with digit ([#1689](https://github.com/MarketSquare/robotframework-robocop/issues/1689)) ([fc6b78d](https://github.com/MarketSquare/robotframework-robocop/commit/fc6b78de9faa3d61acc0a6e9f8424c0cc4333efa))
+
 ## [8.1.0](https://github.com/MarketSquare/robotframework-robocop/compare/v8.0.0...v8.1.0) (2026-02-19)
 
 

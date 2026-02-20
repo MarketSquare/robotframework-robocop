@@ -1610,7 +1610,7 @@ class UnusedVariablesChecker(VisitorChecker):
                 elif value[i] == "}":
                     depth -= 1
                     if depth == 0:
-                        self.update_used_variables(value[start_pos : i + 1])
+                        self.update_used_variables(value[start_pos + 2 : i])
                         full_match = start_pos == 0 and i + 1 == len(value)
                         break
 

@@ -37,6 +37,7 @@ ${METADATA_VALUE}    value
 @{TEMPLATE_ARGS}    arg1   arg2
 ${VAR_DOCUMENTATION}    Documentation value
 ${VAR_TAG}              Tag value
+${3MAR_DESCRIPTION}     Lorem ipsum 2
 
 
 *** Test Cases ****
@@ -67,3 +68,6 @@ Keyword
 Keyword With Arguments
     [Arguments]    ${arg}=${USED_IN_ARG_DEFAULT}    ${arg2}=value with ${USED_IN_ARG_DEFAULT2}
     No Operation
+
+Use Variable With Numbers
+    Log To Console    ${3MAR_DESCRIPTION}

@@ -6,11 +6,13 @@ from functools import lru_cache
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
+    from pathlib import Path
+
     from robocop.runtime.resolved_config import ResolvedConfig
 
 
-@lru_cache(maxsize=1)
-def get_linter_config() -> ResolvedConfig:
+@lru_cache
+def get_linter_config(config_path: Path | None) -> ResolvedConfig:
     """
     Get cached LinterConfig with all rules loaded.
 
@@ -24,14 +26,14 @@ def get_linter_config() -> ResolvedConfig:
     from robocop.config.manager import ConfigManager
     from robocop.runtime.resolver import ConfigResolver
 
-    manager = ConfigManager()
+    manager = ConfigManager(config=config_path)
     resolver = ConfigResolver(load_rules=True)
 
     return resolver.resolve_config(manager.default_config)
 
 
-@lru_cache(maxsize=1)
-def get_formatter_config() -> ResolvedConfig:
+@lru_cache
+def get_formatter_config(config_path: Path | None) -> ResolvedConfig:
     """
     Get cached FormatterConfig with all formatters loaded.
 
@@ -45,7 +47,7 @@ def get_formatter_config() -> ResolvedConfig:
     from robocop.config.manager import ConfigManager
     from robocop.runtime.resolver import ConfigResolver
 
-    manager = ConfigManager()
+    manager = ConfigManager(config=config_path)
     resolver = ConfigResolver(load_formatters=True)
 
     return resolver.resolve_config(manager.default_config)

@@ -25,6 +25,10 @@ from robocop.mcp.tools.utils.helpers import (
 )
 
 if TYPE_CHECKING:
+    from pathlib import Path
+
+    from fastmcp import FastMCP
+
     from robocop.formatter.formatters import Formatter
 
 
@@ -32,6 +36,7 @@ def _list_rules_impl(
     category: str | None = None,
     severity: str | None = None,
     enabled_only: bool = False,
+    config_path: Path | None = None,
 ) -> list[RuleSummary]:
     """
     List all available linting rules with optional filtering.
@@ -40,6 +45,7 @@ def _list_rules_impl(
         category: Filter by rule category/group (e.g., "LEN", "NAME", "DOC")
         severity: Filter by severity ("I", "W", or "E")
         enabled_only: If True, only return enabled rules
+        config_path: Path to the Robocop toml configuration file
 
     Returns:
         A list of RuleSummary models.
@@ -53,17 +59,18 @@ def _list_rules_impl(
             enabled=rule.enabled,
             message=rule.message,
         )
-        for rule in _iter_unique_rules(category, severity, enabled_only)
+        for rule in _iter_unique_rules(category, severity, enabled_only, config_path)
     ]
     return sorted(rules, key=operator.attrgetter("rule_id"))
 
 
-def _list_formatters_impl(enabled_only: bool = True) -> list[FormatterSummary]:
+def _list_formatters_impl(enabled_only: bool = True, config_path: Path | None = None) -> list[FormatterSummary]:
     """
     List all available formatters.
 
     Args:
         enabled_only: If True, only return enabled formatters (default: True)
+        config_path: Path to the Robocop toml configuration file
 
     Returns:
         A list of FormatterSummary models.
@@ -71,7 +78,7 @@ def _list_formatters_impl(enabled_only: bool = True) -> list[FormatterSummary]:
     """
     from robocop.mcp.cache import get_formatter_config
 
-    formatter_config = get_formatter_config()
+    formatter_config = get_formatter_config(config_path)
     formatters = formatter_config.formatters
 
     result: list[FormatterSummary] = []
@@ -146,12 +153,13 @@ def _get_formatter_parameters(formatter_class: type[Formatter]) -> list[Formatte
     return params
 
 
-def _get_rule_info_impl(rule_name_or_id: str) -> RuleDetail:
+def _get_rule_info_impl(rule_name_or_id: str, config_path: Path | None = None) -> RuleDetail:
     """
     Look up rule information by name or ID.
 
     Args:
         rule_name_or_id: Rule name (e.g., "too-long-keyword") or ID (e.g., "LEN01")
+        config_path: Path to the Robocop toml configuration file
 
     Returns:
         A RuleDetail model containing:
@@ -172,7 +180,7 @@ def _get_rule_info_impl(rule_name_or_id: str) -> RuleDetail:
     """
     from robocop.mcp.cache import get_linter_config
 
-    linter_config = get_linter_config()
+    linter_config = get_linter_config(config_path)
 
     if rule_name_or_id not in linter_config.rules:
         available = ", ".join(sorted({r.rule_id for r in linter_config.rules.values()}))
@@ -191,6 +199,7 @@ def _search_rules_impl(
     category: str | None = None,
     severity: str | None = None,
     limit: int = 20,
+    config_path: Path | None = None,
 ) -> list[RuleSearchResult]:
     """
     Search rules by keyword across specified fields.
@@ -202,6 +211,7 @@ def _search_rules_impl(
         category: Optional filter by rule category (e.g., "LEN", "NAME").
         severity: Optional filter by severity ("I", "W", "E").
         limit: Maximum number of results to return (default: 20).
+        config_path: Path to the Robocop toml configuration file
 
     Returns:
         A list of RuleSearchResult models with rule_id, name, message, severity,
@@ -214,7 +224,7 @@ def _search_rules_impl(
     query_lower = query.lower()
     results: list[RuleSearchResult] = []
 
-    for rule in _iter_unique_rules(category, severity):
+    for rule in _iter_unique_rules(category, severity, config_path=config_path):
         for field in fields:
             field_value = getattr(rule, field, "") or ""
             if query_lower in field_value.lower():
@@ -237,7 +247,7 @@ def _search_rules_impl(
     return results
 
 
-def _list_prompts_impl() -> list[PromptSummary]:
+def _list_prompts_impl(mcp: FastMCP) -> list[PromptSummary]:
     """
     List all available MCP prompt templates.
 
@@ -245,8 +255,6 @@ def _list_prompts_impl() -> list[PromptSummary]:
         A list of PromptSummary models with name, description, and arguments.
 
     """
-    from robocop.mcp.server import mcp
-
     prompts = [
         PromptSummary(
             name=prompt.name,
@@ -260,12 +268,13 @@ def _list_prompts_impl() -> list[PromptSummary]:
     return sorted(prompts, key=lambda p: p.name)
 
 
-def _get_formatter_info_impl(formatter_name: str) -> FormatterDetail:
+def _get_formatter_info_impl(formatter_name: str, config_path: Path | None = None) -> FormatterDetail:
     """
     Look up formatter information by name.
 
     Args:
         formatter_name: Formatter name (e.g., "NormalizeSeparators", "AlignKeywordsSection")
+        config_path: Path to the Robocop toml configuration file
 
     Returns:
         A FormatterDetail model containing:
@@ -282,7 +291,7 @@ def _get_formatter_info_impl(formatter_name: str) -> FormatterDetail:
     """
     from robocop.mcp.cache import get_formatter_config
 
-    formatter_config = get_formatter_config()
+    formatter_config = get_formatter_config(config_path)
     formatters = formatter_config.formatters
 
     if formatter_name not in formatters:

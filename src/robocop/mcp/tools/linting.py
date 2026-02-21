@@ -44,6 +44,7 @@ def _lint_content_impl(
     threshold: str = "I",
     limit: int | None = None,
     configure: list[str] | None = None,
+    config_path: Path | None = None,
 ) -> list[DiagnosticResult]:
     """
     Lint content and return diagnostics.
@@ -56,6 +57,7 @@ def _lint_content_impl(
         threshold: The severity threshold for diagnostics.
         limit: Maximum number of issues to return. None means no limit.
         configure: A list of rule configurations (e.g., ["rule-name.param=value"]).
+        config_path: Path to the Robocop toml configuration file
 
     Returns:
         A list of DiagnosticResult models.
@@ -72,10 +74,7 @@ def _lint_content_impl(
         try:
             linter_config = _create_linter_config(select, ignore, threshold, configure)
             config = RawConfig(sources=[str(tmp_path)], linter=linter_config, silent=True)
-            config_manager = ConfigManager(
-                sources=[str(tmp_path)],
-                overwrite_config=config,
-            )
+            config_manager = ConfigManager(sources=[str(tmp_path)], overwrite_config=config, config=config_path)
 
             linter = RobocopLinter(config_manager)
             # Since it's content, not file - we are using the default project configuration instead of a specific one.
@@ -97,6 +96,7 @@ def _lint_file_impl(
     include_file_in_result: bool = False,
     limit: int | None = None,
     configure: list[str] | None = None,
+    config_path: Path | None = None,
 ) -> list[DiagnosticResult]:
     """
     Lint a file and return diagnostics.
@@ -109,6 +109,7 @@ def _lint_file_impl(
         include_file_in_result: Whether to include the file path in the result.
         limit: Maximum number of issues to return. None means no limit.
         configure: A list of rule configurations (e.g., ["rule-name.param=value"]).
+        config_path: Path to the Robocop toml configuration file
 
     Returns:
         A list of DiagnosticResult models.
@@ -130,10 +131,7 @@ def _lint_file_impl(
     try:
         linter_config = _create_linter_config(select, ignore, threshold, configure)
         config = RawConfig(sources=[str(path)], linter=linter_config, silent=True)
-        config_manager = ConfigManager(
-            sources=[str(path)],
-            overwrite_config=config,
-        )
+        config_manager = ConfigManager(sources=[str(path)], overwrite_config=config, config=config_path)
 
         linter = RobocopLinter(config_manager)
         # FIXME, and what's the diff from _lint_content_impl -> could be merged

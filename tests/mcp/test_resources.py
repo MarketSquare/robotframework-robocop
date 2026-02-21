@@ -15,6 +15,7 @@ from robocop.mcp.resources import (
 from tests import TEST_DATA_LINTER_DIR, working_directory
 
 CUSTOM_RULES_DIR = TEST_DATA_LINTER_DIR / "custom_rules" / "custom_with_config"
+CONFIG_PATH = TEST_DATA_LINTER_DIR / "one_select" / "pyproject.toml"
 
 
 class TestRulesCatalog:
@@ -33,6 +34,14 @@ class TestRulesCatalog:
         assert "message" in rule
         assert "severity" in rule
         assert "enabled" in rule
+
+    def test_get_rules_catalog_with_config(self):
+        """Test getting the full rules catalog with the configuration file."""
+        rules = _get_rules_catalog(CONFIG_PATH)
+        enabled_rules = [rule for rule in rules if rule["enabled"]]
+
+        assert len(enabled_rules) < 10
+        assert all(rule["rule_id"].startswith("DOC") for rule in enabled_rules)
 
     def test_rules_sorted_by_id(self):
         """Test that rules are sorted by ID."""
@@ -93,6 +102,13 @@ class TestFormattersCatalog:
         assert "enabled" in formatter
         assert "description" in formatter
 
+    def test_get_formatters_catalog_with_config(self):
+        """Test getting the full formatters catalog with the configuration file."""
+        formatters = _get_formatters_catalog(CONFIG_PATH)
+        assert isinstance(formatters, list)
+        assert len(formatters) == 1
+        assert formatters[0]["name"] == "NormalizeSeparators"
+
     def test_formatters_sorted_by_name(self):
         """Test that formatters are sorted by name."""
         formatters = _get_formatters_catalog()
@@ -145,6 +161,16 @@ class TestRuleDetails:
         assert "name" in result
         assert "docs" in result
         assert "parameters" in result
+        assert result["enabled"] is True
+
+    def test_get_rule_details_with_config(self):
+        """Test getting detailed rule info with the configuration file."""
+        result = _get_rule_details("LEN01", CONFIG_PATH)
+        assert result["rule_id"] == "LEN01"
+        assert "name" in result
+        assert "docs" in result
+        assert "parameters" in result
+        assert result["enabled"] is False
 
     def test_get_rule_details_by_name(self):
         """Test getting rule details by name instead of ID."""

@@ -203,6 +203,7 @@ def _lint_files_impl(
     configure: list[str] | None = None,
     group_by: str | None = None,
     summarize_only: bool = False,
+    config_path: Path | None = None,
 ) -> LintFilesResult:
     """
     Lint multiple files specified by paths or glob patterns.
@@ -222,6 +223,7 @@ def _lint_files_impl(
             When set, issues are grouped and limit/offset apply per group.
         summarize_only: If True, return only summary statistics without individual issues.
             Useful for large codebases to reduce response size.
+        config_path: Path to the Robocop toml configuration file
 
     Returns:
         A LintFilesResult model containing linting results.
@@ -252,6 +254,7 @@ def _lint_files_impl(
                 threshold,
                 include_file_in_result=True,
                 configure=configure,
+                config_path=config_path,
             )
             if issues:
                 files_with_issues += 1
@@ -330,11 +333,12 @@ def _format_files_impl(
     file_patterns: list[str],
     base_path: str | None = None,
     select: list[str] | None = None,
-    space_count: int = 4,
-    line_length: int = 120,
+    space_count: int | None = None,
+    line_length: int | None = None,
     *,
     overwrite: bool = False,
     summarize_only: bool = False,
+    config_path: Path | None = None,
 ) -> FormatFilesResult:
     """
     Format multiple Robot Framework files.
@@ -346,6 +350,7 @@ def _format_files_impl(
         space_count: Number of spaces for indentation.
         line_length: Maximum line length.
         overwrite: Whether to overwrite files with formatted content.
+        config_path: Path to the Robocop toml configuration file
         summarize_only: If True, return only summary statistics without per-file results.
             Useful for large codebases to reduce response size.
 
@@ -374,7 +379,9 @@ def _format_files_impl(
 
     for file in files:
         try:
-            result = _format_file_impl(str(file), select, space_count, line_length, overwrite=overwrite)
+            result = _format_file_impl(
+                str(file), select, space_count, line_length, overwrite=overwrite, config_path=config_path
+            )
             if not summarize_only:
                 results.append(
                     FormatFileInfo(

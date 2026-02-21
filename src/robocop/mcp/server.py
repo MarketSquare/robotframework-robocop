@@ -4,10 +4,7 @@ from __future__ import annotations
 
 from fastmcp import FastMCP
 
-# Create the MCP server instance
-mcp = FastMCP(
-    name="robocop",
-    instructions="""
+INSTRUCTIONS = """
 Robocop is a linter and formatter for Robot Framework code. Use it to identify
 issues, auto-fix style problems, and measure code quality.
 
@@ -101,28 +98,7 @@ Use `summarize_only=True` for large codebases:
 Use `worst_files` to prioritize:
 - Identifies which files need the most attention
 - Great starting point for large cleanup efforts
-""",
-)
-
-
-def _register_all() -> None:
-    """Register all tools, resources, prompts, and middleware with the MCP server."""
-    from robocop.mcp.middleware import register_middleware
-    from robocop.mcp.prompts import register_prompts
-    from robocop.mcp.resources import register_resources
-    from robocop.mcp.tools.registration import register_tools
-
-    # Register middleware FIRST (order matters for request pipeline)
-    register_middleware(mcp)
-
-    # Then register tools, resources, prompts
-    register_tools(mcp)
-    register_resources(mcp)
-    register_prompts(mcp)
-
-
-# Register everything at module load time
-_register_all()
+"""
 
 
 def create_server() -> FastMCP:
@@ -133,7 +109,31 @@ def create_server() -> FastMCP:
         FastMCP: The MCP server instance.
 
     """
-    return mcp
+    mcp_instance = FastMCP(
+        name="robocop",
+        instructions=INSTRUCTIONS,
+    )
+    _register_all(mcp_instance)
+    return mcp_instance
+
+
+def _register_all(mcp_instance: FastMCP) -> None:
+    """Register all tools, resources, prompts, and middleware with the MCP server."""
+    from robocop.mcp.middleware import register_middleware
+    from robocop.mcp.prompts import register_prompts
+    from robocop.mcp.resources import register_resources
+    from robocop.mcp.tools.registration import register_tools
+
+    # Register middleware FIRST (order matters for request pipeline)
+    register_middleware(mcp_instance)
+
+    # Then register tools, resources, prompts
+    register_tools(mcp_instance)
+    register_resources(mcp_instance)
+    register_prompts(mcp_instance)
+
+
+mcp = create_server()
 
 
 def main() -> None:

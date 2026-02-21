@@ -1,5 +1,6 @@
 """MCP tool registration - FastMCP server tool registration."""
 
+from pathlib import Path
 from typing import Annotated, Literal
 
 from fastmcp import FastMCP
@@ -77,6 +78,7 @@ def register_tools(mcp: FastMCP) -> None:
         configure: Annotated[
             list[str] | None, Field(description="Rule configurations (e.g., ['line-too-long.line_length=140'])")
         ] = None,
+        config_path: Annotated[Path | None, Field(description="Path to Robocop toml configuration file")] = None,
         ctx: Context | None = None,
     ) -> list[DiagnosticResult]:
         """
@@ -93,8 +95,7 @@ def register_tools(mcp: FastMCP) -> None:
         """
         if ctx:
             await ctx.info(f"Linting content ({len(content)} bytes)...")
-
-        result = _lint_content_impl(content, filename, select, ignore, threshold, limit, configure)
+        result = _lint_content_impl(content, filename, select, ignore, threshold, limit, configure, config_path)
 
         if ctx:
             await ctx.info(f"Found {len(result)} issue(s)")
@@ -116,6 +117,7 @@ def register_tools(mcp: FastMCP) -> None:
         configure: Annotated[
             list[str] | None, Field(description="Rule configurations (e.g., ['line-too-long.line_length=140'])")
         ] = None,
+        config_path: Annotated[Path | None, Field(description="Path to Robocop toml configuration file")] = None,
         ctx: Context | None = None,
     ) -> list[DiagnosticResult]:
         """
@@ -132,7 +134,9 @@ def register_tools(mcp: FastMCP) -> None:
         if ctx:
             await ctx.info(f"Linting file: {file_path}")
 
-        result = _lint_file_impl(file_path, select, ignore, threshold, limit=limit, configure=configure)
+        result = _lint_file_impl(
+            file_path, select, ignore, threshold, limit=limit, configure=configure, config_path=config_path
+        )
 
         if ctx:
             await ctx.info(f"Found {len(result)} issue(s)")
@@ -165,6 +169,7 @@ def register_tools(mcp: FastMCP) -> None:
         configure: Annotated[
             list[str] | None, Field(description="Rule configurations (e.g., ['line-too-long.line_length=140'])")
         ] = None,
+        config_path: Annotated[Path | None, Field(description="Path to Robocop toml configuration file")] = None,
         group_by: Annotated[
             Literal["severity", "rule", "file"] | None,
             Field(description="Group results by severity, rule, or file"),
@@ -192,7 +197,17 @@ def register_tools(mcp: FastMCP) -> None:
             await ctx.info(f"Processing {len(file_patterns)} file pattern(s)...")
 
         return _lint_files_impl(
-            file_patterns, base_path, select, ignore, threshold, limit, offset, configure, group_by, summarize_only
+            file_patterns,
+            base_path,
+            select,
+            ignore,
+            threshold,
+            limit,
+            offset,
+            configure,
+            group_by,
+            summarize_only,
+            config_path,
         )
 
     @mcp.tool(
@@ -209,8 +224,9 @@ def register_tools(mcp: FastMCP) -> None:
         select: Annotated[
             list[str] | None, Field(description="Formatter names to apply (empty = use defaults)")
         ] = None,
-        space_count: Annotated[int, Field(description="Spaces for indentation")] = 4,
-        line_length: Annotated[int, Field(description="Maximum line length")] = 120,
+        space_count: Annotated[int | None, Field(description="Spaces for indentation")] = None,
+        line_length: Annotated[int | None, Field(description="Maximum line length")] = None,
+        config_path: Annotated[Path | None, Field(description="Path to Robocop toml configuration file")] = None,
         ctx: Context | None = None,
     ) -> FormatContentResult:
         """
@@ -227,7 +243,7 @@ def register_tools(mcp: FastMCP) -> None:
         if ctx:
             await ctx.info(f"Formatting content ({len(content)} bytes)...")
 
-        result = _format_content_impl(content, filename, select, space_count, line_length)
+        result = _format_content_impl(content, filename, select, space_count, line_length, config_path)
 
         if ctx:
             status = "Content modified" if result.changed else "No changes needed"
@@ -247,9 +263,10 @@ def register_tools(mcp: FastMCP) -> None:
         select: Annotated[
             list[str] | None, Field(description="Formatter names to apply (empty = use defaults)")
         ] = None,
-        space_count: Annotated[int, Field(description="Spaces for indentation")] = 4,
-        line_length: Annotated[int, Field(description="Maximum line length")] = 120,
+        space_count: Annotated[int | None, Field(description="Spaces for indentation")] = None,
+        line_length: Annotated[int | None, Field(description="Maximum line length")] = None,
         overwrite: Annotated[bool, Field(description="Write formatted content back to file")] = False,
+        config_path: Annotated[Path | None, Field(description="Path to Robocop toml configuration file")] = None,
         ctx: Context | None = None,
     ) -> FormatFileResult:
         """
@@ -270,7 +287,9 @@ def register_tools(mcp: FastMCP) -> None:
             mode = "formatting and overwriting" if overwrite else "formatting (preview)"
             await ctx.info(f"{mode.capitalize()}: {file_path}")
 
-        result = _format_file_impl(file_path, select, space_count, line_length, overwrite=overwrite)
+        result = _format_file_impl(
+            file_path, select, space_count, line_length, overwrite=overwrite, config_path=config_path
+        )
 
         if ctx:
             if result.changed:
@@ -299,12 +318,13 @@ def register_tools(mcp: FastMCP) -> None:
         select: Annotated[
             list[str] | None, Field(description="Formatter names to apply (empty = use defaults)")
         ] = None,
-        space_count: Annotated[int, Field(description="Spaces for indentation")] = 4,
-        line_length: Annotated[int, Field(description="Maximum line length")] = 120,
+        space_count: Annotated[int | None, Field(description="Spaces for indentation")] = None,
+        line_length: Annotated[int | None, Field(description="Maximum line length")] = None,
         overwrite: Annotated[bool, Field(description="Write formatted content back to files")] = False,
         summarize_only: Annotated[
             bool, Field(description="Return only summary stats without per-file results")
         ] = False,
+        config_path: Annotated[Path | None, Field(description="Path to Robocop toml configuration file")] = None,
         ctx: Context | None = None,
     ) -> FormatFilesResult:
         """
@@ -334,6 +354,7 @@ def register_tools(mcp: FastMCP) -> None:
             line_length,
             overwrite=overwrite,
             summarize_only=summarize_only,
+            config_path=config_path,
         )
 
         if ctx:
@@ -367,12 +388,13 @@ def register_tools(mcp: FastMCP) -> None:
         format_select: Annotated[
             list[str] | None, Field(description="Formatter names to apply (empty = use defaults)")
         ] = None,
-        space_count: Annotated[int, Field(description="Spaces for indentation")] = 4,
-        line_length: Annotated[int, Field(description="Maximum line length")] = 120,
+        space_count: Annotated[int | None, Field(description="Spaces for indentation")] = None,
+        line_length: Annotated[int | None, Field(description="Maximum line length")] = None,
         limit: Annotated[int | None, Field(description="Max issues to return (None = no limit)")] = None,
         configure: Annotated[
             list[str] | None, Field(description="Rule configurations (e.g., ['line-too-long.line_length=140'])")
         ] = None,
+        config_path: Annotated[Path | None, Field(description="Path to Robocop toml configuration file")] = None,
         overwrite: Annotated[bool, Field(description="Write formatted content back to file (file_path only)")] = False,
         ctx: Context | None = None,
     ) -> LintAndFormatResult:
@@ -411,6 +433,7 @@ def register_tools(mcp: FastMCP) -> None:
             limit=limit,
             configure=configure,
             overwrite=overwrite,
+            config_path=config_path,
         )
 
         if ctx:
@@ -434,6 +457,7 @@ def register_tools(mcp: FastMCP) -> None:
             Literal["I", "W", "E"] | None, Field(description="Filter by severity: I=Info, W=Warning, E=Error")
         ] = None,
         enabled_only: Annotated[bool, Field(description="Only return rules enabled by default")] = False,
+        config_path: Annotated[Path | None, Field(description="Path to Robocop toml configuration file")] = None,
         ctx: Context | None = None,
     ) -> list[RuleSummary]:
         """
@@ -459,7 +483,7 @@ def register_tools(mcp: FastMCP) -> None:
             filter_str = ", ".join(filters) if filters else "none"
             await ctx.debug(f"Listing rules with filters: {filter_str}")
 
-        return _list_rules_impl(category, severity, enabled_only)
+        return _list_rules_impl(category, severity, enabled_only, config_path)
 
     @mcp.tool(
         tags={"documentation"},
@@ -467,6 +491,7 @@ def register_tools(mcp: FastMCP) -> None:
     )
     async def list_formatters(
         enabled_only: Annotated[bool, Field(description="Only return formatters enabled by default")] = True,
+        config_path: Annotated[Path | None, Field(description="Path to Robocop toml configuration file")] = None,
         ctx: Context | None = None,
     ) -> list[FormatterSummary]:
         """
@@ -483,7 +508,7 @@ def register_tools(mcp: FastMCP) -> None:
         if ctx:
             await ctx.debug(f"Listing formatters (enabled_only={enabled_only})")
 
-        return _list_formatters_impl(enabled_only)
+        return _list_formatters_impl(enabled_only, config_path)
 
     @mcp.tool(
         tags={"documentation"},
@@ -493,6 +518,7 @@ def register_tools(mcp: FastMCP) -> None:
         rule_name_or_id: Annotated[
             str, Field(description="Rule name (e.g., 'too-long-keyword') or ID (e.g., 'LEN01')")
         ],
+        config_path: Annotated[Path | None, Field(description="Path to Robocop toml configuration file")] = None,
         ctx: Context | None = None,
     ) -> RuleDetail:
         """
@@ -510,7 +536,7 @@ def register_tools(mcp: FastMCP) -> None:
         if ctx:
             await ctx.debug(f"Looking up rule: {rule_name_or_id}")
 
-        return _get_rule_info_impl(rule_name_or_id)
+        return _get_rule_info_impl(rule_name_or_id, config_path)
 
     @mcp.tool(
         tags={"documentation"},
@@ -520,6 +546,7 @@ def register_tools(mcp: FastMCP) -> None:
         formatter_name: Annotated[
             str, Field(description="Formatter name (e.g., 'NormalizeSeparators', 'AlignKeywordsSection')")
         ],
+        config_path: Annotated[Path | None, Field(description="Path to Robocop toml configuration file")] = None,
         ctx: Context | None = None,
     ) -> FormatterDetail:
         """
@@ -535,7 +562,7 @@ def register_tools(mcp: FastMCP) -> None:
         if ctx:
             await ctx.debug(f"Looking up formatter: {formatter_name}")
 
-        return _get_formatter_info_impl(formatter_name)
+        return _get_formatter_info_impl(formatter_name, config_path)
 
     @mcp.tool(
         tags={"linting"},
@@ -547,6 +574,7 @@ def register_tools(mcp: FastMCP) -> None:
         rule_ids: Annotated[
             list[str] | None, Field(description="Specific rule IDs to get suggestions for (None = all)")
         ] = None,
+        config_path: Annotated[Path | None, Field(description="Path to Robocop toml configuration file")] = None,
         ctx: Context | None = None,
     ) -> SuggestFixesResult:
         """
@@ -563,7 +591,7 @@ def register_tools(mcp: FastMCP) -> None:
         if ctx:
             await ctx.info(f"Analyzing content for fix suggestions ({len(content)} bytes)...")
 
-        result = _suggest_fixes_impl(content, filename, rule_ids)
+        result = _suggest_fixes_impl(content, filename, rule_ids, config_path)
 
         if ctx:
             await ctx.info(
@@ -621,6 +649,7 @@ def register_tools(mcp: FastMCP) -> None:
         line: Annotated[int, Field(description="Line number to explain (1-indexed)")],
         filename: Annotated[str, Field(description="Virtual filename (affects file type detection)")] = "stdin.robot",
         context_lines: Annotated[int, Field(description="Lines to show before/after the target line")] = 3,
+        config_path: Annotated[Path | None, Field(description="Path to Robocop toml configuration file")] = None,
         ctx: Context | None = None,
     ) -> ExplainIssueResult:
         """
@@ -637,7 +666,7 @@ def register_tools(mcp: FastMCP) -> None:
         if ctx:
             await ctx.info(f"Explaining issues at line {line}...")
 
-        result = _explain_issue_impl(content, line, filename, context_lines)
+        result = _explain_issue_impl(content, line, filename, context_lines, config_path)
 
         if ctx:
             if result.issues_found:
@@ -664,6 +693,7 @@ def register_tools(mcp: FastMCP) -> None:
         configure: Annotated[
             list[str] | None, Field(description="Rule configurations (e.g., ['line-too-long.line_length=140'])")
         ] = None,
+        config_path: Annotated[Path | None, Field(description="Path to Robocop toml configuration file")] = None,
         ctx: Context | None = None,
     ) -> WorstFilesResult:
         """
@@ -688,6 +718,7 @@ def register_tools(mcp: FastMCP) -> None:
             ignore=ignore,
             threshold=threshold,
             configure=configure,
+            config_path=config_path,
         )
 
         if ctx:
@@ -712,6 +743,7 @@ def register_tools(mcp: FastMCP) -> None:
             Literal["I", "W", "E"] | None, Field(description="Filter by severity: I=Info, W=Warning, E=Error")
         ] = None,
         limit: Annotated[int, Field(description="Maximum results to return")] = 20,
+        config_path: Annotated[Path | None, Field(description="Path to Robocop toml configuration file")] = None,
         ctx: Context | None = None,
     ) -> list[RuleSearchResult]:
         """
@@ -729,7 +761,7 @@ def register_tools(mcp: FastMCP) -> None:
         if ctx:
             await ctx.debug(f"Searching rules for: {query}")
 
-        return _search_rules_impl(query, fields, category, severity, limit)
+        return _search_rules_impl(query, fields, category, severity, limit, config_path)
 
     @mcp.tool(
         tags={"documentation"},
@@ -749,7 +781,7 @@ def register_tools(mcp: FastMCP) -> None:
         if ctx:
             await ctx.debug("Listing available prompts")
 
-        return _list_prompts_impl()
+        return _list_prompts_impl(mcp)
 
     @mcp.tool(
         tags={"linting", "fixing"},

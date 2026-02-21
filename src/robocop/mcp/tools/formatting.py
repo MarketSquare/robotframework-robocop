@@ -26,6 +26,7 @@ def _format_content_impl(
     select: list[str] | None = None,
     space_count: int | None = None,
     line_length: int | None = None,
+    config_path: Path | None = None,
 ) -> FormatContentResult:
     """
     Format content and return the result.
@@ -36,6 +37,7 @@ def _format_content_impl(
         select: A list of formatter names to apply.
         space_count: Number of spaces for indentation.
         line_length: Maximum line length.
+        config_path: Path to the Robocop toml configuration file
 
     Returns:
         A FormatContentResult model containing formatted code, changed flag, and diff.
@@ -58,10 +60,7 @@ def _format_content_impl(
             )
             raw_config = RawConfig(formatter=formatter_config, silent=True)
 
-            config_manager = ConfigManager(
-                sources=[str(tmp_path)],
-                overwrite_config=raw_config,
-            )
+            config_manager = ConfigManager(sources=[str(tmp_path)], overwrite_config=raw_config, config=config_path)
             config = config_manager.default_config
             resolved_config = ConfigResolver(load_formatters=True).resolve_config(config)
 
@@ -100,6 +99,7 @@ def _format_file_impl(
     line_length: int | None = None,
     *,
     overwrite: bool = False,
+    config_path: Path | None = None,
 ) -> FormatFileResult:
     """
     Format a Robot Framework file.
@@ -110,6 +110,7 @@ def _format_file_impl(
         space_count: Number of spaces for indentation.
         line_length: Maximum line length.
         overwrite: Whether to overwrite the file with formatted content.
+        config_path: Path to the Robocop toml configuration file
 
     Returns:
         A FormatFileResult model containing the formatting result.
@@ -131,7 +132,9 @@ def _format_file_impl(
         content = path.read_text(encoding="utf-8")
 
         # Format using existing implementation
-        format_result = _format_content_impl(content, path.name, select, space_count, line_length)
+        format_result = _format_content_impl(
+            content, path.name, select, space_count, line_length, config_path=config_path
+        )
 
         # Optionally overwrite the file
         written = False
@@ -159,12 +162,13 @@ def _lint_and_format_impl(
     lint_ignore: list[str] | None = None,
     threshold: str = "I",
     format_select: list[str] | None = None,
-    space_count: int = 4,
-    line_length: int = 120,
+    space_count: int | None = None,
+    line_length: int | None = None,
     limit: int | None = None,
     configure: list[str] | None = None,
     *,
     overwrite: bool = False,
+    config_path: Path | None = None,
 ) -> LintAndFormatResult:
     """
     Format Robot Framework code and lint the result in one operation.
@@ -182,6 +186,7 @@ def _lint_and_format_impl(
         limit: Maximum number of issues to return.
         configure: List of rule configurations.
         overwrite: Whether to overwrite the file with formatted content (only when file_path is used).
+        config_path: Path to the Robocop toml configuration file
 
     Returns:
         A LintAndFormatResult model containing the lint and format results.
@@ -218,10 +223,14 @@ def _lint_and_format_impl(
     content = cast("str", content)
 
     # Count issues in original code
-    issues_before = _lint_content_impl(content, filename, lint_select, lint_ignore, threshold, configure=configure)
+    issues_before = _lint_content_impl(
+        content, filename, lint_select, lint_ignore, threshold, configure=configure, config_path=config_path
+    )
 
     # Format the code
-    format_result = _format_content_impl(content, filename, format_select, space_count, line_length)
+    format_result = _format_content_impl(
+        content, filename, format_select, space_count, line_length, config_path=config_path
+    )
 
     # Lint the formatted code without limit first for accurate counts
     issues_after_full = _lint_content_impl(
@@ -231,6 +240,7 @@ def _lint_and_format_impl(
         lint_ignore,
         threshold,
         configure=configure,
+        config_path=config_path,
     )
     issues_after_count = len(issues_after_full)
 

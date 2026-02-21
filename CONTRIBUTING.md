@@ -44,7 +44,7 @@ pip install nox
 And multiple Python versions:
 
 ```commandline
-uv python install 3.9 3.10 3.11 3.12 3.13
+uv python install 3.10 3.11 3.12 3.13
 ```
 
 To run all nox sessions (defined in ``noxfile.py``), run in the root of the project:

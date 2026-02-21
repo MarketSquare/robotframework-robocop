@@ -10,18 +10,23 @@ from fastmcp.exceptions import ResourceError
 from robocop.mcp.cache import get_formatter_config, get_linter_config
 
 if TYPE_CHECKING:
+    from pathlib import Path
+
     from fastmcp import FastMCP
 
 
-def _get_rules_catalog() -> list[dict[str, Any]]:
+def _get_rules_catalog(config_path: Path | None = None) -> list[dict[str, Any]]:
     """
     Get catalog of all available linting rules.
+
+    Args:
+        config_path: Path to the Robocop toml configuration file
 
     Returns:
         list[dict[str, Any]]: List of rules with basic information.
 
     """
-    linter_config = get_linter_config()
+    linter_config = get_linter_config(config_path)
 
     # Use a set to deduplicate (rules dict has both id and name pointing to same rule)
     seen_ids: set[str] = set()
@@ -47,15 +52,18 @@ def _get_rules_catalog() -> list[dict[str, Any]]:
     return sorted(rules, key=operator.itemgetter("rule_id"))
 
 
-def _get_formatters_catalog() -> list[dict[str, Any]]:
+def _get_formatters_catalog(config_path: Path | None = None) -> list[dict[str, Any]]:
     """
     Get catalog of all available formatters.
+
+    Args:
+        config_path: Path to the Robocop toml configuration file
 
     Returns:
         list[dict[str, Any]]: List of formatters with basic information.
 
     """
-    formatter_config = get_formatter_config()
+    formatter_config = get_formatter_config(config_path)
 
     formatters = []
     for name, formatter in formatter_config.formatters.items():
@@ -73,19 +81,20 @@ def _get_formatters_catalog() -> list[dict[str, Any]]:
     return sorted(formatters, key=operator.itemgetter("name"))
 
 
-def _get_rule_details(rule_id: str) -> dict[str, Any]:
+def _get_rule_details(rule_id: str, config_path: Path | None = None) -> dict[str, Any]:
     """
     Get detailed information about a specific rule.
 
     Args:
         rule_id: Rule ID (e.g., "LEN01") or name (e.g., "too-long-keyword")
+        config_path: Path to the Robocop toml configuration file
 
     Returns:
         dict[str, Any]: Detailed rule information including full documentation
         and configurable parameters.
 
     """
-    linter_config = get_linter_config()
+    linter_config = get_linter_config(config_path)
 
     if rule_id not in linter_config.rules:
         raise ResourceError(f"Rule '{rule_id}' not found")
@@ -123,7 +132,7 @@ def _get_rule_details(rule_id: str) -> dict[str, Any]:
 def register_resources(mcp: FastMCP) -> None:
     """Register all MCP resources with the server."""
 
-    @mcp.resource("robocop://rules")
+    @mcp.resource("robocop://rules")  # FIXME: add config handling
     def get_rules_catalog() -> list[dict[str, Any]]:
         """
         Get catalog of all available linting rules.

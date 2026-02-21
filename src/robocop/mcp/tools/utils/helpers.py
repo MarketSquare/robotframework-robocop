@@ -50,6 +50,7 @@ def _iter_unique_rules(
     category: str | None = None,
     severity: str | None = None,
     enabled_only: bool = False,
+    config_path: Path | None = None,
 ) -> Generator[Rule, None, None]:
     """
     Yield unique rules with optional filtering.
@@ -58,6 +59,7 @@ def _iter_unique_rules(
         category: Filter by rule category/group (e.g., "LEN", "NAME", "DOC").
         severity: Filter by severity ("I", "W", or "E").
         enabled_only: If True, only yield enabled rules.
+        config_path: Path to the Robocop toml configuration file
 
     Yields:
         Rule objects matching the filters.
@@ -65,7 +67,7 @@ def _iter_unique_rules(
     """
     from robocop.mcp.cache import get_linter_config
 
-    linter_config = get_linter_config()
+    linter_config = get_linter_config(config_path)
     seen_ids: set[str] = set()
 
     for rule in linter_config.rules.values():

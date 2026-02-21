@@ -127,6 +127,7 @@ def _get_fix_context_impl(
     line: int | None = None,
     rule_ids: list[str] | None = None,
     context_lines: int = 5,
+    config_path: Path | None = None,
 ) -> GetFixContextResult:
     """
     Get context for LLM-assisted fixing of Robot Framework code issues.
@@ -138,6 +139,7 @@ def _get_fix_context_impl(
         line: Specific line to get context for (None = all issues).
         rule_ids: Filter to specific rule IDs.
         context_lines: Lines of context before and after target.
+        config_path: Path to the Robocop toml configuration file
 
     Returns:
         A GetFixContextResult with all context needed for LLM to generate a fix.
@@ -192,7 +194,7 @@ def _get_fix_context_impl(
     snippet_content = _extract_snippet(content, start_line, end_line)
 
     # Get rule details for each issue
-    linter_config = get_linter_config()
+    linter_config = get_linter_config(config_path)
     rules = linter_config.rules
 
     issues_for_fix: list[IssueForFix] = []

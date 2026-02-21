@@ -1,0 +1,5 @@
+[tool.robocop.lint]
+select = ["DOC*"]
+
+[tool.robocop.format]
+select = ["NormalizeSeparators"]

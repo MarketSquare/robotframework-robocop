@@ -2,7 +2,7 @@
 
 ## Requirements
 
-Python 3.9+ and Robot Framework 4+.
+Python 3.10+ and Robot Framework 5+.
 
 ## Installation
 

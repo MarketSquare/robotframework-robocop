@@ -29,9 +29,7 @@ from robocop.mcp.tools.models import (
 
 
 def _suggest_fixes_impl(
-    content: str,
-    filename: str = "stdin.robot",
-    rule_ids: list[str] | None = None,
+    content: str, filename: str = "stdin.robot", rule_ids: list[str] | None = None, config_path: Path | None = None
 ) -> SuggestFixesResult:
     """
     Suggest fixes for linting issues in Robot Framework code.
@@ -40,6 +38,7 @@ def _suggest_fixes_impl(
         content: The Robot Framework source code to analyze.
         filename: The virtual filename (affects parsing).
         rule_ids: Optional list of rule IDs to get suggestions for.
+        config_path: Path to the Robocop toml configuration file
 
     Returns:
         A SuggestFixesResult model containing fix suggestions.
@@ -51,7 +50,7 @@ def _suggest_fixes_impl(
     issues = _lint_content_impl(content, filename, select=rule_ids)
 
     # Get rule objects to look up fix_suggestion attribute
-    linter_config = get_linter_config()
+    linter_config = get_linter_config(config_path)
     rules = linter_config.rules
 
     fixes: list[FixSuggestion] = []
@@ -274,6 +273,7 @@ def _explain_issue_impl(
     line: int,
     filename: str = "stdin.robot",
     context_lines: int = 3,
+    config_path: Path | None = None,
 ) -> ExplainIssueResult:
     """
     Explain a specific issue at a given line with context.
@@ -283,6 +283,7 @@ def _explain_issue_impl(
         line: The line number to explain (1-indexed).
         filename: The virtual filename.
         context_lines: Number of context lines to include before and after.
+        config_path: Path to the Robocop toml configuration file
 
     Returns:
         An ExplainIssueResult model containing the issue explanation with context.
@@ -306,7 +307,7 @@ def _explain_issue_impl(
         )
 
     # Get rule documentation for issues
-    linter_config = get_linter_config()
+    linter_config = get_linter_config(config_path)
     rules = linter_config.rules
 
     explanations: list[IssueExplanation] = []
@@ -366,6 +367,7 @@ def _worst_files_impl(
     ignore: list[str] | None = None,
     threshold: str = "I",
     configure: list[str] | None = None,
+    config_path: Path | None = None,
 ) -> WorstFilesResult:
     """
     Get the N files with the most linting issues.
@@ -381,6 +383,7 @@ def _worst_files_impl(
         ignore: List of rule IDs to ignore.
         threshold: Minimum severity threshold (I/W/E).
         configure: List of rule configurations.
+        config_path: Path to the Robocop toml configuration file
 
     Returns:
         A WorstFilesResult model containing:
@@ -418,6 +421,7 @@ def _worst_files_impl(
                 threshold,
                 include_file_in_result=False,
                 configure=configure,
+                config_path=config_path,
             )
 
             if issues:

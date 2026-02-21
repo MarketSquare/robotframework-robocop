@@ -2,7 +2,7 @@
 
 import asyncio
 
-from robocop.mcp import create_server, mcp
+from robocop.mcp import mcp
 
 
 class TestServerInitialization:
@@ -12,11 +12,6 @@ class TestServerInitialization:
         """Test that the server is created successfully."""
         assert mcp is not None
         assert mcp.name == "robocop"
-
-    def test_create_server_returns_same_instance(self):
-        """Test that create_server returns the singleton instance."""
-        server = create_server()
-        assert server is mcp
 
     def test_server_has_instructions(self):
         """Test that server has instructions set."""

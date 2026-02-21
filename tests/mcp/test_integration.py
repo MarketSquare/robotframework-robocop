@@ -8,6 +8,9 @@ import pytest
 from fastmcp.exceptions import ToolError
 
 from robocop.mcp import mcp
+from tests import TEST_DATA_LINTER_DIR
+
+CONFIG_PATH = TEST_DATA_LINTER_DIR / "one_select" / "pyproject.toml"
 
 
 @pytest.fixture(scope="module")
@@ -194,6 +197,29 @@ class TestLintContentTool:
 
         assert isinstance(result, list)
 
+    def test_lint_code_with_config(self, mcp_tools):
+        """User lints code with obvious problems and gets diagnostic issues."""
+        lint_content = mcp_tools["lint_content"]
+
+        content = dedent(
+            """
+            *** Test Cases ***
+            test without capital
+                log  hello
+        """
+        ).lstrip()
+
+        result = run_tool(lint_content, content=content, config_path=CONFIG_PATH)
+
+        assert len(result) > 0
+        assert all(diag.rule_id.startswith("DOC") for diag in result)
+
+        # Verify each issue has the expected structure (DiagnosticResult model validates required fields)
+        for issue in result:
+            assert issue.severity in ("E", "W", "I")
+            assert issue.line >= 1
+            assert issue.column >= 1
+
 
 class TestLintFileTool:
     """Acceptance tests for lint_file MCP tool."""
@@ -257,6 +283,27 @@ class TestLintFileTool:
         )
         assert not any(issue.rule_id == "LEN08" for issue in configured_result)
 
+    def test_lint_existing_file_with_config(self, mcp_tools, tmp_path: Path):
+        """User lints an existing Robot Framework file."""
+        lint_file = mcp_tools["lint_file"]
+
+        robot_file = tmp_path / "test.robot"
+        robot_file.write_text(
+            dedent(
+                """
+            *** Test Cases ***
+            test lowercase
+                log  hello
+        """
+            ).lstrip()
+        )
+
+        result = run_tool(lint_file, file_path=str(robot_file), config_path=CONFIG_PATH)
+
+        assert isinstance(result, list)
+        assert len(result) > 0
+        assert all(diag.rule_id.startswith("DOC") for diag in result)
+
 
 class TestFormatContentTool:
     """Acceptance tests for format_content MCP tool."""
@@ -279,6 +326,24 @@ class TestFormatContentTool:
         # FormatContentResult model validates required fields exist
         assert result.changed is True
 
+    def test_format_normalizes_separators_with_config(self, mcp_tools):
+        """User formats code with inconsistent separators."""
+        format_content = mcp_tools["format_content"]
+
+        content = dedent(
+            """
+            *** Test Cases ***
+            Test
+                log  hello
+                log    world
+        """
+        ).lstrip()
+
+        result = run_tool(format_content, content=content, config_path=CONFIG_PATH)
+
+        # FormatContentResult model validates required fields exist
+        assert result.changed is True
+
     def test_format_unchanged_content(self, mcp_tools):
         """User formats already well-formatted code."""
         format_content = mcp_tools["format_content"]
@@ -292,7 +357,25 @@ class TestFormatContentTool:
         ).lstrip()
 
         result = run_tool(format_content, content=content)
-        assert isinstance(result.changed, bool)
+        assert result.changed is False
+
+    def test_format_unchanged_content_with_config(self, mcp_tools):
+        """User formats code that is well-formatted only with specific config."""
+        format_content = mcp_tools["format_content"]
+
+        content = dedent(
+            """
+            *** Test Cases ***
+            Test
+                Log    Hello
+
+
+
+        """
+        ).lstrip()
+
+        result = run_tool(format_content, content=content, config_path=CONFIG_PATH)
+        assert result.changed is False
 
     def test_format_with_specific_formatter(self, mcp_tools):
         """User applies only specific formatters."""
@@ -335,6 +418,25 @@ class TestLintAndFormatTool:
         # Formatting should have fixed some issues
         assert result.issues_fixed >= 0
         assert len(result.issues) <= result.issues_before
+
+    def test_lint_and_format_workflow_with_config(self, mcp_tools):
+        """User formats code and sees remaining issues."""
+        lint_and_format = mcp_tools["lint_and_format"]
+
+        content = dedent(
+            """
+            *** Test Cases ***
+            test lowercase
+                log  hello
+                log    world
+        """
+        ).lstrip()
+
+        result = run_tool(lint_and_format, content=content, config_path=CONFIG_PATH)
+
+        # Since we select only DOC rules and NormalizeSeparators formatter, we shouldn't fix anything
+        assert result.issues_fixed == 0
+        assert len(result.issues) == result.issues_before
 
     def test_lint_and_format_with_limit(self, mcp_tools):
         """User formats code and limits the number of remaining issues shown."""
@@ -403,6 +505,17 @@ class TestGetRuleInfoTool:
 
         assert result.name == "too-long-keyword"
         assert result.rule_id == "LEN01"
+        assert result.enabled is True
+
+    def test_get_rule_by_id_with_config(self, mcp_tools):
+        """User looks up a rule by ID."""
+        get_rule_info = mcp_tools["get_rule_info"]
+
+        result = run_tool(get_rule_info, rule_name_or_id="LEN01", config_path=CONFIG_PATH)
+
+        assert result.rule_id == "LEN01"
+        assert result.docs is not None  # Optional field - verify it exists for this rule
+        assert result.enabled is False
 
     def test_get_nonexistent_rule(self, mcp_tools):
         """User looks up a rule that doesn't exist."""
@@ -419,10 +532,18 @@ class TestGetFormatterInfoTool:
         """User looks up a formatter."""
         get_formatter_info = mcp_tools["get_formatter_info"]
 
-        result = run_tool(get_formatter_info, formatter_name="NormalizeSeparators")
+        result = run_tool(get_formatter_info, formatter_name="NormalizeNewLines")
 
-        assert result.name == "NormalizeSeparators"
+        assert result.name == "NormalizeNewLines"
+        assert result.enabled is True
         # FormatterDetail model validates all required fields exist
+
+    def test_get_formatter_info_with_config(self, mcp_tools):
+        """User looks up a formatter that is outside select filter."""
+        get_formatter_info = mcp_tools["get_formatter_info"]
+
+        with pytest.raises(ToolError, match="not found"):
+            run_tool(get_formatter_info, formatter_name="NormalizeNewLines", config_path=CONFIG_PATH)
 
     def test_get_formatter_parameters(self, mcp_tools):
         """User looks up formatter parameters."""
@@ -610,6 +731,21 @@ class TestFormatFileTool:
         with pytest.raises(ToolError, match="File not found"):
             run_tool(format_file, file_path="/nonexistent/path/test.robot")
 
+    def test_format_file_preview_with_config(self, mcp_tools, tmp_path: Path):
+        """User previews formatting changes without modifying file."""
+        format_file = mcp_tools["format_file"]
+
+        robot_file = tmp_path / "test.robot"
+        original_content = "*** Test Cases ***\nTest\n    log  hello\n"
+        robot_file.write_text(original_content)
+
+        result = run_tool(format_file, file_path=str(robot_file), config_path=CONFIG_PATH)
+
+        assert result.changed is True
+        assert result.written is False
+        # File should not have been modified
+        assert robot_file.read_text() == original_content
+
 
 class TestFormatFilesTool:
     """Acceptance tests for format_files MCP tool."""
@@ -624,6 +760,23 @@ class TestFormatFilesTool:
         (subdir / "test2.robot").write_text("*** Test Cases ***\nTest\n    log  b\n")
 
         result = run_tool(format_files, file_patterns=["tests/*.robot"], base_path=str(tmp_path))
+
+        assert result.total_files == 2
+        assert result.files_changed >= 0
+        assert result.files_written == 0  # Not overwritten by default
+
+    def test_format_files_with_glob_and_config(self, mcp_tools, tmp_path: Path):
+        """User formats multiple files using a glob pattern."""
+        format_files = mcp_tools["format_files"]
+
+        subdir = tmp_path / "tests"
+        subdir.mkdir()
+        (subdir / "test1.robot").write_text("*** Test Cases ***\nTest\n    log  a\n")
+        (subdir / "test2.robot").write_text("*** Test Cases ***\nTest\n    log  b\n")
+
+        result = run_tool(
+            format_files, file_patterns=["tests/*.robot"], base_path=str(tmp_path), config_path=CONFIG_PATH
+        )
 
         assert result.total_files == 2
         assert result.files_changed >= 0

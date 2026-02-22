@@ -48,6 +48,13 @@ More detailed notes regarding 8.0.0 [here](8.0.0.md).
 * Fix rst-style urls in the documentation (#1640) (eb1dcab)
 * Update RenameVariables formatter so it treats numbers as part of word and does not split on it (#1663) (eddfd96)
 
+## [8.2.0](https://github.com/MarketSquare/robotframework-robocop/compare/v8.1.1...v8.2.0) (2026-02-22)
+
+
+### Features
+
+* **mcp:** Allow to pass configuration file path via MCP tools ([#1691](https://github.com/MarketSquare/robotframework-robocop/issues/1691)) ([da5dc6e](https://github.com/MarketSquare/robotframework-robocop/commit/da5dc6e04cda7764608fd10abf4e9e7574836a2e))
+
 ## [8.1.1](https://github.com/MarketSquare/robotframework-robocop/compare/v8.1.0...v8.1.1) (2026-02-20)
 
 

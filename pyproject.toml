@@ -51,7 +51,7 @@ robocop-mcp = "robocop.mcp.server:main"
 
 [project.optional-dependencies]
 mcp = [
-    "fastmcp>=2.13.0"
+    "fastmcp>=2.13.0,<3"
 ]
 
 [project.urls]

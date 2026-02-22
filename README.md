@@ -42,7 +42,7 @@ The most common questions with answers can be found at the bottom ⬇ of this RE
 
 ## Requirements
 
-Python 3.9+ :snake: and Robot Framework 4.0+ :robot:.
+Python 3.10+ :snake: and Robot Framework 5.0+ :robot:.
 
 ## Installation
 

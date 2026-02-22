@@ -24,9 +24,6 @@ Install Robocop with MCP support:
 pip install robotframework-robocop[mcp]
 ```
 
-!!! note "Python Version Requirement"
-    MCP support requires Python 3.10 or higher. The core Robocop functionality still supports Python 3.9+.
-
 ### Running the Server
 
 #### Standalone (Testing)
@@ -139,6 +136,14 @@ If the server doesn't appear or tools don't work:
 4. **Check config syntax**: Ensure valid JSON (no trailing commas)
 5. **Path issues**: If `robocop-mcp` isn't found, use the full path (e.g., `/usr/local/bin/robocop-mcp`)
 
+### Configuration
+
+Robocop MCP loads its configuration in this order:
+
+- from the default config file when the MCP server is started in a directory that contains it
+- from a config file provided via the `config_path` tool parameter
+- from any tool-specific override options, when available
+
 ### Available Tools
 
 #### Linting Tools
@@ -147,15 +152,16 @@ If the server doesn't appear or tools don't work:
 
 Lint Robot Framework code provided as text content.
 
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `content` | string | Robot Framework source code to lint (required) |
-| `filename` | string | Virtual filename for file type detection (default: "stdin.robot") |
+| Parameter | Type      | Description |
+|-----------|-----------|-------------|
+| `content` | string    | Robot Framework source code to lint (required) |
+| `filename` | string    | Virtual filename for file type detection (default: "stdin.robot") |
 | `select` | list[str] | Rule IDs/names to enable (e.g., `["LEN01", "too-long-keyword"]`) |
 | `ignore` | list[str] | Rule IDs/names to ignore |
-| `threshold` | string | Minimum severity: `I` (Info), `W` (Warning), or `E` (Error) |
-| `limit` | int | Maximum number of issues to return |
+| `threshold` | string    | Minimum severity: `I` (Info), `W` (Warning), or `E` (Error) |
+| `limit` | int       | Maximum number of issues to return |
 | `configure` | list[str] | Rule configurations (e.g., `["line-too-long.line_length=140"]`) |
+| `config_path` | Path | Path to the Robocop toml configuration file |
 
 **Returns:** List of diagnostic issues, each containing `rule_id`, `name`, `message`, `severity`, `line`, `column`, `end_line`, `end_column`.
 
@@ -171,6 +177,7 @@ Lint a single Robot Framework file from disk.
 | `threshold` | string | Minimum severity: `I`, `W`, or `E` |
 | `limit` | int | Maximum number of issues to return |
 | `configure` | list[str] | Rule configurations |
+| `config_path` | Path | Path to the Robocop toml configuration file |
 
 **Returns:** List of diagnostic issues (same format as lint_content).
 
@@ -190,6 +197,7 @@ Lint multiple Robot Framework files using paths or glob patterns. Useful for che
 | `configure` | list[str] | Rule configurations |
 | `group_by` | string | Group results: `"severity"`, `"rule"`, or `"file"` |
 | `summarize_only` | bool | Return only stats without individual issues (default: false) |
+| `config_path` | Path | Path to the Robocop toml configuration file |
 
 **Returns:** Dictionary with `total_files`, `total_issues`, `files_with_issues`, `issues` (omitted when `summarize_only`), `summary`, `limited`, `offset`, `has_more`, `unmatched_patterns`, `group_counts` (when grouped), and `top_rules` (when `summarize_only`).
 
@@ -202,6 +210,7 @@ Analyze Robot Framework code and get actionable fix suggestions for each issue.
 | `content` | string | Robot Framework source code to analyze (required) |
 | `filename` | string | Virtual filename (default: "stdin.robot") |
 | `rule_ids` | list[str] | Specific rule IDs to get suggestions for |
+| `config_path` | Path | Path to the Robocop toml configuration file |
 
 **Returns:** Dictionary with:
 
@@ -224,6 +233,7 @@ Format Robot Framework code and return the formatted result.
 | `select` | list[str] | Formatter names to apply (default: all enabled formatters) |
 | `space_count` | int | Spaces for indentation (default: 4) |
 | `line_length` | int | Maximum line length (default: 120) |
+| `config_path` | Path | Path to the Robocop toml configuration file |
 
 **Returns:** Dictionary with `formatted` (the code), `changed` (boolean), and `diff` (unified diff if changed).
 
@@ -245,6 +255,7 @@ Format Robot Framework code and lint the result in one operation. **Recommended 
 | `limit` | int | Maximum issues to return |
 | `configure` | list[str] | Rule configurations |
 | `overwrite` | bool | If True and `file_path` is used, write formatted content back to file (default: false) |
+| `config_path` | Path | Path to the Robocop toml configuration file |
 
 **Returns:** Dictionary with `formatted`, `changed`, `diff`, `issues` (remaining), `issues_before`, `issues_after`, `issues_fixed`. When `file_path` is used, also includes `file` and `written`.
 
@@ -259,6 +270,7 @@ Format a Robot Framework file from disk. Can optionally overwrite the file with 
 | `space_count` | int | Spaces for indentation (default: 4) |
 | `line_length` | int | Maximum line length (default: 120) |
 | `overwrite` | bool | Write formatted content back to file (default: false) |
+| `config_path` | Path | Path to the Robocop toml configuration file |
 
 **Returns:** Dictionary with `file`, `formatted`, `changed`, `diff`, and `written` (whether file was overwritten).
 
@@ -275,6 +287,7 @@ Format multiple Robot Framework files using paths or glob patterns. Can optional
 | `line_length` | int | Maximum line length (default: 120) |
 | `overwrite` | bool | Write formatted content back to files (default: false) |
 | `summarize_only` | bool | Return only stats without per-file results (default: false) |
+| `config_path` | Path | Path to the Robocop toml configuration file |
 
 **Returns:** Dictionary with `total_files`, `files_changed`, `files_unchanged`, `files_written`, `results` (omitted when `summarize_only`), `errors`, `unmatched_patterns`.
 
@@ -334,6 +347,7 @@ Explain a specific issue at a given line with surrounding context. More detailed
 | `line` | int | The line number to explain (1-indexed, required) |
 | `filename` | string | Virtual filename (default: "stdin.robot") |
 | `context_lines` | int | Number of lines to show before/after (default: 3) |
+| `config_path` | Path | Path to the Robocop toml configuration file |
 
 **Returns:** Dictionary with:
 
@@ -359,6 +373,7 @@ Get rich context for LLM-assisted fixing of Robot Framework code issues. This to
 | `line` | int | Specific line to get context for (None = all issues) |
 | `rule_ids` | list[str] | Filter to specific rule IDs (e.g., `["LEN01", "NAME02"]`) |
 | `context_lines` | int | Lines of context before and after target (default: 5) |
+| `config_path` | Path | Path to the Robocop toml configuration file |
 
 **Returns:** Dictionary with:
 
@@ -423,6 +438,7 @@ List all available linting rules with optional filtering.
 | `category` | string | Filter by category: `"LEN"`, `"NAME"`, `"DOC"`, `"SPACE"`, etc. |
 | `severity` | string | Filter by severity: `"I"`, `"W"`, or `"E"` |
 | `enabled_only` | bool | Only return enabled rules (default: false) |
+| `config_path` | Path | Path to the Robocop toml configuration file |
 
 **Returns:** List of rule summaries with `rule_id`, `name`, `severity`, `enabled`, `message`.
 
@@ -433,6 +449,7 @@ List all available formatters.
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | `enabled_only` | bool | Only return enabled formatters (default: true) |
+| `config_path` | Path | Path to the Robocop toml configuration file |
 
 **Returns:** List of formatter summaries with `name`, `enabled`, `description`.
 
@@ -443,6 +460,7 @@ Get detailed documentation for a specific linting rule.
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | `rule_name_or_id` | string | Rule name (e.g., `"too-long-keyword"`) or ID (e.g., `"LEN01"`) (required) |
+| `config_path` | Path | Path to the Robocop toml configuration file |
 
 **Returns:** Dictionary with `rule_id`, `name`, `message`, `severity`, `enabled`, `deprecated`, `docs`, `parameters`, `added_in_version`, `version_requirement`.
 
@@ -453,6 +471,7 @@ Get detailed documentation for a specific formatter.
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | `formatter_name` | string | Formatter name (e.g., `"NormalizeSeparators"`) (required) |
+| `config_path` | Path | Path to the Robocop toml configuration file |
 
 **Returns:** Dictionary with `name`, `enabled`, `docs`, `min_version`, `parameters`, `skip_options`.
 
@@ -467,6 +486,7 @@ Search for linting rules by keyword. Searches across rule names, messages, and d
 | `category` | string | Filter by category: `"LEN"`, `"NAME"`, `"DOC"`, etc. |
 | `severity` | string | Filter by severity: `"I"`, `"W"`, or `"E"` |
 | `limit` | int | Maximum results to return (default: 20) |
+| `config_path` | Path | Path to the Robocop toml configuration file |
 
 **Returns:** List of matching rules with `rule_id`, `name`, `message`, `severity`, `enabled`, `match_field`, `match_snippet`.
 

@@ -22,8 +22,8 @@ from robocop.source_file import SourceFile, VirtualSourceFile
 if TYPE_CHECKING:
     from robot.parsing import File
 
-    from robocop.config import Config
     from robocop.config.manager import ConfigManager
+    from robocop.config.schema import Config
     from robocop.linter.diagnostics import Diagnostic
 
 

@@ -6,7 +6,7 @@ import robocop.linter.reports
 from robocop import __version__
 
 if TYPE_CHECKING:
-    from robocop.config import Config
+    from robocop.config.schema import Config
 
 
 class RobocopVersionReport(robocop.linter.reports.ComparableReport):

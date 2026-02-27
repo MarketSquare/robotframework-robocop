@@ -15,7 +15,7 @@ from robocop.files import get_relative_path
 from robocop.formatter.utils.misc import decorate_diff_with_color
 
 if TYPE_CHECKING:
-    from robocop.config import Config
+    from robocop.config.schema import Config
     from robocop.linter.diagnostics import Diagnostic, Diagnostics, RunStatistic
     from robocop.source_file import SourceFile
 

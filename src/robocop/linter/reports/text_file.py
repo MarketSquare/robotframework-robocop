@@ -8,7 +8,7 @@ from robocop.exceptions import FatalError
 from robocop.files import get_relative_path
 
 if TYPE_CHECKING:
-    from robocop.config import Config
+    from robocop.config.schema import Config
     from robocop.linter.diagnostics import Diagnostics
 
 

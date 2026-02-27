@@ -21,7 +21,7 @@ if TYPE_CHECKING:
     from robot.parsing.model import File
     from robot.parsing.model.statements import Statement
 
-    from robocop.config import Config
+    from robocop.config.schema import Config
 
 
 @dataclass

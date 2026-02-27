@@ -393,7 +393,7 @@ def check_files(
         verbose=verbose,
         target_version=target_version,
     )
-    manager = config.ConfigManager(
+    manager = config.manager.ConfigManager(
         sources=sources,
         config=configuration_file,
         root=root,
@@ -509,7 +509,7 @@ def check_project(
         silent=silent,
         target_version=target_version,
     )
-    manager = config.ConfigManager(
+    manager = config.manager.ConfigManager(
         sources=sources,
         config=configuration_file,
         root=root,
@@ -731,7 +731,7 @@ def format_files(
         silent=silent,
         target_version=target_version,
     )
-    manager = config.ConfigManager(
+    manager = config.manager.ConfigManager(
         sources=sources,
         config=configuration_file,
         root=root,
@@ -784,7 +784,7 @@ def list_rules(
         silent=silent,
         target_version=target_version,
     )
-    manager = config.ConfigManager(overwrite_config=overwrite_config)
+    manager = config.manager.ConfigManager(overwrite_config=overwrite_config)
     resolver = ConfigResolver(load_rules=True)
     resolved_config = resolver.resolve_config(manager.default_config)
     if filter_pattern:
@@ -840,7 +840,7 @@ def list_reports(
     console = Console(soft_wrap=True)
     linter_config = config.schema.RawLinterConfig(reports=reports)
     overwrite_config = config.schema.RawConfig(linter=linter_config, silent=silent)
-    manager = config.ConfigManager(overwrite_config=overwrite_config)
+    manager = config.manager.ConfigManager(overwrite_config=overwrite_config)
     runner = RobocopLinter(manager)
     if not silent:
         console.print(print_reports(runner.reports, enabled))  # TODO: color etc
@@ -861,7 +861,7 @@ def list_formatters(
     overwrite_config = config.schema.RawConfig(
         silent=silent, target_version=target_version, formatter=config.schema.RawFormatterConfig(allow_disabled=True)
     )
-    manager = config.ConfigManager(overwrite_config=overwrite_config)
+    manager = config.manager.ConfigManager(overwrite_config=overwrite_config)
     resolver = ConfigResolver(load_rules=True, load_formatters=True)
     resolved_config = resolver.resolve_config(manager.default_config)
 
@@ -894,7 +894,7 @@ def print_resource_documentation(name: Annotated[str, typer.Argument(help="Rule 
     """Print formatter, rule or report documentation."""
     # TODO load external from cli
     console = Console(soft_wrap=True)
-    manager = config.ConfigManager()
+    manager = config.manager.ConfigManager()
     resolver = ConfigResolver(load_rules=True, load_formatters=True)
     resolved_config = resolver.resolve_config(manager.default_config)
 

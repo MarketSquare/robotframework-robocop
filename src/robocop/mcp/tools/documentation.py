@@ -263,7 +263,7 @@ def _list_prompts_impl(mcp: FastMCP) -> list[PromptSummary]:
             if prompt.arguments
             else [],
         )
-        for prompt in mcp._prompt_manager._prompts.values()  # noqa: SLF001
+        for prompt in mcp._prompt_manager._prompts.values()  # type: ignore[attr-defined] # noqa: SLF001
     ]
     return sorted(prompts, key=lambda p: p.name)
 

@@ -6,7 +6,7 @@ import robocop.linter.reports
 from robocop.linter.utils.misc import get_plural_form, get_string_diff
 
 if TYPE_CHECKING:
-    from robocop.config import Config
+    from robocop.config.schema import Config
     from robocop.linter.diagnostics import Diagnostic, Diagnostics
 
 

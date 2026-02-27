@@ -20,7 +20,7 @@ from robocop.source_file import SourceFile
 if TYPE_CHECKING:
     from pathlib import Path
 
-    from robocop.config import Config
+    from robocop.config.schema import Config
     from robocop.linter.diagnostics import Diagnostic
     from robocop.runtime.resolved_config import ResolvedConfig
 

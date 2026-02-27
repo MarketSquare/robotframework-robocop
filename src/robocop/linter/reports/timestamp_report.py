@@ -10,7 +10,7 @@ import robocop.linter.reports
 from robocop import exceptions
 
 if TYPE_CHECKING:
-    from robocop.config import Config
+    from robocop.config.schema import Config
 
 
 class TimestampReport(robocop.linter.reports.Report):

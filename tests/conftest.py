@@ -9,7 +9,7 @@ import pytest
 from robocop.config.builder import ConfigBuilder
 
 if TYPE_CHECKING:
-    from robocop.config import Config
+    from robocop.config.schema import Config
 
 # We are appending tests directory to sys path so we can use tests utils inside tests
 sys.path.append(str(Path(__file__).parent.parent))

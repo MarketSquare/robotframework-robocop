@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING
 import robocop.linter.reports
 
 if TYPE_CHECKING:
-    from robocop.config import Config
+    from robocop.config.schema import Config
     from robocop.linter.diagnostics import Diagnostics
 
 

@@ -22,8 +22,8 @@ if TYPE_CHECKING:
 
     from robot.parsing import File
 
-    from robocop.config import Config
     from robocop.config.manager import ConfigManager
+    from robocop.config.schema import Config
     from robocop.runtime.resolved_config import ResolvedConfig
 
 

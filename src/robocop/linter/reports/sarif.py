@@ -9,8 +9,8 @@ from robocop.files import get_relative_path
 if TYPE_CHECKING:
     from pathlib import Path
 
-    from robocop.config import Config
     from robocop.config.manager import ConfigManager
+    from robocop.config.schema import Config
     from robocop.linter.diagnostics import Diagnostics
     from robocop.linter.rules import Rule, RuleSeverity
     from robocop.runtime.resolved_config import ResolvedConfig

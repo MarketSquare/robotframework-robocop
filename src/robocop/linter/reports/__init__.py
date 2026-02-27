@@ -12,7 +12,7 @@ from robocop.linter.utils.misc import get_robocop_cache_directory
 from robocop.runtime.resolver import LinterImporter
 
 if TYPE_CHECKING:
-    from robocop.config import Config
+    from robocop.config.schema import Config
 
 
 class Report:

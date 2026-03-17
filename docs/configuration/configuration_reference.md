@@ -1481,7 +1481,7 @@ Change the cache directory (default ``.robocop_cache``) using ``--cache-dir`` op
 
     ```toml
     [tool.robocop]
-    cache-dir = cache_directory
+    cache-dir = "cache_directory"
     ```
 
 #### ``clear-cache``

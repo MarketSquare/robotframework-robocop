@@ -89,6 +89,7 @@ class ConfigBuilder:
     def from_raw(self, cli_raw: RawConfig | None, file_raw: RawConfig | None) -> Config:
         sources: list[str] = resolve(cli_raw, file_raw, "sources", ["."])
         language: list[str] = resolve(cli_raw, file_raw, "language", [])
+        force_exclude = resolve(cli_raw, file_raw, "force_exclude", defaults.FORCE_EXCLUDE)
         verbose = resolve(cli_raw, file_raw, "verbose", defaults.VERBOSE)
         silent = resolve(cli_raw, file_raw, "silent", defaults.SILENT)
 
@@ -133,6 +134,7 @@ class ConfigBuilder:
             formatter=formatter,
             cache=cache,
             languages=languages,
+            force_exclude=force_exclude,
             verbose=verbose,
             silent=silent,
             target_version=validated_version,

@@ -127,7 +127,7 @@ class ConfigManager:
         self.default_config: Config = self.get_default_config(config, sources)
         self.sources = sources if sources else self.default_config.sources
         # ignore file filters on paths passed directly
-        self.ignore_file_filters = not force_exclude and bool(sources)
+        self.ignore_file_filters = not (force_exclude or self.default_config.force_exclude) and bool(sources)
         self._paths: dict[Path, SourceFile] = {}
         self.resolved_paths = False
         self._cache: RobocopCache | None = None

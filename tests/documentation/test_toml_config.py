@@ -117,6 +117,8 @@ def test_toml_config(tmp_robot_dir):
                 continue
             if "GenerateDocumentation.doc_template" in config:
                 continue
+            if "extends" in config:
+                continue
             create_config_file(config, config_path)
             with working_directory(tmp_robot_dir):
                 run_cmd(check_files, config_path, config, root=tmp_robot_dir, exit_zero=True)

@@ -278,12 +278,12 @@ class TestCacheIntegration:
             # Assert - first run not yet cached, all issues
             assert "Used cached results" not in out1
             assert len(result1) == 3
-            assert "1 fixable with the ``--fix`` option." in out1
+            assert "1 fixable with the '--fix' option." in out1
 
             # Assert - second run cached, all issues
             assert "Used cached results" in out2
             assert len(result2) == 3
-            assert "1 fixable with the ``--fix`` option." in out2
+            assert "1 fixable with the '--fix' option." in out2
 
             # Assert - third run not cached, only unfixable issues in results (fixable goes to diff)
             assert "Used cached results" not in out3  # we didn't use cache since we generated diff
@@ -293,7 +293,7 @@ class TestCacheIntegration:
             # Assert - fourth run cached, all issues (no changes from diff)
             assert "Used cached results" in out4
             assert len(result4) == 3
-            assert "1 fixable with the ``--fix`` option." in out4
+            assert "1 fixable with the '--fix' option." in out4
 
             # Assert - fifth run not cached, only unfixable issues in results (fixable are fixed)
             assert "Used cached results" not in out5

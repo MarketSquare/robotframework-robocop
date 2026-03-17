@@ -291,7 +291,7 @@ class PrintIssuesReport(robocop.linter.reports.Report):
             summary = f"Found {len(diagnostics.diagnostics)} issue{suffix}."
             could_fix = len(diagnostics.fixable_diagnostics())
             if could_fix > 0:
-                summary += f"\n{could_fix} fixable with the ``--fix`` option."
+                summary += f"\n{could_fix} fixable with the '--fix' option."
         self.console.print(summary)
 
     def _print_diffs(self, modified_files: list[SourceFile]) -> None:

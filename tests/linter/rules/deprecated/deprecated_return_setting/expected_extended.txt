@@ -72,4 +72,4 @@ test_fix.robot:60:5 DEPR11 '[Return]' is deprecated, use 'RETURN' instead
     |
 
 Found 8 issues.
-8 fixable with the ``--fix`` option.
+8 fixable with the '--fix' option.

@@ -74,7 +74,6 @@ Return Variable
     RETURN    ${variable}
 
 Blocks
-    # 'var: int' will be unused, since FOR does not support var type conversion
     FOR    ${var: int}    IN    @{list_of_strings}
         Type Should Be    ${var}    int
     END

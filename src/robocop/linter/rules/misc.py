@@ -1460,7 +1460,7 @@ class UnusedVariablesChecker(VisitorChecker):
         for token in node.header.get_tokens(Token.ARGUMENT, "OPTION"):  # Token.Option does not exist for RF3 and RF4
             self.find_not_nested_variable(token.value, can_be_escaped=False)
         for token in node.header.get_tokens(Token.VARIABLE):
-            self.handle_assign_variable(token, ignore_var_conversion=False)
+            self.handle_assign_variable(token)
         self.generic_visit(node)
         self.ignore_overwriting = False
         self.in_loop = False

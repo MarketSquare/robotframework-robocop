@@ -6,4 +6,4 @@ test.robot:2:1 DEPR07 'Force Tags' is deprecated, use 'Test Tags' instead
    |
 
 Found 1 issue.
-1 fixable with the ``--fix`` option.
+1 fixable with the '--fix' option.

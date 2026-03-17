@@ -24,6 +24,7 @@ SKIP_OPTIONS = frozenset(
 
 # common
 
+FORCE_EXCLUDE = False
 VERBOSE = False
 SILENT = False
 

@@ -317,6 +317,7 @@ class RawConfig:
     formatter: RawFormatterConfig | None = None
     cache: RawCacheConfig | None = None
     language: list[str] | None = None
+    force_exclude: bool | None = None
     verbose: bool | None = None
     silent: bool | None = None
     target_version: TargetVersion | None = None
@@ -327,7 +328,16 @@ class RawConfig:
         # TODO: how target version is handled for RawConfig??
         config_dict = normalize_config_keys(config_dict)
         validate_old_config(config_dict=config_dict, config_path=config_path)
-        config_fields = {"sources", "cache", "cache_dir", "language", "verbose", "silent", "target_version"}
+        config_fields = {
+            "sources",
+            "cache",
+            "cache_dir",
+            "language",
+            "force_exclude",
+            "verbose",
+            "silent",
+            "target_version",
+        }
         known_fields = config_fields | {"lint", "format", "extends", "skip_gitignore"}
         known_fields.update({config_field.name for config_field in fields(RawFileFiltersOptions)})
         validate_config_fields(config_dict=config_dict, known_fields=known_fields, config_path=config_path)
@@ -358,6 +368,7 @@ class Config:
     formatter: FormatterConfig
     cache: CacheConfig
     languages: Languages | None
+    force_exclude: bool
     verbose: bool
     silent: bool
     target_version: Version

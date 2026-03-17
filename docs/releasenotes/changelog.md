@@ -48,6 +48,14 @@ More detailed notes regarding 8.0.0 [here](8.0.0.md).
 * Fix rst-style urls in the documentation (#1640) (eb1dcab)
 * Update RenameVariables formatter so it treats numbers as part of word and does not split on it (#1663) (eddfd96)
 
+## [8.2.3](https://github.com/MarketSquare/robotframework-robocop/compare/v8.2.2...v8.2.3) (2026-03-17)
+
+
+### Bug Fixes
+
+* Fix missing force-exclude flag from the configuration file ([#1708](https://github.com/MarketSquare/robotframework-robocop/issues/1708)) ([90cea8c](https://github.com/MarketSquare/robotframework-robocop/commit/90cea8c9ee78552e8c86a58297553e6703f50e38))
+* Fix unused-variable reported on the FOR loop variable with type ([#1706](https://github.com/MarketSquare/robotframework-robocop/issues/1706)) ([260f4f4](https://github.com/MarketSquare/robotframework-robocop/commit/260f4f44c012266a8fdce06a8c5ece84e4c98383))
+
 ## [8.2.2](https://github.com/MarketSquare/robotframework-robocop/compare/v8.2.1...v8.2.2) (2026-02-27)
 
 

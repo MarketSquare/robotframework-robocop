@@ -334,6 +334,7 @@ class TagNameChecker(VisitorChecker):
     is_keyword = False
     reserved_tags = {
         "robot:exit",
+        "robot:exit-on-failure",
         "robot:flatten",
         "robot:no-dry-run",
         "robot:continue-on-failure",

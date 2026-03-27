@@ -48,6 +48,13 @@ More detailed notes regarding 8.0.0 [here](8.0.0.md).
 * Fix rst-style urls in the documentation (#1640) (eb1dcab)
 * Update RenameVariables formatter so it treats numbers as part of word and does not split on it (#1663) (eddfd96)
 
+## [8.2.4](https://github.com/MarketSquare/robotframework-robocop/compare/v8.2.3...v8.2.4) (2026-03-27)
+
+
+### Bug Fixes
+
+* Add missing robot:exit-on-failure tag to reserved tag list ([#1712](https://github.com/MarketSquare/robotframework-robocop/issues/1712)) ([1f2097a](https://github.com/MarketSquare/robotframework-robocop/commit/1f2097a701984439a3a3e5c2583ac37f21d06bb4))
+
 ## [8.2.3](https://github.com/MarketSquare/robotframework-robocop/compare/v8.2.2...v8.2.3) (2026-03-17)
 
 

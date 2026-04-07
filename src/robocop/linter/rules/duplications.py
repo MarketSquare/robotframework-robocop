@@ -468,6 +468,7 @@ class SectionHeadersChecker(VisitorChecker):
     def section_order_to_str(order: dict[str, int]) -> str:
         by_index = sorted(order.items(), key=lambda x: x[1])
         name_map = {
+            Token.COMMENT_HEADER: "Comments",
             Token.SETTING_HEADER: "Settings",
             Token.VARIABLE_HEADER: "Variables",
             Token.TESTCASE_HEADER: "Test Cases / Tasks",

@@ -572,6 +572,28 @@ class TestConfigFinder:
         # Assert
         assert "IndentNestedKeywords" in resolved_config.formatters
 
+    def test_config_order(self, tmp_path):
+        # Single file
+        config_file = tmp_path / "pyproject.toml"
+        config_file.write_text("[tool.robocop]\nverbose = true\n", encoding="utf-8")
+        with working_directory(tmp_path):
+            config_manager = ConfigManager()
+        assert config_manager.default_config.config_source.endswith("pyproject.toml")
+
+        # Two files
+        config_file = tmp_path / "robot.toml"
+        config_file.write_text("[tool.robocop]\nverbose = true\n", encoding="utf-8")
+        with working_directory(tmp_path):
+            config_manager = ConfigManager()
+        assert config_manager.default_config.config_source.endswith("robot.toml")
+
+        # Three files
+        config_file = tmp_path / "robocop.toml"
+        config_file.write_text("[tool.robocop]\nverbose = true\n", encoding="utf-8")
+        with working_directory(tmp_path):
+            config_manager = ConfigManager()
+        assert config_manager.default_config.config_source.endswith("robocop.toml")
+
 
 class TestCacheConfigOverride:
     """Test that CLI cache options properly override config file cache settings."""

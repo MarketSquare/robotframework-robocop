@@ -1,0 +1,2 @@
+[tool.robot.format]
+diff = true

@@ -16,7 +16,7 @@ from robocop.source_file import SourceFile
 if TYPE_CHECKING:
     from collections.abc import Generator, Sequence
 
-CONFIG_NAMES = frozenset(("robocop.toml", "pyproject.toml", "robot.toml"))
+CONFIG_NAMES = ("robocop.toml", "robot.toml", "pyproject.toml")
 
 
 class GitIgnoreResolver:

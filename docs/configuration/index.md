@@ -25,11 +25,11 @@ Robocop uses a configuration file closest to the source, which allows multiple c
 that apply to the entire execution (such as ``--exit-zero`` or report settings) are exclusively read from the top-level
 configuration file.
 
-When looking for the configuration file, Robocop searches either for:
+When looking for the configuration file, Robocop searches in the following order:
 
+- ``robocop.toml``
+- ``robot.toml``
 - ``pyproject.toml``
-- or ``robocop.toml``
-- or ``robot.toml``
 
 It will visit parent directories until it finds root of the project determined by existence of ``.git`` directory.
 This behaviour can be disabled with ``--ignore-git-dir``.

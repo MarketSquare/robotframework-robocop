@@ -48,6 +48,14 @@ More detailed notes regarding 8.0.0 [here](8.0.0.md).
 * Fix rst-style urls in the documentation (#1640) (eb1dcab)
 * Update RenameVariables formatter so it treats numbers as part of word and does not split on it (#1663) (eddfd96)
 
+## [8.2.6](https://github.com/MarketSquare/robotframework-robocop/compare/v8.2.5...v8.2.6) (2026-04-13)
+
+
+### Bug Fixes
+
+* ensure that configuration files are loaded in the order (robocop.toml &gt; robot.toml &gt; pyproject.toml) ([#1729](https://github.com/MarketSquare/robotframework-robocop/issues/1729)) ([b7e041f](https://github.com/MarketSquare/robotframework-robocop/commit/b7e041f314e375035fc61d29348425df8168dc89))
+* pygments 2.20.0 failing to build our documentaton ([#1731](https://github.com/MarketSquare/robotframework-robocop/issues/1731)) ([e6a5945](https://github.com/MarketSquare/robotframework-robocop/commit/e6a594589b9e23d24c505b47fd4bd7f090d98130))
+
 ## [8.2.5](https://github.com/MarketSquare/robotframework-robocop/compare/v8.2.4...v8.2.5) (2026-04-07)
 
 

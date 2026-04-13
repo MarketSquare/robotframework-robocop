@@ -95,6 +95,7 @@ doc = [
     "mkdocs-git-authors-plugin",
     "mkdocs-macros-plugin",
     "mkdocs-redirects>=1.2.2",
+    "pygments<2.20",
 ]
 mcp = [
     "fastmcp>=2.13.0",

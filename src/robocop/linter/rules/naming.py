@@ -825,6 +825,8 @@ class KeywordNamingChecker(VisitorChecker):
                 if " " in part:
                     normalized = ".".join(parts[i:])
                     break
+            else:
+                normalized = parts[-1]
         normalized = normalized.replace("'", "")  # replace ' apostrophes
         if "_" in normalized:
             self.report(

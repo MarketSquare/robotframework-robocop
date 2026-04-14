@@ -119,3 +119,9 @@ Quoted "${values_and_words}"
     I'll Need To Test Partial Quotes
     And "${variables}" And "some other ${variables}" "shall work"
     And "nested quotation "Should Not Be" considered " And Single "
+
+Library With Underscore
+    # Bug #1733
+    fk_CommonXml.Compare
+    fk_CommonXml.Compare    ${argument}
+    fk_CommonXml.Compare With Words    ${argument}

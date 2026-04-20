@@ -63,7 +63,7 @@ Since the translation is from one or many languages to one, only one language ca
 
 ## Source language
 
-Robocop will translate only markers that can be recognized. If your source file is written in a different language, 
+Robocop will translate only markers that can be recognized. If your source file is written in a different language,
 you need to configure Robocop to recognize a given language. See :ref:`language_support` for more details.
 The following example configures Robocop to read English, Polish and German languages and translate Robot Framework
 markers to Ukrainian:

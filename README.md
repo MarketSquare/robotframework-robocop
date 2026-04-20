@@ -48,7 +48,7 @@ Python 3.10+ :snake: and Robot Framework 5.0+ :robot:.
 
 You can install the latest version of Robocop simply by running:
 
-```
+```commandline
 pip install -U robotframework-robocop
 ```
 
@@ -70,7 +70,7 @@ robocop format
 
 All command line options can be displayed in a help message by executing:
 
-```
+```commandline
 robocop -h
 ```
 
@@ -78,7 +78,7 @@ robocop -h
 
 Executing command:
 
-```
+```commandline
 robocop check --reports rules_by_error_type test.robot
 ```
 
@@ -212,7 +212,7 @@ readable and understandable by others, and Robocop can help to **uphold the law*
 
   For example:
 
-  ```
+  ```commandline
   robocop check --configure line-too-long.line_length=140
   ```
 
@@ -220,7 +220,7 @@ readable and understandable by others, and Robocop can help to **uphold the law*
   Each rule's severity can also be overwritten. Possible values are
   `e/error`, `w/warning` or `i/info` and are case-insensitive. Example:
 
-  ```
+  ```commandline
   robocop check -c too-long-test-case.severity=e
   ```
 
@@ -230,7 +230,7 @@ readable and understandable by others, and Robocop can help to **uphold the law*
 
   Example:
 
-  ```
+  ```robotframework
   Keyword with lowercased name  # robocop: off
   ```
 
@@ -244,7 +244,8 @@ readable and understandable by others, and Robocop can help to **uphold the law*
 
   **Yes**, you can define and include custom rules using `--custom-rules` command line option
   by providing a path to a file containing your rule(s):
-  ```
+
+  ```commandline
   robocop --custom-rules my/own/rule.py --custom-rules external_rules.py
   ```
 

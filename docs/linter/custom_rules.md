@@ -1,5 +1,3 @@
-from robocop.linter.fix import FixApplicabilityfrom robocop.linter.diagnostics import Diagnosticfrom robocop.linter.rules import FixableRule
-
 # Custom rules
 
 ## How to include custom rules

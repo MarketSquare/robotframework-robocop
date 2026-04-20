@@ -26,7 +26,7 @@ Use ``output_format`` parameter to configure an output format. Supported output 
        |
     
     ```
-    
+
 - **grouped**, which prints issues grouped by source files:
 
     ```bash

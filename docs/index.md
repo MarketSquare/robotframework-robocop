@@ -9,7 +9,7 @@ a number of checks, looking for potential errors or violations to code quality s
 
 <div class="grid cards" markdown>
 
--   :book:{ .lg .middle } __Starting guide__
+- :book:{ .lg .middle } __Starting guide__
 
     ---
 
@@ -17,7 +17,7 @@ a number of checks, looking for potential errors or violations to code quality s
 
     [:octicons-arrow-right-24: User Guide](user_guide/intro.md)
 
--   :material-file-cog-outline:{ .lg .middle } __Configuration__
+- :material-file-cog-outline:{ .lg .middle } __Configuration__
 
     ---
 
@@ -25,7 +25,7 @@ a number of checks, looking for potential errors or violations to code quality s
 
     [:octicons-arrow-right-24: Configuration](configuration/index.md)
 
--   :material-format-list-text:{ .lg .middle } __Linter__
+- :material-format-list-text:{ .lg .middle } __Linter__
 
     ---
 
@@ -33,7 +33,7 @@ a number of checks, looking for potential errors or violations to code quality s
 
     [:octicons-arrow-right-24: Rules list](rules_list.md)
 
--   :material-broom:{ .lg .middle } __Formatter__
+- :material-broom:{ .lg .middle } __Formatter__
 
     ---
 

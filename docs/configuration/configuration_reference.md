@@ -402,7 +402,7 @@ To only select and run rules with ``doc`` in their name:
     ]
     ```
 
-Use ``ALL`` keyword to select all rules (including rules disabled by default). You can combine it with ``--ignore`` 
+Use ``ALL`` keyword to select all rules (including rules disabled by default). You can combine it with ``--ignore``
 option to select all rules except those you want to ignore:
 
 === ":octicons-command-palette-24: cli"
@@ -811,7 +811,7 @@ See [the GitLab](../linter/reports/gitlab.md) page for more information.
 
 #### ``issue format``
 
-``--issue-format`` option allows configuring output format of issues. 
+``--issue-format`` option allows configuring output format of issues.
 
 It only affects ``simple`` output type. See [``print issues``](../linter/reports/print_issues.md) reporter to see all
 possible output types and their configuration.
@@ -976,7 +976,7 @@ By default, all formatters run in the same order. Whether called with:
 ```bash
 robocop format
 ```
-   
+
 or:
 
 ```bash

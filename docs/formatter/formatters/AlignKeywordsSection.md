@@ -12,7 +12,7 @@ Align keyword calls and settings into columns with predefined width. There are t
 
 The width of the column sets the limit to the maximum width of the column. Default width is ``24``
 (see [widths](#widths) for information how to configure it).
-With ``fixed`` alignment each column has fixed width (and tokens that do not fit go into ``overflow`` state - see 
+With ``fixed`` alignment each column has fixed width (and tokens that do not fit go into ``overflow`` state - see
 [overflow](#overflow) for more information).
 
 ``auto`` alignment aligns tokens to the longest token in the column. The column width can be shorter than the

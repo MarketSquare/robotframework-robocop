@@ -3,6 +3,8 @@ Keyword With Empty Vars
     VAR    ${empty_scalar}
     VAR    @{empty_list}
     VAR    &{empty_dict}
+    VAR    ${empty_scalar_cont}
+    ...
     VAR    ${scalar}    value
     VAR    @{list}    item1    item2
     VAR    &{dict}    key=value

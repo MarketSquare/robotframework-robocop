@@ -3,6 +3,8 @@ Test With Empty Vars
     VAR    ${empty_scalar}    ${EMPTY}
     VAR    @{empty_list}    @{EMPTY}
     VAR    &{empty_dict}    &{EMPTY}
+    VAR    ${empty_scalar_cont}
+    ...    ${EMPTY}
     VAR    ${scalar}    value
     Log    ${empty_scalar}
 

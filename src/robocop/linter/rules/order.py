@@ -50,6 +50,7 @@ def parse_test_case_order_param(value: str) -> list[str]:
 
 def configure_sections_order(value: str) -> dict[str, int]:
     section_map: dict[str, str] = {
+        "comments": Token.COMMENT_HEADER,
         "settings": Token.SETTING_HEADER,
         "variables": Token.VARIABLE_HEADER,
         "testcase": Token.TESTCASE_HEADER,

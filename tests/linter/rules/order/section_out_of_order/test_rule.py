@@ -26,3 +26,17 @@ class TestRuleAcceptance(RuleAcceptance):
 
     def test_extended(self):
         self.check_rule(src_files=["test.robot"], expected_file="expected_extended.txt", output_format="extended")
+
+    def test_comments_section(self):
+        # bug #1724
+        self.check_rule(
+            src_files=["test.robot", "golden_without_comment_header.robot"],
+            expected_file="expected_output_comments.txt",
+            configure=["section-out-of-order.sections_order=settings,comments,variables,testcases,keywords"],
+        )
+
+    def test_good_order(self):
+        self.check_rule(
+            src_files=["golden.robot", "missing_sections.robot", "golden_without_comment_header.robot"],
+            expected_file=None,
+        )

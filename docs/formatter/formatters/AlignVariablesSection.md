@@ -67,7 +67,7 @@ You can configure it to align three columns:
     ```
 
 will result in the following formatting:
-   
+
 
 === "Before"
 

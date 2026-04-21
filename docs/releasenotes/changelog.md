@@ -1,52 +1,26 @@
 # Release notes
 
-# [8.0.0](https://github.com/MarketSquare/robotframework-robocop/compare/v7.2.0...v8.0.0) (2026-02-11)
+## [8.2.7](https://github.com/MarketSquare/robotframework-robocop/compare/v8.2.6...v8.2.7) (2026-04-14)
 
-More detailed notes regarding 8.0.0 [here](8.0.0.md).
 
-### Breaking changes
+### Bug Fixes
 
-* dropped support for Python 3.9
-* dropped support for Robot Framework 4
-* Deprecated ``deprecated-statement`` rule
-* Deprecated ``ReplaceReturns`` formatter
-* Deprecated ``AddMissingEnd`` formatter
-* refactored source files handling with common ``SourceFile`` class
-* redesigned configuration layer for typing safety and OOP friendliness
+* Keyword naming rules with library import with underscores is now detected properly ([#1734](https://github.com/MarketSquare/robotframework-robocop/issues/1734)) ([a86b1d4](https://github.com/MarketSquare/robotframework-robocop/commit/a86b1d4133008a844ac45268076874f85189390b))
 
-### Features
+## [8.2.6](https://github.com/MarketSquare/robotframework-robocop/compare/v8.2.5...v8.2.6) (2026-04-13)
 
-* Fixable rules (#1617) (128c849)
-* deprecate ``deprecated-statement`` rule and split into new rules
-* new rule DEPR08 ``deprecated-run-keyword-if``
-* new rule DEPR09 ``deprecated-loop-keyword``
-* new rule DEPR10 ``deprecated-return-keyword`` (with a fix)
-* new rule DEPR11 ``deprecated-return-setting`` (with a fix)
-* Robocop is now more verbose
-* Keyword naming rules and formatters quotation handling
-* performance improvements (#1611) (eea1c56)
-* ``report()`` can be now used from the rule class (#1644) (8aff795)
-* Robocop is now fully typed (#1661) (42045dc)
-* list rules can now return the result when used from the Python (#1629) (457d135)
-* MCP is now aware of local config (#1673) (55e18b6)
-* Skip documentation by default in NormalizeSeparators (#1672) (5b1ae35)
-* Added or improved support for variable type conversion (#1654) (#1650) (#1651) (#1652) #1653)
-* New rule ANN04 ``set-keyword-with-type``
-* Add ``case_normalization`` parameter to enforce case by RenameKeywords (#1667) (49a0b02)
 
-### Bug fixes
+### Bug Fixes
 
-* add explicit typing-extensions dependency (#1680) (b406f25)
-* Fix #1174 expression-can-be-simplified raised for == 0 (#1649) (d0f4985)
-* Fix #1422 - ReplaceWithVAR formatter replacing variables with item access (#1648) (a9c3377)
-* Fix caching the issues with fixes (#1623) (256874b)
-* Fix extend-select matching only on rule id, not on rule name (#1669) (403ff7d)
-* Fix format --extend-select not enabling formatters (#1668) (3c76c50)
-* Fix not all issue format parameters supported by extended output (#1624) (727c38d)
-* Fix too-long-variable-name throwing exception on Set X Variable without arguments (#1675) (3a55663)
-* multiple paths passed to robocop check/format command resolving to the same config (#1614) (bdcfd48)
-* Fix rst-style urls in the documentation (#1640) (eb1dcab)
-* Update RenameVariables formatter so it treats numbers as part of word and does not split on it (#1663) (eddfd96)
+* ensure that configuration files are loaded in the order (robocop.toml &gt; robot.toml &gt; pyproject.toml) ([#1729](https://github.com/MarketSquare/robotframework-robocop/issues/1729)) ([b7e041f](https://github.com/MarketSquare/robotframework-robocop/commit/b7e041f314e375035fc61d29348425df8168dc89))
+* pygments 2.20.0 failing to build our documentaton ([#1731](https://github.com/MarketSquare/robotframework-robocop/issues/1731)) ([e6a5945](https://github.com/MarketSquare/robotframework-robocop/commit/e6a594589b9e23d24c505b47fd4bd7f090d98130))
+
+## [8.2.5](https://github.com/MarketSquare/robotframework-robocop/compare/v8.2.4...v8.2.5) (2026-04-07)
+
+
+### Bug Fixes
+
+* Fix section-out-of-order not supporting comments section ([#1725](https://github.com/MarketSquare/robotframework-robocop/issues/1725)) ([56f0ab2](https://github.com/MarketSquare/robotframework-robocop/commit/56f0ab2a2dffbabddfccf5473be369b8252cf9de))
 
 ## [8.2.4](https://github.com/MarketSquare/robotframework-robocop/compare/v8.2.3...v8.2.4) (2026-03-27)
 
@@ -102,6 +76,55 @@ More detailed notes regarding 8.0.0 [here](8.0.0.md).
 ### Bug Fixes
 
 * unused-argument rule raised when argument is used in item access or inline eval ([#1687](https://github.com/MarketSquare/robotframework-robocop/issues/1687)) ([d014a53](https://github.com/MarketSquare/robotframework-robocop/commit/d014a53d32b9effe696fccc993f675efb3724941))
+
+## [8.0.0](https://github.com/MarketSquare/robotframework-robocop/compare/v7.2.0...v8.0.0) (2026-02-11)
+
+
+More detailed notes regarding 8.0.0 [here](8.0.0.md).
+
+### Breaking changes
+
+* dropped support for Python 3.9
+* dropped support for Robot Framework 4
+* Deprecated ``deprecated-statement`` rule
+* Deprecated ``ReplaceReturns`` formatter
+* Deprecated ``AddMissingEnd`` formatter
+* refactored source files handling with common ``SourceFile`` class
+* redesigned configuration layer for typing safety and OOP friendliness
+
+### Features
+
+* Fixable rules (#1617) (128c849)
+* deprecate ``deprecated-statement`` rule and split into new rules
+* new rule DEPR08 ``deprecated-run-keyword-if``
+* new rule DEPR09 ``deprecated-loop-keyword``
+* new rule DEPR10 ``deprecated-return-keyword`` (with a fix)
+* new rule DEPR11 ``deprecated-return-setting`` (with a fix)
+* Robocop is now more verbose
+* Keyword naming rules and formatters quotation handling
+* performance improvements (#1611) (eea1c56)
+* ``report()`` can be now used from the rule class (#1644) (8aff795)
+* Robocop is now fully typed (#1661) (42045dc)
+* list rules can now return the result when used from the Python (#1629) (457d135)
+* MCP is now aware of local config (#1673) (55e18b6)
+* Skip documentation by default in NormalizeSeparators (#1672) (5b1ae35)
+* Added or improved support for variable type conversion (#1654) (#1650) (#1651) (#1652) #1653)
+* New rule ANN04 ``set-keyword-with-type``
+* Add ``case_normalization`` parameter to enforce case by RenameKeywords (#1667) (49a0b02)
+
+### Bug fixes
+
+* add explicit typing-extensions dependency (#1680) (b406f25)
+* Fix #1174 expression-can-be-simplified raised for == 0 (#1649) (d0f4985)
+* Fix #1422 - ReplaceWithVAR formatter replacing variables with item access (#1648) (a9c3377)
+* Fix caching the issues with fixes (#1623) (256874b)
+* Fix extend-select matching only on rule id, not on rule name (#1669) (403ff7d)
+* Fix format --extend-select not enabling formatters (#1668) (3c76c50)
+* Fix not all issue format parameters supported by extended output (#1624) (727c38d)
+* Fix too-long-variable-name throwing exception on Set X Variable without arguments (#1675) (3a55663)
+* multiple paths passed to robocop check/format command resolving to the same config (#1614) (bdcfd48)
+* Fix rst-style urls in the documentation (#1640) (eb1dcab)
+* Update RenameVariables formatter so it treats numbers as part of word and does not split on it (#1663) (eddfd96)
 
 ## [7.2.0](https://github.com/MarketSquare/robotframework-robocop/compare/v7.1.0...v7.2.0) (2026-01-01)
 
@@ -159,14 +182,14 @@ More detailed notes regarding 8.0.0 [here](8.0.0.md).
 
     Since previous ``--custom-formatters`` formatter option already behaved like a ``--extend-select`` option (which was
     not documented), it is now **deprecated and renamed** to ``--extend-select`` instead.
-    
+
     It is also recommended to use ``--extend-select`` over ``--configue name.enabled=True``.
 
 - **Breaking change** Split ``wrong-case-in-keyword-name`` rule into two separate rules ([issue #1471](https://github.com/MarketSquare/robotframework-robocop/issues/1471)):
 
     ``wrong-case-in-keyword-name`` which checks case convention in keyword definition name
     ``wrong-case-in-keyword-call`` which checks case convention in keyword call name
-    
+
     It allows configuring different conventions for keyword definition and keyword call names. If you have existing
     configuration for ``wrong-case-in-keyword-name`` (you are ignoring it or configuring) you need to apply the same
     config to ``wrong-case-in-keyword-call`` to retain old behaviour.
@@ -174,11 +197,11 @@ More detailed notes regarding 8.0.0 [here](8.0.0.md).
 - ``SplitTooLongLine`` can now split more settings types: Library imports, Test Tags and Keyword Tags ([issue #1454](https://github.com/MarketSquare/robotframework-robocop/issues/1454))
 
     Example code before and after the change:
-    
+
     ```robotframework
     Library    CustomLibraryWithLongerNameAndSeveralArguments    first_argument    second_argument=${longer_variable_name}    WITH NAME    name
     ```
-    
+
     ```robotframework
     Library             CustomLibraryWithLongerNameAndSeveralArguments
     ...                     first_argument
@@ -190,13 +213,13 @@ More detailed notes regarding 8.0.0 [here](8.0.0.md).
 
     Project checkers were temporarily removed in the Robocop 6.0. There are now brought back in a new form, as a separate
     command:
-    
+
     ```
     robocop check-project
     ```
-    
+
     This command behaves similarly to the ``check`` command, but it only runs project rules.
-    
+
     The project checks itself were also refactored to be more flexible. See [project checker](https://robocop.dev/stable/linter/linter/#project-checks)
     and [custom rules project checker](https://robocop.dev/stable/linter/custom_rules/#project-checks) for reference.
 
@@ -204,7 +227,7 @@ More detailed notes regarding 8.0.0 [here](8.0.0.md).
 
     Robocop will now ignore issues in the whole node (keyword, test case, for loop, keyword call, etc.) when the disabler
     is set in the header / keyword call body. For example:
-    
+
     ```robotframework
     *** Keywords ***
     My Keyword  
@@ -215,7 +238,7 @@ More detailed notes regarding 8.0.0 [here](8.0.0.md).
         ...    ${var}
         ...    ${var2}
     ```
-    
+
     Previously, Robocop would ignore ``unused-variable`` only when reported on the ``FOR`` header and ``bad-indent`` only
     when reported on the same line as disabler comment. After this change, those issues will be ignored in the whole
     FOR loop and the whole ``Keyword`` call respectively.

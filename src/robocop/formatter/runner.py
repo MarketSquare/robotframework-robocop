@@ -77,10 +77,11 @@ class RobocopFormatter:
                     self.log_formatted_source(source_file.path, stdin)
                     self.output_diff(model_path, old_model, new_model)
                     changed_files += 1
-                # Cache result - after formatting (or if no changes needed), file is now clean
-                self.config_manager.cache.set_formatter_entry(
-                    source_file.path, source_file.config.hash, needs_formatting=False
-                )
+                # Cache result only if a file does not need formatting or was formatted (no --check and --no-overwrite)
+                if not diff or self.config.formatter.overwrite:
+                    self.config_manager.cache.set_formatter_entry(
+                        source_file.path, source_file.config.hash, needs_formatting=False
+                    )
             except DataError as err:
                 if not source_file.config.silent:
                     print(f"Failed to decode {source_file.path} with an error: {err}\nSkipping file")  # TODO stderr

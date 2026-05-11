@@ -8,6 +8,7 @@ from pathlib import Path
 from textwrap import dedent
 
 import msgpack
+import pytest
 
 from robocop.run import check_files, format_files
 from tests import working_directory
@@ -354,35 +355,40 @@ class TestCacheIntegration:
             # Assert - should rescan due to language change
             assert "Scanning file:" in out2
 
-    def test_formatter_file_needs_formatting_then_cached(self, tmp_path, capsys):
-        """Test formatter: file needs formatting, gets formatted, then uses cache."""
+    @pytest.mark.parametrize(
+        ("overwrite_flags_enabled", "overwrite_flags_disabled"),
+        [
+            ({"overwrite": False}, {"overwrite": True}),
+            ({"check": True}, {"check": False}),
+        ],
+    )
+    def test_cache_only_unmodified_if_file_was_not_modified(
+        self, tmp_path, capsys, overwrite_flags_enabled, overwrite_flags_disabled
+    ):
+        """Test that the cache is not saved if the file was not modified (--check or --no-overwrite was used)."""
         # Arrange - create file that needs formatting (bad spacing)
         test_file = tmp_path / "bad_format.robot"
         test_file.write_text("***Test Cases***\nTest\n    Log    Hello\n", encoding="utf-8")
+
+        test_file2 = tmp_path / "good_format.robot"
+        test_file2.write_text("*** Test Cases ***\nTest\n    Log    Hello\n", encoding="utf-8")
 
         config_file = tmp_path / "pyproject.toml"
         config_file.write_text("[tool.robocop]\ncache = true\n", encoding="utf-8")
 
         with working_directory(tmp_path):
-            # First run - should format the file
-            _ = format_files(check=True, return_result=True, verbose=True)
+            # First run - should not format the file
+            # _ = format_files(check=True, return_result=True, verbose=True)
+            _ = format_files(return_result=True, verbose=True, **overwrite_flags_enabled)
             out1, _ = capsys.readouterr()
-            assert "Formatting" in out1
+            assert f"Would reformat {test_file}" in out1
+            assert "1 file would be reformatted, 1 file would be left unchanged." in out1
 
-            # Verify cache shows needs_formatting=False after formatting
-            cache_data = get_cache_data(tmp_path)
-            if str(test_file.resolve()) in cache_data.get("formatter", {}):
-                entry_data = cache_data["formatter"][str(test_file.resolve())]
-                # After formatting attempt, should be cached as not needing formatting
-                # (either it was formatted or was already correctly formatted)
-                assert "needs_formatting" in entry_data
-
-            # Act - run again without modifying file
-            _ = format_files(check=True, return_result=True, verbose=True)
+            # Second run - format bad file, skip the good file
+            _ = format_files(return_result=True, verbose=True, **overwrite_flags_disabled)
             out2, _ = capsys.readouterr()
-
-            # Assert - should use cache (skip formatting)
-            assert "Skipped" in out2 or "unchanged" in out2.lower()
+            assert "Skipped 1 unchanged files from cache." in out2
+            assert "1 file reformatted, 1 file left unchanged." in out2
 
     def test_empty_file_integration(self, tmp_path, capsys):
         """Test integration with empty Robot Framework file."""

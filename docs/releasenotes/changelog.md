@@ -1,5 +1,13 @@
 # Release notes
 
+## [8.2.8](https://github.com/MarketSquare/robotframework-robocop/compare/v8.2.7...v8.2.8) (2026-05-11)
+
+
+### Bug Fixes
+
+* Fix documentation typos & add documentation linter ([#1738](https://github.com/MarketSquare/robotframework-robocop/issues/1738)) ([2a45e93](https://github.com/MarketSquare/robotframework-robocop/commit/2a45e93432c94d1b8bf76b999172b1f582053e6e))
+* Fix formatting result incorrectly cached in no overwrite modes (--diff/--no-overwrite) ([#1742](https://github.com/MarketSquare/robotframework-robocop/issues/1742)) ([1d7fadc](https://github.com/MarketSquare/robotframework-robocop/commit/1d7fadcc8b247564b1a07246edb550776a24a3b5))
+
 ## [8.2.7](https://github.com/MarketSquare/robotframework-robocop/compare/v8.2.6...v8.2.7) (2026-04-14)
 
 

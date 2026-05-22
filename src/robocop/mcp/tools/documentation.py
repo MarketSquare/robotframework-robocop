@@ -247,7 +247,7 @@ def _search_rules_impl(
     return results
 
 
-def _list_prompts_impl(mcp: FastMCP) -> list[PromptSummary]:
+async def _list_prompts_impl(mcp: FastMCP) -> list[PromptSummary]:
     """
     List all available MCP prompt templates.
 
@@ -263,7 +263,7 @@ def _list_prompts_impl(mcp: FastMCP) -> list[PromptSummary]:
             if prompt.arguments
             else [],
         )
-        for prompt in mcp._prompt_manager._prompts.values()  # type: ignore[attr-defined] # noqa: SLF001
+        for prompt in await mcp.list_prompts()
     ]
     return sorted(prompts, key=lambda p: p.name)
 

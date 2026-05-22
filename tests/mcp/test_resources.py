@@ -209,20 +209,20 @@ class TestResourcesRegistration:
 
     def test_resources_accessible_via_mcp(self):
         """Test that resources are accessible via MCP server."""
-        resources = asyncio.run(mcp.get_resources())
+        resources = asyncio.run(mcp.list_resources())
         # Should have at least the catalog resources
         assert len(resources) >= 2
 
     def test_rules_resource_registered(self):
         """Test that rules catalog resource is registered."""
-        resources = asyncio.run(mcp.get_resources())
-        # get_resources() returns a dict with URIs as keys
-        resource_uris = list(resources.keys())
+        resources = asyncio.run(mcp.list_resources())
+        # list_resources() returns a list of resource objects with .uri attribute
+        resource_uris = [str(r.uri) for r in resources]
         assert any("rules" in uri for uri in resource_uris)
 
     def test_formatters_resource_registered(self):
         """Test that formatters catalog resource is registered."""
-        resources = asyncio.run(mcp.get_resources())
-        # get_resources() returns a dict with URIs as keys
-        resource_uris = list(resources.keys())
+        resources = asyncio.run(mcp.list_resources())
+        # list_resources() returns a list of resource objects with .uri attribute
+        resource_uris = [str(r.uri) for r in resources]
         assert any("formatters" in uri for uri in resource_uris)

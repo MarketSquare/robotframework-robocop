@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import asyncio
 from pathlib import Path
 from textwrap import dedent
 
@@ -2207,13 +2208,13 @@ class TestListPrompts:
 
     def test_list_prompts_returns_list(self):
         """Test list_prompts returns a list."""
-        result = _list_prompts_impl(mcp)
+        result = asyncio.run(_list_prompts_impl(mcp))
         assert isinstance(result, list)
         assert len(result) > 0
 
     def test_list_prompts_includes_required_fields(self):
         """Test each prompt has name, description, arguments."""
-        result = _list_prompts_impl(mcp)
+        result = asyncio.run(_list_prompts_impl(mcp))
         # PromptSummary model validates all required fields exist
         for prompt in result:
             assert isinstance(prompt.arguments, list)
@@ -2225,7 +2226,7 @@ class TestListPrompts:
         This test ensures that when new prompts are added to prompts.py,
         the AST introspection picks them up correctly.
         """
-        result = _list_prompts_impl(mcp)
+        result = asyncio.run(_list_prompts_impl(mcp))
         prompt_names = {p.name for p in result}
 
         # All prompts that should be discovered from prompts.py
@@ -2245,7 +2246,7 @@ class TestListPrompts:
 
     def test_list_prompts_argument_required_field(self):
         """Test that arguments correctly identify required vs optional."""
-        result = _list_prompts_impl(mcp)
+        result = asyncio.run(_list_prompts_impl(mcp))
         prompts_by_name = {p.name: p for p in result}
 
         # analyze_robot_file: content (required), focus (optional)

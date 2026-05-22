@@ -12,7 +12,8 @@ def mcp_prompts():
     """Get the registered MCP prompts."""
 
     async def get_prompts():
-        return await mcp.get_prompts()
+        prompt_list = await mcp.list_prompts()
+        return {p.name: await mcp.get_prompt(p.name) for p in prompt_list}
 
     return asyncio.run(get_prompts())
 

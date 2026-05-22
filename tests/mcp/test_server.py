@@ -41,8 +41,7 @@ class TestToolsRegistration:
 
     def test_all_tools_registered(self):
         """Test that all tools are registered."""
-        tools = asyncio.run(mcp.get_tools())
-
+        tools = {t.name: t for t in asyncio.run(mcp.list_tools())}
         expected_tools = [
             "lint_content",
             "lint_file",
@@ -68,7 +67,7 @@ class TestToolsRegistration:
 
     def test_tools_count(self):
         """Test that correct number of tools are registered."""
-        tools = asyncio.run(mcp.get_tools())
+        tools = asyncio.run(mcp.list_tools())
         # At least 15 tools should be registered
         assert len(tools) >= 15
 
@@ -78,7 +77,7 @@ class TestResourcesRegistration:
 
     def test_resources_registered(self):
         """Test that resources are registered."""
-        resources = asyncio.run(mcp.get_resources())
+        resources = asyncio.run(mcp.list_resources())
         # Should have at least the 3 main resources
         assert len(resources) >= 2
 
@@ -88,7 +87,7 @@ class TestPromptsRegistration:
 
     def test_all_prompts_registered(self):
         """Test that all 6 prompts are registered."""
-        prompts = asyncio.run(mcp.get_prompts())
+        prompts = {p.name: p for p in asyncio.run(mcp.list_prompts())}
 
         expected_prompts = [
             "analyze_robot_file",
@@ -104,5 +103,5 @@ class TestPromptsRegistration:
 
     def test_prompts_count(self):
         """Test that exactly 6 prompts are registered."""
-        prompts = asyncio.run(mcp.get_prompts())
+        prompts = asyncio.run(mcp.list_prompts())
         assert len(prompts) == 6

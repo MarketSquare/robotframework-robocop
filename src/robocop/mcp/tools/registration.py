@@ -781,7 +781,7 @@ def register_tools(mcp: FastMCP) -> None:
         if ctx:
             await ctx.debug("Listing available prompts")
 
-        return _list_prompts_impl(mcp)
+        return await _list_prompts_impl(mcp)
 
     @mcp.tool(
         tags={"linting", "fixing"},

@@ -18,7 +18,8 @@ def mcp_tools():
     """Get the registered MCP tools."""
 
     async def get_tools():
-        return await mcp.get_tools()
+        tool_list = await mcp.list_tools()
+        return {t.name: await mcp.get_tool(t.name) for t in tool_list}
 
     return asyncio.run(get_tools())
 

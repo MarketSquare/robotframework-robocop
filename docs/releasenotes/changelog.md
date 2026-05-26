@@ -1,5 +1,12 @@
 # Release notes
 
+## [8.2.9](https://github.com/MarketSquare/robotframework-robocop/compare/v8.2.8...v8.2.9) (2026-05-26)
+
+
+### Bug Fixes
+
+* add click as explicit dependency ([#1751](https://github.com/MarketSquare/robotframework-robocop/issues/1751)) ([47ee186](https://github.com/MarketSquare/robotframework-robocop/commit/47ee186cc0cbeef8cf97751bac7555a58b1c7c6e))
+
 ## [8.2.8](https://github.com/MarketSquare/robotframework-robocop/compare/v8.2.7...v8.2.8) (2026-05-11)
 
 

@@ -12,8 +12,8 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 from unittest import mock
 
-import click.exceptions
 import pytest
+import typer
 from rich.console import Console
 
 from robocop.run import check_files, check_project
@@ -132,7 +132,7 @@ class RuleAcceptance:
         configure.append(f"print_issues.output_format={output_format}")
         with isolated_output() as output, working_directory(test_data):
             try:
-                with pytest.raises(click.exceptions.Exit) as exc_info:
+                with pytest.raises(typer.Exit) as exc_info:
                     test_fn(
                         sources=paths,
                         select=select,
@@ -202,7 +202,7 @@ class RuleAcceptance:
 
         with isolated_output() as output, working_directory(test_data):
             try:
-                with pytest.raises(click.exceptions.Exit):
+                with pytest.raises(typer.Exit):
                     check_files(
                         sources=paths,
                         select=select,

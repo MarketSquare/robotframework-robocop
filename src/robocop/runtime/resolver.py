@@ -12,7 +12,7 @@ from importlib import import_module
 from pathlib import Path
 from typing import TYPE_CHECKING, NamedTuple
 
-import click
+import typer
 
 try:
     from robot.api import Languages  # RF 6.0
@@ -164,7 +164,7 @@ class RuleMatcher:
         ]
 
         if errors:
-            click.echo("\n".join(errors), err=True)
+            typer.echo("\n".join(errors), err=True)
 
 
 def is_checker(checker_class_def: tuple[str, type]) -> bool:
@@ -189,14 +189,14 @@ def can_run_in_robot_version(formatter: Formatter, overwritten: bool, target_ver
     if overwritten:
         # --select FormatterDisabledInVersion or --configure FormatterDisabledInVersion.enabled=True
         if target_version == ROBOT_VERSION.major:
-            click.echo(
+            typer.echo(
                 f"{formatter.__class__.__name__} formatter requires Robot Framework {min_version}.* "
                 f"version but you have {ROBOT_VERSION} installed. "
                 f"Upgrade installed Robot Framework if you want to use this formatter.",
                 err=True,
             )
         else:
-            click.echo(
+            typer.echo(
                 f"{formatter.__class__.__name__} formatter requires Robot Framework {min_version}.* "
                 f"version but you set --target-version rf{target_version}. "
                 f"Set --target-version to {min_version} or do not forcefully enable this formatter "

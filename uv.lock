@@ -2062,7 +2062,6 @@ wheels = [
 name = "robotframework-robocop"
 source = { editable = "." }
 dependencies = [
-    { name = "click" },
     { name = "jinja2" },
     { name = "msgpack" },
     { name = "pathspec" },
@@ -2111,7 +2110,6 @@ mcp = [
 
 [package.metadata]
 requires-dist = [
-    { name = "click", specifier = ">=8.0.0" },
     { name = "fastmcp", marker = "extra == 'mcp'", specifier = ">=3.0.0" },
     { name = "jinja2", specifier = ">=3.1.4" },
     { name = "msgpack", specifier = ">=1.0.0" },

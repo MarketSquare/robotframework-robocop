@@ -1,12 +1,12 @@
 """Test CLI commands / options common for linter and formatter."""
 
+from importlib import metadata
 from pathlib import Path
 from unittest.mock import patch
 
 import pytest
 from typer.testing import CliRunner
 
-from robocop import __version__
 from robocop.run import app
 from robocop.version_handling import ROBOT_VERSION
 from tests import working_directory
@@ -15,7 +15,7 @@ from tests import working_directory
 def test_version():
     runner = CliRunner()
     result = runner.invoke(app, ["--version"])
-    assert result.stdout == f"robocop, version {__version__}\n"
+    assert result.stdout == f"robocop, version {metadata.version('robotframework-robocop')}\n"
 
 
 def test_print_docs_rule():

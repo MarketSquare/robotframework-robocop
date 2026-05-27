@@ -1,9 +1,9 @@
 import textwrap
 from pathlib import Path
 
-import click
 import pytest
 import typer
+from typer._click.exceptions import FileError
 
 from robocop.config.parser import read_toml_config
 from robocop.config.schema import RawConfig
@@ -115,7 +115,7 @@ class TestExtendConfig:
         # Arrange
         config_path = DATA_DIR / "extends" / "invalid.toml"
         # Act
-        with pytest.raises(click.FileError) as exc_info:
+        with pytest.raises(FileError) as exc_info:
             read_toml_config(config_path)
         # Assert
         assert (
@@ -199,7 +199,7 @@ class TestExtendConfig:
             """,
         )
         # Act
-        with pytest.raises(click.FileError) as exc_info:
+        with pytest.raises(FileError) as exc_info:
             read_toml_config(config_path)
         # Assert
         assert "Error reading configuration file: [Errno 2] No such file or directory:" in exc_info.value.message

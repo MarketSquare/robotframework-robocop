@@ -5,7 +5,7 @@ import difflib
 import re
 from typing import TYPE_CHECKING
 
-import click
+import typer
 from rich.markup import escape
 from robot.api.parsing import Comment, End, If, IfHeader, ModelVisitor, Token
 from robot.parsing.model import Statement
@@ -19,7 +19,7 @@ def validate_regex(value: str | None) -> re.Pattern[str] | None:
     try:
         return re.compile(value) if value is not None else None
     except re.error:
-        raise click.BadParameter("Not a valid regular expression") from None
+        raise typer.BadParameter("Not a valid regular expression") from None
 
 
 def decorate_diff_with_color(contents: list[str]) -> list[str]:

@@ -282,3 +282,15 @@ Not used mixed
 Nested used
     ${var}    Set Variable    1
     Log    ${some_${var}}  # even if variable unnesting fails, we use tokenizer
+
+Used Only In Teardown
+    [Teardown]    Log    ${used_in_teardown}
+    ${used_in_teardown}    Set Variable    value
+
+Used Only In Teardown After Body
+    ${used_in_teardown}    Set Variable    value
+    [Teardown]    Log    ${used_in_teardown}
+
+Truly Unused When Teardown Does Not Use
+    [Teardown]    Log    no variable here
+    ${truly_unused}    Set Variable    value

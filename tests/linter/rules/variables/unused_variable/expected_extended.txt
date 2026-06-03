@@ -216,6 +216,14 @@ test.robot:248:9 VAR02 Variable '${var3}' is assigned but not used
  250 |     END
      |
 
+test.robot:296:5 VAR02 Variable '${truly_unused}' is assigned but not used
+     |
+ 294 | Truly Unused When Teardown Does Not Use
+ 295 |     [Teardown]    Log    no variable here
+ 296 |     ${truly_unused}    Set Variable    value
+     |     ^^^^^^^^^^^^^^^ VAR02
+     |
+
 unused_section_vars.robot:21:1 VAR02 Variable '${GLOBAL_NOT_USED}' is assigned but not used
     |
  19 | *** Variables ***
@@ -226,4 +234,4 @@ unused_section_vars.robot:21:1 VAR02 Variable '${GLOBAL_NOT_USED}' is assigned b
  23 | ${GLOBAL_USED2}    value with ${GLOBAL_USED_IN_SECTION}
     |
 
-Found 24 issues.
+Found 25 issues.

@@ -1308,7 +1308,6 @@ class UnusedVariablesChecker(VisitorChecker):
         for node in self.deferred_teardowns:
             for token in node.get_tokens(Token.NAME, Token.ARGUMENT):
                 self.find_not_nested_variable(token.value, can_be_escaped=False)
-        self.deferred_teardowns = []
 
     def check_unused_variables(self) -> None:
         for scope in self.variables:

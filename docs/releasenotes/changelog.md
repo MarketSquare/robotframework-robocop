@@ -1,5 +1,12 @@
 # Release notes
 
+## [8.2.10](https://github.com/MarketSquare/robotframework-robocop/compare/v8.2.9...v8.2.10) (2026-06-05)
+
+
+### Bug Fixes
+
+* Fix unused-variable false positive for variables consumed only in [Teardown] ([#1757](https://github.com/MarketSquare/robotframework-robocop/issues/1757)) ([a936fd3](https://github.com/MarketSquare/robotframework-robocop/commit/a936fd3c45d1fec09b0eaecdd3f8fbc9210a2fa7))
+
 ## [8.2.9](https://github.com/MarketSquare/robotframework-robocop/compare/v8.2.8...v8.2.9) (2026-05-26)
 
 

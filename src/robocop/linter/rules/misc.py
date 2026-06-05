@@ -1234,6 +1234,9 @@ class UnusedVariablesChecker(VisitorChecker):
         self.in_loop = False  # if we're in the loop we need to check whole scope for unused-variable
         self.test_or_task_section = False
         self.branch_level = 0  # if we're inside any if branch, it will be > 0
+        # Local [Teardown] nodes deferred to be processed after the rest of test/keyword body,
+        # so variables assigned later in the body are visible to the teardown (issue #1607).
+        self.deferred_teardowns: list[Teardown] = []
         super().__init__()
 
     def visit_File(self, node: File) -> None:  # noqa: N802
@@ -1268,12 +1271,18 @@ class UnusedVariablesChecker(VisitorChecker):
 
     def visit_TestCase(self, node: TestCase) -> None:  # noqa: N802
         self.variables = [{}]
+        previous_deferred = self.deferred_teardowns
+        self.deferred_teardowns = []
         self.generic_visit(node)
+        self.process_deferred_teardowns()
+        self.deferred_teardowns = previous_deferred
         self.check_unused_variables()
 
     def visit_Keyword(self, node: Keyword) -> None:  # noqa: N802
         self.arguments = {}
         self.variables = [{}]
+        previous_deferred = self.deferred_teardowns
+        self.deferred_teardowns = []
         name_token = node.header.get_token(Token.KEYWORD_NAME)
         self.parse_embedded_arguments(name_token)
         # iterating there instead of using visit_Arguments, so we don't check keywords without arguments
@@ -1281,12 +1290,24 @@ class UnusedVariablesChecker(VisitorChecker):
             if isinstance(statement, Arguments):
                 self.parse_arguments(statement)
         self.generic_visit(node)
+        self.process_deferred_teardowns()
+        self.deferred_teardowns = previous_deferred
         for arg in self.arguments.values():
             if not arg.is_used:
                 value, *_ = arg.token.value.split("=", maxsplit=1)
                 self.report_arg_or_var_rule(self.unused_argument, arg.token, value)
         self.check_unused_variables()
         self.arguments = {}
+
+    def visit_Teardown(self, node: Teardown) -> None:  # noqa: N802
+        # Defer processing of local [Teardown] until after the rest of the test/keyword body has
+        # been visited, so variables assigned later in the body are also marked as used.
+        self.deferred_teardowns.append(node)
+
+    def process_deferred_teardowns(self) -> None:
+        for node in self.deferred_teardowns:
+            for token in node.get_tokens(Token.NAME, Token.ARGUMENT):
+                self.find_not_nested_variable(token.value, can_be_escaped=False)
 
     def check_unused_variables(self) -> None:
         for scope in self.variables:
@@ -1398,7 +1419,7 @@ class UnusedVariablesChecker(VisitorChecker):
 
     visit_TestTags = visit_ForceTags = visit_Metadata = visit_DefaultTags = (  # noqa: N815
         visit_Variable  # noqa: N815
-    ) = visit_ReturnStatement = visit_ReturnSetting = visit_Teardown = (  # noqa: N815
+    ) = visit_ReturnStatement = visit_ReturnSetting = (  # noqa: N815
         visit_Timeout  # noqa: N815
     ) = visit_Return = visit_SuiteSetup = (  # noqa: N815  # noqa: N815
         visit_SuiteTeardown  # noqa: N815

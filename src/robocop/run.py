@@ -1,11 +1,11 @@
 import textwrap
-from importlib import metadata
 from pathlib import Path
 from typing import Annotated, Any
 
 import typer
 from rich.console import Console
 
+from robocop import __version__
 from robocop.config import defaults, manager, parser, schema
 from robocop.formatter.runner import RobocopFormatter
 from robocop.linter import rules_list
@@ -43,7 +43,7 @@ app.add_typer(list_app, name="list")
 def version_callback(value: bool | None) -> None:
     if not value:
         return
-    typer.echo(f"robocop, version {metadata.version('robotframework-robocop')}")
+    typer.echo(f"robocop, version {__version__}")
     raise typer.Exit
 
 

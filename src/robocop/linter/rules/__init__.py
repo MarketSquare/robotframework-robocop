@@ -36,7 +36,7 @@ from robocop.parsing.context import Context
 from robocop.version_handling import Version, VersionSpecifier
 
 try:
-    import annotationlib  # type: ignore[import-not-found]
+    import annotationlib  # type: ignore[import-not-found]  # deptry: ignore
 except ImportError:  # Python < 3.14
     annotationlib = None  # type: ignore[assignment,unused-ignore]
 

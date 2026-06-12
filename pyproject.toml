@@ -51,7 +51,8 @@ robocop-mcp = "robocop.mcp.server:main"
 
 [project.optional-dependencies]
 mcp = [
-    "fastmcp>=3.0.0"
+    "fastmcp>=3.0.0",
+    "pydantic>=2.13.4"
 ]
 
 [project.urls]
@@ -86,7 +87,8 @@ dev = [
     "mypy>=1.19.1",
     "types-jinja2",
     "types-pytz",
-    "msgpack-types"
+    "msgpack-types",
+    "deptry>=0.25.1",
 ]
 doc = [
     "mkdocs",
@@ -99,6 +101,7 @@ doc = [
 ]
 mcp = [
     "fastmcp>=3.0.0",
+    "pydantic>=2.13.4",
 ]
 
 [tool.ruff]

@@ -1,5 +1,13 @@
 # Release notes
 
+## [8.2.11](https://github.com/MarketSquare/robotframework-robocop/compare/v8.2.10...v8.2.11) (2026-06-12)
+
+
+### Bug Fixes
+
+* add deptry dependency check ([#1761](https://github.com/MarketSquare/robotframework-robocop/issues/1761)) ([4990e53](https://github.com/MarketSquare/robotframework-robocop/commit/4990e53a26f9ba065b2440f92f3e251989912628))
+* References to upstream `click` causing further side effects ([#1754](https://github.com/MarketSquare/robotframework-robocop/issues/1754)) ([#1755](https://github.com/MarketSquare/robotframework-robocop/issues/1755)) ([4007e29](https://github.com/MarketSquare/robotframework-robocop/commit/4007e291c49736d645958dcaacfd97ec9f0d2f12))
+
 ## [8.2.10](https://github.com/MarketSquare/robotframework-robocop/compare/v8.2.9...v8.2.10) (2026-06-05)
 
 

@@ -50,7 +50,7 @@ class RobocopFormatter:
                 # if str(source) == "-":
                 #     stdin = True
                 #     if self.config.verbose:
-                #         click.echo("Loading file from stdin")
+                #         typer.echo("Loading file from stdin")
                 #     source = self.load_from_stdin()
                 if self.config.verbose:
                     print(f"Formatting {source_file.path} file")

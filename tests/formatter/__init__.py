@@ -4,8 +4,8 @@ import filecmp
 from difflib import unified_diff
 from pathlib import Path
 
-import click
 import pytest
+import typer
 from packaging import version
 from packaging.specifiers import SpecifierSet
 from rich.console import Console
@@ -91,7 +91,7 @@ class FormatterAcceptanceTest:
             source_path = self.FORMATTERS_DIR / self.FORMATTER_NAME / "source"
         else:
             source_path = self.FORMATTERS_DIR / self.FORMATTER_NAME / "source" / source
-        with pytest.raises(click.exceptions.Exit) as exc_info:
+        with pytest.raises(typer.Exit) as exc_info:
             format_files(
                 sources=[source_path],
                 select=select,

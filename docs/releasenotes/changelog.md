@@ -1,5 +1,12 @@
 # Release notes
 
+## [8.3.0](https://github.com/MarketSquare/robotframework-robocop/compare/v8.2.11...v8.3.0) (2026-06-17)
+
+
+### Features
+
+* Add `test_types` option to AlignTestCasesSection for templated/non-templated tests ([#1764](https://github.com/MarketSquare/robotframework-robocop/issues/1764)) ([acfdb45](https://github.com/MarketSquare/robotframework-robocop/commit/acfdb4563e0f5938b678565cbe856b496f61d905))
+
 ## [8.2.11](https://github.com/MarketSquare/robotframework-robocop/compare/v8.2.10...v8.2.11) (2026-06-12)
 
 

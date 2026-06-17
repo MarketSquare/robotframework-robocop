@@ -166,6 +166,13 @@ class TestAlignTestCasesSection(FormatterAcceptanceTest):
             configure=configure,
         )
 
+    def test_align_comments_does_not_align_variables_section(self):
+        """Comments outside test cases (e.g. in *** Variables ***) should not be aligned."""
+        self.compare(
+            source="align_comments_variables.robot",
+            configure=[f"{self.FORMATTER_NAME}.align_comments=True"],
+        )
+
     def test_templated_test_with_setting(self):
         """Tests with [Template]"""
         self.compare(

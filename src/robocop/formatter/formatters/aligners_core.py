@@ -17,7 +17,7 @@ from robocop.formatter.formatters import Formatter
 from robocop.formatter.utils import misc
 
 if TYPE_CHECKING:
-    from robot.parsing.model.blocks import File, For, Group, If, SettingSection, Try, While
+    from robot.parsing.model.blocks import File, For, Group, If, SettingSection, Try, VariableSection, While
     from robot.parsing.model.statements import (
         Arguments,
         Comment,
@@ -194,6 +194,10 @@ class AlignKeywordsTestsSection(Formatter):
         return width
 
     def visit_SettingSection(self, node: SettingSection) -> SettingSection:  # noqa: N802
+        return node
+
+    def visit_VariableSection(self, node: VariableSection) -> VariableSection:  # noqa: N802
+        # do nothing -> stop a visitor from visiting other sections for performance
         return node
 
     @skip_if_disabled

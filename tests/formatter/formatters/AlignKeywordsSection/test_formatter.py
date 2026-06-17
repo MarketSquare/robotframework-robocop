@@ -11,6 +11,13 @@ class TestAlignKeywordsSection(FormatterAcceptanceTest):
     def test_blocks(self):
         self.compare(source="blocks.robot")
 
+    def test_align_comments_does_not_align_variables_section(self):
+        """Comments outside keywords (e.g. in *** Variables ***) should not be aligned."""
+        self.compare(
+            source="align_comments_variables.robot",
+            configure=[f"{self.FORMATTER_NAME}.align_comments=True"],
+        )
+
     def test_blocks_auto(self):
         self.compare(
             source="blocks.robot",

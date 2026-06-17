@@ -2,12 +2,18 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from robot.parsing.model.statements import Template
+
+from robocop.exceptions import InvalidParameterValueError
 from robocop.formatter.disablers import skip_if_disabled
 from robocop.formatter.formatters.aligners_core import AlignKeywordsTestsSection
 from robocop.formatter.utils.misc import is_suite_templated
 
 if TYPE_CHECKING:
     from robot.parsing.model.blocks import File, KeywordSection, TestCase
+
+TEMPLATED = "templated"
+NON_TEMPLATED = "non_templated"
 
 
 class AlignTestCasesSection(AlignKeywordsTestsSection):
@@ -41,6 +47,10 @@ class AlignTestCasesSection(AlignKeywordsTestsSection):
 
     It is possible to skip formatting on various types of the syntax (documentation, keyword calls with specific names
     or settings).
+
+    You can limit alignment to only templated tests (tests with ``[Template]`` setting) or only non-templated tests
+    by configuring ``test_types``. It accepts a comma separated list with the ``templated`` and ``non_templated``
+    values. By default both test types are aligned.
     """
 
     def __init__(
@@ -51,11 +61,26 @@ class AlignTestCasesSection(AlignKeywordsTestsSection):
         compact_overflow_limit: int = 2,
         align_comments: bool = False,
         align_settings_separately: bool = False,
+        test_types: str = "templated,non_templated",
         skip_documentation: str = "True",  # noqa: ARG002 override skip_documentation from Skip
     ) -> None:
+        self.test_types = self.parse_test_types(test_types)
         super().__init__(
             widths, alignment_type, handle_too_long, compact_overflow_limit, align_comments, align_settings_separately
         )
+
+    def parse_test_types(self, test_types: str) -> set[str]:
+        allowed = {TEMPLATED, NON_TEMPLATED}
+        parsed = {value.strip().lower() for value in test_types.split(",") if value.strip()}
+        if not parsed or not parsed.issubset(allowed):
+            raise InvalidParameterValueError(
+                self.__class__.__name__,
+                "test_types",
+                test_types,
+                f"Test types should be comma separated list of at least one of the following values: "
+                f"'{TEMPLATED}', '{NON_TEMPLATED}'.",
+            )
+        return parsed
 
     def visit_File(self, node: File) -> File:  # noqa: N802
         if is_suite_templated(node):
@@ -64,10 +89,17 @@ class AlignTestCasesSection(AlignKeywordsTestsSection):
 
     @skip_if_disabled
     def visit_TestCase(self, node: TestCase) -> TestCase:  # noqa: N802
+        test_type = TEMPLATED if self.is_templated_test(node) else NON_TEMPLATED
+        if test_type not in self.test_types:
+            return node
         self.create_auto_widths_for_context(node)
         self.generic_visit(node)
         self.remove_auto_widths_for_context()
         return node
+
+    @staticmethod
+    def is_templated_test(node: TestCase) -> bool:
+        return any(isinstance(statement, Template) for statement in node.body)
 
     def visit_KeywordSection(self, node: KeywordSection) -> KeywordSection:  # noqa: N802
         # do nothing -> stop a visitor from visiting other sections for performance

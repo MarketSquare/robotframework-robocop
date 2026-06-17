@@ -451,6 +451,70 @@ See example:
         Perform Action And Wait     ${argument_name}
     ```
 
+## Align only templated or non-templated tests
+
+By default both templated tests (tests with the ``[Template]`` setting) and non-templated tests are aligned.
+You can limit the alignment to only one type of tests by configuring ``test_types``. It accepts a comma separated
+list with the ``templated`` and ``non_templated`` values. At least one value needs to be provided.
+
+For example, to align only the templated tests and leave the rest of the tests untouched:
+
+=== ":octicons-command-palette-24: cli"
+
+    ```bash
+    robocop format --select AlignTestCasesSection -c AlignTestCasesSection.test_types=templated
+    ```
+
+=== ":material-file-cog-outline: toml"
+
+    ```toml
+    [tool.robocop.format]
+    select = [
+        "AlignTestCasesSection"
+    ]
+    configure = [
+        "AlignTestCasesSection.test_types=templated"
+    ]
+    ```
+
+See example:
+
+=== "Before"
+
+    ```robotframework
+    *** Test Cases ***
+    Test case
+        ${short}    Short Keyword    short arg
+        ${other_val}    Short Keyword
+        ...    arg
+        ...    value
+
+    Testing Random List
+        [Template]    Validate Random List Selection
+        # collection    nbr items
+        ${SIMPLE LIST}    2    # first test
+        ${MIXED LIST}    3    # second test
+        ${NESTED LIST}    4    # third test
+    ```
+
+=== "test_types=templated"
+
+    ```robotframework
+    *** Test Cases ***
+    Test case
+        ${short}    Short Keyword    short arg
+        ${other_val}    Short Keyword
+        ...    arg
+        ...    value
+
+    Testing Random List
+        [Template]              Validate Random List Selection
+        # collection            nbr items
+        ${SIMPLE LIST}          2                       # first test
+        ${MIXED LIST}           3                       # second test
+        ${NESTED LIST}          4                       # third test
+    ```
+
 ## Alignment of VAR variables
 
 VAR variables are aligned with the rest of the code. By default, ``VAR`` and variable name is fit into the same

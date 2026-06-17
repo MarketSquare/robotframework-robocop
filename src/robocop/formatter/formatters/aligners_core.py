@@ -378,6 +378,7 @@ class AlignKeywordsTestsSection(Formatter):
             return node
         return self.align_node(node, check_length=False, is_setting=True)
 
+    @skip_if_disabled
     def visit_Comment(self, node: Comment) -> Statement:  # noqa: N802
         if node.errors:
             return node

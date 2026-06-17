@@ -173,6 +173,12 @@ class TestAlignTestCasesSection(FormatterAcceptanceTest):
             configure=[f"{self.FORMATTER_NAME}.align_comments=True"],
         )
 
+    def test_align_comments_respects_disablers(self):
+        self.compare(
+            source="align_comments_disablers.robot",
+            configure=[f"{self.FORMATTER_NAME}.align_comments=True"],
+        )
+
     def test_templated_test_with_setting(self):
         """Tests with [Template]"""
         self.compare(

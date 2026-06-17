@@ -1,5 +1,12 @@
 # Release notes
 
+## [8.3.1](https://github.com/MarketSquare/robotframework-robocop/compare/v8.3.0...v8.3.1) (2026-06-17)
+
+
+### Bug Fixes
+
+* stop AlignKeywords/TestCasesSection from aligning comments outside test cases and keywords ([#1768](https://github.com/MarketSquare/robotframework-robocop/issues/1768)) ([ff98d1b](https://github.com/MarketSquare/robotframework-robocop/commit/ff98d1bc90c442717ff99cd08caaf0304e7a433d))
+
 ## [8.3.0](https://github.com/MarketSquare/robotframework-robocop/compare/v8.2.11...v8.3.0) (2026-06-17)
 
 

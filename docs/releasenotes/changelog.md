@@ -1,5 +1,12 @@
 # Release notes
 
+## [8.3.2](https://github.com/MarketSquare/robotframework-robocop/compare/v8.3.1...v8.3.2) (2026-06-17)
+
+
+### Bug Fixes
+
+* respect `fmt: off` when aligning comments in keyword/test-case aligners ([#1771](https://github.com/MarketSquare/robotframework-robocop/issues/1771)) ([d7f7dba](https://github.com/MarketSquare/robotframework-robocop/commit/d7f7dba3b1c4805fa6379e1076c4845e083dc0e4))
+
 ## [8.3.1](https://github.com/MarketSquare/robotframework-robocop/compare/v8.3.0...v8.3.1) (2026-06-17)
 
 

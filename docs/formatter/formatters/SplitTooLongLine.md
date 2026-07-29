@@ -185,12 +185,15 @@ will result in:
     ```robotframework
     *** Keywords ***
     Arguments
-        [Arguments]
-        ...    ${short}
+        [Arguments]    ${short}
         ...    ${veryLongAndJavaLikeArgumentThatWillGoOverAllowedLength}
         ...    ${veryLongAndJavaLikeArgumentThatWillGoOverAllowedLength}
         Step
     ```
+
+    The first argument is kept on the same line as the setting name and the remaining arguments are split one per
+    line. This follows the [Robot Framework style guide](https://docs.robotframework.org/docs/style_guide) and does
+    not conflict with the `first-argument-in-new-line` (SPC18) and `arguments-per-line` (ARG07) linter rules.
 
 === "After (split_on_every_setting_arg set to False)"
 

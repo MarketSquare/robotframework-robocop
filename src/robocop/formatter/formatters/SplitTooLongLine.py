@@ -90,6 +90,18 @@ class SplitTooLongLine(Formatter):
 
     ```
 
+    Settings such as ``[Arguments]`` and ``[Tags]`` keep their first argument on the same line as the setting
+    name and split the remaining arguments one per line. This follows the Robot Framework style guide and avoids
+    conflicts with the ``first-argument-in-new-line`` (SPC18) and ``arguments-per-line`` (ARG07) linter rules:
+
+    ```robotframework
+    *** Keywords ***
+    Keyword With Multiple Arguments
+        [Arguments]    ${first_argument}
+        ...    ${second_argument}
+        ...    ${third_argument}
+    ```
+
     Supports global formatting params: ``space-count`` and ``separator``.
     """
 
@@ -259,7 +271,13 @@ class SplitTooLongLine(Formatter):
             token_index = 2
         line: list[Token] = list(node.tokens[:token_index])
         tokens, comments = self.split_tokens(
-            node.tokens, line, self.split_on_every_setting_arg, indent, split_types=split_types, keep_types=keep_types
+            node.tokens,
+            line,
+            self.split_on_every_setting_arg,
+            indent,
+            split_types=split_types,
+            keep_types=keep_types,
+            keep_first_on_line=True,
         )
         if indent:
             comments = [Comment([indent, comment, EOL]) for comment in comments]
@@ -294,6 +312,7 @@ class SplitTooLongLine(Formatter):
         indent: Token | int | None = None,
         split_types: set[str] = ARGUMENTS_ONLY,  # type: ignore[assignment]
         keep_types: set[str] | None = None,
+        keep_first_on_line: bool = False,
     ) -> tuple[list[Token], list[Token]]:
         if not keep_types:
             keep_types = set()
@@ -309,6 +328,7 @@ class SplitTooLongLine(Formatter):
         # [COMMENT, SEPARATOR, COMMENT] tokens in the AST, so to preserve the
         # original comment, we need a lookback at the separator tokens.
         last_separator = None
+        first_split_token = True
         for token in tokens:
             if token.type in self.IGNORED_WHITESPACE:
                 continue
@@ -319,7 +339,12 @@ class SplitTooLongLine(Formatter):
             elif token.type in split_types:
                 if token.value == "":
                     token.value = "${EMPTY}"
-                if split_on or not self.col_fit_in_line([*line, separator, token]):
+                # Keep the first argument on the same line as the setting to follow the style guide
+                # (e.g. ``[Arguments]    ${first}``) so the output does not clash with linter rules
+                # first-argument-in-new-line (SPC18) and arguments-per-line (ARG07).
+                keep_on_line = keep_first_on_line and first_split_token
+                first_split_token = False
+                if not keep_on_line and (split_on or not self.col_fit_in_line([*line, separator, token])):
                     if align_new_line and cont_indent is None:  # we are yet to calculate aligned indent
                         cont_indent = Token(Token.SEPARATOR, self.calculate_align_separator(line))
                     line.append(EOL)

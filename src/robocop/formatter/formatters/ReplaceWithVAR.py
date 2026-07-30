@@ -191,8 +191,26 @@ class ReplaceWithVAR(Formatter):
             else:
                 node.tokens = [*node.tokens[:-1], Token(Token.SEPARATOR, "  "), comments[0], node.tokens[-1]]  # type: ignore[union-attr]
             return node
-        comment_nodes = [Comment.from_params(comment=comment.value, indent=indent) for comment in comments]
+        comment_nodes = [
+            Comment.from_params(comment=comment, indent=indent) for comment in self.merge_comment_values(comments)
+        ]
         return *comment_nodes, node
+
+    @staticmethod
+    def merge_comment_values(comments: list[Token]) -> list[str]:
+        """
+        Merge comment tokens that belong to the same comment.
+
+        A single inline comment is tokenized into one token per cell, and only the first one starts with ``#``.
+        Emitting the remaining cells as separate comments would turn them into executable lines.
+        """
+        merged: list[str] = []
+        for comment in comments:
+            if merged and not comment.value.startswith("#"):
+                merged[-1] = f"{merged[-1]}    {comment.value}"
+            else:
+                merged.append(comment.value)
+        return merged
 
     @staticmethod
     def resolve_variable_name(name: str) -> str | None:

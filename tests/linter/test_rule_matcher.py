@@ -455,3 +455,21 @@ class TestRuleMatcher:
         rule_matcher.check_unmatched_filters()
         _, err = capsys.readouterr()
         assert err == ""
+
+    def test_check_matched_ignored_rule_below_threshold(self, capsys):
+        """Rule filtered out by --threshold should still mark --ignore as matched (#1775)."""
+        rule_matcher = RuleMatcher(
+            select=[],
+            extend_select=[],
+            ignore=["some-message-0101"],
+            target_version=ROBOT_VERSION,
+            threshold=RuleSeverity.ERROR,
+            fixable=[],
+            unfixable=[],
+        )
+
+        assert not rule_matcher.is_rule_enabled(get_enabled_rule("0101", severity=RuleSeverity.WARNING))
+
+        rule_matcher.check_unmatched_filters()
+        _, err = capsys.readouterr()
+        assert err == ""

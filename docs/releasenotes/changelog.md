@@ -1,5 +1,12 @@
 # Release notes
 
+## [8.4.1](https://github.com/MarketSquare/robotframework-robocop/compare/v8.4.0...v8.4.1) (2026-07-30)
+
+
+### Bug Fixes
+
+* mark --ignore values as matched for rules below --threshold ([#1786](https://github.com/MarketSquare/robotframework-robocop/issues/1786)) ([70d0ab6](https://github.com/MarketSquare/robotframework-robocop/commit/70d0ab69f42c3b7dbd4f61605929c8122771a52c)), closes [#1775](https://github.com/MarketSquare/robotframework-robocop/issues/1775)
+
 ## [8.4.0](https://github.com/MarketSquare/robotframework-robocop/compare/v8.3.2...v8.4.0) (2026-07-30)
 
 

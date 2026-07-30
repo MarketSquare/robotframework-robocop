@@ -129,9 +129,12 @@ class RuleMatcher:
     def _is_rule_disabled(self, rule: Rule) -> bool:
         if rule.is_disabled(self.target_version):
             return True
+        # Evaluate --ignore first so the filter is recorded as matched even when the rule is
+        # also filtered out by --threshold, otherwise it is falsely reported as unmatched.
+        ignored = self.ignore_filter.matches(rule)
         if rule.severity < self.threshold and not rule.config.get("severity_threshold"):
             return True
-        return self.ignore_filter.matches(rule)
+        return ignored
 
     def is_rule_fixable(self, rule: Rule) -> bool:
         """Determine if rule is fixable based on --fixable and --unfixable options."""

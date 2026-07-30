@@ -1,5 +1,12 @@
 # Release notes
 
+## [8.4.0](https://github.com/MarketSquare/robotframework-robocop/compare/v8.3.2...v8.4.0) (2026-07-30)
+
+
+### Features
+
+* keep first setting argument on the setting line in SplitTooLongLine ([#1784](https://github.com/MarketSquare/robotframework-robocop/issues/1784)) ([59416c8](https://github.com/MarketSquare/robotframework-robocop/commit/59416c86baa8dbe0d5ac0b342bfb06194038e157)), closes [#1723](https://github.com/MarketSquare/robotframework-robocop/issues/1723)
+
 ## [8.3.2](https://github.com/MarketSquare/robotframework-robocop/compare/v8.3.1...v8.3.2) (2026-06-17)
 
 

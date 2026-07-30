@@ -1,9 +1,9 @@
 # Release notes
 
-## [8.3.3](https://github.com/MarketSquare/robotframework-robocop/compare/v8.3.2...v8.3.3) (2026-07-30)
+## [8.4.0](https://github.com/MarketSquare/robotframework-robocop/compare/v8.3.2...v8.4.0) (2026-07-30)
 
 
-### Bug Fixes
+### Features
 
 * keep first setting argument on the setting line in SplitTooLongLine ([#1784](https://github.com/MarketSquare/robotframework-robocop/issues/1784)) ([59416c8](https://github.com/MarketSquare/robotframework-robocop/commit/59416c86baa8dbe0d5ac0b342bfb06194038e157)), closes [#1723](https://github.com/MarketSquare/robotframework-robocop/issues/1723)
 

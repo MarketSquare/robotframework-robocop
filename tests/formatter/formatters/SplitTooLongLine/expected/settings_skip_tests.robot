@@ -30,8 +30,7 @@ Test with comments in settings
 
 *** Keywords ***
 Arguments
-    [Arguments]
-    ...    ${short}
+    [Arguments]    ${short}
     ...    ${veryLongAndJavaLikeArgumentThatWillGoOverAllowedLength}
     ...    ${veryLongAndJavaLikeArgumentThatWillGoOverAllowedLength}
     Step
@@ -42,15 +41,13 @@ Arguments multiline
     Step
 
 Arguments single line over limit
-    [Arguments]
-    ...    ${short}
+    [Arguments]    ${short}
     ...    ${veryLongAndJavaLikeArgumentThatWillGoOverAllowedLengthveryLongAndJavaLikeArgumentThatWillGoOverAllowedLength}
     ...    ${veryLongAndJavaLikeArgumentThatWillGoOverAllowedLength}
     Step
 
 Comment that goes over the allowed length
-    [Arguments]
-    ...    ${short}
+    [Arguments]    ${short}
     ...    ${veryLongAndJavaLikeArgumentThatWillGoOverAllowedLength}
     # this is long comment and it should be ignored with --skip-comments
     Step

@@ -187,3 +187,56 @@ class TestListFormatters:
                 app, ["format", "--no-overwrite", "--check", option_name, "good.robot", "-e", "bad.robot"]
             )
         assert result.exit_code == 0
+
+
+class TestConfigOption:
+    """The ``--config`` option should load configuration from the provided path for listing/docs commands."""
+
+    def test_list_rules_with_config(self, tmp_path):
+        config_file = tmp_path / "custom_config.toml"
+        config_file.write_text('[tool.robocop.lint]\nselect = ["line-too-long"]\n')
+        with working_directory(tmp_path):
+            result = CliRunner().invoke(app, ["list", "rules", "--config", str(config_file)])
+        assert result.exit_code == 0
+        assert "LEN08 [W]: line-too-long" in result.stdout
+        assert "(1 enabled)" in result.stdout
+
+    def test_list_reports_with_config(self, tmp_path):
+        config_file = tmp_path / "custom_config.toml"
+        config_file.write_text('[tool.robocop.lint]\nreports = ["sarif"]\n')
+        with working_directory(tmp_path):
+            default_result = CliRunner().invoke(app, ["list", "reports", "--enabled"])
+            result = CliRunner().invoke(app, ["list", "reports", "--enabled", "--config", str(config_file)])
+        assert "sarif" not in default_result.stdout
+        assert result.exit_code == 0
+        assert "sarif" in result.stdout
+
+    def test_list_formatters_with_config(self, tmp_path):
+        config_file = tmp_path / "custom_config.toml"
+        config_file.write_text('[tool.robocop.format]\nselect = ["NormalizeTags"]\n')
+        with working_directory(tmp_path):
+            result = CliRunner().invoke(
+                app, ["list", "formatters", "--filter", "ENABLED", "--config", str(config_file)]
+            )
+        assert result.exit_code == 0
+        assert "NormalizeTags" in result.stdout
+        assert "NormalizeNewLines" not in result.stdout
+
+    def test_docs_with_config_custom_rule(self, tmp_path):
+        custom_rule = (
+            Path(__file__).parent
+            / "linter"
+            / "test_data"
+            / "custom_rules"
+            / "custom_rule_module_simple_import"
+            / "RobocopRules"
+            / "single_rule.py"
+        )
+        config_file = tmp_path / "custom_config.toml"
+        config_file.write_text(f'[tool.robocop.lint]\ncustom_rules = ["{custom_rule.as_posix()}"]\n')
+        with working_directory(tmp_path):
+            default_result = CliRunner().invoke(app, ["docs", "external-rule"])
+            result = CliRunner().invoke(app, ["docs", "external-rule", "--config", str(config_file)])
+        assert default_result.exit_code == 2
+        assert result.exit_code == 0
+        assert "Rule: external-rule (EXT03)" in result.stdout

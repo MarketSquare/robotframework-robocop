@@ -771,6 +771,7 @@ def list_rules(
     filter_pattern: Annotated[str | None, typer.Option("--pattern", help="Filter rules by pattern")] = None,
     target_version: linter_target_version_option = None,
     with_fix: Annotated[bool, typer.Option("--with-fix", help="Show only fixable rules")] = False,
+    configuration_file: config_option = None,
     silent: silent_option = None,
     return_result: Annotated[
         bool,
@@ -800,7 +801,7 @@ def list_rules(
         silent=silent,
         target_version=target_version,
     )
-    config_manager = manager.ConfigManager(overwrite_config=overwrite_config)
+    config_manager = manager.ConfigManager(config=configuration_file, overwrite_config=overwrite_config)
     resolver = ConfigResolver(load_rules=True)
     resolved_config = resolver.resolve_config(config_manager.default_config)
     if filter_pattern:
@@ -850,13 +851,14 @@ def list_reports(
             help="Enable selected reports.",
         ),
     ] = None,
+    configuration_file: config_option = None,
     silent: silent_option = None,
 ) -> None:
     """List available reports."""
     console = Console(soft_wrap=True)
     linter_config = schema.RawLinterConfig(reports=reports)
     overwrite_config = schema.RawConfig(linter=linter_config, silent=silent)
-    config_manager = manager.ConfigManager(overwrite_config=overwrite_config)
+    config_manager = manager.ConfigManager(config=configuration_file, overwrite_config=overwrite_config)
     runner = RobocopLinter(config_manager)
     if not silent:
         console.print(print_reports(runner.reports, enabled))  # TODO: color etc
@@ -868,6 +870,7 @@ def list_formatters(
         rules_list.RuleFilter, typer.Option("--filter", case_sensitive=False, help="Filter formatters by category.")
     ] = rules_list.RuleFilter.ALL,
     target_version: formatter_target_version = None,
+    configuration_file: config_option = None,
     silent: silent_option = None,
 ) -> None:
     """List available formatters."""
@@ -877,7 +880,7 @@ def list_formatters(
     overwrite_config = schema.RawConfig(
         silent=silent, target_version=target_version, formatter=schema.RawFormatterConfig(allow_disabled=True)
     )
-    config_manager = manager.ConfigManager(overwrite_config=overwrite_config)
+    config_manager = manager.ConfigManager(config=configuration_file, overwrite_config=overwrite_config)
     resolver = ConfigResolver(load_rules=True, load_formatters=True)
     resolved_config = resolver.resolve_config(config_manager.default_config)
 
@@ -906,11 +909,14 @@ def list_formatters(
 
 
 @app.command("docs")
-def print_resource_documentation(name: Annotated[str, typer.Argument(help="Rule name")]) -> None:
+def print_resource_documentation(
+    name: Annotated[str, typer.Argument(help="Rule name")],
+    configuration_file: config_option = None,
+) -> None:
     """Print formatter, rule or report documentation."""
     # TODO load external from cli
     console = Console(soft_wrap=True)
-    config_manager = manager.ConfigManager()
+    config_manager = manager.ConfigManager(config=configuration_file)
     resolver = ConfigResolver(load_rules=True, load_formatters=True)
     resolved_config = resolver.resolve_config(config_manager.default_config)
 

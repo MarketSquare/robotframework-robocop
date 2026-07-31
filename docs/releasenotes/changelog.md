@@ -1,5 +1,12 @@
 # Release notes
 
+## [8.5.0](https://github.com/MarketSquare/robotframework-robocop/compare/v8.4.1...v8.5.0) (2026-07-31)
+
+
+### Features
+
+* support --config option in list rules/formatters docs options ([#1791](https://github.com/MarketSquare/robotframework-robocop/issues/1791)) ([61024dd](https://github.com/MarketSquare/robotframework-robocop/commit/61024dda84e55590f59c0daaf6d9a79e20e6a038))
+
 ## [8.4.1](https://github.com/MarketSquare/robotframework-robocop/compare/v8.4.0...v8.4.1) (2026-07-30)
 
 

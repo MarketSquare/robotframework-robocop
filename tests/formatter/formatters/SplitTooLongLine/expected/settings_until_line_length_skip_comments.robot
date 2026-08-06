@@ -3,36 +3,36 @@ Documentation    Test documentation for suite with logs of long lines. Test docu
 
 Library    ShortButSpaced    ${1}    ${2}    ${3}
 Library    CustomLibraryWithLongerNameAndSeveralArguments    first_argument    second_argument=${longer_variable_name}
-...    third_argument=${longer_variable_name}
+...        third_argument=${longer_variable_name}
 Library    CustomLibraryWithLongerNameAndSeveralArguments    first_argument    second_argument=${longer_variable_name}
-...    WITH NAME    name
+...        WITH NAME    name
 Library    CustomLibraryWithLongerNameAndSeveralArguments    first_argument    second_argument=${longer_variable_name}
-...    AS    name
+...        AS    name
 Library
 
 # there is also resource but it rarely goes over, variable imports, suite setup/suite teardown (but indentnested should take care of that)
 Metadata      Name of metadata variable  For more information about *Robot Framework* see http://robotframework.org or visit dedicated documentation site.
 
 Keyword Tags    PS_CSMON_15838    PR_PPD    PR_B450    PR_B650    PR_B850    PR_CS1000    PR_CS1000L    PAR_ECG
-...    PAR_IP_1    PAR_SPO2
+...             PAR_IP_1    PAR_SPO2
 Test Tags    PS_CSMON_15838    PR_PPD    PR_B450    PR_B650    PR_B850    PR_CS1000    PR_CS1000L    PAR_ECG
-...    PAR_IP_1    PAR_SPO2
+...          PAR_IP_1    PAR_SPO2
 Default Tags    PS_CSMON_15838    PR_PPD    PR_B450    PR_B650    PR_B850    PR_CS1000    PR_CS1000L    PAR_ECG
-...    PAR_IP_1    PAR_SPO2
+...             PAR_IP_1    PAR_SPO2
 # comment
 
 
 *** Test Cases ***
 Test with lots of tags
     [Tags]    PS_CSMON_15838    PR_PPD    PR_B450    PR_B650    PR_B850    PR_CS1000    PR_CS1000L    PAR_ECG
-    ...    PAR_IP_1    PAR_SPO2
+    ...       PAR_IP_1    PAR_SPO2
     Prepare
     Run
     Assert
 
 Test with comments in settings
     [Tags]    tag    tag    PS_CSMON_15838    PR_PPD    PR_B450    PR_B650    PR_B850    PR_CS1000    PR_CS1000L
-    ...    PAR_ECG    PAR_IP_1    PAR_SPO2
+    ...       PAR_ECG    PAR_IP_1    PAR_SPO2
     # comment1
     # comment2
     # comment3
@@ -41,7 +41,7 @@ Test with comments in settings
 *** Keywords ***
 Arguments
     [Arguments]    ${short}    ${veryLongAndJavaLikeArgumentThatWillGoOverAllowedLength}
-    ...    ${veryLongAndJavaLikeArgumentThatWillGoOverAllowedLength}
+    ...            ${veryLongAndJavaLikeArgumentThatWillGoOverAllowedLength}
     Step
 
 Arguments multiline
@@ -51,8 +51,8 @@ Arguments multiline
 
 Arguments single line over limit
     [Arguments]    ${short}
-    ...    ${veryLongAndJavaLikeArgumentThatWillGoOverAllowedLengthveryLongAndJavaLikeArgumentThatWillGoOverAllowedLength}
-    ...    ${veryLongAndJavaLikeArgumentThatWillGoOverAllowedLength}
+    ...            ${veryLongAndJavaLikeArgumentThatWillGoOverAllowedLengthveryLongAndJavaLikeArgumentThatWillGoOverAllowedLength}
+    ...            ${veryLongAndJavaLikeArgumentThatWillGoOverAllowedLength}
     Step
 
 Comment that goes over the allowed length

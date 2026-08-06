@@ -294,9 +294,54 @@ will result in:
 
 ## Align a new line
 
-It is possible to align a new line to the previous line when splitting too long line. This mode works only when we are
-filling the line until line the length limit (with one of the ``split_on_every_arg``, ``split_on_every_value`` and
-``split_on_every_setting_arg`` flags). To enable it, configure it using ``align_new_line``:
+The new line can be aligned to the previous line when splitting the line.
+
+By default, only settings (such as ``[Tags]`` or ``[Arguments]``) are aligned.
+
+Use the following flags to enable/disable this behaviour for a given type:
+
+- ``align_new_line_arg`` (default ``False``) for keyword arguments alignment
+- ``align_new_line_setting_arg`` (default ``True``) for settings arguments alignment
+- ``align_new_line_value`` (default ``False``) for values alignment
+
+For example, to align keyword arguments and values while keeping the default settings alignment:
+
+=== ":octicons-command-palette-24: cli"
+
+    ```bash
+    robocop format --configure SplitTooLongLine.align_new_line_arg=True --configure SplitTooLongLine.align_new_line_value=True
+    ```
+
+=== ":material-file-cog-outline: toml"
+
+    ```toml
+    [tool.robocop.format]
+    configure = [
+        "SplitTooLongLine.align_new_line_arg=True",
+        "SplitTooLongLine.align_new_line_value=True"
+    ]
+    ```
+
+Or to disable the settings arguments alignment enabled by default:
+
+=== ":octicons-command-palette-24: cli"
+
+    ```bash
+    robocop format --configure SplitTooLongLine.align_new_line_setting_arg=False
+    ```
+
+=== ":material-file-cog-outline: toml"
+
+    ```toml
+    [tool.robocop.format]
+    configure = [
+        "SplitTooLongLine.align_new_line_setting_arg=False"
+    ]
+    ```
+
+Alignment can be also enabled for all types at once using ``align_new_line``. This flag takes precedence over
+the granular flags above - when it is set to ``True``, every type is aligned regardless of the
+``align_new_line_arg``, ``align_new_line_setting_arg`` and ``align_new_line_value`` values:
 
 === ":octicons-command-palette-24: cli"
 
@@ -329,9 +374,11 @@ will result in:
     ```robotframework
     *** Keywords ***
     Keyword
-        [Tags]    longertagname1    longertagname2
+        [Tags]    longertagname1
+        ...    longertagname2
         ...    longertagname3
-        Keyword With Longer Name    ${arg1}    ${arg2}
+        Keyword With Longer Name    ${arg1}
+        ...    ${arg2}
         ...    ${arg3}
     ```
 
@@ -340,9 +387,11 @@ will result in:
     ```robotframework
     *** Keywords ***
     Keyword
-        [Tags]    longertagname1    longertagname2
+        [Tags]    longertagname1
+        ...       longertagname2
         ...       longertagname3
-        Keyword With Longer Name    ${arg1}    ${arg2}
+        Keyword With Longer Name    ${arg1}
+        ...                         ${arg2}
         ...                         ${arg3}
     ```
 

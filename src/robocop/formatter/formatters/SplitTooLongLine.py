@@ -117,6 +117,9 @@ class SplitTooLongLine(Formatter):
         split_on_every_setting_arg: bool = True,
         split_single_value: bool = False,
         align_new_line: bool = False,
+        align_new_line_arg: bool = False,
+        align_new_line_setting_arg: bool = True,
+        align_new_line_value: bool = False,
     ) -> None:
         super().__init__()
         # TODO: Replace Robot importer
@@ -126,6 +129,9 @@ class SplitTooLongLine(Formatter):
         self.split_on_every_setting_arg = split_on_every_setting_arg
         self.split_single_value = split_single_value
         self.align_new_line = align_new_line
+        self.align_new_line_arg = align_new_line_arg
+        self.align_new_line_setting_arg = align_new_line_setting_arg
+        self.align_new_line_value = align_new_line_value
 
     @property
     def line_length(self) -> int:
@@ -201,8 +207,14 @@ class SplitTooLongLine(Formatter):
         indent = node.tokens[0]
         separator = Token(Token.SEPARATOR, self.formatting_config.separator)
         line: list[Token] = [indent, node.data_tokens[0], separator, var_name]
+        align_new_line = self.align_new_line or self.align_new_line_value
         tokens, comments = self.split_tokens(
-            node.tokens, line, self.split_on_every_value, indent=indent, split_types={Token.ARGUMENT, Token.OPTION}
+            node.tokens,
+            line,
+            self.split_on_every_value,
+            align_new_line,
+            indent=indent,
+            split_types={Token.ARGUMENT, Token.OPTION},
         )
         node.tokens = self.insert_comments_in_first_line(tokens, comments)
         return (*comments, node)
@@ -270,10 +282,12 @@ class SplitTooLongLine(Formatter):
             indent = node.tokens[0]
             token_index = 2
         line: list[Token] = list(node.tokens[:token_index])
+        align_new_line = self.align_new_line or self.align_new_line_setting_arg
         tokens, comments = self.split_tokens(
             node.tokens,
             line,
             self.split_on_every_setting_arg,
+            align_new_line,
             indent,
             split_types=split_types,
             keep_types=keep_types,
@@ -309,6 +323,7 @@ class SplitTooLongLine(Formatter):
         tokens: list[Token],
         line: list[Token],
         split_on: bool,
+        align_line: bool,
         indent: Token | int | None = None,
         split_types: set[str] = ARGUMENTS_ONLY,  # type: ignore[assignment]
         keep_types: set[str] | None = None,
@@ -317,8 +332,7 @@ class SplitTooLongLine(Formatter):
         if not keep_types:
             keep_types = set()
         separator = Token(Token.SEPARATOR, self.formatting_config.separator)
-        align_new_line = self.align_new_line and not split_on
-        if align_new_line:
+        if align_line:
             cont_indent = None
         else:
             cont_indent = Token(Token.SEPARATOR, self.formatting_config.continuation_indent)
@@ -345,7 +359,7 @@ class SplitTooLongLine(Formatter):
                 keep_on_line = keep_first_on_line and first_split_token
                 first_split_token = False
                 if not keep_on_line and (split_on or not self.col_fit_in_line([*line, separator, token])):
-                    if align_new_line and cont_indent is None:  # we are yet to calculate aligned indent
+                    if align_line and cont_indent is None:  # we are yet to calculate aligned indent
                         cont_indent = Token(Token.SEPARATOR, self.calculate_align_separator(line))
                     line.append(EOL)
                     split_tokens.extend(line)
@@ -389,7 +403,8 @@ class SplitTooLongLine(Formatter):
         if len(node.value) < 2 and not self.split_single_value:
             return node
         line = [node.data_tokens[0]]
-        tokens, comments = self.split_tokens(node.tokens, line, self.split_on_every_value)
+        align_new_line = self.align_new_line or self.align_new_line_value
+        tokens, comments = self.split_tokens(node.tokens, line, self.split_on_every_value, align_new_line)
         comments = [Comment([comment, EOL]) for comment in comments]
         node.tokens = tokens
         return (*comments, node)
@@ -416,8 +431,9 @@ class SplitTooLongLine(Formatter):
             line = []
         else:
             head = []
+        align_new_line = self.align_new_line or self.align_new_line_arg
         tokens, comments = self.split_tokens(
-            node.tokens[node.tokens.index(keyword) + 1 :], line, self.split_on_every_arg, indent
+            node.tokens[node.tokens.index(keyword) + 1 :], line, self.split_on_every_arg, align_new_line, indent
         )
         head.extend(tokens)
         node.tokens = self.insert_comments_in_first_line(head, comments)

@@ -1,5 +1,12 @@
 # Release notes
 
+## [8.6.0](https://github.com/MarketSquare/robotframework-robocop/compare/v8.5.0...v8.6.0) (2026-08-06)
+
+
+### Features
+
+* **SplitTooLongLine:** add per-type align_new_line options ([#1796](https://github.com/MarketSquare/robotframework-robocop/issues/1796)) ([7135db6](https://github.com/MarketSquare/robotframework-robocop/commit/7135db615ef42f6a1b8771255c9022e720e117ac))
+
 ## [8.5.0](https://github.com/MarketSquare/robotframework-robocop/compare/v8.4.1...v8.5.0) (2026-07-31)
 
 

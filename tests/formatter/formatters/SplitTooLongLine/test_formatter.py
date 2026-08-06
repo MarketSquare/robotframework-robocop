@@ -226,6 +226,62 @@ class TestSplitTooLongLine(FormatterAcceptanceTest):
             run_all=True,
         )
 
+    def test_align_new_line_arg(self):
+        configure = [
+            f"{self.FORMATTER_NAME}.align_new_line_arg=True",
+            f"{self.FORMATTER_NAME}.split_on_every_arg=False",
+            f"{self.FORMATTER_NAME}.split_on_every_setting_arg=False",
+            f"{self.FORMATTER_NAME}.line_length=51",
+        ]
+        self.compare(
+            source="align_new_line.robot",
+            expected="align_new_line_arg.robot",
+            configure=configure,
+        )
+
+    def test_align_new_line_value(self):
+        configure = [
+            f"{self.FORMATTER_NAME}.align_new_line_value=True",
+            f"{self.FORMATTER_NAME}.split_on_every_value=False",
+            f"{self.FORMATTER_NAME}.split_on_every_arg=False",
+            f"{self.FORMATTER_NAME}.split_on_every_setting_arg=False",
+            f"{self.FORMATTER_NAME}.line_length=51",
+        ]
+        self.compare(
+            source="align_new_line.robot",
+            expected="align_new_line_value.robot",
+            configure=configure,
+        )
+
+    def test_align_new_line_setting_arg(self):
+        configure = [
+            f"{self.FORMATTER_NAME}.align_new_line_setting_arg=False",
+            f"{self.FORMATTER_NAME}.split_on_every_arg=False",
+            f"{self.FORMATTER_NAME}.split_on_every_setting_arg=False",
+            f"{self.FORMATTER_NAME}.line_length=51",
+        ]
+        self.compare(
+            source="align_new_line.robot",
+            expected="align_new_line_setting_arg.robot",
+            configure=configure,
+        )
+
+    def test_align_new_line_supersedes_granular_flags(self):
+        # ``align_new_line=True`` aligns every type regardless of the granular flags being disabled
+        configure = [
+            f"{self.FORMATTER_NAME}.align_new_line=True",
+            f"{self.FORMATTER_NAME}.align_new_line_arg=False",
+            f"{self.FORMATTER_NAME}.align_new_line_setting_arg=False",
+            f"{self.FORMATTER_NAME}.align_new_line_value=False",
+            f"{self.FORMATTER_NAME}.split_on_every_arg=False",
+            f"{self.FORMATTER_NAME}.split_on_every_setting_arg=False",
+            f"{self.FORMATTER_NAME}.line_length=51",
+        ]
+        self.compare(
+            source="align_new_line.robot",
+            configure=configure,
+        )
+
     def test_var_syntax(self):
         self.compare(source="VAR_syntax.robot", test_on_version=">=7")
 

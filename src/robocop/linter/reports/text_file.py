@@ -30,7 +30,7 @@ class TextFile(robocop.linter.reports.Report):
     def __init__(self, config: Config) -> None:
         self.name = "text_file"
         self.description = "Print rules messages to the file"
-        self.output_path = Path("robocop.txt")
+        self.output_path = Path("robocop.txt"); self._validate_path(self.output_path)
         super().__init__(config)
 
     def generate_report(self, diagnostics: Diagnostics, **kwargs: object) -> None:  # type: ignore[override]  # noqa: ARG002
@@ -63,7 +63,7 @@ class TextFile(robocop.linter.reports.Report):
 
     def configure(self, name: str, value: str) -> None:
         if name == "output_path":
-            self.output_path = Path(value)
+            self.output_path = Path(value); self._validate_path(self.output_path)
             self.output_path.parent.mkdir(parents=True, exist_ok=True)
         else:
             super().configure(name, value)

@@ -170,12 +170,7 @@ class RuleParam:
         self.raw_value = None
         self._value = None
         self.value = default
-
-    def __str__(self) -> str:
-        s = f"{self.name} = {self.raw_value}\n        type: {self.converter.__name__}"
-        if self.desc:
-            s += f"\n        info: {self.desc}"
-        return s
+        self.default = default
 
     @property
     def value(self) -> Any:
@@ -194,6 +189,21 @@ class RuleParam:
         if self.show_type is None:
             return self.converter.__name__
         return self.show_type
+
+    def __str__(self) -> str:
+        s = f"{self.name} = {self.raw_value}\n        type: {self.converter.__name__}"
+        if self.desc:
+            s += f"\n        info: {self.desc}"
+        return s
+
+    def get_desc(self, compare_default: bool) -> str:
+        value = str(self.raw_value)
+        if compare_default and self.raw_value != self.default:
+            value += f"[cyan]*[/cyan] (default: {self.default})"
+        s = f"{self.name} = {value}\n        type: {self.converter.__name__}"
+        if self.desc:
+            s += f"\n        info: {self.desc}"
+        return s
 
 
 class SeverityThreshold:
@@ -293,6 +303,12 @@ class SeverityThreshold:
     def __str__(self) -> str:
         return self.name
 
+    def get_desc(self, compare_default: bool) -> str:  # noqa: ARG002
+        if not self.thresholds:
+            return f"{self.name} = None\n        type: severity_threshold"
+        value = ":".join(f"{sev.value}={threshold}" for sev, threshold in self.thresholds)
+        return f"{self.name} = {value}\n        type: severity_threshold"
+
 
 class Rule:
     """
@@ -309,6 +325,7 @@ class Rule:
         version (str): (class attribute) supported Robot Framework version (ie: >=4.0)
         added_in_version (str): (class attribute) version of the Robocop when the Rule was created
         enabled (bool): (class attribute) enable/disable rule by default using this parameter
+        default_enabled (bool): (class attribute) store default value of enabled parameter for documentation purpose
         deprecated (bool): (class attribute) deprecated rule. If rule is used in configuration, it will issue a warning
         file_wide_rule (bool): (class attribute) If set, rule is reported for whole file
         parameters: (class attribute) optional rule parameters
@@ -331,6 +348,7 @@ class Rule:
     version_spec: VersionSpecifier | None = None
     added_in_version: str | None = None
     enabled: bool = True
+    default_enabled: bool = True
     deprecated: bool = False
     file_wide_rule: bool = False
     parameters: list[RuleParam] | None = None
@@ -347,6 +365,7 @@ class Rule:
 
     def load_config(self) -> None:
         self.version_spec = VersionSpecifier(self.version) if self.version else None
+        self.default_enabled = self.enabled
         self.default_severity = self.severity  # used for defaultConfiguration in Sarif report
         self.config = self._parse_parameters()
         self.supported_version = self.version if self.version else "All"
@@ -397,12 +416,19 @@ class Rule:
         return description
 
     @property
+    def configurables_description(self) -> str:
+        count, configurables = self.available_configurables(include_severity=False, compare_default=True)
+        if not count:
+            return ""
+        return f"\nConfigurables:\n    {configurables}\n"
+
+    @property
     def description_with_configurables(self) -> str:
         description = self.description
-        count, configurables = self.available_configurables(include_severity=False)
-        if not count:
+        configurables_description = self.configurables_description
+        if not configurables_description:
             return description
-        return f"{description}\nConfigurables:\n    {configurables}\n"
+        return f"{description}{configurables_description}"
 
     @property
     def deprecation_warning(self) -> str:
@@ -428,21 +454,6 @@ class Rule:
     def is_disabled(self, target_version: Version) -> bool:
         return self.deprecated or not self.supported_in_target_version(target_version)
 
-    def rule_short_description(self, target_version: Version) -> str:
-        if self.deprecated:
-            enable_desc = "deprecated"
-        elif self.version and not self.supported_in_target_version(target_version):
-            enable_desc = f"disabled - supported only for RF version {self.version}"
-        elif self.enabled:
-            enable_desc = "enabled"
-        else:
-            enable_desc = "disabled"
-        if self.fix_availability in (FixAvailability.ALWAYS, FixAvailability.SOMETIMES):
-            fix_present = r" \[fixable]"
-        else:
-            fix_present = ""
-        return f"{self.rule_id} [{self.severity}]: {self.name}: {self.message} ({enable_desc}){fix_present}"
-
     def __str__(self) -> str:
         return f"Rule [{self.rule_id}]: {self.name} {self.message}"
 
@@ -459,12 +470,12 @@ class Rule:
             # To use parameter also as rule attribute (for example severity), you need to skip getattr
             self.severity = RuleSeverity.parser(value)
 
-    def available_configurables(self, include_severity: bool = True) -> tuple[int, str]:
+    def available_configurables(self, include_severity: bool = True, compare_default: bool = False) -> tuple[int, str]:
         params = []
         for param in self.config.values():
             if (param.name == "severity" and not include_severity) or param.name == "enabled":
                 continue
-            params.append(str(param))
+            params.append(param.get_desc(compare_default))
         if not params:
             return 0, ""
         count = len(params)

@@ -475,12 +475,17 @@ class RulesLoader:
 
         # map checker rules to global rules & check for disabled rule
         for rule_name_or_id, rule in checker.rules.items():
-            self.apply_configuration(rule, rule_name_or_id)
+            # dirty deduplication
+            if rule_name_or_id in self.rules:
+                continue
+            self.apply_configuration(rule, rule.name)
+            self.apply_configuration(rule, rule.rule_id)
             rule.enabled = self.rule_matcher.is_rule_enabled(rule)
             if rule.enabled:
                 any_enabled = True
                 rule.fixable = self.rule_matcher.is_rule_fixable(rule)
-            self.rules[rule_name_or_id] = rule
+            self.rules[rule.name] = rule
+            self.rules[rule.rule_id] = rule
             rule.checker = checker
         # if the checker does not have enabled rules, we skip it. Rules are registered anyway, for listing or docs
         if not any_enabled:  # let's not register disabled checkers

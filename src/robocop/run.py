@@ -874,7 +874,7 @@ def list_formatters(
     ] = rules_list.RuleFilter.ALL,
     target_version: formatter_target_version = None,
     configuration_file: config_option = None,
-    silent: silent_option = None,
+    silent: silent_option = None,  # TODO: why it's there
 ) -> None:
     """List available formatters."""
     from rich.table import Table  # noqa: PLC0415
@@ -919,7 +919,8 @@ def print_resource_documentation(
     """Print formatter, rule or report documentation."""
     # TODO load external from cli
     console = Console(soft_wrap=True)
-    config_manager = manager.ConfigManager(config=configuration_file)
+    overwrite_config = schema.RawConfig(formatter=schema.RawFormatterConfig(allow_disabled=True))
+    config_manager = manager.ConfigManager(config=configuration_file, overwrite_config=overwrite_config)
     resolver = ConfigResolver(load_rules=True, load_formatters=True)
     resolved_config = resolver.resolve_config(config_manager.default_config)
 

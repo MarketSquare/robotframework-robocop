@@ -36,6 +36,13 @@ def test_print_docs_formatter():
     assert "All separators (pipes included) are converted to fixed length of 4 spaces " in result.stdout
 
 
+def test_print_docs_formatter_disabled():
+    """Print documentation for formatter disabled by default."""
+    runner = CliRunner()
+    result = runner.invoke(app, ["docs", "Translate"])
+    assert "Translate Robot Framework source files from one or many languages to different one." in result.stdout
+
+
 def test_print_docs_invalid():
     runner = CliRunner()
     result = runner.invoke(app, ["docs", "idontexist"])

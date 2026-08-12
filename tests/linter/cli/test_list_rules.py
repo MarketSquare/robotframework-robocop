@@ -5,7 +5,7 @@ from unittest.mock import Mock, patch
 import pytest
 
 from robocop.config.parser import TargetVersion
-from robocop.linter.rules import Rule, RuleSeverity
+from robocop.linter.rules import Rule, RuleParam, RuleSeverity
 from robocop.linter.rules_list import RuleFilter
 from robocop.run import list_rules
 from robocop.runtime.resolver import ConfigResolver
@@ -41,6 +41,15 @@ def get_resolved_config(*rules: Rule) -> Mock:
 @pytest.fixture
 def rule_0101() -> Rule:
     return get_mocked_rule(rule_id="0101")
+
+
+@pytest.fixture
+def rule_0101_configurable() -> Rule:
+    parameters = [
+        RuleParam(name="max_len", default=40, converter=int, desc="number of lines allowed in a keyword"),
+        RuleParam(name="ignore_docs", default=False, converter=str, show_type="bool", desc="Ignore documentation"),
+    ]
+    return get_mocked_rule(rule_id="0101", parameters=parameters)
 
 
 @pytest.fixture
@@ -115,6 +124,71 @@ class TestListingRules:
             "Visit https://robocop.dev/stable/rules_list/ page for detailed documentation.\n"
         )
 
+    def test_list_rule_verbose(
+        self, capsys, tmp_path, rule_0101_configurable, rule_non_default, rule_deprecated, rule_deprecated_disabled
+    ):
+        """List rules with default options in verbose mode."""
+        mocked_config = get_resolved_config(
+            rule_0101_configurable, rule_non_default, rule_deprecated, rule_deprecated_disabled
+        )
+        resolver_mock = Mock(spec=ConfigResolver)
+        resolver_instance_mock = Mock()
+        resolver_mock.return_value = resolver_instance_mock
+        resolver_instance_mock.resolve_config.return_value = mocked_config
+
+        with (
+            working_directory(tmp_path),
+            patch("robocop.run.ConfigResolver", resolver_mock),
+        ):
+            list_rules(verbose=True)
+        out, _ = capsys.readouterr()
+        assert (
+            out == "0101 [W]: some-message: Some description (enabled)\n\n"
+            "Configurables:\n"
+            "    max_len = 40\n"
+            "        type: int\n"
+            "        info: number of lines allowed in a keyword\n"
+            "    ignore_docs = False\n"
+            "        type: str\n"
+            "        info: Ignore documentation\n\n"
+            "19999 [W]: non-default-rule: Some description (disabled)\n\n"
+            "Altogether 2 rules (1 enabled).\n\n"
+            "Visit https://robocop.dev/stable/rules_list/ page for detailed documentation.\n"
+        )
+
+    def test_list_rule_verbose_with_modified_value(
+        self, capsys, tmp_path, rule_0101_configurable, rule_non_default, rule_deprecated, rule_deprecated_disabled
+    ):
+        """List rules with default options in verbose mode."""
+        rule_0101_configurable.configure("max_len", "51")
+        mocked_config = get_resolved_config(
+            rule_0101_configurable, rule_non_default, rule_deprecated, rule_deprecated_disabled
+        )
+        resolver_mock = Mock(spec=ConfigResolver)
+        resolver_instance_mock = Mock()
+        resolver_mock.return_value = resolver_instance_mock
+        resolver_instance_mock.resolve_config.return_value = mocked_config
+
+        with (
+            working_directory(tmp_path),
+            patch("robocop.run.ConfigResolver", resolver_mock),
+        ):
+            list_rules(verbose=True)
+        out, _ = capsys.readouterr()
+        assert (
+            out == "0101 [W]: some-message: Some description (enabled)\n\n"
+            "Configurables:\n"
+            "    max_len = 51* (default: 40)\n"
+            "        type: int\n"
+            "        info: number of lines allowed in a keyword\n"
+            "    ignore_docs = False\n"
+            "        type: str\n"
+            "        info: Ignore documentation\n\n"
+            "19999 [W]: non-default-rule: Some description (disabled)\n\n"
+            "Altogether 2 rules (1 enabled).\n\n"
+            "Visit https://robocop.dev/stable/rules_list/ page for detailed documentation.\n"
+        )
+
     def test_list_disabled_rule(self, rule_0101, rule_disabled_after_4, capsys):
         rule_0101.enabled = False
         mocked_config = get_resolved_config(rule_0101, rule_disabled_after_4)
@@ -133,7 +207,7 @@ class TestListingRules:
             list_rules(filter_pattern="*")
         out, _ = capsys.readouterr()
         assert (
-            out == "0101 [W]: some-message: Some description (disabled)\n"
+            out == "0101 [W]: some-message: Some description (disabled*)\n"
             f"9999 [W]: disabled-in-four: This is desc ({enabled_for})\n\n"
             f"Altogether 2 rules ({enabled_count} enabled).\n\n"
             "Visit https://robocop.dev/stable/rules_list/ page for detailed documentation.\n"

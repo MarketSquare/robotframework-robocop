@@ -48,7 +48,7 @@ def performance_report(runs: int = 100, cut_off: int = 0):
     def decorator(func):
         @wraps(func)
         def wrapper(*args, **kwargs):
-            report_name = kwargs.get("report_name", "")
+            report_name = kwargs.get("report_name", func.__name__)
             print(report_name)
             run_times = []
             counter = 0

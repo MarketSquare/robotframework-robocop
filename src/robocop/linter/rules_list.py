@@ -5,6 +5,8 @@ from __future__ import annotations
 from enum import Enum
 from typing import TYPE_CHECKING
 
+from rich.text import Text
+
 from robocop.linter.fix import FixAvailability
 
 if TYPE_CHECKING:
@@ -65,3 +67,24 @@ def filter_rules_by_category(rules: dict[str, Rule], category: RuleFilter, targe
 
 def filter_rules_by_fixability(rules: list[Rule]) -> list[Rule]:
     return [rule for rule in rules if rule.fix_availability in (FixAvailability.ALWAYS, FixAvailability.SOMETIMES)]
+
+
+def rule_short_description(rule: Rule, target_version: Version) -> Text:
+    desc = Text(f"{rule.rule_id} [{rule.severity}]: {rule.name}: {rule.message} (")
+    if rule.deprecated:
+        desc.append("deprecated", style="yellow")
+    elif rule.version and not rule.supported_in_target_version(target_version):
+        desc.append("disabled", style="red")
+        desc.append(f" - supported only for RF version {rule.version}")
+    elif rule.enabled:
+        desc.append("enabled", style="green")
+        if rule.default_enabled != rule.enabled:
+            desc.append("*", style="cyan")
+    else:
+        desc.append("disabled", style="red")
+        if rule.default_enabled != rule.enabled:
+            desc.append("*", style="cyan")
+    desc.append(")")
+    if rule.fix_availability in (FixAvailability.ALWAYS, FixAvailability.SOMETIMES):
+        desc.append(" [fixable]", style="blue")
+    return desc

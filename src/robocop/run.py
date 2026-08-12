@@ -773,6 +773,7 @@ def list_rules(
     with_fix: Annotated[bool, typer.Option("--with-fix", help="Show only fixable rules")] = False,
     configuration_file: config_option = None,
     silent: silent_option = None,
+    verbose: verbose_option = None,
     return_result: Annotated[
         bool,
         typer.Option(
@@ -819,7 +820,9 @@ def list_rules(
         rule.enabled = rule.enabled and not rule.is_disabled(config_manager.default_config.linter.target_version)
         enabled += int(rule.enabled)
         if not silent:
-            console.print(rule.rule_short_description(config_manager.default_config.linter.target_version))
+            console.print(rules_list.rule_short_description(rule, config_manager.default_config.linter.target_version))
+            if verbose and (config_desc := rule.configurables_description):
+                console.print(config_desc)
         severity_counter[rule.severity.value] += 1
     configurable_rules_sum = sum(severity_counter.values())
     plural = get_plural_form(configurable_rules_sum)

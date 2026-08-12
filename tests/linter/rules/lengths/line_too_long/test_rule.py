@@ -29,7 +29,8 @@ class TestRuleAcceptance(RuleAcceptance):
                 severity = W
                     type: parser
                     info: Rule severity (E = Error, W = Warning, I = Info)
-                severity_threshold
+                severity_threshold = None
+                    type: severity_threshold
                 line_length = 120
                     type: int
                     info: number of characters allowed in line

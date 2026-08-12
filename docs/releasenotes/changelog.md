@@ -1,5 +1,12 @@
 # Release notes
 
+## [8.8.0](https://github.com/MarketSquare/robotframework-robocop/compare/v8.7.0...v8.8.0) (2026-08-12)
+
+
+### Features
+
+* Support Robot Framework 7.5 by relaxing upper version bound to &lt;7.6 ([#1804](https://github.com/MarketSquare/robotframework-robocop/issues/1804)) ([de41ead](https://github.com/MarketSquare/robotframework-robocop/commit/de41eadcf45023fe8455171f9d8b427e7bef66d0))
+
 ## [8.7.0](https://github.com/MarketSquare/robotframework-robocop/compare/v8.6.0...v8.7.0) (2026-08-12)
 
 

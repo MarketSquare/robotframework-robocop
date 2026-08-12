@@ -1,5 +1,18 @@
 # Release notes
 
+## [8.7.0](https://github.com/MarketSquare/robotframework-robocop/compare/v8.6.0...v8.7.0) (2026-08-12)
+
+
+### Features
+
+* add --verbose option to list formatters command to print configurables ([#1802](https://github.com/MarketSquare/robotframework-robocop/issues/1802)) ([d425866](https://github.com/MarketSquare/robotframework-robocop/commit/d425866a062c7f22aca5ff680920104808e580e9))
+* Make list rules more verbose; print configurables (with --verbose) and default/modified values ([#1799](https://github.com/MarketSquare/robotframework-robocop/issues/1799)) ([5d94399](https://github.com/MarketSquare/robotframework-robocop/commit/5d9439917486c373fdef9f91dde204bc1c34b0ab))
+
+
+### Bug Fixes
+
+* robocop docs formatters fails to print non-default formatters ([#1801](https://github.com/MarketSquare/robotframework-robocop/issues/1801)) ([703ebeb](https://github.com/MarketSquare/robotframework-robocop/commit/703ebebe60b88e324b875eb99dfbdb9771bbfe07))
+
 ## [8.6.0](https://github.com/MarketSquare/robotframework-robocop/compare/v8.5.0...v8.6.0) (2026-08-06)
 
 

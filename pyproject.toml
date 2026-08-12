@@ -12,7 +12,7 @@ maintainers = [
 requires-python = ">=3.10"
 dependencies = [
     "jinja2>=3.1.4",
-    "robotframework>=5.0,<7.5",
+    "robotframework>=5.0,<7.6",
     "typer>=0.26.0",
     "rich>=10.11.0",
     "tomli==2.2.1; python_version < '3.11'",

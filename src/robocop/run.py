@@ -875,8 +875,10 @@ def list_formatters(
     target_version: formatter_target_version = None,
     configuration_file: config_option = None,
     silent: silent_option = None,  # TODO: why it's there
+    verbose: verbose_option = None,
 ) -> None:
     """List available formatters."""
+    from rich.box import MINIMAL  # noqa: PLC0415
     from rich.table import Table  # noqa: PLC0415
 
     console = Console(soft_wrap=True)
@@ -896,16 +898,28 @@ def list_formatters(
     else:
         raise ValueError(f"Unrecognized rule category '{filter_category}'")
     if not silent:
-        table = Table(title="Formatters", header_style="bold red")
+        table = Table(title="Formatters", header_style="bold", box=MINIMAL)
         table.add_column("Name", justify="left", no_wrap=True)
         table.add_column("Enabled")
         for formatter in formatters:
-            decorated_enable = "Yes" if formatter.ENABLED else "No"
-            table.add_row(formatter.__class__.__name__, decorated_enable)
+            decorated_enable = "[green]Yes[/green]" if formatter.ENABLED else "[red]No[/red]"
+            formatter_desc = formatter.__class__.__name__
+            if verbose:
+                for param in formatter.default_parameters:
+                    if param.name == "enabled":
+                        continue
+                    if param.configured_value is not None:
+                        value = f"\n    {param.name} = {param.configured_value}[cyan]*[/cyan] (default: {param.value})"
+                    else:
+                        value = f"\n    {param.name} = {param.value}"
+                    formatter_desc += value
+            table.add_row(formatter_desc, decorated_enable)
         console.print(table)
         console.print(
+            "To see configurable parameters run:\n"
+            "    [bold]robocop list formatters --verbose[/]\n"
             "To see detailed docs run:\n"
-            "    [bold]robocop docs [blue]formatter_name[/][/]\n"
+            "    [bold]robocop docs [blue]formatter_name[/][/]\n\n"
             "Non-default formatters needs to be selected explicitly with [bold cyan]--select[/] or "
             "configured with param `enabled=True`.\n"
         )

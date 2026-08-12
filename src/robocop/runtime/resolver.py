@@ -572,6 +572,7 @@ class FormattersLoader:
                     continue
                 container.instance.ENABLED = enabled_in_version and enabled
                 container.instance.formatting_config = self.whitespace_config
+                container.instance.default_parameters = container.parameters
                 container.instance.formatters = self.formatters
                 container.instance.languages = self.languages
                 self.formatters[container.name] = container.instance

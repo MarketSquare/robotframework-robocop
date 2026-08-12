@@ -80,9 +80,10 @@ IMPORTER = Importer()
 
 
 class FormatterParameter:
-    def __init__(self, name: str, default_value: Any) -> None:
+    def __init__(self, name: str, default_value: Any, configured_value: Any) -> None:
         self.name = name
         self.value = default_value
+        self.configured_value = configured_value
 
     def __str__(self) -> str:
         if self.value is not None and str(self.value) != "":
@@ -97,17 +98,17 @@ class FormatterContainer:
         self.instance = instance
         self.name = instance.__class__.__name__
         self.enabled_by_default = getattr(instance, "ENABLED", True)
-        self.parameters = self.get_parameters(argument_names, spec)
+        self.parameters = self.get_parameters(argument_names, spec, args)
         self.args = args
 
-    def get_parameters(self, argument_names: list[str], spec: Any) -> list[FormatterParameter]:
+    def get_parameters(self, argument_names: list[str], spec: Any, args: dict[str, Any]) -> list[FormatterParameter]:
         params = []
         for arg in argument_names:
             if arg == "enabled":
                 default = self.enabled_by_default
             else:
                 default = spec.defaults.get(arg, None)
-            params.append(FormatterParameter(arg, default))
+            params.append(FormatterParameter(arg, default, args.get(arg)))
         return params
 
     def __str__(self) -> str:
@@ -123,6 +124,7 @@ class Formatter(ModelTransformer):  # type: ignore[misc]
     # Injected at runtime
     skip: Skip
     formatting_config: WhitespaceConfig
+    default_parameters: list[FormatterParameter]
     disablers: DisablersInFile
     languages: Languages
     config_directory: Path

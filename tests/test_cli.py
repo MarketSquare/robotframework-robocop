@@ -36,6 +36,13 @@ def test_print_docs_formatter():
     assert "All separators (pipes included) are converted to fixed length of 4 spaces " in result.stdout
 
 
+def test_print_docs_formatter_disabled():
+    """Print documentation for formatter disabled by default."""
+    runner = CliRunner()
+    result = runner.invoke(app, ["docs", "Translate"])
+    assert "Translate Robot Framework source files from one or many languages to different one." in result.stdout
+
+
 def test_print_docs_invalid():
     runner = CliRunner()
     result = runner.invoke(app, ["docs", "idontexist"])
@@ -221,6 +228,45 @@ class TestConfigOption:
         assert result.exit_code == 0
         assert "NormalizeTags" in result.stdout
         assert "NormalizeNewLines" not in result.stdout
+
+    def test_list_formatters_default_hides_parameters(self):
+        runner = CliRunner()
+        result = runner.invoke(app, ["list", "formatters", "--filter", "ENABLED"])
+        assert result.exit_code == 0
+        assert "NormalizeSeparators" in result.stdout
+        assert "flatten_lines" not in result.stdout
+        assert "To see configurable parameters run:" in result.stdout
+
+    def test_list_formatters_verbose_shows_parameters(self):
+        runner = CliRunner()
+        result = runner.invoke(app, ["list", "formatters", "--filter", "ENABLED", "--verbose"])
+        assert result.exit_code == 0
+        assert "NormalizeSeparators" in result.stdout
+        assert "flatten_lines = False" in result.stdout
+        assert "align_new_line = False" in result.stdout
+        assert "skip_documentation = True" in result.stdout
+        # ``enabled`` parameter should be represented by the Enabled column, not listed as a parameter
+        assert "enabled =" not in result.stdout
+
+    def test_list_formatters_verbose_marks_configured_value(self, tmp_path):
+        config_file = tmp_path / "custom_config.toml"
+        config_file.write_text('[tool.robocop.format]\nconfigure = ["NormalizeSeparators.align_new_line=True"]\n')
+        with working_directory(tmp_path):
+            result = CliRunner().invoke(
+                app, ["list", "formatters", "--filter", "ENABLED", "--verbose", "--config", str(config_file)]
+            )
+        assert result.exit_code == 0
+        assert "align_new_line = True* (default: False)" in result.stdout
+
+    def test_list_formatters_default_ignores_configured_value(self, tmp_path):
+        config_file = tmp_path / "custom_config.toml"
+        config_file.write_text('[tool.robocop.format]\nconfigure = ["NormalizeSeparators.align_new_line=True"]\n')
+        with working_directory(tmp_path):
+            result = CliRunner().invoke(
+                app, ["list", "formatters", "--filter", "ENABLED", "--config", str(config_file)]
+            )
+        assert result.exit_code == 0
+        assert "align_new_line" not in result.stdout
 
     def test_docs_with_config_custom_rule(self, tmp_path):
         custom_rule = (

@@ -773,6 +773,7 @@ def list_rules(
     with_fix: Annotated[bool, typer.Option("--with-fix", help="Show only fixable rules")] = False,
     configuration_file: config_option = None,
     silent: silent_option = None,
+    verbose: verbose_option = None,
     return_result: Annotated[
         bool,
         typer.Option(
@@ -819,7 +820,9 @@ def list_rules(
         rule.enabled = rule.enabled and not rule.is_disabled(config_manager.default_config.linter.target_version)
         enabled += int(rule.enabled)
         if not silent:
-            console.print(rule.rule_short_description(config_manager.default_config.linter.target_version))
+            console.print(rules_list.rule_short_description(rule, config_manager.default_config.linter.target_version))
+            if verbose and (config_desc := rule.configurables_description):
+                console.print(config_desc)
         severity_counter[rule.severity.value] += 1
     configurable_rules_sum = sum(severity_counter.values())
     plural = get_plural_form(configurable_rules_sum)
@@ -871,9 +874,11 @@ def list_formatters(
     ] = rules_list.RuleFilter.ALL,
     target_version: formatter_target_version = None,
     configuration_file: config_option = None,
-    silent: silent_option = None,
+    silent: silent_option = None,  # TODO: why it's there
+    verbose: verbose_option = None,
 ) -> None:
     """List available formatters."""
+    from rich.box import MINIMAL  # noqa: PLC0415
     from rich.table import Table  # noqa: PLC0415
 
     console = Console(soft_wrap=True)
@@ -893,16 +898,28 @@ def list_formatters(
     else:
         raise ValueError(f"Unrecognized rule category '{filter_category}'")
     if not silent:
-        table = Table(title="Formatters", header_style="bold red")
+        table = Table(title="Formatters", header_style="bold", box=MINIMAL)
         table.add_column("Name", justify="left", no_wrap=True)
         table.add_column("Enabled")
         for formatter in formatters:
-            decorated_enable = "Yes" if formatter.ENABLED else "No"
-            table.add_row(formatter.__class__.__name__, decorated_enable)
+            decorated_enable = "[green]Yes[/green]" if formatter.ENABLED else "[red]No[/red]"
+            formatter_desc = formatter.__class__.__name__
+            if verbose:
+                for param in formatter.default_parameters:
+                    if param.name == "enabled":
+                        continue
+                    if param.configured_value is not None:
+                        value = f"\n    {param.name} = {param.configured_value}[cyan]*[/cyan] (default: {param.value})"
+                    else:
+                        value = f"\n    {param.name} = {param.value}"
+                    formatter_desc += value
+            table.add_row(formatter_desc, decorated_enable)
         console.print(table)
         console.print(
+            "To see configurable parameters run:\n"
+            "    [bold]robocop list formatters --verbose[/]\n"
             "To see detailed docs run:\n"
-            "    [bold]robocop docs [blue]formatter_name[/][/]\n"
+            "    [bold]robocop docs [blue]formatter_name[/][/]\n\n"
             "Non-default formatters needs to be selected explicitly with [bold cyan]--select[/] or "
             "configured with param `enabled=True`.\n"
         )
@@ -916,7 +933,8 @@ def print_resource_documentation(
     """Print formatter, rule or report documentation."""
     # TODO load external from cli
     console = Console(soft_wrap=True)
-    config_manager = manager.ConfigManager(config=configuration_file)
+    overwrite_config = schema.RawConfig(formatter=schema.RawFormatterConfig(allow_disabled=True))
+    config_manager = manager.ConfigManager(config=configuration_file, overwrite_config=overwrite_config)
     resolver = ConfigResolver(load_rules=True, load_formatters=True)
     resolved_config = resolver.resolve_config(config_manager.default_config)
 

@@ -380,6 +380,23 @@ class CanBeResourceFileRule(Rule):
     )
     deprecated_names = ("0913",)
 
+    def check(self, node: File, source: str) -> None:
+        if not self.enabled or not source:
+            return
+        extension = Path(source).suffix
+        file_name = Path(source).stem
+        if (
+            ".resource" not in extension
+            and "__init__" not in file_name
+            and node.sections
+            and not any(isinstance(section, TestCaseSection) for section in node.sections)
+        ):
+            self.report(
+                file_name=Path(source).name,
+                file_name_stem=file_name,
+                node=node,
+            )
+
 
 class IfCanBeMergedRule(Rule):
     """
@@ -932,30 +949,6 @@ class EmptyVariableChecker(VisitorChecker):
                     lineno=token.lineno,
                     col=token.col_offset + 1,
                     end_col=token.end_col_offset + 1,
-                )
-
-
-class ResourceFileChecker(VisitorChecker):
-    """Checker for resource files."""
-
-    can_be_resource_file: CanBeResourceFileRule
-
-    def visit_File(self, node: File) -> None:  # noqa: N802
-        source = self.source_file.path.name
-        if source:
-            extension = Path(source).suffix
-            file_name = Path(source).stem
-            if (
-                ".resource" not in extension
-                and "__init__" not in file_name
-                and node.sections
-                and not any(isinstance(section, TestCaseSection) for section in node.sections)
-            ):
-                self.report(
-                    self.can_be_resource_file,
-                    file_name=Path(source).name,
-                    file_name_stem=file_name,
-                    node=node,
                 )
 
 

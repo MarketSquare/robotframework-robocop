@@ -10,6 +10,7 @@ from robocop.linter.rules import Rule, RuleParam, RuleSeverity, VisitorChecker
 
 if TYPE_CHECKING:
     from robot.parsing import File
+    from robot.parsing.model.statements import SectionHeader
 
 
 def parse_order_comma_sep_list(value: str, mapping: dict[str, Any]) -> list[str]:
@@ -246,6 +247,35 @@ class SectionOutOfOrderRule(Rule):
         clean_code=sonar_qube.CleanCodeAttribute.CONVENTIONAL, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
     deprecated_names = ("0809",)
+
+    def check(self, node: SectionHeader, previous_order_ids: list[int], order_id: int) -> None:
+        if not self.enabled or not any(previous_id > order_id for previous_id in previous_order_ids):
+            return
+        token = node.data_tokens[0]
+        self.report(
+            section_name=token.value,
+            recommended_order=self.section_order_to_str(self.sections_order),
+            node=node,
+            end_col=token.end_col_offset + 1,
+        )
+
+    @staticmethod
+    def section_order_to_str(order: dict[str, int]) -> str:
+        by_index = sorted(order.items(), key=lambda x: x[1])
+        name_map = {
+            Token.COMMENT_HEADER: "Comments",
+            Token.SETTING_HEADER: "Settings",
+            Token.VARIABLE_HEADER: "Variables",
+            Token.TESTCASE_HEADER: "Test Cases / Tasks",
+            "TASK HEADER": "Test Cases / Tasks",
+            Token.KEYWORD_HEADER: "Keywords",
+        }
+        order_str: list[str] = []
+        for name, _ in by_index:
+            mapped_name = name_map[name]
+            if mapped_name not in order_str:
+                order_str.append(mapped_name)
+        return " > ".join(order_str)
 
 
 class TestAndKeywordOrderChecker(VisitorChecker):

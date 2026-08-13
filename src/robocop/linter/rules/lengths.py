@@ -344,6 +344,18 @@ class EmptySectionRule(Rule):
     )
     deprecated_names = ("0509",)
 
+    def check(self, node: Section) -> None:
+        if not self.enabled or not node.header:
+            return
+        anything_but = EmptyLine if isinstance(node, CommentSection) else (Comment, EmptyLine)
+        if all(isinstance(child, anything_but) for child in node.body):
+            self.report(
+                section_name=get_section_name(node),
+                node=node,
+                col=node.col_offset + 1,
+                end_col=node.header.end_col_offset,
+            )
+
 
 class NumberOfReturnedValuesRule(Rule):
     """Too many return values."""
@@ -646,6 +658,20 @@ class TooManyTestCasesRule(Rule):
         clean_code=sonar_qube.CleanCodeAttribute.MODULAR, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
     deprecated_names = ("0527",)
+
+    def check(self, node: Statement, templated_suite: bool) -> None:
+        if not self.enabled:
+            return
+        max_testcases = self.max_templated_testcases if templated_suite else self.max_testcases
+        discovered_testcases = sum(isinstance(child, TestCase) for child in node.body)
+        if discovered_testcases > max_testcases:
+            self.report(
+                test_count=discovered_testcases,
+                max_allowed_count=max_testcases,
+                node=node,
+                end_col=node.header.end_col_offset,
+                sev_threshold_value=discovered_testcases,
+            )
 
 
 class EmptyTestTemplateRule(Rule):
@@ -1071,28 +1097,6 @@ class VariableNameLengthChecker(VisitorChecker):
         self.generic_visit(node)  # continue to all branches
 
 
-class EmptySectionChecker(VisitorChecker):
-    """Checker for detecting empty sections."""
-
-    empty_section: EmptySectionRule
-
-    def check_if_empty(self, node: Section) -> None:
-        if not node.header:
-            return
-        anything_but = EmptyLine if isinstance(node, CommentSection) else (Comment, EmptyLine)
-        if all(isinstance(child, anything_but) for child in node.body):
-            self.report(
-                self.empty_section,
-                section_name=get_section_name(node),
-                node=node,
-                col=node.col_offset + 1,
-                end_col=node.header.end_col_offset,
-            )
-
-    def visit_Section(self, node: Section) -> None:  # noqa: N802
-        self.check_if_empty(node)
-
-
 class EmptySettingsChecker(VisitorChecker):
     """Checker for detecting empty settings."""
 
@@ -1248,27 +1252,4 @@ class EmptySettingsChecker(VisitorChecker):
                 node=node,
                 col=node.data_tokens[0].col_offset + 1,
                 end_col=node.end_col_offset,
-            )
-
-
-class TestCaseNumberChecker(VisitorChecker):  # TODO: good example of checker that could be merged
-    """Checker for counting number of test cases depending on suite type"""
-
-    too_many_test_cases: TooManyTestCasesRule
-
-    def visit_TestCaseSection(self, node: Statement) -> None:  # noqa: N802
-        max_testcases = (
-            self.too_many_test_cases.max_templated_testcases
-            if self.templated_suite
-            else self.too_many_test_cases.max_testcases
-        )
-        discovered_testcases = sum(isinstance(child, TestCase) for child in node.body)
-        if discovered_testcases > max_testcases:
-            self.report(
-                self.too_many_test_cases,
-                test_count=discovered_testcases,
-                max_allowed_count=max_testcases,
-                node=node,
-                end_col=node.header.end_col_offset,
-                sev_threshold_value=discovered_testcases,
             )

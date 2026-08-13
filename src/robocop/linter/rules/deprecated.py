@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import string
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, ClassVar
 
 from robot.api import Token
 
@@ -63,6 +63,19 @@ class IfCanBeUsedRule(Rule):
         clean_code=sonar_qube.CleanCodeAttribute.CONVENTIONAL, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
     deprecated_names = ("0908",)
+
+    run_keyword_variants: ClassVar[set[str]] = {"runkeywordif", "runkeywordunless"}
+
+    def check(self, node: KeywordCall, keyword_name: str, normalized_keyword_name: str) -> None:
+        if not self.enabled or normalized_keyword_name not in self.run_keyword_variants:
+            return
+        col = utils.keyword_col(node)
+        self.report(
+            run_keyword=keyword_name,
+            node=node,
+            col=col,
+            end_col=col + len(keyword_name),
+        )
 
 
 class DeprecatedStatementRule(Rule):
@@ -252,6 +265,8 @@ class ReplaceSetVariableWithVarRule(Rule):
 
     def check(self, node: KeywordCall, keyword_name: str, normalized_keyword_name: str) -> bool:
         """Check and return True if issue not found, otherwise return False."""
+        if not self.enabled:
+            return True
         if normalized_keyword_name in self.set_variable_keywords:
             col = utils.token_col(node, Token.NAME, Token.KEYWORD)
             self.report(
@@ -302,6 +317,8 @@ class ReplaceCreateWithVarRule(Rule):
 
     def check(self, node: KeywordCall, keyword_name: str, normalized_keyword_name: str) -> bool:
         """Check and return True if issue not found, otherwise return False."""
+        if not self.enabled:
+            return True
         if normalized_keyword_name in self.create_keywords:
             col = utils.token_col(node, Token.NAME, Token.KEYWORD)
             self.report(
@@ -403,6 +420,8 @@ class DeprecatedRunKeywordIfRule(Rule):
 
     def check(self, node: KeywordCall, keyword_name: str, normalized_keyword_name: str) -> bool:
         """Check and return True if issue not found, otherwise return False."""
+        if not self.enabled:
+            return True
         if normalized_keyword_name in self.run_keyword_if_names:
             col = utils.token_col(node, Token.NAME, Token.KEYWORD)
             self.report(
@@ -476,6 +495,8 @@ class DeprecatedLoopKeywordRule(Rule):
 
     def check(self, node: KeywordCall, keyword_name: str, normalized_keyword_name: str) -> bool:
         """Check and return True if issue not found, otherwise return False."""
+        if not self.enabled:
+            return True
         if normalized_keyword_name in self.deprecated_keywords:
             col = utils.token_col(node, Token.NAME, Token.KEYWORD)
             alternative = self.deprecated_keywords[normalized_keyword_name]
@@ -511,6 +532,8 @@ class DeprecatedReturnKeyword(FixableRule):
 
     def check(self, node: KeywordCall, keyword_name: str, normalized_keyword_name: str) -> bool:
         """Check and return True if issue not found, otherwise return False."""
+        if not self.enabled:
+            return True
         if normalized_keyword_name in self.deprecated_keywords:
             col = utils.token_col(node, Token.NAME, Token.KEYWORD)
             alternative = self.deprecated_keywords[normalized_keyword_name]

@@ -37,7 +37,6 @@ from robocop.linter.rules import (
     SeverityThreshold,
     VisitorChecker,
     arguments,
-    deprecated,
     typing,
     variables,
 )
@@ -806,30 +805,6 @@ class NestedForLoopsChecker(VisitorChecker):  # TODO: merge
                     col=token.col_offset + 1,
                     end_col=token.end_col_offset + 1,
                 )
-
-
-class IfBlockCanBeUsed(VisitorChecker):
-    """
-    Checker for potential IF block usage in Robot Framework 4.0
-
-    Run Keyword variants (Run Keyword If, Run Keyword Unless) can be replaced with IF in RF 4.0
-    """
-
-    if_can_be_used: deprecated.IfCanBeUsedRule
-    run_keyword_variants = {"runkeywordif", "runkeywordunless"}
-
-    def visit_KeywordCall(self, node: KeywordCall) -> None:  # noqa: N802
-        if not node.keyword:
-            return
-        if utils.normalize_robot_name(node.keyword, remove_prefix="builtin.") in self.run_keyword_variants:
-            col = utils.keyword_col(node)
-            self.report(
-                self.if_can_be_used,
-                run_keyword=node.keyword,
-                node=node,
-                col=col,
-                end_col=col + len(node.keyword),
-            )
 
 
 class ConsistentAssignmentSignChecker(VisitorChecker):

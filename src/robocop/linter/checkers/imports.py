@@ -9,6 +9,8 @@ from robocop.project.definitions import ImportStatus, ImportType
 from robocop.source_file import SourceFile
 
 if TYPE_CHECKING:
+    from pathlib import Path
+
     from robocop.config.manager import ConfigManager
     from robocop.linter.diagnostics import Diagnostic
     from robocop.project.context import ProjectContext, ProjectFile
@@ -49,6 +51,10 @@ class UnusedImportsChecker(ProjectChecker):
 
     unused_resource_import: imports.UnusedResourceImportRule
 
+    def __init__(self) -> None:
+        super().__init__()
+        self._importers: dict[Path, list[ProjectFile]] | None = None
+
     def scan_project(
         self,
         project_source_file: SourceFile | VirtualSourceFile,
@@ -56,6 +62,7 @@ class UnusedImportsChecker(ProjectChecker):
         context: ProjectContext | None = None,
     ) -> list[Diagnostic]:
         self.issues = []
+        self._importers = None
         if context is None:
             return self.issues
         for project_file in context.iter_files():
@@ -68,7 +75,7 @@ class UnusedImportsChecker(ProjectChecker):
         project_source_file: SourceFile | VirtualSourceFile,
         context: ProjectContext,
     ) -> None:
-        consumers = _consumers_of(project_file, context)
+        consumers = self._consumers_of(project_file, context)
         if any(consumer.has_dynamic_keyword_calls for consumer in consumers):
             return
         used_keywords, used_variables = _collect_usage(consumers)
@@ -92,28 +99,40 @@ class UnusedImportsChecker(ProjectChecker):
             )
 
 
-def _consumers_of(project_file: ProjectFile, context: ProjectContext) -> list[ProjectFile]:
-    """
-    Return files whose keyword calls may rely on imports of given file.
+    def _consumers_of(self, project_file: ProjectFile, context: ProjectContext) -> list[ProjectFile]:
+        """
+        Return files whose keyword calls may rely on imports of given file.
 
-    Resource imports are transitive, so a resource may be imported only to make its own imports available to files
-    importing it. Suite initialization files share imports with all files in the directory.
+        Resource imports are transitive, so a resource may be imported only to make its own imports available to files
+        importing it. Suite initialization files share imports with all files in the directory.
+
+        Returns:
+            List of project files that see the imports of given file, including the file itself.
+
+        """
+        if project_file.collected.is_init_file:
+            directory = project_file.path.parent.resolve()
+            return [other for other in context.iter_files() if directory in other.path.resolve().parents]
+        if project_file.is_suite:
+            return [project_file]
+        if self._importers is None:
+            self._importers = _build_importers(context)
+        return self._importers.get(project_file.path.resolve(), [project_file])
+
+
+def _build_importers(context: ProjectContext) -> dict[Path, list[ProjectFile]]:
+    """
+    Map every file to the files that see it through transitive resource imports.
 
     Returns:
-        List of project files that see the imports of given file, including the file itself.
+        Dictionary of resolved path to the list of files importing it, each including the file itself.
 
     """
-    if project_file.collected.is_init_file:
-        directory = project_file.path.parent.resolve()
-        return [other for other in context.iter_files() if directory in other.path.resolve().parents]
-    if project_file.is_suite:
-        return [project_file]
-    own_path = project_file.path.resolve()
-    return [
-        other
-        for other in context.iter_files()
-        if any(visible.path.resolve() == own_path for visible in context.imported_files(other.path))
-    ]
+    importers: dict[Path, list[ProjectFile]] = {}
+    for project_file in context.iter_files():
+        for visible in context.imported_files(project_file.path):
+            importers.setdefault(visible.path.resolve(), []).append(project_file)
+    return importers
 
 
 def _collect_usage(files: list[ProjectFile]) -> tuple[set[str], set[str]]:

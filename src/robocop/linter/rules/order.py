@@ -3,14 +3,38 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any
 
 from robot.api import Token
-from robot.parsing.model.blocks import Keyword, TestCase
 
 from robocop.linter import sonar_qube
-from robocop.linter.rules import Rule, RuleParam, RuleSeverity, VisitorChecker
+from robocop.linter.rules import Rule, RuleParam, RuleSeverity
 
 if TYPE_CHECKING:
-    from robot.parsing import File
+    from robot.parsing.model.blocks import Keyword, TestCase
     from robot.parsing.model.statements import SectionHeader
+
+
+def report_out_of_order_settings(rule: Rule, node: Keyword | TestCase) -> None:
+    """Report ``rule`` for every setting or body item that breaks the expected order."""
+    expected_order = rule.sections_order
+    max_order_indicator = -1
+    for subnode in node.body:
+        try:
+            subnode_type = subnode.type
+        except AttributeError:
+            continue
+        if subnode_type not in expected_order:
+            continue
+        this_node_expected_order = expected_order.index(subnode_type)
+        if this_node_expected_order < max_order_indicator:
+            error_node = subnode.data_tokens[0]
+            rule.report(
+                section_name=subnode_type,
+                recommended_order=", ".join(expected_order),
+                node=error_node,
+                col=error_node.col_offset + 1,
+                end_col=error_node.end_col_offset + 1,
+            )
+        else:
+            max_order_indicator = this_node_expected_order
 
 
 def parse_order_comma_sep_list(value: str, mapping: dict[str, Any]) -> list[str]:
@@ -137,6 +161,11 @@ class TestCaseSectionOutOfOrderRule(Rule):
     )
     deprecated_names = ("0927",)
 
+    def check(self, node: TestCase) -> None:
+        if not self.enabled:
+            return
+        report_out_of_order_settings(self, node)
+
 
 class KeywordSectionOutOfOrderRule(Rule):
     """
@@ -194,6 +223,11 @@ class KeywordSectionOutOfOrderRule(Rule):
         clean_code=sonar_qube.CleanCodeAttribute.CONVENTIONAL, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
     deprecated_names = ("0928",)
+
+    def check(self, node: Keyword) -> None:
+        if not self.enabled:
+            return
+        report_out_of_order_settings(self, node)
 
 
 class SectionOutOfOrderRule(Rule):
@@ -276,49 +310,3 @@ class SectionOutOfOrderRule(Rule):
             if mapped_name not in order_str:
                 order_str.append(mapped_name)
         return " > ".join(order_str)
-
-
-class TestAndKeywordOrderChecker(VisitorChecker):
-    test_case_section_out_of_order: TestCaseSectionOutOfOrderRule
-    keyword_section_out_of_order: KeywordSectionOutOfOrderRule
-
-    def __init__(self) -> None:
-        self.rules_by_node_type: dict[type[Keyword | TestCase], Rule] = {}
-        self.expected_order: dict[type[Keyword | TestCase], list[str]] = {}
-        super().__init__()
-
-    def visit_File(self, node: File) -> None:  # noqa: N802
-        self.rules_by_node_type = {
-            Keyword: self.keyword_section_out_of_order,
-            TestCase: self.test_case_section_out_of_order,
-        }
-        self.expected_order = {
-            Keyword: self.keyword_section_out_of_order.sections_order,
-            TestCase: self.test_case_section_out_of_order.sections_order,
-        }
-        self.generic_visit(node)
-
-    def check_order(self, node: Keyword | TestCase) -> None:
-        max_order_indicator = -1
-        for subnode in node.body:
-            try:
-                subnode_type = subnode.type
-            except AttributeError:
-                continue
-            if subnode_type not in self.expected_order[type(node)]:
-                continue
-            this_node_expected_order = self.expected_order[type(node)].index(subnode.type)
-            if this_node_expected_order < max_order_indicator:
-                error_node = subnode.data_tokens[0]
-                self.report(
-                    self.rules_by_node_type[type(node)],
-                    section_name=subnode_type,
-                    recommended_order=", ".join(self.expected_order[type(node)]),
-                    node=error_node,
-                    col=error_node.col_offset + 1,
-                    end_col=error_node.end_col_offset + 1,
-                )
-            else:
-                max_order_indicator = this_node_expected_order
-
-    visit_Keyword = visit_TestCase = check_order  # noqa: N815

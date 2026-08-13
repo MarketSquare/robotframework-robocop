@@ -77,6 +77,22 @@ class TooLongKeywordRule(Rule):
     deprecated_names = ("0501",)
     fix_suggestion = "Split the keyword into smaller, focused keywords."
 
+    def check(self, node: Keyword) -> bool:
+        """Report the rule and return whether the keyword exceeds the allowed length."""
+        length, node_end_line = check_node_length(node, ignore_docs=self.ignore_docs)
+        if length <= self.max_len:
+            return False
+        self.report(
+            keyword_name=node.name,
+            keyword_length=length,
+            allowed_length=self.max_len,
+            node=node,
+            end_col=node.col_offset + len(node.name) + 1,
+            extended_disablers=(node.lineno, node_end_line),
+            sev_threshold_value=length,
+        )
+        return True
+
 
 class TooFewCallsInKeywordRule(Rule):
     """
@@ -116,6 +132,21 @@ class TooFewCallsInKeywordRule(Rule):
     )
     deprecated_names = ("0502",)
 
+    def check(self, node: Keyword, keyword_count: int) -> bool:
+        """Report the rule and return whether the keyword has too few keyword calls."""
+        if keyword_count >= self.min_calls:
+            return False
+        self.report(
+            keyword_name=node.name,
+            keyword_count=keyword_count,
+            min_allowed_count=self.min_calls,
+            node=node,
+            end_col=node.col_offset + len(node.name) + 1,
+            extended_disablers=(node.lineno, node.end_lineno),
+            sev_threshold_value=keyword_count,
+        )
+        return True
+
 
 class TooManyCallsInKeywordRule(Rule):
     """
@@ -137,6 +168,21 @@ class TooManyCallsInKeywordRule(Rule):
         clean_code=sonar_qube.CleanCodeAttribute.FOCUSED, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
     deprecated_names = ("0503",)
+
+    def check(self, node: Keyword, keyword_count: int) -> bool:
+        """Report the rule and return whether the keyword has too many keyword calls."""
+        if keyword_count <= self.max_calls:
+            return False
+        self.report(
+            keyword_name=node.name,
+            keyword_count=keyword_count,
+            max_allowed_count=self.max_calls,
+            node=node,
+            end_col=node.col_offset + len(node.name) + 1,
+            extended_disablers=(node.lineno, node.end_lineno),
+            sev_threshold_value=keyword_count,
+        )
+        return True
 
 
 class TooLongTestCaseRule(Rule):
@@ -163,6 +209,20 @@ class TooLongTestCaseRule(Rule):
         clean_code=sonar_qube.CleanCodeAttribute.MODULAR, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
     deprecated_names = ("0504",)
+
+    def check(self, node: TestCase) -> None:
+        length, node_end_line = check_node_length(node, ignore_docs=self.ignore_docs)
+        if length <= self.max_len:
+            return
+        self.report(
+            test_name=node.name,
+            test_length=length,
+            allowed_length=self.max_len,
+            node=node,
+            end_col=node.col_offset + len(node.name) + 1,
+            extended_disablers=(node.lineno, node_end_line),
+            sev_threshold_value=length,
+        )
 
 
 class TooFewCallsInTestCaseRule(Rule):
@@ -195,6 +255,21 @@ class TooFewCallsInTestCaseRule(Rule):
     )
     deprecated_names = ("0528",)
 
+    def check(self, node: TestCase, keyword_count: int) -> bool:
+        """Report the rule and return whether the test case has too few keyword calls."""
+        if keyword_count >= self.min_calls:
+            return False
+        self.report(
+            test_name=node.name,
+            keyword_count=keyword_count,
+            min_allowed_count=self.min_calls,
+            node=node,
+            sev_threshold_value=keyword_count,
+            extended_disablers=(node.lineno, node.end_lineno),
+            end_col=node.col_offset + len(node.name) + 1,
+        )
+        return True
+
 
 class TooManyCallsInTestCaseRule(Rule):
     """
@@ -219,6 +294,21 @@ class TooManyCallsInTestCaseRule(Rule):
         clean_code=sonar_qube.CleanCodeAttribute.MODULAR, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
 
+    def check(self, node: TestCase, keyword_count: int) -> bool:
+        """Report the rule and return whether the test case has too many keyword calls."""
+        if keyword_count <= self.max_calls:
+            return False
+        self.report(
+            test_name=node.name,
+            keyword_count=keyword_count,
+            max_allowed_count=self.max_calls,
+            node=node,
+            sev_threshold_value=keyword_count,
+            extended_disablers=(node.lineno, node.end_lineno),
+            end_col=node.col_offset + len(node.name) + 1,
+        )
+        return True
+
 
 class FileTooLongRule(Rule):
     """File has too many lines."""
@@ -238,6 +328,18 @@ class FileTooLongRule(Rule):
     )
     deprecated_names = ("0506",)
 
+    def check(self, node: File) -> None:
+        if not self.enabled or node.end_lineno <= self.max_lines:
+            return
+        self.report(
+            lines_count=node.end_lineno,
+            max_allowed_count=self.max_lines,
+            node=node,
+            lineno=node.end_lineno,
+            end_col=node.end_col_offset,
+            sev_threshold_value=node.end_lineno,
+        )
+
 
 class TooManyArgumentsRule(Rule):
     """Keyword has too many arguments."""
@@ -254,6 +356,27 @@ class TooManyArgumentsRule(Rule):
         clean_code=sonar_qube.CleanCodeAttribute.FOCUSED, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
     deprecated_names = ("0507",)
+
+    def check(self, node: Keyword) -> None:
+        if not self.enabled:
+            return
+        for child in node.body:
+            if not isinstance(child, Arguments):
+                continue
+            args_number = len(child.values)
+            if args_number > self.max_args:
+                name_token = child.data_tokens[0]
+                self.report(
+                    keyword_name=node.name,
+                    arguments_count=args_number,
+                    max_allowed_count=self.max_args,
+                    node=name_token,
+                    end_lineno=child.end_lineno,
+                    end_col=child.end_col_offset,
+                    extended_disablers=(node.lineno, node.end_lineno),
+                    sev_threshold_value=args_number,
+                )
+            break
 
 
 class LineTooLongRule(Rule):
@@ -789,178 +912,50 @@ def get_documentation_length(node: Node) -> int:
     return doc_len
 
 
+KEYWORD_CALL_ALIKE = tuple(
+    klass
+    for klass in (
+        KeywordCall,
+        TemplateArguments,
+        RETURN_CLASSES.return_class,
+        RETURN_CLASSES.return_setting_class,
+        Break,
+        Continue,
+        Var,
+    )
+    if klass
+)
+
+
+def count_keyword_calls(node: Node) -> int:
+    """Recursively count keyword calls (and alike statements) in the node body."""
+    if isinstance(node, KEYWORD_CALL_ALIKE):
+        return 1
+    if not hasattr(node, "body"):
+        return 0
+    calls = sum(count_keyword_calls(child) for child in node.body)
+    while node and getattr(node, "orelse", None):
+        node = node.orelse
+        calls += sum(count_keyword_calls(child) for child in node.body)
+    while node and getattr(node, "next", None):
+        node = node.next
+        calls += sum(count_keyword_calls(child) for child in node.body)
+    return calls
+
+
+def is_templated_test(node: TestCase, templated_suite: bool) -> bool:
+    if templated_suite:
+        return True
+    if not node.body:
+        return False
+    return any(isinstance(statement, Template) for statement in node.body)
+
+
 @dataclass
 class CachedVariable:
     name: str
     node: Node
     end_col: int
-
-
-class LengthChecker(VisitorChecker):
-    """
-    Checker for max and min length of keyword or test case. It analyses number of lines and also number of
-    keyword calls (as you can have just few keywords but very long ones or vice versa).
-    """
-
-    too_few_calls_in_keyword: TooFewCallsInKeywordRule
-    too_few_calls_in_test_case: TooFewCallsInTestCaseRule
-    too_many_calls_in_keyword: TooManyCallsInKeywordRule
-    too_many_calls_in_test_case: TooManyCallsInTestCaseRule
-    too_long_keyword: TooLongKeywordRule
-    too_long_test_case: TooLongTestCaseRule
-    file_too_long: FileTooLongRule
-    too_many_arguments: TooManyArgumentsRule
-
-    def __init__(self) -> None:
-        self.keyword_call_alike = tuple(
-            klass
-            for klass in (
-                KeywordCall,
-                TemplateArguments,
-                RETURN_CLASSES.return_class,
-                RETURN_CLASSES.return_setting_class,
-                Break,
-                Continue,
-                Var,
-            )
-            if klass
-        )
-        super().__init__()
-
-    def visit_File(self, node: File) -> None:  # noqa: N802
-        if node.end_lineno > self.file_too_long.max_lines:
-            self.report(
-                self.file_too_long,
-                lines_count=node.end_lineno,
-                max_allowed_count=self.file_too_long.max_lines,
-                node=node,
-                lineno=node.end_lineno,
-                end_col=node.end_col_offset,
-                sev_threshold_value=node.end_lineno,
-            )
-        super().visit_File(node)
-
-    def visit_Keyword(self, node: Keyword) -> None:  # noqa: N802
-        if node.name.lstrip().startswith("#"):
-            return
-        for child in node.body:
-            if isinstance(child, Arguments):
-                args_number = len(child.values)
-                if args_number > self.too_many_arguments.max_args:
-                    name_token = child.data_tokens[0]
-                    self.report(
-                        self.too_many_arguments,
-                        keyword_name=node.name,
-                        arguments_count=args_number,
-                        max_allowed_count=self.too_many_arguments.max_args,
-                        node=name_token,
-                        end_lineno=child.end_lineno,
-                        end_col=child.end_col_offset,
-                        extended_disablers=(node.lineno, node.end_lineno),
-                        sev_threshold_value=args_number,
-                    )
-                break
-        length, node_end_line = check_node_length(node, ignore_docs=self.too_long_keyword.ignore_docs)
-        if length > self.too_long_keyword.max_len:
-            self.report(
-                self.too_long_keyword,
-                keyword_name=node.name,
-                keyword_length=length,
-                allowed_length=self.too_long_keyword.max_len,
-                node=node,
-                end_col=node.col_offset + len(node.name) + 1,
-                extended_disablers=(node.lineno, node_end_line),
-                sev_threshold_value=length,
-            )
-            return
-        key_calls = self.count_keyword_calls(node)
-        if key_calls < self.too_few_calls_in_keyword.min_calls:
-            self.report(
-                self.too_few_calls_in_keyword,
-                keyword_name=node.name,
-                keyword_count=key_calls,
-                min_allowed_count=self.too_few_calls_in_keyword.min_calls,
-                node=node,
-                end_col=node.col_offset + len(node.name) + 1,
-                extended_disablers=(node.lineno, node.end_lineno),
-                sev_threshold_value=key_calls,
-            )
-        elif key_calls > self.too_many_calls_in_keyword.max_calls:
-            self.report(
-                self.too_many_calls_in_keyword,
-                keyword_name=node.name,
-                keyword_count=key_calls,
-                max_allowed_count=self.too_many_calls_in_keyword.max_calls,
-                node=node,
-                end_col=node.col_offset + len(node.name) + 1,
-                extended_disablers=(node.lineno, node.end_lineno),
-                sev_threshold_value=key_calls,
-            )
-
-    def test_is_templated(self, node: TestCase) -> bool:
-        if self.templated_suite:
-            return True
-        if not node.body:
-            return False
-        return any(isinstance(statement, Template) for statement in node.body)
-
-    def visit_TestCase(self, node: TestCase) -> None:  # noqa: N802
-        if self.too_long_test_case.ignore_templated and self.test_is_templated(node):
-            return
-        length, node_end_line = check_node_length(node, ignore_docs=self.too_long_test_case.ignore_docs)
-        if length > self.too_long_test_case.max_len:
-            self.report(
-                self.too_long_test_case,
-                test_name=node.name,
-                test_length=length,
-                allowed_length=self.too_long_test_case.max_len,
-                node=node,
-                end_col=node.col_offset + len(node.name) + 1,
-                extended_disablers=(node.lineno, node_end_line),
-                sev_threshold_value=length,
-            )
-        test_is_templated = self.test_is_templated(node)
-        skip_too_many = test_is_templated and self.too_many_calls_in_test_case.ignore_templated
-        skip_too_few = test_is_templated and self.too_few_calls_in_test_case.ignore_templated
-        if skip_too_few and skip_too_many:
-            return
-        key_calls = self.count_keyword_calls(node)  # TODO: could be handled inside rule, at least reporting
-        if not skip_too_many and (key_calls > self.too_many_calls_in_test_case.max_calls):
-            self.report(
-                self.too_many_calls_in_test_case,
-                test_name=node.name,
-                keyword_count=key_calls,
-                max_allowed_count=self.too_many_calls_in_test_case.max_calls,
-                node=node,
-                sev_threshold_value=key_calls,
-                extended_disablers=(node.lineno, node.end_lineno),
-                end_col=node.col_offset + len(node.name) + 1,
-            )
-        elif not skip_too_few and (key_calls < self.too_few_calls_in_test_case.min_calls):
-            self.report(
-                self.too_few_calls_in_test_case,
-                test_name=node.name,
-                keyword_count=key_calls,
-                min_allowed_count=self.too_few_calls_in_test_case.min_calls,
-                node=node,
-                sev_threshold_value=key_calls,
-                extended_disablers=(node.lineno, node.end_lineno),
-                end_col=node.col_offset + len(node.name) + 1,
-            )
-
-    def count_keyword_calls(self, node: Node) -> int:
-        if isinstance(node, self.keyword_call_alike):
-            return 1
-        if not hasattr(node, "body"):
-            return 0
-        calls = sum(self.count_keyword_calls(child) for child in node.body)
-        while node and getattr(node, "orelse", None):
-            node = node.orelse
-            calls += sum(self.count_keyword_calls(child) for child in node.body)
-        while node and getattr(node, "next", None):
-            node = node.next
-            calls += sum(self.count_keyword_calls(child) for child in node.body)
-        return calls
 
 
 class VariableNameLengthChecker(VisitorChecker):

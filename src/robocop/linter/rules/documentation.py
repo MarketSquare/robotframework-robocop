@@ -2,17 +2,35 @@
 
 from __future__ import annotations
 
-from pathlib import Path
 from typing import TYPE_CHECKING
 
 from robot.parsing.model.statements import Documentation
 
 from robocop.linter import sonar_qube
-from robocop.linter.rules import Rule, RuleParam, RuleSeverity, VisitorChecker
+from robocop.linter.rules import Rule, RuleParam, RuleSeverity
 from robocop.linter.utils.misc import str2bool
 
 if TYPE_CHECKING:
     from robot.parsing.model import File, Keyword, SettingSection, TestCase
+
+
+def report_if_documentation_is_missing(rule: Rule, node: Keyword | TestCase) -> None:
+    """Report ``rule`` if the block does not contain the [Documentation] setting."""
+    if any(isinstance(statement, Documentation) for statement in node.body):
+        return
+    rule.report(
+        name=node.name,
+        node=node,
+        end_col=node.col_offset + len(node.name) + 1,
+        extended_disablers=(node.lineno, node.end_lineno),
+    )
+
+
+def report_if_suite_documentation_is_missing(rule: Rule, node: SettingSection) -> None:
+    """Report ``rule`` if the settings section does not contain the Documentation setting."""
+    if any(isinstance(statement, Documentation) for statement in node.body):
+        return
+    rule.report(node=node)
 
 
 class MissingDocKeywordRule(Rule):
@@ -42,6 +60,11 @@ class MissingDocKeywordRule(Rule):
     )
     deprecated_names = ("0201",)
     fix_suggestion = "Add a [Documentation] setting to the keyword."
+
+    def check(self, node: Keyword) -> None:
+        if not self.enabled:
+            return
+        report_if_documentation_is_missing(self, node)
 
 
 class MissingDocTestCaseRule(Rule):
@@ -84,6 +107,11 @@ class MissingDocTestCaseRule(Rule):
     deprecated_names = ("0202",)
     fix_suggestion = "Add a [Documentation] setting to the test case."
 
+    def check(self, node: TestCase, templated_suite: bool) -> None:
+        if not self.enabled or (templated_suite and self.ignore_templated):
+            return
+        report_if_documentation_is_missing(self, node)
+
 
 class MissingDocTestSuiteRule(Rule):
     """
@@ -106,6 +134,17 @@ class MissingDocTestSuiteRule(Rule):
         clean_code=sonar_qube.CleanCodeAttribute.CONVENTIONAL, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
     deprecated_names = ("0203",)
+
+    def check(self, node: SettingSection) -> None:
+        if not self.enabled:
+            return
+        report_if_suite_documentation_is_missing(self, node)
+
+    def check_missing_settings_section(self, node: File) -> None:
+        """Report the rule for a file that does not define the settings section at all."""
+        if not self.enabled:
+            return
+        self.report(node=node, lineno=1, col=1)
 
 
 class MissingDocResourceFileRule(Rule):
@@ -130,71 +169,13 @@ class MissingDocResourceFileRule(Rule):
     )
     deprecated_names = ("0204",)
 
-
-class MissingDocumentationChecker(VisitorChecker):
-    """Checker for missing documentation."""
-
-    missing_doc_keyword: MissingDocKeywordRule
-    missing_doc_test_case: MissingDocTestCaseRule
-    missing_doc_test_suite: MissingDocTestSuiteRule
-    missing_doc_resource_file: MissingDocResourceFileRule
-
-    def __init__(self) -> None:
-        self.is_resource = False
-        self.settings_section_exists = False
-        super().__init__()
-
-    def visit_Keyword(self, node: Keyword) -> None:  # noqa: N802
-        self.check_if_docs_are_present(
-            node, self.missing_doc_keyword, extend_disablers=True
-        )  # TODO: could be self.missing_doc_keyword.check_docs(node)
-
-    def visit_TestCase(self, node: TestCase) -> None:  # noqa: N802
-        if self.templated_suite and self.missing_doc_test_case.ignore_templated:
+    def check(self, node: SettingSection) -> None:
+        if not self.enabled:
             return
-        self.check_if_docs_are_present(node, self.missing_doc_test_case, extend_disablers=True)
+        report_if_suite_documentation_is_missing(self, node)
 
-    def visit_SettingSection(self, node: SettingSection) -> None:  # noqa: N802
-        self.settings_section_exists = True
-        if self.is_resource:
-            self.check_if_suite_docs_are_present(node, self.missing_doc_resource_file)
-        else:
-            self.check_if_suite_docs_are_present(node, self.missing_doc_test_suite)
-
-    def visit_File(self, node: File) -> None:  # noqa: N802
-        source = self.source_file.path.name
-        self.is_resource = bool(source) and ".resource" in Path(source).suffix
-        self.settings_section_exists = False
-        self.generic_visit(node)
-        if not self.settings_section_exists:
-            if self.is_resource:
-                self.report(self.missing_doc_resource_file, node=node, lineno=1, col=1)
-            else:
-                self.report(self.missing_doc_test_suite, node=node, lineno=1, col=1)
-
-    def check_if_docs_are_present(  # TODO: could be implemented inside 'MissingDocumentationRule' class
-        self, node: Keyword | TestCase | SettingSection, rule: Rule, extend_disablers: bool
-    ) -> None:
-        # with single visitor: visit_Documentation + check context, at the end of block check if found
-        # TODO indent
-        for statement in node.body:
-            if isinstance(statement, Documentation):
-                break
-        else:
-            extended_disablers = (node.lineno, node.end_lineno) if extend_disablers else None
-            if hasattr(node, "name"):
-                self.report(
-                    rule,
-                    name=node.name,
-                    node=node,
-                    end_col=node.col_offset + len(node.name) + 1,
-                    extended_disablers=extended_disablers,
-                )
-            else:
-                self.report(rule, node=node, end_col=node.end_col_offset, extended_disablers=extended_disablers)
-
-    def check_if_suite_docs_are_present(self, node: SettingSection, rule: Rule) -> None:
-        for statement in node.body:
-            if isinstance(statement, Documentation):
-                return
-        self.report(rule, node=node)
+    def check_missing_settings_section(self, node: File) -> None:
+        """Report the rule for a file that does not define the settings section at all."""
+        if not self.enabled:
+            return
+        self.report(node=node, lineno=1, col=1)

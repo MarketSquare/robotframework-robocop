@@ -2,121 +2,116 @@
 
 from __future__ import annotations
 
-from pathlib import Path
 from typing import TYPE_CHECKING
 
-from robot.api import Token
-from robot.errors import DataError
-from robot.parsing.model.statements import Tags
-
 from robocop.linter.rules import ProjectChecker, usage
-from robocop.linter.rules.usage import KeywordDefinition, KeywordEmbedded, KeywordUsage, RobotFile
 from robocop.linter.utils.misc import normalize_robot_name
-from robocop.parsing.run_keywords import iterate_keyword_names
-from robocop.source_file import SourceFile, VirtualSourceFile
+from robocop.project.definitions import usage_name_pattern
+from robocop.source_file import SourceFile
 
 if TYPE_CHECKING:
-    from robot.parsing.model.blocks import File, Keyword, Section
-    from robot.parsing.model.statements import KeywordCall, Setup, Statement, Template
+    import re
+    from pathlib import Path
 
     from robocop.config.manager import ConfigManager
     from robocop.linter.diagnostics import Diagnostic
-    from robocop.project.context import ProjectContext
+    from robocop.project.context import ProjectContext, ProjectFile
+    from robocop.project.definitions import KeywordDefinition
+    from robocop.source_file import VirtualSourceFile
+
+
+class UsedKeywordNames:
+    """Names used to call keywords, collected from a set of files."""
+
+    def __init__(self) -> None:
+        self.normalized: set[str] = set()
+        self.names: list[str] = []
+        self.dynamic_patterns: list[re.Pattern[str]] = []
+
+    def add(self, name: str, name_contains_variable: bool) -> None:
+        """Record a name used to call a keyword."""
+        if name_contains_variable:
+            pattern = usage_name_pattern(name)
+            if pattern is not None:
+                self.dynamic_patterns.append(pattern)
+            return
+        self.names.append(name)
+        self.normalized.add(normalize_robot_name(name))
+        if "." in name:
+            _, _, without_prefix = name.rpartition(".")
+            self.normalized.add(normalize_robot_name(without_prefix))
+            self.names.append(without_prefix)
+
+    def uses(self, keyword: KeywordDefinition) -> bool:
+        """
+        Check if the keyword is called by any of the collected names.
+
+        Returns:
+            True if any collected name refers to this keyword.
+
+        """
+        if keyword.has_embedded_arguments:
+            if any(keyword.matches(name) for name in self.names):
+                return True
+        elif keyword.normalized_name in self.normalized:
+            return True
+        return any(pattern.fullmatch(keyword.normalized_name) for pattern in self.dynamic_patterns)
 
 
 class UnusedKeywords(ProjectChecker):
+    """Reports keywords that are never called in the project."""
+
     unused_keyword: usage.UnusedKeywordRule
-    current_file: RobotFile
-
-    # TODO: ignore run keywords with variables?
-    # TODO: handle BDD
-
-    def __init__(self) -> None:
-        self.files: dict[str, RobotFile] = {}
-        super().__init__()
 
     def scan_project(
         self,
         project_source_file: SourceFile | VirtualSourceFile,
         config_manager: ConfigManager,  # noqa: ARG002
-        context: ProjectContext | None = None,  # noqa: ARG002
+        context: ProjectContext | None = None,
     ) -> list[Diagnostic]:
         self.issues = []
-        for robot_file in self.files.values():
-            if not (robot_file.is_suite or robot_file.any_private):
-                continue
-            robot_file.search_usage()
-            local_file = SourceFile(path=Path(robot_file.path), config=project_source_file.config)
-            for keyword in robot_file.not_used_keywords:
-                name = keyword.keyword_node.name
-                self.report(
-                    self.unused_keyword,
-                    source=local_file,
-                    node=keyword.keyword_node,
-                    keyword_name=name,
-                    end_col=len(name) + 1,
-                )
+        if context is None:
+            return self.issues
+        project_usages, file_usages = self._collect_usages(context)
+        for project_file in context.iter_files():
+            private_usages = file_usages.get(project_file.path.resolve())
+            for keyword in project_file.keywords:
+                usages = private_usages if keyword.is_private else project_usages
+                if usages is not None and usages.uses(keyword):
+                    continue
+                self._report_keyword(project_file, keyword, project_source_file)
         return self.issues
 
-    def visit_File(self, node: File) -> None:  # noqa: N802
-        self.current_file = RobotFile(str(node.source), node)  # TODO: handle "-"
-        # self.generic_visit(node)
-        self.files[self.current_file.path] = self.current_file
-
-    def visit_TestCaseSection(self, _node: Section) -> None:  # noqa: N802
-        self.current_file.is_suite = True
-        # self.generic_visit(node)
-
-    def mark_used_keywords(self, node: Statement, name_token_type: str) -> None:
-        for keyword in iterate_keyword_names(node, name_token_type):
-            self.mark_used_keyword(keyword.value)
-
-    def mark_used_keyword(self, name: str) -> None:
-        if not name:
-            return
-        normalized_name = normalize_robot_name(name)
-        if normalized_name not in self.current_file.used_keywords:
-            self.current_file.used_keywords[normalized_name] = KeywordUsage()
-        self.current_file.used_keywords[normalized_name].update(name)
-        # what about possible library names? searching removes, but for sake of collecting
-
-    def visit_Setup(self, node: Setup) -> None:  # noqa: N802
-        self.mark_used_keywords(node, Token.NAME)
-
-    visit_TestTeardown = visit_SuiteTeardown = visit_Teardown = visit_TestSetup = visit_SuiteSetup = visit_Setup  # noqa: N815
-
-    def visit_Template(self, node: Template) -> None:  # noqa: N802
-        # allow / disallow param
-        if node.value:
-            self.mark_used_keyword(node.value)
-        # self.generic_visit(node)
-
-    visit_TestTemplate = visit_Template  # noqa: N815
-
-    def visit_KeywordCall(self, node: KeywordCall) -> None:  # noqa: N802
-        self.mark_used_keywords(node, Token.KEYWORD)
-
-    def visit_Keyword(self, node: Keyword) -> None:  # noqa: N802
-        try:
-            embedded = KeywordEmbedded(node.name)
-            if embedded and embedded.args:
-                self.current_file.embedded_keywords[node.name] = KeywordDefinition(
-                    embedded.name, node, is_private=self.is_keyword_private(node)
-                )
-            else:
-                normalized_name = normalize_robot_name(node.name)
-                self.current_file.normal_keywords[normalized_name] = KeywordDefinition(
-                    node.name, node, is_private=self.is_keyword_private(node)
-                )
-        except DataError:
-            pass
-        # self.generic_visit(node)
+    def _report_keyword(
+        self,
+        project_file: ProjectFile,
+        keyword: KeywordDefinition,
+        project_source_file: SourceFile | VirtualSourceFile,
+    ) -> None:
+        self.report(
+            self.unused_keyword,
+            source=SourceFile(path=project_file.path, config=project_source_file.config),
+            keyword_name=keyword.name,
+            lineno=keyword.location.lineno,
+            col=keyword.location.col,
+            end_lineno=keyword.location.end_lineno,
+            end_col=keyword.location.end_col,
+        )
 
     @staticmethod
-    def is_keyword_private(node: Keyword) -> bool:
-        for statement in node.body:
-            if isinstance(statement, Tags):
-                for tag in statement.get_tokens(Token.ARGUMENT):
-                    if tag.value == "robot:private":
-                        return True
-        return False
+    def _collect_usages(context: ProjectContext) -> tuple[UsedKeywordNames, dict[Path, UsedKeywordNames]]:
+        """
+        Collect names used to call keywords, for the whole project and for every file separately.
+
+        Returns:
+            Tuple of names used anywhere in the project and names used in each file.
+
+        """
+        project_usages = UsedKeywordNames()
+        file_usages: dict[Path, UsedKeywordNames] = {}
+        for project_file, usage in context.iter_usages():
+            per_file = file_usages.setdefault(project_file.path.resolve(), UsedKeywordNames())
+            for name in usage.names_to_check():
+                project_usages.add(name, usage.name_contains_variable)
+                per_file.add(name, usage.name_contains_variable)
+        return project_usages, file_usages

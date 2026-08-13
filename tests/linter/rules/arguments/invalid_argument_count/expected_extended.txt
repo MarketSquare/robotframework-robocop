@@ -1,0 +1,57 @@
+test.robot:19:5 ARG08 Keyword 'Login' expects 2 arguments but 1 provided, missing ${password}
+    |
+ 17 |
+ 18 | Invalid Calls
+ 19 |     Login    user
+    |     ^^^^^ ARG08
+ 20 |     Login    user    pass    extra
+ 21 |     With Default
+    |
+
+test.robot:20:5 ARG08 Keyword 'Login' expects 2 arguments but 3 provided
+    |
+ 18 | Invalid Calls
+ 19 |     Login    user
+ 20 |     Login    user    pass    extra
+    |     ^^^^^ ARG08
+ 21 |     With Default
+ 22 |     No Args    unexpected
+    |
+
+test.robot:21:5 ARG08 Keyword 'With Default' expects from 1 to 2 arguments but 0 provided, missing ${a}
+    |
+ 19 |     Login    user
+ 20 |     Login    user    pass    extra
+ 21 |     With Default
+    |     ^^^^^^^^^^^^ ARG08
+ 22 |     No Args    unexpected
+ 23 |     Named Only    1
+    |
+
+test.robot:22:5 ARG08 Keyword 'No Args' expects 0 arguments but 1 provided
+    |
+ 20 |     Login    user    pass    extra
+ 21 |     With Default
+ 22 |     No Args    unexpected
+    |     ^^^^^^^ ARG08
+ 23 |     Named Only    1
+    |
+
+test.robot:23:5 ARG08 Keyword 'Named Only' expects 1 argument and named-only argument ${strict} but 1 provided, missing ${strict}
+    |
+ 21 |     With Default
+ 22 |     No Args    unexpected
+ 23 |     Named Only    1
+    |     ^^^^^^^^^^ ARG08
+    |
+
+test.robot:33:31 ARG08 Keyword 'Login' expects 2 arguments but 1 provided, missing ${password}
+    |
+ 31 |
+ 32 | Nested Calls
+ 33 |     Run Keyword If    True    Login    user
+    |                               ^^^^^ ARG08
+ 34 |     Run Keywords    No Args    AND    Login    user    pass
+    |
+
+Found 6 issues.

@@ -100,6 +100,25 @@ robocop check-project
 
 ``check-project`` behaves the same as ``check`` command, but it only runs project level checks.
 
+Project level rules are the rules that cannot be checked by looking at a single file. For example, to know that a
+keyword is not used, Robocop has to know every keyword call in the project. All of them are disabled by default and
+need to be selected:
+
+```bash
+robocop check-project --select unused-keyword --select invalid-argument-count
+```
+
+Robocop builds the project context by parsing every source file, resolving ``Resource`` imports and indexing keyword
+definitions and keyword calls. No library is imported and no user code is executed.
+
+Import paths often contain variables. Provide them with the ``--variable`` option so that the imports can be resolved:
+
+```bash
+robocop check-project --variable RESOURCE_DIR:resources
+```
+
+See [variables](../configuration/configuration_reference.md#variables) for more details.
+
 Project checks can be added as custom rules. See [custom rules](custom_rules.md/#project-checks) for more details.
 
 ## Language support

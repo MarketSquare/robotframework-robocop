@@ -92,3 +92,40 @@ class TestProjectContext:
             "resources/missing.resource": "not_found",
             "Collections": "external",
         }
+
+
+class TestKeywordVisibility:
+    def test_own_and_imported_keywords_are_visible(self, context, project):
+        visible = context.visible_keywords(project / "test.robot")
+        assert visible.find("Common Keyword")
+        assert visible.find("Login As bob")
+
+    def test_private_keyword_of_imported_file_is_not_visible(self, context, project):
+        visible = context.visible_keywords(project / "test.robot")
+        assert not visible.find("Private Keyword")
+
+    def test_private_keyword_is_visible_in_own_file(self, context, project):
+        visible = context.visible_keywords(project / "resources" / "common.resource")
+        assert visible.find("Private Keyword")
+
+    def test_imported_files_include_itself(self, context, project):
+        paths = {file.path for file in context.imported_files(project / "test.robot")}
+        assert paths == {project / "test.robot", project / "resources" / "common.resource"}
+
+    def test_unknown_file_has_no_imports(self, context, project):
+        assert context.imported_files(project / "does_not_exist.robot") == []
+
+    def test_resolve_keyword_uses_imports(self, context, project):
+        usages = context.get_file(project / "test.robot").usages
+        by_name = {usage.name: usage for usage in usages}
+        assert len(context.resolve_keyword(by_name["Common Keyword"])) == 1
+        assert len(context.resolve_keyword(by_name["Login As bob"])) == 1
+
+
+class TestUsageArguments:
+    def test_arguments_are_collected(self, context, project):
+        usages = context.get_file(project / "test.robot").usages
+        by_name = {usage.name: usage for usage in usages}
+        assert by_name["Common Keyword"].arguments == ("1",)
+        assert by_name["Common Keyword"].argument_count == 1
+        assert by_name["Login As bob"].arguments == ()

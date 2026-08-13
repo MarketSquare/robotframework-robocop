@@ -14,7 +14,7 @@ from robot.errors import DataError
 
 from robocop.linter.utils.misc import normalize_robot_name
 from robocop.project.collector import ProjectFileCollector
-from robocop.project.definitions import ImportType, KeywordDefinition
+from robocop.project.definitions import ImportStatus, ImportType, KeywordDefinition
 from robocop.project.imports import ImportResolver
 from robocop.project.variables import VariableScope
 
@@ -125,6 +125,7 @@ class ProjectContext:
     root: Path
     files: dict[Path, ProjectFile] = field(default_factory=dict)
     keywords: KeywordIndex = field(default_factory=KeywordIndex)
+    _visible_keywords: dict[Path, KeywordIndex] = field(default_factory=dict, repr=False)
 
     def get_file(self, path: Path) -> ProjectFile | None:
         """
@@ -136,6 +137,82 @@ class ProjectContext:
         """
         return self.files.get(path.resolve())
 
+    def imported_files(self, path: Path) -> list[ProjectFile]:
+        """
+        Return files visible from given file through resource imports.
+
+        Resource imports are transitive in Robot Framework, so keywords from a resource imported by another resource
+        are visible as well. The list starts with the file itself.
+
+        Returns:
+            List of project files, starting with the file itself.
+
+        """
+        start = self.get_file(path)
+        if start is None:
+            return []
+        visible = [start]
+        seen = {start.path.resolve()}
+        queue = [start]
+        while queue:
+            current = queue.pop()
+            for imported in current.resource_imports():
+                if imported.status != ImportStatus.RESOLVED or imported.path is None:
+                    continue
+                resolved_path = imported.path.resolve()
+                if resolved_path in seen:
+                    continue
+                imported_file = self.files.get(resolved_path)
+                if imported_file is None:
+                    continue
+                seen.add(resolved_path)
+                visible.append(imported_file)
+                queue.append(imported_file)
+        return visible
+
+    def visible_keywords(self, path: Path) -> KeywordIndex:
+        """
+        Return index of keywords that can be called from given file.
+
+        Contains keywords defined in the file itself and keywords from all transitively imported resources.
+        Private keywords of other files are not included.
+
+        Returns:
+            KeywordIndex with keywords visible from the file.
+
+        """
+        resolved = path.resolve()
+        cached = self._visible_keywords.get(resolved)
+        if cached is not None:
+            return cached
+        index = KeywordIndex()
+        for project_file in self.imported_files(path):
+            is_own_file = project_file.path.resolve() == resolved
+            for keyword in project_file.keywords:
+                if keyword.is_private and not is_own_file:
+                    continue
+                index.add(keyword)
+        self._visible_keywords[resolved] = index
+        return index
+
+    def resolve_keyword(self, usage: KeywordUsage) -> list[KeywordDefinition]:
+        """
+        Find definitions matching the keyword usage, using imports of the file the usage comes from.
+
+        Returns:
+            List of matching definitions. Empty when the keyword is not defined in the project, for example when it
+            comes from a library.
+
+        """
+        if usage.name_contains_variable:
+            return []
+        index = self.visible_keywords(usage.location.source)
+        for name in usage.names_to_check():
+            matches = index.find(name)
+            if matches:
+                return matches
+        return []
+
     def iter_files(self) -> Iterator[ProjectFile]:
         """
         Iterate over all files in the project.
@@ -145,6 +222,18 @@ class ProjectContext:
 
         """
         yield from self.files.values()
+
+    def iter_usages(self) -> Iterator[tuple[ProjectFile, KeywordUsage]]:
+        """
+        Iterate over all keyword usages in the project.
+
+        Yields:
+            Tuples of the file containing the call and the keyword usage.
+
+        """
+        for project_file in self.files.values():
+            for usage in project_file.usages:
+                yield project_file, usage
 
     def iter_imports(self) -> Iterator[tuple[ProjectFile, ResolvedImport]]:
         """

@@ -1,0 +1,8 @@
+test.robot:19:5 [E] ARG08 Keyword 'Login' expects 2 arguments but 1 provided, missing ${password}
+test.robot:20:5 [E] ARG08 Keyword 'Login' expects 2 arguments but 3 provided
+test.robot:21:5 [E] ARG08 Keyword 'With Default' expects from 1 to 2 arguments but 0 provided, missing ${a}
+test.robot:22:5 [E] ARG08 Keyword 'No Args' expects 0 arguments but 1 provided
+test.robot:23:5 [E] ARG08 Keyword 'Named Only' expects 1 argument and named-only argument ${strict} but 1 provided, missing ${strict}
+test.robot:33:31 [E] ARG08 Keyword 'Login' expects 2 arguments but 1 provided, missing ${password}
+
+Found 6 issues.

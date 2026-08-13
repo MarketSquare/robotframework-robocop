@@ -1,3 +1,12 @@
+resource.robot:2:1 KW04 Keyword 'Not Used Keyword' is not used
+   |
+ 1 | *** Keywords ***
+ 2 | Not Used Keyword
+   | ^^^^^^^^^^^^^^^^ KW04
+ 3 |     Log    ${TEST_NAME}
+ 4 |     Private Used Keyword
+   |
+
 resource.robot:10:1 KW04 Keyword 'Private Not Used Keyword' is not used
     |
  10 | Private Not Used Keyword
@@ -27,4 +36,4 @@ tasks.robot:16:1 KW04 Keyword 'Not Used Keyword' is not used
  17 |     Nested Not Used Keyword
     |
 
-Found 4 issues.
+Found 5 issues.

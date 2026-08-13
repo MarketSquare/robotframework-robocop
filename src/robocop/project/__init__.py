@@ -12,6 +12,7 @@ The main entry point is :class:`ProjectContext`, built by :func:`build_project_c
 from robocop.project.collector import CollectedFile, ProjectFileCollector, RawImport
 from robocop.project.context import KeywordIndex, ProjectContext, ProjectFile, build_project_context
 from robocop.project.definitions import (
+    ArgumentsMismatch,
     ArgumentsSpec,
     ImportStatus,
     ImportType,
@@ -26,6 +27,7 @@ from robocop.project.imports import ImportResolver
 from robocop.project.variables import VariableScope
 
 __all__ = [
+    "ArgumentsMismatch",
     "ArgumentsSpec",
     "CollectedFile",
     "ImportResolver",

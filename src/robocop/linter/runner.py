@@ -225,9 +225,7 @@ class RobocopLinter:
         resolved_config = self.config_resolver.resolve_config(config)
         project_name = self.config_manager.root.name
         project_source_file = VirtualSourceFile(Path(project_name), self.config_manager.default_config)
-        context = build_project_context(self.config_manager, silent=config.silent)
-        if config.verbose and not config.silent:
-            print(f"Built project context from {len(context.files)} files.")
+        context = self.build_context_if_needed(resolved_config.project_checkers, config)
         for checker in resolved_config.project_checkers:
             checker.issues = []
             self.call_scan_project(checker, project_source_file, context)
@@ -239,11 +237,29 @@ class RobocopLinter:
             return self.diagnostics
         return self.return_with_exit_code(len(self.diagnostics))
 
+    def build_context_if_needed(self, checkers: list[ProjectChecker], config: Config) -> ProjectContext | None:
+        """
+        Build the project context, unless no checker is going to use it.
+
+        Parsing the whole project is expensive, so it is skipped when no project rule is enabled or when all enabled
+        rules use the old ``scan_project`` signature.
+
+        Returns:
+            ProjectContext, or None if no checker needs it.
+
+        """
+        if not any(accepts_project_context(type(checker)) for checker in checkers):
+            return None
+        context = build_project_context(self.config_manager, silent=config.silent)
+        if config.verbose and not config.silent:
+            print(f"Built project context from {len(context.files)} files.")
+        return context
+
     def call_scan_project(
         self,
         checker: ProjectChecker,
         project_source_file: VirtualSourceFile,
-        context: ProjectContext,
+        context: ProjectContext | None,
     ) -> None:
         """
         Call ``scan_project`` on the checker, passing the project context if the checker accepts it.

@@ -11,7 +11,7 @@ from robot.parsing.model.statements import Arguments, Tags
 from robot.variables.search import search_variable
 
 from robocop.linter.utils.misc import normalize_robot_name
-from robocop.parsing.run_keywords import iterate_keyword_names
+from robocop.parsing.run_keywords import iterate_keyword_calls
 from robocop.project.definitions import (
     ArgumentsSpec,
     ImportType,
@@ -36,6 +36,9 @@ if TYPE_CHECKING:
         Variable,
         VariablesImport,
     )
+
+
+DEFAULT_BDD_PREFIXES = frozenset({"Given", "When", "Then", "And", "But"})
 
 
 @dataclass
@@ -69,8 +72,9 @@ class ProjectFileCollector(ModelVisitor):  # type: ignore[misc]
     can decide to ignore them instead of reporting a false positive.
     """
 
-    def __init__(self, path: Path) -> None:
+    def __init__(self, path: Path, bdd_prefixes: frozenset[str] | None = None) -> None:
         self.collected = CollectedFile(path=path, is_init_file="__init__" in path.name)
+        self.bdd_prefixes = bdd_prefixes if bdd_prefixes is not None else DEFAULT_BDD_PREFIXES
 
     def collect(self, model: File) -> CollectedFile:
         """
@@ -173,14 +177,13 @@ class ProjectFileCollector(ModelVisitor):  # type: ignore[misc]
         self._add_import(ImportType.VARIABLES, node)
 
     def _add_usages(self, node: Statement, name_token_type: str) -> None:
-        for token in iterate_keyword_names(node, name_token_type):
-            self._add_usage(token, node)
+        for call in iterate_keyword_calls(node, name_token_type):
+            self._add_usage(call.name, [token.value for token in call.arguments])
 
-    def _add_usage(self, token: Token, node: Statement) -> None:
+    def _add_usage(self, token: Token, arguments: list[str], is_template: bool = False) -> None:
         if not token.value:
             return
         match = search_variable(token.value, ignore_errors=True)
-        arguments = [arg.value for arg in node.get_tokens(Token.ARGUMENT)]
         self.collected.usages.append(
             KeywordUsage(
                 name=token.value,
@@ -192,11 +195,18 @@ class ProjectFileCollector(ModelVisitor):  # type: ignore[misc]
                     end_lineno=token.lineno,
                     end_col=token.end_col_offset + 1,
                 ),
-                argument_count=len(arguments),
-                named_arguments=tuple(arg.split("=", maxsplit=1)[0] for arg in arguments if "=" in arg),
+                arguments=tuple(arguments),
                 name_contains_variable=bool(match.base),
+                bdd_prefix=self._bdd_prefix(token.value),
+                is_template=is_template,
             )
         )
+
+    def _bdd_prefix(self, name: str) -> str | None:
+        first_word, separator, _rest = name.partition(" ")
+        if not separator:
+            return None
+        return first_word if first_word.title() in self.bdd_prefixes else None
 
     def visit_KeywordCall(self, node: KeywordCall) -> None:  # noqa: N802
         self._add_usages(node, Token.KEYWORD)
@@ -215,6 +225,6 @@ class ProjectFileCollector(ModelVisitor):  # type: ignore[misc]
             return
         name_token = node.get_token(Token.NAME)
         if name_token is not None:
-            self._add_usage(name_token, node)
+            self._add_usage(name_token, [], is_template=True)
 
     visit_TestTemplate = visit_Template  # noqa: N815

@@ -6,9 +6,38 @@ from robot.api import Token
 
 from robocop.linter import sonar_qube
 from robocop.linter.rules import Rule, RuleParam, RuleSeverity
+from robocop.linter.utils import misc as utils
+from robocop.version_handling import TYPE_SUPPORTED
 
 if TYPE_CHECKING:
     from robot.parsing.model.statements import Node, Var, Variable
+    from robot.variables.search import SearchResult
+
+RESERVED_VARIABLES = {
+    "testname": "${TEST_NAME}",
+    "testtags": "@{TEST_TAGS}",
+    "testdocumentation": "${TEST_DOCUMENTATION}",
+    "teststatus": "${TEST_STATUS}",
+    "testmessage": "${TEST_MESSAGE}",
+    "prevtestname": "${PREV_TEST_NAME}",
+    "prevteststatus": "${PREV_TEST_STATUS}",
+    "prevtestmessage": "${PREV_TEST_MESSAGE}",
+    "suitename": "${SUITE_NAME}",
+    "suitesource": "${SUITE_SOURCE}",
+    "suitedocumentation": "${SUITE_DOCUMENTATION}",
+    "suitemetadata": "&{SUITE_METADATA}",
+    "suitestatus": "${SUITE_STATUS}",
+    "suitemessage": "${SUITE_MESSAGE}",
+    "keywordstatus": "${KEYWORD_STATUS}",
+    "keywordmessage": "${KEYWORD_MESSAGE}",
+    "loglevel": "${LOG_LEVEL}",
+    "outputfile": "${OUTPUT_FILE}",
+    "logfile": "${LOG_FILE}",
+    "reportfile": "${REPORT_FILE}",
+    "debugfile": "${DEBUG_FILE}",
+    "outputdir": "${OUTPUT_DIR}",
+    # "options": "&{OPTIONS}", This variable is widely used and is relatively safe to overwrite
+}
 
 
 def comma_separated_list(value: str) -> list[str]:
@@ -422,6 +451,18 @@ class NonLocalVariablesShouldBeUppercaseRule(Rule):
     )
     deprecated_names = ("0310",)
 
+    def check(self, variable_name: str, node: Node, token: Token) -> None:
+        normalized_var_name = utils.remove_nested_variables(variable_name)
+        if not normalized_var_name:
+            return
+        if TYPE_SUPPORTED:
+            normalized_var_name, *_ = normalized_var_name.split(": ", 1)
+        # a variable as a keyword argument can contain lowercase nested variable
+        # because the actual value of it may be uppercase
+        if normalized_var_name.isupper():
+            return
+        self.report(node=node, col=token.col_offset + 1, end_col=token.end_col_offset + 1)
+
 
 class PossibleVariableOverwritingRule(Rule):
     """
@@ -486,6 +527,16 @@ class HyphenInVariableNameRule(Rule):
         clean_code=sonar_qube.CleanCodeAttribute.CONVENTIONAL, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
     deprecated_names = ("0317",)
+
+    def check(self, token: Token, name: str) -> None:
+        if "-" not in name:
+            return
+        self.report(
+            variable_name=token.value,
+            lineno=token.lineno,
+            col=token.col_offset + 1,
+            end_col=token.end_col_offset + 1,
+        )
 
 
 class InconsistentVariableNameRule(Rule):
@@ -553,6 +604,22 @@ class OverwritingReservedVariableRule(Rule):
         clean_code=sonar_qube.CleanCodeAttribute.CONVENTIONAL, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
     deprecated_names = ("0324",)
+
+    def check(self, token: Token, variable_match: SearchResult, name: str, var_or_arg: str) -> None:
+        if variable_match.items:  # item assignments ${dict}[key] =
+            return
+        reserved_variable = RESERVED_VARIABLES.get(utils.normalize_robot_name(name))
+        if reserved_variable is None:
+            return
+        self.report(
+            var_or_arg=var_or_arg,
+            variable_name=variable_match.match,
+            reserved_variable=reserved_variable,
+            node=token,
+            lineno=token.lineno,
+            col=token.col_offset + 1,
+            end_col=token.col_offset + len(variable_match.match) + 1,
+        )
 
 
 class DuplicatedAssignedVarNameRule(Rule):

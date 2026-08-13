@@ -12,7 +12,7 @@ from robot.parsing.model.statements import Arguments
 from robot.variables.search import search_variable
 
 from robocop.linter import sonar_qube
-from robocop.linter.rules import Rule, RuleParam, RuleSeverity, VisitorChecker, deprecated, variables
+from robocop.linter.rules import Rule, RuleParam, RuleSeverity, VisitorChecker, variables
 from robocop.linter.utils import misc as utils
 from robocop.parsing.string_operations import get_unmasked_string
 from robocop.version_handling import ROBOT_VERSION, TYPE_SUPPORTED
@@ -24,13 +24,11 @@ if TYPE_CHECKING:
     from robot.parsing import File
     from robot.parsing.model.blocks import For, If, InvalidSection, Keyword, TestCase, While
     from robot.parsing.model.statements import (
-        ForceTags,
         KeywordCall,
         KeywordName,
         LibraryImport,
         Node,
         Return,
-        ReturnSetting,
         SectionHeader,
         TestCaseName,
         Var,
@@ -1129,35 +1127,3 @@ class SimilarVariableChecker(VisitorChecker):
                     end_col=token.end_col_offset + 1,
                 )
             self.assigned_variables[normalized].append(name)
-
-
-class DeprecatedStatementChecker(VisitorChecker):
-    """Checker for deprecated statements."""
-
-    deprecated_with_name: deprecated.DeprecatedWithNameRule
-    deprecated_singular_header: deprecated.DeprecatedSingularHeaderRule
-    deprecated_force_tags: deprecated.DeprecatedForceTagsRule
-    deprecated_return_setting: deprecated.DeprecatedReturnSetting
-
-    def visit_Keyword(self, node: Keyword) -> None:  # noqa: N802
-        self.context.keyword = node
-        self.generic_visit(node)
-        self.context.keyword = None
-
-    def visit_Return(self, node: Return) -> None:  # noqa: N802
-        """For RETURN use visit_ReturnStatement - visit_Return will most likely visit RETURN in the future"""
-        if ROBOT_VERSION.major not in (5, 6):
-            return
-        self.deprecated_return_setting.check(node)
-
-    def visit_ReturnSetting(self, node: ReturnSetting) -> None:  # noqa: N802
-        self.deprecated_return_setting.check(node)
-
-    def visit_ForceTags(self, node: ForceTags) -> None:  # noqa: N802
-        self.deprecated_force_tags.check(node)
-
-    def visit_LibraryImport(self, node: LibraryImport) -> None:  # noqa: N802
-        self.deprecated_with_name.check(node)
-
-    def visit_SectionHeader(self, node: SectionHeader) -> None:  # noqa: N802
-        self.deprecated_singular_header.check(node)

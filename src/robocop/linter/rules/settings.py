@@ -8,7 +8,7 @@ from robot.api import Token
 from robot.libraries import STDLIBS
 from robot.parsing.model.blocks import TestCaseSection
 
-from robocop.linter.rules import VisitorChecker, errors, imports, lengths, naming
+from robocop.linter.rules import VisitorChecker, deprecated, errors, imports, lengths, naming
 from robocop.version_handling import ROBOT_VERSION
 
 if TYPE_CHECKING:
@@ -19,6 +19,7 @@ if TYPE_CHECKING:
         LibraryImport,
         Node,
         ResourceImport,
+        Return,
         SectionHeader,
         Statement,
         Template,
@@ -64,6 +65,10 @@ class SettingsChecker(VisitorChecker):
     non_builtin_imports_not_sorted: imports.NonBuiltinImportsNotSortedRule
     resources_imports_not_sorted: imports.ResourcesImportsNotSortedRule
     variables_import_with_args: errors.VariablesImportWithArgsRule
+    deprecated_with_name: deprecated.DeprecatedWithNameRule
+    deprecated_singular_header: deprecated.DeprecatedSingularHeaderRule
+    deprecated_force_tags: deprecated.DeprecatedForceTagsRule
+    deprecated_return_setting: deprecated.DeprecatedReturnSetting
 
     def __init__(self) -> None:
         self.parent_node_name = ""
@@ -128,6 +133,7 @@ class SettingsChecker(VisitorChecker):
 
     def visit_SectionHeader(self, node: SectionHeader) -> None:  # noqa: N802
         self.section_name_invalid.check(node)
+        self.deprecated_singular_header.check(node)
 
     def visit_SettingSection(self, node: SettingSection) -> None:  # noqa: N802
         self.parent_node_name = "Test Suite"
@@ -139,7 +145,9 @@ class SettingsChecker(VisitorChecker):
 
     def visit_Keyword(self, node: Keyword) -> None:  # noqa: N802
         self.parent_node_name = f"'{node.name}' Keyword" if node.name else ""
+        self.context.keyword = node
         self.generic_visit(node)
+        self.context.keyword = None
 
     def visit_Metadata(self, node: Statement) -> None:  # noqa: N802
         self.empty_metadata.check(node)
@@ -151,6 +159,7 @@ class SettingsChecker(VisitorChecker):
     def visit_ForceTags(self, node: Statement) -> None:  # noqa: N802
         self.empty_force_tags.check(node)
         self.check_setting_name(node)
+        self.deprecated_force_tags.check(node)
 
     visit_TestTags = visit_ForceTags  # noqa: N815
 
@@ -181,6 +190,7 @@ class SettingsChecker(VisitorChecker):
         self.setting_name_not_in_title_case.check(node, node.data_tokens[0].value)
         self.empty_library_alias.check(node)
         self.duplicated_library_alias.check(node)
+        self.deprecated_with_name.check(node)
         if node.name:
             self.libraries.append(node)
 
@@ -230,5 +240,10 @@ class SettingsChecker(VisitorChecker):
 
     def visit_ReturnSetting(self, node: Statement) -> None:  # noqa: N802
         self.check_setting_name(node)
+        self.deprecated_return_setting.check(node)
 
-    visit_Return = visit_ReturnSetting  # noqa: N815
+    def visit_Return(self, node: Return) -> None:  # noqa: N802
+        """For RETURN use visit_ReturnStatement - visit_Return will most likely visit RETURN in the future"""
+        self.check_setting_name(node)
+        if ROBOT_VERSION.major in (5, 6):
+            self.deprecated_return_setting.check(node)

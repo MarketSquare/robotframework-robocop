@@ -13,3 +13,12 @@
   language: python
   files: '.*\.(robot|resource)$'
   minimum_pre_commit_version: "2.9.2"
+
+- id: robocop-check-project
+  name: robocop check project
+  description: "Robot Framework project checker"
+  entry: robocop check-project --force-exclude
+  language: python
+  files: '.*\.(robot|resource)$'
+  pass_filenames: false
+  minimum_pre_commit_version: "2.9.2"

@@ -16,7 +16,7 @@ from robot.variables.search import search_variable
 
 # TODO: Validate which ImportError we can drop now (with 5+)
 try:
-    from robot.api.parsing import Comment, EmptyLine, If, Variable
+    from robot.api.parsing import Comment, EmptyLine, Variable
 except ImportError:
     from robot.parsing.model.statements import Comment, EmptyLine, Variable
 try:
@@ -40,19 +40,61 @@ from robocop.linter.rules import (
     variables,
 )
 from robocop.linter.utils import misc as utils
-from robocop.parsing.variables import VariableMatches  # type: ignore[attr-defined]
-from robocop.version_handling import INLINE_IF_SUPPORTED, ROBOT_VERSION
+from robocop.version_handling import ROBOT_VERSION
 
 if TYPE_CHECKING:
     from collections.abc import Generator
 
     from robot.parsing.model import File, Keyword, TestCase
-    from robot.parsing.model.blocks import Block, For, Try, VariableSection, While
+    from robot.parsing.model.blocks import Block, For, If, Try, VariableSection, While
     from robot.parsing.model.statements import Error, LibraryImport, Node
 
     from robocop.linter.diagnostics import Diagnostic
     from robocop.linter.utils.disablers import DisablersFinder
     from robocop.source_file import SourceFile
+
+FOR_LOOP_KEYWORDS = frozenset(
+    {
+        "continueforloop",
+        "continueforloopif",
+        "exitforloop",
+        "exitforloopif",
+    }
+)
+COMPARISON_SIGNS = frozenset({"==", "!="})
+EMPTY_COMPARISON = frozenset({"${true}", "${false}", "true", "false", "[]", "{}", "set()", "list()", "dict()"})
+
+
+def tokens_length(tokens: list[Token]) -> int:
+    return sum(len(token.value) for token in tokens)
+
+
+def normalize_var_name(name: str) -> str:
+    return name.lower().replace("_", "").replace(" ", "").replace("=", "")
+
+
+def assign_tokens_are_equal(if_node: Node, other_if_node: Node) -> bool:
+    assign_1 = getattr(if_node, "assign", None)
+    assign_2 = getattr(other_if_node, "assign", None)
+    if assign_1 is None or assign_2 is None:
+        return all(assign is None for assign in (assign_1, assign_2))
+    if len(assign_1) != len(assign_2):
+        return False
+    return all(
+        normalize_var_name(var1) == normalize_var_name(var2) for var1, var2 in zip(assign_1, assign_2, strict=False)
+    )
+
+
+def conditions_are_equal(if_node: Node, other_if_node: Node) -> bool:
+    """Check whether two IF blocks have the same conditions in every branch and assign to the same variables."""
+    if not assign_tokens_are_equal(if_node, other_if_node):
+        return False
+    while if_node is not None and other_if_node is not None:
+        if if_node.condition != other_if_node.condition:
+            return False
+        if_node = if_node.orelse
+        other_if_node = other_if_node.orelse
+    return if_node is None and other_if_node is None
 
 
 class KeywordAfterReturnRule(Rule):
@@ -476,6 +518,17 @@ class IfCanBeMergedRule(Rule):
     )
     deprecated_names = ("0914",)
 
+    def check(self, node: If, previous_if: If) -> None:
+        if not conditions_are_equal(node, previous_if):
+            return
+        token = node.header.get_token(node.header.type)
+        self.report(
+            line=previous_if.lineno,
+            node=token,
+            col=token.col_offset + 1,
+            end_col=token.end_col_offset + 1,
+        )
+
 
 class StatementOutsideLoopRule(Rule):
     """
@@ -502,6 +555,44 @@ class StatementOutsideLoopRule(Rule):
         issue_type=sonar_qube.SonarQubeIssueType.BUG,
     )
     deprecated_names = ("0915",)
+
+    def check_keyword(self, node: KeywordCall) -> None:
+        """Check a keyword call that is only valid inside a FOR loop, such as ``Exit For Loop``."""
+        if utils.normalize_robot_name(node.keyword, remove_prefix="builtin.") not in FOR_LOOP_KEYWORDS:
+            return
+        col = utils.keyword_col(node)
+        self.report(
+            name=f"'{node.keyword}'",
+            statement_type="keyword",
+            node=node,
+            col=col,
+            end_col=col + len(node.keyword),
+        )
+
+    def check_statement(self, node: Node, token_type: str) -> None:
+        """Check a ``CONTINUE`` or ``BREAK`` statement used outside a loop."""
+        if node.errors and f"{token_type} can only be used inside a loop." not in node.errors:
+            return
+        error_token = node.get_token(token_type)
+        self.report(
+            name=token_type,
+            statement_type="statement",
+            node=node,
+            col=error_token.col_offset + 1,
+            end_col=error_token.end_col_offset + 1,
+        )
+
+    def check_error(self, node: Error) -> None:
+        """Check errors reported by Robot Framework itself. Supported since RF 6.1."""
+        for error_token in node.get_tokens(Token.ERROR):
+            if "is not allowed in this context" in error_token.error:
+                self.report(
+                    name=error_token.value,
+                    statement_type="statement",
+                    node=node,
+                    col=error_token.col_offset + 1,
+                    end_col=error_token.end_col_offset + 1,
+                )
 
 
 class InlineIfCanBeUsedRule(Rule):
@@ -543,6 +634,26 @@ class InlineIfCanBeUsedRule(Rule):
         issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL,
     )
     deprecated_names = ("0916",)
+
+    def check(self, node: If) -> None:
+        if (
+            len(node.body) != 1
+            or node.orelse  # TODO: it could still report with orelse? if short enough
+            # IF with one branch and assign require ELSE to be valid, better to ignore it
+            or getattr(node.body[0], "assign", None)
+            or not isinstance(node.body[0], (KeywordCall, utils.RETURN_CLASSES.return_class, Break, Continue))
+        ):
+            return
+        min_possible = tokens_length(node.header.tokens) + tokens_length(node.body[0].tokens[1:]) + 2
+        if min_possible > self.max_width:
+            return
+        token = node.header.get_token(node.header.type)
+        self.report(
+            node=node,
+            col=token.col_offset + 1,
+            end_col=token.end_col_offset + 1,
+            sev_threshold_value=min_possible,
+        )
 
 
 class UnreachableCodeRule(Rule):
@@ -644,6 +755,17 @@ class MultilineInlineIfRule(Rule):
         issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL,
     )
     deprecated_names = ("0918",)
+
+    def check(self, node: If) -> None:
+        if node.lineno == node.end_lineno:
+            return
+        if_header = node.header.data_tokens[0]
+        self.report(
+            node=node,
+            col=if_header.col_offset + 1,
+            end_lineno=node.end_lineno,
+            end_col=node.end_col_offset,
+        )
 
 
 class UnnecessaryStringConversionRule(Rule):  # TODO: Not used atm, see if it was deprecated before
@@ -750,6 +872,34 @@ class ExpressionCanBeSimplifiedRule(Rule):
     )
     deprecated_names = ("0924",)
 
+    def check(
+        self, condition_token: Token, node_name: str, left_side: str, variable: str, right_side: str, position: int
+    ) -> None:
+        """Check if the right side of the equation can be simplified."""
+        if not right_side:
+            return
+        normalized = right_side.lower().lstrip()  # ' == ${TRUE}' -> '== ${true}'
+        if len(normalized) < 3:
+            if normalized == ")" and left_side.endswith("len("):
+                self.report(
+                    block_name=node_name,
+                    node=condition_token,
+                    col=position - len("len("),
+                    end_col=position + len(variable) + 1,
+                )
+            return
+        equation = normalized[:2]  # '=='
+        compared_value = normalized[2:].lstrip()  # '${true}'
+        if equation not in COMPARISON_SIGNS:
+            return
+        if compared_value in EMPTY_COMPARISON:
+            self.report(
+                block_name=node_name,
+                node=condition_token,
+                col=position,
+                end_col=position + len(variable) + len(right_side),
+            )
+
 
 class MisplacedNegativeConditionRule(Rule):
     """
@@ -795,6 +945,25 @@ class MisplacedNegativeConditionRule(Rule):
     )
     deprecated_names = ("0925",)
 
+    def check(self, condition_token: Token, node_name: str, left_side: str, variable: str, right_side: str) -> None:
+        """
+        Check if the condition contains misplaced not.
+
+        An example of a misplaced condition would be 'not ${variable} is None'.
+        """
+        if not (left_side.endswith("not ") and right_side.startswith(" is ")):
+            return
+        right_tokens = right_side.split(" ")
+        orig_right_side = " ".join(right_tokens[1:3])
+        self.report(
+            block_name=node_name,
+            original_condition=f"not {variable} {orig_right_side}",
+            proposed_condition=f"{variable} is not {right_tokens[2]}",
+            node=condition_token,
+            col=condition_token.col_offset + 1,
+            end_col=condition_token.end_col_offset + 1,
+        )
+
 
 class DisablerNotUsedRule(Rule):
     """
@@ -829,185 +998,6 @@ class DisablerNotUsedRule(Rule):
         clean_code=sonar_qube.CleanCodeAttribute.CONVENTIONAL,
         issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL,
     )
-
-
-class IfChecker(VisitorChecker):
-    """Checker for IF blocks"""
-
-    if_can_be_merged: IfCanBeMergedRule
-    inline_if_can_be_used: InlineIfCanBeUsedRule
-    multiline_inline_if: MultilineInlineIfRule
-
-    def visit_TestCase(self, node: TestCase) -> None:  # noqa: N802
-        if node.errors:
-            return
-        self.check_adjacent_ifs(node)
-
-    visit_For = visit_If = visit_Keyword = (  # noqa: N815
-        visit_TestCase  # TODO: While, Try Except?
-    )
-
-    @staticmethod
-    def is_inline_if(node: Node) -> bool:
-        return isinstance(node.header, InlineIfHeader)
-
-    def check_adjacent_ifs(self, node: Node) -> None:
-        previous_if = None
-        for child in node.body:
-            if isinstance(child, If):
-                if child.header.errors:
-                    continue
-                self.check_whether_if_should_be_inline(child)
-                if previous_if and child.header and self.compare_conditions(child, previous_if):
-                    token = child.header.get_token(child.header.type)
-                    self.report(
-                        self.if_can_be_merged,
-                        line=previous_if.lineno,
-                        node=token,
-                        col=token.col_offset + 1,
-                        end_col=token.end_col_offset + 1,
-                    )
-                previous_if = child
-            elif not isinstance(child, (Comment, EmptyLine)):
-                previous_if = None
-        self.generic_visit(node)
-
-    def compare_conditions(self, if_node: Node, other_if_node: Node) -> bool:
-        if not self.compare_assign_tokens(if_node, other_if_node):
-            return False
-        while if_node is not None and other_if_node is not None:
-            if if_node.condition != other_if_node.condition:
-                return False
-            if_node = if_node.orelse
-            other_if_node = other_if_node.orelse
-        return if_node is None and other_if_node is None
-
-    @staticmethod
-    def normalize_var_name(name: str) -> str:
-        return name.lower().replace("_", "").replace(" ", "").replace("=", "")
-
-    def compare_assign_tokens(self, if_node: Node, other_if_node: Node) -> bool:
-        assign_1 = getattr(if_node, "assign", None)
-        assign_2 = getattr(other_if_node, "assign", None)
-        if assign_1 is None or assign_2 is None:
-            return all(assign is None for assign in (assign_1, assign_2))
-        if len(assign_1) != len(assign_2):
-            return False
-        for var1, var2 in zip(assign_1, assign_2, strict=False):
-            if self.normalize_var_name(var1) != self.normalize_var_name(var2):
-                return False
-        return True
-
-    @staticmethod
-    def tokens_length(tokens: list[Token]) -> int:
-        return sum(len(token.value) for token in tokens)
-
-    def check_whether_if_should_be_inline(self, node: Node) -> None:
-        if not INLINE_IF_SUPPORTED:
-            return
-        if self.is_inline_if(node):
-            if node.lineno != node.end_lineno:
-                if_header = node.header.data_tokens[0]
-                self.report(
-                    self.multiline_inline_if,
-                    node=node,
-                    col=if_header.col_offset + 1,
-                    end_lineno=node.end_lineno,
-                    end_col=node.end_col_offset,
-                )
-            return
-        if (
-            len(node.body) != 1
-            or node.orelse  # TODO: it could still report with orelse? if short enough
-            # IF with one branch and assign require ELSE to be valid, better to ignore it
-            or getattr(node.body[0], "assign", None)
-            or not isinstance(node.body[0], (KeywordCall, utils.RETURN_CLASSES.return_class, Break, Continue))
-        ):
-            return
-        min_possible = self.tokens_length(node.header.tokens) + self.tokens_length(node.body[0].tokens[1:]) + 2
-        if min_possible > self.inline_if_can_be_used.max_width:
-            return
-        token = node.header.get_token(node.header.type)
-        self.report(
-            self.inline_if_can_be_used,
-            node=node,
-            col=token.col_offset + 1,
-            end_col=token.end_col_offset + 1,
-            sev_threshold_value=min_possible,
-        )
-
-
-class LoopStatementsChecker(VisitorChecker):
-    """Checker for loop keywords and statements such as CONTINUE or Exit For Loop"""
-
-    statement_outside_loop: StatementOutsideLoopRule
-    for_keyword = {
-        "continueforloop",
-        "continueforloopif",
-        "exitforloop",
-        "exitforloopif",
-    }
-
-    def __init__(self) -> None:
-        self.loops = 0
-        super().__init__()
-
-    def visit_File(self, node: File) -> None:  # noqa: N802
-        self.loops = 0
-        self.generic_visit(node)
-
-    def visit_For(self, node: Node) -> None:  # noqa: N802
-        self.loops += 1
-        self.generic_visit(node)
-        self.loops -= 1
-
-    visit_While = visit_For  # noqa: N815
-
-    def visit_KeywordCall(self, node: KeywordCall) -> None:  # noqa: N802
-        if node.errors or self.loops:
-            return
-        if utils.normalize_robot_name(node.keyword, remove_prefix="builtin.") in self.for_keyword:
-            col = utils.keyword_col(node)
-            self.report(
-                self.statement_outside_loop,
-                name=f"'{node.keyword}'",
-                statement_type="keyword",
-                node=node,
-                col=col,
-                end_col=col + len(node.keyword),
-            )
-
-    def visit_Continue(self, node: Node) -> None:  # noqa: N802
-        self.check_statement_in_loop(node, "CONTINUE")
-
-    def visit_Break(self, node: Node) -> None:  # noqa: N802
-        self.check_statement_in_loop(node, "BREAK")
-
-    def visit_Error(self, node: Error) -> None:  # noqa: N802
-        """Support for RF >= 6.1"""
-        for error_token in node.get_tokens(Token.ERROR):
-            if "is not allowed in this context" in error_token.error:
-                self.report(
-                    self.statement_outside_loop,
-                    name=error_token.value,
-                    statement_type="statement",
-                    node=node,
-                    col=error_token.col_offset + 1,
-                    end_col=error_token.end_col_offset + 1,
-                )
-
-    def check_statement_in_loop(self, node: Node, token_type: str) -> None:
-        if self.loops or (node.errors and f"{token_type} can only be used inside a loop." not in node.errors):
-            return
-        error_token = node.get_token(token_type)
-        self.report(
-            self.statement_outside_loop,
-            name=token_type,
-            statement_type="statement",
-            node=node,
-            col=error_token.col_offset + 1,
-            end_col=error_token.end_col_offset + 1,
-        )
 
 
 @dataclass
@@ -1518,118 +1508,6 @@ class UnusedVariablesChecker(VisitorChecker):
                 variable_scope[name].is_used = True
                 found.append(name)
         return found
-
-
-class ExpressionsChecker(VisitorChecker):
-    expression_can_be_simplified: ExpressionCanBeSimplifiedRule
-    misplaced_negative_condition: MisplacedNegativeConditionRule
-
-    QUOTE_CHARS = {"'", '"'}
-    CONDITION_KEYWORDS = {
-        "passexecutionif",
-        "setvariableif",
-        "shouldbetrue",
-        "shouldnotbetrue",
-        "skipif",
-    }
-    COMPARISON_SIGNS = {"==", "!="}
-    EMPTY_COMPARISON = {"${true}", "${false}", "true", "false", "[]", "{}", "set()", "list()", "dict()"}
-
-    def visit_If(self, node: If) -> None:  # noqa: N802
-        condition_token = node.header.get_token(Token.ARGUMENT)
-        self.check_condition(node.header.type, condition_token, node.condition)
-        self.generic_visit(node)
-
-    visit_While = visit_If  # noqa: N815
-
-    def visit_KeywordCall(self, node: KeywordCall) -> None:  # noqa: N802
-        normalized_name = utils.normalize_robot_name(node.keyword, remove_prefix="builtin.")
-        if normalized_name not in self.CONDITION_KEYWORDS:
-            return
-        condition_token = node.get_token(Token.ARGUMENT)
-        if not condition_token:
-            return
-        self.check_condition(node.keyword, condition_token, condition_token.value)
-        if normalized_name == "setvariableif":
-            arguments = node.get_tokens(Token.ARGUMENT)
-            if len(arguments) < 4:
-                return
-            for condition_token in arguments[2::2]:
-                self.check_condition(node.keyword, condition_token, condition_token.value)
-
-    def check_condition(self, node_name: str, condition_token: Token, condition: str) -> None:
-        if not condition:
-            return
-        try:
-            variables = list(VariableMatches(condition))
-        except VariableError:  # for example ${variable which wasn't closed properly
-            return
-        position = condition_token.col_offset + 1
-        for match in variables:
-            position += len(match.before)
-            self.check_for_misplaced_not(condition_token, node_name, match.before, match.match, match.after)
-            self.check_for_complex_condition(
-                condition_token,
-                node_name,
-                match.before,
-                match.match,
-                match.after,
-                position,
-            )
-
-    def check_for_misplaced_not(
-        self, condition_token: Token, node_name: str, left_side: str, variable: str, right_side: str
-    ) -> None:
-        """
-        Check if the condition contains misplaced not.
-
-        An example of a misplaced condition would be 'not ${variable} is None'.
-        """
-        if not (left_side.endswith("not ") and right_side.startswith(" is ")):
-            return
-        right_tokens = right_side.split(" ")
-        orig_right_side = " ".join(right_tokens[1:3])
-        original_condition = f"not {variable} {orig_right_side}"
-        proposed_condition = f"{variable} is not {right_tokens[2]}"
-        self.report(
-            self.misplaced_negative_condition,
-            block_name=node_name,
-            original_condition=original_condition,
-            proposed_condition=proposed_condition,
-            node=condition_token,
-            col=condition_token.col_offset + 1,
-            end_col=condition_token.end_col_offset + 1,
-        )
-
-    def check_for_complex_condition(
-        self, condition_token: Token, node_name: str, left_side: str, variable: str, right_side: str, position: int
-    ) -> None:
-        """Check if right side of the equation can be simplified."""
-        if not right_side:
-            return
-        normalized = right_side.lower().lstrip()  # ' == ${TRUE}' -> '== ${true}'
-        if len(normalized) < 3:
-            if normalized == ")" and left_side.endswith("len("):
-                self.report(
-                    self.expression_can_be_simplified,
-                    block_name=node_name,
-                    node=condition_token,
-                    col=position - len("len("),
-                    end_col=position + len(variable) + 1,
-                )
-            return
-        equation = normalized[:2]  # '=='
-        compared_value = normalized[2:].lstrip()  # '${true}'
-        if equation not in self.COMPARISON_SIGNS:
-            return
-        if compared_value in self.EMPTY_COMPARISON:
-            self.report(
-                self.expression_can_be_simplified,
-                block_name=node_name,
-                node=condition_token,
-                col=position,
-                end_col=position + len(variable) + len(right_side),
-            )
 
 
 class UnusedDiagnosticChecker(AfterRunChecker):

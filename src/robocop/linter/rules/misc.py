@@ -48,7 +48,7 @@ if TYPE_CHECKING:
     from collections.abc import Generator
 
     from robot.parsing.model import File, Keyword, TestCase
-    from robot.parsing.model.blocks import For, KeywordSection, Try, VariableSection, While
+    from robot.parsing.model.blocks import Block, For, KeywordSection, Try, VariableSection, While
     from robot.parsing.model.statements import Error, LibraryImport, Node, Var
 
     from robocop.linter.diagnostics import Diagnostic
@@ -93,6 +93,39 @@ class KeywordAfterReturnRule(Rule):
     )
     deprecated_names = ("0901",)
 
+    def check(self, node: Block) -> None:
+        """Report a keyword call placed after the keyword already returned."""
+        if not self.enabled:
+            return
+        return_node: Node | None = None
+        keyword_after_return = False
+        return_from = False
+        error = ""
+        for child in node.body:
+            if isinstance(child, utils.RETURN_CLASSES.return_setting_class):
+                return_node = child
+                error = (
+                    "[Return] is not defined at the end of keyword. "
+                    "Note that [Return] does not quit from keyword but only set variables to be returned"
+                )
+            elif not isinstance(child, (EmptyLine, Comment, Teardown)) and return_node is not None:
+                keyword_after_return = True
+            if isinstance(child, KeywordCall):
+                if return_from:
+                    keyword_after_return = True
+                    return_node = child
+                    error = "Keyword call after 'Return From Keyword'"
+                elif utils.normalize_robot_name(child.keyword, remove_prefix="builtin.") == "returnfromkeyword":
+                    return_from = True
+        if keyword_after_return and return_node is not None:
+            token = return_node.data_tokens[0]
+            self.report(
+                error_msg=error,
+                node=token,
+                col=token.col_offset + 1,
+                end_col=token.end_col_offset + 1,
+            )
+
 
 class EmptyReturnRule(Rule):
     """
@@ -129,6 +162,19 @@ class EmptyReturnRule(Rule):
     )
     deprecated_names = ("0903",)
 
+    def check(self, node: Block) -> None:
+        """Report ``[Return]`` settings that do not return any value."""
+        if not self.enabled:
+            return
+        for child in node.body:
+            if isinstance(child, utils.RETURN_CLASSES.return_setting_class) and not child.values:
+                token = child.data_tokens[0]
+                self.report(
+                    node=child,
+                    col=token.col_offset + 1,
+                    end_col=token.col_offset + len(token.value),
+                )
+
 
 class NestedForLoopRule(Rule):
     """
@@ -157,6 +203,19 @@ class NestedForLoopRule(Rule):
         issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL,
     )
     deprecated_names = ("0907",)
+
+    def check(self, node: Node) -> None:
+        """Report FOR loops nested directly in another FOR loop."""
+        if not self.enabled:
+            return
+        for child in node.body:
+            if child.type == "FOR":
+                token = child.get_token(Token.FOR)
+                self.report(
+                    node=child,
+                    col=token.col_offset + 1,
+                    end_col=token.end_col_offset + 1,
+                )
 
 
 class InconsistentAssignmentRule(Rule):
@@ -473,6 +532,26 @@ class UnreachableCodeRule(Rule):
     )
     deprecated_names = ("0917",)
 
+    def check(self, node: Block) -> None:
+        """Report statements placed after RETURN, BREAK or CONTINUE."""
+        if not self.enabled:
+            return
+        statement_node = None
+        for child in node.body:
+            if isinstance(child, (utils.RETURN_CLASSES.return_class, Break, Continue)):
+                statement_node = child
+            elif not isinstance(child, (EmptyLine, Comment, Teardown)) and statement_node is not None:
+                token = statement_node.data_tokens[0]
+                reported_node = child.header if hasattr(child, "header") else child
+                code_after_statement = reported_node.data_tokens[0]
+                self.report(
+                    statement=token.value,
+                    node=reported_node,
+                    col=code_after_statement.col_offset + 1,
+                    end_col=reported_node.end_col_offset,
+                )
+                statement_node = None
+
 
 class MultilineInlineIfRule(Rule):
     """
@@ -702,109 +781,6 @@ class DisablerNotUsedRule(Rule):
         clean_code=sonar_qube.CleanCodeAttribute.CONVENTIONAL,
         issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL,
     )
-
-
-class ReturnChecker(VisitorChecker):
-    """Checker for [Return] and Return From Keyword violations."""
-
-    keyword_after_return: KeywordAfterReturnRule
-    empty_return: EmptyReturnRule
-
-    def visit_Keyword(self, node: Keyword) -> None:  # noqa: N802
-        return_setting_node: Node = None
-        keyword_after_return = False
-        return_from = False
-        error = ""
-        for child in node.body:
-            if isinstance(child, utils.RETURN_CLASSES.return_setting_class):
-                return_setting_node = child
-                error = (
-                    "[Return] is not defined at the end of keyword. "
-                    "Note that [Return] does not quit from keyword but only set variables to be returned"
-                )
-                if not child.values:
-                    token = child.data_tokens[0]
-                    self.report(
-                        self.empty_return,
-                        node=child,
-                        col=token.col_offset + 1,
-                        end_col=token.col_offset + len(token.value),
-                    )
-            elif not isinstance(child, (EmptyLine, Comment, Teardown)):
-                if return_setting_node is not None:
-                    keyword_after_return = True
-
-            if isinstance(child, KeywordCall):
-                if return_from:
-                    keyword_after_return = True
-                    return_setting_node = child
-                    error = "Keyword call after 'Return From Keyword'"
-                elif utils.normalize_robot_name(child.keyword, remove_prefix="builtin.") == "returnfromkeyword":
-                    return_from = True
-        if keyword_after_return and return_setting_node is not None:
-            token = return_setting_node.data_tokens[0]
-            self.report(
-                self.keyword_after_return,
-                error_msg=error,
-                node=token,
-                col=token.col_offset + 1,
-                end_col=token.end_col_offset + 1,
-            )
-        self.generic_visit(node)
-
-    visit_If = visit_For = visit_While = visit_Try = visit_Keyword  # noqa: N815
-
-
-class UnreachableCodeChecker(VisitorChecker):
-    """Checker for unreachable code after RETURN, BREAK or CONTINUE statements."""
-
-    unreachable_code: UnreachableCodeRule
-
-    def visit_Keyword(self, node: Keyword) -> None:  # noqa: N802
-        statement_node = None
-
-        for child in node.body:
-            if isinstance(child, (utils.RETURN_CLASSES.return_class, Break, Continue)):
-                statement_node = child
-            elif not isinstance(child, (EmptyLine, Comment, Teardown)) and statement_node is not None:
-                token = statement_node.data_tokens[0]
-                if hasattr(child, "header"):
-                    child = child.header
-                code_after_statement = child.data_tokens[0]
-                self.report(
-                    self.unreachable_code,
-                    statement=token.value,
-                    node=child,
-                    col=code_after_statement.col_offset + 1,
-                    end_col=child.end_col_offset,
-                )
-                statement_node = None
-
-        self.generic_visit(node)
-
-    visit_If = visit_For = visit_While = visit_Try = visit_Keyword  # noqa: N815
-
-
-class NestedForLoopsChecker(VisitorChecker):  # TODO: merge
-    """
-    Checker for not supported nested FOR loops.
-
-    Deprecated in RF 4.0
-    """
-
-    nested_for_loop: NestedForLoopRule
-
-    def visit_ForLoop(self, node: Node) -> None:  # noqa: N802
-        # For RF 4.0 node is "For" but we purposely don't visit it because nested for loop is allowed in 4.0
-        for child in node.body:
-            if child.type == "FOR":
-                token = child.get_token(Token.FOR)
-                self.report(
-                    self.nested_for_loop,
-                    node=child,
-                    col=token.col_offset + 1,
-                    end_col=token.end_col_offset + 1,
-                )
 
 
 class ConsistentAssignmentSignChecker(VisitorChecker):

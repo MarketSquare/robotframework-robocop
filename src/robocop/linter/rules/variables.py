@@ -1,11 +1,30 @@
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
+from robot.api import Token
+
 from robocop.linter import sonar_qube
 from robocop.linter.rules import Rule, RuleParam, RuleSeverity
+
+if TYPE_CHECKING:
+    from robot.parsing.model.statements import Node, Var, Variable
 
 
 def comma_separated_list(value: str) -> list[str]:
     return value.split(",")
+
+
+def report_non_local_scope(rule: Rule, node: Node) -> None:
+    """Report a variable scope rule on the token that defines the scope."""
+    if not rule.enabled:
+        return
+    rule.report(
+        node=node,
+        lineno=node.lineno,
+        col=node.col_offset + 1,
+        end_col=node.col_offset + len(node.value) + 1,
+    )
 
 
 class EmptyVariableRule(Rule):
@@ -70,6 +89,36 @@ class EmptyVariableRule(Rule):
         clean_code=sonar_qube.CleanCodeAttribute.COMPLETE, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
     deprecated_names = ("0912",)
+
+    def check_variable(self, node: Variable) -> None:
+        """Check variable defined in the ``*** Variables ***`` section."""
+        if not self.enabled or node.errors:
+            return
+        if not node.value:  # catch variable declaration without any value
+            self.report(node=node, end_col=node.end_col_offset)
+        for token in node.get_tokens(Token.ARGUMENT):
+            if not token.value or token.value == "\\":
+                self.report(node=token, lineno=token.lineno, col=1, end_col=token.end_col_offset + 1)
+
+    def check_var(self, node: Var) -> None:
+        """Check variable defined with the ``VAR`` syntax."""
+        if not self.enabled or node.errors:
+            return
+        if not node.value:  # catch variable declaration without any value
+            first_data = node.data_tokens[0]
+            self.report(
+                node=first_data,
+                col=first_data.col_offset + 1,
+                end_col=first_data.end_col_offset + 1,
+            )
+        for token in node.get_tokens(Token.ARGUMENT):
+            if not token.value or token.value == "\\":
+                self.report(
+                    node=token,
+                    lineno=token.lineno,
+                    col=token.col_offset + 1,
+                    end_col=token.end_col_offset + 1,
+                )
 
 
 class UnusedVariableRule(Rule):
@@ -221,6 +270,9 @@ class NoGlobalVariableRule(Rule):
     )
     deprecated_names = ("0929",)
 
+    def check(self, node: Node) -> None:
+        report_non_local_scope(self, node)
+
 
 class NoSuiteVariableRule(Rule):
     """
@@ -274,6 +326,9 @@ class NoSuiteVariableRule(Rule):
     )
     deprecated_names = ("0930",)
 
+    def check(self, node: Node) -> None:
+        report_non_local_scope(self, node)
+
 
 class NoTestVariableRule(Rule):
     """
@@ -326,6 +381,9 @@ class NoTestVariableRule(Rule):
         clean_code=sonar_qube.CleanCodeAttribute.CONVENTIONAL, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
     deprecated_names = ("0931",)
+
+    def check(self, node: Node) -> None:
+        report_non_local_scope(self, node)
 
 
 class NonLocalVariablesShouldBeUppercaseRule(Rule):

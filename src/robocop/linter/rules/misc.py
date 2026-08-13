@@ -37,7 +37,6 @@ from robocop.linter.rules import (
     SeverityThreshold,
     VisitorChecker,
     arguments,
-    typing,
     variables,
 )
 from robocop.linter.utils import misc as utils
@@ -48,8 +47,8 @@ if TYPE_CHECKING:
     from collections.abc import Generator
 
     from robot.parsing.model import File, Keyword, TestCase
-    from robot.parsing.model.blocks import Block, For, KeywordSection, Try, VariableSection, While
-    from robot.parsing.model.statements import Error, LibraryImport, Node, Var
+    from robot.parsing.model.blocks import Block, For, Try, VariableSection, While
+    from robot.parsing.model.statements import Error, LibraryImport, Node
 
     from robocop.linter.diagnostics import Diagnostic
     from robocop.linter.utils.disablers import DisablersFinder
@@ -297,6 +296,20 @@ class InconsistentAssignmentRule(Rule):
     )
     deprecated_names = ("0909",)
 
+    def check(self, token: Token, expected_sign: str) -> None:
+        if not self.enabled:
+            return
+        sign = utils.AssignmentTypeDetector.get_assignment_sign(token.value)
+        if sign == expected_sign:
+            return
+        self.report(
+            expected_sign=expected_sign,
+            actual_sign=sign,
+            lineno=token.lineno,
+            col=token.col_offset + 1,
+            end_col=token.end_col_offset + 1,
+        )
+
 
 class InconsistentAssignmentInVariablesRule(Rule):
     """
@@ -359,6 +372,24 @@ class InconsistentAssignmentInVariablesRule(Rule):
         issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL,
     )
     deprecated_names = ("0910",)
+
+    def check(self, node: VariableSection, expected_sign: str) -> None:
+        if not self.enabled:
+            return
+        for child in node.body:
+            if not isinstance(child, Variable) or child.errors:
+                continue
+            var_token = child.get_token(Token.VARIABLE)
+            sign = utils.AssignmentTypeDetector.get_assignment_sign(var_token.value)
+            if sign == expected_sign:
+                continue
+            self.report(
+                expected_sign=expected_sign,
+                actual_sign=sign,
+                lineno=var_token.lineno,
+                col=var_token.col_offset + 1,
+                end_col=var_token.end_col_offset + 1,
+            )
 
 
 class CanBeResourceFileRule(Rule):
@@ -798,158 +829,6 @@ class DisablerNotUsedRule(Rule):
         clean_code=sonar_qube.CleanCodeAttribute.CONVENTIONAL,
         issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL,
     )
-
-
-class ConsistentAssignmentSignChecker(VisitorChecker):
-    """
-    Checker for inconsistent assignment signs.
-
-    By default, this checker will try to autodetect most common assignment sign (separately for ``*** Variables ***``
-    section and ``*** Test Cases ***``, ``*** Keywords ***`` sections) and report any inconsistent type of sign in
-    particular file.
-
-    To force one type of sign type you can configure two rules:
-
-        robocop check --configure inconsistent-assignment.assignment_sign_type={sign_type}
-        robocop check --configure inconsistent-assignment-in-variables.assignment_sign_type={sign_type}
-
-    You can choose between following signs:
-
-    - 'autodetect' (default),
-    - 'none',
-    - 'equal_sign' (``=``)
-    - 'space_and_equal_sign' (`` =``).
-
-    """
-
-    inconsistent_assignment: InconsistentAssignmentRule
-    inconsistent_assignment_in_variables: InconsistentAssignmentInVariablesRule
-
-    def __init__(self) -> None:
-        self.keyword_expected_sign_type: str | None = None
-        self.variables_expected_sign_type: str | None = None
-        super().__init__()
-
-    def visit_File(self, node: File) -> None:  # noqa: N802
-        self.keyword_expected_sign_type = self.inconsistent_assignment.assignment_sign_type
-        self.variables_expected_sign_type = self.inconsistent_assignment_in_variables.assignment_sign_type
-        if "autodetect" in [
-            self.keyword_expected_sign_type,
-            self.variables_expected_sign_type,
-        ]:
-            auto_detector = self.auto_detect_assignment_sign(node)
-            if self.keyword_expected_sign_type == "autodetect":
-                self.keyword_expected_sign_type = auto_detector.keyword_most_common
-            if self.variables_expected_sign_type == "autodetect":
-                self.variables_expected_sign_type = auto_detector.variables_most_common
-        self.generic_visit(node)
-
-    def visit_KeywordCall(self, node: KeywordCall) -> KeywordCall | None:  # noqa: N802
-        if self.keyword_expected_sign_type is None or not node.keyword:
-            return None
-        if node.assign:  # if keyword returns any value
-            assign_tokens = node.get_tokens(Token.ASSIGN)
-            self.check_assign_type(
-                assign_tokens[-1],
-                self.keyword_expected_sign_type,
-                self.inconsistent_assignment,
-            )
-        return node
-
-    def visit_VariableSection(self, node: VariableSection) -> VariableSection | None:  # noqa: N802
-        if self.variables_expected_sign_type is None:
-            return None
-        for child in node.body:
-            if not isinstance(child, Variable) or child.errors:
-                continue
-            var_token = child.get_token(Token.VARIABLE)
-            self.check_assign_type(
-                var_token,
-                self.variables_expected_sign_type,
-                self.inconsistent_assignment_in_variables,
-            )
-        return node
-
-    def check_assign_type(self, token: Token, expected: str, issue_name: Rule) -> None:
-        sign = utils.AssignmentTypeDetector.get_assignment_sign(token.value)
-        if sign != expected:
-            self.report(
-                issue_name,
-                expected_sign=expected,
-                actual_sign=sign,
-                lineno=token.lineno,
-                col=token.col_offset + 1,
-                end_col=token.end_col_offset + 1,
-            )
-
-    @staticmethod
-    def auto_detect_assignment_sign(node: File) -> utils.AssignmentTypeDetector:
-        auto_detector = utils.AssignmentTypeDetector()
-        auto_detector.visit(node)
-        return auto_detector
-
-
-class EmptyVariableChecker(VisitorChecker):
-    """Checker for variables without value."""
-
-    empty_variable: variables.EmptyVariableRule
-
-    def __init__(self) -> None:
-        self.visit_var_section = False
-        self.visit_var = False
-        super().__init__()
-
-    def visit_File(self, node: File) -> None:  # noqa: N802
-        variable_source = self.empty_variable.variable_source
-        self.visit_var_section = "section" in variable_source
-        self.visit_var = "var" in variable_source
-        self.generic_visit(node)
-
-    def visit_VariableSection(self, node: VariableSection) -> None:  # noqa: N802
-        if self.visit_var_section:
-            self.generic_visit(node)
-
-    def visit_KeywordSection(self, node: KeywordSection) -> None:  # noqa: N802
-        if self.visit_var:
-            self.generic_visit(node)
-
-    visit_TestCaseSection = visit_KeywordSection  # noqa: N815
-
-    def visit_Variable(self, node: Variable) -> None:  # noqa: N802
-        if node.errors:
-            return
-        if not node.value:  # catch variable declaration without any value
-            self.report(self.empty_variable, node=node, end_col=node.end_col_offset)
-        for token in node.get_tokens(Token.ARGUMENT):
-            if not token.value or token.value == "\\":
-                self.report(
-                    self.empty_variable,
-                    node=token,
-                    lineno=token.lineno,
-                    col=1,
-                    end_col=token.end_col_offset + 1,
-                )
-
-    def visit_Var(self, node: Var) -> None:  # noqa: N802
-        if node.errors:
-            return
-        if not node.value:  # catch variable declaration without any value
-            first_data = node.data_tokens[0]
-            self.report(
-                self.empty_variable,
-                node=first_data,
-                col=first_data.col_offset + 1,
-                end_col=first_data.end_col_offset + 1,
-            )
-        for token in node.get_tokens(Token.ARGUMENT):
-            if not token.value or token.value == "\\":
-                self.report(
-                    self.empty_variable,
-                    node=token,
-                    lineno=token.lineno,
-                    col=token.col_offset + 1,
-                    end_col=token.end_col_offset + 1,
-                )
 
 
 class IfChecker(VisitorChecker):
@@ -1753,78 +1632,6 @@ class ExpressionsChecker(VisitorChecker):
             )
 
 
-class NonLocalVariableChecker(VisitorChecker):
-    no_global_variable: variables.NoGlobalVariableRule
-    no_suite_variable: variables.NoSuiteVariableRule
-    no_test_variable: variables.NoTestVariableRule
-    set_keyword_with_type: typing.SetKeywordWithTypeRule
-
-    set_variable_keywords = {
-        "setglobalvariable",
-        "setsuitevariable",
-        "settestvariable",
-        "settaskvariable",
-        "setlocalvariable",
-    }
-
-    def visit_KeywordCall(self, node: KeywordCall) -> None:  # noqa: N802
-        keyword_token = node.get_token(Token.KEYWORD)
-        if not keyword_token:
-            return
-
-        keyword_name = utils.normalize_robot_name(keyword_token.value, remove_prefix="builtin.")
-        if keyword_name not in self.set_variable_keywords:
-            return
-
-        self.set_keyword_with_type.check(node)
-
-        if keyword_name == "setglobalvariable":
-            self._report(self.no_global_variable, keyword_token)
-            return
-
-        if keyword_name == "setsuitevariable":
-            self._report(self.no_suite_variable, keyword_token)
-            return
-
-        if keyword_name in ["settestvariable", "settaskvariable"]:
-            self._report(self.no_test_variable, keyword_token)
-            return
-
-    def visit_Var(self, node: Var) -> None:  # noqa: N802
-        """Visit VAR syntax introduced in Robot Framework 7. Is ignored in Robot < 7"""
-        if not node.scope:
-            return
-
-        scope = node.scope.upper()
-        if scope == "LOCAL":
-            return
-
-        option_token = node.get_token(Token.OPTION)
-
-        if scope == "GLOBAL":
-            self._report(self.no_global_variable, option_token)
-            return
-
-        if scope in ["SUITE", "SUITES"]:
-            self._report(self.no_suite_variable, option_token)
-            return
-
-        if scope in ["TEST", "TASK"]:
-            self._report(self.no_test_variable, option_token)
-            return
-
-        # Unexpected scope, or variable-defined scope
-
-    def _report(self, rule: Rule, node: Node) -> None:
-        self.report(
-            rule,
-            node=node,
-            lineno=node.lineno,
-            col=node.col_offset + 1,
-            end_col=node.col_offset + len(node.value) + 1,
-        )
-
-
 class UnusedDiagnosticChecker(AfterRunChecker):
     unused_disabler: DisablerNotUsedRule
 
@@ -1844,144 +1651,3 @@ class UnusedDiagnosticChecker(AfterRunChecker):
                 col=disabler.directive_col_start,
                 end_col=disabler.directive_col_end,
             )
-
-
-class MissingVariableTypeChecker(VisitorChecker):
-    """Checker for variables without type annotations (RF 7.3+)."""
-
-    missing_section_variable_type: typing.MissingSectionVariableTypeRule
-    missing_argument_type: typing.MissingArgumentTypeRule
-    missing_for_loop_variable_type: typing.MissingForLoopVariableTypeRule
-
-    @staticmethod
-    def has_type_annotation(var_name: str) -> bool:
-        """
-        Check if variable has type annotation (contains ': ' followed by type).
-
-        Returns:
-            True if variable has type annotation
-
-        """
-        # Type conversion syntax: ${var: type} - note the space after colon
-        # vs embedded pattern: ${var:pattern} - no space after colon
-        return ": " in var_name
-
-    @staticmethod
-    def is_ignore_variable(var_name: str) -> bool:
-        """
-        Check if variable is an ignore variable like ${_} or ${_name}.
-
-        Args:
-            var_name: Variable name from search_variable().base
-
-        Returns:
-            True if variable should be ignored (starts with underscore)
-
-        """
-        # Strip variable markers like ${, @{, &{, %}
-        name = var_name.lstrip("$@&%{").rstrip("}")
-        # Remove type annotation if present
-        name = utils.remove_variable_type_conversion(name)
-        return name == "_" or name.startswith("_")
-
-    def should_report_missing_type(self, var_name: str) -> bool:
-        """
-        Check if variable should be reported for missing type annotation.
-
-        Args:
-            var_name: Variable name from search_variable()
-
-        Returns:
-            True if variable is missing type annotation and should be reported
-
-        """
-        try:
-            var_match = search_variable(var_name, ignore_errors=True)
-            return (
-                var_match.base
-                and not self.has_type_annotation(var_match.base)
-                and not self.is_ignore_variable(var_match.base)
-            )
-        except VariableError:
-            return False
-
-    def visit_Variable(self, node: Variable) -> None:  # noqa: N802
-        """Check variables in *** Variables *** section."""
-        if node.errors:
-            return
-        token = node.data_tokens[0]
-        if self.should_report_missing_type(token.value):
-            var_match = search_variable(token.value, ignore_errors=True)
-            self.report(
-                self.missing_section_variable_type,
-                variable_name=var_match.match,
-                node=node,
-                lineno=token.lineno,
-                col=token.col_offset + 1,
-                end_col=token.end_col_offset + 1,
-            )
-
-    def visit_Var(self, node: Var) -> None:  # noqa: N802
-        """Check VAR statements."""
-        if node.errors:
-            return
-        variable = node.get_token(Token.VARIABLE)
-        if not variable:
-            return
-        if self.should_report_missing_type(variable.value):
-            var_match = search_variable(variable.value, ignore_errors=True)
-            self.report(
-                self.missing_section_variable_type,
-                variable_name=var_match.match,
-                node=node,
-                lineno=variable.lineno,
-                col=variable.col_offset + 1,
-                end_col=variable.end_col_offset + 1,
-            )
-
-    def visit_KeywordCall(self, node: KeywordCall) -> None:  # noqa: N802
-        """Check assignment expressions (${var} = Keyword)."""
-        # TODO: we already search for variable in unused var checker - we can combine
-        for token in node.get_tokens(Token.ASSIGN):
-            if self.should_report_missing_type(token.value):
-                var_match = search_variable(token.value, ignore_errors=True)
-                self.report(
-                    self.missing_section_variable_type,
-                    variable_name=var_match.match,
-                    node=node,
-                    lineno=token.lineno,
-                    col=token.col_offset + 1,
-                    end_col=token.end_col_offset + 1,
-                )
-
-    def visit_Arguments(self, node: Arguments) -> None:  # noqa: N802
-        """Check keyword arguments ([Arguments])."""
-        for arg in node.get_tokens(Token.ARGUMENT):
-            # Handle default values: ${arg: type}=default
-            arg_name, _ = utils.split_argument_default_value(arg.value)
-            if self.should_report_missing_type(arg_name):
-                var_match = search_variable(arg_name, ignore_errors=True)
-                self.report(
-                    self.missing_argument_type,
-                    variable_name=var_match.match,
-                    node=node,
-                    lineno=arg.lineno,
-                    col=arg.col_offset + 1,
-                    end_col=arg.col_offset + len(arg_name) + 1,
-                )
-
-    def visit_For(self, node: For) -> None:  # noqa: N802
-        """Check FOR loop variables."""
-        if not node.header.errors:
-            for variable in node.header.get_tokens(Token.VARIABLE):
-                if self.should_report_missing_type(variable.value):
-                    var_match = search_variable(variable.value, ignore_errors=True)
-                    self.report(
-                        self.missing_for_loop_variable_type,
-                        variable_name=var_match.match,
-                        node=node,
-                        lineno=variable.lineno,
-                        col=variable.col_offset + 1,
-                        end_col=variable.end_col_offset + 1,
-                    )
-        self.generic_visit(node)  # Continue to nested loops

@@ -21,6 +21,7 @@ from robocop.version_handling import ROBOT_VERSION, TYPE_SUPPORTED
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
+    from pathlib import Path
 
     from robot.parsing import File
     from robot.parsing.model.blocks import For, If, InvalidSection, Keyword, TestCase, While
@@ -74,6 +75,45 @@ class NotAllowedCharInNameRule(Rule):
     )
     deprecated_names = ("0301",)
     fix_suggestion = "Remove the not allowed character from the name."
+
+    def check(self, node: TestCaseName | KeywordName, name_of_node: str, is_keyword: bool = False) -> None:
+        """
+        Search if regex pattern found from node name.
+
+        Skips embedded variables from keyword name.
+        """
+        if not self.enabled:
+            return
+        node_name = node.name
+        robot_vars = utils.find_robot_vars(node_name) if is_keyword else []
+        start_pos = 0
+        for variable in robot_vars:
+            # Loop and skip variables:
+            # Search pattern from start_pos to variable starting position
+            # example `Keyword With ${em.bedded} Two ${second.Argument} Argument`
+            # is split to:
+            #   1. `Keyword With `
+            #   2. ` Two `
+            #   3. ` Argument` - last part is searched in finditer part after this loop
+            tmp_node_name = node_name[start_pos : variable[0]]
+            match = self.pattern.search(tmp_node_name)
+            if match:
+                self.report(
+                    character=match.group(),
+                    block_name=f"'{node_name}' {name_of_node}",
+                    node=node,
+                    col=node.col_offset + match.start(0) + 1,
+                    end_col=node.col_offset + match.end(0) + 1,
+                )
+            start_pos = variable[1]
+        for not_allowed_char in self.pattern.finditer(node_name, start_pos):
+            self.report(
+                character=not_allowed_char.group(),
+                block_name=f"'{node_name}' {name_of_node}",
+                node=node,
+                col=node.col_offset + not_allowed_char.start(0) + 1,
+                end_col=node.col_offset + not_allowed_char.end(0) + 1,
+            )
 
 
 class WrongCaseInKeywordNameRule(Rule):
@@ -295,6 +335,20 @@ class NotCapitalizedTestCaseTitleRule(Rule):
     )
     deprecated_names = ("0308",)
 
+    def check(self, node: TestCase) -> None:
+        if not self.enabled:
+            return
+        for char in node.name:
+            if not char.isalpha():
+                continue
+            if not char.isupper():
+                self.report(
+                    test_name=node.name,
+                    node=node,
+                    end_col=node.col_offset + len(node.name) + 1,
+                )
+            break
+
 
 class SectionVariableNotUppercaseRule(Rule):
     """
@@ -409,6 +463,11 @@ class TestCaseNameIsEmptyRule(Rule):
         clean_code=sonar_qube.CleanCodeAttribute.IDENTIFIABLE, issue_type=sonar_qube.SonarQubeIssueType.BUG
     )
     deprecated_names = ("0313",)
+
+    def check(self, node: TestCase) -> None:
+        if not self.enabled:
+            return
+        self.report(node=node)
 
 
 class EmptyLibraryAliasRule(Rule):
@@ -534,6 +593,20 @@ class NotAllowedCharInFilenameRule(Rule):
     )
     deprecated_names = ("0320",)
 
+    def check(self, node: File, source_path: Path) -> None:
+        if not self.enabled:
+            return
+        suite_name = source_path.stem
+        if "__init__" in suite_name:
+            suite_name = source_path.parent.name
+        for match in self.pattern.finditer(suite_name):
+            self.report(
+                character=match.group(),
+                block_name="suite",
+                node=node,
+                col=node.col_offset + match.start(0) + 1,
+            )
+
 
 class InvalidSectionRule(Rule):
     """
@@ -657,74 +730,6 @@ SET_VARIABLE_VARIANTS = {
     "setsuitevariable",
     "setglobalvariable",
 }
-
-
-class InvalidCharactersInNameChecker(VisitorChecker):
-    """Checker for invalid characters in suite, test case or keyword name."""
-
-    not_allowed_char_in_filename: NotAllowedCharInFilenameRule
-    not_allowed_char_in_name: NotAllowedCharInNameRule
-
-    def visit_File(self, node: File) -> None:  # noqa: N802
-        suite_name = self.source_file.path.stem
-        if "__init__" in suite_name:
-            suite_name = self.source_file.path.parent.name
-        for match in self.not_allowed_char_in_filename.pattern.finditer(suite_name):
-            self.report(
-                self.not_allowed_char_in_filename,
-                character=match.group(),
-                block_name="suite",
-                node=node,
-                col=node.col_offset + match.start(0) + 1,
-            )
-        super().visit_File(node)
-
-    def check_if_pattern_in_node_name(
-        self, node: TestCaseName | KeywordName, name_of_node: str, is_keyword: bool = False
-    ) -> None:
-        """
-        Search if regex pattern found from node name.
-        Skips embedded variables from keyword name
-        """
-        node_name = node.name
-        robot_vars = utils.find_robot_vars(node_name) if is_keyword else []
-        start_pos = 0
-        for variable in robot_vars:
-            # Loop and skip variables:
-            # Search pattern from start_pos to variable starting position
-            # example `Keyword With ${em.bedded} Two ${second.Argument} Argument`
-            # is split to:
-            #   1. `Keyword With `
-            #   2. ` Two `
-            #   3. ` Argument` - last part is searched in finditer part after this loop
-            tmp_node_name = node_name[start_pos : variable[0]]
-            match = self.not_allowed_char_in_name.pattern.search(tmp_node_name)
-            if match:
-                self.report(
-                    self.not_allowed_char_in_name,
-                    character=match.group(),
-                    block_name=f"'{node_name}' {name_of_node}",
-                    node=node,
-                    col=node.col_offset + match.start(0) + 1,
-                    end_col=node.col_offset + match.end(0) + 1,
-                )
-            start_pos = variable[1]
-
-        for not_allowed_char in self.not_allowed_char_in_name.pattern.finditer(node_name, start_pos):
-            self.report(
-                self.not_allowed_char_in_name,
-                character=not_allowed_char.group(),
-                block_name=f"'{node.name}' {name_of_node}",
-                node=node,
-                col=node.col_offset + not_allowed_char.start(0) + 1,
-                end_col=node.col_offset + not_allowed_char.end(0) + 1,
-            )
-
-    def visit_TestCaseName(self, node: TestCaseName) -> None:  # noqa: N802
-        self.check_if_pattern_in_node_name(node, "test case")
-
-    def visit_KeywordName(self, node: KeywordName) -> None:  # noqa: N802
-        self.check_if_pattern_in_node_name(node, "keyword", is_keyword=True)
 
 
 def uppercase_error_msg(name: str) -> str:
@@ -1018,29 +1023,6 @@ class SettingsNamingChecker(VisitorChecker):
                 node=node,
                 end_col=end_col,
             )
-
-
-class TestCaseNamingChecker(VisitorChecker):
-    """Checker for test case naming violations."""
-
-    not_capitalized_test_case_title: NotCapitalizedTestCaseTitleRule
-    test_case_name_is_empty: TestCaseNameIsEmptyRule
-
-    def visit_TestCase(self, node: TestCase) -> None:  # noqa: N802
-        if not node.name:
-            self.report(self.test_case_name_is_empty, node=node)
-        else:
-            for c in node.name:
-                if not c.isalpha():
-                    continue
-                if not c.isupper():
-                    self.report(
-                        self.not_capitalized_test_case_title,
-                        test_name=node.name,
-                        node=node,
-                        end_col=node.col_offset + len(node.name) + 1,
-                    )
-                break
 
 
 class VariableNamingChecker(VisitorChecker):

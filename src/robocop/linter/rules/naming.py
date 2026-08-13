@@ -8,7 +8,6 @@ from typing import TYPE_CHECKING
 
 from robot.api import Token
 from robot.errors import VariableError
-from robot.parsing.model.blocks import TestCaseSection
 from robot.parsing.model.statements import Arguments
 from robot.variables.search import search_variable
 
@@ -40,6 +39,26 @@ if TYPE_CHECKING:
         Var,
         Variable,
     )
+
+SECTION_NAME_PATTERN = re.compile(r"\*\*\*\s.+\s\*\*\*")
+# Separating alias values since RF 3 uses WITH_NAME instead of WITH NAME
+ALIAS_TOKENS = [Token.WITH_NAME] if ROBOT_VERSION.major < 5 else ["WITH NAME", "AS"]
+ALIAS_TOKENS_VALUES = ["WITH NAME"] if ROBOT_VERSION.major < 5 else ["WITH NAME", "AS"]
+
+
+def library_has_alias(node: LibraryImport) -> bool | None:
+    """
+    Determine whether a library import defines an alias.
+
+    Returns ``None`` when the import should not be inspected at all: for RF < 6, ``AS`` passed as an argument is
+    used to provide the library alias and is not reported.
+    """
+    if ROBOT_VERSION.major < 6:
+        arg_nodes = node.get_tokens(Token.ARGUMENT)
+        if arg_nodes and any(arg.value == "AS" for arg in arg_nodes):
+            return None
+        return bool(node.get_token(*ALIAS_TOKENS))
+    return len(node.get_tokens(Token.NAME)) >= 2
 
 
 class NotAllowedCharInNameRule(Rule):
@@ -279,6 +298,17 @@ class SettingNameNotInTitleCaseRule(Rule):
     )
     deprecated_names = ("0306",)
 
+    def check(self, node: Node, name: str) -> None:
+        if name.istitle() or name.isupper():
+            return
+        col = node.tokens[0].end_col_offset if node.tokens[0].type == "SEPARATOR" else node.col_offset
+        self.report(
+            setting_name=name,
+            node=node,
+            col=col + 1,
+            end_col=col + len(name) + 1,
+        )
+
 
 class SectionNameInvalidRule(Rule):
     """
@@ -307,6 +337,18 @@ class SectionNameInvalidRule(Rule):
         clean_code=sonar_qube.CleanCodeAttribute.IDENTIFIABLE, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
     deprecated_names = ("0307",)
+
+    def check(self, node: SectionHeader) -> None:
+        name = node.data_tokens[0].value
+        if SECTION_NAME_PATTERN.match(name) and (name.istitle() or name.isupper()):
+            return
+        valid_name = f"*** {node.name.title()} ***"
+        self.report(
+            section_title_case=valid_name,
+            section_upper_case=valid_name.upper(),
+            node=node,
+            end_col=node.col_offset + len(name) + 1,
+        )
 
 
 class NotCapitalizedTestCaseTitleRule(Rule):
@@ -498,6 +540,14 @@ class EmptyLibraryAliasRule(Rule):
     )
     deprecated_names = ("0314",)
 
+    def check(self, node: LibraryImport) -> None:
+        if library_has_alias(node) is not False:
+            return
+        for arg in node.get_tokens(Token.ARGUMENT):
+            if arg.value and arg.value in ALIAS_TOKENS_VALUES:
+                col = arg.col_offset + 1
+                self.report(node=arg, col=col, end_col=col + len(arg.value))
+
 
 class DuplicatedLibraryAliasRule(Rule):
     """
@@ -520,6 +570,14 @@ class DuplicatedLibraryAliasRule(Rule):
         clean_code=sonar_qube.CleanCodeAttribute.DISTINCT, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
     deprecated_names = ("0315",)
+
+    def check(self, node: LibraryImport) -> None:
+        if library_has_alias(node) is not True:
+            return
+        if node.alias.replace(" ", "") != node.name.replace(" ", ""):  # New Name == NewName
+            return
+        name_token = node.get_tokens(Token.NAME)[-1]
+        self.report(node=name_token, col=name_token.col_offset + 1, end_col=name_token.end_col_offset + 1)
 
 
 class BddWithoutKeywordCallRule(Rule):
@@ -636,6 +694,18 @@ class InvalidSectionRule(Rule):
     )
     deprecated_names = ("0325",)
 
+    def check(self, node: InvalidSection) -> None:
+        invalid_header = node.header.get_token(Token.INVALID_HEADER)
+        if "Resource file with" in invalid_header.error:
+            return
+        if invalid_header:
+            self.report(
+                invalid_section=node.header.data_tokens[0].value,
+                node=node,
+                col=node.header.col_offset + 1,
+                end_col=node.header.end_col_offset,
+            )
+
 
 class MixedTaskTestSettingsRule(Rule):
     """
@@ -658,6 +728,26 @@ class MixedTaskTestSettingsRule(Rule):
         clean_code=sonar_qube.CleanCodeAttribute.CONVENTIONAL, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
     deprecated_names = ("0326",)
+
+    def check(self, node: Node, name: str, task_section: bool | None) -> None:
+        name_normalized = name.lower()
+        end_col = node.col_offset + 1 + len(name)
+        if "test" in name_normalized and task_section:
+            self.report(
+                setting="Task " + name.split()[1],
+                task_or_test="task",
+                tasks_or_tests="Tasks",
+                node=node,
+                end_col=end_col,
+            )
+        elif "task" in name_normalized and not task_section:
+            self.report(
+                setting="Test " + name.split()[1],
+                task_or_test="test",
+                tasks_or_tests="Test Cases",
+                node=node,
+                end_col=end_col,
+            )
 
 
 class WrongCaseInKeywordCallRule(Rule):
@@ -889,140 +979,6 @@ class KeywordNamingChecker(VisitorChecker):
             end_col=node.col_offset + 1 + len(keyword_name),
         )
         return True
-
-
-class SettingsNamingChecker(VisitorChecker):
-    """Checker for settings and sections naming violations."""
-
-    setting_name_not_in_title_case: SettingNameNotInTitleCaseRule
-    section_name_invalid: SectionNameInvalidRule
-    empty_library_alias: EmptyLibraryAliasRule
-    duplicated_library_alias: DuplicatedLibraryAliasRule
-    invalid_section: InvalidSectionRule
-    mixed_task_test_settings: MixedTaskTestSettingsRule
-
-    ALIAS_TOKENS = [Token.WITH_NAME] if ROBOT_VERSION.major < 5 else ["WITH NAME", "AS"]
-    # Separating alias values since RF 3 uses WITH_NAME instead of WITH NAME
-    ALIAS_TOKENS_VALUES = ["WITH NAME"] if ROBOT_VERSION.major < 5 else ["WITH NAME", "AS"]
-
-    def __init__(self) -> None:
-        self.section_name_pattern = re.compile(r"\*\*\*\s.+\s\*\*\*")
-        self.task_section: bool | None = None
-        super().__init__()
-
-    def visit_InvalidSection(self, node: InvalidSection) -> None:  # noqa: N802
-        name = node.header.data_tokens[0].value
-        invalid_header = node.header.get_token(Token.INVALID_HEADER)
-        if "Resource file with" in invalid_header.error:
-            return
-        if invalid_header:
-            self.report(
-                self.invalid_section,
-                invalid_section=name,
-                node=node,
-                col=node.header.col_offset + 1,
-                end_col=node.header.end_col_offset,
-            )
-
-    def visit_SectionHeader(self, node: SectionHeader) -> None:  # noqa: N802
-        name = node.data_tokens[0].value
-        if not self.section_name_pattern.match(name) or not (name.istitle() or name.isupper()):
-            valid_name = f"*** {node.name.title()} ***"
-            self.report(
-                self.section_name_invalid,
-                section_title_case=valid_name,
-                section_upper_case=valid_name.upper(),
-                node=node,
-                end_col=node.col_offset + len(name) + 1,
-            )
-
-    def visit_File(self, node: File) -> None:  # noqa: N802
-        self.task_section = None
-        for section in node.sections:
-            if isinstance(section, TestCaseSection):
-                if (ROBOT_VERSION.major < 6 and "task" in section.header.name.lower()) or (
-                    ROBOT_VERSION.major >= 6 and section.header.type == Token.TASK_HEADER
-                ):
-                    self.task_section = True
-                else:
-                    self.task_section = False
-                break
-        super().visit_File(node)
-
-    def visit_Setup(self, node: Setup) -> None:  # noqa: N802
-        self.check_setting_name(node.data_tokens[0].value, node)
-        self.check_settings_consistency(node.data_tokens[0].value, node)
-
-    visit_SuiteSetup = visit_TestSetup = visit_Teardown = visit_SuiteTeardown = visit_TestTeardown = (  # noqa: N815
-        visit_TestTimeout  # noqa: N815
-    ) = visit_TestTemplate = visit_TestTags = visit_ForceTags = visit_DefaultTags = visit_ResourceImport = (  # noqa: N815
-        visit_VariablesImport  # noqa: N815
-    ) = visit_Documentation = visit_Tags = visit_Timeout = visit_Template = visit_Arguments = visit_ReturnSetting = (  # noqa: N815
-        visit_Return  # noqa: N815
-    ) = visit_Setup
-
-    def visit_LibraryImport(self, node: LibraryImport) -> None:  # noqa: N802
-        self.check_setting_name(node.data_tokens[0].value, node)
-        if ROBOT_VERSION.major < 6:
-            arg_nodes = node.get_tokens(Token.ARGUMENT)
-            # ignore cases where 'AS' is used to provide library alias for RF < 5
-            if arg_nodes and any(arg.value == "AS" for arg in arg_nodes):
-                return
-            with_name = bool(node.get_token(*self.ALIAS_TOKENS))
-        else:
-            with_name = len(node.get_tokens(Token.NAME)) >= 2
-        if not with_name:
-            for arg in node.get_tokens(Token.ARGUMENT):
-                if arg.value and arg.value in self.ALIAS_TOKENS_VALUES:
-                    col = arg.col_offset + 1
-                    self.report(
-                        self.empty_library_alias, node=arg, col=arg.col_offset + 1, end_col=col + len(arg.value)
-                    )
-        elif node.alias.replace(" ", "") == node.name.replace(" ", ""):  # New Name == NewName
-            name_token = node.get_tokens(Token.NAME)[-1]
-            self.report(
-                self.duplicated_library_alias,
-                node=name_token,
-                col=name_token.col_offset + 1,
-                end_col=name_token.end_col_offset + 1,
-            )
-
-    def check_setting_name(self, name: str, node: Node) -> None:
-        if not (name.istitle() or name.isupper()):
-            col = node.tokens[0].end_col_offset if node.tokens[0].type == "SEPARATOR" else node.col_offset
-            self.report(
-                self.setting_name_not_in_title_case,
-                setting_name=name,
-                node=node,
-                col=col + 1,
-                end_col=col + len(name) + 1,
-            )
-
-    def check_settings_consistency(self, name: str, node: Node) -> None:
-        name_normalized = name.lower()
-        # if there is no task/test section, determine by first setting in the file
-        if self.task_section is None and ("test" in name_normalized or "task" in name_normalized):
-            self.task_section = "task" in name_normalized
-        if "test" in name_normalized and self.task_section:
-            end_col = node.col_offset + 1 + len(name)
-            self.report(
-                self.mixed_task_test_settings,
-                setting="Task " + name.split()[1],
-                task_or_test="task",
-                tasks_or_tests="Tasks",
-                node=node,
-                end_col=end_col,
-            )
-        elif "task" in name_normalized and not self.task_section:
-            end_col = node.col_offset + 1 + len(name)
-            self.report(
-                self.mixed_task_test_settings,
-                setting="Test " + name.split()[1],
-                task_or_test="test",
-                tasks_or_tests="Test Cases",
-                node=node,
-                end_col=end_col,
-            )
 
 
 class VariableNamingChecker(VisitorChecker):

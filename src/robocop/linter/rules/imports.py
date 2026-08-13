@@ -3,13 +3,11 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from robot.api import Token
-from robot.libraries import STDLIBS
 
 from robocop.linter import sonar_qube
-from robocop.linter.rules import Rule, RuleSeverity, VisitorChecker
+from robocop.linter.rules import Rule, RuleSeverity
 
 if TYPE_CHECKING:
-    from robot.parsing import File
     from robot.parsing.model.statements import LibraryImport, ResourceImport
 
 
@@ -39,6 +37,16 @@ class WrongImportOrderRule(Rule):
     )
     deprecated_names = ("0911",)
 
+    def check(self, node: LibraryImport, custom_import: LibraryImport) -> None:
+        lib_name = node.get_token(Token.NAME)
+        self.report(
+            builtin_import=node.name,
+            custom_import=custom_import.name,
+            node=node,
+            col=lib_name.col_offset + 1,
+            end_col=lib_name.end_col_offset + 1,
+        )
+
 
 class BuiltinImportsNotSortedRule(Rule):
     """
@@ -63,6 +71,18 @@ class BuiltinImportsNotSortedRule(Rule):
         clean_code=sonar_qube.CleanCodeAttribute.CONVENTIONAL, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
     deprecated_names = ("0926",)
+
+    def check(self, node: LibraryImport, previous: LibraryImport | None) -> None:
+        if not previous or node.name >= previous.name:
+            return
+        lib_name = node.get_token(Token.NAME)
+        self.report(
+            builtin_import=node.name,
+            previous_builtin_import=previous.name,
+            node=node,
+            col=lib_name.col_offset + 1,
+            end_col=lib_name.end_col_offset + 1,
+        )
 
 
 class NonBuiltinImportsNotSortedRule(Rule):
@@ -92,6 +112,18 @@ class NonBuiltinImportsNotSortedRule(Rule):
     )
     deprecated_names = ("10101",)
 
+    def check(self, node: LibraryImport, previous: LibraryImport | None) -> None:
+        if previous is None or node.name >= previous.name:
+            return
+        lib_name = node.get_token(Token.NAME)
+        self.report(
+            custom_import=node.name,
+            previous_custom_import=previous.name,
+            node=node,
+            col=lib_name.col_offset + 1,
+            end_col=lib_name.end_col_offset + 1,
+        )
+
 
 class ResourcesImportsNotSortedRule(Rule):
     """
@@ -119,89 +151,14 @@ class ResourcesImportsNotSortedRule(Rule):
     )
     deprecated_names = ("10102",)
 
-
-class SettingsOrderChecker(VisitorChecker):
-    """Checker for settings order."""
-
-    wrong_import_order: WrongImportOrderRule
-    builtin_imports_not_sorted: BuiltinImportsNotSortedRule
-    non_builtin_imports_not_sorted: NonBuiltinImportsNotSortedRule
-    resources_imports_not_sorted: ResourcesImportsNotSortedRule
-
-    def __init__(self) -> None:
-        self.libraries: list[LibraryImport] = []
-        self.non_builtin_libraries: list[LibraryImport] = []
-        self.resources: list[ResourceImport] = []
-        super().__init__()
-
-    def visit_File(self, node: File) -> None:  # noqa: N802
-        self.libraries = []
-        self.resources = []
-        self.generic_visit(node)
-        built_in_libs: list[LibraryImport] = []
-        non_builtin_libs: list[LibraryImport] = []
-
-        for library in self.libraries:
-            if library.name in STDLIBS:
-                built_in_libs.append(library)
-                if non_builtin_libs:
-                    lib_name = library.get_token(Token.NAME)
-                    self.report(
-                        self.wrong_import_order,
-                        builtin_import=library.name,
-                        custom_import=non_builtin_libs[0].name,
-                        node=library,
-                        col=lib_name.col_offset + 1,
-                        end_col=lib_name.end_col_offset + 1,
-                    )
-            else:
-                non_builtin_libs.append(library)
-        previous = None
-        for library in built_in_libs:
-            if previous and library.name < previous.name:
-                lib_name = library.get_token(Token.NAME)
-                self.report(
-                    self.builtin_imports_not_sorted,
-                    builtin_import=library.name,
-                    previous_builtin_import=previous.name,
-                    node=library,
-                    col=lib_name.col_offset + 1,
-                    end_col=lib_name.end_col_offset + 1,
-                )
-            previous = library
-        previous = None
-        for library in non_builtin_libs:
-            if previous is not None and library.name < previous.name:
-                lib_name = library.get_token(Token.NAME)
-                self.report(
-                    self.non_builtin_imports_not_sorted,
-                    custom_import=library.name,
-                    previous_custom_import=previous.name,
-                    node=library,
-                    col=lib_name.col_offset + 1,
-                    end_col=lib_name.end_col_offset + 1,
-                )
-            previous = library
-        previous = None
-        for resource in self.resources:
-            if previous is not None and resource.name < previous.name:
-                resource_name = resource.get_token(Token.NAME)
-                self.report(
-                    self.resources_imports_not_sorted,
-                    resource_import=resource.name,
-                    previous_resource_import=previous.name,
-                    node=resource,
-                    col=resource_name.col_offset + 1,
-                    end_col=resource_name.end_col_offset + 1,
-                )
-            previous = resource
-
-    def visit_LibraryImport(self, node: LibraryImport) -> None:  # noqa: N802
-        if not node.name:
+    def check(self, node: ResourceImport, previous: ResourceImport | None) -> None:
+        if previous is None or node.name >= previous.name:
             return
-        self.libraries.append(node)
-
-    def visit_ResourceImport(self, node: ResourceImport) -> None:  # noqa: N802
-        if not node.name:
-            return
-        self.resources.append(node)
+        resource_name = node.get_token(Token.NAME)
+        self.report(
+            resource_import=node.name,
+            previous_resource_import=previous.name,
+            node=node,
+            col=resource_name.col_offset + 1,
+            end_col=resource_name.end_col_offset + 1,
+        )

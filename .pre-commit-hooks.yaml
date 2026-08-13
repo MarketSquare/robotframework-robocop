@@ -20,4 +20,5 @@
   entry: robocop check-project --force-exclude
   language: python
   files: '.*\.(robot|resource)$'
+  pass_filenames: false
   minimum_pre_commit_version: "2.9.2"

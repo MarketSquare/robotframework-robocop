@@ -6,7 +6,7 @@ import re
 from collections import Counter
 from contextlib import contextmanager
 from itertools import takewhile
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, ClassVar
 
 from robot.api import Token
 from robot.parsing.model.blocks import Keyword, TestCase
@@ -572,6 +572,20 @@ class VariableNotLeftAlignedRule(Rule):
     )
     deprecated_names = ("1014", "variable-should-be-left-aligned")
 
+    def check(self, node: Section) -> None:
+        if not self.enabled:
+            return
+        for child in node.body:
+            if not child.data_tokens:
+                continue
+            token = child.data_tokens[0]
+            if token.type == Token.VARIABLE and (token.value == "" or token.value.startswith(" ")):
+                if token.value or not child.get_token(Token.ARGUMENT):
+                    pos = len(token.value) - len(token.value.lstrip()) + 1
+                else:
+                    pos = child.get_token(Token.ARGUMENT).col_offset + 1
+                self.report(lineno=token.lineno, col=1, end_col=pos)
+
 
 class MisalignedContinuationRowRule(Rule):
     """
@@ -653,6 +667,52 @@ class SuiteSettingNotLeftAlignedRule(Rule):
         clean_code=sonar_qube.CleanCodeAttribute.FORMATTED, issue_type=sonar_qube.SonarQubeIssueType.BUG
     )
     deprecated_names = ("1016", "suite-setting-should-be-left-aligned")
+
+    suite_settings: ClassVar[dict[str, str]] = {
+        "documentation": "Documentation",
+        "suitesetup": "Suite Setup",
+        "suiteteardown": "Suite Teardown",
+        "metadata": "Metadata",
+        "testsetup": "Test Setup",
+        "testteardown": "Test Teardown",
+        "testtemplate": "Test Template",
+        "testtimeout": "Test Timeout",
+        "forcetags": "Force Tags",
+        "defaulttags": "Default Tags",
+        "library": "Library",
+        "resource": "Resource",
+        "variables": "Variables",
+    }
+    non_existing_setting_pattern = re.compile("Non-existing setting '(.*)'.")
+
+    def check(self, node: Section) -> None:
+        if not self.enabled:
+            return
+        for child in node.body:
+            for error in child.errors:
+                if "Non-existing setting" in error:
+                    self.parse_error(child, error)
+
+    def parse_error(self, node: Statement, error: str) -> None:
+        error_match = self.non_existing_setting_pattern.search(error)
+        if not error_match:
+            return
+        setting_error = error_match.group(1)
+        if not setting_error:
+            setting_cand = node.get_token(Token.COMMENT)
+            if setting_cand and setting_cand.value.replace(" ", "").lower() in self.suite_settings:
+                self.report(
+                    node=setting_cand,
+                    col=setting_cand.col_offset + 1,
+                    end_col=setting_cand.end_col_offset + 1,
+                )
+        elif not setting_error[0].strip():  # starts with space/tab
+            suite_sett_cand = setting_error.replace(" ", "").lower()
+            for setting in self.suite_settings:
+                if suite_sett_cand.startswith(setting):
+                    indent = len(setting_error) - len(setting_error.lstrip())
+                    self.report(node=node, col=indent + 1)
+                    break
 
 
 class BadBlockIndentRule(Rule):
@@ -1315,70 +1375,3 @@ class MisalignedContinuation(VisitorChecker):
             elif token.type == search_for:
                 return pos
         return 0  # 0 will ignore first line indent and compare to 2nd line only
-
-
-class LeftAlignedChecker(VisitorChecker):
-    """Checker for left align."""
-
-    variable_not_left_aligned: VariableNotLeftAlignedRule
-    suite_setting_not_left_aligned: SuiteSettingNotLeftAlignedRule
-
-    suite_settings = {
-        "documentation": "Documentation",
-        "suitesetup": "Suite Setup",
-        "suiteteardown": "Suite Teardown",
-        "metadata": "Metadata",
-        "testsetup": "Test Setup",
-        "testteardown": "Test Teardown",
-        "testtemplate": "Test Template",
-        "testtimeout": "Test Timeout",
-        "forcetags": "Force Tags",
-        "defaulttags": "Default Tags",
-        "library": "Library",
-        "resource": "Resource",
-        "variables": "Variables",
-    }
-
-    def visit_VariableSection(self, node: Node) -> None:  # noqa: N802
-        for child in node.body:
-            if not child.data_tokens:
-                continue
-            token = child.data_tokens[0]
-            if token.type == Token.VARIABLE and (token.value == "" or token.value.startswith(" ")):
-                if token.value or not child.get_token(Token.ARGUMENT):
-                    pos = len(token.value) - len(token.value.lstrip()) + 1
-                else:
-                    pos = child.get_token(Token.ARGUMENT).col_offset + 1
-                self.report(self.variable_not_left_aligned, lineno=token.lineno, col=1, end_col=pos)
-
-    def visit_SettingSection(self, node: Node) -> None:  # noqa: N802
-        for child in node.body:
-            for error in child.errors:
-                if "Non-existing setting" in error:
-                    self.parse_error(child, error)
-
-    def parse_error(self, node: Node, error: str) -> None:
-        error_match = re.search("Non-existing setting '(.*)'.", error)
-        if not error_match:
-            return
-        setting_error = error_match.group(1)
-        if not setting_error:
-            setting_cand = node.get_token(Token.COMMENT)
-            if setting_cand and setting_cand.value.replace(" ", "").lower() in self.suite_settings:
-                self.report(
-                    self.suite_setting_not_left_aligned,
-                    node=setting_cand,
-                    col=setting_cand.col_offset + 1,
-                    end_col=setting_cand.end_col_offset + 1,
-                )
-        elif not setting_error[0].strip():  # starts with space/tab
-            suite_sett_cand = setting_error.replace(" ", "").lower()
-            for setting in self.suite_settings:
-                if suite_sett_cand.startswith(setting):
-                    indent = len(setting_error) - len(setting_error.lstrip())
-                    self.report(
-                        self.suite_setting_not_left_aligned,
-                        node=node,
-                        col=indent + 1,
-                    )
-                    break

@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING, TypeVar
 from robot.api import Token
 
 from robocop.linter import sonar_qube
-from robocop.linter.rules import Rule, RuleSeverity, VisitorChecker, order, variables
+from robocop.linter.rules import Rule, RuleSeverity, VisitorChecker, variables
 from robocop.linter.utils.misc import (
     normalize_robot_name,
     normalize_robot_var_name,
@@ -239,6 +239,16 @@ class SectionAlreadyDefinedRule(Rule):
     )
     deprecated_names = ("0808",)
 
+    def check(self, node: SectionHeader, first_occurrence_line: int | None) -> None:
+        if not self.enabled or first_occurrence_line is None:
+            return
+        self.report(
+            section_name=node.data_tokens[0].value,
+            first_occurrence_line=first_occurrence_line,
+            node=node,
+            end_col=node.end_col_offset,
+        )
+
 
 class BothTestsAndTasksRule(Rule):
     """
@@ -261,6 +271,11 @@ class BothTestsAndTasksRule(Rule):
         clean_code=sonar_qube.CleanCodeAttribute.DISTINCT, issue_type=sonar_qube.SonarQubeIssueType.BUG
     )
     deprecated_names = ("0810",)
+
+    def check(self, node: SectionHeader, other_kind_already_defined: bool) -> None:
+        if not self.enabled or not other_kind_already_defined:
+            return
+        self.report(node=node, col=node.col_offset + 1, end_col=node.end_col_offset)
 
 
 class DuplicatedSettingRule(Rule):
@@ -431,75 +446,3 @@ class DuplicationsChecker(VisitorChecker):
                     col=node.data_tokens[0].col_offset + 1,
                     end_col=node.data_tokens[0].end_col_offset + 1,
                 )
-
-
-class SectionHeadersChecker(VisitorChecker):
-    """Checker for duplicated or out of order section headers."""
-
-    section_already_defined: SectionAlreadyDefinedRule
-    section_out_of_order: order.SectionOutOfOrderRule
-    both_tests_and_tasks: BothTestsAndTasksRule
-
-    def __init__(self) -> None:
-        self.sections_by_order: list[int] = []
-        self.sections_by_existence: dict[str, int] = {}
-        super().__init__()
-
-    @staticmethod
-    def section_order_to_str(order: dict[str, int]) -> str:
-        by_index = sorted(order.items(), key=lambda x: x[1])
-        name_map = {
-            Token.COMMENT_HEADER: "Comments",
-            Token.SETTING_HEADER: "Settings",
-            Token.VARIABLE_HEADER: "Variables",
-            Token.TESTCASE_HEADER: "Test Cases / Tasks",
-            "TASK HEADER": "Test Cases / Tasks",
-            Token.KEYWORD_HEADER: "Keywords",
-        }
-        order_str = []
-        for name, _ in by_index:
-            mapped_name = name_map[name]
-            if mapped_name not in order_str:
-                order_str.append(mapped_name)
-        return " > ".join(order_str)
-
-    def visit_File(self, node: File) -> None:  # noqa: N802
-        self.sections_by_order = []
-        self.sections_by_existence = {}
-        super().visit_File(node)
-
-    def visit_SectionHeader(self, node: SectionHeader) -> None:  # noqa: N802
-        section_name = node.type
-        if section_name not in self.section_out_of_order.sections_order:
-            return
-        if section_name in (Token.TESTCASE_HEADER, "TASK HEADER"):
-            # a bit awkward implementation because before RF 6.0 task header used TESTCASE_HEADER type
-            if "task" in node.name.lower():
-                section_name = "TASK HEADER"
-                if Token.TESTCASE_HEADER in self.sections_by_existence:
-                    self.report(
-                        self.both_tests_and_tasks, node=node, col=node.col_offset + 1, end_col=node.end_col_offset
-                    )
-            elif "TASK HEADER" in self.sections_by_existence:
-                self.report(self.both_tests_and_tasks, node=node, col=node.col_offset + 1, end_col=node.end_col_offset)
-        order_id = self.section_out_of_order.sections_order[section_name]
-        if section_name in self.sections_by_existence:
-            self.report(
-                self.section_already_defined,
-                section_name=node.data_tokens[0].value,
-                first_occurrence_line=self.sections_by_existence[section_name],
-                node=node,
-                end_col=node.end_col_offset,
-            )
-        else:
-            self.sections_by_existence[section_name] = node.lineno
-        if any(previous_id > order_id for previous_id in self.sections_by_order):
-            token = node.data_tokens[0]
-            self.report(
-                self.section_out_of_order,
-                section_name=token.value,
-                recommended_order=self.section_order_to_str(self.section_out_of_order.sections_order),
-                node=node,
-                end_col=token.end_col_offset + 1,
-            )
-        self.sections_by_order.append(order_id)

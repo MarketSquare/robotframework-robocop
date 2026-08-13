@@ -11,6 +11,7 @@ from robot.parsing.model.statements import Arguments, KeywordCall, Teardown
 from robot.variables.search import search_variable
 
 from robocop.linter.rules import AfterRunChecker, Rule, VisitorChecker, arguments, misc, variables
+from robocop.linter.rules.misc import CachedVariable, SectionVariablesCollector
 from robocop.linter.utils import misc as utils
 from robocop.version_handling import ROBOT_VERSION
 
@@ -24,7 +25,6 @@ if TYPE_CHECKING:
     from robocop.linter.diagnostics import Diagnostic
     from robocop.linter.utils.disablers import DisablersFinder
     from robocop.source_file import SourceFile
-from robocop.linter.rules.misc import CachedVariable, SectionVariablesCollector
 
 
 class UnusedVariablesChecker(VisitorChecker):

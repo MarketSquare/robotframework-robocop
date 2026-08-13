@@ -10,6 +10,7 @@ from robot.parsing.model.blocks import Keyword, TestCase
 from robot.variables.search import search_variable
 
 from robocop.linter.rules import VisitorChecker, lengths
+from robocop.linter.rules.lengths import CachedVariable
 from robocop.linter.utils.misc import (
     find_escaped_variables,
     normalize_robot_name,
@@ -21,7 +22,6 @@ from robocop.version_handling import TYPE_SUPPORTED
 if TYPE_CHECKING:
     from robot.parsing.model.blocks import For, Try, VariableSection
     from robot.parsing.model.statements import Arguments, KeywordCall, Node, Statement
-from robocop.linter.rules.lengths import CachedVariable
 
 
 class VariableNameLengthChecker(VisitorChecker):

@@ -12,6 +12,7 @@ from robot.parsing.model.statements import Arguments
 from robot.variables.search import search_variable
 
 from robocop.linter.rules import VisitorChecker, variables
+from robocop.linter.rules.naming import SET_VARIABLE_VARIANTS
 from robocop.linter.utils import misc as utils
 from robocop.version_handling import ROBOT_VERSION, TYPE_SUPPORTED
 
@@ -25,7 +26,6 @@ if TYPE_CHECKING:
         Return,
         Var,
     )
-from robocop.linter.rules.naming import SET_VARIABLE_VARIANTS
 
 
 class SimilarVariableChecker(VisitorChecker):

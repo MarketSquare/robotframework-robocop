@@ -18,7 +18,7 @@
     {"type": "fix", "section": "Bug Fixes"},
     {"type": "docs", "section": "Documentation"},
     {"type": "perf", "section": "Performance"},
-    {"type": "refactor", "section": "Refactoring", "hidden": true},
+    {"type": "refactor", "section": "Refactoring"},
     {"type": "chore", "section": "Miscellaneous", "hidden": true},
     {"type": "test", "section": "Tests", "hidden": true}
   ],

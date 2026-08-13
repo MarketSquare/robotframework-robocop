@@ -162,3 +162,40 @@ class ResourcesImportsNotSortedRule(Rule):
             col=resource_name.col_offset + 1,
             end_col=resource_name.end_col_offset + 1,
         )
+
+
+class UnresolvedResourceImportRule(Rule):
+    """
+    Imported resource file does not exist.
+
+    Reports resource imports that point to a file that cannot be found in the project. Such import makes the whole
+    suite fail during the execution.
+
+    Example of rule violation:
+
+        *** Settings ***
+        Resource    does_not_exist.resource  # file is not found next to the importing file
+
+    Import paths are resolved relative to the file containing the import, exactly like Robot Framework does it.
+
+    Variables used in the import path are resolved using variables defined in the ``*** Variables ***`` section
+    of the importing file and variables provided with the ``--variable`` option::
+
+        robocop check-project --variable RESOURCE_DIR:resources
+
+    If the path contains a variable that cannot be resolved, the import is ignored and not reported. Thanks to that,
+    dynamically built paths do not cause false positives.
+
+    This rule is a project level rule and is only reported by the ``robocop check-project`` command.
+
+    """
+
+    name = "unresolved-resource-import"
+    rule_id = "IMP07"
+    message = "Imported resource file '{import_name}' does not exist"
+    severity = RuleSeverity.WARNING
+    enabled = False
+    added_in_version = "8.9.0"
+    sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
+        clean_code=sonar_qube.CleanCodeAttribute.COMPLETE, issue_type=sonar_qube.SonarQubeIssueType.BUG
+    )

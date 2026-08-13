@@ -57,12 +57,28 @@ def parse_rule_severity(value: str) -> RuleSeverity:
     return RuleSeverity.parser(value, rule_severity=False)
 
 
+VERBATIM_CONFIG_KEYS = frozenset({"variables", "per_file_ignores"})
+
+
 def normalize_config_keys(config: dict[str, Any]) -> dict[str, Any]:
-    """Normalize configuration keys to allow using both - and _ interchangeably."""
-    return {
-        key.replace("-", "_"): normalize_config_keys(value) if isinstance(value, dict) else value
-        for key, value in config.items()
-    }
+    """
+    Normalize configuration keys to allow using both - and _ interchangeably.
+
+    Keys of sections listed in ``VERBATIM_CONFIG_KEYS`` are user defined names (variable names, file patterns) and
+    are never normalized.
+
+    Returns:
+        Configuration dictionary with normalized keys.
+
+    """
+    normalized: dict[str, Any] = {}
+    for key, value in config.items():
+        normalized_key = key.replace("-", "_")
+        if isinstance(value, dict) and normalized_key not in VERBATIM_CONFIG_KEYS:
+            normalized[normalized_key] = normalize_config_keys(value)
+        else:
+            normalized[normalized_key] = value
+    return normalized
 
 
 def load_languages(languages: list[str]) -> Languages | None:
@@ -116,6 +132,30 @@ def parse_target_version(value: int | str | TargetVersion | None) -> Version:
             f"installed version ({ROBOT_VERSION})."
         ) from None
     return Version(f"{target_version}.0")
+
+
+def parse_variables(variables: list[str] | None) -> dict[str, str] | None:
+    """
+    Parse variables provided with the ``--variable`` option.
+
+    Variables use the ``NAME:VALUE`` syntax, same as in Robot Framework. Value may contain a colon.
+
+    Returns:
+        Mapping of variable name to its value, or None if no variable was provided.
+
+    """
+    if not variables:
+        return None
+    parsed: dict[str, str] = {}
+    for variable in variables:
+        name, separator, value = variable.partition(":")
+        name = name.strip()
+        if not separator or not name:
+            raise typer.BadParameter(
+                f"Invalid variable '{variable}'. Variable should be provided in the NAME:VALUE format."
+            )
+        parsed[name] = value
+    return parsed
 
 
 def resolve_relative_path(orig_path: str, config_dir: Path, ensure_exists: bool) -> str:

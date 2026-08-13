@@ -406,14 +406,20 @@ Project checkers are special kind of checker that can be only run using ``check-
 robocop check-project
 ```
 
-They are only run once per whole project and accept configuration manager as input to the entrypoint method. It can
-be used to run any code, for example, analysis of the project dependencies and architecture.
+They are only run once per whole project, after all files are parsed. Together with the project context, they can be
+used to implement checks that require knowledge about more than one file, for example finding a keyword definition
+in a resource file and all the places it is used in.
 
 Example project checker:
 
 ```python title="project_checker.py"
+from pathlib import Path
+
 from robocop.config.manager import ConfigManager
+from robocop.linter.diagnostics import Diagnostic
 from robocop.linter.rules import Rule, ProjectChecker, RuleSeverity
+from robocop.project import ProjectContext
+from robocop.source_file import SourceFile, VirtualSourceFile
 
 
 class ProjectCheckerRule(Rule):
@@ -436,13 +442,66 @@ class MyProjectChecker(ProjectChecker):
     project_checker: ProjectCheckerRule
     test_total_count: TestTotalCountRule
 
-    def scan_project(self, config_manager: ConfigManager) -> None:
-        files_count = 0
-        for robot_file in config_manager.root.rglob("*.robot"):
-            files_count += 1
-            self.report(self.project_checker, source=robot_file)
-        # files can be also parsed (with get_model) and checked here
-        self.report(self.test_total_count, source="Project-name", files=files_count)
+    def scan_project(
+        self,
+        project_source_file: SourceFile | VirtualSourceFile,
+        config_manager: ConfigManager,
+        context: ProjectContext | None = None,
+    ) -> list[Diagnostic]:
+        self.issues = []
+        for project_file in context.iter_files():
+            self.report(self.project_checker, source=project_file.source_file)
+        self.report(
+            self.test_total_count,
+            source=SourceFile(Path(config_manager.root.name), project_source_file.config),
+            files=len(context.files),
+        )
+        return self.issues
 ```
 
-Each project checker must inherit from ``ProjectChecker`` class and implement ``scan_project()`` method.
+Each project checker must inherit from ``ProjectChecker`` class and implement ``scan_project()`` method, which
+receives:
+
+| Argument | Description |
+| --- | --- |
+| ``project_source_file`` | Virtual source file representing the whole project. Use its ``config`` attribute when creating ``SourceFile`` instances for reported issues. |
+| ``config_manager`` | Configuration manager. Use ``config_manager.root`` to get the project root directory. |
+| ``context`` | Project context with parsed files, keyword definitions, keyword usages and resolved imports. |
+
+!!! note
+
+    ``source`` passed to ``self.report()`` must be a ``SourceFile`` instance, not a ``Path`` or a string.
+
+!!! note
+
+    The ``context`` argument was added in Robocop 8.9.0. Checkers that only accept ``project_source_file`` and
+    ``config_manager`` are still supported and are called without the context.
+
+### Project context
+
+``ProjectContext`` holds everything Robocop collected from the project:
+
+```python
+for project_file in context.iter_files():
+    project_file.path        # path to the source file
+    project_file.is_suite    # True if the file contains *** Test Cases *** section
+    project_file.keywords    # keyword definitions with parsed [Arguments]
+    project_file.usages      # places where keywords are called
+    project_file.variables   # variables from the *** Variables *** section
+    project_file.imports     # resolved Library, Resource and Variables imports
+
+# find keyword definitions matching the name, including keywords with embedded arguments
+definitions = context.keywords.find("Login As bob")
+```
+
+Imports are resolved to paths using variables from the ``*** Variables ***`` section of the importing file and
+variables provided with the ``--variable`` option:
+
+```bash
+robocop check-project --variable RESOURCE_DIR:resources
+```
+
+Every import has a status: ``resolved`` (file exists), ``not_found`` (path was resolved but the file is missing),
+``unresolvable`` (name contains variables that cannot be resolved statically) or ``external`` (library that is not a
+file in the project). Rules should ignore ``unresolvable`` imports to avoid false positives on dynamically built
+paths.

@@ -143,6 +143,18 @@ language_option = Annotated[
         rich_help_panel="Other",
     ),
 ]
+variable_option = Annotated[
+    list[str] | None,
+    typer.Option(
+        "--variable",
+        "-v",
+        show_default=False,
+        metavar="NAME:VALUE",
+        help="Set variable used to resolve dynamic import paths, for example -v RESOURCE_DIR:resources . "
+        "Equivalent of the Robot Framework --variable option.",
+        rich_help_panel="Other",
+    ),
+]
 verbose_option = Annotated[
     bool | None,
     typer.Option(
@@ -491,6 +503,7 @@ def check_project(
         ),
     ] = False,
     root: project_root_option = None,
+    variable: variable_option = None,
     verbose: verbose_option = None,
     silent: silent_option = None,
 ) -> list[Diagnostic]:
@@ -521,6 +534,7 @@ def check_project(
         formatter=None,
         file_filters=file_filters,
         language=language,
+        variables=parser.parse_variables(variable),
         verbose=verbose,
         silent=silent,
         target_version=target_version,

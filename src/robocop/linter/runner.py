@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import inspect
 from pathlib import Path
 from typing import TYPE_CHECKING, NoReturn
 
@@ -16,6 +17,7 @@ from robocop.linter.reports import save_reports_result_to_cache
 from robocop.linter.utils.disablers import DisablersFinder
 from robocop.linter.utils.file_types import get_resource_with_lang
 from robocop.linter.utils.misc import is_suite_templated
+from robocop.project.context import build_project_context
 from robocop.runtime.resolver import ConfigResolver
 from robocop.source_file import SourceFile, VirtualSourceFile
 
@@ -25,6 +27,27 @@ if TYPE_CHECKING:
     from robocop.config.manager import ConfigManager
     from robocop.config.schema import Config
     from robocop.linter.diagnostics import Diagnostic
+    from robocop.linter.rules import ProjectChecker
+    from robocop.project.context import ProjectContext
+
+
+def accepts_project_context(checker_class: type[ProjectChecker]) -> bool:
+    """
+    Check if the checker's ``scan_project`` method accepts the project context.
+
+    Returns:
+        True if the context can be passed to the checker.
+
+    """
+    try:
+        signature = inspect.signature(checker_class.scan_project)
+    except (TypeError, ValueError):  # pragma: no cover - defensive
+        return False
+    parameters = list(signature.parameters.values())
+    if any(param.kind == inspect.Parameter.VAR_KEYWORD for param in parameters):
+        return True
+    # self, project_source_file, config_manager, context
+    return len(parameters) > 3 or "context" in signature.parameters
 
 
 class RobocopLinter:
@@ -202,9 +225,12 @@ class RobocopLinter:
         resolved_config = self.config_resolver.resolve_config(config)
         project_name = self.config_manager.root.name
         project_source_file = VirtualSourceFile(Path(project_name), self.config_manager.default_config)
+        context = build_project_context(self.config_manager, silent=config.silent)
+        if config.verbose and not config.silent:
+            print(f"Built project context from {len(context.files)} files.")
         for checker in resolved_config.project_checkers:
             checker.issues = []
-            checker.scan_project(project_source_file, self.config_manager)
+            self.call_scan_project(checker, project_source_file, context)
             self.diagnostics.extend(
                 [diagnostic for diagnostic in checker.issues if not (diagnostic.severity < config.linter.threshold)]
             )
@@ -212,6 +238,23 @@ class RobocopLinter:
         if config.linter.return_result:
             return self.diagnostics
         return self.return_with_exit_code(len(self.diagnostics))
+
+    def call_scan_project(
+        self,
+        checker: ProjectChecker,
+        project_source_file: VirtualSourceFile,
+        context: ProjectContext,
+    ) -> None:
+        """
+        Call ``scan_project`` on the checker, passing the project context if the checker accepts it.
+
+        Custom checkers written before the project context was introduced only accept two arguments. They are still
+        called, just without the context.
+        """
+        if accepts_project_context(type(checker)):
+            checker.scan_project(project_source_file, self.config_manager, context)
+        else:
+            checker.scan_project(project_source_file, self.config_manager)
 
     def return_with_exit_code(self, issues_count: int) -> NoReturn:
         """

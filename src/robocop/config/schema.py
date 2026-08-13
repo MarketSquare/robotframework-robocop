@@ -317,6 +317,9 @@ class RawConfig:
     formatter: RawFormatterConfig | None = None
     cache: RawCacheConfig | None = None
     language: list[str] | None = None
+    variables: dict[str, str] | None = None
+    variable_files: list[str] | None = None
+    python_path: list[str] | None = None
     force_exclude: bool | None = None
     verbose: bool | None = None
     silent: bool | None = None
@@ -333,6 +336,9 @@ class RawConfig:
             "cache",
             "cache_dir",
             "language",
+            "variables",
+            "variable_files",
+            "python_path",
             "force_exclude",
             "verbose",
             "silent",
@@ -368,6 +374,9 @@ class Config:
     formatter: FormatterConfig
     cache: CacheConfig
     languages: Languages | None
+    variables: dict[str, str]
+    variable_files: list[str]
+    python_path: list[str]
     force_exclude: bool
     verbose: bool
     silent: bool
@@ -391,6 +400,9 @@ class Config:
             and self.linter == other.linter
             and self.formatter == other.formatter
             and self.cache.enabled == other.cache.enabled
+            and self.variables == other.variables
+            and self.variable_files == other.variable_files
+            and self.python_path == other.python_path
             and self.verbose == other.verbose
             and self.silent == other.silent
             and self.target_version == other.target_version

@@ -341,6 +341,46 @@ This option accepts a major version of Robot Framework (4, 5, .. ):
 
 ---
 
+#### ``variables``
+
+Use ``--variable`` option to define variables used when resolving dynamic import paths. It is an equivalent of the
+Robot Framework ``--variable`` option and uses the same ``NAME:VALUE`` syntax.
+
+Project level rules resolve ``Resource``, ``Library`` and ``Variables`` import paths to files on the disk. If the
+path contains a variable that is not defined in the ``*** Variables ***`` section of the importing file, it can be
+provided using this option:
+
+```robotframework
+*** Settings ***
+Resource    ${RESOURCE_DIR}/common.resource
+```
+
+=== ":octicons-command-palette-24: cli"
+
+    ```bash
+    robocop check-project --variable RESOURCE_DIR:resources
+    robocop check-project -v RESOURCE_DIR:resources -v ENV:qa
+    ```
+
+=== ":material-file-cog-outline: toml"
+
+    ```toml
+    [tool.robocop.variables]
+    RESOURCE_DIR = "resources"
+    ENV = "qa"
+    ```
+
+Variables provided in the command line take precedence over variables from the configuration file, which take
+precedence over variables defined in the ``*** Variables ***`` section of the file itself.
+
+Built-in variables ``${CURDIR}``, ``${EXECDIR}`` and ``${TEMPDIR}`` are resolved automatically. Environment
+variables are supported using the ``%{NAME}`` and ``%{NAME=default}`` syntax.
+
+If a variable used in the import path cannot be resolved, the import is ignored instead of being reported, so
+dynamically built paths do not cause false positives.
+
+---
+
 ## Linter
 
 ### Selecting rules

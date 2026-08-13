@@ -1,0 +1,11 @@
+test.robot:3:13 IMP07 Imported resource file 'resources/missing.resource' does not exist
+   |
+ 1 | *** Settings ***
+ 2 | Resource    resources/common.resource
+ 3 | Resource    resources/missing.resource
+   |             ^^^^^^^^^^^^^^^^^^^^^^^^^^ IMP07
+ 4 | Resource    ${RESOURCE_DIR}/common.resource
+ 5 | Resource    ${UNDEFINED_DIR}/other.resource
+   |
+
+Found 1 issue.

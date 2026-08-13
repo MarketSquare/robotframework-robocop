@@ -21,6 +21,7 @@ if TYPE_CHECKING:
 
     from robocop.config.manager import ConfigManager
     from robocop.linter.diagnostics import Diagnostic
+    from robocop.project.context import ProjectContext
 
 
 class UnusedKeywords(ProjectChecker):
@@ -38,6 +39,7 @@ class UnusedKeywords(ProjectChecker):
         self,
         project_source_file: SourceFile | VirtualSourceFile,
         config_manager: ConfigManager,  # noqa: ARG002
+        context: ProjectContext | None = None,  # noqa: ARG002
     ) -> list[Diagnostic]:
         self.issues = []
         for robot_file in self.files.values():

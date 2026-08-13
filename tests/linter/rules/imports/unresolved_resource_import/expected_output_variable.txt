@@ -1,0 +1,4 @@
+test.robot:3:13 [W] IMP07 Imported resource file 'resources/missing.resource' does not exist
+test.robot:5:13 [W] IMP07 Imported resource file 'resources/other.resource' does not exist
+
+Found 2 issues.

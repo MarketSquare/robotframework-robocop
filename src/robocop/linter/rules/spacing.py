@@ -5,6 +5,7 @@ from __future__ import annotations
 import re
 from collections import Counter
 from contextlib import contextmanager
+from itertools import takewhile
 from typing import TYPE_CHECKING
 
 from robot.api import Token
@@ -20,7 +21,6 @@ from robocop.linter import sonar_qube
 from robocop.linter.fix import Fix, FixApplicability, FixAvailability, TextEdit
 from robocop.linter.rules import (
     FixableRule,
-    RawFileChecker,
     Rule,
     RuleParam,
     RuleSeverity,
@@ -82,6 +82,19 @@ class TrailingWhitespaceRule(FixableRule):
             applicability=FixApplicability.SAFE,
         )
 
+    def check(self, line: str, lineno: int) -> None:
+        if not self.enabled:
+            return
+        stripped_line = line.rstrip("\n\r")
+        if not stripped_line or stripped_line[-1] not in " \t":
+            return
+        whitespace_length = len(stripped_line) - len(stripped_line.rstrip())
+        self.report(
+            lineno=lineno,
+            col=len(stripped_line) - whitespace_length + 1,
+            end_col=len(stripped_line) + 1,
+        )
+
 
 class MissingTrailingBlankLineRule(Rule):
     """Missing trailing blank line at the end of file."""
@@ -96,6 +109,14 @@ class MissingTrailingBlankLineRule(Rule):
         clean_code=sonar_qube.CleanCodeAttribute.FORMATTED, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
     deprecated_names = ("1002",)
+
+    def check(self, lines: list[str]) -> None:
+        if not self.enabled or not lines:
+            return
+        last_line = lines[-1]
+        # blank last line is handled by too-many-trailing-blank-lines
+        if last_line.strip() and not last_line.endswith(("\n", "\r")):
+            self.report(lineno=len(lines), end_col=len(last_line) + 1)
 
 
 class EmptyLinesBetweenSectionsRule(Rule):
@@ -367,6 +388,17 @@ class TooManyTrailingBlankLinesRule(Rule):
         clean_code=sonar_qube.CleanCodeAttribute.FORMATTED, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
     deprecated_names = ("1010",)
+
+    def check(self, lines: list[str]) -> None:
+        if not self.enabled or not lines:
+            return
+        last_line = lines[-1]
+        if last_line in ("\n", "\r", "\r\n"):
+            self.report(lineno=len(lines) + 1, end_col=len(last_line) + 1)
+            return
+        trailing_empty_lines = takewhile(lambda line: not line.strip(), reversed(lines))
+        if sum(1 for _ in trailing_empty_lines) > 1:
+            self.report(lineno=len(lines), end_col=len(last_line) + 1)
 
 
 class MisalignedContinuationRule(Rule):
@@ -694,45 +726,6 @@ class FirstArgumentInNewLineRule(Rule):
         clean_code=sonar_qube.CleanCodeAttribute.CONVENTIONAL, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
     deprecated_names = ("1018",)
-
-
-class InvalidSpacingChecker(RawFileChecker):  # TODO merge, we can just use single RawFileChecker
-    """Checker for trailing spaces and lines."""
-
-    trailing_whitespace: TrailingWhitespaceRule
-    missing_trailing_blank_line: MissingTrailingBlankLineRule
-    too_many_trailing_blank_lines: TooManyTrailingBlankLinesRule
-
-    def parse_file(self) -> None:
-        super().parse_file()
-        if not self.lines:
-            return
-        last_line = self.lines[-1]
-        if last_line in ["\n", "\r", "\r\n"]:
-            self.report(self.too_many_trailing_blank_lines, lineno=len(self.lines) + 1, end_col=len(last_line) + 1)
-            return
-        empty_lines = 0
-        for line in self.lines[::-1]:
-            if not line.strip():
-                empty_lines += 1
-            else:
-                break
-            if empty_lines > 1:
-                self.report(self.too_many_trailing_blank_lines, lineno=len(self.lines), end_col=len(last_line) + 1)
-                return
-        if not empty_lines and not last_line.endswith(("\n", "\r")):
-            self.report(self.missing_trailing_blank_line, lineno=len(self.lines), end_col=len(last_line) + 1)
-
-    def check_line(self, line: str, lineno: int) -> None:
-        stripped_line = line.rstrip("\n\r")
-        if stripped_line and stripped_line[-1] in [" ", "\t"]:
-            whitespace_length = len(stripped_line) - len(stripped_line.rstrip())
-            self.report(
-                self.trailing_whitespace,
-                lineno=lineno,
-                col=len(stripped_line) - whitespace_length + 1,
-                end_col=len(stripped_line) + 1,
-            )
 
 
 class EmptyLinesChecker(VisitorChecker):

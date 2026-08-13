@@ -3,13 +3,43 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from robot.api import Token
+from robot.errors import VariableError
 from robot.variables.search import search_variable
 
 from robocop.linter import sonar_qube
 from robocop.linter.rules import Rule, RuleSeverity
+from robocop.linter.utils.misc import remove_variable_type_conversion, split_argument_default_value
 
 if TYPE_CHECKING:
-    from robot.parsing.model.blocks import KeywordCall
+    from robot.parsing.model.blocks import For, KeywordCall
+    from robot.parsing.model.statements import Arguments, Node
+
+
+def has_type_annotation(var_name: str) -> bool:
+    """
+    Check if variable has type annotation (contains ': ' followed by type).
+
+    Type conversion syntax is ``${var: type}`` - note the space after the colon,
+    as opposed to the embedded pattern ``${var:pattern}`` without the space.
+    """
+    return ": " in var_name
+
+
+def is_ignore_variable(var_name: str) -> bool:
+    """Check if variable is an ignore variable like ``${_}`` or ``${_name}``."""
+    # Strip variable markers like ${, @{, &{, %}
+    name = var_name.lstrip("$@&%{").rstrip("}")
+    name = remove_variable_type_conversion(name)
+    return name == "_" or name.startswith("_")
+
+
+def should_report_missing_type(var_name: str) -> bool:
+    """Check if variable is missing type annotation and should be reported."""
+    try:
+        var_match = search_variable(var_name, ignore_errors=True)
+    except VariableError:
+        return False
+    return bool(var_match.base) and not has_type_annotation(var_match.base) and not is_ignore_variable(var_match.base)
 
 
 class MissingSectionVariableTypeRule(Rule):
@@ -58,6 +88,19 @@ class MissingSectionVariableTypeRule(Rule):
         clean_code=sonar_qube.CleanCodeAttribute.CLEAR, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
 
+    def check(self, node: Node, token: Token) -> None:
+        """Check a variable name token from the variables section, a ``VAR`` statement or an assignment."""
+        if not self.enabled or not should_report_missing_type(token.value):
+            return
+        var_match = search_variable(token.value, ignore_errors=True)
+        self.report(
+            variable_name=var_match.match,
+            node=node,
+            lineno=token.lineno,
+            col=token.col_offset + 1,
+            end_col=token.end_col_offset + 1,
+        )
+
 
 class MissingArgumentTypeRule(Rule):
     """
@@ -95,6 +138,23 @@ class MissingArgumentTypeRule(Rule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.CLEAR, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
+
+    def check(self, node: Arguments) -> None:
+        if not self.enabled:
+            return
+        for arg in node.get_tokens(Token.ARGUMENT):
+            # Handle default values: ${arg: type}=default
+            arg_name, _ = split_argument_default_value(arg.value)
+            if not should_report_missing_type(arg_name):
+                continue
+            var_match = search_variable(arg_name, ignore_errors=True)
+            self.report(
+                variable_name=var_match.match,
+                node=node,
+                lineno=arg.lineno,
+                col=arg.col_offset + 1,
+                end_col=arg.col_offset + len(arg_name) + 1,
+            )
 
 
 class MissingForLoopVariableTypeRule(Rule):
@@ -135,6 +195,21 @@ class MissingForLoopVariableTypeRule(Rule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.CLEAR, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
+
+    def check(self, node: For) -> None:
+        if not self.enabled or node.header.errors:
+            return
+        for variable in node.header.get_tokens(Token.VARIABLE):
+            if not should_report_missing_type(variable.value):
+                continue
+            var_match = search_variable(variable.value, ignore_errors=True)
+            self.report(
+                variable_name=var_match.match,
+                node=node,
+                lineno=variable.lineno,
+                col=variable.col_offset + 1,
+                end_col=variable.end_col_offset + 1,
+            )
 
 
 class SetKeywordWithTypeRule(Rule):

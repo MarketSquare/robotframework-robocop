@@ -30,7 +30,6 @@ except ImportError:
 
 from robocop.linter import sonar_qube
 from robocop.linter.rules import (
-    RawFileChecker,
     Rule,
     RuleParam,
     RuleSeverity,
@@ -293,6 +292,44 @@ class LineTooLongRule(Rule):
     )
     deprecated_names = ("0508",)
     fix_suggestion = "Break long lines using the '...' continuation syntax."
+
+    def check(self, line: str, lineno: int) -> None:
+        if not self.enabled:
+            return
+        line = line.rstrip().expandtabs(4)
+        if len(line) <= self.line_length:
+            return
+        # the line is potentially too long, so we need to check if it can be false positive
+        if self.line_is_ignored(line):
+            return
+        if self.url_in_line(line):
+            return
+        line = self.strip_disablers(line)
+        if len(line) > self.line_length:
+            self.report(
+                line_length=len(line),
+                allowed_length=self.line_length,
+                lineno=lineno,
+                col=self.line_length,
+                end_col=len(line) + 1,
+                sev_threshold_value=len(line),
+            )
+
+    @staticmethod
+    def strip_disablers(line: str) -> str:
+        """Strip whole comments if it contains disabler."""
+        if "#" not in line:
+            return line
+        if "noqa" in line or "robocop:" in line or "fmt: " in line:
+            return line.split("# ", 1)[0].rstrip()
+        return line
+
+    def url_in_line(self, line: str) -> bool:
+        """Check if a line contains URL starting before the maximum line length."""
+        return bool(0 < line.find("://") < self.line_length)
+
+    def line_is_ignored(self, line: str) -> bool:
+        return bool(self.ignore_pattern and self.ignore_pattern.search(line))
 
 
 class EmptySectionRule(Rule):
@@ -1013,51 +1050,6 @@ class VariableNameLengthChecker(VisitorChecker):
         if (node.type is Token.EXCEPT) and (variable := node.header.get_token(Token.VARIABLE)):
             self.add_variable_to_scope(variable)
         self.generic_visit(node)  # continue to all branches
-
-
-class LineLengthChecker(RawFileChecker):
-    """Checker for the maximum length of a line."""
-
-    line_too_long: LineTooLongRule
-
-    def check_line(self, line: str, lineno: int) -> None:
-        line = line.rstrip().expandtabs(4)
-        if len(line) <= self.line_too_long.line_length:
-            return
-        # the line is potentially too long, so we need to check if it can be false positive
-        if self.line_is_ignored(line):
-            return
-        if self.url_in_line(line):
-            return
-        if self.line_too_long.ignore_pattern and self.line_too_long.ignore_pattern.search(line):
-            return
-        line = self.strip_disablers(line)
-        if len(line) > self.line_too_long.line_length:
-            self.report(
-                self.line_too_long,
-                line_length=len(line),
-                allowed_length=self.line_too_long.line_length,
-                lineno=lineno,
-                col=self.line_too_long.line_length,
-                end_col=len(line) + 1,
-                sev_threshold_value=len(line),
-            )
-
-    @staticmethod
-    def strip_disablers(line: str) -> str:
-        """Strip whole comments if it contains disabler."""
-        if "#" not in line:
-            return line
-        if "noqa" in line or "robocop:" in line or "fmt: " in line:
-            return line.split("# ", 1)[0].rstrip()
-        return line
-
-    def url_in_line(self, line: str) -> bool:
-        """Check if a line contains URL starting before the maximum line length."""
-        return bool(0 < line.find("://") < self.line_too_long.line_length)
-
-    def line_is_ignored(self, line: str) -> bool:
-        return bool(self.line_too_long.ignore_pattern) and self.line_too_long.ignore_pattern.search(line)
 
 
 class EmptySectionChecker(VisitorChecker):

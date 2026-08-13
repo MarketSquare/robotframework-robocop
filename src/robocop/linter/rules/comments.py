@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import re
-from codecs import BOM_UTF8, BOM_UTF16_BE, BOM_UTF16_LE, BOM_UTF32_BE, BOM_UTF32_LE
 from typing import TYPE_CHECKING, ClassVar
 
 from robot.api import Token, get_tokens
@@ -11,7 +10,6 @@ from robot.parsing.model.statements import Documentation
 
 from robocop.linter import sonar_qube
 from robocop.linter.rules import (
-    RawFileChecker,
     Rule,
     RuleParam,
     RuleSeverity,
@@ -20,8 +18,6 @@ from robocop.linter.rules import (
 from robocop.version_handling import ROBOT_VERSION
 
 if TYPE_CHECKING:
-    from pathlib import Path
-
     from robot.parsing.model import Keyword, Statement, TestCase
     from robot.parsing.model.blocks import CommentSection
     from robot.parsing.model.statements import Comment
@@ -222,6 +218,36 @@ class IgnoredDataRule(Rule):
     )
     deprecated_names = ("0704",)
 
+    SECTION_HEADER = "***"
+    IGNORE_DIRECTIVES = ("# robocop:", "# fmt:")
+    LANGUAGE_HEADER = "language:"
+
+    def check(self, lines: list[str], is_bom: bool) -> None:
+        """Scan lines preceding the first section header and report them as ignored data."""
+        if not self.enabled:
+            return
+        # ignore empty lines if the language header or robocop disabler is present
+        ignore_empty_lines = False
+        for lineno, line in enumerate(lines, start=1):
+            if line.startswith(self.SECTION_HEADER):
+                return
+            if line.startswith(self.IGNORE_DIRECTIVES):
+                ignore_empty_lines = True
+                continue
+            if lineno == 1:
+                if line.lower().startswith(self.LANGUAGE_HEADER):
+                    ignore_empty_lines = True
+                    continue
+                if is_bom:
+                    # if it's BOM encoded file, the first line can be ignored
+                    if "***" in line:
+                        return
+                    continue
+            if ignore_empty_lines and not line.strip():
+                continue
+            self.report(lineno=lineno, col=1, end_col=len(line.rstrip()) + 1)
+            return
+
 
 class BomEncodingRule(Rule):
     """
@@ -247,6 +273,11 @@ class BomEncodingRule(Rule):
         issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL,
     )
     deprecated_names = ("0705",)
+
+    def check(self, is_bom: bool) -> None:
+        if not self.enabled or not is_bom:
+            return
+        self.report(lineno=1, col=1)
 
 
 class CommentedOutCodeRule(Rule):
@@ -578,55 +609,3 @@ class CommentChecker(VisitorChecker):
 
     def is_block_comment(self, comment: str) -> bool:
         return comment == "#" or self.missing_space_after_comment.block.match(comment) is not None
-
-
-class IgnoredDataChecker(RawFileChecker):
-    """Checker for ignored data."""
-
-    ignored_data: IgnoredDataRule
-    bom_encoding_in_file: BomEncodingRule
-
-    BOM = [BOM_UTF32_BE, BOM_UTF32_LE, BOM_UTF8, BOM_UTF16_LE, BOM_UTF16_BE]
-    SECTION_HEADER = "***"
-    IGNORE_DIRECTIVES = ("# robocop:", "# fmt:")
-    LANGUAGE_HEADER = "language:"
-
-    def __init__(self) -> None:
-        self.is_bom = False
-        self.ignore_empty_lines = False  # ignore empty lines if the language header or robocop disabler is present
-        super().__init__()
-
-    def parse_file(self) -> None:
-        self.is_bom = False
-        self.ignore_empty_lines = False
-        self.detect_bom(self.source_file.path)
-        if not self.ignored_data.enabled:
-            return
-        for lineno, line in enumerate(self.source_file.source_lines, start=1):
-            if self.check_line(line, lineno):
-                break
-
-    def check_line(self, line: str, lineno: int) -> bool:  # type: ignore[override]
-        if line.startswith(self.SECTION_HEADER):
-            return True
-        if line.startswith(self.IGNORE_DIRECTIVES):
-            self.ignore_empty_lines = True
-            return False
-        if lineno == 1:
-            if line.lower().startswith(self.LANGUAGE_HEADER):
-                self.ignore_empty_lines = True
-                return False
-            if self.is_bom:
-                # if it's BOM encoded file, first line can be ignored
-                return "***" in line
-        if self.ignore_empty_lines and not line.strip():
-            return False
-        self.report(self.ignored_data, lineno=lineno, col=1, end_col=len(line.rstrip()) + 1)
-        return True
-
-    def detect_bom(self, source: Path) -> None:
-        with open(source, "rb") as raw_file:
-            first_four = raw_file.read(4)
-            self.is_bom = any(first_four.startswith(bom_marker) for bom_marker in IgnoredDataChecker.BOM)
-            if self.is_bom:
-                self.report(self.bom_encoding_in_file, lineno=1, col=1)

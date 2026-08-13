@@ -35,12 +35,15 @@ the existing per-file ignores (e.g. `tests/*` skip annotations/asserts, `src/rob
 The two core features are the **linter** (`src/robocop/linter/`) and the **formatter** (`src/robocop/formatter/`). Both
 are driven through `src/robocop/run.py` (the Typer CLI) and share configuration in `src/robocop/config/`.
 
-- **Linter** (`linter/`): `runner.py` orchestrates parsing and checker execution. Rules live in `linter/rules/*.py`,
-  each module grouped by category (e.g. `comments.py`, `naming.py`, `spacing.py`, `variables.py`). Checkers subclass
-  one of the base classes in `linter/rules/__init__.py`:
+- **Linter** (`linter/`): `runner.py` orchestrates parsing and checker execution. Rule definitions live in
+  `linter/rules/*.py` and the checkers that visit the code live in `linter/checkers/*.py`, both grouped by category
+  (e.g. `comments.py`, `naming.py`, `spacing.py`, `variables.py`); a checker module imports the rule module of the
+  same name. `linter/rules/` is purely declarative (rules, rule parameters and small helpers) — it never imports
+  checkers. Checkers subclass one of the base classes in `linter/rules/__init__.py`:
   - `VisitorChecker` — walks the Robot Framework AST (`ModelVisitor`).
   - `RawFileChecker` — inspects raw file lines (for things parsing can't express).
   - `ProjectChecker` / `AfterRunChecker` — run once after all files are processed.
+  A checker visits each file once, gathering data, and delegates the decision logic to `check()` methods on the rules.
   Diagnostics are produced via `linter/diagnostics.py`; auto-fixes via `linter/fix.py`; reports (e.g. SonarQube,
   summary tables) live in `linter/reports/`.
 - **Formatter** (`formatter/`): each transformer is its own `CamelCase` file under `formatter/formatters/` (e.g.

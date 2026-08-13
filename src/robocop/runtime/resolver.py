@@ -211,7 +211,8 @@ def can_run_in_robot_version(formatter: Formatter, overwritten: bool, target_ver
 
 class LinterImporter:
     def __init__(self, external_rules_paths: list[str] | None = None) -> None:
-        self.internal_checkers_dir = Path(__file__).parent.parent / "linter" / "rules"
+        self.internal_checkers_dir = Path(__file__).parent.parent / "linter" / "checkers"
+        self.internal_rules_dir = Path(__file__).parent.parent / "linter" / "rules"
         self.external_rules_paths = external_rules_paths if external_rules_paths else []
         self.imported_modules: set[str] = set()
         self.seen_modules: set[types.ModuleType] = set()
@@ -223,14 +224,36 @@ class LinterImporter:
             yield from self._get_initialized_checkers_from_module(module)
         yield from self._get_checkers_from_modules(self.get_external_modules())
 
-    def get_internal_modules(self) -> Generator[types.ModuleType, None, None]:
-        rules_package_name = "robocop.linter.rules."
-        # when robocop is used as module (in pytest or in IDE tools) we need to clear previously imported rules
+    @staticmethod
+    def _purge_internal_modules() -> None:
+        """
+        Remove previously imported checkers and rules from the module cache.
+
+        When robocop is used as a module (in pytest or in IDE tools) the rule classes would otherwise be reused
+        between the runs, and any configuration applied to their parameters would leak into the next run.
+        """
         for mod in list(sys.modules.keys()):
-            if mod.startswith(rules_package_name):
+            if mod.startswith(("robocop.linter.checkers.", "robocop.linter.rules.")):
                 del sys.modules[mod]
-        for _, module_name, _ in pkgutil.iter_modules([str(self.internal_checkers_dir)]):
-            yield importlib.import_module(f"{rules_package_name}{module_name}")
+
+    @staticmethod
+    def _import_package_modules(package_name: str, directory: Path) -> Generator[types.ModuleType, None, None]:
+        for _, module_name, _ in pkgutil.iter_modules([str(directory)]):
+            yield importlib.import_module(f"{package_name}{module_name}")
+
+    def get_internal_modules(self) -> Generator[types.ModuleType, None, None]:
+        """Import internal modules with the checkers. Rules are imported by the checkers themselves."""
+        self._purge_internal_modules()
+        # rules have to be reimported first: `from robocop.linter.rules import <module>` inside a checker would
+        # otherwise resolve to the stale module still referenced by the rules package
+        for _ in self._import_package_modules("robocop.linter.rules.", self.internal_rules_dir):
+            pass
+        yield from self._import_package_modules("robocop.linter.checkers.", self.internal_checkers_dir)
+
+    def get_internal_rule_modules(self) -> Generator[types.ModuleType, None, None]:
+        """Import internal modules with the rule definitions."""
+        self._purge_internal_modules()
+        yield from self._import_package_modules("robocop.linter.rules.", self.internal_rules_dir)
 
     def get_external_modules(self) -> Generator[types.ModuleType, None, None]:
         for ext_rule_path in self.external_rules_paths:
@@ -390,7 +413,7 @@ class DocumentationImporter(LinterImporter):
     """Import Robocop internal classes for documentation generation."""
 
     def get_builtin_rules(self) -> Generator[tuple[str, Rule], None, None]:
-        for module in self.get_internal_modules():
+        for module in self.get_internal_rule_modules():
             module_name = module.__name__.split(".")[-1]
             classes = inspect.getmembers(module, inspect.isclass)
             rules = [rule[1]() for rule in classes if is_rule(rule)]

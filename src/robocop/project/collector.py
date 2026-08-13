@@ -2,16 +2,18 @@
 
 from __future__ import annotations
 
+import ast
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
 
 from robot.api import Token
 from robot.api.parsing import ModelVisitor
-from robot.parsing.model.statements import Arguments, Tags
+from robot.parsing.model.statements import Arguments, Statement, Tags
 from robot.variables.search import search_variable
 
 from robocop.linter.utils.misc import normalize_robot_name
 from robocop.parsing.run_keywords import iterate_keyword_calls
+from robocop.parsing.variables import VariableMatches  # type: ignore[attr-defined]
 from robocop.project.definitions import (
     ArgumentsSpec,
     ImportType,
@@ -31,7 +33,6 @@ if TYPE_CHECKING:
         LibraryImport,
         ResourceImport,
         Setup,
-        Statement,
         Template,
         Variable,
         VariablesImport,
@@ -39,6 +40,7 @@ if TYPE_CHECKING:
 
 
 DEFAULT_BDD_PREFIXES = frozenset({"Given", "When", "Then", "And", "But"})
+VARIABLE_VALUE_TOKENS = (Token.ARGUMENT, Token.NAME, Token.KEYWORD, Token.OPTION)
 
 
 @dataclass
@@ -61,6 +63,8 @@ class CollectedFile:
     keywords: list[KeywordDefinition] = field(default_factory=list)
     usages: list[KeywordUsage] = field(default_factory=list)
     variables: list[VariableDefinition] = field(default_factory=list)
+    used_variables: set[str] = field(default_factory=set)
+    """Normalized names of variables used anywhere in the file."""
     imports: list[RawImport] = field(default_factory=list)
 
 
@@ -85,6 +89,9 @@ class ProjectFileCollector(ModelVisitor):  # type: ignore[misc]
 
         """
         self.visit(model)
+        for node in ast.walk(model):
+            if isinstance(node, Statement):
+                self._collect_used_variables(node)
         return self.collected
 
     def _location(self, node: Statement | Keyword, name_length: int | None = None) -> Location:
@@ -96,6 +103,15 @@ class ProjectFileCollector(ModelVisitor):  # type: ignore[misc]
             col=col,
             end_lineno=node.lineno,
             end_col=end_col,
+        )
+
+    def _token_location(self, token: Token) -> Location:
+        return Location(
+            source=self.collected.path,
+            lineno=token.lineno,
+            col=token.col_offset + 1,
+            end_lineno=token.lineno,
+            end_col=token.end_col_offset + 1,
         )
 
     def visit_TestCaseSection(self, node: Section) -> None:  # noqa: N802
@@ -148,7 +164,7 @@ class ProjectFileCollector(ModelVisitor):  # type: ignore[misc]
                 name=match.base,
                 normalized_name=normalize_robot_name(match.base),
                 value=values[0] if len(values) == 1 else None,
-                location=self._location(node),
+                location=self._token_location(name_token),
             )
         )
 
@@ -175,6 +191,17 @@ class ProjectFileCollector(ModelVisitor):  # type: ignore[misc]
 
     def visit_VariablesImport(self, node: VariablesImport) -> None:  # noqa: N802
         self._add_import(ImportType.VARIABLES, node)
+
+    def _collect_used_variables(self, node: Statement) -> None:
+        """Record variables used in the statement."""
+        for token in node.get_tokens(*VARIABLE_VALUE_TOKENS):
+            self._add_used_variables(token.value)
+
+    def _add_used_variables(self, value: str) -> None:
+        for match in VariableMatches(value, ignore_errors=True):
+            if match.base:
+                self.collected.used_variables.add(normalize_robot_name(match.base))
+                self._add_used_variables(match.base)
 
     def _add_usages(self, node: Statement, name_token_type: str) -> None:
         for call in iterate_keyword_calls(node, name_token_type):

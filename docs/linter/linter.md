@@ -109,7 +109,15 @@ robocop check-project --select unused-keyword --select invalid-argument-count
 ```
 
 Robocop builds the project context by parsing every source file, resolving ``Resource`` imports and indexing keyword
-definitions and keyword calls. No library is imported and no user code is executed.
+definitions, keyword calls and variables. No library is imported and no user code is executed.
+
+Currently available project level rules are:
+
+- ``unresolved-resource-import`` - imported resource file does not exist,
+- ``unused-keyword`` - user keyword is never called in the project,
+- ``invalid-argument-count`` - keyword is called with a number of arguments its ``[Arguments]`` do not accept,
+- ``unused-resource-import`` - nothing from the imported resource file is used,
+- ``duplicated-variable-in-project`` - the same variable is defined in multiple files visible together.
 
 Import paths often contain variables. Provide them with the ``--variable`` option so that the imports can be resolved:
 

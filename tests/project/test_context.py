@@ -129,3 +129,47 @@ class TestUsageArguments:
         assert by_name["Common Keyword"].arguments == ("1",)
         assert by_name["Common Keyword"].argument_count == 1
         assert by_name["Login As bob"].arguments == ()
+
+
+class TestUsedVariables:
+    def test_defined_but_never_used_variable(self, context, project):
+        project_file = context.get_file(project / "test.robot")
+        assert "greeting" not in project_file.used_variables
+
+    def test_variables_used_in_resource(self, context, project):
+        resource = context.get_file(project / "resources" / "common.resource")
+        assert {"a", "user"} <= resource.used_variables
+
+    def test_variable_definition_is_not_usage(self, tmp_path):
+        (tmp_path / "vars.robot").write_text("*** Variables ***\n${ONLY_DEFINED}    value\n")
+        config_manager = ConfigManager(sources=[str(tmp_path)], root=tmp_path, ignore_file_config=True)
+        context = build_project_context(config_manager, silent=True)
+        project_file = context.get_file(tmp_path / "vars.robot")
+        assert "onlydefined" not in project_file.used_variables
+
+    def test_variable_used_as_value_of_other_variable(self, tmp_path):
+        (tmp_path / "vars.robot").write_text("*** Variables ***\n${A}    value\n${B}    ${A}-suffix\n")
+        config_manager = ConfigManager(sources=[str(tmp_path)], root=tmp_path, ignore_file_config=True)
+        context = build_project_context(config_manager, silent=True)
+        project_file = context.get_file(tmp_path / "vars.robot")
+        assert "a" in project_file.used_variables
+
+    def test_nested_variables_are_collected(self, tmp_path):
+        (tmp_path / "test.robot").write_text("*** Test Cases ***\nTest\n    Log    ${outer.${inner}}\n")
+        config_manager = ConfigManager(sources=[str(tmp_path)], root=tmp_path, ignore_file_config=True)
+        context = build_project_context(config_manager, silent=True)
+        used = context.get_file(tmp_path / "test.robot").used_variables
+        assert "inner" in used
+
+
+class TestDynamicKeywordCalls:
+    def test_no_dynamic_calls(self, context, project):
+        assert not context.get_file(project / "test.robot").has_dynamic_keyword_calls
+
+    def test_dynamic_call_detected(self, tmp_path):
+        (tmp_path / "test.robot").write_text(
+            "*** Variables ***\n${KW}    Log\n\n*** Test Cases ***\nTest\n    Run Keyword    ${KW}\n"
+        )
+        config_manager = ConfigManager(sources=[str(tmp_path)], root=tmp_path, ignore_file_config=True)
+        context = build_project_context(config_manager, silent=True)
+        assert context.get_file(tmp_path / "test.robot").has_dynamic_keyword_calls

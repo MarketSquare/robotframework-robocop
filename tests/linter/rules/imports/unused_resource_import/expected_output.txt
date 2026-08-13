@@ -1,0 +1,3 @@
+test.robot:3:13 [I] IMP05 Imported resource file 'resources/unused.resource' is not used
+
+Found 1 issue.

@@ -1,0 +1,17 @@
+other.resource:2:1 DUP11 Variable 'browser' is also defined in 'common.resource' (line 2)
+   |
+ 1 | *** Variables ***
+ 2 | ${browser}    chrome
+   | ^^^^^^^^^^ DUP11
+   |
+
+test.robot:6:1 DUP11 Variable 'BROWSER' is also defined in 'common.resource' (line 2)
+   |
+ 4 |
+ 5 | *** Variables ***
+ 6 | ${BROWSER}    edge
+   | ^^^^^^^^^^ DUP11
+ 7 | ${LOCAL}    value
+   |
+
+Found 2 issues.

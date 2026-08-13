@@ -60,6 +60,16 @@ class ProjectFile:
     def variables(self) -> list[VariableDefinition]:
         return self.collected.variables
 
+    @property
+    def used_variables(self) -> set[str]:
+        """Normalized names of variables used anywhere in this file."""
+        return self.collected.used_variables
+
+    @property
+    def has_dynamic_keyword_calls(self) -> bool:
+        """Whether the file calls a keyword using a name built from a variable."""
+        return any(usage.name_contains_variable for usage in self.usages)
+
     def resource_imports(self) -> Iterator[ResolvedImport]:
         """
         Iterate over resource imports of this file.

@@ -283,3 +283,37 @@ class DuplicatedSettingRule(Rule):
         clean_code=sonar_qube.CleanCodeAttribute.DISTINCT, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
     deprecated_names = ("0813",)
+
+
+class DuplicatedVariableInProjectRule(Rule):
+    """
+    Variable with the same name defined in multiple files visible together.
+
+    Robot Framework does not report an error when the same variable is defined in a suite and in a resource file
+    imported by it, or in two resource files imported by the same suite. The value used at runtime depends on the
+    import order, which makes such duplications a common source of hard to debug problems.
+
+    Example of rule violation:
+
+        *** Settings ***
+        Resource    variables.resource
+
+        *** Variables ***
+        ${BROWSER}    firefox  # variables.resource also defines ${BROWSER}
+
+    Only variables defined in the ``*** Variables ***`` section are compared. Variable names are normalized, so
+    ``${my var}``, ``${MY_VAR}`` and ``${myvar}`` are treated as the same variable.
+
+    This rule is a project level rule and is only reported by the ``robocop check-project`` command.
+
+    """
+
+    name = "duplicated-variable-in-project"
+    rule_id = "DUP11"
+    message = "Variable '{name}' is also defined in '{first_source}' (line {first_occurrence_line})"
+    severity = RuleSeverity.WARNING
+    enabled = False
+    added_in_version = "8.9.0"
+    sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
+        clean_code=sonar_qube.CleanCodeAttribute.DISTINCT, issue_type=sonar_qube.SonarQubeIssueType.BUG
+    )

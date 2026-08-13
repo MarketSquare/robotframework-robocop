@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING, TypeVar
 from robot.api import Token
 
 from robocop.linter import sonar_qube
-from robocop.linter.rules import Rule, RuleSeverity, VisitorChecker, arguments, order, variables
+from robocop.linter.rules import Rule, RuleSeverity, VisitorChecker, order, variables
 from robocop.linter.utils.misc import (
     normalize_robot_name,
     normalize_robot_var_name,
@@ -20,7 +20,6 @@ if TYPE_CHECKING:
     from robot.parsing import File
     from robot.parsing.model.blocks import Keyword, TestCase, VariableSection
     from robot.parsing.model.statements import (
-        Arguments,
         Error,
         KeywordCall,
         LibraryImport,
@@ -299,7 +298,6 @@ class DuplicationsChecker(VisitorChecker):
     duplicated_library: DuplicatedLibraryRule
     duplicated_metadata: DuplicatedMetadataRule
     duplicated_variables_import: DuplicatedVariablesImportRule
-    duplicated_argument_name: arguments.DuplicatedArgumentRule
     duplicated_assigned_var_name: variables.DuplicatedAssignedVarNameRule
     duplicated_setting: DuplicatedSettingRule
 
@@ -422,23 +420,6 @@ class DuplicationsChecker(VisitorChecker):
             return
         name_with_args = node.name + "".join(token.value for token in node.data_tokens[2:])
         self.variable_imports[name_with_args].append(node)
-
-    def visit_Arguments(self, node: Arguments) -> None:  # noqa: N802
-        args = set()
-        for arg in node.get_tokens(Token.ARGUMENT):
-            orig, *_ = arg.value.split("=", maxsplit=1)
-            name = normalize_robot_var_name(orig, strip_type=TYPE_SUPPORTED)
-            if name in args:  # TODO could be handled with other variables rules
-                self.report(
-                    self.duplicated_argument_name,
-                    argument_name=orig,
-                    node=node,
-                    lineno=arg.lineno,
-                    col=arg.col_offset + 1,
-                    end_col=arg.col_offset + len(orig) + 1,
-                )
-            else:
-                args.add(name)
 
     def visit_Error(self, node: Error) -> None:  # noqa: N802
         for error in node.errors:

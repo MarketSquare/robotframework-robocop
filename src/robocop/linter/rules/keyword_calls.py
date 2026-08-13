@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING
 
 from robot.api import Token
 
-from robocop.linter.rules import VisitorChecker, deprecated, errors, keywords, lengths, whitespace
+from robocop.linter.rules import VisitorChecker, arguments, deprecated, errors, keywords, lengths, whitespace
 from robocop.linter.utils.misc import normalize_robot_name
 from robocop.version_handling import ROBOT_VERSION
 
@@ -28,9 +28,11 @@ class KeywordCallChecker(VisitorChecker):
     deprecated_return_keyword: deprecated.DeprecatedReturnKeyword
     replace_set_variable_with_var: deprecated.ReplaceSetVariableWithVarRule
     replace_create_with_var: deprecated.ReplaceCreateWithVarRule
+    undefined_argument_value: arguments.UndefinedArgumentValueRule
 
     def visit_KeywordCall(self, node: KeywordCall) -> None:  # noqa: N802
         self.missing_keyword_name.check(node)
+        self.undefined_argument_value.check(node)
         # not allowed keyword is also checked for nested run keywords, even if the keyword name is empty
         self.not_allowed_keyword.check(node, Token.KEYWORD)
         if not node.keyword:  # keyword name can be empty if the syntax is invalid

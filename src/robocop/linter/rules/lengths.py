@@ -35,7 +35,6 @@ from robocop.linter.rules import (
     RuleSeverity,
     SeverityThreshold,
     VisitorChecker,
-    arguments,
 )
 from robocop.linter.utils.misc import (
     RETURN_CLASSES,
@@ -1273,34 +1272,3 @@ class TestCaseNumberChecker(VisitorChecker):  # TODO: good example of checker th
                 end_col=node.header.end_col_offset,
                 sev_threshold_value=discovered_testcases,
             )
-
-
-class TooManyArgumentsInLineChecker(VisitorChecker):
-    arguments_per_line: arguments.ArgumentsPerLineRule
-
-    def visit_Arguments(self, node: Arguments) -> None:  # noqa: N802
-        any_cont_token = node.get_token(Token.CONTINUATION)
-        if not any_cont_token:  # only one line, ignoring
-            return
-        max_args = self.arguments_per_line.max_args
-        for line in node.lines:
-            args_count = sum(1 for token in line if token.type == Token.ARGUMENT)
-            if args_count > max_args:
-                data_token = self.first_non_sep(line)
-                last_token = line[-1]
-                if data_token:
-                    self.report(
-                        self.arguments_per_line,
-                        node=data_token,
-                        col=data_token.col_offset + 1,
-                        end_col=last_token.end_col_offset,
-                        arguments_count=args_count,
-                        max_arguments_count=max_args,
-                    )
-
-    @staticmethod
-    def first_non_sep(line: list[Token]) -> Token | None:
-        for token in line:
-            if token.type != Token.SEPARATOR:
-                return token
-        return None

@@ -7,8 +7,14 @@ can be moved here.
 
 from __future__ import annotations
 
+import re
+from typing import TYPE_CHECKING, ClassVar
+
 from robocop.linter import sonar_qube
 from robocop.linter.rules import Rule, RuleSeverity
+
+if TYPE_CHECKING:
+    from robot.parsing.model.statements import KeywordCall
 
 
 class NotEnoughWhitespaceAfterSettingRule(Rule):
@@ -54,6 +60,32 @@ class NotEnoughWhitespaceAfterSettingRule(Rule):
         clean_code=sonar_qube.CleanCodeAttribute.COMPLETE, issue_type=sonar_qube.SonarQubeIssueType.BUG
     )
     deprecated_names = ("0402",)
+
+    headers: ClassVar[set[str]] = {
+        "arguments",
+        "documentation",
+        "setup",
+        "timeout",
+        "teardown",
+        "template",
+        "tags",
+    }
+    setting_pattern = re.compile(r"\[\s?(\w+)\s?\]")
+
+    def check(self, node: KeywordCall) -> None:
+        """Invalid settings like '[Arguments] ${var}' will be parsed as keyword call."""
+        if not self.enabled:
+            return
+        match = self.setting_pattern.match(node.keyword)
+        if not match:
+            return
+        if match.group(1).lower() in self.headers:
+            self.report(
+                setting_name=match.group(0),
+                node=node,
+                col=node.data_tokens[0].col_offset + 1,
+                end_col=node.data_tokens[0].end_col_offset + 1,
+            )
 
 
 class NotEnoughWhitespaceAfterNewlineMarkerRule(Rule):

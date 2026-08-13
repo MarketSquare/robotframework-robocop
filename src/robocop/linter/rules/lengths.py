@@ -52,7 +52,7 @@ from robocop.version_handling import TYPE_SUPPORTED
 if TYPE_CHECKING:
     from robot.parsing import File
     from robot.parsing.model.blocks import For, Section, Try, VariableSection
-    from robot.parsing.model.statements import Node, Return, Statement
+    from robot.parsing.model.statements import Node, Statement
 
 
 class TooLongKeywordRule(Rule):
@@ -364,6 +364,26 @@ class NumberOfReturnedValuesRule(Rule):
         clean_code=sonar_qube.CleanCodeAttribute.FOCUSED, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
     deprecated_names = ("0510",)
+
+    def check(self, return_count: int, node: Node) -> None:
+        if not self.enabled or return_count <= self.max_returns:
+            return
+        self.report(
+            return_count=return_count,
+            max_allowed_count=self.max_returns,
+            node=node,
+            col=node.data_tokens[0].col_offset + 1,
+            end_col=node.data_tokens[0].end_col_offset + 1,
+            sev_threshold_value=return_count,
+        )
+
+    def check_keyword_call(self, node: KeywordCall, normalized_keyword_name: str) -> None:
+        if not self.enabled:
+            return
+        if normalized_keyword_name == "returnfromkeyword":
+            self.check(len(node.args), node)
+        elif normalized_keyword_name == "returnfromkeywordif":
+            self.check(len(node.args) - 1, node)
 
 
 class EmptyMetadataRule(Rule):
@@ -1072,39 +1092,6 @@ class EmptySectionChecker(VisitorChecker):
 
     def visit_Section(self, node: Section) -> None:  # noqa: N802
         self.check_if_empty(node)
-
-
-class NumberOfReturnedArgsChecker(VisitorChecker):
-    """Checker for number of returned values from a keyword."""
-
-    number_of_returned_values: NumberOfReturnedValuesRule
-
-    def visit_Return(self, node: Return) -> None:  # noqa: N802
-        self.check_node_returns(len(node.values), node)
-
-    visit_ReturnStatement = visit_ReturnSetting = visit_Return  # noqa: N815
-
-    def visit_KeywordCall(self, node: KeywordCall) -> None:  # noqa: N802
-        if not node.keyword:
-            return
-
-        normalized_name = normalize_robot_name(node.keyword, remove_prefix="builtin.")
-        if normalized_name == "returnfromkeyword":
-            self.check_node_returns(len(node.args), node)
-        elif normalized_name == "returnfromkeywordif":
-            self.check_node_returns(len(node.args) - 1, node)
-
-    def check_node_returns(self, return_count: int, node: Node) -> None:
-        if return_count > self.number_of_returned_values.max_returns:
-            self.report(
-                self.number_of_returned_values,
-                return_count=return_count,
-                max_allowed_count=self.number_of_returned_values.max_returns,
-                node=node,
-                col=node.data_tokens[0].col_offset + 1,
-                end_col=node.data_tokens[0].end_col_offset + 1,
-                sev_threshold_value=return_count,
-            )
 
 
 class EmptySettingsChecker(VisitorChecker):

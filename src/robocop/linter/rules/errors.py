@@ -56,6 +56,29 @@ class MissingKeywordNameRule(Rule):
         clean_code=sonar_qube.CleanCodeAttribute.COMPLETE, issue_type=sonar_qube.SonarQubeIssueType.BUG
     )
 
+    def check(self, node: KeywordCall) -> None:
+        if not self.enabled or node.keyword:
+            return
+        self.report(
+            node=node,
+            lineno=node.lineno,
+            col=node.data_tokens[0].col_offset + 1,
+            end_col=node.data_tokens[0].end_col_offset + 1,
+        )
+
+    def check_assign_without_keyword(self, node: EmptyLine) -> None:
+        """Values assigned in a line without a keyword name are parsed as an empty line."""
+        if not self.enabled or ROBOT_VERSION.major < 5:
+            return
+        assign_token = node.get_token(Token.ASSIGN)
+        if assign_token:
+            self.report(
+                node=node,
+                lineno=node.lineno,
+                col=assign_token.col_offset + 1,
+                end_col=node.data_tokens[0].end_col_offset + 1,
+            )
+
 
 class VariablesImportWithArgsRule(Rule):
     """
@@ -607,74 +630,6 @@ class ParsingErrorChecker(VisitorChecker):
                 node=node,
                 lineno=node.lineno,
                 end_col=node.end_col_offset,
-            )
-
-
-class TwoSpacesAfterSettingsChecker(VisitorChecker):
-    """Checker for not enough whitespaces after [Setting] header."""
-
-    not_enough_whitespace_after_setting: whitespace.NotEnoughWhitespaceAfterSettingRule
-
-    def __init__(self) -> None:
-        self.headers = {
-            "arguments",
-            "documentation",
-            "setup",
-            "timeout",
-            "teardown",
-            "template",
-            "tags",
-        }
-        self.setting_pattern = re.compile(r"\[\s?(\w+)\s?\]")
-        super().__init__()
-
-    def visit_KeywordCall(self, node: KeywordCall) -> None:  # noqa: N802
-        """Invalid settings like '[Arguments] ${var}' will be parsed as keyword call"""
-        if not node.keyword:
-            return
-
-        match = self.setting_pattern.match(node.keyword)
-        if not match:
-            return
-        if match.group(1).lower() in self.headers:
-            self.report(
-                self.not_enough_whitespace_after_setting,
-                setting_name=match.group(0),
-                node=node,
-                col=node.data_tokens[0].col_offset + 1,
-                end_col=node.data_tokens[0].end_col_offset + 1,
-            )
-
-
-class MissingKeywordName(VisitorChecker):  # TODO should be part of other checker
-    """Checker for missing keyword name."""
-
-    missing_keyword_name: MissingKeywordNameRule
-
-    def visit_File(self, node: File) -> None:  # noqa: N802
-        self.generic_visit(node)
-
-    def visit_EmptyLine(self, node: EmptyLine) -> None:  # noqa: N802
-        if ROBOT_VERSION.major < 5:
-            return
-        assign_token = node.get_token(Token.ASSIGN)
-        if assign_token:
-            self.report(
-                self.missing_keyword_name,
-                node=node,
-                lineno=node.lineno,
-                col=assign_token.col_offset + 1,
-                end_col=node.data_tokens[0].end_col_offset + 1,
-            )
-
-    def visit_KeywordCall(self, node: KeywordCall) -> None:  # noqa: N802
-        if not node.keyword:
-            self.report(
-                self.missing_keyword_name,
-                node=node,
-                lineno=node.lineno,
-                col=node.data_tokens[0].col_offset + 1,
-                end_col=node.data_tokens[0].end_col_offset + 1,
             )
 
 

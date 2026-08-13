@@ -1390,31 +1390,12 @@ class DeprecatedStatementChecker(VisitorChecker):
     deprecated_with_name: deprecated.DeprecatedWithNameRule
     deprecated_singular_header: deprecated.DeprecatedSingularHeaderRule
     deprecated_force_tags: deprecated.DeprecatedForceTagsRule
-    deprecated_run_keyword_if: deprecated.DeprecatedRunKeywordIfRule
-    deprecated_loop_keyword: deprecated.DeprecatedLoopKeywordRule
-    deprecated_return_keyword: deprecated.DeprecatedReturnKeyword
     deprecated_return_setting: deprecated.DeprecatedReturnSetting
-    replace_set_variable_with_var: deprecated.ReplaceSetVariableWithVarRule
-    replace_create_with_var: deprecated.ReplaceCreateWithVarRule
 
     def visit_Keyword(self, node: Keyword) -> None:  # noqa: N802
         self.context.keyword = node
         self.generic_visit(node)
         self.context.keyword = None
-
-    def visit_KeywordCall(self, node: KeywordCall) -> None:  # noqa: N802
-        self.check_if_keyword_is_deprecated(node.keyword, node)
-        self.check_keyword_can_be_replaced_with_var(node.keyword, node)
-
-    def visit_SuiteSetup(self, node: Setup) -> None:  # noqa: N802
-        self.check_if_keyword_is_deprecated(node.name, node)
-
-    visit_TestSetup = visit_Setup = visit_SuiteTeardown = visit_TestTeardown = visit_Teardown = visit_SuiteSetup  # noqa: N815
-
-    def visit_Template(self, node: Template) -> None:  # noqa: N802
-        self.check_if_keyword_is_deprecated(node.value, node)
-
-    visit_TestTemplate = visit_Template  # noqa: N815
 
     def visit_Return(self, node: Return) -> None:  # noqa: N802
         """For RETURN use visit_ReturnStatement - visit_Return will most likely visit RETURN in the future"""
@@ -1427,26 +1408,6 @@ class DeprecatedStatementChecker(VisitorChecker):
 
     def visit_ForceTags(self, node: ForceTags) -> None:  # noqa: N802
         self.deprecated_force_tags.check(node)
-
-    def check_if_keyword_is_deprecated(self, keyword_name: str | None, node: Node) -> None:
-        if not keyword_name:
-            return
-        normalized_keyword_name = utils.normalize_robot_name(keyword_name, remove_prefix="builtin.")
-        if not self.deprecated_run_keyword_if.check(node, keyword_name, normalized_keyword_name):
-            return
-        if not self.deprecated_loop_keyword.check(node, keyword_name, normalized_keyword_name):
-            return
-        if not self.deprecated_return_keyword.check(node, keyword_name, normalized_keyword_name):
-            return
-
-    def check_keyword_can_be_replaced_with_var(self, keyword_name: str | None, node: Node) -> None:
-        if ROBOT_VERSION.major < 7 or not keyword_name:
-            return
-        normalized = utils.normalize_robot_name(keyword_name, remove_prefix="builtin.")
-        if not self.replace_set_variable_with_var.check(node, keyword_name, normalized):
-            return
-        if not self.replace_create_with_var.check(node, keyword_name, normalized):
-            return
 
     def visit_LibraryImport(self, node: LibraryImport) -> None:  # noqa: N802
         self.deprecated_with_name.check(node)

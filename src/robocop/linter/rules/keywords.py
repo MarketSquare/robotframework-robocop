@@ -13,7 +13,7 @@ from robocop.parsing.run_keywords import iterate_keyword_names
 
 if TYPE_CHECKING:
     from robot.model import Keyword
-    from robot.parsing.model.statements import KeywordCall, Setup, Template
+    from robot.parsing.model.statements import KeywordCall, Setup
 
 
 def comma_separated_list(value: str | None) -> set[str]:
@@ -65,6 +65,32 @@ class SleepKeywordUsedRule(Rule):
     )
     deprecated_names = ("10001",)
 
+    def check(self, node: KeywordCall, normalized_keyword_name: str) -> None:
+        if not self.enabled or normalized_keyword_name != "sleep":
+            return
+        # retrieve sleep time: get first argument-like token from keyword node. Returns None if token does not exist
+        time_token = node.get_token(Token.ARGUMENT)
+        allowed_time = self.max_time
+        if allowed_time:
+            if not time_token:  # Sleep without time
+                return
+            try:
+                time_from_sleep = timestr_to_secs(time_token.value)
+            except ValueError:
+                # ignore invalid or not recognized time string
+                return
+            if allowed_time >= time_from_sleep:  # if Sleep time is less than an allowed maximum, we can ignore issue
+                return
+        # node can be multiline, ie Sleep ...  1 min -> report either just Sleep or multi-line report
+        duration_time = time_token.value if time_token else ""
+        name_token = node.get_token(Token.KEYWORD)
+        self.report(
+            duration_time=duration_time,
+            node=name_token,
+            col=name_token.col_offset + 1,
+            end_col=name_token.end_col_offset + 1,
+        )
+
 
 class NotAllowedKeywordRule(Rule):
     """
@@ -108,6 +134,32 @@ class NotAllowedKeywordRule(Rule):
         clean_code=sonar_qube.CleanCodeAttribute.CONVENTIONAL, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
     deprecated_names = ("10002",)
+
+    def check(self, node: KeywordCall | Setup, name_token_type: str) -> None:
+        """Check the keyword name together with the names of the nested run keywords."""
+        if not self.enabled:
+            return
+        for keyword in iterate_keyword_names(node, name_token_type):
+            self.check_keyword_name(keyword.value, keyword)
+
+    def check_keyword_name(self, name: str, keyword: Token) -> None:
+        if not self.enabled or not name:
+            return
+        not_allowed = self.keywords  # TODO: handle not set not allowed
+        normalized_name = normalize_robot_name(name)
+        if normalized_name not in not_allowed:
+            if "." not in normalized_name:
+                return
+            # handle possible library names (builtin.log)
+            normalized_name = normalized_name.split(".")[-1]
+            if normalized_name not in not_allowed:
+                return
+        self.report(
+            keyword=name,
+            node=keyword,
+            col=keyword.col_offset + 1,
+            end_col=keyword.end_col_offset + 1,
+        )
 
 
 class NoEmbeddedKeywordArgumentsRule(Rule):
@@ -162,95 +214,6 @@ class NoEmbeddedKeywordArgumentsRule(Rule):
         clean_code=sonar_qube.CleanCodeAttribute.CONVENTIONAL, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
     deprecated_names = ("10003",)
-
-
-class SleepKeywordUsedChecker(VisitorChecker):  # TODO: merge with a checker for keyword calls
-    """
-    Find and report the use of the Sleep keyword in tests and keywords.
-
-    If max_time is configured, it can be used to only report Sleep with time higher than configured value.
-
-    Sleep in Run Keyword variants and with BDD are ignored.
-    """
-
-    sleep_keyword_used: SleepKeywordUsedRule
-
-    def visit_KeywordCall(self, node: KeywordCall) -> None:  # noqa: N802
-        if not node.keyword:  # Keyword name can be empty if the syntax is invalid
-            return
-        # Robot Framework ignores a case, underscores and whitespace when searching for keywords
-        # It will match sleep, Sleep, BuiltIn.Sleep or S_leep. That's why we need to normalize name first
-        normalized_name = normalize_robot_name(node.keyword, remove_prefix="builtin.")
-        if normalized_name != "sleep":
-            return
-        # retrieve sleep time: get first argument-like token from keyword node. Returns None if token does not exist
-        time_token = node.get_token(Token.ARGUMENT)
-        allowed_time = self.sleep_keyword_used.max_time
-        if allowed_time:
-            if not time_token:  # Sleep without time
-                return
-            try:
-                time_from_sleep = timestr_to_secs(time_token.value)
-            except ValueError:
-                # ignore invalid or not recognized time string
-                return
-            if allowed_time >= time_from_sleep:  # if Sleep time is less than an allowed maximum, we can ignore issue
-                return
-        # node can be multiline, ie Sleep ...  1 min -> report either just Sleep or multi-line report
-        duration_time = time_token.value if time_token else ""
-        name_token = node.get_token(Token.KEYWORD)
-        self.report(
-            self.sleep_keyword_used,
-            duration_time=duration_time,
-            node=name_token,
-            col=name_token.col_offset + 1,
-            end_col=name_token.end_col_offset + 1,
-        )
-
-
-class NotAllowedKeyword(VisitorChecker):
-    not_allowed_keyword: NotAllowedKeywordRule
-
-    def check_keyword_naming_with_subkeywords(self, node: KeywordCall | Setup, name_token_type: str) -> None:
-        for keyword in iterate_keyword_names(node, name_token_type):
-            self.check_keyword_naming(keyword.value, keyword)
-
-    def check_keyword_naming(self, name: str, keyword: Token) -> None:
-        if not name:
-            return
-        not_allowed = self.not_allowed_keyword.keywords  # TODO: handle not set not allowed
-        normalized_name = normalize_robot_name(name)
-        if normalized_name not in not_allowed:
-            if "." not in normalized_name:
-                return
-            # handle possible library names (builtin.log)
-            normalized_name = normalized_name.split(".")[-1]
-            if normalized_name not in not_allowed:
-                return
-        self.report(
-            self.not_allowed_keyword,
-            keyword=name,
-            node=keyword,
-            col=keyword.col_offset + 1,
-            end_col=keyword.end_col_offset + 1,
-        )
-
-    def visit_Setup(self, node: Setup) -> None:  # noqa: N802
-        self.check_keyword_naming_with_subkeywords(node, Token.NAME)
-
-    visit_TestTeardown = visit_SuiteTeardown = visit_Teardown = visit_TestSetup = visit_SuiteSetup = visit_Setup  # noqa: N815
-
-    def visit_Template(self, node: Template) -> None:  # noqa: N802
-        # allow / disallow param
-        if node.value:
-            name_token = node.get_token(Token.NAME)
-            self.check_keyword_naming(node.value, name_token)
-        self.generic_visit(node)
-
-    visit_TestTemplate = visit_Template  # noqa: N815
-
-    def visit_KeywordCall(self, node: KeywordCall) -> None:  # noqa: N802
-        self.check_keyword_naming_with_subkeywords(node, Token.KEYWORD)
 
 
 class NoEmbeddedKeywordArgumentsChecker(VisitorChecker):  # TODO merge

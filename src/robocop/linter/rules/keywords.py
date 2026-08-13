@@ -7,7 +7,7 @@ from robot.errors import VariableError
 from robot.utils.robottime import timestr_to_secs
 
 from robocop.linter import sonar_qube
-from robocop.linter.rules import Rule, RuleParam, RuleSeverity, VisitorChecker
+from robocop.linter.rules import Rule, RuleParam, RuleSeverity
 from robocop.linter.utils.misc import normalize_robot_name
 from robocop.parsing.run_keywords import iterate_keyword_names
 
@@ -215,21 +215,17 @@ class NoEmbeddedKeywordArgumentsRule(Rule):
     )
     deprecated_names = ("10003",)
 
-
-class NoEmbeddedKeywordArgumentsChecker(VisitorChecker):  # TODO merge
-    no_embedded_keyword_arguments: NoEmbeddedKeywordArgumentsRule
-
-    def visit_Keyword(self, node: Keyword) -> None:  # noqa: N802
+    def check(self, node: Keyword) -> None:
+        if not self.enabled:
+            return
         name_token: Token = node.header.get_token(Token.KEYWORD_NAME)
         try:
             variable_tokens = [t for t in name_token.tokenize_variables() if t.type == Token.VARIABLE]
         except VariableError:
             return
-
         if not variable_tokens:
             return
         self.report(
-            self.no_embedded_keyword_arguments,
             node=name_token,
             end_col=name_token.end_col_offset + 1,
             arguments=", ".join([t.value for t in variable_tokens]),

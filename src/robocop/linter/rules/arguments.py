@@ -1,7 +1,16 @@
 from __future__ import annotations
 
+from typing import TYPE_CHECKING, ClassVar
+
+from robot.api import Token
+
 from robocop.linter import sonar_qube
 from robocop.linter.rules import Rule, RuleParam, RuleSeverity
+from robocop.linter.utils.misc import normalize_robot_var_name, split_argument_default_value
+from robocop.version_handling import TYPE_SUPPORTED
+
+if TYPE_CHECKING:
+    from robot.parsing.model.statements import Arguments, KeywordCall
 
 
 class UnusedArgumentRule(Rule):
@@ -84,6 +93,23 @@ class UndefinedArgumentDefaultRule(Rule):
     )
     deprecated_names = ("0932",)
 
+    def check(self, node: Arguments) -> None:
+        if not self.enabled:
+            return
+        for token in node.get_tokens(Token.ARGUMENT):
+            arg = token.value
+            arg_name, default_val = split_argument_default_value(arg)
+            if arg_name == arg:  # has no default
+                continue
+            if default_val == "":
+                self.report(
+                    node=token,
+                    lineno=token.lineno,
+                    col=token.col_offset + 1,
+                    end_col=token.col_offset + len(token.value) + 1,
+                    arg_name=arg_name,
+                )
+
 
 class UndefinedArgumentValueRule(Rule):
     r"""
@@ -115,6 +141,33 @@ class UndefinedArgumentValueRule(Rule):
         clean_code=sonar_qube.CleanCodeAttribute.CLEAR, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
     deprecated_names = ("0933",)
+
+    # used by AssertionEngine library
+    assertion_operators: ClassVar[set[str]] = {"==", "!=", "<", ">", "<=", ">=", "*=", "^=", "$=", "$"}
+
+    def check(self, node: KeywordCall) -> None:
+        if not self.enabled:
+            return
+        for token in node.get_tokens(Token.ARGUMENT):
+            arg = token.value
+            if arg in self.assertion_operators:
+                continue
+            if "=" not in arg or arg.startswith("="):  # is a positional arg
+                continue
+            arg_name, default_val = arg.split("=", maxsplit=1)
+            if arg_name.endswith("\\"):  # `=` is escaped
+                continue
+            if default_val != "":  # has a value
+                continue
+            # Falsly triggers if a positional argument ends with `=`
+            # The language server has the same behavior
+            self.report(
+                node=token,
+                lineno=token.lineno,
+                col=token.col_offset + 1,
+                end_col=token.col_offset + len(token.value) + 1,
+                arg_name=arg_name,
+            )
 
 
 class InvalidArgumentsRule(Rule):
@@ -172,6 +225,24 @@ class DuplicatedArgumentRule(Rule):
     )
     deprecated_names = ("0811",)
 
+    def check(self, node: Arguments) -> None:
+        if not self.enabled:
+            return
+        args: set[str] = set()
+        for arg in node.get_tokens(Token.ARGUMENT):
+            orig, *_ = arg.value.split("=", maxsplit=1)
+            name = normalize_robot_var_name(orig, strip_type=TYPE_SUPPORTED)
+            if name in args:  # TODO could be handled with other variables rules
+                self.report(
+                    argument_name=orig,
+                    node=node,
+                    lineno=arg.lineno,
+                    col=arg.col_offset + 1,
+                    end_col=arg.col_offset + len(orig) + 1,
+                )
+            else:
+                args.add(name)
+
 
 class ArgumentsPerLineRule(Rule):
     """
@@ -214,3 +285,30 @@ class ArgumentsPerLineRule(Rule):
     )
     deprecated_names = ("0532",)
     # TODO flag to allow for [Arguments] multiple args ine one line, just not in other ...
+
+    def check(self, node: Arguments) -> None:
+        if not self.enabled:
+            return
+        if not node.get_token(Token.CONTINUATION):  # only one line, ignoring
+            return
+        max_args = self.max_args
+        for line in node.lines:
+            args_count = sum(1 for token in line if token.type == Token.ARGUMENT)
+            if args_count <= max_args:
+                continue
+            data_token = self.first_non_sep(line)
+            if data_token:
+                self.report(
+                    node=data_token,
+                    col=data_token.col_offset + 1,
+                    end_col=line[-1].end_col_offset,
+                    arguments_count=args_count,
+                    max_arguments_count=max_args,
+                )
+
+    @staticmethod
+    def first_non_sep(line: list[Token]) -> Token | None:
+        for token in line:
+            if token.type != Token.SEPARATOR:
+                return token
+        return None

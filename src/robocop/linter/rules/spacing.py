@@ -36,7 +36,7 @@ if TYPE_CHECKING:
 
     from robot.parsing import File
     from robot.parsing.model import Block, Section
-    from robot.parsing.model.statements import Node, Statement
+    from robot.parsing.model.statements import Arguments, Node, Statement
 
     from robocop.linter.diagnostics import Diagnostic
 
@@ -727,6 +727,24 @@ class FirstArgumentInNewLineRule(Rule):
     )
     deprecated_names = ("1018",)
 
+    def check(self, node: Arguments) -> None:
+        if not self.enabled:
+            return
+        eol_already = None
+        for token in node.tokens:
+            if token.type == Token.EOL:
+                eol_already = token
+            elif token.type == Token.ARGUMENT:
+                if eol_already is not None:
+                    self.report(
+                        argument_name=token.value,
+                        lineno=eol_already.lineno,
+                        end_lineno=token.lineno,
+                        col=eol_already.end_col_offset,
+                        end_col=token.end_col_offset,
+                    )
+                return
+
 
 class EmptyLinesChecker(VisitorChecker):
     """Checker for invalid spacing."""
@@ -1364,25 +1382,3 @@ class LeftAlignedChecker(VisitorChecker):
                         col=indent + 1,
                     )
                     break
-
-
-class ArgumentsChecker(VisitorChecker):  # TODO merge!!, candidate to check inside rule
-    first_argument_in_new_line: FirstArgumentInNewLineRule
-
-    def visit_Arguments(self, node: Node) -> None:  # noqa: N802
-        eol_already = None
-        for t in node.tokens:
-            if t.type == Token.EOL:
-                eol_already = t
-                continue
-            if t.type == Token.ARGUMENT:
-                if eol_already is not None:
-                    self.report(
-                        self.first_argument_in_new_line,
-                        argument_name=t.value,
-                        lineno=eol_already.lineno,
-                        end_lineno=t.lineno,
-                        col=eol_already.end_col_offset,
-                        end_col=t.end_col_offset,
-                    )
-                return

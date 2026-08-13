@@ -1856,62 +1856,6 @@ class NonLocalVariableChecker(VisitorChecker):
         )
 
 
-class UndefinedArgumentDefaultChecker(VisitorChecker):
-    undefined_argument_default: arguments.UndefinedArgumentDefaultRule
-    undefined_argument_value: arguments.UndefinedArgumentValueRule
-    # used by AssertionEngine library
-    assertion_operators = {"==", "!=", "<", ">", "<=", ">=", "*=", "^=", "$=", "$"}
-
-    def visit_Arguments(self, node: Arguments) -> None:  # noqa: N802
-        for token in node.get_tokens(Token.ARGUMENT):
-            arg = token.value
-            arg_name, default_val = utils.split_argument_default_value(arg)
-
-            if arg_name == arg:
-                # has no default
-                continue
-
-            if default_val == "":
-                self.report(
-                    self.undefined_argument_default,
-                    node=token,
-                    lineno=token.lineno,
-                    col=token.col_offset + 1,
-                    end_col=token.col_offset + len(token.value) + 1,
-                    arg_name=arg_name,
-                )
-
-    def visit_KeywordCall(self, node: KeywordCall) -> None:  # noqa: N802
-        for token in node.get_tokens(Token.ARGUMENT):
-            arg = token.value
-
-            if arg in self.assertion_operators:
-                continue
-            if "=" not in arg or arg.startswith("="):
-                # Is a positional arg
-                continue
-
-            arg_name, default_val = arg.split("=", maxsplit=1)
-            if arg_name.endswith("\\"):
-                # `=` is escaped
-                continue
-
-            if default_val != "":
-                # Has a value
-                continue
-
-            # Falsly triggers if a positional argument ends with `=`
-            # The language server has the same behavior
-            self.report(
-                self.undefined_argument_value,
-                node=token,
-                lineno=token.lineno,
-                col=token.col_offset + 1,
-                end_col=token.col_offset + len(token.value) + 1,
-                arg_name=arg_name,
-            )
-
-
 class UnusedDiagnosticChecker(AfterRunChecker):
     unused_disabler: DisablerNotUsedRule
 

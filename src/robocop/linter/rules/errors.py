@@ -102,6 +102,11 @@ class VariablesImportWithArgsRule(Rule):
         clean_code=sonar_qube.CleanCodeAttribute.COMPLETE, issue_type=sonar_qube.SonarQubeIssueType.BUG
     )
 
+    def check(self, node: VariablesImport) -> None:
+        if node.name and node.name.endswith((".yaml", ".yml")) and node.get_token(Token.ARGUMENT):
+            eol = node.get_token(Token.EOL) or node
+            self.report(node=node, end_col=eol.end_col_offset)
+
 
 class InvalidContinuationMarkRule(Rule):
     """
@@ -631,14 +636,3 @@ class ParsingErrorChecker(VisitorChecker):
                 lineno=node.lineno,
                 end_col=node.end_col_offset,
             )
-
-
-class VariablesImportErrorChecker(VisitorChecker):  # TODO merge such visitors into one
-    """Checker for syntax error in variables import."""
-
-    variables_import_with_args: VariablesImportWithArgsRule
-
-    def visit_VariablesImport(self, node: VariablesImport) -> None:  # noqa: N802
-        if node.name and node.name.endswith((".yaml", ".yml")) and node.get_token(Token.ARGUMENT):
-            eol = node.get_token(Token.EOL) or node
-            self.report(self.variables_import_with_args, node=node, end_col=eol.end_col_offset)

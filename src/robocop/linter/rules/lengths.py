@@ -520,6 +520,21 @@ class NumberOfReturnedValuesRule(Rule):
             self.check(len(node.args) - 1, node)
 
 
+def report_empty_setting(rule: Rule, node: Statement) -> None:
+    """Report an empty setting that spans the whole statement."""
+    rule.report(node=node, col=node.col_offset + 1, end_col=node.end_col_offset)
+
+
+def report_empty_block_setting(rule: Rule, node: Statement, block_name: str) -> None:
+    """Report an empty setting whose message names the block (test case or keyword) it belongs to."""
+    rule.report(
+        block_name=block_name,
+        node=node,
+        col=node.data_tokens[0].col_offset + 1,
+        end_col=node.end_col_offset,
+    )
+
+
 class EmptyMetadataRule(Rule):
     """
     Metadata settings do not have any value set.
@@ -546,6 +561,10 @@ class EmptyMetadataRule(Rule):
     )
     deprecated_names = ("0511",)
 
+    def check(self, node: Statement) -> None:
+        if not node.name:
+            self.report(node=node, col=node.col_offset + 1)
+
 
 class EmptyDocumentationRule(Rule):
     """Documentation is empty."""
@@ -559,6 +578,10 @@ class EmptyDocumentationRule(Rule):
         clean_code=sonar_qube.CleanCodeAttribute.COMPLETE, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
     deprecated_names = ("0512",)
+
+    def check(self, node: Statement, block_name: str) -> None:
+        if not node.value:
+            report_empty_block_setting(self, node, block_name)
 
 
 class EmptyForceTagsRule(Rule):  # TODO: Rename/deprecate and replace with Test Tags
@@ -574,6 +597,10 @@ class EmptyForceTagsRule(Rule):  # TODO: Rename/deprecate and replace with Test 
     )
     deprecated_names = ("0513",)
 
+    def check(self, node: Statement) -> None:
+        if not node.values:
+            report_empty_setting(self, node)
+
 
 class EmptyDefaultTagsRule(Rule):
     """Default Tags are empty."""
@@ -587,6 +614,10 @@ class EmptyDefaultTagsRule(Rule):
         clean_code=sonar_qube.CleanCodeAttribute.COMPLETE, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
     deprecated_names = ("0514",)
+
+    def check(self, node: Statement) -> None:
+        if not node.values:
+            report_empty_setting(self, node)
 
 
 class EmptyVariablesImport(Rule):
@@ -602,6 +633,10 @@ class EmptyVariablesImport(Rule):
     )
     deprecated_names = ("0515",)
 
+    def check(self, node: Statement) -> None:
+        if not node.name:
+            report_empty_setting(self, node)
+
 
 class EmptyResourceImport(Rule):
     """Import resources path is empty."""
@@ -615,6 +650,10 @@ class EmptyResourceImport(Rule):
         clean_code=sonar_qube.CleanCodeAttribute.COMPLETE, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
     deprecated_names = ("0516",)
+
+    def check(self, node: Statement) -> None:
+        if not node.name:
+            report_empty_setting(self, node)
 
 
 class EmptyLibraryImport(Rule):
@@ -630,6 +669,10 @@ class EmptyLibraryImport(Rule):
     )
     deprecated_names = ("0517",)
 
+    def check(self, node: Statement) -> None:
+        if not node.name:
+            report_empty_setting(self, node)
+
 
 class EmptySetupRule(Rule):
     """Empty setup."""
@@ -643,6 +686,10 @@ class EmptySetupRule(Rule):
         clean_code=sonar_qube.CleanCodeAttribute.COMPLETE, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
     deprecated_names = ("0518",)
+
+    def check(self, node: Statement, block_name: str) -> None:
+        if not node.name:
+            report_empty_block_setting(self, node, block_name)
 
 
 class EmptySuiteSetupRule(Rule):
@@ -658,6 +705,10 @@ class EmptySuiteSetupRule(Rule):
     )
     deprecated_names = ("0519",)
 
+    def check(self, node: Statement) -> None:
+        if not node.name:
+            report_empty_setting(self, node)
+
 
 class EmptyTestSetupRule(Rule):
     """Empty Test Setup."""
@@ -671,6 +722,10 @@ class EmptyTestSetupRule(Rule):
         clean_code=sonar_qube.CleanCodeAttribute.COMPLETE, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
     deprecated_names = ("0520",)
+
+    def check(self, node: Statement) -> None:
+        if not node.name:
+            report_empty_setting(self, node)
 
 
 class EmptyTeardownRule(Rule):
@@ -686,6 +741,10 @@ class EmptyTeardownRule(Rule):
     )
     deprecated_names = ("0521",)
 
+    def check(self, node: Statement, block_name: str) -> None:
+        if not node.name:
+            report_empty_block_setting(self, node, block_name)
+
 
 class EmptySuiteTeardownRule(Rule):
     """Empty Suite Teardown."""
@@ -699,6 +758,10 @@ class EmptySuiteTeardownRule(Rule):
         clean_code=sonar_qube.CleanCodeAttribute.COMPLETE, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
     deprecated_names = ("0522",)
+
+    def check(self, node: Statement) -> None:
+        if not node.name:
+            report_empty_setting(self, node)
 
 
 class EmptyTestTeardownRule(Rule):
@@ -714,6 +777,10 @@ class EmptyTestTeardownRule(Rule):
     )
     deprecated_names = ("0523",)
 
+    def check(self, node: Statement) -> None:
+        if not node.name:
+            report_empty_setting(self, node)
+
 
 class EmptyTimeoutRule(Rule):
     """Empty Timeout."""
@@ -727,6 +794,10 @@ class EmptyTimeoutRule(Rule):
         clean_code=sonar_qube.CleanCodeAttribute.COMPLETE, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
     deprecated_names = ("0524",)
+
+    def check(self, node: Statement, block_name: str) -> None:
+        if not node.value:
+            report_empty_block_setting(self, node, block_name)
 
 
 class EmptyTestTimeoutRule(Rule):
@@ -742,6 +813,10 @@ class EmptyTestTimeoutRule(Rule):
     )
     deprecated_names = ("0525",)
 
+    def check(self, node: Statement) -> None:
+        if not node.value:
+            report_empty_setting(self, node)
+
 
 class EmptyArgumentsRule(Rule):
     """Empty ``[Arguments]`` setting."""
@@ -755,6 +830,10 @@ class EmptyArgumentsRule(Rule):
         clean_code=sonar_qube.CleanCodeAttribute.COMPLETE, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
     deprecated_names = ("0526",)
+
+    def check(self, node: Statement, block_name: str) -> None:
+        if not node.values:
+            report_empty_block_setting(self, node, block_name)
 
 
 class TooManyTestCasesRule(Rule):
@@ -815,6 +894,10 @@ class EmptyTestTemplateRule(Rule):
         clean_code=sonar_qube.CleanCodeAttribute.COMPLETE, issue_type=sonar_qube.SonarQubeIssueType.BUG
     )
 
+    def check(self, node: Statement) -> None:
+        if not node.value:
+            report_empty_setting(self, node)
+
 
 class EmptyTemplateRule(Rule):
     """
@@ -848,6 +931,10 @@ class EmptyTemplateRule(Rule):
     )
     deprecated_names = ("0530",)
 
+    def check(self, node: Statement, block_name: str) -> None:
+        if len(node.data_tokens) < 2:
+            report_empty_block_setting(self, node, block_name)
+
 
 class EmptyKeywordTagsRule(Rule):
     """Keyword Tags are empty."""
@@ -862,6 +949,10 @@ class EmptyKeywordTagsRule(Rule):
         clean_code=sonar_qube.CleanCodeAttribute.COMPLETE, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
     deprecated_names = ("0531",)
+
+    def check(self, node: Statement) -> None:
+        if not node.values:
+            report_empty_setting(self, node)
 
 
 class TooLongVariableNameRule(Rule):
@@ -1090,161 +1181,3 @@ class VariableNameLengthChecker(VisitorChecker):
         if (node.type is Token.EXCEPT) and (variable := node.header.get_token(Token.VARIABLE)):
             self.add_variable_to_scope(variable)
         self.generic_visit(node)  # continue to all branches
-
-
-class EmptySettingsChecker(VisitorChecker):
-    """Checker for detecting empty settings."""
-
-    empty_metadata: EmptyMetadataRule
-    empty_documentation: EmptyDocumentationRule
-    empty_force_tags: EmptyForceTagsRule
-    empty_default_tags: EmptyDefaultTagsRule
-    empty_variables_import: EmptyVariablesImport
-    empty_resource_import: EmptyResourceImport
-    empty_library_import: EmptyLibraryImport
-    empty_setup: EmptySetupRule
-    empty_suite_setup: EmptySuiteSetupRule
-    empty_test_setup: EmptyTestSetupRule
-    empty_teardown: EmptyTeardownRule
-    empty_suite_teardown: EmptySuiteTeardownRule
-    empty_test_teardown: EmptyTestTeardownRule
-    empty_timeout: EmptyTimeoutRule
-    empty_test_timeout: EmptyTestTimeoutRule
-    empty_template: EmptyTemplateRule
-    empty_test_template: EmptyTestTemplateRule
-    empty_arguments: EmptyArgumentsRule
-    empty_keyword_tags: EmptyKeywordTagsRule
-
-    def __init__(self) -> None:
-        self.parent_node_name = ""
-        super().__init__()
-
-    def visit_SettingSection(self, node: Statement) -> None:  # noqa: N802
-        self.parent_node_name = "Test Suite"
-        self.generic_visit(node)
-
-    def visit_TestCaseName(self, node: Statement) -> None:  # noqa: N802
-        if node.name:
-            self.parent_node_name = f"'{node.name}' Test Case"
-        else:
-            self.parent_node_name = ""
-        self.generic_visit(node)
-
-    def visit_Keyword(self, node: Keyword) -> None:  # noqa: N802
-        if node.name:
-            self.parent_node_name = f"'{node.name}' Keyword"
-        else:
-            self.parent_node_name = ""
-        self.generic_visit(node)
-
-    def visit_Metadata(self, node: Statement) -> None:  # noqa: N802
-        if not node.name:
-            self.report(self.empty_metadata, node=node, col=node.col_offset + 1)
-
-    def visit_Documentation(self, node: Documentation) -> None:  # noqa: N802
-        if not node.value:
-            self.report(
-                self.empty_documentation,
-                block_name=self.parent_node_name,
-                node=node,
-                col=node.data_tokens[0].col_offset + 1,
-                end_col=node.end_col_offset,
-            )
-
-    def visit_ForceTags(self, node: Statement) -> None:  # noqa: N802
-        if not node.values:
-            self.report(self.empty_force_tags, node=node, col=node.col_offset + 1, end_col=node.end_col_offset)
-
-    def visit_DefaultTags(self, node: Statement) -> None:  # noqa: N802
-        if not node.values:
-            self.report(self.empty_default_tags, node=node, col=node.col_offset + 1, end_col=node.end_col_offset)
-
-    def visit_KeywordTags(self, node: Statement) -> None:  # noqa: N802
-        if not node.values:
-            self.report(self.empty_keyword_tags, node=node, col=node.col_offset + 1, end_col=node.end_col_offset)
-
-    def visit_VariablesImport(self, node: Statement) -> None:  # noqa: N802
-        if not node.name:
-            self.report(self.empty_variables_import, node=node, col=node.col_offset + 1, end_col=node.end_col_offset)
-
-    def visit_ResourceImport(self, node: Statement) -> None:  # noqa: N802
-        if not node.name:
-            self.report(self.empty_resource_import, node=node, col=node.col_offset + 1, end_col=node.end_col_offset)
-
-    def visit_LibraryImport(self, node: Statement) -> None:  # noqa: N802
-        if not node.name:
-            self.report(self.empty_library_import, node=node, col=node.col_offset + 1, end_col=node.end_col_offset)
-
-    def visit_Setup(self, node: Statement) -> None:  # noqa: N802
-        if not node.name:
-            self.report(
-                self.empty_setup,
-                block_name=self.parent_node_name,
-                node=node,
-                col=node.data_tokens[0].col_offset + 1,
-                end_col=node.end_col_offset,
-            )
-
-    def visit_SuiteSetup(self, node: Statement) -> None:  # noqa: N802
-        if not node.name:
-            self.report(self.empty_suite_setup, node=node, col=node.col_offset + 1, end_col=node.end_col_offset)
-
-    def visit_TestSetup(self, node: Statement) -> None:  # noqa: N802
-        if not node.name:
-            self.report(self.empty_test_setup, node=node, col=node.col_offset + 1, end_col=node.end_col_offset)
-
-    def visit_Teardown(self, node: Statement) -> None:  # noqa: N802
-        if not node.name:
-            self.report(
-                self.empty_teardown,
-                block_name=self.parent_node_name,
-                node=node,
-                col=node.data_tokens[0].col_offset + 1,
-                end_col=node.end_col_offset,
-            )
-
-    def visit_SuiteTeardown(self, node: Statement) -> None:  # noqa: N802
-        if not node.name:
-            self.report(self.empty_suite_teardown, node=node, col=node.col_offset + 1, end_col=node.end_col_offset)
-
-    def visit_TestTeardown(self, node: Statement) -> None:  # noqa: N802
-        if not node.name:
-            self.report(self.empty_test_teardown, node=node, col=node.col_offset + 1, end_col=node.end_col_offset)
-
-    def visit_TestTemplate(self, node: Statement) -> None:  # noqa: N802
-        if not node.value:
-            self.report(self.empty_test_template, node=node, col=node.col_offset + 1, end_col=node.end_col_offset)
-
-    def visit_Template(self, node: Template) -> None:  # noqa: N802
-        if len(node.data_tokens) < 2:
-            self.report(
-                self.empty_template,
-                block_name=self.parent_node_name,
-                node=node,
-                col=node.data_tokens[0].col_offset + 1,
-                end_col=node.end_col_offset,
-            )
-
-    def visit_Timeout(self, node: Statement) -> None:  # noqa: N802
-        if not node.value:
-            self.report(
-                self.empty_timeout,
-                block_name=self.parent_node_name,
-                node=node,
-                col=node.data_tokens[0].col_offset + 1,
-                end_col=node.end_col_offset,
-            )
-
-    def visit_TestTimeout(self, node: Statement) -> None:  # noqa: N802
-        if not node.value:
-            self.report(self.empty_test_timeout, node=node, col=node.col_offset + 1, end_col=node.end_col_offset)
-
-    def visit_Arguments(self, node: Arguments) -> None:  # noqa: N802
-        if not node.values:
-            self.report(
-                self.empty_arguments,
-                block_name=self.parent_node_name,
-                node=node,
-                col=node.data_tokens[0].col_offset + 1,
-                end_col=node.end_col_offset,
-            )

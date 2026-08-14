@@ -333,8 +333,10 @@ class InvalidArgumentCountRule(Rule):
             [Arguments]    ${username}    ${password}
             Log    ${username}
 
-    Only user keywords defined in the project are checked. Keywords coming from libraries are ignored, because
-    Robocop does not import libraries and cannot know their arguments.
+    Keywords defined in the project are checked using the ``[Arguments]`` setting. Keywords coming from libraries
+    are checked as well, but only if the library analysis is enabled (it is by default). Robocop imports the
+    libraries to find out what arguments they accept, which means that the library code is executed. Use the
+    ``--no-analyze-libraries`` option to disable it, or ``--ignored-library`` to skip selected libraries.
 
     To avoid false positives, the call is not reported when:
 

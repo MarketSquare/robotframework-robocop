@@ -1,0 +1,7 @@
+test.robot:16:5 [E] ARG08 Keyword 'Keyword With Arguments' expects from 1 to 2 arguments but 0 provided, missing ${first}
+test.robot:17:5 [E] ARG08 Keyword 'Keyword With Arguments' expects from 1 to 2 arguments but 3 provided
+test.robot:18:5 [E] ARG08 Keyword 'Keyword Without Arguments' expects 0 arguments but 1 provided
+test.robot:19:5 [E] ARG08 Keyword 'Keyword With Named Only' expects 1 argument and named-only argument ${strict} but 1 provided, missing ${strict}
+test.robot:20:5 [E] ARG08 Keyword 'Append To List' expects at least 1 argument but 0 provided, missing ${list_}
+
+Found 5 issues.

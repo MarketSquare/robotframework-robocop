@@ -5,6 +5,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from robocop.linter.rules import ProjectChecker, imports
+from robocop.project.context import KeywordIndex
 from robocop.project.definitions import ImportStatus, ImportType
 from robocop.source_file import SourceFile
 
@@ -161,13 +162,17 @@ def _is_used(
     Check whether anything provided by the resource is used.
 
     Resources without keywords and variables are never reported, since they may be imported only for the imports
-    they make themselves.
+    they make themselves. Keywords coming from libraries are ignored, since the importing file can use them without
+    importing the resource.
 
     Returns:
         True if the resource provides nothing or if any of its keywords or variables is used.
 
     """
-    index = context.visible_keywords(resource.path)
+    index = KeywordIndex()
+    for keyword in context.visible_keywords(resource.path):
+        if not keyword.is_from_library:
+            index.add(keyword)
     variables = {
         variable.normalized_name for file in context.imported_files(resource.path) for variable in file.variables
     }

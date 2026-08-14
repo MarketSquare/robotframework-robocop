@@ -118,10 +118,10 @@ def _split_named_argument(argument: str) -> tuple[str, str] | None:
 @dataclass(frozen=True)
 class ArgumentsSpec:
     """
-    Argument specification of the user keyword, parsed from the ``[Arguments]`` setting.
+    Argument specification of the keyword.
 
-    The specification is built from the abstract syntax tree only. No library is imported and no user code is
-    executed to retrieve it.
+    For keywords defined in the project it is built from the ``[Arguments]`` setting using the abstract syntax tree
+    only. For keywords coming from libraries it is read from the imported library.
     """
 
     positional: tuple[str, ...] = ()
@@ -244,15 +244,21 @@ class ArgumentsSpec:
 
 @dataclass
 class KeywordDefinition:
-    """User keyword defined in a suite, resource file or an init file."""
+    """Keyword defined in a suite, resource file, init file or in an imported library."""
 
     name: str
     normalized_name: str
     location: Location
-    node: Keyword
+    node: Keyword | None = None
     arguments: ArgumentsSpec = field(default_factory=ArgumentsSpec)
     embedded: re.Pattern[str] | None = None
     is_private: bool = False
+    library_name: str | None = None
+    """Name of the library the keyword comes from. None for keywords defined in the project files."""
+
+    @property
+    def is_from_library(self) -> bool:
+        return self.library_name is not None
 
     @property
     def has_embedded_arguments(self) -> bool:
@@ -366,6 +372,12 @@ class ResolvedImport:
     path: Path | None = None
     node: LibraryImport | ResourceImport | VariablesImport | Statement | None = None
     error: str | None = None
+    args: tuple[str, ...] = ()
+    """Arguments of the ``Library`` import, with variables resolved."""
+    alias: str | None = None
+    """Name the library was imported with (``AS`` / ``WITH NAME``)."""
+    args_resolved: bool = True
+    """Whether all variables used in the import arguments could be resolved."""
 
     @property
     def is_resolved(self) -> bool:

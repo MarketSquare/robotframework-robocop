@@ -109,8 +109,15 @@ robocop check-project --select unused-keyword --select invalid-argument-count
 ```
 
 Robocop builds the project context by parsing every source file, resolving ``Resource`` imports and indexing keyword
-definitions, keyword calls and variables. No library is imported and no user code is executed, unless a Python
-variable file is provided with the ``--variablefile`` option.
+definitions, keyword calls and variables.
+
+!!! warning "The ``check-project`` command executes code"
+
+    Unlike the ``check`` command, ``check-project`` imports Robot Framework libraries to find out what keywords they
+    provide, and imports Python variable files provided with the ``--variablefile`` option. Both **execute the code**
+    of the imported file. Libraries are imported in a separate process with a timeout, and failures are ignored, so a
+    broken library never breaks the analysis. Library analysis can be disabled with ``--no-analyze-libraries`` and
+    single libraries can be skipped with ``--ignored-library``.
 
 Currently available project level rules are:
 
@@ -138,6 +145,18 @@ robocop check-project --pythonpath shared --pythonpath libs/*
 See [variables](../configuration/configuration_reference.md#variables),
 [variable-files](../configuration/configuration_reference.md#variable-files) and
 [python-path](../configuration/configuration_reference.md#python-path) for more details.
+
+Libraries are imported to check the keywords they provide. Every library is imported only once, in a separate
+process which is stopped if it takes longer than ``--load-library-timeout`` seconds (10 by default):
+
+```bash
+robocop check-project --no-analyze-libraries
+robocop check-project --ignored-library SeleniumLibrary --load-library-timeout 30
+```
+
+See [analyze-libraries](../configuration/configuration_reference.md#analyze-libraries),
+[load-library-timeout](../configuration/configuration_reference.md#load-library-timeout) and
+[ignored-libraries](../configuration/configuration_reference.md#ignored-libraries) for more details.
 
 Project checks can be added as custom rules. See [custom rules](custom_rules.md/#project-checks) for more details.
 

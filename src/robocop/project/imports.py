@@ -12,7 +12,7 @@ from __future__ import annotations
 
 from glob import glob
 from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from robot.errors import DataError
 from robot.libraries import STDLIBS
@@ -85,6 +85,8 @@ class ImportResolver:
         name: str,
         location: Location,
         base_dir: Path,
+        args: tuple[str, ...] = (),
+        alias: str | None = None,
     ) -> ResolvedImport:
         """
         Resolve a single import.
@@ -94,56 +96,61 @@ class ImportResolver:
             name: Import name as written in the source code.
             location: Position of the import in the source file.
             base_dir: Directory of the file containing the import.
+            args: Arguments of the ``Library`` or ``Variables`` import.
+            alias: Name the library was imported with (``AS`` / ``WITH NAME``).
 
         Returns:
             ResolvedImport describing the outcome.
 
         """
+        resolved_args, args_resolved = self._resolve_args(args)
+        common: dict[str, Any] = {
+            "import_type": import_type,
+            "name": name,
+            "location": location,
+            "args": resolved_args,
+            "alias": alias,
+            "args_resolved": args_resolved,
+        }
         resolved_name = self.replace_variables(name)
         if resolved_name is None:
             return ResolvedImport(
-                import_type=import_type,
-                name=name,
+                **common,
                 resolved_name=name,
                 status=ImportStatus.UNRESOLVABLE,
-                location=location,
                 error="Import name contains variables that cannot be resolved statically",
             )
         if import_type == ImportType.LIBRARY and self._is_module_library(resolved_name):
             path = self._find_module_library(resolved_name)
             if path is None:
-                return ResolvedImport(
-                    import_type=import_type,
-                    name=name,
-                    resolved_name=resolved_name,
-                    status=ImportStatus.EXTERNAL,
-                    location=location,
-                )
-            return ResolvedImport(
-                import_type=import_type,
-                name=name,
-                resolved_name=resolved_name,
-                status=ImportStatus.RESOLVED,
-                location=location,
-                path=path,
-            )
+                return ResolvedImport(**common, resolved_name=resolved_name, status=ImportStatus.EXTERNAL)
+            return ResolvedImport(**common, resolved_name=resolved_name, status=ImportStatus.RESOLVED, path=path)
         path = self._find_path(resolved_name, base_dir)
         if path is None:
-            return ResolvedImport(
-                import_type=import_type,
-                name=name,
-                resolved_name=resolved_name,
-                status=ImportStatus.NOT_FOUND,
-                location=location,
-            )
-        return ResolvedImport(
-            import_type=import_type,
-            name=name,
-            resolved_name=resolved_name,
-            status=ImportStatus.RESOLVED,
-            location=location,
-            path=path,
-        )
+            return ResolvedImport(**common, resolved_name=resolved_name, status=ImportStatus.NOT_FOUND)
+        return ResolvedImport(**common, resolved_name=resolved_name, status=ImportStatus.RESOLVED, path=path)
+
+    def _resolve_args(self, args: tuple[str, ...]) -> tuple[tuple[str, ...], bool]:
+        """
+        Replace variables in the import arguments.
+
+        Import arguments may change the keywords provided by the library, so they need to be known before importing
+        it. Arguments that cannot be resolved are kept as they are and reported with the second return value.
+
+        Returns:
+            Tuple with the resolved arguments and a flag telling whether all of them could be resolved.
+
+        """
+        resolved: list[str] = []
+        all_resolved = True
+        for arg in args:
+            replaced = self.replace_variables(arg)
+            if replaced is None:
+                all_resolved = False
+                resolved.append(arg)
+            else:
+                resolved.append(replaced)
+        return tuple(resolved), all_resolved
 
     @staticmethod
     def _is_module_library(name: str) -> bool:

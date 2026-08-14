@@ -51,6 +51,10 @@ class RawImport:
     name: str
     location: Location
     node: Statement
+    args: tuple[str, ...] = ()
+    """Arguments of the ``Library`` import."""
+    alias: str | None = None
+    """Name the library was imported with (``AS`` / ``WITH NAME``)."""
 
 
 @dataclass
@@ -180,7 +184,14 @@ class ProjectFileCollector(ModelVisitor):  # type: ignore[misc]
             end_col=name_token.end_col_offset + 1,
         )
         self.collected.imports.append(
-            RawImport(import_type=import_type, name=name_token.value, location=location, node=node)
+            RawImport(
+                import_type=import_type,
+                name=name_token.value,
+                location=location,
+                node=node,
+                args=tuple(getattr(node, "args", ()) or ()),
+                alias=getattr(node, "alias", None),
+            )
         )
 
     def visit_LibraryImport(self, node: LibraryImport) -> None:  # noqa: N802

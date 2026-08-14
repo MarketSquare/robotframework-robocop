@@ -444,6 +444,69 @@ paths in the configuration file are resolved against the configuration file.
 
 ---
 
+#### ``analyze-libraries``
+
+``robocop check-project`` imports Robot Framework libraries to find out what keywords they provide and what
+arguments those keywords accept. **Importing a library executes its code**, which is why it only happens in the
+opt-in ``check-project`` command. Every library is imported once, in a separate process with a timeout, and any
+failure is silently ignored - a library that cannot be imported simply provides no keywords.
+
+Use ``--no-analyze-libraries`` to disable it completely:
+
+=== ":octicons-command-palette-24: cli"
+
+    ```bash
+    robocop check-project --no-analyze-libraries
+    ```
+
+=== ":material-file-cog-outline: toml"
+
+    ```toml
+    [tool.robocop]
+    analyze-libraries = false
+    ```
+
+---
+
+#### ``load-library-timeout``
+
+Maximum time in seconds for importing a single library. Default is ``10``.
+
+=== ":octicons-command-palette-24: cli"
+
+    ```bash
+    robocop check-project --load-library-timeout 30
+    ```
+
+=== ":material-file-cog-outline: toml"
+
+    ```toml
+    [tool.robocop]
+    load-library-timeout = 30
+    ```
+
+---
+
+#### ``ignored-libraries``
+
+Libraries that should not be imported, for example because importing them is slow or has side effects.
+Glob patterns are supported.
+
+=== ":octicons-command-palette-24: cli"
+
+    ```bash
+    robocop check-project --ignored-library SeleniumLibrary --ignored-library Custom*
+    ```
+
+=== ":material-file-cog-outline: toml"
+
+    ```toml
+    [tool.robocop]
+    ignored-libraries = ["SeleniumLibrary", "Custom*"]
+    ```
+
+---
+
 ## Linter
 
 ### Selecting rules

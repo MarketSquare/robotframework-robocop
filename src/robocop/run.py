@@ -179,6 +179,35 @@ python_path_option = Annotated[
         rich_help_panel="Other",
     ),
 ]
+analyze_libraries_option = Annotated[
+    bool | None,
+    typer.Option(
+        "--analyze-libraries/--no-analyze-libraries",
+        show_default="--analyze-libraries",
+        help="Import Robot Framework libraries to check keywords they provide. Importing a library executes its code.",
+        rich_help_panel="Other",
+    ),
+]
+load_library_timeout_option = Annotated[
+    int | None,
+    typer.Option(
+        "--load-library-timeout",
+        show_default="10",
+        metavar="SECONDS",
+        help="Maximum time for importing a single library.",
+        rich_help_panel="Other",
+    ),
+]
+ignored_libraries_option = Annotated[
+    list[str] | None,
+    typer.Option(
+        "--ignored-library",
+        show_default=False,
+        metavar="NAME",
+        help="Library that should not be imported. Supports glob patterns, for example --ignored-library Selenium* .",
+        rich_help_panel="Other",
+    ),
+]
 verbose_option = Annotated[
     bool | None,
     typer.Option(
@@ -530,6 +559,9 @@ def check_project(
     variable: variable_option = None,
     variable_file: variable_file_option = None,
     python_path: python_path_option = None,
+    analyze_libraries: analyze_libraries_option = None,
+    load_library_timeout: load_library_timeout_option = None,
+    ignored_library: ignored_libraries_option = None,
     verbose: verbose_option = None,
     silent: silent_option = None,
 ) -> list[Diagnostic]:
@@ -563,6 +595,9 @@ def check_project(
         variables=parser.parse_variables(variable),
         variable_files=variable_file,
         python_path=python_path,
+        analyze_libraries=analyze_libraries,
+        load_library_timeout=load_library_timeout,
+        ignored_libraries=ignored_library,
         verbose=verbose,
         silent=silent,
         target_version=target_version,

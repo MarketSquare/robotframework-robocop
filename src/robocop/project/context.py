@@ -16,7 +16,11 @@ from robocop.linter.utils.misc import normalize_robot_name
 from robocop.project.collector import ProjectFileCollector
 from robocop.project.definitions import ImportStatus, ImportType, KeywordDefinition
 from robocop.project.imports import ImportResolver, build_search_paths
+from robocop.project.libraries import LibraryRequest, build_library_loader
 from robocop.project.variables import VariableScope
+
+BUILTIN_LIBRARY = LibraryRequest(name="BuiltIn")
+"""BuiltIn library is always available, without being imported."""
 
 if TYPE_CHECKING:
     from collections.abc import Iterator
@@ -25,6 +29,7 @@ if TYPE_CHECKING:
     from robocop.config.manager import ConfigManager
     from robocop.project.collector import CollectedFile
     from robocop.project.definitions import KeywordUsage, ResolvedImport, VariableDefinition
+    from robocop.project.libraries import LibraryLoader
     from robocop.source_file import SourceFile
 
 
@@ -82,6 +87,18 @@ class ProjectFile:
             if imported.import_type == ImportType.RESOURCE:
                 yield imported
 
+    def library_imports(self) -> Iterator[ResolvedImport]:
+        """
+        Iterate over library imports of this file.
+
+        Yields:
+            Resolved library imports.
+
+        """
+        for imported in self.imports:
+            if imported.import_type == ImportType.LIBRARY:
+                yield imported
+
 
 class KeywordIndex:
     """Index of keyword definitions in the whole project, allowing lookup by name."""
@@ -129,13 +146,16 @@ class ProjectContext:
         root: Root directory of the project.
         files: All parsed source files, keyed by resolved path.
         keywords: Index of all keyword definitions found in the project.
+        library_loader: Loader used to import libraries, or None when library analysis is disabled.
 
     """
 
     root: Path
     files: dict[Path, ProjectFile] = field(default_factory=dict)
     keywords: KeywordIndex = field(default_factory=KeywordIndex)
+    library_loader: LibraryLoader | None = None
     _visible_keywords: dict[Path, KeywordIndex] = field(default_factory=dict, repr=False)
+    _library_keywords: dict[Path, list[KeywordDefinition]] = field(default_factory=dict, repr=False)
 
     def get_file(self, path: Path) -> ProjectFile | None:
         """
@@ -185,7 +205,8 @@ class ProjectContext:
         Return index of keywords that can be called from given file.
 
         Contains keywords defined in the file itself and keywords from all transitively imported resources.
-        Private keywords of other files are not included.
+        Private keywords of other files are not included. If library analysis is enabled, keywords from imported
+        libraries are included as well.
 
         Returns:
             KeywordIndex with keywords visible from the file.
@@ -202,8 +223,37 @@ class ProjectContext:
                 if keyword.is_private and not is_own_file:
                     continue
                 index.add(keyword)
+            for keyword in self.library_keywords(project_file):
+                index.add(keyword)
         self._visible_keywords[resolved] = index
         return index
+
+    def library_keywords(self, project_file: ProjectFile) -> list[KeywordDefinition]:
+        """
+        Return keywords from libraries imported by given file.
+
+        Libraries are imported only once and only when this method is called for the first time, so nothing is
+        imported if no rule needs the library keywords.
+
+        Returns:
+            List of keywords provided by the imported libraries. Empty if library analysis is disabled.
+
+        """
+        if self.library_loader is None:
+            return []
+        resolved = project_file.path.resolve()
+        cached = self._library_keywords.get(resolved)
+        if cached is not None:
+            return cached
+        keywords: list[KeywordDefinition] = list(self.library_loader.load(BUILTIN_LIBRARY).keywords)
+        for imported in project_file.library_imports():
+            if imported.status not in (ImportStatus.RESOLVED, ImportStatus.EXTERNAL):
+                continue
+            spec = self.library_loader.load_import(imported)
+            if spec is not None:
+                keywords.extend(spec.keywords)
+        self._library_keywords[resolved] = keywords
+        return keywords
 
     def resolve_keyword(self, usage: KeywordUsage) -> list[KeywordDefinition]:
         """
@@ -272,6 +322,12 @@ def build_project_context(config_manager: ConfigManager, silent: bool = False) -
     context = ProjectContext(root=config_manager.root)
     config = config_manager.default_config
     search_paths = build_search_paths(config.python_path, config_manager.root)
+    if config.analyze_libraries:
+        context.library_loader = build_library_loader(
+            search_paths=search_paths,
+            timeout=config.load_library_timeout,
+            ignored_libraries=config.ignored_libraries,
+        )
     global_scope = VariableScope()
     global_scope.add_variable_files(config.variable_files, search_paths)
     global_scope.add_command_line(config.variables)
@@ -292,7 +348,7 @@ def build_project_context(config_manager: ConfigManager, silent: bool = False) -
         resolver = ImportResolver(scope, search_paths)
         base_dir = project_file.path.parent
         project_file.imports = [
-            resolver.resolve(raw.import_type, raw.name, raw.location, base_dir)
+            resolver.resolve(raw.import_type, raw.name, raw.location, base_dir, raw.args, raw.alias)
             for raw in project_file.collected.imports
         ]
         for keyword in project_file.keywords:

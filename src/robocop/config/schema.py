@@ -320,6 +320,9 @@ class RawConfig:
     variables: dict[str, str] | None = None
     variable_files: list[str] | None = None
     python_path: list[str] | None = None
+    analyze_libraries: bool | None = None
+    load_library_timeout: int | None = None
+    ignored_libraries: list[str] | None = None
     force_exclude: bool | None = None
     verbose: bool | None = None
     silent: bool | None = None
@@ -339,6 +342,9 @@ class RawConfig:
             "variables",
             "variable_files",
             "python_path",
+            "analyze_libraries",
+            "load_library_timeout",
+            "ignored_libraries",
             "force_exclude",
             "verbose",
             "silent",
@@ -383,6 +389,9 @@ class Config:
     variables: dict[str, str]
     variable_files: list[str]
     python_path: list[str]
+    analyze_libraries: bool
+    load_library_timeout: int
+    ignored_libraries: list[str]
     force_exclude: bool
     verbose: bool
     silent: bool
@@ -409,6 +418,9 @@ class Config:
             and self.variables == other.variables
             and self.variable_files == other.variable_files
             and self.python_path == other.python_path
+            and self.analyze_libraries == other.analyze_libraries
+            and self.load_library_timeout == other.load_library_timeout
+            and self.ignored_libraries == other.ignored_libraries
             and self.verbose == other.verbose
             and self.silent == other.silent
             and self.target_version == other.target_version

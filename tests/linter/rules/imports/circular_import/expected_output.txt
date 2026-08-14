@@ -1,0 +1,6 @@
+first.resource:2:13 [W] IMP08 Circular import: first.resource -> second.resource -> third.resource -> first.resource
+itself.resource:2:13 [W] IMP08 Circular import: itself.resource -> itself.resource
+second.resource:2:13 [W] IMP08 Circular import: second.resource -> third.resource -> first.resource -> second.resource
+third.resource:2:13 [W] IMP08 Circular import: third.resource -> first.resource -> second.resource -> third.resource
+
+Found 4 issues.

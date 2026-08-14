@@ -2,8 +2,10 @@
 
 from __future__ import annotations
 
+from collections import deque
 from typing import TYPE_CHECKING
 
+from robocop.files import path_relative_to_cwd
 from robocop.linter.rules import ProjectChecker, imports
 from robocop.project.context import KeywordIndex
 from robocop.project.definitions import ImportStatus, ImportType
@@ -147,6 +149,71 @@ class UnusedImportsChecker(ProjectChecker):
         if self._importers is None:
             self._importers = _build_importers(context)
         return self._importers.get(project_file.path.resolve(), [project_file])
+
+
+class CircularImports(ProjectChecker):
+    """Checker reporting resource imports that take part in a circular import."""
+
+    circular_import: imports.CircularImportRule
+
+    def scan_project(
+        self,
+        project_source_file: SourceFile | VirtualSourceFile,
+        config_manager: ConfigManager,  # noqa: ARG002
+        context: ProjectContext,
+    ) -> list[Diagnostic]:
+        self.issues = []
+        for project_file in context.iter_files():
+            own_path = project_file.path.resolve()
+            for imported in project_file.resource_imports():
+                if imported.status != ImportStatus.RESOLVED or imported.path is None:
+                    continue
+                imported_path = imported.path.resolve()
+                if imported_path not in context.files:
+                    continue
+                cycle = _path_back_to(context, imported_path, own_path)
+                if cycle is None:
+                    continue
+                self.report(
+                    self.circular_import,
+                    source=SourceFile(path=project_file.path, config=project_source_file.config),
+                    cycle=" -> ".join(str(path_relative_to_cwd(path)) for path in [own_path, *cycle]),
+                    lineno=imported.location.lineno,
+                    col=imported.location.col,
+                    end_lineno=imported.location.end_lineno,
+                    end_col=imported.location.end_col,
+                )
+        return self.issues
+
+
+def _path_back_to(context: ProjectContext, start: Path, target: Path) -> list[Path] | None:
+    """
+    Find the shortest chain of resource imports leading from the imported file back to the importing one.
+
+    Returns:
+        List of paths from the imported file to the target, or None if the target is not imported back.
+
+    """
+    queue: deque[tuple[Path, list[Path]]] = deque([(start, [start])])
+    seen = {start}
+    while queue:
+        current, chain = queue.popleft()
+        if current == target:
+            return chain
+        project_file = context.files.get(current)
+        if project_file is None:
+            continue
+        for imported in project_file.resource_imports():
+            if imported.status != ImportStatus.RESOLVED or imported.path is None:
+                continue
+            next_path = imported.path.resolve()
+            if next_path == target:
+                return [*chain, next_path]
+            if next_path in seen or next_path not in context.files:
+                continue
+            seen.add(next_path)
+            queue.append((next_path, [*chain, next_path]))
+    return None
 
 
 def _build_importers(context: ProjectContext) -> dict[Path, list[ProjectFile]]:

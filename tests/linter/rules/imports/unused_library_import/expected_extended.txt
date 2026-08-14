@@ -1,0 +1,18 @@
+resources${/}keywords.resource:2:12 IMP06 Imported library 'DateTime' is not used
+   |
+ 1 | *** Settings ***
+ 2 | Library    DateTime
+   |            ^^^^^^^^ IMP06
+   |
+
+test.robot:3:12 IMP06 Imported library 'OperatingSystem' is not used
+   |
+ 1 | *** Settings ***
+ 2 | Library    Collections
+ 3 | Library    OperatingSystem
+   |            ^^^^^^^^^^^^^^^ IMP06
+ 4 | Library    String    AS    Str
+ 5 | Library    NotExisting
+   |
+
+Found 2 issues.

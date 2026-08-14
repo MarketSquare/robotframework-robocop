@@ -242,3 +242,52 @@ class UnusedResourceImportRule(Rule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.CLEAR, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
+
+
+class UnusedLibraryImportRule(Rule):
+    """
+    Imported library is not used.
+
+    Reports library imports whose keywords are never used in the importing file.
+
+    Example of rule violation:
+
+        *** Settings ***
+        Library    Collections  # no keyword from this library is used
+
+        *** Test Cases ***
+        Test
+            Log    message
+
+    Keywords from a library imported in a resource file are available in every file importing that resource,
+    so the import is reported only when none of those files use any of its keywords.
+
+    The library is imported to find out what keywords it provides, which means this rule is only reported when
+    the library analysis is enabled (see the ``analyze-libraries`` option).
+
+    To avoid false positives, imports are not reported when:
+
+    - the library could not be imported, or is excluded with the ``ignored-libraries`` option,
+    - the library provides no keywords, since it may be imported for its side effects, for example to register
+      a listener,
+    - the importing file calls a keyword using a name built from a variable, because such call may come from any
+      library,
+    - the import path or arguments could not be resolved.
+
+    Libraries used only through ``Get Library Instance`` or imported dynamically with ``Import Library`` are
+    reported, since such usage cannot be detected from the source code.
+
+    This rule is a project level rule: it requires parsing the whole project. Selecting it makes ``robocop check``
+    analyze the project.
+
+    """
+
+    name = "unused-library-import"
+    rule_id = "IMP06"
+    message = "Imported library '{import_name}' is not used"
+    severity = RuleSeverity.INFO
+    enabled = False
+    added_in_version = "8.9.0"
+    sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
+        clean_code=sonar_qube.CleanCodeAttribute.CLEAR, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
+    )

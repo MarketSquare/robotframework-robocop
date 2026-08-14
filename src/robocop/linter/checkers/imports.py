@@ -49,6 +49,7 @@ class UnusedImportsChecker(ProjectChecker):
     """Checker reporting imports that are not used by the importing file."""
 
     unused_resource_import: imports.UnusedResourceImportRule
+    unused_library_import: imports.UnusedLibraryImportRule
 
     def __init__(self) -> None:
         super().__init__()
@@ -89,6 +90,38 @@ class UnusedImportsChecker(ProjectChecker):
                 self.unused_resource_import,
                 source=SourceFile(path=project_file.path, config=project_source_file.config),
                 import_name=imported.name,
+                lineno=imported.location.lineno,
+                col=imported.location.col,
+                end_lineno=imported.location.end_lineno,
+                end_col=imported.location.end_col,
+            )
+        self._check_libraries(project_file, project_source_file, context, used_keywords)
+
+    def _check_libraries(
+        self,
+        project_file: ProjectFile,
+        project_source_file: SourceFile | VirtualSourceFile,
+        context: ProjectContext,
+        used_keywords: set[str],
+    ) -> None:
+        """Report library imports whose keywords are not used."""
+        if context.library_loader is None:
+            return
+        for imported in project_file.library_imports():
+            if imported.status not in (ImportStatus.RESOLVED, ImportStatus.EXTERNAL):
+                continue
+            spec = context.library_loader.load_import(imported)
+            if spec is None or not spec.loaded or not spec.keywords:
+                continue
+            index = KeywordIndex()
+            for keyword in spec.keywords:
+                index.add(keyword)
+            if any(index.find(name) for name in used_keywords):
+                continue
+            self.report(
+                self.unused_library_import,
+                source=SourceFile(path=project_file.path, config=project_source_file.config),
+                import_name=imported.alias or imported.name,
                 lineno=imported.location.lineno,
                 col=imported.location.col,
                 end_lineno=imported.location.end_lineno,

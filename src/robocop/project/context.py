@@ -332,7 +332,7 @@ def build_project_context(config_manager: ConfigManager, silent: bool = False) -
     global_scope.add_variable_files(config.variable_files, search_paths)
     global_scope.add_command_line(config.variables)
 
-    for source_file in config_manager.paths:
+    for source_file in config_manager.project_paths:
         try:
             model = source_file.model
         except DataError as error:

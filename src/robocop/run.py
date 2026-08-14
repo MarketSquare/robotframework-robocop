@@ -21,7 +21,7 @@ from robocop.runtime.resolver import ConfigResolver
 class CliWithVersion(typer.core.TyperGroup):
     def list_commands(self, ctx: Any) -> list[str]:  # noqa: ARG002
         """Return the list of commands in the set order."""
-        commands = ["check", "check-project", "format", "list", "docs"]
+        commands = ["check", "format", "list", "docs"]
         for command in self.commands:
             if command not in commands:
                 commands.append(command)
@@ -179,13 +179,22 @@ python_path_option = Annotated[
         rich_help_panel="Other",
     ),
 ]
+project_option = Annotated[
+    bool | None,
+    typer.Option(
+        "--project/--no-project",
+        show_default="run project rules if any is enabled",
+        help="Run project level rules. They require parsing the whole project and are enabled by selecting them.",
+        rich_help_panel="Project analysis",
+    ),
+]
 analyze_libraries_option = Annotated[
     bool | None,
     typer.Option(
         "--analyze-libraries/--no-analyze-libraries",
         show_default="--analyze-libraries",
         help="Import Robot Framework libraries to check keywords they provide. Importing a library executes its code.",
-        rich_help_panel="Other",
+        rich_help_panel="Project analysis",
     ),
 ]
 load_library_timeout_option = Annotated[
@@ -195,7 +204,7 @@ load_library_timeout_option = Annotated[
         show_default="10",
         metavar="SECONDS",
         help="Maximum time for importing a single library.",
-        rich_help_panel="Other",
+        rich_help_panel="Project analysis",
     ),
 ]
 ignored_libraries_option = Annotated[
@@ -205,7 +214,7 @@ ignored_libraries_option = Annotated[
         show_default=False,
         metavar="NAME",
         help="Library that should not be imported. Supports glob patterns, for example --ignored-library Selenium* .",
-        rich_help_panel="Other",
+        rich_help_panel="Project analysis",
     ),
 ]
 verbose_option = Annotated[
@@ -430,13 +439,25 @@ def check_files(
         ),
     ] = False,
     root: project_root_option = None,
+    variable: variable_option = None,
+    variable_file: variable_file_option = None,
+    python_path: python_path_option = None,
+    project: project_option = None,
+    analyze_libraries: analyze_libraries_option = None,
+    load_library_timeout: load_library_timeout_option = None,
+    ignored_library: ignored_libraries_option = None,
     verbose: verbose_option = None,
     silent: silent_option = None,
     cache: cache_option = None,
     clear_cache: clear_cache_option = False,
     cache_dir: cache_dir_option = None,
 ) -> list[Diagnostic]:
-    """Lint Robot Framework files."""
+    """
+    Lint Robot Framework files.
+
+    Project level rules (such as unused-keyword) are run whenever any of them is enabled. They require parsing
+    the whole project, which is done from the project root even if only selected paths are linted.
+    """
     if gitlab:
         if not reports:
             reports = []
@@ -470,6 +491,13 @@ def check_files(
         file_filters=file_filters,
         cache=cache_config,
         language=language,
+        variables=parser.parse_variables(variable),
+        variable_files=variable_file,
+        python_path=python_path,
+        project=project,
+        analyze_libraries=analyze_libraries,
+        load_library_timeout=load_library_timeout,
+        ignored_libraries=ignored_library,
         silent=silent,
         verbose=verbose,
         target_version=target_version,
@@ -490,130 +518,16 @@ def check_files(
     return runner.run()
 
 
-@app.command(name="check-project")
-def check_project(
-    sources: sources_argument = None,
-    select: select_rules_option = None,
-    extend_select: extend_select_rules_option = None,
-    ignore: ignore_rules_option = None,
-    target_version: linter_target_version_option = None,
-    threshold: linter_threshold_option = None,
-    include: include_option = None,
-    default_include: default_include_option = None,
-    exclude: exclude_option = None,
-    default_exclude: default_exclude_option = None,
-    force_exclude: force_exclude_option = False,
-    configuration_file: config_option = None,
-    configure: linter_configure_option = None,
-    reports: reports_option = None,
-    issue_format: Annotated[
-        str | None,
-        typer.Option("--issue-format", show_default=defaults.DEFAULT_ISSUE_FORMAT, rich_help_panel="Other"),
-    ] = None,
-    language: language_option = None,
-    custom_rules: Annotated[
-        list[str] | None,
-        typer.Option("--custom-rules", help="Load custom rules", show_default=False, rich_help_panel="Selecting rules"),
-    ] = None,
-    ignore_git_dir: ignore_git_dir_option = False,
-    ignore_file_config: ignore_file_config_option = False,
-    skip_gitignore: Annotated[
-        bool | None, typer.Option(help="Do not skip files listed in .gitignore files", rich_help_panel="File discovery")
-    ] = False,
-    persistent: Annotated[
-        bool | None,
-        typer.Option(
-            help="Use this flag to save Robocop reports in cache directory for later comparison.",
-            rich_help_panel="Reports",
-        ),
-    ] = None,
-    compare: Annotated[
-        bool | None,
-        typer.Option(
-            help="Compare reports results with previous results (saved with --persistent)", rich_help_panel="Reports"
-        ),
-    ] = None,
-    gitlab: Annotated[
-        bool | None,
-        typer.Option(
-            help="Generate Gitlab Code Quality report. Equivalent of --reports gitlab",
-            rich_help_panel="Reports",
-        ),
-    ] = False,
-    exit_zero: Annotated[
-        bool | None,
-        typer.Option(
-            help="Always exit with 0 unless Robocop terminates abnormally.",
-            show_default="--no-exit-zero",
-            rich_help_panel="Other",
-        ),
-    ] = None,
-    return_result: Annotated[
-        bool,
-        typer.Option(
-            help="Return check results as list of Diagnostic messages instead of exiting from the application.",
-            hidden=True,
-        ),
-    ] = False,
-    root: project_root_option = None,
-    variable: variable_option = None,
-    variable_file: variable_file_option = None,
-    python_path: python_path_option = None,
-    analyze_libraries: analyze_libraries_option = None,
-    load_library_timeout: load_library_timeout_option = None,
-    ignored_library: ignored_libraries_option = None,
-    verbose: verbose_option = None,
-    silent: silent_option = None,
-) -> list[Diagnostic]:
-    """Analyse the whole project using project level checkers."""
-    if gitlab:
-        if not reports:
-            reports = []
-        reports.append("gitlab")
-    linter_config = schema.RawLinterConfig(
-        configure=configure,
-        select=select,
-        extend_select=extend_select,
-        ignore=ignore,
-        issue_format=issue_format,
-        threshold=threshold,
-        custom_rules=custom_rules,
-        reports=reports,
-        persistent=persistent,
-        compare=compare,
-        exit_zero=exit_zero,
-        return_result=return_result,
+@app.command(name="check-project", hidden=True, deprecated=True)
+def check_project() -> None:
+    """Fail with a message pointing to the ``check`` command."""
+    print(
+        "The 'check-project' command was removed. Project level rules are now run by the 'check' command "
+        "whenever any of them is enabled:\n\n"
+        "    robocop check --select unused-keyword\n\n"
+        "Use --no-project to skip project level analysis."
     )
-    file_filters = schema.RawFileFiltersOptions(
-        include=include, default_include=default_include, exclude=exclude, default_exclude=default_exclude
-    )
-    overwrite_config = schema.RawConfig(
-        linter=linter_config,
-        formatter=None,
-        file_filters=file_filters,
-        language=language,
-        variables=parser.parse_variables(variable),
-        variable_files=variable_file,
-        python_path=python_path,
-        analyze_libraries=analyze_libraries,
-        load_library_timeout=load_library_timeout,
-        ignored_libraries=ignored_library,
-        verbose=verbose,
-        silent=silent,
-        target_version=target_version,
-    )
-    config_manager = manager.ConfigManager(
-        sources=sources,
-        config=configuration_file,
-        root=root,
-        ignore_git_dir=ignore_git_dir,
-        ignore_file_config=ignore_file_config,
-        skip_gitignore=skip_gitignore,
-        force_exclude=force_exclude,
-        overwrite_config=overwrite_config,
-    )
-    runner = RobocopLinter(config_manager)
-    return runner.run_project_checks()
+    raise typer.Exit(code=2)
 
 
 @app.command(name="format")

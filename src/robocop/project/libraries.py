@@ -2,7 +2,7 @@
 Importing Robot Framework libraries to find out what keywords they provide.
 
 Unlike the rest of the project analysis, which is based purely on the abstract syntax tree, loading a library
-**executes the library code**. That is why it only happens in the opt-in ``check-project`` command, always in a
+**executes the library code**. That is why it only happens when project level rules are enabled, always in a
 separate process with a timeout, and can be disabled with the ``--no-analyze-libraries`` option.
 
 Libraries that fail to import are not reported as an internal error. Such library simply provides no keywords, so

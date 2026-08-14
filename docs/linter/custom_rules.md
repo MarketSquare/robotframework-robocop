@@ -400,10 +400,11 @@ class CustomChecker(VisitorChecker):
 
 ## Project checks
 
-Project checkers are special kind of checker that can be only run using ``check-project`` command:
+Project checkers are a special kind of checker. They are run by the ``check`` command whenever at least one of
+their rules is enabled:
 
 ```bash
-robocop check-project
+robocop check --select my-project-rule
 ```
 
 They are only run once per whole project, after all files are parsed. Together with the project context, they can be
@@ -493,7 +494,7 @@ Imports are resolved to paths using variables from the ``*** Variables ***`` sec
 variables provided with the ``--variable`` option:
 
 ```bash
-robocop check-project --variable RESOURCE_DIR:resources
+robocop check --variable RESOURCE_DIR:resources
 ```
 
 Every import has a status: ``resolved`` (file exists), ``not_found`` (path was resolved but the file is missing),

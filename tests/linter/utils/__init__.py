@@ -16,7 +16,7 @@ import pytest
 import typer
 from rich.console import Console
 
-from robocop.run import check_files, check_project
+from robocop.run import check_files
 from robocop.version_handling import ROBOT_VERSION, VersionSpecifier
 from tests import working_directory
 from tests.formatter import display_file_diff
@@ -113,11 +113,10 @@ class RuleAcceptance:
     ) -> str | None:
         if not self.enabled_in_version(test_on_version):
             pytest.skip(f"Test enabled only for RF {test_on_version}")
+        test_fn = check_files
+        kwargs["cache"] = False
         if project_check:
-            test_fn = check_project
-        else:
-            test_fn = check_files
-            kwargs["cache"] = False
+            kwargs["project"] = True
         test_data = test_dir or self.test_class_dir
         sort_lines = output_format == "simple"
         issue_format = self.get_issue_format(issue_format)

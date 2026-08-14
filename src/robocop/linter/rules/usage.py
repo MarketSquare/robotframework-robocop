@@ -34,7 +34,8 @@ class UnusedKeywordRule(Rule):
     Keywords are only searched for in the files scanned by Robocop. If the project is a shared library of keywords
     used by other projects, all of its keywords are reported as not used.
 
-    This rule is a project level rule and is only reported by the ``robocop check-project`` command.
+    This rule is a project level rule: it requires parsing the whole project. Selecting it makes ``robocop check``
+    analyze the project.
 
     """
 

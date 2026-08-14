@@ -91,33 +91,36 @@ option.
 
 ## Project checks
 
-Robocop contains also project level checks that can be used to check the whole project. Use the following command to run
-them:
-
-```bash
-robocop check-project
-```
-
-``check-project`` behaves the same as ``check`` command, but it only runs project level checks.
-
 Project level rules are the rules that cannot be checked by looking at a single file. For example, to know that a
 keyword is not used, Robocop has to know every keyword call in the project. All of them are disabled by default and
 need to be selected:
 
 ```bash
-robocop check-project --select unused-keyword --select invalid-argument-count
+robocop check --select unused-keyword --select invalid-argument-count
 ```
 
-Robocop builds the project context by parsing every source file, resolving ``Resource`` imports and indexing keyword
-definitions, keyword calls and variables.
+They are run by the ``check`` command together with the regular, file level rules. Selecting a project rule is the
+only thing required - whenever at least one of them is enabled, Robocop additionally builds the project context by
+parsing every source file, resolving ``Resource`` imports and indexing keyword definitions, keyword calls and
+variables.
 
-!!! warning "The ``check-project`` command executes code"
+The project context is always built from the project root, even if only selected paths are linted. Thanks to that,
+``robocop check tests/login.robot`` still knows about keywords used in the rest of the project.
 
-    Unlike the ``check`` command, ``check-project`` imports Robot Framework libraries to find out what keywords they
-    provide, and imports Python variable files provided with the ``--variablefile`` option. Both **execute the code**
-    of the imported file. Libraries are imported in a separate process with a timeout, and failures are ignored, so a
-    broken library never breaks the analysis. Library analysis can be disabled with ``--no-analyze-libraries`` and
-    single libraries can be skipped with ``--ignored-library``.
+Project analysis takes noticeably more time than the regular linting. Use ``--no-project`` to skip it without
+changing the configuration file, for example in a fast pre-commit run:
+
+```bash
+robocop check --no-project
+```
+
+!!! warning "Project level rules execute code"
+
+    To find out what keywords libraries provide, Robocop imports them. Python variable files provided with the
+    ``--variablefile`` option are imported as well. Both **execute the code** of the imported file. Libraries are
+    imported in a separate process with a timeout, and failures are ignored, so a broken library never breaks the
+    analysis. Library analysis can be disabled with ``--no-analyze-libraries`` and single libraries can be skipped
+    with ``--ignored-library``.
 
 Currently available project level rules are:
 
@@ -131,15 +134,15 @@ Import paths often contain variables. Provide them with the ``--variable`` or ``
 imports can be resolved:
 
 ```bash
-robocop check-project --variable RESOURCE_DIR:resources
-robocop check-project --variablefile config/variables.py
+robocop check --variable RESOURCE_DIR:resources
+robocop check --variablefile config/variables.py
 ```
 
 If the project relies on the Robot Framework ``--pythonpath`` option to find its resources or libraries, pass the
 same locations to Robocop:
 
 ```bash
-robocop check-project --pythonpath shared --pythonpath libs/*
+robocop check --pythonpath shared --pythonpath libs/*
 ```
 
 See [variables](../configuration/configuration_reference.md#variables),
@@ -150,8 +153,8 @@ Libraries are imported to check the keywords they provide. Every library is impo
 process which is stopped if it takes longer than ``--load-library-timeout`` seconds (10 by default):
 
 ```bash
-robocop check-project --no-analyze-libraries
-robocop check-project --ignored-library SeleniumLibrary --load-library-timeout 30
+robocop check --no-analyze-libraries
+robocop check --ignored-library SeleniumLibrary --load-library-timeout 30
 ```
 
 See [analyze-libraries](../configuration/configuration_reference.md#analyze-libraries),

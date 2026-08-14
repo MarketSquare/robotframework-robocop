@@ -30,6 +30,7 @@ SILENT = False
 
 # project checks
 
+PROJECT: bool | None = None  # None: run project checks only if any project rule is enabled
 ANALYZE_LIBRARIES = True
 LOAD_LIBRARY_TIMEOUT = 10
 

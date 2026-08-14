@@ -181,12 +181,13 @@ class UnresolvedResourceImportRule(Rule):
     Variables used in the import path are resolved using variables defined in the ``*** Variables ***`` section
     of the importing file and variables provided with the ``--variable`` option::
 
-        robocop check-project --variable RESOURCE_DIR:resources
+        robocop check --variable RESOURCE_DIR:resources
 
     If the path contains a variable that cannot be resolved, the import is ignored and not reported. Thanks to that,
     dynamically built paths do not cause false positives.
 
-    This rule is a project level rule and is only reported by the ``robocop check-project`` command.
+    This rule is a project level rule: it requires parsing the whole project. Selecting it makes ``robocop check``
+    analyze the project.
 
     """
 
@@ -227,7 +228,8 @@ class UnusedResourceImportRule(Rule):
     - the imported resource defines no keywords and no variables, because it may be imported only for the imports
       it makes itself.
 
-    This rule is a project level rule and is only reported by the ``robocop check-project`` command.
+    This rule is a project level rule: it requires parsing the whole project. Selecting it makes ``robocop check``
+    analyze the project.
 
     """
 

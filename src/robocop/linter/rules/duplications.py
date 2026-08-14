@@ -304,7 +304,8 @@ class DuplicatedVariableInProjectRule(Rule):
     Only variables defined in the ``*** Variables ***`` section are compared. Variable names are normalized, so
     ``${my var}``, ``${MY_VAR}`` and ``${myvar}`` are treated as the same variable.
 
-    This rule is a project level rule and is only reported by the ``robocop check-project`` command.
+    This rule is a project level rule: it requires parsing the whole project. Selecting it makes ``robocop check``
+    analyze the project.
 
     """
 

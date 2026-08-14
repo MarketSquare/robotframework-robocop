@@ -358,8 +358,8 @@ Resource    ${RESOURCE_DIR}/common.resource
 === ":octicons-command-palette-24: cli"
 
     ```bash
-    robocop check-project --variable RESOURCE_DIR:resources
-    robocop check-project -v RESOURCE_DIR:resources -v ENV:qa
+    robocop check --variable RESOURCE_DIR:resources
+    robocop check -v RESOURCE_DIR:resources -v ENV:qa
     ```
 
 === ":material-file-cog-outline: toml"
@@ -389,8 +389,8 @@ Use ``--variablefile`` option to load variables from a Python or YAML file. It i
 === ":octicons-command-palette-24: cli"
 
     ```bash
-    robocop check-project --variablefile config/variables.py
-    robocop check-project -V config/variables.py -V config/environments.yaml
+    robocop check --variablefile config/variables.py
+    robocop check -V config/variables.py -V config/environments.yaml
     ```
 
 === ":material-file-cog-outline: toml"
@@ -428,8 +428,8 @@ Resource    common.resource  # stored in the shared/ directory, not next to this
 === ":octicons-command-palette-24: cli"
 
     ```bash
-    robocop check-project --pythonpath shared
-    robocop check-project -P shared -P libs/*
+    robocop check --pythonpath shared
+    robocop check -P shared -P libs/*
     ```
 
 === ":material-file-cog-outline: toml"
@@ -444,11 +444,39 @@ paths in the configuration file are resolved against the configuration file.
 
 ---
 
+#### ``project``
+
+Project level rules require parsing the whole project. Robocop does it automatically whenever at least one project
+level rule is enabled, so this option is only needed to override that decision:
+
+- ``--project`` always runs project level rules (does nothing if none of them is enabled),
+- ``--no-project`` never runs them, even if they are selected in the configuration file.
+
+``--no-project`` is useful when the same configuration file is shared between a fast run (for example a pre-commit
+hook) and a full run in the CI:
+
+=== ":octicons-command-palette-24: cli"
+
+    ```bash
+    robocop check --no-project
+    ```
+
+=== ":material-file-cog-outline: toml"
+
+    ```toml
+    [tool.robocop]
+    project = false
+    ```
+
+The project context is always built from the project root, even if only selected paths are linted.
+
+---
+
 #### ``analyze-libraries``
 
-``robocop check-project`` imports Robot Framework libraries to find out what keywords they provide and what
-arguments those keywords accept. **Importing a library executes its code**, which is why it only happens in the
-opt-in ``check-project`` command. Every library is imported once, in a separate process with a timeout, and any
+``robocop check`` imports Robot Framework libraries to find out what keywords they provide and what
+arguments those keywords accept. **Importing a library executes its code**, which is why it only happens when
+project level rules are enabled. Every library is imported once, in a separate process with a timeout, and any
 failure is silently ignored - a library that cannot be imported simply provides no keywords.
 
 Use ``--no-analyze-libraries`` to disable it completely:
@@ -456,7 +484,7 @@ Use ``--no-analyze-libraries`` to disable it completely:
 === ":octicons-command-palette-24: cli"
 
     ```bash
-    robocop check-project --no-analyze-libraries
+    robocop check --no-analyze-libraries
     ```
 
 === ":material-file-cog-outline: toml"
@@ -475,7 +503,7 @@ Maximum time in seconds for importing a single library. Default is ``10``.
 === ":octicons-command-palette-24: cli"
 
     ```bash
-    robocop check-project --load-library-timeout 30
+    robocop check --load-library-timeout 30
     ```
 
 === ":material-file-cog-outline: toml"
@@ -495,7 +523,7 @@ Glob patterns are supported.
 === ":octicons-command-palette-24: cli"
 
     ```bash
-    robocop check-project --ignored-library SeleniumLibrary --ignored-library Custom*
+    robocop check --ignored-library SeleniumLibrary --ignored-library Custom*
     ```
 
 === ":material-file-cog-outline: toml"

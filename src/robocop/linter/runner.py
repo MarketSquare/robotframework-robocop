@@ -124,6 +124,7 @@ class RobocopLinter:
             if not source_file.config.linter.diff:  # diff simulate fixes, so it's best to ignore the results
                 self.config_manager.cache.set_linter_entry(source_file.path, source_file.config.hash, diagnostics)
         self.config_manager.cache.save()
+        self.diagnostics.extend(self.run_project_checks())
 
         if not files and not self.config_manager.default_config.silent:
             print("No Robot files were found with the existing configuration.")
@@ -199,23 +200,33 @@ class RobocopLinter:
         return found_diagnostics
 
     def run_project_checks(self) -> list[Diagnostic]:
-        self.diagnostics = []
+        """
+        Run project level checkers on the whole project.
+
+        Project checkers are only run if the project analysis is enabled. By default it happens whenever
+        at least one project rule is enabled. It can be forced or disabled with the ``project`` option.
+
+        Returns:
+            List of diagnostics found by the project checkers.
+
+        """
         config = self.config_manager.default_config
+        if config.project is False:
+            return []
         resolved_config = self.config_resolver.resolve_config(config)
+        if not resolved_config.project_checkers:
+            return []
         project_name = self.config_manager.root.name
-        project_source_file = VirtualSourceFile(Path(project_name), self.config_manager.default_config)
-        if resolved_config.project_checkers:
-            context = self.build_context(config)
-            for checker in resolved_config.project_checkers:
-                checker.issues = []
-                checker.scan_project(project_source_file, self.config_manager, context)
-                self.diagnostics.extend(
-                    [diagnostic for diagnostic in checker.issues if not (diagnostic.severity < config.linter.threshold)]
-                )
-        self.make_reports(run_stats=None)
-        if config.linter.return_result:
-            return self.diagnostics
-        return self.return_with_exit_code(len(self.diagnostics))
+        project_source_file = VirtualSourceFile(Path(project_name), config)
+        context = self.build_context(config)
+        diagnostics: list[Diagnostic] = []
+        for checker in resolved_config.project_checkers:
+            checker.issues = []
+            checker.scan_project(project_source_file, self.config_manager, context)
+            diagnostics.extend(
+                [diagnostic for diagnostic in checker.issues if not (diagnostic.severity < config.linter.threshold)]
+            )
+        return diagnostics
 
     def build_context(self, config: Config) -> ProjectContext:
         """

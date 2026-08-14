@@ -320,6 +320,7 @@ class RawConfig:
     variables: dict[str, str] | None = None
     variable_files: list[str] | None = None
     python_path: list[str] | None = None
+    project: bool | None = None
     analyze_libraries: bool | None = None
     load_library_timeout: int | None = None
     ignored_libraries: list[str] | None = None
@@ -342,6 +343,7 @@ class RawConfig:
             "variables",
             "variable_files",
             "python_path",
+            "project",
             "analyze_libraries",
             "load_library_timeout",
             "ignored_libraries",
@@ -389,6 +391,7 @@ class Config:
     variables: dict[str, str]
     variable_files: list[str]
     python_path: list[str]
+    project: bool | None
     analyze_libraries: bool
     load_library_timeout: int
     ignored_libraries: list[str]
@@ -418,6 +421,7 @@ class Config:
             and self.variables == other.variables
             and self.variable_files == other.variable_files
             and self.python_path == other.python_path
+            and self.project == other.project
             and self.analyze_libraries == other.analyze_libraries
             and self.load_library_timeout == other.load_library_timeout
             and self.ignored_libraries == other.ignored_libraries

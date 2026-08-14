@@ -346,7 +346,8 @@ class InvalidArgumentCountRule(Rule):
     - the call expands a list (``@{args}``) or dictionary (``&{kwargs}``) variable,
     - the keyword is used as a test template.
 
-    This rule is a project level rule and is only reported by the ``robocop check-project`` command.
+    This rule is a project level rule: it requires parsing the whole project. Selecting it makes ``robocop check``
+    analyze the project.
 
     """
 

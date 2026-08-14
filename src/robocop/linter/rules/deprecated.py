@@ -31,7 +31,7 @@ class IfCanBeUsedRule(Rule):
 
     Starting from Robot Framework 4.0 IF block can be used instead of those keywords.
 
-    Changes in 8.8.0: Rule is deprecated. It only supported Robot Framework 4, while Robocop
+    Changes in 8.9.0: Rule is deprecated. It only supported Robot Framework 4, while Robocop
     now requires Robot Framework 5.0+. Use ``deprecated-run-keyword-if`` (DEPR08) instead.
 
     """

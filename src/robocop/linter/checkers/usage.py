@@ -9,7 +9,8 @@ from robot.libraries import STDLIBS
 from robocop.files import path_relative_to_cwd
 from robocop.linter.rules import ProjectChecker, usage
 from robocop.linter.utils.misc import normalize_robot_name
-from robocop.project.definitions import usage_name_pattern
+from robocop.project.context import BUILTIN_LIBRARY
+from robocop.project.definitions import ImportStatus, ImportType, usage_name_pattern
 from robocop.source_file import SourceFile
 
 if TYPE_CHECKING:
@@ -19,7 +20,7 @@ if TYPE_CHECKING:
     from robocop.config.manager import ConfigManager
     from robocop.linter.diagnostics import Diagnostic
     from robocop.project.context import ProjectContext, ProjectFile
-    from robocop.project.definitions import KeywordDefinition, KeywordUsage
+    from robocop.project.definitions import KeywordDefinition, KeywordUsage, ResolvedImport
     from robocop.source_file import VirtualSourceFile
 
 
@@ -59,6 +60,111 @@ class UsedKeywordNames:
         elif keyword.normalized_name in self.normalized:
             return True
         return any(pattern.fullmatch(keyword.normalized_name) for pattern in self.dynamic_patterns)
+
+
+DYNAMIC_IMPORT_KEYWORDS = frozenset({"importlibrary", "importresource"})
+"""Keywords that add keywords to the file at runtime, making static analysis incomplete."""
+
+RESERVED_KEYWORD_NAMES = frozenset({"none"})
+"""Values used in place of a keyword name that do not refer to any keyword."""
+
+
+class KeywordNotFound(ProjectChecker):
+    """Reports keyword calls that do not match any known keyword."""
+
+    keyword_not_found: usage.KeywordNotFoundRule
+
+    def scan_project(
+        self,
+        project_source_file: SourceFile | VirtualSourceFile,
+        config_manager: ConfigManager,  # noqa: ARG002
+        context: ProjectContext,
+    ) -> list[Diagnostic]:
+        self.issues = []
+        if context.library_loader is None:
+            return self.issues  # without libraries almost every call would be reported
+        can_check: dict[Path, bool] = {}
+        for project_file, keyword_usage in context.iter_usages():
+            if not self._is_known(context, keyword_usage) and self._can_be_checked(context, project_file, can_check):
+                self.report(
+                    self.keyword_not_found,
+                    source=SourceFile(path=project_file.path, config=project_source_file.config),
+                    keyword_name=keyword_usage.name,
+                    lineno=keyword_usage.location.lineno,
+                    col=keyword_usage.location.col,
+                    end_lineno=keyword_usage.location.end_lineno,
+                    end_col=keyword_usage.location.end_col,
+                )
+        return self.issues
+
+    @staticmethod
+    def _is_known(context: ProjectContext, keyword_usage: KeywordUsage) -> bool:
+        """
+        Check if the call can be matched to a keyword definition.
+
+        Returns:
+            True if the keyword is defined or cannot be resolved statically.
+
+        """
+        if keyword_usage.name_contains_variable or keyword_usage.normalized_name in RESERVED_KEYWORD_NAMES:
+            return True
+        return bool(context.resolve_keyword(keyword_usage))
+
+    @staticmethod
+    def _can_be_checked(context: ProjectContext, project_file: ProjectFile, cache: dict[Path, bool]) -> bool:
+        """
+        Check if all keywords available in the file are known.
+
+        Returns:
+            True if every import of the file and of its resources was resolved and loaded.
+
+        """
+        resolved = project_file.path.resolve()
+        cached = cache.get(resolved)
+        if cached is not None:
+            return cached
+        can_check = KeywordNotFound._all_imports_known(context, project_file)
+        cache[resolved] = can_check
+        return can_check
+
+    @staticmethod
+    def _all_imports_known(context: ProjectContext, project_file: ProjectFile) -> bool:
+        """
+        Check imports of the file and of all resources it imports.
+
+        Returns:
+            True if nothing is missing from the keywords visible in the file.
+
+        """
+        loader = context.library_loader
+        if loader is None or not loader.load(BUILTIN_LIBRARY).loaded:
+            return False
+        for visible_file in context.imported_files(project_file.path):
+            if any(keyword_usage.normalized_name in DYNAMIC_IMPORT_KEYWORDS for keyword_usage in visible_file.usages):
+                return False
+            if not all(KeywordNotFound._import_known(context, imported) for imported in visible_file.imports):
+                return False
+        return True
+
+    @staticmethod
+    def _import_known(context: ProjectContext, imported: ResolvedImport) -> bool:
+        """
+        Check if the import provides keywords that are known to Robocop.
+
+        Returns:
+            True if the import cannot hide any keyword.
+
+        """
+        if imported.import_type == ImportType.VARIABLES:
+            return True
+        if imported.status not in (ImportStatus.RESOLVED, ImportStatus.EXTERNAL):
+            return False
+        if imported.import_type == ImportType.RESOURCE:
+            return imported.path is not None and imported.path.resolve() in context.files
+        if not imported.args_resolved or context.library_loader is None:
+            return False
+        spec = context.library_loader.load_import(imported)
+        return spec is not None and spec.loaded
 
 
 class AmbiguousKeywordNames(ProjectChecker):

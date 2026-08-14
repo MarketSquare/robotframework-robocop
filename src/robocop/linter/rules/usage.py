@@ -51,6 +51,55 @@ class UnusedKeywordRule(Rule):
     deprecated_names = ("10101",)
 
 
+class KeywordNotFoundRule(Rule):
+    """
+    Keyword is not defined anywhere.
+
+    Reports keyword calls that do not match any keyword defined in the file, in the imported resource files or in
+    the imported libraries. Robot Framework fails such call with the ``No keyword with name 'X' found`` error.
+
+    Example of rule violation:
+
+        *** Settings ***
+        Resource    login.resource   # defines Login
+
+        *** Test Cases ***
+        Test
+            Login    user    password
+            Logout                    # Logout is not defined anywhere
+
+    Keywords come from libraries more often than not, so this rule requires the library analysis and is only
+    executed together with the ``--analyze-libraries`` option::
+
+        robocop check --select keyword-not-found --analyze-libraries
+
+    To avoid false positives, calls are not reported when the keywords available in the file are not fully known:
+
+    - the keyword name is built from a variable,
+    - any import of the file or of the resources it imports could not be resolved,
+    - any imported library could not be imported, for example because it is not installed or its arguments could
+      not be resolved,
+    - the file or any of the imported resources imports libraries or resources dynamically, using the
+      ``Import Library`` or ``Import Resource`` keywords.
+
+    Libraries excluded with the ``--ignored-library`` option make all files importing them skipped as well.
+
+    This rule is a project level rule: it requires parsing the whole project. Selecting it makes ``robocop check``
+    analyze the project.
+
+    """
+
+    name = "keyword-not-found"
+    rule_id = "KW05"
+    message = "Keyword '{keyword_name}' not found"
+    severity = RuleSeverity.ERROR
+    enabled = False
+    added_in_version = "8.9.0"
+    sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
+        clean_code=sonar_qube.CleanCodeAttribute.LOGICAL, issue_type=sonar_qube.SonarQubeIssueType.BUG
+    )
+
+
 class AmbiguousKeywordNameRule(Rule):
     """
     Keyword name matches more than one keyword.

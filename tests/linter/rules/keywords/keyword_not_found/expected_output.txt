@@ -1,0 +1,4 @@
+test.robot:15:5 [E] KW05 Keyword 'Logout' not found
+test.robot:22:34 [E] KW05 Keyword 'Not Defined Anywhere' not found
+
+Found 2 issues.

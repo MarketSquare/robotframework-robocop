@@ -124,10 +124,19 @@ def formatter_hash(
     return int.from_bytes(hash_bytes[:8], byteorder="big", signed=True)
 
 
-def config_hash(lint_hash: int, format_hash: int, language: list[str]) -> str:
+def config_hash(
+    lint_hash: int,
+    format_hash: int,
+    language: list[str],
+    variables: dict[str, str] | None = None,
+    variable_files: list[str] | None = None,
+) -> str:
     hasher = hashlib.sha256()
     hasher.update(str(hash(lint_hash)).encode("utf-8"))
     hasher.update(str(hash(format_hash)).encode("utf-8"))
     language_str = ":".join(sorted(language))
     hasher.update(language_str.encode("utf-8"))
+    variables_str = ";".join(f"{name}={value}" for name, value in sorted((variables or {}).items()))
+    hasher.update(variables_str.encode("utf-8"))
+    hasher.update(":".join(_sorted_tuple(variable_files)).encode("utf-8"))
     return hasher.hexdigest()

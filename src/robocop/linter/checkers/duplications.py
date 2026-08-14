@@ -3,19 +3,22 @@
 from __future__ import annotations
 
 from collections import defaultdict
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, NamedTuple
 
 from robot.api import Token
 
-from robocop.linter.rules import Rule, VisitorChecker, duplications, variables
+from robocop.linter.rules import ProjectChecker, Rule, VisitorChecker, duplications, variables
 from robocop.linter.utils.misc import (
     normalize_robot_name,
     normalize_robot_var_name,
     strip_equals_from_assignment,
 )
+from robocop.source_file import SourceFile
 from robocop.version_handling import TYPE_SUPPORTED
 
 if TYPE_CHECKING:
+    from pathlib import Path
+
     from robot.parsing import File
     from robot.parsing.model.blocks import Keyword, TestCase, VariableSection
     from robot.parsing.model.statements import (
@@ -28,7 +31,12 @@ if TYPE_CHECKING:
         VariablesImport,
     )
 
+    from robocop.config.manager import ConfigManager
+    from robocop.linter.diagnostics import Diagnostic
     from robocop.linter.rules.duplications import NodeT
+    from robocop.project.context import ProjectContext, ProjectFile
+    from robocop.project.definitions import Location, VariableDefinition
+    from robocop.source_file import VirtualSourceFile
 
 
 class DuplicationsChecker(VisitorChecker):
@@ -174,3 +182,95 @@ class DuplicationsChecker(VisitorChecker):
                     col=node.data_tokens[0].col_offset + 1,
                     end_col=node.data_tokens[0].end_col_offset + 1,
                 )
+
+
+class VariableOccurrence(NamedTuple):
+    """Variable definition together with the file it was defined in."""
+
+    path: Path
+    variable: VariableDefinition
+    location: Location
+
+
+class ProjectDuplicationsChecker(ProjectChecker):
+    """Checker for duplications that can only be found with the whole project context."""
+
+    duplicated_variable_in_project: duplications.DuplicatedVariableInProjectRule
+
+    def scan_project(
+        self,
+        project_source_file: SourceFile | VirtualSourceFile,
+        config_manager: ConfigManager,  # noqa: ARG002
+        context: ProjectContext,
+    ) -> list[Diagnostic]:
+        self.issues = []
+        reported: set[tuple[Path, int, int, str]] = set()
+        for project_file in context.iter_files():
+            for occurrences in self._duplicated_definitions(project_file, context):
+                first, *rest = occurrences
+                for duplicate in rest:
+                    self._report_duplicate(duplicate, first, context, project_source_file, reported)
+        return self.issues
+
+    @staticmethod
+    def _duplicated_definitions(project_file: ProjectFile, context: ProjectContext) -> list[list[VariableOccurrence]]:
+        """
+        Find variables defined more than once in files visible from given file.
+
+        Returns:
+            List of duplicated occurrences, each sorted by source path and line number.
+
+        """
+        by_name: dict[str, list[VariableOccurrence]] = defaultdict(list)
+        for visible_file in context.imported_files(project_file.path):
+            for variable in visible_file.variables:
+                if variable.location is not None:
+                    by_name[variable.normalized_name].append(
+                        VariableOccurrence(visible_file.path, variable, variable.location)
+                    )
+        return [
+            sorted(occurrences, key=lambda item: (str(item.path), item.location.lineno))
+            for occurrences in by_name.values()
+            if len({occurrence.path for occurrence in occurrences}) > 1
+        ]
+
+    def _report_duplicate(
+        self,
+        duplicate: VariableOccurrence,
+        first: VariableOccurrence,
+        context: ProjectContext,
+        project_source_file: SourceFile | VirtualSourceFile,
+        reported: set[tuple[Path, int, int, str]],
+    ) -> None:
+        if duplicate.path == first.path:
+            return
+        location = duplicate.location
+        key = (duplicate.path, location.lineno, location.col, duplicate.variable.normalized_name)
+        if key in reported:
+            return
+        reported.add(key)
+        self.report(
+            self.duplicated_variable_in_project,
+            source=SourceFile(path=duplicate.path, config=project_source_file.config),
+            name=duplicate.variable.name,
+            first_source=relative_path(first.path, context.root),
+            first_occurrence_line=first.location.lineno,
+            lineno=location.lineno,
+            col=location.col,
+            end_lineno=location.end_lineno,
+            end_col=location.end_col,
+        )
+
+
+def relative_path(path: Path, root: Path) -> str:
+    """
+    Return path relative to the project root, if possible.
+
+    Returns:
+        Relative path as string, or the absolute path if it is outside of the root.
+
+    """
+    try:
+        return str(path.relative_to(root))
+    except ValueError:
+        return str(path)

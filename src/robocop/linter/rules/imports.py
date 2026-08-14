@@ -162,3 +162,81 @@ class ResourcesImportsNotSortedRule(Rule):
             col=resource_name.col_offset + 1,
             end_col=resource_name.end_col_offset + 1,
         )
+
+
+class UnresolvedResourceImportRule(Rule):
+    """
+    Imported resource file does not exist.
+
+    Reports resource imports that point to a file that cannot be found in the project. Such import makes the whole
+    suite fail during the execution.
+
+    Example of rule violation:
+
+        *** Settings ***
+        Resource    does_not_exist.resource  # file is not found next to the importing file
+
+    Import paths are resolved relative to the file containing the import, exactly like Robot Framework does it.
+
+    Variables used in the import path are resolved using variables defined in the ``*** Variables ***`` section
+    of the importing file and variables provided with the ``--variable`` option::
+
+        robocop check-project --variable RESOURCE_DIR:resources
+
+    If the path contains a variable that cannot be resolved, the import is ignored and not reported. Thanks to that,
+    dynamically built paths do not cause false positives.
+
+    This rule is a project level rule and is only reported by the ``robocop check-project`` command.
+
+    """
+
+    name = "unresolved-resource-import"
+    rule_id = "IMP07"
+    message = "Imported resource file '{import_name}' does not exist"
+    severity = RuleSeverity.WARNING
+    enabled = False
+    added_in_version = "8.9.0"
+    sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
+        clean_code=sonar_qube.CleanCodeAttribute.COMPLETE, issue_type=sonar_qube.SonarQubeIssueType.BUG
+    )
+
+
+class UnusedResourceImportRule(Rule):
+    """
+    Imported resource file is not used.
+
+    Reports resource imports whose keywords and variables are never used in the importing file.
+
+    Example of rule violation:
+
+        *** Settings ***
+        Resource    unused.resource  # nothing from this file is used
+
+        *** Test Cases ***
+        Test
+            Keyword From Other Resource
+
+    A resource is considered used when the file uses any keyword or variable defined in it, or in any resource it
+    imports itself, since resource imports are transitive in Robot Framework.
+
+    To avoid false positives, imports are not reported when:
+
+    - the importing file calls a keyword using a name built from a variable, because such call may come from any
+      resource,
+    - the import path could not be resolved,
+    - the imported resource defines no keywords and no variables, because it may be imported only for the imports
+      it makes itself.
+
+    This rule is a project level rule and is only reported by the ``robocop check-project`` command.
+
+    """
+
+    name = "unused-resource-import"
+    rule_id = "IMP05"
+    message = "Imported resource file '{import_name}' is not used"
+    severity = RuleSeverity.INFO
+    enabled = False
+    added_in_version = "8.9.0"
+    sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
+        clean_code=sonar_qube.CleanCodeAttribute.CLEAR, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
+    )

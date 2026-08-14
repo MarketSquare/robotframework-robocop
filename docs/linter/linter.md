@@ -100,6 +100,64 @@ robocop check-project
 
 ``check-project`` behaves the same as ``check`` command, but it only runs project level checks.
 
+Project level rules are the rules that cannot be checked by looking at a single file. For example, to know that a
+keyword is not used, Robocop has to know every keyword call in the project. All of them are disabled by default and
+need to be selected:
+
+```bash
+robocop check-project --select unused-keyword --select invalid-argument-count
+```
+
+Robocop builds the project context by parsing every source file, resolving ``Resource`` imports and indexing keyword
+definitions, keyword calls and variables.
+
+!!! warning "The ``check-project`` command executes code"
+
+    Unlike the ``check`` command, ``check-project`` imports Robot Framework libraries to find out what keywords they
+    provide, and imports Python variable files provided with the ``--variablefile`` option. Both **execute the code**
+    of the imported file. Libraries are imported in a separate process with a timeout, and failures are ignored, so a
+    broken library never breaks the analysis. Library analysis can be disabled with ``--no-analyze-libraries`` and
+    single libraries can be skipped with ``--ignored-library``.
+
+Currently available project level rules are:
+
+- ``unresolved-resource-import`` - imported resource file does not exist,
+- ``unused-keyword`` - user keyword is never called in the project,
+- ``invalid-argument-count`` - keyword is called with a number of arguments its ``[Arguments]`` do not accept,
+- ``unused-resource-import`` - nothing from the imported resource file is used,
+- ``duplicated-variable-in-project`` - the same variable is defined in multiple files visible together.
+
+Import paths often contain variables. Provide them with the ``--variable`` or ``--variablefile`` option so that the
+imports can be resolved:
+
+```bash
+robocop check-project --variable RESOURCE_DIR:resources
+robocop check-project --variablefile config/variables.py
+```
+
+If the project relies on the Robot Framework ``--pythonpath`` option to find its resources or libraries, pass the
+same locations to Robocop:
+
+```bash
+robocop check-project --pythonpath shared --pythonpath libs/*
+```
+
+See [variables](../configuration/configuration_reference.md#variables),
+[variable-files](../configuration/configuration_reference.md#variable-files) and
+[python-path](../configuration/configuration_reference.md#python-path) for more details.
+
+Libraries are imported to check the keywords they provide. Every library is imported only once, in a separate
+process which is stopped if it takes longer than ``--load-library-timeout`` seconds (10 by default):
+
+```bash
+robocop check-project --no-analyze-libraries
+robocop check-project --ignored-library SeleniumLibrary --load-library-timeout 30
+```
+
+See [analyze-libraries](../configuration/configuration_reference.md#analyze-libraries),
+[load-library-timeout](../configuration/configuration_reference.md#load-library-timeout) and
+[ignored-libraries](../configuration/configuration_reference.md#ignored-libraries) for more details.
+
 Project checks can be added as custom rules. See [custom rules](custom_rules.md/#project-checks) for more details.
 
 ## Language support

@@ -1,0 +1,11 @@
+test.robot:3:13 IMP05 Imported resource file 'resources/unused.resource' is not used
+   |
+ 1 | *** Settings ***
+ 2 | Resource    resources/keywords.resource
+ 3 | Resource    resources/unused.resource
+   |             ^^^^^^^^^^^^^^^^^^^^^^^^^ IMP05
+ 4 | Resource    resources/variables.resource
+ 5 | Resource    resources/only_imports.resource
+   |
+
+Found 1 issue.

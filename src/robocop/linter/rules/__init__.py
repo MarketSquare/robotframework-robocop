@@ -55,6 +55,7 @@ if TYPE_CHECKING:
     from robocop.config.manager import ConfigManager
     from robocop.linter import sonar_qube
     from robocop.linter.fix import Fix
+    from robocop.project.context import ProjectContext
     from robocop.source_file import SourceFile, VirtualSourceFile
 
 
@@ -618,7 +619,10 @@ class VisitorChecker(BaseChecker, ModelVisitor):  # type: ignore[misc]
 
 class ProjectChecker(BaseChecker):
     def scan_project(
-        self, project_source_file: SourceFile | VirtualSourceFile, config_manager: ConfigManager
+        self,
+        project_source_file: SourceFile | VirtualSourceFile,
+        config_manager: ConfigManager,
+        context: ProjectContext,
     ) -> list[Diagnostic]:
         """
         Perform checks on the whole project.
@@ -626,6 +630,13 @@ class ProjectChecker(BaseChecker):
         This method is called after other checks are finished. Define the main logic of the check here.
         Robocop will access ``self.issues`` list to retrieve list of issues found during the check. Issues are
         reported using ``self.report()`` method.
+
+        Args:
+            project_source_file: Virtual source file representing the whole project. Use its ``config`` attribute
+                when creating ``SourceFile`` instances for reported issues.
+            config_manager: Configuration manager, can be used to access project root and configuration.
+            context: Project context with parsed files, keyword definitions, keyword calls and resolved imports.
+
         """
         raise NotImplementedError
 

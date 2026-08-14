@@ -28,6 +28,11 @@ FORCE_EXCLUDE = False
 VERBOSE = False
 SILENT = False
 
+# project checks
+
+ANALYZE_LIBRARIES = True
+LOAD_LIBRARY_TIMEOUT = 10
+
 # cache
 
 CACHE_DIR_NAME = ".robocop_cache"

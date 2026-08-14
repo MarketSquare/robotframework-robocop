@@ -16,6 +16,7 @@ from robocop.linter.reports import save_reports_result_to_cache
 from robocop.linter.utils.disablers import DisablersFinder
 from robocop.linter.utils.file_types import get_resource_with_lang
 from robocop.linter.utils.misc import is_suite_templated
+from robocop.project.context import build_project_context
 from robocop.runtime.resolver import ConfigResolver
 from robocop.source_file import SourceFile, VirtualSourceFile
 
@@ -25,6 +26,7 @@ if TYPE_CHECKING:
     from robocop.config.manager import ConfigManager
     from robocop.config.schema import Config
     from robocop.linter.diagnostics import Diagnostic
+    from robocop.project.context import ProjectContext
 
 
 class RobocopLinter:
@@ -202,16 +204,31 @@ class RobocopLinter:
         resolved_config = self.config_resolver.resolve_config(config)
         project_name = self.config_manager.root.name
         project_source_file = VirtualSourceFile(Path(project_name), self.config_manager.default_config)
-        for checker in resolved_config.project_checkers:
-            checker.issues = []
-            checker.scan_project(project_source_file, self.config_manager)
-            self.diagnostics.extend(
-                [diagnostic for diagnostic in checker.issues if not (diagnostic.severity < config.linter.threshold)]
-            )
+        if resolved_config.project_checkers:
+            context = self.build_context(config)
+            for checker in resolved_config.project_checkers:
+                checker.issues = []
+                checker.scan_project(project_source_file, self.config_manager, context)
+                self.diagnostics.extend(
+                    [diagnostic for diagnostic in checker.issues if not (diagnostic.severity < config.linter.threshold)]
+                )
         self.make_reports(run_stats=None)
         if config.linter.return_result:
             return self.diagnostics
         return self.return_with_exit_code(len(self.diagnostics))
+
+    def build_context(self, config: Config) -> ProjectContext:
+        """
+        Parse the whole project and build the context shared by all project checkers.
+
+        Returns:
+            ProjectContext with parsed files, keyword index and resolved imports.
+
+        """
+        context = build_project_context(self.config_manager, silent=config.silent)
+        if config.verbose and not config.silent:
+            print(f"Built project context from {len(context.files)} files.")
+        return context
 
     def return_with_exit_code(self, issues_count: int) -> NoReturn:
         """

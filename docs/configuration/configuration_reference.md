@@ -341,6 +341,172 @@ This option accepts a major version of Robot Framework (4, 5, .. ):
 
 ---
 
+#### ``variables``
+
+Use ``--variable`` option to define variables used when resolving dynamic import paths. It is an equivalent of the
+Robot Framework ``--variable`` option and uses the same ``NAME:VALUE`` syntax.
+
+Project level rules resolve ``Resource``, ``Library`` and ``Variables`` import paths to files on the disk. If the
+path contains a variable that is not defined in the ``*** Variables ***`` section of the importing file, it can be
+provided using this option:
+
+```robotframework
+*** Settings ***
+Resource    ${RESOURCE_DIR}/common.resource
+```
+
+=== ":octicons-command-palette-24: cli"
+
+    ```bash
+    robocop check-project --variable RESOURCE_DIR:resources
+    robocop check-project -v RESOURCE_DIR:resources -v ENV:qa
+    ```
+
+=== ":material-file-cog-outline: toml"
+
+    ```toml
+    [tool.robocop.variables]
+    RESOURCE_DIR = "resources"
+    ENV = "qa"
+    ```
+
+Variables provided in the command line take precedence over variables from the configuration file, which take
+precedence over variables defined in the ``*** Variables ***`` section of the file itself.
+
+Built-in variables ``${CURDIR}``, ``${EXECDIR}`` and ``${TEMPDIR}`` are resolved automatically. Environment
+variables are supported using the ``%{NAME}`` and ``%{NAME=default}`` syntax.
+
+If a variable used in the import path cannot be resolved, the import is ignored instead of being reported, so
+dynamically built paths do not cause false positives.
+
+---
+
+#### ``variable-files``
+
+Use ``--variablefile`` option to load variables from a Python or YAML file. It is an equivalent of the Robot Framework
+``--variablefile`` option and supports the same ``path:arg1:arg2`` syntax for variable files taking arguments.
+
+=== ":octicons-command-palette-24: cli"
+
+    ```bash
+    robocop check-project --variablefile config/variables.py
+    robocop check-project -V config/variables.py -V config/environments.yaml
+    ```
+
+=== ":material-file-cog-outline: toml"
+
+    ```toml
+    [tool.robocop]
+    variable-files = ["config/variables.py", "config/environments.yaml"]
+    ```
+
+Paths in the configuration file are relative to the configuration file. Only scalar variables are loaded, since only
+those can be used to build an import path. Variables from the command line (``--variable``) take precedence over
+variables from variable files, which take precedence over variables defined in the ``*** Variables ***`` section.
+
+!!! warning
+
+    Loading a Python variable file imports it, which executes its code. Robocop never fails because of a variable
+    file - if the file is missing or raises an error, it is silently skipped.
+
+---
+
+#### ``python-path``
+
+Use ``--pythonpath`` option to add locations searched for ``Resource``, ``Library`` and ``Variables`` imports.
+It is an equivalent of the Robot Framework ``--pythonpath`` option.
+
+Robot Framework first searches for the import next to the importing file, and then in the locations from the
+``--pythonpath`` option. Robocop resolves imports the same way, so a project relying on this option needs to pass it
+to Robocop as well:
+
+```robotframework
+*** Settings ***
+Resource    common.resource  # stored in the shared/ directory, not next to this file
+```
+
+=== ":octicons-command-palette-24: cli"
+
+    ```bash
+    robocop check-project --pythonpath shared
+    robocop check-project -P shared -P libs/*
+    ```
+
+=== ":material-file-cog-outline: toml"
+
+    ```toml
+    [tool.robocop]
+    python-path = ["shared", "libs/*"]
+    ```
+
+Glob patterns are supported. Relative paths in the command line are resolved against the project root, and relative
+paths in the configuration file are resolved against the configuration file.
+
+---
+
+#### ``analyze-libraries``
+
+``robocop check-project`` imports Robot Framework libraries to find out what keywords they provide and what
+arguments those keywords accept. **Importing a library executes its code**, which is why it only happens in the
+opt-in ``check-project`` command. Every library is imported once, in a separate process with a timeout, and any
+failure is silently ignored - a library that cannot be imported simply provides no keywords.
+
+Use ``--no-analyze-libraries`` to disable it completely:
+
+=== ":octicons-command-palette-24: cli"
+
+    ```bash
+    robocop check-project --no-analyze-libraries
+    ```
+
+=== ":material-file-cog-outline: toml"
+
+    ```toml
+    [tool.robocop]
+    analyze-libraries = false
+    ```
+
+---
+
+#### ``load-library-timeout``
+
+Maximum time in seconds for importing a single library. Default is ``10``.
+
+=== ":octicons-command-palette-24: cli"
+
+    ```bash
+    robocop check-project --load-library-timeout 30
+    ```
+
+=== ":material-file-cog-outline: toml"
+
+    ```toml
+    [tool.robocop]
+    load-library-timeout = 30
+    ```
+
+---
+
+#### ``ignored-libraries``
+
+Libraries that should not be imported, for example because importing them is slow or has side effects.
+Glob patterns are supported.
+
+=== ":octicons-command-palette-24: cli"
+
+    ```bash
+    robocop check-project --ignored-library SeleniumLibrary --ignored-library Custom*
+    ```
+
+=== ":material-file-cog-outline: toml"
+
+    ```toml
+    [tool.robocop]
+    ignored-libraries = ["SeleniumLibrary", "Custom*"]
+    ```
+
+---
+
 ## Linter
 
 ### Selecting rules

@@ -312,3 +312,50 @@ class ArgumentsPerLineRule(Rule):
             if token.type != Token.SEPARATOR:
                 return token
         return None
+
+
+class InvalidArgumentCountRule(Rule):
+    """
+    Keyword is called with a wrong number of arguments.
+
+    Compares the number of arguments used in the keyword call with the ``[Arguments]`` setting of the keyword
+    definition. Such call fails during the execution.
+
+    Example of rule violation:
+
+        *** Test Cases ***
+        Test
+            Login    user                  # too few arguments
+            Login    user    pass    extra # too many arguments
+
+        *** Keywords ***
+        Login
+            [Arguments]    ${username}    ${password}
+            Log    ${username}
+
+    Keywords defined in the project are checked using the ``[Arguments]`` setting. Keywords coming from libraries
+    are checked as well, but only if the library analysis is enabled (it is by default). Robocop imports the
+    libraries to find out what arguments they accept, which means that the library code is executed. Use the
+    ``--no-analyze-libraries`` option to disable it, or ``--ignored-library`` to skip selected libraries.
+
+    To avoid false positives, the call is not reported when:
+
+    - the keyword name is built from a variable,
+    - the keyword is not found in the project, or more than one definition matches the name,
+    - the keyword uses embedded arguments,
+    - the call expands a list (``@{args}``) or dictionary (``&{kwargs}``) variable,
+    - the keyword is used as a test template.
+
+    This rule is a project level rule and is only reported by the ``robocop check-project`` command.
+
+    """
+
+    name = "invalid-argument-count"
+    rule_id = "ARG08"
+    message = "Keyword '{keyword_name}' expects {expected} but {provided} provided{missing}"
+    severity = RuleSeverity.ERROR
+    enabled = False
+    added_in_version = "8.9.0"
+    sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
+        clean_code=sonar_qube.CleanCodeAttribute.LOGICAL, issue_type=sonar_qube.SonarQubeIssueType.BUG
+    )

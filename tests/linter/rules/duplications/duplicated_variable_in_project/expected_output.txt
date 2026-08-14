@@ -1,0 +1,4 @@
+other.resource:2:1 [W] DUP11 Variable 'browser' is also defined in 'common.resource' (line 2)
+test.robot:6:1 [W] DUP11 Variable 'BROWSER' is also defined in 'common.resource' (line 2)
+
+Found 2 issues.

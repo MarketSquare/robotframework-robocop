@@ -89,6 +89,12 @@ class ConfigBuilder:
     def from_raw(self, cli_raw: RawConfig | None, file_raw: RawConfig | None) -> Config:
         sources: list[str] = resolve(cli_raw, file_raw, "sources", ["."])
         language: list[str] = resolve(cli_raw, file_raw, "language", [])
+        variables: dict[str, str] = self.variables_from_raw(cli_raw, file_raw)
+        variable_files: list[str] = merge_lists(file_raw, cli_raw, "variable_files")
+        python_path: list[str] = merge_lists(file_raw, cli_raw, "python_path")
+        analyze_libraries = resolve(cli_raw, file_raw, "analyze_libraries", defaults.ANALYZE_LIBRARIES)
+        load_library_timeout = resolve(cli_raw, file_raw, "load_library_timeout", defaults.LOAD_LIBRARY_TIMEOUT)
+        ignored_libraries: list[str] = merge_lists(file_raw, cli_raw, "ignored_libraries")
         force_exclude = resolve(cli_raw, file_raw, "force_exclude", defaults.FORCE_EXCLUDE)
         verbose = resolve(cli_raw, file_raw, "verbose", defaults.VERBOSE)
         silent = resolve(cli_raw, file_raw, "silent", defaults.SILENT)
@@ -125,7 +131,7 @@ class ConfigBuilder:
         if config_source != "cli" and verbose and not silent:
             print(f"Loaded {config_source} configuration file.")
 
-        hash_str = config_hash(linter.hash, formatter.hash, language)
+        hash_str = config_hash(linter.hash, formatter.hash, language, variables, variable_files)
 
         return Config(
             sources=sources,
@@ -134,6 +140,12 @@ class ConfigBuilder:
             formatter=formatter,
             cache=cache,
             languages=languages,
+            variables=variables,
+            variable_files=variable_files,
+            python_path=python_path,
+            analyze_libraries=analyze_libraries,
+            load_library_timeout=load_library_timeout,
+            ignored_libraries=ignored_libraries,
             force_exclude=force_exclude,
             verbose=verbose,
             silent=silent,
@@ -141,6 +153,23 @@ class ConfigBuilder:
             config_source=config_source,
             hash=hash_str,
         )
+
+    @staticmethod
+    def variables_from_raw(cli_raw: RawConfig | None, file_raw: RawConfig | None) -> dict[str, str]:
+        """
+        Merge variables from the configuration file and the command line.
+
+        Variables provided on the command line overwrite variables with the same name from the configuration file.
+
+        Returns:
+            Mapping of variable name to its value.
+
+        """
+        variables: dict[str, str] = {}
+        for raw in (file_raw, cli_raw):
+            if raw is not None and raw.variables:
+                variables.update(raw.variables)
+        return variables
 
     def linter_from_raw(
         self,

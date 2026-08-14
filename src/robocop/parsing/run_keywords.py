@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
 from robocop.linter.utils.misc import normalize_robot_name
@@ -110,6 +111,81 @@ def split_on_token_value(tokens: list[Token], value: str, resolve: int) -> tuple
 def iterate_keyword_names(keyword_node: Keyword, name_token_type: str) -> Generator[Token, None, None]:
     tokens = skip_leading_tokens(keyword_node.data_tokens, name_token_type)
     yield from parse_run_keyword(tokens)
+
+
+@dataclass
+class KeywordCallTokens:
+    """Keyword name token together with the argument tokens passed to that particular call."""
+
+    name: Token
+    arguments: list[Token]
+
+
+def iterate_keyword_calls(keyword_node: Keyword, name_token_type: str) -> Generator[KeywordCallTokens, None, None]:
+    """
+    Iterate over keyword calls in the statement, together with arguments of every call.
+
+    Works like :func:`iterate_keyword_names`, but also returns arguments belonging to each keyword. It is required
+    to validate the number of arguments used in nested keyword calls, such as ``Run Keyword If``, where arguments of
+    the statement are not the arguments of the called keyword.
+
+    Yields:
+        KeywordCallTokens for every keyword call found in the statement.
+
+    """
+    tokens = skip_leading_tokens(keyword_node.data_tokens, name_token_type)
+    yield from parse_run_keyword_calls(tokens)
+
+
+def parse_run_keyword_calls(tokens: list[Token]) -> Generator[KeywordCallTokens, None, None]:
+    """
+    Parse tokens into keyword calls, resolving nested run keywords.
+
+    Yields:
+        KeywordCallTokens for every keyword call found in the tokens.
+
+    """
+    if not tokens:
+        return
+    yield KeywordCallTokens(name=tokens[0], arguments=list(tokens[1:]))
+    run_keyword = RUN_KEYWORDS[tokens[0].value]
+    if not run_keyword:
+        return
+    tokens = tokens[run_keyword.resolve :]
+    if run_keyword.branches:
+        if "ELSE IF" in run_keyword.branches:
+            while is_token_value_in_tokens("ELSE IF", tokens):
+                prefix, _branch, tokens = split_on_token_value(tokens, "ELSE IF", 2)
+                yield from parse_run_keyword_calls(prefix)
+        if "ELSE" in run_keyword.branches and is_token_value_in_tokens("ELSE", tokens):
+            prefix, _branch, tokens = split_on_token_value(tokens, "ELSE", 1)
+            yield from parse_run_keyword_calls(prefix)
+            yield from parse_run_keyword_calls(tokens)
+            return
+    elif run_keyword.split_on_and:
+        yield from split_on_and_calls(tokens)
+        return
+    yield from parse_run_keyword_calls(tokens)
+
+
+def split_on_and_calls(tokens: list[Token]) -> Generator[KeywordCallTokens, None, None]:
+    """
+    Split ``Run Keywords`` arguments into separate keyword calls.
+
+    Without the ``AND`` separator every argument is a keyword name called without arguments.
+
+    Yields:
+        KeywordCallTokens for every keyword call found in the tokens.
+
+    """
+    if not is_token_value_in_tokens("AND", tokens):
+        for token in tokens:
+            yield KeywordCallTokens(name=token, arguments=[])
+        return
+    while is_token_value_in_tokens("AND", tokens):
+        prefix, _branch, tokens = split_on_token_value(tokens, "AND", 1)
+        yield from parse_run_keyword_calls(prefix)
+    yield from parse_run_keyword_calls(tokens)
 
 
 def parse_run_keyword(tokens: list[Token]) -> Generator[Token, None, None]:

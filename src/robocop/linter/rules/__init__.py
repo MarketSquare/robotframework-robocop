@@ -329,6 +329,8 @@ class Rule:
         default_enabled (bool): (class attribute) store default value of enabled parameter for documentation purpose
         deprecated (bool): (class attribute) deprecated rule. If rule is used in configuration, it will issue a warning
         file_wide_rule (bool): (class attribute) If set, rule is reported for whole file
+        project_rule (bool): (class attribute) If set, rule requires parsing the whole project. Such rule is
+        reported by a ``ProjectChecker`` and makes ``robocop check`` analyze the project when it is selected
         parameters: (class attribute) optional rule parameters
         style_guide_ref (list of str): (class attribute) reference to Robot Framework Style Guide in form of
         '#paragraph' strings
@@ -352,6 +354,7 @@ class Rule:
     default_enabled: bool = True
     deprecated: bool = False
     file_wide_rule: bool = False
+    project_rule: bool = False
     parameters: list[RuleParam] | None = None
     style_guide_ref: list[str] | None = None  # docs only
     sonar_qube_attrs: sonar_qube.SonarQubeAttributes | None = None

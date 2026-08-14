@@ -22,6 +22,7 @@ class RuleFilter(str, Enum):
     DISABLED = "DISABLED"
     DEPRECATED = "DEPRECATED"
     STYLE_GUIDE = "STYLE_GUIDE"
+    PROJECT = "PROJECT"
 
 
 def rules_sorted_by_id(rules: dict[str, Rule]) -> list[Rule]:
@@ -60,6 +61,8 @@ def filter_rules_by_category(rules: dict[str, Rule], category: RuleFilter, targe
         rules_by_id = {rule.rule_id: rule for rule in rules.values() if rule.deprecated}
     elif category == RuleFilter.STYLE_GUIDE:
         rules_by_id = {rule.rule_id: rule for rule in rules.values() if not rule.deprecated and rule.style_guide_ref}
+    elif category == RuleFilter.PROJECT:
+        rules_by_id = {rule.rule_id: rule for rule in rules.values() if not rule.deprecated and rule.project_rule}
     else:
         raise ValueError(f"Unrecognized rule category '{category}'")
     return rules_sorted_by_id(rules_by_id)
@@ -87,4 +90,6 @@ def rule_short_description(rule: Rule, target_version: Version) -> Text:
     desc.append(")")
     if rule.fix_availability in (FixAvailability.ALWAYS, FixAvailability.SOMETIMES):
         desc.append(" [fixable]", style="blue")
+    if rule.project_rule:
+        desc.append(" [project]", style="magenta")
     return desc

@@ -55,7 +55,11 @@ ENABLED - print only enabled rules
 DISABLED - print only disabled rules
 DEPRECATED - print only deprecated rules
 STYLE_GUIDE - print only rules directly connected to official Robot Framework style guide
+PROJECT - print only project rules, which require parsing the whole project
 ```
+
+Project rules are marked with the ``[project]`` tag in the rules list. Refer to
+[project checks](linter.md#project-checks) for more details.
 
 ## Rule severity
 

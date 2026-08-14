@@ -89,6 +89,18 @@ def rule_deprecated_disabled() -> Rule:
 
 
 @pytest.fixture
+def rule_project() -> Rule:
+    return get_mocked_rule(
+        rule_id="9993",
+        name="project-rule",
+        message="Project rule",
+        severity=RuleSeverity.WARNING,
+        enabled=False,
+        project_rule=True,
+    )
+
+
+@pytest.fixture
 def rule_disabled_after_4() -> Rule:
     return get_mocked_rule(
         rule_id="9999", name="disabled-in-four", message="This is desc", severity=RuleSeverity.WARNING, version="<4.0"
@@ -256,6 +268,21 @@ class TestListingRules:
             out == "9991 [E]: deprecated-rule: Deprecated rule (deprecated)\n"
             "9992 [I]: deprecated-disabled-rule: Deprecated and disabled rule (deprecated)\n\n"
             "Altogether 2 rules (0 enabled).\n\n"
+            "Visit https://robocop.dev/stable/rules_list/ page for detailed documentation.\n"
+        )
+
+    def test_list_filter_project(self, rule_0101, rule_project, capsys):
+        mocked_config = get_resolved_config(rule_0101, rule_project)
+        resolver_mock = Mock(spec=ConfigResolver)
+        resolver_instance_mock = Mock()
+        resolver_mock.return_value = resolver_instance_mock
+        resolver_instance_mock.resolve_config.return_value = mocked_config
+        with patch("robocop.run.ConfigResolver", resolver_mock):
+            list_rules(filter_category=RuleFilter.PROJECT)
+        out, _ = capsys.readouterr()
+        assert (
+            out == "9993 [W]: project-rule: Project rule (disabled) [project]\n\n"
+            "Altogether 1 rule (0 enabled).\n\n"
             "Visit https://robocop.dev/stable/rules_list/ page for detailed documentation.\n"
         )
 

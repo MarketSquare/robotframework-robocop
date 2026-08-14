@@ -42,6 +42,13 @@ Below is the list of all Robocop rules.
 > Rule is disabled by default. Enable it by using ``--select {{ rule_doc.name }}`` option.
 {% endif %}
 
+{% if rule_doc.project_rule %}
+> **Project rule**
+>
+> This rule requires parsing the whole project. Selecting it makes ``robocop check`` analyze the project.
+> See [project checks](linter/linter.md#project-checks) for details.
+{% endif %}
+
 Added: `v{{ rule_doc.robocop_version }}`
 
 Supported RF version `{{ rule_doc.version }}`
@@ -150,6 +157,7 @@ def get_checker_docs() -> tuple[list[tuple], int]:
                 "msg": rule.message,
                 "docs": rule.docs,
                 "enabled": rule.enabled,
+                "project_rule": rule.project_rule,
                 "deprecated": rule.deprecated,
                 "deprecated_names": rule.deprecated_names,
                 "fix_availability": fix_availability,

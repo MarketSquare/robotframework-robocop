@@ -346,12 +346,10 @@ class InvalidArgumentCountRule(Rule):
     - the call expands a list (``@{args}``) or dictionary (``&{kwargs}``) variable,
     - the keyword is used as a test template.
 
-    This rule is a project level rule: it requires parsing the whole project. Selecting it makes ``robocop check``
-    analyze the project.
-
     """
 
     name = "invalid-argument-count"
+    project_rule = True
     rule_id = "ARG08"
     message = "Keyword '{keyword_name}' expects {expected} but {provided} provided{missing}"
     severity = RuleSeverity.ERROR

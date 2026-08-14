@@ -173,3 +173,56 @@ class TestDynamicKeywordCalls:
         config_manager = ConfigManager(sources=[str(tmp_path)], root=tmp_path, ignore_file_config=True)
         context = build_project_context(config_manager, silent=True)
         assert context.get_file(tmp_path / "test.robot").has_dynamic_keyword_calls
+
+
+@pytest.fixture
+def circular_project(tmp_path):
+    """Project where resources import each other, including a file importing itself."""
+    (tmp_path / "a.resource").write_text(
+        "*** Settings ***\nResource    b.resource\n\n*** Keywords ***\nKeyword A\n    Keyword B\n"
+    )
+    (tmp_path / "b.resource").write_text(
+        "*** Settings ***\nResource    a.resource\n\n*** Keywords ***\nKeyword B\n    Keyword A\n"
+    )
+    (tmp_path / "self.resource").write_text(
+        "*** Settings ***\nResource    self.resource\n\n*** Keywords ***\nSelf Keyword\n    Log    a\n"
+    )
+    (tmp_path / "test.robot").write_text(
+        "*** Settings ***\n"
+        "Resource    a.resource\n"
+        "Resource    self.resource\n"
+        "\n"
+        "*** Test Cases ***\n"
+        "Test\n"
+        "    Keyword A\n"
+        "    Self Keyword\n"
+    )
+    return tmp_path
+
+
+@pytest.fixture
+def circular_context(circular_project):
+    config_manager = ConfigManager(sources=[str(circular_project)], root=circular_project, ignore_file_config=True)
+    return build_project_context(config_manager, silent=True)
+
+
+class TestCircularImports:
+    """Circular imports are allowed in Robot Framework, so they must not break the analysis."""
+
+    def test_every_file_is_visited_once(self, circular_context, circular_project):
+        visible = circular_context.imported_files(circular_project / "a.resource")
+        assert [file.path.name for file in visible] == ["a.resource", "b.resource"]
+
+    def test_file_importing_itself(self, circular_context, circular_project):
+        visible = circular_context.imported_files(circular_project / "self.resource")
+        assert [file.path.name for file in visible] == ["self.resource"]
+
+    def test_keywords_from_cycle_are_visible(self, circular_context, circular_project):
+        index = circular_context.visible_keywords(circular_project / "test.robot")
+        assert index.find("Keyword A")
+        assert index.find("Keyword B")
+        assert index.find("Self Keyword")
+
+    def test_usages_are_resolved(self, circular_context):
+        usages = [usage for _, usage in circular_context.iter_usages() if usage.name == "Keyword A"]
+        assert all(circular_context.resolve_keyword(usage) for usage in usages)

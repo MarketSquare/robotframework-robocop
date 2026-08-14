@@ -49,3 +49,47 @@ class UnusedKeywordRule(Rule):
         clean_code=sonar_qube.CleanCodeAttribute.COMPLETE, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
     deprecated_names = ("10101",)
+
+
+class AmbiguousKeywordNameRule(Rule):
+    """
+    Keyword name matches more than one keyword.
+
+    Reports keyword calls that match keywords defined in more than one place. Robot Framework fails such call
+    with the ``Multiple keywords with name 'X' found`` error, unless the call uses the full name of the keyword.
+
+    Example of rule violation:
+
+        *** Settings ***
+        Resource    login.resource      # defines Login
+        Resource    admin.resource      # defines Login as well
+
+        *** Test Cases ***
+        Test
+            Login    user    password   # it is not known which keyword should be used
+
+    Robot Framework resolves conflicts using the following order, which the rule follows as well:
+
+    - a keyword defined in the file containing the call is always used,
+    - keywords from resource files are used before keywords from libraries,
+    - a keyword from a custom library is used before a keyword from a standard library.
+
+    Calls using the full name of the keyword (``login.Login``) are not reported, since the prefix already
+    selects the keyword. Calls with a name built from a variable are not reported either.
+
+    Keywords defined twice in the same file are reported by the ``duplicated-keyword-name`` rule instead.
+
+    This rule is a project level rule: it requires parsing the whole project. Selecting it makes ``robocop check``
+    analyze the project.
+
+    """
+
+    name = "ambiguous-keyword-name"
+    rule_id = "KW06"
+    message = "Keyword '{keyword_name}' matches keywords from multiple sources: {sources}"
+    severity = RuleSeverity.WARNING
+    enabled = False
+    added_in_version = "8.9.0"
+    sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
+        clean_code=sonar_qube.CleanCodeAttribute.LOGICAL, issue_type=sonar_qube.SonarQubeIssueType.BUG
+    )

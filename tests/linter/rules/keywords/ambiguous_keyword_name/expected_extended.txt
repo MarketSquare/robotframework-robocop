@@ -1,0 +1,9 @@
+test.robot:8:5 KW06 Keyword 'Login' matches keywords from multiple sources: resources${/}first.resource, resources${/}second.resource
+   |
+ 6 | *** Test Cases ***
+ 7 | Ambiguous Call
+ 8 |     Login    user    password
+   |     ^^^^^ KW06
+   |
+
+Found 1 issue.

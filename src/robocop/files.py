@@ -12,13 +12,16 @@ def get_relative_path(path: str | Path, parent_path: Path) -> Path:
 
 
 @cache
-def path_relative_to_cwd(path: Path) -> Path:
-    """Return path in relation to cwd path. Results are cached."""
-    cwd = Path.cwd()  # TODO: potentially performance heavy - check
+def _path_relative_to(path: Path, cwd: Path) -> Path:
     try:
         return path.relative_to(cwd)
     except ValueError:  # symlink etc
         return path
+
+
+def path_relative_to_cwd(path: Path) -> Path:
+    """Return path in relation to cwd path. Results are cached per working directory."""
+    return _path_relative_to(path, Path.cwd())
 
 
 def get_common_parent_dirs(sources: list[Path]) -> list[Path]:

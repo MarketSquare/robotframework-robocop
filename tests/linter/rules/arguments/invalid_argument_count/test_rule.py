@@ -6,7 +6,10 @@ class TestRuleAcceptance(RuleAcceptance):
 
     def test_rule(self):
         self.check_rule(
-            src_files=["test.robot", "keywords.resource"], expected_file="expected_output.txt", project_check=True
+            src_files=["test.robot", "keywords.resource"],
+            expected_file="expected_output.txt",
+            exclude=["library"],
+            project_check=True,
         )
 
     def test_extended(self):
@@ -14,6 +17,7 @@ class TestRuleAcceptance(RuleAcceptance):
             src_files=["test.robot", "keywords.resource"],
             expected_file="expected_extended.txt",
             output_format="extended",
+            exclude=["library"],
             project_check=True,
         )
 

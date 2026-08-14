@@ -92,6 +92,7 @@ class ConfigBuilder:
         variables: dict[str, str] = self.variables_from_raw(cli_raw, file_raw)
         variable_files: list[str] = merge_lists(file_raw, cli_raw, "variable_files")
         python_path: list[str] = merge_lists(file_raw, cli_raw, "python_path")
+        project = resolve(cli_raw, file_raw, "project", defaults.PROJECT)
         analyze_libraries = resolve(cli_raw, file_raw, "analyze_libraries", defaults.ANALYZE_LIBRARIES)
         load_library_timeout = resolve(cli_raw, file_raw, "load_library_timeout", defaults.LOAD_LIBRARY_TIMEOUT)
         ignored_libraries: list[str] = merge_lists(file_raw, cli_raw, "ignored_libraries")
@@ -143,6 +144,7 @@ class ConfigBuilder:
             variables=variables,
             variable_files=variable_files,
             python_path=python_path,
+            project=project,
             analyze_libraries=analyze_libraries,
             load_library_timeout=load_library_timeout,
             ignored_libraries=ignored_libraries,

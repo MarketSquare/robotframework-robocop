@@ -1,0 +1,4 @@
+resources${/}keywords.resource:2:12 [I] IMP06 Imported library 'DateTime' is not used
+test.robot:3:12 [I] IMP06 Imported library 'OperatingSystem' is not used
+
+Found 2 issues.

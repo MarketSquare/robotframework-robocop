@@ -1,0 +1,17 @@
+test.robot:15:5 KW05 Keyword 'Logout' not found
+    |
+ 13 |
+ 14 | Missing Keyword
+ 15 |     Logout
+    |     ^^^^^^ KW05
+    |
+
+test.robot:22:34 KW05 Keyword 'Not Defined Anywhere' not found
+    |
+ 20 |
+ 21 | Missing Keyword In Run Keyword
+ 22 |     Run Keyword If    ${True}    Not Defined Anywhere
+    |                                  ^^^^^^^^^^^^^^^^^^^^ KW05
+    |
+
+Found 2 issues.

@@ -19,7 +19,6 @@ class KeywordCallChecker(VisitorChecker):
 
     sleep_keyword_used: keywords.SleepKeywordUsedRule
     not_allowed_keyword: keywords.NotAllowedKeywordRule
-    if_can_be_used: deprecated.IfCanBeUsedRule
     number_of_returned_values: lengths.NumberOfReturnedValuesRule
     missing_keyword_name: errors.MissingKeywordNameRule
     not_enough_whitespace_after_setting: whitespace.NotEnoughWhitespaceAfterSettingRule
@@ -42,7 +41,6 @@ class KeywordCallChecker(VisitorChecker):
         # It will match sleep, Sleep, BuiltIn.Sleep or S_leep. That's why we need to normalize name first
         normalized_name = normalize_robot_name(node.keyword, remove_prefix="builtin.")
         self.sleep_keyword_used.check(node, normalized_name)
-        self.if_can_be_used.check(node, node.keyword, normalized_name)
         self.number_of_returned_values.check_keyword_call(node, normalized_name)
         self.check_if_keyword_is_deprecated(node.keyword, node, normalized_name)
         self.check_keyword_can_be_replaced_with_var(node.keyword, node, normalized_name)

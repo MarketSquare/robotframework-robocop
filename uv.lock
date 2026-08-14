@@ -2304,7 +2304,7 @@ requires-dist = [
     { name = "pydantic", marker = "extra == 'mcp'", specifier = ">=2.13.4" },
     { name = "pytz", specifier = ">=2022.7" },
     { name = "rich", specifier = ">=10.11.0" },
-    { name = "robotframework", specifier = ">=5.0,<7.5" },
+    { name = "robotframework", specifier = ">=5.0,<7.6" },
     { name = "tomli", marker = "python_full_version < '3.11'", specifier = "==2.2.1" },
     { name = "tomli-w", specifier = ">=1.0" },
     { name = "typer", specifier = ">=0.26.0" },

@@ -15,7 +15,7 @@ from robot.errors import DataError
 from robocop.linter.utils.misc import normalize_robot_name
 from robocop.project.collector import ProjectFileCollector
 from robocop.project.definitions import ImportStatus, ImportType, KeywordDefinition
-from robocop.project.imports import ImportResolver
+from robocop.project.imports import ImportResolver, build_search_paths
 from robocop.project.variables import VariableScope
 
 if TYPE_CHECKING:
@@ -270,8 +270,11 @@ def build_project_context(config_manager: ConfigManager, silent: bool = False) -
 
     """
     context = ProjectContext(root=config_manager.root)
+    config = config_manager.default_config
+    search_paths = build_search_paths(config.python_path, config_manager.root)
     global_scope = VariableScope()
-    global_scope.add_command_line(config_manager.default_config.variables)
+    global_scope.add_variable_files(config.variable_files, search_paths)
+    global_scope.add_command_line(config.variables)
 
     for source_file in config_manager.paths:
         try:
@@ -286,7 +289,7 @@ def build_project_context(config_manager: ConfigManager, silent: bool = False) -
     for project_file in context.files.values():
         scope = global_scope.copy_for(project_file.path)
         scope.add_own(project_file.variables)
-        resolver = ImportResolver(scope)
+        resolver = ImportResolver(scope, search_paths)
         base_dir = project_file.path.parent
         project_file.imports = [
             resolver.resolve(raw.import_type, raw.name, raw.location, base_dir)

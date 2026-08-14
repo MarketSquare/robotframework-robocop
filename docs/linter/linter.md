@@ -109,7 +109,8 @@ robocop check-project --select unused-keyword --select invalid-argument-count
 ```
 
 Robocop builds the project context by parsing every source file, resolving ``Resource`` imports and indexing keyword
-definitions, keyword calls and variables. No library is imported and no user code is executed.
+definitions, keyword calls and variables. No library is imported and no user code is executed, unless a Python
+variable file is provided with the ``--variablefile`` option.
 
 Currently available project level rules are:
 
@@ -119,13 +120,24 @@ Currently available project level rules are:
 - ``unused-resource-import`` - nothing from the imported resource file is used,
 - ``duplicated-variable-in-project`` - the same variable is defined in multiple files visible together.
 
-Import paths often contain variables. Provide them with the ``--variable`` option so that the imports can be resolved:
+Import paths often contain variables. Provide them with the ``--variable`` or ``--variablefile`` option so that the
+imports can be resolved:
 
 ```bash
 robocop check-project --variable RESOURCE_DIR:resources
+robocop check-project --variablefile config/variables.py
 ```
 
-See [variables](../configuration/configuration_reference.md#variables) for more details.
+If the project relies on the Robot Framework ``--pythonpath`` option to find its resources or libraries, pass the
+same locations to Robocop:
+
+```bash
+robocop check-project --pythonpath shared --pythonpath libs/*
+```
+
+See [variables](../configuration/configuration_reference.md#variables),
+[variable-files](../configuration/configuration_reference.md#variable-files) and
+[python-path](../configuration/configuration_reference.md#python-path) for more details.
 
 Project checks can be added as custom rules. See [custom rules](custom_rules.md/#project-checks) for more details.
 

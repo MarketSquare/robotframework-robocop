@@ -381,6 +381,69 @@ dynamically built paths do not cause false positives.
 
 ---
 
+#### ``variable-files``
+
+Use ``--variablefile`` option to load variables from a Python or YAML file. It is an equivalent of the Robot Framework
+``--variablefile`` option and supports the same ``path:arg1:arg2`` syntax for variable files taking arguments.
+
+=== ":octicons-command-palette-24: cli"
+
+    ```bash
+    robocop check-project --variablefile config/variables.py
+    robocop check-project -V config/variables.py -V config/environments.yaml
+    ```
+
+=== ":material-file-cog-outline: toml"
+
+    ```toml
+    [tool.robocop]
+    variable-files = ["config/variables.py", "config/environments.yaml"]
+    ```
+
+Paths in the configuration file are relative to the configuration file. Only scalar variables are loaded, since only
+those can be used to build an import path. Variables from the command line (``--variable``) take precedence over
+variables from variable files, which take precedence over variables defined in the ``*** Variables ***`` section.
+
+!!! warning
+
+    Loading a Python variable file imports it, which executes its code. Robocop never fails because of a variable
+    file - if the file is missing or raises an error, it is silently skipped.
+
+---
+
+#### ``python-path``
+
+Use ``--pythonpath`` option to add locations searched for ``Resource``, ``Library`` and ``Variables`` imports.
+It is an equivalent of the Robot Framework ``--pythonpath`` option.
+
+Robot Framework first searches for the import next to the importing file, and then in the locations from the
+``--pythonpath`` option. Robocop resolves imports the same way, so a project relying on this option needs to pass it
+to Robocop as well:
+
+```robotframework
+*** Settings ***
+Resource    common.resource  # stored in the shared/ directory, not next to this file
+```
+
+=== ":octicons-command-palette-24: cli"
+
+    ```bash
+    robocop check-project --pythonpath shared
+    robocop check-project -P shared -P libs/*
+    ```
+
+=== ":material-file-cog-outline: toml"
+
+    ```toml
+    [tool.robocop]
+    python-path = ["shared", "libs/*"]
+    ```
+
+Glob patterns are supported. Relative paths in the command line are resolved against the project root, and relative
+paths in the configuration file are resolved against the configuration file.
+
+---
+
 ## Linter
 
 ### Selecting rules

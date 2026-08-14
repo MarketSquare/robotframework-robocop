@@ -360,6 +360,12 @@ class RawConfig:
             raw_dict["formatter"] = None
         if "target_version" in raw_dict:
             raw_dict["target_version"] = TargetVersion.from_string(str(raw_dict["target_version"]))
+        for path_field in ("variable_files", "python_path"):
+            if path_field in raw_dict:
+                raw_dict[path_field] = [
+                    resolve_relative_path(path, config_path.parent, ensure_exists=False)
+                    for path in raw_dict[path_field]
+                ]
         raw_dict["cache"] = RawCacheConfig.from_dict(raw_dict, config_path.parent)
         raw_dict["file_filters"] = RawFileFiltersOptions.from_dict(config_dict)
         raw_dict["config_source"] = str(config_path)

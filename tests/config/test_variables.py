@@ -6,6 +6,7 @@ import pytest
 import typer
 
 from robocop.config.parser import normalize_config_keys, parse_variables
+from robocop.config.schema import RawConfig
 
 
 class TestParseVariables:
@@ -56,3 +57,33 @@ class TestNormalizeConfigKeys:
     def test_nested_variable_names_are_not_normalized(self):
         config = {"lint": {"variables": {"MY-VAR": "value"}}}
         assert normalize_config_keys(config) == config
+
+
+class TestPathOptionsFromConfigFile:
+    """``python-path`` and ``variable-files`` from the configuration file are relative to the configuration file."""
+
+    def test_python_path_is_resolved_relative_to_config(self, tmp_path):
+        config_path = tmp_path / "robocop.toml"
+        raw_config = RawConfig.from_dict({"python_path": ["libs", "resources"]}, config_path)
+        assert raw_config.python_path == [str(tmp_path / "libs"), str(tmp_path / "resources")]
+
+    def test_variable_files_are_resolved_relative_to_config(self, tmp_path):
+        config_path = tmp_path / "robocop.toml"
+        raw_config = RawConfig.from_dict({"variable_files": ["vars/values.py"]}, config_path)
+        assert raw_config.variable_files == [str(tmp_path / "vars" / "values.py")]
+
+    def test_absolute_path_is_not_changed(self, tmp_path):
+        config_path = tmp_path / "robocop.toml"
+        absolute = str((tmp_path / "libs").absolute())
+        raw_config = RawConfig.from_dict({"python_path": [absolute]}, config_path)
+        assert raw_config.python_path == [absolute]
+
+    def test_glob_pattern_is_kept(self, tmp_path):
+        config_path = tmp_path / "robocop.toml"
+        raw_config = RawConfig.from_dict({"python_path": ["libs/*"]}, config_path)
+        assert raw_config.python_path == [str(tmp_path / "libs" / "*")]
+
+    def test_not_defined(self, tmp_path):
+        raw_config = RawConfig.from_dict({}, tmp_path / "robocop.toml")
+        assert raw_config.python_path is None
+        assert raw_config.variable_files is None

@@ -155,6 +155,30 @@ variable_option = Annotated[
         rich_help_panel="Other",
     ),
 ]
+variable_file_option = Annotated[
+    list[str] | None,
+    typer.Option(
+        "--variablefile",
+        "-V",
+        show_default=False,
+        metavar="PATH",
+        help="Python or YAML file with variables used to resolve dynamic import paths. "
+        "Equivalent of the Robot Framework --variablefile option.",
+        rich_help_panel="Other",
+    ),
+]
+python_path_option = Annotated[
+    list[str] | None,
+    typer.Option(
+        "--pythonpath",
+        "-P",
+        show_default=False,
+        metavar="PATH",
+        help="Additional locations to search for resources, variable files and libraries. Supports glob patterns. "
+        "Equivalent of the Robot Framework --pythonpath option.",
+        rich_help_panel="Other",
+    ),
+]
 verbose_option = Annotated[
     bool | None,
     typer.Option(
@@ -504,6 +528,8 @@ def check_project(
     ] = False,
     root: project_root_option = None,
     variable: variable_option = None,
+    variable_file: variable_file_option = None,
+    python_path: python_path_option = None,
     verbose: verbose_option = None,
     silent: silent_option = None,
 ) -> list[Diagnostic]:
@@ -535,6 +561,8 @@ def check_project(
         file_filters=file_filters,
         language=language,
         variables=parser.parse_variables(variable),
+        variable_files=variable_file,
+        python_path=python_path,
         verbose=verbose,
         silent=silent,
         target_version=target_version,

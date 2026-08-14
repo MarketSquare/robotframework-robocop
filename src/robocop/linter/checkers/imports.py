@@ -98,7 +98,6 @@ class UnusedImportsChecker(ProjectChecker):
                 end_col=imported.location.end_col,
             )
 
-
     def _consumers_of(self, project_file: ProjectFile, context: ProjectContext) -> list[ProjectFile]:
         """
         Return files whose keyword calls may rely on imports of given file.

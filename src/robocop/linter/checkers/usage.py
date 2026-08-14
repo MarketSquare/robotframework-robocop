@@ -109,9 +109,9 @@ class UnusedKeywords(ProjectChecker):
         """
         project_usages = UsedKeywordNames()
         file_usages: dict[Path, UsedKeywordNames] = {}
-        for project_file, usage in context.iter_usages():
+        for project_file, keyword_usage in context.iter_usages():
             per_file = file_usages.setdefault(project_file.path.resolve(), UsedKeywordNames())
-            for name in usage.names_to_check():
-                project_usages.add(name, usage.name_contains_variable)
-                per_file.add(name, usage.name_contains_variable)
+            for name in keyword_usage.names_to_check():
+                project_usages.add(name, keyword_usage.name_contains_variable)
+                per_file.add(name, keyword_usage.name_contains_variable)
         return project_usages, file_usages

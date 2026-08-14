@@ -5,18 +5,12 @@ from typing import TYPE_CHECKING, ClassVar
 from robot.api import Token
 
 from robocop.linter import sonar_qube
-from robocop.linter.rules import ProjectChecker, Rule, RuleParam, RuleSeverity
+from robocop.linter.rules import Rule, RuleParam, RuleSeverity
 from robocop.linter.utils.misc import normalize_robot_var_name, split_argument_default_value
-from robocop.source_file import SourceFile, VirtualSourceFile
 from robocop.version_handling import TYPE_SUPPORTED
 
 if TYPE_CHECKING:
     from robot.parsing.model.statements import Arguments, KeywordCall
-
-    from robocop.config.manager import ConfigManager
-    from robocop.linter.diagnostics import Diagnostic
-    from robocop.project.context import ProjectContext
-    from robocop.project.definitions import ArgumentsMismatch, KeywordUsage
 
 
 class UnusedArgumentRule(Rule):
@@ -363,55 +357,3 @@ class InvalidArgumentCountRule(Rule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.LOGICAL, issue_type=sonar_qube.SonarQubeIssueType.BUG
     )
-
-
-class ProjectArgumentsChecker(ProjectChecker):
-    """Checker for keyword arguments validated against definitions from the whole project."""
-
-    invalid_argument_count: InvalidArgumentCountRule
-
-    def scan_project(
-        self,
-        project_source_file: SourceFile | VirtualSourceFile,
-        config_manager: ConfigManager,  # noqa: ARG002
-        context: ProjectContext | None = None,
-    ) -> list[Diagnostic]:
-        self.issues = []
-        if context is None:
-            return self.issues
-        for project_file, usage in context.iter_usages():
-            mismatch = self._validate_usage(context, usage)
-            if mismatch is None:
-                continue
-            self.report(
-                self.invalid_argument_count,
-                source=SourceFile(path=project_file.path, config=project_source_file.config),
-                keyword_name=usage.name,
-                expected=mismatch.expected,
-                provided=mismatch.provided,
-                missing=self._describe_missing(mismatch),
-                lineno=usage.location.lineno,
-                col=usage.location.col,
-                end_lineno=usage.location.end_lineno,
-                end_col=usage.location.end_col,
-            )
-        return self.issues
-
-    @staticmethod
-    def _describe_missing(mismatch: ArgumentsMismatch) -> str:
-        if not mismatch.missing:
-            return ""
-        missing = ", ".join(f"${{{name}}}" for name in mismatch.missing)
-        return f", missing {missing}"
-
-    @staticmethod
-    def _validate_usage(context: ProjectContext, usage: KeywordUsage) -> ArgumentsMismatch | None:
-        if usage.is_template or usage.name_contains_variable or usage.has_argument_expansion:
-            return None
-        definitions = context.resolve_keyword(usage)
-        if len(definitions) != 1:
-            return None  # not defined in the project, or ambiguous
-        definition = definitions[0]
-        if definition.has_embedded_arguments:
-            return None
-        return definition.arguments.validate_call(usage.arguments)

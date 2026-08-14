@@ -622,7 +622,7 @@ class ProjectChecker(BaseChecker):
         self,
         project_source_file: SourceFile | VirtualSourceFile,
         config_manager: ConfigManager,
-        context: ProjectContext | None = None,
+        context: ProjectContext,
     ) -> list[Diagnostic]:
         """
         Perform checks on the whole project.
@@ -635,8 +635,7 @@ class ProjectChecker(BaseChecker):
             project_source_file: Virtual source file representing the whole project. Use its ``config`` attribute
                 when creating ``SourceFile`` instances for reported issues.
             config_manager: Configuration manager, can be used to access project root and configuration.
-            context: Project context with parsed files, keyword definitions and resolved imports. It is None only
-                if the checker is called without the project context being built.
+            context: Project context with parsed files, keyword definitions, keyword calls and resolved imports.
 
         """
         raise NotImplementedError

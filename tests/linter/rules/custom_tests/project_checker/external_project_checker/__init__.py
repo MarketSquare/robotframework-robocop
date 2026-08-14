@@ -2,6 +2,7 @@ from pathlib import Path
 
 from robocop.config.manager import ConfigManager
 from robocop.linter.rules import ProjectChecker, Rule, RuleSeverity
+from robocop.project.context import ProjectContext
 from robocop.source_file import SourceFile, VirtualSourceFile
 
 
@@ -25,12 +26,16 @@ class MyProjectChecker(ProjectChecker):
     project_checker: ProjectCheckerRule
     test_total_count: TestTotalCountRule
 
-    def scan_project(self, project_source_file: VirtualSourceFile, config_manager: ConfigManager) -> None:
+    def scan_project(
+        self,
+        project_source_file: VirtualSourceFile,
+        config_manager: ConfigManager,  # noqa: ARG002
+        context: ProjectContext,
+    ) -> None:
         files_count = 0
-        for robot_file in config_manager.root.rglob("*.robot"):
+        for project_file in context.iter_files():
             files_count += 1
-            self.report(self.project_checker, source=SourceFile(robot_file, config=project_source_file.config))
-        # files can be also parsed (with get_model) and checked here
+            self.report(self.project_checker, source=project_file.source_file)
         self.report(
             self.test_total_count,
             source=SourceFile(Path("Project-name"), project_source_file.config),

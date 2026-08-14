@@ -27,11 +27,9 @@ class ProjectImportsChecker(ProjectChecker):
         self,
         project_source_file: SourceFile | VirtualSourceFile,
         config_manager: ConfigManager,  # noqa: ARG002
-        context: ProjectContext | None = None,
+        context: ProjectContext,
     ) -> list[Diagnostic]:
         self.issues = []
-        if context is None:
-            return self.issues
         for project_file, imported in context.iter_imports():
             if imported.import_type != ImportType.RESOURCE or imported.status != ImportStatus.NOT_FOUND:
                 continue
@@ -60,12 +58,10 @@ class UnusedImportsChecker(ProjectChecker):
         self,
         project_source_file: SourceFile | VirtualSourceFile,
         config_manager: ConfigManager,  # noqa: ARG002
-        context: ProjectContext | None = None,
+        context: ProjectContext,
     ) -> list[Diagnostic]:
         self.issues = []
         self._importers = None
-        if context is None:
-            return self.issues
         for project_file in context.iter_files():
             self._check_file(project_file, project_source_file, context)
         return self.issues

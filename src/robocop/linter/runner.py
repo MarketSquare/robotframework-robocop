@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import inspect
 from pathlib import Path
 from typing import TYPE_CHECKING, NoReturn
 
@@ -27,27 +26,7 @@ if TYPE_CHECKING:
     from robocop.config.manager import ConfigManager
     from robocop.config.schema import Config
     from robocop.linter.diagnostics import Diagnostic
-    from robocop.linter.rules import ProjectChecker
     from robocop.project.context import ProjectContext
-
-
-def accepts_project_context(checker_class: type[ProjectChecker]) -> bool:
-    """
-    Check if the checker's ``scan_project`` method accepts the project context.
-
-    Returns:
-        True if the context can be passed to the checker.
-
-    """
-    try:
-        signature = inspect.signature(checker_class.scan_project)
-    except (TypeError, ValueError):  # pragma: no cover - defensive
-        return False
-    parameters = list(signature.parameters.values())
-    if any(param.kind == inspect.Parameter.VAR_KEYWORD for param in parameters):
-        return True
-    # self, project_source_file, config_manager, context
-    return len(parameters) > 3 or "context" in signature.parameters
 
 
 class RobocopLinter:
@@ -225,52 +204,31 @@ class RobocopLinter:
         resolved_config = self.config_resolver.resolve_config(config)
         project_name = self.config_manager.root.name
         project_source_file = VirtualSourceFile(Path(project_name), self.config_manager.default_config)
-        context = self.build_context_if_needed(resolved_config.project_checkers, config)
-        for checker in resolved_config.project_checkers:
-            checker.issues = []
-            self.call_scan_project(checker, project_source_file, context)
-            self.diagnostics.extend(
-                [diagnostic for diagnostic in checker.issues if not (diagnostic.severity < config.linter.threshold)]
-            )
+        if resolved_config.project_checkers:
+            context = self.build_context(config)
+            for checker in resolved_config.project_checkers:
+                checker.issues = []
+                checker.scan_project(project_source_file, self.config_manager, context)
+                self.diagnostics.extend(
+                    [diagnostic for diagnostic in checker.issues if not (diagnostic.severity < config.linter.threshold)]
+                )
         self.make_reports(run_stats=None)
         if config.linter.return_result:
             return self.diagnostics
         return self.return_with_exit_code(len(self.diagnostics))
 
-    def build_context_if_needed(self, checkers: list[ProjectChecker], config: Config) -> ProjectContext | None:
+    def build_context(self, config: Config) -> ProjectContext:
         """
-        Build the project context, unless no checker is going to use it.
-
-        Parsing the whole project is expensive, so it is skipped when no project rule is enabled or when all enabled
-        rules use the old ``scan_project`` signature.
+        Parse the whole project and build the context shared by all project checkers.
 
         Returns:
-            ProjectContext, or None if no checker needs it.
+            ProjectContext with parsed files, keyword index and resolved imports.
 
         """
-        if not any(accepts_project_context(type(checker)) for checker in checkers):
-            return None
         context = build_project_context(self.config_manager, silent=config.silent)
         if config.verbose and not config.silent:
             print(f"Built project context from {len(context.files)} files.")
         return context
-
-    def call_scan_project(
-        self,
-        checker: ProjectChecker,
-        project_source_file: VirtualSourceFile,
-        context: ProjectContext | None,
-    ) -> None:
-        """
-        Call ``scan_project`` on the checker, passing the project context if the checker accepts it.
-
-        Custom checkers written before the project context was introduced only accept two arguments. They are still
-        called, just without the context.
-        """
-        if accepts_project_context(type(checker)):
-            checker.scan_project(project_source_file, self.config_manager, context)
-        else:
-            checker.scan_project(project_source_file, self.config_manager)
 
     def return_with_exit_code(self, issues_count: int) -> NoReturn:
         """

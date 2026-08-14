@@ -201,11 +201,9 @@ class ProjectDuplicationsChecker(ProjectChecker):
         self,
         project_source_file: SourceFile | VirtualSourceFile,
         config_manager: ConfigManager,  # noqa: ARG002
-        context: ProjectContext | None = None,
+        context: ProjectContext,
     ) -> list[Diagnostic]:
         self.issues = []
-        if context is None:
-            return self.issues
         reported: set[tuple[Path, int, int, str]] = set()
         for project_file in context.iter_files():
             for occurrences in self._duplicated_definitions(project_file, context):

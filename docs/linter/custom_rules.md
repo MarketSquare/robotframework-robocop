@@ -446,7 +446,7 @@ class MyProjectChecker(ProjectChecker):
         self,
         project_source_file: SourceFile | VirtualSourceFile,
         config_manager: ConfigManager,
-        context: ProjectContext | None = None,
+        context: ProjectContext,
     ) -> list[Diagnostic]:
         self.issues = []
         for project_file in context.iter_files():
@@ -471,11 +471,6 @@ receives:
 !!! note
 
     ``source`` passed to ``self.report()`` must be a ``SourceFile`` instance, not a ``Path`` or a string.
-
-!!! note
-
-    The ``context`` argument was added in Robocop 8.9.0. Checkers that only accept ``project_source_file`` and
-    ``config_manager`` are still supported and are called without the context.
 
 ### Project context
 

@@ -47,11 +47,9 @@ class ProjectArgumentsChecker(ProjectChecker):
         self,
         project_source_file: SourceFile | VirtualSourceFile,
         config_manager: ConfigManager,  # noqa: ARG002
-        context: ProjectContext | None = None,
+        context: ProjectContext,
     ) -> list[Diagnostic]:
         self.issues = []
-        if context is None:
-            return self.issues
         for project_file, usage in context.iter_usages():
             mismatch = self._validate_usage(context, usage)
             if mismatch is None:

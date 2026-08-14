@@ -67,11 +67,9 @@ class UnusedKeywords(ProjectChecker):
         self,
         project_source_file: SourceFile | VirtualSourceFile,
         config_manager: ConfigManager,  # noqa: ARG002
-        context: ProjectContext | None = None,
+        context: ProjectContext,
     ) -> list[Diagnostic]:
         self.issues = []
-        if context is None:
-            return self.issues
         project_usages, file_usages = self._collect_usages(context)
         for project_file in context.iter_files():
             private_usages = file_usages.get(project_file.path.resolve())

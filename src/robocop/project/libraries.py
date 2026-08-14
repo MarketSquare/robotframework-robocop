@@ -18,6 +18,8 @@ import sys
 import tempfile
 from dataclasses import dataclass, field
 from fnmatch import fnmatch
+from functools import cache
+from hashlib import sha256
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
@@ -27,6 +29,7 @@ from robocop.project.definitions import ArgumentsSpec, KeywordDefinition, Locati
 if TYPE_CHECKING:
     from collections.abc import Iterable
 
+    from robocop.cache import RobocopCache
     from robocop.project.definitions import ResolvedImport
 
 WORKER_MODULE = "robocop.project._libdoc_worker"
@@ -140,11 +143,18 @@ class LibraryLoader:
 
     Every library is imported only once, even if it is used in several files. Libraries imported with different
     arguments are treated as different libraries, since the arguments may change the provided keywords.
+
+    Successful imports are also stored in the persistent Robocop cache, so that the library does not have to be
+    imported again in the next run. Cached results are only used for libraries installed outside of the analyzed
+    project and are invalidated when the library source file, the Python interpreter or the Robot Framework
+    version changes.
     """
 
     search_paths: list[Path] = field(default_factory=list)
     timeout: int = DEFAULT_TIMEOUT
     ignored_libraries: list[str] = field(default_factory=list)
+    cache: RobocopCache | None = None
+    project_root: Path | None = None
     _cache: dict[tuple[str, tuple[str, ...]], LibrarySpec] = field(default_factory=dict, init=False)
 
     def load(self, request: LibraryRequest) -> LibrarySpec:
@@ -217,7 +227,7 @@ class LibraryLoader:
         """
         if self.is_ignored(request.name):
             return LibrarySpec(name=request.name, error="Library is excluded from the analysis")
-        response = self._run_worker(request)
+        response = self._import_library(request)
         if response.get("status") != "ok":
             return LibrarySpec(name=request.name, error=response.get("error", "Unknown error"))
         fallback_source = request.source or Path(request.name)
@@ -225,6 +235,43 @@ class LibraryLoader:
             _keyword_definition(keyword, request.name, fallback_source) for keyword in response.get("keywords", [])
         )
         return LibrarySpec(name=request.name, keywords=keywords)
+
+    def _import_library(self, request: LibraryRequest) -> dict[str, Any]:
+        """
+        Import the library, reusing the result stored in the persistent cache when it is still valid.
+
+        Returns:
+            Response describing the library keywords or the failure.
+
+        """
+        cache_key = _persistent_cache_key(request)
+        if self.cache is not None:
+            cached = self.cache.get_library_entry(cache_key, environment_hash())
+            if cached is not None:
+                return cached
+        response = self._run_worker(request)
+        if self.cache is not None and response.get("status") == "ok":
+            source = response.get("source")
+            if source and self._can_be_cached(Path(source)):
+                self.cache.set_library_entry(cache_key, environment_hash(), Path(source), response)
+        return response
+
+    def _can_be_cached(self, source: Path) -> bool:
+        """
+        Check if the imported library can be stored in the persistent cache.
+
+        Libraries that are a part of the analyzed project are not cached, since they change together with the
+        rest of the sources and a change in any of their modules would not be detected.
+
+        Returns:
+            True if the library can be stored between the runs.
+
+        """
+        if not source.is_file():
+            return False
+        if self.project_root is None:
+            return True
+        return self.project_root.resolve() not in source.resolve().parents
 
     def _run_worker(self, request: LibraryRequest) -> dict[str, Any]:
         """
@@ -268,6 +315,35 @@ class LibraryLoader:
             return response
 
 
+def _persistent_cache_key(request: LibraryRequest) -> str:
+    """
+    Build the key identifying the library import in the persistent cache.
+
+    Returns:
+        Key built from the library name or path and its arguments.
+
+    """
+    name = str(request.source) if request.source else request.name
+    return "::".join([name, *request.args])
+
+
+@cache
+def environment_hash() -> str:
+    """
+    Describe the environment the libraries are imported in.
+
+    Libraries imported with a different Python interpreter or a different Robot Framework version may provide
+    different keywords, so the cached results cannot be reused.
+
+    Returns:
+        Hash of the Python interpreter and the Robot Framework version.
+
+    """
+    from robot.version import VERSION as RF_VERSION  # noqa: PLC0415
+
+    return sha256(f"{sys.executable}|{sys.version}|{RF_VERSION}".encode()).hexdigest()
+
+
 def replace_library_name(keyword: KeywordDefinition, library_name: str) -> KeywordDefinition:
     """
     Return a copy of the keyword that belongs to a library imported under a different name.
@@ -290,6 +366,8 @@ def build_library_loader(
     search_paths: Iterable[Path] | None = None,
     timeout: int = DEFAULT_TIMEOUT,
     ignored_libraries: Iterable[str] | None = None,
+    cache: RobocopCache | None = None,
+    project_root: Path | None = None,
 ) -> LibraryLoader:
     """
     Create the loader used to import libraries during the project analysis.
@@ -302,4 +380,6 @@ def build_library_loader(
         search_paths=list(search_paths or []),
         timeout=timeout,
         ignored_libraries=list(ignored_libraries or []),
+        cache=cache,
+        project_root=project_root,
     )

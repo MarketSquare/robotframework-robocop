@@ -78,7 +78,12 @@ def load_library(request: dict[str, Any]) -> dict[str, Any]:
         from robot.libdocpkg import LibraryDocumentation  # noqa: PLC0415
 
         library = LibraryDocumentation(name)
-        return {"status": "ok", "name": library.name, "keywords": _keywords(library)}
+        return {
+            "status": "ok",
+            "name": library.name,
+            "source": str(library.source) if library.source else None,
+            "keywords": _keywords(library),
+        }
     except BaseException as error:  # noqa: BLE001 - importing a library executes arbitrary code
         message = f"{type(error).__name__}: {error}".strip()
         return {

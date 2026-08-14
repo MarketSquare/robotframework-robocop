@@ -122,6 +122,9 @@ robocop check --no-project
     analysis. Library analysis can be disabled with ``--no-analyze-libraries`` and single libraries can be skipped
     with ``--ignored-library``.
 
+Keywords of the successfully imported libraries are stored in the [cache](../user_guide/intro.md#caching), so the
+next run does not have to import them again.
+
 Currently available project level rules are:
 
 - ``unresolved-resource-import`` - imported resource file does not exist,

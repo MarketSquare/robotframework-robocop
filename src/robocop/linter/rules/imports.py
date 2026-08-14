@@ -291,3 +291,44 @@ class UnusedLibraryImportRule(Rule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.CLEAR, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
+
+
+class CircularImportRule(Rule):
+    """
+    Resource file is a part of a circular import.
+
+    Reports resource imports that import, directly or indirectly, the file they are used in.
+
+    Example of rule violation:
+
+        # keywords.resource
+        *** Settings ***
+        Resource    helpers.resource
+
+        # helpers.resource
+        *** Settings ***
+        Resource    keywords.resource  # keywords.resource imports this file already
+
+    Robot Framework does not fail on circular imports, but they make it harder to tell where a keyword comes from
+    and often mean that the files should be split differently. Move the shared keywords to a separate resource file
+    imported by both files to break the cycle.
+
+    Every import taking part in the cycle is reported, together with the path leading back to the importing file.
+    A file importing itself is reported as well.
+
+    Imports that could not be resolved are not reported, since it is not known what they point to.
+
+    This rule is a project level rule: it requires parsing the whole project. Selecting it makes ``robocop check``
+    analyze the project.
+
+    """
+
+    name = "circular-import"
+    rule_id = "IMP08"
+    message = "Circular import: {cycle}"
+    severity = RuleSeverity.WARNING
+    enabled = False
+    added_in_version = "8.9.0"
+    sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
+        clean_code=sonar_qube.CleanCodeAttribute.MODULAR, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
+    )

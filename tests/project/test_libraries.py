@@ -2,8 +2,12 @@
 
 from __future__ import annotations
 
+import os
+import time
+
 import pytest
 
+from robocop.cache import RobocopCache
 from robocop.config.manager import ConfigManager
 from robocop.config.schema import RawConfig
 from robocop.project.context import build_project_context
@@ -167,3 +171,53 @@ class TestLibrariesInProjectContext:
         )
         context = build_context(project)
         assert context.visible_keywords(project / "test.robot").find("Own Keyword")
+
+
+class TestPersistentLibraryCache:
+    def test_library_is_read_from_cache_in_next_run(self, library_dir, tmp_path, monkeypatch):
+        cache = RobocopCache(cache_dir=tmp_path / "cache", enabled=True, verbose=False)
+        loader = build_library_loader(search_paths=[library_dir], cache=cache)
+        assert keyword_names(loader.load(LibraryRequest(name="MyLibrary"))) == ["Custom Keyword"]
+        cache.save()
+
+        next_cache = RobocopCache(cache_dir=tmp_path / "cache", enabled=True, verbose=False)
+        next_loader = build_library_loader(search_paths=[library_dir], cache=next_cache)
+        monkeypatch.setattr(
+            LibraryLoader,
+            "_run_worker",
+            lambda *args, **kwargs: pytest.fail("Library should be read from the cache"),  # noqa: ARG005
+        )
+        assert keyword_names(next_loader.load(LibraryRequest(name="MyLibrary"))) == ["Custom Keyword"]
+
+    def test_modified_library_is_imported_again(self, library_dir, tmp_path):
+        cache = RobocopCache(cache_dir=tmp_path / "cache", enabled=True, verbose=False)
+        loader = build_library_loader(search_paths=[library_dir], cache=cache)
+        loader.load(LibraryRequest(name="MyLibrary"))
+        cache.save()
+
+        library = library_dir / "MyLibrary.py"
+        library.write_text("def other_keyword():\n    pass\n")
+        os.utime(library, (time.time() + 10, time.time() + 10))
+
+        next_cache = RobocopCache(cache_dir=tmp_path / "cache", enabled=True, verbose=False)
+        next_loader = build_library_loader(search_paths=[library_dir], cache=next_cache)
+        assert keyword_names(next_loader.load(LibraryRequest(name="MyLibrary"))) == ["Other Keyword"]
+
+    def test_failed_import_is_not_cached(self, library_dir, tmp_path):
+        cache = RobocopCache(cache_dir=tmp_path / "cache", enabled=True, verbose=False)
+        loader = build_library_loader(search_paths=[library_dir], cache=cache)
+        assert not loader.load(LibraryRequest(name="BrokenLibrary")).loaded
+        assert not cache.data.libraries
+
+    def test_project_libraries_are_not_cached(self, library_dir, tmp_path):
+        cache = RobocopCache(cache_dir=tmp_path / "cache", enabled=True, verbose=False)
+        loader = build_library_loader(search_paths=[library_dir], cache=cache, project_root=library_dir)
+        assert loader.load(LibraryRequest(name="MyLibrary")).loaded
+        assert not cache.data.libraries
+
+    def test_cache_is_not_used_when_environment_changes(self, library_dir, tmp_path):
+        cache = RobocopCache(cache_dir=tmp_path / "cache", enabled=True, verbose=False)
+        loader = build_library_loader(search_paths=[library_dir], cache=cache)
+        loader.load(LibraryRequest(name="MyLibrary"))
+        key = next(iter(cache.data.libraries))
+        assert cache.get_library_entry(key, "other-environment") is None

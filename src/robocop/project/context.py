@@ -327,6 +327,8 @@ def build_project_context(config_manager: ConfigManager, silent: bool = False) -
             search_paths=search_paths,
             timeout=config.load_library_timeout,
             ignored_libraries=config.ignored_libraries,
+            cache=config_manager.cache if config.cache.enabled else None,
+            project_root=config_manager.root,
         )
     global_scope = VariableScope()
     global_scope.add_variable_files(config.variable_files, search_paths)

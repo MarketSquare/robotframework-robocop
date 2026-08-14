@@ -125,6 +125,7 @@ class RobocopLinter:
                 self.config_manager.cache.set_linter_entry(source_file.path, source_file.config.hash, diagnostics)
         self.config_manager.cache.save()
         self.diagnostics.extend(self.run_project_checks())
+        self.config_manager.cache.save()  # project analysis may cache imported libraries
 
         if not files and not self.config_manager.default_config.silent:
             print("No Robot files were found with the existing configuration.")

@@ -127,6 +127,10 @@ If the file was not modified since the last run and Robocop configuration did no
 results. Previous diagnostic messages are retained, and formatting of not modified files is skipped.
 Use [``--no-cache``](../configuration/configuration_reference.md#cache-dir) to disable caching.
 
+Keywords of the libraries imported during the [project checks](../linter/linter.md#project-checks) are cached as
+well. Such library is not imported again as long as its source file, the Python interpreter and the Robot Framework
+version stay the same. Libraries that are a part of the analyzed project are always imported again.
+
 ## Values
 
 Original *RoboCop* - a fictional cybernetic police officer - was the following three prime directives

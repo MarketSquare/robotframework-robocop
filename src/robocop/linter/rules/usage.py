@@ -34,12 +34,10 @@ class UnusedKeywordRule(Rule):
     Keywords are only searched for in the files scanned by Robocop. If the project is a shared library of keywords
     used by other projects, all of its keywords are reported as not used.
 
-    This rule is a project level rule: it requires parsing the whole project. Selecting it makes ``robocop check``
-    analyze the project.
-
     """
 
     name = "unused-keyword"
+    project_rule = True
     rule_id = "KW04"
     message = "Keyword '{keyword_name}' is not used"
     severity = RuleSeverity.INFO
@@ -84,12 +82,10 @@ class KeywordNotFoundRule(Rule):
 
     Libraries excluded with the ``--ignored-library`` option make all files importing them skipped as well.
 
-    This rule is a project level rule: it requires parsing the whole project. Selecting it makes ``robocop check``
-    analyze the project.
-
     """
 
     name = "keyword-not-found"
+    project_rule = True
     rule_id = "KW05"
     message = "Keyword '{keyword_name}' not found"
     severity = RuleSeverity.ERROR
@@ -128,12 +124,10 @@ class AmbiguousKeywordNameRule(Rule):
 
     Keywords defined twice in the same file are reported by the ``duplicated-keyword-name`` rule instead.
 
-    This rule is a project level rule: it requires parsing the whole project. Selecting it makes ``robocop check``
-    analyze the project.
-
     """
 
     name = "ambiguous-keyword-name"
+    project_rule = True
     rule_id = "KW06"
     message = "Keyword '{keyword_name}' matches keywords from multiple sources: {sources}"
     severity = RuleSeverity.WARNING

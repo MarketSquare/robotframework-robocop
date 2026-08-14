@@ -304,12 +304,10 @@ class DuplicatedVariableInProjectRule(Rule):
     Only variables defined in the ``*** Variables ***`` section are compared. Variable names are normalized, so
     ``${my var}``, ``${MY_VAR}`` and ``${myvar}`` are treated as the same variable.
 
-    This rule is a project level rule: it requires parsing the whole project. Selecting it makes ``robocop check``
-    analyze the project.
-
     """
 
     name = "duplicated-variable-in-project"
+    project_rule = True
     rule_id = "DUP11"
     message = "Variable '{name}' is also defined in '{first_source}' (line {first_occurrence_line})"
     severity = RuleSeverity.WARNING

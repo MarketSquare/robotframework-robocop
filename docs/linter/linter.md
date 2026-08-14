@@ -134,6 +134,12 @@ Currently available project level rules are:
 - ``circular-import`` - resource file imports, directly or indirectly, the file it is imported in,
 - ``duplicated-variable-in-project`` - the same variable is defined in multiple files visible together.
 
+Project rules are marked with the ``[project]`` tag in the [rules list](../rules_list.md) and can be listed with:
+
+```bash
+robocop list rules --filter PROJECT
+```
+
 Import paths often contain variables. Provide them with the ``--variable`` or ``--variablefile`` option so that the
 imports can be resolved:
 

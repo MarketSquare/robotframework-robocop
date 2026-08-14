@@ -186,12 +186,10 @@ class UnresolvedResourceImportRule(Rule):
     If the path contains a variable that cannot be resolved, the import is ignored and not reported. Thanks to that,
     dynamically built paths do not cause false positives.
 
-    This rule is a project level rule: it requires parsing the whole project. Selecting it makes ``robocop check``
-    analyze the project.
-
     """
 
     name = "unresolved-resource-import"
+    project_rule = True
     rule_id = "IMP07"
     message = "Imported resource file '{import_name}' does not exist"
     severity = RuleSeverity.WARNING
@@ -228,12 +226,10 @@ class UnusedResourceImportRule(Rule):
     - the imported resource defines no keywords and no variables, because it may be imported only for the imports
       it makes itself.
 
-    This rule is a project level rule: it requires parsing the whole project. Selecting it makes ``robocop check``
-    analyze the project.
-
     """
 
     name = "unused-resource-import"
+    project_rule = True
     rule_id = "IMP05"
     message = "Imported resource file '{import_name}' is not used"
     severity = RuleSeverity.INFO
@@ -277,12 +273,10 @@ class UnusedLibraryImportRule(Rule):
     Libraries used only through ``Get Library Instance`` or imported dynamically with ``Import Library`` are
     reported, since such usage cannot be detected from the source code.
 
-    This rule is a project level rule: it requires parsing the whole project. Selecting it makes ``robocop check``
-    analyze the project.
-
     """
 
     name = "unused-library-import"
+    project_rule = True
     rule_id = "IMP06"
     message = "Imported library '{import_name}' is not used"
     severity = RuleSeverity.INFO
@@ -318,12 +312,10 @@ class CircularImportRule(Rule):
 
     Imports that could not be resolved are not reported, since it is not known what they point to.
 
-    This rule is a project level rule: it requires parsing the whole project. Selecting it makes ``robocop check``
-    analyze the project.
-
     """
 
     name = "circular-import"
+    project_rule = True
     rule_id = "IMP08"
     message = "Circular import: {cycle}"
     severity = RuleSeverity.WARNING

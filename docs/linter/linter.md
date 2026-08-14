@@ -129,6 +129,7 @@ Currently available project level rules are:
 - ``invalid-argument-count`` - keyword is called with a number of arguments its ``[Arguments]`` do not accept,
 - ``unused-resource-import`` - nothing from the imported resource file is used,
 - ``unused-library-import`` - no keyword from the imported library is used,
+- ``ambiguous-keyword-name`` - keyword name matches keywords from more than one source,
 - ``duplicated-variable-in-project`` - the same variable is defined in multiple files visible together.
 
 Import paths often contain variables. Provide them with the ``--variable`` or ``--variablefile`` option so that the

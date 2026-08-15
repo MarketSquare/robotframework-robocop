@@ -473,6 +473,15 @@ receives:
 
     ``source`` passed to ``self.report()`` must be a ``SourceFile`` instance, not a ``Path`` or a string.
 
+### Fixes in project checks
+
+Rules reported by project checkers can provide fixes in the same way as the file level rules - inherit from
+``FixableRule`` and implement the ``fix()`` method, or pass a ready ``Fix`` to ``self.report()``.
+
+Fixes are applied when Robocop is run with ``--fix``, after all project checks are finished. Only files selected
+for the run are modified: the project context is built from the whole project, but a file the user did not select
+is never fixed, even if an issue is reported in it.
+
 ### Project context
 
 ``ProjectContext`` holds everything Robocop collected from the project:

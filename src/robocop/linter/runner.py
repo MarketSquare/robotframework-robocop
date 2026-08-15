@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from collections import defaultdict
 from pathlib import Path
 from typing import TYPE_CHECKING, NoReturn
 
@@ -26,6 +27,7 @@ if TYPE_CHECKING:
     from robocop.config.manager import ConfigManager
     from robocop.config.schema import Config
     from robocop.linter.diagnostics import Diagnostic
+    from robocop.linter.rules import ProjectChecker
     from robocop.project.context import ProjectContext
 
 
@@ -104,10 +106,12 @@ class RobocopLinter:
         self.diagnostics = []
         files = 0
         cached_files = 0
+        checked_paths: set[Path] = set()
         fix_applier = FixApplier()
         for source_file in self.config_manager.paths:
             if source_file.config.verbose:
                 print(f"Scanning file: {source_file.path}")
+            checked_paths.add(source_file.path.resolve())
             diagnostics = self.get_cached_diagnostics(source_file.config, source_file.path)
             if diagnostics is not None:
                 no_fixables = all(not diag.rule.fixable for diag in diagnostics)
@@ -124,7 +128,7 @@ class RobocopLinter:
             if not source_file.config.linter.diff:  # diff simulate fixes, so it's best to ignore the results
                 self.config_manager.cache.set_linter_entry(source_file.path, source_file.config.hash, diagnostics)
         self.config_manager.cache.save()
-        self.diagnostics.extend(self.run_project_checks())
+        self.diagnostics.extend(self.run_project_checks(fix_applier, checked_paths))
         self.config_manager.cache.save()  # project analysis may cache imported libraries
 
         if not files and not self.config_manager.default_config.silent:
@@ -193,19 +197,27 @@ class RobocopLinter:
             fix_applier.fix_stats.total_fixes += max(prev_fixable - len(fixable_diagnostics), 0)
             prev_fixable = len(fixable_diagnostics)
             # Collect fixes from diagnostics
-            fixes = [diag.fix or diag.rule.fix(diag, source_file) for diag in fixable_diagnostics]
-            if not fix_applier.apply_fixes(source_file, fixes):
+            fixes = [diag.fix or diag.rule.fix(diag, source_file.source_lines) for diag in fixable_diagnostics]
+            if not fix_applier.apply_fixes(source_file, [fix for fix in fixes if fix]):
                 break
         if source_file.config.linter.fix and not source_file.config.linter.diff:
             source_file.write_changes()
         return found_diagnostics
 
-    def run_project_checks(self) -> list[Diagnostic]:
+    def run_project_checks(
+        self, fix_applier: FixApplier | None = None, checked_paths: set[Path] | None = None
+    ) -> list[Diagnostic]:
         """
         Run project level checkers on the whole project.
 
         Project checkers are only run if the project analysis is enabled. By default it happens whenever
         at least one project rule is enabled. It can be forced or disabled with the ``project`` option.
+
+        Args:
+            fix_applier: The applier responsible for applying fixes to the source files. Project checks are
+                repeated after applying the fixes, so that the reported issues match the fixed files.
+            checked_paths: Paths of the files selected for the run. Only those files can be fixed, even though
+                the project context is built from the whole project.
 
         Returns:
             List of diagnostics found by the project checkers.
@@ -217,17 +229,96 @@ class RobocopLinter:
         resolved_config = self.config_resolver.resolve_config(config)
         if not resolved_config.project_checkers:
             return []
+        if fix_applier is None:
+            fix_applier = FixApplier()
         project_name = self.config_manager.root.name
         project_source_file = VirtualSourceFile(Path(project_name), config)
+        diagnostics = self.scan_project(project_source_file, resolved_config.project_checkers, config)
+        if not (config.linter.fix or config.linter.diff):
+            return diagnostics
+        # Fixes may reveal or resolve other issues, so the project is scanned again until it converges.
+        # In the diff mode files are not saved, so repeating the analysis would produce the same diagnostics.
+        attempts = 5 if config.linter.fix and not config.linter.diff else 1
+        for _ in range(attempts):
+            if not self.apply_project_fixes(diagnostics, fix_applier, checked_paths, save=not config.linter.diff):
+                break
+            diagnostics = self.scan_project(project_source_file, resolved_config.project_checkers, config)
+        return diagnostics
+
+    def scan_project(
+        self,
+        project_source_file: VirtualSourceFile,
+        project_checkers: list[ProjectChecker],
+        config: Config,
+    ) -> list[Diagnostic]:
+        """
+        Build the project context and run every project checker on it.
+
+        Returns:
+            List of diagnostics found by the project checkers.
+
+        """
         context = self.build_context(config)
         diagnostics: list[Diagnostic] = []
-        for checker in resolved_config.project_checkers:
+        for checker in project_checkers:
             checker.issues = []
             checker.scan_project(project_source_file, self.config_manager, context)
             diagnostics.extend(
                 [diagnostic for diagnostic in checker.issues if not (diagnostic.severity < config.linter.threshold)]
             )
         return diagnostics
+
+    def apply_project_fixes(
+        self,
+        diagnostics: list[Diagnostic],
+        fix_applier: FixApplier,
+        checked_paths: set[Path] | None,
+        save: bool,
+    ) -> bool:
+        """
+        Apply fixes for the issues reported by the project checkers.
+
+        Diagnostics reported by project checkers point to different source files, so they are grouped by the file
+        first. Every file is fixed and saved separately. Only files selected for the run are fixed - the project
+        context contains every file from the project, but files the user did not select are never modified.
+
+        Args:
+            diagnostics: Diagnostics reported by the project checkers.
+            fix_applier: The applier responsible for applying fixes to the source files.
+            checked_paths: Paths of the files selected for the run. If None, all files can be fixed.
+            save: Whether the fixed files should be saved. Disabled in the diff mode.
+
+        Returns:
+            True if any fix was applied.
+
+        """
+        diag_by_source: dict[Path, list[Diagnostic]] = defaultdict(list)
+        for diagnostic in diagnostics:
+            if not diagnostic.rule.fixable:
+                continue
+            if checked_paths is not None and diagnostic.source.path.resolve() not in checked_paths:
+                continue
+            diag_by_source[diagnostic.source.path].append(diagnostic)
+        if not diag_by_source:
+            return False
+        modified_files = {source_file.path: source_file for source_file in fix_applier.modified_files}
+        fixed = False
+        for path, source_diagnostics in diag_by_source.items():
+            # reuse source file already modified by the file level fixes to not lose their changes
+            source_file = modified_files.get(path, source_diagnostics[0].source)
+            fixes = [diag.fix or diag.rule.fix(diag, source_file.source_lines) for diag in source_diagnostics]
+            fixes_before = self.count_applied_fixes(fix_applier)
+            if not fix_applier.apply_fixes(source_file, [fix for fix in fixes if fix]):
+                continue
+            fix_applier.fix_stats.total_fixes += self.count_applied_fixes(fix_applier) - fixes_before
+            fixed = True
+            if save:
+                source_file.write_changes()
+        return fixed
+
+    @staticmethod
+    def count_applied_fixes(fix_applier: FixApplier) -> int:
+        return sum(sum(rules.values()) for rules in fix_applier.fix_stats.by_file.values())
 
     def build_context(self, config: Config) -> ProjectContext:
         """

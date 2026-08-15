@@ -1,0 +1,12 @@
+actual_fixed${/}with_empty_sections.robot:10:1 LEN09 Section '*** Keywords ***' is empty
+    |
+ 10 | *** Keywords ***
+    | ^^^^^^^^^^^^^^^^ LEN09
+ 11 | # This section considered as empty.
+    |
+
+Fixed 2 issues:
+- actual_fixed${/}with_empty_sections.robot:
+    2 x LEN09 (empty-section)
+
+Found 3 issues (2 fixed, 1 remaining).

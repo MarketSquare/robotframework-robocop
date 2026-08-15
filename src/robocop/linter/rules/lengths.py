@@ -27,7 +27,7 @@ except ImportError:
     Var = None
 
 from robocop.linter import sonar_qube
-from robocop.linter.fix import FixAvailability, remove_empty_setting_fix
+from robocop.linter.fix import FixAvailability, remove_empty_setting_fix, remove_lines_fix
 from robocop.linter.rules import (
     FixableRule,
     Rule,
@@ -451,8 +451,31 @@ class LineTooLongRule(Rule):
         return bool(self.ignore_pattern and self.ignore_pattern.search(line))
 
 
-class EmptySectionRule(Rule):
-    """Section is empty."""
+class EmptySectionRule(FixableRule):
+    """
+    Section is empty.
+
+    Empty section does not have any effect and can be removed.
+
+    Incorrect code example:
+
+        *** Variables ***
+
+
+        *** Test Cases ***
+        Test
+            Keyword Call
+
+    Correct code:
+
+        *** Test Cases ***
+        Test
+            Keyword Call
+
+    Sections that contain only comments are also reported, but they are not removed by the fix -
+    it is not possible to tell whether such comments are still relevant.
+
+    """
 
     name = "empty-section"
     rule_id = "LEN09"
@@ -463,6 +486,7 @@ class EmptySectionRule(Rule):
         clean_code=sonar_qube.CleanCodeAttribute.COMPLETE, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
     deprecated_names = ("0509",)
+    fix_availability = FixAvailability.SOMETIMES
 
     def check(self, node: Section) -> None:
         if not self.enabled or not node.header:
@@ -475,6 +499,21 @@ class EmptySectionRule(Rule):
                 col=node.col_offset + 1,
                 end_col=node.header.end_col_offset,
             )
+
+    def fix(self, diag: Diagnostic, source_lines: list[str]) -> Fix | None:  # noqa: ARG002
+        """
+        Remove the empty section.
+
+        Sections that contain comments are not fixed - removing them would remove the comments as well,
+        and it is not possible to tell whether the comments are still relevant.
+        """
+        node = diag.node
+        if node is None or node.header is None:
+            return None
+        if any(isinstance(statement, Comment) for statement in node.body):
+            return None
+        section_name = str(diag.reported_arguments["section_name"])
+        return remove_lines_fix(self, node.lineno, node.end_lineno, f"Remove empty '{section_name}' section")
 
 
 class NumberOfReturnedValuesRule(Rule):

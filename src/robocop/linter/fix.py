@@ -183,26 +183,32 @@ def _comment_lines(node: Statement, source_lines: list[str]) -> list[str]:
     return comment_lines
 
 
+def remove_lines_fix(rule: Rule, start_line: int, end_line: int, message: str, replacement: str = "") -> Fix:
+    """Create a fix that removes lines between ``start_line`` and ``end_line`` or replaces them with new content."""
+    if replacement:
+        edit = TextEdit.replace_lines(rule.rule_id, rule.name, start_line, end_line, replacement)
+    else:
+        edit = TextEdit(
+            rule_id=rule.rule_id,
+            rule_name=rule.name,
+            start_line=start_line,
+            start_col=1,
+            end_line=end_line,
+            end_col=1,
+            replacement="",
+            kind=TextEditKind.DELETION,
+        )
+    return Fix(edits=[edit], message=message, applicability=FixApplicability.SAFE)
+
+
 def remove_statement_fix(rule: Rule, node: Statement, source_lines: list[str], message: str) -> Fix:
     """
     Create a fix that removes the whole statement.
 
     Comments are not removed together with the statement - they are left in place instead.
     """
-    if comment_lines := _comment_lines(node, source_lines):
-        edit = TextEdit.replace_lines(rule.rule_id, rule.name, node.lineno, node.end_lineno, "".join(comment_lines))
-    else:
-        edit = TextEdit(
-            rule_id=rule.rule_id,
-            rule_name=rule.name,
-            start_line=node.lineno,
-            start_col=1,
-            end_line=node.end_lineno,
-            end_col=1,
-            replacement="",
-            kind=TextEditKind.DELETION,
-        )
-    return Fix(edits=[edit], message=message, applicability=FixApplicability.SAFE)
+    comment_lines = _comment_lines(node, source_lines)
+    return remove_lines_fix(rule, node.lineno, node.end_lineno, message, "".join(comment_lines))
 
 
 def add_setting_value_fix(rule: Rule, node: Statement, value: str, message: str, separator: str = "    ") -> Fix:

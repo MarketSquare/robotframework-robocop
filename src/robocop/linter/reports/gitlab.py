@@ -31,6 +31,10 @@ class GitlabReport(robocop.linter.reports.JsonFileReport):
 
     The default path is ``robocop-code-quality.json``.
 
+    Set ``skip_on_empty`` to ``True`` to not generate the file when there are no issues to report:
+
+        robocop check --configure gitlab.skip_on_empty=True
+
     """
 
     NO_ALL = False
@@ -41,6 +45,8 @@ class GitlabReport(robocop.linter.reports.JsonFileReport):
         super().__init__(output_path="robocop-code-quality.json", config=config)
 
     def generate_report(self, diagnostics: Diagnostics, **kwargs: object) -> None:  # type: ignore[override]  # noqa: ARG002
+        if self.should_skip(diagnostics):
+            return
         report = self.generate_gitlab_report(diagnostics)
         super().generate_report_with_type(report, "Gitlab Code Quality")
 

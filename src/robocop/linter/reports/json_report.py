@@ -27,6 +27,10 @@ class JsonReport(robocop.linter.reports.JsonFileReport):
 
     The default path is ``robocop.json``.
 
+    Set ``skip_on_empty`` to ``True`` to not generate the file when there are no issues to report:
+
+        robocop check --configure json_report.skip_on_empty=True
+
     Example content of the file:
 
         [
@@ -64,6 +68,8 @@ class JsonReport(robocop.linter.reports.JsonFileReport):
         super().__init__(output_path="robocop.json", config=config)
 
     def generate_report(self, diagnostics: Diagnostics, **kwargs: object) -> None:  # type: ignore[override]  # noqa: ARG002
+        if self.should_skip(diagnostics):
+            return
         issues = [self.message_to_json(diagnostic) for diagnostic in diagnostics]
         super().generate_report_with_type(issues, "JSON")
 

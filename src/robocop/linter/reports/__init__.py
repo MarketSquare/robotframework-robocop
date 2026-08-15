@@ -8,11 +8,12 @@ from typing import TYPE_CHECKING, Any
 from robocop import exceptions
 from robocop.config import defaults
 from robocop.config.builder import ConfigBuilder
-from robocop.linter.utils.misc import get_robocop_cache_directory
+from robocop.linter.utils.misc import get_robocop_cache_directory, str2bool
 from robocop.runtime.resolver import LinterImporter
 
 if TYPE_CHECKING:
     from robocop.config.schema import Config
+    from robocop.linter.diagnostics import Diagnostics
 
 
 class Report:
@@ -40,12 +41,36 @@ class Report:
         raise NotImplementedError
 
 
-class JsonFileReport(Report):
+class FileReport(Report):
+    """Base class for a report that saves its output to a file."""
+
+    def __init__(self, config: Config, skip_on_empty: bool = False) -> None:
+        self.skip_on_empty = skip_on_empty
+        super().__init__(config)
+
+    def configure(self, name: str, value: str) -> None:
+        if name == "skip_on_empty":
+            self.skip_on_empty = str2bool(value)
+        else:
+            super().configure(name, value)
+
+    def should_skip(self, diagnostics: Diagnostics) -> bool:
+        """
+        Check if the report file generation should be skipped.
+
+        Returns:
+            True if the report is configured with ``skip_on_empty`` and there are no issues to report.
+
+        """
+        return self.skip_on_empty and not diagnostics.diagnostics
+
+
+class JsonFileReport(FileReport):
     """Base class for a report that generates a json-based file."""
 
-    def __init__(self, output_path: str, config: Config) -> None:
+    def __init__(self, output_path: str, config: Config, skip_on_empty: bool = False) -> None:
         self.output_path = output_path
-        super().__init__(config)
+        super().__init__(config, skip_on_empty=skip_on_empty)
 
     def configure(self, name: str, value: str) -> None:
         if name == "output_path":

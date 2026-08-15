@@ -1,7 +1,14 @@
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 from robocop.linter import sonar_qube
-from robocop.linter.rules import Rule, RuleSeverity
+from robocop.linter.fix import Fix, FixApplicability, FixAvailability, TextEdit
+from robocop.linter.rules import FixableRule, Rule, RuleParam, RuleSeverity
+from robocop.linter.rules.keywords import comma_separated_list
+
+if TYPE_CHECKING:
+    from robocop.linter.diagnostics import Diagnostic
 
 
 class UnusedKeywordRule(Rule):
@@ -136,3 +143,82 @@ class AmbiguousKeywordNameRule(Rule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.LOGICAL, issue_type=sonar_qube.SonarQubeIssueType.BUG
     )
+
+
+class MissingKeywordPrefixRule(FixableRule):
+    """
+    Keyword is called without the name of the resource file or library it comes from.
+
+    Optional rule for projects that require every keyword call to be prefixed with the source of the keyword.
+    Such calls are unambiguous and it is immediately clear where the keyword comes from:
+
+        *** Settings ***
+        Resource       login.resource
+        Library        SeleniumLibrary
+
+        *** Test Cases ***
+        Test
+            Login    user    password        # will be reported
+            Click Element    id:submit       # will be reported
+
+            login.Login    user    password  # explicit, not reported
+            SeleniumLibrary.Click Element    id:submit
+
+    The rule is not enabled by default. Select it to use it:
+
+        robocop check --select missing-keyword-prefix
+
+    Libraries imported with the ``AS`` (``WITH NAME``) syntax are expected to be called using the alias.
+    Keywords defined in the file with the call are never reported, since there is nothing to prefix them with.
+
+    ``BuiltIn`` keywords are not reported by default. Configure ``ignored_sources`` with a comma separated list of
+    resource file, library and alias names to change it:
+
+        robocop check --select missing-keyword-prefix -c missing-keyword-prefix.ignored_sources=BuiltIn,Collections
+
+    To avoid false positives, the call is not reported when:
+
+    - the keyword name is built from a variable,
+    - the keyword name already contains a dot, since it may be prefixed already,
+    - the keyword is not found in the project, or more than one definition matches the name.
+
+    Keywords coming from libraries are only reported if the library analysis is enabled (it is by default).
+
+    """
+
+    name = "missing-keyword-prefix"
+    project_rule = True
+    rule_id = "KW07"
+    message = "Keyword '{keyword_name}' should be called with the '{prefix}' prefix"
+    severity = RuleSeverity.WARNING
+    enabled = False
+    added_in_version = "9.0.0"
+    fix_availability = FixAvailability.ALWAYS
+    fix_suggestion = "Add the name of the resource file or library to the keyword call"
+    parameters = [
+        RuleParam(
+            name="ignored_sources",
+            default="BuiltIn",
+            converter=comma_separated_list,
+            show_type="str",
+            desc="Comma separated list of the resource files and libraries that do not require the prefix",
+        )
+    ]
+    sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
+        clean_code=sonar_qube.CleanCodeAttribute.CONVENTIONAL, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
+    )
+
+    def fix(self, diag: Diagnostic, source_lines: list[str]) -> Fix | None:  # noqa: ARG002
+        prefix = str(diag.reported_arguments["prefix"])
+        offset = int(diag.reported_arguments["prefix_offset"])  # type: ignore[call-overload]
+        column = diag.range.start.character + offset
+        edit = TextEdit(
+            rule_id=self.rule_id,
+            rule_name=self.name,
+            start_line=diag.range.start.line,
+            start_col=column,
+            end_line=diag.range.start.line,
+            end_col=column,
+            replacement=f"{prefix}.",
+        )
+        return Fix(edits=[edit], message=f"Add '{prefix}' prefix", applicability=FixApplicability.SAFE)

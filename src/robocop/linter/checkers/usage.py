@@ -280,6 +280,76 @@ def _describe_sources(definitions: list[KeywordDefinition]) -> str:
     return ", ".join(sources)
 
 
+class MissingKeywordPrefix(ProjectChecker):
+    """Reports keyword calls that do not use the name of the resource file or library the keyword comes from."""
+
+    missing_keyword_prefix: usage.MissingKeywordPrefixRule
+
+    def scan_project(
+        self,
+        project_source_file: SourceFile | VirtualSourceFile,
+        config_manager: ConfigManager,  # noqa: ARG002
+        context: ProjectContext,
+    ) -> list[Diagnostic]:
+        self.issues = []
+        for project_file, keyword_usage in context.iter_usages():
+            prefix = self._find_prefix(context, keyword_usage)
+            if prefix is None:
+                continue
+            self.report(
+                self.missing_keyword_prefix,
+                source=SourceFile(path=project_file.path, config=project_source_file.config),
+                keyword_name=keyword_usage.name,
+                prefix=prefix,
+                prefix_offset=_bdd_prefix_offset(keyword_usage),
+                lineno=keyword_usage.location.lineno,
+                col=keyword_usage.location.col,
+                end_lineno=keyword_usage.location.end_lineno,
+                end_col=keyword_usage.location.end_col,
+            )
+        return self.issues
+
+    def _find_prefix(self, context: ProjectContext, keyword_usage: KeywordUsage) -> str | None:
+        """
+        Find the prefix the call should use.
+
+        Returns:
+            Name of the resource file or library, or None if the call should not be reported.
+
+        """
+        if keyword_usage.name_contains_variable or keyword_usage.is_template:
+            return None
+        name = keyword_usage.names_to_check()[-1]
+        if "." in name:
+            return None  # already prefixed, or the name contains a dot and cannot be prefixed safely
+        definitions = context.resolve_keyword(keyword_usage)
+        if len(definitions) != 1:
+            return None  # not defined in the project, or ambiguous
+        definition = definitions[0]
+        if definition.location.source == keyword_usage.location.source:
+            return None  # keyword defined in the file with the call, there is nothing to prefix it with
+        # keywords from the libraries imported with the ``AS`` syntax already use the alias as the library name
+        prefix = definition.library_name or definition.location.source.stem
+        if normalize_robot_name(prefix) in self.missing_keyword_prefix.ignored_sources:
+            return None
+        return prefix
+
+
+def _bdd_prefix_offset(keyword_usage: KeywordUsage) -> int:
+    """
+    Find where the keyword name starts, ignoring the BDD prefix.
+
+    The prefix is added after the BDD word, so that ``Given Login`` becomes ``Given login.Login``.
+
+    Returns:
+        Number of characters between the start of the call and the start of the keyword name.
+
+    """
+    if keyword_usage.bdd_prefix is None:
+        return 0
+    return len(keyword_usage.name) - len(keyword_usage.names_to_check()[-1])
+
+
 class UnusedKeywords(ProjectChecker):
     """Reports keywords that are never called in the project."""
 

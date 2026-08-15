@@ -135,6 +135,7 @@ Currently available project level rules are:
 - ``unused-resource-import`` - nothing from the imported resource file is used,
 - ``unused-library-import`` - no keyword from the imported library is used,
 - ``ambiguous-keyword-name`` - keyword name matches keywords from more than one source,
+- ``missing-keyword-prefix`` - keyword is called without the name of the resource file or library it comes from,
 - ``keyword-not-found`` - called keyword is not defined anywhere (requires ``--analyze-libraries``),
 - ``circular-import`` - resource file imports, directly or indirectly, the file it is imported in,
 - ``duplicated-variable-in-project`` - the same variable is defined in multiple files visible together.

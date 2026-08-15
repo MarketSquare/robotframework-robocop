@@ -1,0 +1,43 @@
+test.robot:7:5 KW07 Keyword 'Login' should be called with the 'login' prefix
+   |
+ 5 | *** Test Cases ***
+ 6 | Missing Prefix
+ 7 |     Login    user
+   |     ^^^^^ KW07
+ 8 |     Given Logout
+ 9 |     Append To List    ${list}    item
+   | Suggestion: Add the name of the resource file or library to the keyword call
+   |
+
+test.robot:8:5 KW07 Keyword 'Given Logout' should be called with the 'login' prefix
+   |
+ 6 | Missing Prefix
+ 7 |     Login    user
+ 8 |     Given Logout
+   |     ^^^^^^^^^^^^ KW07
+ 9 |     Append To List    ${list}    item
+10 |     Keyword With value Argument
+   | Suggestion: Add the name of the resource file or library to the keyword call
+   |
+
+test.robot:9:5 KW07 Keyword 'Append To List' should be called with the 'Collections' prefix
+   |
+ 7 |     Login    user
+ 8 |     Given Logout
+ 9 |     Append To List    ${list}    item
+   |     ^^^^^^^^^^^^^^ KW07
+10 |     Keyword With value Argument
+   | Suggestion: Add the name of the resource file or library to the keyword call
+   |
+
+test.robot:10:5 KW07 Keyword 'Keyword With value Argument' should be called with the 'login' prefix
+    |
+  8 |     Given Logout
+  9 |     Append To List    ${list}    item
+ 10 |     Keyword With value Argument
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^ KW07
+    | Suggestion: Add the name of the resource file or library to the keyword call
+    |
+
+Found 4 issues.
+4 fixable with the '--fix' option.

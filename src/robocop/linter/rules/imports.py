@@ -194,7 +194,7 @@ class UnresolvedResourceImportRule(Rule):
     message = "Imported resource file '{import_name}' does not exist"
     severity = RuleSeverity.WARNING
     enabled = False
-    added_in_version = "8.9.0"
+    added_in_version = "9.0.0"
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.COMPLETE, issue_type=sonar_qube.SonarQubeIssueType.BUG
     )
@@ -234,7 +234,7 @@ class UnusedResourceImportRule(Rule):
     message = "Imported resource file '{import_name}' is not used"
     severity = RuleSeverity.INFO
     enabled = False
-    added_in_version = "8.9.0"
+    added_in_version = "9.0.0"
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.CLEAR, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
@@ -281,7 +281,7 @@ class UnusedLibraryImportRule(Rule):
     message = "Imported library '{import_name}' is not used"
     severity = RuleSeverity.INFO
     enabled = False
-    added_in_version = "8.9.0"
+    added_in_version = "9.0.0"
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.CLEAR, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
@@ -320,7 +320,53 @@ class CircularImportRule(Rule):
     message = "Circular import: {cycle}"
     severity = RuleSeverity.WARNING
     enabled = False
-    added_in_version = "8.9.0"
+    added_in_version = "9.0.0"
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.MODULAR, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
+    )
+
+
+class UnresolvedLibraryImportRule(Rule):
+    """
+    Imported library could not be imported.
+
+    Reports library imports that Robot Framework would not be able to import during the execution.
+
+    Example of rule violation:
+
+        *** Settings ***
+        Library    libs/does_not_exist.py  # file is not found next to the importing file
+        Library    NotInstalledLibrary  # module is not installed and is not found in the search paths
+
+    Library imports pointing to a file are always validated. Imports using a module name are only validated when
+    Robocop imports the libraries, which it does by default and which can be disabled with the
+    ``--no-analyze-libraries`` option::
+
+        robocop check --no-analyze-libraries
+
+    Extra directories with the libraries can be provided with the ``--pythonpath`` option::
+
+        robocop check --pythonpath libs
+
+    Following imports are never reported, since it is not known if they can be imported:
+
+    - imports with a name or arguments containing a variable that cannot be resolved,
+    - libraries excluded from the analysis with the ``--ignored-library`` option,
+    - the ``Remote`` library, which connects to the remote server already during the import.
+
+    Libraries that require a running service or a special environment can be excluded from the analysis::
+
+        robocop check --ignored-library CustomServiceLibrary
+
+    """
+
+    name = "unresolved-library-import"
+    project_rule = True
+    rule_id = "IMP09"
+    message = "Imported library '{import_name}' could not be imported: {error}"
+    severity = RuleSeverity.WARNING
+    enabled = False
+    added_in_version = "9.0.0"
+    sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
+        clean_code=sonar_qube.CleanCodeAttribute.COMPLETE, issue_type=sonar_qube.SonarQubeIssueType.BUG
     )

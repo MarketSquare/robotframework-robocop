@@ -90,7 +90,7 @@ class KeywordNotFoundRule(Rule):
     message = "Keyword '{keyword_name}' not found"
     severity = RuleSeverity.ERROR
     enabled = False
-    added_in_version = "8.9.0"
+    added_in_version = "9.0.0"
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.LOGICAL, issue_type=sonar_qube.SonarQubeIssueType.BUG
     )
@@ -132,7 +132,7 @@ class AmbiguousKeywordNameRule(Rule):
     message = "Keyword '{keyword_name}' matches keywords from multiple sources: {sources}"
     severity = RuleSeverity.WARNING
     enabled = False
-    added_in_version = "8.9.0"
+    added_in_version = "9.0.0"
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.LOGICAL, issue_type=sonar_qube.SonarQubeIssueType.BUG
     )

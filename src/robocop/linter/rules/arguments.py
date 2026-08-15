@@ -354,7 +354,7 @@ class InvalidArgumentCountRule(Rule):
     message = "Keyword '{keyword_name}' expects {expected} but {provided} provided{missing}"
     severity = RuleSeverity.ERROR
     enabled = False
-    added_in_version = "8.9.0"
+    added_in_version = "9.0.0"
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.LOGICAL, issue_type=sonar_qube.SonarQubeIssueType.BUG
     )

@@ -128,6 +128,7 @@ next run does not have to import them again.
 Currently available project level rules are:
 
 - ``unresolved-resource-import`` - imported resource file does not exist,
+- ``unresolved-library-import`` - imported library cannot be imported,
 - ``unused-keyword`` - user keyword is never called in the project,
 - ``invalid-argument-count`` - keyword is called with a number of arguments its ``[Arguments]`` do not accept,
 - ``unused-resource-import`` - nothing from the imported resource file is used,

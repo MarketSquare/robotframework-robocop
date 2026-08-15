@@ -312,7 +312,7 @@ class DuplicatedVariableInProjectRule(Rule):
     message = "Variable '{name}' is also defined in '{first_source}' (line {first_occurrence_line})"
     severity = RuleSeverity.WARNING
     enabled = False
-    added_in_version = "8.9.0"
+    added_in_version = "9.0.0"
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.DISTINCT, issue_type=sonar_qube.SonarQubeIssueType.BUG
     )

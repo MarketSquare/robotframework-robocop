@@ -29,7 +29,7 @@ if TYPE_CHECKING:
     from collections.abc import Iterator
     from pathlib import Path
 
-    from robot.conf import Languages
+    from robot.api import Languages  # RF 6.0
 
     from robocop.cache import RobocopCache
     from robocop.config.manager import ConfigManager

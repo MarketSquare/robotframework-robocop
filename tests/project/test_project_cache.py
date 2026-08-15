@@ -4,10 +4,17 @@ import time
 import pytest
 
 from robocop.config.manager import ConfigManager
+from robocop.config.parser import load_languages
 from robocop.config.schema import RawCacheConfig, RawConfig
 from robocop.project.collector import ProjectFileCollector
 from robocop.project.context import build_project_context, collection_hash
 from robocop.project.serialization import collected_file_from_dict, collected_file_to_dict
+from robocop.version_handling import ROBOT_VERSION, Version
+
+pytestmark_languages = pytest.mark.skipif(
+    ROBOT_VERSION < Version("6.0"),  # noqa: SIM300
+    reason="Languages are supported since RF 6.0",
+)
 
 
 @pytest.fixture
@@ -133,6 +140,7 @@ class TestProjectCache:
         context = build_context(project, tmp_path / "cache")
         assert [keyword.name for keyword in context.get_file(test_file).keywords] == ["Other Keyword"]
 
+    @pytestmark_languages
     def test_cache_is_not_used_when_language_changes(self, project, tmp_path):
         build_context(project, tmp_path / "cache")
         collected = count_collected(project, tmp_path / "cache", language=["pl"])
@@ -158,10 +166,9 @@ class TestCollectionHash:
     def test_same_configuration_gives_same_hash(self):
         assert collection_hash(None) == collection_hash(None)
 
+    @pytestmark_languages
     def test_language_changes_the_hash(self):
-        from robot.conf import Languages  # noqa: PLC0415
-
-        assert collection_hash(None) != collection_hash(Languages(["pl"]))
+        assert collection_hash(None) != collection_hash(load_languages(["pl"]))
 
 
 class TestSerialization:

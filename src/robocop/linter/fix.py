@@ -244,7 +244,8 @@ class FixApplier:
             self.fix_stats.by_file[source_file.path][key] = self.fix_stats.by_file[source_file.path].get(key, 0) + 1
 
         source_file.modified = True
-        self.modified_files.append(source_file)
+        if source_file not in self.modified_files:
+            self.modified_files.append(source_file)
 
         source_file.reload_model()
         return True

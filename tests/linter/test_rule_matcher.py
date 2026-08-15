@@ -41,6 +41,15 @@ def get_disabled_rule(rule_id: str) -> CustomRule:
     return custom_rule
 
 
+def get_project_rule(rule_id: str) -> CustomRule:
+    custom_rule = CustomRule()
+    custom_rule.rule_id = rule_id
+    custom_rule.name = f"some-message-{rule_id}"
+    custom_rule.enabled = False
+    custom_rule.project_rule = True
+    return custom_rule
+
+
 def get_fixable_message_with_id(rule_id: str) -> CustomFixableRule:
     custom_rule = CustomFixableRule()
     custom_rule.rule_id = rule_id
@@ -227,6 +236,64 @@ class TestRuleMatcher:
         assert rule_matcher.is_rule_enabled(get_enabled_rule("0101"))
         assert rule_matcher.is_rule_enabled(get_enabled_rule("0102"))
         assert not rule_matcher.is_rule_enabled(get_enabled_rule("0103"))
+
+    def test_project_token_selects_project_rules(self):
+        rule_matcher = RuleMatcher(
+            select=["PROJECT"],
+            extend_select=[],
+            ignore=[],
+            target_version=ROBOT_VERSION,
+            threshold=RuleSeverity.INFO,
+            fixable=[],
+            unfixable=[],
+        )
+
+        assert rule_matcher.is_rule_enabled(get_project_rule("0201"))
+        assert not rule_matcher.is_rule_enabled(get_enabled_rule("0101"))
+
+    def test_project_token_extends_selection(self):
+        rule_matcher = RuleMatcher(
+            select=["0101"],
+            extend_select=["PROJECT"],
+            ignore=[],
+            target_version=ROBOT_VERSION,
+            threshold=RuleSeverity.INFO,
+            fixable=[],
+            unfixable=[],
+        )
+
+        assert rule_matcher.is_rule_enabled(get_enabled_rule("0101"))
+        assert rule_matcher.is_rule_enabled(get_project_rule("0201"))
+        assert not rule_matcher.is_rule_enabled(get_enabled_rule("0102"))
+
+    def test_project_token_ignores_project_rules(self):
+        rule_matcher = RuleMatcher(
+            select=["ALL"],
+            extend_select=[],
+            ignore=["PROJECT"],
+            target_version=ROBOT_VERSION,
+            threshold=RuleSeverity.INFO,
+            fixable=[],
+            unfixable=[],
+        )
+
+        assert rule_matcher.is_rule_enabled(get_enabled_rule("0101"))
+        assert not rule_matcher.is_rule_enabled(get_project_rule("0201"))
+
+    def test_project_token_is_matched(self, capsys):
+        rule_matcher = RuleMatcher(
+            select=["PROJECT"],
+            extend_select=[],
+            ignore=[],
+            target_version=ROBOT_VERSION,
+            threshold=RuleSeverity.INFO,
+            fixable=[],
+            unfixable=[],
+        )
+
+        assert rule_matcher.is_rule_enabled(get_project_rule("0201"))
+        rule_matcher.check_unmatched_filters()
+        assert not capsys.readouterr().err
 
     def test_fixable_unfixable_nothing_selected(self):
         rule_matcher = RuleMatcher(

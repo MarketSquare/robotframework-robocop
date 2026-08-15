@@ -614,6 +614,24 @@ option to select all rules except those you want to ignore:
     ]
     ```
 
+Use ``PROJECT`` keyword to select all [project level rules](../linter/linter.md#project-checks). It works with
+``--select``, ``--extend-select`` and ``--ignore``:
+
+=== ":octicons-command-palette-24: cli"
+
+    ```bash
+    robocop check --extend-select PROJECT
+    ```
+
+=== ":material-file-cog-outline: toml"
+
+    ```toml
+    [tool.robocop.lint]
+    extend-select = [
+        "PROJECT"
+    ]
+    ```
+
 ---
 
 #### ``extend select``

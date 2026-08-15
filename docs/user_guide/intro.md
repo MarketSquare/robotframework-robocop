@@ -131,6 +131,11 @@ Keywords of the libraries imported during the [project checks](../linter/linter.
 well. Such library is not imported again as long as its source file, the Python interpreter and the Robot Framework
 version stay the same. Libraries that are a part of the analyzed project are always imported again.
 
+[Project checks](../linter/linter.md#project-checks) parse every file in the project. Keyword definitions, keyword
+calls, variables and imports found in a file are cached too, so the next run only parses the files that were modified
+since the last run. This part of the cache is invalidated when the file changes, and also when the ``--language``
+option or the Robot Framework version is different.
+
 ## Values
 
 Original *RoboCop* - a fictional cybernetic police officer - was the following three prime directives

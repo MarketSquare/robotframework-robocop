@@ -50,7 +50,6 @@ class RawImport:
     import_type: ImportType
     name: str
     location: Location
-    node: Statement
     args: tuple[str, ...] = ()
     """Arguments of the ``Library`` import."""
     alias: str | None = None
@@ -131,7 +130,6 @@ class ProjectFileCollector(ModelVisitor):  # type: ignore[misc]
                 name=node.name,
                 normalized_name=normalize_robot_name(node.name),
                 location=self._location(node.header, name_length=len(node.name)),
-                node=node,
                 arguments=self._keyword_arguments(node),
                 embedded=embedded.name if embedded is not None else None,
                 is_private=self._is_private(node),
@@ -188,7 +186,6 @@ class ProjectFileCollector(ModelVisitor):  # type: ignore[misc]
                 import_type=import_type,
                 name=name_token.value,
                 location=location,
-                node=node,
                 args=tuple(getattr(node, "args", ()) or ()),
                 alias=getattr(node, "alias", None),
             )

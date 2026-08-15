@@ -18,9 +18,6 @@ if TYPE_CHECKING:
     from collections.abc import Sequence
     from pathlib import Path
 
-    from robot.parsing.model.blocks import Keyword
-    from robot.parsing.model.statements import LibraryImport, ResourceImport, Statement, VariablesImport
-
 
 def parse_embedded_arguments(name: str) -> EmbeddedArguments | None:
     """
@@ -249,7 +246,6 @@ class KeywordDefinition:
     name: str
     normalized_name: str
     location: Location
-    node: Keyword | None = None
     arguments: ArgumentsSpec = field(default_factory=ArgumentsSpec)
     embedded: re.Pattern[str] | None = None
     is_private: bool = False
@@ -370,7 +366,6 @@ class ResolvedImport:
     status: ImportStatus
     location: Location
     path: Path | None = None
-    node: LibraryImport | ResourceImport | VariablesImport | Statement | None = None
     error: str | None = None
     args: tuple[str, ...] = ()
     """Arguments of the ``Library`` import, with variables resolved."""

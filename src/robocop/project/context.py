@@ -8,6 +8,7 @@ files in the project together with keyword definitions, keyword usages, variable
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+from hashlib import sha256
 from typing import TYPE_CHECKING
 
 from robot.errors import DataError
@@ -17,7 +18,9 @@ from robocop.project.collector import ProjectFileCollector
 from robocop.project.definitions import ImportStatus, ImportType, KeywordDefinition
 from robocop.project.imports import ImportResolver, build_search_paths
 from robocop.project.libraries import LibraryRequest, build_library_loader
+from robocop.project.serialization import collected_file_from_dict, collected_file_to_dict
 from robocop.project.variables import VariableScope
+from robocop.version_handling import ROBOT_VERSION
 
 BUILTIN_LIBRARY = LibraryRequest(name="BuiltIn")
 """BuiltIn library is always available, without being imported."""
@@ -26,6 +29,9 @@ if TYPE_CHECKING:
     from collections.abc import Iterator
     from pathlib import Path
 
+    from robot.conf import Languages
+
+    from robocop.cache import RobocopCache
     from robocop.config.manager import ConfigManager
     from robocop.project.collector import CollectedFile
     from robocop.project.definitions import KeywordUsage, ResolvedImport, VariableDefinition
@@ -308,6 +314,46 @@ class ProjectContext:
                 yield project_file, imported
 
 
+def collection_hash(languages: Languages | None) -> str:
+    """
+    Describe the configuration that affects parsing and collecting data from a source file.
+
+    Only the language and the Robot Framework version change what is collected. Options such as selected rules or
+    command line variables are applied later, on the already collected data.
+
+    Returns:
+        Hash used to invalidate the cached data collected from the source files.
+
+    """
+    codes = ":".join(sorted(str(getattr(language, "code", language)) for language in languages or []))
+    return sha256(f"{codes}|{ROBOT_VERSION}".encode()).hexdigest()
+
+
+def collect_file(source_file: SourceFile, cache: RobocopCache | None, config_hash: str) -> CollectedFile:
+    """
+    Collect keywords, usages, variables and imports from a single source file.
+
+    The result is stored in the cache, so that the file does not have to be parsed again in the next run.
+
+    Raises:
+        DataError: If the file cannot be parsed.
+
+    Returns:
+        CollectedFile with everything found in the file.
+
+    """
+    if cache is not None:
+        cached = cache.get_project_entry(source_file.path, config_hash)
+        if cached is not None:
+            collected = collected_file_from_dict(cached, source_file.path)
+            if collected is not None:
+                return collected
+    collected = ProjectFileCollector(source_file.path).collect(source_file.model)
+    if cache is not None:
+        cache.set_project_entry(source_file.path, config_hash, collected_file_to_dict(collected))
+    return collected
+
+
 def build_project_context(config_manager: ConfigManager, silent: bool = False) -> ProjectContext:
     """
     Parse all source files in the project and build the shared context.
@@ -322,26 +368,27 @@ def build_project_context(config_manager: ConfigManager, silent: bool = False) -
     context = ProjectContext(root=config_manager.root)
     config = config_manager.default_config
     search_paths = build_search_paths(config.python_path, config_manager.root)
+    cache = config_manager.cache if config.cache.enabled else None
     if config.analyze_libraries:
         context.library_loader = build_library_loader(
             search_paths=search_paths,
             timeout=config.load_library_timeout,
             ignored_libraries=config.ignored_libraries,
-            cache=config_manager.cache if config.cache.enabled else None,
+            cache=cache,
             project_root=config_manager.root,
         )
     global_scope = VariableScope()
     global_scope.add_variable_files(config.variable_files, search_paths)
     global_scope.add_command_line(config.variables)
+    config_hash = collection_hash(config.languages)
 
     for source_file in config_manager.project_paths:
         try:
-            model = source_file.model
+            collected = collect_file(source_file, cache, config_hash)
         except DataError as error:
             if not silent:
                 print(f"Failed to parse {source_file.path} with an error: {error}. Skipping file")
             continue
-        collected = ProjectFileCollector(source_file.path).collect(model)
         context.files[source_file.path.resolve()] = ProjectFile(source_file=source_file, collected=collected)
 
     for project_file in context.files.values():

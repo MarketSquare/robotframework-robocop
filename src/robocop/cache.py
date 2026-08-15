@@ -237,6 +237,45 @@ class LibraryCacheEntry:
         )
 
 
+@dataclass(frozen=True)
+class ProjectCacheEntry:
+    """Immutable cache entry with the data collected from a single source file."""
+
+    metadata: FileMetadata
+    config_hash: str
+    collected: dict[str, Any]
+
+    def to_dict(self) -> dict[str, Any]:
+        """
+        Convert to dictionary for serialization.
+
+        Returns:
+            Dictionary representation of the project cache entry.
+
+        """
+        return {
+            "mtime": self.metadata.mtime,
+            "size": self.metadata.size,
+            "config_hash": self.config_hash,
+            "collected": self.collected,
+        }
+
+    @classmethod
+    def from_dict(cls, data: dict[str, Any]) -> ProjectCacheEntry:
+        """
+        Create from dictionary loaded from cache.
+
+        Returns:
+            ProjectCacheEntry: The project cache entry object.
+
+        """
+        return cls(
+            metadata=FileMetadata(mtime=data["mtime"], size=data["size"]),
+            config_hash=data["config_hash"],
+            collected=data["collected"],
+        )
+
+
 @dataclass
 class CacheData:
     """Mutable container for cache data."""
@@ -245,6 +284,7 @@ class CacheData:
     linter: dict[str, LinterCacheEntry] = field(default_factory=dict)
     formatter: dict[str, FormatterCacheEntry] = field(default_factory=dict)
     libraries: dict[str, LibraryCacheEntry] = field(default_factory=dict)
+    project: dict[str, ProjectCacheEntry] = field(default_factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         """
@@ -259,6 +299,7 @@ class CacheData:
             "linter": {path: entry.to_dict() for path, entry in self.linter.items()},
             "formatter": {path: entry.to_dict() for path, entry in self.formatter.items()},
             "libraries": {key: entry.to_dict() for key, entry in self.libraries.items()},
+            "project": {path: entry.to_dict() for path, entry in self.project.items()},
         }
 
     @classmethod
@@ -275,6 +316,7 @@ class CacheData:
             linter={path: LinterCacheEntry.from_dict(entry) for path, entry in data.get("linter", {}).items()},
             formatter={path: FormatterCacheEntry.from_dict(entry) for path, entry in data.get("formatter", {}).items()},
             libraries={key: LibraryCacheEntry.from_dict(entry) for key, entry in data.get("libraries", {}).items()},
+            project={path: ProjectCacheEntry.from_dict(entry) for path, entry in data.get("project", {}).items()},
         )
 
 
@@ -596,6 +638,55 @@ class RobocopCache:
             environment_hash=environment_hash,
             source=str(source),
             response=response,
+        )
+        self._dirty = True
+
+    # Project cache methods
+
+    def get_project_entry(self, path: Path, config_hash: str) -> dict[str, Any] | None:
+        """
+        Get the data collected from the source file if it is still valid.
+
+        Args:
+            path: Absolute path to the source file.
+            config_hash: Hash of the configuration that affects parsing and collecting.
+
+        Returns:
+            Cached collected data if valid, None otherwise.
+
+        """
+        if not self.enabled:
+            return None
+        str_path = self._normalize_path(path)
+        entry = self.data.project.get(str_path)
+        if entry is None:
+            return None
+        if not self._is_entry_valid(path, entry.metadata, config_hash, entry.config_hash):
+            del self.data.project[str_path]
+            self._dirty = True
+            return None
+        return entry.collected
+
+    def set_project_entry(self, path: Path, config_hash: str, collected: dict[str, Any]) -> None:
+        """
+        Store the data collected from the source file in the cache.
+
+        Args:
+            path: Absolute path to the source file.
+            config_hash: Hash of the configuration that affects parsing and collecting.
+            collected: Serialized data collected from the file.
+
+        """
+        if not self.enabled:
+            return
+        try:
+            metadata = FileMetadata.from_path(path)
+        except OSError:
+            return
+        self.data.project[self._normalize_path(path)] = ProjectCacheEntry(
+            metadata=metadata,
+            config_hash=config_hash,
+            collected=collected,
         )
         self._dirty = True
 

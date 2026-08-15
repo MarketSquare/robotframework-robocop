@@ -5,6 +5,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from robocop.linter.rules import ProjectChecker, VisitorChecker, arguments, keywords, spacing
+from robocop.parsing.run_keywords import is_run_keyword
 from robocop.source_file import SourceFile
 
 if TYPE_CHECKING:
@@ -86,3 +87,59 @@ class ProjectArgumentsChecker(ProjectChecker):
         if definition.has_embedded_arguments:
             return None
         return definition.arguments.validate_call(usage.arguments)
+
+
+class ProjectArgumentNamesChecker(ProjectChecker):
+    """Checker for rules that require argument names from the keyword definitions in the whole project."""
+
+    missing_argument_name: arguments.MissingArgumentNameRule
+
+    def scan_project(
+        self,
+        project_source_file: SourceFile | VirtualSourceFile,
+        config_manager: ConfigManager,  # noqa: ARG002
+        context: ProjectContext,
+    ) -> list[Diagnostic]:
+        self.issues = []
+        for project_file, usage in context.iter_usages():
+            named_arguments = self._find_positional_arguments(context, usage)
+            if len(named_arguments) < self.missing_argument_name.min_arguments:
+                continue
+            source = SourceFile(path=project_file.path, config=project_source_file.config)
+            for index, argument_name in named_arguments:
+                lineno, col, end_col = usage.argument_positions[index]
+                self.report(
+                    self.missing_argument_name,
+                    source=source,
+                    keyword_name=usage.name,
+                    argument_name=argument_name,
+                    lineno=lineno,
+                    col=col,
+                    end_lineno=lineno,
+                    end_col=end_col,
+                )
+        return self.issues
+
+    def _find_positional_arguments(self, context: ProjectContext, usage: KeywordUsage) -> list[tuple[int, str]]:
+        """
+        Find arguments passed by the position together with their names from the keyword definition.
+
+        Returns:
+            List of ``(index in the call, argument name)`` pairs, empty if the call should not be reported.
+
+        """
+        if usage.is_template or usage.name_contains_variable or usage.has_argument_expansion:
+            return []
+        if len(usage.arguments) != len(usage.argument_positions):
+            return []  # positions are missing, for example when data comes from an older cache
+        if is_run_keyword(usage.name):
+            return []  # arguments of the run keywords are keyword names and their arguments
+        definitions = context.resolve_keyword(usage)
+        if len(definitions) != 1:
+            return []  # not defined in the project, or ambiguous
+        definition = definitions[0]
+        if definition.has_embedded_arguments or (
+            definition.is_from_library and self.missing_argument_name.ignore_library_keywords
+        ):
+            return []
+        return definition.arguments.name_positional_arguments(usage.arguments) or []

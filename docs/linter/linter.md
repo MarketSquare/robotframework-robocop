@@ -131,6 +131,7 @@ Currently available project level rules are:
 - ``unresolved-library-import`` - imported library cannot be imported,
 - ``unused-keyword`` - user keyword is never called in the project,
 - ``invalid-argument-count`` - keyword is called with a number of arguments its ``[Arguments]`` do not accept,
+- ``missing-argument-name`` - keyword is called with a positional argument instead of a named one,
 - ``unused-resource-import`` - nothing from the imported resource file is used,
 - ``unused-library-import`` - no keyword from the imported library is used,
 - ``ambiguous-keyword-name`` - keyword name matches keywords from more than one source,

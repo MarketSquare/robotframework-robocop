@@ -1,0 +1,82 @@
+test.robot:13:14 ARG09 Argument 'username' of the keyword 'Login' should be passed as a named argument
+    |
+ 11 |
+ 12 | Positional Calls
+ 13 |     Login    user    pass
+    |              ^^^^ ARG09
+ 14 |     With Default    1
+ 15 |     With Default    1    2
+    | Suggestion: Add the argument name, for example 'name=Bob' instead of 'Bob'
+    |
+
+test.robot:13:22 ARG09 Argument 'password' of the keyword 'Login' should be passed as a named argument
+    |
+ 11 |
+ 12 | Positional Calls
+ 13 |     Login    user    pass
+    |                      ^^^^ ARG09
+ 14 |     With Default    1
+ 15 |     With Default    1    2
+    | Suggestion: Add the argument name, for example 'name=Bob' instead of 'Bob'
+    |
+
+test.robot:14:21 ARG09 Argument 'a' of the keyword 'With Default' should be passed as a named argument
+    |
+ 12 | Positional Calls
+ 13 |     Login    user    pass
+ 14 |     With Default    1
+    |                     ^ ARG09
+ 15 |     With Default    1    2
+ 16 |     With Kwargs    1    other=2
+    | Suggestion: Add the argument name, for example 'name=Bob' instead of 'Bob'
+    |
+
+test.robot:15:21 ARG09 Argument 'a' of the keyword 'With Default' should be passed as a named argument
+    |
+ 13 |     Login    user    pass
+ 14 |     With Default    1
+ 15 |     With Default    1    2
+    |                     ^ ARG09
+ 16 |     With Kwargs    1    other=2
+    | Suggestion: Add the argument name, for example 'name=Bob' instead of 'Bob'
+    |
+
+test.robot:15:26 ARG09 Argument 'b' of the keyword 'With Default' should be passed as a named argument
+    |
+ 13 |     Login    user    pass
+ 14 |     With Default    1
+ 15 |     With Default    1    2
+    |                          ^ ARG09
+ 16 |     With Kwargs    1    other=2
+    | Suggestion: Add the argument name, for example 'name=Bob' instead of 'Bob'
+    |
+
+test.robot:16:20 ARG09 Argument 'a' of the keyword 'With Kwargs' should be passed as a named argument
+    |
+ 14 |     With Default    1
+ 15 |     With Default    1    2
+ 16 |     With Kwargs    1    other=2
+    |                    ^ ARG09
+    | Suggestion: Add the argument name, for example 'name=Bob' instead of 'Bob'
+    |
+
+test.robot:29:14 ARG09 Argument 'username' of the keyword 'Login' should be passed as a named argument
+    |
+ 27 |
+ 28 | Value With Equal Sign
+ 29 |     Login    user=name    pass
+    |              ^^^^^^^^^ ARG09
+    | Suggestion: Add the argument name, for example 'name=Bob' instead of 'Bob'
+    |
+
+test.robot:29:27 ARG09 Argument 'password' of the keyword 'Login' should be passed as a named argument
+    |
+ 27 |
+ 28 | Value With Equal Sign
+ 29 |     Login    user=name    pass
+    |                           ^^^^ ARG09
+    | Suggestion: Add the argument name, for example 'name=Bob' instead of 'Bob'
+    |
+
+Found 8 issues.
+8 fixable with the '--fix' option.

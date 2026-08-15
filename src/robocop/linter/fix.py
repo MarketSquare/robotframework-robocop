@@ -266,15 +266,32 @@ class FixApplier:
 
         for edit in sorted_edits[1:]:
             # Check if this edit starts after the previous edit ends
-            end_line = (
-                non_overlapping[-1].end_line
-                if non_overlapping[-1].end_line is not None
-                else non_overlapping[-1].start_line
-            )
-            if edit.start_line > end_line:
+            previous = non_overlapping[-1]
+            end_line = previous.end_line if previous.end_line is not None else previous.start_line
+            if edit.start_line > end_line or FixApplier._is_after_on_the_same_line(previous, edit):
                 non_overlapping.append(edit)
 
         return non_overlapping
+
+    @staticmethod
+    def _is_after_on_the_same_line(previous: TextEdit, edit: TextEdit) -> bool:
+        """
+        Check if both edits replace a part of the same line and do not overlap.
+
+        Only single line replacements can be applied together, other kinds of edits replace, insert or delete
+        whole lines.
+
+        Returns:
+            True if the edit can be applied together with the previous one.
+
+        """
+        single_line_kinds = (
+            previous.kind == TextEditKind.REPLACEMENT
+            and edit.kind == TextEditKind.REPLACEMENT
+            and previous.start_line == previous.end_line
+            and edit.start_line == edit.end_line
+        )
+        return single_line_kinds and previous.start_line == edit.start_line and edit.start_col >= previous.end_col
 
     @staticmethod
     def _apply_edit(lines: list[str], edit: TextEdit) -> None:

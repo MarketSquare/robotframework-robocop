@@ -224,6 +224,34 @@ class ArgumentsSpec:
                 positional_values.append(argument)
         return self._compare(positional_values, named_names)
 
+    def name_positional_arguments(self, arguments: Sequence[str]) -> list[tuple[int, str]] | None:
+        """
+        Match arguments passed by the position in the call with the names from this specification.
+
+        Returns:
+            List of ``(index in the call, argument name)`` pairs, or None if the call cannot be analyzed
+            with certainty.
+
+        """
+        known_names = self._known_names()
+        positional_arguments: list[tuple[int, str]] = []
+        used_named = False
+        for index, argument in enumerate(arguments):
+            split = _split_named_argument(argument)
+            if split is not None:
+                name, _value = split
+                if search_variable(name, ignore_errors=True).base is not None:
+                    return None  # named argument built from a variable, anything is possible
+                if normalize_robot_name(name) in known_names or self.accepts_named:
+                    used_named = True
+                    continue
+            if used_named:
+                return None  # positional argument after a named one, such call is invalid anyway
+            if len(positional_arguments) >= len(self.positional):
+                return None  # argument is passed to the ``*varargs`` and cannot be named
+            positional_arguments.append((index, self.positional[len(positional_arguments)]))
+        return positional_arguments
+
     def _compare(self, positional_values: list[str], named_names: set[str]) -> ArgumentsMismatch | None:
         provided = len(positional_values)
         maximum = self.max_args
@@ -282,6 +310,8 @@ class KeywordUsage:
     location: Location
     arguments: tuple[str, ...] = ()
     """Raw values of the arguments used in this call."""
+    argument_positions: tuple[tuple[int, int, int], ...] = ()
+    """Position of every argument in the source file, as a ``(line, column, end column)`` tuple."""
     name_contains_variable: bool = False
     """Keyword is called using a name built from a variable. Its definition cannot be found statically."""
     bdd_prefix: str | None = None

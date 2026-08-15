@@ -301,11 +301,15 @@ class RobocopLinter:
             diag_by_source[diagnostic.source.path].append(diagnostic)
         if not diag_by_source:
             return False
-        modified_files = {source_file.path: source_file for source_file in fix_applier.modified_files}
+        modified_files = {source_file.path.resolve(): source_file for source_file in fix_applier.modified_files}
+        project_files = {source_file.path.resolve(): source_file for source_file in self.config_manager.project_paths}
         fixed = False
         for path, source_diagnostics in diag_by_source.items():
-            # reuse source file already modified by the file level fixes to not lose their changes
-            source_file = modified_files.get(path, source_diagnostics[0].source)
+            # reuse source file already parsed for the project context, so that the next scan sees fixed model
+            resolved_path = path.resolve()
+            source_file = modified_files.get(resolved_path) or project_files.get(resolved_path)
+            if source_file is None:
+                source_file = source_diagnostics[0].source
             fixes = [diag.fix or diag.rule.fix(diag, source_file.source_lines) for diag in source_diagnostics]
             fixes_before = self.count_applied_fixes(fix_applier)
             if not fix_applier.apply_fixes(source_file, [fix for fix in fixes if fix]):

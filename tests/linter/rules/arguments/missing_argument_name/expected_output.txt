@@ -1,0 +1,11 @@
+test.robot:13:14 [W] ARG09 Argument 'username' of the keyword 'Login' should be passed as a named argument
+test.robot:13:22 [W] ARG09 Argument 'password' of the keyword 'Login' should be passed as a named argument
+test.robot:14:21 [W] ARG09 Argument 'a' of the keyword 'With Default' should be passed as a named argument
+test.robot:15:21 [W] ARG09 Argument 'a' of the keyword 'With Default' should be passed as a named argument
+test.robot:15:26 [W] ARG09 Argument 'b' of the keyword 'With Default' should be passed as a named argument
+test.robot:16:20 [W] ARG09 Argument 'a' of the keyword 'With Kwargs' should be passed as a named argument
+test.robot:29:14 [W] ARG09 Argument 'username' of the keyword 'Login' should be passed as a named argument
+test.robot:29:27 [W] ARG09 Argument 'password' of the keyword 'Login' should be passed as a named argument
+
+Found 8 issues.
+8 fixable with the '--fix' option.

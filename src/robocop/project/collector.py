@@ -213,9 +213,9 @@ class ProjectFileCollector(ModelVisitor):  # type: ignore[misc]
 
     def _add_usages(self, node: Statement, name_token_type: str) -> None:
         for call in iterate_keyword_calls(node, name_token_type):
-            self._add_usage(call.name, [token.value for token in call.arguments])
+            self._add_usage(call.name, list(call.arguments))
 
-    def _add_usage(self, token: Token, arguments: list[str], is_template: bool = False) -> None:
+    def _add_usage(self, token: Token, arguments: list[Token], is_template: bool = False) -> None:
         if not token.value:
             return
         match = search_variable(token.value, ignore_errors=True)
@@ -230,7 +230,10 @@ class ProjectFileCollector(ModelVisitor):  # type: ignore[misc]
                     end_lineno=token.lineno,
                     end_col=token.end_col_offset + 1,
                 ),
-                arguments=tuple(arguments),
+                arguments=tuple(argument.value for argument in arguments),
+                argument_positions=tuple(
+                    (argument.lineno, argument.col_offset + 1, argument.end_col_offset + 1) for argument in arguments
+                ),
                 name_contains_variable=bool(match.base),
                 bdd_prefix=self._bdd_prefix(token.value),
                 is_template=is_template,

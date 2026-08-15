@@ -5,12 +5,15 @@ from typing import TYPE_CHECKING, ClassVar
 from robot.api import Token
 
 from robocop.linter import sonar_qube
-from robocop.linter.rules import Rule, RuleParam, RuleSeverity
-from robocop.linter.utils.misc import normalize_robot_var_name, split_argument_default_value
+from robocop.linter.fix import Fix, FixApplicability, FixAvailability, TextEdit
+from robocop.linter.rules import FixableRule, Rule, RuleParam, RuleSeverity
+from robocop.linter.utils.misc import normalize_robot_var_name, split_argument_default_value, str2bool
 from robocop.version_handling import TYPE_SUPPORTED
 
 if TYPE_CHECKING:
     from robot.parsing.model.statements import Arguments, KeywordCall
+
+    from robocop.linter.diagnostics import Diagnostic
 
 
 class UnusedArgumentRule(Rule):
@@ -358,3 +361,93 @@ class InvalidArgumentCountRule(Rule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.LOGICAL, issue_type=sonar_qube.SonarQubeIssueType.BUG
     )
+
+
+class MissingArgumentNameRule(FixableRule):
+    """
+    Keyword is called with a positional argument instead of a named one.
+
+    Optional rule for projects that require every keyword to be called with named arguments. Positional arguments
+    are easy to mix up, especially with keywords that accept a lot of them:
+
+        *** Keywords ***
+        Create User
+            [Arguments]    ${name}    ${surname}    ${age}    ${city}
+            Log Many    ${name}    ${surname}    ${age}    ${city}
+
+        *** Test Cases ***
+        Test
+            Create User    Bob    Smith    30    Berlin  # will report 4 issues
+
+    With this rule enabled, the call should be written as:
+
+        *** Test Cases ***
+        Test
+            Create User    name=Bob    surname=Smith    age=30    city=Berlin
+
+    The rule is not enabled by default. Select it to use it:
+
+        robocop check --select missing-argument-name
+
+    Argument names are taken from the keyword definition, so the whole project needs to be analyzed. Keywords
+    coming from the libraries are ignored by default, since it is not always possible to call them with named
+    arguments. Configure ``ignore_library_keywords`` to check them as well:
+
+        robocop check --select missing-argument-name --configure missing-argument-name.ignore_library_keywords=False
+
+    Calls with only a few arguments are often clear enough. Use ``min_arguments`` to only report calls that use
+    at least given number of positional arguments:
+
+        robocop check --select missing-argument-name --configure missing-argument-name.min_arguments=3
+
+    To avoid false positives, the argument is not reported when:
+
+    - the keyword name is built from a variable,
+    - the keyword is not found in the project, or more than one definition matches the name,
+    - the keyword uses embedded arguments,
+    - the call expands a list (``@{args}``) or dictionary (``&{kwargs}``) variable,
+    - the keyword is used as a test template,
+    - the argument is passed to ``*varargs``, or the keyword does not accept it as a named argument.
+
+    """
+
+    name = "missing-argument-name"
+    project_rule = True
+    rule_id = "ARG09"
+    message = "Argument '{argument_name}' of the keyword '{keyword_name}' should be passed as a named argument"
+    severity = RuleSeverity.WARNING
+    enabled = False
+    added_in_version = "9.0.0"
+    fix_availability = FixAvailability.ALWAYS
+    fix_suggestion = "Add the argument name, for example 'name=Bob' instead of 'Bob'"
+    parameters = [
+        RuleParam(
+            name="ignore_library_keywords",
+            default=True,
+            converter=str2bool,
+            show_type="bool",
+            desc="Do not report calls of the keywords imported from the libraries",
+        ),
+        RuleParam(
+            name="min_arguments",
+            default=1,
+            converter=int,
+            desc="Minimal number of the positional arguments in the call required to report it",
+        ),
+    ]
+    sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
+        clean_code=sonar_qube.CleanCodeAttribute.CLEAR, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
+    )
+
+    def fix(self, diag: Diagnostic, source_lines: list[str]) -> Fix | None:  # noqa: ARG002
+        argument_name = diag.reported_arguments["argument_name"]
+        edit = TextEdit(
+            rule_id=self.rule_id,
+            rule_name=self.name,
+            start_line=diag.range.start.line,
+            start_col=diag.range.start.character,
+            end_line=diag.range.start.line,
+            end_col=diag.range.start.character,
+            replacement=f"{argument_name}=",
+        )
+        return Fix(edits=[edit], message=f"Add '{argument_name}' argument name", applicability=FixApplicability.SAFE)

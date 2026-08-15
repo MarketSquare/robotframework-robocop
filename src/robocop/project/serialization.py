@@ -24,7 +24,7 @@ if TYPE_CHECKING:
     from collections.abc import Callable
     from pathlib import Path
 
-SERIALIZATION_VERSION = 1
+SERIALIZATION_VERSION = 2
 """Version of the format used to store the collected data. Bump it whenever the format changes."""
 
 
@@ -100,6 +100,7 @@ def _usage_to_dict(usage: KeywordUsage) -> dict[str, Any]:
         "normalized_name": usage.normalized_name,
         "location": _location_to_dict(usage.location),
         "arguments": list(usage.arguments),
+        "argument_positions": [list(position) for position in usage.argument_positions],
         "name_contains_variable": usage.name_contains_variable,
         "bdd_prefix": usage.bdd_prefix,
         "is_template": usage.is_template,
@@ -112,6 +113,7 @@ def _usage_from_dict(data: dict[str, Any], source: Path) -> KeywordUsage:
         normalized_name=data["normalized_name"],
         location=_location_from_dict(data["location"], source),
         arguments=tuple(data["arguments"]),
+        argument_positions=tuple(tuple(position) for position in data["argument_positions"]),
         name_contains_variable=data["name_contains_variable"],
         bdd_prefix=data["bdd_prefix"],
         is_template=data["is_template"],

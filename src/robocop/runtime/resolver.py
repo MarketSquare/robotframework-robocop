@@ -40,6 +40,13 @@ class RulePattern(NamedTuple):
     name: str
 
 
+ALL_RULES = "ALL"
+"""Special value of ``--select`` that matches every rule."""
+
+PROJECT_RULES = "PROJECT"
+"""Special value of the rule filters that matches every project level rule."""
+
+
 @dataclass
 class RuleFilter:
     """Encapsulates a set of rules with both exact matches and patterns."""
@@ -56,13 +63,22 @@ class RuleFilter:
         )
 
     def matches(self, rule: Rule) -> bool:
-        """Check if the rule matches any filter and track the match."""
+        """
+        Check if the rule matches any filter and track the match.
+
+        Returns:
+            True if the rule matches the filter.
+
+        """
         # Check exact matches
         if rule.rule_id in self.exact_matches:
             self.matched.add(rule.rule_id)
             return True
         if rule.name in self.exact_matches:
             self.matched.add(rule.name)
+            return True
+        if rule.project_rule and PROJECT_RULES in self.exact_matches:
+            self.matched.add(PROJECT_RULES)
             return True
 
         # Check patterns
@@ -77,7 +93,7 @@ class RuleFilter:
         return not self.exact_matches and not self.patterns
 
     def has_all(self) -> bool:
-        return "ALL" in self.exact_matches
+        return ALL_RULES in self.exact_matches
 
 
 class RuleMatcher:
@@ -113,7 +129,7 @@ class RuleMatcher:
             return False
 
         if self.select_filter.has_all():
-            self.select_filter.matched.add("ALL")
+            self.select_filter.matched.add(ALL_RULES)
             return True
 
         # extend-select takes priority

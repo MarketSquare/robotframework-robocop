@@ -144,6 +144,17 @@ Project rules are marked with the ``[project]`` tag in the [rules list](../rules
 robocop list rules --filter PROJECT
 ```
 
+All of them can be enabled at once with the special ``PROJECT`` value, which can be used with ``--select``,
+``--extend-select`` and ``--ignore``:
+
+```bash
+robocop check --select PROJECT  # run only the project level rules
+robocop check --extend-select PROJECT  # run the default rules and all project level rules
+robocop check --select ALL --ignore PROJECT  # run every rule except the project level ones
+```
+
+``--select ALL`` enables the project rules as well, since it selects every rule.
+
 Import paths often contain variables. Provide them with the ``--variable`` or ``--variablefile`` option so that the
 imports can be resolved:
 

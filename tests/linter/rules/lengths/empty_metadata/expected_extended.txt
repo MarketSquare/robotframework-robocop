@@ -7,3 +7,4 @@ test.robot:3:1 LEN11 Metadata settings does not have any value set
    |
 
 Found 1 issue.
+1 fixable with the '--fix' option.

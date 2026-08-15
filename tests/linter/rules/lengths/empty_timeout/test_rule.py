@@ -7,3 +7,6 @@ class TestRuleAcceptance(RuleAcceptance):
 
     def test_extended(self):
         self.check_rule(src_files=["test.robot"], expected_file="expected_extended.txt", output_format="extended")
+
+    def test_fix(self):
+        self.check_rule_fix(src_files=["test.robot", "overwrite.robot"])

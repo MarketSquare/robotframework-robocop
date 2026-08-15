@@ -1,3 +1,4 @@
 test.robot:9:5 [E] LEN18 Setup of 'Test' Test Case does not have any keywords
 
 Found 1 issue.
+1 fixable with the '--fix' option.

@@ -3,3 +3,4 @@ test.robot:7:5 [W] LEN12 Documentation of 'Test' Test Case is empty
 test.robot:16:5 [W] LEN12 Documentation of 'Keyword' Keyword is empty
 
 Found 3 issues.
+3 fixable with the '--fix' option.

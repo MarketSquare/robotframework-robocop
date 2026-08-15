@@ -12,7 +12,7 @@ if TYPE_CHECKING:
     from robocop.linter.diagnostics import Diagnostics
 
 
-class TextFile(robocop.linter.reports.Report):
+class TextFile(robocop.linter.reports.FileReport):
     """
     **Report name**: ``text_file``
 
@@ -23,6 +23,10 @@ class TextFile(robocop.linter.reports.Report):
         robocop check --configure text_file.output_path=output/robocop.txt
 
     ``text_file`` report supports only the `` simple `` issue output format.
+
+    Set ``skip_on_empty`` to ``True`` to not generate the file when there are no issues to report:
+
+        robocop check --configure text_file.skip_on_empty=True
     """
 
     NO_ALL = False
@@ -34,6 +38,8 @@ class TextFile(robocop.linter.reports.Report):
         super().__init__(config)
 
     def generate_report(self, diagnostics: Diagnostics, **kwargs: object) -> None:  # type: ignore[override]  # noqa: ARG002
+        if self.should_skip(diagnostics):
+            return
         cwd = Path.cwd()
         messages: list[str] = []
         for source, diag_by_source in diagnostics.diag_by_source.items():

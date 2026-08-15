@@ -34,6 +34,10 @@ class SarifReport(robocop.linter.reports.JsonFileReport):
 
     The default path is ``.sarif.json``.
 
+    Set ``skip_on_empty`` to ``True`` to not generate the file when there are no issues to report:
+
+        robocop check --configure sarif.skip_on_empty=True
+
     """
 
     NO_ALL = False
@@ -119,5 +123,7 @@ class SarifReport(robocop.linter.reports.JsonFileReport):
     ) -> None:
         # TODO: In case of several configs we may not have all rules in default config
         # instead, we could use diagnostic.rule and aggregate them
+        if self.should_skip(diagnostics):
+            return
         report = self.generate_sarif_report(diagnostics, config_manager.root, resolved_config.rules)
         super().generate_report_with_type(report, "SARIF")

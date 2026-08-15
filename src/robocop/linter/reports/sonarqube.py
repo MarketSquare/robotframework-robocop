@@ -43,6 +43,10 @@ class SonarQubeReport(robocop.linter.reports.JsonFileReport):
 
     The default path is ``robocop_sonar_qube.json``.
 
+    Set ``skip_on_empty`` to ``True`` to not generate the file when there are no issues to report:
+
+        robocop check --configure sonarqube.skip_on_empty=True
+
     """
 
     NO_ALL = False
@@ -76,6 +80,8 @@ class SonarQubeReport(robocop.linter.reports.JsonFileReport):
         config_manager: ConfigManager,
         **kwargs: object,  # noqa: ARG002
     ) -> None:
+        if self.should_skip(diagnostics):
+            return
         report = self.report_generator().generate_sonarqube_report(diagnostics, config_manager.root)
         super().generate_report_with_type(report, "SonarQube")
 

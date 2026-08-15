@@ -77,3 +77,28 @@ You can configure the version of the SonarQube generic formatter format with the
         "sonarqube.sonar_version=9.9"
     ]
     ```
+
+### ``Skip on empty``
+
+By default, the report file is generated even if Robocop did not find any issue. Set the ``skip_on_empty`` option
+to ``True`` to not create the file when there is nothing to report:
+
+=== ":octicons-command-palette-24: cli"
+
+    ```bash
+    robocop check --reports sonarqube --configure sonarqube.skip_on_empty=True
+    ```
+
+=== ":material-file-cog-outline: toml"
+
+    ```toml
+    [tool.robocop.lint]
+    reports = [
+        "sonarqube"
+    ]
+    configure = [
+        "sonarqube.skip_on_empty=True"
+    ]
+    ```
+
+If the file was created by a previous run, it is left untouched.

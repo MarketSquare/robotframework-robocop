@@ -1,6 +1,6 @@
-test.robot:8:5 [W] KW07 Keyword 'Login' should be called with the 'login' prefix
-test.robot:9:5 [W] KW07 Keyword 'Given Logout' should be called with the 'login' prefix
-test.robot:12:5 [W] KW07 Keyword 'Keyword With value Argument' should be called with the 'login' prefix
+test.robot:7:5 [W] KW07 Keyword 'Login' should be called with the 'login' prefix
+test.robot:8:5 [W] KW07 Keyword 'Given Logout' should be called with the 'login' prefix
+test.robot:10:5 [W] KW07 Keyword 'Keyword With value Argument' should be called with the 'login' prefix
 
 Found 3 issues.
 3 fixable with the '--fix' option.

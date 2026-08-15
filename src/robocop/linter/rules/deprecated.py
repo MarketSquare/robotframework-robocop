@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import string
-from typing import TYPE_CHECKING, ClassVar
+from typing import TYPE_CHECKING
 
 from robot.api import Token
 
@@ -31,25 +31,8 @@ class IfCanBeUsedRule(Rule):
 
     Starting from Robot Framework 4.0 IF block can be used instead of those keywords.
 
-    Incorrect code example:
-
-        *** Test Cases ***
-        Test case
-            Run Keyword If    ${condition}    Keyword Call    ELSE    Log    Condition did not match.
-            Run Keyword Unless    ${something_happened}    Assert Results
-
-    Correct code:
-
-        *** Test Cases ***
-        Test case
-            IF    ${condition}
-                Keyword Call
-            ELSE
-                Log    Condition did not match.
-            END
-            IF    not ${something_happened}
-                Assert Results
-            END
+    Changes in 8.9.0: Rule is deprecated. It only supported Robot Framework 4, while Robocop
+    now requires Robot Framework 5.0+. Use ``deprecated-run-keyword-if`` (DEPR08) instead.
 
     """
 
@@ -57,25 +40,12 @@ class IfCanBeUsedRule(Rule):
     rule_id = "DEPR01"
     message = "'{run_keyword}' can be replaced with IF block since Robot Framework 4.0"
     severity = RuleSeverity.INFO
-    version = "==4.*"
     added_in_version = "1.4.0"
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.CONVENTIONAL, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
     deprecated_names = ("0908",)
-
-    run_keyword_variants: ClassVar[set[str]] = {"runkeywordif", "runkeywordunless"}
-
-    def check(self, node: KeywordCall, keyword_name: str, normalized_keyword_name: str) -> None:
-        if not self.enabled or normalized_keyword_name not in self.run_keyword_variants:
-            return
-        col = utils.keyword_col(node)
-        self.report(
-            run_keyword=keyword_name,
-            node=node,
-            col=col,
-            end_col=col + len(keyword_name),
-        )
+    deprecated = True
 
 
 class DeprecatedStatementRule(Rule):

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import re
 from collections import deque
 from typing import TYPE_CHECKING
 
@@ -16,14 +17,38 @@ if TYPE_CHECKING:
 
     from robocop.config.manager import ConfigManager
     from robocop.linter.diagnostics import Diagnostic
+    from robocop.linter.rules import Rule
     from robocop.project.context import ProjectContext, ProjectFile
+    from robocop.project.definitions import ResolvedImport
     from robocop.source_file import VirtualSourceFile
+
+NOT_IMPORTED_LIBRARIES = frozenset({"Remote"})
+"""Libraries that are never imported, since importing them requires a running service."""
+
+IMPORT_ERROR_PREFIX = re.compile(r"^(?:\w+: )?Importing (?:test )?library '[^']*' failed: ")
+
+
+def _import_error(error: str | None) -> str:
+    """
+    Make the error returned by the library import shorter.
+
+    Robot Framework prefixes the error with the name of the library, which is already a part of the reported
+    message.
+
+    Returns:
+        Error without the redundant prefix.
+
+    """
+    if not error:
+        return "Unknown error"
+    return IMPORT_ERROR_PREFIX.sub("", error)
 
 
 class ProjectImportsChecker(ProjectChecker):
     """Checker for imports that can only be validated with the whole project context."""
 
     unresolved_resource_import: imports.UnresolvedResourceImportRule
+    unresolved_library_import: imports.UnresolvedLibraryImportRule
 
     def scan_project(
         self,
@@ -33,18 +58,58 @@ class ProjectImportsChecker(ProjectChecker):
     ) -> list[Diagnostic]:
         self.issues = []
         for project_file, imported in context.iter_imports():
-            if imported.import_type != ImportType.RESOURCE or imported.status != ImportStatus.NOT_FOUND:
-                continue
-            self.report(
-                self.unresolved_resource_import,
-                source=SourceFile(path=project_file.path, config=project_source_file.config),
-                import_name=imported.resolved_name,
-                lineno=imported.location.lineno,
-                col=imported.location.col,
-                end_lineno=imported.location.end_lineno,
-                end_col=imported.location.end_col,
-            )
+            if imported.import_type == ImportType.RESOURCE:
+                if imported.status == ImportStatus.NOT_FOUND:
+                    self._report_import(self.unresolved_resource_import, project_file, imported, project_source_file)
+            elif imported.import_type == ImportType.LIBRARY:
+                self._check_library(project_file, imported, project_source_file, context)
         return self.issues
+
+    def _check_library(
+        self,
+        project_file: ProjectFile,
+        imported: ResolvedImport,
+        project_source_file: SourceFile | VirtualSourceFile,
+        context: ProjectContext,
+    ) -> None:
+        """Report library import that Robot Framework would not be able to import."""
+        if imported.status == ImportStatus.UNRESOLVABLE or not imported.args_resolved:
+            return
+        if imported.resolved_name in NOT_IMPORTED_LIBRARIES:
+            return
+        loader = context.library_loader
+        if loader is not None and loader.is_ignored(imported.resolved_name):
+            return
+        if imported.status == ImportStatus.NOT_FOUND:
+            error = "File does not exist"
+        else:
+            if loader is None:
+                return
+            spec = loader.load_import(imported)
+            if spec is None or spec.loaded:
+                return
+            error = _import_error(spec.error)
+        self._report_import(self.unresolved_library_import, project_file, imported, project_source_file, error=error)
+
+    def _report_import(
+        self,
+        rule: Rule,
+        project_file: ProjectFile,
+        imported: ResolvedImport,
+        project_source_file: SourceFile | VirtualSourceFile,
+        error: str = "",
+    ) -> None:
+        """Report the import using the location of the import statement."""
+        self.report(
+            rule,
+            source=SourceFile(path=project_file.path, config=project_source_file.config),
+            import_name=imported.resolved_name,
+            error=error,
+            lineno=imported.location.lineno,
+            col=imported.location.col,
+            end_lineno=imported.location.end_lineno,
+            end_col=imported.location.end_col,
+        )
 
 
 class UnusedImportsChecker(ProjectChecker):

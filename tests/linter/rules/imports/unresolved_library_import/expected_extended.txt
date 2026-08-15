@@ -1,0 +1,21 @@
+test.robot:4:13 IMP09 Imported library 'libs/missing.py' could not be imported: File does not exist
+   |
+ 2 | Library     Collections
+ 3 | Library     libs/MyLibrary.py
+ 4 | Library     libs/missing.py
+   |             ^^^^^^^^^^^^^^^ IMP09
+ 5 | Library     NotInstalledLibrary
+ 6 | Library     ${LIB_DIR}/MyLibrary.py
+   |
+
+test.robot:5:13 IMP09 Imported library 'NotInstalledLibrary' could not be imported: ModuleNotFoundError: No module named 'NotInstalledLibrary'
+   |
+ 3 | Library     libs/MyLibrary.py
+ 4 | Library     libs/missing.py
+ 5 | Library     NotInstalledLibrary
+   |             ^^^^^^^^^^^^^^^^^^^ IMP09
+ 6 | Library     ${LIB_DIR}/MyLibrary.py
+ 7 | Library     ${UNDEFINED_DIR}/other.py
+   |
+
+Found 2 issues.

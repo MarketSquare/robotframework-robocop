@@ -16,3 +16,4 @@ test.robot:9:1 DUP03 Multiple variables with name '${other_var}' in Variables se
    |
 
 Found 2 issues.
+2 fixable with the '--fix' option.

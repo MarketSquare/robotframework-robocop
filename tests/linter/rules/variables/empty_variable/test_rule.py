@@ -31,3 +31,6 @@ class TestRuleAcceptance(RuleAcceptance):
 
     def test_rule_pre_var(self):
         self.check_rule(src_files=["test.robot"], expected_file="expected_output_pre_var.txt", test_on_version="<7")
+
+    def test_fix(self):
+        self.check_rule_fix(src_files=["test.robot"], test_on_version=">=7")

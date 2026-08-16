@@ -85,7 +85,13 @@ class TrailingWhitespaceRule(FixableRule):
 
 
 class MissingTrailingBlankLineRule(Rule):
-    """Missing trailing blank line at the end of file."""
+    """
+    Missing trailing blank line at the end of file.
+
+    This rule is not fixed by ``robocop check --fix``. Use the ``NormalizeNewLines`` formatter
+    (``robocop format``) to fix it.
+
+    """
 
     name = "missing-trailing-blank-line"
     rule_id = "SPC02"
@@ -131,6 +137,9 @@ class EmptyLinesBetweenSectionsRule(Rule):
         *** Keywords ***
         Keyword Definition
             No Operation
+
+    This rule is not fixed by ``robocop check --fix``. Use the ``NormalizeNewLines`` formatter
+    (``robocop format``) to fix it.
 
     """
 
@@ -179,6 +188,9 @@ class EmptyLinesBetweenTestCasesRule(Rule):
         Second test case
             No Operation
 
+    This rule is not fixed by ``robocop check --fix``. Use the ``NormalizeNewLines`` formatter
+    (``robocop format``) to fix it.
+
     """
 
     name = "empty-lines-between-test-cases"
@@ -226,6 +238,9 @@ class EmptyLinesBetweenKeywordsRule(Rule):
         Second Keyword
             No Operation
 
+    This rule is not fixed by ``robocop check --fix``. Use the ``NormalizeNewLines`` formatter
+    (``robocop format``) to fix it.
+
     """
 
     name = "empty-lines-between-keywords"
@@ -253,6 +268,10 @@ class MixedTabsAndSpacesRule(Rule):
     Mixed tabs and spaces in the file.
 
     File contains both spaces and tabs. Use only one type of separators - preferably spaces.
+
+    This rule is not fixed by ``robocop check --fix``. Use the ``NormalizeSeparators`` formatter
+    (``robocop format``) to fix it.
+
     """
 
     name = "mixed-tabs-and-spaces"
@@ -291,6 +310,9 @@ class BadIndentRule(Rule):
             Misaligned Keyword Call
             IF    $condition    RETURN
             Keyword Call
+
+    This rule is not fixed by ``robocop check --fix``. Use the ``NormalizeSeparators`` formatter
+    (``robocop format``) to fix it.
 
     """
 
@@ -335,6 +357,9 @@ class EmptyLineAfterSectionRule(Rule):
          *** Test Cases ***
          Test case name
 
+    This rule is not fixed by ``robocop check --fix``. Use the ``NormalizeNewLines`` formatter
+    (``robocop format``) to fix it.
+
     """
 
     name = "empty-line-after-section"
@@ -363,6 +388,10 @@ class TooManyTrailingBlankLinesRule(Rule):
     Too many blank lines at the end of the file.
 
     There should be exactly one blank line at the end of the file.
+
+    This rule is not fixed by ``robocop check --fix``. Use the ``NormalizeNewLines`` formatter
+    (``robocop format``) to fix it.
+
     """
 
     name = "too-many-trailing-blank-lines"
@@ -415,6 +444,9 @@ class MisalignedContinuationRule(Rule):
             Do X    first argument    second argument    third argument
             ...    fourth argument    fifth argument    sixth argument
 
+    This rule is not fixed by ``robocop check --fix``. Use the ``NormalizeSeparators`` formatter
+    (``robocop format``) to fix it.
+
     """
 
     name = "misaligned-continuation"
@@ -460,6 +492,9 @@ class ConsecutiveEmptyLinesRule(Rule):
         Keyword
             Step 1
             Step 2  # 1 empty line is also fine, but no more
+
+    This rule is not fixed by ``robocop check --fix``. Use the ``NormalizeNewLines`` formatter
+    (``robocop format``) to fix it.
 
     """
 
@@ -516,6 +551,9 @@ class EmptyLinesInStatementRule(Rule):
             ...  2
             ...  3
 
+    This rule is not fixed by ``robocop check --fix``. Use the ``NormalizeNewLines`` formatter
+    (``robocop format``) to fix it.
+
     """
 
     name = "empty-lines-in-statement"
@@ -545,6 +583,9 @@ class VariableNotLeftAlignedRule(Rule):
         *** Variables ***
         ${VAR}  1
         ${VAR2}  2
+
+    This rule is not fixed by ``robocop check --fix``. Use the ``AlignVariablesSection`` formatter
+    (``robocop format``) to fix it.
 
     """
 
@@ -604,6 +645,9 @@ class MisalignedContinuationRowRule(Rule):
             My Keyword
             ...    arg1
             ...    arg2  # misaligned
+
+    This rule is not fixed by ``robocop check --fix``. Use the ``NormalizeSeparators`` formatter
+    (``robocop format``) to fix it.
 
     """
 
@@ -729,6 +773,9 @@ class BadBlockIndentRule(Rule):
                 Log  stuff    # this is bad indent
                 # bad comment
             END
+
+    This rule is not fixed by ``robocop check --fix``. Use the ``NormalizeSeparators`` formatter
+    (``robocop format``) to fix it.
 
     """
 

@@ -30,3 +30,6 @@ class TestRuleAcceptance(RuleAcceptance):
             src_files=["configure_pattern"],
             expected_file="configure_pattern/expected_output.txt",
         )
+
+    def test_fix(self):
+        self.check_rule_fix(src_files=["test.robot"])

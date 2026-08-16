@@ -27,6 +27,16 @@ class TestRuleAcceptance(RuleAcceptance):
     def test_configure_pattern(self):
         self.check_rule(
             configure=[r"wrong-case-in-keyword-call.pattern=Foo\.bar"],
-            src_files=["configure_pattern"],
+            src_files=["configure_pattern/test.robot"],
             expected_file="configure_pattern/expected_output.txt",
+        )
+
+    def test_fix(self):
+        self.check_rule_fix(src_files=["test.robot", "run_keywords.robot"])
+
+    def test_fix_configured_pattern(self):
+        self.check_rule_fix(
+            configure=[r"wrong-case-in-keyword-call.pattern=Foo\.bar"],
+            src_files=["test.robot"],
+            test_dir=self.test_class_dir / "configure_pattern",
         )

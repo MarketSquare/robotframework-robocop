@@ -11,7 +11,7 @@ from robocop.linter import sonar_qube
 from robocop.linter.fix import Fix, FixApplicability, FixAvailability, TextEdit
 from robocop.linter.rules import FixableRule, Rule, RuleParam, RuleSeverity
 from robocop.linter.utils import misc as utils
-from robocop.parsing.string_operations import get_unmasked_string
+from robocop.parsing.string_operations import StringPart, get_unmasked_string, map_string_to_mask
 from robocop.version_handling import ROBOT_VERSION
 
 if TYPE_CHECKING:
@@ -79,6 +79,80 @@ def report_wrong_case_in_keyword(rule: Rule, node: Node, keyword_name: str, norm
             col=node.col_offset + 1,
             end_col=node.col_offset + len(keyword_name) + 1,
         )
+
+
+def capitalize_keyword_name(keyword_name: str, *, first_word_only: bool) -> str:
+    """
+    Capitalize the first letter of every word in the keyword name.
+
+    Words are separated the same way as in the case convention check. Variables are not modified.
+    With ``first_word_only`` only the first word of the name is capitalized.
+    """
+    capitalized: list[str] = []
+    word_start = True
+    first_word_done = False
+    for part, part_type in map_string_to_mask(keyword_name):
+        if part_type == StringPart.MASKED:
+            capitalized.append(part)
+            word_start = False
+            continue
+        for char in part:
+            if LETTER_PATTERN.match(char):
+                capitalized.append(char)
+                word_start = True
+                continue
+            if word_start and not first_word_done:
+                capitalized.append(char.upper())
+                first_word_done = first_word_only
+            else:
+                capitalized.append(char)
+            word_start = False
+    return "".join(capitalized)
+
+
+def keyword_name_start(keyword_name: str) -> int:
+    """Return the index at which the keyword name starts, that is after the optional library name prefix."""
+    if "." not in keyword_name:
+        return 0
+    parts = keyword_name.split(".")
+    offset = 0
+    for part in parts[:-1]:
+        if " " in part:
+            return offset
+        offset += len(part) + 1
+    return offset
+
+
+def wrong_case_in_keyword_fix(
+    rule: Rule, diag: Diagnostic, source_lines: list[str], *, is_keyword_call: bool
+) -> Fix | None:
+    """
+    Create a fix that capitalizes the keyword name according to the configured convention.
+
+    Keyword names are case-insensitive in Robot Framework, so renaming does not change the behaviour.
+    Names matching the configured ``pattern`` are not fixed, since the pattern marks the words that are
+    accepted as they are.
+    """
+    keyword_name = str(diag.reported_arguments["keyword_name"])
+    if rule.pattern.pattern and rule.pattern.search(keyword_name):
+        return None
+    if diag.range.start.line != diag.range.end.line:
+        return None
+    line = source_lines[diag.range.start.line - 1]
+    if line[diag.range.start.character - 1 : diag.range.end.character - 1] != keyword_name:
+        return None
+    start = keyword_name_start(keyword_name) if is_keyword_call else 0
+    new_name = keyword_name[:start] + capitalize_keyword_name(
+        keyword_name[start:], first_word_only=rule.convention == "first_word_capitalized"
+    )
+    if new_name == keyword_name:
+        return None
+    edit = TextEdit.replace_at_range(rule.rule_id, rule.name, diag.range, new_name)
+    return Fix(
+        edits=[edit],
+        message=f"Rename '{keyword_name}' to '{new_name}'",
+        applicability=FixApplicability.SAFE,
+    )
 
 
 # Separating alias values since RF 3 uses WITH_NAME instead of WITH NAME
@@ -209,7 +283,7 @@ class NotAllowedCharInNameRule(Rule):
             )
 
 
-class WrongCaseInKeywordNameRule(Rule):
+class WrongCaseInKeywordNameRule(FixableRule):
     r"""
     Keyword name does not follow case convention.
 
@@ -246,6 +320,9 @@ class WrongCaseInKeywordNameRule(Rule):
 
     See the sibling rule [wrong-case-in-keyword-call](#name18-wrong-case-in-keyword-call) that checks keyword call
     naming convention.
+
+    Keyword names are case-insensitive in Robot Framework, so the name can be capitalized automatically with the
+    ``--fix`` option. Names matching the configured ``pattern`` are reported, but not fixed.
     """
 
     name = "wrong-case-in-keyword-name"
@@ -273,9 +350,14 @@ class WrongCaseInKeywordNameRule(Rule):
     )
     deprecated_names = ("0302",)
     fix_suggestion = "Rename the keyword to use Title Case (e.g., 'My Keyword Name')."
+    fix_availability = FixAvailability.SOMETIMES
 
     def check(self, node: Node, keyword_name: str, normalized: str) -> None:
         report_wrong_case_in_keyword(self, node, keyword_name, normalized)
+
+    def fix(self, diag: Diagnostic, source_lines: list[str]) -> Fix | None:
+        """Capitalize the keyword name according to the configured convention."""
+        return wrong_case_in_keyword_fix(self, diag, source_lines, is_keyword_call=False)
 
 
 class KeywordNameIsReservedWordRule(Rule):
@@ -952,7 +1034,7 @@ class MixedTaskTestSettingsRule(Rule):
             )
 
 
-class WrongCaseInKeywordCallRule(Rule):
+class WrongCaseInKeywordCallRule(FixableRule):
     r"""
     Keyword call name does not follow case convention.
 
@@ -989,6 +1071,10 @@ class WrongCaseInKeywordCallRule(Rule):
 
     See the sibling rule [wrong-case-in-keyword-name](#name02-wrong-case-in-keyword-name) that checks keyword definition
     naming convention.
+
+    Keyword names are case-insensitive in Robot Framework, so the name can be capitalized automatically with the
+    ``--fix`` option. The optional library name prefix is not modified. Names matching the configured ``pattern``
+    are reported, but not fixed.
     """
 
     name = "wrong-case-in-keyword-call"
@@ -1014,9 +1100,14 @@ class WrongCaseInKeywordCallRule(Rule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.IDENTIFIABLE, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
+    fix_availability = FixAvailability.SOMETIMES
 
     def check(self, node: Node, keyword_name: str, normalized: str) -> None:
         report_wrong_case_in_keyword(self, node, keyword_name, normalized)
+
+    def fix(self, diag: Diagnostic, source_lines: list[str]) -> Fix | None:
+        """Capitalize the keyword call name according to the configured convention."""
+        return wrong_case_in_keyword_fix(self, diag, source_lines, is_keyword_call=True)
 
 
 SET_VARIABLE_VARIANTS = {

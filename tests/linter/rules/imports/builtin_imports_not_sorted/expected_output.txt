@@ -4,3 +4,4 @@ test.robot:3:12 [W] IMP02 BuiltIn library import 'Collections' should be placed 
 test.robot:6:12 [W] IMP02 BuiltIn library import 'String' should be placed before 'XML'
 
 Found 4 issues.
+4 fixable with the '--fix' option.

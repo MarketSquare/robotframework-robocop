@@ -27,7 +27,14 @@ except ImportError:
     Var = None
 
 from robocop.linter import sonar_qube
-from robocop.linter.fix import FixAvailability, remove_statement_fix
+from robocop.linter.fix import (
+    Fix,
+    FixApplicability,
+    FixAvailability,
+    TextEdit,
+    remove_lines_fix,
+    remove_statement_fix,
+)
 from robocop.linter.rules import (
     FixableRule,
     Rule,
@@ -43,7 +50,6 @@ if TYPE_CHECKING:
     from robot.parsing.model.statements import Error, Node
 
     from robocop.linter.diagnostics import Diagnostic
-    from robocop.linter.fix import Fix
 
 
 FOR_LOOP_KEYWORDS = frozenset(
@@ -967,7 +973,7 @@ class MisplacedNegativeConditionRule(Rule):
         )
 
 
-class DisablerNotUsedRule(Rule):
+class DisablerNotUsedRule(FixableRule):
     """
     Robocop disabler directive is not used.
 
@@ -989,6 +995,10 @@ class DisablerNotUsedRule(Rule):
     Also, we define disablers for all rules and some-rule in FOR loop, and all rules disabler overlaps second disabler
     which is never used.
 
+    Unused disablers can be removed automatically with the ``--fix`` option. Only the unused rule name is removed
+    if the directive disables more rules. Disablers that share the comment with any other content are not
+    removed automatically.
+
     """
 
     name = "unused-disabler"
@@ -996,10 +1006,58 @@ class DisablerNotUsedRule(Rule):
     message = "Disabler directive found for '{rule_name}' rule(s) but no violation found"
     severity = RuleSeverity.INFO
     added_in_version = "6.8.0"
+    fix_availability = FixAvailability.SOMETIMES
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.CONVENTIONAL,
         issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL,
     )
+
+    def fix(self, diag: Diagnostic, source_lines: list[str]) -> Fix | None:
+        """
+        Remove the unused disabler directive.
+
+        Only the reported rule name is removed if the directive disables more rules. Otherwise, the whole comment
+        with the directive is removed. Directives followed by any other content in the same line are not fixed,
+        since removing them could change the meaning of the remaining content.
+        """
+        lineno = diag.range.start.line
+        line = source_lines[lineno - 1]
+        start_index = diag.range.start.character - 1
+        end_index = min(diag.range.end.character - 1, len(line.rstrip()))
+        if start_index < 0 or end_index <= start_index:
+            return None
+        comment_start = start_index if line[start_index] == "#" else line.rfind("#", 0, start_index)
+        if comment_start == -1:
+            return None
+        if line[comment_start + 1 : start_index].strip() or line[end_index:].strip():
+            return None  # other content in the same comment
+        directive = line[start_index:end_index]
+        rule_name = str(diag.reported_arguments["rule_name"])
+        if "=" in directive:
+            prefix, _, rules = directive.partition("=")
+            rule_names = [name.strip() for name in rules.split(",") if name.strip()]
+            if rule_name not in rule_names:  # directive contains extra content we cannot safely remove
+                return None
+            if len(rule_names) > 1:
+                remaining = [name for name in rule_names if name != rule_name]
+                new_line = f"{line[:start_index]}{prefix}={','.join(remaining)}{line[end_index:]}"
+                # whole line is replaced so that only one rule name is removed in a single pass
+                edit = TextEdit.replace_lines(self.rule_id, self.name, lineno, lineno, new_line)
+                return Fix(
+                    edits=[edit],
+                    message=f"Remove unused '{rule_name}' from the disabler directive",
+                    applicability=FixApplicability.SAFE,
+                )
+        message = f"Remove unused disabler directive for '{rule_name}' rule(s)"
+        return self._remove_comment_fix(lineno, line, comment_start, message)
+
+    def _remove_comment_fix(self, lineno: int, line: str, comment_start: int, message: str) -> Fix:
+        """Remove the comment from the line, or the whole line if it contains only the comment."""
+        if not line[:comment_start].strip():
+            return remove_lines_fix(self, lineno, lineno, message)
+        replacement = line[:comment_start].rstrip() + line[len(line.rstrip()) :]
+        edit = TextEdit.replace_lines(self.rule_id, self.name, lineno, lineno, replacement)
+        return Fix(edits=[edit], message=message, applicability=FixApplicability.SAFE)
 
 
 @dataclass

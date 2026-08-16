@@ -7,3 +7,4 @@ test.robot:21:5 MISC02 [Return] is empty
     |
 
 Found 1 issue.
+1 fixable with the '--fix' option.

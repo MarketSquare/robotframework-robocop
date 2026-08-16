@@ -1,3 +1,4 @@
 test.robot:3:22 [W] DEPR03 Deprecated 'WITH NAME' alias marker used instead of 'AS'
 
 Found 1 issue.
+1 fixable with the '--fix' option.

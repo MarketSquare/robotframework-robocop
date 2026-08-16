@@ -56,3 +56,4 @@ test.robot:12:1 DEPR04 '*** Comment ***' deprecated singular header used instead
     |
 
 Found 6 issues.
+6 fixable with the '--fix' option.

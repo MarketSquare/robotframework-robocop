@@ -8,7 +8,8 @@ from typing import TYPE_CHECKING
 from robot.api import Token
 
 from robocop.linter import sonar_qube
-from robocop.linter.rules import Rule, RuleParam, RuleSeverity
+from robocop.linter.fix import Fix, FixApplicability, FixAvailability, TextEdit
+from robocop.linter.rules import FixableRule, Rule, RuleParam, RuleSeverity
 from robocop.linter.utils import misc as utils
 from robocop.parsing.string_operations import get_unmasked_string
 from robocop.version_handling import ROBOT_VERSION
@@ -26,6 +27,8 @@ if TYPE_CHECKING:
         SectionHeader,
         TestCaseName,
     )
+
+    from robocop.linter.diagnostics import Diagnostic
 
 SECTION_NAME_PATTERN = re.compile(r"\*\*\*\s.+\s\*\*\*")
 LETTER_PATTERN = re.compile(r"[^\w()-]|_", re.UNICODE)
@@ -81,6 +84,40 @@ def report_wrong_case_in_keyword(rule: Rule, node: Node, keyword_name: str, norm
 # Separating alias values since RF 3 uses WITH_NAME instead of WITH NAME
 ALIAS_TOKENS = [Token.WITH_NAME] if ROBOT_VERSION.major < 5 else ["WITH NAME", "AS"]
 ALIAS_TOKENS_VALUES = ["WITH NAME"] if ROBOT_VERSION.major < 5 else ["WITH NAME", "AS"]
+ALIAS_MARKER_PATTERN = re.compile(r"\s+(WITH NAME|AS)\s*$")
+
+
+def remove_alias_fix(
+    rule: Rule, diag: Diagnostic, source_lines: list[str], message: str, *, with_marker: bool
+) -> Fix | None:
+    """
+    Create a fix removing the alias part of the library import.
+
+    Everything from the end of the preceding value up to the end of the reported range is removed. With
+    ``with_marker`` the alias marker (``AS`` or ``WITH NAME``) placed before the reported range is removed too.
+    Imports with the alias split into multiple lines are not fixed.
+    """
+    reported_range = diag.range
+    if reported_range.start.line != reported_range.end.line:
+        return None
+    line = source_lines[reported_range.start.line - 1]
+    prefix = line[: reported_range.start.character - 1].rstrip()
+    if with_marker:
+        prefix, removed_marker = ALIAS_MARKER_PATTERN.subn("", prefix)
+        if not removed_marker:  # the alias marker is placed in the previous line
+            return None
+    if prefix.strip() in ("", "..."):  # only the continuation mark would be left in the line
+        return None
+    replacement = prefix + line[reported_range.end.character - 1 :]
+    return Fix(
+        edits=[
+            TextEdit.replace_lines(
+                rule.rule_id, rule.name, reported_range.start.line, reported_range.start.line, replacement
+            )
+        ],
+        message=message,
+        applicability=FixApplicability.SAFE,
+    )
 
 
 def library_has_alias(node: LibraryImport) -> bool | None:
@@ -607,7 +644,7 @@ class TestCaseNameIsEmptyRule(Rule):
         self.report(node=node)
 
 
-class EmptyLibraryAliasRule(Rule):
+class EmptyLibraryAliasRule(FixableRule):
     """
     Library alias is empty.
 
@@ -623,6 +660,9 @@ class EmptyLibraryAliasRule(Rule):
         *** Settings ***
         Library  CustomLibrary  AS  AnotherName
 
+    The fix removes the alias marker without the name. Imports with the alias split into multiple lines
+    are not fixed.
+
     """
 
     name = "empty-library-alias"
@@ -634,6 +674,7 @@ class EmptyLibraryAliasRule(Rule):
         clean_code=sonar_qube.CleanCodeAttribute.COMPLETE, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
     deprecated_names = ("0314",)
+    fix_availability = FixAvailability.SOMETIMES
 
     def check(self, node: LibraryImport) -> None:
         if library_has_alias(node) is not False:
@@ -643,8 +684,12 @@ class EmptyLibraryAliasRule(Rule):
                 col = arg.col_offset + 1
                 self.report(node=arg, col=col, end_col=col + len(arg.value))
 
+    def fix(self, diag: Diagnostic, source_lines: list[str]) -> Fix | None:
+        """Remove the alias marker that is not followed by the alias name."""
+        return remove_alias_fix(self, diag, source_lines, "Remove the empty library alias", with_marker=False)
 
-class DuplicatedLibraryAliasRule(Rule):
+
+class DuplicatedLibraryAliasRule(FixableRule):
     """
     Library alias is the same as the original name.
 
@@ -653,6 +698,8 @@ class DuplicatedLibraryAliasRule(Rule):
          *** Settings ***
          Library  CustomLibrary  AS  CustomLibrary   # same as library name
          Library  CustomLibrary  AS  Custom Library  # same as library name (spaces are ignored)
+
+    The fix removes the redundant alias. Imports with the alias split into multiple lines are not fixed.
 
     """
 
@@ -665,6 +712,7 @@ class DuplicatedLibraryAliasRule(Rule):
         clean_code=sonar_qube.CleanCodeAttribute.DISTINCT, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
     deprecated_names = ("0315",)
+    fix_availability = FixAvailability.SOMETIMES
 
     def check(self, node: LibraryImport) -> None:
         if library_has_alias(node) is not True:
@@ -673,6 +721,10 @@ class DuplicatedLibraryAliasRule(Rule):
             return
         name_token = node.get_tokens(Token.NAME)[-1]
         self.report(node=name_token, col=name_token.col_offset + 1, end_col=name_token.end_col_offset + 1)
+
+    def fix(self, diag: Diagnostic, source_lines: list[str]) -> Fix | None:
+        """Remove the alias that is the same as the library name."""
+        return remove_alias_fix(self, diag, source_lines, "Remove the duplicated library alias", with_marker=True)
 
 
 class BddWithoutKeywordCallRule(Rule):

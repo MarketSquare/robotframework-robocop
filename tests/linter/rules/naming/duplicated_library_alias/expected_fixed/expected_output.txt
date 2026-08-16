@@ -1,0 +1,23 @@
+actual_fixed${/}multiline.robot:4:8 NAME13 Library alias is the same as original name
+   |
+ 2 | Library      Collections
+ 3 | ...    WITH NAME
+ 4 | ...    Collections
+   |        ^^^^^^^^^^^ NAME13
+ 5 | Library      Collections
+ 6 | ...    AS    Collections
+   |
+
+actual_fixed${/}multiline.robot:6:14 NAME13 Library alias is the same as original name
+   |
+ 4 | ...    Collections
+ 5 | Library      Collections
+ 6 | ...    AS    Collections
+   |              ^^^^^^^^^^^ NAME13
+   |
+
+Fixed 4 issues:
+- actual_fixed${/}test.robot:
+    4 x NAME13 (duplicated-library-alias)
+
+Found 6 issues (4 fixed, 2 remaining).

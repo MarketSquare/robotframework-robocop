@@ -1,0 +1,23 @@
+actual_fixed${/}multiline.robot:3:8 NAME12 Library alias is empty
+   |
+ 1 | *** Settings ***
+ 2 | Library      Collections
+ 3 | ...    WITH NAME
+   |        ^^^^^^^^^ NAME12
+ 4 | Library      other_library.py
+ 5 | ...    arg=1
+   |
+
+actual_fixed${/}multiline.robot:6:8 NAME12 Library alias is empty
+   |
+ 4 | Library      other_library.py
+ 5 | ...    arg=1
+ 6 | ...    AS
+   |        ^^ NAME12
+   |
+
+Fixed 4 issues:
+- actual_fixed${/}test.robot:
+    4 x NAME12 (empty-library-alias)
+
+Found 6 issues (4 fixed, 2 remaining).

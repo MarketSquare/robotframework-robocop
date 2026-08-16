@@ -1,0 +1,15 @@
+actual_fixed${/}test.robot:18:18 MISC14 'WHILE' condition 'not ${status} is None' can be rewritten to '${status} is not None'
+    |
+ 16 | While condition
+ 17 |     WHILE    ${status} is not ${variable}    limit=1 min
+ 18 |         WHILE    not not ${status} is None
+    |                  ^^^^^^^^^^^^^^^^^^^^^^^^^ MISC14
+ 19 |             Log    ${variable}
+ 20 |         END
+    |
+
+Fixed 7 issues:
+- actual_fixed${/}test.robot:
+    7 x MISC14 (misplaced-negative-condition)
+
+Found 8 issues (7 fixed, 1 remaining).

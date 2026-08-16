@@ -567,7 +567,7 @@ class SectionVariableNotUppercaseRule(Rule):
         )
 
 
-class ElseNotUpperCaseRule(Rule):
+class ElseNotUpperCaseRule(FixableRule):
     """
     ELSE and ELSE IF is not uppercase.
 
@@ -595,6 +595,8 @@ class ElseNotUpperCaseRule(Rule):
             ELSE
                 RETURN  Cold
 
+    The fix replaces the ``ELSE`` and ``ELSE IF`` names with their uppercase versions.
+
     """
 
     name = "else-not-upper-case"
@@ -606,12 +608,26 @@ class ElseNotUpperCaseRule(Rule):
         clean_code=sonar_qube.CleanCodeAttribute.IDENTIFIABLE, issue_type=sonar_qube.SonarQubeIssueType.BUG
     )
     deprecated_names = ("0311",)
+    fix_availability = FixAvailability.ALWAYS
 
     def check(self, node: KeywordCall) -> None:
         if not node.keyword or node.keyword.lower() not in ELSE_STATEMENTS:
             return
         col = utils.keyword_col(node)
         self.report(node=node, col=col, end_col=col + len(node.keyword))
+
+    def fix(self, diag: Diagnostic, source_lines: list[str]) -> Fix | None:
+        """Replace the ELSE or ELSE IF name with its uppercase version."""
+        line = source_lines[diag.range.start.line - 1]
+        name = line[diag.range.start.character - 1 : diag.range.end.character - 1]
+        if not name or name.isupper():
+            return None
+        edit = TextEdit.replace_at_range(self.rule_id, self.name, diag.range, name.upper())
+        return Fix(
+            edits=[edit],
+            message=f"Replace '{name}' with '{name.upper()}'",
+            applicability=FixApplicability.SAFE,
+        )
 
 
 class KeywordNameIsEmptyRule(Rule):

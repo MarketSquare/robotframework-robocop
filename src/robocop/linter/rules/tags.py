@@ -7,7 +7,14 @@ from typing import TYPE_CHECKING, ClassVar, TypeAlias
 from robot.api import Token
 
 from robocop.linter import sonar_qube
-from robocop.linter.fix import FixAvailability, remove_empty_setting_fix, remove_statement_fix
+from robocop.linter.fix import (
+    Fix,
+    FixApplicability,
+    FixAvailability,
+    TextEdit,
+    remove_empty_setting_fix,
+    remove_statement_fix,
+)
 from robocop.linter.rules import FixableRule, Rule, RuleSeverity
 from robocop.parsing.variables import VariableMatches  # type: ignore[attr-defined]
 
@@ -18,13 +25,78 @@ if TYPE_CHECKING:
         Documentation,
         ForceTags,
         KeywordTags,
+        Statement,
         Tags,
     )
 
     from robocop.linter.diagnostics import Diagnostic
-    from robocop.linter.fix import Fix
 
 TagNode: TypeAlias = "ForceTags | DefaultTags | Tags | KeywordTags"
+
+SETTING_WITH_SINGLE_TAG = 2  # the setting name token and a single tag token
+
+
+def _find_reported_tag(node: Statement, diag: Diagnostic) -> Token | None:
+    """Find the tag token reported by the diagnostic using its position."""
+    return next(
+        (
+            token
+            for token in node.data_tokens[1:]
+            if token.lineno == diag.range.start.line and token.col_offset + 1 == diag.range.start.character
+        ),
+        None,
+    )
+
+
+def _lines_without_tag(node: Statement, source_lines: list[str], tag: Token) -> list[str]:
+    """
+    Return the statement lines with the tag removed.
+
+    The separator preceding the tag is removed together with it. If the tag was the only data in its line,
+    the whole line is removed - unless it contains a comment, which is always preserved.
+    """
+    lines = source_lines[node.lineno - 1 : node.end_lineno]
+    index = tag.lineno - node.lineno
+    line = lines[index]
+    lines[index] = line[: tag.col_offset].rstrip() + line[tag.end_col_offset :]
+    only_tag_in_line = not any(token.lineno == tag.lineno for token in node.data_tokens if token is not tag)
+    has_comment = any(token.lineno == tag.lineno for token in node.get_tokens(Token.COMMENT))
+    if only_tag_in_line and not has_comment:
+        lines.pop(index)
+    return lines
+
+
+def remove_tag_fix(rule: FixableRule, diag: Diagnostic, source_lines: list[str], message: str) -> Fix | None:
+    """
+    Create a fix that removes the redundant tag from the tag setting.
+
+    If the removed tag is the only tag in the setting, the whole setting is removed instead. The fix replaces
+    the complete statement, so that only one tag is removed in a single run - the remaining ones are reported
+    and removed in the following runs.
+    """
+    node = diag.node
+    if node is None:
+        return None
+    data_tokens = getattr(node, "data_tokens", [])
+    if len(data_tokens) < SETTING_WITH_SINGLE_TAG:
+        return None
+    tag = _find_reported_tag(node, diag)
+    if tag is None:
+        return None
+    if len(data_tokens) == SETTING_WITH_SINGLE_TAG:
+        if diag.reported_arguments.get("overwrites_suite_setting"):
+            # Removing the setting would apply the Default Tags instead - use the explicit NONE value.
+            edit = TextEdit.replace_at_range(rule.rule_id, rule.name, diag.range, "NONE")
+            return Fix(
+                edits=[edit],
+                message=f"{message} and replace it with an explicit NONE value",
+                applicability=FixApplicability.SAFE,
+            )
+        return remove_statement_fix(rule, node, source_lines, message)
+    edit = TextEdit.replace_lines(
+        rule.rule_id, rule.name, node.lineno, node.end_lineno, "".join(_lines_without_tag(node, source_lines, tag))
+    )
+    return Fix(edits=[edit], message=message, applicability=FixApplicability.SAFE)
 
 
 class TagWithSpaceRule(Rule):
@@ -212,7 +284,7 @@ class CouldBeTestTagsRule(Rule):
         self.report(tags=", ".join(sorted(common_tags)), node=report_node)
 
 
-class TagAlreadySetInTestTagsRule(Rule):  # TODO: support -tag
+class TagAlreadySetInTestTagsRule(FixableRule):  # TODO: support -tag
     """
     Tag is already set in the ``Test Tags`` setting.
 
@@ -230,6 +302,10 @@ class TagAlreadySetInTestTagsRule(Rule):  # TODO: support -tag
     This rule was renamed from ``tag-already-set-in-force-tags`` to ``tag-already-set-in-test-tags`` in
     Robocop 2.6.0.
 
+    The fix removes the redundant tag. If it is the only tag in the ``[Tags]`` setting, the whole setting is
+    removed - unless the suite defines ``Default Tags``, in which case the explicit ``NONE`` value is used
+    instead. Comments are never removed by the fix.
+
     """
 
     name = "tag-already-set-in-test-tags"
@@ -241,8 +317,11 @@ class TagAlreadySetInTestTagsRule(Rule):  # TODO: support -tag
         clean_code=sonar_qube.CleanCodeAttribute.DISTINCT, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
     deprecated_names = ("0606",)
+    fix_availability = FixAvailability.ALWAYS
 
-    def check(self, node: Tags, test_tags: set[str], test_tags_node: ForceTags | None) -> None:
+    def check(
+        self, node: Tags, test_tags: set[str], test_tags_node: ForceTags | None, has_default_tags: bool = False
+    ) -> None:
         if not self.enabled or test_tags_node is None:
             return
         test_force_tags = test_tags_node.data_tokens[0].value
@@ -252,11 +331,16 @@ class TagAlreadySetInTestTagsRule(Rule):  # TODO: support -tag
             self.report(
                 tag=tag.value,
                 test_force_tags=test_force_tags,
+                overwrites_suite_setting=has_default_tags,
                 node=node,
                 lineno=tag.lineno,
                 col=tag.col_offset + 1,
                 end_col=tag.end_col_offset + 1,
             )
+
+    def fix(self, diag: Diagnostic, source_lines: list[str]) -> Fix | None:
+        tag = diag.reported_arguments["tag"]
+        return remove_tag_fix(self, diag, source_lines, f"Remove the '{tag}' tag already set in suite settings")
 
 
 class UnnecessaryDefaultTagsRule(FixableRule):
@@ -374,7 +458,7 @@ class EmptyTagsRule(FixableRule):
         return remove_empty_setting_fix(self, diag, source_lines)
 
 
-class DuplicatedTagsRule(Rule):
+class DuplicatedTagsRule(FixableRule):
     """
     Duplicated tags found.
 
@@ -387,6 +471,9 @@ class DuplicatedTagsRule(Rule):
         Test
             [Tags]    Tag    TAG    tag    t a g
 
+    The fix removes the duplicated tags and leaves only the first occurrence. Tags defined in the keyword
+    documentation are not fixed. Comments are never removed by the fix.
+
     """
 
     name = "duplicated-tags"
@@ -398,8 +485,9 @@ class DuplicatedTagsRule(Rule):
         clean_code=sonar_qube.CleanCodeAttribute.DISTINCT, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
     deprecated_names = ("0609",)
+    fix_availability = FixAvailability.SOMETIMES
 
-    def check(self, tags: dict[str, list[Token]]) -> None:
+    def check(self, tags: dict[str, list[Token]], node: TagNode | Documentation | None = None) -> None:
         if not self.enabled:
             return
         for nodes in tags.values():
@@ -408,10 +496,18 @@ class DuplicatedTagsRule(Rule):
                     name=duplicate.value,
                     line=nodes[0].lineno,
                     column=nodes[0].col_offset + 1,
-                    node=duplicate,
+                    node=node,
+                    lineno=duplicate.lineno,
                     col=duplicate.col_offset + 1,
                     end_col=duplicate.end_col_offset + 1,
                 )
+
+    def fix(self, diag: Diagnostic, source_lines: list[str]) -> Fix | None:
+        node = diag.node
+        if node is None or node.type == Token.DOCUMENTATION:
+            return None  # tags listed in the documentation are plain text and are not fixed
+        name = diag.reported_arguments["name"]
+        return remove_tag_fix(self, diag, source_lines, f"Remove the duplicated '{name}' tag")
 
 
 class CouldBeKeywordTagsRule(Rule):
@@ -455,7 +551,7 @@ class CouldBeKeywordTagsRule(Rule):
         self.report(tags=", ".join(sorted(common_tags)), node=report_node)
 
 
-class TagAlreadySetInKeywordTagsRule(Rule):
+class TagAlreadySetInKeywordTagsRule(FixableRule):
     """
     Tag is already set in the ``Test Keyword`` setting.
 
@@ -469,6 +565,9 @@ class TagAlreadySetInKeywordTagsRule(Rule):
         Keyword
             [Tags]  sanity  common_tag
 
+    The fix removes the redundant tag. If it is the only tag in the ``[Tags]`` setting, the whole setting is
+    removed. Comments are never removed by the fix.
+
     """
 
     name = "tag-already-set-in-keyword-tags"
@@ -481,6 +580,7 @@ class TagAlreadySetInKeywordTagsRule(Rule):
         clean_code=sonar_qube.CleanCodeAttribute.DISTINCT, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
     deprecated_names = ("0611",)
+    fix_availability = FixAvailability.ALWAYS
 
     def check(self, node: Tags, keyword_tags: set[str], keyword_tags_node: KeywordTags | None) -> None:
         if not self.enabled or keyword_tags_node is None:
@@ -497,6 +597,10 @@ class TagAlreadySetInKeywordTagsRule(Rule):
                 col=tag.col_offset + 1,
                 end_col=tag.end_col_offset + 1,
             )
+
+    def fix(self, diag: Diagnostic, source_lines: list[str]) -> Fix | None:
+        tag = diag.reported_arguments["tag"]
+        return remove_tag_fix(self, diag, source_lines, f"Remove the '{tag}' tag already set in suite settings")
 
 
 def split_tag_on_variables(tag_value: str) -> tuple[list[str], bool]:

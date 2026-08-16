@@ -144,7 +144,7 @@ class TagsChecker(VisitorChecker):
             self.tag_already_set_in_keyword_tags.check(node, self.keyword_tags, self.keyword_tags_node)
         else:
             self.tags_in_tests.append(tags)
-            self.tag_already_set_in_test_tags.check(node, self.test_tags, self.test_tags_node)
+            self.tag_already_set_in_test_tags.check(node, self.test_tags, self.test_tags_node, self.suite_default_tags)
 
     def visit_Documentation(self, node: Documentation) -> None:  # noqa: N802
         """
@@ -174,7 +174,7 @@ class TagsChecker(VisitorChecker):
                 col_start += len(tag) + 1  # 1 for ,
                 duplicates[normalized].append(subtoken)
                 self.check_tag(subtoken, node)
-        self.duplicated_tags.check(duplicates)
+        self.duplicated_tags.check(duplicates, node)
 
     def check_tag_names(self, node: TagNode) -> None:
         tags: defaultdict[str, list[Token]] = defaultdict(list)
@@ -182,7 +182,7 @@ class TagsChecker(VisitorChecker):
             normalized_tag = tag.value.lower().replace(" ", "")
             tags[normalized_tag].append(tag)
             self.check_tag(tag, node)
-        self.duplicated_tags.check(tags)
+        self.duplicated_tags.check(tags, node)
 
     def check_tag(self, tag_token: Token, node: TagNode | Documentation) -> None:
         substrings, variable_found = split_tag_on_variables(tag_token.value)

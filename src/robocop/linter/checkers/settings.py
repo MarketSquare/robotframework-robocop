@@ -75,7 +75,6 @@ class SettingsChecker(VisitorChecker):
         self.task_section: bool | None = None
         self.libraries: list[LibraryImport] = []
         self.resources: list[ResourceImport] = []
-        self.suite_settings: set[str] = set()
         self.in_test_case = False
         super().__init__()
 
@@ -90,34 +89,22 @@ class SettingsChecker(VisitorChecker):
                 else:
                     self.task_section = False
                 break
-        self.suite_settings = self.find_suite_settings(node)
         self.libraries = []
         self.resources = []
         self.in_test_case = False
         self.generic_visit(node)
         self.check_import_order()
 
-    @staticmethod
-    def find_suite_settings(node: File) -> set[str]:
+    def overwrites_suite_setting(self) -> bool:
         """
-        Find suite settings that can be overwritten by the test case settings.
+        Check if the empty setting can overwrite the suite setting.
 
-        Test case settings such as ``[Timeout]`` can be used with an empty value to overwrite the suite setting.
-        Such settings should not be removed, but replaced with the explicit ``NONE`` value.
+        Test case settings such as ``[Timeout]`` are used with an empty value to overwrite the suite setting.
+        The suite setting can be defined in the same file, but also in the ``__init__.robot`` file of the parent
+        suite. Because of that such settings should not be removed, but replaced with the explicit ``NONE`` value.
+        Keyword settings can never overwrite the suite settings and can be safely removed.
         """
-        overwritable = {Token.TEST_SETUP, Token.TEST_TEARDOWN, Token.TEST_TIMEOUT, Token.TEST_TEMPLATE}
-        suite_settings = set()
-        for section in node.sections:
-            if not isinstance(section, SettingSection):
-                continue
-            for statement in section.body:
-                if statement.type in overwritable and len(statement.data_tokens) > 1:
-                    suite_settings.add(statement.type)
-        return suite_settings
-
-    def overwrites_suite_setting(self, setting_type: str) -> bool:
-        """Check if the empty test case setting overwrites the suite setting."""
-        return self.in_test_case and setting_type in self.suite_settings
+        return self.in_test_case
 
     def check_import_order(self) -> None:
         built_in_libs: list[LibraryImport] = []
@@ -226,7 +213,7 @@ class SettingsChecker(VisitorChecker):
             self.libraries.append(node)
 
     def visit_Setup(self, node: Statement) -> None:  # noqa: N802
-        self.empty_setup.check(node, self.parent_node_name, self.overwrites_suite_setting(Token.TEST_SETUP))
+        self.empty_setup.check(node, self.parent_node_name, self.overwrites_suite_setting())
         self.check_setting_name(node)
 
     def visit_SuiteSetup(self, node: Statement) -> None:  # noqa: N802
@@ -238,7 +225,7 @@ class SettingsChecker(VisitorChecker):
         self.check_setting_name(node)
 
     def visit_Teardown(self, node: Statement) -> None:  # noqa: N802
-        self.empty_teardown.check(node, self.parent_node_name, self.overwrites_suite_setting(Token.TEST_TEARDOWN))
+        self.empty_teardown.check(node, self.parent_node_name, self.overwrites_suite_setting())
         self.check_setting_name(node)
 
     def visit_SuiteTeardown(self, node: Statement) -> None:  # noqa: N802
@@ -250,7 +237,7 @@ class SettingsChecker(VisitorChecker):
         self.check_setting_name(node)
 
     def visit_Timeout(self, node: Statement) -> None:  # noqa: N802
-        self.empty_timeout.check(node, self.parent_node_name, self.overwrites_suite_setting(Token.TEST_TIMEOUT))
+        self.empty_timeout.check(node, self.parent_node_name, self.overwrites_suite_setting())
         self.check_setting_name(node)
 
     def visit_TestTimeout(self, node: Statement) -> None:  # noqa: N802
@@ -258,7 +245,7 @@ class SettingsChecker(VisitorChecker):
         self.check_setting_name(node)
 
     def visit_Template(self, node: Template) -> None:  # noqa: N802
-        self.empty_template.check(node, self.parent_node_name, self.overwrites_suite_setting(Token.TEST_TEMPLATE))
+        self.empty_template.check(node, self.parent_node_name, self.overwrites_suite_setting())
         self.check_setting_name(node)
 
     def visit_TestTemplate(self, node: Statement) -> None:  # noqa: N802

@@ -522,8 +522,10 @@ class EmptySettingRule(FixableRule):
     Base class for the rules reporting settings without any value.
 
     The fix removes such setting, since a setting without a value does not have any effect.
-    The only exception are the settings overwriting the suite settings (for example ``[Timeout]`` when
-    ``Test Timeout`` is set). Those are not removed but filled with the explicit ``NONE`` value instead.
+    The only exception are the test case settings that can overwrite the suite settings
+    (``[Setup]``, ``[Teardown]``, ``[Timeout]`` and ``[Template]``). Those are not removed but filled with the
+    explicit ``NONE`` value instead, since the suite setting can be also defined in the ``__init__.robot`` file
+    of the parent suite.
     Comments are never removed by the fix.
     """
 

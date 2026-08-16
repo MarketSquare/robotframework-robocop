@@ -11,6 +11,7 @@ Test with non-empty template
     argument
 
 Test with empty template
+    [Template]    NONE
     No Operation
 
 Test with empty template and NONE

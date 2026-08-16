@@ -5,6 +5,7 @@ Documentation  doc
 Test
     [Documentation]  doc
     [Tags]  sometag
+    [Timeout]    NONE
     Pass
     Keyword
     One More

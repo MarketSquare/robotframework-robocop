@@ -6,6 +6,7 @@ from collections import defaultdict
 from typing import TYPE_CHECKING
 
 from robot.api import Token
+from robot.parsing.model.blocks import SettingSection
 
 from robocop.linter.rules import VisitorChecker, tags
 from robocop.linter.rules.tags import TagNode, new_tag_token, split_tag_on_variables
@@ -50,6 +51,7 @@ class TagsChecker(VisitorChecker):
         self.keyword_tags_node: KeywordTags | None = None
         self.test_cases_count = 0
         self.keywords_count = 0
+        self.suite_default_tags = False
         super().__init__()
 
     def visit_File(self, node: File) -> None:  # noqa: N802
@@ -62,9 +64,26 @@ class TagsChecker(VisitorChecker):
         self.keyword_tags_node = None
         self.test_cases_count = 0
         self.keywords_count = 0
+        self.suite_default_tags = self.has_default_tags(node)
         super().visit_File(node)
         self.check_common_test_tags(node)
         self.check_common_keyword_tags(node)
+
+    @staticmethod
+    def has_default_tags(node: File) -> bool:
+        """
+        Check if the suite defines ``Default Tags`` with a value.
+
+        Empty test case ``[Tags]`` is used to overwrite such setting and should not be removed.
+        ``Default Tags`` is not allowed in the suite initialization file, so it is enough to look it up in the
+        current file.
+        """
+        return any(
+            statement.type == Token.DEFAULT_TAGS and len(statement.data_tokens) > 1
+            for section in node.sections
+            if isinstance(section, SettingSection)
+            for statement in section.body
+        )
 
     def check_common_test_tags(self, node: File) -> None:
         """Report tags shared by all tests only if every test in the suite defines its own tags."""
@@ -118,7 +137,7 @@ class TagsChecker(VisitorChecker):
 
     def visit_Tags(self, node: Tags) -> None:  # noqa: N802
         self.check_tag_names(node)
-        self.empty_tags.check(node, self.in_keywords)
+        self.empty_tags.check(node, self.in_keywords, not self.in_keywords and self.suite_default_tags)
         tags = [tag.value for tag in node.data_tokens[1:] if not tag.value.startswith("robot:")]
         if self.in_keywords:
             self.tags_in_keywords.append(tags)

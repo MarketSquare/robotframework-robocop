@@ -17,4 +17,32 @@ default_and_empty_tags.robot:31:5 TAG08 [Tags] setting without values
  32 |     No Operation
     |
 
-Found 2 issues.
+without_default_tags.robot:7:5 TAG08 [Tags] setting without values. Consider using NONE if you want to overwrite the Default Tags
+   |
+ 5 | *** Test Cases ***
+ 6 | Test With Empty Tags
+ 7 |     [Tags]
+   |     ^^^^^^ TAG08
+ 8 |     Keyword Call
+   |
+
+without_default_tags.robot:11:5 TAG08 [Tags] setting without values. Consider using NONE if you want to overwrite the Default Tags
+    |
+  9 |
+ 10 | Test With Empty Tags And Comment
+ 11 |     [Tags]    # comment
+    |     ^^^^^^^^^^^^^^^^^^^ TAG08
+ 12 |     Keyword Call
+    |
+
+without_default_tags.robot:17:5 TAG08 [Tags] setting without values
+    |
+ 15 | *** Keywords ***
+ 16 | Keyword With Empty Tags
+ 17 |     [Tags]
+    |     ^^^^^^ TAG08
+ 18 |     No Operation
+    |
+
+Found 5 issues.
+5 fixable with the '--fix' option.

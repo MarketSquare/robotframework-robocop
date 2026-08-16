@@ -3,3 +3,4 @@ test.robot:9:12 [W] DUP05 Multiple library imports with name 'MyLib' and identic
 test.robot:12:12 [W] DUP05 Multiple library imports with name 'MyLib' and identical arguments (first occurrence in line 10)
 
 Found 3 issues.
+3 fixable with the '--fix' option.

@@ -17,4 +17,4 @@ class TestRuleAcceptance(RuleAcceptance):
         )
 
     def test_fix(self):
-        self.check_rule_fix(src_files=["test.robot"])
+        self.check_rule_fix(src_files=["test.robot"], test_on_version=">=6.0")

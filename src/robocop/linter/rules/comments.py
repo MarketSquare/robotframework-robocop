@@ -3,15 +3,21 @@
 from __future__ import annotations
 
 import re
+from typing import TYPE_CHECKING
 
 from robot.api import Token, get_tokens
 
 from robocop.linter import sonar_qube
+from robocop.linter.fix import Fix, FixApplicability, FixAvailability, TextEdit, TextEditKind
 from robocop.linter.rules import (
+    FixableRule,
     Rule,
     RuleParam,
     RuleSeverity,
 )
+
+if TYPE_CHECKING:
+    from robocop.linter.diagnostics import Diagnostic
 
 
 def regex(value: str) -> re.Pattern[str]:
@@ -82,7 +88,7 @@ class ToDoInCommentRule(Rule):
     deprecated_names = ("0701",)
 
 
-class MissingSpaceAfterCommentRule(Rule):
+class MissingSpaceAfterCommentRule(FixableRule):
     """
     No space after the ``#`` character and comment body.
 
@@ -118,6 +124,9 @@ class MissingSpaceAfterCommentRule(Rule):
         or
         #* Headers *#
 
+    The fix adds the missing space. Comments that would still violate the rule after adding the space
+    (such as ``##comment``, which is not recognized as a block comment) are not fixed.
+
     """
 
     name = "missing-space-after-comment"
@@ -139,6 +148,40 @@ class MissingSpaceAfterCommentRule(Rule):
         issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL,
     )
     deprecated_names = ("0702",)
+    fix_availability = FixAvailability.SOMETIMES
+
+    def fix(self, diag: Diagnostic, source_lines: list[str]) -> Fix | None:
+        """
+        Add a missing space between the leading ``#`` characters and the comment body.
+
+        Comments that would still violate the rule after adding the space (such as ``##comment``, which is not
+        recognized as a block comment) are not fixed.
+        """
+        lineno, col = diag.range.start.line, diag.range.start.character
+        comment = source_lines[lineno - 1][col - 1 :].rstrip("\n")
+        hashes = len(comment) - len(comment.lstrip("#"))
+        if not hashes:
+            return None
+        fixed_comment = f"{'#' * hashes} {comment[hashes:]}"
+        if hashes > 1 and not self.block.match(fixed_comment):
+            return None
+        column = col + hashes
+        return Fix(
+            edits=[
+                TextEdit(
+                    rule_id=self.rule_id,
+                    rule_name=self.name,
+                    start_line=lineno,
+                    start_col=column,
+                    end_line=lineno,
+                    end_col=column,
+                    replacement=" ",
+                    kind=TextEditKind.REPLACEMENT,
+                )
+            ],
+            message="Add missing space after the comment character",
+            applicability=FixApplicability.SAFE,
+        )
 
 
 class InvalidCommentRule(Rule):
@@ -173,7 +216,7 @@ class InvalidCommentRule(Rule):
     # TODO: deprecate (<4)
 
 
-class IgnoredDataRule(Rule):
+class IgnoredDataRule(FixableRule):
     """
     Ignored data found in the file.
 
@@ -196,6 +239,9 @@ class IgnoredDataRule(Rule):
 
         *** Test Cases ***
 
+    The fix adds the ``*** Comments ***`` section header before the ignored data. Data containing the language
+    header is not fixed, since the header would stop working inside the ``*** Comments ***`` section.
+
     """
 
     name = "ignored-data"
@@ -208,6 +254,7 @@ class IgnoredDataRule(Rule):
         issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL,
     )
     deprecated_names = ("0704",)
+    fix_availability = FixAvailability.SOMETIMES
 
     SECTION_HEADER = "***"
     IGNORE_DIRECTIVES = ("# robocop:", "# fmt:")
@@ -238,6 +285,25 @@ class IgnoredDataRule(Rule):
                 continue
             self.report(lineno=lineno, col=1, end_col=len(line.rstrip()) + 1)
             return
+
+    def fix(self, diag: Diagnostic, source_lines: list[str]) -> Fix | None:
+        """
+        Add the ``*** Comments ***`` section header before the ignored data.
+
+        The header is not added if the ignored data contains the language header - it would be placed inside the
+        ``*** Comments ***`` section and stop working.
+        """
+        for line in source_lines[diag.range.start.line - 1 :]:
+            stripped = line.strip()
+            if stripped.startswith(self.SECTION_HEADER):
+                break
+            if stripped.lower().startswith(self.LANGUAGE_HEADER):
+                return None
+        return Fix(
+            edits=[TextEdit.insert_at_range(self.rule_id, self.name, diag.range, "*** Comments ***\n")],
+            message="Add the '*** Comments ***' section header before the ignored data",
+            applicability=FixApplicability.SAFE,
+        )
 
 
 class BomEncodingRule(Rule):

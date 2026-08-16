@@ -179,3 +179,4 @@ test.robot:62:8 VAR01 Empty variable value
     |
 
 Found 18 issues.
+18 fixable with the '--fix' option.

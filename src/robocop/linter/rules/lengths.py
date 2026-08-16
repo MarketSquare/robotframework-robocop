@@ -387,6 +387,9 @@ class LineTooLongRule(Rule):
 
         robocop check --configure line-too-long.ignore_pattern=pattern
 
+    This rule is not fixed by ``robocop check --fix``. Use the ``SplitTooLongLine`` formatter
+    (``robocop format``) to fix it.
+
     """
 
     name = "line-too-long"

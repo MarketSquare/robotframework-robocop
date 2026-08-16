@@ -75,7 +75,6 @@ nav:
           - InlineIf: formatter/formatters/InlineIf.md
           - MergeAndOrderSections: formatter/formatters/MergeAndOrderSections.md
           - NormalizeAssignments: formatter/formatters/NormalizeAssignments.md
-          - NormalizeComments: formatter/formatters/NormalizeComments.md
           - NormalizeNewLines: formatter/formatters/NormalizeNewLines.md
           - NormalizeSectionHeaderName: formatter/formatters/NormalizeSectionHeaderName.md
           - NormalizeSeparators: formatter/formatters/NormalizeSeparators.md

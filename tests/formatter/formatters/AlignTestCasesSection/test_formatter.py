@@ -198,7 +198,7 @@ class TestAlignTestCasesSection(FormatterAcceptanceTest):
             source="templated_with_setting.robot",
             expected="templated_with_settings_auto.robot",
             configure=configure,
-            select=["NormalizeSeparators", "NormalizeComments"],
+            select=["NormalizeSeparators"],
         )
 
     @pytest.mark.parametrize(

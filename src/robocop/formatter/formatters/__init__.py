@@ -73,7 +73,6 @@ FORMATTERS = [
     "ReplaceBreakContinue",
     "InlineIf",
     "Translate",
-    "NormalizeComments",
 ]
 
 IMPORTER = Importer()

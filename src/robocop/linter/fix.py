@@ -4,12 +4,17 @@ from dataclasses import dataclass, field
 from enum import Enum
 from typing import TYPE_CHECKING
 
+from robot.api import Token
+
 from robocop.files import path_relative_to_cwd
 
 if TYPE_CHECKING:
     from pathlib import Path
 
-    from robocop.linter.diagnostics import Range
+    from robot.parsing.model.statements import Statement
+
+    from robocop.linter.diagnostics import Diagnostic, Range
+    from robocop.linter.rules import Rule
     from robocop.source_file import SourceFile
 
 
@@ -157,6 +162,81 @@ class Fix:
     edits: list[TextEdit]
     message: str
     applicability: FixApplicability
+
+
+def _comment_lines(node: Statement, source_lines: list[str]) -> list[str]:
+    """
+    Return lines with the comments from the statement, without the statement data itself.
+
+    Only the first comment in the line is used, since the rest of the line is taken as it is.
+    The original indentation of the line is preserved.
+    """
+    comment_lines = []
+    seen_lines = set()
+    for token in node.get_tokens(Token.COMMENT):
+        if token.lineno in seen_lines:
+            continue
+        seen_lines.add(token.lineno)
+        line = source_lines[token.lineno - 1]
+        indent = line[: len(line) - len(line.lstrip())]
+        comment_lines.append(f"{indent}{line[token.col_offset :]}")
+    return comment_lines
+
+
+def remove_statement_fix(rule: Rule, node: Statement, source_lines: list[str], message: str) -> Fix:
+    """
+    Create a fix that removes the whole statement.
+
+    Comments are not removed together with the statement - they are left in place instead.
+    """
+    if comment_lines := _comment_lines(node, source_lines):
+        edit = TextEdit.replace_lines(rule.rule_id, rule.name, node.lineno, node.end_lineno, "".join(comment_lines))
+    else:
+        edit = TextEdit(
+            rule_id=rule.rule_id,
+            rule_name=rule.name,
+            start_line=node.lineno,
+            start_col=1,
+            end_line=node.end_lineno,
+            end_col=1,
+            replacement="",
+            kind=TextEditKind.DELETION,
+        )
+    return Fix(edits=[edit], message=message, applicability=FixApplicability.SAFE)
+
+
+def add_setting_value_fix(rule: Rule, node: Statement, value: str, message: str, separator: str = "    ") -> Fix:
+    """Create a fix that adds the value to the setting without any value."""
+    setting_token = node.data_tokens[0]
+    column = setting_token.end_col_offset + 1
+    edit = TextEdit(
+        rule_id=rule.rule_id,
+        rule_name=rule.name,
+        start_line=setting_token.lineno,
+        start_col=column,
+        end_line=setting_token.lineno,
+        end_col=column,
+        replacement=f"{separator}{value}",
+    )
+    return Fix(edits=[edit], message=message, applicability=FixApplicability.SAFE)
+
+
+def remove_empty_setting_fix(rule: Rule, diag: Diagnostic, source_lines: list[str]) -> Fix | None:
+    """
+    Create a fix for the setting without any value.
+
+    Empty settings are removed, unless they overwrite the suite setting. In such case the ``NONE`` value is used
+    to make the intention explicit.
+    """
+    node = diag.node
+    if node is None or not node.data_tokens:
+        return None
+    setting_name = node.data_tokens[0].value
+    if diag.reported_arguments.get("overwrites_suite_setting"):
+        return add_setting_value_fix(
+            rule, node, "NONE", f"Replace empty '{setting_name}' setting with an explicit NONE value"
+        )
+    return remove_statement_fix(rule, node, source_lines, f"Remove empty '{setting_name}' setting")
 
 
 @dataclass

@@ -6,3 +6,4 @@ test.robot:2:1 LEN29 Test Template is empty
    |
 
 Found 1 issue.
+1 fixable with the '--fix' option.

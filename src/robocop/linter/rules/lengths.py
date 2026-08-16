@@ -27,7 +27,9 @@ except ImportError:
     Var = None
 
 from robocop.linter import sonar_qube
+from robocop.linter.fix import FixAvailability, remove_empty_setting_fix
 from robocop.linter.rules import (
+    FixableRule,
     Rule,
     RuleParam,
     RuleSeverity,
@@ -44,6 +46,9 @@ if TYPE_CHECKING:
     from robot.parsing import File
     from robot.parsing.model.blocks import Section
     from robot.parsing.model.statements import Node, Statement
+
+    from robocop.linter.diagnostics import Diagnostic
+    from robocop.linter.fix import Fix
 
 
 class TooLongKeywordRule(Rule):
@@ -512,22 +517,43 @@ class NumberOfReturnedValuesRule(Rule):
             self.check(len(node.args) - 1, node)
 
 
+class EmptySettingRule(FixableRule):
+    """
+    Base class for the rules reporting settings without any value.
+
+    The fix removes such setting, since a setting without a value does not have any effect.
+    The only exception are the test case settings that can overwrite the suite settings
+    (``[Setup]``, ``[Teardown]``, ``[Timeout]`` and ``[Template]``). Those are not removed but filled with the
+    explicit ``NONE`` value instead, since the suite setting can be also defined in the ``__init__.robot`` file
+    of the parent suite.
+    Comments are never removed by the fix.
+    """
+
+    fix_availability = FixAvailability.ALWAYS
+
+    def fix(self, diag: Diagnostic, source_lines: list[str]) -> Fix | None:
+        return remove_empty_setting_fix(self, diag, source_lines)
+
+
 def report_empty_setting(rule: Rule, node: Statement) -> None:
     """Report an empty setting that spans the whole statement."""
     rule.report(node=node, col=node.col_offset + 1, end_col=node.end_col_offset)
 
 
-def report_empty_block_setting(rule: Rule, node: Statement, block_name: str) -> None:
+def report_empty_block_setting(
+    rule: Rule, node: Statement, block_name: str, overwrites_suite_setting: bool = False
+) -> None:
     """Report an empty setting whose message names the block (test case or keyword) it belongs to."""
     rule.report(
         block_name=block_name,
+        overwrites_suite_setting=overwrites_suite_setting,
         node=node,
         col=node.data_tokens[0].col_offset + 1,
         end_col=node.end_col_offset,
     )
 
 
-class EmptyMetadataRule(Rule):
+class EmptyMetadataRule(EmptySettingRule):
     """
     Metadata settings do not have any value set.
 
@@ -558,7 +584,7 @@ class EmptyMetadataRule(Rule):
             self.report(node=node, col=node.col_offset + 1)
 
 
-class EmptyDocumentationRule(Rule):
+class EmptyDocumentationRule(EmptySettingRule):
     """Documentation is empty."""
 
     name = "empty-documentation"
@@ -576,7 +602,7 @@ class EmptyDocumentationRule(Rule):
             report_empty_block_setting(self, node, block_name)
 
 
-class EmptyForceTagsRule(Rule):  # TODO: Rename/deprecate and replace with Test Tags
+class EmptyForceTagsRule(EmptySettingRule):  # TODO: Rename/deprecate and replace with Test Tags
     """Force Tags are empty."""
 
     name = "empty-force-tags"
@@ -594,7 +620,7 @@ class EmptyForceTagsRule(Rule):  # TODO: Rename/deprecate and replace with Test 
             report_empty_setting(self, node)
 
 
-class EmptyDefaultTagsRule(Rule):
+class EmptyDefaultTagsRule(EmptySettingRule):
     """Default Tags are empty."""
 
     name = "empty-default-tags"
@@ -612,7 +638,7 @@ class EmptyDefaultTagsRule(Rule):
             report_empty_setting(self, node)
 
 
-class EmptyVariablesImport(Rule):
+class EmptyVariablesImport(EmptySettingRule):
     """Import variables path is empty."""
 
     name = "empty-variables-import"
@@ -630,7 +656,7 @@ class EmptyVariablesImport(Rule):
             report_empty_setting(self, node)
 
 
-class EmptyResourceImport(Rule):
+class EmptyResourceImport(EmptySettingRule):
     """Import resources path is empty."""
 
     name = "empty-resource-import"
@@ -648,7 +674,7 @@ class EmptyResourceImport(Rule):
             report_empty_setting(self, node)
 
 
-class EmptyLibraryImport(Rule):
+class EmptyLibraryImport(EmptySettingRule):
     """Import library path is empty."""
 
     name = "empty-library-import"
@@ -666,8 +692,22 @@ class EmptyLibraryImport(Rule):
             report_empty_setting(self, node)
 
 
-class EmptySetupRule(Rule):
-    """Empty setup."""
+class EmptySetupRule(EmptySettingRule):
+    """
+    Empty setup.
+
+    ``[Setup]`` without a value does not have any effect and can be removed.
+    If the intention is to overwrite the ``Test Setup`` from the settings section, use the explicit ``NONE`` value:
+
+        *** Settings ***
+        Test Setup    Open Application
+
+        *** Test Cases ***
+        Test without setup
+            [Setup]    NONE
+            Keyword Call
+
+    """
 
     name = "empty-setup"
     rule_id = "LEN18"
@@ -679,12 +719,12 @@ class EmptySetupRule(Rule):
     )
     deprecated_names = ("0518",)
 
-    def check(self, node: Statement, block_name: str) -> None:
+    def check(self, node: Statement, block_name: str, overwrites_suite_setting: bool = False) -> None:
         if not node.name:
-            report_empty_block_setting(self, node, block_name)
+            report_empty_block_setting(self, node, block_name, overwrites_suite_setting)
 
 
-class EmptySuiteSetupRule(Rule):
+class EmptySuiteSetupRule(EmptySettingRule):
     """Empty Suite Setup."""
 
     name = "empty-suite-setup"
@@ -702,7 +742,7 @@ class EmptySuiteSetupRule(Rule):
             report_empty_setting(self, node)
 
 
-class EmptyTestSetupRule(Rule):
+class EmptyTestSetupRule(EmptySettingRule):
     """Empty Test Setup."""
 
     name = "empty-test-setup"
@@ -720,8 +760,22 @@ class EmptyTestSetupRule(Rule):
             report_empty_setting(self, node)
 
 
-class EmptyTeardownRule(Rule):
-    """Empty Teardown."""
+class EmptyTeardownRule(EmptySettingRule):
+    """
+    Empty Teardown.
+
+    ``[Teardown]`` without a value does not have any effect and can be removed.
+    If the intention is to overwrite the ``Test Teardown`` from the settings section, use the explicit ``NONE`` value:
+
+        *** Settings ***
+        Test Teardown    Close Application
+
+        *** Test Cases ***
+        Test without teardown
+            [Teardown]    NONE
+            Keyword Call
+
+    """
 
     name = "empty-teardown"
     rule_id = "LEN21"
@@ -733,12 +787,12 @@ class EmptyTeardownRule(Rule):
     )
     deprecated_names = ("0521",)
 
-    def check(self, node: Statement, block_name: str) -> None:
+    def check(self, node: Statement, block_name: str, overwrites_suite_setting: bool = False) -> None:
         if not node.name:
-            report_empty_block_setting(self, node, block_name)
+            report_empty_block_setting(self, node, block_name, overwrites_suite_setting)
 
 
-class EmptySuiteTeardownRule(Rule):
+class EmptySuiteTeardownRule(EmptySettingRule):
     """Empty Suite Teardown."""
 
     name = "empty-suite-teardown"
@@ -756,7 +810,7 @@ class EmptySuiteTeardownRule(Rule):
             report_empty_setting(self, node)
 
 
-class EmptyTestTeardownRule(Rule):
+class EmptyTestTeardownRule(EmptySettingRule):
     """Empty Test Teardown."""
 
     name = "empty-test-teardown"
@@ -774,8 +828,22 @@ class EmptyTestTeardownRule(Rule):
             report_empty_setting(self, node)
 
 
-class EmptyTimeoutRule(Rule):
-    """Empty Timeout."""
+class EmptyTimeoutRule(EmptySettingRule):
+    """
+    Empty Timeout.
+
+    ``[Timeout]`` without a value does not have any effect and can be removed.
+    If the intention is to overwrite the ``Test Timeout`` from the settings section, use the explicit ``NONE`` value:
+
+        *** Settings ***
+        Test Timeout    1 min
+
+        *** Test Cases ***
+        Test without timeout
+            [Timeout]    NONE
+            Keyword Call
+
+    """
 
     name = "empty-timeout"
     rule_id = "LEN24"
@@ -787,12 +855,13 @@ class EmptyTimeoutRule(Rule):
     )
     deprecated_names = ("0524",)
 
-    def check(self, node: Statement, block_name: str) -> None:
-        if not node.value:
-            report_empty_block_setting(self, node, block_name)
+    def check(self, node: Statement, block_name: str, overwrites_suite_setting: bool = False) -> None:
+        # ``value`` is not used, since Robot Framework returns None for the explicit ``NONE`` timeout
+        if len(node.data_tokens) < 2:
+            report_empty_block_setting(self, node, block_name, overwrites_suite_setting)
 
 
-class EmptyTestTimeoutRule(Rule):
+class EmptyTestTimeoutRule(EmptySettingRule):
     """Empty Test Timeout."""
 
     name = "empty-test-timeout"
@@ -806,11 +875,12 @@ class EmptyTestTimeoutRule(Rule):
     deprecated_names = ("0525",)
 
     def check(self, node: Statement) -> None:
-        if not node.value:
+        # ``value`` is not used, since Robot Framework returns None for the explicit ``NONE`` timeout
+        if len(node.data_tokens) < 2:
             report_empty_setting(self, node)
 
 
-class EmptyArgumentsRule(Rule):
+class EmptyArgumentsRule(EmptySettingRule):
     """Empty ``[Arguments]`` setting."""
 
     name = "empty-arguments"
@@ -868,7 +938,7 @@ class TooManyTestCasesRule(Rule):
             )
 
 
-class EmptyTestTemplateRule(Rule):
+class EmptyTestTemplateRule(EmptySettingRule):
     """
     Test Template is empty.
 
@@ -891,7 +961,7 @@ class EmptyTestTemplateRule(Rule):
             report_empty_setting(self, node)
 
 
-class EmptyTemplateRule(Rule):
+class EmptyTemplateRule(EmptySettingRule):
     """
     ``[Template]`` is empty.
 
@@ -923,12 +993,12 @@ class EmptyTemplateRule(Rule):
     )
     deprecated_names = ("0530",)
 
-    def check(self, node: Statement, block_name: str) -> None:
+    def check(self, node: Statement, block_name: str, overwrites_suite_setting: bool = False) -> None:
         if len(node.data_tokens) < 2:
-            report_empty_block_setting(self, node, block_name)
+            report_empty_block_setting(self, node, block_name, overwrites_suite_setting)
 
 
-class EmptyKeywordTagsRule(Rule):
+class EmptyKeywordTagsRule(EmptySettingRule):
     """Keyword Tags are empty."""
 
     name = "empty-keyword-tags"

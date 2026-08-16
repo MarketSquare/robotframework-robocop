@@ -197,7 +197,9 @@ def inherits_from(child: type, parent_name: str) -> bool:
 def is_rule(rule_class_def: tuple[str, type]) -> bool:
     if rule_class_def[0] in {"Rule", "RuleParam", "RuleSeverity", "FixableRule"}:
         return False
-    return inherits_from(rule_class_def[1], "Rule")
+    if not inherits_from(rule_class_def[1], "Rule"):
+        return False
+    return hasattr(rule_class_def[1], "name")  # skip base classes that do not define the rule itself
     # return issubclass(rule_class_def[1], Rule) TODO does not work as is_checker for some reason
 
 

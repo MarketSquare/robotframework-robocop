@@ -1,0 +1,5 @@
+Fixed 21 issues:
+- actual_fixed${/}test.robot:
+    21 x NAME05 (setting-name-not-in-title-case)
+
+Found 21 issues (21 fixed, 0 remaining).

@@ -453,7 +453,7 @@ class UnderscoreInKeywordNameRule(Rule):
         )
 
 
-class SettingNameNotInTitleCaseRule(Rule):
+class SettingNameNotInTitleCaseRule(FixableRule):
     """
     Setting name not in the title or upper case.
 
@@ -477,6 +477,9 @@ class SettingNameNotInTitleCaseRule(Rule):
             [DOCUMENTATION]  Some documentation
             Step
 
+    The setting name can be converted to the title case automatically with the ``--fix`` option.
+    Use the ``NormalizeSettingName`` formatter (``robocop format``) if you also want to normalize
+    the whitespace inside the setting name.
 
     """
 
@@ -485,6 +488,7 @@ class SettingNameNotInTitleCaseRule(Rule):
     message = "Setting name '{setting_name}' not in title or uppercase"
     severity = RuleSeverity.WARNING
     added_in_version = "1.0.0"
+    fix_availability = FixAvailability.ALWAYS
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.IDENTIFIABLE, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
@@ -501,8 +505,18 @@ class SettingNameNotInTitleCaseRule(Rule):
             end_col=col + len(name) + 1,
         )
 
+    def fix(self, diag: Diagnostic, source_lines: list[str]) -> Fix | None:  # noqa: ARG002
+        """Replace the setting name with its title case version."""
+        setting_name = str(diag.reported_arguments["setting_name"])
+        edit = TextEdit.replace_at_range(self.rule_id, self.name, diag.range, setting_name.title())
+        return Fix(
+            edits=[edit],
+            message=f"Replace '{setting_name}' with '{setting_name.title()}'",
+            applicability=FixApplicability.SAFE,
+        )
 
-class SectionNameInvalidRule(Rule):
+
+class SectionNameInvalidRule(FixableRule):
     """
     Section name does not follow convention.
 
@@ -518,6 +532,8 @@ class SectionNameInvalidRule(Rule):
         *** SETTINGS ***
         *** Keywords ***
 
+    The section name can be replaced with its title case version automatically with the ``--fix`` option.
+
     """
 
     name = "section-name-invalid"
@@ -525,6 +541,7 @@ class SectionNameInvalidRule(Rule):
     message = "Section name should be in format '{section_title_case}' or '{section_upper_case}'"  # TODO: rename
     severity = RuleSeverity.WARNING
     added_in_version = "1.0.0"
+    fix_availability = FixAvailability.ALWAYS
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.IDENTIFIABLE, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
@@ -540,6 +557,14 @@ class SectionNameInvalidRule(Rule):
             section_upper_case=valid_name.upper(),
             node=node,
             end_col=node.col_offset + len(name) + 1,
+        )
+
+    def fix(self, diag: Diagnostic, source_lines: list[str]) -> Fix | None:  # noqa: ARG002
+        """Replace the section header with its title case version."""
+        valid_name = str(diag.reported_arguments["section_title_case"])
+        edit = TextEdit.replace_at_range(self.rule_id, self.name, diag.range, valid_name)
+        return Fix(
+            edits=[edit], message=f"Replace the section header with '{valid_name}'", applicability=FixApplicability.SAFE
         )
 
 
@@ -624,7 +649,7 @@ class SectionVariableNotUppercaseRule(Rule):
         )
 
 
-class ElseNotUpperCaseRule(Rule):
+class ElseNotUpperCaseRule(FixableRule):
     """
     ELSE and ELSE IF is not uppercase.
 
@@ -652,6 +677,8 @@ class ElseNotUpperCaseRule(Rule):
             ELSE
                 RETURN  Cold
 
+    The fix replaces the ``ELSE`` and ``ELSE IF`` names with their uppercase versions.
+
     """
 
     name = "else-not-upper-case"
@@ -663,12 +690,26 @@ class ElseNotUpperCaseRule(Rule):
         clean_code=sonar_qube.CleanCodeAttribute.IDENTIFIABLE, issue_type=sonar_qube.SonarQubeIssueType.BUG
     )
     deprecated_names = ("0311",)
+    fix_availability = FixAvailability.ALWAYS
 
     def check(self, node: KeywordCall) -> None:
         if not node.keyword or node.keyword.lower() not in ELSE_STATEMENTS:
             return
         col = utils.keyword_col(node)
         self.report(node=node, col=col, end_col=col + len(node.keyword))
+
+    def fix(self, diag: Diagnostic, source_lines: list[str]) -> Fix | None:
+        """Replace the ELSE or ELSE IF name with its uppercase version."""
+        line = source_lines[diag.range.start.line - 1]
+        name = line[diag.range.start.character - 1 : diag.range.end.character - 1]
+        if not name or name.isupper():
+            return None
+        edit = TextEdit.replace_at_range(self.rule_id, self.name, diag.range, name.upper())
+        return Fix(
+            edits=[edit],
+            message=f"Replace '{name}' with '{name.upper()}'",
+            applicability=FixApplicability.SAFE,
+        )
 
 
 class KeywordNameIsEmptyRule(Rule):

@@ -28,3 +28,4 @@ test.robot:12:12 DUP05 Multiple library imports with name 'MyLib' and identical 
     |
 
 Found 3 issues.
+3 fixable with the '--fix' option.

@@ -7,3 +7,4 @@ test.robot:5:1 DUP04 Multiple resource imports with path 'resource.robot' (first
    |
 
 Found 1 issue.
+1 fixable with the '--fix' option.

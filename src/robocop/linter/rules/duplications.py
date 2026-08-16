@@ -5,7 +5,8 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, TypeVar
 
 from robocop.linter import sonar_qube
-from robocop.linter.rules import Rule, RuleSeverity
+from robocop.linter.fix import FixAvailability, remove_statement_fix
+from robocop.linter.rules import FixableRule, Rule, RuleSeverity
 
 if TYPE_CHECKING:
     from robot.parsing.model.statements import (
@@ -13,7 +14,27 @@ if TYPE_CHECKING:
         SectionHeader,
     )
 
+    from robocop.linter.diagnostics import Diagnostic
+    from robocop.linter.fix import Fix
+
 NodeT = TypeVar("NodeT", bound="Node")
+
+
+class DuplicatedImportRule(FixableRule):
+    """
+    Base class for the rules reporting the same import used more than once.
+
+    The fix removes the duplicated import. Only imports that are exactly the same (including the arguments and
+    the alias) are reported, so removing them does not change the behaviour. Comments are not removed.
+    """
+
+    fix_availability = FixAvailability.ALWAYS
+
+    def fix(self, diag: Diagnostic, source_lines: list[str]) -> Fix | None:
+        """Remove the duplicated import."""
+        if diag.node is None:
+            return None
+        return remove_statement_fix(self, diag.node, source_lines, "Remove the duplicated import")
 
 
 class DuplicatedTestCaseRule(Rule):
@@ -106,7 +127,7 @@ class DuplicatedVariableRule(Rule):
     deprecated_names = ("0803",)
 
 
-class DuplicatedResourceRule(Rule):
+class DuplicatedResourceRule(DuplicatedImportRule):
     """
     Duplicated resource imports.
 
@@ -118,6 +139,8 @@ class DuplicatedResourceRule(Rule):
         Resource    path.resource
         Resource    other_path.resource
         Resource    path.resource
+
+    The fix removes the duplicated import.
 
     """
 
@@ -132,7 +155,7 @@ class DuplicatedResourceRule(Rule):
     deprecated_names = ("0804",)
 
 
-class DuplicatedLibraryRule(Rule):
+class DuplicatedLibraryRule(DuplicatedImportRule):
     """
     Duplicated library imports.
 
@@ -141,6 +164,8 @@ class DuplicatedLibraryRule(Rule):
         *** Settings ***
         Library  RobotLibrary
         Library  RobotLibrary  AS  OtherRobotLibrary
+
+    The fix removes the duplicated import. Only imports with the same name, arguments and alias are reported.
 
     """
 
@@ -172,8 +197,12 @@ class DuplicatedMetadataRule(Rule):
     deprecated_names = ("0806",)
 
 
-class DuplicatedVariablesImportRule(Rule):
-    """Duplicated variables import."""
+class DuplicatedVariablesImportRule(DuplicatedImportRule):
+    """
+    Duplicated variables import.
+
+    The fix removes the duplicated import.
+    """
 
     name = "duplicated-variables-import"
     rule_id = "DUP07"

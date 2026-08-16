@@ -1,0 +1,5 @@
+Fixed 5 issues:
+- actual_fixed${/}test.robot:
+    5 x DUP07 (duplicated-variables-import)
+
+Found 5 issues (5 fixed, 0 remaining).

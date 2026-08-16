@@ -5,3 +5,4 @@ test.robot:15:1 [W] DUP07 Duplicated variables import with path 'variables.robot
 test.robot:16:1 [W] DUP07 Duplicated variables import with path 'variables.robot' (first occurrence in line 14)
 
 Found 5 issues.
+5 fixable with the '--fix' option.

@@ -7,7 +7,8 @@ from typing import TYPE_CHECKING, ClassVar, TypeAlias
 from robot.api import Token
 
 from robocop.linter import sonar_qube
-from robocop.linter.rules import Rule, RuleSeverity
+from robocop.linter.fix import FixAvailability, remove_empty_setting_fix
+from robocop.linter.rules import FixableRule, Rule, RuleSeverity
 from robocop.parsing.variables import VariableMatches  # type: ignore[attr-defined]
 
 if TYPE_CHECKING:
@@ -19,6 +20,9 @@ if TYPE_CHECKING:
         KeywordTags,
         Tags,
     )
+
+    from robocop.linter.diagnostics import Diagnostic
+    from robocop.linter.fix import Fix
 
 TagNode: TypeAlias = "ForceTags | DefaultTags | Tags | KeywordTags"
 
@@ -298,12 +302,38 @@ class UnnecessaryDefaultTagsRule(Rule):
         )
 
 
-class EmptyTagsRule(Rule):
+class EmptyTagsRule(FixableRule):
     """
     ``[Tags]`` setting without any value.
 
     If you want to use empty ``[Tags]`` (for example, to overwrite ``Default Tags``), then use the ``NONE`` value
     to be explicit.
+
+    Incorrect code example:
+
+        *** Settings ***
+        Default Tags    tag
+
+
+        *** Test Cases ***
+        Test without tags
+            [Tags]
+            Keyword Call
+
+    Correct code example:
+
+        *** Settings ***
+        Default Tags    tag
+
+
+        *** Test Cases ***
+        Test without tags
+            [Tags]    NONE
+            Keyword Call
+
+    The fix removes the empty ``[Tags]`` setting. If the suite defines ``Default Tags``, the test case ``[Tags]``
+    is not removed but filled with the explicit ``NONE`` value instead, since the empty ``[Tags]`` overwrites the
+    ``Default Tags``. Comments are never removed by the fix.
 
     """
 
@@ -316,17 +346,22 @@ class EmptyTagsRule(Rule):
         clean_code=sonar_qube.CleanCodeAttribute.COMPLETE, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
     deprecated_names = ("0608",)
+    fix_availability = FixAvailability.ALWAYS
 
-    def check(self, node: Tags, in_keywords: bool) -> None:
+    def check(self, node: Tags, in_keywords: bool, overwrites_default_tags: bool = False) -> None:
         if not self.enabled or node.values:
             return
         suffix = "" if in_keywords else ". Consider using NONE if you want to overwrite the Default Tags"
         self.report(
             optional_warning=suffix,
+            overwrites_suite_setting=overwrites_default_tags,
             node=node,
             col=node.data_tokens[0].col_offset + 1,
             end_col=node.end_col_offset,
         )
+
+    def fix(self, diag: Diagnostic, source_lines: list[str]) -> Fix | None:
+        return remove_empty_setting_fix(self, diag, source_lines)
 
 
 class DuplicatedTagsRule(Rule):

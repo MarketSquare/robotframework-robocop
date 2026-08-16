@@ -1,4 +1,8 @@
 default_and_empty_tags.robot:8:5 [W] TAG08 [Tags] setting without values. Consider using NONE if you want to overwrite the Default Tags
 default_and_empty_tags.robot:31:5 [W] TAG08 [Tags] setting without values
+without_default_tags.robot:7:5 [W] TAG08 [Tags] setting without values. Consider using NONE if you want to overwrite the Default Tags
+without_default_tags.robot:11:5 [W] TAG08 [Tags] setting without values. Consider using NONE if you want to overwrite the Default Tags
+without_default_tags.robot:17:5 [W] TAG08 [Tags] setting without values
 
-Found 2 issues.
+Found 5 issues.
+5 fixable with the '--fix' option.

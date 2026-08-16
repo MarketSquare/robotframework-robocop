@@ -18,3 +18,6 @@ class TestRuleAcceptance(RuleAcceptance):
 
     def test_pre_rf5(self):
         self.check_rule(src_files=["test.robot"], expected_file="not_enabled", test_on_version="<=5")
+
+    def test_fix(self):
+        self.check_rule_fix(src_files=["test.robot"], test_on_version=">=6.0")

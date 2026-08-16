@@ -6,3 +6,4 @@ test.robot:9:1 [W] DEPR04 '*** Keyword ***' deprecated singular header used inst
 test.robot:12:1 [W] DEPR04 '*** Comment ***' deprecated singular header used instead of '*** Comments ***'
 
 Found 6 issues.
+6 fixable with the '--fix' option.

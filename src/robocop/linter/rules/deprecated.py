@@ -72,7 +72,7 @@ class DeprecatedStatementRule(Rule):
     deprecated = True
 
 
-class DeprecatedWithNameRule(Rule):
+class DeprecatedWithNameRule(FixableRule):
     """
     Deprecated 'WITH NAME' alias marker used instead of 'AS'.
 
@@ -89,6 +89,8 @@ class DeprecatedWithNameRule(Rule):
         *** Settings ***
         Library    Collections    AS    AliasedName
 
+    The fix replaces the ``WITH NAME`` marker with ``AS``.
+
     """
 
     name = "deprecated-with-name"
@@ -101,6 +103,7 @@ class DeprecatedWithNameRule(Rule):
         clean_code=sonar_qube.CleanCodeAttribute.CONVENTIONAL, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
     deprecated_names = ("0321",)
+    fix_availability = FixAvailability.ALWAYS
 
     def check(self, node: LibraryImport) -> None:
         if not self.enabled:
@@ -114,8 +117,15 @@ class DeprecatedWithNameRule(Rule):
             end_col=with_name_token.end_col_offset + 1,
         )
 
+    def fix(self, diag: Diagnostic, source_lines: list[str]) -> Fix | None:  # noqa: ARG002
+        return Fix(
+            edits=[TextEdit.replace_at_range(self.rule_id, self.name, diag.range, "AS")],
+            message="Replace WITH NAME alias marker with AS",
+            applicability=FixApplicability.SAFE,
+        )
 
-class DeprecatedSingularHeaderRule(Rule):
+
+class DeprecatedSingularHeaderRule(FixableRule):
     """
     Deprecated singular header used instead of plural form.
 
@@ -132,6 +142,8 @@ class DeprecatedSingularHeaderRule(Rule):
         *** Settings ***
         *** Keywords ***
 
+    The fix replaces the singular header with the plural one, keeping the original header formatting.
+
     """
 
     name = "deprecated-singular-header"
@@ -144,6 +156,7 @@ class DeprecatedSingularHeaderRule(Rule):
         clean_code=sonar_qube.CleanCodeAttribute.CONVENTIONAL, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
     deprecated_names = ("0322",)
+    fix_availability = FixAvailability.ALWAYS
 
     english_headers_singular = {
         "Comment",
@@ -178,9 +191,24 @@ class DeprecatedSingularHeaderRule(Rule):
         self.report(
             singular_header=f"*** {node.name} ***",
             plural_header=f"*** {node.name}s ***",
+            header_name=node.name,
             node=header_node,
             col=header_node.col_offset + 1,
             end_col=header_node.end_col_offset + 1,
+        )
+
+    def fix(self, diag: Diagnostic, source_lines: list[str]) -> Fix | None:  # noqa: ARG002
+        """Replace the singular header with the plural one, keeping the original header formatting."""
+        header_name = str(diag.reported_arguments["header_name"])
+        header = getattr(diag.node, "value", "")
+        if header_name and header_name in header:
+            replacement = header.replace(header_name, f"{header_name}s", 1)
+        else:
+            replacement = str(diag.reported_arguments["plural_header"])
+        return Fix(
+            edits=[TextEdit.replace_at_range(self.rule_id, self.name, diag.range, replacement)],
+            message=f"Replace '{header}' header with '{replacement}'",
+            applicability=FixApplicability.SAFE,
         )
 
 

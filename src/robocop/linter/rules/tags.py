@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING, ClassVar, TypeAlias
 from robot.api import Token
 
 from robocop.linter import sonar_qube
-from robocop.linter.fix import FixAvailability, remove_empty_setting_fix
+from robocop.linter.fix import FixAvailability, remove_empty_setting_fix, remove_statement_fix
 from robocop.linter.rules import FixableRule, Rule, RuleSeverity
 from robocop.parsing.variables import VariableMatches  # type: ignore[attr-defined]
 
@@ -259,7 +259,7 @@ class TagAlreadySetInTestTagsRule(Rule):  # TODO: support -tag
             )
 
 
-class UnnecessaryDefaultTagsRule(Rule):
+class UnnecessaryDefaultTagsRule(FixableRule):
     """
     ``Default Tags`` setting is always overwritten and is unnecessary.
 
@@ -279,6 +279,8 @@ class UnnecessaryDefaultTagsRule(Rule):
 
     Since ``Test`` and ``Test 2`` have the ``[Tags]`` section, the ``Default Tags`` setting is never used.
 
+    The fix removes the ``Default Tags`` setting. Comments are not removed.
+
     """
 
     name = "unnecessary-default-tags"
@@ -290,6 +292,7 @@ class UnnecessaryDefaultTagsRule(Rule):
         clean_code=sonar_qube.CleanCodeAttribute.CONVENTIONAL, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
     deprecated_names = ("0607",)
+    fix_availability = FixAvailability.ALWAYS
 
     def check(self, node: File, default_tags_node: DefaultTags | None) -> None:
         if not self.enabled:
@@ -300,6 +303,13 @@ class UnnecessaryDefaultTagsRule(Rule):
             col=report_node.col_offset + 1,
             end_col=report_node.get_token(Token.DEFAULT_TAGS).end_col_offset + 1,
         )
+
+    def fix(self, diag: Diagnostic, source_lines: list[str]) -> Fix | None:
+        """Remove the ``Default Tags`` setting that is always overwritten."""
+        node = diag.node
+        if node is None or not node.data_tokens or node.data_tokens[0].type != Token.DEFAULT_TAGS:
+            return None
+        return remove_statement_fix(self, node, source_lines, "Remove the unnecessary 'Default Tags' setting")
 
 
 class EmptyTagsRule(FixableRule):

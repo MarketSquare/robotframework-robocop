@@ -83,7 +83,6 @@ nav:
           - OrderSettings: formatter/formatters/OrderSettings.md
           - OrderSettingsSection: formatter/formatters/OrderSettingsSection.md
           - OrderTags: formatter/formatters/OrderTags.md
-          - RemoveEmptySettings: formatter/formatters/RemoveEmptySettings.md
           - RenameKeywords: formatter/formatters/RenameKeywords.md
           - RenameTestCases: formatter/formatters/RenameTestCases.md
           - RenameVariables: formatter/formatters/RenameVariables.md

@@ -17,3 +17,6 @@ class TestRuleAcceptance(RuleAcceptance):
             output_format="extended",
             test_on_version=">=6",
         )
+
+    def test_fix(self):
+        self.check_rule_fix(src_files=["fix_tags.robot", "fix_default_tags.robot"])

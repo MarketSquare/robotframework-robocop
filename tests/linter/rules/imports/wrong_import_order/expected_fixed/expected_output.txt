@@ -1,0 +1,5 @@
+Fixed 2 issues:
+- actual_fixed${/}fix_imports.robot:
+    2 x IMP01 (wrong-import-order)
+
+Found 2 issues (2 fixed, 0 remaining).

@@ -1,0 +1,7 @@
+Fixed 21 issues:
+- actual_fixed${/}run_keywords.robot:
+    12 x NAME18 (wrong-case-in-keyword-call)
+- actual_fixed${/}test.robot:
+    9 x NAME18 (wrong-case-in-keyword-call)
+
+Found 21 issues (21 fixed, 0 remaining).

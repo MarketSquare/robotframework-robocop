@@ -11,7 +11,7 @@ from robocop.linter import sonar_qube
 from robocop.linter.fix import Fix, FixApplicability, FixAvailability, TextEdit
 from robocop.linter.rules import FixableRule, Rule, RuleParam, RuleSeverity
 from robocop.linter.utils import misc as utils
-from robocop.parsing.string_operations import get_unmasked_string
+from robocop.parsing.string_operations import StringPart, get_unmasked_string, map_string_to_mask
 from robocop.version_handling import ROBOT_VERSION
 
 if TYPE_CHECKING:
@@ -79,6 +79,80 @@ def report_wrong_case_in_keyword(rule: Rule, node: Node, keyword_name: str, norm
             col=node.col_offset + 1,
             end_col=node.col_offset + len(keyword_name) + 1,
         )
+
+
+def capitalize_keyword_name(keyword_name: str, *, first_word_only: bool) -> str:
+    """
+    Capitalize the first letter of every word in the keyword name.
+
+    Words are separated the same way as in the case convention check. Variables are not modified.
+    With ``first_word_only`` only the first word of the name is capitalized.
+    """
+    capitalized: list[str] = []
+    word_start = True
+    first_word_done = False
+    for part, part_type in map_string_to_mask(keyword_name):
+        if part_type == StringPart.MASKED:
+            capitalized.append(part)
+            word_start = False
+            continue
+        for char in part:
+            if LETTER_PATTERN.match(char):
+                capitalized.append(char)
+                word_start = True
+                continue
+            if word_start and not first_word_done:
+                capitalized.append(char.upper())
+                first_word_done = first_word_only
+            else:
+                capitalized.append(char)
+            word_start = False
+    return "".join(capitalized)
+
+
+def keyword_name_start(keyword_name: str) -> int:
+    """Return the index at which the keyword name starts, that is after the optional library name prefix."""
+    if "." not in keyword_name:
+        return 0
+    parts = keyword_name.split(".")
+    offset = 0
+    for part in parts[:-1]:
+        if " " in part:
+            return offset
+        offset += len(part) + 1
+    return offset
+
+
+def wrong_case_in_keyword_fix(
+    rule: Rule, diag: Diagnostic, source_lines: list[str], *, is_keyword_call: bool
+) -> Fix | None:
+    """
+    Create a fix that capitalizes the keyword name according to the configured convention.
+
+    Keyword names are case-insensitive in Robot Framework, so renaming does not change the behaviour.
+    Names matching the configured ``pattern`` are not fixed, since the pattern marks the words that are
+    accepted as they are.
+    """
+    keyword_name = str(diag.reported_arguments["keyword_name"])
+    if rule.pattern.pattern and rule.pattern.search(keyword_name):
+        return None
+    if diag.range.start.line != diag.range.end.line:
+        return None
+    line = source_lines[diag.range.start.line - 1]
+    if line[diag.range.start.character - 1 : diag.range.end.character - 1] != keyword_name:
+        return None
+    start = keyword_name_start(keyword_name) if is_keyword_call else 0
+    new_name = keyword_name[:start] + capitalize_keyword_name(
+        keyword_name[start:], first_word_only=rule.convention == "first_word_capitalized"
+    )
+    if new_name == keyword_name:
+        return None
+    edit = TextEdit.replace_at_range(rule.rule_id, rule.name, diag.range, new_name)
+    return Fix(
+        edits=[edit],
+        message=f"Rename '{keyword_name}' to '{new_name}'",
+        applicability=FixApplicability.SAFE,
+    )
 
 
 # Separating alias values since RF 3 uses WITH_NAME instead of WITH NAME
@@ -209,7 +283,7 @@ class NotAllowedCharInNameRule(Rule):
             )
 
 
-class WrongCaseInKeywordNameRule(Rule):
+class WrongCaseInKeywordNameRule(FixableRule):
     r"""
     Keyword name does not follow case convention.
 
@@ -246,6 +320,9 @@ class WrongCaseInKeywordNameRule(Rule):
 
     See the sibling rule [wrong-case-in-keyword-call](#name18-wrong-case-in-keyword-call) that checks keyword call
     naming convention.
+
+    Keyword names are case-insensitive in Robot Framework, so the name can be capitalized automatically with the
+    ``--fix`` option. Names matching the configured ``pattern`` are reported, but not fixed.
     """
 
     name = "wrong-case-in-keyword-name"
@@ -273,9 +350,14 @@ class WrongCaseInKeywordNameRule(Rule):
     )
     deprecated_names = ("0302",)
     fix_suggestion = "Rename the keyword to use Title Case (e.g., 'My Keyword Name')."
+    fix_availability = FixAvailability.SOMETIMES
 
     def check(self, node: Node, keyword_name: str, normalized: str) -> None:
         report_wrong_case_in_keyword(self, node, keyword_name, normalized)
+
+    def fix(self, diag: Diagnostic, source_lines: list[str]) -> Fix | None:
+        """Capitalize the keyword name according to the configured convention."""
+        return wrong_case_in_keyword_fix(self, diag, source_lines, is_keyword_call=False)
 
 
 class KeywordNameIsReservedWordRule(Rule):
@@ -371,7 +453,7 @@ class UnderscoreInKeywordNameRule(Rule):
         )
 
 
-class SettingNameNotInTitleCaseRule(Rule):
+class SettingNameNotInTitleCaseRule(FixableRule):
     """
     Setting name not in the title or upper case.
 
@@ -395,6 +477,9 @@ class SettingNameNotInTitleCaseRule(Rule):
             [DOCUMENTATION]  Some documentation
             Step
 
+    The setting name can be converted to the title case automatically with the ``--fix`` option.
+    Use the ``NormalizeSettingName`` formatter (``robocop format``) if you also want to normalize
+    the whitespace inside the setting name.
 
     """
 
@@ -403,6 +488,7 @@ class SettingNameNotInTitleCaseRule(Rule):
     message = "Setting name '{setting_name}' not in title or uppercase"
     severity = RuleSeverity.WARNING
     added_in_version = "1.0.0"
+    fix_availability = FixAvailability.ALWAYS
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.IDENTIFIABLE, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
@@ -419,8 +505,18 @@ class SettingNameNotInTitleCaseRule(Rule):
             end_col=col + len(name) + 1,
         )
 
+    def fix(self, diag: Diagnostic, source_lines: list[str]) -> Fix | None:  # noqa: ARG002
+        """Replace the setting name with its title case version."""
+        setting_name = str(diag.reported_arguments["setting_name"])
+        edit = TextEdit.replace_at_range(self.rule_id, self.name, diag.range, setting_name.title())
+        return Fix(
+            edits=[edit],
+            message=f"Replace '{setting_name}' with '{setting_name.title()}'",
+            applicability=FixApplicability.SAFE,
+        )
 
-class SectionNameInvalidRule(Rule):
+
+class SectionNameInvalidRule(FixableRule):
     """
     Section name does not follow convention.
 
@@ -436,6 +532,8 @@ class SectionNameInvalidRule(Rule):
         *** SETTINGS ***
         *** Keywords ***
 
+    The section name can be replaced with its title case version automatically with the ``--fix`` option.
+
     """
 
     name = "section-name-invalid"
@@ -443,6 +541,7 @@ class SectionNameInvalidRule(Rule):
     message = "Section name should be in format '{section_title_case}' or '{section_upper_case}'"  # TODO: rename
     severity = RuleSeverity.WARNING
     added_in_version = "1.0.0"
+    fix_availability = FixAvailability.ALWAYS
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.IDENTIFIABLE, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
@@ -458,6 +557,14 @@ class SectionNameInvalidRule(Rule):
             section_upper_case=valid_name.upper(),
             node=node,
             end_col=node.col_offset + len(name) + 1,
+        )
+
+    def fix(self, diag: Diagnostic, source_lines: list[str]) -> Fix | None:  # noqa: ARG002
+        """Replace the section header with its title case version."""
+        valid_name = str(diag.reported_arguments["section_title_case"])
+        edit = TextEdit.replace_at_range(self.rule_id, self.name, diag.range, valid_name)
+        return Fix(
+            edits=[edit], message=f"Replace the section header with '{valid_name}'", applicability=FixApplicability.SAFE
         )
 
 
@@ -542,7 +649,7 @@ class SectionVariableNotUppercaseRule(Rule):
         )
 
 
-class ElseNotUpperCaseRule(Rule):
+class ElseNotUpperCaseRule(FixableRule):
     """
     ELSE and ELSE IF is not uppercase.
 
@@ -570,6 +677,8 @@ class ElseNotUpperCaseRule(Rule):
             ELSE
                 RETURN  Cold
 
+    The fix replaces the ``ELSE`` and ``ELSE IF`` names with their uppercase versions.
+
     """
 
     name = "else-not-upper-case"
@@ -581,12 +690,26 @@ class ElseNotUpperCaseRule(Rule):
         clean_code=sonar_qube.CleanCodeAttribute.IDENTIFIABLE, issue_type=sonar_qube.SonarQubeIssueType.BUG
     )
     deprecated_names = ("0311",)
+    fix_availability = FixAvailability.ALWAYS
 
     def check(self, node: KeywordCall) -> None:
         if not node.keyword or node.keyword.lower() not in ELSE_STATEMENTS:
             return
         col = utils.keyword_col(node)
         self.report(node=node, col=col, end_col=col + len(node.keyword))
+
+    def fix(self, diag: Diagnostic, source_lines: list[str]) -> Fix | None:
+        """Replace the ELSE or ELSE IF name with its uppercase version."""
+        line = source_lines[diag.range.start.line - 1]
+        name = line[diag.range.start.character - 1 : diag.range.end.character - 1]
+        if not name or name.isupper():
+            return None
+        edit = TextEdit.replace_at_range(self.rule_id, self.name, diag.range, name.upper())
+        return Fix(
+            edits=[edit],
+            message=f"Replace '{name}' with '{name.upper()}'",
+            applicability=FixApplicability.SAFE,
+        )
 
 
 class KeywordNameIsEmptyRule(Rule):
@@ -911,7 +1034,7 @@ class MixedTaskTestSettingsRule(Rule):
             )
 
 
-class WrongCaseInKeywordCallRule(Rule):
+class WrongCaseInKeywordCallRule(FixableRule):
     r"""
     Keyword call name does not follow case convention.
 
@@ -948,6 +1071,10 @@ class WrongCaseInKeywordCallRule(Rule):
 
     See the sibling rule [wrong-case-in-keyword-name](#name02-wrong-case-in-keyword-name) that checks keyword definition
     naming convention.
+
+    Keyword names are case-insensitive in Robot Framework, so the name can be capitalized automatically with the
+    ``--fix`` option. The optional library name prefix is not modified. Names matching the configured ``pattern``
+    are reported, but not fixed.
     """
 
     name = "wrong-case-in-keyword-call"
@@ -973,9 +1100,14 @@ class WrongCaseInKeywordCallRule(Rule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.IDENTIFIABLE, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
+    fix_availability = FixAvailability.SOMETIMES
 
     def check(self, node: Node, keyword_name: str, normalized: str) -> None:
         report_wrong_case_in_keyword(self, node, keyword_name, normalized)
+
+    def fix(self, diag: Diagnostic, source_lines: list[str]) -> Fix | None:
+        """Capitalize the keyword call name according to the configured convention."""
+        return wrong_case_in_keyword_fix(self, diag, source_lines, is_keyword_call=True)
 
 
 SET_VARIABLE_VARIANTS = {

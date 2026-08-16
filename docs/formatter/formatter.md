@@ -144,7 +144,6 @@ To see the list of formatters included with `Robocop` use ``robocop list formatt
 │ ReplaceBreakContinue       │ Yes     │
 │ InlineIf                   │ Yes     │
 │ Translate                  │ No      │
-│ NormalizeComments          │ Yes     │
 └────────────────────────────┴─────────┘
 To see detailed docs run:
     robocop docs formatter_name

@@ -1,0 +1,14 @@
+actual_fixed${/}fix_duplicated_tags.robot:22:51 TAG09 Multiple tags with name 'tag' (first occurrence at line 22 column 33)
+    |
+ 20 | *** Keywords ***
+ 21 | Duplicated Tags In Documentation
+ 22 |     [Documentation]    Tags:    tag,    other,    tag
+    |                                                   ^^^ TAG09
+ 23 |     Step
+    |
+
+Fixed 7 issues:
+- actual_fixed${/}fix_duplicated_tags.robot:
+    7 x TAG09 (duplicated-tags)
+
+Found 8 issues (7 fixed, 1 remaining).

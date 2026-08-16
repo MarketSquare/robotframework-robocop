@@ -5,13 +5,18 @@ from typing import TYPE_CHECKING
 from robot.api import Token
 
 from robocop.linter import sonar_qube
-from robocop.linter.rules import Rule, RuleParam, RuleSeverity
+from robocop.linter.fix import Fix, FixApplicability, FixAvailability, TextEdit
+from robocop.linter.rules import FixableRule, Rule, RuleParam, RuleSeverity
 from robocop.linter.utils import misc as utils
 from robocop.version_handling import TYPE_SUPPORTED
 
 if TYPE_CHECKING:
-    from robot.parsing.model.statements import Node, Var, Variable
+    from robot.parsing.model.statements import Node, Statement, Var, Variable
     from robot.variables.search import SearchResult
+
+    from robocop.linter.diagnostics import Diagnostic
+
+EMPTY_VALUE_SEPARATOR = "    "
 
 RESERVED_VARIABLES = {
     "testname": "${TEST_NAME}",
@@ -56,7 +61,7 @@ def report_non_local_scope(rule: Rule, node: Node) -> None:
     )
 
 
-class EmptyVariableRule(Rule):
+class EmptyVariableRule(FixableRule):
     r"""
     Variable without value.
 
@@ -98,6 +103,10 @@ class EmptyVariableRule(Rule):
     You can configure ``empty-variable`` rule to run only in ```*** Variables ***``` section or on
     ``VAR`` statements using ``variable_source`` parameter.
 
+    The fix adds the explicit empty value, using the variable type to select it: ``${EMPTY}`` for scalars,
+    ``@{EMPTY}`` for lists and ``&{EMPTY}`` for dictionaries. Empty values in a list and the ``\`` values are
+    always replaced with ``${EMPTY}``.
+
     """
 
     name = "empty-variable"
@@ -118,6 +127,7 @@ class EmptyVariableRule(Rule):
         clean_code=sonar_qube.CleanCodeAttribute.COMPLETE, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
     deprecated_names = ("0912",)
+    fix_availability = FixAvailability.ALWAYS
 
     def check_variable(self, node: Variable) -> None:
         """Check variable defined in the ``*** Variables ***`` section."""
@@ -127,7 +137,7 @@ class EmptyVariableRule(Rule):
             self.report(node=node, end_col=node.end_col_offset)
         for token in node.get_tokens(Token.ARGUMENT):
             if not token.value or token.value == "\\":
-                self.report(node=token, lineno=token.lineno, col=1, end_col=token.end_col_offset + 1)
+                self.report(node=node, lineno=token.lineno, col=1, end_col=token.end_col_offset + 1)
 
     def check_var(self, node: Var) -> None:
         """Check variable defined with the ``VAR`` syntax."""
@@ -136,18 +146,64 @@ class EmptyVariableRule(Rule):
         if not node.value:  # catch variable declaration without any value
             first_data = node.data_tokens[0]
             self.report(
-                node=first_data,
+                node=node,
                 col=first_data.col_offset + 1,
                 end_col=first_data.end_col_offset + 1,
             )
         for token in node.get_tokens(Token.ARGUMENT):
             if not token.value or token.value == "\\":
                 self.report(
-                    node=token,
+                    node=node,
                     lineno=token.lineno,
                     col=token.col_offset + 1,
                     end_col=token.end_col_offset + 1,
                 )
+
+    @staticmethod
+    def _find_empty_value(node: Statement, diag: Diagnostic) -> Token | None:
+        """Find the empty argument token reported by the diagnostic using its end position."""
+        return next(
+            (
+                token
+                for token in node.get_tokens(Token.ARGUMENT)
+                if (not token.value or token.value == "\\")
+                and token.lineno == diag.range.start.line
+                and token.end_col_offset + 1 == diag.range.end.character
+            ),
+            None,
+        )
+
+    def fix(self, diag: Diagnostic, source_lines: list[str]) -> Fix | None:  # noqa: ARG002
+        """Replace the empty value with the explicit ``${EMPTY}`` variable."""
+        node = diag.node
+        if node is None:
+            return None
+        empty_value = self._find_empty_value(node, diag)
+        if empty_value is not None:
+            # empty values are zero-width tokens and require the separator, the backslash is replaced in place
+            start_col = empty_value.col_offset + 1
+            end_col = empty_value.end_col_offset + 1
+            separator = "" if empty_value.value else EMPTY_VALUE_SEPARATOR
+            replacement = f"{separator}${{EMPTY}}"
+            message = "Replace the empty value with ${EMPTY}"
+        else:
+            name = node.get_token(Token.VARIABLE)
+            if name is None or not name.value:
+                return None
+            start_col = end_col = name.end_col_offset + 1
+            replacement = f"{EMPTY_VALUE_SEPARATOR}{name.value[0]}{{EMPTY}}"
+            message = f"Add the explicit {name.value[0]}{{EMPTY}} value"
+            empty_value = name
+        edit = TextEdit(
+            rule_id=self.rule_id,
+            rule_name=self.name,
+            start_line=empty_value.lineno,
+            start_col=start_col,
+            end_line=empty_value.lineno,
+            end_col=end_col,
+            replacement=replacement,
+        )
+        return Fix(edits=[edit], message=message, applicability=FixApplicability.SAFE)
 
 
 class UnusedVariableRule(Rule):

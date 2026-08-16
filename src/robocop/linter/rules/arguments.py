@@ -67,7 +67,7 @@ class ArgumentOverwrittenBeforeUsageRule(Rule):
     deprecated_names = ("0921",)
 
 
-class UndefinedArgumentDefaultRule(Rule):
+class UndefinedArgumentDefaultRule(FixableRule):
     """
     Keyword arguments can define a default value. Every time you call the keyword, you can
     optionally overwrite this default.
@@ -84,6 +84,8 @@ class UndefinedArgumentDefaultRule(Rule):
         My Amazing Keyword
             [Arguments]    ${argument_name}=
 
+    The fix adds the explicit ``${EMPTY}`` default value.
+
     """
 
     name = "undefined-argument-default"
@@ -95,6 +97,7 @@ class UndefinedArgumentDefaultRule(Rule):
         clean_code=sonar_qube.CleanCodeAttribute.CLEAR, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
     deprecated_names = ("0932",)
+    fix_availability = FixAvailability.ALWAYS
 
     def check(self, node: Arguments) -> None:
         if not self.enabled:
@@ -112,6 +115,25 @@ class UndefinedArgumentDefaultRule(Rule):
                     end_col=token.col_offset + len(token.value) + 1,
                     arg_name=arg_name,
                 )
+
+    def fix(self, diag: Diagnostic, source_lines: list[str]) -> Fix | None:  # noqa: ARG002
+        """Add the explicit ``${EMPTY}`` default value after the ``=`` sign."""
+        column = diag.range.end.character
+        edit = TextEdit(
+            rule_id=self.rule_id,
+            rule_name=self.name,
+            start_line=diag.range.start.line,
+            start_col=column,
+            end_line=diag.range.start.line,
+            end_col=column,
+            replacement="${EMPTY}",
+        )
+        arg_name = diag.reported_arguments["arg_name"]
+        return Fix(
+            edits=[edit],
+            message=f"Add the explicit ${{EMPTY}} default value to the '{arg_name}' argument",
+            applicability=FixApplicability.SAFE,
+        )
 
 
 class UndefinedArgumentValueRule(Rule):

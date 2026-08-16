@@ -1,0 +1,21 @@
+actual_fixed${/}fix_disablers.robot:18:21 MISC15 Disabler directive found for 'NAME01' rule(s) but no violation found
+    |
+ 16 |
+ 17 | Not Fixed - Text In The Comment
+ 18 |     No Operation  # robocop: off=NAME01  some-text robocop: off=some-rule
+    |                     ^^^^^^^^^^^^^^^^^^^ MISC15
+    |
+
+actual_fixed${/}fix_disablers.robot:21:21 MISC15 Disabler directive found for 'NAME01' rule(s) but no violation found
+    |
+ 19 |
+ 20 | Not Fixed - Text After Directive
+ 21 |     No Operation  # robocop: off=NAME01 and some text
+    |                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ MISC15
+    |
+
+Fixed 8 issues:
+- actual_fixed${/}fix_disablers.robot:
+    8 x MISC15 (unused-disabler)
+
+Found 10 issues (8 fixed, 2 remaining).

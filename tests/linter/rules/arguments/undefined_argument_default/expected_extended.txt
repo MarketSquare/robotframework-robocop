@@ -45,3 +45,4 @@ test.robot:35:27 ARG03 Undefined argument default, use ${bar}=${EMPTY} instead
     |
 
 Found 5 issues.
+5 fixable with the '--fix' option.

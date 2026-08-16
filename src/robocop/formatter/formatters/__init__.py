@@ -46,7 +46,6 @@ FORMATTERS = [
     "NormalizeSeparators",
     "DiscardEmptySections",
     "MergeAndOrderSections",
-    "ReplaceEmptyValues",
     "ReplaceWithVAR",
     "NormalizeAssignments",
     "GenerateDocumentation",

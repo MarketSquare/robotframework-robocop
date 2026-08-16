@@ -98,7 +98,7 @@ class DuplicatedKeywordRule(Rule):
     deprecated_names = ("0802",)
 
 
-class DuplicatedVariableRule(Rule):
+class DuplicatedVariableRule(FixableRule):
     """
     Multiple variables with the same name in the file.
 
@@ -112,6 +112,9 @@ class DuplicatedVariableRule(Rule):
         ${v ariabl e}  c
         ${v_ariable}   d
 
+    Only the first definition is used by Robot Framework, so the duplicated definitions can be safely removed
+    with the ``--fix`` option.
+
     """
 
     name = "duplicated-variable"
@@ -121,10 +124,17 @@ class DuplicatedVariableRule(Rule):
     )
     severity = RuleSeverity.ERROR
     added_in_version = "1.0.0"
+    fix_availability = FixAvailability.ALWAYS
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.DISTINCT, issue_type=sonar_qube.SonarQubeIssueType.BUG
     )
     deprecated_names = ("0803",)
+
+    def fix(self, diag: Diagnostic, source_lines: list[str]) -> Fix | None:
+        """Remove the duplicated, and therefore ignored, variable definition."""
+        if diag.node is None:
+            return None
+        return remove_statement_fix(self, diag.node, source_lines, "Remove the duplicated variable")
 
 
 class DuplicatedResourceRule(DuplicatedImportRule):

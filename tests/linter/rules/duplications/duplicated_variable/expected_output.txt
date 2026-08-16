@@ -2,3 +2,4 @@ test.robot:8:1 [E] DUP03 Multiple variables with name '${V AR}' in Variables sec
 test.robot:9:1 [E] DUP03 Multiple variables with name '${other_var}' in Variables section (first occurrence in line 7)
 
 Found 2 issues.
+2 fixable with the '--fix' option.

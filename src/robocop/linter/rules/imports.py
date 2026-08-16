@@ -5,13 +5,39 @@ from typing import TYPE_CHECKING
 from robot.api import Token
 
 from robocop.linter import sonar_qube
-from robocop.linter.rules import Rule, RuleSeverity
+from robocop.linter.fix import Fix, FixApplicability, FixAvailability, TextEdit
+from robocop.linter.rules import FixableRule, Rule, RuleSeverity
 
 if TYPE_CHECKING:
     from robot.parsing.model.statements import LibraryImport, ResourceImport
 
+    from robocop.linter.diagnostics import Diagnostic
 
-class WrongImportOrderRule(Rule):
+
+def move_import_fix(rule: Rule, diag: Diagnostic, source_lines: list[str], message: str) -> Fix | None:
+    """
+    Create a fix that moves the reported import before the import it should be placed before.
+
+    Whole affected region is replaced with a single edit to make sure the import is never duplicated,
+    even if other imports from the same file are reported at the same time.
+    """
+    node = diag.node
+    target_lineno = diag.reported_arguments.get("target_lineno")
+    if node is None or not isinstance(target_lineno, int) or not 0 < target_lineno < node.lineno:
+        return None
+    moved = source_lines[node.lineno - 1 : node.end_lineno]
+    preceding = source_lines[target_lineno - 1 : node.lineno - 1]
+    if not moved:
+        return None
+    ends_with_newline = moved[-1].endswith("\n")
+    replacement = "".join(line if line.endswith("\n") else f"{line}\n" for line in moved + preceding)
+    if not ends_with_newline:
+        replacement = replacement[:-1]
+    edit = TextEdit.replace_lines(rule.rule_id, rule.name, target_lineno, node.end_lineno, replacement)
+    return Fix(edits=[edit], message=message, applicability=FixApplicability.SAFE)
+
+
+class WrongImportOrderRule(FixableRule):
     """
     Built-in imports placed after custom imports.
 
@@ -25,6 +51,8 @@ class WrongImportOrderRule(Rule):
         Library    CustomLibrary
         Library    OperatingSystem  # BuiltIn library defined after custom CustomLibrary
 
+    The import can be moved before the first custom import automatically with the ``--fix`` option.
+
     """
 
     name = "wrong-import-order"
@@ -32,6 +60,7 @@ class WrongImportOrderRule(Rule):
     message = "BuiltIn library import '{builtin_import}' should be placed before '{custom_import}'"
     severity = RuleSeverity.WARNING
     added_in_version = "1.7.0"
+    fix_availability = FixAvailability.ALWAYS
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.CONVENTIONAL, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
@@ -42,13 +71,21 @@ class WrongImportOrderRule(Rule):
         self.report(
             builtin_import=node.name,
             custom_import=custom_import.name,
+            target_lineno=custom_import.lineno,
             node=node,
             col=lib_name.col_offset + 1,
             end_col=lib_name.end_col_offset + 1,
         )
 
+    def fix(self, diag: Diagnostic, source_lines: list[str]) -> Fix | None:
+        """Move the BuiltIn library import before the first custom library import."""
+        custom_import = diag.reported_arguments["custom_import"]
+        return move_import_fix(
+            self, diag, source_lines, f"Move '{diag.reported_arguments['builtin_import']}' before '{custom_import}'"
+        )
 
-class BuiltinImportsNotSortedRule(Rule):
+
+class BuiltinImportsNotSortedRule(FixableRule):
     """
     Built-in imports are not sorted in alphabetical order.
 
@@ -60,6 +97,8 @@ class BuiltinImportsNotSortedRule(Rule):
         Library    OperatingSystem
         Library    Collections  # BuiltIn libraries imported not in alphabetical order
 
+    The imports can be sorted automatically with the ``--fix`` option.
+
     """
 
     name = "builtin-imports-not-sorted"
@@ -67,6 +106,7 @@ class BuiltinImportsNotSortedRule(Rule):
     message = "BuiltIn library import '{builtin_import}' should be placed before '{previous_builtin_import}'"
     severity = RuleSeverity.WARNING
     added_in_version = "5.2.0"
+    fix_availability = FixAvailability.ALWAYS
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.CONVENTIONAL, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
@@ -79,9 +119,17 @@ class BuiltinImportsNotSortedRule(Rule):
         self.report(
             builtin_import=node.name,
             previous_builtin_import=previous.name,
+            target_lineno=previous.lineno,
             node=node,
             col=lib_name.col_offset + 1,
             end_col=lib_name.end_col_offset + 1,
+        )
+
+    def fix(self, diag: Diagnostic, source_lines: list[str]) -> Fix | None:
+        """Move the BuiltIn library import before the previous, not sorted BuiltIn library import."""
+        previous = diag.reported_arguments["previous_builtin_import"]
+        return move_import_fix(
+            self, diag, source_lines, f"Move '{diag.reported_arguments['builtin_import']}' before '{previous}'"
         )
 
 

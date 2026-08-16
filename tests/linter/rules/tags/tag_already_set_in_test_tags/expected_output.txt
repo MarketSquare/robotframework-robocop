@@ -1,3 +1,4 @@
 test.robot:9:13 [I] TAG06 Tag 'sometag' is already set by Force Tags in suite settings
 
 Found 1 issue.
+1 fixable with the '--fix' option.

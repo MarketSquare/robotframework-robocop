@@ -1,0 +1,5 @@
+Fixed 18 issues:
+- actual_fixed${/}test.robot:
+    18 x VAR01 (empty-variable)
+
+Found 18 issues (18 fixed, 0 remaining).

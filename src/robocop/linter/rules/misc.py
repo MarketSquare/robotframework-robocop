@@ -27,7 +27,9 @@ except ImportError:
     Var = None
 
 from robocop.linter import sonar_qube
+from robocop.linter.fix import FixAvailability, remove_statement_fix
 from robocop.linter.rules import (
+    FixableRule,
     Rule,
     RuleParam,
     RuleSeverity,
@@ -39,6 +41,9 @@ if TYPE_CHECKING:
     from robot.parsing.model import File
     from robot.parsing.model.blocks import Block, If, VariableSection
     from robot.parsing.model.statements import Error, Node
+
+    from robocop.linter.diagnostics import Diagnostic
+    from robocop.linter.fix import Fix
 
 
 FOR_LOOP_KEYWORDS = frozenset(
@@ -156,7 +161,7 @@ class KeywordAfterReturnRule(Rule):
             )
 
 
-class EmptyReturnRule(Rule):
+class EmptyReturnRule(FixableRule):
     """
     ``[Return]`` is empty.
 
@@ -178,6 +183,8 @@ class EmptyReturnRule(Rule):
             Gather Results
             Assert Results
 
+    The fix removes the empty ``[Return]`` setting. Comments are not removed.
+
     """
 
     name = "empty-return"
@@ -190,6 +197,7 @@ class EmptyReturnRule(Rule):
         issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL,
     )
     deprecated_names = ("0903",)
+    fix_availability = FixAvailability.ALWAYS
 
     def check(self, node: Block) -> None:
         """Report ``[Return]`` settings that do not return any value."""
@@ -203,6 +211,12 @@ class EmptyReturnRule(Rule):
                     col=token.col_offset + 1,
                     end_col=token.col_offset + len(token.value),
                 )
+
+    def fix(self, diag: Diagnostic, source_lines: list[str]) -> Fix | None:
+        """Remove the empty ``[Return]`` setting."""
+        if diag.node is None:
+            return None
+        return remove_statement_fix(self, diag.node, source_lines, "Remove empty '[Return]' setting")
 
 
 class NestedForLoopRule(Rule):

@@ -1,0 +1,5 @@
+Fixed 35 issues:
+- actual_fixed${/}test.robot:
+    35 x COM02 (missing-space-after-comment)
+
+Found 35 issues (35 fixed, 0 remaining).

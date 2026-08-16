@@ -1,0 +1,18 @@
+actual_fixed${/}language_header_in_second_line.robot:1:1 COM04 Ignored data found in file
+   |
+ 1 |
+   | ^ COM04
+ 2 | language: pl
+   |
+
+Fixed 4 issues:
+- actual_fixed${/}bom_and_two_ignored_lines.robot:
+    1 x COM04 (ignored-data)
+- actual_fixed${/}language_header_and_other.robot:
+    1 x COM04 (ignored-data)
+- actual_fixed${/}with_ignored_data.robot:
+    1 x COM04 (ignored-data)
+- actual_fixed${/}with_ignored_rule_and_data.robot:
+    1 x COM04 (ignored-data)
+
+Found 5 issues (4 fixed, 1 remaining).

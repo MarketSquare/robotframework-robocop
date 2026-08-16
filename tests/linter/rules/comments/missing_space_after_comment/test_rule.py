@@ -14,3 +14,6 @@ class TestRuleAcceptance(RuleAcceptance):
             src_files=["block.robot"],
             expected_file="expected_output_block.txt",
         )
+
+    def test_fix(self):
+        self.check_rule_fix(src_files=["test.robot"])

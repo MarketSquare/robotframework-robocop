@@ -13,6 +13,7 @@ from typing import TYPE_CHECKING
 
 from robot.errors import DataError
 
+from robocop.files import resolve_path
 from robocop.linter.utils.misc import normalize_robot_name
 from robocop.project.collector import ProjectFileCollector
 from robocop.project.definitions import ImportStatus, ImportType, KeywordDefinition
@@ -50,6 +51,11 @@ class ProjectFile:
     @property
     def path(self) -> Path:
         return self.source_file.path
+
+    @property
+    def resolved_path(self) -> Path:
+        """Resolved path of the file, computed once per source file."""
+        return self.source_file.resolved_path
 
     @property
     def is_suite(self) -> bool:
@@ -171,7 +177,7 @@ class ProjectContext:
             ProjectFile or None if the path is not part of the project.
 
         """
-        return self.files.get(path.resolve())
+        return self.files.get(resolve_path(path))
 
     def imported_files(self, path: Path) -> list[ProjectFile]:
         """
@@ -188,15 +194,15 @@ class ProjectContext:
         if start is None:
             return []
         visible = [start]
-        seen = {start.path.resolve()}
+        seen = {start.resolved_path}
         queue = [start]
         while queue:
             current = queue.pop()
             for imported in current.resource_imports():
                 if imported.status != ImportStatus.RESOLVED or imported.path is None:
                     continue
-                resolved_path = imported.path.resolve()
-                if resolved_path in seen:
+                resolved_path = imported.resolved_path
+                if resolved_path is None or resolved_path in seen:
                     continue
                 imported_file = self.files.get(resolved_path)
                 if imported_file is None:
@@ -218,13 +224,13 @@ class ProjectContext:
             KeywordIndex with keywords visible from the file.
 
         """
-        resolved = path.resolve()
+        resolved = resolve_path(path)
         cached = self._visible_keywords.get(resolved)
         if cached is not None:
             return cached
         index = KeywordIndex()
         for project_file in self.imported_files(path):
-            is_own_file = project_file.path.resolve() == resolved
+            is_own_file = project_file.resolved_path == resolved
             for keyword in project_file.keywords:
                 if keyword.is_private and not is_own_file:
                     continue
@@ -247,7 +253,7 @@ class ProjectContext:
         """
         if self.library_loader is None:
             return []
-        resolved = project_file.path.resolve()
+        resolved = project_file.resolved_path
         cached = self._library_keywords.get(resolved)
         if cached is not None:
             return cached
@@ -390,7 +396,7 @@ def build_project_context(config_manager: ConfigManager, silent: bool = False) -
             if not silent:
                 print(f"Failed to parse {source_file.path} with an error: {error}. Skipping file")
             continue
-        context.files[source_file.path.resolve()] = ProjectFile(source_file=source_file, collected=collected)
+        context.files[source_file.resolved_path] = ProjectFile(source_file=source_file, collected=collected)
 
     for project_file in context.files.values():
         scope = global_scope.copy_for(project_file.path)

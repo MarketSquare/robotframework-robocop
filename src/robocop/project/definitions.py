@@ -11,6 +11,7 @@ from robot.errors import DataError
 from robot.running.arguments import EmbeddedArguments, UserKeywordArgumentParser
 from robot.variables.search import search_variable
 
+from robocop.files import resolve_path
 from robocop.linter.utils.misc import normalize_robot_name
 from robocop.version_handling import ROBOT_VERSION
 
@@ -415,6 +416,16 @@ class ResolvedImport:
     """Name the library was imported with (``AS`` / ``WITH NAME``)."""
     args_resolved: bool = True
     """Whether all variables used in the import arguments could be resolved."""
+    _resolved_path: Path | None = field(default=None, repr=False, compare=False)
+
+    @property
+    def resolved_path(self) -> Path | None:
+        """Resolved path the import points to, computed once per import."""
+        if self.path is None:
+            return None
+        if self._resolved_path is None:
+            self._resolved_path = resolve_path(self.path)
+        return self._resolved_path
 
     @property
     def is_resolved(self) -> bool:

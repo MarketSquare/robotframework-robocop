@@ -1,4 +1,4 @@
 *** Settings ***
-Documentation       Documentation with extra
+Documentation    Documentation with extra
 ...
-...                 spaces
+...              spaces

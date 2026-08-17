@@ -1,6 +1,6 @@
 *** Variables ***
-${VARIABLE}             1
-...                     2
+${VARIABLE}            1
+...                    2
 ...
-...                     3
-${OTHER_AND_LONGER}     a
+...                    3
+${OTHER_AND_LONGER}    a

@@ -180,7 +180,6 @@ class ColumnWidthCounter(ModelVisitor):  # type: ignore[misc]
         self.generic_visit(node)
         if not self.header_with_cols and not self.any_one_line_test and self.widths:
             self.widths[0] = 0
-        self.widths = [misc.round_to_four(length) for length in self.widths]
 
     def visit_TestCase(self, node: TestCase) -> None:  # noqa: N802
         for statement in node.body:

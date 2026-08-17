@@ -146,5 +146,5 @@ class AlignVariablesSection(Formatter):
             min_for_token = length + self.formatting_config.space_count
             if self.min_width:
                 min_for_token = max(min_for_token, self.min_width)
-            look_up[index] = misc.round_to_four(min_for_token)
+            look_up[index] = min_for_token
         return look_up

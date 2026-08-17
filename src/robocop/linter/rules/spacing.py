@@ -9,10 +9,10 @@ from typing import TYPE_CHECKING, ClassVar
 
 from robot.api import Token
 from robot.parsing.model.blocks import TestCase
-from robot.parsing.model.statements import Comment, EmptyLine
+from robot.parsing.model.statements import Comment, EmptyLine, TemplateArguments
 
 from robocop.linter import sonar_qube
-from robocop.linter.fix import Fix, FixApplicability, FixAvailability, TextEdit
+from robocop.linter.fix import Fix, FixApplicability, FixAvailability, TextEdit, remove_lines_fix
 from robocop.linter.rules import (
     FixableRule,
     Rule,
@@ -839,6 +839,87 @@ class FirstArgumentInNewLineRule(Rule):
                         end_col=token.end_col_offset,
                     )
                 return
+
+
+class EmptyLineInTestTemplateRule(FixableRule):
+    """
+    Empty line in test template data.
+
+    Robot Framework ignores empty lines between data rows in templated tests. Remove these lines so that the test data
+    does not contain rows that have no effect.
+
+    Incorrect code example:
+
+        *** Test Cases ***
+        Example
+            [Template]    Template Keyword
+            first argument
+
+            second argument
+
+    Correct code:
+
+        *** Test Cases ***
+        Example
+            [Template]    Template Keyword
+            first argument
+            second argument
+
+    The rule reports only empty lines between consecutive template data rows, including rows nested in control
+    structures. Blank lines next to settings or comments and blank lines separating test cases are preserved.
+
+    The fix removes the ignored empty line.
+    """
+
+    name = "empty-line-in-test-template"
+    rule_id = "SPC23"
+    message = "Empty line in test template data"
+    severity = RuleSeverity.WARNING
+    version = ">=5.0"
+    added_in_version = "9.0.0"
+    fix_availability = FixAvailability.ALWAYS
+    sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
+        clean_code=sonar_qube.CleanCodeAttribute.FORMATTED, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
+    )
+
+    def check(self, node: TestCase) -> None:
+        if not self.enabled:
+            return
+        self.check_body(node.body)
+
+    def check_body(self, body: list[Node]) -> None:
+        empty_lines: list[EmptyLine] = []
+        template_data_row_seen = False
+        for statement in body:
+            if isinstance(statement, TemplateArguments):
+                if template_data_row_seen:
+                    for empty_line in empty_lines:
+                        self.report(node=empty_line, col=1)
+                template_data_row_seen = True
+                empty_lines = []
+            elif isinstance(statement, EmptyLine) and template_data_row_seen:
+                empty_lines.append(statement)
+            else:
+                template_data_row_seen = False
+                empty_lines = []
+            nested_body = getattr(statement, "body", None)
+            if nested_body is not None:
+                self.check_body(nested_body)
+            for branch_attr in ("orelse", "next"):
+                branch = getattr(statement, branch_attr, None)
+                while branch is not None:
+                    self.check_body(branch.body)
+                    branch = getattr(branch, branch_attr, None)
+
+    def fix(self, diag: Diagnostic, source_lines: list[str]) -> Fix | None:  # noqa: ARG002
+        if diag.node is None:
+            return None
+        return remove_lines_fix(
+            self,
+            start_line=diag.node.lineno,
+            end_line=diag.node.end_lineno,
+            message="Remove the ignored empty line",
+        )
 
 
 def get_indent(node: Node) -> int:

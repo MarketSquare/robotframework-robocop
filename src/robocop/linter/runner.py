@@ -10,6 +10,7 @@ from robot.errors import DataError
 
 from robocop import exceptions
 from robocop.cache import restore_diagnostics
+from robocop.files import resolve_path
 from robocop.linter import reports
 from robocop.linter.diagnostics import Diagnostics, RunStatistic
 from robocop.linter.fix import FixApplier
@@ -111,7 +112,7 @@ class RobocopLinter:
         for source_file in self.config_manager.paths:
             if source_file.config.verbose:
                 print(f"Scanning file: {source_file.path}")
-            checked_paths.add(source_file.path.resolve())
+            checked_paths.add(source_file.resolved_path)
             diagnostics = self.get_cached_diagnostics(source_file.config, source_file.path)
             if diagnostics is not None:
                 no_fixables = all(not diag.rule.fixable for diag in diagnostics)
@@ -296,17 +297,17 @@ class RobocopLinter:
         for diagnostic in diagnostics:
             if not diagnostic.rule.fixable:
                 continue
-            if checked_paths is not None and diagnostic.source.path.resolve() not in checked_paths:
+            if checked_paths is not None and diagnostic.source.resolved_path not in checked_paths:
                 continue
             diag_by_source[diagnostic.source.path].append(diagnostic)
         if not diag_by_source:
             return False
-        modified_files = {source_file.path.resolve(): source_file for source_file in fix_applier.modified_files}
-        project_files = {source_file.path.resolve(): source_file for source_file in self.config_manager.project_paths}
+        modified_files = {source_file.resolved_path: source_file for source_file in fix_applier.modified_files}
+        project_files = {source_file.resolved_path: source_file for source_file in self.config_manager.project_paths}
         fixed = False
         for path, source_diagnostics in diag_by_source.items():
             # reuse source file already parsed for the project context, so that the next scan sees fixed model
-            resolved_path = path.resolve()
+            resolved_path = resolve_path(path)
             source_file = modified_files.get(resolved_path) or project_files.get(resolved_path)
             if source_file is None:
                 source_file = source_diagnostics[0].source

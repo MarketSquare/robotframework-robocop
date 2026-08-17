@@ -2,11 +2,12 @@
 
 from __future__ import annotations
 
+import os
 import re
 from collections import deque
 from typing import TYPE_CHECKING
 
-from robocop.files import path_relative_to_cwd
+from robocop.files import path_relative_to_cwd, resolve_path
 from robocop.linter.rules import ProjectChecker, imports
 from robocop.project.context import KeywordIndex
 from robocop.project.definitions import ImportStatus, ImportType
@@ -144,12 +145,13 @@ class UnusedImportsChecker(ProjectChecker):
         if any(consumer.has_dynamic_keyword_calls for consumer in consumers):
             return
         used_keywords, used_variables = _collect_usage(consumers)
-        own_path = project_file.path.resolve()
+        own_path = project_file.resolved_path
         for imported in project_file.resource_imports():
-            if imported.status != ImportStatus.RESOLVED or imported.path is None:
+            imported_path = imported.resolved_path
+            if imported.status != ImportStatus.RESOLVED or imported_path is None:
                 continue
-            resource = context.files.get(imported.path.resolve())
-            if resource is None or resource.path.resolve() == own_path:
+            resource = context.files.get(imported_path)
+            if resource is None or resource.resolved_path == own_path:
                 continue
             if _is_used(resource, context, used_keywords, used_variables):
                 continue
@@ -207,13 +209,14 @@ class UnusedImportsChecker(ProjectChecker):
 
         """
         if project_file.collected.is_init_file:
-            directory = project_file.path.parent.resolve()
-            return [other for other in context.iter_files() if directory in other.path.resolve().parents]
+            # comparing string prefixes is much faster than Path.is_relative_to, which walks all parents
+            directory = f"{resolve_path(project_file.path.parent)}{os.sep}"
+            return [other for other in context.iter_files() if str(other.resolved_path).startswith(directory)]
         if project_file.is_suite:
             return [project_file]
         if self._importers is None:
             self._importers = _build_importers(context)
-        return self._importers.get(project_file.path.resolve(), [project_file])
+        return self._importers.get(project_file.resolved_path, [project_file])
 
 
 class CircularImports(ProjectChecker):
@@ -229,11 +232,11 @@ class CircularImports(ProjectChecker):
     ) -> list[Diagnostic]:
         self.issues = []
         for project_file in context.iter_files():
-            own_path = project_file.path.resolve()
+            own_path = project_file.resolved_path
             for imported in project_file.resource_imports():
                 if imported.status != ImportStatus.RESOLVED or imported.path is None:
                     continue
-                imported_path = imported.path.resolve()
+                imported_path = imported.resolved_path
                 if imported_path not in context.files:
                     continue
                 cycle = _path_back_to(context, imported_path, own_path)
@@ -271,10 +274,10 @@ def _path_back_to(context: ProjectContext, start: Path, target: Path) -> list[Pa
         for imported in project_file.resource_imports():
             if imported.status != ImportStatus.RESOLVED or imported.path is None:
                 continue
-            next_path = imported.path.resolve()
+            next_path = imported.resolved_path
             if next_path == target:
                 return [*chain, next_path]
-            if next_path in seen or next_path not in context.files:
+            if next_path is None or next_path in seen or next_path not in context.files:
                 continue
             seen.add(next_path)
             queue.append((next_path, [*chain, next_path]))
@@ -292,7 +295,7 @@ def _build_importers(context: ProjectContext) -> dict[Path, list[ProjectFile]]:
     importers: dict[Path, list[ProjectFile]] = {}
     for project_file in context.iter_files():
         for visible in context.imported_files(project_file.path):
-            importers.setdefault(visible.path.resolve(), []).append(project_file)
+            importers.setdefault(visible.resolved_path, []).append(project_file)
     return importers
 
 

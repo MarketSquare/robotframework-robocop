@@ -11,7 +11,7 @@ try:
 except ImportError:
     Languages = None
 
-from robocop.files import path_relative_to_cwd
+from robocop.files import path_relative_to_cwd, resolve_path
 from robocop.version_handling import LANG_SUPPORTED
 
 if TYPE_CHECKING:
@@ -45,6 +45,14 @@ class SourceFile:
     _model: File | None = None
     _source_lines: list[str] | None = None
     _original_source_lines: list[str] | None = None
+    _resolved_path: Path | None = None
+
+    @property
+    def resolved_path(self) -> Path:
+        """Resolved path of the file, computed once per source file."""
+        if self._resolved_path is None:
+            self._resolved_path = resolve_path(self.path)
+        return self._resolved_path
 
     @property
     def relative_path(self) -> Path:

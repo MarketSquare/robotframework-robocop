@@ -119,7 +119,7 @@ class KeywordNotFound(ProjectChecker):
             True if every import of the file and of its resources was resolved and loaded.
 
         """
-        resolved = project_file.path.resolve()
+        resolved = project_file.resolved_path
         cached = cache.get(resolved)
         if cached is not None:
             return cached
@@ -160,7 +160,7 @@ class KeywordNotFound(ProjectChecker):
         if imported.status not in (ImportStatus.RESOLVED, ImportStatus.EXTERNAL):
             return False
         if imported.import_type == ImportType.RESOURCE:
-            return imported.path is not None and imported.path.resolve() in context.files
+            return imported.resolved_path is not None and imported.resolved_path in context.files
         if not imported.args_resolved or context.library_loader is None:
             return False
         spec = context.library_loader.load_import(imported)
@@ -364,7 +364,7 @@ class UnusedKeywords(ProjectChecker):
         self.issues = []
         project_usages, file_usages = self._collect_usages(context)
         for project_file in context.iter_files():
-            private_usages = file_usages.get(project_file.path.resolve())
+            private_usages = file_usages.get(project_file.resolved_path)
             for keyword in project_file.keywords:
                 usages = private_usages if keyword.is_private else project_usages
                 if usages is not None and usages.uses(keyword):
@@ -399,9 +399,10 @@ class UnusedKeywords(ProjectChecker):
         """
         project_usages = UsedKeywordNames()
         file_usages: dict[Path, UsedKeywordNames] = {}
-        for project_file, keyword_usage in context.iter_usages():
-            per_file = file_usages.setdefault(project_file.path.resolve(), UsedKeywordNames())
-            for name in keyword_usage.names_to_check():
-                project_usages.add(name, keyword_usage.name_contains_variable)
-                per_file.add(name, keyword_usage.name_contains_variable)
+        for project_file in context.iter_files():
+            per_file = file_usages.setdefault(project_file.resolved_path, UsedKeywordNames())
+            for keyword_usage in project_file.usages:
+                for name in keyword_usage.names_to_check():
+                    project_usages.add(name, keyword_usage.name_contains_variable)
+                    per_file.add(name, keyword_usage.name_contains_variable)
         return project_usages, file_usages

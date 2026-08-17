@@ -66,6 +66,7 @@ class EmptyLinesChecker(VisitorChecker):
     empty_line_after_section: spacing.EmptyLineAfterSectionRule
     consecutive_empty_lines: spacing.ConsecutiveEmptyLinesRule
     empty_lines_in_statement: spacing.EmptyLinesInStatementRule
+    empty_line_in_test_template: spacing.EmptyLineInTestTemplateRule
 
     def verify_consecutive_empty_lines(
         self, lines: list[Node], check_leading: bool = True, check_trailing: bool = False
@@ -167,6 +168,10 @@ class EmptyLinesChecker(VisitorChecker):
     def visit_TestCaseSection(self, node: Node) -> None:  # noqa: N802
         allowed_lines = -1 if self.templated_suite else self.empty_lines_between_test_cases.empty_lines
         self.verify_empty_lines_between_nodes(node, TestCase, self.empty_lines_between_test_cases, allowed_lines)
+
+    def visit_TestCase(self, node: TestCase) -> None:  # noqa: N802
+        self.empty_line_in_test_template.check(node)
+        self.generic_visit(node)
 
     def visit_KeywordSection(self, node: Node) -> None:  # noqa: N802
         self.verify_empty_lines_between_nodes(

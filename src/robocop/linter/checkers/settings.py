@@ -8,7 +8,7 @@ from robot.api import Token
 from robot.libraries import STDLIBS
 from robot.parsing.model.blocks import SettingSection, TestCaseSection
 
-from robocop.linter.rules import VisitorChecker, deprecated, errors, imports, lengths, naming
+from robocop.linter.rules import VisitorChecker, deprecated, documentation, errors, imports, lengths, naming
 from robocop.version_handling import ROBOT_VERSION
 
 if TYPE_CHECKING:
@@ -37,6 +37,7 @@ class SettingsChecker(VisitorChecker):
 
     empty_metadata: lengths.EmptyMetadataRule
     empty_documentation: lengths.EmptyDocumentationRule
+    variable_in_documentation: documentation.VariableInDocumentationRule
     empty_force_tags: lengths.EmptyForceTagsRule
     empty_default_tags: lengths.EmptyDefaultTagsRule
     empty_keyword_tags: lengths.EmptyKeywordTagsRule
@@ -172,6 +173,7 @@ class SettingsChecker(VisitorChecker):
 
     def visit_Documentation(self, node: Statement) -> None:  # noqa: N802
         self.empty_documentation.check(node, self.parent_node_name)
+        self.variable_in_documentation.check(node)
         self.check_setting_name(node)
 
     def visit_ForceTags(self, node: Statement) -> None:  # noqa: N802

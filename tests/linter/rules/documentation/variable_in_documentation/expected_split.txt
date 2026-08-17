@@ -1,0 +1,12 @@
+split.robot:2:30:2:47 [I] DOC05 Unescaped variable '${cell    scalar}' in documentation
+split.robot:3:18:3:33 [I] DOC05 Unescaped variable '@{cell    list}' in documentation
+split.robot:4:24:4:45 [I] DOC05 Unescaped variable '&{cell    dictionary}' in documentation
+split.robot:5:25:5:39 [I] DOC05 Unescaped variable '%{CELL    ENV}' in documentation
+split.robot:6:19:7:15 [I] DOC05 Unescaped variable '${row\nscalar}' in documentation
+split.robot:8:17:9:13 [I] DOC05 Unescaped variable '@{row\nlist}' in documentation
+split.robot:10:23:11:19 [I] DOC05 Unescaped variable '&{row\ndictionary}' in documentation
+split.robot:12:24:13:12 [I] DOC05 Unescaped variable '%{ROW\nENV}' in documentation
+split.robot:26:35:26:42 [I] DOC05 Unescaped variable '${same}' in documentation
+split.robot:27:31:27:38 [I] DOC05 Unescaped variable '${same}' in documentation
+
+Found 10 issues.

@@ -33,6 +33,7 @@ SILENT = False
 PROJECT: bool | None = None  # None: run project checks only if any project rule is enabled
 ANALYZE_LIBRARIES = True
 LOAD_LIBRARY_TIMEOUT = 10
+LIBRARY_WORKERS = False
 
 # cache
 

@@ -2,8 +2,13 @@
 Importing Robot Framework libraries to find out what keywords they provide.
 
 Unlike the rest of the project analysis, which is based purely on the abstract syntax tree, loading a library
-**executes the library code**. That is why it only happens when project level rules are enabled, always in a
-separate process with a timeout, and can be disabled with the ``--no-analyze-libraries`` option.
+**executes the library code**. That is why it only happens when project level rules are enabled and can be disabled
+with the ``--no-analyze-libraries`` option.
+
+By default libraries are imported synchronously, in the Robocop process itself. With the ``--library-workers``
+option every library is instead imported in a separate process, several of them at the same time. Separate
+processes are slower to start, but they can be killed on timeout and they keep the imported code out of the
+Robocop process.
 
 Libraries that fail to import are not reported as an internal error. Such library simply provides no keywords, so
 rules using this information stay silent instead of reporting false positives.
@@ -11,11 +16,14 @@ rules using this information stay silent instead of reporting false positives.
 
 from __future__ import annotations
 
+import io
 import json
 import os
 import subprocess
 import sys
 import tempfile
+from concurrent.futures import ThreadPoolExecutor
+from contextlib import redirect_stdout
 from dataclasses import dataclass, field
 from fnmatch import fnmatch
 from functools import cache
@@ -34,6 +42,8 @@ if TYPE_CHECKING:
 
 WORKER_MODULE = "robocop.project._libdoc_worker"
 DEFAULT_TIMEOUT = 10
+DEFAULT_LIBRARY_WORKERS = False
+MAX_WORKERS = 8
 
 
 def worker_environment() -> dict[str, str]:
@@ -139,10 +149,14 @@ def _keyword_definition(data: dict[str, Any], library_name: str, fallback_source
 @dataclass
 class LibraryLoader:
     """
-    Imports libraries in a separate process and caches the results.
+    Imports libraries and caches the results.
 
     Every library is imported only once, even if it is used in several files. Libraries imported with different
     arguments are treated as different libraries, since the arguments may change the provided keywords.
+
+    By default libraries are imported synchronously, in the Robocop process. With ``workers`` enabled every library
+    is imported in a separate process instead and libraries are imported in parallel. Only such imports can be
+    stopped with the timeout, since a library imported in the Robocop process cannot be safely interrupted.
 
     Successful imports are also stored in the persistent Robocop cache, so that the library does not have to be
     imported again in the next run. Cached results are only used for libraries installed outside of the analyzed
@@ -155,7 +169,9 @@ class LibraryLoader:
     ignored_libraries: list[str] = field(default_factory=list)
     cache: RobocopCache | None = None
     project_root: Path | None = None
+    workers: bool = DEFAULT_LIBRARY_WORKERS
     _cache: dict[tuple[str, tuple[str, ...]], LibrarySpec] = field(default_factory=dict, init=False)
+    _scheduled: list[LibraryRequest] = field(default_factory=list, init=False)
 
     def load(self, request: LibraryRequest) -> LibrarySpec:
         """
@@ -166,11 +182,42 @@ class LibraryLoader:
 
         """
         cached = self._cache.get(request.cache_key)
+        if cached is None:
+            self._preload_scheduled()
+            cached = self._cache.get(request.cache_key)
         if cached is not None:
             return self._with_name(cached, request.displayed_name)
         spec = self._load(request)
         self._cache[request.cache_key] = spec
         return self._with_name(spec, request.displayed_name)
+
+    def schedule_preload(self, requests: Iterable[LibraryRequest]) -> None:
+        """
+        Remember libraries used in the project, so that they can be imported in parallel.
+
+        Nothing is imported here. The libraries are imported together, in parallel, when the first library is
+        needed. With the default, synchronous loading this method does nothing and every library is imported
+        separately when it is used for the first time.
+        """
+        if not self.workers:
+            return
+        self._scheduled.extend(requests)
+
+    def _preload_scheduled(self) -> None:
+        """Import all scheduled libraries at once, using a pool of worker processes."""
+        if not self._scheduled:
+            return
+        pending: dict[tuple[str, tuple[str, ...]], LibraryRequest] = {}
+        for request in self._scheduled:
+            if request.cache_key not in self._cache and request.cache_key not in pending:
+                pending[request.cache_key] = request
+        self._scheduled = []
+        if len(pending) < 2:  # a single library does not benefit from the worker pool
+            return
+        with ThreadPoolExecutor(max_workers=min(MAX_WORKERS, len(pending))) as executor:
+            specs = executor.map(self._load, pending.values())
+            for cache_key, spec in zip(pending, specs, strict=False):
+                self._cache.setdefault(cache_key, spec)
 
     def load_import(self, resolved: ResolvedImport) -> LibrarySpec | None:
         """
@@ -219,7 +266,7 @@ class LibraryLoader:
 
     def _load(self, request: LibraryRequest) -> LibrarySpec:
         """
-        Import the library in a separate process.
+        Import the library and read its keywords.
 
         Returns:
             LibrarySpec with the library keywords, or with the error if it could not be imported.
@@ -249,7 +296,7 @@ class LibraryLoader:
             cached = self.cache.get_library_entry(cache_key, environment_hash())
             if cached is not None:
                 return cached
-        response = self._run_worker(request)
+        response = self._run_worker(request) if self.workers else self._import_in_process(request)
         if self.cache is not None and response.get("status") == "ok":
             source = response.get("source")
             if source and self._can_be_cached(Path(source)):
@@ -273,6 +320,66 @@ class LibraryLoader:
             return True
         return self.project_root.resolve() not in source.resolve().parents
 
+    def _worker_request(self, request: LibraryRequest) -> dict[str, Any]:
+        """
+        Build the request describing the library import.
+
+        Returns:
+            Request understood by the library import worker.
+
+        """
+        return {
+            "name": str(request.source) if request.source else request.name,
+            "args": list(request.args),
+            "search_paths": [str(path) for path in self.search_paths],
+        }
+
+    def _import_in_process(self, request: LibraryRequest) -> dict[str, Any]:
+        """
+        Import the library in the Robocop process.
+
+        This is the default way of importing libraries, since starting a process for every library is slow.
+        Anything the library prints during the import is discarded, so that it does not corrupt the Robocop
+        output. The import cannot be stopped, so the timeout does not apply here.
+
+        Returns:
+            Response describing the library keywords or the failure.
+
+        """
+        from robocop.project._libdoc_worker import load_library  # noqa: PLC0415
+
+        already_imported = set(sys.modules)
+        try:
+            with redirect_stdout(io.StringIO()):
+                return load_library(self._worker_request(request))
+        finally:
+            self._forget_local_modules(already_imported, request)
+
+    def _forget_local_modules(self, already_imported: set[str], request: LibraryRequest) -> None:
+        """
+        Remove modules imported from the project and the search paths from ``sys.modules``.
+
+        Libraries installed in the environment are left imported, since they do not change while Robocop runs.
+        Libraries coming from the analyzed project may be modified between the runs, which matters when Robocop
+        is used from a long living process such as the MCP server, and different libraries may even share the
+        module name. Such modules are removed, so that they are read from the disk again next time.
+        """
+        local_paths = [
+            path.resolve()
+            for path in (*self.search_paths, self.project_root, request.source.parent if request.source else None)
+            if path is not None
+        ]
+        if not local_paths:
+            return
+        for name in set(sys.modules) - already_imported:
+            module = sys.modules.get(name)
+            source = getattr(module, "__file__", None)
+            if not source:
+                continue
+            parents = Path(source).resolve().parents
+            if any(local_path in parents for local_path in local_paths):
+                sys.modules.pop(name, None)
+
     def _run_worker(self, request: LibraryRequest) -> dict[str, Any]:
         """
         Run the worker process importing the library.
@@ -281,17 +388,9 @@ class LibraryLoader:
             Response from the worker, or an error description if the worker failed or timed out.
 
         """
-        name = str(request.source) if request.source else request.name
         with tempfile.TemporaryDirectory(prefix="robocop_libdoc_") as directory:
             output = Path(directory) / "response.json"
-            payload = json.dumps(
-                {
-                    "name": name,
-                    "args": list(request.args),
-                    "search_paths": [str(path) for path in self.search_paths],
-                    "output": str(output),
-                }
-            )
+            payload = json.dumps({**self._worker_request(request), "output": str(output)})
             try:
                 subprocess.run(  # noqa: S603
                     [sys.executable, "-m", WORKER_MODULE],
@@ -368,6 +467,7 @@ def build_library_loader(
     ignored_libraries: Iterable[str] | None = None,
     cache: RobocopCache | None = None,
     project_root: Path | None = None,
+    workers: bool = DEFAULT_LIBRARY_WORKERS,
 ) -> LibraryLoader:
     """
     Create the loader used to import libraries during the project analysis.
@@ -382,4 +482,5 @@ def build_library_loader(
         ignored_libraries=list(ignored_libraries or []),
         cache=cache,
         project_root=project_root,
+        workers=workers,
     )

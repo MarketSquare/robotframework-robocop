@@ -376,6 +376,7 @@ def build_project_context(config_manager: ConfigManager, silent: bool = False) -
             ignored_libraries=config.ignored_libraries,
             cache=cache,
             project_root=config_manager.root,
+            workers=config.library_workers,
         )
     global_scope = VariableScope()
     global_scope.add_variable_files(config.variable_files, search_paths)
@@ -403,4 +404,28 @@ def build_project_context(config_manager: ConfigManager, silent: bool = False) -
         for keyword in project_file.keywords:
             context.keywords.add(keyword)
 
+    if context.library_loader is not None:
+        context.library_loader.schedule_preload(_project_library_requests(context))
+
     return context
+
+
+def _project_library_requests(context: ProjectContext) -> Iterator[LibraryRequest]:
+    """
+    Collect every library imported in the project.
+
+    Yields:
+        LibraryRequest for the BuiltIn library and for every resolved library import.
+
+    """
+    yield BUILTIN_LIBRARY
+    for project_file in context.files.values():
+        for imported in project_file.library_imports():
+            if imported.status not in (ImportStatus.RESOLVED, ImportStatus.EXTERNAL) or not imported.args_resolved:
+                continue
+            yield LibraryRequest(
+                name=imported.resolved_name,
+                args=imported.args,
+                source=imported.path,
+                alias=imported.alias,
+            )

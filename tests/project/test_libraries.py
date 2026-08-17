@@ -87,10 +87,48 @@ class TestLibraryLoader:
         assert spec.keywords == ()
 
     def test_import_timeout(self, library_dir):
-        loader = LibraryLoader(timeout=2)
+        loader = LibraryLoader(timeout=2, workers=True)
         spec = loader.load(LibraryRequest(name="SlowLibrary", source=library_dir / "SlowLibrary.py"))
         assert not spec.loaded
         assert "timed out" in spec.error
+
+    def test_libraries_are_imported_in_process_by_default(self, library_dir, monkeypatch):
+        loader = build_library_loader(search_paths=[library_dir])
+        monkeypatch.setattr(
+            LibraryLoader,
+            "_run_worker",
+            lambda *args, **kwargs: pytest.fail("Library should be imported without a separate process"),  # noqa: ARG005
+        )
+        assert keyword_names(loader.load(LibraryRequest(name="MyLibrary"))) == ["Custom Keyword"]
+
+    def test_workers_import_library_in_separate_process(self, library_dir, monkeypatch):
+        loader = build_library_loader(search_paths=[library_dir], workers=True)
+        monkeypatch.setattr(
+            LibraryLoader,
+            "_import_in_process",
+            lambda *args, **kwargs: pytest.fail("Library should be imported in a separate process"),  # noqa: ARG005
+        )
+        assert keyword_names(loader.load(LibraryRequest(name="MyLibrary"))) == ["Custom Keyword"]
+
+    def test_library_printing_on_import_does_not_write_to_output(self, library_dir, capsys):
+        (library_dir / "NoisyLibrary.py").write_text("print('noise')\n\n\ndef noisy_keyword():\n    pass\n")
+        loader = build_library_loader(search_paths=[library_dir])
+        assert loader.load(LibraryRequest(name="NoisyLibrary")).loaded
+        assert "noise" not in capsys.readouterr().out
+
+    def test_scheduled_libraries_are_imported_in_parallel(self, library_dir):
+        loader = build_library_loader(search_paths=[library_dir], workers=True)
+        requests = [LibraryRequest(name="MyLibrary"), LibraryRequest(name="ArgLibrary"), LibraryRequest(name="BuiltIn")]
+        loader.schedule_preload(requests)
+        assert keyword_names(loader.load(requests[0])) == ["Custom Keyword"]
+        assert all(request.cache_key in loader._cache for request in requests)  # noqa: SLF001
+
+    def test_scheduled_libraries_are_not_imported_without_workers(self, library_dir):
+        loader = build_library_loader(search_paths=[library_dir])
+        requests = [LibraryRequest(name="MyLibrary"), LibraryRequest(name="ArgLibrary")]
+        loader.schedule_preload(requests)
+        assert keyword_names(loader.load(requests[0])) == ["Custom Keyword"]
+        assert requests[1].cache_key not in loader._cache  # noqa: SLF001
 
     def test_ignored_library(self, library_dir):
         loader = build_library_loader(search_paths=[library_dir], ignored_libraries=["My*"])
@@ -172,6 +210,17 @@ class TestLibrariesInProjectContext:
         context = build_context(project)
         assert context.visible_keywords(project / "test.robot").find("Own Keyword")
 
+    def test_libraries_are_not_loaded_with_workers_by_default(self, project):
+        context = build_context(project)
+        assert not context.library_loader.workers
+
+    def test_library_keywords_are_visible_with_workers(self, project):
+        context = build_context(project, library_workers=True)
+        assert context.library_loader.workers
+        assert context.visible_keywords(project / "test.robot").find("Custom Keyword")
+        assert context.visible_keywords(project / "test.robot").find("Append To List")
+        assert context.visible_keywords(project / "test.robot").find("Log")
+
 
 class TestPersistentLibraryCache:
     def test_library_is_read_from_cache_in_next_run(self, library_dir, tmp_path, monkeypatch):
@@ -182,11 +231,12 @@ class TestPersistentLibraryCache:
 
         next_cache = RobocopCache(cache_dir=tmp_path / "cache", enabled=True, verbose=False)
         next_loader = build_library_loader(search_paths=[library_dir], cache=next_cache)
-        monkeypatch.setattr(
-            LibraryLoader,
-            "_run_worker",
-            lambda *args, **kwargs: pytest.fail("Library should be read from the cache"),  # noqa: ARG005
-        )
+        for method in ("_run_worker", "_import_in_process"):
+            monkeypatch.setattr(
+                LibraryLoader,
+                method,
+                lambda *args, **kwargs: pytest.fail("Library should be read from the cache"),  # noqa: ARG005
+            )
         assert keyword_names(next_loader.load(LibraryRequest(name="MyLibrary"))) == ["Custom Keyword"]
 
     def test_modified_library_is_imported_again(self, library_dir, tmp_path):

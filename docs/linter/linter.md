@@ -118,9 +118,9 @@ robocop check --no-project
 
     To find out what keywords libraries provide, Robocop imports them. Python variable files provided with the
     ``--variablefile`` option are imported as well. Both **execute the code** of the imported file. Libraries are
-    imported in a separate process with a timeout, and failures are ignored, so a broken library never breaks the
+    imported directly in the Robocop process, and failures are ignored, so a broken library never breaks the
     analysis. Library analysis can be disabled with ``--no-analyze-libraries`` and single libraries can be skipped
-    with ``--ignored-library``.
+    with ``--ignored-library``. Use ``--library-workers`` to import libraries in separate processes with a timeout.
 
 Keywords of the successfully imported libraries are stored in the [cache](../user_guide/intro.md#caching), so the
 next run does not have to import them again.
@@ -176,15 +176,23 @@ See [variables](../configuration/configuration_reference.md#variables),
 [variable-files](../configuration/configuration_reference.md#variable-files) and
 [python-path](../configuration/configuration_reference.md#python-path) for more details.
 
-Libraries are imported to check the keywords they provide. Every library is imported only once, in a separate
-process which is stopped if it takes longer than ``--load-library-timeout`` seconds (10 by default):
+Libraries are imported to check the keywords they provide. Every library is imported only once, by default
+synchronously in the Robocop process:
 
 ```bash
 robocop check --no-analyze-libraries
-robocop check --ignored-library SeleniumLibrary --load-library-timeout 30
+robocop check --ignored-library SeleniumLibrary
+```
+
+With ``--library-workers`` libraries are imported in parallel, each in a separate process which is stopped if it
+takes longer than ``--load-library-timeout`` seconds (10 by default):
+
+```bash
+robocop check --library-workers --load-library-timeout 30
 ```
 
 See [analyze-libraries](../configuration/configuration_reference.md#analyze-libraries),
+[library-workers](../configuration/configuration_reference.md#library-workers),
 [load-library-timeout](../configuration/configuration_reference.md#load-library-timeout) and
 [ignored-libraries](../configuration/configuration_reference.md#ignored-libraries) for more details.
 

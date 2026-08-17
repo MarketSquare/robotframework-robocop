@@ -1,11 +1,12 @@
 """
-Worker process used to import Robot Framework libraries and read their keywords.
+Worker used to import Robot Framework libraries and read their keywords.
 
 Importing a library executes user code, which can be slow, can fail in unexpected ways or can even never finish.
-Because of that the import always happens in a separate process started with
-``python -m robocop.project._libdoc_worker`` and communicating with Robocop over JSON. The request is read from the
-standard input and the response is written to the file provided in the request, so that anything the library prints
-during the import does not corrupt the response. The parent process can safely kill this process on timeout.
+By default Robocop calls :func:`load_library` directly, but with the ``--library-workers`` option the import happens
+in a separate process started with ``python -m robocop.project._libdoc_worker`` and communicating with Robocop over
+JSON. The request is read from the standard input and the response is written to the file provided in the request,
+so that anything the library prints during the import does not corrupt the response. The parent process can safely
+kill this process on timeout.
 
 The module does not import Robocop, so that it can be started even if the inspected library modifies ``sys.path``.
 """

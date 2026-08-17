@@ -1,0 +1,5 @@
+suite_tags.robot:3:5 [I] TAG12 'Run Keyword And Continue On Failure' is redundant with the 'robot:continue-on-failure' tag
+suite_tags.robot:12:5 [I] TAG12 'Run Keyword And Continue On Failure' is redundant with the 'robot:recursive-continue-on-failure' tag
+
+Found 2 issues.
+2 fixable with the '--fix' option.

@@ -6,18 +6,22 @@ from collections import defaultdict
 from typing import TYPE_CHECKING
 
 from robot.api import Token
-from robot.parsing.model.blocks import SettingSection
+from robot.model.tags import TagPatterns
+from robot.parsing.model.blocks import Keyword, KeywordSection, SettingSection
+from robot.variables.search import search_variable
 
 from robocop.linter.rules import VisitorChecker, tags
 from robocop.linter.rules.tags import TagNode, new_tag_token, split_tag_on_variables
+from robocop.parsing.run_keywords import is_run_keyword
 
 if TYPE_CHECKING:
     from robot.parsing import File
-    from robot.parsing.model.blocks import Keyword, KeywordSection, TestCase
+    from robot.parsing.model.blocks import TestCase
     from robot.parsing.model.statements import (
         DefaultTags,
         Documentation,
         ForceTags,
+        KeywordCall,
         KeywordTags,
         Tags,
     )
@@ -36,6 +40,7 @@ class TagsChecker(VisitorChecker):
     empty_tags: tags.EmptyTagsRule
     could_be_keyword_tags: tags.CouldBeKeywordTagsRule
     tag_already_set_in_keyword_tags: tags.TagAlreadySetInKeywordTagsRule
+    redundant_continue_on_failure: tags.RedundantContinueOnFailureRule
     # TODO: too many tags rule
 
     def __init__(self) -> None:
@@ -52,6 +57,9 @@ class TagsChecker(VisitorChecker):
         self.test_cases_count = 0
         self.keywords_count = 0
         self.suite_default_tags = False
+        self.continue_on_failure_tag: str | None = None
+        self.allow_unqualified_run_keywords = True
+        self.in_templated_test = False
         super().__init__()
 
     def visit_File(self, node: File) -> None:  # noqa: N802
@@ -65,9 +73,35 @@ class TagsChecker(VisitorChecker):
         self.test_cases_count = 0
         self.keywords_count = 0
         self.suite_default_tags = self.has_default_tags(node)
+        self.collect_file_context(node)
         super().visit_File(node)
         self.check_common_test_tags(node)
         self.check_common_keyword_tags(node)
+
+    def collect_file_context(self, node: File) -> None:
+        """Collect tags and possible BuiltIn keyword shadows before visiting sections."""
+        self.allow_unqualified_run_keywords = True
+        keyword_tags_token = getattr(Token, "KEYWORD_TAGS", "KEYWORD TAGS")
+        for section in node.sections:
+            if isinstance(section, SettingSection):
+                for statement in section.body:
+                    if not statement.data_tokens:
+                        continue
+                    tag_names = {token.value for token in statement.data_tokens[1:]}
+                    if statement.type == Token.FORCE_TAGS:
+                        self.test_tags = tag_names
+                    elif statement.type == Token.DEFAULT_TAGS:
+                        self.default_tags = tag_names
+                    elif statement.type == keyword_tags_token:
+                        self.keyword_tags = tag_names
+                    elif statement.type in {Token.LIBRARY, Token.RESOURCE}:
+                        self.allow_unqualified_run_keywords = False
+            elif isinstance(section, KeywordSection) and any(
+                is_run_keyword(keyword.name) or search_variable(keyword.name, ignore_errors=True).base
+                for keyword in section.body
+                if isinstance(keyword, Keyword) and keyword.name
+            ):
+                self.allow_unqualified_run_keywords = False
 
     @staticmethod
     def has_default_tags(node: File) -> bool:
@@ -113,12 +147,63 @@ class TagsChecker(VisitorChecker):
     def visit_Keyword(self, node: Keyword) -> None:  # noqa: N802
         self.keywords_count += 1
         self.in_keyword = True
+        effective_tags = self.effective_tags(self.keyword_tags, self.local_tags(node))
+        self.continue_on_failure_tag = self.find_continue_on_failure_tag(effective_tags)
         self.generic_visit(node)
+        self.continue_on_failure_tag = None
         self.in_keyword = False
 
     def visit_TestCase(self, node: TestCase) -> None:  # noqa: N802
         self.test_cases_count += 1
+        template = next((statement for statement in node.body if statement.type == Token.TEMPLATE), None)
+        self.in_templated_test = (
+            self.templated_suite
+            if template is None
+            else bool(template.data_tokens[1:] and template.data_tokens[1].value.upper() != "NONE")
+        )
+        local_tags = self.local_tags(node)
+        inherited_tags = self.default_tags if local_tags is None else set()
+        effective_tags = self.effective_tags(self.test_tags | inherited_tags, local_tags)
+        self.continue_on_failure_tag = self.find_continue_on_failure_tag(effective_tags)
         self.generic_visit(node)
+        self.continue_on_failure_tag = None
+        self.in_templated_test = False
+
+    @staticmethod
+    def local_tags(node: Keyword | TestCase) -> set[str] | None:
+        tag_node = next((statement for statement in node.body if statement.type == Token.TAGS), None)
+        if tag_node is None:
+            return None
+        return {token.value for token in tag_node.data_tokens[1:]}
+
+    @staticmethod
+    def effective_tags(inherited_tags: set[str], local_tags: set[str] | None) -> set[str]:
+        if local_tags is None:
+            return inherited_tags
+        removal_patterns = TagPatterns(tag[1:] for tag in local_tags if tag.startswith("-") and len(tag) > 1)
+        effective_tags = inherited_tags | {tag for tag in local_tags if not tag.startswith("-")}
+        return {tag for tag in effective_tags if not removal_patterns.match(tag)}
+
+    @staticmethod
+    def find_continue_on_failure_tag(tag_names: set[str]) -> str | None:
+        continue_on_failure_tags = (
+            "robot:recursive-continue-on-failure",
+            "robot:continue-on-failure",
+        )
+        for expected_tag in continue_on_failure_tags:
+            matching_tags = sorted(tag for tag in tag_names if tag.lower().replace(" ", "") == expected_tag)
+            if matching_tags:
+                return matching_tags[0]
+        return None
+
+    def visit_KeywordCall(self, node: KeywordCall) -> None:  # noqa: N802
+        if self.in_templated_test:
+            return
+        self.redundant_continue_on_failure.check(
+            node,
+            self.continue_on_failure_tag,
+            self.allow_unqualified_run_keywords,
+        )
 
     def visit_ForceTags(self, node: ForceTags) -> None:  # noqa: N802
         self.test_tags = {token.value for token in node.data_tokens[1:]}

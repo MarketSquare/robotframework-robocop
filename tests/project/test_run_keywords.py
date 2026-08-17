@@ -7,7 +7,7 @@ from robot.api import Token, get_model
 from robocop.parsing.run_keywords import iterate_keyword_calls
 
 
-def keyword_calls(body: str) -> list[tuple[str, list[str]]]:
+def keyword_calls(body: str, allow_unqualified_run_keywords: bool = True) -> list[tuple[str, list[str]]]:
     """
     Parse test case body and return keyword calls with their arguments.
 
@@ -21,7 +21,11 @@ def keyword_calls(body: str) -> list[tuple[str, list[str]]]:
     for node in model.sections[0].body[0].body:
         calls.extend(
             (call.name.value, [token.value for token in call.arguments])
-            for call in iterate_keyword_calls(node, Token.KEYWORD)
+            for call in iterate_keyword_calls(
+                node,
+                Token.KEYWORD,
+                allow_unqualified_run_keywords=allow_unqualified_run_keywords,
+            )
         )
     return calls
 
@@ -61,3 +65,17 @@ class TestIterateKeywordCalls:
     def test_wait_until_keyword_succeeds(self):
         calls = keyword_calls("Wait Until Keyword Succeeds    3x    1s    My Keyword    a")
         assert ("My Keyword", ["a"]) in calls
+
+    def test_unqualified_run_keyword_can_be_ignored(self):
+        calls = keyword_calls(
+            "Run Keyword If    ${cond}    My Keyword",
+            allow_unqualified_run_keywords=False,
+        )
+        assert calls == [("Run Keyword If", ["${cond}", "My Keyword"])]
+
+    def test_qualified_run_keyword_is_resolved_when_unqualified_are_ignored(self):
+        calls = keyword_calls(
+            "BuiltIn.Run Keyword If    ${cond}    My Keyword",
+            allow_unqualified_run_keywords=False,
+        )
+        assert ("My Keyword", []) in calls

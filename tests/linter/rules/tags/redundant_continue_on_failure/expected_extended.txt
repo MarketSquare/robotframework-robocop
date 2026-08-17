@@ -1,0 +1,20 @@
+keywords.robot:4:5 TAG12 'Run Keyword And Continue On Failure' is redundant with the 'robot:continue-on-failure' tag
+   |
+ 2 | Keyword with wrapper
+ 3 |     [Tags]    robot:continue-on-failure
+ 4 |     Run Keyword And Continue On Failure    Should Be True    ${value}
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ TAG12
+   |
+
+keywords.robot:8:5 TAG12 'Run Keyword And Continue On Failure' is redundant with the 'robot:recursive-continue-on-failure' tag
+   |
+ 6 | Keyword with recursive tag
+ 7 |     [Tags]    robot:recursive-continue-on-failure
+ 8 |     Run Keyword And Continue On Failure
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ TAG12
+ 9 |     ...    Keyword Call
+10 |     ...    argument
+   |
+
+Found 2 issues.
+2 fixable with the '--fix' option.

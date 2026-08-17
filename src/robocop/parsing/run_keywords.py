@@ -121,7 +121,11 @@ class KeywordCallTokens:
     arguments: list[Token]
 
 
-def iterate_keyword_calls(keyword_node: Keyword, name_token_type: str) -> Generator[KeywordCallTokens, None, None]:
+def iterate_keyword_calls(
+    keyword_node: Keyword,
+    name_token_type: str,
+    allow_unqualified_run_keywords: bool = True,
+) -> Generator[KeywordCallTokens, None, None]:
     """
     Iterate over keyword calls in the statement, together with arguments of every call.
 
@@ -134,10 +138,13 @@ def iterate_keyword_calls(keyword_node: Keyword, name_token_type: str) -> Genera
 
     """
     tokens = skip_leading_tokens(keyword_node.data_tokens, name_token_type)
-    yield from parse_run_keyword_calls(tokens)
+    yield from parse_run_keyword_calls(tokens, allow_unqualified_run_keywords)
 
 
-def parse_run_keyword_calls(tokens: list[Token]) -> Generator[KeywordCallTokens, None, None]:
+def parse_run_keyword_calls(
+    tokens: list[Token],
+    allow_unqualified_run_keywords: bool = True,
+) -> Generator[KeywordCallTokens, None, None]:
     """
     Parse tokens into keyword calls, resolving nested run keywords.
 
@@ -151,24 +158,29 @@ def parse_run_keyword_calls(tokens: list[Token]) -> Generator[KeywordCallTokens,
     run_keyword = RUN_KEYWORDS[tokens[0].value]
     if not run_keyword:
         return
+    if not allow_unqualified_run_keywords and "." not in normalize_robot_name(tokens[0].value):
+        return
     tokens = tokens[run_keyword.resolve :]
     if run_keyword.branches:
         if "ELSE IF" in run_keyword.branches:
             while is_token_value_in_tokens("ELSE IF", tokens):
                 prefix, _branch, tokens = split_on_token_value(tokens, "ELSE IF", 2)
-                yield from parse_run_keyword_calls(prefix)
+                yield from parse_run_keyword_calls(prefix, allow_unqualified_run_keywords)
         if "ELSE" in run_keyword.branches and is_token_value_in_tokens("ELSE", tokens):
             prefix, _branch, tokens = split_on_token_value(tokens, "ELSE", 1)
-            yield from parse_run_keyword_calls(prefix)
-            yield from parse_run_keyword_calls(tokens)
+            yield from parse_run_keyword_calls(prefix, allow_unqualified_run_keywords)
+            yield from parse_run_keyword_calls(tokens, allow_unqualified_run_keywords)
             return
     elif run_keyword.split_on_and:
-        yield from split_on_and_calls(tokens)
+        yield from split_on_and_calls(tokens, allow_unqualified_run_keywords)
         return
-    yield from parse_run_keyword_calls(tokens)
+    yield from parse_run_keyword_calls(tokens, allow_unqualified_run_keywords)
 
 
-def split_on_and_calls(tokens: list[Token]) -> Generator[KeywordCallTokens, None, None]:
+def split_on_and_calls(
+    tokens: list[Token],
+    allow_unqualified_run_keywords: bool = True,
+) -> Generator[KeywordCallTokens, None, None]:
     """
     Split ``Run Keywords`` arguments into separate keyword calls.
 
@@ -184,8 +196,8 @@ def split_on_and_calls(tokens: list[Token]) -> Generator[KeywordCallTokens, None
         return
     while is_token_value_in_tokens("AND", tokens):
         prefix, _branch, tokens = split_on_token_value(tokens, "AND", 1)
-        yield from parse_run_keyword_calls(prefix)
-    yield from parse_run_keyword_calls(tokens)
+        yield from parse_run_keyword_calls(prefix, allow_unqualified_run_keywords)
+    yield from parse_run_keyword_calls(tokens, allow_unqualified_run_keywords)
 
 
 def parse_run_keyword(tokens: list[Token]) -> Generator[Token, None, None]:

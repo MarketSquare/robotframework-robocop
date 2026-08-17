@@ -12,10 +12,13 @@ from robocop.linter.fix import (
     FixApplicability,
     FixAvailability,
     TextEdit,
+    TextEditKind,
     remove_empty_setting_fix,
     remove_statement_fix,
 )
 from robocop.linter.rules import FixableRule, Rule, RuleSeverity
+from robocop.linter.utils.misc import normalize_robot_name
+from robocop.parsing.run_keywords import iterate_keyword_calls
 from robocop.parsing.variables import VariableMatches  # type: ignore[attr-defined]
 
 if TYPE_CHECKING:
@@ -24,6 +27,7 @@ if TYPE_CHECKING:
         DefaultTags,
         Documentation,
         ForceTags,
+        KeywordCall,
         KeywordTags,
         Statement,
         Tags,
@@ -601,6 +605,191 @@ class TagAlreadySetInKeywordTagsRule(FixableRule):
     def fix(self, diag: Diagnostic, source_lines: list[str]) -> Fix | None:
         tag = diag.reported_arguments["tag"]
         return remove_tag_fix(self, diag, source_lines, f"Remove the '{tag}' tag already set in suite settings")
+
+
+class RedundantContinueOnFailureRule(FixableRule):
+    """
+    ``Run Keyword And Continue On Failure`` is redundant when continue-on-failure is enabled with a tag.
+
+    The ``robot:continue-on-failure`` tag gives every keyword call in a test or user keyword the same behavior as
+    wrapping the call with ``Run Keyword And Continue On Failure``. The wrapper is also redundant under
+    ``robot:recursive-continue-on-failure``, which additionally propagates the behavior to called user keywords.
+
+    Example of rule violation:
+
+        *** Test Cases ***
+        Validate response
+            [Tags]    robot:continue-on-failure
+            Run Keyword And Continue On Failure    Length Should Be    ${items}    1
+
+    The safe fix unwraps the redundant call:
+
+        *** Test Cases ***
+        Validate response
+            [Tags]    robot:continue-on-failure
+            Length Should Be    ${items}    1
+
+    Calls whose result is assigned are not reported or fixed. Calls that could refer to a user keyword shadowing a
+    BuiltIn run keyword are also ignored. The rule does not suggest adding either tag.
+    """
+
+    name = "redundant-continue-on-failure"
+    rule_id = "TAG12"
+    message = "'Run Keyword And Continue On Failure' is redundant with the '{tag}' tag"
+    severity = RuleSeverity.INFO
+    version = ">=5"
+    added_in_version = "9.0.0"
+    sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
+        clean_code=sonar_qube.CleanCodeAttribute.DISTINCT,
+        issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL,
+    )
+    fix_availability = FixAvailability.ALWAYS
+
+    def check(
+        self,
+        node: KeywordCall,
+        continue_on_failure_tag: str | None,
+        allow_unqualified_run_keywords: bool,
+    ) -> None:
+        if not self.enabled or continue_on_failure_tag is None or node.assign:
+            return
+        for keyword_call in iterate_keyword_calls(
+            node,
+            Token.KEYWORD,
+            allow_unqualified_run_keywords=allow_unqualified_run_keywords,
+        ):
+            normalized_name = normalize_robot_name(keyword_call.name.value)
+            if normalized_name == "runkeywordandcontinueonfailure" and not allow_unqualified_run_keywords:
+                continue
+            if normalized_name not in {
+                "runkeywordandcontinueonfailure",
+                "builtin.runkeywordandcontinueonfailure",
+            }:
+                continue
+            wrapped_keyword = next((argument for argument in keyword_call.arguments if argument.value), None)
+            if wrapped_keyword is None:
+                continue
+            self.report(
+                tag=continue_on_failure_tag,
+                wrapped_keyword_line=wrapped_keyword.lineno,
+                wrapped_keyword_col=wrapped_keyword.col_offset + 1,
+                node=node,
+                lineno=keyword_call.name.lineno,
+                col=keyword_call.name.col_offset + 1,
+                end_col=keyword_call.name.end_col_offset + 1,
+            )
+
+    @staticmethod
+    def _find_token(node: KeywordCall, line: int, column: int) -> Token | None:
+        return next(
+            (token for token in node.data_tokens if token.lineno == line and token.col_offset + 1 == column),
+            None,
+        )
+
+    @staticmethod
+    def _comments_before_line(node: KeywordCall, line: int, source_lines: list[str]) -> list[str]:
+        comments = []
+        seen_lines = set()
+        for token in node.get_tokens(Token.COMMENT):
+            if token.lineno >= line or token.lineno in seen_lines:
+                continue
+            seen_lines.add(token.lineno)
+            source_line = source_lines[token.lineno - 1]
+            indent = source_line[: len(source_line) - len(source_line.lstrip())]
+            comments.append(f"{indent}{source_line[token.col_offset :]}")
+        return comments
+
+    def fix(self, diag: Diagnostic, source_lines: list[str]) -> Fix | None:
+        node = diag.node
+        wrapped_line = diag.reported_arguments.get("wrapped_keyword_line")
+        wrapped_col = diag.reported_arguments.get("wrapped_keyword_col")
+        if (
+            node is None
+            or not isinstance(wrapped_line, int)
+            or not isinstance(wrapped_col, int)
+            or not hasattr(node, "data_tokens")
+        ):
+            return None
+        wrapper = self._find_token(node, diag.range.start.line, diag.range.start.character)
+        wrapped_keyword = self._find_token(node, wrapped_line, wrapped_col)
+        if wrapper is None or wrapped_keyword is None:
+            return None
+        if wrapper.lineno == wrapped_keyword.lineno:
+            edit = TextEdit(
+                rule_id=self.rule_id,
+                rule_name=self.name,
+                start_line=wrapper.lineno,
+                start_col=wrapper.col_offset + 1,
+                end_line=wrapped_keyword.lineno,
+                end_col=wrapped_keyword.col_offset + 1,
+                replacement="",
+            )
+        elif wrapper.type == Token.KEYWORD:
+            first_line = source_lines[wrapper.lineno - 1]
+            wrapped_source_line = source_lines[wrapped_keyword.lineno - 1]
+            replacement = "".join(
+                [
+                    *self._comments_before_line(node, wrapped_keyword.lineno, source_lines),
+                    first_line[: wrapper.col_offset] + wrapped_source_line[wrapped_keyword.col_offset :],
+                ]
+            )
+            edit = TextEdit.replace_lines(
+                self.rule_id,
+                self.name,
+                wrapper.lineno,
+                wrapped_keyword.lineno,
+                replacement,
+            )
+        else:
+            wrapper_line = source_lines[wrapper.lineno - 1]
+            preceding_data = any(
+                token.lineno == wrapper.lineno and token.end_col_offset <= wrapper.col_offset
+                for token in node.data_tokens
+                if token is not wrapper
+            )
+            comments = [
+                token
+                for token in node.get_tokens(Token.COMMENT)
+                if token.lineno == wrapper.lineno and token.col_offset >= wrapper.end_col_offset
+            ]
+            if not preceding_data and not comments:
+                edit = TextEdit(
+                    rule_id=self.rule_id,
+                    rule_name=self.name,
+                    start_line=wrapper.lineno,
+                    start_col=1,
+                    end_line=wrapper.lineno,
+                    end_col=1,
+                    replacement="",
+                    kind=TextEditKind.DELETION,
+                )
+            else:
+                end_col = comments[0].col_offset + 1 if comments else len(wrapper_line.rstrip("\r\n")) + 1
+                start_col = wrapper.col_offset + 1
+                if preceding_data and not comments:
+                    previous_token = max(
+                        (
+                            token
+                            for token in node.data_tokens
+                            if token.lineno == wrapper.lineno and token.end_col_offset <= wrapper.col_offset
+                        ),
+                        key=lambda token: token.end_col_offset,
+                    )
+                    start_col = previous_token.end_col_offset + 1
+                edit = TextEdit(
+                    rule_id=self.rule_id,
+                    rule_name=self.name,
+                    start_line=wrapper.lineno,
+                    start_col=start_col,
+                    end_line=wrapper.lineno,
+                    end_col=end_col,
+                    replacement="",
+                )
+        return Fix(
+            edits=[edit],
+            message="Unwrap the redundant 'Run Keyword And Continue On Failure' call",
+            applicability=FixApplicability.SAFE,
+        )
 
 
 def split_tag_on_variables(tag_value: str) -> tuple[list[str], bool]:

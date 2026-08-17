@@ -1,5 +1,5 @@
 *** settings ***
-Library     KeywordLibrary
+Library    KeywordLibrary
 
 
 *** test cases ***

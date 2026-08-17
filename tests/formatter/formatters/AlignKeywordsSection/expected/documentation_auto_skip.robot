@@ -18,7 +18,7 @@ Keyword with documentation and keyword calls
 Keyword with documentation and keyword calls 2
     [Documentation]    Do stuff.
     ...   2nd
-    Longer Keywordsss       ${arg}
+    Longer Keywordsss    ${arg}
 
 Keyword With Empty Documentation
     [Documentation]
@@ -27,4 +27,4 @@ Keyword with documentation and other settings
     [Documentation]    Do stuff
     ...                   Also multiline    Extra whitespace
     ...                       Only fix indent.
-    [Arguments]     ${arg}      ${arg2}
+    [Arguments]    ${arg}    ${arg2}

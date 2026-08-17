@@ -1,9 +1,9 @@
 *** Variables ***
 # some comment
 
-${VARIABLE 1}                           10    # comment
+${VARIABLE 1}                        10    # comment
 @{LIST}  a  b  c  d  # robocop: fmt: off
-${LONGER_NAME_THAT_GOES_AND_GOES}       longer value that goes and goes
+${LONGER_NAME_THAT_GOES_AND_GOES}    longer value that goes and goes
 
 # robocop: fmt: off
            &{MULTILINE}  a=b
@@ -15,4 +15,4 @@ ${invalid_more}
 
 # should be left aligned
 # should be left aligned
-${variable}                             1
+${variable}                          1

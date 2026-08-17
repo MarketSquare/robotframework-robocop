@@ -154,12 +154,12 @@ class AlignSettingsSection(Formatter):
             if indent_arg and index != 0:
                 return (
                     max(
-                        (look_up[index] - len(token.value) - arg_indent + 4),
+                        (look_up[index] - len(token.value) - arg_indent + self.formatting_config.space_count),
                         self.formatting_config.space_count,
                     )
                     * " "
                 )
-            return (look_up[index] - len(token.value) + arg_indent + 4) * " "
+            return (look_up[index] - len(token.value) + arg_indent + self.formatting_config.space_count) * " "
         return self.formatting_config.space_count * " "
 
     def create_look_up(self, statements: list[list[list[Token]]]) -> dict[int, int]:
@@ -176,5 +176,8 @@ class AlignSettingsSection(Formatter):
                 for index, token in enumerate(line[:up_to]):
                     look_up[index] = max(look_up[index], len(token.value))
         if self.min_width:
-            look_up = {index: max(length, self.min_width - 4) for index, length in look_up.items()}
-        return {index: misc.round_to_four(length) for index, length in look_up.items()}
+            look_up = {
+                index: max(length, self.min_width - self.formatting_config.space_count)
+                for index, length in look_up.items()
+            }
+        return look_up

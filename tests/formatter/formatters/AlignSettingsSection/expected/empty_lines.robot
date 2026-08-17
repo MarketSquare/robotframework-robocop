@@ -1,4 +1,4 @@
 *** Settings ***
-Documentation       This is
-...                 multiline line
-...                 docs
+Documentation    This is
+...              multiline line
+...              docs

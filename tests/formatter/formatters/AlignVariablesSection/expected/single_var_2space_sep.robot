@@ -2,7 +2,7 @@
 Documentation               Test
 
 *** Variables ***
-${VAR_NAME_25_CHARACTERS}    Test
+${VAR_NAME_25_CHARACTERS}  Test
 
 *** Test Cases ***
 Test1

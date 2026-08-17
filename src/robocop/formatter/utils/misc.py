@@ -54,13 +54,6 @@ def after_last_dot(name: str) -> str:
     return name.split(".")[-1]
 
 
-def round_to_four(number: int) -> int:
-    div = number % 4
-    if div:
-        return number + 4 - div
-    return number
-
-
 def any_non_sep(tokens: list[Token]) -> bool:
     return any(token.type not in (Token.EOL, Token.SEPARATOR, Token.EOS) for token in tokens)
 

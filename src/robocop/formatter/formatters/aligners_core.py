@@ -217,9 +217,7 @@ class AlignKeywordsTestsSection(Formatter):
                         first_sep = False
                         continue
                     if width == 0:
-                        separator_len = misc.round_to_four(
-                            len(prev_token.value) + self.formatting_config.space_count  # type: ignore[union-attr]
-                        ) - len(prev_token.value)  # type: ignore[union-attr]
+                        separator_len = self.formatting_config.space_count
                     else:
                         separator_len = max(width - len(prev_token.value), self.formatting_config.space_count)  # type: ignore[union-attr]
                     token.value = " " * separator_len
@@ -408,8 +406,7 @@ class AlignKeywordsTestsSection(Formatter):
         First, empty multiline is return as it can't be aligned.
         Then comments are removed from the line - they will be added at the end of the alignment.
         Afterwards we start to align the tokens.
-        If the configured width is set to 0 it means we don't need to calculate the width of the separator - we should
-        use the length of the token with a minimal separator rounded to the closest multiply of 4.
+        If the configured width is set to 0, use the configured minimum separator width.
         Otherwise, we are calculating if a line fits in the width of the column. In case it will not fit there are
         several options (configurable via ``handle_too_long):
             - ignore_line - the whole line will be separated using fixed, minimal width of the separator
@@ -475,7 +472,7 @@ class AlignKeywordsTestsSection(Formatter):
             aligned.append(token)
             width = self.get_width(column, is_setting=is_setting)
             if width == 0:
-                separator_len = misc.round_to_four(len(token.value) + min_separator) - len(token.value)
+                separator_len = min_separator
             else:
                 separator_len = width - len(token.value) - prev_overflow_len
                 if separator_len >= min_separator:
@@ -506,7 +503,7 @@ class AlignKeywordsTestsSection(Formatter):
                                 separator_len = next_width - prev_overflow_len + min_separator
                                 prev_overflow_len = 0
                     else:  # "overflow"
-                        while misc.round_to_four(len(token.value) + min_separator) > width:
+                        while len(token.value) + min_separator > width:
                             column += 1
                             width += self.get_width(column, override_default_zero=True, is_setting=is_setting)
                         separator_len = width - len(token.value)
@@ -662,7 +659,7 @@ class ColumnWidthCounter(ModelVisitor):  # type: ignore[misc]
                 if up_to and column == up_to:
                     break
                 max_width = self.get_width(column)
-                token_len = misc.round_to_four(len(token.value) + self.min_separator)
+                token_len = len(token.value) + self.min_separator
                 if max_width == 0 or token_len <= max_width:
                     raw_lens[column] = token_len
                 elif self.handle_too_long == "ignore_line":
@@ -706,7 +703,7 @@ class ColumnWidthCounter(ModelVisitor):  # type: ignore[misc]
     def visit_Documentation(self, node: Documentation) -> None:  # noqa: N802
         if self.skip_documentation:
             return
-        doc_header_len = misc.round_to_four(len(node.data_tokens[0].value) + self.min_separator)
+        doc_header_len = len(node.data_tokens[0].value) + self.min_separator
         self.settings_raw_widths[0].append(doc_header_len)
 
     @skip_if_disabled

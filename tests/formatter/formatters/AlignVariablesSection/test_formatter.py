@@ -88,11 +88,13 @@ class TestAlignVariablesSection(FormatterAcceptanceTest):
     def test_min_width_longer(self, min_width):
         self.compare(
             source="tests.robot",
-            expected="tests_min_width_50_width.robot",
+            expected=f"tests_min_width_{min_width}_width.robot",
             configure=[f"{self.FORMATTER_NAME}.min_width={min_width}"],
         )
 
-    @pytest.mark.parametrize("space_count", [2, 4])
-    def test_single_var(self, space_count):
-        not_modified = space_count == 4
-        self.compare(source="single_var.robot", not_modified=not_modified, space_count=space_count)
+    @pytest.mark.parametrize(
+        ("space_count", "expected"),
+        [(2, "single_var_2space_sep.robot"), (4, "single_var.robot")],
+    )
+    def test_single_var(self, space_count, expected):
+        self.compare(source="single_var.robot", expected=expected, space_count=space_count)

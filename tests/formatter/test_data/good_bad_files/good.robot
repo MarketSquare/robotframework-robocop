@@ -1,2 +1,2 @@
 *** Settings ***
-Documentation       Documentation
+Documentation    Documentation

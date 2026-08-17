@@ -929,6 +929,7 @@ class NotAllowedCharInFilenameRule(Rule):
             desc="pattern defining characters (not) allowed in a name",
         ),
     ]
+    file_wide_rule = True
     added_in_version = "2.1.0"
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.IDENTIFIABLE, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL

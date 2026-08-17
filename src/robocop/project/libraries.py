@@ -16,14 +16,12 @@ rules using this information stay silent instead of reporting false positives.
 
 from __future__ import annotations
 
-import io
 import json
 import os
 import subprocess
 import sys
 import tempfile
 from concurrent.futures import ThreadPoolExecutor
-from contextlib import redirect_stdout
 from dataclasses import dataclass, field
 from fnmatch import fnmatch
 from functools import cache
@@ -339,8 +337,8 @@ class LibraryLoader:
         Import the library in the Robocop process.
 
         This is the default way of importing libraries, since starting a process for every library is slow.
-        Anything the library prints during the import is discarded, so that it does not corrupt the Robocop
-        output. The import cannot be stopped, so the timeout does not apply here.
+        Anything the library or Robot Framework prints during the import is discarded, so that it does not
+        corrupt the Robocop output. The import cannot be stopped, so the timeout does not apply here.
 
         Returns:
             Response describing the library keywords or the failure.
@@ -350,8 +348,7 @@ class LibraryLoader:
 
         already_imported = set(sys.modules)
         try:
-            with redirect_stdout(io.StringIO()):
-                return load_library(self._worker_request(request))
+            return load_library(self._worker_request(request))
         finally:
             self._forget_local_modules(already_imported, request)
 

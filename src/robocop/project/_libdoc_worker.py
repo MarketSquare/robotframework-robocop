@@ -13,12 +13,55 @@ The module does not import Robocop, so that it can be started even if the inspec
 
 from __future__ import annotations
 
+import io
 import json
 import sys
 import traceback
-from typing import Any
+import warnings
+from contextlib import contextmanager, redirect_stderr, redirect_stdout, suppress
+from typing import TYPE_CHECKING, Any
+
+if TYPE_CHECKING:
+    from collections.abc import Iterator
 
 ARGUMENT_SEPARATOR = "::"
+
+
+@contextmanager
+def _silenced_robot_logger() -> Iterator[None]:
+    """Stop Robot Framework from printing library import errors and warnings to the console."""
+    try:
+        from robot.output import LOGGER  # noqa: PLC0415
+    except ImportError:  # pragma: no cover - defensive, Robot Framework is a required dependency
+        yield
+        return
+    # Messages are not cached either, since cached messages are printed when a new logger is registered.
+    with suppress(AttributeError):
+        LOGGER.disable_message_cache()
+    with LOGGER.cache_only:
+        yield
+
+
+@contextmanager
+def silenced() -> Iterator[None]:
+    """Hide everything the imported library and Robot Framework print while the library is imported."""
+    discarded = io.StringIO()
+    # Robot Framework writes the output captured during the library import directly to the original streams.
+    original_stdout, original_stderr = sys.__stdout__, sys.__stderr__
+    sys.__stdout__ = discarded  # type: ignore[assignment, misc]
+    sys.__stderr__ = discarded  # type: ignore[assignment, misc]
+    try:
+        with (
+            warnings.catch_warnings(),
+            redirect_stdout(discarded),
+            redirect_stderr(discarded),
+            _silenced_robot_logger(),
+        ):
+            warnings.simplefilter("ignore")
+            yield
+    finally:
+        sys.__stdout__ = original_stdout  # type: ignore[misc]
+        sys.__stderr__ = original_stderr  # type: ignore[misc]
 
 
 def _argument_spec(spec: Any) -> dict[str, Any]:
@@ -78,12 +121,14 @@ def load_library(request: dict[str, Any]) -> dict[str, Any]:
     try:
         from robot.libdocpkg import LibraryDocumentation  # noqa: PLC0415
 
-        library = LibraryDocumentation(name)
+        with silenced():
+            library = LibraryDocumentation(name)
+            keywords = _keywords(library)
         return {
             "status": "ok",
             "name": library.name,
             "source": str(library.source) if library.source else None,
-            "keywords": _keywords(library),
+            "keywords": keywords,
         }
     except BaseException as error:  # noqa: BLE001 - importing a library executes arbitrary code
         message = f"{type(error).__name__}: {error}".strip()

@@ -12,7 +12,7 @@ from robot.parsing.model.statements import Arguments, Statement, Tags
 from robot.variables.search import search_variable
 
 from robocop.linter.utils.misc import normalize_robot_name
-from robocop.parsing.run_keywords import iterate_keyword_calls
+from robocop.parsing.run_keywords import BDD_PREFIXES, iterate_keyword_calls
 from robocop.parsing.variables import VariableMatches  # type: ignore[attr-defined]
 from robocop.project.definitions import (
     ArgumentsSpec,
@@ -39,7 +39,7 @@ if TYPE_CHECKING:
     )
 
 
-DEFAULT_BDD_PREFIXES = frozenset({"Given", "When", "Then", "And", "But"})
+DEFAULT_BDD_PREFIXES = BDD_PREFIXES
 VARIABLE_VALUE_TOKENS = (Token.ARGUMENT, Token.NAME, Token.KEYWORD, Token.OPTION)
 
 

@@ -23,3 +23,12 @@ class TestRuleAcceptance(RuleAcceptance):
             ignored_library=["OperatingSystem", "DateTime"],
             exit_code=0,
         )
+
+    def test_library_keywords_with_embedded_arguments(self):
+        self.check_rule(
+            src_files=["."],
+            expected_file=None,
+            test_dir=self.test_class_dir / "embedded",
+            project_check=True,
+            exit_code=0,
+        )

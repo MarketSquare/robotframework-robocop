@@ -152,10 +152,11 @@ All of them can be enabled at once with the special ``PROJECT`` value, which can
 ```bash
 robocop check --select PROJECT  # run only the project level rules
 robocop check --extend-select PROJECT  # run the default rules and all project level rules
-robocop check --select ALL --ignore PROJECT  # run every rule except the project level ones
+robocop check --select ALL --extend-select PROJECT  # run every rule, including the project level ones
 ```
 
-``--select ALL`` enables the project rules as well, since it selects every rule.
+``--select ALL`` does not enable the project rules. Since they are slower and require the whole project to be
+parsed, they have to be selected explicitly - either by name, or with the ``PROJECT`` value.
 
 Import paths often contain variables. Provide them with the ``--variable`` or ``--variablefile`` option so that the
 imports can be resolved:

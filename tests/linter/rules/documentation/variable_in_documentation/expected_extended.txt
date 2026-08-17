@@ -1,0 +1,19 @@
+extended.robot:2:41 DOC05 Unescaped variable '${value}' in documentation
+   |
+ 1 | *** Settings ***
+ 2 | Documentation    Literal scalar example ${value}.
+   |                                         ^^^^^^^^ DOC05
+ 3 | ...              Escaped \${literal}; environment %{ENV}.
+   | Suggestion: If literal variable syntax is intended, escape it with a backslash.
+   |
+
+extended.robot:3:51 DOC05 Unescaped variable '%{ENV}' in documentation
+   |
+ 1 | *** Settings ***
+ 2 | Documentation    Literal scalar example ${value}.
+ 3 | ...              Escaped \${literal}; environment %{ENV}.
+   |                                                   ^^^^^^ DOC05
+   | Suggestion: If literal variable syntax is intended, escape it with a backslash.
+   |
+
+Found 2 issues.

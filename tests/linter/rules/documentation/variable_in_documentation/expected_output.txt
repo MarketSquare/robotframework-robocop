@@ -1,0 +1,20 @@
+test.robot:2:36 [I] DOC05 Unescaped variable '${SCALAR}' in documentation
+test.robot:2:60 [I] DOC05 Unescaped variable '${UNDEFINED}' in documentation
+test.robot:3:34 [I] DOC05 Unescaped variable '@{LIST}' in documentation
+test.robot:3:54 [I] DOC05 Unescaped variable '&{DICT}' in documentation
+test.robot:3:79 [I] DOC05 Unescaped variable '%{ROBOCOP_DOC_ENV}' in documentation
+test.robot:5:45 [I] DOC05 Unescaped variable '${message}' in documentation
+test.robot:14:31 [I] DOC05 Unescaped variable '${test scalar}' in documentation
+test.robot:15:29 [I] DOC05 Unescaped variable '@{test list}' in documentation
+test.robot:15:54 [I] DOC05 Unescaped variable '&{test dict}' in documentation
+test.robot:15:80 [I] DOC05 Unescaped variable '%{TEST_ENV}' in documentation
+test.robot:21:31 [I] DOC05 Unescaped variable '${keyword scalar}' in documentation
+test.robot:22:29 [I] DOC05 Unescaped variable '@{keyword list}' in documentation
+test.robot:22:57 [I] DOC05 Unescaped variable '&{keyword dict}' in documentation
+test.robot:22:86 [I] DOC05 Unescaped variable '%{KEYWORD_ENV}' in documentation
+test.robot:23:58 [I] DOC05 Unescaped variable '${example}' in documentation
+test.robot:23:70 [I] DOC05 Unescaped variable '@{example}' in documentation
+test.robot:23:82 [I] DOC05 Unescaped variable '&{example}' in documentation
+test.robot:23:94 [I] DOC05 Unescaped variable '%{EXAMPLE}' in documentation
+
+Found 18 issues.

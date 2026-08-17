@@ -4,6 +4,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from robot.api import Token
+from robot.errors import VariableError
 from robot.parsing.model.statements import Documentation
 
 from robocop.linter import sonar_qube
@@ -12,6 +14,7 @@ from robocop.linter.utils.misc import str2bool
 
 if TYPE_CHECKING:
     from robot.parsing.model import File, Keyword, SettingSection, TestCase
+    from robot.parsing.model.statements import Statement
 
 
 def report_if_documentation_is_missing(rule: Rule, node: Keyword | TestCase) -> None:
@@ -179,3 +182,69 @@ class MissingDocResourceFileRule(Rule):
         if not self.enabled:
             return
         self.report(node=node, lineno=1, col=1)
+
+
+class VariableInDocumentationRule(Rule):
+    r"""
+    Unescaped variable syntax in documentation.
+
+    Robot Framework resolves variables in suite, test case and user keyword documentation when a suite is executed.
+    This includes scalar (``${name}``), list (``@{items}``), dictionary (``&{mapping}``) and environment
+    (``%{NAME}``) variable syntax. Defined variables are replaced with their values. Undefined variables are left
+    unchanged, which can make an unescaped literal example appear correct until a variable with the same name becomes
+    available.
+
+    For example, this documentation changes at runtime if ``${value}`` exists:
+
+        *** Test Cases ***
+        Example
+            [Documentation]    The argument syntax is ${value}.
+            No Operation
+
+    Escape syntax that should be displayed literally:
+
+        *** Test Cases ***
+        Example
+            [Documentation]    Scalar: \${value}; list: \@{items}; dictionary: \&{mapping}; environment: \%{HOME}.
+            No Operation
+
+    The leading backslash prevents substitution and is removed from the rendered documentation. The rule checks suite,
+    test case and user keyword documentation, including continuation lines.
+
+    The rule is disabled by default. Enable it with:
+
+        robocop check --select variable-in-documentation
+
+    There is no automatic fix. Robocop cannot determine whether interpolation is intentional, and escaping an
+    intentionally dynamic value would change the rendered documentation. If interpolation is intended, leave the
+    syntax unescaped and disable the rule locally where needed.
+
+    """
+
+    name = "variable-in-documentation"
+    rule_id = "DOC05"
+    message = "Unescaped variable '{variable}' in documentation"
+    severity = RuleSeverity.INFO
+    enabled = False
+    added_in_version = "9.0.0"
+    sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
+        clean_code=sonar_qube.CleanCodeAttribute.CLEAR, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
+    )
+    fix_suggestion = "If literal variable syntax is intended, escape it with a backslash."
+
+    def check(self, node: Statement) -> None:
+        if not self.enabled:
+            return
+        for token in node.get_tokens(Token.ARGUMENT):
+            try:
+                variables = token.tokenize_variables()
+                for variable in variables:
+                    if variable.type != Token.VARIABLE:
+                        continue
+                    self.report(
+                        variable=variable.value,
+                        node=variable,
+                        end_col=variable.end_col_offset + 1,
+                    )
+            except VariableError:
+                continue

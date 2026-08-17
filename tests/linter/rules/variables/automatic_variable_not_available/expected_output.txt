@@ -1,0 +1,19 @@
+test.robot:2:32:2:44 [W] VAR13 Automatic variable '${TEST NAME}' is not available in suite setup; it is only available in test case
+test.robot:2:48:2:62 [W] VAR13 Automatic variable '${TEST STATUS}' is not available in suite setup; it is only available in test teardown
+test.robot:2:66:2:81 [W] VAR13 Automatic variable '${SUITE STATUS}' is not available in suite setup; it is only available in suite teardown
+test.robot:2:85:2:102 [W] VAR13 Automatic variable '${KEYWORD STATUS}' is not available in suite setup; it is only available in user keyword teardown
+test.robot:3:71:3:83 [W] VAR13 Automatic variable '${TEST NAME}' is not available in suite teardown; it is only available in test case
+test.robot:3:87:3:105 [W] VAR13 Automatic variable '${KEYWORD MESSAGE}' is not available in suite teardown; it is only available in user keyword teardown
+test.robot:4:89:4:103 [W] VAR13 Automatic variable '${TEST STATUS}' is not available in test setup; it is only available in test teardown
+test.robot:5:85:5:100 [W] VAR13 Automatic variable '${SUITE STATUS}' is not available in test teardown; it is only available in suite teardown
+test.robot:8:41:8:58 [W] VAR13 Automatic variable '${KEYWORD STATUS}' is not available in suite context; it is only available in user keyword teardown
+test.robot:13:44:13:58 [W] VAR13 Automatic variable '${TEST STATUS}' is not available in test setup; it is only available in test teardown
+test.robot:13:62:13:80 [W] VAR13 Automatic variable '${KEYWORD MESSAGE}' is not available in test setup; it is only available in user keyword teardown
+test.robot:14:84:14:100 [W] VAR13 Automatic variable '${SUITE MESSAGE}' is not available in test teardown; it is only available in suite teardown
+test.robot:16:17:16:31 [W] VAR13 Automatic variable '${TEST STATUS}' is not available in test case body; it is only available in test teardown
+test.robot:16:35:16:50 [W] VAR13 Automatic variable '${TEST MESSAGE}' is not available in test case body; it is only available in test teardown
+test.robot:16:54:16:69 [W] VAR13 Automatic variable '${SUITE STATUS}' is not available in test case body; it is only available in suite teardown
+test.robot:16:73:16:90 [W] VAR13 Automatic variable '${KEYWORD STATUS}' is not available in test case body; it is only available in user keyword teardown
+test.robot:17:28:17:46 [W] VAR13 Automatic variable '${KEYWORD MESSAGE}' is not available in test case body; it is only available in user keyword teardown
+
+Found 17 issues.

@@ -1,0 +1,17 @@
+extended.robot:3:19 VAR13 Automatic variable '${TEST STATUS}' is not available in test case body; it is only available in test teardown
+   |
+ 1 | *** Test Cases ***
+ 2 | Multiple And Nested Automatic Variables
+ 3 |     Log    status ${TEST STATUS} and prefix-${outer}[${KEYWORD MESSAGE}]-suffix
+   |                   ^^^^^^^^^^^^^^ VAR13
+   |
+
+extended.robot:3:54 VAR13 Automatic variable '${KEYWORD MESSAGE}' is not available in test case body; it is only available in user keyword teardown
+   |
+ 1 | *** Test Cases ***
+ 2 | Multiple And Nested Automatic Variables
+ 3 |     Log    status ${TEST STATUS} and prefix-${outer}[${KEYWORD MESSAGE}]-suffix
+   |                                                      ^^^^^^^^^^^^^^^^^^ VAR13
+   |
+
+Found 2 issues.

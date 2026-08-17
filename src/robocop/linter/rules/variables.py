@@ -706,3 +706,89 @@ class DuplicatedAssignedVarNameRule(Rule):
         clean_code=sonar_qube.CleanCodeAttribute.DISTINCT, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
     deprecated_names = ("0812",)
+
+
+class AutomaticVariableNotAvailableRule(Rule):
+    """
+    Automatic variable used in a context where Robot Framework does not provide it.
+
+    Robot Framework has several automatic variables whose availability is limited to a specific execution context:
+
+    - ``${TEST NAME}``, ``@{TEST TAGS}``, and ``${TEST DOCUMENTATION}`` are available while a test is running.
+    - ``${TEST STATUS}`` and ``${TEST MESSAGE}`` are available only in a test teardown.
+    - ``${SUITE STATUS}`` and ``${SUITE MESSAGE}`` are available only in a suite teardown.
+    - ``${KEYWORD STATUS}`` and ``${KEYWORD MESSAGE}`` are available only in a user keyword teardown.
+
+    Using one of these variables directly in another context fails at runtime:
+
+        *** Test Cases ***
+        Invalid automatic variables
+            Log    ${KEYWORD STATUS}
+            Log    ${TEST STATUS}
+            [Teardown]    Log    ${SUITE STATUS}
+
+    Use each variable in the context where Robot Framework makes it available:
+
+        *** Settings ***
+        Suite Teardown    Log    ${SUITE STATUS}
+        Test Teardown     Log    ${TEST STATUS}
+
+        *** Test Cases ***
+        Valid automatic variables
+            Log    ${TEST NAME}
+
+        *** Keywords ***
+        Keyword with teardown
+            No Operation
+            [Teardown]    Log    ${KEYWORD STATUS}
+
+    Robocop deliberately does not report these variables inside user keyword definitions. A user keyword can be called
+    from a test, test teardown, suite teardown, or another user keyword teardown, so its actual execution context cannot
+    be determined reliably from the file where it is defined. For example, ``${TEST NAME}`` in a user keyword can be
+    valid when called by a test but invalid when called by a suite setup. This conservative behavior avoids presenting
+    call-context guesses as certain errors.
+
+    See the official
+    [automatic variable scope table](https://robotframework.org/robotframework/latest/RobotFrameworkUserGuide.html#automatic-variables).
+    The rule has no automatic fix because choosing a replacement or moving code requires understanding its intent.
+
+    """
+
+    name = "automatic-variable-not-available"
+    rule_id = "VAR13"
+    message = "Automatic variable '{variable}' is not available in {context}; it is only available in {available_in}"
+    severity = RuleSeverity.WARNING
+    added_in_version = "9.0.0"
+    sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
+        clean_code=sonar_qube.CleanCodeAttribute.LOGICAL, issue_type=sonar_qube.SonarQubeIssueType.BUG
+    )
+
+    scopes = {
+        "testname": ("test case", frozenset({"test setup", "test case body", "test teardown"})),
+        "testtags": ("test case", frozenset({"test setup", "test case body", "test teardown"})),
+        "testdocumentation": ("test case", frozenset({"test setup", "test case body", "test teardown"})),
+        "teststatus": ("test teardown", frozenset({"test teardown"})),
+        "testmessage": ("test teardown", frozenset({"test teardown"})),
+        "suitestatus": ("suite teardown", frozenset({"suite teardown"})),
+        "suitemessage": ("suite teardown", frozenset({"suite teardown"})),
+        "keywordstatus": ("user keyword teardown", frozenset({"user keyword teardown"})),
+        "keywordmessage": ("user keyword teardown", frozenset({"user keyword teardown"})),
+    }
+
+    def check(self, token: Token, variable: str, normalized_name: str, context: str, offset: int) -> None:
+        scope = self.scopes.get(normalized_name)
+        if scope is None:
+            return
+        available_in, valid_contexts = scope
+        if context in valid_contexts:
+            return
+        col = token.col_offset + offset + 1
+        self.report(
+            variable=variable,
+            context=context,
+            available_in=available_in,
+            node=token,
+            lineno=token.lineno,
+            col=col,
+            end_col=col + len(variable),
+        )

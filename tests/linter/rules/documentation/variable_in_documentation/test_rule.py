@@ -14,5 +14,22 @@ class TestRuleAcceptance(RuleAcceptance):
             test_on_version=">=5",
         )
 
-    def test_disabled_by_default(self):
+    def test_split_variables_with_legacy_joining(self):
+        self.check_rule(
+            src_files=["split.robot"],
+            expected_file="expected_split_legacy.txt",
+            issue_format="end_col",
+            test_on_version="<6.1",
+        )
+
+    def test_split_variables_with_modern_joining(self):
+        self.check_rule(
+            src_files=["split.robot"],
+            expected_file="expected_split.txt",
+            issue_format="end_col",
+            test_on_version=">=6.1",
+        )
+
+    def test_disabled_and_not_fixable(self):
         assert not VariableInDocumentationRule.enabled
+        assert not VariableInDocumentationRule.fixable

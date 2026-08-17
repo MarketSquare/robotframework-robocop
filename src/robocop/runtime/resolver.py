@@ -41,7 +41,7 @@ class RulePattern(NamedTuple):
 
 
 ALL_RULES = "ALL"
-"""Special value of ``--select`` that matches every rule."""
+"""Special value of ``--select`` that matches every rule except the project level ones."""
 
 PROJECT_RULES = "PROJECT"
 """Special value of the rule filters that matches every project level rule."""
@@ -128,7 +128,8 @@ class RuleMatcher:
         if self._is_rule_disabled(rule):
             return False
 
-        if self.select_filter.has_all():
+        # ALL does not select project level rules - they need to be selected explicitly or with PROJECT
+        if self.select_filter.has_all() and not rule.project_rule:
             self.select_filter.matched.add(ALL_RULES)
             return True
 

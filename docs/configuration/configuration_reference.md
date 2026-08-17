@@ -622,7 +622,8 @@ To only select and run rules with ``doc`` in their name:
     ]
     ```
 
-Use ``ALL`` keyword to select all rules (including rules disabled by default). You can combine it with ``--ignore``
+Use ``ALL`` keyword to select all rules (including rules disabled by default, but excluding
+[project level rules](../linter/linter.md#project-checks)). You can combine it with ``--ignore``
 option to select all rules except those you want to ignore:
 
 === ":octicons-command-palette-24: cli"
@@ -641,12 +642,14 @@ option to select all rules except those you want to ignore:
     ```
 
 Use ``PROJECT`` keyword to select all [project level rules](../linter/linter.md#project-checks). It works with
-``--select``, ``--extend-select`` and ``--ignore``:
+``--select``, ``--extend-select`` and ``--ignore``. Project level rules are not selected by ``ALL``, so use
+``PROJECT`` to run them together with every other rule:
 
 === ":octicons-command-palette-24: cli"
 
     ```bash
     robocop check --extend-select PROJECT
+    robocop check --select ALL --extend-select PROJECT
     ```
 
 === ":material-file-cog-outline: toml"

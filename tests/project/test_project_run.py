@@ -49,6 +49,12 @@ class TestProjectRulesInCheck:
     def test_no_project_skips_project_rules(self, project):
         assert run(project, ["unused-keyword"], project=False) == []
 
+    def test_all_does_not_select_project_rules(self, project):
+        assert "unused-keyword" not in rule_names(run(project, ["ALL"]))
+
+    def test_all_with_project_selects_project_rules(self, project):
+        assert "unused-keyword" in rule_names(run(project, ["ALL", "PROJECT"]))
+
     def test_no_project_keeps_file_rules(self, project):
         diagnostics = run(project, ["unused-keyword", "missing-doc-test-case"], project=False)
         assert rule_names(diagnostics) == ["missing-doc-test-case"]

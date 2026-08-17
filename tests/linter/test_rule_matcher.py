@@ -268,7 +268,7 @@ class TestRuleMatcher:
 
     def test_project_token_ignores_project_rules(self):
         rule_matcher = RuleMatcher(
-            select=["ALL"],
+            select=["ALL", "PROJECT"],
             extend_select=[],
             ignore=["PROJECT"],
             target_version=ROBOT_VERSION,
@@ -279,6 +279,44 @@ class TestRuleMatcher:
 
         assert rule_matcher.is_rule_enabled(get_enabled_rule("0101"))
         assert not rule_matcher.is_rule_enabled(get_project_rule("0201"))
+
+    def test_all_does_not_select_project_rules(self):
+        rule_matcher = RuleMatcher(
+            select=["ALL"],
+            extend_select=[],
+            ignore=[],
+            target_version=ROBOT_VERSION,
+            threshold=RuleSeverity.INFO,
+            fixable=[],
+            unfixable=[],
+        )
+
+        assert rule_matcher.is_rule_enabled(get_enabled_rule("0101"))
+        assert rule_matcher.is_rule_enabled(get_disabled_rule("0102"))
+        assert not rule_matcher.is_rule_enabled(get_project_rule("0201"))
+
+    @pytest.mark.parametrize(
+        ("select", "extend_select"),
+        [
+            (["ALL", "PROJECT"], []),
+            (["ALL"], ["PROJECT"]),
+            (["ALL"], ["some-message-0201"]),
+            (["ALL", "0201"], []),
+        ],
+    )
+    def test_all_with_project_rules_selected(self, select, extend_select):
+        rule_matcher = RuleMatcher(
+            select=select,
+            extend_select=extend_select,
+            ignore=[],
+            target_version=ROBOT_VERSION,
+            threshold=RuleSeverity.INFO,
+            fixable=[],
+            unfixable=[],
+        )
+
+        assert rule_matcher.is_rule_enabled(get_enabled_rule("0101"))
+        assert rule_matcher.is_rule_enabled(get_project_rule("0201"))
 
     def test_project_token_is_matched(self, capsys):
         rule_matcher = RuleMatcher(

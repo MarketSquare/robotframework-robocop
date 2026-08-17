@@ -865,8 +865,8 @@ class EmptyLineInTestTemplateRule(FixableRule):
             first argument
             second argument
 
-    The rule reports only empty lines between consecutive template data rows. Blank lines next to settings or comments
-    and blank lines separating test cases are preserved.
+    The rule reports only empty lines between consecutive template data rows, including rows nested in control
+    structures. Blank lines next to settings or comments and blank lines separating test cases are preserved.
 
     The fix removes the ignored empty line.
     """
@@ -885,9 +885,12 @@ class EmptyLineInTestTemplateRule(FixableRule):
     def check(self, node: TestCase) -> None:
         if not self.enabled:
             return
+        self.check_body(node.body)
+
+    def check_body(self, body: list[Node]) -> None:
         empty_lines: list[EmptyLine] = []
         template_data_row_seen = False
-        for statement in node.body:
+        for statement in body:
             if isinstance(statement, TemplateArguments):
                 if template_data_row_seen:
                     for empty_line in empty_lines:
@@ -899,6 +902,14 @@ class EmptyLineInTestTemplateRule(FixableRule):
             else:
                 template_data_row_seen = False
                 empty_lines = []
+            nested_body = getattr(statement, "body", None)
+            if nested_body is not None:
+                self.check_body(nested_body)
+            for branch_attr in ("orelse", "next"):
+                branch = getattr(statement, branch_attr, None)
+                while branch is not None:
+                    self.check_body(branch.body)
+                    branch = getattr(branch, branch_attr, None)
 
     def fix(self, diag: Diagnostic, source_lines: list[str]) -> Fix | None:  # noqa: ARG002
         if diag.node is None:

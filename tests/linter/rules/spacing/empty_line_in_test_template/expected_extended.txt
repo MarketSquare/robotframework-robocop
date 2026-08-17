@@ -31,6 +31,35 @@ test.robot:30:1 SPC23 Empty line in test template data
  31 |     second
     |
 
+test.robot:44:1 SPC23 Empty line in test template data
+    |
+ 42 |     FOR    ${item}    IN    first    second
+ 43 |         loop first
+ 44 |
+    | ^ SPC23
+ 45 |         loop second
+    |
+
+test.robot:52:1 SPC23 Empty line in test template data
+    |
+ 50 |         IF    $condition
+ 51 |             if first
+ 52 |
+    | ^ SPC23
+ 53 |             if second
+ 54 |         ELSE
+    |
+
+test.robot:56:1 SPC23 Empty line in test template data
+    |
+ 54 |         ELSE
+ 55 |             else first
+ 56 |
+    | ^ SPC23
+ 57 |             else second
+ 58 |         END
+    |
+
 local_template.robot:8:1 SPC23 Empty line in test template data
    |
  6 |
@@ -40,5 +69,5 @@ local_template.robot:8:1 SPC23 Empty line in test template data
  9 |     second
    |
 
-Found 5 issues.
-5 fixable with the '--fix' option.
+Found 8 issues.
+8 fixable with the '--fix' option.

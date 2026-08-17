@@ -2,22 +2,33 @@
 
 from __future__ import annotations
 
+import ast
 from collections import defaultdict
 from typing import TYPE_CHECKING
 
 from robot.api import Token
+from robot.api.parsing import ModelVisitor
 from robot.model.tags import TagPatterns
 from robot.parsing.model.blocks import Keyword, KeywordSection, SettingSection
-from robot.parsing.model.statements import LibraryImport, ResourceImport
+from robot.parsing.model.statements import LibraryImport, ResourceImport, Statement, TemplateArguments
+from robot.utils import unescape
 from robot.variables.search import search_variable
 
 from robocop.linter.rules import VisitorChecker, tags
 from robocop.linter.rules.tags import TagNode, new_tag_token, split_tag_on_variables
 from robocop.linter.utils.misc import normalize_robot_name
-from robocop.parsing.run_keywords import is_run_keyword
+from robocop.parsing.run_keywords import (
+    is_run_keyword,
+    iterate_keyword_calls,
+    parse_run_keyword_calls,
+    resolve_run_keyword,
+)
+from robocop.parsing.variables import VariableMatches  # type: ignore[attr-defined]
 from robocop.version_handling import ROBOT_VERSION
 
 if TYPE_CHECKING:
+    from collections.abc import Iterable
+
     from robot.parsing import File
     from robot.parsing.model.blocks import TestCase
     from robot.parsing.model.statements import (
@@ -26,8 +37,116 @@ if TYPE_CHECKING:
         ForceTags,
         KeywordCall,
         KeywordTags,
+        Setup,
         Tags,
+        Template,
+        TestTemplate,
     )
+
+    from robocop.parsing.run_keywords import KeywordCallTokens
+
+RUNTIME_IMPORT_KEYWORDS = {
+    "importlibrary",
+    "importresource",
+    "builtin.importlibrary",
+    "builtin.importresource",
+}
+RUNTIME_IMPORT_DISPATCH_KEYWORDS = {
+    "builtin.callmethod",
+    "builtin.evaluate",
+    "callmethod",
+    "evaluate",
+}
+RUNTIME_IMPORT_OR_DISPATCH_KEYWORDS = RUNTIME_IMPORT_KEYWORDS | RUNTIME_IMPORT_DISPATCH_KEYWORDS
+
+
+class RuntimeImportFinder(ModelVisitor):  # type: ignore[misc]
+    """Find runtime imports that may introduce BuiltIn keyword shadows."""
+
+    def __init__(
+        self,
+        suite_template: Token | None,
+    ) -> None:
+        self.suite_template = suite_template
+        self.found = False
+
+    @staticmethod
+    def is_runtime_import_or_uncertain(name: str) -> bool:
+        if search_variable(name, ignore_errors=True).base:
+            return True
+        unescaped_name = unescape(name)
+        words = unescaped_name.split()
+        return any(
+            normalize_robot_name(" ".join(words[index:])) in RUNTIME_IMPORT_OR_DISPATCH_KEYWORDS
+            for index in range(len(words))
+        )
+
+    @staticmethod
+    def argument_can_execute_import(value: str) -> bool:
+        normalized_value = normalize_robot_name(unescape(value))
+        if "importresource" in normalized_value or "importlibrary" in normalized_value:
+            return True
+        return any(
+            match.identifier == "$"
+            and (str(match.base).startswith("{") or any(marker in str(match.base) for marker in (".", "(", "[")))
+            for match in VariableMatches(value, ignore_errors=True)
+        )
+
+    def check_calls(self, calls: Iterable[KeywordCallTokens]) -> None:
+        for call in calls:
+            has_list_expansion = resolve_run_keyword(call.name.value, allow_bdd_prefixes=True) and any(
+                search_variable(argument.value, ignore_errors=True).identifier == "@" for argument in call.arguments
+            )
+            if (
+                has_list_expansion
+                or self.is_runtime_import_or_uncertain(call.name.value)
+                or any(self.argument_can_execute_import(argument.value) for argument in call.arguments)
+            ):
+                self.found = True
+                return
+
+    def check(self, node: KeywordCall | Setup | Template, name_token_type: str) -> None:
+        self.check_calls(
+            iterate_keyword_calls(
+                node,
+                name_token_type,
+                allow_bdd_prefixes=True,
+            )
+        )
+
+    def visit_KeywordCall(self, node: KeywordCall) -> None:  # noqa: N802
+        self.check(node, Token.KEYWORD)
+
+    def visit_Setup(self, node: Setup) -> None:  # noqa: N802
+        self.check(node, Token.NAME)
+
+    visit_Teardown = visit_Setup  # noqa: N815
+    visit_SuiteSetup = visit_Setup  # noqa: N815
+    visit_SuiteTeardown = visit_Setup  # noqa: N815
+    visit_TestSetup = visit_Setup  # noqa: N815
+    visit_TestTeardown = visit_Setup  # noqa: N815
+
+    def visit_Template(self, node: Template) -> None:  # noqa: N802
+        self.check(node, Token.NAME)
+
+    def visit_TestTemplate(self, node: TestTemplate) -> None:  # noqa: N802
+        self.suite_template = node.get_token(Token.NAME)
+        self.check(node, Token.NAME)
+
+    def visit_TestCase(self, node: TestCase) -> None:  # noqa: N802
+        local_template = next((statement for statement in node.body if statement.type == Token.TEMPLATE), None)
+        template = self.suite_template if local_template is None else local_template.get_token(Token.NAME)
+        if template is not None and normalize_robot_name(template.value) != "none":
+            for statement in node.body:
+                if not isinstance(statement, TemplateArguments):
+                    continue
+                self.check_calls(
+                    parse_run_keyword_calls(
+                        [template, *statement.data_tokens],
+                        allow_bdd_prefixes=True,
+                    )
+                )
+        self.generic_visit(node)
 
 
 class TagsChecker(VisitorChecker):
@@ -86,6 +205,7 @@ class TagsChecker(VisitorChecker):
         """Collect tags and possible BuiltIn keyword shadows before visiting sections."""
         self.allow_unqualified_run_keywords = True
         self.allow_qualified_run_keywords = True
+        suite_template: Token | None = None
         keyword_tags_token = getattr(Token, "KEYWORD_TAGS", "KEYWORD TAGS")
         for section in node.sections:
             if isinstance(section, SettingSection):
@@ -99,6 +219,8 @@ class TagsChecker(VisitorChecker):
                         self.default_tags = tag_names
                     elif statement.type == keyword_tags_token:
                         self.keyword_tags = tag_names
+                    elif statement.type == Token.TEST_TEMPLATE:
+                        suite_template = statement.get_token(Token.NAME)
                     elif isinstance(statement, (LibraryImport, ResourceImport)) or (
                         ROBOT_VERSION.major < 6 and statement.type == Token.ERROR
                     ):
@@ -115,6 +237,19 @@ class TagsChecker(VisitorChecker):
                         self.allow_unqualified_run_keywords = False
                         if "." in normalize_robot_name(keyword.name):
                             self.allow_qualified_run_keywords = False
+        runtime_import_finder = RuntimeImportFinder(
+            suite_template,
+        )
+        runtime_import_finder.visit(node)
+        executable_import = any(
+            runtime_import_finder.argument_can_execute_import(token.value)
+            for child in ast.walk(node)
+            if isinstance(child, Statement)
+            for token in child.data_tokens
+        )
+        if runtime_import_finder.found or executable_import:
+            self.allow_unqualified_run_keywords = False
+            self.allow_qualified_run_keywords = False
 
     @staticmethod
     def has_default_tags(node: File) -> bool:

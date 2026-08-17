@@ -3,6 +3,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
+from robot.utils import unescape
+
 from robocop.linter.utils.misc import normalize_robot_name
 
 if TYPE_CHECKING:
@@ -37,17 +39,17 @@ class RunKeywords(dict[str, RunKeywordVariant]):
         super().__setitem__(kw_variant.full_name, kw_variant)
 
     def __getitem__(self, keyword_name: str) -> RunKeywordVariant:
-        normalized_name = normalize_robot_name(keyword_name)
+        normalized_name = normalize_robot_name(unescape(keyword_name))
         return super().__getitem__(normalized_name)
 
     def __contains__(self, keyword_name: object) -> bool:
         if not isinstance(keyword_name, str):
             return False
-        normalized_name = normalize_robot_name(keyword_name)
+        normalized_name = normalize_robot_name(unescape(keyword_name))
         return super().__contains__(normalized_name)
 
     def get(self, keyword_name: str, default: RunKeywordVariant | None = None) -> RunKeywordVariant | None:  # type: ignore[override]
-        normalized_name = normalize_robot_name(keyword_name)
+        normalized_name = normalize_robot_name(unescape(keyword_name))
         return super().get(normalized_name, default)
 
     def __missing__(self, keyword_name: str) -> None:
@@ -126,6 +128,7 @@ def iterate_keyword_calls(
     name_token_type: str,
     allow_unqualified_run_keywords: bool = True,
     allow_qualified_run_keywords: bool = True,
+    allow_bdd_prefixes: bool = False,
 ) -> Generator[KeywordCallTokens, None, None]:
     """
     Iterate over keyword calls in the statement, together with arguments of every call.
@@ -139,13 +142,19 @@ def iterate_keyword_calls(
 
     """
     tokens = skip_leading_tokens(keyword_node.data_tokens, name_token_type)
-    yield from parse_run_keyword_calls(tokens, allow_unqualified_run_keywords, allow_qualified_run_keywords)
+    yield from parse_run_keyword_calls(
+        tokens,
+        allow_unqualified_run_keywords,
+        allow_qualified_run_keywords,
+        allow_bdd_prefixes,
+    )
 
 
 def parse_run_keyword_calls(
     tokens: list[Token],
     allow_unqualified_run_keywords: bool = True,
     allow_qualified_run_keywords: bool = True,
+    allow_bdd_prefixes: bool = False,
 ) -> Generator[KeywordCallTokens, None, None]:
     """
     Parse tokens into keyword calls, resolving nested run keywords.
@@ -157,10 +166,10 @@ def parse_run_keyword_calls(
     if not tokens:
         return
     yield KeywordCallTokens(name=tokens[0], arguments=list(tokens[1:]))
-    run_keyword = RUN_KEYWORDS[tokens[0].value]
+    run_keyword = resolve_run_keyword(tokens[0].value, allow_bdd_prefixes)
     if not run_keyword:
         return
-    is_qualified = "." in normalize_robot_name(tokens[0].value)
+    is_qualified = "." in normalize_robot_name(unescape(tokens[0].value))
     if (is_qualified and not allow_qualified_run_keywords) or (not is_qualified and not allow_unqualified_run_keywords):
         return
     tokens = tokens[run_keyword.resolve :]
@@ -172,6 +181,7 @@ def parse_run_keyword_calls(
                     prefix,
                     allow_unqualified_run_keywords,
                     allow_qualified_run_keywords,
+                    allow_bdd_prefixes,
                 )
         if "ELSE" in run_keyword.branches and is_token_value_in_tokens("ELSE", tokens):
             prefix, _branch, tokens = split_on_token_value(tokens, "ELSE", 1)
@@ -179,23 +189,36 @@ def parse_run_keyword_calls(
                 prefix,
                 allow_unqualified_run_keywords,
                 allow_qualified_run_keywords,
+                allow_bdd_prefixes,
             )
             yield from parse_run_keyword_calls(
                 tokens,
                 allow_unqualified_run_keywords,
                 allow_qualified_run_keywords,
+                allow_bdd_prefixes,
             )
             return
     elif run_keyword.split_on_and:
-        yield from split_on_and_calls(tokens, allow_unqualified_run_keywords, allow_qualified_run_keywords)
+        yield from split_on_and_calls(
+            tokens,
+            allow_unqualified_run_keywords,
+            allow_qualified_run_keywords,
+            allow_bdd_prefixes,
+        )
         return
-    yield from parse_run_keyword_calls(tokens, allow_unqualified_run_keywords, allow_qualified_run_keywords)
+    yield from parse_run_keyword_calls(
+        tokens,
+        allow_unqualified_run_keywords,
+        allow_qualified_run_keywords,
+        allow_bdd_prefixes,
+    )
 
 
 def split_on_and_calls(
     tokens: list[Token],
     allow_unqualified_run_keywords: bool = True,
     allow_qualified_run_keywords: bool = True,
+    allow_bdd_prefixes: bool = False,
 ) -> Generator[KeywordCallTokens, None, None]:
     """
     Split ``Run Keywords`` arguments into separate keyword calls.
@@ -212,8 +235,31 @@ def split_on_and_calls(
         return
     while is_token_value_in_tokens("AND", tokens):
         prefix, _branch, tokens = split_on_token_value(tokens, "AND", 1)
-        yield from parse_run_keyword_calls(prefix, allow_unqualified_run_keywords, allow_qualified_run_keywords)
-    yield from parse_run_keyword_calls(tokens, allow_unqualified_run_keywords, allow_qualified_run_keywords)
+        yield from parse_run_keyword_calls(
+            prefix,
+            allow_unqualified_run_keywords,
+            allow_qualified_run_keywords,
+            allow_bdd_prefixes,
+        )
+    yield from parse_run_keyword_calls(
+        tokens,
+        allow_unqualified_run_keywords,
+        allow_qualified_run_keywords,
+        allow_bdd_prefixes,
+    )
+
+
+def resolve_run_keyword(keyword_name: str, allow_bdd_prefixes: bool) -> RunKeywordVariant | None:
+    run_keyword = RUN_KEYWORDS.get(keyword_name)
+    if run_keyword is not None or not allow_bdd_prefixes:
+        return run_keyword
+    _prefix, separator, unprefixed_name = keyword_name.partition(" ")
+    while separator:
+        run_keyword = RUN_KEYWORDS.get(unprefixed_name)
+        if run_keyword is not None:
+            return run_keyword
+        _prefix, separator, unprefixed_name = unprefixed_name.partition(" ")
+    return None
 
 
 def parse_run_keyword(tokens: list[Token]) -> Generator[Token, None, None]:

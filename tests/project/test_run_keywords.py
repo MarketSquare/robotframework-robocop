@@ -11,6 +11,7 @@ def keyword_calls(
     body: str,
     allow_unqualified_run_keywords: bool = True,
     allow_qualified_run_keywords: bool = True,
+    allow_bdd_prefixes: bool = False,
 ) -> list[tuple[str, list[str]]]:
     """
     Parse test case body and return keyword calls with their arguments.
@@ -30,6 +31,7 @@ def keyword_calls(
                 Token.KEYWORD,
                 allow_unqualified_run_keywords=allow_unqualified_run_keywords,
                 allow_qualified_run_keywords=allow_qualified_run_keywords,
+                allow_bdd_prefixes=allow_bdd_prefixes,
             )
         )
     return calls
@@ -45,6 +47,18 @@ class TestIterateKeywordCalls:
     def test_run_keyword(self):
         assert keyword_calls("Run Keyword    My Keyword    a") == [
             ("Run Keyword", ["My Keyword", "a"]),
+            ("My Keyword", ["a"]),
+        ]
+
+    def test_escaped_run_keyword(self):
+        assert keyword_calls(r"Run\ Keyword    My Keyword    a") == [
+            (r"Run\ Keyword", ["My Keyword", "a"]),
+            ("My Keyword", ["a"]),
+        ]
+
+    def test_bdd_prefixed_run_keyword_when_enabled(self):
+        assert keyword_calls("Given Run Keyword    My Keyword    a", allow_bdd_prefixes=True) == [
+            ("Given Run Keyword", ["My Keyword", "a"]),
             ("My Keyword", ["a"]),
         ]
 

@@ -105,6 +105,27 @@ Docs are mkdocs (material theme) under `docs/`, partly generated from rule docst
 the relevant doc: formatters at `docs/formatter/formatters/<name>.md`, custom-rule docs at
 `docs/linter/custom_rules.md`, rule docs via the docstring.
 
+### Branch, commit and PR naming
+Everything is keyed off a Conventional Commits type. Allowed types (enforced by
+`.github/workflows/pr-title.yml`): `feat`, `fix`, `docs`, `style`, `refactor`, `perf`, `test`, `build`, `ci`,
+`chore`, `revert`.
+
+Pick the type that matches the change, then use it consistently:
+
+| Artifact | Format | Example |
+| --- | --- | --- |
+| Branch | `<type>/short-description` (kebab-case after the slash) | `feat/add-ignored-sections-param` |
+| Commit | `<type>: description` | `feat: add ignored sections parameter` |
+| PR title | `<type>: description` | `feat: add ignored sections parameter` |
+
+Rules:
+- Description is lowercase, imperative mood, no trailing period.
+- Branch name uses `/` after the type and `-` between words; do not use `_` or spaces. The words after the slash
+  should mirror the commit/PR description, so `feat: add ignored sections param` → `feat/add-ignored-sections-param`.
+- Scopes are optional (`feat(linter): ...`); never required.
+- Breaking changes use `<type>!: description` or a `BREAKING CHANGE:` footer.
+- Keep branch, commits and PR title on the same type so the generated changelog matches the branch.
+
 ### Releases
 Versioning/changelog is automated via release-please (`release-please-config.json`, `.release-please-manifest.json`).
 Follow Conventional Commits — PR titles are validated by `.github/workflows/pr-title.yml`. Version lives in

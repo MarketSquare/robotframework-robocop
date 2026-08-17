@@ -650,6 +650,7 @@ class RedundantContinueOnFailureRule(FixableRule):
         node: KeywordCall,
         continue_on_failure_tag: str | None,
         allow_unqualified_run_keywords: bool,
+        allow_qualified_run_keywords: bool,
     ) -> None:
         if not self.enabled or continue_on_failure_tag is None or node.assign:
             return
@@ -657,9 +658,12 @@ class RedundantContinueOnFailureRule(FixableRule):
             node,
             Token.KEYWORD,
             allow_unqualified_run_keywords=allow_unqualified_run_keywords,
+            allow_qualified_run_keywords=allow_qualified_run_keywords,
         ):
             normalized_name = normalize_robot_name(keyword_call.name.value)
             if normalized_name == "runkeywordandcontinueonfailure" and not allow_unqualified_run_keywords:
+                continue
+            if normalized_name == "builtin.runkeywordandcontinueonfailure" and not allow_qualified_run_keywords:
                 continue
             if normalized_name not in {
                 "runkeywordandcontinueonfailure",

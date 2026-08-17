@@ -1,5 +1,4 @@
 default_tags.robot:7:5 [I] TAG12 'Run Keyword And Continue On Failure' is redundant with the 'robot:recursive-continue-on-failure' tag
-imported_shadow.robot:9:5 [I] TAG12 'Run Keyword And Continue On Failure' is redundant with the 'robot:continue-on-failure' tag
 keywords.robot:4:5 [I] TAG12 'Run Keyword And Continue On Failure' is redundant with the 'robot:continue-on-failure' tag
 keywords.robot:8:5 [I] TAG12 'Run Keyword And Continue On Failure' is redundant with the 'robot:recursive-continue-on-failure' tag
 test_cases.robot:4:5 [I] TAG12 'Run Keyword And Continue On Failure' is redundant with the 'robot:continue-on-failure' tag
@@ -14,5 +13,5 @@ test_cases.robot:38:84 [I] TAG12 'Run Keyword And Continue On Failure' is redund
 test_cases.robot:42:39 [I] TAG12 'Run Keyword And Continue On Failure' is redundant with the 'robot:continue-on-failure' tag
 templated.robot:13:5 [I] TAG12 'Run Keyword And Continue On Failure' is redundant with the 'robot:continue-on-failure' tag
 
-Found 15 issues.
-15 fixable with the '--fix' option.
+Found 14 issues.
+14 fixable with the '--fix' option.

@@ -1,6 +1,4 @@
-Fixed 14 issues:
-- actual_fixed${/}imported_shadow.robot:
-    1 x TAG12 (redundant-continue-on-failure)
+Fixed 13 issues:
 - actual_fixed${/}keywords.robot:
     2 x TAG12 (redundant-continue-on-failure)
 - actual_fixed${/}templated.robot:
@@ -8,4 +6,4 @@ Fixed 14 issues:
 - actual_fixed${/}test_cases.robot:
     10 x TAG12 (redundant-continue-on-failure)
 
-Found 14 issues (14 fixed, 0 remaining).
+Found 13 issues (13 fixed, 0 remaining).

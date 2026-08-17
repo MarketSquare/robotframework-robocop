@@ -7,7 +7,11 @@ from robot.api import Token, get_model
 from robocop.parsing.run_keywords import iterate_keyword_calls
 
 
-def keyword_calls(body: str, allow_unqualified_run_keywords: bool = True) -> list[tuple[str, list[str]]]:
+def keyword_calls(
+    body: str,
+    allow_unqualified_run_keywords: bool = True,
+    allow_qualified_run_keywords: bool = True,
+) -> list[tuple[str, list[str]]]:
     """
     Parse test case body and return keyword calls with their arguments.
 
@@ -25,6 +29,7 @@ def keyword_calls(body: str, allow_unqualified_run_keywords: bool = True) -> lis
                 node,
                 Token.KEYWORD,
                 allow_unqualified_run_keywords=allow_unqualified_run_keywords,
+                allow_qualified_run_keywords=allow_qualified_run_keywords,
             )
         )
     return calls
@@ -79,3 +84,10 @@ class TestIterateKeywordCalls:
             allow_unqualified_run_keywords=False,
         )
         assert ("My Keyword", []) in calls
+
+    def test_qualified_run_keyword_can_be_ignored(self):
+        calls = keyword_calls(
+            "BuiltIn.Run Keyword If    ${cond}    My Keyword",
+            allow_qualified_run_keywords=False,
+        )
+        assert calls == [("BuiltIn.Run Keyword If", ["${cond}", "My Keyword"])]

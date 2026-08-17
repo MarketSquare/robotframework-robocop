@@ -8,11 +8,14 @@ from typing import TYPE_CHECKING
 from robot.api import Token
 from robot.model.tags import TagPatterns
 from robot.parsing.model.blocks import Keyword, KeywordSection, SettingSection
+from robot.parsing.model.statements import LibraryImport, ResourceImport
 from robot.variables.search import search_variable
 
 from robocop.linter.rules import VisitorChecker, tags
 from robocop.linter.rules.tags import TagNode, new_tag_token, split_tag_on_variables
+from robocop.linter.utils.misc import normalize_robot_name
 from robocop.parsing.run_keywords import is_run_keyword
+from robocop.version_handling import ROBOT_VERSION
 
 if TYPE_CHECKING:
     from robot.parsing import File
@@ -59,6 +62,7 @@ class TagsChecker(VisitorChecker):
         self.suite_default_tags = False
         self.continue_on_failure_tag: str | None = None
         self.allow_unqualified_run_keywords = True
+        self.allow_qualified_run_keywords = True
         self.in_templated_test = False
         super().__init__()
 
@@ -81,6 +85,7 @@ class TagsChecker(VisitorChecker):
     def collect_file_context(self, node: File) -> None:
         """Collect tags and possible BuiltIn keyword shadows before visiting sections."""
         self.allow_unqualified_run_keywords = True
+        self.allow_qualified_run_keywords = True
         keyword_tags_token = getattr(Token, "KEYWORD_TAGS", "KEYWORD TAGS")
         for section in node.sections:
             if isinstance(section, SettingSection):
@@ -94,14 +99,22 @@ class TagsChecker(VisitorChecker):
                         self.default_tags = tag_names
                     elif statement.type == keyword_tags_token:
                         self.keyword_tags = tag_names
-                    elif statement.type in {Token.LIBRARY, Token.RESOURCE}:
+                    elif isinstance(statement, (LibraryImport, ResourceImport)) or (
+                        ROBOT_VERSION.major < 6 and statement.type == Token.ERROR
+                    ):
                         self.allow_unqualified_run_keywords = False
-            elif isinstance(section, KeywordSection) and any(
-                is_run_keyword(keyword.name) or search_variable(keyword.name, ignore_errors=True).base
-                for keyword in section.body
-                if isinstance(keyword, Keyword) and keyword.name
-            ):
-                self.allow_unqualified_run_keywords = False
+                        self.allow_qualified_run_keywords = False
+            elif isinstance(section, KeywordSection):
+                for keyword in section.body:
+                    if not isinstance(keyword, Keyword) or not keyword.name:
+                        continue
+                    if search_variable(keyword.name, ignore_errors=True).base:
+                        self.allow_unqualified_run_keywords = False
+                        self.allow_qualified_run_keywords = False
+                    elif is_run_keyword(keyword.name):
+                        self.allow_unqualified_run_keywords = False
+                        if "." in normalize_robot_name(keyword.name):
+                            self.allow_qualified_run_keywords = False
 
     @staticmethod
     def has_default_tags(node: File) -> bool:
@@ -203,6 +216,7 @@ class TagsChecker(VisitorChecker):
             node,
             self.continue_on_failure_tag,
             self.allow_unqualified_run_keywords,
+            self.allow_qualified_run_keywords,
         )
 
     def visit_ForceTags(self, node: ForceTags) -> None:  # noqa: N802

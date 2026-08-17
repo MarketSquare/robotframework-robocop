@@ -98,7 +98,13 @@ class ParsingErrorChecker(VisitorChecker):
     def visit_KeywordCall(self, node: KeywordCall) -> None:  # noqa: N802
         if node.keyword and node.keyword.startswith("..."):
             col = node.data_tokens[0].col_offset + 1
-            self.report(self.not_enough_whitespace_after_newline_marker, node=node, col=col, end_col=col + 3)
+            self.report(
+                self.not_enough_whitespace_after_newline_marker,
+                name_end_col=col + 3,
+                node=node,
+                col=col,
+                end_col=col + 3,
+            )
         self.generic_visit(node)
 
     def visit_Statement(self, node: Statement) -> None:  # noqa: N802
@@ -254,6 +260,7 @@ class ParsingErrorChecker(VisitorChecker):
                         self.report(
                             self.not_enough_whitespace_after_suite_setting,
                             setting_name=self.suite_settings[setting],
+                            name_end_col=self.get_setting_name_end_col(token.value, setting, token.col_offset),
                             node=token,
                             end_col=token.end_col_offset + 1,
                         )
@@ -283,6 +290,7 @@ class ParsingErrorChecker(VisitorChecker):
                 self.report(
                     self.not_enough_whitespace_after_variable,
                     variable_name=variable_token.value,
+                    name_end_col=variable_token.col_offset + variables[0][1] + 1,
                     node=variable_token,
                     col=variable_token.col_offset + 1,
                     end_col=variable_token.end_col_offset + 1,
@@ -306,10 +314,22 @@ class ParsingErrorChecker(VisitorChecker):
                 col = name.find(".") + 1
                 self.report(
                     self.not_enough_whitespace_after_newline_marker,
+                    name_end_col=col + 3,
                     node=node,
                     col=col,
                     end_col=col + 3,
                 )
+
+    @staticmethod
+    def get_setting_name_end_col(value: str, normalized_setting: str, col_offset: int) -> int:
+        """Return the first column after a setting name, accounting for internal spaces."""
+        remaining = len(normalized_setting)
+        for index, char in enumerate(value):
+            if not char.isspace():
+                remaining -= 1
+                if remaining == 0:
+                    return col_offset + index + 2
+        return col_offset + len(value) + 1
 
     def handle_unsupported_settings_in_init_file(self, node: Node) -> None:
         if ROBOT_VERSION.major < 6 and "__init__" not in self.source_file.path.name:

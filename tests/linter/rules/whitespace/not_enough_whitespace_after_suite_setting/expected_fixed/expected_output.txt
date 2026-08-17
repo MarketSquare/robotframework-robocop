@@ -1,0 +1,5 @@
+Fixed 12 issues:
+- actual_fixed${/}test.robot:
+    12 x SPC22 (not-enough-whitespace-after-suite-setting)
+
+Found 12 issues (12 fixed, 0 remaining).

@@ -12,3 +12,4 @@ test.robot:19:1 [E] SPC22 Not enough whitespace after 'Documentation' setting
 test.robot:21:1 [E] SPC22 Not enough whitespace after 'Metadata' setting
 
 Found 12 issues.
+12 fixable with the '--fix' option.

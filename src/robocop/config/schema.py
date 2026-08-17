@@ -323,6 +323,7 @@ class RawConfig:
     project: bool | None = None
     analyze_libraries: bool | None = None
     load_library_timeout: int | None = None
+    library_workers: bool | None = None
     ignored_libraries: list[str] | None = None
     force_exclude: bool | None = None
     verbose: bool | None = None
@@ -346,6 +347,7 @@ class RawConfig:
             "project",
             "analyze_libraries",
             "load_library_timeout",
+            "library_workers",
             "ignored_libraries",
             "force_exclude",
             "verbose",
@@ -394,6 +396,7 @@ class Config:
     project: bool | None
     analyze_libraries: bool
     load_library_timeout: int
+    library_workers: bool
     ignored_libraries: list[str]
     force_exclude: bool
     verbose: bool
@@ -424,6 +427,7 @@ class Config:
             and self.project == other.project
             and self.analyze_libraries == other.analyze_libraries
             and self.load_library_timeout == other.load_library_timeout
+            and self.library_workers == other.library_workers
             and self.ignored_libraries == other.ignored_libraries
             and self.verbose == other.verbose
             and self.silent == other.silent

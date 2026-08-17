@@ -95,6 +95,7 @@ class ConfigBuilder:
         project = resolve(cli_raw, file_raw, "project", defaults.PROJECT)
         analyze_libraries = resolve(cli_raw, file_raw, "analyze_libraries", defaults.ANALYZE_LIBRARIES)
         load_library_timeout = resolve(cli_raw, file_raw, "load_library_timeout", defaults.LOAD_LIBRARY_TIMEOUT)
+        library_workers = resolve(cli_raw, file_raw, "library_workers", defaults.LIBRARY_WORKERS)
         ignored_libraries: list[str] = merge_lists(file_raw, cli_raw, "ignored_libraries")
         force_exclude = resolve(cli_raw, file_raw, "force_exclude", defaults.FORCE_EXCLUDE)
         verbose = resolve(cli_raw, file_raw, "verbose", defaults.VERBOSE)
@@ -147,6 +148,7 @@ class ConfigBuilder:
             project=project,
             analyze_libraries=analyze_libraries,
             load_library_timeout=load_library_timeout,
+            library_workers=library_workers,
             ignored_libraries=ignored_libraries,
             force_exclude=force_exclude,
             verbose=verbose,

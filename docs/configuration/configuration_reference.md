@@ -476,8 +476,8 @@ The project context is always built from the project root, even if only selected
 
 ``robocop check`` imports Robot Framework libraries to find out what keywords they provide and what
 arguments those keywords accept. **Importing a library executes its code**, which is why it only happens when
-project level rules are enabled. Every library is imported once, in a separate process with a timeout, and any
-failure is silently ignored - a library that cannot be imported simply provides no keywords.
+project level rules are enabled. Every library is imported once and any failure is silently ignored - a library
+that cannot be imported simply provides no keywords.
 
 Use ``--no-analyze-libraries`` to disable it completely:
 
@@ -496,9 +496,35 @@ Use ``--no-analyze-libraries`` to disable it completely:
 
 ---
 
+#### ``library-workers``
+
+By default libraries are imported synchronously, directly in the Robocop process. It is the fastest option, but
+Robocop cannot stop a library that never finishes importing.
+
+Use ``--library-workers`` to import every library in a separate process instead. Several libraries are then
+imported at the same time and every import is stopped after
+[load-library-timeout](#load-library-timeout) seconds. It is useful for projects with libraries that hang or
+crash the interpreter on import.
+
+=== ":octicons-command-palette-24: cli"
+
+    ```bash
+    robocop check --library-workers
+    ```
+
+=== ":material-file-cog-outline: toml"
+
+    ```toml
+    [tool.robocop]
+    library-workers = true
+    ```
+
+---
+
 #### ``load-library-timeout``
 
-Maximum time in seconds for importing a single library. Default is ``10``.
+Maximum time in seconds for importing a single library. Default is ``10``. Only used together with
+[library-workers](#library-workers), since a library imported in the Robocop process cannot be interrupted.
 
 === ":octicons-command-palette-24: cli"
 

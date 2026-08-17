@@ -203,7 +203,16 @@ load_library_timeout_option = Annotated[
         "--load-library-timeout",
         show_default="10",
         metavar="SECONDS",
-        help="Maximum time for importing a single library.",
+        help="Maximum time for importing a single library. Only used together with --library-workers.",
+        rich_help_panel="Project analysis",
+    ),
+]
+library_workers_option = Annotated[
+    bool | None,
+    typer.Option(
+        "--library-workers/--no-library-workers",
+        show_default="--no-library-workers",
+        help="Import libraries in parallel, in separate processes with a timeout, instead of in Robocop itself.",
         rich_help_panel="Project analysis",
     ),
 ]
@@ -445,6 +454,7 @@ def check_files(
     project: project_option = None,
     analyze_libraries: analyze_libraries_option = None,
     load_library_timeout: load_library_timeout_option = None,
+    library_workers: library_workers_option = None,
     ignored_library: ignored_libraries_option = None,
     verbose: verbose_option = None,
     silent: silent_option = None,
@@ -497,6 +507,7 @@ def check_files(
         project=project,
         analyze_libraries=analyze_libraries,
         load_library_timeout=load_library_timeout,
+        library_workers=library_workers,
         ignored_libraries=ignored_library,
         silent=silent,
         verbose=verbose,

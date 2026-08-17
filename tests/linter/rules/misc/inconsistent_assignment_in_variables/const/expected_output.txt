@@ -2,3 +2,4 @@ const${/}test.robot:7:1 [W] MISC05 The assignment sign is not consistent inside 
 const${/}test.robot:8:1 [W] MISC05 The assignment sign is not consistent inside the variables section. Expected ' =' but got '' instead
 
 Found 2 issues.
+2 fixable with the '--fix' option.

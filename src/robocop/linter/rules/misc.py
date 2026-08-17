@@ -62,6 +62,7 @@ FOR_LOOP_KEYWORDS = frozenset(
 )
 COMPARISON_SIGNS = frozenset({"==", "!="})
 EMPTY_COMPARISON = frozenset({"${true}", "${false}", "true", "false", "[]", "{}", "set()", "list()", "dict()"})
+NEGATIVE_CONDITION_PARTS = 4  # not ${variable} is None
 
 
 def tokens_length(tokens: list[Token]) -> int:
@@ -361,7 +362,7 @@ class InconsistentAssignmentRule(Rule):
         )
 
 
-class InconsistentAssignmentInVariablesRule(Rule):
+class InconsistentAssignmentInVariablesRule(FixableRule):
     """
     Not consistent assignment sign in the ``*** Variables ***`` section.
 
@@ -397,6 +398,8 @@ class InconsistentAssignmentInVariablesRule(Rule):
     - 'equal_sign' (``=``)
     - 'space_and_equal_sign' (`` =``).
 
+    The assignment sign can be replaced with the expected one automatically with the ``--fix`` option.
+
     """
 
     name = "inconsistent-assignment-in-variables"
@@ -417,6 +420,7 @@ class InconsistentAssignmentInVariablesRule(Rule):
         )
     ]
     added_in_version = "1.7.0"
+    fix_availability = FixAvailability.ALWAYS
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.CONVENTIONAL,
         issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL,
@@ -440,6 +444,22 @@ class InconsistentAssignmentInVariablesRule(Rule):
                 col=var_token.col_offset + 1,
                 end_col=var_token.end_col_offset + 1,
             )
+
+    def fix(self, diag: Diagnostic, source_lines: list[str]) -> Fix | None:
+        """Replace the assignment sign with the expected one."""
+        line = source_lines[diag.range.start.line - 1]
+        variable = line[diag.range.start.character - 1 : diag.range.end.character - 1]
+        actual_sign = str(diag.reported_arguments["actual_sign"])
+        expected_sign = str(diag.reported_arguments["expected_sign"])
+        if actual_sign and not variable.endswith(actual_sign):
+            return None
+        base = variable[: len(variable) - len(actual_sign)] if actual_sign else variable
+        edit = TextEdit.replace_at_range(self.rule_id, self.name, diag.range, f"{base}{expected_sign}")
+        return Fix(
+            edits=[edit],
+            message=f"Replace the '{actual_sign}' assignment sign with '{expected_sign}'",
+            applicability=FixApplicability.SAFE,
+        )
 
 
 class CanBeResourceFileRule(Rule):
@@ -750,6 +770,8 @@ class MultilineInlineIfRule(Rule):
                 Log  hi!
             END
 
+    Use the ``InlineIf`` formatter (``robocop format``) to reformat the inline IF.
+
     """
 
     name = "multiline-inline-if"
@@ -909,7 +931,7 @@ class ExpressionCanBeSimplifiedRule(Rule):
             )
 
 
-class MisplacedNegativeConditionRule(Rule):
+class MisplacedNegativeConditionRule(FixableRule):
     """
     The position of not operator can be changed for better readability.
 
@@ -939,6 +961,8 @@ class MisplacedNegativeConditionRule(Rule):
                 Fail    Did not receive codes from API.
             END
 
+    The condition can be rewritten automatically with the ``--fix`` option.
+
     """
 
     name = "misplaced-negative-condition"
@@ -947,6 +971,7 @@ class MisplacedNegativeConditionRule(Rule):
     severity = RuleSeverity.INFO
     version = ">=4.0"
     added_in_version = "4.0.0"
+    fix_availability = FixAvailability.SOMETIMES
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.CONVENTIONAL,
         issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL,
@@ -970,6 +995,37 @@ class MisplacedNegativeConditionRule(Rule):
             node=condition_token,
             col=condition_token.col_offset + 1,
             end_col=condition_token.end_col_offset + 1,
+        )
+
+    def fix(self, diag: Diagnostic, source_lines: list[str]) -> Fix | None:
+        """Move the ``not`` operator from the left side of the condition to the comparison itself."""
+        original = str(diag.reported_arguments["original_condition"])
+        proposed = str(diag.reported_arguments["proposed_condition"])
+        parts = original.split(" ")
+        if len(parts) != NEGATIVE_CONDITION_PARTS or not all(parts) or parts[-1] == "not":
+            return None  # unexpected condition, we cannot reliably rewrite it
+        line = source_lines[diag.range.start.line - 1]
+        start = diag.range.start.character - 1
+        end = diag.range.end.character - 1
+        condition = line[start:end]
+        if condition.count(original) != 1:
+            return None
+        offset = condition.index(original)
+        if condition[:offset].endswith("not "):
+            return None  # double negation, the intention is not clear
+        edit = TextEdit(
+            rule_id=self.rule_id,
+            rule_name=self.name,
+            start_line=diag.range.start.line,
+            start_col=start + offset + 1,
+            end_line=diag.range.start.line,
+            end_col=start + offset + len(original) + 1,
+            replacement=proposed,
+        )
+        return Fix(
+            edits=[edit],
+            message=f"Rewrite '{original}' to '{proposed}'",
+            applicability=FixApplicability.SAFE,
         )
 
 

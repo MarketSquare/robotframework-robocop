@@ -16,3 +16,4 @@ test.robot:8:1 MISC05 The assignment sign is not consistent inside the variables
    |
 
 Found 2 issues.
+2 fixable with the '--fix' option.

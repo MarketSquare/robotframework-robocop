@@ -31,3 +31,6 @@ class TestRuleAcceptance(RuleAcceptance):
             expected_file="variable_type_conversion_expected.txt",
             test_on_version=">7.2.1",
         )
+
+    def test_fix(self):
+        self.check_rule_fix(src_files=["test.robot"])

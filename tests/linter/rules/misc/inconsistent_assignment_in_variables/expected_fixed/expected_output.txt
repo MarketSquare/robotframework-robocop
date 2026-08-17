@@ -1,0 +1,5 @@
+Fixed 2 issues:
+- actual_fixed${/}test.robot:
+    2 x MISC05 (inconsistent-assignment-in-variables)
+
+Found 2 issues (2 fixed, 0 remaining).

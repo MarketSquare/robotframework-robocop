@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import os
+import sys
 import time
 
 import pytest
@@ -25,6 +26,30 @@ def slow_keyword():
 
 BROKEN_LIBRARY = """
 raise RuntimeError("boom")
+"""
+
+STDERR_LIBRARY = """
+import sys
+
+sys.stderr.write("noise\\n")
+
+
+def stderr_keyword():
+    pass
+"""
+
+LIBRARY_WITH_DUPLICATED_KEYWORDS = """
+from robot.api.deco import keyword
+
+
+@keyword("Defined twice")
+def first():
+    pass
+
+
+@keyword("Defined twice")
+def second():
+    pass
 """
 
 LIBRARY_WITH_ARGUMENTS = """
@@ -115,6 +140,29 @@ class TestLibraryLoader:
         loader = build_library_loader(search_paths=[library_dir])
         assert loader.load(LibraryRequest(name="NoisyLibrary")).loaded
         assert "noise" not in capsys.readouterr().out
+
+    def test_library_writing_to_stderr_on_import_does_not_write_to_output(self, library_dir, capfd):
+        (library_dir / "StderrLibrary.py").write_text(STDERR_LIBRARY)
+        loader = build_library_loader(search_paths=[library_dir])
+        assert loader.load(LibraryRequest(name="StderrLibrary")).loaded
+        captured = capfd.readouterr()
+        assert "noise" not in captured.err
+        assert "noise" not in captured.out
+
+    def test_robot_framework_errors_are_not_printed(self, library_dir, capfd):
+        (library_dir / "DupeLibrary.py").write_text(LIBRARY_WITH_DUPLICATED_KEYWORDS)
+        loader = build_library_loader(search_paths=[library_dir])
+        assert loader.load(LibraryRequest(name="DupeLibrary")).loaded
+        captured = capfd.readouterr()
+        assert "Defined twice" not in captured.err
+        assert "Defined twice" not in captured.out
+
+    def test_output_streams_are_restored_after_import(self, library_dir):
+        original_stdout, original_stderr = sys.__stdout__, sys.__stderr__
+        loader = build_library_loader(search_paths=[library_dir])
+        assert loader.load(LibraryRequest(name="MyLibrary")).loaded
+        assert sys.__stdout__ is original_stdout
+        assert sys.__stderr__ is original_stderr
 
     def test_scheduled_libraries_are_imported_in_parallel(self, library_dir):
         loader = build_library_loader(search_paths=[library_dir], workers=True)

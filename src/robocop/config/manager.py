@@ -5,6 +5,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 
 import pathspec
+from pathspec.patterns.gitwildmatch import GitWildMatchPattern
 
 from robocop import exceptions, files
 from robocop.cache import RobocopCache
@@ -17,14 +18,15 @@ if TYPE_CHECKING:
     from collections.abc import Generator, Sequence
 
 CONFIG_NAMES = ("robocop.toml", "robot.toml", "pyproject.toml")
+GitIgnorePathSpec = pathspec.PathSpec[GitWildMatchPattern]
 
 
 class GitIgnoreResolver:
     def __init__(self) -> None:
-        self.cached_ignores: dict[Path, tuple[Path, pathspec.PathSpec]] = {}
+        self.cached_ignores: dict[Path, tuple[Path, GitIgnorePathSpec]] = {}
         self.ignore_dirs: set[Path] = set()
 
-    def path_excluded(self, path: Path, gitignores: list[tuple[Path, pathspec.PathSpec]]) -> bool:
+    def path_excluded(self, path: Path, gitignores: list[tuple[Path, GitIgnorePathSpec]]) -> bool:
         """Find path gitignores and check if file is excluded."""
         if not gitignores:
             return False
@@ -38,13 +40,13 @@ class GitIgnoreResolver:
                 return True
         return False
 
-    def read_gitignore(self, path: Path) -> pathspec.PathSpec:
+    def read_gitignore(self, path: Path) -> GitIgnorePathSpec:
         """Return a PathSpec loaded from the file."""
         with path.open(encoding="utf-8") as gf:
             lines = gf.readlines()
-        return pathspec.PathSpec.from_lines(pathspec.patterns.GitWildMatchPattern, lines)  # type: ignore[attr-defined]
+        return pathspec.PathSpec.from_lines(GitWildMatchPattern, lines)
 
-    def resolve_path_ignores(self, path: Path) -> list[tuple[Path, pathspec.PathSpec]]:
+    def resolve_path_ignores(self, path: Path) -> list[tuple[Path, GitIgnorePathSpec]]:
         """
         Visit all parent directories and find all gitignores.
 
@@ -60,7 +62,7 @@ class GitIgnoreResolver:
         # TODO: respect nogitignore flag
         if path.is_file():
             path = path.parent
-        gitignores: list[tuple[Path, pathspec.PathSpec]] = []
+        gitignores: list[tuple[Path, GitIgnorePathSpec]] = []
         search_paths = (parent for parent in [path, *path.parents])
         for parent_path in search_paths:
             if parent_path in self.ignore_dirs:  # dir that does not have .gitignore (marked as such)

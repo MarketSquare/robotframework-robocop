@@ -46,6 +46,18 @@ Used In Timeout
 Used In Run Keyword
     No Operation
 
+Used In Wait Until Keyword
+    No Operation
+
+Used With BDD
+    No Operation
+
+Used With BDD In Run Keyword
+    No Operation
+
+Embedded ${bdd} With Run Keyword
+    No Operation
+
 
 *** Test Cases ***
 Test cases are last for testing purposes
@@ -60,3 +72,10 @@ Test with run keywords
     Run Keywords    Used Keyword
     ...    AND
     ...    Used In Run Keyword
+
+Test with bdd and run keywords
+    Given Used With BDD
+    Then Wait Until Keyword Succeeds    10x    500ms    Used In Wait Until Keyword
+    When Run Keywords    Used With BDD In Run Keyword
+    ...    AND
+    ...    Embedded bdd With Run Keyword

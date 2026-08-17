@@ -82,6 +82,44 @@ RUN_KEYWORDS = RunKeywords(
 )
 
 
+BDD_PREFIXES = frozenset({"Given", "When", "Then", "And", "But"})
+"""Prefixes Robot Framework removes from the keyword name if the keyword is not found with the full name."""
+
+
+def remove_bdd_prefix(name: str, bdd_prefixes: frozenset[str] = BDD_PREFIXES) -> str:
+    """
+    Remove the BDD prefix from the keyword name.
+
+    Returns:
+        Name without the prefix, or the original name if it does not start with one.
+
+    """
+    first_word, separator, rest = name.partition(" ")
+    if not separator or first_word.title() not in bdd_prefixes:
+        return name
+    return rest.lstrip()
+
+
+def get_run_keyword(name: str) -> RunKeywordVariant | None:
+    """
+    Find the run keyword variant matching the name, ignoring the BDD prefix if there is one.
+
+    Robot Framework resolves the full name first and only then retries without the BDD prefix,
+    which is why ``Then Wait Until Keyword Succeeds`` runs the keyword passed in its arguments.
+
+    Returns:
+        Matching RunKeywordVariant or None if the name does not refer to a run keyword.
+
+    """
+    run_keyword = RUN_KEYWORDS.get(name)
+    if run_keyword is not None:
+        return run_keyword
+    without_prefix = remove_bdd_prefix(name)
+    if without_prefix == name:
+        return None
+    return RUN_KEYWORDS.get(without_prefix)
+
+
 def skip_leading_tokens(tokens: list[Token], break_token: str) -> list[Token]:
     for index, token in enumerate(tokens):
         if token.type == break_token:
@@ -148,7 +186,7 @@ def parse_run_keyword_calls(tokens: list[Token]) -> Generator[KeywordCallTokens,
     if not tokens:
         return
     yield KeywordCallTokens(name=tokens[0], arguments=list(tokens[1:]))
-    run_keyword = RUN_KEYWORDS[tokens[0].value]
+    run_keyword = get_run_keyword(tokens[0].value)
     if not run_keyword:
         return
     tokens = tokens[run_keyword.resolve :]
@@ -192,7 +230,7 @@ def parse_run_keyword(tokens: list[Token]) -> Generator[Token, None, None]:
     if not tokens:
         return
     yield tokens[0]
-    run_keyword = RUN_KEYWORDS[tokens[0].value]
+    run_keyword = get_run_keyword(tokens[0].value)
     if not run_keyword:
         return
     tokens = tokens[run_keyword.resolve :]
@@ -223,5 +261,4 @@ def split_on_and(tokens: list[Token]) -> Generator[Token, None, None]:
 
 
 def is_run_keyword(token_name: str) -> bool:
-    run_keyword = RUN_KEYWORDS[token_name]
-    return run_keyword is not None
+    return get_run_keyword(token_name) is not None

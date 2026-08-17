@@ -39,6 +39,18 @@ def parse_embedded_arguments(name: str) -> EmbeddedArguments | None:
     return None
 
 
+def embedded_name_pattern(name: str) -> re.Pattern[str] | None:
+    """
+    Build a pattern matching keyword names that can be called using keyword with embedded arguments.
+
+    Returns:
+        Compiled pattern, or None if the name does not contain embedded arguments.
+
+    """
+    embedded = parse_embedded_arguments(name)
+    return embedded.name if embedded is not None else None
+
+
 def usage_name_pattern(name: str) -> re.Pattern[str] | None:
     """
     Build a pattern matching keyword names that a dynamic call may refer to.

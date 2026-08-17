@@ -21,7 +21,7 @@ from robocop.project.definitions import (
     KeywordUsage,
     Location,
     VariableDefinition,
-    parse_embedded_arguments,
+    embedded_name_pattern,
 )
 
 if TYPE_CHECKING:
@@ -124,14 +124,14 @@ class ProjectFileCollector(ModelVisitor):  # type: ignore[misc]
     def visit_Keyword(self, node: Keyword) -> None:  # noqa: N802
         if not node.name:
             return
-        embedded = parse_embedded_arguments(node.name)
+        embedded = embedded_name_pattern(node.name)
         self.collected.keywords.append(
             KeywordDefinition(
                 name=node.name,
                 normalized_name=normalize_robot_name(node.name),
                 location=self._location(node.header, name_length=len(node.name)),
                 arguments=self._keyword_arguments(node),
-                embedded=embedded.name if embedded is not None else None,
+                embedded=embedded,
                 is_private=self._is_private(node),
             )
         )

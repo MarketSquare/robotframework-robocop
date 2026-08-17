@@ -24,7 +24,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
 from robocop.linter.utils.misc import normalize_robot_name
-from robocop.project.definitions import ArgumentsSpec, KeywordDefinition, Location, parse_embedded_arguments
+from robocop.project.definitions import ArgumentsSpec, KeywordDefinition, Location, embedded_name_pattern
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
@@ -131,7 +131,7 @@ def _keyword_definition(data: dict[str, Any], library_name: str, fallback_source
             var_named=arguments.get("var_named"),
             named_only=tuple(arguments.get("named_only", ())),
         ),
-        embedded=parse_embedded_arguments(name),
+        embedded=embedded_name_pattern(name),
         library_name=library_name,
     )
 

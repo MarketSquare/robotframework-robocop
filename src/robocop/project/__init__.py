@@ -21,6 +21,7 @@ from robocop.project.definitions import (
     Location,
     ResolvedImport,
     VariableDefinition,
+    embedded_name_pattern,
     parse_embedded_arguments,
 )
 from robocop.project.imports import ImportResolver
@@ -45,5 +46,6 @@ __all__ = [
     "VariableDefinition",
     "VariableScope",
     "build_project_context",
+    "embedded_name_pattern",
     "parse_embedded_arguments",
 ]

@@ -18,7 +18,7 @@ if TYPE_CHECKING:
     from collections.abc import Generator, Sequence
 
 CONFIG_NAMES = ("robocop.toml", "robot.toml", "pyproject.toml")
-GitIgnorePathSpec = pathspec.PathSpec[GitWildMatchPattern]
+GitIgnorePathSpec = pathspec.PathSpec
 
 
 class GitIgnoreResolver:

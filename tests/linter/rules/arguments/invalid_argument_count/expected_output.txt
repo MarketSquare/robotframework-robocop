@@ -1,8 +1,12 @@
-test.robot:19:5 [E] ARG08 Keyword 'Login' expects 2 arguments but 1 provided, missing ${password}
-test.robot:20:5 [E] ARG08 Keyword 'Login' expects 2 arguments but 3 provided
-test.robot:21:5 [E] ARG08 Keyword 'With Default' expects from 1 to 2 arguments but 0 provided, missing ${a}
-test.robot:22:5 [E] ARG08 Keyword 'No Args' expects 0 arguments but 1 provided
-test.robot:23:5 [E] ARG08 Keyword 'Named Only' expects 1 argument and named-only argument ${strict} but 1 provided, missing ${strict}
-test.robot:33:31 [E] ARG08 Keyword 'Login' expects 2 arguments but 1 provided, missing ${password}
+test.robot:20:5 [E] ARG08 Keyword 'Login' expects 2 arguments but 1 provided, missing ${password}
+test.robot:21:5 [E] ARG08 Keyword 'Login' expects 2 arguments but 3 provided
+test.robot:22:5 [E] ARG08 Keyword 'With Default' expects from 1 to 2 arguments but 0 provided, missing ${a}
+test.robot:23:5 [E] ARG08 Keyword 'No Args' expects 0 arguments but 1 provided
+test.robot:24:5 [E] ARG08 Keyword 'Named Only' expects 1 argument and named-only argument ${strict} but 1 provided, missing ${strict}
+test.robot:34:31 [E] ARG08 Keyword 'Login' expects 2 arguments but 1 provided, missing ${password}
+test.robot:49:5 [E] ARG08 Keyword 'keywords.Args Alt' expects 1 argument but 0 provided, missing ${arg}
+test.robot:50:5 [E] ARG08 Keyword 'keywords.No Args Alt' expects 0 arguments but 1 provided
+test.robot:51:5 [E] ARG08 Keyword 'keywords_alt.Args Alt' expects 0 arguments but 1 provided
+test.robot:52:5 [E] ARG08 Keyword 'keywords_alt.No Args Alt' expects 1 argument but 0 provided, missing ${arg}
 
-Found 6 issues.
+Found 10 issues.

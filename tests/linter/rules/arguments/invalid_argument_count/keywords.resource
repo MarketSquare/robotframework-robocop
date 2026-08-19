@@ -24,3 +24,10 @@ Embedded ${name} Keyword
 Named Only
     [Arguments]    ${a}    @{}    ${strict}
     Log    ${a}
+
+Args Alt
+    [Arguments]    ${arg}
+    Log    ${arg}
+
+No Args Alt
+    Log    hello

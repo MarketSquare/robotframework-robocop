@@ -301,6 +301,26 @@ class KeywordDefinition:
     def has_embedded_arguments(self) -> bool:
         return self.embedded is not None
 
+    @property
+    def owner_name(self) -> str:
+        """Name of the library or resource file the keyword can be prefixed with."""
+        return self.library_name or self.location.source.stem
+
+    def matches_owner(self, prefix: str) -> bool:
+        """
+        Check if given resource or library prefix points to the owner of this keyword.
+
+        Libraries inside a module can be prefixed both with the full name (``module.Library``) and with the
+        library name only (``Library``).
+
+        Returns:
+            True if the prefix can be used to call this definition.
+
+        """
+        owner = normalize_robot_name(self.owner_name)
+        normalized = normalize_robot_name(prefix)
+        return owner == normalized or owner.endswith(f".{normalized}")
+
     def matches(self, name: str) -> bool:
         """
         Check if the keyword definition can be called using given name.

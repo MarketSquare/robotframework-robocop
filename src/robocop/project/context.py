@@ -129,17 +129,28 @@ class KeywordIndex:
         """
         Find all definitions that can be called using given name.
 
-        Names prefixed with a resource or library name (``Resource.Keyword``) are looked up using the last part only.
+        Names prefixed with a resource or library name (``Resource.Keyword``) are looked up using the name without
+        the prefix, but only definitions coming from the matching resource file or library are returned.
 
         Returns:
             List of matching keyword definitions. Empty if no definition matches.
 
         """
-        normalized = normalize_robot_name(name)
-        matches = list(self._by_name.get(normalized, []))
-        if not matches and "." in name:
-            _, _, without_prefix = name.rpartition(".")
-            matches = list(self._by_name.get(normalize_robot_name(without_prefix), []))
+        matches = self._find_by_name(name)
+        if matches or "." not in name:
+            return matches
+        prefix, _, without_prefix = name.rpartition(".")
+        return [keyword for keyword in self._find_by_name(without_prefix) if keyword.matches_owner(prefix)]
+
+    def _find_by_name(self, name: str) -> list[KeywordDefinition]:
+        """
+        Find definitions matching the name exactly, without taking the resource or library prefix into account.
+
+        Returns:
+            List of matching keyword definitions. Empty if no definition matches.
+
+        """
+        matches = list(self._by_name.get(normalize_robot_name(name), []))
         matches.extend(keyword for keyword in self._embedded if keyword.matches(name))
         return matches
 

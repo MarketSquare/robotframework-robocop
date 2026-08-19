@@ -110,11 +110,6 @@ class LibraryRequest:
         """Key identifying the imported library, ignoring the alias it was imported with."""
         return (str(self.source) if self.source else self.name, self.args)
 
-    @property
-    def displayed_name(self) -> str:
-        """Name used to refer to the library keywords."""
-        return self.alias or self.name
-
 
 def _keyword_definition(data: dict[str, Any], library_name: str, fallback_source: Path) -> KeywordDefinition:
     """
@@ -183,11 +178,10 @@ class LibraryLoader:
         if cached is None:
             self._preload_scheduled()
             cached = self._cache.get(request.cache_key)
-        if cached is not None:
-            return self._with_name(cached, request.displayed_name)
-        spec = self._load(request)
-        self._cache[request.cache_key] = spec
-        return self._with_name(spec, request.displayed_name)
+        if cached is None:
+            cached = self._load(request)
+            self._cache[request.cache_key] = cached
+        return self._with_name(cached, request.alias or cached.name)
 
     def schedule_preload(self, requests: Iterable[LibraryRequest]) -> None:
         """
@@ -275,11 +269,12 @@ class LibraryLoader:
         response = self._import_library(request)
         if response.get("status") != "ok":
             return LibrarySpec(name=request.name, error=response.get("error", "Unknown error"))
+        name = response.get("name") or request.name
         fallback_source = request.source or Path(request.name)
         keywords = tuple(
-            _keyword_definition(keyword, request.name, fallback_source) for keyword in response.get("keywords", [])
+            _keyword_definition(keyword, name, fallback_source) for keyword in response.get("keywords", [])
         )
-        return LibrarySpec(name=request.name, keywords=keywords)
+        return LibrarySpec(name=name, keywords=keywords)
 
     def _import_library(self, request: LibraryRequest) -> dict[str, Any]:
         """

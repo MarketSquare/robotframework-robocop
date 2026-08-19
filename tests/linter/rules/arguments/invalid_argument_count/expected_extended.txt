@@ -1,57 +1,94 @@
-test.robot:19:5 ARG08 Keyword 'Login' expects 2 arguments but 1 provided, missing ${password}
+test.robot:20:5 ARG08 Keyword 'Login' expects 2 arguments but 1 provided, missing ${password}
     |
- 17 |
- 18 | Invalid Calls
- 19 |     Login    user
+ 18 |
+ 19 | Invalid Calls
+ 20 |     Login    user
     |     ^^^^^ ARG08
- 20 |     Login    user    pass    extra
- 21 |     With Default
+ 21 |     Login    user    pass    extra
+ 22 |     With Default
     |
 
-test.robot:20:5 ARG08 Keyword 'Login' expects 2 arguments but 3 provided
+test.robot:21:5 ARG08 Keyword 'Login' expects 2 arguments but 3 provided
     |
- 18 | Invalid Calls
- 19 |     Login    user
- 20 |     Login    user    pass    extra
+ 19 | Invalid Calls
+ 20 |     Login    user
+ 21 |     Login    user    pass    extra
     |     ^^^^^ ARG08
- 21 |     With Default
- 22 |     No Args    unexpected
+ 22 |     With Default
+ 23 |     No Args    unexpected
     |
 
-test.robot:21:5 ARG08 Keyword 'With Default' expects from 1 to 2 arguments but 0 provided, missing ${a}
+test.robot:22:5 ARG08 Keyword 'With Default' expects from 1 to 2 arguments but 0 provided, missing ${a}
     |
- 19 |     Login    user
- 20 |     Login    user    pass    extra
- 21 |     With Default
+ 20 |     Login    user
+ 21 |     Login    user    pass    extra
+ 22 |     With Default
     |     ^^^^^^^^^^^^ ARG08
- 22 |     No Args    unexpected
- 23 |     Named Only    1
+ 23 |     No Args    unexpected
+ 24 |     Named Only    1
     |
 
-test.robot:22:5 ARG08 Keyword 'No Args' expects 0 arguments but 1 provided
+test.robot:23:5 ARG08 Keyword 'No Args' expects 0 arguments but 1 provided
     |
- 20 |     Login    user    pass    extra
- 21 |     With Default
- 22 |     No Args    unexpected
+ 21 |     Login    user    pass    extra
+ 22 |     With Default
+ 23 |     No Args    unexpected
     |     ^^^^^^^ ARG08
- 23 |     Named Only    1
+ 24 |     Named Only    1
     |
 
-test.robot:23:5 ARG08 Keyword 'Named Only' expects 1 argument and named-only argument ${strict} but 1 provided, missing ${strict}
+test.robot:24:5 ARG08 Keyword 'Named Only' expects 1 argument and named-only argument ${strict} but 1 provided, missing ${strict}
     |
- 21 |     With Default
- 22 |     No Args    unexpected
- 23 |     Named Only    1
+ 22 |     With Default
+ 23 |     No Args    unexpected
+ 24 |     Named Only    1
     |     ^^^^^^^^^^ ARG08
     |
 
-test.robot:33:31 ARG08 Keyword 'Login' expects 2 arguments but 1 provided, missing ${password}
+test.robot:34:31 ARG08 Keyword 'Login' expects 2 arguments but 1 provided, missing ${password}
     |
- 31 |
- 32 | Nested Calls
- 33 |     Run Keyword If    True    Login    user
+ 32 |
+ 33 | Nested Calls
+ 34 |     Run Keyword If    True    Login    user
     |                               ^^^^^ ARG08
- 34 |     Run Keywords    No Args    AND    Login    user    pass
+ 35 |     Run Keywords    No Args    AND    Login    user    pass
     |
 
-Found 6 issues.
+test.robot:49:5 ARG08 Keyword 'keywords.Args Alt' expects 1 argument but 0 provided, missing ${arg}
+    |
+ 47 |
+ 48 |     # incorrect use
+ 49 |     keywords.Args Alt
+    |     ^^^^^^^^^^^^^^^^^ ARG08
+ 50 |     keywords.No Args Alt    1
+ 51 |     keywords_alt.Args Alt    1
+    |
+
+test.robot:50:5 ARG08 Keyword 'keywords.No Args Alt' expects 0 arguments but 1 provided
+    |
+ 48 |     # incorrect use
+ 49 |     keywords.Args Alt
+ 50 |     keywords.No Args Alt    1
+    |     ^^^^^^^^^^^^^^^^^^^^ ARG08
+ 51 |     keywords_alt.Args Alt    1
+ 52 |     keywords_alt.No Args Alt
+    |
+
+test.robot:51:5 ARG08 Keyword 'keywords_alt.Args Alt' expects 0 arguments but 1 provided
+    |
+ 49 |     keywords.Args Alt
+ 50 |     keywords.No Args Alt    1
+ 51 |     keywords_alt.Args Alt    1
+    |     ^^^^^^^^^^^^^^^^^^^^^ ARG08
+ 52 |     keywords_alt.No Args Alt
+    |
+
+test.robot:52:5 ARG08 Keyword 'keywords_alt.No Args Alt' expects 1 argument but 0 provided, missing ${arg}
+    |
+ 50 |     keywords.No Args Alt    1
+ 51 |     keywords_alt.Args Alt    1
+ 52 |     keywords_alt.No Args Alt
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^ ARG08
+    |
+
+Found 10 issues.

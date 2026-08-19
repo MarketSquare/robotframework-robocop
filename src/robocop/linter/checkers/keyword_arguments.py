@@ -80,6 +80,7 @@ class ProjectArgumentsChecker(ProjectChecker):
     def _validate_usage(context: ProjectContext, usage: KeywordUsage) -> ArgumentsMismatch | None:
         if usage.is_template or usage.name_contains_variable or usage.has_argument_expansion:
             return None
+        # TODO: each resource imports BuiltIn, and then resolve_keyword returns BuiltIn from each resource, so != 1
         definitions = context.resolve_keyword(usage)
         if len(definitions) != 1:
             return None  # not defined in the project, or ambiguous

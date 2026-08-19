@@ -1,5 +1,6 @@
 *** Settings ***
 Resource    keywords.resource
+Resource    keywords_alt.resource
 
 *** Test Cases ***
 Valid Calls
@@ -36,3 +37,22 @@ Nested Calls
 Templated Test
     [Template]    Login
     user    pass
+
+Mismatched Use In Alt Resource Same Names
+    # correct use
+    keywords.Args Alt    1
+    keywords.No Args Alt
+    keywords_alt.Args Alt
+    keywords_alt.No Args Alt    1
+
+    # incorrect use
+    keywords.Args Alt
+    keywords.No Args Alt    1
+    keywords_alt.Args Alt    1
+    keywords_alt.No Args Alt
+
+    # ambiguous - should be ignored
+    Args Alt
+    Args Alt    1
+    No Args Alt
+    No Args Alt    1

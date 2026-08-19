@@ -1,7 +1,9 @@
-test.robot:7:5 [W] KW07 Keyword 'Login' should be called with the 'login' prefix
-test.robot:8:5 [W] KW07 Keyword 'Given Logout' should be called with the 'login' prefix
-test.robot:9:5 [W] KW07 Keyword 'Append To List' should be called with the 'Collections' prefix
-test.robot:10:5 [W] KW07 Keyword 'Keyword With value Argument' should be called with the 'login' prefix
+test.robot:9:5 [W] KW07 Keyword 'Login' should be called with the 'login' prefix
+test.robot:10:5 [W] KW07 Keyword 'Given Logout' should be called with the 'login' prefix
+test.robot:11:5 [W] KW07 Keyword 'Append To List' should be called with the 'Collections' prefix
+test.robot:12:5 [W] KW07 Keyword 'Keyword With value Argument' should be called with the 'login' prefix
+test.robot:27:5 [W] KW07 Keyword 'Without Prefix' should be called with the 'Library' prefix
+test.robot:28:5 [W] KW07 Keyword 'Utils Kw' should be called with the 'Utils' prefix
 
-Found 4 issues.
-4 fixable with the '--fix' option.
+Found 6 issues.
+6 fixable with the '--fix' option.

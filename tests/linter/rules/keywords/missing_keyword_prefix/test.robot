@@ -1,4 +1,6 @@
 *** Settings ***
+Library     libs/Library.py
+Library     libs/Utils.py
 Resource    resources/login.resource
 Library     Collections
 
@@ -19,6 +21,12 @@ Ignored Calls
     ${name} =    Set Variable    Login
     Run Keyword    ${name}
     Not Defined Anywhere    argument
+
+Library Prefix
+    Library.with_prefix
+    Without Prefix
+    Utils Kw
+    Aliased Keyword
 
 *** Keywords ***
 Local Keyword

@@ -1,0 +1,3 @@
+keywords.robot:2:1 [I] TAG13 Keyword 'All Calls Wrapped' uses 'Run Keyword And Continue On Failure' 3 times and could use the 'robot:continue-on-failure' tag instead
+
+Found 1 issue.

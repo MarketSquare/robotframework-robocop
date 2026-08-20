@@ -1,0 +1,27 @@
+keywords.robot:2:1 TAG13 Keyword 'All Calls Wrapped' uses 'Run Keyword And Continue On Failure' 3 times and could use the 'robot:continue-on-failure' tag instead
+   |
+ 1 | *** Keywords ***
+ 2 | All Calls Wrapped
+   | ^^^^^^^^^^^^^^^^^ TAG13
+ 3 |     Run Keyword And Continue On Failure    Assert A
+ 4 |     Run Keyword And Continue On Failure    Assert B
+   |
+
+tests.robot:2:1 TAG13 Test case 'All Calls Wrapped' uses 'Run Keyword And Continue On Failure' 2 times and could use the 'robot:continue-on-failure' tag instead
+   |
+ 1 | *** Test Cases ***
+ 2 | All Calls Wrapped
+   | ^^^^^^^^^^^^^^^^^ TAG13
+ 3 |     Run Keyword And Continue On Failure    Assert A
+ 4 |     Run Keyword And Continue On Failure    Assert B
+   |
+
+tests.robot:14:1 TAG13 Test case 'With Settings' uses 'Run Keyword And Continue On Failure' 2 times and could use the 'robot:continue-on-failure' tag instead
+    |
+ 14 | With Settings
+    | ^^^^^^^^^^^^^ TAG13
+ 15 |     [Documentation]    Settings are not keyword calls.
+ 16 |     [Setup]    Setup Keyword
+    |
+
+Found 3 issues.

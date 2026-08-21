@@ -1,5 +1,9 @@
 # Release notes
 
+## [9.0.0](https://github.com/MarketSquare/robotframework-robocop/compare/v8.8.0...v9.0.0) (2026-08-21)
+
+More detailed notes regarding 9.0.0 [here](9.0.0.md).
+
 ## [8.8.0](https://github.com/MarketSquare/robotframework-robocop/compare/v8.7.0...v8.8.0) (2026-08-12)
 
 

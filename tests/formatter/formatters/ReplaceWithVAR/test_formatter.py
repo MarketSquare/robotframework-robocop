@@ -1,3 +1,7 @@
+import pytest
+import typer
+
+from robocop.run import format_files
 from tests.formatter import FormatterAcceptanceTest
 
 
@@ -53,3 +57,23 @@ class TestReplaceWithVAR(FormatterAcceptanceTest):
 
     def test_item_access(self):
         self.compare(source="item_access.robot", not_modified=True)
+
+    @pytest.mark.parametrize(
+        ("keyword_call", "expected_comment"),
+        [
+            (
+                "&{task_dict}    Create Dictionary    #    Task State=Task Name    Subtask Status=Subtask Name",
+                "    #    Task State=Task Name    Subtask Status=Subtask Name",
+            ),
+            ("@{list}    Create List    value    # comment    with cells", "    # comment    with cells"),
+        ],
+    )
+    def test_inline_comment_is_not_split_into_keyword_calls(self, keyword_call, expected_comment, tmp_path):
+        """Cells of a single inline comment must stay in one comment line (#1715)."""
+        source = tmp_path / "inline_comment.robot"
+        source.write_text(f"*** Test Cases ***\nTest\n    {keyword_call}\n", encoding="utf-8")
+
+        with pytest.raises(typer.Exit):
+            format_files(sources=[source], select=[self.FORMATTER_NAME], overwrite=True, cache=False)
+
+        assert source.read_text(encoding="utf-8").splitlines()[2] == expected_comment

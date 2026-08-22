@@ -1,0 +1,4 @@
+test_case_metadata.robot:4:5 [W] LEN11 Metadata settings does not have any value set
+
+Found 1 issue.
+1 fixable with the '--fix' option.

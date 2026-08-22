@@ -36,6 +36,7 @@ class SettingsChecker(VisitorChecker):
     """
 
     empty_metadata: lengths.EmptyMetadataRule
+    metadata_without_value: lengths.MetadataWithoutValueRule
     empty_documentation: lengths.EmptyDocumentationRule
     variable_in_documentation: documentation.VariableInDocumentationRule
     empty_force_tags: lengths.EmptyForceTagsRule
@@ -170,6 +171,8 @@ class SettingsChecker(VisitorChecker):
 
     def visit_Metadata(self, node: Statement) -> None:  # noqa: N802
         self.empty_metadata.check(node)
+        self.metadata_without_value.check(node)
+        self.check_setting_name(node)
 
     def visit_Documentation(self, node: Statement) -> None:  # noqa: N802
         self.empty_documentation.check(node, self.parent_node_name)

@@ -100,6 +100,7 @@ class NotEnoughWhitespaceAfterSettingRule(FixableRule):
     headers: ClassVar[set[str]] = {
         "arguments",
         "documentation",
+        "metadata",
         "setup",
         "timeout",
         "teardown",

@@ -1,0 +1,3 @@
+test_case_metadata.robot:9:5 [W] DUP06 Duplicated metadata 'Owner' (first occurrence in line 7)
+
+Found 1 issue.

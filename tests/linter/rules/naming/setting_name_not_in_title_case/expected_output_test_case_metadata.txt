@@ -1,0 +1,4 @@
+test_case_metadata.robot:3:5 [W] NAME05 Setting name '[metadata]' not in title or uppercase
+
+Found 1 issue.
+1 fixable with the '--fix' option.

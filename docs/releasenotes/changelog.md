@@ -1,5 +1,110 @@
 # Release notes
 
+## [9.0.0](https://github.com/MarketSquare/robotframework-robocop/compare/v8.8.0...v9.0.0) (2026-08-22)
+
+
+### ⚠ BREAKING CHANGES
+
+* **linter:** exclude project rules from ALL selection ([#1874](https://github.com/MarketSquare/robotframework-robocop/issues/1874))
+* **formatter:** aligned columns now use the widest cell plus the configured separator width instead of rounding column positions to multiples of four.
+* remove the ReplaceEmptyValues formatter ([#1853](https://github.com/MarketSquare/robotframework-robocop/issues/1853))
+* remove the RemoveEmptySettings formatter ([#1849](https://github.com/MarketSquare/robotframework-robocop/issues/1849))
+* remove the NormalizeComments formatter ([#1845](https://github.com/MarketSquare/robotframework-robocop/issues/1845))
+* deprecate DEPR01 `if-can-be-used` (duplicate of DEPR08) ([#1823](https://github.com/MarketSquare/robotframework-robocop/issues/1823))
+* KeywordDefinition and ResolvedImport no longer have the node attribute with the Robot Framework AST node. It was never read by any rule and cannot be stored in the cache. Use the location attribute to report the issue.
+* `robocop check-project` was removed. Select project rules and run `robocop check` instead.
+* custom project checkers have to accept the `context` argument in `scan_project(project_source_file, config_manager, context)`.
+
+### Features
+
+* add ambiguous-keyword-name project rule (KW06) ([#1826](https://github.com/MarketSquare/robotframework-robocop/issues/1826)) ([8d8c2b4](https://github.com/MarketSquare/robotframework-robocop/commit/8d8c2b4387c813f5fadd2f7cd1d97d36e4344255))
+* add circular-import project rule (IMP08) ([#1828](https://github.com/MarketSquare/robotframework-robocop/issues/1828)) ([ccc04ca](https://github.com/MarketSquare/robotframework-robocop/commit/ccc04cac0f42140fae413824b59f0baac8acaecc))
+* add fix for the duplicated-variable rule ([#1857](https://github.com/MarketSquare/robotframework-robocop/issues/1857)) ([b7a87ed](https://github.com/MarketSquare/robotframework-robocop/commit/b7a87ed0c7e09c890a18851941aee2e6d9af1941))
+* add fix for the else-not-upper-case rule ([#1854](https://github.com/MarketSquare/robotframework-robocop/issues/1854)) ([837a979](https://github.com/MarketSquare/robotframework-robocop/commit/837a9797c718b5c5c4ab1d7ebfda8c39e5c39877))
+* add fix for the empty-return rule ([#1846](https://github.com/MarketSquare/robotframework-robocop/issues/1846)) ([f376046](https://github.com/MarketSquare/robotframework-robocop/commit/f37604657c0a7385cded374e2b2dcf9daabe8886))
+* add fix for the empty-section rule ([#1841](https://github.com/MarketSquare/robotframework-robocop/issues/1841)) ([013fbf1](https://github.com/MarketSquare/robotframework-robocop/commit/013fbf1e1530d48fa7369779a404116b7b4856ae))
+* add fix for the empty-tags rule ([#1842](https://github.com/MarketSquare/robotframework-robocop/issues/1842)) ([c3ab608](https://github.com/MarketSquare/robotframework-robocop/commit/c3ab608affacf87be7bb7229dc70338742879388))
+* add fix for the unnecessary-default-tags rule ([#1850](https://github.com/MarketSquare/robotframework-robocop/issues/1850)) ([7ceb2f0](https://github.com/MarketSquare/robotframework-robocop/commit/7ceb2f03047f2c74989530724074c625209d21ca))
+* add fix for the unused-disabler rule ([#1855](https://github.com/MarketSquare/robotframework-robocop/issues/1855)) ([c689701](https://github.com/MarketSquare/robotframework-robocop/commit/c68970153038d17a5dda74372a20ac01683e29e5))
+* add fixes for missing-space-after-comment and ignored-data rules ([#1844](https://github.com/MarketSquare/robotframework-robocop/issues/1844)) ([927ac26](https://github.com/MarketSquare/robotframework-robocop/commit/927ac26cf91af7b5ace9b6e972ed5a4aa814ab8d))
+* add fixes for the assignment sign and negative condition rules ([#1859](https://github.com/MarketSquare/robotframework-robocop/issues/1859)) ([85b57f8](https://github.com/MarketSquare/robotframework-robocop/commit/85b57f8090945ba4d6fcd81aac0e7766462401d0))
+* add fixes for the deprecated-with-name and deprecated-singular-header rules ([#1843](https://github.com/MarketSquare/robotframework-robocop/issues/1843)) ([b11faf1](https://github.com/MarketSquare/robotframework-robocop/commit/b11faf13ed1f21e1db862df581dc4ed512193621))
+* add fixes for the duplicated import rules ([#1848](https://github.com/MarketSquare/robotframework-robocop/issues/1848)) ([39ae09a](https://github.com/MarketSquare/robotframework-robocop/commit/39ae09ae0df59364e9a13ddacb26715e479c01c6))
+* add fixes for the empty settings rules ([#1840](https://github.com/MarketSquare/robotframework-robocop/issues/1840)) ([6b30059](https://github.com/MarketSquare/robotframework-robocop/commit/6b300599a1d30d0b9bfc821db2ec3564585c8143))
+* add fixes for the empty-library-alias and duplicated-library-alias rules ([#1847](https://github.com/MarketSquare/robotframework-robocop/issues/1847)) ([ceb35a9](https://github.com/MarketSquare/robotframework-robocop/commit/ceb35a9a882b6451dbec417244c53b95da59cf87))
+* add fixes for the empty-variable and undefined-argument-default rules ([#1852](https://github.com/MarketSquare/robotframework-robocop/issues/1852)) ([619b6d8](https://github.com/MarketSquare/robotframework-robocop/commit/619b6d810180cc0a30f8dbffab809ee429776e14))
+* add fixes for the import order rules ([#1856](https://github.com/MarketSquare/robotframework-robocop/issues/1856)) ([1b1e871](https://github.com/MarketSquare/robotframework-robocop/commit/1b1e8719e3ad84bd23adb4914cec3bfee4e19329))
+* add fixes for the redundant tag rules ([#1851](https://github.com/MarketSquare/robotframework-robocop/issues/1851)) ([4568238](https://github.com/MarketSquare/robotframework-robocop/commit/456823808b819ad4dd87fe74706b93ac3af89543))
+* add fixes for the setting and section name casing rules ([#1858](https://github.com/MarketSquare/robotframework-robocop/issues/1858)) ([2726e05](https://github.com/MarketSquare/robotframework-robocop/commit/2726e052990d63532e62fc9b3fcf2b2b6c2b5ce3))
+* add keyword-not-found project rule (KW05) ([#1827](https://github.com/MarketSquare/robotframework-robocop/issues/1827)) ([6d05e1a](https://github.com/MarketSquare/robotframework-robocop/commit/6d05e1af398257e953574257df2d9ca944b0441c))
+* add missing-argument-name project rule with a fix ([#1837](https://github.com/MarketSquare/robotframework-robocop/issues/1837)) ([3484da6](https://github.com/MarketSquare/robotframework-robocop/commit/3484da636533d5fd83242f23480dc1e8c2479a77)), closes [#1677](https://github.com/MarketSquare/robotframework-robocop/issues/1677)
+* add missing-keyword-prefix project rule with a fix ([#1838](https://github.com/MarketSquare/robotframework-robocop/issues/1838)) ([1d81fea](https://github.com/MarketSquare/robotframework-robocop/commit/1d81fea269c7ceb897dea508ffb9fdd61a9bf4ad))
+* add plugin functionality ([#1884](https://github.com/MarketSquare/robotframework-robocop/issues/1884)) ([5b4140f](https://github.com/MarketSquare/robotframework-robocop/commit/5b4140fb726f6581d3343fec969da6c1987830f6)), closes [#1538](https://github.com/MarketSquare/robotframework-robocop/issues/1538)
+* Add robocop-check-project pre-commit hook ([#1810](https://github.com/MarketSquare/robotframework-robocop/issues/1810)) ([315368d](https://github.com/MarketSquare/robotframework-robocop/commit/315368dd6cbda9966669a1764716dda227a05e65))
+* add unresolved-library-import project rule ([#1832](https://github.com/MarketSquare/robotframework-robocop/issues/1832)) ([2e11e0b](https://github.com/MarketSquare/robotframework-robocop/commit/2e11e0b4c154c73e69454dc30ade9fc0a97181bf))
+* add unused-library-import rule ([#1825](https://github.com/MarketSquare/robotframework-robocop/issues/1825)) ([20f76ad](https://github.com/MarketSquare/robotframework-robocop/commit/20f76ad41e1e1f60e0a6d46fa094a6ac6fd591cb))
+* allow to skip report file generation on empty results ([#1835](https://github.com/MarketSquare/robotframework-robocop/issues/1835)) ([e198ea5](https://github.com/MarketSquare/robotframework-robocop/commit/e198ea593eb9bc97e9170f075013441b804086a3)), closes [#1332](https://github.com/MarketSquare/robotframework-robocop/issues/1332)
+* apply fixes reported by project level rules ([#1836](https://github.com/MarketSquare/robotframework-robocop/issues/1836)) ([9aa174f](https://github.com/MarketSquare/robotframework-robocop/commit/9aa174f6ac90b3388f49ee718ac30812eaa75f72))
+* cache imported library keywords between runs ([#1830](https://github.com/MarketSquare/robotframework-robocop/issues/1830)) ([93a9fad](https://github.com/MarketSquare/robotframework-robocop/commit/93a9fad662c22bfda3cb96ca1dbcdb42b72f388f))
+* cache project analysis data between runs ([#1833](https://github.com/MarketSquare/robotframework-robocop/issues/1833)) ([642a61c](https://github.com/MarketSquare/robotframework-robocop/commit/642a61c611073fbbcf770a5e4addf8c0c5255c15))
+* deprecate DEPR01 `if-can-be-used` (duplicate of DEPR08) ([#1823](https://github.com/MarketSquare/robotframework-robocop/issues/1823)) ([14654ec](https://github.com/MarketSquare/robotframework-robocop/commit/14654ec00ed97913742b0c09efd13031dd2baebd))
+* **formatter:** use concise alignment padding ([#1864](https://github.com/MarketSquare/robotframework-robocop/issues/1864)) ([d4741c7](https://github.com/MarketSquare/robotframework-robocop/commit/d4741c7a0cbd185ffaf443776b0f67ec87f7b332))
+* **linter:** add empty template data line rule ([#1865](https://github.com/MarketSquare/robotframework-robocop/issues/1865)) ([989bd4e](https://github.com/MarketSquare/robotframework-robocop/commit/989bd4eb36a134568c6556ae216b4708e8dd2f46))
+* **linter:** add fix for wrong-case-in-keyword-name and wrong-case-in-keyword-call ([#1860](https://github.com/MarketSquare/robotframework-robocop/issues/1860)) ([5084c43](https://github.com/MarketSquare/robotframework-robocop/commit/5084c43c1cf63dfda72de1a35d660fba932ddd2d))
+* **linter:** add fixes for malformed separators ([#1862](https://github.com/MarketSquare/robotframework-robocop/issues/1862)) ([4a40f9f](https://github.com/MarketSquare/robotframework-robocop/commit/4a40f9f3ac3296fc67efb03607f692174de6f3eb))
+* **linter:** check automatic variable availability ([#1867](https://github.com/MarketSquare/robotframework-robocop/issues/1867)) ([b2ffe06](https://github.com/MarketSquare/robotframework-robocop/commit/b2ffe0661b767b066de2e13d95588f1e3f432664))
+* **linter:** detect variables in documentation ([#1866](https://github.com/MarketSquare/robotframework-robocop/issues/1866)) ([05a73ed](https://github.com/MarketSquare/robotframework-robocop/commit/05a73ed8055e9d64871e7aed4fd9402b3fb8f063))
+* **linter:** exclude project rules from ALL selection ([#1874](https://github.com/MarketSquare/robotframework-robocop/issues/1874)) ([3658113](https://github.com/MarketSquare/robotframework-robocop/commit/36581135dbd06cc6eaa9f7b8716efe5e7dbc49ee))
+* **linter:** load libraries in process unless --library-workers is used ([#1872](https://github.com/MarketSquare/robotframework-robocop/issues/1872)) ([2f51d75](https://github.com/MarketSquare/robotframework-robocop/commit/2f51d7546e922012bcc355c32cd7c42099ed430e))
+* project level context with rules using it ([#1822](https://github.com/MarketSquare/robotframework-robocop/issues/1822)) ([527c5b9](https://github.com/MarketSquare/robotframework-robocop/commit/527c5b980436129df81679754fed6832a8a1b642))
+* remove the NormalizeComments formatter ([#1845](https://github.com/MarketSquare/robotframework-robocop/issues/1845)) ([d0c64a1](https://github.com/MarketSquare/robotframework-robocop/commit/d0c64a1163aee224ce98b3a2838e9629d83fd7a3))
+* remove the RemoveEmptySettings formatter ([#1849](https://github.com/MarketSquare/robotframework-robocop/issues/1849)) ([d3d570f](https://github.com/MarketSquare/robotframework-robocop/commit/d3d570f6138768b81fb49cbd349c38731e799d7d))
+* remove the ReplaceEmptyValues formatter ([#1853](https://github.com/MarketSquare/robotframework-robocop/issues/1853)) ([4767d7c](https://github.com/MarketSquare/robotframework-robocop/commit/4767d7cb40daafa3e8437961db7d61502e24cb0a))
+* run project rules as a part of the check command ([#1824](https://github.com/MarketSquare/robotframework-robocop/issues/1824)) ([ecd971b](https://github.com/MarketSquare/robotframework-robocop/commit/ecd971bf78735e2f0b7323002cde7ffa90bf2aa9))
+* select all project rules with PROJECT keyword ([#1834](https://github.com/MarketSquare/robotframework-robocop/issues/1834)) ([7ea17a6](https://github.com/MarketSquare/robotframework-robocop/commit/7ea17a6f81aac6d116322039e2a005e0fdc7d125))
+* support custom reports ([#1885](https://github.com/MarketSquare/robotframework-robocop/issues/1885)) ([8e43ffb](https://github.com/MarketSquare/robotframework-robocop/commit/8e43ffb8880c03166dec00909b249baa5420b5bf)), closes [#1115](https://github.com/MarketSquare/robotframework-robocop/issues/1115)
+
+
+### Bug Fixes
+
+* File-wide rule NAME15 prints source code on report ([#1871](https://github.com/MarketSquare/robotframework-robocop/issues/1871)) ([e45fd08](https://github.com/MarketSquare/robotframework-robocop/commit/e45fd086f1d7c7a867c1ceabe587292ffd78be5b))
+* Keywords defined in multiple resources ignored even when prefixed ([#1881](https://github.com/MarketSquare/robotframework-robocop/issues/1881)) ([35b4952](https://github.com/MarketSquare/robotframework-robocop/commit/35b4952972c615efca89259fdba117b090910a03))
+* **linter:** match library keywords with embedded arguments ([#1869](https://github.com/MarketSquare/robotframework-robocop/issues/1869)) ([73e9bba](https://github.com/MarketSquare/robotframework-robocop/commit/73e9bbadd92169f43d6a32c5e357c93b0c50c407))
+* MyPy error on PathSpec expects no type ([#1879](https://github.com/MarketSquare/robotframework-robocop/issues/1879)) ([8014877](https://github.com/MarketSquare/robotframework-robocop/commit/80148774abfdca8b203d76b0e60f74c036b62b80))
+* resolve run keywords called with a BDD prefix ([#1877](https://github.com/MarketSquare/robotframework-robocop/issues/1877)) ([7500113](https://github.com/MarketSquare/robotframework-robocop/commit/75001135cd2c138dced8b535f769cc2fb7f62f1b))
+* resolve strict mypy baseline ([#1863](https://github.com/MarketSquare/robotframework-robocop/issues/1863)) ([d17b294](https://github.com/MarketSquare/robotframework-robocop/commit/d17b2947edd751218c27d705007ed5f43b2a9437))
+* silence library import output during project analysis ([#1876](https://github.com/MarketSquare/robotframework-robocop/issues/1876)) ([a07689e](https://github.com/MarketSquare/robotframework-robocop/commit/a07689e6bf4adf5630a798ec79eb4da1e7f8ba25))
+* Use resolved library name in project rules instead of path ([#1880](https://github.com/MarketSquare/robotframework-robocop/issues/1880)) ([367a488](https://github.com/MarketSquare/robotframework-robocop/commit/367a4881fcf674d24884eb36e282ac50353b04ed))
+
+
+### Documentation
+
+* document branch, commit and PR naming conventions ([#1873](https://github.com/MarketSquare/robotframework-robocop/issues/1873)) ([4064693](https://github.com/MarketSquare/robotframework-robocop/commit/4064693b41568702de0e7340ff8a20233fe49912))
+* **linter:** point whitespace rules at robocop format ([#1861](https://github.com/MarketSquare/robotframework-robocop/issues/1861)) ([6fb9b48](https://github.com/MarketSquare/robotframework-robocop/commit/6fb9b48f74d32dea4dbce1767fa3673b6f113f59))
+* mark project rules in the rules list ([#1829](https://github.com/MarketSquare/robotframework-robocop/issues/1829)) ([09dd54a](https://github.com/MarketSquare/robotframework-robocop/commit/09dd54afcb64e09cca9a9f52015ac71a658b8fb5))
+
+
+### Performance
+
+* cache resolved paths in project analysis ([#1875](https://github.com/MarketSquare/robotframework-robocop/issues/1875)) ([d20389c](https://github.com/MarketSquare/robotframework-robocop/commit/d20389c512cbbaf1dc986d72d8464d9bbf7db71a))
+
+
+### Refactoring
+
+* merge control flow checkers into single ControlFlowChecker ([#1818](https://github.com/MarketSquare/robotframework-robocop/issues/1818)) ([fb4afc2](https://github.com/MarketSquare/robotframework-robocop/commit/fb4afc2c9fc530fa9d0bd61ef7675283eb4ea2be))
+* merge deprecated statement checker into settings checker ([#1820](https://github.com/MarketSquare/robotframework-robocop/issues/1820)) ([883f6fc](https://github.com/MarketSquare/robotframework-robocop/commit/883f6fcec724e33215f94f15353fcc7e94c99b59))
+* merge keyword and variable naming checkers ([#1819](https://github.com/MarketSquare/robotframework-robocop/issues/1819)) ([ec7d75f](https://github.com/MarketSquare/robotframework-robocop/commit/ec7d75f273ec15deed1f8e96cb0016636c8f5ece))
+* merge keyword argument checkers into a single checker ([#1808](https://github.com/MarketSquare/robotframework-robocop/issues/1808)) ([67f7ab0](https://github.com/MarketSquare/robotframework-robocop/commit/67f7ab02908b28954cbe9f7b31f1636d0a8cab94))
+* merge keyword body checkers into a single checker ([#1812](https://github.com/MarketSquare/robotframework-robocop/issues/1812)) ([812d158](https://github.com/MarketSquare/robotframework-robocop/commit/812d158645ea44dd29fef5443b6bb59c656eb7d7))
+* merge keyword call checkers into a single checker ([#1807](https://github.com/MarketSquare/robotframework-robocop/issues/1807)) ([a2652a0](https://github.com/MarketSquare/robotframework-robocop/commit/a2652a01de134a1d7985dc99ed41634636b282fd))
+* merge raw file checkers into a single checker ([#1806](https://github.com/MarketSquare/robotframework-robocop/issues/1806)) ([98e2aff](https://github.com/MarketSquare/robotframework-robocop/commit/98e2aff09c6e9e1d97a56f37bee1d0317b1dd94e))
+* merge section-level checkers into single SectionsChecker ([#1813](https://github.com/MarketSquare/robotframework-robocop/issues/1813)) ([88c0b53](https://github.com/MarketSquare/robotframework-robocop/commit/88c0b53a6e000c06243a9a94e438077d4cb7a830))
+* merge settings checkers into single SettingsChecker ([#1817](https://github.com/MarketSquare/robotframework-robocop/issues/1817)) ([33f335a](https://github.com/MarketSquare/robotframework-robocop/commit/33f335a8cdfc9d193cc4c185ede586c469e4636b))
+* merge tag checkers into single TagsChecker ([#1815](https://github.com/MarketSquare/robotframework-robocop/issues/1815)) ([852b450](https://github.com/MarketSquare/robotframework-robocop/commit/852b450b4aa28dcb21c5331666550f6b860879be))
+* merge test case and keyword checkers into TestCaseKeywordChecker ([#1814](https://github.com/MarketSquare/robotframework-robocop/issues/1814)) ([280b297](https://github.com/MarketSquare/robotframework-robocop/commit/280b297b297159b4f7a0df2052bb7a32fb037c0a))
+* merge variable statement checkers into single VariablesChecker ([#1816](https://github.com/MarketSquare/robotframework-robocop/issues/1816)) ([6d18ea2](https://github.com/MarketSquare/robotframework-robocop/commit/6d18ea2300edc3b4ed55d22bf2edd5eb27e37909))
+* move linter checkers to a dedicated package ([#1821](https://github.com/MarketSquare/robotframework-robocop/issues/1821)) ([cc15ac3](https://github.com/MarketSquare/robotframework-robocop/commit/cc15ac3849b19e56dfb8a4825a32a851e3fc31d4))
+
 ## [9.0.0](https://github.com/MarketSquare/robotframework-robocop/compare/v8.8.0...v9.0.0) (2026-08-21)
 
 More detailed notes regarding 9.0.0 [here](9.0.0.md).

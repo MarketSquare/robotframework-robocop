@@ -64,6 +64,7 @@ nav:
   - Formatter:
       - Formatter: formatter/formatter.md
       - Formatters:
+          - AlignBDDStatements: formatter/formatters/AlignBDDStatements.md
           - AlignKeywordsSection: formatter/formatters/AlignKeywordsSection.md
           - AlignSettingsSection: formatter/formatters/AlignSettingsSection.md
           - AlignTemplatedTestCases: formatter/formatters/AlignTemplatedTestCases.md

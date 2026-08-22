@@ -92,6 +92,83 @@ You can filter the list using ``--enabled`` / ``--disabled`` flags:
 robocop list reports --disabled
 ```
 
+## Custom reports
+
+Robocop can load and run reports defined outside Robocop. Custom reports are enabled with the same
+``--reports`` option - instead of the report name, provide the source with the reports:
+
+- a path to the Python file or a directory with the reports,
+- an importable module (for example ``my_package.reports``),
+- a [plugin](../../plugins.md) reference (for example ``example.reports``).
+
+=== ":octicons-command-palette-24: cli"
+
+    ```bash
+    robocop check --reports path/to/custom_report.py
+    ```
+
+=== ":material-file-cog-outline: toml"
+
+    ```toml
+    [tool.robocop.lint]
+    reports = [
+        "path/to/custom_report.py"
+    ]
+    ```
+
+All reports found in the source are loaded and enabled. Paths in the configuration file are resolved relative to
+the configuration file. Custom reports can be mixed with the built-in reports and the order is preserved:
+
+```toml
+[tool.robocop.lint]
+reports = [
+    "all",
+    "path/to/custom_report.py"
+]
+```
+
+A custom report is a class that inherits from the ``robocop.linter.reports.Report`` class and defines the ``name``
+and the ``description`` attributes:
+
+```python title="custom_report.py"
+from robocop.linter.reports import Report
+
+
+class CustomReport(Report):
+    """
+    **Report name**: ``custom_report``
+
+    Report that prints the number of the found issues.
+    """
+
+    def __init__(self, config):
+        self.name = "custom_report"
+        self.description = "Prints number of found issues"
+        self.prefix = "Custom report"
+        super().__init__(config)
+
+    def configure(self, name, value):
+        """Optional - allows to configure the report with --configure custom_report.prefix=value."""
+        if name == "prefix":
+            self.prefix = value
+        else:
+            super().configure(name, value)
+
+    def generate_report(self, diagnostics, **kwargs):
+        print(f"{self.prefix}: found {len(diagnostics.diagnostics)} issues")
+```
+
+Custom reports are configured, listed and documented the same way as the built-in ones:
+
+```bash
+robocop check --reports custom_report.py --configure custom_report.prefix=Issues
+robocop list reports --reports custom_report.py
+robocop docs custom_report
+```
+
+Reports inheriting from ``robocop.linter.reports.FileReport``, ``JsonFileReport`` or ``ComparableReport`` are also
+supported. A custom report cannot reuse the name of the built-in report.
+
 ## Comparing results
 
 Several reports allow comparing the current run with the previous run. ``--persistent`` and ``--compare`` options can

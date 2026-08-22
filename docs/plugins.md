@@ -74,6 +74,36 @@ configure = [
 ]
 ```
 
+### Reports
+
+Enable reports shipped with a plugin by pointing ``reports`` to a module with the reports:
+
+=== ":octicons-command-palette-24: cli"
+
+    ```
+    robocop check --reports example.reports
+    ```
+
+=== ":material-file-cog-outline: toml"
+
+    ```toml
+    [tool.robocop.lint]
+    reports = [
+        "example.reports"
+    ]
+    ```
+
+All reports from the referenced module are loaded and enabled. Use the full reference
+(``example.reports.issues_count``) to only enable reports from the selected module. Reports are configured by their
+name, without the plugin namespace:
+
+```toml
+[tool.robocop.lint]
+configure = [
+    "issues_count.prefix=Issues"
+]
+```
+
 ### Configuration files
 
 Configuration files shipped with a plugin are used with the [extends](configuration/index.md#inherit-configuration-file)
@@ -139,6 +169,9 @@ example_plugin/
     formatters/
         __init__.py
         ExampleFormatter.py
+    reports/
+        __init__.py
+        issues_count.py
     config/
         strict.toml
 ```
@@ -150,6 +183,7 @@ With such a layout, the plugin provides:
 | ``example.rules`` | ``example_plugin/rules`` package with the rules and checkers |
 | ``example.formatters`` | all formatters from the ``example_plugin/formatters`` package |
 | ``example.formatters.ExampleFormatter`` | single ``ExampleFormatter`` formatter |
+| ``example.reports`` | all reports from the ``example_plugin/reports`` package |
 | ``example.config.strict`` | ``example_plugin/config/strict.toml`` configuration file |
 
 !!! note
@@ -217,6 +251,26 @@ formatters are run when the whole module is selected:
 from example_plugin.formatters.ExampleFormatter import ExampleFormatter
 
 FORMATTERS = ["ExampleFormatter"]
+```
+
+### Reports
+
+Reports inside a plugin follow the [custom report](linter/reports/reports.md#custom-reports) rules:
+
+```python title="example_plugin/reports/issues_count.py"
+from robocop.linter.reports import Report
+
+
+class IssuesCountReport(Report):
+    """Report shipped with the example plugin."""
+
+    def __init__(self, config):
+        self.name = "issues_count"
+        self.description = "Returns number of found issues"
+        super().__init__(config)
+
+    def generate_report(self, diagnostics, **kwargs):
+        print(f"Found {len(diagnostics.diagnostics)} issues")
 ```
 
 ### Configuration files

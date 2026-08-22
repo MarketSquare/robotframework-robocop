@@ -1,0 +1,2 @@
+[robocop.plugins]
+example = example_plugin

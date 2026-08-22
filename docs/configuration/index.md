@@ -98,3 +98,10 @@ extends = ["../relative/path.toml", "C:/absolute/path.toml"]
 ``extends`` accept both relative and absolute paths. Configuration is loaded in the order they are specified.
 List-like options (``select``, ``ignore`` etc.) are merged. String and boolean options are overwritten by the most recent
 value.
+
+``extends`` can also point to a configuration file shipped with an installed [plugin](../plugins.md):
+
+```toml
+[tool.robocop]
+extends = ["example.config.strict"]
+```

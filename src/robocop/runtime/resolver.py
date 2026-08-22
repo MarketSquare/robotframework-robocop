@@ -19,7 +19,7 @@ try:
 except ImportError:
     Languages = None
 
-from robocop import exceptions
+from robocop import exceptions, plugins
 from robocop.config.parser import compile_rule_pattern
 from robocop.formatter.formatters import FORMATTERS, import_formatter
 from robocop.linter.rules import AfterRunChecker, BaseChecker, ProjectChecker, Rule, RuleSeverity, VisitorChecker
@@ -315,6 +315,9 @@ class LinterImporter:
 
     def modules_from_paths(self, paths: list[str | Path]) -> Generator[types.ModuleType, None, None]:
         for path in paths:
+            if isinstance(path, str) and (plugin_module := plugins.resolve_module_reference(path)) is not None:
+                yield from self._modules_from_plugin(plugin_module)
+                continue
             path_object = Path(path)
             if path_object.exists():
                 if path_object.is_dir():
@@ -332,6 +335,27 @@ class LinterImporter:
                     yield mod
                 except ImportError:
                     raise exceptions.InvalidExternalCheckerError(str(path)) from None
+
+    def _modules_from_plugin(self, module_path: str) -> Generator[types.ModuleType, None, None]:
+        """
+        Import the module from the plugin together with all its submodules.
+
+        Unlike the modules imported from a physical path, plugin modules are installed packages and can be
+        imported by their name. Submodules are imported explicitly so that the plugin does not have to import
+        them in its ``__init__.py``.
+        """
+        try:
+            module = import_module(module_path)
+        except ImportError:
+            raise exceptions.InvalidExternalCheckerError(module_path) from None
+        yield module
+        for _, submodule_name, _ in pkgutil.walk_packages(
+            getattr(module, "__path__", []), prefix=f"{module.__name__}."
+        ):
+            try:
+                yield import_module(submodule_name)
+            except ImportError:
+                continue
 
     def _import_module_from_file(self, file_path: Path) -> types.ModuleType:
         """

@@ -1,0 +1,15 @@
+[tool.robocop.lint]
+custom_rules = [
+    "example.rules"
+]
+select = [
+    "plugin-rule"
+]
+configure = [
+    "line-too-long.line_length=140"
+]
+
+[tool.robocop.format]
+select = [
+    "example.formatters.ExampleFormatter"
+]

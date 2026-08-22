@@ -21,6 +21,23 @@ It accepts a list of paths to files, directories or name of the Python module. E
     ]
     ```
 
+Rules distributed as a [plugin](../plugins.md) are referenced with the plugin namespace instead of a path:
+
+=== ":octicons-command-palette-24: cli"
+
+    ```
+    robocop check --custom-rules example.rules
+    ```
+
+=== ":material-file-cog-outline: toml"
+
+    ```toml
+    [tool.robocop.lint]
+    custom_rules = [
+        "example.rules"
+    ]
+    ```
+
 ## How to write custom rules
 
 Writing your own rules requires implementing the following:

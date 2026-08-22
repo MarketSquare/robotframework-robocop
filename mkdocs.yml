@@ -98,6 +98,7 @@ nav:
     - configuration/index.md
     - Reference: configuration/configuration_reference.md
     - Disablers: configuration/disablers.md
+  - Plugins: plugins.md
   - Integrations:
       - Pre-commit: integrations/precommit.md
       - SonarQube: integrations/sonarqube.md

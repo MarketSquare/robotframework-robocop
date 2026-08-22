@@ -25,6 +25,23 @@ Each formatter must be a class that inherits from `robocop.formatter.formatters.
     ]
     ```
 
+Formatters distributed as a [plugin](../plugins.md) are referenced with the plugin namespace instead of a path:
+
+=== ":octicons-command-palette-24: cli"
+
+    ```bash
+    robocop format --extend-select example.formatters.ExampleFormatter
+    ```
+
+=== ":material-file-cog-outline: toml"
+
+    ```toml
+    [tool.robocop.format]
+    extend-select = [
+        "example.formatters.ExampleFormatter"
+    ]
+    ```
+
 ## How to write custom formatters
 
 Custom formatter should inherit from `robocop.formatter.formatters.Formatter` class. This class is Robocop's

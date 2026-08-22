@@ -180,14 +180,14 @@ class TestExtendConfig:
         assert raw_config.config_source == str(final_config)
         assert raw_config.linter.select == ["DOC01", "DOC01"]
 
-    def test_not_toml_are_ignored(self):
+    def test_not_toml_is_resolved_as_plugin(self):
         # Arrange
         config_path = DATA_DIR / "extends" / "extends_with_name.toml"
         # Act
-        raw_config = RawConfig.from_dict(config_dict=read_toml_config(config_path), config_path=config_path)
+        with pytest.raises(typer.Exit) as exc_info:
+            RawConfig.from_dict(config_dict=read_toml_config(config_path), config_path=config_path)
         # Assert
-        assert raw_config.config_source == str(config_path)
-        assert raw_config.linter is None
+        assert exc_info.value.exit_code == 2
 
     def test_extend_does_not_exist(self, tmp_path):
         # Arrange

@@ -5,7 +5,7 @@ from typing import Annotated, Any
 import typer
 from rich.console import Console
 
-from robocop import __version__
+from robocop import __version__, plugins
 from robocop.config import defaults, manager, parser, schema
 from robocop.formatter.runner import RobocopFormatter
 from robocop.linter import rules_list
@@ -36,7 +36,7 @@ app = typer.Typer(
     rich_markup_mode="rich",
     cls=CliWithVersion,
 )
-list_app = typer.Typer(help="List available rules, reports or formatters.")
+list_app = typer.Typer(help="List available rules, reports, formatters or plugins.")
 app.add_typer(list_app, name="list")
 
 
@@ -925,6 +925,39 @@ def list_formatters(
             "Non-default formatters needs to be selected explicitly with [bold cyan]--select[/] or "
             "configured with param `enabled=True`.\n"
         )
+
+
+@list_app.command(name="plugins")
+def list_plugins(
+    silent: silent_option = None,
+) -> None:
+    """
+    List installed Robocop plugins.
+
+    Plugins are Python packages that register themselves using the `robocop.plugins` entry point group.
+    Rules, formatters and configuration files shipped with a plugin are referenced using the
+    `plugin_name.path.inside.the.plugin` syntax.
+    """
+    from rich.box import MINIMAL  # noqa: PLC0415
+    from rich.table import Table  # noqa: PLC0415
+
+    if silent:
+        return
+    console = Console(soft_wrap=True)
+    installed_plugins = plugins.get_plugins()
+    if not len(installed_plugins):
+        console.print(
+            "There are no Robocop plugins installed.\n"
+            "Visit https://robocop.dev/stable/plugins/ to learn how to create and install a plugin."
+        )
+        return
+    table = Table(title="Plugins", header_style="bold", box=MINIMAL)
+    table.add_column("Name", justify="left", no_wrap=True)
+    table.add_column("Module")
+    table.add_column("Location")
+    for plugin in installed_plugins:
+        table.add_row(plugin.name, plugin.module_path, str(plugin.path))
+    console.print(table)
 
 
 @app.command("docs")

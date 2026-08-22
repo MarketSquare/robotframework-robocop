@@ -20,7 +20,7 @@ try:
 except ImportError:
     Languages = None
 
-from robocop import exceptions
+from robocop import exceptions, plugins
 from robocop.linter.rules import RuleSeverity
 from robocop.version_handling import ROBOT_VERSION, Version
 
@@ -214,12 +214,18 @@ def extend_configs(config: dict[str, Any], config_path: Path, seen: set[Path]) -
                 f"{base_config} is not a string."
             )
         if not base_config.endswith(".toml"):
-            continue
-        base_config = Path(base_config)
-        if base_config.is_absolute():
-            extended_path = base_config
+            extended_path = plugins.resolve_path_reference(base_config)
+            if not extended_path.is_file():
+                raise exceptions.ConfigurationError(
+                    f"Configuration '{base_config}' referenced in the 'extends' parameter in the configuration "
+                    f"file: '{config_path}' does not exist. Expected plugin file: '{extended_path}'."
+                )
         else:
-            extended_path = (config_path.parent / base_config).resolve()
+            base_config_path = Path(base_config)
+            if base_config_path.is_absolute():
+                extended_path = base_config_path
+            else:
+                extended_path = (config_path.parent / base_config_path).resolve()
         if extended_path in seen:
             raise exceptions.CircularExtendsReferenceError(str(config_path)) from None
         normalized_config = read_robocop_toml_config(extended_path)

@@ -15,15 +15,17 @@ from robocop.linter.fix import (
     remove_empty_setting_fix,
     remove_statement_fix,
 )
-from robocop.linter.rules import FixableRule, Rule, RuleSeverity
+from robocop.linter.rules import FixableRule, Rule, RuleParam, RuleSeverity, SeverityThreshold
 from robocop.parsing.variables import VariableMatches  # type: ignore[attr-defined]
 
 if TYPE_CHECKING:
     from robot.parsing import File
+    from robot.parsing.model.blocks import Keyword, TestCase
     from robot.parsing.model.statements import (
         DefaultTags,
         Documentation,
         ForceTags,
+        KeywordCall,
         KeywordTags,
         Statement,
         Tags,
@@ -34,6 +36,9 @@ if TYPE_CHECKING:
 TagNode: TypeAlias = "ForceTags | DefaultTags | Tags | KeywordTags"
 
 SETTING_WITH_SINGLE_TAG = 2  # the setting name token and a single tag token
+
+CONTINUE_ON_FAILURE_TAGS = ("robot:recursive-continue-on-failure", "robot:continue-on-failure")
+"""Tags enabling the continue on failure mode, ordered from the most to the least significant one."""
 
 
 def _find_reported_tag(node: Statement, diag: Diagnostic) -> Token | None:
@@ -601,6 +606,123 @@ class TagAlreadySetInKeywordTagsRule(FixableRule):
     def fix(self, diag: Diagnostic, source_lines: list[str]) -> Fix | None:
         tag = diag.reported_arguments["tag"]
         return remove_tag_fix(self, diag, source_lines, f"Remove the '{tag}' tag already set in suite settings")
+
+
+class UnnecessaryContinueOnFailureRule(Rule):
+    """
+    ``Run Keyword And Continue On Failure`` is not needed when the continue on failure tag is set.
+
+    ``robot:continue-on-failure`` and ``robot:recursive-continue-on-failure`` tags already make all the keywords
+    in the test or keyword body run even if one of them fails. Wrapping such calls in
+    ``Run Keyword And Continue On Failure`` only adds noise.
+
+    Example of rule violation:
+
+        *** Test Cases ***
+        Test
+            [Tags]    robot:continue-on-failure
+            Run Keyword And Continue On Failure    Should Be Equal    ${expected}    ${actual}
+
+    It can be rewritten to:
+
+        *** Test Cases ***
+        Test
+            [Tags]    robot:continue-on-failure
+            Should Be Equal    ${expected}    ${actual}
+
+    Only keyword calls placed directly in the test or keyword body are reported. Calls nested inside ``FOR``,
+    ``WHILE``, ``IF`` or ``TRY`` blocks are ignored, since the non-recursive tag does not affect them.
+    Calls that assign a return value are ignored as well.
+
+    """
+
+    name = "unnecessary-continue-on-failure"
+    rule_id = "TAG12"
+    message = "'{keyword_name}' is not needed when the '{tag}' tag is used"
+    severity = RuleSeverity.INFO
+    added_in_version = "8.9.0"
+    sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
+        clean_code=sonar_qube.CleanCodeAttribute.CLEAR, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
+    )
+
+    def check(self, node: KeywordCall, name_token: Token, tag: str) -> None:
+        self.report(
+            keyword_name=name_token.value,
+            tag=tag,
+            node=node,
+            lineno=name_token.lineno,
+            col=name_token.col_offset + 1,
+            end_col=name_token.end_col_offset + 1,
+        )
+
+
+class CouldBeContinueOnFailureTagRule(Rule):
+    """
+    Every keyword call is wrapped in ``Run Keyword And Continue On Failure``.
+
+    If all the keyword calls in the test or keyword body are wrapped in ``Run Keyword And Continue On Failure``,
+    the ``robot:continue-on-failure`` tag can be used instead. It makes the data shorter and easier to read.
+
+    Example of rule violation:
+
+        *** Keywords ***
+        Validate Stuff
+            Run Keyword And Continue On Failure    Should Be Equal    ${expected_id}    ${actual_id}
+            Run Keyword And Continue On Failure    Should Be Equal    ${expected_name}    ${actual_name}
+
+    It can be rewritten to:
+
+        *** Keywords ***
+        Validate Stuff
+            [Tags]    robot:continue-on-failure
+            Should Be Equal    ${expected_id}    ${actual_id}
+            Should Be Equal    ${expected_name}    ${actual_name}
+
+    Note that ``robot:continue-on-failure`` is not applied to the keywords called from the body.
+    Use ``robot:recursive-continue-on-failure`` if the continue on failure mode should be inherited.
+
+    Configure ``min_calls`` to set how many wrapped calls are required to report the rule:
+
+        robocop check --configure could-be-continue-on-failure-tag.min_calls=3
+
+    The rule is only reported if every keyword call in the body is wrapped. Tests and keywords using ``FOR``,
+    ``WHILE``, ``IF`` or ``TRY`` blocks are ignored, since the non-recursive tag does not affect nested keywords.
+
+    """
+
+    name = "could-be-continue-on-failure-tag"
+    rule_id = "TAG13"
+    message = (
+        "{block_name} '{name}' uses 'Run Keyword And Continue On Failure' {call_count} times "
+        "and could use the 'robot:continue-on-failure' tag instead"
+    )
+    severity = RuleSeverity.INFO
+    parameters = [
+        RuleParam(
+            name="min_calls",
+            default=2,
+            converter=int,
+            desc="number of 'Run Keyword And Continue On Failure' calls required to report the rule",
+        )
+    ]
+    severity_threshold = SeverityThreshold("min_calls", compare_method="greater")
+    added_in_version = "8.9.0"
+    sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
+        clean_code=sonar_qube.CleanCodeAttribute.CLEAR, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
+    )
+
+    def check(self, node: Keyword | TestCase, block_name: str, call_count: int, other_calls: bool) -> None:
+        if other_calls or call_count < self.min_calls:
+            return
+        self.report(
+            block_name=block_name,
+            name=node.name,
+            call_count=call_count,
+            node=node,
+            end_col=node.col_offset + len(node.name) + 1,
+            extended_disablers=(node.lineno, node.end_lineno),
+            sev_threshold_value=call_count,
+        )
 
 
 def split_tag_on_variables(tag_value: str) -> tuple[list[str], bool]:

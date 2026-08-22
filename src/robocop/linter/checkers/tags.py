@@ -7,9 +7,12 @@ from typing import TYPE_CHECKING
 
 from robot.api import Token
 from robot.parsing.model.blocks import SettingSection
+from robot.parsing.model.statements import KeywordCall, Statement
 
 from robocop.linter.rules import VisitorChecker, tags
-from robocop.linter.rules.tags import TagNode, new_tag_token, split_tag_on_variables
+from robocop.linter.rules.tags import CONTINUE_ON_FAILURE_TAGS, TagNode, new_tag_token, split_tag_on_variables
+from robocop.linter.utils.misc import normalize_robot_name
+from robocop.parsing.run_keywords import remove_bdd_prefix
 
 if TYPE_CHECKING:
     from robot.parsing import File
@@ -21,6 +24,9 @@ if TYPE_CHECKING:
         KeywordTags,
         Tags,
     )
+
+CONTINUE_ON_FAILURE_KEYWORDS = frozenset({"runkeywordandcontinueonfailure", "builtin.runkeywordandcontinueonfailure"})
+"""Normalized names of the BuiltIn keyword continuing the execution on failure."""
 
 
 class TagsChecker(VisitorChecker):
@@ -36,6 +42,8 @@ class TagsChecker(VisitorChecker):
     empty_tags: tags.EmptyTagsRule
     could_be_keyword_tags: tags.CouldBeKeywordTagsRule
     tag_already_set_in_keyword_tags: tags.TagAlreadySetInKeywordTagsRule
+    unnecessary_continue_on_failure: tags.UnnecessaryContinueOnFailureRule
+    could_be_continue_on_failure_tag: tags.CouldBeContinueOnFailureTagRule
     # TODO: too many tags rule
 
     def __init__(self) -> None:
@@ -113,12 +121,87 @@ class TagsChecker(VisitorChecker):
     def visit_Keyword(self, node: Keyword) -> None:  # noqa: N802
         self.keywords_count += 1
         self.in_keyword = True
+        self.check_continue_on_failure(node, self.keyword_tags, "Keyword")
         self.generic_visit(node)
         self.in_keyword = False
 
     def visit_TestCase(self, node: TestCase) -> None:  # noqa: N802
         self.test_cases_count += 1
+        local_tags = self.get_local_tags(node)
+        inherited_tags = self.test_tags if local_tags is not None else self.test_tags | self.default_tags
+        self.check_continue_on_failure(node, inherited_tags, "Test case", local_tags)
         self.generic_visit(node)
+
+    @staticmethod
+    def get_local_tags(node: Keyword | TestCase) -> set[str] | None:
+        """Return tags from the ``[Tags]`` setting or None if the setting is not used."""
+        tags_node = next(
+            (statement for statement in node.body if isinstance(statement, Statement) and statement.type == Token.TAGS),
+            None,
+        )
+        if tags_node is None:
+            return None
+        return {token.value for token in tags_node.data_tokens[1:]}
+
+    @staticmethod
+    def find_continue_on_failure_tag(tag_names: set[str]) -> str | None:
+        """
+        Find the continue on failure tag used by the test or keyword.
+
+        Returns:
+            Original value of the tag, or None if the continue on failure mode is not enabled.
+
+        """
+        normalized_tags = {normalize_robot_name(tag): tag for tag in tag_names}
+        for expected_tag in CONTINUE_ON_FAILURE_TAGS:
+            if expected_tag in normalized_tags:
+                return normalized_tags[expected_tag]
+        return None
+
+    @staticmethod
+    def is_continue_on_failure_call(node: KeywordCall) -> bool:
+        name_token = node.get_token(Token.KEYWORD)
+        if name_token is None:
+            return False
+        name = normalize_robot_name(remove_bdd_prefix(name_token.value))
+        return name in CONTINUE_ON_FAILURE_KEYWORDS
+
+    def check_continue_on_failure(
+        self,
+        node: Keyword | TestCase,
+        inherited_tags: set[str],
+        block_name: str,
+        local_tags: set[str] | None = None,
+    ) -> None:
+        """
+        Report keyword calls that could be replaced by the continue on failure tag, or are made redundant by it.
+
+        Only keyword calls placed directly in the body are taken into account. Nested blocks such as ``FOR`` or
+        ``IF`` are not affected by the non-recursive tag, and calls assigning a return value are not equivalent
+        to the tag either.
+        """
+        if local_tags is None:
+            local_tags = self.get_local_tags(node) or set()
+        # tags removed with the '-tag' syntax are not resolved - such tags are simply ignored
+        effective_tags = inherited_tags | {tag for tag in local_tags if not tag.startswith("-")}
+        continue_on_failure_tag = self.find_continue_on_failure_tag(effective_tags)
+        call_count = 0
+        other_calls = False
+        for statement in node.body:
+            if not isinstance(statement, Statement):
+                other_calls = True  # nested block, such as FOR or IF
+            elif not isinstance(statement, KeywordCall):
+                continue
+            elif not self.is_continue_on_failure_call(statement) or statement.assign:
+                other_calls = True
+            elif continue_on_failure_tag is not None:
+                self.unnecessary_continue_on_failure.check(
+                    statement, statement.get_token(Token.KEYWORD), continue_on_failure_tag
+                )
+            else:
+                call_count += 1
+        if continue_on_failure_tag is None:
+            self.could_be_continue_on_failure_tag.check(node, block_name, call_count, other_calls)
 
     def visit_ForceTags(self, node: ForceTags) -> None:  # noqa: N802
         self.test_tags = {token.value for token in node.data_tokens[1:]}

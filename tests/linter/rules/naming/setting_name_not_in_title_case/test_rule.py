@@ -10,3 +10,13 @@ class TestRuleAcceptance(RuleAcceptance):
 
     def test_fix(self):
         self.check_rule_fix(src_files=["test.robot"])
+
+    def test_metadata(self):
+        self.check_rule(src_files=["metadata.robot"], expected_file="expected_output_metadata.txt")
+
+    def test_test_case_metadata(self):
+        self.check_rule(
+            src_files=["test_case_metadata.robot"],
+            expected_file="expected_output_test_case_metadata.txt",
+            test_on_version=">=7.5",
+        )

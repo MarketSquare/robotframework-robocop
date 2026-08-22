@@ -4,8 +4,10 @@ Order settings like ``[Arguments]``, ``[Setup]``, ``[Tags]`` inside Keywords and
 
 {{ configure_hint("OrderSettings") }}
 
-Test case settings ``[Documentation]``, ``[Tags]``, ``[Template]``, ``[Timeout]``, ``[Setup]`` are put before test case
-body and ``[Teardown]`` is moved to the end of a test case.
+Test case settings ``[Documentation]``, ``[Metadata]``, ``[Tags]``, ``[Template]``, ``[Timeout]``, ``[Setup]`` are put
+before test case body and ``[Teardown]`` is moved to the end of a test case.
+``[Metadata]`` requires Robot Framework 7.5 or newer and, unlike other settings, it can be defined multiple times -
+all occurrences are kept in their original relative order.
 
 Keyword settings ``[Documentation]``, ``[Tags]``, ``[Timeout]``, ``[Arguments]``, ``[Setup]`` are put before keyword
 body and settings like ``[Teardown]``, ``[Return]`` are moved to the end of keyword.
@@ -66,7 +68,7 @@ The default order can be changed using the following parameters:
 
 - ``keyword_before = documentation,tags,arguments,timeout,setup``
 - ``keyword_after = teardown,return``
-- ``test_before = documentation,tags,template,timeout,setup``
+- ``test_before = documentation,metadata,tags,timeout,setup,template``
 - ``test_after = teardown``
 
 For example:

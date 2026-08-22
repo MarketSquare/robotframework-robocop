@@ -9,7 +9,7 @@ from robot.api import Token
 
 from robocop.linter.rules import Rule, VisitorChecker, arguments, errors, whitespace
 from robocop.linter.utils.misc import find_robot_vars
-from robocop.version_handling import ROBOT_VERSION
+from robocop.version_handling import ROBOT_VERSION, TEST_METADATA_SUPPORTED
 
 try:
     from robot.api.parsing import If
@@ -49,9 +49,11 @@ class ParsingErrorChecker(VisitorChecker):
         "[Teardown]",
         "[Timeout]",
     ]
-    test_case_only_settings = {"Setup", "Template"}
+    # ``[Metadata]`` is only allowed in test cases and only since Robot Framework 7.5
+    test_case_only_settings = {"Setup", "Template"} | ({"Metadata"} if TEST_METADATA_SUPPORTED else set())
     test_case_settings = [
         "[Documentation]",
+        *(["[Metadata]"] if TEST_METADATA_SUPPORTED else []),
         "[Tags]",
         "[Setup]",
         "[Teardown]",

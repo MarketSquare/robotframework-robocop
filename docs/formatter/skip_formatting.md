@@ -20,6 +20,7 @@ Option that allows skipping a configured type of the code. Supported types:
 * --skip template
 * --skip return
 * --skip tags
+* --skip metadata
 * --skip comments
 * --skip block-comments
 

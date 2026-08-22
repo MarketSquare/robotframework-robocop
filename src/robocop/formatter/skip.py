@@ -39,6 +39,7 @@ class Skip:
             "return",
             "return_statement",
             "tags",
+            "metadata",
         }
         skip_settings = set()
         for setting in settings:

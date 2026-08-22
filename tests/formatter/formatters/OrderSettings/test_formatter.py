@@ -101,3 +101,7 @@ class TestOrderSettings(FormatterAcceptanceTest):
 
     def test_stick_comments_with_settings(self):
         self.compare(source="stick_comments.robot")
+
+    def test_metadata(self):
+        """``[Metadata]`` can be repeated and is ordered right after ``[Documentation]``."""
+        self.compare(source="test_metadata.robot", test_on_version=">=7.5")

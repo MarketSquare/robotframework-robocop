@@ -1,0 +1,4 @@
+test_case_metadata.robot:3:5 [E] SPC19 Not enough whitespace after '[Metadata]' setting
+
+Found 1 issue.
+1 fixable with the '--fix' option.

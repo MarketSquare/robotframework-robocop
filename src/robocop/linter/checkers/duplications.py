@@ -68,6 +68,7 @@ class DuplicationsChecker(VisitorChecker):
         self.variables = defaultdict(list)
         self.resources = defaultdict(list)
         self.libraries = defaultdict(list)
+        # only the suite metadata, test case metadata is scoped to its test case in ``visit_TestCase``
         self.metadata = defaultdict(list)
         self.variable_imports = defaultdict(list)
         super().visit_File(node)
@@ -84,12 +85,20 @@ class DuplicationsChecker(VisitorChecker):
     ) -> None:
         for nodes in container.values():
             for duplicate in nodes[1:]:
+                # the statement can be indented (test case ``[Metadata]``), point at the setting name itself
+                data_tokens = getattr(duplicate, "data_tokens", None)
+                col = (data_tokens[0].col_offset if data_tokens else duplicate.col_offset) + 1
                 if underline_whole_line:
                     end_col = duplicate.end_col_offset
                 else:
                     end_col = duplicate.col_offset + len(duplicate.name) + 1
                 self.report(
-                    rule, name=duplicate.name, first_occurrence_line=nodes[0].lineno, node=duplicate, end_col=end_col
+                    rule,
+                    name=duplicate.name,
+                    first_occurrence_line=nodes[0].lineno,
+                    node=duplicate,
+                    col=col,
+                    end_col=end_col,
                 )
 
     def check_library_duplicates(self, container: defaultdict[str, list[LibraryImport]], rule: Rule) -> None:
@@ -108,7 +117,12 @@ class DuplicationsChecker(VisitorChecker):
     def visit_TestCase(self, node: TestCase) -> None:  # noqa: N802
         testcase_name = normalize_robot_name(node.name)
         self.test_cases[testcase_name].append(node)
+        # Robot Framework 7.5 allows ``[Metadata]`` in test cases. Such metadata is scoped to the test case,
+        # so it can repeat the suite metadata or the metadata of a different test without being a duplicate.
+        outer_metadata, self.metadata = self.metadata, defaultdict(list)
         self.generic_visit(node)
+        self.check_duplicates(self.metadata, self.duplicated_metadata, underline_whole_line=True)
+        self.metadata = outer_metadata
 
     def visit_Keyword(self, node: Keyword) -> None:  # noqa: N802
         keyword_name = normalize_robot_name(node.name)

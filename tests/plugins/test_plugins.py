@@ -127,6 +127,39 @@ class TestPluginFormatters:
         assert "Configured Name" in source.read_text()
 
 
+class TestPluginReports:
+    @pytest.mark.parametrize("reports", ["example.reports", "example.reports.issues_count"])
+    def test_check_with_plugin_report(self, example_plugin, reports):  # noqa: ARG002
+        runner = CliRunner()
+        result = runner.invoke(
+            app,
+            ["check", "--no-cache", "--reports", reports, str(TEST_DATA_DIR / "test.robot")],
+        )
+        assert "Plugin report: found" in result.output
+
+    def test_configure_plugin_report(self, example_plugin):  # noqa: ARG002
+        runner = CliRunner()
+        result = runner.invoke(
+            app,
+            [
+                "check",
+                "--no-cache",
+                "--reports",
+                "example.reports",
+                "--configure",
+                "issues_count.prefix=Configured",
+                str(TEST_DATA_DIR / "test.robot"),
+            ],
+        )
+        assert "Configured: found" in result.output
+
+    def test_list_plugin_report(self, example_plugin):  # noqa: ARG002
+        runner = CliRunner()
+        result = runner.invoke(app, ["list", "reports", "--reports", "example.reports"])
+        assert result.exit_code == 0
+        assert "issues_count" in result.output
+
+
 class TestPluginConfigs:
     def test_extends_plugin_config(self, example_plugin, tmp_path):  # noqa: ARG002
         config_path = generate_config(

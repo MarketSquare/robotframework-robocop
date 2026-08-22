@@ -1,11 +1,12 @@
 from __future__ import annotations
 
+import importlib.util
 import inspect
 import json
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
-from robocop import exceptions
+from robocop import exceptions, plugins
 from robocop.config import defaults
 from robocop.config.builder import ConfigBuilder
 from robocop.linter.utils.misc import get_robocop_cache_directory, str2bool
@@ -101,9 +102,9 @@ class ComparableReport(Report):
         raise NotImplementedError
 
 
-def load_reports(config: Config) -> dict[str, Report]:
+def _load_reports_from_paths(config: Config, paths: list[str | Path]) -> dict[str, Report]:
     """
-    Load all valid reports.
+    Load all valid reports from the given paths.
 
     Report is considered valid if it inherits from the ` Report ` class
     and contains both `name` and `description` attributes.
@@ -111,10 +112,12 @@ def load_reports(config: Config) -> dict[str, Report]:
     loaded_reports: dict[str, Report] = {}
     # TODO: Move report loading to resolver
     robocop_importer = LinterImporter()
-    for module in robocop_importer.modules_from_paths([Path(__file__).parent]):
+    for module in robocop_importer.modules_from_paths(paths):
         classes = inspect.getmembers(module, inspect.isclass)
         for report_class in classes:
             if not issubclass(report_class[1], Report):
+                continue
+            if report_class[1].__module__ == __name__:  # base classes imported by the module
                 continue
             report = report_class[1](config)
             if not hasattr(report, "name") or not hasattr(report, "description"):
@@ -123,20 +126,95 @@ def load_reports(config: Config) -> dict[str, Report]:
     return loaded_reports
 
 
+def load_reports(config: Config) -> dict[str, Report]:
+    """Load all valid, internal reports."""
+    return _load_reports_from_paths(config, [Path(__file__).parent])
+
+
+def is_custom_report_source(name: str) -> bool:
+    """
+    Check if the value configured with ``--reports`` points to the source with the custom reports.
+
+    Custom reports are loaded from the plugin reference (``example.reports``), importable module
+    (``package.reports``) or a path to the Python file or a directory with the reports.
+    """
+    if name in {"all", "None"}:
+        return False
+    if plugins.resolve_module_reference(name) is not None:
+        return True
+    if "." in name or "/" in name or "\\" in name:
+        return True
+    return Path(name).is_dir()
+
+
+def load_custom_reports(config: Config, sources: list[str]) -> dict[str, Report]:
+    """Load reports from the custom sources: plugins, importable modules or paths."""
+    if not sources:
+        return {}
+    for source in sources:
+        _validate_custom_report_source(source)
+    return _load_reports_from_paths(config, list(sources))
+
+
+def _validate_custom_report_source(source: str) -> None:
+    """Raise an error if the custom report source cannot be resolved to a plugin, path or a module."""
+    if plugins.resolve_module_reference(source) is not None or Path(source).exists():
+        return
+    try:
+        if importlib.util.find_spec(source) is not None:
+            return
+    except (ImportError, AttributeError, ValueError):
+        pass
+    raise exceptions.InvalidCustomReportSource(source)
+
+
+def load_all_reports(config: Config) -> dict[str, Report]:
+    """Load internal reports together with the custom reports configured with ``--reports``."""
+    reports = load_reports(config)
+    sources = [name for name in _iter_configured_reports(config) if is_custom_report_source(name)]
+    for name, report in load_custom_reports(config, sources).items():
+        if name not in reports:
+            reports[name] = report
+    return reports
+
+
+def _iter_configured_reports(config: Config) -> list[str]:
+    """Return reports configured with ``--reports``, with the comma separated values split."""
+    return [csv_report for report in config.linter.reports for csv_report in report.split(",")]
+
+
 def get_reports(config: Config) -> dict[str, Report]:
     """
     Return the dictionary with a list of valid, enabled reports (listed in `configured_reports` set of str).
 
     If `configured_reports` contains `all`, then all default reports are enabled.
+
+    Values that point to the custom reports source (plugin, module or path) load and enable all reports
+    defined in such source.
     """
-    configured_reports = config.linter.reports
-    configured_reports = [csv_report for report in configured_reports for csv_report in report.split(",")]
+    configured_reports = _iter_configured_reports(config)
     if "None" in configured_reports:
         configured_reports = []
+    custom_reports_by_source: dict[str, dict[str, Report]] = {
+        source: load_custom_reports(config, [source])
+        for source in dict.fromkeys(configured_reports)
+        if is_custom_report_source(source)
+    }
     reports = load_reports(config)
+    for source_reports in custom_reports_by_source.values():
+        for name, report_class in source_reports.items():
+            if name in reports:
+                raise exceptions.ConfigurationError(
+                    f"Custom report '{name}' has the same name as the existing Robocop report."
+                )
+            reports[name] = report_class
     enabled_reports = {name: report_class for name, report_class in reports.items() if report_class.ENABLED}
     for report in configured_reports:
-        if report == "all":
+        if report in custom_reports_by_source:  # custom reports are enabled by loading them
+            for name, report_class in custom_reports_by_source[report].items():
+                if name not in enabled_reports:
+                    enabled_reports[name] = report_class
+        elif report == "all":
             for name, report_class in reports.items():
                 if report_class.NO_ALL and name not in enabled_reports:
                     enabled_reports[name] = report_class
@@ -150,7 +228,7 @@ def get_reports(config: Config) -> dict[str, Report]:
     return enabled_reports
 
 
-def print_reports(reports: dict[str, Report], only_enabled: bool | None) -> str:
+def print_reports(reports: dict[str, Report], only_enabled: bool | None, config: Config | None = None) -> str:
     """
     Return description of reports.
 
@@ -160,10 +238,15 @@ def print_reports(reports: dict[str, Report], only_enabled: bool | None) -> str:
     Args:
         reports: Dictionary with loaded reports.
         only_enabled: if set to True/False, it will filter reports by enabled/disabled status
+        config: configuration used to load reports. Required to list custom reports.
 
     """
-    config = ConfigBuilder().from_raw(None, None)
-    all_public_reports = [report for report in load_reports(config).values() if not report.INTERNAL]
+    if config is None:
+        config = ConfigBuilder().from_raw(None, None)
+    all_reports = load_all_reports(config)
+    for name, report in reports.items():  # custom reports enabled in the runtime configuration
+        all_reports.setdefault(name, report)
+    all_public_reports = [report for report in all_reports.values() if not report.INTERNAL]
     all_public_reports = sorted(all_public_reports, key=lambda x: x.name)
     configured_reports = {x.name for x in reports.values()}
     available_reports = ""

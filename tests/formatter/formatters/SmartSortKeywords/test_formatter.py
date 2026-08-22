@@ -79,5 +79,9 @@ class TestSmartSortKeywords(FormatterAcceptanceTest):
     def test_multiple_sections(self):
         self.compare(source="multiple_sections.robot")
 
+    def test_comment_between_keywords(self):
+        """Merged sections can leave a comment between the keywords (#1718)."""
+        self.compare(source="comment_between_keywords.robot", select=["MergeAndOrderSections"])
+
     def test_disablers(self):
         self.compare(source="disablers.robot", not_modified=True)

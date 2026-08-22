@@ -95,7 +95,16 @@ class SmartSortKeywords(Formatter):
         while node.body and not isinstance(node.body[0], Keyword):
             before.append(node.body.pop(0))
         while node.body and not isinstance(node.body[-1], Keyword):
-            after.append(node.body.pop(-1))
+            after.insert(0, node.body.pop(-1))
+        # Non keyword nodes, such as comments, can be also placed between the keywords, for example after
+        # merging duplicated sections. Attach them to the preceding keyword so they are moved together with it.
+        keywords: list = []  # type: ignore[type-arg]
+        for child in node.body:
+            if isinstance(child, Keyword):
+                keywords.append(child)
+            else:
+                keywords[-1].body.append(child)
+        node.body = keywords
         return before, after
 
     def sort_function(self, kw: Keyword) -> str:

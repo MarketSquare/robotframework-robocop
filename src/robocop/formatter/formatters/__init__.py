@@ -72,6 +72,7 @@ FORMATTERS = [
     "ReplaceBreakContinue",
     "InlineIf",
     "Translate",
+    "AlignBDDStatements",
 ]
 
 IMPORTER = Importer()

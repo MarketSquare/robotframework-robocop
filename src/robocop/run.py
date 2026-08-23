@@ -10,7 +10,7 @@ from robocop.config import defaults, manager, parser, schema
 from robocop.formatter.runner import RobocopFormatter
 from robocop.linter import rules_list
 from robocop.linter.diagnostics import Diagnostic
-from robocop.linter.reports import load_reports, print_reports
+from robocop.linter.reports import load_all_reports, print_reports
 from robocop.linter.rules import Rule, RuleSeverity
 from robocop.linter.runner import RobocopLinter
 from robocop.linter.utils.misc import ROBOCOP_RULES_URL, get_plural_form  # TODO: move higher up
@@ -347,7 +347,8 @@ reports_option = Annotated[
         "-r",
         show_default=False,
         help="Generate reports from reported issues. To list available reports use `list reports` command. "
-        "Use `all` to enable all reports.",
+        "Use `all` to enable all reports. Custom reports are enabled by providing a path, module or plugin "
+        "reference with the reports.",
         rich_help_panel="Reports",
     ),
 ]
@@ -866,7 +867,7 @@ def list_reports(
     config_manager = manager.ConfigManager(config=configuration_file, overwrite_config=overwrite_config)
     runner = RobocopLinter(config_manager)
     if not silent:
-        console.print(print_reports(runner.reports, enabled))  # TODO: color etc
+        console.print(print_reports(runner.reports, enabled, config_manager.default_config))  # TODO: color etc
 
 
 @list_app.command(name="formatters")
@@ -977,7 +978,7 @@ def print_resource_documentation(
         console.print(resolved_config.rules[name].description_with_configurables)
         return
 
-    reports = load_reports(config_manager.default_config)
+    reports = load_all_reports(config_manager.default_config)
     if name in reports:
         docs = textwrap.dedent(str(reports[name].__doc__))
         console.print(docs)

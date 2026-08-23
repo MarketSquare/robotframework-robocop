@@ -30,6 +30,11 @@ def validate_config_fields(config_dict: dict[str, Any], known_fields: set[str], 
         raise typer.Exit(code=1)
 
 
+def _is_report_path(report: str) -> bool:
+    """Check if the report configuration value points to the file or directory with the custom reports."""
+    return "/" in report or "\\" in report or report.endswith(".py")
+
+
 @dataclass
 class RawWhitespaceConfig:
     space_count: int | None = None
@@ -89,6 +94,13 @@ class RawLinterConfig:
             config_dict["custom_rules"] = [
                 resolve_relative_path(path, config_path.parent, ensure_exists=True)
                 for path in config_dict["custom_rules"]
+            ]
+        if "reports" in config_dict:
+            config_dict["reports"] = [
+                resolve_relative_path(report, config_path.parent, ensure_exists=True)
+                if _is_report_path(report)
+                else report
+                for report in config_dict["reports"]
             ]
         return cls(**config_dict, silent=silent)
 

@@ -53,6 +53,15 @@ class InvalidExternalCheckerError(FatalError):
         super().__init__(msg)
 
 
+class InvalidCustomReportSource(FatalError):
+    def __init__(self, source: str) -> None:
+        super().__init__(
+            f"Failed to load custom reports from '{source}'. "
+            f"Verify if it is a valid report name, path to the file or directory with the reports, "
+            f"an importable module or an installed plugin."
+        )
+
+
 class RuleParamNotFoundError(FatalError):  # TODO, not used
     def __init__(self, rule: Rule, param: str, checker: object) -> None:
         super().__init__(

@@ -297,8 +297,15 @@ will result in:
 
 ## Skip formatting
 
-Documentation is **skipped by default** (the documentation-alignment examples above assume
-``AlignSettingsSection.skip_documentation=False``). This keeps pre-formatted blocks in the documentation intact.
+Documentation is **partially formatted by default**: the ``Documentation`` keyword is aligned with the other settings
+in the first column, but the documentation value and any continuation lines (``...``) are left untouched.
+This keeps pre-formatted blocks intact while still producing a neat first-column alignment.
+
+To disable all alignment of documentation (i.e. leave the ``Documentation`` keyword unaligned too), use one of the
+skip options described below.
+
+The documentation-alignment examples above assume ``AlignSettingsSection.skip_documentation=False``, which enables
+full alignment of all documentation columns.
 
 It is possible to use the following arguments to skip formatting of the code:
 

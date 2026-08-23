@@ -10,7 +10,7 @@ Test Timeout     1 min
 Library          CustomLibrary    WITH NAME    name
 Library          ArgsedLibrary    ${1}    ${2}    ${3}
 
-Documentation     Example using the space separated format.
+Documentation    Example using the space separated format.
 ...  and this documentation is multiline
 ...  where this line should go I wonder?
 

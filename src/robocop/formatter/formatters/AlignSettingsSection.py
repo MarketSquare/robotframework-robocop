@@ -64,7 +64,9 @@ class AlignSettingsSection(Formatter):
 
     To disable it, configure ``argument_indent`` with ``0``.
 
-    Documentation is ignored by default. Set ``skip_documentation`` to ``False`` to format documentation.
+    The first column of the ``Documentation`` setting is aligned with other settings by default. The documentation
+    value and any continuation lines are left untouched. Set ``skip_documentation`` to ``False`` to fully format
+    documentation (all columns aligned).
 
     Supports global formatting param ``--space-count`` (for columns with fixed length).
     """
@@ -96,22 +98,37 @@ class AlignSettingsSection(Formatter):
     @skip_section_if_disabled
     def visit_SettingSection(self, node: SettingSection) -> SettingSection:  # noqa: N802
         statements = []
+        doc_lines_for_lookup: list[list[list[Token]]] = []
         for child in node.body:
-            if self.disablers.is_node_disabled("AlignSettingsSection", child) or self.is_node_skip(child):
+            if self.disablers.is_node_disabled("AlignSettingsSection", child):
                 statements.append(child)
             elif child.type in (Token.EOL, Token.COMMENT):
                 statements.append(misc.left_align(child))
+            elif isinstance(child, Documentation) and self.skip.documentation:
+                # Keep the raw node so continuation lines are not modified, but collect
+                # the tokenised first column for column-width calculation.
+                statements.append(child)
+                doc_lines_for_lookup.append(list(misc.tokens_by_lines(child)))
             else:
                 statements.append(list(misc.tokens_by_lines(child)))
         nodes_to_be_aligned = [st for st in statements if isinstance(st, list)]
-        if not nodes_to_be_aligned:
+        if not nodes_to_be_aligned and not doc_lines_for_lookup:
             return node
-        look_up = self.create_look_up(nodes_to_be_aligned)  # for every col find longest value
+        look_up = self.create_look_up(nodes_to_be_aligned + doc_lines_for_lookup)
         node.body = self.align_rows(statements, look_up)
         return node
 
-    def is_node_skip(self, node: Statement) -> bool:
-        return isinstance(node, Documentation) and self.skip.documentation
+    def align_doc_first_col(self, node: Documentation, look_up: dict[int, int]) -> Documentation:
+        """Align only the separator after the Documentation keyword, leaving the rest untouched."""
+        tokens = list(node.tokens)
+        doc_token: Token | None = None
+        for token in tokens:
+            if token.type == Token.DOCUMENTATION:
+                doc_token = token
+            elif doc_token is not None and token.type == Token.SEPARATOR:
+                token.value = self.calc_separator(0, 1, indent_arg=False, token=doc_token, look_up=look_up)
+                break
+        return node
 
     def should_indent_arguments(self, statement: list[list[Token]]) -> tuple[bool, bool]:
         statement_type = statement[0][0].type
@@ -124,7 +141,10 @@ class AlignSettingsSection(Formatter):
         aligned_statements = []
         for st in statements:
             if not isinstance(st, list):
-                aligned_statements.append(st)
+                if isinstance(st, Documentation) and self.skip.documentation:
+                    aligned_statements.append(self.align_doc_first_col(st, look_up))
+                else:
+                    aligned_statements.append(st)
                 continue
             is_library, indent_args = self.should_indent_arguments(st)
             aligned_statement: list[Token] = []

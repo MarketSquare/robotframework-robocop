@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from collections import defaultdict
 from typing import TYPE_CHECKING
 
 from robot.api.parsing import Comment, EmptyLine, Token
@@ -69,13 +70,14 @@ class OrderSettings(Formatter):
         [Return]  ${value}
     ```
 
-    Test case settings ``[Documentation]``, ``[Tags]``, ``[Timeout]``, ``[Setup]``, ``[Template]`` are put before
-    test case body and ``[Teardown]`` is moved to the end of test case.
+    Test case settings ``[Documentation]``, ``[Metadata]``, ``[Tags]``, ``[Timeout]``, ``[Setup]``, ``[Template]``
+    are put before test case body and ``[Teardown]`` is moved to the end of test case.
+    ``[Metadata]`` requires Robot Framework 7.5 or newer.
 
     Default order can be changed using following parameters:
       - ``keyword_before = documentation,tags,arguments,timeout,setup``
       - ``keyword_after = teardown,return``
-      - ``test_before = documentation,tags,timeout,setup,template``
+      - ``test_before = documentation,metadata,tags,timeout,setup,template``
       - ``test_after = teardown``
 
     Not all settings names need to be passed to given parameter. Missing setting names are not ordered. Example::
@@ -96,6 +98,7 @@ class OrderSettings(Formatter):
     }
     TEST_SETTINGS = {
         "documentation": Token.DOCUMENTATION,
+        "metadata": Token.METADATA,
         "tags": Token.TAGS,
         "timeout": Token.TIMEOUT,
         "template": Token.TEMPLATE,
@@ -107,7 +110,7 @@ class OrderSettings(Formatter):
         self,
         keyword_before: str = "documentation,tags,arguments,timeout,setup",
         keyword_after: str = "teardown,return",
-        test_before: str = "documentation,tags,timeout,setup,template",
+        test_before: str = "documentation,metadata,tags,timeout,setup,template",
         test_after: str = "teardown",
     ) -> None:
         super().__init__()
@@ -165,7 +168,8 @@ class OrderSettings(Formatter):
     ) -> Keyword | TestCase:
         if not node.body:
             return node
-        settings: dict[str, tuple[list[Comment], Statement]] = {}
+        # a setting can be repeated (``[Metadata]``), so every type maps to a list to not lose any statement
+        settings: dict[str, list[tuple[list[Comment], Statement]]] = defaultdict(list)
         not_settings: list[Statement | Comment | EmptyLine] = []
         trailing_after: list[Statement | Comment | EmptyLine] = []
         after_seen = False
@@ -181,7 +185,7 @@ class OrderSettings(Formatter):
                     comments.append(child)
             elif getattr(child, "type", "invalid") in setting_types:
                 after_seen = after_seen or child.type in after
-                settings[child.type] = (comments, child)
+                settings[child.type].append((comments, child))
                 comments = []
             elif after_seen:
                 trailing_after.extend(comments)
@@ -208,13 +212,11 @@ class OrderSettings(Formatter):
 
     @staticmethod
     def add_in_order(
-        order: list[str], settings_in_node: dict[str, tuple[list[Comment], Statement]]
+        order: list[str], settings_in_node: dict[str, list[tuple[list[Comment], Statement]]]
     ) -> list[Comment | Statement]:
         nodes = []
         for token_type in order:
-            if token_type not in settings_in_node:
-                continue
-            comments, node = settings_in_node[token_type]
-            nodes.extend(comments)
-            nodes.append(node)
+            for comments, node in settings_in_node.get(token_type, []):
+                nodes.extend(comments)
+                nodes.append(node)
         return nodes

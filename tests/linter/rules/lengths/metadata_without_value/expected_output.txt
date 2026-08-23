@@ -1,0 +1,3 @@
+test.robot:3:13 [W] LEN33 Metadata 'Platform' does not have a value
+
+Found 1 issue.

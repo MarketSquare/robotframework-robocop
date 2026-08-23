@@ -1,0 +1,3 @@
+test_case_metadata.robot:4:19 [W] LEN33 Metadata 'Owner' does not have a value
+
+Found 1 issue.

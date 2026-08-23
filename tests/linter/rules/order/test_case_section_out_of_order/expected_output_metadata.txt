@@ -1,0 +1,4 @@
+test_metadata.robot:13:5 [W] ORD01 'METADATA' is in wrong place of Test Case. Recommended order of elements in Test Cases: DOCUMENTATION, METADATA, TAGS, TIMEOUT, SETUP, TEMPLATE, KEYWORD, TEARDOWN
+test_metadata.robot:19:5 [W] ORD01 'METADATA' is in wrong place of Test Case. Recommended order of elements in Test Cases: DOCUMENTATION, METADATA, TAGS, TIMEOUT, SETUP, TEMPLATE, KEYWORD, TEARDOWN
+
+Found 2 issues.

@@ -599,15 +599,28 @@ class EmptyMetadataRule(EmptySettingRule):
     """
     Metadata settings do not have any value set.
 
+    Metadata can be defined in the ``*** Settings ***`` section for the whole suite, and - with
+    Robot Framework 7.5 and newer - also inside a test case using the ``[Metadata]`` setting.
+
     Incorrect code example:
 
         *** Settings ***
         Metadata
 
+        *** Test Cases ***
+        Test
+            [Metadata]
+            Keyword
+
     Correct code example:
 
         *** Settings ***
         Metadata    Platform    ${PLATFORM}
+
+        *** Test Cases ***
+        Test
+            [Metadata]    Owner    Team Robot
+            Keyword
 
     """
 
@@ -623,7 +636,62 @@ class EmptyMetadataRule(EmptySettingRule):
 
     def check(self, node: Statement) -> None:
         if not node.name:
-            self.report(node=node, col=node.col_offset + 1)
+            self.report(node=node, col=node.data_tokens[0].col_offset + 1)
+
+
+class MetadataWithoutValueRule(Rule):
+    """
+    Metadata name is defined without a value.
+
+    Metadata with only a name is recorded with an empty value, which is rarely intended and shows up as
+    an empty entry in the report and log. Provide a value, or remove the metadata altogether.
+
+    Metadata can be defined in the ``*** Settings ***`` section for the whole suite, and - with
+    Robot Framework 7.5 and newer - also inside a test case using the ``[Metadata]`` setting.
+
+    Incorrect code example:
+
+        *** Settings ***
+        Metadata    Platform
+
+        *** Test Cases ***
+        Test
+            [Metadata]    Owner
+            Keyword
+
+    Correct code example:
+
+        *** Settings ***
+        Metadata    Platform    ${PLATFORM}
+
+        *** Test Cases ***
+        Test
+            [Metadata]    Owner    Team Robot
+            Keyword
+
+    """
+
+    name = "metadata-without-value"
+    rule_id = "LEN33"
+    message = "Metadata '{metadata_name}' does not have a value"
+    severity = RuleSeverity.WARNING
+    added_in_version = "9.0.0"
+    sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
+        clean_code=sonar_qube.CleanCodeAttribute.COMPLETE, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
+    )
+
+    def check(self, node: Statement) -> None:
+        if not self.enabled or not node.name or node.value:
+            return
+        name_token = node.get_token(Token.NAME)
+        if name_token is None:
+            return
+        self.report(
+            metadata_name=node.name,
+            node=name_token,
+            col=name_token.col_offset + 1,
+            end_col=name_token.end_col_offset + 1,
+        )
 
 
 class EmptyDocumentationRule(EmptySettingRule):

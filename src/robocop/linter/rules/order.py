@@ -63,6 +63,7 @@ def parse_keyword_order_param(value: str) -> list[str]:
 def parse_test_case_order_param(value: str) -> list[str]:
     mapping = {
         "documentation": Token.DOCUMENTATION,
+        "metadata": Token.METADATA,
         "tags": Token.TAGS,
         "timeout": Token.TIMEOUT,
         "setup": Token.SETUP,
@@ -100,7 +101,7 @@ class TestCaseSectionOutOfOrderRule(Rule):
     Settings or body in the test case are out of order.
 
     Sections should be defined in order set by the ``sections_order`` parameter.
-    Default order: ``documentation,tags,timeout,setup,template,keyword,teardown``.
+    Default order: ``documentation,metadata,tags,timeout,setup,template,keyword,teardown``.
 
     To change the default order, use the following option:
 
@@ -109,6 +110,7 @@ class TestCaseSectionOutOfOrderRule(Rule):
     where section should be a case-insensitive name from the list:
 
     - documentation
+    - metadata
     - tags
     - timeout
     - setup
@@ -117,6 +119,8 @@ class TestCaseSectionOutOfOrderRule(Rule):
     - teardown
 
     Order of not configured sections is ignored.
+
+    ``metadata`` refers to the test case ``[Metadata]`` setting, which requires Robot Framework 7.5 or newer.
 
     Incorrect code example:
 
@@ -148,7 +152,7 @@ class TestCaseSectionOutOfOrderRule(Rule):
     parameters = [
         RuleParam(
             name="sections_order",
-            default="documentation,tags,timeout,setup,template,keyword,teardown",
+            default="documentation,metadata,tags,timeout,setup,template,keyword,teardown",
             converter=parse_test_case_order_param,
             show_type="str",
             desc="order of sections in comma-separated list",

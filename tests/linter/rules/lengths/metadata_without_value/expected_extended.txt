@@ -1,0 +1,11 @@
+test.robot:3:13 LEN33 Metadata 'Platform' does not have a value
+   |
+ 1 | *** Settings ***
+ 2 | Documentation    doc
+ 3 | Metadata    Platform
+   |             ^^^^^^^^ LEN33
+ 4 | Metadata    Version    1.0
+ 5 | Metadata
+   |
+
+Found 1 issue.

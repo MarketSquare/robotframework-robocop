@@ -56,6 +56,7 @@ class AlignKeywordsTestsSection(Formatter):
             "skip_timeout",
             "skip_return",
             "skip_tags",
+            "skip_metadata",
         }
     )
 
@@ -335,6 +336,13 @@ class AlignKeywordsTestsSection(Formatter):
     @skip_if_disabled
     def visit_Tags(self, node: Tags) -> Statement:  # noqa: N802
         if node.errors or self.skip.setting("Tags"):
+            return node
+        return self.align_node(node, check_length=False, is_setting=True)
+
+    @skip_if_disabled
+    def visit_Metadata(self, node: Statement) -> Statement:  # noqa: N802
+        """Align the test case ``[Metadata]`` setting (Robot Framework 7.5 and newer)."""
+        if node.errors or self.skip.setting("Metadata"):
             return node
         return self.align_node(node, check_length=False, is_setting=True)
 
@@ -697,7 +705,9 @@ class ColumnWidthCounter(ModelVisitor):  # type: ignore[misc]
         self.get_and_store_columns_widths(node, self.settings_raw_widths)
 
     # TODO skip-settings
-    visit_Arguments = visit_Setup = visit_Teardown = visit_Timeout = visit_Return = visit_Tags  # noqa: N815
+    visit_Arguments = visit_Setup = visit_Teardown = visit_Timeout = visit_Return = visit_Metadata = (  # noqa: N815
+        visit_Tags
+    )
 
     @skip_if_disabled
     def visit_Documentation(self, node: Documentation) -> None:  # noqa: N802

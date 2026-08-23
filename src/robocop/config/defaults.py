@@ -16,6 +16,7 @@ SKIP_OPTIONS = frozenset(
         "skip_template",
         "skip_return_statement",
         "skip_tags",
+        "skip_metadata",
         "skip_comments",
         "skip_block_comments",
         "skip_sections",

@@ -3,6 +3,13 @@ local_tags.robot:4:5 [I] TAG12 'Run Keyword And Continue On Failure' is not need
 local_tags.robot:5:5 [I] TAG12 'BuiltIn.Run Keyword And Continue On Failure' is not needed when the 'robot:recursive-continue-on-failure' tag is used
 local_tags.robot:9:5 [I] TAG12 'Run Keyword And Continue On Failure' is not needed when the 'ROBOT:Continue-On-Failure' tag is used
 local_tags.robot:13:5 [I] TAG12 'Given Run Keyword And Continue On Failure' is not needed when the 'robot:continue-on-failure' tag is used
-nested_blocks.robot:10:5 [I] TAG12 'Run Keyword And Continue On Failure' is not needed when the 'robot:continue-on-failure' tag is used
+nested_blocks.robot:5:9 [I] TAG12 'Run Keyword And Continue On Failure' is not needed when the 'robot:continue-on-failure' tag is used
+nested_blocks.robot:8:9 [I] TAG12 'Run Keyword And Continue On Failure' is not needed when the 'robot:continue-on-failure' tag is used
+nested_blocks.robot:10:9 [I] TAG12 'Run Keyword And Continue On Failure' is not needed when the 'robot:continue-on-failure' tag is used
+nested_blocks.robot:13:9 [I] TAG12 'Run Keyword And Continue On Failure' is not needed when the 'robot:continue-on-failure' tag is used
+nested_blocks.robot:16:9 [I] TAG12 'Run Keyword And Continue On Failure' is not needed when the 'robot:continue-on-failure' tag is used
+nested_blocks.robot:18:9 [I] TAG12 'Run Keyword And Continue On Failure' is not needed when the 'robot:continue-on-failure' tag is used
+nested_blocks.robot:20:5 [I] TAG12 'Run Keyword And Continue On Failure' is not needed when the 'robot:continue-on-failure' tag is used
+nested_blocks.robot:26:13 [I] TAG12 'Run Keyword And Continue On Failure' is not needed when the 'robot:continue-on-failure' tag is used
 
-Found 6 issues.
+Found 13 issues.

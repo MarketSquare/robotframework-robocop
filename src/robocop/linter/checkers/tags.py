@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import ast
 from collections import defaultdict
 from typing import TYPE_CHECKING
 
@@ -15,6 +16,8 @@ from robocop.linter.utils.misc import normalize_robot_name
 from robocop.parsing.run_keywords import remove_bdd_prefix
 
 if TYPE_CHECKING:
+    from collections.abc import Iterator
+
     from robot.parsing import File
     from robot.parsing.model.blocks import Keyword, KeywordSection, TestCase
     from robot.parsing.model.statements import (
@@ -159,6 +162,19 @@ class TagsChecker(VisitorChecker):
         return None
 
     @staticmethod
+    def iter_keyword_calls(node: Keyword | TestCase) -> Iterator[KeywordCall]:
+        """
+        Yield keyword calls from the test or keyword body.
+
+        Calls nested inside blocks such as ``FOR``, ``WHILE``, ``IF`` or ``TRY`` are included, since the continue
+        on failure tag also affects them. Settings such as ``[Setup]`` or ``[Teardown]`` are not keyword calls
+        and are not returned.
+        """
+        for child in ast.walk(node):
+            if isinstance(child, KeywordCall):
+                yield child
+
+    @staticmethod
     def is_continue_on_failure_call(node: KeywordCall) -> bool:
         name_token = node.get_token(Token.KEYWORD)
         if name_token is None:
@@ -176,9 +192,8 @@ class TagsChecker(VisitorChecker):
         """
         Report keyword calls that could be replaced by the continue on failure tag, or are made redundant by it.
 
-        Only keyword calls placed directly in the body are taken into account. Nested blocks such as ``FOR`` or
-        ``IF`` are not affected by the non-recursive tag, and calls assigning a return value are not equivalent
-        to the tag either.
+        Keyword calls nested inside blocks such as ``FOR`` or ``IF`` are taken into account, since the tag affects
+        them as well. Calls assigning a return value are ignored, as they are not equivalent to the tag.
         """
         if local_tags is None:
             local_tags = self.get_local_tags(node) or set()
@@ -187,17 +202,11 @@ class TagsChecker(VisitorChecker):
         continue_on_failure_tag = self.find_continue_on_failure_tag(effective_tags)
         call_count = 0
         other_calls = False
-        for statement in node.body:
-            if not isinstance(statement, Statement):
-                other_calls = True  # nested block, such as FOR or IF
-            elif not isinstance(statement, KeywordCall):
-                continue
-            elif not self.is_continue_on_failure_call(statement) or statement.assign:
+        for call in self.iter_keyword_calls(node):
+            if not self.is_continue_on_failure_call(call) or call.assign:
                 other_calls = True
             elif continue_on_failure_tag is not None:
-                self.unnecessary_continue_on_failure.check(
-                    statement, statement.get_token(Token.KEYWORD), continue_on_failure_tag
-                )
+                self.unnecessary_continue_on_failure.check(call, call.get_token(Token.KEYWORD), continue_on_failure_tag)
             else:
                 call_count += 1
         if continue_on_failure_tag is None:

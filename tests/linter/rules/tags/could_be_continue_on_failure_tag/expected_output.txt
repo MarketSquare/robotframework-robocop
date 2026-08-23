@@ -1,5 +1,6 @@
 keywords.robot:2:1 [I] TAG13 Keyword 'All Calls Wrapped' uses 'Run Keyword And Continue On Failure' 3 times and could use the 'robot:continue-on-failure' tag instead
 tests.robot:2:1 [I] TAG13 Test case 'All Calls Wrapped' uses 'Run Keyword And Continue On Failure' 2 times and could use the 'robot:continue-on-failure' tag instead
 tests.robot:14:1 [I] TAG13 Test case 'With Settings' uses 'Run Keyword And Continue On Failure' 2 times and could use the 'robot:continue-on-failure' tag instead
+tests.robot:26:1 [I] TAG13 Test case 'With For Loop' uses 'Run Keyword And Continue On Failure' 2 times and could use the 'robot:continue-on-failure' tag instead
 
-Found 3 issues.
+Found 4 issues.

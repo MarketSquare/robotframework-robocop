@@ -630,9 +630,8 @@ class UnnecessaryContinueOnFailureRule(Rule):
             [Tags]    robot:continue-on-failure
             Should Be Equal    ${expected}    ${actual}
 
-    Only keyword calls placed directly in the test or keyword body are reported. Calls nested inside ``FOR``,
-    ``WHILE``, ``IF`` or ``TRY`` blocks are ignored, since the non-recursive tag does not affect them.
-    Calls that assign a return value are ignored as well.
+    Keyword calls nested inside ``FOR``, ``WHILE``, ``IF`` or ``TRY`` blocks are reported as well, since the tag
+    also makes them continue on failure. Calls that assign a return value are ignored.
 
     """
 
@@ -685,8 +684,9 @@ class CouldBeContinueOnFailureTagRule(Rule):
 
         robocop check --configure could-be-continue-on-failure-tag.min_calls=3
 
-    The rule is only reported if every keyword call in the body is wrapped. Tests and keywords using ``FOR``,
-    ``WHILE``, ``IF`` or ``TRY`` blocks are ignored, since the non-recursive tag does not affect nested keywords.
+    The rule is only reported if every keyword call in the body is wrapped. Calls nested inside ``FOR``, ``WHILE``,
+    ``IF`` or ``TRY`` blocks are taken into account, since the tag affects them as well. Calls that assign a return
+    value are not equivalent to the tag and prevent the rule from being reported.
 
     """
 

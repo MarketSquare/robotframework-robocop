@@ -39,12 +39,82 @@ local_tags.robot:13:5 TAG12 'Given Run Keyword And Continue On Failure' is not n
     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ TAG12
     |
 
-nested_blocks.robot:10:5 TAG12 'Run Keyword And Continue On Failure' is not needed when the 'robot:continue-on-failure' tag is used
+nested_blocks.robot:5:9 TAG12 'Run Keyword And Continue On Failure' is not needed when the 'robot:continue-on-failure' tag is used
+   |
+ 3 |     [Tags]    robot:continue-on-failure
+ 4 |     FOR    ${index}    IN RANGE    3
+ 5 |         Run Keyword And Continue On Failure    Assert A
+   |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ TAG12
+ 6 |     END
+ 7 |     IF    $condition
+   |
+
+nested_blocks.robot:8:9 TAG12 'Run Keyword And Continue On Failure' is not needed when the 'robot:continue-on-failure' tag is used
+   |
+ 6 |     END
+ 7 |     IF    $condition
+ 8 |         Run Keyword And Continue On Failure    Assert B
+   |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ TAG12
+ 9 |     ELSE
+10 |         Run Keyword And Continue On Failure    Assert C
+   |
+
+nested_blocks.robot:10:9 TAG12 'Run Keyword And Continue On Failure' is not needed when the 'robot:continue-on-failure' tag is used
     |
   8 |         Run Keyword And Continue On Failure    Assert B
-  9 |     END
- 10 |     Run Keyword And Continue On Failure    Assert C
+  9 |     ELSE
+ 10 |         Run Keyword And Continue On Failure    Assert C
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ TAG12
+ 11 |     END
+ 12 |     WHILE    $condition
+    |
+
+nested_blocks.robot:13:9 TAG12 'Run Keyword And Continue On Failure' is not needed when the 'robot:continue-on-failure' tag is used
+    |
+ 11 |     END
+ 12 |     WHILE    $condition
+ 13 |         Run Keyword And Continue On Failure    Assert D
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ TAG12
+ 14 |     END
+ 15 |     TRY
+    |
+
+nested_blocks.robot:16:9 TAG12 'Run Keyword And Continue On Failure' is not needed when the 'robot:continue-on-failure' tag is used
+    |
+ 14 |     END
+ 15 |     TRY
+ 16 |         Run Keyword And Continue On Failure    Assert E
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ TAG12
+ 17 |     EXCEPT    Error
+ 18 |         Run Keyword And Continue On Failure    Assert F
+    |
+
+nested_blocks.robot:18:9 TAG12 'Run Keyword And Continue On Failure' is not needed when the 'robot:continue-on-failure' tag is used
+    |
+ 16 |         Run Keyword And Continue On Failure    Assert E
+ 17 |     EXCEPT    Error
+ 18 |         Run Keyword And Continue On Failure    Assert F
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ TAG12
+ 19 |     END
+ 20 |     Run Keyword And Continue On Failure    Assert G
+    |
+
+nested_blocks.robot:20:5 TAG12 'Run Keyword And Continue On Failure' is not needed when the 'robot:continue-on-failure' tag is used
+    |
+ 18 |         Run Keyword And Continue On Failure    Assert F
+ 19 |     END
+ 20 |     Run Keyword And Continue On Failure    Assert G
     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ TAG12
     |
 
-Found 6 issues.
+nested_blocks.robot:26:13 TAG12 'Run Keyword And Continue On Failure' is not needed when the 'robot:continue-on-failure' tag is used
+    |
+ 24 |     FOR    ${index}    IN RANGE    3
+ 25 |         IF    $condition
+ 26 |             Run Keyword And Continue On Failure    Assert A
+    |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ TAG12
+ 27 |             ${result} =    Run Keyword And Continue On Failure    Get Value
+ 28 |         END
+    |
+
+Found 13 issues.

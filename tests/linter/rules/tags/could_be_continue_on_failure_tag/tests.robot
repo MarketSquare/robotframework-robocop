@@ -29,6 +29,12 @@ With For Loop
         Run Keyword And Continue On Failure    Assert B
     END
 
+With Not Wrapped Call In For Loop
+    Run Keyword And Continue On Failure    Assert A
+    FOR    ${index}    IN RANGE    3
+        Assert B
+    END
+
 With Assignment
     Run Keyword And Continue On Failure    Assert A
     ${result} =    Run Keyword And Continue On Failure    Get Value

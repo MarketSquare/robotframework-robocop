@@ -24,4 +24,12 @@ tests.robot:14:1 TAG13 Test case 'With Settings' uses 'Run Keyword And Continue 
  16 |     [Setup]    Setup Keyword
     |
 
-Found 3 issues.
+tests.robot:26:1 TAG13 Test case 'With For Loop' uses 'Run Keyword And Continue On Failure' 2 times and could use the 'robot:continue-on-failure' tag instead
+    |
+ 26 | With For Loop
+    | ^^^^^^^^^^^^^ TAG13
+ 27 |     Run Keyword And Continue On Failure    Assert A
+ 28 |     FOR    ${index}    IN RANGE    3
+    |
+
+Found 4 issues.

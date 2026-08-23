@@ -5,7 +5,6 @@ from typing import TYPE_CHECKING
 from robot.api.parsing import Token
 from robot.parsing.model.statements import KeywordCall
 
-from robocop.exceptions import InvalidParameterValueError
 from robocop.formatter.disablers import skip_if_disabled, skip_section_if_disabled
 from robocop.formatter.formatters import Formatter
 from robocop.parsing.run_keywords import BDD_PREFIXES
@@ -34,21 +33,13 @@ class AlignBDDStatements(Formatter):
     The width of the column is calculated separately for every test case using the longest BDD prefix used in
     its body. Statements that do not start with the BDD prefix are not formatted.
 
-    Use ``min_separator`` to configure the number of spaces added after the longest BDD prefix (default ``4``).
+    The shortest BDD statement keeps the normal indentation, configurable with the global ``--indent`` option.
     """
 
     ENABLED = False
 
-    def __init__(self, min_separator: int = 4) -> None:
+    def __init__(self) -> None:
         super().__init__()
-        if min_separator < 1:
-            raise InvalidParameterValueError(
-                self.__class__.__name__,
-                "min_separator",
-                min_separator,
-                "Number of spaces before the BDD statement should be greater than 0.",
-            )
-        self.min_separator = min_separator
         self.bdd_prefixes: frozenset[str] = BDD_PREFIXES
 
     def visit_File(self, node: File) -> File:  # noqa: N802
@@ -109,4 +100,4 @@ class AlignBDDStatements(Formatter):
         separator = node.tokens[0]
         if separator.type != Token.SEPARATOR:
             return
-        separator.value = self.formatting_config.indent * (indent - 1) + " " * (self.min_separator + extra_width)
+        separator.value = self.formatting_config.indent * indent + " " * extra_width

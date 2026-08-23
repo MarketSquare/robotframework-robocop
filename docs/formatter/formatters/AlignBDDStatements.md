@@ -39,14 +39,15 @@ Statements that do not start with the BDD prefix, keyword calls with the assignm
 BDD prefixes translated to other languages are recognized if the language is configured with the
 [``--language``](../../configuration/configuration_reference.md#language) option or with the language header.
 
-## Configure the separator width
+## Indentation
 
-Use ``min_separator`` to configure the number of spaces added after the longest BDD prefix (default ``4``):
+The shortest BDD statement keeps the normal indentation. It can be configured with the global
+[``--indent``](../../configuration/configuration_reference.md#indent) option:
 
 === ":octicons-command-palette-24: cli"
 
     ```bash
-    robocop format --select AlignBDDStatements -c AlignBDDStatements.min_separator=2
+    robocop format --select AlignBDDStatements --indent 2
     ```
 
 === ":material-file-cog-outline: toml"
@@ -56,9 +57,7 @@ Use ``min_separator`` to configure the number of spaces added after the longest 
     select = [
         "AlignBDDStatements"
     ]
-    configure = [
-        "AlignBDDStatements.min_separator=2"
-    ]
+    indent = 2
     ```
 
 === "Before"

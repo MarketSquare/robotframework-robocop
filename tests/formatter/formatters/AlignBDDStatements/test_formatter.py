@@ -7,12 +7,8 @@ class TestAlignBDDStatements(FormatterAcceptanceTest):
     def test_formatter(self):
         self.compare(source="test.robot", expected="test.robot")
 
-    def test_min_separator(self):
-        self.compare(
-            source="test.robot",
-            expected="min_separator.robot",
-            configure=[f"{self.FORMATTER_NAME}.min_separator=2"],
-        )
+    def test_indent(self):
+        self.compare(source="test.robot", expected="indent.robot", indent=2)
 
     def test_nested_blocks(self):
         self.compare(source="nested.robot", expected="nested.robot")
@@ -33,11 +29,3 @@ class TestAlignBDDStatements(FormatterAcceptanceTest):
 
     def test_selected_lines(self):
         self.compare(source="test.robot", expected="selected.robot", start_line=3, end_line=4)
-
-    def test_invalid_min_separator(self):
-        self.run_tidy(
-            select=[self.FORMATTER_NAME],
-            configure=[f"{self.FORMATTER_NAME}.min_separator=0"],
-            source="test.robot",
-            exit_code=2,
-        )

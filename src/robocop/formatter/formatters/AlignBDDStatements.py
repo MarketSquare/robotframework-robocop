@@ -33,7 +33,8 @@ class AlignBDDStatements(Formatter):
     The width of the column is calculated separately for every test case using the longest BDD prefix used in
     its body. Statements that do not start with the BDD prefix are not formatted.
 
-    The shortest BDD statement keeps the normal indentation, configurable with the global ``--indent`` option.
+    The statement with the longest BDD prefix keeps the normal indentation, and the remaining ones are padded
+    with extra spaces. The indentation is configurable with the global ``--indent`` option.
     """
 
     ENABLED = False

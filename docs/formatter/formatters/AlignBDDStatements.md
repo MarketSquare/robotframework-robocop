@@ -41,7 +41,8 @@ BDD prefixes translated to other languages are recognized if the language is con
 
 ## Indentation
 
-The shortest BDD statement keeps the normal indentation. It can be configured with the global
+The statement with the longest BDD prefix keeps the normal indentation, and the remaining ones are padded with extra
+spaces. The indentation can be configured with the global
 [``--indent``](../../configuration/configuration_reference.md#indent) option:
 
 === ":octicons-command-palette-24: cli"

@@ -106,9 +106,11 @@ class AlignSettingsSection(Formatter):
                 statements.append(misc.left_align(child))
             elif isinstance(child, Documentation) and self.skip.documentation:
                 # Keep the raw node so continuation lines are not modified, but collect
-                # the tokenised first column for column-width calculation.
+                # only the first tokenised line for column-width calculation (first column only).
+                doc_first_line = list(misc.tokens_by_lines(child))[:1]
                 statements.append(child)
-                doc_lines_for_lookup.append(list(misc.tokens_by_lines(child)))
+                if doc_first_line:
+                    doc_lines_for_lookup.append(doc_first_line)
             else:
                 statements.append(list(misc.tokens_by_lines(child)))
         nodes_to_be_aligned = [st for st in statements if isinstance(st, list)]

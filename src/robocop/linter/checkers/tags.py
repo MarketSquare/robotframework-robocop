@@ -2,16 +2,22 @@
 
 from __future__ import annotations
 
+import ast
 from collections import defaultdict
 from typing import TYPE_CHECKING
 
 from robot.api import Token
 from robot.parsing.model.blocks import SettingSection
+from robot.parsing.model.statements import KeywordCall, Statement
 
 from robocop.linter.rules import VisitorChecker, tags
-from robocop.linter.rules.tags import TagNode, new_tag_token, split_tag_on_variables
+from robocop.linter.rules.tags import CONTINUE_ON_FAILURE_TAGS, TagNode, new_tag_token, split_tag_on_variables
+from robocop.linter.utils.misc import normalize_robot_name
+from robocop.parsing.run_keywords import remove_bdd_prefix
 
 if TYPE_CHECKING:
+    from collections.abc import Iterator
+
     from robot.parsing import File
     from robot.parsing.model.blocks import Keyword, KeywordSection, TestCase
     from robot.parsing.model.statements import (
@@ -21,6 +27,9 @@ if TYPE_CHECKING:
         KeywordTags,
         Tags,
     )
+
+CONTINUE_ON_FAILURE_KEYWORDS = frozenset({"runkeywordandcontinueonfailure", "builtin.runkeywordandcontinueonfailure"})
+"""Normalized names of the BuiltIn keyword continuing the execution on failure."""
 
 
 class TagsChecker(VisitorChecker):
@@ -36,6 +45,8 @@ class TagsChecker(VisitorChecker):
     empty_tags: tags.EmptyTagsRule
     could_be_keyword_tags: tags.CouldBeKeywordTagsRule
     tag_already_set_in_keyword_tags: tags.TagAlreadySetInKeywordTagsRule
+    unnecessary_continue_on_failure: tags.UnnecessaryContinueOnFailureRule
+    could_be_continue_on_failure_tag: tags.CouldBeContinueOnFailureTagRule
     # TODO: too many tags rule
 
     def __init__(self) -> None:
@@ -113,12 +124,93 @@ class TagsChecker(VisitorChecker):
     def visit_Keyword(self, node: Keyword) -> None:  # noqa: N802
         self.keywords_count += 1
         self.in_keyword = True
+        self.check_continue_on_failure(node, self.keyword_tags, "Keyword")
         self.generic_visit(node)
         self.in_keyword = False
 
     def visit_TestCase(self, node: TestCase) -> None:  # noqa: N802
         self.test_cases_count += 1
+        local_tags = self.get_local_tags(node)
+        inherited_tags = self.test_tags if local_tags is not None else self.test_tags | self.default_tags
+        self.check_continue_on_failure(node, inherited_tags, "Test case", local_tags)
         self.generic_visit(node)
+
+    @staticmethod
+    def get_local_tags(node: Keyword | TestCase) -> set[str] | None:
+        """Return tags from the ``[Tags]`` setting or None if the setting is not used."""
+        tags_node = next(
+            (statement for statement in node.body if isinstance(statement, Statement) and statement.type == Token.TAGS),
+            None,
+        )
+        if tags_node is None:
+            return None
+        return {token.value for token in tags_node.data_tokens[1:]}
+
+    @staticmethod
+    def find_continue_on_failure_tag(tag_names: set[str]) -> str | None:
+        """
+        Find the continue on failure tag used by the test or keyword.
+
+        Returns:
+            Original value of the tag, or None if the continue on failure mode is not enabled.
+
+        """
+        normalized_tags = {normalize_robot_name(tag): tag for tag in tag_names}
+        for expected_tag in CONTINUE_ON_FAILURE_TAGS:
+            if expected_tag in normalized_tags:
+                return normalized_tags[expected_tag]
+        return None
+
+    @staticmethod
+    def iter_keyword_calls(node: Keyword | TestCase) -> Iterator[KeywordCall]:
+        """
+        Yield keyword calls from the test or keyword body.
+
+        Calls nested inside blocks such as ``FOR``, ``WHILE``, ``IF`` or ``TRY`` are included, since the continue
+        on failure tag also affects them. Settings such as ``[Setup]`` or ``[Teardown]`` are not keyword calls
+        and are not returned.
+        """
+        for child in ast.walk(node):
+            if isinstance(child, KeywordCall):
+                yield child
+
+    @staticmethod
+    def is_continue_on_failure_call(node: KeywordCall) -> bool:
+        name_token = node.get_token(Token.KEYWORD)
+        if name_token is None:
+            return False
+        name = normalize_robot_name(remove_bdd_prefix(name_token.value))
+        return name in CONTINUE_ON_FAILURE_KEYWORDS
+
+    def check_continue_on_failure(
+        self,
+        node: Keyword | TestCase,
+        inherited_tags: set[str],
+        block_name: str,
+        local_tags: set[str] | None = None,
+    ) -> None:
+        """
+        Report keyword calls that could be replaced by the continue on failure tag, or are made redundant by it.
+
+        Keyword calls nested inside blocks such as ``FOR`` or ``IF`` are taken into account, since the tag affects
+        them as well. Calls assigning a return value are ignored, as they are not equivalent to the tag.
+        """
+        if local_tags is None:
+            local_tags = self.get_local_tags(node) or set()
+        # tags removed with the '-tag' syntax are not resolved - such tags are simply ignored
+        effective_tags = inherited_tags | {tag for tag in local_tags if not tag.startswith("-")}
+        continue_on_failure_tag = self.find_continue_on_failure_tag(effective_tags)
+        call_count = 0
+        other_calls = False
+        for call in self.iter_keyword_calls(node):
+            if not self.is_continue_on_failure_call(call) or call.assign:
+                other_calls = True
+            elif continue_on_failure_tag is not None:
+                self.unnecessary_continue_on_failure.check(call, call.get_token(Token.KEYWORD), continue_on_failure_tag)
+            else:
+                call_count += 1
+        if continue_on_failure_tag is None:
+            self.could_be_continue_on_failure_tag.check(node, block_name, call_count, other_calls)
 
     def visit_ForceTags(self, node: ForceTags) -> None:  # noqa: N802
         self.test_tags = {token.value for token in node.data_tokens[1:]}

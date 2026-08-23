@@ -1,0 +1,4 @@
+test_tags.robot:7:5 [I] TAG12 'Run Keyword And Continue On Failure' is not needed when the 'robot:continue-on-failure' tag is used
+test_tags.robot:12:5 [I] TAG12 'Run Keyword And Continue On Failure' is not needed when the 'robot:continue-on-failure' tag is used
+
+Found 2 issues.

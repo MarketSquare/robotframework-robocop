@@ -5,7 +5,6 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 
 import pathspec
-from pathspec.patterns.gitwildmatch import GitWildMatchPattern
 
 from robocop import exceptions, files
 from robocop.cache import RobocopCache
@@ -18,7 +17,7 @@ if TYPE_CHECKING:
     from collections.abc import Generator, Sequence
 
 CONFIG_NAMES = ("robocop.toml", "robot.toml", "pyproject.toml")
-GitIgnorePathSpec = pathspec.PathSpec
+GitIgnorePathSpec = pathspec.GitIgnoreSpec
 
 
 class GitIgnoreResolver:
@@ -44,7 +43,7 @@ class GitIgnoreResolver:
         """Return a PathSpec loaded from the file."""
         with path.open(encoding="utf-8") as gf:
             lines = gf.readlines()
-        return pathspec.PathSpec.from_lines(GitWildMatchPattern, lines)
+        return pathspec.GitIgnoreSpec.from_lines(lines)
 
     def resolve_path_ignores(self, path: Path) -> list[tuple[Path, GitIgnorePathSpec]]:
         """

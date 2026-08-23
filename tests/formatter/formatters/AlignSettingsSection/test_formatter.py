@@ -6,42 +6,67 @@ from tests.formatter import FormatterAcceptanceTest
 class TestAlignSettingsSection(FormatterAcceptanceTest):
     FORMATTER_NAME = "AlignSettingsSection"
 
+    @property
+    def _align_documentation(self):
+        """Documentation is skipped by default. Opt in to align it for the alignment feature tests."""
+        return [f"{self.FORMATTER_NAME}.skip_documentation=False"]
+
     def test_align(self):
-        self.compare(source="test.robot")
+        self.compare(source="test.robot", configure=self._align_documentation)
 
     def test_align_all_columns(self):
         self.compare(
-            source="test.robot", expected="all_columns.robot", configure=[f"{self.FORMATTER_NAME}.up_to_column=0"]
+            source="test.robot",
+            expected="all_columns.robot",
+            configure=[f"{self.FORMATTER_NAME}.up_to_column=0", *self._align_documentation],
         )
 
     def test_align_three_columns(self):
         self.compare(
-            source="test.robot", expected="three_columns.robot", configure=[f"{self.FORMATTER_NAME}.up_to_column=3"]
+            source="test.robot",
+            expected="three_columns.robot",
+            configure=[f"{self.FORMATTER_NAME}.up_to_column=3", *self._align_documentation],
         )
 
     def test_align_selected_whole(self):
-        self.compare(source="test.robot", expected="selected_whole.robot", start_line=1, end_line=25)
+        self.compare(
+            source="test.robot",
+            expected="selected_whole.robot",
+            start_line=1,
+            end_line=25,
+            configure=self._align_documentation,
+        )
 
     def test_align_selected_part(self):
-        self.compare(source="test.robot", expected="selected_part.robot", start_line=9, end_line=14)
+        self.compare(
+            source="test.robot",
+            expected="selected_part.robot",
+            start_line=9,
+            end_line=14,
+            configure=self._align_documentation,
+        )
 
     def test_empty_lines_inside_statement(self):
         # bug from #75
-        self.compare(source="empty_lines.robot")
+        self.compare(source="empty_lines.robot", configure=self._align_documentation)
 
     def test_continued_statement_style(self):
-        self.compare(source="multiline_keywords.robot")
+        self.compare(source="multiline_keywords.robot", configure=self._align_documentation)
 
     def test_continued_statement_style_all_columns(self):
         self.compare(
             source="multiline_keywords.robot",
             expected="multiline_keywords_all_col.robot",
-            configure=[f"{self.FORMATTER_NAME}.up_to_column=3"],
+            configure=[f"{self.FORMATTER_NAME}.up_to_column=3", *self._align_documentation],
         )
 
     @pytest.mark.parametrize("indent", [0, 2, 20])
     def test_continued_statement_style_all_columns_configure_indent(self, indent):
-        configure = [f"{self.FORMATTER_NAME}.up_to_column=3", f"{self.FORMATTER_NAME}.argument_indent={indent}"]
+        configure = [
+            f"{self.FORMATTER_NAME}.up_to_column=3",
+            f"{self.FORMATTER_NAME}.argument_indent={indent}",
+            *self._align_documentation,
+        ]
         self.compare(
             source="multiline_keywords.robot",
             expected=f"multiline_keywords_{indent}indent.robot",
@@ -49,28 +74,34 @@ class TestAlignSettingsSection(FormatterAcceptanceTest):
         )
 
     def test_multiline_with_blank_line(self):
-        self.compare(source="blank_line_doc.robot")
+        self.compare(source="blank_line_doc.robot", configure=self._align_documentation)
 
     def test_doc_multiline_and_whitespace(self):
-        self.compare(source="blank_line_and_whitespace.robot")
+        self.compare(source="blank_line_and_whitespace.robot", configure=self._align_documentation)
 
     def test_fixed_test(self):
         self.compare(
-            source="test.robot", expected="test_fixed.robot", configure=[f"{self.FORMATTER_NAME}.fixed_width=35"]
+            source="test.robot",
+            expected="test_fixed.robot",
+            configure=[f"{self.FORMATTER_NAME}.fixed_width=35", *self._align_documentation],
         )
 
     def test_fixed_all_columns(self):
         self.compare(
             source="test.robot",
             expected="all_columns_fixed.robot",
-            configure=[f"{self.FORMATTER_NAME}.fixed_width=20", f"{self.FORMATTER_NAME}.up_to_column=0"],
+            configure=[
+                f"{self.FORMATTER_NAME}.fixed_width=20",
+                f"{self.FORMATTER_NAME}.up_to_column=0",
+                *self._align_documentation,
+            ],
         )
 
     def test_disablers(self):
-        self.compare(source="test_disablers.robot")
+        self.compare(source="test_disablers.robot", configure=self._align_documentation)
 
     def test_argument_indents(self):
-        self.compare(source="argument_indents.robot")
+        self.compare(source="argument_indents.robot", configure=self._align_documentation)
 
     @pytest.mark.parametrize(
         ("min_width", "expected"),
@@ -80,7 +111,7 @@ class TestAlignSettingsSection(FormatterAcceptanceTest):
         self.compare(
             source="test.robot",
             expected=expected,
-            configure=[f"{self.FORMATTER_NAME}.min_width={min_width}"],
+            configure=[f"{self.FORMATTER_NAME}.min_width={min_width}", *self._align_documentation],
         )
 
     @pytest.mark.parametrize("min_width", [49, 50, 51, 52])
@@ -88,10 +119,12 @@ class TestAlignSettingsSection(FormatterAcceptanceTest):
         self.compare(
             source="test.robot",
             expected=f"test_min_width_{min_width}_width.robot",
-            configure=[f"{self.FORMATTER_NAME}.min_width={min_width}"],
+            configure=[f"{self.FORMATTER_NAME}.min_width={min_width}", *self._align_documentation],
         )
 
-    # TODO: global skip
-    # @pytest.mark.parametrize("skip_config", [" --skip-documentation", ":skip_documentation=True"])
-    # def test_skip_documentation(self, skip_config):
-    #     self.compare(source="test.robot", expected="test_skip_documentation.robot", config=skip_config)
+    def test_skip_documentation_by_default(self):
+        self.compare(source="test.robot", expected="test_skip_documentation.robot")
+
+    def test_preformatted_documentation(self):
+        # documentation with pre-formatted blocks should stay intact by default (#1773)
+        self.compare(source="preformatted_documentation.robot", not_modified=True)

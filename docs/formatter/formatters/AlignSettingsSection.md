@@ -297,6 +297,9 @@ will result in:
 
 ## Skip formatting
 
+Documentation is **skipped by default** (the documentation-alignment examples above assume
+``AlignSettingsSection.skip_documentation=False``). This keeps pre-formatted blocks in the documentation intact.
+
 It is possible to use the following arguments to skip formatting of the code:
 
 - [skip option](../skip_formatting.md#skip-option) (``--skip documentation``)

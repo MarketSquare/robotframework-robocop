@@ -64,6 +64,8 @@ class AlignSettingsSection(Formatter):
 
     To disable it, configure ``argument_indent`` with ``0``.
 
+    Documentation is ignored by default. Set ``skip_documentation`` to ``False`` to format documentation.
+
     Supports global formatting param ``--space-count`` (for columns with fixed length).
     """
 
@@ -83,6 +85,7 @@ class AlignSettingsSection(Formatter):
         argument_indent: int = 4,
         min_width: int | str | None = None,
         fixed_width: int | str | None = None,
+        skip_documentation: str = "True",  # noqa: ARG002 - override skip_documentation from Skip
     ) -> None:
         super().__init__()
         self.up_to_column = up_to_column - 1

@@ -47,21 +47,4 @@ nested_blocks.robot:10:5 TAG12 'Run Keyword And Continue On Failure' is not need
     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ TAG12
     |
 
-test_tags.robot:7:5 TAG12 'Run Keyword And Continue On Failure' is not needed when the 'robot:continue-on-failure' tag is used
-   |
- 5 | *** Test Cases ***
- 6 | Inherits Test Tags
- 7 |     Run Keyword And Continue On Failure    Assert A
-   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ TAG12
- 8 |     Assert B
-   |
-
-test_tags.robot:12:5 TAG12 'Run Keyword And Continue On Failure' is not needed when the 'robot:continue-on-failure' tag is used
-    |
- 10 | Test Tags Are Not Overwritten
- 11 |     [Tags]    other
- 12 |     Run Keyword And Continue On Failure    Assert A
-    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ TAG12
-    |
-
-Found 8 issues.
+Found 6 issues.

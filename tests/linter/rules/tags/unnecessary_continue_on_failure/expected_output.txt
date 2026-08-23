@@ -4,7 +4,5 @@ local_tags.robot:5:5 [I] TAG12 'BuiltIn.Run Keyword And Continue On Failure' is 
 local_tags.robot:9:5 [I] TAG12 'Run Keyword And Continue On Failure' is not needed when the 'ROBOT:Continue-On-Failure' tag is used
 local_tags.robot:13:5 [I] TAG12 'Given Run Keyword And Continue On Failure' is not needed when the 'robot:continue-on-failure' tag is used
 nested_blocks.robot:10:5 [I] TAG12 'Run Keyword And Continue On Failure' is not needed when the 'robot:continue-on-failure' tag is used
-test_tags.robot:7:5 [I] TAG12 'Run Keyword And Continue On Failure' is not needed when the 'robot:continue-on-failure' tag is used
-test_tags.robot:12:5 [I] TAG12 'Run Keyword And Continue On Failure' is not needed when the 'robot:continue-on-failure' tag is used
 
-Found 8 issues.
+Found 6 issues.

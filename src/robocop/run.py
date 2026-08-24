@@ -6,7 +6,7 @@ import typer
 from rich.console import Console
 
 from robocop import __version__, plugins
-from robocop.config import defaults, manager, parser, schema
+from robocop.config import defaults, generator, manager, parser, schema
 from robocop.formatter.runner import RobocopFormatter
 from robocop.linter import rules_list
 from robocop.linter.diagnostics import Diagnostic
@@ -38,6 +38,8 @@ app = typer.Typer(
 )
 list_app = typer.Typer(help="List available rules, reports, formatters or plugins.")
 app.add_typer(list_app, name="list")
+config_app = typer.Typer(help="Manage Robocop configuration files.")
+app.add_typer(config_app, name="config")
 
 
 def version_callback(value: bool | None) -> None:
@@ -1014,6 +1016,72 @@ def migrate_config(
     If you have separate configuration files for Robocop and Robotidy, run the command twice and merge it manually.
     """
     migrate_deprecated_configs(config_path)
+
+
+@config_app.command(name="init")
+def config_init(
+    output: Annotated[
+        Path | None,
+        typer.Option(
+            "--output",
+            "-o",
+            help="Path where the configuration file will be written. Use `-` to print it to the standard output.",
+            show_default="robocop.toml",
+            rich_help_panel="Configuration",
+        ),
+    ] = None,
+    force: Annotated[
+        bool,
+        typer.Option("--force", "-f", help="Overwrite the output file if it already exists."),
+    ] = False,
+    target_version: linter_target_version_option = None,
+) -> None:
+    """
+    Generate a documented Robocop configuration file with all the available options.
+
+    The generated file lists every global option, linter rule and formatter together with their default
+    values and a short description. All the options are written as comments, so the generated file reproduces
+    Robocop's default behaviour until you uncomment and edit the options you want to change.
+
+    By default the configuration is written to ``robocop.toml`` in the current directory:
+
+    > robocop config init
+
+    Write it to a different location:
+
+    > robocop config init --output config/robocop.toml
+
+    Print it to the standard output instead of writing a file:
+
+    > robocop config init --output -
+    """
+    console = Console(soft_wrap=True)
+    overwrite_config = schema.RawConfig(
+        target_version=target_version, formatter=schema.RawFormatterConfig(allow_disabled=True)
+    )
+    config_manager = manager.ConfigManager(overwrite_config=overwrite_config, ignore_file_config=True)
+    resolver = ConfigResolver(load_rules=True, load_formatters=True)
+    resolved_config = resolver.resolve_config(config_manager.default_config)
+    resolved_target_version = config_manager.default_config.linter.target_version
+
+    rules = rules_list.filter_rules_by_category(
+        resolved_config.rules, rules_list.RuleFilter.ALL, resolved_target_version
+    )
+    formatters = list(resolved_config.formatters.values())
+    content = generator.generate_config(rules, formatters, resolved_target_version)
+
+    if output is not None and str(output) == "-":
+        typer.echo(content)
+        return
+
+    destination = output if output is not None else Path("robocop.toml")
+    if destination.exists() and not force:
+        console.print(f"Configuration file '{destination}' already exists. Use --force to overwrite it.", style="red")
+        raise typer.Exit(code=1)
+    if destination.parent != Path():
+        destination.parent.mkdir(parents=True, exist_ok=True)
+    destination.write_text(content, encoding="utf-8")
+    console.print(f"Generated Robocop configuration file at '{destination}'.")
 
 
 def main() -> None:

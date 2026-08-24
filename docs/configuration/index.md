@@ -86,6 +86,36 @@ robocop check --config path/to/config.toml
 robocop format --config path/to/config.toml
 ```
 
+## Generate a configuration file
+
+Instead of writing the configuration file from scratch, you can generate one with all the available options using the
+``config init`` command:
+
+```bash
+robocop config init
+```
+
+This creates a ``robocop.toml`` file that documents every global option, linter rule and formatter together with their
+default values and a short description. All the options are written as comments, so the generated file reproduces
+Robocop's default behaviour until you uncomment and edit the options you want to change.
+
+By default the file is written to ``robocop.toml`` in the current directory. Robocop will not overwrite an existing
+file unless you pass ``--force``:
+
+```bash
+robocop config init --force
+```
+
+Use ``--output`` (``-o``) to write the file to a different location, or ``-`` to print it to the standard output:
+
+```bash
+robocop config init --output config/robocop.toml
+robocop config init --output -
+```
+
+The generated file mirrors the rules and formatters supported by the installed Robot Framework version. Use
+``--target-version`` to generate the file for a different Robot Framework version.
+
 ## Inherit configuration file
 
 Inherit configuration from another configuration file using ``extends`` option:

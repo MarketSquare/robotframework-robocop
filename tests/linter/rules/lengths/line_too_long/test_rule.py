@@ -7,6 +7,13 @@ class TestRuleAcceptance(RuleAcceptance):
     def test_rule(self):
         self.check_rule(src_files=["test.robot"], expected_file="expected_output.txt")
 
+    def test_ignore_docs(self):
+        self.check_rule(
+            configure=["line-too-long.ignore_docs=True"],
+            src_files=["ignore_docs.robot"],
+            expected_file="expected_output_ignore_docs.txt",
+        )
+
     def test_extended(self):
         self.check_rule(src_files=["test.robot"], expected_file="expected_extended.txt", output_format="extended")
 
@@ -37,6 +44,9 @@ class TestRuleAcceptance(RuleAcceptance):
                 ignore_pattern = None
                     type: pattern_type
                     info: ignore lines that contain configured pattern
+                ignore_docs = False
+                    type: str2bool
+                    info: ignore lines that are part of a documentation
             """  # noqa: E501
         ).lstrip()
         output = self.check_rule(

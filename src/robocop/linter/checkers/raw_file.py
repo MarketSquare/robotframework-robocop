@@ -36,9 +36,12 @@ class RawFileRulesChecker(RawFileChecker):
             self.bom_encoding_in_file.check(is_bom)
             self.ignored_data.check(self.lines, is_bom)
         if self.trailing_whitespace.enabled or self.line_too_long.enabled:
+            doc_lines: frozenset[int] = frozenset()
+            if self.line_too_long.enabled and self.line_too_long.ignore_docs:
+                doc_lines = self.line_too_long.get_documentation_lines(self.source_file.model)
             for lineno, line in enumerate(self.lines, start=1):
                 self.trailing_whitespace.check(line, lineno)
-                self.line_too_long.check(line, lineno)
+                self.line_too_long.check(line, lineno, doc_lines)
         self.too_many_trailing_blank_lines.check(self.lines)
         self.missing_trailing_blank_line.check(self.lines)
 

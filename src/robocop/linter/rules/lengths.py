@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import ast
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
@@ -43,6 +44,8 @@ from robocop.linter.utils.misc import (
 )
 
 if TYPE_CHECKING:
+    from collections.abc import Iterator
+
     from robot.parsing import File
     from robot.parsing.model.blocks import Section
     from robot.parsing.model.statements import Node, Statement
@@ -387,6 +390,11 @@ class LineTooLongRule(Rule):
 
         robocop check --configure line-too-long.ignore_pattern=pattern
 
+    Lines that are part of a documentation (the ``Documentation`` setting or the ``[Documentation]`` setting of a
+    test case or keyword, together with their ``...`` continuation lines) can be ignored using the following option:
+
+        robocop check --configure line-too-long.ignore_docs=True
+
     This rule is not fixed by ``robocop check --fix``. Use the ``SplitTooLongLine`` formatter
     (``robocop format``) to fix it.
 
@@ -405,6 +413,13 @@ class LineTooLongRule(Rule):
             show_type="regex",
             desc="ignore lines that contain configured pattern",
         ),
+        RuleParam(
+            name="ignore_docs",
+            default=False,
+            converter=str2bool,
+            show_type="bool",
+            desc="ignore lines that are part of a documentation",
+        ),
     ]
     severity_threshold = SeverityThreshold("line_length", substitute_value="allowed_length")
     added_in_version = "1.0.0"
@@ -415,8 +430,10 @@ class LineTooLongRule(Rule):
     deprecated_names = ("0508",)
     fix_suggestion = "Break long lines using the '...' continuation syntax."
 
-    def check(self, line: str, lineno: int) -> None:
+    def check(self, line: str, lineno: int, doc_lines: frozenset[int] = frozenset()) -> None:
         if not self.enabled:
+            return
+        if lineno in doc_lines:
             return
         line = line.rstrip().expandtabs(4)
         if len(line) <= self.line_length:
@@ -452,6 +469,14 @@ class LineTooLongRule(Rule):
 
     def line_is_ignored(self, line: str) -> bool:
         return bool(self.ignore_pattern and self.ignore_pattern.search(line))
+
+    @staticmethod
+    def get_documentation_lines(model: File) -> frozenset[int]:
+        """Collect line numbers covered by documentation settings (including continuation lines)."""
+        doc_lines: set[int] = set()
+        for doc in _iter_documentation(model):
+            doc_lines.update(range(doc.lineno, doc.end_lineno + 1))
+        return frozenset(doc_lines)
 
 
 class EmptySectionRule(FixableRule):
@@ -1173,6 +1198,13 @@ def get_documentation_length(node: Node) -> int:
         if isinstance(child, Documentation):
             doc_len += child.end_lineno - child.lineno + 1
     return doc_len
+
+
+def _iter_documentation(model: File) -> Iterator[Documentation]:
+    """Yield every ``Documentation`` statement in the model (suite, test case and keyword documentation)."""
+    for node in ast.walk(model):
+        if isinstance(node, Documentation):
+            yield node
 
 
 KEYWORD_CALL_ALIKE = tuple(

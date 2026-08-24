@@ -1,0 +1,5 @@
+Fixed 4 issues:
+- actual_fixed${/}test_fix.robot:
+    4 x MISC09 (inline-if-can-be-used)
+
+Found 4 issues (4 fixed, 0 remaining).

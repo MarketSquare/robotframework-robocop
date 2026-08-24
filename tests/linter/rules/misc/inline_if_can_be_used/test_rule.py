@@ -20,3 +20,6 @@ class TestRuleAcceptance(RuleAcceptance):
             expected_file="expected_output_severity.txt",
             test_on_version=">=5.0",
         )
+
+    def test_fix(self):
+        self.check_rule_fix(src_files=["test_fix.robot"], expected_dir="expected_fixed", test_on_version=">=5.0")

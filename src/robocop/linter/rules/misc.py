@@ -26,6 +26,7 @@ try:  # RF 7+
 except ImportError:
     Var = None
 
+from robocop.formatter.utils.inline_if import InlineIfConverter
 from robocop.linter import sonar_qube
 from robocop.linter.fix import (
     Fix,
@@ -43,6 +44,7 @@ from robocop.linter.rules import (
     SeverityThreshold,
 )
 from robocop.linter.utils import misc as utils
+from robocop.source_file import StatementLinesCollector
 
 if TYPE_CHECKING:
     from robot.parsing.model import File
@@ -623,7 +625,7 @@ class StatementOutsideLoopRule(Rule):
                 )
 
 
-class InlineIfCanBeUsedRule(Rule):
+class InlineIfCanBeUsedRule(FixableRule):
     """
     IF can be replaced with inline IF.
 
@@ -639,6 +641,7 @@ class InlineIfCanBeUsedRule(Rule):
 
         IF    $condition    BREAK
 
+    The fix replaces the ``IF`` block with an ``inline IF``.
 
     """
 
@@ -662,6 +665,7 @@ class InlineIfCanBeUsedRule(Rule):
         issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL,
     )
     deprecated_names = ("0916",)
+    fix_availability = FixAvailability.SOMETIMES
 
     def check(self, node: If) -> None:
         if (
@@ -681,6 +685,32 @@ class InlineIfCanBeUsedRule(Rule):
             col=token.col_offset + 1,
             end_col=token.end_col_offset + 1,
             sev_threshold_value=min_possible,
+        )
+
+    def fix(self, diag: Diagnostic, source_lines: list[str]) -> Fix | None:  # noqa: ARG002
+        """Replace the IF block with an inline IF."""
+        node = diag.node
+        if node is None:
+            return None
+        converter = InlineIfConverter(separator="    ", indent="    ", line_length=self.max_width)
+        indent = node.header.tokens[0].value
+        result = converter.to_inline(node, indent)
+        if result is node:  # the inline IF would be longer than the limit
+            return None
+        statements = result if isinstance(result, tuple) else (result,)
+        replacement = "".join(StatementLinesCollector(statement).text for statement in statements)
+        return Fix(
+            edits=[
+                TextEdit.replace_lines(
+                    rule_id=self.rule_id,
+                    rule_name=self.name,
+                    start_line=node.lineno,
+                    end_line=node.end_lineno,
+                    replacement=replacement,
+                )
+            ],
+            message="Replace IF block with an inline IF",
+            applicability=FixApplicability.SAFE,
         )
 
 

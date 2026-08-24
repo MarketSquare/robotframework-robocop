@@ -959,7 +959,7 @@ class EmptyLinesInsideBlockRule(Rule):
     name = "empty-lines-inside-block"
     rule_id = "SPC24"
     message = "Empty lines {block_position} ({empty_lines}/{allowed_empty_lines})"
-    severity = RuleSeverity.WARNING
+    severity = RuleSeverity.INFO
     parameters = [
         RuleParam(
             name="empty_lines",

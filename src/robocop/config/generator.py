@@ -192,12 +192,12 @@ def _rule_select_lines(rules: list[Rule], target_version: Version) -> list[str]:
     """
     Build the ``select`` array listing every rule with a short inline comment.
 
-    Rules enabled by default are listed as active entries; rules disabled by default (community and
+    Rules enabled by default are listed as active entries; rules disabled by default (non-default and
     project rules) are listed commented out so they can be enabled by uncommenting them.
     """
     lines = [
         "# Rules to run. Each active entry enables a rule; remove or comment out an entry to disable it.",
-        "# Rules disabled by default (community and project rules) are listed commented out - uncomment",
+        "# Rules disabled by default (non-default and project rules) are listed commented out - uncomment",
         "# an entry to enable the rule. As-is, this list reproduces the default rule selection.",
         "select = [",
     ]

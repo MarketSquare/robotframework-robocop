@@ -49,7 +49,7 @@ class TestConfigInit:
         assert '"todo-in-comment",  # Found a marker' in content
         # a default-enabled rule and its parameter in the configure section
         assert '# "todo-in-comment.markers=todo,fixme"' in content
-        # a community (default-disabled) rule is listed commented out in select
+        # a non-default (default-disabled) rule is listed commented out in select
         assert '# "unresolved-resource-import",' in content
         assert "(project rule)" in content
         # a default formatter and a disabled one
@@ -65,7 +65,7 @@ class TestConfigInit:
         select = data["tool"]["robocop"]["lint"]["select"]
         # only default-enabled rules are active entries
         assert "todo-in-comment" in select
-        # community and project rules are commented out, not active
+        # non-default and project rules are commented out, not active
         assert "unresolved-resource-import" not in select
 
     def test_severity_documented_once(self, tmp_path):

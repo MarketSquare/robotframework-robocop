@@ -45,14 +45,28 @@ class TestConfigInit:
         with working_directory(tmp_path):
             runner.invoke(app, ["config", "init"])
         content = (tmp_path / "robocop.toml").read_text(encoding="utf-8")
-        # a default-enabled rule and its parameter
-        assert "todo-in-comment" in content
+        # a default-enabled rule appears as an active select entry with an inline comment
+        assert '"todo-in-comment",  # Found a marker' in content
+        # a default-enabled rule and its parameter in the configure section
         assert '# "todo-in-comment.markers=todo,fixme"' in content
-        # a community (default-disabled) rule
-        assert "enable it with `extend_select`" in content
+        # a community (default-disabled) rule is listed commented out in select
+        assert '# "unresolved-resource-import",' in content
+        assert "(project rule)" in content
         # a default formatter and a disabled one
         assert "NormalizeSeparators" in content
         assert "Translate" in content
+
+    def test_rules_listed_in_select(self, tmp_path):
+        """Rules are represented as a select list, not as per-rule configure comment blocks."""
+        runner = CliRunner()
+        with working_directory(tmp_path):
+            runner.invoke(app, ["config", "init"])
+        data = tomllib.loads((tmp_path / "robocop.toml").read_text(encoding="utf-8"))
+        select = data["tool"]["robocop"]["lint"]["select"]
+        # only default-enabled rules are active entries
+        assert "todo-in-comment" in select
+        # community and project rules are commented out, not active
+        assert "unresolved-resource-import" not in select
 
     def test_severity_documented_once(self, tmp_path):
         """The severity parameter is documented once, not repeated for every rule."""
@@ -60,7 +74,7 @@ class TestConfigInit:
         with working_directory(tmp_path):
             runner.invoke(app, ["config", "init"])
         content = (tmp_path / "robocop.toml").read_text(encoding="utf-8")
-        assert "Every rule accepts a `severity` parameter" in content
+        assert "Every rule also accepts a `severity` parameter" in content
         # `.severity=` should only appear in the single documentation example, not per rule
         # (`.severity_threshold=` is a different parameter and is excluded).
         severity_entries = [

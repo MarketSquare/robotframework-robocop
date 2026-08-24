@@ -140,13 +140,6 @@ def _global_options(target_version: Version) -> list[str]:
 def _lint_options() -> list[str]:
     """Commented linter (``[tool.robocop.lint]``) options with their defaults."""
     options: list[tuple[str, Any, str]] = [
-        ("select", [], "Select which rules to run. Empty value runs all rules enabled by default."),
-        (
-            "extend_select",
-            [],
-            "Enable extra rules on top of the default ones. Use it to enable community "
-            "(default-disabled) rules without losing the default selection.",
-        ),
         ("ignore", [], "Disable selected rules."),
         ("fixable", [], "Only apply automatic fixes for the selected rules."),
         ("unfixable", [], "Never apply automatic fixes for the selected rules."),
@@ -188,31 +181,64 @@ def _format_options() -> list[str]:
     return _render_options("[tool.robocop.format]", options)
 
 
-def _rule_lines(rules: list[Rule], target_version: Version) -> list[str]:
-    """Build the commented ``configure`` array documenting every rule and its parameters."""
-    lines = [
-        "# Configure rule parameters and severities. Each entry uses the `rule-name.param=value` syntax.",
-        "# Uncomment an entry to override the default value shown next to it.",
-        "#",
-        "# Every rule accepts a `severity` parameter (E = Error, W = Warning, I = Info) to change how its",
-        "# issues are reported, for example:",
-        '#     "line-too-long.severity=E",',
-        "configure = [",
-    ]
+def _grouped_by_category(rules: list[Rule]) -> dict[str, list[Rule]]:
     grouped: dict[str, list[Rule]] = {}
     for rule in rules:
         grouped.setdefault(_rule_category(rule), []).append(rule)
+    return grouped
+
+
+def _rule_select_lines(rules: list[Rule], target_version: Version) -> list[str]:
+    """
+    Build the ``select`` array listing every rule with a short inline comment.
+
+    Rules enabled by default are listed as active entries; rules disabled by default (community and
+    project rules) are listed commented out so they can be enabled by uncommenting them.
+    """
+    lines = [
+        "# Rules to run. Each active entry enables a rule; remove or comment out an entry to disable it.",
+        "# Rules disabled by default (community and project rules) are listed commented out - uncomment",
+        "# an entry to enable the rule. As-is, this list reproduces the default rule selection.",
+        "select = [",
+    ]
+    grouped = _grouped_by_category(rules)
     for category in sorted(grouped):
         lines.append("")
-        lines.append(f"{INDENT}# {'-' * 60}")
         lines.append(f"{INDENT}# {category} rules")
-        lines.append(f"{INDENT}# {'-' * 60}")
         for rule in sorted(grouped[category], key=lambda rule: rule.rule_id):
             enabled = rule.enabled and not rule.is_disabled(target_version)
-            state = "enabled by default" if enabled else "disabled by default (enable it with `extend_select`)"
+            comment = f"  # {rule.message}" if rule.message else ""
+            if enabled:
+                lines.append(f'{INDENT}"{rule.name}",{comment}')
+            else:
+                note = "project rule" if rule.project_rule else "disabled by default"
+                lines.append(f'{INDENT}# "{rule.name}",{comment} ({note})')
+    lines.append("]")
+    return lines
+
+
+def _rule_configure_lines(rules: list[Rule]) -> list[str]:
+    """Build the commented ``configure`` array documenting every configurable rule parameter."""
+    lines = [
+        "# Configure rule parameters. Each entry uses the `rule-name.param=value` syntax.",
+        "# Uncomment an entry to override the default value shown next to it.",
+        "#",
+        "# Every rule also accepts a `severity` parameter (E = Error, W = Warning, I = Info) to change how",
+        '# its issues are reported, for example: "line-too-long.severity=E".',
+        "configure = [",
+    ]
+    grouped = _grouped_by_category(rules)
+    for category in sorted(grouped):
+        rules_with_params = [
+            rule for rule in sorted(grouped[category], key=lambda rule: rule.rule_id) if list(_iter_rule_params(rule))
+        ]
+        if not rules_with_params:
+            continue
+        lines.append("")
+        lines.append(f"{INDENT}# {category} rules")
+        for rule in rules_with_params:
             lines.append("")
-            lines.append(f"{INDENT}# {rule.rule_id} {rule.name} ({state})")
-            lines.extend(_wrap_comment(rule.message, INDENT))
+            lines.append(f"{INDENT}# {rule.name}")
             for name, param_type, desc, default in _iter_rule_params(rule):
                 if desc:
                     lines.extend(_wrap_comment(f"{name} ({param_type}): {desc}", INDENT))
@@ -255,7 +281,9 @@ def generate_config(rules: list[Rule], formatters: list[Formatter], target_versi
     lines.extend(_generate_header())
     lines.extend(_global_options(target_version))
     lines.extend(_lint_options())
-    lines.extend(_rule_lines(rules, target_version))
+    lines.extend(_rule_select_lines(rules, target_version))
+    lines.append("")
+    lines.extend(_rule_configure_lines(rules))
     lines.append("")
     lines.extend(_format_options())
     lines.extend(_formatter_lines(formatters))

@@ -1,0 +1,3 @@
+test.robot:10:5 [W] GRP02 GROUP 'Big' has too many keywords inside (11/10)
+
+Found 1 issue.

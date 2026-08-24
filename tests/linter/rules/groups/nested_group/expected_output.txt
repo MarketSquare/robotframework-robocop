@@ -1,0 +1,5 @@
+test.robot:9:9 [W] GRP04 GROUP 'Inner' is nested in another GROUP
+test.robot:16:9 [W] GRP04 GROUP 'L2' is nested in another GROUP
+test.robot:17:13 [W] GRP04 GROUP 'L3' is nested in another GROUP
+
+Found 3 issues.

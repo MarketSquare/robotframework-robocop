@@ -45,14 +45,58 @@ class TestConfigInit:
         with working_directory(tmp_path):
             runner.invoke(app, ["config", "init"])
         content = (tmp_path / "robocop.toml").read_text(encoding="utf-8")
-        # a default-enabled rule and its parameter
-        assert "todo-in-comment" in content
+        # a default-enabled rule appears as an active select entry with an inline comment
+        assert '"todo-in-comment",  # Found a marker' in content
+        # a default-enabled rule and its parameter in the configure section
         assert '# "todo-in-comment.markers=todo,fixme"' in content
-        # a community (default-disabled) rule
-        assert "enable it with `extend_select`" in content
+        # a non-default (default-disabled) rule is listed commented out in select
+        assert '# "unresolved-resource-import",' in content
+        assert "(project rule)" in content
         # a default formatter and a disabled one
         assert "NormalizeSeparators" in content
         assert "Translate" in content
+
+    def test_rules_listed_in_select(self, tmp_path):
+        """Rules are represented as a select list, not as per-rule configure comment blocks."""
+        runner = CliRunner()
+        with working_directory(tmp_path):
+            runner.invoke(app, ["config", "init"])
+        data = tomllib.loads((tmp_path / "robocop.toml").read_text(encoding="utf-8"))
+        select = data["tool"]["robocop"]["lint"]["select"]
+        # only default-enabled rules are active entries
+        assert "todo-in-comment" in select
+        # non-default and project rules are commented out, not active
+        assert "unresolved-resource-import" not in select
+
+    def test_severity_documented_once(self, tmp_path):
+        """The severity parameter is documented once, not repeated for every rule."""
+        runner = CliRunner()
+        with working_directory(tmp_path):
+            runner.invoke(app, ["config", "init"])
+        content = (tmp_path / "robocop.toml").read_text(encoding="utf-8")
+        assert "Every rule also accepts a `severity` parameter" in content
+        # `.severity=` should only appear in the single documentation example, not per rule
+        # (`.severity_threshold=` is a different parameter and is excluded).
+        severity_entries = [
+            line for line in content.splitlines() if ".severity=" in line and ".severity_threshold=" not in line
+        ]
+        assert len(severity_entries) == 1
+        assert "line-too-long.severity=E" in severity_entries[0]
+
+    def test_target_version_is_major_only(self, tmp_path):
+        runner = CliRunner()
+        with working_directory(tmp_path):
+            runner.invoke(app, ["config", "init"])
+        data = tomllib.loads((tmp_path / "robocop.toml").read_text(encoding="utf-8"))
+        # target_version line is commented, so assert the rendered value in raw text
+        content = (tmp_path / "robocop.toml").read_text(encoding="utf-8")
+        assert "# target_version = " in content
+        for line in content.splitlines():
+            if line.startswith("# target_version = "):
+                value = line.split("=", 1)[1].strip().strip('"')
+                assert value.isdigit(), f"target_version should be a major version, got {value!r}"
+                break
+        assert "lint" in data["tool"]["robocop"]
 
     def test_generated_file_reproduces_default_behaviour(self, tmp_path):
         """Using the generated file as configuration should not change which rules are enabled."""

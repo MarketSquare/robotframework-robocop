@@ -20,7 +20,7 @@ class TestAlignSettingsSection(FormatterAcceptanceTest):
         )
 
     def test_align_selected_whole(self):
-        self.compare(source="test.robot", expected="selected_whole.robot", start_line=1, end_line=25)
+        self.compare(source="test.robot", expected="selected_whole.robot", start_line=1, end_line=29)
 
     def test_align_selected_part(self):
         self.compare(source="test.robot", expected="selected_part.robot", start_line=9, end_line=14)

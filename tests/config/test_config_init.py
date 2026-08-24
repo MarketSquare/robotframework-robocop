@@ -1,6 +1,10 @@
 """Tests for the ``robocop config init`` command and the config generator."""
 
-import tomllib
+try:
+    import tomllib
+except ImportError:  # Python < 3.11
+    import tomli as tomllib
+
 from typer.testing import CliRunner
 
 from robocop.run import app

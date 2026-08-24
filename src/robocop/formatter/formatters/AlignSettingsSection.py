@@ -93,11 +93,14 @@ class AlignSettingsSection(Formatter):
     @skip_section_if_disabled
     def visit_SettingSection(self, node: SettingSection) -> SettingSection:  # noqa: N802
         statements = []
+        # we're removing original separator, instead of modyfing it
         for child in node.body:
             if self.disablers.is_node_disabled("AlignSettingsSection", child) or self.is_node_skip(child):
                 statements.append(child)
             elif child.type in (Token.EOL, Token.COMMENT):
                 statements.append(misc.left_align(child))
+            elif child.type == Token.DOCUMENTATION:
+                statements.append([list(line) for line in child.lines])
             else:
                 statements.append(list(misc.tokens_by_lines(child)))
         nodes_to_be_aligned = [st for st in statements if isinstance(st, list)]
@@ -117,11 +120,18 @@ class AlignSettingsSection(Formatter):
             return is_library, True
         return is_library, statement_type in self.TOKENS_WITH_ARGUMENTS
 
+    @staticmethod
+    def is_documentation(statement: list[list[Token]]) -> bool:
+        return bool(statement[0][0].type == Token.DOCUMENTATION)
+
     def align_rows(self, statements: list[Statement | list[list[Token]]], look_up: dict[int, int]) -> list[Statement]:
         aligned_statements = []
         for st in statements:
             if not isinstance(st, list):
                 aligned_statements.append(st)
+                continue
+            if self.is_documentation(st):
+                aligned_statements.append(self.align_documentation(st, look_up))
                 continue
             is_library, indent_args = self.should_indent_arguments(st)
             aligned_statement: list[Token] = []
@@ -136,7 +146,9 @@ class AlignSettingsSection(Formatter):
                 up_to = self.up_to_column if self.up_to_column != -1 else len(line) - 2
                 for index, token in enumerate(line[:-2]):
                     aligned_statement.append(token)
-                    separator = self.calc_separator(index, up_to, indent_arg, token, look_up)
+                    separator = self.calc_separator(
+                        index, up_to, indent_arg, token, look_up, self.formatting_config.separator
+                    )
                     aligned_statement.append(Token(Token.SEPARATOR, separator))
                 last_token = line[-2]
                 # remove leading whitespace before token
@@ -146,7 +158,29 @@ class AlignSettingsSection(Formatter):
             aligned_statements.append(Statement.from_tokens(aligned_statement))
         return aligned_statements
 
-    def calc_separator(self, index: int, up_to: int, indent_arg: bool, token: Token, look_up: dict[int, int]) -> str:
+    def align_documentation(self, documentation: list[list[Token]], look_up: dict[int, int]) -> Statement:
+        prev_token = None
+        aligned = []
+        for line in documentation:
+            if len(line) == 1 and line[0].type == Token.EOL:  # remove empty lines in between
+                continue
+            for index, token in enumerate(line):
+                if index == 0:
+                    prev_token = token
+                    continue
+                if token.type != Token.SEPARATOR:
+                    break
+                token.value = self.calc_separator(
+                    index - 1, up_to=1, indent_arg=False, token=prev_token, look_up=look_up, default_value=token.value
+                )
+            # blank multiline adds spaces to EOL
+            line[-1].value = line[-1].value.lstrip(" \t")
+            aligned.extend(line)
+        return Statement.from_tokens(aligned)
+
+    def calc_separator(
+        self, index: int, up_to: int, indent_arg: bool, token: Token, look_up: dict[int, int], default_value: str
+    ) -> str:
         if index < up_to:
             if self.fixed_width:
                 return max(self.fixed_width - len(token.value), self.formatting_config.space_count) * " "
@@ -160,7 +194,7 @@ class AlignSettingsSection(Formatter):
                     * " "
                 )
             return (look_up[index] - len(token.value) + arg_indent + self.formatting_config.space_count) * " "
-        return self.formatting_config.space_count * " "
+        return default_value
 
     def create_look_up(self, statements: list[list[list[Token]]]) -> dict[int, int]:
         look_up: dict[int, int] = defaultdict(int)

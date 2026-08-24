@@ -52,7 +52,7 @@ def _wrap_comment(text: str, indent: str) -> list[str]:
 def _iter_rule_params(rule: Rule) -> Iterable[tuple[str, str, str, Any]]:
     """Yield ``(name, type, description, default)`` for every configurable rule parameter."""
     for param in rule.config.values():
-        if param.name == "enabled":
+        if param.name in ("enabled", "severity"):
             continue
         if isinstance(param, RuleParam):
             yield param.name, param.param_type, param.desc, param.default
@@ -114,8 +114,17 @@ def _global_options(target_version: Version) -> list[str]:
         ("default_exclude", list(defaults.DEFAULT_EXCLUDE), "Override the default excluded paths."),
         ("force_exclude", defaults.FORCE_EXCLUDE, "Enforce exclusions even for paths passed directly."),
         ("language", [], "Additional languages used to parse Robot Framework files."),
-        ("target_version", str(target_version), "Robot Framework version rules are evaluated against."),
-        ("project", False, "Run project level rules (they are otherwise enabled only when selected)."),
+        (
+            "target_version",
+            str(target_version.release[0]),
+            "Robot Framework major version rules are evaluated against.",
+        ),
+        (
+            "project",
+            True,
+            "Run project level rules. By default they run when a project rule is selected; "
+            "set to false (or use --no-project) to always skip them.",
+        ),
         ("analyze_libraries", defaults.ANALYZE_LIBRARIES, "Import libraries to analyze their keywords."),
         ("load_library_timeout", defaults.LOAD_LIBRARY_TIMEOUT, "Timeout (seconds) for importing a library."),
         ("library_workers", defaults.LIBRARY_WORKERS, "Use worker processes to import libraries."),
@@ -184,6 +193,10 @@ def _rule_lines(rules: list[Rule], target_version: Version) -> list[str]:
     lines = [
         "# Configure rule parameters and severities. Each entry uses the `rule-name.param=value` syntax.",
         "# Uncomment an entry to override the default value shown next to it.",
+        "#",
+        "# Every rule accepts a `severity` parameter (E = Error, W = Warning, I = Info) to change how its",
+        "# issues are reported, for example:",
+        '#     "line-too-long.severity=E",',
         "configure = [",
     ]
     grouped: dict[str, list[Rule]] = {}

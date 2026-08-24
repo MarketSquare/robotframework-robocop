@@ -270,7 +270,7 @@ class NestedForLoopRule(Rule):
                 )
 
 
-class InconsistentAssignmentRule(Rule):
+class InconsistentAssignmentRule(FixableRule):
     """
     Not consistent assignment sign in the file.
 
@@ -323,6 +323,8 @@ class InconsistentAssignmentRule(Rule):
     - 'equal_sign' (``=``)
     - 'space_and_equal_sign' (`` =``).
 
+    The assignment sign can be replaced with the expected one automatically with the ``--fix`` option.
+
     """
 
     name = "inconsistent-assignment"
@@ -343,6 +345,7 @@ class InconsistentAssignmentRule(Rule):
         ),
     ]
     added_in_version = "1.7.0"
+    fix_availability = FixAvailability.ALWAYS
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.CONVENTIONAL,
         issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL,
@@ -361,6 +364,22 @@ class InconsistentAssignmentRule(Rule):
             lineno=token.lineno,
             col=token.col_offset + 1,
             end_col=token.end_col_offset + 1,
+        )
+
+    def fix(self, diag: Diagnostic, source_lines: list[str]) -> Fix | None:
+        """Replace the assignment sign with the expected one."""
+        line = source_lines[diag.range.start.line - 1]
+        variable = line[diag.range.start.character - 1 : diag.range.end.character - 1]
+        actual_sign = str(diag.reported_arguments["actual_sign"])
+        expected_sign = str(diag.reported_arguments["expected_sign"])
+        if actual_sign and not variable.endswith(actual_sign):
+            return None
+        base = variable[: len(variable) - len(actual_sign)] if actual_sign else variable
+        edit = TextEdit.replace_at_range(self.rule_id, self.name, diag.range, f"{base}{expected_sign}")
+        return Fix(
+            edits=[edit],
+            message=f"Replace the '{actual_sign}' assignment sign with '{expected_sign}'",
+            applicability=FixApplicability.SAFE,
         )
 
 

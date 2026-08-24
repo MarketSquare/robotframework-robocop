@@ -1,0 +1,21 @@
+test.robot:8:5 GRP03 GROUP does not have a name
+   |
+ 6 |
+ 7 | Unnamed group
+ 8 |     GROUP
+   |     ^^^^^ GRP03
+ 9 |         Log    a
+10 |     END
+   |
+
+test.robot:13:5 GRP03 GROUP does not have a name
+    |
+ 11 |
+ 12 | Unnamed group with several keywords
+ 13 |     GROUP
+    |     ^^^^^ GRP03
+ 14 |         Log    b
+ 15 |         Log    c
+    |
+
+Found 2 issues.

@@ -1,0 +1,21 @@
+test.robot:3:5 GRP01 GROUP 'Login' has too few keywords inside (1/2)
+   |
+ 1 | *** Test Cases ***
+ 2 | Single keyword group
+ 3 |     GROUP    Login
+   |     ^^^^^ GRP01
+ 4 |         Log    message
+ 5 |     END
+   |
+
+test.robot:14:5 GRP01 GROUP '' has too few keywords inside (1/2)
+    |
+ 12 |
+ 13 | Unnamed single keyword group
+ 14 |     GROUP
+    |     ^^^^^ GRP01
+ 15 |         Log    only
+ 16 |     END
+    |
+
+Found 2 issues.

@@ -18,6 +18,7 @@ GROUPS_LOOKUP = {
     "DOC": RulesGroup("DOC", "Documentation", "Rules for documentation."),
     "DUP": RulesGroup("DUP", "Duplications", "Rules for duplicated code such as settings or variables."),
     "ERR": RulesGroup("ERR", "Errors", "Rules for syntax errors and critical issues with the code."),
+    "GRP": RulesGroup("GRP", "Groups", "Rules for the GROUP syntax."),
     "IMP": RulesGroup("IMP", "Imports", "Rules for resources, variables and libraries imports."),
     "KW": RulesGroup("KW", "Keywords", "Rules for keywords."),
     "LEN": RulesGroup("LEN", "Lengths", "Rules for lengths, such as length of the test case or the file."),

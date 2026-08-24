@@ -1,0 +1,5 @@
+groups.robot:3:5 [E] ERR01 Robot Framework syntax error: GROUP cannot be empty.
+groups.robot:7:5 [E] ERR01 Robot Framework syntax error: GROUP must have closing END.
+groups.robot:11:5 [E] ERR01 Robot Framework syntax error: GROUP accepts only one argument as name, got 3 arguments 'Too', 'many' and 'values'.
+
+Found 3 issues.

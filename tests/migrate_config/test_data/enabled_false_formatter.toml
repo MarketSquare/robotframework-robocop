@@ -1,5 +1,5 @@
 [tool.robotidy]
 transform = [
-    "ReplaceRunKeywordIf: enabled = True",
+    "NormalizeSeparators: enabled = True",
     "SmartSortKeywords: enabled = False",
 ]

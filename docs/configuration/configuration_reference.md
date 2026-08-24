@@ -1221,16 +1221,16 @@ robocop format
 or:
 
 ```bash
-robocop format --select ReplaceRunKeywordIf --select SplitTooLongLine
+robocop format --select NormalizeSettingName --select SplitTooLongLine
 ```
 
 or:
 
 ```bash
-robocop format --select SplitTooLongLine --select ReplaceRunKeywordIf
+robocop format --select SplitTooLongLine --select NormalizeSettingName
 ```
 
-It will format files according to internal order (in this example ``ReplaceRunKeywordIf`` is before
+It will format files according to internal order (in this example ``NormalizeSettingName`` is before
 ``SplitTooLongLine``). External formatters are used last. To see order of the formatters run
 ``robocop list formatters``.
 
@@ -1238,7 +1238,7 @@ If you want to format files using a different order, you need to run formatters 
 
 ```bash
 robocop format --select SplitTooLongLine
-robocop format --select ReplaceRunKeywordIf
+robocop format --select NormalizeSettingName
 ```
 
 This behaviour can be changed by using ``--force-order`` flag:
@@ -1246,7 +1246,7 @@ This behaviour can be changed by using ``--force-order`` flag:
 === ":octicons-command-palette-24: cli"
 
     ```bash
-    robocop format --force-order --select SplitTooLongLine --select ReplaceRunKeywordIf
+    robocop format --force-order --select SplitTooLongLine --select NormalizeSettingName
     ```
 
 === ":material-file-cog-outline: toml"
@@ -1256,7 +1256,7 @@ This behaviour can be changed by using ``--force-order`` flag:
     force-order = true
     select = [
         "SplitTooLongLine",
-        "ReplaceRunKeywordIf"
+        "NormalizeSettingName"
     ]
     ```
 

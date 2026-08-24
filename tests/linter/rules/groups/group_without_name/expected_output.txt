@@ -1,0 +1,4 @@
+test.robot:8:5 [W] GRP03 GROUP does not have a name
+test.robot:13:5 [W] GRP03 GROUP does not have a name
+
+Found 2 issues.

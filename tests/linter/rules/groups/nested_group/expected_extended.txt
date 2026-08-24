@@ -1,0 +1,31 @@
+test.robot:9:9 GRP04 GROUP 'Inner' is nested in another GROUP
+   |
+ 7 | Nested
+ 8 |     GROUP    Outer
+ 9 |         GROUP    Inner
+   |         ^^^^^ GRP04
+10 |             Log    a
+11 |         END
+   |
+
+test.robot:16:9 GRP04 GROUP 'L2' is nested in another GROUP
+    |
+ 14 | Deeply nested
+ 15 |     GROUP    L1
+ 16 |         GROUP    L2
+    |         ^^^^^ GRP04
+ 17 |             GROUP    L3
+ 18 |                 Log    a
+    |
+
+test.robot:17:13 GRP04 GROUP 'L3' is nested in another GROUP
+    |
+ 15 |     GROUP    L1
+ 16 |         GROUP    L2
+ 17 |             GROUP    L3
+    |             ^^^^^ GRP04
+ 18 |                 Log    a
+ 19 |             END
+    |
+
+Found 3 issues.

@@ -10,6 +10,8 @@ try:
 except ImportError:
     ReturnStatement = None
 
+from robot.parsing.model.statements import KeywordCall as KeywordCallStatement
+
 from robocop.formatter.utils import misc as format_utils
 from robocop.linter import sonar_qube
 from robocop.linter.fix import Fix, FixApplicability, FixAvailability, TextEdit
@@ -373,7 +375,7 @@ class DeprecatedForceTagsRule(FixableRule):
         )
 
 
-class DeprecatedRunKeywordIfRule(Rule):
+class DeprecatedRunKeywordIfRule(FixableRule):
     """
     ``Run Keyword If`` and ``Run Keyword Unless`` keywords are deprecated.
 
@@ -403,6 +405,10 @@ class DeprecatedRunKeywordIfRule(Rule):
                     Keyword3
                 END
 
+    The fix replaces the keyword call with an ``IF`` block. ``Run Keyword Unless`` conditions are wrapped in
+    ``not (...)``. Only keyword calls in the body are fixed - ``Run Keyword If`` used as a setting value
+    (for example ``Suite Setup`` or ``[Template]``) or without arguments cannot be converted and is left as is.
+
     """
 
     name = "deprecated-run-keyword-if"
@@ -415,6 +421,7 @@ class DeprecatedRunKeywordIfRule(Rule):
         clean_code=sonar_qube.CleanCodeAttribute.CONVENTIONAL, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
     run_keyword_if_names = {"runkeywordif", "runkeywordunless"}
+    fix_availability = FixAvailability.SOMETIMES
 
     def check(self, node: KeywordCall, keyword_name: str, normalized_keyword_name: str) -> bool:
         """Check and return True if issue not found, otherwise return False."""
@@ -430,6 +437,31 @@ class DeprecatedRunKeywordIfRule(Rule):
             )
             return False
         return True
+
+    def fix(self, diag: Diagnostic, source_lines: list[str]) -> Fix | None:  # noqa: ARG002
+        """Replace ``Run Keyword If``/``Run Keyword Unless`` keyword call with an IF block."""
+        node = diag.node
+        # only keyword calls in the body can be converted, settings (Suite Setup, [Template], ...) are skipped
+        if not isinstance(node, KeywordCallStatement) or not node.keyword:
+            return None
+        negate = utils.normalize_robot_name(node.keyword, remove_prefix="builtin.") == "runkeywordunless"
+        replacement_node = format_utils.run_keyword_if_to_branched(node, separator="    ", indent="    ", negate=negate)
+        if replacement_node is node:  # keyword call could not be converted (for example, no arguments)
+            return None
+        replacement_text = StatementLinesCollector(replacement_node).text
+        return Fix(
+            edits=[
+                TextEdit.replace_lines(
+                    rule_id=self.rule_id,
+                    rule_name=self.name,
+                    start_line=node.lineno,
+                    end_line=node.end_lineno,
+                    replacement=replacement_text,
+                )
+            ],
+            message=f"Replace '{diag.reported_arguments['statement_name']}' keyword with an IF block",
+            applicability=FixApplicability.SAFE,
+        )
 
 
 class DeprecatedLoopKeywordRule(Rule):

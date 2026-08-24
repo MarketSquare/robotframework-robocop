@@ -1,0 +1,41 @@
+test.robot:3:5 GRP05 GROUP syntax is not allowed
+   |
+ 1 | *** Test Cases ***
+ 2 | Named group
+ 3 |     GROUP    Login
+   |     ^^^^^ GRP05
+ 4 |         Log    message
+ 5 |     END
+   |
+
+test.robot:8:5 GRP05 GROUP syntax is not allowed
+   |
+ 6 |
+ 7 | Unnamed group
+ 8 |     GROUP
+   |     ^^^^^ GRP05
+ 9 |         Log    message
+10 |     END
+   |
+
+test.robot:13:5 GRP05 GROUP syntax is not allowed
+    |
+ 11 |
+ 12 | Nested groups
+ 13 |     GROUP    Outer
+    |     ^^^^^ GRP05
+ 14 |         GROUP    Inner
+ 15 |             Log    message
+    |
+
+test.robot:14:9 GRP05 GROUP syntax is not allowed
+    |
+ 12 | Nested groups
+ 13 |     GROUP    Outer
+ 14 |         GROUP    Inner
+    |         ^^^^^ GRP05
+ 15 |             Log    message
+ 16 |         END
+    |
+
+Found 4 issues.

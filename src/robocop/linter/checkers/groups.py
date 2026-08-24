@@ -19,6 +19,7 @@ class GroupChecker(VisitorChecker):
     too_many_calls_in_group: groups.TooManyCallsInGroupRule
     group_without_name: groups.GroupWithoutNameRule
     nested_group: groups.NestedGroupRule
+    group_not_allowed: groups.GroupNotAllowedRule
 
     def __init__(self) -> None:
         self.group_depth = 0
@@ -29,6 +30,7 @@ class GroupChecker(VisitorChecker):
         self.generic_visit(node)
 
     def visit_Group(self, node: Group) -> None:  # noqa: N802
+        self.group_not_allowed.check(node)
         # Empty and unterminated groups are Robot Framework syntax errors reported by the parsing-error rule.
         if not node.errors:
             self.nested_group.check(node, self.group_depth)

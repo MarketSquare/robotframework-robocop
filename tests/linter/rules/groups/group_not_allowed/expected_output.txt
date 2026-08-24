@@ -1,0 +1,6 @@
+test.robot:3:5 [W] GRP05 GROUP syntax is not allowed
+test.robot:8:5 [W] GRP05 GROUP syntax is not allowed
+test.robot:13:5 [W] GRP05 GROUP syntax is not allowed
+test.robot:14:9 [W] GRP05 GROUP syntax is not allowed
+
+Found 4 issues.

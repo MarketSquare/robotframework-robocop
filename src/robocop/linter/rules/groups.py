@@ -203,3 +203,43 @@ class NestedGroupRule(Rule):
             col=group_token.col_offset + 1,
             end_col=group_token.end_col_offset + 1,
         )
+
+
+class GroupNotAllowedRule(Rule):
+    """
+    ``GROUP`` syntax is not allowed.
+
+    The ``GROUP`` syntax was introduced in Robot Framework 7.2. Use this rule to forbid it, for example when your
+    project needs to stay compatible with older Robot Framework versions or when your team decided not to use groups:
+
+        *** Test Cases ***
+        Test
+            GROUP    Login    # will be reported
+                Log    message
+            END
+
+    This rule is disabled by default. Enable it with ``--select group-not-allowed``.
+
+    """
+
+    name = "group-not-allowed"
+    rule_id = "GRP05"
+    message = "GROUP syntax is not allowed"
+    severity = RuleSeverity.WARNING
+    version = ">=7.2"
+    enabled = False
+    added_in_version = "9.0.0"
+    sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
+        clean_code=sonar_qube.CleanCodeAttribute.CONVENTIONAL, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
+    )
+
+    def check(self, node: Group) -> None:
+        """Report every use of the ``GROUP`` syntax."""
+        if not self.enabled:
+            return
+        group_token = node.header.get_token(Token.GROUP)
+        self.report(
+            node=group_token,
+            col=group_token.col_offset + 1,
+            end_col=group_token.end_col_offset + 1,
+        )

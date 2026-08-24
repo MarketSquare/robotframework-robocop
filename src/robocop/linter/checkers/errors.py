@@ -97,6 +97,12 @@ class ParsingErrorChecker(VisitorChecker):
 
     visit_For = visit_While = visit_Try = visit_If  # noqa: N815
 
+    def visit_Group(self, node: NestedBlock) -> None:  # noqa: N802
+        # Report block level errors such as ``GROUP cannot be empty.`` or ``GROUP must have closing END.``.
+        # Unlike IF/FOR/WHILE/TRY, we must not set ``self.in_block`` (it is only used for the ``invalid-if`` rule).
+        self.parse_errors(node)
+        self.generic_visit(node)
+
     def visit_KeywordCall(self, node: KeywordCall) -> None:  # noqa: N802
         if node.keyword and node.keyword.startswith("..."):
             col = node.data_tokens[0].col_offset + 1

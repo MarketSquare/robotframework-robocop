@@ -922,6 +922,61 @@ class EmptyLineInTestTemplateRule(FixableRule):
         )
 
 
+class EmptyLinesInsideBlockRule(Rule):
+    """
+    Empty lines after a block header or before the block end.
+
+    Empty lines directly after a block header (``FOR``, ``WHILE``, ``IF``/``ELSE``, ``TRY``/``EXCEPT`` or ``GROUP``)
+    or directly before the block end are not allowed by default.
+
+    Incorrect code example:
+
+        *** Keywords ***
+        Iterate
+            FOR    ${var}    IN    1    2
+
+                Keyword Call
+
+            END
+
+    Correct code:
+
+        *** Keywords ***
+        Iterate
+            FOR    ${var}    IN    1    2
+                Keyword Call
+            END
+
+    The number of allowed empty lines can be configured using the ``empty_lines`` parameter::
+
+        robocop check --configure empty-lines-inside-block.empty_lines=1
+
+    This rule is not fixed by ``robocop check --fix``. Use the ``NormalizeNewLines`` formatter
+    (``robocop format``) to fix it.
+
+    """
+
+    name = "empty-lines-inside-block"
+    rule_id = "SPC24"
+    message = "Empty lines {block_position} ({empty_lines}/{allowed_empty_lines})"
+    severity = RuleSeverity.INFO
+    parameters = [
+        RuleParam(
+            name="empty_lines",
+            default=0,
+            converter=int,
+            desc="number of allowed empty lines after a block header or before the block end",
+        )
+    ]
+    severity_threshold = SeverityThreshold(
+        "empty_lines", compare_method="greater", substitute_value="allowed_empty_lines"
+    )
+    added_in_version = "9.0.0"
+    sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
+        clean_code=sonar_qube.CleanCodeAttribute.FORMATTED, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
+    )
+
+
 def get_indent(node: Node) -> int:
     """
     Calculate the indentation length for a given node.

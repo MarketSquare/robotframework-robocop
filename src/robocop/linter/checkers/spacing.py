@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from contextlib import contextmanager
+from itertools import takewhile
 from typing import TYPE_CHECKING
 
 from robot.api import Token
@@ -67,6 +68,7 @@ class EmptyLinesChecker(VisitorChecker):
     consecutive_empty_lines: spacing.ConsecutiveEmptyLinesRule
     empty_lines_in_statement: spacing.EmptyLinesInStatementRule
     empty_line_in_test_template: spacing.EmptyLineInTestTemplateRule
+    empty_lines_inside_block: spacing.EmptyLinesInsideBlockRule
 
     def verify_consecutive_empty_lines(
         self, lines: list[Node], check_leading: bool = True, check_trailing: bool = False
@@ -183,9 +185,39 @@ class EmptyLinesChecker(VisitorChecker):
 
     def visit_For(self, node: Node) -> None:  # noqa: N802
         self.verify_consecutive_empty_lines(node.body, check_trailing=True)
+        self.verify_empty_lines_inside_block(node)
         self.generic_visit(node)
 
     visit_ForLoop = visit_While = visit_Try = visit_If = visit_Group = visit_For  # noqa: N815
+
+    def verify_empty_lines_inside_block(self, node: Node) -> None:
+        allowed = self.empty_lines_inside_block.empty_lines
+        body = node.body
+        if not body:
+            return
+        leading = list(takewhile(lambda line: isinstance(line, EmptyLine), body))
+        all_empty = len(leading) == len(body)
+        if len(leading) > allowed:
+            self.report_empty_lines_inside_block(leading, "after block header")
+        if not all_empty:
+            trailing = list(takewhile(lambda line: isinstance(line, EmptyLine), reversed(body)))
+            if len(trailing) > allowed:
+                trailing.reverse()
+                self.report_empty_lines_inside_block(trailing, "before block end")
+
+    def report_empty_lines_inside_block(self, empty_lines: list[EmptyLine], block_position: str) -> None:
+        allowed = self.empty_lines_inside_block.empty_lines
+        self.report(
+            self.empty_lines_inside_block,
+            block_position=block_position,
+            empty_lines=len(empty_lines),
+            allowed_empty_lines=allowed,
+            node=empty_lines[0],
+            lineno=empty_lines[0].lineno,
+            end_lineno=empty_lines[-1].lineno,
+            col=1,
+            sev_threshold_value=len(empty_lines),
+        )
 
     def visit_File(self, node: File) -> None:  # noqa: N802
         for section in node.sections:

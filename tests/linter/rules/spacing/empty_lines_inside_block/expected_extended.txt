@@ -1,0 +1,166 @@
+test.robot:9:1 SPC24 Empty lines after block header (1/0)
+   |
+ 7 | For Loop
+ 8 |     FOR    ${var}    IN    1    2
+ 9 |
+   | ^ SPC24
+10 |         Keyword Call
+   |
+
+test.robot:11:1 SPC24 Empty lines before block end (1/0)
+    |
+  9 |
+ 10 |         Keyword Call
+ 11 |
+    | ^ SPC24
+ 12 |     END
+    |
+
+test.robot:16:1 SPC24 Empty lines after block header (1/0)
+    |
+ 14 | While Loop
+ 15 |     WHILE    $condition
+ 16 |
+    | ^ SPC24
+ 17 |         Log    message
+    |
+
+test.robot:18:1 SPC24 Empty lines before block end (1/0)
+    |
+ 16 |
+ 17 |         Log    message
+ 18 |
+    | ^ SPC24
+ 19 |     END
+    |
+
+test.robot:23:1 SPC24 Empty lines after block header (1/0)
+    |
+ 21 | If Else
+ 22 |     IF    $condition
+ 23 |
+    | ^ SPC24
+ 24 |         Log    1
+    |
+
+test.robot:25:1 SPC24 Empty lines before block end (1/0)
+    |
+ 23 |
+ 24 |         Log    1
+ 25 |
+    | ^ SPC24
+ 26 |     ELSE
+    |
+
+test.robot:27:1 SPC24 Empty lines after block header (1/0)
+    |
+ 25 |
+ 26 |     ELSE
+ 27 |
+    | ^ SPC24
+ 28 |         Log    2
+    |
+
+test.robot:29:1 SPC24 Empty lines before block end (1/0)
+    |
+ 27 |
+ 28 |         Log    2
+ 29 |
+    | ^ SPC24
+ 30 |     END
+    |
+
+test.robot:34:1 SPC24 Empty lines after block header (1/0)
+    |
+ 32 | Try Except
+ 33 |     TRY
+ 34 |
+    | ^ SPC24
+ 35 |         Log    1
+    |
+
+test.robot:36:1 SPC24 Empty lines before block end (1/0)
+    |
+ 34 |
+ 35 |         Log    1
+ 36 |
+    | ^ SPC24
+ 37 |     EXCEPT    error
+    |
+
+test.robot:38:1 SPC24 Empty lines after block header (1/0)
+    |
+ 36 |
+ 37 |     EXCEPT    error
+ 38 |
+    | ^ SPC24
+ 39 |         Log    2
+    |
+
+test.robot:40:1 SPC24 Empty lines before block end (1/0)
+    |
+ 38 |
+ 39 |         Log    2
+ 40 |
+    | ^ SPC24
+ 41 |     FINALLY
+    |
+
+test.robot:42:1 SPC24 Empty lines after block header (1/0)
+    |
+ 40 |
+ 41 |     FINALLY
+ 42 |
+    | ^ SPC24
+ 43 |         Log    3
+    |
+
+test.robot:44:1 SPC24 Empty lines before block end (1/0)
+    |
+ 42 |
+ 43 |         Log    3
+ 44 |
+    | ^ SPC24
+ 45 |     END
+    |
+
+test.robot:49:1 SPC24 Empty lines after block header (2/0)
+    |
+ 47 |   Multiple Empty Lines
+ 48 |       FOR    ${var}    IN    1    2
+ 49 | /
+ 50 | |
+    | |_^ SPC24
+ 51 |           Keyword Call
+    |
+
+test.robot:52:1 SPC24 Empty lines before block end (2/0)
+    |
+ 50 |
+ 51 |           Keyword Call
+ 52 | /
+ 53 | |
+    | |_^ SPC24
+ 54 |       END
+    |
+
+test.robot:59:1 SPC24 Empty lines after block header (1/0)
+    |
+ 57 |     FOR    ${var}    IN    1    2
+ 58 |         WHILE    $condition
+ 59 |
+    | ^ SPC24
+ 60 |             Log    nested
+    |
+
+test.robot:61:1 SPC24 Empty lines before block end (1/0)
+    |
+ 59 |
+ 60 |             Log    nested
+ 61 |
+    | ^ SPC24
+ 62 |         END
+ 63 |     END
+    |
+
+Found 18 issues.

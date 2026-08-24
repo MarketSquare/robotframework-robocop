@@ -1,0 +1,4 @@
+test.robot:49:1 [W] SPC24 Empty lines after block header (2/1)
+test.robot:52:1 [W] SPC24 Empty lines before block end (2/1)
+
+Found 2 issues.

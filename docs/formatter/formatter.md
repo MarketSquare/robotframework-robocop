@@ -115,7 +115,6 @@ To see the list of formatters included with `Robocop` use ``robocop list formatt
 ┃ Name                       ┃ Enabled ┃
 ┡━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━┩
 │ NormalizeSeparators        │ Yes     │
-│ DiscardEmptySections       │ Yes     │
 │ MergeAndOrderSections      │ Yes     │
 │ ReplaceWithVAR             │ No      │
 │ GenerateDocumentation      │ No      │
@@ -149,19 +148,20 @@ Non-default formatters needs to be selected explicitly with --select or configur
 You can display short documentation on particular formatter with ``docs formatter`` command:
 
 ```bash
-> robocop docs DiscardEmptySections
-Formatter DiscardEmptySections:
+> robocop docs NormalizeTags
+Formatter NormalizeTags:
 
-Remove empty sections.
+Normalize tag names by normalizing case and removing duplicates.
 
-Sections are considered empty if there are only empty lines inside.
-You can remove sections with only comments by setting the `` allow_only_comments `` parameter to False:
+Example usage:
 
-```robotframework
-*** Variables ***
-# this section will be removed with the `` allow_only_comments `` parameter set to False
+```
+robocop format --select NormalizeTags.case=lowercase test.robot
+```
 
-See https://robocop.dev/stable/formatter/formatters/DiscardEmptySections/ for more examples.
+Other supported cases: uppercase, title case. The default is lowercase.
+
+See https://robocop.dev/stable/formatter/formatters/NormalizeTags/ for more information.
 ```
 
 ## Line endings

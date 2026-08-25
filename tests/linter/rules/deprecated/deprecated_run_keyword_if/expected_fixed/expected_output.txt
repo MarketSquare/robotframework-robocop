@@ -1,0 +1,28 @@
+actual_fixed${/}test_fix.robot:2:16 DEPR08 'Run Keyword If' is deprecated, use 'IF' instead
+   |
+ 1 | *** Settings ***
+ 2 | Suite Setup    Run Keyword If    ${condition}    Keyword
+   |                ^^^^^^^^^^^^^^ DEPR08
+   |
+
+actual_fixed${/}test_fix.robot:55:5 DEPR08 'Run Keyword If' is deprecated, use 'IF' instead
+    |
+ 53 |
+ 54 | Empty Run Keyword If
+ 55 |     Run Keyword If
+    |     ^^^^^^^^^^^^^^ DEPR08
+    |
+
+actual_fixed${/}test_fix.robot:58:19 DEPR08 'Run Keyword Unless' is deprecated, use 'IF' instead
+    |
+ 56 |
+ 57 | Templated Test
+ 58 |     [Template]    Run Keyword Unless
+    |                   ^^^^^^^^^^^^^^^^^^ DEPR08
+    |
+
+Fixed 7 issues:
+- actual_fixed${/}test_fix.robot:
+    7 x DEPR08 (deprecated-run-keyword-if)
+
+Found 10 issues (7 fixed, 3 remaining).

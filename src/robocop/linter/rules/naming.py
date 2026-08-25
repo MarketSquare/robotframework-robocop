@@ -383,7 +383,7 @@ class KeywordNameIsReservedWordRule(Rule):
     name = "keyword-name-is-reserved-word"
     rule_id = "NAME03"
     message = "'{keyword_name}' is a reserved keyword{error_msg}"
-    severity = RuleSeverity.ERROR
+    severity = RuleSeverity.WARNING
     added_in_version = "1.0.0"
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.IDENTIFIABLE, issue_type=sonar_qube.SonarQubeIssueType.BUG
@@ -791,7 +791,7 @@ class EmptyLibraryAliasRule(FixableRule):
     name = "empty-library-alias"
     rule_id = "NAME12"
     message = "Library alias is empty"
-    severity = RuleSeverity.ERROR
+    severity = RuleSeverity.WARNING
     added_in_version = "1.10.0"
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.COMPLETE, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL

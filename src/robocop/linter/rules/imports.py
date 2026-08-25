@@ -58,7 +58,7 @@ class WrongImportOrderRule(FixableRule):
     name = "wrong-import-order"
     rule_id = "IMP01"
     message = "BuiltIn library import '{builtin_import}' should be placed before '{custom_import}'"
-    severity = RuleSeverity.WARNING
+    severity = RuleSeverity.INFO
     added_in_version = "1.7.0"
     fix_availability = FixAvailability.ALWAYS
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
@@ -104,7 +104,7 @@ class BuiltinImportsNotSortedRule(FixableRule):
     name = "builtin-imports-not-sorted"
     rule_id = "IMP02"
     message = "BuiltIn library import '{builtin_import}' should be placed before '{previous_builtin_import}'"
-    severity = RuleSeverity.WARNING
+    severity = RuleSeverity.INFO
     added_in_version = "5.2.0"
     fix_availability = FixAvailability.ALWAYS
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(

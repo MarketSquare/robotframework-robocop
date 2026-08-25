@@ -1,5 +1,5 @@
-keyword_tags.robot:8:13 [I] TAG11 Tag 'tag' is already set by Keyword Tags in suite settings
-keyword_tags.robot:12:13 [I] TAG11 Tag 'tag' is already set by Keyword Tags in suite settings
+keyword_tags.robot:8:13 [W] TAG11 Tag 'tag' is already set by Keyword Tags in suite settings
+keyword_tags.robot:12:13 [W] TAG11 Tag 'tag' is already set by Keyword Tags in suite settings
 
 Found 2 issues.
 2 fixable with the '--fix' option.

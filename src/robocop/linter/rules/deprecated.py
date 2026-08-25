@@ -633,7 +633,7 @@ class DeprecatedReturnSetting(FixableRule):
     name = "deprecated-return-setting"
     rule_id = "DEPR11"
     message = "'[Return]' is deprecated, use 'RETURN' instead"
-    severity = RuleSeverity.WARNING
+    severity = RuleSeverity.INFO
     version = ">=5.0"
     added_in_version = "8.0.0"
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(

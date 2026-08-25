@@ -1,4 +1,4 @@
-test_tags.robot:9:13 [I] TAG06 Tag 'sometag' is already set by Test Tags in suite settings
+test_tags.robot:9:13 [W] TAG06 Tag 'sometag' is already set by Test Tags in suite settings
 
 Found 1 issue.
 1 fixable with the '--fix' option.

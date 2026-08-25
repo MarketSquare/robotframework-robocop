@@ -112,7 +112,7 @@ class EmptyVariableRule(FixableRule):
     name = "empty-variable"
     rule_id = "VAR01"
     message = "Empty variable value"
-    severity = RuleSeverity.INFO
+    severity = RuleSeverity.WARNING
     parameters = [
         RuleParam(
             name="variable_source",
@@ -247,7 +247,7 @@ class UnusedVariableRule(Rule):
     name = "unused-variable"
     rule_id = "VAR02"
     message = "Variable '{name}' is assigned but not used"
-    severity = RuleSeverity.INFO
+    severity = RuleSeverity.WARNING
     parameters = [
         RuleParam(
             name="ignore",
@@ -540,7 +540,7 @@ class PossibleVariableOverwritingRule(Rule):
     name = "possible-variable-overwriting"
     rule_id = "VAR08"
     message = "Variable '{variable_name}' may overwrite similar variable inside '{block_name}' {block_type}"
-    severity = RuleSeverity.INFO
+    severity = RuleSeverity.WARNING
     added_in_version = "1.10.0"
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.CONVENTIONAL, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
@@ -577,7 +577,7 @@ class HyphenInVariableNameRule(Rule):
     name = "hyphen-in-variable-name"
     rule_id = "VAR09"
     message = "Hyphen in variable name '{variable_name}'"
-    severity = RuleSeverity.INFO
+    severity = RuleSeverity.WARNING
     added_in_version = "1.10.0"
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.CONVENTIONAL, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
@@ -700,7 +700,7 @@ class DuplicatedAssignedVarNameRule(Rule):
     name = "duplicated-assigned-var-name"
     rule_id = "VAR12"
     message = "Assigned variable name '{variable_name}' is already used"
-    severity = RuleSeverity.INFO
+    severity = RuleSeverity.WARNING
     added_in_version = "1.12.0"
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.DISTINCT, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL

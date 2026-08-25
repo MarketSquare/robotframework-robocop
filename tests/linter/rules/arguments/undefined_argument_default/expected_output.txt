@@ -1,8 +1,8 @@
-test.robot:3:30 [E] ARG03 Undefined argument default, use ${bar}=${EMPTY} instead
-test.robot:10:10 [E] ARG03 Undefined argument default, use ${baz}=${EMPTY} instead
-test.robot:23:20 [E] ARG03 Undefined argument default, use ${arg}=${EMPTY} instead
-test.robot:23:31 [E] ARG03 Undefined argument default, use ${arg2}=${EMPTY} instead
-test.robot:35:27 [E] ARG03 Undefined argument default, use ${bar}=${EMPTY} instead
+test.robot:3:30 [W] ARG03 Undefined argument default, use ${bar}=${EMPTY} instead
+test.robot:10:10 [W] ARG03 Undefined argument default, use ${baz}=${EMPTY} instead
+test.robot:23:20 [W] ARG03 Undefined argument default, use ${arg}=${EMPTY} instead
+test.robot:23:31 [W] ARG03 Undefined argument default, use ${arg2}=${EMPTY} instead
+test.robot:35:27 [W] ARG03 Undefined argument default, use ${bar}=${EMPTY} instead
 
 Found 5 issues.
 5 fixable with the '--fix' option.

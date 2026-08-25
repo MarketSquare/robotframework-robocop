@@ -91,7 +91,7 @@ class UndefinedArgumentDefaultRule(FixableRule):
     name = "undefined-argument-default"
     rule_id = "ARG03"
     message = "Undefined argument default, use {arg_name}=${{EMPTY}} instead"
-    severity = RuleSeverity.ERROR
+    severity = RuleSeverity.WARNING
     added_in_version = "5.7.0"
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.CLEAR, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
@@ -160,7 +160,7 @@ class UndefinedArgumentValueRule(Rule):
     name = "undefined-argument-value"
     rule_id = "ARG04"
     message = "Undefined argument value, use {arg_name}=${{EMPTY}} instead"
-    severity = RuleSeverity.ERROR
+    severity = RuleSeverity.WARNING
     added_in_version = "5.7.0"
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.CLEAR, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
@@ -243,7 +243,7 @@ class DuplicatedArgumentRule(Rule):
     name = "duplicated-argument-name"
     rule_id = "ARG06"
     message = "Argument name '{argument_name}' is already used"
-    severity = RuleSeverity.ERROR
+    severity = RuleSeverity.WARNING
     added_in_version = "1.11.0"
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.DISTINCT, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL

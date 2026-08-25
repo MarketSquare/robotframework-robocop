@@ -6,14 +6,16 @@ from typing import TYPE_CHECKING
 from robot.api import Token
 
 try:
-    from robot.api.parsing import ReturnStatement
+    from robot.api.parsing import Break, Continue, ReturnStatement
 except ImportError:
     ReturnStatement = None
+    Break = Continue = None
 
 from robot.parsing.model.statements import KeywordCall as KeywordCallStatement
 
 from robocop.formatter.utils import misc as format_utils
 from robocop.linter import sonar_qube
+from robocop.linter.diagnostics import Position, Range
 from robocop.linter.fix import Fix, FixApplicability, FixAvailability, TextEdit
 from robocop.linter.rules import FixableRule, Rule, RuleSeverity
 from robocop.linter.utils import misc as utils
@@ -464,7 +466,7 @@ class DeprecatedRunKeywordIfRule(FixableRule):
         )
 
 
-class DeprecatedLoopKeywordRule(Rule):
+class DeprecatedLoopKeywordRule(FixableRule):
     """
     Loop keywords are deprecated.
 
@@ -504,6 +506,10 @@ class DeprecatedLoopKeywordRule(Rule):
                 BREAK
             END
 
+    The fix replaces ``Continue For Loop`` with ``CONTINUE`` and ``Exit For Loop`` with ``BREAK``. The
+    ``... If`` variants are wrapped in an ``IF`` block. Only body keyword calls are fixed - the keyword
+    used as a setting value (for example ``[Setup]`` or ``[Template]``) is left as is.
+
     """
 
     name = "deprecated-loop-keyword"
@@ -515,6 +521,7 @@ class DeprecatedLoopKeywordRule(Rule):
     sonar_qube_attrs = sonar_qube.SonarQubeAttributes(
         clean_code=sonar_qube.CleanCodeAttribute.CONVENTIONAL, issue_type=sonar_qube.SonarQubeIssueType.CODE_SMELL
     )
+    fix_availability = FixAvailability.SOMETIMES
 
     deprecated_keywords: dict[str, str] = {
         "exitforloop": "BREAK",
@@ -522,23 +529,66 @@ class DeprecatedLoopKeywordRule(Rule):
         "continueforloop": "CONTINUE",
         "continueforloopif": "IF and CONTINUE",
     }
+    loop_statements: dict[str, tuple[type[Statement] | None, str]] = {
+        "exitforloop": (Break, "BREAK"),
+        "exitforloopif": (Break, "BREAK"),
+        "continueforloop": (Continue, "CONTINUE"),
+        "continueforloopif": (Continue, "CONTINUE"),
+    }
 
-    def check(self, node: KeywordCall, keyword_name: str, normalized_keyword_name: str) -> bool:
+    def check(self, node: KeywordCall, keyword_name: str, normalized_keyword_name: str, in_loop: bool) -> bool:
         """Check and return True if issue not found, otherwise return False."""
         if not self.enabled:
             return True
         if normalized_keyword_name in self.deprecated_keywords:
             col = utils.token_col(node, Token.NAME, Token.KEYWORD)
             alternative = self.deprecated_keywords[normalized_keyword_name]
+            # CONTINUE and BREAK are only valid inside a loop, so the keyword call is only fixed there
+            fix = self.build_fix(node, normalized_keyword_name, keyword_name) if in_loop else None
             self.report(
                 statement_name=keyword_name,
                 alternative=alternative,
                 node=node,
                 col=col,
                 end_col=col + len(keyword_name),
+                fix=fix,
             )
             return False
         return True
+
+    def build_fix(self, node: KeywordCall, normalized_keyword_name: str, keyword_name: str) -> Fix | None:
+        """Replace the deprecated loop keyword call with a CONTINUE or BREAK statement."""
+        statement, alternative = self.loop_statements.get(normalized_keyword_name, (None, ""))
+        if statement is None:
+            return None
+        if normalized_keyword_name.endswith("if"):
+            replacement_node = format_utils.wrap_in_if_and_replace_statement(node, statement, "    ")
+            if replacement_node is node:  # missing condition, cannot convert
+                return None
+            replacement_text = StatementLinesCollector(replacement_node).text
+            return Fix(
+                edits=[
+                    TextEdit.replace_lines(
+                        rule_id=self.rule_id,
+                        rule_name=self.name,
+                        start_line=node.lineno,
+                        end_line=node.end_lineno,
+                        replacement=replacement_text,
+                    )
+                ],
+                message=f"Replace '{keyword_name}' keyword with IF and {alternative}",
+                applicability=FixApplicability.SAFE,
+            )
+        col = utils.token_col(node, Token.NAME, Token.KEYWORD)
+        keyword_range = Range(
+            start=Position(line=node.lineno, character=col),
+            end=Position(line=node.lineno, character=col + len(keyword_name)),
+        )
+        return Fix(
+            edits=[TextEdit.replace_at_range(self.rule_id, self.name, keyword_range, alternative)],
+            message=f"Replace '{keyword_name}' keyword with {alternative}",
+            applicability=FixApplicability.SAFE,
+        )
 
 
 class DeprecatedReturnKeyword(FixableRule):

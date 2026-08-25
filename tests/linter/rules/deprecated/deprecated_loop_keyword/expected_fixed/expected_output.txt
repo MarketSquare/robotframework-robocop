@@ -1,0 +1,51 @@
+actual_fixed${/}test_fix.robot:3:5 DEPR09 'Exit For Loop' is deprecated, use 'BREAK' instead
+   |
+ 1 | *** Test Cases ***
+ 2 | Outside of loop
+ 3 |     Exit For Loop
+   |     ^^^^^^^^^^^^^ DEPR09
+ 4 |     Exit For Loop If    $condition
+ 5 |     Continue For Loop
+   |
+
+actual_fixed${/}test_fix.robot:4:5 DEPR09 'Exit For Loop If' is deprecated, use 'IF and BREAK' instead
+   |
+ 2 | Outside of loop
+ 3 |     Exit For Loop
+ 4 |     Exit For Loop If    $condition
+   |     ^^^^^^^^^^^^^^^^ DEPR09
+ 5 |     Continue For Loop
+ 6 |     Continue For Loop If    $condition
+   |
+
+actual_fixed${/}test_fix.robot:5:5 DEPR09 'Continue For Loop' is deprecated, use 'CONTINUE' instead
+   |
+ 3 |     Exit For Loop
+ 4 |     Exit For Loop If    $condition
+ 5 |     Continue For Loop
+   |     ^^^^^^^^^^^^^^^^^ DEPR09
+ 6 |     Continue For Loop If    $condition
+   |
+
+actual_fixed${/}test_fix.robot:6:5 DEPR09 'Continue For Loop If' is deprecated, use 'IF and CONTINUE' instead
+   |
+ 4 |     Exit For Loop If    $condition
+ 5 |     Continue For Loop
+ 6 |     Continue For Loop If    $condition
+   |     ^^^^^^^^^^^^^^^^^^^^ DEPR09
+   |
+
+actual_fixed${/}test_fix.robot:53:9 DEPR09 'Exit For Loop If' is deprecated, use 'IF and BREAK' instead
+    |
+ 51 | Missing Condition
+ 52 |     FOR    ${var}    IN    @{LIST}
+ 53 |         Exit For Loop If
+    |         ^^^^^^^^^^^^^^^^ DEPR09
+ 54 |     END
+    |
+
+Fixed 11 issues:
+- actual_fixed${/}test_fix.robot:
+    11 x DEPR09 (deprecated-loop-keyword)
+
+Found 16 issues (11 fixed, 5 remaining).

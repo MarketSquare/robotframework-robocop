@@ -64,7 +64,6 @@ FORMATTERS = [
     "NormalizeNewLines",
     "NormalizeSectionHeaderName",
     "NormalizeSettingName",
-    "ReplaceRunKeywordIf",
     "SplitTooLongLine",
     "SmartSortKeywords",
     "RenameTestCases",

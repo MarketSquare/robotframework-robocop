@@ -134,7 +134,6 @@ To see the list of formatters included with `Robocop` use ``robocop list formatt
 │ NormalizeNewLines          │ Yes     │
 │ NormalizeSectionHeaderName │ Yes     │
 │ NormalizeSettingName       │ Yes     │
-│ ReplaceRunKeywordIf        │ Yes     │
 │ SplitTooLongLine           │ Yes     │
 │ SmartSortKeywords          │ No      │
 │ RenameTestCases            │ No      │
